@@ -13,17 +13,14 @@
 #include "Gwen/Gwen.h"
 #include "Gwen/Skin.h"
 
-using namespace Gwen;
-using namespace Gwen::Controls;
-
 namespace ToolTip
 {
-	void Enable	( Controls::Base* pControl );
-	void Disable ( Controls::Base* pControl );
+	void Enable	( Gwen::Controls::Base* pControl );
+	void Disable ( Gwen::Controls::Base* pControl );
 
-	void ControlDeleted	( Controls::Base* pControl );
+	void ControlDeleted	( Gwen::Controls::Base* pControl );
 
-	void RenderToolTip	( Skin::Base* skin );
+	void RenderToolTip	( Gwen::Skin::Base* skin );
 }
 
 #endif

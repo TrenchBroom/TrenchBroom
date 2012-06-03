@@ -69,7 +69,7 @@ namespace TrenchBroom {
         void TextureBrowserPanel::reloadTextures() {
             m_layout.clear();
             if (m_group) {
-                const vector<Model::Assets::TextureCollection*>& collections = m_editor.textureManager().collections();
+                const std::vector<Model::Assets::TextureCollection*>& collections = m_editor.textureManager().collections();
                 for (unsigned int i = 0; i < collections.size(); i++) {
                     Model::Assets::TextureCollection* collection = collections[i];
                     if (m_group)

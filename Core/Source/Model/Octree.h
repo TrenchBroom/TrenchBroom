@@ -24,8 +24,6 @@
 #include "Utilities/Event.h"
 #include "Utilities/VecMath.h"
 
-using namespace std;
-
 namespace TrenchBroom {
     namespace Model {
         typedef enum {
@@ -49,7 +47,7 @@ namespace TrenchBroom {
         private:
             int m_minSize;
             BBox m_bounds;
-            vector<MapObject*> m_objects;
+            std::vector<MapObject*> m_objects;
             OctreeNode* m_children[8];
             bool addObject(MapObject& object, int childIndex);
         public:
@@ -57,7 +55,7 @@ namespace TrenchBroom {
             ~OctreeNode();
             bool addObject(MapObject& object);
             bool removeObject(MapObject& object);
-            void intersect(const Ray& ray, vector<MapObject*>& objects);
+            void intersect(const Ray& ray, std::vector<MapObject*>& objects);
         };
         
         class Octree {
@@ -66,16 +64,16 @@ namespace TrenchBroom {
             Map& m_map;
             OctreeNode* m_root;
 
-            void entitiesWereAddedOrPropertiesDidChange(const vector<Entity*>& entities);
-            void entitiesWillBeRemovedOrPropertiesWillChange(const vector<Entity*>& entities);
-            void brushesWereAddedOrDidChange(const vector<Brush*>& brushes);
-            void brushesWillBeRemovedOrWillChange(const vector<Brush*>& brushes);
+            void entitiesWereAddedOrPropertiesDidChange(const std::vector<Entity*>& entities);
+            void entitiesWillBeRemovedOrPropertiesWillChange(const std::vector<Entity*>& entities);
+            void brushesWereAddedOrDidChange(const std::vector<Brush*>& brushes);
+            void brushesWillBeRemovedOrWillChange(const std::vector<Brush*>& brushes);
             void mapLoaded(Map& map);
             void mapCleared(Map& map);
         public:
             Octree(Map& map, int minSize);
             ~Octree();
-            vector<MapObject*> intersect(const Ray& ray);
+            std::vector<MapObject*> intersect(const Ray& ray);
         };
     }
 }

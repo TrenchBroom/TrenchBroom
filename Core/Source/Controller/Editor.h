@@ -22,8 +22,6 @@
 
 #include <string>
 
-using namespace std;
-
 namespace TrenchBroom {
     class Filter;
     
@@ -48,7 +46,7 @@ namespace TrenchBroom {
 
         class Editor {
         private:
-            string m_mapPath;
+            std::string m_mapPath;
             Model::Map* m_map;
             Camera* m_camera;
             Grid* m_grid;
@@ -58,19 +56,19 @@ namespace TrenchBroom {
             Model::Assets::TextureManager* m_textureManager;
             Model::Assets::Palette* m_palette;
             Renderer::MapRenderer* m_renderer;
-            string m_entityDefinitionFilePath;
+            std::string m_entityDefinitionFilePath;
 
             void updateFaceTextures();
             void textureManagerDidChange(Model::Assets::TextureManager& textureManager);
-            void preferencesDidChange(const string& key);
+            void preferencesDidChange(const std::string& key);
         public:
-            Editor(const string& entityDefinitionFilePath, const string& palettePath);
+            Editor(const std::string& entityDefinitionFilePath, const std::string& palettePath);
             ~Editor();
             
-            void loadMap(const string& path, ProgressIndicator* indicator);
-            void saveMap(const string& path);
+            void loadMap(const std::string& path, ProgressIndicator* indicator);
+            void saveMap(const std::string& path);
             
-            void loadTextureWad(const string& path);
+            void loadTextureWad(const std::string& path);
             
             Model::Map& map();
             Camera& camera();

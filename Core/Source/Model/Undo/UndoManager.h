@@ -40,7 +40,7 @@ namespace TrenchBroom {
             ~UndoGroup();
             void addItem(UndoItem* item);
             void undo();
-            const string& name();
+            const std::string& name();
         };
         
         class UndoManager {

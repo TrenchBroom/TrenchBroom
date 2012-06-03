@@ -221,7 +221,7 @@ namespace TrenchBroom {
             m_texAxesValid = false;
         }
         
-        Face::Face(const BBox& worldBounds, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const string& textureName) : m_worldBounds(worldBounds), m_textureName(textureName) {
+        Face::Face(const BBox& worldBounds, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const std::string& textureName) : m_worldBounds(worldBounds), m_textureName(textureName) {
             init();
             m_points[0] = point1;
             m_points[1] = point2;
@@ -297,7 +297,7 @@ namespace TrenchBroom {
             
             float bestDot = 1;
             int best = -1;
-            vector<Vertex*> vertices = this->vertices();
+            std::vector<Vertex*> vertices = this->vertices();
             size_t vertexCount = vertices.size();
             for (unsigned int i = 0; i < vertexCount && bestDot > 0; i++) {
                 m_points[2] = vertices[(i - 1 + vertexCount) % vertexCount]->position;
@@ -338,11 +338,11 @@ namespace TrenchBroom {
             return m_worldBounds;
         }
         
-        const vector<Vertex*>& Face::vertices() const {
+        const std::vector<Vertex*>& Face::vertices() const {
             return m_side->vertices;
         }
         
-        const vector<Edge*>& Face::edges() const {
+        const std::vector<Edge*>& Face::edges() const {
             return m_side->edges;
         }
         
@@ -350,7 +350,7 @@ namespace TrenchBroom {
             return m_texture;
         }
         
-        const string& Face::textureName() const {
+        const std::string& Face::textureName() const {
             return m_textureName;
         }
 

@@ -22,8 +22,6 @@
 
 #include <vector>
 
-using namespace std;
-
 namespace TrenchBroom {
     namespace Model {
         class Entity;
@@ -34,54 +32,54 @@ namespace TrenchBroom {
     namespace Renderer {
         class ChangeSet {
         private:
-            vector<Model::Entity*> m_addedEntities;
-            vector<Model::Entity*> m_removedEntities;
-            vector<Model::Entity*> m_changedEntities;
-            vector<Model::Entity*> m_selectedEntities;
-            vector<Model::Entity*> m_deselectedEntities;
-            vector<Model::Brush*> m_addedBrushes;
-            vector<Model::Brush*> m_removedBrushes;
-            vector<Model::Brush*> m_changedBrushes;
-            vector<Model::Brush*> m_selectedBrushes;
-            vector<Model::Brush*> m_deselectedBrushes;
-            vector<Model::Face*> m_changedFaces;
-            vector<Model::Face*> m_selectedFaces;
-            vector<Model::Face*> m_deselectedFaces;
+            std::vector<Model::Entity*> m_addedEntities;
+            std::vector<Model::Entity*> m_removedEntities;
+            std::vector<Model::Entity*> m_changedEntities;
+            std::vector<Model::Entity*> m_selectedEntities;
+            std::vector<Model::Entity*> m_deselectedEntities;
+            std::vector<Model::Brush*> m_addedBrushes;
+            std::vector<Model::Brush*> m_removedBrushes;
+            std::vector<Model::Brush*> m_changedBrushes;
+            std::vector<Model::Brush*> m_selectedBrushes;
+            std::vector<Model::Brush*> m_deselectedBrushes;
+            std::vector<Model::Face*> m_changedFaces;
+            std::vector<Model::Face*> m_selectedFaces;
+            std::vector<Model::Face*> m_deselectedFaces;
             bool m_filterChanged;
             bool m_textureManagerChanged;
         public:
 			ChangeSet();
             
-            void entitiesAdded(const vector<Model::Entity*>& entities);
-            void entitiesRemoved(const vector<Model::Entity*>& entities);
-            void entitiesChanged(const vector<Model::Entity*>& entities);
-            void entitiesSelected(const vector<Model::Entity*>& entities);
-            void entitiesDeselected(const vector<Model::Entity*>& entities);
-            void brushesAdded(const vector<Model::Brush*>& brushes);
-            void brushesRemoved(const vector<Model::Brush*>& brushes);
-            void brushesChanged(const vector<Model::Brush*>& brushes);
-            void brushesSelected(const vector<Model::Brush*>& brushes);
-            void brushesDeselected(const vector<Model::Brush*>& brushes);
-            void facesChanged(const vector<Model::Face*>& faces);
-            void facesSelected(const vector<Model::Face*>& faces);
-            void facesDeselected(const vector<Model::Face*>& faces);
+            void entitiesAdded(const std::vector<Model::Entity*>& entities);
+            void entitiesRemoved(const std::vector<Model::Entity*>& entities);
+            void entitiesChanged(const std::vector<Model::Entity*>& entities);
+            void entitiesSelected(const std::vector<Model::Entity*>& entities);
+            void entitiesDeselected(const std::vector<Model::Entity*>& entities);
+            void brushesAdded(const std::vector<Model::Brush*>& brushes);
+            void brushesRemoved(const std::vector<Model::Brush*>& brushes);
+            void brushesChanged(const std::vector<Model::Brush*>& brushes);
+            void brushesSelected(const std::vector<Model::Brush*>& brushes);
+            void brushesDeselected(const std::vector<Model::Brush*>& brushes);
+            void facesChanged(const std::vector<Model::Face*>& faces);
+            void facesSelected(const std::vector<Model::Face*>& faces);
+            void facesDeselected(const std::vector<Model::Face*>& faces);
             void setFilterChanged();
             void setTextureManagerChanged();
             void clear();
             
-            const vector<Model::Entity*> addedEntities() const;
-            const vector<Model::Entity*> removedEntities() const;
-            const vector<Model::Entity*> changedEntities() const;
-            const vector<Model::Entity*> selectedEntities() const;
-            const vector<Model::Entity*> deselectedEntities() const;
-            const vector<Model::Brush*> addedBrushes() const;
-            const vector<Model::Brush*> removedBrushes() const;
-            const vector<Model::Brush*> changedBrushes() const;
-            const vector<Model::Brush*> selectedBrushes() const;
-            const vector<Model::Brush*> deselectedBrushes() const;
-            const vector<Model::Face*> changedFaces() const;
-            const vector<Model::Face*> selectedFaces() const;
-            const vector<Model::Face*> deselectedFaces() const;
+            const std::vector<Model::Entity*> addedEntities() const;
+            const std::vector<Model::Entity*> removedEntities() const;
+            const std::vector<Model::Entity*> changedEntities() const;
+            const std::vector<Model::Entity*> selectedEntities() const;
+            const std::vector<Model::Entity*> deselectedEntities() const;
+            const std::vector<Model::Brush*> addedBrushes() const;
+            const std::vector<Model::Brush*> removedBrushes() const;
+            const std::vector<Model::Brush*> changedBrushes() const;
+            const std::vector<Model::Brush*> selectedBrushes() const;
+            const std::vector<Model::Brush*> deselectedBrushes() const;
+            const std::vector<Model::Face*> changedFaces() const;
+            const std::vector<Model::Face*> selectedFaces() const;
+            const std::vector<Model::Face*> deselectedFaces() const;
             bool filterChanged() const;
             bool textureManagerChanged() const;
         };

@@ -27,8 +27,6 @@
 #include "Utilities/SharedPointer.h"
 #include <cstdio>
 
-using namespace std;
-
 namespace TrenchBroom {
     namespace Model {
         typedef enum {
@@ -59,73 +57,78 @@ namespace TrenchBroom {
         
         class BaseProperty : public Property {
         public:
-            string baseName;
-            BaseProperty(const string& baseName) : Property(TB_EDP_BASE), baseName(baseName) {};
+            std::string baseName;
+            BaseProperty(const std::string& baseName) : Property(TB_EDP_BASE), baseName(baseName) {};
+            virtual ~BaseProperty() {}
         };
         
         class DefaultProperty : public Property {
         public:
-            string name;
-            string value;
-            DefaultProperty(const string& name, const string& value) : Property(TB_EDP_DEFAULT), name(name), value(value) {};
+            std::string name;
+            std::string value;
+            DefaultProperty(const std::string& name, const std::string& value) : Property(TB_EDP_DEFAULT), name(name), value(value) {};
+            virtual ~DefaultProperty() {}
         };
         
         class ModelProperty : public Property {
         public:
-            string flagName;
-            string modelPath;
+            std::string flagName;
+            std::string modelPath;
             int skinIndex;
-            ModelProperty(const string& flagName, const string& modelPath, int skinIndex) : Property(TB_EDP_MODEL), flagName(flagName), modelPath(modelPath), skinIndex(skinIndex) {};
-            ModelProperty(const string& modelPath, int skinIndex) : Property(TB_EDP_MODEL), flagName(""), modelPath(modelPath), skinIndex(skinIndex) {};
+            ModelProperty(const std::string& flagName, const std::string& modelPath, int skinIndex) : Property(TB_EDP_MODEL), flagName(flagName), modelPath(modelPath), skinIndex(skinIndex) {};
+            ModelProperty(const std::string& modelPath, int skinIndex) : Property(TB_EDP_MODEL), flagName(""), modelPath(modelPath), skinIndex(skinIndex) {};
+            virtual ~ModelProperty() {}
         };
         
         class ChoiceArgument {
         public:
             int key;
-            string value;
-            ChoiceArgument(int key, const string& value) : key(key), value(value) {};
+            std::string value;
+            ChoiceArgument(int key, const std::string& value) : key(key), value(value) {};
+            virtual ~ChoiceArgument() {}
         };
         
         class ChoiceProperty : public Property {
         public:
-            string name;
-            vector<ChoiceArgument> arguments;
-            ChoiceProperty(const string& name, const vector<ChoiceArgument>& arguments) : Property(TB_EDP_CHOICE), name(name), arguments(arguments) {};
+            std::string name;
+            std::vector<ChoiceArgument> arguments;
+            ChoiceProperty(const std::string& name, const std::vector<ChoiceArgument>& arguments) : Property(TB_EDP_CHOICE), name(name), arguments(arguments) {};
+            ~ChoiceProperty() {}
         };
         
-        typedef tr1::shared_ptr<Property> PropertyPtr;
-        typedef tr1::shared_ptr<ModelProperty> ModelPropertyPtr;
+        typedef std::tr1::shared_ptr<Property> PropertyPtr;
+        typedef std::tr1::shared_ptr<ModelProperty> ModelPropertyPtr;
         
         class SpawnFlag {
         public:
-            string name;
+            std::string name;
             int flag;
             SpawnFlag() {};
-            SpawnFlag(const string& name, int flag) : name(name), flag(flag) {};
+            SpawnFlag(const std::string& name, int flag) : name(name), flag(flag) {};
         };
         
-        typedef tr1::shared_ptr<EntityDefinition> EntityDefinitionPtr;
+        typedef std::tr1::shared_ptr<EntityDefinition> EntityDefinitionPtr;
         bool compareByName(const EntityDefinitionPtr def1, const EntityDefinitionPtr def2);
         bool compareByUsage(const EntityDefinitionPtr def1, const EntityDefinitionPtr def2);
         
         class EntityDefinition {
         public:
-            static EntityDefinitionPtr baseDefinition(const string& name, const map<string, SpawnFlag>& flags, const vector<PropertyPtr>& properties);
-            static EntityDefinitionPtr pointDefinition(const string& name, const Vec4f& color, const BBox& bounds, const map<string, SpawnFlag>& flags, const vector<PropertyPtr>& properties, const string& description);
-            static EntityDefinitionPtr brushDefinition(const string& name, const Vec4f& color, const map<string, SpawnFlag>& flags, const vector<PropertyPtr>& properties, const string& description);
+            static EntityDefinitionPtr baseDefinition(const std::string& name, const std::map<std::string, SpawnFlag>& flags, const std::vector<PropertyPtr>& properties);
+            static EntityDefinitionPtr pointDefinition(const std::string& name, const Vec4f& color, const BBox& bounds, const std::map<std::string, SpawnFlag>& flags, const std::vector<PropertyPtr>& properties, const std::string& description);
+            static EntityDefinitionPtr brushDefinition(const std::string& name, const Vec4f& color, const std::map<std::string, SpawnFlag>& flags, const std::vector<PropertyPtr>& properties, const std::string& description);
             EEntityDefinitionType type;
-            string name;
+            std::string name;
             Vec4f color;
             Vec3f center;
             BBox bounds;
             BBox maxBounds;
-            map<string, SpawnFlag> flags;
-            vector<PropertyPtr> properties;
-            string description;
+            std::map<std::string, SpawnFlag> flags;
+            std::vector<PropertyPtr> properties;
+            std::string description;
             int usageCount;
             
-            vector<SpawnFlag> flagsForMask(int mask) const;
-            bool flagSetOnEntity(const string& name, const Entity& entity) const;
+            std::vector<SpawnFlag> flagsForMask(int mask) const;
+            bool flagSetOnEntity(const std::string& name, const Entity& entity) const;
             ModelPropertyPtr modelPropertyForEntity(const Entity& entity) const;
             ModelPropertyPtr defaultModelProperty() const;
         };
@@ -136,23 +139,23 @@ namespace TrenchBroom {
         } EEntityDefinitionSortCriterion;
 
         class EntityDefinitionManager;
-        typedef tr1::shared_ptr<EntityDefinitionManager> EntityDefinitionManagerPtr;
-        typedef map<string, EntityDefinitionManagerPtr> EntityDefinitionManagerMap;
+        typedef std::tr1::shared_ptr<EntityDefinitionManager> EntityDefinitionManagerPtr;
+        typedef std::map<std::string, EntityDefinitionManagerPtr> EntityDefinitionManagerMap;
         
         class EntityDefinitionManager {
         private:
-            map<const string, EntityDefinitionPtr> m_definitions;
-            vector<EntityDefinitionPtr> m_definitionsByName;
+            std::map<const std::string, EntityDefinitionPtr> m_definitions;
+            std::vector<EntityDefinitionPtr> m_definitionsByName;
         public:
             static EntityDefinitionManagerMap* sharedManagers;
             
-            EntityDefinitionManager(const string& path);
-            static EntityDefinitionManagerPtr sharedManager(const string& path);
+            EntityDefinitionManager(const std::string& path);
+            static EntityDefinitionManagerPtr sharedManager(const std::string& path);
             
-            EntityDefinitionPtr definition(const string& name) const;
-            const vector<EntityDefinitionPtr>& definitions() const;
-            vector<EntityDefinitionPtr> definitions(EEntityDefinitionType type) const;
-            vector<EntityDefinitionPtr> definitions(EEntityDefinitionType type, EEntityDefinitionSortCriterion criterion) const;
+            EntityDefinitionPtr definition(const std::string& name) const;
+            const std::vector<EntityDefinitionPtr>& definitions() const;
+            std::vector<EntityDefinitionPtr> definitions(EEntityDefinitionType type) const;
+            std::vector<EntityDefinitionPtr> definitions(EEntityDefinitionType type, EEntityDefinitionSortCriterion criterion) const;
         };
     }
 }

@@ -32,8 +32,6 @@
 #include <cstdint>
 #endif
 
-using namespace std;
-
 namespace TrenchBroom {
     namespace Model {
         namespace Assets {
@@ -68,10 +66,10 @@ namespace TrenchBroom {
             class AliasSkin {
             public:
                 unsigned int width, height, count;
-                vector<float> times;
-                vector<const unsigned char*> pictures;
+                std::vector<float> times;
+                std::vector<const unsigned char*> pictures;
                 AliasSkin(const unsigned char* picture, unsigned int width, unsigned int height);
-                AliasSkin(const vector<const unsigned char*>& pictures, const vector<float>& times, unsigned int count, unsigned int width, unsigned int height);
+                AliasSkin(const std::vector<const unsigned char*>& pictures, const std::vector<float>& times, unsigned int count, unsigned int width, unsigned int height);
                 ~AliasSkin();
             };
             
@@ -85,21 +83,21 @@ namespace TrenchBroom {
             
             class AliasSingleFrame : public AliasFrame {
             public:
-                string name;
-                vector<AliasFrameTriangle*> triangles;
+                std::string name;
+                std::vector<AliasFrameTriangle*> triangles;
                 Vec3f center;
                 BBox bounds;
-                AliasSingleFrame(const string& name, const vector<AliasFrameTriangle*>& triangles, const Vec3f& center, const BBox& bounds);
+                AliasSingleFrame(const std::string& name, const std::vector<AliasFrameTriangle*>& triangles, const Vec3f& center, const BBox& bounds);
                 ~AliasSingleFrame();
                 AliasSingleFrame* firstFrame();
             };
             
             class AliasFrameGroup : public AliasFrame {
             public:
-                vector<float> times;
-                vector<AliasSingleFrame*> frames;
+                std::vector<float> times;
+                std::vector<AliasSingleFrame*> frames;
                 BBox bounds;
-                AliasFrameGroup(const vector<float>& times, const vector<AliasSingleFrame*>& frames);
+                AliasFrameGroup(const std::vector<float>& times, const std::vector<AliasSingleFrame*>& frames);
                 ~AliasFrameGroup();
                 AliasSingleFrame* firstFrame();
             };
@@ -107,25 +105,25 @@ namespace TrenchBroom {
             class Alias {
             private:
                 Vec3f unpackFrameVertex(const AliasPackedFrameVertex& packedVertex, const Vec3f& origin, const Vec3f& size);
-                AliasSingleFrame* readFrame(IO::PakStream& stream, const Vec3f& origin, const Vec3f& scale, unsigned int skinWidth, unsigned int skinHeight, const vector<AliasSkinVertex>& vertices, const vector<AliasSkinTriangle>& triangles);
+                AliasSingleFrame* readFrame(IO::PakStream& stream, const Vec3f& origin, const Vec3f& scale, unsigned int skinWidth, unsigned int skinHeight, const std::vector<AliasSkinVertex>& vertices, const std::vector<AliasSkinTriangle>& triangles);
             public:
-                string name;
-                vector<AliasFrame*> frames;
-                vector<AliasSkin*> skins;
-                Alias(const string& name, IO::PakStream stream);
+                std::string name;
+                std::vector<AliasFrame*> frames;
+                std::vector<AliasSkin*> skins;
+                Alias(const std::string& name, IO::PakStream stream);
                 ~Alias();
                 AliasSingleFrame& firstFrame();
             };
             
             class AliasManager {
             private:
-                map<string, Alias*> aliases;
+                std::map<std::string, Alias*> aliases;
                 AliasManager(const AliasManager&);
             public:
                 static AliasManager* sharedManager;
                 AliasManager();
                 ~AliasManager();
-                Alias* aliasForName(const string& name, const vector<string>& paths);
+                Alias* aliasForName(const std::string& name, const std::vector<std::string>& paths);
             };
         }
     }

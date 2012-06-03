@@ -116,14 +116,14 @@ bool Vec2f::equals(const Vec2f& other, float delta) const {
     return diff.lengthSquared() <= delta * delta;
 }
 
-void Vec2f::write(ostream& str) const {
+void Vec2f::write(std::ostream& str) const {
     str << x;
     str << ' ';
     str << y;
 }
 
-string Vec2f::asString() const {
-    stringstream result;
+std::string Vec2f::asString() const {
+    std::stringstream result;
     write(result);
     return result.str();
 }
@@ -224,10 +224,10 @@ const float& Vec3f::operator[] (const unsigned int index) const {
 
 Vec3f::Vec3f() : x(0), y(0), z(0) {}
 
-Vec3f::Vec3f(const string& str) {
+Vec3f::Vec3f(const std::string& str) {
     const char* cstr = str.c_str();
     size_t pos = 0;
-    string blank = " \t\n\r";
+    std::string blank = " \t\n\r";
 
     pos = str.find_first_not_of(blank, pos);
     x = static_cast<float>(atof(cstr + pos));
@@ -379,7 +379,7 @@ const Vec3f& Vec3f::thirdAxis(bool pos) const {
     }
 }
 
-void Vec3f::write(ostream& str) const {
+void Vec3f::write(std::ostream& str) const {
     str << x;
     str << ' ';
     str << y;
@@ -387,8 +387,8 @@ void Vec3f::write(ostream& str) const {
     str << z;
 }
 
-string Vec3f::asString() const {
-    stringstream result;
+std::string Vec3f::asString() const {
+    std::stringstream result;
     write(result);
     return result.str();
 }
@@ -535,10 +535,10 @@ const float& Vec4f::operator[] (const unsigned int index) const {
 
 Vec4f::Vec4f() : x(0), y(0), z(0), w(0) {}
 
-Vec4f::Vec4f(const string& str) {
+Vec4f::Vec4f(const std::string& str) {
     const char* cstr = str.c_str();
     size_t pos = 0;
-    string blank = " \t\n\r";
+    std::string blank = " \t\n\r";
     
     pos = str.find_first_not_of(blank, pos);
     x = static_cast<float>(atof(cstr + pos));
@@ -580,7 +580,7 @@ bool Vec4f::equals(const Vec4f& other, float delta) const {
     return diff.lengthSquared() <= delta * delta;
 }
 
-void Vec4f::write(ostream& str) const {
+void Vec4f::write(std::ostream& str) const {
     str << x;
     str << ' ';
     str << y;
@@ -590,8 +590,8 @@ void Vec4f::write(ostream& str) const {
     str << w;
 }
 
-string Vec4f::asString() const {
-    stringstream result;
+std::string Vec4f::asString() const {
+    std::stringstream result;
     write(result);
     return result.str();
 }
@@ -1539,7 +1539,7 @@ float BBox::intersectWithRay(const Ray& ray, Vec3f* sideNormal) const {
         }
     }
     
-    return numeric_limits<float>::quiet_NaN();
+    return std::numeric_limits<float>::quiet_NaN();
 }
 
 float BBox::intersectWithRay(const Ray& ray) const {
@@ -1648,15 +1648,15 @@ const Vec3f Plane::anchor() const {
 
 float Plane::intersectWithRay(const Ray& ray) const {
     float d = ray.direction | normal;
-    if (Math::fzero(d)) return numeric_limits<float>::quiet_NaN();
+    if (Math::fzero(d)) return std::numeric_limits<float>::quiet_NaN();
     float s = ((anchor() - ray.origin) | normal) / d;
-    if (Math::fneg(s)) return numeric_limits<float>::quiet_NaN();
+    if (Math::fneg(s)) return std::numeric_limits<float>::quiet_NaN();
     return s;
 }
 
 float Plane::intersectWithLine(const Line& line) const {
     float d = line.direction | normal;
-    if (Math::fzero(d)) return numeric_limits<float>::quiet_NaN();
+    if (Math::fzero(d)) return std::numeric_limits<float>::quiet_NaN();
     return ((anchor() - line.point) | normal) / d;
 }
 

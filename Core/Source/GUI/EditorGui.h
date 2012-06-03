@@ -23,8 +23,6 @@
 #include "Gwen/Events.h"
 #include "Utilities/Event.h"
 
-using namespace std;
-
 namespace Gwen {
     namespace Renderer {
         class OpenGL;
@@ -67,7 +65,7 @@ namespace TrenchBroom {
         public:
             typedef Event<EditorGui&> EditorGuiEvent;
 
-            EditorGui(Controller::Editor& editor, Renderer::FontManager& fontManager, const string& skinPath);
+            EditorGui(Controller::Editor& editor, Renderer::FontManager& fontManager, const std::string& skinPath);
             ~EditorGui();
             
             void resizeTo(int width, int height);

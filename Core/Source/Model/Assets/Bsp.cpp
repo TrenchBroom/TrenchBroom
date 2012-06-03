@@ -57,14 +57,14 @@
 namespace TrenchBroom {
     namespace Model {
         namespace Assets {
-            BspTexture::BspTexture(const string& name, const unsigned char* image, int width, int height)
+            BspTexture::BspTexture(const std::string& name, const unsigned char* image, int width, int height)
             : name(name), image(image), width(width), height(height) {}
 
             BspTexture::~BspTexture() {
                 delete[] image;
             }
 
-            BspFace::BspFace(BspTextureInfo* textureInfo, const vector<Vec3f>& vertices)
+            BspFace::BspFace(BspTextureInfo* textureInfo, const std::vector<Vec3f>& vertices)
             : textureInfo(textureInfo), vertices(vertices) {
                 bounds.min = vertices.front();
                 bounds.max = bounds.min;
@@ -80,7 +80,7 @@ namespace TrenchBroom {
                 return result;
             }
 
-            BspModel::BspModel(const vector<BspFace*>& faces, int vertexCount, const Vec3f& center, const BBox& bounds)
+            BspModel::BspModel(const std::vector<BspFace*>& faces, int vertexCount, const Vec3f& center, const BBox& bounds)
             : faces(faces), vertexCount(vertexCount), center(center), bounds(bounds) {}
 
             BspModel::~BspModel() {
@@ -92,21 +92,21 @@ namespace TrenchBroom {
                 uint32_t width, height, mip0Offset;
                 char textureName[BSP_TEXTURE_NAME_LENGTH];
                 unsigned char* mip0;
-                streamoff base;
+                std::streamoff base;
 
                 base = stream->tellg();
 
                 for (unsigned int i = 0; i < count; i++) {
-                    stream->seekg(base + (i + 1) * sizeof(int32_t), ios::beg);
+                    stream->seekg(base + (i + 1) * sizeof(int32_t), std::ios::beg);
                     stream->read((char *)&offset, sizeof(int32_t));
-                    stream->seekg(base + offset, ios::beg);
+                    stream->seekg(base + offset, std::ios::beg);
                     stream->read(textureName, BSP_TEXTURE_NAME_LENGTH);
                     stream->read((char *)&width, sizeof(uint32_t));
                     stream->read((char *)&height, sizeof(uint32_t));
                     stream->read((char *)&mip0Offset, sizeof(uint32_t));
 
                     mip0 = new unsigned char[width * height];
-                    stream->seekg(base + offset + mip0Offset, ios::beg);
+                    stream->seekg(base + offset + mip0Offset, std::ios::beg);
                     stream->read((char *)mip0, width * height);
 
                     BspTexture* texture = new BspTexture(textureName, mip0, width, height);
@@ -114,7 +114,7 @@ namespace TrenchBroom {
                 }
             }
 
-            void Bsp::readTextureInfos(IO::PakStream& stream, unsigned int count, vector<BspTexture*>& textures) {
+            void Bsp::readTextureInfos(IO::PakStream& stream, unsigned int count, std::vector<BspTexture*>& textures) {
                 uint32_t textureIndex;
 
                 for (unsigned int i = 0; i < count; i++) {
@@ -125,13 +125,13 @@ namespace TrenchBroom {
                     stream->read((char *)&textureInfo->tOffset, sizeof(float));
                     stream->read((char *)&textureIndex, sizeof(uint32_t));
                     textureInfo->texture = textures[textureIndex];
-                    stream->seekg(BSP_TEXINFO_REST, ios::cur);
+                    stream->seekg(BSP_TEXINFO_REST, std::ios::cur);
 
                     textureInfos[i] = textureInfo;
                 }
             }
 
-            void Bsp::readVertices(IO::PakStream& stream, unsigned int count, vector<Vec3f>& vertices) {
+            void Bsp::readVertices(IO::PakStream& stream, unsigned int count, std::vector<Vec3f>& vertices) {
                 Vec3f vertex;
                 for (unsigned int i = 0; i < count; i++) {
                     stream->read((char *)&vertex, sizeof(Vec3f));
@@ -139,7 +139,7 @@ namespace TrenchBroom {
                 }
             }
 
-            void Bsp::readEdges(IO::PakStream& stream, unsigned int count, vector<BspEdgeInfo>& edges) {
+            void Bsp::readEdges(IO::PakStream& stream, unsigned int count, std::vector<BspEdgeInfo>& edges) {
                 BspEdgeInfo edge;
                 for (unsigned int i = 0; i < count; i++) {
                     stream->read((char *)&edge, sizeof(BspEdgeInfo));
@@ -147,14 +147,14 @@ namespace TrenchBroom {
                 }
             }
 
-            void Bsp::readFaces(IO::PakStream& stream, unsigned int count, vector<BspFaceInfo>& faces) {
+            void Bsp::readFaces(IO::PakStream& stream, unsigned int count, std::vector<BspFaceInfo>& faces) {
                 BspFaceInfo face;
                 for (unsigned int i = 0; i < count; i++) {
-                    stream->seekg(BSP_FACE_EDGE_INDEX, ios::cur);
+                    stream->seekg(BSP_FACE_EDGE_INDEX, std::ios::cur);
                     stream->read((char *)&face.edgeIndex, sizeof(int32_t));
                     stream->read((char *)&face.edgeCount, sizeof(uint16_t));
                     stream->read((char *)&face.textureInfoIndex, sizeof(uint16_t));
-                    stream->seekg(BSP_FACE_REST, ios::cur);
+                    stream->seekg(BSP_FACE_REST, std::ios::cur);
 
                     faces.push_back(face);
                 }
@@ -164,77 +164,77 @@ namespace TrenchBroom {
                 stream->read((char *)indices, count * sizeof(int32_t));
             }
 
-            Bsp::Bsp(const string& name, IO::PakStream stream) : name(name) {
+            Bsp::Bsp(const std::string& name, IO::PakStream stream) : name(name) {
                 int32_t version;
                 stream->read((char *)&version, sizeof(int32_t));
 
                 int32_t textureAddr, textureCount;
-                stream->seekg(BSP_DIR_TEXTURES_ADDRESS, ios::beg);
+                stream->seekg(BSP_DIR_TEXTURES_ADDRESS, std::ios::beg);
                 stream->read((char *)&textureAddr, sizeof(int32_t));
 
-                stream->seekg(textureAddr, ios::beg);
+                stream->seekg(textureAddr, std::ios::beg);
                 stream->read((char *)&textureCount, sizeof(int32_t));
-                stream->seekg(-static_cast<int>(sizeof(int32_t)), ios::cur);
+                stream->seekg(-static_cast<int>(sizeof(int32_t)), std::ios::cur);
                 textures.resize(textureCount);
                 readTextures(stream, textureCount);
 
                 int32_t texInfosAddr, texInfosLength;
                 int texInfoCount;
-                stream->seekg(BSP_DIR_TEXINFOS_ADDRESS, ios::beg);
+                stream->seekg(BSP_DIR_TEXINFOS_ADDRESS, std::ios::beg);
                 stream->read((char *)&texInfosAddr, sizeof(int32_t));
                 stream->read((char *)&texInfosLength, sizeof(int32_t));
                 texInfoCount = texInfosLength / BSP_TEXINFO_SIZE;
                 textureInfos.resize(texInfoCount);
-                stream->seekg(texInfosAddr, ios::beg);
+                stream->seekg(texInfosAddr, std::ios::beg);
                 readTextureInfos(stream, texInfoCount, textures);
 
                 int32_t verticesAddr, verticesLength;
                 int vertexCount;
-                stream->seekg(BSP_DIR_VERTICES_ADDRESS, ios::beg);
+                stream->seekg(BSP_DIR_VERTICES_ADDRESS, std::ios::beg);
                 stream->read((char *)&verticesAddr, sizeof(int32_t));
                 stream->read((char *)&verticesLength, sizeof(int32_t));
                 vertexCount = verticesLength / sizeof(Vec3f);
 
-                vector<Vec3f> vertices;
-                stream->seekg(verticesAddr, ios::beg);
+                std::vector<Vec3f> vertices;
+                stream->seekg(verticesAddr, std::ios::beg);
                 readVertices(stream, vertexCount, vertices);
 
                 int32_t edgesAddr, edgesLength;
                 int edgeCount;
-                stream->seekg(BSP_DIR_EDGES_ADDRESS, ios::beg);
+                stream->seekg(BSP_DIR_EDGES_ADDRESS, std::ios::beg);
                 stream->read((char *)&edgesAddr, sizeof(int32_t));
                 stream->read((char *)&edgesLength, sizeof(int32_t));
                 edgeCount = edgesLength / sizeof(BspEdgeInfo);
 
-                vector<BspEdgeInfo> edges;
-                stream->seekg(edgesAddr, ios::beg);
+                std::vector<BspEdgeInfo> edges;
+                stream->seekg(edgesAddr, std::ios::beg);
                 readEdges(stream, edgeCount, edges);
 
                 int32_t facesAddr, facesLength;
                 int faceCount;
-                stream->seekg(BSP_DIR_FACES_ADDRESS, ios::beg);
+                stream->seekg(BSP_DIR_FACES_ADDRESS, std::ios::beg);
                 stream->read((char *)&facesAddr, sizeof(int32_t));
                 stream->read((char *)&facesLength, sizeof(int32_t));
                 faceCount = facesLength / BSP_FACE_SIZE;
 
-                vector<BspFaceInfo> faces;
-                stream->seekg(facesAddr, ios::beg);
+                std::vector<BspFaceInfo> faces;
+                stream->seekg(facesAddr, std::ios::beg);
                 readFaces(stream, faceCount, faces);
 
                 int32_t faceEdgesAddr, faceEdgesLength;
                 int faceEdgesCount;
-                stream->seekg(BSP_DIR_FACE_EDGES_ADDRESS, ios::beg);
+                stream->seekg(BSP_DIR_FACE_EDGES_ADDRESS, std::ios::beg);
                 stream->read((char *)&faceEdgesAddr, sizeof(int32_t));
                 stream->read((char *)&faceEdgesLength, sizeof(int32_t));
                 faceEdgesCount = faceEdgesLength / BSP_FACE_EDGE_SIZE;
 
                 int32_t* faceEdges = new int32_t[faceEdgesCount];
-                stream->seekg(faceEdgesAddr, ios::beg);
+                stream->seekg(faceEdgesAddr, std::ios::beg);
                 readFaceEdges(stream, faceEdgesCount, faceEdges);
 
                 int32_t modelsAddr, modelsLength;
                 int modelCount;
-                stream->seekg(BSP_DIR_MODEL_ADDRESS, ios::beg);
+                stream->seekg(BSP_DIR_MODEL_ADDRESS, std::ios::beg);
                 stream->read((char *)&modelsAddr, sizeof(int32_t));
                 stream->read((char *)&modelsLength, sizeof(int32_t));
                 modelCount = modelsLength / BSP_MODEL_SIZE;
@@ -243,23 +243,23 @@ namespace TrenchBroom {
                 memset(vertexMark, false, vertexCount * sizeof(bool));
                 int* modelVertices = new int[vertexCount];
 
-                stream->seekg(modelsAddr, ios::beg);
+                stream->seekg(modelsAddr, std::ios::beg);
                 for (int i = 0; i < modelCount; i++) {
                     int32_t faceIndex, faceCount;
                     int totalVertexCount = 0;
                     int modelVertexCount = 0;
 
-                    stream->seekg(BSP_MODEL_FACE_INDEX, ios::cur);
+                    stream->seekg(BSP_MODEL_FACE_INDEX, std::ios::cur);
                     stream->read((char *)&faceIndex, sizeof(int32_t));
                     stream->read((char *)&faceCount, sizeof(int32_t));
 
-                    vector<BspFace*> bspFaces;
+                    std::vector<BspFace*> bspFaces;
                     for (int j = 0; j < faceCount; j++) {
                         BspFaceInfo& faceInfo = faces[faceIndex + j];
                         BspTextureInfo* textureInfo = textureInfos[faceInfo.textureInfoIndex];
 
                         int faceVertexCount = faceInfo.edgeCount;
-                        vector<Vec3f> faceVertices;
+                        std::vector<Vec3f> faceVertices;
                         for (int k = 0; k < faceInfo.edgeCount; k++) {
                             int faceEdgeIndex = faceEdges[faceInfo.edgeIndex + k];
                             int vertexIndex;
@@ -312,11 +312,11 @@ namespace TrenchBroom {
 
             BspManager* BspManager::sharedManager = NULL;
             
-            Bsp* BspManager::bspForName(const string& name, const vector<string>& paths) {
-                string pathList = accumulate(paths.begin(), paths.end(), string(";"));
-                string key = pathList + ":" + name;
+            Bsp* BspManager::bspForName(const std::string& name, const std::vector<std::string>& paths) {
+                std::string pathList = accumulate(paths.begin(), paths.end(), std::string(";"));
+                std::string key = pathList + ":" + name;
 
-                map<string, Bsp*>::iterator it = bsps.find(key);
+                std::map<std::string, Bsp*>::iterator it = bsps.find(key);
                 if (it != bsps.end())
                     return it->second;
 
@@ -337,7 +337,7 @@ namespace TrenchBroom {
             BspManager::BspManager() {}
 
             BspManager::~BspManager() {
-                for (map<string, Bsp*>::iterator it = bsps.begin(); it != bsps.end(); ++it)
+                for (std::map<std::string, Bsp*>::iterator it = bsps.begin(); it != bsps.end(); ++it)
                     delete it->second;
             }
         }

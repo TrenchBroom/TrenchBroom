@@ -30,21 +30,19 @@
 #include "Renderer/Vbo.h"
 #include "Utilities/VecMath.h"
 
-using namespace std;
-
 namespace TrenchBroom {
     namespace Model {
-        static string const ClassnameKey        = "classname";
-        static string const SpawnFlagsKey       = "spawnflags";
-        static string const WorldspawnClassname = "worldspawn";
-        static string const GroupClassname      = "func_group";
-        static string const GroupNameKey        = "__tb_group_name";
-        static string const GroupVisibilityKey  = "__tb_group_visible";
-        static string const OriginKey           = "origin";
-        static string const AngleKey            = "angle";
-        static string const MessageKey          = "message";
-        static string const ModsKey             = "__tb_mods";
-        static string const WadKey              = "wad";
+        static std::string const ClassnameKey        = "classname";
+        static std::string const SpawnFlagsKey       = "spawnflags";
+        static std::string const WorldspawnClassname = "worldspawn";
+        static std::string const GroupClassname      = "func_group";
+        static std::string const GroupNameKey        = "__tb_group_name";
+        static std::string const GroupVisibilityKey  = "__tb_group_visible";
+        static std::string const OriginKey           = "origin";
+        static std::string const AngleKey            = "angle";
+        static std::string const MessageKey          = "message";
+        static std::string const ModsKey             = "__tb_mods";
+        static std::string const WadKey              = "wad";
         
         class Map;
         class Brush;
@@ -60,9 +58,9 @@ namespace TrenchBroom {
             mutable bool m_geometryValid;
             
             Map* m_map;
-            vector<Brush*> m_brushes;
+            std::vector<Brush*> m_brushes;
             
-            map<string, string> m_properties;
+            std::map<std::string, std::string> m_properties;
             
             int m_filePosition;
             bool m_selected;
@@ -73,7 +71,7 @@ namespace TrenchBroom {
             void invalidateGeometry();
         public:
             Entity();
-            Entity(const map<string, string> properties);
+            Entity(const std::map<std::string, std::string>& properties);
             ~Entity();
             
             EMapObjectType objectType() const;
@@ -88,30 +86,30 @@ namespace TrenchBroom {
 
             Map* quakeMap() const;
             void setMap(Map* quakeMap);
-            const vector<Brush*>& brushes() const;
+            const std::vector<Brush*>& brushes() const;
             
-            const map<string, string>& properties() const;
-            const string* propertyForKey(const string& key) const;
-            bool propertyWritable(const string& key) const;
-            bool propertyDeletable(const string& key) const;
-            void setProperty(const string& key, const string& value);
-            void setProperty(const string& key, const string* value);
-            void setProperty(const string& key, const Vec3f& value, bool round);
-            void setProperty(const string& key, int value);
-            void setProperty(const string& key, float value, bool round);
-            void setProperties(const map<string, string>& properties, bool replace);
-            void deleteProperty(const string& key);
+            const std::map<std::string, std::string>& properties() const;
+            const std::string* propertyForKey(const std::string& key) const;
+            bool propertyWritable(const std::string& key) const;
+            bool propertyDeletable(const std::string& key) const;
+            void setProperty(const std::string& key, const std::string& value);
+            void setProperty(const std::string& key, const std::string* value);
+            void setProperty(const std::string& key, const Vec3f& value, bool round);
+            void setProperty(const std::string& key, int value);
+            void setProperty(const std::string& key, float value, bool round);
+            void setProperties(const std::map<std::string, std::string>& properties, bool replace);
+            void deleteProperty(const std::string& key);
             
-            const string* classname() const;
+            const std::string* classname() const;
             const int angle() const;
             bool worldspawn() const;
             bool group() const;
             
             void addBrush(Brush* brush);
-            void addBrushes(const vector<Brush*>& brushes);
+            void addBrushes(const std::vector<Brush*>& brushes);
             void brushChanged(Brush* brush);
             void removeBrush(Brush* brush);
-            void removeBrushes(vector<Brush*>& brushes);
+            void removeBrushes(std::vector<Brush*>& brushes);
             
             void translate(const Vec3f& delta);
             void rotate90(EAxis axis, const Vec3f& rotationCenter, bool clockwise);

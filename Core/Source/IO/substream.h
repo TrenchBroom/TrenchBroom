@@ -22,13 +22,11 @@
 
 #include <streambuf>
 
-using namespace std;
-
 namespace TrenchBroom {
     namespace IO {
-        class substreambuf : public streambuf {
+        class substreambuf : public std::streambuf {
         public:
-            substreambuf(streambuf *sbuf, int pos, int len) 
+            substreambuf(std::streambuf *sbuf, int pos, int len) 
             : m_sbuf(sbuf), m_pos(pos), m_len(len), m_read(0) {
                 m_sbuf->pubseekpos(pos);
                 setbuf(NULL,0);
@@ -49,15 +47,15 @@ namespace TrenchBroom {
                 return m_sbuf->sbumpc();
             }
             
-            streampos seekoff (streamoff off, ios_base::seekdir way, ios_base::openmode which = ios_base::in | ios_base::out) {
-                if (way == ios_base::beg) {
+            std::streampos seekoff (std::streamoff off, std::ios_base::seekdir way, std::ios_base::openmode which = std::ios_base::in | std::ios_base::out) {
+                if (way == std::ios_base::beg) {
                     m_read = off;
                     off += m_pos;
-                } else if (way == ios_base::cur) {
+                } else if (way == std::ios_base::cur) {
                     m_read += off;
                     off = m_read;
                     off += m_pos;
-                } else if (way == ios_base::end) {
+                } else if (way == std::ios_base::end) {
                     off += m_pos;
                     off += m_len;
                     m_read = 0;
@@ -66,7 +64,7 @@ namespace TrenchBroom {
                 return m_sbuf->pubseekpos(off,which)-m_pos;
             }
             
-            streampos seekpos (streampos sp, ios_base::openmode which = ios_base::in | ios_base::out) {
+            std::streampos seekpos (std::streampos sp, std::ios_base::openmode which = std::ios_base::in | std::ios_base::out) {
                 sp += m_pos;
                 if (sp - m_pos > m_len)
                     return -1;
@@ -75,18 +73,18 @@ namespace TrenchBroom {
             }
             
         private:
-            streambuf *m_sbuf;
-            streampos m_pos;
-            streamsize m_len;
-            streampos m_read;
+            std::streambuf *m_sbuf;
+            std::streampos m_pos;
+            std::streamsize m_len;
+            std::streampos m_read;
         };
         
-        class isubstream : public istream {
+        class isubstream : public std::istream {
         public:
-            isubstream(streambuf* sbuf) : istream(sbuf), m_sbuf(sbuf) { this->init(sbuf); };
+            isubstream(std::streambuf* sbuf) : std::istream(sbuf), m_sbuf(sbuf) { this->init(sbuf); };
             ~isubstream() { delete m_sbuf; }
         private:
-            streambuf* m_sbuf;
+            std::streambuf* m_sbuf;
         };
     }
 }

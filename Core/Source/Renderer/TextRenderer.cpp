@@ -36,7 +36,7 @@ namespace TrenchBroom {
             clear();
         }
 
-        void TextRenderer::addString(int key, const string& str, const FontDescriptor& descriptor, AnchorPtr anchor) {
+        void TextRenderer::addString(int key, const std::string& str, const FontDescriptor& descriptor, AnchorPtr anchor) {
             StringRendererPtr stringRenderer = m_fontManager.createStringRenderer(descriptor, str);
             addString(key, stringRenderer, anchor);
         }

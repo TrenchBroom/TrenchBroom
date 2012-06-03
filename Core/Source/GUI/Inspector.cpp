@@ -72,7 +72,7 @@ namespace TrenchBroom {
 
         void Inspector::updateTextureControls() {
             Model::Selection& selection = m_editor.map().selection();
-            vector<Model::Face*> faces = selection.allFaces();
+            std::vector<Model::Face*> faces = selection.allFaces();
             if (!faces.empty()) {
                 float xOffset, yOffset, xScale, yScale, rotation;
                 bool xOffsetMulti, yOffsetMulti, xScaleMulti, yScaleMulti, rotationMulti, textureMulti;
@@ -126,7 +126,7 @@ namespace TrenchBroom {
             m_textureWadList->Clear();
             
             Model::Assets::TextureManager& textureManager = m_editor.textureManager();
-            const vector<Model::Assets::TextureCollection*> collections = textureManager.collections();
+            const std::vector<Model::Assets::TextureCollection*> collections = textureManager.collections();
             for (unsigned int i = 0; i < collections.size(); i++)
                 m_textureWadList->AddItem(collections[i]->name());
         }
@@ -142,7 +142,7 @@ namespace TrenchBroom {
             updateTextureControls();
         }
 
-        void Inspector::facesDidChange(const vector<Model::Face*>& faces) {
+        void Inspector::facesDidChange(const std::vector<Model::Face*>& faces) {
             updateTextureControls();
         }
 

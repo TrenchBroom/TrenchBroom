@@ -24,8 +24,6 @@
 #include "Gwen/Skin.h"
 #include "Gwen/Controls/Base.h"
 
-using namespace Gwen;
-
 namespace TrenchBroom {
     namespace Renderer {
         class MapRenderer;
@@ -36,7 +34,7 @@ namespace TrenchBroom {
     }
     
     namespace Gui {
-        class MapRendererControl : public Controls::Base {
+        class MapRendererControl : public Gwen::Controls::Base {
         protected:
             Controller::Editor& m_editor;
             Renderer::MapRenderer* m_mapRenderer;
@@ -45,7 +43,7 @@ namespace TrenchBroom {
         public:
             MapRendererControl(Base* parent, Controller::Editor& editor, Renderer::FontManager& fontManager);
             ~MapRendererControl();
-            virtual void Render(Skin::Base* skin);
+            virtual void Render(Gwen::Skin::Base* skin);
 
             virtual void OnMouseMoved( int x, int y, int deltaX, int deltaY );
             virtual bool OnMouseWheeled( int iDelta );

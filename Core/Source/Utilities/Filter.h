@@ -20,22 +20,20 @@
 #ifndef TrenchBroom_Filter_h
 #define TrenchBroom_Filter_h
 
-#include "Model/Map/Brush.h"
-#include "Model/Map/Entity.h"
-#include "Model/Map/Groups.h"
-#include "Model/Selection.h"
-
-using namespace TrenchBroom::Model;
-
 namespace TrenchBroom {
+    namespace Model {
+        class Entity;
+        class Brush;
+    }
+    
     class Filter {
     private:
     public:
-        bool brushVisible(Brush& brush) { return true; }
-        bool entityVisible(Entity& entity) { return true; }
-        bool brushPickable(Brush& brush) { return true; }
-        bool brushVerticesPickable(Brush& brush) { return true; }
-        bool entityPickable(Entity& entity) { return true; }
+        bool brushVisible(Model::Brush& brush) { return true; }
+        bool entityVisible(Model::Entity& entity) { return true; }
+        bool brushPickable(Model::Brush& brush) { return true; }
+        bool brushVerticesPickable(Model::Brush& brush) { return true; }
+        bool entityPickable(Model::Entity& entity) { return true; }
     };
     
 }

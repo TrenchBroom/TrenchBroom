@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        void GroupManager::entitesAdded(const vector<Entity*>& entities) {
+        void GroupManager::entitesAdded(const std::vector<Entity*>& entities) {
             bool changed = false;
             for (unsigned int i = 0; i < entities.size(); i++) {
                 if (entities[i]->group()) {
@@ -39,7 +39,7 @@ namespace TrenchBroom {
                 groupsChanged(*this);
         }
 
-        void GroupManager::entitiesRemoved(const vector<Entity*>& entities) {
+        void GroupManager::entitiesRemoved(const std::vector<Entity*>& entities) {
             bool changed = false;
             for (unsigned int i = 0; i < entities.size(); i++) {
                 if (entities[i]->group()) {
@@ -53,7 +53,7 @@ namespace TrenchBroom {
                 groupsChanged(*this);
         }
 
-        void GroupManager::brushesChanged(const vector<Brush*>& brushes) {
+        void GroupManager::brushesChanged(const std::vector<Brush*>& brushes) {
             bool changed = false;
             for (unsigned int i = 0; i < brushes.size(); i++) {
                 if (brushes[i]->entity()->group()) {
@@ -66,7 +66,7 @@ namespace TrenchBroom {
         }
 
         void GroupManager::mapLoaded(Map& map) {
-            const vector<Entity*>& entities = map.entities();
+            const std::vector<Entity*>& entities = map.entities();
             for (unsigned int i = 0; i < entities.size(); i++) {
                 if (entities[i]->group()) {
                     m_groups.push_back(entities[i]);
@@ -99,11 +99,11 @@ namespace TrenchBroom {
             m_map.mapCleared            -= new Model::Map::MapEvent::Listener<GroupManager>(this, &GroupManager::mapCleared);
         }
 
-        const vector<Entity*>& GroupManager::groups() const {
+        const std::vector<Entity*>& GroupManager::groups() const {
             return m_groups;
         }
 
-        void GroupManager::setGroupName(Entity& group, const string& name) {
+        void GroupManager::setGroupName(Entity& group, const std::string& name) {
             group.setProperty(GroupNameKey, name);
             groupsChanged(*this);
         }
@@ -117,7 +117,7 @@ namespace TrenchBroom {
         }
 
         bool GroupManager::visible(const Entity& group) const {
-            const string* value = group.propertyForKey(GroupVisibilityKey);
+            const std::string* value = group.propertyForKey(GroupVisibilityKey);
             if (value == NULL)
                 return false;
             return atoi(value->c_str()) != 0;

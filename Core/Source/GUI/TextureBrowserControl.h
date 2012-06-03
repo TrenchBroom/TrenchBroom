@@ -53,7 +53,7 @@ namespace TrenchBroom {
         class TextureBrowserPanel : public Gwen::Controls::Base {
         protected:
             typedef std::tr1::shared_ptr<Gwen::Font> FontPtr;
-            typedef pair<Model::Assets::Texture*, FontPtr> CellData;
+            typedef std::pair<Model::Assets::Texture*, FontPtr> CellData;
             typedef Model::Assets::TextureCollection* GroupData;
             
             Controller::Editor& m_editor;

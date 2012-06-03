@@ -43,7 +43,7 @@ namespace TrenchBroom {
 
         BrushSnapshot::BrushSnapshot(const Brush& brush) {
             m_uniqueId = brush.uniqueId();
-            const vector<Face*>& brushFaces = brush.faces();
+            const std::vector<Face*>& brushFaces = brush.faces();
             for (unsigned int i = 0; i < brushFaces.size(); i++) {
                 Face* snapshot = new Face(*brushFaces[i]);
                 m_faces.push_back(snapshot);

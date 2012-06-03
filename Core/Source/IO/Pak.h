@@ -37,41 +37,39 @@
 #define PAK_ENTRY_LENGTH 0x40
 #define PAK_ENTRY_NAME_LENGTH 0x38
 
-using namespace std;
-
 namespace TrenchBroom {
     namespace IO {
         class Pak;
 
-        typedef auto_ptr<istream> PakStream;
+        typedef std::auto_ptr<std::istream> PakStream;
         
         class PakEntry {
         public:
-            string name;
+            std::string name;
             int32_t address;
             int32_t length;
         };
         
         class Pak {
-            ifstream m_stream;
+            std::ifstream m_stream;
         public:
-            string path;
-            map<string, PakEntry> entries;
-            Pak(const string& path);
-            PakStream streamForEntry(const string& name);
+            std::string path;
+            std::map<std::string, PakEntry> entries;
+            Pak(const std::string& path);
+            PakStream streamForEntry(const std::string& name);
         };
         
-        typedef tr1::shared_ptr<Pak> PakPtr;
+        typedef std::tr1::shared_ptr<Pak> PakPtr;
         static int comparePaks(const PakPtr pak1, const PakPtr pak2);
         
         class PakManager {
         private:
-            map<string, vector<PakPtr> > paks;
-            bool paksAtPath(const string& path, vector<PakPtr>& result);
+            std::map<std::string, std::vector<PakPtr> > paks;
+            bool paksAtPath(const std::string& path, std::vector<PakPtr>& result);
         public:
             static PakManager* sharedManager;
             PakManager() {};
-            PakStream streamForEntry(const string& name, const vector<string>& paths);
+            PakStream streamForEntry(const std::string& name, const std::vector<std::string>& paths);
         };
     }
 }

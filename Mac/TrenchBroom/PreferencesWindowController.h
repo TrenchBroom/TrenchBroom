@@ -26,7 +26,7 @@ namespace TrenchBroom {
         public:
             PreferencesListener();
             ~PreferencesListener();
-            void preferencesDidChange(const string& key);
+            void preferencesDidChange(const std::string& key);
         };
     }
 }

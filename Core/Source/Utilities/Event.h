@@ -25,8 +25,6 @@
 #include <vector>
 #include <map>
 
-using namespace std;
-
 namespace TrenchBroom {
     template <typename Arg1>
     class Event  {
@@ -68,7 +66,7 @@ namespace TrenchBroom {
         }
         
         Event& operator-=(ListenerBase* ptr) {
-            typename vector<ListenerBase*>::iterator it;
+            typename std::vector<ListenerBase*>::iterator it;
             for (it = m_ptrs.begin(); it != m_ptrs.end(); ++it) {
                 if (**it == *ptr) {
                     delete *it;
@@ -87,7 +85,7 @@ namespace TrenchBroom {
             }
         }
     private:
-        vector<ListenerBase*> m_ptrs;
+        std::vector<ListenerBase*> m_ptrs;
     };
 }
 

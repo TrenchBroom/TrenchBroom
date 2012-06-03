@@ -107,8 +107,6 @@ namespace Math {
     }
 }
 
-using namespace std;
-
 typedef enum {
     TB_AX_X,
     TB_AX_Y,
@@ -144,8 +142,8 @@ public:
     const Vec2f normalize() const;
     bool equals(const Vec2f& other) const;
     bool equals(const Vec2f& other, float delta) const;
-    void write(ostream& str) const;
-    string asString() const;
+    void write(std::ostream& str) const;
+    std::string asString() const;
 };
 
 class Vec3f {
@@ -166,7 +164,7 @@ public:
     float& operator[] (const unsigned int index);
     const float& operator[] (const unsigned int index) const;
     Vec3f();
-    Vec3f(const string& str);
+    Vec3f(const std::string& str);
     Vec3f(float x, float y, float z);
 
     float length() const;
@@ -181,8 +179,8 @@ public:
     const Vec3f& firstAxis(bool pos = true) const;
     const Vec3f& secondAxis(bool pos = true) const;
     const Vec3f& thirdAxis(bool pos = true) const;
-    void write(ostream& str) const;
-    string asString() const;
+    void write(std::ostream& str) const;
+    std::string asString() const;
 
     const Vec3f snap() const;
     const Vec3f snap(float epsilon) const;
@@ -199,7 +197,7 @@ static const Vec3f YAxisNeg( 0, -1,  0);
 static const Vec3f ZAxisPos( 0,  0,  1);
 static const Vec3f ZAxisNeg( 0,  0, -1);
 static const Vec3f Null3f(0, 0, 0);
-static const Vec3f Nan3f(numeric_limits<float>::quiet_NaN(), numeric_limits<float>::quiet_NaN(), numeric_limits<float>::quiet_NaN());
+static const Vec3f Nan3f(std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN());
 
 class Vec4f {
 public:
@@ -217,7 +215,7 @@ public:
     float& operator[] (const unsigned int index);
     const float& operator[] (const unsigned int index) const;
     Vec4f();
-    Vec4f(const string& str);
+    Vec4f(const std::string& str);
     Vec4f(float x, float y, float z, float w);
 
     float length() const;
@@ -225,8 +223,8 @@ public:
     const Vec4f normalize() const;
     bool equals(const Vec4f& other) const;
     bool equals(const Vec4f& other, float delta) const;
-    void write(ostream& str) const;
-    string asString() const;
+    void write(std::ostream& str) const;
+    std::string asString() const;
 };
 
 class Mat2f {

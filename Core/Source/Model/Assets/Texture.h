@@ -32,13 +32,11 @@
 #include "GL/GLee.h"
 #include "Utilities/VecMath.h"
 
-using namespace std;
-
 namespace TrenchBroom {
     namespace Model {
         namespace Assets {
             class Texture;
-            static const string TextureManagerChanged = "TextureManagerChanged";
+            static const std::string TextureManagerChanged = "TextureManagerChanged";
             static bool compareByName(const Texture* texture1, const Texture* texture2);
             static bool compareByUsageCount(const Texture* texture1, const Texture* texture2);
 
@@ -52,10 +50,10 @@ namespace TrenchBroom {
                 GLuint m_textureId;
                 unsigned char* m_textureBuffer;
 
-                void init(const string& name, unsigned int width, unsigned int height);
-                void init(const string& name, const unsigned char* indexImage, unsigned int width, unsigned int height, const Palette* palette);
+                void init(const std::string& name, unsigned int width, unsigned int height);
+                void init(const std::string& name, const unsigned char* indexImage, unsigned int width, unsigned int height, const Palette* palette);
             public:
-                string name;
+                std::string name;
                 int uniqueId;
                 unsigned int usageCount;
                 unsigned int width;
@@ -63,12 +61,12 @@ namespace TrenchBroom {
                 Vec4f averageColor;
                 bool dummy;
 
-                Texture(const string& name, const unsigned char* rgbImage, unsigned int width, unsigned int height);
-                Texture(const string& name, const unsigned char* indexedImage, unsigned int width, unsigned int height, const Palette& palette);
+                Texture(const std::string& name, const unsigned char* rgbImage, unsigned int width, unsigned int height);
+                Texture(const std::string& name, const unsigned char* indexedImage, unsigned int width, unsigned int height, const Palette& palette);
                 Texture(const IO::Mip& mip, const Palette& palette);
-                Texture(const string& name, const AliasSkin& skin, unsigned int skinIndex, const Palette& palette);
-                Texture(const string& name, const BspTexture& texture, const Palette& palette);
-                Texture(const string& name);
+                Texture(const std::string& name, const AliasSkin& skin, unsigned int skinIndex, const Palette& palette);
+                Texture(const std::string& name, const BspTexture& texture, const Palette& palette);
+                Texture(const std::string& name);
                 ~Texture();
 
                 void activate();
@@ -77,20 +75,22 @@ namespace TrenchBroom {
 
             class TextureCollection {
             private:
-                vector<Texture*> m_textures;
-                string m_name;
+                std::vector<Texture*> m_textures;
+                std::string m_name;
             public:
-                TextureCollection(const string& name, IO::Wad& wad, const Palette& palette);
+                TextureCollection(const std::string& name, IO::Wad& wad, const Palette& palette);
                 ~TextureCollection();
-                const vector<Texture*>& textures() const;
-                vector<Texture*> textures(ETextureSortCriterion criterion) const;
+                const std::vector<Texture*>& textures() const;
+                std::vector<Texture*> textures(ETextureSortCriterion criterion) const;
                 const std::string& name() const;
             };
 
             class TextureManager {
             private:
-                vector<TextureCollection*> m_collections;
-                map<string, Texture*> m_textures;
+                typedef std::map<std::string, Texture*> TextureMap;
+                
+                std::vector<TextureCollection*> m_collections;
+                TextureMap m_textures;
                 void reloadTextures();
             public:
                 typedef Event<TextureManager&> TextureManagerEvent;
@@ -102,11 +102,11 @@ namespace TrenchBroom {
                 void removeCollection(unsigned int index);
                 void clear();
 
-                const vector<TextureCollection*>& collections();
-                const vector<Texture*> textures(ETextureSortCriterion criterion);
-                Texture* texture(const string& name);
+                const std::vector<TextureCollection*>& collections();
+                const std::vector<Texture*> textures(ETextureSortCriterion criterion);
+                Texture* texture(const std::string& name);
 
-                void activateTexture(const string& name);
+                void activateTexture(const std::string& name);
                 void deactivateTexture();
             };
         }

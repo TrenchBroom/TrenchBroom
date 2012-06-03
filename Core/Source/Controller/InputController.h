@@ -23,8 +23,6 @@
 #include <vector>
 #include "Controller/Tool.h"
 
-using namespace std;
-
 namespace TrenchBroom {
     namespace Controller {
         
@@ -47,7 +45,7 @@ namespace TrenchBroom {
             ToolEvent m_currentEvent;
             EMouseStatus m_dragStatus;
             
-            vector<Tool*> m_receiverChain;
+            std::vector<Tool*> m_receiverChain;
             Tool* m_dragScrollReceiver;
             int m_modalReceiverIndex;
             

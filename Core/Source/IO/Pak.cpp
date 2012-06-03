@@ -34,22 +34,22 @@
 
 namespace TrenchBroom {
     namespace IO {
-        Pak::Pak(const string& path) {
+        Pak::Pak(const std::string& path) {
             char magic[PAK_HEADER_MAGIC_LENGTH];
             char entryName[PAK_ENTRY_NAME_LENGTH];
             int32_t directoryAddr, directorySize;
             int entryCount;
 
             this->path = path;
-			m_stream.open(this->path.c_str(), ios::binary);
+			m_stream.open(this->path.c_str(), std::ios::binary);
             if (m_stream.is_open()) {
-                m_stream.seekg(PAK_HEADER_ADDRESS, ios::beg);
+                m_stream.seekg(PAK_HEADER_ADDRESS, std::ios::beg);
                 m_stream.read((char *)magic, PAK_HEADER_MAGIC_LENGTH); // todo check and throw exception
                 m_stream.read((char *)&directoryAddr, sizeof(int32_t));
                 m_stream.read((char *)&directorySize, sizeof(int32_t));
                 entryCount = directorySize / PAK_ENTRY_LENGTH;
 
-                m_stream.seekg(directoryAddr, ios::beg);
+                m_stream.seekg(directoryAddr, std::ios::beg);
                 for (int i = 0; i < entryCount; i++) {
                     PakEntry entry;
 
@@ -63,12 +63,12 @@ namespace TrenchBroom {
             }
         }
 
-        PakStream Pak::streamForEntry(const string& name) {
+        PakStream Pak::streamForEntry(const std::string& name) {
             PakEntry* entry;
 
-            map<string, PakEntry>::iterator it = entries.find(name);
+            std::map<std::string, PakEntry>::iterator it = entries.find(name);
             if (it == entries.end())
-                return auto_ptr<istream>(NULL);
+                return std::auto_ptr<std::istream>(NULL);
 
             entry = &it->second;
             if (!m_stream.is_open())
@@ -76,7 +76,7 @@ namespace TrenchBroom {
 
 			m_stream.clear();
             substreambuf* subStreamBuf = new substreambuf(m_stream.rdbuf(), entry->address, entry->length);
-            istream* subStream = new isubstream(subStreamBuf);
+            std::istream* subStream = new isubstream(subStreamBuf);
             return PakStream(subStream);
         }
 
@@ -86,12 +86,12 @@ namespace TrenchBroom {
         
         PakManager* PakManager::sharedManager = NULL;
         
-        PakStream PakManager::streamForEntry(const string& name, const vector<string>& paths) {
-            vector<string>::const_reverse_iterator path;
+        PakStream PakManager::streamForEntry(const std::string& name, const std::vector<std::string>& paths) {
+            std::vector<std::string>::const_reverse_iterator path;
             for (path = paths.rbegin(); path < paths.rend(); ++path) {
-                vector<PakPtr> paks;
+                std::vector<PakPtr> paks;
                 if (paksAtPath(*path, paks)) {
-                    vector<PakPtr>::reverse_iterator pak;
+                    std::vector<PakPtr>::reverse_iterator pak;
                     for (pak = paks.rbegin(); pak < paks.rend(); ++pak) {
                         PakStream stream = (*pak)->streamForEntry(name);
                         if (stream.get() != NULL)
@@ -100,13 +100,13 @@ namespace TrenchBroom {
                 }
             }
 
-            string nicePaths = accumulate(paths.begin(), paths.end(), string(", "));
+            std::string nicePaths = accumulate(paths.begin(), paths.end(), std::string(", "));
             log(TB_LL_WARN, "Could not find pak entry %s at pak paths %s\n", name.c_str(), nicePaths.c_str());
             return PakStream(NULL);
         }
 
-        bool PakManager::paksAtPath(const string& path, vector<PakPtr>& result) {
-            map<string, vector<PakPtr> >::iterator it = paks.find(path);
+        bool PakManager::paksAtPath(const std::string& path, std::vector<PakPtr>& result) {
+            std::map<std::string, std::vector<PakPtr> >::iterator it = paks.find(path);
             if (it != paks.end()) {
                 result = it->second;
                 return true;
@@ -125,10 +125,10 @@ namespace TrenchBroom {
                 return false;
             }
 
-            vector<PakPtr> newPaks;
+            std::vector<PakPtr> newPaks;
             do {
                 if (strncmp(entry->d_name + entry->d_namlen - 4, ".pak", 4) == 0) {
-					string pakPath = appendPath(path, entry->d_name);
+					std::string pakPath = appendPath(path, entry->d_name);
                     Pak* pak = new Pak(pakPath);
                     PakPtr pakPtr(pak);
                     newPaks.push_back(pakPtr);

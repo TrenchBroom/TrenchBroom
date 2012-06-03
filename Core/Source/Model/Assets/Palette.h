@@ -22,8 +22,6 @@
 
 #include <string>
 
-using namespace std;
-
 namespace TrenchBroom {
     namespace Model {
         namespace Assets {
@@ -32,7 +30,7 @@ namespace TrenchBroom {
                 unsigned char* m_data;
                 unsigned int m_size;
             public:
-                Palette(const string& path);
+                Palette(const std::string& path);
                 ~Palette();
                 void indexToRgb(const unsigned char* indexedImage, unsigned char* rgbImage, unsigned int pixelCount) const;
             };

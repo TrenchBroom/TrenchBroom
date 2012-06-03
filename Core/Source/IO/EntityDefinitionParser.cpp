@@ -49,35 +49,35 @@ namespace TrenchBroom {
             if (m_state == TB_TS_EOF)
                 m_state = TB_TS_OUTDEF;
 
-            m_stream.seekg(-1, ios::cur);
+            m_stream.seekg(-1, std::ios::cur);
             m_stream.get(m_char);
             if (m_char == '\n') {
                 m_line--;
                 m_column = 0;
                 char c;
-                streamoff pos = m_stream.tellg();
+                std::streamoff pos = m_stream.tellg();
                 for (int i = 0; i < pos; i++) {
-                    m_stream.seekg(-i, ios::cur);
+                    m_stream.seekg(-i, std::ios::cur);
                     m_stream.get(c);
                     if (c == '\n')
                         break;
                     m_column++;
                 }
-                m_stream.seekg(pos, ios::beg);
+                m_stream.seekg(pos, std::ios::beg);
             } else {
                 m_column--;
             }
-            m_stream.seekg(-1, ios::cur);
+            m_stream.seekg(-1, std::ios::cur);
         }
 
         char EntityDefinitionTokenizer::peekChar() {
             char c;
             m_stream.get(c);
-            m_stream.seekg(-1, ios::cur);
+            m_stream.seekg(-1, std::ios::cur);
             return c;
         }
 
-        EntityDefinitionToken* EntityDefinitionTokenizer::token(ETokenType type, string* data) {
+        EntityDefinitionToken* EntityDefinitionTokenizer::token(ETokenType type, std::string* data) {
             m_token.type = type;
             if (data == NULL)
                 m_token.data.clear();
@@ -89,10 +89,10 @@ namespace TrenchBroom {
             return &m_token;
         }
 
-        EntityDefinitionTokenizer::EntityDefinitionTokenizer(istream& stream) : m_stream(stream), m_state(TB_TS_OUTDEF), m_line(1), m_column(0) {}
+        EntityDefinitionTokenizer::EntityDefinitionTokenizer(std::istream& stream) : m_stream(stream), m_state(TB_TS_OUTDEF), m_line(1), m_column(0) {}
 
         EntityDefinitionToken* EntityDefinitionTokenizer::next() {
-            string buffer;
+            std::string buffer;
             while (nextChar()) {
                 switch (m_state) {
                     case TB_TS_OUTDEF:
@@ -248,7 +248,7 @@ namespace TrenchBroom {
         EntityDefinitionToken* EntityDefinitionTokenizer::peek() {
             int oldLine = m_line;
             int oldColumn = m_column;
-            streamoff oldPos = m_stream.tellg();
+            std::streamoff oldPos = m_stream.tellg();
             char oldChar = m_char;
             ETokenizerState oldState = m_state;
 
@@ -256,18 +256,18 @@ namespace TrenchBroom {
 
             m_line = oldLine;
             m_column = oldColumn;
-            m_stream.seekg(oldPos, ios::beg);
+            m_stream.seekg(oldPos, std::ios::beg);
             m_char = oldChar;
             m_state = oldState;
 
             return &m_token;
         }
 
-        string EntityDefinitionTokenizer::remainder() {
+        std::string EntityDefinitionTokenizer::remainder() {
             assert(m_state == TB_TS_INDEF);
 
             nextChar();
-            string buffer;
+            std::string buffer;
             while (m_state != TB_TS_EOF && m_char != '*' && peekChar() != '/') {
                 buffer += m_char;
                 nextChar();
@@ -327,15 +327,15 @@ namespace TrenchBroom {
             return bounds;
         }
 
-        map<string, Model::SpawnFlag> EntityDefinitionParser::parseFlags() {
-            map<string, Model::SpawnFlag> flags;
+        std::map<std::string, Model::SpawnFlag> EntityDefinitionParser::parseFlags() {
+            std::map<std::string, Model::SpawnFlag> flags;
             EntityDefinitionToken* token = m_tokenizer->peek();
             if (token->type != TB_TT_WORD)
                 return flags;
 
             while (token->type == TB_TT_WORD) {
                 token = m_tokenizer->next();
-                string name = token->data;
+                std::string name = token->data;
                 int value = 1 << flags.size();
                 Model::SpawnFlag flag(name, value);
                 flags[name] = flag;
@@ -345,8 +345,8 @@ namespace TrenchBroom {
             return flags;
         }
 
-        vector<Model::PropertyPtr> EntityDefinitionParser::parseProperties() {
-            vector<Model::PropertyPtr> properties;
+        std::vector<Model::PropertyPtr> EntityDefinitionParser::parseProperties() {
+            std::vector<Model::PropertyPtr> properties;
             EntityDefinitionToken* token = m_tokenizer->peek();
             if (token->type == TB_TT_CB_O) {
                 token = m_tokenizer->next();
@@ -364,12 +364,12 @@ namespace TrenchBroom {
                 return Model::PropertyPtr();
 
             Model::Property* property = NULL;
-            string type = token->data;
+            std::string type = token->data;
             if (type == "choice") {
                 expect(TB_TT_STR, token = m_tokenizer->next());
-                string name = token->data;
+                std::string name = token->data;
 
-                vector<Model::ChoiceArgument> arguments;
+                std::vector<Model::ChoiceArgument> arguments;
                 expect(TB_TT_B_O, token = nextTokenIgnoringNewlines());
                 token = nextTokenIgnoringNewlines();
                 while (token->type == TB_TT_B_O) {
@@ -377,7 +377,7 @@ namespace TrenchBroom {
                     int key = atoi(token->data.c_str());
                     expect(TB_TT_C, token = nextTokenIgnoringNewlines());
                     expect(TB_TT_STR, token = nextTokenIgnoringNewlines());
-                    string value = token->data;
+                    std::string value = token->data;
 
                     Model::ChoiceArgument argument(key, value);
                     arguments.push_back(argument);
@@ -390,10 +390,10 @@ namespace TrenchBroom {
             } else if (type == "model") {
                 expect(TB_TT_B_O, token = nextTokenIgnoringNewlines());
                 expect(TB_TT_STR, nextTokenIgnoringNewlines());
-                string modelPath = token->data;
+                std::string modelPath = token->data;
                 int skinIndex = 0;
                 unsigned long lastColon = modelPath.find_last_of(':');
-                if (lastColon > 0 && lastColon != string::npos) {
+                if (lastColon > 0 && lastColon != std::string::npos) {
                     skinIndex = atoi(modelPath.c_str() + lastColon + 1);
                     modelPath = modelPath.substr(0, lastColon);
                 }
@@ -401,7 +401,7 @@ namespace TrenchBroom {
                 expect(TB_TT_C | TB_TT_B_C, token = nextTokenIgnoringNewlines());
                 if (token->type == TB_TT_C) {
                     expect(TB_TT_STR, token = nextTokenIgnoringNewlines());
-                    string flagName = token->data;
+                    std::string flagName = token->data;
                     property = new Model::ModelProperty(flagName, modelPath, skinIndex);
                     expect(TB_TT_B_C, token = nextTokenIgnoringNewlines());
                 } else {
@@ -410,16 +410,16 @@ namespace TrenchBroom {
             } else if (type == "default") {
                 expect(TB_TT_B_O, token = nextTokenIgnoringNewlines());
                 expect(TB_TT_STR, token = nextTokenIgnoringNewlines());
-                string name = token->data;
+                std::string name = token->data;
                 expect(TB_TT_C, token = nextTokenIgnoringNewlines());
                 expect(TB_TT_STR, token = nextTokenIgnoringNewlines());
-                string value = token->data;
+                std::string value = token->data;
                 property = new Model::DefaultProperty(name, value);
                 expect(TB_TT_B_C, token = nextTokenIgnoringNewlines());
             } else if (type == "base") {
                 expect(TB_TT_B_O, token = nextTokenIgnoringNewlines());
                 expect(TB_TT_STR, token = nextTokenIgnoringNewlines());
-                string baseName = token->data;
+                std::string baseName = token->data;
                 property = new Model::BaseProperty(baseName);
                 expect(TB_TT_B_C, token = nextTokenIgnoringNewlines());
             }
@@ -428,14 +428,14 @@ namespace TrenchBroom {
             return Model::PropertyPtr(property);
         }
 
-        string EntityDefinitionParser::parseDescription() {
+        std::string EntityDefinitionParser::parseDescription() {
             EntityDefinitionToken* token = m_tokenizer->peek();
             if (token->type == TB_TT_ED_C)
                 return "";
             return m_tokenizer->remainder();
         }
 
-        EntityDefinitionParser::EntityDefinitionParser(string path) {
+        EntityDefinitionParser::EntityDefinitionParser(const std::string& path) {
             m_stream.open(path.c_str());
 			assert(m_stream.is_open());
 
@@ -455,15 +455,15 @@ namespace TrenchBroom {
                 return Model::EntityDefinitionPtr();
 
             expect(TB_TT_ED_O, token);
-            string name;
+            std::string name;
             bool hasColor = false;
             bool hasBounds = false;
             bool hasFlags = false;
             Vec4f color;
             BBox bounds;
-            map<string, Model::SpawnFlag> flags;
-            vector<Model::PropertyPtr> properties;
-            string description;
+            std::map<std::string, Model::SpawnFlag> flags;
+            std::vector<Model::PropertyPtr> properties;
+            std::string description;
 
             token = m_tokenizer->next();
             expect(TB_TT_WORD, token);

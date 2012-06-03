@@ -166,7 +166,7 @@ namespace TrenchBroom {
     
     if (editorGui == NULL) {
         NSString* skinPath = [[NSBundle mainBundle] pathForResource:@"DefaultSkin" ofType:@"png"];
-        string skinPathCpp([skinPath cStringUsingEncoding:NSASCIIStringEncoding]);
+        std::string skinPathCpp([skinPath cStringUsingEncoding:NSASCIIStringEncoding]);
         editorGui = new EditorGui(*[self editor], *(FontManager*)fontManager, skinPathCpp);
         editorGuiListener = new EditorGuiListener((EditorGui *)editorGui, self);
     }

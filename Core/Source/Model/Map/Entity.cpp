@@ -27,8 +27,6 @@
 #include "Model/Map/Picker.h"
 #include "Utilities/Console.h"
 
-using namespace std;
-
 namespace TrenchBroom {
     namespace Model {
         void Entity::init() {
@@ -69,10 +67,10 @@ namespace TrenchBroom {
             init();
         }
 
-        Entity::Entity(const map<string, string> properties) : MapObject() {
+        Entity::Entity(const std::map<std::string, std::string>& properties) : MapObject() {
             init();
             m_properties = properties;
-            map<string, string>::iterator it;
+            std::map<std::string, std::string>::iterator it;
             if ((it = m_properties.find(AngleKey)) != m_properties.end())
                 m_angle = static_cast<float>(atof(it->second.c_str()));
             if ((it = m_properties.find(OriginKey)) != m_properties.end())
@@ -140,27 +138,27 @@ namespace TrenchBroom {
             m_map = quakeMap;
         }
 
-        const vector<Brush*>& Entity::brushes() const {
+        const std::vector<Brush*>& Entity::brushes() const {
             return m_brushes;
         }
 
-        const map<string, string>& Entity::properties() const {
+        const std::map<std::string, std::string>& Entity::properties() const {
             return m_properties;
         }
 
-        const string* Entity::propertyForKey(const string& key) const {
-            map<string, string>::const_iterator it = m_properties.find(key);
+        const std::string* Entity::propertyForKey(const std::string& key) const {
+            std::map<std::string, std::string>::const_iterator it = m_properties.find(key);
             if (it == m_properties.end())
                 return NULL;
             return &it->second;
 
         }
 
-        bool Entity::propertyWritable(const string& key) const {
+        bool Entity::propertyWritable(const std::string& key) const {
             return ClassnameKey != key;
         }
 
-        bool Entity::propertyDeletable(const string& key) const {
+        bool Entity::propertyDeletable(const std::string& key) const {
             if (ClassnameKey == key)
                 return false;
             if (OriginKey == key)
@@ -170,11 +168,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        void Entity::setProperty(const string& key, const string& value) {
+        void Entity::setProperty(const std::string& key, const std::string& value) {
             setProperty(key, &value);
         }
 
-        void Entity::setProperty(const string& key, const string* value) {
+        void Entity::setProperty(const std::string& key, const std::string* value) {
             if (key == ClassnameKey && classname() != NULL) {
                 log(TB_LL_WARN, "Cannot overwrite classname property");
                 return;
@@ -186,55 +184,55 @@ namespace TrenchBroom {
                 m_origin = Vec3f(*value);
             } else if (key == AngleKey) {
                 if (value != NULL) m_angle = static_cast<float>(atof(value->c_str()));
-                else m_angle = numeric_limits<float>::quiet_NaN();
+                else m_angle = std::numeric_limits<float>::quiet_NaN();
             }
 
-            const string* oldValue = propertyForKey(key);
+            const std::string* oldValue = propertyForKey(key);
             if (oldValue != NULL && oldValue == value) return;
             m_properties[key] = *value;
             invalidateGeometry();
         }
 
-        void Entity::setProperty(const string& key, const Vec3f& value, bool round) {
-            stringstream valueStr;
+        void Entity::setProperty(const std::string& key, const Vec3f& value, bool round) {
+            std::stringstream valueStr;
             if (round) valueStr << (int)Math::fround(value.x) << " " << (int)Math::fround(value.y) << " " << (int)Math::fround(value.z);
             else valueStr << value.x << " " << value.y << " " << value.z;
             setProperty(key, valueStr.str());
         }
 
-        void Entity::setProperty(const string& key, int value) {
-            stringstream valueStr;
+        void Entity::setProperty(const std::string& key, int value) {
+            std::stringstream valueStr;
             valueStr << value;
             setProperty(key, valueStr.str());
         }
 
-        void Entity::setProperty(const string& key, float value, bool round) {
-            stringstream valueStr;
+        void Entity::setProperty(const std::string& key, float value, bool round) {
+            std::stringstream valueStr;
             if (round) valueStr << (int)Math::fround(value);
             else valueStr << value;
             setProperty(key, valueStr.str());
         }
 
-        void Entity::setProperties(const map<string, string>& properties, bool replace) {
+        void Entity::setProperties(const std::map<std::string, std::string>& properties, bool replace) {
             if (replace) m_properties.clear();
-            map<string, string>::const_iterator it;
+            std::map<std::string, std::string>::const_iterator it;
             for (it = properties.begin(); it != properties.end(); ++it)
                 setProperty(it->first, it->second);
         }
 
-        void Entity::deleteProperty(const string& key) {
+        void Entity::deleteProperty(const std::string& key) {
             if (!propertyDeletable(key)) {
                 log(TB_LL_WARN, "Cannot delete property '%s'", key.c_str());
                 return;
             }
 
-            if (key == AngleKey) m_angle = numeric_limits<float>::quiet_NaN();
+            if (key == AngleKey) m_angle = std::numeric_limits<float>::quiet_NaN();
             if (m_properties.count(key) == 0) return;
             m_properties.erase(key);
             invalidateGeometry();
         }
 
-        const string* Entity::classname() const {
+        const std::string* Entity::classname() const {
             return propertyForKey(ClassnameKey);
         }
 
@@ -259,7 +257,7 @@ namespace TrenchBroom {
             invalidateGeometry();
         }
 
-        void Entity::addBrushes(const vector<Brush*>& brushes) {
+        void Entity::addBrushes(const std::vector<Brush*>& brushes) {
             if (m_entityDefinition != NULL && m_entityDefinition->type != TB_EDT_BRUSH)
                 return;
 
@@ -283,7 +281,7 @@ namespace TrenchBroom {
             invalidateGeometry();
         }
 
-        void Entity::removeBrushes(vector<Brush*>& brushes) {
+        void Entity::removeBrushes(std::vector<Brush*>& brushes) {
             if (m_entityDefinition != NULL && m_entityDefinition->type != TB_EDT_BRUSH)
                 return;
 

@@ -17,9 +17,6 @@
 #include <mmsystem.h>
 #pragma comment( lib, "winmm.lib" )
 
-using namespace Gwen;
-using namespace Gwen::Platform;
-
 #ifdef UNICODE
 static LPWSTR iCursorConvertion[] = 
 #else

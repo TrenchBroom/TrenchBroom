@@ -28,8 +28,6 @@
 #include "Utilities/Event.h"
 #include "Utilities/VecMath.h"
 
-using namespace std;
-
 namespace TrenchBroom {
     class Filter;
 
@@ -69,9 +67,9 @@ namespace TrenchBroom {
 
         class MapRenderer {
         private:
-            typedef vector<GLuint> IndexBuffer;
-            typedef map<Model::Assets::Texture*, VboBlock* > FaceIndexBlocks;
-            typedef map<Model::Entity*, EntityRenderer*> EntityRenderers;
+            typedef std::vector<GLuint> IndexBuffer;
+            typedef std::map<Model::Assets::Texture*, VboBlock* > FaceIndexBlocks;
+            typedef std::map<Model::Entity*, EntityRenderer*> EntityRenderers;
 
             Controller::Editor& m_editor;
             Vbo* m_faceVbo;
@@ -113,17 +111,17 @@ namespace TrenchBroom {
             Model::Assets::Texture* m_dummyTexture;
             FontManager& m_fontManager;
 
-            void addEntities(const vector<Model::Entity*>& entities);
-            void removeEntities(const vector<Model::Entity*>& entities);
-            void addBrushes(const vector<Model::Brush*>& brushes);
-            void removeBrushes(const vector<Model::Brush*>& brushes);
-            void entitiesWereAdded(const vector<Model::Entity*>& entities);
-            void entitiesWillBeRemoved(const vector<Model::Entity*>& entities);
-            void propertiesDidChange(const vector<Model::Entity*>& entities);
-            void brushesWereAdded(const vector<Model::Brush*>& brushes);
-            void brushesWillBeRemoved(const vector<Model::Brush*>& brushes);
-            void brushesDidChange(const vector<Model::Brush*>& brushes);
-            void facesDidChange(const vector<Model::Face*>& faces);
+            void addEntities(const std::vector<Model::Entity*>& entities);
+            void removeEntities(const std::vector<Model::Entity*>& entities);
+            void addBrushes(const std::vector<Model::Brush*>& brushes);
+            void removeBrushes(const std::vector<Model::Brush*>& brushes);
+            void entitiesWereAdded(const std::vector<Model::Entity*>& entities);
+            void entitiesWillBeRemoved(const std::vector<Model::Entity*>& entities);
+            void propertiesDidChange(const std::vector<Model::Entity*>& entities);
+            void brushesWereAdded(const std::vector<Model::Brush*>& brushes);
+            void brushesWillBeRemoved(const std::vector<Model::Brush*>& brushes);
+            void brushesDidChange(const std::vector<Model::Brush*>& brushes);
+            void facesDidChange(const std::vector<Model::Face*>& faces);
             void mapLoaded(Model::Map& map);
             void mapCleared(Model::Map& map);
             void selectionAdded(const Model::SelectionEventData& event);

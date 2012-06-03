@@ -9,8 +9,6 @@
 #include "Gwen/Utility.h"
 #include <math.h>
 
-using namespace Gwen;
-
 #ifndef GWEN_NO_ANIMATION
 
 static Gwen::Anim::Animation::List	g_Animations;

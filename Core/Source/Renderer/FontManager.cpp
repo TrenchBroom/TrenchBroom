@@ -84,7 +84,7 @@ namespace TrenchBroom {
             // nothing to do
         }
 
-        StringRenderer::StringRenderer(const FontDescriptor& descriptor, const string& str, StringData* stringData) : fontDescriptor(descriptor), str(str), m_data(stringData), m_vboBlock(NULL), width(stringData->width), height(stringData->height) {
+        StringRenderer::StringRenderer(const FontDescriptor& descriptor, const std::string& str, StringData* stringData) : fontDescriptor(descriptor), str(str), m_data(stringData), m_vboBlock(NULL), width(stringData->width), height(stringData->height) {
             assert(stringData != NULL);
             m_hasTriangleSet = false;
             m_hasTriangleStrips = false;
@@ -207,7 +207,7 @@ namespace TrenchBroom {
             delete m_stringFactory;
         }
 
-        StringRendererPtr FontManager::createStringRenderer(const FontDescriptor& descriptor, const string& str) {
+        StringRendererPtr FontManager::createStringRenderer(const FontDescriptor& descriptor, const std::string& str) {
             FontCacheMap& fontCache = m_fontCache.fontCacheMap;
             FontCacheMap::iterator fontIt = fontCache.find(descriptor);
             StringCachePtr stringCachePtr;
@@ -237,7 +237,7 @@ namespace TrenchBroom {
         }
 
         void FontManager::destroyStringRenderer(StringRendererPtr stringRenderer) {
-            vector<StringRendererPtr>::iterator unprepStrIt;
+            std::vector<StringRendererPtr>::iterator unprepStrIt;
             for (unprepStrIt = m_unpreparedStrings.begin(); unprepStrIt != m_unpreparedStrings.end(); ++unprepStrIt) {
                 if (unprepStrIt->get() == stringRenderer.get()) {
                     m_unpreparedStrings.erase(unprepStrIt);

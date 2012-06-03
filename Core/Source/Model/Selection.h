@@ -28,8 +28,6 @@
 #include "Utilities/Event.h"
 #include "Utilities/VecMath.h"
 
-using namespace std;
-
 namespace TrenchBroom {
     namespace Model {
         typedef enum {
@@ -47,13 +45,13 @@ namespace TrenchBroom {
         
         class SelectionEventData {
         public:
-            vector<Entity*> entities;
-            vector<Brush*> brushes;
-            vector<Face*> faces;
+            std::vector<Entity*> entities;
+            std::vector<Brush*> brushes;
+            std::vector<Face*> faces;
             SelectionEventData() {};
-            SelectionEventData(const vector<Entity*>& entities) : entities(entities) {}
-            SelectionEventData(const vector<Brush*>& brushes) : brushes(brushes) {}
-            SelectionEventData(const vector<Face*>& faces) : faces(faces) {}
+            SelectionEventData(const std::vector<Entity*>& entities) : entities(entities) {}
+            SelectionEventData(const std::vector<Brush*>& brushes) : brushes(brushes) {}
+            SelectionEventData(const std::vector<Face*>& faces) : faces(faces) {}
             SelectionEventData(Entity& entity) { entities.push_back(&entity); }
             SelectionEventData(Brush& brush) { brushes.push_back(&brush); }
             SelectionEventData(Face& face) { faces.push_back(&face); }
@@ -61,11 +59,11 @@ namespace TrenchBroom {
         
         class Selection {
         private:
-            vector<Face*> m_faces;
-            vector<Brush*> m_brushes;
-            vector<Brush*> m_partialBrushes;
-            vector<Entity*> m_entities;
-            vector<Assets::Texture*> m_mruTextures;
+            std::vector<Face*> m_faces;
+            std::vector<Brush*> m_brushes;
+            std::vector<Brush*> m_partialBrushes;
+            std::vector<Entity*> m_entities;
+            std::vector<Assets::Texture*> m_mruTextures;
             ESelectionMode m_mode;
         public:
             typedef Event<const SelectionEventData&> SelectionEvent;
@@ -76,31 +74,31 @@ namespace TrenchBroom {
             ESelectionMode mode() const;
             bool isPartial(Brush& brush) const;
             bool empty() const;
-            const vector<Assets::Texture*>& mruTextures() const;
-            const vector<Face*>& faces() const;
-            const vector<Face*> brushFaces() const;
-            const vector<Face*> allFaces() const;
-            const vector<Brush*>& brushes() const;
-            const vector<Brush*>& partialBrushes() const;
-            const vector<Entity*>& entities() const;
+            const std::vector<Assets::Texture*>& mruTextures() const;
+            const std::vector<Face*>& faces() const;
+            const std::vector<Face*> brushFaces() const;
+            const std::vector<Face*> allFaces() const;
+            const std::vector<Brush*>& brushes() const;
+            const std::vector<Brush*>& partialBrushes() const;
+            const std::vector<Entity*>& entities() const;
             const Entity* brushSelectionEntity() const;
             Vec3f center() const;
             BBox bounds() const;
             
             void addTexture(Assets::Texture& texture);
             void addFace(Face& face);
-            void addFaces(const vector<Face*>& faces);
+            void addFaces(const std::vector<Face*>& faces);
             void addBrush(Brush& brush);
-            void addBrushes(const vector<Brush*>& brushes);
+            void addBrushes(const std::vector<Brush*>& brushes);
             void addEntity(Entity& entity);
-            void addEntities(const vector<Entity*>& entities);
+            void addEntities(const std::vector<Entity*>& entities);
             
             void removeFace(Face& face);
-            void removeFaces(const vector<Face*>& faces);
+            void removeFaces(const std::vector<Face*>& faces);
             void removeBrush(Brush& brush);
-            void removeBrushes(const vector<Brush*>& brushes);
+            void removeBrushes(const std::vector<Brush*>& brushes);
             void removeEntity(Entity& entity);
-            void removeEntities(const vector<Entity*>& entities);
+            void removeEntities(const std::vector<Entity*>& entities);
             void removeAll();
         };
     }

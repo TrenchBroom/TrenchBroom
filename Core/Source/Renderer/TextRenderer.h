@@ -25,8 +25,6 @@
 #include "Renderer/FontManager.h"
 #include "Utilities/SharedPointer.h"
 
-using namespace std;
-
 namespace TrenchBroom {
     namespace Renderer {
         class RenderContext;
@@ -41,10 +39,10 @@ namespace TrenchBroom {
                 virtual ~Anchor() {}
                 virtual const Vec3f& position() = 0;
             };
-            typedef tr1::shared_ptr<Anchor> AnchorPtr;
+            typedef std::tr1::shared_ptr<Anchor> AnchorPtr;
         private:
-            typedef pair<StringRendererPtr, AnchorPtr> TextEntry;
-            typedef map<int, TextEntry> TextMap;
+            typedef std::pair<StringRendererPtr, AnchorPtr> TextEntry;
+            typedef std::map<int, TextEntry> TextMap;
             
             float m_fadeDistance;
             FontManager& m_fontManager;
@@ -55,7 +53,7 @@ namespace TrenchBroom {
             TextRenderer(FontManager& fontManager, float fadeDistance);
             ~TextRenderer();
             
-            void addString(int key, const string& str, const FontDescriptor& descriptor, AnchorPtr anchor);
+            void addString(int key, const std::string& str, const FontDescriptor& descriptor, AnchorPtr anchor);
             void removeString(int key);
             void transferString(int key, TextRenderer& destination);
             void clear();

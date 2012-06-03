@@ -35,8 +35,8 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        const string EntityRendererManager::entityRendererKey(Model::ModelPropertyPtr modelProperty, const vector<string>& searchPaths) {
-            string key;
+        const std::string EntityRendererManager::entityRendererKey(Model::ModelPropertyPtr modelProperty, const std::vector<std::string>& searchPaths) {
+            std::string key;
             for (unsigned int i = 0; i < searchPaths.size(); i++)
                 key += searchPaths[i] + " ";
             key += modelProperty->modelPath + " ";
@@ -45,17 +45,17 @@ namespace TrenchBroom {
             return key;
         }
 
-        EntityRenderer* EntityRendererManager::entityRenderer(Model::ModelPropertyPtr modelProperty, const vector<string>& mods) {
-            vector<string> searchPaths;
+        EntityRenderer* EntityRendererManager::entityRenderer(Model::ModelPropertyPtr modelProperty, const std::vector<std::string>& mods) {
+            std::vector<std::string> searchPaths;
             for (unsigned int i = 0; i < mods.size(); i++)
                 searchPaths.push_back(appendPath(m_quakePath, mods[i]));
 
-            const string key = entityRendererKey(modelProperty, searchPaths);
+            const std::string key = entityRendererKey(modelProperty, searchPaths);
             EntityRendererCache::iterator it = m_entityRenderers.find(key);
             if (it != m_entityRenderers.end()) return it->second;
 
-            string modelName = modelProperty->modelPath.substr(1);
-            string ext = pathExtension(modelName);
+            std::string modelName = modelProperty->modelPath.substr(1);
+            std::string ext = pathExtension(modelName);
             if (ext == "mdl") {
                 Model::Assets::AliasManager& aliasManager = *Model::Assets::AliasManager::sharedManager;
                 Model::Assets::Alias* alias = aliasManager.aliasForName(modelName, searchPaths);
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             return NULL;
         }
 
-        EntityRendererManager::EntityRendererManager(const string& quakePath, Model::Assets::Palette& palette) : m_quakePath(quakePath), m_palette(palette) {
+        EntityRendererManager::EntityRendererManager(const std::string& quakePath, Model::Assets::Palette& palette) : m_quakePath(quakePath), m_palette(palette) {
             m_vbo = new Renderer::Vbo(GL_ARRAY_BUFFER, 0xFFFF);
         }
 
@@ -89,7 +89,7 @@ namespace TrenchBroom {
             delete m_vbo;
         }
 
-        EntityRenderer* EntityRendererManager::entityRenderer(const Model::EntityDefinition& entityDefinition, const vector<string>& mods) {
+        EntityRenderer* EntityRendererManager::entityRenderer(const Model::EntityDefinition& entityDefinition, const std::vector<std::string>& mods) {
             assert(!mods.empty());
             Model::ModelPropertyPtr modelProperty = entityDefinition.defaultModelProperty();
             if (modelProperty.get() == NULL)
@@ -97,7 +97,7 @@ namespace TrenchBroom {
             return entityRenderer(modelProperty, mods);
         }
 
-        EntityRenderer* EntityRendererManager::entityRenderer(const Model::Entity& entity, const vector<string>& mods) {
+        EntityRenderer* EntityRendererManager::entityRenderer(const Model::Entity& entity, const std::vector<std::string>& mods) {
             const Model::EntityDefinitionPtr entityDefinition = entity.entityDefinition();
             if (entityDefinition.get() == NULL)
                 return NULL;
@@ -110,7 +110,7 @@ namespace TrenchBroom {
             m_entityRenderers.clear();
         }
 
-        void EntityRendererManager::setQuakePath(const string& quakePath) {
+        void EntityRendererManager::setQuakePath(const std::string& quakePath) {
             if (m_quakePath == quakePath) return;
             m_quakePath = quakePath;
             clear();

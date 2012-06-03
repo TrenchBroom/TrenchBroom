@@ -23,8 +23,6 @@
 #include <vector>
 #include "GL/GLee.h"
 
-using namespace std;
-
 namespace TrenchBroom {
     namespace Controller {
         class Grid;
@@ -34,7 +32,7 @@ namespace TrenchBroom {
         class GridRenderer {
         private:
             float m_alpha;
-            vector<GLuint> m_textures;
+            std::vector<GLuint> m_textures;
             void clear();
         public:
             GridRenderer(float alpha) : m_alpha(alpha) {}

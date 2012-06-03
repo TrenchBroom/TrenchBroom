@@ -23,8 +23,6 @@
 #include <cassert>
 #include <string>
 
-using namespace std;
-
 namespace TrenchBroom {
     namespace Controller {
         class ProgressIndicator {
@@ -61,7 +59,7 @@ namespace TrenchBroom {
                 doUpdate();
             }
             
-            virtual void setText(const string& text) = 0;
+            virtual void setText(const std::string& text) = 0;
         };
     }
 }

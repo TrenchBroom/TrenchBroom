@@ -85,8 +85,8 @@ namespace TrenchBroom {
             return NULL;
         }
 
-        vector<Hit*> HitList::hits(int typeMask) {
-            vector<Hit*> result;
+        std::vector<Hit*> HitList::hits(int typeMask) {
+            std::vector<Hit*> result;
             if (!m_sorted) sortHits();
             for (unsigned int i = 0; i < m_hits.size(); i++)
                 if (m_hits[i]->hasType(typeMask))
@@ -94,7 +94,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        const vector<Hit*>& HitList::hits() {
+        const std::vector<Hit*>& HitList::hits() {
             if (!m_sorted) sortHits();
             return m_hits;
         }
@@ -105,7 +105,7 @@ namespace TrenchBroom {
         HitList* Picker::pick(const Ray& ray, Filter& filter) {
             HitList* hits = new HitList();
 
-            vector<MapObject*> objects = m_octree.intersect(ray);
+            std::vector<MapObject*> objects = m_octree.intersect(ray);
             for (unsigned int i = 0; i < objects.size(); i++)
                 objects[i]->pick(ray, *hits);
 

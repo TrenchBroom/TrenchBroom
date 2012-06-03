@@ -118,12 +118,12 @@ namespace TrenchBroom {
             if (!m_bounds.contains(object.bounds())) return false;
             for (unsigned int i = 0; i < 8; i++)
                 if (m_children[i] != NULL && m_children[i]->removeObject(object)) return true;
-            vector<MapObject*>::iterator it = find(m_objects.begin(), m_objects.end(), &object);
+            std::vector<MapObject*>::iterator it = find(m_objects.begin(), m_objects.end(), &object);
             if (it != m_objects.end()) m_objects.erase(it);
             return true;
         }
         
-        void OctreeNode::intersect(const Ray& ray, vector<MapObject*>& objects) {
+        void OctreeNode::intersect(const Ray& ray, std::vector<MapObject*>& objects) {
             if (m_bounds.contains(ray.origin) || !Math::isnan(m_bounds.intersectWithRay(ray))) {
                 objects.insert(objects.end(), m_objects.begin(), m_objects.end());
                 for (unsigned int i = 0; i < 8; i++)
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             }
         }
         
-        void Octree::entitiesWereAddedOrPropertiesDidChange(const vector<Entity*>& entities) {
+        void Octree::entitiesWereAddedOrPropertiesDidChange(const std::vector<Entity*>& entities) {
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
                 if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == TB_EDT_POINT)
@@ -139,7 +139,7 @@ namespace TrenchBroom {
             }
         }
         
-        void Octree::entitiesWillBeRemovedOrPropertiesWillChange(const vector<Entity*>& entities){
+        void Octree::entitiesWillBeRemovedOrPropertiesWillChange(const std::vector<Entity*>& entities){
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
                 if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == TB_EDT_POINT)
@@ -147,14 +147,14 @@ namespace TrenchBroom {
             }
         }
         
-        void Octree::brushesWereAddedOrDidChange(const vector<Brush*>& brushes) {
+        void Octree::brushesWereAddedOrDidChange(const std::vector<Brush*>& brushes) {
             for (unsigned int i = 0; i < brushes.size(); i++) {
                 Brush* brush = brushes[i];
                 m_root->addObject(*brush);
             }
         }
         
-        void Octree::brushesWillBeRemovedOrWillChange(const vector<Brush*>& brushes) {
+        void Octree::brushesWillBeRemovedOrWillChange(const std::vector<Brush*>& brushes) {
             for (unsigned int i = 0; i < brushes.size(); i++) {
                 Brush* brush = brushes[i];
                 assert(m_root->removeObject(*brush));
@@ -162,12 +162,12 @@ namespace TrenchBroom {
         }
         
         void Octree::mapLoaded(Map& map) {
-            const vector<Entity*>& entities = map.entities();
+            const std::vector<Entity*>& entities = map.entities();
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
                 if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == TB_EDT_POINT)
                     m_root->addObject((MapObject&)*entity);
-                const vector<Brush*>& brushes = entity->brushes();
+                const std::vector<Brush*>& brushes = entity->brushes();
                 for (unsigned int j = 0; j < brushes.size(); j++) {
                     Brush* brush = brushes[j];
                     m_root->addObject(*brush);
@@ -207,8 +207,8 @@ namespace TrenchBroom {
             delete m_root;
         }
         
-        vector<MapObject*> Octree::intersect(const Ray& ray) {
-            vector<MapObject*> result;
+        std::vector<MapObject*> Octree::intersect(const Ray& ray) {
+            std::vector<MapObject*> result;
             m_root->intersect(ray, result);
             return result;
         }

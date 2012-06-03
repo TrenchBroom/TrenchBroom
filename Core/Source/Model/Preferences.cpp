@@ -21,34 +21,34 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const string Preferences::CameraKey                         = "Controls: camera key";
-        const string Preferences::CameraOrbitKey                    = "Controls: camera orbit key";
-        const string Preferences::CameraInvertY                     = "Controls: invert camera Y axis";
-        const string Preferences::CameraFov                         = "Camera: field of vision";
-        const string Preferences::Brightness                        = "Renderer: brightness";
-        const string Preferences::FaceColor                         = "Renderer: face color";
-        const string Preferences::EdgeColor                         = "Renderer: edge color";
-        const string Preferences::SelectedFaceColor                 = "Renderer: face color (selected)";
-        const string Preferences::SelectedEdgeColor                 = "Renderer: edge color (selected)";
-        const string Preferences::HiddenSelectedEdgeColor           = "Renderer: edge color (selected and hidden)";
-        const string Preferences::EntityBoundsColor                 = "Renderer: entity bounds color";
-        const string Preferences::EntityBoundsWireframeColor        = "Renderer: entity bounds color (wireframe mode)";
-        const string Preferences::SelectedEntityBoundsColor         = "Renderer: entity bounds color (selected)";
-        const string Preferences::HiddenSelectedEntityBoundsColor   = "Renderer: entity bounds color (selected and hidden)";
-        const string Preferences::SelectionGuideColor               = "Renderer: selection guide color";
-        const string Preferences::HiddenSelectionGuideColor         = "Renderer: selection guide color (hidden)";
-        const string Preferences::BackgroundColor                   = "Renderer: background color";
-        const string Preferences::InfoOverlayColor                  = "Renderer: info overlay color";
-        const string Preferences::InfoOverlayFadeDistance           = "Renderer: info overlay fade distance";
-        const string Preferences::SelectedInfoOverlayColor          = "Renderer: info overlay color (selected)";
-        const string Preferences::SelectedInfoOverlayFadeDistance   = "Renderer: info overlay fade distance (selected)";
-        const string Preferences::SelectedTextureColor              = "Texture Browser: selected texture color";
-        const string Preferences::UsedTextureColor                  = "Texture Browser: used texture color";
-        const string Preferences::OverriddenTextureColor            = "Texture Browser: overridden texture color";
-        const string Preferences::RendererFontName                  = "Renderer: font name";
-        const string Preferences::RendererFontSize                  = "Renderer: font size";
-        const string Preferences::GridAlpha                         = "Renderer: grid translucency";
-        const string Preferences::QuakePath                         = "General: quake path";
+        const std::string Preferences::CameraKey                         = "Controls: camera key";
+        const std::string Preferences::CameraOrbitKey                    = "Controls: camera orbit key";
+        const std::string Preferences::CameraInvertY                     = "Controls: invert camera Y axis";
+        const std::string Preferences::CameraFov                         = "Camera: field of vision";
+        const std::string Preferences::Brightness                        = "Renderer: brightness";
+        const std::string Preferences::FaceColor                         = "Renderer: face color";
+        const std::string Preferences::EdgeColor                         = "Renderer: edge color";
+        const std::string Preferences::SelectedFaceColor                 = "Renderer: face color (selected)";
+        const std::string Preferences::SelectedEdgeColor                 = "Renderer: edge color (selected)";
+        const std::string Preferences::HiddenSelectedEdgeColor           = "Renderer: edge color (selected and hidden)";
+        const std::string Preferences::EntityBoundsColor                 = "Renderer: entity bounds color";
+        const std::string Preferences::EntityBoundsWireframeColor        = "Renderer: entity bounds color (wireframe mode)";
+        const std::string Preferences::SelectedEntityBoundsColor         = "Renderer: entity bounds color (selected)";
+        const std::string Preferences::HiddenSelectedEntityBoundsColor   = "Renderer: entity bounds color (selected and hidden)";
+        const std::string Preferences::SelectionGuideColor               = "Renderer: selection guide color";
+        const std::string Preferences::HiddenSelectionGuideColor         = "Renderer: selection guide color (hidden)";
+        const std::string Preferences::BackgroundColor                   = "Renderer: background color";
+        const std::string Preferences::InfoOverlayColor                  = "Renderer: info overlay color";
+        const std::string Preferences::InfoOverlayFadeDistance           = "Renderer: info overlay fade distance";
+        const std::string Preferences::SelectedInfoOverlayColor          = "Renderer: info overlay color (selected)";
+        const std::string Preferences::SelectedInfoOverlayFadeDistance   = "Renderer: info overlay fade distance (selected)";
+        const std::string Preferences::SelectedTextureColor              = "Texture Browser: selected texture color";
+        const std::string Preferences::UsedTextureColor                  = "Texture Browser: used texture color";
+        const std::string Preferences::OverriddenTextureColor            = "Texture Browser: overridden texture color";
+        const std::string Preferences::RendererFontName                  = "Renderer: font name";
+        const std::string Preferences::RendererFontSize                  = "Renderer: font size";
+        const std::string Preferences::GridAlpha                         = "Renderer: grid translucency";
+        const std::string Preferences::QuakePath                         = "General: quake path";
         
         void Preferences::loadDefaults() {
             m_cameraInvertY = false;
@@ -293,7 +293,7 @@ namespace TrenchBroom {
             return m_overriddenTextureColor;
         }
 
-        const string& Preferences::rendererFontName() {
+        const std::string& Preferences::rendererFontName() {
             return m_rendererFontName;
         }
         
@@ -305,11 +305,11 @@ namespace TrenchBroom {
             return m_gridAlpha;
         }
 
-        const string& Preferences::quakePath() {
+        const std::string& Preferences::quakePath() {
             return m_quakePath;
         }
 
-        void Preferences::setQuakePath(const string& quakePath) {
+        void Preferences::setQuakePath(const std::string& quakePath) {
             if (quakePath == m_quakePath)
                 return;
             

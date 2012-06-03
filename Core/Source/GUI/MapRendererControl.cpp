@@ -49,7 +49,7 @@ namespace TrenchBroom {
             delete m_mapRenderer;
         }
 
-        void MapRendererControl::Render(Skin::Base* skin) {
+        void MapRendererControl::Render(Gwen::Skin::Base* skin) {
             const Gwen::Rect& bounds = GetBounds();
 
             glPushAttrib(GL_ALL_ATTRIB_BITS);

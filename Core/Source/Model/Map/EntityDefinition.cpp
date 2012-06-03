@@ -40,7 +40,7 @@ namespace TrenchBroom {
             return def1->usageCount <= def2->usageCount;
         }
         
-        EntityDefinitionPtr EntityDefinition::baseDefinition(const string& name, const map<string, SpawnFlag>& flags, const vector<PropertyPtr>& properties) {
+        EntityDefinitionPtr EntityDefinition::baseDefinition(const std::string& name, const std::map<std::string, SpawnFlag>& flags, const std::vector<PropertyPtr>& properties) {
             EntityDefinition* definition = new EntityDefinition();
             definition->type = TB_EDT_BASE;
             definition->name = name;
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             return EntityDefinitionPtr(definition);
         }
 
-        EntityDefinitionPtr EntityDefinition::pointDefinition(const string& name, const Vec4f& color, const BBox& bounds, const map<string, SpawnFlag>& flags, const vector<PropertyPtr>& properties, const string& description) {
+        EntityDefinitionPtr EntityDefinition::pointDefinition(const std::string& name, const Vec4f& color, const BBox& bounds, const std::map<std::string, SpawnFlag>& flags, const std::vector<PropertyPtr>& properties, const std::string& description) {
             EntityDefinition* definition = new EntityDefinition();
             definition->type = TB_EDT_POINT;
             definition->name = name;
@@ -61,7 +61,7 @@ namespace TrenchBroom {
             return EntityDefinitionPtr(definition);
         }
 
-        EntityDefinitionPtr EntityDefinition::brushDefinition(const string& name, const Vec4f& color, const map<string, SpawnFlag>& flags, const vector<PropertyPtr>& properties, const string& description) {
+        EntityDefinitionPtr EntityDefinition::brushDefinition(const std::string& name, const Vec4f& color, const std::map<std::string, SpawnFlag>& flags, const std::vector<PropertyPtr>& properties, const std::string& description) {
             EntityDefinition* definition = new EntityDefinition();
             definition->type = TB_EDT_BRUSH;
             definition->name = name;
@@ -72,9 +72,9 @@ namespace TrenchBroom {
             return EntityDefinitionPtr(definition);
         }
 
-        vector<SpawnFlag> EntityDefinition::flagsForMask(int mask) const {
-            vector<SpawnFlag> result;
-            map<string, SpawnFlag>::const_iterator it;
+        std::vector<SpawnFlag> EntityDefinition::flagsForMask(int mask) const {
+            std::vector<SpawnFlag> result;
+            std::map<std::string, SpawnFlag>::const_iterator it;
             for (it = flags.begin(); it != flags.end(); ++it)
                 if ((it->second.flag & mask) != 0)
                     result.push_back(it->second);
@@ -82,11 +82,11 @@ namespace TrenchBroom {
             return result;
         }
 
-        bool EntityDefinition::flagSetOnEntity(const string& name, const Entity& entity) const {
-            const string* entityFlagsStr = entity.propertyForKey(SpawnFlagsKey);
+        bool EntityDefinition::flagSetOnEntity(const std::string& name, const Entity& entity) const {
+            const std::string* entityFlagsStr = entity.propertyForKey(SpawnFlagsKey);
             if (entityFlagsStr == NULL)
                 return false;
-            map<string, SpawnFlag>::const_iterator it = flags.find(name);
+            std::map<std::string, SpawnFlag>::const_iterator it = flags.find(name);
             if (it == flags.end())
                 return false;
             return (it->second.flag & atoi(entityFlagsStr->c_str())) != 0;
@@ -99,7 +99,7 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < properties.size() && specificProperty == NULL; i++) {
                 PropertyPtr property = properties[i];
                 if (property->type == TB_EDP_MODEL) {
-                    ModelPropertyPtr modelProperty = tr1::static_pointer_cast<ModelProperty>(property);
+                    ModelPropertyPtr modelProperty = std::tr1::static_pointer_cast<ModelProperty>(property);
                     if (modelProperty->flagName.empty())
                         defaultProperty = modelProperty;
                     else if (flagSetOnEntity(modelProperty->flagName, entity))
@@ -114,7 +114,7 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < properties.size(); i++) {
                 PropertyPtr property = properties[i];
                 if (property->type == TB_EDP_MODEL) {
-                    ModelPropertyPtr modelProperty = tr1::static_pointer_cast<ModelProperty>(property);
+                    ModelPropertyPtr modelProperty = std::tr1::static_pointer_cast<ModelProperty>(property);
                     if (modelProperty->flagName.empty())
                         return modelProperty;
                 }
@@ -125,7 +125,7 @@ namespace TrenchBroom {
 
         EntityDefinitionManagerMap* EntityDefinitionManager::sharedManagers = NULL;
 
-        EntityDefinitionManager::EntityDefinitionManager(const string& path) {
+        EntityDefinitionManager::EntityDefinitionManager(const std::string& path) {
             clock_t start = clock();
             IO::EntityDefinitionParser parser(path);
             EntityDefinitionPtr definition;
@@ -138,7 +138,7 @@ namespace TrenchBroom {
             log(TB_LL_INFO, "Loaded %s in %f seconds\n", path.c_str(), (clock() - start) / CLK_TCK / 10000.0f);
         }
 
-        EntityDefinitionManagerPtr EntityDefinitionManager::sharedManager(const string& path) {
+        EntityDefinitionManagerPtr EntityDefinitionManager::sharedManager(const std::string& path) {
             EntityDefinitionManagerMap::iterator it = sharedManagers->find(path);
             if (it != sharedManagers->end())
                 return it->second;
@@ -149,23 +149,23 @@ namespace TrenchBroom {
             return instancePtr;
         }
 
-        EntityDefinitionPtr EntityDefinitionManager::definition(const string& name) const {
-            map<const string, EntityDefinitionPtr>::const_iterator it = m_definitions.find(name);
+        EntityDefinitionPtr EntityDefinitionManager::definition(const std::string& name) const {
+            std::map<const std::string, EntityDefinitionPtr>::const_iterator it = m_definitions.find(name);
             if (it == m_definitions.end())
                 return EntityDefinitionPtr();
             return it->second;
         }
 
-        const vector<EntityDefinitionPtr>& EntityDefinitionManager::definitions() const {
+        const std::vector<EntityDefinitionPtr>& EntityDefinitionManager::definitions() const {
             return m_definitionsByName;
         }
 
-        vector<EntityDefinitionPtr> EntityDefinitionManager::definitions(EEntityDefinitionType type) const {
+        std::vector<EntityDefinitionPtr> EntityDefinitionManager::definitions(EEntityDefinitionType type) const {
             return definitions(type, ES_NAME);
         }
 
-        vector<EntityDefinitionPtr>EntityDefinitionManager::definitions(EEntityDefinitionType type, EEntityDefinitionSortCriterion criterion) const {
-            vector<EntityDefinitionPtr> definitionsOfType;
+        std::vector<EntityDefinitionPtr>EntityDefinitionManager::definitions(EEntityDefinitionType type, EEntityDefinitionSortCriterion criterion) const {
+            std::vector<EntityDefinitionPtr> definitionsOfType;
             for (unsigned int i = 0; i < m_definitionsByName.size(); i++)
                 if (m_definitionsByName[i]->type == type)
                     definitionsOfType.push_back(m_definitionsByName[i]);

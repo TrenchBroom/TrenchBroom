@@ -28,23 +28,23 @@ namespace TrenchBroom {
     namespace Renderer {
 		ChangeSet::ChangeSet() : m_filterChanged(false), m_textureManagerChanged(false) {}
         
-        void ChangeSet::entitiesAdded(const vector<Model::Entity*>& entities) {
+        void ChangeSet::entitiesAdded(const std::vector<Model::Entity*>& entities) {
             m_addedEntities.insert(m_addedEntities.end(), entities.begin(), entities.end());
         }
         
-        void ChangeSet::entitiesRemoved(const vector<Model::Entity*>& entities) {
+        void ChangeSet::entitiesRemoved(const std::vector<Model::Entity*>& entities) {
             m_removedEntities.insert(m_removedEntities.end(), entities.begin(), entities.end());
         }
         
-        void ChangeSet::entitiesChanged(const vector<Model::Entity*>& entities) {
+        void ChangeSet::entitiesChanged(const std::vector<Model::Entity*>& entities) {
             m_changedEntities.insert(m_changedEntities.end(), entities.begin(), entities.end());
         }
         
-        void ChangeSet::entitiesSelected(const vector<Model::Entity*>& entities) {
+        void ChangeSet::entitiesSelected(const std::vector<Model::Entity*>& entities) {
             if (!m_deselectedEntities.empty()) {
                 for (unsigned int i = 0; i < entities.size(); i++) {
                     Model::Entity* entity = entities[i];
-                    vector<Model::Entity*>::iterator it = find(m_deselectedEntities.begin(), m_deselectedEntities.end(), entity);
+                    std::vector<Model::Entity*>::iterator it = find(m_deselectedEntities.begin(), m_deselectedEntities.end(), entity);
                     if (it != m_deselectedEntities.end()) m_deselectedEntities.erase(it);
                     else m_selectedEntities.push_back(entity);
                 }
@@ -53,27 +53,27 @@ namespace TrenchBroom {
             }
         }
         
-        void ChangeSet::entitiesDeselected(const vector<Model::Entity*>& entities) {
+        void ChangeSet::entitiesDeselected(const std::vector<Model::Entity*>& entities) {
             m_deselectedEntities.insert(m_deselectedEntities.end(), entities.begin(), entities.end());
         }
         
-        void ChangeSet::brushesAdded(const vector<Model::Brush*>& brushes) {
+        void ChangeSet::brushesAdded(const std::vector<Model::Brush*>& brushes) {
             m_addedBrushes.insert(m_addedBrushes.end(), brushes.begin(), brushes.end());
         }
         
-        void ChangeSet::brushesRemoved(const vector<Model::Brush*>& brushes) {
+        void ChangeSet::brushesRemoved(const std::vector<Model::Brush*>& brushes) {
             m_removedBrushes.insert(m_removedBrushes.end(), brushes.begin(), brushes.end());
         }
         
-        void ChangeSet::brushesChanged(const vector<Model::Brush*>& brushes) {
+        void ChangeSet::brushesChanged(const std::vector<Model::Brush*>& brushes) {
             m_changedBrushes.insert(m_changedBrushes.end(), brushes.begin(), brushes.end());
         }
         
-        void ChangeSet::brushesSelected(const vector<Model::Brush*>& brushes) {
+        void ChangeSet::brushesSelected(const std::vector<Model::Brush*>& brushes) {
             if (!m_deselectedBrushes.empty()) {
                 for (unsigned int i = 0; i < brushes.size(); i++) {
                     Model::Brush* brush = brushes[i];
-                    vector<Model::Brush*>::iterator it = find(m_deselectedBrushes.begin(), m_deselectedBrushes.end(), brush);
+                    std::vector<Model::Brush*>::iterator it = find(m_deselectedBrushes.begin(), m_deselectedBrushes.end(), brush);
                     if (it != m_deselectedBrushes.end()) m_deselectedBrushes.erase(it);
                     else m_selectedBrushes.push_back(brush);
                 }
@@ -82,19 +82,19 @@ namespace TrenchBroom {
             }
         }
         
-        void ChangeSet::brushesDeselected(const vector<Model::Brush*>& brushes) {
+        void ChangeSet::brushesDeselected(const std::vector<Model::Brush*>& brushes) {
             m_deselectedBrushes.insert(m_deselectedBrushes.end(), brushes.begin(), brushes.end());
         }
         
-        void ChangeSet::facesChanged(const vector<Model::Face*>& faces) {
+        void ChangeSet::facesChanged(const std::vector<Model::Face*>& faces) {
             m_changedFaces.insert(m_changedFaces.end(), faces.begin(), faces.end());
         }
         
-        void ChangeSet::facesSelected(const vector<Model::Face*>& faces) {
+        void ChangeSet::facesSelected(const std::vector<Model::Face*>& faces) {
             if (!m_deselectedFaces.empty()) {
                 for (unsigned int i = 0; i < faces.size(); i++) {
                     Model::Face* face = faces[i];
-                    vector<Model::Face*>::iterator it = find(m_deselectedFaces.begin(), m_deselectedFaces.end(), face);
+                    std::vector<Model::Face*>::iterator it = find(m_deselectedFaces.begin(), m_deselectedFaces.end(), face);
                     if (it != m_deselectedFaces.end()) m_deselectedFaces.erase(it);
                     else m_selectedFaces.push_back(face);
                 }
@@ -103,7 +103,7 @@ namespace TrenchBroom {
             }
         }
         
-        void ChangeSet::facesDeselected(const vector<Model::Face*>& faces) {
+        void ChangeSet::facesDeselected(const std::vector<Model::Face*>& faces) {
             m_deselectedFaces.insert(m_deselectedFaces.end(), faces.begin(), faces.end());
         }
         
@@ -134,55 +134,55 @@ namespace TrenchBroom {
         }
         
         
-        const vector<Model::Entity*> ChangeSet::addedEntities() const {
+        const std::vector<Model::Entity*> ChangeSet::addedEntities() const {
             return m_addedEntities;
         }
         
-        const vector<Model::Entity*> ChangeSet::removedEntities() const {
+        const std::vector<Model::Entity*> ChangeSet::removedEntities() const {
             return m_removedEntities;
         }
         
-        const vector<Model::Entity*> ChangeSet::changedEntities() const {
+        const std::vector<Model::Entity*> ChangeSet::changedEntities() const {
             return m_changedEntities;
         }
         
-        const vector<Model::Entity*> ChangeSet::selectedEntities() const {
+        const std::vector<Model::Entity*> ChangeSet::selectedEntities() const {
             return m_selectedEntities;
         }
         
-        const vector<Model::Entity*> ChangeSet::deselectedEntities() const {
+        const std::vector<Model::Entity*> ChangeSet::deselectedEntities() const {
             return m_deselectedEntities;
         }
         
-        const vector<Model::Brush*> ChangeSet::addedBrushes() const {
+        const std::vector<Model::Brush*> ChangeSet::addedBrushes() const {
             return m_addedBrushes;
         }
         
-        const vector<Model::Brush*> ChangeSet::removedBrushes() const {
+        const std::vector<Model::Brush*> ChangeSet::removedBrushes() const {
             return m_removedBrushes;
         }
         
-        const vector<Model::Brush*> ChangeSet::changedBrushes() const {
+        const std::vector<Model::Brush*> ChangeSet::changedBrushes() const {
             return m_changedBrushes;
         }
         
-        const vector<Model::Brush*> ChangeSet::selectedBrushes() const {
+        const std::vector<Model::Brush*> ChangeSet::selectedBrushes() const {
             return m_selectedBrushes;
         }
         
-        const vector<Model::Brush*> ChangeSet::deselectedBrushes() const {
+        const std::vector<Model::Brush*> ChangeSet::deselectedBrushes() const {
             return m_deselectedBrushes;
         }
         
-        const vector<Model::Face*> ChangeSet::changedFaces() const {
+        const std::vector<Model::Face*> ChangeSet::changedFaces() const {
             return m_changedFaces;
         }
         
-        const vector<Model::Face*> ChangeSet::selectedFaces() const {
+        const std::vector<Model::Face*> ChangeSet::selectedFaces() const {
             return m_selectedFaces;
         }
         
-        const vector<Model::Face*> ChangeSet::deselectedFaces() const {
+        const std::vector<Model::Face*> ChangeSet::deselectedFaces() const {
             return m_deselectedFaces;
         }
         

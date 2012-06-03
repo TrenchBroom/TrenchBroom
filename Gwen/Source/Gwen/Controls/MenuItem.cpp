@@ -9,8 +9,10 @@
 #include "Gwen/Controls/MenuItem.h"
 #include "Gwen/Skin.h"
 
-using namespace Gwen;
-using namespace Gwen::Controls;
+namespace Gwen
+{
+    namespace Controls
+    {
 
 class RightArrow : public Controls::Base
 {
@@ -185,4 +187,6 @@ void MenuItem::SizeToContents()
 		m_Accelerator->SizeToContents();
 		SetWidth( Width() + m_Accelerator->Width() );
 	}
+}
+    }
 }

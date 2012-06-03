@@ -7,6 +7,3 @@
 #include "Gwen/Gwen.h"
 #include "Gwen/Controls/Dialogs/Query.h"
 
-using namespace Gwen;
-using namespace Gwen::Controls;
-

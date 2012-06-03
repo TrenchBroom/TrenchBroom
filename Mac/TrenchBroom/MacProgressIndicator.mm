@@ -54,7 +54,7 @@ namespace TrenchBroom {
             [[NSRunLoop currentRunLoop] runMode:NSModalPanelRunLoopMode beforeDate:[NSDate date]];
         }
 
-        void MacProgressIndicator::setText(const string& text) {
+        void MacProgressIndicator::setText(const std::string& text) {
             NSTextField* label = [m_windowController label];
             [label setStringValue:[NSString stringWithCString:text.c_str() encoding:NSASCIIStringEncoding]];
             [[NSRunLoop currentRunLoop] runMode:NSModalPanelRunLoopMode beforeDate:[NSDate date]];

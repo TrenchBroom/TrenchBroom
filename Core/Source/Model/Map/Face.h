@@ -23,8 +23,6 @@
 #include <vector>
 #include "Utilities/VecMath.h"
 
-using namespace std;
-
 namespace TrenchBroom {
     namespace Renderer {
         class VboBlock;
@@ -49,7 +47,7 @@ namespace TrenchBroom {
             Plane m_boundary;
             const BBox& m_worldBounds;
             
-            string m_textureName;
+            std::string m_textureName;
             Assets::Texture* m_texture;
             float m_xOffset;
             float m_yOffset;
@@ -76,7 +74,7 @@ namespace TrenchBroom {
             void validateTexAxes(const Vec3f& faceNormal);
             void compensateTransformation(const Mat4f& transformation);
         public:
-            Face(const BBox& worldBounds, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const string& textureName);
+            Face(const BBox& worldBounds, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const std::string& textureName);
             Face(const BBox& worldBounds, const Face& faceTemplate);
             Face(const Face& face);
             ~Face();
@@ -94,11 +92,11 @@ namespace TrenchBroom {
             Plane boundary() const;
             Vec3f center() const;
             const BBox& worldBounds() const;
-            const vector<Vertex*>& vertices() const;
-            const vector<Edge*>& edges() const;
+            const std::vector<Vertex*>& vertices() const;
+            const std::vector<Edge*>& edges() const;
             
             Assets::Texture* texture() const;
-            const string& textureName() const;
+            const std::string& textureName() const;
             void setTexture(Assets::Texture* texture);
             int xOffset() const;
             void setXOffset(int xOffset);

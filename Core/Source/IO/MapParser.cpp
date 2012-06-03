@@ -55,7 +55,7 @@ namespace TrenchBroom {
         
         MapToken* MapTokenizer::token(ETokenType type, char* data, unsigned int index, unsigned int line, unsigned int column) {
             m_token.type = type;
-            if (data != NULL) m_token.data = string(data, index);
+            if (data != NULL) m_token.data = std::string(data, index);
             else m_token.data.clear();
             m_token.line = line;
             m_token.column = column;
@@ -63,9 +63,9 @@ namespace TrenchBroom {
             return &m_token;
         }
         
-        MapTokenizer::MapTokenizer(istream& stream) : m_state(TB_TS_DEF), m_line(1), m_column(1) {
-            istreambuf_iterator<char> begin(stream), end;
-            m_chars = vector<char>(begin, end);
+        MapTokenizer::MapTokenizer(std::istream& stream) : m_state(TB_TS_DEF), m_line(1), m_column(1) {
+            std::istreambuf_iterator<char> begin(stream), end;
+            m_chars = std::vector<char>(begin, end);
             m_index = 0;
         }
         
@@ -245,12 +245,12 @@ namespace TrenchBroom {
             m_tokenStack.push_back(token);
         }
         
-        MapParser::MapParser(istream& stream) {
-            streamoff cur = stream.tellg();
-            stream.seekg(0, ios::end);
+        MapParser::MapParser(std::istream& stream) {
+            std::streamoff cur = stream.tellg();
+            stream.seekg(0, std::ios::end);
             m_size = static_cast<unsigned int>(stream.tellg());
             m_size -= static_cast<unsigned int>(cur);
-            stream.seekg(cur, ios::beg);
+            stream.seekg(cur, std::ios::beg);
             m_tokenizer = new MapTokenizer(stream);
         }
         
@@ -258,38 +258,38 @@ namespace TrenchBroom {
             delete m_tokenizer;
         }
         
-        void MapParser::parseMap(Map& map, Controller::ProgressIndicator* indicator) {
+        void MapParser::parseMap(Model::Map& map, Controller::ProgressIndicator* indicator) {
             m_format = TB_MF_UNDEFINED;
-            Entity* entity = NULL;
+            Model::Entity* entity = NULL;
             
             if (indicator != NULL) indicator->reset(static_cast<float>(m_tokenizer->size()));
             while ((entity = parseEntity(map.worldBounds(), indicator)) != NULL) map.addEntity(entity);
             if (indicator != NULL) indicator->update(static_cast<float>(m_tokenizer->size()));
         }
         
-        Entity* MapParser::parseEntity(const BBox& worldBounds, Controller::ProgressIndicator* indicator) {
+        Model::Entity* MapParser::parseEntity(const BBox& worldBounds, Controller::ProgressIndicator* indicator) {
             MapToken* token = nextToken();
             if (token == NULL) return NULL;
             
             expect(TB_TT_CB_O | TB_TT_CB_C, token);
             if (token->type == TB_TT_CB_C) return NULL;
             
-            Entity* entity = new Entity();
+            Model::Entity* entity = new Model::Entity();
             entity->setFilePosition(token->line);
             
             while ((token = nextToken()) != NULL) {
                 switch (token->type) {
                     case TB_TT_STR: {
-                        string key = token->data;
+                        std::string key = token->data;
                         token = nextToken();
                         expect(TB_TT_STR, token);
-                        string value = token->data;
+                        std::string value = token->data;
                         entity->setProperty(key, value);
                         break;
                     }
                     case TB_TT_CB_O: {
                         pushToken(token);
-                        Brush* brush = NULL;
+                        Model::Brush* brush = NULL;
                         while ((brush = parseBrush(worldBounds, indicator)) != NULL)
                             entity->addBrush(brush);
                     }
@@ -306,20 +306,20 @@ namespace TrenchBroom {
             return entity;
         }
         
-        Brush* MapParser::parseBrush(const BBox& worldBounds, Controller::ProgressIndicator* indicator) {
+        Model::Brush* MapParser::parseBrush(const BBox& worldBounds, Controller::ProgressIndicator* indicator) {
             MapToken* token;
 
             expect(TB_TT_CB_O | TB_TT_CB_C, token = nextToken());
             if (token->type == TB_TT_CB_C) return NULL;
             
-            Brush* brush = new Brush(worldBounds);
+            Model::Brush* brush = new Model::Brush(worldBounds);
             brush->setFilePosition(token->line);
             
             while ((token = nextToken()) != NULL) {
                 switch (token->type) {
                     case TB_TT_B_O: {
                         pushToken(token);
-                        Face* face = parseFace(worldBounds);
+                        Model::Face* face = parseFace(worldBounds);
                         if (face != NULL) brush->addFace(face);
                         break;
                     }
@@ -334,7 +334,7 @@ namespace TrenchBroom {
             return NULL;
         }
         
-        Face* MapParser::parseFace(const BBox& worldBounds) {
+        Model::Face* MapParser::parseFace(const BBox& worldBounds) {
             Vec3f p1, p2, p3;
             float xOffset, yOffset, rotation, xScale, yScale;
             MapToken* token;
@@ -365,7 +365,7 @@ namespace TrenchBroom {
             expect(TB_TT_B_C, token = nextToken());
             
             expect(TB_TT_STR, token = nextToken());
-            string textureName = token->data;
+            std::string textureName = token->data;
             
             token = nextToken();
             if (m_format == TB_MF_UNDEFINED) {
@@ -412,7 +412,7 @@ namespace TrenchBroom {
                 return NULL;
             }
             
-            Face* face = new Face(worldBounds, p1, p2, p3, textureName);
+            Model::Face* face = new Model::Face(worldBounds, p1, p2, p3, textureName);
             face->setXOffset(static_cast<int>(Math::fround(xOffset)));
             face->setYOffset(static_cast<int>(Math::fround(yOffset)));
             face->setRotation(rotation);

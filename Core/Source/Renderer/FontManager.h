@@ -26,21 +26,19 @@
 #include "GL/GLee.h"
 #include "Utilities/SharedPointer.h"
 
-using namespace std;
-
 namespace TrenchBroom {
     namespace Renderer {
         class Vbo;
         class VboBlock;
 
-        typedef vector<int> IntBuffer;
-        typedef vector<float> FloatBuffer;
+        typedef std::vector<int> IntBuffer;
+        typedef std::vector<float> FloatBuffer;
 
         class FontDescriptor {
         public:
-            const string name;
+            const std::string name;
             const int size;
-            FontDescriptor(const string name, int size) : name(name), size(size) {}
+            FontDescriptor(const std::string& name, int size) : name(name), size(size) {}
         };
 
         bool operator<(FontDescriptor const& left, FontDescriptor const& right);
@@ -57,8 +55,8 @@ namespace TrenchBroom {
             };
 
             FloatBuffer triangleSet;
-            vector<FloatBuffer*> triangleStrips;
-            vector<FloatBuffer*> triangleFans;
+            std::vector<FloatBuffer*> triangleStrips;
+            std::vector<FloatBuffer*> triangleFans;
             int vertexCount;
             float width, height;
 
@@ -85,23 +83,23 @@ namespace TrenchBroom {
             IntBuffer* m_triangleFanCounts;
         public:
             const FontDescriptor fontDescriptor;
-            const string str;
+            const std::string str;
             float width;
             float height;
 
-            StringRenderer(const FontDescriptor& descriptor, const string& str, StringData* stringData);
+            StringRenderer(const FontDescriptor& descriptor, const std::string& str, StringData* stringData);
             ~StringRenderer();
             void prepare(Vbo& vbo);
             void renderBackground(float hInset, float vInset);
             void render();
         };
 
-        typedef tr1::shared_ptr<StringRenderer> StringRendererPtr;
+        typedef std::tr1::shared_ptr<StringRenderer> StringRendererPtr;
 
         class StringFactory {
         public:
             virtual ~StringFactory() {};
-            virtual StringData* createStringData(const FontDescriptor& descriptor, const string& str) = 0;
+            virtual StringData* createStringData(const FontDescriptor& descriptor, const std::string& str) = 0;
         };
 
         class FontManager {
@@ -113,29 +111,29 @@ namespace TrenchBroom {
                 int count;
                 StringCacheEntry(StringRendererPtr stringRenderer, int count) : stringRenderer(stringRenderer), count(count) {};
             };
-            typedef tr1::shared_ptr<StringCacheEntry> StringCacheEntryPtr;
+            typedef std::tr1::shared_ptr<StringCacheEntry> StringCacheEntryPtr;
 
-            typedef map<const string, StringCacheEntryPtr> StringCacheMap;
+            typedef std::map<const std::string, StringCacheEntryPtr> StringCacheMap;
             class StringCache {
             public:
                 StringCacheMap stringCacheMap;
             };
-            typedef tr1::shared_ptr<StringCache> StringCachePtr;
+            typedef std::tr1::shared_ptr<StringCache> StringCachePtr;
             
-            typedef map<const FontDescriptor, StringCachePtr> FontCacheMap;
+            typedef std::map<const FontDescriptor, StringCachePtr> FontCacheMap;
             class FontCache {
             public:
                 FontCacheMap fontCacheMap;
             };
 
             Vbo* m_vbo;
-            vector<StringRendererPtr> m_unpreparedStrings;
+            std::vector<StringRendererPtr> m_unpreparedStrings;
             FontCache m_fontCache;
             StringFactory* m_stringFactory;
         public:
             FontManager(StringFactory* stringFactory);
             ~FontManager();
-            StringRendererPtr createStringRenderer(const FontDescriptor& descriptor, const string& str);
+            StringRendererPtr createStringRenderer(const FontDescriptor& descriptor, const std::string& str);
             void destroyStringRenderer(StringRendererPtr stringRenderer);
             void clear();
 

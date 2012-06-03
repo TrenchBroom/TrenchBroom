@@ -34,7 +34,7 @@ namespace TrenchBroom {
                 Preferences::sharedPreferences->preferencesDidChange -= new Preferences::PreferencesEvent::Listener<PreferencesListener>(this, &PreferencesListener::preferencesDidChange);
         }
         
-        void PreferencesListener::preferencesDidChange(const string& key) {
+        void PreferencesListener::preferencesDidChange(const std::string& key) {
             [[PreferencesWindowController sharedInstance] update];
         }
     }
@@ -45,13 +45,13 @@ static PreferencesListener* preferencesListener = nil;
 
 @interface PreferencesWindowController (Private)
 
-- (NSString *)nsString:(const string&)cppString;
+- (NSString *)nsString:(const std::string&)cppString;
 
 @end
 
 @implementation PreferencesWindowController (Private)
 
-- (NSString *)nsString:(const string&)cppString {
+- (NSString *)nsString:(const std::string&)cppString {
     return [NSString stringWithCString:cppString.c_str() encoding:NSASCIIStringEncoding];
 }
 

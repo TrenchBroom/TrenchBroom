@@ -28,8 +28,6 @@
 #include <cstdint>
 #endif
 
-using namespace std;
-
 namespace TrenchBroom {
     namespace IO {
 		static const int WAD_NUM_ENTRIES_ADDRESS	= 4;
@@ -52,12 +50,12 @@ namespace TrenchBroom {
             int32_t length;
             int32_t size;
             char type;
-            string name;
+            std::string name;
         };
         
         class Mip {
         public:
-            string name;
+            std::string name;
             int width;
             int height;
             unsigned char* mip0;
@@ -65,15 +63,15 @@ namespace TrenchBroom {
             unsigned char* mip2;
             unsigned char* mip3;
             
-            Mip(const string& name, int width, int height);
+            Mip(const std::string& name, int width, int height);
             ~Mip();
         };
         
         class Wad {
-            ifstream m_stream;
+            std::ifstream m_stream;
         public:
-            vector<WadEntry> entries;
-            Wad(const string& path);
+            std::vector<WadEntry> entries;
+            Wad(const std::string& path);
             ~Wad();
             Mip* loadMipAtEntry(const WadEntry& entry);
         };

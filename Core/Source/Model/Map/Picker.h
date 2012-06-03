@@ -22,8 +22,6 @@
 #include <vector>
 #include "Utilities/VecMath.h"
 
-using namespace std;
-
 namespace TrenchBroom {
     class Filter;
 
@@ -61,7 +59,7 @@ namespace TrenchBroom {
         
         class HitList {
         private:
-            vector<Hit*> m_hits;
+            std::vector<Hit*> m_hits;
             bool m_sorted;
             static bool compareHits(const Hit* left, const Hit* right);
             void sortHits();
@@ -70,8 +68,8 @@ namespace TrenchBroom {
             ~HitList();
             void add(Hit& hit);
             Hit* first(int typeMask, bool ignoreOccluders);
-            vector<Hit*> hits(int typeMask);
-            const vector<Hit*>& hits();
+            std::vector<Hit*> hits(int typeMask);
+            const std::vector<Hit*>& hits();
         };
         
         class Picker {

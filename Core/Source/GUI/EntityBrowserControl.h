@@ -46,7 +46,7 @@ namespace TrenchBroom {
         class EntityBrowserPanel : public Gwen::Controls::Base {
         protected:
             typedef std::tr1::shared_ptr<Gwen::Font> FontPtr;
-            typedef pair<Model::EntityDefinitionPtr, FontPtr> CellData;
+            typedef std::pair<Model::EntityDefinitionPtr, FontPtr> CellData;
             typedef void* GroupData;
 
             Controller::Editor& m_editor;

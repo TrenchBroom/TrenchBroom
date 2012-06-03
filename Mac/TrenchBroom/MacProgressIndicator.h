@@ -40,7 +40,7 @@ namespace TrenchBroom {
             ~MacProgressIndicator();
             void doReset();
             void doUpdate();
-            void setText(const string& text);
+            void setText(const std::string& text);
         };
     }
 }

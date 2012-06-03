@@ -22,7 +22,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        Mip::Mip(const string& name, int width, int height) {
+        Mip::Mip(const std::string& name, int width, int height) {
             int size;
             
             this->name = name;
@@ -44,30 +44,30 @@ namespace TrenchBroom {
         }
         
         
-        Wad::Wad(const string& path) {
+        Wad::Wad(const std::string& path) {
             int32_t entryCount;
             int32_t directoryAddr;
             char entryName[WAD_DIR_ENTRY_NAME_LENGTH];
             WadEntry entry;
             
-            m_stream.open(path.c_str(), ios::binary);
-			m_stream.exceptions(ios::failbit | ios::badbit);
+            m_stream.open(path.c_str(), std::ios::binary);
+			m_stream.exceptions(std::ios::failbit | std::ios::badbit);
             if (m_stream.is_open()) {
-                m_stream.seekg(WAD_NUM_ENTRIES_ADDRESS, ios::beg);
+                m_stream.seekg(WAD_NUM_ENTRIES_ADDRESS, std::ios::beg);
                 m_stream.read((char *)&entryCount, sizeof(int32_t));
                 
-                m_stream.seekg(WAD_DIR_OFFSET_ADDRESS, ios::beg);
+                m_stream.seekg(WAD_DIR_OFFSET_ADDRESS, std::ios::beg);
                 m_stream.read((char *)&directoryAddr, sizeof(int32_t));
-                m_stream.seekg(directoryAddr, ios::beg);
+                m_stream.seekg(directoryAddr, std::ios::beg);
                 
                 for (int i = 0; i < entryCount; i++) {
 					assert(!m_stream.eof());
 
 					m_stream.read((char *)&entry.address, sizeof(int32_t));
                     m_stream.read((char *)&entry.length, sizeof(int32_t));
-                    m_stream.seekg(WAD_DIR_ENTRY_TYPE_OFFSET, ios::cur);
+                    m_stream.seekg(WAD_DIR_ENTRY_TYPE_OFFSET, std::ios::cur);
                     m_stream.read((char *)&entry.type, 1);
-                    m_stream.seekg(WAD_DIR_ENTRY_NAME_OFFSET, ios::cur);
+                    m_stream.seekg(WAD_DIR_ENTRY_NAME_OFFSET, std::ios::cur);
                     m_stream.read((char *)entryName, WAD_DIR_ENTRY_NAME_LENGTH);
 
                     entry.name = entryName;
@@ -98,8 +98,8 @@ namespace TrenchBroom {
 			assert(m_stream.is_open());
 			assert(!m_stream.eof());
             if (entry.type == WT_MIP) {
-                m_stream.seekg(entry.address, ios::beg);
-                m_stream.seekg(WAD_TEX_WIDTH_OFFSET, ios::cur);
+                m_stream.seekg(entry.address, std::ios::beg);
+                m_stream.seekg(WAD_TEX_WIDTH_OFFSET, std::ios::cur);
                 m_stream.read((char *)&width, sizeof(int32_t));
                 m_stream.read((char *)&height, sizeof(int32_t));
                 m_stream.read((char *)&mip0Offset, sizeof(int32_t));
@@ -114,13 +114,13 @@ namespace TrenchBroom {
                 mip2Size = mip1Size / 4;
                 mip3Size = mip2Size / 4;
                 
-                m_stream.seekg(entry.address + mip0Offset, ios::beg);
+                m_stream.seekg(entry.address + mip0Offset, std::ios::beg);
                 m_stream.read((char *)mip->mip0, mip0Size);
-                m_stream.seekg(entry.address + mip1Offset, ios::beg);
+                m_stream.seekg(entry.address + mip1Offset, std::ios::beg);
                 m_stream.read((char *)mip->mip1, mip1Size);
-                m_stream.seekg(entry.address + mip2Offset, ios::beg);
+                m_stream.seekg(entry.address + mip2Offset, std::ios::beg);
                 m_stream.read((char *)mip->mip2, mip2Size);
-                m_stream.seekg(entry.address + mip3Offset, ios::beg);
+                m_stream.seekg(entry.address + mip3Offset, std::ios::beg);
                 m_stream.read((char *)mip->mip3, mip3Size);
             }
             

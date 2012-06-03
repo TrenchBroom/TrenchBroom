@@ -51,18 +51,18 @@ namespace TrenchBroom {
             GroupManager* m_groupManager;
             UndoManager* m_undoManager;
             
-            vector<Entity*> m_entities;
+            std::vector<Entity*> m_entities;
             Entity* m_worldspawn;
             BBox m_worldBounds;
             
-            vector<Vec3f> m_leakPoints;
-            vector<string> m_mods;
+            std::vector<Vec3f> m_leakPoints;
+            std::vector<std::string> m_mods;
             
             bool m_postNotifications;
         public:
-            typedef Event<const vector<Entity*>&> EntityEvent;
-            typedef Event<const vector<Brush*>&> BrushEvent;
-            typedef Event<const vector<Face*>&> FaceEvent;
+            typedef Event<const std::vector<Entity*>&> EntityEvent;
+            typedef Event<const std::vector<Brush*>&> BrushEvent;
+            typedef Event<const std::vector<Face*>&> FaceEvent;
             typedef Event<Map&> MapEvent;
             typedef Event<Map&> PointFileEvent;
             EntityEvent entitiesWereAdded;
@@ -81,32 +81,32 @@ namespace TrenchBroom {
             PointFileEvent pointFileUnloaded;
             void setPostNotifications(bool postNotifications);
             
-            Map(const BBox& worldBounds, const string& entityDefinitionFilePath);
+            Map(const BBox& worldBounds, const std::string& entityDefinitionFilePath);
             ~Map();
             
-            void save(const string& path);
+            void save(const std::string& path);
             void clear();
             
-            void loadPointFile(const string& path);
+            void loadPointFile(const std::string& path);
             void unloadPointFile();
-            const vector<Vec3f>& leakPoints() const;
+            const std::vector<Vec3f>& leakPoints() const;
             
-            const vector<Entity*>& entities();
+            const std::vector<Entity*>& entities();
             Entity* worldspawn(bool create);
             void addEntity(Entity* entity);
-            Entity* createEntity(const string& classname);
-            Entity* createEntity(const map<string, string> properties);
+            Entity* createEntity(const std::string& classname);
+            Entity* createEntity(const std::map<std::string, std::string> properties);
             void setEntityDefinition(Entity* entity);
-            void setEntityProperty(const string& key, const string* value);
+            void setEntityProperty(const std::string& key, const std::string* value);
             
             void addBrushesToEntity(Entity& entity);
             void moveBrushesToEntity(Entity& entity);
             Brush* createBrush(Entity& entity, Brush& brushTemplate);
             Brush* createBrush(Entity& entity, BBox bounds, Assets::Texture& texture);
             void snapBrushes();
-            bool resizeBrushes(vector<Face*>& faces, float delta, bool lockTextures);
+            bool resizeBrushes(std::vector<Face*>& faces, float delta, bool lockTextures);
             
-            void duplicateObjects(vector<Entity*>& newEntities, vector<Brush*>& newBrushes);
+            void duplicateObjects(std::vector<Entity*>& newEntities, std::vector<Brush*>& newBrushes);
             void translateObjects(const Vec3f delta, bool lockTextures);
             void rotateObjects90(EAxis axis, const Vec3f& center, bool clockwise, bool lockTextures);
             void rotateObjects(const Quat& rotation, const Vec3f& center, bool lockTextures);
@@ -135,7 +135,7 @@ namespace TrenchBroom {
             EntityDefinitionManager& entityDefinitionManager();
             GroupManager& groupManager();
             UndoManager& undoManager();
-            const vector<string>& mods();
+            const std::vector<std::string>& mods();
         };
     }
 }

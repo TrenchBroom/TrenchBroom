@@ -27,8 +27,6 @@
 
 // #define _DEBUG_VBO 1
 
-using namespace std;
-
 namespace TrenchBroom {
     namespace Renderer {
         class Vbo;
@@ -63,7 +61,7 @@ namespace TrenchBroom {
         private:
             unsigned int m_totalCapacity;
             unsigned int m_freeCapacity;
-            vector<VboBlock*> m_freeBlocks;
+            std::vector<VboBlock*> m_freeBlocks;
             VboBlock* m_first;
             VboBlock* m_last;
             unsigned char* m_buffer;

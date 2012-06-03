@@ -41,7 +41,7 @@ namespace TrenchBroom {
             m_layout.clear();
             
             Model::EntityDefinitionManager& defManager = m_editor.map().entityDefinitionManager();
-            const vector<Model::EntityDefinitionPtr> definitions = defManager.definitions();
+            const std::vector<Model::EntityDefinitionPtr> definitions = defManager.definitions();
             
             for (unsigned int i = 0; i < definitions.size(); i++) {
                 Model::EntityDefinitionPtr definition = definitions[i];

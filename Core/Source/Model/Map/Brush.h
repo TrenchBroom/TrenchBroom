@@ -27,8 +27,6 @@
 #include "Model/Map/Face.h"
 #include "Model/Map/MapObject.h"
 
-using namespace std;
-
 namespace TrenchBroom {
     namespace Model {
         class Entity;
@@ -41,7 +39,7 @@ namespace TrenchBroom {
         class Brush : public MapObject {
         protected:
             Entity* m_entity;
-            vector<Face*> m_faces;
+            std::vector<Face*> m_faces;
             
             BrushGeometry* m_geometry;
             
@@ -64,12 +62,12 @@ namespace TrenchBroom {
             EMapObjectType objectType() const;
             Entity* entity() const;
             void setEntity(Entity* entity);
-            const vector<Face*>& faces() const;
+            const std::vector<Face*>& faces() const;
             const BBox& bounds() const;
             const BBox& worldBounds() const;
             const Vec3f center() const;
-            const vector<Vertex*>& vertices() const;
-            const vector<Edge*>& edges() const;
+            const std::vector<Vertex*>& vertices() const;
+            const std::vector<Edge*>& edges() const;
             
             void pick(const Ray& ray, HitList& hits);
             bool containsPoint(Vec3f point);
@@ -81,7 +79,7 @@ namespace TrenchBroom {
             bool addFace(Face* face);
             bool canDeleteFace(Face& face);
             void deleteFace(Face& face);
-            void replaceFaces(const vector<Face*>& newFaces);
+            void replaceFaces(const std::vector<Face*>& newFaces);
             
             void translate(const Vec3f& delta, bool lockTextures);
             void rotate90(EAxis axis, const Vec3f& center, bool clockwise, bool lockTextures);
@@ -92,9 +90,9 @@ namespace TrenchBroom {
             void enlarge(float delta, bool lockTextures);
             void snap();
             
-            MoveResult moveVertex(int vertexIndex, Vec3f delta);
-            MoveResult moveEdge(int edgeIndex, Vec3f delta);
-            MoveResult moveFace(int faceIndex, Vec3f delta);
+            MoveResult moveVertex(int vertexIndex, const Vec3f& delta);
+            MoveResult moveEdge(int edgeIndex, const Vec3f& delta);
+            MoveResult moveFace(int faceIndex, const Vec3f& delta);
             
             int filePosition() const;
             void setFilePosition(int filePosition);

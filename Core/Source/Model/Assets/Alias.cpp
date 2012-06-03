@@ -40,7 +40,7 @@ namespace TrenchBroom {
                 pictures.push_back(picture);
             }
             
-            AliasSkin::AliasSkin(const vector<const unsigned char*>& pictures, const vector<float>& times, unsigned int count, unsigned  int width, unsigned int height) : pictures(pictures), times(times), count(count), width(width), height(height) {
+            AliasSkin::AliasSkin(const std::vector<const unsigned char*>& pictures, const std::vector<float>& times, unsigned int count, unsigned  int width, unsigned int height) : pictures(pictures), times(times), count(count), width(width), height(height) {
                 assert(pictures.size() == times.size());
             }
             
@@ -48,13 +48,13 @@ namespace TrenchBroom {
                 while(!pictures.empty()) delete pictures.back(), pictures.pop_back();
             }
             
-            AliasSingleFrame::AliasSingleFrame(const string& name, const vector<AliasFrameTriangle*>& triangles, const Vec3f& center, const BBox& bounds) : name(name), triangles(triangles), center(center), bounds(bounds) {}
+            AliasSingleFrame::AliasSingleFrame(const std::string& name, const std::vector<AliasFrameTriangle*>& triangles, const Vec3f& center, const BBox& bounds) : name(name), triangles(triangles), center(center), bounds(bounds) {}
             
             AliasSingleFrame* AliasSingleFrame::firstFrame() {
                 return this;
             }
             
-            AliasFrameGroup::AliasFrameGroup(const vector<float>& times, const vector<AliasSingleFrame*>& frames)
+            AliasFrameGroup::AliasFrameGroup(const std::vector<float>& times, const std::vector<AliasSingleFrame*>& frames)
             : times(times), frames(frames) {
                 assert(times.size() == frames.size());
                 
@@ -84,19 +84,19 @@ namespace TrenchBroom {
                 return vertex;
             }
             
-            AliasSingleFrame* Alias::readFrame(IO::PakStream& stream, const Vec3f& origin, const Vec3f& scale, unsigned int skinWidth, unsigned int skinHeight, const vector<AliasSkinVertex>& vertices, const vector<AliasSkinTriangle>& triangles) {
+            AliasSingleFrame* Alias::readFrame(IO::PakStream& stream, const Vec3f& origin, const Vec3f& scale, unsigned int skinWidth, unsigned int skinHeight, const std::vector<AliasSkinVertex>& vertices, const std::vector<AliasSkinTriangle>& triangles) {
                 char name[MDL_SIMPLE_FRAME_NAME_SIZE];
-                stream->seekg(MDL_SIMPLE_FRAME_NAME, ios::cur);
+                stream->seekg(MDL_SIMPLE_FRAME_NAME, std::ios::cur);
                 stream->read(name, MDL_SIMPLE_FRAME_NAME_SIZE);
                 
-                vector<AliasPackedFrameVertex> packedFrameVertices(vertices.size());
+                std::vector<AliasPackedFrameVertex> packedFrameVertices(vertices.size());
                 for (unsigned int i = 0; i < vertices.size(); i++) {
                     AliasPackedFrameVertex packedVertex;
                     stream->read((char *)&packedVertex, 4 * sizeof(unsigned char));
                     packedFrameVertices[i] = packedVertex;
                 }
                 
-                vector<Vec3f> frameVertices(vertices.size());
+                std::vector<Vec3f> frameVertices(vertices.size());
                 Vec3f center;
                 BBox bounds;
                 
@@ -113,7 +113,7 @@ namespace TrenchBroom {
                 
                 center /= static_cast<float>(vertices.size());
                 
-                vector<AliasFrameTriangle*> frameTriangles(triangles.size());
+                std::vector<AliasFrameTriangle*> frameTriangles(triangles.size());
                 for (unsigned int i = 0; i < triangles.size(); i++) {
                     AliasFrameTriangle* frameTriangle = new AliasFrameTriangle();
                     for (unsigned int j = 0; j < 3; j++) {
@@ -135,16 +135,16 @@ namespace TrenchBroom {
                 while(!triangles.empty()) delete triangles.back(), triangles.pop_back();
             }
             
-            Alias::Alias(const string& name, IO::PakStream stream) : name(name) {
+            Alias::Alias(const std::string& name, IO::PakStream stream) : name(name) {
                 Vec3f scale, origin;
                 int32_t skinCount, skinWidth, skinHeight, skinSize;
                 int32_t vertexCount, triangleCount, frameCount;
                 
-                stream->seekg(MDL_HEADER_SCALE, ios::beg);
+                stream->seekg(MDL_HEADER_SCALE, std::ios::beg);
                 stream->read((char *)&scale, sizeof(Vec3f));
                 stream->read((char *)&origin, sizeof(Vec3f));
                 
-                stream->seekg(MDL_HEADER_NUMSKINS, ios::beg);
+                stream->seekg(MDL_HEADER_NUMSKINS, std::ios::beg);
                 stream->read((char *)&skinCount, sizeof(int32_t));
                 stream->read((char *)&skinWidth, sizeof(int32_t));
                 stream->read((char *)&skinHeight, sizeof(int32_t));
@@ -154,7 +154,7 @@ namespace TrenchBroom {
                 stream->read((char *)&triangleCount, sizeof(int32_t));
                 stream->read((char *)&frameCount, sizeof(int32_t));
                 
-                stream->seekg(MDL_SKINS, ios::beg);
+                stream->seekg(MDL_SKINS, std::ios::beg);
                 for (int i = 0; i < skinCount; i++) {
                     int32_t skinGroup;
                     
@@ -167,16 +167,16 @@ namespace TrenchBroom {
                     } else {
                         int32_t numPics;
                         stream->read((char *)&numPics, sizeof(int32_t));
-                        vector<float> times(numPics);
-                        vector<const unsigned char *> skinPictures(numPics);
+                        std::vector<float> times(numPics);
+                        std::vector<const unsigned char *> skinPictures(numPics);
                         
-                        streampos base = stream->tellg();
+                        std::streampos base = stream->tellg();
                         for (int j = 0; j < numPics; j++) {
-                            stream->seekg(j * sizeof(float) + base, ios::beg);
+                            stream->seekg(j * sizeof(float) + base, std::ios::beg);
                             stream->read((char *)&times[i], sizeof(float));
                             
                             unsigned char* skinPicture = new unsigned char[skinSize];
-                            stream->seekg(numPics * sizeof(float) + j * skinSize + base, ios::beg);
+                            stream->seekg(numPics * sizeof(float) + j * skinSize + base, std::ios::beg);
                             stream->read((char *)&skinPicture, skinSize);
                             
                             skinPictures[i] = skinPicture;
@@ -188,7 +188,7 @@ namespace TrenchBroom {
                 }
                 
                 // now stream is at the first skin vertex
-                vector<AliasSkinVertex> vertices(vertexCount);
+                std::vector<AliasSkinVertex> vertices(vertexCount);
                 for (int i = 0; i < vertexCount; i++) {
                     stream->read((char *)&vertices[i].onseam, sizeof(int32_t));
                     stream->read((char *)&vertices[i].s, sizeof(int32_t));
@@ -196,7 +196,7 @@ namespace TrenchBroom {
                 }
                 
                 // now stream is at the first skin triangle
-                vector<AliasSkinTriangle> triangles(triangleCount);
+                std::vector<AliasSkinTriangle> triangles(triangleCount);
                 for (int i = 0; i < triangleCount; i++) {
                     stream->read((char *)&triangles[i].front, sizeof(int32_t));
                     for (unsigned int j = 0; j < 3; j++)
@@ -211,20 +211,20 @@ namespace TrenchBroom {
                         frames.push_back(readFrame(stream, origin, scale, skinWidth, skinHeight, vertices, triangles));
                     } else { // frame group
                         int32_t groupFrameCount;
-                        streampos base = stream->tellg();
+                        std::streampos base = stream->tellg();
                         stream->read((char *)&groupFrameCount, sizeof(int32_t));
                         
-                        streampos timePos = MDL_MULTI_FRAME_TIMES + base;
-                        streampos framePos = MDL_MULTI_FRAME_TIMES + groupFrameCount * sizeof(float) + base;
+                        std::streampos timePos = MDL_MULTI_FRAME_TIMES + base;
+                        std::streampos framePos = MDL_MULTI_FRAME_TIMES + groupFrameCount * sizeof(float) + base;
                         
-                        vector<float> groupFrameTimes(groupFrameCount);
-                        vector<AliasSingleFrame*> groupFrames(groupFrameCount);
+                        std::vector<float> groupFrameTimes(groupFrameCount);
+                        std::vector<AliasSingleFrame*> groupFrames(groupFrameCount);
                         for (int j = 0; j < groupFrameCount; j++) {
-                            stream->seekg(timePos, ios::beg);
+                            stream->seekg(timePos, std::ios::beg);
                             stream->read((char *)&groupFrameTimes[i], sizeof(float));
                             timePos = j * sizeof(float) + timePos;
                             
-                            stream->seekg(framePos, ios::beg);
+                            stream->seekg(framePos, std::ios::beg);
                             groupFrames[j] = readFrame(stream, origin, scale, skinWidth, skinHeight, vertices, triangles);
                             framePos = MDL_SIMPLE_FRAME_NAME_SIZE + (vertexCount + 2) * MDL_FRAME_VERTEX_SIZE + framePos;
                         }
@@ -246,11 +246,11 @@ namespace TrenchBroom {
             
             AliasManager* AliasManager::sharedManager = NULL;
             
-            Alias* AliasManager::aliasForName(const string& name, const vector<string>& paths) {
-                string pathList = accumulate(paths.begin(), paths.end(), string(";"));
-                string key = pathList + ":" + name;
+            Alias* AliasManager::aliasForName(const std::string& name, const std::vector<std::string>& paths) {
+                std::string pathList = accumulate(paths.begin(), paths.end(), std::string(";"));
+                std::string key = pathList + ":" + name;
                 
-                map<string, Alias*>::iterator it = aliases.find(key);
+                std::map<std::string, Alias*>::iterator it = aliases.find(key);
                 if (it != aliases.end())
                     return it->second;
                 
@@ -271,7 +271,7 @@ namespace TrenchBroom {
             AliasManager::AliasManager() {}
             
             AliasManager::~AliasManager() {
-                for (map<string, Alias*>::iterator it = aliases.begin(); it != aliases.end(); ++it)
+                for (std::map<std::string, Alias*>::iterator it = aliases.begin(); it != aliases.end(); ++it)
                     delete it->second;
             }
         }

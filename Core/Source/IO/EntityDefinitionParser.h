@@ -23,8 +23,6 @@
 #include <fstream>
 #include "Model/Map/EntityDefinition.h"
 
-using namespace std;
-
 namespace TrenchBroom {
     namespace IO {
         typedef enum {
@@ -58,7 +56,7 @@ namespace TrenchBroom {
         class EntityDefinitionToken {
         public:
             ETokenType type;
-            string data;
+            std::string data;
             int line;
             int column;
             int charsRead;
@@ -66,7 +64,7 @@ namespace TrenchBroom {
         
         class EntityDefinitionTokenizer {
         private:
-            istream& m_stream;
+            std::istream& m_stream;
             ETokenizerState m_state;
             int m_line;
             int m_column;
@@ -75,28 +73,28 @@ namespace TrenchBroom {
             bool nextChar();
             void pushChar();
             char peekChar();
-            EntityDefinitionToken* token(ETokenType type, string* data);
+            EntityDefinitionToken* token(ETokenType type, std::string* data);
         public:
-            EntityDefinitionTokenizer(istream& stream);
+            EntityDefinitionTokenizer(std::istream& stream);
             EntityDefinitionToken* next();
             EntityDefinitionToken* peek();
-            string remainder();
+            std::string remainder();
         };
         
         class EntityDefinitionParser {
         private:
-            ifstream m_stream;
+            std::ifstream m_stream;
             EntityDefinitionTokenizer* m_tokenizer;
             void expect(int expectedType, const EntityDefinitionToken* actualToken) const;
             EntityDefinitionToken* nextTokenIgnoringNewlines();
             Vec4f parseColor();
             BBox parseBounds();
-            map<string, Model::SpawnFlag> parseFlags();
-            vector<Model::PropertyPtr> parseProperties();
+            std::map<std::string, Model::SpawnFlag> parseFlags();
+            std::vector<Model::PropertyPtr> parseProperties();
             Model::PropertyPtr parseProperty();
-            string parseDescription();
+            std::string parseDescription();
         public:
-            EntityDefinitionParser(string path);
+            EntityDefinitionParser(const std::string& path);
             ~EntityDefinitionParser();
             Model::EntityDefinitionPtr nextDefinition();
         };

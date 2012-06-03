@@ -14,9 +14,6 @@
 #define DOUBLE_CLICK_SPEED 0.5f
 #define MAX_MOUSE_BUTTONS 5
 
-using namespace Gwen;
-
-
 struct Action
 {
 	unsigned char type;
@@ -45,7 +42,7 @@ struct t_KeyData
 
 	bool KeyState[ Gwen::Key::Count ];
 	float NextRepeat[ Gwen::Key::Count ];
-	Controls::Base* Target;
+    Gwen::Controls::Base* Target;
 	bool LeftMouseDown;
 	bool RightMouseDown;
 
@@ -67,15 +64,15 @@ enum
 	ACT_MESSAGE
 };
 
-void UpdateHoveredControl( Controls::Base* pInCanvas )
+void UpdateHoveredControl( Gwen::Controls::Base* pInCanvas )
 {
-	Controls::Base* pHovered = pInCanvas->GetControlAt( MousePosition.x, MousePosition.y );
+    Gwen::Controls::Base* pHovered = pInCanvas->GetControlAt( MousePosition.x, MousePosition.y );
 
 	if ( pHovered != Gwen::HoveredControl )
 	{
 		if ( Gwen::HoveredControl )
 		{
-			Controls::Base* OldHover = Gwen::HoveredControl;
+            Gwen::Controls::Base* OldHover = Gwen::HoveredControl;
 			Gwen::HoveredControl = NULL;
 			OldHover->OnMouseLeave();
 		}
@@ -92,7 +89,7 @@ void UpdateHoveredControl( Controls::Base* pInCanvas )
 	{
 		if ( Gwen::HoveredControl )
 		{
-			Controls::Base* OldHover = Gwen::HoveredControl;
+            Gwen::Controls::Base* OldHover = Gwen::HoveredControl;
 			Gwen::HoveredControl = NULL;
 			OldHover->Redraw();
 		}
@@ -102,15 +99,15 @@ void UpdateHoveredControl( Controls::Base* pInCanvas )
 
 }
 
-void FindKeyboardFocus( Controls::Base* pControl )
+void FindKeyboardFocus( Gwen::Controls::Base* pControl )
 {
 	if ( !pControl ) return;
 	if ( pControl->GetKeyboardInputEnabled() )
 	{
 		//Make sure none of our children have keyboard focus first - todo recursive
-		for (Controls::Base::List::iterator iter = pControl->Children.begin(); iter != pControl->Children.end(); ++iter)
+		for (Gwen::Controls::Base::List::iterator iter = pControl->Children.begin(); iter != pControl->Children.end(); ++iter)
 		{
-			Controls::Base* pChild = *iter;
+			Gwen::Controls::Base* pChild = *iter;
 			if ( pChild == Gwen::KeyboardFocus )
 				return;
 		}

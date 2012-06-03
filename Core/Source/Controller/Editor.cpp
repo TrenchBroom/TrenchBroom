@@ -37,16 +37,16 @@
 namespace TrenchBroom {
     namespace Controller {
         void Editor::updateFaceTextures() {
-            vector<Model::Face*> changedFaces;
-            vector<Model::Assets::Texture*> newTextures;
+            std::vector<Model::Face*> changedFaces;
+            std::vector<Model::Assets::Texture*> newTextures;
 
-            const vector<Model::Entity*>& entities = m_map->entities();
+            const std::vector<Model::Entity*>& entities = m_map->entities();
             for (unsigned int i = 0; i < entities.size(); i++) {
-                const vector<Model::Brush*>& brushes = entities[i]->brushes();
+                const std::vector<Model::Brush*>& brushes = entities[i]->brushes();
                 for (unsigned int j = 0; j < brushes.size(); j++) {
-                    const vector<Model::Face*>& faces = brushes[j]->faces();
+                    const std::vector<Model::Face*>& faces = brushes[j]->faces();
                     for (unsigned int k = 0; k < faces.size(); k++) {
-                        const string& textureName = faces[k]->textureName();
+                        const std::string& textureName = faces[k]->textureName();
                         Model::Assets::Texture* oldTexture = faces[k]->texture();
                         Model::Assets::Texture* newTexture = m_textureManager->texture(textureName);
                         if (oldTexture != newTexture) {
@@ -69,13 +69,13 @@ namespace TrenchBroom {
             updateFaceTextures();
         }
 
-        void Editor::preferencesDidChange(const string& key) {
+        void Editor::preferencesDidChange(const std::string& key) {
             m_camera->setFieldOfVision(Model::Preferences::sharedPreferences->cameraFov());
             m_camera->setNearPlane(Model::Preferences::sharedPreferences->cameraNear());
             m_camera->setFarPlane(Model::Preferences::sharedPreferences->cameraFar());
         }
 
-        Editor::Editor(const string& entityDefinitionFilePath, const string& palettePath) : m_entityDefinitionFilePath(entityDefinitionFilePath), m_renderer(NULL) {
+        Editor::Editor(const std::string& entityDefinitionFilePath, const std::string& palettePath) : m_entityDefinitionFilePath(entityDefinitionFilePath), m_renderer(NULL) {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
 
             m_textureManager = new Model::Assets::TextureManager();
@@ -90,12 +90,12 @@ namespace TrenchBroom {
             m_options = new TransientOptions();
             m_filter = new Filter();
 
-            Model::Preferences::sharedPreferences->preferencesDidChange += new Preferences::PreferencesEvent::Listener<Editor>(this, &Editor::preferencesDidChange);
+            Model::Preferences::sharedPreferences->preferencesDidChange += new Model::Preferences::PreferencesEvent::Listener<Editor>(this, &Editor::preferencesDidChange);
             m_textureManager->textureManagerDidChange += new Model::Assets::TextureManager::TextureManagerEvent::Listener<Editor>(this, &Editor::textureManagerDidChange);
         }
 
         Editor::~Editor() {
-            Model::Preferences::sharedPreferences->preferencesDidChange -= new Preferences::PreferencesEvent::Listener<Editor>(this, &Editor::preferencesDidChange);
+            Model::Preferences::sharedPreferences->preferencesDidChange -= new Model::Preferences::PreferencesEvent::Listener<Editor>(this, &Editor::preferencesDidChange);
             m_textureManager->textureManagerDidChange -= new Model::Assets::TextureManager::TextureManagerEvent::Listener<Editor>(this, &Editor::textureManagerDidChange);
 
             delete m_inputController;
@@ -109,7 +109,7 @@ namespace TrenchBroom {
         }
 
 
-		void Editor::loadMap(const string& path, ProgressIndicator* indicator) {
+		void Editor::loadMap(const std::string& path, ProgressIndicator* indicator) {
 			indicator->setText("Clearing map...");
             m_map->clear();
             m_textureManager->clear();
@@ -119,7 +119,7 @@ namespace TrenchBroom {
             m_mapPath = path;
 
             clock_t start = clock();
-            ifstream stream(path.c_str());
+            std::ifstream stream(path.c_str());
             IO::MapParser parser(stream);
             parser.parseMap(*m_map, indicator);
             log(TB_LL_INFO, "Loaded %s in %f seconds\n", path.c_str(), (clock() - start) / CLOCKS_PER_SEC / 10000.0f);
@@ -127,11 +127,11 @@ namespace TrenchBroom {
             indicator->setText("Loading wad files...");
 
             // load wad files
-            const string* wads = m_map->worldspawn(true)->propertyForKey(WadKey);
+            const std::string* wads = m_map->worldspawn(true)->propertyForKey(Model::WadKey);
             if (wads != NULL) {
-                vector<string> wadPaths = split(*wads, ';');
+                std::vector<std::string> wadPaths = split(*wads, ';');
                 for (unsigned int i = 0; i < wadPaths.size(); i++) {
-                    string wadPath = trim(wadPaths[i]);
+                    std::string wadPath = trim(wadPaths[i]);
                     loadTextureWad(wadPath);
                 }
             }
@@ -142,13 +142,13 @@ namespace TrenchBroom {
 			m_map->mapLoaded(*m_map);
         }
 
-        void Editor::saveMap(const string& path) {
+        void Editor::saveMap(const std::string& path) {
         }
 
-        void Editor::loadTextureWad(const string& path) {
-            string wadPath = path;
+        void Editor::loadTextureWad(const std::string& path) {
+            std::string wadPath = path;
             if (!fileExists(wadPath) && !m_mapPath.empty()) {
-                string folderPath = deleteLastPathComponent(m_mapPath);
+                std::string folderPath = deleteLastPathComponent(m_mapPath);
                 wadPath = appendPath(folderPath, wadPath);
             }
 

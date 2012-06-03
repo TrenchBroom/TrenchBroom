@@ -25,8 +25,6 @@
 #include <vector>
 #include "Model/Map/EntityDefinition.h"
 
-using namespace std;
-
 namespace TrenchBroom {
     namespace Model {
         namespace Assets {
@@ -44,23 +42,23 @@ namespace TrenchBroom {
         
         class EntityRendererManager {
         private:
-            typedef map<string, EntityRenderer*> EntityRendererCache;
+            typedef std::map<std::string, EntityRenderer*> EntityRendererCache;
             
             Vbo* m_vbo;
             Model::Assets::Palette& m_palette;
             EntityRendererCache m_entityRenderers;
-            string m_quakePath;
+            std::string m_quakePath;
 
-            const string entityRendererKey(Model::ModelPropertyPtr modelProperty, const vector<string>& searchPaths);
-            EntityRenderer* entityRenderer(Model::ModelPropertyPtr modelProperty, const vector<string>& mods);
+            const std::string entityRendererKey(Model::ModelPropertyPtr modelProperty, const std::vector<std::string>& searchPaths);
+            EntityRenderer* entityRenderer(Model::ModelPropertyPtr modelProperty, const std::vector<std::string>& mods);
         public:
-            EntityRendererManager(const string& quakePath, Model::Assets::Palette& palette);
+            EntityRendererManager(const std::string& quakePath, Model::Assets::Palette& palette);
             ~EntityRendererManager();
             
-            EntityRenderer* entityRenderer(const Model::EntityDefinition& entityDefinition, const vector<string>& mods);
-            EntityRenderer* entityRenderer(const Model::Entity& entity, const vector<string>& mods);
+            EntityRenderer* entityRenderer(const Model::EntityDefinition& entityDefinition, const std::vector<std::string>& mods);
+            EntityRenderer* entityRenderer(const Model::Entity& entity, const std::vector<std::string>& mods);
             void clear();
-            void setQuakePath(const string& quakePath);
+            void setQuakePath(const std::string& quakePath);
             
             void activate();
             void deactivate();

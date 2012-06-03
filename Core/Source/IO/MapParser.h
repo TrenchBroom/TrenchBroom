@@ -29,14 +29,18 @@
 #include "Model/Map/Face.h"
 #include "Model/Assets/Texture.h"
 
-using namespace std;
-using namespace TrenchBroom::Model;
-
 namespace TrenchBroom {
     namespace Controller {
         class ProgressIndicator;
     }
 
+    namespace Model {
+        class Map;
+        class Entity;
+        class Brush;
+        class Face;
+    }
+    
     namespace IO {
         typedef enum {
             TB_TT_FRAC = 1 << 0, // fractional number
@@ -76,14 +80,14 @@ namespace TrenchBroom {
         class MapToken {
         public:
             ETokenType type;
-            string data;
+            std::string data;
             unsigned int line;
             unsigned int column;
             unsigned int charsRead;
         };
         
         class MapTokenizer {
-            vector<char> m_chars;
+            std::vector<char> m_chars;
             unsigned int m_index;
             char m_buffer[1024];
             unsigned int m_bufferIndex;
@@ -97,7 +101,7 @@ namespace TrenchBroom {
             char peekChar();
             MapToken* token(ETokenType type, char* data, unsigned int index, unsigned int line, unsigned int column);
         public:
-            MapTokenizer(istream& stream);
+            MapTokenizer(std::istream& stream);
             MapToken* next();
             int size();
         };
@@ -107,18 +111,18 @@ namespace TrenchBroom {
             unsigned int m_size;
             EMapFormat m_format;
             MapTokenizer* m_tokenizer;
-            vector<MapToken*> m_tokenStack;
+            std::vector<MapToken*> m_tokenStack;
             
             void expect(int expectedType, const MapToken* actualToken) const;
             MapToken* nextToken();
             void pushToken(MapToken* token);
         public:
-            MapParser(istream& stream);
+            MapParser(std::istream& stream);
             ~MapParser();
-            void parseMap(Map& map, Controller::ProgressIndicator* indicator);
-            Entity* parseEntity(const BBox& worldBounds, Controller::ProgressIndicator* indicator);
-            Brush* parseBrush(const BBox& worldBounds, Controller::ProgressIndicator* indicator);
-            Face* parseFace(const BBox& worldBounds);
+            void parseMap(Model::Map& map, Controller::ProgressIndicator* indicator);
+            Model::Entity* parseEntity(const BBox& worldBounds, Controller::ProgressIndicator* indicator);
+            Model::Brush* parseBrush(const BBox& worldBounds, Controller::ProgressIndicator* indicator);
+            Model::Face* parseFace(const BBox& worldBounds);
         };
     }
 }

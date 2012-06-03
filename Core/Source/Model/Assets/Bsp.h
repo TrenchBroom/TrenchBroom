@@ -33,18 +33,16 @@
 #include <stdint.h>
 #endif
 
-using namespace std;
-
 namespace TrenchBroom {
     namespace Model {
         namespace Assets {
             class BspTexture {
             public:
-                string name;
+                std::string name;
                 const unsigned char* image;
                 int width;
                 int height;
-                BspTexture(const string& name, const unsigned char* image, int width, int height);
+                BspTexture(const std::string& name, const unsigned char* image, int width, int height);
                 ~BspTexture();
             };
 
@@ -61,8 +59,8 @@ namespace TrenchBroom {
             public:
                 BBox bounds;
                 BspTextureInfo* textureInfo;
-                vector<Vec3f> vertices;
-                BspFace(BspTextureInfo* textureInfo, const vector<Vec3f>& vertices);
+                std::vector<Vec3f> vertices;
+                BspFace(BspTextureInfo* textureInfo, const std::vector<Vec3f>& vertices);
                 Vec2f textureCoordinates(const Vec3f& vertex);
             };
 
@@ -70,9 +68,9 @@ namespace TrenchBroom {
             public:
                 Vec3f center;
                 BBox bounds;
-                vector<BspFace*> faces;
+                std::vector<BspFace*> faces;
                 unsigned int vertexCount;
-                BspModel(const vector<BspFace*>& faces, int vertexCount, const Vec3f& center, const BBox& bounds);
+                BspModel(const std::vector<BspFace*>& faces, int vertexCount, const Vec3f& center, const BBox& bounds);
                 ~BspModel();
             };
 
@@ -92,28 +90,28 @@ namespace TrenchBroom {
             class Bsp {
             private:
                 void readTextures(IO::PakStream& stream, unsigned int count);
-                void readTextureInfos(IO::PakStream& stream, unsigned int count, vector<BspTexture*>& textures);
-                void readVertices(IO::PakStream& stream, unsigned int count, vector<Vec3f>& vertices);
-                void readEdges(IO::PakStream& stream, unsigned int count, vector<BspEdgeInfo>& edges);
-                void readFaces(IO::PakStream& stream, unsigned int count, vector<BspFaceInfo>& faces);
+                void readTextureInfos(IO::PakStream& stream, unsigned int count, std::vector<BspTexture*>& textures);
+                void readVertices(IO::PakStream& stream, unsigned int count, std::vector<Vec3f>& vertices);
+                void readEdges(IO::PakStream& stream, unsigned int count, std::vector<BspEdgeInfo>& edges);
+                void readFaces(IO::PakStream& stream, unsigned int count, std::vector<BspFaceInfo>& faces);
                 void readFaceEdges(IO::PakStream& stream, unsigned int count, int32_t* indices);
             public:
-                string name;
-                vector<BspModel*> models;
-                vector<BspTexture*>textures;
-                vector<BspTextureInfo*>textureInfos;
-                Bsp(const string& name, IO::PakStream stream);
+                std::string name;
+                std::vector<BspModel*> models;
+                std::vector<BspTexture*>textures;
+                std::vector<BspTextureInfo*>textureInfos;
+                Bsp(const std::string& name, IO::PakStream stream);
                 ~Bsp();
             };
 
             class BspManager {
             private:
-                map<string, Bsp*> bsps;
+                std::map<std::string, Bsp*> bsps;
             public:
                 static BspManager* sharedManager;
                 BspManager();
                 ~BspManager();
-                Bsp* bspForName(const string& name, const vector<string>& paths);
+                Bsp* bspForName(const std::string& name, const std::vector<std::string>& paths);
             };
         }
     }

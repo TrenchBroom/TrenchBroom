@@ -24,7 +24,7 @@
 namespace TrenchBroom {
     namespace Renderer {
         namespace StringFactoryCallback {
-            static vector<NSPoint*> tempPoints;
+            static std::vector<NSPoint*> tempPoints;
             void gluTessBeginData(GLenum type, StringData* data);
             void gluTessVertexData(NSPoint* vertex, StringData* data);
             void gluTessCombineData(GLdouble coords[3], void *vertexData[4], GLfloat weight[4], void **outData, StringData* data);
@@ -37,13 +37,13 @@ namespace TrenchBroom {
             NSLayoutManager* m_layoutManager;
             NSTextStorage* m_textStorage;
             NSTextContainer* m_textContainer;
-            vector<NSPoint> m_points;
+            std::vector<NSPoint> m_points;
 
             void resizePointArray(int newCapacity);
         public:
             MacStringFactory();
             ~MacStringFactory();
-            StringData* createStringData(const FontDescriptor& descriptor, const string& str);
+            StringData* createStringData(const FontDescriptor& descriptor, const std::string& str);
         };
     }
 }

@@ -24,13 +24,13 @@
 namespace TrenchBroom {
     namespace Model {
         namespace Assets {
-            Palette::Palette(const string& path) {
-                ifstream stream(path.c_str(), ios::binary);
+            Palette::Palette(const std::string& path) {
+                std::ifstream stream(path.c_str(), std::ios::binary);
                 assert(stream.is_open());
                 
-                stream.seekg(0, ios::end);
+                stream.seekg(0, std::ios::end);
                 m_size = static_cast<int>(stream.tellg());
-                stream.seekg(0, ios::beg);
+                stream.seekg(0, std::ios::beg);
                 m_data = new unsigned char[m_size];
                 stream.read((char*)m_data, m_size);
                 stream.close();

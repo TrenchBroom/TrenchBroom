@@ -22,27 +22,27 @@
 
 namespace TrenchBroom {
     namespace Model {
-        void MacPreferences::setDictionaryValue(NSMutableDictionary* dict, const string& key, int value) {
+        void MacPreferences::setDictionaryValue(NSMutableDictionary* dict, const std::string& key, int value) {
             [dict setObject:[NSNumber numberWithInt:value] 
                      forKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
         }
         
-        void MacPreferences::setDictionaryValue(NSMutableDictionary* dict, const string& key, float value) {
+        void MacPreferences::setDictionaryValue(NSMutableDictionary* dict, const std::string& key, float value) {
             [dict setObject:[NSNumber numberWithFloat:value] 
                      forKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
         }
 
-        void MacPreferences::setDictionaryValue(NSMutableDictionary* dict, const string& key, bool value) {
+        void MacPreferences::setDictionaryValue(NSMutableDictionary* dict, const std::string& key, bool value) {
             [dict setObject:[NSNumber numberWithBool:value == true ? YES : NO] 
                      forKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
         }
         
-        void MacPreferences::setDictionaryValue(NSMutableDictionary* dict, const string& key, const string& value) {
+        void MacPreferences::setDictionaryValue(NSMutableDictionary* dict, const std::string& key, const std::string& value) {
             [dict setObject:[NSString stringWithCString:value.c_str() encoding:NSASCIIStringEncoding] 
                      forKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
         }
         
-        void MacPreferences::setDictionaryValue(NSMutableDictionary* dict, const string& key, const Vec4f& value) {
+        void MacPreferences::setDictionaryValue(NSMutableDictionary* dict, const std::string& key, const Vec4f& value) {
             setDictionaryValue(dict, key, value.asString());
         }
 
@@ -92,22 +92,22 @@ namespace TrenchBroom {
             m_quakePath = "";
         }
         
-        bool MacPreferences::loadInt(const string& key, int& value) {
+        bool MacPreferences::loadInt(const std::string& key, int& value) {
             value =  static_cast<int>([[NSUserDefaults standardUserDefaults] integerForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]]);
             return true;
         }
         
-        bool MacPreferences::loadFloat(const string& key, float& value) {
+        bool MacPreferences::loadFloat(const std::string& key, float& value) {
             value = [[NSUserDefaults standardUserDefaults] floatForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
             return true;
         }
         
-        bool MacPreferences::loadBool(const string& key, bool& value) {
+        bool MacPreferences::loadBool(const std::string& key, bool& value) {
             value = [[NSUserDefaults standardUserDefaults] boolForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]] == YES ? true : false;
             return true;
         }
         
-        bool MacPreferences::loadString(const string& key, string& value) {
+        bool MacPreferences::loadString(const std::string& key, std::string& value) {
             NSString* objcValue = [[NSUserDefaults standardUserDefaults] stringForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
             if (objcValue == nil)
                 value = "";
@@ -116,7 +116,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool MacPreferences::loadVec4f(const string& key, Vec4f& value) {
+        bool MacPreferences::loadVec4f(const std::string& key, Vec4f& value) {
             NSString* objcValue = [[NSUserDefaults standardUserDefaults] stringForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
             if (objcValue == nil)
                 value = Vec4f();
@@ -125,27 +125,27 @@ namespace TrenchBroom {
             return true;
         }
 
-        void MacPreferences::saveInt(const string& key, int value) {
+        void MacPreferences::saveInt(const std::string& key, int value) {
             [[NSUserDefaults standardUserDefaults] setInteger:value 
                                                        forKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
         }
         
-        void MacPreferences::saveFloat(const string& key, float value) {
+        void MacPreferences::saveFloat(const std::string& key, float value) {
             [[NSUserDefaults standardUserDefaults] setFloat:value 
                                                      forKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
         }
         
-        void MacPreferences::saveBool(const string& key, bool value) {
+        void MacPreferences::saveBool(const std::string& key, bool value) {
             [[NSUserDefaults standardUserDefaults] setBool:value 
                                                      forKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
         }
         
-        void MacPreferences::saveString(const string& key, const string& value) {
+        void MacPreferences::saveString(const std::string& key, const std::string& value) {
             [[NSUserDefaults standardUserDefaults] setObject:[NSString stringWithCString:value.c_str() encoding:NSASCIIStringEncoding] 
                                                       forKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
         }
 
-        void MacPreferences::saveVec4f(const string& key, const Vec4f& value) {
+        void MacPreferences::saveVec4f(const std::string& key, const Vec4f& value) {
             saveString(key, value.asString());
         }
 

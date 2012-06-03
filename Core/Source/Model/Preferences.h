@@ -27,34 +27,34 @@ namespace TrenchBroom {
     namespace Model {
         class Preferences {
         protected:
-            static const string CameraKey;
-            static const string CameraOrbitKey;
-            static const string CameraInvertY;
-            static const string CameraFov;
-            static const string Brightness;
-            static const string FaceColor;
-            static const string EdgeColor;
-            static const string SelectedFaceColor;
-            static const string SelectedEdgeColor;
-            static const string HiddenSelectedEdgeColor;
-            static const string EntityBoundsColor;
-            static const string EntityBoundsWireframeColor;
-            static const string SelectedEntityBoundsColor;
-            static const string HiddenSelectedEntityBoundsColor;
-            static const string SelectionGuideColor;
-            static const string HiddenSelectionGuideColor;
-            static const string BackgroundColor;
-            static const string InfoOverlayColor;
-            static const string InfoOverlayFadeDistance;
-            static const string SelectedInfoOverlayColor;
-            static const string SelectedInfoOverlayFadeDistance;
-            static const string SelectedTextureColor;
-            static const string UsedTextureColor;
-            static const string OverriddenTextureColor;
-            static const string RendererFontName;
-            static const string RendererFontSize;
-            static const string GridAlpha;
-            static const string QuakePath;
+            static const std::string CameraKey;
+            static const std::string CameraOrbitKey;
+            static const std::string CameraInvertY;
+            static const std::string CameraFov;
+            static const std::string Brightness;
+            static const std::string FaceColor;
+            static const std::string EdgeColor;
+            static const std::string SelectedFaceColor;
+            static const std::string SelectedEdgeColor;
+            static const std::string HiddenSelectedEdgeColor;
+            static const std::string EntityBoundsColor;
+            static const std::string EntityBoundsWireframeColor;
+            static const std::string SelectedEntityBoundsColor;
+            static const std::string HiddenSelectedEntityBoundsColor;
+            static const std::string SelectionGuideColor;
+            static const std::string HiddenSelectionGuideColor;
+            static const std::string BackgroundColor;
+            static const std::string InfoOverlayColor;
+            static const std::string InfoOverlayFadeDistance;
+            static const std::string SelectedInfoOverlayColor;
+            static const std::string SelectedInfoOverlayFadeDistance;
+            static const std::string SelectedTextureColor;
+            static const std::string UsedTextureColor;
+            static const std::string OverriddenTextureColor;
+            static const std::string RendererFontName;
+            static const std::string RendererFontSize;
+            static const std::string GridAlpha;
+            static const std::string QuakePath;
             
             int m_cameraKey;
             int m_cameraOrbitKey;
@@ -86,34 +86,34 @@ namespace TrenchBroom {
             Vec4f m_usedTextureColor;
             Vec4f m_overriddenTextureColor;
             
-            string m_rendererFontName;
+            std::string m_rendererFontName;
             int m_rendererFontSize;
             
             float m_gridAlpha;
             
-            string m_quakePath;
+            std::string m_quakePath;
 
             virtual void loadDefaults();
             virtual void loadPlatformDefaults() = 0;
 
-            virtual bool loadInt(const string& key, int& value) = 0;
-            virtual bool loadFloat(const string& key, float& value) = 0;
-            virtual bool loadBool(const string& key, bool& value) = 0;
-            virtual bool loadString(const string& key, string& value) = 0;
-            virtual bool loadVec4f(const string& key, Vec4f& value) = 0;
+            virtual bool loadInt(const std::string& key, int& value) = 0;
+            virtual bool loadFloat(const std::string& key, float& value) = 0;
+            virtual bool loadBool(const std::string& key, bool& value) = 0;
+            virtual bool loadString(const std::string& key, std::string& value) = 0;
+            virtual bool loadVec4f(const std::string& key, Vec4f& value) = 0;
             void loadPreferences();
             
-            virtual void saveInt(const string& key, int value) = 0;
-            virtual void saveFloat(const string& key, float value) = 0;
-            virtual void saveBool(const string& key, bool value) = 0;
-            virtual void saveString(const string& key, const string& value) = 0;
-			virtual void saveVec4f(const string& key, const Vec4f& value) = 0;
+            virtual void saveInt(const std::string& key, int value) = 0;
+            virtual void saveFloat(const std::string& key, float value) = 0;
+            virtual void saveBool(const std::string& key, bool value) = 0;
+            virtual void saveString(const std::string& key, const std::string& value) = 0;
+			virtual void saveVec4f(const std::string& key, const Vec4f& value) = 0;
             virtual bool saveInstantly() = 0;
 			void savePreferences();
         public:
             static Preferences* sharedPreferences;
 
-            typedef Event<const string&> PreferencesEvent;
+            typedef Event<const std::string&> PreferencesEvent;
             PreferencesEvent preferencesDidChange;
             
             Preferences() {};
@@ -156,13 +156,13 @@ namespace TrenchBroom {
             const Vec4f& usedTextureColor();
             const Vec4f& overriddenTextureColor();
             
-            const string& rendererFontName();
+            const std::string& rendererFontName();
             unsigned int rendererFontSize();
             
             float gridAlpha();
             
-            const string& quakePath();
-            void setQuakePath(const string& quakePath);
+            const std::string& quakePath();
+            void setQuakePath(const std::string& quakePath);
         };
     }
 }

@@ -40,7 +40,7 @@ namespace TrenchBroom {
                 m_items[i]->undo();
         }
 
-        const string& UndoGroup::name() {
+        const std::string& UndoGroup::name() {
             return m_name;
         }
         

@@ -27,8 +27,6 @@
 #include "Renderer/EntityRenderer.h"
 #include "GL/GLee.h"
 
-using namespace std;
-
 namespace TrenchBroom {
     namespace Model {
         namespace Assets {
@@ -47,10 +45,10 @@ namespace TrenchBroom {
 
         class BspRenderer : public EntityRenderer {
         private:
-            typedef map<string, Model::Assets::Texture*> TextureCache;
-            typedef vector<GLint> IntBuffer;
-            typedef pair<IntBuffer, IntBuffer> InfoBuffer;
-            typedef map<Model::Assets::Texture*, InfoBuffer> TextureVertexInfo;
+            typedef std::map<std::string, Model::Assets::Texture*> TextureCache;
+            typedef std::vector<GLint> IntBuffer;
+            typedef std::pair<IntBuffer, IntBuffer> InfoBuffer;
+            typedef std::map<Model::Assets::Texture*, InfoBuffer> TextureVertexInfo;
 
             Model::Assets::Bsp& m_bsp;
             Vbo& m_vbo;

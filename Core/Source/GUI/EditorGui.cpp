@@ -34,7 +34,7 @@ namespace TrenchBroom {
             editorGuiRedraw(*this);
         }
 
-        EditorGui::EditorGui(Controller::Editor& editor, Renderer::FontManager& fontManager, const string& skinPath) : m_editor(editor) {
+        EditorGui::EditorGui(Controller::Editor& editor, Renderer::FontManager& fontManager, const std::string& skinPath) : m_editor(editor) {
             m_renderer = new Gwen::Renderer::OpenGL_FTGL();
             m_skin = new Gwen::Skin::TexturedBase();
             m_skin->SetRender(m_renderer);
