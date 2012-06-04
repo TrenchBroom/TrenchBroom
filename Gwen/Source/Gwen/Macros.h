@@ -6,6 +6,8 @@
 #include <stdarg.h>
 #include <memory.h>
 #include <algorithm>
+#include <string>
+#include <iostream>
 
 // Not tied to platform api.
 #define GwenUtil_Min( a, b ) ( ( (a) < (b) ) ? (a) : (b) )
@@ -26,8 +28,8 @@
 #elif defined(__APPLE__)
 
 	#include <CoreFoundation/CoreFoundation.h>
-	#define GwenUtil_OutputDebugCharString( lpOutputString ) //printf( lpOutputString )
-	#define GwenUtil_OutputDebugWideString( lpOutputString ) //wprintf( lpOutputString  )
+	#define GwenUtil_OutputDebugCharString( lpOutputString ) std::cout << lpOutputString
+	#define GwenUtil_OutputDebugWideString( lpOutputString ) std::cout << lpOutputString
 	#define GwenUtil_WideStringToFloat( _Str ) wcstof(_Str, NULL)
 
 #elif defined(__linux__)

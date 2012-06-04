@@ -31,10 +31,80 @@
 #include "Gwen/Controls/ScrollControl.h"
 #include "Gwen/Utility.h"
 #include <vector>
+#include <cassert>
 
 namespace TrenchBroom {
     namespace Gui {
         
+        void renderTexture(CellRow<CellData>::CellPtr cell, bool override) {
+            Model::Assets::Texture* texture = cell->item().first;
+            const LayoutBounds& itemBounds = cell->itemBounds();
+            
+            glEnable(GL_TEXTURE_2D);
+            texture->activate();
+            if (override)
+                glColor4f(1, 1, 1, 0.7f);
+            else
+                glColor4f(1, 1, 1, 1);
+            glBegin(GL_QUADS);
+            glTexCoord2f(0, 0);
+            glVertex3f(itemBounds.left(), itemBounds.top(), 0);
+            glTexCoord2f(0, 1);
+            glVertex3f(itemBounds.left(), itemBounds.bottom(), 0);
+            glTexCoord2f(1, 1);
+            glVertex3f(itemBounds.right(), itemBounds.bottom(), 0);
+            glTexCoord2f(1, 0);
+            glVertex3f(itemBounds.right(), itemBounds.top(), 0);
+            glEnd();
+            texture->deactivate();
+        }
+        
+        void renderTextureBorder(CellRow<CellData>::CellPtr cell) {
+            const LayoutBounds& itemBounds = cell->itemBounds();
+            
+            glBegin(GL_QUADS);
+            glVertex3f(itemBounds.left()  - 1.0f, itemBounds.top()    - 1.0f, 0);
+            glVertex3f(itemBounds.left()  - 1.0f, itemBounds.bottom() + 1.0f, 0);
+            glVertex3f(itemBounds.right() + 1.0f, itemBounds.bottom() + 1.0f, 0);
+            glVertex3f(itemBounds.right() + 1.0f, itemBounds.top()    - 1.0f, 0);
+            glEnd();
+        }
+        
+
+        TextureDragControl::TextureDragControl(Gwen::Controls::Base* parent, CellRow<CellData>::CellPtr cell) : Base(parent), m_cell(cell) {}
+        
+        TextureDragControl::~TextureDragControl() {}
+
+        void TextureDragControl::Render(Gwen::Skin::Base* skin) {
+            skin->GetRender()->Flush();
+            const Gwen::Point& offset = skin->GetRender()->GetRenderOffset();
+            const LayoutBounds& itemBounds = m_cell->itemBounds();
+            
+            glMatrixMode(GL_MODELVIEW);
+            glPushMatrix();
+            glTranslatef(offset.x - itemBounds.left(), offset.y - itemBounds.top(), 0);
+            
+            glPushAttrib(GL_TEXTURE_BIT | GL_ENABLE_BIT);
+            glDisable(GL_SCISSOR_TEST);
+            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+            
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+            float brightness = prefs.brightness();
+            float color[4] = {brightness / 2.0f, brightness / 2.0f, brightness / 2.0f, 1.0f};
+            
+            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+            glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, color);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_TEXTURE);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_TEXTURE);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_CONSTANT);
+            glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2.0f);
+            
+            renderTexture(m_cell, false);
+            glPopAttrib();
+            glPopMatrix();
+        }
+
         void TextureBrowserPanel::selectionChanged(const Model::SelectionEventData& data) {
             Redraw();
         }
@@ -92,25 +162,6 @@ namespace TrenchBroom {
             SetBounds(GetBounds().x, GetBounds().y, GetBounds().w, controlHeight);
         }
 
-        void TextureBrowserPanel::renderTextureBorder(CellRow<CellData>::CellPtr cell) {
-            const LayoutBounds& itemBounds = cell->itemBounds();
-            
-            glBegin(GL_QUADS);
-            glVertex3f(itemBounds.left()  - 1.0f, itemBounds.top()    - 1.0f, 0);
-            glVertex3f(itemBounds.left()  - 1.0f, itemBounds.bottom() + 1.0f, 0);
-            glVertex3f(itemBounds.right() + 1.0f, itemBounds.bottom() + 1.0f, 0);
-            glVertex3f(itemBounds.right() + 1.0f, itemBounds.top()    - 1.0f, 0);
-            glEnd();
-        }
-
-        void TextureBrowserPanel::OnMouseMoved(int x, int y, int deltaX, int deltaY) {
-            Gwen::Point local = CanvasPosToLocal(Gwen::Point(x, y));
-            CellRow<CellData>::CellPtr cell;
-            if (m_layout.cellAt(static_cast<float>(local.x), static_cast<float>(local.y), cell)) {
-                DragAndDrop_SetPackage(true, "Texture", cell->item().first);
-            }
-        }
-
         void TextureBrowserPanel::OnMouseClickLeft(int x, int y, bool down) {
             if (!down)
                 return;
@@ -120,6 +171,7 @@ namespace TrenchBroom {
             if (m_layout.cellAt(static_cast<float>(local.x), static_cast<float>(local.y), cell)) {
                 m_selectedTexture = cell->item().first;
                 OnTextureSelected();
+                DragAndDrop_SetPackage(true, "Texture", cell->item().first);
             }
         }
         
@@ -129,7 +181,7 @@ namespace TrenchBroom {
             onTextureSelected.Call(this);
         }
         
-        TextureBrowserPanel::TextureBrowserPanel(Gwen::Controls::Base* parent, Controller::Editor& editor) : Gwen::Controls::Base(parent), m_editor(editor), m_group(false), m_selectedTexture(NULL) {
+        TextureBrowserPanel::TextureBrowserPanel(Gwen::Controls::Base* parent, Controller::Editor& editor) : Gwen::Controls::Base(parent), m_editor(editor), m_group(false), m_selectedTexture(NULL), m_dragControl(NULL) {
             m_layout.setGroupMargin(8);
             m_layout.setRowMargin(8);
             m_layout.setCellMargin(8);
@@ -218,7 +270,6 @@ namespace TrenchBroom {
                         if (row->intersectsY(visibleRect.y, visibleRect.h)) {
                             for (unsigned int k = 0; k < row->size(); k++) {
                                 CellRow<CellData>::CellPtr cell = (*row)[k];
-                                const LayoutBounds& itemBounds = cell->itemBounds();
                                 Model::Assets::Texture* texture = cell->item().first;
                                 
                                 // paint border if necessary
@@ -237,31 +288,14 @@ namespace TrenchBroom {
                                     renderTextureBorder(cell);
                                 }
                                 
-                                // render the texture
-                                glEnable(GL_TEXTURE_2D);
-                                texture->activate();
-                                if (override)
-                                    glColor4f(1, 1, 1, 0.7f);
-                                else
-                                    glColor4f(1, 1, 1, 1);
-                                glBegin(GL_QUADS);
-                                glTexCoord2f(0, 0);
-                                glVertex3f(itemBounds.left(), itemBounds.top(), 0);
-                                glTexCoord2f(0, 1);
-                                glVertex3f(itemBounds.left(), itemBounds.bottom(), 0);
-                                glTexCoord2f(1, 1);
-                                glVertex3f(itemBounds.right(), itemBounds.bottom(), 0);
-                                glTexCoord2f(1, 0);
-                                glVertex3f(itemBounds.right(), itemBounds.top(), 0);
-                                glEnd();
-                                texture->deactivate();
+                                renderTexture(cell, override);
                             }
                         }
                     }
                 }
             }
-            glPopMatrix();
             glPopAttrib();
+            glPopMatrix();
             
             for (unsigned int i = 0; i < m_layout.size(); i++) {
                 CellLayout<CellData, GroupData>::CellGroupPtr group = m_layout[i];
@@ -304,6 +338,32 @@ namespace TrenchBroom {
                         skin->GetRender()->RenderText(m_font, Gwen::Point(padding.left + titleBounds.left() + 3, padding.top + titleBounds.top() + 1), components.back());
                     }
                 }
+            }
+        }
+
+        void TextureBrowserPanel::DragAndDrop_StartDragging( Gwen::DragAndDrop::Package* package, int x, int y) {
+            if (m_dragControl != NULL)
+                m_dragControl->DelayedDelete();
+
+            Gwen::Point local = CanvasPosToLocal(Gwen::Point(x, y));
+            CellRow<CellData>::CellPtr cell;
+            if (m_layout.cellAt(static_cast<float>(local.x), static_cast<float>(local.y), cell)) {
+                m_dragControl = new TextureDragControl(GetCanvas(), cell);
+                m_dragControl->SetHidden(true);
+
+                const LayoutBounds& bounds = cell->itemBounds();
+                Gwen::Point global = LocalPosToCanvas(Gwen::Point(bounds.left() + GetPadding().left, bounds.top() + GetPadding().top));
+                m_dragControl->SetBounds(global.x, global.y, bounds.width(), bounds.height());
+
+                m_DragAndDrop_Package->holdoffset = m_dragControl->CanvasPosToLocal(Gwen::Point(x, y));
+                m_DragAndDrop_Package->drawcontrol = m_dragControl;
+            }
+        }
+
+        void TextureBrowserPanel::DragAndDrop_EndDragging(bool success, int x, int y) {
+            if (m_dragControl != NULL) {
+                m_dragControl->DelayedDelete();
+                m_dragControl = NULL;
             }
         }
 

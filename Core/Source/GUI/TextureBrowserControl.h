@@ -50,12 +50,24 @@ namespace TrenchBroom {
     }
     
     namespace Gui {
+        typedef std::tr1::shared_ptr<Gwen::Font> FontPtr;
+        typedef std::pair<Model::Assets::Texture*, FontPtr> CellData;
+        typedef Model::Assets::TextureCollection* GroupData;
+
+        void renderTexture(CellRow<CellData>::CellPtr cell, bool override);
+        void renderTextureBorder(CellRow<CellData>::CellPtr cell);
+
+        class TextureDragControl : public Gwen::Controls::Base {
+        protected:
+            CellRow<CellData>::CellPtr m_cell;
+        public:
+            TextureDragControl(Gwen::Controls::Base* parent, CellRow<CellData>::CellPtr cell);
+            virtual ~TextureDragControl();
+            virtual void Render(Gwen::Skin::Base* skin);
+        };
+        
         class TextureBrowserPanel : public Gwen::Controls::Base {
         protected:
-            typedef std::tr1::shared_ptr<Gwen::Font> FontPtr;
-            typedef std::pair<Model::Assets::Texture*, FontPtr> CellData;
-            typedef Model::Assets::TextureCollection* GroupData;
-            
             Controller::Editor& m_editor;
             bool m_group;
             bool m_hideUnused;
@@ -64,14 +76,13 @@ namespace TrenchBroom {
             Gwen::Font* m_font;
             CellLayout<CellData, GroupData> m_layout;
             Model::Assets::Texture* m_selectedTexture;
+            TextureDragControl* m_dragControl;
             
             void selectionChanged(const Model::SelectionEventData& data);
             void textureManagerDidChange(Model::Assets::TextureManager& textureManager);
             void preferencesDidChange(const std::string& key);
             void addTexture(Model::Assets::Texture* texture);
             void reloadTextures();
-            void renderTextureBorder(CellRow<CellData>::CellPtr cell);
-            virtual void OnMouseMoved(int x, int y, int deltaX, int deltaY);
             virtual void OnMouseClickLeft(int x, int y, bool down);
             virtual void OnTextureSelected();
         public:
@@ -82,6 +93,8 @@ namespace TrenchBroom {
             virtual void SetPadding(const Gwen::Padding& padding);
             virtual void OnBoundsChanged(Gwen::Rect oldBounds);
             virtual void RenderOver(Gwen::Skin::Base* skin);
+            virtual void DragAndDrop_StartDragging( Gwen::DragAndDrop::Package* package, int x, int y);
+            virtual void DragAndDrop_EndDragging(bool success, int x, int y);
             void setHideUnused(bool hideUnused);
             void setGroup(bool group);
             void setSortCriterion(Model::Assets::ETextureSortCriterion criterion);

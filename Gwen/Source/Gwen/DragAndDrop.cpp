@@ -70,6 +70,7 @@ namespace Gwen
             
             // Report back to the source control, to tell it if we've been successful.
             SourceControl->DragAndDrop_EndDragging( bSuccess, x, y );
+            SourceControl->Redraw();
             
             CurrentPackage = NULL;
             SourceControl = NULL;
@@ -210,6 +211,8 @@ namespace Gwen
             if ( !CurrentPackage && !ShouldStartDraggingControl( x, y ) )
                 return;
             
+            SourceControl->GetCanvas()->Redraw();
+            
             // Swap to this new hovered control and notify them of the change.
             UpdateHoveredControl( pHoveredControl, x, y );
             
@@ -233,7 +236,11 @@ namespace Gwen
             
             Gwen::Point pntOld = skin->GetRender()->GetRenderOffset();
             
-            skin->GetRender()->AddRenderOffset( Gwen::Rect( m_iMouseX - SourceControl->X() - CurrentPackage->holdoffset.x, m_iMouseY - SourceControl->Y() - CurrentPackage->holdoffset.y, 0, 0 ) );
+            Gwen::Rect offset;
+            offset.x = m_iMouseX - CurrentPackage->drawcontrol->X() - CurrentPackage->holdoffset.x;
+            offset.y = m_iMouseY - CurrentPackage->drawcontrol->Y() - CurrentPackage->holdoffset.y;
+            
+            skin->GetRender()->AddRenderOffset(offset);
             CurrentPackage->drawcontrol->DoRender( skin );
             
             skin->GetRender()->SetRenderOffset( pntOld );
