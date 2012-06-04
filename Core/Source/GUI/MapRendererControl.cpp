@@ -25,6 +25,13 @@
 #include "Controller/Tool.h"
 #include "Controller/InputController.h"
 #include "Controller/Camera.h"
+#include "Model/Assets/Texture.h"
+#include "Model/Map/Map.h"
+#include "Model/Map/Entity.h"
+#include "Model/Map/Brush.h"
+#include "Model/Map/Face.h"
+#include "Model/Map/Picker.h"
+#include "Model/Selection.h"
 #include "Renderer/FontManager.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderContext.h"
@@ -141,6 +148,40 @@ namespace TrenchBroom {
                 default:
                     return false;
             }
+        }
+
+        bool MapRendererControl::DragAndDrop_HandleDrop(Gwen::DragAndDrop::Package* package, int x, int y) {
+            Gwen::Point local = CanvasPosToLocal(Gwen::Point(x, y));
+            local.y = GetSkin()->GetRender()->GetViewport().h - local.y;
+            if (package->name == "Texture") {
+                Model::Assets::Texture* texture = static_cast<Model::Assets::Texture*>(package->userdata);
+                Model::Picker& picker = m_editor.map().picker();
+                Controller::Camera& camera = m_editor.camera();
+                
+                Ray pickRay = camera.pickRay(static_cast<float>(local.x), static_cast<float>(local.y));
+                Model::HitList* hits = picker.pick(pickRay, m_editor.filter());
+                
+                Model::Hit* hit = hits->first(Model::TB_HT_FACE, false);
+                if (hit != NULL) {
+                    Model::Face* face = static_cast<Model::Face*>(hit->object);
+                    if (!face->selected()) {
+                        Model::Brush* brush = face->brush();
+                        Model::Selection& selection = m_editor.map().selection();
+                        selection.removeAll();
+                        selection.addBrush(*brush);
+                        m_editor.map().setTexture(texture);
+                    }
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        bool MapRendererControl::DragAndDrop_CanAcceptPackage( Gwen::DragAndDrop::Package* package) {
+            if (package->name == "Texture")
+                return true;
+            return false;
         }
     }
 }
