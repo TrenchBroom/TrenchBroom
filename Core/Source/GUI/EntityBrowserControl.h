@@ -47,6 +47,14 @@ namespace TrenchBroom {
         typedef std::pair<Model::EntityDefinitionPtr, FontPtr> EntityCellData;
         typedef void* EntityGroupData;
 
+        class EntityDragControl : public CellDragControl<EntityCellData> {
+        protected:
+            Controller::Editor& m_editor;
+        public:
+            EntityDragControl(Gwen::Controls::Base* parent, CellRow<EntityCellData>::CellPtr cell, Controller::Editor& editor) : CellDragControl(parent, cell), m_editor(editor) {}
+            virtual void RenderOverlay(Gwen::Skin::Base* skin);
+        };
+
         class EntityBrowserPanel : public CellLayoutControl<EntityCellData, EntityGroupData> {
         protected:
             Controller::Editor& m_editor;
@@ -55,6 +63,8 @@ namespace TrenchBroom {
             Renderer::VboBlock* m_boundsBlock;
             
             virtual void doReloadLayout();
+            virtual void SetDragAndDropPackage(CellRow<EntityCellData>::CellPtr cell);
+            virtual Gwen::Controls::Base* createDragControl(CellRow<EntityCellData>::CellPtr cell);
         public:
             EntityBrowserPanel(Gwen::Controls::Base* parent, Controller::Editor& editor);
             virtual ~EntityBrowserPanel();

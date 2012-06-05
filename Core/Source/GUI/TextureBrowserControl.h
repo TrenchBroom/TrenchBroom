@@ -57,13 +57,10 @@ namespace TrenchBroom {
         void renderTexture(CellRow<TextureCellData>::CellPtr cell, bool override);
         void renderTextureBorder(CellRow<TextureCellData>::CellPtr cell);
 
-        class TextureDragControl : public Gwen::Controls::Base {
-        protected:
-            CellRow<TextureCellData>::CellPtr m_cell;
+        class TextureDragControl : public CellDragControl<TextureCellData> {
         public:
-            TextureDragControl(Gwen::Controls::Base* parent, CellRow<TextureCellData>::CellPtr cell);
-            virtual ~TextureDragControl();
-            virtual void Render(Gwen::Skin::Base* skin);
+            TextureDragControl(Gwen::Controls::Base* parent, CellRow<TextureCellData>::CellPtr cell) : CellDragControl(parent, cell) {}
+            virtual void RenderOverlay(Gwen::Skin::Base* skin);
         };
         
         class TextureBrowserPanel : public CellLayoutControl<TextureCellData, TextureGroupData> {

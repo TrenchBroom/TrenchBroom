@@ -21,11 +21,39 @@
 #define TrenchBroom_CellLayoutControl_h
 
 #include "Gwen/Controls/Base.h"
+#include "Gwen/Skin.h"
+#include "GL/GLee.h"
 #include "GUI/CellLayout.h"
 
 namespace TrenchBroom {
     namespace Gui {
         
+        template<typename CellData>
+        class CellDragControl : public Gwen::Controls::Base {
+        protected:
+            typename CellRow<CellData>::CellPtr m_cell;
+        public:
+            CellDragControl(Gwen::Controls::Base* parent, typename CellRow<CellData>::CellPtr cell) : Base(parent), m_cell(cell) {}
+            virtual ~CellDragControl() {}
+            
+            virtual void Render(Gwen::Skin::Base* skin) {
+                const Gwen::Point& offset = skin->GetRender()->GetRenderOffset();
+                const LayoutBounds& itemBounds = m_cell->itemBounds();
+                
+                glPushAttrib(GL_ENABLE_BIT);
+                glDisable(GL_SCISSOR_TEST);
+                glMatrixMode(GL_MODELVIEW);
+                glPushMatrix();
+                glTranslatef(offset.x - itemBounds.left(), offset.y - itemBounds.top(), 0);
+                
+                RenderOverlay(skin);
+                glPopMatrix();
+                glPopAttrib();
+            }
+            
+            virtual void RenderOverlay(Gwen::Skin::Base* skin) = 0;
+        };
+
         template <typename CellData, typename GroupData>
         class CellLayoutControl : public Gwen::Controls::Base {
         protected:
@@ -57,7 +85,6 @@ namespace TrenchBroom {
                 m_layout.setWidth(GetBounds().w);
                 m_layout.setFixedCellWidth(64);
                 SetFont(GetSkin()->GetDefaultFont());
-                reloadLayout();
             }
             
             virtual ~CellLayoutControl() {}

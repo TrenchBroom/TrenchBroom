@@ -69,39 +69,12 @@ namespace TrenchBroom {
             glEnd();
         }
         
-
-        TextureDragControl::TextureDragControl(Gwen::Controls::Base* parent, CellRow<TextureCellData>::CellPtr cell) : Base(parent), m_cell(cell) {}
-        
-        TextureDragControl::~TextureDragControl() {}
-
-        void TextureDragControl::Render(Gwen::Skin::Base* skin) {
-            skin->GetRender()->Flush();
-            const Gwen::Point& offset = skin->GetRender()->GetRenderOffset();
-            const LayoutBounds& itemBounds = m_cell->itemBounds();
-            
-            glMatrixMode(GL_MODELVIEW);
-            glPushMatrix();
-            glTranslatef(offset.x - itemBounds.left(), offset.y - itemBounds.top(), 0);
-            
-            glPushAttrib(GL_TEXTURE_BIT | GL_ENABLE_BIT);
-            glDisable(GL_SCISSOR_TEST);
-            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-            
+        void TextureDragControl::RenderOverlay(Gwen::Skin::Base* skin) {
+            glPushAttrib(GL_TEXTURE_BIT);
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-            float brightness = prefs.brightness();
-            float color[4] = {brightness / 2.0f, brightness / 2.0f, brightness / 2.0f, 1.0f};
-            
-            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
-            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
-            glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, color);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_TEXTURE);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_TEXTURE);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_CONSTANT);
-            glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2.0f);
-            
+            Renderer::glSetBrightness(prefs.brightness());
             renderTexture(m_cell, false);
             glPopAttrib();
-            glPopMatrix();
         }
 
         void TextureBrowserPanel::selectionChanged(const Model::SelectionEventData& data) {
@@ -208,19 +181,8 @@ namespace TrenchBroom {
             glTranslatef(padding.left, padding.top, 0);
             
             glPushAttrib(GL_TEXTURE_BIT);
-            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-            
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-            float brightness = prefs.brightness();
-            float color[4] = {brightness / 2.0f, brightness / 2.0f, brightness / 2.0f, 1.0f};
-            
-            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
-            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
-            glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, color);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_TEXTURE);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_TEXTURE);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_CONSTANT);
-            glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2.0f);
+            Renderer::glSetBrightness(prefs.brightness());
 
             for (unsigned int i = 0; i < m_layout.size(); i++) {
                 CellLayout<TextureCellData, TextureGroupData>::CellGroupPtr group = m_layout[i];

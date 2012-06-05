@@ -37,6 +37,76 @@
 
 namespace TrenchBroom {
     namespace Gui {
+        void EntityDragControl::RenderOverlay(Gwen::Skin::Base* skin) {
+            glMatrixMode(GL_PROJECTION);
+            glPushMatrix();
+            glLoadIdentity();
+            
+            const Gwen::Rect& viewport = skin->GetRender()->GetViewport();
+            glOrtho(0, viewport.w, viewport.h, 0, -512, 512);
+            
+            glMatrixMode(GL_MODELVIEW);
+            glPushMatrix();
+            glTranslatef(0, 0, -128.0f);
+            
+            glPushAttrib(GL_TEXTURE_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT);
+            glFrontFace(GL_CCW);
+            glEnable(GL_CULL_FACE);
+            glEnable(GL_DEPTH_TEST);
+            
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+            Renderer::glSetBrightness(prefs.brightness());
+
+            float xAng = 70.0f;
+            float zAng = 115.0f;
+            
+            Quat rot = Quat(Math::fradians(-xAng), XAxisPos) * Quat(Math::fradians(zAng), ZAxisPos);
+            const LayoutBounds& itemBounds = m_cell->itemBounds();
+            Model::EntityDefinitionPtr definition = m_cell->item().first;
+            
+            Renderer::EntityRendererManager& rendererManager = m_editor.renderer()->entityRendererManager();
+            Renderer::EntityRenderer* renderer = rendererManager.entityRenderer(*definition, m_editor.map().mods());
+            if (renderer == NULL) {
+                BBox actualBounds = definition->bounds.boundsAfterRotation(rot);
+                Vec3f actualSize = actualBounds.size();
+                float scale = Math::fmin(2.0f, actualSize.x > actualSize.y ? itemBounds.width() / actualSize.x : itemBounds.height() / actualSize.y);
+                Vec3f center = definition->bounds.center();
+                
+                Renderer::glColorV4f(definition->color);
+                glBegin(GL_LINES);
+                std::vector<Vec3f> vertices = Renderer::bboxEdgeVertices(definition->bounds);
+                for (unsigned int l = 0; l < vertices.size(); l++) {
+                    vertices[l] = rot * (vertices[l] - center);
+                    vertices[l] *= scale;
+                    vertices[l].x += itemBounds.midX();
+                    vertices[l].y += itemBounds.midY();
+                    Renderer::glVertexV3f(vertices[l]);
+                }
+                glEnd();
+            } else {
+                BBox actualBounds = renderer->bounds().boundsAfterRotation(rot);
+                Vec3f actualSize = actualBounds.size();
+                float scale = Math::fmin(2.0f, actualSize.x > actualSize.y ? itemBounds.width() / actualSize.x : itemBounds.height() / actualSize.y);
+                Vec3f center = renderer->bounds().center();
+                
+                glPushMatrix();
+                glTranslatef(itemBounds.midX(), itemBounds.midY(), 0);
+                glScalef(scale, scale, scale);
+                glRotatef(xAng, 1.0f, 0.0f, 0.0f);
+                glRotatef(zAng, 0.0f, 0.0f, 1.0f);
+                glTranslatef(-center.x, -center.y, -center.z);
+                rendererManager.activate();
+                renderer->render();
+                rendererManager.deactivate();
+                glPopMatrix();
+            }
+            glPopAttrib();
+            glMatrixMode(GL_PROJECTION);
+            glPopMatrix();
+            glMatrixMode(GL_MODELVIEW);
+            glPopMatrix();
+        }
+
         void EntityBrowserPanel::doReloadLayout() {
             Model::EntityDefinitionManager& defManager = m_editor.map().entityDefinitionManager();
             const std::vector<Model::EntityDefinitionPtr> definitions = defManager.definitions();
@@ -63,6 +133,14 @@ namespace TrenchBroom {
             }
         }
 
+        void EntityBrowserPanel::SetDragAndDropPackage(CellRow<EntityCellData>::CellPtr cell) {
+            DragAndDrop_SetPackage(true, "Entity", cell->item().first.get());
+        }
+        
+        Gwen::Controls::Base* EntityBrowserPanel::createDragControl(CellRow<EntityCellData>::CellPtr cell) {
+            return new EntityDragControl(GetCanvas(), cell, m_editor);
+        }
+
         EntityBrowserPanel::EntityBrowserPanel(Gwen::Controls::Base* parent, Controller::Editor& editor) : CellLayoutControl(parent), m_editor(editor) {
             m_boundsVbo = new Renderer::Vbo(GL_ARRAY_BUFFER, 0xFFF);
             m_boundsBlock = NULL;
@@ -73,6 +151,7 @@ namespace TrenchBroom {
             m_layout.setFixedCellWidth(128);
             m_layout.setWidth(GetBounds().w);
             SetFont(GetSkin()->GetDefaultFont());
+            reloadLayout();
         }
 
         EntityBrowserPanel::~EntityBrowserPanel() {
@@ -99,23 +178,14 @@ namespace TrenchBroom {
             glPushMatrix();
             glTranslatef(offset.x + padding.left, offset.y + padding.top, -256.0f);
 
-            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-            float brightness = prefs.brightness();
-            float color[4] = {brightness / 2.0f, brightness / 2.0f, brightness / 2.0f, 1.0f};
-
             glPushAttrib(GL_TEXTURE_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT);
             glFrontFace(GL_CCW);
             glEnable(GL_CULL_FACE);
             glEnable(GL_DEPTH_TEST);
-
             glEnable(GL_TEXTURE_2D);
-            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
-            glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, color);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_TEXTURE);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_TEXTURE);
-            glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_CONSTANT);
-            glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2.0f);
+
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+            Renderer::glSetBrightness(prefs.brightness());
 
             Renderer::EntityRendererManager& rendererManager = m_editor.renderer()->entityRendererManager();
             rendererManager.activate();
