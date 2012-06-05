@@ -37,6 +37,8 @@ namespace TrenchBroom {
         class CameraTool;
         class SelectionTool;
         class MoveObjectTool;
+        class DragInfo;
+        class DragTargetTool;
         class Editor;
 
         class InputController {
@@ -63,6 +65,12 @@ namespace TrenchBroom {
             void mouseUp(EMouseButton mouseButton);
             void mouseMoved(float x, float y, float dx, float dy);
             void scrolled(float dx, float dy);
+            
+            void dragEnter(const std::string& name, void* payload, float x, float y);
+            void dragLeave(const std::string& name, void* payload, float x, float y);
+            void dragMove(const std::string& name, void* payload, float x, float y);
+            bool acceptDrag(const std::string& name, void* payload);
+            bool handleDrop(const std::string& name, void* payload, float x, float y);
         };
     }
 }

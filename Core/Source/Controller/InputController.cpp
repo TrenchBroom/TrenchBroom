@@ -158,5 +158,25 @@ namespace TrenchBroom {
                         break;
             }
         }
+
+        void InputController::dragEnter(const std::string& name, void* payload, float x, float y) {
+        }
+        
+        void InputController::dragLeave(const std::string& name, void* payload, float x, float y) {
+        }
+        
+        void InputController::dragMove(const std::string& name, void* payload, float x, float y) {
+        }
+
+        bool InputController::acceptDrag(const std::string& name, void* payload) {
+            if (name == "Texture")
+                return true;
+            if (name == "Entity")
+                return true;
+            return false;
+        }
+        
+        bool InputController::handleDrop(const std::string& name, void* payload, float x, float y) {
+        }
     }
 }
