@@ -21,9 +21,9 @@
 #define TrenchBroom_EntityBrowserControl_h
 
 #include "Gwen/Controls/Base.h"
-
-#include "Model/Map/EntityDefinition.h"
+#include "GUI/CellLayoutControl.h"
 #include "GUI/CellLayout.h"
+#include "Model/Map/EntityDefinition.h"
 #include "Utilities/SharedPointer.h"
 
 namespace Gwen {
@@ -43,28 +43,21 @@ namespace TrenchBroom {
     }
     
     namespace Gui {
-        class EntityBrowserPanel : public Gwen::Controls::Base {
-        protected:
-            typedef std::tr1::shared_ptr<Gwen::Font> FontPtr;
-            typedef std::pair<Model::EntityDefinitionPtr, FontPtr> CellData;
-            typedef void* GroupData;
+        typedef std::tr1::shared_ptr<Gwen::Font> FontPtr;
+        typedef std::pair<Model::EntityDefinitionPtr, FontPtr> EntityCellData;
+        typedef void* EntityGroupData;
 
+        class EntityBrowserPanel : public CellLayoutControl<EntityCellData, EntityGroupData> {
+        protected:
             Controller::Editor& m_editor;
-            CellLayout<CellData, GroupData> m_layout;
-            Gwen::Font* m_font;
             
             Renderer::Vbo* m_boundsVbo;
             Renderer::VboBlock* m_boundsBlock;
             
-            void reloadEntityDefinitions();
+            virtual void doReloadLayout();
         public:
             EntityBrowserPanel(Gwen::Controls::Base* parent, Controller::Editor& editor);
             virtual ~EntityBrowserPanel();
-
-            virtual void SetFont(Gwen::Font* font);
-            virtual Gwen::Font* GetFont();
-            virtual void SetPadding(const Gwen::Padding& padding);
-            virtual void OnBoundsChanged(Gwen::Rect oldBounds);
             virtual void RenderOver(Gwen::Skin::Base* skin);
         };
         

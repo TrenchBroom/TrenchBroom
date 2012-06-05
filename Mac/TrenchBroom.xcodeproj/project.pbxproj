@@ -453,6 +453,7 @@
 		486571B6157C0A6E00698829 /* FileManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileManager.cpp; sourceTree = "<group>"; };
 		486571BC157C117900698829 /* MacFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacFileManager.h; sourceTree = "<group>"; };
 		486571BD157C117900698829 /* MacFileManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacFileManager.mm; sourceTree = "<group>"; };
+		486571C0157D625800698829 /* CellLayoutControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CellLayoutControl.h; sourceTree = "<group>"; };
 		48886BA31545FE09006A781B /* EditorHolder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorHolder.h; sourceTree = "<group>"; };
 		48886BA41545FE09006A781B /* EditorHolder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EditorHolder.mm; sourceTree = "<group>"; };
 		488E65B31563011E00B4E72A /* Figure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Figure.h; sourceTree = "<group>"; };
@@ -548,6 +549,7 @@
 			isa = PBXGroup;
 			children = (
 				48953FE31567CFE2006DD2E3 /* CellLayout.h */,
+				486571C0157D625800698829 /* CellLayoutControl.h */,
 				4825B3CD153AE59F007E3AE1 /* EditorGui.cpp */,
 				4825B3CE153AE59F007E3AE1 /* EditorGui.h */,
 				486571AE1575558C00698829 /* EntityBrowserControl.cpp */,

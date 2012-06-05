@@ -37,9 +37,7 @@
 
 namespace TrenchBroom {
     namespace Gui {
-        void EntityBrowserPanel::reloadEntityDefinitions() {
-            m_layout.clear();
-
+        void EntityBrowserPanel::doReloadLayout() {
             Model::EntityDefinitionManager& defManager = m_editor.map().entityDefinitionManager();
             const std::vector<Model::EntityDefinitionPtr> definitions = defManager.definitions();
 
@@ -60,16 +58,12 @@ namespace TrenchBroom {
                         actualSize = GetSkin()->GetRender()->MeasureText(m_font, definition->name);
                     }
 
-                    m_layout.addItem(CellData(definition, actualFontPtr), m_layout.fixedCellWidth(), m_layout.fixedCellWidth(), static_cast<float>(actualSize.x), actualFont->size + 2);
+                    m_layout.addItem(EntityCellData(definition, actualFontPtr), m_layout.fixedCellWidth(), m_layout.fixedCellWidth(), static_cast<float>(actualSize.x), actualFont->size + 2);
                 }
             }
-
-            const Gwen::Padding& padding = GetPadding();
-            int controlHeight = static_cast<int>(m_layout.height()) + padding.top + padding.bottom;
-            SetBounds(GetBounds().x, GetBounds().y, GetBounds().w, controlHeight);
         }
 
-        EntityBrowserPanel::EntityBrowserPanel(Gwen::Controls::Base* parent, Controller::Editor& editor) : Base(parent), m_editor(editor) {
+        EntityBrowserPanel::EntityBrowserPanel(Gwen::Controls::Base* parent, Controller::Editor& editor) : CellLayoutControl(parent), m_editor(editor) {
             m_boundsVbo = new Renderer::Vbo(GL_ARRAY_BUFFER, 0xFFF);
             m_boundsBlock = NULL;
 
@@ -79,34 +73,10 @@ namespace TrenchBroom {
             m_layout.setFixedCellWidth(128);
             m_layout.setWidth(GetBounds().w);
             SetFont(GetSkin()->GetDefaultFont());
-            reloadEntityDefinitions();
         }
 
         EntityBrowserPanel::~EntityBrowserPanel() {
             delete m_boundsVbo;
-        }
-
-        void EntityBrowserPanel::SetFont(Gwen::Font* font) {
-            m_font = font;
-        }
-
-        Gwen::Font* EntityBrowserPanel::GetFont() {
-            return m_font;
-        }
-
-        void EntityBrowserPanel::SetPadding(const Gwen::Padding& padding) {
-            Base::SetPadding(padding);
-            m_layout.setWidth(GetBounds().w - padding.left - padding.right);
-        }
-
-        void EntityBrowserPanel::OnBoundsChanged( Gwen::Rect oldBounds ) {
-            Base::OnBoundsChanged(oldBounds);
-
-            const Gwen::Padding& padding = GetPadding();
-            m_layout.setWidth(GetBounds().w - padding.left - padding.right);
-
-            int controlHeight = static_cast<int>(m_layout.height()) + padding.top + padding.bottom;
-            SetBounds(GetBounds().x, GetBounds().y, GetBounds().w, controlHeight);
         }
 
         void EntityBrowserPanel::RenderOver(Gwen::Skin::Base* skin) {
@@ -158,13 +128,13 @@ namespace TrenchBroom {
             std::vector<Vec4f> boundsColors;
 
             for (unsigned int i = 0; i < m_layout.size(); i++) {
-                CellLayout<CellData, GroupData>::CellGroupPtr group = m_layout[i];
+                CellLayout<EntityCellData, EntityGroupData>::CellGroupPtr group = m_layout[i];
                 if (group->intersectsY(visibleRect.y, visibleRect.h)) {
                     for (unsigned int j = 0; j < group->size(); j++) {
-                        CellGroup<CellData, GroupData>::CellRowPtr row = (*group)[j];
+                        CellGroup<EntityCellData, EntityGroupData>::CellRowPtr row = (*group)[j];
                         if (row->intersectsY(visibleRect.y, visibleRect.h)) {
                             for (unsigned int k = 0; k < row->size(); k++) {
-                                CellRow<CellData>::CellPtr cell = (*row)[k];
+                                CellRow<EntityCellData>::CellPtr cell = (*row)[k];
                                 const LayoutBounds& itemBounds = cell->itemBounds();
                                 Model::EntityDefinitionPtr definition = cell->item().first;
 
@@ -241,13 +211,13 @@ namespace TrenchBroom {
             glPopMatrix();
 
             for (unsigned int i = 0; i < m_layout.size(); i++) {
-                CellLayout<CellData, GroupData>::CellGroupPtr group = m_layout[i];
+                CellLayout<EntityCellData, EntityGroupData>::CellGroupPtr group = m_layout[i];
 
                 skin->GetRender()->SetDrawColor(Gwen::Color(255, 255, 255, 255));
                 for (unsigned int j = 0; j < group->size(); j++) {
-                    CellGroup<CellData, GroupData>::CellRowPtr row = (*group)[j];
+                    CellGroup<EntityCellData, EntityGroupData>::CellRowPtr row = (*group)[j];
                     for (unsigned int k = 0; k < row->size(); k++) {
-                        CellRow<CellData>::CellPtr cell = (*row)[k];
+                        CellRow<EntityCellData>::CellPtr cell = (*row)[k];
                         const LayoutBounds& titleBounds = cell->titleBounds();
                         if (titleBounds.intersectsY(visibleRect.y, visibleRect.h)) {
                             Model::EntityDefinitionPtr definition = cell->item().first;
