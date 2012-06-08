@@ -53,6 +53,9 @@ namespace TrenchBroom {
             virtual bool OnKeyPress( int iKey, bool bPress = true );
             virtual bool OnKeyRelease( int iKey );
             
+            virtual void DragAndDrop_HoverEnter(Gwen::DragAndDrop::Package* package, int x, int y);
+            virtual void DragAndDrop_HoverLeave(Gwen::DragAndDrop::Package* package);
+            virtual void DragAndDrop_Hover(Gwen::DragAndDrop::Package* package, int x, int y);
             virtual bool DragAndDrop_HandleDrop(Gwen::DragAndDrop::Package* package, int x, int y);
             virtual bool DragAndDrop_CanAcceptPackage( Gwen::DragAndDrop::Package* package);
         };

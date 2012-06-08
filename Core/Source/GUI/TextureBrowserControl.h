@@ -54,7 +54,7 @@ namespace TrenchBroom {
         typedef std::pair<Model::Assets::Texture*, FontPtr> TextureCellData;
         typedef Model::Assets::TextureCollection* TextureGroupData;
 
-        void renderTexture(CellRow<TextureCellData>::CellPtr cell, bool override);
+        void renderTexture(CellRow<TextureCellData>::CellPtr cell, float alpha);
         void renderTextureBorder(CellRow<TextureCellData>::CellPtr cell);
 
         class TextureDragControl : public CellDragControl<TextureCellData> {
@@ -78,7 +78,7 @@ namespace TrenchBroom {
 
             virtual void doReloadLayout();
             virtual void SetDragAndDropPackage(CellRow<TextureCellData>::CellPtr cell);
-            virtual Gwen::Controls::Base* createDragControl(CellRow<TextureCellData>::CellPtr cell);
+            virtual CellDragControl<TextureCellData>* createDragControl(CellRow<TextureCellData>::CellPtr cell);
         public:
             TextureBrowserPanel(Gwen::Controls::Base* parent, Controller::Editor& editor);
             virtual ~TextureBrowserPanel();

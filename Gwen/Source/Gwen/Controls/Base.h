@@ -378,6 +378,7 @@ namespace Gwen
             virtual void DragAndDrop_StartDragging( Gwen::DragAndDrop::Package* pPackage, int x, int y );
             virtual Gwen::DragAndDrop::Package* DragAndDrop_GetPackage( int x, int y );
             virtual void DragAndDrop_EndDragging( bool /*bSuccess*/, int /*x*/, int /*y*/ ){};
+            virtual void DragAndDrop_SetOverlayVisible(bool visible) {}
             
         protected:
             

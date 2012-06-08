@@ -32,26 +32,36 @@ namespace TrenchBroom {
         class CellDragControl : public Gwen::Controls::Base {
         protected:
             typename CellRow<CellData>::CellPtr m_cell;
+            bool m_overlayVisible;
         public:
-            CellDragControl(Gwen::Controls::Base* parent, typename CellRow<CellData>::CellPtr cell) : Base(parent), m_cell(cell) {}
+            CellDragControl(Gwen::Controls::Base* parent, typename CellRow<CellData>::CellPtr cell) : Base(parent), m_cell(cell), m_overlayVisible(true) {}
             virtual ~CellDragControl() {}
             
             virtual void Render(Gwen::Skin::Base* skin) {
-                const Gwen::Point& offset = skin->GetRender()->GetRenderOffset();
-                const LayoutBounds& itemBounds = m_cell->itemBounds();
-                
-                glPushAttrib(GL_ENABLE_BIT);
-                glDisable(GL_SCISSOR_TEST);
-                glMatrixMode(GL_MODELVIEW);
-                glPushMatrix();
-                glTranslatef(offset.x - itemBounds.left(), offset.y - itemBounds.top(), 0);
-                
-                RenderOverlay(skin);
-                glPopMatrix();
-                glPopAttrib();
+                if (m_overlayVisible) {
+                    const Gwen::Point& offset = skin->GetRender()->GetRenderOffset();
+                    const LayoutBounds& itemBounds = m_cell->itemBounds();
+                    
+                    glPushAttrib(GL_ENABLE_BIT);
+                    glDisable(GL_SCISSOR_TEST);
+                    glMatrixMode(GL_MODELVIEW);
+                    glPushMatrix();
+                    glTranslatef(offset.x - itemBounds.left(), offset.y - itemBounds.top(), 0);
+                    
+                    RenderOverlay(skin);
+                    glPopMatrix();
+                    glPopAttrib();
+                }
             }
             
             virtual void RenderOverlay(Gwen::Skin::Base* skin) = 0;
+
+            virtual void SetOverlayVisible(bool overlayVisible) {
+                if (m_overlayVisible == overlayVisible)
+                    return;
+                m_overlayVisible = overlayVisible;
+                Redraw();
+            }
         };
 
         template <typename CellData, typename GroupData>
@@ -60,7 +70,7 @@ namespace TrenchBroom {
             CellLayout<CellData, GroupData> m_layout;
             typename CellRow<CellData>::CellPtr m_selectedCell;
             Gwen::Font* m_font;
-            Gwen::Controls::Base* m_dragControl;
+            CellDragControl<CellData>* m_dragControl;
 
             virtual void reloadLayout() {
                 m_layout.clear();
@@ -74,7 +84,7 @@ namespace TrenchBroom {
             virtual void doReloadLayout() = 0;
             
             virtual void SetDragAndDropPackage(typename CellRow<CellData>::CellPtr cell) {}
-            virtual Gwen::Controls::Base* createDragControl(typename CellRow<CellData>::CellPtr cell) {
+            virtual CellDragControl<CellData>* createDragControl(typename CellRow<CellData>::CellPtr cell) {
                 return NULL;
             }
         public:
@@ -112,6 +122,11 @@ namespace TrenchBroom {
                     m_dragControl->DelayedDelete();
                     m_dragControl = NULL;
                 }
+            }
+
+            virtual void DragAndDrop_SetOverlayVisible(bool visible) {
+                if (m_dragControl != NULL)
+                    m_dragControl->SetOverlayVisible(visible);
             }
 
             virtual void SetFont(Gwen::Font* font) {

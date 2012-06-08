@@ -64,7 +64,7 @@ namespace TrenchBroom {
             
             virtual void doReloadLayout();
             virtual void SetDragAndDropPackage(CellRow<EntityCellData>::CellPtr cell);
-            virtual Gwen::Controls::Base* createDragControl(CellRow<EntityCellData>::CellPtr cell);
+            virtual CellDragControl<EntityCellData>* createDragControl(CellRow<EntityCellData>::CellPtr cell);
         public:
             EntityBrowserPanel(Gwen::Controls::Base* parent, Controller::Editor& editor);
             virtual ~EntityBrowserPanel();

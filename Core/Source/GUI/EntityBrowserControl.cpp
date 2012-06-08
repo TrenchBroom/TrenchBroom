@@ -56,7 +56,8 @@ namespace TrenchBroom {
             
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             Renderer::glSetBrightness(prefs.brightness());
-
+            glColor4f(1, 1, 1, 0.8f);
+            
             float xAng = 70.0f;
             float zAng = 115.0f;
             
@@ -137,7 +138,7 @@ namespace TrenchBroom {
             DragAndDrop_SetPackage(true, "Entity", cell->item().first.get());
         }
         
-        Gwen::Controls::Base* EntityBrowserPanel::createDragControl(CellRow<EntityCellData>::CellPtr cell) {
+        CellDragControl<EntityCellData>* EntityBrowserPanel::createDragControl(CellRow<EntityCellData>::CellPtr cell) {
             return new EntityDragControl(GetCanvas(), cell, m_editor);
         }
 

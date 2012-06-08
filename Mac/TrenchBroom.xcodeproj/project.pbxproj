@@ -137,6 +137,7 @@
 		486571AF1575558C00698829 /* EntityBrowserControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486571AE1575558C00698829 /* EntityBrowserControl.cpp */; };
 		486571B7157C0A6F00698829 /* FileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486571B6157C0A6E00698829 /* FileManager.cpp */; };
 		486571BE157C117900698829 /* MacFileManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 486571BD157C117900698829 /* MacFileManager.mm */; };
+		486571CA157E78D400698829 /* DragTextureTargetTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486571C9157E78D400698829 /* DragTextureTargetTool.cpp */; };
 		48886BA51545FE0A006A781B /* EditorHolder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48886BA41545FE09006A781B /* EditorHolder.mm */; };
 		488E65B6156301F300B4E72A /* PositioningGuideFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488E65B5156301F300B4E72A /* PositioningGuideFigure.cpp */; };
 		488E65E51563C6A600B4E72A /* Inspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488E65E41563C6A600B4E72A /* Inspector.cpp */; };
@@ -454,6 +455,8 @@
 		486571BC157C117900698829 /* MacFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacFileManager.h; sourceTree = "<group>"; };
 		486571BD157C117900698829 /* MacFileManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacFileManager.mm; sourceTree = "<group>"; };
 		486571C0157D625800698829 /* CellLayoutControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CellLayoutControl.h; sourceTree = "<group>"; };
+		486571C7157E78A400698829 /* DragTextureTargetTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragTextureTargetTool.h; sourceTree = "<group>"; };
+		486571C9157E78D400698829 /* DragTextureTargetTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragTextureTargetTool.cpp; sourceTree = "<group>"; };
 		48886BA31545FE09006A781B /* EditorHolder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorHolder.h; sourceTree = "<group>"; };
 		48886BA41545FE09006A781B /* EditorHolder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EditorHolder.mm; sourceTree = "<group>"; };
 		48891461157E299C00687915 /* DragTargetTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragTargetTool.h; sourceTree = "<group>"; };
@@ -527,6 +530,8 @@
 				485395E4155EE5ED00636357 /* DragPlane.cpp */,
 				485395E3155EE5C700636357 /* DragPlane.h */,
 				48891461157E299C00687915 /* DragTargetTool.h */,
+				486571C9157E78D400698829 /* DragTextureTargetTool.cpp */,
+				486571C7157E78A400698829 /* DragTextureTargetTool.h */,
 				485395E1155EE59300636357 /* DragTool.cpp */,
 				485395E0155EE56E00636357 /* DragTool.h */,
 				4825B3C1153AE59F007E3AE1 /* Editor.cpp */,
@@ -1281,6 +1286,7 @@
 				4833E9F815790E9D0089FD2A /* EntityRenderer.cpp in Sources */,
 				486571B7157C0A6F00698829 /* FileManager.cpp in Sources */,
 				486571BE157C117900698829 /* MacFileManager.mm in Sources */,
+				486571CA157E78D400698829 /* DragTextureTargetTool.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

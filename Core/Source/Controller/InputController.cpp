@@ -20,6 +20,7 @@
 #include "InputController.h"
 #include "Controller/Camera.h"
 #include "Controller/CameraTool.h"
+#include "Controller/DragTextureTargetTool.h"
 #include "Controller/Editor.h"
 #include "Controller/MoveObjectTool.h"
 #include "Controller/SelectionTool.h"
@@ -38,7 +39,7 @@ namespace TrenchBroom {
             m_currentEvent.hits = picker.pick(m_currentEvent.ray, m_editor.filter());
         }
 
-        InputController::InputController(Editor& editor) : m_editor(editor) {
+        InputController::InputController(Editor& editor) : m_editor(editor), m_currentDragInfo(DragInfo(m_currentEvent)) {
             m_cameraTool = new CameraTool(m_editor);
             m_selectionTool = new SelectionTool(m_editor);
             m_moveObjectTool = new MoveObjectTool(m_editor);
@@ -47,6 +48,9 @@ namespace TrenchBroom {
             m_receiverChain.push_back(m_selectionTool);
             m_dragStatus = TB_MS_NONE;
             m_dragScrollReceiver = NULL;
+            
+            DragTextureTargetTool* dragTextureTargetTool = new DragTextureTargetTool(m_editor);
+            m_dragTargetTools["Texture"] = dragTextureTargetTool;
         }
         
         InputController::~InputController() {
@@ -55,6 +59,7 @@ namespace TrenchBroom {
             delete m_cameraTool;
             delete m_selectionTool;
             delete m_moveObjectTool;
+            while (!m_dragTargetChain.empty()) delete m_dragTargetChain.back(), m_dragTargetChain.pop_back();
         }
         
         void InputController::modifierKeyDown(EModifierKeys modifierKey) {
@@ -159,24 +164,59 @@ namespace TrenchBroom {
             }
         }
 
-        void InputController::dragEnter(const std::string& name, void* payload, float x, float y) {
+        bool InputController::dragEnter(const std::string& name, void* payload, float x, float y) {
+            m_currentDragInfo.name = name;
+            m_currentDragInfo.payload = payload;
+
+            DragTargetToolMap::iterator it = m_dragTargetTools.find(name);
+            if (it == m_dragTargetTools.end())
+                return true;
+            
+            return it->second->activate(m_currentDragInfo);
         }
         
-        void InputController::dragLeave(const std::string& name, void* payload, float x, float y) {
+        void InputController::dragLeave(const std::string& name, void* payload) {
+            m_currentDragInfo.name = name;
+            m_currentDragInfo.payload = payload;
+
+            DragTargetToolMap::iterator it = m_dragTargetTools.find(name);
+            if (it == m_dragTargetTools.end())
+                return;
+            
+            it->second->deactivate(m_currentDragInfo);
         }
         
-        void InputController::dragMove(const std::string& name, void* payload, float x, float y) {
+        bool InputController::dragMove(const std::string& name, void* payload, float x, float y) {
+            m_currentDragInfo.name = name;
+            m_currentDragInfo.payload = payload;
+
+            DragTargetToolMap::iterator it = m_dragTargetTools.find(name);
+            if (it == m_dragTargetTools.end())
+                return true;
+            
+            return it->second->move(m_currentDragInfo);
         }
 
         bool InputController::acceptDrag(const std::string& name, void* payload) {
-            if (name == "Texture")
-                return true;
-            if (name == "Entity")
-                return true;
-            return false;
+            m_currentDragInfo.name = name;
+            m_currentDragInfo.payload = payload;
+            
+            DragTargetToolMap::iterator it = m_dragTargetTools.find(name);
+            if (it == m_dragTargetTools.end())
+                return false;
+            
+            return it->second->accepts(m_currentDragInfo);
         }
         
         bool InputController::handleDrop(const std::string& name, void* payload, float x, float y) {
+            m_currentDragInfo.name = name;
+            m_currentDragInfo.payload = payload;
+            
+            DragTargetToolMap::iterator it = m_dragTargetTools.find(name);
+            if (it == m_dragTargetTools.end())
+                return false;
+            
+            return it->second->drop(m_currentDragInfo);
         }
     }
 }

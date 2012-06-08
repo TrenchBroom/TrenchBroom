@@ -35,16 +35,13 @@
 
 namespace TrenchBroom {
     namespace Gui {
-        void renderTexture(CellRow<TextureCellData>::CellPtr cell, bool override) {
+        void renderTexture(CellRow<TextureCellData>::CellPtr cell, float alpha) {
             Model::Assets::Texture* texture = cell->item().first;
             const LayoutBounds& itemBounds = cell->itemBounds();
             
             glEnable(GL_TEXTURE_2D);
             texture->activate();
-            if (override)
-                glColor4f(1, 1, 1, 0.7f);
-            else
-                glColor4f(1, 1, 1, 1);
+            glColor4f(1, 1, 1, alpha);
             glBegin(GL_QUADS);
             glTexCoord2f(0, 0);
             glVertex3f(itemBounds.left(), itemBounds.top(), 0);
@@ -73,7 +70,7 @@ namespace TrenchBroom {
             glPushAttrib(GL_TEXTURE_BIT);
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             Renderer::glSetBrightness(prefs.brightness());
-            renderTexture(m_cell, false);
+            renderTexture(m_cell, 0.8f);
             glPopAttrib();
         }
 
@@ -133,7 +130,7 @@ namespace TrenchBroom {
             DragAndDrop_SetPackage(true, "Texture", cell->item().first);
         }
         
-        Gwen::Controls::Base* TextureBrowserPanel::createDragControl(CellRow<TextureCellData>::CellPtr cell) {
+        CellDragControl<TextureCellData>* TextureBrowserPanel::createDragControl(CellRow<TextureCellData>::CellPtr cell) {
             return new TextureDragControl(GetCanvas(), cell);
         }
 
@@ -210,7 +207,7 @@ namespace TrenchBroom {
                                     renderTextureBorder(cell);
                                 }
                                 
-                                renderTexture(cell, override);
+                                renderTexture(cell, override ? 0.7f : 1.0f);
                             }
                         }
                     }

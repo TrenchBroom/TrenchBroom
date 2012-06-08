@@ -19,6 +19,7 @@
 
 
 #include "MapRendererControl.h"
+#include "Gwen/DragAndDrop.h"
 #include "Gwen/Structures.h"
 
 #include "Controller/Editor.h"
@@ -150,38 +151,27 @@ namespace TrenchBroom {
             }
         }
 
+        void MapRendererControl::DragAndDrop_HoverEnter(Gwen::DragAndDrop::Package* package, int x, int y) {
+            bool overlayVisible = m_editor.inputController().dragEnter(package->name, package->userdata, static_cast<float>(x), static_cast<float>(y));
+            Gwen::DragAndDrop::SourceControl->DragAndDrop_SetOverlayVisible(overlayVisible);
+        }
+        
+        void MapRendererControl::DragAndDrop_HoverLeave(Gwen::DragAndDrop::Package* package) {
+            bool overlayVisible = m_editor.inputController().dragLeave(package->name, package->userdata);
+            Gwen::DragAndDrop::SourceControl->DragAndDrop_SetOverlayVisible(overlayVisible);
+        }
+
+        void MapRendererControl::DragAndDrop_Hover(Gwen::DragAndDrop::Package* package, int x, int y) {
+            bool overlayVisible = m_editor.inputController().dragMove(package->name, package->userdata, static_cast<float>(x), static_cast<float>(y));
+            Gwen::DragAndDrop::SourceControl->DragAndDrop_SetOverlayVisible(overlayVisible);
+        }
+
         bool MapRendererControl::DragAndDrop_HandleDrop(Gwen::DragAndDrop::Package* package, int x, int y) {
-            Gwen::Point local = CanvasPosToLocal(Gwen::Point(x, y));
-            local.y = GetSkin()->GetRender()->GetViewport().h - local.y;
-            if (package->name == "Texture") {
-                Model::Assets::Texture* texture = static_cast<Model::Assets::Texture*>(package->userdata);
-                Model::Picker& picker = m_editor.map().picker();
-                Controller::Camera& camera = m_editor.camera();
-                
-                Ray pickRay = camera.pickRay(static_cast<float>(local.x), static_cast<float>(local.y));
-                Model::HitList* hits = picker.pick(pickRay, m_editor.filter());
-                
-                Model::Hit* hit = hits->first(Model::TB_HT_FACE, false);
-                if (hit != NULL) {
-                    Model::Face* face = static_cast<Model::Face*>(hit->object);
-                    if (!face->selected()) {
-                        Model::Brush* brush = face->brush();
-                        Model::Selection& selection = m_editor.map().selection();
-                        selection.removeAll();
-                        selection.addBrush(*brush);
-                        m_editor.map().setTexture(texture);
-                    }
-                    return true;
-                }
-            }
-            
-            return false;
+            return m_editor.inputController().handleDrop(package->name, package->userdata, static_cast<float>(x), static_cast<float>(y));
         }
 
         bool MapRendererControl::DragAndDrop_CanAcceptPackage( Gwen::DragAndDrop::Package* package) {
-            if (package->name == "Texture")
-                return true;
-            return false;
+            return m_editor.inputController().acceptDrag(package->name, package->userdata);
         }
     }
 }
