@@ -157,8 +157,8 @@ namespace TrenchBroom {
         }
         
         void MapRendererControl::DragAndDrop_HoverLeave(Gwen::DragAndDrop::Package* package) {
-            bool overlayVisible = m_editor.inputController().dragLeave(package->name, package->userdata);
-            Gwen::DragAndDrop::SourceControl->DragAndDrop_SetOverlayVisible(overlayVisible);
+            m_editor.inputController().dragLeave(package->name, package->userdata);
+            Gwen::DragAndDrop::SourceControl->DragAndDrop_SetOverlayVisible(true);
         }
 
         void MapRendererControl::DragAndDrop_Hover(Gwen::DragAndDrop::Package* package, int x, int y) {

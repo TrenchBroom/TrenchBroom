@@ -17,34 +17,26 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_DragTargetTool_h
-#define TrenchBroom_DragTargetTool_h
+#ifndef TrenchBroom_DragEntityTargetTool_h
+#define TrenchBroom_DragEntityTargetTool_h
 
-#include <string>
+#include "Controller/DragTargetTool.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        class ToolEvent;
+        class Editor;
         
-        class DragInfo {
+        class DragEntityTargetTool : public DragTargetTool {
+            Editor& m_editor;
         public:
-            ToolEvent& event;
-            std::string name;
-            void* payload;
-
-            DragInfo(ToolEvent& event) : event(event) {}
-        };
-        
-        class DragTargetTool {
-        public:
-            DragTargetTool() {}
-            virtual ~DragTargetTool() {}
+            DragEntityTargetTool(Editor& editor) : m_editor(editor) {}
+            virtual ~DragEntityTargetTool() {}
             
-            virtual bool accepts(const DragInfo& info) = 0;
-            virtual bool activate(const DragInfo& info) { return true; };
-            virtual void deactivate(const DragInfo& info) {};
-            virtual bool move(const DragInfo& info) { return true; };
-            virtual bool drop(const DragInfo& info) { return false; };
+            virtual bool accepts(const DragInfo& info);
+            virtual bool activate(const DragInfo& info);
+            virtual void deactivate(const DragInfo& info);
+            virtual bool move(const DragInfo& info);
+            virtual bool drop(const DragInfo& info);
         };
     }
 }

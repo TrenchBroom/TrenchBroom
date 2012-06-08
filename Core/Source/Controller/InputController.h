@@ -52,16 +52,16 @@ namespace TrenchBroom {
             EMouseStatus m_dragStatus;
             
             // TODO shared pointer:
-            std::vector<Tool*> m_receiverChain;
-            CameraTool* m_cameraTool;
-            SelectionTool* m_selectionTool;
-            MoveObjectTool* m_moveObjectTool;
-            Tool* m_dragScrollReceiver;
+            typedef std::tr1::shared_ptr<Tool> ToolPtr;
+            typedef std::vector<ToolPtr> ToolList;
+            ToolList m_receiverChain;
+            ToolPtr m_dragScrollReceiver;
             int m_modalReceiverIndex;
 
             // TODO shared pointer:
             DragInfo m_currentDragInfo;
-            typedef std::map<std::string, DragTargetTool*> DragTargetToolMap;
+            typedef std::tr1::shared_ptr<DragTargetTool> DragTargetToolPtr;
+            typedef std::map<std::string, DragTargetToolPtr> DragTargetToolMap;
             DragTargetToolMap m_dragTargetTools;
             
             void updateHits();

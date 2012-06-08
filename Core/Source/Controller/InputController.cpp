@@ -20,6 +20,7 @@
 #include "InputController.h"
 #include "Controller/Camera.h"
 #include "Controller/CameraTool.h"
+#include "Controller/DragEntityTargetTool.h"
 #include "Controller/DragTextureTargetTool.h"
 #include "Controller/Editor.h"
 #include "Controller/MoveObjectTool.h"
@@ -40,26 +41,32 @@ namespace TrenchBroom {
         }
 
         InputController::InputController(Editor& editor) : m_editor(editor), m_currentDragInfo(DragInfo(m_currentEvent)) {
-            m_cameraTool = new CameraTool(m_editor);
-            m_selectionTool = new SelectionTool(m_editor);
-            m_moveObjectTool = new MoveObjectTool(m_editor);
-            m_receiverChain.push_back(m_cameraTool);
-            m_receiverChain.push_back(m_moveObjectTool);
-            m_receiverChain.push_back(m_selectionTool);
+            CameraTool* cameraTool = new CameraTool(m_editor);
+            ToolPtr cameraToolPtr = std::tr1::shared_ptr<CameraTool>(cameraTool);
+            
+            SelectionTool* selectionTool = new SelectionTool(m_editor);
+            ToolPtr selectionToolPtr = std::tr1::shared_ptr<SelectionTool>(selectionTool);
+            
+            MoveObjectTool* moveObjectTool = new MoveObjectTool(m_editor);
+            ToolPtr moveObjectToolPtr = std::tr1::shared_ptr<MoveObjectTool>(moveObjectTool);
+
+            m_receiverChain.push_back(cameraToolPtr);
+            m_receiverChain.push_back(selectionToolPtr);
+            m_receiverChain.push_back(moveObjectToolPtr);
+            
             m_dragStatus = TB_MS_NONE;
-            m_dragScrollReceiver = NULL;
+            m_dragScrollReceiver = ToolPtr();
             
             DragTextureTargetTool* dragTextureTargetTool = new DragTextureTargetTool(m_editor);
-            m_dragTargetTools["Texture"] = dragTextureTargetTool;
+            DragEntityTargetTool* dragEntityTargetTool = new DragEntityTargetTool(m_editor);
+            
+            m_dragTargetTools["Texture"] = DragTargetToolPtr(dragTextureTargetTool);
+            m_dragTargetTools["Entity"] = DragTargetToolPtr(dragEntityTargetTool);
         }
         
         InputController::~InputController() {
             if (m_currentEvent.hits != NULL)
                 delete m_currentEvent.hits;
-            delete m_cameraTool;
-            delete m_selectionTool;
-            delete m_moveObjectTool;
-            while (!m_dragTargetChain.empty()) delete m_dragTargetChain.back(), m_dragTargetChain.pop_back();
         }
         
         void InputController::modifierKeyDown(EModifierKeys modifierKey) {
@@ -89,9 +96,9 @@ namespace TrenchBroom {
             
             if (m_currentEvent.mouseButton == TB_MB_LEFT) {
                 if (m_dragStatus == TB_MS_LEFT) {
-                    if (m_dragScrollReceiver != NULL)
+                    if (m_dragScrollReceiver.get() != NULL)
                         m_dragScrollReceiver->endLeftDrag(m_currentEvent);
-                    m_dragScrollReceiver = NULL;
+                    m_dragScrollReceiver = ToolPtr();
                     m_dragStatus = TB_MS_NONE;
                 } else {
                     for (unsigned int i = 0; i < m_receiverChain.size(); i++)
@@ -100,9 +107,9 @@ namespace TrenchBroom {
                 }
             } else if (m_currentEvent.mouseButton == TB_MB_RIGHT) {
                 if (m_dragStatus == TB_MS_RIGHT) {
-                    if (m_dragScrollReceiver != NULL)
+                    if (m_dragScrollReceiver.get() != NULL)
                         m_dragScrollReceiver->endRightDrag(m_currentEvent);
-                    m_dragScrollReceiver = NULL;
+                    m_dragScrollReceiver = ToolPtr();
                     m_dragStatus = TB_MS_NONE;
                 } else {
                     for (unsigned int i = 0; i < m_receiverChain.size(); i++)
@@ -141,9 +148,9 @@ namespace TrenchBroom {
                 }
             }
             
-            if (m_dragStatus == TB_MS_LEFT && m_dragScrollReceiver != NULL) {
+            if (m_dragStatus == TB_MS_LEFT && m_dragScrollReceiver.get() != NULL) {
                 m_dragScrollReceiver->leftDrag(m_currentEvent);
-            } else if (m_dragStatus == TB_MS_RIGHT && m_dragScrollReceiver != NULL) {
+            } else if (m_dragStatus == TB_MS_RIGHT && m_dragScrollReceiver.get() != NULL) {
                 m_dragScrollReceiver->rightDrag(m_currentEvent);
             } else {
                 for (unsigned int i = 0; i < m_receiverChain.size(); i++)
@@ -155,7 +162,7 @@ namespace TrenchBroom {
             m_currentEvent.scrollX = dx;
             m_currentEvent.scrollY = dy;
             
-            if (m_dragScrollReceiver != NULL) {
+            if (m_dragScrollReceiver.get() != NULL) {
                 m_dragScrollReceiver->scrolled(m_currentEvent);
             } else {
                 for (unsigned int i = 0; i < m_receiverChain.size(); i++)
@@ -168,22 +175,22 @@ namespace TrenchBroom {
             m_currentDragInfo.name = name;
             m_currentDragInfo.payload = payload;
 
-            DragTargetToolMap::iterator it = m_dragTargetTools.find(name);
-            if (it == m_dragTargetTools.end())
-                return true;
-            
-            return it->second->activate(m_currentDragInfo);
+            bool overlayVisible = true;
+            for (DragTargetToolMap::iterator it = m_dragTargetTools.begin(); it != m_dragTargetTools.end(); ++it) {
+                it->second->deactivate(m_currentDragInfo);
+                if (it->first == name)
+                    overlayVisible = it->second->activate(m_currentDragInfo);
+            }
+        
+            return overlayVisible;
         }
         
         void InputController::dragLeave(const std::string& name, void* payload) {
             m_currentDragInfo.name = name;
             m_currentDragInfo.payload = payload;
 
-            DragTargetToolMap::iterator it = m_dragTargetTools.find(name);
-            if (it == m_dragTargetTools.end())
-                return;
-            
-            it->second->deactivate(m_currentDragInfo);
+            for (DragTargetToolMap::iterator it = m_dragTargetTools.begin(); it != m_dragTargetTools.end(); ++it)
+                it->second->deactivate(m_currentDragInfo);
         }
         
         bool InputController::dragMove(const std::string& name, void* payload, float x, float y) {
