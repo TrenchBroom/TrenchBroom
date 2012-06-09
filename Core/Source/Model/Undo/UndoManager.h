@@ -73,6 +73,12 @@ namespace TrenchBroom {
             void addItem(UndoItem* item);
             void addSnapshot(Map& map);
             
+            void addFunctor(Map& map, void(Map::*function)()) {
+                NoArgFunctor<Map>* functor = new NoArgFunctor<Map>(&map, function);
+                FunctorUndoItem* undoItem = new FunctorUndoItem(map, functor);
+                addItem(undoItem);
+            }
+            
             template <typename Arg1>
             void addFunctor(Map& map, void(Map::*function)(Arg1), Arg1 arg1) {
                 OneArgFunctor<Map, Arg1>* functor = new OneArgFunctor<Map, Arg1>(&map, function, arg1);

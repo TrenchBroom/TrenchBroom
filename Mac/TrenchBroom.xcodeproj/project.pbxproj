@@ -139,6 +139,7 @@
 		486571B7157C0A6F00698829 /* FileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486571B6157C0A6E00698829 /* FileManager.cpp */; };
 		486571BE157C117900698829 /* MacFileManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 486571BD157C117900698829 /* MacFileManager.mm */; };
 		486571CA157E78D400698829 /* DragTextureTargetTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486571C9157E78D400698829 /* DragTextureTargetTool.cpp */; };
+		486571D21582860800698829 /* EntityFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486571D11582860700698829 /* EntityFigure.cpp */; };
 		48886BA51545FE0A006A781B /* EditorHolder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48886BA41545FE09006A781B /* EditorHolder.mm */; };
 		488E65B6156301F300B4E72A /* PositioningGuideFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488E65B5156301F300B4E72A /* PositioningGuideFigure.cpp */; };
 		488E65E51563C6A600B4E72A /* Inspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488E65E41563C6A600B4E72A /* Inspector.cpp */; };
@@ -460,6 +461,9 @@
 		486571C0157D625800698829 /* CellLayoutControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CellLayoutControl.h; sourceTree = "<group>"; };
 		486571C7157E78A400698829 /* DragTextureTargetTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragTextureTargetTool.h; sourceTree = "<group>"; };
 		486571C9157E78D400698829 /* DragTextureTargetTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragTextureTargetTool.cpp; sourceTree = "<group>"; };
+		486571CF158285FC00698829 /* EntityFigure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityFigure.h; sourceTree = "<group>"; };
+		486571D11582860700698829 /* EntityFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityFigure.cpp; sourceTree = "<group>"; };
+		486571D31583ADF800698829 /* FaceTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FaceTypes.h; sourceTree = "<group>"; };
 		48886BA31545FE09006A781B /* EditorHolder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorHolder.h; sourceTree = "<group>"; };
 		48886BA41545FE09006A781B /* EditorHolder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EditorHolder.mm; sourceTree = "<group>"; };
 		48891461157E299C00687915 /* DragTargetTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragTargetTool.h; sourceTree = "<group>"; };
@@ -646,6 +650,7 @@
 				4825B3F0153AE59F007E3AE1 /* EntityDefinition.h */,
 				4825B3F1153AE59F007E3AE1 /* Face.cpp */,
 				4825B3F2153AE59F007E3AE1 /* Face.h */,
+				486571D31583ADF800698829 /* FaceTypes.h */,
 				4825B3F3153AE59F007E3AE1 /* Groups.cpp */,
 				4825B3F4153AE59F007E3AE1 /* Groups.h */,
 				4825B3F5153AE59F007E3AE1 /* Map.cpp */,
@@ -976,6 +981,8 @@
 		488E65B2156300F200B4E72A /* Figures */ = {
 			isa = PBXGroup;
 			children = (
+				486571D11582860700698829 /* EntityFigure.cpp */,
+				486571CF158285FC00698829 /* EntityFigure.h */,
 				488E65B31563011E00B4E72A /* Figure.h */,
 				488E65B41563017400B4E72A /* PositioningGuideFigure.h */,
 				488E65B5156301F300B4E72A /* PositioningGuideFigure.cpp */,
@@ -1293,6 +1300,7 @@
 				486571BE157C117900698829 /* MacFileManager.mm in Sources */,
 				486571CA157E78D400698829 /* DragTextureTargetTool.cpp in Sources */,
 				484299EF158236330069BC97 /* DragEntityTargetTool.cpp in Sources */,
+				486571D21582860800698829 /* EntityFigure.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

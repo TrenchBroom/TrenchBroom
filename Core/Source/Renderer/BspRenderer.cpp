@@ -19,6 +19,7 @@
 
 #include "BspRenderer.h"
 #include "Model/Assets/Bsp.h"
+#include "Model/Assets/Texture.h"
 #include "Model/Map/Entity.h"
 #include "Model/Preferences.h"
 #include "Renderer/MapRenderer.h"

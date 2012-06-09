@@ -60,6 +60,32 @@ namespace TrenchBroom {
             return actSize * floor(f / actSize);
         }
 
+        Vec3f Grid::snap(const Vec3f& p) {
+            return Vec3f(snap(p.x), snap(p.y), snap(p.z));
+        }
+        
+        Vec3f Grid::snapUp(const Vec3f& p) {
+            return Vec3f(snapUp(p.x), snapUp(p.y), snapUp(p.z));
+        }
+        
+        Vec3f Grid::snapDown(const Vec3f& p) {
+            return Vec3f(snapDown(p.x), snapDown(p.y), snapDown(p.z));
+        }
+        
+        Vec3f Grid::snapTowards(const Vec3f& p, const Vec3f& d) {
+            Vec3f result;
+            if (Math::fpos(d.x))        result.x = snapUp(p.x);
+            else if(Math::fneg(d.x))    result.x = snapDown(p.x);
+            else                        result.x = snap(p.x);
+            if (Math::fpos(d.y))        result.y = snapUp(p.y);
+            else if(Math::fneg(d.y))    result.y = snapDown(p.y);
+            else                        result.y = snap(p.y);
+            if (Math::fpos(d.z))        result.z = snapUp(p.z);
+            else if(Math::fneg(d.z))    result.z = snapDown(p.z);
+            else                        result.z = snap(p.z);
+            return result;
+        }
+
         Vec3f Grid::moveDelta(const BBox& bounds, const BBox& worldBounds, const Vec3f& referencePoint, const Vec3f& curMousePoint) {
             Vec3f delta = curMousePoint - referencePoint;
             for (int i = 0; i < 3; i++) {

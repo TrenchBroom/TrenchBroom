@@ -41,6 +41,10 @@ namespace TrenchBroom {
             float snap(float f);
             float snapDown(float f);
             float snapUp(float f);
+            Vec3f snap(const Vec3f& p);
+            Vec3f snapUp(const Vec3f& p);
+            Vec3f snapDown(const Vec3f& p);
+            Vec3f snapTowards(const Vec3f& p, const Vec3f& d);
             
             Vec3f moveDelta(const BBox& bounds, const BBox& worldBounds, const Vec3f& referencePoint, const Vec3f& curMousePoint);
             

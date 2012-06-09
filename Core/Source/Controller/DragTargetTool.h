@@ -21,6 +21,8 @@
 #define TrenchBroom_DragTargetTool_h
 
 #include <string>
+#include "Controller/Editor.h"
+#include "Renderer/MapRenderer.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -36,8 +38,19 @@ namespace TrenchBroom {
         };
         
         class DragTargetTool {
+        protected:
+            Editor& m_editor;
+
+            void addFigure(Renderer::Figure& figure) {
+                m_editor.renderer()->addFigure(figure);
+            }
+            
+            void removeFigure(Renderer::Figure& figure) {
+                m_editor.renderer()->removeFigure(figure);
+            }
+            
         public:
-            DragTargetTool() {}
+            DragTargetTool(Editor& editor) : m_editor(editor) {}
             virtual ~DragTargetTool() {}
             
             virtual bool accepts(const DragInfo& info) = 0;

@@ -63,10 +63,19 @@ namespace TrenchBroom {
             return m_farPlane;
         }
         
-        const Vec3f Camera::defaultPoint() {
-            return m_position + m_direction * 256;
+        const Vec3f Camera::defaultPoint() const {
+            return defaultPoint(m_direction);
         }
         
+        const Vec3f Camera::defaultPoint(const Vec3f& direction) const {
+            return m_position + direction * 256.0f;
+        }
+
+        const Vec3f Camera::defaultPoint(float x, float y) const {
+            const Vec3f point = unproject(x, y, 0.5f);
+            return defaultPoint((point - m_position).normalize());
+        }
+
         const Vec3f Camera::project(const Vec3f& point) const {
             GLdouble objX, objY, objZ, winX, winY, winZ;
             objX = static_cast<GLdouble>(point.x);

@@ -32,6 +32,20 @@ namespace TrenchBroom {
             virtual void operator()() = 0;
         };
         
+        template <class Target>
+        class NoArgFunctor : public Functor {
+        public:
+            typedef void (Target::*Func)();
+        private:
+            Target* m_target;
+            Func m_function;
+        public:
+            NoArgFunctor(Target* target, Func function) : m_target(target), m_function(function) {}
+            void operator()() {
+                (m_target->*m_function)();
+            }
+        };
+        
         template <class Target, typename Arg1>
         class OneArgFunctor : public Functor {
         public:

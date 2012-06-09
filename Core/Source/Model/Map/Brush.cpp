@@ -20,6 +20,10 @@
 #include "Brush.h"
 #include <assert.h>
 #include <algorithm>
+#include "Model/Assets/Texture.h"
+#include "Model/Map/BrushGeometry.h"
+#include "Model/Map/Entity.h"
+#include "Model/Map/Face.h"
 #include "Model/Map/Picker.h"
 
 namespace TrenchBroom {

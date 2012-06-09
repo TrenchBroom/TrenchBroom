@@ -51,7 +51,9 @@ namespace TrenchBroom {
             float nearPlane() const;
             float farPlane() const;
 
-            const Vec3f defaultPoint();
+            const Vec3f defaultPoint() const;
+            const Vec3f defaultPoint(const Vec3f& direction) const;
+            const Vec3f defaultPoint(float x, float y) const;
             const Vec3f project(const Vec3f& point) const;
             const Vec3f unproject(float x, float y, float depth) const;
             const Ray pickRay(float x, float y) const;

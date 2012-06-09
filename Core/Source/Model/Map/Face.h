@@ -22,6 +22,7 @@
 
 #include <vector>
 #include "Utilities/VecMath.h"
+#include "Model/Map/FaceTypes.h"
 
 namespace TrenchBroom {
     namespace Renderer {

@@ -23,13 +23,25 @@
 #include "Controller/DragTargetTool.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class EntityDefinition;
+    }
+    
+    namespace Renderer {
+        class EntityFigure;
+    }
+    
     namespace Controller {
         class Editor;
         
         class DragEntityTargetTool : public DragTargetTool {
-            Editor& m_editor;
+        protected:
+            Renderer::EntityFigure* m_feedbackFigure;
+            BBox m_bounds;
+            
+            void updateFeedbackFigure(const DragInfo& info);
         public:
-            DragEntityTargetTool(Editor& editor) : m_editor(editor) {}
+            DragEntityTargetTool(Editor& editor) : DragTargetTool(editor), m_feedbackFigure(NULL) {}
             virtual ~DragEntityTargetTool() {}
             
             virtual bool accepts(const DragInfo& info);

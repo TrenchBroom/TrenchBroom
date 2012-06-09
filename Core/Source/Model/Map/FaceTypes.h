@@ -17,23 +17,18 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_TextureDragTargetTool_h
-#define TrenchBroom_TextureDragTargetTool_h
+#ifndef TrenchBroom_FaceTypes_h
+#define TrenchBroom_FaceTypes_h
 
-#include "Controller/DragTargetTool.h"
+#include <vector>
+#include "Utilities/SharedPointer.h"
 
 namespace TrenchBroom {
-    namespace Controller {
-        class Editor;
+    namespace Model {
+        class Face;
         
-        class DragTextureTargetTool : public DragTargetTool {
-        public:
-            DragTextureTargetTool(Editor& editor) : DragTargetTool(editor) {}
-            virtual ~DragTextureTargetTool() {}
-            
-            virtual bool accepts(const DragInfo& info);
-            virtual bool drop(const DragInfo& info);
-        };
+        typedef std::tr1::shared_ptr<Face> FacePtr;
+        typedef std::vector<FacePtr> FaceList;
     }
 }
 

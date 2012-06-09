@@ -21,14 +21,14 @@
 #define TrenchBroom_Brush_h
 
 #include <vector>
-#include "Model/Assets/Texture.h"
-#include "Model/Map/BrushGeometry.h"
-#include "Model/Map/Entity.h"
-#include "Model/Map/Face.h"
 #include "Model/Map/MapObject.h"
 
 namespace TrenchBroom {
     namespace Model {
+        namespace Assets {
+            class Texture;
+        }
+        
         class Entity;
         class Face;
         class Vertex;

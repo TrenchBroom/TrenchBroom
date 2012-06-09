@@ -22,6 +22,7 @@
 #include <fstream>
 #include <cassert>
 #include "Model/Map/Brush.h"
+#include "Model/Map/BrushGeometry.h"
 #include "Model/Map/Entity.h"
 #include "Model/Map/EntityDefinition.h"
 #include "Model/Map/Face.h"
@@ -137,9 +138,15 @@ namespace TrenchBroom {
         }
 
         Entity* Map::createEntity(const std::string& classname) {
+            
+            m_undoManager->begin("Create Entity");
+            m_undoManager->addFunctor(*this, &Map::deleteObjects);
+            
             Entity* entity = new Entity();
             entity->setProperty(ClassnameKey, classname);
             addEntity(entity);
+            
+            m_undoManager->end();
             return entity;
         }
 
@@ -169,21 +176,64 @@ namespace TrenchBroom {
             m_undoManager->begin("Set Entity Property");
             m_undoManager->addSnapshot(*this);
 
-            std::vector<Entity*> changedEntities;
+            if (m_postNotifications) propertiesWillChange(entities);
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
-                const std::string* oldValue = entity->propertyForKey(key);
-                if (oldValue != value) changedEntities.push_back(entity);
+                if (value == NULL) entity->deleteProperty(key);
+                else entity->setProperty(key, value);
             }
+            if (m_postNotifications) propertiesDidChange(entities);
+            
+            m_undoManager->end();
+        }
 
-            if (!changedEntities.empty()) {
-                if (m_postNotifications) propertiesWillChange(changedEntities);
-                for (unsigned int i = 0; i < changedEntities.size(); i++) {
-                    if (value == NULL) entities[i]->deleteProperty(key);
-                    else entities[i]->setProperty(key, value);
-                }
-                if (m_postNotifications) propertiesDidChange(changedEntities);
+        void Map::setEntityProperty(const std::string& key, const Vec3f& value, bool round) {
+            const std::vector<Entity*>& entities = m_selection->entities();
+            if (entities.empty()) return;
+            
+            m_undoManager->begin("Set Entity Property");
+            m_undoManager->addSnapshot(*this);
+            
+            if (m_postNotifications) propertiesWillChange(entities);
+            for (unsigned int i = 0; i < entities.size(); i++) {
+                Entity* entity = entities[i];
+                entity->setProperty(key, value, round);
             }
+            if (m_postNotifications) propertiesDidChange(entities);
+            
+            m_undoManager->end();
+        }
+        
+        void Map::setEntityProperty(const std::string& key, int value) {
+            const std::vector<Entity*>& entities = m_selection->entities();
+            if (entities.empty()) return;
+            
+            m_undoManager->begin("Set Entity Property");
+            m_undoManager->addSnapshot(*this);
+            
+            if (m_postNotifications) propertiesWillChange(entities);
+            for (unsigned int i = 0; i < entities.size(); i++) {
+                Entity* entity = entities[i];
+                entity->setProperty(key, value);
+            }
+            if (m_postNotifications) propertiesDidChange(entities);
+            
+            m_undoManager->end();
+        }
+        
+        void Map::setEntityProperty(const std::string& key, float value, bool round) {
+            const std::vector<Entity*>& entities = m_selection->entities();
+            if (entities.empty()) return;
+            
+            m_undoManager->begin("Set Entity Property");
+            m_undoManager->addSnapshot(*this);
+            
+            if (m_postNotifications) propertiesWillChange(entities);
+            for (unsigned int i = 0; i < entities.size(); i++) {
+                Entity* entity = entities[i];
+                entity->setProperty(key, value, round);
+            }
+            if (m_postNotifications) propertiesDidChange(entities);
             
             m_undoManager->end();
         }
@@ -383,7 +433,7 @@ namespace TrenchBroom {
             const std::vector<Entity*>& entities = m_selection->entities();
             const std::vector<Brush*>& brushes = m_selection->brushes();
 
-           std::vector<Entity*> removedEntities;
+            std::vector<Entity*> removedEntities;
             if (!brushes.empty()) {
                 std::vector<Brush*> removedBrushes = brushes;
                 if (m_postNotifications) brushesWillBeRemoved(removedBrushes);
