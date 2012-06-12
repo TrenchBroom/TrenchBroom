@@ -78,21 +78,21 @@ namespace TrenchBroom {
                 bool xOffsetMulti, yOffsetMulti, xScaleMulti, yScaleMulti, rotationMulti, textureMulti;
                 
                 xOffsetMulti = yOffsetMulti = xScaleMulti = yScaleMulti = rotationMulti = textureMulti = false;
-                xOffset = static_cast<float>(faces[0]->xOffset());
-                yOffset = static_cast<float>(faces[0]->yOffset());
-                xScale = faces[0]->xScale();
-                yScale = faces[0]->yScale();
-                rotation = faces[0]->rotation();
-                std::string textureName = faces[0]->textureName();
-                Model::Assets::Texture* texture = faces[0]->texture();
+                xOffset = faces[0]->xOffset;
+                yOffset = faces[0]->yOffset;
+                xScale = faces[0]->xScale;
+                yScale = faces[0]->yScale;
+                rotation = faces[0]->rotation;
+                std::string textureName = faces[0]->textureName;
+                Model::Assets::Texture* texture = faces[0]->texture;
 
                 for (unsigned int i = 1; i < faces.size(); i++) {
-                    xOffsetMulti    |= (xOffset != static_cast<float>(faces[i]->xOffset()));
-                    yOffsetMulti    |= (yOffset != static_cast<float>(faces[i]->yOffset()));
-                    xScaleMulti     |= (xScale != faces[i]->xScale());
-                    yScaleMulti     |= (yScale != faces[i]->yScale());
-                    rotationMulti   |= (rotation != faces[i]->rotation());
-                    textureMulti    |= (textureName.compare(faces[i]->textureName()) != 0);
+                    xOffsetMulti    |= (xOffset != faces[i]->xOffset);
+                    yOffsetMulti    |= (yOffset != faces[i]->yOffset);
+                    xScaleMulti     |= (xScale != faces[i]->xScale);
+                    yScaleMulti     |= (yScale != faces[i]->yScale);
+                    rotationMulti   |= (rotation != faces[i]->rotation);
+                    textureMulti    |= (textureName.compare(faces[i]->textureName) != 0);
                 }
                 
                 m_textureLabel->SetPlaceholderString("multiple");

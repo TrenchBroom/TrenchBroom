@@ -69,7 +69,7 @@ namespace TrenchBroom {
         void TextureDragControl::RenderOverlay(Gwen::Skin::Base* skin) {
             glPushAttrib(GL_TEXTURE_BIT);
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-            Renderer::glSetBrightness(prefs.brightness());
+            Renderer::glSetBrightness(prefs.brightness(), true);
             renderTexture(m_cell, 0.8f);
             glPopAttrib();
         }
@@ -179,7 +179,7 @@ namespace TrenchBroom {
             
             glPushAttrib(GL_TEXTURE_BIT);
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-            Renderer::glSetBrightness(prefs.brightness());
+            Renderer::glSetBrightness(prefs.brightness(), true);
 
             for (unsigned int i = 0; i < m_layout.size(); i++) {
                 CellLayout<TextureCellData, TextureGroupData>::CellGroupPtr group = m_layout[i];

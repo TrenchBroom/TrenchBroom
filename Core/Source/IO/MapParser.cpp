@@ -313,7 +313,7 @@ namespace TrenchBroom {
             if (token->type == TB_TT_CB_C) return NULL;
             
             Model::Brush* brush = new Model::Brush(worldBounds);
-            brush->setFilePosition(token->line);
+            brush->filePosition = token->line;
             
             while ((token = nextToken()) != NULL) {
                 switch (token->type) {
@@ -413,12 +413,12 @@ namespace TrenchBroom {
             }
             
             Model::Face* face = new Model::Face(worldBounds, p1, p2, p3, textureName);
-            face->setXOffset(static_cast<int>(Math::fround(xOffset)));
-            face->setYOffset(static_cast<int>(Math::fround(yOffset)));
-            face->setRotation(rotation);
-            face->setXScale(xScale);
-            face->setYScale(yScale);
-            face->setFilePosition(token->line);
+            face->xOffset = xOffset;
+            face->yOffset = yOffset;
+            face->rotation = rotation;
+            face->xScale = xScale;
+            face->yScale = yScale;
+            face->filePosition = token->line;
             return face;
         }
     }

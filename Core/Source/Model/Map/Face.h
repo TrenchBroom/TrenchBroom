@@ -22,7 +22,7 @@
 
 #include <vector>
 #include "Utilities/VecMath.h"
-#include "Model/Map/FaceTypes.h"
+#include "Model/Map/BrushGeometry.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -35,29 +35,9 @@ namespace TrenchBroom {
         }
         
         class Brush;
-        class Side;
-        class Vertex;
-        class Edge;
         
         class Face {
         protected:
-            int m_faceId;
-            Brush* m_brush;
-            
-            Vec3f m_points[3];
-            Plane m_boundary;
-            const BBox& m_worldBounds;
-            
-            std::string m_textureName;
-            Assets::Texture* m_texture;
-            float m_xOffset;
-            float m_yOffset;
-            float m_rotation;
-            float m_xScale;
-            float m_yScale;
-            
-            Side* m_side;
-            
             int m_texPlaneNormIndex;
             int m_texFaceNormIndex;
             Vec3f m_texAxisX;
@@ -66,49 +46,48 @@ namespace TrenchBroom {
             Vec3f m_scaledTexAxisY;
             bool m_texAxesValid;
             
-            int m_filePosition;
-            bool m_selected;
-            Renderer::VboBlock* m_vboBlock;
-            
+            std::vector<Vec2f> m_gridCoords;
+            std::vector<Vec2f> m_texCoords;
+
             void init();
             void texAxesAndIndices(const Vec3f& faceNormal, Vec3f& xAxis, Vec3f& yAxis, int& planeNormIndex, int& faceNormIndex) const;
             void validateTexAxes(const Vec3f& faceNormal);
             void compensateTransformation(const Mat4f& transformation);
+            void validateCoords();
         public:
+            int faceId;
+            Brush* brush;
+            
+            Vec3f points[3];
+            Plane boundary;
+            const BBox& worldBounds;
+            
+            std::string textureName;
+            Assets::Texture* texture;
+            void setTexture(Assets::Texture* aTexture);
+            float xOffset;
+            float yOffset;
+            float rotation;
+            float xScale;
+            float yScale;
+            
+            Side* side;
+            
+            int filePosition;
+            bool selected;
+            bool coordsValid;
+
             Face(const BBox& worldBounds, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const std::string& textureName);
             Face(const BBox& worldBounds, const Face& faceTemplate);
             Face(const Face& face);
-            ~Face();
             
             void restore(const Face& faceTemplate);
             
-            int faceId() const;
-            Brush* brush() const;
-            void setBrush(Brush* brush);
-            void setSide(Side* side);
-            
-            void points(Vec3f& point1, Vec3f& point2, Vec3f& point3) const;
+            void getPoints(Vec3f& point1, Vec3f& point2, Vec3f& point3) const;
             void updatePoints();
-            Vec3f normal() const;
-            Plane boundary() const;
             Vec3f center() const;
-            const BBox& worldBounds() const;
-            const std::vector<Vertex*>& vertices() const;
-            const std::vector<Edge*>& edges() const;
-            
-            Assets::Texture* texture() const;
-            const std::string& textureName() const;
-            void setTexture(Assets::Texture* texture);
-            int xOffset() const;
-            void setXOffset(int xOffset);
-            int yOffset() const;
-            void setYOffset(int yOffset);
-            float rotation() const;
-            void setRotation(float rotation);
-            float xScale() const;
-            void setXScale(float xScale);
-            float yScale() const;
-            void setYScale(float yScale);
+            const std::vector<Vec2f>& gridCoords();
+            const std::vector<Vec2f>& texCoords();
             
             void translateOffsets(float delta, Vec3f dir);
             void rotateTexture(float angle);
@@ -117,16 +96,6 @@ namespace TrenchBroom {
             void rotate(Quat rotation, Vec3f center, bool lockTexture);
             void flip(EAxis axis, Vec3f center, bool lockTexture);
             void move(float dist, bool lockTexture);
-            
-            Vec2f textureCoords(const Vec3f& vertex);
-            Vec2f gridCoords(const Vec3f& vertex);
-            
-            int filePosition() const;
-            void setFilePosition(int filePosition);
-            bool selected() const;
-            void setSelected(bool selected);
-            Renderer::VboBlock* vboBlock() const;
-            void setVboBlock(Renderer::VboBlock* vboBlock);
         };
     }
 }

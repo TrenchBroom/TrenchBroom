@@ -67,6 +67,7 @@ namespace TrenchBroom {
             float m_yScale;
             float m_rotation;
             Assets::Texture* m_texture;
+            std::string m_textureName;
         public:
             FaceSnapshot(const Face& face);
             int faceId();

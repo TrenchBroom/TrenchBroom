@@ -45,10 +45,10 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < entities.size(); i++) {
                 const std::vector<Model::Brush*>& brushes = entities[i]->brushes();
                 for (unsigned int j = 0; j < brushes.size(); j++) {
-                    const std::vector<Model::Face*>& faces = brushes[j]->faces();
+                    const std::vector<Model::Face*>& faces = brushes[j]->faces;
                     for (unsigned int k = 0; k < faces.size(); k++) {
-                        const std::string& textureName = faces[k]->textureName();
-                        Model::Assets::Texture* oldTexture = faces[k]->texture();
+                        const std::string& textureName = faces[k]->textureName;
+                        Model::Assets::Texture* oldTexture = faces[k]->texture;
                         Model::Assets::Texture* newTexture = m_textureManager->texture(textureName);
                         if (oldTexture != newTexture) {
                             changedFaces.push_back(faces[k]);

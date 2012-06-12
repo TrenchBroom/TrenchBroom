@@ -21,6 +21,7 @@
 #define TrenchBroom_ChangeSet_h
 
 #include <vector>
+#include <set>
 
 namespace TrenchBroom {
     namespace Model {
@@ -32,19 +33,19 @@ namespace TrenchBroom {
     namespace Renderer {
         class ChangeSet {
         private:
-            std::vector<Model::Entity*> m_addedEntities;
-            std::vector<Model::Entity*> m_removedEntities;
-            std::vector<Model::Entity*> m_changedEntities;
-            std::vector<Model::Entity*> m_selectedEntities;
-            std::vector<Model::Entity*> m_deselectedEntities;
-            std::vector<Model::Brush*> m_addedBrushes;
-            std::vector<Model::Brush*> m_removedBrushes;
-            std::vector<Model::Brush*> m_changedBrushes;
-            std::vector<Model::Brush*> m_selectedBrushes;
-            std::vector<Model::Brush*> m_deselectedBrushes;
-            std::vector<Model::Face*> m_changedFaces;
-            std::vector<Model::Face*> m_selectedFaces;
-            std::vector<Model::Face*> m_deselectedFaces;
+            std::set<Model::Entity*> m_addedEntities;
+            std::set<Model::Entity*> m_removedEntities;
+            std::set<Model::Entity*> m_changedEntities;
+            std::set<Model::Entity*> m_selectedEntities;
+            std::set<Model::Entity*> m_deselectedEntities;
+            std::set<Model::Brush*> m_addedBrushes;
+            std::set<Model::Brush*> m_removedBrushes;
+            std::set<Model::Brush*> m_changedBrushes;
+            std::set<Model::Brush*> m_selectedBrushes;
+            std::set<Model::Brush*> m_deselectedBrushes;
+            std::set<Model::Face*> m_changedFaces;
+            std::set<Model::Face*> m_selectedFaces;
+            std::set<Model::Face*> m_deselectedFaces;
             bool m_filterChanged;
             bool m_textureManagerChanged;
         public:

@@ -58,9 +58,9 @@ namespace TrenchBroom {
                     }
                 } else {
                     Model::Face& face = hit->face();
-                    Model::Brush& brush = *face.brush();
+                    Model::Brush& brush = *face.brush;
                     if (selection.mode() == Model::TB_SM_FACES) {
-                        if (face.selected()) {
+                        if (face.selected) {
                             if (multiSelectionModiferPressed(event))
                                 selection.removeFace(face);
                             else
@@ -69,7 +69,7 @@ namespace TrenchBroom {
                             if (multiSelectionModiferPressed(event)) {
                                 selection.addFace(face);
                             } else if (noModifierPressed(event)) {
-                                if (selection.isPartial(brush)) {
+                                if (brush.partiallySelected) {
                                     selection.removeAll();
                                     selection.addFace(face);
                                 } else {
@@ -79,12 +79,12 @@ namespace TrenchBroom {
                         }
                     } else {
                         if (multiSelectionModiferPressed(event)) {
-                            if (brush.selected())
+                            if (brush.selected)
                                 selection.removeBrush(brush);
                             else
                                 selection.addBrush(brush);
                         } else if (noModifierPressed(event)) {
-                            if (brush.selected()) {
+                            if (brush.selected) {
                                 selection.addFace(face);
                             } else {
                                 selection.removeAll();
@@ -114,12 +114,12 @@ namespace TrenchBroom {
                         selection.addEntity(entity);
                 } else {
                     Model::Face& face = hit->face();
-                    Model::Brush& brush = *face.brush();
+                    Model::Brush& brush = *face.brush;
                     if (selection.mode() == Model::TB_SM_FACES) {
-                        if (!face.selected())
+                        if (!face.selected)
                             selection.addFace(face);
                     } else {
-                        if (!brush.selected())
+                        if (!brush.selected)
                             selection.addBrush(brush);
                     }
                 }

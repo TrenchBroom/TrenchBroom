@@ -65,31 +65,53 @@ namespace TrenchBroom {
         class RenderContext;
         class Figure;
 
+        class EdgeRenderInfo {
+        public:
+            GLuint offset;
+            GLuint vertexCount;
+            EdgeRenderInfo() : offset(0), vertexCount(0) {};
+            EdgeRenderInfo(GLuint offset, GLuint vertexCount);
+        };
+        
+        class TexturedTriangleRenderInfo {
+        public:
+            Model::Assets::Texture* texture;
+            GLuint offset;
+            GLuint vertexCount;
+            TexturedTriangleRenderInfo(Model::Assets::Texture* texture, GLuint offset, GLuint vertexCount);
+        };
+        
+        bool compareFacesByTexture(const Model::Face* left, const Model::Face* right);
+
         class MapRenderer {
         private:
             typedef std::vector<GLuint> IndexBuffer;
-            typedef std::map<Model::Assets::Texture*, VboBlock* > FaceIndexBlocks;
+            typedef std::vector<TexturedTriangleRenderInfo> FaceRenderInfos;
             typedef std::map<Model::Entity*, EntityRenderer*> EntityRenderers;
 
             Controller::Editor& m_editor;
-            Vbo* m_faceVbo;
-            Vbo* m_faceIndexVbo;
-            Vbo* m_edgeIndexVbo;
 
             // level geometry rendering
-            FaceIndexBlocks m_faceIndexBlocks;
-            FaceIndexBlocks m_selectedFaceIndexBlocks;
-            VboBlock* m_edgeIndexBlock;
-            VboBlock* m_selectedEdgeIndexBlock;
+            Vbo* m_faceVbo;
+            VboBlock* m_faceBlock;
+            VboBlock* m_selectedFaceBlock;
+            Vbo* m_edgeVbo;
+            VboBlock* m_edgeBlock;
+            VboBlock* m_selectedEdgeBlock;
+            FaceRenderInfos m_faceRenderInfos;
+            FaceRenderInfos m_selectedFaceRenderInfos;
+            EdgeRenderInfo m_edgeRenderInfo;
+            EdgeRenderInfo m_selectedEdgeRenderInfo;
 
             // grid
             GridRenderer* m_gridRenderer;
 
             // entity bounds rendering
             Vbo* m_entityBoundsVbo;
-            Vbo* m_selectedEntityBoundsVbo;
-            int m_entityBoundsVertexCount;
-            int m_selectedEntityBoundsVertexCount;
+            VboBlock* m_entityBoundsBlock;
+            VboBlock* m_selectedEntityBoundsBlock;
+            EdgeRenderInfo m_entityBoundsRenderInfo;
+            EdgeRenderInfo m_selectedEntityBoundsRenderInfo;
 
             // entity model rendering
             EntityRendererManager* m_entityRendererManager;
@@ -107,14 +129,21 @@ namespace TrenchBroom {
             // figures
             std::vector<Figure*> m_figures;
             
-            ChangeSet m_changeSet;
+            // state
+            bool m_entityDataValid;
+            bool m_selectedEntityDataValid;
+            bool m_geometryDataValid;
+            bool m_selectedGeometryDataValid;
+            
             Model::Assets::Texture* m_dummyTexture;
             FontManager& m_fontManager;
 
-            void addEntities(const std::vector<Model::Entity*>& entities);
-            void removeEntities(const std::vector<Model::Entity*>& entities);
-            void addBrushes(const std::vector<Model::Brush*>& brushes);
-            void removeBrushes(const std::vector<Model::Brush*>& brushes);
+            void writeFaceData(RenderContext& context, std::vector<Model::Face*>& faces, FaceRenderInfos& renderInfos, VboBlock& block);
+            void writeEdgeData(RenderContext& context, std::vector<Model::Brush*>& brushes, std::vector<Model::Face*>& faces, EdgeRenderInfo& renderInfo, VboBlock& block);
+            void rebuildGeometryData(RenderContext& context);
+            void  writeEntityBounds(RenderContext& context, const std::vector<Model::Entity*>& entities, EdgeRenderInfo& renderInfo, VboBlock& block);
+            void rebuildEntityData(RenderContext& context);
+            
             void entitiesWereAdded(const std::vector<Model::Entity*>& entities);
             void entitiesWillBeRemoved(const std::vector<Model::Entity*>& entities);
             void propertiesDidChange(const std::vector<Model::Entity*>& entities);
@@ -131,31 +160,13 @@ namespace TrenchBroom {
             void gridDidChange(Controller::Grid& grid);
             void preferencesDidChange(const std::string& name);
 
-            void writeFaceVertices(RenderContext& context, Model::Face& face, VboBlock& block);
-            unsigned int writeFaceIndices(RenderContext& context, Model::Face& face, VboBlock& block, unsigned int offset);
-            unsigned int writeEdgeIndices(RenderContext& context, Model::Face& face, VboBlock& block, unsigned int offset);
-            void writeEntityBounds(RenderContext& context, Model::Entity& entity, VboBlock& block);
-
-            void rebuildFaceIndexBuffers(RenderContext& context);
-            void rebuildSelectedFaceIndexBuffers(RenderContext& context);
-
-            void validateEntityRendererCache(RenderContext& context);
-            void validateAddedEntities(RenderContext& context);
-            void validateRemovedEntities(RenderContext& context);
-            void validateChangedEntities(RenderContext& context);
-            void validateAddedBrushes(RenderContext& context);
-            void validateRemovedBrushes(RenderContext& context);
-            void validateChangedBrushes(RenderContext& context);
-            void validateChangedFaces(RenderContext& context);
-            void validateSelection(RenderContext& context);
-            void validateDeselection(RenderContext& context);
             void validate(RenderContext& context);
 
             void renderSelectionGuides(RenderContext& context, const Vec4f& color);
-            void renderEntityBounds(RenderContext& context, const Vec4f* color, int vertexCount);
+            void renderEntityBounds(RenderContext& context, const EdgeRenderInfo& renderInfo, const Vec4f* color);
             void renderEntityModels(RenderContext& context, EntityRenderers& entities);
-            void renderEdges(RenderContext& context, const Vec4f* color, const VboBlock* indexBlock);
-            void renderFaces(RenderContext& context, bool textured, bool selected, const FaceIndexBlocks& indexBlocks);
+            void renderEdges(RenderContext& context, const EdgeRenderInfo& renderInfo, const Vec4f& color);
+            void renderFaces(RenderContext& context, bool textured, bool selected, const FaceRenderInfos& renderInfos);
             void renderFigures(RenderContext& context);
         public:
             typedef Event<MapRenderer&> MapRendererEvent;

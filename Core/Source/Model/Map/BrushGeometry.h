@@ -20,11 +20,14 @@
 #ifndef TrenchBroom_BrushGeometry_h
 #define TrenchBroom_BrushGeometry_h
 
+#include "Utilities/VecMath.h"
+
 #include <vector>
-#include "Model/Map/Face.h"
 
 namespace TrenchBroom {
     namespace Model {
+        class Face;
+        
         typedef enum {
             TB_CR_REDUNDANT, // the given face is redundant and need not be added to the brush
             TB_CR_NULL, // the given face has nullified the entire brush

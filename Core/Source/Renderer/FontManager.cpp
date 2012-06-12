@@ -111,7 +111,7 @@ namespace TrenchBroom {
 
         void StringRenderer::prepare(Vbo& vbo) {
             assert(m_data != NULL);
-            m_vboBlock = &vbo.allocBlock(2 * m_data->vertexCount * sizeof(float));
+            m_vboBlock = vbo.allocBlock(2 * m_data->vertexCount * sizeof(float));
             assert(m_vboBlock != NULL);
 
             m_hasTriangleSet = !m_data->triangleSet.empty();

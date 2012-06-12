@@ -86,9 +86,7 @@ namespace TrenchBroom {
             Model::EntityDefinition* definition = static_cast<Model::EntityDefinition*>(info.payload);
             
             m_editor.map().undoManager().begin("Create Entity");
-            Model::Entity* entity = m_editor.map().createEntity(definition->name);
-            m_editor.map().selection().removeAll();
-            m_editor.map().selection().addEntity(*entity);
+            m_editor.map().createEntity(definition->name);
             m_editor.map().setEntityProperty(Model::OriginKey, m_bounds.center(), true);
             m_editor.map().undoManager().end();
             

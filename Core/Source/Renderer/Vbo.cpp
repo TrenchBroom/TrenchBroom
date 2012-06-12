@@ -330,7 +330,7 @@ namespace TrenchBroom {
             m_mapped = false;
         }
         
-        VboBlock& Vbo::allocBlock(unsigned int capacity) {
+        VboBlock* Vbo::allocBlock(unsigned int capacity) {
             assert(capacity > 0);
             
 #ifdef _DEBUG_VBO
@@ -369,10 +369,10 @@ namespace TrenchBroom {
             checkFreeBlocks();
 #endif
 
-            return *block;
+            return block;
         }
         
-        VboBlock& Vbo::freeBlock(VboBlock& block) {
+        VboBlock* Vbo::freeBlock(VboBlock& block) {
 #ifdef _DEBUG_VBO
             checkBlockChain();
             checkFreeBlocks();
@@ -391,7 +391,7 @@ namespace TrenchBroom {
                 previous->insertBetween(previous->previous, next->next);
                 delete &block;
                 delete next;
-                return *previous;
+                return previous;
             }
             
             if (previous != NULL && previous->free) {
@@ -399,7 +399,7 @@ namespace TrenchBroom {
                 if (m_last == &block) m_last = previous;
                 previous->insertBetween(previous->previous, next);
                 delete &block;
-                return *previous;
+                return previous;
             }
             
             if (next != NULL && next->free) {
@@ -410,7 +410,7 @@ namespace TrenchBroom {
                 block.insertBetween(previous, next->next);
                 insertFreeBlock(block);
                 delete next;
-                return block;
+                return &block;
             }
             
             insertFreeBlock(block);
@@ -420,7 +420,7 @@ namespace TrenchBroom {
             checkFreeBlocks();
 #endif
 
-            return block;
+            return &block;
         }
 
         void Vbo::freeAllBlocks() {
@@ -432,6 +432,7 @@ namespace TrenchBroom {
                 block = next;
             }
             m_first = m_last = new VboBlock(*this, 0, m_totalCapacity);
+            m_freeBlocks.push_back(m_first);
             m_freeCapacity = m_totalCapacity;
         }
 

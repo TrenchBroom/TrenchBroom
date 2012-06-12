@@ -18,11 +18,14 @@
  */
 
 #include "BrushGeometry.h"
+
+#include "Model/Map/Face.h"
+#include "Utilities/VecMath.h"
+
 #include <cassert>
 #include <cmath>
 #include <map>
 #include <algorithm>
-#include "Utilities/VecMath.h"
 
 #define VERTEX_MAX_POOL_SIZE 256
 #define EDGE_MAX_POOL_SIZE 256
@@ -213,13 +216,13 @@ namespace TrenchBroom {
                 vertices.push_back(edge->startVertex(this));
             }
             
-            this->face->setSide(this);
+            this->face->side = this;
         }
         
         float Side::intersectWithRay(const Ray& ray) {
             assert(face != NULL);
             
-            const Plane& boundary = face->boundary();
+            const Plane& boundary = face->boundary;
             float dot = boundary.normal | ray.direction;
             if (!Math::fneg(dot)) return std::numeric_limits<float>::quiet_NaN();
             
@@ -481,7 +484,7 @@ namespace TrenchBroom {
                 edges.push_back(sideEdges[2]);
                 
                 newSide = new Side(sideEdges, flipped, 3);
-                newSide->face = new Face(side->face->worldBounds(), *side->face);
+                newSide->face = new Face(side->face->worldBounds, *side->face);
                 sides.push_back(newSide);
                 newFaces.push_back(newSide->face);
                 
@@ -497,7 +500,7 @@ namespace TrenchBroom {
             flipped[2] = sideEdges[2]->left == side;
             
             newSide = new Side(sideEdges, flipped, 3);
-            newSide->face = new Face(side->face->worldBounds(), *side->face);
+            newSide->face = new Face(side->face->worldBounds, *side->face);
             sides.push_back(newSide);
             newFaces.push_back(newSide->face);
         }
@@ -525,7 +528,7 @@ namespace TrenchBroom {
             side->replaceEdges((sideVertexIndex + side->edges.size() - 2) % side->edges.size(), (sideVertexIndex + 1) % side->edges.size(), sideEdges[2]);
             
             newSide = new Side(sideEdges, flipped, 3);
-            newSide->face = new Face(side->face->worldBounds(), *side->face);
+            newSide->face = new Face(side->face->worldBounds, *side->face);
             sides.push_back(newSide);
             newFaces.push_back(newSide->face);
             
@@ -728,7 +731,7 @@ namespace TrenchBroom {
                     deleteElement<Vertex>(vertices, neighbour->vertices[i]);
             }
             
-            neighbour->face->setSide(NULL);
+            neighbour->face->side = NULL;
             deleteElement<Side>(sides, neighbour);
         }
         
@@ -788,7 +791,7 @@ namespace TrenchBroom {
                 Edge* neighbourEdge = side->edges[1];
                 Side* neighbourSide = neighbourEdge->left != side ? neighbourEdge->left : neighbourEdge->right;
                 
-                plane = neighbourSide->face->boundary();
+                plane = neighbourSide->face->boundary;
                 float neighbourDist = plane.intersectWithRay(ray);
                 
                 if (!Math::isnan(sideDist) && Math::fpos(sideDist) && Math::flt(sideDist, minDist))
@@ -922,8 +925,8 @@ namespace TrenchBroom {
             edge = edges[edgeIndex];
             
             // detect whether the drag would make the incident faces invalid
-            leftNorm = edge->left->face->boundary().normal;
-            rightNorm = edge->right->face->boundary().normal;
+            leftNorm = edge->left->face->boundary.normal;
+            rightNorm = edge->right->face->boundary.normal;
             if (Math::fneg((delta | leftNorm)) || 
                 Math::fneg((delta | rightNorm))) {
                 result.moved = false;
@@ -983,7 +986,7 @@ namespace TrenchBroom {
             side = sides[index];
             
             // detect whether the drag would lead to an indented face
-            norm = side->face->boundary().normal;
+            norm = side->face->boundary.normal;
             if (Math::fzero((delta | norm))) {
                 result.moved = false;
                 result.index = sideIndex;
@@ -1027,7 +1030,7 @@ namespace TrenchBroom {
                 newSide->edges.push_back(newEdge);
                 newEdge->left = newSide;
                 
-                newSide->face = new Face(side->face->worldBounds(), *side->face);
+                newSide->face = new Face(side->face->worldBounds, *side->face);
                 sides.push_back(newSide);
                 newFaces.push_back(newSide->face);
                 
@@ -1188,11 +1191,11 @@ namespace TrenchBroom {
         
         void BrushGeometry::restoreFaceSides() {
             for (unsigned int i = 0; i < sides.size(); i++)
-                sides[i]->face->setSide(sides[i]);
+                sides[i]->face->side = sides[i];
         }
         
         ECutResult BrushGeometry::addFace(Face& face, std::vector<Face*>& droppedFaces) {
-            Plane boundary = face.boundary();
+            Plane boundary = face.boundary;
             
             unsigned int keep = 0;
             unsigned int drop = 0;
@@ -1241,7 +1244,7 @@ namespace TrenchBroom {
                     Face* face = side->face;
                     if (face != NULL) {
                         droppedFaces.push_back(face);
-                        face->setSide(NULL);
+                        face->side = NULL;
                     }
                     delete side;
                     sideIt = sides.erase(sideIt);

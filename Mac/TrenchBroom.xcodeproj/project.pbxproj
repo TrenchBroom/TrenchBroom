@@ -54,7 +54,6 @@
 		4825B449153AE59F007E3AE1 /* Vbo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B417153AE59F007E3AE1 /* Vbo.cpp */; };
 		4825B44A153AE59F007E3AE1 /* Filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B41B153AE59F007E3AE1 /* Filter.cpp */; };
 		4825B44B153AE59F007E3AE1 /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B41E153AE59F007E3AE1 /* Utils.cpp */; };
-		4825B44C153AE59F007E3AE1 /* VecMath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B420153AE59F007E3AE1 /* VecMath.cpp */; };
 		4825B4F8153AE5E9007E3AE1 /* Anim.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B44F153AE5E9007E3AE1 /* Anim.cpp */; };
 		4825B4F9153AE5E9007E3AE1 /* BaseRender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B451153AE5E9007E3AE1 /* BaseRender.cpp */; };
 		4825B4FA153AE5E9007E3AE1 /* Base.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B455153AE5E9007E3AE1 /* Base.cpp */; };
@@ -140,6 +139,7 @@
 		486571BE157C117900698829 /* MacFileManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 486571BD157C117900698829 /* MacFileManager.mm */; };
 		486571CA157E78D400698829 /* DragTextureTargetTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486571C9157E78D400698829 /* DragTextureTargetTool.cpp */; };
 		486571D21582860800698829 /* EntityFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486571D11582860700698829 /* EntityFigure.cpp */; };
+		486571E41584C02A00698829 /* CopyUndoItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486571E31584C02900698829 /* CopyUndoItem.cpp */; };
 		48886BA51545FE0A006A781B /* EditorHolder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48886BA41545FE09006A781B /* EditorHolder.mm */; };
 		488E65B6156301F300B4E72A /* PositioningGuideFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488E65B5156301F300B4E72A /* PositioningGuideFigure.cpp */; };
 		488E65E51563C6A600B4E72A /* Inspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488E65E41563C6A600B4E72A /* Inspector.cpp */; };
@@ -161,6 +161,7 @@
 		48C9794E1530CB72003020FC /* quake.def in Resources */ = {isa = PBXBuildFile; fileRef = 48C9794D1530CB72003020FC /* quake.def */; };
 		48C97950153174B9003020FC /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48C9794F153174B9003020FC /* QuakePalette.lmp */; };
 		48DC47C6156D341C000C2D2F /* MacStringFactory.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48DC47C5156D341C000C2D2F /* MacStringFactory.mm */; };
+		48E23D991586842C0028DEFB /* VecMath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48E23D981586842C0028DEFB /* VecMath.cpp */; };
 		48F579F9154C5B3D0039B369 /* MacConsole.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48F579F8154C5B3D0039B369 /* MacConsole.mm */; };
 		48F579FB154C749E0039B369 /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48F579FA154C749E0039B369 /* Console.cpp */; };
 		48F579FD154CA9340039B369 /* MacOSX.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48F579FC154CA9340039B369 /* MacOSX.mm */; };
@@ -267,7 +268,6 @@
 		4825B41C153AE59F007E3AE1 /* Filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Filter.h; sourceTree = "<group>"; };
 		4825B41E153AE59F007E3AE1 /* Utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Utils.cpp; sourceTree = "<group>"; };
 		4825B41F153AE59F007E3AE1 /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
-		4825B420153AE59F007E3AE1 /* VecMath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VecMath.cpp; sourceTree = "<group>"; };
 		4825B421153AE59F007E3AE1 /* VecMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VecMath.h; sourceTree = "<group>"; };
 		4825B44E153AE5E9007E3AE1 /* Align.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Align.h; path = ../Gwen/Source/Gwen/Align.h; sourceTree = "<group>"; };
 		4825B44F153AE5E9007E3AE1 /* Anim.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Anim.cpp; path = ../Gwen/Source/Gwen/Anim.cpp; sourceTree = "<group>"; };
@@ -427,6 +427,7 @@
 		4825B554153C9F56007E3AE1 /* GLee.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLee.h; sourceTree = "<group>"; };
 		482EB2A51566CB6C0071206A /* OpenGL_FTGL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OpenGL_FTGL.h; sourceTree = "<group>"; };
 		482EB2A61566CC120071206A /* OpenGL_FTGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenGL_FTGL.cpp; sourceTree = "<group>"; };
+		48321ED9158677140042D318 /* BrushGeometryTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrushGeometryTypes.h; sourceTree = "<group>"; };
 		4833E9F715790E9D0089FD2A /* EntityRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityRenderer.cpp; sourceTree = "<group>"; };
 		483DE917154DCE62002FD6B0 /* PreferencesWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PreferencesWindow.xib; sourceTree = "<group>"; };
 		483DE91A154DCFCF002FD6B0 /* PreferencesWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesWindowController.h; sourceTree = "<group>"; };
@@ -463,7 +464,8 @@
 		486571C9157E78D400698829 /* DragTextureTargetTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragTextureTargetTool.cpp; sourceTree = "<group>"; };
 		486571CF158285FC00698829 /* EntityFigure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityFigure.h; sourceTree = "<group>"; };
 		486571D11582860700698829 /* EntityFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityFigure.cpp; sourceTree = "<group>"; };
-		486571D31583ADF800698829 /* FaceTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FaceTypes.h; sourceTree = "<group>"; };
+		486571E21584C01F00698829 /* CopyUndoItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CopyUndoItem.h; sourceTree = "<group>"; };
+		486571E31584C02900698829 /* CopyUndoItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CopyUndoItem.cpp; sourceTree = "<group>"; };
 		48886BA31545FE09006A781B /* EditorHolder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorHolder.h; sourceTree = "<group>"; };
 		48886BA41545FE09006A781B /* EditorHolder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EditorHolder.mm; sourceTree = "<group>"; };
 		48891461157E299C00687915 /* DragTargetTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragTargetTool.h; sourceTree = "<group>"; };
@@ -503,6 +505,7 @@
 		48C9794F153174B9003020FC /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; name = QuakePalette.lmp; path = ../../Resources/Graphics/QuakePalette.lmp; sourceTree = "<group>"; };
 		48DC47C4156D341C000C2D2F /* MacStringFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacStringFactory.h; sourceTree = "<group>"; };
 		48DC47C5156D341C000C2D2F /* MacStringFactory.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacStringFactory.mm; sourceTree = "<group>"; };
+		48E23D981586842C0028DEFB /* VecMath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VecMath.cpp; sourceTree = "<group>"; };
 		48F579F4154BFC830039B369 /* SharedPointer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SharedPointer.h; sourceTree = "<group>"; };
 		48F579F6154C58060039B369 /* Console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Console.h; sourceTree = "<group>"; };
 		48F579F7154C5B3D0039B369 /* MacConsole.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacConsole.h; sourceTree = "<group>"; };
@@ -644,13 +647,13 @@
 				4825B3EA153AE59F007E3AE1 /* Brush.h */,
 				4825B3EB153AE59F007E3AE1 /* BrushGeometry.cpp */,
 				4825B3EC153AE59F007E3AE1 /* BrushGeometry.h */,
+				48321ED9158677140042D318 /* BrushGeometryTypes.h */,
 				4825B3ED153AE59F007E3AE1 /* Entity.cpp */,
 				4825B3EE153AE59F007E3AE1 /* Entity.h */,
 				4825B3EF153AE59F007E3AE1 /* EntityDefinition.cpp */,
 				4825B3F0153AE59F007E3AE1 /* EntityDefinition.h */,
 				4825B3F1153AE59F007E3AE1 /* Face.cpp */,
 				4825B3F2153AE59F007E3AE1 /* Face.h */,
-				486571D31583ADF800698829 /* FaceTypes.h */,
 				4825B3F3153AE59F007E3AE1 /* Groups.cpp */,
 				4825B3F4153AE59F007E3AE1 /* Groups.h */,
 				4825B3F5153AE59F007E3AE1 /* Map.cpp */,
@@ -709,7 +712,7 @@
 				48F579F4154BFC830039B369 /* SharedPointer.h */,
 				4825B41E153AE59F007E3AE1 /* Utils.cpp */,
 				4825B41F153AE59F007E3AE1 /* Utils.h */,
-				4825B420153AE59F007E3AE1 /* VecMath.cpp */,
+				48E23D981586842C0028DEFB /* VecMath.cpp */,
 				4825B421153AE59F007E3AE1 /* VecMath.h */,
 			);
 			name = Utilities;
@@ -966,6 +969,8 @@
 		485395E6155FB57C00636357 /* Undo */ = {
 			isa = PBXGroup;
 			children = (
+				486571E31584C02900698829 /* CopyUndoItem.cpp */,
+				486571E21584C01F00698829 /* CopyUndoItem.h */,
 				485395E9155FB69300636357 /* InvocationUndoItem.cpp */,
 				485395E8155FB5ED00636357 /* InvocationUndoItem.h */,
 				48953FDE15679B92006DD2E3 /* SnapshotUndoItem.cpp */,
@@ -1204,7 +1209,6 @@
 				4825B449153AE59F007E3AE1 /* Vbo.cpp in Sources */,
 				4825B44A153AE59F007E3AE1 /* Filter.cpp in Sources */,
 				4825B44B153AE59F007E3AE1 /* Utils.cpp in Sources */,
-				4825B44C153AE59F007E3AE1 /* VecMath.cpp in Sources */,
 				4825B4F8153AE5E9007E3AE1 /* Anim.cpp in Sources */,
 				4825B4F9153AE5E9007E3AE1 /* BaseRender.cpp in Sources */,
 				4825B4FA153AE5E9007E3AE1 /* Base.cpp in Sources */,
@@ -1301,6 +1305,8 @@
 				486571CA157E78D400698829 /* DragTextureTargetTool.cpp in Sources */,
 				484299EF158236330069BC97 /* DragEntityTargetTool.cpp in Sources */,
 				486571D21582860800698829 /* EntityFigure.cpp in Sources */,
+				486571E41584C02A00698829 /* CopyUndoItem.cpp in Sources */,
+				48E23D991586842C0028DEFB /* VecMath.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

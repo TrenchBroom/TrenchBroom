@@ -25,7 +25,7 @@
 #include "Utilities/VecMath.h"
 #include "GL/GLee.h"
 
-// #define _DEBUG_VBO 1
+//#define _DEBUG_VBO 1
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -86,8 +86,8 @@ namespace TrenchBroom {
             void deactivate();
             void map();
             void unmap();
-            VboBlock& allocBlock(unsigned int capacity);
-            VboBlock& freeBlock(VboBlock& block);
+            VboBlock* allocBlock(unsigned int capacity);
+            VboBlock* freeBlock(VboBlock& block);
             void freeAllBlocks();
             void pack();
             bool ownsBlock(VboBlock& block);

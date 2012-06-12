@@ -44,7 +44,7 @@ namespace TrenchBroom {
                 unsigned int modelVertexCount = model.vertexCount;
                 unsigned int vertexSize = 5 * sizeof(float);
 
-                m_vboBlock = &m_vbo.allocBlock(modelVertexCount * vertexSize);
+                m_vboBlock = m_vbo.allocBlock(modelVertexCount * vertexSize);
                 m_vbo.map();
                 unsigned int offset = 0;
                 

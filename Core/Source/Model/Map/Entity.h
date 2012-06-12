@@ -120,8 +120,6 @@ namespace TrenchBroom {
             void setFilePosition(int filePosition);
             bool selected() const;
             void setSelected(bool selected);
-            Renderer::VboBlock* vboBlock() const;
-            void setVboBlock(Renderer::VboBlock* vboBlock);
         };
     }
 }

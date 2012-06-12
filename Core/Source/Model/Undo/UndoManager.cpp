@@ -36,8 +36,8 @@ namespace TrenchBroom {
         }
 
         void UndoGroup::undo() {
-            for (unsigned int i = 0; i < m_items.size(); i++)
-                m_items[i]->undo();
+            for (std::vector<UndoItem*>::reverse_iterator it = m_items.rbegin(); it != m_items.rend(); ++it)
+                (*it)->undo();
         }
 
         const std::string& UndoGroup::name() {

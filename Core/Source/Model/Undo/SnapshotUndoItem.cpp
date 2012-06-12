@@ -43,7 +43,7 @@ namespace TrenchBroom {
 
         BrushSnapshot::BrushSnapshot(const Brush& brush) {
             m_uniqueId = brush.uniqueId();
-            const std::vector<Face*>& brushFaces = brush.faces();
+            const std::vector<Face*>& brushFaces = brush.faces;
             for (unsigned int i = 0; i < brushFaces.size(); i++) {
                 Face* snapshot = new Face(*brushFaces[i]);
                 m_faces.push_back(snapshot);
@@ -63,13 +63,14 @@ namespace TrenchBroom {
         }
 
         FaceSnapshot::FaceSnapshot(const Face& face) {
-            m_faceId = face.faceId();
-            m_xOffset = static_cast<float>(face.xOffset());
-            m_yOffset = static_cast<float>(face.yOffset());
-            m_xScale = face.xScale();
-            m_yScale = face.yScale();
-            m_rotation = face.rotation();
-            m_texture = face.texture();
+            m_faceId = face.faceId;
+            m_xOffset = face.xOffset;
+            m_yOffset = face.yOffset;
+            m_xScale = face.xScale;
+            m_yScale = face.yScale;
+            m_rotation = face.rotation;
+            m_texture = face.texture;
+            m_textureName = face.textureName;
         }
         
         int FaceSnapshot::faceId() {
@@ -77,12 +78,14 @@ namespace TrenchBroom {
         }
         
         void FaceSnapshot::restore(Face& face) {
-            face.setXOffset(static_cast<int>(m_xOffset));
-            face.setYOffset(static_cast<int>(m_yOffset));
-            face.setXScale(m_xScale);
-            face.setYScale(m_yScale);
-            face.setRotation(m_rotation);
+            face.xOffset = m_xOffset;
+            face.yOffset = m_yOffset;
+            face.rotation = m_rotation;
+            face.xScale = m_xScale;
+            face.yScale = m_yScale;
             face.setTexture(m_texture);
+            if (m_texture == NULL)
+                face.textureName = m_textureName;
         }
 
         SnapshotUndoItem::SnapshotUndoItem(Map& map) : UndoItem(map) {
@@ -123,7 +126,7 @@ namespace TrenchBroom {
                 for (unsigned int i = 0; i < m_faces.size(); i++) {
                     FaceSnapshot* snapshot = m_faces[i];
                     Face* original = m_selectedFaces[i];
-                    assert(snapshot->faceId() == original->faceId());
+                    assert(snapshot->faceId() == original->faceId);
                     snapshot->restore(*original);
                 }
                 

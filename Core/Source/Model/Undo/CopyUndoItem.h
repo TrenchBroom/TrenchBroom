@@ -17,18 +17,27 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FaceTypes_h
-#define TrenchBroom_FaceTypes_h
+#ifndef TrenchBroom_CopyUndoItem_h
+#define TrenchBroom_CopyUndoItem_h
+
+#include "Model/Undo/UndoItem.h"
 
 #include <vector>
-#include "Utilities/SharedPointer.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Face;
+        class Entity;
+        class Brush;
         
-        typedef std::tr1::shared_ptr<Face> FacePtr;
-        typedef std::vector<FacePtr> FaceList;
+        class CopyUndoItem : public UndoItem {
+        protected:
+            std::vector<Entity*> m_entities;
+            std::vector<Brush*> m_brushes;
+        public:
+            CopyUndoItem(Map& map);
+            virtual ~CopyUndoItem();
+            virtual void performUndo();
+        };
     }
 }
 

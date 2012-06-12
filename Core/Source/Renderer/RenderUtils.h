@@ -34,7 +34,7 @@ namespace TrenchBroom {
         void glColorV4f(const Vec4f& color, float blendFactor);
         void glSetEdgeOffset(float f);
         void glResetEdgeOffset();
-        void glSetBrightness(float brightness);
+        void glSetBrightness(float brightness, bool modulateAlpha);
     }
 }
 

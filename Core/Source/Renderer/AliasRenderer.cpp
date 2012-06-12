@@ -48,7 +48,7 @@ namespace TrenchBroom {
                 m_triangleCount = static_cast<int>(frame.triangles.size());
                 int vertexSize = 3 * 8;
 
-                m_vboBlock = &m_vbo.allocBlock(m_triangleCount * vertexSize * sizeof(float));
+                m_vboBlock = m_vbo.allocBlock(m_triangleCount * vertexSize * sizeof(float));
                 m_vbo.map();
                 int offset = 0;
                 for (unsigned int i = 0; i < m_triangleCount; i++) {

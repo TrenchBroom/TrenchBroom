@@ -74,12 +74,12 @@ namespace TrenchBroom {
             glDepthRange(EdgeOffset, 1.0);
         }
         
-        void glSetBrightness(float brightness) {
+        void glSetBrightness(float brightness, bool modulateAlpha) {
             glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
             float color[4] = {brightness / 2.0f, brightness / 2.0f, brightness / 2.0f, 1.0f};
             
             glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
-            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_MODULATE);
+            glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, modulateAlpha ? GL_MODULATE : GL_REPLACE);
             glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, color);
             glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_TEXTURE);
             glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_TEXTURE);

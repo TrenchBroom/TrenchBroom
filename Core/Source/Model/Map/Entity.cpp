@@ -252,7 +252,7 @@ namespace TrenchBroom {
             if (m_entityDefinition != NULL && m_entityDefinition->type != TB_EDT_BRUSH)
                 return;
 
-            brush->setEntity(this);
+            brush->entity = this;
             m_brushes.push_back(brush);
             invalidateGeometry();
         }
@@ -262,7 +262,7 @@ namespace TrenchBroom {
                 return;
 
             for (unsigned int i = 0; i < brushes.size(); i++) {
-                brushes[i]->setEntity(this);
+                brushes[i]->entity = this;
                 m_brushes.push_back(brushes[i]);
             }
             invalidateGeometry();
@@ -276,7 +276,7 @@ namespace TrenchBroom {
             if (m_entityDefinition != NULL && m_entityDefinition->type != TB_EDT_BRUSH)
                 return;
 
-            brush->setEntity(NULL);
+            brush->entity = NULL;
             m_brushes.erase(find(m_brushes.begin(), m_brushes.end(), brush));
             invalidateGeometry();
         }
@@ -286,7 +286,7 @@ namespace TrenchBroom {
                 return;
 
             for (unsigned int i = 0; i < brushes.size(); i++) {
-                brushes[i]->setEntity(NULL);
+                brushes[i]->entity = NULL;
                 m_brushes.erase(find(m_brushes.begin(), m_brushes.end(), brushes[i]));
             }
             invalidateGeometry();
@@ -412,16 +412,6 @@ namespace TrenchBroom {
 
         void Entity::setSelected(bool selected) {
             m_selected = selected;
-        }
-
-        Renderer::VboBlock* Entity::vboBlock() const {
-            return m_vboBlock;
-        }
-
-        void Entity::setVboBlock(Renderer::VboBlock* vboBlock) {
-            if (m_vboBlock != NULL)
-                m_vboBlock->freeBlock();
-            m_vboBlock = vboBlock;
         }
     }
 }

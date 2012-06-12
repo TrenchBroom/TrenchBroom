@@ -55,7 +55,7 @@ namespace TrenchBroom {
             glEnable(GL_DEPTH_TEST);
             
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-            Renderer::glSetBrightness(prefs.brightness());
+            Renderer::glSetBrightness(prefs.brightness(), true);
             glColor4f(1, 1, 1, 0.8f);
             
             float xAng = 70.0f;
@@ -186,7 +186,7 @@ namespace TrenchBroom {
             glEnable(GL_TEXTURE_2D);
 
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-            Renderer::glSetBrightness(prefs.brightness());
+            Renderer::glSetBrightness(prefs.brightness(), true);
 
             Renderer::EntityRendererManager& rendererManager = m_editor.renderer()->entityRendererManager();
             rendererManager.activate();
@@ -256,7 +256,7 @@ namespace TrenchBroom {
                 m_boundsVbo->activate();
                 m_boundsVbo->map();
 
-                m_boundsBlock = &m_boundsVbo->allocBlock((4 * 3 + 4) * boundsVertices.size());
+                m_boundsBlock = m_boundsVbo->allocBlock((4 * 3 + 4) * boundsVertices.size());
                 unsigned int offset = 0;
                 for (unsigned int i = 0; i < boundsVertices.size(); i++) {
                     offset = m_boundsBlock->writeColor(boundsColors[i], offset);

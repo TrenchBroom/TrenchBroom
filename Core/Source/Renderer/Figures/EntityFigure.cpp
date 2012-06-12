@@ -54,7 +54,7 @@ namespace TrenchBroom {
                 std::vector<Vec3f> edges = bboxEdgeVertices(m_entityDefinition.bounds);
                 m_vertexCount = edges.size();
                 m_boundsVbo = new Vbo(GL_ARRAY_BUFFER, 3 * 4 * m_vertexCount);
-                m_boundsBlock = &m_boundsVbo->allocBlock(3 * 4 * m_vertexCount);
+                m_boundsBlock = m_boundsVbo->allocBlock(3 * 4 * m_vertexCount);
                 
                 m_boundsVbo->activate();
                 m_boundsVbo->map();

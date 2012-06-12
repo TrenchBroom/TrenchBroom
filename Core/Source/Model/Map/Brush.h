@@ -38,20 +38,21 @@ namespace TrenchBroom {
         
         class Brush : public MapObject {
         protected:
-            Entity* m_entity;
-            std::vector<Face*> m_faces;
-            
-            BrushGeometry* m_geometry;
-            
-            bool m_onGrid;
-            const BBox& m_worldBounds;
-            
-            int m_filePosition;
-            bool m_selected;
-            
             void init();
             void rebuildGeometry();
         public:
+            Entity* entity;
+            std::vector<Face*> faces;
+            
+            BrushGeometry* geometry;
+            
+            bool onGrid;
+            const BBox& worldBounds;
+            
+            int filePosition;
+            bool selected;
+            bool partiallySelected;
+
             Brush(const BBox& worldBounds);
             Brush(const BBox& worldBounds, const Brush& brushTemplate);
             Brush(const BBox& worldBounds, const BBox& brushBounds, Assets::Texture& texture);
@@ -59,15 +60,9 @@ namespace TrenchBroom {
             
             void restore(const Brush& brushTemplate);
             
-            EMapObjectType objectType() const;
-            Entity* entity() const;
-            void setEntity(Entity* entity);
-            const std::vector<Face*>& faces() const;
             const BBox& bounds() const;
-            const BBox& worldBounds() const;
+            EMapObjectType objectType() const;
             const Vec3f center() const;
-            const std::vector<Vertex*>& vertices() const;
-            const std::vector<Edge*>& edges() const;
             
             void pick(const Ray& ray, HitList& hits);
             bool containsPoint(Vec3f point);
@@ -93,11 +88,6 @@ namespace TrenchBroom {
             MoveResult moveVertex(int vertexIndex, const Vec3f& delta);
             MoveResult moveEdge(int edgeIndex, const Vec3f& delta);
             MoveResult moveFace(int faceIndex, const Vec3f& delta);
-            
-            int filePosition() const;
-            void setFilePosition(int filePosition);
-            bool selected() const;
-            void setSelected(bool selected);
         };
     }
 }

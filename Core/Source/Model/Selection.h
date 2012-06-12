@@ -72,7 +72,6 @@ namespace TrenchBroom {
             
             Selection();
             ESelectionMode mode() const;
-            bool isPartial(Brush& brush) const;
             bool empty() const;
             const std::vector<Assets::Texture*>& mruTextures() const;
             const std::vector<Face*>& faces() const;

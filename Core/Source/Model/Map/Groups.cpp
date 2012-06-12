@@ -56,7 +56,7 @@ namespace TrenchBroom {
         void GroupManager::brushesChanged(const std::vector<Brush*>& brushes) {
             bool changed = false;
             for (unsigned int i = 0; i < brushes.size(); i++) {
-                if (brushes[i]->entity()->group()) {
+                if (brushes[i]->entity->group()) {
                     changed = true;
                     break;
                 }

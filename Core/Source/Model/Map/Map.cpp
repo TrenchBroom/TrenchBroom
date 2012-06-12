@@ -138,21 +138,31 @@ namespace TrenchBroom {
         }
 
         Entity* Map::createEntity(const std::string& classname) {
-            
-            m_undoManager->begin("Create Entity");
-            m_undoManager->addFunctor(*this, &Map::deleteObjects);
-            
             Entity* entity = new Entity();
             entity->setProperty(ClassnameKey, classname);
             addEntity(entity);
             
+            m_selection->removeAll();
+            m_selection->addEntity(*entity);
+
+            m_undoManager->begin("Create Entity");
+            m_undoManager->addFunctor(*this, &Map::deleteObjects);
             m_undoManager->end();
+            
             return entity;
         }
 
         Entity* Map::createEntity(const std::map<std::string, std::string> properties) {
             Entity* entity = new Entity(properties);
             addEntity(entity);
+
+            m_selection->removeAll();
+            m_selection->addEntity(*entity);
+            
+            m_undoManager->begin("Create Entity");
+            m_undoManager->addFunctor(*this, &Map::deleteObjects);
+            m_undoManager->end();
+
             return entity;
         }
 
@@ -294,8 +304,8 @@ namespace TrenchBroom {
             std::vector<Brush*> changedBrushes;
             for (unsigned int i = 0; i < faces.size() && drag; i++) {
                 Face* face = faces[i];
-                Brush* brush = face->brush();
-                drag &= brush->selected() && brush->canResize(*face, delta);
+                Brush* brush = face->brush;
+                drag &= brush->selected && brush->canResize(*face, delta);
                 changedBrushes.push_back(brush);
             }
 
@@ -303,7 +313,7 @@ namespace TrenchBroom {
                 if (m_postNotifications) brushesWillChange(changedBrushes);
                 for (unsigned int i = 0; i < faces.size(); i++) {
                     Face* face = faces[i];
-                    Brush* brush = face->brush();
+                    Brush* brush = face->brush;
                     brush->resize(*face, delta, lockTextures);
                 }
                 if (m_postNotifications) brushesDidChange(changedBrushes);
@@ -440,7 +450,7 @@ namespace TrenchBroom {
                 m_selection->removeBrushes(removedBrushes);
                 for (unsigned int i = 0; i < removedBrushes.size(); i++) {
                     Brush* brush = removedBrushes[i];
-                    Entity* entity = brush->entity();
+                    Entity* entity = brush->entity;
                     entity->removeBrush(brush);
                     delete brush;
 
@@ -492,7 +502,7 @@ namespace TrenchBroom {
             
             if (m_postNotifications) facesWillChange(faces);
             for (unsigned int i = 0; i < faces.size(); i++)
-                faces[i]->setXOffset(xOffset);
+                faces[i]->xOffset = xOffset;
             if (m_postNotifications) facesDidChange(faces);
             
             m_undoManager->end();
@@ -507,7 +517,7 @@ namespace TrenchBroom {
 
             if (m_postNotifications) facesWillChange(faces);
             for (unsigned int i = 0; i < faces.size(); i++)
-                faces[i]->setYOffset(yOffset);
+                faces[i]->yOffset = yOffset;
             if (m_postNotifications) facesDidChange(faces);
 
             m_undoManager->end();
@@ -537,7 +547,7 @@ namespace TrenchBroom {
 
             if (m_postNotifications) facesWillChange(faces);
             for (unsigned int i = 0; i < faces.size(); i++)
-                faces[i]->setRotation(rotation);
+                faces[i]->rotation = rotation;
             if (m_postNotifications) facesDidChange(faces);
 
             m_undoManager->end();
@@ -567,7 +577,7 @@ namespace TrenchBroom {
             
             if (m_postNotifications) facesWillChange(faces);
             for (unsigned int i = 0; i < faces.size(); i++)
-                faces[i]->setXScale(xScale);
+                faces[i]->xScale = xScale;
             if (m_postNotifications) facesDidChange(faces);
             
             m_undoManager->end();
@@ -582,7 +592,7 @@ namespace TrenchBroom {
             
             if (m_postNotifications) facesWillChange(faces);
             for (unsigned int i = 0; i < faces.size(); i++)
-                faces[i]->setYScale(yScale);
+                faces[i]->yScale = yScale;
             if (m_postNotifications) facesDidChange(faces);
             
             m_undoManager->end();
@@ -597,11 +607,11 @@ namespace TrenchBroom {
             
             if (m_postNotifications) facesWillChange(faces);
             for (unsigned int i = 0; i < faces.size(); i++) {
-                faces[i]->setXOffset(0);
-                faces[i]->setYOffset(0);
-                faces[i]->setXScale(1.0f);
-                faces[i]->setYScale(1.0f);
-                faces[i]->setRotation(0.0f);
+                faces[i]->xOffset = 0.0f;
+                faces[i]->yOffset = 0.0f;
+                faces[i]->rotation = 0.0f;
+                faces[i]->xScale = 0.0f;
+                faces[i]->yScale = 0.0f;
             }
             if (m_postNotifications) facesDidChange(faces);
             
@@ -616,7 +626,7 @@ namespace TrenchBroom {
             bool del = true;
             for (unsigned int i = 0; i < faces.size() && del; i++) {
                 Face* face = faces[i];
-                Brush* brush = face->brush();
+                Brush* brush = face->brush;
                 del &= brush->canDeleteFace(*face);
                 changedBrushes.push_back(brush);
             }
@@ -627,7 +637,7 @@ namespace TrenchBroom {
                 if (m_postNotifications) brushesWillChange(changedBrushes);
                 for (unsigned int i = 0; i < faces.size() && del; i++) {
                     Face* face = faces[i];
-                    Brush* brush = face->brush();
+                    Brush* brush = face->brush;
                     brush->deleteFace(*face);
                 }
                 if (m_postNotifications) brushesDidChange(changedBrushes);

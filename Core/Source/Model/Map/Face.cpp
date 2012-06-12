@@ -22,7 +22,6 @@
 #include <cmath>
 #include "Model/Assets/Texture.h"
 #include "Model/Map/Brush.h"
-#include "Model/Map/BrushGeometry.h"
 #include "Renderer/Vbo.h"
 
 namespace TrenchBroom {
@@ -54,11 +53,11 @@ namespace TrenchBroom {
         void Face::validateTexAxes(const Vec3f& faceNormal) {
             texAxesAndIndices(faceNormal, m_texAxisX, m_texAxisY, m_texPlaneNormIndex, m_texFaceNormIndex);
             
-            Quat rot(m_rotation * Math::Pi / 180, *BaseAxes[m_texPlaneNormIndex]);
+            Quat rot(rotation * Math::Pi / 180, *BaseAxes[m_texPlaneNormIndex]);
             m_texAxisX = rot * m_texAxisX;
             m_texAxisY = rot * m_texAxisY;
-            m_scaledTexAxisX = m_texAxisX / m_xScale;
-            m_scaledTexAxisY = m_texAxisY / m_yScale;
+            m_scaledTexAxisX = m_texAxisX / xScale;
+            m_scaledTexAxisY = m_texAxisY / yScale;
             
             m_texAxesValid = true;
         }
@@ -66,7 +65,7 @@ namespace TrenchBroom {
         
         void Face::compensateTransformation(const Mat4f& transformation) {
             if (!m_texAxesValid)
-                validateTexAxes(m_boundary.normal);
+                validateTexAxes(boundary.normal);
             
             Vec3f newTexAxisX, newTexAxisY, newFaceNorm, newCenter, newBaseAxisX, newBaseAxisY, offset, cross;
             Vec2f curCenterTexCoords, newCenterTexCoords;
@@ -76,17 +75,17 @@ namespace TrenchBroom {
             float radX, radY, rad;
             
             // calculate the current texture coordinates of the face's center
-            curCenter = centerOfVertices(m_side->vertices);
-            curCenterTexCoords.x = (curCenter | m_scaledTexAxisX) + m_xOffset;
-            curCenterTexCoords.y = (curCenter | m_scaledTexAxisY) + m_yOffset;
+            curCenter = centerOfVertices(side->vertices);
+            curCenterTexCoords.x = (curCenter | m_scaledTexAxisX) + xOffset;
+            curCenterTexCoords.y = (curCenter | m_scaledTexAxisY) + yOffset;
             
             // invert the scale of the current texture axes
-            newTexAxisX = m_texAxisX * m_xScale;
-            newTexAxisY = m_texAxisY * m_yScale;
+            newTexAxisX = m_texAxisX * xScale;
+            newTexAxisY = m_texAxisY * yScale;
             
             // project the inversely scaled texture axes onto the boundary plane
             plane.distance = 0;
-            plane.normal = m_boundary.normal;
+            plane.normal = boundary.normal;
             if (BaseAxes[m_texPlaneNormIndex]->x != 0) {
                 newTexAxisX.x = plane.x(newTexAxisX.y, newTexAxisX.z);
                 newTexAxisY.x = plane.x(newTexAxisY.y, newTexAxisY.z);
@@ -101,7 +100,7 @@ namespace TrenchBroom {
             // apply the transformation
             newTexAxisX = transformation * newTexAxisX;
             newTexAxisY = transformation * newTexAxisY;
-            newFaceNorm = transformation * m_boundary.normal;
+            newFaceNorm = transformation * boundary.normal;
             offset = transformation * Null3f;
             newCenter = transformation * curCenter;
             
@@ -150,12 +149,12 @@ namespace TrenchBroom {
             }
             
             // the new scaling factors are the lengths of the transformed texture axes
-            m_xScale = newTexAxisX.length();
-            m_yScale = newTexAxisY.length();
+            xScale = newTexAxisX.length();
+            yScale = newTexAxisY.length();
             
             // normalize the transformed texture axes
-            newTexAxisX /= m_xScale;
-            newTexAxisY /= m_yScale;
+            newTexAxisX /= xScale;
+            newTexAxisY /= yScale;
             
             // WARNING: the texture plane norm is not the rotation axis of the texture (it's always the absolute axis)
             
@@ -171,7 +170,7 @@ namespace TrenchBroom {
                 radY *= -1;
             
             rad = radX;
-            m_rotation = rad * 180 / Math::Pi;
+            rotation = rad * 180 / Math::Pi;
             
             // apply the rotation to the new base axes
             Quat rot(rad, *BaseAxes[newPlaneNormIndex]);
@@ -180,14 +179,14 @@ namespace TrenchBroom {
             
             // the sign of the scaling factors depends on the angle between the new base axis and the new texture axis
             if ((newBaseAxisX | newTexAxisX) < 0)
-                m_xScale *= -1;
+                xScale *= -1;
             if ((newBaseAxisY | newTexAxisY) < 0)
-                m_yScale *= -1;
+                yScale *= -1;
             
             // correct rounding errors
-            m_xScale = Math::fcorrect(m_xScale);
-            m_yScale = Math::fcorrect(m_yScale);
-            m_rotation = Math::fcorrect(m_rotation);
+            xScale = Math::fcorrect(xScale);
+            yScale = Math::fcorrect(yScale);
+            rotation = Math::fcorrect(rotation);
 
             validateTexAxes(newFaceNorm);
             
@@ -197,99 +196,115 @@ namespace TrenchBroom {
             
             // since the center should be invariant, the offsets are determined by the difference of the current and
             // the original texture coordinates of the center
-            m_xOffset = curCenterTexCoords.x - newCenterTexCoords.x;
-            m_yOffset = curCenterTexCoords.y - newCenterTexCoords.y;
+            xOffset = curCenterTexCoords.x - newCenterTexCoords.x;
+            yOffset = curCenterTexCoords.y - newCenterTexCoords.y;
             
-            if (m_texture != NULL) {
-                m_xOffset -= static_cast<int>(Math::fround(m_xOffset / static_cast<float>(m_texture->width))) * static_cast<int>(m_texture->width);
-                m_yOffset -= static_cast<int>(Math::fround(m_yOffset / static_cast<float>(m_texture->height))) * static_cast<int>(m_texture->height);
+            if (texture != NULL) {
+                xOffset -= static_cast<int>(Math::fround(xOffset / static_cast<float>(texture->width))) * static_cast<int>(texture->width);
+                yOffset -= static_cast<int>(Math::fround(yOffset / static_cast<float>(texture->height))) * static_cast<int>(texture->height);
             }
 
             // correct rounding errors
-            m_xOffset = Math::fcorrect(m_xOffset);
-            m_yOffset = Math::fcorrect(m_yOffset);
+            xOffset = Math::fcorrect(xOffset);
+            yOffset = Math::fcorrect(yOffset);
         }
         
+        void Face::validateCoords() {
+            assert(side != NULL);
+            
+            if (!m_texAxesValid)
+                validateTexAxes(boundary.normal);
+
+            EAxis axis = boundary.normal.firstComponent();
+            int width = texture != NULL ? texture->width : 1;
+            int height = texture != NULL ? texture->height : 1;
+            
+            unsigned int vertexCount = side->vertices.size();
+            m_gridCoords.resize(vertexCount);
+            m_texCoords.resize(vertexCount);
+            for (unsigned int i = 0; i < vertexCount; i++) {
+                Vec3f& vertex = side->vertices[i]->position;
+
+                m_texCoords[i].x = ((vertex | m_scaledTexAxisX) + xOffset) / width,
+                m_texCoords[i].y = ((vertex | m_scaledTexAxisY) + yOffset) / height;
+
+                switch (axis) {
+                    case TB_AX_X:
+                        m_gridCoords[i].x = (vertex.y + 0.5f) / 256.0f;
+                        m_gridCoords[i].y = (vertex.z + 0.5f) / 256.0f;
+                    case TB_AX_Y:
+                        m_gridCoords[i].x = (vertex.x + 0.5f) / 256.0f;
+                        m_gridCoords[i].y = (vertex.z + 0.5f) / 256.0f;
+                    default:
+                        m_gridCoords[i].x = (vertex.x + 0.5f) / 256.0f;
+                        m_gridCoords[i].y = (vertex.y + 0.5f) / 256.0f;
+                }
+            }
+            
+            coordsValid = true;
+        }
+
         void Face::init() {
             static int currentId = 1;
-            m_faceId = currentId++;
-            m_brush = NULL;
-            m_texture = NULL;
-            m_vboBlock = NULL;
-            m_filePosition = -1;
-            m_selected = false;
+            faceId = currentId++;
+            brush = NULL;
+            texture = NULL;
+            filePosition = -1;
+            selected = false;
             m_texAxesValid = false;
+            coordsValid = false;
+            
         }
         
-        Face::Face(const BBox& worldBounds, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const std::string& textureName) : m_worldBounds(worldBounds), m_textureName(textureName) {
+        Face::Face(const BBox& worldBounds, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const std::string& textureName) : worldBounds(worldBounds), textureName(textureName) {
             init();
-            m_points[0] = point1;
-            m_points[1] = point2;
-            m_points[2] = point3;
-            m_boundary.setPoints(m_points[0], m_points[1], m_points[2]);
+            points[0] = point1;
+            points[1] = point2;
+            points[2] = point3;
+            boundary.setPoints(points[0], points[1], points[2]);
         }
         
-        Face::Face(const BBox& worldBounds, const Face& faceTemplate) : m_worldBounds(worldBounds) {
+        Face::Face(const BBox& worldBounds, const Face& faceTemplate) : worldBounds(worldBounds) {
             init();
             restore(faceTemplate);
         }
         
         Face::Face(const Face& face) : 
-            m_faceId(face.faceId()), 
-            m_boundary(face.boundary()), 
-            m_worldBounds(face.worldBounds()),
-            m_texture(face.texture()),
-            m_textureName(face.textureName()),
-            m_xOffset(static_cast<float>(face.xOffset())),
-            m_yOffset(static_cast<float>(face.yOffset())),
-            m_xScale(face.xScale()),
-            m_yScale(face.yScale()),
-            m_rotation(face.rotation()),
-            m_side(NULL),
+            faceId(face.faceId), 
+            boundary(face.boundary), 
+            worldBounds(face.worldBounds),
+            texture(face.texture),
+            textureName(face.textureName),
+            xOffset(static_cast<float>(face.xOffset)),
+            yOffset(static_cast<float>(face.yOffset)),
+            xScale(face.xScale),
+            yScale(face.yScale),
+            rotation(face.rotation),
+            side(NULL),
             m_texAxesValid(false),
-            m_filePosition(face.filePosition()),
-            m_selected(false),
-            m_vboBlock(NULL) {
-            face.points(m_points[0], m_points[1], m_points[2]);
+            coordsValid(false),
+            filePosition(face.filePosition),
+            selected(false) {
+            face.getPoints(points[0], points[1], points[2]);
         }
 
-        Face::~Face() {
-            if (m_vboBlock != NULL)
-                m_vboBlock->freeBlock();
-        }
-        
         void Face::restore(const Face& faceTemplate) {
-            faceTemplate.points(m_points[0], m_points[1], m_points[2]);
-            m_boundary = faceTemplate.boundary();
-            m_xOffset = static_cast<float>(faceTemplate.xOffset());
-            m_yOffset = static_cast<float>(faceTemplate.yOffset());
-            m_rotation = faceTemplate.rotation();
-            m_xScale = faceTemplate.xScale();
-            m_yScale = faceTemplate.yScale();
-            setTexture(faceTemplate.texture());
+            faceTemplate.getPoints(points[0], points[1], points[2]);
+            boundary = faceTemplate.boundary;
+            xOffset = faceTemplate.xOffset;
+            yOffset = faceTemplate.yOffset;
+            rotation = faceTemplate.rotation;
+            xScale = faceTemplate.xScale;
+            yScale = faceTemplate.yScale;
+            setTexture(faceTemplate.texture);
             m_texAxesValid = false;
+            coordsValid = false;
         }
         
-        int Face::faceId() const {
-            return m_faceId;
-        }
-        
-        Brush* Face::brush() const {
-            return m_brush;
-        }
-        
-        void Face::setBrush(Brush* brush) {
-            m_brush = brush;
-        }
-        
-        void Face::setSide(Side* side) {
-            m_side = side;
-        }
-        
-        void Face::points(Vec3f& point1, Vec3f& point2, Vec3f& point3) const {
-            point1 = m_points[0];
-            point2 = m_points[1];
-            point3 = m_points[2];
+        void Face::getPoints(Vec3f& point1, Vec3f& point2, Vec3f& point3) const {
+            point1 = points[0];
+            point2 = points[1];
+            point3 = points[2];
         }
 
         void Face::updatePoints() {
@@ -297,15 +312,14 @@ namespace TrenchBroom {
             
             float bestDot = 1;
             int best = -1;
-            std::vector<Vertex*> vertices = this->vertices();
-            size_t vertexCount = vertices.size();
+            size_t vertexCount = side->vertices.size();
             for (unsigned int i = 0; i < vertexCount && bestDot > 0; i++) {
-                m_points[2] = vertices[(i - 1 + vertexCount) % vertexCount]->position;
-                m_points[0] = vertices[i]->position;
-                m_points[1] = vertices[(i + 1) % vertexCount]->position;
+                points[2] = side->vertices[(i - 1 + vertexCount) % vertexCount]->position;
+                points[0] = side->vertices[i]->position;
+                points[1] = side->vertices[(i + 1) % vertexCount]->position;
                 
-                v1 = (m_points[2] - m_points[0]).normalize();
-                v2 = (m_points[1] - m_points[0]).normalize();
+                v1 = (points[2] - points[0]).normalize();
+                v2 = (points[1] - points[0]).normalize();
                 float dot = v1 | v2;
                 if (dot < bestDot) {
                     bestDot = dot;
@@ -315,142 +329,89 @@ namespace TrenchBroom {
             
             assert(best != -1);
             
-            m_points[2] = vertices[(best - 1 + vertexCount) % vertexCount]->position;
-            m_points[0] = vertices[best]->position;
-            m_points[1] = vertices[(best + 1) % vertexCount]->position;
+            points[2] = side->vertices[(best - 1 + vertexCount) % vertexCount]->position;
+            points[0] = side->vertices[best]->position;
+            points[1] = side->vertices[(best + 1) % vertexCount]->position;
             
-            assert(m_boundary.setPoints(m_points[0], m_points[1], m_points[2]));
-        }
-        
-        Vec3f Face::normal() const {
-            return m_boundary.normal;
-        }
-        
-        Plane Face::boundary() const {
-            return m_boundary;
+            assert(boundary.setPoints(points[0], points[1], points[2]));
         }
         
         Vec3f Face::center() const {
-            return centerOfVertices(vertices());
+            return centerOfVertices(side->vertices);
         }
         
-        const BBox& Face::worldBounds() const {
-            return m_worldBounds;
+        const std::vector<Vec2f>& Face::gridCoords() {
+            if (!coordsValid)
+                validateCoords();
+            return m_gridCoords;
         }
         
-        const std::vector<Vertex*>& Face::vertices() const {
-            return m_side->vertices;
-        }
-        
-        const std::vector<Edge*>& Face::edges() const {
-            return m_side->edges;
-        }
-        
-        Assets::Texture* Face::texture() const {
-            return m_texture;
-        }
-        
-        const std::string& Face::textureName() const {
-            return m_textureName;
+        const std::vector<Vec2f>& Face::texCoords() {
+            if (!coordsValid)
+                validateCoords();
+            return m_texCoords;
         }
 
-        void Face::setTexture(Assets::Texture* texture) {
-            if (m_texture != NULL)
-                m_texture->usageCount--;
+        void Face::setTexture(Assets::Texture* aTexture) {
+            if (texture == aTexture)
+                return;
             
-            m_texture = texture;
             if (texture != NULL)
-                m_textureName = texture->name;
+                texture->usageCount--;
             
-            if (m_texture != NULL)
-                m_texture->usageCount++;
+            texture = aTexture;
+            if (texture != NULL)
+                textureName = texture->name;
+            
+            if (texture != NULL)
+                texture->usageCount++;
+            coordsValid = false;
         }
-        
-        int Face::xOffset() const {
-            return static_cast<int>(m_xOffset);
-        }
-        
-        void Face::setXOffset(int xOffset) {
-            m_xOffset = static_cast<float>(xOffset);
-            m_texAxesValid = false;
-        }
-        
-        int Face::yOffset() const {
-            return static_cast<int>(m_yOffset);
-        }
-        
-        void Face::setYOffset(int yOffset) {
-            m_yOffset = static_cast<float>(yOffset);
-            m_texAxesValid = false;
-        }
-        
-        float Face::rotation() const {
-            return m_rotation;
-        }
-        
-        void Face::setRotation(float rotation) {
-            m_rotation = rotation;
-            m_texAxesValid = false;
-        }
-        
-        float Face::xScale() const {
-            return m_xScale;
-        }
-        
-        void Face::setXScale(float xScale) {
-            m_xScale = xScale;
-            m_texAxesValid = false;
-        }
-        
-        float Face::yScale() const {
-            return m_yScale;
-        }
-        
-        void Face::setYScale(float yScale) {
-            m_yScale = yScale;
-            m_texAxesValid = false;
-        }
-        
+
         void Face::translateOffsets(float delta, Vec3f dir) {
             if (!m_texAxesValid)
-                validateTexAxes(m_boundary.normal);
+                validateTexAxes(boundary.normal);
             
             float dotX = dir | m_texAxisX;
             float dotY = dir | m_texAxisY;
             
             if (fabsf(dotX) >= fabsf(dotY)) {
                 if (dotX >= 0)
-                    m_xOffset -= delta;
+                    xOffset -= delta;
                 else
-                    m_xOffset += delta;
+                    xOffset += delta;
             } else {
                 if (dotY >= 0)
-                    m_yOffset -= delta;
+                    yOffset -= delta;
                 else
-                    m_yOffset += delta;
+                    yOffset += delta;
             }
+            
+            coordsValid = false;
         }
         
         void Face::rotateTexture(float angle) {
             if (!m_texAxesValid)
-                validateTexAxes(m_boundary.normal);
+                validateTexAxes(boundary.normal);
             
             if (m_texPlaneNormIndex == m_texFaceNormIndex)
-                m_rotation += angle;
+                rotation += angle;
             else
-                m_rotation -= angle;
+                rotation -= angle;
             m_texAxesValid = false;
+            coordsValid = false;
         }
         
         void Face::translate(Vec3f delta, bool lockTexture) {
             if (lockTexture)
                 compensateTransformation(IdentityM4f.translate(delta));
             
-            m_boundary = m_boundary.translate(delta);
+            boundary = boundary.translate(delta);
             for (unsigned int i = 0; i < 3; i++)
-                m_points[i] += delta;
+                points[i] += delta;
             
             m_texAxesValid = false;
+            coordsValid = false;
         }
         
         void Face::rotate90(EAxis axis, Vec3f center, bool clockwise, bool lockTexture) {
@@ -463,11 +424,12 @@ namespace TrenchBroom {
                 compensateTransformation(t);
             }
             
-            m_boundary = m_boundary.rotate90(axis, center, clockwise);
+            boundary = boundary.rotate90(axis, center, clockwise);
             for (unsigned int i = 0; i < 3; i++)
-                m_points[i] = m_points[i].rotate90(axis, center, clockwise);
+                points[i] = points[i].rotate90(axis, center, clockwise);
             
             m_texAxesValid = false;
+            coordsValid = false;
         }
         
         void Face::rotate(Quat rotation, Vec3f center, bool lockTexture) {
@@ -476,12 +438,13 @@ namespace TrenchBroom {
                 compensateTransformation(t);
             }
             
-            m_boundary = m_boundary.rotate(rotation, center);
+            boundary = boundary.rotate(rotation, center);
             
             for (unsigned int i = 0; i < 3; i++)
-                m_points[i] = rotation * (m_points[i] - center) + center;
+                points[i] = rotation * (points[i] - center) + center;
             
             m_texAxesValid = false;
+            coordsValid = false;
         }
         
         void Face::flip(EAxis axis, Vec3f center, bool lockTexture) {
@@ -505,81 +468,25 @@ namespace TrenchBroom {
                 compensateTransformation(t);
             }
             
-            m_boundary = m_boundary.flip(axis, center);
+            boundary = boundary.flip(axis, center);
             for (unsigned int i = 0; i < 3; i++)
-                m_points[i] = m_points[i].flip(axis, center);
+                points[i] = points[i].flip(axis, center);
             
-            Vec3f t = m_points[1];
-            m_points[1] = m_points[2];
-            m_points[2] = t;
+            Vec3f t = points[1];
+            points[1] = points[2];
+            points[2] = t;
             m_texAxesValid = false;
+            coordsValid = false;
         }
         
         void Face::move(float dist, bool lockTexture) {
-            m_boundary.distance += dist;
-            Vec3f delta = m_boundary.normal * dist;
+            boundary.distance += dist;
+            Vec3f delta = boundary.normal * dist;
             for (unsigned int i = 0; i < 3; i++)
-                m_points[i] += delta;
+                points[i] += delta;
             
             m_texAxesValid = false; 
-        }
-        
-        Vec2f Face::textureCoords(const Vec3f& vertex) {
-            if (!m_texAxesValid)
-                validateTexAxes(m_boundary.normal);
-            
-            Vec2f texCoords;
-            texCoords.x = (vertex | m_scaledTexAxisX) + m_xOffset;
-            texCoords.y = (vertex | m_scaledTexAxisY) + m_yOffset;
-            return texCoords;
-        }
-        
-        Vec2f Face::gridCoords(const Vec3f& vertex) {
-            if (!m_texAxesValid)
-                validateTexAxes(m_boundary.normal);
-            
-            Vec2f gridCoords;
-            switch (m_boundary.normal.firstComponent()) {
-                case TB_AX_X:
-                    gridCoords.x = (vertex.y + 0.5f) / 256;
-                    gridCoords.y = (vertex.z + 0.5f) / 256;
-                    break;
-                case TB_AX_Y:
-                    gridCoords.x = (vertex.x + 0.5f) / 256;
-                    gridCoords.y = (vertex.z + 0.5f) / 256;
-                    break;
-                default:
-                    gridCoords.x = (vertex.x + 0.5f) / 256;
-                    gridCoords.y = (vertex.y + 0.5f) / 256;
-                    break;
-            }
-            return gridCoords;
-        }
-        
-        int Face::filePosition() const {
-            return m_filePosition;
-        }
-        
-        void Face::setFilePosition(int filePosition) {
-            m_filePosition = filePosition;
-        }
-        
-        bool Face::selected() const {
-            return m_selected;
-        }
-        
-        void Face::setSelected(bool selected) {
-            m_selected = selected;
-        }
-        
-        Renderer::VboBlock* Face::vboBlock() const {
-            return m_vboBlock;
-        }
-        
-        void Face::setVboBlock(Renderer::VboBlock* vboBlock) {
-            if (m_vboBlock != NULL)
-                m_vboBlock->freeBlock();
-            m_vboBlock = vboBlock;
+            coordsValid = false;
         }
     }
 }
