@@ -24,6 +24,7 @@
 #include "Model/Map/Entity.h"
 #include "Model/Map/Brush.h"
 #include "Model/Map/Face.h"
+#include "Model/Selection.h"
 #include <cassert>
 
 namespace TrenchBroom {
@@ -78,29 +79,34 @@ namespace TrenchBroom {
         }
         
         void FaceSnapshot::restore(Face& face) {
-            face.xOffset = m_xOffset;
-            face.yOffset = m_yOffset;
-            face.rotation = m_rotation;
-            face.xScale = m_xScale;
-            face.yScale = m_yScale;
+            face.setXOffset(m_xOffset);
+            face.setYOffset(m_yOffset);
+            face.setRotation(m_rotation);
+            face.setXScale(m_xScale);
+            face.setYScale(m_yScale);
             face.setTexture(m_texture);
             if (m_texture == NULL)
                 face.textureName = m_textureName;
         }
 
-        SnapshotUndoItem::SnapshotUndoItem(Map& map) : UndoItem(map) {
-            for (unsigned int i = 0; i < m_selectedEntities.size(); i++) {
-                EntitySnapshot* snapshot = new EntitySnapshot(*m_selectedEntities[i]);
+        SnapshotUndoItem::SnapshotUndoItem(Map& map) : SelectionUndoItem(map) {
+            Selection& selection = m_map.selection();
+            const std::vector<Entity*>& entities = selection.entities();
+            const std::vector<Brush*>& brushes = selection.brushes();
+            const std::vector<Face*>& faces = selection.faces();
+            
+            for (unsigned int i = 0; i < entities.size(); i++) {
+                EntitySnapshot* snapshot = new EntitySnapshot(*entities[i]);
                 m_entities.push_back(snapshot);
             }
             
-            for (unsigned int i = 0; i < m_selectedBrushes.size(); i++) {
-                BrushSnapshot* snapshot = new BrushSnapshot(*m_selectedBrushes[i]);
+            for (unsigned int i = 0; i < brushes.size(); i++) {
+                BrushSnapshot* snapshot = new BrushSnapshot(*brushes[i]);
                 m_brushes.push_back(snapshot);
             }
             
-            for (unsigned int i = 0; i < m_selectedFaces.size(); i++) {
-                FaceSnapshot* snapshot = new FaceSnapshot(*m_selectedFaces[i]);
+            for (unsigned int i = 0; i < faces.size(); i++) {
+                FaceSnapshot* snapshot = new FaceSnapshot(*faces[i]);
                 m_faces.push_back(snapshot);
             }
         }
@@ -112,51 +118,56 @@ namespace TrenchBroom {
         }
         
         void SnapshotUndoItem::performUndo() {
-            assert(m_entities.size() == m_selectedEntities.size());
-            assert(m_brushes.size() == m_selectedBrushes.size());
-            assert(m_faces.size() == m_selectedFaces.size());
+            Selection& selection = m_map.selection();
+            const std::vector<Entity*>& selectedEntities = selection.entities();
+            const std::vector<Brush*>& selectedBrushes = selection.brushes();
+            const std::vector<Face*>& selectedFaces = selection.faces();
+
+            assert(m_entities.size() == selectedEntities.size());
+            assert(m_brushes.size() == selectedBrushes.size());
+            assert(m_faces.size() == selectedFaces.size());
             
             UndoManager& undoManager = m_map.undoManager();
             SnapshotUndoItem* redoItem = new SnapshotUndoItem(m_map);
             undoManager.addItem(redoItem);
             
             if (!m_faces.empty()) {
-                m_map.facesWillChange(m_selectedFaces);
+                m_map.facesWillChange(selectedFaces);
 
                 for (unsigned int i = 0; i < m_faces.size(); i++) {
                     FaceSnapshot* snapshot = m_faces[i];
-                    Face* original = m_selectedFaces[i];
+                    Face* original = selectedFaces[i];
                     assert(snapshot->faceId() == original->faceId);
                     snapshot->restore(*original);
                 }
                 
-                m_map.facesDidChange(m_selectedFaces);
+                m_map.facesDidChange(selectedFaces);
             }
             
             if (!m_brushes.empty()) {
-                m_map.brushesWillChange(m_selectedBrushes);
+                m_map.brushesWillChange(selectedBrushes);
                 
                 for (unsigned int i = 0; i < m_brushes.size(); i++) {
                     BrushSnapshot* snapshot = m_brushes[i];
-                    Brush* original = m_selectedBrushes[i];
+                    Brush* original = selectedBrushes[i];
                     assert(snapshot->uniqueId() == original->uniqueId());
                     snapshot->restore(*original);
                 }
                 
-                m_map.brushesDidChange(m_selectedBrushes);
+                m_map.brushesDidChange(selectedBrushes);
             }
             
             if (!m_entities.empty()) {
-                m_map.propertiesWillChange(m_selectedEntities);
+                m_map.propertiesWillChange(selectedEntities);
                 
                 for (unsigned int i = 0; i < m_entities.size(); i++) {
                     EntitySnapshot* snapshot = m_entities[i];
-                    Entity* original = m_selectedEntities[i];
+                    Entity* original = selectedEntities[i];
                     assert(snapshot->uniqueId() == original->uniqueId());
                     snapshot->restore(*original);
                 }
                 
-                m_map.propertiesDidChange(m_selectedEntities);
+                m_map.propertiesDidChange(selectedEntities);
             }
         }
     }

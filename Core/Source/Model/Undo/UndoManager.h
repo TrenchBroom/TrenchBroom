@@ -93,6 +93,13 @@ namespace TrenchBroom {
                 addItem(undoItem);
             }
             
+            template <typename Arg1, typename Arg2, typename Arg3>
+            void addFunctor(Map& map, void(Map::*function)(Arg1, Arg2, Arg3), Arg1 arg1, Arg2 arg2, Arg3 arg3) {
+                ThreeArgFunctor<Map, Arg1, Arg2, Arg3>* functor = new ThreeArgFunctor<Map, Arg1, Arg2, Arg3>(&map, function, arg1, arg2, arg3);
+                FunctorUndoItem* undoItem = new FunctorUndoItem(map, functor);
+                addItem(undoItem);
+            }
+            
             bool undoStackEmpty();
             bool redoStackEmpty();
             const std::string& topUndoName();

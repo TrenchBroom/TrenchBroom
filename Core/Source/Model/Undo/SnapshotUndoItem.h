@@ -74,7 +74,7 @@ namespace TrenchBroom {
             void restore(Face& face);
         };
         
-        class SnapshotUndoItem : public UndoItem {
+        class SnapshotUndoItem : public SelectionUndoItem {
         protected:
             std::vector<EntitySnapshot*> m_entities;
             std::vector<BrushSnapshot*> m_brushes;

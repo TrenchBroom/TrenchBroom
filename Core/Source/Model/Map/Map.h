@@ -115,6 +115,7 @@ namespace TrenchBroom {
             void rotateObjects(const Quat& rotation, const Vec3f& center, bool lockTextures);
             void flipObjects(EAxis axis, const Vec3f& center, bool lockTextures);
             void deleteObjects();
+            void restoreObjects(std::vector<Entity*> removedEntities, std::map<Brush*, Entity*> removedBrushes, std::map<Brush*, Entity*> movedBrushes);
             
             void setTexture(Model::Assets::Texture* texture);
             void setXOffset(int xOffset);

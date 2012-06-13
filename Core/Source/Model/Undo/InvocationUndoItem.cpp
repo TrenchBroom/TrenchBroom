@@ -22,7 +22,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        FunctorUndoItem::FunctorUndoItem(Map& map, Functor* functor) : UndoItem(map), m_functor(functor) {
+        FunctorUndoItem::FunctorUndoItem(Map& map, Functor* functor) : SelectionUndoItem(map), m_functor(functor) {
         }
         
         FunctorUndoItem::~FunctorUndoItem() {

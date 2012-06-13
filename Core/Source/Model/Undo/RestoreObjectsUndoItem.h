@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CopyUndoItem_h
-#define TrenchBroom_CopyUndoItem_h
+#ifndef TrenchBroom_RestoreObjectsUndoItem_h
+#define TrenchBroom_RestoreObjectsUndoItem_h
 
 #include "Model/Undo/UndoItem.h"
 
@@ -26,17 +26,19 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class Map;
         class Entity;
         class Brush;
         
-        class CopyUndoItem : public UndoItem {
+        class RestoreObjectsUndoItem : public UndoItem {
         protected:
             std::vector<Entity*> m_entities;
             std::vector<Brush*> m_brushes;
         public:
-            CopyUndoItem(Map& map);
-            virtual ~CopyUndoItem();
-            virtual void performUndo();
+            RestoreObjectsUndoItem(Map& map, const std::vector<Entity*>& entities, const std::vector<Brush*>& brushes);
+            virtual ~RestoreObjectsUndoItem() {}
+            
+            virtual void undo();
         };
     }
 }

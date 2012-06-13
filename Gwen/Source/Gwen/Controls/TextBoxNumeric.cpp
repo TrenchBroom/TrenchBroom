@@ -37,7 +37,7 @@ namespace Gwen
                         return false;
                     
                     // Can only be one
-                    if ( std::count( strString.begin(), strString.end(), L'-' ) > 0 )
+                    if ( std::count( strString.begin(), strString.end(), L'-' ) > 1 )
                         return false;
                     
                     continue;

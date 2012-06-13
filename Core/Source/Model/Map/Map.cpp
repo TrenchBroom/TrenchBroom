@@ -440,19 +440,24 @@ namespace TrenchBroom {
         }
 
         void Map::deleteObjects() {
-            const std::vector<Entity*>& entities = m_selection->entities();
-            const std::vector<Brush*>& brushes = m_selection->brushes();
+            const std::vector<Entity*> entities = m_selection->entities();
+            const std::vector<Brush*> brushes = m_selection->brushes();
 
-            std::vector<Entity*> removedEntities;
+            typedef std::vector<Entity*> EList;
+            typedef std::map<Brush*, Entity*> BMap;
+            
+            EList removedEntities;
+            BMap removedBrushes;
+            BMap movedBrushes;
             if (!brushes.empty()) {
-                std::vector<Brush*> removedBrushes = brushes;
-                if (m_postNotifications) brushesWillBeRemoved(removedBrushes);
-                m_selection->removeBrushes(removedBrushes);
+                m_selection->removeBrushes(brushes);
+                if (m_postNotifications) brushesWillBeRemoved(brushes);
+
                 for (unsigned int i = 0; i < removedBrushes.size(); i++) {
-                    Brush* brush = removedBrushes[i];
+                    Brush* brush = brushes[i];
                     Entity* entity = brush->entity;
                     entity->removeBrush(brush);
-                    delete brush;
+                    removedBrushes[brush] = entity;
 
                     if (entity->brushes().empty() && !entity->worldspawn())
                         removedEntities.push_back(entity);
@@ -463,19 +468,32 @@ namespace TrenchBroom {
                 for (unsigned int i = 0; i < entities.size(); i++) {
                     Entity* entity = entities[i];
                     if (!entity->worldspawn()) {
-                        worldspawn(true)->addBrushes(entity->brushes());
+                        const std::vector<Brush*> entityBrushes = entity->brushes();
+                        for (unsigned int j = 0; j < entityBrushes.size(); j++)
+                            movedBrushes[entityBrushes[j]] = entity;
+                        worldspawn(true)->addBrushes(entityBrushes);
+                        
                         if (find(removedEntities.begin(), removedEntities.end(), entity) == removedEntities.end())
                             removedEntities.push_back(entity);
                     }
                 }
 
-                if (m_postNotifications) entitiesWillBeRemoved(removedEntities);
                 m_selection->removeEntities(removedEntities);
+                if (m_postNotifications) entitiesWillBeRemoved(removedEntities);
                 for (unsigned int i = 0; i < removedEntities.size(); i++) {
-                    remove(m_entities.begin(), m_entities.end(), removedEntities[i]);
-                    delete removedEntities[i];
+                    std::vector<Entity*>::iterator it = find(m_entities.begin(), m_entities.end(), removedEntities[i]);
+                    if (it != m_entities.end())
+                        m_entities.erase(it);
                 }
             }
+            
+            m_undoManager->begin("Delete Objects");
+            m_undoManager->addFunctor<EList, BMap, BMap>(*this, &Map::restoreObjects, removedEntities, removedBrushes, movedBrushes);
+            m_undoManager->end();
+        }
+
+        void Map::restoreObjects(std::vector<Entity*> removedEntities, std::map<Brush*, Entity*> removedBrushes, std::map<Brush*, Entity*> movedBrushes) {
+            
         }
 
         void Map::setTexture(Model::Assets::Texture* texture) {
@@ -502,7 +520,7 @@ namespace TrenchBroom {
             
             if (m_postNotifications) facesWillChange(faces);
             for (unsigned int i = 0; i < faces.size(); i++)
-                faces[i]->xOffset = xOffset;
+                faces[i]->setXOffset(xOffset);
             if (m_postNotifications) facesDidChange(faces);
             
             m_undoManager->end();
@@ -517,7 +535,7 @@ namespace TrenchBroom {
 
             if (m_postNotifications) facesWillChange(faces);
             for (unsigned int i = 0; i < faces.size(); i++)
-                faces[i]->yOffset = yOffset;
+                faces[i]->setYOffset(yOffset);
             if (m_postNotifications) facesDidChange(faces);
 
             m_undoManager->end();
@@ -547,7 +565,7 @@ namespace TrenchBroom {
 
             if (m_postNotifications) facesWillChange(faces);
             for (unsigned int i = 0; i < faces.size(); i++)
-                faces[i]->rotation = rotation;
+                faces[i]->setRotation(rotation);
             if (m_postNotifications) facesDidChange(faces);
 
             m_undoManager->end();
@@ -577,7 +595,7 @@ namespace TrenchBroom {
             
             if (m_postNotifications) facesWillChange(faces);
             for (unsigned int i = 0; i < faces.size(); i++)
-                faces[i]->xScale = xScale;
+                faces[i]->setXScale(xScale);
             if (m_postNotifications) facesDidChange(faces);
             
             m_undoManager->end();
@@ -592,7 +610,7 @@ namespace TrenchBroom {
             
             if (m_postNotifications) facesWillChange(faces);
             for (unsigned int i = 0; i < faces.size(); i++)
-                faces[i]->yScale = yScale;
+                faces[i]->setYScale(yScale);
             if (m_postNotifications) facesDidChange(faces);
             
             m_undoManager->end();
@@ -607,11 +625,11 @@ namespace TrenchBroom {
             
             if (m_postNotifications) facesWillChange(faces);
             for (unsigned int i = 0; i < faces.size(); i++) {
-                faces[i]->xOffset = 0.0f;
-                faces[i]->yOffset = 0.0f;
-                faces[i]->rotation = 0.0f;
-                faces[i]->xScale = 0.0f;
-                faces[i]->yScale = 0.0f;
+                faces[i]->setXOffset(0.0f);
+                faces[i]->setYOffset(0.0f);
+                faces[i]->setRotation(0.0f);
+                faces[i]->setXScale(1.0f);
+                faces[i]->setYScale(1.0f);
             }
             if (m_postNotifications) facesDidChange(faces);
             

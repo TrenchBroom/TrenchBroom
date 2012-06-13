@@ -17,19 +17,25 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CopyUndoItem.h"
+#include "RestoreObjectsUndoItem.h"
+
+#include "Model/Selection.h"
 
 namespace TrenchBroom {
     namespace Model {
-        CopyUndoItem::CopyUndoItem(Map& map) : UndoItem(map) {
+        RestoreObjectsUndoItem::RestoreObjectsUndoItem(Map& map, const std::vector<Entity*>& entities, const std::vector<Brush*>& brushes) : UndoItem(map), m_entities(entities), m_brushes(brushes) {}
+        
+        void RestoreObjectsUndoItem::undo() {
+            Selection& selection = m_map.selection();
+            selection.removeAll();
             
-        }
-        
-        CopyUndoItem::~CopyUndoItem() {
-        }
-        
-        void CopyUndoItem::performUndo() {
+            for (unsigned int i = 0; i < m_entities.size(); i++) {
+                Entity* entity = m_entities[i];
+                m_map.addEntity(entity);
+            }
+            
+            for (unsigned int i = 0; i < m_brushes.size(); i++) {
+            }
         }
     }
 }
-

@@ -44,7 +44,6 @@ namespace TrenchBroom {
             Vec3f m_texAxisY;
             Vec3f m_scaledTexAxisX;
             Vec3f m_scaledTexAxisY;
-            bool m_texAxesValid;
             
             std::vector<Vec2f> m_gridCoords;
             std::vector<Vec2f> m_texCoords;
@@ -64,18 +63,25 @@ namespace TrenchBroom {
             
             std::string textureName;
             Assets::Texture* texture;
-            void setTexture(Assets::Texture* aTexture);
             float xOffset;
             float yOffset;
             float rotation;
             float xScale;
             float yScale;
-            
+
+            void setTexture(Assets::Texture* aTexture);
+            void setXOffset(float aXOffset);
+            void setYOffset(float aYOffset);
+            void setRotation(float aRotation);
+            void setXScale(float aXScale);
+            void setYScale(float aYScale);
+
             Side* side;
             
             int filePosition;
             bool selected;
             bool coordsValid;
+            bool texAxesValid;
 
             Face(const BBox& worldBounds, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const std::string& textureName);
             Face(const BBox& worldBounds, const Face& faceTemplate);
@@ -88,7 +94,7 @@ namespace TrenchBroom {
             Vec3f center() const;
             const std::vector<Vec2f>& gridCoords();
             const std::vector<Vec2f>& texCoords();
-            
+
             void translateOffsets(float delta, Vec3f dir);
             void rotateTexture(float angle);
             void translate(Vec3f delta, bool lockTexture);

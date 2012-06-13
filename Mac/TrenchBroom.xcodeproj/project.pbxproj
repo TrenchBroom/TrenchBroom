@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		4800C49B156A303000991875 /* ButtonStrip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4800C49A156A303000991875 /* ButtonStrip.cpp */; };
+		48057D16158795F6009CB752 /* RestoreObjectsUndoItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48057D15158795F6009CB752 /* RestoreObjectsUndoItem.cpp */; };
+		48057D181587A578009CB752 /* UndoItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48057D171587A578009CB752 /* UndoItem.cpp */; };
 		480963D8157421EB0091C481 /* Splitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480963D6157421EA0091C481 /* Splitter.cpp */; };
 		480963DB1574AB5A0091C481 /* EntityPropertyTableControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480963DA1574AB5A0091C481 /* EntityPropertyTableControl.cpp */; };
 		480ED5311549C7E4003CA78F /* MacPreferences.mm in Sources */ = {isa = PBXBuildFile; fileRef = 480ED5301549C7E4003CA78F /* MacPreferences.mm */; };
@@ -129,7 +131,6 @@
 		485395E2155EE59300636357 /* DragTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 485395E1155EE59300636357 /* DragTool.cpp */; };
 		485395E5155EE5ED00636357 /* DragPlane.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 485395E4155EE5ED00636357 /* DragPlane.cpp */; };
 		485395EA155FB69300636357 /* InvocationUndoItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 485395E9155FB69300636357 /* InvocationUndoItem.cpp */; };
-		485395EC155FBD3F00636357 /* UndoItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 485395EB155FBD3F00636357 /* UndoItem.cpp */; };
 		485395EF155FC16800636357 /* UndoManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 485395EE155FC16800636357 /* UndoManager.cpp */; };
 		4856B01615659BB7004272EF /* libfreeimage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4856B01515659BB7004272EF /* libfreeimage.a */; };
 		4856B01815659BC2004272EF /* libfreetype.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4856B01715659BC2004272EF /* libfreetype.a */; };
@@ -139,7 +140,6 @@
 		486571BE157C117900698829 /* MacFileManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 486571BD157C117900698829 /* MacFileManager.mm */; };
 		486571CA157E78D400698829 /* DragTextureTargetTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486571C9157E78D400698829 /* DragTextureTargetTool.cpp */; };
 		486571D21582860800698829 /* EntityFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486571D11582860700698829 /* EntityFigure.cpp */; };
-		486571E41584C02A00698829 /* CopyUndoItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486571E31584C02900698829 /* CopyUndoItem.cpp */; };
 		48886BA51545FE0A006A781B /* EditorHolder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48886BA41545FE09006A781B /* EditorHolder.mm */; };
 		488E65B6156301F300B4E72A /* PositioningGuideFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488E65B5156301F300B4E72A /* PositioningGuideFigure.cpp */; };
 		488E65E51563C6A600B4E72A /* Inspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488E65E41563C6A600B4E72A /* Inspector.cpp */; };
@@ -170,6 +170,9 @@
 /* Begin PBXFileReference section */
 		4800C498156A302000991875 /* ButtonStrip.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ButtonStrip.h; sourceTree = "<group>"; };
 		4800C49A156A303000991875 /* ButtonStrip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ButtonStrip.cpp; sourceTree = "<group>"; };
+		48057D13158795E1009CB752 /* RestoreObjectsUndoItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RestoreObjectsUndoItem.h; sourceTree = "<group>"; };
+		48057D15158795F6009CB752 /* RestoreObjectsUndoItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RestoreObjectsUndoItem.cpp; sourceTree = "<group>"; };
+		48057D171587A578009CB752 /* UndoItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UndoItem.cpp; sourceTree = "<group>"; };
 		480963D6157421EA0091C481 /* Splitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Splitter.cpp; sourceTree = "<group>"; };
 		480963D7157421EA0091C481 /* Splitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Splitter.h; sourceTree = "<group>"; };
 		480963D91574AB3F0091C481 /* EntityPropertyTableControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityPropertyTableControl.h; sourceTree = "<group>"; };
@@ -447,7 +450,6 @@
 		485395E7155FB59500636357 /* UndoItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UndoItem.h; sourceTree = "<group>"; };
 		485395E8155FB5ED00636357 /* InvocationUndoItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InvocationUndoItem.h; sourceTree = "<group>"; };
 		485395E9155FB69300636357 /* InvocationUndoItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InvocationUndoItem.cpp; sourceTree = "<group>"; };
-		485395EB155FBD3F00636357 /* UndoItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UndoItem.cpp; sourceTree = "<group>"; };
 		485395ED155FC15000636357 /* UndoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UndoManager.h; sourceTree = "<group>"; };
 		485395EE155FC16800636357 /* UndoManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UndoManager.cpp; sourceTree = "<group>"; };
 		4856B01515659BB7004272EF /* libfreeimage.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreeimage.a; path = Lib/libfreeimage.a; sourceTree = "<group>"; };
@@ -464,8 +466,6 @@
 		486571C9157E78D400698829 /* DragTextureTargetTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragTextureTargetTool.cpp; sourceTree = "<group>"; };
 		486571CF158285FC00698829 /* EntityFigure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityFigure.h; sourceTree = "<group>"; };
 		486571D11582860700698829 /* EntityFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityFigure.cpp; sourceTree = "<group>"; };
-		486571E21584C01F00698829 /* CopyUndoItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CopyUndoItem.h; sourceTree = "<group>"; };
-		486571E31584C02900698829 /* CopyUndoItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CopyUndoItem.cpp; sourceTree = "<group>"; };
 		48886BA31545FE09006A781B /* EditorHolder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorHolder.h; sourceTree = "<group>"; };
 		48886BA41545FE09006A781B /* EditorHolder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EditorHolder.mm; sourceTree = "<group>"; };
 		48891461157E299C00687915 /* DragTargetTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragTargetTool.h; sourceTree = "<group>"; };
@@ -969,16 +969,16 @@
 		485395E6155FB57C00636357 /* Undo */ = {
 			isa = PBXGroup;
 			children = (
-				486571E31584C02900698829 /* CopyUndoItem.cpp */,
-				486571E21584C01F00698829 /* CopyUndoItem.h */,
 				485395E9155FB69300636357 /* InvocationUndoItem.cpp */,
 				485395E8155FB5ED00636357 /* InvocationUndoItem.h */,
+				48057D15158795F6009CB752 /* RestoreObjectsUndoItem.cpp */,
+				48057D13158795E1009CB752 /* RestoreObjectsUndoItem.h */,
 				48953FDE15679B92006DD2E3 /* SnapshotUndoItem.cpp */,
 				48953FDC15679B7C006DD2E3 /* SnapshotUndoItem.h */,
+				48057D171587A578009CB752 /* UndoItem.cpp */,
 				485395E7155FB59500636357 /* UndoItem.h */,
-				485395EB155FBD3F00636357 /* UndoItem.cpp */,
-				485395ED155FC15000636357 /* UndoManager.h */,
 				485395EE155FC16800636357 /* UndoManager.cpp */,
+				485395ED155FC15000636357 /* UndoManager.h */,
 			);
 			path = Undo;
 			sourceTree = "<group>";
@@ -1286,7 +1286,6 @@
 				485395E2155EE59300636357 /* DragTool.cpp in Sources */,
 				485395E5155EE5ED00636357 /* DragPlane.cpp in Sources */,
 				485395EA155FB69300636357 /* InvocationUndoItem.cpp in Sources */,
-				485395EC155FBD3F00636357 /* UndoItem.cpp in Sources */,
 				485395EF155FC16800636357 /* UndoManager.cpp in Sources */,
 				488E65B6156301F300B4E72A /* PositioningGuideFigure.cpp in Sources */,
 				488E65E51563C6A600B4E72A /* Inspector.cpp in Sources */,
@@ -1305,8 +1304,9 @@
 				486571CA157E78D400698829 /* DragTextureTargetTool.cpp in Sources */,
 				484299EF158236330069BC97 /* DragEntityTargetTool.cpp in Sources */,
 				486571D21582860800698829 /* EntityFigure.cpp in Sources */,
-				486571E41584C02A00698829 /* CopyUndoItem.cpp in Sources */,
 				48E23D991586842C0028DEFB /* VecMath.cpp in Sources */,
+				48057D16158795F6009CB752 /* RestoreObjectsUndoItem.cpp in Sources */,
+				48057D181587A578009CB752 /* UndoItem.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

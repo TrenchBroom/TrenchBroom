@@ -59,12 +59,12 @@ namespace TrenchBroom {
             m_scaledTexAxisX = m_texAxisX / xScale;
             m_scaledTexAxisY = m_texAxisY / yScale;
             
-            m_texAxesValid = true;
+            texAxesValid = true;
         }
         
         
         void Face::compensateTransformation(const Mat4f& transformation) {
-            if (!m_texAxesValid)
+            if (!texAxesValid)
                 validateTexAxes(boundary.normal);
             
             Vec3f newTexAxisX, newTexAxisY, newFaceNorm, newCenter, newBaseAxisX, newBaseAxisY, offset, cross;
@@ -212,7 +212,7 @@ namespace TrenchBroom {
         void Face::validateCoords() {
             assert(side != NULL);
             
-            if (!m_texAxesValid)
+            if (!texAxesValid)
                 validateTexAxes(boundary.normal);
 
             EAxis axis = boundary.normal.firstComponent();
@@ -251,7 +251,7 @@ namespace TrenchBroom {
             texture = NULL;
             filePosition = -1;
             selected = false;
-            m_texAxesValid = false;
+            texAxesValid = false;
             coordsValid = false;
             
         }
@@ -281,7 +281,7 @@ namespace TrenchBroom {
             yScale(face.yScale),
             rotation(face.rotation),
             side(NULL),
-            m_texAxesValid(false),
+            texAxesValid(false),
             coordsValid(false),
             filePosition(face.filePosition),
             selected(false) {
@@ -297,7 +297,7 @@ namespace TrenchBroom {
             xScale = faceTemplate.xScale;
             yScale = faceTemplate.yScale;
             setTexture(faceTemplate.texture);
-            m_texAxesValid = false;
+            texAxesValid = false;
             coordsValid = false;
         }
         
@@ -368,8 +368,51 @@ namespace TrenchBroom {
             coordsValid = false;
         }
 
+        void Face::setXOffset(float aXOffset) {
+            if (xOffset == aXOffset)
+                return;
+            
+            xOffset = aXOffset;
+            coordsValid = false;
+        }
+        
+        void Face::setYOffset(float aYOffset) {
+            if (yOffset == aYOffset)
+                return;
+            
+            yOffset = aYOffset;
+            coordsValid = false;
+        }
+        
+        void Face::setRotation(float aRotation) {
+            if (rotation == aRotation)
+                return;
+            
+            rotation = aRotation;
+            texAxesValid = false;
+            coordsValid = false;
+        }
+        
+        void Face::setXScale(float aXScale) {
+            if (xScale == aXScale)
+                return;
+            
+            xScale = aXScale;
+            texAxesValid = false;
+            coordsValid = false;
+        }
+        
+        void Face::setYScale(float aYScale) {
+            if (yScale == aYScale)
+                return;
+            
+            yScale = aYScale;
+            texAxesValid = false;
+            coordsValid = false;
+        }
+
         void Face::translateOffsets(float delta, Vec3f dir) {
-            if (!m_texAxesValid)
+            if (!texAxesValid)
                 validateTexAxes(boundary.normal);
             
             float dotX = dir | m_texAxisX;
@@ -391,14 +434,14 @@ namespace TrenchBroom {
         }
         
         void Face::rotateTexture(float angle) {
-            if (!m_texAxesValid)
+            if (!texAxesValid)
                 validateTexAxes(boundary.normal);
             
             if (m_texPlaneNormIndex == m_texFaceNormIndex)
                 rotation += angle;
             else
                 rotation -= angle;
-            m_texAxesValid = false;
+            texAxesValid = false;
             coordsValid = false;
         }
         
@@ -410,7 +453,7 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < 3; i++)
                 points[i] += delta;
             
-            m_texAxesValid = false;
+            texAxesValid = false;
             coordsValid = false;
         }
         
@@ -428,7 +471,7 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < 3; i++)
                 points[i] = points[i].rotate90(axis, center, clockwise);
             
-            m_texAxesValid = false;
+            texAxesValid = false;
             coordsValid = false;
         }
         
@@ -443,7 +486,7 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < 3; i++)
                 points[i] = rotation * (points[i] - center) + center;
             
-            m_texAxesValid = false;
+            texAxesValid = false;
             coordsValid = false;
         }
         
@@ -475,7 +518,7 @@ namespace TrenchBroom {
             Vec3f t = points[1];
             points[1] = points[2];
             points[2] = t;
-            m_texAxesValid = false;
+            texAxesValid = false;
             coordsValid = false;
         }
         
@@ -485,7 +528,7 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < 3; i++)
                 points[i] += delta;
             
-            m_texAxesValid = false; 
+            texAxesValid = false; 
             coordsValid = false;
         }
     }

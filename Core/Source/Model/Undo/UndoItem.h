@@ -32,13 +32,21 @@ namespace TrenchBroom {
         class UndoItem {
         protected:
             Map& m_map;
+        public:
+            UndoItem(Map& map) : m_map(map) {}
+            virtual ~UndoItem() {}
+            virtual void undo() = 0;
+        };
+        
+        class SelectionUndoItem : public UndoItem {
+        protected:
             std::vector<Entity*> m_selectedEntities;
             std::vector<Brush*> m_selectedBrushes;
             std::vector<Face*> m_selectedFaces;
         public:
-            UndoItem(Map& map);
-            virtual ~UndoItem() {};
-            void undo();
+            SelectionUndoItem(Map& map);
+            virtual ~SelectionUndoItem() {}
+            virtual void undo();
             virtual void performUndo() = 0;
         };
     }

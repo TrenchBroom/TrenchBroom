@@ -93,13 +93,14 @@ namespace Gwen
             if ( f > m_fMax ) f = m_fMax;
             if ( f < m_fMin ) f = m_fMin;
 
+            m_bHasValue = true;
+
             if ( m_fNumber == f )
             {
                 return;
             }
 
             m_fNumber = f;
-            m_bHasValue = true;
 
             // Don't update the text if we're typing in it..
             // Undone - any reason why not?

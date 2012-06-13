@@ -26,15 +26,16 @@
 
 namespace TrenchBroom {
     namespace Model {
-        UndoItem::UndoItem(Map& map) : m_map(map) {
+        SelectionUndoItem::SelectionUndoItem(Map& map) : UndoItem(map) {
             Selection& selection = m_map.selection();
             m_selectedEntities = selection.entities();
             m_selectedBrushes = selection.brushes();
             m_selectedFaces = selection.faces();
         }
 
-        void UndoItem::undo() {
+        void SelectionUndoItem::undo() {
             Selection& selection = m_map.selection();
+            
             selection.removeAll();
             selection.addEntities(m_selectedEntities);
             selection.addBrushes(m_selectedBrushes);
