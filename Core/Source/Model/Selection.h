@@ -46,12 +46,12 @@ namespace TrenchBroom {
         class SelectionEventData {
         public:
             std::vector<Entity*> entities;
-            std::vector<Brush*> brushes;
-            std::vector<Face*> faces;
+            BrushList brushes;
+            FaceList faces;
             SelectionEventData() {};
             SelectionEventData(const std::vector<Entity*>& entities) : entities(entities) {}
-            SelectionEventData(const std::vector<Brush*>& brushes) : brushes(brushes) {}
-            SelectionEventData(const std::vector<Face*>& faces) : faces(faces) {}
+            SelectionEventData(const BrushList& brushes) : brushes(brushes) {}
+            SelectionEventData(const FaceList& faces) : faces(faces) {}
             SelectionEventData(Entity& entity) { entities.push_back(&entity); }
             SelectionEventData(Brush& brush) { brushes.push_back(&brush); }
             SelectionEventData(Face& face) { faces.push_back(&face); }
@@ -59,9 +59,9 @@ namespace TrenchBroom {
         
         class Selection {
         private:
-            std::vector<Face*> m_faces;
-            std::vector<Brush*> m_brushes;
-            std::vector<Brush*> m_partialBrushes;
+            FaceList m_faces;
+            BrushList m_brushes;
+            BrushList m_partialBrushes;
             std::vector<Entity*> m_entities;
             std::vector<Assets::Texture*> m_mruTextures;
             ESelectionMode m_mode;
@@ -74,11 +74,11 @@ namespace TrenchBroom {
             ESelectionMode mode() const;
             bool empty() const;
             const std::vector<Assets::Texture*>& mruTextures() const;
-            const std::vector<Face*>& faces() const;
-            const std::vector<Face*> brushFaces() const;
-            const std::vector<Face*> allFaces() const;
-            const std::vector<Brush*>& brushes() const;
-            const std::vector<Brush*>& partialBrushes() const;
+            const FaceList& faces() const;
+            const FaceList brushFaces() const;
+            const FaceList allFaces() const;
+            const BrushList& brushes() const;
+            const BrushList& partialBrushes() const;
             const std::vector<Entity*>& entities() const;
             const Entity* brushSelectionEntity() const;
             Vec3f center() const;
@@ -86,16 +86,16 @@ namespace TrenchBroom {
             
             void addTexture(Assets::Texture& texture);
             void addFace(Face& face);
-            void addFaces(const std::vector<Face*>& faces);
+            void addFaces(const FaceList& faces);
             void addBrush(Brush& brush);
-            void addBrushes(const std::vector<Brush*>& brushes);
+            void addBrushes(const BrushList& brushes);
             void addEntity(Entity& entity);
             void addEntities(const std::vector<Entity*>& entities);
             
             void removeFace(Face& face);
-            void removeFaces(const std::vector<Face*>& faces);
+            void removeFaces(const FaceList& faces);
             void removeBrush(Brush& brush);
-            void removeBrushes(const std::vector<Brush*>& brushes);
+            void removeBrushes(const BrushList& brushes);
             void removeEntity(Entity& entity);
             void removeEntities(const std::vector<Entity*>& entities);
             void removeAll();

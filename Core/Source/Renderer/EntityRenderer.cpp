@@ -20,6 +20,7 @@
 #include "EntityRenderer.h"
 
 #include "Model/Map/Entity.h"
+#include "GL/GLee.h"
 
 namespace TrenchBroom {
     namespace Renderer {

@@ -23,7 +23,10 @@
 #include <vector>
 #include "Utilities/Event.h"
 #include "Utilities/VecMath.h"
+#include "Model/Map/BrushTypes.h"
+#include "Model/Map/EntityTypes.h"
 #include "Model/Map/EntityDefinition.h"
+#include "Model/Map/FaceTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -61,8 +64,8 @@ namespace TrenchBroom {
             bool m_postNotifications;
         public:
             typedef Event<const std::vector<Entity*>&> EntityEvent;
-            typedef Event<const std::vector<Brush*>&> BrushEvent;
-            typedef Event<const std::vector<Face*>&> FaceEvent;
+            typedef Event<const BrushList&> BrushEvent;
+            typedef Event<const FaceList&> FaceEvent;
             typedef Event<Map&> MapEvent;
             typedef Event<Map&> PointFileEvent;
             EntityEvent entitiesWereAdded;
@@ -95,7 +98,7 @@ namespace TrenchBroom {
             Entity* worldspawn(bool create);
             void addEntity(Entity* entity);
             Entity* createEntity(const std::string& classname);
-            Entity* createEntity(const std::map<std::string, std::string> properties);
+            Entity* createEntity(const Properties properties);
             void setEntityDefinition(Entity* entity);
             void setEntityProperty(const std::string& key, const std::string* value);
             void setEntityProperty(const std::string& key, const Vec3f& value, bool round);
@@ -107,9 +110,9 @@ namespace TrenchBroom {
             Brush* createBrush(Entity& entity, Brush& brushTemplate);
             Brush* createBrush(Entity& entity, BBox bounds, Assets::Texture& texture);
             void snapBrushes();
-            bool resizeBrushes(std::vector<Face*>& faces, float delta, bool lockTextures);
+            bool resizeBrushes(FaceList& faces, float delta, bool lockTextures);
             
-            void duplicateObjects(std::vector<Entity*>& newEntities, std::vector<Brush*>& newBrushes);
+            void duplicateObjects(std::vector<Entity*>& newEntities, BrushList& newBrushes);
             void translateObjects(const Vec3f delta, bool lockTextures);
             void rotateObjects90(EAxis axis, const Vec3f& center, bool clockwise, bool lockTextures);
             void rotateObjects(const Quat& rotation, const Vec3f& center, bool lockTextures);

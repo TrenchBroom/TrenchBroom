@@ -23,11 +23,10 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "Model/Map/Brush.h"
+#include "Model/Map/BrushTypes.h"
 #include "Model/Map/EntityDefinition.h"
-#include "Model/Map/Map.h"
+#include "Model/Map/EntityTypes.h"
 #include "Model/Map/MapObject.h"
-#include "Renderer/Vbo.h"
 #include "Utilities/VecMath.h"
 
 namespace TrenchBroom {
@@ -58,20 +57,19 @@ namespace TrenchBroom {
             mutable bool m_geometryValid;
             
             Map* m_map;
-            std::vector<Brush*> m_brushes;
+            BrushList m_brushes;
             
-            std::map<std::string, std::string> m_properties;
+            Properties m_properties;
             
             int m_filePosition;
             bool m_selected;
-            Renderer::VboBlock* m_vboBlock;
             
             void init();
             void validateGeometry() const;
             void invalidateGeometry();
         public:
             Entity();
-            Entity(const std::map<std::string, std::string>& properties);
+            Entity(const Properties& properties);
             ~Entity();
             
             EMapObjectType objectType() const;
@@ -86,30 +84,30 @@ namespace TrenchBroom {
 
             Map* quakeMap() const;
             void setMap(Map* quakeMap);
-            const std::vector<Brush*>& brushes() const;
+            const BrushList& brushes() const;
             
-            const std::map<std::string, std::string>& properties() const;
-            const std::string* propertyForKey(const std::string& key) const;
-            bool propertyWritable(const std::string& key) const;
-            bool propertyDeletable(const std::string& key) const;
-            void setProperty(const std::string& key, const std::string& value);
-            void setProperty(const std::string& key, const std::string* value);
-            void setProperty(const std::string& key, const Vec3f& value, bool round);
-            void setProperty(const std::string& key, int value);
-            void setProperty(const std::string& key, float value, bool round);
-            void setProperties(const std::map<std::string, std::string>& properties, bool replace);
-            void deleteProperty(const std::string& key);
+            const Properties& properties() const;
+            const PropertyValue* propertyForKey(const PropertyKey& key) const;
+            bool propertyWritable(const PropertyKey& key) const;
+            bool propertyDeletable(const PropertyKey& key) const;
+            void setProperty(const PropertyKey& key, const PropertyValue& value);
+            void setProperty(const PropertyKey& key, const PropertyValue* value);
+            void setProperty(const PropertyKey& key, const Vec3f& value, bool round);
+            void setProperty(const PropertyKey& key, int value);
+            void setProperty(const PropertyKey& key, float value, bool round);
+            void setProperties(const Properties& properties, bool replace);
+            void deleteProperty(const PropertyKey& key);
             
-            const std::string* classname() const;
+            const PropertyValue* classname() const;
             const int angle() const;
             bool worldspawn() const;
             bool group() const;
             
             void addBrush(Brush* brush);
-            void addBrushes(const std::vector<Brush*>& brushes);
+            void addBrushes(const BrushList& brushes);
             void brushChanged(Brush* brush);
             void removeBrush(Brush* brush);
-            void removeBrushes(std::vector<Brush*>& brushes);
+            void removeBrushes(BrushList& brushes);
             
             void translate(const Vec3f& delta);
             void rotate90(EAxis axis, const Vec3f& rotationCenter, bool clockwise);

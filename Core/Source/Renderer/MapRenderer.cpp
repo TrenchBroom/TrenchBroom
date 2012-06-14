@@ -24,9 +24,9 @@
 
 #include "Model/Map/Brush.h"
 #include "Model/Map/BrushGeometry.h"
+#include "Model/Map/Face.h"
 #include "Model/Map/Entity.h"
 #include "Model/Map/EntityDefinition.h"
-#include "Model/Map/Face.h"
 #include "Model/Map/Map.h"
 #include "Model/Preferences.h"
 #include "Model/Selection.h"
@@ -375,7 +375,7 @@ namespace TrenchBroom {
                 if (renderer != NULL)
                     m_entityRenderers[entity] = renderer;
                 
-                const std::string& classname = *entity->classname();
+                const Model::PropertyValue& classname = *entity->classname();
                 EntityClassnameAnchor* anchor = new EntityClassnameAnchor(*entity);
                 TextRenderer::AnchorPtr anchorPtr(anchor);
                 m_classnameRenderer->addString(entity->uniqueId(), classname, descriptor, anchorPtr);

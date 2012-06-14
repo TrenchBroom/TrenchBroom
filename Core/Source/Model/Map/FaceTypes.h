@@ -17,21 +17,16 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_BrushGeometryTypes_h
-#define TrenchBroom_BrushGeometryTypes_h
+#ifndef TrenchBroom_FaceTypes_h
+#define TrenchBroom_FaceTypes_h
 
-#include "Utilities/SharedPointer.h"
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class Vertex;
-        class Edge;
-        class Side;
-
-        typedef std::vector<Vertex*> VertexList;
-        typedef std::vector<Edge*> EdgeList;
-        typedef std::vector<Side*> SideList;
+        class Face;
+        
+        typedef std::vector<Face*> FaceList;
     }
 }
 

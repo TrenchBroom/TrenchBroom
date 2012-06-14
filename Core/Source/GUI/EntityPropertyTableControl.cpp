@@ -33,13 +33,13 @@ namespace TrenchBroom {
     namespace Gui {
         void EntityPropertyTableControl::updateProperties() {
             if (!m_entities.empty()) {
-                std::map<std::string, std::string> commonProperties = m_entities[0]->properties();
-                std::map<std::string, std::string>::iterator cProp;
+                Model::Properties commonProperties = m_entities[0]->properties();
+                Model::Properties::iterator cProp;
                 for (unsigned int i = 1; i < m_entities.size(); i++) {
                     Model::Entity* entity = m_entities[i];
-                    const std::map<std::string, std::string>& entityProperties = entity->properties();
+                    const Model::Properties& entityProperties = entity->properties();
                     
-                    std::map<std::string, std::string>::const_iterator eProp;
+                    Model::Properties::const_iterator eProp;
                     for (cProp = commonProperties.begin(); cProp != commonProperties.end(); ++cProp) {
                         eProp = entityProperties.find(cProp->first);
                         if (eProp == entityProperties.end()) {

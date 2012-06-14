@@ -147,14 +147,14 @@ namespace TrenchBroom {
             }
         }
         
-        void Octree::brushesWereAddedOrDidChange(const std::vector<Brush*>& brushes) {
+        void Octree::brushesWereAddedOrDidChange(const BrushList& brushes) {
             for (unsigned int i = 0; i < brushes.size(); i++) {
                 Brush* brush = brushes[i];
                 m_root->addObject(*brush);
             }
         }
         
-        void Octree::brushesWillBeRemovedOrWillChange(const std::vector<Brush*>& brushes) {
+        void Octree::brushesWillBeRemovedOrWillChange(const BrushList& brushes) {
             for (unsigned int i = 0; i < brushes.size(); i++) {
                 Brush* brush = brushes[i];
                 assert(m_root->removeObject(*brush));
@@ -167,7 +167,7 @@ namespace TrenchBroom {
                 Entity* entity = entities[i];
                 if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == TB_EDT_POINT)
                     m_root->addObject((MapObject&)*entity);
-                const std::vector<Brush*>& brushes = entity->brushes();
+                const BrushList& brushes = entity->brushes();
                 for (unsigned int j = 0; j < brushes.size(); j++) {
                     Brush* brush = brushes[j];
                     m_root->addObject(*brush);

@@ -21,6 +21,7 @@
 #define TrenchBroom_Brush_h
 
 #include <vector>
+#include "Model/Map/FaceTypes.h"
 #include "Model/Map/MapObject.h"
 
 namespace TrenchBroom {
@@ -42,7 +43,7 @@ namespace TrenchBroom {
             void rebuildGeometry();
         public:
             Entity* entity;
-            std::vector<Face*> faces;
+            FaceList faces;
             
             BrushGeometry* geometry;
             
@@ -74,7 +75,7 @@ namespace TrenchBroom {
             bool addFace(Face* face);
             bool canDeleteFace(Face& face);
             void deleteFace(Face& face);
-            void replaceFaces(const std::vector<Face*>& newFaces);
+            void replaceFaces(const FaceList& newFaces);
             
             void translate(const Vec3f& delta, bool lockTextures);
             void rotate90(EAxis axis, const Vec3f& center, bool clockwise, bool lockTextures);

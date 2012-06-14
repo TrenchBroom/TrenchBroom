@@ -23,6 +23,7 @@
 #include "Model/Map/Brush.h"
 #include "Model/Map/Face.h"
 #include "Model/Map/Entity.h"
+#include "Model/Map/Map.h"
 #include "Model/Map/Picker.h"
 #include "Model/Selection.h"
 

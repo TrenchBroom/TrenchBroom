@@ -20,6 +20,7 @@
 #include "Groups.h"
 #include <cstdlib>
 #include <algorithm>
+#include "Model/Map/Brush.h"
 #include "Model/Map/Entity.h"
 #include "Model/Map/Map.h"
 
@@ -53,7 +54,7 @@ namespace TrenchBroom {
                 groupsChanged(*this);
         }
 
-        void GroupManager::brushesChanged(const std::vector<Brush*>& brushes) {
+        void GroupManager::brushesChanged(const BrushList& brushes) {
             bool changed = false;
             for (unsigned int i = 0; i < brushes.size(); i++) {
                 if (brushes[i]->entity->group()) {

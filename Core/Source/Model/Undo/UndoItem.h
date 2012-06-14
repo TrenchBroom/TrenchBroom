@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_UndoItem_h
 #define TrenchBroom_UndoItem_h
 
+#include "Model/Map/BrushTypes.h"
+#include "Model/Map/FaceTypes.h"
 #include <vector>
 
 namespace TrenchBroom {
@@ -41,8 +43,8 @@ namespace TrenchBroom {
         class SelectionUndoItem : public UndoItem {
         protected:
             std::vector<Entity*> m_selectedEntities;
-            std::vector<Brush*> m_selectedBrushes;
-            std::vector<Face*> m_selectedFaces;
+            BrushList m_selectedBrushes;
+            FaceList m_selectedFaces;
         public:
             SelectionUndoItem(Map& map);
             virtual ~SelectionUndoItem() {}

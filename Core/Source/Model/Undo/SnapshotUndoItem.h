@@ -22,9 +22,7 @@
 #define TrenchBroom_SnapshotUndoItem_h
 
 #include "Model/Undo/UndoItem.h"
-#include <vector>
-#include <map>
-#include <string>
+#include "Model/Map/EntityTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -40,7 +38,7 @@ namespace TrenchBroom {
         class EntitySnapshot {
         private:
             int m_uniqueId;
-            std::map<std::string, std::string> m_properties;
+            Properties m_properties;
         public:
             EntitySnapshot(const Entity& entity);
             int uniqueId();
@@ -50,7 +48,7 @@ namespace TrenchBroom {
         class BrushSnapshot {
         private:
             int m_uniqueId;
-            std::vector<Face*> m_faces;
+            FaceList m_faces;
         public:
             BrushSnapshot(const Brush& brush);
             ~BrushSnapshot();

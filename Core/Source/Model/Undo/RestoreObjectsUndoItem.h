@@ -33,9 +33,9 @@ namespace TrenchBroom {
         class RestoreObjectsUndoItem : public UndoItem {
         protected:
             std::vector<Entity*> m_entities;
-            std::vector<Brush*> m_brushes;
+            BrushList m_brushes;
         public:
-            RestoreObjectsUndoItem(Map& map, const std::vector<Entity*>& entities, const std::vector<Brush*>& brushes);
+            RestoreObjectsUndoItem(Map& map, const std::vector<Entity*>& entities, const BrushList& brushes);
             virtual ~RestoreObjectsUndoItem() {}
             
             virtual void undo();

@@ -20,9 +20,9 @@
 #ifndef TrenchBroom_BrushGeometry_h
 #define TrenchBroom_BrushGeometry_h
 
+#include "Model/Map/BrushGeometryTypes.h"
+#include "Model/Map/FaceTypes.h"
 #include "Utilities/VecMath.h"
-
-#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -113,15 +113,15 @@ namespace TrenchBroom {
             static int poolSize;
             Side* next;
         public:
-            std::vector<Vertex*> vertices;
-            std::vector<Edge*> edges;
+            VertexList vertices;
+            EdgeList edges;
             Face* face;
             ESideMark mark;
             void* operator new(size_t size);
             void operator delete(void* pointer);
             Side() : mark(TB_SM_NEW), face(NULL) {}
             Side(Edge* newEdges[], bool invert[], unsigned int count);
-            Side(Face& face, std::vector<Edge*>& newEdges);
+            Side(Face& face, EdgeList& newEdges);
             float intersectWithRay(const Ray& ray);
             void replaceEdges(size_t index1, size_t index2, Edge* edge);
             Edge* split();
@@ -131,24 +131,24 @@ namespace TrenchBroom {
         
         class BrushGeometry {
         private:
-            std::vector<Side*> incidentSides(size_t vertexIndex);
-            void deleteDegenerateTriangle(Side* side, Edge* edge, std::vector<Face*>& newFaces, std::vector<Face*>& droppedFaces);
-            void triangulateSide(Side* side, size_t vertexIndex, std::vector<Face*>& newFaces);
-            void splitSide(Side* side, size_t vertexIndex, std::vector<Face*>& newFaces);
-            void splitSides(std::vector<Side*>& sides, const Ray& ray, size_t vertexIndex, std::vector<Face*>& newFaces, std::vector<Face*>& droppedFaces);
-            void mergeVertices(Vertex* keepVertex, Vertex* dropVertex, std::vector<Face*>& newFaces, std::vector<Face*>& droppedFaces);
+            SideList incidentSides(size_t vertexIndex);
+            void deleteDegenerateTriangle(Side* side, Edge* edge, FaceList& newFaces, FaceList& droppedFaces);
+            void triangulateSide(Side* side, size_t vertexIndex, FaceList& newFaces);
+            void splitSide(Side* side, size_t vertexIndex, FaceList& newFaces);
+            void splitSides(SideList& sides, const Ray& ray, size_t vertexIndex, FaceList& newFaces, FaceList& droppedFaces);
+            void mergeVertices(Vertex* keepVertex, Vertex* dropVertex, FaceList& newFaces, FaceList& droppedFaces);
             void mergeEdges();
             void mergeNeighbours(Side* side, size_t edgeIndex);
-            void mergeSides(std::vector<Face*>& newFaces, std::vector<Face*>&droppedFaces);
-            float minVertexMoveDist(const std::vector<Side*>& sides, const Vertex* vertex, const Ray& ray, float maxDist);
-            MoveResult moveVertex(size_t vertexIndex, bool mergeIncidentVertex, const Vec3f& delta, std::vector<Face*>& newFaces, std::vector<Face*>& droppedFaces);
-            MoveResult splitAndMoveEdge(size_t index, const Vec3f& delta, std::vector<Face*>& newFaces, std::vector<Face*>& droppedFaces);
-            MoveResult splitAndMoveSide(size_t sideIndex, const Vec3f& delta, std::vector<Face*>& newFaces, std::vector<Face*>& droppedFaces);
+            void mergeSides(FaceList& newFaces, FaceList&droppedFaces);
+            float minVertexMoveDist(const SideList& sides, const Vertex* vertex, const Ray& ray, float maxDist);
+            MoveResult moveVertex(size_t vertexIndex, bool mergeIncidentVertex, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
+            MoveResult splitAndMoveEdge(size_t index, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
+            MoveResult splitAndMoveSide(size_t sideIndex, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
             void copy(const BrushGeometry& original);
         public:
-            std::vector<Vertex*> vertices;
-            std::vector<Edge*> edges;
-            std::vector<Side*> sides;
+            VertexList vertices;
+            EdgeList edges;
+            SideList sides;
             BBox bounds;
             
             BrushGeometry(const BBox& bounds);
@@ -158,8 +158,8 @@ namespace TrenchBroom {
             bool closed() const;
             void restoreFaceSides();
             
-            ECutResult addFace(Face& face, std::vector<Face*>& droppedFaces);
-            bool addFaces(std::vector<Face*>& faces, std::vector<Face*>& droppedFaces);
+            ECutResult addFace(Face& face, FaceList& droppedFaces);
+            bool addFaces(FaceList& faces, FaceList& droppedFaces);
             
             void translate(const Vec3f& delta);
             void rotate90(EAxis axis, const Vec3f& center, bool clockwise);
@@ -167,22 +167,22 @@ namespace TrenchBroom {
             void flip(EAxis axis, const Vec3f& center);
             void snap();
             
-            MoveResult moveVertex(size_t vertexIndex, const Vec3f& delta, std::vector<Face*>& newFaces, std::vector<Face*>& droppedFaces);
-            MoveResult moveEdge(size_t edgeIndex, const Vec3f& delta, std::vector<Face*>& newFaces, std::vector<Face*>& droppedFaces);
-            MoveResult moveSide(size_t sideIndex, const Vec3f& delta, std::vector<Face*>& newFaces, std::vector<Face*>& droppedFaces);
+            MoveResult moveVertex(size_t vertexIndex, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
+            MoveResult moveEdge(size_t edgeIndex, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
+            MoveResult moveSide(size_t sideIndex, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
         };
         
         
         template <class T> int indexOf(const std::vector<T*>& vec, const T* element);
         template <class T> bool removeElement(std::vector<T*>& vec, T* element);
         template <class T> bool deleteElement(std::vector<T*>& vec, T* element);
-        int indexOf(const std::vector<Vertex*>& vertices, const Vec3f& v);
-        int indexOf(const std::vector<Edge*>& edges, const Vec3f& v1, const Vec3f& v2);
-        int indexOf(const std::vector<Side*>& sides, const std::vector<Vec3f>& vertices);
+        int indexOf(const VertexList& vertices, const Vec3f& v);
+        int indexOf(const EdgeList& edges, const Vec3f& v1, const Vec3f& v2);
+        int indexOf(const SideList& sides, const std::vector<Vec3f>& vertices);
         
-        Vec3f centerOfVertices(const std::vector<Vertex*>& vertices);
-        BBox boundsOfVertices(const std::vector<Vertex*>& vertices);
-        EPointStatus vertexStatusFromRay(const Vec3f& origin, const Vec3f& direction, const std::vector<Vertex*>& vertices);
+        Vec3f centerOfVertices(const VertexList& vertices);
+        BBox boundsOfVertices(const VertexList& vertices);
+        EPointStatus vertexStatusFromRay(const Vec3f& origin, const Vec3f& direction, const VertexList& vertices);
     }
 }
 #endif

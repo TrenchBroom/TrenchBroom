@@ -107,14 +107,14 @@ namespace TrenchBroom {
         }
         
         void Brush::rebuildGeometry() {
-            std::vector<Face*> droppedFaces;
+            FaceList droppedFaces;
             
             delete geometry;
             geometry = new BrushGeometry(worldBounds);
             geometry->addFaces(faces, droppedFaces);
             for (unsigned int i = 0; i < droppedFaces.size(); i++) {
                 Face* droppedFace = droppedFaces[i];
-                std::vector<Face*>::iterator it = find(faces.begin(), faces.end(), droppedFace);
+                FaceList::iterator it = find(faces.begin(), faces.end(), droppedFace);
                 delete *it;
                 faces.erase(it);
             }
@@ -181,8 +181,8 @@ namespace TrenchBroom {
             // separating axis theorem
             // http://www.geometrictools.com/Documentation/MethodOfSeparatingAxes.pdf
             
-            const std::vector<Vertex*>& myVertices = geometry->vertices;
-            const std::vector<Face*>& theirFaces = brush.faces;
+            const VertexList& myVertices = geometry->vertices;
+            const FaceList& theirFaces = brush.faces;
             for (unsigned int i = 0; i < theirFaces.size(); i++) {
                 Face* theirFace = theirFaces[i];
                 Vec3f origin = theirFace->side->vertices[0]->position;
@@ -192,7 +192,7 @@ namespace TrenchBroom {
             }
             
             
-            const std::vector<Vertex*>& theirVertices = brush.geometry->vertices;
+            const VertexList& theirVertices = brush.geometry->vertices;
             for (unsigned int i = 0; i < faces.size(); i++) {
                 Face* myFace = faces[i];
                 Vec3f origin = myFace->side->vertices[0]->position;
@@ -201,8 +201,8 @@ namespace TrenchBroom {
                     return false;
             }
             
-            const std::vector<Edge*>& myEdges = geometry->edges;
-            const std::vector<Edge*>& theirEdges = brush.geometry->edges;
+            const EdgeList& myEdges = geometry->edges;
+            const EdgeList& theirEdges = brush.geometry->edges;
             for (unsigned int i = 0; i < myEdges.size(); i++) {
                 Edge* myEdge = myEdges[i];
                 for (unsigned int j = 0; j < theirEdges.size(); j++) {
@@ -229,7 +229,7 @@ namespace TrenchBroom {
         bool Brush::containsBrush(Brush& brush) {
             if (bounds().contains(brush.bounds())) return false;
             
-            const std::vector<Vertex*>& theirVertices = brush.geometry->vertices;
+            const VertexList& theirVertices = brush.geometry->vertices;
             for (unsigned int i = 0; i < theirVertices.size(); i++)
                 if (!containsPoint(theirVertices[i]->position))
                     return false;
@@ -299,14 +299,14 @@ namespace TrenchBroom {
         }
         
         bool Brush::addFace(Face* face) {
-            std::vector<Face*> droppedFaces;
+            FaceList droppedFaces;
             ECutResult result = geometry->addFace(*face, droppedFaces);
             if (result == TB_CR_REDUNDANT) return true;
             if (result == TB_CR_NULL) return false;
             
             for (unsigned int i = 0; i < droppedFaces.size(); i++) {
                 Face* droppedFace = droppedFaces[i];
-                std::vector<Face*>::iterator it = find(faces.begin(), faces.end(), droppedFace);
+                FaceList::iterator it = find(faces.begin(), faces.end(), droppedFace);
                 delete *it;
                 faces.erase(it);
             }
@@ -316,7 +316,7 @@ namespace TrenchBroom {
         }
         
         bool Brush::canDeleteFace(Face& face) {
-            std::vector<Face*> droppedFaces;
+            FaceList droppedFaces;
             BrushGeometry testGeometry(worldBounds);
             
             for (unsigned int i = 0; i < faces.size(); i++)
@@ -330,13 +330,13 @@ namespace TrenchBroom {
         }
         
         void Brush::deleteFace(Face& face) {
-            std::vector<Face*>::iterator it = find(faces.begin(), faces.end(), &face);
+            FaceList::iterator it = find(faces.begin(), faces.end(), &face);
             delete *it;
             faces.erase(it);
             rebuildGeometry();
         }
         
-        void Brush::replaceFaces(const std::vector<Face*>& newFaces) {
+        void Brush::replaceFaces(const FaceList& newFaces) {
             while (!faces.empty()) delete faces.back(), faces.pop_back();
             for (unsigned int i = 0; i < newFaces.size(); i++) {
                 faces.push_back(newFaces[i]);
@@ -379,7 +379,7 @@ namespace TrenchBroom {
             
             if (face.boundary.equals(testFace.boundary)) return false;
             
-            std::vector<Face*> droppedFaces;
+            FaceList droppedFaces;
             BrushGeometry testGeometry(worldBounds);
             for (unsigned int i = 0; i < faces.size(); i++)
                 if (faces[i] != &face)
@@ -411,11 +411,11 @@ namespace TrenchBroom {
         }
         
         MoveResult Brush::moveVertex(int vertexIndex, const Vec3f& delta) {
-            std::vector<Face*> newFaces;
-            std::vector<Face*> droppedFaces;
-            std::vector<Face*>::iterator faceIt;
-            std::vector<Face*>::iterator newFaceIt;
-            std::vector<Face*>::iterator droppedFaceIt;
+            FaceList newFaces;
+            FaceList droppedFaces;
+            FaceList::iterator faceIt;
+            FaceList::iterator newFaceIt;
+            FaceList::iterator droppedFaceIt;
             
             MoveResult result = geometry->moveVertex(vertexIndex, delta, newFaces, droppedFaces);
             
@@ -439,11 +439,11 @@ namespace TrenchBroom {
         }
         
         MoveResult Brush::moveEdge(int edgeIndex, const Vec3f& delta) {
-            std::vector<Face*> newFaces;
-            std::vector<Face*> droppedFaces;
-            std::vector<Face*>::iterator faceIt;
-            std::vector<Face*>::iterator newFaceIt;
-            std::vector<Face*>::iterator droppedFaceIt;
+            FaceList newFaces;
+            FaceList droppedFaces;
+            FaceList::iterator faceIt;
+            FaceList::iterator newFaceIt;
+            FaceList::iterator droppedFaceIt;
             
             MoveResult result = geometry->moveEdge(edgeIndex, delta, newFaces, droppedFaces);
             
@@ -467,11 +467,11 @@ namespace TrenchBroom {
         }
         
         MoveResult Brush::moveFace(int faceIndex, const Vec3f& delta) {
-            std::vector<Face*> newFaces;
-            std::vector<Face*> droppedFaces;
-            std::vector<Face*>::iterator faceIt;
-            std::vector<Face*>::iterator newFaceIt;
-            std::vector<Face*>::iterator droppedFaceIt;
+            FaceList newFaces;
+            FaceList droppedFaces;
+            FaceList::iterator faceIt;
+            FaceList::iterator newFaceIt;
+            FaceList::iterator droppedFaceIt;
             
             MoveResult result = geometry->moveSide(faceIndex, delta, newFaces, droppedFaces);
             

@@ -21,6 +21,7 @@
 #define TrenchBroom_Groups_h
 
 #include <vector>
+#include "Model/Map/BrushTypes.h"
 #include "Utilities/Event.h"
 
 namespace TrenchBroom {
@@ -37,7 +38,7 @@ namespace TrenchBroom {
             
             void entitesAdded(const std::vector<Entity*>& entities);
             void entitiesRemoved(const std::vector<Entity*>& entities);
-            void brushesChanged(const std::vector<Brush*>& brushes);
+            void brushesChanged(const BrushList& brushes);
             void mapLoaded(Map& map);
             void mapCleared(Map& map);
         public:

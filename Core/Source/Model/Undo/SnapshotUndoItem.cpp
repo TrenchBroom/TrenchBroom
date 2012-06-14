@@ -44,7 +44,7 @@ namespace TrenchBroom {
 
         BrushSnapshot::BrushSnapshot(const Brush& brush) {
             m_uniqueId = brush.uniqueId();
-            const std::vector<Face*>& brushFaces = brush.faces;
+            const FaceList& brushFaces = brush.faces;
             for (unsigned int i = 0; i < brushFaces.size(); i++) {
                 Face* snapshot = new Face(*brushFaces[i]);
                 m_faces.push_back(snapshot);
@@ -92,8 +92,8 @@ namespace TrenchBroom {
         SnapshotUndoItem::SnapshotUndoItem(Map& map) : SelectionUndoItem(map) {
             Selection& selection = m_map.selection();
             const std::vector<Entity*>& entities = selection.entities();
-            const std::vector<Brush*>& brushes = selection.brushes();
-            const std::vector<Face*>& faces = selection.faces();
+            const BrushList& brushes = selection.brushes();
+            const FaceList& faces = selection.faces();
             
             for (unsigned int i = 0; i < entities.size(); i++) {
                 EntitySnapshot* snapshot = new EntitySnapshot(*entities[i]);
@@ -120,8 +120,8 @@ namespace TrenchBroom {
         void SnapshotUndoItem::performUndo() {
             Selection& selection = m_map.selection();
             const std::vector<Entity*>& selectedEntities = selection.entities();
-            const std::vector<Brush*>& selectedBrushes = selection.brushes();
-            const std::vector<Face*>& selectedFaces = selection.faces();
+            const BrushList& selectedBrushes = selection.brushes();
+            const FaceList& selectedFaces = selection.faces();
 
             assert(m_entities.size() == selectedEntities.size());
             assert(m_brushes.size() == selectedBrushes.size());

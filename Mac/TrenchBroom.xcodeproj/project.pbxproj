@@ -466,6 +466,9 @@
 		486571C9157E78D400698829 /* DragTextureTargetTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragTextureTargetTool.cpp; sourceTree = "<group>"; };
 		486571CF158285FC00698829 /* EntityFigure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityFigure.h; sourceTree = "<group>"; };
 		486571D11582860700698829 /* EntityFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityFigure.cpp; sourceTree = "<group>"; };
+		486654111589F6A700CB0A83 /* FaceTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FaceTypes.h; sourceTree = "<group>"; };
+		486654131589F74900CB0A83 /* BrushTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrushTypes.h; sourceTree = "<group>"; };
+		486654141589F7E400CB0A83 /* EntityTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityTypes.h; sourceTree = "<group>"; };
 		48886BA31545FE09006A781B /* EditorHolder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorHolder.h; sourceTree = "<group>"; };
 		48886BA41545FE09006A781B /* EditorHolder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EditorHolder.mm; sourceTree = "<group>"; };
 		48891461157E299C00687915 /* DragTargetTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragTargetTool.h; sourceTree = "<group>"; };
@@ -645,15 +648,18 @@
 			children = (
 				4825B3E9153AE59F007E3AE1 /* Brush.cpp */,
 				4825B3EA153AE59F007E3AE1 /* Brush.h */,
+				486654131589F74900CB0A83 /* BrushTypes.h */,
 				4825B3EB153AE59F007E3AE1 /* BrushGeometry.cpp */,
 				4825B3EC153AE59F007E3AE1 /* BrushGeometry.h */,
 				48321ED9158677140042D318 /* BrushGeometryTypes.h */,
 				4825B3ED153AE59F007E3AE1 /* Entity.cpp */,
 				4825B3EE153AE59F007E3AE1 /* Entity.h */,
+				486654141589F7E400CB0A83 /* EntityTypes.h */,
 				4825B3EF153AE59F007E3AE1 /* EntityDefinition.cpp */,
 				4825B3F0153AE59F007E3AE1 /* EntityDefinition.h */,
 				4825B3F1153AE59F007E3AE1 /* Face.cpp */,
 				4825B3F2153AE59F007E3AE1 /* Face.h */,
+				486654111589F6A700CB0A83 /* FaceTypes.h */,
 				4825B3F3153AE59F007E3AE1 /* Groups.cpp */,
 				4825B3F4153AE59F007E3AE1 /* Groups.h */,
 				4825B3F5153AE59F007E3AE1 /* Map.cpp */,

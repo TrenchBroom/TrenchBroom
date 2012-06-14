@@ -152,7 +152,7 @@ namespace TrenchBroom {
             return entity;
         }
 
-        Entity* Map::createEntity(const std::map<std::string, std::string> properties) {
+        Entity* Map::createEntity(const Properties properties) {
             Entity* entity = new Entity(properties);
             addEntity(entity);
 
@@ -167,7 +167,7 @@ namespace TrenchBroom {
         }
 
         void Map::setEntityDefinition(Entity* entity) {
-            const std::string* classname = entity->classname();
+            const PropertyValue* classname = entity->classname();
             if (classname != NULL) {
                 EntityDefinitionPtr entityDefinition = m_entityDefinitionManager->definition(*classname);
                 if (entityDefinition.get() != NULL)
@@ -249,7 +249,7 @@ namespace TrenchBroom {
         }
 
         void Map::addBrushesToEntity(Entity& entity) {
-            const std::vector<Brush*>& brushes = m_selection->brushes();
+            const BrushList& brushes = m_selection->brushes();
             if (brushes.empty()) return;
 
             entity.addBrushes(brushes);
@@ -257,7 +257,7 @@ namespace TrenchBroom {
         }
 
         void Map::moveBrushesToEntity(Entity& entity) {
-            const std::vector<Brush*> brushes = m_selection->brushes();
+            const BrushList brushes = m_selection->brushes();
             if (brushes.empty()) return;
 
             if (m_postNotifications) brushesWillChange(brushes);
@@ -287,7 +287,7 @@ namespace TrenchBroom {
         }
 
         void Map::snapBrushes() {
-            const std::vector<Brush*>& brushes = m_selection->brushes();
+            const BrushList& brushes = m_selection->brushes();
             if (brushes.empty()) return;
 
             if (m_postNotifications) brushesWillChange(brushes);
@@ -296,12 +296,12 @@ namespace TrenchBroom {
             if (m_postNotifications) brushesDidChange(brushes);
         }
 
-        bool Map::resizeBrushes(std::vector<Face*>& faces, float delta, bool lockTextures) {
+        bool Map::resizeBrushes(FaceList& faces, float delta, bool lockTextures) {
             if (faces.empty()) return false;
             if (delta == 0) return false;
 
             bool drag = true;
-            std::vector<Brush*> changedBrushes;
+            BrushList changedBrushes;
             for (unsigned int i = 0; i < faces.size() && drag; i++) {
                 Face* face = faces[i];
                 Brush* brush = face->brush;
@@ -322,9 +322,9 @@ namespace TrenchBroom {
             return drag;
         }
 
-        void Map::duplicateObjects(std::vector<Entity*>& newEntities, std::vector<Brush*>& newBrushes) {
+        void Map::duplicateObjects(std::vector<Entity*>& newEntities, BrushList& newBrushes) {
             const std::vector<Entity*>& entities = m_selection->entities();
-            const std::vector<Brush*>& brushes = m_selection->brushes();
+            const BrushList& brushes = m_selection->brushes();
 
             if (!entities.empty()) {
                 for (unsigned int i = 0; i < entities.size(); i++) {
@@ -360,7 +360,7 @@ namespace TrenchBroom {
 
         void Map::translateObjects(const Vec3f delta, bool lockTextures) {
             const std::vector<Entity*>& entities = m_selection->entities();
-            const std::vector<Brush*>& brushes = m_selection->brushes();
+            const BrushList& brushes = m_selection->brushes();
 
             m_undoManager->begin("Move Objects");
             m_undoManager->addFunctor<const Vec3f, bool>(*this, &Map::translateObjects, delta * -1, lockTextures);
@@ -384,7 +384,7 @@ namespace TrenchBroom {
 
         void Map::rotateObjects90(EAxis axis, const Vec3f& center, bool clockwise, bool lockTextures) {
             const std::vector<Entity*>& entities = m_selection->entities();
-            const std::vector<Brush*>& brushes = m_selection->brushes();
+            const BrushList& brushes = m_selection->brushes();
 
             if (!entities.empty()) {
                 if (m_postNotifications) propertiesWillChange(entities);
@@ -403,7 +403,7 @@ namespace TrenchBroom {
 
         void Map::rotateObjects(const Quat& rotation, const Vec3f& center, bool lockTextures) {
             const std::vector<Entity*>& entities = m_selection->entities();
-            const std::vector<Brush*>& brushes = m_selection->brushes();
+            const BrushList& brushes = m_selection->brushes();
 
             if (!entities.empty()) {
                 if (m_postNotifications) propertiesWillChange(entities);
@@ -422,7 +422,7 @@ namespace TrenchBroom {
 
         void Map::flipObjects(EAxis axis, const Vec3f& center, bool lockTextures) {
             const std::vector<Entity*>& entities = m_selection->entities();
-            const std::vector<Brush*>& brushes = m_selection->brushes();
+            const BrushList& brushes = m_selection->brushes();
 
             if (!entities.empty()) {
                 if (m_postNotifications) propertiesWillChange(entities);
@@ -441,7 +441,7 @@ namespace TrenchBroom {
 
         void Map::deleteObjects() {
             const std::vector<Entity*> entities = m_selection->entities();
-            const std::vector<Brush*> brushes = m_selection->brushes();
+            const BrushList brushes = m_selection->brushes();
 
             typedef std::vector<Entity*> EList;
             typedef std::map<Brush*, Entity*> BMap;
@@ -468,7 +468,7 @@ namespace TrenchBroom {
                 for (unsigned int i = 0; i < entities.size(); i++) {
                     Entity* entity = entities[i];
                     if (!entity->worldspawn()) {
-                        const std::vector<Brush*> entityBrushes = entity->brushes();
+                        const BrushList entityBrushes = entity->brushes();
                         for (unsigned int j = 0; j < entityBrushes.size(); j++)
                             movedBrushes[entityBrushes[j]] = entity;
                         worldspawn(true)->addBrushes(entityBrushes);
@@ -497,7 +497,7 @@ namespace TrenchBroom {
         }
 
         void Map::setTexture(Model::Assets::Texture* texture) {
-            std::vector<Face*> faces = m_selection->allFaces();
+            FaceList faces = m_selection->allFaces();
             if (faces.empty()) return;
 
             m_undoManager->begin("Set Texture");
@@ -512,7 +512,7 @@ namespace TrenchBroom {
         }
 
         void Map::setXOffset(int xOffset) {
-            std::vector<Face*> faces = m_selection->allFaces();
+            FaceList faces = m_selection->allFaces();
             if (faces.empty()) return;
 
             m_undoManager->begin("Set X Offset");
@@ -527,7 +527,7 @@ namespace TrenchBroom {
         }
 
         void Map::setYOffset(int yOffset) {
-            std::vector<Face*> faces = m_selection->allFaces();
+            FaceList faces = m_selection->allFaces();
             if (faces.empty()) return;
 
             m_undoManager->begin("Set Y Offset");
@@ -542,7 +542,7 @@ namespace TrenchBroom {
         }
 
         void Map::translateFaces(float delta, const Vec3f dir) {
-            std::vector<Face*> faces = m_selection->allFaces();
+            FaceList faces = m_selection->allFaces();
             if (faces.empty()) return;
 
             m_undoManager->begin("Move Texture");
@@ -557,7 +557,7 @@ namespace TrenchBroom {
         }
 
         void Map::setRotation(float rotation) {
-            std::vector<Face*> faces = m_selection->allFaces();
+            FaceList faces = m_selection->allFaces();
             if (faces.empty()) return;
 
             m_undoManager->begin("Set Rotation");
@@ -572,7 +572,7 @@ namespace TrenchBroom {
         }
 
         void Map::rotateFaces(float angle) {
-            std::vector<Face*> faces = m_selection->allFaces();
+            FaceList faces = m_selection->allFaces();
             if (faces.empty()) return;
 
             m_undoManager->begin("Rotate Texture");
@@ -587,7 +587,7 @@ namespace TrenchBroom {
         }
 
         void Map::setXScale(float xScale) {
-            std::vector<Face*> faces = m_selection->allFaces();
+            FaceList faces = m_selection->allFaces();
             if (faces.empty()) return;
 
             m_undoManager->begin("Set X Scale");
@@ -602,7 +602,7 @@ namespace TrenchBroom {
         }
 
         void Map::setYScale(float yScale) {
-            std::vector<Face*> faces = m_selection->allFaces();
+            FaceList faces = m_selection->allFaces();
             if (faces.empty()) return;
 
             m_undoManager->begin("Set Y Scale");
@@ -617,7 +617,7 @@ namespace TrenchBroom {
         }
 
         void Map::resetFaces() {
-            std::vector<Face*> faces = m_selection->allFaces();
+            FaceList faces = m_selection->allFaces();
             if (faces.empty()) return;
             
             m_undoManager->begin("Reset Faces");
@@ -637,10 +637,10 @@ namespace TrenchBroom {
         }
 
         bool Map::deleteFaces() {
-            const std::vector<Face*> faces = m_selection->faces();
+            const FaceList faces = m_selection->faces();
             if (faces.empty()) return false;
 
-            std::vector<Brush*> changedBrushes;
+            BrushList changedBrushes;
             bool del = true;
             for (unsigned int i = 0; i < faces.size() && del; i++) {
                 Face* face = faces[i];
@@ -667,7 +667,7 @@ namespace TrenchBroom {
         MoveResult Map::moveVertex(Brush& brush, int vertexIndex, const Vec3f& delta) {
             if (find(m_selection->brushes().begin(), m_selection->brushes().end(), &brush) == m_selection->brushes().end())
                 m_selection->addBrush(brush);
-            std::vector<Brush*> brushArray;
+            BrushList brushArray;
             brushArray.push_back(&brush);
             if (m_postNotifications) brushesWillChange(brushArray);
             MoveResult result = brush.moveVertex(vertexIndex, delta);
@@ -678,7 +678,7 @@ namespace TrenchBroom {
         MoveResult Map::moveEdge(Brush& brush, int edgeIndex, const Vec3f& delta) {
             if (find(m_selection->brushes().begin(), m_selection->brushes().end(), &brush) == m_selection->brushes().end())
                 m_selection->addBrush(brush);
-            std::vector<Brush*> brushArray;
+            BrushList brushArray;
             brushArray.push_back(&brush);
             if (m_postNotifications) brushesWillChange(brushArray);
             MoveResult result = brush.moveEdge(edgeIndex, delta);
@@ -689,7 +689,7 @@ namespace TrenchBroom {
         MoveResult Map::moveFace(Brush& brush, int faceIndex, const Vec3f& delta) {
             if (find(m_selection->brushes().begin(), m_selection->brushes().end(), &brush) == m_selection->brushes().end())
                 m_selection->addBrush(brush);
-            std::vector<Brush*> brushArray;
+            BrushList brushArray;
             brushArray.push_back(&brush);
             if (m_postNotifications) brushesWillChange(brushArray);
             MoveResult result = brush.moveFace(faceIndex, delta);

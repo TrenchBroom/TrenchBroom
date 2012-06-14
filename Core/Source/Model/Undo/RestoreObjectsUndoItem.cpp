@@ -19,11 +19,12 @@
 
 #include "RestoreObjectsUndoItem.h"
 
+#include "Model/Map/Map.h"
 #include "Model/Selection.h"
 
 namespace TrenchBroom {
     namespace Model {
-        RestoreObjectsUndoItem::RestoreObjectsUndoItem(Map& map, const std::vector<Entity*>& entities, const std::vector<Brush*>& brushes) : UndoItem(map), m_entities(entities), m_brushes(brushes) {}
+        RestoreObjectsUndoItem::RestoreObjectsUndoItem(Map& map, const std::vector<Entity*>& entities, const BrushList& brushes) : UndoItem(map), m_entities(entities), m_brushes(brushes) {}
         
         void RestoreObjectsUndoItem::undo() {
             Selection& selection = m_map.selection();

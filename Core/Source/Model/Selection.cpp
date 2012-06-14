@@ -38,31 +38,31 @@ namespace TrenchBroom {
             return m_mruTextures;
         }
 
-        const std::vector<Face*>& Selection::faces() const {
+        const FaceList& Selection::faces() const {
             return m_faces;
         }
 
-        const std::vector<Face*> Selection::brushFaces() const {
-            std::vector<Face*> faces;
+        const FaceList Selection::brushFaces() const {
+            FaceList faces;
             for (unsigned int i = 0; i < m_brushes.size(); i++) {
-                std::vector<Face*> brushFaces = m_brushes[i]->faces;
+                FaceList brushFaces = m_brushes[i]->faces;
                 for (unsigned int j = 0; j < brushFaces.size(); j++)
                     faces.push_back(brushFaces[j]);
             }
             return faces;
         }
 
-        const std::vector<Face*> Selection::allFaces() const {
-            std::vector<Face*> allFaces = brushFaces();
+        const FaceList Selection::allFaces() const {
+            FaceList allFaces = brushFaces();
             allFaces.insert(allFaces.begin(), m_faces.begin(), m_faces.end());
             return allFaces;
         }
 
-        const std::vector<Brush*>& Selection::brushes() const {
+        const BrushList& Selection::brushes() const {
             return m_brushes;
         }
 
-        const std::vector<Brush*>& Selection::partialBrushes() const {
+        const BrushList& Selection::partialBrushes() const {
             return m_partialBrushes;
         }
 
@@ -178,7 +178,7 @@ namespace TrenchBroom {
             selectionAdded(data);
         }
 
-        void Selection::addFaces(const std::vector<Face*>& faces) {
+        void Selection::addFaces(const FaceList& faces) {
             if (faces.empty()) return;
             if (m_mode != TB_SM_FACES) removeAll();
 
@@ -212,7 +212,7 @@ namespace TrenchBroom {
             selectionAdded(data);
         }
 
-        void Selection::addBrushes(const std::vector<Brush*>& brushes) {
+        void Selection::addBrushes(const BrushList& brushes) {
             if (brushes.empty()) return;
             if (m_mode == TB_SM_FACES) removeAll();
 
@@ -260,7 +260,7 @@ namespace TrenchBroom {
         }
 
         void Selection::removeFace(Face& face) {
-            std::vector<Face*>::iterator it = find(m_faces.begin(), m_faces.end(), &face);
+            FaceList::iterator it = find(m_faces.begin(), m_faces.end(), &face);
             if (it == m_faces.end()) return;
 
             m_faces.erase(it);
@@ -270,7 +270,7 @@ namespace TrenchBroom {
                 m_mode = TB_SM_NONE;
                 m_partialBrushes.clear();
             } else {
-                const std::vector<Face*> siblings = face.brush->faces;
+                const FaceList siblings = face.brush->faces;
                 face.brush->partiallySelected = false;
                 for (unsigned int i = 0; i < siblings.size() && !face.brush->partiallySelected; i++)
                     face.brush->partiallySelected = siblings[i]->selected;
@@ -282,19 +282,19 @@ namespace TrenchBroom {
             selectionRemoved(data);
         }
 
-        void Selection::removeFaces(const std::vector<Face*>& faces) {
+        void Selection::removeFaces(const FaceList& faces) {
             if (faces.empty()) return;
 
-            std::vector<Face*> removedFaces;
+            FaceList removedFaces;
             for (unsigned int i = 0; i < faces.size(); i++) {
                 Face* face = faces[i];
-                std::vector<Face*>::iterator it = find(m_faces.begin(), m_faces.end(), face);
+                FaceList::iterator it = find(m_faces.begin(), m_faces.end(), face);
                 if (it != m_faces.end()) {
                     m_faces.erase(it);
                     face->selected = false;
                     removedFaces.push_back(face);
 
-                    const std::vector<Face*> siblings = face->brush->faces;
+                    const FaceList siblings = face->brush->faces;
                     face->brush->partiallySelected = false;
                     for (unsigned int j = 0; j < siblings.size() && !face->brush->partiallySelected; j++)
                         face->brush->partiallySelected = siblings[j]->selected;
@@ -311,7 +311,7 @@ namespace TrenchBroom {
         }
 
         void Selection::removeBrush(Brush& brush) {
-            std::vector<Brush*>::iterator it = find(m_brushes.begin(), m_brushes.end(), &brush);
+            BrushList::iterator it = find(m_brushes.begin(), m_brushes.end(), &brush);
             if (it == m_brushes.end()) return;
 
             m_brushes.erase(it);
@@ -326,13 +326,13 @@ namespace TrenchBroom {
             selectionRemoved(data);
         }
 
-        void Selection::removeBrushes(const std::vector<Brush*>& brushes) {
+        void Selection::removeBrushes(const BrushList& brushes) {
             if (brushes.empty()) return;
 
-            std::vector<Brush*> removedBrushes;
+            BrushList removedBrushes;
             for (unsigned int i = 0; i < brushes.size(); i++) {
                 Brush* brush = brushes[i];
-                std::vector<Brush*>::iterator it = find(m_brushes.begin(), m_brushes.end(), brush);
+                BrushList::iterator it = find(m_brushes.begin(), m_brushes.end(), brush);
                 if (it != m_brushes.end()) {
                     m_brushes.erase(it);
                     brush->selected = false;
