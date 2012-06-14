@@ -131,7 +131,7 @@ namespace TrenchBroom {
             }
         }
         
-        void Octree::entitiesWereAddedOrPropertiesDidChange(const std::vector<Entity*>& entities) {
+        void Octree::entitiesWereAddedOrPropertiesDidChange(const EntityList& entities) {
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
                 if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == TB_EDT_POINT)
@@ -139,7 +139,7 @@ namespace TrenchBroom {
             }
         }
         
-        void Octree::entitiesWillBeRemovedOrPropertiesWillChange(const std::vector<Entity*>& entities){
+        void Octree::entitiesWillBeRemovedOrPropertiesWillChange(const EntityList& entities){
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
                 if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == TB_EDT_POINT)
@@ -162,7 +162,7 @@ namespace TrenchBroom {
         }
         
         void Octree::mapLoaded(Map& map) {
-            const std::vector<Entity*>& entities = map.entities();
+            const EntityList& entities = map.entities();
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
                 if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == TB_EDT_POINT)

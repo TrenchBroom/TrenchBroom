@@ -22,6 +22,7 @@
 
 #include <vector>
 #include "Model/Map/BrushTypes.h"
+#include "Model/Map/EntityTypes.h"
 #include "Utilities/Event.h"
 #include "Utilities/VecMath.h"
 
@@ -65,8 +66,8 @@ namespace TrenchBroom {
             Map& m_map;
             OctreeNode* m_root;
 
-            void entitiesWereAddedOrPropertiesDidChange(const std::vector<Entity*>& entities);
-            void entitiesWillBeRemovedOrPropertiesWillChange(const std::vector<Entity*>& entities);
+            void entitiesWereAddedOrPropertiesDidChange(const EntityList& entities);
+            void entitiesWillBeRemovedOrPropertiesWillChange(const EntityList& entities);
             void brushesWereAddedOrDidChange(const BrushList& brushes);
             void brushesWillBeRemovedOrWillChange(const BrushList& brushes);
             void mapLoaded(Map& map);

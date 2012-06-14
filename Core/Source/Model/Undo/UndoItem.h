@@ -22,7 +22,7 @@
 
 #include "Model/Map/BrushTypes.h"
 #include "Model/Map/FaceTypes.h"
-#include <vector>
+#include "Model/Map/EntityTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -42,7 +42,7 @@ namespace TrenchBroom {
         
         class SelectionUndoItem : public UndoItem {
         protected:
-            std::vector<Entity*> m_selectedEntities;
+            EntityList m_selectedEntities;
             BrushList m_selectedBrushes;
             FaceList m_selectedFaces;
         public:

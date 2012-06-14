@@ -54,7 +54,7 @@ namespace TrenchBroom {
             GroupManager* m_groupManager;
             UndoManager* m_undoManager;
             
-            std::vector<Entity*> m_entities;
+            EntityList m_entities;
             Entity* m_worldspawn;
             BBox m_worldBounds;
             
@@ -63,7 +63,7 @@ namespace TrenchBroom {
             
             bool m_postNotifications;
         public:
-            typedef Event<const std::vector<Entity*>&> EntityEvent;
+            typedef Event<const EntityList&> EntityEvent;
             typedef Event<const BrushList&> BrushEvent;
             typedef Event<const FaceList&> FaceEvent;
             typedef Event<Map&> MapEvent;
@@ -94,9 +94,10 @@ namespace TrenchBroom {
             void unloadPointFile();
             const std::vector<Vec3f>& leakPoints() const;
             
-            const std::vector<Entity*>& entities();
+            const EntityList& entities();
             Entity* worldspawn(bool create);
             void addEntity(Entity* entity);
+            void addEntities(const EntityList& entities);
             Entity* createEntity(const std::string& classname);
             Entity* createEntity(const Properties properties);
             void setEntityDefinition(Entity* entity);
@@ -112,13 +113,13 @@ namespace TrenchBroom {
             void snapBrushes();
             bool resizeBrushes(FaceList& faces, float delta, bool lockTextures);
             
-            void duplicateObjects(std::vector<Entity*>& newEntities, BrushList& newBrushes);
+            void duplicateObjects(EntityList& newEntities, BrushList& newBrushes);
             void translateObjects(const Vec3f delta, bool lockTextures);
             void rotateObjects90(EAxis axis, const Vec3f& center, bool clockwise, bool lockTextures);
             void rotateObjects(const Quat& rotation, const Vec3f& center, bool lockTextures);
             void flipObjects(EAxis axis, const Vec3f& center, bool lockTextures);
             void deleteObjects();
-            void restoreObjects(std::vector<Entity*> removedEntities, std::map<Brush*, Entity*> removedBrushes, std::map<Brush*, Entity*> movedBrushes);
+            void restoreObjects(EntityList removedEntities, BrushParentMap removedBrushes, BrushParentMap movedBrushes);
             
             void setTexture(Model::Assets::Texture* texture);
             void setXOffset(int xOffset);

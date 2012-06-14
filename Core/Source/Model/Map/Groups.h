@@ -22,6 +22,7 @@
 
 #include <vector>
 #include "Model/Map/BrushTypes.h"
+#include "Model/Map/EntityTypes.h"
 #include "Utilities/Event.h"
 
 namespace TrenchBroom {
@@ -33,11 +34,11 @@ namespace TrenchBroom {
         class GroupManager {
         private:
             Map& m_map;
-            std::vector<Entity*> m_groups;
+            EntityList m_groups;
             int m_visibleGroupCount;
             
-            void entitesAdded(const std::vector<Entity*>& entities);
-            void entitiesRemoved(const std::vector<Entity*>& entities);
+            void entitesAdded(const EntityList& entities);
+            void entitiesRemoved(const EntityList& entities);
             void brushesChanged(const BrushList& brushes);
             void mapLoaded(Map& map);
             void mapCleared(Map& map);
@@ -47,7 +48,7 @@ namespace TrenchBroom {
 
             GroupManager(Map& map);
             ~GroupManager();
-            const std::vector<Entity*>& groups() const;
+            const EntityList& groups() const;
             void setGroupName(Entity& group, const std::string& name);
             void setGroupVisibility(Entity& group, bool visibility);
             bool visible(const Entity& group) const;

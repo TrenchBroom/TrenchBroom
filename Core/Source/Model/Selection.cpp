@@ -66,7 +66,7 @@ namespace TrenchBroom {
             return m_partialBrushes;
         }
 
-        const std::vector<Entity*>& Selection::entities() const {
+        const EntityList& Selection::entities() const {
             return m_entities;
         }
 
@@ -242,7 +242,7 @@ namespace TrenchBroom {
             selectionAdded(data);
         }
 
-        void Selection::addEntities(const std::vector<Entity*>& entities) {
+        void Selection::addEntities(const EntityList& entities) {
             if (entities.empty()) return;
             if (m_mode == TB_SM_FACES) removeAll();
 
@@ -350,7 +350,7 @@ namespace TrenchBroom {
         }
 
         void Selection::removeEntity(Entity& entity) {
-            std::vector<Entity*>::iterator it = find(m_entities.begin(), m_entities.end(), &entity);
+            EntityList::iterator it = find(m_entities.begin(), m_entities.end(), &entity);
             if (it == m_entities.end()) return;
 
             m_entities.erase(it);
@@ -365,13 +365,13 @@ namespace TrenchBroom {
             selectionRemoved(data);
         }
 
-        void Selection::removeEntities(const std::vector<Entity*>& entities) {
+        void Selection::removeEntities(const EntityList& entities) {
             if (entities.empty()) return;
 
-            std::vector<Entity*> removedEntities;
+            EntityList removedEntities;
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
-                std::vector<Entity*>::iterator it = find(m_entities.begin(), m_entities.end(), entity);
+                EntityList::iterator it = find(m_entities.begin(), m_entities.end(), entity);
                 if (it != m_entities.end()) {
                     m_entities.erase(it);
                     entity->setSelected(false);

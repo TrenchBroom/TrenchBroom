@@ -24,19 +24,23 @@
 
 namespace TrenchBroom {
     namespace Model {
-        RestoreObjectsUndoItem::RestoreObjectsUndoItem(Map& map, const std::vector<Entity*>& entities, const BrushList& brushes) : UndoItem(map), m_entities(entities), m_brushes(brushes) {}
+        RestoreObjectsUndoItem::RestoreObjectsUndoItem(Map& map, const EntityList& entities, const BrushParentMap& removedBrushes, const BrushParentMap& movedBrushes) : UndoItem(map), m_entities(entities), m_removedBrushes(removedBrushes), m_movedBrushes(movedBrushes) {}
+        
+        RestoreObjectsUndoItem::~RestoreObjectsUndoItem() {
+            // because we are the owners of deleted objects, we must delete them
+            while (!m_entities.empty()) delete m_entities.back(), m_entities.pop_back();
+            for (BrushParentMap::iterator it = m_removedBrushes.begin(); it != m_removedBrushes.end(); ++it) delete it->first;
+            for (BrushParentMap::iterator it = m_movedBrushes.begin(); it != m_movedBrushes.end(); ++it) delete it->first;
+        }
+
         
         void RestoreObjectsUndoItem::undo() {
-            Selection& selection = m_map.selection();
-            selection.removeAll();
+            m_map.restoreObjects(m_entities, m_removedBrushes, m_movedBrushes);
             
-            for (unsigned int i = 0; i < m_entities.size(); i++) {
-                Entity* entity = m_entities[i];
-                m_map.addEntity(entity);
-            }
-            
-            for (unsigned int i = 0; i < m_brushes.size(); i++) {
-            }
+            // make sure that the objects are not freed when the undo item is destroyed
+            m_entities.clear();
+            m_removedBrushes.clear();
+            m_movedBrushes.clear();
         }
     }
 }

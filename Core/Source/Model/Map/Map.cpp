@@ -104,7 +104,7 @@ namespace TrenchBroom {
             return m_leakPoints;
         }
 
-        const std::vector<Entity*>& Map::entities() {
+        const EntityList& Map::entities() {
             return m_entities;
         }
 
@@ -134,6 +134,19 @@ namespace TrenchBroom {
 
             std::vector <Entity*> entities;
             entities.push_back(entity);
+            if (m_postNotifications) entitiesWereAdded(entities);
+        }
+
+        void Map::addEntities(const EntityList& entities) {
+            for (unsigned int i = 0; i < entities.size(); i++) {
+                Entity* entity = entities[i];
+                if (!entity->worldspawn() || worldspawn(false) == NULL) {
+                    m_entities.push_back(entity);
+                    entity->setMap(this);
+                    setEntityDefinition(entity);
+                }
+            }
+            
             if (m_postNotifications) entitiesWereAdded(entities);
         }
 
@@ -180,7 +193,7 @@ namespace TrenchBroom {
         }
 
         void Map::setEntityProperty(const std::string& key, const std::string* value) {
-            const std::vector<Entity*>& entities = m_selection->entities();
+            const EntityList& entities = m_selection->entities();
             if (entities.empty()) return;
 
             m_undoManager->begin("Set Entity Property");
@@ -198,7 +211,7 @@ namespace TrenchBroom {
         }
 
         void Map::setEntityProperty(const std::string& key, const Vec3f& value, bool round) {
-            const std::vector<Entity*>& entities = m_selection->entities();
+            const EntityList& entities = m_selection->entities();
             if (entities.empty()) return;
             
             m_undoManager->begin("Set Entity Property");
@@ -215,7 +228,7 @@ namespace TrenchBroom {
         }
         
         void Map::setEntityProperty(const std::string& key, int value) {
-            const std::vector<Entity*>& entities = m_selection->entities();
+            const EntityList& entities = m_selection->entities();
             if (entities.empty()) return;
             
             m_undoManager->begin("Set Entity Property");
@@ -232,7 +245,7 @@ namespace TrenchBroom {
         }
         
         void Map::setEntityProperty(const std::string& key, float value, bool round) {
-            const std::vector<Entity*>& entities = m_selection->entities();
+            const EntityList& entities = m_selection->entities();
             if (entities.empty()) return;
             
             m_undoManager->begin("Set Entity Property");
@@ -322,8 +335,8 @@ namespace TrenchBroom {
             return drag;
         }
 
-        void Map::duplicateObjects(std::vector<Entity*>& newEntities, BrushList& newBrushes) {
-            const std::vector<Entity*>& entities = m_selection->entities();
+        void Map::duplicateObjects(EntityList& newEntities, BrushList& newBrushes) {
+            const EntityList& entities = m_selection->entities();
             const BrushList& brushes = m_selection->brushes();
 
             if (!entities.empty()) {
@@ -359,7 +372,7 @@ namespace TrenchBroom {
         }
 
         void Map::translateObjects(const Vec3f delta, bool lockTextures) {
-            const std::vector<Entity*>& entities = m_selection->entities();
+            const EntityList& entities = m_selection->entities();
             const BrushList& brushes = m_selection->brushes();
 
             m_undoManager->begin("Move Objects");
@@ -383,7 +396,7 @@ namespace TrenchBroom {
         }
 
         void Map::rotateObjects90(EAxis axis, const Vec3f& center, bool clockwise, bool lockTextures) {
-            const std::vector<Entity*>& entities = m_selection->entities();
+            const EntityList& entities = m_selection->entities();
             const BrushList& brushes = m_selection->brushes();
 
             if (!entities.empty()) {
@@ -402,7 +415,7 @@ namespace TrenchBroom {
         }
 
         void Map::rotateObjects(const Quat& rotation, const Vec3f& center, bool lockTextures) {
-            const std::vector<Entity*>& entities = m_selection->entities();
+            const EntityList& entities = m_selection->entities();
             const BrushList& brushes = m_selection->brushes();
 
             if (!entities.empty()) {
@@ -421,7 +434,7 @@ namespace TrenchBroom {
         }
 
         void Map::flipObjects(EAxis axis, const Vec3f& center, bool lockTextures) {
-            const std::vector<Entity*>& entities = m_selection->entities();
+            const EntityList& entities = m_selection->entities();
             const BrushList& brushes = m_selection->brushes();
 
             if (!entities.empty()) {
@@ -440,15 +453,12 @@ namespace TrenchBroom {
         }
 
         void Map::deleteObjects() {
-            const std::vector<Entity*> entities = m_selection->entities();
+            const EntityList entities = m_selection->entities();
             const BrushList brushes = m_selection->brushes();
 
-            typedef std::vector<Entity*> EList;
-            typedef std::map<Brush*, Entity*> BMap;
-            
-            EList removedEntities;
-            BMap removedBrushes;
-            BMap movedBrushes;
+            EntityList removedEntities;
+            BrushParentMap removedBrushes;
+            BrushParentMap movedBrushes;
             if (!brushes.empty()) {
                 m_selection->removeBrushes(brushes);
                 if (m_postNotifications) brushesWillBeRemoved(brushes);
@@ -481,19 +491,51 @@ namespace TrenchBroom {
                 m_selection->removeEntities(removedEntities);
                 if (m_postNotifications) entitiesWillBeRemoved(removedEntities);
                 for (unsigned int i = 0; i < removedEntities.size(); i++) {
-                    std::vector<Entity*>::iterator it = find(m_entities.begin(), m_entities.end(), removedEntities[i]);
+                    EntityList::iterator it = find(m_entities.begin(), m_entities.end(), removedEntities[i]);
                     if (it != m_entities.end())
                         m_entities.erase(it);
                 }
             }
             
             m_undoManager->begin("Delete Objects");
-            m_undoManager->addFunctor<EList, BMap, BMap>(*this, &Map::restoreObjects, removedEntities, removedBrushes, movedBrushes);
+            m_undoManager->addFunctor<EntityList, BrushParentMap, BrushParentMap>(*this, &Map::restoreObjects, removedEntities, removedBrushes, movedBrushes);
             m_undoManager->end();
         }
 
-        void Map::restoreObjects(std::vector<Entity*> removedEntities, std::map<Brush*, Entity*> removedBrushes, std::map<Brush*, Entity*> movedBrushes) {
+        void Map::restoreObjects(EntityList removedEntities, BrushParentMap removedBrushes, BrushParentMap movedBrushes) {
+            m_selection->removeAll();
+
+            if (!removedEntities.empty()) {
+                addEntities(removedEntities);
+                m_selection->addEntities(removedEntities);
+            }
             
+            if (!removedBrushes.empty()) {
+                BrushList removedBrushList;
+                for (BrushParentMap::iterator it = removedBrushes.begin(); it != removedBrushes.end(); ++it) {
+                    Entity* parent = it->second;
+                    Brush* brush = it->first;
+                    parent->addBrush(brush);
+                    removedBrushList.push_back(brush);
+                }
+                brushesWereAdded(removedBrushList);
+                m_selection->addBrushes(removedBrushList);
+            }
+            
+            if (!movedBrushes.empty()) {
+                for (BrushParentMap::iterator it = movedBrushes.begin(); it != movedBrushes.end(); ++it) {
+                    Entity* newParent = it->second;
+                    Brush* brush = it->first;
+                    Entity* oldParent = brush->entity;
+                    oldParent->removeBrush(brush);
+                    newParent->addBrush(brush);
+                }
+            }
+            
+            
+            m_undoManager->begin("Create Objects");
+            m_undoManager->addFunctor(*this, &Map::deleteObjects);
+            m_undoManager->end();
         }
 
         void Map::setTexture(Model::Assets::Texture* texture) {

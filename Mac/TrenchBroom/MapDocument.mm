@@ -161,7 +161,7 @@ namespace TrenchBroom {
     Selection& selection = map.selection();
     selection.removeAll();
     
-    const std::vector<Entity*>& entities = map.entities();
+    const EntityList& entities = map.entities();
     for (unsigned int i = 0; i < entities.size(); i++)
         selection.addBrushes(entities[i]->brushes());
     selection.addEntities(entities);

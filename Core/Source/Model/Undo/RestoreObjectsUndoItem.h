@@ -21,22 +21,25 @@
 #define TrenchBroom_RestoreObjectsUndoItem_h
 
 #include "Model/Undo/UndoItem.h"
+#include "Model/Map/BrushTypes.h"
+#include "Model/Map/EntityTypes.h"
 
-#include <vector>
+#include <map>
 
 namespace TrenchBroom {
     namespace Model {
         class Map;
         class Entity;
         class Brush;
-        
+
         class RestoreObjectsUndoItem : public UndoItem {
         protected:
-            std::vector<Entity*> m_entities;
-            BrushList m_brushes;
+            EntityList m_entities;
+            BrushParentMap m_removedBrushes;
+            BrushParentMap m_movedBrushes;
         public:
-            RestoreObjectsUndoItem(Map& map, const std::vector<Entity*>& entities, const BrushList& brushes);
-            virtual ~RestoreObjectsUndoItem() {}
+            RestoreObjectsUndoItem(Map& map, const EntityList& entities, const BrushParentMap& removedBrushes, const BrushParentMap& movedBrushes);
+            virtual ~RestoreObjectsUndoItem();
             
             virtual void undo();
         };

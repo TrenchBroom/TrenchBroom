@@ -45,11 +45,11 @@ namespace TrenchBroom {
         
         class SelectionEventData {
         public:
-            std::vector<Entity*> entities;
+            EntityList entities;
             BrushList brushes;
             FaceList faces;
             SelectionEventData() {};
-            SelectionEventData(const std::vector<Entity*>& entities) : entities(entities) {}
+            SelectionEventData(const EntityList& entities) : entities(entities) {}
             SelectionEventData(const BrushList& brushes) : brushes(brushes) {}
             SelectionEventData(const FaceList& faces) : faces(faces) {}
             SelectionEventData(Entity& entity) { entities.push_back(&entity); }
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             FaceList m_faces;
             BrushList m_brushes;
             BrushList m_partialBrushes;
-            std::vector<Entity*> m_entities;
+            EntityList m_entities;
             std::vector<Assets::Texture*> m_mruTextures;
             ESelectionMode m_mode;
         public:
@@ -79,7 +79,7 @@ namespace TrenchBroom {
             const FaceList allFaces() const;
             const BrushList& brushes() const;
             const BrushList& partialBrushes() const;
-            const std::vector<Entity*>& entities() const;
+            const EntityList& entities() const;
             const Entity* brushSelectionEntity() const;
             Vec3f center() const;
             BBox bounds() const;
@@ -90,14 +90,14 @@ namespace TrenchBroom {
             void addBrush(Brush& brush);
             void addBrushes(const BrushList& brushes);
             void addEntity(Entity& entity);
-            void addEntities(const std::vector<Entity*>& entities);
+            void addEntities(const EntityList& entities);
             
             void removeFace(Face& face);
             void removeFaces(const FaceList& faces);
             void removeBrush(Brush& brush);
             void removeBrushes(const BrushList& brushes);
             void removeEntity(Entity& entity);
-            void removeEntities(const std::vector<Entity*>& entities);
+            void removeEntities(const EntityList& entities);
             void removeAll();
         };
     }

@@ -91,7 +91,7 @@ namespace TrenchBroom {
 
         SnapshotUndoItem::SnapshotUndoItem(Map& map) : SelectionUndoItem(map) {
             Selection& selection = m_map.selection();
-            const std::vector<Entity*>& entities = selection.entities();
+            const EntityList& entities = selection.entities();
             const BrushList& brushes = selection.brushes();
             const FaceList& faces = selection.faces();
             
@@ -119,7 +119,7 @@ namespace TrenchBroom {
         
         void SnapshotUndoItem::performUndo() {
             Selection& selection = m_map.selection();
-            const std::vector<Entity*>& selectedEntities = selection.entities();
+            const EntityList& selectedEntities = selection.entities();
             const BrushList& selectedBrushes = selection.brushes();
             const FaceList& selectedFaces = selection.faces();
 

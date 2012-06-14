@@ -26,7 +26,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        void GroupManager::entitesAdded(const std::vector<Entity*>& entities) {
+        void GroupManager::entitesAdded(const EntityList& entities) {
             bool changed = false;
             for (unsigned int i = 0; i < entities.size(); i++) {
                 if (entities[i]->group()) {
@@ -40,7 +40,7 @@ namespace TrenchBroom {
                 groupsChanged(*this);
         }
 
-        void GroupManager::entitiesRemoved(const std::vector<Entity*>& entities) {
+        void GroupManager::entitiesRemoved(const EntityList& entities) {
             bool changed = false;
             for (unsigned int i = 0; i < entities.size(); i++) {
                 if (entities[i]->group()) {
@@ -67,7 +67,7 @@ namespace TrenchBroom {
         }
 
         void GroupManager::mapLoaded(Map& map) {
-            const std::vector<Entity*>& entities = map.entities();
+            const EntityList& entities = map.entities();
             for (unsigned int i = 0; i < entities.size(); i++) {
                 if (entities[i]->group()) {
                     m_groups.push_back(entities[i]);
@@ -100,7 +100,7 @@ namespace TrenchBroom {
             m_map.mapCleared            -= new Model::Map::MapEvent::Listener<GroupManager>(this, &GroupManager::mapCleared);
         }
 
-        const std::vector<Entity*>& GroupManager::groups() const {
+        const EntityList& GroupManager::groups() const {
             return m_groups;
         }
 
