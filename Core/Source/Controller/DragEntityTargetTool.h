@@ -29,6 +29,7 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class EntityFigure;
+        class PositioningGuideFigure;
     }
     
     namespace Controller {
@@ -36,12 +37,14 @@ namespace TrenchBroom {
         
         class DragEntityTargetTool : public DragTargetTool {
         protected:
-            Renderer::EntityFigure* m_feedbackFigure;
+            Renderer::EntityFigure* m_entityFigure;
+            Renderer::PositioningGuideFigure* m_guideFigure;
             BBox m_bounds;
             
-            void updateFeedbackFigure(const DragInfo& info);
+            void deleteFigures();
+            void updateFigures(const DragInfo& info, const Model::EntityDefinition& definition);
         public:
-            DragEntityTargetTool(Editor& editor) : DragTargetTool(editor), m_feedbackFigure(NULL) {}
+            DragEntityTargetTool(Editor& editor) : DragTargetTool(editor), m_entityFigure(NULL), m_guideFigure(NULL) {}
             virtual ~DragEntityTargetTool() {}
             
             virtual bool accepts(const DragInfo& info);

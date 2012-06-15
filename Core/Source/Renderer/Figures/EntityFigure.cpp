@@ -31,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        EntityFigure::EntityFigure(Controller::Editor& editor, Model::EntityDefinition& entityDefinition) : Figure(), m_editor(editor), m_entityDefinition(entityDefinition), m_valid(false), m_entityRenderer(NULL), m_boundsVbo(NULL), m_boundsBlock(NULL) {
+        EntityFigure::EntityFigure(Controller::Editor& editor, Model::EntityDefinition& entityDefinition, bool renderBounds) : Figure(), m_editor(editor), m_entityDefinition(entityDefinition), m_valid(false), m_entityRenderer(NULL), m_boundsVbo(NULL), m_boundsBlock(NULL), m_renderBounds(renderBounds) {
         }
         
         EntityFigure::~EntityFigure() {
@@ -51,23 +51,25 @@ namespace TrenchBroom {
                 return;
             
             if (!m_valid) {
-                std::vector<Vec3f> edges = bboxEdgeVertices(m_entityDefinition.bounds);
-                m_vertexCount = edges.size();
-                m_boundsVbo = new Vbo(GL_ARRAY_BUFFER, 3 * 4 * m_vertexCount);
-                m_boundsBlock = m_boundsVbo->allocBlock(3 * 4 * m_vertexCount);
-                
-                m_boundsVbo->activate();
-                m_boundsVbo->map();
-                unsigned int offset = 0;
-                for (unsigned int i = 0; i < m_vertexCount; i++)
-                    offset = m_boundsBlock->writeVec(edges[i], offset);
-                m_boundsVbo->unmap();
+                if (m_renderBounds) {
+                    std::vector<Vec3f> edges = bboxEdgeVertices(m_entityDefinition.bounds);
+                    m_vertexCount = edges.size();
+                    m_boundsVbo = new Vbo(GL_ARRAY_BUFFER, 3 * 4 * m_vertexCount);
+                    m_boundsBlock = m_boundsVbo->allocBlock(3 * 4 * m_vertexCount);
+                    
+                    m_boundsVbo->activate();
+                    m_boundsVbo->map();
+                    unsigned int offset = 0;
+                    for (unsigned int i = 0; i < m_vertexCount; i++)
+                        offset = m_boundsBlock->writeVec(edges[i], offset);
+                    m_boundsVbo->unmap();
+                }
 
                 EntityRendererManager& rendererManager = m_editor.renderer()->entityRendererManager();
                 m_entityRenderer = rendererManager.entityRenderer(m_entityDefinition, m_editor.map().mods());
                 
                 m_valid = true;
-            } else {
+            } else if (m_renderBounds) {
                 m_boundsVbo->activate();
             }
 
@@ -75,16 +77,18 @@ namespace TrenchBroom {
             glPushMatrix();
             glTranslatef(m_position.x, m_position.y, m_position.z);
             
-            glDisable(GL_TEXTURE_2D);
-            glColorV4f(m_entityDefinition.color);
-
-            glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
-            glEnableClientState(GL_VERTEX_ARRAY);
-            glVertexPointer(3, GL_FLOAT, 0, 0);
-            glDrawArrays(GL_LINES, 0, m_vertexCount);
-            glPopClientAttrib();
-
-            m_boundsVbo->deactivate();
+            if (m_renderBounds) {
+                glDisable(GL_TEXTURE_2D);
+                glColorV4f(m_entityDefinition.color);
+                
+                glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
+                glEnableClientState(GL_VERTEX_ARRAY);
+                glVertexPointer(3, GL_FLOAT, 0, 0);
+                glDrawArrays(GL_LINES, 0, m_vertexCount);
+                glPopClientAttrib();
+                
+                m_boundsVbo->deactivate();
+            }
 
             if (m_entityRenderer != NULL) {
                 glEnable(GL_TEXTURE_2D);

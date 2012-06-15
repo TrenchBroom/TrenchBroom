@@ -23,11 +23,16 @@ namespace TrenchBroom {
     namespace Controller {
         DragPlane::DragPlane() : m_normal(ZAxisPos) {}
 
-        DragPlane::DragPlane(const Vec3f& direction) : m_normal(direction.firstAxis(false)) {}
+        DragPlane::DragPlane(const Vec3f& normal) : m_normal(normal.firstAxis()) {}
         
         float DragPlane::intersect(const Ray& ray, const Vec3f& planePosition) {
             Plane plane(m_normal, planePosition);
             return plane.intersectWithRay(ray);
         }
+        
+        const Vec3f& DragPlane::normal() {
+            return m_normal;
+        }
+
     }
 }

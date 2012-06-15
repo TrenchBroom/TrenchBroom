@@ -41,6 +41,7 @@ namespace TrenchBroom {
         class EntityFigure : public Figure {
         protected:
             Model::EntityDefinition& m_entityDefinition;
+            bool m_renderBounds;
             bool m_valid;
             Vbo* m_boundsVbo;
             VboBlock* m_boundsBlock;
@@ -50,7 +51,7 @@ namespace TrenchBroom {
             EntityRenderer* m_entityRenderer;
             Vec3f m_position;
         public:
-            EntityFigure(Controller::Editor& editor, Model::EntityDefinition& entityDefinition);
+            EntityFigure(Controller::Editor& editor, Model::EntityDefinition& entityDefinition, bool renderBounds);
             virtual ~EntityFigure();
 
             virtual void setPosition(const Vec3f& position);

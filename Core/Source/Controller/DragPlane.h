@@ -29,9 +29,10 @@ namespace TrenchBroom {
             Vec3f m_normal;
         public:
             DragPlane();
-            DragPlane(const Vec3f& direction);
+            DragPlane(const Vec3f& normal);
             
             float intersect(const Ray& ray, const Vec3f& planePosition);
+            const Vec3f& normal();
         };
     }
 }

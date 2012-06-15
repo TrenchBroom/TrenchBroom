@@ -29,7 +29,7 @@ namespace TrenchBroom {
             }
             
             if (altPlaneModifierPressed(event))
-                m_dragPlane = new DragPlane(event.ray.direction);
+                m_dragPlane = new DragPlane(event.ray.direction * -1.0f);
             else
                 m_dragPlane = new DragPlane();
         }
