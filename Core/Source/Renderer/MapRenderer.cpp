@@ -767,11 +767,11 @@ namespace TrenchBroom {
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
 
             if (context.options.renderGrid) {
-                Controller::Grid& grid = m_editor.grid();
                 glActiveTexture(GL_TEXTURE2);
                 glEnable(GL_TEXTURE_2D);
-                m_gridRenderer->activate(grid);
+                m_gridRenderer->activate(m_editor.grid());
                 glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+                
                 glClientActiveTexture(GL_TEXTURE2);
                 glEnableClientState(GL_TEXTURE_COORD_ARRAY);
                 glTexCoordPointer(2, GL_FLOAT, FaceVertexSize, (const GLvoid *)0L);
@@ -794,7 +794,7 @@ namespace TrenchBroom {
                 glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2);
             }
 
-            bool textureActive;
+            bool textureActive = textured;
             glActiveTexture(GL_TEXTURE0);
             if (textured) {
                 glEnable(GL_TEXTURE_2D);
@@ -803,10 +803,8 @@ namespace TrenchBroom {
                 glClientActiveTexture(GL_TEXTURE0);
                 glEnableClientState(GL_TEXTURE_COORD_ARRAY);
                 glTexCoordPointer(2, GL_FLOAT, FaceVertexSize, (const GLvoid *)(long)TexCoordSize);
-                textureActive = true;
             } else {
                 glDisable(GL_TEXTURE_2D);
-                textureActive = false;
             }
 
             glVertexPointer(3, GL_FLOAT, FaceVertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize));
@@ -828,8 +826,10 @@ namespace TrenchBroom {
                     else
                         glColorV4f(context.preferences.faceColor());
                 }
+                
                 glDrawArrays(GL_TRIANGLES, renderInfo.offset / FaceVertexSize, renderInfo.vertexCount);
-                if (renderInfo.texture && !renderInfo.texture->dummy) renderInfo.texture->deactivate();
+                if (renderInfo.texture && renderInfo.texture != NULL)
+                    renderInfo.texture->deactivate();
             }
             
             if (textured && textureActive)
@@ -839,6 +839,7 @@ namespace TrenchBroom {
                 glActiveTexture(GL_TEXTURE1);
                 m_dummyTexture->deactivate();
                 glDisable(GL_TEXTURE_2D);
+                glActiveTexture(GL_TEXTURE0);
             }
 
             if (context.options.renderGrid) {

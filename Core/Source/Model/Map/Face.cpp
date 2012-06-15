@@ -223,7 +223,7 @@ namespace TrenchBroom {
             m_gridCoords.resize(vertexCount);
             m_texCoords.resize(vertexCount);
             for (unsigned int i = 0; i < vertexCount; i++) {
-                Vec3f& vertex = side->vertices[i]->position;
+                const Vec3f& vertex = side->vertices[i]->position;
 
                 m_texCoords[i].x = ((vertex | m_scaledTexAxisX) + xOffset) / width,
                 m_texCoords[i].y = ((vertex | m_scaledTexAxisY) + yOffset) / height;
@@ -232,12 +232,15 @@ namespace TrenchBroom {
                     case TB_AX_X:
                         m_gridCoords[i].x = (vertex.y + 0.5f) / 256.0f;
                         m_gridCoords[i].y = (vertex.z + 0.5f) / 256.0f;
+                        break;
                     case TB_AX_Y:
                         m_gridCoords[i].x = (vertex.x + 0.5f) / 256.0f;
                         m_gridCoords[i].y = (vertex.z + 0.5f) / 256.0f;
+                        break;
                     default:
                         m_gridCoords[i].x = (vertex.x + 0.5f) / 256.0f;
                         m_gridCoords[i].y = (vertex.y + 0.5f) / 256.0f;
+                        break;
                 }
             }
             
