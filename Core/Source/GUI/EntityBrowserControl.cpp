@@ -74,6 +74,7 @@ namespace TrenchBroom {
                 Vec3f center = definition->bounds.center();
                 
                 Renderer::glColorV4f(definition->color);
+                glDisable(GL_TEXTURE_2D);
                 glBegin(GL_LINES);
                 std::vector<Vec3f> vertices = Renderer::bboxEdgeVertices(definition->bounds);
                 for (unsigned int l = 0; l < vertices.size(); l++) {

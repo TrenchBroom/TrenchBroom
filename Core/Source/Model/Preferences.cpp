@@ -58,7 +58,7 @@ namespace TrenchBroom {
             m_selectedFaceColor = Vec4f(0.6f, 0.35f, 0.35f, 1);
             m_selectedEdgeColor = Vec4f(1, 0, 0, 1);
             m_hiddenSelectedEdgeColor = Vec4f(1, 0, 0, 0.35f);
-            m_entityBoundsColor = Vec4f(0.5f, 0.5f, 0.5f, 1);
+            m_entityBoundsColor = Vec4f(0.5f, 0.5f, 0.5f, 1.0f);
             m_entityBoundsWireframeColor = Vec4f(0.5f, 0.5f, 0.5f, 0.6f);
             m_selectedEntityBoundsColor = m_selectedEdgeColor;
             m_hiddenSelectedEntityBoundsColor = m_hiddenSelectedEdgeColor;

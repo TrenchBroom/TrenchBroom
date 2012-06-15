@@ -476,7 +476,7 @@ namespace TrenchBroom {
                 for (unsigned int i = 0; i < event.entities.size(); i++) {
                     Model::Entity* entity = event.entities[i];
                     EntityRenderers::iterator it = m_selectedEntityRenderers.find(entity);
-                    if (it != m_entityRenderers.end()) {
+                    if (it != m_selectedEntityRenderers.end()) {
                         m_entityRenderers[entity] = it->second;
                         m_selectedEntityRenderers.erase(it);
                     }

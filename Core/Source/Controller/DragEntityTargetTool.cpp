@@ -70,8 +70,11 @@ namespace TrenchBroom {
                 float dist = dragPlane.intersect(info.event.ray, hit->hitPoint);
                 Vec3f newPos = info.event.ray.pointAtDistance(dist);
                 delta = grid.moveDelta(m_bounds, m_editor.map().worldBounds(), m_bounds.center() - offset, newPos);
+
+                EAxis a = dragPlane.normal().firstComponent();
+                if (dragPlane.normal()[a] > 0) delta[a] = hit->hitPoint[a] - m_bounds.min[a];
+                else delta[a] = hit->hitPoint[a] - m_bounds.max[a];
             }
-            
             
             if (!delta.null()) {
                 m_bounds = m_bounds.translate(delta);
