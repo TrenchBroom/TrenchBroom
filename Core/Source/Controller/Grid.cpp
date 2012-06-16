@@ -57,7 +57,7 @@ namespace TrenchBroom {
         
         float Grid::snapUp(float f) {
             int actSize = actualSize();
-            return actSize * floor(f / actSize);
+            return actSize * ceil(f / actSize);
         }
 
         Vec3f Grid::snap(const Vec3f& p) {

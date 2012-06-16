@@ -38,6 +38,12 @@ namespace TrenchBroom {
             return m_mruTextures;
         }
 
+        Assets::Texture* Selection::texture() const {
+            if (m_mruTextures.empty())
+                return NULL;
+            return m_mruTextures.back();
+        }
+
         const FaceList& Selection::faces() const {
             return m_faces;
         }

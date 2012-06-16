@@ -20,26 +20,30 @@
 #ifndef TrenchBroom_RenderContext_h
 #define TrenchBroom_RenderContext_h
 
+#include "Model/Preferences.h"
+
 namespace TrenchBroom {
     namespace Controller {
         class Camera;
+        class Grid;
         class TransientOptions;
-    }
-    
-    namespace Model {
-        class Preferences;
     }
     
     class Filter;
     
     namespace Renderer {
+        class GridRenderer;
+        
         class RenderContext {
         public:
             Controller::Camera& camera;
             Filter& filter;
+            Controller::Grid& grid;
             Controller::TransientOptions& options;
             Model::Preferences& preferences;
-            RenderContext(Controller::Camera& camera, Filter& filter, Controller::TransientOptions& options);
+            GridRenderer& gridRenderer;
+            
+            RenderContext(Controller::Camera& camera, Filter& filter, Controller::Grid& grid, Controller::TransientOptions& options, GridRenderer& gridRenderer) : camera(camera), filter(filter), grid(grid), options(options), preferences(*Model::Preferences::sharedPreferences), gridRenderer(gridRenderer) {}
         };
     }
 }

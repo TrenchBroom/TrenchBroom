@@ -140,6 +140,7 @@ public:
     float length() const;
     float lengthSquared() const;
     const Vec2f normalize() const;
+    const Vec2f correct() const;
     bool equals(const Vec2f& other) const;
     bool equals(const Vec2f& other, float delta) const;
     void write(std::ostream& str) const;
@@ -149,6 +150,7 @@ public:
 class Vec3f {
 public:
     float x,y,z;
+    bool operator== (const Vec3f& right) const;
     Vec3f& operator= (const Vec3f& right);
     const Vec3f operator+ (const Vec3f& right) const;
     const Vec3f operator- (const Vec3f& right) const;
@@ -170,6 +172,7 @@ public:
     float length() const;
     float lengthSquared() const;
     const Vec3f normalize() const;
+    const Vec3f correct() const;
     bool equals(const Vec3f& other) const;
     bool equals(const Vec3f& other, float delta) const;
     bool null() const;
@@ -221,6 +224,7 @@ public:
     float length() const;
     float lengthSquared() const;
     const Vec4f normalize() const;
+    const Vec4f correct() const;
     bool equals(const Vec4f& other) const;
     bool equals(const Vec4f& other, float delta) const;
     void write(std::ostream& str) const;
@@ -409,6 +413,7 @@ private:
 public:
     Vec3f min;
     Vec3f max;
+    bool operator== (const BBox& right) const;
     const BBox operator+ (const BBox& right) const;
     const BBox operator+ (const Vec3f& right) const;
     BBox& operator+= (const BBox& right);
@@ -419,6 +424,7 @@ public:
     const BBox maxBounds() const;
     const BBox centered() const;
     const Vec3f center() const;
+    const BBox repaired() const;
     const Vec3f size() const;
     const Vec3f vertex(bool x, bool y, bool z) const;
     bool contains(const Vec3f& point) const;

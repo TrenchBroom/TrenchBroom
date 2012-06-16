@@ -74,6 +74,7 @@ namespace TrenchBroom {
             ESelectionMode mode() const;
             bool empty() const;
             const std::vector<Assets::Texture*>& mruTextures() const;
+            Assets::Texture* texture() const;
             const FaceList& faces() const;
             const FaceList brushFaces() const;
             const FaceList allFaces() const;

@@ -250,6 +250,11 @@ namespace TrenchBroom {
         void Face::init() {
             static int currentId = 1;
             faceId = currentId++;
+            xOffset = 0.0f;
+            yOffset = 0.0f;
+            rotation = 0.0f;
+            xScale = 1.0f;
+            yScale = 1.0f;
             brush = NULL;
             texture = NULL;
             filePosition = -1;

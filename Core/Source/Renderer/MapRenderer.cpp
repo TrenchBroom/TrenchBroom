@@ -769,7 +769,7 @@ namespace TrenchBroom {
             if (context.options.renderGrid) {
                 glActiveTexture(GL_TEXTURE2);
                 glEnable(GL_TEXTURE_2D);
-                m_gridRenderer->activate(m_editor.grid());
+                context.gridRenderer.activate(context.grid);
                 glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
                 
                 glClientActiveTexture(GL_TEXTURE2);
@@ -844,7 +844,7 @@ namespace TrenchBroom {
 
             if (context.options.renderGrid) {
                 glActiveTexture(GL_TEXTURE2);
-                m_gridRenderer->deactivate();
+                context.gridRenderer.deactivate();
                 glDisable(GL_TEXTURE_2D);
                 glActiveTexture(GL_TEXTURE0);
             }
@@ -872,8 +872,6 @@ namespace TrenchBroom {
             m_entityBoundsBlock = NULL;
             m_selectedEntityBoundsBlock = NULL;
             
-            m_gridRenderer = new GridRenderer(prefs.gridAlpha());
-
             m_entityRendererManager = new EntityRendererManager(prefs.quakePath(), m_editor.palette());
             m_entityRendererCacheValid = true;
 
@@ -935,7 +933,6 @@ namespace TrenchBroom {
             delete m_edgeVbo;
             delete m_entityBoundsVbo;
             
-            delete m_gridRenderer;
             delete m_entityRendererManager;
 
             delete m_classnameRenderer;
@@ -947,12 +944,15 @@ namespace TrenchBroom {
 
         void MapRenderer::addFigure(Figure& figure) {
             m_figures.push_back(&figure);
+            rendererChanged(*this);
         }
         
         void MapRenderer::removeFigure(Figure& figure) {
             std::vector<Figure*>::iterator it = find(m_figures.begin(), m_figures.end(), &figure);
-            if (it != m_figures.end())
+            if (it != m_figures.end()) {
                 m_figures.erase(it);
+                rendererChanged(*this);
+            }
         }
 
         void MapRenderer::render(RenderContext& context) {

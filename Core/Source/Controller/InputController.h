@@ -38,9 +38,6 @@ namespace TrenchBroom {
         
         class Tool;
         class ToolEvent;
-        class CameraTool;
-        class SelectionTool;
-        class MoveObjectTool;
         class DragTargetTool;
         class DragInfo;
         class Editor;

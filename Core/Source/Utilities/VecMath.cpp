@@ -107,6 +107,11 @@ const Vec2f Vec2f::normalize() const {
                  y / l);
 }
 
+const Vec2f Vec2f::correct() const {
+    return Vec2f(Math::fcorrect(x),
+                 Math::fcorrect(y));
+}
+
 bool Vec2f::equals(const Vec2f& other) const {
     return equals(other, Math::AlmostZero);
 }
@@ -126,6 +131,10 @@ std::string Vec2f::asString() const {
     std::stringstream result;
     write(result);
     return result.str();
+}
+
+bool Vec3f::operator== (const Vec3f& right) const {
+    return x == right.x && y == right.y && z == right.z;
 }
 
 Vec3f& Vec3f::operator= (const Vec3f& right) {
@@ -254,6 +263,12 @@ const Vec3f Vec3f::normalize() const {
     return Vec3f(x / l, 
                  y / l,
                  z / l);
+}
+
+const Vec3f Vec3f::correct() const {
+    return Vec3f(Math::fcorrect(x),
+                 Math::fcorrect(y),
+                 Math::fcorrect(z));
 }
 
 bool Vec3f::equals(const Vec3f& other) const {
@@ -569,6 +584,13 @@ const Vec4f Vec4f::normalize() const {
                  y / l, 
                  z / l, 
                  w / l);
+}
+
+const Vec4f Vec4f::correct() const {
+    return Vec4f(Math::fcorrect(x),
+                 Math::fcorrect(y),
+                 Math::fcorrect(z),
+                 Math::fcorrect(w));
 }
 
 bool Vec4f::equals(const Vec4f& other) const {
@@ -1372,6 +1394,10 @@ void BBox::repair() {
     max.z = Math::fmax(min.z, max.z);
 }
 
+bool BBox::operator== (const BBox& right) const {
+    return min == right.min && max == right.max;
+}
+
 const BBox BBox::operator+ (const BBox& right) const {
     return BBox(Math::fmin(min.x, right.min.x),
                 Math::fmin(min.y, right.min.y),
@@ -1437,6 +1463,12 @@ const Vec3f BBox::center() const {
     return Vec3f((max.x + min.x) / 2,
                  (max.y + min.y) / 2,
                  (max.z + min.z) / 2);
+}
+
+const BBox BBox::repaired() const {
+    BBox result(min, max);
+    result.repair();
+    return result;
 }
 
 const Vec3f BBox::size() const {

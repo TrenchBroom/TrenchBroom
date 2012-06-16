@@ -59,7 +59,6 @@ namespace TrenchBroom {
         class EntityRendererManager;
         class StringRenderer;
         class TextRenderer;
-        class GridRenderer;
         class FontManager;
         class ChangeSet;
         class RenderContext;
@@ -103,9 +102,6 @@ namespace TrenchBroom {
             EdgeRenderInfo m_edgeRenderInfo;
             EdgeRenderInfo m_selectedEdgeRenderInfo;
 
-            // grid
-            GridRenderer* m_gridRenderer;
-
             // entity bounds rendering
             Vbo* m_entityBoundsVbo;
             VboBlock* m_entityBoundsBlock;
@@ -141,7 +137,7 @@ namespace TrenchBroom {
             void writeFaceData(RenderContext& context, std::vector<Model::Face*>& faces, FaceRenderInfos& renderInfos, VboBlock& block);
             void writeEdgeData(RenderContext& context, std::vector<Model::Brush*>& brushes, std::vector<Model::Face*>& faces, EdgeRenderInfo& renderInfo, VboBlock& block);
             void rebuildGeometryData(RenderContext& context);
-            void  writeEntityBounds(RenderContext& context, const std::vector<Model::Entity*>& entities, EdgeRenderInfo& renderInfo, VboBlock& block);
+            void writeEntityBounds(RenderContext& context, const std::vector<Model::Entity*>& entities, EdgeRenderInfo& renderInfo, VboBlock& block);
             void rebuildEntityData(RenderContext& context);
             
             void entitiesWereAdded(const std::vector<Model::Entity*>& entities);

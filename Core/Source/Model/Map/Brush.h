@@ -56,10 +56,10 @@ namespace TrenchBroom {
 
             Brush(const BBox& worldBounds);
             Brush(const BBox& worldBounds, const Brush& brushTemplate);
-            Brush(const BBox& worldBounds, const BBox& brushBounds, Assets::Texture& texture);
+            Brush(const BBox& worldBounds, const BBox& brushBounds, Assets::Texture* texture);
             ~Brush();
             
-            void restore(const Brush& brushTemplate);
+            void restore(const Brush& brushTemplate, bool checkId = false);
             
             const BBox& bounds() const;
             EMapObjectType objectType() const;

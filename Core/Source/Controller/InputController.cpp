@@ -20,6 +20,7 @@
 #include "InputController.h"
 #include "Controller/Camera.h"
 #include "Controller/CameraTool.h"
+#include "Controller/CreateBrushTool.h"
 #include "Controller/DragEntityTargetTool.h"
 #include "Controller/DragTextureTargetTool.h"
 #include "Controller/Editor.h"
@@ -41,18 +42,15 @@ namespace TrenchBroom {
         }
 
         InputController::InputController(Editor& editor) : m_editor(editor), m_currentDragInfo(DragInfo(m_currentEvent)) {
-            CameraTool* cameraTool = new CameraTool(m_editor);
-            ToolPtr cameraToolPtr = std::tr1::shared_ptr<CameraTool>(cameraTool);
+            ToolPtr cameraTool = ToolPtr(new CameraTool(m_editor));
+            ToolPtr selectionTool = ToolPtr(new SelectionTool(m_editor));
+            ToolPtr moveObjectTool = ToolPtr(new MoveObjectTool(m_editor));
+            ToolPtr createBrushTool = ToolPtr(new CreateBrushTool(m_editor));
             
-            SelectionTool* selectionTool = new SelectionTool(m_editor);
-            ToolPtr selectionToolPtr = std::tr1::shared_ptr<SelectionTool>(selectionTool);
-            
-            MoveObjectTool* moveObjectTool = new MoveObjectTool(m_editor);
-            ToolPtr moveObjectToolPtr = std::tr1::shared_ptr<MoveObjectTool>(moveObjectTool);
-
-            m_receiverChain.push_back(cameraToolPtr);
-            m_receiverChain.push_back(selectionToolPtr);
-            m_receiverChain.push_back(moveObjectToolPtr);
+            m_receiverChain.push_back(cameraTool);
+            m_receiverChain.push_back(selectionTool);
+            m_receiverChain.push_back(moveObjectTool);
+            m_receiverChain.push_back(createBrushTool);
             
             m_dragStatus = TB_MS_NONE;
             m_dragScrollReceiver = ToolPtr();

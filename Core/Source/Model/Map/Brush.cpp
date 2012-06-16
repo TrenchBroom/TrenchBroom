@@ -42,37 +42,38 @@ namespace TrenchBroom {
         
         Brush::Brush(const BBox& worldBounds, const Brush& brushTemplate) : MapObject(), worldBounds(worldBounds) {
             init();
-            restore(brushTemplate);
+            restore(brushTemplate, false);
         }
         
-        Brush::Brush(const BBox& worldBounds, const BBox& brushBounds, Assets::Texture& texture) : MapObject(), worldBounds(worldBounds) {
+        Brush::Brush(const BBox& worldBounds, const BBox& brushBounds, Assets::Texture* texture) : MapObject(), worldBounds(worldBounds) {
             init();
             
             Vec3f p1, p2, p3;
+            std::string textureName = texture != NULL ? texture->name : "";
             
             p1 = brushBounds.min;
             p2 = p1;
             p2.z = brushBounds.max.z;
             p3 = p1;
             p3.x = brushBounds.max.x;
-            Face* front = new Face(worldBounds, p1, p2, p3, "");
-            front->setTexture(&texture);
+            Face* front = new Face(worldBounds, p1, p2, p3, textureName);
+            front->setTexture(texture);
             addFace(front);
             
             p2 = p1;
             p2.y = brushBounds.max.y;
             p3 = p1;
             p3.z = brushBounds.max.z;
-            Face* left = new Face(worldBounds, p1, p2, p3, "");
-            left->setTexture(&texture);
+            Face* left = new Face(worldBounds, p1, p2, p3, textureName);
+            left->setTexture(texture);
             addFace(left);
             
             p2 = p1;
             p2.x = brushBounds.max.x;
             p3 = p1;
             p3.y = brushBounds.max.y;
-            Face* bottom = new Face(worldBounds, p1, p2, p3, "");
-            bottom->setTexture(&texture);
+            Face* bottom = new Face(worldBounds, p1, p2, p3, textureName);
+            bottom->setTexture(texture);
             addFace(bottom);
             
             p1 = brushBounds.max;
@@ -80,24 +81,24 @@ namespace TrenchBroom {
             p2.x = brushBounds.min.x;
             p3 = p1;
             p3.z = brushBounds.min.z;
-            Face* back = new Face(worldBounds, p1, p2, p3, "");
-            back->setTexture(&texture);
+            Face* back = new Face(worldBounds, p1, p2, p3, textureName);
+            back->setTexture(texture);
             addFace(back);
             
             p2 = p1;
             p2.z = brushBounds.min.z;
             p3 = p1;
             p3.y = brushBounds.min.y;
-            Face* right = new Face(worldBounds, p1, p2, p3, "");
-            right->setTexture(&texture);
+            Face* right = new Face(worldBounds, p1, p2, p3, textureName);
+            right->setTexture(texture);
             addFace(right);
             
             p2 = p1;
             p2.y = brushBounds.min.y;
             p3 = p1;
             p3.x = brushBounds.min.x;
-            Face* top = new Face(worldBounds, p1, p2, p3, "");
-            top->setTexture(&texture);
+            Face* top = new Face(worldBounds, p1, p2, p3, textureName);
+            top->setTexture(texture);
             addFace(top);
         }
         
@@ -120,8 +121,9 @@ namespace TrenchBroom {
             }
         }
         
-        void Brush::restore(const Brush& brushTemplate) {
-            assert(uniqueId() == brushTemplate.uniqueId());
+        void Brush::restore(const Brush& brushTemplate, bool checkId) {
+            if (checkId)
+                assert(uniqueId() == brushTemplate.uniqueId());
             
             while(!faces.empty()) delete faces.back(), faces.pop_back();
             if (geometry != NULL)
@@ -133,7 +135,9 @@ namespace TrenchBroom {
                 Face* face = new Face(worldBounds, *templateFaces[i]);
                 addFace(face);
             }
-            entity->brushChanged(this);
+            
+            if (entity != NULL)
+                entity->brushChanged(this);
         }
         
         const BBox& Brush::bounds() const {
