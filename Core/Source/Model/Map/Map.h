@@ -106,10 +106,8 @@ namespace TrenchBroom {
             void setEntityProperty(const std::string& key, int value);
             void setEntityProperty(const std::string& key, float value, bool round);
             
-            void addBrushesToEntity(Entity& entity);
             void moveBrushesToEntity(Entity& entity);
             Brush* createBrush(Entity& entity, Brush& brushTemplate);
-            Brush* createBrush(Entity& entity, BBox bounds, Assets::Texture& texture);
             void snapBrushes();
             bool resizeBrushes(FaceList& faces, float delta, bool lockTextures);
             

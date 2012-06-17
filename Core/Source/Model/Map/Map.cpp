@@ -261,14 +261,6 @@ namespace TrenchBroom {
             m_undoManager->end();
         }
 
-        void Map::addBrushesToEntity(Entity& entity) {
-            const BrushList& brushes = m_selection->brushes();
-            if (brushes.empty()) return;
-
-            entity.addBrushes(brushes);
-            if (m_postNotifications) brushesWereAdded(brushes);
-        }
-
         void Map::moveBrushesToEntity(Entity& entity) {
             const BrushList brushes = m_selection->brushes();
             if (brushes.empty()) return;
@@ -283,19 +275,14 @@ namespace TrenchBroom {
             if (!m_worldBounds.contains(brushTemplate.bounds())) return NULL;
 
             Brush* brush = new Brush(m_worldBounds, brushTemplate);
+            BrushList brushes;
+            brushes.push_back(brush);
+            
+            entity.addBrushes(brushes);
+            if (m_postNotifications) brushesWereAdded(brushes);
+            
             m_selection->removeAll();
-            m_selection->addBrush(*brush);
-            addBrushesToEntity(entity);
-            return brush;
-        }
-
-        Brush* Map::createBrush(Entity& entity, BBox bounds, Assets::Texture& texture) {
-            if (!m_worldBounds.contains(bounds)) return NULL;
-
-            Brush* brush = new Brush(m_worldBounds, bounds, &texture);
-            m_selection->removeAll();
-            m_selection->addBrush(*brush);
-            addBrushesToEntity(entity);
+            m_selection->addBrushes(brushes);
             return brush;
         }
 

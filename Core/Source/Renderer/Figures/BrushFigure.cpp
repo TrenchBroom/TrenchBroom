@@ -211,8 +211,12 @@ namespace TrenchBroom {
             glDrawArrays(GL_LINES, 0, m_edgeVertexCount);
             
             glEnable(GL_DEPTH_TEST);
+            glSetEdgeOffset(0.2f);
+            glDepthFunc(GL_LEQUAL);
             glColorV4f(context.preferences.selectedEdgeColor());
             glDrawArrays(GL_LINES, 0, m_edgeVertexCount);
+            glDepthFunc(GL_LESS);
+            glResetEdgeOffset();
             
             glPopClientAttrib();       
             m_vbo->deactivate();

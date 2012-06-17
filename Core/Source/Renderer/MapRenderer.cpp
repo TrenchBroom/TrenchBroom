@@ -61,10 +61,10 @@ namespace TrenchBroom {
         TexturedTriangleRenderInfo::TexturedTriangleRenderInfo(Model::Assets::Texture* texture, GLuint offset, GLuint vertexCount) : texture(texture), offset(offset), vertexCount(vertexCount) {}
 
         bool compareFacesByTexture(const Model::Face* left, const Model::Face* right) {
-            if (left->texture == NULL)
-                return true;
             if (right->texture == NULL)
                 return false;
+            if (left->texture == NULL)
+                return true;
             
             return left->texture->uniqueId < right->texture->uniqueId;
         }
