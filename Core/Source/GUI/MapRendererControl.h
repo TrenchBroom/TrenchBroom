@@ -52,6 +52,7 @@ namespace TrenchBroom {
             virtual void OnMouseClickLeft( int x, int y, bool bDown );
             virtual void OnMouseClickRight( int x, int y, bool bDown );
 
+            virtual bool OnChar(Gwen::UnicodeChar c);
             virtual bool OnKeyPress( int iKey, bool bPress = true );
             virtual bool OnKeyRelease( int iKey );
             

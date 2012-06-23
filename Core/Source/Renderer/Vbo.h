@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_Vbo_h
 #define TrenchBroom_Vbo_h
 
+#include <cassert>
+#include <cstring>
 #include <vector>
 
 #include "Utilities/VecMath.h"
@@ -29,34 +31,8 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class Vbo;
         class VboBlock;
 
-        class VboBlock {
-        private:
-            Vbo& m_vbo;
-            void insertBetween(VboBlock* previousBlock, VboBlock* nextBlock);
-            friend class Vbo;
-        public:
-            unsigned int address;
-            unsigned int capacity;
-            bool free;
-            VboBlock* previous;
-            VboBlock* next;
-
-            VboBlock(Vbo& vbo, int address, int capacity);
-            unsigned int writeBuffer(const unsigned char* buffer, unsigned int offset, unsigned int length);
-            unsigned int writeByte(unsigned char b, unsigned int offset);
-            unsigned int writeFloat(float f, unsigned int offset);
-            unsigned int writeUInt32(unsigned int i, unsigned int offset);
-            unsigned int writeColor(const Vec4f& color, unsigned int offset);
-            unsigned int writeVec(const Vec4f& vec, unsigned int offset);
-            unsigned int writeVec(const Vec3f& vec, unsigned int offset);
-            unsigned int writeVec(const Vec2f& vec, unsigned int offset);
-            void freeBlock();
-            int compare(unsigned int anAddress, unsigned int aCapacity);
-        };
-        
         class Vbo {
         private:
             unsigned int m_totalCapacity;
@@ -91,6 +67,72 @@ namespace TrenchBroom {
             void freeAllBlocks();
             void pack();
             bool ownsBlock(VboBlock& block);
+        };
+
+        class VboBlock {
+        private:
+            Vbo& m_vbo;
+            void insertBetween(VboBlock* previousBlock, VboBlock* nextBlock);
+            friend class Vbo;
+        public:
+            unsigned int address;
+            unsigned int capacity;
+            bool free;
+            VboBlock* previous;
+            VboBlock* next;
+
+            VboBlock(Vbo& vbo, int address, int capacity);
+            
+            unsigned int writeBuffer(const unsigned char* buffer, unsigned int offset, unsigned int length) {
+                assert(offset >= 0 && offset + length <= capacity);
+                memcpy(m_vbo.m_buffer + address + offset, buffer, length);
+                return offset + length;
+            }
+            
+            unsigned int writeByte(unsigned char b, unsigned int offset) {
+                assert(offset >= 0 && offset < capacity);
+                m_vbo.m_buffer[address + offset] = b;
+                return offset + 1;
+            }
+            
+            unsigned int writeFloat(float f, unsigned int offset) {
+                assert(offset >= 0 && offset + sizeof(float) <= capacity);
+                memcpy(m_vbo.m_buffer + address + offset, &f, sizeof(float));
+                return offset + sizeof(float);
+            }
+            
+            unsigned int writeUInt32(unsigned int i, unsigned int offset) {
+                assert(offset >= 0 && offset + sizeof(unsigned int) <= capacity);
+                memcpy(m_vbo.m_buffer + address + offset, &i, sizeof(unsigned int));
+                return offset + sizeof(unsigned int);
+            }
+            
+            unsigned int writeColor(const Vec4f& color, unsigned int offset) {
+                assert(offset >= 0 && offset + 4 <= capacity);
+                offset = writeByte((unsigned char)(color.x * 0xFF), offset);
+                offset = writeByte((unsigned char)(color.y * 0xFF), offset);
+                offset = writeByte((unsigned char)(color.z * 0xFF), offset);
+                offset = writeByte((unsigned char)(color.w * 0xFF), offset);
+                return offset;
+            }
+
+            template<class T>
+            unsigned int writeVec(const T& vec, unsigned int offset) {
+                assert(offset >= 0 && offset + sizeof(T) <= capacity);
+                memcpy(m_vbo.m_buffer + address + offset, &vec, sizeof(T));
+                return offset + sizeof(T);
+            }
+            
+            template<class T>
+            unsigned int writeVecs(const std::vector<T>& vecs, unsigned int offset) {
+                unsigned int size = vecs.size() * sizeof(T);
+                assert(offset >= 0 && offset + size <= capacity);
+                memcpy(m_vbo.m_buffer + address + offset, &(vecs[0]), size);
+                return offset + size;
+            }
+            
+            void freeBlock();
+            int compare(unsigned int anAddress, unsigned int aCapacity);
         };
     }
 }

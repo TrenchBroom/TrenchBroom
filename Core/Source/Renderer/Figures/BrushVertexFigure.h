@@ -17,25 +17,29 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef TrenchBroom_BrushVertexFigure_h
+#define TrenchBroom_BrushVertexFigure_h
 
-#ifndef TrenchBroom_RenderUtils_h
-#define TrenchBroom_RenderUtils_h
-
-#include "Utilities/VecMath.h"
-#include "Renderer/FontManager.h"
-#include <string>
-#include <vector>
+#include "Renderer/Figures/Figure.h"
+#include "Model/Map/BrushTypes.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        std::vector<Vec3f> bboxEdgeVertices(const BBox& bounds);
-        std::vector<Vec3f> bboxTriangleVertices(const BBox& bounds);
-        void glVertexV3f(const Vec3f& vertex);
-        void glColorV4f(const Vec4f& color);
-        void glColorV4f(const Vec4f& color, float blendFactor);
-        void glSetEdgeOffset(float f);
-        void glResetEdgeOffset();
-        void glSetBrightness(float brightness, bool modulateAlpha);
+        class Vbo;
+        
+        class BrushVertexFigure : public Figure {
+        protected:
+            Vbo* m_vbo;
+            bool m_valid;
+            unsigned int m_vertexCount;
+            Model::BrushList m_brushes;
+        public:
+            BrushVertexFigure() : m_vbo(NULL), m_valid(false) {}
+            ~BrushVertexFigure();
+            
+            void setBrushes(const Model::BrushList& brushes);
+            virtual void render(RenderContext& context);
+        };
     }
 }
 

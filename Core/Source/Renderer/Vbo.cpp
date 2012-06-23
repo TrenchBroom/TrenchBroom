@@ -18,8 +18,6 @@
  */
 
 #include "Vbo.h"
-#include <cassert>
-#include <cstring>
 #include <algorithm>
 
 namespace TrenchBroom {
@@ -32,58 +30,7 @@ namespace TrenchBroom {
         }
         
         VboBlock::VboBlock(Vbo& vbo, int address, int capacity) : m_vbo(vbo), address(address), capacity(capacity), free(true), previous(NULL), next(NULL) {}
-
-        unsigned int VboBlock::writeBuffer(const unsigned char* buffer, unsigned int offset, unsigned int length) {
-            assert(offset >= 0 && offset + length <= capacity);
-            memcpy(m_vbo.m_buffer + address + offset, buffer, length);
-            return offset + length;
-        }
         
-        unsigned int VboBlock::writeByte(unsigned char b, unsigned int offset) {
-            assert(offset >= 0 && offset < capacity);
-            m_vbo.m_buffer[address + offset] = b;
-            return offset + 1;
-        }
-        
-        unsigned int VboBlock::writeFloat(float f, unsigned int offset) {
-            assert(offset >= 0 && offset + sizeof(float) <= capacity);
-            memcpy(m_vbo.m_buffer + address + offset, &f, sizeof(float));
-            return offset + sizeof(float);
-        }
-        
-        unsigned int VboBlock::writeUInt32(unsigned int i, unsigned int offset) {
-            assert(offset >= 0 && offset + sizeof(unsigned int) <= capacity);
-            memcpy(m_vbo.m_buffer + address + offset, &i, sizeof(unsigned int));
-            return offset + sizeof(unsigned int);
-        }
-        
-        unsigned int VboBlock::writeColor(const Vec4f& color, unsigned int offset) {
-            assert(offset >= 0 && offset + 4 <= capacity);
-            offset = writeByte((unsigned char)(color.x * 0xFF), offset);
-            offset = writeByte((unsigned char)(color.y * 0xFF), offset);
-            offset = writeByte((unsigned char)(color.z * 0xFF), offset);
-            offset = writeByte((unsigned char)(color.w * 0xFF), offset);
-            return offset;
-        }
-        
-        unsigned int VboBlock::writeVec(const Vec4f& vec, unsigned int offset) {
-            assert(offset >= 0 && offset + sizeof(Vec4f) <= capacity);
-            memcpy(m_vbo.m_buffer + address + offset, &vec, sizeof(Vec4f));
-            return offset + sizeof(Vec4f);
-        }
-        
-        unsigned int VboBlock::writeVec(const Vec3f& vec, unsigned int offset) {
-            assert(offset >= 0 && offset + sizeof(Vec3f) <= capacity);
-            memcpy(m_vbo.m_buffer + address + offset, &vec, sizeof(Vec3f));
-            return offset + sizeof(Vec3f);
-        }
-        
-        unsigned int VboBlock::writeVec(const Vec2f& vec, unsigned int offset) {
-            assert(offset >= 0 && offset + sizeof(Vec2f) <= capacity);
-            memcpy(m_vbo.m_buffer + address + offset, &vec, sizeof(Vec2f));
-            return offset + sizeof(Vec2f);
-        }
-
         void VboBlock::freeBlock() {
             m_vbo.freeBlock(*this);
         }

@@ -117,6 +117,10 @@ namespace TrenchBroom {
             else Gwen::MouseFocus = NULL;
         }
 
+        bool MapRendererControl::OnChar(Gwen::UnicodeChar c) {
+            return m_editor.inputController().key(c);
+        }
+        
         bool MapRendererControl::OnKeyPress(int iKey, bool bPress) {
             switch (iKey) {
                 case Gwen::Key::Shift:

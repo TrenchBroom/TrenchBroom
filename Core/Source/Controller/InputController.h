@@ -55,6 +55,8 @@ namespace TrenchBroom {
             ToolPtr m_dragScrollReceiver;
             int m_modalReceiverIndex;
 
+            ToolPtr m_moveVertexTool;
+            
             // TODO shared pointer:
             DragInfo m_currentDragInfo;
             typedef std::tr1::shared_ptr<DragTargetTool> DragTargetToolPtr;
@@ -62,9 +64,14 @@ namespace TrenchBroom {
             DragTargetToolMap m_dragTargetTools;
             
             void updateHits();
+            void toggleModalTool(const ToolPtr& tool, unsigned int index);
         public:
             InputController(Editor& editor);
             ~InputController();
+            
+            void toggleMoveVertexTool();
+            
+            bool key(wchar_t c);
             void modifierKeyDown(EModifierKeys modifierKey);
             void modifierKeyUp(EModifierKeys modifierKey);
             void mouseDown(EMouseButton mouseButton);

@@ -25,6 +25,7 @@
 #include "Controller/DragTextureTargetTool.h"
 #include "Controller/Editor.h"
 #include "Controller/MoveObjectTool.h"
+#include "Controller/MoveVertexTool.h"
 #include "Controller/SelectionTool.h"
 #include "Model/Map/Map.h"
 #include "Model/Map/Picker.h"
@@ -41,7 +42,23 @@ namespace TrenchBroom {
             m_currentEvent.hits = picker.pick(m_currentEvent.ray, m_editor.filter());
         }
 
-        InputController::InputController(Editor& editor) : m_editor(editor), m_currentDragInfo(DragInfo(m_currentEvent)) {
+        void InputController::toggleModalTool(const ToolPtr& tool, unsigned int index) {
+            ToolPtr modalTool;
+            if (m_modalReceiverIndex != -1) {
+                modalTool = m_receiverChain[m_modalReceiverIndex];
+                modalTool->deactivated(m_currentEvent);
+                m_receiverChain.erase(m_receiverChain.begin() + m_modalReceiverIndex);
+                m_modalReceiverIndex = -1;
+            }
+            
+            if (tool != modalTool) {
+                m_modalReceiverIndex = index;
+                m_receiverChain.insert(m_receiverChain.begin() + m_modalReceiverIndex, tool);
+                tool->activated(m_currentEvent);
+            }
+        }
+        
+        InputController::InputController(Editor& editor) : m_editor(editor), m_currentDragInfo(DragInfo(m_currentEvent)), m_modalReceiverIndex(-1) {
             ToolPtr cameraTool = ToolPtr(new CameraTool(m_editor));
             ToolPtr selectionTool = ToolPtr(new SelectionTool(m_editor));
             ToolPtr moveObjectTool = ToolPtr(new MoveObjectTool(m_editor));
@@ -54,6 +71,8 @@ namespace TrenchBroom {
             
             m_dragStatus = TB_MS_NONE;
             m_dragScrollReceiver = ToolPtr();
+
+            m_moveVertexTool = ToolPtr(new MoveVertexTool(m_editor));
             
             DragTextureTargetTool* dragTextureTargetTool = new DragTextureTargetTool(m_editor);
             DragEntityTargetTool* dragEntityTargetTool = new DragEntityTargetTool(m_editor);
@@ -67,6 +86,20 @@ namespace TrenchBroom {
                 delete m_currentEvent.hits;
         }
         
+        void InputController::toggleMoveVertexTool() {
+            toggleModalTool(m_moveVertexTool, 1);
+        }
+
+        bool InputController::key(wchar_t c) {
+            switch (c) {
+                case L'v':
+                    toggleMoveVertexTool();
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
         void InputController::modifierKeyDown(EModifierKeys modifierKey) {
             m_currentEvent.modifierKeys |= modifierKey;
         }
@@ -94,7 +127,7 @@ namespace TrenchBroom {
             
             if (m_currentEvent.mouseButton == TB_MB_LEFT) {
                 if (m_dragStatus == TB_MS_LEFT) {
-                    if (m_dragScrollReceiver.get() != NULL)
+                    if (m_dragScrollReceiver != NULL)
                         m_dragScrollReceiver->endLeftDrag(m_currentEvent);
                     m_dragScrollReceiver = ToolPtr();
                     m_dragStatus = TB_MS_NONE;
@@ -105,7 +138,7 @@ namespace TrenchBroom {
                 }
             } else if (m_currentEvent.mouseButton == TB_MB_RIGHT) {
                 if (m_dragStatus == TB_MS_RIGHT) {
-                    if (m_dragScrollReceiver.get() != NULL)
+                    if (m_dragScrollReceiver != NULL)
                         m_dragScrollReceiver->endRightDrag(m_currentEvent);
                     m_dragScrollReceiver = ToolPtr();
                     m_dragStatus = TB_MS_NONE;
@@ -146,9 +179,9 @@ namespace TrenchBroom {
                 }
             }
             
-            if (m_dragStatus == TB_MS_LEFT && m_dragScrollReceiver.get() != NULL) {
+            if (m_dragStatus == TB_MS_LEFT && m_dragScrollReceiver != NULL) {
                 m_dragScrollReceiver->leftDrag(m_currentEvent);
-            } else if (m_dragStatus == TB_MS_RIGHT && m_dragScrollReceiver.get() != NULL) {
+            } else if (m_dragStatus == TB_MS_RIGHT && m_dragScrollReceiver != NULL) {
                 m_dragScrollReceiver->rightDrag(m_currentEvent);
             } else {
                 for (unsigned int i = 0; i < m_receiverChain.size(); i++)
@@ -160,7 +193,7 @@ namespace TrenchBroom {
             m_currentEvent.scrollX = dx;
             m_currentEvent.scrollY = dy;
             
-            if (m_dragScrollReceiver.get() != NULL) {
+            if (m_dragScrollReceiver != NULL) {
                 m_dragScrollReceiver->scrolled(m_currentEvent);
             } else {
                 for (unsigned int i = 0; i < m_receiverChain.size(); i++)

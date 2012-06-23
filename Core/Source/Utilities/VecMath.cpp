@@ -1447,6 +1447,15 @@ BBox::BBox(float minx, float miny, float minz, float maxx, float maxy, float max
     max.z = maxz;
 }
 
+BBox::BBox(const Vec3f& center, float size) {
+    min.x = center.x - size;
+    min.y = center.y - size;
+    min.z = center.z - size;
+    max.x = center.x + size;
+    max.y = center.y + size;
+    max.z = center.z + size;
+}
+
 const BBox BBox::maxBounds() const {
     Vec3f c = center();
     Vec3f diff = max - c;

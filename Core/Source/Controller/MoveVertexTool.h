@@ -17,25 +17,18 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef TrenchBroom_MoveVertexTool_h
+#define TrenchBroom_MoveVertexTool_h
 
-#ifndef TrenchBroom_RenderUtils_h
-#define TrenchBroom_RenderUtils_h
-
-#include "Utilities/VecMath.h"
-#include "Renderer/FontManager.h"
-#include <string>
-#include <vector>
+#include "Controller/DragTool.h"
 
 namespace TrenchBroom {
-    namespace Renderer {
-        std::vector<Vec3f> bboxEdgeVertices(const BBox& bounds);
-        std::vector<Vec3f> bboxTriangleVertices(const BBox& bounds);
-        void glVertexV3f(const Vec3f& vertex);
-        void glColorV4f(const Vec4f& color);
-        void glColorV4f(const Vec4f& color, float blendFactor);
-        void glSetEdgeOffset(float f);
-        void glResetEdgeOffset();
-        void glSetBrightness(float brightness, bool modulateAlpha);
+    namespace Controller {
+        class MoveVertexTool : public DragTool {
+        public:
+            MoveVertexTool(Controller::Editor& editor) : DragTool(editor) {}
+            virtual ~MoveVertexTool() {}
+        };
     }
 }
 

@@ -421,6 +421,7 @@ public:
     BBox();
     BBox(const Vec3f& min, const Vec3f& max);
     BBox(float minx, float miny, float minz, float maxx, float maxy, float maxz);
+    BBox(const Vec3f& center, float size);
     const BBox maxBounds() const;
     const BBox centered() const;
     const Vec3f center() const;

@@ -17,26 +17,9 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#ifndef TrenchBroom_RenderUtils_h
-#define TrenchBroom_RenderUtils_h
-
-#include "Utilities/VecMath.h"
-#include "Renderer/FontManager.h"
-#include <string>
-#include <vector>
+#include "MoveVertexTool.h"
 
 namespace TrenchBroom {
-    namespace Renderer {
-        std::vector<Vec3f> bboxEdgeVertices(const BBox& bounds);
-        std::vector<Vec3f> bboxTriangleVertices(const BBox& bounds);
-        void glVertexV3f(const Vec3f& vertex);
-        void glColorV4f(const Vec4f& color);
-        void glColorV4f(const Vec4f& color, float blendFactor);
-        void glSetEdgeOffset(float f);
-        void glResetEdgeOffset();
-        void glSetBrightness(float brightness, bool modulateAlpha);
+    namespace Controller {
     }
 }
-
-#endif
