@@ -72,7 +72,7 @@ namespace TrenchBroom {
 
         void Inspector::updateTextureControls() {
             Model::Selection& selection = m_editor.map().selection();
-            std::vector<Model::Face*> faces = selection.allFaces();
+            const Model::FaceList faces = selection.allFaces();
             if (!faces.empty()) {
                 float xOffset, yOffset, xScale, yScale, rotation;
                 bool xOffsetMulti, yOffsetMulti, xScaleMulti, yScaleMulti, rotationMulti, textureMulti;

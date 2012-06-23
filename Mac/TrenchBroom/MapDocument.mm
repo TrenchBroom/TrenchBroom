@@ -162,9 +162,13 @@ namespace TrenchBroom {
     selection.removeAll();
     
     const EntityList& entities = map.entities();
+    BrushList brushes;
     for (unsigned int i = 0; i < entities.size(); i++)
-        selection.addBrushes(entities[i]->brushes());
-    selection.addEntities(entities);
+        brushes.insert(brushes.begin(), entities[i]->brushes().begin(), entities[i]->brushes().end());
+    if (!brushes.empty())
+        selection.addBrushes(brushes);
+    if (!entities.empty())
+        selection.addEntities(entities);
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {

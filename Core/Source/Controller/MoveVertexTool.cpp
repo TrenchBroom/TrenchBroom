@@ -19,7 +19,62 @@
 
 #include "MoveVertexTool.h"
 
+#include "Controller/Editor.h"
+#include "Model/Map/Map.h"
+#include "Renderer/Figures/BrushVertexFigure.h"
+
+#include <cassert>
+
 namespace TrenchBroom {
     namespace Controller {
+        void MoveVertexTool::selectionChanged(const Model::SelectionEventData& event) {
+            assert(m_figure != NULL);
+            
+            Model::Map& map = m_editor.map();
+            Model::Selection& selection = map.selection();
+            m_figure->setBrushes(selection.brushes());
+        }
+
+        void MoveVertexTool::cleanup() {
+            if (m_figure != NULL) {
+                removeFigure(*m_figure);
+                delete m_figure;
+                m_figure = NULL;
+            }
+            
+            if (m_listenerActive) {
+                Model::Map& map = m_editor.map();
+                Model::Selection& selection = map.selection();
+                selection.selectionAdded -= new Model::Selection::SelectionEvent::Listener<MoveVertexTool>(this, &MoveVertexTool::selectionChanged);
+                selection.selectionRemoved -= new Model::Selection::SelectionEvent::Listener<MoveVertexTool>(this, &MoveVertexTool::selectionChanged);
+                m_listenerActive = false;
+            }
+        }
+
+        MoveVertexTool::MoveVertexTool(Controller::Editor& editor) : DragTool(editor), m_figure(NULL), m_listenerActive(false) {
+        }
+        
+        MoveVertexTool::~MoveVertexTool() {
+            cleanup();
+        }
+        
+        void MoveVertexTool::activated(ToolEvent& event) {
+            cleanup();
+            
+            m_figure = new Renderer::BrushVertexFigure();
+            addFigure(*m_figure);
+            
+            Model::Map& map = m_editor.map();
+            Model::Selection& selection = map.selection();
+            m_figure->setBrushes(selection.brushes());
+
+            selection.selectionAdded += new Model::Selection::SelectionEvent::Listener<MoveVertexTool>(this, &MoveVertexTool::selectionChanged);
+            selection.selectionRemoved += new Model::Selection::SelectionEvent::Listener<MoveVertexTool>(this, &MoveVertexTool::selectionChanged);
+            m_listenerActive = true;
+        }
+        
+        void MoveVertexTool::deactivated(ToolEvent& event) {
+            cleanup();
+        }
     }
 }

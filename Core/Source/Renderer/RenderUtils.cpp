@@ -29,27 +29,14 @@ namespace TrenchBroom {
             std::vector<Vec3f> vertices;
             vertices.resize(24);
             
-            // bottom
-            vertices[ 0] = vertices[ 7] = bounds.vertex(false, false, false);
-            vertices[ 1] = vertices[ 2] = bounds.vertex(true , false, false);
-            vertices[ 3] = vertices[ 4] = bounds.vertex(true , true , false);
-            vertices[ 5] = vertices[ 6] = bounds.vertex(false, true , false);
-            
-            // top
-            vertices[ 8] = vertices[15] = bounds.vertex(false, false, true );
-            vertices[ 9] = vertices[10] = bounds.vertex(true , false, true );
-            vertices[11] = vertices[12] = bounds.vertex(true , true , true );
-            vertices[13] = vertices[14] = bounds.vertex(false, true , true );
-            
-            // verticals
-            vertices[16] = bounds.vertex(false, false, false);
-            vertices[17] = bounds.vertex(false, false, true );
-            vertices[18] = bounds.vertex(false, true , false );
-            vertices[19] = bounds.vertex(false, true , true );
-            vertices[20] = bounds.vertex(true , false, false);
-            vertices[21] = bounds.vertex(true , false, true );
-            vertices[22] = bounds.vertex(true , true , false);
-            vertices[23] = bounds.vertex(true , true , true );
+            vertices[ 0] = vertices[ 7] = vertices[16] = bounds.vertex(false, false, false);
+            vertices[ 1] = vertices[ 2] = vertices[20] = bounds.vertex(true , false, false);
+            vertices[ 3] = vertices[ 4] = vertices[22] = bounds.vertex(true , true , false);
+            vertices[ 5] = vertices[ 6] = vertices[18] = bounds.vertex(false, true , false);
+            vertices[ 8] = vertices[15] = vertices[17] = bounds.vertex(false, false, true );
+            vertices[ 9] = vertices[10] = vertices[21] = bounds.vertex(true , false, true );
+            vertices[11] = vertices[12] = vertices[23] = bounds.vertex(true , true , true );
+            vertices[13] = vertices[14] = vertices[19] = bounds.vertex(false, true , true );
             
             return vertices;
         }
@@ -59,53 +46,15 @@ namespace TrenchBroom {
             vertices.resize(6 * 6);
 
             // bottom
-            vertices[ 0] = bounds.vertex(false, false, false);
-            vertices[ 1] = bounds.vertex(true , false, false);
-            vertices[ 2] = bounds.vertex(true , true , false);
-            vertices[ 3] = bounds.vertex(false, false, false);
-            vertices[ 4] = bounds.vertex(true , true , false);
-            vertices[ 5] = bounds.vertex(false, true , false);
-            
-            // top
-            vertices[ 6] = bounds.vertex(false, false, true );
-            vertices[ 7] = bounds.vertex(false, true , true );
-            vertices[ 8] = bounds.vertex(true , true , true );
-            vertices[ 9] = bounds.vertex(false, false, true );
-            vertices[10] = bounds.vertex(true , true , true );
-            vertices[11] = bounds.vertex(true , false, true );
-            
-            // front
-            vertices[12] = bounds.vertex(false, false, false);
-            vertices[13] = bounds.vertex(false, false, true );
-            vertices[14] = bounds.vertex(true , false, true );
-            vertices[15] = bounds.vertex(false, false, false);
-            vertices[16] = bounds.vertex(true , false, true );
-            vertices[17] = bounds.vertex(true , false, false);
-            
-            // back
-            vertices[18] = bounds.vertex(true , true , true );
-            vertices[19] = bounds.vertex(false, true , true );
-            vertices[20] = bounds.vertex(false, true , false);
-            vertices[21] = bounds.vertex(true , true , true );
-            vertices[22] = bounds.vertex(false, true , false);
-            vertices[23] = bounds.vertex(true , true , false );
-            
-            // left
-            vertices[24] = bounds.vertex(false, false, false);
-            vertices[25] = bounds.vertex(false, true , false);
-            vertices[26] = bounds.vertex(false, true , true );
-            vertices[27] = bounds.vertex(false, false, false);
-            vertices[28] = bounds.vertex(false, true , true );
-            vertices[29] = bounds.vertex(false, false, true );
-            
-            // right
-            vertices[30] = bounds.vertex(true , true , true );
-            vertices[31] = bounds.vertex(true , true , false);
-            vertices[32] = bounds.vertex(true , false, false);
-            vertices[33] = bounds.vertex(true , true , true );
-            vertices[34] = bounds.vertex(true , false, false);
-            vertices[35] = bounds.vertex(true , false, true );
-            
+            vertices[ 0] = vertices[ 3] = vertices[12] = vertices[15] = vertices[24] = vertices[27] = bounds.vertex(false, false, false);
+            vertices[ 1] = vertices[17] = vertices[32] = vertices[34] = bounds.vertex(true , false, false);
+            vertices[ 2] = vertices[ 4] = vertices[23] = vertices[31] = bounds.vertex(true , true , false);
+            vertices[ 5] = vertices[20] = vertices[22] = vertices[25] = bounds.vertex(false, true , false);
+            vertices[ 6] = vertices[ 9] = vertices[13] = vertices[29] = bounds.vertex(false, false, true );
+            vertices[ 7] = vertices[19] = vertices[26] = vertices[28] = bounds.vertex(false, true , true );
+            vertices[ 8] = vertices[10] = vertices[18] = vertices[21] = vertices[30] = vertices[33] = bounds.vertex(true , true , true );
+            vertices[11] = vertices[14] = vertices[16] = vertices[35] = bounds.vertex(true , false, true );
+
             return vertices;
         }
         

@@ -22,12 +22,27 @@
 
 #include "Controller/DragTool.h"
 
+#include "Model/Selection.h"
+
 namespace TrenchBroom {
+    namespace Renderer {
+        class BrushVertexFigure;
+    }
+    
     namespace Controller {
         class MoveVertexTool : public DragTool {
+        protected:
+            Renderer::BrushVertexFigure* m_figure;
+            bool m_listenerActive;
+            
+            void selectionChanged(const Model::SelectionEventData& event);
+            void cleanup();
         public:
-            MoveVertexTool(Controller::Editor& editor) : DragTool(editor) {}
-            virtual ~MoveVertexTool() {}
+            MoveVertexTool(Controller::Editor& editor);
+            virtual ~MoveVertexTool();
+
+            virtual void activated(ToolEvent& event);
+            virtual void deactivated(ToolEvent& event);
         };
     }
 }

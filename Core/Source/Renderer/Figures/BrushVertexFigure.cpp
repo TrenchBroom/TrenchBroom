@@ -57,7 +57,7 @@ namespace TrenchBroom {
                 else
                     m_vbo->freeAllBlocks();
                 
-                VboBlock* block = m_vbo->allocBlock(m_vertexCount);
+                VboBlock* block = m_vbo->allocBlock(m_vertexCount * VertexSize);
                 m_vbo->activate();
                 m_vbo->map();
                 
@@ -73,12 +73,14 @@ namespace TrenchBroom {
                 }
                 
                 m_vbo->unmap();
+                m_valid = true;
             } else {
                 m_vbo->activate();
             }
 
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             
+            glFrontFace(GL_CCW);
             glPolygonMode(GL_FRONT, GL_FILL);
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
             glEnableClientState(GL_VERTEX_ARRAY);
@@ -93,7 +95,7 @@ namespace TrenchBroom {
             glDrawArrays(GL_TRIANGLES, 0, m_vertexCount);
             
             glPopClientAttrib();
-            
+            m_vbo->deactivate();
         }
     }
 }
