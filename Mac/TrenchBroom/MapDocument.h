@@ -31,6 +31,9 @@
 - (IBAction)customUndo:(id)sender;
 - (IBAction)customRedo:(id)sender;
 
+- (IBAction)toggleGrid:(id)sender;
+- (IBAction)toggleSnapToGrid:(id)sender;
+- (IBAction)setGridSize:(id)sender;
 @end
 
 namespace TrenchBroom {

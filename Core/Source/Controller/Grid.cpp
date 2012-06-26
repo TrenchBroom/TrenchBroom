@@ -50,6 +50,24 @@ namespace TrenchBroom {
             return 1;
         }
 
+        void Grid::toggleVisible() {
+            m_visible = !m_visible;
+            gridDidChange(*this);
+        }
+        
+        bool Grid::visible() const {
+            return m_visible;
+        }
+        
+        void Grid::toggleSnap() {
+            m_snap = !m_snap;
+            gridDidChange(*this);
+        }
+        
+        bool Grid::snap() const {
+            return m_snap;
+        }
+
         float Grid::snap(float f) {
             int actSize = actualSize();
             return actSize * Math::fround(f / actSize);

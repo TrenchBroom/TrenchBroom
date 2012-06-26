@@ -34,13 +34,19 @@ namespace TrenchBroom {
             static const unsigned int MaxSize = 9;
             unsigned int m_size;
             bool m_snap;
+            bool m_visible;
         public:
             typedef Event<Grid&> GridEvent;
 
-            Grid(unsigned int size) : m_size(size), m_snap(true) {}
+            Grid(unsigned int size) : m_size(size), m_snap(true), m_visible(true) {}
             unsigned int size() const;
             void setSize(unsigned int size);
             unsigned int actualSize() const;
+
+            void toggleVisible();
+            bool visible() const;
+            void toggleSnap();
+            bool snap() const;
             
             float snap(float f);
             float snapUp(float f, bool skip = false);

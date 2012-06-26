@@ -19,24 +19,25 @@
 
 #import "MapDocument.h"
 #import "MapWindowController.h"
-#import "Editor.h"
 #import "EditorHolder.h"
 #import "MacProgressIndicator.h"
 #import "MacStringFactory.h"
-#import <string>
 
-#import "Model/Preferences.h"
-#import "Model/Map/EntityDefinition.h"
-#import "IO/Pak.h"
+#import "Controller/Editor.h"
+#import "Controller/Grid.h"
 #import "Model/Assets/Alias.h"
 #import "Model/Assets/Bsp.h"
-#import "Model/Map/Map.h"
-#import "Model/Map/Entity.h"
 #import "Model/Map/Brush.h"
+#import "Model/Map/Entity.h"
+#import "Model/Map/EntityDefinition.h"
 #import "Model/Map/Face.h"
+#import "Model/Map/Map.h"
 #import "Model/Selection.h"
+#import "Model/Preferences.h"
 #import "Model/Undo/UndoManager.h"
+#import "IO/Pak.h"
 
+#import <string>
 
 using namespace TrenchBroom;
 using namespace TrenchBroom::Controller;
@@ -154,6 +155,22 @@ namespace TrenchBroom {
     undoManager.redo();
 }
 
+- (IBAction)toggleGrid:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->grid().toggleVisible();
+}
+
+- (IBAction)toggleSnapToGrid:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->grid().toggleSnap();
+}
+
+- (IBAction)setGridSize:(id)sender {
+    NSMenuItem* menuItem = (NSMenuItem *)sender;
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->grid().setSize([menuItem tag]);
+}
+
 - (IBAction)selectAll:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
     Map& map = editor->map();
@@ -184,7 +201,6 @@ namespace TrenchBroom {
         } else {
             NSString* objcName = [NSString stringWithCString:undoManager.topUndoName().c_str() encoding:NSASCIIStringEncoding];
             [menuItem setTitle:[NSString stringWithFormat:@"Undo %@", objcName]];
-            return YES;
         }
     } else if (action == @selector(customRedo:)) {
         Editor* editor = (Editor *)[editorHolder editor];
@@ -197,8 +213,16 @@ namespace TrenchBroom {
         } else {
             NSString* objcName = [NSString stringWithCString:undoManager.topRedoName().c_str() encoding:NSASCIIStringEncoding];
             [menuItem setTitle:[NSString stringWithFormat:@"Redo %@", objcName]];
-            return YES;
         }
+    } else if (action == @selector(toggleGrid:)) {
+        Editor* editor = (Editor *)[editorHolder editor];
+        [menuItem setState:editor->grid().visible() ? NSOnState : NSOffState];
+    } else if (action == @selector(toggleSnapToGrid:)) {
+        Editor* editor = (Editor *)[editorHolder editor];
+        [menuItem setState:editor->grid().snap() ? NSOnState : NSOffState];
+    } else if (action == @selector(setGridSize:)) {
+        Editor* editor = (Editor *)[editorHolder editor];
+        [menuItem setState:editor->grid().size() == [menuItem tag] ? NSOnState : NSOffState];
     }
     
     return [super validateMenuItem:menuItem];

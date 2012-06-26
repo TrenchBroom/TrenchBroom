@@ -44,6 +44,9 @@ namespace TrenchBroom {
         }
         
         void GridRenderer::activate(const Controller::Grid& grid) {
+            if (!grid.visible())
+                return;
+            
             unsigned int index = grid.size();
             if (index >= m_textures.size()) {
                 int oldSize = m_textures.size();
