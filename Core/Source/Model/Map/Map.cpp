@@ -296,9 +296,9 @@ namespace TrenchBroom {
             if (m_postNotifications) brushesDidChange(brushes);
         }
 
-        bool Map::resizeBrushes(FaceList& faces, float delta, bool lockTextures) {
+        bool Map::resizeBrushes(const FaceList& faces, float delta, bool lockTextures) {
             if (faces.empty()) return false;
-            if (delta == 0) return false;
+            if (delta == 0.0f) return false;
 
             bool drag = true;
             BrushList changedBrushes;
@@ -310,6 +310,13 @@ namespace TrenchBroom {
             }
 
             if (drag) {
+                bool updateSelection = m_selection->mode() == TB_SM_FACES;
+                if (updateSelection) {
+                    m_selection->push();
+                    m_selection->removeAll();
+                    m_selection->addBrushes(changedBrushes);
+                }
+                
                 if (m_postNotifications) brushesWillChange(changedBrushes);
                 for (unsigned int i = 0; i < faces.size(); i++) {
                     Face* face = faces[i];
@@ -317,6 +324,9 @@ namespace TrenchBroom {
                     brush->resize(*face, delta, lockTextures);
                 }
                 if (m_postNotifications) brushesDidChange(changedBrushes);
+                
+                if (updateSelection)
+                    m_selection->pop();
             }
 
             return drag;

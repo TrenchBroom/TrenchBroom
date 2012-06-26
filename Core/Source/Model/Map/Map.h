@@ -109,7 +109,7 @@ namespace TrenchBroom {
             void moveBrushesToEntity(Entity& entity);
             Brush* createBrush(Entity& entity, Brush& brushTemplate);
             void snapBrushes();
-            bool resizeBrushes(FaceList& faces, float delta, bool lockTextures);
+            bool resizeBrushes(const FaceList& faces, float delta, bool lockTextures);
             
             void duplicateObjects(EntityList& newEntities, BrushList& newBrushes);
             void translateObjects(const Vec3f delta, bool lockTextures);

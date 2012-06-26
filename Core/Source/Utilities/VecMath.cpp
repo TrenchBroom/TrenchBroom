@@ -22,6 +22,17 @@
 #include <cstdlib>
 #include <sstream>
 
+const Vec3f Vec3f::PosX = Vec3f( 1.0f,  0.0f,  0.0f);
+const Vec3f Vec3f::PosY = Vec3f( 0.0f,  1.0f,  0.0f);
+const Vec3f Vec3f::PosZ = Vec3f( 0.0f,  0.0f,  1.0f);
+const Vec3f Vec3f::NegX = Vec3f(-1.0f,  0.0f,  0.0f);
+const Vec3f Vec3f::NegY = Vec3f( 0.0f, -1.0f,  0.0f);
+const Vec3f Vec3f::NegZ = Vec3f( 0.0f,  0.0f, -1.0f);
+const Vec3f Vec3f::Null = Vec3f( 0.0f,  0.0f,  0.0f);
+const Vec3f Vec3f::NaN  = Vec3f(std::numeric_limits<float>::quiet_NaN(), 
+                                std::numeric_limits<float>::quiet_NaN(), 
+                                std::numeric_limits<float>::quiet_NaN());
+
 Vec2f& Vec2f::operator= (const Vec2f& right) {
     if (this != &right) {
         x = right.x;
@@ -281,7 +292,7 @@ bool Vec3f::equals(const Vec3f& other, float delta) const {
 }
 
 bool Vec3f::null() const {
-    return equals(Null3f);
+    return equals(Vec3f::Null);
 }
 
 EAxis Vec3f::firstComponent() const {
@@ -312,8 +323,8 @@ EAxis Vec3f::thirdComponent() const {
 }
 
 const Vec3f& Vec3f::firstAxis(bool pos) const {
-    if (equals(Null3f)) {
-        return Null3f;
+    if (equals(Vec3f::Null)) {
+        return Vec3f::Null;
     } else {
         float xa = fabsf(x);
         float ya = fabsf(y);
@@ -321,26 +332,26 @@ const Vec3f& Vec3f::firstAxis(bool pos) const {
         
         if (xa >= ya && xa >= za) {
             if (x > 0 && pos)
-                return XAxisPos;
+                return Vec3f::PosX;
             else
-                return XAxisNeg;
+                return Vec3f::NegX;
         } else if (ya >= xa && ya >= za) {
             if (y > 0 && pos)
-                return YAxisPos;
+                return Vec3f::PosY;
             else
-                return YAxisNeg;
+                return Vec3f::NegY;
         } else {
             if (z > 0 && pos)
-                return ZAxisPos;
+                return Vec3f::PosZ;
             else
-                return ZAxisNeg;
+                return Vec3f::NegZ;
         }
     }
 }
 
 const Vec3f& Vec3f::secondAxis(bool pos) const {
-    if (equals(Null3f)) {
-        return Null3f;
+    if (equals(Vec3f::Null)) {
+        return Vec3f::Null;
     } else {
         float xa = fabsf(x);
         float ya = fabsf(y);
@@ -349,27 +360,27 @@ const Vec3f& Vec3f::secondAxis(bool pos) const {
         if ((xa <= ya && xa >= za) || 
             (xa >= ya && xa <= za)) {
             if (x > 0 && pos)
-                return XAxisPos;
+                return Vec3f::PosX;
             else
-                return XAxisNeg;
+                return Vec3f::NegX;
         } else if ((ya <= xa && ya >= za) || 
                    (ya >= xa && ya <= za)) {
             if (y > 0 && pos)
-                return YAxisPos;
+                return Vec3f::PosY;
             else
-                return YAxisNeg;
+                return Vec3f::NegY;
         } else {
             if (z > 0 && pos)
-                return ZAxisPos;
+                return Vec3f::PosZ;
             else
-                return ZAxisNeg;
+                return Vec3f::NegZ;
         }
     }
 }
 
 const Vec3f& Vec3f::thirdAxis(bool pos) const {
-    if (equals(Null3f)) {
-        return Null3f;
+    if (equals(Vec3f::Null)) {
+        return Vec3f::Null;
     } else {
         float xa = fabsf(x);
         float ya = fabsf(y);
@@ -377,19 +388,19 @@ const Vec3f& Vec3f::thirdAxis(bool pos) const {
         
         if (xa <= ya && xa <= za) {
             if (x > 0 && pos)
-                return XAxisPos;
+                return Vec3f::PosX;
             else
-                return XAxisNeg;
+                return Vec3f::NegX;
         } else if (ya <= xa && ya <= za) {
             if (y > 0 && pos)
-                return YAxisPos;
+                return Vec3f::PosY;
             else
-                return YAxisNeg;
+                return Vec3f::NegY;
         } else {
             if (z > 0 && pos)
-                return ZAxisPos;
+                return Vec3f::PosZ;
             else
-                return ZAxisNeg;
+                return Vec3f::NegZ;
         }
     }
 }
@@ -931,6 +942,47 @@ const Mat2f Mat3f::subMatrix(unsigned int row, unsigned int col) const {
     return result;
 }
 
+const Mat4f Mat4f::Identity     = Mat4f( 1,  0,  0,  0,
+                                         0,  1,  0,  0,
+                                         0,  0,  1,  0,
+                                         0,  0,  0,  1);
+const Mat4f Mat4f::Rot90XCW     = Mat4f( 1,  0,  0,  0,
+                                         0,  0, -1,  0,
+                                         0,  1,  0,  0,
+                                         0,  0,  0,  1);
+const Mat4f Mat4f::Rot90YCW     = Mat4f( 0,  0,  1,  0,
+                                         0,  1,  0,  0,
+                                        -1,  0,  0,  0,
+                                         0,  0,  0,  1);
+const Mat4f Mat4f::Rot90ZCW     = Mat4f( 0, -1,  0,  0,
+                                         1,  0,  0,  0,
+                                         0,  0,  1,  0,
+                                         0,  0,  0,  1);
+const Mat4f Mat4f::Rot90XCCW    = Mat4f( 1,  0,  0,  0,
+                                         0,  0,  1,  0,
+                                         0, -1,  0,  0,
+                                         0,  0,  0,  1);
+const Mat4f Mat4f::Rot90YCCW    = Mat4f( 0,  0, -1,  0,
+                                         0,  1,  0,  0,
+                                         1,  0,  0,  0,
+                                         0,  0,  0,  1);
+const Mat4f Mat4f::Rot90ZCCW    = Mat4f( 0,  1,  0,  0,
+                                        -1,  0,  0,  0,
+                                         0,  0,  1,  0,
+                                         0,  0,  0,  1);
+const Mat4f Mat4f::MirX         = Mat4f(-1,  0,  0,  0,
+                                         0,  1,  0,  0,
+                                         0,  0,  1,  0,
+                                         0,  0,  0,  1);
+const Mat4f Mat4f::MirY         = Mat4f( 1,  0,  0,  0,
+                                         0, -1,  0,  0,
+                                         0,  0,  1,  0,
+                                         0,  0,  0,  1);
+const Mat4f Mat4f::MirZ         = Mat4f( 1,  0,  0,  0,
+                                         0,  1,  0,  0,
+                                         0,  0, -1,  0,
+                                         0,  0,  0,  1);
+
 Mat4f& Mat4f::operator= (const Mat4f& right) {
     for (unsigned int i = 0; i < 16; i++)
         v[i] = right.v[i];
@@ -1340,7 +1392,7 @@ Quat& Quat::operator*= (const Quat& right) {
     return *this;
 }
 
-Quat::Quat() : s(0), v(Null3f) {}
+Quat::Quat() : s(0), v(Vec3f::Null) {}
 
 Quat::Quat(float angle, const Vec3f& axis) {
     setRotation(angle, axis);
@@ -1358,7 +1410,7 @@ const Quat Quat::conjugate() const {
     return result;
 }
 
-Ray::Ray() : origin(Null3f), direction(Null3f) {}
+Ray::Ray() : origin(Vec3f::Null), direction(Vec3f::Null) {}
 
 Ray::Ray(const Vec3f& origin, const Vec3f& direction) : origin(origin), direction(direction) {}
 
@@ -1375,7 +1427,7 @@ EPointStatus Ray::pointStatus(const Vec3f& point) const {
     return TB_PS_INSIDE;
 }
 
-Line::Line() : point(Null3f), direction(Null3f) {}
+Line::Line() : point(Vec3f::Null), direction(Vec3f::Null) {}
 
 Line::Line(const Vec3f& point, const Vec3f& direction) : point(point), direction(direction) {}
 
@@ -1436,7 +1488,7 @@ BBox& BBox::operator+= (const Vec3f& right) {
     return *this;
 }
 
-BBox::BBox() : min(Null3f), max(Null3f) {}
+BBox::BBox() : min(Vec3f::Null), max(Vec3f::Null) {}
 BBox::BBox(const Vec3f& min, const Vec3f& max) : min(min), max(max) {}
 BBox::BBox(float minx, float miny, float minz, float maxx, float maxy, float maxz) {
     min.x = minx;
@@ -1515,66 +1567,66 @@ bool BBox::intersects(const BBox& bounds) const {
 
 float BBox::intersectWithRay(const Ray& ray, Vec3f* sideNormal) const {
     if (ray.direction.x < 0) {
-        Plane plane(XAxisPos, max);
+        Plane plane(Vec3f::PosX, max);
         float distance = plane.intersectWithRay(ray);
         if (!Math::isnan(distance)) {
             Vec3f point = ray.pointAtDistance(distance);
             if (point.y >= min.y && point.y <= max.y && point.z >= min.z && point.z <= max.z) {
-                if (sideNormal != NULL) *sideNormal = XAxisPos;
+                if (sideNormal != NULL) *sideNormal = Vec3f::PosX;
                 return distance;
             }
         }
     } else if (ray.direction.x > 0) {
-        Plane plane(XAxisNeg, min);
+        Plane plane(Vec3f::NegX, min);
         float distance = plane.intersectWithRay(ray);
         if (!Math::isnan(distance)) {
             Vec3f point = ray.pointAtDistance(distance);
             if (point.y >= min.y && point.y <= max.y && point.z >= min.z && point.z <= max.z) {
-                if (sideNormal != NULL) *sideNormal = XAxisNeg;
+                if (sideNormal != NULL) *sideNormal = Vec3f::NegX;
                 return distance;
             }
         }
     }
 
     if (ray.direction.y < 0) {
-        Plane plane(YAxisPos, max);
+        Plane plane(Vec3f::PosY, max);
         float distance = plane.intersectWithRay(ray);
         if (!Math::isnan(distance)) {
             Vec3f point = ray.pointAtDistance(distance);
             if (point.x >= min.x && point.x <= max.x && point.z >= min.z && point.z <= max.z) {
-                if (sideNormal != NULL) *sideNormal = YAxisPos;
+                if (sideNormal != NULL) *sideNormal = Vec3f::PosY;
                 return distance;
             }
         }
     } else if (ray.direction.y > 0) {
-        Plane plane(YAxisNeg, min);
+        Plane plane(Vec3f::NegY, min);
         float distance = plane.intersectWithRay(ray);
         if (!Math::isnan(distance)) {
             Vec3f point = ray.pointAtDistance(distance);
             if (point.x >= min.x && point.x <= max.x && point.z >= min.z && point.z <= max.z) {
-                if (sideNormal != NULL) *sideNormal = YAxisNeg;
+                if (sideNormal != NULL) *sideNormal = Vec3f::NegY;
                 return distance;
             }
         }
     }
 
     if (ray.direction.z < 0) {
-        Plane plane(ZAxisPos, max);
+        Plane plane(Vec3f::PosZ, max);
         float distance = plane.intersectWithRay(ray);
         if (!Math::isnan(distance)) {
             Vec3f point = ray.pointAtDistance(distance);
             if (point.x >= min.x && point.x <= max.x && point.y >= min.y && point.y <= max.y) {
-                if (sideNormal != NULL) *sideNormal = ZAxisPos;
+                if (sideNormal != NULL) *sideNormal = Vec3f::PosZ;
                 return distance;
             }
         }
     } else if (ray.direction.z > 0) {
-        Plane plane(ZAxisNeg, min);
+        Plane plane(Vec3f::NegZ, min);
         float distance = plane.intersectWithRay(ray);
         if (!Math::isnan(distance)) {
             Vec3f point = ray.pointAtDistance(distance);
             if (point.x >= min.x && point.x <= max.x && point.y >= min.y && point.y <= max.y) {
-                if (sideNormal != NULL) *sideNormal = ZAxisNeg;
+                if (sideNormal != NULL) *sideNormal = Vec3f::NegZ;
                 return distance;
             }
         }
@@ -1667,7 +1719,7 @@ const BBox BBox::expand(float f) {
                 max.z += f);
 }
 
-Plane::Plane() : normal(Null3f), distance(0) {}
+Plane::Plane() : normal(Vec3f::Null), distance(0) {}
 
 Plane::Plane(const Vec3f& normal, float distance) : normal(normal), distance(distance) {}
 
@@ -1677,7 +1729,7 @@ bool Plane::setPoints(const Vec3f& point1, const Vec3f& point2, const Vec3f& poi
     Vec3f v1 = point3 - point1;
     Vec3f v2 = point2 - point1;
     normal = v1 % v2;
-    if (normal.equals(Null3f, Math::AlmostZero)) return false;
+    if (normal.equals(Vec3f::Null, Math::AlmostZero)) return false;
     normal = normal.normalize();
     distance = point1 | normal;
     return true;

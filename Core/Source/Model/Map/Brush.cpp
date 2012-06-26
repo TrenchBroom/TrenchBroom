@@ -398,6 +398,8 @@ namespace TrenchBroom {
         
         void Brush::resize(Face& face, float dist, bool lockTextures) {
             face.move(dist, lockTextures);
+            for (unsigned int i = 0; i < faces.size(); i++)
+                faces[i]->coordsValid = false;
             rebuildGeometry();
             entity->brushChanged(this);
         }

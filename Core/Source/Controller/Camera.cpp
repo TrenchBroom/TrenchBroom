@@ -23,14 +23,14 @@
 namespace TrenchBroom {
     namespace Controller {
         Camera::Camera(float fieldOfVision, float nearPlane, float farPlane, Vec3f position, Vec3f direction) : m_fieldOfVision(fieldOfVision), m_nearPlane(nearPlane), m_farPlane(farPlane), m_position(position), m_direction(direction) {
-            if (m_direction.equals(ZAxisPos)) {
-                m_right = YAxisNeg;
-                m_up = XAxisNeg;
-            } else if (m_direction.equals(ZAxisNeg)) {
-                m_right = YAxisNeg;
-                m_up = XAxisPos;
+            if (m_direction.equals(Vec3f::PosZ)) {
+                m_right = Vec3f::NegY;
+                m_up = Vec3f::NegX;
+            } else if (m_direction.equals(Vec3f::NegZ)) {
+                m_right = Vec3f::NegY;
+                m_up = Vec3f::PosX;
             } else {
-                m_right = m_direction % ZAxisPos;
+                m_right = m_direction % Vec3f::PosZ;
                 m_up = m_right % m_direction;
             }
         }
@@ -165,7 +165,7 @@ namespace TrenchBroom {
         void Camera::rotate(float yawAngle, float pitchAngle) {
             if (yawAngle == 0 && pitchAngle == 0) return;
             
-            Quat rotation = Quat(yawAngle, ZAxisPos) * Quat(pitchAngle, m_right);
+            Quat rotation = Quat(yawAngle, Vec3f::PosZ) * Quat(pitchAngle, m_right);
             Vec3f newDirection = rotation * m_direction;
             Vec3f newUp = rotation * m_up;
 
@@ -181,7 +181,7 @@ namespace TrenchBroom {
         void Camera::orbit(Vec3f center, float hAngle, float vAngle) {
             if (hAngle == 0 && vAngle == 0) return;
             
-            Quat rotation = Quat(hAngle, ZAxisPos) * Quat(vAngle, m_right);
+            Quat rotation = Quat(hAngle, Vec3f::PosZ) * Quat(vAngle, m_right);
             Vec3f newDirection = rotation * m_direction;
             Vec3f newUp = rotation * m_up;
             Vec3f offset = m_position - center;

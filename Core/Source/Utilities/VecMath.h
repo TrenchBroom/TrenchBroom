@@ -149,6 +149,15 @@ public:
 
 class Vec3f {
 public:
+    static const Vec3f PosX;
+    static const Vec3f PosY;
+    static const Vec3f PosZ;
+    static const Vec3f NegX;
+    static const Vec3f NegY;
+    static const Vec3f NegZ;
+    static const Vec3f Null;
+    static const Vec3f NaN;
+    
     float x,y,z;
     bool operator== (const Vec3f& right) const;
     Vec3f& operator= (const Vec3f& right);
@@ -192,15 +201,6 @@ public:
     const Vec3f flip(EAxis axis) const;
     const Vec3f flip(EAxis axis, const Vec3f& center) const;
 };
-
-static const Vec3f XAxisPos( 1,  0,  0);
-static const Vec3f XAxisNeg(-1,  0,  0);
-static const Vec3f YAxisPos( 0,  1,  0);
-static const Vec3f YAxisNeg( 0, -1,  0);
-static const Vec3f ZAxisPos( 0,  0,  1);
-static const Vec3f ZAxisNeg( 0,  0, -1);
-static const Vec3f Null3f(0, 0, 0);
-static const Vec3f Nan3f(std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN(), std::numeric_limits<float>::quiet_NaN());
 
 class Vec4f {
 public:
@@ -297,6 +297,17 @@ static const Mat3f IdentityM3f(1, 0, 0, 0, 1, 0, 0, 0, 1);
 class Quat;
 class Mat4f {
 public:
+    static const Mat4f Identity;
+    static const Mat4f Rot90XCW;
+    static const Mat4f Rot90YCW;
+    static const Mat4f Rot90ZCW;
+    static const Mat4f Rot90XCCW;
+    static const Mat4f Rot90YCCW;
+    static const Mat4f Rot90ZCCW;
+    static const Mat4f MirX;
+    static const Mat4f MirY;
+    static const Mat4f MirZ;
+    
     float v[16];
     Mat4f& operator= (const Mat4f& right);
     const Mat4f operator+ (const Mat4f& right) const;
@@ -333,47 +344,6 @@ public:
     const Mat4f translate(const Vec3f& delta) const;
     const Mat4f scale(const Vec3f& factors) const;
 };
-
-static const Mat4f IdentityM4f(1, 0, 0, 0,
-                               0, 1, 0, 0,
-                               0, 0, 1, 0,
-                               0, 0, 0, 1);
-static const Mat4f RotX90CWM4f( 1,  0,  0,  0,
-                                0,  0, -1,  0,
-                                0,  1,  0,  0,
-                                0,  0,  0,  1);
-static const Mat4f RotY90CWM4f( 0,  0,  1,  0,
-                                0,  1,  0,  0,
-                               -1,  0,  0,  0,
-                                0,  0,  0,  1);
-static const Mat4f RotZ90CWM4f( 0, -1,  0,  0,
-                                1,  0,  0,  0,
-                                0,  0,  1,  0,
-                                0,  0,  0,  1);
-static const Mat4f RotX90CCWM4f( 1,  0,  0,  0,
-                                 0,  0,  1,  0,
-                                 0, -1,  0,  0,
-                                 0,  0,  0,  1);
-static const Mat4f RotY90CCWM4f( 0,  0, -1,  0,
-                                 0,  1,  0,  0,
-                                 1,  0,  0,  0,
-                                 0,  0,  0,  1);
-static const Mat4f RotZ90CCWM4f( 0,  1,  0,  0,
-                                -1,  0,  0,  0,
-                                 0,  0,  1,  0,
-                                 0,  0,  0,  1);
-static const Mat4f MirXM4f(-1,  0,  0,  0,
-                            0,  1,  0,  0,
-                            0,  0,  1,  0,
-                            0,  0,  0,  1);
-static const Mat4f MirYM4f( 1,  0,  0,  0,
-                            0, -1,  0,  0,
-                            0,  0,  1,  0,
-                            0,  0,  0,  1);
-static const Mat4f MirZM4f( 1,  0,  0,  0,
-                            0,  1,  0,  0,
-                            0,  0, -1,  0,
-                            0,  0,  0,  1);
 
 class Quat {
 public:

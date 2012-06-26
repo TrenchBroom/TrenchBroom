@@ -83,7 +83,7 @@ namespace TrenchBroom {
             BBox worldBounds(Vec3f(-4096, -4096, -4096), Vec3f(4096, 4096, 4096));
             m_map = new Model::Map(worldBounds, m_entityDefinitionFilePath);
             m_camera = new Camera(prefs.cameraFov(), prefs.cameraNear(), prefs.cameraFar(),
-                                         Vec3f(-32, -32, 32), XAxisPos);
+                                  Vec3f(-32, -32, 32), Vec3f::PosX);
             m_grid = new Grid(5);
             m_inputController = new InputController(*this);
 

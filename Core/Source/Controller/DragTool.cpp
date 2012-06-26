@@ -46,7 +46,7 @@ namespace TrenchBroom {
             return event.modifierKeys == TB_MK_ALT;
         }
 
-        DragTool::DragTool(Editor& editor) : Tool(editor), m_dragPlane(NULL), m_dragPlanePosition(Null3f), m_lastMousePoint(Null3f), m_lastRefPoint(Null3f), m_drag(false) {};
+        DragTool::DragTool(Editor& editor) : Tool(editor), m_dragPlane(NULL), m_dragPlanePosition(Vec3f::Null), m_lastMousePoint(Vec3f::Null), m_lastRefPoint(Vec3f::Null), m_drag(false) {};
         
         DragTool::~DragTool() {
             if (m_dragPlane != NULL)

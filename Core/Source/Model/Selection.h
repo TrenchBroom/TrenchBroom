@@ -43,6 +43,28 @@ namespace TrenchBroom {
         class Brush;
         class Face;
         
+        class SelectionState {
+        public:
+            EntityList entities;
+            BrushList brushes;
+            BrushList partialBrushes;
+            FaceList faces;
+            std::vector<Assets::Texture*> mruTextures;
+            ESelectionMode mode;
+            
+            SelectionState() : mode(TB_SM_NONE) {}
+            SelectionState(const SelectionState& state) : entities(state.entities), brushes(state.brushes), partialBrushes(state.partialBrushes), faces(state.faces), mruTextures(state.mruTextures), mode(state.mode) {}
+
+            void clear() {
+                entities.clear();
+                brushes.clear();
+                partialBrushes.clear();
+                faces.clear();
+                mruTextures.clear();
+                mode = TB_SM_NONE;
+            }
+        };
+        
         class SelectionEventData {
         public:
             EntityList entities;
@@ -59,18 +81,21 @@ namespace TrenchBroom {
         
         class Selection {
         private:
-            FaceList m_faces;
-            BrushList m_brushes;
-            BrushList m_partialBrushes;
-            EntityList m_entities;
-            std::vector<Assets::Texture*> m_mruTextures;
-            ESelectionMode m_mode;
+            mutable std::vector<SelectionState> m_state;
+            
+            inline SelectionState& current() const {
+                return m_state.back();
+            }
         public:
             typedef Event<const SelectionEventData&> SelectionEvent;
             SelectionEvent selectionAdded;
             SelectionEvent selectionRemoved;
             
             Selection();
+            
+            void push();
+            void pop();
+            
             ESelectionMode mode() const;
             bool empty() const;
             const std::vector<Assets::Texture*>& mruTextures() const;

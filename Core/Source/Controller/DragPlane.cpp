@@ -21,7 +21,7 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        DragPlane::DragPlane() : m_normal(ZAxisPos) {}
+        DragPlane::DragPlane() : m_normal(Vec3f::PosZ) {}
 
         DragPlane::DragPlane(const Vec3f& normal) : m_normal(normal.firstAxis()) {}
         

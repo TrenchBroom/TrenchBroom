@@ -407,7 +407,7 @@ namespace TrenchBroom {
             expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
             yScale = static_cast<float>(atof(token->data.c_str()));
             
-            if (((p3 - p1) % (p2 - p1)).equals(Null3f)) {
+            if (((p3 - p1) % (p2 - p1)).null()) {
                 log(TB_LL_WARN, "Skipping invalid face in line %i", token->line);
                 return NULL;
             }

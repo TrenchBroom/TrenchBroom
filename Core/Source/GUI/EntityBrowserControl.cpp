@@ -61,7 +61,7 @@ namespace TrenchBroom {
             float xAng = 70.0f;
             float zAng = 115.0f;
             
-            Quat rot = Quat(Math::fradians(-xAng), XAxisPos) * Quat(Math::fradians(zAng), ZAxisPos);
+            Quat rot = Quat(Math::fradians(-xAng), Vec3f::PosX) * Quat(Math::fradians(zAng), Vec3f::PosZ);
             const LayoutBounds& itemBounds = m_cell->itemBounds();
             Model::EntityDefinitionPtr definition = m_cell->item().first;
             
@@ -195,7 +195,7 @@ namespace TrenchBroom {
             float xAng = 70.0f;
             float zAng = 115.0f;
 
-            Quat rot = Quat(Math::fradians(-xAng), XAxisPos) * Quat(Math::fradians(zAng), ZAxisPos);
+            Quat rot = Quat(Math::fradians(-xAng), Vec3f::PosX) * Quat(Math::fradians(zAng), Vec3f::PosZ);
             std::vector<Vec3f> boundsVertices;
             std::vector<Vec4f> boundsColors;
 

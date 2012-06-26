@@ -27,6 +27,7 @@
 #include "Controller/MoveObjectTool.h"
 #include "Controller/MoveVertexTool.h"
 #include "Controller/SelectionTool.h"
+#include "Controller/ResizeBrushTool.h"
 #include "Model/Map/Map.h"
 #include "Model/Map/Picker.h"
 
@@ -63,8 +64,10 @@ namespace TrenchBroom {
             ToolPtr selectionTool = ToolPtr(new SelectionTool(m_editor));
             ToolPtr moveObjectTool = ToolPtr(new MoveObjectTool(m_editor));
             ToolPtr createBrushTool = ToolPtr(new CreateBrushTool(m_editor));
+            ToolPtr resizeBrushTool = ToolPtr(new ResizeBrushTool(m_editor));
             
             m_receiverChain.push_back(cameraTool);
+            m_receiverChain.push_back(resizeBrushTool);
             m_receiverChain.push_back(selectionTool);
             m_receiverChain.push_back(moveObjectTool);
             m_receiverChain.push_back(createBrushTool);

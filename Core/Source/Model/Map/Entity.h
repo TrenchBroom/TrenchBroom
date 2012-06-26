@@ -53,7 +53,6 @@ namespace TrenchBroom {
             float m_angle;
             mutable Vec3f m_center;
             mutable BBox m_bounds;
-            mutable BBox m_maxBounds;
             mutable bool m_geometryValid;
             
             Map* m_map;
@@ -78,7 +77,6 @@ namespace TrenchBroom {
             const Vec3f& center() const;
             const Vec3f& origin() const;
             const BBox& bounds() const;
-            const BBox& maxBounds() const;
             
             void pick(const Ray& ray, HitList& hits);
 

@@ -47,33 +47,33 @@ namespace TrenchBroom {
             glBegin(GL_LINES);
             v = m_bounds.min;
             v.x += size.x / 2;
-            renderLine(context, color, v, size.x, XAxisPos);
+            renderLine(context, color, v, size.x, Vec3f::PosX);
             v.y += size.y;
-            renderLine(context, color, v, size.x, XAxisPos);
+            renderLine(context, color, v, size.x, Vec3f::PosX);
             v.z += size.z;
-            renderLine(context, color, v, size.x, XAxisPos);
+            renderLine(context, color, v, size.x, Vec3f::PosX);
             v.y -= size.y;
-            renderLine(context, color, v, size.x, XAxisPos);
+            renderLine(context, color, v, size.x, Vec3f::PosX);
             
             v = m_bounds.min;
             v.y += size.y / 2;
-            renderLine(context, color, v, size.y, YAxisPos);
+            renderLine(context, color, v, size.y, Vec3f::PosY);
             v.x += size.x;
-            renderLine(context, color, v, size.y, YAxisPos);
+            renderLine(context, color, v, size.y, Vec3f::PosY);
             v.z += size.z;
-            renderLine(context, color, v, size.y, YAxisPos);
+            renderLine(context, color, v, size.y, Vec3f::PosY);
             v.x -= size.x;
-            renderLine(context, color, v, size.y, YAxisPos);
+            renderLine(context, color, v, size.y, Vec3f::PosY);
 
             v = m_bounds.min;
             v.z += size.z / 2;
-            renderLine(context, color, v, size.z, ZAxisPos);
+            renderLine(context, color, v, size.z, Vec3f::PosZ);
             v.x += size.x;
-            renderLine(context, color, v, size.z, ZAxisPos);
+            renderLine(context, color, v, size.z, Vec3f::PosZ);
             v.y += size.y;
-            renderLine(context, color, v, size.z, ZAxisPos);
+            renderLine(context, color, v, size.z, Vec3f::PosZ);
             v.x -= size.x;
-            renderLine(context, color, v, size.z, ZAxisPos);
+            renderLine(context, color, v, size.z, Vec3f::PosZ);
             glEnd();
         }
 

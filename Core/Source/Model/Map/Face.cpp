@@ -26,12 +26,13 @@
 
 namespace TrenchBroom {
     namespace Model {
-        static const Vec3f* BaseAxes[18] = { &ZAxisPos, &XAxisPos, &YAxisNeg,
-            &ZAxisNeg, &XAxisPos, &YAxisNeg,
-            &XAxisPos, &YAxisPos, &ZAxisNeg,
-            &XAxisNeg, &YAxisPos, &ZAxisNeg,
-            &YAxisPos, &XAxisPos, &ZAxisNeg,
-            &YAxisNeg, &XAxisPos, &ZAxisNeg};
+        static const Vec3f* BaseAxes[18] = {
+            &Vec3f::PosZ, &Vec3f::PosX, &Vec3f::NegY,
+            &Vec3f::NegZ, &Vec3f::PosX, &Vec3f::NegY,
+            &Vec3f::PosX, &Vec3f::PosY, &Vec3f::NegZ,
+            &Vec3f::NegX, &Vec3f::PosY, &Vec3f::NegZ,
+            &Vec3f::PosY, &Vec3f::PosX, &Vec3f::NegZ,
+            &Vec3f::NegY, &Vec3f::PosX, &Vec3f::NegZ};
         
         void Face::texAxesAndIndices(const Vec3f& faceNormal, Vec3f& xAxis, Vec3f& yAxis, int& planeNormIndex, int& faceNormIndex) const {
             int bestIndex = 0;
@@ -101,7 +102,7 @@ namespace TrenchBroom {
             newTexAxisX = transformation * newTexAxisX;
             newTexAxisY = transformation * newTexAxisY;
             newFaceNorm = transformation * boundary.normal;
-            offset = transformation * Null3f;
+            offset = transformation * Vec3f::Null;
             newCenter = transformation * curCenter;
             
             // correct the directional vectors by the translational part of the transformation
@@ -455,7 +456,7 @@ namespace TrenchBroom {
         
         void Face::translate(Vec3f delta, bool lockTexture) {
             if (lockTexture)
-                compensateTransformation(IdentityM4f.translate(delta));
+                compensateTransformation(Mat4f::Identity.translate(delta));
             
             boundary = boundary.translate(delta);
             for (unsigned int i = 0; i < 3; i++)
@@ -467,10 +468,10 @@ namespace TrenchBroom {
         
         void Face::rotate90(EAxis axis, Vec3f center, bool clockwise, bool lockTexture) {
             if (lockTexture) {
-                Mat4f t = IdentityM4f.translate(center);
-                if (axis == TB_AX_X) t *= clockwise ? RotX90CWM4f : RotX90CCWM4f;
-                else if (axis == TB_AX_Y) t *= clockwise ? RotY90CWM4f : RotY90CCWM4f;
-                else t *= clockwise ? RotZ90CWM4f : RotZ90CWM4f;
+                Mat4f t = Mat4f::Identity.translate(center);
+                if (axis == TB_AX_X) t *= clockwise ? Mat4f::Rot90XCW : Mat4f::Rot90XCCW;
+                else if (axis == TB_AX_Y) t *= clockwise ? Mat4f::Rot90YCW : Mat4f::Rot90YCCW;
+                else t *= clockwise ? Mat4f::Rot90ZCW : Mat4f::Rot90ZCCW;
                 t.translate(center * -1);
                 compensateTransformation(t);
             }
@@ -485,7 +486,7 @@ namespace TrenchBroom {
         
         void Face::rotate(Quat rotation, Vec3f center, bool lockTexture) {
             if (lockTexture) {
-                Mat4f t = IdentityM4f.translate(center).rotate(rotation).translate(center * -1);
+                Mat4f t = Mat4f::Identity.translate(center).rotate(rotation).translate(center * -1);
                 compensateTransformation(t);
             }
             
@@ -505,15 +506,15 @@ namespace TrenchBroom {
                 switch (axis) {
                     case TB_AX_X:
                         d = Vec3f(center.x, 0, 0);
-                        t = IdentityM4f.translate(d) * MirXM4f * IdentityM4f.translate(d * -1);
+                        t = Mat4f::Identity.translate(d) * Mat4f::MirX * Mat4f::Identity.translate(d * -1);
                         break;
                     case TB_AX_Y:
                         d = Vec3f(0, center.y, 0);
-                        t = IdentityM4f.translate(d) * MirYM4f * IdentityM4f.translate(d * -1);
+                        t = Mat4f::Identity.translate(d) * Mat4f::MirY * Mat4f::Identity.translate(d * -1);
                         break;
                     case TB_AX_Z:
                         d = Vec3f(0, 0, center.z);
-                        t = IdentityM4f.translate(d) * MirZM4f * IdentityM4f.translate(d * -1);
+                        t = Mat4f::Identity.translate(d) * Mat4f::MirZ * Mat4f::Identity.translate(d * -1);
                         break;
                 }
                 compensateTransformation(t);

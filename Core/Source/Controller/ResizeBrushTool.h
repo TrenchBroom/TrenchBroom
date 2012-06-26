@@ -17,43 +17,33 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_DragTool_h
-#define TrenchBroom_DragTool_h
+#ifndef TrenchBroom_ResizeBrushTool_h
+#define TrenchBroom_ResizeBrushTool_h
 
-#include "Controller/Tool.h"
-#include "Utilities/VecMath.h"
+#include "Controller/DragTool.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class Face;
+    }
+    
     namespace Controller {
-        class DragPlane;
         class Editor;
         
-        class DragTool : public Tool {
+        class ResizeBrushTool : public DragTool {
         protected:
-            DragPlane* m_dragPlane;
-            Vec3f m_dragPlanePosition;
-            Vec3f m_lastMousePoint;
-            Vec3f m_lastRefPoint;
-            bool m_drag;
+            Model::Face* m_referenceFace;
             
             virtual void updateDragPlane(ToolEvent& event);
 
             virtual bool doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint);
             virtual bool doLeftDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
             virtual void doEndLeftDrag(ToolEvent& event);
-            
-            virtual bool doBeginRightDrag(ToolEvent& event, Vec3f& initialPoint) ;
-            virtual bool doRightDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
-            virtual void doEndRightDrag(ToolEvent& event);
         public:
-            static bool altPlaneModifierPressed(ToolEvent& event);
+            ResizeBrushTool(Editor& editor);
+            ~ResizeBrushTool();
 
-            DragTool(Editor& editor);
-            virtual ~DragTool();
-            
-            bool beginLeftDrag(ToolEvent& event);
-            void leftDrag(ToolEvent& event);
-            void endLeftDrag(ToolEvent& event);
+            static bool resizeBrushModiferPressed(ToolEvent& event);
         };
     }
 }

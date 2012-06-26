@@ -63,8 +63,7 @@ namespace TrenchBroom {
                     for (unsigned int i = 1; i < frames.size(); i++)
                         bounds += frames[0]->bounds;
                 } else {
-                    bounds.min = Null3f;
-                    bounds.max = Null3f;
+                    bounds.min = bounds.max = Vec3f::Null;
                 }
             }
             

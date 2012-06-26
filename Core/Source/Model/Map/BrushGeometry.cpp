@@ -612,7 +612,7 @@ namespace TrenchBroom {
                     Edge* candidate = edges[j];
                     v2 = candidate->vector();
                     v2 = v1 % v2;
-                    if (v2.equals(Null3f)) {
+                    if (v2.null()) {
                         if (edge->end == candidate->end)
                             candidate->flip();
                         if (edge->end == candidate->start) {
@@ -844,7 +844,7 @@ namespace TrenchBroom {
                     v2 = vertex->position - edge->end->position;
                     cross = v1 % v2;
                     
-                    if (cross.equals(Null3f)) {
+                    if (cross.null()) {
                         edgeVector = edge->vector();
                         dot1 = v1 | edgeVector;
                         dot2 = v2 | edgeVector;

@@ -36,7 +36,7 @@ namespace TrenchBroom {
             m_map = NULL;
             m_filePosition = -1;
             m_selected = false;
-            m_origin = Null3f;
+            m_origin = Vec3f::Null;
             m_angle = 0;
             invalidateGeometry();
         }
@@ -44,8 +44,7 @@ namespace TrenchBroom {
         void Entity::validateGeometry() const {
             assert(!m_geometryValid);
 
-            m_bounds.min = m_bounds.max = Null3f;
-            m_maxBounds.min = m_maxBounds.max = Null3f;
+            m_bounds.min = m_bounds.max = Vec3f::Null;
             if (m_entityDefinition == NULL || m_entityDefinition->type == TB_EDT_BRUSH) {
                 if (!m_brushes.empty()) {
                     m_bounds = m_brushes[0]->bounds();
@@ -57,7 +56,6 @@ namespace TrenchBroom {
             }
 
             m_center = m_bounds.center();
-            m_maxBounds = m_bounds.maxBounds();
             m_geometryValid = true;
         }
 
@@ -114,11 +112,6 @@ namespace TrenchBroom {
         const BBox& Entity::bounds() const {
             if (!m_geometryValid) validateGeometry();
             return m_bounds;
-        }
-
-        const BBox& Entity::maxBounds() const {
-            if (!m_geometryValid) validateGeometry();
-            return m_maxBounds;
         }
 
         void Entity::pick(const Ray& ray, HitList& hits) {
@@ -313,9 +306,9 @@ namespace TrenchBroom {
                 direction.y = sin(2 * Math::Pi - m_angle * Math::Pi / 180);
                 direction.z = 0;
             } else if (m_angle == -1) {
-                direction = ZAxisPos;
+                direction = Vec3f::PosZ;
             } else if (m_angle == -2) {
-                direction = ZAxisNeg;
+                direction = Vec3f::NegZ;
             } else {
                 return;
             }
@@ -332,8 +325,8 @@ namespace TrenchBroom {
                 }
                 
                 m_angle = Math::fround(acos(direction.x) * 180 / Math::Pi);
-                Vec3f cross = direction % XAxisPos;
-                if (!cross.equals(Null3f) && cross.z < 0)
+                Vec3f cross = direction % Vec3f::PosX;
+                if (!cross.null() && cross.z < 0)
                     m_angle = 360 - m_angle;
                 setProperty(AngleKey, m_angle, true);
             }
@@ -354,9 +347,9 @@ namespace TrenchBroom {
                 direction.y = sin(2 * Math::Pi - m_angle * Math::Pi / 180);
                 direction.z = 0;
             } else if (m_angle == -1) {
-                direction = ZAxisPos;
+                direction = Vec3f::PosZ;
             } else if (m_angle == -2) {
-                direction = ZAxisNeg;
+                direction = Vec3f::NegZ;
             } else {
                 return;
             }
@@ -373,8 +366,8 @@ namespace TrenchBroom {
                 }
 
                 m_angle = Math::fround(acos(direction.x) * 180 / Math::Pi);
-                Vec3f cross = direction % XAxisPos;
-                if (!cross.equals(Null3f) && cross.z < 0)
+                Vec3f cross = direction % Vec3f::PosX;
+                if (!cross.null() && cross.z < 0)
                     m_angle = 360 - m_angle;
                 setProperty(AngleKey, m_angle, true);
             }

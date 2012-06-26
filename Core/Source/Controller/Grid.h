@@ -24,6 +24,10 @@
 #include "Utilities/VecMath.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class Face;
+    }
+    
     namespace Controller {
         class Grid {
         private:
@@ -39,14 +43,17 @@ namespace TrenchBroom {
             unsigned int actualSize() const;
             
             float snap(float f);
-            float snapDown(float f);
-            float snapUp(float f);
+            float snapUp(float f, bool skip = false);
+            float snapDown(float f, bool skip = false);
             Vec3f snap(const Vec3f& p);
             Vec3f snapUp(const Vec3f& p);
             Vec3f snapDown(const Vec3f& p);
             Vec3f snapTowards(const Vec3f& p, const Vec3f& d);
             
+            float intersectWithRay(const Ray& ray, unsigned int skip);
+
             Vec3f moveDelta(const BBox& bounds, const BBox& worldBounds, const Vec3f& referencePoint, const Vec3f& curMousePoint);
+            float moveDistance(const Model::Face& face, Vec3f& delta);
             
             GridEvent gridDidChange;
         };
