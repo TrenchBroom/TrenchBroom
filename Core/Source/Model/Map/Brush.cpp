@@ -268,7 +268,7 @@ namespace TrenchBroom {
             point.x = theirBounds.max.x;
             if (containsPoint(point))
                 return true;
-            return true;
+            return false;
         }
         
         bool Brush::containsEntity(Entity& entity) {
@@ -390,7 +390,7 @@ namespace TrenchBroom {
                     testGeometry.addFace(*faces[i], droppedFaces);
             
             ECutResult result = testGeometry.addFace(testFace, droppedFaces);
-            bool canDrag = droppedFaces.size() == 0 && result != TB_CR_NULL && worldBounds.contains(testGeometry.bounds);
+            bool canDrag = droppedFaces.size() == 0 && result == TB_CR_SPLIT && worldBounds.contains(testGeometry.bounds);
             
             geometry->restoreFaceSides();
             return canDrag;

@@ -91,21 +91,50 @@ namespace TrenchBroom {
             SelectionEvent selectionAdded;
             SelectionEvent selectionRemoved;
             
-            Selection();
+            inline Selection() {
+                m_state.resize(1);
+            }
             
             void push();
             void pop();
             
-            ESelectionMode mode() const;
-            bool empty() const;
-            const std::vector<Assets::Texture*>& mruTextures() const;
-            Assets::Texture* texture() const;
-            const FaceList& faces() const;
+            inline ESelectionMode mode() const {
+                return current().mode;
+            }
+            
+            inline bool empty() const {
+                return current().entities.empty() && current().brushes.empty() && current().faces.empty();
+            }
+            
+            inline const std::vector<Assets::Texture*>& mruTextures() const {
+                return current().mruTextures;
+            }
+            
+            inline Assets::Texture* texture() const {
+                if (current().mruTextures.empty())
+                    return NULL;
+                return current().mruTextures.back();
+            }
+            
+            inline const FaceList& faces() const {
+                return current().faces;
+            }
+            
             const FaceList brushFaces() const;
             const FaceList allFaces() const;
-            const BrushList& brushes() const;
-            const BrushList& partialBrushes() const;
-            const EntityList& entities() const;
+            
+            const BrushList& brushes() const {
+                return current().brushes;
+            }
+            
+            const BrushList& partialBrushes() const {
+                return current().partialBrushes;
+            }
+            
+            const EntityList& entities() const {
+                return current().entities;
+            }
+            
             const Entity* brushSelectionEntity() const;
             Vec3f center() const;
             BBox bounds() const;

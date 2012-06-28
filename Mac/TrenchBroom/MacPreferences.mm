@@ -55,6 +55,7 @@ namespace TrenchBroom {
             setDictionaryValue(dict, CameraInvertY, m_cameraInvertY);
             setDictionaryValue(dict, CameraFov, m_cameraFov);
             setDictionaryValue(dict, Brightness, m_brightness);
+            setDictionaryValue(dict, GridColor, m_gridColor);
             setDictionaryValue(dict, FaceColor, m_faceColor);
             setDictionaryValue(dict, EdgeColor, m_edgeColor);
             setDictionaryValue(dict, SelectedFaceColor, m_selectedFaceColor);
@@ -76,7 +77,6 @@ namespace TrenchBroom {
             setDictionaryValue(dict, OverriddenTextureColor, m_overriddenTextureColor);
             setDictionaryValue(dict, RendererFontName, m_rendererFontName);
             setDictionaryValue(dict, RendererFontSize, m_rendererFontSize);
-            setDictionaryValue(dict, GridAlpha, m_gridAlpha);
             setDictionaryValue(dict, QuakePath, m_quakePath);
 
             NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];

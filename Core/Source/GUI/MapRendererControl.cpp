@@ -47,7 +47,7 @@ namespace TrenchBroom {
 
         MapRendererControl::MapRendererControl(Base* parent, Controller::Editor& editor, Renderer::FontManager& fontManager) : Base(parent), m_editor(editor) {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-            m_gridRenderer = new Renderer::GridRenderer(prefs.gridAlpha());
+            m_gridRenderer = new Renderer::GridRenderer(prefs.gridColor());
             m_mapRenderer = new Renderer::MapRenderer(m_editor, fontManager);
             SetKeyboardInputEnabled(true);
             SetMouseInputEnabled(true);

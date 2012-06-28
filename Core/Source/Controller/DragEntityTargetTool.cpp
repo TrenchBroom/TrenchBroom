@@ -59,7 +59,7 @@ namespace TrenchBroom {
                 delta = grid.moveDelta(m_bounds, m_editor.map().worldBounds(), m_bounds.center(), newPos);
             } else {
                 Model::Face& face = hit->face();
-                DragPlane dragPlane(face.boundary.normal);
+                DragPlane dragPlane = DragPlane::orthogonal(face.boundary.normal, true);
 
                 Vec3f halfSize = m_bounds.size() * 0.5f;
                 float offsetLength = halfSize | dragPlane.normal();

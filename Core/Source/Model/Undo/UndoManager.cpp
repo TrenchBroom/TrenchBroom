@@ -44,6 +44,10 @@ namespace TrenchBroom {
             return m_name;
         }
         
+        bool UndoGroup::empty() const {
+            return m_items.empty();
+        }
+
         UndoManager::UndoManager() : m_depth(0), m_currentGroup(NULL), m_state(TB_US_DEFAULT) {
         }
         
@@ -119,12 +123,16 @@ namespace TrenchBroom {
             
             m_depth--;
             if (m_depth == 0) {
-                if (m_state == TB_US_UNDO)
-                    m_redoStack.push_back(m_currentGroup);
-                else
-                    m_undoStack.push_back(m_currentGroup);
-                if (m_state == TB_US_DEFAULT)
-                    undoGroupCreated(*m_currentGroup);
+                if (!m_currentGroup->empty()) {
+                    if (m_state == TB_US_UNDO)
+                        m_redoStack.push_back(m_currentGroup);
+                    else
+                        m_undoStack.push_back(m_currentGroup);
+                    if (m_state == TB_US_DEFAULT)
+                        undoGroupCreated(*m_currentGroup);
+                } else {
+                    delete m_currentGroup;
+                }
                 m_currentGroup = NULL;
             }
         }

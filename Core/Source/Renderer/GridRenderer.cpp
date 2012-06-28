@@ -37,9 +37,9 @@ namespace TrenchBroom {
             clear();
         }
         
-        void GridRenderer::setAlpha(float alpha) {
-            if (m_alpha == alpha) return;
-            m_alpha = alpha;
+        void GridRenderer::setColor(const Vec4f& color) {
+            if (m_color == color) return;
+            m_color = color;
             clear();
         }
         
@@ -66,10 +66,10 @@ namespace TrenchBroom {
                     for (unsigned int x = 0; x < texSize; x++) {
                         unsigned int i = (y * texSize + x) * 4;
                         if ((x % dim) == 0 || (y % dim) == 0) {
-                            pixel[i + 0] = 0xFF;
-                            pixel[i + 1] = 0xFF;
-                            pixel[i + 2] = 0xFF;
-                            pixel[i + 3] = static_cast<int>(Math::fround(0xFF * m_alpha));
+                            pixel[i + 0] = static_cast<int>(0xFF * m_color.x);
+                            pixel[i + 1] = static_cast<int>(0xFF * m_color.y);
+                            pixel[i + 2] = static_cast<int>(0xFF * m_color.z);
+                            pixel[i + 3] = static_cast<int>(0xFF * m_color.w);
                         } else {
                             pixel[i + 0] = 0x00;
                             pixel[i + 1] = 0x00;
@@ -80,8 +80,8 @@ namespace TrenchBroom {
                 }
 
                 glBindTexture(GL_TEXTURE_2D,textureId);
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texSize, texSize, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixel);

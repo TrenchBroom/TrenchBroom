@@ -469,6 +469,10 @@ const Vec3f Vec3f::flip(EAxis axis, const Vec3f& center) const {
     return result += center;
 }
 
+bool Vec4f::operator== (const Vec4f& right) const {
+    return x == right.x && y == right.y && z == right.z && w == right.w;
+}
+
 Vec4f& Vec4f::operator= (const Vec4f& right) {
     if (this != &right) {
         x = right.x;

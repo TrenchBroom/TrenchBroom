@@ -155,22 +155,6 @@ namespace TrenchBroom {
     undoManager.redo();
 }
 
-- (IBAction)toggleGrid:(id)sender {
-    Editor* editor = (Editor *)[editorHolder editor];
-    editor->grid().toggleVisible();
-}
-
-- (IBAction)toggleSnapToGrid:(id)sender {
-    Editor* editor = (Editor *)[editorHolder editor];
-    editor->grid().toggleSnap();
-}
-
-- (IBAction)setGridSize:(id)sender {
-    NSMenuItem* menuItem = (NSMenuItem *)sender;
-    Editor* editor = (Editor *)[editorHolder editor];
-    editor->grid().setSize([menuItem tag]);
-}
-
 - (IBAction)selectAll:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
     Map& map = editor->map();
@@ -188,13 +172,49 @@ namespace TrenchBroom {
         selection.addEntities(entities);
 }
 
+- (IBAction)selectEntity:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    Map& map = editor->map();
+    map.selectEntities();
+}
+
+- (IBAction)selectTouching:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    Map& map = editor->map();
+    map.selectTouching(true);
+}
+
+- (IBAction)selectNone:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    Map& map = editor->map();
+    Selection& selection = map.selection();
+    selection.removeAll();
+}
+
+- (IBAction)toggleGrid:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->grid().toggleVisible();
+}
+
+- (IBAction)toggleSnapToGrid:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->grid().toggleSnap();
+}
+
+- (IBAction)setGridSize:(id)sender {
+    NSMenuItem* menuItem = (NSMenuItem *)sender;
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->grid().setSize([menuItem tag]);
+}
+
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
     SEL action = [menuItem action];
+    Editor* editor = (Editor *)[editorHolder editor];
+    Map& map = editor->map();
+    Selection& selection = map.selection();
+    UndoManager& undoManager = map.undoManager();
+
     if (action == @selector(customUndo:)) {
-        Editor* editor = (Editor *)[editorHolder editor];
-        Map& map = editor->map();
-        UndoManager& undoManager = map.undoManager();
-        
         if (undoManager.undoStackEmpty()) {
             [menuItem setTitle:@"Undo"];
             return NO;
@@ -203,10 +223,6 @@ namespace TrenchBroom {
             [menuItem setTitle:[NSString stringWithFormat:@"Undo %@", objcName]];
         }
     } else if (action == @selector(customRedo:)) {
-        Editor* editor = (Editor *)[editorHolder editor];
-        Map& map = editor->map();
-        UndoManager& undoManager = map.undoManager();
-        
         if (undoManager.redoStackEmpty()) {
             [menuItem setTitle:@"Redo"];
             return NO;
@@ -214,14 +230,17 @@ namespace TrenchBroom {
             NSString* objcName = [NSString stringWithCString:undoManager.topRedoName().c_str() encoding:NSASCIIStringEncoding];
             [menuItem setTitle:[NSString stringWithFormat:@"Redo %@", objcName]];
         }
+    } else if (action == @selector(selectEntity:)) {
+        return selection.mode() == Model::TB_SM_BRUSHES;
+    } else if (action == @selector(selectTouching:)) {
+        return selection.mode() == Model::TB_SM_BRUSHES && selection.brushes().size() == 1;
+    } else if (action == @selector(selectNone:)) {
+        return !selection.empty();
     } else if (action == @selector(toggleGrid:)) {
-        Editor* editor = (Editor *)[editorHolder editor];
         [menuItem setState:editor->grid().visible() ? NSOnState : NSOffState];
     } else if (action == @selector(toggleSnapToGrid:)) {
-        Editor* editor = (Editor *)[editorHolder editor];
         [menuItem setState:editor->grid().snap() ? NSOnState : NSOffState];
     } else if (action == @selector(setGridSize:)) {
-        Editor* editor = (Editor *)[editorHolder editor];
         [menuItem setState:editor->grid().size() == [menuItem tag] ? NSOnState : NSOffState];
     }
     

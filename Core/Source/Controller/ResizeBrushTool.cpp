@@ -31,12 +31,7 @@
 namespace TrenchBroom {
     namespace Controller {
         void ResizeBrushTool::updateDragPlane(ToolEvent& event) {
-            if (m_dragPlane != NULL) {
-                delete m_dragPlane;
-                m_dragPlane = NULL;
-            }
-            
-            m_dragPlane = new DragPlane(event.ray.direction * -1.0f);
+            m_dragPlane = DragPlane::parallel(m_referenceFace->boundary.normal, event.ray.direction);
         }
 
         bool ResizeBrushTool::doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint) {

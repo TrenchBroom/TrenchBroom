@@ -27,10 +27,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Selection::Selection() {
-            m_state.resize(1);
-        }
-
         void Selection::push() {
             m_state.push_back(current());
         }
@@ -50,28 +46,6 @@ namespace TrenchBroom {
             current().mruTextures = state.mruTextures;
         }
 
-        ESelectionMode Selection::mode() const {
-            return current().mode;
-        }
-
-        bool Selection::empty() const {
-            return current().entities.empty() && current().brushes.empty() && current().faces.empty();
-        }
-
-        const std::vector<Assets::Texture*>& Selection::mruTextures() const {
-            return current().mruTextures;
-        }
-
-        Assets::Texture* Selection::texture() const {
-            if (current().mruTextures.empty())
-                return NULL;
-            return current().mruTextures.back();
-        }
-
-        const FaceList& Selection::faces() const {
-            return current().faces;
-        }
-
         const FaceList Selection::brushFaces() const {
             FaceList faces;
             for (unsigned int i = 0; i < current().brushes.size(); i++) {
@@ -86,18 +60,6 @@ namespace TrenchBroom {
             FaceList allFaces = brushFaces();
             allFaces.insert(allFaces.begin(), current().faces.begin(), current().faces.end());
             return allFaces;
-        }
-
-        const BrushList& Selection::brushes() const {
-            return current().brushes;
-        }
-
-        const BrushList& Selection::partialBrushes() const {
-            return current().partialBrushes;
-        }
-
-        const EntityList& Selection::entities() const {
-            return current().entities;
         }
 
         const Entity* Selection::brushSelectionEntity() const {

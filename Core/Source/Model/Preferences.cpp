@@ -26,6 +26,7 @@ namespace TrenchBroom {
         const std::string Preferences::CameraInvertY                     = "Controls: invert camera Y axis";
         const std::string Preferences::CameraFov                         = "Camera: field of vision";
         const std::string Preferences::Brightness                        = "Renderer: brightness";
+        const std::string Preferences::GridColor                         = "Renderer: grid color";
         const std::string Preferences::FaceColor                         = "Renderer: face color";
         const std::string Preferences::EdgeColor                         = "Renderer: edge color";
         const std::string Preferences::SelectedFaceColor                 = "Renderer: face color (selected)";
@@ -47,14 +48,14 @@ namespace TrenchBroom {
         const std::string Preferences::OverriddenTextureColor            = "Texture Browser: overridden texture color";
         const std::string Preferences::RendererFontName                  = "Renderer: font name";
         const std::string Preferences::RendererFontSize                  = "Renderer: font size";
-        const std::string Preferences::GridAlpha                         = "Renderer: grid translucency";
         const std::string Preferences::QuakePath                         = "General: quake path";
         
         void Preferences::loadDefaults() {
             m_cameraInvertY = false;
             m_cameraFov = 90;
+            m_gridColor = Vec4f(1.0f, 1.0f, 1.0f, 0.22f);
             m_faceColor = Vec4f(0.2f, 0.2f, 0.2f, 1);
-            m_edgeColor = Vec4f(0.6f, 0.6f, 0.6f, 0.6f);
+            m_edgeColor = Vec4f(0.6f, 0.6f, 0.6f, 1.0f);
             m_selectedFaceColor = Vec4f(0.6f, 0.35f, 0.35f, 1);
             m_selectedEdgeColor = Vec4f(1, 0, 0, 1);
             m_hiddenSelectedEdgeColor = Vec4f(1, 0, 0, 0.35f);
@@ -78,7 +79,6 @@ namespace TrenchBroom {
             m_rendererFontName = "Arial.ttf";
             m_rendererFontSize = 11;
             
-            m_gridAlpha = 0.15f;
 			m_brightness = 1.0f;
             
             m_quakePath = "";
@@ -92,6 +92,7 @@ namespace TrenchBroom {
             loadBool(CameraInvertY, m_cameraInvertY);
             loadFloat(CameraFov, m_cameraFov);
             loadFloat(Brightness, m_brightness);
+            loadVec4f(GridColor, m_gridColor);
             loadVec4f(FaceColor, m_faceColor);
             loadVec4f(EdgeColor, m_edgeColor);
             loadVec4f(SelectedFaceColor, m_selectedFaceColor);
@@ -113,7 +114,6 @@ namespace TrenchBroom {
             loadVec4f(OverriddenTextureColor, m_overriddenTextureColor);
 			loadString(RendererFontName, m_rendererFontName);
 			loadInt(RendererFontSize, m_rendererFontSize);
-			loadFloat(GridAlpha, m_gridAlpha);
 			loadString(QuakePath, m_quakePath);
         }
 
@@ -123,6 +123,7 @@ namespace TrenchBroom {
 			saveBool(CameraInvertY, m_cameraInvertY);
 			saveFloat(CameraFov, m_cameraFov);
 			saveFloat(Brightness, m_brightness);
+            saveVec4f(GridColor, m_gridColor);
 			saveVec4f(FaceColor, m_faceColor);
 			saveVec4f(EdgeColor, m_edgeColor);
 			saveVec4f(SelectedFaceColor, m_selectedFaceColor);
@@ -144,7 +145,6 @@ namespace TrenchBroom {
             saveVec4f(OverriddenTextureColor, m_overriddenTextureColor);
 			saveString(RendererFontName, m_rendererFontName);
 			saveInt(RendererFontSize, m_rendererFontSize);
-			saveFloat(GridAlpha, m_gridAlpha);
 			saveString(QuakePath, m_quakePath);
 		}
 
@@ -216,6 +216,10 @@ namespace TrenchBroom {
             if (saveInstantly())
                 saveFloat(Brightness, m_brightness);
             preferencesDidChange(QuakePath);
+        }
+        
+        const Vec4f& Preferences::gridColor() {
+            return m_gridColor;
         }
 
         const Vec4f& Preferences::faceColor() {
@@ -299,10 +303,6 @@ namespace TrenchBroom {
         
         unsigned int Preferences::rendererFontSize() {
             return m_rendererFontSize;
-        }
-
-        float Preferences::gridAlpha() {
-            return m_gridAlpha;
         }
 
         const std::string& Preferences::quakePath() {

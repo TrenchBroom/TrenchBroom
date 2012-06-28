@@ -41,6 +41,7 @@ namespace TrenchBroom {
             void addItem(UndoItem* item);
             void undo();
             const std::string& name();
+            bool empty() const;
         };
         
         class UndoManager {

@@ -18,20 +18,14 @@
  */
 
 #include "DragTool.h"
-#include "Controller/DragPlane.h"
 
 namespace TrenchBroom {
     namespace Controller {
         void DragTool::updateDragPlane(ToolEvent& event) {
-            if (m_dragPlane != NULL) {
-                delete m_dragPlane;
-                m_dragPlane = NULL;
-            }
-            
             if (altPlaneModifierPressed(event))
-                m_dragPlane = new DragPlane(event.ray.direction * -1.0f);
+                m_dragPlane = DragPlane::vertical(event.ray.direction * -1.0f);
             else
-                m_dragPlane = new DragPlane();
+                m_dragPlane = DragPlane::horizontal();
         }
 
         bool DragTool::doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint) { return false; }
@@ -46,18 +40,15 @@ namespace TrenchBroom {
             return event.modifierKeys == TB_MK_ALT;
         }
 
-        DragTool::DragTool(Editor& editor) : Tool(editor), m_dragPlane(NULL), m_dragPlanePosition(Vec3f::Null), m_lastMousePoint(Vec3f::Null), m_lastRefPoint(Vec3f::Null), m_drag(false) {};
-        
-        DragTool::~DragTool() {
-            if (m_dragPlane != NULL)
-                delete m_dragPlane;
-        }
+        DragTool::DragTool(Editor& editor) : Tool(editor), m_dragPlane(DragPlane::horizontal()), m_dragPlanePosition(Vec3f::Null), m_lastMousePoint(Vec3f::Null), m_lastRefPoint(Vec3f::Null), m_drag(false) {};
         
         bool DragTool::beginLeftDrag(ToolEvent& event) {
-            updateDragPlane(event);
             m_drag = doBeginLeftDrag(event, m_lastMousePoint);
-            m_lastRefPoint = m_lastMousePoint;
-            m_dragPlanePosition = m_lastMousePoint;
+            if (m_drag) {
+                updateDragPlane(event);
+                m_lastRefPoint = m_lastMousePoint;
+                m_dragPlanePosition = m_lastMousePoint;
+            }
             return m_drag;
         }
         
@@ -65,7 +56,7 @@ namespace TrenchBroom {
             if (!m_drag)
                 return;
             
-            float dist = m_dragPlane->intersect(event.ray, m_dragPlanePosition);
+            float dist = m_dragPlane.intersect(event.ray, m_dragPlanePosition);
             if (Math::isnan(dist))
                 return;
             
@@ -88,12 +79,6 @@ namespace TrenchBroom {
                 return;
             
             doEndLeftDrag(event);
-            
-            if (m_dragPlane != NULL) {
-                delete m_dragPlane;
-                m_dragPlane = NULL;
-            }
-            
             m_drag = false;
         }
     }

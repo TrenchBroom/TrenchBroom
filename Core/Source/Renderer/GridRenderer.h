@@ -20,8 +20,10 @@
 #ifndef TrenchBroom_GridRenderer_h
 #define TrenchBroom_GridRenderer_h
 
-#include <vector>
 #include "GL/GLee.h"
+#include "Utilities/VecMath.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Controller {
@@ -31,13 +33,13 @@ namespace TrenchBroom {
     namespace Renderer {
         class GridRenderer {
         private:
-            float m_alpha;
+            Vec4f m_color;
             std::vector<GLuint> m_textures;
             void clear();
         public:
-            GridRenderer(float alpha) : m_alpha(alpha) {}
+            GridRenderer(const Vec4f& color) : m_color(color) {}
             ~GridRenderer();
-            void setAlpha(float alpha);
+            void setColor(const Vec4f& color);
             void activate(const Controller::Grid& grid);
             void deactivate();
         };

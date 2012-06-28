@@ -25,14 +25,39 @@
 namespace TrenchBroom {
     namespace Controller {
         class DragPlane {
-        private:
+        protected:
             Vec3f m_normal;
+            DragPlane(const Vec3f& normal) : m_normal(normal) {}
         public:
-            DragPlane();
-            DragPlane(const Vec3f& normal);
+            static DragPlane horizontal() {
+                return DragPlane(Vec3f::PosZ);
+            }
             
-            float intersect(const Ray& ray, const Vec3f& planePosition);
-            const Vec3f& normal();
+            static DragPlane vertical(const Vec3f& vector) {
+                if (vector.firstComponent() != TB_AX_Z)
+                    return DragPlane(vector.firstAxis());
+                return DragPlane(vector.secondAxis());
+            }
+            
+            static DragPlane orthogonal(const Vec3f& vector, bool aligned) {
+                if (aligned)
+                    return DragPlane(vector.firstAxis());
+                return DragPlane(vector);
+            }
+            
+            static DragPlane parallel(const Vec3f& vector, const Vec3f& normal) {
+                Vec3f temp = normal % vector;
+                return DragPlane((vector % temp).normalize());
+            }
+            
+            float intersect(const Ray& ray, const Vec3f& planePosition) const {
+                Plane plane(m_normal, planePosition);
+                return plane.intersectWithRay(ray);
+            }
+            
+            const Vec3f& normal() const {
+                return m_normal;
+            }
         };
     }
 }

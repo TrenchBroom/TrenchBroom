@@ -21,6 +21,7 @@
 #define TrenchBroom_DragTool_h
 
 #include "Controller/Tool.h"
+#include "Controller/DragPlane.h"
 #include "Utilities/VecMath.h"
 
 namespace TrenchBroom {
@@ -30,7 +31,7 @@ namespace TrenchBroom {
         
         class DragTool : public Tool {
         protected:
-            DragPlane* m_dragPlane;
+            DragPlane m_dragPlane;
             Vec3f m_dragPlanePosition;
             Vec3f m_lastMousePoint;
             Vec3f m_lastRefPoint;
@@ -49,7 +50,7 @@ namespace TrenchBroom {
             static bool altPlaneModifierPressed(ToolEvent& event);
 
             DragTool(Editor& editor);
-            virtual ~DragTool();
+            virtual ~DragTool() {}
             
             bool beginLeftDrag(ToolEvent& event);
             void leftDrag(ToolEvent& event);

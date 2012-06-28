@@ -32,6 +32,7 @@ namespace TrenchBroom {
             static const std::string CameraInvertY;
             static const std::string CameraFov;
             static const std::string Brightness;
+            static const std::string GridColor;
             static const std::string FaceColor;
             static const std::string EdgeColor;
             static const std::string SelectedFaceColor;
@@ -53,7 +54,6 @@ namespace TrenchBroom {
             static const std::string OverriddenTextureColor;
             static const std::string RendererFontName;
             static const std::string RendererFontSize;
-            static const std::string GridAlpha;
             static const std::string QuakePath;
             
             int m_cameraKey;
@@ -64,6 +64,7 @@ namespace TrenchBroom {
             
             float m_brightness;
 
+            Vec4f m_gridColor;
             Vec4f m_faceColor;
             Vec4f m_edgeColor;
             Vec4f m_selectedFaceColor;
@@ -88,8 +89,6 @@ namespace TrenchBroom {
             
             std::string m_rendererFontName;
             int m_rendererFontSize;
-            
-            float m_gridAlpha;
             
             std::string m_quakePath;
 
@@ -134,6 +133,7 @@ namespace TrenchBroom {
             float brightness();
             void setBrightness(float brightness);
             
+            const Vec4f& gridColor();
             const Vec4f& faceColor();
             const Vec4f& edgeColor();
             const Vec4f& selectedFaceColor();
@@ -158,8 +158,6 @@ namespace TrenchBroom {
             
             const std::string& rendererFontName();
             unsigned int rendererFontSize();
-            
-            float gridAlpha();
             
             const std::string& quakePath();
             void setQuakePath(const std::string& quakePath);

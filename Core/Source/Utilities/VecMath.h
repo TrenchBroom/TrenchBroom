@@ -205,6 +205,7 @@ public:
 class Vec4f {
 public:
     float x,y,z,w;
+    bool operator== (const Vec4f& right) const;
     Vec4f& operator= (const Vec4f& right);
     const Vec4f operator+ (const Vec4f& right) const;
     const Vec4f operator- (const Vec4f& right) const;
