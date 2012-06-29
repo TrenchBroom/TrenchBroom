@@ -42,10 +42,14 @@ namespace TrenchBroom {
                      forKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
         }
         
-        void MacPreferences::setDictionaryValue(NSMutableDictionary* dict, const std::string& key, const Vec4f& value) {
+        void MacPreferences::setDictionaryValue(NSMutableDictionary* dict, const std::string& key, const Vec3f& value) {
             setDictionaryValue(dict, key, value.asString());
         }
 
+        void MacPreferences::setDictionaryValue(NSMutableDictionary* dict, const std::string& key, const Vec4f& value) {
+            setDictionaryValue(dict, key, value.asString());
+        }
+        
         void MacPreferences::loadDefaults() {
             Preferences::loadDefaults();
 
@@ -78,6 +82,7 @@ namespace TrenchBroom {
             setDictionaryValue(dict, RendererFontName, m_rendererFontName);
             setDictionaryValue(dict, RendererFontSize, m_rendererFontSize);
             setDictionaryValue(dict, QuakePath, m_quakePath);
+            setDictionaryValue(dict, VertexHandleSize, m_vertexHandleSize);
 
             NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
             [defaults registerDefaults:dict];
@@ -116,6 +121,15 @@ namespace TrenchBroom {
             return true;
         }
         
+        bool MacPreferences::loadVec3f(const std::string& key, Vec3f& value) {
+            NSString* objcValue = [[NSUserDefaults standardUserDefaults] stringForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
+            if (objcValue == nil)
+                value = Vec3f();
+            else
+                value = Vec3f([objcValue cStringUsingEncoding:NSASCIIStringEncoding]);
+            return true;
+        }
+
         bool MacPreferences::loadVec4f(const std::string& key, Vec4f& value) {
             NSString* objcValue = [[NSUserDefaults standardUserDefaults] stringForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
             if (objcValue == nil)
@@ -149,6 +163,10 @@ namespace TrenchBroom {
             saveString(key, value.asString());
         }
 
+        void MacPreferences::saveVec3f(const std::string& key, const Vec3f& value) {
+            saveString(key, value.asString());
+        }
+        
         bool MacPreferences::saveInstantly() {
             return true;
         }

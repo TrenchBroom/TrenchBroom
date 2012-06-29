@@ -20,7 +20,10 @@
 #include "MoveVertexTool.h"
 
 #include "Controller/Editor.h"
+#include "Controller/Grid.h"
 #include "Model/Map/Map.h"
+#include "Model/Map/Picker.h"
+#include "Model/Undo/UndoManager.h"
 #include "Renderer/Figures/BrushVertexFigure.h"
 
 #include <cassert>
@@ -51,7 +54,7 @@ namespace TrenchBroom {
             }
         }
 
-        MoveVertexTool::MoveVertexTool(Controller::Editor& editor) : DragTool(editor), m_figure(NULL), m_listenerActive(false) {
+        MoveVertexTool::MoveVertexTool(Controller::Editor& editor) : DragTool(editor), m_brush(NULL), m_index(-1), m_figure(NULL), m_listenerActive(false) {
         }
         
         MoveVertexTool::~MoveVertexTool() {
@@ -75,6 +78,47 @@ namespace TrenchBroom {
         
         void MoveVertexTool::deactivated(ToolEvent& event) {
             cleanup();
+        }
+
+        bool MoveVertexTool::doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint) {
+            Model::Hit* hit = event.hits->first(Model::TB_HT_VERTEX_HANDLE, false);
+            if (hit == NULL)
+                return false;
+            
+            m_brush = &hit->brush();
+            m_index = hit->index;
+            initialPoint = hit->hitPoint;
+            
+            m_editor.map().undoManager().begin("Move Vertex");
+            return true;
+        }
+        
+        bool MoveVertexTool::doLeftDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint) {
+            assert(m_brush != NULL);
+            assert(m_index != -1);
+            
+            Model::Vertex* vertex = m_brush->geometry->vertices[m_index];
+            
+            Grid& grid = m_editor.grid();
+            Vec3f delta = grid.moveDelta(vertex->position, m_editor.map().worldBounds(), referencePoint, curMousePoint);
+            if (delta.null())
+                return true;
+            
+            Model::MoveResult result = m_editor.map().moveVertex(*m_brush, m_index, delta);
+            m_index = result.index;
+            if (result.index == -1)
+                return false;
+            else if (result.moved)
+                referencePoint += delta;
+            
+            return true;
+        }
+        
+        void MoveVertexTool::doEndLeftDrag(ToolEvent& event) {
+            m_editor.map().undoManager().end();
+            
+            m_brush = NULL;
+            m_index = -1;
         }
     }
 }

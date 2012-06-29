@@ -170,6 +170,19 @@ namespace TrenchBroom {
             }
         }
         
+        void Brush::pickVertices(const Ray& ray, float handleSize, HitList& hits) {
+            const VertexList& vertices = geometry->vertices;
+            for (unsigned int i = 0; i < vertices.size(); i++) {
+                BBox handle(vertices[i]->position, handleSize);
+                float dist = handle.intersectWithRay(ray);
+                if (!Math::isnan(dist)) {
+                    Vec3f hitPoint = ray.pointAtDistance(dist);
+                    Hit* hit = new Hit(this, i, TB_HT_VERTEX_HANDLE, hitPoint, dist);
+                    hits.add(*hit);
+                }
+            }
+        }
+
         bool Brush::containsPoint(Vec3f point) {
             if (!bounds().contains(point)) return false;
             

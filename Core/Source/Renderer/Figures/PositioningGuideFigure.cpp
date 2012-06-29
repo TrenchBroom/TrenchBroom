@@ -83,7 +83,7 @@ namespace TrenchBroom {
             m_bounds = bounds;
         }
         
-        void PositioningGuideFigure::render(RenderContext& context) {
+        void PositioningGuideFigure::render(RenderContext& context, Vbo& vbo) {
             glEnable(GL_DEPTH_TEST);
             glColorV4f(m_color);
             renderGuides(context, m_color);

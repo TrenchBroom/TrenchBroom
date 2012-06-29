@@ -25,20 +25,20 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class Vbo;
+        class VboBlock;
         
         class BrushVertexFigure : public Figure {
         protected:
-            Vbo* m_vbo;
+            VboBlock* m_vboBlock;
             bool m_valid;
             unsigned int m_vertexCount;
             Model::BrushList m_brushes;
         public:
-            BrushVertexFigure() : m_vbo(NULL), m_valid(false) {}
+            BrushVertexFigure() : m_valid(false), m_vboBlock(NULL), m_vertexCount(0) {}
             ~BrushVertexFigure();
             
             void setBrushes(const Model::BrushList& brushes);
-            virtual void render(RenderContext& context);
+            virtual void render(RenderContext& context, Vbo& vbo);
         };
     }
 }

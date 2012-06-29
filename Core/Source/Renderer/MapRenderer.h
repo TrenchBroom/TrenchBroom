@@ -123,6 +123,7 @@ namespace TrenchBroom {
             BBox m_selectionBounds;
 
             // figures
+            Vbo* m_figureVbo;
             std::vector<Figure*> m_figures;
             
             // state

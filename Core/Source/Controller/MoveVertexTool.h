@@ -25,6 +25,10 @@
 #include "Model/Selection.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class Brush;
+    }
+    
     namespace Renderer {
         class BrushVertexFigure;
     }
@@ -35,6 +39,9 @@ namespace TrenchBroom {
             Renderer::BrushVertexFigure* m_figure;
             bool m_listenerActive;
             
+            Model::Brush* m_brush;
+            int m_index;
+            
             void selectionChanged(const Model::SelectionEventData& event);
             void cleanup();
         public:
@@ -43,6 +50,10 @@ namespace TrenchBroom {
 
             virtual void activated(ToolEvent& event);
             virtual void deactivated(ToolEvent& event);
+
+            virtual bool doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint);
+            virtual bool doLeftDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
+            virtual void doEndLeftDrag(ToolEvent& event);
         };
     }
 }

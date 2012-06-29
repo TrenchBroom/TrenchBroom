@@ -31,9 +31,9 @@ namespace TrenchBroom {
     
     namespace Renderer {
         BrushVertexFigure::~BrushVertexFigure() {
-            if (m_vbo != NULL) {
-                delete m_vbo;
-                m_vbo = NULL;
+            if (m_vboBlock != NULL) {
+                m_vboBlock->freeBlock();
+                m_vboBlock = NULL;
             }
         }
         
@@ -42,9 +42,11 @@ namespace TrenchBroom {
             m_valid = false;
         }
         
-        void BrushVertexFigure::render(RenderContext& context) {
+        void BrushVertexFigure::render(RenderContext& context, Vbo& vbo) {
             if (m_brushes.empty())
                 return;
+            
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             
             if (!m_valid) {
                 unsigned int brushVertexCount = 0;
@@ -52,39 +54,35 @@ namespace TrenchBroom {
                     brushVertexCount += m_brushes[i]->geometry->vertices.size();
                 
                 m_vertexCount = 6 * 6 * brushVertexCount;
-                if (m_vbo == NULL)
-                    m_vbo = new Vbo(GL_ARRAY_BUFFER, m_vertexCount * VertexSize);
-                else
-                    m_vbo->freeAllBlocks();
                 
-                VboBlock* block = m_vbo->allocBlock(m_vertexCount * VertexSize);
-                m_vbo->activate();
-                m_vbo->map();
+                if (m_vboBlock != NULL)
+                    m_vboBlock->freeBlock();
+                
+                m_vboBlock = vbo.allocBlock(m_vertexCount * VertexSize);
+                vbo.map();
+                
+                float handleSize = prefs.vertexHandleSize();
                 
                 unsigned int offset = 0;
                 for (unsigned int i = 0; i < m_brushes.size(); i++) {
                     Model::Brush* brush = m_brushes[i];
                     for (unsigned int j = 0; j < brush->geometry->vertices.size(); j++) {
                         Model::Vertex* vertex = brush->geometry->vertices[j];
-                        BBox handleBounds(vertex->position, 2);
+                        BBox handleBounds(vertex->position, handleSize);
                         std::vector<Vec3f> handleVertices = bboxTriangleVertices(handleBounds);
-                        offset = block->writeVecs(handleVertices, offset);
+                        offset = m_vboBlock->writeVecs(handleVertices, offset);
                     }
                 }
                 
-                m_vbo->unmap();
+                vbo.unmap();
                 m_valid = true;
-            } else {
-                m_vbo->activate();
             }
 
-            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-            
             glFrontFace(GL_CCW);
             glPolygonMode(GL_FRONT, GL_FILL);
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
             glEnableClientState(GL_VERTEX_ARRAY);
-            glVertexPointer(3, GL_FLOAT, VertexSize, reinterpret_cast<const GLvoid*>(0));
+            glVertexPointer(3, GL_FLOAT, VertexSize, reinterpret_cast<const GLvoid*>(m_vboBlock->address));
             
             glDisable(GL_DEPTH_TEST);
             glColorV4f(prefs.hiddenSelectedEdgeColor());
@@ -95,7 +93,6 @@ namespace TrenchBroom {
             glDrawArrays(GL_TRIANGLES, 0, m_vertexCount);
             
             glPopClientAttrib();
-            m_vbo->deactivate();
         }
     }
 }

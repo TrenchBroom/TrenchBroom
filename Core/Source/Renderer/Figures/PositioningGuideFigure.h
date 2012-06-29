@@ -26,6 +26,7 @@
 namespace TrenchBroom {
     namespace Renderer {
         class RenderContext;
+        class Vbo;
         
         class PositioningGuideFigure : public Figure {
         private:
@@ -38,7 +39,7 @@ namespace TrenchBroom {
         public:
             PositioningGuideFigure(const BBox& bounds, const Vec4f& color, const Vec4f& hiddenColor);
             void updateBounds(const BBox& bounds);
-            void render(RenderContext& context);
+            void render(RenderContext& context, Vbo& vbo);
         };
     }
 }

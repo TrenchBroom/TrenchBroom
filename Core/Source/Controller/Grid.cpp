@@ -20,6 +20,7 @@
 #include "Grid.h"
 
 #include "Model/Map/Brush.h"
+#include "Model/Map/BrushGeometry.h"
 #include "Model/Map/Face.h"
 #include "Utilities/VecMath.h"
 #include "Utilities/Console.h"
@@ -76,7 +77,7 @@ namespace TrenchBroom {
         float Grid::snapUp(float f, bool skip) {
             int actSize = actualSize();
             float s = actSize * ceil(f / actSize);
-            if (s == f)
+            if (skip && s == f)
                 s += actualSize();
             return s;
         }
@@ -84,7 +85,7 @@ namespace TrenchBroom {
         float Grid::snapDown(float f, bool skip) {
             int actSize = actualSize();
             float s = actSize * floor(f / actSize);
-            if (s == f)
+            if (skip && s == f)
                 s -= actualSize();
             return s;
         }
@@ -93,12 +94,12 @@ namespace TrenchBroom {
             return Vec3f(snap(p.x), snap(p.y), snap(p.z));
         }
         
-        Vec3f Grid::snapUp(const Vec3f& p) {
-            return Vec3f(snapUp(p.x), snapUp(p.y), snapUp(p.z));
+        Vec3f Grid::snapUp(const Vec3f& p, bool skip) {
+            return Vec3f(snapUp(p.x, skip), snapUp(p.y, skip), snapUp(p.z, skip));
         }
         
-        Vec3f Grid::snapDown(const Vec3f& p) {
-            return Vec3f(snapDown(p.x), snapDown(p.y), snapDown(p.z));
+        Vec3f Grid::snapDown(const Vec3f& p, bool skip) {
+            return Vec3f(snapDown(p.x, skip), snapDown(p.y, skip), snapDown(p.z, skip));
         }
         
         Vec3f Grid::snapTowards(const Vec3f& p, const Vec3f& d) {
@@ -163,6 +164,17 @@ namespace TrenchBroom {
             return delta;
         }
         
+        Vec3f Grid::moveDelta(const Vec3f& point, const BBox& worldBounds, const Vec3f& referencePoint, const Vec3f& curMousePoint) {
+            Vec3f delta = curMousePoint - referencePoint;
+            for (int i = 0; i < 3; i++)
+                delta[i] = snap(point[i] + delta[i]) - point[i];
+            
+            if ((curMousePoint - referencePoint).lengthSquared() < (curMousePoint - (referencePoint + delta)).lengthSquared())
+                delta = Vec3f::Null;
+            
+            return delta;
+        }
+
         float Grid::moveDistance(const Model::Face& face, Vec3f& delta) {
             float dist = delta | face.boundary.normal;
             if (Math::fzero(dist))
@@ -178,9 +190,9 @@ namespace TrenchBroom {
                 unsigned int c = 0;
                 bool invert = false;
                 
-                if (indexOf(faceVertices, edge->start) != -1) {
+                if (Model::indexOf(faceVertices, edge->start) != -1) {
                     c++;
-                } else if (indexOf(faceVertices, edge->end) != -1) {
+                } else if (Model::indexOf(faceVertices, edge->end) != -1) {
                     c++;
                     invert = true;
                 }

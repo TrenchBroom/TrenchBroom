@@ -30,6 +30,7 @@
 #include "Controller/ResizeBrushTool.h"
 #include "Model/Map/Map.h"
 #include "Model/Map/Picker.h"
+#include "Model/Preferences.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -41,6 +42,13 @@ namespace TrenchBroom {
             Camera& camera = m_editor.camera();
             m_currentEvent.ray = camera.pickRay(m_currentEvent.mouseX, m_currentEvent.mouseY);
             m_currentEvent.hits = picker.pick(m_currentEvent.ray, m_editor.filter());
+            
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+            
+            Model::Selection& selection = m_editor.map().selection();
+            const Model::BrushList& brushes = selection.brushes();
+            for (unsigned int i = 0; i < brushes.size(); i++)
+                brushes[i]->pickVertices(m_currentEvent.ray, prefs.vertexHandleSize(), *m_currentEvent.hits);
         }
 
         void InputController::toggleModalTool(const ToolPtr& tool, unsigned int index) {

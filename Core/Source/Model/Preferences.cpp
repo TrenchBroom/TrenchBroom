@@ -49,6 +49,7 @@ namespace TrenchBroom {
         const std::string Preferences::RendererFontName                  = "Renderer: font name";
         const std::string Preferences::RendererFontSize                  = "Renderer: font size";
         const std::string Preferences::QuakePath                         = "General: quake path";
+        const std::string Preferences::VertexHandleSize                  = "General: vertex handle size";
         
         void Preferences::loadDefaults() {
             m_cameraInvertY = false;
@@ -83,6 +84,8 @@ namespace TrenchBroom {
             
             m_quakePath = "";
             
+            m_vertexHandleSize = 2.0f;
+            
             loadPlatformDefaults();
         }
         
@@ -115,6 +118,7 @@ namespace TrenchBroom {
 			loadString(RendererFontName, m_rendererFontName);
 			loadInt(RendererFontSize, m_rendererFontSize);
 			loadString(QuakePath, m_quakePath);
+            loadFloat(VertexHandleSize, m_vertexHandleSize);
         }
 
 		void Preferences::savePreferences() {
@@ -146,6 +150,7 @@ namespace TrenchBroom {
 			saveString(RendererFontName, m_rendererFontName);
 			saveInt(RendererFontSize, m_rendererFontSize);
 			saveString(QuakePath, m_quakePath);
+            saveFloat(VertexHandleSize, m_vertexHandleSize);
 		}
 
 		Preferences* Preferences::sharedPreferences = NULL;
@@ -317,6 +322,10 @@ namespace TrenchBroom {
             if (saveInstantly())
                 saveString(QuakePath, m_quakePath);
             preferencesDidChange(QuakePath);
+        }
+
+        float Preferences::vertexHandleSize() {
+            return m_vertexHandleSize;
         }
     }
 }

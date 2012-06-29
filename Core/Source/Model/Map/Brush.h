@@ -66,6 +66,7 @@ namespace TrenchBroom {
             const Vec3f center() const;
             
             void pick(const Ray& ray, HitList& hits);
+            void pickVertices(const Ray& ray, float handleSize, HitList& hits);
             bool containsPoint(Vec3f point);
             bool intersectsBrush(Brush& brush);
             bool containsBrush(Brush& brush);

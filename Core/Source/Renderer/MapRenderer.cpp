@@ -853,8 +853,10 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::renderFigures(RenderContext& context) {
+            m_figureVbo->activate();
             for (unsigned int i = 0; i < m_figures.size(); i++)
-                m_figures[i]->render(context);
+                m_figures[i]->render(context, *m_figureVbo);
+            m_figureVbo->deactivate();
         }
 
         MapRenderer::MapRenderer(Controller::Editor& editor, FontManager& fontManager) : m_editor(editor), m_fontManager(fontManager), m_geometryDataValid(false), m_entityDataValid(false) {
@@ -878,6 +880,8 @@ namespace TrenchBroom {
             m_classnameRenderer = new TextRenderer(m_fontManager, prefs.infoOverlayFadeDistance());
             m_selectedClassnameRenderer = new TextRenderer(m_fontManager, prefs.selectedInfoOverlayFadeDistance());
 
+            m_figureVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
+            
             m_dummyTexture = new Model::Assets::Texture("dummy");
 
             m_editor.setRenderer(this);
@@ -938,6 +942,9 @@ namespace TrenchBroom {
             delete m_classnameRenderer;
             delete m_selectedClassnameRenderer;
 
+            m_figures.clear();
+            delete m_figureVbo;
+            
             if (m_dummyTexture != NULL)
                 delete m_dummyTexture;
         }

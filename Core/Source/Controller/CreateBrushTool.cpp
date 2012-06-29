@@ -38,7 +38,8 @@ namespace TrenchBroom {
         }
         
         void CreateBrushTool::createFigures() {
-            cleanup();
+            if (m_brush != NULL)
+                delete m_brush;
             
             Model::Map& map = m_editor.map();
             Model::Selection& selection = map.selection();
@@ -48,8 +49,12 @@ namespace TrenchBroom {
             Model::BrushList brushes;
             brushes.push_back(m_brush);
             
-            m_brushFigure = new Renderer::BrushFigure(brushes);
-            addFigure(*m_brushFigure);
+            if (m_brushFigure == NULL) {
+                m_brushFigure = new Renderer::BrushFigure();
+                addFigure(*m_brushFigure);
+            }
+            
+            m_brushFigure->setBrushes(brushes);
         }
         
         void CreateBrushTool::cleanup() {

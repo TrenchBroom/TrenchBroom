@@ -39,14 +39,15 @@ namespace TrenchBroom {
         protected:
             Model::BrushList m_brushes;
             Model::Assets::Texture* m_dummyTexture;
-            Vbo* m_vbo;
             VboBlock* m_edgeBlock;
             VboBlock* m_faceBlock;
             unsigned int m_edgeVertexCount;
+            bool m_valid;
         public:
-            BrushFigure(const Model::BrushList& brushes);
+            BrushFigure();
             ~BrushFigure();
-            virtual void render(RenderContext& context);
+            virtual void render(RenderContext& context, Vbo& vbo);
+            void setBrushes(const Model::BrushList& brushes);
         };
     }
 }

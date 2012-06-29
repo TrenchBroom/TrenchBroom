@@ -55,6 +55,7 @@ namespace TrenchBroom {
             static const std::string RendererFontName;
             static const std::string RendererFontSize;
             static const std::string QuakePath;
+            static const std::string VertexHandleSize;
             
             int m_cameraKey;
             int m_cameraOrbitKey;
@@ -92,6 +93,8 @@ namespace TrenchBroom {
             
             std::string m_quakePath;
 
+            float m_vertexHandleSize;
+            
             virtual void loadDefaults();
             virtual void loadPlatformDefaults() = 0;
 
@@ -99,6 +102,7 @@ namespace TrenchBroom {
             virtual bool loadFloat(const std::string& key, float& value) = 0;
             virtual bool loadBool(const std::string& key, bool& value) = 0;
             virtual bool loadString(const std::string& key, std::string& value) = 0;
+            virtual bool loadVec3f(const std::string& key, Vec3f& value) = 0;
             virtual bool loadVec4f(const std::string& key, Vec4f& value) = 0;
             void loadPreferences();
             
@@ -106,6 +110,7 @@ namespace TrenchBroom {
             virtual void saveFloat(const std::string& key, float value) = 0;
             virtual void saveBool(const std::string& key, bool value) = 0;
             virtual void saveString(const std::string& key, const std::string& value) = 0;
+			virtual void saveVec3f(const std::string& key, const Vec3f& value) = 0;
 			virtual void saveVec4f(const std::string& key, const Vec4f& value) = 0;
             virtual bool saveInstantly() = 0;
 			void savePreferences();
@@ -161,6 +166,8 @@ namespace TrenchBroom {
             
             const std::string& quakePath();
             void setQuakePath(const std::string& quakePath);
+            
+            float vertexHandleSize();
         };
     }
 }

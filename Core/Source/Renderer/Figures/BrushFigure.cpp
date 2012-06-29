@@ -38,15 +38,17 @@ namespace TrenchBroom {
         unsigned int EdgeVertexSize = VertexSize;
         unsigned int FaceVertexSize = VertexSize + CoordSize + CoordSize;
         
-        BrushFigure::BrushFigure(const Model::BrushList& brushes) : Figure(), m_brushes(brushes), m_vbo(NULL), m_faceBlock(NULL), m_edgeBlock(NULL), m_edgeVertexCount(0), m_dummyTexture(new Model::Assets::Texture("dummy")) {}
+        BrushFigure::BrushFigure() : Figure(), m_faceBlock(NULL), m_edgeBlock(NULL), m_edgeVertexCount(0), m_valid(false), m_dummyTexture(new Model::Assets::Texture("dummy")) {}
         
         BrushFigure::~BrushFigure() {
-            if (m_vbo != NULL) {
-                m_vbo->freeAllBlocks();
-                delete m_vbo;
-                m_vbo = NULL;
-                m_faceBlock = NULL;
+            if (m_edgeBlock != NULL) {
+                m_edgeBlock->freeBlock();
                 m_edgeBlock = NULL;
+            }
+            
+            if (m_faceBlock != NULL) {
+                m_faceBlock->freeBlock();
+                m_faceBlock = NULL;
             }
             
             if (m_dummyTexture != NULL) {
@@ -55,12 +57,12 @@ namespace TrenchBroom {
             }
         }
         
-        void BrushFigure::render(RenderContext& context) {
+        void BrushFigure::render(RenderContext& context, Vbo& vbo) {
             if (m_brushes.empty())
                 return;
             
             // create VBOs
-            if (m_vbo == NULL) {
+            if (!m_valid) {
                 unsigned int faceVertexCount = 0;
                 for (unsigned int i = 0; i < m_brushes.size(); i++) {
                     Model::Brush* brush = m_brushes[i];
@@ -71,12 +73,15 @@ namespace TrenchBroom {
                     }
                 }
                 
-                m_vbo = new Vbo(GL_ARRAY_BUFFER, faceVertexCount * FaceVertexSize + m_edgeVertexCount * EdgeVertexSize);
-                m_faceBlock = m_vbo->allocBlock(faceVertexCount * FaceVertexSize);
-                m_edgeBlock = m_vbo->allocBlock(m_edgeVertexCount * EdgeVertexSize);
+                if (m_faceBlock != NULL)
+                    m_faceBlock->freeBlock();
+                if (m_edgeBlock != NULL)
+                    m_edgeBlock->freeBlock();
                 
-                m_vbo->activate();
-                m_vbo->map();
+                m_faceBlock = vbo.allocBlock(faceVertexCount * FaceVertexSize);
+                m_edgeBlock = vbo.allocBlock(m_edgeVertexCount * EdgeVertexSize);
+                
+                vbo.map();
                 
                 unsigned int edgeOffset = 0;
                 unsigned int faceOffset = 0;
@@ -111,9 +116,8 @@ namespace TrenchBroom {
                     }
                 }
                 
-                m_vbo->unmap();
-            } else {
-                m_vbo->activate();
+                vbo.unmap();
+                m_valid = true;
             }
             
             // render faces
@@ -129,7 +133,7 @@ namespace TrenchBroom {
                 
                 glClientActiveTexture(GL_TEXTURE2);
                 glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                glTexCoordPointer(2, GL_FLOAT, FaceVertexSize, reinterpret_cast<const GLvoid*>(0));
+                glTexCoordPointer(2, GL_FLOAT, FaceVertexSize, reinterpret_cast<const GLvoid*>(m_faceBlock->address));
             }
             
             const Vec4f& selectedFaceColor = context.preferences.selectedFaceColor();
@@ -154,9 +158,9 @@ namespace TrenchBroom {
             
             glClientActiveTexture(GL_TEXTURE0);
             glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-            glTexCoordPointer(2, GL_FLOAT, FaceVertexSize, reinterpret_cast<const GLvoid*>(CoordSize));
+            glTexCoordPointer(2, GL_FLOAT, FaceVertexSize, reinterpret_cast<const GLvoid*>(m_faceBlock->address + CoordSize));
             
-            glVertexPointer(3, GL_FLOAT, FaceVertexSize, reinterpret_cast<const GLvoid*>(CoordSize + CoordSize));
+            glVertexPointer(3, GL_FLOAT, FaceVertexSize, reinterpret_cast<const GLvoid*>(m_faceBlock->address + CoordSize + CoordSize));
             
             unsigned int index = 0;
             for (unsigned int i = 0; i < m_brushes.size(); i++) {
@@ -219,7 +223,11 @@ namespace TrenchBroom {
             glResetEdgeOffset();
             
             glPopClientAttrib();       
-            m_vbo->deactivate();
+        }
+
+        void BrushFigure::setBrushes(const Model::BrushList& brushes) {
+            m_brushes = brushes;
+            m_valid = false;
         }
     }
 }

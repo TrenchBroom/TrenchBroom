@@ -43,7 +43,6 @@ namespace TrenchBroom {
             Model::EntityDefinition& m_entityDefinition;
             bool m_renderBounds;
             bool m_valid;
-            Vbo* m_boundsVbo;
             VboBlock* m_boundsBlock;
             unsigned int m_vertexCount;
             
@@ -55,7 +54,7 @@ namespace TrenchBroom {
             virtual ~EntityFigure();
 
             virtual void setPosition(const Vec3f& position);
-            virtual void render(RenderContext& context);
+            virtual void render(RenderContext& context, Vbo& vbo);
         };
     }
 }

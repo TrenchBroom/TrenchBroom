@@ -23,12 +23,13 @@
 namespace TrenchBroom {
     namespace Renderer {
         class RenderContext;
+        class Vbo;
         
         class Figure {
         public:
             Figure() {}
             virtual ~Figure() {}
-            virtual void render(RenderContext& context) = 0;
+            virtual void render(RenderContext& context, Vbo& vbo) = 0;
         };
     }
 }
