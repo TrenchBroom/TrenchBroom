@@ -17,11 +17,9 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BrushVertexFigure.h"
+#include "HandleFigure.h"
 
 #include "GL/GLee.h"
-#include "Model/Map/Brush.h"
-#include "Model/Map/BrushGeometry.h"
 #include "Model/Preferences.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Vbo.h"
@@ -30,48 +28,47 @@ namespace TrenchBroom {
     const unsigned int VertexSize = 3 * sizeof(GLfloat);
     
     namespace Renderer {
-        BrushVertexFigure::~BrushVertexFigure() {
+        HandleFigure::~HandleFigure() {
             if (m_vboBlock != NULL) {
                 m_vboBlock->freeBlock();
                 m_vboBlock = NULL;
             }
         }
         
-        void BrushVertexFigure::setBrushes(const Model::BrushList& brushes) {
-            m_brushes = brushes;
+        void HandleFigure::setPositions(const Vec3fList& positions) {
+            m_positions = positions;
             m_valid = false;
         }
         
-        void BrushVertexFigure::render(RenderContext& context, Vbo& vbo) {
-            if (m_brushes.empty())
+        void HandleFigure::setColor(const Vec4f& color) {
+            m_color = color;
+        }
+        
+        void HandleFigure::setHiddenColor(const Vec4f& hiddenColor) {
+            m_hiddenColor = hiddenColor;
+        }
+        
+        void HandleFigure::render(RenderContext& context, Vbo& vbo) {
+            if (m_positions.empty())
                 return;
             
-            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-            
+            unsigned int vertexCount = 6 * 6 * m_positions.size();
             if (!m_valid) {
-                unsigned int brushVertexCount = 0;
-                for (unsigned int i = 0; i < m_brushes.size(); i++)
-                    brushVertexCount += m_brushes[i]->geometry->vertices.size();
-                
-                m_vertexCount = 6 * 6 * brushVertexCount;
-                
                 if (m_vboBlock != NULL)
                     m_vboBlock->freeBlock();
                 
-                m_vboBlock = vbo.allocBlock(m_vertexCount * VertexSize);
+                Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+                float handleSize = prefs.vertexHandleSize();
+                m_vboBlock = vbo.allocBlock(vertexCount * VertexSize);
+
                 vbo.map();
                 
-                float handleSize = prefs.vertexHandleSize();
-                
                 unsigned int offset = 0;
-                for (unsigned int i = 0; i < m_brushes.size(); i++) {
-                    Model::Brush* brush = m_brushes[i];
-                    for (unsigned int j = 0; j < brush->geometry->vertices.size(); j++) {
-                        Model::Vertex* vertex = brush->geometry->vertices[j];
-                        BBox handleBounds(vertex->position, handleSize);
-                        std::vector<Vec3f> handleVertices = bboxTriangleVertices(handleBounds);
-                        offset = m_vboBlock->writeVecs(handleVertices, offset);
-                    }
+                for (unsigned int i = 0; i < m_positions.size(); i++) {
+                    const Vec3f* position = m_positions[i];
+                    BBox handleBounds(*position, handleSize);
+                    std::vector<Vec3f> handleVertices = bboxTriangleVertices(handleBounds);
+                    offset = m_vboBlock->writeVecs(handleVertices, offset);
                 }
                 
                 vbo.unmap();
@@ -85,12 +82,12 @@ namespace TrenchBroom {
             glVertexPointer(3, GL_FLOAT, VertexSize, reinterpret_cast<const GLvoid*>(m_vboBlock->address));
             
             glDisable(GL_DEPTH_TEST);
-            glColorV4f(prefs.hiddenSelectedEdgeColor());
-            glDrawArrays(GL_TRIANGLES, 0, m_vertexCount);
+            glColorV4f(m_hiddenColor);
+            glDrawArrays(GL_TRIANGLES, 0, vertexCount);
             
             glEnable(GL_DEPTH_TEST);
-            glColorV4f(prefs.selectedEdgeColor());
-            glDrawArrays(GL_TRIANGLES, 0, m_vertexCount);
+            glColorV4f(m_color);
+            glDrawArrays(GL_TRIANGLES, 0, vertexCount);
             
             glPopClientAttrib();
         }

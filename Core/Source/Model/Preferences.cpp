@@ -50,6 +50,10 @@ namespace TrenchBroom {
         const std::string Preferences::RendererFontSize                  = "Renderer: font size";
         const std::string Preferences::QuakePath                         = "General: quake path";
         const std::string Preferences::VertexHandleSize                  = "General: vertex handle size";
+        const std::string Preferences::VertexHandleColor                 = "Renderer: vertex handle color";
+        const std::string Preferences::HiddenVertexHandleColor           = "Renderer: vertex handle color (hidden)";
+        const std::string Preferences::SelectedVertexHandleColor         = "Renderer: vertex handle color (selected)";
+        const std::string Preferences::HiddenSelectedVertexHandleColor   = "Renderer: vertex handle color (selected and hidden)";
         
         void Preferences::loadDefaults() {
             m_cameraInvertY = false;
@@ -85,6 +89,10 @@ namespace TrenchBroom {
             m_quakePath = "";
             
             m_vertexHandleSize = 2.0f;
+            m_vertexHandleColor = Vec4f(1.0f, 1.0f, 1.0f, 1.0f);
+            m_hiddenVertexHandleColor = Vec4f(1.0f, 1.0f, 1.0f, 0.35f);
+            m_selectedVertexHandleColor = m_selectedEdgeColor;
+            m_hiddenSelectedVertexHandleColor = m_hiddenSelectedEdgeColor;
             
             loadPlatformDefaults();
         }
@@ -119,6 +127,10 @@ namespace TrenchBroom {
 			loadInt(RendererFontSize, m_rendererFontSize);
 			loadString(QuakePath, m_quakePath);
             loadFloat(VertexHandleSize, m_vertexHandleSize);
+            loadVec4f(VertexHandleColor, m_vertexHandleColor);
+            loadVec4f(HiddenVertexHandleColor, m_hiddenVertexHandleColor);
+            loadVec4f(SelectedVertexHandleColor, m_selectedVertexHandleColor);
+            loadVec4f(HiddenSelectedVertexHandleColor, m_hiddenSelectedVertexHandleColor);
         }
 
 		void Preferences::savePreferences() {
@@ -151,6 +163,10 @@ namespace TrenchBroom {
 			saveInt(RendererFontSize, m_rendererFontSize);
 			saveString(QuakePath, m_quakePath);
             saveFloat(VertexHandleSize, m_vertexHandleSize);
+            saveVec4f(VertexHandleColor, m_vertexHandleColor);
+            saveVec4f(HiddenVertexHandleColor, m_hiddenVertexHandleColor);
+            saveVec4f(SelectedVertexHandleColor, m_selectedVertexHandleColor);
+            saveVec4f(HiddenSelectedVertexHandleColor, m_hiddenSelectedVertexHandleColor);
 		}
 
 		Preferences* Preferences::sharedPreferences = NULL;
@@ -326,6 +342,22 @@ namespace TrenchBroom {
 
         float Preferences::vertexHandleSize() {
             return m_vertexHandleSize;
+        }
+
+        const Vec4f Preferences::vertexHandleColor() {
+            return m_vertexHandleColor;
+        }
+        
+        const Vec4f Preferences::hiddenVertexHandleColor() {
+            return m_hiddenVertexHandleColor;
+        }
+        
+        const Vec4f Preferences::selectedVertexHandleColor() {
+            return m_selectedVertexHandleColor;
+        }
+        
+        const Vec4f Preferences::hiddenSelectedVertexHandleColor() {
+            return m_hiddenSelectedVertexHandleColor;
         }
     }
 }

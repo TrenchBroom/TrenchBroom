@@ -133,9 +133,9 @@ namespace TrenchBroom {
         private:
             SideList incidentSides(size_t vertexIndex);
             void deleteDegenerateTriangle(Side* side, Edge* edge, FaceList& newFaces, FaceList& droppedFaces);
-            void triangulateSide(Side* side, size_t vertexIndex, FaceList& newFaces);
-            void splitSide(Side* side, size_t vertexIndex, FaceList& newFaces);
-            void splitSides(SideList& sides, const Ray& ray, size_t vertexIndex, FaceList& newFaces, FaceList& droppedFaces);
+            void triangulateSide(Side* sideToTriangluate, size_t vertexIndex, FaceList& newFaces);
+            void splitSide(Side* sideToSplit, size_t vertexIndex, FaceList& newFaces);
+            void splitSides(SideList& sidesToSplit, const Ray& ray, size_t vertexIndex, FaceList& newFaces, FaceList& droppedFaces);
             void mergeVertices(Vertex* keepVertex, Vertex* dropVertex, FaceList& newFaces, FaceList& droppedFaces);
             void mergeEdges();
             void mergeNeighbours(Side* side, size_t edgeIndex);
@@ -145,6 +145,7 @@ namespace TrenchBroom {
             MoveResult splitAndMoveEdge(size_t index, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
             MoveResult splitAndMoveSide(size_t sideIndex, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
             void copy(const BrushGeometry& original);
+            bool sanityCheck();
         public:
             VertexList vertices;
             EdgeList edges;

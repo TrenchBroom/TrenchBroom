@@ -321,8 +321,8 @@ namespace TrenchBroom {
             
             float bestDot = 1;
             int best = -1;
-            size_t vertexCount = side->vertices.size();
-            for (unsigned int i = 0; i < vertexCount && bestDot > 0; i++) {
+            int vertexCount = side->vertices.size();
+            for (int i = 0; i < vertexCount && bestDot > 0; i++) {
                 points[2] = side->vertices[(i - 1 + vertexCount) % vertexCount]->position;
                 points[0] = side->vertices[i]->position;
                 points[1] = side->vertices[(i + 1) % vertexCount]->position;

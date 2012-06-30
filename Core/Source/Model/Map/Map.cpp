@@ -759,9 +759,16 @@ namespace TrenchBroom {
                 m_selection->addBrush(brush);
             BrushList brushArray;
             brushArray.push_back(&brush);
+
+            m_undoManager->begin("Move Vertex");
+            m_undoManager->addSnapshot(*this);
+            
             if (m_postNotifications) brushesWillChange(brushArray);
             MoveResult result = brush.moveVertex(vertexIndex, delta);
-            if (m_postNotifications) brushesWillChange(brushArray);
+            if (m_postNotifications) brushesDidChange(brushArray);
+            
+            m_undoManager->end();
+            
             return result;
         }
 
@@ -770,9 +777,16 @@ namespace TrenchBroom {
                 m_selection->addBrush(brush);
             BrushList brushArray;
             brushArray.push_back(&brush);
+            
+            m_undoManager->begin("Move Edge");
+            m_undoManager->addSnapshot(*this);
+            
             if (m_postNotifications) brushesWillChange(brushArray);
             MoveResult result = brush.moveEdge(edgeIndex, delta);
-            if (m_postNotifications) brushesWillChange(brushArray);
+            if (m_postNotifications) brushesDidChange(brushArray);
+            
+            m_undoManager->end();
+            
             return result;
         }
 
@@ -781,9 +795,16 @@ namespace TrenchBroom {
                 m_selection->addBrush(brush);
             BrushList brushArray;
             brushArray.push_back(&brush);
+            
+            m_undoManager->begin("Move Face");
+            m_undoManager->addSnapshot(*this);
+            
             if (m_postNotifications) brushesWillChange(brushArray);
             MoveResult result = brush.moveFace(faceIndex, delta);
             if (m_postNotifications) brushesDidChange(brushArray);
+            
+            m_undoManager->end();
+            
             return result;
         }
 

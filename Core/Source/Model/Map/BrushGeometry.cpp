@@ -425,7 +425,7 @@ namespace TrenchBroom {
             Side* side = edge->start == vertex ? edge->right : edge->left;
             do {
                 result.push_back(side);
-                size_t i = indexOf<Edge>(side->edges, edge);
+                int i = indexOf<Edge>(side->edges, edge);
                 edge = side->edges[(i - 1 + side->edges.size()) % side->edges.size()];
                 side = edge->start == vertex ? edge->right : edge->left;
             } while (side != result[0]);
@@ -447,35 +447,40 @@ namespace TrenchBroom {
             else
                 keepEdge->right = neighbour;
             
-            size_t deleteIndex = indexOf(neighbour->edges, dropEdge);
-            size_t prevIndex = (deleteIndex - 1 + neighbour->edges.size()) % neighbour->edges.size();
-            size_t nextIndex = (deleteIndex + 1) % neighbour->edges.size();
+            int deleteIndex = indexOf(neighbour->edges, dropEdge);
+            int prevIndex = (deleteIndex - 1 + neighbour->edges.size()) % neighbour->edges.size();
+            int nextIndex = (deleteIndex + 1) % neighbour->edges.size();
             neighbour->replaceEdges(prevIndex, nextIndex, keepEdge);
             
             FaceList::iterator faceIt = find(newFaces.begin(), newFaces.end(), side->face);
-            if (faceIt == newFaces.end()) droppedFaces.push_back(side->face);
-            else newFaces.erase(faceIt);    
+            if (faceIt != newFaces.end()) {
+                delete side->face;
+                newFaces.erase(faceIt);
+            } else {
+                droppedFaces.push_back(side->face);
+            }
+            side->face = NULL;
             
             deleteElement(sides, side);
             deleteElement(edges, dropEdge);
         }
         
-        void BrushGeometry::triangulateSide(Side* side, size_t vertexIndex, FaceList& newFaces) {
+        void BrushGeometry::triangulateSide(Side* sideToTriangulate, size_t vertexIndex, FaceList& newFaces) {
             Side* newSide;
             Vertex* vertex = vertices[vertexIndex];
-            size_t sideVertexIndex = indexOf<Vertex>(side->vertices, vertex);
+            int sideVertexIndex = indexOf<Vertex>(sideToTriangulate->vertices, vertex);
             assert(sideVertexIndex >= 0);
             
             Edge* sideEdges[3];
             bool flipped[3];
-            sideEdges[0] = side->edges[sideVertexIndex];
-            flipped[0] = sideEdges[0]->left == side;
-            sideEdges[1] = side->edges[(sideVertexIndex + 1) % side->edges.size()];
-            flipped[1] = sideEdges[1]->left == side;
+            sideEdges[0] = sideToTriangulate->edges[sideVertexIndex];
+            flipped[0] = sideEdges[0]->left == sideToTriangulate;
+            sideEdges[1] = sideToTriangulate->edges[(sideVertexIndex + 1) % sideToTriangulate->edges.size()];
+            flipped[1] = sideEdges[1]->left == sideToTriangulate;
             
-            for (unsigned int i = 0; i < side->edges.size() - 3; i++) {
+            for (unsigned int i = 0; i < sideToTriangulate->edges.size() - 3; i++) {
                 sideEdges[2] = new Edge();
-                sideEdges[2]->start = side->vertices[(sideVertexIndex + 2) % side->vertices.size()];
+                sideEdges[2]->start = sideToTriangulate->vertices[(sideVertexIndex + 2) % sideToTriangulate->vertices.size()];
                 sideEdges[2]->end = vertex;
                 sideEdges[2]->left= NULL;
                 sideEdges[2]->right = NULL;
@@ -484,79 +489,87 @@ namespace TrenchBroom {
                 edges.push_back(sideEdges[2]);
                 
                 newSide = new Side(sideEdges, flipped, 3);
-                newSide->face = new Face(side->face->worldBounds, *side->face);
+                newSide->face = new Face(sideToTriangulate->face->worldBounds, *sideToTriangulate->face);
+                newSide->face->side = newSide;
                 sides.push_back(newSide);
                 newFaces.push_back(newSide->face);
                 
                 sideEdges[0] = sideEdges[2];
                 flipped[0] = true;
-                edges[1] = side->edges[(sideVertexIndex + 2) % side->edges.size()];
-                flipped[1] = sideEdges[1]->left == side;
+                sideEdges[1] = sideToTriangulate->edges[(sideVertexIndex + 2) % sideToTriangulate->edges.size()];
+                flipped[1] = sideEdges[1]->left == sideToTriangulate;
                 
-                sideVertexIndex = (sideVertexIndex + 1) % side->edges.size();
+                sideVertexIndex = (sideVertexIndex + 1) % sideToTriangulate->edges.size();
             }
             
-            sideEdges[2] = side->edges[(sideVertexIndex + 2) % side->edges.size()];
-            flipped[2] = sideEdges[2]->left == side;
+            sideEdges[2] = sideToTriangulate->edges[(sideVertexIndex + 2) % sideToTriangulate->edges.size()];
+            flipped[2] = sideEdges[2]->left == sideToTriangulate;
             
             newSide = new Side(sideEdges, flipped, 3);
-            newSide->face = new Face(side->face->worldBounds, *side->face);
+            newSide->face = new Face(sideToTriangulate->face->worldBounds, *sideToTriangulate->face);
+            newSide->face->side = newSide;
             sides.push_back(newSide);
             newFaces.push_back(newSide->face);
         }
         
-        void BrushGeometry::splitSide(Side* side, size_t vertexIndex, FaceList& newFaces) {
+        void BrushGeometry::splitSide(Side* sideToSplit, size_t vertexIndex, FaceList& newFaces) {
             Side* newSide;
             Vertex* vertex = vertices[vertexIndex];
-            size_t sideVertexIndex = indexOf<Vertex>(side->vertices, vertex);
+            int sideVertexIndex = indexOf<Vertex>(sideToSplit->vertices, vertex);
             assert(sideVertexIndex >= 0);
             
             Edge* sideEdges[3];
             bool flipped[3];
-            sideEdges[0] = side->edges[(sideVertexIndex + side->edges.size() - 1) % side->edges.size()];
-            flipped[0] = sideEdges[0]->left == side;
-            sideEdges[1] = side->edges[sideVertexIndex % side->edges.size()];
-            flipped[1] = sideEdges[1]->left == side;
+            sideEdges[0] = sideToSplit->edges[(sideVertexIndex + sideToSplit->edges.size() - 1) % sideToSplit->edges.size()];
+            flipped[0] = sideEdges[0]->left == sideToSplit;
+            sideEdges[1] = sideToSplit->edges[sideVertexIndex % sideToSplit->edges.size()];
+            flipped[1] = sideEdges[1]->left == sideToSplit;
             sideEdges[2] = new Edge();
-            sideEdges[2]->start = side->vertices[(sideVertexIndex + side->edges.size() - 1) % side->vertices.size()];
-            sideEdges[2]->end = side->vertices[(sideVertexIndex + 1) % side->vertices.size()];
+            sideEdges[2]->start = sideToSplit->vertices[(sideVertexIndex + sideToSplit->edges.size() - 1) % sideToSplit->vertices.size()];
+            sideEdges[2]->end = sideToSplit->vertices[(sideVertexIndex + 1) % sideToSplit->vertices.size()];
             sideEdges[2]->left = NULL;
-            sideEdges[2]->right = side;
+            sideEdges[2]->right = sideToSplit;
             sideEdges[2]->mark = TB_EM_NEW;
             flipped[2] = true;
             edges.push_back(sideEdges[2]);
-            side->replaceEdges((sideVertexIndex + side->edges.size() - 2) % side->edges.size(), (sideVertexIndex + 1) % side->edges.size(), sideEdges[2]);
+            sideToSplit->replaceEdges((sideVertexIndex + sideToSplit->edges.size() - 2) % sideToSplit->edges.size(), 
+                                      (sideVertexIndex + 1) % sideToSplit->edges.size(), 
+                                      sideEdges[2]);
             
             newSide = new Side(sideEdges, flipped, 3);
-            newSide->face = new Face(side->face->worldBounds, *side->face);
+            newSide->face = new Face(sideToSplit->face->worldBounds, *sideToSplit->face);
+            newSide->face->side = newSide;
             sides.push_back(newSide);
             newFaces.push_back(newSide->face);
             
         }
         
-        void BrushGeometry::splitSides(SideList& sides, const Ray& ray, size_t vertexIndex, FaceList& newFaces, FaceList& droppedFaces) {
+        void BrushGeometry::splitSides(SideList& sidesToSplit, const Ray& ray, size_t vertexIndex, FaceList& newFaces, FaceList& droppedFaces) {
             Vec3f v1, v2;
             
-            for (unsigned int i = 0; i < sides.size(); i++) {
-                Side* side = sides[i];
+            for (unsigned int i = 0; i < sidesToSplit.size(); i++) {
+                Side* side = sidesToSplit[i];
                 if (side->vertices.size() > 3) {
-                    v1 = side->vertices[2]->position - side->vertices[0]->position;
+                    v1 = side->vertices[side->vertices.size() - 1]->position - side->vertices[0]->position;
                     v2 = side->vertices[1]->position - side->vertices[0]->position;
-                    v1 = v1 % v2;
+                    v1 = v1 % v2; // points in the direction of the side's normal
                     
-                    if (Math::fneg((v1 | ray.direction))) {
+                    if (Math::fneg((v1 | ray.direction))) { // movement direction is downwards into the side
                         splitSide(side, vertexIndex, newFaces);
-                    } else {
+                        assert(sanityCheck());
+                    } else { // movement direction is upward out of the side or parallel to the side's boundary plane
                         triangulateSide(side, vertexIndex, newFaces);
                         FaceList::iterator faceIt = find(newFaces.begin(), newFaces.end(), side->face);
-                        if (faceIt == newFaces.end()) {
-                            delete *faceIt;
+                        if (faceIt != newFaces.end()) {
+                            delete side->face;
                             newFaces.erase(faceIt);
                         } else {
-                            newFaces.push_back(side->face);
+                            droppedFaces.push_back(side->face);
                         }
+                        side->face = NULL;
                         
                         deleteElement(sides, side);
+                        assert(sanityCheck());
                     }
                 }
             }
@@ -631,10 +644,10 @@ namespace TrenchBroom {
                             newEdge->right = rightSide;
                             edges.push_back(newEdge);
                             
-                            size_t leftIndex = indexOf<Edge>(leftSide->edges, candidate);
-                            size_t leftCount = leftSide->edges.size();
-                            size_t rightIndex = indexOf<Edge>(rightSide->edges, candidate);
-                            size_t rightCount = rightSide->edges.size();
+                            int leftIndex = indexOf<Edge>(leftSide->edges, candidate);
+                            unsigned int leftCount = leftSide->edges.size();
+                            int rightIndex = indexOf<Edge>(rightSide->edges, candidate);
+                            unsigned int rightCount = rightSide->edges.size();
                             
                             leftSide->replaceEdges((leftIndex - 1 + leftCount) % leftCount, (leftIndex + 2) % leftCount, newEdge);
                             rightSide->replaceEdges((rightIndex - 2 + rightCount) % rightCount, (rightIndex + 1) % rightCount, newEdge);
@@ -662,10 +675,10 @@ namespace TrenchBroom {
                             newEdge->right = rightSide;
                             edges.push_back(newEdge);
                             
-                            size_t leftIndex = indexOf<Edge>(leftSide->edges, candidate);
-                            size_t leftCount = leftSide->edges.size();
-                            size_t rightIndex = indexOf<Edge>(rightSide->edges, candidate);
-                            size_t rightCount = rightSide->edges.size();
+                            int leftIndex = indexOf<Edge>(leftSide->edges, candidate);
+                            unsigned int leftCount = leftSide->edges.size();
+                            int rightIndex = indexOf<Edge>(rightSide->edges, candidate);
+                            unsigned int rightCount = rightSide->edges.size();
                             
                             leftSide->replaceEdges((leftIndex - 2 + leftCount) % leftCount, (leftIndex + 1) % leftCount, newEdge);
                             rightSide->replaceEdges((rightIndex - 1 + rightCount) % rightCount, (rightIndex + 2) % rightCount, newEdge);
@@ -685,8 +698,8 @@ namespace TrenchBroom {
             Vertex* vertex;
             Edge* edge = side->edges[edgeIndex];
             Side* neighbour = edge->left != side ? edge->left : edge->right;
-            size_t sideEdgeIndex = edgeIndex;
-            size_t neighbourEdgeIndex = indexOf<Edge>(neighbour->edges, edge);
+            int sideEdgeIndex = edgeIndex;
+            int neighbourEdgeIndex = indexOf<Edge>(neighbour->edges, edge);
             
             do {
                 sideEdgeIndex = (sideEdgeIndex + 1) % side->edges.size();
@@ -725,10 +738,10 @@ namespace TrenchBroom {
                 side->vertices.push_back(vertex);
             }
             
-            for (size_t i = neighbour->edges.size() - count; i < neighbour->edges.size(); i++) {
-                deleteElement<Edge>(edges, neighbour->edges[i]);
+            for (unsigned int i = neighbour->edges.size() - count; i < neighbour->edges.size(); i++) {
+                deleteElement(edges, neighbour->edges[i]);
                 if (i > neighbour->edges.size() - count)
-                    deleteElement<Vertex>(vertices, neighbour->vertices[i]);
+                    deleteElement(vertices, neighbour->vertices[i]);
             }
             
             neighbour->face->side = NULL;
@@ -756,12 +769,13 @@ namespace TrenchBroom {
                         mergeNeighbours(side, j);
                         
                         FaceList::iterator faceIt = find(newFaces.begin(), newFaces.end(), neighbourFace);
-                        if (faceIt == newFaces.end()) {
-                            delete *faceIt;
+                        if (faceIt != newFaces.end()) {
+                            delete neighbourFace;
                             newFaces.erase(faceIt);
                         } else {
-                            newFaces.push_back(side->face);
+                            droppedFaces.push_back(neighbourFace);
                         }
+                        neighbour->face = NULL;
                         
                         i -= 1;
                         break;
@@ -827,6 +841,8 @@ namespace TrenchBroom {
             ray.origin = vertex->position;
             ray.direction = delta / moveDist;
             
+            assert(sanityCheck());
+
             incSides = incidentSides(actualVertexIndex);
             splitSides(incSides, ray, actualVertexIndex, newFaces, droppedFaces);
             
@@ -836,6 +852,8 @@ namespace TrenchBroom {
             vertex->position = ray.pointAtDistance(actualMoveDist);
             newPosition = vertex->position;
             
+            assert(sanityCheck());
+
             // check whether the vertex is dragged onto a non-incident edge
             for (unsigned int i = 0; i < edges.size(); i++) {
                 Edge* edge = edges[i];
@@ -862,6 +880,8 @@ namespace TrenchBroom {
                 }
             }
             
+            assert(sanityCheck());
+
             // check whether the vertex is dragged onto another vertex, if so, kill that vertex
             for (unsigned int i = 0; i < vertices.size(); i++) {
                 if (i != vertexIndex) {
@@ -883,6 +903,8 @@ namespace TrenchBroom {
                     }
                 }
             }
+            
+            assert(sanityCheck());
             
             // now merge all mergeable sides back together
             // then check for consecutive edges that can be merged
@@ -1090,6 +1112,95 @@ namespace TrenchBroom {
             }
             
             bounds = original.bounds;
+        }
+        
+        bool BrushGeometry::sanityCheck() {
+            // check Euler characteristic http://en.wikipedia.org/wiki/Euler_characteristic
+            int sideCount = 0;
+            for (unsigned int i = 0; i < sides.size(); i++)
+                if (sides[i]->face != NULL)
+                    sideCount++;
+            if (vertices.size() - edges.size() + sideCount != 2) {
+                fprintf(stdout, "failed Euler check\n");
+                return false;
+            }
+
+            int vVisits[vertices.size()];
+            for (unsigned int i = 0; i < vertices.size(); i++)
+                vVisits[i] = 0;
+            
+            int eVisits[edges.size()];
+            for (unsigned int i = 0; i < edges.size(); i++)
+                eVisits[i] = 0;
+            
+            for (unsigned int i = 0; i < sides.size(); i++) {
+                Side* side = sides[i];
+                
+                for (unsigned int j = 0; j < side->edges.size(); j++) {
+                    Edge* edge = side->edges[j];
+                    if (edge->left != side && edge->right != side) {
+                        fprintf(stdout, "edge with index %i of side with index %i does not actually belong to it\n", j, i);
+                        return false;
+                    }
+                    
+                    int index = indexOf(edges, edge);
+                    if (index == -1) {
+                        fprintf(stdout, "edge with index %i of side with index %i is missing from vertex data\n", j, i);
+                        return false;
+                    }
+                    eVisits[index]++;
+                    
+                    Vertex* vertex = edge->startVertex(side);
+                    if (side->vertices[j] != vertex) {
+                        fprintf(stdout, "start vertex of edge with index %i of side with index %i is not at position %i in the side's vertex list\n", j, i, j);
+                        return false;
+                    }
+                    
+                    index = indexOf(vertices, vertex);
+                    if (index == -1) {
+                        fprintf(stdout, "start vertex of edge with index %i of side with index %i is missing from vertex data\n", j, i);
+                        return false;
+                    }
+                    vVisits[index]++;
+                }
+            }
+            
+            for (unsigned int i = 0; i < vertices.size(); i++) {
+                if (vVisits[i] == 0) {
+                    fprintf(stdout, "vertex with index %i does not belong to any side\n", i);
+                    return false;
+                }
+                
+                for (unsigned int j = i + 1; j < vertices.size(); j++)
+                    if (vertices[i]->position.equals(vertices[j]->position)) {
+                        fprintf(stdout, "vertex with index %i is identical to vertex with index %i\n", i, j);
+                        return false;
+                    }
+            }
+            
+            for (unsigned int i = 0; i < edges.size(); i++) {
+                if (eVisits[i] != 2) {
+                    fprintf(stdout, "edge with index %i was visited %i times, should have been 2\n", i, eVisits[i]);
+                    return false;
+                }
+                
+                if (edges[i]->left == edges[i]->right) {
+                    fprintf(stdout, "edge with index %i has equal sides", i);
+                    return false;
+                }
+                
+                Edge* edge1 = edges[i];
+                for (unsigned int j = i + 1; j < edges.size(); j++) {
+                    Edge* edge2 = edges[j];
+                    if ((edge1->start == edge2->start && edge1->end == edge2->end) ||
+                        (edge1->start == edge2->end && edge1->end == edge2->start)) {
+                        fprintf(stdout, "edge with index %i is identical to edge with index %i\n", i, j);
+                        return false;
+                    }
+                }
+            }
+            
+            return true;
         }
         
         BrushGeometry::BrushGeometry(const BBox& bounds) {

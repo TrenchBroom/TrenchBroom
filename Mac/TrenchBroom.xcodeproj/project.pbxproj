@@ -11,7 +11,7 @@
 		48057D16158795F6009CB752 /* RestoreObjectsUndoItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48057D15158795F6009CB752 /* RestoreObjectsUndoItem.cpp */; };
 		48057D181587A578009CB752 /* UndoItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48057D171587A578009CB752 /* UndoItem.cpp */; };
 		48077A48158FA86E007B6A5B /* MoveVertexTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48077A47158FA86E007B6A5B /* MoveVertexTool.cpp */; };
-		48077A4B158FA8F1007B6A5B /* BrushVertexFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48077A4A158FA8F1007B6A5B /* BrushVertexFigure.cpp */; };
+		48077A4B158FA8F1007B6A5B /* HandleFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48077A4A158FA8F1007B6A5B /* HandleFigure.cpp */; };
 		480963D8157421EB0091C481 /* Splitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480963D6157421EA0091C481 /* Splitter.cpp */; };
 		480963DB1574AB5A0091C481 /* EntityPropertyTableControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480963DA1574AB5A0091C481 /* EntityPropertyTableControl.cpp */; };
 		480B2A8A1597181A00489471 /* ResizeBrushTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480B2A891597181A00489471 /* ResizeBrushTool.cpp */; };
@@ -178,8 +178,8 @@
 		48057D171587A578009CB752 /* UndoItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UndoItem.cpp; sourceTree = "<group>"; };
 		48077A45158FA81F007B6A5B /* MoveVertexTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MoveVertexTool.h; sourceTree = "<group>"; };
 		48077A47158FA86E007B6A5B /* MoveVertexTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveVertexTool.cpp; sourceTree = "<group>"; };
-		48077A49158FA8C5007B6A5B /* BrushVertexFigure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrushVertexFigure.h; sourceTree = "<group>"; };
-		48077A4A158FA8F1007B6A5B /* BrushVertexFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BrushVertexFigure.cpp; sourceTree = "<group>"; };
+		48077A49158FA8C5007B6A5B /* HandleFigure.h */ = {isa = PBXFileReference; path = HandleFigure.h; sourceTree = "<group>"; };
+		48077A4A158FA8F1007B6A5B /* HandleFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HandleFigure.cpp; sourceTree = "<group>"; };
 		480963D6157421EA0091C481 /* Splitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Splitter.cpp; sourceTree = "<group>"; };
 		480963D7157421EA0091C481 /* Splitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Splitter.h; sourceTree = "<group>"; };
 		480963D91574AB3F0091C481 /* EntityPropertyTableControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityPropertyTableControl.h; sourceTree = "<group>"; };
@@ -1009,13 +1009,13 @@
 			children = (
 				48487FC9158C9DD0003C0C46 /* BrushFigure.cpp */,
 				48487FC8158C9DB9003C0C46 /* BrushFigure.h */,
-				48077A4A158FA8F1007B6A5B /* BrushVertexFigure.cpp */,
-				48077A49158FA8C5007B6A5B /* BrushVertexFigure.h */,
 				486571D11582860700698829 /* EntityFigure.cpp */,
 				486571CF158285FC00698829 /* EntityFigure.h */,
 				488E65B31563011E00B4E72A /* Figure.h */,
 				488E65B41563017400B4E72A /* PositioningGuideFigure.h */,
 				488E65B5156301F300B4E72A /* PositioningGuideFigure.cpp */,
+				48077A4A158FA8F1007B6A5B /* HandleFigure.cpp */,
+				48077A49158FA8C5007B6A5B /* HandleFigure.h */,
 			);
 			path = Figures;
 			sourceTree = "<group>";
@@ -1333,7 +1333,7 @@
 				48487FC7158C97BE003C0C46 /* CreateBrushTool.cpp in Sources */,
 				48487FCA158C9DD0003C0C46 /* BrushFigure.cpp in Sources */,
 				48077A48158FA86E007B6A5B /* MoveVertexTool.cpp in Sources */,
-				48077A4B158FA8F1007B6A5B /* BrushVertexFigure.cpp in Sources */,
+				48077A4B158FA8F1007B6A5B /* HandleFigure.cpp in Sources */,
 				480B2A8A1597181A00489471 /* ResizeBrushTool.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

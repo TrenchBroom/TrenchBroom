@@ -30,19 +30,22 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
-        class BrushVertexFigure;
+        class HandleFigure;
     }
     
     namespace Controller {
         class MoveVertexTool : public DragTool {
         protected:
-            Renderer::BrushVertexFigure* m_figure;
+            Renderer::HandleFigure* m_handleFigure;
+            Renderer::HandleFigure* m_selectedHandleFigure;
             bool m_listenerActive;
             
             Model::Brush* m_brush;
             int m_index;
             
+            void brushesDidChange(const Model::BrushList& brushes);
             void selectionChanged(const Model::SelectionEventData& event);
+            void updateHandleFigure();
             void cleanup();
         public:
             MoveVertexTool(Controller::Editor& editor);
@@ -50,7 +53,7 @@ namespace TrenchBroom {
 
             virtual void activated(ToolEvent& event);
             virtual void deactivated(ToolEvent& event);
-
+            
             virtual bool doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint);
             virtual bool doLeftDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
             virtual void doEndLeftDrag(ToolEvent& event);

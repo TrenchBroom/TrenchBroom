@@ -21,23 +21,26 @@
 #define TrenchBroom_BrushVertexFigure_h
 
 #include "Renderer/Figures/Figure.h"
-#include "Model/Map/BrushTypes.h"
+#include "Utilities/VecMath.h"
 
 namespace TrenchBroom {
     namespace Renderer {
         class VboBlock;
         
-        class BrushVertexFigure : public Figure {
+        class HandleFigure : public Figure {
         protected:
             VboBlock* m_vboBlock;
             bool m_valid;
-            unsigned int m_vertexCount;
-            Model::BrushList m_brushes;
+            Vec3fList m_positions;
+            Vec4f m_color;
+            Vec4f m_hiddenColor;
         public:
-            BrushVertexFigure() : m_valid(false), m_vboBlock(NULL), m_vertexCount(0) {}
-            ~BrushVertexFigure();
+            HandleFigure() : m_valid(false), m_vboBlock(NULL), m_color(Vec4f(1.0f, 1.0f, 1.0f, 1.0f)), m_hiddenColor(1.0f, 1.0f, 1.0f, 0.5f) {}
+            ~HandleFigure();
             
-            void setBrushes(const Model::BrushList& brushes);
+            void setPositions(const Vec3fList& positions);
+            void setColor(const Vec4f& color);
+            void setHiddenColor(const Vec4f& hiddenColor);
             virtual void render(RenderContext& context, Vbo& vbo);
         };
     }

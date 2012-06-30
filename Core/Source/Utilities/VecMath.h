@@ -24,6 +24,7 @@
 #include <cmath>
 #include <ostream>
 #include <limits>
+#include <vector>
 
 namespace Math {
     static const float AlmostZero = 0.001f;
@@ -201,6 +202,8 @@ public:
     const Vec3f flip(EAxis axis) const;
     const Vec3f flip(EAxis axis, const Vec3f& center) const;
 };
+
+typedef std::vector<Vec3f*> Vec3fList;
 
 class Vec4f {
 public:

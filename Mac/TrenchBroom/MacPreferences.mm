@@ -83,6 +83,10 @@ namespace TrenchBroom {
             setDictionaryValue(dict, RendererFontSize, m_rendererFontSize);
             setDictionaryValue(dict, QuakePath, m_quakePath);
             setDictionaryValue(dict, VertexHandleSize, m_vertexHandleSize);
+            setDictionaryValue(dict, VertexHandleColor, m_vertexHandleColor);
+            setDictionaryValue(dict, HiddenVertexHandleColor, m_hiddenVertexHandleColor);
+            setDictionaryValue(dict, SelectedVertexHandleColor, m_selectedVertexHandleColor);
+            setDictionaryValue(dict, HiddenSelectedVertexHandleColor, m_hiddenSelectedVertexHandleColor);
 
             NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
             [defaults registerDefaults:dict];

@@ -56,6 +56,10 @@ namespace TrenchBroom {
             static const std::string RendererFontSize;
             static const std::string QuakePath;
             static const std::string VertexHandleSize;
+            static const std::string VertexHandleColor;
+            static const std::string HiddenVertexHandleColor;
+            static const std::string SelectedVertexHandleColor;
+            static const std::string HiddenSelectedVertexHandleColor;
             
             int m_cameraKey;
             int m_cameraOrbitKey;
@@ -94,6 +98,10 @@ namespace TrenchBroom {
             std::string m_quakePath;
 
             float m_vertexHandleSize;
+            Vec4f m_vertexHandleColor;
+            Vec4f m_hiddenVertexHandleColor;
+            Vec4f m_selectedVertexHandleColor;
+            Vec4f m_hiddenSelectedVertexHandleColor;
             
             virtual void loadDefaults();
             virtual void loadPlatformDefaults() = 0;
@@ -168,6 +176,10 @@ namespace TrenchBroom {
             void setQuakePath(const std::string& quakePath);
             
             float vertexHandleSize();
+            const Vec4f vertexHandleColor();
+            const Vec4f hiddenVertexHandleColor();
+            const Vec4f selectedVertexHandleColor();
+            const Vec4f hiddenSelectedVertexHandleColor();
         };
     }
 }

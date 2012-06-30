@@ -438,10 +438,12 @@ namespace TrenchBroom {
             
             MoveResult result = geometry->moveVertex(vertexIndex, delta, newFaces, droppedFaces);
             
-            for (droppedFaceIt = newFaces.begin(); droppedFaceIt != newFaces.end(); ++droppedFaceIt) {
-                (*droppedFaceIt)->brush = NULL;
-                faceIt = find(faces.begin(), faces.end(), *droppedFaceIt);
-                delete *faceIt;
+            for (droppedFaceIt = droppedFaces.begin(); droppedFaceIt != droppedFaces.end(); ++droppedFaceIt) {
+                Model::Face* face = *droppedFaceIt;
+                face->brush = NULL;
+                faceIt = find(faces.begin(), faces.end(), face);
+                assert(faceIt != faces.end());
+                delete face;
                 faces.erase(faceIt);
             }
             
@@ -449,8 +451,9 @@ namespace TrenchBroom {
                 (*faceIt)->coordsValid = false;
             
             for (newFaceIt = newFaces.begin(); newFaceIt != newFaces.end(); ++newFaceIt) {
-                (*newFaceIt)->brush = this;
-                faces.push_back(*newFaceIt);
+                Model::Face* face = *newFaceIt;
+                face->brush = this;
+                faces.push_back(face);
             }
             
             entity->brushChanged(this);
@@ -466,10 +469,12 @@ namespace TrenchBroom {
             
             MoveResult result = geometry->moveEdge(edgeIndex, delta, newFaces, droppedFaces);
             
-            for (droppedFaceIt = newFaces.begin(); droppedFaceIt != newFaces.end(); ++droppedFaceIt) {
-                (*droppedFaceIt)->brush = NULL;
-                faceIt = find(faces.begin(), faces.end(), *droppedFaceIt);
-                delete *faceIt;
+            for (droppedFaceIt = droppedFaces.begin(); droppedFaceIt != droppedFaces.end(); ++droppedFaceIt) {
+                Model::Face* face = *droppedFaceIt;
+                face->brush = NULL;
+                faceIt = find(faces.begin(), faces.end(), face);
+                assert(faceIt != faces.end());
+                delete face;
                 faces.erase(faceIt);
             }
             
@@ -477,8 +482,9 @@ namespace TrenchBroom {
                 (*faceIt)->coordsValid = false;
 
             for (newFaceIt = newFaces.begin(); newFaceIt != newFaces.end(); ++newFaceIt) {
-                (*newFaceIt)->brush = this;
-                faces.push_back(*newFaceIt);
+                Model::Face* face = *newFaceIt;
+                face->brush = this;
+                faces.push_back(face);
             }
             
             entity->brushChanged(this);
@@ -494,10 +500,12 @@ namespace TrenchBroom {
             
             MoveResult result = geometry->moveSide(faceIndex, delta, newFaces, droppedFaces);
             
-            for (droppedFaceIt = newFaces.begin(); droppedFaceIt != newFaces.end(); ++droppedFaceIt) {
-                (*droppedFaceIt)->brush = NULL;
-                faceIt = find(faces.begin(), faces.end(), *droppedFaceIt);
-                delete *faceIt;
+            for (droppedFaceIt = droppedFaces.begin(); droppedFaceIt != droppedFaces.end(); ++droppedFaceIt) {
+                Model::Face* face = *droppedFaceIt;
+                face->brush = NULL;
+                faceIt = find(faces.begin(), faces.end(), face);
+                assert(faceIt != faces.end());
+                delete face;
                 faces.erase(faceIt);
             }
             
@@ -505,8 +513,9 @@ namespace TrenchBroom {
                 (*faceIt)->coordsValid = false;
 
             for (newFaceIt = newFaces.begin(); newFaceIt != newFaces.end(); ++newFaceIt) {
-                (*newFaceIt)->brush = this;
-                faces.push_back(*newFaceIt);
+                Model::Face* face = *newFaceIt;
+                face->brush = this;
+                faces.push_back(face);
             }
             
             entity->brushChanged(this);
