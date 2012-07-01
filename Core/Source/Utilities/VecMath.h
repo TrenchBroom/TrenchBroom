@@ -203,7 +203,7 @@ public:
     const Vec3f flip(EAxis axis, const Vec3f& center) const;
 };
 
-typedef std::vector<Vec3f*> Vec3fList;
+typedef std::vector<Vec3f> Vec3fList;
 
 class Vec4f {
 public:

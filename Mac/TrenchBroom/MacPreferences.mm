@@ -87,6 +87,14 @@ namespace TrenchBroom {
             setDictionaryValue(dict, HiddenVertexHandleColor, m_hiddenVertexHandleColor);
             setDictionaryValue(dict, SelectedVertexHandleColor, m_selectedVertexHandleColor);
             setDictionaryValue(dict, HiddenSelectedVertexHandleColor, m_hiddenSelectedVertexHandleColor);
+            setDictionaryValue(dict, EdgeHandleColor, m_edgeHandleColor);
+            setDictionaryValue(dict, HiddenEdgeHandleColor, m_hiddenEdgeHandleColor);
+            setDictionaryValue(dict, SelectedEdgeHandleColor, m_selectedEdgeHandleColor);
+            setDictionaryValue(dict, HiddenSelectedEdgeHandleColor, m_hiddenSelectedEdgeHandleColor);
+            setDictionaryValue(dict, FaceHandleColor, m_faceHandleColor);
+            setDictionaryValue(dict, HiddenFaceHandleColor, m_hiddenFaceHandleColor);
+            setDictionaryValue(dict, SelectedFaceHandleColor, m_selectedFaceHandleColor);
+            setDictionaryValue(dict, HiddenSelectedFaceHandleColor, m_hiddenSelectedFaceHandleColor);
 
             NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
             [defaults registerDefaults:dict];

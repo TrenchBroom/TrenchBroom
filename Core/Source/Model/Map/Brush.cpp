@@ -181,6 +181,27 @@ namespace TrenchBroom {
                     hits.add(*hit);
                 }
             }
+            
+            const EdgeList& edges = geometry->edges;
+            for (unsigned int i = 0; i < edges.size(); i++) {
+                BBox handle(edges[i]->center(), handleSize);
+                float dist = handle.intersectWithRay(ray);
+                if (!Math::isnan(dist)) {
+                    Vec3f hitPoint = ray.pointAtDistance(dist);
+                    Hit* hit = new Hit(this, vertices.size() + i, TB_HT_VERTEX_HANDLE, hitPoint, dist);
+                    hits.add(*hit);
+                }
+            }
+            
+            for (unsigned int i = 0; i < faces.size(); i++) {
+                BBox handle(faces[i]->center(), handleSize);
+                float dist = handle.intersectWithRay(ray);
+                if (!Math::isnan(dist)) {
+                    Vec3f hitPoint = ray.pointAtDistance(dist);
+                    Hit* hit = new Hit(this, vertices.size() + edges.size() + i, TB_HT_VERTEX_HANDLE, hitPoint, dist);
+                    hits.add(*hit);
+                }
+            }
         }
 
         bool Brush::containsPoint(Vec3f point) {

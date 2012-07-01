@@ -60,6 +60,15 @@ namespace TrenchBroom {
             static const std::string HiddenVertexHandleColor;
             static const std::string SelectedVertexHandleColor;
             static const std::string HiddenSelectedVertexHandleColor;
+            static const std::string EdgeHandleColor;
+            static const std::string HiddenEdgeHandleColor;
+            static const std::string SelectedEdgeHandleColor;
+            static const std::string HiddenSelectedEdgeHandleColor;
+            static const std::string FaceHandleColor;
+            static const std::string HiddenFaceHandleColor;
+            static const std::string SelectedFaceHandleColor;
+            static const std::string HiddenSelectedFaceHandleColor;
+            
             
             int m_cameraKey;
             int m_cameraOrbitKey;
@@ -102,6 +111,14 @@ namespace TrenchBroom {
             Vec4f m_hiddenVertexHandleColor;
             Vec4f m_selectedVertexHandleColor;
             Vec4f m_hiddenSelectedVertexHandleColor;
+            Vec4f m_edgeHandleColor;
+            Vec4f m_hiddenEdgeHandleColor;
+            Vec4f m_selectedEdgeHandleColor;
+            Vec4f m_hiddenSelectedEdgeHandleColor;
+            Vec4f m_faceHandleColor;
+            Vec4f m_hiddenFaceHandleColor;
+            Vec4f m_selectedFaceHandleColor;
+            Vec4f m_hiddenSelectedFaceHandleColor;
             
             virtual void loadDefaults();
             virtual void loadPlatformDefaults() = 0;
@@ -180,6 +197,14 @@ namespace TrenchBroom {
             const Vec4f hiddenVertexHandleColor();
             const Vec4f selectedVertexHandleColor();
             const Vec4f hiddenSelectedVertexHandleColor();
+            const Vec4f edgeHandleColor();
+            const Vec4f hiddenEdgeHandleColor();
+            const Vec4f selectedEdgeHandleColor();
+            const Vec4f hiddenSelectedEdgeHandleColor();
+            const Vec4f faceHandleColor();
+            const Vec4f hiddenFaceHandleColor();
+            const Vec4f selectedFaceHandleColor();
+            const Vec4f hiddenSelectedFaceHandleColor();
         };
     }
 }

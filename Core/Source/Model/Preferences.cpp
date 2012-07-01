@@ -54,6 +54,14 @@ namespace TrenchBroom {
         const std::string Preferences::HiddenVertexHandleColor           = "Renderer: vertex handle color (hidden)";
         const std::string Preferences::SelectedVertexHandleColor         = "Renderer: vertex handle color (selected)";
         const std::string Preferences::HiddenSelectedVertexHandleColor   = "Renderer: vertex handle color (selected and hidden)";
+        const std::string Preferences::EdgeHandleColor                   = "Renderer: edge handle color";
+        const std::string Preferences::HiddenEdgeHandleColor             = "Renderer: edge handle color (hidden)";
+        const std::string Preferences::SelectedEdgeHandleColor           = "Renderer: edge handle color (selected)";
+        const std::string Preferences::HiddenSelectedEdgeHandleColor     = "Renderer: edge handle color (selected and hidden)";
+        const std::string Preferences::FaceHandleColor                   = "Renderer: face handle color";
+        const std::string Preferences::HiddenFaceHandleColor             = "Renderer: face handle color (hidden)";
+        const std::string Preferences::SelectedFaceHandleColor           = "Renderer: face handle color (selected)";
+        const std::string Preferences::HiddenSelectedFaceHandleColor     = "Renderer: face handle color (selected and hidden)";
         
         void Preferences::loadDefaults() {
             m_cameraInvertY = false;
@@ -88,11 +96,20 @@ namespace TrenchBroom {
             
             m_quakePath = "";
             
-            m_vertexHandleSize = 2.0f;
+            m_vertexHandleSize = 1.5f;
             m_vertexHandleColor = Vec4f(1.0f, 1.0f, 1.0f, 1.0f);
             m_hiddenVertexHandleColor = Vec4f(1.0f, 1.0f, 1.0f, 0.35f);
             m_selectedVertexHandleColor = m_selectedEdgeColor;
             m_hiddenSelectedVertexHandleColor = m_hiddenSelectedEdgeColor;
+            m_edgeHandleColor = Vec4f(1.0f, 1.0f, 1.0f, 1.0f);
+            m_hiddenEdgeHandleColor = Vec4f(1.0f, 1.0f, 1.0f, 0.35f);
+            m_selectedEdgeHandleColor = m_selectedEdgeColor;
+            m_hiddenSelectedEdgeHandleColor = m_hiddenSelectedEdgeColor;
+            m_faceHandleColor = Vec4f(1.0f, 1.0f, 1.0f, 1.0f);
+            m_hiddenFaceHandleColor = Vec4f(1.0f, 1.0f, 1.0f, 0.35f);
+            m_selectedFaceHandleColor = m_selectedEdgeColor;
+            m_hiddenSelectedFaceHandleColor = m_hiddenSelectedEdgeColor;
+            
             
             loadPlatformDefaults();
         }
@@ -131,6 +148,14 @@ namespace TrenchBroom {
             loadVec4f(HiddenVertexHandleColor, m_hiddenVertexHandleColor);
             loadVec4f(SelectedVertexHandleColor, m_selectedVertexHandleColor);
             loadVec4f(HiddenSelectedVertexHandleColor, m_hiddenSelectedVertexHandleColor);
+            loadVec4f(EdgeHandleColor, m_edgeHandleColor);
+            loadVec4f(HiddenEdgeHandleColor, m_hiddenEdgeHandleColor);
+            loadVec4f(SelectedEdgeHandleColor, m_selectedEdgeHandleColor);
+            loadVec4f(HiddenSelectedEdgeHandleColor, m_hiddenSelectedEdgeHandleColor);
+            loadVec4f(FaceHandleColor, m_faceHandleColor);
+            loadVec4f(HiddenFaceHandleColor, m_hiddenFaceHandleColor);
+            loadVec4f(SelectedFaceHandleColor, m_selectedFaceHandleColor);
+            loadVec4f(HiddenSelectedFaceHandleColor, m_hiddenSelectedFaceHandleColor);
         }
 
 		void Preferences::savePreferences() {
@@ -167,6 +192,14 @@ namespace TrenchBroom {
             saveVec4f(HiddenVertexHandleColor, m_hiddenVertexHandleColor);
             saveVec4f(SelectedVertexHandleColor, m_selectedVertexHandleColor);
             saveVec4f(HiddenSelectedVertexHandleColor, m_hiddenSelectedVertexHandleColor);
+            saveVec4f(EdgeHandleColor, m_edgeHandleColor);
+            saveVec4f(HiddenEdgeHandleColor, m_hiddenEdgeHandleColor);
+            saveVec4f(SelectedEdgeHandleColor, m_selectedEdgeHandleColor);
+            saveVec4f(HiddenSelectedEdgeHandleColor, m_hiddenSelectedEdgeHandleColor);
+            saveVec4f(FaceHandleColor, m_faceHandleColor);
+            saveVec4f(HiddenFaceHandleColor, m_hiddenFaceHandleColor);
+            saveVec4f(SelectedFaceHandleColor, m_selectedFaceHandleColor);
+            saveVec4f(HiddenSelectedFaceHandleColor, m_hiddenSelectedFaceHandleColor);
 		}
 
 		Preferences* Preferences::sharedPreferences = NULL;
@@ -358,6 +391,38 @@ namespace TrenchBroom {
         
         const Vec4f Preferences::hiddenSelectedVertexHandleColor() {
             return m_hiddenSelectedVertexHandleColor;
+        }
+        
+        const Vec4f Preferences::edgeHandleColor() {
+            return m_edgeHandleColor;
+        }
+        
+        const Vec4f Preferences::hiddenEdgeHandleColor() {
+            return m_hiddenEdgeHandleColor;
+        }
+        
+        const Vec4f Preferences::selectedEdgeHandleColor() {
+            return m_selectedEdgeHandleColor;
+        }
+        
+        const Vec4f Preferences::hiddenSelectedEdgeHandleColor() {
+            return m_hiddenSelectedEdgeHandleColor;
+        }
+        
+        const Vec4f Preferences::faceHandleColor() {
+            return m_faceHandleColor;
+        }
+        
+        const Vec4f Preferences::hiddenFaceHandleColor() {
+            return m_hiddenFaceHandleColor;
+        }
+        
+        const Vec4f Preferences::selectedFaceHandleColor() {
+            return m_selectedFaceHandleColor;
+        }
+        
+        const Vec4f Preferences::hiddenSelectedFaceHandleColor() {
+            return m_hiddenSelectedFaceHandleColor;
         }
     }
 }

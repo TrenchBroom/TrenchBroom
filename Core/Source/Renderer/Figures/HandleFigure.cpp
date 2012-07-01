@@ -65,8 +65,8 @@ namespace TrenchBroom {
                 
                 unsigned int offset = 0;
                 for (unsigned int i = 0; i < m_positions.size(); i++) {
-                    const Vec3f* position = m_positions[i];
-                    BBox handleBounds(*position, handleSize);
+                    const Vec3f& position = m_positions[i];
+                    BBox handleBounds(position, handleSize);
                     std::vector<Vec3f> handleVertices = bboxTriangleVertices(handleBounds);
                     offset = m_vboBlock->writeVecs(handleVertices, offset);
                 }

@@ -32,11 +32,10 @@
 namespace TrenchBroom {
     namespace Controller {
         void MoveVertexTool::brushesDidChange(const Model::BrushList& brushes) {
-            assert(m_handleFigure != NULL);
-            
             for (unsigned int i = 0; i < brushes.size(); i++)
                 if (brushes[i]->selected) {
                     updateHandleFigure();
+                    updateSelectedHandleFigure();
                     break;
                 }
         }
@@ -44,37 +43,99 @@ namespace TrenchBroom {
         void MoveVertexTool::selectionChanged(const Model::SelectionEventData& event) {
             assert(m_handleFigure != NULL);
             updateHandleFigure();
+            updateSelectedHandleFigure();
         }
 
+        void MoveVertexTool::createHandleFigure() {
+            deleteHandleFigure();
+            
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+            m_handleFigure = new Renderer::HandleFigure();
+            m_handleFigure->setColor(prefs.vertexHandleColor());
+            m_handleFigure->setHiddenColor(prefs.hiddenVertexHandleColor());
+            updateHandleFigure();
+            addFigure(*m_handleFigure);
+        }
+        
         void MoveVertexTool::updateHandleFigure() {
-            Vec3fList positions;
-            
-            Model::Map& map = m_editor.map();
-            Model::Selection& selection = map.selection();
-            const Model::BrushList& brushes = selection.brushes();
-
-            for (unsigned int i = 0; i < brushes.size(); i++) {
-                Model::Brush* brush = brushes[i];
-                const Model::VertexList& vertices = brush->geometry->vertices;
-                for (unsigned int j = 0; j < vertices.size(); j++)
-                    positions.push_back(&vertices[j]->position);
+            if (m_handleFigure != NULL) {
+                Vec3fList positions;
+                
+                Model::Map& map = m_editor.map();
+                Model::Selection& selection = map.selection();
+                const Model::BrushList& brushes = selection.brushes();
+                
+                for (unsigned int i = 0; i < brushes.size(); i++) {
+                    Model::Brush* brush = brushes[i];
+                    const Model::VertexList& vertices = brush->geometry->vertices;
+                    for (unsigned int j = 0; j < vertices.size(); j++)
+                        positions.push_back(vertices[j]->position);
+                    
+                    const Model::EdgeList& edges = brush->geometry->edges;
+                    for (unsigned int j = 0; j < edges.size(); j++)
+                        positions.push_back(edges[j]->center());
+                    
+                    for (unsigned int j = 0; j < brush->faces.size(); j++)
+                        positions.push_back(brush->faces[j]->center());
+                }
+                
+                m_handleFigure->setPositions(positions);
             }
-            
-            m_handleFigure->setPositions(positions);
         }
 
-        void MoveVertexTool::cleanup() {
+        void MoveVertexTool::deleteHandleFigure() {
             if (m_handleFigure != NULL) {
                 removeFigure(*m_handleFigure);
                 delete m_handleFigure;
                 m_handleFigure = NULL;
             }
-            
+        }
+        
+        void MoveVertexTool::createSelectedHandleFigure() {
+            deleteSelectedHandleFigure();
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+            m_selectedHandleFigure = new Renderer::HandleFigure();
+            m_selectedHandleFigure->setColor(prefs.selectedVertexHandleColor());
+            m_selectedHandleFigure->setHiddenColor(prefs.hiddenSelectedVertexHandleColor());
+            updateSelectedHandleFigure();
+            addFigure(*m_selectedHandleFigure);
+        }
+        
+        void MoveVertexTool::updateSelectedHandleFigure() {
+            if (m_selectedHandleFigure) {
+                Vec3fList positions;
+                
+                if (m_index >= 0) {
+                    int vertexCount = static_cast<int>(m_brush->geometry->vertices.size());
+                    int edgeCount = static_cast<int>(m_brush->geometry->edges.size());
+                    int faceCount = static_cast<int>(m_brush->faces.size());
+                    
+                    if (m_index < vertexCount) {
+                        positions.push_back(m_brush->geometry->vertices[m_index]->position);
+                    } else if (m_index < vertexCount + edgeCount) {
+                        Model::Edge* edge = m_brush->geometry->edges[m_index - vertexCount];
+                        positions.push_back(edge->center());
+                    } else if (m_index < vertexCount + edgeCount + faceCount) {
+                        Model::Face* face = m_brush->faces[m_index - vertexCount - edgeCount];
+                        positions.push_back(face->center());
+                    }
+                }
+                
+                m_selectedHandleFigure->setPositions(positions);
+            }
+        }
+
+        void MoveVertexTool::deleteSelectedHandleFigure() {
             if (m_selectedHandleFigure != NULL) {
                 removeFigure(*m_selectedHandleFigure);
                 delete m_selectedHandleFigure;
                 m_selectedHandleFigure = NULL;
             }
+        }
+        
+        void MoveVertexTool::cleanup() {
+            deleteHandleFigure();
+            deleteSelectedHandleFigure();
             
             if (m_listenerActive) {
                 Model::Map& map = m_editor.map();
@@ -97,13 +158,7 @@ namespace TrenchBroom {
         void MoveVertexTool::activated(ToolEvent& event) {
             cleanup();
             
-            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-            m_handleFigure = new Renderer::HandleFigure();
-            m_handleFigure->setColor(prefs.vertexHandleColor());
-            m_handleFigure->setHiddenColor(prefs.hiddenVertexHandleColor());
-            
-            updateHandleFigure();
-            addFigure(*m_handleFigure);
+            createHandleFigure();
             
             Model::Map& map = m_editor.map();
             Model::Selection& selection = map.selection();
@@ -118,6 +173,25 @@ namespace TrenchBroom {
             cleanup();
         }
 
+        bool MoveVertexTool::leftMouseDown(ToolEvent& event) {
+            Model::Hit* hit = event.hits->first(Model::TB_HT_VERTEX_HANDLE, true);
+            if (hit != NULL) {
+                m_brush = &hit->brush();
+                m_index = hit->index;
+                deleteHandleFigure();
+                createSelectedHandleFigure();
+            }
+            
+            return false;
+        }
+        
+        bool MoveVertexTool::leftMouseUp(ToolEvent& event) {
+            deleteSelectedHandleFigure();
+            createHandleFigure();
+            return false;
+        }
+
+        
         bool MoveVertexTool::doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint) {
             Model::Hit* hit = event.hits->first(Model::TB_HT_VERTEX_HANDLE, true);
             if (hit == NULL)
@@ -126,15 +200,9 @@ namespace TrenchBroom {
             m_brush = &hit->brush();
             m_index = hit->index;
             initialPoint = hit->hitPoint;
-            
-            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-            m_selectedHandleFigure = new Renderer::HandleFigure();
-            m_selectedHandleFigure->setColor(prefs.selectedVertexHandleColor());
-            m_selectedHandleFigure->setHiddenColor(prefs.hiddenSelectedVertexHandleColor());
-            
-            Vec3fList positions;
-            positions.push_back(&m_brush->geometry->vertices[m_index]->position);
-            m_selectedHandleFigure->setPositions(positions);
+
+            deleteHandleFigure();
+            createSelectedHandleFigure();
             
             m_editor.map().undoManager().begin("Move Vertex");
             return true;
@@ -144,10 +212,23 @@ namespace TrenchBroom {
             assert(m_brush != NULL);
             assert(m_index != -1);
             
-            Model::Vertex* vertex = m_brush->geometry->vertices[m_index];
-            
+            int vertexCount = static_cast<int>(m_brush->geometry->vertices.size());
+            int edgeCount = static_cast<int>(m_brush->geometry->edges.size());
+
             Grid& grid = m_editor.grid();
-            Vec3f delta = grid.moveDelta(vertex->position, m_editor.map().worldBounds(), referencePoint, curMousePoint);
+            Vec3f delta;
+            
+            if (m_index < vertexCount) {
+                Model::Vertex* vertex = m_brush->geometry->vertices[m_index];
+                delta = grid.moveDelta(vertex->position, m_editor.map().worldBounds(), referencePoint, curMousePoint);
+            } else if (m_index < vertexCount + edgeCount) {
+                Model::Edge* edge = m_brush->geometry->edges[m_index - vertexCount];
+                delta = grid.moveDelta(edge->center(), m_editor.map().worldBounds(), referencePoint, curMousePoint);
+            } else {
+                Model::Face* face = m_brush->faces[m_index - vertexCount - edgeCount];
+                delta = grid.moveDelta(face->center(), m_editor.map().worldBounds(), referencePoint, curMousePoint);
+            }
+            
             if (delta.null())
                 return true;
             
@@ -157,13 +238,9 @@ namespace TrenchBroom {
                 return false;
             else if (result.moved)
                 referencePoint += delta;
-            
-            if (m_index != -1) {
-                Vec3fList positions;
-                positions.push_back(&m_brush->geometry->vertices[m_index]->position);
-                m_selectedHandleFigure->setPositions(positions);
-            }
 
+            updateSelectedHandleFigure();
+            
             return true;
         }
         
@@ -172,12 +249,9 @@ namespace TrenchBroom {
             
             m_brush = NULL;
             m_index = -1;
-            
-            if (m_selectedHandleFigure != NULL) {
-                removeFigure(*m_selectedHandleFigure);
-                delete m_selectedHandleFigure;
-                m_selectedHandleFigure = NULL;
-            }
+
+            deleteSelectedHandleFigure();
+            createHandleFigure();
         }
     }
 }
