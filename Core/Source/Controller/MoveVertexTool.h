@@ -20,51 +20,21 @@
 #ifndef TrenchBroom_MoveVertexTool_h
 #define TrenchBroom_MoveVertexTool_h
 
-#include "Controller/DragTool.h"
-
-#include "Model/Selection.h"
+#include "Controller/VertexTool.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class Brush;
-    }
-    
-    namespace Renderer {
-        class HandleFigure;
-    }
-    
     namespace Controller {
-        class MoveVertexTool : public DragTool {
+        class MoveVertexTool : public VertexTool {
         protected:
-            Renderer::HandleFigure* m_handleFigure;
-            Renderer::HandleFigure* m_selectedHandleFigure;
-            bool m_listenerActive;
-            
-            Model::Brush* m_brush;
-            int m_index;
-            
-            void brushesDidChange(const Model::BrushList& brushes);
-            void selectionChanged(const Model::SelectionEventData& event);
-            void createHandleFigure();
-            void updateHandleFigure();
-            void deleteHandleFigure();
-            void createSelectedHandleFigure();
-            void updateSelectedHandleFigure();
-            void deleteSelectedHandleFigure();
-            void cleanup();
+            virtual Model::EHitType hitType();
+            virtual std::string undoName();
+            virtual Vec3f movePosition(const Model::Brush& brush, int index);
+
+            virtual void updateHandleFigure();
+            virtual void updateSelectedHandleFigure();
         public:
-            MoveVertexTool(Controller::Editor& editor);
-            virtual ~MoveVertexTool();
-
-            virtual void activated(ToolEvent& event);
-            virtual void deactivated(ToolEvent& event);
-            
-            virtual bool leftMouseDown(ToolEvent& event);
-            virtual bool leftMouseUp(ToolEvent& event);
-
-            virtual bool doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint);
-            virtual bool doLeftDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
-            virtual void doEndLeftDrag(ToolEvent& event);
+            MoveVertexTool(Controller::Editor& editor) : VertexTool(editor) {}
+            virtual ~MoveVertexTool() {}
         };
     }
 }

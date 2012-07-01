@@ -19,42 +19,37 @@
 
 #include "MoveVertexTool.h"
 
-#include "Controller/Editor.h"
-#include "Controller/Grid.h"
+#include "Model/Map/Brush.h"
+#include "Model/Map/BrushGeometry.h"
+#include "Model/Map/Face.h"
 #include "Model/Map/Map.h"
-#include "Model/Map/Picker.h"
-#include "Model/Preferences.h"
-#include "Model/Undo/UndoManager.h"
+#include "Model/Selection.h"
 #include "Renderer/Figures/HandleFigure.h"
-
-#include <cassert>
 
 namespace TrenchBroom {
     namespace Controller {
-        void MoveVertexTool::brushesDidChange(const Model::BrushList& brushes) {
-            for (unsigned int i = 0; i < brushes.size(); i++)
-                if (brushes[i]->selected) {
-                    updateHandleFigure();
-                    updateSelectedHandleFigure();
-                    break;
-                }
+        Model::EHitType MoveVertexTool::hitType() {
+            return Model::TB_HT_VERTEX_HANDLE;
         }
-
-        void MoveVertexTool::selectionChanged(const Model::SelectionEventData& event) {
-            assert(m_handleFigure != NULL);
-            updateHandleFigure();
-            updateSelectedHandleFigure();
+        
+        std::string MoveVertexTool::undoName() {
+            return "Move Vertex";
         }
-
-        void MoveVertexTool::createHandleFigure() {
-            deleteHandleFigure();
+        
+        Vec3f MoveVertexTool::movePosition(const Model::Brush& brush, int index) {
+            int vertexCount = static_cast<int>(brush.geometry->vertices.size());
+            int edgeCount = static_cast<int>(brush.geometry->edges.size());
             
-            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-            m_handleFigure = new Renderer::HandleFigure();
-            m_handleFigure->setColor(prefs.vertexHandleColor());
-            m_handleFigure->setHiddenColor(prefs.hiddenVertexHandleColor());
-            updateHandleFigure();
-            addFigure(*m_handleFigure);
+            if (index < vertexCount) {
+                Model::Vertex* vertex = m_brush->geometry->vertices[m_index];
+                return vertex->position;
+            } else if (m_index < vertexCount + edgeCount) {
+                Model::Edge* edge = m_brush->geometry->edges[m_index - vertexCount];
+                return edge->center();
+            } else {
+                Model::Face* face = m_brush->faces[m_index - vertexCount - edgeCount];
+                return face->center();
+            }
         }
         
         void MoveVertexTool::updateHandleFigure() {
@@ -83,24 +78,6 @@ namespace TrenchBroom {
             }
         }
 
-        void MoveVertexTool::deleteHandleFigure() {
-            if (m_handleFigure != NULL) {
-                removeFigure(*m_handleFigure);
-                delete m_handleFigure;
-                m_handleFigure = NULL;
-            }
-        }
-        
-        void MoveVertexTool::createSelectedHandleFigure() {
-            deleteSelectedHandleFigure();
-            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-            m_selectedHandleFigure = new Renderer::HandleFigure();
-            m_selectedHandleFigure->setColor(prefs.selectedVertexHandleColor());
-            m_selectedHandleFigure->setHiddenColor(prefs.hiddenSelectedVertexHandleColor());
-            updateSelectedHandleFigure();
-            addFigure(*m_selectedHandleFigure);
-        }
-        
         void MoveVertexTool::updateSelectedHandleFigure() {
             if (m_selectedHandleFigure) {
                 Vec3fList positions;
@@ -123,135 +100,6 @@ namespace TrenchBroom {
                 
                 m_selectedHandleFigure->setPositions(positions);
             }
-        }
-
-        void MoveVertexTool::deleteSelectedHandleFigure() {
-            if (m_selectedHandleFigure != NULL) {
-                removeFigure(*m_selectedHandleFigure);
-                delete m_selectedHandleFigure;
-                m_selectedHandleFigure = NULL;
-            }
-        }
-        
-        void MoveVertexTool::cleanup() {
-            deleteHandleFigure();
-            deleteSelectedHandleFigure();
-            
-            if (m_listenerActive) {
-                Model::Map& map = m_editor.map();
-                map.brushesDidChange -= new Model::Map::BrushEvent::Listener<MoveVertexTool>(this, &MoveVertexTool::brushesDidChange);
-                
-                Model::Selection& selection = map.selection();
-                selection.selectionAdded -= new Model::Selection::SelectionEvent::Listener<MoveVertexTool>(this, &MoveVertexTool::selectionChanged);
-                selection.selectionRemoved -= new Model::Selection::SelectionEvent::Listener<MoveVertexTool>(this, &MoveVertexTool::selectionChanged);
-                m_listenerActive = false;
-            }
-        }
-
-        MoveVertexTool::MoveVertexTool(Controller::Editor& editor) : DragTool(editor), m_brush(NULL), m_index(-1), m_handleFigure(NULL), m_selectedHandleFigure(NULL), m_listenerActive(false) {
-        }
-        
-        MoveVertexTool::~MoveVertexTool() {
-            cleanup();
-        }
-        
-        void MoveVertexTool::activated(ToolEvent& event) {
-            cleanup();
-            
-            createHandleFigure();
-            
-            Model::Map& map = m_editor.map();
-            Model::Selection& selection = map.selection();
-            
-            map.brushesDidChange        += new Model::Map::BrushEvent::Listener<MoveVertexTool>(this, &MoveVertexTool::brushesDidChange);
-            selection.selectionAdded    += new Model::Selection::SelectionEvent::Listener<MoveVertexTool>(this, &MoveVertexTool::selectionChanged);
-            selection.selectionRemoved  += new Model::Selection::SelectionEvent::Listener<MoveVertexTool>(this, &MoveVertexTool::selectionChanged);
-            m_listenerActive = true;
-        }
-        
-        void MoveVertexTool::deactivated(ToolEvent& event) {
-            cleanup();
-        }
-
-        bool MoveVertexTool::leftMouseDown(ToolEvent& event) {
-            Model::Hit* hit = event.hits->first(Model::TB_HT_VERTEX_HANDLE, true);
-            if (hit != NULL) {
-                m_brush = &hit->brush();
-                m_index = hit->index;
-                deleteHandleFigure();
-                createSelectedHandleFigure();
-            }
-            
-            return false;
-        }
-        
-        bool MoveVertexTool::leftMouseUp(ToolEvent& event) {
-            deleteSelectedHandleFigure();
-            createHandleFigure();
-            return false;
-        }
-
-        
-        bool MoveVertexTool::doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint) {
-            Model::Hit* hit = event.hits->first(Model::TB_HT_VERTEX_HANDLE, true);
-            if (hit == NULL)
-                return false;
-            
-            m_brush = &hit->brush();
-            m_index = hit->index;
-            initialPoint = hit->hitPoint;
-
-            deleteHandleFigure();
-            createSelectedHandleFigure();
-            
-            m_editor.map().undoManager().begin("Move Vertex");
-            return true;
-        }
-        
-        bool MoveVertexTool::doLeftDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint) {
-            assert(m_brush != NULL);
-            assert(m_index != -1);
-            
-            int vertexCount = static_cast<int>(m_brush->geometry->vertices.size());
-            int edgeCount = static_cast<int>(m_brush->geometry->edges.size());
-
-            Grid& grid = m_editor.grid();
-            Vec3f delta;
-            
-            if (m_index < vertexCount) {
-                Model::Vertex* vertex = m_brush->geometry->vertices[m_index];
-                delta = grid.moveDelta(vertex->position, m_editor.map().worldBounds(), referencePoint, curMousePoint);
-            } else if (m_index < vertexCount + edgeCount) {
-                Model::Edge* edge = m_brush->geometry->edges[m_index - vertexCount];
-                delta = grid.moveDelta(edge->center(), m_editor.map().worldBounds(), referencePoint, curMousePoint);
-            } else {
-                Model::Face* face = m_brush->faces[m_index - vertexCount - edgeCount];
-                delta = grid.moveDelta(face->center(), m_editor.map().worldBounds(), referencePoint, curMousePoint);
-            }
-            
-            if (delta.null())
-                return true;
-            
-            Model::MoveResult result = m_editor.map().moveVertex(*m_brush, m_index, delta);
-            m_index = result.index;
-            if (result.index == -1)
-                return false;
-            else if (result.moved)
-                referencePoint += delta;
-
-            updateSelectedHandleFigure();
-            
-            return true;
-        }
-        
-        void MoveVertexTool::doEndLeftDrag(ToolEvent& event) {
-            m_editor.map().undoManager().end();
-            
-            m_brush = NULL;
-            m_index = -1;
-
-            deleteSelectedHandleFigure();
-            createHandleFigure();
         }
     }
 }

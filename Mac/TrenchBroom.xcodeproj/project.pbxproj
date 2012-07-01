@@ -15,6 +15,7 @@
 		480963D8157421EB0091C481 /* Splitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480963D6157421EA0091C481 /* Splitter.cpp */; };
 		480963DB1574AB5A0091C481 /* EntityPropertyTableControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480963DA1574AB5A0091C481 /* EntityPropertyTableControl.cpp */; };
 		480B2A8A1597181A00489471 /* ResizeBrushTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480B2A891597181A00489471 /* ResizeBrushTool.cpp */; };
+		480D6C0215A0E2AF0067162B /* VertexTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480D6C0115A0E2AF0067162B /* VertexTool.cpp */; };
 		480ED5311549C7E4003CA78F /* MacPreferences.mm in Sources */ = {isa = PBXBuildFile; fileRef = 480ED5301549C7E4003CA78F /* MacPreferences.mm */; };
 		480ED5351549CEE4003CA78F /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 480ED5341549CEE4003CA78F /* AppDelegate.mm */; };
 		4812004E1538636900181D66 /* ProgressWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4812004D1538636900181D66 /* ProgressWindow.xib */; };
@@ -178,7 +179,7 @@
 		48057D171587A578009CB752 /* UndoItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UndoItem.cpp; sourceTree = "<group>"; };
 		48077A45158FA81F007B6A5B /* MoveVertexTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MoveVertexTool.h; sourceTree = "<group>"; };
 		48077A47158FA86E007B6A5B /* MoveVertexTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveVertexTool.cpp; sourceTree = "<group>"; };
-		48077A49158FA8C5007B6A5B /* HandleFigure.h */ = {isa = PBXFileReference; path = HandleFigure.h; sourceTree = "<group>"; };
+		48077A49158FA8C5007B6A5B /* HandleFigure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HandleFigure.h; sourceTree = "<group>"; };
 		48077A4A158FA8F1007B6A5B /* HandleFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HandleFigure.cpp; sourceTree = "<group>"; };
 		480963D6157421EA0091C481 /* Splitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Splitter.cpp; sourceTree = "<group>"; };
 		480963D7157421EA0091C481 /* Splitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Splitter.h; sourceTree = "<group>"; };
@@ -186,6 +187,8 @@
 		480963DA1574AB5A0091C481 /* EntityPropertyTableControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityPropertyTableControl.cpp; sourceTree = "<group>"; };
 		480B2A871597180200489471 /* ResizeBrushTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ResizeBrushTool.h; sourceTree = "<group>"; };
 		480B2A891597181A00489471 /* ResizeBrushTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ResizeBrushTool.cpp; sourceTree = "<group>"; };
+		480D6BFF15A0E27D0067162B /* VertexTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VertexTool.h; sourceTree = "<group>"; };
+		480D6C0115A0E2AF0067162B /* VertexTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VertexTool.cpp; sourceTree = "<group>"; };
 		480ED52F1549C7E4003CA78F /* MacPreferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacPreferences.h; sourceTree = "<group>"; };
 		480ED5301549C7E4003CA78F /* MacPreferences.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacPreferences.mm; sourceTree = "<group>"; };
 		480ED5331549CEE4003CA78F /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -578,6 +581,8 @@
 				4825B3C9153AE59F007E3AE1 /* SelectionTool.cpp */,
 				4825B3CA153AE59F007E3AE1 /* SelectionTool.h */,
 				4825B3CB153AE59F007E3AE1 /* Tool.h */,
+				480D6BFF15A0E27D0067162B /* VertexTool.h */,
+				480D6C0115A0E2AF0067162B /* VertexTool.cpp */,
 			);
 			name = Controller;
 			path = ../Core/Source/Controller;
@@ -1335,6 +1340,7 @@
 				48077A48158FA86E007B6A5B /* MoveVertexTool.cpp in Sources */,
 				48077A4B158FA8F1007B6A5B /* HandleFigure.cpp in Sources */,
 				480B2A8A1597181A00489471 /* ResizeBrushTool.cpp in Sources */,
+				480D6C0215A0E2AF0067162B /* VertexTool.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

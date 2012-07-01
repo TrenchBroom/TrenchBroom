@@ -31,6 +31,7 @@
 #include "Model/Map/Map.h"
 #include "Model/Map/Picker.h"
 #include "Model/Preferences.h"
+#include "Model/Selection.h"
 
 namespace TrenchBroom {
     namespace Controller {
