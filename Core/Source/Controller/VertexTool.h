@@ -28,6 +28,7 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class MoveResult;
         class SelectionEventData;
     }
     
@@ -58,6 +59,11 @@ namespace TrenchBroom {
             virtual Model::EHitType hitType() = 0;
             virtual std::string undoName() = 0;
             virtual Vec3f movePosition(const Model::Brush& brush, int index) = 0;
+            virtual const Vec4f& handleColor() = 0;
+            virtual const Vec4f& hiddenHandleColor() = 0;
+            virtual const Vec4f& selectedHandleColor() = 0;
+            virtual const Vec4f& hiddenSelectedHandleColor() = 0;
+            virtual Model::MoveResult performMove(Model::Brush& brush, int index, const Vec3f& delta) = 0;
             
             virtual void brushesDidChange(const Model::BrushList& brushes);
             virtual void selectionChanged(const Model::SelectionEventData& event);

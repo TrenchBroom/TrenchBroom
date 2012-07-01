@@ -19,10 +19,12 @@
 
 #include "MoveVertexTool.h"
 
+#include "Controller/Editor.h"
 #include "Model/Map/Brush.h"
 #include "Model/Map/BrushGeometry.h"
 #include "Model/Map/Face.h"
 #include "Model/Map/Map.h"
+#include "Model/Preferences.h"
 #include "Model/Selection.h"
 #include "Renderer/Figures/HandleFigure.h"
 
@@ -41,17 +43,41 @@ namespace TrenchBroom {
             int edgeCount = static_cast<int>(brush.geometry->edges.size());
             
             if (index < vertexCount) {
-                Model::Vertex* vertex = m_brush->geometry->vertices[m_index];
+                Model::Vertex* vertex = brush.geometry->vertices[index];
                 return vertex->position;
-            } else if (m_index < vertexCount + edgeCount) {
-                Model::Edge* edge = m_brush->geometry->edges[m_index - vertexCount];
+            } else if (index < vertexCount + edgeCount) {
+                Model::Edge* edge = brush.geometry->edges[index - vertexCount];
                 return edge->center();
             } else {
-                Model::Face* face = m_brush->faces[m_index - vertexCount - edgeCount];
+                Model::Face* face = brush.faces[index - vertexCount - edgeCount];
                 return face->center();
             }
         }
         
+        const Vec4f& MoveVertexTool::handleColor() {
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+            return prefs.vertexHandleColor();
+        }
+        
+        const Vec4f& MoveVertexTool::hiddenHandleColor() {
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+            return prefs.hiddenVertexHandleColor();
+        }
+        
+        const Vec4f& MoveVertexTool::selectedHandleColor() {
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+            return prefs.selectedVertexHandleColor();
+        }
+        
+        const Vec4f& MoveVertexTool::hiddenSelectedHandleColor() {
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+            return prefs.hiddenSelectedVertexHandleColor();
+        }
+
+        Model::MoveResult MoveVertexTool::performMove(Model::Brush& brush, int index, const Vec3f& delta) {
+            return m_editor.map().moveVertex(brush, index, delta);
+        }
+
         void MoveVertexTool::updateHandleFigure() {
             if (m_handleFigure != NULL) {
                 Vec3fList positions;

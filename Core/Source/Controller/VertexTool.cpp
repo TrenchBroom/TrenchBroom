@@ -23,7 +23,6 @@
 #include "Controller/Grid.h"
 #include "Model/Map/Brush.h"
 #include "Model/Map/Map.h"
-#include "Model/Preferences.h"
 #include "Model/Selection.h"
 #include "Model/Undo/UndoManager.h"
 #include "Renderer/Figures/HandleFigure.h"
@@ -50,10 +49,9 @@ namespace TrenchBroom {
         void VertexTool::createHandleFigure() {
             deleteHandleFigure();
             
-            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             m_handleFigure = new Renderer::HandleFigure();
-            m_handleFigure->setColor(prefs.vertexHandleColor());
-            m_handleFigure->setHiddenColor(prefs.hiddenVertexHandleColor());
+            m_handleFigure->setColor(handleColor());
+            m_handleFigure->setHiddenColor(hiddenHandleColor());
             updateHandleFigure();
             addFigure(*m_handleFigure);
         }
@@ -68,10 +66,9 @@ namespace TrenchBroom {
         
         void VertexTool::createSelectedHandleFigure() {
             deleteSelectedHandleFigure();
-            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             m_selectedHandleFigure = new Renderer::HandleFigure();
-            m_selectedHandleFigure->setColor(prefs.selectedVertexHandleColor());
-            m_selectedHandleFigure->setHiddenColor(prefs.hiddenSelectedVertexHandleColor());
+            m_selectedHandleFigure->setColor(selectedHandleColor());
+            m_selectedHandleFigure->setHiddenColor(hiddenSelectedHandleColor());
             updateSelectedHandleFigure();
             addFigure(*m_selectedHandleFigure);
         }
@@ -185,7 +182,7 @@ namespace TrenchBroom {
             if (delta.null())
                 return true;
             
-            Model::MoveResult result = m_editor.map().moveVertex(*m_brush, m_index, delta);
+            Model::MoveResult result = performMove(*m_brush, m_index, delta);
             m_index = result.index;
             if (result.index == -1)
                 return false;

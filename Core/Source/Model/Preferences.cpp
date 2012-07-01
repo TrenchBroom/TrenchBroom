@@ -377,51 +377,51 @@ namespace TrenchBroom {
             return m_vertexHandleSize;
         }
 
-        const Vec4f Preferences::vertexHandleColor() {
+        const Vec4f& Preferences::vertexHandleColor() {
             return m_vertexHandleColor;
         }
         
-        const Vec4f Preferences::hiddenVertexHandleColor() {
+        const Vec4f& Preferences::hiddenVertexHandleColor() {
             return m_hiddenVertexHandleColor;
         }
         
-        const Vec4f Preferences::selectedVertexHandleColor() {
+        const Vec4f& Preferences::selectedVertexHandleColor() {
             return m_selectedVertexHandleColor;
         }
         
-        const Vec4f Preferences::hiddenSelectedVertexHandleColor() {
+        const Vec4f& Preferences::hiddenSelectedVertexHandleColor() {
             return m_hiddenSelectedVertexHandleColor;
         }
         
-        const Vec4f Preferences::edgeHandleColor() {
+        const Vec4f& Preferences::edgeHandleColor() {
             return m_edgeHandleColor;
         }
         
-        const Vec4f Preferences::hiddenEdgeHandleColor() {
+        const Vec4f& Preferences::hiddenEdgeHandleColor() {
             return m_hiddenEdgeHandleColor;
         }
         
-        const Vec4f Preferences::selectedEdgeHandleColor() {
+        const Vec4f& Preferences::selectedEdgeHandleColor() {
             return m_selectedEdgeHandleColor;
         }
         
-        const Vec4f Preferences::hiddenSelectedEdgeHandleColor() {
+        const Vec4f& Preferences::hiddenSelectedEdgeHandleColor() {
             return m_hiddenSelectedEdgeHandleColor;
         }
         
-        const Vec4f Preferences::faceHandleColor() {
+        const Vec4f& Preferences::faceHandleColor() {
             return m_faceHandleColor;
         }
         
-        const Vec4f Preferences::hiddenFaceHandleColor() {
+        const Vec4f& Preferences::hiddenFaceHandleColor() {
             return m_hiddenFaceHandleColor;
         }
         
-        const Vec4f Preferences::selectedFaceHandleColor() {
+        const Vec4f& Preferences::selectedFaceHandleColor() {
             return m_selectedFaceHandleColor;
         }
         
-        const Vec4f Preferences::hiddenSelectedFaceHandleColor() {
+        const Vec4f& Preferences::hiddenSelectedFaceHandleColor() {
             return m_hiddenSelectedFaceHandleColor;
         }
     }

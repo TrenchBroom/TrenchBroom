@@ -188,7 +188,7 @@ namespace TrenchBroom {
                 float dist = handle.intersectWithRay(ray);
                 if (!Math::isnan(dist)) {
                     Vec3f hitPoint = ray.pointAtDistance(dist);
-                    Hit* hit = new Hit(this, vertices.size() + i, TB_HT_VERTEX_HANDLE, hitPoint, dist);
+                    Hit* hit = new Hit(this, i, TB_HT_EDGE_HANDLE, hitPoint, dist);
                     hits.add(*hit);
                 }
             }
@@ -198,7 +198,7 @@ namespace TrenchBroom {
                 float dist = handle.intersectWithRay(ray);
                 if (!Math::isnan(dist)) {
                     Vec3f hitPoint = ray.pointAtDistance(dist);
-                    Hit* hit = new Hit(this, vertices.size() + edges.size() + i, TB_HT_VERTEX_HANDLE, hitPoint, dist);
+                    Hit* hit = new Hit(this, i, TB_HT_FACE_HANDLE, hitPoint, dist);
                     hits.add(*hit);
                 }
             }

@@ -56,6 +56,7 @@ namespace TrenchBroom {
             int m_modalReceiverIndex;
 
             ToolPtr m_moveVertexTool;
+            ToolPtr m_moveEdgeTool;
             
             // TODO shared pointer:
             DragInfo m_currentDragInfo;
@@ -70,6 +71,7 @@ namespace TrenchBroom {
             ~InputController();
             
             void toggleMoveVertexTool();
+            void toggleMoveEdgeTool();
             
             bool key(wchar_t c);
             void modifierKeyDown(EModifierKeys modifierKey);

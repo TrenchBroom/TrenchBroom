@@ -17,14 +17,14 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MoveVertexTool_h
-#define TrenchBroom_MoveVertexTool_h
+#ifndef TrenchBroom_MoveEdgeTool_h
+#define TrenchBroom_MoveEdgeTool_h
 
 #include "Controller/VertexTool.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        class MoveVertexTool : public VertexTool {
+        class MoveEdgeTool : public VertexTool {
         protected:
             virtual Model::EHitType hitType();
             virtual std::string undoName();
@@ -34,12 +34,12 @@ namespace TrenchBroom {
             virtual const Vec4f& selectedHandleColor();
             virtual const Vec4f& hiddenSelectedHandleColor();
             virtual Model::MoveResult performMove(Model::Brush& brush, int index, const Vec3f& delta);
-
+            
             virtual void updateHandleFigure();
             virtual void updateSelectedHandleFigure();
         public:
-            MoveVertexTool(Controller::Editor& editor) : VertexTool(editor) {}
-            virtual ~MoveVertexTool() {}
+            MoveEdgeTool(Controller::Editor& editor) : VertexTool(editor) {}
+            virtual ~MoveEdgeTool() {}
         };
     }
 }

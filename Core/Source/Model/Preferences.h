@@ -193,18 +193,18 @@ namespace TrenchBroom {
             void setQuakePath(const std::string& quakePath);
             
             float vertexHandleSize();
-            const Vec4f vertexHandleColor();
-            const Vec4f hiddenVertexHandleColor();
-            const Vec4f selectedVertexHandleColor();
-            const Vec4f hiddenSelectedVertexHandleColor();
-            const Vec4f edgeHandleColor();
-            const Vec4f hiddenEdgeHandleColor();
-            const Vec4f selectedEdgeHandleColor();
-            const Vec4f hiddenSelectedEdgeHandleColor();
-            const Vec4f faceHandleColor();
-            const Vec4f hiddenFaceHandleColor();
-            const Vec4f selectedFaceHandleColor();
-            const Vec4f hiddenSelectedFaceHandleColor();
+            const Vec4f& vertexHandleColor();
+            const Vec4f& hiddenVertexHandleColor();
+            const Vec4f& selectedVertexHandleColor();
+            const Vec4f& hiddenSelectedVertexHandleColor();
+            const Vec4f& edgeHandleColor();
+            const Vec4f& hiddenEdgeHandleColor();
+            const Vec4f& selectedEdgeHandleColor();
+            const Vec4f& hiddenSelectedEdgeHandleColor();
+            const Vec4f& faceHandleColor();
+            const Vec4f& hiddenFaceHandleColor();
+            const Vec4f& selectedFaceHandleColor();
+            const Vec4f& hiddenSelectedFaceHandleColor();
         };
     }
 }
