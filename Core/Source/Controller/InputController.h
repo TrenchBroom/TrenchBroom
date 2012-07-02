@@ -57,6 +57,7 @@ namespace TrenchBroom {
 
             ToolPtr m_moveVertexTool;
             ToolPtr m_moveEdgeTool;
+            ToolPtr m_moveFaceTool;
             
             // TODO shared pointer:
             DragInfo m_currentDragInfo;
@@ -72,6 +73,7 @@ namespace TrenchBroom {
             
             void toggleMoveVertexTool();
             void toggleMoveEdgeTool();
+            void toggleMoveFaceTool();
             
             bool key(wchar_t c);
             void modifierKeyDown(EModifierKeys modifierKey);

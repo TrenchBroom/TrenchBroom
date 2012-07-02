@@ -36,7 +36,7 @@ namespace TrenchBroom {
             virtual Model::MoveResult performMove(Model::Brush& brush, int index, const Vec3f& delta);
 
             virtual void updateHandleFigure();
-            virtual void updateSelectedHandleFigure();
+            virtual void updateSelectedHandleFigure(const Model::Brush& brush, int index);
         public:
             MoveVertexTool(Controller::Editor& editor) : VertexTool(editor) {}
             virtual ~MoveVertexTool() {}

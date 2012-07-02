@@ -104,22 +104,22 @@ namespace TrenchBroom {
             }
         }
 
-        void MoveVertexTool::updateSelectedHandleFigure() {
+        void MoveVertexTool::updateSelectedHandleFigure(const Model::Brush& brush, int index) {
             if (m_selectedHandleFigure) {
                 Vec3fList positions;
                 
-                if (m_index >= 0) {
-                    int vertexCount = static_cast<int>(m_brush->geometry->vertices.size());
-                    int edgeCount = static_cast<int>(m_brush->geometry->edges.size());
-                    int faceCount = static_cast<int>(m_brush->faces.size());
+                if (index >= 0) {
+                    int vertexCount = static_cast<int>(brush.geometry->vertices.size());
+                    int edgeCount = static_cast<int>(brush.geometry->edges.size());
+                    int faceCount = static_cast<int>(brush.faces.size());
                     
-                    if (m_index < vertexCount) {
-                        positions.push_back(m_brush->geometry->vertices[m_index]->position);
-                    } else if (m_index < vertexCount + edgeCount) {
-                        Model::Edge* edge = m_brush->geometry->edges[m_index - vertexCount];
+                    if (index < vertexCount) {
+                        positions.push_back(brush.geometry->vertices[index]->position);
+                    } else if (index < vertexCount + edgeCount) {
+                        Model::Edge* edge = brush.geometry->edges[index - vertexCount];
                         positions.push_back(edge->center());
-                    } else if (m_index < vertexCount + edgeCount + faceCount) {
-                        Model::Face* face = m_brush->faces[m_index - vertexCount - edgeCount];
+                    } else if (index < vertexCount + edgeCount + faceCount) {
+                        Model::Face* face = brush.faces[index - vertexCount - edgeCount];
                         positions.push_back(face->center());
                     }
                 }

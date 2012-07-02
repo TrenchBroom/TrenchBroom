@@ -24,7 +24,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class PositioningGuideFigure;
+        class BoundsGuideFigure;
     }
     
     namespace Controller {
@@ -32,7 +32,7 @@ namespace TrenchBroom {
         
         class MoveObjectTool : public DragTool {
         protected:
-            Renderer::PositioningGuideFigure* m_guideFigure;
+            Renderer::BoundsGuideFigure* m_guideFigure;
             bool doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint);
             bool doLeftDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
             void doEndLeftDrag(ToolEvent& event);

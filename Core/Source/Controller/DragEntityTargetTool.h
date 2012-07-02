@@ -29,7 +29,7 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class EntityFigure;
-        class PositioningGuideFigure;
+        class BoundsGuideFigure;
     }
     
     namespace Controller {
@@ -38,7 +38,7 @@ namespace TrenchBroom {
         class DragEntityTargetTool : public DragTargetTool {
         protected:
             Renderer::EntityFigure* m_entityFigure;
-            Renderer::PositioningGuideFigure* m_guideFigure;
+            Renderer::BoundsGuideFigure* m_guideFigure;
             BBox m_bounds;
             
             void deleteFigures();

@@ -25,6 +25,7 @@
 #include "Controller/DragTextureTargetTool.h"
 #include "Controller/Editor.h"
 #include "Controller/MoveEdgeTool.h"
+#include "Controller/MoveFaceTool.h"
 #include "Controller/MoveObjectTool.h"
 #include "Controller/MoveVertexTool.h"
 #include "Controller/SelectionTool.h"
@@ -87,6 +88,7 @@ namespace TrenchBroom {
 
             m_moveVertexTool = ToolPtr(new MoveVertexTool(m_editor));
             m_moveEdgeTool = ToolPtr(new MoveEdgeTool(m_editor));
+            m_moveFaceTool = ToolPtr(new MoveFaceTool(m_editor));
             
             DragTextureTargetTool* dragTextureTargetTool = new DragTextureTargetTool(m_editor);
             DragEntityTargetTool* dragEntityTargetTool = new DragEntityTargetTool(m_editor);
@@ -108,10 +110,17 @@ namespace TrenchBroom {
             toggleModalTool(m_moveEdgeTool, 1);
         }
         
+        void InputController::toggleMoveFaceTool() {
+            toggleModalTool(m_moveFaceTool, 1);
+        }
+        
         bool InputController::key(wchar_t c) {
             switch (c) {
                 case L'e':
                     toggleMoveEdgeTool();
+                    return true;
+                case L'f':
+                    toggleMoveFaceTool();
                     return true;
                 case L'v':
                     toggleMoveVertexTool();

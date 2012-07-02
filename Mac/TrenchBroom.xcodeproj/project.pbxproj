@@ -17,6 +17,7 @@
 		480B2A8A1597181A00489471 /* ResizeBrushTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480B2A891597181A00489471 /* ResizeBrushTool.cpp */; };
 		480D6C0215A0E2AF0067162B /* VertexTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480D6C0115A0E2AF0067162B /* VertexTool.cpp */; };
 		480D6C0515A0F8940067162B /* MoveEdgeTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480D6C0415A0F8940067162B /* MoveEdgeTool.cpp */; };
+		480D6C0815A1CD360067162B /* MoveFaceTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480D6C0715A1CD360067162B /* MoveFaceTool.cpp */; };
 		480ED5311549C7E4003CA78F /* MacPreferences.mm in Sources */ = {isa = PBXBuildFile; fileRef = 480ED5301549C7E4003CA78F /* MacPreferences.mm */; };
 		480ED5351549CEE4003CA78F /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 480ED5341549CEE4003CA78F /* AppDelegate.mm */; };
 		4812004E1538636900181D66 /* ProgressWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4812004D1538636900181D66 /* ProgressWindow.xib */; };
@@ -146,7 +147,7 @@
 		486571CA157E78D400698829 /* DragTextureTargetTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486571C9157E78D400698829 /* DragTextureTargetTool.cpp */; };
 		486571D21582860800698829 /* EntityFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486571D11582860700698829 /* EntityFigure.cpp */; };
 		48886BA51545FE0A006A781B /* EditorHolder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48886BA41545FE09006A781B /* EditorHolder.mm */; };
-		488E65B6156301F300B4E72A /* PositioningGuideFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488E65B5156301F300B4E72A /* PositioningGuideFigure.cpp */; };
+		488E65B6156301F300B4E72A /* BoundsGuideFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488E65B5156301F300B4E72A /* BoundsGuideFigure.cpp */; };
 		488E65E51563C6A600B4E72A /* Inspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488E65E41563C6A600B4E72A /* Inspector.cpp */; };
 		488E65ED15641FA500B4E72A /* SingleTextureControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488E65EC15641FA400B4E72A /* SingleTextureControl.cpp */; };
 		48953FDF15679B92006DD2E3 /* SnapshotUndoItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48953FDE15679B92006DD2E3 /* SnapshotUndoItem.cpp */; };
@@ -163,6 +164,7 @@
 		48B50E3F152CF8F900E75402 /* MapWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48B50E3E152CF8F900E75402 /* MapWindowController.mm */; };
 		48B50E42152CF95500E75402 /* MapView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48B50E41152CF95500E75402 /* MapView.mm */; };
 		48B50E4D152D019C00E75402 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 48B50E4C152D019C00E75402 /* OpenGL.framework */; };
+		48BEA2EA15A1D94800801124 /* PointGuideFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48BEA2E915A1D94800801124 /* PointGuideFigure.cpp */; };
 		48C9794E1530CB72003020FC /* quake.def in Resources */ = {isa = PBXBuildFile; fileRef = 48C9794D1530CB72003020FC /* quake.def */; };
 		48C97950153174B9003020FC /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48C9794F153174B9003020FC /* QuakePalette.lmp */; };
 		48DC47C6156D341C000C2D2F /* MacStringFactory.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48DC47C5156D341C000C2D2F /* MacStringFactory.mm */; };
@@ -192,6 +194,8 @@
 		480D6C0115A0E2AF0067162B /* VertexTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VertexTool.cpp; sourceTree = "<group>"; };
 		480D6C0315A0F8780067162B /* MoveEdgeTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MoveEdgeTool.h; sourceTree = "<group>"; };
 		480D6C0415A0F8940067162B /* MoveEdgeTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveEdgeTool.cpp; sourceTree = "<group>"; };
+		480D6C0615A1CD0E0067162B /* MoveFaceTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MoveFaceTool.h; sourceTree = "<group>"; };
+		480D6C0715A1CD360067162B /* MoveFaceTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveFaceTool.cpp; sourceTree = "<group>"; };
 		480ED52F1549C7E4003CA78F /* MacPreferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacPreferences.h; sourceTree = "<group>"; };
 		480ED5301549C7E4003CA78F /* MacPreferences.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacPreferences.mm; sourceTree = "<group>"; };
 		480ED5331549CEE4003CA78F /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -490,8 +494,8 @@
 		48886BA41545FE09006A781B /* EditorHolder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EditorHolder.mm; sourceTree = "<group>"; };
 		48891461157E299C00687915 /* DragTargetTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragTargetTool.h; sourceTree = "<group>"; };
 		488E65B31563011E00B4E72A /* Figure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Figure.h; sourceTree = "<group>"; };
-		488E65B41563017400B4E72A /* PositioningGuideFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PositioningGuideFigure.h; sourceTree = "<group>"; };
-		488E65B5156301F300B4E72A /* PositioningGuideFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PositioningGuideFigure.cpp; sourceTree = "<group>"; };
+		488E65B41563017400B4E72A /* BoundsGuideFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoundsGuideFigure.h; sourceTree = "<group>"; };
+		488E65B5156301F300B4E72A /* BoundsGuideFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BoundsGuideFigure.cpp; sourceTree = "<group>"; };
 		488E65E31563C67A00B4E72A /* Inspector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Inspector.h; sourceTree = "<group>"; };
 		488E65E41563C6A600B4E72A /* Inspector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Inspector.cpp; sourceTree = "<group>"; };
 		488E65EB15641E4400B4E72A /* SingleTextureControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleTextureControl.h; sourceTree = "<group>"; };
@@ -521,6 +525,8 @@
 		48B50E40152CF95500E75402 /* MapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapView.h; sourceTree = "<group>"; };
 		48B50E41152CF95500E75402 /* MapView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapView.mm; sourceTree = "<group>"; };
 		48B50E4C152D019C00E75402 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		48BEA2E715A1D90500801124 /* PointGuideFigure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PointGuideFigure.h; sourceTree = "<group>"; };
+		48BEA2E915A1D94800801124 /* PointGuideFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointGuideFigure.cpp; sourceTree = "<group>"; };
 		48C9794D1530CB72003020FC /* quake.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = quake.def; path = ../../Resources/Defs/quake.def; sourceTree = "<group>"; };
 		48C9794F153174B9003020FC /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; name = QuakePalette.lmp; path = ../../Resources/Graphics/QuakePalette.lmp; sourceTree = "<group>"; };
 		48DC47C4156D341C000C2D2F /* MacStringFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacStringFactory.h; sourceTree = "<group>"; };
@@ -575,6 +581,8 @@
 				4825B3C6153AE59F007E3AE1 /* InputController.h */,
 				480D6C0415A0F8940067162B /* MoveEdgeTool.cpp */,
 				480D6C0315A0F8780067162B /* MoveEdgeTool.h */,
+				480D6C0715A1CD360067162B /* MoveFaceTool.cpp */,
+				480D6C0615A1CD0E0067162B /* MoveFaceTool.h */,
 				485395DA155EE50F00636357 /* MoveObjectTool.cpp */,
 				485395D8155EE48E00636357 /* MoveObjectTool.h */,
 				48077A47158FA86E007B6A5B /* MoveVertexTool.cpp */,
@@ -1022,10 +1030,12 @@
 				486571D11582860700698829 /* EntityFigure.cpp */,
 				486571CF158285FC00698829 /* EntityFigure.h */,
 				488E65B31563011E00B4E72A /* Figure.h */,
-				488E65B41563017400B4E72A /* PositioningGuideFigure.h */,
-				488E65B5156301F300B4E72A /* PositioningGuideFigure.cpp */,
+				488E65B41563017400B4E72A /* BoundsGuideFigure.h */,
+				488E65B5156301F300B4E72A /* BoundsGuideFigure.cpp */,
 				48077A4A158FA8F1007B6A5B /* HandleFigure.cpp */,
 				48077A49158FA8C5007B6A5B /* HandleFigure.h */,
+				48BEA2E715A1D90500801124 /* PointGuideFigure.h */,
+				48BEA2E915A1D94800801124 /* PointGuideFigure.cpp */,
 			);
 			path = Figures;
 			sourceTree = "<group>";
@@ -1320,7 +1330,7 @@
 				485395E2155EE59300636357 /* DragTool.cpp in Sources */,
 				485395EA155FB69300636357 /* InvocationUndoItem.cpp in Sources */,
 				485395EF155FC16800636357 /* UndoManager.cpp in Sources */,
-				488E65B6156301F300B4E72A /* PositioningGuideFigure.cpp in Sources */,
+				488E65B6156301F300B4E72A /* BoundsGuideFigure.cpp in Sources */,
 				488E65E51563C6A600B4E72A /* Inspector.cpp in Sources */,
 				488E65ED15641FA500B4E72A /* SingleTextureControl.cpp in Sources */,
 				482EB2A71566CC120071206A /* OpenGL_FTGL.cpp in Sources */,
@@ -1347,6 +1357,8 @@
 				480B2A8A1597181A00489471 /* ResizeBrushTool.cpp in Sources */,
 				480D6C0215A0E2AF0067162B /* VertexTool.cpp in Sources */,
 				480D6C0515A0F8940067162B /* MoveEdgeTool.cpp in Sources */,
+				480D6C0815A1CD360067162B /* MoveFaceTool.cpp in Sources */,
+				48BEA2EA15A1D94800801124 /* PointGuideFigure.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -29,7 +29,7 @@
 #include "Model/Preferences.h"
 #include "Model/Selection.h"
 #include "Model/Undo/UndoManager.h"
-#include "Renderer/Figures/PositioningGuideFigure.h"
+#include "Renderer/Figures/BoundsGuideFigure.h"
 #include "Utilities/Console.h"
 
 namespace TrenchBroom {
@@ -52,16 +52,14 @@ namespace TrenchBroom {
             initialPoint = hit->hitPoint;
             
             if (m_guideFigure == NULL) {
-                Model::Map& map = m_editor.map();
                 Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-                const Vec4f& color = prefs.selectedEdgeColor();
-                const Vec4f& hiddenColor = prefs.hiddenSelectedEdgeColor();
-                
-                m_guideFigure = new Renderer::PositioningGuideFigure(map.selection().bounds(), color, hiddenColor);
-            } else {
-                Model::Map& map = m_editor.map();
-                m_guideFigure->updateBounds(map.selection().bounds());
+                m_guideFigure = new Renderer::BoundsGuideFigure();
+                m_guideFigure->setColor(prefs.selectionGuideColor());
+                m_guideFigure->setHiddenColor(prefs.hiddenSelectionGuideColor());
             }
+
+            Model::Map& map = m_editor.map();
+            m_guideFigure->setBounds(map.selection().bounds());
 
             addFigure(*m_guideFigure);
             m_editor.map().undoManager().begin("Move Objects");
@@ -80,7 +78,7 @@ namespace TrenchBroom {
             
             referencePoint += delta;
             map.translateObjects(delta, true);
-            m_guideFigure->updateBounds(selection.bounds());
+            m_guideFigure->setBounds(selection.bounds());
             
             return true;
         }

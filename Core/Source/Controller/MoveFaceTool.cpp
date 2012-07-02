@@ -17,7 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MoveEdgeTool.h"
+#include "MoveFaceTool.h"
 
 #include "Model/Map/Brush.h"
 #include "Model/Map/BrushGeometry.h"
@@ -29,43 +29,43 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        Model::EHitType MoveEdgeTool::hitType() {
-            return Model::TB_HT_EDGE_HANDLE;
+        Model::EHitType MoveFaceTool::hitType() {
+            return Model::TB_HT_FACE_HANDLE;
         }
         
-        std::string MoveEdgeTool::undoName() {
-            return "Move Edge";
+        std::string MoveFaceTool::undoName() {
+            return "Move Face";
         }
         
-        Vec3f MoveEdgeTool::movePosition(const Model::Brush& brush, int index) {
+        Vec3f MoveFaceTool::movePosition(const Model::Brush& brush, int index) {
             return brush.geometry->edges[index]->center();
         }
         
-        const Vec4f& MoveEdgeTool::handleColor() {
+        const Vec4f& MoveFaceTool::handleColor() {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-            return prefs.edgeHandleColor();
+            return prefs.faceHandleColor();
         }
         
-        const Vec4f& MoveEdgeTool::hiddenHandleColor() {
+        const Vec4f& MoveFaceTool::hiddenHandleColor() {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-            return prefs.hiddenEdgeHandleColor();
+            return prefs.hiddenFaceHandleColor();
         }
         
-        const Vec4f& MoveEdgeTool::selectedHandleColor() {
+        const Vec4f& MoveFaceTool::selectedHandleColor() {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-            return prefs.selectedEdgeHandleColor();
+            return prefs.selectedFaceHandleColor();
         }
         
-        const Vec4f& MoveEdgeTool::hiddenSelectedHandleColor() {
+        const Vec4f& MoveFaceTool::hiddenSelectedHandleColor() {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-            return prefs.hiddenSelectedEdgeHandleColor();
+            return prefs.hiddenSelectedFaceHandleColor();
         }
         
-        Model::MoveResult MoveEdgeTool::performMove(Model::Brush& brush, int index, const Vec3f& delta) {
-            return m_editor.map().moveEdge(brush, index, delta);
+        Model::MoveResult MoveFaceTool::performMove(Model::Brush& brush, int index, const Vec3f& delta) {
+            return m_editor.map().moveFace(brush, index, delta);
         }
         
-        void MoveEdgeTool::updateHandleFigure() {
+        void MoveFaceTool::updateHandleFigure() {
             if (m_handleFigure != NULL) {
                 Vec3fList positions;
                 
@@ -75,22 +75,21 @@ namespace TrenchBroom {
                 
                 for (unsigned int i = 0; i < brushes.size(); i++) {
                     Model::Brush* brush = brushes[i];
-                    const Model::EdgeList& edges = brush->geometry->edges;
-                    for (unsigned int j = 0; j < edges.size(); j++)
-                        positions.push_back(edges[j]->center());
+                    for (unsigned int j = 0; j < brush->faces.size(); j++)
+                        positions.push_back(brush->faces[j]->center());
                 }
                 
                 m_handleFigure->setPositions(positions);
             }
         }
         
-        void MoveEdgeTool::updateSelectedHandleFigure(const Model::Brush& brush, int index) {
+        void MoveFaceTool::updateSelectedHandleFigure(const Model::Brush& brush, int index) {
             if (m_selectedHandleFigure) {
                 Vec3fList positions;
                 
                 if (index >= 0) {
-                    Model::Edge* edge = brush.geometry->edges[index];
-                    positions.push_back(edge->center());
+                    Model::Face* face = brush.faces[index];
+                    positions.push_back(face->center());
                 }
                 
                 m_selectedHandleFigure->setPositions(positions);

@@ -27,18 +27,23 @@ namespace TrenchBroom {
     namespace Renderer {
         class RenderContext;
         class Vbo;
+        class VboBlock;
         
-        class PositioningGuideFigure : public Figure {
+        class PointGuideFigure : public Figure {
         private:
-            BBox m_bounds;
+            Vec3f m_position;
             Vec4f m_color;
             Vec4f m_hiddenColor;
+            bool m_valid;
+            VboBlock* m_block;
             
-            void renderLine(RenderContext& context, const Vec4f& color, const Vec3f& anchor, float size, const Vec3f& axis);
-            void renderGuides(RenderContext& context, const Vec4f& color);
+            unsigned int writeLine(RenderContext& context, VboBlock& block, unsigned int offset, const Vec4f& color, const Vec3f& anchor, const Vec3f& axis);
         public:
-            PositioningGuideFigure(const BBox& bounds, const Vec4f& color, const Vec4f& hiddenColor);
-            void updateBounds(const BBox& bounds);
+            PointGuideFigure();
+            ~PointGuideFigure();
+            void setPosition(const Vec3f& position);
+            void setColor(const Vec4f& color);
+            void setHiddenColor(const Vec4f& hiddenColor);
             void render(RenderContext& context, Vbo& vbo);
         };
     }

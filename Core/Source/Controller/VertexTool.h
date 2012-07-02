@@ -72,7 +72,7 @@ namespace TrenchBroom {
             virtual void updateHandleFigure() = 0;
             virtual void deleteHandleFigure();
             virtual void createSelectedHandleFigure();
-            virtual void updateSelectedHandleFigure() = 0;
+            virtual void updateSelectedHandleFigure(const Model::Brush& brush, int index) = 0;
             virtual void deleteSelectedHandleFigure();
         public:
             VertexTool(Controller::Editor& editor);

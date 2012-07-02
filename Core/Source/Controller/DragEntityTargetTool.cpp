@@ -31,7 +31,7 @@
 #include "Model/Selection.h"
 #include "Model/Undo/UndoManager.h"
 #include "Renderer/Figures/EntityFigure.h"
-#include "Renderer/Figures/PositioningGuideFigure.h"
+#include "Renderer/Figures/BoundsGuideFigure.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -76,11 +76,9 @@ namespace TrenchBroom {
                 else delta[a] = hit->hitPoint[a] - m_bounds.max[a];
             }
             
-            if (!delta.null()) {
-                m_bounds = m_bounds.translate(delta);
-                m_entityFigure->setPosition(m_bounds.center() - definition.bounds.center());
-                m_guideFigure->updateBounds(m_bounds);
-            }
+            m_bounds = m_bounds.translate(delta);
+            m_entityFigure->setPosition(m_bounds.center() - definition.bounds.center());
+            m_guideFigure->setBounds(m_bounds);
         }
 
         bool DragEntityTargetTool::accepts(const DragInfo& info) {
@@ -96,7 +94,9 @@ namespace TrenchBroom {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             
             m_entityFigure = new Renderer::EntityFigure(m_editor, *definition, false );
-            m_guideFigure = new Renderer::PositioningGuideFigure(m_bounds, prefs.selectionGuideColor(), prefs.hiddenSelectionGuideColor());
+            m_guideFigure = new Renderer::BoundsGuideFigure();
+            m_guideFigure->setColor(prefs.selectionGuideColor());
+            m_guideFigure->setHiddenColor(prefs.hiddenSelectionGuideColor());
             updateFigures(info, *definition);
             addFigure(*m_entityFigure);
             addFigure(*m_guideFigure);
