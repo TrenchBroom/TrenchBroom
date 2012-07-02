@@ -151,12 +151,12 @@ namespace TrenchBroom {
         }
         
         bool VertexTool::doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint) {
-            assert(m_state == SELECTED);
-            
             Model::Hit* hit = event.hits->first(hitType(), true);
             if (hit == NULL)
                 return false;
             
+            assert(m_state == SELECTED);
+
             m_brush = &hit->brush();
             m_index = hit->index;
             initialPoint = hit->hitPoint;

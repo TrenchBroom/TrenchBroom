@@ -1074,6 +1074,10 @@ namespace TrenchBroom {
             std::map<Edge*, Edge*> edgeMap;
             std::map<Side*, Side*> sideMap;
             
+            vertices.clear();
+            edges.clear();
+            sides.clear();
+            
             vertices.reserve(original.vertices.size());
             edges.reserve(original.edges.size());
             sides.reserve(original.sides.size());
@@ -1109,6 +1113,8 @@ namespace TrenchBroom {
                     copySide->edges.push_back(copyEdge);
                     copySide->vertices.push_back(copyEdge->startVertex(copySide));
                 }
+                
+                sides.push_back(copySide);
             }
             
             bounds = original.bounds;
@@ -1503,6 +1509,7 @@ namespace TrenchBroom {
             
             BrushGeometry testGeometry(*this);
             testGeometry.restoreFaceSides();
+            assert(testGeometry.sanityCheck());
             
             Vec3f dir;
             Edge* edge = testGeometry.edges[edgeIndex];
@@ -1524,8 +1531,9 @@ namespace TrenchBroom {
             }
             
             if (result.moved) {
-                result.index = indexOf(testGeometry.edges, start, end);
                 copy(testGeometry);
+                assert(sanityCheck());
+                result.index = indexOf(testGeometry.edges, start, end);
             } else {
                 result.index = edgeIndex;
                 newFaces.clear();
@@ -1586,8 +1594,9 @@ namespace TrenchBroom {
                 result = moveVertex(indices[i], false, delta, newFaces, droppedFaces);
             
             if (result.moved) {
-                result.index = indexOf(testGeometry.sides, sideVertices);
                 copy(testGeometry);
+                assert(sanityCheck());
+                result.index = indexOf(testGeometry.sides, sideVertices);
             } else {
                 result.index = sideIndex;
                 newFaces.clear();
