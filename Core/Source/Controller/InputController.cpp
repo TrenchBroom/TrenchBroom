@@ -70,6 +70,12 @@ namespace TrenchBroom {
             }
         }
         
+        bool InputController::modalToolActive(const ToolPtr& tool) {
+            if (m_modalReceiverIndex == -1)
+                return false;
+            return m_receiverChain[m_modalReceiverIndex] == tool;
+        }
+
         InputController::InputController(Editor& editor) : m_editor(editor), m_currentDragInfo(DragInfo(m_currentEvent)), m_modalReceiverIndex(-1) {
             ToolPtr cameraTool = ToolPtr(new CameraTool(m_editor));
             ToolPtr selectionTool = ToolPtr(new SelectionTool(m_editor));
@@ -114,20 +120,21 @@ namespace TrenchBroom {
             toggleModalTool(m_moveFaceTool, 1);
         }
         
+        bool InputController::moveVertexToolActive() {
+            return modalToolActive(m_moveVertexTool);
+        }
+        
+        bool InputController::moveEdgeToolActive() {
+            return modalToolActive(m_moveEdgeTool);
+        }
+        
+        bool InputController::moveFaceToolActive() {
+            return modalToolActive(m_moveFaceTool);
+        }
+        
+        
         bool InputController::key(wchar_t c) {
-            switch (c) {
-                case L'e':
-                    toggleMoveEdgeTool();
-                    return true;
-                case L'f':
-                    toggleMoveFaceTool();
-                    return true;
-                case L'v':
-                    toggleMoveVertexTool();
-                    return true;
-                default:
-                    return false;
-            }
+            return false;
         }
 
         void InputController::modifierKeyDown(EModifierKeys modifierKey) {

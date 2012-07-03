@@ -424,8 +424,8 @@ namespace TrenchBroom {
             if (!texAxesValid)
                 validateTexAxes(boundary.normal);
             
-            float dotX = dir | m_texAxisX;
-            float dotY = dir | m_texAxisY;
+            float dotX = dir | m_scaledTexAxisX;
+            float dotY = dir | m_scaledTexAxisY;
             
             if (fabsf(dotX) >= fabsf(dotY)) {
                 if (dotX >= 0)

@@ -134,6 +134,7 @@
 		484544F51553374B0032E983 /* ChangeSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 484544F41553374B0032E983 /* ChangeSet.cpp */; };
 		48487FC7158C97BE003C0C46 /* CreateBrushTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48487FC6158C97BE003C0C46 /* CreateBrushTool.cpp */; };
 		48487FCA158C9DD0003C0C46 /* BrushFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48487FC9158C9DD0003C0C46 /* BrushFigure.cpp */; };
+		484D24BA15A3845B00B803C2 /* MainMenuDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 484D24B915A3845B00B803C2 /* MainMenuDelegate.mm */; };
 		485395DB155EE50F00636357 /* MoveObjectTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 485395DA155EE50F00636357 /* MoveObjectTool.cpp */; };
 		485395E2155EE59300636357 /* DragTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 485395E1155EE59300636357 /* DragTool.cpp */; };
 		485395EA155FB69300636357 /* InvocationUndoItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 485395E9155FB69300636357 /* InvocationUndoItem.cpp */; };
@@ -463,6 +464,8 @@
 		48487FC6158C97BE003C0C46 /* CreateBrushTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CreateBrushTool.cpp; sourceTree = "<group>"; };
 		48487FC8158C9DB9003C0C46 /* BrushFigure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrushFigure.h; sourceTree = "<group>"; };
 		48487FC9158C9DD0003C0C46 /* BrushFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BrushFigure.cpp; sourceTree = "<group>"; };
+		484D24B815A3845B00B803C2 /* MainMenuDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainMenuDelegate.h; sourceTree = "<group>"; };
+		484D24B915A3845B00B803C2 /* MainMenuDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MainMenuDelegate.mm; sourceTree = "<group>"; };
 		485395D8155EE48E00636357 /* MoveObjectTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveObjectTool.h; sourceTree = "<group>"; };
 		485395DA155EE50F00636357 /* MoveObjectTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveObjectTool.cpp; sourceTree = "<group>"; };
 		485395E0155EE56E00636357 /* DragTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DragTool.h; sourceTree = "<group>"; };
@@ -1090,6 +1093,8 @@
 				48120054153867E300181D66 /* MacProgressIndicator.mm */,
 				48DC47C4156D341C000C2D2F /* MacStringFactory.h */,
 				48DC47C5156D341C000C2D2F /* MacStringFactory.mm */,
+				484D24B815A3845B00B803C2 /* MainMenuDelegate.h */,
+				484D24B915A3845B00B803C2 /* MainMenuDelegate.mm */,
 				48B50E24152CF6E400E75402 /* MapDocument.h */,
 				48B50E25152CF6E400E75402 /* MapDocument.mm */,
 				48B50E40152CF95500E75402 /* MapView.h */,
@@ -1359,6 +1364,7 @@
 				480D6C0515A0F8940067162B /* MoveEdgeTool.cpp in Sources */,
 				480D6C0815A1CD360067162B /* MoveFaceTool.cpp in Sources */,
 				48BEA2EA15A1D94800801124 /* PointGuideFigure.cpp in Sources */,
+				484D24BA15A3845B00B803C2 /* MainMenuDelegate.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

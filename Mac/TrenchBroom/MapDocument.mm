@@ -23,8 +23,10 @@
 #import "MacProgressIndicator.h"
 #import "MacStringFactory.h"
 
+#import "Controller/Camera.h"
 #import "Controller/Editor.h"
 #import "Controller/Grid.h"
+#import "Controller/InputController.h"
 #import "Model/Assets/Alias.h"
 #import "Model/Assets/Bsp.h"
 #import "Model/Map/Brush.h"
@@ -77,6 +79,16 @@ namespace TrenchBroom {
         }
     }
 }
+
+@interface MapDocument (Private)
+- (BOOL)gridOffModifierPressed;
+@end
+
+@implementation MapDocument (Private)
+- (BOOL)gridOffModifierPressed {
+    return ([NSEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask;
+}
+@end
 
 @implementation MapDocument
 
@@ -155,6 +167,12 @@ namespace TrenchBroom {
     undoManager.redo();
 }
 
+- (IBAction)delete:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    Map& map = editor->map();
+    map.deleteObjects();
+}
+
 - (IBAction)selectAll:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
     Map& map = editor->map();
@@ -190,6 +208,119 @@ namespace TrenchBroom {
     Selection& selection = map.selection();
     selection.removeAll();
 }
+
+- (IBAction)toggleVertexTool:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    InputController& inputController = editor->inputController();
+    inputController.toggleMoveVertexTool();
+}
+
+- (IBAction)toggleEdgeTool:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    InputController& inputController = editor->inputController();
+    inputController.toggleMoveEdgeTool();
+}
+
+- (IBAction)toggleFaceTool:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    InputController& inputController = editor->inputController();
+    inputController.toggleMoveFaceTool();
+}
+
+- (IBAction)moveTexturesLeft:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    Map& map = editor->map();
+    Grid& grid = editor->grid();
+    Camera& camera = editor->camera();
+
+    float delta = [self gridOffModifierPressed] ? 1.0f : static_cast<float>(grid.actualSize());
+    map.translateFaces(delta, camera.right() * -1.0f);
+}
+
+- (IBAction)moveTexturesUp:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    Map& map = editor->map();
+    Grid& grid = editor->grid();
+    Camera& camera = editor->camera();
+    
+    float delta = [self gridOffModifierPressed] ? 1.0f : static_cast<float>(grid.actualSize());
+    map.translateFaces(delta, camera.up());
+}
+
+- (IBAction)moveTexturesRight:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    Map& map = editor->map();
+    Grid& grid = editor->grid();
+    Camera& camera = editor->camera();
+    
+    float delta = [self gridOffModifierPressed] ? 1.0f : static_cast<float>(grid.actualSize());
+    map.translateFaces(delta, camera.right());
+}
+
+- (IBAction)moveTexturesDown:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    Map& map = editor->map();
+    Grid& grid = editor->grid();
+    Camera& camera = editor->camera();
+    
+    float delta = [self gridOffModifierPressed] ? 1.0f : static_cast<float>(grid.actualSize());
+    map.translateFaces(delta, camera.up() * -1.0f);
+}
+
+- (IBAction)rotateTexturesCW:(id)sender {
+}
+
+- (IBAction)rotateTexturesCCW:(id)sender {
+}
+
+- (IBAction)moveObjectsLeft:(id)sender {
+}
+
+- (IBAction)moveObjectsUp:(id)sender {
+}
+
+- (IBAction)moveObjectsRight:(id)sender {
+}
+
+- (IBAction)moveObjectsDown:(id)sender {
+}
+
+- (IBAction)moveObjectsToward:(id)sender {
+}
+
+- (IBAction)moveObjectsAway:(id)sender {
+}
+
+- (IBAction)rollObjectsCW:(id)sender {
+}
+
+- (IBAction)rollObjectsCCW:(id)sender {
+}
+
+- (IBAction)pitchObjectsCW:(id)sender {
+}
+
+- (IBAction)pitchObjectsCCW:(id)sender {
+}
+
+- (IBAction)yawObjectsCW:(id)sender {
+}
+
+- (IBAction)yawObjectsCCW:(id)sender {
+}
+
+- (IBAction)flipObjectsHorizontally:(id)sender {
+}
+
+- (IBAction)flipObjectsVertically:(id)sender {
+}
+
+- (IBAction)duplicateObjects:(id)sender {
+}
+
+- (IBAction)enlargeBrushes:(id)sender {
+}
+
 
 - (IBAction)toggleGrid:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
@@ -230,12 +361,33 @@ namespace TrenchBroom {
             NSString* objcName = [NSString stringWithCString:undoManager.topRedoName().c_str() encoding:NSASCIIStringEncoding];
             [menuItem setTitle:[NSString stringWithFormat:@"Redo %@", objcName]];
         }
+    } else if (action == @selector(delete:)) {
+        return selection.mode() == Model::TB_SM_BRUSHES || selection.mode() == Model::TB_SM_ENTITIES || selection.mode() == Model::TB_SM_BRUSHES_ENTITIES;
     } else if (action == @selector(selectEntity:)) {
         return selection.mode() == Model::TB_SM_BRUSHES;
     } else if (action == @selector(selectTouching:)) {
         return selection.mode() == Model::TB_SM_BRUSHES && selection.brushes().size() == 1;
     } else if (action == @selector(selectNone:)) {
         return !selection.empty();
+    } else if (action == @selector(toggleVertexTool:)) {
+        Editor* editor = (Editor *)[editorHolder editor];
+        InputController& inputController = editor->inputController();
+        return inputController.moveVertexToolActive() || selection.mode() == Model::TB_SM_BRUSHES;
+    } else if (action == @selector(toggleEdgeTool:)) {
+        Editor* editor = (Editor *)[editorHolder editor];
+        InputController& inputController = editor->inputController();
+        return inputController.moveEdgeToolActive() || selection.mode() == Model::TB_SM_BRUSHES;
+    } else if (action == @selector(toggleFaceTool:)) {
+        Editor* editor = (Editor *)[editorHolder editor];
+        InputController& inputController = editor->inputController();
+        return inputController.moveFaceToolActive() || selection.mode() == Model::TB_SM_BRUSHES;
+    } else if (action == @selector(moveTexturesLeft:) || 
+               action == @selector(moveTexturesUp:) || 
+               action == @selector(moveTexturesRight:) ||
+               action == @selector(moveTexturesDown:) ||
+               action == @selector(rotateTexturesCW:) ||
+               action == @selector(rotateTexturesCCW:)) {
+        return selection.mode() == TB_SM_FACES;
     } else if (action == @selector(toggleGrid:)) {
         [menuItem setState:editor->grid().visible() ? NSOnState : NSOffState];
     } else if (action == @selector(toggleSnapToGrid:)) {

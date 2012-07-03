@@ -67,6 +67,7 @@ namespace TrenchBroom {
             
             void updateHits();
             void toggleModalTool(const ToolPtr& tool, unsigned int index);
+            bool modalToolActive(const ToolPtr& tool);
         public:
             InputController(Editor& editor);
             ~InputController();
@@ -74,6 +75,10 @@ namespace TrenchBroom {
             void toggleMoveVertexTool();
             void toggleMoveEdgeTool();
             void toggleMoveFaceTool();
+            
+            bool moveVertexToolActive();
+            bool moveEdgeToolActive();
+            bool moveFaceToolActive();
             
             bool key(wchar_t c);
             void modifierKeyDown(EModifierKeys modifierKey);

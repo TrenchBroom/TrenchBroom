@@ -52,8 +52,8 @@ namespace TrenchBroom {
 
 @interface MapView (Private)
 - (void)prepareOpenGL;
-- (void)key:(NSEvent*)theEvent down:(BOOL)down;
-- (void)key:(NSEvent*)theEvent mask:(NSUInteger)theMask gwenKey:(int)theGwenKey;
+- (BOOL)key:(NSEvent*)theEvent down:(BOOL)down;
+- (BOOL)key:(NSEvent*)theEvent mask:(NSUInteger)theMask gwenKey:(int)theGwenKey;
 - (Editor*)editor;
 - (EditorGui*)editorGui;
 @end
@@ -64,61 +64,50 @@ namespace TrenchBroom {
     [[self openGLContext] setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
 }
 
-- (void)key:(NSEvent*)theEvent down:(BOOL)down {
-    if (editorGui == NULL) return;
+- (BOOL)key:(NSEvent*)theEvent down:(BOOL)down {
+    if (editorGui == NULL) return NO;
     switch ([theEvent keyCode]) {
         case 36:
-            [self editorGui]->canvas()->InputKey(Gwen::Key::Return, down);
-            break;
+            return [self editorGui]->canvas()->InputKey(Gwen::Key::Return, down);
         case 51:
-            [self editorGui]->canvas()->InputKey(Gwen::Key::Backspace, down);
-            break;
+            return [self editorGui]->canvas()->InputKey(Gwen::Key::Backspace, down);
         case 117:
-            [self editorGui]->canvas()->InputKey(Gwen::Key::Delete, down);
-            break;
+            return [self editorGui]->canvas()->InputKey(Gwen::Key::Delete, down);
         case 123:
-            [self editorGui]->canvas()->InputKey(Gwen::Key::Left, down);
-            break;
+            return [self editorGui]->canvas()->InputKey(Gwen::Key::Left, down);
         case 124:
-            [self editorGui]->canvas()->InputKey(Gwen::Key::Right, down);
-            break;
+            return [self editorGui]->canvas()->InputKey(Gwen::Key::Right, down);
         case 48:
-            [self editorGui]->canvas()->InputKey(Gwen::Key::Tab, down);
-            break;
+            return [self editorGui]->canvas()->InputKey(Gwen::Key::Tab, down);
         case 49:
-            [self editorGui]->canvas()->InputKey(Gwen::Key::Space, down);
-            break;
+            return [self editorGui]->canvas()->InputKey(Gwen::Key::Space, down);
         case 115:
-            [self editorGui]->canvas()->InputKey(Gwen::Key::Home, down);
-            break;
+            return [self editorGui]->canvas()->InputKey(Gwen::Key::Home, down);
         case 119:
-            [self editorGui]->canvas()->InputKey(Gwen::Key::End, down);
-            break;
+            return [self editorGui]->canvas()->InputKey(Gwen::Key::End, down);
         case 126:
-            [self editorGui]->canvas()->InputKey(Gwen::Key::Up, down);
-            break;
+            return [self editorGui]->canvas()->InputKey(Gwen::Key::Up, down);
         case 125:
-            [self editorGui]->canvas()->InputKey(Gwen::Key::Down, down);
-            break;
+            return [self editorGui]->canvas()->InputKey(Gwen::Key::Down, down);
         case 53:
-            [self editorGui]->canvas()->InputKey(Gwen::Key::Escape, down);
-            break;
+            return [self editorGui]->canvas()->InputKey(Gwen::Key::Escape, down);
         default:
             // http://stackoverflow.com/questions/891594/nsstring-to-wchar-t
             if (down) {
                 const char* utf16 = [[theEvent characters] cStringUsingEncoding:NSUTF16LittleEndianStringEncoding];
                 wchar_t c = *utf16;
-                [self editorGui]->canvas()->InputCharacter(c);
+                return [self editorGui]->canvas()->InputCharacter(c);
             }
-            break;
+            return true;
     }
 }
 
-- (void)key:(NSEvent*)theEvent mask:(NSUInteger)theMask gwenKey:(int)theGwenKey; {
+- (BOOL)key:(NSEvent*)theEvent mask:(NSUInteger)theMask gwenKey:(int)theGwenKey; {
     if ((flags & theMask) != ([theEvent modifierFlags] & theMask)) {
         BOOL down = ([theEvent modifierFlags] & theMask) == theMask;
-        [self editorGui]->canvas()->InputKey(theGwenKey, down);
+        return [self editorGui]->canvas()->InputKey(theGwenKey, down);
     }
+    return NO;
 }
 
 - (Editor*)editor {
@@ -190,11 +179,13 @@ namespace TrenchBroom {
 }
 
 - (void)keyDown:(NSEvent *)theEvent {
-    [self key:theEvent down:YES];
+    if (![self key:theEvent down:YES])
+        [super keyDown:theEvent];
 }
 
 - (void)keyUp:(NSEvent *)theEvent {
-    [self key:theEvent down:NO];
+    if (![self key:theEvent down:NO])
+        [super keyUp:theEvent];
 }
 
 - (void)flagsChanged:(NSEvent *)theEvent {

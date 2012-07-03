@@ -22,6 +22,10 @@
 @class EditorHolder;
 
 @interface MapDocument : NSDocument {
+    IBOutlet NSMenu* textureActionMenu;
+    IBOutlet NSMenu* objectActionMenu;
+    IBOutlet NSMenuItem* actionMenuItem;
+    
     EditorHolder* editorHolder;
     void* undoListener;
 }
@@ -33,6 +37,34 @@
 
 - (IBAction)selectEntity:(id)sender;
 - (IBAction)selectTouching:(id)sender;
+
+- (IBAction)toggleVertexTool:(id)sender;
+- (IBAction)toggleEdgeTool:(id)sender;
+- (IBAction)toggleFaceTool:(id)sender;
+
+- (IBAction)moveTexturesLeft:(id)sender;
+- (IBAction)moveTexturesUp:(id)sender;
+- (IBAction)moveTexturesRight:(id)sender;
+- (IBAction)moveTexturesDown:(id)sender;
+- (IBAction)rotateTexturesCW:(id)sender;
+- (IBAction)rotateTexturesCCW:(id)sender;
+
+- (IBAction)moveObjectsLeft:(id)sender;
+- (IBAction)moveObjectsUp:(id)sender;
+- (IBAction)moveObjectsRight:(id)sender;
+- (IBAction)moveObjectsDown:(id)sender;
+- (IBAction)moveObjectsToward:(id)sender;
+- (IBAction)moveObjectsAway:(id)sender;
+- (IBAction)rollObjectsCW:(id)sender;
+- (IBAction)rollObjectsCCW:(id)sender;
+- (IBAction)pitchObjectsCW:(id)sender;
+- (IBAction)pitchObjectsCCW:(id)sender;
+- (IBAction)yawObjectsCW:(id)sender;
+- (IBAction)yawObjectsCCW:(id)sender;
+- (IBAction)flipObjectsHorizontally:(id)sender;
+- (IBAction)flipObjectsVertically:(id)sender;
+- (IBAction)duplicateObjects:(id)sender;
+- (IBAction)enlargeBrushes:(id)sender;
 
 - (IBAction)toggleGrid:(id)sender;
 - (IBAction)toggleSnapToGrid:(id)sender;
