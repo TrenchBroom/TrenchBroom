@@ -26,7 +26,7 @@ namespace TrenchBroom {
     namespace Controller {
         class MoveFaceTool : public VertexTool {
         protected:
-            virtual Model::EHitType hitType();
+            virtual int hitType();
             virtual std::string undoName();
             virtual Vec3f movePosition(const Model::Brush& brush, int index);
             virtual const Vec4f& handleColor();

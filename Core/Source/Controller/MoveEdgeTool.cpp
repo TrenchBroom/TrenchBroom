@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        Model::EHitType MoveEdgeTool::hitType() {
+        int MoveEdgeTool::hitType() {
             return Model::TB_HT_EDGE_HANDLE;
         }
         

@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        Model::EHitType MoveFaceTool::hitType() {
+        int MoveFaceTool::hitType() {
             return Model::TB_HT_FACE_HANDLE;
         }
         

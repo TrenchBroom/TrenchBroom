@@ -31,6 +31,10 @@
 
 namespace TrenchBroom {
     namespace Controller {
+        int VertexTool::index(Model::Hit& hit) {
+            return hit.index;
+        }
+
         void VertexTool::brushesDidChange(const Model::BrushList& brushes) {
             for (unsigned int i = 0; i < brushes.size(); i++)
                 if (brushes[i]->selected) {
@@ -130,7 +134,7 @@ namespace TrenchBroom {
             Model::Hit* hit = event.hits->first(hitType(), true);
             if (hit != NULL) {
                 m_brush = &hit->brush();
-                m_index = hit->index;
+                m_index = index(*hit);
                 deleteHandleFigure();
                 createSelectedHandleFigure();
                 m_state = SELECTED;
@@ -163,7 +167,7 @@ namespace TrenchBroom {
             assert(m_state == SELECTED);
 
             m_brush = &hit->brush();
-            m_index = hit->index;
+            m_index = index(*hit);
             initialPoint = hit->hitPoint;
             
             deleteHandleFigure();

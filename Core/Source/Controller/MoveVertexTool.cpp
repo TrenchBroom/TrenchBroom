@@ -30,8 +30,18 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        Model::EHitType MoveVertexTool::hitType() {
-            return Model::TB_HT_VERTEX_HANDLE;
+        int MoveVertexTool::hitType() {
+            return Model::TB_HT_VERTEX_HANDLE | Model::TB_HT_EDGE_HANDLE | Model::TB_HT_FACE_HANDLE;
+        }
+        
+        int MoveVertexTool::index(Model::Hit& hit) {
+            if (hit.type == Model::TB_HT_VERTEX_HANDLE)
+                return hit.index;
+
+            Model::Brush& brush = hit.brush();
+            if (hit.type == Model::TB_HT_EDGE_HANDLE)
+                return brush.geometry->vertices.size() + hit.index;
+            return brush.geometry->vertices.size() + brush.geometry->edges.size() + hit.index;
         }
         
         std::string MoveVertexTool::undoName() {
