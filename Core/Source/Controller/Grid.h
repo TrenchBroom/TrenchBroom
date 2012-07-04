@@ -42,6 +42,11 @@ namespace TrenchBroom {
             unsigned int size() const;
             void setSize(unsigned int size);
             unsigned int actualSize() const;
+            float angle() const {
+                if (m_snap)
+                    return 15.0f;
+                return 1.0f;
+            }
 
             void toggleVisible();
             bool visible() const;
@@ -58,8 +63,8 @@ namespace TrenchBroom {
             
             float intersectWithRay(const Ray& ray, unsigned int skip);
 
-            Vec3f moveDelta(const BBox& bounds, const BBox& worldBounds, const Vec3f& referencePoint, const Vec3f& curMousePoint);
-            Vec3f moveDelta(const Vec3f& point, const BBox& worldBounds, const Vec3f& referencePoint, const Vec3f& curMousePoint);
+            Vec3f moveDelta(const BBox& bounds, const BBox& worldBounds, const Vec3f& delta);
+            Vec3f moveDelta(const Vec3f& point, const BBox& worldBounds, const Vec3f& delta);
             float moveDistance(const Model::Face& face, Vec3f& delta);
             
             GridEvent gridDidChange;

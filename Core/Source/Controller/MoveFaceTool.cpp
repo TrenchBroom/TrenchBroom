@@ -26,6 +26,7 @@
 #include "Model/Preferences.h"
 #include "Model/Selection.h"
 #include "Renderer/Figures/HandleFigure.h"
+#include "Renderer/Figures/PointGuideFigure.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -65,35 +66,32 @@ namespace TrenchBroom {
             return m_editor.map().moveFace(brush, index, delta);
         }
         
-        void MoveFaceTool::updateHandleFigure() {
-            if (m_handleFigure != NULL) {
-                Vec3fList positions;
-                
-                Model::Map& map = m_editor.map();
-                Model::Selection& selection = map.selection();
-                const Model::BrushList& brushes = selection.brushes();
-                
-                for (unsigned int i = 0; i < brushes.size(); i++) {
-                    Model::Brush* brush = brushes[i];
-                    for (unsigned int j = 0; j < brush->faces.size(); j++)
-                        positions.push_back(brush->faces[j]->center());
-                }
-                
-                m_handleFigure->setPositions(positions);
+        void MoveFaceTool::updateHandleFigure(Renderer::HandleFigure& handleFigure) {
+            Vec3fList positions;
+            
+            Model::Map& map = m_editor.map();
+            Model::Selection& selection = map.selection();
+            const Model::BrushList& brushes = selection.brushes();
+            
+            for (unsigned int i = 0; i < brushes.size(); i++) {
+                Model::Brush* brush = brushes[i];
+                for (unsigned int j = 0; j < brush->faces.size(); j++)
+                    positions.push_back(brush->faces[j]->center());
             }
+            
+            handleFigure.setPositions(positions);
         }
         
-        void MoveFaceTool::updateSelectedHandleFigure(const Model::Brush& brush, int index) {
-            if (m_selectedHandleFigure) {
-                Vec3fList positions;
-                
-                if (index >= 0) {
-                    Model::Face* face = brush.faces[index];
-                    positions.push_back(face->center());
-                }
-                
-                m_selectedHandleFigure->setPositions(positions);
+        void MoveFaceTool::updateSelectedHandleFigures(Renderer::HandleFigure& handleFigure, Renderer::PointGuideFigure& guideFigure, const Model::Brush& brush, int index) {
+            Vec3fList positions;
+            
+            if (index >= 0) {
+                Model::Face* face = brush.faces[index];
+                positions.push_back(face->center());
             }
+            
+            handleFigure.setPositions(positions);
+            guideFigure.setPosition(positions.front());
         }
     }
 }

@@ -443,10 +443,13 @@ namespace TrenchBroom {
             m_undoManager->end();
         }
 
-        void Map::rotateObjects90(EAxis axis, const Vec3f& center, bool clockwise, bool lockTextures) {
+        void Map::rotateObjects90(EAxis axis, const Vec3f center, bool clockwise, bool lockTextures) {
             const EntityList& entities = m_selection->entities();
             const BrushList& brushes = m_selection->brushes();
 
+            m_undoManager->begin("Rotate Objects");
+            m_undoManager->addFunctor<EAxis, const Vec3f, bool, bool>(*this, &Map::rotateObjects90, axis, center, !clockwise, lockTextures);
+            
             if (!entities.empty()) {
                 if (m_postNotifications) propertiesWillChange(entities);
                 for (unsigned int i = 0; i < entities.size(); i++)
@@ -460,6 +463,8 @@ namespace TrenchBroom {
                     brushes[i]->rotate90(axis, center, clockwise, lockTextures);
                 if (m_postNotifications) brushesDidChange(brushes);
             }
+            
+            m_undoManager->end();
         }
 
         void Map::rotateObjects(const Quat& rotation, const Vec3f& center, bool lockTextures) {
@@ -481,10 +486,13 @@ namespace TrenchBroom {
             }
         }
 
-        void Map::flipObjects(EAxis axis, const Vec3f& center, bool lockTextures) {
+        void Map::flipObjects(EAxis axis, const Vec3f center, bool lockTextures) {
             const EntityList& entities = m_selection->entities();
             const BrushList& brushes = m_selection->brushes();
 
+            m_undoManager->begin("Flip Objects");
+            m_undoManager->addFunctor<EAxis, const Vec3f, bool>(*this, &Map::flipObjects, axis, center, lockTextures);
+            
             if (!entities.empty()) {
                 if (m_postNotifications) propertiesWillChange(entities);
                 for (unsigned int i = 0; i < entities.size(); i++)
@@ -498,6 +506,8 @@ namespace TrenchBroom {
                     brushes[i]->flip(axis, center, lockTextures);
                 if (m_postNotifications) brushesDidChange(brushes);
             }
+            
+            m_undoManager->end();
         }
 
         void Map::deleteObjects() {

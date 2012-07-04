@@ -465,8 +465,7 @@ const Vec3f Vec3f::flip(EAxis axis) const {
 
 const Vec3f Vec3f::flip(EAxis axis, const Vec3f& center) const {
     Vec3f result = *this - center;
-    result.flip(axis);
-    return result += center;
+    return result.flip(axis) + center;
 }
 
 bool Vec4f::operator== (const Vec4f& right) const {

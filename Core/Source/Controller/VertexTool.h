@@ -35,6 +35,7 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class HandleFigure;
+        class PointGuideFigure;
     }
     
     namespace Controller {
@@ -51,6 +52,7 @@ namespace TrenchBroom {
             
             Renderer::HandleFigure* m_handleFigure;
             Renderer::HandleFigure* m_selectedHandleFigure;
+            Renderer::PointGuideFigure* m_guideFigure;
             
             EState m_state;
             
@@ -71,11 +73,11 @@ namespace TrenchBroom {
             virtual void selectionChanged(const Model::SelectionEventData& event);
 
             virtual void createHandleFigure();
-            virtual void updateHandleFigure() = 0;
+            virtual void updateHandleFigure(Renderer::HandleFigure& figure) = 0;
             virtual void deleteHandleFigure();
-            virtual void createSelectedHandleFigure();
-            virtual void updateSelectedHandleFigure(const Model::Brush& brush, int index) = 0;
-            virtual void deleteSelectedHandleFigure();
+            virtual void createSelectedHandleFigures();
+            virtual void updateSelectedHandleFigures(Renderer::HandleFigure& handleFigure, Renderer::PointGuideFigure& guideFigure, const Model::Brush& brush, int index) = 0;
+            virtual void deleteSelectedHandleFigures();
         public:
             VertexTool(Controller::Editor& editor);
             virtual ~VertexTool();

@@ -26,6 +26,7 @@
 #include "Model/Preferences.h"
 #include "Model/Selection.h"
 #include "Renderer/Figures/HandleFigure.h"
+#include "Renderer/Figures/PointGuideFigure.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -65,36 +66,33 @@ namespace TrenchBroom {
             return m_editor.map().moveEdge(brush, index, delta);
         }
         
-        void MoveEdgeTool::updateHandleFigure() {
-            if (m_handleFigure != NULL) {
-                Vec3fList positions;
-                
-                Model::Map& map = m_editor.map();
-                Model::Selection& selection = map.selection();
-                const Model::BrushList& brushes = selection.brushes();
-                
-                for (unsigned int i = 0; i < brushes.size(); i++) {
-                    Model::Brush* brush = brushes[i];
-                    const Model::EdgeList& edges = brush->geometry->edges;
-                    for (unsigned int j = 0; j < edges.size(); j++)
-                        positions.push_back(edges[j]->center());
-                }
-                
-                m_handleFigure->setPositions(positions);
+        void MoveEdgeTool::updateHandleFigure(Renderer::HandleFigure& handleFigure) {
+            Vec3fList positions;
+            
+            Model::Map& map = m_editor.map();
+            Model::Selection& selection = map.selection();
+            const Model::BrushList& brushes = selection.brushes();
+            
+            for (unsigned int i = 0; i < brushes.size(); i++) {
+                Model::Brush* brush = brushes[i];
+                const Model::EdgeList& edges = brush->geometry->edges;
+                for (unsigned int j = 0; j < edges.size(); j++)
+                    positions.push_back(edges[j]->center());
             }
+            
+            handleFigure.setPositions(positions);
         }
         
-        void MoveEdgeTool::updateSelectedHandleFigure(const Model::Brush& brush, int index) {
-            if (m_selectedHandleFigure) {
-                Vec3fList positions;
-                
-                if (index >= 0) {
-                    Model::Edge* edge = brush.geometry->edges[index];
-                    positions.push_back(edge->center());
-                }
-                
-                m_selectedHandleFigure->setPositions(positions);
+        void MoveEdgeTool::updateSelectedHandleFigures(Renderer::HandleFigure& handleFigure, Renderer::PointGuideFigure& guideFigure, const Model::Brush& brush, int index) {
+            Vec3fList positions;
+            
+            if (index >= 0) {
+                Model::Edge* edge = brush.geometry->edges[index];
+                positions.push_back(edge->center());
             }
+            
+            handleFigure.setPositions(positions);
+            guideFigure.setPosition(positions.front());
         }
     }
 }

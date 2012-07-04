@@ -116,9 +116,9 @@ namespace TrenchBroom {
             
             void duplicateObjects(EntityList& newEntities, BrushList& newBrushes);
             void translateObjects(const Vec3f delta, bool lockTextures);
-            void rotateObjects90(EAxis axis, const Vec3f& center, bool clockwise, bool lockTextures);
+            void rotateObjects90(EAxis axis, const Vec3f center, bool clockwise, bool lockTextures);
             void rotateObjects(const Quat& rotation, const Vec3f& center, bool lockTextures);
-            void flipObjects(EAxis axis, const Vec3f& center, bool lockTextures);
+            void flipObjects(EAxis axis, const Vec3f center, bool lockTextures);
             void deleteObjects();
             void restoreObjects(EntityList removedEntities, BrushParentMap removedBrushes, BrushParentMap movedBrushes);
             

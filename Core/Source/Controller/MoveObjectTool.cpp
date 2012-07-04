@@ -72,7 +72,7 @@ namespace TrenchBroom {
             Model::Map& map = m_editor.map();
             Model::Selection& selection = map.selection();
             
-            Vec3f delta = grid.moveDelta(selection.bounds(), map.worldBounds(), referencePoint, curMousePoint);
+            Vec3f delta = grid.moveDelta(selection.bounds(), map.worldBounds(), curMousePoint - referencePoint);
             if (delta.null())
                 return true;
             

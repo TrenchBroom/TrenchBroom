@@ -94,6 +94,24 @@ namespace TrenchBroom {
             }
         };
         
+        template <class Target, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
+        class FourArgFunctor : public Functor {
+        public:
+            typedef void (Target::*Func)(Arg1, Arg2, Arg3, Arg4);
+        private:
+            Target* m_target;
+            Func m_function;
+            Arg1 m_arg1;
+            Arg2 m_arg2;
+            Arg3 m_arg3;
+            Arg4 m_arg4;
+        public:
+            FourArgFunctor(Target* target, Func function, Arg1 arg1, Arg2 arg2, Arg3 arg3, Arg4 arg4) : m_target(target), m_function(function), m_arg1(arg1), m_arg2(arg2), m_arg3(arg3), m_arg4(arg4) {}
+            void operator()() {
+                (m_target->*m_function)(m_arg1, m_arg2, m_arg3, m_arg4);
+            }
+        };
+        
         class FunctorUndoItem : public SelectionUndoItem {
         protected:
             Functor* m_functor;

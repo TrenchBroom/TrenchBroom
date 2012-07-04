@@ -141,38 +141,40 @@ namespace TrenchBroom {
             return dist;
         }
 
-        Vec3f Grid::moveDelta(const BBox& bounds, const BBox& worldBounds, const Vec3f& referencePoint, const Vec3f& curMousePoint) {
-            Vec3f delta = curMousePoint - referencePoint;
+        Vec3f Grid::moveDelta(const BBox& bounds, const BBox& worldBounds, const Vec3f& delta) {
+            Vec3f actualDelta = Vec3f::Null;
             for (int i = 0; i < 3; i++) {
-                float low  = snap(bounds.min[i] + delta[i]) - bounds.min[i];
-                float high = snap(bounds.max[i] + delta[i]) - bounds.max[i];
-                
-                if (low != 0 && high != 0)
-                    delta[i] = fabsf(high) < fabsf(low) ? high : low;
-                else if (low != 0)
-                    delta[i] = low;
-                else if (high != 0)
-                    delta[i] = high;
-                else
-                    delta[i] = 0;
-                
+                if (!Math::fzero(delta[i])) {
+                    float low  = snap(bounds.min[i] + delta[i]) - bounds.min[i];
+                    float high = snap(bounds.max[i] + delta[i]) - bounds.max[i];
+                    
+                    if (low != 0 && high != 0)
+                        actualDelta[i] = fabsf(high) < fabsf(low) ? high : low;
+                    else if (low != 0)
+                        actualDelta[i] = low;
+                    else if (high != 0)
+                        actualDelta[i] = high;
+                    else
+                        actualDelta[i] = 0;
+                }
             }
             
-            if ((curMousePoint - referencePoint).lengthSquared() < (curMousePoint - (referencePoint + delta)).lengthSquared())
-                delta = Vec3f::Null;
+            if (delta.lengthSquared() < (delta - actualDelta).lengthSquared())
+                actualDelta = Vec3f::Null;
             
-            return delta;
+            return actualDelta;
         }
         
-        Vec3f Grid::moveDelta(const Vec3f& point, const BBox& worldBounds, const Vec3f& referencePoint, const Vec3f& curMousePoint) {
-            Vec3f delta = curMousePoint - referencePoint;
+        Vec3f Grid::moveDelta(const Vec3f& point, const BBox& worldBounds, const Vec3f& delta) {
+            Vec3f actualDelta = Vec3f::Null;
             for (int i = 0; i < 3; i++)
-                delta[i] = snap(point[i] + delta[i]) - point[i];
+                if (!Math::fzero(delta[i]))
+                    actualDelta[i] = snap(point[i] + delta[i]) - point[i];
             
-            if ((curMousePoint - referencePoint).lengthSquared() < (curMousePoint - (referencePoint + delta)).lengthSquared())
-                delta = Vec3f::Null;
+            if (delta.lengthSquared() < (delta - actualDelta).lengthSquared())
+                actualDelta = Vec3f::Null;
             
-            return delta;
+            return actualDelta;
         }
 
         float Grid::moveDistance(const Model::Face& face, Vec3f& delta) {

@@ -101,6 +101,13 @@ namespace TrenchBroom {
                 addItem(undoItem);
             }
             
+            template <typename Arg1, typename Arg2, typename Arg3, typename Arg4>
+            void addFunctor(Map& map, void(Map::*function)(Arg1, Arg2, Arg3, Arg4), Arg1 arg1, Arg2 arg2, Arg3 arg3, Arg4 arg4) {
+                FourArgFunctor<Map, Arg1, Arg2, Arg3, Arg4>* functor = new FourArgFunctor<Map, Arg1, Arg2, Arg3, Arg4>(&map, function, arg1, arg2, arg3, arg4);
+                FunctorUndoItem* undoItem = new FunctorUndoItem(map, functor);
+                addItem(undoItem);
+            }
+            
             bool undoStackEmpty();
             bool redoStackEmpty();
             const std::string& topUndoName();

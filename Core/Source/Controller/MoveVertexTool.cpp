@@ -27,6 +27,7 @@
 #include "Model/Preferences.h"
 #include "Model/Selection.h"
 #include "Renderer/Figures/HandleFigure.h"
+#include "Renderer/Figures/PointGuideFigure.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -88,54 +89,51 @@ namespace TrenchBroom {
             return m_editor.map().moveVertex(brush, index, delta);
         }
 
-        void MoveVertexTool::updateHandleFigure() {
-            if (m_handleFigure != NULL) {
-                Vec3fList positions;
+        void MoveVertexTool::updateHandleFigure(Renderer::HandleFigure& handleFigure) {
+            Vec3fList positions;
+            
+            Model::Map& map = m_editor.map();
+            Model::Selection& selection = map.selection();
+            const Model::BrushList& brushes = selection.brushes();
+            
+            for (unsigned int i = 0; i < brushes.size(); i++) {
+                Model::Brush* brush = brushes[i];
+                const Model::VertexList& vertices = brush->geometry->vertices;
+                for (unsigned int j = 0; j < vertices.size(); j++)
+                    positions.push_back(vertices[j]->position);
                 
-                Model::Map& map = m_editor.map();
-                Model::Selection& selection = map.selection();
-                const Model::BrushList& brushes = selection.brushes();
+                const Model::EdgeList& edges = brush->geometry->edges;
+                for (unsigned int j = 0; j < edges.size(); j++)
+                    positions.push_back(edges[j]->center());
                 
-                for (unsigned int i = 0; i < brushes.size(); i++) {
-                    Model::Brush* brush = brushes[i];
-                    const Model::VertexList& vertices = brush->geometry->vertices;
-                    for (unsigned int j = 0; j < vertices.size(); j++)
-                        positions.push_back(vertices[j]->position);
-                    
-                    const Model::EdgeList& edges = brush->geometry->edges;
-                    for (unsigned int j = 0; j < edges.size(); j++)
-                        positions.push_back(edges[j]->center());
-                    
-                    for (unsigned int j = 0; j < brush->faces.size(); j++)
-                        positions.push_back(brush->faces[j]->center());
-                }
-                
-                m_handleFigure->setPositions(positions);
+                for (unsigned int j = 0; j < brush->faces.size(); j++)
+                    positions.push_back(brush->faces[j]->center());
             }
+            
+            handleFigure.setPositions(positions);
         }
 
-        void MoveVertexTool::updateSelectedHandleFigure(const Model::Brush& brush, int index) {
-            if (m_selectedHandleFigure) {
-                Vec3fList positions;
+        void MoveVertexTool::updateSelectedHandleFigures(Renderer::HandleFigure& handleFigure, Renderer::PointGuideFigure& guideFigure, const Model::Brush& brush, int index) {
+            Vec3fList positions;
+            
+            if (index >= 0) {
+                int vertexCount = static_cast<int>(brush.geometry->vertices.size());
+                int edgeCount = static_cast<int>(brush.geometry->edges.size());
+                int faceCount = static_cast<int>(brush.faces.size());
                 
-                if (index >= 0) {
-                    int vertexCount = static_cast<int>(brush.geometry->vertices.size());
-                    int edgeCount = static_cast<int>(brush.geometry->edges.size());
-                    int faceCount = static_cast<int>(brush.faces.size());
-                    
-                    if (index < vertexCount) {
-                        positions.push_back(brush.geometry->vertices[index]->position);
-                    } else if (index < vertexCount + edgeCount) {
-                        Model::Edge* edge = brush.geometry->edges[index - vertexCount];
-                        positions.push_back(edge->center());
-                    } else if (index < vertexCount + edgeCount + faceCount) {
-                        Model::Face* face = brush.faces[index - vertexCount - edgeCount];
-                        positions.push_back(face->center());
-                    }
+                if (index < vertexCount) {
+                    positions.push_back(brush.geometry->vertices[index]->position);
+                } else if (index < vertexCount + edgeCount) {
+                    Model::Edge* edge = brush.geometry->edges[index - vertexCount];
+                    positions.push_back(edge->center());
+                } else if (index < vertexCount + edgeCount + faceCount) {
+                    Model::Face* face = brush.faces[index - vertexCount - edgeCount];
+                    positions.push_back(face->center());
                 }
-                
-                m_selectedHandleFigure->setPositions(positions);
             }
+            
+            handleFigure.setPositions(positions);
+            guideFigure.setPosition(positions.front());
         }
     }
 }

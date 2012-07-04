@@ -26,6 +26,7 @@
 #include "Model/Selection.h"
 #include "Model/Undo/UndoManager.h"
 #include "Renderer/Figures/HandleFigure.h"
+#include "Renderer/Figures/PointGuideFigure.h"
 
 #include <cassert>
 
@@ -36,20 +37,25 @@ namespace TrenchBroom {
         }
 
         void VertexTool::brushesDidChange(const Model::BrushList& brushes) {
+            assert(m_state != INACTIVE);
+            
             for (unsigned int i = 0; i < brushes.size(); i++)
                 if (brushes[i]->selected) {
-                    updateHandleFigure();
-                    if (m_brush != NULL && m_index >= 0)
-                        updateSelectedHandleFigure(*m_brush, m_index);
+                    if (m_state == ACTIVE)
+                        updateHandleFigure(*m_handleFigure);
+                    if (m_state == SELECTED || m_state == DRAGGING)
+                        updateSelectedHandleFigures(*m_selectedHandleFigure, *m_guideFigure, *m_brush, m_index);
                     break;
                 }
         }
         
         void VertexTool::selectionChanged(const Model::SelectionEventData& event) {
-            assert(m_handleFigure != NULL);
-            updateHandleFigure();
-            if (m_brush != NULL && m_index >= 0)
-                updateSelectedHandleFigure(*m_brush, m_index);
+            assert(m_state != INACTIVE);
+            
+            if (m_state == ACTIVE)
+                updateHandleFigure(*m_handleFigure);
+            if (m_state == SELECTED || m_state == DRAGGING)
+                updateSelectedHandleFigures(*m_selectedHandleFigure, *m_guideFigure, *m_brush, m_index);
         }
 
         void VertexTool::createHandleFigure() {
@@ -58,7 +64,7 @@ namespace TrenchBroom {
             m_handleFigure = new Renderer::HandleFigure();
             m_handleFigure->setColor(handleColor());
             m_handleFigure->setHiddenColor(hiddenHandleColor());
-            updateHandleFigure();
+            updateHandleFigure(*m_handleFigure);
             addFigure(*m_handleFigure);
         }
         
@@ -70,23 +76,36 @@ namespace TrenchBroom {
             }
         }
         
-        void VertexTool::createSelectedHandleFigure() {
+        void VertexTool::createSelectedHandleFigures() {
             assert(m_brush != NULL);
             assert(m_index >= 0);
             
-            deleteSelectedHandleFigure();
+            deleteSelectedHandleFigures();
+
             m_selectedHandleFigure = new Renderer::HandleFigure();
             m_selectedHandleFigure->setColor(selectedHandleColor());
             m_selectedHandleFigure->setHiddenColor(hiddenSelectedHandleColor());
-            updateSelectedHandleFigure(*m_brush, m_index);
+
+            m_guideFigure = new Renderer::PointGuideFigure();
+            m_guideFigure->setColor(selectedHandleColor());
+            m_guideFigure->setHiddenColor(hiddenSelectedHandleColor());
+
+            updateSelectedHandleFigures(*m_selectedHandleFigure, *m_guideFigure, *m_brush, m_index);
             addFigure(*m_selectedHandleFigure);
+            addFigure(*m_guideFigure);
         }
         
-        void VertexTool::deleteSelectedHandleFigure() {
+        void VertexTool::deleteSelectedHandleFigures() {
             if (m_selectedHandleFigure != NULL) {
                 removeFigure(*m_selectedHandleFigure);
                 delete m_selectedHandleFigure;
                 m_selectedHandleFigure = NULL;
+            }
+            
+            if (m_guideFigure != NULL) {
+                removeFigure(*m_guideFigure);
+                delete m_guideFigure;
+                m_guideFigure = NULL;
             }
         }
         
@@ -94,7 +113,7 @@ namespace TrenchBroom {
         }
         
         VertexTool::~VertexTool() {
-            deleteSelectedHandleFigure();
+            deleteSelectedHandleFigures();
             deleteHandleFigure();
         }
 
@@ -136,7 +155,7 @@ namespace TrenchBroom {
                 m_brush = &hit->brush();
                 m_index = index(*hit);
                 deleteHandleFigure();
-                createSelectedHandleFigure();
+                createSelectedHandleFigures();
                 m_state = SELECTED;
                 return true;
             }
@@ -148,7 +167,7 @@ namespace TrenchBroom {
             assert(m_state == ACTIVE || m_state == SELECTED);
             
             if (m_state == SELECTED) {
-                deleteSelectedHandleFigure();
+                deleteSelectedHandleFigures();
                 createHandleFigure();
                 m_brush = NULL;
                 m_index = -1;
@@ -171,7 +190,7 @@ namespace TrenchBroom {
             initialPoint = hit->hitPoint;
             
             deleteHandleFigure();
-            createSelectedHandleFigure();
+            createSelectedHandleFigures();
             
             m_editor.map().undoManager().begin(undoName());
             
@@ -186,7 +205,7 @@ namespace TrenchBroom {
             
             Grid& grid = m_editor.grid();
             Vec3f position = movePosition(*m_brush, m_index);
-            Vec3f delta = grid.moveDelta(position, m_editor.map().worldBounds(), referencePoint, curMousePoint);
+            Vec3f delta = grid.moveDelta(position, m_editor.map().worldBounds(), curMousePoint - referencePoint);
             
             if (delta.null())
                 return true;
@@ -198,7 +217,7 @@ namespace TrenchBroom {
             else if (result.moved)
                 referencePoint += delta;
             
-            updateSelectedHandleFigure(*m_brush, m_index);
+            updateSelectedHandleFigures(*m_selectedHandleFigure, *m_guideFigure, *m_brush, m_index);
             return true;
         }
         
@@ -210,7 +229,7 @@ namespace TrenchBroom {
             m_brush = NULL;
             m_index = -1;
             
-            deleteSelectedHandleFigure();
+            deleteSelectedHandleFigures();
             createHandleFigure();
             
             m_state = ACTIVE;

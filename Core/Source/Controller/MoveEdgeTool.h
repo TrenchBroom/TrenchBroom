@@ -35,8 +35,8 @@ namespace TrenchBroom {
             virtual const Vec4f& hiddenSelectedHandleColor();
             virtual Model::MoveResult performMove(Model::Brush& brush, int index, const Vec3f& delta);
             
-            virtual void updateHandleFigure();
-            virtual void updateSelectedHandleFigure(const Model::Brush& brush, int index);
+            virtual void updateHandleFigure(Renderer::HandleFigure& handleFigure);
+            virtual void updateSelectedHandleFigures(Renderer::HandleFigure& handleFigure, Renderer::PointGuideFigure& guideFigure, const Model::Brush& brush, int index);
         public:
             MoveEdgeTool(Controller::Editor& editor) : VertexTool(editor) {}
             virtual ~MoveEdgeTool() {}

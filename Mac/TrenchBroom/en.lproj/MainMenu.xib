@@ -1757,6 +1757,182 @@
 					<int key="connectionID">671</int>
 				</object>
 				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveObjectsLeft:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="812660751"/>
+					</object>
+					<int key="connectionID">672</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveObjectsLeft:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="987500246"/>
+					</object>
+					<int key="connectionID">673</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveObjectsRight:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="600024034"/>
+					</object>
+					<int key="connectionID">674</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveObjectsRight:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="510487738"/>
+					</object>
+					<int key="connectionID">675</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveObjectsAway:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="922875989"/>
+					</object>
+					<int key="connectionID">676</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveObjectsAway:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="180344783"/>
+					</object>
+					<int key="connectionID">677</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveObjectsToward:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="1045007636"/>
+					</object>
+					<int key="connectionID">678</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveObjectsToward:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="879536492"/>
+					</object>
+					<int key="connectionID">679</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveObjectsUp:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="74600499"/>
+					</object>
+					<int key="connectionID">680</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveObjectsUp:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="650843909"/>
+					</object>
+					<int key="connectionID">681</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveObjectsDown:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="250479849"/>
+					</object>
+					<int key="connectionID">682</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveObjectsDown:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="440277066"/>
+					</object>
+					<int key="connectionID">683</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">rollObjectsCW:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="301976493"/>
+					</object>
+					<int key="connectionID">684</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">rollObjectsCCW:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="949274662"/>
+					</object>
+					<int key="connectionID">685</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">pitchObjectsCW:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="528114143"/>
+					</object>
+					<int key="connectionID">686</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">pitchObjectsCCW:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="880088076"/>
+					</object>
+					<int key="connectionID">687</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">yawObjectsCW:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="799827886"/>
+					</object>
+					<int key="connectionID">688</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">yawObjectsCCW:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="779879962"/>
+					</object>
+					<int key="connectionID">689</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">flipObjectsHorizontally:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="961198523"/>
+					</object>
+					<int key="connectionID">690</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">flipObjectsVertically:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="1054080396"/>
+					</object>
+					<int key="connectionID">691</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">duplicateObjects:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="336540210"/>
+					</object>
+					<int key="connectionID">692</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">enlargeBrushes:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="1005212911"/>
+					</object>
+					<int key="connectionID">693</int>
+				</object>
+				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">delegate</string>
 						<reference key="source" ref="789758025"/>
@@ -2892,7 +3068,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">671</int>
+			<int key="maxID">693</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
