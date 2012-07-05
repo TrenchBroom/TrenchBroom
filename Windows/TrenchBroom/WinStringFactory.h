@@ -37,7 +37,7 @@ namespace TrenchBroom {
 		public:
 			WinStringFactory(HDC mainDC);
 			~WinStringFactory();
-			StringData* createStringData(const FontDescriptor& descriptor, const string& str);
+			StringData* createStringData(const FontDescriptor& descriptor, const std::string& str);
 		};
 	}
 }

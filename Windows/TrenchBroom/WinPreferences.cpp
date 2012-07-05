@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
 	namespace Model {
-		static string Section = "Preferences";
+		static std::string Section = "Preferences";
 
 			void WinPreferences::loadPlatformDefaults() {
 				m_cameraKey = Controller::TB_MK_SHIFT;
@@ -35,12 +35,12 @@ namespace TrenchBroom {
 				m_quakePath = "C:\\Program Files\\Quake";
 			}
 
-			bool WinPreferences::loadInt(const string& key, int& value) {
+			bool WinPreferences::loadInt(const std::string& key, int& value) {
 				value = AfxGetApp()->GetProfileIntA(Section.c_str(), key.c_str(), value);
 				return true;
 			}
 
-            bool WinPreferences::loadFloat(const string& key, float& value) {
+            bool WinPreferences::loadFloat(const std::string& key, float& value) {
 				std::stringstream sstrValue;
 				sstrValue << value;
 				std::string strValue = sstrValue.str();
@@ -49,44 +49,44 @@ namespace TrenchBroom {
 				return true;
 			}
 
-            bool WinPreferences::loadBool(const string& key, bool& value) {
+            bool WinPreferences::loadBool(const std::string& key, bool& value) {
 				int intVal = value ? 1 : 0;
 				loadInt(key, intVal);
 				value = intVal != 0;
 				return true;
 			}
 
-            bool WinPreferences::loadString(const string& key, string& value) {
+            bool WinPreferences::loadString(const std::string& key, std::string& value) {
 				value = AfxGetApp()->GetProfileStringA(Section.c_str(), key.c_str(), value.c_str());
 				return true;
 			}
 
-            bool WinPreferences::loadVec4f(const string& key, Vec4f& value) {
+            bool WinPreferences::loadVec4f(const std::string& key, Vec4f& value) {
 				std::string strValue = value.asString();
 				loadString(key, strValue);
 				value = Vec4f(strValue);
 				return true;
 			}
 
-			void WinPreferences::saveInt(const string& key, int value) {
+			void WinPreferences::saveInt(const std::string& key, int value) {
 				AfxGetApp()->WriteProfileInt(Section.c_str(), key.c_str(), value);
 			}
 
-			void WinPreferences::saveBool(const string& key, bool value) {
+			void WinPreferences::saveBool(const std::string& key, bool value) {
 				saveInt(key, value ? 1 : 0);
 			}
 
-			void WinPreferences::saveFloat(const string& key, float value) {
+			void WinPreferences::saveFloat(const std::string& key, float value) {
 				std::stringstream strValue;
 				strValue << value;
 				saveString(key, strValue.str());
 			}
 
-			void WinPreferences::saveString(const string& key, const string& value) {
+			void WinPreferences::saveString(const std::string& key, const std::string& value) {
 				AfxGetApp()->WriteProfileStringA(Section.c_str(), key.c_str(), value.c_str());
 			}
 			
-			void WinPreferences::saveVec4f(const string& key, const Vec4f& value) {
+			void WinPreferences::saveVec4f(const std::string& key, const Vec4f& value) {
 				saveString(key, value.asString());
 			}
 

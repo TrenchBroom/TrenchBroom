@@ -66,7 +66,7 @@ namespace TrenchBroom {
 			DeleteDC(m_dc);
 		}
 
-		StringData* WinStringFactory::createStringData(const FontDescriptor& descriptor, const string& str) {
+		StringData* WinStringFactory::createStringData(const FontDescriptor& descriptor, const std::string& str) {
 			if (m_gluTess == NULL) {
                 m_gluTess = gluNewTess();
                 gluTessProperty(m_gluTess, GLU_TESS_BOUNDARY_ONLY, GL_FALSE);
