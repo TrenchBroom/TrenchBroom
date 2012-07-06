@@ -28,19 +28,4 @@
 #include <tr1/memory>
 #endif
 
-using std::tr1::shared_ptr;
-using std::tr1::weak_ptr;
-
-class {
-public:
-    template<typename T>
-    operator shared_ptr<T>() { return shared_ptr<T>(); }
-} StrongNull;
-
-class {
-public:
-    template<typename T>
-    operator weak_ptr<T>() { return weak_ptr<T>(); }
-} WeakNull;
-
 #endif

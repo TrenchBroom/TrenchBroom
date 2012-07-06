@@ -193,9 +193,6 @@
     <ClInclude Include="..\..\Core\Source\GUI\MapRendererControl.h">
       <Filter>Header\Core\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Core\Source\GUI\Splitter.h">
-      <Filter>Header\Core\GUI</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Core\Source\GUI\EditorGui.h">
       <Filter>Header\Core\GUI</Filter>
     </ClInclude>
@@ -604,9 +601,6 @@
     <ClInclude Include="..\..\Core\Source\Renderer\ChangeSet.h">
       <Filter>Header\Core\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Core\Source\Renderer\RenderContext.h">
-      <Filter>Header\Core\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Core\Source\Controller\DragPlane.h">
       <Filter>Header\Core\Controller</Filter>
     </ClInclude>
@@ -626,9 +620,6 @@
       <Filter>Header\Core\Model\Undo</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Core\Source\Renderer\Figures\Figure.h">
-      <Filter>Header\Core\Renderer\Figures</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Core\Source\Renderer\Figures\PositioningGuideFigure.h">
       <Filter>Header\Core\Renderer\Figures</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Core\Source\Model\Undo\SnapshotUndoItem.h">
@@ -654,6 +645,69 @@
     </ClInclude>
     <ClInclude Include="WinStringFactory.h">
       <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="WinFileManager.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\RenderContext.h">
+      <Filter>Header\Core\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\Figures\BoundsGuideFigure.h">
+      <Filter>Header\Core\Renderer\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\Figures\BrushFigure.h">
+      <Filter>Header\Core\Renderer\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\Figures\EntityFigure.h">
+      <Filter>Header\Core\Renderer\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\Figures\HandleFigure.h">
+      <Filter>Header\Core\Renderer\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\Figures\PointGuideFigure.h">
+      <Filter>Header\Core\Renderer\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Controller\CreateBrushTool.h">
+      <Filter>Header\Core\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Controller\DragEntityTargetTool.h">
+      <Filter>Header\Core\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Controller\DragTargetTool.h">
+      <Filter>Header\Core\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Controller\DragTextureTargetTool.h">
+      <Filter>Header\Core\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Controller\MoveEdgeTool.h">
+      <Filter>Header\Core\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Controller\MoveFaceTool.h">
+      <Filter>Header\Core\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Controller\MoveVertexTool.h">
+      <Filter>Header\Core\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Controller\ResizeBrushTool.h">
+      <Filter>Header\Core\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Controller\VertexTool.h">
+      <Filter>Header\Core\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Gwen\Source\Gwen\Controls\Splitter.h">
+      <Filter>Header\Gwen\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\IO\FileManager.h">
+      <Filter>Header\Core\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\GUI\CellLayoutControl.h">
+      <Filter>Header\Core\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\GUI\EntityBrowserControl.h">
+      <Filter>Header\Core\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\GUI\EntityPropertyTableControl.h">
+      <Filter>Header\Core\GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -697,9 +751,6 @@
       <Filter>Source\Core\GUI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Core\Source\GUI\MapRendererControl.cpp">
-      <Filter>Source\Core\GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Core\Source\GUI\Splitter.cpp">
       <Filter>Source\Core\GUI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Core\Source\IO\EntityDefinitionParser.cpp">
@@ -1014,13 +1065,7 @@
     <ClCompile Include="..\..\Core\Source\Renderer\ChangeSet.cpp">
       <Filter>Source\Core\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Core\Source\Renderer\RenderContext.cpp">
-      <Filter>Source\Core\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Core\Source\Controller\DragTool.cpp">
-      <Filter>Source\Core\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Core\Source\Controller\DragPlane.cpp">
       <Filter>Source\Core\Controller</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Core\Source\Controller\MoveObjectTool.cpp">
@@ -1034,9 +1079,6 @@
     </ClCompile>
     <ClCompile Include="..\..\Core\Source\Model\Undo\UndoManager.cpp">
       <Filter>Source\Core\Model\Undo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Core\Source\Renderer\Figures\PositioningGuideFigure.cpp">
-      <Filter>Source\Core\Renderer\Figures</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Core\Source\Model\Undo\SnapshotUndoItem.cpp">
       <Filter>Source\Core\Model\Undo</Filter>
@@ -1058,6 +1100,63 @@
     </ClCompile>
     <ClCompile Include="WinStringFactory.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WinFileManager.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\Figures\PointGuideFigure.cpp">
+      <Filter>Source\Core\Renderer\Figures</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\Figures\BoundsGuideFigure.cpp">
+      <Filter>Source\Core\Renderer\Figures</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\Figures\BrushFigure.cpp">
+      <Filter>Source\Core\Renderer\Figures</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\Figures\EntityFigure.cpp">
+      <Filter>Source\Core\Renderer\Figures</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\Figures\HandleFigure.cpp">
+      <Filter>Source\Core\Renderer\Figures</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Controller\CreateBrushTool.cpp">
+      <Filter>Source\Core\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Controller\DragEntityTargetTool.cpp">
+      <Filter>Source\Core\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Controller\DragTextureTargetTool.cpp">
+      <Filter>Source\Core\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Controller\MoveEdgeTool.cpp">
+      <Filter>Source\Core\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Controller\MoveFaceTool.cpp">
+      <Filter>Source\Core\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Controller\MoveVertexTool.cpp">
+      <Filter>Source\Core\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Controller\ResizeBrushTool.cpp">
+      <Filter>Source\Core\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Controller\VertexTool.cpp">
+      <Filter>Source\Core\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Gwen\Source\Gwen\Controls\Splitter.cpp">
+      <Filter>Source\Gwen\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\IO\FileManager.cpp">
+      <Filter>Source\Core\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\GUI\EntityBrowserControl.cpp">
+      <Filter>Source\Core\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\GUI\EntityPropertyTableControl.cpp">
+      <Filter>Source\Core\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\EntityRenderer.cpp">
+      <Filter>Source\Core\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

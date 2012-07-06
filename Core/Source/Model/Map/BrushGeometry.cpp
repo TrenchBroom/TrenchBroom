@@ -1131,11 +1131,13 @@ namespace TrenchBroom {
                 return false;
             }
 
-            int vVisits[vertices.size()];
+			std::vector<int> vVisits;
+			vVisits.resize(vertices.size());
             for (unsigned int i = 0; i < vertices.size(); i++)
                 vVisits[i] = 0;
             
-            int eVisits[edges.size()];
+			std::vector<int> eVisits;
+			eVisits.resize(edges.size());
             for (unsigned int i = 0; i < edges.size(); i++)
                 eVisits[i] = 0;
             

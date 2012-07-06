@@ -19,32 +19,24 @@
 
 #pragma once
 
-#include "Controller/ProgressIndicator.h"
-#include "Resource.h"
+#include "IO/FileManager.h"
+#include <string>
 
-// ProgressDialog dialog
+namespace TrenchBroom {
+	namespace IO {
+		class WinFileManager : public FileManager {
+		public:
+			WinFileManager() {}
+			~WinFileManager() {}
+			
+			virtual bool isDirectory(const std::string& path);
+			virtual bool exists(const std::string& path);
+			
+			virtual std::vector<std::string> directoryContents(const std::string& path, std::string extension = "");
 
-
-class ProgressDialog : public CDialogEx, public TrenchBroom::Controller::ProgressIndicator
-{
-	DECLARE_DYNAMIC(ProgressDialog)
-
-public:
-	CStatic m_label;
-	CProgressCtrl m_progressbar;
-
-	ProgressDialog(CWnd* pParent = NULL);   // standard constructor
-	virtual ~ProgressDialog();
-
-	virtual BOOL OnInitDialog();
-	void setText(const std::string& text);
-
-// Dialog Data
-	enum { IDD = IDD_PROGRESSDIALOG };
-
-protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	void doReset();
-	void doUpdate();
-	DECLARE_MESSAGE_MAP()
-};
+			virtual char pathSeparator() {
+				return '\\';
+			}
+		};
+	}
+}

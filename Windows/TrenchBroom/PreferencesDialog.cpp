@@ -82,11 +82,11 @@ void PreferencesDialog::updateControls()
 void PreferencesDialog::updateSliderLabels()
 {
 	std::stringstream brightnessStr;
-	brightnessStr << setiosflags(ios::fixed) << setprecision(2) << brightness();
+	brightnessStr << std::setiosflags(std::ios::fixed) << std::setprecision(2) << brightness();
 	m_brightnessLabel.SetWindowTextA(_T(brightnessStr.str().c_str()));
 
 	std::stringstream fovStr;
-	fovStr << setiosflags(ios::fixed) << setprecision(0) << fov();
+	fovStr << std::setiosflags(std::ios::fixed) << std::setprecision(0) << fov();
 	m_fovLabel.SetWindowTextA(_T(fovStr.str().c_str()));
 }
 

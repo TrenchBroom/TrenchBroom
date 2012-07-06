@@ -244,20 +244,20 @@ bool Gwen::Platform::FileSave( const String& Name, const String& StartPath, cons
 #endif 
 }
 
-String Platform::ResolveFontPath(Gwen::Font* pFont) {
-	String extensions[2] = {".ttf", ".ttc"};
-	String facename = Gwen::Utility::UnicodeToString(pFont->facename);
+Gwen::String Gwen::Platform::ResolveFontPath(Gwen::Font* pFont) {
+	Gwen::String extensions[2] = {".ttf", ".ttc"};
+	Gwen::String facename = Gwen::Utility::UnicodeToString(pFont->facename);
 
 	TCHAR windowsPathC[MAX_PATH];
 	GetWindowsDirectory(windowsPathC, MAX_PATH);
-	String windowsPath(windowsPathC);
+	Gwen::String windowsPath(windowsPathC);
 	if (windowsPath.back() != '\\')
 		windowsPath.push_back('\\');
-	String fontDirectoryPath = windowsPath + "Fonts\\";
-	String fontBasePath = fontDirectoryPath + facename;
+	Gwen::String fontDirectoryPath = windowsPath + "Fonts\\";
+	Gwen::String fontBasePath = fontDirectoryPath + facename;
 
 	for (int i = 0; i < 2; i++) {
-		String fontPath = fontBasePath + extensions[i];
+		Gwen::String fontPath = fontBasePath + extensions[i];
 		std::fstream fs(fontPath.c_str(), std::ios::binary | std::ios::in);
 		if (fs.is_open())
 			return fontPath;
@@ -265,7 +265,7 @@ String Platform::ResolveFontPath(Gwen::Font* pFont) {
     return fontDirectoryPath + "Arial.ttf";
 }
 
-UnicodeString Gwen::Platform::GetDefaultFontFace() {
+Gwen::UnicodeString Gwen::Platform::GetDefaultFontFace() {
     return L"Arial";
 }
 

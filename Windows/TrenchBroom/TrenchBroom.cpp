@@ -35,6 +35,7 @@
 #include "Model/Assets/Bsp.h"
 #include "IO/Pak.h"
 
+#include "WinFileManager.h"
 #include "WinPreferences.h"
 #include "PreferencesDialog.h"
 
@@ -155,12 +156,13 @@ BOOL CTrenchBroomApp::InitInstance()
 	RegisterShellFileTypes(TRUE);
 
 	// Initialize TrenchBroom globals
-    TrenchBroom::Model::Preferences::sharedPreferences = new TrenchBroom::Model::WinPreferences();
-    TrenchBroom::Model::Preferences::sharedPreferences->init();
-    TrenchBroom::Model::EntityDefinitionManager::sharedManagers = new TrenchBroom::Model::EntityDefinitionManagerMap();
-    TrenchBroom::IO::PakManager::sharedManager = new TrenchBroom::IO::PakManager();
-    TrenchBroom::Model::Assets::AliasManager::sharedManager = new TrenchBroom::Model::Assets::AliasManager();
-    TrenchBroom::Model::Assets::BspManager::sharedManager = new TrenchBroom::Model::Assets::BspManager();
+	TrenchBroom::IO::FileManager::sharedFileManager = new TrenchBroom::IO::WinFileManager();
+	TrenchBroom::Model::Preferences::sharedPreferences = new TrenchBroom::Model::WinPreferences();
+	TrenchBroom::Model::Preferences::sharedPreferences->init();
+	TrenchBroom::Model::EntityDefinitionManager::sharedManagers = new TrenchBroom::Model::EntityDefinitionManagerMap();
+	TrenchBroom::IO::PakManager::sharedManager = new TrenchBroom::IO::PakManager();
+	TrenchBroom::Model::Assets::AliasManager::sharedManager = new TrenchBroom::Model::Assets::AliasManager();
+	TrenchBroom::Model::Assets::BspManager::sharedManager = new TrenchBroom::Model::Assets::BspManager();
 
 	// Dispatch commands specified on the command line.  Will return FALSE if
 	// app was launched with /RegServer, /Register, /Unregserver or /Unregister.
@@ -178,16 +180,18 @@ BOOL CTrenchBroomApp::InitInstance()
 }
 
 BOOL CTrenchBroomApp::ExitInstance() {
-    delete TrenchBroom::Model::Assets::BspManager::sharedManager;
-    TrenchBroom::Model::Assets::BspManager::sharedManager = NULL;
-    delete TrenchBroom::Model::Assets::AliasManager::sharedManager;
-    TrenchBroom::Model::Assets::AliasManager::sharedManager = NULL;
-    delete TrenchBroom::IO::PakManager::sharedManager;
-    TrenchBroom::IO::PakManager::sharedManager = NULL;
-    delete TrenchBroom::Model::EntityDefinitionManager::sharedManagers;
-    TrenchBroom::Model::EntityDefinitionManager::sharedManagers = NULL;
-    delete TrenchBroom::Model::Preferences::sharedPreferences;
-    TrenchBroom::Model::Preferences::sharedPreferences = NULL;
+	delete TrenchBroom::Model::Assets::BspManager::sharedManager;
+	TrenchBroom::Model::Assets::BspManager::sharedManager = NULL;
+	delete TrenchBroom::Model::Assets::AliasManager::sharedManager;
+	TrenchBroom::Model::Assets::AliasManager::sharedManager = NULL;
+	delete TrenchBroom::IO::PakManager::sharedManager;
+	TrenchBroom::IO::PakManager::sharedManager = NULL;
+	delete TrenchBroom::Model::EntityDefinitionManager::sharedManagers;
+	TrenchBroom::Model::EntityDefinitionManager::sharedManagers = NULL;
+	delete TrenchBroom::Model::Preferences::sharedPreferences;
+	TrenchBroom::Model::Preferences::sharedPreferences = NULL;
+	delete TrenchBroom::IO::FileManager::sharedFileManager;
+	TrenchBroom::IO::FileManager::sharedFileManager = NULL;
 
 	return  CWinApp::ExitInstance();
 }

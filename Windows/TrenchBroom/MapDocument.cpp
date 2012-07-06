@@ -26,11 +26,13 @@
 
 #include "MapDocument.h"
 #include "ProgressDialog.h"
+
+#include "IO/FileManager.h"
 #include "Model/Map/Map.h"
 #include "Model/Undo/UndoManager.h"
 #include "Utilities/Utils.h"
-#include <cassert>
 
+#include <cassert>
 #include <propkey.h>
 
 #ifdef _DEBUG
@@ -50,33 +52,35 @@ END_MESSAGE_MAP()
 CMapDocument::CMapDocument() : m_editor(NULL)
 {
 	char appPath [MAX_PATH] = "";
+	TrenchBroom::IO::FileManager& fileManager = *TrenchBroom::IO::FileManager::sharedFileManager;
 
 	::GetModuleFileName(0, appPath, sizeof(appPath) - 1);
-	string appDirectory = TrenchBroom::deleteLastPathComponent(appPath);
 
-	string definitionPath	= TrenchBroom::appendPath(appDirectory, "../../Resources/Defs/quake.def");
-	string palettePath		= TrenchBroom::appendPath(appDirectory, "../../Resources/Graphics/QuakePalette.lmp");
+	std::string appDirectory = fileManager.deleteLastPathComponent(appPath);
+
+	std::string definitionPath	= fileManager.appendPath(appDirectory, "../../Resources/Defs/quake.def");
+	std::string palettePath	= fileManager.appendPath(appDirectory, "../../Resources/Graphics/QuakePalette.lmp");
 
 //	string definitionPath	= TrenchBroom::appendPath(appDirectory, "quake.def");
 //	string palettePath		= TrenchBroom::appendPath(appDirectory, "QuakePalette.lmp");
 
-	assert(TrenchBroom::fileExists(definitionPath));
-	assert(TrenchBroom::fileExists(palettePath));
+	assert(fileManager.exists(definitionPath));
+	assert(fileManager.exists(palettePath));
 
 	m_editor = new TrenchBroom::Controller::Editor(definitionPath, palettePath);
 	
 	TrenchBroom::Model::UndoManager& undoManager = m_editor->map().undoManager();
-	undoManager.undoGroupCreated  += new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::undoGroupCreated);
-	undoManager.undoPerformed     += new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::undoPerformed);
-	undoManager.redoPerformed     += new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::redoPerformed);
+	undoManager.undoGroupCreated	+= new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::undoGroupCreated);
+	undoManager.undoPerformed		+= new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::undoPerformed);
+	undoManager.redoPerformed		+= new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::redoPerformed);
 }
 
 CMapDocument::~CMapDocument()
 {
 	TrenchBroom::Model::UndoManager& undoManager = m_editor->map().undoManager();
-	undoManager.undoGroupCreated  -= new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::undoGroupCreated);
-	undoManager.undoPerformed     -= new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::undoPerformed);
-	undoManager.redoPerformed     -= new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::redoPerformed);
+	undoManager.undoGroupCreated	-= new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::undoGroupCreated);
+	undoManager.undoPerformed		-= new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::undoPerformed);
+	undoManager.redoPerformed		-= new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::redoPerformed);
 
 	if (m_editor != NULL)
 		delete m_editor;

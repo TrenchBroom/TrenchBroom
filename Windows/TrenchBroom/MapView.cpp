@@ -28,10 +28,15 @@
 #include "MapDocument.h"
 #include "MapView.h"
 #include "WinStringFactory.h"
+
+#include "Gwen/Controls/Canvas.h"
 #include "GUI/EditorGui.h"
+#include "IO/FileManager.h"
 #include "Renderer/FontManager.h"
 #include "Utilities/Utils.h"
 #include "Utilities/Console.h"
+
+#include <string>
 #include <cassert>
 
 #ifdef _DEBUG
@@ -216,11 +221,11 @@ int CMapView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	char appPath [MAX_PATH] = "";
 
 	::GetModuleFileName(0, appPath, sizeof(appPath) - 1);
-	string appDirectory = TrenchBroom::deleteLastPathComponent(appPath);
-
-	string skinPath	= TrenchBroom::appendPath(appDirectory, "../../Resources/Graphics/DefaultSkin.png");
+	TrenchBroom::IO::FileManager& fileManager = *TrenchBroom::IO::FileManager::sharedFileManager;
+	std::string appDirectory = fileManager.deleteLastPathComponent(appPath);
+	std::string skinPath = fileManager.appendPath(appDirectory, "../../Resources/Graphics/DefaultSkin.png");
 //	string skinPath = TrenchBroom::appendPath(appDirectory, "DefaultSkin.png");
-	assert(TrenchBroom::fileExists(skinPath));
+	assert(fileManager.exists(skinPath));
 
 	TrenchBroom::Renderer::StringFactory* stringFactory = new TrenchBroom::Renderer::WinStringFactory(GetDC()->m_hDC);
 	m_fontManager = new TrenchBroom::Renderer::FontManager(stringFactory);

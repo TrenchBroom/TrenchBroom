@@ -46,7 +46,7 @@ BOOL ProgressDialog::OnInitDialog()
 	return TRUE;
 }
 
-void ProgressDialog::setText(const string& text)
+void ProgressDialog::setText(const std::string& text)
 {
 	m_label.SetWindowTextA(text.c_str());
 }

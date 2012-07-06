@@ -30,12 +30,14 @@ namespace TrenchBroom {
             bool loadFloat(const std::string& key, float& value);
             bool loadBool(const std::string& key, bool& value);
             bool loadString(const std::string& key, std::string& value);
+			bool loadVec3f(const std::string& key, Vec3f& value);
             bool loadVec4f(const std::string& key, Vec4f& value);
 
 			void saveInt(const std::string& key, int value);
 			void saveBool(const std::string& key, bool value);
 			void saveFloat(const std::string& key, float value);
 			void saveString(const std::string& key, const std::string& value);
+			void saveVec3f(const std::string& key, const Vec3f& value);
 			void saveVec4f(const std::string& key, const Vec4f& value);
 
 			bool saveInstantly();

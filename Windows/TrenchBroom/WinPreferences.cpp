@@ -61,6 +61,13 @@ namespace TrenchBroom {
 				return true;
 			}
 
+            bool WinPreferences::loadVec3f(const std::string& key, Vec3f& value) {
+				std::string strValue = value.asString();
+				loadString(key, strValue);
+				value = Vec3f(strValue);
+				return true;
+			}
+
             bool WinPreferences::loadVec4f(const std::string& key, Vec4f& value) {
 				std::string strValue = value.asString();
 				loadString(key, strValue);
@@ -86,6 +93,10 @@ namespace TrenchBroom {
 				AfxGetApp()->WriteProfileStringA(Section.c_str(), key.c_str(), value.c_str());
 			}
 			
+			void WinPreferences::saveVec3f(const std::string& key, const Vec3f& value) {
+				saveString(key, value.asString());
+			}
+
 			void WinPreferences::saveVec4f(const std::string& key, const Vec4f& value) {
 				saveString(key, value.asString());
 			}
