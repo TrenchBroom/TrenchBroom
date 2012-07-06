@@ -27,6 +27,7 @@
 #include "MapView.h"
 
 #include "Controller/Editor.h"
+#include "Controller/InputController.h"
 #include "Model/Preferences.h"
 #include "Model/Map/Map.h"
 #include "Model/Map/EntityDefinition.h"
@@ -56,6 +57,7 @@ BEGIN_MESSAGE_MAP(CTrenchBroomApp, CWinApp)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, &CTrenchBroomApp::OnUpdateEditUndo)
 	ON_COMMAND(ID_EDIT_REDO, &CTrenchBroomApp::OnEditRedo)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, &CTrenchBroomApp::OnUpdateEditRedo)
+	ON_COMMAND(ID_TOOLS_TOGGLE_VERTEX_TOOL, &CTrenchBroomApp::OnToolsToggleVertexTool)
 END_MESSAGE_MAP()
 
 /*
@@ -395,4 +397,19 @@ void CTrenchBroomApp::OnToolsOptions()
 {
 	PreferencesDialog preferencesDialog(NULL);
 	preferencesDialog.DoModal();
+}
+
+
+void CTrenchBroomApp::OnToolsToggleVertexTool()
+{
+	CFrameWnd* frame = DYNAMIC_DOWNCAST(CFrameWnd, CWnd::GetActiveWindow());
+	if (frame == NULL)
+		return;
+
+	CMapDocument* mapDocument = DYNAMIC_DOWNCAST(CMapDocument, frame->GetActiveDocument());
+	if (mapDocument == NULL)
+		return;
+
+	TrenchBroom::Controller::InputController& inputController = mapDocument->editor().inputController();
+	inputController.toggleMoveVertexTool();
 }

@@ -109,7 +109,7 @@ namespace TrenchBroom {
             }
         }
         
-        VertexTool::VertexTool(Controller::Editor& editor) : DragTool(editor), m_state(INACTIVE), m_brush(NULL), m_index(-1), m_handleFigure(NULL), m_selectedHandleFigure(NULL) {
+        VertexTool::VertexTool(Controller::Editor& editor) : DragTool(editor), m_state(INACTIVE), m_brush(NULL), m_index(-1), m_handleFigure(NULL), m_selectedHandleFigure(NULL), m_guideFigure(NULL) {
         }
         
         VertexTool::~VertexTool() {
