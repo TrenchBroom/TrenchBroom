@@ -31,7 +31,9 @@ namespace TrenchBroom {
             
             virtual std::vector<std::string> directoryContents(const std::string& path, std::string extension = "");
 
-            virtual char pathSeparator();
+            virtual char pathSeparator() {
+                return '/';
+            }
         };
     }
 }

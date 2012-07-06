@@ -45,15 +45,11 @@ namespace TrenchBroom {
                 for (NSString* entry in entries) {
                     std::string entryName = [entry cStringUsingEncoding:NSASCIIStringEncoding];
                     if (extension.empty() || pathExtension(entryName) == extension)
-                        result.push_back(entryName);
+                        result.push_back(pathComponents(entryName).back());
                 }
             }
             
             return result;
-        }
-        
-        char MacFileManager::pathSeparator() {
-            return '/';
         }
     }
 }
