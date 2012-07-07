@@ -702,43 +702,6 @@
 									<object class="NSMenu" key="NSSubmenu" id="133341023">
 										<string key="NSTitle">Camera</string>
 										<array class="NSMutableArray" key="NSMenuItems">
-											<object class="NSMenuItem" id="325666972">
-												<reference key="NSMenu" ref="133341023"/>
-												<string key="NSTitle">Switch To XY View</string>
-												<string key="NSKeyEquiv">1</string>
-												<int key="NSKeyEquivModMask">131072</int>
-												<int key="NSMnemonicLoc">2147483647</int>
-												<reference key="NSOnImage" ref="1033313550"/>
-												<reference key="NSMixedImage" ref="310636482"/>
-											</object>
-											<object class="NSMenuItem" id="1064933463">
-												<reference key="NSMenu" ref="133341023"/>
-												<string key="NSTitle">Switch To XZ View</string>
-												<string key="NSKeyEquiv">2</string>
-												<int key="NSKeyEquivModMask">131072</int>
-												<int key="NSMnemonicLoc">2147483647</int>
-												<reference key="NSOnImage" ref="1033313550"/>
-												<reference key="NSMixedImage" ref="310636482"/>
-											</object>
-											<object class="NSMenuItem" id="48224115">
-												<reference key="NSMenu" ref="133341023"/>
-												<string key="NSTitle">Switch To YZ View</string>
-												<string key="NSKeyEquiv">3</string>
-												<int key="NSKeyEquivModMask">131072</int>
-												<int key="NSMnemonicLoc">2147483647</int>
-												<reference key="NSOnImage" ref="1033313550"/>
-												<reference key="NSMixedImage" ref="310636482"/>
-											</object>
-											<object class="NSMenuItem" id="990083860">
-												<reference key="NSMenu" ref="133341023"/>
-												<bool key="NSIsDisabled">YES</bool>
-												<bool key="NSIsSeparator">YES</bool>
-												<string key="NSTitle"/>
-												<string key="NSKeyEquiv"/>
-												<int key="NSMnemonicLoc">2147483647</int>
-												<reference key="NSOnImage" ref="1033313550"/>
-												<reference key="NSMixedImage" ref="310636482"/>
-											</object>
 											<object class="NSMenuItem" id="983777070">
 												<reference key="NSMenu" ref="133341023"/>
 												<string key="NSTitle">Move Forward</string>
@@ -1112,7 +1075,7 @@
 					</object>
 					<object class="NSMenuItem" id="922875989">
 						<reference key="NSMenu" ref="708065257"/>
-						<string key="NSTitle">Move Away</string>
+						<string key="NSTitle">Move Forward</string>
 						<string key="NSKeyEquiv"></string>
 						<int key="NSMnemonicLoc">2147483647</int>
 						<reference key="NSOnImage" ref="1033313550"/>
@@ -1121,7 +1084,7 @@
 					<object class="NSMenuItem" id="180344783">
 						<reference key="NSMenu" ref="708065257"/>
 						<bool key="NSIsAlternate">YES</bool>
-						<string key="NSTitle">Move Away By 1</string>
+						<string key="NSTitle">Move Forward By 1</string>
 						<string key="NSKeyEquiv"></string>
 						<int key="NSKeyEquivModMask">524288</int>
 						<int key="NSMnemonicLoc">2147483647</int>
@@ -1130,7 +1093,7 @@
 					</object>
 					<object class="NSMenuItem" id="1045007636">
 						<reference key="NSMenu" ref="708065257"/>
-						<string key="NSTitle">Move Toward</string>
+						<string key="NSTitle">Move Backward</string>
 						<string key="NSKeyEquiv"></string>
 						<int key="NSMnemonicLoc">2147483647</int>
 						<reference key="NSOnImage" ref="1033313550"/>
@@ -1139,7 +1102,7 @@
 					<object class="NSMenuItem" id="879536492">
 						<reference key="NSMenu" ref="708065257"/>
 						<bool key="NSIsAlternate">YES</bool>
-						<string key="NSTitle">Move Toward By 1</string>
+						<string key="NSTitle">Move Backward By 1</string>
 						<string key="NSKeyEquiv"></string>
 						<int key="NSKeyEquivModMask">524288</int>
 						<int key="NSMnemonicLoc">2147483647</int>
@@ -1781,38 +1744,6 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
-						<string key="label">moveObjectsAway:</string>
-						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="922875989"/>
-					</object>
-					<int key="connectionID">676</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">moveObjectsAway:</string>
-						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="180344783"/>
-					</object>
-					<int key="connectionID">677</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">moveObjectsToward:</string>
-						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="1045007636"/>
-					</object>
-					<int key="connectionID">678</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">moveObjectsToward:</string>
-						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="879536492"/>
-					</object>
-					<int key="connectionID">679</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
 						<string key="label">moveObjectsUp:</string>
 						<reference key="source" ref="1014"/>
 						<reference key="destination" ref="74600499"/>
@@ -1930,6 +1861,134 @@
 						<reference key="destination" ref="768476078"/>
 					</object>
 					<int key="connectionID">694</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveCameraForward:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="983777070"/>
+					</object>
+					<int key="connectionID">695</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveCameraForward:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="353489861"/>
+					</object>
+					<int key="connectionID">696</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveCameraBackward:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="113584667"/>
+					</object>
+					<int key="connectionID">697</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveCameraBackward:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="765327119"/>
+					</object>
+					<int key="connectionID">698</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveCameraLeft:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="886551164"/>
+					</object>
+					<int key="connectionID">699</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveCameraLeft:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="796543110"/>
+					</object>
+					<int key="connectionID">700</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveCameraRight:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="439531074"/>
+					</object>
+					<int key="connectionID">701</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveCameraRight:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="849076740"/>
+					</object>
+					<int key="connectionID">702</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveCameraUp:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="522505182"/>
+					</object>
+					<int key="connectionID">703</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveCameraUp:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="751833655"/>
+					</object>
+					<int key="connectionID">704</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveCameraDown:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="649187476"/>
+					</object>
+					<int key="connectionID">705</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveCameraDown:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="96842461"/>
+					</object>
+					<int key="connectionID">706</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveObjectsForward:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="922875989"/>
+					</object>
+					<int key="connectionID">707</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveObjectsForward:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="180344783"/>
+					</object>
+					<int key="connectionID">708</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveObjectsBackward:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="1045007636"/>
+					</object>
+					<int key="connectionID">709</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveObjectsBackward:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="879536492"/>
+					</object>
+					<int key="connectionID">710</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -2573,11 +2632,7 @@
 							<reference ref="765327119"/>
 							<reference ref="113584667"/>
 							<reference ref="353489861"/>
-							<reference ref="990083860"/>
 							<reference ref="983777070"/>
-							<reference ref="48224115"/>
-							<reference ref="1064933463"/>
-							<reference ref="325666972"/>
 						</array>
 						<reference key="parent" ref="443461053"/>
 					</object>
@@ -2637,28 +2692,8 @@
 						<reference key="parent" ref="133341023"/>
 					</object>
 					<object class="IBObjectRecord">
-						<int key="objectID">605</int>
-						<reference key="object" ref="990083860"/>
-						<reference key="parent" ref="133341023"/>
-					</object>
-					<object class="IBObjectRecord">
 						<int key="objectID">606</int>
 						<reference key="object" ref="983777070"/>
-						<reference key="parent" ref="133341023"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">607</int>
-						<reference key="object" ref="48224115"/>
-						<reference key="parent" ref="133341023"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">608</int>
-						<reference key="object" ref="1064933463"/>
-						<reference key="parent" ref="133341023"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">609</int>
-						<reference key="object" ref="325666972"/>
 						<reference key="parent" ref="133341023"/>
 					</object>
 					<object class="IBObjectRecord">
@@ -3006,11 +3041,7 @@
 				<string key="602.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="603.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="604.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="605.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="606.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="607.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="608.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="609.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="615.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="616.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="617.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -3067,7 +3098,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">694</int>
+			<int key="maxID">710</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -3134,11 +3165,17 @@
 						<string key="enlargeBrushes:">id</string>
 						<string key="flipObjectsHorizontally:">id</string>
 						<string key="flipObjectsVertically:">id</string>
-						<string key="moveObjectsAway:">id</string>
+						<string key="moveCameraBackward:">id</string>
+						<string key="moveCameraDown:">id</string>
+						<string key="moveCameraForward:">id</string>
+						<string key="moveCameraLeft:">id</string>
+						<string key="moveCameraRight:">id</string>
+						<string key="moveCameraUp:">id</string>
+						<string key="moveObjectsBackward:">id</string>
 						<string key="moveObjectsDown:">id</string>
+						<string key="moveObjectsForward:">id</string>
 						<string key="moveObjectsLeft:">id</string>
 						<string key="moveObjectsRight:">id</string>
-						<string key="moveObjectsToward:">id</string>
 						<string key="moveObjectsUp:">id</string>
 						<string key="moveTexturesDown:">id</string>
 						<string key="moveTexturesLeft:">id</string>
@@ -3186,12 +3223,40 @@
 							<string key="name">flipObjectsVertically:</string>
 							<string key="candidateClassName">id</string>
 						</object>
-						<object class="IBActionInfo" key="moveObjectsAway:">
-							<string key="name">moveObjectsAway:</string>
+						<object class="IBActionInfo" key="moveCameraBackward:">
+							<string key="name">moveCameraBackward:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="moveCameraDown:">
+							<string key="name">moveCameraDown:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="moveCameraForward:">
+							<string key="name">moveCameraForward:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="moveCameraLeft:">
+							<string key="name">moveCameraLeft:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="moveCameraRight:">
+							<string key="name">moveCameraRight:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="moveCameraUp:">
+							<string key="name">moveCameraUp:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="moveObjectsBackward:">
+							<string key="name">moveObjectsBackward:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="moveObjectsDown:">
 							<string key="name">moveObjectsDown:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="moveObjectsForward:">
+							<string key="name">moveObjectsForward:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="moveObjectsLeft:">
@@ -3200,10 +3265,6 @@
 						</object>
 						<object class="IBActionInfo" key="moveObjectsRight:">
 							<string key="name">moveObjectsRight:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="moveObjectsToward:">
-							<string key="name">moveObjectsToward:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="moveObjectsUp:">

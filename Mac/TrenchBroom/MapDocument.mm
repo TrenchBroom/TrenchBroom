@@ -259,14 +259,14 @@ namespace TrenchBroom {
     editor->moveObjects(Editor::DOWN, [self gridOffModifierPressed]);
 }
 
-- (IBAction)moveObjectsToward:(id)sender {
+- (IBAction)moveObjectsForward:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    editor->moveObjects(Editor::TOWARDS, [self gridOffModifierPressed]);
+    editor->moveObjects(Editor::FORWARD, [self gridOffModifierPressed]);
 }
 
-- (IBAction)moveObjectsAway:(id)sender {
+- (IBAction)moveObjectsBackward:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    editor->moveObjects(Editor::AWAY, [self gridOffModifierPressed]);
+    editor->moveObjects(Editor::BACKWARD, [self gridOffModifierPressed]);
 }
 
 - (IBAction)rollObjectsCW:(id)sender {
@@ -330,6 +330,36 @@ namespace TrenchBroom {
     NSMenuItem* menuItem = (NSMenuItem *)sender;
     Editor* editor = (Editor *)[editorHolder editor];
     editor->setGridSize([menuItem tag]);
+}
+
+- (IBAction)moveCameraLeft:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->moveCamera(Editor::LEFT, [self gridOffModifierPressed]);
+}
+
+- (IBAction)moveCameraUp:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->moveCamera(Editor::UP, [self gridOffModifierPressed]);
+}
+
+- (IBAction)moveCameraRight:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->moveCamera(Editor::RIGHT, [self gridOffModifierPressed]);
+}
+
+- (IBAction)moveCameraDown:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->moveCamera(Editor::DOWN, [self gridOffModifierPressed]);
+}
+
+- (IBAction)moveCameraForward:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->moveCamera(Editor::FORWARD, [self gridOffModifierPressed]);
+}
+
+- (IBAction)moveCameraBackward:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->moveCamera(Editor::BACKWARD, [self gridOffModifierPressed]);
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {

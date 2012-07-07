@@ -333,12 +333,12 @@ namespace TrenchBroom {
                 case DOWN:
                     moveDirection = Vec3f::NegZ;
                     break;
-                case TOWARDS:
+                case FORWARD:
                     moveDirection = (m_camera->direction() * -1.0f).firstAxis();
                     if (moveDirection.firstComponent() == TB_AX_Z)
                         moveDirection = (m_camera->direction() * -1.0f).secondAxis();
                     break;
-                case AWAY:
+                case BACKWARD:
                     moveDirection = m_camera->direction().firstAxis();
                     if (moveDirection.firstComponent() == TB_AX_Z)
                         moveDirection = m_camera->direction().secondAxis();
@@ -393,6 +393,30 @@ namespace TrenchBroom {
         
         void Editor::setGridSize(int size) {
             m_grid->setSize(size);
+        }
+
+        void Editor::moveCamera(EMoveDirection direction, bool disableSnapToGrid) {
+            float delta = disableSnapToGrid ? 1.0f : 16.0f;
+            switch (direction) {
+                case LEFT:
+                    m_camera->moveBy(0.0f, -delta, 0.0f);
+                    break;
+                case UP:
+                    m_camera->moveBy(0.0f, 0.0f, delta);
+                    break;
+                case RIGHT:
+                    m_camera->moveBy(0.0f, delta, 0.0f);
+                    break;
+                case DOWN:
+                    m_camera->moveBy(0.0f, 0.0f, -delta);
+                    break;
+                case FORWARD:
+                    m_camera->moveBy(delta, 0.0f, 0.0f);
+                    break;
+                case BACKWARD:
+                    m_camera->moveBy(-delta, 0.0f, 0.0f);
+                    break;
+            }
         }
     }
 }

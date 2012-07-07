@@ -53,8 +53,8 @@
 - (IBAction)moveObjectsUp:(id)sender;
 - (IBAction)moveObjectsRight:(id)sender;
 - (IBAction)moveObjectsDown:(id)sender;
-- (IBAction)moveObjectsToward:(id)sender;
-- (IBAction)moveObjectsAway:(id)sender;
+- (IBAction)moveObjectsForward:(id)sender;
+- (IBAction)moveObjectsBackward:(id)sender;
 - (IBAction)rollObjectsCW:(id)sender;
 - (IBAction)rollObjectsCCW:(id)sender;
 - (IBAction)pitchObjectsCW:(id)sender;
@@ -69,6 +69,13 @@
 - (IBAction)toggleGrid:(id)sender;
 - (IBAction)toggleSnapToGrid:(id)sender;
 - (IBAction)setGridSize:(id)sender;
+
+- (IBAction)moveCameraLeft:(id)sender;
+- (IBAction)moveCameraUp:(id)sender;
+- (IBAction)moveCameraRight:(id)sender;
+- (IBAction)moveCameraDown:(id)sender;
+- (IBAction)moveCameraForward:(id)sender;
+- (IBAction)moveCameraBackward:(id)sender;
 @end
 
 namespace TrenchBroom {

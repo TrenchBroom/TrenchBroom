@@ -53,8 +53,8 @@ namespace TrenchBroom {
                 UP,
                 RIGHT,
                 DOWN,
-                TOWARDS,
-                AWAY
+                FORWARD,
+                BACKWARD
             } EMoveDirection;
             
             typedef enum {
@@ -119,6 +119,8 @@ namespace TrenchBroom {
             void toggleGrid();
             void toggleSnapToGrid();
             void setGridSize(int size);
+            
+            void moveCamera(EMoveDirection direction, bool disableSnapToGrid);
         };
     }
 }
