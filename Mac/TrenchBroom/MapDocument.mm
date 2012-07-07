@@ -82,35 +82,12 @@ namespace TrenchBroom {
 
 @interface MapDocument (Private)
 - (BOOL)gridOffModifierPressed;
-- (void)translateTextures:(const Vec3f&)dir;
-- (void)translateObjects:(const Vec3f&)dir;
 @end
 
 @implementation MapDocument (Private)
 
 - (BOOL)gridOffModifierPressed {
     return ([NSEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask;
-}
-
-- (void)translateTextures:(const Vec3f&)dir {
-    Editor* editor = (Editor *)[editorHolder editor];
-    Map& map = editor->map();
-    Grid& grid = editor->grid();
-    
-    float delta = [self gridOffModifierPressed] ? 1.0f : static_cast<float>(grid.actualSize());
-    map.translateFaces(delta, dir);
-}
-
-- (void)translateObjects:(const Vec3f&)dir {
-    Editor* editor = (Editor *)[editorHolder editor];
-    Map& map = editor->map();
-    Grid& grid = editor->grid();
-    Selection& selection = map.selection();
-    
-    float dist = [self gridOffModifierPressed] ? 1.0f : static_cast<float>(grid.actualSize());
-    Vec3f delta = grid.moveDelta(selection.bounds(), map.worldBounds(), dir.firstAxis() * dist);
-    
-    map.translateObjects(delta, true);
 }
 
 @end
@@ -180,16 +157,12 @@ namespace TrenchBroom {
 
 - (IBAction)customUndo:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    Map& map = editor->map();
-    UndoManager& undoManager = map.undoManager();
-    undoManager.undo();
+    editor->undo();
 }
 
 - (IBAction)customRedo:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    Map& map = editor->map();
-    UndoManager& undoManager = map.undoManager();
-    undoManager.redo();
+    editor->redo();
 }
 
 - (IBAction)delete:(id)sender {
@@ -200,38 +173,22 @@ namespace TrenchBroom {
 
 - (IBAction)selectAll:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    Map& map = editor->map();
-    
-    Selection& selection = map.selection();
-    selection.removeAll();
-    
-    const EntityList& entities = map.entities();
-    BrushList brushes;
-    for (unsigned int i = 0; i < entities.size(); i++)
-        brushes.insert(brushes.begin(), entities[i]->brushes().begin(), entities[i]->brushes().end());
-    if (!brushes.empty())
-        selection.addBrushes(brushes);
-    if (!entities.empty())
-        selection.addEntities(entities);
+    editor->selectAll();
 }
 
-- (IBAction)selectEntity:(id)sender {
+- (IBAction)selectEntities:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    Map& map = editor->map();
-    map.selectEntities();
+    editor->selectEntities();
 }
 
 - (IBAction)selectTouching:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    Map& map = editor->map();
-    map.selectTouching(true);
+    editor->selectTouching();
 }
 
 - (IBAction)selectNone:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    Map& map = editor->map();
-    Selection& selection = map.selection();
-    selection.removeAll();
+    editor->selectNone();
 }
 
 - (IBAction)toggleVertexTool:(id)sender {
@@ -254,141 +211,102 @@ namespace TrenchBroom {
 
 - (IBAction)moveTexturesLeft:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    [self translateTextures:editor->camera().right() * -1.0f];
+    editor->moveTextures(Editor::LEFT, [self gridOffModifierPressed]);
 }
 
 - (IBAction)moveTexturesUp:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    [self translateTextures:editor->camera().up()];
+    editor->moveTextures(Editor::UP, [self gridOffModifierPressed]);
 }
 
 - (IBAction)moveTexturesRight:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    [self translateTextures:editor->camera().right()];
+    editor->moveTextures(Editor::RIGHT, [self gridOffModifierPressed]);
 }
 
 - (IBAction)moveTexturesDown:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    [self translateTextures:editor->camera().up() * -1.0f];
+    editor->moveTextures(Editor::DOWN, [self gridOffModifierPressed]);
 }
 
 - (IBAction)rotateTexturesCW:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    Map& map = editor->map();
-    Grid& grid = editor->grid();
-
-    float angle = [self gridOffModifierPressed] ? 1.0f : grid.angle();
-    map.rotateFaces(-angle);
+    editor->rotateTextures(true, [self gridOffModifierPressed]);
 }
 
 - (IBAction)rotateTexturesCCW:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    Map& map = editor->map();
-    Grid& grid = editor->grid();
-    
-    float angle = [self gridOffModifierPressed] ? 1.0f : grid.angle();
-    map.rotateFaces(angle);
+    editor->rotateTextures(false, [self gridOffModifierPressed]);
 }
 
 - (IBAction)moveObjectsLeft:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    [self translateObjects:editor->camera().right() * -1.0f];
+    editor->moveObjects(Editor::LEFT, [self gridOffModifierPressed]);
 }
 
 - (IBAction)moveObjectsUp:(id)sender {
-    [self translateObjects:Vec3f::PosZ];
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->moveObjects(Editor::UP, [self gridOffModifierPressed]);
 }
 
 - (IBAction)moveObjectsRight:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    [self translateObjects:editor->camera().right()];
+    editor->moveObjects(Editor::RIGHT, [self gridOffModifierPressed]);
 }
 
 - (IBAction)moveObjectsDown:(id)sender {
-    [self translateObjects:Vec3f::NegZ];
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->moveObjects(Editor::DOWN, [self gridOffModifierPressed]);
 }
 
 - (IBAction)moveObjectsToward:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    Vec3f dir = (editor->camera().direction() * -1.0f).firstAxis();
-    if (dir.firstComponent() == TB_AX_Z)
-        dir = (editor->camera().direction() * -1.0f).secondAxis();
-    [self translateObjects:dir];
+    editor->moveObjects(Editor::TOWARDS, [self gridOffModifierPressed]);
 }
 
 - (IBAction)moveObjectsAway:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    Vec3f dir = editor->camera().direction().firstAxis();
-    if (dir.firstComponent() == TB_AX_Z)
-        dir = editor->camera().direction().secondAxis();
-    [self translateObjects:dir];
+    editor->moveObjects(Editor::AWAY, [self gridOffModifierPressed]);
 }
 
 - (IBAction)rollObjectsCW:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    Map& map = editor->map();
-    Selection& selection = map.selection();
-    
-    EAxis axis = editor->camera().direction().firstComponent();
-    map.rotateObjects90(axis, selection.center(), true, true);
+    editor->rotateObjects(Editor::ROLL, true);
 }
 
 - (IBAction)rollObjectsCCW:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    Map& map = editor->map();
-    Selection& selection = map.selection();
-    
-    EAxis axis = editor->camera().direction().firstComponent();
-    map.rotateObjects90(axis, selection.center(), false, true);
+    editor->rotateObjects(Editor::ROLL, false);
 }
 
 - (IBAction)pitchObjectsCW:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    Map& map = editor->map();
-    Selection& selection = map.selection();
-    
-    EAxis axis = editor->camera().right().firstComponent();
-    map.rotateObjects90(axis, selection.center(), true, true);
+    editor->rotateObjects(Editor::PITCH, true);
 }
 
 - (IBAction)pitchObjectsCCW:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    Map& map = editor->map();
-    Selection& selection = map.selection();
-    
-    EAxis axis = editor->camera().right().firstComponent();
-    map.rotateObjects90(axis, selection.center(), false, true);
+    editor->rotateObjects(Editor::PITCH, false);
 }
 
 - (IBAction)yawObjectsCW:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    Map& map = editor->map();
-    Selection& selection = map.selection();
-    map.rotateObjects90(TB_AX_Z, selection.center(), true, true);
+    editor->rotateObjects(Editor::YAW, true);
 }
 
 - (IBAction)yawObjectsCCW:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    Map& map = editor->map();
-    Selection& selection = map.selection();
-    map.rotateObjects90(TB_AX_Z, selection.center(), false, true);
+    editor->rotateObjects(Editor::YAW, false);
 }
 
 - (IBAction)flipObjectsHorizontally:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    Map& map = editor->map();
-    Selection& selection = map.selection();
-    
-    EAxis axis = editor->camera().right().firstComponent();
-    map.flipObjects(axis, selection.center(), true);
+    editor->flipObjects(true);
 }
 
 - (IBAction)flipObjectsVertically:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    Map& map = editor->map();
-    Selection& selection = map.selection();
-    
-    map.flipObjects(TB_AX_Z, selection.center(), true);
+    editor->flipObjects(false);
 }
 
 - (IBAction)duplicateObjects:(id)sender {
@@ -400,18 +318,18 @@ namespace TrenchBroom {
 
 - (IBAction)toggleGrid:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    editor->grid().toggleVisible();
+    editor->toggleGrid();
 }
 
 - (IBAction)toggleSnapToGrid:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
-    editor->grid().toggleSnap();
+    editor->toggleSnapToGrid();
 }
 
 - (IBAction)setGridSize:(id)sender {
     NSMenuItem* menuItem = (NSMenuItem *)sender;
     Editor* editor = (Editor *)[editorHolder editor];
-    editor->grid().setSize([menuItem tag]);
+    editor->setGridSize([menuItem tag]);
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {

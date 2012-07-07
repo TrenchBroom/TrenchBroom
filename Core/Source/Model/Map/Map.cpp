@@ -104,55 +104,6 @@ namespace TrenchBroom {
             return m_leakPoints;
         }
 
-        void Map::selectEntities() {
-            if (m_selection->mode() == Model::TB_SM_BRUSHES) {
-                EntitySet entitySet;
-                const BrushList& selectedBrushes = m_selection->brushes();
-                for (unsigned int i = 0; i < selectedBrushes.size(); i++)
-                    entitySet.insert(selectedBrushes[i]->entity);
-                
-                EntityList entityList;
-                entityList.insert(entityList.begin(), entitySet.begin(), entitySet.end());
-                
-                BrushList brushList;
-                for (unsigned int i = 0; i < entityList.size(); i++) {
-                    Entity* entity = entityList[i];
-                    brushList.insert(brushList.end(), entity->brushes().begin(), entity->brushes().end());
-                }
-                
-                m_selection->removeAll();
-                m_selection->addEntities(entityList);
-                m_selection->addBrushes(brushList);
-            }
-        }
-        
-        void Map::selectTouching(bool deleteBrush) {
-            if (m_selection->mode() == Model::TB_SM_BRUSHES && m_selection->brushes().size() == 1) {
-                Brush* selectionBrush = m_selection->brushes().front();
-
-                EntityList entities;
-                BrushList brushes;
-                for (unsigned int i = 0; i < m_entities.size(); i++) {
-                    Entity* entity = m_entities[i];
-                    if (entity->entityDefinition()->type == TB_EDT_POINT && selectionBrush->intersectsEntity(*entity)) {
-                        entities.push_back(entity);
-                    } else {
-                        const BrushList entityBrushes = entity->brushes();
-                        for (unsigned int j = 0; j < entityBrushes.size(); j++) {
-                            Brush* brush = entityBrushes[j];
-                            if (selectionBrush->intersectsBrush(*brush) && brush != selectionBrush)
-                                brushes.push_back(brush);
-                        }
-                    }
-                }
-                
-                if (deleteBrush)
-                    deleteObjects();
-                
-                m_selection->addEntities(entities);
-                m_selection->addBrushes(brushes);
-            }
-        }
         const EntityList& Map::entities() {
             return m_entities;
         }

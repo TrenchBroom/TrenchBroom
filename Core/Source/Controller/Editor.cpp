@@ -27,12 +27,13 @@
 #include "Model/Map/Map.h"
 #include "Model/Map/Entity.h"
 #include "Model/Preferences.h"
+#include "Model/Selection.h"
+#include "Model/Undo/UndoManager.h"
 #include "IO/FileManager.h"
 #include "IO/MapParser.h"
 #include "IO/Wad.h"
 #include "Utilities/Filter.h"
 #include "Utilities/Utils.h"
-#include "Utilities/VecMath.h"
 #include "Utilities/Console.h"
 
 namespace TrenchBroom {
@@ -204,6 +205,194 @@ namespace TrenchBroom {
 
         Renderer::MapRenderer* Editor::renderer() {
             return m_renderer;
+        }
+
+        void Editor::undo() {
+            m_map->undoManager().undo();
+        }
+        
+        void Editor::redo() {
+            m_map->undoManager().redo();
+        }
+        
+        void Editor::selectAll() {
+            Model::Selection& selection = m_map->selection();
+            selection.removeAll();
+
+            const Model::EntityList& entities = m_map->entities();
+            Model::BrushList brushes;
+            for (unsigned int i = 0; i < entities.size(); i++)
+                brushes.insert(brushes.begin(), entities[i]->brushes().begin(), entities[i]->brushes().end());
+            if (!brushes.empty())
+                selection.addBrushes(brushes);
+            if (!entities.empty())
+                selection.addEntities(entities);
+        }
+        
+        void Editor::selectEntities() {
+            Model::Selection& selection = m_map->selection();
+
+            if (selection.mode() == Model::TB_SM_BRUSHES) {
+                Model::EntitySet entitySet;
+                const Model::BrushList& selectedBrushes = selection.brushes();
+                for (unsigned int i = 0; i < selectedBrushes.size(); i++)
+                    entitySet.insert(selectedBrushes[i]->entity);
+                
+                Model::EntityList entityList;
+                entityList.insert(entityList.begin(), entitySet.begin(), entitySet.end());
+                
+                Model::BrushList brushList;
+                for (unsigned int i = 0; i < entityList.size(); i++) {
+                    Model::Entity* entity = entityList[i];
+                    brushList.insert(brushList.end(), entity->brushes().begin(), entity->brushes().end());
+                }
+                
+                selection.removeAll();
+                selection.addEntities(entityList);
+                selection.addBrushes(brushList);
+            }
+        }
+        
+        void Editor::selectTouching(bool deleteBrush) {
+            Model::Selection& selection = m_map->selection();
+            
+            if (selection.mode() == Model::TB_SM_BRUSHES && selection.brushes().size() == 1) {
+                Model::Brush* selectionBrush = selection.brushes().front();
+                
+                Model::EntityList selectedEntities;
+                Model::BrushList selectedBrushes;
+                
+                const Model::EntityList& entities = m_map->entities();
+                for (unsigned int i = 0; i < entities.size(); i++) {
+                    Model::Entity* entity = entities[i];
+                    if (entity->entityDefinition()->type == Model::TB_EDT_POINT && selectionBrush->intersectsEntity(*entity)) {
+                        selectedEntities.push_back(entity);
+                    } else {
+                        const Model::BrushList entityBrushes = entity->brushes();
+                        for (unsigned int j = 0; j < entityBrushes.size(); j++) {
+                            Model::Brush* brush = entityBrushes[j];
+                            if (selectionBrush->intersectsBrush(*brush) && brush != selectionBrush)
+                                selectedBrushes.push_back(brush);
+                        }
+                    }
+                }
+                
+                if (deleteBrush)
+                    m_map->deleteObjects();
+                
+                selection.addEntities(selectedEntities);
+                selection.addBrushes(selectedBrushes);
+            }
+        }
+        
+        void Editor::selectNone() {
+            Model::Selection& selection = m_map->selection();
+            selection.removeAll();
+        }
+        
+        void Editor::moveTextures(EMoveDirection direction, bool disableSnapToGrid) {
+            Vec3f moveDirection;
+            switch (direction) {
+                case LEFT:
+                    moveDirection = m_camera->right() * -1.0f;
+                    break;
+                case UP:
+                    moveDirection = m_camera->up();
+                    break;
+                case RIGHT:
+                    moveDirection = m_camera->right();
+                    break;
+                case DOWN:
+                    moveDirection = m_camera->up() * -1.0f;
+                    break;
+                default:
+                    assert(false);
+            }
+            
+            float delta = disableSnapToGrid ? 1.0f : static_cast<float>(m_grid->actualSize());
+            m_map->translateFaces(delta, moveDirection);
+        }
+        
+        void Editor::rotateTextures(bool clockwise, bool disableSnapToGrid) {
+            float angle = disableSnapToGrid ? 1.0f : m_grid->angle();
+            m_map->rotateFaces(-angle);
+        }
+        
+        void Editor::moveObjects(EMoveDirection direction, bool disableSnapToGrid) {
+            Vec3f moveDirection;
+            switch (direction) {
+                case LEFT:
+                    moveDirection = (m_camera->right() * -1.0f).firstAxis();
+                    break;
+                case UP:
+                    moveDirection = Vec3f::PosZ;
+                    break;
+                case RIGHT:
+                    moveDirection = m_camera->right().firstAxis();
+                    break;
+                case DOWN:
+                    moveDirection = Vec3f::NegZ;
+                    break;
+                case TOWARDS:
+                    moveDirection = (m_camera->direction() * -1.0f).firstAxis();
+                    if (moveDirection.firstComponent() == TB_AX_Z)
+                        moveDirection = (m_camera->direction() * -1.0f).secondAxis();
+                    break;
+                case AWAY:
+                    moveDirection = m_camera->direction().firstAxis();
+                    if (moveDirection.firstComponent() == TB_AX_Z)
+                        moveDirection = m_camera->direction().secondAxis();
+                    break;
+            }
+
+            Model::Selection& selection = m_map->selection();
+            
+            float dist = disableSnapToGrid ? 1.0f : static_cast<float>(m_grid->actualSize());
+            Vec3f delta = m_grid->moveDelta(selection.bounds(), m_map->worldBounds(), moveDirection * dist);
+            
+            m_map->translateObjects(delta, true);
+        }
+        
+        void Editor::rotateObjects(ERotationAxis axis, bool clockwise) {
+            EAxis absoluteAxis;
+            switch (axis) {
+                case ROLL:
+                    absoluteAxis = m_camera->direction().firstComponent();
+                    break;
+                case PITCH:
+                    absoluteAxis = m_camera->right().firstComponent();
+                    break;
+                case YAW:
+                    absoluteAxis = TB_AX_Z;
+                    break;
+            }
+            
+            Model::Selection& selection = m_map->selection();
+            m_map->rotateObjects90(absoluteAxis, selection.center(), clockwise, true);
+        }
+        
+        void Editor::flipObjects(bool horizontally) {
+            EAxis axis = horizontally ? m_camera->right().firstComponent() : TB_AX_Z;
+            Model::Selection& selection = m_map->selection();
+            m_map->flipObjects(axis, selection.center(), true);
+        }
+        
+        void Editor::duplicateObjects() {
+        }
+        
+        void Editor::enlargeBrushes() {
+        }
+        
+        void Editor::toggleGrid() {
+            m_grid->toggleVisible();
+        }
+        
+        void Editor::toggleSnapToGrid() {
+            m_grid->toggleSnap();
+        }
+        
+        void Editor::setGridSize(int size) {
+            m_grid->setSize(size);
         }
     }
 }

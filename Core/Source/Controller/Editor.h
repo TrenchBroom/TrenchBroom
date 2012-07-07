@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_Editor_h
 #define TrenchBroom_Editor_h
 
+#include "Utilities/VecMath.h"
+
 #include <string>
 
 namespace TrenchBroom {
@@ -45,6 +47,21 @@ namespace TrenchBroom {
         class ProgressIndicator;
 
         class Editor {
+        public:
+            typedef enum {
+                LEFT,
+                UP,
+                RIGHT,
+                DOWN,
+                TOWARDS,
+                AWAY
+            } EMoveDirection;
+            
+            typedef enum {
+                ROLL,
+                PITCH,
+                YAW
+            } ERotationAxis;
         private:
             std::string m_mapPath;
             Model::Map* m_map;
@@ -81,6 +98,27 @@ namespace TrenchBroom {
             
             void setRenderer(Renderer::MapRenderer* renderer);
             Renderer::MapRenderer* renderer();
+            
+            void undo();
+            void redo();
+            
+            void selectAll();
+            void selectEntities();
+            void selectTouching(bool deleteBrush = true);
+            void selectNone();
+            
+            void moveTextures(EMoveDirection direction, bool disableSnapToGrid);
+            void rotateTextures(bool clockwise, bool disableSnapToGrid);
+            
+            void moveObjects(EMoveDirection direction, bool disableSnapToGrid);
+            void rotateObjects(ERotationAxis axis, bool clockwise);
+            void flipObjects(bool horizontally);
+            void duplicateObjects();
+            void enlargeBrushes();
+            
+            void toggleGrid();
+            void toggleSnapToGrid();
+            void setGridSize(int size);
         };
     }
 }
