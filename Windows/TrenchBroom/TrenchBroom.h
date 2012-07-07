@@ -54,6 +54,7 @@ public:
 	afx_msg void OnEditRedo();
 	afx_msg void OnUpdateEditRedo(CCmdUI* pCmdUI);
 	afx_msg void OnToolsOptions();
+	afx_msg void OnToolsToggleVertexTool();
 };
 
 extern CTrenchBroomApp theApp;
