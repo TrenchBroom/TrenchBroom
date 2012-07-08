@@ -960,9 +960,10 @@ namespace TrenchBroom {
             std::vector<Figure*>::iterator it = find(m_figures.begin(), m_figures.end(), &figure);
             if (it != m_figures.end()) {
                 m_figures.erase(it);
-                delete *it;
                 rendererChanged(*this);
             }
+
+            delete &figure;
         }
 
         void MapRenderer::render(RenderContext& context) {

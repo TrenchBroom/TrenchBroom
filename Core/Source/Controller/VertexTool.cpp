@@ -182,8 +182,7 @@ namespace TrenchBroom {
             initialPoint = hit->hitPoint;
             
             deleteHandleFigure();
-            createSelectedHandleFigures();
-            
+           
             m_editor.map().undoManager().begin(undoName());
             
             m_state = DRAGGING;
@@ -217,14 +216,7 @@ namespace TrenchBroom {
             assert(m_state == DRAGGING);
             
             m_editor.map().undoManager().end();
-            
-            m_brush = NULL;
-            m_index = -1;
-            
-            deleteSelectedHandleFigures();
-            createHandleFigure();
-            
-            m_state = ACTIVE;
+            m_state = SELECTED;
         }
     }
 }

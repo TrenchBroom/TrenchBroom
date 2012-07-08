@@ -164,8 +164,10 @@ namespace TrenchBroom {
             
             if (m_currentEvent.mouseButton == TB_MB_LEFT) {
                 if (m_dragStatus == TB_MS_LEFT) {
-                    if (m_dragScrollReceiver != NULL)
+                    if (m_dragScrollReceiver != NULL) {
                         m_dragScrollReceiver->endLeftDrag(m_currentEvent);
+                        m_dragScrollReceiver->leftMouseUp(m_currentEvent);
+                    }
                     m_dragScrollReceiver = ToolPtr();
                     m_dragStatus = TB_MS_NONE;
                 } else {
@@ -175,8 +177,10 @@ namespace TrenchBroom {
                 }
             } else if (m_currentEvent.mouseButton == TB_MB_RIGHT) {
                 if (m_dragStatus == TB_MS_RIGHT) {
-                    if (m_dragScrollReceiver != NULL)
+                    if (m_dragScrollReceiver != NULL) {
                         m_dragScrollReceiver->endRightDrag(m_currentEvent);
+                        m_dragScrollReceiver->rightMouseUp(m_currentEvent);
+                    }
                     m_dragScrollReceiver = ToolPtr();
                     m_dragStatus = TB_MS_NONE;
                 } else {
