@@ -80,7 +80,7 @@ namespace TrenchBroom {
             virtual void deleteSelectedHandleFigures();
         public:
             VertexTool(Controller::Editor& editor);
-            virtual ~VertexTool();
+            virtual ~VertexTool() {}
 
             virtual void activated(ToolEvent& event);
             virtual void deactivated(ToolEvent& event);

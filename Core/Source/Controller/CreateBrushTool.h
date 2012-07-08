@@ -43,7 +43,6 @@ namespace TrenchBroom {
             BBox m_bounds;
             
             void createFigures();
-            void cleanup();
             bool doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint);
             bool doLeftDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
             void doEndLeftDrag(ToolEvent& event);

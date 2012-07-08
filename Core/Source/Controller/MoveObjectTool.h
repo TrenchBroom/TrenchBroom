@@ -38,7 +38,7 @@ namespace TrenchBroom {
             void doEndLeftDrag(ToolEvent& event);
         public:
             MoveObjectTool(Editor& editor);
-            ~MoveObjectTool();
+            ~MoveObjectTool() {}
         };
     }
 }

@@ -34,7 +34,10 @@ namespace TrenchBroom {
         }
         
         CreateBrushTool::~CreateBrushTool() {
-            cleanup();
+            if (m_brush != NULL) {
+                delete m_brush;
+                m_brush = NULL;
+            }
         }
         
         void CreateBrushTool::createFigures() {
@@ -57,19 +60,6 @@ namespace TrenchBroom {
             m_brushFigure->setBrushes(brushes);
         }
         
-        void CreateBrushTool::cleanup() {
-            if (m_brushFigure != NULL) {
-                removeFigure(*m_brushFigure);
-                delete m_brushFigure;
-                m_brushFigure = NULL;
-            }
-            
-            if (m_brush != NULL) {
-                delete m_brush;
-                m_brush = NULL;
-            }
-        }
-
         bool CreateBrushTool::doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint) {
             Model::Hit* hit = event.hits->first(Model::TB_HT_FACE, true);
             if (hit != NULL) initialPoint = hit->hitPoint.correct();
@@ -115,7 +105,16 @@ namespace TrenchBroom {
         
         void CreateBrushTool::doEndLeftDrag(ToolEvent& event) {
             m_editor.map().createBrush(*m_editor.map().worldspawn(true), *m_brush);
-            cleanup();
+
+            if (m_brushFigure != NULL) {
+                removeFigure(*m_brushFigure);
+                m_brushFigure = NULL;
+            }
+            
+            if (m_brush != NULL) {
+                delete m_brush;
+                m_brush = NULL;
+            }
         }
     }
 }

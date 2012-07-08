@@ -85,16 +85,10 @@ namespace TrenchBroom {
         
         void MoveObjectTool::doEndLeftDrag(ToolEvent& event) {
             removeFigure(*m_guideFigure);
+            m_guideFigure = NULL;
             m_editor.map().undoManager().end();
         }
 
         MoveObjectTool::MoveObjectTool(Editor& editor) : DragTool(editor), m_guideFigure(NULL) {}
-
-        MoveObjectTool::~MoveObjectTool() {
-            if (m_guideFigure != NULL) {
-                delete m_guideFigure;
-                m_guideFigure = NULL;
-            }
-        }
     }
 }

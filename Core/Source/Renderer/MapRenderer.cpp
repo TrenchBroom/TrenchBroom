@@ -933,6 +933,8 @@ namespace TrenchBroom {
             grid.gridDidChange                      -= new Controller::Grid::GridEvent::Listener<MapRenderer>(this, &MapRenderer::gridDidChange);
             prefs.preferencesDidChange              -= new Model::Preferences::PreferencesEvent::Listener<MapRenderer>(this, &MapRenderer::preferencesDidChange);
 
+            while (!m_figures.empty()) delete m_figures.back(), m_figures.pop_back();
+            
             delete m_faceVbo;
             delete m_edgeVbo;
             delete m_entityBoundsVbo;
@@ -958,6 +960,7 @@ namespace TrenchBroom {
             std::vector<Figure*>::iterator it = find(m_figures.begin(), m_figures.end(), &figure);
             if (it != m_figures.end()) {
                 m_figures.erase(it);
+                delete *it;
                 rendererChanged(*this);
             }
         }

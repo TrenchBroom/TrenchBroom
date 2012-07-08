@@ -71,7 +71,6 @@ namespace TrenchBroom {
         void VertexTool::deleteHandleFigure() {
             if (m_handleFigure != NULL) {
                 removeFigure(*m_handleFigure);
-                delete m_handleFigure;
                 m_handleFigure = NULL;
             }
         }
@@ -98,13 +97,11 @@ namespace TrenchBroom {
         void VertexTool::deleteSelectedHandleFigures() {
             if (m_selectedHandleFigure != NULL) {
                 removeFigure(*m_selectedHandleFigure);
-                delete m_selectedHandleFigure;
                 m_selectedHandleFigure = NULL;
             }
             
             if (m_guideFigure != NULL) {
                 removeFigure(*m_guideFigure);
-                delete m_guideFigure;
                 m_guideFigure = NULL;
             }
         }
@@ -112,11 +109,6 @@ namespace TrenchBroom {
         VertexTool::VertexTool(Controller::Editor& editor) : DragTool(editor), m_state(INACTIVE), m_brush(NULL), m_index(-1), m_handleFigure(NULL), m_selectedHandleFigure(NULL), m_guideFigure(NULL) {
         }
         
-        VertexTool::~VertexTool() {
-            deleteSelectedHandleFigures();
-            deleteHandleFigure();
-        }
-
         void VertexTool::activated(ToolEvent& event) {
             assert(m_state == INACTIVE);
             
