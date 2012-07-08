@@ -28,12 +28,13 @@
 
 #include "Controller/Editor.h"
 #include "Controller/InputController.h"
-#include "Model/Preferences.h"
-#include "Model/Map/Map.h"
-#include "Model/Map/EntityDefinition.h"
-#include "Model/Undo/UndoManager.h"
 #include "Model/Assets/Alias.h"
 #include "Model/Assets/Bsp.h"
+#include "Model/Map/Map.h"
+#include "Model/Map/EntityDefinition.h"
+#include "Model/Preferences.h"
+#include "Model/Selection.h"
+#include "Model/Undo/UndoManager.h"
 #include "IO/Pak.h"
 
 #include "WinFileManager.h"
@@ -58,6 +59,11 @@ BEGIN_MESSAGE_MAP(CTrenchBroomApp, CWinApp)
 	ON_COMMAND(ID_EDIT_REDO, &CTrenchBroomApp::OnEditRedo)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, &CTrenchBroomApp::OnUpdateEditRedo)
 	ON_COMMAND(ID_TOOLS_TOGGLE_VERTEX_TOOL, &CTrenchBroomApp::OnToolsToggleVertexTool)
+	ON_UPDATE_COMMAND_UI(ID_TOOLS_TOGGLE_VERTEX_TOOL, &CTrenchBroomApp::OnUpdateToolsToggleVertexTool)
+	ON_COMMAND(ID_TOOLS_TOGGLE_EDGE_TOOL, &CTrenchBroomApp::OnToolsToggleEdgeTool)
+	ON_UPDATE_COMMAND_UI(ID_TOOLS_TOGGLE_EDGE_TOOL, &CTrenchBroomApp::OnUpdateToolsToggleEdgeTool)
+	ON_COMMAND(ID_TOOLS_TOGGLE_FACE_TOOL, &CTrenchBroomApp::OnToolsToggleFaceTool)
+	ON_UPDATE_COMMAND_UI(ID_TOOLS_TOGGLE_FACE_TOOL, &CTrenchBroomApp::OnUpdateToolsToggleFaceTool)
 END_MESSAGE_MAP()
 
 /*
@@ -92,6 +98,19 @@ CTrenchBroomApp::CTrenchBroomApp()
 
 	// TODO: add construction code here,
 	// Place all significant initialization in InitInstance
+}
+
+TrenchBroom::Controller::Editor* CTrenchBroomApp::currentEditor()
+{
+	CFrameWnd* frame = DYNAMIC_DOWNCAST(CFrameWnd, CWnd::GetActiveWindow());
+	if (frame == NULL)
+		return NULL;
+
+	CMapDocument* mapDocument = DYNAMIC_DOWNCAST(CMapDocument, frame->GetActiveDocument());
+	if (mapDocument == NULL)
+		return NULL;
+
+	return &mapDocument->editor();
 }
 
 // The one and only CTrenchBroomApp object
@@ -319,77 +338,65 @@ void CTrenchBroomApp::OnFileNew()
 
 void CTrenchBroomApp::OnEditUndo()
 {
-	CFrameWnd* frame = DYNAMIC_DOWNCAST(CFrameWnd, CWnd::GetActiveWindow());
-	if (frame == NULL)
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
 		return;
 
-	CMapDocument* mapDocument = DYNAMIC_DOWNCAST(CMapDocument, frame->GetActiveDocument());
-	if (mapDocument == NULL)
-		return;
-
-	TrenchBroom::Model::UndoManager& undoManager = mapDocument->editor().map().undoManager();
+	TrenchBroom::Model::UndoManager& undoManager = editor->map().undoManager();
 	undoManager.undo();
 }
 
 void CTrenchBroomApp::OnUpdateEditUndo(CCmdUI* pCmdUI)
 {
-	CFrameWnd* frame = DYNAMIC_DOWNCAST(CFrameWnd, CWnd::GetActiveWindow());
-	if (frame == NULL)
-		return;
-
-	CMapDocument* mapDocument = DYNAMIC_DOWNCAST(CMapDocument, frame->GetActiveDocument());
-	if (mapDocument == NULL)
-		return;
-
-	TrenchBroom::Model::UndoManager& undoManager = mapDocument->editor().map().undoManager();
-	if (undoManager.undoStackEmpty()) {
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL) {
 		pCmdUI->Enable(FALSE);
 		pCmdUI->SetText("Undo\tCtrl+Z");
 	} else {
-		pCmdUI->Enable(TRUE);
-		std::string name = undoManager.topUndoName();
-		CString text = "Undo ";
-		text += name.c_str();
-		text += "\tCtrl+Z";
-		pCmdUI->SetText(text);
+		TrenchBroom::Model::UndoManager& undoManager = editor->map().undoManager();
+		if (undoManager.undoStackEmpty()) {
+			pCmdUI->Enable(FALSE);
+			pCmdUI->SetText("Undo\tCtrl+Z");
+		} else {
+			pCmdUI->Enable(TRUE);
+			std::string name = undoManager.topUndoName();
+			CString text = "Undo ";
+			text += name.c_str();
+			text += "\tCtrl+Z";
+			pCmdUI->SetText(text);
+		}
 	}
 }
 
 void CTrenchBroomApp::OnEditRedo()
 {
-	CFrameWnd* frame = DYNAMIC_DOWNCAST(CFrameWnd, CWnd::GetActiveWindow());
-	if (frame == NULL)
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
 		return;
 
-	CMapDocument* mapDocument = DYNAMIC_DOWNCAST(CMapDocument, frame->GetActiveDocument());
-	if (mapDocument == NULL)
-		return;
-
-	TrenchBroom::Model::UndoManager& undoManager = mapDocument->editor().map().undoManager();
+	TrenchBroom::Model::UndoManager& undoManager = editor->map().undoManager();
 	undoManager.redo();
 }
 
 void CTrenchBroomApp::OnUpdateEditRedo(CCmdUI* pCmdUI)
 {
-	CFrameWnd* frame = DYNAMIC_DOWNCAST(CFrameWnd, CWnd::GetActiveWindow());
-	if (frame == NULL)
-		return;
-
-	CMapDocument* mapDocument = DYNAMIC_DOWNCAST(CMapDocument, frame->GetActiveDocument());
-	if (mapDocument == NULL)
-		return;
-
-	TrenchBroom::Model::UndoManager& undoManager = mapDocument->editor().map().undoManager();
-	if (undoManager.redoStackEmpty()) {
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL) {
 		pCmdUI->Enable(FALSE);
 		pCmdUI->SetText("Redo\tCtrl+Y");
 	} else {
-		pCmdUI->Enable(TRUE);
-		std::string name = undoManager.topRedoName();
-		CString text = "Redo ";
-		text += name.c_str();
-		text += "\tCtrl+Y";
-		pCmdUI->SetText(text);
+		TrenchBroom::Model::UndoManager& undoManager = editor->map().undoManager();
+		if (undoManager.redoStackEmpty()) {
+			pCmdUI->Enable(FALSE);
+			pCmdUI->SetText("Redo\tCtrl+Y");
+		} else {
+			pCmdUI->Enable(TRUE);
+			std::string name = undoManager.topRedoName();
+			CString text = "Redo ";
+			text += name.c_str();
+			text += "\tCtrl+Y";
+			pCmdUI->SetText(text);
+		}
 	}
 }
 
@@ -402,14 +409,71 @@ void CTrenchBroomApp::OnToolsOptions()
 
 void CTrenchBroomApp::OnToolsToggleVertexTool()
 {
-	CFrameWnd* frame = DYNAMIC_DOWNCAST(CFrameWnd, CWnd::GetActiveWindow());
-	if (frame == NULL)
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
 		return;
 
-	CMapDocument* mapDocument = DYNAMIC_DOWNCAST(CMapDocument, frame->GetActiveDocument());
-	if (mapDocument == NULL)
-		return;
-
-	TrenchBroom::Controller::InputController& inputController = mapDocument->editor().inputController();
+	TrenchBroom::Controller::InputController& inputController = editor->inputController();
 	inputController.toggleMoveVertexTool();
+}
+
+
+void CTrenchBroomApp::OnUpdateToolsToggleVertexTool(CCmdUI *pCmdUI)
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL) {
+		pCmdUI->Enable(FALSE);
+	} else {
+		TrenchBroom::Controller::InputController& inputController = editor->inputController();
+		TrenchBroom::Model::Selection& selection = editor->map().selection();
+		pCmdUI->Enable(inputController.moveVertexToolActive() || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES);
+	}
+}
+
+
+void CTrenchBroomApp::OnToolsToggleEdgeTool()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	TrenchBroom::Controller::InputController& inputController = editor->inputController();
+	inputController.toggleMoveEdgeTool();
+}
+
+
+void CTrenchBroomApp::OnUpdateToolsToggleEdgeTool(CCmdUI *pCmdUI)
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL) {
+		pCmdUI->Enable(FALSE);
+	} else {
+		TrenchBroom::Controller::InputController& inputController = editor->inputController();
+		TrenchBroom::Model::Selection& selection = editor->map().selection();
+		pCmdUI->Enable(inputController.moveEdgeToolActive() || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES);
+	}
+}
+
+
+void CTrenchBroomApp::OnToolsToggleFaceTool()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	TrenchBroom::Controller::InputController& inputController = editor->inputController();
+	inputController.toggleMoveFaceTool();
+}
+
+
+void CTrenchBroomApp::OnUpdateToolsToggleFaceTool(CCmdUI *pCmdUI)
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL) {
+		pCmdUI->Enable(FALSE);
+	} else {
+		TrenchBroom::Controller::InputController& inputController = editor->inputController();
+		TrenchBroom::Model::Selection& selection = editor->map().selection();
+		pCmdUI->Enable(inputController.moveFaceToolActive() || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES);
+	}
 }

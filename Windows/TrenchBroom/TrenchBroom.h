@@ -29,16 +29,19 @@
 // See TrenchBroom.cpp for the implementation of this class
 //
 
+namespace TrenchBroom {
+	namespace Controller {
+		class Editor;
+	}
+}
+
 class CTrenchBroomApp : public CWinApp
 {
 public:
 	CTrenchBroomApp();
-
 protected:
 	CMultiDocTemplate* m_pDocTemplate;
-public:
-
-// Overrides
+	TrenchBroom::Controller::Editor* currentEditor();
 public:
 	virtual BOOL InitInstance();
 	virtual BOOL ExitInstance();
@@ -55,6 +58,11 @@ public:
 	afx_msg void OnUpdateEditRedo(CCmdUI* pCmdUI);
 	afx_msg void OnToolsOptions();
 	afx_msg void OnToolsToggleVertexTool();
+	afx_msg void OnUpdateToolsToggleVertexTool(CCmdUI *pCmdUI);
+	afx_msg void OnToolsToggleEdgeTool();
+	afx_msg void OnUpdateToolsToggleEdgeTool(CCmdUI *pCmdUI);
+	afx_msg void OnToolsToggleFaceTool();
+	afx_msg void OnUpdateToolsToggleFaceTool(CCmdUI *pCmdUI);
 };
 
 extern CTrenchBroomApp theApp;
