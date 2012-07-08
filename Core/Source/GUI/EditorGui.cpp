@@ -28,50 +28,54 @@
 #include "Gwen/Skins/TexturedBase.h"
 
 namespace TrenchBroom {
-    namespace Gui {
+	namespace Gui {
 
-        void EditorGui::onCanvasRedraw(Gwen::Controls::Base* control) {
-            editorGuiRedraw(*this);
-        }
+		void EditorGui::onCanvasRedraw(Gwen::Controls::Base* control) {
+			editorGuiRedraw(*this);
+		}
 
-        EditorGui::EditorGui(Controller::Editor& editor, Renderer::FontManager& fontManager, const std::string& skinPath) : m_editor(editor) {
-            m_renderer = new Gwen::Renderer::OpenGL_FTGL();
-            m_skin = new Gwen::Skin::TexturedBase();
-            m_skin->SetRender(m_renderer);
-            m_skin->Init(skinPath);
-            m_skin->SetDefaultFont(Gwen::Platform::GetDefaultFontFace(), Gwen::Platform::GetDefaultFontSize());
-            m_canvas = new Gwen::Controls::Canvas(m_skin);
-            m_splitter = new Gwen::Controls::Splitter(m_canvas, true, -400);
-            m_mapRenderer = new MapRendererControl(m_splitter, m_editor, fontManager);
-            m_splitter->SetPanel(0, m_mapRenderer);
-            m_inspector = new Inspector(m_splitter, editor);
-            m_splitter->SetPanel(1, m_inspector);
-            m_splitter->SetMinSize(0, 300);
-            m_splitter->SetMinSize(1, 400);
-            m_splitter->SetResize(0, true);
-            m_splitter->SetResize(1, false);
+		EditorGui::EditorGui(Controller::Editor& editor, Renderer::FontManager& fontManager, const std::string& skinPath) : m_editor(editor) {
+			m_renderer = new Gwen::Renderer::OpenGL_FTGL();
+			m_skin = new Gwen::Skin::TexturedBase();
+			m_skin->SetRender(m_renderer);
+			m_skin->Init(skinPath);
+			m_skin->SetDefaultFont(Gwen::Platform::GetDefaultFontFace(), Gwen::Platform::GetDefaultFontSize());
+			m_canvas = new Gwen::Controls::Canvas(m_skin);
+			m_splitter = new Gwen::Controls::Splitter(m_canvas, true, -400);
+			m_mapRenderer = new MapRendererControl(m_splitter, m_editor, fontManager);
+			m_splitter->SetPanel(0, m_mapRenderer);
+			m_inspector = new Inspector(m_splitter, editor);
+			m_splitter->SetPanel(1, m_inspector);
+			m_splitter->SetMinSize(0, 300);
+			m_splitter->SetMinSize(1, 400);
+			m_splitter->SetResize(0, true);
+			m_splitter->SetResize(1, false);
 
-            m_canvas->onRedraw.Add(this, &EditorGui::onCanvasRedraw);
-        }
+			m_canvas->onRedraw.Add(this, &EditorGui::onCanvasRedraw);
+		}
 
-        EditorGui::~EditorGui() {
-            m_canvas->Release();
+		EditorGui::~EditorGui() {
+			m_canvas->Release();
 
-            delete m_skin;
-            delete m_renderer;
-        }
+			delete m_skin;
+			delete m_renderer;
+		}
 
-        void EditorGui::resizeTo(int width, int height) {
-            m_canvas->SetSize(width, height);
-            m_splitter->SetBounds(m_canvas->GetBounds());
-        }
+		void EditorGui::resizeTo(int width, int height) {
+			m_canvas->SetSize(width, height);
+			m_splitter->SetBounds(m_canvas->GetBounds());
+		}
 
-        void EditorGui::render() {
-            m_canvas->RenderCanvas();
-        }
+		void EditorGui::render() {
+			m_canvas->RenderCanvas();
+		}
 
-        Gwen::Controls::Canvas* EditorGui::canvas() {
-            return m_canvas;
-        }
-    }
+		Gwen::Controls::Canvas* EditorGui::canvas() {
+			return m_canvas;
+		}
+ 
+		bool EditorGui::mapViewFocused() {
+			return Gwen::KeyboardFocus == m_mapRenderer;
+		}
+	}
 }
