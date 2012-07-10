@@ -29,6 +29,8 @@ namespace TrenchBroom {
             virtual bool isDirectory(const std::string& path);
             virtual bool exists(const std::string& path);
             
+            virtual bool makeDirectory(const std::string& path);
+
             virtual std::vector<std::string> directoryContents(const std::string& path, std::string extension = "");
 
             virtual char pathSeparator() {

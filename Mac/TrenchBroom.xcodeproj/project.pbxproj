@@ -154,6 +154,7 @@
 		48953FDF15679B92006DD2E3 /* SnapshotUndoItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48953FDE15679B92006DD2E3 /* SnapshotUndoItem.cpp */; };
 		48953FE21567CE9C006DD2E3 /* TextureBrowserControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48953FE11567CE9C006DD2E3 /* TextureBrowserControl.cpp */; };
 		48979EE8152E34AE0039ABE8 /* DefaultSkin.png in Resources */ = {isa = PBXBuildFile; fileRef = 48979EE7152E34AE0039ABE8 /* DefaultSkin.png */; };
+		48A003BC15AC2C6D00FD4B56 /* Autosaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48A003BB15AC2C6D00FD4B56 /* Autosaver.cpp */; };
 		48B50E13152CF6E400E75402 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 48B50E12152CF6E400E75402 /* Cocoa.framework */; };
 		48B50E1D152CF6E400E75402 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 48B50E1B152CF6E400E75402 /* InfoPlist.strings */; };
 		48B50E1F152CF6E400E75402 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B50E1E152CF6E400E75402 /* main.m */; };
@@ -509,6 +510,8 @@
 		48953FE11567CE9C006DD2E3 /* TextureBrowserControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureBrowserControl.cpp; sourceTree = "<group>"; };
 		48953FE31567CFE2006DD2E3 /* CellLayout.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CellLayout.h; sourceTree = "<group>"; };
 		48979EE7152E34AE0039ABE8 /* DefaultSkin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = DefaultSkin.png; path = ../../Resources/Graphics/DefaultSkin.png; sourceTree = "<group>"; };
+		48A003B915AC2C4400FD4B56 /* Autosaver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Autosaver.h; sourceTree = "<group>"; };
+		48A003BB15AC2C6D00FD4B56 /* Autosaver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Autosaver.cpp; sourceTree = "<group>"; };
 		48B50E0E152CF6E400E75402 /* TrenchBroom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrenchBroom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		48B50E12152CF6E400E75402 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		48B50E15152CF6E400E75402 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -562,6 +565,8 @@
 		4825B3BC153AE59F007E3AE1 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				48A003BB15AC2C6D00FD4B56 /* Autosaver.cpp */,
+				48A003B915AC2C4400FD4B56 /* Autosaver.h */,
 				4825B3BD153AE59F007E3AE1 /* Camera.cpp */,
 				4825B3BE153AE59F007E3AE1 /* Camera.h */,
 				4825B3BF153AE59F007E3AE1 /* CameraTool.cpp */,
@@ -1365,6 +1370,7 @@
 				480D6C0815A1CD360067162B /* MoveFaceTool.cpp in Sources */,
 				48BEA2EA15A1D94800801124 /* PointGuideFigure.cpp in Sources */,
 				484D24BA15A3845B00B803C2 /* MainMenuDelegate.mm in Sources */,
+				48A003BC15AC2C6D00FD4B56 /* Autosaver.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

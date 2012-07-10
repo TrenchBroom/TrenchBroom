@@ -87,17 +87,18 @@ namespace TrenchBroom {
             
             void loadTextureWad(const std::string& path);
             
-            Model::Map& map();
-            Camera& camera();
-            Grid& grid();
-            InputController& inputController();
-            TransientOptions& options();
-            Filter& filter();
-            Model::Assets::Palette& palette();
-            Model::Assets::TextureManager& textureManager();
+            const std::string& mapPath() const;
+            Model::Map& map() const;
+            Camera& camera() const;
+            Grid& grid() const;
+            InputController& inputController() const;
+            TransientOptions& options() const;
+            Filter& filter() const;
+            Model::Assets::Palette& palette() const;
+            Model::Assets::TextureManager& textureManager() const;
             
             void setRenderer(Renderer::MapRenderer* renderer);
-            Renderer::MapRenderer* renderer();
+            Renderer::MapRenderer* renderer() const;
             
             void undo();
             void redo();

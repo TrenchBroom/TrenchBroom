@@ -166,36 +166,40 @@ namespace TrenchBroom {
                 log(TB_LL_WARN, "Could not open texture wad %s\n", path.c_str());
             }
         }
+        
+        const std::string& Editor::mapPath() const {
+            return m_mapPath;
+        }
 
-        Model::Map& Editor::map() {
+        Model::Map& Editor::map() const {
             return *m_map;
         }
 
-        Camera& Editor::camera() {
+        Camera& Editor::camera() const {
             return *m_camera;
         }
 
-        Grid& Editor::grid() {
+        Grid& Editor::grid() const {
             return *m_grid;
         }
 
-        InputController& Editor::inputController() {
+        InputController& Editor::inputController() const {
             return *m_inputController;
         }
 
-        TransientOptions& Editor::options() {
+        TransientOptions& Editor::options() const {
             return *m_options;
         }
 
-        Filter& Editor::filter() {
+        Filter& Editor::filter() const {
             return *m_filter;
         }
 
-        Model::Assets::Palette& Editor::palette() {
+        Model::Assets::Palette& Editor::palette() const {
             return *m_palette;
         }
 
-        Model::Assets::TextureManager& Editor::textureManager() {
+        Model::Assets::TextureManager& Editor::textureManager() const {
             return *m_textureManager;
         }
 
@@ -203,7 +207,7 @@ namespace TrenchBroom {
             m_renderer = renderer;
         }
 
-        Renderer::MapRenderer* Editor::renderer() {
+        Renderer::MapRenderer* Editor::renderer() const {
             return m_renderer;
         }
 

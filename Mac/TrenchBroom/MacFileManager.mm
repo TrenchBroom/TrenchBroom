@@ -19,6 +19,8 @@
 
 #import "MacFileManager.h"
 
+#import <cassert>
+
 namespace TrenchBroom {
     namespace IO {
         bool MacFileManager::isDirectory(const std::string& path) {
@@ -35,6 +37,15 @@ namespace TrenchBroom {
             return [fileManager fileExistsAtPath:[NSString stringWithCString:path.c_str() encoding:NSASCIIStringEncoding]];
         }
         
+        bool MacFileManager::makeDirectory(const std::string& path) {
+            NSString* objcPath = [NSString stringWithCString:path.c_str() encoding:NSASCIIStringEncoding];
+            NSFileManager* fileManager = [NSFileManager defaultManager];
+
+            assert(![fileManager fileExistsAtPath:objcPath]);
+            
+            return [fileManager createDirectoryAtPath:objcPath withIntermediateDirectories:YES attributes:nil error:NULL];
+        }
+
         std::vector<std::string> MacFileManager::directoryContents(const std::string& path, std::string extension) {
             std::vector<std::string> result;
             
