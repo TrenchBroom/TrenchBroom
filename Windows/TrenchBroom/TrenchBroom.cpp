@@ -113,6 +113,19 @@ TrenchBroom::Controller::Editor* CTrenchBroomApp::currentEditor()
 	return &mapDocument->editor();
 }
 
+bool CTrenchBroomApp::mapViewFocused()
+{
+	CFrameWnd* frame = DYNAMIC_DOWNCAST(CFrameWnd, CWnd::GetActiveWindow());
+	if (frame == NULL)
+		return false;
+
+	CMapView* mapView = DYNAMIC_DOWNCAST(CMapView, frame->GetActiveView());
+	if (mapView == NULL)
+		return false;
+
+	return mapView->mapViewFocused();
+}
+
 // The one and only CTrenchBroomApp object
 
 CTrenchBroomApp theApp;
@@ -421,7 +434,7 @@ void CTrenchBroomApp::OnToolsToggleVertexTool()
 void CTrenchBroomApp::OnUpdateToolsToggleVertexTool(CCmdUI *pCmdUI)
 {
 	TrenchBroom::Controller::Editor* editor = currentEditor();
-	if (editor == NULL) {
+	if (editor == NULL || !mapViewFocused()) {
 		pCmdUI->Enable(FALSE);
 	} else {
 		TrenchBroom::Controller::InputController& inputController = editor->inputController();
@@ -445,7 +458,7 @@ void CTrenchBroomApp::OnToolsToggleEdgeTool()
 void CTrenchBroomApp::OnUpdateToolsToggleEdgeTool(CCmdUI *pCmdUI)
 {
 	TrenchBroom::Controller::Editor* editor = currentEditor();
-	if (editor == NULL) {
+	if (editor == NULL || !mapViewFocused()) {
 		pCmdUI->Enable(FALSE);
 	} else {
 		TrenchBroom::Controller::InputController& inputController = editor->inputController();
@@ -469,7 +482,7 @@ void CTrenchBroomApp::OnToolsToggleFaceTool()
 void CTrenchBroomApp::OnUpdateToolsToggleFaceTool(CCmdUI *pCmdUI)
 {
 	TrenchBroom::Controller::Editor* editor = currentEditor();
-	if (editor == NULL) {
+	if (editor == NULL || !mapViewFocused()) {
 		pCmdUI->Enable(FALSE);
 	} else {
 		TrenchBroom::Controller::InputController& inputController = editor->inputController();

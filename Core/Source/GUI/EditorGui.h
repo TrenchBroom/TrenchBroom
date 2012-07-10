@@ -24,57 +24,58 @@
 #include "Utilities/Event.h"
 
 namespace Gwen {
-    namespace Renderer {
-        class OpenGL;
-    }
-    
-    namespace Skin {
-        class TexturedBase;
-    }
-    
-    namespace Controls {
-        class Base;
-        class Canvas;
-        class Splitter;
-    }
+	namespace Renderer {
+		class OpenGL;
+	}
+	
+	namespace Skin {
+		class TexturedBase;
+	}
+	
+	namespace Controls {
+		class Base;
+		class Canvas;
+		class Splitter;
+	}
 }
 
 namespace TrenchBroom {
-    namespace Controller {
-        class Editor;
-    }
-    
-    namespace Renderer {
-        class FontManager;
-    }
-    
-    namespace Gui {
-        class Inspector;
-        class MapRendererControl;
+	namespace Controller {
+		class Editor;
+	}
+	
+	namespace Renderer {
+		class FontManager;
+	}
+	
+	namespace Gui {
+		class Inspector;
+		class MapRendererControl;
 
-        class EditorGui : public Gwen::Event::Handler {
-        private:
-            Controller::Editor& m_editor;
-            Gwen::Renderer::OpenGL* m_renderer;
-            Gwen::Skin::TexturedBase* m_skin;
-            Gwen::Controls::Canvas* m_canvas;
-            Gwen::Controls::Splitter* m_splitter;
-            MapRendererControl* m_mapRenderer;
-            Inspector* m_inspector;
-            void onCanvasRedraw(Gwen::Controls::Base* control);
-        public:
-            typedef Event<EditorGui&> EditorGuiEvent;
+		class EditorGui : public Gwen::Event::Handler {
+		private:
+			Controller::Editor& m_editor;
+			Gwen::Renderer::OpenGL* m_renderer;
+			Gwen::Skin::TexturedBase* m_skin;
+			Gwen::Controls::Canvas* m_canvas;
+			Gwen::Controls::Splitter* m_splitter;
+			MapRendererControl* m_mapRenderer;
+			Inspector* m_inspector;
+			void onCanvasRedraw(Gwen::Controls::Base* control);
+		public:
+			typedef Event<EditorGui&> EditorGuiEvent;
 
-            EditorGui(Controller::Editor& editor, Renderer::FontManager& fontManager, const std::string& skinPath);
-            ~EditorGui();
-            
-            void resizeTo(int width, int height);
-            void render();
-            
-            Gwen::Controls::Canvas* canvas();
-            EditorGuiEvent editorGuiRedraw;
-        };
-    }
+			EditorGui(Controller::Editor& editor, Renderer::FontManager& fontManager, const std::string& skinPath);
+			~EditorGui();
+			
+			void resizeTo(int width, int height);
+			void render();
+			bool mapViewFocused();
+			
+			Gwen::Controls::Canvas* canvas();
+			EditorGuiEvent editorGuiRedraw;
+		};
+	}
 }
 
 #endif

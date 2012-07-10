@@ -60,16 +60,20 @@ protected:
 
 // Generated message map functions
 protected:
+	CPoint* m_lastMousePos;
+
 	DECLARE_MESSAGE_MAP()
-public:
-	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-protected:
+
 	HDC m_deviceContext;
 	HGLRC m_openGLContext;
 	TrenchBroom::Gui::EditorGui* m_editorGui;
 	TrenchBroom::Renderer::FontManager* m_fontManager;
 	void editorGuiRedraw(TrenchBroom::Gui::EditorGui& editorGui);
+	void key(UINT nChar, UINT nFlags, bool down);
 public:
+	bool mapViewFocused();
+
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnDestroy();
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
@@ -81,8 +85,6 @@ public:
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
 protected:
-	CPoint* m_lastMousePos;
-	void key(UINT nChar, UINT nFlags, bool down);
 };
 
 #ifndef _DEBUG  // debug version in MapView.cpp

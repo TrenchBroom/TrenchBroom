@@ -42,6 +42,7 @@ public:
 protected:
 	CMultiDocTemplate* m_pDocTemplate;
 	TrenchBroom::Controller::Editor* currentEditor();
+	bool mapViewFocused();
 public:
 	virtual BOOL InitInstance();
 	virtual BOOL ExitInstance();

@@ -131,6 +131,11 @@ CMapDocument* CMapView::GetDocument() const // non-debug version is inline
 }
 #endif //_DEBUG
 
+bool CMapView::mapViewFocused()
+{
+	return m_editorGui->mapViewFocused();
+}
+
 
 // CMapView message handlers
 
@@ -242,13 +247,14 @@ void CMapView::editorGuiRedraw(TrenchBroom::Gui::EditorGui& editorGui)
 
 void CMapView::OnDestroy()
 {
+	wglMakeCurrent(m_deviceContext, m_openGLContext);
+
 	CView::OnDestroy();
 
 	m_editorGui->editorGuiRedraw -= new TrenchBroom::Gui::EditorGui::EditorGuiEvent::Listener<CMapView>(this, &CMapView::editorGuiRedraw);
 	delete m_editorGui;
 	delete m_fontManager;
 
-	wglMakeCurrent(m_deviceContext, m_openGLContext);
 	wglDeleteContext(m_openGLContext);
 }
 
@@ -338,7 +344,7 @@ void CMapView::key(UINT nChar, UINT nFlags, bool down)
 
 	if ( iKey != -1 ){
 		m_editorGui->canvas()->InputKey(iKey, down);
-	} else {
+	} else if (down) {
 		Gwen::UnicodeChar chr = (Gwen::UnicodeChar)nChar;
 		m_editorGui->canvas()->InputCharacter(chr);
 	}
