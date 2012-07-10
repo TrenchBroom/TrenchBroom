@@ -35,6 +35,8 @@ namespace TrenchBroom {
             virtual bool isDirectory(const std::string& path) = 0;
             virtual bool exists(const std::string& path) = 0;
             virtual bool makeDirectory(const std::string& path) = 0;
+            virtual bool deleteFile(const std::string& path);
+            virtual bool moveFile(const std::string& sourcePath, const std::string& destPath, bool overwrite) = 0;
             
             virtual std::vector<std::string> directoryContents(const std::string& path, std::string extension = "") = 0;
 

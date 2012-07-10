@@ -21,9 +21,11 @@
 
 #include "Controller/Editor.h"
 #include "IO/FileManager.h"
+#include "Model/Map/Map.h"
 #include "Utilities/Console.h"
 
 #include <string>
+#include <sstream>
 #include <cassert>
 #include <cstdlib>
 #include <algorithm>
@@ -45,13 +47,21 @@ namespace TrenchBroom {
         bool compareByBackupNo(const std::string& file1, const std::string& file2) {
             unsigned int backupNo1 = backupNoOfFile(file1);
             unsigned int backupNo2 = backupNoOfFile(file2);
-            return backupNo1 < backupNo2;
+            return backupNo1 > backupNo2;
+        }
+
+        std::string Autosaver::backupName(const std::string& mapBasename, unsigned int backupNo) {
+            std::stringstream sstream;
+            sstream << mapBasename;
+            sstream << " ";
+            sstream << backupNo;
+            sstream << ".map";
+            return sstream.str();
         }
 
         void Autosaver::triggerAutosave() {
             time_t currentTime = time(NULL);
             if (m_dirty && m_lastModificationTime > 0 && currentTime - m_lastModificationTime >= m_idleInterval && currentTime - m_lastSaveTime >= m_saveInterval) {
-                
                 const std::string& mapPath = m_editor.mapPath();
                 if (mapPath.empty())
                     return;
@@ -77,7 +87,7 @@ namespace TrenchBroom {
                 // collect the actual backup files and determine the highest backup no
                 std::vector<std::string> contents = fileManager.directoryContents(autosavePath);
                 std::vector<std::string> backups;
-                unsigned int highestBackupNo = 1;
+                unsigned int highestBackupNo = 0;
                 for (unsigned int i = 0; i < contents.size(); i++) {
                     const std::string& filename = contents[i];
                     if (filename.substr(0, mapBasename.length()) == mapBasename) {
@@ -90,25 +100,54 @@ namespace TrenchBroom {
                 }
                 
                 if (!backups.empty()) {
-                    // sort the backups by their backup nos
+                    // sort the backups by their backup nos in descending order
                     std::sort(backups.begin(), backups.end(), compareByBackupNo);
                     
-                    if (highestBackupNo > backups.size()) {
-                        // reorganize the backups and remove "holes"
-                        // adapt highestBackupNo
+                    // remove the oldest backups until backups.size() == m_maxBackups - 1
+                    while (backups.size() > m_maxBackups - 1) {
+                        const std::string filePath = fileManager.appendPath(autosavePath, backups.back());
+                        if (!fileManager.deleteFile(filePath)) {
+                            log(TB_LL_ERR, "Cannot delete file %s", filePath.c_str());
+                            return;
+                        }
+                        
+                        backups.pop_back();
                     }
-
-                    assert(highestBackupNo == backups.size());
                     
-                    if (backups.size() >= m_maxBackups) {
-                        // remove the first backups until backups.size() == m_maxBackups - 1
-                        // adapt highestBackupNo
+                    if (highestBackupNo > backups.size()) {
+                        // reorganize the backups and close gaps in the numbering
+                        for (int i = backups.size() - 1; i >= 0; i--) {
+                            const std::string& filename = backups[i];
+                            const std::string backupFilename = backupName(mapBasename, i + 1);
+                            if (filename != backupFilename) {
+                                const std::string filePath = fileManager.appendPath(autosavePath, filename);
+                                const std::string backupFilePath = fileManager.appendPath(autosavePath, backupFilename);
+                                if (fileManager.exists(backupFilePath)) {
+                                    log(TB_LL_ERR, "Cannot move file %s to %s because a file exists at that path", filePath.c_str(), backupFilePath.c_str());
+                                    return;
+                                }
+                                
+                                if (!fileManager.moveFile(filePath, backupFilePath, false)) {
+                                    log(TB_LL_ERR, "Cannot move file %s to %s", filePath.c_str(), backupFilePath.c_str());
+                                    return;
+                                }
+                                
+                                backups[i] = backupFilename;
+                            }
+                        }
+                        
+                        highestBackupNo = backups.size();
                     }
                 }
+
+                assert(highestBackupNo == backups.size());
+                assert(highestBackupNo < m_maxBackups);
                 
-                // append the backup with file name "mapBasename highestBackupNo.map"
-                
-                
+                // save the backup
+                const std::string backupFilename = backupName(mapBasename, highestBackupNo + 1);
+                const std::string backupFilePath = fileManager.appendPath(autosavePath, backupFilename);
+                m_editor.map().save(backupFilePath);
+
                 m_lastSaveTime = currentTime;
                 m_dirty = false;
             }

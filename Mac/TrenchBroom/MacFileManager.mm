@@ -46,6 +46,37 @@ namespace TrenchBroom {
             return [fileManager createDirectoryAtPath:objcPath withIntermediateDirectories:YES attributes:nil error:NULL];
         }
 
+        bool MacFileManager::deleteFile(const std::string& path) {
+            NSFileManager* fileManager = [NSFileManager defaultManager];
+            NSString* objcPath = [NSString stringWithCString:path.c_str() encoding:NSASCIIStringEncoding];
+            
+            BOOL directory = false;
+            BOOL exists = [fileManager fileExistsAtPath:objcPath isDirectory:&directory];
+            assert(exists && !directory);
+            
+            return [fileManager removeItemAtPath:objcPath error:NULL];
+        }
+
+        bool MacFileManager::moveFile(const std::string& sourcePath, const std::string& destPath, bool overwrite) {
+            NSFileManager* fileManager = [NSFileManager defaultManager];
+            NSString* objcSourcePath = [NSString stringWithCString:sourcePath.c_str() encoding:NSASCIIStringEncoding];
+            NSString* objcDestPath = [NSString stringWithCString:destPath.c_str() encoding:NSASCIIStringEncoding];
+
+            BOOL directory = false;
+            BOOL exists = [fileManager fileExistsAtPath:objcSourcePath isDirectory:&directory];
+            assert(exists && !directory);
+            
+            exists = [fileManager fileExistsAtPath:objcDestPath isDirectory:&directory];
+            if (exists) {
+                if (!overwrite || directory)
+                    return false;
+                else
+                    deleteFile(sourcePath);
+            }
+            
+            return [fileManager moveItemAtPath:objcSourcePath toPath:objcDestPath error:NULL];
+        }
+
         std::vector<std::string> MacFileManager::directoryContents(const std::string& path, std::string extension) {
             std::vector<std::string> result;
             

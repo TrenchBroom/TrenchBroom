@@ -39,6 +39,8 @@ namespace TrenchBroom {
             time_t m_lastSaveTime;
             time_t m_lastModificationTime;
             bool m_dirty;
+            
+            std::string backupName(const std::string& mapBasename, unsigned int backupNo);
         public:
             Autosaver(Editor& editor, time_t saveInterval = 5 * 60, time_t idleInterval = 3, unsigned int maxBackups = 50) : m_editor(editor), m_saveInterval(saveInterval), m_idleInterval(idleInterval), m_maxBackups(maxBackups), m_lastSaveTime(0), m_lastModificationTime(0), m_dirty(false) {}
             ~Autosaver() {}
