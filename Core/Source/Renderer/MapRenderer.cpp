@@ -736,8 +736,10 @@ namespace TrenchBroom {
             EntityRenderers::iterator it;
             for (it = entities.begin(); it != entities.end(); ++it) {
                 Model::Entity* entity = it->first;
-                EntityRenderer* renderer = it->second;
-                renderer->render(*entity);
+                if (context.filter.entityVisible(*entity)) {
+                    EntityRenderer* renderer = it->second;
+                    renderer->render(*entity);
+                }
             }
 
             m_entityRendererManager->deactivate();
