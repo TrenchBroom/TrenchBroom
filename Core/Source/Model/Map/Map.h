@@ -87,7 +87,6 @@ namespace TrenchBroom {
             Map(const BBox& worldBounds, const std::string& entityDefinitionFilePath);
             ~Map();
             
-            void save(const std::string& path);
             void clear();
             
             void loadPointFile(const std::string& path);

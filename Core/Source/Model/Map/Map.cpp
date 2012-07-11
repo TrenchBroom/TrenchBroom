@@ -18,9 +18,7 @@
  */
 
 #include "Map.h"
-#include <algorithm>
-#include <fstream>
-#include <cassert>
+
 #include "Model/Map/Brush.h"
 #include "Model/Map/BrushGeometry.h"
 #include "Model/Map/Entity.h"
@@ -34,6 +32,10 @@
 #include "Model/Selection.h"
 #include "Utilities/Utils.h"
 #include "Utilities/Console.h"
+
+#include <algorithm>
+#include <fstream>
+#include <cassert>
 
 namespace TrenchBroom {
     namespace Model {
@@ -61,9 +63,6 @@ namespace TrenchBroom {
             delete m_selection;
             delete m_groupManager;
             delete m_undoManager;
-        }
-
-        void Map::save(const std::string& path) {
         }
 
         void Map::clear() {

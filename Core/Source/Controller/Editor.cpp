@@ -18,23 +18,27 @@
  */
 
 #include "Editor.h"
-#include <ctime>
+
+#include "Controller/Autosaver.h"
 #include "Controller/Camera.h"
 #include "Controller/Grid.h"
 #include "Controller/InputController.h"
 #include "Controller/Options.h"
 #include "Controller/ProgressIndicator.h"
+#include "IO/FileManager.h"
+#include "IO/MapParser.h"
+#include "IO/MapWriter.h"
+#include "IO/Wad.h"
 #include "Model/Map/Map.h"
 #include "Model/Map/Entity.h"
 #include "Model/Preferences.h"
 #include "Model/Selection.h"
 #include "Model/Undo/UndoManager.h"
-#include "IO/FileManager.h"
-#include "IO/MapParser.h"
-#include "IO/Wad.h"
 #include "Utilities/Filter.h"
 #include "Utilities/Utils.h"
 #include "Utilities/Console.h"
+
+#include <ctime>
 
 namespace TrenchBroom {
     namespace Controller {
@@ -77,6 +81,10 @@ namespace TrenchBroom {
             m_camera->setFarPlane(Model::Preferences::sharedPreferences->cameraFar());
         }
 
+        void Editor::undoGroupCreated(const Model::UndoGroup& group) {
+            m_autosaver->updateLastModificationTime();
+        }
+
         Editor::Editor(const std::string& entityDefinitionFilePath, const std::string& palettePath) : m_entityDefinitionFilePath(entityDefinitionFilePath), m_renderer(NULL) {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
 
@@ -91,12 +99,19 @@ namespace TrenchBroom {
             m_palette = new Model::Assets::Palette(palettePath);
             m_options = new TransientOptions();
             m_filter = new Filter();
+            m_autosaver = new Autosaver(*this);
 
             Model::Preferences::sharedPreferences->preferencesDidChange += new Model::Preferences::PreferencesEvent::Listener<Editor>(this, &Editor::preferencesDidChange);
             m_textureManager->textureManagerDidChange += new Model::Assets::TextureManager::TextureManagerEvent::Listener<Editor>(this, &Editor::textureManagerDidChange);
+
+            m_map->undoManager().undoGroupCreated  += new Model::UndoManager::UndoEvent::Listener<Editor>(this, &Editor::undoGroupCreated);
         }
 
         Editor::~Editor() {
+            m_map->undoManager().undoGroupCreated  -= new Model::UndoManager::UndoEvent::Listener<Editor>(this, &Editor::undoGroupCreated);
+
+            delete m_autosaver;
+            
             Model::Preferences::sharedPreferences->preferencesDidChange -= new Model::Preferences::PreferencesEvent::Listener<Editor>(this, &Editor::preferencesDidChange);
             m_textureManager->textureManagerDidChange -= new Model::Assets::TextureManager::TextureManagerEvent::Listener<Editor>(this, &Editor::textureManagerDidChange);
 
@@ -142,9 +157,13 @@ namespace TrenchBroom {
 			m_map->setPostNotifications(true);
 
 			m_map->mapLoaded(*m_map);
+            m_autosaver->clearDirtyFlag();
         }
 
         void Editor::saveMap(const std::string& path) {
+            IO::MapWriter mapWriter(*m_map);
+            mapWriter.writeToFileAtPath(path, true);
+            m_autosaver->clearDirtyFlag();
         }
 
         void Editor::loadTextureWad(const std::string& path) {
@@ -193,6 +212,10 @@ namespace TrenchBroom {
 
         Filter& Editor::filter() const {
             return *m_filter;
+        }
+        
+        Autosaver& Editor::autosaver() const {
+            return *m_autosaver;
         }
 
         Model::Assets::Palette& Editor::palette() const {

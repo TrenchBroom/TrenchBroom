@@ -17,26 +17,35 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#import "IO/FileManager.h"
+#ifndef TrenchBroom_MapWriter_h
+#define TrenchBroom_MapWriter_h
+
+#include <string>
+#include <ostream>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Brush;
+        class Entity;
+        class Face;
+        class Map;
+    }
+    
     namespace IO {
-        class MacFileManager : public FileManager {
-        public:
-            MacFileManager() {}
-            virtual ~MacFileManager() {}
+        class MapWriter {
+        protected:
+            Model::Map& m_map;
             
-            virtual bool isDirectory(const std::string& path);
-            virtual bool exists(const std::string& path);
-            virtual bool makeDirectory(const std::string& path);
-            virtual bool deleteFile(const std::string& path);
-            virtual bool moveFile(const std::string& sourcePath, const std::string& destPath, bool overwrite);
-
-            virtual std::vector<std::string> directoryContents(const std::string& path, std::string extension = "");
-
-            virtual char pathSeparator() {
-                return '/';
-            }
+            void writeFace(const Model::Face& face, std::ostream& stream);
+            void writeBrush(const Model::Brush& brush, std::ostream& stream);
+            void writeEntity(const Model::Entity& entity, std::ostream& stream);
+        public:
+            MapWriter(Model::Map& map) : m_map(map) {}
+            
+            void writeToStream(std::ostream& stream);
+            void writeToFileAtPath(const std::string& path, bool overwrite);
         };
     }
 }
+
+#endif

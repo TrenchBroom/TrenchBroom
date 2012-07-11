@@ -29,10 +29,11 @@ namespace TrenchBroom {
     
     namespace Model {
         namespace Assets {
-            class TextureManager;
             class Palette;
+            class TextureManager;
         }
         class Map;
+        class UndoGroup;
     }
     
     namespace Renderer {
@@ -40,6 +41,7 @@ namespace TrenchBroom {
     }
     
     namespace Controller {
+        class Autosaver;
         class Camera;
         class Grid;
         class InputController;
@@ -70,6 +72,7 @@ namespace TrenchBroom {
             InputController* m_inputController;
             TransientOptions* m_options;
             Filter* m_filter;
+            Autosaver* m_autosaver;
             Model::Assets::TextureManager* m_textureManager;
             Model::Assets::Palette* m_palette;
             Renderer::MapRenderer* m_renderer;
@@ -78,6 +81,7 @@ namespace TrenchBroom {
             void updateFaceTextures();
             void textureManagerDidChange(Model::Assets::TextureManager& textureManager);
             void preferencesDidChange(const std::string& key);
+            void undoGroupCreated(const Model::UndoGroup& group);
         public:
             Editor(const std::string& entityDefinitionFilePath, const std::string& palettePath);
             ~Editor();
@@ -94,6 +98,7 @@ namespace TrenchBroom {
             InputController& inputController() const;
             TransientOptions& options() const;
             Filter& filter() const;
+            Autosaver& autosaver() const;
             Model::Assets::Palette& palette() const;
             Model::Assets::TextureManager& textureManager() const;
             

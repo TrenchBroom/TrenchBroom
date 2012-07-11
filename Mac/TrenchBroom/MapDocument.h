@@ -28,6 +28,7 @@
     
     EditorHolder* editorHolder;
     void* undoListener;
+    NSTimer* autosaveTimer;
 }
 
 - (EditorHolder*)editorHolder;

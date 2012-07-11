@@ -23,6 +23,7 @@
 #import "MacProgressIndicator.h"
 #import "MacStringFactory.h"
 
+#import "Controller/Autosaver.h"
 #import "Controller/Camera.h"
 #import "Controller/Editor.h"
 #import "Controller/Grid.h"
@@ -82,12 +83,19 @@ namespace TrenchBroom {
 
 @interface MapDocument (Private)
 - (BOOL)gridOffModifierPressed;
+- (void)autosave;
 @end
 
 @implementation MapDocument (Private)
 
 - (BOOL)gridOffModifierPressed {
     return ([NSEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask;
+}
+
+- (void)autosave {
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->autosaver().triggerAutosave();
+    autosaveTimer = [[NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(autosave) userInfo:nil repeats:NO] retain];
 }
 
 @end
@@ -104,12 +112,15 @@ namespace TrenchBroom {
         editorHolder = [[EditorHolder alloc] initWithDefinitionPath:definitionPath palettePath:palettePath];
         Editor* editor = (Editor *)[editorHolder editor];
         undoListener = new UndoListener(editor->map().undoManager(), self);
+        
+        autosaveTimer = [[NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(autosave) userInfo:nil repeats:NO] retain];
     }
     
     return self;
 }
 
 - (void)dealloc {
+    [autosaveTimer release];
     delete (UndoListener *)undoListener;
     [editorHolder release];
     [super dealloc];
@@ -134,6 +145,10 @@ namespace TrenchBroom {
     editor->loadMap(pathC, indicator);
     delete indicator;
     
+    [self updateChangeCount:NSChangeCleared];
+    for (NSWindowController* controller in [self windowControllers])
+        [controller setDocumentEdited:[self isDocumentEdited]];
+
     return YES;
 }
 
@@ -143,7 +158,11 @@ namespace TrenchBroom {
 
     Editor* editor = (Editor *)[editorHolder editor];
     editor->saveMap(pathC);
-    
+
+    [self updateChangeCount:NSChangeCleared];
+    for (NSWindowController* controller in [self windowControllers])
+        [controller setDocumentEdited:[self isDocumentEdited]];
+
     return YES;
 }
 

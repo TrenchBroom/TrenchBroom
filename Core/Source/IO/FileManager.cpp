@@ -35,8 +35,11 @@ namespace TrenchBroom {
                 lastPos = pos;
                 pos++;
             }
-            if (pos > lastPos + 1)
-                components.push_back(path.substr(lastPos + 1, pos - lastPos - 1));
+
+            if (lastPos == 0)
+                components.push_back(path);
+            else if (lastPos < path.length() - 1)
+                components.push_back(path.substr(lastPos + 1));
             
             return components;
         }
