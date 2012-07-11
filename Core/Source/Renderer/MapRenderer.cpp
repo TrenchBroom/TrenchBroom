@@ -194,38 +194,36 @@ namespace TrenchBroom {
             const std::vector<Model::Entity*>& entities = m_editor.map().entities();
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
-                if (context.filter.entityVisible(*entity)) {
-                    const std::vector<Model::Brush*>& brushes = entity->brushes();
-                    for (unsigned int j = 0; j < brushes.size(); j++) {
-                        Model::Brush* brush = brushes[j];
-                        if (context.filter.brushVisible(*brush)) {
-                            if (entity->selected() || brush->selected) {
-                                allSelectedBrushes.push_back(brush);
-                                totalSelectedEdgeVertexCount += (2 * brush->geometry->edges.size());
-                            } else {
-                                allBrushes.push_back(brush);
-                                totalEdgeVertexCount += (2 * brush->geometry->edges.size());
-                                if (brush->partiallySelected) {
-                                    for (unsigned int k = 0; k < brush->faces.size(); k++) {
-                                        Model::Face* face = brush->faces[k];
-                                        if (face->selected) {
-                                            allPartialBrushFaces.push_back(face);
-                                            totalSelectedEdgeVertexCount += (2 * face->side->edges.size());
-                                        }
+                const std::vector<Model::Brush*>& brushes = entity->brushes();
+                for (unsigned int j = 0; j < brushes.size(); j++) {
+                    Model::Brush* brush = brushes[j];
+                    if (context.filter.brushVisible(*brush)) {
+                        if (entity->selected() || brush->selected) {
+                            allSelectedBrushes.push_back(brush);
+                            totalSelectedEdgeVertexCount += (2 * brush->geometry->edges.size());
+                        } else {
+                            allBrushes.push_back(brush);
+                            totalEdgeVertexCount += (2 * brush->geometry->edges.size());
+                            if (brush->partiallySelected) {
+                                for (unsigned int k = 0; k < brush->faces.size(); k++) {
+                                    Model::Face* face = brush->faces[k];
+                                    if (face->selected) {
+                                        allPartialBrushFaces.push_back(face);
+                                        totalSelectedEdgeVertexCount += (2 * face->side->edges.size());
                                     }
                                 }
                             }
-                            
-                            const std::vector<Model::Face*>& faces = brush->faces;
-                            for (unsigned int k = 0; k < faces.size(); k++) {
-                                Model::Face* face = faces[k];
-                                if (entity->selected() || brush->selected || face->selected) {
-                                    allSelectedFaces.push_back(face);
-                                    totalSelectedFaceVertexCount += (3 * face->side->vertices.size() - 6);
-                                } else {
-                                    allFaces.push_back(face);
-                                    totalFaceVertexCount += (3 * face->side->vertices.size() - 6);
-                                }
+                        }
+                        
+                        const std::vector<Model::Face*>& faces = brush->faces;
+                        for (unsigned int k = 0; k < faces.size(); k++) {
+                            Model::Face* face = faces[k];
+                            if (entity->selected() || brush->selected || face->selected) {
+                                allSelectedFaces.push_back(face);
+                                totalSelectedFaceVertexCount += (3 * face->side->vertices.size() - 6);
+                            } else {
+                                allFaces.push_back(face);
+                                totalFaceVertexCount += (3 * face->side->vertices.size() - 6);
                             }
                         }
                     }

@@ -21,6 +21,10 @@
 #define TrenchBroom_Filter_h
 
 namespace TrenchBroom {
+    namespace Controller {
+        class Editor;
+    }
+    
     namespace Model {
         class Entity;
         class Brush;
@@ -28,12 +32,15 @@ namespace TrenchBroom {
     
     class Filter {
     private:
+        Controller::Editor& m_editor;
     public:
-        bool brushVisible(Model::Brush& brush) { return true; }
-        bool entityVisible(Model::Entity& entity) { return true; }
-        bool brushPickable(Model::Brush& brush) { return true; }
-        bool brushVerticesPickable(Model::Brush& brush) { return true; }
-        bool entityPickable(Model::Entity& entity) { return true; }
+        Filter(Controller::Editor& editor) : m_editor(editor) {}
+        
+        bool brushVisible(Model::Brush& brush);
+        bool entityVisible(Model::Entity& entity);
+        bool brushPickable(Model::Brush& brush);
+        bool brushVerticesPickable(Model::Brush& brush);
+        bool entityPickable(Model::Entity& entity);
     };
     
 }

@@ -19,6 +19,72 @@
 
 #include "Filter.h"
 
+#include "Controller/Editor.h"
+#include "Controller/Options.h"
+#include "Model/Map/Brush.h"
+#include "Model/Map/Entity.h"
+#include "Model/Map/Face.h"
+#include "Model/Map/Groups.h"
+#include "Model/Map/Map.h"
+#include "Model/Selection.h"
+
 namespace TrenchBroom {
+    bool Filter::brushVisible(Model::Brush& brush) {
+        const Controller::TransientOptions& options = m_editor.options();
+        if (!options.renderBrushes)
+            return false;
+        
+        const Model::Selection& selection = m_editor.map().selection();
+        if (options.isolationMode == Controller::IM_DISCARD) {
+            if (selection.mode() == Model::TB_SM_FACES) {
+                for (unsigned int i = 0; i < brush.faces.size(); i++)
+                    if (brush.faces[i]->selected)
+                        return true;
+                
+                return false;
+            }
+            
+            return brush.selected;
+        }
+        
+        Model::GroupManager& groupManager = m_editor.map().groupManager();
+        if (groupManager.allGroupsVisible())
+            return true;
+        
+        if (brush.entity->group())
+            return groupManager.visible(*brush.entity);
+        
+        return false;
+    }
     
+    bool Filter::entityVisible(Model::Entity& entity) {
+        const Controller::TransientOptions& options = m_editor.options();
+        if (entity.worldspawn() || !options.renderEntities)
+            return false;
+        
+        if (options.isolationMode == Controller::IM_DISCARD)
+            return entity.selected();
+        
+        Model::GroupManager& groupManager = m_editor.map().groupManager();
+        if (groupManager.allGroupsVisible())
+            return true;
+        
+        if (entity.group())
+            return groupManager.visible(entity);
+        
+        return true;
+    }
+    
+    bool Filter::brushPickable(Model::Brush& brush) {
+        return brushVisible(brush);
+    }
+    
+    bool Filter::brushVerticesPickable(Model::Brush& brush) {
+        return true;
+    }
+    
+    bool Filter::entityPickable(Model::Entity& entity) {
+        return entityVisible(entity);
+    }
+
 }

@@ -98,7 +98,7 @@ namespace TrenchBroom {
 
             m_palette = new Model::Assets::Palette(palettePath);
             m_options = new TransientOptions();
-            m_filter = new Filter();
+            m_filter = new Filter(*this);
             m_autosaver = new Autosaver(*this);
 
             Model::Preferences::sharedPreferences->preferencesDidChange += new Model::Preferences::PreferencesEvent::Listener<Editor>(this, &Editor::preferencesDidChange);

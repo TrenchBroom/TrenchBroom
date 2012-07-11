@@ -70,8 +70,8 @@ namespace TrenchBroom {
             if (exists) {
                 if (!overwrite || directory)
                     return false;
-                else
-                    deleteFile(sourcePath);
+                else if (![fileManager removeItemAtPath:objcDestPath error:NULL])
+                    return false;
             }
             
             return [fileManager moveItemAtPath:objcSourcePath toPath:objcDestPath error:NULL];
