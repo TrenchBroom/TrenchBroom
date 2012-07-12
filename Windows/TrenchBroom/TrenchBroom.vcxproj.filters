@@ -208,9 +208,6 @@
     <ClInclude Include="..\..\Core\Source\IO\Wad.h">
       <Filter>Header\Core\IO</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Core\Source\IO\dirent.h">
-      <Filter>Header\Core\IO</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Core\Source\IO\EntityDefinitionParser.h">
       <Filter>Header\Core\IO</Filter>
     </ClInclude>
@@ -709,6 +706,15 @@
     <ClInclude Include="..\..\Core\Source\GUI\EntityPropertyTableControl.h">
       <Filter>Header\Core\GUI</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Controller\Autosaver.h">
+      <Filter>Header\Core\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\IO\MapWriter.h">
+      <Filter>Header\Core\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\EntityClassnameFilter.h">
+      <Filter>Header\Core\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TrenchBroom.cpp">
@@ -835,9 +841,6 @@
       <Filter>Source\Core\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Core\Source\Renderer\RenderUtils.cpp">
-      <Filter>Source\Core\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Core\Source\Renderer\TextRenderer.cpp">
       <Filter>Source\Core\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Core\Source\Renderer\Vbo.cpp">
@@ -1157,6 +1160,12 @@
     </ClCompile>
     <ClCompile Include="..\..\Core\Source\Renderer\EntityRenderer.cpp">
       <Filter>Source\Core\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Controller\Autosaver.cpp">
+      <Filter>Source\Core\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\IO\MapWriter.cpp">
+      <Filter>Source\Core\IO</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

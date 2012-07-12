@@ -113,6 +113,7 @@
     <None Include="TrenchBroom.reg" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Core\Source\Controller\Autosaver.h" />
     <ClInclude Include="..\..\Core\Source\Controller\Camera.h" />
     <ClInclude Include="..\..\Core\Source\Controller\CameraTool.h" />
     <ClInclude Include="..\..\Core\Source\Controller\CreateBrushTool.h" />
@@ -144,10 +145,10 @@
     <ClInclude Include="..\..\Core\Source\GUI\MapRendererControl.h" />
     <ClInclude Include="..\..\Core\Source\GUI\SingleTextureControl.h" />
     <ClInclude Include="..\..\Core\Source\GUI\TextureBrowserControl.h" />
-    <ClInclude Include="..\..\Core\Source\IO\dirent.h" />
     <ClInclude Include="..\..\Core\Source\IO\EntityDefinitionParser.h" />
     <ClInclude Include="..\..\Core\Source\IO\FileManager.h" />
     <ClInclude Include="..\..\Core\Source\IO\MapParser.h" />
+    <ClInclude Include="..\..\Core\Source\IO\MapWriter.h" />
     <ClInclude Include="..\..\Core\Source\IO\Pak.h" />
     <ClInclude Include="..\..\Core\Source\IO\substream.h" />
     <ClInclude Include="..\..\Core\Source\IO\Wad.h" />
@@ -176,6 +177,7 @@
     <ClInclude Include="..\..\Core\Source\Renderer\BspRenderer.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\ChangeSet.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\EntityClassnameAnchor.h" />
+    <ClInclude Include="..\..\Core\Source\Renderer\EntityClassnameFilter.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\EntityRenderer.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\EntityRendererManager.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\Figures\BoundsGuideFigure.h" />
@@ -305,6 +307,7 @@
     <ClInclude Include="WinStringFactory.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Core\Source\Controller\Autosaver.cpp" />
     <ClCompile Include="..\..\Core\Source\Controller\Camera.cpp" />
     <ClCompile Include="..\..\Core\Source\Controller\CameraTool.cpp" />
     <ClCompile Include="..\..\Core\Source\Controller\CreateBrushTool.cpp" />
@@ -332,6 +335,7 @@
     <ClCompile Include="..\..\Core\Source\IO\EntityDefinitionParser.cpp" />
     <ClCompile Include="..\..\Core\Source\IO\FileManager.cpp" />
     <ClCompile Include="..\..\Core\Source\IO\MapParser.cpp" />
+    <ClCompile Include="..\..\Core\Source\IO\MapWriter.cpp" />
     <ClCompile Include="..\..\Core\Source\IO\Pak.cpp" />
     <ClCompile Include="..\..\Core\Source\IO\Wad.cpp" />
     <ClCompile Include="..\..\Core\Source\Model\Assets\Alias.cpp" />
@@ -369,7 +373,6 @@
     <ClCompile Include="..\..\Core\Source\Renderer\GridRenderer.cpp" />
     <ClCompile Include="..\..\Core\Source\Renderer\MapRenderer.cpp" />
     <ClCompile Include="..\..\Core\Source\Renderer\RenderUtils.cpp" />
-    <ClCompile Include="..\..\Core\Source\Renderer\TextRenderer.cpp" />
     <ClCompile Include="..\..\Core\Source\Renderer\Vbo.cpp" />
     <ClCompile Include="..\..\Core\Source\Utilities\Console.cpp" />
     <ClCompile Include="..\..\Core\Source\Utilities\Filter.cpp" />
