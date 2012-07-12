@@ -58,6 +58,8 @@ namespace TrenchBroom {
             setDictionaryValue(dict, CameraOrbitKey, m_cameraOrbitKey);
             setDictionaryValue(dict, CameraInvertY, m_cameraInvertY);
             setDictionaryValue(dict, CameraFov, m_cameraFov);
+            setDictionaryValue(dict, SelectionToolMultiKey, m_selectionToolMultiKey);
+            setDictionaryValue(dict, SelectionToolGridKey, m_selectionToolGridKey);
             setDictionaryValue(dict, Brightness, m_brightness);
             setDictionaryValue(dict, GridColor, m_gridColor);
             setDictionaryValue(dict, FaceColor, m_faceColor);
@@ -104,6 +106,8 @@ namespace TrenchBroom {
         void MacPreferences::loadPlatformDefaults() {
             m_cameraKey = Controller::TB_MK_SHIFT;
             m_cameraOrbitKey = Controller::TB_MK_SHIFT | Controller::TB_MK_CMD;
+            m_selectionToolMultiKey = Controller::TB_MK_CMD;
+            m_selectionToolGridKey = Controller::TB_MK_ALT;
             m_rendererFontName = "LucidaGrande";
             m_rendererFontSize = 11;
             m_quakePath = "";
