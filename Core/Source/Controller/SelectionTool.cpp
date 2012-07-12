@@ -25,6 +25,7 @@
 #include "Model/Map/Entity.h"
 #include "Model/Map/Map.h"
 #include "Model/Map/Picker.h"
+#include "Model/Preferences.h"
 #include "Model/Selection.h"
 
 namespace TrenchBroom {
@@ -128,11 +129,11 @@ namespace TrenchBroom {
         }
         
         bool SelectionTool::multiSelectionModiferPressed(ToolEvent& event) {
-            return event.modifierKeys == TB_MK_CMD;
+			return event.modifierKeys == Model::Preferences::sharedPreferences->selectionToolMultiKey();
         }
         
         bool SelectionTool::gridSizeModifierPressed(ToolEvent& event) {
-            return event.modifierKeys == TB_MK_ALT;
+			return event.modifierKeys == Model::Preferences::sharedPreferences->selectionToolGridKey();
         }
    }
 }

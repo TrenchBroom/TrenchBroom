@@ -64,6 +64,16 @@ public:
 	afx_msg void OnUpdateToolsToggleEdgeTool(CCmdUI *pCmdUI);
 	afx_msg void OnToolsToggleFaceTool();
 	afx_msg void OnUpdateToolsToggleFaceTool(CCmdUI *pCmdUI);
+	afx_msg void OnEditDelete();
+	afx_msg void OnUpdateEditDelete(CCmdUI *pCmdUI);
+	afx_msg void OnEditSelectAll();
+	afx_msg void OnUpdateEditSelectAll(CCmdUI *pCmdUI);
+	afx_msg void OnEditSelectEntity();
+	afx_msg void OnUpdateEditSelectEntity(CCmdUI *pCmdUI);
+	afx_msg void OnEditSelectTouching();
+	afx_msg void OnUpdateEditSelectTouching(CCmdUI *pCmdUI);
+	afx_msg void OnEditSelectNone();
+	afx_msg void OnUpdateEditSelectNone(CCmdUI *pCmdUI);
 };
 
 extern CTrenchBroomApp theApp;

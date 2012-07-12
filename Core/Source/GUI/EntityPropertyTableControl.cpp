@@ -40,14 +40,16 @@ namespace TrenchBroom {
                     const Model::Properties& entityProperties = entity->properties();
                     
                     Model::Properties::const_iterator eProp;
-                    for (cProp = commonProperties.begin(); cProp != commonProperties.end(); ++cProp) {
+					cProp = commonProperties.begin();
+					while (cProp != commonProperties.end()) {
                         eProp = entityProperties.find(cProp->first);
                         if (eProp == entityProperties.end()) {
-                            commonProperties.erase(cProp);
-                        } else {
-                            if (cProp->second != eProp->second)
-                                commonProperties[cProp->first] = "";
-                        }
+                            commonProperties.erase(cProp++);
+						} else {
+							if (cProp->second != eProp->second)
+							   commonProperties[cProp->first] = "";
+							++cProp;
+						}
                     }
                 }
 

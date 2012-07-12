@@ -25,6 +25,8 @@ namespace TrenchBroom {
         const std::string Preferences::CameraOrbitKey                    = "Controls: camera orbit key";
         const std::string Preferences::CameraInvertY                     = "Controls: invert camera Y axis";
         const std::string Preferences::CameraFov                         = "Camera: field of vision";
+		const std::string Preferences::SelectionToolMultiKey			 = "Selection: multi selection key";
+		const std::string Preferences::SelectionToolGridKey				 = "Grid: modify grid size key";
         const std::string Preferences::Brightness                        = "Renderer: brightness";
         const std::string Preferences::GridColor                         = "Renderer: grid color";
         const std::string Preferences::FaceColor                         = "Renderer: face color";
@@ -119,6 +121,8 @@ namespace TrenchBroom {
             loadInt(CameraOrbitKey, m_cameraOrbitKey);
             loadBool(CameraInvertY, m_cameraInvertY);
             loadFloat(CameraFov, m_cameraFov);
+			loadInt(SelectionToolMultiKey, m_selectionToolMultiKey);
+			loadInt(SelectionToolGridKey, m_selectionToolGridKey);
             loadFloat(Brightness, m_brightness);
             loadVec4f(GridColor, m_gridColor);
             loadVec4f(FaceColor, m_faceColor);
@@ -163,6 +167,8 @@ namespace TrenchBroom {
 			saveInt(CameraOrbitKey, m_cameraOrbitKey);
 			saveBool(CameraInvertY, m_cameraInvertY);
 			saveFloat(CameraFov, m_cameraFov);
+			saveInt(SelectionToolMultiKey, m_selectionToolMultiKey);
+			saveInt(SelectionToolGridKey, m_selectionToolGridKey);
 			saveFloat(Brightness, m_brightness);
             saveVec4f(GridColor, m_gridColor);
 			saveVec4f(FaceColor, m_faceColor);
@@ -257,6 +263,14 @@ namespace TrenchBroom {
         float Preferences::cameraFar() {
             return 10000;
         }
+
+		int Preferences::selectionToolMultiKey() {
+			return m_selectionToolMultiKey;
+		}
+
+		int Preferences::selectionToolGridKey() {
+			return m_selectionToolGridKey;
+		}
 
         float Preferences::brightness() {
             return m_brightness;

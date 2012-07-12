@@ -64,6 +64,16 @@ BEGIN_MESSAGE_MAP(CTrenchBroomApp, CWinApp)
 	ON_UPDATE_COMMAND_UI(ID_TOOLS_TOGGLE_EDGE_TOOL, &CTrenchBroomApp::OnUpdateToolsToggleEdgeTool)
 	ON_COMMAND(ID_TOOLS_TOGGLE_FACE_TOOL, &CTrenchBroomApp::OnToolsToggleFaceTool)
 	ON_UPDATE_COMMAND_UI(ID_TOOLS_TOGGLE_FACE_TOOL, &CTrenchBroomApp::OnUpdateToolsToggleFaceTool)
+	ON_COMMAND(ID_EDIT_DELETE, &CTrenchBroomApp::OnEditDelete)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_DELETE, &CTrenchBroomApp::OnUpdateEditDelete)
+	ON_COMMAND(ID_EDIT_SELECT_ALL, &CTrenchBroomApp::OnEditSelectAll)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_SELECT_ALL, &CTrenchBroomApp::OnUpdateEditSelectAll)
+	ON_COMMAND(ID_EDIT_SELECT_ENTITY, &CTrenchBroomApp::OnEditSelectEntity)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_SELECT_ENTITY, &CTrenchBroomApp::OnUpdateEditSelectEntity)
+	ON_COMMAND(ID_EDIT_SELECT_TOUCHING, &CTrenchBroomApp::OnEditSelectTouching)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_SELECT_TOUCHING, &CTrenchBroomApp::OnUpdateEditSelectTouching)
+	ON_COMMAND(ID_EDIT_SELECT_NONE, &CTrenchBroomApp::OnEditSelectNone)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_SELECT_NONE, &CTrenchBroomApp::OnUpdateEditSelectNone)
 END_MESSAGE_MAP()
 
 /*
@@ -488,5 +498,110 @@ void CTrenchBroomApp::OnUpdateToolsToggleFaceTool(CCmdUI *pCmdUI)
 		TrenchBroom::Controller::InputController& inputController = editor->inputController();
 		TrenchBroom::Model::Selection& selection = editor->map().selection();
 		pCmdUI->Enable(inputController.moveFaceToolActive() || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES);
+	}
+}
+
+
+void CTrenchBroomApp::OnEditDelete()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->map().deleteObjects();
+}
+
+
+void CTrenchBroomApp::OnUpdateEditDelete(CCmdUI *pCmdUI)
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL || !mapViewFocused()) {
+		pCmdUI->Enable(FALSE);
+	} else {
+		TrenchBroom::Model::Selection& selection = editor->map().selection();
+		pCmdUI->Enable(selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES);
+	}
+}
+
+
+void CTrenchBroomApp::OnEditSelectAll()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->selectAll();
+}
+
+
+void CTrenchBroomApp::OnUpdateEditSelectAll(CCmdUI *pCmdUI)
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	pCmdUI->Enable(editor != NULL && mapViewFocused());
+}
+
+
+void CTrenchBroomApp::OnEditSelectEntity()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->selectEntities();
+}
+
+
+void CTrenchBroomApp::OnUpdateEditSelectEntity(CCmdUI *pCmdUI)
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL || !mapViewFocused()) {
+		pCmdUI->Enable(FALSE);
+	} else {
+		TrenchBroom::Model::Selection& selection = editor->map().selection();
+		pCmdUI->Enable(selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES);
+	}
+}
+
+
+void CTrenchBroomApp::OnEditSelectTouching()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->selectTouching();
+}
+
+
+void CTrenchBroomApp::OnUpdateEditSelectTouching(CCmdUI *pCmdUI)
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL || !mapViewFocused()) {
+		pCmdUI->Enable(FALSE);
+	} else {
+		TrenchBroom::Model::Selection& selection = editor->map().selection();
+		pCmdUI->Enable(selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES && selection.brushes().size() == 1);
+	}
+}
+
+
+void CTrenchBroomApp::OnEditSelectNone()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->selectNone();
+}
+
+
+void CTrenchBroomApp::OnUpdateEditSelectNone(CCmdUI *pCmdUI)
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL || !mapViewFocused()) {
+		pCmdUI->Enable(FALSE);
+	} else {
+		TrenchBroom::Model::Selection& selection = editor->map().selection();
+		pCmdUI->Enable(!selection.empty());
 	}
 }

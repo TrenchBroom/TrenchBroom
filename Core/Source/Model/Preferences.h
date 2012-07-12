@@ -31,6 +31,8 @@ namespace TrenchBroom {
             static const std::string CameraOrbitKey;
             static const std::string CameraInvertY;
             static const std::string CameraFov;
+			static const std::string SelectionToolMultiKey;
+			static const std::string SelectionToolGridKey;
             static const std::string Brightness;
             static const std::string GridColor;
             static const std::string FaceColor;
@@ -74,6 +76,9 @@ namespace TrenchBroom {
             int m_cameraOrbitKey;
             bool m_cameraInvertY;
             
+			int m_selectionToolMultiKey;
+			int m_selectionToolGridKey;
+
             float m_cameraFov;
             
             float m_brightness;
@@ -156,6 +161,9 @@ namespace TrenchBroom {
             bool cameraInvertY();
             void setCameraInvertY(bool cameraInvertY);
             
+			int selectionToolMultiKey();
+			int selectionToolGridKey();
+
             float cameraFov();
             void setCameraFov(float cameraFov);
             float cameraNear();
