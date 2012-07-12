@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_EntityClassnameFilter_h
 #define TrenchBroom_EntityClassnameFilter_h
 
+#include "Model/Map/Entity.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/TextRenderer.h"
 #include "Utilities/Filter.h"
@@ -28,9 +29,10 @@ namespace TrenchBroom {
     namespace Renderer {
         class RenderContext;
         
-        class EntityClassnameFilter : public TextRenderer<Model::Entity*>::TextRendererFilter {
+        typedef Model::Entity* EntityKey;
+        class EntityClassnameFilter : public TextRenderer<EntityKey>::TextRendererFilter {
         public:
-            bool stringVisible(RenderContext& context, const Model::Entity*& entity) {
+            bool stringVisible(RenderContext& context, const EntityKey& entity) {
                 return context.filter.entityVisible(*entity);
             }
         };
