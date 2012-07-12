@@ -20,13 +20,15 @@
 #ifndef TrenchBroom_MapRenderer_h
 #define TrenchBroom_MapRenderer_h
 
-#include <map>
-#include <vector>
 #include "GL/GLee.h"
 #include "Renderer/ChangeSet.h"
 #include "Renderer/FontManager.h"
+#include "Renderer/TextRenderer.h"
 #include "Utilities/Event.h"
 #include "Utilities/VecMath.h"
+
+#include <map>
+#include <vector>
 
 namespace TrenchBroom {
     class Filter;
@@ -58,7 +60,6 @@ namespace TrenchBroom {
         class EntityRenderer;
         class EntityRendererManager;
         class StringRenderer;
-        class TextRenderer;
         class FontManager;
         class ChangeSet;
         class RenderContext;
@@ -116,8 +117,8 @@ namespace TrenchBroom {
             bool m_entityRendererCacheValid;
 
             // classnames
-            TextRenderer* m_classnameRenderer;
-            TextRenderer* m_selectedClassnameRenderer;
+            TextRenderer<Model::Entity*>* m_classnameRenderer;
+            TextRenderer<Model::Entity*>* m_selectedClassnameRenderer;
 
             // selection guides
             BBox m_selectionBounds;

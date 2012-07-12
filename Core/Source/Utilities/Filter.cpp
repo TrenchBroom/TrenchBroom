@@ -29,7 +29,7 @@
 #include "Model/Selection.h"
 
 namespace TrenchBroom {
-    bool Filter::brushVisible(Model::Brush& brush) {
+    bool Filter::brushVisible(const Model::Brush& brush) {
         const Controller::TransientOptions& options = m_editor.options();
         if (!options.renderBrushes)
             return false;
@@ -57,7 +57,7 @@ namespace TrenchBroom {
         return false;
     }
     
-    bool Filter::entityVisible(Model::Entity& entity) {
+    bool Filter::entityVisible(const Model::Entity& entity) {
         const Controller::TransientOptions& options = m_editor.options();
         if (entity.worldspawn() || !options.renderEntities)
             return false;
@@ -75,15 +75,15 @@ namespace TrenchBroom {
         return true;
     }
     
-    bool Filter::brushPickable(Model::Brush& brush) {
+    bool Filter::brushPickable(const Model::Brush& brush) {
         return brushVisible(brush);
     }
     
-    bool Filter::brushVerticesPickable(Model::Brush& brush) {
+    bool Filter::brushVerticesPickable(const Model::Brush& brush) {
         return true;
     }
     
-    bool Filter::entityPickable(Model::Entity& entity) {
+    bool Filter::entityPickable(const Model::Entity& entity) {
         return entityVisible(entity);
     }
 

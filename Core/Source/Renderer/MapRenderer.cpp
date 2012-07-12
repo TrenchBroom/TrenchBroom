@@ -37,6 +37,7 @@
 #include "Renderer/EntityRendererManager.h"
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/EntityClassnameAnchor.h"
+#include "Renderer/EntityClassnameFilter.h"
 #include "Renderer/Figures/Figure.h"
 #include "Renderer/FontManager.h"
 #include "Renderer/GridRenderer.h"
@@ -375,8 +376,8 @@ namespace TrenchBroom {
                 
                 const Model::PropertyValue& classname = *entity->classname();
                 EntityClassnameAnchor* anchor = new EntityClassnameAnchor(*entity);
-                TextRenderer::AnchorPtr anchorPtr(anchor);
-                m_classnameRenderer->addString(entity->uniqueId(), classname, descriptor, anchorPtr);
+                TextAnchorPtr anchorPtr(anchor);
+                m_classnameRenderer->addString(entity, classname, descriptor, anchorPtr);
             }
 
             m_entityDataValid = false;
@@ -387,7 +388,7 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
                 m_entityRenderers.erase(entity);
-                m_classnameRenderer->removeString(entity->uniqueId());
+                m_classnameRenderer->removeString(entity);
             }
             m_entityDataValid = false;
             rendererChanged(*this);
@@ -455,7 +456,7 @@ namespace TrenchBroom {
                         m_entityRenderers.erase(it);
                     }
                     
-                    m_classnameRenderer->transferString(entity->uniqueId(), *m_selectedClassnameRenderer);
+                    m_classnameRenderer->transferString(entity, *m_selectedClassnameRenderer);
                 }
                 m_entityDataValid = false;
                 m_selectedEntityDataValid = false;
@@ -479,7 +480,7 @@ namespace TrenchBroom {
                         m_selectedEntityRenderers.erase(it);
                     }
                     
-                    m_selectedClassnameRenderer->transferString(entity->uniqueId(), *m_classnameRenderer);
+                    m_selectedClassnameRenderer->transferString(entity, *m_classnameRenderer);
                 }
                 m_entityDataValid = false;
                 m_selectedEntityDataValid = false;
@@ -877,8 +878,8 @@ namespace TrenchBroom {
             m_entityRendererManager = new EntityRendererManager(prefs.quakePath(), m_editor.palette());
             m_entityRendererCacheValid = true;
 
-            m_classnameRenderer = new TextRenderer(m_fontManager, prefs.infoOverlayFadeDistance());
-            m_selectedClassnameRenderer = new TextRenderer(m_fontManager, prefs.selectedInfoOverlayFadeDistance());
+            m_classnameRenderer = new TextRenderer<Model::Entity*>(m_fontManager, prefs.infoOverlayFadeDistance());
+            m_selectedClassnameRenderer = new TextRenderer<Model::Entity*>(m_fontManager, prefs.selectedInfoOverlayFadeDistance());
 
             m_figureVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
             
@@ -1058,6 +1059,8 @@ namespace TrenchBroom {
             }
 
             if (context.options.renderEntities) {
+                EntityClassnameFilter classnameFilter;
+                
                 if (context.options.isolationMode == Controller::IM_NONE) {
                     m_entityBoundsVbo->activate();
                     glEnableClientState(GL_VERTEX_ARRAY);
@@ -1069,7 +1072,7 @@ namespace TrenchBroom {
 
                     if (context.options.renderEntityClassnames) {
                         m_fontManager.activate();
-                        m_classnameRenderer->render(context, context.preferences.infoOverlayColor());
+                        m_classnameRenderer->render(context, classnameFilter, context.preferences.infoOverlayColor());
                         m_fontManager.deactivate();
                     }
                 } else if (context.options.isolationMode == Controller::IM_WIREFRAME) {
@@ -1083,7 +1086,7 @@ namespace TrenchBroom {
                 if (!m_editor.map().selection().entities().empty()) {
                     if (context.options.renderEntityClassnames) {
                         m_fontManager.activate();
-                        m_selectedClassnameRenderer->render(context, context.preferences.selectedInfoOverlayColor());
+                        m_selectedClassnameRenderer->render(context, classnameFilter, context.preferences.selectedInfoOverlayColor());
                         m_fontManager.deactivate();
                     }
 

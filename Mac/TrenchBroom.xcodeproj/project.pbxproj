@@ -58,7 +58,6 @@
 		4825B445153AE59F007E3AE1 /* GridRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B40F153AE59F007E3AE1 /* GridRenderer.cpp */; };
 		4825B446153AE59F007E3AE1 /* MapRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B411153AE59F007E3AE1 /* MapRenderer.cpp */; };
 		4825B447153AE59F007E3AE1 /* RenderUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B413153AE59F007E3AE1 /* RenderUtils.cpp */; };
-		4825B448153AE59F007E3AE1 /* TextRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B415153AE59F007E3AE1 /* TextRenderer.cpp */; };
 		4825B449153AE59F007E3AE1 /* Vbo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B417153AE59F007E3AE1 /* Vbo.cpp */; };
 		4825B44A153AE59F007E3AE1 /* Filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B41B153AE59F007E3AE1 /* Filter.cpp */; };
 		4825B44B153AE59F007E3AE1 /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B41E153AE59F007E3AE1 /* Utils.cpp */; };
@@ -284,7 +283,6 @@
 		4825B412153AE59F007E3AE1 /* MapRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapRenderer.h; sourceTree = "<group>"; };
 		4825B413153AE59F007E3AE1 /* RenderUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderUtils.cpp; sourceTree = "<group>"; };
 		4825B414153AE59F007E3AE1 /* RenderUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderUtils.h; sourceTree = "<group>"; };
-		4825B415153AE59F007E3AE1 /* TextRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextRenderer.cpp; sourceTree = "<group>"; };
 		4825B416153AE59F007E3AE1 /* TextRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextRenderer.h; sourceTree = "<group>"; };
 		4825B417153AE59F007E3AE1 /* Vbo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Vbo.cpp; sourceTree = "<group>"; };
 		4825B418153AE59F007E3AE1 /* Vbo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vbo.h; sourceTree = "<group>"; };
@@ -481,6 +479,7 @@
 		4856B01515659BB7004272EF /* libfreeimage.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreeimage.a; path = Lib/libfreeimage.a; sourceTree = "<group>"; };
 		4856B01715659BC2004272EF /* libfreetype.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreetype.a; path = Lib/libfreetype.a; sourceTree = "<group>"; };
 		4856B01915659BC8004272EF /* libftgl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libftgl.a; path = Lib/libftgl.a; sourceTree = "<group>"; };
+		48650ED915AF297A000CD40D /* EntityClassnameFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityClassnameFilter.h; sourceTree = "<group>"; };
 		486571AC1575557600698829 /* EntityBrowserControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityBrowserControl.h; sourceTree = "<group>"; };
 		486571AE1575558C00698829 /* EntityBrowserControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityBrowserControl.cpp; sourceTree = "<group>"; };
 		486571B4157C0A4900698829 /* FileManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileManager.h; sourceTree = "<group>"; };
@@ -731,6 +730,7 @@
 				484544F41553374B0032E983 /* ChangeSet.cpp */,
 				4825B408153AE59F007E3AE1 /* EntityClassnameAnchor.cpp */,
 				4825B409153AE59F007E3AE1 /* EntityClassnameAnchor.h */,
+				48650ED915AF297A000CD40D /* EntityClassnameFilter.h */,
 				4833E9F715790E9D0089FD2A /* EntityRenderer.cpp */,
 				4825B40A153AE59F007E3AE1 /* EntityRenderer.h */,
 				4825B40B153AE59F007E3AE1 /* EntityRendererManager.cpp */,
@@ -744,7 +744,6 @@
 				484544F6155338190032E983 /* RenderContext.h */,
 				4825B413153AE59F007E3AE1 /* RenderUtils.cpp */,
 				4825B414153AE59F007E3AE1 /* RenderUtils.h */,
-				4825B415153AE59F007E3AE1 /* TextRenderer.cpp */,
 				4825B416153AE59F007E3AE1 /* TextRenderer.h */,
 				4825B417153AE59F007E3AE1 /* Vbo.cpp */,
 				4825B418153AE59F007E3AE1 /* Vbo.h */,
@@ -1265,7 +1264,6 @@
 				4825B445153AE59F007E3AE1 /* GridRenderer.cpp in Sources */,
 				4825B446153AE59F007E3AE1 /* MapRenderer.cpp in Sources */,
 				4825B447153AE59F007E3AE1 /* RenderUtils.cpp in Sources */,
-				4825B448153AE59F007E3AE1 /* TextRenderer.cpp in Sources */,
 				4825B449153AE59F007E3AE1 /* Vbo.cpp in Sources */,
 				4825B44A153AE59F007E3AE1 /* Filter.cpp in Sources */,
 				4825B44B153AE59F007E3AE1 /* Utils.cpp in Sources */,

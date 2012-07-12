@@ -36,11 +36,11 @@ namespace TrenchBroom {
     public:
         Filter(Controller::Editor& editor) : m_editor(editor) {}
         
-        bool brushVisible(Model::Brush& brush);
-        bool entityVisible(Model::Entity& entity);
-        bool brushPickable(Model::Brush& brush);
-        bool brushVerticesPickable(Model::Brush& brush);
-        bool entityPickable(Model::Entity& entity);
+        bool brushVisible(const Model::Brush& brush);
+        bool entityVisible(const Model::Entity& entity);
+        bool brushPickable(const Model::Brush& brush);
+        bool brushVerticesPickable(const Model::Brush& brush);
+        bool entityPickable(const Model::Entity& entity);
     };
     
 }
