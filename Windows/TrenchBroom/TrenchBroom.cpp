@@ -146,7 +146,7 @@ CTrenchBroomApp theApp;
 BOOL CTrenchBroomApp::InitInstance()
 {
 	// disable MFC's automatic leak dumping
-	AfxEnableMemoryLeakDump(FALSE);
+//	AfxEnableMemoryLeakDump(FALSE);
 
 	// InitCommonControlsEx() is required on Windows XP if an application
 	// manifest specifies use of ComCtl32.dll version 6 or later to enable
