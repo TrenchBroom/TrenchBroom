@@ -216,7 +216,12 @@ namespace TrenchBroom {
             assert(m_state == DRAGGING);
             
             m_editor.map().undoManager().end();
-            m_state = SELECTED;
+
+            deleteSelectedHandleFigures();
+            createHandleFigure();
+            m_brush = NULL;
+            m_index = -1;
+            m_state = ACTIVE;
         }
     }
 }
