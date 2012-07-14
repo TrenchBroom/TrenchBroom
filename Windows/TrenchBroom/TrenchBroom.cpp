@@ -76,6 +76,40 @@ BEGIN_MESSAGE_MAP(CTrenchBroomApp, CWinApp)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_SELECT_NONE, &CTrenchBroomApp::OnUpdateEditSelectNone)
 	ON_COMMAND(ID_VIEW_ISOLATE_SELECTION, &CTrenchBroomApp::OnViewIsolateSelection)
 	ON_UPDATE_COMMAND_UI(ID_VIEW_ISOLATE_SELECTION, &CTrenchBroomApp::OnUpdateViewIsolateSelection)
+	ON_COMMAND(ID_GRID_SHOW_GRID, &CTrenchBroomApp::OnGridShowGrid)
+	ON_UPDATE_COMMAND_UI(ID_GRID_SHOW_GRID, &CTrenchBroomApp::OnUpdateGridItem)
+	ON_COMMAND(ID_GRID_SNAP_TO_GRID, &CTrenchBroomApp::OnGridSnapToGrid)
+	ON_UPDATE_COMMAND_UI(ID_GRID_SNAP_TO_GRID, &CTrenchBroomApp::OnUpdateGridItem)
+	ON_COMMAND(ID_GRID_GRID_SIZE_1, &CTrenchBroomApp::OnGridGridSize1)
+	ON_UPDATE_COMMAND_UI(ID_GRID_GRID_SIZE_1, &CTrenchBroomApp::OnUpdateGridItem)
+	ON_COMMAND(ID_GRID_GRID_SIZE_2, &CTrenchBroomApp::OnGridGridSize2)
+	ON_UPDATE_COMMAND_UI(ID_GRID_GRID_SIZE_2, &CTrenchBroomApp::OnUpdateGridItem)
+	ON_COMMAND(ID_GRID_GRID_SIZE_4, &CTrenchBroomApp::OnGridGridSize4)
+	ON_UPDATE_COMMAND_UI(ID_GRID_GRID_SIZE_4, &CTrenchBroomApp::OnUpdateGridItem)
+	ON_COMMAND(ID_GRID_GRID_SIZE_8, &CTrenchBroomApp::OnGridGridSize8)
+	ON_UPDATE_COMMAND_UI(ID_GRID_GRID_SIZE_8, &CTrenchBroomApp::OnUpdateGridItem)
+	ON_COMMAND(ID_GRID_GRID_SIZE_16, &CTrenchBroomApp::OnGridGridSize16)
+	ON_UPDATE_COMMAND_UI(ID_GRID_GRID_SIZE_16, &CTrenchBroomApp::OnUpdateGridItem)
+	ON_COMMAND(ID_GRID_GRID_SIZE_32, &CTrenchBroomApp::OnGridGridSize32)
+	ON_UPDATE_COMMAND_UI(ID_GRID_GRID_SIZE_32, &CTrenchBroomApp::OnUpdateGridItem)
+	ON_COMMAND(ID_GRID_GRID_SIZE_64, &CTrenchBroomApp::OnGridGridSize64)
+	ON_UPDATE_COMMAND_UI(ID_GRID_GRID_SIZE_64, &CTrenchBroomApp::OnUpdateGridItem)
+	ON_COMMAND(ID_GRID_GRID_SIZE_128, &CTrenchBroomApp::OnGridGridSize128)
+	ON_UPDATE_COMMAND_UI(ID_GRID_GRID_SIZE_128, &CTrenchBroomApp::OnUpdateGridItem)
+	ON_COMMAND(ID_GRID_GRID_SIZE_256, &CTrenchBroomApp::OnGridGridSize256)
+	ON_UPDATE_COMMAND_UI(ID_GRID_GRID_SIZE_256, &CTrenchBroomApp::OnUpdateGridItem)
+	ON_COMMAND(ID_CAMERA_MOVE_FORWARD, &CTrenchBroomApp::OnCameraMoveForward)
+	ON_UPDATE_COMMAND_UI(ID_CAMERA_MOVE_FORWARD, &CTrenchBroomApp::OnUpdateCameraItem)
+	ON_COMMAND(ID_CAMERA_MOVE_BACKWARD, &CTrenchBroomApp::OnCameraMoveBackward)
+	ON_UPDATE_COMMAND_UI(ID_CAMERA_MOVE_BACKWARD, &CTrenchBroomApp::OnUpdateCameraItem)
+	ON_COMMAND(ID_CAMERA_MOVE_LEFT, &CTrenchBroomApp::OnCameraMoveLeft)
+	ON_UPDATE_COMMAND_UI(ID_CAMERA_MOVE_LEFT, &CTrenchBroomApp::OnUpdateCameraItem)
+	ON_COMMAND(ID_CAMERA_MOVE_RIGHT, &CTrenchBroomApp::OnCameraMoveRight)
+	ON_UPDATE_COMMAND_UI(ID_CAMERA_MOVE_RIGHT, &CTrenchBroomApp::OnUpdateCameraItem)
+	ON_COMMAND(ID_CAMERA_MOVE_UP, &CTrenchBroomApp::OnCameraMoveUp)
+	ON_UPDATE_COMMAND_UI(ID_CAMERA_MOVE_UP, &CTrenchBroomApp::OnUpdateCameraItem)
+	ON_COMMAND(ID_CAMERA_MOVE_DOWN, &CTrenchBroomApp::OnCameraMoveDown)
+	ON_UPDATE_COMMAND_UI(ID_CAMERA_MOVE_DOWN, &CTrenchBroomApp::OnUpdateCameraItem)
 END_MESSAGE_MAP()
 
 /*
@@ -620,6 +654,178 @@ void CTrenchBroomApp::OnViewIsolateSelection()
 
 
 void CTrenchBroomApp::OnUpdateViewIsolateSelection(CCmdUI *pCmdUI)
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	pCmdUI->Enable(editor != NULL && mapViewFocused());
+}
+
+
+void CTrenchBroomApp::OnGridShowGrid()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->toggleGrid();
+}
+
+
+void CTrenchBroomApp::OnGridSnapToGrid()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->toggleSnapToGrid();
+}
+
+
+void CTrenchBroomApp::OnGridGridSize1()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->setGridSize(0);
+}
+
+
+void CTrenchBroomApp::OnGridGridSize2()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->setGridSize(1);
+}
+
+
+void CTrenchBroomApp::OnGridGridSize4()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->setGridSize(2);
+}
+
+
+void CTrenchBroomApp::OnGridGridSize8()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->setGridSize(3);
+}
+
+
+void CTrenchBroomApp::OnGridGridSize16()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->setGridSize(4);
+}
+
+
+void CTrenchBroomApp::OnGridGridSize32()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->setGridSize(5);
+}
+
+
+void CTrenchBroomApp::OnGridGridSize64()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->setGridSize(6);
+}
+
+
+void CTrenchBroomApp::OnGridGridSize128()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->setGridSize(7);
+}
+
+
+void CTrenchBroomApp::OnGridGridSize256()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->setGridSize(8);
+}
+
+
+void CTrenchBroomApp::OnUpdateGridItem(CCmdUI *pCmdUI)
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	pCmdUI->Enable(editor != NULL && mapViewFocused());
+}
+
+
+void CTrenchBroomApp::OnCameraMoveForward()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor != NULL)
+		editor->moveCamera(TrenchBroom::Controller::Editor::FORWARD, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+}
+
+
+void CTrenchBroomApp::OnCameraMoveBackward()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor != NULL)
+		editor->moveCamera(TrenchBroom::Controller::Editor::BACKWARD, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+}
+
+
+void CTrenchBroomApp::OnCameraMoveLeft()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor != NULL)
+		editor->moveCamera(TrenchBroom::Controller::Editor::LEFT, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+}
+
+
+void CTrenchBroomApp::OnCameraMoveRight()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor != NULL)
+		editor->moveCamera(TrenchBroom::Controller::Editor::RIGHT, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+}
+
+
+void CTrenchBroomApp::OnCameraMoveUp()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor != NULL)
+		editor->moveCamera(TrenchBroom::Controller::Editor::UP, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+}
+
+
+void CTrenchBroomApp::OnCameraMoveDown()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor != NULL)
+		editor->moveCamera(TrenchBroom::Controller::Editor::DOWN, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+}
+
+
+void CTrenchBroomApp::OnUpdateCameraItem(CCmdUI *pCmdUI)
 {
 	TrenchBroom::Controller::Editor* editor = currentEditor();
 	pCmdUI->Enable(editor != NULL && mapViewFocused());

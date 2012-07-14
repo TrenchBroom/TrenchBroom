@@ -76,6 +76,25 @@ public:
 	afx_msg void OnUpdateEditSelectNone(CCmdUI *pCmdUI);
 	afx_msg void OnViewIsolateSelection();
 	afx_msg void OnUpdateViewIsolateSelection(CCmdUI *pCmdUI);
+	afx_msg void OnGridShowGrid();
+	afx_msg void OnGridSnapToGrid();
+	afx_msg void OnGridGridSize1();
+	afx_msg void OnGridGridSize2();
+	afx_msg void OnGridGridSize4();
+	afx_msg void OnGridGridSize8();
+	afx_msg void OnGridGridSize16();
+	afx_msg void OnGridGridSize32();
+	afx_msg void OnGridGridSize64();
+	afx_msg void OnGridGridSize128();
+	afx_msg void OnGridGridSize256();
+	afx_msg void OnUpdateGridItem(CCmdUI *pCmdUI);
+	afx_msg void OnCameraMoveForward();
+	afx_msg void OnCameraMoveBackward();
+	afx_msg void OnCameraMoveLeft();
+	afx_msg void OnCameraMoveRight();
+	afx_msg void OnCameraMoveUp();
+	afx_msg void OnCameraMoveDown();
+	afx_msg void OnUpdateCameraItem(CCmdUI *pCmdUI);
 };
 
 extern CTrenchBroomApp theApp;
