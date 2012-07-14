@@ -74,6 +74,8 @@ BEGIN_MESSAGE_MAP(CTrenchBroomApp, CWinApp)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_SELECT_TOUCHING, &CTrenchBroomApp::OnUpdateEditSelectTouching)
 	ON_COMMAND(ID_EDIT_SELECT_NONE, &CTrenchBroomApp::OnEditSelectNone)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_SELECT_NONE, &CTrenchBroomApp::OnUpdateEditSelectNone)
+	ON_COMMAND(ID_VIEW_ISOLATE_SELECTION, &CTrenchBroomApp::OnViewIsolateSelection)
+	ON_UPDATE_COMMAND_UI(ID_VIEW_ISOLATE_SELECTION, &CTrenchBroomApp::OnUpdateViewIsolateSelection)
 END_MESSAGE_MAP()
 
 /*
@@ -604,4 +606,21 @@ void CTrenchBroomApp::OnUpdateEditSelectNone(CCmdUI *pCmdUI)
 		TrenchBroom::Model::Selection& selection = editor->map().selection();
 		pCmdUI->Enable(!selection.empty());
 	}
+}
+
+
+void CTrenchBroomApp::OnViewIsolateSelection()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->toggleIsolateSelection();
+}
+
+
+void CTrenchBroomApp::OnUpdateViewIsolateSelection(CCmdUI *pCmdUI)
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	pCmdUI->Enable(editor != NULL && mapViewFocused());
 }

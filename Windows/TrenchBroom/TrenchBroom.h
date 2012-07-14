@@ -74,6 +74,8 @@ public:
 	afx_msg void OnUpdateEditSelectTouching(CCmdUI *pCmdUI);
 	afx_msg void OnEditSelectNone();
 	afx_msg void OnUpdateEditSelectNone(CCmdUI *pCmdUI);
+	afx_msg void OnViewIsolateSelection();
+	afx_msg void OnUpdateViewIsolateSelection(CCmdUI *pCmdUI);
 };
 
 extern CTrenchBroomApp theApp;
