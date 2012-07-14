@@ -157,6 +157,7 @@ namespace TrenchBroom {
             void cameraDidChange(Controller::Camera& camera);
             void gridDidChange(Controller::Grid& grid);
             void preferencesDidChange(const std::string& name);
+            void optionsDidChange(const Controller::TransientOptions& options);
 
             void validate(RenderContext& context);
 

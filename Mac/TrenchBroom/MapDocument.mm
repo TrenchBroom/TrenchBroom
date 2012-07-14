@@ -381,6 +381,11 @@ namespace TrenchBroom {
     editor->moveCamera(Editor::BACKWARD, [self gridOffModifierPressed]);
 }
 
+- (IBAction)toggleIsolateSelection:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->toggleIsolateSelection();
+}
+
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
     SEL action = [menuItem action];
     Editor* editor = (Editor *)[editorHolder editor];

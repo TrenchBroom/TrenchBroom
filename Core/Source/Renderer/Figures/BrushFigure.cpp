@@ -125,16 +125,14 @@ namespace TrenchBroom {
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
             glEnableClientState(GL_VERTEX_ARRAY);
             
-            if (context.options.renderGrid) {
-                glActiveTexture(GL_TEXTURE2);
-                glEnable(GL_TEXTURE_2D);
-                context.gridRenderer.activate(context.grid);
-                glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-                
-                glClientActiveTexture(GL_TEXTURE2);
-                glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                glTexCoordPointer(2, GL_FLOAT, FaceVertexSize, reinterpret_cast<const GLvoid*>(m_faceBlock->address));
-            }
+            glActiveTexture(GL_TEXTURE2);
+            glEnable(GL_TEXTURE_2D);
+            context.gridRenderer.activate(context.grid);
+            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+            
+            glClientActiveTexture(GL_TEXTURE2);
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            glTexCoordPointer(2, GL_FLOAT, FaceVertexSize, reinterpret_cast<const GLvoid*>(m_faceBlock->address));
             
             const Vec4f& selectedFaceColor = context.preferences.selectedFaceColor();
             GLfloat color[4] = {selectedFaceColor.x, selectedFaceColor.y, selectedFaceColor.z, selectedFaceColor.w};
@@ -198,12 +196,10 @@ namespace TrenchBroom {
             glDisable(GL_TEXTURE_2D);
             glActiveTexture(GL_TEXTURE0);
             
-            if (context.options.renderGrid) {
-                glActiveTexture(GL_TEXTURE2);
-                context.gridRenderer.deactivate();
-                glDisable(GL_TEXTURE_2D);
-                glActiveTexture(GL_TEXTURE0);
-            }
+            glActiveTexture(GL_TEXTURE2);
+            context.gridRenderer.deactivate();
+            glDisable(GL_TEXTURE_2D);
+            glActiveTexture(GL_TEXTURE0);
             
             // render edges
             glDisableClientState(GL_TEXTURE_COORD_ARRAY);

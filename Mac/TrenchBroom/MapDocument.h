@@ -77,6 +77,8 @@
 - (IBAction)moveCameraDown:(id)sender;
 - (IBAction)moveCameraForward:(id)sender;
 - (IBAction)moveCameraBackward:(id)sender;
+
+- (IBAction)toggleIsolateSelection:(id)sender;
 @end
 
 namespace TrenchBroom {

@@ -512,6 +512,10 @@ namespace TrenchBroom {
             rendererChanged(*this);
         }
 
+        void MapRenderer::optionsDidChange(const Controller::TransientOptions& options) {
+            rendererChanged(*this);
+        }
+
         void MapRenderer::validate(RenderContext& context) {
             if (!m_geometryDataValid || !m_selectedGeometryDataValid)
                 rebuildGeometryData(context);
@@ -767,7 +771,7 @@ namespace TrenchBroom {
             glPolygonMode(GL_FRONT, GL_FILL);
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
 
-            if (context.options.renderGrid) {
+            if (m_editor.grid().visible()) {
                 glActiveTexture(GL_TEXTURE2);
                 glEnable(GL_TEXTURE_2D);
                 context.gridRenderer.activate(context.grid);
@@ -843,7 +847,7 @@ namespace TrenchBroom {
                 glActiveTexture(GL_TEXTURE0);
             }
 
-            if (context.options.renderGrid) {
+            if (m_editor.grid().visible()) {
                 glActiveTexture(GL_TEXTURE2);
                 context.gridRenderer.deactivate();
                 glDisable(GL_TEXTURE_2D);
@@ -889,6 +893,7 @@ namespace TrenchBroom {
 
             Controller::Camera& camera = m_editor.camera();
             Controller::Grid& grid = m_editor.grid();
+            Controller::TransientOptions& options = m_editor.options();
             Model::Map& map = m_editor.map();
             Model::Selection& selection = map.selection();
             Model::Assets::TextureManager& textureManager = m_editor.textureManager();
@@ -906,6 +911,7 @@ namespace TrenchBroom {
             camera.cameraDidChange                  += new Controller::Camera::CameraEvent::Listener<MapRenderer>(this, &MapRenderer::cameraDidChange);
             grid.gridDidChange                      += new Controller::Grid::GridEvent::Listener<MapRenderer>(this, &MapRenderer::gridDidChange);
             prefs.preferencesDidChange              += new Model::Preferences::PreferencesEvent::Listener<MapRenderer>(this, &MapRenderer::preferencesDidChange);
+            options.optionsDidChange                += new Controller::TransientOptions::OptionsEvent::Listener<MapRenderer>(this, &MapRenderer::optionsDidChange);
             
             mapLoaded(map);
         }
@@ -916,6 +922,7 @@ namespace TrenchBroom {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             Controller::Camera& camera = m_editor.camera();
             Controller::Grid& grid = m_editor.grid();
+            Controller::TransientOptions& options = m_editor.options();
             Model::Map& map = m_editor.map();
             Model::Selection& selection = map.selection();
             Model::Assets::TextureManager& textureManager = m_editor.textureManager();
@@ -933,6 +940,7 @@ namespace TrenchBroom {
             camera.cameraDidChange                  -= new Controller::Camera::CameraEvent::Listener<MapRenderer>(this, &MapRenderer::cameraDidChange);
             grid.gridDidChange                      -= new Controller::Grid::GridEvent::Listener<MapRenderer>(this, &MapRenderer::gridDidChange);
             prefs.preferencesDidChange              -= new Model::Preferences::PreferencesEvent::Listener<MapRenderer>(this, &MapRenderer::preferencesDidChange);
+            options.optionsDidChange                -= new Controller::TransientOptions::OptionsEvent::Listener<MapRenderer>(this, &MapRenderer::optionsDidChange);
 
             while (!m_figures.empty()) delete m_figures.back(), m_figures.pop_back();
             
@@ -979,18 +987,18 @@ namespace TrenchBroom {
             glShadeModel(GL_SMOOTH);
             glResetEdgeOffset();
 
-            if (context.options.renderOrigin) {
+            if (context.options.renderOrigin()) {
                 glDisable(GL_TEXTURE_2D);
                 glBegin(GL_LINES);
                 glColor4f(1, 0, 0, 0.5f);
-                glVertex3f(-context.options.originAxisLength, 0, 0);
-                glVertex3f(context.options.originAxisLength, 0, 0);
+                glVertex3f(-context.options.originAxisLength(), 0, 0);
+                glVertex3f(context.options.originAxisLength(), 0, 0);
                 glColor4f(0, 1, 0, 0.5f);
-                glVertex3f(0, -context.options.originAxisLength, 0);
-                glVertex3f(0, context.options.originAxisLength, 0);
+                glVertex3f(0, -context.options.originAxisLength(), 0);
+                glVertex3f(0, context.options.originAxisLength(), 0);
                 glColor4f(0, 0, 1, 0.5f);
-                glVertex3f(0, 0, -context.options.originAxisLength);
-                glVertex3f(0, 0, context.options.originAxisLength);
+                glVertex3f(0, 0, -context.options.originAxisLength());
+                glVertex3f(0, 0, context.options.originAxisLength());
                 glEnd();
             }
 
@@ -1009,19 +1017,19 @@ namespace TrenchBroom {
 //            m_fontManager.destroyStringRenderer(renderer);
 //            glPopMatrix();
 
-            if (context.options.renderBrushes) {
+            if (context.options.renderBrushes()) {
                 m_faceVbo->activate();
                 glEnableClientState(GL_VERTEX_ARRAY);
 
-                switch (context.options.renderMode) {
+                switch (context.options.renderMode()) {
                     case Controller::TB_RM_TEXTURED:
-                        if (context.options.isolationMode == Controller::IM_NONE)
+                        if (context.options.isolationMode() == Controller::IM_NONE)
                             renderFaces(context, true, false, m_faceRenderInfos);
                         if (!m_editor.map().selection().empty())
                             renderFaces(context, true, true, m_selectedFaceRenderInfos);
                         break;
                     case Controller::TB_RM_FLAT:
-                        if (context.options.isolationMode == Controller::IM_NONE)
+                        if (context.options.isolationMode() == Controller::IM_NONE)
                             renderFaces(context, false, false, m_faceRenderInfos);
                         if (!m_editor.map().selection().empty())
                             renderFaces(context, false, true, m_selectedFaceRenderInfos);
@@ -1036,7 +1044,7 @@ namespace TrenchBroom {
                 m_edgeVbo->activate();
                 glEnableClientState(GL_VERTEX_ARRAY);
                 
-                if (context.options.isolationMode != Controller::IM_DISCARD) {
+                if (context.options.isolationMode() != Controller::IM_DISCARD) {
                     glSetEdgeOffset(0.1f);
                     renderEdges(context, m_edgeRenderInfo, context.preferences.edgeColor());
                     glResetEdgeOffset();
@@ -1058,10 +1066,10 @@ namespace TrenchBroom {
                 glDisableClientState(GL_VERTEX_ARRAY);
             }
 
-            if (context.options.renderEntities) {
+            if (context.options.renderEntities()) {
                 EntityClassnameFilter classnameFilter;
                 
-                if (context.options.isolationMode == Controller::IM_NONE) {
+                if (context.options.isolationMode() == Controller::IM_NONE) {
                     m_entityBoundsVbo->activate();
                     glEnableClientState(GL_VERTEX_ARRAY);
                     renderEntityBounds(context, m_entityBoundsRenderInfo, NULL);
@@ -1070,12 +1078,12 @@ namespace TrenchBroom {
 
                     renderEntityModels(context, m_entityRenderers);
 
-                    if (context.options.renderEntityClassnames) {
+                    if (context.options.renderEntityClassnames()) {
                         m_fontManager.activate();
                         m_classnameRenderer->render(context, classnameFilter, context.preferences.infoOverlayColor());
                         m_fontManager.deactivate();
                     }
-                } else if (context.options.isolationMode == Controller::IM_WIREFRAME) {
+                } else if (context.options.isolationMode() == Controller::IM_WIREFRAME) {
                     m_entityBoundsVbo->activate();
                     glEnableClientState(GL_VERTEX_ARRAY);
                     renderEntityBounds(context, m_entityBoundsRenderInfo, &context.preferences.entityBoundsWireframeColor());
@@ -1084,7 +1092,7 @@ namespace TrenchBroom {
                 }
 
                 if (!m_editor.map().selection().entities().empty()) {
-                    if (context.options.renderEntityClassnames) {
+                    if (context.options.renderEntityClassnames()) {
                         m_fontManager.activate();
                         m_selectedClassnameRenderer->render(context, classnameFilter, context.preferences.selectedInfoOverlayColor());
                         m_fontManager.deactivate();
@@ -1107,7 +1115,7 @@ namespace TrenchBroom {
 
                     renderEntityModels(context, m_selectedEntityRenderers);
 
-                    if (context.options.renderSizeGuides) {
+                    if (context.options.renderSizeGuides()) {
                         glDisable(GL_DEPTH_TEST);
                         renderSelectionGuides(context, context.preferences.selectionGuideColor());
                     }

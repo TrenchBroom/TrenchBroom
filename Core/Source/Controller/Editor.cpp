@@ -445,5 +445,19 @@ namespace TrenchBroom {
                     break;
             }
         }
+
+        void Editor::toggleIsolateSelection() {
+            switch (m_options->isolationMode()) {
+                case IM_NONE:
+                    m_options->setIsolationMode(IM_WIREFRAME);
+                    break;
+                case IM_WIREFRAME:
+                    m_options->setIsolationMode(IM_DISCARD);
+                    break;
+                default:
+                    m_options->setIsolationMode(IM_NONE);
+                    break;
+            }
+        }
     }
 }

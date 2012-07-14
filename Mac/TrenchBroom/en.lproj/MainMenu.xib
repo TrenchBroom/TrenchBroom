@@ -1991,6 +1991,14 @@
 					<int key="connectionID">710</int>
 				</object>
 				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">toggleIsolateSelection:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="734304335"/>
+					</object>
+					<int key="connectionID">711</int>
+				</object>
+				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">delegate</string>
 						<reference key="source" ref="789758025"/>
@@ -3098,7 +3106,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">710</int>
+			<int key="maxID">711</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -3193,6 +3201,7 @@
 						<string key="toggleEdgeTool:">id</string>
 						<string key="toggleFaceTool:">id</string>
 						<string key="toggleGrid:">id</string>
+						<string key="toggleIsolateSelection:">id</string>
 						<string key="toggleSnapToGrid:">id</string>
 						<string key="toggleVertexTool:">id</string>
 						<string key="yawObjectsCCW:">id</string>
@@ -3333,6 +3342,10 @@
 						</object>
 						<object class="IBActionInfo" key="toggleGrid:">
 							<string key="name">toggleGrid:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="toggleIsolateSelection:">
+							<string key="name">toggleIsolateSelection:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="toggleSnapToGrid:">

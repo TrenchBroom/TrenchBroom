@@ -127,6 +127,8 @@ namespace TrenchBroom {
             void setGridSize(int size);
             
             void moveCamera(EMoveDirection direction, bool disableSnapToGrid);
+            
+            void toggleIsolateSelection();
         };
     }
 }

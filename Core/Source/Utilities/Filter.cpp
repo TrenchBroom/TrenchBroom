@@ -31,11 +31,11 @@
 namespace TrenchBroom {
     bool Filter::brushVisible(const Model::Brush& brush) {
         const Controller::TransientOptions& options = m_editor.options();
-        if (!options.renderBrushes)
+        if (!options.renderBrushes())
             return false;
         
         const Model::Selection& selection = m_editor.map().selection();
-        if (options.isolationMode == Controller::IM_DISCARD) {
+        if (options.isolationMode() == Controller::IM_DISCARD) {
             if (selection.mode() == Model::TB_SM_FACES) {
                 for (unsigned int i = 0; i < brush.faces.size(); i++)
                     if (brush.faces[i]->selected)
@@ -59,10 +59,10 @@ namespace TrenchBroom {
     
     bool Filter::entityVisible(const Model::Entity& entity) {
         const Controller::TransientOptions& options = m_editor.options();
-        if (entity.worldspawn() || !options.renderEntities)
+        if (entity.worldspawn() || !options.renderEntities())
             return false;
         
-        if (options.isolationMode == Controller::IM_DISCARD)
+        if (options.isolationMode() == Controller::IM_DISCARD)
             return entity.selected();
         
         Model::GroupManager& groupManager = m_editor.map().groupManager();
