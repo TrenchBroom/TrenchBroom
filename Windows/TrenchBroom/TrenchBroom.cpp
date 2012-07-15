@@ -52,7 +52,6 @@ BEGIN_MESSAGE_MAP(CTrenchBroomApp, CWinApp)
 	ON_COMMAND(ID_FILE_NEW_FRAME, &CTrenchBroomApp::OnFileNewFrame)
 	ON_COMMAND(ID_FILE_NEW, &CTrenchBroomApp::OnFileNew)
 	// Standard file based document commands
-	ON_COMMAND(ID_FILE_OPEN, &CWinApp::OnFileOpen)
 	ON_COMMAND(ID_TOOLS_OPTIONS, &CTrenchBroomApp::OnToolsOptions)
 	ON_COMMAND(ID_EDIT_UNDO, &CTrenchBroomApp::OnEditUndo)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, &CTrenchBroomApp::OnUpdateEditUndo)
@@ -431,6 +430,33 @@ void CTrenchBroomApp::OnFileNew()
 			pTemplate->SetDefaultTitle(pDoc);
 		pDoc->OnNewDocument();
 	}
+}
+
+CDocument* CTrenchBroomApp::OpenDocumentFile(LPCTSTR lpszFileName) {
+	CDocument* pDoc = NULL;
+	CFrameWnd* pFrame;
+	pFrame = DYNAMIC_DOWNCAST(CFrameWnd, CWnd::GetActiveWindow());
+	
+	if (pFrame != NULL)
+		pDoc = pFrame->GetActiveDocument();
+
+	// if it's the first document, open as normal
+	if (pFrame == NULL || pDoc == NULL)
+		return CWinApp::OpenDocumentFile(lpszFileName);
+
+	// Otherwise, see if we have to save modified, then
+	// ask the document to load itself.
+	if (!pDoc->SaveModified())
+		return NULL;
+
+	CDocTemplate* pTemplate = pDoc->GetDocTemplate();
+	ASSERT(pTemplate != NULL);
+
+	if (pTemplate != NULL)
+		pTemplate->SetDefaultTitle(pDoc);
+	pDoc->DeleteContents();
+	pDoc->OnOpenDocument(lpszFileName);
+	return pDoc;
 }
 
 void CTrenchBroomApp::OnEditUndo()

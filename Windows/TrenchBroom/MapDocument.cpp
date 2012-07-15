@@ -49,7 +49,7 @@ END_MESSAGE_MAP()
 
 // CMapDocument construction/destruction
 
-CMapDocument::CMapDocument() : m_editor(NULL)
+void CMapDocument::InitializeEditor()
 {
 	char appPath [MAX_PATH] = "";
 	TrenchBroom::IO::FileManager& fileManager = *TrenchBroom::IO::FileManager::sharedFileManager;
@@ -68,22 +68,34 @@ CMapDocument::CMapDocument() : m_editor(NULL)
 	assert(fileManager.exists(palettePath));
 
 	m_editor = new TrenchBroom::Controller::Editor(definitionPath, palettePath);
-	
+
 	TrenchBroom::Model::UndoManager& undoManager = m_editor->map().undoManager();
 	undoManager.undoGroupCreated	+= new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::undoGroupCreated);
 	undoManager.undoPerformed		+= new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::undoPerformed);
 	undoManager.redoPerformed		+= new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::redoPerformed);
 }
 
+void CMapDocument::DeleteEditor()
+{
+	if (m_editor != NULL) {
+		TrenchBroom::Model::UndoManager& undoManager = m_editor->map().undoManager();
+		undoManager.undoGroupCreated	-= new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::undoGroupCreated);
+		undoManager.undoPerformed		-= new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::undoPerformed);
+		undoManager.redoPerformed		-= new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::redoPerformed);
+
+		delete m_editor;
+		m_editor = NULL;
+	}
+}
+
+CMapDocument::CMapDocument() : m_editor(NULL)
+{
+	InitializeEditor();
+}
+
 CMapDocument::~CMapDocument()
 {
-	TrenchBroom::Model::UndoManager& undoManager = m_editor->map().undoManager();
-	undoManager.undoGroupCreated	-= new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::undoGroupCreated);
-	undoManager.undoPerformed		-= new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::undoPerformed);
-	undoManager.redoPerformed		-= new TrenchBroom::Model::UndoManager::UndoEvent::Listener<CMapDocument>(this, &CMapDocument::redoPerformed);
-
-	if (m_editor != NULL)
-		delete m_editor;
+	DeleteEditor();
 }
 
 BOOL CMapDocument::OnNewDocument()
@@ -105,6 +117,12 @@ BOOL CMapDocument::OnOpenDocument(LPCTSTR lpszPathName)
 
 	progressDialog.DestroyWindow();
 	return TRUE;
+}
+
+void CMapDocument::DeleteContents()
+{
+	m_editor->clear();
+	SetModifiedFlag(FALSE);
 }
 
 #ifdef SHARED_HANDLERS

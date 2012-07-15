@@ -166,6 +166,12 @@ namespace TrenchBroom {
             m_autosaver->clearDirtyFlag();
         }
 
+		void Editor::clear() {
+			m_map->clear();
+			m_mapPath = "";
+			m_autosaver->clearDirtyFlag();
+		}
+
         void Editor::loadTextureWad(const std::string& path) {
             IO::FileManager& fileManager = *IO::FileManager::sharedFileManager;
 
