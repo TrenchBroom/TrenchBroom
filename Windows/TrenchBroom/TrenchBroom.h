@@ -95,6 +95,25 @@ public:
 	afx_msg void OnCameraMoveUp();
 	afx_msg void OnCameraMoveDown();
 	afx_msg void OnUpdateCameraItem(CCmdUI *pCmdUI);
+	afx_msg void OnObjectRoll90Cw();
+	afx_msg void OnObjectRoll90Ccw();
+	afx_msg void OnObjectPitch90Cw();
+	afx_msg void OnObjectPitch90Ccw();
+	afx_msg void OnObjectYaw90Cw();
+	afx_msg void OnObjectYaw90Ccw();
+	afx_msg void OnObjectFlipHorizontally();
+	afx_msg void OnObjectFlipVertically();
+	afx_msg void OnObjectDuplicate();
+	afx_msg void OnUpdateObjectItem(CCmdUI *pCmdUI);
+	afx_msg void OnObjectEnlargeBrushes();
+	afx_msg void OnUpdateObjectEnlargeBrushes(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateTextureItem(CCmdUI *pCmdUI);
+	afx_msg void OnEditCursorUp();
+	afx_msg void OnEditCursorDown();
+	afx_msg void OnEditCursorLeft();
+	afx_msg void OnEditCursorRight();
+	afx_msg void OnEditPageUp();
+	afx_msg void OnEditPageDown();
 };
 
 extern CTrenchBroomApp theApp;
