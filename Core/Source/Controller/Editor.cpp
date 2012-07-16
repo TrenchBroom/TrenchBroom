@@ -166,6 +166,12 @@ namespace TrenchBroom {
             m_autosaver->clearDirtyFlag();
         }
 
+		void Editor::clear() {
+			m_map->clear();
+			m_mapPath = "";
+			m_autosaver->clearDirtyFlag();
+		}
+
         void Editor::loadTextureWad(const std::string& path) {
             IO::FileManager& fileManager = *IO::FileManager::sharedFileManager;
 
@@ -342,7 +348,9 @@ namespace TrenchBroom {
         
         void Editor::rotateTextures(bool clockwise, bool disableSnapToGrid) {
             float angle = disableSnapToGrid ? 1.0f : m_grid->angle();
-            m_map->rotateFaces(-angle);
+			if (clockwise)
+				angle *= -1.0f;
+            m_map->rotateFaces(angle);
         }
         
         void Editor::moveObjects(EMoveDirection direction, bool disableSnapToGrid) {
@@ -361,14 +369,14 @@ namespace TrenchBroom {
                     moveDirection = Vec3f::NegZ;
                     break;
                 case FORWARD:
-                    moveDirection = (m_camera->direction() * -1.0f).firstAxis();
-                    if (moveDirection.firstComponent() == TB_AX_Z)
-                        moveDirection = (m_camera->direction() * -1.0f).secondAxis();
-                    break;
-                case BACKWARD:
                     moveDirection = m_camera->direction().firstAxis();
                     if (moveDirection.firstComponent() == TB_AX_Z)
                         moveDirection = m_camera->direction().secondAxis();
+                    break;
+                case BACKWARD:
+                    moveDirection = (m_camera->direction() * -1.0f).firstAxis();
+                    if (moveDirection.firstComponent() == TB_AX_Z)
+                        moveDirection = (m_camera->direction() * -1.0f).secondAxis();
                     break;
             }
 

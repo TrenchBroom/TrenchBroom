@@ -49,10 +49,8 @@
 
 BEGIN_MESSAGE_MAP(CTrenchBroomApp, CWinApp)
 	ON_COMMAND(ID_APP_ABOUT, &CTrenchBroomApp::OnAppAbout)
-	ON_COMMAND(ID_FILE_NEW_FRAME, &CTrenchBroomApp::OnFileNewFrame)
 	ON_COMMAND(ID_FILE_NEW, &CTrenchBroomApp::OnFileNew)
 	// Standard file based document commands
-	ON_COMMAND(ID_FILE_OPEN, &CWinApp::OnFileOpen)
 	ON_COMMAND(ID_TOOLS_OPTIONS, &CTrenchBroomApp::OnToolsOptions)
 	ON_COMMAND(ID_EDIT_UNDO, &CTrenchBroomApp::OnEditUndo)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, &CTrenchBroomApp::OnUpdateEditUndo)
@@ -74,6 +72,80 @@ BEGIN_MESSAGE_MAP(CTrenchBroomApp, CWinApp)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_SELECT_TOUCHING, &CTrenchBroomApp::OnUpdateEditSelectTouching)
 	ON_COMMAND(ID_EDIT_SELECT_NONE, &CTrenchBroomApp::OnEditSelectNone)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_SELECT_NONE, &CTrenchBroomApp::OnUpdateEditSelectNone)
+	ON_COMMAND(ID_VIEW_ISOLATE_SELECTION, &CTrenchBroomApp::OnViewIsolateSelection)
+	ON_UPDATE_COMMAND_UI(ID_VIEW_ISOLATE_SELECTION, &CTrenchBroomApp::OnUpdateViewIsolateSelection)
+	ON_COMMAND(ID_GRID_SHOW_GRID, &CTrenchBroomApp::OnGridShowGrid)
+	ON_UPDATE_COMMAND_UI(ID_GRID_SHOW_GRID, &CTrenchBroomApp::OnUpdateGridItem)
+	ON_COMMAND(ID_GRID_SNAP_TO_GRID, &CTrenchBroomApp::OnGridSnapToGrid)
+	ON_UPDATE_COMMAND_UI(ID_GRID_SNAP_TO_GRID, &CTrenchBroomApp::OnUpdateGridItem)
+	ON_COMMAND(ID_GRID_GRID_SIZE_1, &CTrenchBroomApp::OnGridGridSize1)
+	ON_UPDATE_COMMAND_UI(ID_GRID_GRID_SIZE_1, &CTrenchBroomApp::OnUpdateGridItem)
+	ON_COMMAND(ID_GRID_GRID_SIZE_2, &CTrenchBroomApp::OnGridGridSize2)
+	ON_UPDATE_COMMAND_UI(ID_GRID_GRID_SIZE_2, &CTrenchBroomApp::OnUpdateGridItem)
+	ON_COMMAND(ID_GRID_GRID_SIZE_4, &CTrenchBroomApp::OnGridGridSize4)
+	ON_UPDATE_COMMAND_UI(ID_GRID_GRID_SIZE_4, &CTrenchBroomApp::OnUpdateGridItem)
+	ON_COMMAND(ID_GRID_GRID_SIZE_8, &CTrenchBroomApp::OnGridGridSize8)
+	ON_UPDATE_COMMAND_UI(ID_GRID_GRID_SIZE_8, &CTrenchBroomApp::OnUpdateGridItem)
+	ON_COMMAND(ID_GRID_GRID_SIZE_16, &CTrenchBroomApp::OnGridGridSize16)
+	ON_UPDATE_COMMAND_UI(ID_GRID_GRID_SIZE_16, &CTrenchBroomApp::OnUpdateGridItem)
+	ON_COMMAND(ID_GRID_GRID_SIZE_32, &CTrenchBroomApp::OnGridGridSize32)
+	ON_UPDATE_COMMAND_UI(ID_GRID_GRID_SIZE_32, &CTrenchBroomApp::OnUpdateGridItem)
+	ON_COMMAND(ID_GRID_GRID_SIZE_64, &CTrenchBroomApp::OnGridGridSize64)
+	ON_UPDATE_COMMAND_UI(ID_GRID_GRID_SIZE_64, &CTrenchBroomApp::OnUpdateGridItem)
+	ON_COMMAND(ID_GRID_GRID_SIZE_128, &CTrenchBroomApp::OnGridGridSize128)
+	ON_UPDATE_COMMAND_UI(ID_GRID_GRID_SIZE_128, &CTrenchBroomApp::OnUpdateGridItem)
+	ON_COMMAND(ID_GRID_GRID_SIZE_256, &CTrenchBroomApp::OnGridGridSize256)
+	ON_UPDATE_COMMAND_UI(ID_GRID_GRID_SIZE_256, &CTrenchBroomApp::OnUpdateGridItem)
+	ON_COMMAND(ID_CAMERA_MOVE_FORWARD, &CTrenchBroomApp::OnCameraMoveForward)
+	ON_UPDATE_COMMAND_UI(ID_CAMERA_MOVE_FORWARD, &CTrenchBroomApp::OnUpdateCameraItem)
+	ON_COMMAND(ID_CAMERA_MOVE_BACKWARD, &CTrenchBroomApp::OnCameraMoveBackward)
+	ON_UPDATE_COMMAND_UI(ID_CAMERA_MOVE_BACKWARD, &CTrenchBroomApp::OnUpdateCameraItem)
+	ON_COMMAND(ID_CAMERA_MOVE_LEFT, &CTrenchBroomApp::OnCameraMoveLeft)
+	ON_UPDATE_COMMAND_UI(ID_CAMERA_MOVE_LEFT, &CTrenchBroomApp::OnUpdateCameraItem)
+	ON_COMMAND(ID_CAMERA_MOVE_RIGHT, &CTrenchBroomApp::OnCameraMoveRight)
+	ON_UPDATE_COMMAND_UI(ID_CAMERA_MOVE_RIGHT, &CTrenchBroomApp::OnUpdateCameraItem)
+	ON_COMMAND(ID_CAMERA_MOVE_UP, &CTrenchBroomApp::OnCameraMoveUp)
+	ON_UPDATE_COMMAND_UI(ID_CAMERA_MOVE_UP, &CTrenchBroomApp::OnUpdateCameraItem)
+	ON_COMMAND(ID_CAMERA_MOVE_DOWN, &CTrenchBroomApp::OnCameraMoveDown)
+	ON_UPDATE_COMMAND_UI(ID_CAMERA_MOVE_DOWN, &CTrenchBroomApp::OnUpdateCameraItem)
+	ON_UPDATE_COMMAND_UI(ID_OBJECT_MOVE_FORWARD, &CTrenchBroomApp::OnUpdateObjectItem)
+	ON_UPDATE_COMMAND_UI(ID_OBJECT_MOVE_BACKWARD, &CTrenchBroomApp::OnUpdateObjectItem)
+	ON_UPDATE_COMMAND_UI(ID_OBJECT_MOVE_LEFT, &CTrenchBroomApp::OnUpdateObjectItem)
+	ON_UPDATE_COMMAND_UI(ID_OBJECT_MOVE_RIGHT, &CTrenchBroomApp::OnUpdateObjectItem)
+	ON_UPDATE_COMMAND_UI(ID_OBJECT_MOVE_UP, &CTrenchBroomApp::OnUpdateObjectItem)
+	ON_UPDATE_COMMAND_UI(ID_OBJECT_MOVE_DOWN, &CTrenchBroomApp::OnUpdateObjectItem)
+	ON_COMMAND(ID_OBJECT_ROLL_90_CW, &CTrenchBroomApp::OnObjectRoll90Cw)
+	ON_UPDATE_COMMAND_UI(ID_OBJECT_ROLL_90_CW, &CTrenchBroomApp::OnUpdateObjectItem)
+	ON_COMMAND(ID_OBJECT_ROLL_90_CCW, &CTrenchBroomApp::OnObjectRoll90Ccw)
+	ON_UPDATE_COMMAND_UI(ID_OBJECT_ROLL_90_CCW, &CTrenchBroomApp::OnUpdateObjectItem)
+	ON_COMMAND(ID_OBJECT_PITCH_90_CW, &CTrenchBroomApp::OnObjectPitch90Cw)
+	ON_UPDATE_COMMAND_UI(ID_OBJECT_PITCH_90_CW, &CTrenchBroomApp::OnUpdateObjectItem)
+	ON_COMMAND(ID_OBJECT_PITCH_90_CCW, &CTrenchBroomApp::OnObjectPitch90Ccw)
+	ON_UPDATE_COMMAND_UI(ID_OBJECT_PITCH_90_CCW, &CTrenchBroomApp::OnUpdateObjectItem)
+	ON_COMMAND(ID_OBJECT_YAW_90_CW, &CTrenchBroomApp::OnObjectYaw90Cw)
+	ON_UPDATE_COMMAND_UI(ID_OBJECT_YAW_90_CW, &CTrenchBroomApp::OnUpdateObjectItem)
+	ON_COMMAND(ID_OBJECT_YAW_90_CCW, &CTrenchBroomApp::OnObjectYaw90Ccw)
+	ON_UPDATE_COMMAND_UI(ID_OBJECT_YAW_90_CCW, &CTrenchBroomApp::OnUpdateObjectItem)
+	ON_COMMAND(ID_OBJECT_FLIP_HORIZONTALLY, &CTrenchBroomApp::OnObjectFlipHorizontally)
+	ON_UPDATE_COMMAND_UI(ID_OBJECT_FLIP_HORIZONTALLY, &CTrenchBroomApp::OnUpdateObjectItem)
+	ON_COMMAND(ID_OBJECT_FLIP_VERTICALLY, &CTrenchBroomApp::OnObjectFlipVertically)
+	ON_UPDATE_COMMAND_UI(ID_OBJECT_FLIP_VERTICALLY, &CTrenchBroomApp::OnUpdateObjectItem)
+	ON_COMMAND(ID_OBJECT_DUPLICATE, &CTrenchBroomApp::OnObjectDuplicate)
+	ON_UPDATE_COMMAND_UI(ID_OBJECT_DUPLICATE, &CTrenchBroomApp::OnUpdateObjectItem)
+	ON_COMMAND(ID_OBJECT_ENLARGE_BRUSHES, &CTrenchBroomApp::OnObjectEnlargeBrushes)
+	ON_UPDATE_COMMAND_UI(ID_OBJECT_ENLARGE_BRUSHES, &CTrenchBroomApp::OnUpdateObjectEnlargeBrushes)
+	ON_UPDATE_COMMAND_UI(ID_TEXTURE_MOVE_UP, &CTrenchBroomApp::OnUpdateTextureItem)
+	ON_UPDATE_COMMAND_UI(ID_TEXTURE_MOVE_DOWN, &CTrenchBroomApp::OnUpdateTextureItem)
+	ON_UPDATE_COMMAND_UI(ID_TEXTURE_MOVE_LEFT, &CTrenchBroomApp::OnUpdateTextureItem)
+	ON_UPDATE_COMMAND_UI(ID_TEXTURE_MOVE_RIGHT, &CTrenchBroomApp::OnUpdateTextureItem)
+	ON_UPDATE_COMMAND_UI(ID_TEXTURE_ROTATE_CW_BY_15, &CTrenchBroomApp::OnUpdateTextureItem)
+	ON_UPDATE_COMMAND_UI(ID_TEXTURE_ROTATE_CCW_BY_15, &CTrenchBroomApp::OnUpdateTextureItem)
+	ON_COMMAND(ID_EDIT_CURSOR_UP, &CTrenchBroomApp::OnEditCursorUp)
+	ON_COMMAND(ID_EDIT_CURSOR_DOWN, &CTrenchBroomApp::OnEditCursorDown)
+	ON_COMMAND(ID_EDIT_CURSOR_LEFT, &CTrenchBroomApp::OnEditCursorLeft)
+	ON_COMMAND(ID_EDIT_CURSOR_RIGHT, &CTrenchBroomApp::OnEditCursorRight)
+	ON_COMMAND(ID_EDIT_PAGE_UP, &CTrenchBroomApp::OnEditPageUp)
+	ON_COMMAND(ID_EDIT_PAGE_DOWN, &CTrenchBroomApp::OnEditPageDown)
 END_MESSAGE_MAP()
 
 /*
@@ -179,15 +251,14 @@ BOOL CTrenchBroomApp::InitInstance()
 
 	// Register the application's document templates.  Document templates
 	//  serve as the connection between documents, frame windows and views
-	CMultiDocTemplate* pDocTemplate;
-	pDocTemplate = new CMultiDocTemplate(
+	CSingleDocTemplate* pDocTemplate;
+	pDocTemplate = new CSingleDocTemplate(
 		IDR_MAINFRAME,
 		RUNTIME_CLASS(CMapDocument),
 		RUNTIME_CLASS(CMainFrame),       // main SDI frame window
 		RUNTIME_CLASS(CMapView));
 	if (!pDocTemplate)
 		return FALSE;
-	m_pDocTemplate = pDocTemplate;
 	AddDocTemplate(pDocTemplate);
 
 
@@ -281,83 +352,6 @@ void CTrenchBroomApp::OnAppAbout()
 }
 
 // CTrenchBroomApp message handlers
-
-void CTrenchBroomApp::OnFileNewFrame() 
-{
-	ASSERT(m_pDocTemplate != NULL);
-
-	CDocument* pDoc = NULL;
-	CFrameWnd* pFrame = NULL;
-
-	// Create a new instance of the document referenced
-	// by the m_pDocTemplate member.
-	if (m_pDocTemplate != NULL)
-		pDoc = m_pDocTemplate->CreateNewDocument();
-
-	if (pDoc != NULL)
-	{
-		// If creation worked, use create a new frame for
-		// that document.
-		pFrame = m_pDocTemplate->CreateNewFrame(pDoc, NULL);
-		if (pFrame != NULL)
-		{
-			// Set the title, and initialize the document.
-			// If document initialization fails, clean-up
-			// the frame window and document.
-
-			m_pDocTemplate->SetDefaultTitle(pDoc);
-			if (!pDoc->OnNewDocument())
-			{
-				pFrame->DestroyWindow();
-				pFrame = NULL;
-			}
-			else
-			{
-				// Otherwise, update the frame
-				m_pDocTemplate->InitialUpdateFrame(pFrame, pDoc, TRUE);
-			}
-		}
-	}
-
-	// If we failed, clean up the document and show a
-	// message to the user.
-
-	if (pFrame == NULL || pDoc == NULL)
-	{
-		delete pDoc;
-		AfxMessageBox(AFX_IDP_FAILED_TO_CREATE_DOC);
-	}
-}
-
-void CTrenchBroomApp::OnFileNew() 
-{
-	CDocument* pDoc = NULL;
-	CFrameWnd* pFrame;
-	pFrame = DYNAMIC_DOWNCAST(CFrameWnd, CWnd::GetActiveWindow());
-	
-	if (pFrame != NULL)
-		pDoc = pFrame->GetActiveDocument();
-
-	if (pFrame == NULL || pDoc == NULL)
-	{
-		// if it's the first document, create as normal
-		CWinApp::OnFileNew();
-	}
-	else
-	{
-		// Otherwise, see if we have to save modified, then
-		// ask the document to reinitialize itself.
-		if (!pDoc->SaveModified())
-			return;
-
-		CDocTemplate* pTemplate = pDoc->GetDocTemplate();
-		ASSERT(pTemplate != NULL);
-
-		if (pTemplate != NULL)
-			pTemplate->SetDefaultTitle(pDoc);
-		pDoc->OnNewDocument();
-	}
-}
 
 void CTrenchBroomApp::OnEditUndo()
 {
@@ -603,5 +597,417 @@ void CTrenchBroomApp::OnUpdateEditSelectNone(CCmdUI *pCmdUI)
 	} else {
 		TrenchBroom::Model::Selection& selection = editor->map().selection();
 		pCmdUI->Enable(!selection.empty());
+	}
+}
+
+
+void CTrenchBroomApp::OnViewIsolateSelection()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->toggleIsolateSelection();
+}
+
+
+void CTrenchBroomApp::OnUpdateViewIsolateSelection(CCmdUI *pCmdUI)
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	pCmdUI->Enable(editor != NULL && mapViewFocused());
+}
+
+
+void CTrenchBroomApp::OnGridShowGrid()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->toggleGrid();
+}
+
+
+void CTrenchBroomApp::OnGridSnapToGrid()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->toggleSnapToGrid();
+}
+
+
+void CTrenchBroomApp::OnGridGridSize1()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->setGridSize(0);
+}
+
+
+void CTrenchBroomApp::OnGridGridSize2()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->setGridSize(1);
+}
+
+
+void CTrenchBroomApp::OnGridGridSize4()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->setGridSize(2);
+}
+
+
+void CTrenchBroomApp::OnGridGridSize8()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->setGridSize(3);
+}
+
+
+void CTrenchBroomApp::OnGridGridSize16()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->setGridSize(4);
+}
+
+
+void CTrenchBroomApp::OnGridGridSize32()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->setGridSize(5);
+}
+
+
+void CTrenchBroomApp::OnGridGridSize64()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->setGridSize(6);
+}
+
+
+void CTrenchBroomApp::OnGridGridSize128()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->setGridSize(7);
+}
+
+
+void CTrenchBroomApp::OnGridGridSize256()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	editor->setGridSize(8);
+}
+
+
+void CTrenchBroomApp::OnUpdateGridItem(CCmdUI *pCmdUI)
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	pCmdUI->Enable(editor != NULL && mapViewFocused());
+}
+
+
+void CTrenchBroomApp::OnCameraMoveForward()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor != NULL)
+		editor->moveCamera(TrenchBroom::Controller::Editor::FORWARD, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+}
+
+
+void CTrenchBroomApp::OnCameraMoveBackward()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor != NULL)
+		editor->moveCamera(TrenchBroom::Controller::Editor::BACKWARD, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+}
+
+
+void CTrenchBroomApp::OnCameraMoveLeft()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor != NULL)
+		editor->moveCamera(TrenchBroom::Controller::Editor::LEFT, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+}
+
+
+void CTrenchBroomApp::OnCameraMoveRight()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor != NULL)
+		editor->moveCamera(TrenchBroom::Controller::Editor::RIGHT, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+}
+
+
+void CTrenchBroomApp::OnCameraMoveUp()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor != NULL)
+		editor->moveCamera(TrenchBroom::Controller::Editor::UP, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+}
+
+
+void CTrenchBroomApp::OnCameraMoveDown()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor != NULL)
+		editor->moveCamera(TrenchBroom::Controller::Editor::DOWN, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+}
+
+
+void CTrenchBroomApp::OnUpdateCameraItem(CCmdUI *pCmdUI)
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	pCmdUI->Enable(editor != NULL && mapViewFocused());
+}
+
+
+void CTrenchBroomApp::OnObjectRoll90Cw()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor != NULL)
+		editor->rotateObjects(TrenchBroom::Controller::Editor::ROLL, true);
+}
+
+
+void CTrenchBroomApp::OnObjectRoll90Ccw()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor != NULL)
+		editor->rotateObjects(TrenchBroom::Controller::Editor::ROLL, false);
+}
+
+
+void CTrenchBroomApp::OnObjectPitch90Cw()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor != NULL)
+		editor->rotateObjects(TrenchBroom::Controller::Editor::PITCH, true);
+}
+
+
+void CTrenchBroomApp::OnObjectPitch90Ccw()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor != NULL)
+		editor->rotateObjects(TrenchBroom::Controller::Editor::PITCH, false);
+}
+
+
+void CTrenchBroomApp::OnObjectYaw90Cw()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor != NULL)
+		editor->rotateObjects(TrenchBroom::Controller::Editor::YAW, true);
+}
+
+
+void CTrenchBroomApp::OnObjectYaw90Ccw()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor != NULL)
+		editor->rotateObjects(TrenchBroom::Controller::Editor::YAW, false);
+}
+
+
+void CTrenchBroomApp::OnObjectFlipHorizontally()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor != NULL)
+		editor->flipObjects(true);
+}
+
+
+void CTrenchBroomApp::OnObjectFlipVertically()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor != NULL)
+		editor->flipObjects(false);
+}
+
+
+void CTrenchBroomApp::OnObjectDuplicate()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor != NULL)
+		editor->duplicateObjects();
+}
+
+
+void CTrenchBroomApp::OnUpdateObjectItem(CCmdUI *pCmdUI)
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL || !mapViewFocused()) {
+		pCmdUI->Enable(FALSE);
+	} else {
+		TrenchBroom::Model::Selection& selection = editor->map().selection();
+		pCmdUI->Enable(
+			selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || 
+			selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES ||
+			selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES);
+	}
+}
+
+
+void CTrenchBroomApp::OnObjectEnlargeBrushes()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor != NULL)
+		editor->enlargeBrushes();
+}
+
+
+void CTrenchBroomApp::OnUpdateObjectEnlargeBrushes(CCmdUI *pCmdUI)
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL || !mapViewFocused()) {
+		pCmdUI->Enable(FALSE);
+	} else {
+		TrenchBroom::Model::Selection& selection = editor->map().selection();
+		pCmdUI->Enable(
+			selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES);
+	}
+}
+
+
+void CTrenchBroomApp::OnUpdateTextureItem(CCmdUI *pCmdUI)
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL || !mapViewFocused()) {
+		pCmdUI->Enable(FALSE);
+	} else {
+		TrenchBroom::Model::Selection& selection = editor->map().selection();
+		pCmdUI->Enable(
+			selection.mode() == TrenchBroom::Model::TB_SM_FACES);
+	}
+}
+
+
+void CTrenchBroomApp::OnEditCursorUp()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL || !mapViewFocused())
+		return;
+
+	TrenchBroom::Model::Selection& selection = editor->map().selection();
+	if (selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || 
+		selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES ||
+		selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES) {
+		editor->moveObjects(TrenchBroom::Controller::Editor::FORWARD, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+	} else if (selection.mode() == TrenchBroom::Model::TB_SM_FACES) {
+		editor->moveTextures(TrenchBroom::Controller::Editor::UP, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+	}
+}
+
+
+void CTrenchBroomApp::OnEditCursorDown()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL || !mapViewFocused())
+		return;
+
+	TrenchBroom::Model::Selection& selection = editor->map().selection();
+	if (selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || 
+		selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES ||
+		selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES) {
+		editor->moveObjects(TrenchBroom::Controller::Editor::BACKWARD, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+	} else if (selection.mode() == TrenchBroom::Model::TB_SM_FACES) {
+		editor->moveTextures(TrenchBroom::Controller::Editor::DOWN, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+	}
+}
+
+
+void CTrenchBroomApp::OnEditCursorLeft()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL || !mapViewFocused())
+		return;
+
+	TrenchBroom::Model::Selection& selection = editor->map().selection();
+	if (selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || 
+		selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES ||
+		selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES) {
+		editor->moveObjects(TrenchBroom::Controller::Editor::LEFT, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+	} else if (selection.mode() == TrenchBroom::Model::TB_SM_FACES) {
+		editor->moveTextures(TrenchBroom::Controller::Editor::LEFT, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+	}
+}
+
+
+void CTrenchBroomApp::OnEditCursorRight()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL || !mapViewFocused())
+		return;
+
+	TrenchBroom::Model::Selection& selection = editor->map().selection();
+	if (selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || 
+		selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES ||
+		selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES) {
+		editor->moveObjects(TrenchBroom::Controller::Editor::RIGHT, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+	} else if (selection.mode() == TrenchBroom::Model::TB_SM_FACES) {
+		editor->moveTextures(TrenchBroom::Controller::Editor::RIGHT, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+	}
+}
+
+
+void CTrenchBroomApp::OnEditPageUp()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL || !mapViewFocused())
+		return;
+
+	TrenchBroom::Model::Selection& selection = editor->map().selection();
+	if (selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || 
+		selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES ||
+		selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES) {
+		editor->moveObjects(TrenchBroom::Controller::Editor::UP, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+	} else if (selection.mode() == TrenchBroom::Model::TB_SM_FACES) {
+		editor->rotateTextures(true, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+	}
+}
+
+
+void CTrenchBroomApp::OnEditPageDown()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL || !mapViewFocused())
+		return;
+
+	TrenchBroom::Model::Selection& selection = editor->map().selection();
+	if (selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || 
+		selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES ||
+		selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES) {
+		editor->moveObjects(TrenchBroom::Controller::Editor::DOWN, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+	} else if (selection.mode() == TrenchBroom::Model::TB_SM_FACES) {
+		editor->rotateTextures(false, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
 	}
 }

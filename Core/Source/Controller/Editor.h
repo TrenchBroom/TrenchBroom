@@ -88,7 +88,8 @@ namespace TrenchBroom {
             
             void loadMap(const std::string& path, ProgressIndicator* indicator);
             void saveMap(const std::string& path);
-            
+			void clear();
+
             void loadTextureWad(const std::string& path);
             
             const std::string& mapPath() const;

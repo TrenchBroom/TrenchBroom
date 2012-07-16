@@ -29,6 +29,8 @@ namespace TrenchBroom {
 class CMapDocument : public CDocument
 {
 protected: // create from serialization only
+	void InitializeEditor();
+	void DeleteEditor();
 	CMapDocument();
 	DECLARE_DYNCREATE(CMapDocument)
 
@@ -42,6 +44,7 @@ public:
 public:
 	virtual BOOL OnNewDocument();
 	virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
+	virtual void DeleteContents();
 #ifdef SHARED_HANDLERS
 	virtual void InitializeSearchContent();
 	virtual void OnDrawThumbnail(CDC& dc, LPRECT lprcBounds);
