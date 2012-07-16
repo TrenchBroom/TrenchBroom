@@ -60,7 +60,7 @@ namespace TrenchBroom {
             m_brushFigure->setBrushes(brushes);
         }
         
-        bool CreateBrushTool::doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint) {
+        bool CreateBrushTool::doBeginRightDrag(ToolEvent& event, Vec3f& initialPoint) {
             Model::Hit* hit = event.hits->first(Model::TB_HT_FACE, true);
             if (hit != NULL) initialPoint = hit->hitPoint.correct();
             else initialPoint = m_editor.camera().defaultPoint(event.ray.direction).correct();
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool CreateBrushTool::doLeftDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint) {
+        bool CreateBrushTool::doRightDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint) {
             BBox newBounds = m_initialBounds + curMousePoint.correct();
             newBounds.min = m_editor.grid().snapDown(newBounds.min);
             newBounds.max = m_editor.grid().snapUp(newBounds.max);
@@ -103,7 +103,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        void CreateBrushTool::doEndLeftDrag(ToolEvent& event) {
+        void CreateBrushTool::doEndRightDrag(ToolEvent& event) {
             m_editor.map().createBrush(*m_editor.map().worldspawn(true), *m_brush);
 
             if (m_brushFigure != NULL) {

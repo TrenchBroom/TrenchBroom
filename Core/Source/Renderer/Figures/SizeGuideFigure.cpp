@@ -282,6 +282,7 @@ namespace TrenchBroom {
 
             glDisable(GL_STENCIL_TEST);
 
+            vbo.deactivate();
             m_fontManager.activate();
             for (unsigned int i = 0; i < labelPositions.size(); i++) {
                 glColorV4f(m_color);
@@ -300,6 +301,7 @@ namespace TrenchBroom {
                 glPopMatrix();
             }
             m_fontManager.deactivate();
+            vbo.activate();
         }
     }
 }

@@ -55,6 +55,10 @@ namespace TrenchBroom {
             bool beginLeftDrag(ToolEvent& event);
             void leftDrag(ToolEvent& event);
             void endLeftDrag(ToolEvent& event);
+
+            bool beginRightDrag(ToolEvent& event);
+            void rightDrag(ToolEvent& event);
+            void endRightDrag(ToolEvent& event);
         };
     }
 }

@@ -81,5 +81,46 @@ namespace TrenchBroom {
             doEndLeftDrag(event);
             m_drag = false;
         }
+        
+        bool DragTool::beginRightDrag(ToolEvent& event) {
+            m_drag = doBeginRightDrag(event, m_lastMousePoint);
+            if (m_drag) {
+                updateDragPlane(event);
+                m_lastRefPoint = m_lastMousePoint;
+                m_dragPlanePosition = m_lastMousePoint;
+            }
+            return m_drag;
+        }
+        
+        void DragTool::rightDrag(ToolEvent& event) {
+            if (!m_drag)
+                return;
+            
+            float dist = m_dragPlane.intersect(event.ray, m_dragPlanePosition);
+            if (Math::isnan(dist))
+                return;
+            
+            Vec3f currentMousePoint = event.ray.pointAtDistance(dist);
+            if (currentMousePoint.equals(m_lastMousePoint))
+                return;
+            
+            Vec3f delta = currentMousePoint - m_lastRefPoint;
+            if (delta.null())
+                return;
+            
+            if (!doRightDrag(event, m_lastMousePoint, currentMousePoint, m_lastRefPoint))
+                endRightDrag(event);
+            
+            m_lastMousePoint = currentMousePoint;
+        }
+        
+        void DragTool::endRightDrag(ToolEvent& event) {
+            if (!m_drag)
+                return;
+            
+            doEndRightDrag(event);
+            m_drag = false;
+        }
+        
     }
 }

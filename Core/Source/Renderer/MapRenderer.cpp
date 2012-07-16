@@ -419,6 +419,10 @@ namespace TrenchBroom {
         void MapRenderer::brushesDidChange(const std::vector<Model::Brush*>& brushes) {
             m_selectedEntityDataValid = false;
             m_selectedGeometryDataValid = false;
+            
+            if (m_sizeGuideFigure != NULL)
+                m_sizeGuideFigure->setBounds(m_editor.map().selection().bounds());
+
             rendererChanged(*this);
         }
 
