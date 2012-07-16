@@ -29,6 +29,7 @@
 
 #include <cassert>
 #include <map>
+#include <algorithm>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -127,7 +128,7 @@ namespace TrenchBroom {
                             glScalef(factor, factor, 0);
                             glTranslatef(-width / 2, 0, 0);
                             
-                            float alphaFactor = 1.0f - std::max((dist - m_fadeDistance), 0.0f) / 100.0f;
+                            float alphaFactor = 1.0f - (std::max)(dist - m_fadeDistance, 0.0f) / 100.0f;
                             
                             glColor4f(0, 0, 0, 0.6f * alphaFactor);
                             renderer->renderBackground(2, 1);

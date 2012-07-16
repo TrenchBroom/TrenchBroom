@@ -22,8 +22,10 @@
 
 #include "Utilities/SharedPointer.h"
 #include "Utilities/VecMath.h"
+
 #include <vector>
 #include <cassert>
+#include <algorithm>
 
 namespace TrenchBroom {
     namespace Gui {
@@ -95,13 +97,13 @@ namespace TrenchBroom {
                         scaledItemHeight = fixedCellWidth;
                     }
 
-                    float clippedTitleWidth = std::min(fixedCellWidth, titleWidth);
+                    float clippedTitleWidth = (std::min)(fixedCellWidth, titleWidth);
                     
                     m_cellBounds = LayoutBounds(x, y, fixedCellWidth, scaledItemHeight + titleHeight);
                     m_itemBounds = LayoutBounds(x + (m_cellBounds.width() - scaledItemWidth) / 2.0f, y, scaledItemWidth, scaledItemHeight);
                     m_titleBounds = LayoutBounds(x + (m_cellBounds.width() - clippedTitleWidth) / 2.0f, m_itemBounds.bottom(), clippedTitleWidth, titleHeight);
                 } else {
-                    m_cellBounds = LayoutBounds(x, y, std::max(itemWidth, titleWidth), itemHeight + titleHeight);
+                    m_cellBounds = LayoutBounds(x, y, (std::max)(itemWidth, titleWidth), itemHeight + titleHeight);
                     m_itemBounds = LayoutBounds(x + (m_cellBounds.width() - itemWidth) / 2.0f, y, itemWidth, itemHeight);
                     m_titleBounds = LayoutBounds(x + (m_cellBounds.width() - titleWidth) / 2.0f, m_itemBounds.bottom(), titleWidth, titleHeight);
                 }
@@ -161,7 +163,7 @@ namespace TrenchBroom {
                     return false;
                 
                 float width = x + cellPtr->cellBounds().width();
-                float height = std::max(m_bounds.height(), cellPtr->cellBounds().height());
+                float height = (std::max)(m_bounds.height(), cellPtr->cellBounds().height());
                 m_bounds = LayoutBounds(m_bounds.left(), m_bounds.top(), width, height);
                 
                 m_cells.push_back(cellPtr);

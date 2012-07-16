@@ -35,6 +35,8 @@
 #include "Renderer/Vbo.h"
 #include "Utilities/VecMath.h"
 
+#include <algorithm>
+
 namespace TrenchBroom {
     namespace Gui {
         void EntityDragControl::RenderOverlay(Gwen::Skin::Base* skin) {
@@ -70,7 +72,7 @@ namespace TrenchBroom {
             if (renderer == NULL) {
                 BBox actualBounds = definition->bounds.boundsAfterRotation(rot);
                 Vec3f actualSize = actualBounds.size();
-                float scale = std::min(2.0f, actualSize.x > actualSize.y ? itemBounds.width() / actualSize.x : itemBounds.height() / actualSize.y);
+                float scale = (std::min)(2.0f, actualSize.x > actualSize.y ? itemBounds.width() / actualSize.x : itemBounds.height() / actualSize.y);
                 Vec3f center = definition->bounds.center();
                 
                 Renderer::glColorV4f(definition->color);
@@ -88,7 +90,7 @@ namespace TrenchBroom {
             } else {
                 BBox actualBounds = renderer->bounds().boundsAfterRotation(rot);
                 Vec3f actualSize = actualBounds.size();
-                float scale = std::min(2.0f, actualSize.x > actualSize.y ? itemBounds.width() / actualSize.x : itemBounds.height() / actualSize.y);
+                float scale = (std::min)(2.0f, actualSize.x > actualSize.y ? itemBounds.width() / actualSize.x : itemBounds.height() / actualSize.y);
                 Vec3f center = renderer->bounds().center();
                 
                 glPushMatrix();
@@ -214,7 +216,7 @@ namespace TrenchBroom {
                                 if (renderer == NULL) {
                                     BBox actualBounds = definition->bounds.boundsAfterRotation(rot);
                                     Vec3f actualSize = actualBounds.size();
-                                    float scale = std::min(2.0f, actualSize.x > actualSize.y ? itemBounds.width() / actualSize.x : itemBounds.height() / actualSize.y);
+                                    float scale = (std::min)(2.0f, actualSize.x > actualSize.y ? itemBounds.width() / actualSize.x : itemBounds.height() / actualSize.y);
                                     Vec3f center = definition->bounds.center();
 
                                     std::vector<Vec3f> vertices = Renderer::bboxEdgeVertices(definition->bounds);
@@ -229,7 +231,7 @@ namespace TrenchBroom {
                                 } else {
                                     BBox actualBounds = renderer->bounds().boundsAfterRotation(rot);
                                     Vec3f actualSize = actualBounds.size();
-                                    float scale = std::min(2.0f, actualSize.x > actualSize.y ? itemBounds.width() / actualSize.x : itemBounds.height() / actualSize.y);
+                                    float scale = (std::min)(2.0f, actualSize.x > actualSize.y ? itemBounds.width() / actualSize.x : itemBounds.height() / actualSize.y);
                                     Vec3f center = renderer->bounds().center();
 
                                     glPushMatrix();

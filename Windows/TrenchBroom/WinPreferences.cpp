@@ -34,7 +34,7 @@ namespace TrenchBroom {
 				m_cameraOrbitKey = Controller::TB_MK_SHIFT | Controller::TB_MK_CTRL;
 				m_selectionToolMultiKey = Controller::TB_MK_CTRL;
 				m_selectionToolGridKey = Controller::TB_MK_ALT;
-				m_quakePath = "C:\\Program Files\\Quake";
+				m_quakePath = "";
 			}
 
 			bool WinPreferences::loadInt(const std::string& key, int& value) {

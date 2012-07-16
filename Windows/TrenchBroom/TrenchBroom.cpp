@@ -49,7 +49,8 @@
 
 BEGIN_MESSAGE_MAP(CTrenchBroomApp, CWinApp)
 	ON_COMMAND(ID_APP_ABOUT, &CTrenchBroomApp::OnAppAbout)
-	ON_COMMAND(ID_FILE_NEW, &CTrenchBroomApp::OnFileNew)
+    ON_COMMAND(ID_FILE_NEW, &CTrenchBroomApp::OnFileNew)
+    ON_COMMAND(ID_FILE_OPEN, &CTrenchBroomApp::OnFileOpen)
 	// Standard file based document commands
 	ON_COMMAND(ID_TOOLS_OPTIONS, &CTrenchBroomApp::OnToolsOptions)
 	ON_COMMAND(ID_EDIT_UNDO, &CTrenchBroomApp::OnEditUndo)

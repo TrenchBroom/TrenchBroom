@@ -20,6 +20,7 @@
 #include "Camera.h"
 
 // #include <cmath>
+
 #include <algorithm>
 
 namespace TrenchBroom {
@@ -195,7 +196,7 @@ namespace TrenchBroom {
                 newDirection = newDirection.normalize();
                 
                 // correct rounding errors
-                float cos = std::max(-1.0f, std::min(1.0f, m_direction | newDirection));
+                float cos = (std::max)(-1.0f, (std::min)(1.0f, m_direction | newDirection));
                 float angle = acosf(cos);
                 if (!Math::fzero(angle)) {
                     Vec3f axis = (m_direction % newDirection).normalize();

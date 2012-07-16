@@ -23,72 +23,73 @@
 #include <sstream>
 
 namespace TrenchBroom {
-	namespace IO {
-			bool WinFileManager::isDirectory(const std::string& path) {
-				DWORD dwAttrib = GetFileAttributes(path.c_str());
-				return (dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
-			}
+    namespace IO {
+            bool WinFileManager::isDirectory(const std::string& path) {
+                DWORD dwAttrib = GetFileAttributes(path.c_str());
+                return (dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+            }
 
-			bool WinFileManager::exists(const std::string& path) {
-				return (GetFileAttributes(path.c_str()) != INVALID_FILE_ATTRIBUTES);
-			}
-			
-			bool WinFileManager::makeDirectory(const std::string& path) {
-				std::vector<std::string> components = pathComponents(path);
-				if (components.empty())
-					return false;
+            bool WinFileManager::exists(const std::string& path) {
+                return (GetFileAttributes(path.c_str()) != INVALID_FILE_ATTRIBUTES);
+            }
+            
+            bool WinFileManager::makeDirectory(const std::string& path) {
+                std::vector<std::string> components = pathComponents(path);
+                if (components.empty())
+                    return false;
 
-				std::stringstream partialPath(components[0]);
+                std::stringstream partialPath(components[0]);
 
-				for (unsigned int i = 1; i < components.size(); i++) {
-					partialPath << pathSeparator() << components[i];
-					if (!exists(partialPath.str()))
-						if (!CreateDirectory(partialPath.str().c_str(), NULL))
-							return false;
-				}
-				
-				return true;
-			}
-			
-			bool WinFileManager::deleteFile(const std::string& path) {
-				DWORD dwAttrib = GetFileAttributes(path.c_str());
-				if (dwAttrib == INVALID_FILE_ATTRIBUTES || (dwAttrib & FILE_ATTRIBUTE_DIRECTORY))
-					return false;
+                for (unsigned int i = 1; i < components.size(); i++) {
+                    partialPath << pathSeparator() << components[i];
+                    if (!exists(partialPath.str()))
+                        if (!CreateDirectory(partialPath.str().c_str(), NULL))
+                            return false;
+                }
+                
+                return true;
+            }
+            
+            bool WinFileManager::deleteFile(const std::string& path) {
+                DWORD dwAttrib = GetFileAttributes(path.c_str());
+                if (dwAttrib == INVALID_FILE_ATTRIBUTES || (dwAttrib & FILE_ATTRIBUTE_DIRECTORY))
+                    return false;
 
-				return DeleteFile(path.c_str()) == TRUE;
-			}
+                return DeleteFile(path.c_str()) == TRUE;
+            }
 
             bool WinFileManager::moveFile(const std::string& sourcePath, const std::string& destPath, bool overwrite) {
-				DWORD dwSourceAttrib = GetFileAttributes(sourcePath.c_str());
-				if (dwSourceAttrib == INVALID_FILE_ATTRIBUTES || (dwSourceAttrib & FILE_ATTRIBUTE_DIRECTORY))
-					return false;
+                DWORD dwSourceAttrib = GetFileAttributes(sourcePath.c_str());
+                if (dwSourceAttrib == INVALID_FILE_ATTRIBUTES || (dwSourceAttrib & FILE_ATTRIBUTE_DIRECTORY))
+                    return false;
 
-				DWORD dwDestAttrib = GetFileAttributes(destPath.c_str());
-				if (dwDestAttrib != INVALID_FILE_ATTRIBUTES) {
-					if (!overwrite || (dwSourceAttrib & FILE_ATTRIBUTE_DIRECTORY))
-						return false;
-					else if (!DeleteFile(destPath.c_str()))
-						return false;
-				}
+                DWORD dwDestAttrib = GetFileAttributes(destPath.c_str());
+                if (dwDestAttrib != INVALID_FILE_ATTRIBUTES) {
+                    if (!overwrite || (dwSourceAttrib & FILE_ATTRIBUTE_DIRECTORY))
+                        return false;
+                    else if (!DeleteFile(destPath.c_str()))
+                        return false;
+                }
 
-				return MoveFile(sourcePath.c_str(), destPath.c_str()) == TRUE;
-		    }
+                return MoveFile(sourcePath.c_str(), destPath.c_str()) == TRUE;
+            }
 
-			std::vector<std::string> WinFileManager::directoryContents(const std::string& path, std::string extension) {
-				std::vector<std::string> result;
-				WIN32_FIND_DATA findData;
+            std::vector<std::string> WinFileManager::directoryContents(const std::string& path, std::string extension) {
+                std::vector<std::string> result;
+                WIN32_FIND_DATA findData;
 
-				HANDLE hfind = FindFirstFile(path.c_str(), &findData);
-				bool found = hfind != INVALID_HANDLE_VALUE;
-				while (found) {
-					std::string entryName = findData.cFileName;
-					if (extension.empty() || pathExtension(entryName) == extension)
-						result.push_back(pathComponents(entryName).back());
-					found = FindNextFile(hfind, &findData) == TRUE;
-				}
+                std::string wildcardPath = appendPathComponent(path, "*");
+                HANDLE hfind = FindFirstFile(wildcardPath.c_str(), &findData);
+                bool found = hfind != INVALID_HANDLE_VALUE;
+                while (found) {
+                    std::string entryName = findData.cFileName;
+                    if (extension.empty() || pathExtension(entryName) == extension)
+                        result.push_back(pathComponents(entryName).back());
+                    found = FindNextFile(hfind, &findData) == TRUE;
+                }
 
-				FindClose(hfind);
-				return result;
-			}
-	}
+                FindClose(hfind);
+                return result;
+            }
+    }
 }
