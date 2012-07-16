@@ -90,22 +90,6 @@ namespace Math {
     inline bool flte(float f1, float f2) {
         return !fgt(f1, f2);
     }
-
-    inline float fmin(float f1, float f2) {
-        return f1 < f2 ? f1 : f2;
-    }
-
-    inline float fmax(float f1, float f2) {
-        return f1 < f2 ? f2 : f1;
-    }
-
-    inline int imin(int i1, int i2) {
-        return i1 < i2 ? i1 : i2;
-    }
-
-    inline int imax(int i1, int i2) {
-        return i1 < i2 ? i2 : i1;
-    }
 }
 
 typedef enum {

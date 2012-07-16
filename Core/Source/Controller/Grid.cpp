@@ -25,7 +25,7 @@
 #include "Utilities/VecMath.h"
 #include "Utilities/Console.h"
 
-#include <cmath>
+#include <algorithm>
 #include <limits>
 
 namespace TrenchBroom {
@@ -219,7 +219,7 @@ namespace TrenchBroom {
             }
             
             Vec3f normDelta = face.boundary.normal * dist;
-            int gridSkip = Math::imax(0, static_cast<int>(normDelta | normDelta.firstAxis()) / actualSize() - 1);
+            int gridSkip = std::max<int>(0, static_cast<int>(normDelta | normDelta.firstAxis()) / actualSize() - 1);
             float actualDist = std::numeric_limits<float>::max();
             
             do {

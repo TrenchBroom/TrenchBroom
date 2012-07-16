@@ -1441,12 +1441,12 @@ const Vec3f Line::pointAtDistance(float distance) const {
 }
 
 void BBox::repair() {
-    min.x = Math::fmin(min.x, max.x);
-    min.y = Math::fmin(min.y, max.y);
-    min.z = Math::fmin(min.z, max.z);
-    max.x = Math::fmax(min.x, max.x);
-    max.y = Math::fmax(min.y, max.y);
-    max.z = Math::fmax(min.z, max.z);
+    min.x = std::min(min.x, max.x);
+    min.y = std::min(min.y, max.y);
+    min.z = std::min(min.z, max.z);
+    max.x = std::max(min.x, max.x);
+    max.y = std::max(min.y, max.y);
+    max.z = std::max(min.z, max.z);
 }
 
 bool BBox::operator== (const BBox& right) const {
@@ -1454,40 +1454,40 @@ bool BBox::operator== (const BBox& right) const {
 }
 
 const BBox BBox::operator+ (const BBox& right) const {
-    return BBox(Math::fmin(min.x, right.min.x),
-                Math::fmin(min.y, right.min.y),
-                Math::fmin(min.z, right.min.z),
-                Math::fmax(max.x, right.max.x),
-                Math::fmax(max.y, right.max.y),
-                Math::fmax(max.z, right.max.z));
+    return BBox(std::min(min.x, right.min.x),
+                std::min(min.y, right.min.y),
+                std::min(min.z, right.min.z),
+                std::max(max.x, right.max.x),
+                std::max(max.y, right.max.y),
+                std::max(max.z, right.max.z));
 }
 
 const BBox BBox::operator+ (const Vec3f& right) const {
-    return BBox(Math::fmin(min.x, right.x),
-                Math::fmin(min.y, right.y),
-                Math::fmin(min.z, right.z),
-                Math::fmax(max.x, right.x),
-                Math::fmax(max.y, right.y),
-                Math::fmax(max.z, right.z));
+    return BBox(std::min(min.x, right.x),
+                std::min(min.y, right.y),
+                std::min(min.z, right.z),
+                std::max(max.x, right.x),
+                std::max(max.y, right.y),
+                std::max(max.z, right.z));
 }
 
 BBox& BBox::operator+= (const BBox& right) {
-    min.x = Math::fmin(min.x, right.min.x);
-    min.y = Math::fmin(min.y, right.min.y);
-    min.z = Math::fmin(min.z, right.min.z);
-    max.x = Math::fmax(max.x, right.max.x);
-    max.y = Math::fmax(max.y, right.max.y);
-    max.z = Math::fmax(max.z, right.max.z);
+    min.x = std::min(min.x, right.min.x);
+    min.y = std::min(min.y, right.min.y);
+    min.z = std::min(min.z, right.min.z);
+    max.x = std::max(max.x, right.max.x);
+    max.y = std::max(max.y, right.max.y);
+    max.z = std::max(max.z, right.max.z);
     return *this;
 }
 
 BBox& BBox::operator+= (const Vec3f& right) {
-    min.x = Math::fmin(min.x, right.x);
-    min.y = Math::fmin(min.y, right.y);
-    min.z = Math::fmin(min.z, right.z);
-    max.x = Math::fmax(max.x, right.x);
-    max.y = Math::fmax(max.y, right.y);
-    max.z = Math::fmax(max.z, right.z);
+    min.x = std::min(min.x, right.x);
+    min.y = std::min(min.y, right.y);
+    min.z = std::min(min.z, right.z);
+    max.x = std::max(max.x, right.x);
+    max.y = std::max(max.y, right.y);
+    max.z = std::max(max.z, right.z);
     return *this;
 }
 
@@ -1514,7 +1514,7 @@ BBox::BBox(const Vec3f& center, float size) {
 const BBox BBox::maxBounds() const {
     Vec3f c = center();
     Vec3f diff = max - c;
-    diff.x = diff.y = diff.z = Math::fmax(diff.x, Math::fmax(diff.y, diff.z));
+    diff.x = diff.y = diff.z = std::max(diff.x, std::max(diff.y, diff.z));
     return BBox(c - diff, c + diff);
 }
 
