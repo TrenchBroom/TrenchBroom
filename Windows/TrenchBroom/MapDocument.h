@@ -44,6 +44,7 @@ public:
 public:
 	virtual BOOL OnNewDocument();
 	virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
+	virtual BOOL OnSaveDocument(LPCTSTR lpszPathName);
 	virtual void DeleteContents();
 #ifdef SHARED_HANDLERS
 	virtual void InitializeSearchContent();

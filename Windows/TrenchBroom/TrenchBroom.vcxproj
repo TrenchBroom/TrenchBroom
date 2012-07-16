@@ -73,6 +73,13 @@
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <PostBuildEvent>
+      <Command>Mkdir "$(TargetDir)\Resources"
+Copy "$(ProjectDir)..\..\Resources\Defs\Quake.def" "$(TargetDir)\Resources"
+Copy "$(ProjectDir)..\..\Resources\Graphics\DefaultSkin.png" "$(TargetDir)\Resources"
+Copy "$(ProjectDir)..\..\Resources\Graphics\QuakePalette.lmp" "$(TargetDir)\Resources"
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -104,6 +111,13 @@
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <PostBuildEvent>
+      <Command>Mkdir "$(TargetDir)\Resources"
+Copy "$(ProjectDir)..\..\Resources\Defs\Quake.def" "$(TargetDir)\Resources"
+Copy "$(ProjectDir)..\..\Resources\Graphics\DefaultSkin.png" "$(TargetDir)\Resources"
+Copy "$(ProjectDir)..\..\Resources\Graphics\QuakePalette.lmp" "$(TargetDir)\Resources"
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -186,6 +200,7 @@
     <ClInclude Include="..\..\Core\Source\Renderer\Figures\Figure.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\Figures\HandleFigure.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\Figures\PointGuideFigure.h" />
+    <ClInclude Include="..\..\Core\Source\Renderer\Figures\SizeGuideFigure.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\FontManager.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\GridRenderer.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\MapRenderer.h" />
@@ -369,6 +384,7 @@
     <ClCompile Include="..\..\Core\Source\Renderer\Figures\EntityFigure.cpp" />
     <ClCompile Include="..\..\Core\Source\Renderer\Figures\HandleFigure.cpp" />
     <ClCompile Include="..\..\Core\Source\Renderer\Figures\PointGuideFigure.cpp" />
+    <ClCompile Include="..\..\Core\Source\Renderer\Figures\SizeGuideFigure.cpp" />
     <ClCompile Include="..\..\Core\Source\Renderer\FontManager.cpp" />
     <ClCompile Include="..\..\Core\Source\Renderer\GridRenderer.cpp" />
     <ClCompile Include="..\..\Core\Source\Renderer\MapRenderer.cpp" />

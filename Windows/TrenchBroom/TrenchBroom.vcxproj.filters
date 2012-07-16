@@ -715,6 +715,9 @@
     <ClInclude Include="..\..\Core\Source\Renderer\EntityClassnameFilter.h">
       <Filter>Header\Core\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\Figures\SizeGuideFigure.h">
+      <Filter>Header\Core\Renderer\Figures</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TrenchBroom.cpp">
@@ -1166,6 +1169,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Core\Source\IO\MapWriter.cpp">
       <Filter>Source\Core\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\Figures\SizeGuideFigure.cpp">
+      <Filter>Source\Core\Renderer\Figures</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

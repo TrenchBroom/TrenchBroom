@@ -739,7 +739,7 @@ void CTrenchBroomApp::OnCameraMoveForward()
 {
 	TrenchBroom::Controller::Editor* editor = currentEditor();
 	if (editor != NULL)
-		editor->moveCamera(TrenchBroom::Controller::Editor::FORWARD, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+		editor->moveCamera(TrenchBroom::Controller::Editor::FORWARD, GetAsyncKeyState(VK_LMENU) != 0 || GetAsyncKeyState(VK_RMENU) != 0);
 }
 
 
@@ -747,7 +747,7 @@ void CTrenchBroomApp::OnCameraMoveBackward()
 {
 	TrenchBroom::Controller::Editor* editor = currentEditor();
 	if (editor != NULL)
-		editor->moveCamera(TrenchBroom::Controller::Editor::BACKWARD, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+		editor->moveCamera(TrenchBroom::Controller::Editor::BACKWARD, GetAsyncKeyState(VK_LMENU) != 0 || GetAsyncKeyState(VK_RMENU) != 0);
 }
 
 
@@ -755,7 +755,7 @@ void CTrenchBroomApp::OnCameraMoveLeft()
 {
 	TrenchBroom::Controller::Editor* editor = currentEditor();
 	if (editor != NULL)
-		editor->moveCamera(TrenchBroom::Controller::Editor::LEFT, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+		editor->moveCamera(TrenchBroom::Controller::Editor::LEFT, GetAsyncKeyState(VK_LMENU) != 0 || GetAsyncKeyState(VK_RMENU) != 0);
 }
 
 
@@ -763,7 +763,7 @@ void CTrenchBroomApp::OnCameraMoveRight()
 {
 	TrenchBroom::Controller::Editor* editor = currentEditor();
 	if (editor != NULL)
-		editor->moveCamera(TrenchBroom::Controller::Editor::RIGHT, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+		editor->moveCamera(TrenchBroom::Controller::Editor::RIGHT, GetAsyncKeyState(VK_LMENU) != 0 || GetAsyncKeyState(VK_RMENU) != 0);
 }
 
 
@@ -771,7 +771,7 @@ void CTrenchBroomApp::OnCameraMoveUp()
 {
 	TrenchBroom::Controller::Editor* editor = currentEditor();
 	if (editor != NULL)
-		editor->moveCamera(TrenchBroom::Controller::Editor::UP, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+		editor->moveCamera(TrenchBroom::Controller::Editor::UP, GetAsyncKeyState(VK_LMENU) != 0 || GetAsyncKeyState(VK_RMENU) != 0);
 }
 
 
@@ -779,7 +779,7 @@ void CTrenchBroomApp::OnCameraMoveDown()
 {
 	TrenchBroom::Controller::Editor* editor = currentEditor();
 	if (editor != NULL)
-		editor->moveCamera(TrenchBroom::Controller::Editor::DOWN, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+		editor->moveCamera(TrenchBroom::Controller::Editor::DOWN, GetAsyncKeyState(VK_LMENU) != 0 || GetAsyncKeyState(VK_RMENU) != 0);
 }
 
 
@@ -921,9 +921,9 @@ void CTrenchBroomApp::OnEditCursorUp()
 	if (selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || 
 		selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES ||
 		selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES) {
-		editor->moveObjects(TrenchBroom::Controller::Editor::FORWARD, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+		editor->moveObjects(TrenchBroom::Controller::Editor::FORWARD, GetAsyncKeyState(VK_LMENU) != 0 || GetAsyncKeyState(VK_RMENU) != 0);
 	} else if (selection.mode() == TrenchBroom::Model::TB_SM_FACES) {
-		editor->moveTextures(TrenchBroom::Controller::Editor::UP, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+		editor->moveTextures(TrenchBroom::Controller::Editor::UP, GetAsyncKeyState(VK_LMENU) != 0 || GetAsyncKeyState(VK_RMENU) != 0);
 	}
 }
 
@@ -938,9 +938,9 @@ void CTrenchBroomApp::OnEditCursorDown()
 	if (selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || 
 		selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES ||
 		selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES) {
-		editor->moveObjects(TrenchBroom::Controller::Editor::BACKWARD, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+		editor->moveObjects(TrenchBroom::Controller::Editor::BACKWARD, GetAsyncKeyState(VK_LMENU) != 0 || GetAsyncKeyState(VK_RMENU) != 0);
 	} else if (selection.mode() == TrenchBroom::Model::TB_SM_FACES) {
-		editor->moveTextures(TrenchBroom::Controller::Editor::DOWN, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+		editor->moveTextures(TrenchBroom::Controller::Editor::DOWN, GetAsyncKeyState(VK_LMENU) != 0 || GetAsyncKeyState(VK_RMENU) != 0);
 	}
 }
 
@@ -955,9 +955,9 @@ void CTrenchBroomApp::OnEditCursorLeft()
 	if (selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || 
 		selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES ||
 		selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES) {
-		editor->moveObjects(TrenchBroom::Controller::Editor::LEFT, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+		editor->moveObjects(TrenchBroom::Controller::Editor::LEFT, GetAsyncKeyState(VK_LMENU) != 0 || GetAsyncKeyState(VK_RMENU) != 0);
 	} else if (selection.mode() == TrenchBroom::Model::TB_SM_FACES) {
-		editor->moveTextures(TrenchBroom::Controller::Editor::LEFT, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+		editor->moveTextures(TrenchBroom::Controller::Editor::LEFT, GetAsyncKeyState(VK_LMENU) != 0 || GetAsyncKeyState(VK_RMENU) != 0);
 	}
 }
 
@@ -972,9 +972,9 @@ void CTrenchBroomApp::OnEditCursorRight()
 	if (selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || 
 		selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES ||
 		selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES) {
-		editor->moveObjects(TrenchBroom::Controller::Editor::RIGHT, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+		editor->moveObjects(TrenchBroom::Controller::Editor::RIGHT, GetAsyncKeyState(VK_LMENU) != 0 || GetAsyncKeyState(VK_RMENU) != 0);
 	} else if (selection.mode() == TrenchBroom::Model::TB_SM_FACES) {
-		editor->moveTextures(TrenchBroom::Controller::Editor::RIGHT, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+		editor->moveTextures(TrenchBroom::Controller::Editor::RIGHT, GetAsyncKeyState(VK_LMENU) != 0 || GetAsyncKeyState(VK_RMENU) != 0);
 	}
 }
 
@@ -989,9 +989,9 @@ void CTrenchBroomApp::OnEditPageUp()
 	if (selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || 
 		selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES ||
 		selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES) {
-		editor->moveObjects(TrenchBroom::Controller::Editor::UP, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+		editor->moveObjects(TrenchBroom::Controller::Editor::UP, GetAsyncKeyState(VK_LMENU) != 0 || GetAsyncKeyState(VK_RMENU) != 0);
 	} else if (selection.mode() == TrenchBroom::Model::TB_SM_FACES) {
-		editor->rotateTextures(true, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+		editor->rotateTextures(true, GetAsyncKeyState(VK_LMENU) != 0 || GetAsyncKeyState(VK_RMENU) != 0);
 	}
 }
 
@@ -1006,8 +1006,8 @@ void CTrenchBroomApp::OnEditPageDown()
 	if (selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || 
 		selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES ||
 		selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES) {
-		editor->moveObjects(TrenchBroom::Controller::Editor::DOWN, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+		editor->moveObjects(TrenchBroom::Controller::Editor::DOWN, GetAsyncKeyState(VK_LMENU) != 0 || GetAsyncKeyState(VK_RMENU) != 0);
 	} else if (selection.mode() == TrenchBroom::Model::TB_SM_FACES) {
-		editor->rotateTextures(false, GetAsyncKeyState(VK_LMENU) != 0 | GetAsyncKeyState(VK_RMENU) != 0);
+		editor->rotateTextures(false, GetAsyncKeyState(VK_LMENU) != 0 || GetAsyncKeyState(VK_RMENU) != 0);
 	}
 }

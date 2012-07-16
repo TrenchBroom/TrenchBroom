@@ -57,12 +57,10 @@ void CMapDocument::InitializeEditor()
 	::GetModuleFileName(0, appPath, sizeof(appPath) - 1);
 
 	std::string appDirectory = fileManager.deleteLastPathComponent(appPath);
+	std::string resDirectory = fileManager.appendPath(appDirectory, "Resources");
 
-	std::string definitionPath	= fileManager.appendPath(appDirectory, "../../Resources/Defs/quake.def");
-	std::string palettePath	= fileManager.appendPath(appDirectory, "../../Resources/Graphics/QuakePalette.lmp");
-
-//	string definitionPath	= TrenchBroom::appendPath(appDirectory, "quake.def");
-//	string palettePath		= TrenchBroom::appendPath(appDirectory, "QuakePalette.lmp");
+	std::string definitionPath	= fileManager.appendPath(resDirectory, "quake.def");
+	std::string palettePath	= fileManager.appendPath(resDirectory, "QuakePalette.lmp");
 
 	assert(fileManager.exists(definitionPath));
 	assert(fileManager.exists(palettePath));
@@ -116,6 +114,14 @@ BOOL CMapDocument::OnOpenDocument(LPCTSTR lpszPathName)
 	m_editor->loadMap(path, &progressDialog);
 
 	progressDialog.DestroyWindow();
+	return TRUE;
+}
+
+BOOL CMapDocument::OnSaveDocument(LPCTSTR lpszPathName)
+{
+	std::string path(lpszPathName);
+	m_editor->saveMap(path);
+	SetModifiedFlag(FALSE);
 	return TRUE;
 }
 

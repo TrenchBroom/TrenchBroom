@@ -228,8 +228,8 @@ int CMapView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	::GetModuleFileName(0, appPath, sizeof(appPath) - 1);
 	TrenchBroom::IO::FileManager& fileManager = *TrenchBroom::IO::FileManager::sharedFileManager;
 	std::string appDirectory = fileManager.deleteLastPathComponent(appPath);
-	std::string skinPath = fileManager.appendPath(appDirectory, "../../Resources/Graphics/DefaultSkin.png");
-//	string skinPath = TrenchBroom::appendPath(appDirectory, "DefaultSkin.png");
+	std::string resDirectory = fileManager.appendPath(appDirectory, "Resources");
+	std::string skinPath = fileManager.appendPath(resDirectory, "DefaultSkin.png");
 	assert(fileManager.exists(skinPath));
 
 	TrenchBroom::Renderer::StringFactory* stringFactory = new TrenchBroom::Renderer::WinStringFactory(GetDC()->m_hDC);
