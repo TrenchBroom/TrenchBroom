@@ -1609,28 +1609,6 @@ namespace TrenchBroom {
             return result;
         }
         
-        template <class T> int indexOf(const std::vector<T*>& vec, const T* element) {
-            for (unsigned int i = 0; i < vec.size(); i++)
-                if (vec[i] == element)
-                    return i;
-            return -1;
-        }
-        
-        template <class T> bool removeElement(std::vector<T*>& vec, T* element) {
-            typename std::vector<T*>::iterator elementIt = find(vec.begin(), vec.end(), element);
-            if (elementIt == vec.end())
-                return false;
-            vec.erase(elementIt);
-            return true;
-        }
-        
-        template <class T> bool deleteElement(std::vector<T*>& vec, T* element) {
-            if (!removeElement(vec, element))
-                return false;
-            delete element;
-            return true;
-        }
-        
         int indexOf(const VertexList& vertices, const Vec3f& v) {
             for (unsigned int i = 0; i < vertices.size(); i++)
                 if (vertices[i]->position.equals(v)) return i;
@@ -1647,7 +1625,7 @@ namespace TrenchBroom {
             return -1;
         }
         
-        int indexOf(const SideList& sides, const std::vector<Vec3f>& vertices) {
+        int indexOf(const SideList& sides, const Vec3fList& vertices) {
             for (unsigned int i = 0; i < sides.size(); i++) {
                 Side* side = sides[i];
                 if (side->vertices.size() == vertices.size()) {
