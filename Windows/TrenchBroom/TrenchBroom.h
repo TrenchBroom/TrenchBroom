@@ -40,7 +40,6 @@ class CTrenchBroomApp : public CWinApp
 public:
 	CTrenchBroomApp();
 protected:
-	CMultiDocTemplate* m_pDocTemplate;
 	TrenchBroom::Controller::Editor* currentEditor();
 	bool mapViewFocused();
 public:
@@ -51,9 +50,6 @@ public:
 
 // Implementation
 	afx_msg void OnAppAbout();
-	afx_msg void OnFileNewFrame();
-	afx_msg void OnFileNew();
-	virtual CDocument* OpenDocumentFile(LPCTSTR lpszFileName);
 	afx_msg void OnEditUndo();
 	afx_msg void OnUpdateEditUndo(CCmdUI* pCmdUI);
 	afx_msg void OnEditRedo();

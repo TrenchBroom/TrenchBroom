@@ -31,7 +31,6 @@
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWnd)
 
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
-	ON_COMMAND(ID_FILE_CLOSE, &CMainFrame::OnFileClose)
 END_MESSAGE_MAP()
 
 // CMainFrame construction/destruction
@@ -72,35 +71,3 @@ void CMainFrame::Dump(CDumpContext& dc) const
 
 // CMainFrame message handlers
 
-BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParentWnd, CCreateContext* pContext) 
-{
-	// base class does the real work
-
-	if (!CFrameWnd::LoadFrame(nIDResource, dwDefaultStyle, pParentWnd, pContext))
-	{
-		return FALSE;
-	}
-
-	CWinApp* pApp = AfxGetApp();
-	if (pApp->m_pMainWnd == NULL)
-		pApp->m_pMainWnd = this;
-
-	// replace Exit option on File menu with Close for secondary windows
-	if (AfxGetApp()->m_pMainWnd != this)
-	{
-		CMenu *pMenu = GetMenu();
-		ASSERT(pMenu);
-		BOOL bNameValid;
-		CString strTemp;
-		bNameValid = strTemp.LoadString(IDS_CLOSE);
-		ASSERT(bNameValid);
-		pMenu->ModifyMenu(ID_APP_EXIT, MF_BYCOMMAND | MF_STRING, ID_FILE_CLOSE, strTemp);
-	}
-
-	return TRUE;
-}
-
-void CMainFrame::OnFileClose()
-{
-	DestroyWindow();
-}

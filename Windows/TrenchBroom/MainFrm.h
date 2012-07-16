@@ -35,7 +35,6 @@ public:
 // Overrides
 public:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
-	virtual BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, CWnd* pParentWnd = NULL, CCreateContext* pContext = NULL);
 
 // Implementation
 public:
@@ -48,7 +47,6 @@ public:
 
 // Generated message map functions
 protected:
-	afx_msg void OnFileClose();
 	DECLARE_MESSAGE_MAP()
 
 };

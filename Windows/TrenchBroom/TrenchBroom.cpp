@@ -49,7 +49,6 @@
 
 BEGIN_MESSAGE_MAP(CTrenchBroomApp, CWinApp)
 	ON_COMMAND(ID_APP_ABOUT, &CTrenchBroomApp::OnAppAbout)
-	ON_COMMAND(ID_FILE_NEW_FRAME, &CTrenchBroomApp::OnFileNewFrame)
 	ON_COMMAND(ID_FILE_NEW, &CTrenchBroomApp::OnFileNew)
 	// Standard file based document commands
 	ON_COMMAND(ID_TOOLS_OPTIONS, &CTrenchBroomApp::OnToolsOptions)
@@ -252,15 +251,14 @@ BOOL CTrenchBroomApp::InitInstance()
 
 	// Register the application's document templates.  Document templates
 	//  serve as the connection between documents, frame windows and views
-	CMultiDocTemplate* pDocTemplate;
-	pDocTemplate = new CMultiDocTemplate(
+	CSingleDocTemplate* pDocTemplate;
+	pDocTemplate = new CSingleDocTemplate(
 		IDR_MAINFRAME,
 		RUNTIME_CLASS(CMapDocument),
 		RUNTIME_CLASS(CMainFrame),       // main SDI frame window
 		RUNTIME_CLASS(CMapView));
 	if (!pDocTemplate)
 		return FALSE;
-	m_pDocTemplate = pDocTemplate;
 	AddDocTemplate(pDocTemplate);
 
 
@@ -354,110 +352,6 @@ void CTrenchBroomApp::OnAppAbout()
 }
 
 // CTrenchBroomApp message handlers
-
-void CTrenchBroomApp::OnFileNewFrame() 
-{
-	ASSERT(m_pDocTemplate != NULL);
-
-	CDocument* pDoc = NULL;
-	CFrameWnd* pFrame = NULL;
-
-	// Create a new instance of the document referenced
-	// by the m_pDocTemplate member.
-	if (m_pDocTemplate != NULL)
-		pDoc = m_pDocTemplate->CreateNewDocument();
-
-	if (pDoc != NULL)
-	{
-		// If creation worked, use create a new frame for
-		// that document.
-		pFrame = m_pDocTemplate->CreateNewFrame(pDoc, NULL);
-		if (pFrame != NULL)
-		{
-			// Set the title, and initialize the document.
-			// If document initialization fails, clean-up
-			// the frame window and document.
-
-			m_pDocTemplate->SetDefaultTitle(pDoc);
-			if (!pDoc->OnNewDocument())
-			{
-				pFrame->DestroyWindow();
-				pFrame = NULL;
-			}
-			else
-			{
-				// Otherwise, update the frame
-				m_pDocTemplate->InitialUpdateFrame(pFrame, pDoc, TRUE);
-			}
-		}
-	}
-
-	// If we failed, clean up the document and show a
-	// message to the user.
-
-	if (pFrame == NULL || pDoc == NULL)
-	{
-		delete pDoc;
-		AfxMessageBox(AFX_IDP_FAILED_TO_CREATE_DOC);
-	}
-}
-
-void CTrenchBroomApp::OnFileNew() 
-{
-	CDocument* pDoc = NULL;
-	CFrameWnd* pFrame;
-	pFrame = DYNAMIC_DOWNCAST(CFrameWnd, CWnd::GetActiveWindow());
-	
-	if (pFrame != NULL)
-		pDoc = pFrame->GetActiveDocument();
-
-	if (pFrame == NULL || pDoc == NULL)
-	{
-		// if it's the first document, create as normal
-		CWinApp::OnFileNew();
-	}
-	else
-	{
-		// Otherwise, see if we have to save modified, then
-		// ask the document to reinitialize itself.
-		if (!pDoc->SaveModified())
-			return;
-
-		CDocTemplate* pTemplate = pDoc->GetDocTemplate();
-		ASSERT(pTemplate != NULL);
-
-		if (pTemplate != NULL)
-			pTemplate->SetDefaultTitle(pDoc);
-		pDoc->OnNewDocument();
-	}
-}
-
-CDocument* CTrenchBroomApp::OpenDocumentFile(LPCTSTR lpszFileName) {
-	CDocument* pDoc = NULL;
-	CFrameWnd* pFrame;
-	pFrame = DYNAMIC_DOWNCAST(CFrameWnd, CWnd::GetActiveWindow());
-	
-	if (pFrame != NULL)
-		pDoc = pFrame->GetActiveDocument();
-
-	// if it's the first document, open as normal
-	if (pFrame == NULL || pDoc == NULL)
-		return CWinApp::OpenDocumentFile(lpszFileName);
-
-	// Otherwise, see if we have to save modified, then
-	// ask the document to load itself.
-	if (!pDoc->SaveModified())
-		return NULL;
-
-	CDocTemplate* pTemplate = pDoc->GetDocTemplate();
-	ASSERT(pTemplate != NULL);
-
-	if (pTemplate != NULL)
-		pTemplate->SetDefaultTitle(pDoc);
-	pDoc->DeleteContents();
-	pDoc->OnOpenDocument(lpszFileName);
-	return pDoc;
-}
 
 void CTrenchBroomApp::OnEditUndo()
 {
