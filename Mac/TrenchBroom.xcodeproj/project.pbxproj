@@ -171,6 +171,7 @@
 		48C97950153174B9003020FC /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48C9794F153174B9003020FC /* QuakePalette.lmp */; };
 		48DC47C6156D341C000C2D2F /* MacStringFactory.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48DC47C5156D341C000C2D2F /* MacStringFactory.mm */; };
 		48E23D991586842C0028DEFB /* VecMath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48E23D981586842C0028DEFB /* VecMath.cpp */; };
+		48EA85F815B4377500ACC0F5 /* SizeGuideFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48EA85F715B4377500ACC0F5 /* SizeGuideFigure.cpp */; };
 		48F579F9154C5B3D0039B369 /* MacConsole.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48F579F8154C5B3D0039B369 /* MacConsole.mm */; };
 		48F579FB154C749E0039B369 /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48F579FA154C749E0039B369 /* Console.cpp */; };
 		48F579FD154CA9340039B369 /* MacOSX.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48F579FC154CA9340039B369 /* MacOSX.mm */; };
@@ -540,6 +541,8 @@
 		48DC47C4156D341C000C2D2F /* MacStringFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacStringFactory.h; sourceTree = "<group>"; };
 		48DC47C5156D341C000C2D2F /* MacStringFactory.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacStringFactory.mm; sourceTree = "<group>"; };
 		48E23D981586842C0028DEFB /* VecMath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VecMath.cpp; sourceTree = "<group>"; };
+		48EA85F515B4375300ACC0F5 /* SizeGuideFigure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SizeGuideFigure.h; sourceTree = "<group>"; };
+		48EA85F715B4377500ACC0F5 /* SizeGuideFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SizeGuideFigure.cpp; sourceTree = "<group>"; };
 		48F579F4154BFC830039B369 /* SharedPointer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SharedPointer.h; sourceTree = "<group>"; };
 		48F579F6154C58060039B369 /* Console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Console.h; sourceTree = "<group>"; };
 		48F579F7154C5B3D0039B369 /* MacConsole.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacConsole.h; sourceTree = "<group>"; };
@@ -1048,6 +1051,8 @@
 				48077A49158FA8C5007B6A5B /* HandleFigure.h */,
 				48BEA2E715A1D90500801124 /* PointGuideFigure.h */,
 				48BEA2E915A1D94800801124 /* PointGuideFigure.cpp */,
+				48EA85F515B4375300ACC0F5 /* SizeGuideFigure.h */,
+				48EA85F715B4377500ACC0F5 /* SizeGuideFigure.cpp */,
 			);
 			path = Figures;
 			sourceTree = "<group>";
@@ -1375,6 +1380,7 @@
 				484D24BA15A3845B00B803C2 /* MainMenuDelegate.mm in Sources */,
 				48A003BC15AC2C6D00FD4B56 /* Autosaver.cpp in Sources */,
 				489DDDCD15ADAAB7005C1C2D /* MapWriter.cpp in Sources */,
+				48EA85F815B4377500ACC0F5 /* SizeGuideFigure.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

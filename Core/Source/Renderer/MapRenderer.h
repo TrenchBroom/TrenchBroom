@@ -64,6 +64,7 @@ namespace TrenchBroom {
         class ChangeSet;
         class RenderContext;
         class Figure;
+        class SizeGuideFigure;
 
         class EdgeRenderInfo {
         public:
@@ -121,7 +122,7 @@ namespace TrenchBroom {
             TextRenderer<Model::Entity*>* m_selectedClassnameRenderer;
 
             // selection guides
-            BBox m_selectionBounds;
+            SizeGuideFigure* m_sizeGuideFigure;
 
             // figures
             Vbo* m_figureVbo;
@@ -161,7 +162,6 @@ namespace TrenchBroom {
 
             void validate(RenderContext& context);
 
-            void renderSelectionGuides(RenderContext& context, const Vec4f& color);
             void renderEntityBounds(RenderContext& context, const EdgeRenderInfo& renderInfo, const Vec4f* color);
             void renderEntityModels(RenderContext& context, EntityRenderers& entities);
             void renderEdges(RenderContext& context, const EdgeRenderInfo& renderInfo, const Vec4f& color);

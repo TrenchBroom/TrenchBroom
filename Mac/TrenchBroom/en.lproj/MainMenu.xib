@@ -924,42 +924,6 @@
 			<object class="NSMenu" id="582852729">
 				<string key="NSTitle">Texture Action Menu</string>
 				<array class="NSMutableArray" key="NSMenuItems">
-					<object class="NSMenuItem" id="629057643">
-						<reference key="NSMenu" ref="582852729"/>
-						<string key="NSTitle">Move Left</string>
-						<string key="NSKeyEquiv"></string>
-						<int key="NSMnemonicLoc">2147483647</int>
-						<reference key="NSOnImage" ref="1033313550"/>
-						<reference key="NSMixedImage" ref="310636482"/>
-					</object>
-					<object class="NSMenuItem" id="394166725">
-						<reference key="NSMenu" ref="582852729"/>
-						<bool key="NSIsAlternate">YES</bool>
-						<string key="NSTitle">Move Left By 1</string>
-						<string key="NSKeyEquiv"></string>
-						<int key="NSKeyEquivModMask">524288</int>
-						<int key="NSMnemonicLoc">2147483647</int>
-						<reference key="NSOnImage" ref="1033313550"/>
-						<reference key="NSMixedImage" ref="310636482"/>
-					</object>
-					<object class="NSMenuItem" id="105747282">
-						<reference key="NSMenu" ref="582852729"/>
-						<string key="NSTitle">Move Right</string>
-						<string key="NSKeyEquiv"></string>
-						<int key="NSMnemonicLoc">2147483647</int>
-						<reference key="NSOnImage" ref="1033313550"/>
-						<reference key="NSMixedImage" ref="310636482"/>
-					</object>
-					<object class="NSMenuItem" id="43340496">
-						<reference key="NSMenu" ref="582852729"/>
-						<bool key="NSIsAlternate">YES</bool>
-						<string key="NSTitle">Move Right By 1</string>
-						<string key="NSKeyEquiv"></string>
-						<int key="NSKeyEquivModMask">524288</int>
-						<int key="NSMnemonicLoc">2147483647</int>
-						<reference key="NSOnImage" ref="1033313550"/>
-						<reference key="NSMixedImage" ref="310636482"/>
-					</object>
 					<object class="NSMenuItem" id="419680251">
 						<reference key="NSMenu" ref="582852729"/>
 						<string key="NSTitle">Move Up</string>
@@ -991,6 +955,42 @@
 						<bool key="NSIsAlternate">YES</bool>
 						<string key="NSTitle">Move Down By 1</string>
 						<string key="NSKeyEquiv"></string>
+						<int key="NSKeyEquivModMask">524288</int>
+						<int key="NSMnemonicLoc">2147483647</int>
+						<reference key="NSOnImage" ref="1033313550"/>
+						<reference key="NSMixedImage" ref="310636482"/>
+					</object>
+					<object class="NSMenuItem" id="629057643">
+						<reference key="NSMenu" ref="582852729"/>
+						<string key="NSTitle">Move Left</string>
+						<string key="NSKeyEquiv"></string>
+						<int key="NSMnemonicLoc">2147483647</int>
+						<reference key="NSOnImage" ref="1033313550"/>
+						<reference key="NSMixedImage" ref="310636482"/>
+					</object>
+					<object class="NSMenuItem" id="394166725">
+						<reference key="NSMenu" ref="582852729"/>
+						<bool key="NSIsAlternate">YES</bool>
+						<string key="NSTitle">Move Left By 1</string>
+						<string key="NSKeyEquiv"></string>
+						<int key="NSKeyEquivModMask">524288</int>
+						<int key="NSMnemonicLoc">2147483647</int>
+						<reference key="NSOnImage" ref="1033313550"/>
+						<reference key="NSMixedImage" ref="310636482"/>
+					</object>
+					<object class="NSMenuItem" id="105747282">
+						<reference key="NSMenu" ref="582852729"/>
+						<string key="NSTitle">Move Right</string>
+						<string key="NSKeyEquiv"></string>
+						<int key="NSMnemonicLoc">2147483647</int>
+						<reference key="NSOnImage" ref="1033313550"/>
+						<reference key="NSMixedImage" ref="310636482"/>
+					</object>
+					<object class="NSMenuItem" id="43340496">
+						<reference key="NSMenu" ref="582852729"/>
+						<bool key="NSIsAlternate">YES</bool>
+						<string key="NSTitle">Move Right By 1</string>
+						<string key="NSKeyEquiv"></string>
 						<int key="NSKeyEquivModMask">524288</int>
 						<int key="NSMnemonicLoc">2147483647</int>
 						<reference key="NSOnImage" ref="1033313550"/>
@@ -1037,42 +1037,6 @@
 			<object class="NSMenu" id="708065257">
 				<string key="NSTitle">Object Action Menu</string>
 				<array class="NSMutableArray" key="NSMenuItems">
-					<object class="NSMenuItem" id="812660751">
-						<reference key="NSMenu" ref="708065257"/>
-						<string key="NSTitle">Move Left</string>
-						<string key="NSKeyEquiv"></string>
-						<int key="NSMnemonicLoc">2147483647</int>
-						<reference key="NSOnImage" ref="1033313550"/>
-						<reference key="NSMixedImage" ref="310636482"/>
-					</object>
-					<object class="NSMenuItem" id="987500246">
-						<reference key="NSMenu" ref="708065257"/>
-						<bool key="NSIsAlternate">YES</bool>
-						<string key="NSTitle">Move Left By 1</string>
-						<string key="NSKeyEquiv"></string>
-						<int key="NSKeyEquivModMask">524288</int>
-						<int key="NSMnemonicLoc">2147483647</int>
-						<reference key="NSOnImage" ref="1033313550"/>
-						<reference key="NSMixedImage" ref="310636482"/>
-					</object>
-					<object class="NSMenuItem" id="600024034">
-						<reference key="NSMenu" ref="708065257"/>
-						<string key="NSTitle">Move Right</string>
-						<string key="NSKeyEquiv"></string>
-						<int key="NSMnemonicLoc">2147483647</int>
-						<reference key="NSOnImage" ref="1033313550"/>
-						<reference key="NSMixedImage" ref="310636482"/>
-					</object>
-					<object class="NSMenuItem" id="510487738">
-						<reference key="NSMenu" ref="708065257"/>
-						<bool key="NSIsAlternate">YES</bool>
-						<string key="NSTitle">Move Right By 1</string>
-						<string key="NSKeyEquiv"></string>
-						<int key="NSKeyEquivModMask">524288</int>
-						<int key="NSMnemonicLoc">2147483647</int>
-						<reference key="NSOnImage" ref="1033313550"/>
-						<reference key="NSMixedImage" ref="310636482"/>
-					</object>
 					<object class="NSMenuItem" id="922875989">
 						<reference key="NSMenu" ref="708065257"/>
 						<string key="NSTitle">Move Forward</string>
@@ -1104,6 +1068,42 @@
 						<bool key="NSIsAlternate">YES</bool>
 						<string key="NSTitle">Move Backward By 1</string>
 						<string key="NSKeyEquiv"></string>
+						<int key="NSKeyEquivModMask">524288</int>
+						<int key="NSMnemonicLoc">2147483647</int>
+						<reference key="NSOnImage" ref="1033313550"/>
+						<reference key="NSMixedImage" ref="310636482"/>
+					</object>
+					<object class="NSMenuItem" id="812660751">
+						<reference key="NSMenu" ref="708065257"/>
+						<string key="NSTitle">Move Left</string>
+						<string key="NSKeyEquiv"></string>
+						<int key="NSMnemonicLoc">2147483647</int>
+						<reference key="NSOnImage" ref="1033313550"/>
+						<reference key="NSMixedImage" ref="310636482"/>
+					</object>
+					<object class="NSMenuItem" id="987500246">
+						<reference key="NSMenu" ref="708065257"/>
+						<bool key="NSIsAlternate">YES</bool>
+						<string key="NSTitle">Move Left By 1</string>
+						<string key="NSKeyEquiv"></string>
+						<int key="NSKeyEquivModMask">524288</int>
+						<int key="NSMnemonicLoc">2147483647</int>
+						<reference key="NSOnImage" ref="1033313550"/>
+						<reference key="NSMixedImage" ref="310636482"/>
+					</object>
+					<object class="NSMenuItem" id="600024034">
+						<reference key="NSMenu" ref="708065257"/>
+						<string key="NSTitle">Move Right</string>
+						<string key="NSKeyEquiv"></string>
+						<int key="NSMnemonicLoc">2147483647</int>
+						<reference key="NSOnImage" ref="1033313550"/>
+						<reference key="NSMixedImage" ref="310636482"/>
+					</object>
+					<object class="NSMenuItem" id="510487738">
+						<reference key="NSMenu" ref="708065257"/>
+						<bool key="NSIsAlternate">YES</bool>
+						<string key="NSTitle">Move Right By 1</string>
+						<string key="NSKeyEquiv"></string>
 						<int key="NSKeyEquivModMask">524288</int>
 						<int key="NSMnemonicLoc">2147483647</int>
 						<reference key="NSOnImage" ref="1033313550"/>
@@ -2712,10 +2712,10 @@
 							<reference ref="639177552"/>
 							<reference ref="931603246"/>
 							<reference ref="506853116"/>
-							<reference ref="468177150"/>
-							<reference ref="64627255"/>
-							<reference ref="539221927"/>
 							<reference ref="419680251"/>
+							<reference ref="539221927"/>
+							<reference ref="64627255"/>
+							<reference ref="468177150"/>
 							<reference ref="43340496"/>
 							<reference ref="105747282"/>
 							<reference ref="394166725"/>
@@ -2745,9 +2745,9 @@
 							<reference ref="250479849"/>
 							<reference ref="650843909"/>
 							<reference ref="74600499"/>
-							<reference ref="879536492"/>
-							<reference ref="1045007636"/>
 							<reference ref="180344783"/>
+							<reference ref="1045007636"/>
+							<reference ref="879536492"/>
 							<reference ref="922875989"/>
 							<reference ref="510487738"/>
 							<reference ref="600024034"/>
