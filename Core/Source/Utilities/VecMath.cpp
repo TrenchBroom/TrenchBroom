@@ -447,9 +447,7 @@ const Vec3f Vec3f::rotate90(EAxis axis, bool clockwise) const {
 }
 
 const Vec3f Vec3f::rotate90(EAxis axis, const Vec3f& center, bool clockwise) const {
-    Vec3f result = *this - center;
-    result.rotate90(axis, clockwise);
-    return result += center;
+    return (*this - center).rotate90(axis, clockwise) + center;
 }
 
 const Vec3f Vec3f::flip(EAxis axis) const {

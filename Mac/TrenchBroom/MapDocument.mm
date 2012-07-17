@@ -93,6 +93,8 @@ namespace TrenchBroom {
 }
 
 - (void)autosave {
+    [autosaveTimer release];
+    
     Editor* editor = (Editor *)[editorHolder editor];
     editor->autosaver().triggerAutosave();
     autosaveTimer = [[NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(autosave) userInfo:nil repeats:NO] retain];
