@@ -43,7 +43,7 @@ namespace TrenchBroom {
             key += modelProperty->modelPath + " ";
             key += modelProperty->flagName + " ";
             key += modelProperty->skinIndex;
-            return key;
+            return toLower(key);
         }
 
         EntityRenderer* EntityRendererManager::entityRenderer(Model::ModelPropertyPtr modelProperty, const std::vector<std::string>& mods) {
@@ -64,8 +64,8 @@ namespace TrenchBroom {
             if (rendererIt != m_entityRenderers.end())
                 return rendererIt->second;
 
-            std::string modelName = modelProperty->modelPath.substr(1);
-            std::string ext = fileManager.pathExtension(modelName);
+            std::string modelName = toLower(modelProperty->modelPath.substr(1));
+            std::string ext = toLower(fileManager.pathExtension(modelName));
             if (ext == "mdl") {
                 Model::Assets::AliasManager& aliasManager = *Model::Assets::AliasManager::sharedManager;
                 Model::Assets::Alias* alias = aliasManager.aliasForName(modelName, searchPaths);

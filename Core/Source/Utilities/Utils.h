@@ -27,6 +27,7 @@ namespace TrenchBroom {
     std::string trim(const std::string& str);
     std::vector<std::string> split(const std::string& str, char d);
 
+    std::string toLower(std::string str);
     bool caseInsensitiveCharEqual(char c1, char c2);
     bool caseSensitiveCharEqual(char c1, char c2);
     bool containsString(const std::string& haystack, const std::string& needle, bool caseSensitive = true);

@@ -53,7 +53,7 @@ namespace TrenchBroom {
                     m_stream.read((char *)&entry.address, sizeof(int32_t));
                     m_stream.read((char *)&entry.length, sizeof(int32_t));
 
-                    entries[entry.name] = entry;
+                    entries[toLower(entry.name)] = entry;
                 }
             }
         }
@@ -61,7 +61,7 @@ namespace TrenchBroom {
         PakStream Pak::streamForEntry(const std::string& name) {
             PakEntry* entry;
 
-            std::map<std::string, PakEntry>::iterator it = entries.find(name);
+            std::map<std::string, PakEntry>::iterator it = entries.find(toLower(name));
             if (it == entries.end())
                 return std::auto_ptr<std::istream>(NULL);
 
