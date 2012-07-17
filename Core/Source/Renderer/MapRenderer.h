@@ -142,6 +142,8 @@ namespace TrenchBroom {
             void rebuildGeometryData(RenderContext& context);
             void writeEntityBounds(RenderContext& context, const std::vector<Model::Entity*>& entities, EdgeRenderInfo& renderInfo, VboBlock& block);
             void rebuildEntityData(RenderContext& context);
+            void reloadEntityModels(RenderContext& context, EntityRenderers& renderers);
+            void reloadEntityModels(RenderContext& context);
             
             void entitiesWereAdded(const std::vector<Model::Entity*>& entities);
             void entitiesWillBeRemoved(const std::vector<Model::Entity*>& entities);

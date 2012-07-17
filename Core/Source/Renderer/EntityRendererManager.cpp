@@ -55,8 +55,14 @@ namespace TrenchBroom {
                 searchPaths.push_back(fileManager.appendPath(m_quakePath, mods[i]));
 
             const std::string key = entityRendererKey(modelProperty, searchPaths);
-            EntityRendererCache::iterator it = m_entityRenderers.find(key);
-            if (it != m_entityRenderers.end()) return it->second;
+
+            MismatchCache::iterator mismatchIt = m_mismatches.find(key);
+            if (mismatchIt != m_mismatches.end())
+                return NULL;
+            
+            EntityRendererCache::iterator rendererIt = m_entityRenderers.find(key);
+            if (rendererIt != m_entityRenderers.end())
+                return rendererIt->second;
 
             std::string modelName = modelProperty->modelPath.substr(1);
             std::string ext = fileManager.pathExtension(modelName);
@@ -81,6 +87,7 @@ namespace TrenchBroom {
                 log(TB_LL_WARN, "Unknown model type '%s'\n", ext.c_str());
             }
 
+            m_mismatches.insert(key);
             return NULL;
         }
 
@@ -112,6 +119,7 @@ namespace TrenchBroom {
             for (EntityRendererCache::iterator it = m_entityRenderers.begin(); it != m_entityRenderers.end(); ++it)
                 delete it->second;
             m_entityRenderers.clear();
+            m_mismatches.clear();
         }
 
         void EntityRendererManager::setQuakePath(const std::string& quakePath) {

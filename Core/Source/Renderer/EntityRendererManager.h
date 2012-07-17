@@ -23,6 +23,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <set>
 #include "Model/Map/EntityDefinition.h"
 
 namespace TrenchBroom {
@@ -43,10 +44,12 @@ namespace TrenchBroom {
         class EntityRendererManager {
         private:
             typedef std::map<std::string, EntityRenderer*> EntityRendererCache;
+            typedef std::set<std::string> MismatchCache;
             
             Vbo* m_vbo;
             Model::Assets::Palette& m_palette;
             EntityRendererCache m_entityRenderers;
+            MismatchCache m_mismatches;
             std::string m_quakePath;
 
             const std::string entityRendererKey(Model::ModelPropertyPtr modelProperty, const std::vector<std::string>& searchPaths);

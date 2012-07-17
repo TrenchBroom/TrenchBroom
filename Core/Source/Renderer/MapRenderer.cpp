@@ -363,6 +363,39 @@ namespace TrenchBroom {
             m_selectedEntityDataValid = true;
         }
 
+        void MapRenderer::reloadEntityModels(RenderContext& context, EntityRenderers& renderers) {
+            EntityRenderers::iterator it = renderers.begin();
+            while (it != renderers.end()) {
+                Model::Entity* entity = it->first;
+                EntityRenderer* renderer = m_entityRendererManager->entityRenderer(*entity, m_editor.map().mods());
+                if (renderer != NULL) {
+                    it->second = renderer;
+                    ++it;
+                } else {
+                    renderers.erase(it++);
+                }
+            }
+        }
+
+        void MapRenderer::reloadEntityModels(RenderContext& context) {
+            m_entityRenderers.clear();
+            m_selectedEntityRenderers.clear();
+            
+            const Model::EntityList& entities = m_editor.map().entities();
+            for (unsigned int i = 0; i < entities.size(); i++) {
+                Model::Entity* entity = entities[i];
+                EntityRenderer* renderer = m_entityRendererManager->entityRenderer(*entity, m_editor.map().mods());
+                if (renderer != NULL) {
+                    if (entity->selected())
+                        m_selectedEntityRenderers[entity] = renderer;
+                    else
+                        m_entityRenderers[entity] = renderer;
+                }
+            }
+            
+            m_entityRendererCacheValid = true;
+        }
+        
         void MapRenderer::entitiesWereAdded(const std::vector<Model::Entity*>& entities) {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             const std::string& fontName = prefs.rendererFontName();
@@ -533,6 +566,11 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::preferencesDidChange(const std::string& key) {
+            if (key == Model::Preferences::QuakePath) {
+                Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+                m_entityRendererCacheValid = false;
+                m_entityRendererManager->setQuakePath(prefs.quakePath());
+            }
             rendererChanged(*this);
         }
 
@@ -541,6 +579,8 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::validate(RenderContext& context) {
+            if (!m_entityRendererCacheValid)
+                reloadEntityModels(context);
             if (!m_geometryDataValid || !m_selectedGeometryDataValid)
                 rebuildGeometryData(context);
             if (!m_entityDataValid || !m_selectedEntityDataValid)

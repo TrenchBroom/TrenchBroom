@@ -26,7 +26,7 @@
 namespace TrenchBroom {
     namespace Model {
         class Preferences {
-        protected:
+        public:
             static const std::string CameraKey;
             static const std::string CameraOrbitKey;
             static const std::string CameraInvertY;
@@ -70,8 +70,7 @@ namespace TrenchBroom {
             static const std::string HiddenFaceHandleColor;
             static const std::string SelectedFaceHandleColor;
             static const std::string HiddenSelectedFaceHandleColor;
-            
-            
+        protected:
             int m_cameraKey;
             int m_cameraOrbitKey;
             bool m_cameraInvertY;
