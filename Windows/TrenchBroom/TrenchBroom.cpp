@@ -284,10 +284,14 @@ BOOL CTrenchBroomApp::InitInstance()
 	std::string appDirectory = fileManager.deleteLastPathComponent(appPath);
 	std::string logFilePath = fileManager.appendPath(appDirectory, "TrenchBroom.log");
 	TrenchBroom::winLogStream = new std::ofstream(logFilePath, std::ios::app);
-	if (TrenchBroom::winLogStream->good())
+	if (TrenchBroom::winLogStream->good()) {
 		TrenchBroom::log(TrenchBroom::TB_LL_INFO, "Opened log file at %s\n", logFilePath.c_str());
-	else
+	} else {
 		TrenchBroom::log(TrenchBroom::TB_LL_ERR, "Can't open log file at %s\n", logFilePath.c_str());
+	}
+
+	TrenchBroom::log(TrenchBroom::TB_LL_INFO, "==================================================\n");
+	TrenchBroom::log(TrenchBroom::TB_LL_INFO, "Starting TrenchBroom\n");
 
 	TrenchBroom::Model::Preferences::sharedPreferences = new TrenchBroom::Model::WinPreferences();
 	TrenchBroom::Model::Preferences::sharedPreferences->init();
