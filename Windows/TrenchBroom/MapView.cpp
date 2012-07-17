@@ -339,6 +339,7 @@ void CMapView::key(UINT nChar, UINT nFlags, bool down)
 	else if ( nChar == VK_HOME ) iKey = Gwen::Key::Home;
 	else if ( nChar == VK_END ) iKey = Gwen::Key::End;
 	else if ( nChar == VK_CONTROL ) iKey = Gwen::Key::Control;
+	else if ( nChar == VK_MENU ) iKey = Gwen::Key::Alt;
 	else if ( nChar == VK_UP ) iKey = Gwen::Key::Up;
 	else if ( nChar == VK_DOWN ) iKey = Gwen::Key::Down;
 
