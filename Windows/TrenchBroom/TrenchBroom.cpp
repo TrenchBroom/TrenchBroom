@@ -36,10 +36,14 @@
 #include "Model/Selection.h"
 #include "Model/Undo/UndoManager.h"
 #include "IO/Pak.h"
+#include "Utilities/Console.h"
 
+#include "WinConsole.h"
 #include "WinFileManager.h"
 #include "WinPreferences.h"
 #include "PreferencesDialog.h"
+
+#include <fstream>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -273,6 +277,18 @@ BOOL CTrenchBroomApp::InitInstance()
 
 	// Initialize TrenchBroom globals
 	TrenchBroom::IO::FileManager::sharedFileManager = new TrenchBroom::IO::WinFileManager();
+	TrenchBroom::IO::FileManager& fileManager = *TrenchBroom::IO::FileManager::sharedFileManager;
+
+	char appPath [MAX_PATH] = "";
+	::GetModuleFileName(0, appPath, sizeof(appPath) - 1);
+	std::string appDirectory = fileManager.deleteLastPathComponent(appPath);
+	std::string logFilePath = fileManager.appendPath(appDirectory, "TrenchBroom.log");
+	TrenchBroom::winLogStream = new std::ofstream(logFilePath, std::ios::app);
+	if (TrenchBroom::winLogStream->good())
+		TrenchBroom::log(TrenchBroom::TB_LL_INFO, "Opened log file at %s\n", logFilePath.c_str());
+	else
+		TrenchBroom::log(TrenchBroom::TB_LL_ERR, "Can't open log file at %s\n", logFilePath.c_str());
+
 	TrenchBroom::Model::Preferences::sharedPreferences = new TrenchBroom::Model::WinPreferences();
 	TrenchBroom::Model::Preferences::sharedPreferences->init();
 	TrenchBroom::Model::EntityDefinitionManager::sharedManagers = new TrenchBroom::Model::EntityDefinitionManagerMap();
@@ -308,6 +324,8 @@ BOOL CTrenchBroomApp::ExitInstance() {
 	TrenchBroom::Model::Preferences::sharedPreferences = NULL;
 	delete TrenchBroom::IO::FileManager::sharedFileManager;
 	TrenchBroom::IO::FileManager::sharedFileManager = NULL;
+	delete TrenchBroom::winLogStream;
+	TrenchBroom::winLogStream = NULL;
 
 	return  CWinApp::ExitInstance();
 }

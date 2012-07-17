@@ -18,3 +18,9 @@
  */
 
 #pragma once
+
+#include <ostream>
+
+namespace TrenchBroom {
+	extern std::ostream* winLogStream;
+}

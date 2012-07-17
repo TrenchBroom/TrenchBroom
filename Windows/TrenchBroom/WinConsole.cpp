@@ -24,7 +24,11 @@
 #include <windows.h>
 
 namespace TrenchBroom {
+	std::ostream* winLogStream = NULL;
+
     void log(const std::string& message) {
+		if (TrenchBroom::winLogStream != NULL && TrenchBroom::winLogStream->good())
+			(*winLogStream) << message << std::flush;
         std::cout << message;
 		OutputDebugString(message.c_str());
     }

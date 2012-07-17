@@ -1,19 +1,26 @@
 @echo off
-REM c:\Windows\Microsoft.Net\Framework\V4.0.30319\msbuild.exe /maxcpucount /p:Configuration=Release /t:Clean
-c:\Windows\Microsoft.Net\Framework\V4.0.30319\msbuild.exe /maxcpucount /p:Configuration=Release
+REM msbuild.exe /maxcpucount /p:Configuration=Release /t:Clean
+msbuild.exe /maxcpucount /p:Configuration=Release
 
-copy TrenchBroom\FreeImage.dll Release\
-copy TrenchBroom\freetype6.dll Release\
-copy TrenchBroom\ftgl.dll      Release\
-copy TrenchBroom\zlib1.dll     Release\
+if %ERRORLEVEL% GEQ 1 goto ERROR
 
-del Release\TrenchBroom.pdb
+copy TrenchBroom\*.dll Release\
+if %ERRORLEVEL% GEQ 1 goto ERROR
 
 cd Release
+del TrenchBroom.pdb
 
 For /f "tokens=1,2,3,4,5 delims=/. " %%a in ('date/T') do set CDate=%%c%%b%%a
 For /f "tokens=1,2 delims=:" %%f in ('time /t') do set CTime=%%f%%g
 
-C:\Programme\7-Zip\7z.exe a "C:\Users\kristian\Dropbox\TrenchBroom\TrenchBroom_Win32_%CDATE%_%CTIME%.zip" .\*
+7z.exe a "%DROPBOX%\TrenchBroom\TrenchBroom_Win32_%CDATE%_%CTIME%.zip" .\*
+if %ERRORLEVEL% GEQ 1 goto ERROR
 
+goto END
+
+:ERROR
+echo ===== AN ERROR OCCURED! =====
+goto END
+
+:END
 pause
