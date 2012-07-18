@@ -101,8 +101,10 @@ namespace TrenchBroom {
         
         OctreeNode::~OctreeNode() {
             for (unsigned int i = 0; i < 8; i++)
-                if (m_children != NULL)
+                if (m_children != NULL) {
                     delete m_children[i];
+                    m_children[i] = NULL;
+                }
         }
         
         bool OctreeNode::addObject(MapObject& object) {
@@ -118,9 +120,16 @@ namespace TrenchBroom {
         bool OctreeNode::removeObject(MapObject& object) {
             if (!m_bounds.contains(object.bounds()))
                 return false;
-            for (unsigned int i = 0; i < 8; i++)
-                if (m_children[i] != NULL && m_children[i]->removeObject(object))
+            for (unsigned int i = 0; i < 8; i++) {
+                if (m_children[i] != NULL && m_children[i]->removeObject(object)) {
+                    if (m_children[i]->empty()) {
+                        delete m_children[i];
+                        m_children[i] = NULL;
+                    }
                     return true;
+                }
+            }
+
             std::vector<MapObject*>::iterator it = find(m_objects.begin(), m_objects.end(), &object);
             if (it == m_objects.end())
                 return false;
@@ -129,6 +138,15 @@ namespace TrenchBroom {
             return true;
         }
         
+        bool OctreeNode::empty() {
+            if (!m_objects.empty())
+                return false;
+            for (unsigned int i = 0; i < 8; i++)
+                if (m_children[i] != NULL)
+                    return false;
+            return true;
+        }
+
         void OctreeNode::intersect(const Ray& ray, std::vector<MapObject*>& objects) {
             if (m_bounds.contains(ray.origin) || !Math::isnan(m_bounds.intersectWithRay(ray))) {
                 objects.insert(objects.end(), m_objects.begin(), m_objects.end());
@@ -212,6 +230,7 @@ namespace TrenchBroom {
             m_map.mapLoaded             -= new Model::Map::MapEvent::Listener<Octree>(this, &Octree::mapLoaded);
             m_map.mapCleared            -= new Model::Map::MapEvent::Listener<Octree>(this, &Octree::mapCleared);
             delete m_root;
+            m_root = NULL;
         }
         
         std::vector<MapObject*> Octree::intersect(const Ray& ray) {

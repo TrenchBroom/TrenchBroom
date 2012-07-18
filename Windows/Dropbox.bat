@@ -1,7 +1,5 @@
 @echo off
 
-copy TrenchBroom\*.dll Release\
-
 cd Release
 del TrenchBroom.pdb
 del TrenchBroom.log

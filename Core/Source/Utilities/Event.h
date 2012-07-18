@@ -84,6 +84,11 @@ namespace TrenchBroom {
                 (*(*i))(arg1); 
             }
         }
+
+        ~Event() {
+            while (!m_ptrs.empty()) delete m_ptrs.back(), m_ptrs.pop_back();
+        }
+
     private:
         std::vector<ListenerBase*> m_ptrs;
     };

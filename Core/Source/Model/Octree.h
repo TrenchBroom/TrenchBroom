@@ -57,6 +57,7 @@ namespace TrenchBroom {
             ~OctreeNode();
             bool addObject(MapObject& object);
             bool removeObject(MapObject& object);
+            bool empty();
             void intersect(const Ray& ray, std::vector<MapObject*>& objects);
         };
         

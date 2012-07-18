@@ -128,7 +128,6 @@ BOOL CMapDocument::OnSaveDocument(LPCTSTR lpszPathName)
 void CMapDocument::DeleteContents()
 {
 	m_editor->clear();
-	SetModifiedFlag(FALSE);
 }
 
 #ifdef SHARED_HANDLERS

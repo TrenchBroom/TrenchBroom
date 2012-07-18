@@ -43,7 +43,7 @@ namespace TrenchBroom {
             void mapLoaded(Map& map);
             void mapCleared(Map& map);
         public:
-            typedef Event<GroupManager> GroupsChangedEvent;
+            typedef Event<GroupManager&> GroupsChangedEvent;
             GroupsChangedEvent groupsChanged;
 
             GroupManager(Map& map);
