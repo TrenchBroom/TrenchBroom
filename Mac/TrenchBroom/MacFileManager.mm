@@ -86,7 +86,7 @@ namespace TrenchBroom {
             NSArray* entries = [fileManager contentsOfDirectoryAtPath:[NSString stringWithCString:path.c_str() encoding:NSASCIIStringEncoding] error:NULL];
             
             if (entries != nil) {
-                std::string extensionLower = "." + toLower(extension);
+                std::string extensionLower = toLower(extension);
                 for (NSString* entry in entries) {
                     std::string entryName = [entry cStringUsingEncoding:NSASCIIStringEncoding];
                     if (extension.empty() || toLower(pathExtension(entryName)) == extensionLower)
