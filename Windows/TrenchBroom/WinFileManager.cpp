@@ -19,6 +19,8 @@
 
 #include "WinFileManager.h"
 
+#include "Utilities/Utils.h"
+
 #include <windows.h>
 #include <sstream>
 
@@ -78,12 +80,13 @@ namespace TrenchBroom {
                 std::vector<std::string> result;
                 WIN32_FIND_DATA findData;
 
+                std::string extensionLower = toLower(extension);
                 std::string wildcardPath = appendPathComponent(path, "*");
                 HANDLE hfind = FindFirstFile(wildcardPath.c_str(), &findData);
                 bool found = hfind != INVALID_HANDLE_VALUE;
                 while (found) {
                     std::string entryName = findData.cFileName;
-                    if (extension.empty() || pathExtension(entryName) == extension)
+                    if (extension.empty() || toLower(pathExtension(entryName)) == extensionLower)
                         result.push_back(pathComponents(entryName).back());
                     found = FindNextFile(hfind, &findData) == TRUE;
                 }
