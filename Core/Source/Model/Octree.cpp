@@ -109,17 +109,23 @@ namespace TrenchBroom {
             if (!m_bounds.contains(object.bounds())) return false;
             if (m_bounds.max.x - m_bounds.min.x > m_minSize)
                 for (unsigned int i = 0; i < 8; i++)
-                    if (addObject(object, i)) return true;
+                    if (addObject(object, i))
+                        return true;
             m_objects.push_back(&object);
             return true;
         }
         
         bool OctreeNode::removeObject(MapObject& object) {
-            if (!m_bounds.contains(object.bounds())) return false;
+            if (!m_bounds.contains(object.bounds()))
+                return false;
             for (unsigned int i = 0; i < 8; i++)
-                if (m_children[i] != NULL && m_children[i]->removeObject(object)) return true;
+                if (m_children[i] != NULL && m_children[i]->removeObject(object))
+                    return true;
             std::vector<MapObject*>::iterator it = find(m_objects.begin(), m_objects.end(), &object);
-            if (it != m_objects.end()) m_objects.erase(it);
+            if (it == m_objects.end())
+                return false;
+
+            m_objects.erase(it);
             return true;
         }
         
@@ -127,7 +133,8 @@ namespace TrenchBroom {
             if (m_bounds.contains(ray.origin) || !Math::isnan(m_bounds.intersectWithRay(ray))) {
                 objects.insert(objects.end(), m_objects.begin(), m_objects.end());
                 for (unsigned int i = 0; i < 8; i++)
-                    if (m_children[i] != NULL) m_children[i]->intersect(ray, objects);
+                    if (m_children[i] != NULL)
+                        m_children[i]->intersect(ray, objects);
             }
         }
         
