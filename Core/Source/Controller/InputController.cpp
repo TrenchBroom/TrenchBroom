@@ -147,6 +147,7 @@ namespace TrenchBroom {
         
         void InputController::mouseDown(EMouseButton mouseButton) {
             m_currentEvent.mouseButton = mouseButton;
+            updateHits();
             
             if (m_currentEvent.mouseButton == TB_MB_LEFT) {
                 for (unsigned int i = 0; i < m_receiverChain.size(); i++)
@@ -161,6 +162,7 @@ namespace TrenchBroom {
         
         void InputController::mouseUp(EMouseButton mouseButton) {
             m_currentEvent.mouseButton = mouseButton;
+            updateHits();
             
             if (m_currentEvent.mouseButton == TB_MB_LEFT) {
                 if (m_dragStatus == TB_MS_LEFT) {
@@ -229,6 +231,7 @@ namespace TrenchBroom {
         void InputController::scrolled(float dx, float dy) {
             m_currentEvent.scrollX = dx;
             m_currentEvent.scrollY = dy;
+            updateHits();
             
             if (m_dragScrollReceiver != NULL) {
                 m_dragScrollReceiver->scrolled(m_currentEvent);
@@ -242,6 +245,7 @@ namespace TrenchBroom {
         bool InputController::dragEnter(const std::string& name, void* payload, float x, float y) {
             m_currentDragInfo.name = name;
             m_currentDragInfo.payload = payload;
+            updateHits();
 
             bool overlayVisible = true;
             for (DragTargetToolMap::iterator it = m_dragTargetTools.begin(); it != m_dragTargetTools.end(); ++it) {
@@ -256,6 +260,7 @@ namespace TrenchBroom {
         void InputController::dragLeave(const std::string& name, void* payload) {
             m_currentDragInfo.name = name;
             m_currentDragInfo.payload = payload;
+            updateHits();
 
             for (DragTargetToolMap::iterator it = m_dragTargetTools.begin(); it != m_dragTargetTools.end(); ++it)
                 it->second->deactivate(m_currentDragInfo);
@@ -264,6 +269,7 @@ namespace TrenchBroom {
         bool InputController::dragMove(const std::string& name, void* payload, float x, float y) {
             m_currentDragInfo.name = name;
             m_currentDragInfo.payload = payload;
+            updateHits();
 
             DragTargetToolMap::iterator it = m_dragTargetTools.find(name);
             if (it == m_dragTargetTools.end())
@@ -275,6 +281,7 @@ namespace TrenchBroom {
         bool InputController::acceptDrag(const std::string& name, void* payload) {
             m_currentDragInfo.name = name;
             m_currentDragInfo.payload = payload;
+            updateHits();
             
             DragTargetToolMap::iterator it = m_dragTargetTools.find(name);
             if (it == m_dragTargetTools.end())
@@ -286,6 +293,7 @@ namespace TrenchBroom {
         bool InputController::handleDrop(const std::string& name, void* payload, float x, float y) {
             m_currentDragInfo.name = name;
             m_currentDragInfo.payload = payload;
+            updateHits();
             
             DragTargetToolMap::iterator it = m_dragTargetTools.find(name);
             if (it == m_dragTargetTools.end())

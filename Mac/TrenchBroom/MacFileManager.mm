@@ -89,7 +89,7 @@ namespace TrenchBroom {
                 std::string extensionLower = toLower(extension);
                 for (NSString* entry in entries) {
                     std::string entryName = [entry cStringUsingEncoding:NSASCIIStringEncoding];
-                    if (extension.empty() || toLower(pathExtension(entryName)) == toLower(extension))
+                    if (extension.empty() || toLower(pathExtension(entryName)) == extensionLower)
                         result.push_back(pathComponents(entryName).back());
                 }
             }
