@@ -191,8 +191,6 @@ namespace TrenchBroom {
         }
 
         Side::Side(Edge* newEdges[], bool invert[], unsigned int count) : mark(TB_SM_NEW), face(NULL) {
-            vertices.reserve(count);
-            edges.reserve(count);
             for (unsigned int i = 0; i < count; i++) {
                 Edge* edge = newEdges[i];
                 edges.push_back(edge);

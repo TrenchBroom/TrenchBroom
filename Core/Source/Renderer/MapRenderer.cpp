@@ -430,8 +430,8 @@ namespace TrenchBroom {
 
         void MapRenderer::propertiesDidChange(const std::vector<Model::Entity*>& entities) {
             m_selectedEntityDataValid = false;
-            Model::Entity* worldspawn = m_editor.map().worldspawn(true);
-            if (find(entities.begin(), entities.end(), worldspawn) != entities.end()) {
+            Model::Entity* worldspawn = m_editor.map().worldspawn(false);
+            if (worldspawn != NULL && find(entities.begin(), entities.end(), worldspawn) != entities.end()) {
                 // if mods changed, invalidate renderer cache here
             }
             rendererChanged(*this);

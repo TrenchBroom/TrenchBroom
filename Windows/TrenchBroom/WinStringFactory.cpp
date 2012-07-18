@@ -39,7 +39,7 @@ namespace TrenchBroom {
                 vertex->x = static_cast<float>(coords[0]);
                 vertex->y = static_cast<float>(coords[1]);
                 *outData = vertex;
-				fprintf(stdout, "%li", outData);
+                tempPoints.push_back(vertex);
             }
             
             void CALLBACK gluTessEndData(StringData* data) {
@@ -157,7 +157,11 @@ namespace TrenchBroom {
 				gluTessEndContour(m_gluTess);
 			gluTessEndPolygon(m_gluTess);
 
-			DeleteObject(font);
+            while (!StringFactoryCallback::tempPoints.empty())
+                delete StringFactoryCallback::tempPoints.back(), 
+                StringFactoryCallback::tempPoints.pop_back();
+
+            DeleteObject(font);
 			delete [] fontName;
 			delete [] wstr;
 			delete [] pathPoints;
