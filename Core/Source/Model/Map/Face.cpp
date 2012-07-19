@@ -22,6 +22,7 @@
 #include <cmath>
 #include "Model/Assets/Texture.h"
 #include "Model/Map/Brush.h"
+#include "Model/Map/MapExceptions.h"
 #include "Renderer/Vbo.h"
 
 namespace TrenchBroom {
@@ -342,7 +343,11 @@ namespace TrenchBroom {
             points[0] = side->vertices[best]->position;
             points[1] = side->vertices[(best + 1) % vertexCount]->position;
             
-            assert(boundary.setPoints(points[0], points[1], points[2]));
+            if (!boundary.setPoints(points[0], points[1], points[2]))
+                throw GeometryException("Invalid face points %f %f %f; %f %f %f; %f %f %f for face with ID %i", 
+                                        points[0].x, points[0].y, points[0].z, 
+                                        points[1].x, points[1].y, points[1].z, 
+                                        points[2].x, points[2].y, points[2].z, faceId);
         }
         
         Vec3f Face::center() const {

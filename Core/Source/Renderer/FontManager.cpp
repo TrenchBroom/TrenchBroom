@@ -222,8 +222,16 @@ namespace TrenchBroom {
             }
 
             StringData* stringData = m_stringFactory->createStringData(descriptor, str);
-			if (stringData == NULL)
-				return NULL;
+			if (stringData == NULL) {
+                std::stringstream msg;
+                msg << "Unable to create render string "
+                    << str
+                    << "with font"
+                    << descriptor.name
+                    << ", size "
+                    << descriptor.size;
+                throw FontCreationException(msg);
+            }
 
             StringRenderer* stringRenderer = new StringRenderer(descriptor, str, stringData);
             StringRendererPtr stringRendererPtr(stringRenderer);

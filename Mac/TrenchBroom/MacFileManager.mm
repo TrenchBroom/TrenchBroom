@@ -43,7 +43,8 @@ namespace TrenchBroom {
             NSString* objcPath = [NSString stringWithCString:path.c_str() encoding:NSASCIIStringEncoding];
             NSFileManager* fileManager = [NSFileManager defaultManager];
 
-            assert(![fileManager fileExistsAtPath:objcPath]);
+            if ([fileManager fileExistsAtPath:objcPath])
+                return false;
             
             return [fileManager createDirectoryAtPath:objcPath withIntermediateDirectories:YES attributes:nil error:NULL];
         }
@@ -54,7 +55,8 @@ namespace TrenchBroom {
             
             BOOL directory = false;
             BOOL exists = [fileManager fileExistsAtPath:objcPath isDirectory:&directory];
-            assert(exists && !directory);
+            if (!exists || directory)
+                return false;
             
             return [fileManager removeItemAtPath:objcPath error:NULL];
         }
@@ -66,7 +68,11 @@ namespace TrenchBroom {
 
             BOOL directory = false;
             BOOL exists = [fileManager fileExistsAtPath:objcSourcePath isDirectory:&directory];
-            assert(exists && !directory);
+            if (!exists || directory) {
+                std::stringstream msg;
+                msg << "Cannot move file at location " << sourcePath << " because it does not exist or is a directory";
+                throw FileManagerException(msg);
+            }
             
             exists = [fileManager fileExistsAtPath:objcDestPath isDirectory:&directory];
             if (exists) {

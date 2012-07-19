@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_FileManager_h
 #define TrenchBroom_FileManager_h
 
+#include "Utilities/MessageException.h"
+
 #include <vector>
 #include <string>
 
@@ -50,6 +52,11 @@ namespace TrenchBroom {
             std::string deleteExtension(const std::string& path);
             
             virtual char pathSeparator() = 0;
+        };
+        
+        class FileManagerException : public MessageException {
+        public:
+            FileManagerException(const std::stringstream& msg) : MessageException(msg) {}
         };
     }
 }

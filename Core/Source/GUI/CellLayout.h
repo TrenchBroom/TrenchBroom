@@ -261,7 +261,8 @@ namespace TrenchBroom {
                     CellRow<CellType>* row = new CellRow<CellType>(y, m_cellMargin, m_contentBounds.width(), m_maxCellsPerRow, m_fixedCellWidth);
                     rowPtr = CellRowPtr(row);
                     m_rows.push_back(rowPtr);
-                    assert(rowPtr->addItem(item, itemWidth, itemHeight, titleWidth, titleHeight));
+                    bool added = (rowPtr->addItem(item, itemWidth, itemHeight, titleWidth, titleHeight));
+                    assert(added);
                     m_contentBounds = LayoutBounds(m_contentBounds.left(), m_contentBounds.top(), m_contentBounds.width(), m_contentBounds.height() + rowPtr->bounds().height() + m_rowMargin);
                 } else {
                     m_contentBounds = LayoutBounds(m_contentBounds.left(), m_contentBounds.top(), m_contentBounds.width(), m_contentBounds.height() + (rowPtr->bounds().height() - oldBounds.height()));

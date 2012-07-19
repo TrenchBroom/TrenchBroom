@@ -24,6 +24,7 @@
 #include <vector>
 #include <map>
 #include "GL/GLee.h"
+#include "Utilities/MessageException.h"
 #include "Utilities/SharedPointer.h"
 
 namespace TrenchBroom {
@@ -139,6 +140,11 @@ namespace TrenchBroom {
 
             void activate();
             void deactivate();
+        };
+        
+        class FontCreationException : public MessageException {
+        public:
+            FontCreationException(const std::stringstream& str) : MessageException(str) {}
         };
     }
 }

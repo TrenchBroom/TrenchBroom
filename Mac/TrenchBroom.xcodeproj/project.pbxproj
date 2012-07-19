@@ -206,6 +206,8 @@
 		4812004D1538636900181D66 /* ProgressWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ProgressWindow.xib; sourceTree = "<group>"; };
 		48120053153867E300181D66 /* MacProgressIndicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacProgressIndicator.h; sourceTree = "<group>"; };
 		48120054153867E300181D66 /* MacProgressIndicator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacProgressIndicator.mm; sourceTree = "<group>"; };
+		481F5BB815B8C76D006AA253 /* MapExceptions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapExceptions.h; sourceTree = "<group>"; };
+		481F5BBA15B8CA30006AA253 /* MessageException.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageException.h; sourceTree = "<group>"; };
 		4825B3BD153AE59F007E3AE1 /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
 		4825B3BE153AE59F007E3AE1 /* Camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
 		4825B3BF153AE59F007E3AE1 /* CameraTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraTool.cpp; sourceTree = "<group>"; };
@@ -713,6 +715,7 @@
 				4825B3F4153AE59F007E3AE1 /* Groups.h */,
 				4825B3F5153AE59F007E3AE1 /* Map.cpp */,
 				4825B3F6153AE59F007E3AE1 /* Map.h */,
+				481F5BB815B8C76D006AA253 /* MapExceptions.h */,
 				4825B3F7153AE59F007E3AE1 /* MapObject.cpp */,
 				4825B3F8153AE59F007E3AE1 /* MapObject.h */,
 				4825B3F9153AE59F007E3AE1 /* Picker.cpp */,
@@ -763,6 +766,7 @@
 				4825B41A153AE59F007E3AE1 /* Event.h */,
 				4825B41B153AE59F007E3AE1 /* Filter.cpp */,
 				4825B41C153AE59F007E3AE1 /* Filter.h */,
+				481F5BBA15B8CA30006AA253 /* MessageException.h */,
 				48F579F4154BFC830039B369 /* SharedPointer.h */,
 				4825B41E153AE59F007E3AE1 /* Utils.cpp */,
 				4825B41F153AE59F007E3AE1 /* Utils.h */,

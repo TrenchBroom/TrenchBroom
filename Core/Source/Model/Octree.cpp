@@ -168,7 +168,7 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
                 if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == TB_EDT_POINT)
-                    assert(m_root->removeObject(*entity));
+                    m_root->removeObject(*entity);
             }
         }
         
@@ -182,7 +182,7 @@ namespace TrenchBroom {
         void Octree::brushesWillBeRemovedOrWillChange(const BrushList& brushes) {
             for (unsigned int i = 0; i < brushes.size(); i++) {
                 Brush* brush = brushes[i];
-                assert(m_root->removeObject(*brush));
+                m_root->removeObject(*brush);
             }
         }
         
