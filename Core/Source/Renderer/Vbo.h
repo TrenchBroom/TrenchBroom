@@ -142,8 +142,9 @@ namespace TrenchBroom {
 			GLenum m_glError;
 			std::string m_msg;
 		public:
-			VboException(Vbo& vbo, const std::string& msg) : m_vbo(vbo), m_glError(glGetError()), m_msg(msg) {}
-
+			VboException(Vbo& vbo, const std::string& msg) throw() : m_vbo(vbo), m_glError(glGetError()), m_msg(msg) {}
+            ~VboException() throw() {}
+            
 			virtual const char* what() const throw() {
 			    return m_msg.c_str();
 			}
