@@ -229,7 +229,8 @@ namespace TrenchBroom {
                     std::stringstream str;
                     str.precision(0);
                     str << std::fixed << size[i];
-                    m_strings.push_back(m_fontManager.createStringRenderer(m_fontDescriptor, str.str()));
+					StringRendererPtr stringRenderer = m_fontManager.createStringRenderer(m_fontDescriptor, str.str());
+                    m_strings.push_back(stringRenderer);
                 }
                 
                 m_stringsValid = true;

@@ -222,6 +222,9 @@ namespace TrenchBroom {
             }
 
             StringData* stringData = m_stringFactory->createStringData(descriptor, str);
+			if (stringData == NULL)
+				return NULL;
+
             StringRenderer* stringRenderer = new StringRenderer(descriptor, str, stringData);
             StringRendererPtr stringRendererPtr(stringRenderer);
             

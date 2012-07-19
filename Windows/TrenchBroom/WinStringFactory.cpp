@@ -19,6 +19,7 @@
 
 #include "WinStringFactory.h"
 #include "GL/GLee.h"
+#include "Utilities/Console.h"
 
 namespace TrenchBroom {
 	namespace Renderer {
@@ -87,17 +88,24 @@ namespace TrenchBroom {
                 gluTessNormal(m_gluTess, 0, 0, -1);
             }
 
-			TCHAR* fontName = new TCHAR[descriptor.name.length()];
+			TCHAR* fontName = new TCHAR[descriptor.name.length() + 1];
 			for (unsigned int i = 0; i < descriptor.name.length(); i++)
 				fontName[i] = descriptor.name[i];
+			fontName[descriptor.name.length()] = 0;
 
-			TCHAR* wstr = new TCHAR[str.length()];
+			TCHAR* wstr = new TCHAR[str.length() + 1];
 			for (unsigned int i = 0; i < str.length(); i++)
 				wstr[i] = str[i];
+			wstr[str.length()] = 0;
 
 			float scale = 4.0f;
 
 			HFONT font = CreateFont(static_cast<int>(scale * descriptor.size), 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FF_DONTCARE, fontName);
+			if (font == NULL) {
+				log(TrenchBroom::TB_LL_ERR, "Unable to create GDI font '%s' size '%i'", descriptor.name.c_str(), descriptor.size);
+				return NULL;
+			}
+
 			SelectObject(m_dc, font);
 			SIZE size;
 			GetTextExtentPoint32(m_dc, wstr, str.length(), &size);
