@@ -237,12 +237,10 @@ namespace TrenchBroom {
             } else {
                 glBindBuffer(m_type, m_vboId);
             }
-            
-            /*
-            GLenum error = glGetError();
-            assert(error == GL_NO_ERROR);
-             */
-            
+
+			if (glGetError() != GL_NO_ERROR)
+				throw VboException(*this, "Vbo could not be activated");
+
             m_active = true;
         }
         
@@ -258,11 +256,10 @@ namespace TrenchBroom {
             assert(!m_mapped);
             
             m_buffer = (unsigned char *)glMapBuffer(m_type, GL_WRITE_ONLY);
-            assert(m_buffer != NULL);
-            
-            GLenum error = glGetError();
-            assert(error == GL_NO_ERROR);
-            m_mapped = true;
+			if (m_buffer == NULL || glGetError() != GL_NO_ERROR)
+				throw VboException(*this, "Vbo could not be mapped");
+
+			m_mapped = true;
         }
         
         void Vbo::unmap() {
@@ -271,9 +268,10 @@ namespace TrenchBroom {
             
             glUnmapBuffer(m_type);
 
-            GLenum error = glGetError();
-            assert(error == GL_NO_ERROR);
-            m_buffer = NULL;
+			if (glGetError() != GL_NO_ERROR)
+				throw VboException(*this, "Vbo could not be unmapped");
+
+			m_buffer = NULL;
             m_mapped = false;
         }
         

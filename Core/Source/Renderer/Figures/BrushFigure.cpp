@@ -73,11 +73,15 @@ namespace TrenchBroom {
                     }
                 }
                 
-                if (m_faceBlock != NULL)
+                if (m_faceBlock != NULL) {
                     m_faceBlock->freeBlock();
-                if (m_edgeBlock != NULL)
+					m_faceBlock = NULL;
+				}
+                if (m_edgeBlock != NULL){
                     m_edgeBlock->freeBlock();
-                
+					m_edgeBlock = NULL;
+				}
+
                 m_faceBlock = vbo.allocBlock(faceVertexCount * FaceVertexSize);
                 m_edgeBlock = vbo.allocBlock(m_edgeVertexCount * EdgeVertexSize);
                 

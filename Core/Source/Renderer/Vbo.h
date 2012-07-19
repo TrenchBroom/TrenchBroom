@@ -23,6 +23,7 @@
 #include <cassert>
 #include <cstring>
 #include <vector>
+#include <exception>
 
 #include "Utilities/VecMath.h"
 #include "GL/GLee.h"
@@ -134,6 +135,19 @@ namespace TrenchBroom {
             void freeBlock();
             int compare(unsigned int anAddress, unsigned int aCapacity);
         };
+
+		class VboException : public std::exception {
+		protected:
+			Vbo& m_vbo;
+			GLenum m_glError;
+			std::string m_msg;
+		public:
+			VboException(Vbo& vbo, const std::string& msg) : m_vbo(vbo), m_glError(glGetError()), m_msg(msg) {}
+
+			virtual const char* what() const throw() {
+			    return m_msg.c_str();
+			}
+ 		};
     }
 }
 

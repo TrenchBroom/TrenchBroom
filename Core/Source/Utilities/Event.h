@@ -38,6 +38,8 @@ namespace TrenchBroom {
                 return other.equals(this);
             }
         };
+
+		std::vector<ListenerBase*> m_ptrs;
     public:
         template <typename Class>
         class Listener : public ListenerBase {
@@ -85,12 +87,13 @@ namespace TrenchBroom {
             }
         }
 
+		Event() {
+			m_ptrs.clear();
+		}
+
         ~Event() {
             while (!m_ptrs.empty()) delete m_ptrs.back(), m_ptrs.pop_back();
         }
-
-    private:
-        std::vector<ListenerBase*> m_ptrs;
     };
 }
 

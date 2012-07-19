@@ -59,10 +59,15 @@ namespace TrenchBroom {
             setPostNotifications(false);
             clear();
             delete m_octree;
+			m_octree = NULL;
             delete m_picker;
+			m_picker = NULL;
             delete m_selection;
+			m_selection = NULL;
             delete m_groupManager;
+			m_groupManager = NULL;
             delete m_undoManager;
+			m_undoManager = NULL;
         }
 
         void Map::clear() {

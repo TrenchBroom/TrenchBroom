@@ -64,7 +64,7 @@ END_MESSAGE_MAP()
 
 // CMapView construction/destruction
 
-CMapView::CMapView() : m_lastMousePos(NULL)
+CMapView::CMapView() : m_lastMousePos(NULL), m_deviceContext(NULL), m_openGLContext(NULL), m_editorGui(NULL), m_fontManager(NULL)
 {
 	// TODO: add construction code here
 
@@ -86,7 +86,8 @@ BOOL CMapView::PreCreateWindow(CREATESTRUCT& cs)
 
 void CMapView::OnDraw(CDC* /*pDC*/)
 {
-	wglMakeCurrent(m_deviceContext, m_openGLContext);
+	if (!wglMakeCurrent(m_deviceContext, m_openGLContext))
+		return;
 
 	RECT clientRect;
 	GetClientRect(&clientRect);
@@ -189,9 +190,10 @@ int CMapView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	GLuint numFormats = 0;
 
 	CFrameWnd* testWindow = new CFrameWnd();
-	assert(testWindow->Create(NULL, "Test Window"));
-	HDC testDC = testWindow->GetDC()->m_hDC;
+	if (!testWindow->Create(NULL, "Test Window"))
+		return -1;
 
+	HDC testDC = testWindow->GetDC()->m_hDC;
 	pixelFormat = ChoosePixelFormat(testDC, &descriptor);
 	SetPixelFormat(testDC, pixelFormat, &descriptor);
 	HGLRC testGLContext = wglCreateContext(testDC);
@@ -230,7 +232,11 @@ int CMapView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	std::string appDirectory = fileManager.deleteLastPathComponent(appPath);
 	std::string resDirectory = fileManager.appendPath(appDirectory, "Resources");
 	std::string skinPath = fileManager.appendPath(resDirectory, "DefaultSkin.png");
-	assert(fileManager.exists(skinPath));
+	if (!fileManager.exists(skinPath)) {
+		wglDeleteContext(m_openGLContext);
+		m_openGLContext = NULL;
+		return -1;
+	}
 
 	TrenchBroom::Renderer::StringFactory* stringFactory = new TrenchBroom::Renderer::WinStringFactory(GetDC()->m_hDC);
 	m_fontManager = new TrenchBroom::Renderer::FontManager(stringFactory);

@@ -56,9 +56,12 @@ namespace TrenchBroom {
 
 		EditorGui::~EditorGui() {
 			m_canvas->Release();
+			m_canvas = NULL;
 
 			delete m_skin;
+			m_skin = NULL;
 			delete m_renderer;
+			m_renderer = NULL;
 		}
 
 		void EditorGui::resizeTo(int width, int height) {

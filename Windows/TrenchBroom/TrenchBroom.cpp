@@ -323,7 +323,7 @@ BOOL CTrenchBroomApp::InitInstance()
 	// call DragAcceptFiles only if there's a suffix
 	//  In an SDI app, this should occur after ProcessShellCommand
 	// Enable drag/drop open
-	m_pMainWnd->DragAcceptFiles();
+	// m_pMainWnd->DragAcceptFiles();
 	return TRUE;
 }
 
