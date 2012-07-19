@@ -84,8 +84,7 @@ namespace TrenchBroom {
             // nothing to do
         }
 
-        StringRenderer::StringRenderer(const FontDescriptor& descriptor, const std::string& str, StringData* stringData) : fontDescriptor(descriptor), str(str), m_data(stringData), m_vboBlock(NULL), width(stringData->width), height(stringData->height) {
-            assert(stringData != NULL);
+        StringRenderer::StringRenderer(const FontDescriptor& descriptor, const std::string& str) : fontDescriptor(descriptor), str(str), m_vboBlock(NULL), width(-1.0f), height(-1.0f) {
             m_hasTriangleSet = false;
             m_hasTriangleStrips = false;
             m_hasTriangleFans = false;
@@ -93,8 +92,6 @@ namespace TrenchBroom {
         }
 
         StringRenderer::~StringRenderer() {
-            if (m_data != NULL)
-                delete m_data;
             if (m_vboBlock != NULL)
                 m_vboBlock->freeBlock();
             if (m_hasTriangleStrips) {
@@ -109,28 +106,27 @@ namespace TrenchBroom {
                 glDeleteLists(m_listId, 1);
         }
 
-        void StringRenderer::prepare(Vbo& vbo) {
-            assert(m_data != NULL);
-            m_vboBlock = vbo.allocBlock(2 * m_data->vertexCount * sizeof(float));
+        void StringRenderer::prepare(const StringData& stringData, Vbo& vbo) {
+            m_vboBlock = vbo.allocBlock(2 * stringData.vertexCount * sizeof(float));
             assert(m_vboBlock != NULL);
 
-            m_hasTriangleSet = !m_data->triangleSet.empty();
-            m_hasTriangleStrips = !m_data->triangleStrips.empty();
-            m_hasTriangleFans = !m_data->triangleFans.empty();
+            m_hasTriangleSet = !stringData.triangleSet.empty();
+            m_hasTriangleStrips = !stringData.triangleStrips.empty();
+            m_hasTriangleFans = !stringData.triangleFans.empty();
 
             unsigned int offset = 0;
             if (m_hasTriangleSet) {
                 m_triangleSetIndex = (m_vboBlock->address + offset) / (2 * sizeof(float));
-                m_triangleSetCount = (int)m_data->triangleSet.size() / 2;
-                const unsigned char* buffer = (const unsigned char*)&m_data->triangleSet[0];
-                offset = m_vboBlock->writeBuffer(buffer, offset, m_data->triangleSet.size() * sizeof(float));
+                m_triangleSetCount = (int)stringData.triangleSet.size() / 2;
+                const unsigned char* buffer = (const unsigned char*)&stringData.triangleSet[0];
+                offset = m_vboBlock->writeBuffer(buffer, offset, stringData.triangleSet.size() * sizeof(float));
             }
 
             if (m_hasTriangleStrips) {
                 m_triangleStripIndices = new IntBuffer();
                 m_triangleStripCounts = new IntBuffer();
-                for (unsigned int i = 0; i < m_data->triangleStrips.size(); i++) {
-                    FloatBuffer* strip = m_data->triangleStrips[i];
+                for (unsigned int i = 0; i < stringData.triangleStrips.size(); i++) {
+                    FloatBuffer* strip = stringData.triangleStrips[i];
                     m_triangleStripIndices->push_back((m_vboBlock->address + offset) / (2 * sizeof(float)));
                     m_triangleStripCounts->push_back((int)strip->size() / 2);
                     const unsigned char* buffer = (const unsigned char*)&(*strip)[0];
@@ -141,17 +137,14 @@ namespace TrenchBroom {
             if (m_hasTriangleFans) {
                 m_triangleFanIndices = new IntBuffer();
                 m_triangleFanCounts = new IntBuffer();
-                for (unsigned int i = 0; i < m_data->triangleFans.size(); i++) {
-                    FloatBuffer* fan = m_data->triangleFans[i];
+                for (unsigned int i = 0; i < stringData.triangleFans.size(); i++) {
+                    FloatBuffer* fan = stringData.triangleFans[i];
                     m_triangleFanIndices->push_back((m_vboBlock->address + offset) / (2 * sizeof(float)));
                     m_triangleFanCounts->push_back((int)fan->size() / 2);
                     const unsigned char* buffer = (const unsigned char*)&(*fan)[0];
                     offset = m_vboBlock->writeBuffer(buffer, offset, fan->size() * sizeof(float));
                 }
             }
-
-            delete m_data;
-            m_data = NULL;
         }
 
         void StringRenderer::renderBackground(float hInset, float vInset) {
@@ -221,19 +214,7 @@ namespace TrenchBroom {
                 }
             }
 
-            StringData* stringData = m_stringFactory->createStringData(descriptor, str);
-			if (stringData == NULL) {
-                std::stringstream msg;
-                msg << "Unable to create render string "
-                    << str
-                    << "with font"
-                    << descriptor.name
-                    << ", size "
-                    << descriptor.size;
-                throw FontCreationException(msg);
-            }
-
-            StringRenderer* stringRenderer = new StringRenderer(descriptor, str, stringData);
+            StringRenderer* stringRenderer = new StringRenderer(descriptor, str);
             StringRendererPtr stringRendererPtr(stringRenderer);
             
             if (stringCachePtr.get() == NULL) {
@@ -285,8 +266,23 @@ namespace TrenchBroom {
             m_vbo->activate();
             if (!m_unpreparedStrings.empty()) {
                 m_vbo->map();
-                for (unsigned int i = 0; i < m_unpreparedStrings.size(); i++)
-                    m_unpreparedStrings[i]->prepare(*m_vbo);
+                for (unsigned int i = 0; i < m_unpreparedStrings.size(); i++) {
+                    StringRendererPtr stringRenderer = m_unpreparedStrings[i];
+                    
+                    StringData* stringData = m_stringFactory->createStringData(stringRenderer->fontDescriptor, stringRenderer->str);
+                    if (stringData == NULL) {
+                        std::stringstream msg;
+                        msg << "Unable to create render string "
+                        << stringRenderer->str
+                        << "with font"
+                        << stringRenderer->fontDescriptor.name
+                        << ", size "
+                        << stringRenderer->fontDescriptor.size;
+                        throw FontCreationException(msg);
+                    }
+                    
+                    m_unpreparedStrings[i]->prepare(*stringData, *m_vbo);
+                }
                 m_vbo->unmap();
                 m_unpreparedStrings.clear();
             }

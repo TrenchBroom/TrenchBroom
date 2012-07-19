@@ -70,7 +70,6 @@ namespace TrenchBroom {
 
         class StringRenderer {
         private:
-            StringData* m_data;
             VboBlock* m_vboBlock;
             GLuint m_listId;
             bool m_hasTriangleSet;
@@ -88,9 +87,9 @@ namespace TrenchBroom {
             float width;
             float height;
 
-            StringRenderer(const FontDescriptor& descriptor, const std::string& str, StringData* stringData);
+            StringRenderer(const FontDescriptor& descriptor, const std::string& str);
             ~StringRenderer();
-            void prepare(Vbo& vbo);
+            void prepare(const StringData& stringData, Vbo& vbo);
             void renderBackground(float hInset, float vInset);
             void render();
         };
