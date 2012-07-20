@@ -111,8 +111,11 @@ namespace TrenchBroom {
         private:
 			static Pool<Vertex> pool;
         public:
+			~Vertex();
+
             Vec3f position;
             EVertexMark mark;
+
             void* operator new(size_t size);
             void operator delete(void* pointer);
             Vertex(float x, float y, float z);
@@ -124,11 +127,14 @@ namespace TrenchBroom {
         private:
 			static Pool<Edge> pool;
         public:
+			~Edge();
+		
             Vertex* start;
             Vertex* end;
             Side* left;
             Side* right;
             EEdgeMark mark;
+
             void* operator new(size_t size);
             void operator delete(void* pointer);
             Edge(Vertex* start, Vertex* end);
@@ -147,10 +153,12 @@ namespace TrenchBroom {
         private:
 			static Pool<Side> pool;
         public:
+			~Side();
             VertexList vertices;
             EdgeList edges;
             Face* face;
             ESideMark mark;
+
             void* operator new(size_t size);
             void operator delete(void* pointer);
             Side() : mark(TB_SM_NEW), face(NULL) {}

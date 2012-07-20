@@ -86,6 +86,7 @@ namespace TrenchBroom {
             Face(const BBox& worldBounds, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const std::string& textureName);
             Face(const BBox& worldBounds, const Face& faceTemplate);
             Face(const Face& face);
+			~Face();
             
             void restore(const Face& faceTemplate);
             

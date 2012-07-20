@@ -298,6 +298,39 @@ namespace TrenchBroom {
             face.getPoints(points[0], points[1], points[2]);
         }
 
+		Face::~Face() {
+			m_texPlaneNormIndex = -1;
+			m_texFaceNormIndex = -1;
+			m_texAxisX = Vec3f::NaN;
+			m_texAxisY = Vec3f::NaN;
+			m_scaledTexAxisX = Vec3f::NaN;
+			m_scaledTexAxisY = Vec3f::NaN;
+
+			m_gridCoords.clear();
+			m_texCoords.clear();
+
+			faceId *= -1;
+			brush = NULL;
+			
+			for (unsigned int i = 0; i < 3; i++)
+				points[i] = Vec3f::NaN;
+			boundary.normal = Vec3f::NaN;
+			boundary.distance = -1.0f;
+
+			textureName = "___deleted";
+			texture = NULL;
+			xOffset = 0;
+			yOffset = 0;
+			rotation = 0.0f;
+			xScale = 0.0f;
+			yScale = 0.0f;
+			side = NULL;
+			filePosition = -1;
+			selected = false;
+			coordsValid = false;
+			texAxesValid = false;
+		}
+
         void Face::restore(const Face& faceTemplate) {
             faceTemplate.getPoints(points[0], points[1], points[2]);
             boundary = faceTemplate.boundary;
@@ -309,6 +342,7 @@ namespace TrenchBroom {
             setTexture(faceTemplate.texture);
             texAxesValid = false;
             coordsValid = false;
+			selected = faceTemplate.selected;
         }
         
         void Face::getPoints(Vec3f& point1, Vec3f& point2, Vec3f& point3) const {

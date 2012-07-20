@@ -59,6 +59,11 @@ namespace TrenchBroom {
             mark = TB_VM_NEW;
         }
         
+		Vertex::~Vertex() {
+			position = Vec3f::NaN;
+			mark = TB_VM_DROP;
+		}
+
         void* Edge::operator new(size_t size) {
 			if (!pool.empty())
 				return pool.pop();
@@ -74,6 +79,14 @@ namespace TrenchBroom {
         Edge::Edge(Vertex* start, Vertex* end) : start(start), end(end), mark((TB_EM_NEW)), left(NULL), right(NULL) {}
         Edge::Edge() : start(NULL), end(NULL), mark(TB_EM_NEW), left(NULL), right(NULL) {}
         
+		Edge::~Edge() {
+			start = NULL;
+			end = NULL;
+			left = NULL;
+			right = NULL;
+			mark = TB_EM_DROP;
+		}
+
         Vertex* Edge::startVertex(Side* side) {
             if (left == side) return end;
             if (right == side) return start;
@@ -138,6 +151,13 @@ namespace TrenchBroom {
             end = tempVertex;
         }
         
+		Side::~Side() {
+			vertices.clear();
+			edges.clear();
+			face = NULL;
+			mark = TB_SM_DROP;
+		}
+
         void* Side::operator new(size_t size) {
             if (!pool.empty())
 				return pool.pop();
@@ -1032,10 +1052,10 @@ namespace TrenchBroom {
             std::map<Edge*, Edge*> edgeMap;
             std::map<Side*, Side*> sideMap;
             
-            vertices.clear();
-            edges.clear();
-            sides.clear();
-            
+			while (!vertices.empty()) delete vertices.back(), vertices.pop_back();
+			while (!edges.empty()) delete edges.back(), edges.pop_back();
+			while (!sides.empty()) delete sides.back(), sides.pop_back();
+
             vertices.reserve(original.vertices.size());
             edges.reserve(original.edges.size());
             sides.reserve(original.sides.size());
@@ -1556,7 +1576,7 @@ namespace TrenchBroom {
             if (result.moved) {
                 copy(testGeometry);
                 assert(sanityCheck());
-                result.index = indexOf(testGeometry.sides, sideVertices);
+                result.index = indexOf(sides, sideVertices);
             } else {
                 result.index = sideIndex;
                 newFaces.clear();
@@ -1564,6 +1584,12 @@ namespace TrenchBroom {
             }
             
             restoreFaceSides();
+
+			for (unsigned int i = 0; i < sides.size(); i++) {
+				FaceList::iterator it = find(droppedFaces.begin(), droppedFaces.end(), sides[i]->face);
+				assert(it == droppedFaces.end());
+			}
+
             return result;
         }
         

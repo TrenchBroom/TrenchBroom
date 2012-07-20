@@ -199,6 +199,7 @@ namespace TrenchBroom {
                 const std::vector<Model::Brush*>& brushes = entity->brushes();
                 for (unsigned int j = 0; j < brushes.size(); j++) {
                     Model::Brush* brush = brushes[j];
+					assert(brush->geometry->edges.size() >= 6);
                     if (context.filter.brushVisible(*brush)) {
                         if (entity->selected() || brush->selected) {
                             allSelectedBrushes.push_back(brush);
@@ -220,6 +221,7 @@ namespace TrenchBroom {
                         const std::vector<Model::Face*>& faces = brush->faces;
                         for (unsigned int k = 0; k < faces.size(); k++) {
                             Model::Face* face = faces[k];
+							assert(face->side->vertices.size() >= 3);
                             if (entity->selected() || brush->selected || face->selected) {
                                 allSelectedFaces.push_back(face);
                                 totalSelectedFaceVertexCount += (3 * face->side->vertices.size() - 6);
