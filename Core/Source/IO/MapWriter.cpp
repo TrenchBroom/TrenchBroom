@@ -19,12 +19,14 @@
 
 #include "MapWriter.h"
 
+#include "Model/Assets/Texture.h"
 #include "Model/Map/Brush.h"
 #include "Model/Map/Entity.h"
 #include "Model/Map/Face.h"
 #include "Model/Map/Map.h"
 #include "IO/FileManager.h"
 #include "Utilities/Console.h"
+#include "Utilities/Utils.h"
 
 #include <fstream>
 #include <cassert>
@@ -32,6 +34,8 @@
 namespace TrenchBroom {
     namespace IO {
         void MapWriter::writeFace(const Model::Face& face, std::ostream& stream) {
+            std::string textureName = isBlank(face.textureName) ? Model::Assets::Texture::EMPTY : face.textureName;
+            
             stream <<
             "( " <<
             face.points[0].x    << " " <<
@@ -46,7 +50,7 @@ namespace TrenchBroom {
             face.points[2].y    << " " <<
             face.points[2].z    << " " <<
             ") " <<
-            face.textureName    << " " <<
+            textureName         << " " <<
             face.xOffset        << " " <<
             face.yOffset        << " " <<
             face.rotation       << " " <<

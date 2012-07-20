@@ -95,11 +95,12 @@ namespace TrenchBroom {
                     textureMulti    |= (textureName.compare(faces[i]->textureName) != 0);
                 }
                 
-                m_textureLabel->SetPlaceholderString("multiple");
                 if (textureMulti) {
+                    m_textureLabel->SetPlaceholderString("multiple");
                     m_textureView->setTexture(NULL);
                     m_textureLabel->SetText("");
                 } else {
+                    m_textureLabel->SetPlaceholderString("n/a");
                     m_textureView->setTexture(texture);
                     m_textureLabel->SetText(textureName);
                 }

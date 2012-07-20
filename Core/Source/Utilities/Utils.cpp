@@ -24,10 +24,17 @@
 
 namespace TrenchBroom {
     std::string trim(const std::string& str) {
-        if (str.length() == 0) return str;
+        if (str.length() == 0)
+            return str;
+
         size_t first = str.find_first_not_of(" \n\t\r" + 0);
+        if (first == std::string::npos)
+            return "";
+
         size_t last = str.find_last_not_of(" \n\t\r" + 0);
-        if (first >= last) return "";
+        if (first >= last)
+            return "";
+
         return str.substr(first, last - first + 1);
     }
     
@@ -46,6 +53,13 @@ namespace TrenchBroom {
         return result;
     }
     
+    bool isBlank(const std::string& str) {
+        if (str.empty())
+            return true;
+        
+        return str.find_first_not_of(" \n\t\r" + 0) == std::string::npos;
+    }
+
     std::string toLower(std::string str) {
         std::string result(str);
         std::transform(result.begin(), result.end(), result.begin(), tolower);

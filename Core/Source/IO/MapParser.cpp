@@ -441,6 +441,9 @@ namespace TrenchBroom {
                 return NULL;
             }
             
+            if (textureName == Model::Assets::Texture::EMPTY)
+                textureName = "";
+            
             Model::Face* face = new Model::Face(worldBounds, p1, p2, p3, textureName);
             face->xOffset = xOffset;
             face->yOffset = yOffset;

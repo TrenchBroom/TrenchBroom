@@ -37,6 +37,8 @@ namespace TrenchBroom {
                 return texture1->usageCount > texture2->usageCount;
             }
 
+            std::string Texture::EMPTY = "__TB__empty";
+
             void Texture::init(const std::string& name, unsigned int width, unsigned int height) {
                 static int currentId = 1;
                 this->uniqueId = currentId++;

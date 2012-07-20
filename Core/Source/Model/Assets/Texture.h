@@ -53,6 +53,8 @@ namespace TrenchBroom {
                 void init(const std::string& name, unsigned int width, unsigned int height);
                 void init(const std::string& name, const unsigned char* indexImage, unsigned int width, unsigned int height, const Palette* palette);
             public:
+                static std::string EMPTY;
+                
                 std::string name;
                 int uniqueId;
                 unsigned int usageCount;
