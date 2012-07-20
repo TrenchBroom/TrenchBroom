@@ -108,6 +108,7 @@ namespace TrenchBroom {
 
             if (m_brushFigure != NULL) {
                 removeFigure(*m_brushFigure);
+                delete m_brushFigure;
                 m_brushFigure = NULL;
             }
             

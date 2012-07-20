@@ -549,6 +549,7 @@ namespace TrenchBroom {
                 m_sizeGuideFigure->setBounds(selection.bounds());
             } else if (m_sizeGuideFigure != NULL) {
                 removeFigure(*m_sizeGuideFigure);
+                delete m_sizeGuideFigure;
                 m_sizeGuideFigure = NULL;
             }
 
@@ -827,8 +828,8 @@ namespace TrenchBroom {
             prefs.preferencesDidChange              -= new Model::Preferences::PreferencesEvent::Listener<MapRenderer>(this, &MapRenderer::preferencesDidChange);
             options.optionsDidChange                -= new Controller::TransientOptions::OptionsEvent::Listener<MapRenderer>(this, &MapRenderer::optionsDidChange);
 
-            while (!m_figures.empty()) delete m_figures.back(), m_figures.pop_back();
-            
+            m_figures.clear();
+
             delete m_faceVbo;
             delete m_edgeVbo;
             delete m_entityBoundsVbo;
@@ -838,7 +839,6 @@ namespace TrenchBroom {
             delete m_classnameRenderer;
             delete m_selectedClassnameRenderer;
 
-            m_figures.clear();
             delete m_figureVbo;
             
             if (m_dummyTexture != NULL)
@@ -856,8 +856,6 @@ namespace TrenchBroom {
                 m_figures.erase(it);
                 rendererChanged(*this);
             }
-
-            delete &figure;
         }
 
         void MapRenderer::render(RenderContext& context) {

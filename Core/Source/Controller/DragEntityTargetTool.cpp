@@ -39,10 +39,12 @@ namespace TrenchBroom {
         void DragEntityTargetTool::deleteFigures() {
             if (m_entityFigure != NULL) {
                 removeFigure(*m_entityFigure);
+                delete m_entityFigure;
                 m_entityFigure = NULL;
             }
             if (m_guideFigure != NULL) {
                 removeFigure(*m_guideFigure);
+                delete m_guideFigure;
                 m_guideFigure = NULL;
             }
         }

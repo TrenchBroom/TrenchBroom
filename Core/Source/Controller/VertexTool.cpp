@@ -71,6 +71,7 @@ namespace TrenchBroom {
         void VertexTool::deleteHandleFigure() {
             if (m_handleFigure != NULL) {
                 removeFigure(*m_handleFigure);
+                delete m_handleFigure;
                 m_handleFigure = NULL;
             }
         }
@@ -97,11 +98,13 @@ namespace TrenchBroom {
         void VertexTool::deleteSelectedHandleFigures() {
             if (m_selectedHandleFigure != NULL) {
                 removeFigure(*m_selectedHandleFigure);
+                delete m_selectedHandleFigure;
                 m_selectedHandleFigure = NULL;
             }
             
             if (m_guideFigure != NULL) {
                 removeFigure(*m_guideFigure);
+                delete m_guideFigure;
                 m_guideFigure = NULL;
             }
         }
