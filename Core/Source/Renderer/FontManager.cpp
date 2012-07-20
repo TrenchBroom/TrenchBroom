@@ -84,7 +84,7 @@ namespace TrenchBroom {
             // nothing to do
         }
 
-        StringRenderer::StringRenderer(const FontDescriptor& descriptor, const std::string& str) : fontDescriptor(descriptor), str(str), m_vboBlock(NULL), width(-1.0f), height(-1.0f) {
+        StringRenderer::StringRenderer(const FontDescriptor& descriptor, const std::string& str, float width, float height) : fontDescriptor(descriptor), str(str), m_vboBlock(NULL), width(width), height(height) {
             m_hasTriangleSet = false;
             m_hasTriangleStrips = false;
             m_hasTriangleFans = false;
@@ -214,7 +214,8 @@ namespace TrenchBroom {
                 }
             }
 
-            StringRenderer* stringRenderer = new StringRenderer(descriptor, str);
+            StringData::Point size = m_stringFactory->measureString(descriptor, str);
+            StringRenderer* stringRenderer = new StringRenderer(descriptor, str, size.x, size.y);
             StringRendererPtr stringRendererPtr(stringRenderer);
             
             if (stringCachePtr.get() == NULL) {

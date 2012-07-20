@@ -87,7 +87,7 @@ namespace TrenchBroom {
             float width;
             float height;
 
-            StringRenderer(const FontDescriptor& descriptor, const std::string& str);
+            StringRenderer(const FontDescriptor& descriptor, const std::string& str, float width, float height);
             ~StringRenderer();
             void prepare(const StringData& stringData, Vbo& vbo);
             void renderBackground(float hInset, float vInset);
@@ -100,6 +100,7 @@ namespace TrenchBroom {
         public:
             virtual ~StringFactory() {};
             virtual StringData* createStringData(const FontDescriptor& descriptor, const std::string& str) = 0;
+            virtual StringData::Point measureString(const FontDescriptor& descriptor, const std::string& str) = 0;
         };
 
         class FontManager {

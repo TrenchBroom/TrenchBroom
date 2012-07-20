@@ -46,6 +46,18 @@ namespace TrenchBroom {
             }
         }
         
+        void MacStringFactory::configure(NSFont* font, NSString* str) {
+            NSMutableDictionary* attrs = [[NSMutableDictionary alloc] init];
+            [attrs setObject:font forKey:NSFontAttributeName];
+            
+            NSAttributedString* attrString = [[NSAttributedString alloc] initWithString:str attributes:attrs];
+            [m_textStorage setAttributedString:attrString];
+            [attrString release];
+            [attrs release];
+            
+            [m_layoutManager ensureLayoutForTextContainer:m_textContainer];
+        }
+        
         MacStringFactory::MacStringFactory() : m_gluTess(NULL), m_points(NULL) {
             m_textStorage = [[NSTextStorage alloc] init];
             m_textContainer = [[NSTextContainer alloc] init];
@@ -80,17 +92,8 @@ namespace TrenchBroom {
             
             NSString* fontName = [NSString stringWithCString:descriptor.name.c_str() encoding:NSASCIIStringEncoding];
             NSFont* font = [NSFont fontWithName:fontName size:descriptor.size];
-            
-            NSMutableDictionary* attrs = [[NSMutableDictionary alloc] init];
-            [attrs setObject:font forKey:NSFontAttributeName];
-            
             NSString* objCStr = [NSString stringWithCString:str.c_str() encoding:NSASCIIStringEncoding];
-            NSAttributedString* attrString = [[NSAttributedString alloc] initWithString:objCStr attributes:attrs];
-            [m_textStorage setAttributedString:attrString];
-            [attrString release];
-            [attrs release];
-            
-            [m_layoutManager ensureLayoutForTextContainer:m_textContainer];
+            configure(font, objCStr);
             
             NSRange glyphRange = [m_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [objCStr length]) actualCharacterRange:NULL];
             NSRect bounds = [m_layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:m_textContainer];
@@ -154,6 +157,18 @@ namespace TrenchBroom {
                 StringFactoryCallback::tempPoints.pop_back();
             
             return stringData;
+        }
+
+        StringData::Point MacStringFactory::measureString(const FontDescriptor& descriptor, const std::string& str) {
+            NSString* fontName = [NSString stringWithCString:descriptor.name.c_str() encoding:NSASCIIStringEncoding];
+            NSFont* font = [NSFont fontWithName:fontName size:descriptor.size];
+            NSString* objCStr = [NSString stringWithCString:str.c_str() encoding:NSASCIIStringEncoding];
+            configure(font, objCStr);
+
+            NSRange glyphRange = [m_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [objCStr length]) actualCharacterRange:NULL];
+            NSRect bounds = [m_layoutManager boundingRectForGlyphRange:glyphRange inTextContainer:m_textContainer];
+            
+            return StringData::Point(NSWidth(bounds), NSHeight(bounds));
         }
     }
 }

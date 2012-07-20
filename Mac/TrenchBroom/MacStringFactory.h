@@ -40,10 +40,12 @@ namespace TrenchBroom {
             std::vector<NSPoint> m_points;
 
             void resizePointArray(int newCapacity);
+            void configure(NSFont* font, NSString* str);
         public:
             MacStringFactory();
             ~MacStringFactory();
             StringData* createStringData(const FontDescriptor& descriptor, const std::string& str);
+            StringData::Point measureString(const FontDescriptor& descriptor, const std::string& str);
         };
     }
 }
