@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <cstring>
 #include "Utilities/Console.h"
+#include "Utilities/Utils.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -166,13 +167,15 @@ namespace TrenchBroom {
             }
 
             void TextureManager::reloadTextures() {
-                m_textures.clear();
+                m_texturesCaseSensitive.clear();
+                m_texturesCaseInsensitive.clear();
                 for (unsigned int i = 0; i < m_collections.size(); i++) {
                     TextureCollection* collection = m_collections[i];
                     const std::vector<Texture*> textures = collection->textures();
                     for (unsigned int j = 0; j < textures.size(); j++) {
                         Texture* texture = textures[j];
-                        m_textures.insert(std::pair<std::string, Texture*>(texture->name, texture));
+                        m_texturesCaseSensitive.insert(std::pair<std::string, Texture*>(texture->name, texture));
+                        m_texturesCaseInsensitive.insert(std::pair<std::string, Texture*>(toLower(texture->name), texture));
                     }
                 }
             }
@@ -197,7 +200,8 @@ namespace TrenchBroom {
             }
 
             void TextureManager::clear() {
-                m_textures.clear();
+                m_texturesCaseSensitive.clear();
+                m_texturesCaseInsensitive.clear();
                 while (!m_collections.empty()) delete m_collections.back(), m_collections.pop_back();
                 textureManagerDidChange(*this);
             }
@@ -208,7 +212,7 @@ namespace TrenchBroom {
 
             const std::vector<Texture*> TextureManager::textures(ETextureSortCriterion criterion) {
                 std::vector<Texture*> result;
-                for (TextureMap::iterator it = m_textures.begin(); it != m_textures.end(); it++)
+                for (TextureMap::iterator it = m_texturesCaseSensitive.begin(); it != m_texturesCaseSensitive.end(); it++)
                     result.push_back(it->second);
 
                 if (criterion == TB_TS_USAGE) sort(result.begin(), result.end(), compareByUsageCount);
@@ -217,9 +221,12 @@ namespace TrenchBroom {
             }
 
             Texture* TextureManager::texture(const std::string& name) {
-                TextureMap::iterator it = m_textures.find(name);
-                if (it == m_textures.end())
-                    return NULL;
+                TextureMap::iterator it = m_texturesCaseSensitive.find(name);
+                if (it == m_texturesCaseSensitive.end()) {
+                    it = m_texturesCaseInsensitive.find(toLower(name));
+                    if (it == m_texturesCaseInsensitive.end())
+                        return NULL;
+                }
                 return it->second;
             }
 

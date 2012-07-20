@@ -90,7 +90,8 @@ namespace TrenchBroom {
                 typedef std::map<std::string, Texture*> TextureMap;
                 
                 std::vector<TextureCollection*> m_collections;
-                TextureMap m_textures;
+                TextureMap m_texturesCaseSensitive;
+                TextureMap m_texturesCaseInsensitive;
                 void reloadTextures();
             public:
                 typedef Event<TextureManager&> TextureManagerEvent;
