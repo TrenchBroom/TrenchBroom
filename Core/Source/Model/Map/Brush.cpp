@@ -104,6 +104,7 @@ namespace TrenchBroom {
         
         Brush::~Brush() {
             delete geometry;
+			geometry = NULL;
             while(!faces.empty()) delete faces.back(), faces.pop_back();
         }
         

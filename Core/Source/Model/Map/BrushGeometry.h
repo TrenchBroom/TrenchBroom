@@ -24,6 +24,9 @@
 #include "Model/Map/FaceTypes.h"
 #include "Utilities/VecMath.h"
 
+#include <cassert>
+#include <list>
+
 namespace TrenchBroom {
     namespace Model {
         class Face;
@@ -67,11 +70,50 @@ namespace TrenchBroom {
             MoveResult(size_t index, bool moved) : index(index), moved(moved) {}
         };
         
+		template <typename T>
+		class Pool {
+		private:
+			unsigned int maxSize;
+			std::list<T*> items;
+		public:
+			Pool(unsigned int maxSize) : maxSize(maxSize) {}
+			~Pool() {
+				size_t size = items.size();
+				while (!items.empty()) {
+					delete items.back();
+					items.pop_back();
+					size = items.size();
+				}
+
+				items.clear();
+			}
+
+			inline bool empty() {
+				return items.empty();
+			}
+
+			inline size_t size() {
+				return items.size();
+			}
+
+			inline bool push(T* item) {
+				if (items.size() == maxSize)
+					return false;
+				items.push_back(item);
+				return true;
+			}
+
+			inline T* pop() {
+				assert(!items.empty());
+				T* item = items.front();
+				items.pop_front();
+				return item;
+			}
+		};
+
         class Vertex {
         private:
-            static Vertex* pool;
-            static int poolSize;
-            Vertex* next;
+			static Pool<Vertex> pool;
         public:
             Vec3f position;
             EVertexMark mark;
@@ -84,9 +126,7 @@ namespace TrenchBroom {
         class Side;
         class Edge {
         private:
-            static Edge* pool;
-            static int poolSize;
-            Edge* next;
+			static Pool<Edge> pool;
         public:
             Vertex* start;
             Vertex* end;
@@ -109,9 +149,7 @@ namespace TrenchBroom {
         class Face;
         class Side {
         private:
-            static Side* pool;
-            static int poolSize;
-            Side* next;
+			static Pool<Side> pool;
         public:
             VertexList vertices;
             EdgeList edges;

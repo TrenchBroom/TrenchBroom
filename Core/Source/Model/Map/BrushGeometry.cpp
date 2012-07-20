@@ -22,7 +22,6 @@
 #include "Model/Map/Face.h"
 #include "Utilities/VecMath.h"
 
-#include <cassert>
 #include <cmath>
 #include <map>
 #include <algorithm>
@@ -33,35 +32,20 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Vertex* Vertex::pool = NULL;
-        Edge* Edge::pool = NULL;
-        Side* Side::pool = NULL;
-        int Vertex::poolSize = 0;
-        int Edge::poolSize = 0;
-        int Side::poolSize = 0;
+		Pool<Vertex> Vertex::pool = Pool<Vertex>(VERTEX_MAX_POOL_SIZE);
+		Pool<Edge> Edge::pool = Pool<Edge>(EDGE_MAX_POOL_SIZE);
+		Pool<Side> Side::pool = Pool<Side>(SIDE_MAX_POOL_SIZE);
         
         void* Vertex::operator new(size_t size) {
-            if (pool != NULL) {
-                Vertex* vertex = pool;
-                pool = pool->next;
-                poolSize--;
-                return vertex;
-            }
+			if (!pool.empty())
+				return pool.pop();
             
-            Vertex* vertex = (Vertex*)malloc(size);
-            vertex->next = NULL;
-            return vertex;
+            return static_cast<Vertex*>(malloc(size));
         }
         
         void Vertex::operator delete(void* pointer) {
-            if (poolSize < VERTEX_MAX_POOL_SIZE) {
-                Vertex* vertex = (Vertex*)pointer;
-                vertex->next = pool;
-                pool = vertex;
-                poolSize++;
-            } else {
-                free(pointer);
-            }
+			if (!pool.push(static_cast<Vertex*>(pointer)))
+				free(pointer);
         }
 
         Vertex::Vertex(float x, float y, float z) {
@@ -76,27 +60,15 @@ namespace TrenchBroom {
         }
         
         void* Edge::operator new(size_t size) {
-            if (pool != NULL) {
-                Edge* edge = pool;
-                pool = pool->next;
-                poolSize--;
-                return edge;
-            }
+			if (!pool.empty())
+				return pool.pop();
             
-            Edge* edge = (Edge*)malloc(size);
-            edge->next = NULL;
-            return edge;
+            return static_cast<Edge*>(malloc(size));
         }
         
         void Edge::operator delete(void* pointer) {
-            if (poolSize < EDGE_MAX_POOL_SIZE) {
-                Edge* edge = (Edge*)pointer;
-                edge->next = pool;
-                pool = edge;
-                poolSize++;
-            } else {
-                free(pointer);
-            }
+			if (!pool.push(static_cast<Edge*>(pointer)))
+				free(pointer);
         }
 
         Edge::Edge(Vertex* start, Vertex* end) : start(start), end(end), mark((TB_EM_NEW)), left(NULL), right(NULL) {}
@@ -167,27 +139,15 @@ namespace TrenchBroom {
         }
         
         void* Side::operator new(size_t size) {
-            if (pool != NULL) {
-                Side* side = pool;
-                pool = pool->next;
-                poolSize--;
-                return side;
-            }
+            if (!pool.empty())
+				return pool.pop();
             
-            Side* side = (Side*)malloc(size);
-            side->next = NULL;
-            return side;
+            return static_cast<Side*>(malloc(size));
         }
         
         void Side::operator delete(void* pointer) {
-            if (poolSize < SIDE_MAX_POOL_SIZE) {
-                Side* side = (Side*)pointer;
-                side->next = pool;
-                pool = side;
-                poolSize++;
-            } else {
-                free(pointer);
-            }
+			if (!pool.push(static_cast<Side*>(pointer)))
+				free(pointer);
         }
 
         Side::Side(Edge* newEdges[], bool invert[], unsigned int count) : mark(TB_SM_NEW), face(NULL) {

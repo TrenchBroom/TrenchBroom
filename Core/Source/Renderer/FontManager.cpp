@@ -282,6 +282,7 @@ namespace TrenchBroom {
                     }
                     
                     m_unpreparedStrings[i]->prepare(*stringData, *m_vbo);
+					delete stringData;
                 }
                 m_vbo->unmap();
                 m_unpreparedStrings.clear();

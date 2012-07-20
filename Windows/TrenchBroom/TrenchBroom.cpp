@@ -17,7 +17,14 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "stdafx.h"
+
+// visual leak detector
+#ifdef _DEBUG
+#include <vld.h>
+#endif
+
 #include "afxwinappex.h"
 #include "afxdialogex.h"
 #include "TrenchBroom.h"
@@ -235,7 +242,7 @@ CTrenchBroomApp theApp;
 BOOL CTrenchBroomApp::InitInstance()
 {
 	// disable MFC's automatic leak dumping
-//	AfxEnableMemoryLeakDump(FALSE);
+	AfxEnableMemoryLeakDump(FALSE);
 
 	// InitCommonControlsEx() is required on Windows XP if an application
 	// manifest specifies use of ComCtl32.dll version 6 or later to enable
