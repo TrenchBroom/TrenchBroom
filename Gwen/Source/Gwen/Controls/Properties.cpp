@@ -61,7 +61,7 @@ namespace Gwen
         
         void Properties::PostLayout( Gwen::Skin::Base* /*skin*/ )
         {
-            m_SplitterBar->SetHeight( 0 );
+            m_SplitterBar->SetHeight( Height() );
             
             if ( SizeToChildren( false, true ) )
             {

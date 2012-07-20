@@ -21,9 +21,9 @@
 #include "stdafx.h"
 
 // visual leak detector
-#ifdef _DEBUG
-#include <vld.h>
-#endif
+//#ifdef _DEBUG
+//#include <vld.h>
+//#endif
 
 #include "afxwinappex.h"
 #include "afxdialogex.h"

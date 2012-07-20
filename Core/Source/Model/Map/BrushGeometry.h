@@ -78,14 +78,10 @@ namespace TrenchBroom {
 		public:
 			Pool(unsigned int maxSize) : maxSize(maxSize) {}
 			~Pool() {
-				size_t size = items.size();
 				while (!items.empty()) {
 					free(items.back());
 					items.pop_back();
-					size = items.size();
 				}
-
-				items.clear();
 			}
 
 			inline bool empty() {
