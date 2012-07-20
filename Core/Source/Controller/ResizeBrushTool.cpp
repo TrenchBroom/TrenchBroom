@@ -60,10 +60,17 @@ namespace TrenchBroom {
             if (!Math::isnan(dist)) {
                 Model::Selection& selection = m_editor.map().selection();
                 Model::FaceList faces;
-                if (selection.mode() == Model::TB_SM_FACES)
+                if (selection.mode() == Model::TB_SM_FACES) {
                     faces = selection.faces();
-                else
-                    faces.push_back(m_referenceFace);
+                } else {
+                    const Model::FaceList selectedFaces = selection.allFaces();
+                    for (unsigned int i = 0; i < selectedFaces.size(); i++) {
+                        Model::Face* face = selectedFaces[i];
+                        if (Math::fpos(face->boundary.normal | m_referenceFace->boundary.normal))
+                            faces.push_back(face);
+                    }
+                    
+                }
                 
                 m_editor.map().resizeBrushes(faces, dist, true);
                 referencePoint += delta;
