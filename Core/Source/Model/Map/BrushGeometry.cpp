@@ -546,7 +546,8 @@ namespace TrenchBroom {
                         }
                         side->face = NULL;
                         
-                        deleteElement(sides, side);
+                        bool success = deleteElement(sides, side);
+                        assert(success);
                         assert(sanityCheck());
                     }
                 }
@@ -723,7 +724,8 @@ namespace TrenchBroom {
             }
             
             neighbour->face->side = NULL;
-            deleteElement<Side>(sides, neighbour);
+            bool success = deleteElement<Side>(sides, neighbour);
+            assert(success);
         }
         
         void BrushGeometry::mergeSides(FaceList& newFaces, FaceList&droppedFaces) {
@@ -1571,7 +1573,7 @@ namespace TrenchBroom {
             
             MoveResult result(-1, true);
             for (unsigned int i = 0; i < sideVertexCount && result.moved; i++)
-                result = moveVertex(indices[i], false, delta, newFaces, droppedFaces);
+                result = testGeometry.moveVertex(indices[i], false, delta, newFaces, droppedFaces);
             
             if (result.moved) {
                 copy(testGeometry);
