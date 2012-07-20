@@ -295,7 +295,7 @@ void CMapView::OnRButtonUp(UINT nFlags, CPoint point)
 
 BOOL CMapView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 {
-	m_editorGui->canvas()->InputMouseWheel(zDelta / -10.0f);
+	m_editorGui->canvas()->InputMouseWheel(zDelta / 10.0f);
 	return TRUE;
 }
 

@@ -55,7 +55,9 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\Core\Source;..\..\Gwen\Source;..\..\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
-      <AdditionalOptions>/RTC1 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/wd4290 %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -92,6 +94,9 @@ Copy "$(ProjectDir)..\..\Resources\Graphics\QuakePalette.lmp" "$(TargetDir)\Reso
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\Core\Source;..\..\Gwen\Source;..\..\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
+      <AdditionalOptions>/wd4290 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

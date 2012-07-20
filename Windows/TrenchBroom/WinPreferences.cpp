@@ -34,6 +34,7 @@ namespace TrenchBroom {
 				m_cameraOrbitKey = Controller::TB_MK_SHIFT | Controller::TB_MK_CTRL;
 				m_selectionToolMultiKey = Controller::TB_MK_CTRL;
 				m_selectionToolGridKey = Controller::TB_MK_ALT;
+				m_resizeToolKey = Controller::TB_MK_CTRL;
 				m_quakePath = "";
 			}
 
