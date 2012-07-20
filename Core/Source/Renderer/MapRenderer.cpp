@@ -477,6 +477,8 @@ namespace TrenchBroom {
         void MapRenderer::mapCleared(Model::Map& map) {
             m_entityRenderers.clear();
             m_selectedEntityRenderers.clear();
+			m_classnameRenderer->clear();
+			m_selectedClassnameRenderer->clear();
             m_entityDataValid = false;
             m_selectedEntityDataValid = false;
             m_geometryDataValid = false;

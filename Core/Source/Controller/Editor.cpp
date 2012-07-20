@@ -128,11 +128,10 @@ namespace TrenchBroom {
 
 		void Editor::loadMap(const std::string& path, ProgressIndicator* indicator) {
 			indicator->setText("Clearing map...");
-            m_map->clear();
-            m_textureManager->clear();
-			m_map->setPostNotifications(false);
+			clear();
 
 			indicator->setText("Loading map file...");
+			m_map->setPostNotifications(false);
             m_mapPath = path;
 
             clock_t start = clock();
@@ -168,6 +167,7 @@ namespace TrenchBroom {
 
 		void Editor::clear() {
 			m_map->clear();
+			m_textureManager->clear();
 			m_mapPath = "";
 			m_autosaver->clearDirtyFlag();
 		}

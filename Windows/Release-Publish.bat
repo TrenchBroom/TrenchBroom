@@ -1,5 +1,7 @@
 @echo off
 
+call Release-Build.bat
+
 cd Release
 del TrenchBroom.pdb
 del TrenchBroom.log
