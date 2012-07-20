@@ -21,6 +21,7 @@
 #include <assert.h>
 #include <cmath>
 #include "Controller/ProgressIndicator.h"
+#include "Model/Map/MapExceptions.h"
 #include "Utilities/Console.h"
 
 namespace TrenchBroom {
@@ -289,9 +290,17 @@ namespace TrenchBroom {
                     }
                     case TB_TT_CB_O: {
                         pushToken(token);
-                        Model::Brush* brush = NULL;
-                        while ((brush = parseBrush(worldBounds, indicator)) != NULL)
-                            entity->addBrush(brush);
+                        bool moreBrushes = true;
+                        while (moreBrushes) {
+                            Model::Brush* brush = parseBrush(worldBounds, indicator);
+                            if (brush != NULL)
+                                entity->addBrush(brush);
+                            token = nextToken();
+                            expect(TB_TT_CB_O | TB_TT_CB_C, token);
+                            moreBrushes = (token->type == TB_TT_CB_O);
+                            pushToken(token);
+                        }
+                        break;
                     }
                     case TB_TT_CB_C: {
                         if (indicator != NULL) indicator->update(static_cast<float>(token->charsRead));
@@ -315,22 +324,42 @@ namespace TrenchBroom {
             Model::Brush* brush = new Model::Brush(worldBounds);
             brush->filePosition = token->line;
             
+            if (token->line == 56017)
+                brush->filePosition = token->line;
+            
             while ((token = nextToken()) != NULL) {
                 switch (token->type) {
                     case TB_TT_B_O: {
                         pushToken(token);
                         Model::Face* face = parseFace(worldBounds);
-                        if (face != NULL) brush->addFace(face);
+                        if (face == NULL) {
+                            log(TB_LL_WARN, "Skipping malformed face at line %i\n", token->line);
+                        } else if (brush != NULL) {
+                            if (!brush->addFace(face)) {
+                                log(TB_LL_WARN, "Skipping malformed brush at line %i\n", brush->filePosition);
+                                delete brush;
+                                brush = NULL;
+                            }
+                        } else {
+                            delete face;
+                        }
                         break;
                     }
                     case TB_TT_CB_C:
                         if (indicator != NULL) indicator->update(static_cast<float>(token->charsRead));
+                        if (brush != NULL && !brush->geometry->closed()) {
+                            log(TB_LL_WARN, "Skipping non-closed brush at line %i\n", brush->filePosition);
+                            delete brush;
+                            brush = NULL;
+                        }
                         return brush;
                     default:
                         log(TB_LL_ERR, "Unexpected token type %i at line %i\n", token->type, token->line);
+                        delete brush;
                         return NULL;
                 }
             }
+            
             return NULL;
         }
         

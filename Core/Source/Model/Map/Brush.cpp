@@ -338,20 +338,34 @@ namespace TrenchBroom {
         }
         
         bool Brush::addFace(Face* face) {
-            FaceList droppedFaces;
-            ECutResult result = geometry->addFace(*face, droppedFaces);
-            if (result == TB_CR_REDUNDANT) return true;
-            if (result == TB_CR_NULL) return false;
-            
-            for (unsigned int i = 0; i < droppedFaces.size(); i++) {
-                Face* droppedFace = droppedFaces[i];
-                FaceList::iterator it = find(faces.begin(), faces.end(), droppedFace);
-                delete *it;
-                faces.erase(it);
+            try {
+                FaceList droppedFaces;
+                ECutResult result = geometry->addFace(*face, droppedFaces);
+                
+                if (result == TB_CR_REDUNDANT) {
+                    delete face;
+                    return true;
+                }
+                
+                if (result == TB_CR_NULL) {
+                    delete face;
+                    return false;
+                }
+                
+                for (unsigned int i = 0; i < droppedFaces.size(); i++) {
+                    Face* droppedFace = droppedFaces[i];
+                    FaceList::iterator it = find(faces.begin(), faces.end(), droppedFace);
+                    delete *it;
+                    faces.erase(it);
+                }
+                
+                face->brush = this;
+                faces.push_back(face);
+                return true;
+            } catch (GeometryException e) {
+                delete face;
+                return false;
             }
-            face->brush = this;
-            faces.push_back(face);
-            return true;
         }
         
         bool Brush::canDeleteFace(Face& face) {

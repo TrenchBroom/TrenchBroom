@@ -20,7 +20,6 @@
 #include "BrushGeometry.h"
 
 #include "Model/Map/Face.h"
-#include "Utilities/VecMath.h"
 
 #include <cmath>
 #include <map>
@@ -289,7 +288,7 @@ namespace TrenchBroom {
             assert(vertices.size() == edges.size());
         }
         
-        Edge* Side::split() {
+        Edge* Side::split() throw (GeometryException) {
             unsigned int keep = 0;
             unsigned int drop = 0;
             unsigned int split = 0;
@@ -343,7 +342,11 @@ namespace TrenchBroom {
                 return NULL;
             }
             
+            if (splitIndex1 < 0 || splitIndex2 < 0)
+                throw GeometryException("Invalid brush detected during side split");
+            
             assert(splitIndex1 >= 0 && splitIndex2 >= 0);
+            
             mark = TB_SM_SPLIT;
             
             Edge* newEdge = new Edge();
@@ -1293,7 +1296,7 @@ namespace TrenchBroom {
                 sides[i]->face->side = sides[i];
         }
         
-        ECutResult BrushGeometry::addFace(Face& face, FaceList& droppedFaces) {
+        ECutResult BrushGeometry::addFace(Face& face, FaceList& droppedFaces) throw (GeometryException) {
             Plane boundary = face.boundary;
             
             unsigned int keep = 0;
@@ -1335,6 +1338,7 @@ namespace TrenchBroom {
             // mark, split and drop sides
             EdgeList newEdges;
             SideList::iterator sideIt = sides.begin();
+
             while (sideIt != sides.end()) {
                 Side* side = *sideIt;
                 Edge* newEdge = side->split();
@@ -1427,7 +1431,7 @@ namespace TrenchBroom {
             return TB_CR_SPLIT;
         }
         
-        bool BrushGeometry::addFaces(FaceList& faces, FaceList& droppedFaces) {
+        bool BrushGeometry::addFaces(FaceList& faces, FaceList& droppedFaces) throw (GeometryException) {
             for (unsigned int i = 0; i < faces.size(); i++)
                 if (addFace(*faces[i], droppedFaces) == TB_CR_NULL)
                     return false;

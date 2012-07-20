@@ -22,6 +22,7 @@
 
 #include "Model/Map/BrushGeometryTypes.h"
 #include "Model/Map/FaceTypes.h"
+#include "Model/Map/MapExceptions.h"
 #include "Utilities/VecMath.h"
 
 #include <cassert>
@@ -166,7 +167,7 @@ namespace TrenchBroom {
             Side(Face& face, EdgeList& newEdges);
             float intersectWithRay(const Ray& ray);
             void replaceEdges(size_t index1, size_t index2, Edge* edge);
-            Edge* split();
+            Edge* split() throw (GeometryException);
             void flip();
             void shift(int offset);
         };
@@ -201,8 +202,8 @@ namespace TrenchBroom {
             bool closed() const;
             void restoreFaceSides();
             
-            ECutResult addFace(Face& face, FaceList& droppedFaces);
-            bool addFaces(FaceList& faces, FaceList& droppedFaces);
+            ECutResult addFace(Face& face, FaceList& droppedFaces) throw (GeometryException);
+            bool addFaces(FaceList& faces, FaceList& droppedFaces) throw (GeometryException);
             
             void translate(const Vec3f& delta);
             void rotate90(EAxis axis, const Vec3f& center, bool clockwise);

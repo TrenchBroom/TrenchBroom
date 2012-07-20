@@ -377,11 +377,15 @@ namespace TrenchBroom {
             points[0] = side->vertices[best]->position;
             points[1] = side->vertices[(best + 1) % vertexCount]->position;
             
-            if (!boundary.setPoints(points[0], points[1], points[2]))
-                throw GeometryException("Invalid face points %f %f %f; %f %f %f; %f %f %f for face with ID %i", 
-                                        points[0].x, points[0].y, points[0].z, 
-                                        points[1].x, points[1].y, points[1].z, 
-                                        points[2].x, points[2].y, points[2].z, faceId);
+            if (!boundary.setPoints(points[0], points[1], points[2])) {
+                std::stringstream msg;
+                msg << "Invalid face points "
+                    << points[0].x << " " << points[0].y << " " << points[0].z << "; "
+                    << points[1].x << " " << points[1].y << " " << points[1].z << "; "
+                    << points[2].x << " " << points[2].y << " " << points[2].z
+                    << " for face with ID " << faceId;
+                throw GeometryException(msg);
+            }
         }
         
         Vec3f Face::center() const {

@@ -20,32 +20,14 @@
 #ifndef TrenchBroom_MapExceptions_h
 #define TrenchBroom_MapExceptions_h
 
-#include <cstdio>
-#include <cstdarg>
-#include <exception>
-#include <string>
+#include "Utilities/MessageException.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class GeometryException : public std::exception {
-        protected:
-            std::string m_msg;
+        class GeometryException : public MessageException {
         public:
-			GeometryException(const char* format, ...) throw() {
-                static char buffer[1024];
-                va_list arglist;
-                va_start(arglist, format);
-                vsprintf(buffer, format, arglist);
-                va_end(arglist);
-                
-                m_msg = buffer;
-            }
-            
-            ~GeometryException() throw() {}
-            
-			virtual const char* what() const throw() {
-			    return m_msg.c_str();
-			}
+            GeometryException(const std::string& msg) throw() : MessageException(msg) {}
+            GeometryException(const std::stringstream& str) throw() : MessageException(str) {}
         };
     }
 }

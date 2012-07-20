@@ -22,6 +22,7 @@
 
 #include <vector>
 #include "Model/Map/FaceTypes.h"
+#include "Model/Map/MapExceptions.h"
 #include "Model/Map/MapObject.h"
 
 namespace TrenchBroom {
