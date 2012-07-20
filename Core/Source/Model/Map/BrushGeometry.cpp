@@ -1586,12 +1586,6 @@ namespace TrenchBroom {
             }
             
             restoreFaceSides();
-
-			for (unsigned int i = 0; i < sides.size(); i++) {
-				FaceList::iterator it = find(droppedFaces.begin(), droppedFaces.end(), sides[i]->face);
-				assert(it == droppedFaces.end());
-			}
-
             return result;
         }
         
