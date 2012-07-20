@@ -90,11 +90,18 @@ namespace TrenchBroom {
 
             if (m_entityRenderer != NULL) {
                 vbo.deactivate();
+
+                glPushAttrib(GL_TEXTURE_BIT);
+                glPolygonMode(GL_FRONT, GL_FILL);
                 glEnable(GL_TEXTURE_2D);
+                glSetBrightness(context.preferences.brightness(), false);
+
                 EntityRendererManager& rendererManager = m_editor.renderer()->entityRendererManager();
                 rendererManager.activate();
                 m_entityRenderer->render();
                 rendererManager.deactivate();
+                
+                glPopAttrib();
                 vbo.activate();
             }
             glPopMatrix();
