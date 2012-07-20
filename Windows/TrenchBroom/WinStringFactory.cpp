@@ -56,6 +56,8 @@ namespace TrenchBroom {
 			}
         }
 
+		float WinStringFactory::scale = 5.0f;
+
 		WinStringFactory::WinStringFactory(HDC mainDC) : m_gluTess(NULL) {
 			m_dc = CreateCompatibleDC(mainDC);
 		}
@@ -97,8 +99,6 @@ namespace TrenchBroom {
 			for (unsigned int i = 0; i < str.length(); i++)
 				wstr[i] = str[i];
 			wstr[str.length()] = 0;
-
-			float scale = 4.0f;
 
 			HFONT font = CreateFont(static_cast<int>(scale * descriptor.size), 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FF_DONTCARE, fontName);
 			if (font == NULL) {
@@ -177,6 +177,34 @@ namespace TrenchBroom {
 			delete [] stringPoints;
 
 			return stringData;
+		}
+
+        StringData::Point WinStringFactory::measureString(const FontDescriptor& descriptor, const std::string& str) {
+			TCHAR* fontName = new TCHAR[descriptor.name.length() + 1];
+			for (unsigned int i = 0; i < descriptor.name.length(); i++)
+				fontName[i] = descriptor.name[i];
+			fontName[descriptor.name.length()] = 0;
+
+			TCHAR* wstr = new TCHAR[str.length() + 1];
+			for (unsigned int i = 0; i < str.length(); i++)
+				wstr[i] = str[i];
+			wstr[str.length()] = 0;
+
+			HFONT font = CreateFont(static_cast<int>(scale * descriptor.size), 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FF_DONTCARE, fontName);
+			if (font == NULL) {
+				log(TrenchBroom::TB_LL_ERR, "Unable to create GDI font '%s' size '%i'", descriptor.name.c_str(), descriptor.size);
+				return StringData::Point();
+			}
+
+			SelectObject(m_dc, font);
+			SIZE size;
+			GetTextExtentPoint32(m_dc, wstr, str.length(), &size);		
+
+            DeleteObject(font);
+			delete [] fontName;
+			delete [] wstr;
+
+			return StringData::Point(size.cx / scale, size.cy / scale);
 		}
 	}
 }
