@@ -214,6 +214,10 @@ namespace TrenchBroom {
             m_undoManager->end();
         }
 
+        void Map::setEntityProperty(const std::string& key, const std::string& value) {
+            setEntityProperty(key, &value);
+        }
+        
         void Map::setEntityProperty(const std::string& key, const Vec3f& value, bool round) {
             const EntityList& entities = m_selection->entities();
             if (entities.empty()) return;

@@ -78,7 +78,10 @@ namespace TrenchBroom {
             Renderer::MapRenderer* m_renderer;
             std::string m_entityDefinitionFilePath;
 
+            void loadTextureWad(const std::string& path);
             void updateFaceTextures();
+            void updateWadProperty();
+            
             void textureManagerDidChange(Model::Assets::TextureManager& textureManager);
             void preferencesDidChange(const std::string& key);
             void undoGroupCreated(const Model::UndoGroup& group);
@@ -90,7 +93,8 @@ namespace TrenchBroom {
             void saveMap(const std::string& path);
 			void clear();
 
-            void loadTextureWad(const std::string& path);
+            void addTextureWad(const std::string& path);
+            void removeTextureWad(unsigned int index);
             
             const std::string& mapPath() const;
             Model::Map& map() const;

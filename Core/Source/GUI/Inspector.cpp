@@ -223,13 +223,13 @@ namespace TrenchBroom {
         }
         
         void Inspector::onTextureWadChosen(const Gwen::String& path) {
-            m_editor.loadTextureWad(path);
+            m_editor.addTextureWad(path);
         }
 
         void Inspector::onRemoveTextureWadButtonPressed(Gwen::Controls::Base* control) {
             Gwen::Controls::ListBox::Rows rows = m_textureWadList->GetSelectedRows();
             for (int i = rows.size() - 1; i >= 0; i--)
-                m_editor.textureManager().removeCollection(i);
+                m_editor.removeTextureWad(i);
         }
 
         Gwen::Controls::Base* Inspector::createEntityInspector() {

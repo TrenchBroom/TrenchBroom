@@ -42,6 +42,26 @@
 
 namespace TrenchBroom {
     namespace Controller {
+        void Editor::loadTextureWad(const std::string& path) {
+            IO::FileManager& fileManager = *IO::FileManager::sharedFileManager;
+            
+            std::string wadPath = path;
+            if (!fileManager.exists(wadPath) && !m_mapPath.empty()) {
+                std::string folderPath = fileManager.deleteLastPathComponent(m_mapPath);
+                wadPath = fileManager.appendPath(folderPath, wadPath);
+            }
+            
+            if (fileManager.exists(wadPath)) {
+                clock_t start = clock();
+                IO::Wad wad(wadPath);
+                Model::Assets::TextureCollection* collection = new Model::Assets::TextureCollection(wadPath, wad, *m_palette);
+                m_textureManager->addCollection(collection, m_textureManager->collections().size());
+                log(TB_LL_INFO, "Loaded %s in %f seconds\n", wadPath.c_str(), (clock() - start) / CLOCKS_PER_SEC / 10000.0f);
+            } else {
+                log(TB_LL_WARN, "Could not open texture wad %s\n", path.c_str());
+            }
+        }
+
         void Editor::updateFaceTextures() {
             std::vector<Model::Face*> changedFaces;
             std::vector<Model::Assets::Texture*> newTextures;
@@ -69,6 +89,28 @@ namespace TrenchBroom {
                     changedFaces[i]->setTexture(newTextures[i]);
                 m_map->facesDidChange(changedFaces);
             }
+        }
+
+        void Editor::updateWadProperty() {
+            Model::Selection& selection = m_map->selection();
+            selection.push();
+            selection.addEntity(*m_map->worldspawn(true));
+            
+            std::vector<Model::Assets::TextureCollection*> collections = m_textureManager->collections();
+            if (collections.empty()) {
+                m_map->setEntityProperty(Model::WadKey, static_cast<std::string*>(NULL));
+            } else {
+                std::stringstream value;
+                for (unsigned int i = 0; i < collections.size(); i++) {
+                    value << collections[i]->name();
+                    if (i < collections.size() - 1)
+                        value << ";";
+                }
+                
+                m_map->setEntityProperty(Model::WadKey, value.str());
+            }
+            
+            selection.pop();
         }
 
         void Editor::textureManagerDidChange(Model::Assets::TextureManager& textureManager) {
@@ -172,24 +214,14 @@ namespace TrenchBroom {
 			m_autosaver->clearDirtyFlag();
 		}
 
-        void Editor::loadTextureWad(const std::string& path) {
-            IO::FileManager& fileManager = *IO::FileManager::sharedFileManager;
-
-            std::string wadPath = path;
-            if (!fileManager.exists(wadPath) && !m_mapPath.empty()) {
-                std::string folderPath = fileManager.deleteLastPathComponent(m_mapPath);
-                wadPath = fileManager.appendPath(folderPath, wadPath);
-            }
-
-            if (fileManager.exists(wadPath)) {
-                clock_t start = clock();
-                IO::Wad wad(wadPath);
-                Model::Assets::TextureCollection* collection = new Model::Assets::TextureCollection(wadPath, wad, *m_palette);
-                m_textureManager->addCollection(collection, m_textureManager->collections().size());
-                log(TB_LL_INFO, "Loaded %s in %f seconds\n", wadPath.c_str(), (clock() - start) / CLOCKS_PER_SEC / 10000.0f);
-            } else {
-                log(TB_LL_WARN, "Could not open texture wad %s\n", path.c_str());
-            }
+        void Editor::addTextureWad(const std::string& path) {
+            loadTextureWad(path);
+            updateWadProperty();
+        }
+        
+        void Editor::removeTextureWad(unsigned int index) {
+            m_textureManager->removeCollection(index);
+            updateWadProperty();
         }
         
         const std::string& Editor::mapPath() const {
