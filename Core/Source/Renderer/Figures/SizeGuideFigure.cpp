@@ -23,6 +23,7 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Vbo.h"
+#include "Utilities/Console.h"
 
 #include <sstream>
 
@@ -302,7 +303,9 @@ namespace TrenchBroom {
                 glPopMatrix();
             }
             m_fontManager.deactivate();
+            
             vbo.activate();
+            glEnable(GL_DEPTH_TEST);
         }
     }
 }

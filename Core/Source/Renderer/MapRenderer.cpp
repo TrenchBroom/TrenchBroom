@@ -1006,6 +1006,10 @@ namespace TrenchBroom {
         EntityRendererManager& MapRenderer::entityRendererManager() {
             return *m_entityRendererManager;
         }
+        
+        FontManager& MapRenderer::fontManager() {
+            return m_fontManager;
+        }
 
     }
 }

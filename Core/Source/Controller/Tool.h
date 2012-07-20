@@ -79,6 +79,10 @@ namespace TrenchBroom {
             void removeFigure(Renderer::Figure& figure) {
                 m_editor.renderer()->removeFigure(figure);
             }
+            
+            void figuresChanged() {
+                m_editor.renderer()->rendererChanged(*m_editor.renderer());
+            }
         public:
             Tool(Editor& editor) : m_editor(editor) {}
             virtual ~Tool() {}

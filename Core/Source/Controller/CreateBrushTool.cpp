@@ -25,12 +25,15 @@
 #include "Model/Map/Brush.h"
 #include "Model/Map/Map.h"
 #include "Model/Map/Picker.h"
+#include "Model/Preferences.h"
 #include "Model/Selection.h"
 #include "Renderer/Figures/BrushFigure.h"
+#include "Renderer/Figures/SizeGuideFigure.h"
+#include "Renderer/MapRenderer.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        CreateBrushTool::CreateBrushTool(Editor& editor) : DragTool(editor), m_brush(NULL), m_brushFigure(NULL) {
+        CreateBrushTool::CreateBrushTool(Editor& editor) : DragTool(editor), m_brush(NULL), m_brushFigure(NULL), m_sizeGuideFigure(NULL) {
         }
         
         CreateBrushTool::~CreateBrushTool() {
@@ -52,15 +55,26 @@ namespace TrenchBroom {
             Model::BrushList brushes;
             brushes.push_back(m_brush);
             
+            if (m_sizeGuideFigure == NULL) {
+                Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+                m_sizeGuideFigure = new Renderer::SizeGuideFigure(m_editor.renderer()->fontManager(), Renderer::FontDescriptor(prefs.rendererFontName(), prefs.rendererFontSize()));
+                m_sizeGuideFigure->setColor(prefs.selectionGuideColor());
+                addFigure(*m_sizeGuideFigure);
+            }
+            
             if (m_brushFigure == NULL) {
                 m_brushFigure = new Renderer::BrushFigure();
                 addFigure(*m_brushFigure);
             }
             
+            m_sizeGuideFigure->setBounds(m_bounds);
             m_brushFigure->setBrushes(brushes);
+            figuresChanged();
         }
         
         bool CreateBrushTool::doBeginRightDrag(ToolEvent& event, Vec3f& initialPoint) {
+            m_editor.map().selection().removeAll();
+            
             Model::Hit* hit = event.hits->first(Model::TB_HT_FACE, true);
             if (hit != NULL) initialPoint = hit->hitPoint.correct();
             else initialPoint = m_editor.camera().defaultPoint(event.ray.direction).correct();
@@ -110,6 +124,12 @@ namespace TrenchBroom {
                 removeFigure(*m_brushFigure);
                 delete m_brushFigure;
                 m_brushFigure = NULL;
+            }
+            
+            if (m_sizeGuideFigure != NULL) {
+                removeFigure(*m_sizeGuideFigure);
+                delete m_sizeGuideFigure;
+                m_sizeGuideFigure = NULL;
             }
             
             if (m_brush != NULL) {

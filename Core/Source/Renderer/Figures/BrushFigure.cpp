@@ -64,6 +64,7 @@ namespace TrenchBroom {
             // create VBOs
             if (!m_valid) {
                 unsigned int faceVertexCount = 0;
+                m_edgeVertexCount = 0;
                 for (unsigned int i = 0; i < m_brushes.size(); i++) {
                     Model::Brush* brush = m_brushes[i];
                     m_edgeVertexCount += (2 * brush->geometry->edges.size());

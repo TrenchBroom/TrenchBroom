@@ -181,6 +181,7 @@ namespace TrenchBroom {
             void render(RenderContext& context);
             
             EntityRendererManager& entityRendererManager();
+            FontManager& fontManager();
             
             MapRendererEvent rendererChanged;
         };

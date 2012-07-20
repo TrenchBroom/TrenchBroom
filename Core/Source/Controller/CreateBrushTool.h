@@ -30,6 +30,7 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class BrushFigure;
+        class SizeGuideFigure;
     }
     
     namespace Controller {
@@ -39,6 +40,7 @@ namespace TrenchBroom {
         protected:
             Model::Brush* m_brush;
             Renderer::BrushFigure* m_brushFigure;
+            Renderer::SizeGuideFigure* m_sizeGuideFigure;
             BBox m_initialBounds;
             BBox m_bounds;
             
