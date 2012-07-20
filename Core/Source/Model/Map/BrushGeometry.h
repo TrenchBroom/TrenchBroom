@@ -80,7 +80,7 @@ namespace TrenchBroom {
 			~Pool() {
 				size_t size = items.size();
 				while (!items.empty()) {
-					delete items.back();
+					free(items.back());
 					items.pop_back();
 					size = items.size();
 				}
