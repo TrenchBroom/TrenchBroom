@@ -33,12 +33,14 @@ namespace TrenchBroom {
 
 		class WinStringFactory :public StringFactory {
         private:
+			static float scale;
             GLUtesselator* m_gluTess;
 			HDC m_dc;
 		public:
 			WinStringFactory(HDC mainDC);
 			~WinStringFactory();
 			StringData* createStringData(const FontDescriptor& descriptor, const std::string& str);
+            StringData::Point measureString(const FontDescriptor& descriptor, const std::string& str);
 		};
 	}
 }
