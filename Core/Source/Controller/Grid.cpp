@@ -194,7 +194,9 @@ namespace TrenchBroom {
                 
                 if (Model::indexOf(faceVertices, edge->start) != -1) {
                     c++;
-                } else if (Model::indexOf(faceVertices, edge->end) != -1) {
+                } 
+                
+                if (Model::indexOf(faceVertices, edge->end) != -1) {
                     c++;
                     invert = true;
                 }

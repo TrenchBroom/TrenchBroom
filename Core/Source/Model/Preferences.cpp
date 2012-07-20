@@ -27,6 +27,7 @@ namespace TrenchBroom {
         const std::string Preferences::CameraFov                         = "Camera: field of vision";
 		const std::string Preferences::SelectionToolMultiKey			 = "Selection: multi selection key";
 		const std::string Preferences::SelectionToolGridKey				 = "Grid: modify grid size key";
+        const std::string Preferences::ResizeToolKey                     = "Editor: Resize brush key";
         const std::string Preferences::Brightness                        = "Renderer: brightness";
         const std::string Preferences::GridColor                         = "Renderer: grid color";
         const std::string Preferences::FaceColor                         = "Renderer: face color";
@@ -123,6 +124,7 @@ namespace TrenchBroom {
             loadFloat(CameraFov, m_cameraFov);
 			loadInt(SelectionToolMultiKey, m_selectionToolMultiKey);
 			loadInt(SelectionToolGridKey, m_selectionToolGridKey);
+            loadInt(ResizeToolKey, m_resizeToolKey);
             loadFloat(Brightness, m_brightness);
             loadVec4f(GridColor, m_gridColor);
             loadVec4f(FaceColor, m_faceColor);
@@ -169,6 +171,7 @@ namespace TrenchBroom {
 			saveFloat(CameraFov, m_cameraFov);
 			saveInt(SelectionToolMultiKey, m_selectionToolMultiKey);
 			saveInt(SelectionToolGridKey, m_selectionToolGridKey);
+            saveInt(ResizeToolKey, m_resizeToolKey);
 			saveFloat(Brightness, m_brightness);
             saveVec4f(GridColor, m_gridColor);
 			saveVec4f(FaceColor, m_faceColor);
@@ -272,6 +275,10 @@ namespace TrenchBroom {
 			return m_selectionToolGridKey;
 		}
 
+        int Preferences::resizeToolKey() {
+            return m_resizeToolKey;
+        }
+        
         float Preferences::brightness() {
             return m_brightness;
         }

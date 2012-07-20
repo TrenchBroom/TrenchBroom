@@ -84,7 +84,7 @@ namespace TrenchBroom {
         }
 
         bool ResizeBrushTool::resizeBrushModiferPressed(ToolEvent& event) {
-            return event.modifierKeys == TB_MK_CMD;
+            return event.modifierKeys == Model::Preferences::sharedPreferences->resizeToolKey();
         }
     }
 }
