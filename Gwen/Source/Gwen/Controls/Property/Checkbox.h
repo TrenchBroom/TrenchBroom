@@ -25,7 +25,7 @@ namespace Gwen
 					{
 						m_Checkbox = new Gwen::Controls::CheckBox( this );
 						m_Checkbox->SetShouldDrawBackground( false );
-						m_Checkbox->onCheckChanged.Add( this, &BaseClass::OnPropertyValueChanged );
+						m_Checkbox->onCheckChanged.Add( this, &BaseClass::OnContentChanged );
 						m_Checkbox->SetTabable( true );
 						m_Checkbox->SetKeyboardInputEnabled( true );
 						m_Checkbox->SetPos( 2, 1 );
@@ -33,12 +33,12 @@ namespace Gwen
 						SetHeight( 18 );
 					}
 
-					virtual UnicodeString GetPropertyValue()
+					virtual UnicodeString GetContent()
 					{
 						return m_Checkbox->IsChecked() ? L"1" : L"0";
 					}
 
-					virtual void SetPropertyValue( const TextObject& v, bool bFireChangeEvents )
+					virtual void SetContent( const TextObject& v, bool bFireChangeEvents )
 					{
 						if ( v == L"1" || v == L"true" || v == L"TRUE" || v == L"yes" || v == L"YES" )
 							return m_Checkbox->SetChecked( true );

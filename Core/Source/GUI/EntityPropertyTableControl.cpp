@@ -28,6 +28,7 @@
 #include "Model/Map/Entity.h"
 #include "Model/Map/Map.h"
 #include "Model/Selection.h"
+#include "Model/Undo/UndoManager.h"
 
 namespace TrenchBroom {
     namespace Gui {
@@ -57,8 +58,8 @@ namespace TrenchBroom {
                 for (pRow = m_propertyRows.begin(); pRow != m_propertyRows.end(); ++pRow) {
                     Gwen::Controls::PropertyRow* propertyRow = *pRow;
 
-                    std::string key = Gwen::Utility::UnicodeToString(propertyRow->GetLabel()->GetText());
-                    std::string value = propertyRow->GetProperty()->GetPropertyValueAnsi();
+                    Model::PropertyKey key = propertyRow->GetKey()->GetContentAnsi();
+                    Model::PropertyValue value = propertyRow->GetValue()->GetContentAnsi();
                     
                     cProp = commonProperties.find(key);
                     if (cProp == commonProperties.end()) {
@@ -66,15 +67,16 @@ namespace TrenchBroom {
                         pRow = m_propertyRows.erase(pRow);
                         --pRow;
                     } else {
-                        propertyRow->GetProperty()->SetPropertyValue(cProp->second);
+                        propertyRow->GetValue()->SetContent(cProp->second);
                         commonProperties.erase(cProp);
                     }
                 }
 
                 for (cProp = commonProperties.begin(); cProp != commonProperties.end(); ++cProp) {
                     Gwen::Controls::PropertyRow* propertyRow = m_properties->Add(cProp->first, cProp->second);
-                    propertyRow->GetProperty()->SetPlaceholderString("multiple");
-                    propertyRow->onChange.Add(this, &EntityPropertyTableControl::propertyChanged);
+                    propertyRow->GetValue()->SetPlaceholderString("multiple");
+                    propertyRow->onKeyChange.Add(this, &EntityPropertyTableControl::propertyKeyChanged);
+                    propertyRow->onValueChange.Add(this, &EntityPropertyTableControl::propertyValueChanged);
                     m_propertyRows.push_back(propertyRow);
                 }
                 
@@ -86,11 +88,20 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityPropertyTableControl::propertyChanged(Gwen::Controls::Base* control) {
+        void EntityPropertyTableControl::propertyKeyChanged(Gwen::Controls::Base* control) {
             Gwen::Controls::PropertyRow* propertyRow = static_cast<Gwen::Controls::PropertyRow*>(control);
             
-            std::string key = Gwen::Utility::UnicodeToString(propertyRow->GetLabel()->GetText());
-            std::string value = propertyRow->GetProperty()->GetPropertyValueAnsi();
+            Model::PropertyKey oldKey = propertyRow->GetOldKey().Get();
+            Model::PropertyKey newKey = propertyRow->GetKey()->GetContentAnsi();
+            
+            m_editor.map().renameEntityProperty(oldKey, newKey);
+        }
+        
+        void EntityPropertyTableControl::propertyValueChanged(Gwen::Controls::Base* control) {
+            Gwen::Controls::PropertyRow* propertyRow = static_cast<Gwen::Controls::PropertyRow*>(control);
+            
+            Model::PropertyKey key = propertyRow->GetKey()->GetContentAnsi();
+            Model::PropertyValue value = propertyRow->GetValue()->GetContentAnsi();
             
             m_editor.map().setEntityProperty(key, &value);
         }

@@ -43,13 +43,13 @@ namespace Gwen
                 return true;
             
             // empty rows go to the bottom
-            if (firstRow->GetLabel()->GetText() == L"")
+            if (firstRow->GetKey()->GetContent() == L"")
                 return false;
             
-            if (secondRow->GetLabel()->GetText() == L"")
+            if (secondRow->GetKey()->GetContent() == L"")
                 return true;
             
-            return firstRow->GetLabel()->GetText().compare(secondRow->GetLabel()->GetText()) <= 0;
+            return firstRow->GetKey()->GetContent().compare(secondRow->GetKey()->GetContent()) <= 0;
         }
         
         Base::List Properties::GetChildrenForLayout()
@@ -90,19 +90,19 @@ namespace Gwen
             return m_SplitterBar->X();
         }
         
-        PropertyRow* Properties::Add( const TextObject& text, const TextObject& value )
+        PropertyRow* Properties::Add( const TextObject& key, const TextObject& value )
         {
-            return Add( text, new Property::Text( this ), value );
+            return Add( key, new Property::Text( this ), value );
         }
         
-        PropertyRow* Properties::Add( const TextObject& text, Property::Base* pProp, const TextObject& value )
+        PropertyRow* Properties::Add( const TextObject& key, Property::Base* pProp, const TextObject& value )
         {
             PropertyRow* row = new PropertyRow( this );
             row->Dock( Pos::Top );
-            row->GetLabel()->SetText( text );
-            row->SetProperty( pProp );
+            row->SetKey( key );
+            row->SetValue( pProp );
             
-            pProp->SetPropertyValue( value, true );
+            pProp->SetContent( value, true );
             
             m_SplitterBar->BringToFront();
             return row;
@@ -136,9 +136,11 @@ namespace Gwen
             
             if (m_emptyRow == NULL) {
                 m_emptyRow = Add("", "");
-                m_emptyRow->onChange.Add(this, &Properties::EmptyPropertyChanged);
+                m_emptyRow->onKeyChange.Add(this, &Properties::EmptyPropertyChanged);
+                m_emptyRow->onValueChange.Add(this, &Properties::EmptyPropertyChanged);
             } else {
-                m_emptyRow->onChange.RemoveHandler(this);
+                m_emptyRow->onKeyChange.RemoveHandler(this);
+                m_emptyRow->onValueChange.RemoveHandler(this);
                 m_emptyRow->DelayedDelete();
                 m_emptyRow = NULL;
             }
@@ -150,7 +152,8 @@ namespace Gwen
             Base::Think();
             
             if (m_formerEmptyRow != NULL) {
-                m_formerEmptyRow->onChange.RemoveHandler(this);
+                m_formerEmptyRow->onKeyChange.RemoveHandler(this);
+                m_formerEmptyRow->onValueChange.RemoveHandler(this);
                 m_formerEmptyRow = NULL;
             }
         }
@@ -161,63 +164,56 @@ namespace Gwen
             
             m_formerEmptyRow = m_emptyRow;
             m_emptyRow = Add("", "");
-            m_emptyRow->onChange.Add(this, &Properties::EmptyPropertyChanged);
+            m_emptyRow->onKeyChange.Add(this, &Properties::EmptyPropertyChanged);
+            m_emptyRow->onValueChange.Add(this, &Properties::EmptyPropertyChanged);
         }
-        
-        class PropertyRowLabel : public Label 
-        {
-            GWEN_CONTROL_INLINE ( PropertyRowLabel, Label )
-            {
-                SetAlignment( Pos::Left | Pos::CenterV );
-                m_pPropertyRow = NULL;
-            }
-            
-            void UpdateColours()
-            {
-                if ( IsDisabled() )										return SetTextColor( GetSkin()->Colors.Button.Disabled );
-                if ( m_pPropertyRow && m_pPropertyRow->IsEditing() )	return SetTextColor( GetSkin()->Colors.Properties.Label_Selected );
-                if ( m_pPropertyRow && m_pPropertyRow->IsHovered() )	return SetTextColor( GetSkin()->Colors.Properties.Label_Hover );
-                
-                SetTextColor( GetSkin()->Colors.Properties.Label_Normal );
-            }
-            
-            void SetPropertyRow( PropertyRow * p ){ m_pPropertyRow = p; }
-            
-        protected:
-            
-            PropertyRow*	m_pPropertyRow;
-        };
-        
         
         GWEN_CONTROL_CONSTRUCTOR( PropertyRow )
         {
-            m_Property = NULL;
+            m_Value = NULL;
+            m_Key = new Property::Text(this);
+            m_Key->Dock(Pos::Left);
+            m_Key->onChange.Add(this, &PropertyRow::OnPropertyKeyChanged);
             
+            /*
             PropertyRowLabel* pLabel = new PropertyRowLabel( this );
             pLabel->SetPropertyRow( this );
             pLabel->Dock( Pos::Left );
             pLabel->SetAlignment( Pos::Left | Pos::Top );
             pLabel->SetMargin( Margin( 2, 2, 0, 0 ) );
             m_Label = pLabel;
+             */
         }	
         
         void PropertyRow::Render( Gwen::Skin::Base* skin )
         {
             /* SORRY */
-            if ( IsEditing() != m_bLastEditing )
+            if ( IsKeyEditing() != m_bLastKeyEditing )
             {
-                OnEditingChanged();
-                m_bLastEditing = IsEditing();
+                OnKeyEditingChanged();
+                m_bLastKeyEditing = IsKeyEditing();
             }
             
-            if ( IsHovered() != m_bLastHover )
+            if ( IsKeyHovered() != m_bLastKeyHover )
             {
-                OnHoverChanged();
-                m_bLastHover = IsHovered();
+                OnKeyHoverChanged();
+                m_bLastKeyHover = IsKeyHovered();
+            }
+            
+            if ( IsValueEditing() != m_bLastValueEditing )
+            {
+                OnValueEditingChanged();
+                m_bLastValueEditing = IsValueEditing();
+            }
+            
+            if ( IsValueHovered() != m_bLastValueHover )
+            {
+                OnValueHoverChanged();
+                m_bLastValueHover = IsValueHovered();
             }
             /* SORRY */
             
-            skin->DrawPropertyRow( this, m_Label->Right(), IsEditing(), IsHovered() | m_Property->IsHovered() );
+            skin->DrawPropertyRow( this, m_Key->Right(), IsKeyEditing(), IsKeyHovered(), IsValueEditing(), IsValueHovered() );
         }
         
         void PropertyRow::Layout( Gwen::Skin::Base* /*skin*/ )
@@ -225,35 +221,58 @@ namespace Gwen
             Properties* pParent = gwen_cast<Properties>( GetParent() );
             if ( !pParent ) return;
             
-            m_Label->SetWidth( pParent->GetSplitWidth() );
+            m_Key->SetWidth( pParent->GetSplitWidth() );
             
-            if ( m_Property )
-            {
-                SetHeight( m_Property->Height() );
-            }
+            int height = m_Key->Height();
+            if (m_Value)
+                height = Gwen::Utility::Max(height, m_Value->Height());
+            
+            SetHeight(height);
         }
         
-        void PropertyRow::SetProperty( Property::Base* prop )
+        void PropertyRow::SetKey( const TextObject& key )
         {
-            m_Property = prop;
-            m_Property->SetParent( this );
-            m_Property->Dock( Pos::Fill );
-            m_Property->onChange.Add( this, &ThisClass::OnPropertyValueChanged );
+            m_Key->SetContent(key, true);
+            m_OldKey = key;
+        }
+        
+        void PropertyRow::SetValue( Property::Base* prop )
+        {
+            m_Value = prop;
+            m_Value->SetParent( this );
+            m_Value->Dock( Pos::Fill );
+            m_Value->onChange.Add( this, &ThisClass::OnPropertyValueChanged );
+        }
+        
+        void PropertyRow::OnPropertyKeyChanged( Gwen::Controls::Base* /*control*/ )
+        {
+            onKeyChange.Call( this );
+            m_OldKey = m_Key->GetContent();
         }
         
         void PropertyRow::OnPropertyValueChanged( Gwen::Controls::Base* /*control*/ )
         {
-            onChange.Call( this );
+            onValueChange.Call( this );
         }
         
-        void PropertyRow::OnEditingChanged()
+        void PropertyRow::OnKeyEditingChanged()
         {
-            m_Label->Redraw();
+            m_Value->Redraw();
         }
         
-        void PropertyRow::OnHoverChanged()
+        void PropertyRow::OnKeyHoverChanged()
         {
-            m_Label->Redraw();
+            m_Value->Redraw();
+        }
+        
+        void PropertyRow::OnValueEditingChanged()
+        {
+            m_Key->Redraw();
+        }
+        
+        void PropertyRow::OnValueHoverChanged()
+        {
+            m_Key->Redraw();
         }
     }
 }

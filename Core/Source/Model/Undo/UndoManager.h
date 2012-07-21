@@ -71,6 +71,7 @@ namespace TrenchBroom {
             void redo();
             void begin(const std::string& name);
             void end();
+            void discard();
             void addItem(UndoItem* item);
             void addSnapshot(Map& map);
             

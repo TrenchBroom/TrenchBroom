@@ -34,8 +34,8 @@ namespace Gwen
             
             virtual void PostLayout( Gwen::Skin::Base* skin );
             
-            PropertyRow* Add( const TextObject& text, const TextObject& value = L"" );
-            PropertyRow* Add( const TextObject& text, Property::Base* pProp, const TextObject& value = L"" );
+            PropertyRow* Add( const TextObject& key, const TextObject& value = L"" );
+            PropertyRow* Add( const TextObject& key, Property::Base* pProp, const TextObject& value = L"" );
             
             virtual int GetSplitWidth();
             
@@ -60,7 +60,7 @@ namespace Gwen
             
             Controls::PropertyRow* m_emptyRow;
             Controls::PropertyRow* m_formerEmptyRow;
-            void EmptyPropertyChanged(Gwen::Controls::Base* control);
+            void EmptyPropertyChanged( Gwen::Controls::Base* control );
 		};
         
 		class PropertyRow : public Base
@@ -69,29 +69,41 @@ namespace Gwen
             
             GWEN_CONTROL( PropertyRow, Base );
             
-            virtual Label* GetLabel(){ return m_Label; }
-            virtual void SetProperty( Property::Base* prop );
-            virtual Property::Base* GetProperty(){ return m_Property; }
+            virtual void SetKey( const TextObject& text );
+            virtual Property::Text* GetKey(){ return m_Key; }
+            virtual TextObject& GetOldKey() { return m_OldKey; }
+            virtual void SetValue( Property::Base* prop );
+            virtual Property::Base* GetValue(){ return m_Value; }
             
             virtual void Layout( Gwen::Skin::Base* skin );
             virtual void Render( Gwen::Skin::Base* skin );
             
-            virtual bool IsEditing(){ return m_Property && m_Property->IsEditing(); }
-            virtual bool IsHovered(){ return BaseClass::IsHovered() || (m_Property && m_Property->IsHovered()); }
-            virtual void OnEditingChanged();
-            virtual void OnHoverChanged();
+            virtual bool IsKeyEditing(){ return m_Key && m_Key->IsEditing(); }
+            virtual bool IsKeyHovered(){ return BaseClass::IsHovered() || (m_Key && m_Key->IsHovered()); }
+            virtual void OnKeyEditingChanged();
+            virtual void OnKeyHoverChanged();
             
-            Event::Caller	onChange;
+            virtual bool IsValueEditing(){ return m_Value && m_Value->IsEditing(); }
+            virtual bool IsValueHovered(){ return BaseClass::IsHovered() || (m_Value && m_Value->IsHovered()); }
+            virtual void OnValueEditingChanged();
+            virtual void OnValueHoverChanged();
+
+            Event::Caller	onKeyChange;
+            Event::Caller   onValueChange;
             
         protected:
             
+            void OnPropertyKeyChanged( Gwen::Controls::Base* control );
             void OnPropertyValueChanged( Gwen::Controls::Base* control );
             
-            Label*			m_Label;
-            Property::Base*	m_Property;
+            TextObject m_OldKey;
+            Property::Text*	m_Key;
+            Property::Base*	m_Value;
             
-            bool			m_bLastEditing;
-            bool			m_bLastHover;
+            bool			m_bLastKeyEditing;
+            bool			m_bLastKeyHover;
+            bool            m_bLastValueEditing;
+            bool            m_bLastValueHover;
             
 		};
 	}

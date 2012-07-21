@@ -23,7 +23,7 @@ namespace Gwen
 			class Base : public Gwen::Controls::Base
 			{
             protected:
-                UnicodeString m_oldPropertyValue;
+                UnicodeString m_oldContent;
             public:
                 
                 GWEN_CONTROL_INLINE( Base, Gwen::Controls::Base )
@@ -31,31 +31,31 @@ namespace Gwen
                     SetHeight( 17 );
                 }
                 
-                virtual String GetPropertyValueAnsi()
+                virtual String GetContentAnsi()
                 {
-                    return Gwen::Utility::UnicodeToString( GetPropertyValue() );
+                    return Gwen::Utility::UnicodeToString( GetContent() );
                 }
                 
-                virtual UnicodeString GetPropertyValue() = 0;
+                virtual UnicodeString GetContent() = 0;
                 
-                virtual void SetPropertyValue( const TextObject& v, bool bFireChangeEvents = false ) = 0;
+                virtual void SetContent( const TextObject& v, bool bFireChangeEvents = false ) = 0;
                 
                 virtual bool IsEditing() = 0;
                 
                 virtual void DoChanged()
                 {
-                    if (GetPropertyValue() != m_oldPropertyValue) {
+                    if (GetContent() != m_oldContent) {
                         onChange.Call( this );
-                        m_oldPropertyValue = GetPropertyValue();
+                        m_oldContent = GetContent();
                     }
                 }
                 
-                void OnBeginEditingPropertyValue (Gwen::Controls::Base* /*control*/ )
+                void OnBeginEditingContent (Gwen::Controls::Base* /*control*/ )
                 {
-                    m_oldPropertyValue = GetPropertyValue();
+                    m_oldContent = GetContent();
                 }
                 
-                void OnPropertyValueChanged( Gwen::Controls::Base* /*control*/ )
+                void OnContentChanged( Gwen::Controls::Base* /*control*/ )
                 {
                     DoChanged();
                 }

@@ -100,11 +100,13 @@ namespace TrenchBroom {
             Entity* createEntity(const std::string& classname);
             Entity* createEntity(const Properties properties);
             void setEntityDefinition(Entity* entity);
-            void setEntityProperty(const std::string& key, const std::string* value);
-            void setEntityProperty(const std::string& key, const std::string& value);
-            void setEntityProperty(const std::string& key, const Vec3f& value, bool round);
-            void setEntityProperty(const std::string& key, int value);
-            void setEntityProperty(const std::string& key, float value, bool round);
+            void setEntityProperty(const PropertyKey& key, const PropertyValue* value);
+            void setEntityProperty(const PropertyKey& key, const PropertyValue& value);
+            void setEntityProperty(const PropertyKey& key, const Vec3f& value, bool round);
+            void setEntityProperty(const PropertyKey& key, int value);
+            void setEntityProperty(const PropertyKey& key, float value, bool round);
+            void renameEntityProperty(const PropertyKey& oldKey, const PropertyKey& newKey);
+            void removeEntityProperty(const PropertyKey& key);
             
             void moveBrushesToEntity(Entity& entity);
             Brush* createBrush(Entity& entity, Brush& brushTemplate);

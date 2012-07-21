@@ -78,12 +78,12 @@ namespace Gwen
 					DoChanged();
 				}
 
-				virtual UnicodeString GetPropertyValue()
+				virtual UnicodeString GetContent()
 				{
 					return m_TextBox->GetText();
 				}
 
-				virtual void SetPropertyValue( const TextObject& v, bool bFireChangeEvents )
+				virtual void SetContent( const TextObject& v, bool bFireChangeEvents )
 				{
 					m_TextBox->SetText( v, bFireChangeEvents );
 				}

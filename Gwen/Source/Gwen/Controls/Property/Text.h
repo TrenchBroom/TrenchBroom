@@ -26,17 +26,17 @@ namespace Gwen
 						m_TextBox = new TextBox( this );
 						m_TextBox->Dock( Pos::Fill );
 						m_TextBox->SetShouldDrawBackground( false );
-                        m_TextBox->onReturnPressed.Add( this, &BaseClass::OnPropertyValueChanged );
-                        m_TextBox->onLostKeyboardFocus.Add( this, &BaseClass::OnPropertyValueChanged );
-                        m_TextBox->onKeyboardFocus.Add(this, &BaseClass::OnBeginEditingPropertyValue);
+                        m_TextBox->onReturnPressed.Add( this, &BaseClass::OnContentChanged );
+                        m_TextBox->onLostKeyboardFocus.Add( this, &BaseClass::OnContentChanged );
+                        m_TextBox->onKeyboardFocus.Add(this, &BaseClass::OnBeginEditingContent);
 					}
 
-					virtual UnicodeString GetPropertyValue()
+					virtual UnicodeString GetContent()
 					{
 						return m_TextBox->GetText();
 					}
 
-					virtual void SetPropertyValue( const TextObject& v, bool bFireChangeEvents )
+					virtual void SetContent( const TextObject& v, bool bFireChangeEvents )
 					{
 						m_TextBox->SetText( v, bFireChangeEvents );
 					}

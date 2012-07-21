@@ -105,7 +105,7 @@ namespace Gwen
 				virtual void DrawTreeControl( Controls::Base* control ) = 0;
 				virtual void DrawTreeNode( Controls::Base* ctrl, bool bOpen, bool bSelected, int iLabelHeight, int iLabelWidth, int iHalfWay, int iLastBranch, bool bIsRoot );
 
-				virtual void DrawPropertyRow( Controls::Base* control, int iWidth, bool bBeingEdited, bool bHovered );
+				virtual void DrawPropertyRow( Controls::Base* control, int iWidth, bool bKeyEditing, bool bKeyHovered , bool bValueEditing, bool bValueHovered);
 				virtual void DrawPropertyTreeNode( Controls::Base* control, int BorderLeft, int BorderTop );
 				virtual void DrawColorDisplay( Controls::Base* control, Gwen::Color color ) = 0;
 				virtual void DrawModalControl( Controls::Base* control ) = 0;

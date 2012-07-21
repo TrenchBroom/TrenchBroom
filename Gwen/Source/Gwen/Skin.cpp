@@ -104,19 +104,25 @@ namespace Gwen
 			m_Render->DrawFilledRect( Gwen::Rect( rect.x + BorderLeft, rect.y, rect.w - BorderLeft, BorderTop ) );
 		}
 
-		void Base::DrawPropertyRow( Controls::Base* control, int iWidth, bool bBeingEdited, bool bHovered )
+		void Base::DrawPropertyRow( Controls::Base* control, int iWidth, bool bKeyEditing, bool bKeyHovered , bool bValueEditing, bool bValueHovered )
 		{
 			Gwen::Rect rect = control->GetRenderBounds();
 
-			if ( bBeingEdited )					m_Render->SetDrawColor( Colors.Properties.Column_Selected );
-			else if ( bHovered )				m_Render->SetDrawColor( Colors.Properties.Column_Hover );
-			else								m_Render->SetDrawColor( Colors.Properties.Column_Normal );
+			if ( bKeyEditing )                          m_Render->SetDrawColor( Colors.Properties.Column_Selected );
+			else if ( bKeyHovered )                     m_Render->SetDrawColor( Colors.Properties.Column_Hover );
+			else                                        m_Render->SetDrawColor( Colors.Properties.Column_Normal );
 				
 			m_Render->DrawFilledRect( Gwen::Rect( 0, rect.y, iWidth, rect.h ) );
 	
-			if ( bBeingEdited )					m_Render->SetDrawColor( Colors.Properties.Line_Selected );
-			else if ( bHovered )				m_Render->SetDrawColor( Colors.Properties.Line_Hover );
-			else								m_Render->SetDrawColor( Colors.Properties.Line_Normal );
+			if ( bValueEditing )                        m_Render->SetDrawColor( Colors.Properties.Column_Selected );
+			else if ( bValueHovered )                   m_Render->SetDrawColor( Colors.Properties.Column_Hover );
+			else                                        m_Render->SetDrawColor( Colors.Properties.Column_Normal );
+            
+			m_Render->DrawFilledRect( Gwen::Rect( iWidth, rect.y, rect.w - iWidth, rect.h ) );
+            
+			if ( bKeyEditing || bValueEditing )			m_Render->SetDrawColor( Colors.Properties.Line_Selected );
+			else if ( bKeyHovered || bValueHovered )	m_Render->SetDrawColor( Colors.Properties.Line_Hover );
+			else                                        m_Render->SetDrawColor( Colors.Properties.Line_Normal );
 
 			m_Render->DrawFilledRect( Gwen::Rect( iWidth, rect.y, 1, rect.h ) );
 

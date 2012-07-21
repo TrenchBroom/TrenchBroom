@@ -196,7 +196,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Map::setEntityProperty(const std::string& key, const std::string* value) {
+        void Map::setEntityProperty(const PropertyKey& key, const PropertyValue* value) {
             const EntityList& entities = m_selection->entities();
             if (entities.empty()) return;
 
@@ -214,11 +214,11 @@ namespace TrenchBroom {
             m_undoManager->end();
         }
 
-        void Map::setEntityProperty(const std::string& key, const std::string& value) {
+        void Map::setEntityProperty(const PropertyKey& key, const PropertyValue& value) {
             setEntityProperty(key, &value);
         }
         
-        void Map::setEntityProperty(const std::string& key, const Vec3f& value, bool round) {
+        void Map::setEntityProperty(const PropertyKey& key, const Vec3f& value, bool round) {
             const EntityList& entities = m_selection->entities();
             if (entities.empty()) return;
             
@@ -235,7 +235,7 @@ namespace TrenchBroom {
             m_undoManager->end();
         }
         
-        void Map::setEntityProperty(const std::string& key, int value) {
+        void Map::setEntityProperty(const PropertyKey& key, int value) {
             const EntityList& entities = m_selection->entities();
             if (entities.empty()) return;
             
@@ -252,7 +252,7 @@ namespace TrenchBroom {
             m_undoManager->end();
         }
         
-        void Map::setEntityProperty(const std::string& key, float value, bool round) {
+        void Map::setEntityProperty(const PropertyKey& key, float value, bool round) {
             const EntityList& entities = m_selection->entities();
             if (entities.empty()) return;
             
@@ -263,6 +263,51 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
                 entity->setProperty(key, value, round);
+            }
+            if (m_postNotifications) propertiesDidChange(entities);
+            
+            m_undoManager->end();
+        }
+        
+        void Map::renameEntityProperty(const PropertyKey& oldKey, const PropertyKey& newKey) {
+            if (oldKey == newKey || isBlank(newKey))
+                return;
+            
+            const EntityList& entities = m_selection->entities();
+            if (entities.empty())
+                return;
+            
+            for (unsigned int i = 0; i < entities.size(); i++)
+                if (!entities[i]->propertyDeletable(oldKey) || entities[i]->propertyForKey(newKey) != NULL)
+                    return;
+            
+            m_undoManager->begin("Rename Entity Property");
+            m_undoManager->addSnapshot(*this);
+            
+            if (m_postNotifications) propertiesWillChange(entities);
+            for (unsigned int i = 0; i < entities.size(); i++) {
+                Entity* entity = entities[i];
+                const PropertyValue* value = entity->propertyForKey(oldKey);
+                entity->setProperty(newKey, value);
+                entity->deleteProperty(oldKey);
+            }
+            if (m_postNotifications) propertiesDidChange(entities);
+            
+            m_undoManager->end();
+        }
+
+
+        void Map::removeEntityProperty(const PropertyKey& key) {
+            const EntityList& entities = m_selection->entities();
+            if (entities.empty()) return;
+            
+            m_undoManager->begin("Remove Entity Property");
+            m_undoManager->addSnapshot(*this);
+            
+            if (m_postNotifications) propertiesWillChange(entities);
+            for (unsigned int i = 0; i < entities.size(); i++) {
+                Entity* entity = entities[i];
+                entity->deleteProperty(key);
             }
             if (m_postNotifications) propertiesDidChange(entities);
             

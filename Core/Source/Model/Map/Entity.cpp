@@ -160,7 +160,7 @@ namespace TrenchBroom {
                 return false;
             if (SpawnFlagsKey == key)
                 return false;
-            return true;
+            return m_properties.count(key) > 0;
         }
 
         void Entity::setProperty(const PropertyKey& key, const PropertyValue& value) {
@@ -216,13 +216,19 @@ namespace TrenchBroom {
         }
 
         void Entity::deleteProperty(const PropertyKey& key) {
+            if (m_properties.count(key) == 0) {
+                log(TB_LL_WARN, "Property with key '%s' not found", key.c_str());
+                return;
+            }
+            
             if (!propertyDeletable(key)) {
-                log(TB_LL_WARN, "Cannot delete property '%s'", key.c_str());
+                log(TB_LL_WARN, "Cannot delete read only property '%s'", key.c_str());
                 return;
             }
 
-            if (key == AngleKey) m_angle = std::numeric_limits<float>::quiet_NaN();
-            if (m_properties.count(key) == 0) return;
+            if (key == AngleKey)
+                m_angle = std::numeric_limits<float>::quiet_NaN();
+
             m_properties.erase(key);
             invalidateGeometry();
         }
