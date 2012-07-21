@@ -77,7 +77,10 @@ namespace TrenchBroom {
                     propertyRow->onChange.Add(this, &EntityPropertyTableControl::propertyChanged);
                     m_propertyRows.push_back(propertyRow);
                 }
+                
+                m_properties->SetShowEmptyRow(true);
             } else {
+                m_properties->SetShowEmptyRow(false);
                 m_propertyRows.clear();
                 m_properties->Clear();
             }

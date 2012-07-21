@@ -244,7 +244,7 @@ namespace TrenchBroom {
             propertiesBox->SetText("Properties");
             propertiesBox->SetPadding(Gwen::Padding(10, 7, 10, 10));
             propertiesBox->SetMargin(Gwen::Margin(0, 0, 0, 2));
-            propertiesBox->SetCacheToTexture();
+//            propertiesBox->SetCacheToTexture();
             splitter->SetPanel(0, propertiesBox);
             
             m_propertiesTable = new EntityPropertyTableControl(propertiesBox, m_editor);

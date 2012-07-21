@@ -43,6 +43,9 @@ namespace Gwen
             
             virtual void SetSorted(bool sorted);
             
+            virtual void SetShowEmptyRow( bool showEmptyRow );
+            
+            virtual void Think();
         protected:
             
             struct CompareControls {
@@ -55,6 +58,9 @@ namespace Gwen
             
             bool m_sorted;
             
+            Controls::PropertyRow* m_emptyRow;
+            Controls::PropertyRow* m_formerEmptyRow;
+            void EmptyPropertyChanged(Gwen::Controls::Base* control);
 		};
         
 		class PropertyRow : public Base

@@ -25,6 +25,8 @@ namespace Gwen
             m_SplitterBar->onDragged.Add( this, &Properties::OnSplitterMoved );
             m_SplitterBar->SetShouldDrawBackground( false );
             m_sorted = false;
+            m_emptyRow = NULL;
+            m_formerEmptyRow = NULL;
         }
         
         bool Properties::CompareControls::operator() (Gwen::Controls::Base* first, Gwen::Controls::Base* second) {
@@ -38,6 +40,13 @@ namespace Gwen
                 return false;
             
             if (secondRow == NULL)
+                return true;
+            
+            // empty rows go to the bottom
+            if (firstRow->GetLabel()->GetText() == L"")
+                return false;
+            
+            if (secondRow->GetLabel()->GetText() == L"")
                 return true;
             
             return firstRow->GetLabel()->GetText().compare(secondRow->GetLabel()->GetText()) <= 0;
@@ -120,6 +129,40 @@ namespace Gwen
             Invalidate();
         }
         
+        void Properties::SetShowEmptyRow(bool showEmptyRow) 
+        {
+            if ((m_emptyRow != NULL) == showEmptyRow)
+                return;
+            
+            if (m_emptyRow == NULL) {
+                m_emptyRow = Add("", "");
+                m_emptyRow->onChange.Add(this, &Properties::EmptyPropertyChanged);
+            } else {
+                m_emptyRow->onChange.RemoveHandler(this);
+                m_emptyRow->DelayedDelete();
+                m_emptyRow = NULL;
+            }
+            
+            Invalidate();
+        }
+
+        void Properties::Think() {
+            Base::Think();
+            
+            if (m_formerEmptyRow != NULL) {
+                m_formerEmptyRow->onChange.RemoveHandler(this);
+                m_formerEmptyRow = NULL;
+            }
+        }
+        
+        void Properties::EmptyPropertyChanged(Gwen::Controls::Base* control) {
+            if (control != m_emptyRow)
+                return;
+            
+            m_formerEmptyRow = m_emptyRow;
+            m_emptyRow = Add("", "");
+            m_emptyRow->onChange.Add(this, &Properties::EmptyPropertyChanged);
+        }
         
         class PropertyRowLabel : public Label 
         {
