@@ -56,6 +56,7 @@ namespace TrenchBroom {
             virtual void updateProperties();
             void propertyKeyChanged(Gwen::Controls::Base* control);
             void propertyValueChanged(Gwen::Controls::Base* control);
+            void propertyRowAdded(Gwen::Controls::Base* control);
         public:
             EntityPropertyTableControl(Gwen::Controls::Base* parent, Controller::Editor& editor);
             virtual ~EntityPropertyTableControl();

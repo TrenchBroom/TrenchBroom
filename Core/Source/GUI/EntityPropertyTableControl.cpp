@@ -18,7 +18,9 @@
  */
 
 #include "EntityPropertyTableControl.h"
+
 #include <map>
+#include <set>
 #include <string>
 
 #include "Gwen/Controls/Properties.h"
@@ -34,6 +36,7 @@ namespace TrenchBroom {
     namespace Gui {
         void EntityPropertyTableControl::updateProperties() {
             if (!m_entities.empty()) {
+                std::set<Model::PropertyKey> multiValueProperties;
                 Model::Properties commonProperties = m_entities[0]->properties();
                 Model::Properties::iterator cProp;
                 for (unsigned int i = 1; i < m_entities.size(); i++) {
@@ -47,8 +50,10 @@ namespace TrenchBroom {
                         if (eProp == entityProperties.end()) {
                             commonProperties.erase(cProp++);
 						} else {
-							if (cProp->second != eProp->second)
-							   commonProperties[cProp->first] = "";
+							if (cProp->second != eProp->second) {
+                                multiValueProperties.insert(cProp->first);
+                                commonProperties[cProp->first] = "";
+                            }
 							++cProp;
 						}
                     }
@@ -68,13 +73,16 @@ namespace TrenchBroom {
                         --pRow;
                     } else {
                         propertyRow->GetValue()->SetContent(cProp->second);
+                        if (multiValueProperties.find(cProp->first) != multiValueProperties.end())
+                            propertyRow->GetValue()->SetPlaceholderString("multiple");
                         commonProperties.erase(cProp);
                     }
                 }
 
                 for (cProp = commonProperties.begin(); cProp != commonProperties.end(); ++cProp) {
                     Gwen::Controls::PropertyRow* propertyRow = m_properties->Add(cProp->first, cProp->second);
-                    propertyRow->GetValue()->SetPlaceholderString("multiple");
+                    if (multiValueProperties.find(cProp->first) != multiValueProperties.end())
+                        propertyRow->GetValue()->SetPlaceholderString("multiple");
                     propertyRow->onKeyChange.Add(this, &EntityPropertyTableControl::propertyKeyChanged);
                     propertyRow->onValueChange.Add(this, &EntityPropertyTableControl::propertyValueChanged);
                     m_propertyRows.push_back(propertyRow);
@@ -106,6 +114,18 @@ namespace TrenchBroom {
             m_editor.map().setEntityProperty(key, &value);
         }
 
+        void EntityPropertyTableControl::propertyRowAdded(Gwen::Controls::Base* control) {
+            Gwen::Controls::PropertyRow* propertyRow = static_cast<Gwen::Controls::PropertyRow*>(control);
+            propertyRow->onKeyChange.Add(this, &EntityPropertyTableControl::propertyKeyChanged);
+            propertyRow->onValueChange.Add(this, &EntityPropertyTableControl::propertyValueChanged);
+            m_propertyRows.push_back(propertyRow);
+            
+            Model::PropertyKey key = propertyRow->GetKey()->GetContentAnsi();
+            Model::PropertyValue value = propertyRow->GetValue()->GetContentAnsi();
+            
+            m_editor.map().setEntityProperty(key, &value);
+        }
+
         EntityPropertyTableControl::EntityPropertyTableControl(Gwen::Controls::Base* parent, Controller::Editor& editor) : Base(parent), m_editor(editor) {
             m_scroller = new Gwen::Controls::ScrollControl(this);
             m_scroller->Dock(Gwen::Pos::Fill);
@@ -113,7 +133,8 @@ namespace TrenchBroom {
             
             m_properties = new Gwen::Controls::Properties(m_scroller);
             m_properties->Dock(Gwen::Pos::Top);
-            m_properties->SetSorted(true);
+//            m_properties->SetSorted(true);
+            m_properties->onRowAdd.Add(this, &EntityPropertyTableControl::propertyRowAdded);
             
             updateProperties();
         }

@@ -46,6 +46,8 @@ namespace Gwen
             virtual void SetShowEmptyRow( bool showEmptyRow );
             
             virtual void Think();
+            
+            Event::Caller onRowAdd;
         protected:
             
             struct CompareControls {

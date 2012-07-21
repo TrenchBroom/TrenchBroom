@@ -54,14 +54,17 @@ namespace Gwen
         
         Base::List Properties::GetChildrenForLayout()
         {
-            if (!m_sorted)
-                return BaseClass::GetChildrenForLayout();
-            
             std::vector<Gwen::Controls::Base*> SortedChildren;
-            CompareControls compare;
+            for (Base::List::iterator it = Children.begin(); it != Children.end(); ++it)
+                if (*it != m_emptyRow)
+                    SortedChildren.push_back(*it);
+            if (m_sorted) {
+                CompareControls compare;
+                std::sort(SortedChildren.begin(), SortedChildren.end(), compare);
+            }
             
-            SortedChildren.insert(SortedChildren.begin(), Children.begin(), Children.end());
-            std::sort(SortedChildren.begin(), SortedChildren.end(), compare);
+            if (m_emptyRow != NULL)
+                SortedChildren.push_back(m_emptyRow);
             
             Base::List Result;
             Result.insert(Result.begin(), SortedChildren.begin(), SortedChildren.end());
@@ -166,6 +169,8 @@ namespace Gwen
             m_emptyRow = Add("", "");
             m_emptyRow->onKeyChange.Add(this, &Properties::EmptyPropertyChanged);
             m_emptyRow->onValueChange.Add(this, &Properties::EmptyPropertyChanged);
+            
+            onRowAdd.Call(m_formerEmptyRow);
         }
         
         GWEN_CONTROL_CONSTRUCTOR( PropertyRow )
