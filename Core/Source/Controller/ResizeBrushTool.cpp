@@ -27,6 +27,7 @@
 #include "Model/Map/Picker.h"
 #include "Model/Selection.h"
 #include "Model/Undo/UndoManager.h"
+#include "Renderer/Figures/BoundsGuideFigure.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -34,6 +35,31 @@ namespace TrenchBroom {
             m_dragPlane = DragPlane::parallel(m_referenceFace->boundary.normal, event.ray.direction);
         }
 
+        bool ResizeBrushTool::leftMouseDown(ToolEvent& event) {
+            if (!resizeBrushModiferPressed(event))
+                return false;
+            
+            Model::Hit* hit = event.hits->first(Model::TB_HT_FACE, true);
+            if (hit == NULL)
+                return false;
+
+            Model::Face& face = hit->face();
+            Model::Brush& brush = *face.brush;
+            if (!face.selected && !brush.selected)
+                return false;
+            
+            if (m_guideFigure == NULL) {
+                Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+                m_guideFigure = new Renderer::BoundsGuideFigure();
+                m_guideFigure->setColor(prefs.selectionGuideColor());
+                addFigure(*m_guideFigure);
+            }
+            
+            Model::Selection& selection = m_editor.map().selection();
+            m_guideFigure->setBounds(selection.bounds());
+            return true;
+        }
+        
         bool ResizeBrushTool::doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint) {
             if (!resizeBrushModiferPressed(event))
                 return false;
@@ -74,6 +100,10 @@ namespace TrenchBroom {
                 
                 m_editor.map().resizeBrushes(faces, dist, true);
                 referencePoint += delta;
+
+                assert(m_guideFigure != NULL);
+                m_guideFigure->setBounds(selection.bounds());
+                figuresChanged();
             }
             
             return true;
@@ -82,12 +112,23 @@ namespace TrenchBroom {
         void ResizeBrushTool::doEndLeftDrag(ToolEvent& event) {
             m_editor.map().undoManager().end();
             m_referenceFace = NULL;
+
+            if (m_guideFigure != NULL) {
+                removeFigure(*m_guideFigure);
+                delete m_guideFigure;
+                m_guideFigure = NULL;
+            }
         }
         
-        ResizeBrushTool::ResizeBrushTool(Editor& editor) : DragTool(editor) {
+        ResizeBrushTool::ResizeBrushTool(Editor& editor) : DragTool(editor), m_guideFigure(NULL) {
         }
         
         ResizeBrushTool::~ResizeBrushTool() {
+            if (m_guideFigure != NULL) {
+                removeFigure(*m_guideFigure);
+                delete m_guideFigure;
+                m_guideFigure = NULL;
+            }
         }
 
         bool ResizeBrushTool::resizeBrushModiferPressed(ToolEvent& event) {

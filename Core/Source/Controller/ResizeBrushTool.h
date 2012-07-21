@@ -27,15 +27,21 @@ namespace TrenchBroom {
         class Face;
     }
     
+    namespace Renderer {
+        class BoundsGuideFigure;
+    }
+    
     namespace Controller {
         class Editor;
         
         class ResizeBrushTool : public DragTool {
         protected:
             Model::Face* m_referenceFace;
+            Renderer::BoundsGuideFigure* m_guideFigure;
             
             virtual void updateDragPlane(ToolEvent& event);
 
+            virtual bool leftMouseDown(ToolEvent& event);
             virtual bool doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint);
             virtual bool doLeftDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
             virtual void doEndLeftDrag(ToolEvent& event);
