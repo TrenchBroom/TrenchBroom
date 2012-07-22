@@ -28,12 +28,20 @@ public:
 	CButton m_okButton;
 	CButton m_cancelButton;
 	CButton m_selectQuakePathButton;
-	CButton m_invertMouseYCheckbox;
 	CSliderCtrl m_brightnessSlider;
 	CSliderCtrl m_fovSlider;
 	CStatic m_brightnessLabel;
 	CStatic m_fovLabel;
 	CStatic m_quakePathLabel;
+	CSliderCtrl m_cameraLookSpeedSlider;
+	CStatic m_cameraLookSpeedLabel;
+	CButton m_cameraLookInvertYCheckbox;
+	CSliderCtrl m_cameraPanSpeedSlider;
+	CStatic m_cameraPanSpeedLabel;
+	CButton m_cameraPanInvertXCheckbox;
+	CButton m_cameraPanInvertYCheckbox;
+	CSliderCtrl m_cameraMoveSpeedSlider;
+	CStatic m_cameraMoveSpeedLabel;
 
 	PreferencesDialog(CWnd* pParent = NULL);   // standard constructor
 	virtual ~PreferencesDialog();
@@ -49,6 +57,9 @@ protected:
 	void updateSliderLabels();
 	float brightness();
 	float fov();
+	float cameraLookSpeed();
+	float cameraPanSpeed();
+	float cameraMoveSpeed();
 
 	DECLARE_MESSAGE_MAP()
 public:

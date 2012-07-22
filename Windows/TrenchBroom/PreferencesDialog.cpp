@@ -49,6 +49,13 @@ BOOL PreferencesDialog::OnInitDialog()
 	m_fovSlider.SetRange(0, 20, TRUE);
 	m_fovSlider.SetTicFreq(1);
 
+	m_cameraLookSpeedSlider.SetRange(0, 50, TRUE);
+	m_cameraLookSpeedSlider.SetTicFreq(1);
+	m_cameraPanSpeedSlider.SetRange(0, 50, TRUE);
+	m_cameraPanSpeedSlider.SetTicFreq(1);
+	m_cameraMoveSpeedSlider.SetRange(0, 50, TRUE);
+	m_cameraMoveSpeedSlider.SetTicFreq(1);
+
 	updateControls();
 	return TRUE;
 }
@@ -59,12 +66,20 @@ void PreferencesDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BUTTON_CANCEL, m_okButton);
 	DDX_Control(pDX, IDC_BUTTON_OK, m_cancelButton);
 	DDX_Control(pDX, IDC_BUTTON_SELECTQUAKEPATH, m_selectQuakePathButton);
-	DDX_Control(pDX, IDC_CHECK_INVERTMOUSEY, m_invertMouseYCheckbox);
 	DDX_Control(pDX, IDC_SLIDER_BRIGHTNESS, m_brightnessSlider);
 	DDX_Control(pDX, IDC_SLIDER_FOV, m_fovSlider);
 	DDX_Control(pDX, IDC_STATIC_BRIGHTNESS, m_brightnessLabel);
 	DDX_Control(pDX, IDC_STATIC_FOV, m_fovLabel);
 	DDX_Control(pDX, IDC_STATIC_QUAKEPATH, m_quakePathLabel);
+	DDX_Control(pDX, IDC_SLIDER_LOOK_SPEED, m_cameraLookSpeedSlider);
+	DDX_Control(pDX, IDC_STATIC_LOOK_SPEED, m_cameraLookSpeedLabel);
+	DDX_Control(pDX, IDC_CHECK_LOOK_INVERT_Y, m_cameraLookInvertYCheckbox);
+	DDX_Control(pDX, IDC_SLIDER_PAN_SPEED, m_cameraPanSpeedSlider);
+	DDX_Control(pDX, IDC_STATIC_PAN_SPEED, m_cameraPanSpeedLabel);
+	DDX_Control(pDX, IDC_CHECK_PAN_INVERT_X, m_cameraPanInvertXCheckbox);
+	DDX_Control(pDX, IDC_CHECK_PAN_INVERT_Y, m_cameraPanInvertYCheckbox);
+	DDX_Control(pDX, IDC_SLIDER_MOVE_SPEED, m_cameraMoveSpeedSlider);
+	DDX_Control(pDX, IDC_STATIC_MOVE_SPEED, m_cameraMoveSpeedLabel);
 }
 
 void PreferencesDialog::updateControls()
@@ -74,7 +89,14 @@ void PreferencesDialog::updateControls()
 	m_quakePathLabel.SetWindowTextA(_T(prefs.quakePath().c_str()));
 	m_brightnessSlider.SetPos(static_cast<int>((prefs.brightness() - 0.3f) * 10.0f));
 	m_fovSlider.SetPos(static_cast<int>((prefs.cameraFov() - 45.0f) / 5.0f));
-	m_invertMouseYCheckbox.SetCheck(prefs.cameraInvertY() ? TRUE : FALSE);
+
+	m_cameraLookSpeedSlider.SetPos(static_cast<int>(prefs.cameraLookSpeed() * 50.0f));
+	m_cameraPanSpeedSlider.SetPos(static_cast<int>(prefs.cameraPanSpeed() * 50.0f));
+	m_cameraMoveSpeedSlider.SetPos(static_cast<int>(prefs.cameraMoveSpeed() * 50.0f));
+
+	m_cameraLookInvertYCheckbox.SetCheck(prefs.cameraLookInvertY() ? TRUE : FALSE);
+	m_cameraPanInvertXCheckbox.SetCheck(prefs.cameraPanInvertX() ? TRUE : FALSE);
+	m_cameraPanInvertYCheckbox.SetCheck(prefs.cameraPanInvertY() ? TRUE : FALSE);
 
 	updateSliderLabels();
 }
@@ -88,6 +110,18 @@ void PreferencesDialog::updateSliderLabels()
 	std::stringstream fovStr;
 	fovStr << std::setiosflags(std::ios::fixed) << std::setprecision(0) << fov();
 	m_fovLabel.SetWindowTextA(_T(fovStr.str().c_str()));
+
+	std::stringstream cameraLookSpeedStr;
+	cameraLookSpeedStr << std::setiosflags(std::ios::fixed) << std::setprecision(2) << cameraLookSpeed();
+	m_cameraLookSpeedLabel.SetWindowTextA(_T(cameraLookSpeedStr.str().c_str()));
+
+	std::stringstream cameraPanSpeedStr;
+	cameraPanSpeedStr << std::setiosflags(std::ios::fixed) << std::setprecision(2) << cameraPanSpeed();
+	m_cameraPanSpeedLabel.SetWindowTextA(_T(cameraPanSpeedStr.str().c_str()));
+
+	std::stringstream cameraMoveSpeedStr;
+	cameraMoveSpeedStr << std::setiosflags(std::ios::fixed) << std::setprecision(2) << cameraMoveSpeed();
+	m_cameraMoveSpeedLabel.SetWindowTextA(_T(cameraMoveSpeedStr.str().c_str()));
 }
 
 float PreferencesDialog::brightness()
@@ -98,6 +132,20 @@ float PreferencesDialog::brightness()
 float PreferencesDialog::fov()
 {
 	return m_fovSlider.GetPos() * 5.0f + 45.0f;
+}
+
+float PreferencesDialog::cameraLookSpeed()
+{
+	return m_cameraLookSpeedSlider.GetPos() / 50.0f;
+}
+
+float PreferencesDialog::cameraPanSpeed()
+{
+	return m_cameraPanSpeedSlider.GetPos() / 50.0f;
+}
+float PreferencesDialog::cameraMoveSpeed()
+{
+	return m_cameraMoveSpeedSlider.GetPos() / 50.0f;
 }
 
 BEGIN_MESSAGE_MAP(PreferencesDialog, CDialog)
@@ -116,7 +164,13 @@ void PreferencesDialog::OnClickedButtonOk()
 	TrenchBroom::Model::Preferences& prefs = *TrenchBroom::Model::Preferences::sharedPreferences;
 	prefs.setBrightness(brightness());
 	prefs.setCameraFov(fov());
-	prefs.setCameraInvertY(m_invertMouseYCheckbox.GetCheck() == TRUE);
+
+	prefs.setCameraLookSpeed(cameraLookSpeed());
+	prefs.setCameraPanSpeed(cameraPanSpeed());
+	prefs.setCameraMoveSpeed(cameraMoveSpeed());
+	prefs.setCameraLookInvertY(m_cameraLookInvertYCheckbox.GetCheck() == TRUE);
+	prefs.setCameraPanInvertX(m_cameraPanInvertXCheckbox.GetCheck() == TRUE);
+	prefs.setCameraPanInvertY(m_cameraPanInvertYCheckbox.GetCheck() == TRUE);
 
 	TCHAR quakePath[MAX_PATH];
 	m_quakePathLabel.GetWindowTextA(quakePath, MAX_PATH);
