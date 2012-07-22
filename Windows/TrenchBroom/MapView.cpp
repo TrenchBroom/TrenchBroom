@@ -57,6 +57,7 @@ BEGIN_MESSAGE_MAP(CMapView, CView)
 	ON_WM_RBUTTONUP()
 	ON_WM_MOUSEMOVE()
 	ON_WM_KEYDOWN()
+	ON_WM_CHAR()
 	ON_WM_KEYUP()
 	ON_WM_MOUSEWHEEL()
 	ON_WM_MOUSEHWHEEL()
@@ -324,6 +325,13 @@ void CMapView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	key(nChar, nFlags, true);
 }
 
+void CMapView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) 
+{
+	int iKey = -1;
+	if ( gwenKey(nChar, nFlags) == -1 )
+		m_editorGui->canvas()->InputCharacter(Gwen::UnicodeChar(nChar));
+}
+
 
 void CMapView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
@@ -333,26 +341,26 @@ void CMapView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 void CMapView::key(UINT nChar, UINT nFlags, bool down)
 {
-	int iKey = -1;
-
-	if ( nChar == VK_SHIFT ) iKey = Gwen::Key::Shift;
-	else if ( nChar == VK_RETURN ) iKey = Gwen::Key::Return;
-	else if ( nChar == VK_BACK ) iKey = Gwen::Key::Backspace;
-	else if ( nChar == VK_DELETE ) iKey = Gwen::Key::Delete;
-	else if ( nChar == VK_LEFT ) iKey = Gwen::Key::Left;
-	else if ( nChar == VK_RIGHT ) iKey = Gwen::Key::Right;
-	else if ( nChar == VK_TAB ) iKey = Gwen::Key::Tab;
-	else if ( nChar == VK_HOME ) iKey = Gwen::Key::Home;
-	else if ( nChar == VK_END ) iKey = Gwen::Key::End;
-	else if ( nChar == VK_CONTROL ) iKey = Gwen::Key::Control;
-	else if ( nChar == VK_MENU ) iKey = Gwen::Key::Alt;
-	else if ( nChar == VK_UP ) iKey = Gwen::Key::Up;
-	else if ( nChar == VK_DOWN ) iKey = Gwen::Key::Down;
-
-	if ( iKey != -1 ){
+	int iKey = gwenKey(nChar, nFlags);
+	if ( iKey != -1 )
 		m_editorGui->canvas()->InputKey(iKey, down);
-	} else if (down) {
-		Gwen::UnicodeChar chr = (Gwen::UnicodeChar)nChar;
-		m_editorGui->canvas()->InputCharacter(chr);
-	}
+}
+
+int CMapView::gwenKey(UINT nChar, UINT nFlags)
+{
+	if ( nChar == VK_SHIFT )	return Gwen::Key::Shift;
+	if ( nChar == VK_RETURN )	return Gwen::Key::Return;
+	if ( nChar == VK_BACK )		return Gwen::Key::Backspace;
+	if ( nChar == VK_DELETE )	return Gwen::Key::Delete;
+	if ( nChar == VK_LEFT )		return Gwen::Key::Left;
+	if ( nChar == VK_RIGHT )	return Gwen::Key::Right;
+	if ( nChar == VK_TAB )		return Gwen::Key::Tab;
+	if ( nChar == VK_HOME )		return Gwen::Key::Home;
+	if ( nChar == VK_END )		return Gwen::Key::End;
+	if ( nChar == VK_CONTROL )	return Gwen::Key::Control;
+	if ( nChar == VK_MENU )		return Gwen::Key::Alt;
+	if ( nChar == VK_UP )		return Gwen::Key::Up;
+	if ( nChar == VK_DOWN )		return Gwen::Key::Down;
+	return -1;
+
 }

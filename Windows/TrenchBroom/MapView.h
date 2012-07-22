@@ -56,8 +56,6 @@ public:
 	virtual void Dump(CDumpContext& dc) const;
 #endif
 
-protected:
-
 // Generated message map functions
 protected:
 	CPoint* m_lastMousePos;
@@ -70,6 +68,7 @@ protected:
 	TrenchBroom::Renderer::FontManager* m_fontManager;
 	void editorGuiRedraw(TrenchBroom::Gui::EditorGui& editorGui);
 	void key(UINT nChar, UINT nFlags, bool down);
+	int gwenKey(UINT nChar, UINT nFlags);
 public:
 	bool mapViewFocused();
 
@@ -83,6 +82,7 @@ public:
 	afx_msg void OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
 protected:
 };
