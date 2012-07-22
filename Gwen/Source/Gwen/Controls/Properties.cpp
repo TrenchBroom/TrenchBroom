@@ -9,6 +9,7 @@
 #include "Gwen/Skin.h"
 #include "Gwen/Controls/Properties.h"
 #include "Gwen/Utility.h"
+
 #include <algorithm>
 #include <vector>
 
@@ -54,6 +55,9 @@ namespace Gwen
         
         Base::List Properties::GetChildrenForLayout()
         {
+            if (Children.empty())
+                return Children;
+            
             std::vector<Gwen::Controls::Base*> SortedChildren;
             for (Base::List::iterator it = Children.begin(); it != Children.end(); ++it)
                 if (*it != m_emptyRow)
@@ -106,6 +110,17 @@ namespace Gwen
             row->SetValue( pProp );
             
             pProp->SetContent( value, true );
+            
+            // make sure the empty row is the last child
+            if (m_emptyRow != NULL) {
+                for (Base::List::iterator it = Children.begin(); it != Children.end(); ++it) {
+                    if (*it == m_emptyRow) {
+                        Children.erase(it);
+                        break;
+                    }
+                }
+                Children.push_back(m_emptyRow);
+            }
             
             m_SplitterBar->BringToFront();
             return row;
@@ -166,11 +181,11 @@ namespace Gwen
                 return;
             
             m_formerEmptyRow = m_emptyRow;
+            onRowAdd.Call(m_formerEmptyRow);
+
             m_emptyRow = Add("", "");
             m_emptyRow->onKeyChange.Add(this, &Properties::EmptyPropertyChanged);
             m_emptyRow->onValueChange.Add(this, &Properties::EmptyPropertyChanged);
-            
-            onRowAdd.Call(m_formerEmptyRow);
         }
         
         GWEN_CONTROL_CONSTRUCTOR( PropertyRow )

@@ -31,6 +31,7 @@
 #include "Model/Map/Map.h"
 #include "Model/Selection.h"
 #include "Model/Undo/UndoManager.h"
+#include "Utilities/Console.h"
 
 namespace TrenchBroom {
     namespace Gui {
