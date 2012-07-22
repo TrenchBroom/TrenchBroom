@@ -29,7 +29,12 @@ namespace TrenchBroom {
         public:
             static const std::string CameraKey;
             static const std::string CameraOrbitKey;
-            static const std::string CameraInvertY;
+            static const std::string CameraLookSpeed;
+            static const std::string CameraPanSpeed;
+            static const std::string CameraMoveSpeed;
+            static const std::string CameraLookInvertY;
+            static const std::string CameraPanInvertX;
+            static const std::string CameraPanInvertY;
             static const std::string CameraFov;
 			static const std::string SelectionToolMultiKey;
 			static const std::string SelectionToolGridKey;
@@ -74,7 +79,12 @@ namespace TrenchBroom {
         protected:
             int m_cameraKey;
             int m_cameraOrbitKey;
-            bool m_cameraInvertY;
+            float m_cameraLookSpeed;
+            float m_cameraPanSpeed;
+            float m_cameraMoveSpeed;
+            bool m_cameraLookInvertY;
+            bool m_cameraPanInvertX;
+            bool m_cameraPanInvertY;
             
 			int m_selectionToolMultiKey;
 			int m_selectionToolGridKey;
@@ -160,8 +170,18 @@ namespace TrenchBroom {
             
             int cameraKey();
             int cameraOrbitKey();
-            bool cameraInvertY();
-            void setCameraInvertY(bool cameraInvertY);
+            float cameraLookSpeed();
+            void setCameraLookSpeed(float cameraLookSpeed);
+            float cameraPanSpeed();
+            void setCameraPanSpeed(float cameraPanSpeed);
+            float cameraMoveSpeed();
+            void setCameraMoveSpeed(float cameraMoveSpeed);
+            bool cameraLookInvertY();
+            void setCameraLookInvertY(bool cameraLookInvertY);
+            bool cameraPanInvertX();
+            void setCameraPanInvertX(bool cameraPanInvertX);
+            bool cameraPanInvertY();
+            void setCameraPanInvertY(bool cameraPanInvertY);
             
 			int selectionToolMultiKey();
 			int selectionToolGridKey();

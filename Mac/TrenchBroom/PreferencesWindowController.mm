@@ -114,12 +114,24 @@ static PreferencesListener* preferencesListener = nil;
 }
 
 - (void)update {
-    [quakePathLabel setStringValue:[self nsString:Preferences::sharedPreferences->quakePath()]];
-    [brightnessSlider setFloatValue:Preferences::sharedPreferences->brightness()];
-    [brightnessLabel setFloatValue:Preferences::sharedPreferences->brightness()];
-    [fovSlider setFloatValue:Preferences::sharedPreferences->cameraFov()];
-    [fovLabel setFloatValue:Preferences::sharedPreferences->cameraFov()];
-    [invertMouseCheckbox setState:Preferences::sharedPreferences->cameraInvertY() ? NSOnState : NSOffState];
+    Preferences& prefs = *Preferences::sharedPreferences;
+    
+    [quakePathLabel setStringValue:[self nsString:prefs.quakePath()]];
+    
+    [brightnessSlider setFloatValue:prefs.brightness()];
+    [brightnessLabel setFloatValue:prefs.brightness()];
+    [fovSlider setFloatValue:prefs.cameraFov()];
+    [fovLabel setFloatValue:prefs.cameraFov()];
+    
+    [cameraLookSpeedSlider setFloatValue:prefs.cameraLookSpeed()];
+    [cameraLookSpeedLabel setFloatValue:prefs.cameraLookSpeed()];
+    [cameraLookInvertYCheckbox setState:prefs.cameraLookInvertY() ? NSOnState : NSOffState];
+    [cameraPanSpeedSlider setFloatValue:prefs.cameraPanSpeed()];
+    [cameraPanSpeedLabel setFloatValue:prefs.cameraPanSpeed()];
+    [cameraPanInvertXCheckbox setState:prefs.cameraPanInvertX() ? NSOnState : NSOffState];
+    [cameraPanInvertYCheckbox setState:prefs.cameraPanInvertY() ? NSOnState : NSOffState];
+    [cameraMoveSpeedSlider setFloatValue:prefs.cameraMoveSpeed()];
+    [cameraMoveSpeedLabel setFloatValue:prefs.cameraMoveSpeed()];
 }
 
 - (IBAction)chooseQuakePath:(id)sender {
@@ -150,8 +162,28 @@ static PreferencesListener* preferencesListener = nil;
     Preferences::sharedPreferences->setCameraFov([fovSlider floatValue]);
 }
 
-- (IBAction)changeInvertMouse:(id)sender {
-    Preferences::sharedPreferences->setCameraInvertY([invertMouseCheckbox state] == NSOnState);
+- (IBAction)changeCameraLookSpeed:(id)sender {
+    Preferences::sharedPreferences->setCameraLookSpeed([cameraLookSpeedSlider floatValue]);
+}
+
+- (IBAction)changeCameraLookInvertY:(id)sender {
+    Preferences::sharedPreferences->setCameraLookInvertY([cameraLookInvertYCheckbox state] == NSOnState);
+}
+
+- (IBAction)changeCameraPanSpeed:(id)sender {
+    Preferences::sharedPreferences->setCameraPanSpeed([cameraPanSpeedSlider floatValue]);
+}
+
+- (IBAction)changeCameraPanInvertX:(id)sender {
+    Preferences::sharedPreferences->setCameraPanInvertX([cameraPanInvertXCheckbox state] == NSOnState);
+}
+
+- (IBAction)changeCameraPanInvertY:(id)sender {
+    Preferences::sharedPreferences->setCameraPanInvertY([cameraPanInvertYCheckbox state] == NSOnState);
+}
+
+- (IBAction)changeCameraMoveSpeed:(id)sender {
+    Preferences::sharedPreferences->setCameraMoveSpeed([cameraMoveSpeedSlider floatValue]);
 }
 
 @end

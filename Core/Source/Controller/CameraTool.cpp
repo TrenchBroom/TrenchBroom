@@ -29,7 +29,8 @@ namespace TrenchBroom {
         bool CameraTool::scrolled(ToolEvent& event) {
             if (!cameraModiferPressed(event) && !orbitModifierPressed(event)) return false;
             
-            float forward = event.scrollX * m_moveSensitivity;
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+            float forward = event.scrollX * prefs.cameraMoveSpeed();
             float right = 0;
             float up = 0;
             m_editor.camera().moveBy(forward, right, up);
@@ -49,13 +50,14 @@ namespace TrenchBroom {
         }
         
         void CameraTool::leftDrag(ToolEvent& event) {
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             if (m_orbit) {
-                float hAngle = -event.deltaX * m_lookSensitivity;
-                float vAngle = event.deltaY * m_lookSensitivity * (m_invert ? 1 : -1);
+                float hAngle = -event.deltaX * prefs.cameraLookSpeed();
+                float vAngle = event.deltaY * prefs.cameraLookSpeed() * (prefs.cameraLookInvertY() ? -1.0f : 1.0f);
                 m_editor.camera().orbit(m_orbitCenter, hAngle, vAngle);
             } else {
-                float yawAngle = -event.deltaX * m_lookSensitivity;
-                float pitchAngle = event.deltaY * m_lookSensitivity * (m_invert ? 1 : -1);
+                float yawAngle = -event.deltaX * prefs.cameraLookSpeed();
+                float pitchAngle = event.deltaY * prefs.cameraLookSpeed() * (prefs.cameraLookInvertY() ? -1.0f : 1.0f);
                 m_editor.camera().rotate(yawAngle, pitchAngle);
             }
         }
@@ -69,9 +71,10 @@ namespace TrenchBroom {
         }
         
         void CameraTool::rightDrag(ToolEvent& event) {
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             float forward = 0;
-            float right = event.deltaX * m_panSensitivity;
-            float up = -event.deltaY * m_panSensitivity;
+            float right = event.deltaX * prefs.cameraPanSpeed() * (prefs.cameraPanInvertX() ? -1.0f : 1.0f);
+            float up = event.deltaY * prefs.cameraPanSpeed() * (prefs.cameraPanInvertY() ? -1.0f : 1.0f);
             m_editor.camera().moveBy(forward, right, up);
         }
         

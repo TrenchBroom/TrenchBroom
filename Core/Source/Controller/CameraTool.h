@@ -33,12 +33,8 @@ namespace TrenchBroom {
         private:
             Vec3f m_orbitCenter;
             bool m_orbit;
-            bool m_invert;
-            float m_lookSensitivity;
-            float m_panSensitivity;
-            float m_moveSensitivity;
         public:
-            CameraTool(Editor& editor) : Tool(editor), m_orbit(false), m_invert(false), m_lookSensitivity(1 / 90.0f), m_panSensitivity(1.0f), m_moveSensitivity(6.0f) {}
+            CameraTool(Editor& editor) : Tool(editor), m_orbit(false) {}
 
             bool scrolled(ToolEvent& event);
             bool beginLeftDrag(ToolEvent& event);

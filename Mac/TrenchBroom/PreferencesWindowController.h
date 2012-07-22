@@ -37,7 +37,15 @@ namespace TrenchBroom {
     IBOutlet NSTextField* brightnessLabel;
     IBOutlet NSSlider* fovSlider;
     IBOutlet NSTextField* fovLabel;
-    IBOutlet NSButton* invertMouseCheckbox;
+    IBOutlet NSSlider* cameraLookSpeedSlider;
+    IBOutlet NSTextField* cameraLookSpeedLabel;
+    IBOutlet NSButton* cameraLookInvertYCheckbox;
+    IBOutlet NSSlider* cameraPanSpeedSlider;
+    IBOutlet NSTextField* cameraPanSpeedLabel;
+    IBOutlet NSButton* cameraPanInvertXCheckbox;
+    IBOutlet NSButton* cameraPanInvertYCheckbox;
+    IBOutlet NSSlider* cameraMoveSpeedSlider;
+    IBOutlet NSTextField* cameraMoveSpeedLabel;
 }
 
 + (PreferencesWindowController *)sharedInstance;
@@ -46,6 +54,11 @@ namespace TrenchBroom {
 - (IBAction)chooseQuakePath:(id)sender;
 - (IBAction)changeBrightness:(id)sender;
 - (IBAction)changeFov:(id)sender;
-- (IBAction)changeInvertMouse:(id)sender;
+- (IBAction)changeCameraLookSpeed:(id)sender;
+- (IBAction)changeCameraLookInvertY:(id)sender;
+- (IBAction)changeCameraPanSpeed:(id)sender;
+- (IBAction)changeCameraPanInvertX:(id)sender;
+- (IBAction)changeCameraPanInvertY:(id)sender;
+- (IBAction)changeCameraMoveSpeed:(id)sender;
 
 @end

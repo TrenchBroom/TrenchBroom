@@ -23,7 +23,12 @@ namespace TrenchBroom {
     namespace Model {
         const std::string Preferences::CameraKey                         = "Controls: camera key";
         const std::string Preferences::CameraOrbitKey                    = "Controls: camera orbit key";
-        const std::string Preferences::CameraInvertY                     = "Controls: invert camera Y axis";
+        const std::string Preferences::CameraLookSpeed                   = "Controls: camera look speed";
+        const std::string Preferences::CameraPanSpeed                    = "Controls: camera pan speed";
+        const std::string Preferences::CameraMoveSpeed                   = "Controls: camera move speed";
+        const std::string Preferences::CameraLookInvertY                 = "Controls: invert camera vertical look";
+        const std::string Preferences::CameraPanInvertX                  = "Controls: invert camera horizontal pan";
+        const std::string Preferences::CameraPanInvertY                  = "Controls: invert camera vertical pan";
         const std::string Preferences::CameraFov                         = "Camera: field of vision";
 		const std::string Preferences::SelectionToolMultiKey			 = "Selection: multi selection key";
 		const std::string Preferences::SelectionToolGridKey				 = "Grid: modify grid size key";
@@ -67,7 +72,12 @@ namespace TrenchBroom {
         const std::string Preferences::HiddenSelectedFaceHandleColor     = "Renderer: face handle color (selected and hidden)";
         
         void Preferences::loadDefaults() {
-            m_cameraInvertY = false;
+            m_cameraLookSpeed = 0.5f;
+            m_cameraPanSpeed = 0.5f;
+            m_cameraMoveSpeed = 0.5f;
+            m_cameraLookInvertY = false;
+            m_cameraPanInvertX = false;
+            m_cameraPanInvertY = false;
             m_cameraFov = 90;
             m_gridColor = Vec4f(1.0f, 1.0f, 1.0f, 0.22f);
             m_faceColor = Vec4f(0.2f, 0.2f, 0.2f, 1);
@@ -120,7 +130,12 @@ namespace TrenchBroom {
         void Preferences::loadPreferences() {
             loadInt(CameraKey, m_cameraKey);
             loadInt(CameraOrbitKey, m_cameraOrbitKey);
-            loadBool(CameraInvertY, m_cameraInvertY);
+            loadFloat(CameraLookSpeed, m_cameraLookSpeed);
+            loadFloat(CameraPanSpeed, m_cameraPanSpeed);
+            loadFloat(CameraMoveSpeed, m_cameraMoveSpeed);
+            loadBool(CameraLookInvertY, m_cameraLookInvertY);
+            loadBool(CameraPanInvertX, m_cameraPanInvertX);
+            loadBool(CameraPanInvertY, m_cameraPanInvertY);
             loadFloat(CameraFov, m_cameraFov);
 			loadInt(SelectionToolMultiKey, m_selectionToolMultiKey);
 			loadInt(SelectionToolGridKey, m_selectionToolGridKey);
@@ -167,7 +182,12 @@ namespace TrenchBroom {
 		void Preferences::savePreferences() {
 			saveInt(CameraKey, m_cameraKey);
 			saveInt(CameraOrbitKey, m_cameraOrbitKey);
-			saveBool(CameraInvertY, m_cameraInvertY);
+            saveFloat(CameraLookSpeed, m_cameraLookSpeed);
+            saveFloat(CameraPanSpeed, m_cameraPanSpeed);
+            saveFloat(CameraMoveSpeed, m_cameraMoveSpeed);
+            saveBool(CameraLookInvertY, m_cameraLookInvertY);
+            saveBool(CameraPanInvertX, m_cameraPanInvertX);
+            saveBool(CameraPanInvertY, m_cameraPanInvertY);
 			saveFloat(CameraFov, m_cameraFov);
 			saveInt(SelectionToolMultiKey, m_selectionToolMultiKey);
 			saveInt(SelectionToolGridKey, m_selectionToolGridKey);
@@ -231,18 +251,88 @@ namespace TrenchBroom {
             return m_cameraOrbitKey;
         }
 
-        bool Preferences::cameraInvertY() {
-            return m_cameraInvertY;
+        float Preferences::cameraLookSpeed() {
+            return m_cameraLookSpeed;
         }
-
-        void Preferences::setCameraInvertY(bool cameraInvertY) {
-            if (cameraInvertY == m_cameraInvertY)
+        
+        void Preferences::setCameraLookSpeed(float cameraLookSpeed) {
+            if (cameraLookSpeed == m_cameraLookSpeed)
                 return;
             
-            m_cameraInvertY = cameraInvertY;
+            m_cameraLookSpeed = cameraLookSpeed;
             if (saveInstantly())
-                saveBool(CameraInvertY, m_cameraInvertY);
-            preferencesDidChange(QuakePath);
+                saveFloat(CameraLookSpeed, m_cameraLookSpeed);
+            preferencesDidChange(CameraLookSpeed);
+        }
+        
+        float Preferences::cameraPanSpeed() {
+            return m_cameraPanSpeed;
+        }
+        
+        void Preferences::setCameraPanSpeed(float cameraPanSpeed) {
+            if (cameraPanSpeed == m_cameraPanSpeed)
+                return;
+            
+            m_cameraPanSpeed = cameraPanSpeed;
+            if (saveInstantly())
+                saveFloat(CameraPanSpeed, m_cameraPanSpeed);
+            preferencesDidChange(CameraPanSpeed);
+        }
+        
+        float Preferences::cameraMoveSpeed() {
+            return m_cameraMoveSpeed;
+        }
+        
+        void Preferences::setCameraMoveSpeed(float cameraMoveSpeed) {
+            if (cameraMoveSpeed == m_cameraMoveSpeed)
+                return;
+            
+            m_cameraMoveSpeed = cameraMoveSpeed;
+            if (saveInstantly())
+                saveFloat(CameraMoveSpeed, m_cameraMoveSpeed);
+            preferencesDidChange(CameraMoveSpeed);
+        }
+        
+        bool Preferences::cameraLookInvertY() {
+            return m_cameraLookInvertY;
+        }
+            
+        void Preferences::setCameraLookInvertY(bool cameraLookInvertY) {
+            if (cameraLookInvertY == m_cameraLookInvertY)
+                return;
+            
+            m_cameraLookInvertY = cameraLookInvertY;
+            if (saveInstantly())
+                saveBool(CameraLookInvertY, m_cameraLookInvertY);
+            preferencesDidChange(CameraLookInvertY);
+        }
+        
+        bool Preferences::cameraPanInvertX() {
+            return m_cameraPanInvertY;
+        }
+        
+        void Preferences::setCameraPanInvertX(bool cameraPanInvertX) {
+            if (cameraPanInvertX == m_cameraPanInvertX)
+                return;
+            
+            m_cameraPanInvertX = cameraPanInvertX;
+            if (saveInstantly())
+                saveBool(CameraPanInvertX, m_cameraPanInvertX);
+            preferencesDidChange(CameraPanInvertX);
+        }
+        
+        bool Preferences::cameraPanInvertY() {
+            return m_cameraPanInvertY;
+        }
+        
+        void Preferences::setCameraPanInvertY(bool cameraPanInvertY) {
+            if (cameraPanInvertY == m_cameraPanInvertY)
+                return;
+            
+            m_cameraPanInvertY = cameraPanInvertY;
+            if (saveInstantly())
+                saveBool(CameraPanInvertY, m_cameraPanInvertY);
+            preferencesDidChange(CameraPanInvertY);
         }
 
         float Preferences::cameraFov() {

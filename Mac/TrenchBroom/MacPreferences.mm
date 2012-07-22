@@ -56,7 +56,12 @@ namespace TrenchBroom {
             NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
             setDictionaryValue(dict, CameraKey, m_cameraKey);
             setDictionaryValue(dict, CameraOrbitKey, m_cameraOrbitKey);
-            setDictionaryValue(dict, CameraInvertY, m_cameraInvertY);
+            setDictionaryValue(dict, CameraLookSpeed, m_cameraLookSpeed);
+            setDictionaryValue(dict, CameraPanSpeed, m_cameraPanSpeed);
+            setDictionaryValue(dict, CameraMoveSpeed, m_cameraMoveSpeed);
+            setDictionaryValue(dict, CameraLookInvertY, m_cameraLookInvertY);
+            setDictionaryValue(dict, CameraPanInvertX, m_cameraPanInvertX);
+            setDictionaryValue(dict, CameraPanInvertY, m_cameraPanInvertY);
             setDictionaryValue(dict, CameraFov, m_cameraFov);
             setDictionaryValue(dict, SelectionToolMultiKey, m_selectionToolMultiKey);
             setDictionaryValue(dict, SelectionToolGridKey, m_selectionToolGridKey);
