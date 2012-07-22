@@ -308,7 +308,7 @@ namespace TrenchBroom {
         }
         
         bool Preferences::cameraPanInvertX() {
-            return m_cameraPanInvertY;
+            return m_cameraPanInvertX;
         }
         
         void Preferences::setCameraPanInvertX(bool cameraPanInvertX) {

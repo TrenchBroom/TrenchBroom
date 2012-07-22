@@ -26,11 +26,33 @@
 
 namespace TrenchBroom {
     namespace Controller {
+        float CameraTool::lookSpeed(bool vertical) {
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+            float speed = prefs.cameraLookSpeed() / -50.0f;
+            if (vertical && prefs.cameraLookInvertY())
+                speed *= -1.0f;
+            return speed;
+        }
+        
+        float CameraTool::panSpeed(bool vertical) {
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+            float speed = prefs.cameraPanSpeed() * 1.0f;
+            if (vertical)
+                speed *= prefs.cameraPanInvertY() ? -1.0f : 1.0f;
+            else
+                speed *= prefs.cameraPanInvertX() ? 1.0f : -1.0f;
+            return speed;
+        }
+        
+        float CameraTool::moveSpeed() {
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+            return prefs.cameraMoveSpeed() * 12.0f;
+        }
+
         bool CameraTool::scrolled(ToolEvent& event) {
             if (!cameraModiferPressed(event) && !orbitModifierPressed(event)) return false;
             
-            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-            float forward = event.scrollX * prefs.cameraMoveSpeed();
+            float forward = event.scrollX * moveSpeed();
             float right = 0;
             float up = 0;
             m_editor.camera().moveBy(forward, right, up);
@@ -50,14 +72,13 @@ namespace TrenchBroom {
         }
         
         void CameraTool::leftDrag(ToolEvent& event) {
-            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             if (m_orbit) {
-                float hAngle = -event.deltaX * prefs.cameraLookSpeed();
-                float vAngle = event.deltaY * prefs.cameraLookSpeed() * (prefs.cameraLookInvertY() ? -1.0f : 1.0f);
+                float hAngle = event.deltaX * lookSpeed(false);
+                float vAngle = event.deltaY * lookSpeed(true);
                 m_editor.camera().orbit(m_orbitCenter, hAngle, vAngle);
             } else {
-                float yawAngle = -event.deltaX * prefs.cameraLookSpeed();
-                float pitchAngle = event.deltaY * prefs.cameraLookSpeed() * (prefs.cameraLookInvertY() ? -1.0f : 1.0f);
+                float yawAngle = event.deltaX * lookSpeed(false);
+                float pitchAngle = event.deltaY * lookSpeed(true);
                 m_editor.camera().rotate(yawAngle, pitchAngle);
             }
         }
@@ -71,10 +92,9 @@ namespace TrenchBroom {
         }
         
         void CameraTool::rightDrag(ToolEvent& event) {
-            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             float forward = 0;
-            float right = event.deltaX * prefs.cameraPanSpeed() * (prefs.cameraPanInvertX() ? -1.0f : 1.0f);
-            float up = event.deltaY * prefs.cameraPanSpeed() * (prefs.cameraPanInvertY() ? -1.0f : 1.0f);
+            float right = event.deltaX * panSpeed(false);
+            float up = event.deltaY * panSpeed(true);
             m_editor.camera().moveBy(forward, right, up);
         }
         

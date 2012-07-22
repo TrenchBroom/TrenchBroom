@@ -33,6 +33,10 @@ namespace TrenchBroom {
         private:
             Vec3f m_orbitCenter;
             bool m_orbit;
+
+            float lookSpeed(bool vertical);
+            float panSpeed(bool vertical);
+            float moveSpeed();
         public:
             CameraTool(Editor& editor) : Tool(editor), m_orbit(false) {}
 
