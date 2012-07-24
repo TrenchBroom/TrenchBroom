@@ -757,16 +757,21 @@ void CMainFrame::OnEditPageDown()
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 {
+	// The following code prevents CFrameWnd::PreTranslateMessage from swallowing key presses that
+	// correspond to accelerator keys. The idea is to remove all keyboard accelerators from the
+	// accelerator table that are disabled in the current state of the editor. If we don't do this,
+	// it would not be possible to enter characters into Gwen text fields when those characters are
+	// accelerator keys.
+
 	if (pMsg->message == WM_KEYDOWN) {
-		if (m_originalAccelTable == NULL) {
+		if (m_originalAccelTable == NULL) { // make a copy of the original accelerator table
 			int entryCount = CopyAcceleratorTable(this->m_hAccelTable, NULL, 0);
 			LPACCEL entries = (LPACCEL) LocalAlloc(LPTR, entryCount * sizeof(ACCEL));
 			CopyAcceleratorTable(this->m_hAccelTable, entries, entryCount);
 			m_originalAccelTable = CreateAcceleratorTable(entries, entryCount);
 		}
 
-		CMenu* menu = GetMenu();
-
+		// create a new accelerator table containing only those accelerators that are not disabled
 		int totalEntryCount = CopyAcceleratorTable(m_originalAccelTable, NULL, 0);
 		LPACCEL allEntries = (LPACCEL) LocalAlloc(LPTR, totalEntryCount * sizeof(ACCEL));
 		CopyAcceleratorTable(m_originalAccelTable, allEntries, totalEntryCount);
@@ -783,5 +788,6 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 		DestroyAcceleratorTable(m_hAccelTable);
 		m_hAccelTable = CreateAcceleratorTable(actualEntries, actualEntryCount);
 	}
+
 	return CFrameWnd::PreTranslateMessage(pMsg);
 }
