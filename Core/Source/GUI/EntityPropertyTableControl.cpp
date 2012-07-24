@@ -86,6 +86,8 @@ namespace TrenchBroom {
                         propertyRow->GetValue()->SetPlaceholderString("multiple");
                     propertyRow->onKeyChange.Add(this, &EntityPropertyTableControl::propertyKeyChanged);
                     propertyRow->onValueChange.Add(this, &EntityPropertyTableControl::propertyValueChanged);
+                    propertyRow->onDelete.Add(this, &EntityPropertyTableControl::propertyRowDelete);
+                    propertyRow->SetDeletable(m_entities[0]->propertyDeletable(cProp->first));
                     m_propertyRows.push_back(propertyRow);
                 }
                 
@@ -119,12 +121,20 @@ namespace TrenchBroom {
             Gwen::Controls::PropertyRow* propertyRow = static_cast<Gwen::Controls::PropertyRow*>(control);
             propertyRow->onKeyChange.Add(this, &EntityPropertyTableControl::propertyKeyChanged);
             propertyRow->onValueChange.Add(this, &EntityPropertyTableControl::propertyValueChanged);
+            propertyRow->onDelete.Add(this, &EntityPropertyTableControl::propertyRowDelete);
             m_propertyRows.push_back(propertyRow);
             
             Model::PropertyKey key = propertyRow->GetKey()->GetContentAnsi();
             Model::PropertyValue value = propertyRow->GetValue()->GetContentAnsi();
-            
+
             m_editor.map().setEntityProperty(key, &value);
+            propertyRow->SetDeletable(m_entities[0]->propertyDeletable(key));
+        }
+
+        void EntityPropertyTableControl::propertyRowDelete(Gwen::Controls::Base* control) {
+            Gwen::Controls::PropertyRow* propertyRow = static_cast<Gwen::Controls::PropertyRow*>(control);
+            Model::PropertyKey key = propertyRow->GetKey()->GetContentAnsi();
+            m_editor.map().removeEntityProperty(key);
         }
 
         EntityPropertyTableControl::EntityPropertyTableControl(Gwen::Controls::Base* parent, Controller::Editor& editor) : Base(parent), m_editor(editor) {

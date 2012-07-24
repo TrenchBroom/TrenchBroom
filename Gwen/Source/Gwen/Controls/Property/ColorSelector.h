@@ -43,6 +43,8 @@ namespace Gwen
 					m_Button->SetWidth( 20 );
 					m_Button->onPress.Add( this, &ThisClass::OnButtonPress );
 					m_Button->SetMargin( Margin( 1, 1, 1, 2 ) );
+                    m_Button->onHoverEnter.Add(this, &BaseClass::OnChildHoverEnter);
+                    m_Button->onHoverLeave.Add(this, &BaseClass::OnChildHoverLeave);
 				}
 
 				void OnButtonPress( Controls::Base* control )

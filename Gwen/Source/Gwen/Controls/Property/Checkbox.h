@@ -29,6 +29,8 @@ namespace Gwen
 						m_Checkbox->SetTabable( true );
 						m_Checkbox->SetKeyboardInputEnabled( true );
 						m_Checkbox->SetPos( 2, 1 );
+                        m_Checkbox->onHoverEnter.Add(this, &BaseClass::OnChildHoverEnter);
+                        m_Checkbox->onHoverLeave.Add(this, &BaseClass::OnChildHoverLeave);
 
 						SetHeight( 18 );
 					}

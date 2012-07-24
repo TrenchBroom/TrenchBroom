@@ -99,7 +99,9 @@ namespace Gwen
         
         PropertyRow* Properties::Add( const TextObject& key, const TextObject& value )
         {
-            return Add( key, new Property::Text( this ), value );
+            Property::Text* valueProp = new Property::Text(this);
+            valueProp->SetContent(value, false);
+            return Add( key, valueProp, value );
         }
         
         PropertyRow* Properties::Add( const TextObject& key, Property::Base* pProp, const TextObject& value )
@@ -108,8 +110,6 @@ namespace Gwen
             row->Dock( Pos::Top );
             row->SetKey( key );
             row->SetValue( pProp );
-            
-            pProp->SetContent( value, true );
             
             // make sure the empty row is the last child
             if (m_emptyRow != NULL) {
@@ -199,15 +199,11 @@ namespace Gwen
             m_Key = new Property::Text(this);
             m_Key->Dock(Pos::Left);
             m_Key->onChange.Add(this, &PropertyRow::OnPropertyKeyChanged);
-            
-            /*
-            PropertyRowLabel* pLabel = new PropertyRowLabel( this );
-            pLabel->SetPropertyRow( this );
-            pLabel->Dock( Pos::Left );
-            pLabel->SetAlignment( Pos::Left | Pos::Top );
-            pLabel->SetMargin( Margin( 2, 2, 0, 0 ) );
-            m_Label = pLabel;
-             */
+            m_Key->onHoverEnter.Add(this, &PropertyRow::OnChildHoverEnter);
+            m_Key->onHoverLeave.Add(this, &PropertyRow::OnChildHoverLeave);
+            m_deleteButton = NULL;
+            m_removeDeleteButton = false;
+            m_deletable = false;
         }	
         
         void PropertyRow::Render( Gwen::Skin::Base* skin )
@@ -219,22 +215,10 @@ namespace Gwen
                 m_bLastKeyEditing = IsKeyEditing();
             }
             
-            if ( IsKeyHovered() != m_bLastKeyHover )
-            {
-                OnKeyHoverChanged();
-                m_bLastKeyHover = IsKeyHovered();
-            }
-            
             if ( IsValueEditing() != m_bLastValueEditing )
             {
                 OnValueEditingChanged();
                 m_bLastValueEditing = IsValueEditing();
-            }
-            
-            if ( IsValueHovered() != m_bLastValueHover )
-            {
-                OnValueHoverChanged();
-                m_bLastValueHover = IsValueHovered();
             }
             /* SORRY */
             
@@ -263,11 +247,46 @@ namespace Gwen
         
         void PropertyRow::SetValue( Property::Base* prop )
         {
+            if (m_Value != NULL) {
+                m_Value->onChange.RemoveHandler(this);
+                m_Value->onHoverEnter.RemoveHandler(this);
+                m_Value->onHoverLeave.RemoveHandler(this);
+            }
+            
             m_Value = prop;
             m_Value->SetParent( this );
             m_Value->Dock( Pos::Fill );
             m_Value->onChange.Add( this, &ThisClass::OnPropertyValueChanged );
+            m_Value->onHoverEnter.Add(this, &PropertyRow::OnChildHoverEnter);
+            m_Value->onHoverLeave.Add(this, &PropertyRow::OnChildHoverLeave);
         }
+        
+        void PropertyRow::SetDeletable(bool deletable) {
+            if (deletable == m_deletable)
+                return;
+            
+            m_deletable = deletable;
+            if (!m_deletable && m_deleteButton != NULL && !m_removeDeleteButton)
+                m_removeDeleteButton = true;
+            else if (m_deletable && m_deleteButton == NULL) {
+                m_deleteButton = createDeleteButton();
+                m_removeDeleteButton = false;
+            }
+        }
+
+        Button* PropertyRow::createDeleteButton()
+        {
+            Properties* pParent = gwen_cast<Properties>( GetParent() );
+            
+            Button* deleteButton = new Button(m_Key);
+            deleteButton->SetBounds(pParent->GetSplitWidth() - Height() + 3, 2, Height() - 4, Height() - 4);
+            deleteButton->SetText("X");
+            deleteButton->onHoverEnter.Add(this, &PropertyRow::OnChildHoverEnter);
+            deleteButton->onHoverLeave.Add(this, &PropertyRow::OnChildHoverLeave);
+            deleteButton->onPress.Add(this, &PropertyRow::OnDeleteButtonPressed);
+            return deleteButton;
+        }
+
         
         void PropertyRow::OnPropertyKeyChanged( Gwen::Controls::Base* /*control*/ )
         {
@@ -280,12 +299,12 @@ namespace Gwen
             onValueChange.Call( this );
         }
         
-        void PropertyRow::OnKeyEditingChanged()
+        void PropertyRow::OnDeleteButtonPressed( Gwen::Controls::Base* control )
         {
-            m_Value->Redraw();
+            onDelete.Call(this);
         }
-        
-        void PropertyRow::OnKeyHoverChanged()
+
+        void PropertyRow::OnKeyEditingChanged()
         {
             m_Value->Redraw();
         }
@@ -295,9 +314,36 @@ namespace Gwen
             m_Key->Redraw();
         }
         
-        void PropertyRow::OnValueHoverChanged()
+        void PropertyRow::OnChildHoverEnter(Base* control)
         {
-            m_Key->Redraw();
+            if (m_deletable) {
+                if (control == m_Key) {
+                    if (m_deleteButton == NULL) {
+                        m_deleteButton = createDeleteButton();
+                    }
+                    m_removeDeleteButton = false;
+                } else if (control == m_deleteButton) {
+                    m_removeDeleteButton = false;
+                }
+            }
+            control->Redraw();
+        }
+        
+        void PropertyRow::OnChildHoverLeave(Base* control)
+        {
+            if (m_deletable && (control == m_Key || control == m_deleteButton))
+                m_removeDeleteButton = true;
+            control->Redraw();
+        }
+
+        void PropertyRow::Think()
+        {
+            if (m_deleteButton != NULL && m_removeDeleteButton) {
+                m_deleteButton->DelayedDelete();
+                m_deleteButton->SetParent(NULL);
+                m_deleteButton = NULL;
+            }
+            m_removeDeleteButton = false;
         }
     }
 }

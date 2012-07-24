@@ -61,7 +61,6 @@ namespace Gwen
             render->End();
             
             ProcessDelayedDeletes();
-            
         }
         
         void Canvas::Redraw() {

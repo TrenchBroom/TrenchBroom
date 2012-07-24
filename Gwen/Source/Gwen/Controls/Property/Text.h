@@ -29,6 +29,8 @@ namespace Gwen
                         m_TextBox->onReturnPressed.Add( this, &BaseClass::OnContentChanged );
                         m_TextBox->onLostKeyboardFocus.Add( this, &BaseClass::OnContentChanged );
                         m_TextBox->onKeyboardFocus.Add(this, &BaseClass::OnBeginEditingContent);
+                        m_TextBox->onHoverEnter.Add(this, &BaseClass::OnChildHoverEnter);
+                        m_TextBox->onHoverLeave.Add(this, &BaseClass::OnChildHoverLeave);
 					}
 
 					virtual UnicodeString GetContent()

@@ -60,7 +60,18 @@ namespace Gwen
                     DoChanged();
                 }
                 
+                virtual void OnChildHoverEnter(Gwen::Controls::Base* control)
+                {
+                    onHoverEnter.Call(this);
+                }
+                
+                virtual void OnChildHoverLeave(Gwen::Controls::Base* control)
+                {
+                    onHoverLeave.Call(this);
+                }
+
                 virtual void SetPlaceholderString( const TextObject& str) {};
+                
                 
                 Event::Caller	onChange;
 			};

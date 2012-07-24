@@ -170,11 +170,11 @@ namespace TrenchBroom {
 
         void Entity::setProperty(const PropertyKey& key, const PropertyValue* value) {
             if (key == ClassnameKey && classname() != NULL) {
-                log(TB_LL_WARN, "Cannot overwrite classname property");
+                log(TB_LL_WARN, "Cannot overwrite classname property\n");
                 return;
             } else if (key == OriginKey) {
                 if (value == NULL) {
-                    log(TB_LL_WARN, "Cannot set origin to NULL");
+                    log(TB_LL_WARN, "Cannot set origin to NULL\n");
                     return;
                 }
                 m_origin = Vec3f(*value);
@@ -218,12 +218,12 @@ namespace TrenchBroom {
 
         void Entity::deleteProperty(const PropertyKey& key) {
             if (m_properties.count(key) == 0) {
-                log(TB_LL_WARN, "Property with key '%s' not found", key.c_str());
+                log(TB_LL_WARN, "Property with key '%s' not found\n", key.c_str());
                 return;
             }
             
             if (!propertyDeletable(key)) {
-                log(TB_LL_WARN, "Cannot delete read only property '%s'", key.c_str());
+                log(TB_LL_WARN, "Cannot delete read only property '%s'\n", key.c_str());
                 return;
             }
 

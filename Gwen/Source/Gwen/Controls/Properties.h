@@ -76,6 +76,8 @@ namespace Gwen
             virtual TextObject& GetOldKey() { return m_OldKey; }
             virtual void SetValue( Property::Base* prop );
             virtual Property::Base* GetValue(){ return m_Value; }
+            virtual void SetDeletable(bool deletable);
+            virtual bool GetDeletable() { return m_deletable; }
             
             virtual void Layout( Gwen::Skin::Base* skin );
             virtual void Render( Gwen::Skin::Base* skin );
@@ -83,29 +85,38 @@ namespace Gwen
             virtual bool IsKeyEditing(){ return m_Key && m_Key->IsEditing(); }
             virtual bool IsKeyHovered(){ return BaseClass::IsHovered() || (m_Key && m_Key->IsHovered()); }
             virtual void OnKeyEditingChanged();
-            virtual void OnKeyHoverChanged();
             
             virtual bool IsValueEditing(){ return m_Value && m_Value->IsEditing(); }
             virtual bool IsValueHovered(){ return BaseClass::IsHovered() || (m_Value && m_Value->IsHovered()); }
             virtual void OnValueEditingChanged();
-            virtual void OnValueHoverChanged();
-
+            
+            virtual void OnChildHoverEnter(Base* control);
+            virtual void OnChildHoverLeave(Base* control);
+            
+            virtual void Think();
+            
             Event::Caller	onKeyChange;
             Event::Caller   onValueChange;
+            Event::Caller   onDelete;
             
         protected:
+            Button* createDeleteButton();
             
             void OnPropertyKeyChanged( Gwen::Controls::Base* control );
             void OnPropertyValueChanged( Gwen::Controls::Base* control );
+            void OnDeleteButtonPressed( Gwen::Controls::Base* control );
+            
+            bool IsDeleteButtonHovered() { return BaseClass::IsHovered() || (m_deleteButton && m_deleteButton->IsHovered()); }
             
             TextObject m_OldKey;
             Property::Text*	m_Key;
             Property::Base*	m_Value;
+            Button* m_deleteButton;
+            bool m_removeDeleteButton;
+            bool m_deletable;
             
             bool			m_bLastKeyEditing;
-            bool			m_bLastKeyHover;
             bool            m_bLastValueEditing;
-            bool            m_bLastValueHover;
             
 		};
 	}
