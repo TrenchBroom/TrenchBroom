@@ -44,12 +44,13 @@ namespace TrenchBroom {
         void Entity::validateGeometry() const {
             assert(!m_geometryValid);
 
-            m_bounds.min = m_bounds.max = Vec3f::Null;
             if (m_entityDefinition == NULL || m_entityDefinition->type == TB_EDT_BRUSH) {
                 if (!m_brushes.empty()) {
                     m_bounds = m_brushes[0]->bounds();
                     for (unsigned int i = 1; i < m_brushes.size(); i++)
                         m_bounds += m_brushes[i]->bounds();
+                } else {
+                    m_bounds = BBox(Vec3f(-8, -8, -8), Vec3f(8, 8, 8)).translate(m_origin);
                 }
             } else if (m_entityDefinition->type == TB_EDT_POINT) {
                 m_bounds = m_entityDefinition->bounds.translate(m_origin);

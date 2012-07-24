@@ -189,8 +189,8 @@ namespace TrenchBroom {
                 EntityDefinitionPtr entityDefinition = m_entityDefinitionManager->definition(*classname);
                 if (entityDefinition.get() != NULL)
                     entity->setEntityDefinition(entityDefinition);
-                // else
-                //    log(TB_LL_WARN, "No entity definition found for class name '%s'\n", classname->c_str());
+                else
+                    log(TB_LL_WARN, "No entity definition found for class name '%s'\n", classname->c_str());
             } else {
                 log(TB_LL_WARN, "Entity with id %i is missing classname property (line %i)\n", entity->uniqueId(), entity->filePosition());
             }

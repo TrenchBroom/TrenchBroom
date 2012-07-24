@@ -159,16 +159,14 @@ namespace TrenchBroom {
         void Octree::entitiesWereAddedOrPropertiesDidChange(const EntityList& entities) {
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
-                if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == TB_EDT_POINT)
-                    m_root->addObject(*entity);
+                m_root->addObject(*entity);
             }
         }
         
         void Octree::entitiesWillBeRemovedOrPropertiesWillChange(const EntityList& entities){
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
-                if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == TB_EDT_POINT)
-                    m_root->removeObject(*entity);
+                m_root->removeObject(*entity);
             }
         }
         
@@ -190,8 +188,7 @@ namespace TrenchBroom {
             const EntityList& entities = map.entities();
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
-                if (entity->entityDefinition() != NULL && entity->entityDefinition()->type == TB_EDT_POINT)
-                    m_root->addObject((MapObject&)*entity);
+                m_root->addObject((MapObject&)*entity);
                 const BrushList& brushes = entity->brushes();
                 for (unsigned int j = 0; j < brushes.size(); j++) {
                     Brush* brush = brushes[j];
