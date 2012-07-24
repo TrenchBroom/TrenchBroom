@@ -19,6 +19,12 @@
 
 #pragma once
 
+namespace TrenchBroom {
+	namespace Controller {
+		class Editor;
+	}
+}
+
 class CMainFrame : public CFrameWnd
 {
 	
@@ -44,11 +50,68 @@ public:
 	virtual void Dump(CDumpContext& dc) const;
 #endif
 
+protected:
+	HACCEL m_originalAccelTable;
+	TrenchBroom::Controller::Editor* currentEditor();
+	bool mapViewFocused();
+	bool validateCommand(UINT id);
+
 
 // Generated message map functions
 protected:
 	DECLARE_MESSAGE_MAP()
 
+public:
+	afx_msg void OnUpdateMenuItem(CCmdUI* pCmdUI);
+	afx_msg void OnEditUndo();
+	afx_msg void OnUpdateEditUndo(CCmdUI* pCmdUI);
+	afx_msg void OnEditRedo();
+	afx_msg void OnUpdateEditRedo(CCmdUI* pCmdUI);
+	afx_msg void OnToolsOptions();
+	afx_msg void OnToolsToggleVertexTool();
+	afx_msg void OnToolsToggleEdgeTool();
+	afx_msg void OnToolsToggleFaceTool();
+	afx_msg void OnEditDelete();
+	afx_msg void OnEditSelectAll();
+	afx_msg void OnEditSelectEntity();
+	afx_msg void OnEditSelectTouching();
+	afx_msg void OnEditSelectNone();
+	afx_msg void OnViewIsolateSelection();
+	afx_msg void OnGridShowGrid();
+	afx_msg void OnGridSnapToGrid();
+	afx_msg void OnGridGridSize1();
+	afx_msg void OnGridGridSize2();
+	afx_msg void OnGridGridSize4();
+	afx_msg void OnGridGridSize8();
+	afx_msg void OnGridGridSize16();
+	afx_msg void OnGridGridSize32();
+	afx_msg void OnGridGridSize64();
+	afx_msg void OnGridGridSize128();
+	afx_msg void OnGridGridSize256();
+	afx_msg void OnCameraMoveForward();
+	afx_msg void OnCameraMoveBackward();
+	afx_msg void OnCameraMoveLeft();
+	afx_msg void OnCameraMoveRight();
+	afx_msg void OnCameraMoveUp();
+	afx_msg void OnCameraMoveDown();
+	afx_msg void OnObjectRoll90Cw();
+	afx_msg void OnObjectRoll90Ccw();
+	afx_msg void OnObjectPitch90Cw();
+	afx_msg void OnObjectPitch90Ccw();
+	afx_msg void OnObjectYaw90Cw();
+	afx_msg void OnObjectYaw90Ccw();
+	afx_msg void OnObjectFlipHorizontally();
+	afx_msg void OnObjectFlipVertically();
+	afx_msg void OnObjectDuplicate();
+	afx_msg void OnObjectEnlargeBrushes();
+	afx_msg void OnUpdateObjectEnlargeBrushes(CCmdUI *pCmdUI);
+	afx_msg void OnEditCursorUp();
+	afx_msg void OnEditCursorDown();
+	afx_msg void OnEditCursorLeft();
+	afx_msg void OnEditCursorRight();
+	afx_msg void OnEditPageUp();
+	afx_msg void OnEditPageDown();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };
 
 
