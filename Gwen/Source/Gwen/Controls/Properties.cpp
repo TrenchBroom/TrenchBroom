@@ -180,6 +180,11 @@ namespace Gwen
             if (control != m_emptyRow)
                 return;
             
+            if (m_emptyRow->GetKey()->GetContent().empty()) {
+                m_emptyRow->GetValue()->SetContent("");
+                return;
+            }
+            
             m_formerEmptyRow = m_emptyRow;
             onRowAdd.Call(m_formerEmptyRow);
 
