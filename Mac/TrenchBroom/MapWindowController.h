@@ -25,6 +25,8 @@
     IBOutlet MapView* mapView;
 }
 
+- (BOOL)mapViewFocused;
+
 - (IBAction)showPreferences:(id)sender;
 
 @end

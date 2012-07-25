@@ -365,17 +365,23 @@ namespace TrenchBroom {
             m_selectedEntityDataValid = true;
         }
 
+        bool MapRenderer::reloadEntityModel(const Model::Entity& entity, CachedEntityRenderer& cachedRenderer) {
+            EntityRenderer* renderer = m_entityRendererManager->entityRenderer(entity, m_editor.map().mods());
+            if (renderer != NULL) {
+                cachedRenderer = CachedEntityRenderer(renderer, *entity.classname());
+                return true;
+            }
+            
+            return false;
+        }
+
         void MapRenderer::reloadEntityModels(RenderContext& context, EntityRenderers& renderers) {
             EntityRenderers::iterator it = renderers.begin();
             while (it != renderers.end()) {
-                Model::Entity* entity = it->first;
-                EntityRenderer* renderer = m_entityRendererManager->entityRenderer(*entity, m_editor.map().mods());
-                if (renderer != NULL) {
-                    it->second = renderer;
+                if (reloadEntityModel(*it->first, it->second))
                     ++it;
-                } else {
+                else
                     renderers.erase(it++);
-                }
             }
         }
 
@@ -389,9 +395,9 @@ namespace TrenchBroom {
                 EntityRenderer* renderer = m_entityRendererManager->entityRenderer(*entity, m_editor.map().mods());
                 if (renderer != NULL) {
                     if (entity->selected())
-                        m_selectedEntityRenderers[entity] = renderer;
+                        m_selectedEntityRenderers[entity] = CachedEntityRenderer(renderer, *entity->classname());
                     else
-                        m_entityRenderers[entity] = renderer;
+                        m_entityRenderers[entity] = CachedEntityRenderer(renderer, *entity->classname());
                 }
             }
             
@@ -408,7 +414,7 @@ namespace TrenchBroom {
                 Model::Entity* entity = entities[i];
                 EntityRenderer* renderer = m_entityRendererManager->entityRenderer(*entity, m_editor.map().mods());
                 if (renderer != NULL)
-                    m_entityRenderers[entity] = renderer;
+                    m_entityRenderers[entity] = CachedEntityRenderer(renderer, *entity->classname());
                 
                 const Model::PropertyValue& classname = *entity->classname();
                 EntityClassnameAnchor* anchor = new EntityClassnameAnchor(*entity);
@@ -434,8 +440,33 @@ namespace TrenchBroom {
             m_selectedEntityDataValid = false;
             Model::Entity* worldspawn = m_editor.map().worldspawn(false);
             if (worldspawn != NULL && find(entities.begin(), entities.end(), worldspawn) != entities.end()) {
-                // if mods changed, invalidate renderer cache here
+                m_entityRendererCacheValid = false;
+            } else {
+                // reload entity renderers if the classname has changed
+                for (unsigned int i = 0; i < entities.size(); i++) {
+                    Model::Entity* entity = entities[i];
+                    if (entity->selected()) {
+                        EntityRenderers::iterator it = m_selectedEntityRenderers.find(entity);
+                        if (it != m_selectedEntityRenderers.end()) {
+                            CachedEntityRenderer& cachedRenderer = it->second;
+                            if (entity->classname() == NULL)
+                                m_selectedEntityRenderers.erase(it);
+                            else if (*entity->classname() != cachedRenderer.classname && !reloadEntityModel(*entity, cachedRenderer))
+                                m_selectedEntityRenderers.erase(it);
+                        } else {
+                            EntityRenderer* renderer = m_entityRendererManager->entityRenderer(*entity, m_editor.map().mods());
+                            if (renderer != NULL)
+                                m_selectedEntityRenderers[entity] = CachedEntityRenderer(renderer, *entity->classname());
+                        }
+
+                        if (entity->classname() != NULL)
+                            m_selectedClassnameRenderer->updateString(entity, *entity->classname());
+                        else
+                            m_selectedClassnameRenderer->removeString(entity);
+                    }
+                }
             }
+            
             rendererChanged(*this);
         }
 
@@ -631,7 +662,7 @@ namespace TrenchBroom {
             for (it = entities.begin(); it != entities.end(); ++it) {
                 Model::Entity* entity = it->first;
                 if (context.filter.entityVisible(*entity)) {
-                    EntityRenderer* renderer = it->second;
+                    EntityRenderer* renderer = it->second.renderer;
                     renderer->render(*entity);
                 }
             }

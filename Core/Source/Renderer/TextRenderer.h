@@ -84,6 +84,16 @@ namespace TrenchBroom {
                 }
             }
             
+            void updateString(Key key, const std::string& str) {
+                typename TextMap::iterator textIt = m_entries.find(key);
+                if (textIt != m_entries.end()) {
+                    const FontDescriptor& descriptor = textIt->second.first->fontDescriptor;
+                    StringRendererPtr stringRenderer = m_fontManager.createStringRenderer(descriptor, str);
+                    m_fontManager.destroyStringRenderer(textIt->second.first);
+                    textIt->second.first = stringRenderer;
+                }
+            }
+            
             void transferString(Key key, TextRenderer& destination)  {
                 typename TextMap::iterator textIt = m_entries.find(key);
                 if (textIt != m_entries.end()) {

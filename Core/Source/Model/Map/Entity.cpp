@@ -150,34 +150,19 @@ namespace TrenchBroom {
 
         }
 
-        bool Entity::propertyWritable(const PropertyKey& key) const {
-            return ClassnameKey != key;
-        }
-
-        bool Entity::propertyDeletable(const PropertyKey& key) const {
-            if (ClassnameKey == key)
-                return false;
-            if (OriginKey == key)
-                return false;
-            if (SpawnFlagsKey == key)
-                return false;
-            return m_properties.count(key) > 0;
-        }
-
         void Entity::setProperty(const PropertyKey& key, const PropertyValue& value) {
             setProperty(key, &value);
         }
 
         void Entity::setProperty(const PropertyKey& key, const PropertyValue* value) {
-            if (key == ClassnameKey && classname() != NULL) {
-                log(TB_LL_WARN, "Cannot overwrite classname property\n");
-                return;
+            if (key == ClassnameKey) {
+                if (value != classname())
+                    m_entityDefinition = EntityDefinitionPtr();
             } else if (key == OriginKey) {
-                if (value == NULL) {
-                    log(TB_LL_WARN, "Cannot set origin to NULL\n");
-                    return;
-                }
-                m_origin = Vec3f(*value);
+                if (value == NULL)
+                    m_origin = Vec3f(0, 0, 0);
+                else
+                    m_origin = Vec3f(*value);
             } else if (key == AngleKey) {
                 if (value != NULL) m_angle = static_cast<float>(atof(value->c_str()));
                 else m_angle = std::numeric_limits<float>::quiet_NaN();
@@ -222,12 +207,11 @@ namespace TrenchBroom {
                 return;
             }
             
-            if (!propertyDeletable(key)) {
-                log(TB_LL_WARN, "Cannot delete read only property '%s'\n", key.c_str());
-                return;
-            }
-
-            if (key == AngleKey)
+            if (key == ClassnameKey)
+                m_entityDefinition = EntityDefinitionPtr();
+            else if (key == OriginKey)
+                m_origin = Vec3f();
+            else if (key == AngleKey)
                 m_angle = std::numeric_limits<float>::quiet_NaN();
 
             m_properties.erase(key);
@@ -243,11 +227,11 @@ namespace TrenchBroom {
         }
 
         bool Entity::worldspawn() const {
-            return *classname() == WorldspawnClassname;
+            return classname() != NULL && *classname() == WorldspawnClassname;
         }
 
         bool Entity::group() const {
-            return *classname() == GroupClassname;
+            return classname() != NULL && *classname() == GroupClassname;
         }
 
         void Entity::addBrush(Brush* brush) {

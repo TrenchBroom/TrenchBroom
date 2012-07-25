@@ -29,6 +29,8 @@
     NSUInteger flags;
 }
 
+- (BOOL)mapViewFocused;
+
 @end
 
 namespace TrenchBroom {
