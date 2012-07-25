@@ -387,6 +387,16 @@ namespace TrenchBroom {
             return m_gridColor;
         }
 
+        void Preferences::setGridColor(const Vec4f& gridColor) {
+            if (gridColor == m_gridColor)
+                return;
+            
+            m_gridColor = gridColor;
+            if (saveInstantly())
+                saveVec4f(GridColor, m_gridColor);
+            preferencesDidChange(GridColor);
+        }
+        
         const Vec4f& Preferences::faceColor() {
             return m_faceColor;
         }

@@ -196,6 +196,7 @@ namespace TrenchBroom {
             void setBrightness(float brightness);
             
             const Vec4f& gridColor();
+            void setGridColor(const Vec4f& color);
             const Vec4f& faceColor();
             const Vec4f& edgeColor();
             const Vec4f& selectedFaceColor();

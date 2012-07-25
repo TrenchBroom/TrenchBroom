@@ -19,6 +19,7 @@
 
 #import "PreferencesWindowController.h"
 #import "Model/Preferences.h"
+#import "Utilities/VecMath.h"
 
 using namespace TrenchBroom::Model;
 using namespace TrenchBroom::Controller;
@@ -120,6 +121,8 @@ static PreferencesListener* preferencesListener = nil;
     
     [brightnessSlider setFloatValue:prefs.brightness()];
     [brightnessLabel setFloatValue:prefs.brightness()];
+    [gridAlphaSlider setFloatValue:prefs.gridColor().w];
+    [gridAlphaLabel setFloatValue:prefs.gridColor().w];
     [fovSlider setFloatValue:prefs.cameraFov()];
     [fovLabel setFloatValue:prefs.cameraFov()];
     
@@ -160,6 +163,12 @@ static PreferencesListener* preferencesListener = nil;
 
 - (IBAction)changeFov:(id)sender {
     Preferences::sharedPreferences->setCameraFov([fovSlider floatValue]);
+}
+
+- (IBAction)changeGridAlpha:(id)sender {
+    Vec4f color = Preferences::sharedPreferences->gridColor();
+    color.w = [gridAlphaSlider floatValue];
+    Preferences::sharedPreferences->setGridColor(color);
 }
 
 - (IBAction)changeCameraLookSpeed:(id)sender {

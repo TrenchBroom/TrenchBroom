@@ -46,8 +46,6 @@ namespace TrenchBroom {
         }
 
         MapRendererControl::MapRendererControl(Base* parent, Controller::Editor& editor, Renderer::FontManager& fontManager) : Base(parent), m_editor(editor) {
-            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-            m_gridRenderer = new Renderer::GridRenderer(prefs.gridColor());
             m_mapRenderer = new Renderer::MapRenderer(m_editor, fontManager);
             SetKeyboardInputEnabled(true);
             SetMouseInputEnabled(true);
@@ -58,7 +56,6 @@ namespace TrenchBroom {
         MapRendererControl::~MapRendererControl() {
             m_mapRenderer->rendererChanged -= new Renderer::MapRenderer::MapRendererEvent::Listener<MapRendererControl>(this, &MapRendererControl::rendererChanged);
             delete m_mapRenderer;
-            delete m_gridRenderer;
         }
 
         void MapRendererControl::Render(Gwen::Skin::Base* skin) {
@@ -75,9 +72,7 @@ namespace TrenchBroom {
 
             Controller::Camera& camera = m_editor.camera();
             camera.update(bounds.x, bounds.y, bounds.w, bounds.h);
-
-            Renderer::RenderContext context(m_editor.camera(), m_editor.filter(), m_editor.grid(), m_editor.options(), *m_gridRenderer);
-            m_mapRenderer->render(context);
+            m_mapRenderer->render();
 
             glMatrixMode(GL_PROJECTION);
             glPopMatrix();

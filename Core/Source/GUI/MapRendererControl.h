@@ -38,7 +38,6 @@ namespace TrenchBroom {
         class MapRendererControl : public Gwen::Controls::Base {
         protected:
             Controller::Editor& m_editor;
-            Renderer::GridRenderer* m_gridRenderer;
             Renderer::MapRenderer* m_mapRenderer;
             
             void rendererChanged(Renderer::MapRenderer& renderer);

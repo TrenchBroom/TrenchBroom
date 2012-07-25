@@ -575,6 +575,9 @@ namespace TrenchBroom {
                 Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
                 m_entityRendererCacheValid = false;
                 m_entityRendererManager->setQuakePath(prefs.quakePath());
+            } else if (key == Model::Preferences::GridColor) {
+                Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+                m_gridRenderer->setColor(prefs.gridColor());
             }
             rendererChanged(*this);
         }
@@ -774,6 +777,8 @@ namespace TrenchBroom {
             m_figureVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
             
             m_dummyTexture = new Model::Assets::Texture("dummy");
+            m_gridRenderer = new Renderer::GridRenderer();
+            m_gridRenderer->setColor(prefs.gridColor());
 
             m_editor.setRenderer(this);
 
@@ -858,7 +863,8 @@ namespace TrenchBroom {
             }
         }
 
-        void MapRenderer::render(RenderContext& context) {
+        void MapRenderer::render() {
+            Renderer::RenderContext context(m_editor.camera(), m_editor.filter(), m_editor.grid(), m_editor.options(), *m_gridRenderer);
             validate(context);
 
             glEnable(GL_BLEND);

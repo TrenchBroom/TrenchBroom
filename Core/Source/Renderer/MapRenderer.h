@@ -133,7 +133,8 @@ namespace TrenchBroom {
             bool m_selectedEntityDataValid;
             bool m_geometryDataValid;
             bool m_selectedGeometryDataValid;
-            
+
+            GridRenderer* m_gridRenderer;
             Model::Assets::Texture* m_dummyTexture;
             FontManager& m_fontManager;
 
@@ -178,7 +179,7 @@ namespace TrenchBroom {
             void addFigure(Figure& figure);
             void removeFigure(Figure& figure);
             
-            void render(RenderContext& context);
+            void render();
             
             EntityRendererManager& entityRendererManager();
             FontManager& fontManager();
