@@ -108,6 +108,7 @@ namespace TrenchBroom {
         };
         
         typedef std::tr1::shared_ptr<EntityDefinition> EntityDefinitionPtr;
+        typedef std::vector<EntityDefinitionPtr> EntityDefinitionList;
         bool compareByName(const EntityDefinitionPtr def1, const EntityDefinitionPtr def2);
         bool compareByUsage(const EntityDefinitionPtr def1, const EntityDefinitionPtr def2);
         
@@ -145,7 +146,7 @@ namespace TrenchBroom {
         class EntityDefinitionManager {
         private:
             std::map<const std::string, EntityDefinitionPtr> m_definitions;
-            std::vector<EntityDefinitionPtr> m_definitionsByName;
+            EntityDefinitionList m_definitionsByName;
         public:
             static EntityDefinitionManagerMap* sharedManagers;
             
@@ -153,9 +154,9 @@ namespace TrenchBroom {
             static EntityDefinitionManagerPtr sharedManager(const std::string& path);
             
             EntityDefinitionPtr definition(const std::string& name) const;
-            const std::vector<EntityDefinitionPtr>& definitions() const;
-            std::vector<EntityDefinitionPtr> definitions(EEntityDefinitionType type) const;
-            std::vector<EntityDefinitionPtr> definitions(EEntityDefinitionType type, EEntityDefinitionSortCriterion criterion) const;
+            const EntityDefinitionList& definitions() const;
+            EntityDefinitionList definitions(EEntityDefinitionType type) const;
+            EntityDefinitionList definitions(EEntityDefinitionType type, EEntityDefinitionSortCriterion criterion) const;
         };
     }
 }

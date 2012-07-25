@@ -154,6 +154,17 @@ namespace TrenchBroom {
             m_propertiesTable->setEntities(selection.entities());
         }
 
+        void Inspector::onEntityBrowserGroupChanged(Gwen::Controls::Base* control) {
+            Gwen::Controls::Button* button = static_cast<Gwen::Controls::Button*>(control);
+            m_entityBrowser->setGroup(button->GetToggleState());
+        }
+        
+        void Inspector::onEntityBrowserFilterTextChanged(Gwen::Controls::Base* control) {
+            Gwen::Controls::TextBox* textBox = static_cast<Gwen::Controls::TextBox*>(control);
+            m_entityBrowser->setFilterText(Gwen::Utility::UnicodeToString(textBox->GetText()));
+        }
+
+
         void Inspector::textureManagerDidChange(Model::Assets::TextureManager& textureManager) {
             updateTextureControls();
             updateTextureWadList();
@@ -251,14 +262,63 @@ namespace TrenchBroom {
             m_propertiesTable->Dock(Gwen::Pos::Fill);
             
             Gwen::Controls::GroupBox* browserBox = new Gwen::Controls::GroupBox(splitter);
-            browserBox->SetText("Browser");
+            browserBox->SetText("Entity Browser");
             browserBox->SetPadding(Gwen::Padding(10, 7, 10, 10));
             browserBox->SetMargin(Gwen::Margin(0, 2, 0, 0));
             splitter->SetPanel(1, browserBox);
             
+            // entity browser controls container
+            Gwen::Controls::Base* entityBrowserFilterContainer = new Gwen::Controls::Base(browserBox);
+            entityBrowserFilterContainer->SetMargin(Gwen::Margin(0, 0, 0, 5));
+            entityBrowserFilterContainer->Dock(Gwen::Pos::Top);
+
+            // entity browser
             m_entityBrowser = new EntityBrowserControl(browserBox, m_editor);
             m_entityBrowser->Dock(Gwen::Pos::Fill);
             
+            // entity browser controls
+            Gwen::Controls::Base* entityButtonsContainer = new Gwen::Controls::Base(entityBrowserFilterContainer);
+            entityButtonsContainer->Dock(Gwen::Pos::Left);
+            
+            /*
+            // options for ordering the entities
+            Gwen::Controls::ButtonStrip* entityOrderStrip = new Gwen::Controls::ButtonStrip(entityButtonsContainer);
+            entityOrderStrip->AddButton("Name");
+            entityOrderStrip->AddButton("Usage");
+            entityOrderStrip->SetPos(0, 0);
+            // entityOrderStrip->onSelectionChange.Add(this, &Inspector::onTextureBrowserSortCriterionChanged);
+             */
+            
+            // toggle entity grouping
+            Gwen::Controls::Button* entityGroupButton = new Gwen::Controls::Button(entityButtonsContainer);
+            entityGroupButton->SetText("Group");
+            entityGroupButton->SetIsToggle(true);
+//            entityGroupButton->SetPos(entityOrderStrip->X() + entityOrderStrip->Width() + 5, 0);
+            entityGroupButton->SetPos(0, 0);
+//            entityGroupButton->SetWidth(48);
+            entityGroupButton->onToggle.Add(this, &Inspector::onEntityBrowserGroupChanged);
+            
+            /*
+            // toggle whether only used entities are displayed
+            Gwen::Controls::Button* entityUsageButton = new Gwen::Controls::Button(entityButtonsContainer);
+            entityUsageButton->SetText("Used");
+            entityUsageButton->SetIsToggle(true);
+            entityUsageButton->SetPos(entityGroupButton->X() + entityGroupButton->Width() + 5, 0);
+            entityUsageButton->SetWidth(48);
+            entityUsageButton->onToggle.Add(this, &Inspector::onEntityBrowserFilterUsedChanged);
+            */
+            
+            entityButtonsContainer->SizeToChildren();
+            
+            // text box for name matching
+            Gwen::Controls::TextBox* entityFilterTextBox = new Gwen::Controls::TextBox(entityBrowserFilterContainer);
+            entityFilterTextBox->SetPlaceholderString("Filter");
+            entityFilterTextBox->SetMargin(Gwen::Margin(5, 0, 0, 0));
+            entityFilterTextBox->Dock(Gwen::Pos::Fill);
+            entityFilterTextBox->onTextChanged.Add(this, &Inspector::onEntityBrowserFilterTextChanged);
+            
+            entityBrowserFilterContainer->SizeToChildren();
+
             return entityPanel;
         }
         

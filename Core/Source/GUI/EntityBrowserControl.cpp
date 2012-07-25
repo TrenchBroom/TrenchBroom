@@ -33,6 +33,8 @@
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Vbo.h"
+#include "Utilities/Console.h"
+#include "Utilities/Utils.h"
 #include "Utilities/VecMath.h"
 
 #include <algorithm>
@@ -111,28 +113,71 @@ namespace TrenchBroom {
             glPopMatrix();
         }
 
+        void EntityBrowserPanel::addEntityDefinitionToLayout(Model::EntityDefinitionPtr definition) {
+            Gwen::Skin::Base* skin = GetSkin();
+            Gwen::Font* actualFont = new Gwen::Font(*m_font);
+            FontPtr actualFontPtr(actualFont);
+            Gwen::Point actualSize;
+            
+            float fixedCellWidth = m_layout.fixedCellWidth();
+            if  (m_layout.fixedCellWidth() > 0) {
+                Gwen::Renderer::Base* renderer = skin->GetRender();
+                while (actualFont->size > 5 && (actualSize = renderer->MeasureText(actualFont, definition->name)).x > fixedCellWidth)
+                    actualFont->size -= 1.0f;
+            } else {
+                actualSize = GetSkin()->GetRender()->MeasureText(m_font, definition->name);
+            }
+            
+            m_layout.addItem(EntityCellData(definition, actualFontPtr), m_layout.fixedCellWidth(), m_layout.fixedCellWidth(), static_cast<float>(actualSize.x), actualFont->size + 2);
+        }
+
         void EntityBrowserPanel::doReloadLayout() {
             Model::EntityDefinitionManager& defManager = m_editor.map().entityDefinitionManager();
-            const std::vector<Model::EntityDefinitionPtr> definitions = defManager.definitions();
-
-            for (unsigned int i = 0; i < definitions.size(); i++) {
-                Model::EntityDefinitionPtr definition = definitions[i];
-                if (definition->type == Model::TB_EDT_POINT) {
-                    Gwen::Skin::Base* skin = GetSkin();
-                    Gwen::Font* actualFont = new Gwen::Font(*m_font);
-                    FontPtr actualFontPtr(actualFont);
-                    Gwen::Point actualSize;
-
-                    float fixedCellWidth = m_layout.fixedCellWidth();
-                    if  (m_layout.fixedCellWidth() > 0) {
-                        Gwen::Renderer::Base* renderer = skin->GetRender();
-                        while (actualFont->size > 5 && (actualSize = renderer->MeasureText(actualFont, definition->name)).x > fixedCellWidth)
-                            actualFont->size -= 1.0f;
-                    } else {
-                        actualSize = GetSkin()->GetRender()->MeasureText(m_font, definition->name);
+            const Model::EntityDefinitionList definitions = defManager.definitions();
+            
+            if (m_group) {
+                typedef std::map<std::string, Model::EntityDefinitionList > GroupedEntityDefinitionMap;
+                GroupedEntityDefinitionMap groupedDefinitions;
+                Model::EntityDefinitionList miscDefinitions;
+                
+                for (unsigned int i = 0; i < definitions.size(); i++) {
+                    Model::EntityDefinitionPtr definition = definitions[i];
+                    if (definition->type == Model::TB_EDT_POINT && (m_filterText.empty() || containsString(definition->name, m_filterText, false))) {
+                        size_t uscoreIndex = definition->name.find_first_of('_');
+                        if (uscoreIndex == std::string::npos) {
+                            miscDefinitions.push_back(definition);
+                        } else {
+                            std::string groupName = definition->name.substr(0, uscoreIndex);
+                            groupedDefinitions[groupName].push_back(definition);
+                        }
                     }
-
-                    m_layout.addItem(EntityCellData(definition, actualFontPtr), m_layout.fixedCellWidth(), m_layout.fixedCellWidth(), static_cast<float>(actualSize.x), actualFont->size + 2);
+                }
+                
+                GroupedEntityDefinitionMap::iterator it;
+                for (it = groupedDefinitions.begin(); it != groupedDefinitions.end(); ++it)
+                    std::sort(it->second.begin(), it->second.end(), Model::compareByName);
+                
+                for (it = groupedDefinitions.begin(); it != groupedDefinitions.end(); ++it) {
+                    const std::string& groupName = it->first;
+                    Model::EntityDefinitionList& groupItems = it->second;
+                    m_layout.addGroup(groupName, m_font->size + 2);
+                    
+                    for (unsigned int i = 0; i < groupItems.size(); i++)
+                        addEntityDefinitionToLayout(groupItems[i]);
+                }
+                
+                if (!miscDefinitions.empty()) {
+                    std::sort(miscDefinitions.begin(), miscDefinitions.end(), Model::compareByName);
+                    
+                    m_layout.addGroup("Miscellaneous", m_font->size + 2);
+                    for (unsigned int i = 0; i < miscDefinitions.size(); i++)
+                        addEntityDefinitionToLayout(miscDefinitions[i]);
+                }
+            } else {
+                for (unsigned int i = 0; i < definitions.size(); i++) {
+                    Model::EntityDefinitionPtr definition = definitions[i];
+                    if (definition->type == Model::TB_EDT_POINT && (m_filterText.empty() || containsString(definition->name, m_filterText, false)))
+                        addEntityDefinitionToLayout(definition);
                 }
             }
         }
@@ -145,7 +190,7 @@ namespace TrenchBroom {
             return new EntityDragControl(GetCanvas(), cell, m_editor);
         }
 
-        EntityBrowserPanel::EntityBrowserPanel(Gwen::Controls::Base* parent, Controller::Editor& editor) : CellLayoutControl(parent), m_editor(editor) {
+        EntityBrowserPanel::EntityBrowserPanel(Gwen::Controls::Base* parent, Controller::Editor& editor) : CellLayoutControl(parent), m_editor(editor), m_group(false) {
             m_boundsVbo = new Renderer::Vbo(GL_ARRAY_BUFFER, 0xFFF);
             m_boundsBlock = NULL;
 
@@ -160,6 +205,20 @@ namespace TrenchBroom {
 
         EntityBrowserPanel::~EntityBrowserPanel() {
             delete m_boundsVbo;
+        }
+
+        void EntityBrowserPanel::setGroup(bool group) {
+            if (group == m_group)
+                return;
+            m_group = group;
+            reloadLayout();
+        }
+        
+        void EntityBrowserPanel::setFilterText(const std::string filterText) {
+            if (filterText == m_filterText)
+                return;
+            m_filterText = filterText;
+            reloadLayout();
         }
 
         void EntityBrowserPanel::RenderOver(Gwen::Skin::Base* skin) {
@@ -300,6 +359,28 @@ namespace TrenchBroom {
                         }
                     }
                 }
+               
+                if (m_group) {
+                    const LayoutBounds titleBounds = group->titleBoundsForVisibleRect(visibleRect.y, visibleRect.h);
+                    if (titleBounds.intersectsY(visibleRect.y, visibleRect.h)) {
+                        // paint background for group title
+                        glPushMatrix();
+                        glTranslatef(offset.x + padding.left, offset.y + padding.right, 0);
+                        glDisable(GL_TEXTURE_2D);
+                        glBegin(GL_QUADS);
+                        glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
+                        glVertex3f(titleBounds.left(),  titleBounds.top(),    0);
+                        glVertex3f(titleBounds.left(),  titleBounds.bottom(), 0);
+                        glVertex3f(titleBounds.right(), titleBounds.bottom(), 0);
+                        glVertex3f(titleBounds.right(), titleBounds.top(),    0);
+                        glEnd();
+                        glPopMatrix();
+                        
+                        const std::string& groupName = group->item();
+                        skin->GetRender()->SetDrawColor(Gwen::Color(255, 255, 255, 255));
+                        skin->GetRender()->RenderText(m_font, Gwen::Point(padding.left + titleBounds.left() + 3, padding.top + titleBounds.top() + 1), groupName);
+                    }
+                }
             }
         }
 
@@ -315,6 +396,14 @@ namespace TrenchBroom {
 
         EntityBrowserControl::~EntityBrowserControl() {}
 
+        void EntityBrowserControl::setGroup(bool group) {
+            m_browserPanel->setGroup(group);
+        }
+        
+        void EntityBrowserControl::setFilterText(const std::string filterText) {
+            m_browserPanel->setFilterText(filterText);
+        }
+        
         void EntityBrowserControl::Render(Gwen::Skin::Base* skin) {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             const Vec4f& backgroundColor = prefs.backgroundColor();

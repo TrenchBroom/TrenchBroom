@@ -86,6 +86,8 @@ namespace TrenchBroom {
             void brushesDidChange(const std::vector<Model::Brush*>& brushes);
             void facesDidChange(const std::vector<Model::Face*>& faces);
             void selectionChanged(const Model::SelectionEventData& data);
+            void onEntityBrowserGroupChanged(Gwen::Controls::Base* control);
+            void onEntityBrowserFilterTextChanged(Gwen::Controls::Base* control);
             void textureManagerDidChange(Model::Assets::TextureManager& textureManager);
             void onXOffsetChanged(Gwen::Controls::Base* control);
             void onYOffsetChanged(Gwen::Controls::Base* control);
