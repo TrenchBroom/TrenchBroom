@@ -216,39 +216,38 @@ bool CMainFrame::mapViewFocused()
 
 bool CMainFrame::validateCommand(UINT id)
 {
-	if (!mapViewFocused())
-		return false;
-
 	TrenchBroom::Controller::Editor* editor = currentEditor();
 	TrenchBroom::Model::UndoManager& undoManager = editor->map().undoManager();
 	TrenchBroom::Controller::InputController& inputController = editor->inputController();
 	TrenchBroom::Model::Selection& selection = editor->map().selection();
 
-
-
 	switch (id) {
+	case ID_FILE_NEW:
+	case ID_FILE_OPEN:
+	case ID_FILE_SAVE:
+		return true;
 	case ID_EDIT_UNDO:
 		return !undoManager.undoStackEmpty();
 	case ID_EDIT_REDO:
 		return !undoManager.redoStackEmpty();
 	case ID_TOOLS_TOGGLE_VERTEX_TOOL:
-		return (inputController.moveVertexToolActive() || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES);
+		return mapViewFocused() && (inputController.moveVertexToolActive() || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES);
 	case ID_TOOLS_TOGGLE_EDGE_TOOL:
-		return (inputController.moveEdgeToolActive() || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES);
+		return mapViewFocused() && (inputController.moveEdgeToolActive() || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES);
 	case ID_TOOLS_TOGGLE_FACE_TOOL:
-		return (inputController.moveFaceToolActive() || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES);
+		return mapViewFocused() && (inputController.moveFaceToolActive() || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES);
 	case ID_EDIT_DELETE:
-		return (selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES);
+		return mapViewFocused() && (selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES);
 	case ID_EDIT_SELECT_ALL:
-		return true;
+		return mapViewFocused();
 	case ID_EDIT_SELECT_ENTITY:
-		return selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES;
+		return mapViewFocused() && selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES;
 	case ID_EDIT_SELECT_TOUCHING:
-		return selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES && selection.brushes().size() == 1;
+		return mapViewFocused() && selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES && selection.brushes().size() == 1;
 	case ID_EDIT_SELECT_NONE:
-		return !selection.empty();
+		return mapViewFocused() && !selection.empty();
 	case ID_VIEW_ISOLATE_SELECTION:
-		return true;
+		return mapViewFocused();
 	case ID_GRID_SHOW_GRID:
 	case ID_GRID_SNAP_TO_GRID:
 	case ID_GRID_GRID_SIZE_1:
@@ -260,14 +259,14 @@ bool CMainFrame::validateCommand(UINT id)
 	case ID_GRID_GRID_SIZE_64:
 	case ID_GRID_GRID_SIZE_128:
 	case ID_GRID_GRID_SIZE_256:
-		return true;
+		return mapViewFocused();
 	case ID_CAMERA_MOVE_FORWARD:
 	case ID_CAMERA_MOVE_BACKWARD:
 	case ID_CAMERA_MOVE_LEFT:
 	case ID_CAMERA_MOVE_RIGHT:
 	case ID_CAMERA_MOVE_UP:
 	case ID_CAMERA_MOVE_DOWN:
-		return true;
+		return mapViewFocused();
 	case ID_OBJECT_MOVE_FORWARD:
 	case ID_OBJECT_MOVE_BACKWARD:
 	case ID_OBJECT_MOVE_LEFT:
@@ -283,48 +282,59 @@ bool CMainFrame::validateCommand(UINT id)
 	case ID_OBJECT_FLIP_HORIZONTALLY:
 	case ID_OBJECT_FLIP_VERTICALLY:
 	case ID_OBJECT_DUPLICATE:
-		return selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES;
+		return mapViewFocused() && (selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES);
 	case ID_OBJECT_ENLARGE_BRUSHES:
-		return selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES;
+		return mapViewFocused() && selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES;
 	case ID_TEXTURE_MOVE_UP:
 	case ID_TEXTURE_MOVE_DOWN:
 	case ID_TEXTURE_MOVE_LEFT:
 	case ID_TEXTURE_MOVE_RIGHT:
 	case ID_TEXTURE_ROTATE_CW_BY_15:
 	case ID_TEXTURE_ROTATE_CCW_BY_15:
-		return selection.mode() == TrenchBroom::Model::TB_SM_FACES;
-		break;
+		return mapViewFocused() && selection.mode() == TrenchBroom::Model::TB_SM_FACES;
 	case ID_EDIT_CURSOR_UP:
+		if (!mapViewFocused())
+			return false;
 		if (selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES)
 			return validateCommand(ID_OBJECT_MOVE_FORWARD);
 		else if (selection.mode() == TrenchBroom::Model::TB_SM_FACES)
 			return validateCommand(ID_TEXTURE_MOVE_UP);
 		return false;
 	case ID_EDIT_CURSOR_DOWN:
+		if (!mapViewFocused())
+			return false;
 		if (selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES)
 			return validateCommand(ID_OBJECT_MOVE_BACKWARD);
 		else if (selection.mode() == TrenchBroom::Model::TB_SM_FACES)
 			return validateCommand(ID_TEXTURE_MOVE_DOWN);
 		return false;
 	case ID_EDIT_CURSOR_LEFT:
+		if (!mapViewFocused())
+			return false;
 		if (selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES)
 			return validateCommand(ID_OBJECT_MOVE_LEFT);
 		else if (selection.mode() == TrenchBroom::Model::TB_SM_FACES)
 			return validateCommand(ID_TEXTURE_MOVE_LEFT);
 		return false;
 	case ID_EDIT_CURSOR_RIGHT:
+		if (!mapViewFocused())
+			return false;
 		if (selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES)
 			return validateCommand(ID_OBJECT_MOVE_RIGHT);
 		else if (selection.mode() == TrenchBroom::Model::TB_SM_FACES)
 			return validateCommand(ID_TEXTURE_MOVE_RIGHT);
 		return false;
 	case ID_EDIT_PAGE_UP:
+		if (!mapViewFocused())
+			return false;
 		if (selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES)
 			return validateCommand(ID_OBJECT_PITCH_90_CW);
 		else if (selection.mode() == TrenchBroom::Model::TB_SM_FACES)
 			return validateCommand(ID_TEXTURE_ROTATE_CW_BY_15);
 		return false;
 	case ID_EDIT_PAGE_DOWN:
+		if (!mapViewFocused())
+			return false;
 		if (selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES)
 			return validateCommand(ID_OBJECT_PITCH_90_CCW);
 		else if (selection.mode() == TrenchBroom::Model::TB_SM_FACES)
