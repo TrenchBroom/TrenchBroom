@@ -10,6 +10,7 @@
 
 #include <queue>
 #include "Gwen/Gwen.h"
+#include "Gwen/Platform.h"
 
 // should be private to the implementation
 void FindKeyboardFocus( Gwen::Controls::Base* pControl );
@@ -68,8 +69,8 @@ namespace Gwen
 		bool IsRightMouseDown();
 		Gwen::Point GetMousePosition();
 
-		inline bool IsShiftDown(){ return IsKeyDown( Gwen::Key::Shift ); }
-		inline bool IsControlDown(){ return IsKeyDown( Gwen::Key::Control ); }
+		inline bool IsShiftDown(){ return Gwen::Platform::IsModifierKeyDown( Gwen::Key::Shift ); }
+		inline bool IsControlDown(){ return Gwen::Platform::IsModifierKeyDown( Gwen::Key::Control ); }
 
 		// Does copy, paste etc
 		bool DoSpecialKeys( Controls::Base* pCanvas, Gwen::UnicodeChar chr );

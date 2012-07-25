@@ -86,8 +86,6 @@ namespace TrenchBroom {
             
             const Properties& properties() const;
             const PropertyValue* propertyForKey(const PropertyKey& key) const;
-            bool propertyWritable(const PropertyKey& key) const;
-            bool propertyDeletable(const PropertyKey& key) const;
             void setProperty(const PropertyKey& key, const PropertyValue& value);
             void setProperty(const PropertyKey& key, const PropertyValue* value);
             void setProperty(const PropertyKey& key, const Vec3f& value, bool round);

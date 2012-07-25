@@ -43,6 +43,8 @@ namespace Gwen
         String ResolveFontPath(Gwen::Font* pFont);
         UnicodeString GetDefaultFontFace();
         float GetDefaultFontSize();
+
+		bool IsModifierKeyDown(int key);
 	}
 
 }

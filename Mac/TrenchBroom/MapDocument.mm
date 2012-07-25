@@ -82,11 +82,24 @@ namespace TrenchBroom {
 }
 
 @interface MapDocument (Private)
+- (BOOL)mapViewFocused;
 - (BOOL)gridOffModifierPressed;
 - (void)autosave;
 @end
 
 @implementation MapDocument (Private)
+
+- (BOOL)mapViewFocused {
+    for (NSWindowController* controller in [self windowControllers]) {
+        if ([controller isKindOfClass:[MapWindowController class]]) {
+            MapWindowController* mapController = (MapWindowController*)controller;
+            if ([mapController mapViewFocused])
+                return true;
+        }
+    }
+    
+    return false;
+}
 
 - (BOOL)gridOffModifierPressed {
     return ([NSEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask;
@@ -412,22 +425,30 @@ namespace TrenchBroom {
             [menuItem setTitle:[NSString stringWithFormat:@"Redo %@", objcName]];
         }
     } else if (action == @selector(delete:)) {
-        return selection.mode() == Model::TB_SM_BRUSHES || selection.mode() == Model::TB_SM_ENTITIES || selection.mode() == Model::TB_SM_BRUSHES_ENTITIES;
-    } else if (action == @selector(selectEntity:)) {
-        return selection.mode() == Model::TB_SM_BRUSHES;
+        return [self mapViewFocused] && (selection.mode() == Model::TB_SM_BRUSHES || selection.mode() == Model::TB_SM_ENTITIES || selection.mode() == Model::TB_SM_BRUSHES_ENTITIES);
+    } else if (action == @selector(selectAll:)) {
+        return [self mapViewFocused];
+    } else if (action == @selector(selectEntities:)) {
+        return [self mapViewFocused] && selection.mode() == Model::TB_SM_BRUSHES;
     } else if (action == @selector(selectTouching:)) {
-        return selection.mode() == Model::TB_SM_BRUSHES && selection.brushes().size() == 1;
+        return [self mapViewFocused] && selection.mode() == Model::TB_SM_BRUSHES && selection.brushes().size() == 1;
     } else if (action == @selector(selectNone:)) {
-        return !selection.empty();
+        return [self mapViewFocused] && !selection.empty();
     } else if (action == @selector(toggleVertexTool:)) {
+        if (![self mapViewFocused])
+            return false;
         Editor* editor = (Editor *)[editorHolder editor];
         InputController& inputController = editor->inputController();
         return inputController.moveVertexToolActive() || selection.mode() == Model::TB_SM_BRUSHES;
     } else if (action == @selector(toggleEdgeTool:)) {
+        if (![self mapViewFocused])
+            return false;
         Editor* editor = (Editor *)[editorHolder editor];
         InputController& inputController = editor->inputController();
         return inputController.moveEdgeToolActive() || selection.mode() == Model::TB_SM_BRUSHES;
     } else if (action == @selector(toggleFaceTool:)) {
+        if (![self mapViewFocused])
+            return false;
         Editor* editor = (Editor *)[editorHolder editor];
         InputController& inputController = editor->inputController();
         return inputController.moveFaceToolActive() || selection.mode() == Model::TB_SM_BRUSHES;
@@ -437,7 +458,7 @@ namespace TrenchBroom {
                action == @selector(moveTexturesDown:) ||
                action == @selector(rotateTexturesCW:) ||
                action == @selector(rotateTexturesCCW:)) {
-        return selection.mode() == TB_SM_FACES;
+        return [self mapViewFocused] && selection.mode() == TB_SM_FACES;
     } else if (action == @selector(moveObjectsLeft:) ||
                action == @selector(moveObjectsUp:) ||
                action == @selector(moveObjectsRight:) ||
@@ -453,15 +474,18 @@ namespace TrenchBroom {
                action == @selector(flipObjectsHorizontally:) ||
                action == @selector(flipObjectsVertically:) ||
                action == @selector(duplicateObjects:)) {
-        return selection.mode() == Model::TB_SM_BRUSHES || selection.mode() == Model::TB_SM_ENTITIES || selection.mode() == Model::TB_SM_BRUSHES_ENTITIES;
+        return [self mapViewFocused] && (selection.mode() == Model::TB_SM_BRUSHES || selection.mode() == Model::TB_SM_ENTITIES || selection.mode() == Model::TB_SM_BRUSHES_ENTITIES);
     } else if (action == @selector(enlargeBrushes:)) {
-        return selection.mode() == Model::TB_SM_BRUSHES;
+        return [self mapViewFocused] && selection.mode() == Model::TB_SM_BRUSHES;
     } else if (action == @selector(toggleGrid:)) {
         [menuItem setState:editor->grid().visible() ? NSOnState : NSOffState];
+        return [self mapViewFocused];
     } else if (action == @selector(toggleSnapToGrid:)) {
         [menuItem setState:editor->grid().snap() ? NSOnState : NSOffState];
+        return [self mapViewFocused];
     } else if (action == @selector(setGridSize:)) {
         [menuItem setState:editor->grid().size() == [menuItem tag] ? NSOnState : NSOffState];
+        return [self mapViewFocused];
     }
     
     return [super validateMenuItem:menuItem];

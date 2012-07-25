@@ -230,14 +230,6 @@ namespace TrenchBroom {
         }
 
         void FontManager::destroyStringRenderer(StringRendererPtr stringRenderer) {
-            std::vector<StringRendererPtr>::iterator unprepStrIt;
-            for (unprepStrIt = m_unpreparedStrings.begin(); unprepStrIt != m_unpreparedStrings.end(); ++unprepStrIt) {
-                if (unprepStrIt->get() == stringRenderer.get()) {
-                    m_unpreparedStrings.erase(unprepStrIt);
-                    break;
-                }
-            }
-
             FontCacheMap& fontCache = m_fontCache.fontCacheMap;
             FontCacheMap::iterator fontIt = fontCache.find(stringRenderer->fontDescriptor);
             StringCachePtr stringCachePtr;
@@ -249,8 +241,17 @@ namespace TrenchBroom {
                     entry->count--;
                     if (entry->count <= 0) {
                         stringCachePtr->stringCacheMap.erase(stringIt);
-                        if (stringCachePtr->stringCacheMap.empty())
+                        if (stringCachePtr->stringCacheMap.empty()) {
+                            std::vector<StringRendererPtr>::iterator unprepStrIt;
+                            for (unprepStrIt = m_unpreparedStrings.begin(); unprepStrIt != m_unpreparedStrings.end(); ++unprepStrIt) {
+                                if (unprepStrIt->get() == stringRenderer.get()) {
+                                    m_unpreparedStrings.erase(unprepStrIt);
+                                    break;
+                                }
+                            }
+
                             fontCache.erase(fontIt);
+                        }
                     }
                 }
             }

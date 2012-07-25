@@ -34,7 +34,7 @@ namespace TrenchBroom {
             if (angle != 0.0f) {
                 if (angle == -1.0f) glRotatef(90, 1, 0, 0);
                 else if (angle == -2.0f) glRotatef(-90, 1, 0, 0);
-                else glRotatef(-angle, 0, 0, 1);
+                else glRotatef(angle, 0, 0, 1);
             }
             
             render();

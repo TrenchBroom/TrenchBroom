@@ -45,7 +45,7 @@ namespace TrenchBroom {
     namespace Gui {
         typedef std::tr1::shared_ptr<Gwen::Font> FontPtr;
         typedef std::pair<Model::EntityDefinitionPtr, FontPtr> EntityCellData;
-        typedef void* EntityGroupData;
+        typedef std::string EntityGroupData;
 
         class EntityDragControl : public CellDragControl<EntityCellData> {
         protected:
@@ -62,12 +62,20 @@ namespace TrenchBroom {
             Renderer::Vbo* m_boundsVbo;
             Renderer::VboBlock* m_boundsBlock;
             
+            bool m_group;
+            std::string m_filterText;
+            
+            virtual void addEntityDefinitionToLayout(Model::EntityDefinitionPtr definition);
             virtual void doReloadLayout();
             virtual void SetDragAndDropPackage(CellRow<EntityCellData>::CellPtr cell);
             virtual CellDragControl<EntityCellData>* createDragControl(CellRow<EntityCellData>::CellPtr cell);
         public:
             EntityBrowserPanel(Gwen::Controls::Base* parent, Controller::Editor& editor);
             virtual ~EntityBrowserPanel();
+            
+            virtual void setGroup(bool group);
+            virtual void setFilterText(const std::string filterText);
+            
             virtual void RenderOver(Gwen::Skin::Base* skin);
         };
         
@@ -79,6 +87,9 @@ namespace TrenchBroom {
         public:
             EntityBrowserControl(Gwen::Controls::Base* parent, Controller::Editor& editor);
             virtual ~EntityBrowserControl();
+            
+            virtual void setGroup(bool group);
+            virtual void setFilterText(const std::string filterText);
             
             virtual void Render(Gwen::Skin::Base* skin);
         };

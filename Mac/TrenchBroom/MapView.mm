@@ -140,6 +140,10 @@ namespace TrenchBroom {
     [super dealloc];
 }
 
+- (BOOL)mapViewFocused {
+    return ((EditorGui*)editorGui)->mapViewFocused();
+}
+
 - (BOOL)acceptsFirstResponder {
     return YES;
 }

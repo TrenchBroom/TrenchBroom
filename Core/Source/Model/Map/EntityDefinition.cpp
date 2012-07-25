@@ -156,16 +156,16 @@ namespace TrenchBroom {
             return it->second;
         }
 
-        const std::vector<EntityDefinitionPtr>& EntityDefinitionManager::definitions() const {
+        const EntityDefinitionList& EntityDefinitionManager::definitions() const {
             return m_definitionsByName;
         }
 
-        std::vector<EntityDefinitionPtr> EntityDefinitionManager::definitions(EEntityDefinitionType type) const {
+        EntityDefinitionList EntityDefinitionManager::definitions(EEntityDefinitionType type) const {
             return definitions(type, ES_NAME);
         }
 
-        std::vector<EntityDefinitionPtr>EntityDefinitionManager::definitions(EEntityDefinitionType type, EEntityDefinitionSortCriterion criterion) const {
-            std::vector<EntityDefinitionPtr> definitionsOfType;
+        EntityDefinitionList EntityDefinitionManager::definitions(EEntityDefinitionType type, EEntityDefinitionSortCriterion criterion) const {
+            EntityDefinitionList definitionsOfType;
             for (unsigned int i = 0; i < m_definitionsByName.size(); i++)
                 if (m_definitionsByName[i]->type == type)
                     definitionsOfType.push_back(m_definitionsByName[i]);

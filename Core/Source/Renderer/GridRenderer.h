@@ -33,11 +33,12 @@ namespace TrenchBroom {
     namespace Renderer {
         class GridRenderer {
         private:
+            bool m_valid;
             Vec4f m_color;
             std::vector<GLuint> m_textures;
             void clear();
         public:
-            GridRenderer(const Vec4f& color) : m_color(color) {}
+            GridRenderer() : m_color(Vec4f(1.0f, 1.0f, 1.0f, 1.0f)), m_valid(false) {}
             ~GridRenderer();
             void setColor(const Vec4f& color);
             void activate(const Controller::Grid& grid);

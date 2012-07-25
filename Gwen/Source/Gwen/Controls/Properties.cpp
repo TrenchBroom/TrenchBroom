@@ -268,7 +268,7 @@ namespace Gwen
             m_deletable = deletable;
             if (!m_deletable && m_deleteButton != NULL && !m_removeDeleteButton)
                 m_removeDeleteButton = true;
-            else if (m_deletable && m_deleteButton == NULL) {
+            else if (m_deletable && m_deleteButton == NULL && IsValueHovered()) {
                 m_deleteButton = createDeleteButton();
                 m_removeDeleteButton = false;
             }
@@ -276,10 +276,8 @@ namespace Gwen
 
         Button* PropertyRow::createDeleteButton()
         {
-            Properties* pParent = gwen_cast<Properties>( GetParent() );
-            
-            Button* deleteButton = new Button(m_Key);
-            deleteButton->SetBounds(pParent->GetSplitWidth() - Height() + 3, 2, Height() - 4, Height() - 4);
+            Button* deleteButton = new Button(m_Value);
+            deleteButton->SetBounds(m_Value->Width() - Height() + 3, 2, Height() - 4, Height() - 4);
             deleteButton->SetText("X");
             deleteButton->onHoverEnter.Add(this, &PropertyRow::OnChildHoverEnter);
             deleteButton->onHoverLeave.Add(this, &PropertyRow::OnChildHoverLeave);
@@ -317,7 +315,7 @@ namespace Gwen
         void PropertyRow::OnChildHoverEnter(Base* control)
         {
             if (m_deletable) {
-                if (control == m_Key) {
+                if (control == m_Value) {
                     if (m_deleteButton == NULL) {
                         m_deleteButton = createDeleteButton();
                     }
@@ -331,7 +329,7 @@ namespace Gwen
         
         void PropertyRow::OnChildHoverLeave(Base* control)
         {
-            if (m_deletable && (control == m_Key || control == m_deleteButton))
+            if (m_deletable && (control == m_Value || control == m_deleteButton))
                 m_removeDeleteButton = true;
             control->Redraw();
         }

@@ -42,6 +42,7 @@ namespace TrenchBroom {
             virtual void updateDragPlane(ToolEvent& event);
 
             virtual bool leftMouseDown(ToolEvent& event);
+            virtual bool leftMouseUp(ToolEvent& event);
             virtual bool doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint);
             virtual bool doLeftDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
             virtual void doEndLeftDrag(ToolEvent& event);

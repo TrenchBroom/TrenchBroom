@@ -87,7 +87,7 @@ namespace TrenchBroom {
                     propertyRow->onKeyChange.Add(this, &EntityPropertyTableControl::propertyKeyChanged);
                     propertyRow->onValueChange.Add(this, &EntityPropertyTableControl::propertyValueChanged);
                     propertyRow->onDelete.Add(this, &EntityPropertyTableControl::propertyRowDelete);
-                    propertyRow->SetDeletable(m_entities[0]->propertyDeletable(cProp->first));
+                    propertyRow->SetDeletable(true);
                     m_propertyRows.push_back(propertyRow);
                 }
                 
@@ -122,13 +122,13 @@ namespace TrenchBroom {
             propertyRow->onKeyChange.Add(this, &EntityPropertyTableControl::propertyKeyChanged);
             propertyRow->onValueChange.Add(this, &EntityPropertyTableControl::propertyValueChanged);
             propertyRow->onDelete.Add(this, &EntityPropertyTableControl::propertyRowDelete);
+            propertyRow->SetDeletable(true);
             m_propertyRows.push_back(propertyRow);
             
             Model::PropertyKey key = propertyRow->GetKey()->GetContentAnsi();
             Model::PropertyValue value = propertyRow->GetValue()->GetContentAnsi();
 
             m_editor.map().setEntityProperty(key, &value);
-            propertyRow->SetDeletable(m_entities[0]->propertyDeletable(key));
         }
 
         void EntityPropertyTableControl::propertyRowDelete(Gwen::Controls::Base* control) {

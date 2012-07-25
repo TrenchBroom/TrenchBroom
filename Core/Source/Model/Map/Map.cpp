@@ -206,8 +206,12 @@ namespace TrenchBroom {
             if (m_postNotifications) propertiesWillChange(entities);
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
-                if (value == NULL) entity->deleteProperty(key);
-                else entity->setProperty(key, value);
+                if (value == NULL)
+                    entity->deleteProperty(key);
+                else
+                    entity->setProperty(key, value);
+                if (key == ClassnameKey)
+                    setEntityDefinition(entity);
             }
             if (m_postNotifications) propertiesDidChange(entities);
             
@@ -278,7 +282,7 @@ namespace TrenchBroom {
                 return;
             
             for (unsigned int i = 0; i < entities.size(); i++)
-                if (!entities[i]->propertyDeletable(oldKey) || entities[i]->propertyForKey(newKey) != NULL)
+                if (entities[i]->propertyForKey(newKey) != NULL)
                     return;
             
             m_undoManager->begin("Rename Entity Property");

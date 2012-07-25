@@ -7,6 +7,7 @@
 #include "Gwen/Macros.h"
 #include "Gwen/Platform.h"
 #include "Gwen/Font.h"
+#include "Gwen/InputHandler.h"
 #include "Gwen/Utility.h"
 
 #ifdef _WIN32
@@ -271,6 +272,20 @@ Gwen::UnicodeString Gwen::Platform::GetDefaultFontFace() {
 
 float Gwen::Platform::GetDefaultFontSize() {
     return 13.0f;
+}
+
+bool Gwen::Platform::IsModifierKeyDown(int key)
+{
+	switch (key) {
+	case Gwen::Key::Shift:
+		return GetAsyncKeyState(VK_SHIFT) != 0;
+	case Gwen::Key::Control:
+		return GetAsyncKeyState(VK_CONTROL) != 0;
+	case Gwen::Key::Alt:
+		return GetAsyncKeyState(VK_MENU) != 0;
+	default:
+		return false;
+	}
 }
 
 #endif // WIN32

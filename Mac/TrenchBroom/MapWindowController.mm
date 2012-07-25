@@ -31,6 +31,10 @@
     return self;
 }
 
+- (BOOL)mapViewFocused {
+    return [mapView mapViewFocused];
+}
+
 - (IBAction)showPreferences:(id)sender {
     PreferencesWindowController* preferencesController = [PreferencesWindowController sharedInstance];
     [[preferencesController window] makeKeyAndOrderFront:self];

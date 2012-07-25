@@ -86,9 +86,17 @@ namespace TrenchBroom {
 
         class MapRenderer {
         private:
+            class CachedEntityRenderer {
+            public:
+                EntityRenderer* renderer;
+                std::string classname;
+                CachedEntityRenderer() : renderer(NULL), classname("") {}
+                CachedEntityRenderer(EntityRenderer* renderer, const std::string& classname) : renderer(renderer), classname(classname) {}
+            };
+            
             typedef std::vector<GLuint> IndexBuffer;
             typedef std::vector<TexturedTriangleRenderInfo> FaceRenderInfos;
-            typedef std::map<Model::Entity*, EntityRenderer*> EntityRenderers;
+            typedef std::map<Model::Entity*, CachedEntityRenderer> EntityRenderers;
 
             Controller::Editor& m_editor;
 
@@ -133,7 +141,8 @@ namespace TrenchBroom {
             bool m_selectedEntityDataValid;
             bool m_geometryDataValid;
             bool m_selectedGeometryDataValid;
-            
+
+            GridRenderer* m_gridRenderer;
             Model::Assets::Texture* m_dummyTexture;
             FontManager& m_fontManager;
 
@@ -142,6 +151,7 @@ namespace TrenchBroom {
             void rebuildGeometryData(RenderContext& context);
             void writeEntityBounds(RenderContext& context, const std::vector<Model::Entity*>& entities, EdgeRenderInfo& renderInfo, VboBlock& block);
             void rebuildEntityData(RenderContext& context);
+            bool reloadEntityModel(const Model::Entity& entity, CachedEntityRenderer& cachedRenderer);
             void reloadEntityModels(RenderContext& context, EntityRenderers& renderers);
             void reloadEntityModels(RenderContext& context);
             
@@ -178,7 +188,7 @@ namespace TrenchBroom {
             void addFigure(Figure& figure);
             void removeFigure(Figure& figure);
             
-            void render(RenderContext& context);
+            void render();
             
             EntityRendererManager& entityRendererManager();
             FontManager& fontManager();

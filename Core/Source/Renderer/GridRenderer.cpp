@@ -38,12 +38,17 @@ namespace TrenchBroom {
         }
         
         void GridRenderer::setColor(const Vec4f& color) {
-            if (m_color == color) return;
+            if (m_color == color)
+                return;
             m_color = color;
-            clear();
+            m_valid = false;
         }
         
         void GridRenderer::activate(const Controller::Grid& grid) {
+            if (!m_valid)
+                clear();
+            m_valid = true;
+            
             unsigned int index = grid.size();
             if (index >= m_textures.size()) {
                 int oldSize = m_textures.size();

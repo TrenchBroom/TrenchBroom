@@ -31,6 +31,8 @@ public:
 	CSliderCtrl m_brightnessSlider;
 	CSliderCtrl m_fovSlider;
 	CStatic m_brightnessLabel;
+	CSliderCtrl m_gridAlphaSlider;
+	CStatic m_gridAlphaLabel;
 	CStatic m_fovLabel;
 	CStatic m_quakePathLabel;
 	CSliderCtrl m_cameraLookSpeedSlider;
@@ -56,6 +58,7 @@ protected:
 	void updateControls();
 	void updateSliderLabels();
 	float brightness();
+	float gridAlpha();
 	float fov();
 	float cameraLookSpeed();
 	float cameraPanSpeed();

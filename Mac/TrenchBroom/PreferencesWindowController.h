@@ -35,6 +35,8 @@ namespace TrenchBroom {
     IBOutlet NSTextField* quakePathLabel;
     IBOutlet NSSlider* brightnessSlider;
     IBOutlet NSTextField* brightnessLabel;
+    IBOutlet NSSlider* gridAlphaSlider;
+    IBOutlet NSTextField* gridAlphaLabel;
     IBOutlet NSSlider* fovSlider;
     IBOutlet NSTextField* fovLabel;
     IBOutlet NSSlider* cameraLookSpeedSlider;
@@ -53,6 +55,7 @@ namespace TrenchBroom {
 - (void)update;
 - (IBAction)chooseQuakePath:(id)sender;
 - (IBAction)changeBrightness:(id)sender;
+- (IBAction)changeGridAlpha:(id)sender;
 - (IBAction)changeFov:(id)sender;
 - (IBAction)changeCameraLookSpeed:(id)sender;
 - (IBAction)changeCameraLookInvertY:(id)sender;
