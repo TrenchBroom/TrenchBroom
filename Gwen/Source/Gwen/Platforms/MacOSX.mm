@@ -7,6 +7,7 @@
 #include "Gwen/Macros.h"
 #include "Gwen/Platform.h"
 #include "Gwen/Font.h"
+#include "Gwen/InputHandler.h"
 #include "Gwen/Utility.h"
 #include <fstream>
 
@@ -117,7 +118,21 @@ namespace Gwen {
         float GetDefaultFontSize() {
             return 13.0f;
         }
-        
+
+		bool IsModifierKeyDown(int key) {
+            switch (key) {
+                case Gwen::Key::Shift:
+                    return ([NSEvent modifierFlags] & NSShiftKeyMask) != 0;
+                case Gwen::Key::Control:
+                    return ([NSEvent modifierFlags] & NSControlKeyMask) != 0;
+                case Gwen::Key::Alt:
+                    return ([NSEvent modifierFlags] & NSAlternateKeyMask) != 0;
+                case Gwen::Key::Command:
+                    return ([NSEvent modifierFlags] & NSCommandKeyMask) != 0;
+                default:
+                    return false;
+            }
+        }
     }
 }
 
