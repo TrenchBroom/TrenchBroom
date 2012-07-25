@@ -25,6 +25,7 @@
 #include <iostream>
 #include <iomanip>
 #include "Model/Preferences.h"
+#include "Utilities/VecMath.h"
 
 // PreferencesDialog dialog
 
@@ -46,6 +47,8 @@ BOOL PreferencesDialog::OnInitDialog()
 
 	m_brightnessSlider.SetRange(0, 20, TRUE);
 	m_brightnessSlider.SetTicFreq(1);
+	m_gridAlphaSlider.SetRange(0, 20, TRUE);
+	m_gridAlphaSlider.SetTicFreq(1);
 	m_fovSlider.SetRange(0, 20, TRUE);
 	m_fovSlider.SetTicFreq(1);
 
@@ -80,6 +83,8 @@ void PreferencesDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHECK_PAN_INVERT_Y, m_cameraPanInvertYCheckbox);
 	DDX_Control(pDX, IDC_SLIDER_MOVE_SPEED, m_cameraMoveSpeedSlider);
 	DDX_Control(pDX, IDC_STATIC_MOVE_SPEED, m_cameraMoveSpeedLabel);
+	DDX_Control(pDX, IDC_SLIDER_GRID_ALPHA, m_gridAlphaSlider);
+	DDX_Control(pDX, IDC_STATIC_GRID_ALPHA, m_gridAlphaLabel);
 }
 
 void PreferencesDialog::updateControls()
@@ -89,6 +94,7 @@ void PreferencesDialog::updateControls()
 	m_quakePathLabel.SetWindowTextA(_T(prefs.quakePath().c_str()));
 	m_brightnessSlider.SetPos(static_cast<int>((prefs.brightness() - 0.3f) * 10.0f));
 	m_fovSlider.SetPos(static_cast<int>((prefs.cameraFov() - 45.0f) / 5.0f));
+	m_gridAlphaSlider.SetPos(static_cast<int>(prefs.gridColor().w * 20));
 
 	m_cameraLookSpeedSlider.SetPos(static_cast<int>(prefs.cameraLookSpeed() * 50.0f));
 	m_cameraPanSpeedSlider.SetPos(static_cast<int>(prefs.cameraPanSpeed() * 50.0f));
@@ -106,6 +112,10 @@ void PreferencesDialog::updateSliderLabels()
 	std::stringstream brightnessStr;
 	brightnessStr << std::setiosflags(std::ios::fixed) << std::setprecision(2) << brightness();
 	m_brightnessLabel.SetWindowTextA(_T(brightnessStr.str().c_str()));
+
+	std::stringstream gridAlphaStr;
+	gridAlphaStr << std::setiosflags(std::ios::fixed) << std::setprecision(2) << gridAlpha();
+	m_gridAlphaLabel.SetWindowTextA(_T(gridAlphaStr.str().c_str()));
 
 	std::stringstream fovStr;
 	fovStr << std::setiosflags(std::ios::fixed) << std::setprecision(0) << fov();
@@ -127,6 +137,11 @@ void PreferencesDialog::updateSliderLabels()
 float PreferencesDialog::brightness()
 {
 	return m_brightnessSlider.GetPos() / 10.0f + 0.3f;
+}
+
+float PreferencesDialog::gridAlpha()
+{
+	return m_gridAlphaSlider.GetPos() / 20.0f;
 }
 
 float PreferencesDialog::fov()
@@ -163,6 +178,9 @@ void PreferencesDialog::OnClickedButtonOk()
 {
 	TrenchBroom::Model::Preferences& prefs = *TrenchBroom::Model::Preferences::sharedPreferences;
 	prefs.setBrightness(brightness());
+	Vec4f gridColor = prefs.gridColor();
+	gridColor.w = gridAlpha();
+	prefs.setGridColor(gridColor);
 	prefs.setCameraFov(fov());
 
 	prefs.setCameraLookSpeed(cameraLookSpeed());
