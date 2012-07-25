@@ -57,7 +57,16 @@ namespace TrenchBroom {
             
             Model::Selection& selection = m_editor.map().selection();
             m_guideFigure->setBounds(selection.bounds());
-            return true;
+            return false; // don't prevent the click from reaching other tools
+        }
+        
+        bool ResizeBrushTool::leftMouseUp(ToolEvent& event) {
+            if (m_guideFigure != NULL) {
+                removeFigure(*m_guideFigure);
+                delete m_guideFigure;
+                m_guideFigure = NULL;
+            }
+            return false;
         }
         
         bool ResizeBrushTool::doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint) {
