@@ -40,6 +40,8 @@ namespace TrenchBroom {
         };
 
 		std::vector<ListenerBase*> m_ptrs;
+        bool m_modified;
+        size_t m_modifiedIndex;
     public:
         template <typename Class>
         class Listener : public ListenerBase {
@@ -63,16 +65,21 @@ namespace TrenchBroom {
         };
         
         Event& operator+=(ListenerBase* ptr) {
+            m_modified = true;
+            m_modifiedIndex = m_ptrs.size();
             m_ptrs.push_back(ptr);
             return *this;
         }
         
         Event& operator-=(ListenerBase* ptr) {
             typename std::vector<ListenerBase*>::iterator it;
-            for (it = m_ptrs.begin(); it != m_ptrs.end(); ++it) {
+            unsigned int i = 0;
+            for (it = m_ptrs.begin(); it != m_ptrs.end(); ++it, i++) {
                 if (**it == *ptr) {
                     delete *it;
                     m_ptrs.erase(it);
+                    m_modified = true;
+                    m_modifiedIndex = i;
                     break;
                 }
             }
@@ -81,14 +88,21 @@ namespace TrenchBroom {
         }
         
         void operator()(Arg1 arg1) {
-            typename std::vector<ListenerBase*>::iterator end = m_ptrs.end();
-            for (typename std::vector<ListenerBase*>::iterator i = m_ptrs.begin(); i != end; ++i) {
-                (*(*i))(arg1); 
+            m_modified = false;
+            m_modifiedIndex = 0;
+            unsigned int i = 0;
+            while (i < m_ptrs.size()) {
+                (*m_ptrs[i])(arg1);
+                if (!m_modified || m_modifiedIndex > i)
+                    i++;
+                m_modified = false;
+                m_modifiedIndex = 0;
             }
         }
 
 		Event() {
-			m_ptrs.clear();
+            m_modified = false;
+            m_modifiedIndex = 0;
 		}
 
         ~Event() {

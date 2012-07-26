@@ -75,10 +75,12 @@ namespace TrenchBroom {
             void toggleMoveVertexTool();
             void toggleMoveEdgeTool();
             void toggleMoveFaceTool();
+            void toggleClipTool() {}
             
             bool moveVertexToolActive();
             bool moveEdgeToolActive();
             bool moveFaceToolActive();
+            bool clipToolActive() {return false;}
             
             bool key(wchar_t c);
             void modifierKeyDown(EModifierKeys modifierKey);

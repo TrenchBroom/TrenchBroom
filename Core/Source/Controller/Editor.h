@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_Editor_h
 #define TrenchBroom_Editor_h
 
+#include "Model/Selection.h"
 #include "Utilities/VecMath.h"
 
 #include <string>
@@ -85,6 +86,7 @@ namespace TrenchBroom {
             void textureManagerDidChange(Model::Assets::TextureManager& textureManager);
             void preferencesDidChange(const std::string& key);
             void undoGroupCreated(const Model::UndoGroup& group);
+            void selectionDidChange(const Model::SelectionEventData& data);
         public:
             Editor(const std::string& entityDefinitionFilePath, const std::string& palettePath);
             ~Editor();

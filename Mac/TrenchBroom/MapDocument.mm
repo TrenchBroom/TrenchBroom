@@ -439,19 +439,19 @@ namespace TrenchBroom {
             return false;
         Editor* editor = (Editor *)[editorHolder editor];
         InputController& inputController = editor->inputController();
-        return inputController.moveVertexToolActive() || selection.mode() == Model::TB_SM_BRUSHES;
+        return inputController.moveVertexToolActive() || selection.mode() == Model::TB_SM_BRUSHES || selection.mode() == Model::TB_SM_BRUSHES_ENTITIES;
     } else if (action == @selector(toggleEdgeTool:)) {
         if (![self mapViewFocused])
             return false;
         Editor* editor = (Editor *)[editorHolder editor];
         InputController& inputController = editor->inputController();
-        return inputController.moveEdgeToolActive() || selection.mode() == Model::TB_SM_BRUSHES;
+        return inputController.moveEdgeToolActive() || selection.mode() == Model::TB_SM_BRUSHES || selection.mode() == Model::TB_SM_BRUSHES_ENTITIES;
     } else if (action == @selector(toggleFaceTool:)) {
         if (![self mapViewFocused])
             return false;
         Editor* editor = (Editor *)[editorHolder editor];
         InputController& inputController = editor->inputController();
-        return inputController.moveFaceToolActive() || selection.mode() == Model::TB_SM_BRUSHES;
+        return inputController.moveFaceToolActive() || selection.mode() == Model::TB_SM_BRUSHES || selection.mode() == Model::TB_SM_BRUSHES_ENTITIES;
     } else if (action == @selector(moveTexturesLeft:) || 
                action == @selector(moveTexturesUp:) || 
                action == @selector(moveTexturesRight:) ||

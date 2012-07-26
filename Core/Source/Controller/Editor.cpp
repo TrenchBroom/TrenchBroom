@@ -32,7 +32,6 @@
 #include "Model/Map/Map.h"
 #include "Model/Map/Entity.h"
 #include "Model/Preferences.h"
-#include "Model/Selection.h"
 #include "Model/Undo/UndoManager.h"
 #include "Utilities/Filter.h"
 #include "Utilities/Utils.h"
@@ -127,6 +126,20 @@ namespace TrenchBroom {
             m_autosaver->updateLastModificationTime();
         }
 
+        void Editor::selectionDidChange(const Model::SelectionEventData& data) {
+            Model::Selection& selection = m_map->selection();
+            if (selection.mode() == Model::TB_SM_FACES) {
+                if (m_inputController->moveVertexToolActive())
+                    m_inputController->toggleMoveVertexTool();
+                else if (m_inputController->moveEdgeToolActive())
+                    m_inputController->toggleMoveEdgeTool();
+                else if (m_inputController->moveFaceToolActive())
+                    m_inputController->toggleMoveFaceTool();
+                else if (m_inputController->clipToolActive())
+                    m_inputController->toggleClipTool();
+            }
+        }
+
         Editor::Editor(const std::string& entityDefinitionFilePath, const std::string& palettePath) : m_entityDefinitionFilePath(entityDefinitionFilePath), m_renderer(NULL) {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
 
@@ -146,7 +159,9 @@ namespace TrenchBroom {
             Model::Preferences::sharedPreferences->preferencesDidChange += new Model::Preferences::PreferencesEvent::Listener<Editor>(this, &Editor::preferencesDidChange);
             m_textureManager->textureManagerDidChange += new Model::Assets::TextureManager::TextureManagerEvent::Listener<Editor>(this, &Editor::textureManagerDidChange);
 
-            m_map->undoManager().undoGroupCreated  += new Model::UndoManager::UndoEvent::Listener<Editor>(this, &Editor::undoGroupCreated);
+            m_map->undoManager().undoGroupCreated   += new Model::UndoManager::UndoEvent::Listener<Editor>(this, &Editor::undoGroupCreated);
+            m_map->selection().selectionAdded       += new Model::Selection::SelectionEvent::Listener<Editor>(this, &Editor::selectionDidChange);
+            m_map->selection().selectionRemoved     += new Model::Selection::SelectionEvent::Listener<Editor>(this, &Editor::selectionDidChange);
         }
 
         Editor::~Editor() {
@@ -166,7 +181,6 @@ namespace TrenchBroom {
             delete m_options;
             delete m_filter;
         }
-
 
 		void Editor::loadMap(const std::string& path, ProgressIndicator* indicator) {
 			indicator->setText("Clearing map...");
