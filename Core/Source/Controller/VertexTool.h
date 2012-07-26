@@ -57,17 +57,17 @@ namespace TrenchBroom {
             EState m_state;
             
             Model::Brush* m_brush;
-            int m_index;
+            size_t m_index;
             
             virtual int hitType() = 0;
-            virtual int index(Model::Hit& hit);
+            virtual size_t index(Model::Hit& hit);
             virtual std::string undoName() = 0;
-            virtual Vec3f movePosition(const Model::Brush& brush, int index) = 0;
+            virtual Vec3f movePosition(const Model::Brush& brush, size_t index) = 0;
             virtual const Vec4f& handleColor() = 0;
             virtual const Vec4f& hiddenHandleColor() = 0;
             virtual const Vec4f& selectedHandleColor() = 0;
             virtual const Vec4f& hiddenSelectedHandleColor() = 0;
-            virtual Model::MoveResult performMove(Model::Brush& brush, int index, const Vec3f& delta) = 0;
+            virtual Model::MoveResult performMove(Model::Brush& brush, size_t index, const Vec3f& delta) = 0;
             
             virtual void brushesDidChange(const Model::BrushList& brushes);
             virtual void selectionChanged(const Model::SelectionEventData& event);
@@ -76,7 +76,7 @@ namespace TrenchBroom {
             virtual void updateHandleFigure(Renderer::HandleFigure& figure) = 0;
             virtual void deleteHandleFigure();
             virtual void createSelectedHandleFigures();
-            virtual void updateSelectedHandleFigures(Renderer::HandleFigure& handleFigure, Renderer::PointGuideFigure& guideFigure, const Model::Brush& brush, int index) = 0;
+            virtual void updateSelectedHandleFigures(Renderer::HandleFigure& handleFigure, Renderer::PointGuideFigure& guideFigure, const Model::Brush& brush, size_t index) = 0;
             virtual void deleteSelectedHandleFigures();
         public:
             VertexTool(Controller::Editor& editor);

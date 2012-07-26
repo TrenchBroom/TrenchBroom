@@ -184,7 +184,7 @@ namespace TrenchBroom {
                         face->texture->activate();
                     }
                     
-                    unsigned int vertexCount = 3 * face->side->vertices.size() - 6;
+                    unsigned int vertexCount = static_cast<unsigned int>(3 * face->side->vertices.size() - 6);
                     glDrawArrays(GL_TRIANGLES, index, vertexCount);
                     index += vertexCount;
                     

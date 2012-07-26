@@ -27,17 +27,17 @@ namespace TrenchBroom {
         class MoveVertexTool : public VertexTool {
         protected:
             virtual int hitType();
-            virtual int index(Model::Hit& hit);
+            virtual size_t index(Model::Hit& hit);
             virtual std::string undoName();
-            virtual Vec3f movePosition(const Model::Brush& brush, int index);
+            virtual Vec3f movePosition(const Model::Brush& brush, size_t index);
             virtual const Vec4f& handleColor();
             virtual const Vec4f& hiddenHandleColor();
             virtual const Vec4f& selectedHandleColor();
             virtual const Vec4f& hiddenSelectedHandleColor();
-            virtual Model::MoveResult performMove(Model::Brush& brush, int index, const Vec3f& delta);
+            virtual Model::MoveResult performMove(Model::Brush& brush, size_t index, const Vec3f& delta);
 
             virtual void updateHandleFigure(Renderer::HandleFigure& handleFigure);
-            virtual void updateSelectedHandleFigures(Renderer::HandleFigure& handleFigure, Renderer::PointGuideFigure& guideFigure, const Model::Brush& brush, int index);
+            virtual void updateSelectedHandleFigures(Renderer::HandleFigure& handleFigure, Renderer::PointGuideFigure& guideFigure, const Model::Brush& brush, size_t index);
         public:
             MoveVertexTool(Controller::Editor& editor) : VertexTool(editor) {}
             virtual ~MoveVertexTool() {}

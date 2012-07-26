@@ -88,9 +88,9 @@ namespace TrenchBroom {
             void enlarge(float delta, bool lockTextures);
             void snap();
             
-            MoveResult moveVertex(int vertexIndex, const Vec3f& delta);
-            MoveResult moveEdge(int edgeIndex, const Vec3f& delta);
-            MoveResult moveFace(int faceIndex, const Vec3f& delta);
+            MoveResult moveVertex(size_t vertexIndex, const Vec3f& delta);
+            MoveResult moveEdge(size_t edgeIndex, const Vec3f& delta);
+            MoveResult moveFace(size_t faceIndex, const Vec3f& delta);
         };
     }
 }

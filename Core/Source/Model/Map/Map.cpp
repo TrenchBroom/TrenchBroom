@@ -772,7 +772,7 @@ namespace TrenchBroom {
             return del;
         }
 
-        MoveResult Map::moveVertex(Brush& brush, int vertexIndex, const Vec3f& delta) {
+        MoveResult Map::moveVertex(Brush& brush, size_t vertexIndex, const Vec3f& delta) {
             if (find(m_selection->brushes().begin(), m_selection->brushes().end(), &brush) == m_selection->brushes().end())
                 m_selection->addBrush(brush);
             BrushList brushArray;
@@ -790,7 +790,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        MoveResult Map::moveEdge(Brush& brush, int edgeIndex, const Vec3f& delta) {
+        MoveResult Map::moveEdge(Brush& brush, size_t edgeIndex, const Vec3f& delta) {
             if (find(m_selection->brushes().begin(), m_selection->brushes().end(), &brush) == m_selection->brushes().end())
                 m_selection->addBrush(brush);
             BrushList brushArray;
@@ -808,7 +808,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        MoveResult Map::moveFace(Brush& brush, int faceIndex, const Vec3f& delta) {
+        MoveResult Map::moveFace(Brush& brush, size_t faceIndex, const Vec3f& delta) {
             if (find(m_selection->brushes().begin(), m_selection->brushes().end(), &brush) == m_selection->brushes().end())
                 m_selection->addBrush(brush);
             BrushList brushArray;

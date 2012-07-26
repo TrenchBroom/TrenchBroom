@@ -237,7 +237,8 @@ namespace TrenchBroom {
                 m_stringsValid = true;
             }
             
-            VboBlock* block = vbo.allocBlock(vertices.size() * sizeof(Vec3f));
+            unsigned int vertexCount = static_cast<unsigned int>(vertices.size());
+            VboBlock* block = vbo.allocBlock(vertexCount * sizeof(Vec3f));
             vbo.map();
             block->writeVecs(vertices, 0);
             vbo.unmap();
@@ -277,7 +278,7 @@ namespace TrenchBroom {
             glVertexPointer(3, GL_FLOAT, 0, reinterpret_cast<const GLvoid*>(block->address));
             
             glColorV4f(m_color);
-            glDrawArrays(GL_LINES, 0, vertices.size());
+            glDrawArrays(GL_LINES, 0, vertexCount);
             
             glPopClientAttrib();
             block->freeBlock();

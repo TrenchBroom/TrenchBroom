@@ -32,7 +32,7 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        int VertexTool::index(Model::Hit& hit) {
+        size_t VertexTool::index(Model::Hit& hit) {
             return hit.index;
         }
 
@@ -165,7 +165,7 @@ namespace TrenchBroom {
                 deleteSelectedHandleFigures();
                 createHandleFigure();
                 m_brush = NULL;
-                m_index = -1;
+                m_index = 0;
                 m_state = ACTIVE;
                 return true;
             }
@@ -176,7 +176,7 @@ namespace TrenchBroom {
         bool VertexTool::doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint) {
             Model::Hit* hit = event.hits->first(hitType(), true);
             if (hit == NULL)
-                return false;
+                return true;
             
             assert(m_state == SELECTED);
 
@@ -193,37 +193,37 @@ namespace TrenchBroom {
         }
         
         bool VertexTool::doLeftDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint) {
-            assert(m_state == DRAGGING);
-            assert(m_brush != NULL);
-            assert(m_index != -1);
-            
-            Grid& grid = m_editor.grid();
-            Vec3f position = movePosition(*m_brush, m_index);
-            Vec3f delta = grid.moveDelta(position, m_editor.map().worldBounds(), curMousePoint - referencePoint);
-            
-            if (delta.null())
-                return true;
-            
-            Model::MoveResult result = performMove(*m_brush, m_index, delta);
-            m_index = result.index;
-            if (result.index == -1)
-                return false;
-            else if (result.moved)
-                referencePoint += delta;
-            
-            updateSelectedHandleFigures(*m_selectedHandleFigure, *m_guideFigure, *m_brush, m_index);
+            if (m_state == DRAGGING) {
+                assert(m_brush != NULL);
+                
+                Grid& grid = m_editor.grid();
+                Vec3f position = movePosition(*m_brush, m_index);
+                Vec3f delta = grid.moveDelta(position, m_editor.map().worldBounds(), curMousePoint - referencePoint);
+                
+                if (delta.null())
+                    return true;
+                
+                Model::MoveResult result = performMove(*m_brush, m_index, delta);
+                m_index = result.index;
+                if (result.deleted)
+                    return false;
+                else if (result.moved)
+                    referencePoint += delta;
+                
+                updateSelectedHandleFigures(*m_selectedHandleFigure, *m_guideFigure, *m_brush, m_index);
+            }
             return true;
         }
         
         void VertexTool::doEndLeftDrag(ToolEvent& event) {
-            assert(m_state == DRAGGING);
-            
-            m_editor.map().undoManager().end();
-
-            deleteSelectedHandleFigures();
-            createHandleFigure();
-            m_brush = NULL;
-            m_index = -1;
+            if (m_state == DRAGGING) {
+                m_editor.map().undoManager().end();
+                
+                deleteSelectedHandleFigures();
+                createHandleFigure();
+                m_brush = NULL;
+                m_index = 0;
+            }
             m_state = ACTIVE;
         }
     }

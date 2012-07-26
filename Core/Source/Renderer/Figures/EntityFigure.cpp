@@ -57,7 +57,7 @@ namespace TrenchBroom {
                 
                 if (m_renderBounds) {
                     std::vector<Vec3f> edges = bboxEdgeVertices(m_entityDefinition.bounds);
-                    m_vertexCount = edges.size();
+                    m_vertexCount = static_cast<unsigned int>(edges.size());
                     m_boundsBlock = vbo.allocBlock(3 * 4 * m_vertexCount);
                     
                     vbo.map();

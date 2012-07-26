@@ -115,7 +115,7 @@ namespace TrenchBroom {
                 
                 if (highestBackupNo > backups.size()) {
                     // reorganize the backups and close gaps in the numbering
-                    for (int i = backups.size() - 1; i >= 0; i--) {
+                    for (int i = static_cast<int>(backups.size()) - 1; i >= 0; i--) {
                         const std::string& filename = backups[i];
                         const std::string backupFilename = backupName(mapBasename, i + 1);
                         if (filename != backupFilename) {
@@ -135,11 +135,11 @@ namespace TrenchBroom {
                         }
                     }
                     
-                    highestBackupNo = backups.size();
+                    highestBackupNo = static_cast<unsigned int>(backups.size());
                 }
             }
             
-            assert(highestBackupNo == backups.size());
+            assert(highestBackupNo == static_cast<unsigned int>(backups.size()));
             assert(highestBackupNo < m_maxBackups);
             
             // save the backup

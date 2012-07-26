@@ -126,7 +126,7 @@ namespace TrenchBroom {
             
             template<class T>
             unsigned int writeVecs(const std::vector<T>& vecs, unsigned int offset) {
-                unsigned int size = vecs.size() * sizeof(T);
+                unsigned int size = static_cast<unsigned int>(vecs.size() * sizeof(T));
                 assert(offset >= 0 && offset + size <= capacity);
                 memcpy(m_vbo.m_buffer + address + offset, &(vecs[0]), size);
                 return offset + size;

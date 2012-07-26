@@ -465,7 +465,7 @@ namespace TrenchBroom {
             entity->brushChanged(this);
         }
         
-        MoveResult Brush::moveVertex(int vertexIndex, const Vec3f& delta) {
+        MoveResult Brush::moveVertex(size_t vertexIndex, const Vec3f& delta) {
             FaceList newFaces;
             FaceList droppedFaces;
             FaceList::iterator faceIt;
@@ -496,7 +496,7 @@ namespace TrenchBroom {
             return result;
         }
         
-        MoveResult Brush::moveEdge(int edgeIndex, const Vec3f& delta) {
+        MoveResult Brush::moveEdge(size_t edgeIndex, const Vec3f& delta) {
             FaceList newFaces;
             FaceList droppedFaces;
             FaceList::iterator faceIt;
@@ -527,7 +527,7 @@ namespace TrenchBroom {
             return result;
         }
         
-        MoveResult Brush::moveFace(int faceIndex, const Vec3f& delta) {
+        MoveResult Brush::moveFace(size_t faceIndex, const Vec3f& delta) {
             FaceList newFaces;
             FaceList droppedFaces;
             FaceList::iterator faceIt;

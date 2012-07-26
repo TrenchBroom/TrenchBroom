@@ -909,6 +909,7 @@ namespace TrenchBroom {
                 for (unsigned int i = 0; i < sides.size(); i++)
                     sides[i]->face->updatePoints();
                 
+                result.deleted = newVertexIndex == vertices.size();
                 result.moved = true;
                 result.index = vertexIndex;
                 return result;
@@ -917,7 +918,7 @@ namespace TrenchBroom {
             // now safe
             vertexIndex = newVertexIndex;
             
-            // drag is not concluded, calculate the new delta and call self
+            // drag is now concluded, calculate the new delta and call self
             ray.direction *= (moveDist - actualMoveDist);
             return moveVertex(vertexIndex, mergeIncidentVertex, ray.direction, newFaces, droppedFaces);
         }
@@ -978,7 +979,7 @@ namespace TrenchBroom {
             delete edge;
             
             result = moveVertex(vertices.size() - 1, true, delta, newFaces, droppedFaces);
-            if (result.index == vertices.size())
+            if (result.deleted)
                 result.index = vertices.size() + indexOf(edges, edgeVertices[0], edgeVertices[1]);
             
             return result;
@@ -1052,7 +1053,8 @@ namespace TrenchBroom {
             delete side;
             
             result = moveVertex(vertices.size() - 1, true, delta, newFaces, droppedFaces);
-            result.index = indexOf(sides, sideVertices);
+            if (result.deleted)
+                result.index = vertices.size() + edges.size() + indexOf(sides, sideVertices);
             
             return result;
         }
@@ -1481,7 +1483,7 @@ namespace TrenchBroom {
             
             MoveResult result;
             if (delta.lengthSquared() == 0)
-                result = MoveResult(vertexIndex, false);
+                result = MoveResult(vertexIndex, false, false);
             else if (vertexIndex < vertices.size())
                 result = moveVertex(vertexIndex, true, delta, newFaces, droppedFaces);
             else if (vertexIndex < vertices.size() + edges.size())
@@ -1496,7 +1498,7 @@ namespace TrenchBroom {
             assert(edgeIndex >= 0 && edgeIndex < edges.size());
             
             if (delta.lengthSquared() == 0)
-                return MoveResult(edgeIndex, false);
+                return MoveResult(edgeIndex, false, false);
             
             BrushGeometry testGeometry(*this);
             testGeometry.restoreFaceSides();
@@ -1525,6 +1527,7 @@ namespace TrenchBroom {
                 copy(testGeometry);
                 assert(sanityCheck());
                 result.index = indexOf(testGeometry.edges, start, end);
+                result.deleted = result.index == testGeometry.edges.size();
             } else {
                 result.index = edgeIndex;
                 newFaces.clear();
@@ -1540,7 +1543,7 @@ namespace TrenchBroom {
             
             float dist = delta.length();
             if (dist == 0)
-                return MoveResult(sideIndex, false);
+                return MoveResult(sideIndex, false, false);
             
             BrushGeometry testGeometry(*this);
             testGeometry.restoreFaceSides();
@@ -1580,7 +1583,7 @@ namespace TrenchBroom {
                 }
             }
             
-            MoveResult result(-1, true);
+            MoveResult result;
             for (unsigned int i = 0; i < sideVertexCount && result.moved; i++)
                 result = testGeometry.moveVertex(indices[i], false, delta, newFaces, droppedFaces);
             
@@ -1588,6 +1591,7 @@ namespace TrenchBroom {
                 copy(testGeometry);
                 assert(sanityCheck());
                 result.index = indexOf(sides, sideVertices);
+                result.deleted = result.index == sides.size();
             } else {
                 result.index = sideIndex;
                 newFaces.clear();

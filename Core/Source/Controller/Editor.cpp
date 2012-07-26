@@ -54,7 +54,8 @@ namespace TrenchBroom {
                 clock_t start = clock();
                 IO::Wad wad(wadPath);
                 Model::Assets::TextureCollection* collection = new Model::Assets::TextureCollection(wadPath, wad, *m_palette);
-                m_textureManager->addCollection(collection, m_textureManager->collections().size());
+                unsigned int index = static_cast<unsigned int>(m_textureManager->collections().size());
+                m_textureManager->addCollection(collection, index);
                 log(TB_LL_INFO, "Loaded %s in %f seconds\n", wadPath.c_str(), (clock() - start) / CLOCKS_PER_SEC / 10000.0f);
             } else {
                 log(TB_LL_WARN, "Could not open texture wad %s\n", path.c_str());

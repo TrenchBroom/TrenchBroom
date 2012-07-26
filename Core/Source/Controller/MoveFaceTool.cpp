@@ -38,7 +38,7 @@ namespace TrenchBroom {
             return "Move Face";
         }
         
-        Vec3f MoveFaceTool::movePosition(const Model::Brush& brush, int index) {
+        Vec3f MoveFaceTool::movePosition(const Model::Brush& brush, size_t index) {
             return brush.geometry->edges[index]->center();
         }
         
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             return prefs.hiddenSelectedFaceHandleColor();
         }
         
-        Model::MoveResult MoveFaceTool::performMove(Model::Brush& brush, int index, const Vec3f& delta) {
+        Model::MoveResult MoveFaceTool::performMove(Model::Brush& brush, size_t index, const Vec3f& delta) {
             return m_editor.map().moveFace(brush, index, delta);
         }
         
@@ -82,13 +82,11 @@ namespace TrenchBroom {
             handleFigure.setPositions(positions);
         }
         
-        void MoveFaceTool::updateSelectedHandleFigures(Renderer::HandleFigure& handleFigure, Renderer::PointGuideFigure& guideFigure, const Model::Brush& brush, int index) {
+        void MoveFaceTool::updateSelectedHandleFigures(Renderer::HandleFigure& handleFigure, Renderer::PointGuideFigure& guideFigure, const Model::Brush& brush, size_t index) {
             Vec3fList positions;
             
-            if (index >= 0) {
-                Model::Face* face = brush.faces[index];
-                positions.push_back(face->center());
-            }
+            Model::Face* face = brush.faces[index];
+            positions.push_back(face->center());
             
             handleFigure.setPositions(positions);
             guideFigure.setPosition(positions.front());

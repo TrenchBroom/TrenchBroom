@@ -318,7 +318,8 @@ namespace TrenchBroom {
                 m_boundsVbo->activate();
                 m_boundsVbo->map();
 
-                m_boundsBlock = m_boundsVbo->allocBlock((4 * 3 + 4) * boundsVertices.size());
+                unsigned int vertexCount = static_cast<unsigned int>(boundsVertices.size());
+                m_boundsBlock = m_boundsVbo->allocBlock((4 * 3 + 4) * vertexCount);
                 unsigned int offset = 0;
                 for (unsigned int i = 0; i < boundsVertices.size(); i++) {
                     offset = m_boundsBlock->writeColor(boundsColors[i], offset);
@@ -331,7 +332,7 @@ namespace TrenchBroom {
                 glDisable(GL_TEXTURE_2D);
                 glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
                 glInterleavedArrays(GL_C4UB_V3F, 0, 0);
-                glDrawArrays(GL_LINES, 0, boundsVertices.size());
+                glDrawArrays(GL_LINES, 0, vertexCount);
                 glPopClientAttrib();
 
                 m_boundsVbo->deactivate();

@@ -132,9 +132,9 @@ namespace TrenchBroom {
             void resetFaces();
             bool deleteFaces();
             
-            MoveResult moveVertex(Brush& brush, int vertexIndex, const Vec3f& delta);
-            MoveResult moveEdge(Brush& brush, int edgeIndex, const Vec3f& delta);
-            MoveResult moveFace(Brush& brush, int faceIndex, const Vec3f& delta);
+            MoveResult moveVertex(Brush& brush, size_t vertexIndex, const Vec3f& delta);
+            MoveResult moveEdge(Brush& brush, size_t edgeIndex, const Vec3f& delta);
+            MoveResult moveFace(Brush& brush, size_t faceIndex, const Vec3f& delta);
             
             const BBox& worldBounds();
             Octree& octree();

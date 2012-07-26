@@ -38,7 +38,7 @@ namespace TrenchBroom {
             return "Move Edge";
         }
         
-        Vec3f MoveEdgeTool::movePosition(const Model::Brush& brush, int index) {
+        Vec3f MoveEdgeTool::movePosition(const Model::Brush& brush, size_t index) {
             return brush.geometry->edges[index]->center();
         }
         
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             return prefs.hiddenSelectedEdgeHandleColor();
         }
         
-        Model::MoveResult MoveEdgeTool::performMove(Model::Brush& brush, int index, const Vec3f& delta) {
+        Model::MoveResult MoveEdgeTool::performMove(Model::Brush& brush, size_t index, const Vec3f& delta) {
             return m_editor.map().moveEdge(brush, index, delta);
         }
         
@@ -83,13 +83,11 @@ namespace TrenchBroom {
             handleFigure.setPositions(positions);
         }
         
-        void MoveEdgeTool::updateSelectedHandleFigures(Renderer::HandleFigure& handleFigure, Renderer::PointGuideFigure& guideFigure, const Model::Brush& brush, int index) {
+        void MoveEdgeTool::updateSelectedHandleFigures(Renderer::HandleFigure& handleFigure, Renderer::PointGuideFigure& guideFigure, const Model::Brush& brush, size_t index) {
             Vec3fList positions;
             
-            if (index >= 0) {
-                Model::Edge* edge = brush.geometry->edges[index];
-                positions.push_back(edge->center());
-            }
+            Model::Edge* edge = brush.geometry->edges[index];
+            positions.push_back(edge->center());
             
             handleFigure.setPositions(positions);
             guideFigure.setPosition(positions.front());

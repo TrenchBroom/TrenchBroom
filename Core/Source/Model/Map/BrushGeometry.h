@@ -67,8 +67,9 @@ namespace TrenchBroom {
         public:
             size_t index;
             bool moved;
+            bool deleted;
             MoveResult() {};
-            MoveResult(size_t index, bool moved) : index(index), moved(moved) {}
+            MoveResult(size_t index, bool moved, bool deleted) : index(index), moved(moved), deleted(deleted) {}
         };
         
 		template <typename T>

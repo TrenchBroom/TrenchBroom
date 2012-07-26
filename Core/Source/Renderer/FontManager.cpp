@@ -117,9 +117,10 @@ namespace TrenchBroom {
             unsigned int offset = 0;
             if (m_hasTriangleSet) {
                 m_triangleSetIndex = (m_vboBlock->address + offset) / (2 * sizeof(float));
-                m_triangleSetCount = (int)stringData.triangleSet.size() / 2;
-                const unsigned char* buffer = (const unsigned char*)&stringData.triangleSet[0];
-                offset = m_vboBlock->writeBuffer(buffer, offset, stringData.triangleSet.size() * sizeof(float));
+                m_triangleSetCount = static_cast<unsigned int>(stringData.triangleSet.size()) / 2;
+                const unsigned char* buffer = reinterpret_cast<const unsigned char*>(&stringData.triangleSet[0]);
+                unsigned int bufferSize = static_cast<unsigned int>(stringData.triangleSet.size()) * sizeof(float);
+                offset = m_vboBlock->writeBuffer(buffer, offset, bufferSize);
             }
 
             if (m_hasTriangleStrips) {
@@ -128,9 +129,10 @@ namespace TrenchBroom {
                 for (unsigned int i = 0; i < stringData.triangleStrips.size(); i++) {
                     FloatBuffer* strip = stringData.triangleStrips[i];
                     m_triangleStripIndices->push_back((m_vboBlock->address + offset) / (2 * sizeof(float)));
-                    m_triangleStripCounts->push_back((int)strip->size() / 2);
-                    const unsigned char* buffer = (const unsigned char*)&(*strip)[0];
-                    offset = m_vboBlock->writeBuffer(buffer, offset, strip->size() * sizeof(float));
+                    m_triangleStripCounts->push_back(static_cast<unsigned int>(strip->size()) / 2);
+                    const unsigned char* buffer = reinterpret_cast<const unsigned char*>(&(*strip)[0]);
+                    unsigned int bufferSize = static_cast<unsigned int>(strip->size()) * sizeof(float);
+                    offset = m_vboBlock->writeBuffer(buffer, offset, bufferSize);
                 }
             }
 
@@ -140,9 +142,10 @@ namespace TrenchBroom {
                 for (unsigned int i = 0; i < stringData.triangleFans.size(); i++) {
                     FloatBuffer* fan = stringData.triangleFans[i];
                     m_triangleFanIndices->push_back((m_vboBlock->address + offset) / (2 * sizeof(float)));
-                    m_triangleFanCounts->push_back((int)fan->size() / 2);
-                    const unsigned char* buffer = (const unsigned char*)&(*fan)[0];
-                    offset = m_vboBlock->writeBuffer(buffer, offset, fan->size() * sizeof(float));
+                    m_triangleFanCounts->push_back(static_cast<unsigned int>(fan->size()) / 2);
+                    const unsigned char* buffer = reinterpret_cast<const unsigned char*>(&(*fan)[0]);
+                    unsigned int bufferSize = static_cast<unsigned int>(fan->size()) * sizeof(float);
+                    offset = m_vboBlock->writeBuffer(buffer, offset, bufferSize);
                 }
             }
         }

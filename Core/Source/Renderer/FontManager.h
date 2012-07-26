@@ -75,8 +75,8 @@ namespace TrenchBroom {
             bool m_hasTriangleSet;
             bool m_hasTriangleStrips;
             bool m_hasTriangleFans;
-            int m_triangleSetIndex;
-            int m_triangleSetCount;
+            unsigned int m_triangleSetIndex;
+            unsigned int m_triangleSetCount;
             IntBuffer* m_triangleStripIndices;
             IntBuffer* m_triangleStripCounts;
             IntBuffer* m_triangleFanIndices;

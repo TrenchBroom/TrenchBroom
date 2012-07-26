@@ -51,9 +51,9 @@ namespace TrenchBroom {
             
             unsigned int index = grid.size();
             if (index >= m_textures.size()) {
-                int oldSize = m_textures.size();
+                size_t oldSize = m_textures.size();
                 m_textures.resize(index + 1);
-                for (unsigned int i = oldSize; i < m_textures.size(); i++)
+                for (size_t i = oldSize; i < m_textures.size(); i++)
                     m_textures[i] = 0;
             }
 

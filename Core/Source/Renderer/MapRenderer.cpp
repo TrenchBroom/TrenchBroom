@@ -344,12 +344,12 @@ namespace TrenchBroom {
             m_entityBoundsVbo->map();
 
             if (!m_entityDataValid && !allEntities.empty()) {
-                unsigned int entityBoundsVertexCount = 2 * 4 * 6 * allEntities.size();
+                unsigned int entityBoundsVertexCount = 2 * 4 * 6 * static_cast<unsigned int>(allEntities.size());
                 m_entityBoundsBlock = m_entityBoundsVbo->allocBlock(entityBoundsVertexCount * EntityBoundsVertexSize);
             }
             
             if (!m_selectedEntityDataValid && !allSelectedEntities.empty()) {
-                unsigned int selectedEntityBoundsVertexCount = 2 * 4 * 6 * allSelectedEntities.size();
+                unsigned int selectedEntityBoundsVertexCount = 2 * 4 * 6 * static_cast<unsigned int>(allSelectedEntities.size());
                 m_selectedEntityBoundsBlock = m_entityBoundsVbo->allocBlock(selectedEntityBoundsVertexCount * EntityBoundsVertexSize);
             }
             

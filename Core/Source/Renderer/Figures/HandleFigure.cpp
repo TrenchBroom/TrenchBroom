@@ -52,7 +52,7 @@ namespace TrenchBroom {
             if (m_positions.empty())
                 return;
             
-            unsigned int vertexCount = 6 * 6 * m_positions.size();
+            unsigned int vertexCount = 6 * 6 * static_cast<unsigned int>(m_positions.size());
             if (!m_valid) {
                 if (m_vboBlock != NULL)
                     m_vboBlock->freeBlock();
