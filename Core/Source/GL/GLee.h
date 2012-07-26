@@ -765,8 +765,12 @@ GLEE_EXTERN GLboolean _GLEE_SGIX_texture_range;
 #endif
 
 #ifndef GL_ARB_shader_objects
-	typedef int GLhandleARB;
-	typedef char GLcharARB;
+#if defined(__APPLE__) || defined(__APPLE_CC__)
+    typedef void* GLhandleARB;
+#else
+    typedef int GLhandleARB;
+#endif
+    typedef char GLcharARB;
 #endif
 
 #ifndef GL_EXT_timer_query
