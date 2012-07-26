@@ -147,6 +147,14 @@ namespace TrenchBroom {
             void addEntity(Entity& entity);
             void addEntities(const EntityList& entities);
             
+            void replaceSelection(const EntityList& entities, const BrushList& brushes);
+            void replaceSelection(const EntityList& entities);
+            void replaceSelection(const BrushList& brushes);
+            void replaceSelection(Entity& entity);
+            void replaceSelection(Brush& brush);
+            void replaceSelection(const FaceList& faces);
+            void replaceSelection(Face& face);
+            
             void removeFace(Face& face);
             void removeFaces(const FaceList& faces);
             void removeBrush(Brush& brush);

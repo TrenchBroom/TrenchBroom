@@ -50,8 +50,7 @@ namespace TrenchBroom {
                         if (multiSelectionModiferPressed(event)) {
                             selection.removeEntity(entity);
                         } else {
-                            selection.removeAll();
-                            selection.addEntity(entity);
+                            selection.replaceSelection(entity);
                         }
                     } else {
                         if (!multiSelectionModiferPressed(event))
@@ -72,8 +71,7 @@ namespace TrenchBroom {
                                 selection.addFace(face);
                             } else if (noModifierPressed(event)) {
                                 if (brush.partiallySelected) {
-                                    selection.removeAll();
-                                    selection.addFace(face);
+                                    selection.replaceSelection(face);
                                 } else {
                                     selection.addBrush(brush);
                                 }
@@ -89,8 +87,7 @@ namespace TrenchBroom {
                             if (brush.selected) {
                                 selection.addFace(face);
                             } else {
-                                selection.removeAll();
-                                selection.addBrush(brush);
+                                selection.replaceSelection(brush);
                             }
                         }
                     }

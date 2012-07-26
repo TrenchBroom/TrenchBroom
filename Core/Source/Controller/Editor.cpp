@@ -129,7 +129,7 @@ namespace TrenchBroom {
 
         void Editor::selectionDidChange(const Model::SelectionEventData& data) {
             Model::Selection& selection = m_map->selection();
-            if (selection.mode() == Model::TB_SM_FACES) {
+            if (selection.mode() == Model::TB_SM_FACES || selection.mode() == Model::TB_SM_NONE) {
                 if (m_inputController->moveVertexToolActive())
                     m_inputController->toggleMoveVertexTool();
                 else if (m_inputController->moveEdgeToolActive())

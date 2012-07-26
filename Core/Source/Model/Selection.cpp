@@ -250,6 +250,105 @@ namespace TrenchBroom {
             selectionAdded(data);
         }
 
+        void Selection::replaceSelection(const EntityList& entities, const BrushList& brushes) {
+            switch (mode()) {
+                case TB_SM_ENTITIES: {
+                    EntityList selectedEntities = current().entities;
+                    addEntities(entities);
+                    addBrushes(brushes);
+                    removeEntities(selectedEntities);
+                    break;
+                }
+                case TB_SM_BRUSHES: {
+                    BrushList selectedBrushes = current().brushes;
+                    addEntities(entities);
+                    addBrushes(brushes);
+                    removeBrushes(selectedBrushes);
+                    break;
+                }
+                case TB_SM_BRUSHES_ENTITIES: {
+                    EntityList selectedEntities = current().entities;
+                    BrushList selectedBrushes = current().brushes;
+                    addEntities(entities);
+                    addBrushes(brushes);
+                    removeEntities(selectedEntities);
+                    removeBrushes(selectedBrushes);
+                    break;
+                }
+                case TB_SM_FACES: {
+                    FaceList faces = current().faces;
+                    addEntities(entities);
+                    addBrushes(brushes);
+                    removeFaces(faces);
+                    break;
+                }
+                default:
+                    addEntities(entities);
+                    addBrushes(brushes);
+                    break;
+            }
+        }
+        
+        void Selection::replaceSelection(const EntityList& entities) {
+            replaceSelection(entities, BrushList());
+        }
+        
+        void Selection::replaceSelection(const BrushList& brushes) {
+            replaceSelection(EntityList(), brushes);
+        }
+        
+        void Selection::replaceSelection(Entity& entity) {
+            EntityList entityList;
+            entityList.push_back(&entity);
+            replaceSelection(entityList, BrushList());
+        }
+        
+        void Selection::replaceSelection(Brush& brush) {
+            BrushList brushList;
+            brushList.push_back(&brush);
+            replaceSelection(EntityList(), brushList);
+        }
+
+        void Selection::replaceSelection(const FaceList& faces) {
+            switch (mode()) {
+                case TB_SM_ENTITIES: {
+                    EntityList selectedEntities = current().entities;
+                    addFaces(faces);
+                    removeEntities(selectedEntities);
+                    break;
+                }
+                case TB_SM_BRUSHES: {
+                    BrushList selectedBrushes = current().brushes;
+                    addFaces(faces);
+                    removeBrushes(selectedBrushes);
+                    break;
+                }
+                case TB_SM_BRUSHES_ENTITIES: {
+                    EntityList selectedEntities = current().entities;
+                    BrushList selectedBrushes = current().brushes;
+                    addFaces(faces);
+                    removeEntities(selectedEntities);
+                    removeBrushes(selectedBrushes);
+                    break;
+                }
+                case TB_SM_FACES: {
+                    FaceList faces = current().faces;
+                    addFaces(faces);
+                    removeFaces(faces);
+                    break;
+                }
+                default:
+                    addFaces(faces);
+                    break;
+            }
+        }
+
+        void Selection::replaceSelection(Face& face) {
+            FaceList faceList;
+            faceList.push_back(&face);
+            replaceSelection(faceList);
+        }
+
         void Selection::removeFace(Face& face) {
             FaceList::iterator it = find(current().faces.begin(), current().faces.end(), &face);
             if (it == current().faces.end()) return;
