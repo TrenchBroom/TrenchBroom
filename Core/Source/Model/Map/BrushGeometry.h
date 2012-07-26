@@ -65,7 +65,7 @@ namespace TrenchBroom {
         
         class MoveResult {
         public:
-            int index;
+            size_t index;
             bool moved;
             MoveResult() {};
             MoveResult(size_t index, bool moved) : index(index), moved(moved) {}
@@ -169,7 +169,7 @@ namespace TrenchBroom {
             void replaceEdges(size_t index1, size_t index2, Edge* edge);
             Edge* split() throw (GeometryException);
             void flip();
-            void shift(int offset);
+            void shift(size_t offset);
         };
         
         class BrushGeometry {
@@ -217,11 +217,11 @@ namespace TrenchBroom {
         };
         
         
-        template <class T> int indexOf(const std::vector<T*>& vec, const T* element) {
+        template <class T> size_t indexOf(const std::vector<T*>& vec, const T* element) {
             for (unsigned int i = 0; i < vec.size(); i++)
                 if (vec[i] == element)
                     return i;
-            return -1;
+            return vec.size();
         }
         
         template <class T> bool removeElement(std::vector<T*>& vec, T* element) {
@@ -239,9 +239,17 @@ namespace TrenchBroom {
             return true;
         }
         
-        int indexOf(const VertexList& vertices, const Vec3f& v);
-        int indexOf(const EdgeList& edges, const Vec3f& v1, const Vec3f& v2);
-        int indexOf(const SideList& sides, const Vec3fList& vertices);
+        size_t indexOf(const VertexList& vertices, const Vec3f& v);
+        size_t indexOf(const EdgeList& edges, const Vec3f& v1, const Vec3f& v2);
+        size_t indexOf(const SideList& sides, const Vec3fList& vertices);
+        
+        inline size_t succ(size_t index, size_t count, size_t offset = 1) {
+            return (index + offset) % count;
+        }
+        
+        inline size_t pred(size_t index, size_t count, size_t offset = 1) {
+            return ((index + count) - (offset % count)) % count;
+        }
         
         Vec3f centerOfVertices(const VertexList& vertices);
         BBox boundsOfVertices(const VertexList& vertices);

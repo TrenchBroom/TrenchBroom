@@ -363,7 +363,7 @@ namespace TrenchBroom {
 - (IBAction)setGridSize:(id)sender {
     NSMenuItem* menuItem = (NSMenuItem *)sender;
     Editor* editor = (Editor *)[editorHolder editor];
-    editor->setGridSize([menuItem tag]);
+    editor->setGridSize(static_cast<int>([menuItem tag]));
 }
 
 - (IBAction)moveCameraLeft:(id)sender {

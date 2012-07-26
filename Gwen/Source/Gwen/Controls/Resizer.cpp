@@ -24,13 +24,9 @@ namespace Gwen
             if ( !m_pTarget ) return;
             if ( !m_bDepressed ) return;
             
-            Gwen::Rect oldBounds = m_pTarget->GetBounds();
             Gwen::Rect pBounds = m_pTarget->GetBounds();
-            
             Gwen::Point pntMin = m_pTarget->GetMinimumSize();
-            
             Gwen::Point pCursorPos = m_pTarget->CanvasPosToLocal( Gwen::Point( x, y ) );
-            
             Gwen::Point pDelta = m_pTarget->LocalPosToCanvas( m_HoldPos );
             pDelta.x -= x;
             pDelta.y -= y;

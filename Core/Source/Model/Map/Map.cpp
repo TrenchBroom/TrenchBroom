@@ -328,8 +328,8 @@ namespace TrenchBroom {
         }
 
         Brush* Map::createBrush(Entity& entity, Brush& brushTemplate) {
-            BBox templateBounds = brushTemplate.bounds();
-            if (!m_worldBounds.contains(brushTemplate.bounds())) return NULL;
+            if (!m_worldBounds.contains(brushTemplate.bounds()))
+                return NULL;
 
             Brush* brush = new Brush(m_worldBounds, brushTemplate);
             BrushList brushes;

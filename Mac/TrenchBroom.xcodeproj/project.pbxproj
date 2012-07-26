@@ -1461,7 +1461,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-w";
-				SDKROOT = macosx10.7;
+				SDKROOT = macosx;
 				WARNING_LDFLAGS = "";
 			};
 			name = Debug;
@@ -1495,7 +1495,7 @@
 				LIBRARY_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = "";
-				SDKROOT = macosx10.7;
+				SDKROOT = macosx;
 				WARNING_LDFLAGS = "";
 			};
 			name = Release;

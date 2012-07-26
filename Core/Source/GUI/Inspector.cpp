@@ -240,7 +240,7 @@ namespace TrenchBroom {
 
         void Inspector::onRemoveTextureWadButtonPressed(Gwen::Controls::Base* control) {
             Gwen::Controls::ListBox::Rows rows = m_textureWadList->GetSelectedRows();
-            for (int i = rows.size() - 1; i >= 0; i--)
+            for (int i = static_cast<int>(rows.size()) - 1; i >= 0; i--)
                 m_editor.removeTextureWad(i);
         }
 

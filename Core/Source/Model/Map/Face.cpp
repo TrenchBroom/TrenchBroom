@@ -221,7 +221,7 @@ namespace TrenchBroom {
             int width = texture != NULL ? texture->width : 1;
             int height = texture != NULL ? texture->height : 1;
             
-            unsigned int vertexCount = side->vertices.size();
+            size_t vertexCount = side->vertices.size();
             m_gridCoords.resize(vertexCount);
             m_texCoords.resize(vertexCount);
             for (unsigned int i = 0; i < vertexCount; i++) {
@@ -356,11 +356,11 @@ namespace TrenchBroom {
             
             float bestDot = 1;
             int best = -1;
-            int vertexCount = side->vertices.size();
-            for (int i = 0; i < vertexCount && bestDot > 0; i++) {
-                points[2] = side->vertices[(i - 1 + vertexCount) % vertexCount]->position;
+            size_t vertexCount = side->vertices.size();
+            for (unsigned int i = 0; i < vertexCount && bestDot > 0; i++) {
+                points[2] = side->vertices[pred(i, vertexCount)]->position;
                 points[0] = side->vertices[i]->position;
-                points[1] = side->vertices[(i + 1) % vertexCount]->position;
+                points[1] = side->vertices[succ(i, vertexCount)]->position;
                 
                 v1 = (points[2] - points[0]).normalize();
                 v2 = (points[1] - points[0]).normalize();
@@ -373,9 +373,9 @@ namespace TrenchBroom {
             
             assert(best != -1);
             
-            points[2] = side->vertices[(best - 1 + vertexCount) % vertexCount]->position;
+            points[2] = side->vertices[pred(best, vertexCount)]->position;
             points[0] = side->vertices[best]->position;
-            points[1] = side->vertices[(best + 1) % vertexCount]->position;
+            points[1] = side->vertices[succ(best, vertexCount)]->position;
             
             if (!boundary.setPoints(points[0], points[1], points[2])) {
                 std::stringstream msg;

@@ -192,11 +192,11 @@ namespace TrenchBroom {
                 unsigned int c = 0;
                 bool invert = false;
                 
-                if (Model::indexOf(faceVertices, edge->start) != -1) {
+                if (Model::indexOf(faceVertices, edge->start) < faceVertices.size()) {
                     c++;
                 } 
                 
-                if (Model::indexOf(faceVertices, edge->end) != -1) {
+                if (Model::indexOf(faceVertices, edge->end) < faceVertices.size()) {
                     c++;
                     invert = true;
                 }

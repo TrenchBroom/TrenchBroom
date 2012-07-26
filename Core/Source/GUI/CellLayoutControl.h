@@ -105,7 +105,6 @@ namespace TrenchBroom {
                 
                 m_dragControl = createDragControl(m_selectedCell);
                 if (m_dragControl != NULL) {
-                    Gwen::Point local = CanvasPosToLocal(Gwen::Point(x, y));
                     m_dragControl->SetHidden(true);
                     
                     const LayoutBounds& bounds = m_selectedCell->itemBounds();
