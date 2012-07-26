@@ -231,11 +231,11 @@ bool CMainFrame::validateCommand(UINT id)
 	case ID_EDIT_REDO:
 		return !undoManager.redoStackEmpty();
 	case ID_TOOLS_TOGGLE_VERTEX_TOOL:
-		return mapViewFocused() && (inputController.moveVertexToolActive() || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES);
+		return mapViewFocused() && (inputController.moveVertexToolActive() || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES);
 	case ID_TOOLS_TOGGLE_EDGE_TOOL:
-		return mapViewFocused() && (inputController.moveEdgeToolActive() || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES);
+		return mapViewFocused() && (inputController.moveEdgeToolActive() || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES);
 	case ID_TOOLS_TOGGLE_FACE_TOOL:
-		return mapViewFocused() && (inputController.moveFaceToolActive() || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES);
+		return mapViewFocused() && (inputController.moveFaceToolActive() || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES);
 	case ID_EDIT_DELETE:
 		return mapViewFocused() && (selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES);
 	case ID_EDIT_SELECT_ALL:

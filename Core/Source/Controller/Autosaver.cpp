@@ -41,7 +41,7 @@ namespace TrenchBroom {
                 return 0;
             
             int backupNo = std::atoi(basePath.substr(spaceIndex + 1).c_str());
-            backupNo = std::max(backupNo, 0);
+            backupNo = (std::max)(backupNo, 0);
             return static_cast<unsigned int>(backupNo);
         }
 
@@ -92,7 +92,7 @@ namespace TrenchBroom {
                 if (filename.substr(0, mapBasename.length()) == mapBasename) {
                     unsigned int backupNo = backupNoOfFile(filename);
                     if (backupNo > 0) {
-                        highestBackupNo = std::max(highestBackupNo, backupNo);
+                        highestBackupNo = (std::max)(highestBackupNo, backupNo);
                         backups.push_back(filename);
                     }
                 }
