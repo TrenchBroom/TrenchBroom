@@ -23,10 +23,11 @@ namespace Gwen
         
         bool TextBoxNumeric::IsTextAllowed( const Gwen::UnicodeString& str, int iPos )
         {
-            const UnicodeString& strString = GetText();
-            
             if ( str.length() == 0 )
                 return true;
+            
+            bool hasMinus = false;
+            bool hasDot = false;
             
             for (size_t i=0; i<str.length(); i++)
             {
@@ -37,9 +38,10 @@ namespace Gwen
                         return false;
                     
                     // Can only be one
-                    if ( std::count( strString.begin(), strString.end(), L'-' ) > 1 )
+                    if ( hasMinus )
                         return false;
                     
+                    hasMinus = true;
                     continue;
                 }
                 
@@ -56,10 +58,15 @@ namespace Gwen
                 
                 if ( str[i] == L'.' )
                 {
-                    // Already a fullstop
-                    if ( std::count( strString.begin(), strString.end(), L'.' ) > 0 )
+                    // Can't be at the start or the end
+                    if (i == 0 || i == str.length() - 1)
                         return false;
                     
+                    // Already a dot
+                    if ( hasDot )
+                        return false;
+                    
+                    hasDot = true;
                     continue;
                 }
                 
