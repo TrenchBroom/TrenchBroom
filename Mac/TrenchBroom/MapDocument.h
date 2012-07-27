@@ -42,6 +42,7 @@
 - (IBAction)toggleVertexTool:(id)sender;
 - (IBAction)toggleEdgeTool:(id)sender;
 - (IBAction)toggleFaceTool:(id)sender;
+- (IBAction)toggleTextureLock:(id)sender;
 
 - (IBAction)moveTexturesLeft:(id)sender;
 - (IBAction)moveTexturesUp:(id)sender;

@@ -120,6 +120,8 @@ namespace TrenchBroom {
             void selectTouching(bool deleteBrush = true);
             void selectNone();
             
+            void toggleTextureLock();
+            
             void moveTextures(EMoveDirection direction, bool disableSnapToGrid);
             void rotateTextures(bool clockwise, bool disableSnapToGrid);
             

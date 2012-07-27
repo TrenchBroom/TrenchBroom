@@ -28,6 +28,7 @@
 #import "Controller/Editor.h"
 #import "Controller/Grid.h"
 #import "Controller/InputController.h"
+#import "Controller/Options.h"
 #import "Model/Assets/Alias.h"
 #import "Model/Assets/Bsp.h"
 #import "Model/Map/Brush.h"
@@ -243,6 +244,11 @@ namespace TrenchBroom {
     inputController.toggleMoveFaceTool();
 }
 
+- (IBAction)toggleTextureLock:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->toggleTextureLock();
+}
+
 - (IBAction)moveTexturesLeft:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
     editor->moveTextures(Editor::LEFT, [self gridOffModifierPressed]);
@@ -404,6 +410,7 @@ namespace TrenchBroom {
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
     SEL action = [menuItem action];
     Editor* editor = (Editor *)[editorHolder editor];
+    InputController& inputController = editor->inputController();
     Map& map = editor->map();
     Selection& selection = map.selection();
     UndoManager& undoManager = map.undoManager();
@@ -437,22 +444,19 @@ namespace TrenchBroom {
     } else if (action == @selector(toggleVertexTool:)) {
         if (![self mapViewFocused])
             return false;
-        Editor* editor = (Editor *)[editorHolder editor];
-        InputController& inputController = editor->inputController();
         return inputController.moveVertexToolActive() || selection.mode() == Model::TB_SM_BRUSHES || selection.mode() == Model::TB_SM_BRUSHES_ENTITIES;
     } else if (action == @selector(toggleEdgeTool:)) {
         if (![self mapViewFocused])
             return false;
-        Editor* editor = (Editor *)[editorHolder editor];
-        InputController& inputController = editor->inputController();
         return inputController.moveEdgeToolActive() || selection.mode() == Model::TB_SM_BRUSHES || selection.mode() == Model::TB_SM_BRUSHES_ENTITIES;
     } else if (action == @selector(toggleFaceTool:)) {
         if (![self mapViewFocused])
             return false;
-        Editor* editor = (Editor *)[editorHolder editor];
-        InputController& inputController = editor->inputController();
         return inputController.moveFaceToolActive() || selection.mode() == Model::TB_SM_BRUSHES || selection.mode() == Model::TB_SM_BRUSHES_ENTITIES;
-    } else if (action == @selector(moveTexturesLeft:) || 
+    } else if (action == @selector(toggleTextureLock:)) {
+        [menuItem setState:editor->options().lockTextures() ? NSOnState : NSOffState];
+        return true;
+    } else if (action == @selector(moveTexturesLeft:) ||
                action == @selector(moveTexturesUp:) || 
                action == @selector(moveTexturesRight:) ||
                action == @selector(moveTexturesDown:) ||

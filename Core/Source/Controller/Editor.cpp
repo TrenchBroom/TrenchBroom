@@ -370,6 +370,10 @@ namespace TrenchBroom {
             selection.removeAll();
         }
         
+        void Editor::toggleTextureLock() {
+            m_options->setLockTextures(!m_options->lockTextures());
+        }
+
         void Editor::moveTextures(EMoveDirection direction, bool disableSnapToGrid) {
             Vec3f moveDirection;
             switch (direction) {
@@ -432,7 +436,7 @@ namespace TrenchBroom {
             float dist = disableSnapToGrid ? 1.0f : static_cast<float>(m_grid->actualSize());
             Vec3f delta = m_grid->moveDelta(selection.bounds(), m_map->worldBounds(), moveDirection * dist);
             
-            m_map->translateObjects(delta, true);
+            m_map->translateObjects(delta, m_options->lockTextures());
         }
         
         void Editor::rotateObjects(ERotationAxis axis, bool clockwise) {
@@ -450,13 +454,13 @@ namespace TrenchBroom {
             }
             
             Model::Selection& selection = m_map->selection();
-            m_map->rotateObjects90(absoluteAxis, selection.center(), clockwise, true);
+            m_map->rotateObjects90(absoluteAxis, selection.center(), clockwise, m_options->lockTextures());
         }
         
         void Editor::flipObjects(bool horizontally) {
             EAxis axis = horizontally ? m_camera->right().firstComponent() : TB_AX_Z;
             Model::Selection& selection = m_map->selection();
-            m_map->flipObjects(axis, selection.center(), true);
+            m_map->flipObjects(axis, selection.center(), m_options->lockTextures());
         }
         
         void Editor::duplicateObjects() {

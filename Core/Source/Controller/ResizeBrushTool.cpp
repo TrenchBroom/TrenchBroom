@@ -107,7 +107,7 @@ namespace TrenchBroom {
                     
                 }
                 
-                m_editor.map().resizeBrushes(faces, dist, true);
+                m_editor.map().resizeBrushes(faces, dist, m_editor.options().lockTextures());
                 referencePoint += delta;
 
                 assert(m_guideFigure != NULL);

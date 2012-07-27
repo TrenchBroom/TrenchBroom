@@ -21,6 +21,7 @@
 #include "Controller/Editor.h"
 #include "Controller/Grid.h"
 #include "Controller/Tool.h"
+#include "Controller/Options.h"
 #include "Model/Map/Picker.h"
 #include "Model/Map/Face.h"
 #include "Model/Map/Brush.h"
@@ -77,7 +78,7 @@ namespace TrenchBroom {
                 return true;
             
             referencePoint += delta;
-            map.translateObjects(delta, true);
+            map.translateObjects(delta, m_editor.options().lockTextures());
             m_guideFigure->setBounds(selection.bounds());
             
             return true;
