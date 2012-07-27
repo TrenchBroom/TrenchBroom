@@ -28,6 +28,7 @@
 
 #include "Controller/Editor.h"
 #include "Controller/InputController.h"
+#include "Controller/Options.h"
 #include "Model/Assets/Alias.h"
 #include "Model/Assets/Bsp.h"
 #include "Model/Map/Map.h"
@@ -58,6 +59,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_UPDATE_COMMAND_UI(ID_TOOLS_TOGGLE_EDGE_TOOL, &CMainFrame::OnUpdateMenuItem)
 	ON_COMMAND(ID_TOOLS_TOGGLE_FACE_TOOL, &CMainFrame::OnToolsToggleFaceTool)
 	ON_UPDATE_COMMAND_UI(ID_TOOLS_TOGGLE_FACE_TOOL, &CMainFrame::OnUpdateMenuItem)
+	ON_COMMAND(ID_TOOLS_TOGGLE_TEXTURE_LOCK, &CMainFrame::OnToolsToggleTextureLock)
+	ON_UPDATE_COMMAND_UI(ID_TOOLS_TOGGLE_TEXTURE_LOCK, &CMainFrame::OnUpdateToolsToggleTextureLock)
 	ON_COMMAND(ID_EDIT_DELETE, &CMainFrame::OnEditDelete)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_DELETE, &CMainFrame::OnUpdateMenuItem)
 	ON_COMMAND(ID_EDIT_SELECT_ALL, &CMainFrame::OnEditSelectAll)
@@ -236,6 +239,8 @@ bool CMainFrame::validateCommand(UINT id)
 		return mapViewFocused() && (inputController.moveEdgeToolActive() || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES);
 	case ID_TOOLS_TOGGLE_FACE_TOOL:
 		return mapViewFocused() && (inputController.moveFaceToolActive() || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES);
+	case ID_TOOLS_TOGGLE_TEXTURE_LOCK:
+		return true;
 	case ID_EDIT_DELETE:
 		return mapViewFocused() && (selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES || selection.mode() == TrenchBroom::Model::TB_SM_ENTITIES || selection.mode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES);
 	case ID_EDIT_SELECT_ALL:
@@ -431,6 +436,20 @@ void CMainFrame::OnToolsToggleFaceTool()
 	inputController.toggleMoveFaceTool();
 }
 
+
+void CMainFrame::OnToolsToggleTextureLock()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	editor->toggleTextureLock();
+}
+
+void CMainFrame::OnUpdateToolsToggleTextureLock(CCmdUI* pCmdUI)
+{
+	pCmdUI->Enable(validateCommand(pCmdUI->m_nID));
+
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	pCmdUI->SetCheck(editor->options().lockTextures());
+}
 
 void CMainFrame::OnEditDelete()
 {

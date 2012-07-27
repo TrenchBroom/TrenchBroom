@@ -71,6 +71,8 @@ public:
 	afx_msg void OnToolsToggleVertexTool();
 	afx_msg void OnToolsToggleEdgeTool();
 	afx_msg void OnToolsToggleFaceTool();
+	afx_msg void OnToolsToggleTextureLock();
+	afx_msg void OnUpdateToolsToggleTextureLock(CCmdUI* pCmdUI);
 	afx_msg void OnEditDelete();
 	afx_msg void OnEditSelectAll();
 	afx_msg void OnEditSelectEntity();
