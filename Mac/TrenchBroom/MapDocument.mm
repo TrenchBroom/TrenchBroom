@@ -442,14 +442,17 @@ namespace TrenchBroom {
     } else if (action == @selector(selectNone:)) {
         return [self mapViewFocused] && !selection.empty();
     } else if (action == @selector(toggleVertexTool:)) {
+        [menuItem setState:inputController.moveVertexToolActive() ? NSOnState : NSOffState];
         if (![self mapViewFocused])
             return false;
         return inputController.moveVertexToolActive() || selection.mode() == Model::TB_SM_BRUSHES || selection.mode() == Model::TB_SM_BRUSHES_ENTITIES;
     } else if (action == @selector(toggleEdgeTool:)) {
+        [menuItem setState:inputController.moveEdgeToolActive() ? NSOnState : NSOffState];
         if (![self mapViewFocused])
             return false;
         return inputController.moveEdgeToolActive() || selection.mode() == Model::TB_SM_BRUSHES || selection.mode() == Model::TB_SM_BRUSHES_ENTITIES;
     } else if (action == @selector(toggleFaceTool:)) {
+        [menuItem setState:inputController.moveFaceToolActive() ? NSOnState : NSOffState];
         if (![self mapViewFocused])
             return false;
         return inputController.moveFaceToolActive() || selection.mode() == Model::TB_SM_BRUSHES || selection.mode() == Model::TB_SM_BRUSHES_ENTITIES;
