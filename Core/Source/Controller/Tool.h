@@ -22,6 +22,7 @@
 
 #include "Controller/Editor.h"
 #include "Renderer/MapRenderer.h"
+#include "Utilities/Event.h"
 #include "Utilities/VecMath.h"
 #include <cstdio>
 
@@ -35,41 +36,50 @@ namespace TrenchBroom {
     }
     
     namespace Controller {
-
-        typedef enum {
-            TB_MK_NONE = 0,
-            TB_MK_SHIFT = 1 << 0,
-            TB_MK_CTRL = 1 << 1,
-            TB_MK_ALT = 1 << 2,
-            TB_MK_CMD = 1 << 3
-        } EModifierKeys;
-
-        typedef enum {
-            TB_MB_NONE = 0,
-            TB_MB_LEFT = 1,
-            TB_MB_RIGHT = 2,
-            TB_MB_MIDDLE = 3
-        } EMouseButton;
-
         class Editor;
 
-        class ToolEvent {
-        public:
-            int modifierKeys;
-            EMouseButton mouseButton;
-            float mouseX;
-            float mouseY;
-            float deltaX;
-            float deltaY;
-            float scrollX;
-            float scrollY;
-            Model::HitList* hits;
-            Ray ray;
-            ToolEvent() : modifierKeys(TB_MK_NONE), mouseButton(TB_MB_NONE), hits(NULL) {}
-        };
-
         class Tool {
+        public:
+            typedef enum {
+                MK_NONE = 0,
+                MK_SHIFT = 1 << 0,
+                MK_CTRL = 1 << 1,
+                MK_ALT = 1 << 2,
+                MK_CMD = 1 << 3
+            } EModifierKeys;
+            
+            typedef enum {
+                MB_NONE = 0,
+                MB_LEFT = 1,
+                MB_RIGHT = 2,
+                MB_MIDDLE = 3
+            } EMouseButton;
+            
+            typedef enum {
+                TS_DEFAULT = 0,
+                TS_MOUSE_DOWN = 1,
+                TS_DRAG = 2,
+                TS_SCROLL = 3
+            } EToolState;
+
+            class InputEvent {
+            public:
+                int modifierKeys;
+                EMouseButton mouseButton;
+                float mouseX;
+                float mouseY;
+                float deltaX;
+                float deltaY;
+                float scrollX;
+                float scrollY;
+                Model::HitList* hits;
+                Ray ray;
+                InputEvent() : modifierKeys(MK_NONE), mouseButton(MB_NONE), hits(NULL) {}
+            };
+            
         protected:
+            EToolState m_state;
+            bool m_active;
             Editor& m_editor;
             
             void addFigure(Renderer::Figure& figure) {
@@ -90,35 +100,115 @@ namespace TrenchBroom {
 					renderer->rendererChanged(*m_editor.renderer());
             }
         public:
-            Tool(Editor& editor) : m_editor(editor) {}
+            Tool(Editor& editor) : m_editor(editor), m_state(TS_DEFAULT), m_active(false) {}
             virtual ~Tool() {}
 
-            virtual void activated(ToolEvent& event) {}
-            virtual void deactivated(ToolEvent& event) {}
-            virtual bool leftMouseDown(ToolEvent& event) { return false; }
-            virtual bool leftMouseUp(ToolEvent& event) { return false; }
-            virtual bool rightMouseDown(ToolEvent& event) { return false; }
-            virtual bool rightMouseUp(ToolEvent& event) { return false; }
-            virtual bool mouseMoved(ToolEvent& event) { return false; }
-            virtual bool scrolled(ToolEvent& event) { return false; }
+            virtual bool handleActivated(InputEvent& event) { return false; }
+            virtual bool handleDeactivated(InputEvent& event) { return false; }
+            virtual bool handleMouseDown(InputEvent& event) { return false; }
+            virtual bool handleMouseUp(InputEvent& event) { return false; }
+            virtual bool handleMouseMoved(InputEvent& event) { return false; }
+            virtual bool handleScrolled(InputEvent& event) { return false; }
+            virtual bool handleBeginDrag(InputEvent& event) { return false; }
+            virtual bool handleDrag(InputEvent& event) { return false; }
+            virtual void handleEndDrag(InputEvent& event) {}
+            
+            bool activated(InputEvent& event) {
+                if (handleActivated(event)) {
+                    m_active = true;
+                    toolActivated(*this);
+                    return true;
+                }
+                
+                return false;
+            }
+            
+            bool deactivated(InputEvent& event) {
+                if (handleDeactivated(event)) {
+                    m_active = false;
+                    m_state = TS_DEFAULT;
+                    toolDeactivated(*this);
+                    return true;
+                }
+                
+                return false;
+            }
+            
+            bool mouseDown(InputEvent& event) {
+                if (handleMouseDown(event)) {
+                    m_state = TS_MOUSE_DOWN;
+                    toolMouseDown(*this);
+                    return true;
+                }
+                
+                return false;
+            }
+            
+            bool mouseUp(InputEvent& event) {
+                if (handleMouseUp(event)) {
+                    m_state = TS_DEFAULT;
+                    toolMouseUp(*this);
+                    return true;
+                }
+                
+                return false;
+            }
+            
+            bool mouseMoved(InputEvent& event) {
+                if (handleMouseMoved(event)) {
+                    toolMouseMoved(*this);
+                    return true;
+                }
+                
+                return false;
+            }
+            
+            bool scrolled(InputEvent& event) {
+                if (handleScrolled(event)) {
+                    toolScrolled(*this);
+                    return true;
+                }
+                
+                return false;
+            }
 
-            virtual bool beginLeftDrag(ToolEvent& event) { return false; }
-            virtual void leftDrag(ToolEvent& event) {}
-            virtual void endLeftDrag(ToolEvent& event) {}
+            bool beginDrag(InputEvent& event) {
+                if (handleBeginDrag(event)) {
+                    m_state = TS_DRAG;
+                    toolDragBegun(*this);
+                    return true;
+                }
+                
+                return false;
+            }
+            
+            void drag(InputEvent& event) {
+                if (handleDrag(event)) {
+                    toolDragged(*this);
+                } else {
+                    endDrag(event);
+                }
+            }
+            
+            void endDrag(InputEvent& event) {
+                handleEndDrag(event);
+                m_state = TS_DEFAULT;
+                toolDragEnded(*this);
+            }
 
-            virtual bool beginRightDrag(ToolEvent& event) { return false; }
-            virtual void rightDrag(ToolEvent& event) {}
-            virtual void endRightDrag(ToolEvent& event) {}
-
-            virtual bool beginLeftScroll(ToolEvent& event) { return false; }
-            virtual void leftScroll(ToolEvent& event) {}
-            virtual void endLeftScroll(ToolEvent& event) {}
-
-            virtual bool beginRightScroll(ToolEvent& event) { return false; }
-            virtual void rightScroll(ToolEvent& event) {}
-            virtual void endRightScroll(ToolEvent& event) {}
-
-            static bool noModifierPressed(ToolEvent& event) { return event.modifierKeys == TB_MK_NONE; }
+            typedef Event<Tool&> ToolEvent;
+            
+            ToolEvent toolActivated;
+            ToolEvent toolDeactivated;
+            ToolEvent toolMouseDown;
+            ToolEvent toolMouseMoved;
+            ToolEvent toolMouseUp;
+            ToolEvent toolScrolled;
+            ToolEvent toolDragBegun;
+            ToolEvent toolDragged;
+            ToolEvent toolDragEnded;
+            
+            static bool noModifierPressed(InputEvent& event) { return event.modifierKeys == MK_NONE; }
         };
     }
 }

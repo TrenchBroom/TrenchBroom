@@ -49,8 +49,9 @@ namespace TrenchBroom {
             return prefs.cameraMoveSpeed() * 12.0f;
         }
 
-        bool CameraTool::scrolled(ToolEvent& event) {
-            if (!cameraModiferPressed(event) && !orbitModifierPressed(event)) return false;
+        bool CameraTool::handleScrolled(InputEvent& event) {
+            if (!cameraModiferPressed(event) && !orbitModifierPressed(event))
+                return false;
             
             float forward = event.scrollX * moveSpeed();
             float right = 0;
@@ -59,50 +60,58 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool CameraTool::beginLeftDrag(ToolEvent& event) {
-            if (!cameraModiferPressed(event) && !orbitModifierPressed(event)) return false;
+        bool CameraTool::handleBeginDrag(InputEvent& event) {
+            if (event.mouseButton == MB_LEFT) {
+                if (!cameraModiferPressed(event) && !orbitModifierPressed(event))
+                    return false;
+                
+                if (orbitModifierPressed(event)) {
+                    Model::Hit* hit = event.hits->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);
+                    if (hit != NULL) m_orbitCenter = hit->hitPoint;
+                    else m_orbitCenter = m_editor.camera().defaultPoint();
+                    m_orbit = true;
+                }
+                return true;
+            } else if (event.mouseButton == MB_RIGHT) {
+                return cameraModiferPressed(event) || orbitModifierPressed(event);
+            }
             
-            if (orbitModifierPressed(event)) {
-                Model::Hit* hit = event.hits->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);
-                if (hit != NULL) m_orbitCenter = hit->hitPoint;
-                else m_orbitCenter = m_editor.camera().defaultPoint();
-                m_orbit = true;
-            }
-            return true;
+            return false;
         }
         
-        void CameraTool::leftDrag(ToolEvent& event) {
-            if (m_orbit) {
-                float hAngle = event.deltaX * lookSpeed(false);
-                float vAngle = event.deltaY * lookSpeed(true);
-                m_editor.camera().orbit(m_orbitCenter, hAngle, vAngle);
-            } else {
-                float yawAngle = event.deltaX * lookSpeed(false);
-                float pitchAngle = event.deltaY * lookSpeed(true);
-                m_editor.camera().rotate(yawAngle, pitchAngle);
+        bool CameraTool::handleDrag(InputEvent& event) {
+            if (event.mouseButton == MB_LEFT) {
+                if (m_orbit) {
+                    float hAngle = event.deltaX * lookSpeed(false);
+                    float vAngle = event.deltaY * lookSpeed(true);
+                    m_editor.camera().orbit(m_orbitCenter, hAngle, vAngle);
+                } else {
+                    float yawAngle = event.deltaX * lookSpeed(false);
+                    float pitchAngle = event.deltaY * lookSpeed(true);
+                    m_editor.camera().rotate(yawAngle, pitchAngle);
+                }
+                
+                return true;
+            } else if (event.mouseButton == MB_RIGHT) {
+                float forward = 0;
+                float right = event.deltaX * panSpeed(false);
+                float up = event.deltaY * panSpeed(true);
+                m_editor.camera().moveBy(forward, right, up);
+                return true;
             }
+            
+            return false;
         }
         
-        void CameraTool::endLeftDrag(ToolEvent& event) {
+        void CameraTool::handleEndDrag(InputEvent& event) {
             m_orbit = false;
         }
-        
-        bool CameraTool::beginRightDrag(ToolEvent& event) {
-            return cameraModiferPressed(event) || orbitModifierPressed(event);
-        }
-        
-        void CameraTool::rightDrag(ToolEvent& event) {
-            float forward = 0;
-            float right = event.deltaX * panSpeed(false);
-            float up = event.deltaY * panSpeed(true);
-            m_editor.camera().moveBy(forward, right, up);
-        }
-        
-        bool CameraTool::cameraModiferPressed(ToolEvent& event) {
+
+        bool CameraTool::cameraModiferPressed(InputEvent& event) {
             return event.modifierKeys == Model::Preferences::sharedPreferences->cameraKey();
         }
         
-        bool CameraTool::orbitModifierPressed(ToolEvent& event) {
+        bool CameraTool::orbitModifierPressed(InputEvent& event) {
             return event.modifierKeys == Model::Preferences::sharedPreferences->cameraOrbitKey();
         }
     }

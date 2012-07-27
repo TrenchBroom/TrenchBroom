@@ -110,11 +110,11 @@ namespace TrenchBroom {
         }
         
         void MacPreferences::loadPlatformDefaults() {
-            m_cameraKey = Controller::TB_MK_SHIFT;
-            m_cameraOrbitKey = Controller::TB_MK_SHIFT | Controller::TB_MK_CMD;
-            m_selectionToolMultiKey = Controller::TB_MK_CMD;
-            m_selectionToolGridKey = Controller::TB_MK_ALT;
-            m_resizeToolKey = Controller::TB_MK_CMD;
+            m_cameraKey = Controller::Tool::MK_SHIFT;
+            m_cameraOrbitKey = Controller::Tool::MK_SHIFT | Controller::Tool::MK_CMD;
+            m_selectionToolMultiKey = Controller::Tool::MK_CMD;
+            m_selectionToolGridKey = Controller::Tool::MK_ALT;
+            m_resizeToolKey = Controller::Tool::MK_CMD;
             m_rendererFontName = "LucidaGrande";
             m_rendererFontSize = 11;
             m_quakePath = "";

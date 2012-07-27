@@ -39,18 +39,19 @@ namespace TrenchBroom {
             Model::Face* m_referenceFace;
             Renderer::BoundsGuideFigure* m_guideFigure;
             
-            virtual void updateDragPlane(ToolEvent& event);
+            virtual void updateDragPlane(InputEvent& event);
 
-            virtual bool leftMouseDown(ToolEvent& event);
-            virtual bool leftMouseUp(ToolEvent& event);
-            virtual bool doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint);
-            virtual bool doLeftDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
-            virtual void doEndLeftDrag(ToolEvent& event);
+            bool handleMouseDown(InputEvent& event);
+            bool handleMouseUp(InputEvent& event);
+
+            bool handleBeginPlaneDrag(InputEvent& event, Vec3f& initialPoint);
+            bool handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
+            void handleEndPlaneDrag(InputEvent& event);
         public:
             ResizeBrushTool(Editor& editor);
             ~ResizeBrushTool();
 
-            static bool resizeBrushModiferPressed(ToolEvent& event);
+            static bool resizeBrushModiferPressed(InputEvent& event);
         };
     }
 }

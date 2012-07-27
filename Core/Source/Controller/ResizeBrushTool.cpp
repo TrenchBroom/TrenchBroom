@@ -31,11 +31,15 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        void ResizeBrushTool::updateDragPlane(ToolEvent& event) {
+
+        void ResizeBrushTool::updateDragPlane(InputEvent& event) {
             m_dragPlane = DragPlane::parallel(m_referenceFace->boundary.normal, event.ray.direction);
         }
 
-        bool ResizeBrushTool::leftMouseDown(ToolEvent& event) {
+        bool ResizeBrushTool::handleMouseDown(InputEvent& event) {
+            if (event.mouseButton != MB_LEFT)
+                return false;
+            
             if (!resizeBrushModiferPressed(event))
                 return false;
             
@@ -60,7 +64,10 @@ namespace TrenchBroom {
             return false; // don't prevent the click from reaching other tools
         }
         
-        bool ResizeBrushTool::leftMouseUp(ToolEvent& event) {
+        bool ResizeBrushTool::handleMouseUp(InputEvent& event) {
+            if (event.mouseButton != MB_LEFT)
+                return false;
+            
             if (m_guideFigure != NULL) {
                 removeFigure(*m_guideFigure);
                 delete m_guideFigure;
@@ -69,8 +76,8 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool ResizeBrushTool::doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint) {
-            if (!resizeBrushModiferPressed(event))
+        bool ResizeBrushTool::handleBeginPlaneDrag(InputEvent& event, Vec3f& initialPoint) {
+            if (event.mouseButton != MB_LEFT || !resizeBrushModiferPressed(event))
                 return false;
                 
             Model::Hit* hit = event.hits->first(Model::TB_HT_FACE, true);
@@ -88,7 +95,9 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool ResizeBrushTool::doLeftDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint) {
+        bool ResizeBrushTool::handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint) {
+            assert(event.mouseButton == MB_LEFT);
+            
             Vec3f delta = curMousePoint - referencePoint;
             float dist = m_editor.grid().moveDistance(*m_referenceFace, delta);
 
@@ -118,7 +127,9 @@ namespace TrenchBroom {
             return true;
         }
         
-        void ResizeBrushTool::doEndLeftDrag(ToolEvent& event) {
+        void ResizeBrushTool::handleEndPlaneDrag(InputEvent& event) {
+            assert(event.mouseButton == MB_LEFT);
+            
             m_editor.map().undoManager().end();
             m_referenceFace = NULL;
 
@@ -140,7 +151,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool ResizeBrushTool::resizeBrushModiferPressed(ToolEvent& event) {
+        bool ResizeBrushTool::resizeBrushModiferPressed(InputEvent& event) {
             return event.modifierKeys == Model::Preferences::sharedPreferences->resizeToolKey();
         }
     }

@@ -43,18 +43,11 @@ namespace TrenchBroom {
         
         class VertexTool : public DragTool {
         protected:
-            typedef enum {
-                INACTIVE,
-                ACTIVE,
-                SELECTED,
-                DRAGGING
-            } EState;
-            
             Renderer::HandleFigure* m_handleFigure;
             Renderer::HandleFigure* m_selectedHandleFigure;
             Renderer::PointGuideFigure* m_guideFigure;
             
-            EState m_state;
+            bool m_selected;
             
             Model::Brush* m_brush;
             size_t m_index;
@@ -82,15 +75,14 @@ namespace TrenchBroom {
             VertexTool(Controller::Editor& editor);
             virtual ~VertexTool() {}
 
-            virtual void activated(ToolEvent& event);
-            virtual void deactivated(ToolEvent& event);
-            
-            virtual bool leftMouseDown(ToolEvent& event);
-            virtual bool leftMouseUp(ToolEvent& event);
-            
-            virtual bool doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint);
-            virtual bool doLeftDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
-            virtual void doEndLeftDrag(ToolEvent& event);
+            bool handleActivated(InputEvent& event);
+            bool handleDeactivated(InputEvent& event);
+            bool handleMouseDown(InputEvent& event);
+            bool handleMouseUp(InputEvent& event);
+
+            bool handleBeginPlaneDrag(InputEvent& event, Vec3f& initialPoint);
+            bool handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
+            void handleEndPlaneDrag(InputEvent& event);
         };
     }
 }

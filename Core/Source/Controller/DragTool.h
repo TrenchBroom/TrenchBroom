@@ -35,30 +35,58 @@ namespace TrenchBroom {
             Vec3f m_dragPlanePosition;
             Vec3f m_lastMousePoint;
             Vec3f m_lastRefPoint;
-            bool m_drag;
             
-            virtual void updateDragPlane(ToolEvent& event);
+            virtual void updateDragPlane(InputEvent& event) {
+                if (altPlaneModifierPressed(event))
+                    m_dragPlane = DragPlane::vertical(event.ray.direction * -1.0f);
+                else
+                    m_dragPlane = DragPlane::horizontal();
+            }
 
-            virtual bool doBeginLeftDrag(ToolEvent& event, Vec3f& initialPoint);
-            virtual bool doLeftDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
-            virtual void doEndLeftDrag(ToolEvent& event);
-            
-            virtual bool doBeginRightDrag(ToolEvent& event, Vec3f& initialPoint) ;
-            virtual bool doRightDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
-            virtual void doEndRightDrag(ToolEvent& event);
+            virtual bool handleBeginPlaneDrag(InputEvent& event, Vec3f& initialPoint) { return false; }
+            virtual bool handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint) { return false; }
+            virtual void handleEndPlaneDrag(InputEvent& event) {}
         public:
-            static bool altPlaneModifierPressed(ToolEvent& event);
+            static bool altPlaneModifierPressed(InputEvent& event) {
+                return event.modifierKeys == MK_ALT;
+            }
 
-            DragTool(Editor& editor);
+            DragTool(Editor& editor) : Tool(editor), m_dragPlane(DragPlane::horizontal()), m_dragPlanePosition(Vec3f::Null), m_lastMousePoint(Vec3f::Null), m_lastRefPoint(Vec3f::Null) {};
             virtual ~DragTool() {}
             
-            bool beginLeftDrag(ToolEvent& event);
-            void leftDrag(ToolEvent& event);
-            void endLeftDrag(ToolEvent& event);
-
-            bool beginRightDrag(ToolEvent& event);
-            void rightDrag(ToolEvent& event);
-            void endRightDrag(ToolEvent& event);
+            bool handleBeginDrag(InputEvent& event) {
+                if (handleBeginPlaneDrag(event, m_lastMousePoint)) {
+                    updateDragPlane(event);
+                    m_lastRefPoint = m_lastMousePoint;
+                    m_dragPlanePosition = m_lastMousePoint;
+                    return true;
+                }
+                return false;
+            }
+            
+            bool handleDrag(InputEvent& event) {
+                float dist = m_dragPlane.intersect(event.ray, m_dragPlanePosition);
+                if (Math::isnan(dist))
+                    return true;
+                
+                Vec3f currentMousePoint = event.ray.pointAtDistance(dist);
+                if (currentMousePoint.equals(m_lastMousePoint))
+                    return true;
+                
+                Vec3f delta = currentMousePoint - m_lastRefPoint;
+                if (delta.null())
+                    return true;
+                
+                if (!handlePlaneDrag(event, m_lastMousePoint, currentMousePoint, m_lastRefPoint))
+                    return false;
+                
+                m_lastMousePoint = currentMousePoint;
+                return true;
+            }
+            
+            void handleEndDrag(InputEvent& event) {
+                handleEndPlaneDrag(event);
+            }
         };
     }
 }

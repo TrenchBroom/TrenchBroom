@@ -30,17 +30,8 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        bool SelectionTool::scrolled(ToolEvent& event) {
-            if (!gridSizeModifierPressed(event))
-                return false;
-            if (event.scrollX > 0)
-                m_editor.grid().setSize(m_editor.grid().size() + 1);
-            else if (m_editor.grid().size() > 0)
-                m_editor.grid().setSize(m_editor.grid().size() - 1);
-            return true;
-        }
 
-        bool SelectionTool::leftMouseUp(ToolEvent& event) {
+        bool SelectionTool::handleMouseUp(InputEvent& event) {
             Model::Selection& selection = m_editor.map().selection();
             Model::Hit* hit = event.hits->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);
             if (hit != NULL) {
@@ -99,37 +90,52 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool SelectionTool::beginLeftDrag(ToolEvent& event) {
-            return multiSelectionModiferPressed(event);
+        bool SelectionTool::handleScrolled(InputEvent& event) {
+            if (!gridSizeModifierPressed(event))
+                return false;
+            if (event.scrollX > 0)
+                m_editor.grid().setSize(m_editor.grid().size() + 1);
+            else if (m_editor.grid().size() > 0)
+                m_editor.grid().setSize(m_editor.grid().size() - 1);
+            return true;
         }
         
-        void SelectionTool::leftDrag(ToolEvent& event) {
+        bool SelectionTool::handleBeginDrag(InputEvent& event) {
+            return event.mouseButton == MB_LEFT && multiSelectionModiferPressed(event);
+        }
+        
+        bool SelectionTool::handleDrag(InputEvent& event) {
+            assert(event.mouseButton == MB_LEFT);
+            
             Model::Selection& selection = m_editor.map().selection();
             Model::Hit* hit = event.hits->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);
-            if (hit != NULL) {
-                if (hit->type == Model::TB_HT_ENTITY) {
-                    Model::Entity& entity = hit->entity();
-                    if (!entity.selected())
-                        selection.addEntity(entity);
+            if (hit == NULL)
+                return false;
+            
+            if (hit->type == Model::TB_HT_ENTITY) {
+                Model::Entity& entity = hit->entity();
+                if (!entity.selected())
+                    selection.addEntity(entity);
+            } else {
+                Model::Face& face = hit->face();
+                Model::Brush& brush = *face.brush;
+                if (selection.mode() == Model::TB_SM_FACES) {
+                    if (!face.selected)
+                        selection.addFace(face);
                 } else {
-                    Model::Face& face = hit->face();
-                    Model::Brush& brush = *face.brush;
-                    if (selection.mode() == Model::TB_SM_FACES) {
-                        if (!face.selected)
-                            selection.addFace(face);
-                    } else {
-                        if (!brush.selected)
-                            selection.addBrush(brush);
-                    }
+                    if (!brush.selected)
+                        selection.addBrush(brush);
                 }
             }
+            
+            return true;
         }
         
-        bool SelectionTool::multiSelectionModiferPressed(ToolEvent& event) {
+        bool SelectionTool::multiSelectionModiferPressed(InputEvent& event) {
 			return event.modifierKeys == Model::Preferences::sharedPreferences->selectionToolMultiKey();
         }
         
-        bool SelectionTool::gridSizeModifierPressed(ToolEvent& event) {
+        bool SelectionTool::gridSizeModifierPressed(InputEvent& event) {
 			return event.modifierKeys == Model::Preferences::sharedPreferences->selectionToolGridKey();
         }
    }

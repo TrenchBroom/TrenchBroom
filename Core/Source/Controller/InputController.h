@@ -30,12 +30,6 @@
 namespace TrenchBroom {
     namespace Controller {
         
-        typedef enum {
-            TB_MS_NONE,
-            TB_MS_LEFT,
-            TB_MS_RIGHT
-        } EMouseStatus;
-        
         class Tool;
         class ToolEvent;
         class DragTargetTool;
@@ -45,8 +39,8 @@ namespace TrenchBroom {
         class InputController {
         private:
             Editor& m_editor;
-            ToolEvent m_currentEvent;
-            EMouseStatus m_dragStatus;
+            Tool::InputEvent m_currentEvent;
+            Tool::EMouseButton m_dragButton;
             
             // TODO shared pointer:
             typedef std::tr1::shared_ptr<Tool> ToolPtr;
@@ -83,10 +77,10 @@ namespace TrenchBroom {
             bool clipToolActive() {return false;}
             
             bool key(wchar_t c);
-            void modifierKeyDown(EModifierKeys modifierKey);
-            void modifierKeyUp(EModifierKeys modifierKey);
-            void mouseDown(EMouseButton mouseButton);
-            void mouseUp(EMouseButton mouseButton);
+            void modifierKeyDown(Tool::EModifierKeys modifierKey);
+            void modifierKeyUp(Tool::EModifierKeys modifierKey);
+            void mouseDown(Tool::EMouseButton mouseButton);
+            void mouseUp(Tool::EMouseButton mouseButton);
             void mouseMoved(float x, float y, float dx, float dy);
             void scrolled(float dx, float dy);
             

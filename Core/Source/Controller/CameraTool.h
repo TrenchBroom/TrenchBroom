@@ -40,15 +40,13 @@ namespace TrenchBroom {
         public:
             CameraTool(Editor& editor) : Tool(editor), m_orbit(false) {}
 
-            bool scrolled(ToolEvent& event);
-            bool beginLeftDrag(ToolEvent& event);
-            void leftDrag(ToolEvent& event);
-            void endLeftDrag(ToolEvent& event);
-            bool beginRightDrag(ToolEvent& event);
-            void rightDrag(ToolEvent& event);
-
-            static bool cameraModiferPressed(ToolEvent& event);
-            static bool orbitModifierPressed(ToolEvent& event);
+            bool handleScrolled(InputEvent& event);
+            bool handleBeginDrag(InputEvent& event);
+            bool handleDrag(InputEvent& event);
+            void handleEndDrag(InputEvent& event);
+            
+            static bool cameraModiferPressed(InputEvent& event);
+            static bool orbitModifierPressed(InputEvent& event);
         };
     }
 }

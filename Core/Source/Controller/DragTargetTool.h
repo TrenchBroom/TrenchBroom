@@ -22,19 +22,19 @@
 
 #include <string>
 #include "Controller/Editor.h"
+#include "Controller/Tool.h"
 #include "Renderer/MapRenderer.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        class ToolEvent;
         
         class DragInfo {
         public:
-            ToolEvent& event;
+            Tool::InputEvent& event;
             std::string name;
             void* payload;
 
-            DragInfo(ToolEvent& event) : event(event) {}
+            DragInfo(Tool::InputEvent& event) : event(event) {}
         };
         
         class DragTargetTool {

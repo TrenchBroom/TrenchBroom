@@ -45,9 +45,9 @@ namespace TrenchBroom {
             BBox m_bounds;
             
             void createFigures();
-            bool doBeginRightDrag(ToolEvent& event, Vec3f& initialPoint);
-            bool doRightDrag(ToolEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
-            void doEndRightDrag(ToolEvent& event);
+            bool handleBeginPlaneDrag(InputEvent& event, Vec3f& initialPoint);
+            bool handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
+            void handleEndPlaneDrag(InputEvent& event);
         public:
             CreateBrushTool(Editor& editor);
             virtual ~CreateBrushTool();

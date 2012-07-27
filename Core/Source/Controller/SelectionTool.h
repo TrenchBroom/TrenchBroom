@@ -34,13 +34,13 @@ namespace TrenchBroom {
         public:
             SelectionTool(Editor& editor) : Tool(editor) {}
             
-            bool scrolled(ToolEvent& event);
-            bool leftMouseUp(ToolEvent& event);
-            bool beginLeftDrag(ToolEvent& event);
-            void leftDrag(ToolEvent& event);
+            bool handleMouseUp(InputEvent& event);
+            bool handleScrolled(InputEvent& event);
+            bool handleBeginDrag(InputEvent& event);
+            bool handleDrag(InputEvent& event);
 
-            static bool multiSelectionModiferPressed(ToolEvent& event);
-            static bool gridSizeModifierPressed(ToolEvent& event);
+            static bool multiSelectionModiferPressed(InputEvent& event);
+            static bool gridSizeModifierPressed(InputEvent& event);
         };
     }
 }
