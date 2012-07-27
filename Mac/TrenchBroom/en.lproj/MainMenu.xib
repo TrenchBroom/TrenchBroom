@@ -450,7 +450,7 @@
 										<array class="NSMutableArray" key="NSMenuItems">
 											<object class="NSMenuItem" id="587883139">
 												<reference key="NSMenu" ref="1032787292"/>
-												<string key="NSTitle">Toggle Clip Tool</string>
+												<string key="NSTitle">Clip Tool</string>
 												<string key="NSKeyEquiv">c</string>
 												<int key="NSMnemonicLoc">2147483647</int>
 												<reference key="NSOnImage" ref="1033313550"/>
@@ -484,7 +484,7 @@
 											</object>
 											<object class="NSMenuItem" id="109087484">
 												<reference key="NSMenu" ref="1032787292"/>
-												<string key="NSTitle">Toggle Vertex Tool</string>
+												<string key="NSTitle">Vertex Tool</string>
 												<string key="NSKeyEquiv">v</string>
 												<int key="NSMnemonicLoc">2147483647</int>
 												<reference key="NSOnImage" ref="1033313550"/>
@@ -492,7 +492,7 @@
 											</object>
 											<object class="NSMenuItem" id="731139871">
 												<reference key="NSMenu" ref="1032787292"/>
-												<string key="NSTitle">Toggle Edge Tool</string>
+												<string key="NSTitle">Edge Tool</string>
 												<string key="NSKeyEquiv">e</string>
 												<int key="NSMnemonicLoc">2147483647</int>
 												<reference key="NSOnImage" ref="1033313550"/>
@@ -500,7 +500,7 @@
 											</object>
 											<object class="NSMenuItem" id="708304329">
 												<reference key="NSMenu" ref="1032787292"/>
-												<string key="NSTitle">Toggle Face Tool</string>
+												<string key="NSTitle">Face Tool</string>
 												<string key="NSKeyEquiv">f</string>
 												<int key="NSMnemonicLoc">2147483647</int>
 												<reference key="NSOnImage" ref="1033313550"/>
