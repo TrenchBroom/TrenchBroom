@@ -73,15 +73,21 @@ namespace TrenchBroom {
             Editor& m_editor;
             
             void addFigure(Renderer::Figure& figure) {
-                m_editor.renderer()->addFigure(figure);
+				Renderer::MapRenderer* renderer = m_editor.renderer();
+				if (renderer != NULL)
+					renderer->addFigure(figure);
             }
             
             void removeFigure(Renderer::Figure& figure) {
-                m_editor.renderer()->removeFigure(figure);
+                Renderer::MapRenderer* renderer = m_editor.renderer();
+				if (renderer != NULL)
+					renderer->removeFigure(figure);
             }
             
             void figuresChanged() {
-                m_editor.renderer()->rendererChanged(*m_editor.renderer());
+                Renderer::MapRenderer* renderer = m_editor.renderer();
+				if (renderer != NULL)
+					renderer->rendererChanged(*m_editor.renderer());
             }
         public:
             Tool(Editor& editor) : m_editor(editor) {}

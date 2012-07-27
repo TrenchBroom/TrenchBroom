@@ -54,11 +54,11 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_COMMAND(ID_EDIT_REDO, &CMainFrame::OnEditRedo)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, &CMainFrame::OnUpdateEditRedo)
 	ON_COMMAND(ID_TOOLS_TOGGLE_VERTEX_TOOL, &CMainFrame::OnToolsToggleVertexTool)
-	ON_UPDATE_COMMAND_UI(ID_TOOLS_TOGGLE_VERTEX_TOOL, &CMainFrame::OnUpdateMenuItem)
+	ON_UPDATE_COMMAND_UI(ID_TOOLS_TOGGLE_VERTEX_TOOL, &CMainFrame::OnUpdateToolsToggleVertexTool)
 	ON_COMMAND(ID_TOOLS_TOGGLE_EDGE_TOOL, &CMainFrame::OnToolsToggleEdgeTool)
-	ON_UPDATE_COMMAND_UI(ID_TOOLS_TOGGLE_EDGE_TOOL, &CMainFrame::OnUpdateMenuItem)
+	ON_UPDATE_COMMAND_UI(ID_TOOLS_TOGGLE_EDGE_TOOL, &CMainFrame::OnUpdateToolsToggleEdgeTool)
 	ON_COMMAND(ID_TOOLS_TOGGLE_FACE_TOOL, &CMainFrame::OnToolsToggleFaceTool)
-	ON_UPDATE_COMMAND_UI(ID_TOOLS_TOGGLE_FACE_TOOL, &CMainFrame::OnUpdateMenuItem)
+	ON_UPDATE_COMMAND_UI(ID_TOOLS_TOGGLE_FACE_TOOL, &CMainFrame::OnUpdateToolsToggleFaceTool)
 	ON_COMMAND(ID_TOOLS_TOGGLE_TEXTURE_LOCK, &CMainFrame::OnToolsToggleTextureLock)
 	ON_UPDATE_COMMAND_UI(ID_TOOLS_TOGGLE_TEXTURE_LOCK, &CMainFrame::OnUpdateToolsToggleTextureLock)
 	ON_COMMAND(ID_EDIT_DELETE, &CMainFrame::OnEditDelete)
@@ -421,6 +421,15 @@ void CMainFrame::OnToolsToggleVertexTool()
 }
 
 
+void CMainFrame::OnUpdateToolsToggleVertexTool(CCmdUI* pCmdUI)
+{
+	pCmdUI->Enable(validateCommand(pCmdUI->m_nID));
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	TrenchBroom::Controller::InputController& inputController = editor->inputController();
+	pCmdUI->SetCheck(inputController.moveVertexToolActive());
+}
+
+
 void CMainFrame::OnToolsToggleEdgeTool()
 {
 	TrenchBroom::Controller::Editor* editor = currentEditor();
@@ -429,11 +438,29 @@ void CMainFrame::OnToolsToggleEdgeTool()
 }
 
 
+void CMainFrame::OnUpdateToolsToggleEdgeTool(CCmdUI* pCmdUI)
+{
+	pCmdUI->Enable(validateCommand(pCmdUI->m_nID));
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	TrenchBroom::Controller::InputController& inputController = editor->inputController();
+	pCmdUI->SetCheck(inputController.moveEdgeToolActive());
+}
+
+
 void CMainFrame::OnToolsToggleFaceTool()
 {
 	TrenchBroom::Controller::Editor* editor = currentEditor();
 	TrenchBroom::Controller::InputController& inputController = editor->inputController();
 	inputController.toggleMoveFaceTool();
+}
+
+
+void CMainFrame::OnUpdateToolsToggleFaceTool(CCmdUI* pCmdUI)
+{
+	pCmdUI->Enable(validateCommand(pCmdUI->m_nID));
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	TrenchBroom::Controller::InputController& inputController = editor->inputController();
+	pCmdUI->SetCheck(inputController.moveFaceToolActive());
 }
 
 
@@ -446,7 +473,6 @@ void CMainFrame::OnToolsToggleTextureLock()
 void CMainFrame::OnUpdateToolsToggleTextureLock(CCmdUI* pCmdUI)
 {
 	pCmdUI->Enable(validateCommand(pCmdUI->m_nID));
-
 	TrenchBroom::Controller::Editor* editor = currentEditor();
 	pCmdUI->SetCheck(editor->options().lockTextures());
 }

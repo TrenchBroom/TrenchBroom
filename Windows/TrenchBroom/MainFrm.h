@@ -69,8 +69,11 @@ public:
 	afx_msg void OnUpdateEditRedo(CCmdUI* pCmdUI);
 	afx_msg void OnToolsOptions();
 	afx_msg void OnToolsToggleVertexTool();
+	afx_msg void OnUpdateToolsToggleVertexTool(CCmdUI* pCmdUI);
 	afx_msg void OnToolsToggleEdgeTool();
+	afx_msg void OnUpdateToolsToggleEdgeTool(CCmdUI* pCmdUI);
 	afx_msg void OnToolsToggleFaceTool();
+	afx_msg void OnUpdateToolsToggleFaceTool(CCmdUI* pCmdUI);
 	afx_msg void OnToolsToggleTextureLock();
 	afx_msg void OnUpdateToolsToggleTextureLock(CCmdUI* pCmdUI);
 	afx_msg void OnEditDelete();
