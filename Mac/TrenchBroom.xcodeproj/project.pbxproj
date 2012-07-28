@@ -125,6 +125,7 @@
 		4825B548153AE693007E3AE1 /* OpenGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B544153AE693007E3AE1 /* OpenGL.cpp */; };
 		4825B549153AE693007E3AE1 /* OpenGL_DebugFont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4825B546153AE693007E3AE1 /* OpenGL_DebugFont.cpp */; };
 		4825B555153C9F56007E3AE1 /* GLee.c in Sources */ = {isa = PBXBuildFile; fileRef = 4825B553153C9F56007E3AE1 /* GLee.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		4828B87415C2DC7D0038C3F7 /* DragEntityFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4828B87315C2DC7D0038C3F7 /* DragEntityFigure.cpp */; };
 		482EB2A71566CC120071206A /* OpenGL_FTGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482EB2A61566CC120071206A /* OpenGL_FTGL.cpp */; };
 		4833E9F815790E9D0089FD2A /* EntityRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4833E9F715790E9D0089FD2A /* EntityRenderer.cpp */; };
 		483DE918154DCE62002FD6B0 /* PreferencesWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 483DE917154DCE62002FD6B0 /* PreferencesWindow.xib */; };
@@ -154,6 +155,7 @@
 		48979EE8152E34AE0039ABE8 /* DefaultSkin.png in Resources */ = {isa = PBXBuildFile; fileRef = 48979EE7152E34AE0039ABE8 /* DefaultSkin.png */; };
 		489DDDCD15ADAAB7005C1C2D /* MapWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 489DDDCC15ADAAB7005C1C2D /* MapWriter.cpp */; };
 		48A003BC15AC2C6D00FD4B56 /* Autosaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48A003BB15AC2C6D00FD4B56 /* Autosaver.cpp */; };
+		48A05A1215C2C9CA00859D08 /* CreateBrushFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48A05A1115C2C9CA00859D08 /* CreateBrushFigure.cpp */; };
 		48B50E13152CF6E400E75402 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 48B50E12152CF6E400E75402 /* Cocoa.framework */; };
 		48B50E1D152CF6E400E75402 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 48B50E1B152CF6E400E75402 /* InfoPlist.strings */; };
 		48B50E1F152CF6E400E75402 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 48B50E1E152CF6E400E75402 /* main.m */; };
@@ -450,6 +452,8 @@
 		4825B547153AE693007E3AE1 /* OpenGL_DebugFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGL_DebugFont.h; sourceTree = "<group>"; };
 		4825B553153C9F56007E3AE1 /* GLee.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = GLee.c; sourceTree = "<group>"; };
 		4825B554153C9F56007E3AE1 /* GLee.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLee.h; sourceTree = "<group>"; };
+		4828B87115C2DC5B0038C3F7 /* DragEntityFigure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragEntityFigure.h; sourceTree = "<group>"; };
+		4828B87315C2DC7D0038C3F7 /* DragEntityFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragEntityFigure.cpp; sourceTree = "<group>"; };
 		482EB2A51566CB6C0071206A /* OpenGL_FTGL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OpenGL_FTGL.h; sourceTree = "<group>"; };
 		482EB2A61566CC120071206A /* OpenGL_FTGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenGL_FTGL.cpp; sourceTree = "<group>"; };
 		48321ED9158677140042D318 /* BrushGeometryTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrushGeometryTypes.h; sourceTree = "<group>"; };
@@ -515,6 +519,8 @@
 		489DDDCC15ADAAB7005C1C2D /* MapWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapWriter.cpp; sourceTree = "<group>"; };
 		48A003B915AC2C4400FD4B56 /* Autosaver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Autosaver.h; sourceTree = "<group>"; };
 		48A003BB15AC2C6D00FD4B56 /* Autosaver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Autosaver.cpp; sourceTree = "<group>"; };
+		48A05A0F15C2C89D00859D08 /* CreateBrushFigure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CreateBrushFigure.h; sourceTree = "<group>"; };
+		48A05A1115C2C9CA00859D08 /* CreateBrushFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CreateBrushFigure.cpp; sourceTree = "<group>"; };
 		48B50E0E152CF6E400E75402 /* TrenchBroom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrenchBroom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		48B50E12152CF6E400E75402 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		48B50E15152CF6E400E75402 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -1043,6 +1049,10 @@
 			children = (
 				48487FC9158C9DD0003C0C46 /* BrushFigure.cpp */,
 				48487FC8158C9DB9003C0C46 /* BrushFigure.h */,
+				48A05A1115C2C9CA00859D08 /* CreateBrushFigure.cpp */,
+				48A05A0F15C2C89D00859D08 /* CreateBrushFigure.h */,
+				4828B87315C2DC7D0038C3F7 /* DragEntityFigure.cpp */,
+				4828B87115C2DC5B0038C3F7 /* DragEntityFigure.h */,
 				486571D11582860700698829 /* EntityFigure.cpp */,
 				486571CF158285FC00698829 /* EntityFigure.h */,
 				488E65B31563011E00B4E72A /* Figure.h */,
@@ -1381,6 +1391,8 @@
 				48A003BC15AC2C6D00FD4B56 /* Autosaver.cpp in Sources */,
 				489DDDCD15ADAAB7005C1C2D /* MapWriter.cpp in Sources */,
 				48EA85F815B4377500ACC0F5 /* SizeGuideFigure.cpp in Sources */,
+				48A05A1215C2C9CA00859D08 /* CreateBrushFigure.cpp in Sources */,
+				4828B87415C2DC7D0038C3F7 /* DragEntityFigure.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
