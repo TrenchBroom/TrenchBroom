@@ -62,11 +62,11 @@ namespace TrenchBroom {
                 m_guideFigure->setHiddenColor(prefs.hiddenSelectionGuideColor());
             }
 
-            Model::Map& map = m_editor.map();
+            Model::Map& map = editor().map();
             m_guideFigure->setBounds(map.selection().bounds());
 
             addFigure(*m_guideFigure);
-            m_editor.map().undoManager().begin("Move Objects");
+            editor().map().undoManager().begin("Move Objects");
             
             return true;
         }
@@ -74,8 +74,8 @@ namespace TrenchBroom {
         bool MoveObjectTool::handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint) {
             assert(event.mouseButton == MB_LEFT);
             
-            Grid& grid = m_editor.grid();
-            Model::Map& map = m_editor.map();
+            Grid& grid = editor().grid();
+            Model::Map& map = editor().map();
             Model::Selection& selection = map.selection();
             
             Vec3f delta = grid.moveDelta(selection.bounds(), map.worldBounds(), curMousePoint - referencePoint);
@@ -83,7 +83,7 @@ namespace TrenchBroom {
                 return true;
             
             referencePoint += delta;
-            map.translateObjects(delta, m_editor.options().lockTextures());
+            map.translateObjects(delta, editor().options().lockTextures());
             m_guideFigure->setBounds(selection.bounds());
             
             return true;
@@ -95,7 +95,7 @@ namespace TrenchBroom {
             removeFigure(*m_guideFigure);
             delete m_guideFigure;
             m_guideFigure = NULL;
-            m_editor.map().undoManager().end();
+            editor().map().undoManager().end();
         }
 
         MoveObjectTool::MoveObjectTool(Editor& editor) : DragTool(editor), m_guideFigure(NULL) {}

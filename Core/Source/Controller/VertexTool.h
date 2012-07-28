@@ -42,15 +42,14 @@ namespace TrenchBroom {
         class Editor;
         
         class VertexTool : public DragTool {
+        private:
+            bool m_selected;
+            Model::Brush* m_brush;
+            size_t m_index;
         protected:
             Renderer::HandleFigure* m_handleFigure;
             Renderer::HandleFigure* m_selectedHandleFigure;
             Renderer::PointGuideFigure* m_guideFigure;
-            
-            bool m_selected;
-            
-            Model::Brush* m_brush;
-            size_t m_index;
             
             virtual int hitType() = 0;
             virtual size_t index(Model::Hit& hit);
@@ -75,6 +74,10 @@ namespace TrenchBroom {
             VertexTool(Controller::Editor& editor);
             virtual ~VertexTool() {}
 
+            bool selected();
+            Model::Brush* brush();
+            size_t index();
+            
             bool handleActivated(InputEvent& event);
             bool handleDeactivated(InputEvent& event);
             bool handleMouseDown(InputEvent& event);

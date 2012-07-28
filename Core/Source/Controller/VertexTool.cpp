@@ -39,18 +39,18 @@ namespace TrenchBroom {
         void VertexTool::brushesDidChange(const Model::BrushList& brushes) {
             for (unsigned int i = 0; i < brushes.size(); i++)
                 if (brushes[i]->selected) {
-                    if (m_selected || m_state == TS_DRAG)
+                    if (selected() || state() == TS_DRAG)
                         updateSelectedHandleFigures(*m_selectedHandleFigure, *m_guideFigure, *m_brush, m_index);
-                    else if (m_active)
+                    else if (active())
                         updateHandleFigure(*m_handleFigure);
                     break;
                 }
         }
         
         void VertexTool::selectionChanged(const Model::SelectionEventData& event) {
-            if (m_active)
+            if (active())
                 updateHandleFigure(*m_handleFigure);
-            if (m_selected || m_state == TS_DRAG)
+            if (selected() || state() == TS_DRAG)
                 updateSelectedHandleFigures(*m_selectedHandleFigure, *m_guideFigure, *m_brush, m_index);
         }
 
@@ -108,12 +108,24 @@ namespace TrenchBroom {
         VertexTool::VertexTool(Controller::Editor& editor) : DragTool(editor), m_selected(false), m_brush(NULL), m_index(-1), m_handleFigure(NULL), m_selectedHandleFigure(NULL), m_guideFigure(NULL) {
         }
 
+        bool VertexTool::selected() {
+            return selected();
+        }
+        
+        Model::Brush* VertexTool::brush() {
+            return m_brush;
+        }
+        
+        size_t VertexTool::index() {
+            return m_index;
+        }
+
         bool VertexTool::handleActivated(InputEvent& event) {
-            assert(m_state == TS_DEFAULT);
+            assert(state() == TS_DEFAULT);
             
             createHandleFigure();
             
-            Model::Map& map = m_editor.map();
+            Model::Map& map = editor().map();
             Model::Selection& selection = map.selection();
             
             map.brushesDidChange        += new Model::Map::BrushEvent::Listener<VertexTool>(this, &VertexTool::brushesDidChange);
@@ -124,11 +136,11 @@ namespace TrenchBroom {
         }
         
         bool VertexTool::handleDeactivated(InputEvent& event) {
-            assert(m_active);
+            assert(active());
 
             deleteHandleFigure();
             
-            Model::Map& map = m_editor.map();
+            Model::Map& map = editor().map();
             Model::Selection& selection = map.selection();
             
             map.brushesDidChange        -= new Model::Map::BrushEvent::Listener<VertexTool>(this, &VertexTool::brushesDidChange);
@@ -139,7 +151,7 @@ namespace TrenchBroom {
         }
         
         bool VertexTool::handleMouseDown(InputEvent& event) {
-            assert(m_active);
+            assert(active());
 
             if (event.mouseButton != MB_LEFT)
                 return false;
@@ -158,12 +170,12 @@ namespace TrenchBroom {
         }
         
         bool VertexTool::handleMouseUp(InputEvent& event) {
-            assert(m_active);
+            assert(active());
 
             if (event.mouseButton != MB_LEFT)
                 return false;
             
-            if (m_selected) {
+            if (selected()) {
                 deleteSelectedHandleFigures();
                 createHandleFigure();
                 m_brush = NULL;
@@ -183,7 +195,7 @@ namespace TrenchBroom {
             if (hit == NULL)
                 return true;
             
-            assert(m_selected);
+            assert(selected());
 
             m_brush = &hit->brush();
             m_index = index(*hit);
@@ -191,19 +203,19 @@ namespace TrenchBroom {
             
             deleteHandleFigure();
            
-            m_editor.map().undoManager().begin(undoName());
+            editor().map().undoManager().begin(undoName());
             return true;
         }
         
         bool VertexTool::handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint) {
             assert(event.mouseButton == MB_LEFT);
             
-            if (m_state == TS_DRAG) {
+            if (state() == TS_DRAG) {
                 assert(m_brush != NULL);
                 
-                Grid& grid = m_editor.grid();
+                Grid& grid = editor().grid();
                 Vec3f position = movePosition(*m_brush, m_index);
-                Vec3f delta = grid.moveDelta(position, m_editor.map().worldBounds(), curMousePoint - referencePoint);
+                Vec3f delta = grid.moveDelta(position, editor().map().worldBounds(), curMousePoint - referencePoint);
                 
                 if (delta.null())
                     return true;
@@ -224,8 +236,8 @@ namespace TrenchBroom {
         void VertexTool::handleEndPlaneDrag(InputEvent& event) {
             assert(event.mouseButton == MB_LEFT);
             
-            if (m_state == TS_DRAG) {
-                m_editor.map().undoManager().end();
+            if (state() == TS_DRAG) {
+                editor().map().undoManager().end();
                 
                 deleteSelectedHandleFigures();
                 createHandleFigure();

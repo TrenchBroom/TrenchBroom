@@ -32,7 +32,7 @@ namespace TrenchBroom {
     namespace Controller {
 
         bool SelectionTool::handleMouseUp(InputEvent& event) {
-            Model::Selection& selection = m_editor.map().selection();
+            Model::Selection& selection = editor().map().selection();
             Model::Hit* hit = event.hits->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);
             if (hit != NULL) {
                 if (hit->type == Model::TB_HT_ENTITY) {
@@ -94,9 +94,9 @@ namespace TrenchBroom {
             if (!gridSizeModifierPressed(event))
                 return false;
             if (event.scrollX > 0)
-                m_editor.grid().setSize(m_editor.grid().size() + 1);
-            else if (m_editor.grid().size() > 0)
-                m_editor.grid().setSize(m_editor.grid().size() - 1);
+                editor().grid().setSize(editor().grid().size() + 1);
+            else if (editor().grid().size() > 0)
+                editor().grid().setSize(editor().grid().size() - 1);
             return true;
         }
         
@@ -107,7 +107,7 @@ namespace TrenchBroom {
         bool SelectionTool::handleDrag(InputEvent& event) {
             assert(event.mouseButton == MB_LEFT);
             
-            Model::Selection& selection = m_editor.map().selection();
+            Model::Selection& selection = editor().map().selection();
             Model::Hit* hit = event.hits->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);
             if (hit == NULL)
                 return false;

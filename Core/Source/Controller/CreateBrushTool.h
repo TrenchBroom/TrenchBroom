@@ -51,6 +51,9 @@ namespace TrenchBroom {
         public:
             CreateBrushTool(Editor& editor);
             virtual ~CreateBrushTool();
+            
+            Model::Brush* brush();
+            const BBox& bounds();
         };
     }
 }

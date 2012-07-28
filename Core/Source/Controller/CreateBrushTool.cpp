@@ -47,7 +47,7 @@ namespace TrenchBroom {
             if (m_brush != NULL)
                 delete m_brush;
             
-            Model::Map& map = m_editor.map();
+            Model::Map& map = editor().map();
             Model::Selection& selection = map.selection();
             Model::Assets::Texture* texture = selection.texture();
             m_brush = new Model::Brush(map.worldBounds(), m_bounds, texture);
@@ -57,7 +57,7 @@ namespace TrenchBroom {
             
             if (m_sizeGuideFigure == NULL) {
                 Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-                m_sizeGuideFigure = new Renderer::SizeGuideFigure(m_editor.renderer()->fontManager(), Renderer::FontDescriptor(prefs.rendererFontName(), prefs.rendererFontSize()));
+                m_sizeGuideFigure = new Renderer::SizeGuideFigure(editor().renderer()->fontManager(), Renderer::FontDescriptor(prefs.rendererFontName(), prefs.rendererFontSize()));
                 m_sizeGuideFigure->setColor(prefs.selectionGuideColor());
                 addFigure(*m_sizeGuideFigure);
             }
@@ -76,31 +76,31 @@ namespace TrenchBroom {
             if (!event.mouseButton == MB_RIGHT)
                 return false;
             
-            m_editor.map().selection().removeAll();
+            editor().map().selection().removeAll();
             
             Model::Hit* hit = event.hits->first(Model::TB_HT_FACE, true);
             if (hit != NULL) initialPoint = hit->hitPoint.correct();
-            else initialPoint = m_editor.camera().defaultPoint(event.ray.direction).correct();
+            else initialPoint = editor().camera().defaultPoint(event.ray.direction).correct();
             
             m_initialBounds.min = initialPoint;
             m_initialBounds.max = initialPoint;
             
-            m_initialBounds.min = m_editor.grid().snapDown(m_initialBounds.min);
-            m_initialBounds.max = m_editor.grid().snapUp(m_initialBounds.max);
+            m_initialBounds.min = editor().grid().snapDown(m_initialBounds.min);
+            m_initialBounds.max = editor().grid().snapUp(m_initialBounds.max);
             
             if (m_initialBounds.min.x == m_initialBounds.max.x) {
-                if (event.ray.direction.x > 0) m_initialBounds.min.x -= m_editor.grid().actualSize();
-                else m_initialBounds.max.x += m_editor.grid().actualSize();
+                if (event.ray.direction.x > 0) m_initialBounds.min.x -= editor().grid().actualSize();
+                else m_initialBounds.max.x += editor().grid().actualSize();
             }
             
             if (m_initialBounds.min.y == m_initialBounds.max.y) {
-                if (event.ray.direction.y > 0) m_initialBounds.min.y -= m_editor.grid().actualSize();
-                else m_initialBounds.max.y += m_editor.grid().actualSize();
+                if (event.ray.direction.y > 0) m_initialBounds.min.y -= editor().grid().actualSize();
+                else m_initialBounds.max.y += editor().grid().actualSize();
             }
             
             if (m_initialBounds.min.z == m_initialBounds.max.z) {
-                if (event.ray.direction.z > 0) m_initialBounds.min.z -= m_editor.grid().actualSize();
-                else m_initialBounds.max.z += m_editor.grid().actualSize();
+                if (event.ray.direction.z > 0) m_initialBounds.min.z -= editor().grid().actualSize();
+                else m_initialBounds.max.z += editor().grid().actualSize();
             }
 
             m_bounds = m_initialBounds;
@@ -113,8 +113,8 @@ namespace TrenchBroom {
             assert(event.mouseButton == MB_RIGHT);
             
             BBox newBounds = m_initialBounds + curMousePoint.correct();
-            newBounds.min = m_editor.grid().snapDown(newBounds.min);
-            newBounds.max = m_editor.grid().snapUp(newBounds.max);
+            newBounds.min = editor().grid().snapDown(newBounds.min);
+            newBounds.max = editor().grid().snapUp(newBounds.max);
             if (m_bounds == newBounds) return true;
             
             m_bounds = newBounds;
@@ -125,7 +125,7 @@ namespace TrenchBroom {
         void CreateBrushTool::handleEndPlaneDrag(InputEvent& event) {
             assert(event.mouseButton == MB_RIGHT);
 
-            m_editor.map().createBrush(*m_editor.map().worldspawn(true), *m_brush);
+            editor().map().createBrush(*editor().map().worldspawn(true), *m_brush);
 
             if (m_brushFigure != NULL) {
                 removeFigure(*m_brushFigure);

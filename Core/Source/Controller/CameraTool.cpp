@@ -56,7 +56,7 @@ namespace TrenchBroom {
             float forward = event.scrollX * moveSpeed();
             float right = 0;
             float up = 0;
-            m_editor.camera().moveBy(forward, right, up);
+            editor().camera().moveBy(forward, right, up);
             return true;
         }
         
@@ -68,7 +68,7 @@ namespace TrenchBroom {
                 if (orbitModifierPressed(event)) {
                     Model::Hit* hit = event.hits->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);
                     if (hit != NULL) m_orbitCenter = hit->hitPoint;
-                    else m_orbitCenter = m_editor.camera().defaultPoint();
+                    else m_orbitCenter = editor().camera().defaultPoint();
                     m_orbit = true;
                 }
                 return true;
@@ -84,11 +84,11 @@ namespace TrenchBroom {
                 if (m_orbit) {
                     float hAngle = event.deltaX * lookSpeed(false);
                     float vAngle = event.deltaY * lookSpeed(true);
-                    m_editor.camera().orbit(m_orbitCenter, hAngle, vAngle);
+                    editor().camera().orbit(m_orbitCenter, hAngle, vAngle);
                 } else {
                     float yawAngle = event.deltaX * lookSpeed(false);
                     float pitchAngle = event.deltaY * lookSpeed(true);
-                    m_editor.camera().rotate(yawAngle, pitchAngle);
+                    editor().camera().rotate(yawAngle, pitchAngle);
                 }
                 
                 return true;
@@ -96,7 +96,7 @@ namespace TrenchBroom {
                 float forward = 0;
                 float right = event.deltaX * panSpeed(false);
                 float up = event.deltaY * panSpeed(true);
-                m_editor.camera().moveBy(forward, right, up);
+                editor().camera().moveBy(forward, right, up);
                 return true;
             }
             

@@ -77,11 +77,11 @@ namespace TrenchBroom {
                 InputEvent() : modifierKeys(MK_NONE), mouseButton(MB_NONE), hits(NULL) {}
             };
             
-        protected:
+        private:
             EToolState m_state;
             bool m_active;
             Editor& m_editor;
-            
+        protected:
             void addFigure(Renderer::Figure& figure) {
 				Renderer::MapRenderer* renderer = m_editor.renderer();
 				if (renderer != NULL)
@@ -103,6 +103,18 @@ namespace TrenchBroom {
             Tool(Editor& editor) : m_editor(editor), m_state(TS_DEFAULT), m_active(false) {}
             virtual ~Tool() {}
 
+            EToolState state() {
+                return m_state;
+            }
+            
+            bool active() {
+                return m_active;
+            }
+            
+            Editor& editor() {
+                return m_editor;
+            }
+            
             virtual bool handleActivated(InputEvent& event) { return false; }
             virtual bool handleDeactivated(InputEvent& event) { return false; }
             virtual bool handleMouseDown(InputEvent& event) { return false; }

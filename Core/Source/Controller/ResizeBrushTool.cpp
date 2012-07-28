@@ -59,7 +59,7 @@ namespace TrenchBroom {
                 addFigure(*m_guideFigure);
             }
             
-            Model::Selection& selection = m_editor.map().selection();
+            Model::Selection& selection = editor().map().selection();
             m_guideFigure->setBounds(selection.bounds());
             return false; // don't prevent the click from reaching other tools
         }
@@ -91,7 +91,7 @@ namespace TrenchBroom {
             
             m_referenceFace = &face;
             initialPoint = hit->hitPoint;
-            m_editor.map().undoManager().begin("Resize Brushes");
+            editor().map().undoManager().begin("Resize Brushes");
             return true;
         }
         
@@ -99,10 +99,10 @@ namespace TrenchBroom {
             assert(event.mouseButton == MB_LEFT);
             
             Vec3f delta = curMousePoint - referencePoint;
-            float dist = m_editor.grid().moveDistance(*m_referenceFace, delta);
+            float dist = editor().grid().moveDistance(*m_referenceFace, delta);
 
             if (!Math::isnan(dist)) {
-                Model::Selection& selection = m_editor.map().selection();
+                Model::Selection& selection = editor().map().selection();
                 Model::FaceList faces;
                 if (selection.mode() == Model::TB_SM_FACES) {
                     faces = selection.faces();
@@ -116,7 +116,7 @@ namespace TrenchBroom {
                     
                 }
                 
-                m_editor.map().resizeBrushes(faces, dist, m_editor.options().lockTextures());
+                editor().map().resizeBrushes(faces, dist, editor().options().lockTextures());
                 referencePoint += delta;
 
                 assert(m_guideFigure != NULL);
@@ -130,7 +130,7 @@ namespace TrenchBroom {
         void ResizeBrushTool::handleEndPlaneDrag(InputEvent& event) {
             assert(event.mouseButton == MB_LEFT);
             
-            m_editor.map().undoManager().end();
+            editor().map().undoManager().end();
             m_referenceFace = NULL;
 
             if (m_guideFigure != NULL) {

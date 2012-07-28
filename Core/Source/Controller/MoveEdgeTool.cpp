@@ -63,13 +63,13 @@ namespace TrenchBroom {
         }
         
         Model::MoveResult MoveEdgeTool::performMove(Model::Brush& brush, size_t index, const Vec3f& delta) {
-            return m_editor.map().moveEdge(brush, index, delta);
+            return editor().map().moveEdge(brush, index, delta);
         }
         
         void MoveEdgeTool::updateHandleFigure(Renderer::HandleFigure& handleFigure) {
             Vec3fList positions;
             
-            Model::Map& map = m_editor.map();
+            Model::Map& map = editor().map();
             Model::Selection& selection = map.selection();
             const Model::BrushList& brushes = selection.brushes();
             

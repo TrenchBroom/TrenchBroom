@@ -63,13 +63,13 @@ namespace TrenchBroom {
         }
         
         Model::MoveResult MoveFaceTool::performMove(Model::Brush& brush, size_t index, const Vec3f& delta) {
-            return m_editor.map().moveFace(brush, index, delta);
+            return editor().map().moveFace(brush, index, delta);
         }
         
         void MoveFaceTool::updateHandleFigure(Renderer::HandleFigure& handleFigure) {
             Vec3fList positions;
             
-            Model::Map& map = m_editor.map();
+            Model::Map& map = editor().map();
             Model::Selection& selection = map.selection();
             const Model::BrushList& brushes = selection.brushes();
             
