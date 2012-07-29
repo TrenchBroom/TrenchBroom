@@ -76,7 +76,7 @@ namespace TrenchBroom {
             Model::Selection& selection = map.selection();
             
             map.brushesDidChange        -= new BrushListener(this, &VertexTool::brushesDidChange);
-            map.mapCleared              += new MapListener(this, &VertexTool::mapCleared);
+            map.mapCleared              -= new MapListener(this, &VertexTool::mapCleared);
             selection.selectionAdded    -= new SelectionListener(this, &VertexTool::selectionChanged);
             selection.selectionRemoved  -= new SelectionListener(this, &VertexTool::selectionChanged);
             
@@ -96,7 +96,7 @@ namespace TrenchBroom {
                 m_brush = &hit->brush();
                 m_index = index(*hit);
                 m_selected = true;
-                refreshFigure(false);
+                refreshFigure(true);
                 return true;
             }
             
@@ -174,7 +174,7 @@ namespace TrenchBroom {
             }
             
             m_selected = false;
-            refreshFigure(false);
+            refreshFigure(true);
         }
     }
 }
