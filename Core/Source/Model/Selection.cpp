@@ -438,9 +438,9 @@ namespace TrenchBroom {
                     break;
                 }
                 case TB_SM_FACES: {
-                    FaceList faces = current().faces;
+                    FaceList selectedFaces = current().faces;
                     addFaces(faces);
-                    removeFaces(faces);
+                    removeFaces(selectedFaces);
                     break;
                 }
                 default:

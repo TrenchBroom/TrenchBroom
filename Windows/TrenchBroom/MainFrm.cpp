@@ -252,7 +252,7 @@ bool CMainFrame::validateCommand(UINT id)
 	case ID_EDIT_SELECT_NONE:
 		return mapViewFocused() && !selection.empty();
 	case ID_VIEW_ISOLATE_SELECTION:
-		return mapViewFocused();
+		return !selection.empty();
 	case ID_GRID_SHOW_GRID:
 	case ID_GRID_SNAP_TO_GRID:
 	case ID_GRID_GRID_SIZE_1:
