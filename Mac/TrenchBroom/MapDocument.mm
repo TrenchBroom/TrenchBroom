@@ -493,6 +493,8 @@ namespace TrenchBroom {
     } else if (action == @selector(setGridSize:)) {
         [menuItem setState:editor->grid().size() == [menuItem tag] ? NSOnState : NSOffState];
         return [self mapViewFocused];
+    } else if (action == @selector(toggleIsolateSelection:)) {
+        return !selection.empty();
     }
     
     return [super validateMenuItem:menuItem];
