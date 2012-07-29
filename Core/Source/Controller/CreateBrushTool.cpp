@@ -114,7 +114,7 @@ namespace TrenchBroom {
         }
         
         void CreateBrushTool::handleEndPlaneDrag(InputEvent& event) {
-            assert(event.mouseButton == MB_RIGHT);
+            assert(event.mouseButton == TB_MB_RIGHT);
 
             editor().map().createBrush(*editor().map().worldspawn(true), *m_brush);
 

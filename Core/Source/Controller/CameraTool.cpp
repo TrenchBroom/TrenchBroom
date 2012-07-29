@@ -72,7 +72,7 @@ namespace TrenchBroom {
                     m_orbit = true;
                 }
                 return true;
-            } else if (event.mouseButton == MB_RIGHT) {
+            } else if (event.mouseButton == TB_MB_RIGHT) {
                 return cameraModiferPressed(event) || orbitModifierPressed(event);
             }
             
@@ -92,7 +92,7 @@ namespace TrenchBroom {
                 }
                 
                 return true;
-            } else if (event.mouseButton == MB_RIGHT) {
+            } else if (event.mouseButton == TB_MB_RIGHT) {
                 float forward = 0;
                 float right = event.deltaX * panSpeed(false);
                 float up = event.deltaY * panSpeed(true);
