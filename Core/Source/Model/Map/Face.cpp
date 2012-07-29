@@ -111,6 +111,10 @@ namespace TrenchBroom {
             newTexAxisY -= offset;
             newFaceNorm -= offset;
             
+            // fix some rounding errors - if the old and new texture axes are almost the same, use the old axis
+            if (newFaceNorm.equals(boundary.normal, 0.001f))
+                newFaceNorm = boundary.normal;
+            
             // obtain the new texture plane norm and the new base texture axes
             texAxesAndIndices(newFaceNorm, newBaseAxisX, newBaseAxisY, newPlaneNormIndex, newFaceNormIndex);
             
