@@ -47,6 +47,7 @@ namespace TrenchBroom {
             typedef std::vector<ToolPtr> ToolList;
             ToolList m_receiverChain;
             ToolPtr m_dragScrollReceiver;
+            ToolPtr m_mouseDownReceiver;
             int m_modalReceiverIndex;
 
             ToolPtr m_moveVertexTool;

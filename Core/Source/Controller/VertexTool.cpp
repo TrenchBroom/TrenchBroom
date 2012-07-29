@@ -88,7 +88,7 @@ namespace TrenchBroom {
         bool VertexTool::handleMouseDown(InputEvent& event) {
             assert(active());
 
-            if (event.mouseButton != TB_MB_LEFT)
+            if (event.mouseButton != TB_MB_LEFT || !noModifierPressed(event))
                 return false;
             
             Model::Hit* hit = event.hits->first(hitType(), true);
@@ -121,7 +121,7 @@ namespace TrenchBroom {
         }
         
         bool VertexTool::handleBeginPlaneDrag(InputEvent& event, Vec3f& initialPoint) {
-            if (event.mouseButton != TB_MB_LEFT)
+            if (event.mouseButton != TB_MB_LEFT || !noModifierPressed(event))
                 return false;
             
             Model::Hit* hit = event.hits->first(hitType(), true);

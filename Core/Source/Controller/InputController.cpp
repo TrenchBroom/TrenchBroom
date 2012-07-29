@@ -150,8 +150,10 @@ namespace TrenchBroom {
             updateHits();
             
             for (unsigned int i = 0; i < m_receiverChain.size(); i++)
-                if (m_receiverChain[i]->mouseDown(m_currentEvent))
+                if (m_receiverChain[i]->mouseDown(m_currentEvent)) {
+                    m_mouseDownReceiver = m_receiverChain[i];
                     break;
+                }
         }
         
         void InputController::mouseUp(Tool::EMouseButton mouseButton) {
@@ -159,10 +161,13 @@ namespace TrenchBroom {
             updateHits();
             
             if (m_currentEvent.mouseButton == m_dragButton) {
-                if (m_dragScrollReceiver != NULL)
+                if (m_dragScrollReceiver.get() != NULL)
                     m_dragScrollReceiver->endDrag(m_currentEvent);
+                if (m_mouseDownReceiver.get() != NULL && m_mouseDownReceiver != m_dragScrollReceiver)
+                    m_mouseDownReceiver->mouseUp(m_currentEvent);
                 m_dragScrollReceiver = ToolPtr();
                 m_dragButton = Tool::TB_MB_NONE;
+                m_mouseDownReceiver = ToolPtr();
             } else {
                 for (unsigned int i = 0; i < m_receiverChain.size(); i++)
                     if (m_receiverChain[i]->mouseUp(m_currentEvent))
