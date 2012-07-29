@@ -173,12 +173,6 @@ namespace TrenchBroom {
         }
         
         void InputController::mouseMoved(float x, float y, float dx, float dy) {
-            m_currentEvent.mouseX = x;
-            m_currentEvent.mouseY = y;
-            m_currentEvent.deltaX = dx;
-            m_currentEvent.deltaY = dy;
-            updateHits();
-            
             if (m_currentEvent.mouseButton != Tool::MB_NONE && m_dragButton == Tool::MB_NONE) {
                 m_dragButton = m_currentEvent.mouseButton;
                 for (unsigned int i = 0; i < m_receiverChain.size(); i++) {
@@ -189,7 +183,13 @@ namespace TrenchBroom {
                 }
             }
             
-            if (m_dragButton != Tool::MB_NONE) {
+            m_currentEvent.mouseX = x;
+            m_currentEvent.mouseY = y;
+            m_currentEvent.deltaX = dx;
+            m_currentEvent.deltaY = dy;
+            updateHits();
+            
+            if (m_dragButton != Tool::MB_NONE && m_dragScrollReceiver != NULL) {
                 m_dragScrollReceiver->drag(m_currentEvent);
             } else {
                 for (unsigned int i = 0; i < m_receiverChain.size(); i++)

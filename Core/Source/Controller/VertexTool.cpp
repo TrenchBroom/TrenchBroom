@@ -21,12 +21,8 @@
 
 #include "Controller/Editor.h"
 #include "Controller/Grid.h"
-#include "Model/Map/Brush.h"
-#include "Model/Map/Map.h"
-#include "Model/Selection.h"
 #include "Model/Undo/UndoManager.h"
-#include "Renderer/Figures/HandleFigure.h"
-#include "Renderer/Figures/PointGuideFigure.h"
+#include "Renderer/Figures/VertexToolFigure.h"
 
 #include <cassert>
 
@@ -37,115 +33,54 @@ namespace TrenchBroom {
         }
 
         void VertexTool::brushesDidChange(const Model::BrushList& brushes) {
-            for (unsigned int i = 0; i < brushes.size(); i++)
-                if (brushes[i]->selected) {
-                    if (selected() || state() == TS_DRAG)
-                        updateSelectedHandleFigures(*m_selectedHandleFigure, *m_guideFigure, *m_brush, m_index);
-                    else if (active())
-                        updateHandleFigure(*m_handleFigure);
-                    break;
-                }
+            refreshFigure(true);
+        }
+        
+        void VertexTool::mapCleared(Model::Map& map) {
+            refreshFigure(true);
         }
         
         void VertexTool::selectionChanged(const Model::SelectionEventData& event) {
-            if (active())
-                updateHandleFigure(*m_handleFigure);
-            if (selected() || state() == TS_DRAG)
-                updateSelectedHandleFigures(*m_selectedHandleFigure, *m_guideFigure, *m_brush, m_index);
+            refreshFigure(true);
         }
 
-        void VertexTool::createHandleFigure() {
-            deleteHandleFigure();
-            
-            m_handleFigure = new Renderer::HandleFigure();
-            m_handleFigure->setColor(handleColor());
-            m_handleFigure->setHiddenColor(hiddenHandleColor());
-            updateHandleFigure(*m_handleFigure);
-            addFigure(*m_handleFigure);
-        }
-        
-        void VertexTool::deleteHandleFigure() {
-            if (m_handleFigure != NULL) {
-                removeFigure(*m_handleFigure);
-                delete m_handleFigure;
-                m_handleFigure = NULL;
-            }
-        }
-        
-        void VertexTool::createSelectedHandleFigures() {
-            assert(m_brush != NULL);
-            assert(m_index >= 0);
-            
-            deleteSelectedHandleFigures();
-
-            m_selectedHandleFigure = new Renderer::HandleFigure();
-            m_selectedHandleFigure->setColor(selectedHandleColor());
-            m_selectedHandleFigure->setHiddenColor(hiddenSelectedHandleColor());
-
-            m_guideFigure = new Renderer::PointGuideFigure();
-            m_guideFigure->setColor(selectedHandleColor());
-            m_guideFigure->setHiddenColor(hiddenSelectedHandleColor());
-
-            updateSelectedHandleFigures(*m_selectedHandleFigure, *m_guideFigure, *m_brush, m_index);
-            addFigure(*m_selectedHandleFigure);
-            addFigure(*m_guideFigure);
-        }
-        
-        void VertexTool::deleteSelectedHandleFigures() {
-            if (m_selectedHandleFigure != NULL) {
-                removeFigure(*m_selectedHandleFigure);
-                delete m_selectedHandleFigure;
-                m_selectedHandleFigure = NULL;
-            }
-            
-            if (m_guideFigure != NULL) {
-                removeFigure(*m_guideFigure);
-                delete m_guideFigure;
-                m_guideFigure = NULL;
-            }
-        }
-        
-        VertexTool::VertexTool(Controller::Editor& editor) : DragTool(editor), m_selected(false), m_brush(NULL), m_index(-1), m_handleFigure(NULL), m_selectedHandleFigure(NULL), m_guideFigure(NULL) {
-        }
-
-        bool VertexTool::selected() {
-            return selected();
-        }
-        
-        Model::Brush* VertexTool::brush() {
-            return m_brush;
-        }
-        
-        size_t VertexTool::index() {
-            return m_index;
+        VertexTool::VertexTool(Controller::Editor& editor) : DragTool(editor), m_selected(false), m_brush(NULL), m_index(-1), m_figureCreated(false) {
         }
 
         bool VertexTool::handleActivated(InputEvent& event) {
             assert(state() == TS_DEFAULT);
             
-            createHandleFigure();
-            
             Model::Map& map = editor().map();
             Model::Selection& selection = map.selection();
             
-            map.brushesDidChange        += new Model::Map::BrushEvent::Listener<VertexTool>(this, &VertexTool::brushesDidChange);
-            selection.selectionAdded    += new Model::Selection::SelectionEvent::Listener<VertexTool>(this, &VertexTool::selectionChanged);
-            selection.selectionRemoved  += new Model::Selection::SelectionEvent::Listener<VertexTool>(this, &VertexTool::selectionChanged);
+            map.brushesDidChange        += new BrushListener(this, &VertexTool::brushesDidChange);
+            map.mapCleared              += new MapListener(this, &VertexTool::mapCleared);
+            selection.selectionAdded    += new SelectionListener(this, &VertexTool::selectionChanged);
+            selection.selectionRemoved  += new SelectionListener(this, &VertexTool::selectionChanged);
             
+            if (!m_figureCreated) {
+                Renderer::VertexToolFigure* figure = new Renderer::VertexToolFigure(*this);
+                addFigure(*figure);
+                m_figureCreated = true;
+            }
+
+            refreshFigure(true);
+
             return true;
         }
         
         bool VertexTool::handleDeactivated(InputEvent& event) {
             assert(active());
 
-            deleteHandleFigure();
-            
             Model::Map& map = editor().map();
             Model::Selection& selection = map.selection();
             
-            map.brushesDidChange        -= new Model::Map::BrushEvent::Listener<VertexTool>(this, &VertexTool::brushesDidChange);
-            selection.selectionAdded    -= new Model::Selection::SelectionEvent::Listener<VertexTool>(this, &VertexTool::selectionChanged);
-            selection.selectionRemoved  -= new Model::Selection::SelectionEvent::Listener<VertexTool>(this, &VertexTool::selectionChanged);
+            map.brushesDidChange        -= new BrushListener(this, &VertexTool::brushesDidChange);
+            map.mapCleared              += new MapListener(this, &VertexTool::mapCleared);
+            selection.selectionAdded    -= new SelectionListener(this, &VertexTool::selectionChanged);
+            selection.selectionRemoved  -= new SelectionListener(this, &VertexTool::selectionChanged);
+            
+            refreshFigure(true);
             
             return true;
         }
@@ -160,9 +95,8 @@ namespace TrenchBroom {
             if (hit != NULL) {
                 m_brush = &hit->brush();
                 m_index = index(*hit);
-                deleteHandleFigure();
-                createSelectedHandleFigures();
                 m_selected = true;
+                refreshFigure(false);
                 return true;
             }
             
@@ -176,11 +110,10 @@ namespace TrenchBroom {
                 return false;
             
             if (selected()) {
-                deleteSelectedHandleFigures();
-                createHandleFigure();
                 m_brush = NULL;
                 m_index = 0;
                 m_selected = false;
+                refreshFigure(false);
                 return true;
             }
             
@@ -193,7 +126,7 @@ namespace TrenchBroom {
             
             Model::Hit* hit = event.hits->first(hitType(), true);
             if (hit == NULL)
-                return true;
+                return false;
             
             assert(selected());
 
@@ -201,8 +134,6 @@ namespace TrenchBroom {
             m_index = index(*hit);
             initialPoint = hit->hitPoint;
             
-            deleteHandleFigure();
-           
             editor().map().undoManager().begin(undoName());
             return true;
         }
@@ -226,8 +157,8 @@ namespace TrenchBroom {
                     return false;
                 else if (result.moved)
                     referencePoint += delta;
-                
-                updateSelectedHandleFigures(*m_selectedHandleFigure, *m_guideFigure, *m_brush, m_index);
+
+                refreshFigure(result.moved);
             }
             
             return true;
@@ -238,14 +169,12 @@ namespace TrenchBroom {
             
             if (state() == TS_DRAG) {
                 editor().map().undoManager().end();
-                
-                deleteSelectedHandleFigures();
-                createHandleFigure();
                 m_brush = NULL;
                 m_index = 0;
             }
             
             m_selected = false;
+            refreshFigure(false);
         }
     }
 }

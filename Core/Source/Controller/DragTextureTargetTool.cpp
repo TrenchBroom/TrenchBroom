@@ -32,7 +32,7 @@ namespace TrenchBroom {
             return info.name == "Texture";
         }
         
-        bool DragTextureTargetTool::drop(const DragInfo& info) {
+        bool DragTextureTargetTool::handleDrop(const DragInfo& info) {
             if (info.name == "Texture") {
                 Model::Assets::Texture* texture = static_cast<Model::Assets::Texture*>(info.payload);
 

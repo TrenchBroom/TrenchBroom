@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_EntityFigure_h
 #define TrenchBroom_EntityFigure_h
 
+#include "Model/Map/EntityDefinition.h"
 #include "Renderer/Figures/Figure.h"
 #include "Utilities/VecMath.h"
 
@@ -28,32 +29,29 @@ namespace TrenchBroom {
         class Editor;
     }
     
-    namespace Model {
-        class EntityDefinition;
-    }
-    
     namespace Renderer {
         class EntityRenderer;
-        class EntityRendererManager;
         class Vbo;
         class VboBlock;
         
         class EntityFigure : public Figure {
         protected:
-            Model::EntityDefinition& m_entityDefinition;
+            Model::EntityDefinition* m_entityDefinition;
             bool m_renderBounds;
             bool m_valid;
             VboBlock* m_boundsBlock;
             unsigned int m_vertexCount;
-            
+
             Controller::Editor& m_editor;
             EntityRenderer* m_entityRenderer;
             Vec3f m_position;
         public:
-            EntityFigure(Controller::Editor& editor, Model::EntityDefinition& entityDefinition, bool renderBounds);
+            EntityFigure(Controller::Editor& editor);
             virtual ~EntityFigure();
 
+            virtual void setEntityDefinition(Model::EntityDefinition* entityDefinition);
             virtual void setPosition(const Vec3f& position);
+            virtual void setRenderBounds(bool renderBounds);
             virtual void render(RenderContext& context, Vbo& vbo);
         };
     }

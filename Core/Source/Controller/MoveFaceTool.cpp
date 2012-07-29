@@ -42,6 +42,10 @@ namespace TrenchBroom {
             return brush.geometry->edges[index]->center();
         }
         
+        Model::MoveResult MoveFaceTool::performMove(Model::Brush& brush, size_t index, const Vec3f& delta) {
+            return editor().map().moveFace(brush, index, delta);
+        }
+
         const Vec4f& MoveFaceTool::handleColor() {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             return prefs.faceHandleColor();
@@ -62,11 +66,7 @@ namespace TrenchBroom {
             return prefs.hiddenSelectedFaceHandleColor();
         }
         
-        Model::MoveResult MoveFaceTool::performMove(Model::Brush& brush, size_t index, const Vec3f& delta) {
-            return editor().map().moveFace(brush, index, delta);
-        }
-        
-        void MoveFaceTool::updateHandleFigure(Renderer::HandleFigure& handleFigure) {
+        const Vec3fList MoveFaceTool::handlePositions() {
             Vec3fList positions;
             
             Model::Map& map = editor().map();
@@ -79,17 +79,19 @@ namespace TrenchBroom {
                     positions.push_back(brush->faces[j]->center());
             }
             
-            handleFigure.setPositions(positions);
+            return positions;
         }
         
-        void MoveFaceTool::updateSelectedHandleFigures(Renderer::HandleFigure& handleFigure, Renderer::PointGuideFigure& guideFigure, const Model::Brush& brush, size_t index) {
+        const Vec3fList MoveFaceTool::selectedHandlePositions() {
             Vec3fList positions;
-            
-            Model::Face* face = brush.faces[index];
-            positions.push_back(face->center());
-            
-            handleFigure.setPositions(positions);
-            guideFigure.setPosition(positions.front());
+            positions.push_back(draggedHandlePosition());
+            return positions;
+        }
+        
+        const Vec3f MoveFaceTool::draggedHandlePosition() {
+            size_t index = VertexTool::index();
+            Model::Face* face = brush()->faces[index];
+            return face->center();
         }
     }
 }

@@ -17,31 +17,34 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MoveObjectTool_h
-#define TrenchBroom_MoveObjectTool_h
+#ifndef TrenchBroom_DragEntityTargetToolFigure_h
+#define TrenchBroom_DragEntityTargetToolFigure_h
 
-#include "Controller/DragTool.h"
+#include "Renderer/Figures/Figure.h"
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class BoundsGuideFigure;
+    namespace Controller {
+        class DragEntityTargetTool;
     }
     
-    namespace Controller {
-        class Editor;
+    namespace Renderer {
+        class EntityFigure;
+        class BoundsGuideFigure;
         
-        class MoveObjectTool : public DragTool {
+        class DragEntityTargetToolFigure : public Figure {
         protected:
-            bool m_figureCreated;
-
-            bool handleBeginPlaneDrag(InputEvent& event, Vec3f& initialPoint);
-            bool handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
-            void handleEndPlaneDrag(InputEvent& event);
+            Controller::DragEntityTargetTool& m_dragEntityTargetTool;
+            
+            EntityFigure* m_entityFigure;
+            BoundsGuideFigure* m_guideFigure;
         public:
-            MoveObjectTool(Editor& editor);
-            ~MoveObjectTool() {}
+            DragEntityTargetToolFigure(Controller::DragEntityTargetTool& dragEntityTargetTool);
+            ~DragEntityTargetToolFigure();
+            
+            virtual void render(RenderContext& context, Vbo& vbo);
         };
     }
 }
+
 
 #endif

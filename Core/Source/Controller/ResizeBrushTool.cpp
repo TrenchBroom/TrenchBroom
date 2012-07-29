@@ -27,7 +27,7 @@
 #include "Model/Map/Picker.h"
 #include "Model/Selection.h"
 #include "Model/Undo/UndoManager.h"
-#include "Renderer/Figures/BoundsGuideFigure.h"
+#include "Renderer/Figures/ResizeBrushToolFigure.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -52,15 +52,13 @@ namespace TrenchBroom {
             if (!face.selected && !brush.selected)
                 return false;
             
-            if (m_guideFigure == NULL) {
-                Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-                m_guideFigure = new Renderer::BoundsGuideFigure();
-                m_guideFigure->setColor(prefs.selectionGuideColor());
-                addFigure(*m_guideFigure);
+            if (!m_figureCreated) {
+                Renderer::ResizeBrushToolFigure* figure = new Renderer::ResizeBrushToolFigure(*this);
+                addFigure(*figure);
+                m_figureCreated = true;
             }
+            refreshFigure(true);
             
-            Model::Selection& selection = editor().map().selection();
-            m_guideFigure->setBounds(selection.bounds());
             return false; // don't prevent the click from reaching other tools
         }
         
@@ -68,11 +66,8 @@ namespace TrenchBroom {
             if (event.mouseButton != MB_LEFT)
                 return false;
             
-            if (m_guideFigure != NULL) {
-                removeFigure(*m_guideFigure);
-                delete m_guideFigure;
-                m_guideFigure = NULL;
-            }
+            refreshFigure(false);
+
             return false;
         }
         
@@ -119,9 +114,7 @@ namespace TrenchBroom {
                 editor().map().resizeBrushes(faces, dist, editor().options().lockTextures());
                 referencePoint += delta;
 
-                assert(m_guideFigure != NULL);
-                m_guideFigure->setBounds(selection.bounds());
-                figuresChanged();
+                refreshFigure(true);
             }
             
             return true;
@@ -131,25 +124,13 @@ namespace TrenchBroom {
             assert(event.mouseButton == MB_LEFT);
             
             editor().map().undoManager().end();
+            refreshFigure(false);
             m_referenceFace = NULL;
-
-            if (m_guideFigure != NULL) {
-                removeFigure(*m_guideFigure);
-                delete m_guideFigure;
-                m_guideFigure = NULL;
-            }
         }
         
-        ResizeBrushTool::ResizeBrushTool(Editor& editor) : DragTool(editor), m_guideFigure(NULL) {
-        }
+        ResizeBrushTool::ResizeBrushTool(Editor& editor) : DragTool(editor), m_figureCreated(false) {}
         
-        ResizeBrushTool::~ResizeBrushTool() {
-            if (m_guideFigure != NULL) {
-                removeFigure(*m_guideFigure);
-                delete m_guideFigure;
-                m_guideFigure = NULL;
-            }
-        }
+        ResizeBrushTool::~ResizeBrushTool() {}
 
         bool ResizeBrushTool::resizeBrushModiferPressed(InputEvent& event) {
             return event.modifierKeys == Model::Preferences::sharedPreferences->resizeToolKey();

@@ -42,6 +42,10 @@ namespace TrenchBroom {
             return brush.geometry->edges[index]->center();
         }
         
+        Model::MoveResult MoveEdgeTool::performMove(Model::Brush& brush, size_t index, const Vec3f& delta) {
+            return editor().map().moveEdge(brush, index, delta);
+        }
+        
         const Vec4f& MoveEdgeTool::handleColor() {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             return prefs.edgeHandleColor();
@@ -62,11 +66,7 @@ namespace TrenchBroom {
             return prefs.hiddenSelectedEdgeHandleColor();
         }
         
-        Model::MoveResult MoveEdgeTool::performMove(Model::Brush& brush, size_t index, const Vec3f& delta) {
-            return editor().map().moveEdge(brush, index, delta);
-        }
-        
-        void MoveEdgeTool::updateHandleFigure(Renderer::HandleFigure& handleFigure) {
+        const Vec3fList MoveEdgeTool::handlePositions() {
             Vec3fList positions;
             
             Model::Map& map = editor().map();
@@ -74,23 +74,25 @@ namespace TrenchBroom {
             const Model::BrushList& brushes = selection.brushes();
             
             for (unsigned int i = 0; i < brushes.size(); i++) {
-                Model::Brush* brush = brushes[i];
-                const Model::EdgeList& edges = brush->geometry->edges;
+                const Model::EdgeList& edges = brushes[i]->geometry->edges;
                 for (unsigned int j = 0; j < edges.size(); j++)
                     positions.push_back(edges[j]->center());
             }
             
-            handleFigure.setPositions(positions);
+            return positions;
         }
         
-        void MoveEdgeTool::updateSelectedHandleFigures(Renderer::HandleFigure& handleFigure, Renderer::PointGuideFigure& guideFigure, const Model::Brush& brush, size_t index) {
+        const Vec3fList MoveEdgeTool::selectedHandlePositions() {
             Vec3fList positions;
+            positions.push_back(draggedHandlePosition());
+            return positions;
+        }
+        
+        const Vec3f MoveEdgeTool::draggedHandlePosition() {
+            size_t index = VertexTool::index();
             
-            Model::Edge* edge = brush.geometry->edges[index];
-            positions.push_back(edge->center());
-            
-            handleFigure.setPositions(positions);
-            guideFigure.setPosition(positions.front());
+            Model::Edge* edge = brush()->geometry->edges[index];
+            return edge->center();
         }
     }
 }

@@ -81,6 +81,7 @@ namespace TrenchBroom {
             EToolState m_state;
             bool m_active;
             Editor& m_editor;
+            bool m_figureDataValid;
         protected:
             void addFigure(Renderer::Figure& figure) {
 				Renderer::MapRenderer* renderer = m_editor.renderer();
@@ -94,13 +95,16 @@ namespace TrenchBroom {
 					renderer->removeFigure(figure);
             }
             
-            void figuresChanged() {
+            void refreshFigure(bool invalidateFigureData) {
+                if (invalidateFigureData)
+                    m_figureDataValid = false;
+                    
                 Renderer::MapRenderer* renderer = m_editor.renderer();
 				if (renderer != NULL)
 					renderer->rendererChanged(*m_editor.renderer());
             }
         public:
-            Tool(Editor& editor) : m_editor(editor), m_state(TS_DEFAULT), m_active(false) {}
+            Tool(Editor& editor) : m_editor(editor), m_state(TS_DEFAULT), m_active(false), m_figureDataValid(false) {}
             virtual ~Tool() {}
 
             EToolState state() {
@@ -113,6 +117,12 @@ namespace TrenchBroom {
             
             Editor& editor() {
                 return m_editor;
+            }
+            
+            bool checkFigureDataValid() {
+                bool result = m_figureDataValid;
+                m_figureDataValid = true;
+                return result;
             }
             
             virtual bool handleActivated(InputEvent& event) { return false; }
@@ -128,7 +138,7 @@ namespace TrenchBroom {
             bool activated(InputEvent& event) {
                 if (handleActivated(event)) {
                     m_active = true;
-                    toolActivated(*this);
+                    toolActivated(event);
                     return true;
                 }
                 
@@ -139,7 +149,7 @@ namespace TrenchBroom {
                 if (handleDeactivated(event)) {
                     m_active = false;
                     m_state = TS_DEFAULT;
-                    toolDeactivated(*this);
+                    toolDeactivated(event);
                     return true;
                 }
                 
@@ -149,7 +159,7 @@ namespace TrenchBroom {
             bool mouseDown(InputEvent& event) {
                 if (handleMouseDown(event)) {
                     m_state = TS_MOUSE_DOWN;
-                    toolMouseDown(*this);
+                    toolMouseDown(event);
                     return true;
                 }
                 
@@ -159,7 +169,7 @@ namespace TrenchBroom {
             bool mouseUp(InputEvent& event) {
                 if (handleMouseUp(event)) {
                     m_state = TS_DEFAULT;
-                    toolMouseUp(*this);
+                    toolMouseUp(event);
                     return true;
                 }
                 
@@ -168,7 +178,7 @@ namespace TrenchBroom {
             
             bool mouseMoved(InputEvent& event) {
                 if (handleMouseMoved(event)) {
-                    toolMouseMoved(*this);
+                    toolMouseMoved(event);
                     return true;
                 }
                 
@@ -177,7 +187,7 @@ namespace TrenchBroom {
             
             bool scrolled(InputEvent& event) {
                 if (handleScrolled(event)) {
-                    toolScrolled(*this);
+                    toolScrolled(event);
                     return true;
                 }
                 
@@ -187,7 +197,7 @@ namespace TrenchBroom {
             bool beginDrag(InputEvent& event) {
                 if (handleBeginDrag(event)) {
                     m_state = TS_DRAG;
-                    toolDragBegun(*this);
+                    toolDragBegun(event);
                     return true;
                 }
                 
@@ -196,7 +206,7 @@ namespace TrenchBroom {
             
             void drag(InputEvent& event) {
                 if (handleDrag(event)) {
-                    toolDragged(*this);
+                    toolDragged(event);
                 } else {
                     endDrag(event);
                 }
@@ -205,10 +215,10 @@ namespace TrenchBroom {
             void endDrag(InputEvent& event) {
                 handleEndDrag(event);
                 m_state = TS_DEFAULT;
-                toolDragEnded(*this);
+                toolDragEnded(event);
             }
 
-            typedef Event<Tool&> ToolEvent;
+            typedef Event<InputEvent&> ToolEvent;
             
             ToolEvent toolActivated;
             ToolEvent toolDeactivated;

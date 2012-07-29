@@ -19,40 +19,19 @@
 
 #include "CreateBrushFigure.h"
 
+#include "Controller/CreateBrushTool.h"
 #include "Model/Map/Brush.h"
 #include "Model/Preferences.h"
+#include "Renderer/MapRenderer.h"
 #include "Renderer/Figures/BrushFigure.h"
 #include "Renderer/Figures/SizeGuideFigure.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        void CreateBrushFigure::createBrush(Model::Brush& brush) {
-            m_brush = &brush;
-            m_valid = false;
-        }
-        
-        void CreateBrushFigure::modifyBrush(Model::Brush& brush) {
-            m_brush = &brush;
-            m_valid = false;
-        }
-        
-        void CreateBrushFigure::finishBrush(Model::Brush& brush) {
-            m_brush = NULL;
-            m_valid = false;
-        }
-        
-        CreateBrushFigure::CreateBrushFigure(Controller::CreateBrushTool& createBrushTool, FontManager& fontManager) : m_createBrushTool(createBrushTool), m_fontManager(fontManager), m_brush(NULL), m_valid(false), m_brushFigure(NULL), m_sizeGuideFigure(NULL) {
-            
-            m_createBrushTool.createBrush += new Listener(this, &CreateBrushFigure::createBrush);
-            m_createBrushTool.modifyBrush += new Listener(this, &CreateBrushFigure::modifyBrush);
-            m_createBrushTool.finishBrush += new Listener(this, &CreateBrushFigure::finishBrush);
+        CreateBrushFigure::CreateBrushFigure(Controller::CreateBrushTool& createBrushTool) : m_createBrushTool(createBrushTool), m_brushFigure(NULL), m_sizeGuideFigure(NULL) {
         }
         
         CreateBrushFigure::~CreateBrushFigure() {
-            m_createBrushTool.createBrush -= new Listener(this, &CreateBrushFigure::createBrush);
-            m_createBrushTool.modifyBrush -= new Listener(this, &CreateBrushFigure::modifyBrush);
-            m_createBrushTool.finishBrush -= new Listener(this, &CreateBrushFigure::finishBrush);
-
             if (m_brushFigure != NULL) {
                 delete m_brushFigure;
                 m_brushFigure = NULL;
@@ -65,7 +44,7 @@ namespace TrenchBroom {
         }
         
         void CreateBrushFigure::render(RenderContext& context, Vbo& vbo) {
-            if (m_brush == NULL)
+            if (m_createBrushTool.state() != Controller::Tool::TS_DRAG)
                 return;
             
             if (m_brushFigure == NULL) {
@@ -74,17 +53,17 @@ namespace TrenchBroom {
             
             if (m_sizeGuideFigure == NULL) {
                 Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-                m_sizeGuideFigure = new SizeGuideFigure(m_fontManager, FontDescriptor(prefs.rendererFontName(), prefs.rendererFontSize()));
+                FontManager& fontManager = m_createBrushTool.editor().renderer()->fontManager();
+                m_sizeGuideFigure = new SizeGuideFigure(fontManager, FontDescriptor(prefs.rendererFontName(), prefs.rendererFontSize()));
                 m_sizeGuideFigure->setColor(prefs.selectionGuideColor());
             }
             
-            if (!m_valid) {
+            if (!m_createBrushTool.checkFigureDataValid()) {
                 Model::BrushList brushes;
-                brushes.push_back(m_brush);
-                m_brushFigure->setBrushes(brushes);
+                brushes.push_back(m_createBrushTool.brush());
                 
-                m_sizeGuideFigure->setBounds(m_brush->bounds());
-                m_valid = true;
+                m_brushFigure->setBrushes(brushes);
+                m_sizeGuideFigure->setBounds(m_createBrushTool.bounds());
             }
             
             m_brushFigure->render(context, vbo);

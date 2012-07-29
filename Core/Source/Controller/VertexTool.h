@@ -21,7 +21,9 @@
 #define TrenchBroom_VertexTool_h
 
 #include "Controller/DragTool.h"
-#include "Model/Map/BrushTypes.h"
+#include "Model/Map/Brush.h"
+#include "Model/Map/Map.h"
+#include "Model/Selection.h"
 #include "Model/Map/Picker.h"
 
 #include <string>
@@ -46,37 +48,36 @@ namespace TrenchBroom {
             bool m_selected;
             Model::Brush* m_brush;
             size_t m_index;
+            bool m_figureCreated;
         protected:
-            Renderer::HandleFigure* m_handleFigure;
-            Renderer::HandleFigure* m_selectedHandleFigure;
-            Renderer::PointGuideFigure* m_guideFigure;
-            
             virtual int hitType() = 0;
             virtual size_t index(Model::Hit& hit);
             virtual std::string undoName() = 0;
             virtual Vec3f movePosition(const Model::Brush& brush, size_t index) = 0;
-            virtual const Vec4f& handleColor() = 0;
-            virtual const Vec4f& hiddenHandleColor() = 0;
-            virtual const Vec4f& selectedHandleColor() = 0;
-            virtual const Vec4f& hiddenSelectedHandleColor() = 0;
             virtual Model::MoveResult performMove(Model::Brush& brush, size_t index, const Vec3f& delta) = 0;
             
+            typedef Model::Map::BrushEvent::Listener<VertexTool> BrushListener;
+            typedef Model::Map::MapEvent::Listener<VertexTool> MapListener;
+            typedef Model::Selection::SelectionEvent::Listener<VertexTool> SelectionListener;
+            
             virtual void brushesDidChange(const Model::BrushList& brushes);
+            virtual void mapCleared(Model::Map& map);
             virtual void selectionChanged(const Model::SelectionEventData& event);
-
-            virtual void createHandleFigure();
-            virtual void updateHandleFigure(Renderer::HandleFigure& figure) = 0;
-            virtual void deleteHandleFigure();
-            virtual void createSelectedHandleFigures();
-            virtual void updateSelectedHandleFigures(Renderer::HandleFigure& handleFigure, Renderer::PointGuideFigure& guideFigure, const Model::Brush& brush, size_t index) = 0;
-            virtual void deleteSelectedHandleFigures();
         public:
             VertexTool(Controller::Editor& editor);
             virtual ~VertexTool() {}
 
-            bool selected();
-            Model::Brush* brush();
-            size_t index();
+            bool selected() {
+                return m_selected;
+            }
+            
+            Model::Brush* brush() {
+                return m_brush;
+            }
+            
+            size_t index() {
+                return m_index;
+            }
             
             bool handleActivated(InputEvent& event);
             bool handleDeactivated(InputEvent& event);
@@ -86,6 +87,15 @@ namespace TrenchBroom {
             bool handleBeginPlaneDrag(InputEvent& event, Vec3f& initialPoint);
             bool handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
             void handleEndPlaneDrag(InputEvent& event);
+
+            virtual const Vec3fList handlePositions() = 0;
+            virtual const Vec3fList selectedHandlePositions() = 0;
+            virtual const Vec3f draggedHandlePosition() = 0;
+            
+            virtual const Vec4f& handleColor() = 0;
+            virtual const Vec4f& hiddenHandleColor() = 0;
+            virtual const Vec4f& selectedHandleColor() = 0;
+            virtual const Vec4f& hiddenSelectedHandleColor() = 0;
         };
     }
 }

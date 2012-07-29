@@ -1584,6 +1584,7 @@ namespace TrenchBroom {
             }
             
             MoveResult result;
+            result.moved = true;
             for (unsigned int i = 0; i < sideVertexCount && result.moved; i++)
                 result = testGeometry.moveVertex(indices[i], false, delta, newFaces, droppedFaces);
             

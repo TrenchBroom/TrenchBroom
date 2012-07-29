@@ -28,8 +28,7 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
-        class EntityFigure;
-        class BoundsGuideFigure;
+        class DragEntityTargetToolFigure;
     }
     
     namespace Controller {
@@ -37,21 +36,33 @@ namespace TrenchBroom {
         
         class DragEntityTargetTool : public DragTargetTool {
         protected:
-            Renderer::EntityFigure* m_entityFigure;
-            Renderer::BoundsGuideFigure* m_guideFigure;
+            bool m_figureCreated;
+            Model::EntityDefinition* m_entityDefinition;
+            Vec3f m_position;
             BBox m_bounds;
             
-            void deleteFigures();
-            void updateFigures(const DragInfo& info, const Model::EntityDefinition& definition);
+            void update(const DragInfo& info);
         public:
-            DragEntityTargetTool(Editor& editor) : DragTargetTool(editor), m_entityFigure(NULL), m_guideFigure(NULL) {}
+            DragEntityTargetTool(Editor& editor) : DragTargetTool(editor), m_figureCreated(false), m_entityDefinition(NULL) {}
             virtual ~DragEntityTargetTool() {}
             
             virtual bool accepts(const DragInfo& info);
-            virtual bool activate(const DragInfo& info);
-            virtual void deactivate(const DragInfo& info);
-            virtual bool move(const DragInfo& info);
-            virtual bool drop(const DragInfo& info);
+            virtual bool handleActivate(const DragInfo& info);
+            virtual void handleDeactivate(const DragInfo& info);
+            virtual bool handleMove(const DragInfo& info);
+            virtual bool handleDrop(const DragInfo& info);
+            
+            Model::EntityDefinition* entityDefinition() {
+                return m_entityDefinition;
+            }
+            
+            const BBox& bounds() {
+                return m_bounds;
+            }
+            
+            const Vec3f& position() {
+                return m_position;
+            }
         };
     }
 }

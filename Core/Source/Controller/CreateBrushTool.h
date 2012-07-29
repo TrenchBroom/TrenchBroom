@@ -39,12 +39,11 @@ namespace TrenchBroom {
         class CreateBrushTool : public DragTool {
         protected:
             Model::Brush* m_brush;
-            Renderer::BrushFigure* m_brushFigure;
-            Renderer::SizeGuideFigure* m_sizeGuideFigure;
             BBox m_initialBounds;
             BBox m_bounds;
+            bool m_figureCreated;
             
-            void createFigures();
+            void updateBrush();
             bool handleBeginPlaneDrag(InputEvent& event, Vec3f& initialPoint);
             bool handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
             void handleEndPlaneDrag(InputEvent& event);
@@ -52,8 +51,13 @@ namespace TrenchBroom {
             CreateBrushTool(Editor& editor);
             virtual ~CreateBrushTool();
             
-            Model::Brush* brush();
-            const BBox& bounds();
+            Model::Brush* brush() {
+                return m_brush;
+            }
+            
+            const BBox& bounds() {
+                return m_bounds;
+            }
         };
     }
 }

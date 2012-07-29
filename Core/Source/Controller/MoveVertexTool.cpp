@@ -65,6 +65,10 @@ namespace TrenchBroom {
             }
         }
         
+        Model::MoveResult MoveVertexTool::performMove(Model::Brush& brush, size_t index, const Vec3f& delta) {
+            return editor().map().moveVertex(brush, index, delta);
+        }
+
         const Vec4f& MoveVertexTool::handleColor() {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             return prefs.vertexHandleColor();
@@ -84,12 +88,8 @@ namespace TrenchBroom {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             return prefs.hiddenSelectedVertexHandleColor();
         }
-
-        Model::MoveResult MoveVertexTool::performMove(Model::Brush& brush, size_t index, const Vec3f& delta) {
-            return editor().map().moveVertex(brush, index, delta);
-        }
-
-        void MoveVertexTool::updateHandleFigure(Renderer::HandleFigure& handleFigure) {
+        
+        const Vec3fList MoveVertexTool::handlePositions() {
             Vec3fList positions;
             
             Model::Map& map = editor().map();
@@ -110,28 +110,32 @@ namespace TrenchBroom {
                     positions.push_back(brush->faces[j]->center());
             }
             
-            handleFigure.setPositions(positions);
+            return positions;
         }
-
-        void MoveVertexTool::updateSelectedHandleFigures(Renderer::HandleFigure& handleFigure, Renderer::PointGuideFigure& guideFigure, const Model::Brush& brush, size_t index) {
+        
+        const Vec3fList MoveVertexTool::selectedHandlePositions() {
             Vec3fList positions;
-            
-            size_t vertexCount = brush.geometry->vertices.size();
-            size_t edgeCount = brush.geometry->edges.size();
-            size_t faceCount = brush.faces.size();
+            positions.push_back(draggedHandlePosition());
+            return positions;
+        }
+        
+        const Vec3f MoveVertexTool::draggedHandlePosition() {
+            size_t vertexCount = brush()->geometry->vertices.size();
+            size_t edgeCount = brush()->geometry->edges.size();
+            size_t faceCount = brush()->faces.size();
+            size_t index = VertexTool::index();
             
             if (index < vertexCount) {
-                positions.push_back(brush.geometry->vertices[index]->position);
+                return brush()->geometry->vertices[index]->position;
             } else if (index < vertexCount + edgeCount) {
-                Model::Edge* edge = brush.geometry->edges[index - vertexCount];
-                positions.push_back(edge->center());
+                Model::Edge* edge = brush()->geometry->edges[index - vertexCount];
+                return edge->center();
             } else if (index < vertexCount + edgeCount + faceCount) {
-                Model::Face* face = brush.faces[index - vertexCount - edgeCount];
-                positions.push_back(face->center());
+                Model::Face* face = brush()->faces[index - vertexCount - edgeCount];
+                return face->center();
             }
             
-            handleFigure.setPositions(positions);
-            guideFigure.setPosition(positions.front());
+            return Vec3f::Null;
         }
     }
 }

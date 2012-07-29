@@ -64,8 +64,8 @@ namespace Gwen
             
             if ( HoveredControl )
             {
-                HoveredControl->DragAndDrop_HoverLeave( CurrentPackage );
                 bSuccess = HoveredControl->DragAndDrop_HandleDrop( CurrentPackage, x, y );
+                HoveredControl->DragAndDrop_HoverLeave( CurrentPackage ); // was before the drop, put it here to avoid problems in InputController's drop handling
             }
             
             // Report back to the source control, to tell it if we've been successful.

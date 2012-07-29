@@ -20,11 +20,14 @@
 #ifndef TrenchBroom_CreateBrushFigure_h
 #define TrenchBroom_CreateBrushFigure_h
 
-#include "Controller/CreateBrushTool.h"
+#include "Controller/Tool.h"
 #include "Renderer/Figures/Figure.h"
-#include "Utilities/Event.h"
 
 namespace TrenchBroom {
+    namespace Controller {
+        class CreateBrushTool;
+    }
+    
     namespace Model {
         class Brush;
     }
@@ -40,20 +43,11 @@ namespace TrenchBroom {
         protected:
             Controller::CreateBrushTool& m_createBrushTool;
 
-            Model::Brush* m_brush;
-            bool m_valid;
             BrushFigure* m_brushFigure;
             SizeGuideFigure* m_sizeGuideFigure;
             
-            FontManager& m_fontManager;
-            
-            typedef Controller::CreateBrushTool::CreateBrushToolEvent::Listener<CreateBrushFigure> Listener;
-            
-            void createBrush(Model::Brush& brush);
-            void modifyBrush(Model::Brush& brush);
-            void finishBrush(Model::Brush& brush);
         public:
-            CreateBrushFigure(Controller::CreateBrushTool& createBrushTool, FontManager& fontManager);
+            CreateBrushFigure(Controller::CreateBrushTool& createBrushTool);
             ~CreateBrushFigure();
             
             virtual void render(RenderContext& context, Vbo& vbo);

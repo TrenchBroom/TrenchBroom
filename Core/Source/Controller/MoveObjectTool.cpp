@@ -30,7 +30,7 @@
 #include "Model/Preferences.h"
 #include "Model/Selection.h"
 #include "Model/Undo/UndoManager.h"
-#include "Renderer/Figures/BoundsGuideFigure.h"
+#include "Renderer/Figures/MoveObjectToolFigure.h"
 #include "Utilities/Console.h"
 
 namespace TrenchBroom {
@@ -55,17 +55,13 @@ namespace TrenchBroom {
             }
             initialPoint = hit->hitPoint;
             
-            if (m_guideFigure == NULL) {
-                Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-                m_guideFigure = new Renderer::BoundsGuideFigure();
-                m_guideFigure->setColor(prefs.selectionGuideColor());
-                m_guideFigure->setHiddenColor(prefs.hiddenSelectionGuideColor());
+            if (!m_figureCreated) {
+                Renderer::MoveObjectToolFigure* figure = new Renderer::MoveObjectToolFigure(*this);
+                addFigure(*figure);
+                m_figureCreated = true;
             }
-
-            Model::Map& map = editor().map();
-            m_guideFigure->setBounds(map.selection().bounds());
-
-            addFigure(*m_guideFigure);
+            refreshFigure(true);
+            
             editor().map().undoManager().begin("Move Objects");
             
             return true;
@@ -84,7 +80,7 @@ namespace TrenchBroom {
             
             referencePoint += delta;
             map.translateObjects(delta, editor().options().lockTextures());
-            m_guideFigure->setBounds(selection.bounds());
+            refreshFigure(true);
             
             return true;
         }
@@ -92,12 +88,10 @@ namespace TrenchBroom {
         void MoveObjectTool::handleEndPlaneDrag(InputEvent& event) {
             assert(event.mouseButton == MB_LEFT);
             
-            removeFigure(*m_guideFigure);
-            delete m_guideFigure;
-            m_guideFigure = NULL;
             editor().map().undoManager().end();
+            refreshFigure(false);
         }
 
-        MoveObjectTool::MoveObjectTool(Editor& editor) : DragTool(editor), m_guideFigure(NULL) {}
+        MoveObjectTool::MoveObjectTool(Editor& editor) : DragTool(editor), m_figureCreated(false) {}
     }
 }

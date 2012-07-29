@@ -24,6 +24,7 @@
 #include "Controller/Editor.h"
 #include "Controller/Tool.h"
 #include "Renderer/MapRenderer.h"
+#include "Utilities/Console.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -38,26 +39,82 @@ namespace TrenchBroom {
         };
         
         class DragTargetTool {
+        public:
+        private:
+            bool m_figureDataValid;
+            bool m_active;
         protected:
             Editor& m_editor;
 
             void addFigure(Renderer::Figure& figure) {
-                m_editor.renderer()->addFigure(figure);
+				Renderer::MapRenderer* renderer = m_editor.renderer();
+				if (renderer != NULL)
+					renderer->addFigure(figure);
             }
             
             void removeFigure(Renderer::Figure& figure) {
-                m_editor.renderer()->removeFigure(figure);
+                Renderer::MapRenderer* renderer = m_editor.renderer();
+				if (renderer != NULL)
+					renderer->removeFigure(figure);
             }
             
+            void refreshFigure(bool invalidateFigureData) {
+                if (invalidateFigureData)
+                    m_figureDataValid = false;
+                
+                Renderer::MapRenderer* renderer = m_editor.renderer();
+				if (renderer != NULL)
+					renderer->rendererChanged(*m_editor.renderer());
+            }
+            
+            virtual bool handleActivate(const DragInfo& info) { return true; }
+            virtual void handleDeactivate(const DragInfo& info) {}
+            virtual bool handleMove(const DragInfo& info) { return true; }
+            virtual bool handleDrop(const DragInfo& info) { return false; }
         public:
-            DragTargetTool(Editor& editor) : m_editor(editor) {}
+            DragTargetTool(Editor& editor) : m_editor(editor), m_figureDataValid(false), m_active(false) {}
             virtual ~DragTargetTool() {}
             
+            Editor& editor() {
+                return m_editor;
+            }
+            
+            bool checkFigureDataValid() {
+                bool result = m_figureDataValid;
+                m_figureDataValid = true;
+                return result;
+            }
+
+            bool active() {
+                return m_active;
+            }
+            
             virtual bool accepts(const DragInfo& info) = 0;
-            virtual bool activate(const DragInfo& info) { return true; };
-            virtual void deactivate(const DragInfo& info) {};
-            virtual bool move(const DragInfo& info) { return true; };
-            virtual bool drop(const DragInfo& info) { return false; };
+            
+            bool activate(const DragInfo& info) {
+                assert(!m_active);
+                
+                m_active = true;
+                return handleActivate(info);
+            }
+            
+            void deactivate(const DragInfo& info) {
+                handleDeactivate(info);
+                m_active = false;
+            }
+            
+            bool move(const DragInfo& info) {
+                assert(m_active);
+                
+                return handleMove(info);
+            }
+            
+            bool drop(const DragInfo& info) {
+                assert(m_active);
+                
+                m_active = false;
+                return handleDrop(info);
+            }
         };
     }
 }

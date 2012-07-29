@@ -30,26 +30,12 @@
 #include "Model/Preferences.h"
 #include "Model/Selection.h"
 #include "Model/Undo/UndoManager.h"
-#include "Renderer/Figures/EntityFigure.h"
-#include "Renderer/Figures/BoundsGuideFigure.h"
+#include "Renderer/Figures/DragEntityTargetToolFigure.h"
 
 namespace TrenchBroom {
     namespace Controller {
         
-        void DragEntityTargetTool::deleteFigures() {
-            if (m_entityFigure != NULL) {
-                removeFigure(*m_entityFigure);
-                delete m_entityFigure;
-                m_entityFigure = NULL;
-            }
-            if (m_guideFigure != NULL) {
-                removeFigure(*m_guideFigure);
-                delete m_guideFigure;
-                m_guideFigure = NULL;
-            }
-        }
-        
-        void DragEntityTargetTool::updateFigures(const DragInfo& info, const Model::EntityDefinition& definition) {
+        void DragEntityTargetTool::update(const DragInfo& info) {
             Vec3f delta;
             Controller::Grid& grid = m_editor.grid();
 
@@ -76,53 +62,53 @@ namespace TrenchBroom {
                 else delta[a] = hit->hitPoint[a] - m_bounds.max[a];
             }
             
+            if (delta.null())
+                return;
+            
             m_bounds = m_bounds.translate(delta);
-            m_entityFigure->setPosition(m_bounds.center() - definition.bounds.center());
-            m_guideFigure->setBounds(m_bounds);
+            m_position = m_bounds.center() - m_entityDefinition->bounds.center();
+            refreshFigure(true);
         }
 
         bool DragEntityTargetTool::accepts(const DragInfo& info) {
             return info.name == "Entity";
         }
     
-        bool DragEntityTargetTool::activate(const DragInfo& info) {
-            deleteFigures();
-            
-            Model::EntityDefinition* definition = static_cast<Model::EntityDefinition*>(info.payload);
-            m_bounds = definition->bounds;
+        bool DragEntityTargetTool::handleActivate(const DragInfo& info) {
+            m_entityDefinition = static_cast<Model::EntityDefinition*>(info.payload);
+            m_bounds = m_entityDefinition->bounds;
 
-            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+            if (!m_figureCreated) {
+                Renderer::DragEntityTargetToolFigure* figure = new Renderer::DragEntityTargetToolFigure(*this);
+                addFigure(*figure);
+                m_figureCreated = true;
+            }
             
-            m_entityFigure = new Renderer::EntityFigure(m_editor, *definition, false );
-            m_guideFigure = new Renderer::BoundsGuideFigure();
-            m_guideFigure->setColor(prefs.selectionGuideColor());
-            m_guideFigure->setHiddenColor(prefs.hiddenSelectionGuideColor());
-            updateFigures(info, *definition);
-            addFigure(*m_entityFigure);
-            addFigure(*m_guideFigure);
-            
+            update(info);
+
             return false;
         }
         
-        void DragEntityTargetTool::deactivate(const DragInfo& info) {
-            deleteFigures();
+        void DragEntityTargetTool::handleDeactivate(const DragInfo& info) {
+            m_entityDefinition = NULL;
         }
         
-        bool DragEntityTargetTool::move(const DragInfo& info) {
-            Model::EntityDefinition* definition = static_cast<Model::EntityDefinition*>(info.payload);
-            updateFigures(info, *definition);
+        bool DragEntityTargetTool::handleMove(const DragInfo& info) {
+            assert(m_entityDefinition == static_cast<Model::EntityDefinition*>(info.payload));
+
+            update(info);
             return false;
         }
         
-        bool DragEntityTargetTool::drop(const DragInfo& info) {
-            deleteFigures();
-            
-            Model::EntityDefinition* definition = static_cast<Model::EntityDefinition*>(info.payload);
-            
+        bool DragEntityTargetTool::handleDrop(const DragInfo& info) {
+            assert(m_entityDefinition == static_cast<Model::EntityDefinition*>(info.payload));
+
             m_editor.map().undoManager().begin("Create Entity");
-            m_editor.map().createEntity(definition->name);
-            m_editor.map().setEntityProperty(Model::OriginKey, m_bounds.center() - definition->bounds.center(), true);
+            m_editor.map().createEntity(m_entityDefinition->name);
+            m_editor.map().setEntityProperty(Model::OriginKey, m_bounds.center() - m_entityDefinition->bounds.center(), true);
             m_editor.map().undoManager().end();
+            
+            refreshFigure(false);
             
             return true;
         }

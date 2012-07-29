@@ -32,7 +32,7 @@ namespace TrenchBroom {
             virtual ~DragTextureTargetTool() {}
             
             virtual bool accepts(const DragInfo& info);
-            virtual bool drop(const DragInfo& info);
+            virtual bool handleDrop(const DragInfo& info);
         };
     }
 }
