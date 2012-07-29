@@ -34,6 +34,7 @@ namespace TrenchBroom {
             onGrid = false;
             filePosition = -1;
             selected = false;
+            partiallySelected = false;
             geometry = new BrushGeometry(worldBounds);
         }
         
