@@ -139,6 +139,9 @@ namespace TrenchBroom {
                 else if (m_inputController->clipToolActive())
                     m_inputController->toggleClipTool();
             }
+
+            if (selection.mode() == Model::TB_SM_NONE && m_options->isolationMode() != IM_NONE)
+                m_options->setIsolationMode(IM_NONE);
         }
 
         Editor::Editor(const std::string& entityDefinitionFilePath, const std::string& palettePath) : m_entityDefinitionFilePath(entityDefinitionFilePath), m_renderer(NULL) {

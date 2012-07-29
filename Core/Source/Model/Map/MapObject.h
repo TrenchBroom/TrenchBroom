@@ -23,6 +23,8 @@
 #include "Utilities/VecMath.h"
 
 namespace TrenchBroom {
+    class Filter;
+    
     namespace Model {
         typedef enum {
             TB_MT_ENTITY,
@@ -40,7 +42,7 @@ namespace TrenchBroom {
             int uniqueId() const;
             virtual const BBox& bounds() const = 0;
             virtual EMapObjectType objectType() const = 0;
-            virtual void pick(const Ray& ray, HitList& hits) = 0;
+            virtual void pick(const Ray& ray, HitList& hits, Filter& filter) = 0;
         };
     }
 }

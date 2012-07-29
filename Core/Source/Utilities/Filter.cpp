@@ -36,13 +36,8 @@ namespace TrenchBroom {
         
         const Model::Selection& selection = m_editor.map().selection();
         if (options.isolationMode() == Controller::IM_DISCARD) {
-            if (selection.mode() == Model::TB_SM_FACES) {
-                for (unsigned int i = 0; i < brush.faces.size(); i++)
-                    if (brush.faces[i]->selected)
-                        return true;
-                
-                return false;
-            }
+            if (selection.mode() == Model::TB_SM_FACES)
+                return brush.partiallySelected;
             
             return brush.selected;
         }
@@ -76,7 +71,26 @@ namespace TrenchBroom {
     }
     
     bool Filter::brushPickable(const Model::Brush& brush) {
-        return brushVisible(brush);
+        const Controller::TransientOptions& options = m_editor.options();
+        if (!options.renderBrushes())
+            return false;
+        
+        const Model::Selection& selection = m_editor.map().selection();
+        if (options.isolationMode() != Controller::IM_NONE) {
+            if (selection.mode() == Model::TB_SM_FACES)
+                return brush.partiallySelected;
+            
+            return brush.selected;
+        }
+        
+        Model::GroupManager& groupManager = m_editor.map().groupManager();
+        if (groupManager.allGroupsVisible())
+            return true;
+        
+        if (brush.entity->group())
+            return groupManager.visible(*brush.entity);
+        
+        return false;
     }
     
     bool Filter::brushVerticesPickable(const Model::Brush& brush) {
@@ -84,7 +98,21 @@ namespace TrenchBroom {
     }
     
     bool Filter::entityPickable(const Model::Entity& entity) {
-        return entityVisible(entity);
+        const Controller::TransientOptions& options = m_editor.options();
+        if (entity.worldspawn() || !options.renderEntities())
+            return false;
+        
+        if (options.isolationMode() != Controller::IM_NONE)
+            return entity.selected();
+        
+        Model::GroupManager& groupManager = m_editor.map().groupManager();
+        if (groupManager.allGroupsVisible())
+            return true;
+        
+        if (entity.group())
+            return groupManager.visible(entity);
+        
+        return true;
     }
 
 }

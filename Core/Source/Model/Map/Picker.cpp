@@ -107,7 +107,7 @@ namespace TrenchBroom {
 
             std::vector<MapObject*> objects = m_octree.intersect(ray);
             for (unsigned int i = 0; i < objects.size(); i++)
-                objects[i]->pick(ray, *hits);
+                objects[i]->pick(ray, *hits, filter);
 
             return hits;
         }

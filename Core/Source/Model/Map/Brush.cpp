@@ -25,6 +25,7 @@
 #include "Model/Map/Entity.h"
 #include "Model/Map/Face.h"
 #include "Model/Map/Picker.h"
+#include "Utilities/Filter.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -153,9 +154,13 @@ namespace TrenchBroom {
             return centerOfVertices(geometry->vertices);
         }
         
-        void Brush::pick(const Ray& ray, HitList& hits) {
+        void Brush::pick(const Ray& ray, HitList& hits, Filter& filter) {
+            if (!filter.brushPickable(*this))
+                return;
+            
             float dist = bounds().intersectWithRay(ray, NULL);
-            if (Math::isnan(dist)) return;
+            if (Math::isnan(dist))
+                return;
             
             dist = std::numeric_limits<float>::quiet_NaN();
             Side* side;

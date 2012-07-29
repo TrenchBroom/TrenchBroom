@@ -26,6 +26,8 @@
 #include "Model/Map/MapObject.h"
 
 namespace TrenchBroom {
+    class Filter;
+    
     namespace Model {
         namespace Assets {
             class Texture;
@@ -66,7 +68,7 @@ namespace TrenchBroom {
             EMapObjectType objectType() const;
             const Vec3f center() const;
             
-            void pick(const Ray& ray, HitList& hits);
+            void pick(const Ray& ray, HitList& hits, Filter& filter);
             void pickVertices(const Ray& ray, float handleSize, HitList& hits);
             bool containsPoint(Vec3f point);
             bool intersectsBrush(Brush& brush);

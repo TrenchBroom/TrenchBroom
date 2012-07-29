@@ -22,6 +22,7 @@
 #include "Model/Map/Brush.h"
 #include "Model/Map/Picker.h"
 #include "Utilities/Console.h"
+#include "Utilities/Filter.h"
 
 #include <cstdlib>
 #include <cmath>
@@ -115,11 +116,13 @@ namespace TrenchBroom {
             return m_bounds;
         }
 
-        void Entity::pick(const Ray& ray, HitList& hits) {
-            if (worldspawn()) return;
+        void Entity::pick(const Ray& ray, HitList& hits, Filter& filter) {
+            if (!filter.entityPickable(*this))
+                return;
 
             float dist = bounds().intersectWithRay(ray, NULL);
-            if (Math::isnan(dist)) return;
+            if (Math::isnan(dist))
+                return;
 
             Vec3f hitPoint = ray.pointAtDistance(dist);
             Hit* hit = new Hit(this, TB_HT_ENTITY, hitPoint, dist);

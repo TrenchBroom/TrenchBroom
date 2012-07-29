@@ -72,6 +72,7 @@ namespace TrenchBroom {
             FaceList faces;
             SelectionEventData() {};
             SelectionEventData(const EntityList& entities) : entities(entities) {}
+            SelectionEventData(const EntityList& entities, const BrushList& brushes) : entities(entities), brushes(brushes) {}
             SelectionEventData(const BrushList& brushes) : brushes(brushes) {}
             SelectionEventData(const FaceList& faces) : faces(faces) {}
             SelectionEventData(Entity& entity) { entities.push_back(&entity); }
@@ -86,6 +87,13 @@ namespace TrenchBroom {
             inline SelectionState& current() const {
                 return m_state.back();
             }
+        protected:
+            void doAddEntities(const EntityList& entities);
+            void doAddBrushes(const BrushList& brushes);
+            void doAddFaces(const FaceList& faces);
+            EntityList doRemoveEntities(const EntityList& entities);
+            BrushList doRemoveBrushes(const BrushList& brushes);
+            FaceList doRemoveFaces(const FaceList& faces);
         public:
             typedef Event<const SelectionEventData&> SelectionEvent;
             SelectionEvent selectionAdded;

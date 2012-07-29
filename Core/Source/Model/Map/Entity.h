@@ -30,6 +30,8 @@
 #include "Utilities/VecMath.h"
 
 namespace TrenchBroom {
+    class Filter;
+    
     namespace Model {
         static std::string const ClassnameKey        = "classname";
         static std::string const SpawnFlagsKey       = "spawnflags";
@@ -78,7 +80,7 @@ namespace TrenchBroom {
             const Vec3f& origin() const;
             const BBox& bounds() const;
             
-            void pick(const Ray& ray, HitList& hits);
+            void pick(const Ray& ray, HitList& hits, Filter& filter);
 
             Map* quakeMap() const;
             void setMap(Map* quakeMap);

@@ -45,8 +45,9 @@ namespace TrenchBroom {
                         }
                     } else {
                         if (!multiSelectionModiferPressed(event))
-                            selection.removeAll();
-                        selection.addEntity(entity);
+                            selection.replaceSelection(entity);
+                        else
+                            selection.addEntity(entity);
                     }
                 } else {
                     Model::Face& face = hit->face();
@@ -56,7 +57,7 @@ namespace TrenchBroom {
                             if (multiSelectionModiferPressed(event))
                                 selection.removeFace(face);
                             else
-                                selection.addBrush(brush);
+                                selection.replaceSelection(brush);
                         } else {
                             if (multiSelectionModiferPressed(event)) {
                                 selection.addFace(face);
@@ -64,7 +65,7 @@ namespace TrenchBroom {
                                 if (brush.partiallySelected) {
                                     selection.replaceSelection(face);
                                 } else {
-                                    selection.addBrush(brush);
+                                    selection.replaceSelection(brush);
                                 }
                             }
                         }
@@ -76,7 +77,7 @@ namespace TrenchBroom {
                                 selection.addBrush(brush);
                         } else if (noModifierPressed(event)) {
                             if (brush.selected) {
-                                selection.addFace(face);
+                                selection.replaceSelection(face);
                             } else {
                                 selection.replaceSelection(brush);
                             }
