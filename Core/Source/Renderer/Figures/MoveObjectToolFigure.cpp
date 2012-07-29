@@ -37,7 +37,7 @@ namespace TrenchBroom {
         }
         
         void MoveObjectToolFigure::render(RenderContext& context, Vbo& vbo) {
-            if (m_moveObjectTool.state() != Controller::Tool::TS_MOUSE_DOWN && m_moveObjectTool.state() != Controller::Tool::TS_DRAG)
+            if (m_moveObjectTool.state() != Controller::Tool::TB_TS_MOUSE_DOWN && m_moveObjectTool.state() != Controller::Tool::TB_TS_DRAG)
                 return;
             
             if (m_guideFigure == NULL) {

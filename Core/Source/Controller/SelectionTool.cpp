@@ -101,11 +101,11 @@ namespace TrenchBroom {
         }
         
         bool SelectionTool::handleBeginDrag(InputEvent& event) {
-            return event.mouseButton == MB_LEFT && multiSelectionModiferPressed(event);
+            return event.mouseButton == TB_MB_LEFT && multiSelectionModiferPressed(event);
         }
         
         bool SelectionTool::handleDrag(InputEvent& event) {
-            assert(event.mouseButton == MB_LEFT);
+            assert(event.mouseButton == TB_MB_LEFT);
             
             Model::Selection& selection = editor().map().selection();
             Model::Hit* hit = event.hits->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);

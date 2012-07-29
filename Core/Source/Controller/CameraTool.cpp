@@ -61,7 +61,7 @@ namespace TrenchBroom {
         }
         
         bool CameraTool::handleBeginDrag(InputEvent& event) {
-            if (event.mouseButton == MB_LEFT) {
+            if (event.mouseButton == TB_MB_LEFT) {
                 if (!cameraModiferPressed(event) && !orbitModifierPressed(event))
                     return false;
                 
@@ -80,7 +80,7 @@ namespace TrenchBroom {
         }
         
         bool CameraTool::handleDrag(InputEvent& event) {
-            if (event.mouseButton == MB_LEFT) {
+            if (event.mouseButton == TB_MB_LEFT) {
                 if (m_orbit) {
                     float hAngle = event.deltaX * lookSpeed(false);
                     float vAngle = event.deltaY * lookSpeed(true);

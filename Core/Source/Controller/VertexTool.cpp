@@ -48,7 +48,7 @@ namespace TrenchBroom {
         }
 
         bool VertexTool::handleActivated(InputEvent& event) {
-            assert(state() == TS_DEFAULT);
+            assert(state() == TB_TS_DEFAULT);
             
             Model::Map& map = editor().map();
             Model::Selection& selection = map.selection();
@@ -88,7 +88,7 @@ namespace TrenchBroom {
         bool VertexTool::handleMouseDown(InputEvent& event) {
             assert(active());
 
-            if (event.mouseButton != MB_LEFT)
+            if (event.mouseButton != TB_MB_LEFT)
                 return false;
             
             Model::Hit* hit = event.hits->first(hitType(), true);
@@ -106,7 +106,7 @@ namespace TrenchBroom {
         bool VertexTool::handleMouseUp(InputEvent& event) {
             assert(active());
 
-            if (event.mouseButton != MB_LEFT)
+            if (event.mouseButton != TB_MB_LEFT)
                 return false;
             
             if (selected()) {
@@ -121,7 +121,7 @@ namespace TrenchBroom {
         }
         
         bool VertexTool::handleBeginPlaneDrag(InputEvent& event, Vec3f& initialPoint) {
-            if (event.mouseButton != MB_LEFT)
+            if (event.mouseButton != TB_MB_LEFT)
                 return false;
             
             Model::Hit* hit = event.hits->first(hitType(), true);
@@ -139,9 +139,9 @@ namespace TrenchBroom {
         }
         
         bool VertexTool::handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint) {
-            assert(event.mouseButton == MB_LEFT);
+            assert(event.mouseButton == TB_MB_LEFT);
             
-            if (state() == TS_DRAG) {
+            if (state() == TB_TS_DRAG) {
                 assert(m_brush != NULL);
                 
                 Grid& grid = editor().grid();
@@ -165,9 +165,9 @@ namespace TrenchBroom {
         }
         
         void VertexTool::handleEndPlaneDrag(InputEvent& event) {
-            assert(event.mouseButton == MB_LEFT);
+            assert(event.mouseButton == TB_MB_LEFT);
             
-            if (state() == TS_DRAG) {
+            if (state() == TB_TS_DRAG) {
                 editor().map().undoManager().end();
                 m_brush = NULL;
                 m_index = 0;

@@ -48,7 +48,7 @@ namespace TrenchBroom {
             virtual void handleEndPlaneDrag(InputEvent& event) {}
         public:
             static bool altPlaneModifierPressed(InputEvent& event) {
-                return event.modifierKeys == MK_ALT;
+                return event.modifierKeys == TB_MK_ALT;
             }
 
             DragTool(Editor& editor) : Tool(editor), m_dragPlane(DragPlane::horizontal()), m_dragPlanePosition(Vec3f::Null), m_lastMousePoint(Vec3f::Null), m_lastRefPoint(Vec3f::Null) {};

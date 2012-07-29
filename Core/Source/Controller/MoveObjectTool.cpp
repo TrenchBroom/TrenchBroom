@@ -36,7 +36,7 @@
 namespace TrenchBroom {
     namespace Controller {
         bool MoveObjectTool::handleBeginPlaneDrag(InputEvent& event, Vec3f& initialPoint) {
-            if (event.mouseButton != MB_LEFT)
+            if (event.mouseButton != TB_MB_LEFT)
                 return false;
             
             Model::Hit* hit = event.hits->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);
@@ -68,7 +68,7 @@ namespace TrenchBroom {
         }
         
         bool MoveObjectTool::handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint) {
-            assert(event.mouseButton == MB_LEFT);
+            assert(event.mouseButton == TB_MB_LEFT);
             
             Grid& grid = editor().grid();
             Model::Map& map = editor().map();
@@ -86,7 +86,7 @@ namespace TrenchBroom {
         }
         
         void MoveObjectTool::handleEndPlaneDrag(InputEvent& event) {
-            assert(event.mouseButton == MB_LEFT);
+            assert(event.mouseButton == TB_MB_LEFT);
             
             editor().map().undoManager().end();
             refreshFigure(false);

@@ -37,7 +37,7 @@ namespace TrenchBroom {
         }
 
         bool ResizeBrushTool::handleMouseDown(InputEvent& event) {
-            if (event.mouseButton != MB_LEFT)
+            if (event.mouseButton != TB_MB_LEFT)
                 return false;
             
             if (!resizeBrushModiferPressed(event))
@@ -63,7 +63,7 @@ namespace TrenchBroom {
         }
         
         bool ResizeBrushTool::handleMouseUp(InputEvent& event) {
-            if (event.mouseButton != MB_LEFT)
+            if (event.mouseButton != TB_MB_LEFT)
                 return false;
             
             refreshFigure(false);
@@ -72,7 +72,7 @@ namespace TrenchBroom {
         }
         
         bool ResizeBrushTool::handleBeginPlaneDrag(InputEvent& event, Vec3f& initialPoint) {
-            if (event.mouseButton != MB_LEFT || !resizeBrushModiferPressed(event))
+            if (event.mouseButton != TB_MB_LEFT || !resizeBrushModiferPressed(event))
                 return false;
                 
             Model::Hit* hit = event.hits->first(Model::TB_HT_FACE, true);
@@ -91,7 +91,7 @@ namespace TrenchBroom {
         }
         
         bool ResizeBrushTool::handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint) {
-            assert(event.mouseButton == MB_LEFT);
+            assert(event.mouseButton == TB_MB_LEFT);
             
             Vec3f delta = curMousePoint - referencePoint;
             float dist = editor().grid().moveDistance(*m_referenceFace, delta);
@@ -121,7 +121,7 @@ namespace TrenchBroom {
         }
         
         void ResizeBrushTool::handleEndPlaneDrag(InputEvent& event) {
-            assert(event.mouseButton == MB_LEFT);
+            assert(event.mouseButton == TB_MB_LEFT);
             
             editor().map().undoManager().end();
             refreshFigure(false);

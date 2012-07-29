@@ -79,7 +79,7 @@ namespace TrenchBroom {
             
             bool valid = m_vertexTool.checkFigureDataValid();
             
-            if (m_vertexTool.state() == Controller::Tool::TS_DRAG) {
+            if (m_vertexTool.state() == Controller::Tool::TB_TS_DRAG) {
                 if (!valid) {
                     m_selectedHandleFigure->setPositions(m_vertexTool.selectedHandlePositions());
                     m_guideFigure->setPosition(m_vertexTool.draggedHandlePosition());

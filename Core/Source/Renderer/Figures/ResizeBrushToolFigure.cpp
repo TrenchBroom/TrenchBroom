@@ -37,7 +37,7 @@ namespace TrenchBroom {
         }
         
         void ResizeBrushToolFigure::render(RenderContext& context, Vbo& vbo) {
-            if (m_resizeBrushTool.state() != Controller::Tool::TS_MOUSE_DOWN && m_resizeBrushTool.state() != Controller::Tool::TS_DRAG)
+            if (m_resizeBrushTool.state() != Controller::Tool::TB_TS_MOUSE_DOWN && m_resizeBrushTool.state() != Controller::Tool::TB_TS_DRAG)
                 return;
             
             if (m_guideFigure == NULL) {

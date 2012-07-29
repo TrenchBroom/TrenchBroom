@@ -718,6 +718,21 @@
     <ClInclude Include="..\..\Core\Source\Renderer\Figures\SizeGuideFigure.h">
       <Filter>Header\Core\Renderer\Figures</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\Figures\CreateBrushFigure.h">
+      <Filter>Header\Core\Renderer\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\Figures\DragEntityTargetToolFigure.h">
+      <Filter>Header\Core\Renderer\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\Figures\MoveObjectToolFigure.h">
+      <Filter>Header\Core\Renderer\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\Figures\ResizeBrushToolFigure.h">
+      <Filter>Header\Core\Renderer\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Source\Renderer\Figures\VertexToolFigure.h">
+      <Filter>Header\Core\Renderer\Figures</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TrenchBroom.cpp">
@@ -1071,9 +1086,6 @@
     <ClCompile Include="..\..\Core\Source\Renderer\ChangeSet.cpp">
       <Filter>Source\Core\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Core\Source\Controller\DragTool.cpp">
-      <Filter>Source\Core\Controller</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Core\Source\Controller\MoveObjectTool.cpp">
       <Filter>Source\Core\Controller</Filter>
     </ClCompile>
@@ -1171,6 +1183,21 @@
       <Filter>Source\Core\IO</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Core\Source\Renderer\Figures\SizeGuideFigure.cpp">
+      <Filter>Source\Core\Renderer\Figures</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\Figures\CreateBrushFigure.cpp">
+      <Filter>Source\Core\Renderer\Figures</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\Figures\DragEntityTargetToolFigure.cpp">
+      <Filter>Source\Core\Renderer\Figures</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\Figures\MoveObjectToolFigure.cpp">
+      <Filter>Source\Core\Renderer\Figures</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\Figures\ResizeBrushToolFigure.cpp">
+      <Filter>Source\Core\Renderer\Figures</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Source\Renderer\Figures\VertexToolFigure.cpp">
       <Filter>Source\Core\Renderer\Figures</Filter>
     </ClCompile>
   </ItemGroup>

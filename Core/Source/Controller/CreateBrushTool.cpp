@@ -53,7 +53,7 @@ namespace TrenchBroom {
         }
         
         bool CreateBrushTool::handleBeginPlaneDrag(InputEvent& event, Vec3f& initialPoint) {
-            if (event.mouseButton != MB_RIGHT)
+            if (event.mouseButton != TB_MB_RIGHT)
                 return false;
             
             if (!m_figureCreated) {
@@ -99,7 +99,7 @@ namespace TrenchBroom {
         }
         
         bool CreateBrushTool::handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint) {
-            assert(event.mouseButton == MB_RIGHT);
+            assert(event.mouseButton == TB_MB_RIGHT);
             
             BBox newBounds = m_initialBounds + curMousePoint.correct();
             newBounds.min = editor().grid().snapDown(newBounds.min);

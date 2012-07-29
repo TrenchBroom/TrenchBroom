@@ -41,25 +41,25 @@ namespace TrenchBroom {
         class Tool {
         public:
             typedef enum {
-                MK_NONE = 0,
-                MK_SHIFT = 1 << 0,
-                MK_CTRL = 1 << 1,
-                MK_ALT = 1 << 2,
-                MK_CMD = 1 << 3
+                TB_MK_NONE = 0,
+                TB_MK_SHIFT = 1 << 0,
+                TB_MK_CTRL = 1 << 1,
+                TB_MK_ALT = 1 << 2,
+                TB_MK_CMD = 1 << 3
             } EModifierKeys;
             
             typedef enum {
-                MB_NONE = 0,
-                MB_LEFT = 1,
-                MB_RIGHT = 2,
-                MB_MIDDLE = 3
+                TB_MB_NONE = 0,
+                TB_MB_LEFT = 1,
+                TB_MB_RIGHT = 2,
+                TB_MB_MIDDLE = 3
             } EMouseButton;
             
             typedef enum {
-                TS_DEFAULT = 0,
-                TS_MOUSE_DOWN = 1,
-                TS_DRAG = 2,
-                TS_SCROLL = 3
+                TB_TS_DEFAULT = 0,
+                TB_TS_MOUSE_DOWN = 1,
+                TB_TS_DRAG = 2,
+                TB_TS_SCROLL = 3
             } EToolState;
 
             class InputEvent {
@@ -74,7 +74,7 @@ namespace TrenchBroom {
                 float scrollY;
                 Model::HitList* hits;
                 Ray ray;
-                InputEvent() : modifierKeys(MK_NONE), mouseButton(MB_NONE), hits(NULL) {}
+                InputEvent() : modifierKeys(TB_MK_NONE), mouseButton(TB_MB_NONE), hits(NULL) {}
             };
             
         private:
@@ -104,7 +104,7 @@ namespace TrenchBroom {
 					renderer->rendererChanged(*m_editor.renderer());
             }
         public:
-            Tool(Editor& editor) : m_editor(editor), m_state(TS_DEFAULT), m_active(false), m_figureDataValid(false) {}
+            Tool(Editor& editor) : m_editor(editor), m_state(TB_TS_DEFAULT), m_active(false), m_figureDataValid(false) {}
             virtual ~Tool() {}
 
             EToolState state() {
@@ -148,7 +148,7 @@ namespace TrenchBroom {
             bool deactivated(InputEvent& event) {
                 if (handleDeactivated(event)) {
                     m_active = false;
-                    m_state = TS_DEFAULT;
+                    m_state = TB_TS_DEFAULT;
                     toolDeactivated(event);
                     return true;
                 }
@@ -158,7 +158,7 @@ namespace TrenchBroom {
             
             bool mouseDown(InputEvent& event) {
                 if (handleMouseDown(event)) {
-                    m_state = TS_MOUSE_DOWN;
+                    m_state = TB_TS_MOUSE_DOWN;
                     toolMouseDown(event);
                     return true;
                 }
@@ -168,7 +168,7 @@ namespace TrenchBroom {
             
             bool mouseUp(InputEvent& event) {
                 if (handleMouseUp(event)) {
-                    m_state = TS_DEFAULT;
+                    m_state = TB_TS_DEFAULT;
                     toolMouseUp(event);
                     return true;
                 }
@@ -196,7 +196,7 @@ namespace TrenchBroom {
 
             bool beginDrag(InputEvent& event) {
                 if (handleBeginDrag(event)) {
-                    m_state = TS_DRAG;
+                    m_state = TB_TS_DRAG;
                     toolDragBegun(event);
                     return true;
                 }
@@ -214,7 +214,7 @@ namespace TrenchBroom {
             
             void endDrag(InputEvent& event) {
                 handleEndDrag(event);
-                m_state = TS_DEFAULT;
+                m_state = TB_TS_DEFAULT;
                 toolDragEnded(event);
             }
 
@@ -230,7 +230,7 @@ namespace TrenchBroom {
             ToolEvent toolDragged;
             ToolEvent toolDragEnded;
             
-            static bool noModifierPressed(InputEvent& event) { return event.modifierKeys == MK_NONE; }
+            static bool noModifierPressed(InputEvent& event) { return event.modifierKeys == TB_MK_NONE; }
         };
     }
 }

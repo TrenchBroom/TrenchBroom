@@ -30,11 +30,11 @@ namespace TrenchBroom {
 		static std::string Section = "Preferences";
 
 			void WinPreferences::loadPlatformDefaults() {
-				m_cameraKey = Controller::TB_MK_SHIFT;
-				m_cameraOrbitKey = Controller::TB_MK_SHIFT | Controller::TB_MK_CTRL;
-				m_selectionToolMultiKey = Controller::TB_MK_CTRL;
-				m_selectionToolGridKey = Controller::TB_MK_ALT;
-				m_resizeToolKey = Controller::TB_MK_CTRL;
+				m_cameraKey = Controller::Tool::TB_MK_SHIFT;
+				m_cameraOrbitKey = Controller::Tool::TB_MK_SHIFT | Controller::Tool::TB_MK_CTRL;
+				m_selectionToolMultiKey = Controller::Tool::TB_MK_CTRL;
+				m_selectionToolGridKey = Controller::Tool::TB_MK_ALT;
+				m_resizeToolKey = Controller::Tool::TB_MK_CTRL;
 				m_quakePath = "";
 			}
 

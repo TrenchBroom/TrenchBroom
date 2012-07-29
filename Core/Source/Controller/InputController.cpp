@@ -89,7 +89,7 @@ namespace TrenchBroom {
             m_receiverChain.push_back(moveObjectTool);
             m_receiverChain.push_back(createBrushTool);
             
-            m_dragButton = Tool::MB_NONE;
+            m_dragButton = Tool::TB_MB_NONE;
             m_dragScrollReceiver = ToolPtr();
 
             m_moveVertexTool = ToolPtr(new MoveVertexTool(m_editor));
@@ -162,18 +162,18 @@ namespace TrenchBroom {
                 if (m_dragScrollReceiver != NULL)
                     m_dragScrollReceiver->endDrag(m_currentEvent);
                 m_dragScrollReceiver = ToolPtr();
-                m_dragButton = Tool::MB_NONE;
+                m_dragButton = Tool::TB_MB_NONE;
             } else {
                 for (unsigned int i = 0; i < m_receiverChain.size(); i++)
                     if (m_receiverChain[i]->mouseUp(m_currentEvent))
                         break;
             }
             
-            m_currentEvent.mouseButton = Tool::MB_NONE;
+            m_currentEvent.mouseButton = Tool::TB_MB_NONE;
         }
         
         void InputController::mouseMoved(float x, float y, float dx, float dy) {
-            if (m_currentEvent.mouseButton != Tool::MB_NONE && m_dragButton == Tool::MB_NONE) {
+            if (m_currentEvent.mouseButton != Tool::TB_MB_NONE && m_dragButton == Tool::TB_MB_NONE) {
                 m_dragButton = m_currentEvent.mouseButton;
                 for (unsigned int i = 0; i < m_receiverChain.size(); i++) {
                     if (m_receiverChain[i]->beginDrag(m_currentEvent)) {
@@ -189,7 +189,7 @@ namespace TrenchBroom {
             m_currentEvent.deltaY = dy;
             updateHits();
             
-            if (m_dragButton != Tool::MB_NONE && m_dragScrollReceiver != NULL) {
+            if (m_dragButton != Tool::TB_MB_NONE && m_dragScrollReceiver != NULL) {
                 m_dragScrollReceiver->drag(m_currentEvent);
             } else {
                 for (unsigned int i = 0; i < m_receiverChain.size(); i++)
