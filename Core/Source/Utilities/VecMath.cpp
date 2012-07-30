@@ -1439,12 +1439,9 @@ const Vec3f Line::pointAtDistance(float distance) const {
 }
 
 void BBox::repair() {
-    min.x = std::min(min.x, max.x);
-    min.y = std::min(min.y, max.y);
-    min.z = std::min(min.z, max.z);
-    max.x = std::max(min.x, max.x);
-    max.y = std::max(min.y, max.y);
-    max.z = std::max(min.z, max.z);
+    for (int i = 0; i < 3; i++)
+        if (min[i] > max[i])
+            std::swap(min[i], max[i]);
 }
 
 bool BBox::operator== (const BBox& right) const {
