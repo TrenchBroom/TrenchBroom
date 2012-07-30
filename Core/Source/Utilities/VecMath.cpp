@@ -295,6 +295,10 @@ bool Vec3f::null() const {
     return equals(Vec3f::Null);
 }
 
+bool Vec3f::parallelTo(const Vec3f& other) const {
+    return (*this % other).null();
+}
+
 EAxis Vec3f::firstComponent() const {
     float ax = fabsf(x);
     float ay = fabsf(y);

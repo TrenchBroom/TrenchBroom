@@ -170,6 +170,7 @@ public:
     bool equals(const Vec3f& other) const;
     bool equals(const Vec3f& other, float delta) const;
     bool null() const;
+    bool parallelTo(const Vec3f& other) const;
     EAxis firstComponent() const;
     EAxis secondComponent() const;
     EAxis thirdComponent() const;

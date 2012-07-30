@@ -533,10 +533,11 @@ namespace TrenchBroom {
                     v2 = side->vertices[1]->position - side->vertices[0]->position;
                     v1 = v1 % v2; // points in the direction of the side's normal
                     
-                    if (Math::fneg((v1 | ray.direction))) { // movement direction is downwards into the side
+                    float dot = v1 | ray.direction;
+                    if (Math::fneg(dot)) { // movement direction is downwards into the side
                         splitSide(side, vertexIndex, newFaces);
                         assert(sanityCheck());
-                    } else { // movement direction is upward out of the side or parallel to the side's boundary plane
+                    } else if (Math::fpos(dot)) { // movement direction is upward out of the side or parallel to the side's boundary plane
                         triangulateSide(side, vertexIndex, newFaces);
                         FaceList::iterator faceIt = find(newFaces.begin(), newFaces.end(), side->face);
                         if (faceIt != newFaces.end()) {
@@ -596,16 +597,12 @@ namespace TrenchBroom {
         }
         
         void BrushGeometry::mergeEdges() {
-            Vec3f v1, v2;
-            
             for (unsigned int i = 0; i < edges.size(); i++) {
                 Edge* edge = edges[i];
-                v1 = edge->vector();
+                Vec3f edgeVector = edge->vector();
                 for (unsigned int j = i + 1; j < edges.size(); j++) {
                     Edge* candidate = edges[j];
-                    v2 = candidate->vector();
-                    v2 = v1 % v2;
-                    if (v2.null()) {
+                    if (edgeVector.parallelTo(candidate->vector())) {
                         if (edge->end == candidate->end)
                             candidate->flip();
                         if (edge->end == candidate->start) {
@@ -613,6 +610,8 @@ namespace TrenchBroom {
                             assert(edge->start != candidate->end);
                             assert(edge->left == candidate->left);
                             assert(edge->right == candidate->right);
+                            assert(edge->left->vertices.size() > 3);
+                            assert(edge->right->vertices.size() > 3);
                             
                             Side* leftSide = edge->left;
                             Side* rightSide = edge->right;
@@ -642,8 +641,11 @@ namespace TrenchBroom {
                         if (edge->start == candidate->start)
                             candidate->flip();
                         if (edge->start == candidate->end) {
+                            assert(edge->end != candidate->start);
                             assert(edge->left == candidate->left);
                             assert(edge->right == candidate->right);
+                            assert(edge->left->vertices.size() > 3);
+                            assert(edge->right->vertices.size() > 3);
                             
                             Side* leftSide = edge->left;
                             Side* rightSide = edge->right;
@@ -701,6 +703,8 @@ namespace TrenchBroom {
             // now neighbourEdgeIndex points to the last edge (in CW order) of neighbour that should not be deleted
             // and count is the number of shared edges between side and neighbour
             
+            size_t totalVertexCount = side->edges.size() + neighbour->edges.size() - 2 * count;
+            
             // shift the two sides so that their shared edges are at the end of both's edge lists
             side->shift(succ(sideEdgeIndex, side->edges.size(), count + 1));
             neighbour->shift(neighbourEdgeIndex);
@@ -720,14 +724,28 @@ namespace TrenchBroom {
             }
             
             for (size_t i = neighbour->edges.size() - count; i < neighbour->edges.size(); i++) {
-                deleteElement(edges, neighbour->edges[i]);
-                if (i > neighbour->edges.size() - count)
-                    deleteElement(vertices, neighbour->vertices[i]);
+                bool success = deleteElement(edges, neighbour->edges[i]);
+                assert(success);
+                if (i > neighbour->edges.size() - count) {
+                    bool success = deleteElement(vertices, neighbour->vertices[i]);
+                    assert(success);
+                }
+            }
+            
+            for (size_t i = 0; i < side->edges.size(); i++) {
+                edge = side->edges[i];
+                if (edge->left == side)
+                    assert(edge->right != neighbour);
+                else
+                    assert(edge->left != neighbour);
             }
             
             neighbour->face->side = NULL;
             bool success = deleteElement<Side>(sides, neighbour);
             assert(success);
+            
+            assert(side->vertices.size() == totalVertexCount);
+            assert(side->edges.size() == totalVertexCount);
         }
         
         void BrushGeometry::mergeSides(FaceList& newFaces, FaceList&droppedFaces) {
@@ -756,12 +774,6 @@ namespace TrenchBroom {
                             newFaces.erase(faceIt);
                         } else {
                             droppedFaces.push_back(neighbourFace);
-                        }
-                        
-                        for (unsigned int m = 0; m < sides.size(); m++) {
-                            for (unsigned int k = 0; k < sides[m]->edges.size(); k++) {
-                                assert(sides[m]->edges[k]->left != NULL && sides[m]->edges[k]->right != NULL && sides[m]->edges[k]->start != NULL && sides[m]->edges[k]->end != NULL);
-                            }
                         }
                         
                         i -= 1;
@@ -839,8 +851,6 @@ namespace TrenchBroom {
             vertex->position = ray.pointAtDistance(actualMoveDist);
             newPosition = vertex->position;
             
-            assert(sanityCheck());
-
             // check whether the vertex is dragged onto a non-incident edge
             for (unsigned int i = 0; i < edges.size(); i++) {
                 Edge* edge = edges[i];
@@ -867,8 +877,6 @@ namespace TrenchBroom {
                 }
             }
             
-            assert(sanityCheck());
-
             // check whether the vertex is dragged onto another vertex, if so, kill that vertex
             for (unsigned int i = 0; i < vertices.size(); i++) {
                 if (i != vertexIndex) {
@@ -1034,14 +1042,17 @@ namespace TrenchBroom {
                 
                 newSide->vertices.push_back(lastEdge->end);
                 newSide->edges.push_back(sideEdge);
-                if (sideEdge->left == side) sideEdge->left = newSide;
-                else sideEdge->right = newSide;
+                if (sideEdge->left == side)
+                    sideEdge->left = newSide;
+                else
+                    sideEdge->right = newSide;
                 
                 newSide->vertices.push_back(newEdge->end);
                 newSide->edges.push_back(newEdge);
                 newEdge->left = newSide;
                 
                 newSide->face = new Face(side->face->worldBounds, *side->face);
+                newSide->face->side = newSide;
                 sides.push_back(newSide);
                 newFaces.push_back(newSide->face);
                 
@@ -1049,8 +1060,8 @@ namespace TrenchBroom {
             }
             
             droppedFaces.push_back(side->face);
-            sides.erase(sides.begin() + index);
-            delete side;
+            bool success = deleteElement(sides, side);
+            assert(success);
             
             result = moveVertex(vertices.size() - 1, true, delta, newFaces, droppedFaces);
             if (result.deleted)
