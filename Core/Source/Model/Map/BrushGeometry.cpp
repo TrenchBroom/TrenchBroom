@@ -1024,6 +1024,7 @@ namespace TrenchBroom {
             
             // some incident sides may have become degenerate, or more specifically, a triangle with collinear vertices
             // at this point, all incident sides have been split so that only triangles remain
+            incSides = incidentSides(actualVertexIndex);
             deleteCollinearTriangles(incSides, newFaces, droppedFaces);
             
             assert(sanityCheck());

@@ -90,6 +90,7 @@ namespace TrenchBroom {
             glDrawArrays(GL_TRIANGLES, 0, vertexCount);
             
             glPopClientAttrib();
+            glFrontFace(GL_CW);
         }
     }
 }

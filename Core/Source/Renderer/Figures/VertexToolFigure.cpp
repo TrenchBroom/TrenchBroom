@@ -79,7 +79,7 @@ namespace TrenchBroom {
             
             bool valid = m_vertexTool.checkFigureDataValid();
             
-            if (m_vertexTool.state() == Controller::Tool::TB_TS_DRAG) {
+            if (m_vertexTool.selected()) {
                 if (!valid) {
                     m_selectedHandleFigure->setPositions(m_vertexTool.selectedHandlePositions());
                     m_guideFigure->setPosition(m_vertexTool.draggedHandlePosition());
@@ -87,10 +87,6 @@ namespace TrenchBroom {
                 
                 m_selectedHandleFigure->render(context,vbo);
                 m_guideFigure->render(context, vbo);
-            } else if (m_vertexTool.selected()) {
-                if (!valid)
-                    m_selectedHandleFigure->setPositions(m_vertexTool.selectedHandlePositions());
-                m_selectedHandleFigure->render(context,vbo);
             } else {
                 if (!valid)
                     m_handleFigure->setPositions(m_vertexTool.handlePositions());
