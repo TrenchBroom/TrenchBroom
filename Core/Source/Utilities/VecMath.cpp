@@ -292,11 +292,12 @@ bool Vec3f::equals(const Vec3f& other, float delta) const {
 }
 
 bool Vec3f::null() const {
-    return equals(Vec3f::Null);
+    return equals(Vec3f::Null, Math::AlmostZero);
 }
 
-bool Vec3f::parallelTo(const Vec3f& other) const {
-    return (*this % other).null();
+bool Vec3f::parallelTo(const Vec3f& other, float delta) const {
+    Vec3f cross = *this % other;
+    return cross.equals(Vec3f::Null, delta);
 }
 
 EAxis Vec3f::firstComponent() const {

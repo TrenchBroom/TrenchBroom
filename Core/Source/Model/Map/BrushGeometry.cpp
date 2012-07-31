@@ -98,6 +98,10 @@ namespace TrenchBroom {
             return NULL;
         }
         
+        bool Edge::incidentWith(Edge* edge) {
+            return start == edge->start || start == edge->end || end == edge->start || end == edge->end;
+        }
+
         void Edge::updateMark() {
             int keep = 0;
             int drop = 0;
@@ -660,74 +664,77 @@ namespace TrenchBroom {
                 Vec3f edgeVector = edge->vector();
                 for (unsigned int j = i + 1; j < edges.size(); j++) {
                     Edge* candidate = edges[j];
-                    if (edgeVector.parallelTo(candidate->vector())) {
-                        if (edge->end == candidate->end)
-                            candidate->flip();
-                        if (edge->end == candidate->start) {
-                            // we sometimes crash here because we meet two identical edges with opposite directions
-                            assert(edge->start != candidate->end);
-                            assert(edge->left == candidate->left);
-                            assert(edge->right == candidate->right);
-                            assert(edge->left->vertices.size() > 3);
-                            assert(edge->right->vertices.size() > 3);
+                    if (edge->incidentWith(candidate)) {
+                        Vec3f candidateVector = candidate->vector();
+                        if (edgeVector.parallelTo(candidateVector, 0.01f)) {
+                            if (edge->end == candidate->end)
+                                candidate->flip();
+                            if (edge->end == candidate->start) {
+                                // we sometimes crash here because we meet two identical edges with opposite directions
+                                assert(edge->start != candidate->end);
+                                assert(edge->left == candidate->left);
+                                assert(edge->right == candidate->right);
+                                assert(edge->left->vertices.size() > 3);
+                                assert(edge->right->vertices.size() > 3);
+                                
+                                Side* leftSide = edge->left;
+                                Side* rightSide = edge->right;
+                                
+                                assert(leftSide != rightSide);
+                                
+                                Edge* newEdge = new Edge(edge->start, candidate->end);
+                                newEdge->left = leftSide;
+                                newEdge->right = rightSide;
+                                edges.push_back(newEdge);
+                                
+                                size_t leftIndex = indexOf<Edge>(leftSide->edges, candidate);
+                                size_t leftCount = leftSide->edges.size();
+                                size_t rightIndex = indexOf<Edge>(rightSide->edges, candidate);
+                                size_t rightCount = rightSide->edges.size();
+                                
+                                leftSide->replaceEdges(pred(leftIndex, leftCount), succ(leftIndex, leftCount, 2), newEdge);
+                                rightSide->replaceEdges(pred(rightIndex, rightCount, 2), succ(rightIndex, rightCount), newEdge);
+                                
+                                deleteElement<Vertex>(vertices, candidate->start);
+                                deleteElement<Edge>(edges, candidate);
+                                deleteElement<Edge>(edges, edge);
+                                
+                                break;
+                            }
                             
-                            Side* leftSide = edge->left;
-                            Side* rightSide = edge->right;
-                            
-                            assert(leftSide != rightSide);
-                            
-                            Edge* newEdge = new Edge(edge->start, candidate->end);
-                            newEdge->left = leftSide;
-                            newEdge->right = rightSide;
-                            edges.push_back(newEdge);
-                            
-                            size_t leftIndex = indexOf<Edge>(leftSide->edges, candidate);
-                            size_t leftCount = leftSide->edges.size();
-                            size_t rightIndex = indexOf<Edge>(rightSide->edges, candidate);
-                            size_t rightCount = rightSide->edges.size();
-                            
-                            leftSide->replaceEdges(pred(leftIndex, leftCount), succ(leftIndex, leftCount, 2), newEdge);
-                            rightSide->replaceEdges(pred(rightIndex, rightCount, 2), succ(rightIndex, rightCount), newEdge);
-                            
-                            deleteElement<Vertex>(vertices, candidate->start);
-                            deleteElement<Edge>(edges, candidate);
-                            deleteElement<Edge>(edges, edge);
-                            
-                            break;
-                        }
-                        
-                        if (edge->start == candidate->start)
-                            candidate->flip();
-                        if (edge->start == candidate->end) {
-                            assert(edge->end != candidate->start);
-                            assert(edge->left == candidate->left);
-                            assert(edge->right == candidate->right);
-                            assert(edge->left->vertices.size() > 3);
-                            assert(edge->right->vertices.size() > 3);
-                            
-                            Side* leftSide = edge->left;
-                            Side* rightSide = edge->right;
-                            
-                            assert(leftSide != rightSide);
-                            
-                            Edge* newEdge = new Edge(candidate->start, edge->end);
-                            newEdge->left = leftSide;
-                            newEdge->right = rightSide;
-                            edges.push_back(newEdge);
-                            
-                            size_t leftIndex = indexOf<Edge>(leftSide->edges, candidate);
-                            size_t leftCount = leftSide->edges.size();
-                            size_t rightIndex = indexOf<Edge>(rightSide->edges, candidate);
-                            size_t rightCount = rightSide->edges.size();
-                            
-                            leftSide->replaceEdges(pred(leftIndex, leftCount, 2), succ(leftIndex, leftCount), newEdge);
-                            rightSide->replaceEdges(pred(rightIndex, rightCount), succ(rightIndex, rightCount, 2), newEdge);
-                            
-                            deleteElement<Vertex>(vertices, candidate->end);
-                            deleteElement<Edge>(edges, candidate);
-                            deleteElement<Edge>(edges, edge);
-                            
-                            break;
+                            if (edge->start == candidate->start)
+                                candidate->flip();
+                            if (edge->start == candidate->end) {
+                                assert(edge->end != candidate->start);
+                                assert(edge->left == candidate->left);
+                                assert(edge->right == candidate->right);
+                                assert(edge->left->vertices.size() > 3);
+                                assert(edge->right->vertices.size() > 3);
+                                
+                                Side* leftSide = edge->left;
+                                Side* rightSide = edge->right;
+                                
+                                assert(leftSide != rightSide);
+                                
+                                Edge* newEdge = new Edge(candidate->start, edge->end);
+                                newEdge->left = leftSide;
+                                newEdge->right = rightSide;
+                                edges.push_back(newEdge);
+                                
+                                size_t leftIndex = indexOf<Edge>(leftSide->edges, candidate);
+                                size_t leftCount = leftSide->edges.size();
+                                size_t rightIndex = indexOf<Edge>(rightSide->edges, candidate);
+                                size_t rightCount = rightSide->edges.size();
+                                
+                                leftSide->replaceEdges(pred(leftIndex, leftCount, 2), succ(leftIndex, leftCount), newEdge);
+                                rightSide->replaceEdges(pred(rightIndex, rightCount), succ(rightIndex, rightCount, 2), newEdge);
+                                
+                                deleteElement<Vertex>(vertices, candidate->end);
+                                deleteElement<Edge>(edges, candidate);
+                                deleteElement<Edge>(edges, edge);
+                                
+                                break;
+                            }
                         }
                     }
                 }
@@ -896,14 +903,17 @@ namespace TrenchBroom {
             }
         }
 
-        float BrushGeometry::minVertexMoveDist(const SideList& sides, const Vertex* vertex, const Ray& ray, float maxDist) {
+        float BrushGeometry::minVertexMoveDist(const SideList& incSides, const Vertex* vertex, const Ray& ray, float maxDist) {
             float minDist;
             Plane plane;
             
             minDist = maxDist;
-            for (unsigned int i = 0; i < sides.size(); i++) {
-                Side* side = sides[i];
-                Side* next = sides[succ(i, sides.size())];
+            for (unsigned int i = 0; i < incSides.size(); i++) {
+                Side* side = incSides[i];
+                Side* next = incSides[succ(i, incSides.size())];
+                
+                assert(side->vertices.size() == 3);
+                assert(next->vertices.size() == 3);
                 
                 side->shift(indexOf(side->vertices, vertex));
                 next->shift(indexOf(next->vertices, vertex));
@@ -1632,29 +1642,33 @@ namespace TrenchBroom {
             testGeometry.restoreFaceSides();
             assert(testGeometry.sanityCheck());
             
-            Vec3f dir;
             Edge* edge = testGeometry.edges[edgeIndex];
-            Vec3f start = edge->start->position;
-            Vec3f end = edge->end->position;
-            dir = end - start;
-            start += delta;
-            end += delta;
+            
+            // remember these in case the edge gets deleted
+            Vertex* startVertex = edge->start;
+            Vertex* endVertex = edge->end;
+            
+            Vec3f startPosition = startVertex->position;
+            Vec3f endPosition = endVertex->position;
+            Vec3f dir = endPosition - startPosition;
+            startPosition += delta;
+            endPosition += delta;
             
             MoveResult result;
             if ((dir | delta) > 0) {
-                result = testGeometry.moveVertex(indexOf<Vertex>(testGeometry.vertices, edge->end), false, delta, newFaces, droppedFaces);
+                result = testGeometry.moveVertex(indexOf<Vertex>(testGeometry.vertices, endVertex), false, delta, newFaces, droppedFaces);
                 if (result.moved)
-                    result = testGeometry.moveVertex(indexOf<Vertex>(testGeometry.vertices, edge->start), false, delta, newFaces, droppedFaces);
+                    result = testGeometry.moveVertex(indexOf<Vertex>(testGeometry.vertices, startVertex), false, delta, newFaces, droppedFaces);
             } else {
-                result = testGeometry.moveVertex(indexOf<Vertex>(testGeometry.vertices, edge->start), false, delta, newFaces, droppedFaces);
+                result = testGeometry.moveVertex(indexOf<Vertex>(testGeometry.vertices, startVertex), false, delta, newFaces, droppedFaces);
                 if (result.moved)
-                    result = testGeometry.moveVertex(indexOf<Vertex>(testGeometry.vertices, edge->end), false, delta, newFaces, droppedFaces);
+                    result = testGeometry.moveVertex(indexOf<Vertex>(testGeometry.vertices, endVertex), false, delta, newFaces, droppedFaces);
             }
             
             if (result.moved) {
                 copy(testGeometry);
                 assert(sanityCheck());
-                result.index = indexOf(testGeometry.edges, start, end);
+                result.index = indexOf(testGeometry.edges, startPosition, endPosition);
                 result.deleted = result.index == testGeometry.edges.size();
             } else {
                 result.index = edgeIndex;

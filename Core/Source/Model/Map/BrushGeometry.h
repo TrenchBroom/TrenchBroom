@@ -146,6 +146,7 @@ namespace TrenchBroom {
             Vec3f vector();
             Vec3f vector(Side* side);
             Vec3f center();
+            bool incidentWith(Edge* edge);
             void updateMark();
             Vertex* split(Plane plane);
             void flip();
@@ -188,7 +189,7 @@ namespace TrenchBroom {
             void mergeNeighbours(Side* side, size_t edgeIndex);
             void mergeSides(FaceList& newFaces, FaceList&droppedFaces);
             void deleteCollinearTriangles(SideList& incSides, FaceList& newFaces, FaceList& droppedFaces);
-            float minVertexMoveDist(const SideList& sides, const Vertex* vertex, const Ray& ray, float maxDist);
+            float minVertexMoveDist(const SideList& incSides, const Vertex* vertex, const Ray& ray, float maxDist);
             MoveResult moveVertex(size_t vertexIndex, bool mergeIncidentVertex, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
             MoveResult splitAndMoveEdge(size_t index, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
             MoveResult splitAndMoveSide(size_t sideIndex, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
