@@ -123,6 +123,10 @@ namespace TrenchBroom {
             return end->position - start->position;
         }
         
+        Vec3f Edge::vector(Side* side) {
+            return endVertex(side)->position - startVertex(side)->position;
+        }
+
         Vec3f Edge::center() {
             return (start->position + end->position) / 2;
         }
@@ -373,7 +377,7 @@ namespace TrenchBroom {
         
         void Side::shift(size_t offset) {
             size_t count = edges.size();
-            if (offset == 0 || offset == count)
+            if (offset % count == 0)
                 return;
             
             EdgeList newEdges;
@@ -387,6 +391,60 @@ namespace TrenchBroom {
             
             edges = newEdges;
             vertices = newVertices;
+        }
+        
+        bool Side::isDegenerate() {
+            Vec3f edgeVector, nextVector, cross;
+            
+            for (size_t i = 0; i < edges.size(); i++) {
+                Edge* edge = edges[i];
+                Edge* next = edges[succ(i, edges.size())];
+                
+                edgeVector = edge->vector(this);
+                nextVector = next->vector(this);
+                cross = nextVector % edgeVector;
+                if (!Math::fpos(cross | face->boundary.normal))
+                    return true;
+            }
+            
+            return false;
+        }
+        
+        size_t Side::isCollinearTriangle() {
+            if (edges.size() > 3)
+                return edges.size();
+            
+            Vec3f edgeVector1 = edges[0]->vector();
+            Vec3f edgeVector2 = edges[1]->vector();
+            
+            if (edgeVector1.parallelTo(edgeVector2)) {
+                Vec3f edgeVector3 = edges[2]->vector();
+                assert(edgeVector1.parallelTo(edgeVector3));
+                assert(edgeVector2.parallelTo(edgeVector3));
+                
+                float length1 = edgeVector1.lengthSquared();
+                float length2 = edgeVector2.lengthSquared();
+                float length3 = edgeVector3.lengthSquared();
+                
+                // we'll return the index of the longest of the three edges
+                if (length1 > length2) {
+                    if (length1 > length3)
+                        return 0;
+                    else
+                        return 2;
+                } else {
+                    if (length2 > length3)
+                        return 1;
+                    else
+                        return 2;
+                }
+            } else {
+                Vec3f edgeVector3 = edges[2]->vector();
+                assert(!edgeVector1.parallelTo(edgeVector3));
+                assert(!edgeVector2.parallelTo(edgeVector3));
+                
+                return edges.size();
+            }
         }
         
         SideList BrushGeometry::incidentSides(size_t vertexIndex) {
@@ -537,7 +595,7 @@ namespace TrenchBroom {
                     if (Math::fneg(dot)) { // movement direction is downwards into the side
                         splitSide(side, vertexIndex, newFaces);
                         assert(sanityCheck());
-                    } else if (Math::fpos(dot)) { // movement direction is upward out of the side or parallel to the side's boundary plane
+                    } else { // movement direction is upward out of the side or parallel to the side's boundary plane
                         triangulateSide(side, vertexIndex, newFaces);
                         FaceList::iterator faceIt = find(newFaces.begin(), newFaces.end(), side->face);
                         if (faceIt != newFaces.end()) {
@@ -783,6 +841,61 @@ namespace TrenchBroom {
             }
         }
         
+        void BrushGeometry::deleteCollinearTriangles(SideList& incSides, FaceList& newFaces, FaceList& droppedFaces) {
+            size_t i = 0;
+            while (i < incSides.size()) {
+                Side* side = incSides[i];
+                size_t edgeIndex = side->isCollinearTriangle();
+                if (edgeIndex < side->edges.size()) {
+                    // this triangle has collinear point and edgeIndex is the index of the longest of its edges
+                    // now we'll erase that edge - the remaining edges will be merged later
+                    Edge* edge = side->edges[edgeIndex];
+                    Edge* next = side->edges[succ(edgeIndex, 3)];
+                    Edge* nextNext = side->edges[succ(edgeIndex, 3, 2)];
+                    
+                    Vertex* vertex = next->endVertex(side);
+                    assert(vertex != edge->start && vertex != edge->end);
+                    
+                    Side* neighbour = edge->left == side ? edge->right : edge->left;
+                    size_t neighbourEdgeIndex = indexOf(neighbour->edges, edge);
+                    assert(neighbourEdgeIndex < neighbour->edges.size());
+                    
+                    neighbour->edges.insert(neighbour->edges.begin() + neighbourEdgeIndex + 1, next);
+                    neighbour->edges.insert(neighbour->edges.begin() + neighbourEdgeIndex + 2, nextNext);
+                    neighbour->edges.erase(neighbour->edges.begin() + neighbourEdgeIndex);
+                    neighbour->vertices.insert(neighbour->vertices.begin() + neighbourEdgeIndex + 1, vertex);
+                    
+                    if (next->left == side)
+                        next->left = neighbour;
+                    else
+                        next->right = neighbour;
+                    
+                    if (nextNext->left == side)
+                        nextNext->left = neighbour;
+                    else
+                        nextNext->right = neighbour;
+                    
+                    bool success = deleteElement(edges, edge);
+                    assert(success);
+                    
+                    FaceList::iterator faceIt = find(newFaces.begin(), newFaces.end(), side->face);
+                    if (faceIt != newFaces.end()) {
+                        delete side->face;
+                        newFaces.erase(faceIt);
+                    } else {
+                        droppedFaces.push_back(side->face);
+                    }
+                    
+                    success = deleteElement(sides, side);
+                    assert(success);
+                    
+                    incSides.erase(incSides.begin() + i);
+                } else {
+                    i++;
+                }
+            }
+        }
+
         float BrushGeometry::minVertexMoveDist(const SideList& sides, const Vertex* vertex, const Ray& ray, float maxDist) {
             float minDist;
             Plane plane;
@@ -792,8 +905,8 @@ namespace TrenchBroom {
                 Side* side = sides[i];
                 Side* next = sides[succ(i, sides.size())];
                 
-                side->shift(indexOf<Vertex>(side->vertices, vertex));
-                next->shift(indexOf<Vertex>(next->vertices, vertex));
+                side->shift(indexOf(side->vertices, vertex));
+                next->shift(indexOf(next->vertices, vertex));
                 
                 plane.setPoints(side->vertices[1]->position, 
                                 side->vertices[2]->position, 
@@ -857,13 +970,13 @@ namespace TrenchBroom {
                 if (edge->start != vertex && edge->end != vertex) {
                     v1 = vertex->position - edge->start->position;
                     v2 = vertex->position - edge->end->position;
-                    cross = v1 % v2;
-                    
-                    if (cross.null()) {
+                    if (v1.parallelTo(v2)) {
+                        // vertex is somewhere on the line defined by the edge
                         edgeVector = edge->vector();
                         dot1 = v1 | edgeVector;
                         dot2 = v2 | edgeVector;
-                        if ((dot1 > 0 && dot2 < 0) || (dot1 < 0 && dot2 > 0)) {
+                        if ((dot1 > 0 != dot2 > 0)) {
+                            // vertex is between the edge points
                             // undo the vertex move
                             vertex->position = ray.origin;
                             mergeSides(newFaces, droppedFaces);
@@ -898,6 +1011,10 @@ namespace TrenchBroom {
                     }
                 }
             }
+            
+            // some incident sides may have become degenerate, or more specifically, a triangle with collinear vertices
+            // at this point, all incident sides have been split so that only triangles remain
+            deleteCollinearTriangles(incSides, newFaces, droppedFaces);
             
             assert(sanityCheck());
             

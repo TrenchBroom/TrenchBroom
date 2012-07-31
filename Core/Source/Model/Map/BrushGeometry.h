@@ -144,6 +144,7 @@ namespace TrenchBroom {
             Vertex* startVertex(Side* side);
             Vertex* endVertex(Side* side);
             Vec3f vector();
+            Vec3f vector(Side* side);
             Vec3f center();
             void updateMark();
             Vertex* split(Plane plane);
@@ -171,6 +172,8 @@ namespace TrenchBroom {
             Edge* split() throw (GeometryException);
             void flip();
             void shift(size_t offset);
+            bool isDegenerate();
+            size_t isCollinearTriangle();
         };
         
         class BrushGeometry {
@@ -184,6 +187,7 @@ namespace TrenchBroom {
             void mergeEdges();
             void mergeNeighbours(Side* side, size_t edgeIndex);
             void mergeSides(FaceList& newFaces, FaceList&droppedFaces);
+            void deleteCollinearTriangles(SideList& incSides, FaceList& newFaces, FaceList& droppedFaces);
             float minVertexMoveDist(const SideList& sides, const Vertex* vertex, const Ray& ray, float maxDist);
             MoveResult moveVertex(size_t vertexIndex, bool mergeIncidentVertex, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
             MoveResult splitAndMoveEdge(size_t index, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);

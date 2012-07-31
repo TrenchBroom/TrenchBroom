@@ -1731,7 +1731,8 @@ bool Plane::setPoints(const Vec3f& point1, const Vec3f& point2, const Vec3f& poi
     Vec3f v1 = point3 - point1;
     Vec3f v2 = point2 - point1;
     normal = v1 % v2;
-    if (normal.equals(Vec3f::Null, Math::AlmostZero)) return false;
+    if (normal.equals(Vec3f::Null, Math::AlmostZero))
+        return false;
     normal = normal.normalize();
     distance = point1 | normal;
     return true;
