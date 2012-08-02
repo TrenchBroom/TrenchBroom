@@ -19,6 +19,7 @@
 
 #include "MoveEdgeTool.h"
 
+#include "Controller/Grid.h"
 #include "Model/Map/Brush.h"
 #include "Model/Map/BrushGeometry.h"
 #include "Model/Map/Face.h"
@@ -40,6 +41,10 @@ namespace TrenchBroom {
         
         Vec3f MoveEdgeTool::movePosition(const Model::Brush& brush, size_t index) {
             return brush.geometry->edges[index]->center();
+        }
+        
+        Vec3f MoveEdgeTool::moveDelta(const Vec3f& position, const Vec3f& delta) {
+            return editor().grid().moveDelta(delta);
         }
         
         Model::MoveResult MoveEdgeTool::performMove(Model::Brush& brush, size_t index, const Vec3f& delta) {

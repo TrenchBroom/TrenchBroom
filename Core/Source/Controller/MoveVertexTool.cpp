@@ -20,6 +20,7 @@
 #include "MoveVertexTool.h"
 
 #include "Controller/Editor.h"
+#include "Controller/Grid.h"
 #include "Model/Map/Brush.h"
 #include "Model/Map/BrushGeometry.h"
 #include "Model/Map/Face.h"
@@ -65,6 +66,10 @@ namespace TrenchBroom {
             }
         }
         
+        Vec3f MoveVertexTool::moveDelta(const Vec3f& position, const Vec3f& delta) {
+            return editor().grid().moveDelta(position, editor().map().worldBounds(), delta);
+        }
+
         Model::MoveResult MoveVertexTool::performMove(Model::Brush& brush, size_t index, const Vec3f& delta) {
             return editor().map().moveVertex(brush, index, delta);
         }

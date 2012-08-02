@@ -146,7 +146,7 @@ namespace TrenchBroom {
                 
                 Grid& grid = editor().grid();
                 Vec3f position = movePosition(*m_brush, m_index);
-                Vec3f delta = grid.moveDelta(position, editor().map().worldBounds(), curMousePoint - referencePoint);
+                Vec3f delta = moveDelta(position, curMousePoint - referencePoint);
                 
                 if (delta.null())
                     return true;

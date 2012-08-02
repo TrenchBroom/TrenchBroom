@@ -177,6 +177,18 @@ namespace TrenchBroom {
             return actualDelta;
         }
 
+        Vec3f Grid::moveDelta(const Vec3f& delta) {
+            Vec3f actualDelta = Vec3f::Null;
+            for (int i = 0; i < 3; i++)
+                if (!Math::fzero(delta[i]))
+                    actualDelta[i] = snap(delta[i]);
+            
+            if (delta.lengthSquared() < (delta - actualDelta).lengthSquared())
+                actualDelta = Vec3f::Null;
+            
+            return actualDelta;
+        }
+
         float Grid::moveDistance(const Model::Face& face, Vec3f& delta) {
             float dist = delta | face.boundary.normal;
             if (Math::fzero(dist))

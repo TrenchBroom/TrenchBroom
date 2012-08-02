@@ -54,6 +54,7 @@ namespace TrenchBroom {
             virtual size_t index(Model::Hit& hit);
             virtual std::string undoName() = 0;
             virtual Vec3f movePosition(const Model::Brush& brush, size_t index) = 0;
+            virtual Vec3f moveDelta(const Vec3f& position, const Vec3f& delta) = 0;
             virtual Model::MoveResult performMove(Model::Brush& brush, size_t index, const Vec3f& delta) = 0;
             
             typedef Model::Map::BrushEvent::Listener<VertexTool> BrushListener;

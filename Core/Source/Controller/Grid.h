@@ -65,6 +65,7 @@ namespace TrenchBroom {
 
             Vec3f moveDelta(const BBox& bounds, const BBox& worldBounds, const Vec3f& delta);
             Vec3f moveDelta(const Vec3f& point, const BBox& worldBounds, const Vec3f& delta);
+            Vec3f moveDelta(const Vec3f& delta);
             float moveDistance(const Model::Face& face, Vec3f& delta);
             
             GridEvent gridDidChange;

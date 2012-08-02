@@ -30,6 +30,7 @@ namespace TrenchBroom {
             virtual size_t index(Model::Hit& hit);
             virtual std::string undoName();
             virtual Vec3f movePosition(const Model::Brush& brush, size_t index);
+            virtual Vec3f moveDelta(const Vec3f& position, const Vec3f& delta);
             virtual Model::MoveResult performMove(Model::Brush& brush, size_t index, const Vec3f& delta);
         public:
             MoveVertexTool(Controller::Editor& editor) : VertexTool(editor) {}
