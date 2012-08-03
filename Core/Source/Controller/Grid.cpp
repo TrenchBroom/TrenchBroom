@@ -90,6 +90,10 @@ namespace TrenchBroom {
             return s;
         }
         
+        float Grid::offset(float f) {
+            return f - snap(f);
+        }
+
         Vec3f Grid::snap(const Vec3f& p) {
             return Vec3f(snap(p.x), snap(p.y), snap(p.z));
         }
@@ -116,6 +120,11 @@ namespace TrenchBroom {
             return result;
         }
 
+        Vec3f Grid::offset(const Vec3f& p) {
+            return p - snap(p);
+        }
+
+        
         float Grid::intersectWithRay(const Ray& ray, unsigned int skip) {
             Vec3f planeAnchor;
             
@@ -187,6 +196,12 @@ namespace TrenchBroom {
                 actualDelta = Vec3f::Null;
             
             return actualDelta;
+        }
+
+        Vec3f Grid::combineDeltas(const Vec3f& delta1, const Vec3f& delta2) {
+            if (delta1.lengthSquared() < delta2.lengthSquared())
+                return delta1;
+            return delta2;
         }
 
         float Grid::moveDistance(const Model::Face& face, Vec3f& delta) {

@@ -56,16 +56,19 @@ namespace TrenchBroom {
             float snap(float f);
             float snapUp(float f, bool skip = false);
             float snapDown(float f, bool skip = false);
+            float offset(float f);
             Vec3f snap(const Vec3f& p);
             Vec3f snapUp(const Vec3f& p, bool skip = false);
             Vec3f snapDown(const Vec3f& p, bool skip = false);
             Vec3f snapTowards(const Vec3f& p, const Vec3f& d);
+            Vec3f offset(const Vec3f& p);
             
             float intersectWithRay(const Ray& ray, unsigned int skip);
 
             Vec3f moveDelta(const BBox& bounds, const BBox& worldBounds, const Vec3f& delta);
             Vec3f moveDelta(const Vec3f& point, const BBox& worldBounds, const Vec3f& delta);
             Vec3f moveDelta(const Vec3f& delta);
+            Vec3f combineDeltas(const Vec3f& delta1, const Vec3f& delta2);
             float moveDistance(const Model::Face& face, Vec3f& delta);
             
             GridEvent gridDidChange;

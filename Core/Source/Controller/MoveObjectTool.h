@@ -23,6 +23,11 @@
 #include "Controller/DragTool.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class Entity;
+        class Brush;
+    }
+    
     namespace Renderer {
         class BoundsGuideFigure;
     }
