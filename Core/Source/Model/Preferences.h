@@ -225,6 +225,7 @@ namespace TrenchBroom {
             const std::string& quakePath();
             void setQuakePath(const std::string& quakePath);
             
+            float resizeHandleSize();
             float vertexHandleSize();
             const Vec4f& vertexHandleColor();
             const Vec4f& hiddenVertexHandleColor();

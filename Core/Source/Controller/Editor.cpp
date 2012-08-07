@@ -434,10 +434,11 @@ namespace TrenchBroom {
                     break;
             }
 
-            Model::Selection& selection = m_map->selection();
-            
             float dist = disableSnapToGrid ? 1.0f : static_cast<float>(m_grid->actualSize());
-            Vec3f delta = m_grid->moveDelta(selection.bounds(), m_map->worldBounds(), moveDirection * dist);
+            Vec3f delta = moveDirection * dist;
+
+            // Model::Selection& selection = m_map->selection();
+            // Vec3f delta = m_grid->moveDelta(selection.bounds(), m_map->worldBounds(), moveDirection * dist);
             
             m_map->translateObjects(delta, m_options->lockTextures());
         }

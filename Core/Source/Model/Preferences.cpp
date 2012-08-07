@@ -494,6 +494,10 @@ namespace TrenchBroom {
             preferencesDidChange(QuakePath);
         }
 
+        float Preferences::resizeHandleSize() {
+            return 15.0f;
+        }
+
         float Preferences::vertexHandleSize() {
             return m_vertexHandleSize;
         }

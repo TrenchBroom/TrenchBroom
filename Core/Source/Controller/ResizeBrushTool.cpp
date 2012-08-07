@@ -75,7 +75,7 @@ namespace TrenchBroom {
             if (event.mouseButton != TB_MB_LEFT || !resizeBrushModiferPressed(event))
                 return false;
                 
-            Model::Hit* hit = event.hits->first(Model::TB_HT_FACE, true);
+            Model::Hit* hit = event.hits->first(Model::TB_HT_FACE | Model::TB_HT_CLOSE_FACE, true);
             if (hit == NULL)
                 return false;
             

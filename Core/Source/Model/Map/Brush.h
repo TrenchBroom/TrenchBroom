@@ -70,6 +70,7 @@ namespace TrenchBroom {
             
             void pick(const Ray& ray, HitList& hits, Filter& filter);
             void pickVertices(const Ray& ray, float handleSize, HitList& hits);
+            void pickClosestFace(const Ray& ray, float maxDistance, HitList& hits);
             bool containsPoint(Vec3f point);
             bool intersectsBrush(Brush& brush);
             bool containsBrush(Brush& brush);

@@ -211,6 +211,50 @@ namespace TrenchBroom {
             }
         }
 
+        void Brush::pickClosestFace(const Ray& ray, float maxDistance, HitList& hits) {
+            Edge* closestEdge = NULL;
+            float distanceToClosestPointOfClosestEdge;
+            float closestDistanceOfEdgeToRaySquared = maxDistance * maxDistance + 1.0f;
+            
+            const EdgeList& edges = geometry->edges;
+            for (unsigned int i = 0; i < edges.size(); i++) {
+                Edge* edge = edges[i];
+                float distanceOfEdgeToRaySquared, distanceToClosestPoint;
+                if (edge->intersectWithRay(ray, distanceOfEdgeToRaySquared, distanceToClosestPoint)) {
+                    if (distanceOfEdgeToRaySquared < closestDistanceOfEdgeToRaySquared) {
+                        distanceToClosestPointOfClosestEdge = distanceToClosestPoint;
+                        closestDistanceOfEdgeToRaySquared = distanceOfEdgeToRaySquared;
+                        closestEdge = edge;
+                    }
+                }
+            }
+
+            if (closestEdge == NULL)
+                return;
+            
+            float cutoff = maxDistance * maxDistance;
+            if (closestDistanceOfEdgeToRaySquared > cutoff)
+                return;
+
+            float leftDistance = closestEdge->left->intersectWithRay(ray);
+            float rightDistance = closestEdge->right->intersectWithRay(ray);
+            
+            if (Math::isnan(leftDistance) && Math::isnan(rightDistance)) {
+                Face* leftFace = closestEdge->left->face;
+                Vec3f hitPoint = ray.pointAtDistance(distanceToClosestPointOfClosestEdge);
+                Hit* hit = NULL;
+                
+                if ((leftFace->boundary.normal | ray.direction) >= 0.0f) {
+                    hit = new Hit(leftFace, TB_HT_CLOSE_FACE, hitPoint, distanceToClosestPointOfClosestEdge);
+                } else {
+                    Face* rightFace = closestEdge->right->face;
+                    hit = new Hit(rightFace, TB_HT_CLOSE_FACE, hitPoint, distanceToClosestPointOfClosestEdge);
+                }
+                
+                hits.add(*hit);
+            }
+        }
+
         bool Brush::containsPoint(Vec3f point) {
             if (!bounds().contains(point)) return false;
             

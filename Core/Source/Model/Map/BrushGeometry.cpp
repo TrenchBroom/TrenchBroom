@@ -158,6 +158,51 @@ namespace TrenchBroom {
             end = tempVertex;
         }
         
+        bool Edge::intersectWithRay(const Ray& ray, float& distanceToRaySquared, float& distanceOfClosestPoint) {
+            Vec3f u = vector();
+            Vec3f w = start->position - ray.origin;
+
+            float a = u | u;
+            float b = u | ray.direction;
+            float c = ray.direction | ray.direction;
+            float d = u | w;
+            float e = ray.direction | w;
+            float D = a * c - b * b;
+            float sN, sD = D;
+            float tN, tD = D;
+            
+            if (Math::fzero(D)) {
+                sN = 0.0f;
+                sD = 1.0f;
+                tN = e;
+                tD = c;
+            } else {
+                sN = (b * e - c * d);
+                tN = (a * e - b * d);
+                if (sN < 0.0f) {
+                    sN = 0.0f;
+                    tN = e;
+                    tD = c;
+                } else if (sN > sD) {
+                    sN = sD;
+                    tN = e + b;
+                    tD = c;
+                }
+            }
+            
+            if (tN < 0.0f)
+                return false;
+            
+            float sc = Math::fzero(sN) ? 0.0f : sN / sD;
+            float tc = Math::fzero(tN) ? 0.0f : tN / tD;
+            
+            Vec3f dP = w + u * sc - ray.direction * tc;
+            distanceToRaySquared = dP.lengthSquared();
+            distanceOfClosestPoint = tc;
+            
+            return true;
+        }
+
 		Side::~Side() {
 			vertices.clear();
 			edges.clear();

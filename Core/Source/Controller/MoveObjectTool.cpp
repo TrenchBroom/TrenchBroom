@@ -48,10 +48,12 @@ namespace TrenchBroom {
                 Model::Brush& brush = *face.brush;
                 if (!brush.selected)
                     return false;
+                m_referenceObject = &brush;
             } else {
                 Model::Entity& entity = hit->entity();
                 if (!entity.selected())
                     return false;
+                m_referenceObject = &entity;
             }
             initialPoint = hit->hitPoint;
             
@@ -73,12 +75,26 @@ namespace TrenchBroom {
             Grid& grid = editor().grid();
             Model::Map& map = editor().map();
             
-            Vec3f delta = grid.snap(curMousePoint - referencePoint);
-            if (delta.null())
+            Vec3f delta = curMousePoint - referencePoint;
+            Vec3f snapDelta;
+            if (m_referenceObject->objectType() == Model::TB_MT_ENTITY) {
+                Model::Entity* entity = static_cast<Model::Entity*>(m_referenceObject);
+                const Vec3f& origin = entity->origin();
+                Vec3f newOrigin = grid.snap(origin + curMousePoint - referencePoint);
+                snapDelta = newOrigin - origin;
+                
+                for (unsigned int i = 0; i < 3; i++)
+                    if (snapDelta[i] > 0 != delta[i] > 0)
+                        snapDelta[i] = 0;
+            } else {
+                snapDelta = grid.snap(curMousePoint - referencePoint);
+            }
+            
+            if (snapDelta.null())
                 return true;
             
-            referencePoint += delta;
-            map.translateObjects(delta, editor().options().lockTextures());
+            referencePoint += snapDelta;
+            map.translateObjects(snapDelta, editor().options().lockTextures());
             refreshFigure(true);
             
             return true;
@@ -89,8 +105,9 @@ namespace TrenchBroom {
             
             editor().map().undoManager().end();
             refreshFigure(false);
+            m_referenceObject = NULL;
         }
 
-        MoveObjectTool::MoveObjectTool(Editor& editor) : DragTool(editor), m_figureCreated(false) {}
+        MoveObjectTool::MoveObjectTool(Editor& editor) : DragTool(editor), m_referenceObject(NULL), m_figureCreated(false) {}
     }
 }

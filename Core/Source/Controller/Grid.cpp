@@ -106,16 +106,16 @@ namespace TrenchBroom {
             return Vec3f(snapDown(p.x, skip), snapDown(p.y, skip), snapDown(p.z, skip));
         }
         
-        Vec3f Grid::snapTowards(const Vec3f& p, const Vec3f& d) {
+        Vec3f Grid::snapTowards(const Vec3f& p, const Vec3f& d, bool skip) {
             Vec3f result;
-            if (Math::fpos(d.x))        result.x = snapUp(p.x);
-            else if(Math::fneg(d.x))    result.x = snapDown(p.x);
+            if (Math::fpos(d.x))        result.x = snapUp(p.x, skip);
+            else if(Math::fneg(d.x))    result.x = snapDown(p.x, skip);
             else                        result.x = snap(p.x);
-            if (Math::fpos(d.y))        result.y = snapUp(p.y);
-            else if(Math::fneg(d.y))    result.y = snapDown(p.y);
+            if (Math::fpos(d.y))        result.y = snapUp(p.y, skip);
+            else if(Math::fneg(d.y))    result.y = snapDown(p.y, skip);
             else                        result.y = snap(p.y);
-            if (Math::fpos(d.z))        result.z = snapUp(p.z);
-            else if(Math::fneg(d.z))    result.z = snapDown(p.z);
+            if (Math::fpos(d.z))        result.z = snapUp(p.z, skip);
+            else if(Math::fneg(d.z))    result.z = snapDown(p.z, skip);
             else                        result.z = snap(p.z);
             return result;
         }

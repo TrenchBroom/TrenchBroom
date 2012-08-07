@@ -50,8 +50,10 @@ namespace TrenchBroom {
             
             Model::Selection& selection = m_editor.map().selection();
             const Model::BrushList& brushes = selection.brushes();
-            for (unsigned int i = 0; i < brushes.size(); i++)
+            for (unsigned int i = 0; i < brushes.size(); i++) {
                 brushes[i]->pickVertices(m_currentEvent.ray, prefs.vertexHandleSize(), *m_currentEvent.hits);
+                brushes[i]->pickClosestFace(m_currentEvent.ray, prefs.resizeHandleSize(), *m_currentEvent.hits);
+            }
         }
 
         void InputController::toggleModalTool(const ToolPtr& tool, unsigned int index) {

@@ -24,8 +24,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Entity;
-        class Brush;
+        class MapObject;
     }
     
     namespace Renderer {
@@ -37,6 +36,7 @@ namespace TrenchBroom {
         
         class MoveObjectTool : public DragTool {
         protected:
+            Model::MapObject* m_referenceObject;
             bool m_figureCreated;
 
             bool handleBeginPlaneDrag(InputEvent& event, Vec3f& initialPoint);

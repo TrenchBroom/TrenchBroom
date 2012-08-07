@@ -150,6 +150,7 @@ namespace TrenchBroom {
             void updateMark();
             Vertex* split(Plane plane);
             void flip();
+            bool intersectWithRay(const Ray& ray, float& distanceToRaySquared, float& distanceOfClosestPoint);
         };
         
         class Face;
