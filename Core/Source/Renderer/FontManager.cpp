@@ -20,6 +20,7 @@
 #include "FontManager.h"
 #include <cassert>
 #include "Renderer/Vbo.h"
+#include "Utilities/Console.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -282,7 +283,10 @@ namespace TrenchBroom {
                         << "with font"
                         << stringRenderer->fontDescriptor.name
                         << ", size "
-                        << stringRenderer->fontDescriptor.size;
+                        << stringRenderer->fontDescriptor.size
+						<< "\n"; // TODO use ios constant
+
+						log(TB_LL_ERR, msg.str().c_str());
                         throw FontCreationException(msg);
                     }
                     
