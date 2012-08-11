@@ -24,7 +24,6 @@
 
 #include "Model/Map/Brush.h"
 #include "Model/Map/BrushGeometry.h"
-#include "Model/Map/Face.h"
 #include "Model/Map/Entity.h"
 #include "Model/Map/EntityDefinition.h"
 #include "Model/Map/Map.h"
@@ -61,15 +60,6 @@ namespace TrenchBroom {
         EdgeRenderInfo::EdgeRenderInfo(GLuint offset, GLuint vertexCount) : offset(offset), vertexCount(vertexCount) {}
 
         TexturedTriangleRenderInfo::TexturedTriangleRenderInfo(Model::Assets::Texture* texture, GLuint offset, GLuint vertexCount) : texture(texture), offset(offset), vertexCount(vertexCount) {}
-
-        bool compareFacesByTexture(const Model::Face* left, const Model::Face* right) {
-            if (right->texture == NULL)
-                return false;
-            if (left->texture == NULL)
-                return true;
-            
-            return left->texture->uniqueId < right->texture->uniqueId;
-        }
 
         void MapRenderer::writeFaceData(RenderContext& context, std::vector<Model::Face*>& faces, FaceRenderInfos& renderInfos, VboBlock& block) {
             if (faces.empty())

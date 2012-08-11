@@ -84,31 +84,31 @@ namespace TrenchBroom {
 
             VboBlock(Vbo& vbo, int address, int capacity);
             
-            unsigned int writeBuffer(const unsigned char* buffer, unsigned int offset, unsigned int length) {
+            inline unsigned int writeBuffer(const unsigned char* buffer, unsigned int offset, unsigned int length) {
                 assert(offset >= 0 && offset + length <= capacity);
                 memcpy(m_vbo.m_buffer + address + offset, buffer, length);
                 return offset + length;
             }
             
-            unsigned int writeByte(unsigned char b, unsigned int offset) {
+            inline unsigned int writeByte(unsigned char b, unsigned int offset) {
                 assert(offset >= 0 && offset < capacity);
                 m_vbo.m_buffer[address + offset] = b;
                 return offset + 1;
             }
             
-            unsigned int writeFloat(float f, unsigned int offset) {
+            inline unsigned int writeFloat(float f, unsigned int offset) {
                 assert(offset >= 0 && offset + sizeof(float) <= capacity);
                 memcpy(m_vbo.m_buffer + address + offset, &f, sizeof(float));
                 return offset + sizeof(float);
             }
             
-            unsigned int writeUInt32(unsigned int i, unsigned int offset) {
+            inline unsigned int writeUInt32(unsigned int i, unsigned int offset) {
                 assert(offset >= 0 && offset + sizeof(unsigned int) <= capacity);
                 memcpy(m_vbo.m_buffer + address + offset, &i, sizeof(unsigned int));
                 return offset + sizeof(unsigned int);
             }
             
-            unsigned int writeColor(const Vec4f& color, unsigned int offset) {
+            inline unsigned int writeColor(const Vec4f& color, unsigned int offset) {
                 assert(offset >= 0 && offset + 4 <= capacity);
                 offset = writeByte((unsigned char)(color.x * 0xFF), offset);
                 offset = writeByte((unsigned char)(color.y * 0xFF), offset);
@@ -118,14 +118,14 @@ namespace TrenchBroom {
             }
 
             template<class T>
-            unsigned int writeVec(const T& vec, unsigned int offset) {
+            inline unsigned int writeVec(const T& vec, unsigned int offset) {
                 assert(offset >= 0 && offset + sizeof(T) <= capacity);
                 memcpy(m_vbo.m_buffer + address + offset, &vec, sizeof(T));
                 return offset + sizeof(T);
             }
             
             template<class T>
-            unsigned int writeVecs(const std::vector<T>& vecs, unsigned int offset) {
+            inline unsigned int writeVecs(const std::vector<T>& vecs, unsigned int offset) {
                 unsigned int size = static_cast<unsigned int>(vecs.size() * sizeof(T));
                 assert(offset >= 0 && offset + size <= capacity);
                 memcpy(m_vbo.m_buffer + address + offset, &(vecs[0]), size);

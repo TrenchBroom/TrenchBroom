@@ -21,6 +21,8 @@
 #define TrenchBroom_MapRenderer_h
 
 #include "GL/GLee.h"
+#include "Model/Assets/Texture.h"
+#include "Model/Map/Face.h"
 #include "Renderer/ChangeSet.h"
 #include "Renderer/FontManager.h"
 #include "Renderer/TextRenderer.h"
@@ -82,7 +84,14 @@ namespace TrenchBroom {
             TexturedTriangleRenderInfo(Model::Assets::Texture* texture, GLuint offset, GLuint vertexCount);
         };
         
-        bool compareFacesByTexture(const Model::Face* left, const Model::Face* right);
+        inline bool compareFacesByTexture(const Model::Face* left, const Model::Face* right) {
+            if (right->texture == NULL)
+                return false;
+            if (left->texture == NULL)
+                return true;
+            
+            return left->texture->uniqueId < right->texture->uniqueId;
+        }
 
         class MapRenderer {
         private:
