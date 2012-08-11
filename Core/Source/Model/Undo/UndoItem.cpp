@@ -23,6 +23,7 @@
 #include "Model/Map/Brush.h"
 #include "Model/Map/Face.h"
 #include "Model/Selection.h"
+#include "Model/Undo/UndoManager.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -41,6 +42,17 @@ namespace TrenchBroom {
             selection.addBrushes(m_selectedBrushes);
             selection.addFaces(m_selectedFaces);
             performUndo();
+        }
+
+        void SelectionSnapshotUndoItem::undo() {
+            Selection& selection = m_map.selection();
+            
+            m_map.undoManager().addSelection(m_map);
+            
+            selection.removeAll();
+            selection.addEntities(m_selectedEntities);
+            selection.addBrushes(m_selectedBrushes);
+            selection.addFaces(m_selectedFaces);
         }
     }
 }

@@ -118,6 +118,15 @@ namespace TrenchBroom {
             m_currentGroup->addItem(snapshotItem);
         }
         
+        void UndoManager::addSelection(Map& map) {
+            bool nested = m_currentGroup != NULL;
+            if (!nested)
+                begin("Selection");
+            addItem(new SelectionSnapshotUndoItem(map));
+            if (!nested)
+                end();
+        }
+
         void UndoManager::end() {
             assert(m_currentGroup != NULL);
             

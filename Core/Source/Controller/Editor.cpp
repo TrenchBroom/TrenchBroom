@@ -299,6 +299,8 @@ namespace TrenchBroom {
         }
         
         void Editor::selectAll() {
+            m_map->undoManager().addSelection(*m_map);
+            
             Model::Selection& selection = m_map->selection();
             selection.removeAll();
 
@@ -316,6 +318,8 @@ namespace TrenchBroom {
             Model::Selection& selection = m_map->selection();
 
             if (selection.mode() == Model::TB_SM_BRUSHES) {
+                m_map->undoManager().addSelection(*m_map);
+
                 Model::EntitySet entitySet;
                 const Model::BrushList& selectedBrushes = selection.brushes();
                 for (unsigned int i = 0; i < selectedBrushes.size(); i++)
@@ -340,6 +344,8 @@ namespace TrenchBroom {
             Model::Selection& selection = m_map->selection();
             
             if (selection.mode() == Model::TB_SM_BRUSHES && selection.brushes().size() == 1) {
+                m_map->undoManager().addSelection(*m_map);
+
                 Model::Brush* selectionBrush = selection.brushes().front();
                 
                 Model::EntityList selectedEntities;
@@ -369,6 +375,8 @@ namespace TrenchBroom {
         }
         
         void Editor::selectNone() {
+            m_map->undoManager().addSelection(*m_map);
+
             Model::Selection& selection = m_map->selection();
             selection.removeAll();
         }

@@ -45,11 +45,18 @@ namespace TrenchBroom {
             EntityList m_selectedEntities;
             BrushList m_selectedBrushes;
             FaceList m_selectedFaces;
+            virtual void performUndo() = 0;
         public:
             SelectionUndoItem(Map& map);
             virtual ~SelectionUndoItem() {}
             virtual void undo();
-            virtual void performUndo() = 0;
+        };
+        
+        class SelectionSnapshotUndoItem : public SelectionUndoItem {
+        public:
+            SelectionSnapshotUndoItem(Map& map) : SelectionUndoItem(map) {}
+            virtual void undo();
+            virtual void performUndo() {}
         };
     }
 }

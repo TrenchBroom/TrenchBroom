@@ -27,11 +27,14 @@
 #include "Model/Map/Picker.h"
 #include "Model/Preferences.h"
 #include "Model/Selection.h"
+#include "Model/Undo/UndoManager.h"
 
 namespace TrenchBroom {
     namespace Controller {
 
         bool SelectionTool::handleMouseUp(InputEvent& event) {
+            editor().map().undoManager().addSelection(editor().map());
+
             Model::Selection& selection = editor().map().selection();
             Model::Hit* hit = event.hits->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);
             if (hit != NULL) {
@@ -102,7 +105,11 @@ namespace TrenchBroom {
         }
         
         bool SelectionTool::handleBeginDrag(InputEvent& event) {
-            return event.mouseButton == TB_MB_LEFT && multiSelectionModiferPressed(event);
+            if (event.mouseButton != TB_MB_LEFT || !multiSelectionModiferPressed(event))
+                return false;
+            
+            editor().map().undoManager().begin("Selection");
+            return true;
         }
         
         bool SelectionTool::handleDrag(InputEvent& event) {
@@ -115,23 +122,33 @@ namespace TrenchBroom {
             
             if (hit->type == Model::TB_HT_ENTITY) {
                 Model::Entity& entity = hit->entity();
-                if (!entity.selected())
+                if (!entity.selected()) {
+                    editor().map().undoManager().addSelection(editor().map());
                     selection.addEntity(entity);
+                }
             } else {
                 Model::Face& face = hit->face();
                 Model::Brush& brush = *face.brush;
                 if (selection.mode() == Model::TB_SM_FACES) {
-                    if (!face.selected)
+                    if (!face.selected) {
+                        editor().map().undoManager().addSelection(editor().map());
                         selection.addFace(face);
+                    }
                 } else {
-                    if (!brush.selected)
+                    if (!brush.selected) {
+                        editor().map().undoManager().addSelection(editor().map());
                         selection.addBrush(brush);
+                    }
                 }
             }
             
             return true;
         }
         
+        void SelectionTool::handleEndDrag(InputEvent& event) {
+            editor().map().undoManager().end();
+        }
+
         bool SelectionTool::multiSelectionModiferPressed(InputEvent& event) {
 			return event.modifierKeys == Model::Preferences::sharedPreferences->selectionToolMultiKey();
         }

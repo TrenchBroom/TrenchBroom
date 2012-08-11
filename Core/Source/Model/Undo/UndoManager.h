@@ -74,6 +74,7 @@ namespace TrenchBroom {
             void discard();
             void addItem(UndoItem* item);
             void addSnapshot(Map& map);
+            void addSelection(Map& map);
             
             void addFunctor(Map& map, void(Map::*function)()) {
                 NoArgFunctor<Map>* functor = new NoArgFunctor<Map>(&map, function);
