@@ -29,18 +29,18 @@ namespace TrenchBroom {
     namespace Model {
         SelectionUndoItem::SelectionUndoItem(Map& map) : UndoItem(map) {
             Selection& selection = m_map.selection();
-            m_selectedEntities = selection.entities();
-            m_selectedBrushes = selection.brushes();
-            m_selectedFaces = selection.faces();
+            m_selectedEntities = selection.selectedEntities();
+            m_selectedBrushes = selection.selectedBrushes();
+            m_selectedFaces = selection.selectedFaces();
         }
 
         void SelectionUndoItem::undo() {
             Selection& selection = m_map.selection();
             
-            selection.removeAll();
-            selection.addEntities(m_selectedEntities);
-            selection.addBrushes(m_selectedBrushes);
-            selection.addFaces(m_selectedFaces);
+            selection.deselectAll();
+            selection.selectEntities(m_selectedEntities);
+            selection.selectBrushes(m_selectedBrushes);
+            selection.selectFaces(m_selectedFaces);
             performUndo();
         }
 
@@ -49,10 +49,10 @@ namespace TrenchBroom {
             
             m_map.undoManager().addSelection(m_map);
             
-            selection.removeAll();
-            selection.addEntities(m_selectedEntities);
-            selection.addBrushes(m_selectedBrushes);
-            selection.addFaces(m_selectedFaces);
+            selection.deselectAll();
+            selection.selectEntities(m_selectedEntities);
+            selection.selectBrushes(m_selectedBrushes);
+            selection.selectFaces(m_selectedFaces);
         }
     }
 }

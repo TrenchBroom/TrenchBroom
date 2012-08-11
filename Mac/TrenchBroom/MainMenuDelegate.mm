@@ -47,7 +47,7 @@ using namespace TrenchBroom;
         Model::Map& map = editor->map();
         Model::Selection& selection = map.selection();
         
-        switch (selection.mode()) {
+        switch (selection.selectionMode()) {
             case Model::TB_SM_FACES:
                 [actionsMenuItem setSubmenu:textureActionsMenu];
                 [actionsMenuItem setEnabled:YES];

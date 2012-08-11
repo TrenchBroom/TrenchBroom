@@ -49,7 +49,7 @@ namespace TrenchBroom {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             
             Model::Selection& selection = m_editor.map().selection();
-            const Model::BrushList& brushes = selection.brushes();
+            const Model::BrushList& brushes = selection.selectedBrushes();
             for (unsigned int i = 0; i < brushes.size(); i++) {
                 brushes[i]->pickVertices(m_currentEvent.ray, prefs.vertexHandleSize(), *m_currentEvent.hits);
                 brushes[i]->pickClosestFace(m_currentEvent.ray, prefs.resizeHandleSize(), *m_currentEvent.hits);

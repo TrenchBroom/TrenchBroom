@@ -541,7 +541,7 @@ namespace TrenchBroom {
             }
 
             Model::Selection& selection = m_editor.map().selection();
-            if (selection.mode() == Model::TB_SM_BRUSHES || selection.mode() == Model::TB_SM_BRUSHES_ENTITIES) {
+            if (selection.selectionMode() == Model::TB_SM_BRUSHES || selection.selectionMode() == Model::TB_SM_BRUSHES_ENTITIES) {
                 if (m_sizeGuideFigure == NULL) {
                     Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
                     m_sizeGuideFigure = new SizeGuideFigure(m_fontManager, FontDescriptor(prefs.rendererFontName(), prefs.rendererFontSize()));
@@ -576,7 +576,7 @@ namespace TrenchBroom {
             }
             
             Model::Selection& selection = m_editor.map().selection();
-            if (selection.mode() == Model::TB_SM_BRUSHES || selection.mode() == Model::TB_SM_BRUSHES_ENTITIES) {
+            if (selection.selectionMode() == Model::TB_SM_BRUSHES || selection.selectionMode() == Model::TB_SM_BRUSHES_ENTITIES) {
                 m_sizeGuideFigure->setBounds(selection.bounds());
             } else if (m_sizeGuideFigure != NULL) {
                 removeFigure(*m_sizeGuideFigure);
@@ -1011,7 +1011,7 @@ namespace TrenchBroom {
                     m_entityBoundsVbo->deactivate();
                 }
 
-                if (!m_editor.map().selection().entities().empty()) {
+                if (!m_editor.map().selection().selectedEntities().empty()) {
                     if (context.options.renderEntityClassnames()) {
                         m_fontManager.activate();
                         m_selectedClassnameRenderer->render(context, classnameFilter, context.preferences.selectedInfoOverlayColor());

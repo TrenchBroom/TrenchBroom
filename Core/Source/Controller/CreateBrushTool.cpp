@@ -62,7 +62,7 @@ namespace TrenchBroom {
                 m_figureCreated = true;
             }
             
-            editor().map().selection().removeAll();
+            editor().map().selection().deselectAll();
             
             Model::Hit* hit = event.hits->first(Model::TB_HT_FACE, true);
             if (hit != NULL)

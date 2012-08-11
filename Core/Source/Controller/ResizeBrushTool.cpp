@@ -99,10 +99,10 @@ namespace TrenchBroom {
             if (!Math::isnan(dist)) {
                 Model::Selection& selection = editor().map().selection();
                 Model::FaceList faces;
-                if (selection.mode() == Model::TB_SM_FACES) {
-                    faces = selection.faces();
+                if (selection.selectionMode() == Model::TB_SM_FACES) {
+                    faces = selection.selectedFaces();
                 } else {
-                    const Model::FaceList selectedFaces = selection.allFaces();
+                    const Model::FaceList selectedFaces = selection.allSelectedFaces();
                     for (unsigned int i = 0; i < selectedFaces.size(); i++) {
                         Model::Face* face = selectedFaces[i];
                         if (Math::fpos(face->boundary.normal | m_referenceFace->boundary.normal))

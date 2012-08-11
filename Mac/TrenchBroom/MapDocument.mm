@@ -432,30 +432,30 @@ namespace TrenchBroom {
             [menuItem setTitle:[NSString stringWithFormat:@"Redo %@", objcName]];
         }
     } else if (action == @selector(delete:)) {
-        return [self mapViewFocused] && (selection.mode() == Model::TB_SM_BRUSHES || selection.mode() == Model::TB_SM_ENTITIES || selection.mode() == Model::TB_SM_BRUSHES_ENTITIES);
+        return [self mapViewFocused] && (selection.selectionMode() == Model::TB_SM_BRUSHES || selection.selectionMode() == Model::TB_SM_ENTITIES || selection.selectionMode() == Model::TB_SM_BRUSHES_ENTITIES);
     } else if (action == @selector(selectAll:)) {
         return [self mapViewFocused];
     } else if (action == @selector(selectEntities:)) {
-        return [self mapViewFocused] && selection.mode() == Model::TB_SM_BRUSHES;
+        return [self mapViewFocused] && selection.selectionMode() == Model::TB_SM_BRUSHES;
     } else if (action == @selector(selectTouching:)) {
-        return [self mapViewFocused] && selection.mode() == Model::TB_SM_BRUSHES && selection.brushes().size() == 1;
+        return [self mapViewFocused] && selection.selectionMode() == Model::TB_SM_BRUSHES && selection.selectedBrushes().size() == 1;
     } else if (action == @selector(selectNone:)) {
         return [self mapViewFocused] && !selection.empty();
     } else if (action == @selector(toggleVertexTool:)) {
         [menuItem setState:inputController.moveVertexToolActive() ? NSOnState : NSOffState];
         if (![self mapViewFocused])
             return false;
-        return inputController.moveVertexToolActive() || selection.mode() == Model::TB_SM_BRUSHES || selection.mode() == Model::TB_SM_BRUSHES_ENTITIES;
+        return inputController.moveVertexToolActive() || selection.selectionMode() == Model::TB_SM_BRUSHES || selection.selectionMode() == Model::TB_SM_BRUSHES_ENTITIES;
     } else if (action == @selector(toggleEdgeTool:)) {
         [menuItem setState:inputController.moveEdgeToolActive() ? NSOnState : NSOffState];
         if (![self mapViewFocused])
             return false;
-        return inputController.moveEdgeToolActive() || selection.mode() == Model::TB_SM_BRUSHES || selection.mode() == Model::TB_SM_BRUSHES_ENTITIES;
+        return inputController.moveEdgeToolActive() || selection.selectionMode() == Model::TB_SM_BRUSHES || selection.selectionMode() == Model::TB_SM_BRUSHES_ENTITIES;
     } else if (action == @selector(toggleFaceTool:)) {
         [menuItem setState:inputController.moveFaceToolActive() ? NSOnState : NSOffState];
         if (![self mapViewFocused])
             return false;
-        return inputController.moveFaceToolActive() || selection.mode() == Model::TB_SM_BRUSHES || selection.mode() == Model::TB_SM_BRUSHES_ENTITIES;
+        return inputController.moveFaceToolActive() || selection.selectionMode() == Model::TB_SM_BRUSHES || selection.selectionMode() == Model::TB_SM_BRUSHES_ENTITIES;
     } else if (action == @selector(toggleTextureLock:)) {
         [menuItem setState:editor->options().lockTextures() ? NSOnState : NSOffState];
         return true;
@@ -465,7 +465,7 @@ namespace TrenchBroom {
                action == @selector(moveTexturesDown:) ||
                action == @selector(rotateTexturesCW:) ||
                action == @selector(rotateTexturesCCW:)) {
-        return [self mapViewFocused] && selection.mode() == TB_SM_FACES;
+        return [self mapViewFocused] && selection.selectionMode() == TB_SM_FACES;
     } else if (action == @selector(moveObjectsLeft:) ||
                action == @selector(moveObjectsUp:) ||
                action == @selector(moveObjectsRight:) ||
@@ -481,9 +481,9 @@ namespace TrenchBroom {
                action == @selector(flipObjectsHorizontally:) ||
                action == @selector(flipObjectsVertically:) ||
                action == @selector(duplicateObjects:)) {
-        return [self mapViewFocused] && (selection.mode() == Model::TB_SM_BRUSHES || selection.mode() == Model::TB_SM_ENTITIES || selection.mode() == Model::TB_SM_BRUSHES_ENTITIES);
+        return [self mapViewFocused] && (selection.selectionMode() == Model::TB_SM_BRUSHES || selection.selectionMode() == Model::TB_SM_ENTITIES || selection.selectionMode() == Model::TB_SM_BRUSHES_ENTITIES);
     } else if (action == @selector(enlargeBrushes:)) {
-        return [self mapViewFocused] && selection.mode() == Model::TB_SM_BRUSHES;
+        return [self mapViewFocused] && selection.selectionMode() == Model::TB_SM_BRUSHES;
     } else if (action == @selector(toggleGrid:)) {
         [menuItem setState:editor->grid().visible() ? NSOnState : NSOffState];
         return [self mapViewFocused];

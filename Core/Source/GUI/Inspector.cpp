@@ -72,7 +72,7 @@ namespace TrenchBroom {
 
         void Inspector::updateTextureControls() {
             Model::Selection& selection = m_editor.map().selection();
-            const Model::FaceList faces = selection.allFaces();
+            const Model::FaceList faces = selection.allSelectedFaces();
             if (!faces.empty()) {
                 float xOffset, yOffset, xScale, yScale, rotation;
                 bool xOffsetMulti, yOffsetMulti, xScaleMulti, yScaleMulti, rotationMulti, textureMulti;
@@ -136,7 +136,7 @@ namespace TrenchBroom {
             updateTextureControls();
 
             Model::Selection& selection = m_editor.map().selection();
-            m_propertiesTable->setEntities(selection.entities());
+            m_propertiesTable->setEntities(selection.selectedEntities());
         }
         
         void Inspector::brushesDidChange(const std::vector<Model::Brush*>& brushes) {
@@ -151,7 +151,7 @@ namespace TrenchBroom {
             updateTextureControls();
             
             Model::Selection& selection = m_editor.map().selection();
-            m_propertiesTable->setEntities(selection.entities());
+            m_propertiesTable->setEntities(selection.selectedEntities());
         }
 
         void Inspector::onEntityBrowserGroupChanged(Gwen::Controls::Base* control) {
@@ -223,7 +223,7 @@ namespace TrenchBroom {
                 return;
             
             m_editor.map().setTexture(texture);
-            m_editor.map().selection().addTexture(*texture);
+            m_editor.map().selection().selectTexture(*texture);
         }
 
         void Inspector::onTextureWadListRowSelected(Gwen::Controls::Base* control) {

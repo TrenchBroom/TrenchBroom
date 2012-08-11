@@ -42,8 +42,8 @@ namespace TrenchBroom {
                     if (!face->selected) {
                         Model::Brush* brush = face->brush;
                         Model::Selection& selection = m_editor.map().selection();
-                        selection.removeAll();
-                        selection.addBrush(*brush);
+                        selection.deselectAll();
+                        selection.selectBrush(*brush);
                         m_editor.map().setTexture(texture);
                     }
                     return true;

@@ -91,9 +91,9 @@ namespace TrenchBroom {
 
         SnapshotUndoItem::SnapshotUndoItem(Map& map) : SelectionUndoItem(map) {
             Selection& selection = m_map.selection();
-            const EntityList& entities = selection.entities();
-            const BrushList& brushes = selection.brushes();
-            const FaceList& faces = selection.faces();
+            const EntityList& entities = selection.selectedEntities();
+            const BrushList& brushes = selection.selectedBrushes();
+            const FaceList& faces = selection.selectedFaces();
             
             for (unsigned int i = 0; i < entities.size(); i++) {
                 EntitySnapshot* snapshot = new EntitySnapshot(*entities[i]);
@@ -119,9 +119,9 @@ namespace TrenchBroom {
         
         void SnapshotUndoItem::performUndo() {
             Selection& selection = m_map.selection();
-            const EntityList& selectedEntities = selection.entities();
-            const BrushList& selectedBrushes = selection.brushes();
-            const FaceList& selectedFaces = selection.faces();
+            const EntityList& selectedEntities = selection.selectedEntities();
+            const BrushList& selectedBrushes = selection.selectedBrushes();
+            const FaceList& selectedFaces = selection.selectedFaces();
 
             assert(m_entities.size() == selectedEntities.size());
             assert(m_brushes.size() == selectedBrushes.size());

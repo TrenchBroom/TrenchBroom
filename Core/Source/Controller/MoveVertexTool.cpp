@@ -99,7 +99,7 @@ namespace TrenchBroom {
             
             Model::Map& map = editor().map();
             Model::Selection& selection = map.selection();
-            const Model::BrushList& brushes = selection.brushes();
+            const Model::BrushList& brushes = selection.selectedBrushes();
             
             for (unsigned int i = 0; i < brushes.size(); i++) {
                 Model::Brush* brush = brushes[i];

@@ -27,86 +27,86 @@
 
 namespace TrenchBroom {
     namespace Model {
-        void Selection::doAddEntities(const EntityList& entities) {
+        void Selection::doSelectEntities(const EntityList& entities) {
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
-                current().entities.push_back(entity);
+                current().selectedEntities.push_back(entity);
                 entity->setSelected(true);
             }
         }
         
-        void Selection::doAddBrushes(const BrushList& brushes) {
+        void Selection::doSelectBrushes(const BrushList& brushes) {
             for (unsigned int i = 0; i < brushes.size(); i++) {
                 Brush* brush = brushes[i];
-                current().brushes.push_back(brush);
+                current().selectedBrushes.push_back(brush);
                 brush->selected = true;
             }
         }
 
-        void Selection::doAddFaces(const FaceList& faces) {
+        void Selection::doSelectFaces(const FaceList& faces) {
             for (unsigned int i = 0; i < faces.size(); i++) {
                 Face* face = faces[i];
-                current().faces.push_back(face);
+                current().selectedFaces.push_back(face);
                 face->selected = true;
                 face->brush->partiallySelected = true;
-                if (find(current().partialBrushes.begin(), current().partialBrushes.end(), face->brush) == current().partialBrushes.end())
-                    current().partialBrushes.push_back(face->brush);
+                if (find(current().partiallySelectedBrushes.begin(), current().partiallySelectedBrushes.end(), face->brush) == current().partiallySelectedBrushes.end())
+                    current().partiallySelectedBrushes.push_back(face->brush);
             }
             
             if (faces.back()->texture != NULL)
-                addTexture(*faces.back()->texture);
+                selectTexture(*faces.back()->texture);
         }
 
-        EntityList Selection::doRemoveEntities(const EntityList& entities) {
-            EntityList removedEntities;
+        EntityList Selection::doDeselectEntities(const EntityList& entities) {
+            EntityList deselectedEntities;
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
-                EntityList::iterator it = find(current().entities.begin(), current().entities.end(), entity);
-                if (it != current().entities.end()) {
-                    current().entities.erase(it);
+                EntityList::iterator it = find(current().selectedEntities.begin(), current().selectedEntities.end(), entity);
+                if (it != current().selectedEntities.end()) {
+                    current().selectedEntities.erase(it);
                     entity->setSelected(false);
-                    removedEntities.push_back(entity);
+                    deselectedEntities.push_back(entity);
                 }
             }
             
-            return removedEntities;
+            return deselectedEntities;
         }
 
-        BrushList Selection::doRemoveBrushes(const BrushList& brushes) {
-            BrushList removedBrushes;
+        BrushList Selection::doDeselectBrushes(const BrushList& brushes) {
+            BrushList deselectedBrushes;
             for (unsigned int i = 0; i < brushes.size(); i++) {
                 Brush* brush = brushes[i];
-                BrushList::iterator it = find(current().brushes.begin(), current().brushes.end(), brush);
-                if (it != current().brushes.end()) {
-                    current().brushes.erase(it);
+                BrushList::iterator it = find(current().selectedBrushes.begin(), current().selectedBrushes.end(), brush);
+                if (it != current().selectedBrushes.end()) {
+                    current().selectedBrushes.erase(it);
                     brush->selected = false;
-                    removedBrushes.push_back(brush);
+                    deselectedBrushes.push_back(brush);
                 }
             }
             
-            return removedBrushes;
+            return deselectedBrushes;
         }
 
-        FaceList Selection::doRemoveFaces(const FaceList& faces) {
-            FaceList removedFaces;
+        FaceList Selection::doDeselectFaces(const FaceList& faces) {
+            FaceList deselectedFaces;
             for (unsigned int i = 0; i < faces.size(); i++) {
                 Face* face = faces[i];
-                FaceList::iterator it = find(current().faces.begin(), current().faces.end(), face);
-                if (it != current().faces.end()) {
-                    current().faces.erase(it);
+                FaceList::iterator it = find(current().selectedFaces.begin(), current().selectedFaces.end(), face);
+                if (it != current().selectedFaces.end()) {
+                    current().selectedFaces.erase(it);
                     face->selected = false;
-                    removedFaces.push_back(face);
+                    deselectedFaces.push_back(face);
                     
                     const FaceList siblings = face->brush->faces;
                     face->brush->partiallySelected = false;
                     for (unsigned int j = 0; j < siblings.size() && !face->brush->partiallySelected; j++)
                         face->brush->partiallySelected = siblings[j]->selected;
                     if (!face->brush->partiallySelected)
-                        current().partialBrushes.erase(find(current().partialBrushes.begin(), current().partialBrushes.end(), face->brush));
+                        current().partiallySelectedBrushes.erase(find(current().partiallySelectedBrushes.begin(), current().partiallySelectedBrushes.end(), face->brush));
                 }
             }
             
-            return removedFaces;
+            return deselectedFaces;
         }
 
         void Selection::push() {
@@ -116,41 +116,41 @@ namespace TrenchBroom {
         void Selection::pop() {
             assert(m_state.size() > 1);
             
-            removeAll();
+            deselectAll();
             m_state.pop_back();
 
-            SelectionState state = current();
+            State state = current();
             current().clear();
             
-            addEntities(state.entities);
-            addBrushes(state.brushes);
-            addFaces(state.faces);
+            selectEntities(state.selectedEntities);
+            selectBrushes(state.selectedBrushes);
+            selectFaces(state.selectedFaces);
             current().mruTextures = state.mruTextures;
         }
 
-        const FaceList Selection::brushFaces() const {
+        const FaceList Selection::selectedBrushFaces() const {
             FaceList faces;
-            for (unsigned int i = 0; i < current().brushes.size(); i++) {
-                FaceList brushFaces = current().brushes[i]->faces;
+            for (unsigned int i = 0; i < current().selectedBrushes.size(); i++) {
+                FaceList brushFaces = current().selectedBrushes[i]->faces;
                 for (unsigned int j = 0; j < brushFaces.size(); j++)
                     faces.push_back(brushFaces[j]);
             }
             return faces;
         }
 
-        const FaceList Selection::allFaces() const {
-            FaceList allFaces = brushFaces();
-            allFaces.insert(allFaces.begin(), current().faces.begin(), current().faces.end());
+        const FaceList Selection::allSelectedFaces() const {
+            FaceList allFaces = selectedBrushFaces();
+            allFaces.insert(allFaces.begin(), current().selectedFaces.begin(), current().selectedFaces.end());
             return allFaces;
         }
 
         const Entity* Selection::brushSelectionEntity() const {
-            if (current().mode != TB_SM_BRUSHES)
+            if (current().selectionMode != TB_SM_BRUSHES)
                 return NULL;
 
-            Entity* entity = current().brushes[0]->entity;
-            for (unsigned int i = 1; i < current().brushes.size(); i++) {
-                if (current().brushes[i]->entity != entity)
+            Entity* entity = current().selectedBrushes[0]->entity;
+            for (unsigned int i = 1; i < current().selectedBrushes.size(); i++) {
+                if (current().selectedBrushes[i]->entity != entity)
                     return NULL;
             }
 
@@ -159,32 +159,32 @@ namespace TrenchBroom {
 
         Vec3f Selection::center() const {
             Vec3f center;
-            switch (current().mode) {
+            switch (current().selectionMode) {
                 case TB_SM_FACES:
-                    center = current().faces[0]->center();
-                    for (unsigned int i = 1; i < current().faces.size(); i++)
-                        center += current().faces[i]->center();
-                    center /= static_cast<float>(current().faces.size());
+                    center = current().selectedFaces[0]->center();
+                    for (unsigned int i = 1; i < current().selectedFaces.size(); i++)
+                        center += current().selectedFaces[i]->center();
+                    center /= static_cast<float>(current().selectedFaces.size());
                     break;
                 case TB_SM_BRUSHES:
-                    center = current().brushes[0]->center();
-                    for (unsigned int i = 1; i < current().brushes.size(); i++)
-                        center += current().brushes[i]->center();
-                    center /= static_cast<float>(current().brushes.size());
+                    center = current().selectedBrushes[0]->center();
+                    for (unsigned int i = 1; i < current().selectedBrushes.size(); i++)
+                        center += current().selectedBrushes[i]->center();
+                    center /= static_cast<float>(current().selectedBrushes.size());
                     break;
                 case TB_SM_ENTITIES:
-                    center = current().entities[0]->center();
-                    for (unsigned int i = 1; i < current().entities.size(); i++)
-                        center += current().entities[i]->center();
-                    center /= static_cast<float>(current().entities.size());
+                    center = current().selectedEntities[0]->center();
+                    for (unsigned int i = 1; i < current().selectedEntities.size(); i++)
+                        center += current().selectedEntities[i]->center();
+                    center /= static_cast<float>(current().selectedEntities.size());
                     break;
                 case TB_SM_BRUSHES_ENTITIES:
-                    center = current().brushes[0]->center();
-                    for (unsigned int i = 1; i < current().brushes.size(); i++)
-                        center += current().brushes[i]->center();
-                    for (unsigned int i = 0; i < current().entities.size(); i++)
-                        center += current().entities[i]->center();
-                    center /= static_cast<float>(current().brushes.size() + current().entities.size());
+                    center = current().selectedBrushes[0]->center();
+                    for (unsigned int i = 1; i < current().selectedBrushes.size(); i++)
+                        center += current().selectedBrushes[i]->center();
+                    for (unsigned int i = 0; i < current().selectedEntities.size(); i++)
+                        center += current().selectedEntities[i]->center();
+                    center /= static_cast<float>(current().selectedBrushes.size() + current().selectedEntities.size());
                     break;
                 default:
                     center = Vec3f::NaN;
@@ -196,28 +196,28 @@ namespace TrenchBroom {
 
         BBox Selection::bounds() const {
             BBox bounds;
-            switch (current().mode) {
+            switch (current().selectionMode) {
                 case TB_SM_FACES:
-                    bounds = current().faces[0]->brush->bounds();
-                    for (unsigned int i = 1; i < current().faces.size(); i++)
-                        bounds += current().faces[i]->brush->bounds();
+                    bounds = current().selectedFaces[0]->brush->bounds();
+                    for (unsigned int i = 1; i < current().selectedFaces.size(); i++)
+                        bounds += current().selectedFaces[i]->brush->bounds();
                     break;
                 case TB_SM_BRUSHES:
-                    bounds = current().brushes[0]->bounds();
-                    for (unsigned int i = 1; i < current().brushes.size(); i++)
-                        bounds += current().brushes[i]->bounds();
+                    bounds = current().selectedBrushes[0]->bounds();
+                    for (unsigned int i = 1; i < current().selectedBrushes.size(); i++)
+                        bounds += current().selectedBrushes[i]->bounds();
                     break;
                 case TB_SM_ENTITIES:
-                    bounds = current().entities[0]->bounds();
-                    for (unsigned int i = 1; i < current().entities.size(); i++)
-                        bounds += current().entities[i]->bounds();
+                    bounds = current().selectedEntities[0]->bounds();
+                    for (unsigned int i = 1; i < current().selectedEntities.size(); i++)
+                        bounds += current().selectedEntities[i]->bounds();
                     break;
                 case TB_SM_BRUSHES_ENTITIES:
-                    bounds = current().brushes[0]->bounds();
-                    for (unsigned int i = 1; i < current().brushes.size(); i++)
-                        bounds += current().brushes[i]->bounds();
-                    for (unsigned int i = 0; i < current().entities.size(); i++)
-                        bounds += current().entities[i]->bounds();
+                    bounds = current().selectedBrushes[0]->bounds();
+                    for (unsigned int i = 1; i < current().selectedBrushes.size(); i++)
+                        bounds += current().selectedBrushes[i]->bounds();
+                    for (unsigned int i = 0; i < current().selectedEntities.size(); i++)
+                        bounds += current().selectedEntities[i]->bounds();
                     break;
                 default:
                     bounds.min = bounds.max = Vec3f::NaN;
@@ -226,106 +226,106 @@ namespace TrenchBroom {
             return bounds;
         }
 
-        void Selection::addTexture(Assets::Texture& texture) {
+        void Selection::selectTexture(Assets::Texture& texture) {
             std::vector<Assets::Texture*>::iterator it = find(current().mruTextures.begin(), current().mruTextures.end(), &texture);
             if (it != current().mruTextures.end())
                 current().mruTextures.erase(it);
             current().mruTextures.push_back(&texture);
         }
 
-        void Selection::addFace(Face& face) {
-            if (current().mode != TB_SM_FACES)
-                removeAll();
+        void Selection::selectFace(Face& face) {
+            if (current().selectionMode != TB_SM_FACES)
+                deselectAll();
 
-            current().faces.push_back(&face);
+            current().selectedFaces.push_back(&face);
             face.selected = true;
             face.brush->partiallySelected = true;
 
-            if (find(current().partialBrushes.begin(), current().partialBrushes.end(), face.brush) == current().partialBrushes.end())
-                current().partialBrushes.push_back(face.brush);
+            if (find(current().partiallySelectedBrushes.begin(), current().partiallySelectedBrushes.end(), face.brush) == current().partiallySelectedBrushes.end())
+                current().partiallySelectedBrushes.push_back(face.brush);
 
             if (face.texture != NULL)
-                addTexture(*face.texture);
-            current().mode = TB_SM_FACES;
+                selectTexture(*face.texture);
+            current().selectionMode = TB_SM_FACES;
 
             SelectionEventData data(face);
             selectionAdded(data);
         }
 
-        void Selection::addFaces(const FaceList& faces) {
+        void Selection::selectFaces(const FaceList& faces) {
             if (faces.empty())
                 return;
-            if (current().mode != TB_SM_FACES)
-                removeAll();
+            if (current().selectionMode != TB_SM_FACES)
+                deselectAll();
 
-            doAddFaces(faces);
-            current().mode = TB_SM_FACES;
+            doSelectFaces(faces);
+            current().selectionMode = TB_SM_FACES;
 
             SelectionEventData data(faces);
             selectionAdded(data);
         }
 
-        void Selection::addBrush(Brush& brush) {
-            if (current().mode == TB_SM_FACES)
-                removeAll();
+        void Selection::selectBrush(Brush& brush) {
+            if (current().selectionMode == TB_SM_FACES)
+                deselectAll();
 
-            current().brushes.push_back(&brush);
+            current().selectedBrushes.push_back(&brush);
             brush.selected = true;
 
-            if (current().mode == TB_SM_ENTITIES)
-                current().mode = TB_SM_BRUSHES_ENTITIES;
+            if (current().selectionMode == TB_SM_ENTITIES)
+                current().selectionMode = TB_SM_BRUSHES_ENTITIES;
             else
-                current().mode = TB_SM_BRUSHES;
+                current().selectionMode = TB_SM_BRUSHES;
 
             SelectionEventData data(brush);
             selectionAdded(data);
         }
 
-        void Selection::addBrushes(const BrushList& brushes) {
+        void Selection::selectBrushes(const BrushList& brushes) {
             if (brushes.empty())
                 return;
-            if (current().mode == TB_SM_FACES)
-                removeAll();
+            if (current().selectionMode == TB_SM_FACES)
+                deselectAll();
 
-            doAddBrushes(brushes);
+            doSelectBrushes(brushes);
 
-            if (current().mode == TB_SM_ENTITIES)
-                current().mode = TB_SM_BRUSHES_ENTITIES;
+            if (current().selectionMode == TB_SM_ENTITIES)
+                current().selectionMode = TB_SM_BRUSHES_ENTITIES;
             else
-                current().mode = TB_SM_BRUSHES;
+                current().selectionMode = TB_SM_BRUSHES;
 
             SelectionEventData data(brushes);
             selectionAdded(data);
         }
 
-        void Selection::addEntity(Entity& entity) {
-            if (current().mode == TB_SM_FACES)
-                removeAll();
+        void Selection::selectEntity(Entity& entity) {
+            if (current().selectionMode == TB_SM_FACES)
+                deselectAll();
 
-            current().entities.push_back(&entity);
+            current().selectedEntities.push_back(&entity);
             entity.setSelected(true);
 
-            if (current().mode == TB_SM_BRUSHES)
-                current().mode = TB_SM_BRUSHES_ENTITIES;
+            if (current().selectionMode == TB_SM_BRUSHES)
+                current().selectionMode = TB_SM_BRUSHES_ENTITIES;
             else
-                current().mode = TB_SM_ENTITIES;
+                current().selectionMode = TB_SM_ENTITIES;
 
             SelectionEventData data(entity);
             selectionAdded(data);
         }
 
-        void Selection::addEntities(const EntityList& entities) {
+        void Selection::selectEntities(const EntityList& entities) {
             if (entities.empty())
                 return;
-            if (current().mode == TB_SM_FACES)
-                removeAll();
+            if (current().selectionMode == TB_SM_FACES)
+                deselectAll();
 
-            doAddEntities(entities);
+            doSelectEntities(entities);
 
-            if (current().mode == TB_SM_BRUSHES)
-                current().mode = TB_SM_BRUSHES_ENTITIES;
+            if (current().selectionMode == TB_SM_BRUSHES)
+                current().selectionMode = TB_SM_BRUSHES_ENTITIES;
             else
-                current().mode = TB_SM_ENTITIES;
+                current().selectionMode = TB_SM_ENTITIES;
 
             SelectionEventData data(entities);
             selectionAdded(data);
@@ -335,50 +335,50 @@ namespace TrenchBroom {
             if (entities.empty() && brushes.empty())
                 return;
             
-            switch (mode()) {
+            switch (current().selectionMode) {
                 case TB_SM_ENTITIES: {
-                    EntityList selectedEntities = current().entities;
-                    addEntities(entities);
-                    addBrushes(brushes);
-                    removeEntities(selectedEntities);
+                    EntityList selectedEntities = current().selectedEntities;
+                    selectEntities(entities);
+                    selectBrushes(brushes);
+                    deselectEntities(selectedEntities);
                     break;
                 }
                 case TB_SM_BRUSHES: {
-                    BrushList selectedBrushes = current().brushes;
-                    addEntities(entities);
-                    addBrushes(brushes);
-                    removeBrushes(selectedBrushes);
+                    BrushList selectedBrushes = current().selectedBrushes;
+                    selectEntities(entities);
+                    selectBrushes(brushes);
+                    deselectBrushes(selectedBrushes);
                     break;
                 }
                 case TB_SM_BRUSHES_ENTITIES: {
-                    EntityList selectedEntities = current().entities;
-                    BrushList selectedBrushes = current().brushes;
-                    addEntities(entities);
-                    addBrushes(brushes);
-                    removeEntities(selectedEntities);
-                    removeBrushes(selectedBrushes);
+                    EntityList selectedEntities = current().selectedEntities;
+                    BrushList selectedBrushes = current().selectedBrushes;
+                    selectEntities(entities);
+                    selectBrushes(brushes);
+                    deselectEntities(selectedEntities);
+                    deselectBrushes(selectedBrushes);
                     break;
                 }
                 case TB_SM_FACES: {
-                    FaceList selectedFaces = current().faces;
-                    doRemoveFaces(selectedFaces);
-                    doAddEntities(entities);
-                    doAddBrushes(brushes);
+                    FaceList selectedFaces = current().selectedFaces;
+                    doDeselectFaces(selectedFaces);
+                    doSelectEntities(entities);
+                    doSelectBrushes(brushes);
                     
                     if (!entities.empty() && !brushes.empty())
-                        current().mode = TB_SM_BRUSHES_ENTITIES;
+                        current().selectionMode = TB_SM_BRUSHES_ENTITIES;
                     else if (!entities.empty())
-                        current().mode = TB_SM_ENTITIES;
+                        current().selectionMode = TB_SM_ENTITIES;
                     else
-                        current().mode = TB_SM_BRUSHES;
+                        current().selectionMode = TB_SM_BRUSHES;
                     
                     selectionAdded(SelectionEventData(entities, brushes));
                     selectionRemoved(SelectionEventData(selectedFaces));
                     break;
                 }
                 default:
-                    addEntities(entities);
-                    addBrushes(brushes);
+                    selectEntities(entities);
+                    selectBrushes(brushes);
                     break;
             }
         }
@@ -404,47 +404,47 @@ namespace TrenchBroom {
         }
 
         void Selection::replaceSelection(const FaceList& faces) {
-            switch (mode()) {
+            switch (current().selectionMode) {
                 case TB_SM_ENTITIES: {
-                    EntityList selectedEntities = current().entities;
-                    doRemoveEntities(selectedEntities);
-                    doAddFaces(faces);
-                    current().mode = TB_SM_FACES;
+                    EntityList selectedEntities = current().selectedEntities;
+                    doDeselectEntities(selectedEntities);
+                    doSelectFaces(faces);
+                    current().selectionMode = TB_SM_FACES;
 
                     selectionAdded(SelectionEventData(faces));
                     selectionRemoved(SelectionEventData(selectedEntities));
                     break;
                 }
                 case TB_SM_BRUSHES: {
-                    BrushList selectedBrushes = current().brushes;
-                    doRemoveBrushes(selectedBrushes);
-                    doAddFaces(faces);
-                    current().mode = TB_SM_FACES;
+                    BrushList selectedBrushes = current().selectedBrushes;
+                    doDeselectBrushes(selectedBrushes);
+                    doSelectFaces(faces);
+                    current().selectionMode = TB_SM_FACES;
                     
                     selectionAdded(SelectionEventData(faces));
                     selectionRemoved(SelectionEventData(selectedBrushes));
                     break;
                 }
                 case TB_SM_BRUSHES_ENTITIES: {
-                    EntityList selectedEntities = current().entities;
-                    BrushList selectedBrushes = current().brushes;
-                    doRemoveEntities(selectedEntities);
-                    doRemoveBrushes(selectedBrushes);
-                    doAddFaces(faces);
-                    current().mode = TB_SM_FACES;
+                    EntityList selectedEntities = current().selectedEntities;
+                    BrushList selectedBrushes = current().selectedBrushes;
+                    doDeselectEntities(selectedEntities);
+                    doDeselectBrushes(selectedBrushes);
+                    doSelectFaces(faces);
+                    current().selectionMode = TB_SM_FACES;
 
                     selectionAdded(SelectionEventData(faces));
                     selectionRemoved(SelectionEventData(selectedEntities, selectedBrushes));
                     break;
                 }
                 case TB_SM_FACES: {
-                    FaceList selectedFaces = current().faces;
-                    addFaces(faces);
-                    removeFaces(selectedFaces);
+                    FaceList selectedFaces = current().selectedFaces;
+                    selectFaces(faces);
+                    deselectFaces(selectedFaces);
                     break;
                 }
                 default:
-                    addFaces(faces);
+                    selectFaces(faces);
                     break;
             }
 
@@ -456,145 +456,145 @@ namespace TrenchBroom {
             replaceSelection(faceList);
         }
 
-        void Selection::removeFace(Face& face) {
-            FaceList::iterator it = find(current().faces.begin(), current().faces.end(), &face);
-            if (it == current().faces.end())
+        void Selection::deselectFace(Face& face) {
+            FaceList::iterator it = find(current().selectedFaces.begin(), current().selectedFaces.end(), &face);
+            if (it == current().selectedFaces.end())
                 return;
 
-            current().faces.erase(it);
+            current().selectedFaces.erase(it);
             face.selected = false;
 
-            if (current().faces.size() == 0) {
-                current().mode = TB_SM_NONE;
-                current().partialBrushes.clear();
+            if (current().selectedFaces.size() == 0) {
+                current().selectionMode = TB_SM_NONE;
+                current().partiallySelectedBrushes.clear();
             } else {
                 const FaceList siblings = face.brush->faces;
                 face.brush->partiallySelected = false;
                 for (unsigned int i = 0; i < siblings.size() && !face.brush->partiallySelected; i++)
                     face.brush->partiallySelected = siblings[i]->selected;
                 if (!face.brush->partiallySelected)
-                    current().partialBrushes.erase(find(current().partialBrushes.begin(), current().partialBrushes.end(), face.brush));
+                    current().partiallySelectedBrushes.erase(find(current().partiallySelectedBrushes.begin(), current().partiallySelectedBrushes.end(), face.brush));
             }
 
             SelectionEventData data(face);
             selectionRemoved(data);
         }
 
-        void Selection::removeFaces(const FaceList& faces) {
+        void Selection::deselectFaces(const FaceList& faces) {
             if (faces.empty())
                 return;
 
-            FaceList removedFaces = doRemoveFaces(faces);
-            if (current().faces.size() == 0)
-                current().mode = TB_SM_NONE;
+            FaceList deselectedFaces = doDeselectFaces(faces);
+            if (current().selectedFaces.size() == 0)
+                current().selectionMode = TB_SM_NONE;
 
-            SelectionEventData data(removedFaces);
+            SelectionEventData data(deselectedFaces);
             selectionRemoved(data);
         }
 
-        void Selection::removeBrush(Brush& brush) {
-            BrushList::iterator it = find(current().brushes.begin(), current().brushes.end(), &brush);
-            if (it == current().brushes.end())
+        void Selection::deselectBrush(Brush& brush) {
+            BrushList::iterator it = find(current().selectedBrushes.begin(), current().selectedBrushes.end(), &brush);
+            if (it == current().selectedBrushes.end())
                 return;
 
-            current().brushes.erase(it);
+            current().selectedBrushes.erase(it);
             brush.selected = false;
 
-            if (current().brushes.empty()) {
-                if (current().entities.empty())
-                    current().mode = TB_SM_NONE;
+            if (current().selectedBrushes.empty()) {
+                if (current().selectedEntities.empty())
+                    current().selectionMode = TB_SM_NONE;
                 else
-                    current().mode = TB_SM_ENTITIES;
+                    current().selectionMode = TB_SM_ENTITIES;
             }
 
             SelectionEventData data(brush);
             selectionRemoved(data);
         }
 
-        void Selection::removeBrushes(const BrushList& brushes) {
+        void Selection::deselectBrushes(const BrushList& brushes) {
             if (brushes.empty())
                 return;
 
-            BrushList removedBrushes = doRemoveBrushes(brushes);
+            BrushList deselectedBrushes = doDeselectBrushes(brushes);
 
-            if (current().brushes.empty()) {
-                if (current().entities.empty())
-                    current().mode = TB_SM_NONE;
+            if (current().selectedBrushes.empty()) {
+                if (current().selectedEntities.empty())
+                    current().selectionMode = TB_SM_NONE;
                 else
-                    current().mode = TB_SM_ENTITIES;
+                    current().selectionMode = TB_SM_ENTITIES;
             }
 
-            SelectionEventData data(removedBrushes);
+            SelectionEventData data(deselectedBrushes);
             selectionRemoved(data);
         }
 
-        void Selection::removeEntity(Entity& entity) {
-            EntityList::iterator it = find(current().entities.begin(), current().entities.end(), &entity);
-            if (it == current().entities.end())
+        void Selection::deselectEntity(Entity& entity) {
+            EntityList::iterator it = find(current().selectedEntities.begin(), current().selectedEntities.end(), &entity);
+            if (it == current().selectedEntities.end())
                 return;
 
-            current().entities.erase(it);
+            current().selectedEntities.erase(it);
             entity.setSelected(false);
 
-            if (current().entities.empty()) {
-                if (current().brushes.empty())
-                    current().mode = TB_SM_NONE;
+            if (current().selectedEntities.empty()) {
+                if (current().selectedBrushes.empty())
+                    current().selectionMode = TB_SM_NONE;
                 else
-                    current().mode = TB_SM_BRUSHES;
+                    current().selectionMode = TB_SM_BRUSHES;
             }
 
             SelectionEventData data(entity);
             selectionRemoved(data);
         }
 
-        void Selection::removeEntities(const EntityList& entities) {
+        void Selection::deselectEntities(const EntityList& entities) {
             if (entities.empty())
                 return;
 
-            EntityList removedEntities = doRemoveEntities(entities);
+            EntityList deselectedEntities = doDeselectEntities(entities);
 
-            if (current().entities.empty()) {
-                if (current().brushes.empty())
-                    current().mode = TB_SM_NONE;
+            if (current().selectedEntities.empty()) {
+                if (current().selectedBrushes.empty())
+                    current().selectionMode = TB_SM_NONE;
                 else
-                    current().mode = TB_SM_BRUSHES;
+                    current().selectionMode = TB_SM_BRUSHES;
             }
 
-            SelectionEventData data(removedEntities);
+            SelectionEventData data(deselectedEntities);
             selectionRemoved(data);
         }
 
-        void Selection::removeAll() {
-            if (current().faces.empty() && current().brushes.empty() && current().entities.empty())
+        void Selection::deselectAll() {
+            if (current().selectedFaces.empty() && current().selectedBrushes.empty() && current().selectedEntities.empty())
                 return;
 
             SelectionEventData data;
 
-            if (!current().faces.empty()) {
-                data.faces = current().faces;
-                for (unsigned int i = 0; i < current().faces.size(); i++)
-                    current().faces[i]->selected = false;
-                current().faces.clear();
-                for (unsigned int i = 0; i < current().partialBrushes.size(); i++)
-                    current().partialBrushes[i]->partiallySelected = false;
-                current().partialBrushes.clear();
-                current().mode = TB_SM_NONE;
+            if (!current().selectedFaces.empty()) {
+                data.faces = current().selectedFaces;
+                for (unsigned int i = 0; i < current().selectedFaces.size(); i++)
+                    current().selectedFaces[i]->selected = false;
+                current().selectedFaces.clear();
+                for (unsigned int i = 0; i < current().partiallySelectedBrushes.size(); i++)
+                    current().partiallySelectedBrushes[i]->partiallySelected = false;
+                current().partiallySelectedBrushes.clear();
+                current().selectionMode = TB_SM_NONE;
             }
 
-            if (!current().brushes.empty()) {
-                data.brushes = current().brushes;
-                for (unsigned int i = 0; i < current().brushes.size(); i++)
-                    current().brushes[i]->selected = false;
-                current().brushes.clear();
-                current().mode = TB_SM_NONE;
+            if (!current().selectedBrushes.empty()) {
+                data.brushes = current().selectedBrushes;
+                for (unsigned int i = 0; i < current().selectedBrushes.size(); i++)
+                    current().selectedBrushes[i]->selected = false;
+                current().selectedBrushes.clear();
+                current().selectionMode = TB_SM_NONE;
             }
 
-            if (!current().entities.empty()) {
-                data.entities = current().entities;
-                for (unsigned int i = 0; i < current().entities.size(); i++)
-                    current().entities[i]->setSelected(false);
-                current().entities.clear();
-                current().mode = TB_SM_NONE;
+            if (!current().selectedEntities.empty()) {
+                data.entities = current().selectedEntities;
+                for (unsigned int i = 0; i < current().selectedEntities.size(); i++)
+                    current().selectedEntities[i]->setSelected(false);
+                current().selectedEntities.clear();
+                current().selectionMode = TB_SM_NONE;
             }
 
             selectionRemoved(data);

@@ -94,7 +94,7 @@ namespace TrenchBroom {
         void Editor::updateWadProperty() {
             Model::Selection& selection = m_map->selection();
             selection.push();
-            selection.addEntity(*m_map->worldspawn(true));
+            selection.selectEntity(*m_map->worldspawn(true));
             
             std::vector<Model::Assets::TextureCollection*> collections = m_textureManager->collections();
             if (collections.empty()) {
@@ -129,7 +129,7 @@ namespace TrenchBroom {
 
         void Editor::selectionDidChange(const Model::SelectionEventData& data) {
             Model::Selection& selection = m_map->selection();
-            if (selection.mode() == Model::TB_SM_FACES || selection.mode() == Model::TB_SM_NONE) {
+            if (selection.selectionMode() == Model::TB_SM_FACES || selection.selectionMode() == Model::TB_SM_NONE) {
                 if (m_inputController->moveVertexToolActive())
                     m_inputController->toggleMoveVertexTool();
                 else if (m_inputController->moveEdgeToolActive())
@@ -140,7 +140,7 @@ namespace TrenchBroom {
                     m_inputController->toggleClipTool();
             }
 
-            if (selection.mode() == Model::TB_SM_NONE && m_options->isolationMode() != IM_NONE)
+            if (selection.selectionMode() == Model::TB_SM_NONE && m_options->isolationMode() != IM_NONE)
                 m_options->setIsolationMode(IM_NONE);
         }
 
@@ -302,26 +302,26 @@ namespace TrenchBroom {
             m_map->undoManager().addSelection(*m_map);
             
             Model::Selection& selection = m_map->selection();
-            selection.removeAll();
+            selection.deselectAll();
 
             const Model::EntityList& entities = m_map->entities();
             Model::BrushList brushes;
             for (unsigned int i = 0; i < entities.size(); i++)
                 brushes.insert(brushes.begin(), entities[i]->brushes().begin(), entities[i]->brushes().end());
             if (!brushes.empty())
-                selection.addBrushes(brushes);
+                selection.selectBrushes(brushes);
             if (!entities.empty())
-                selection.addEntities(entities);
+                selection.selectEntities(entities);
         }
         
         void Editor::selectEntities() {
             Model::Selection& selection = m_map->selection();
 
-            if (selection.mode() == Model::TB_SM_BRUSHES) {
+            if (selection.selectionMode() == Model::TB_SM_BRUSHES) {
                 m_map->undoManager().addSelection(*m_map);
 
                 Model::EntitySet entitySet;
-                const Model::BrushList& selectedBrushes = selection.brushes();
+                const Model::BrushList& selectedBrushes = selection.selectedBrushes();
                 for (unsigned int i = 0; i < selectedBrushes.size(); i++)
                     entitySet.insert(selectedBrushes[i]->entity);
                 
@@ -334,19 +334,19 @@ namespace TrenchBroom {
                     brushList.insert(brushList.end(), entity->brushes().begin(), entity->brushes().end());
                 }
                 
-                selection.removeAll();
-                selection.addEntities(entityList);
-                selection.addBrushes(brushList);
+                selection.deselectAll();
+                selection.selectEntities(entityList);
+                selection.selectBrushes(brushList);
             }
         }
         
         void Editor::selectTouching(bool deleteBrush) {
             Model::Selection& selection = m_map->selection();
             
-            if (selection.mode() == Model::TB_SM_BRUSHES && selection.brushes().size() == 1) {
+            if (selection.selectionMode() == Model::TB_SM_BRUSHES && selection.selectedBrushes().size() == 1) {
                 m_map->undoManager().addSelection(*m_map);
 
-                Model::Brush* selectionBrush = selection.brushes().front();
+                Model::Brush* selectionBrush = selection.selectedBrushes().front();
                 
                 Model::EntityList selectedEntities;
                 Model::BrushList selectedBrushes;
@@ -369,8 +369,8 @@ namespace TrenchBroom {
                 if (deleteBrush)
                     m_map->deleteObjects();
                 
-                selection.addEntities(selectedEntities);
-                selection.addBrushes(selectedBrushes);
+                selection.selectEntities(selectedEntities);
+                selection.selectBrushes(selectedBrushes);
             }
         }
         
@@ -378,7 +378,7 @@ namespace TrenchBroom {
             m_map->undoManager().addSelection(*m_map);
 
             Model::Selection& selection = m_map->selection();
-            selection.removeAll();
+            selection.deselectAll();
         }
         
         void Editor::toggleTextureLock() {
