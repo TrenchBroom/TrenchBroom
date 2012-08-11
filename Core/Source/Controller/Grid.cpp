@@ -209,7 +209,7 @@ namespace TrenchBroom {
             if (Math::fzero(dist))
                 return Math::nan();
             
-            const Model::EdgeList& brushEdges = face.brush->geometry->edges;
+            const Model::EdgeList& brushEdges = face.brush()->geometry->edges;
             const Model::VertexList& faceVertices = face.side->vertices;
             
             // the edge rays indicate the direction into which each vertex of the given face moves if the face is dragged

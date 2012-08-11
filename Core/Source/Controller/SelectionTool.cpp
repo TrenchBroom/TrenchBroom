@@ -54,9 +54,9 @@ namespace TrenchBroom {
                     }
                 } else {
                     Model::Face& face = hit->face();
-                    Model::Brush& brush = *face.brush;
+                    Model::Brush& brush = *face.brush();
                     if (selection.selectionMode() == Model::TB_SM_FACES) {
-                        if (face.selected) {
+                        if (face.selected()) {
                             if (multiSelectionModiferPressed(event))
                                 selection.deselectFace(face);
                             else
@@ -65,7 +65,7 @@ namespace TrenchBroom {
                             if (multiSelectionModiferPressed(event)) {
                                 selection.selectFace(face);
                             } else if (noModifierPressed(event)) {
-                                if (brush.partiallySelected) {
+                                if (brush.partiallySelected()) {
                                     selection.replaceSelection(face);
                                 } else {
                                     selection.replaceSelection(brush);
@@ -128,9 +128,9 @@ namespace TrenchBroom {
                 }
             } else {
                 Model::Face& face = hit->face();
-                Model::Brush& brush = *face.brush;
+                Model::Brush& brush = *face.brush();
                 if (selection.selectionMode() == Model::TB_SM_FACES) {
-                    if (!face.selected) {
+                    if (!face.selected()) {
                         editor().map().undoManager().addSelection(editor().map());
                         selection.selectFace(face);
                     }

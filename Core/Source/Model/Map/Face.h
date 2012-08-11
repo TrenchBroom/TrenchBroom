@@ -48,6 +48,9 @@ namespace TrenchBroom {
             std::vector<Vec2f> m_gridCoords;
             std::vector<Vec2f> m_texCoords;
 
+            Brush* m_brush;
+            bool m_selected;
+            
             void init();
             void texAxesAndIndices(const Vec3f& faceNormal, Vec3f& xAxis, Vec3f& yAxis, int& planeNormIndex, int& faceNormIndex) const;
             void validateTexAxes(const Vec3f& faceNormal);
@@ -55,7 +58,9 @@ namespace TrenchBroom {
             void validateCoords();
         public:
             int faceId;
-            Brush* brush;
+            
+            inline Brush* brush() const { return m_brush; }
+            void setBrush(Brush* brush);
             
             Vec3f points[3];
             Plane boundary;
@@ -79,9 +84,11 @@ namespace TrenchBroom {
             Side* side;
             
             int filePosition;
-            bool selected;
             bool coordsValid;
             bool texAxesValid;
+            
+            inline bool selected() const { return m_selected; }
+            void setSelected(bool selected);
 
             Face(const BBox& worldBounds, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const std::string& textureName);
             Face(const BBox& worldBounds, const Face& faceTemplate);

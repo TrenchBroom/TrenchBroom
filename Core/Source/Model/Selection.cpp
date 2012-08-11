@@ -47,10 +47,7 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < faces.size(); i++) {
                 Face* face = faces[i];
                 current().selectedFaces.push_back(face);
-                face->selected = true;
-                face->brush->partiallySelected = true;
-                if (find(current().partiallySelectedBrushes.begin(), current().partiallySelectedBrushes.end(), face->brush) == current().partiallySelectedBrushes.end())
-                    current().partiallySelectedBrushes.push_back(face->brush);
+                face->setSelected(true);
             }
             
             if (faces.back()->texture != NULL)
@@ -94,15 +91,8 @@ namespace TrenchBroom {
                 FaceList::iterator it = find(current().selectedFaces.begin(), current().selectedFaces.end(), face);
                 if (it != current().selectedFaces.end()) {
                     current().selectedFaces.erase(it);
-                    face->selected = false;
+                    face->setSelected(false);
                     deselectedFaces.push_back(face);
-                    
-                    const FaceList siblings = face->brush->faces;
-                    face->brush->partiallySelected = false;
-                    for (unsigned int j = 0; j < siblings.size() && !face->brush->partiallySelected; j++)
-                        face->brush->partiallySelected = siblings[j]->selected;
-                    if (!face->brush->partiallySelected)
-                        current().partiallySelectedBrushes.erase(find(current().partiallySelectedBrushes.begin(), current().partiallySelectedBrushes.end(), face->brush));
                 }
             }
             
@@ -198,9 +188,9 @@ namespace TrenchBroom {
             BBox bounds;
             switch (current().selectionMode) {
                 case TB_SM_FACES:
-                    bounds = current().selectedFaces[0]->brush->bounds();
+                    bounds = current().selectedFaces[0]->brush()->bounds();
                     for (unsigned int i = 1; i < current().selectedFaces.size(); i++)
-                        bounds += current().selectedFaces[i]->brush->bounds();
+                        bounds += current().selectedFaces[i]->brush()->bounds();
                     break;
                 case TB_SM_BRUSHES:
                     bounds = current().selectedBrushes[0]->bounds();
@@ -238,11 +228,7 @@ namespace TrenchBroom {
                 deselectAll();
 
             current().selectedFaces.push_back(&face);
-            face.selected = true;
-            face.brush->partiallySelected = true;
-
-            if (find(current().partiallySelectedBrushes.begin(), current().partiallySelectedBrushes.end(), face.brush) == current().partiallySelectedBrushes.end())
-                current().partiallySelectedBrushes.push_back(face.brush);
+            face.setSelected(true);
 
             if (face.texture != NULL)
                 selectTexture(*face.texture);
@@ -462,19 +448,10 @@ namespace TrenchBroom {
                 return;
 
             current().selectedFaces.erase(it);
-            face.selected = false;
+            face.setSelected(false);
 
-            if (current().selectedFaces.size() == 0) {
+            if (current().selectedFaces.size() == 0)
                 current().selectionMode = TB_SM_NONE;
-                current().partiallySelectedBrushes.clear();
-            } else {
-                const FaceList siblings = face.brush->faces;
-                face.brush->partiallySelected = false;
-                for (unsigned int i = 0; i < siblings.size() && !face.brush->partiallySelected; i++)
-                    face.brush->partiallySelected = siblings[i]->selected;
-                if (!face.brush->partiallySelected)
-                    current().partiallySelectedBrushes.erase(find(current().partiallySelectedBrushes.begin(), current().partiallySelectedBrushes.end(), face.brush));
-            }
 
             SelectionEventData data(face);
             selectionRemoved(data);
@@ -573,11 +550,8 @@ namespace TrenchBroom {
             if (!current().selectedFaces.empty()) {
                 data.faces = current().selectedFaces;
                 for (unsigned int i = 0; i < current().selectedFaces.size(); i++)
-                    current().selectedFaces[i]->selected = false;
+                    current().selectedFaces[i]->setSelected(false);
                 current().selectedFaces.clear();
-                for (unsigned int i = 0; i < current().partiallySelectedBrushes.size(); i++)
-                    current().partiallySelectedBrushes[i]->partiallySelected = false;
-                current().partiallySelectedBrushes.clear();
                 current().selectionMode = TB_SM_NONE;
             }
 

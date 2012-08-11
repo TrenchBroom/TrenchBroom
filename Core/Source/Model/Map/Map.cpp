@@ -361,7 +361,7 @@ namespace TrenchBroom {
             BrushList changedBrushes;
             for (unsigned int i = 0; i < faces.size() && drag; i++) {
                 Face* face = faces[i];
-                Brush* brush = face->brush;
+                Brush* brush = face->brush();
                 drag &= brush->canResize(*face, delta);
                 changedBrushes.push_back(brush);
             }
@@ -379,7 +379,7 @@ namespace TrenchBroom {
                 if (m_postNotifications) brushesWillChange(changedBrushes);
                 for (unsigned int i = 0; i < faces.size(); i++) {
                     Face* face = faces[i];
-                    Brush* brush = face->brush;
+                    Brush* brush = face->brush();
                     brush->resize(*face, delta, lockTextures);
                 }
                 if (m_postNotifications) brushesDidChange(changedBrushes);
@@ -752,7 +752,7 @@ namespace TrenchBroom {
             bool del = true;
             for (unsigned int i = 0; i < faces.size() && del; i++) {
                 Face* face = faces[i];
-                Brush* brush = face->brush;
+                Brush* brush = face->brush();
                 del &= brush->canDeleteFace(*face);
                 changedBrushes.push_back(brush);
             }
@@ -763,7 +763,7 @@ namespace TrenchBroom {
                 if (m_postNotifications) brushesWillChange(changedBrushes);
                 for (unsigned int i = 0; i < faces.size() && del; i++) {
                     Face* face = faces[i];
-                    Brush* brush = face->brush;
+                    Brush* brush = face->brush();
                     brush->deleteFace(*face);
                 }
                 if (m_postNotifications) brushesDidChange(changedBrushes);

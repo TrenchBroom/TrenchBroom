@@ -39,8 +39,8 @@ namespace TrenchBroom {
                 Model::Hit* hit = info.event.hits->first(Model::TB_HT_FACE, false);
                 if (hit != NULL) {
                     Model::Face* face = static_cast<Model::Face*>(hit->object);
-                    if (!face->selected) {
-                        Model::Brush* brush = face->brush;
+                    if (!face->selected()) {
+                        Model::Brush* brush = face->brush();
                         Model::Selection& selection = m_editor.map().selection();
                         selection.deselectAll();
                         selection.selectBrush(*brush);

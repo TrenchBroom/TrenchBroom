@@ -66,7 +66,6 @@ namespace TrenchBroom {
                 BrushList hiddenBrushes;
                 EntityList selectedEntities;
                 BrushList selectedBrushes;
-                BrushList partiallySelectedBrushes;
                 FaceList selectedFaces;
                 std::vector<Assets::Texture*> mruTextures;
                 ESelectionMode selectionMode;
@@ -75,7 +74,6 @@ namespace TrenchBroom {
                 State(const State& state) :
                     selectedEntities(state.selectedEntities),
                     selectedBrushes(state.selectedBrushes),
-                    partiallySelectedBrushes(state.partiallySelectedBrushes),
                     selectedFaces(state.selectedFaces),
                     mruTextures(state.mruTextures),
                     selectionMode(state.selectionMode) {}
@@ -83,7 +81,6 @@ namespace TrenchBroom {
                 void clear() {
                     selectedEntities.clear();
                     selectedBrushes.clear();
-                    partiallySelectedBrushes.clear();
                     selectedFaces.clear();
                     mruTextures.clear();
                     selectionMode = TB_SM_NONE;
@@ -141,10 +138,6 @@ namespace TrenchBroom {
             
             const BrushList& selectedBrushes() const {
                 return current().selectedBrushes;
-            }
-            
-            const BrushList& partiallySelectedBrushes() const {
-                return current().partiallySelectedBrushes;
             }
             
             const EntityList& selectedEntities() const {

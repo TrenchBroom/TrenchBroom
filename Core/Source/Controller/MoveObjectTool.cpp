@@ -45,7 +45,7 @@ namespace TrenchBroom {
             
             if (hit->type == Model::TB_HT_FACE) {
                 Model::Face& face = hit->face();
-                Model::Brush& brush = *face.brush;
+                Model::Brush& brush = *face.brush();
                 if (!brush.selected)
                     return false;
                 m_referenceObject = &brush;

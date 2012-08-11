@@ -55,7 +55,7 @@ namespace TrenchBroom {
             
             int filePosition;
             bool selected;
-            bool partiallySelected;
+            int selectedFaceCount;
 
             Brush(const BBox& worldBounds);
             Brush(const BBox& worldBounds, const Brush& brushTemplate);
@@ -65,8 +65,10 @@ namespace TrenchBroom {
             void restore(const Brush& brushTemplate, bool checkId = false);
             
             const BBox& bounds() const;
-            EMapObjectType objectType() const;
+            inline EMapObjectType objectType() const { return TB_MT_BRUSH; };
             const Vec3f center() const;
+            
+            inline bool partiallySelected() const { return selectedFaceCount > 0; }
             
             void pick(const Ray& ray, HitList& hits, Filter& filter);
             void pickVertices(const Ray& ray, float handleSize, HitList& hits);

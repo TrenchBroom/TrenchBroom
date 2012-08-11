@@ -207,10 +207,10 @@ namespace TrenchBroom {
                         } else {
                             allBrushes.push_back(brush);
                             totalEdgeVertexCount += (2 * brush->geometry->edges.size());
-                            if (brush->partiallySelected) {
+                            if (brush->partiallySelected()) {
                                 for (unsigned int k = 0; k < brush->faces.size(); k++) {
                                     Model::Face* face = brush->faces[k];
-                                    if (face->selected) {
+                                    if (face->selected()) {
                                         allPartialBrushFaces.push_back(face);
                                         totalSelectedEdgeVertexCount += (2 * face->side->edges.size());
                                     }
@@ -222,7 +222,7 @@ namespace TrenchBroom {
                         for (unsigned int k = 0; k < faces.size(); k++) {
                             Model::Face* face = faces[k];
 							assert(face->side->vertices.size() >= 3);
-                            if (entity->selected() || brush->selected || face->selected) {
+                            if (entity->selected() || brush->selected || face->selected()) {
                                 allSelectedFaces.push_back(face);
                                 totalSelectedFaceVertexCount += (3 * face->side->vertices.size() - 6);
                             } else {

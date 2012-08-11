@@ -37,7 +37,7 @@ namespace TrenchBroom {
         const Model::Selection& selection = m_editor.map().selection();
         if (options.isolationMode() == Controller::IM_DISCARD) {
             if (selection.selectionMode() == Model::TB_SM_FACES)
-                return brush.partiallySelected;
+                return brush.partiallySelected();
             
             return brush.selected;
         }
@@ -78,7 +78,7 @@ namespace TrenchBroom {
         const Model::Selection& selection = m_editor.map().selection();
         if (options.isolationMode() != Controller::IM_NONE) {
             if (selection.selectionMode() == Model::TB_SM_FACES)
-                return brush.partiallySelected;
+                return brush.partiallySelected();
             
             return brush.selected;
         }

@@ -34,7 +34,7 @@ namespace TrenchBroom {
             onGrid = false;
             filePosition = -1;
             selected = false;
-            partiallySelected = false;
+            selectedFaceCount = 0;
             geometry = new BrushGeometry(worldBounds);
         }
         
@@ -145,10 +145,6 @@ namespace TrenchBroom {
         
         const BBox& Brush::bounds() const {
             return geometry->bounds;
-        }
-
-        EMapObjectType Brush::objectType() const {
-            return TB_MT_BRUSH;
         }
 
         const Vec3f Brush::center() const {
@@ -409,7 +405,7 @@ namespace TrenchBroom {
                     faces.erase(it);
                 }
                 
-                face->brush = this;
+                face->setBrush(this);
                 faces.push_back(face);
                 return true;
             } catch (GeometryException e) {
@@ -443,7 +439,7 @@ namespace TrenchBroom {
             while (!faces.empty()) delete faces.back(), faces.pop_back();
             for (unsigned int i = 0; i < newFaces.size(); i++) {
                 faces.push_back(newFaces[i]);
-                newFaces[i]->brush = this;
+                newFaces[i]->setBrush(this);
             }
             rebuildGeometry();
         }
@@ -526,7 +522,7 @@ namespace TrenchBroom {
             
             for (droppedFaceIt = droppedFaces.begin(); droppedFaceIt != droppedFaces.end(); ++droppedFaceIt) {
                 Model::Face* face = *droppedFaceIt;
-                face->brush = NULL;
+                face->setBrush(NULL);
                 faceIt = find(faces.begin(), faces.end(), face);
                 assert(faceIt != faces.end());
                 delete face;
@@ -538,7 +534,7 @@ namespace TrenchBroom {
             
             for (newFaceIt = newFaces.begin(); newFaceIt != newFaces.end(); ++newFaceIt) {
                 Model::Face* face = *newFaceIt;
-                face->brush = this;
+                face->setBrush(this);
                 faces.push_back(face);
             }
             
@@ -557,7 +553,7 @@ namespace TrenchBroom {
             
             for (droppedFaceIt = droppedFaces.begin(); droppedFaceIt != droppedFaces.end(); ++droppedFaceIt) {
                 Model::Face* face = *droppedFaceIt;
-                face->brush = NULL;
+                face->setBrush(NULL);
                 faceIt = find(faces.begin(), faces.end(), face);
                 assert(faceIt != faces.end());
                 delete face;
@@ -569,7 +565,7 @@ namespace TrenchBroom {
 
             for (newFaceIt = newFaces.begin(); newFaceIt != newFaces.end(); ++newFaceIt) {
                 Model::Face* face = *newFaceIt;
-                face->brush = this;
+                face->setBrush(this);
                 faces.push_back(face);
             }
             
@@ -588,7 +584,7 @@ namespace TrenchBroom {
             
             for (droppedFaceIt = droppedFaces.begin(); droppedFaceIt != droppedFaces.end(); ++droppedFaceIt) {
                 Model::Face* face = *droppedFaceIt;
-                face->brush = NULL;
+                face->setBrush(NULL);
                 faceIt = find(faces.begin(), faces.end(), face);
                 assert(faceIt != faces.end());
                 delete face;
@@ -600,7 +596,7 @@ namespace TrenchBroom {
 
             for (newFaceIt = newFaces.begin(); newFaceIt != newFaces.end(); ++newFaceIt) {
                 Model::Face* face = *newFaceIt;
-                face->brush = this;
+                face->setBrush(this);
                 faces.push_back(face);
             }
             

@@ -261,15 +261,37 @@ namespace TrenchBroom {
             rotation = 0.0f;
             xScale = 1.0f;
             yScale = 1.0f;
-            brush = NULL;
+            m_brush = NULL;
             texture = NULL;
             filePosition = -1;
-            selected = false;
+            m_selected = false;
             texAxesValid = false;
             coordsValid = false;
             
         }
         
+        void Face::setBrush(Brush* brush) {
+            if (brush == m_brush)
+                return;
+            
+            if (m_brush != NULL && m_selected)
+                m_brush->selectedFaceCount--;
+            m_brush = brush;
+            if (m_brush != NULL && m_selected)
+                m_brush->selectedFaceCount++;
+        }
+
+        void Face::setSelected(bool selected) {
+            if (m_brush) {
+                if (selected)
+                    m_brush->selectedFaceCount++;
+                else
+                    m_brush->selectedFaceCount--;
+            }
+            
+            m_selected = selected;
+        }
+
         Face::Face(const BBox& worldBounds, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const std::string& textureName) : worldBounds(worldBounds), textureName(textureName) {
             init();
             points[0] = point1;
@@ -298,7 +320,7 @@ namespace TrenchBroom {
             texAxesValid(false),
             coordsValid(false),
             filePosition(face.filePosition),
-            selected(false) {
+            m_selected(false) {
             face.getPoints(points[0], points[1], points[2]);
         }
 
@@ -314,7 +336,7 @@ namespace TrenchBroom {
 			m_texCoords.clear();
 
 			faceId *= -1;
-			brush = NULL;
+			m_brush = NULL;
 			
 			for (unsigned int i = 0; i < 3; i++)
 				points[i] = Vec3f::NaN;
@@ -330,7 +352,7 @@ namespace TrenchBroom {
 			yScale = 0.0f;
 			side = NULL;
 			filePosition = -1;
-			selected = false;
+			m_selected = false;
 			coordsValid = false;
 			texAxesValid = false;
 		}
@@ -346,7 +368,7 @@ namespace TrenchBroom {
             setTexture(faceTemplate.texture);
             texAxesValid = false;
             coordsValid = false;
-			selected = faceTemplate.selected;
+			m_selected = faceTemplate.selected();
         }
         
         void Face::getPoints(Vec3f& point1, Vec3f& point2, Vec3f& point3) const {
