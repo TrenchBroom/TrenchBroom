@@ -74,6 +74,18 @@ namespace TrenchBroom {
             return editor().map().moveVertex(brush, index, delta);
         }
 
+        void MoveVertexTool::updateHits(InputEvent& event) {
+            if (!active())
+                return;
+            
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+            
+            Model::Selection& selection = editor().map().selection();
+            const Model::BrushList& brushes = selection.selectedBrushes();
+            for (unsigned int i = 0; i < brushes.size(); i++)
+                brushes[i]->pickVertexHandles(event.ray, prefs.vertexHandleSize(), *event.hits);
+        }
+
         const Vec4f& MoveVertexTool::handleColor() {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             return prefs.vertexHandleColor();

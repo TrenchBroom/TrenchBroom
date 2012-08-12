@@ -45,15 +45,9 @@ namespace TrenchBroom {
             Camera& camera = m_editor.camera();
             m_currentEvent.ray = camera.pickRay(m_currentEvent.mouseX, m_currentEvent.mouseY);
             m_currentEvent.hits = picker.pick(m_currentEvent.ray, m_editor.filter());
-            
-            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
-            
-            Model::Selection& selection = m_editor.map().selection();
-            const Model::BrushList& brushes = selection.selectedBrushes();
-            for (unsigned int i = 0; i < brushes.size(); i++) {
-                brushes[i]->pickVertices(m_currentEvent.ray, prefs.vertexHandleSize(), *m_currentEvent.hits);
-                brushes[i]->pickClosestFace(m_currentEvent.ray, prefs.resizeHandleSize(), *m_currentEvent.hits);
-            }
+
+            for (unsigned int i = 0; i < m_receiverChain.size(); i++)
+                m_receiverChain[i]->updateHits(m_currentEvent);
         }
 
         void InputController::toggleModalTool(const ToolPtr& tool, unsigned int index) {

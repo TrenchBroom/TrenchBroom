@@ -173,7 +173,7 @@ namespace TrenchBroom {
             }
         }
         
-        void Brush::pickVertices(const Ray& ray, float handleSize, HitList& hits) {
+        void Brush::pickVertexHandles(const Ray& ray, float handleSize, HitList& hits) {
             const VertexList& vertices = geometry->vertices;
             for (unsigned int i = 0; i < vertices.size(); i++) {
                 BBox handle(vertices[i]->position, handleSize);
@@ -184,7 +184,9 @@ namespace TrenchBroom {
                     hits.add(*hit);
                 }
             }
-            
+        }
+        
+        void Brush::pickEdgeHandles(const Ray& ray, float handleSize, HitList& hits) {
             const EdgeList& edges = geometry->edges;
             for (unsigned int i = 0; i < edges.size(); i++) {
                 BBox handle(edges[i]->center(), handleSize);
@@ -195,7 +197,9 @@ namespace TrenchBroom {
                     hits.add(*hit);
                 }
             }
-            
+        }
+        
+        void Brush::pickFaceHandles(const Ray& ray, float handleSize, HitList& hits) {
             for (unsigned int i = 0; i < faces.size(); i++) {
                 BBox handle(faces[i]->center(), handleSize);
                 float dist = handle.intersectWithRay(ray);

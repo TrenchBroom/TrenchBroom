@@ -22,6 +22,7 @@
 
 #include "GL/GLee.h"
 #include "Model/Assets/Texture.h"
+#include "Model/Map/BrushTypes.h"
 #include "Model/Map/Face.h"
 #include "Renderer/ChangeSet.h"
 #include "Renderer/FontManager.h"
@@ -68,33 +69,31 @@ namespace TrenchBroom {
         class Figure;
         class SizeGuideFigure;
 
-        class EdgeRenderInfo {
-        public:
-            GLuint offset;
-            GLuint vertexCount;
-            EdgeRenderInfo() : offset(0), vertexCount(0) {};
-            EdgeRenderInfo(GLuint offset, GLuint vertexCount);
-        };
-        
-        class TexturedTriangleRenderInfo {
-        public:
-            Model::Assets::Texture* texture;
-            GLuint offset;
-            GLuint vertexCount;
-            TexturedTriangleRenderInfo(Model::Assets::Texture* texture, GLuint offset, GLuint vertexCount);
-        };
-        
-        inline bool compareFacesByTexture(const Model::Face* left, const Model::Face* right) {
-            if (right->texture == NULL)
-                return false;
-            if (left->texture == NULL)
-                return true;
-            
-            return left->texture->uniqueId < right->texture->uniqueId;
-        }
-
         class MapRenderer {
         private:
+            class CompareTexturesById {
+            public:
+                bool operator() (const Model::Assets::Texture* left, const Model::Assets::Texture* right) const {
+                    return left->uniqueId < right->uniqueId;
+                }
+            };
+
+            class EdgeRenderInfo {
+            public:
+                GLuint offset;
+                GLuint vertexCount;
+                EdgeRenderInfo() : offset(0), vertexCount(0) {};
+                EdgeRenderInfo(GLuint offset, GLuint vertexCount);
+            };
+            
+            class TexturedTriangleRenderInfo {
+            public:
+                Model::Assets::Texture* texture;
+                GLuint offset;
+                GLuint vertexCount;
+                TexturedTriangleRenderInfo(Model::Assets::Texture* texture, GLuint offset, GLuint vertexCount);
+            };
+            
             class CachedEntityRenderer {
             public:
                 EntityRenderer* renderer;
@@ -104,6 +103,7 @@ namespace TrenchBroom {
             };
             
             typedef std::vector<GLuint> IndexBuffer;
+            typedef std::map<Model::Assets::Texture*, Model::FaceList, CompareTexturesById> FacesByTexture;
             typedef std::vector<TexturedTriangleRenderInfo> FaceRenderInfos;
             typedef std::map<Model::Entity*, CachedEntityRenderer> EntityRenderers;
 
@@ -155,8 +155,8 @@ namespace TrenchBroom {
             Model::Assets::Texture* m_dummyTexture;
             FontManager& m_fontManager;
 
-            void writeFaceData(RenderContext& context, std::vector<Model::Face*>& faces, FaceRenderInfos& renderInfos, VboBlock& block);
-            void writeEdgeData(RenderContext& context, std::vector<Model::Brush*>& brushes, std::vector<Model::Face*>& faces, EdgeRenderInfo& renderInfo, VboBlock& block);
+            void writeFaceData(RenderContext& context, FacesByTexture& facesByTexture, FaceRenderInfos& renderInfos, VboBlock& block);
+            void writeEdgeData(RenderContext& context, Model::BrushList& brushes, Model::FaceList& faces, EdgeRenderInfo& renderInfo, VboBlock& block);
             void rebuildGeometryData(RenderContext& context);
             void writeEntityBounds(RenderContext& context, const std::vector<Model::Entity*>& entities, EdgeRenderInfo& renderInfo, VboBlock& block);
             void rebuildEntityData(RenderContext& context);

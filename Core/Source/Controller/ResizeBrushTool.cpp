@@ -132,6 +132,18 @@ namespace TrenchBroom {
         
         ResizeBrushTool::~ResizeBrushTool() {}
 
+        void ResizeBrushTool::updateHits(InputEvent& event) {
+            if (event.mouseButton != TB_MB_LEFT || !resizeBrushModiferPressed(event))
+                return;
+            
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+            
+            Model::Selection& selection = editor().map().selection();
+            const Model::BrushList& brushes = selection.selectedBrushes();
+            for (unsigned int i = 0; i < brushes.size(); i++)
+                brushes[i]->pickClosestFace(event.ray, prefs.resizeHandleSize(), *event.hits);
+        }
+        
         bool ResizeBrushTool::resizeBrushModiferPressed(InputEvent& event) {
             return event.modifierKeys == Model::Preferences::sharedPreferences->resizeToolKey();
         }

@@ -35,6 +35,8 @@ namespace TrenchBroom {
             MoveEdgeTool(Controller::Editor& editor) : VertexTool(editor) {}
             virtual ~MoveEdgeTool() {}
             
+            virtual void updateHits(InputEvent& event);
+            
             virtual const Vec4f& handleColor();
             virtual const Vec4f& hiddenHandleColor();
             virtual const Vec4f& selectedHandleColor();

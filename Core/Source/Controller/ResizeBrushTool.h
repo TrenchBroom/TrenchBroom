@@ -47,6 +47,8 @@ namespace TrenchBroom {
             ResizeBrushTool(Editor& editor);
             ~ResizeBrushTool();
 
+            virtual void updateHits(InputEvent& event);
+            
             static bool resizeBrushModiferPressed(InputEvent& event);
         };
     }

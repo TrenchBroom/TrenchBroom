@@ -103,10 +103,23 @@ namespace TrenchBroom {
 				if (renderer != NULL)
 					renderer->rendererChanged(*m_editor.renderer());
             }
+
+            virtual bool handleActivated(InputEvent& event) { return false; }
+            virtual bool handleDeactivated(InputEvent& event) { return false; }
+            virtual bool handleMouseDown(InputEvent& event) { return false; }
+            virtual bool handleMouseUp(InputEvent& event) { return false; }
+            virtual bool handleMouseMoved(InputEvent& event) { return false; }
+            virtual bool handleScrolled(InputEvent& event) { return false; }
+            virtual bool handleBeginDrag(InputEvent& event) { return false; }
+            virtual bool handleDrag(InputEvent& event) { return false; }
+            virtual void handleEndDrag(InputEvent& event) {}
+            
         public:
             Tool(Editor& editor) : m_editor(editor), m_state(TB_TS_DEFAULT), m_active(false), m_figureDataValid(false) {}
             virtual ~Tool() {}
 
+            virtual void updateHits(InputEvent& event) {}
+            
             EToolState state() {
                 return m_state;
             }
@@ -124,16 +137,6 @@ namespace TrenchBroom {
                 m_figureDataValid = true;
                 return result;
             }
-            
-            virtual bool handleActivated(InputEvent& event) { return false; }
-            virtual bool handleDeactivated(InputEvent& event) { return false; }
-            virtual bool handleMouseDown(InputEvent& event) { return false; }
-            virtual bool handleMouseUp(InputEvent& event) { return false; }
-            virtual bool handleMouseMoved(InputEvent& event) { return false; }
-            virtual bool handleScrolled(InputEvent& event) { return false; }
-            virtual bool handleBeginDrag(InputEvent& event) { return false; }
-            virtual bool handleDrag(InputEvent& event) { return false; }
-            virtual void handleEndDrag(InputEvent& event) {}
             
             bool activated(InputEvent& event) {
                 if (handleActivated(event)) {

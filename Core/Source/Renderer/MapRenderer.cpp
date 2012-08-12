@@ -57,62 +57,52 @@ namespace TrenchBroom {
         static const int EdgeVertexSize = VertexSize;
         static const int EntityBoundsVertexSize = ColorSize + VertexSize;
 
-        EdgeRenderInfo::EdgeRenderInfo(GLuint offset, GLuint vertexCount) : offset(offset), vertexCount(vertexCount) {}
-
-        TexturedTriangleRenderInfo::TexturedTriangleRenderInfo(Model::Assets::Texture* texture, GLuint offset, GLuint vertexCount) : texture(texture), offset(offset), vertexCount(vertexCount) {}
-
-        void MapRenderer::writeFaceData(RenderContext& context, std::vector<Model::Face*>& faces, FaceRenderInfos& renderInfos, VboBlock& block) {
-            if (faces.empty())
+        MapRenderer::EdgeRenderInfo::EdgeRenderInfo(GLuint offset, GLuint vertexCount) : offset(offset), vertexCount(vertexCount) {}
+        
+        MapRenderer::TexturedTriangleRenderInfo::TexturedTriangleRenderInfo(Model::Assets::Texture* texture, GLuint offset, GLuint vertexCount) : texture(texture), offset(offset), vertexCount(vertexCount) {}
+        
+        void MapRenderer::writeFaceData(RenderContext& context, FacesByTexture& facesByTexture, FaceRenderInfos& renderInfos, VboBlock& block) {
+            if (facesByTexture.empty())
                 return;
             
-            unsigned int offset = 0;
             unsigned int address = block.address;
-            unsigned int vertexCount = 0;
-            Model::Assets::Texture* texture = faces[0]->texture;
-            unsigned int width = texture != NULL ? texture->width : 1;
-            unsigned int height = texture != NULL ? texture->height : 1;
+            unsigned int offset = 0;
             
-            for (unsigned int i = 0; i < faces.size(); i++) {
-                Model::Face* face = faces[i];
-                if (texture != face->texture) {
-                    renderInfos.push_back(TexturedTriangleRenderInfo(texture, address, vertexCount));
-                    
-                    texture = face->texture;
-                    if (texture != NULL) {
-                        width = texture->width;
-                        height = texture->height;
-                    } else {
-                        width = height = 1;
+            FacesByTexture::iterator textureIt;
+            for (textureIt = facesByTexture.begin(); textureIt != facesByTexture.end(); ++textureIt) {
+                Model::Assets::Texture* texture = textureIt->first;
+                Model::FaceList& faces = textureIt->second;
+
+                unsigned int vertexCount = 0;
+
+                for (unsigned int i = 0; i < faces.size(); i++) {
+                    Model::Face* face = faces[i];
+                    const std::vector<Model::Vertex*>& vertices = face->side->vertices;
+                    const std::vector<Vec2f>& texCoords = face->texCoords();
+                    const std::vector<Vec2f>& gridCoords = face->gridCoords();
+                    for (unsigned int j = 1; j < vertices.size() - 1; j++) {
+                        offset = block.writeVec(gridCoords[0], offset);
+                        offset = block.writeVec(texCoords[0], offset);
+                        offset = block.writeVec(vertices[0]->position, offset);
+                        
+                        offset = block.writeVec(gridCoords[j], offset);
+                        offset = block.writeVec(texCoords[j], offset);
+                        offset = block.writeVec(vertices[j]->position, offset);
+                        
+                        offset = block.writeVec(gridCoords[j + 1], offset);
+                        offset = block.writeVec(texCoords[j + 1], offset);
+                        offset = block.writeVec(vertices[j + 1]->position, offset);
                     }
                     
-                    vertexCount = 0;
-                    address = block.address + offset;
+                    vertexCount += (3 * vertices.size() - 6);
                 }
                 
-                const std::vector<Model::Vertex*>& vertices = face->side->vertices;
-                const std::vector<Vec2f>& texCoords = face->texCoords();
-                const std::vector<Vec2f>& gridCoords = face->gridCoords();
-                for (unsigned int j = 1; j < vertices.size() - 1; j++) {
-                    offset = block.writeVec(gridCoords[0], offset);
-                    offset = block.writeVec(texCoords[0], offset);
-                    offset = block.writeVec(vertices[0]->position, offset);
-
-                    offset = block.writeVec(gridCoords[j], offset);
-                    offset = block.writeVec(texCoords[j], offset);
-                    offset = block.writeVec(vertices[j]->position, offset);
-
-                    offset = block.writeVec(gridCoords[j + 1], offset);
-                    offset = block.writeVec(texCoords[j + 1], offset);
-                    offset = block.writeVec(vertices[j + 1]->position, offset);
-                }
-                
-                vertexCount += (3 * vertices.size() - 6);
+                renderInfos.push_back(TexturedTriangleRenderInfo(texture, address, vertexCount));
+                address = block.address + offset;
             }
-
-            renderInfos.push_back(TexturedTriangleRenderInfo(texture, address, vertexCount));
         }
         
-        void MapRenderer::writeEdgeData(RenderContext& context, std::vector<Model::Brush*>& brushes, std::vector<Model::Face*>& faces, EdgeRenderInfo& renderInfo, VboBlock& block) {
+        void MapRenderer::writeEdgeData(RenderContext& context, Model::BrushList& brushes, Model::FaceList& faces, EdgeRenderInfo& renderInfo, VboBlock& block) {
             if (brushes.empty() && faces.empty())
                 return;
             
@@ -170,16 +160,16 @@ namespace TrenchBroom {
                 m_selectedFaceRenderInfos.clear();
                 m_selectedEdgeRenderInfo = EdgeRenderInfo(0, 0);
             }
-            
-            std::vector<Model::Face*> allFaces;
-            std::vector<Model::Face*> allSelectedFaces;
-            unsigned int totalFaceVertexCount = 0;
+
+            FacesByTexture unselectedFaces;
+            FacesByTexture selectedFaces;
+            unsigned int totalUnselectedFaceVertexCount = 0;
             unsigned int totalSelectedFaceVertexCount = 0;
             
-            std::vector<Model::Brush*> allBrushes;
-            std::vector<Model::Brush*> allSelectedBrushes;
-            std::vector<Model::Face*> allPartialBrushFaces;
-            unsigned int totalEdgeVertexCount = 0;
+            Model::BrushList unselectedBrushes;
+            Model::BrushList selectedBrushes;
+            Model::FaceList partiallySelectedBrushFaces;
+            unsigned int totalUnselectedEdgeVertexCount = 0;
             unsigned int totalSelectedEdgeVertexCount = 0;
             
             // collect all visible faces and brushes
@@ -192,16 +182,16 @@ namespace TrenchBroom {
 					assert(brush->geometry->edges.size() >= 6);
                     if (context.filter.brushVisible(*brush)) {
                         if (entity->selected() || brush->selected) {
-                            allSelectedBrushes.push_back(brush);
+                            selectedBrushes.push_back(brush);
                             totalSelectedEdgeVertexCount += (2 * brush->geometry->edges.size());
                         } else {
-                            allBrushes.push_back(brush);
-                            totalEdgeVertexCount += (2 * brush->geometry->edges.size());
+                            unselectedBrushes.push_back(brush);
+                            totalUnselectedEdgeVertexCount += (2 * brush->geometry->edges.size());
                             if (brush->partiallySelected()) {
                                 for (unsigned int k = 0; k < brush->faces.size(); k++) {
                                     Model::Face* face = brush->faces[k];
                                     if (face->selected()) {
-                                        allPartialBrushFaces.push_back(face);
+                                        partiallySelectedBrushFaces.push_back(face);
                                         totalSelectedEdgeVertexCount += (2 * face->side->edges.size());
                                     }
                                 }
@@ -212,35 +202,33 @@ namespace TrenchBroom {
                         for (unsigned int k = 0; k < faces.size(); k++) {
                             Model::Face* face = faces[k];
 							assert(face->side->vertices.size() >= 3);
+                            
+                            Model::Assets::Texture* texture = face->texture != NULL ? face->texture : m_dummyTexture;
                             if (entity->selected() || brush->selected || face->selected()) {
-                                allSelectedFaces.push_back(face);
+                                selectedFaces[texture].push_back(face);
                                 totalSelectedFaceVertexCount += (3 * face->side->vertices.size() - 6);
                             } else {
-                                allFaces.push_back(face);
-                                totalFaceVertexCount += (3 * face->side->vertices.size() - 6);
+                                unselectedFaces[texture].push_back(face);
+                                totalUnselectedFaceVertexCount += (3 * face->side->vertices.size() - 6);
                             }
                         }
                     }
                 }
             }
             
-            // sort the faces by their texture
-            std::sort(allFaces.begin(), allFaces.end(), compareFacesByTexture);
-            std::sort(allSelectedFaces.begin(), allSelectedFaces.end(), compareFacesByTexture);
-            
             // write face triangles
             m_faceVbo->activate();
             m_faceVbo->map();
 
-            if (!m_geometryDataValid && !allFaces.empty())
-                m_faceBlock = m_faceVbo->allocBlock(totalFaceVertexCount * FaceVertexSize);
-            if (!m_selectedGeometryDataValid && !allSelectedFaces.empty())
+            if (!m_geometryDataValid && !unselectedFaces.empty())
+                m_faceBlock = m_faceVbo->allocBlock(totalUnselectedFaceVertexCount * FaceVertexSize);
+            if (!m_selectedGeometryDataValid && !selectedFaces.empty())
                 m_selectedFaceBlock = m_faceVbo->allocBlock(totalSelectedFaceVertexCount * FaceVertexSize);
             
-            if (!m_geometryDataValid && !allFaces.empty())
-                writeFaceData(context, allFaces, m_faceRenderInfos, *m_faceBlock);
-            if (!m_selectedGeometryDataValid && !allSelectedFaces.empty())
-                writeFaceData(context, allSelectedFaces, m_selectedFaceRenderInfos, *m_selectedFaceBlock);
+            if (!m_geometryDataValid && !unselectedFaces.empty())
+                writeFaceData(context, unselectedFaces, m_faceRenderInfos, *m_faceBlock);
+            if (!m_selectedGeometryDataValid && !selectedFaces.empty())
+                writeFaceData(context, selectedFaces, m_selectedFaceRenderInfos, *m_selectedFaceBlock);
             
             m_faceVbo->unmap();
             m_faceVbo->deactivate();
@@ -249,17 +237,17 @@ namespace TrenchBroom {
             m_edgeVbo->activate();
             m_edgeVbo->map();
 
-            if (!m_geometryDataValid && !allBrushes.empty())
-                m_edgeBlock = m_edgeVbo->allocBlock(totalEdgeVertexCount * EdgeVertexSize);
-            if (!m_selectedGeometryDataValid && (!allSelectedBrushes.empty() || !allPartialBrushFaces.empty()))
+            if (!m_geometryDataValid && !unselectedBrushes.empty())
+                m_edgeBlock = m_edgeVbo->allocBlock(totalUnselectedEdgeVertexCount * EdgeVertexSize);
+            if (!m_selectedGeometryDataValid && (!selectedBrushes.empty() || !partiallySelectedBrushFaces.empty()))
                 m_selectedEdgeBlock = m_edgeVbo->allocBlock(totalSelectedEdgeVertexCount * EdgeVertexSize);
             
-            if (!m_geometryDataValid && !allBrushes.empty()) {
-                std::vector<Model::Face*> temp;
-                writeEdgeData(context, allBrushes, temp, m_edgeRenderInfo, *m_edgeBlock);
+            if (!m_geometryDataValid && !unselectedBrushes.empty()) {
+                Model::FaceList temp;
+                writeEdgeData(context, unselectedBrushes, temp, m_edgeRenderInfo, *m_edgeBlock);
             }
-            if (!m_selectedGeometryDataValid && (!allSelectedBrushes.empty() || !allPartialBrushFaces.empty()))
-                writeEdgeData(context, allSelectedBrushes, allPartialBrushFaces, m_selectedEdgeRenderInfo, *m_selectedEdgeBlock);
+            if (!m_selectedGeometryDataValid && (!selectedBrushes.empty() || !partiallySelectedBrushFaces.empty()))
+                writeEdgeData(context, selectedBrushes, partiallySelectedBrushFaces, m_selectedEdgeRenderInfo, *m_selectedEdgeBlock);
             
             m_edgeVbo->unmap();
             m_edgeVbo->deactivate();

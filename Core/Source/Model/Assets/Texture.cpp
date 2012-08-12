@@ -40,7 +40,7 @@ namespace TrenchBroom {
             std::string Texture::EMPTY = "__TB__empty";
 
             void Texture::init(const std::string& name, unsigned int width, unsigned int height) {
-                static int currentId = 1;
+                static IdType currentId = 1;
                 this->uniqueId = currentId++;
                 this->name = name;
                 this->width = width;
