@@ -46,7 +46,7 @@ namespace TrenchBroom {
             if (hit->type == Model::TB_HT_FACE) {
                 Model::Face& face = hit->face();
                 Model::Brush& brush = *face.brush();
-                if (!brush.selected)
+                if (!brush.selected())
                     return false;
                 m_referenceObject = &brush;
             } else {
@@ -75,26 +75,19 @@ namespace TrenchBroom {
             Grid& grid = editor().grid();
             Model::Map& map = editor().map();
             
-            Vec3f delta = curMousePoint - referencePoint;
-            Vec3f snapDelta;
+            Vec3f delta;
             if (m_referenceObject->objectType() == Model::TB_MT_ENTITY) {
                 Model::Entity* entity = static_cast<Model::Entity*>(m_referenceObject);
-                const Vec3f& origin = entity->origin();
-                Vec3f newOrigin = grid.snap(origin + curMousePoint - referencePoint);
-                snapDelta = newOrigin - origin;
-                
-                for (unsigned int i = 0; i < 3; i++)
-                    if (snapDelta[i] > 0 != delta[i] > 0)
-                        snapDelta[i] = 0;
+                delta = grid.moveDeltaForEntity(entity->origin(), map.worldBounds(), curMousePoint - referencePoint);
             } else {
-                snapDelta = grid.snap(curMousePoint - referencePoint);
+                delta = grid.snap(curMousePoint - referencePoint);
             }
             
-            if (snapDelta.null())
+            if (delta.null())
                 return true;
             
-            referencePoint += snapDelta;
-            map.translateObjects(snapDelta, editor().options().lockTextures());
+            referencePoint += delta;
+            map.translateObjects(delta, editor().options().lockTextures());
             refreshFigure(true);
             
             return true;

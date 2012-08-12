@@ -143,6 +143,7 @@ namespace TrenchBroom {
             const EntityList& selectedEntities() const {
                 return current().selectedEntities;
             }
+            const EntityList allSelectedEntities() const;
             
             const Entity* brushSelectionEntity() const;
             Vec3f center() const;

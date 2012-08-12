@@ -74,12 +74,12 @@ namespace TrenchBroom {
                         }
                     } else {
                         if (multiSelectionModiferPressed(event)) {
-                            if (brush.selected)
+                            if (brush.selected())
                                 selection.deselectBrush(brush);
                             else
                                 selection.selectBrush(brush);
                         } else if (noModifierPressed(event)) {
-                            if (brush.selected) {
+                            if (brush.selected()) {
                                 selection.replaceSelection(face);
                             } else {
                                 selection.replaceSelection(brush);

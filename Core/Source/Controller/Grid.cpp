@@ -21,6 +21,7 @@
 
 #include "Model/Map/Brush.h"
 #include "Model/Map/BrushGeometry.h"
+#include "Model/Map/Entity.h"
 #include "Model/Map/Face.h"
 #include "Utilities/VecMath.h"
 #include "Utilities/Console.h"
@@ -148,6 +149,16 @@ namespace TrenchBroom {
                 dist = distZ;
             
             return dist;
+        }
+
+        Vec3f Grid::moveDeltaForEntity(const Vec3f& origin, const BBox& worldBounds, const Vec3f& delta) {
+            Vec3f newOrigin = snap(origin + delta);
+            Vec3f actualDelta = newOrigin - origin;
+            
+            for (unsigned int i = 0; i < 3; i++)
+                if (actualDelta[i] > 0 != delta[i] > 0)
+                    actualDelta[i] = 0;
+            return actualDelta;
         }
 
         Vec3f Grid::moveDelta(const BBox& bounds, const BBox& worldBounds, const Vec3f& delta) {

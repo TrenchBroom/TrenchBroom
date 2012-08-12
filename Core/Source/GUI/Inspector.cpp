@@ -136,7 +136,7 @@ namespace TrenchBroom {
             updateTextureControls();
 
             Model::Selection& selection = m_editor.map().selection();
-            m_propertiesTable->setEntities(selection.selectedEntities());
+            m_propertiesTable->setEntities(selection.allSelectedEntities());
         }
         
         void Inspector::brushesDidChange(const std::vector<Model::Brush*>& brushes) {
@@ -151,7 +151,7 @@ namespace TrenchBroom {
             updateTextureControls();
             
             Model::Selection& selection = m_editor.map().selection();
-            m_propertiesTable->setEntities(selection.selectedEntities());
+            m_propertiesTable->setEntities(selection.allSelectedEntities());
         }
 
         void Inspector::onEntityBrowserGroupChanged(Gwen::Controls::Base* control) {

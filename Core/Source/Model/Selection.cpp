@@ -39,7 +39,7 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < brushes.size(); i++) {
                 Brush* brush = brushes[i];
                 current().selectedBrushes.push_back(brush);
-                brush->selected = true;
+                brush->setSelected(true);
             }
         }
 
@@ -76,7 +76,7 @@ namespace TrenchBroom {
                 BrushList::iterator it = find(current().selectedBrushes.begin(), current().selectedBrushes.end(), brush);
                 if (it != current().selectedBrushes.end()) {
                     current().selectedBrushes.erase(it);
-                    brush->selected = false;
+                    brush->setSelected(false);
                     deselectedBrushes.push_back(brush);
                 }
             }
@@ -134,13 +134,27 @@ namespace TrenchBroom {
             return allFaces;
         }
 
+        const EntityList Selection::allSelectedEntities() const {
+            EntitySet brushEntities;
+            const BrushList& selectedBrushes = current().selectedBrushes;
+            for (unsigned int i = 0; i < selectedBrushes.size(); i++) {
+                Model::Brush* brush = selectedBrushes[i];
+                Model::Entity* entity = brush->entity();
+                brushEntities.insert(entity);
+            }
+
+            EntityList allEntities = selectedEntities();
+            allEntities.insert(allEntities.end(), brushEntities.begin(), brushEntities.end());
+            return allEntities;
+        }
+
         const Entity* Selection::brushSelectionEntity() const {
             if (current().selectionMode != TB_SM_BRUSHES)
                 return NULL;
 
-            Entity* entity = current().selectedBrushes[0]->entity;
+            Entity* entity = current().selectedBrushes[0]->entity();
             for (unsigned int i = 1; i < current().selectedBrushes.size(); i++) {
-                if (current().selectedBrushes[i]->entity != entity)
+                if (current().selectedBrushes[i]->entity() != entity)
                     return NULL;
             }
 
@@ -256,7 +270,7 @@ namespace TrenchBroom {
                 deselectAll();
 
             current().selectedBrushes.push_back(&brush);
-            brush.selected = true;
+            brush.setSelected(true);
 
             if (current().selectionMode == TB_SM_ENTITIES)
                 current().selectionMode = TB_SM_BRUSHES_ENTITIES;
@@ -475,7 +489,7 @@ namespace TrenchBroom {
                 return;
 
             current().selectedBrushes.erase(it);
-            brush.selected = false;
+            brush.setSelected(false);
 
             if (current().selectedBrushes.empty()) {
                 if (current().selectedEntities.empty())
@@ -558,7 +572,7 @@ namespace TrenchBroom {
             if (!current().selectedBrushes.empty()) {
                 data.brushes = current().selectedBrushes;
                 for (unsigned int i = 0; i < current().selectedBrushes.size(); i++)
-                    current().selectedBrushes[i]->selected = false;
+                    current().selectedBrushes[i]->setSelected(false);
                 current().selectedBrushes.clear();
                 current().selectionMode = TB_SM_NONE;
             }

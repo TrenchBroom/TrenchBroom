@@ -323,7 +323,7 @@ namespace TrenchBroom {
                 Model::EntitySet entitySet;
                 const Model::BrushList& selectedBrushes = selection.selectedBrushes();
                 for (unsigned int i = 0; i < selectedBrushes.size(); i++)
-                    entitySet.insert(selectedBrushes[i]->entity);
+                    entitySet.insert(selectedBrushes[i]->entity());
                 
                 Model::EntityList entityList;
                 entityList.insert(entityList.begin(), entitySet.begin(), entitySet.end());

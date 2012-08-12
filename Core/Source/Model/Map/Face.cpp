@@ -275,18 +275,18 @@ namespace TrenchBroom {
                 return;
             
             if (m_brush != NULL && m_selected)
-                m_brush->selectedFaceCount--;
+                m_brush->decSelectedFaceCount();
             m_brush = brush;
             if (m_brush != NULL && m_selected)
-                m_brush->selectedFaceCount++;
+                m_brush->incSelectedFaceCount();
         }
 
         void Face::setSelected(bool selected) {
             if (m_brush) {
                 if (selected)
-                    m_brush->selectedFaceCount++;
+                    m_brush->incSelectedFaceCount();
                 else
-                    m_brush->selectedFaceCount--;
+                    m_brush->decSelectedFaceCount();
             }
             
             m_selected = selected;

@@ -185,7 +185,7 @@ namespace TrenchBroom {
 
             void renderEntityBounds(RenderContext& context, const EdgeRenderInfo& renderInfo, const Vec4f* color);
             void renderEntityModels(RenderContext& context, EntityRenderers& entities);
-            void renderEdges(RenderContext& context, const EdgeRenderInfo& renderInfo, const Vec4f& color);
+            void renderEdges(RenderContext& context, const EdgeRenderInfo& renderInfo, const Vec4f* color);
             void renderFaces(RenderContext& context, bool textured, bool selected, const FaceRenderInfos& renderInfos);
             void renderFigures(RenderContext& context);
         public:

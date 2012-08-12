@@ -54,7 +54,7 @@ namespace TrenchBroom {
         static const int ColorSize = 4;
         static const int TexCoordSize = 2 * sizeof(GLfloat);
         static const int FaceVertexSize = TexCoordSize + TexCoordSize + VertexSize;
-        static const int EdgeVertexSize = VertexSize;
+        static const int EdgeVertexSize = ColorSize + VertexSize;
         static const int EntityBoundsVertexSize = ColorSize + VertexSize;
 
         MapRenderer::EdgeRenderInfo::EdgeRenderInfo(GLuint offset, GLuint vertexCount) : offset(offset), vertexCount(vertexCount) {}
@@ -109,12 +109,21 @@ namespace TrenchBroom {
             unsigned int offset = 0;
             unsigned int vertexCount = 0;
             
+            Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
+            const Vec4f& worldColor = prefs.edgeColor();
+            
             for (unsigned int i = 0; i < brushes.size(); i++) {
                 Model::Brush* brush = brushes[i];
+                Model::Entity* entity = brush->entity();
+                Model::EntityDefinitionPtr entityDefinition = entity->entityDefinition();
+                const Vec4f& color = (!entity->worldspawn() && entityDefinition.get() != NULL && entityDefinition->type == Model::TB_EDT_BRUSH) ? entityDefinition->color : worldColor;
+                
                 const std::vector<Model::Edge*>& edges = brush->geometry->edges;
                 for (unsigned int i = 0; i < edges.size(); i++) {
                     Model::Edge* edge = edges[i];
+                    offset = block.writeColor(color, offset);
                     offset = block.writeVec(edge->start->position, offset);
+                    offset = block.writeColor(color, offset);
                     offset = block.writeVec(edge->end->position, offset);
                 }
                 vertexCount += (2 * edges.size());
@@ -122,10 +131,17 @@ namespace TrenchBroom {
             
             for (unsigned int i = 0; i < faces.size(); i++) {
                 Model::Face* face = faces[i];
+                Model::Brush* brush = face->brush();
+                Model::Entity* entity = brush->entity();
+                Model::EntityDefinitionPtr entityDefinition = entity->entityDefinition();
+                const Vec4f& color = (entityDefinition.get() != NULL && entityDefinition->type == Model::TB_EDT_BRUSH) ? entityDefinition->color : worldColor;
+                
                 const std::vector<Model::Edge*>& edges = face->side->edges;
                 for (unsigned int i = 0; i < edges.size(); i++) {
                     Model::Edge* edge = edges[i];
+                    offset = block.writeColor(color, offset);
                     offset = block.writeVec(edge->start->position, offset);
+                    offset = block.writeColor(color, offset);
                     offset = block.writeVec(edge->end->position, offset);
                 }
                 vertexCount += (2 * edges.size());
@@ -166,7 +182,8 @@ namespace TrenchBroom {
             unsigned int totalUnselectedFaceVertexCount = 0;
             unsigned int totalSelectedFaceVertexCount = 0;
             
-            Model::BrushList unselectedBrushes;
+            Model::BrushList unselectedWorldBrushes;
+            Model::BrushList unselectedEntityBrushes;
             Model::BrushList selectedBrushes;
             Model::FaceList partiallySelectedBrushFaces;
             unsigned int totalUnselectedEdgeVertexCount = 0;
@@ -181,11 +198,14 @@ namespace TrenchBroom {
                     Model::Brush* brush = brushes[j];
 					assert(brush->geometry->edges.size() >= 6);
                     if (context.filter.brushVisible(*brush)) {
-                        if (entity->selected() || brush->selected) {
+                        if (entity->selected() || brush->selected()) {
                             selectedBrushes.push_back(brush);
                             totalSelectedEdgeVertexCount += (2 * brush->geometry->edges.size());
                         } else {
-                            unselectedBrushes.push_back(brush);
+                            if (entity->worldspawn())
+                                unselectedWorldBrushes.push_back(brush);
+                            else
+                                unselectedEntityBrushes.push_back(brush);
                             totalUnselectedEdgeVertexCount += (2 * brush->geometry->edges.size());
                             if (brush->partiallySelected()) {
                                 for (unsigned int k = 0; k < brush->faces.size(); k++) {
@@ -210,7 +230,7 @@ namespace TrenchBroom {
                             FacesByTexture::iterator lastSelectedTextureIt = selectedFaces.end();
                             FacesByTexture::iterator lastUnselectedTextureIt = unselectedFaces.end();
                             
-                            if (entity->selected() || brush->selected || face->selected()) {
+                            if (entity->selected() || brush->selected() || face->selected()) {
                                 if (lastSelectedTextureIt == selectedFaces.end() || lastSelectedTextureIt->first != texture)
                                     lastSelectedTextureIt = selectedFaces.insert(std::pair<Model::Assets::Texture*, Model::FaceList>(texture, Model::FaceList())).first;
                                 
@@ -227,6 +247,10 @@ namespace TrenchBroom {
                     }
                 }
             }
+            
+            // merge the collected brushes
+            Model::BrushList unselectedBrushes(unselectedWorldBrushes);
+            unselectedBrushes.insert(unselectedBrushes.end(), unselectedEntityBrushes.begin(), unselectedEntityBrushes.end());
             
             // write face triangles
             m_faceVbo->activate();
@@ -323,7 +347,7 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
                 if (context.filter.entityVisible(*entity)) {
-                    if (entity->selected())
+                    if (entity->selected() || entity->partiallySelected())
                         allSelectedEntities.push_back(entity);
                     else
                         allEntities.push_back(entity);
@@ -448,11 +472,11 @@ namespace TrenchBroom {
                             if (renderer != NULL)
                                 m_selectedEntityRenderers[entity] = CachedEntityRenderer(renderer, *entity->classname());
                         }
-
+                    } else {
                         if (entity->classname() != NULL)
-                            m_selectedClassnameRenderer->updateString(entity, *entity->classname());
+                            m_classnameRenderer->updateString(entity, *entity->classname());
                         else
-                            m_selectedClassnameRenderer->removeString(entity);
+                            m_classnameRenderer->removeString(entity);
                     }
                 }
             }
@@ -528,6 +552,15 @@ namespace TrenchBroom {
             if (!event.brushes.empty() || !event.faces.empty()) {
                 m_geometryDataValid = false;
                 m_selectedGeometryDataValid = false;
+                
+                for (unsigned int i = 0; i < event.brushes.size() && m_entityDataValid; i++) {
+                    Model::Brush* brush = event.brushes[i];
+                    Model::Entity* entity = brush->entity();
+                    if (!entity->worldspawn()) {
+                        m_entityDataValid = false;
+                        m_selectedEntityDataValid = false;
+                    }
+                }
             }
 
             Model::Selection& selection = m_editor.map().selection();
@@ -563,6 +596,15 @@ namespace TrenchBroom {
             if (!event.brushes.empty() || !event.faces.empty()) {
                 m_geometryDataValid = false;
                 m_selectedGeometryDataValid = false;
+                
+                for (unsigned int i = 0; i < event.brushes.size() && m_entityDataValid; i++) {
+                    Model::Brush* brush = event.brushes[i];
+                    Model::Entity* entity = brush->entity();
+                    if (!entity->worldspawn()) {
+                        m_entityDataValid = false;
+                        m_selectedEntityDataValid = false;
+                    }
+                }
             }
             
             Model::Selection& selection = m_editor.map().selection();
@@ -625,7 +667,7 @@ namespace TrenchBroom {
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
             if (color != NULL) {
                 glColorV4f(*color);
-                glVertexPointer(3, GL_FLOAT, EntityBoundsVertexSize, (const GLvoid *)(long)ColorSize);
+                glVertexPointer(3, GL_FLOAT, EntityBoundsVertexSize, reinterpret_cast<const GLvoid *>(ColorSize));
             } else {
                 glInterleavedArrays(GL_C4UB_V3F, EntityBoundsVertexSize, 0);
             }
@@ -661,15 +703,20 @@ namespace TrenchBroom {
             glPopAttrib();
         }
 
-        void MapRenderer::renderEdges(RenderContext& context, const EdgeRenderInfo& renderInfo, const Vec4f& color) {
+        void MapRenderer::renderEdges(RenderContext& context, const EdgeRenderInfo& renderInfo, const Vec4f* color) {
             if (renderInfo.vertexCount == 0)
                 return;
             
             glDisable(GL_TEXTURE_2D);
-            glColorV4f(color);
-
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
-            glVertexPointer(3, GL_FLOAT, EdgeVertexSize, (const GLvoid *)0L);
+
+            if (color != NULL) {
+                glColorV4f(*color);
+                glVertexPointer(3, GL_FLOAT, EdgeVertexSize, reinterpret_cast<const GLvoid *>(ColorSize));
+            } else {
+                glInterleavedArrays(GL_C4UB_V3F, EdgeVertexSize, 0);
+            }
+
             glDrawArrays(GL_LINES, renderInfo.offset / EdgeVertexSize, renderInfo.vertexCount);
             glPopClientAttrib();
         }
@@ -956,18 +1003,18 @@ namespace TrenchBroom {
                 
                 if (context.options.isolationMode() != Controller::IM_DISCARD) {
                     glSetEdgeOffset(0.1f);
-                    renderEdges(context, m_edgeRenderInfo, context.preferences.edgeColor());
+                    renderEdges(context, m_edgeRenderInfo, NULL);
                     glResetEdgeOffset();
                 }
 
                 if (!m_editor.map().selection().empty()) {
                     glDisable(GL_DEPTH_TEST);
-                    renderEdges(context, m_selectedEdgeRenderInfo, context.preferences.hiddenSelectedEdgeColor());
+                    renderEdges(context, m_selectedEdgeRenderInfo, &context.preferences.hiddenSelectedEdgeColor());
                     glEnable(GL_DEPTH_TEST);
 
                     glSetEdgeOffset(0.2f);
                     glDepthFunc(GL_LEQUAL);
-                    renderEdges(context, m_selectedEdgeRenderInfo, context.preferences.selectedEdgeColor());
+                    renderEdges(context, m_selectedEdgeRenderInfo, &context.preferences.selectedEdgeColor());
                     glDepthFunc(GL_LESS);
                     glResetEdgeOffset();
                 }
@@ -1001,30 +1048,28 @@ namespace TrenchBroom {
                     m_entityBoundsVbo->deactivate();
                 }
 
-                if (!m_editor.map().selection().selectedEntities().empty()) {
-                    if (context.options.renderEntityClassnames()) {
-                        m_fontManager.activate();
-                        m_selectedClassnameRenderer->render(context, classnameFilter, context.preferences.selectedInfoOverlayColor());
-                        m_fontManager.deactivate();
-                    }
-
-                    m_entityBoundsVbo->activate();
-                    glEnableClientState(GL_VERTEX_ARRAY);
-
-                    glDisable(GL_CULL_FACE);
-                    glDisable(GL_DEPTH_TEST);
-                    renderEntityBounds(context, m_selectedEntityBoundsRenderInfo, &context.preferences.hiddenSelectedEntityBoundsColor());
-                    glEnable(GL_DEPTH_TEST);
-                    glDepthFunc(GL_LEQUAL);
-                    renderEntityBounds(context, m_selectedEntityBoundsRenderInfo, &context.preferences.selectedEntityBoundsColor());
-                    glDepthFunc(GL_LESS);
-                    glEnable(GL_CULL_FACE);
-
-                    glDisableClientState(GL_VERTEX_ARRAY);
-                    m_entityBoundsVbo->deactivate();
-
-                    renderEntityModels(context, m_selectedEntityRenderers);
+                if (context.options.renderEntityClassnames()) {
+                    m_fontManager.activate();
+                    m_selectedClassnameRenderer->render(context, classnameFilter, context.preferences.selectedInfoOverlayColor());
+                    m_fontManager.deactivate();
                 }
+                
+                m_entityBoundsVbo->activate();
+                glEnableClientState(GL_VERTEX_ARRAY);
+                
+                glDisable(GL_CULL_FACE);
+                glDisable(GL_DEPTH_TEST);
+                renderEntityBounds(context, m_selectedEntityBoundsRenderInfo, &context.preferences.hiddenSelectedEntityBoundsColor());
+                glEnable(GL_DEPTH_TEST);
+                glDepthFunc(GL_LEQUAL);
+                renderEntityBounds(context, m_selectedEntityBoundsRenderInfo, &context.preferences.selectedEntityBoundsColor());
+                glDepthFunc(GL_LESS);
+                glEnable(GL_CULL_FACE);
+                
+                glDisableClientState(GL_VERTEX_ARRAY);
+                m_entityBoundsVbo->deactivate();
+                
+                renderEntityModels(context, m_selectedEntityRenderers);
             }
             
             renderFigures(context);

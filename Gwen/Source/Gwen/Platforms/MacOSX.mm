@@ -65,7 +65,9 @@ namespace Gwen {
             [openPanel setTitle:[NSString stringWithCString:Name.c_str() encoding:NSASCIIStringEncoding]];
             [openPanel setNameFieldLabel:@"File"];
             [openPanel setCanCreateDirectories:NO];
-            [openPanel setDirectory:[NSString stringWithCString:StartPath.c_str() encoding:NSASCIIStringEncoding]];
+            
+            NSURL* startPathUrl = [NSURL fileURLWithPath:[NSString stringWithCString:StartPath.c_str() encoding:NSASCIIStringEncoding]];
+            [openPanel setDirectoryURL:startPathUrl];
             
             if ([openPanel runModal] == NSFileHandlingPanelOKButton) {
                 for (NSURL* url in [openPanel URLs]) {

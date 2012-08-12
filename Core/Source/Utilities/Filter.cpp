@@ -39,15 +39,15 @@ namespace TrenchBroom {
             if (selection.selectionMode() == Model::TB_SM_FACES)
                 return brush.partiallySelected();
             
-            return brush.selected;
+            return brush.selected();
         }
         
         Model::GroupManager& groupManager = m_editor.map().groupManager();
         if (groupManager.allGroupsVisible())
             return true;
         
-        if (brush.entity->group())
-            return groupManager.visible(*brush.entity);
+        if (brush.entity()->group())
+            return groupManager.visible(*brush.entity());
         
         return false;
     }
@@ -80,15 +80,15 @@ namespace TrenchBroom {
             if (selection.selectionMode() == Model::TB_SM_FACES)
                 return brush.partiallySelected();
             
-            return brush.selected;
+            return brush.selected();
         }
         
         Model::GroupManager& groupManager = m_editor.map().groupManager();
         if (groupManager.allGroupsVisible())
             return true;
         
-        if (brush.entity->group())
-            return groupManager.visible(*brush.entity);
+        if (brush.entity()->group())
+            return groupManager.visible(*brush.entity());
         
         return false;
     }
@@ -99,19 +99,16 @@ namespace TrenchBroom {
     
     bool Filter::entityPickable(const Model::Entity& entity) {
         const Controller::TransientOptions& options = m_editor.options();
-        if (entity.worldspawn() || !options.renderEntities())
+        if (!options.renderEntities())
+            return false;
+        
+        Model::EntityDefinitionPtr entityDefinition = entity.entityDefinition();
+        if (entityDefinition.get() != NULL && entityDefinition->type == Model::TB_EDT_BRUSH && !entity.brushes().empty())
             return false;
         
         if (options.isolationMode() != Controller::IM_NONE)
             return entity.selected();
-        
-        Model::GroupManager& groupManager = m_editor.map().groupManager();
-        if (groupManager.allGroupsVisible())
-            return true;
-        
-        if (entity.group())
-            return groupManager.visible(entity);
-        
+
         return true;
     }
 

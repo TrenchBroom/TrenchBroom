@@ -42,10 +42,13 @@ namespace TrenchBroom {
         
         class Brush : public MapObject {
         protected:
+            Entity* m_entity;
+            bool m_selected;
+            unsigned int m_selectedFaceCount;
+            
             void init();
             void rebuildGeometry();
         public:
-            Entity* entity;
             FaceList faces;
             
             BrushGeometry* geometry;
@@ -54,8 +57,6 @@ namespace TrenchBroom {
             const BBox& worldBounds;
             
             int filePosition;
-            bool selected;
-            int selectedFaceCount;
 
             Brush(const BBox& worldBounds);
             Brush(const BBox& worldBounds, const Brush& brushTemplate);
@@ -64,11 +65,19 @@ namespace TrenchBroom {
             
             void restore(const Brush& brushTemplate, bool checkId = false);
             
+            void setEntity(Model::Entity* entity);
+            inline Model::Entity* entity() const { return m_entity; }
+            
             const BBox& bounds() const;
             inline EMapObjectType objectType() const { return TB_MT_BRUSH; };
             const Vec3f center() const;
             
-            inline bool partiallySelected() const { return selectedFaceCount > 0; }
+            void setSelected(bool selected);
+            inline bool selected() const { return m_selected; }
+            
+            inline void incSelectedFaceCount() { m_selectedFaceCount++; }
+            inline void decSelectedFaceCount() { m_selectedFaceCount--; }
+            inline bool partiallySelected() const { return m_selectedFaceCount > 0; }
             
             void pick(const Ray& ray, HitList& hits, Filter& filter);
             void pickVertexHandles(const Ray& ray, float handleSize, HitList& hits);

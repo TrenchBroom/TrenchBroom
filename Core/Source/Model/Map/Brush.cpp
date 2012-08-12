@@ -30,11 +30,11 @@
 namespace TrenchBroom {
     namespace Model {
         void Brush::init() {
-            entity = NULL;
+            m_entity = NULL;
             onGrid = false;
             filePosition = -1;
-            selected = false;
-            selectedFaceCount = 0;
+            m_selected = false;
+            m_selectedFaceCount = 0;
             geometry = new BrushGeometry(worldBounds);
         }
         
@@ -139,16 +139,39 @@ namespace TrenchBroom {
                 addFace(face);
             }
             
-            if (entity != NULL)
-                entity->brushChanged(this);
+            if (m_entity != NULL)
+                m_entity->brushChanged(this);
         }
         
+        void Brush::setEntity(Model::Entity* entity) {
+            if (entity == m_entity)
+                return;
+            
+            if (m_entity != NULL && m_selected)
+                m_entity->decSelectedBrushCount();
+            
+            m_entity = entity;
+            if (m_entity != NULL && m_selected)
+                m_entity->incSelectedBrushCount();
+        }
+
         const BBox& Brush::bounds() const {
             return geometry->bounds;
         }
 
         const Vec3f Brush::center() const {
             return centerOfVertices(geometry->vertices);
+        }
+        
+        void Brush::setSelected(bool selected) {
+            if (m_entity != NULL) {
+                if (selected)
+                    m_entity->incSelectedBrushCount();
+                else
+                    m_entity->decSelectedBrushCount();
+            }
+            
+            m_selected = selected;
         }
         
         void Brush::pick(const Ray& ray, HitList& hits, Filter& filter) {
@@ -454,28 +477,28 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < faces.size(); i++)
                 faces[i]->translate(delta, lockTextures);
             geometry->translate(delta);
-            entity->brushChanged(this);
+            m_entity->brushChanged(this);
         }
         
         void Brush::rotate90(EAxis axis, const Vec3f& center, bool clockwise, bool lockTextures) {
             for (unsigned int i = 0; i < faces.size(); i++)
                 faces[i]->rotate90(axis, center, clockwise, lockTextures);
             geometry->rotate90(axis, center, clockwise);
-            entity->brushChanged(this);
+            m_entity->brushChanged(this);
         }
         
         void Brush::rotate(const Quat& rotation, const Vec3f& center, bool lockTextures) {
             for (unsigned int i = 0; i < faces.size(); i++)
                 faces[i]->rotate(rotation, center, lockTextures);
             geometry->rotate(rotation, center);
-            entity->brushChanged(this);
+            m_entity->brushChanged(this);
         }
         
         void Brush::flip(EAxis axis, const Vec3f& center, bool lockTextures) {
             for (unsigned int i = 0; i < faces.size(); i++)
                 faces[i]->flip(axis, center, lockTextures);
             geometry->flip(axis, center);
-            entity->brushChanged(this);
+            m_entity->brushChanged(this);
         }
         
         bool Brush::canResize(Face& face, float dist) {
@@ -502,19 +525,19 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < faces.size(); i++)
                 faces[i]->coordsValid = false;
             rebuildGeometry();
-            entity->brushChanged(this);
+            m_entity->brushChanged(this);
         }
         
         void Brush::enlarge(float delta, bool lockTextures) {
             for (unsigned int i = 0; i < faces.size(); i++)
                 faces[i]->move(delta, lockTextures);
             rebuildGeometry();
-            entity->brushChanged(this);
+            m_entity->brushChanged(this);
         }
         
         void Brush::snap() {
             geometry->snap();
-            entity->brushChanged(this);
+            m_entity->brushChanged(this);
         }
         
         MoveResult Brush::moveVertex(size_t vertexIndex, const Vec3f& delta) {
@@ -544,7 +567,7 @@ namespace TrenchBroom {
                 faces.push_back(face);
             }
             
-            entity->brushChanged(this);
+            m_entity->brushChanged(this);
             return result;
         }
         
@@ -575,7 +598,7 @@ namespace TrenchBroom {
                 faces.push_back(face);
             }
             
-            entity->brushChanged(this);
+            m_entity->brushChanged(this);
             return result;
         }
         
@@ -606,7 +629,7 @@ namespace TrenchBroom {
                 faces.push_back(face);
             }
             
-            entity->brushChanged(this);
+            m_entity->brushChanged(this);
             return result;
         }
     }

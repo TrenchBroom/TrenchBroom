@@ -42,7 +42,7 @@ namespace TrenchBroom {
             Model::Hit* hit = info.event.hits->first(Model::TB_HT_FACE, true);
             if (hit == NULL) {
                 Vec3f newPos = m_editor.camera().defaultPoint(info.event.ray.direction);
-                delta = grid.moveDelta(m_bounds, m_editor.map().worldBounds(), newPos - m_bounds.center());
+                delta = grid.moveDeltaForEntity(m_bounds.center(), m_editor.map().worldBounds(), newPos - m_bounds.center());
             } else {
                 Model::Face& face = hit->face();
                 DragPlane dragPlane = DragPlane::orthogonal(face.boundary.normal, true);
@@ -55,7 +55,7 @@ namespace TrenchBroom {
                 
                 float dist = dragPlane.intersect(info.event.ray, hit->hitPoint);
                 Vec3f newPos = info.event.ray.pointAtDistance(dist);
-                delta = grid.moveDelta(m_bounds, m_editor.map().worldBounds(), newPos - (m_bounds.center() - offset));
+                delta = grid.moveDeltaForEntity(m_bounds.center(), m_editor.map().worldBounds(), newPos - (m_bounds.center() - offset));
 
                 EAxis a = dragPlane.normal().firstComponent();
                 if (dragPlane.normal()[a] > 0) delta[a] = hit->hitPoint[a] - m_bounds.min[a];

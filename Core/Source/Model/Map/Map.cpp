@@ -197,7 +197,7 @@ namespace TrenchBroom {
         }
 
         void Map::setEntityProperty(const PropertyKey& key, const PropertyValue* value) {
-            const EntityList& entities = m_selection->selectedEntities();
+            const EntityList& entities = m_selection->allSelectedEntities();
             if (entities.empty()) return;
 
             m_undoManager->begin("Set Entity Property");
@@ -223,7 +223,7 @@ namespace TrenchBroom {
         }
         
         void Map::setEntityProperty(const PropertyKey& key, const Vec3f& value, bool round) {
-            const EntityList& entities = m_selection->selectedEntities();
+            const EntityList& entities = m_selection->allSelectedEntities();
             if (entities.empty()) return;
             
             m_undoManager->begin("Set Entity Property");
@@ -240,7 +240,7 @@ namespace TrenchBroom {
         }
         
         void Map::setEntityProperty(const PropertyKey& key, int value) {
-            const EntityList& entities = m_selection->selectedEntities();
+            const EntityList& entities = m_selection->allSelectedEntities();
             if (entities.empty()) return;
             
             m_undoManager->begin("Set Entity Property");
@@ -257,7 +257,7 @@ namespace TrenchBroom {
         }
         
         void Map::setEntityProperty(const PropertyKey& key, float value, bool round) {
-            const EntityList& entities = m_selection->selectedEntities();
+            const EntityList& entities = m_selection->allSelectedEntities();
             if (entities.empty()) return;
             
             m_undoManager->begin("Set Entity Property");
@@ -277,7 +277,7 @@ namespace TrenchBroom {
             if (oldKey == newKey || isBlank(newKey))
                 return;
             
-            const EntityList& entities = m_selection->selectedEntities();
+            const EntityList& entities = m_selection->allSelectedEntities();
             if (entities.empty())
                 return;
             
@@ -302,7 +302,7 @@ namespace TrenchBroom {
 
 
         void Map::removeEntityProperty(const PropertyKey& key) {
-            const EntityList& entities = m_selection->selectedEntities();
+            const EntityList& entities = m_selection->allSelectedEntities();
             if (entities.empty()) return;
             
             m_undoManager->begin("Remove Entity Property");
@@ -531,7 +531,7 @@ namespace TrenchBroom {
 
                 for (unsigned int i = 0; i < brushes.size(); i++) {
                     Brush* brush = brushes[i];
-                    Entity* entity = brush->entity;
+                    Entity* entity = brush->entity();
                     entity->removeBrush(brush);
                     removedBrushes[brush] = entity;
 
@@ -592,7 +592,7 @@ namespace TrenchBroom {
                 for (BrushParentMap::iterator it = movedBrushes.begin(); it != movedBrushes.end(); ++it) {
                     Entity* newParent = it->second;
                     Brush* brush = it->first;
-                    Entity* oldParent = brush->entity;
+                    Entity* oldParent = brush->entity();
                     oldParent->removeBrush(brush);
                     newParent->addBrush(brush);
                 }

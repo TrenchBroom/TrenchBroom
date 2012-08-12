@@ -49,7 +49,7 @@ namespace TrenchBroom {
 
             Model::Face& face = hit->face();
             Model::Brush& brush = *face.brush();
-            if (!face.selected() && !brush.selected)
+            if (!face.selected() && !brush.selected())
                 return false;
             
             if (!m_figureCreated) {
@@ -81,7 +81,7 @@ namespace TrenchBroom {
             
             Model::Face& face = hit->face();
             Model::Brush& brush = *face.brush();
-            if (!face.selected() && !brush.selected)
+            if (!face.selected() && !brush.selected())
                 return false;
             
             m_referenceFace = &face;

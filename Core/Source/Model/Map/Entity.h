@@ -64,6 +64,7 @@ namespace TrenchBroom {
             
             int m_filePosition;
             bool m_selected;
+            unsigned int m_selectedBrushCount;
             
             void init();
             void validateGeometry() const;
@@ -112,10 +113,14 @@ namespace TrenchBroom {
             void rotate(const Quat& rotation, const Vec3f& rotationCenter);
             void flip(EAxis axis, const Vec3f& flipCenter);
             
-            int filePosition() const;
-            void setFilePosition(int filePosition);
-            bool selected() const;
-            void setSelected(bool selected);
+            inline int filePosition() const { return m_filePosition; }
+            inline void setFilePosition(int filePosition) { m_filePosition = filePosition; }
+            inline bool selected() const { return m_selected; }
+            inline void setSelected(bool selected) { m_selected = selected; }
+
+            inline void incSelectedBrushCount() { m_selectedBrushCount++; }
+            inline void decSelectedBrushCount() { m_selectedBrushCount--; }
+            inline bool partiallySelected() { return m_selectedBrushCount > 0; }
         };
     }
 }

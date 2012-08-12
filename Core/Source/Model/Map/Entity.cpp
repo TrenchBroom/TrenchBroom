@@ -37,6 +37,7 @@ namespace TrenchBroom {
             m_map = NULL;
             m_filePosition = -1;
             m_selected = false;
+            m_selectedBrushCount = 0;
             m_origin = Vec3f::Null;
             m_angle = 0;
             invalidateGeometry();
@@ -241,7 +242,7 @@ namespace TrenchBroom {
             if (m_entityDefinition != NULL && m_entityDefinition->type != TB_EDT_BRUSH)
                 return;
 
-            brush->entity = this;
+            brush->setEntity(this);
             m_brushes.push_back(brush);
             invalidateGeometry();
         }
@@ -251,7 +252,7 @@ namespace TrenchBroom {
                 return;
 
             for (unsigned int i = 0; i < brushes.size(); i++) {
-                brushes[i]->entity = this;
+                brushes[i]->setEntity(this);
                 m_brushes.push_back(brushes[i]);
             }
             invalidateGeometry();
@@ -265,7 +266,7 @@ namespace TrenchBroom {
             if (m_entityDefinition != NULL && m_entityDefinition->type != TB_EDT_BRUSH)
                 return;
 
-            brush->entity = NULL;
+            brush->setEntity(NULL);
             m_brushes.erase(find(m_brushes.begin(), m_brushes.end(), brush));
             invalidateGeometry();
         }
@@ -275,7 +276,7 @@ namespace TrenchBroom {
                 return;
 
             for (unsigned int i = 0; i < brushes.size(); i++) {
-                brushes[i]->entity = NULL;
+                brushes[i]->setEntity(NULL);
                 m_brushes.erase(find(m_brushes.begin(), m_brushes.end(), brushes[i]));
             }
             invalidateGeometry();
@@ -385,22 +386,6 @@ namespace TrenchBroom {
                 m_angle = -1;
             setProperty(AngleKey, m_angle, true);
             invalidateGeometry();
-        }
-
-        int Entity::filePosition() const {
-            return m_filePosition;
-        }
-
-        void Entity::setFilePosition(int filePosition) {
-            m_filePosition = filePosition;
-        }
-
-        bool Entity::selected() const {
-            return m_selected;
-        }
-
-        void Entity::setSelected(bool selected) {
-            m_selected = selected;
         }
     }
 }
