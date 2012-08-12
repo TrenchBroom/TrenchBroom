@@ -37,7 +37,6 @@ namespace TrenchBroom {
             
             virtual void updateDragPlane(InputEvent& event);
 
-            void handleModifierKeyChanged(InputEvent& event);
             bool handleMouseDown(InputEvent& event);
             bool handleMouseUp(InputEvent& event);
 
