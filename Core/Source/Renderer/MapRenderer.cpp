@@ -204,11 +204,23 @@ namespace TrenchBroom {
 							assert(face->side->vertices.size() >= 3);
                             
                             Model::Assets::Texture* texture = face->texture != NULL ? face->texture : m_dummyTexture;
+                            
+                            // because it is often the case that there are subsequences of faces with the same texture,
+                            // we always keep an iterator to the texture / face list that was last used
+                            FacesByTexture::iterator lastSelectedTextureIt = selectedFaces.end();
+                            FacesByTexture::iterator lastUnselectedTextureIt = unselectedFaces.end();
+                            
                             if (entity->selected() || brush->selected || face->selected()) {
-                                selectedFaces[texture].push_back(face);
+                                if (lastSelectedTextureIt == selectedFaces.end() || lastSelectedTextureIt->first != texture)
+                                    lastSelectedTextureIt = selectedFaces.insert(std::pair<Model::Assets::Texture*, Model::FaceList>(texture, Model::FaceList())).first;
+                                
+                                lastSelectedTextureIt->second.push_back(face);
                                 totalSelectedFaceVertexCount += (3 * face->side->vertices.size() - 6);
                             } else {
-                                unselectedFaces[texture].push_back(face);
+                                if (lastUnselectedTextureIt == unselectedFaces.end() || lastUnselectedTextureIt->first != texture)
+                                    lastUnselectedTextureIt = unselectedFaces.insert(std::pair<Model::Assets::Texture*, Model::FaceList>(texture, Model::FaceList())).first;
+                                
+                                lastUnselectedTextureIt->second.push_back(face);
                                 totalUnselectedFaceVertexCount += (3 * face->side->vertices.size() - 6);
                             }
                         }
