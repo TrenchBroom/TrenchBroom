@@ -78,7 +78,6 @@ public:
 	afx_msg void OnUpdateToolsToggleTextureLock(CCmdUI* pCmdUI);
 	afx_msg void OnEditDelete();
 	afx_msg void OnEditSelectAll();
-	afx_msg void OnEditSelectEntity();
 	afx_msg void OnEditSelectTouching();
 	afx_msg void OnEditSelectNone();
 	afx_msg void OnViewIsolateSelection();

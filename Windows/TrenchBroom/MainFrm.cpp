@@ -65,8 +65,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_DELETE, &CMainFrame::OnUpdateMenuItem)
 	ON_COMMAND(ID_EDIT_SELECT_ALL, &CMainFrame::OnEditSelectAll)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_SELECT_ALL, &CMainFrame::OnUpdateMenuItem)
-	ON_COMMAND(ID_EDIT_SELECT_ENTITY, &CMainFrame::OnEditSelectEntity)
-	ON_UPDATE_COMMAND_UI(ID_EDIT_SELECT_ENTITY, &CMainFrame::OnUpdateMenuItem)
 	ON_COMMAND(ID_EDIT_SELECT_TOUCHING, &CMainFrame::OnEditSelectTouching)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_SELECT_TOUCHING, &CMainFrame::OnUpdateMenuItem)
 	ON_COMMAND(ID_EDIT_SELECT_NONE, &CMainFrame::OnEditSelectNone)
@@ -245,8 +243,6 @@ bool CMainFrame::validateCommand(UINT id)
 		return mapViewFocused() && (selection.selectionMode() == TrenchBroom::Model::TB_SM_BRUSHES || selection.selectionMode() == TrenchBroom::Model::TB_SM_ENTITIES || selection.selectionMode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES);
 	case ID_EDIT_SELECT_ALL:
 		return mapViewFocused();
-	case ID_EDIT_SELECT_ENTITY:
-		return mapViewFocused() && selection.selectionMode() == TrenchBroom::Model::TB_SM_BRUSHES;
 	case ID_EDIT_SELECT_TOUCHING:
 		return mapViewFocused() && selection.selectionMode() == TrenchBroom::Model::TB_SM_BRUSHES && selection.selectedBrushes().size() == 1;
 	case ID_EDIT_SELECT_NONE:
@@ -488,13 +484,6 @@ void CMainFrame::OnEditSelectAll()
 {
 	TrenchBroom::Controller::Editor* editor = currentEditor();
 	editor->selectAll();
-}
-
-
-void CMainFrame::OnEditSelectEntity()
-{
-	TrenchBroom::Controller::Editor* editor = currentEditor();
-	editor->selectEntities();
 }
 
 
