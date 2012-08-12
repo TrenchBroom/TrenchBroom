@@ -106,6 +106,7 @@ namespace TrenchBroom {
 
             virtual bool handleActivated(InputEvent& event) { return false; }
             virtual bool handleDeactivated(InputEvent& event) { return false; }
+            virtual void handleModifierKeyChanged(InputEvent& event) {}
             virtual bool handleMouseDown(InputEvent& event) { return false; }
             virtual bool handleMouseUp(InputEvent& event) { return false; }
             virtual bool handleMouseMoved(InputEvent& event) { return false; }
@@ -159,6 +160,10 @@ namespace TrenchBroom {
                 return false;
             }
             
+            void modifierKeyChanged(InputEvent& event) {
+                handleModifierKeyChanged(event);
+            }
+            
             bool mouseDown(InputEvent& event) {
                 if (handleMouseDown(event)) {
                     m_state = TB_TS_MOUSE_DOWN;
@@ -207,11 +212,13 @@ namespace TrenchBroom {
                 return false;
             }
             
-            void drag(InputEvent& event) {
+            bool drag(InputEvent& event) {
                 if (handleDrag(event)) {
                     toolDragged(event);
+                    return true;
                 } else {
                     endDrag(event);
+                    return false;
                 }
             }
             

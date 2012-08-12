@@ -135,10 +135,20 @@ namespace TrenchBroom {
 
         void InputController::modifierKeyDown(Tool::EModifierKeys modifierKey) {
             m_currentEvent.modifierKeys |= modifierKey;
+            updateHits();
+            
+            ToolList chain = m_receiverChain;
+            for (unsigned int i = 0; i < chain.size(); i++)
+                chain[i]->modifierKeyChanged(m_currentEvent);
         }
         
         void InputController::modifierKeyUp(Tool::EModifierKeys modifierKey) {
             m_currentEvent.modifierKeys &= ~modifierKey;
+            updateHits();
+            
+            ToolList chain = m_receiverChain;
+            for (unsigned int i = 0; i < chain.size(); i++)
+                chain[i]->modifierKeyChanged(m_currentEvent);
         }
         
         void InputController::mouseDown(Tool::EMouseButton mouseButton) {
@@ -194,8 +204,14 @@ namespace TrenchBroom {
             updateHits();
             
             if (m_dragButton != Tool::TB_MB_NONE && m_dragScrollReceiver != NULL) {
-                m_dragScrollReceiver->drag(m_currentEvent);
-            } else {
+                if (!m_dragScrollReceiver->drag(m_currentEvent)) {
+                    m_dragScrollReceiver = ToolPtr();
+                    m_dragButton = Tool::TB_MB_NONE;
+                    m_mouseDownReceiver = ToolPtr();
+                }
+            }
+            
+            if (m_dragButton == Tool::TB_MB_NONE || m_dragScrollReceiver == NULL) {
                 ToolList chain = m_receiverChain;
                 for (unsigned int i = 0; i < chain.size(); i++)
                     chain[i]->mouseMoved(m_currentEvent);

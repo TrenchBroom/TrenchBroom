@@ -74,7 +74,7 @@ namespace TrenchBroom {
             void pickVertexHandles(const Ray& ray, float handleSize, HitList& hits);
             void pickEdgeHandles(const Ray& ray, float handleSize, HitList& hits);
             void pickFaceHandles(const Ray& ray, float handleSize, HitList& hits);
-            void pickClosestFace(const Ray& ray, float maxDistance, HitList& hits);
+            float pickClosestFace(const Ray& ray, float maxDistance, HitList& hits);
             bool containsPoint(Vec3f point);
             bool intersectsBrush(Brush& brush);
             bool containsBrush(Brush& brush);

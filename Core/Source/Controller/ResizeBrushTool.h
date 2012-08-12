@@ -37,6 +37,7 @@ namespace TrenchBroom {
             
             virtual void updateDragPlane(InputEvent& event);
 
+            void handleModifierKeyChanged(InputEvent& event);
             bool handleMouseDown(InputEvent& event);
             bool handleMouseUp(InputEvent& event);
 
@@ -48,6 +49,7 @@ namespace TrenchBroom {
             ~ResizeBrushTool();
 
             virtual void updateHits(InputEvent& event);
+            inline Model::Face* referenceFace() { return m_referenceFace; }
             
             static bool resizeBrushModiferPressed(InputEvent& event);
         };

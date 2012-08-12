@@ -36,10 +36,13 @@ namespace TrenchBroom {
             
             bool handleMouseUp(InputEvent& event);
             bool handleScrolled(InputEvent& event);
+            
+            /*
             bool handleBeginDrag(InputEvent& event);
             bool handleDrag(InputEvent& event);
             void handleEndDrag(InputEvent& event);
-
+            */
+             
             static bool multiSelectionModiferPressed(InputEvent& event);
             static bool gridSizeModifierPressed(InputEvent& event);
         };

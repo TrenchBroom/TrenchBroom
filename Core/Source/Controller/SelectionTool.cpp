@@ -104,6 +104,7 @@ namespace TrenchBroom {
             return true;
         }
         
+        /*
         bool SelectionTool::handleBeginDrag(InputEvent& event) {
             if (event.mouseButton != TB_MB_LEFT || !multiSelectionModiferPressed(event))
                 return false;
@@ -148,7 +149,8 @@ namespace TrenchBroom {
         void SelectionTool::handleEndDrag(InputEvent& event) {
             editor().map().undoManager().end();
         }
-
+         */
+        
         bool SelectionTool::multiSelectionModiferPressed(InputEvent& event) {
 			return event.modifierKeys == Model::Preferences::sharedPreferences->selectionToolMultiKey();
         }
