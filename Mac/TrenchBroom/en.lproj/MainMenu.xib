@@ -399,15 +399,6 @@
 									<reference key="NSOnImage" ref="1033313550"/>
 									<reference key="NSMixedImage" ref="310636482"/>
 								</object>
-								<object class="NSMenuItem" id="768476078">
-									<reference key="NSMenu" ref="789758025"/>
-									<string key="NSTitle">Select Entities</string>
-									<string key="NSKeyEquiv">e</string>
-									<int key="NSKeyEquivModMask">1048576</int>
-									<int key="NSMnemonicLoc">2147483647</int>
-									<reference key="NSOnImage" ref="1033313550"/>
-									<reference key="NSMixedImage" ref="310636482"/>
-								</object>
 								<object class="NSMenuItem" id="224757740">
 									<reference key="NSMenu" ref="789758025"/>
 									<string key="NSTitle">Select Touching</string>
@@ -1856,14 +1847,6 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
-						<string key="label">selectEntities:</string>
-						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="768476078"/>
-					</object>
-					<int key="connectionID">694</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
 						<string key="label">moveCameraForward:</string>
 						<reference key="source" ref="1014"/>
 						<reference key="destination" ref="983777070"/>
@@ -2210,7 +2193,6 @@
 							<reference ref="540682520"/>
 							<reference ref="224757740"/>
 							<reference ref="583158037"/>
-							<reference ref="768476078"/>
 							<reference ref="74852601"/>
 							<reference ref="415633725"/>
 							<reference ref="538849378"/>
@@ -2519,11 +2501,6 @@
 					<object class="IBObjectRecord">
 						<int key="objectID">570</int>
 						<reference key="object" ref="870195400"/>
-						<reference key="parent" ref="789758025"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">571</int>
-						<reference key="object" ref="768476078"/>
 						<reference key="parent" ref="789758025"/>
 					</object>
 					<object class="IBObjectRecord">
@@ -3017,7 +2994,6 @@
 				<string key="568.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="57.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="570.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="571.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<object class="NSMutableDictionary" key="572.IBAttributePlaceholdersKey">
 					<string key="NS.key.0">ToolTip</string>
 					<object class="IBToolTipAttribute" key="NS.object.0">
@@ -3203,7 +3179,6 @@
 						<string key="rollObjectsCW:">id</string>
 						<string key="rotateTexturesCCW:">id</string>
 						<string key="rotateTexturesCW:">id</string>
-						<string key="selectEntities:">id</string>
 						<string key="selectTouching:">id</string>
 						<string key="setGridSize:">id</string>
 						<string key="toggleEdgeTool:">id</string>
@@ -3327,10 +3302,6 @@
 						</object>
 						<object class="IBActionInfo" key="rotateTexturesCW:">
 							<string key="name">rotateTexturesCW:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="selectEntities:">
-							<string key="name">selectEntities:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="selectTouching:">

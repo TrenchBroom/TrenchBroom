@@ -36,7 +36,6 @@
 - (IBAction)customUndo:(id)sender;
 - (IBAction)customRedo:(id)sender;
 
-- (IBAction)selectEntities:(id)sender;
 - (IBAction)selectTouching:(id)sender;
 
 - (IBAction)toggleVertexTool:(id)sender;

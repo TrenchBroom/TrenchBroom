@@ -305,39 +305,21 @@ namespace TrenchBroom {
             selection.deselectAll();
 
             const Model::EntityList& entities = m_map->entities();
-            Model::BrushList brushes;
-            for (unsigned int i = 0; i < entities.size(); i++)
-                brushes.insert(brushes.begin(), entities[i]->brushes().begin(), entities[i]->brushes().end());
-            if (!brushes.empty())
-                selection.selectBrushes(brushes);
-            if (!entities.empty())
-                selection.selectEntities(entities);
-        }
-        
-        void Editor::selectEntities() {
-            Model::Selection& selection = m_map->selection();
-
-            if (selection.selectionMode() == Model::TB_SM_BRUSHES) {
-                m_map->undoManager().addSelection(*m_map);
-
-                Model::EntitySet entitySet;
-                const Model::BrushList& selectedBrushes = selection.selectedBrushes();
-                for (unsigned int i = 0; i < selectedBrushes.size(); i++)
-                    entitySet.insert(selectedBrushes[i]->entity());
+            
+            Model::EntityList selectEntities;
+            Model::BrushList selectBrushes;
+            for (unsigned int i = 0; i < entities.size(); i++) {
+                Model::Entity* entity = entities[i];
+                const Model::EntityDefinitionPtr entityDefinition = entity->entityDefinition();
+                if (entityDefinition.get() == NULL || entityDefinition->type == Model::TB_EDT_POINT)
+                    selectEntities.push_back(entity);
                 
-                Model::EntityList entityList;
-                entityList.insert(entityList.begin(), entitySet.begin(), entitySet.end());
-                
-                Model::BrushList brushList;
-                for (unsigned int i = 0; i < entityList.size(); i++) {
-                    Model::Entity* entity = entityList[i];
-                    brushList.insert(brushList.end(), entity->brushes().begin(), entity->brushes().end());
-                }
-                
-                selection.deselectAll();
-                selection.selectEntities(entityList);
-                selection.selectBrushes(brushList);
+                selectBrushes.insert(selectBrushes.begin(), entity->brushes().begin(), entity->brushes().end());
             }
+            if (!selectBrushes.empty())
+                selection.selectBrushes(selectBrushes);
+            if (!selectEntities.empty())
+                selection.selectEntities(selectEntities);
         }
         
         void Editor::selectTouching(bool deleteBrush) {
@@ -354,7 +336,8 @@ namespace TrenchBroom {
                 const Model::EntityList& entities = m_map->entities();
                 for (unsigned int i = 0; i < entities.size(); i++) {
                     Model::Entity* entity = entities[i];
-                    if (entity->entityDefinition()->type == Model::TB_EDT_POINT && selectionBrush->intersectsEntity(*entity)) {
+                    const Model::EntityDefinitionPtr entityDefinition = entity->entityDefinition();
+                    if ((entityDefinition.get() == NULL || entityDefinition->type == Model::TB_EDT_POINT) && selectionBrush->intersectsEntity(*entity)) {
                         selectedEntities.push_back(entity);
                     } else {
                         const Model::BrushList entityBrushes = entity->brushes();
