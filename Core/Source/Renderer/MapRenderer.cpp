@@ -727,23 +727,23 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < renderInfos.size(); i++) {
                 const TexturedTriangleRenderInfo& renderInfo = renderInfos[i];
                 if (textured) {
-                    if (renderInfo.texture == NULL && textureActive)
+                    if (renderInfo.texture->dummy && textureActive)
                         glDisable(GL_TEXTURE_2D);
                     else
                         glEnable(GL_TEXTURE_2D);
-                    if (renderInfo.texture != NULL)
+                    if (!renderInfo.texture->dummy)
                         renderInfo.texture->activate();
                     else
                         glColorV4f(context.preferences.faceColor());
                 } else {
-                    if (renderInfo.texture != NULL)
+                    if (!renderInfo.texture->dummy)
                         glColorV4f(renderInfo.texture->averageColor);
                     else
                         glColorV4f(context.preferences.faceColor());
                 }
                 
                 glDrawArrays(GL_TRIANGLES, renderInfo.offset / FaceVertexSize, renderInfo.vertexCount);
-                if (renderInfo.texture && renderInfo.texture != NULL)
+                if (renderInfo.texture && !renderInfo.texture->dummy)
                     renderInfo.texture->deactivate();
             }
             

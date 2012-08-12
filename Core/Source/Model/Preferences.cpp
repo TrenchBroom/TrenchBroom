@@ -495,7 +495,7 @@ namespace TrenchBroom {
         }
 
         float Preferences::resizeHandleSize() {
-            return 15.0f;
+            return 30.0f;
         }
 
         float Preferences::vertexHandleSize() {
