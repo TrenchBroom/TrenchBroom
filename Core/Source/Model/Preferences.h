@@ -32,6 +32,7 @@ namespace TrenchBroom {
             static const std::string CameraLookSpeed;
             static const std::string CameraPanSpeed;
             static const std::string CameraMoveSpeed;
+            static const std::string CameraLookInvertX;
             static const std::string CameraLookInvertY;
             static const std::string CameraPanInvertX;
             static const std::string CameraPanInvertY;
@@ -82,6 +83,7 @@ namespace TrenchBroom {
             float m_cameraLookSpeed;
             float m_cameraPanSpeed;
             float m_cameraMoveSpeed;
+            bool m_cameraLookInvertX;
             bool m_cameraLookInvertY;
             bool m_cameraPanInvertX;
             bool m_cameraPanInvertY;
@@ -176,6 +178,8 @@ namespace TrenchBroom {
             void setCameraPanSpeed(float cameraPanSpeed);
             float cameraMoveSpeed();
             void setCameraMoveSpeed(float cameraMoveSpeed);
+            bool cameraLookInvertX();
+            void setCameraLookInvertX(bool cameraLookInvertX);
             bool cameraLookInvertY();
             void setCameraLookInvertY(bool cameraLookInvertY);
             bool cameraPanInvertX();

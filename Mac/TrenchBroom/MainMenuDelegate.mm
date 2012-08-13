@@ -20,9 +20,11 @@
 #import "MainMenuDelegate.h"
 
 #import "EditorHolder.h"
+#import "EntityMenuUtils.h"
 #import "MapDocument.h"
 
 #import "Controller/Editor.h"
+#import "Model/Map/EntityDefinition.h"
 #import "Model/Map/Map.h"
 #import "Model/Selection.h"
 
@@ -60,6 +62,21 @@ using namespace TrenchBroom;
                 break;
             default:
                 break;
+        }
+        
+        Model::EntityDefinitionManager& entityDefinitionManager = map.entityDefinitionManager();
+        if ([pointEntityMenuItem submenu] == nil) {
+            Model::EntityDefinitionList pointEntities = entityDefinitionManager.definitions(Model::TB_EDT_POINT);
+            NSMenu* pointEntityMenu = [[NSMenu alloc] initWithTitle:@"Create Point Entity"];
+            [pointEntityMenuItem setSubmenu:[pointEntityMenu autorelease]];
+            Gui::createEntityMenu(pointEntityMenu, pointEntities, @selector(createEntityFromMainMenu:));
+        }
+        
+        if ([brushEntityMenuItem submenu] == nil) {
+            Model::EntityDefinitionList brushEntities = entityDefinitionManager.definitions(Model::TB_EDT_BRUSH);
+            NSMenu* brushEntityMenu = [[NSMenu alloc] initWithTitle:@"Create Point Entity"];
+            [brushEntityMenuItem setSubmenu:[brushEntityMenu autorelease]];
+            Gui::createEntityMenu(brushEntityMenu, brushEntities, @selector(createEntityFromMainMenu:));
         }
     }
 }

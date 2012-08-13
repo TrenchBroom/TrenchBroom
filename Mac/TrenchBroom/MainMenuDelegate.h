@@ -23,6 +23,8 @@
     IBOutlet NSMenuItem* actionsMenuItem;
     IBOutlet NSMenu* textureActionsMenu;
     IBOutlet NSMenu* objectActionsMenu;
+    IBOutlet NSMenuItem* pointEntityMenuItem;
+    IBOutlet NSMenuItem* brushEntityMenuItem;
 }
 
 @end

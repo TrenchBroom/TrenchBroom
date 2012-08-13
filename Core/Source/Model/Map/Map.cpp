@@ -39,6 +39,36 @@
 
 namespace TrenchBroom {
     namespace Model {
+        void Map::moveBrushesToEntities(const BrushParentMap brushEntityMap) {
+            if (brushEntityMap.empty())
+                return;
+
+            BrushList brushes;
+            BrushParentMap undoMap;
+            
+            BrushParentMap::const_iterator it;
+            for (it = brushEntityMap.begin(); it != brushEntityMap.end(); ++it) {
+                Model::Brush* brush = it->first;
+                brushes.push_back(brush);
+                undoMap[brush] = brush->entity();
+            }
+            
+            m_undoManager->begin("Move Brushes to Entity");
+            m_undoManager->addFunctor<const BrushParentMap>(*this, &Map::moveBrushesToEntities, undoMap);
+            
+            if (m_postNotifications) brushesWillChange(brushes);
+            for (it = brushEntityMap.begin(); it != brushEntityMap.end(); ++it) {
+                Model::Brush* brush = it->first;
+                Model::Entity* newEntity = it->second;
+                Model::Entity* oldEntity = brush->entity();
+                oldEntity->removeBrush(brush);
+                newEntity->addBrush(brush);
+            }
+            if (m_postNotifications) brushesDidChange(brushes);
+            
+            m_undoManager->end();
+        }
+
         void Map::setPostNotifications(bool postNotifications) {
             m_postNotifications = postNotifications;
         }
@@ -322,9 +352,11 @@ namespace TrenchBroom {
             const BrushList brushes = m_selection->selectedBrushes();
             if (brushes.empty()) return;
 
-            if (m_postNotifications) brushesWillChange(brushes);
-            entity.addBrushes(brushes);
-            if (m_postNotifications) brushesDidChange(brushes);
+            BrushParentMap brushEntityMap;
+            for (unsigned int i = 0; i < brushes.size(); i++)
+                brushEntityMap[brushes[i]] = &entity;
+
+            moveBrushesToEntities(brushEntityMap);
         }
 
         Brush* Map::createBrush(Entity& entity, Brush& brushTemplate) {

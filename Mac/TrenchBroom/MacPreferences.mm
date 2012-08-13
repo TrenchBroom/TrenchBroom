@@ -59,6 +59,7 @@ namespace TrenchBroom {
             setDictionaryValue(dict, CameraLookSpeed, m_cameraLookSpeed);
             setDictionaryValue(dict, CameraPanSpeed, m_cameraPanSpeed);
             setDictionaryValue(dict, CameraMoveSpeed, m_cameraMoveSpeed);
+            setDictionaryValue(dict, CameraLookInvertX, m_cameraLookInvertX);
             setDictionaryValue(dict, CameraLookInvertY, m_cameraLookInvertY);
             setDictionaryValue(dict, CameraPanInvertX, m_cameraPanInvertX);
             setDictionaryValue(dict, CameraPanInvertY, m_cameraPanInvertY);

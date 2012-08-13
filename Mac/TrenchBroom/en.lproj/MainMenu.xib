@@ -537,9 +537,33 @@
 									<reference key="NSOnImage" ref="1033313550"/>
 									<reference key="NSMixedImage" ref="310636482"/>
 								</object>
+								<object class="NSMenuItem" id="798036179">
+									<reference key="NSMenu" ref="789758025"/>
+									<string key="NSTitle">Create Point Entity</string>
+									<string key="NSKeyEquiv"/>
+									<int key="NSMnemonicLoc">2147483647</int>
+									<reference key="NSOnImage" ref="1033313550"/>
+									<reference key="NSMixedImage" ref="310636482"/>
+								</object>
+								<object class="NSMenuItem" id="847363378">
+									<reference key="NSMenu" ref="789758025"/>
+									<string key="NSTitle">Create Brush Entity</string>
+									<string key="NSKeyEquiv"/>
+									<int key="NSMnemonicLoc">2147483647</int>
+									<reference key="NSOnImage" ref="1033313550"/>
+									<reference key="NSMixedImage" ref="310636482"/>
+								</object>
 								<object class="NSMenuItem" id="36045758">
 									<reference key="NSMenu" ref="789758025"/>
 									<string key="NSTitle">Create Prefab</string>
+									<string key="NSKeyEquiv"/>
+									<int key="NSMnemonicLoc">2147483647</int>
+									<reference key="NSOnImage" ref="1033313550"/>
+									<reference key="NSMixedImage" ref="310636482"/>
+								</object>
+								<object class="NSMenuItem" id="715911518">
+									<reference key="NSMenu" ref="789758025"/>
+									<string key="NSTitle">Move Brushes to World</string>
 									<string key="NSKeyEquiv"/>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="1033313550"/>
@@ -1990,6 +2014,14 @@
 					<int key="connectionID">712</int>
 				</object>
 				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">moveBrushesToWorld:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="715911518"/>
+					</object>
+					<int key="connectionID">726</int>
+				</object>
+				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">delegate</string>
 						<reference key="source" ref="789758025"/>
@@ -2020,6 +2052,22 @@
 						<reference key="destination" ref="582852729"/>
 					</object>
 					<int key="connectionID">657</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">brushEntityMenuItem</string>
+						<reference key="source" ref="1007386952"/>
+						<reference key="destination" ref="847363378"/>
+					</object>
+					<int key="connectionID">724</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">pointEntityMenuItem</string>
+						<reference key="source" ref="1007386952"/>
+						<reference key="destination" ref="798036179"/>
+					</object>
+					<int key="connectionID">725</int>
 				</object>
 			</array>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -2197,6 +2245,9 @@
 							<reference ref="415633725"/>
 							<reference ref="538849378"/>
 							<reference ref="36045758"/>
+							<reference ref="715911518"/>
+							<reference ref="798036179"/>
+							<reference ref="847363378"/>
 						</array>
 						<reference key="parent" ref="952259628"/>
 					</object>
@@ -2931,6 +2982,23 @@
 						<reference key="parent" ref="0"/>
 						<string key="objectName">Menu Delegate</string>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">715</int>
+						<reference key="object" ref="715911518"/>
+						<reference key="parent" ref="789758025"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">716</int>
+						<reference key="object" ref="798036179"/>
+						<array class="NSMutableArray" key="children"/>
+						<reference key="parent" ref="789758025"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">719</int>
+						<reference key="object" ref="847363378"/>
+						<array class="NSMutableArray" key="children"/>
+						<reference key="parent" ref="789758025"/>
+					</object>
 				</array>
 			</object>
 			<dictionary class="NSMutableDictionary" key="flattenedProperties">
@@ -3074,6 +3142,9 @@
 				<string key="652.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="653.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="654.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="715.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="716.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="719.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="72.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="73.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="74.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -3090,7 +3161,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">712</int>
+			<int key="maxID">726</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -3125,7 +3196,9 @@
 					<string key="superclassName">NSObject</string>
 					<dictionary class="NSMutableDictionary" key="outlets">
 						<string key="actionsMenuItem">NSMenuItem</string>
+						<string key="brushEntityMenuItem">NSMenuItem</string>
 						<string key="objectActionsMenu">NSMenu</string>
+						<string key="pointEntityMenuItem">NSMenuItem</string>
 						<string key="textureActionsMenu">NSMenu</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
@@ -3133,9 +3206,17 @@
 							<string key="name">actionsMenuItem</string>
 							<string key="candidateClassName">NSMenuItem</string>
 						</object>
+						<object class="IBToOneOutletInfo" key="brushEntityMenuItem">
+							<string key="name">brushEntityMenuItem</string>
+							<string key="candidateClassName">NSMenuItem</string>
+						</object>
 						<object class="IBToOneOutletInfo" key="objectActionsMenu">
 							<string key="name">objectActionsMenu</string>
 							<string key="candidateClassName">NSMenu</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="pointEntityMenuItem">
+							<string key="name">pointEntityMenuItem</string>
+							<string key="candidateClassName">NSMenuItem</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="textureActionsMenu">
 							<string key="name">textureActionsMenu</string>
@@ -3157,6 +3238,7 @@
 						<string key="enlargeBrushes:">id</string>
 						<string key="flipObjectsHorizontally:">id</string>
 						<string key="flipObjectsVertically:">id</string>
+						<string key="moveBrushesToWorld:">id</string>
 						<string key="moveCameraBackward:">id</string>
 						<string key="moveCameraDown:">id</string>
 						<string key="moveCameraForward:">id</string>
@@ -3214,6 +3296,10 @@
 						</object>
 						<object class="IBActionInfo" key="flipObjectsVertically:">
 							<string key="name">flipObjectsVertically:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="moveBrushesToWorld:">
+							<string key="name">moveBrushesToWorld:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="moveCameraBackward:">
@@ -3376,6 +3462,20 @@
 				<object class="IBPartialClassDescription">
 					<string key="className">MapView</string>
 					<string key="superclassName">NSOpenGLView</string>
+					<dictionary class="NSMutableDictionary" key="actions">
+						<string key="createEntityFromMainMenu:">id</string>
+						<string key="createEntityFromPopupMenu:">id</string>
+					</dictionary>
+					<dictionary class="NSMutableDictionary" key="actionInfosByName">
+						<object class="IBActionInfo" key="createEntityFromMainMenu:">
+							<string key="name">createEntityFromMainMenu:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="createEntityFromPopupMenu:">
+							<string key="name">createEntityFromPopupMenu:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+					</dictionary>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">./Classes/MapView.h</string>

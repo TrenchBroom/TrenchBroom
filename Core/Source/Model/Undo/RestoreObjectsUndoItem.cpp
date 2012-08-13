@@ -32,7 +32,6 @@ namespace TrenchBroom {
             for (BrushParentMap::iterator it = m_removedBrushes.begin(); it != m_removedBrushes.end(); ++it) delete it->first;
             for (BrushParentMap::iterator it = m_movedBrushes.begin(); it != m_movedBrushes.end(); ++it) delete it->first;
         }
-
         
         void RestoreObjectsUndoItem::undo() {
             m_map.restoreObjects(m_entities, m_removedBrushes, m_movedBrushes);

@@ -350,6 +350,10 @@ namespace TrenchBroom {
 - (IBAction)enlargeBrushes:(id)sender {
 }
 
+- (IBAction)moveBrushesToWorld:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->moveBrushesToWorld();
+}
 
 - (IBAction)toggleGrid:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
@@ -477,6 +481,12 @@ namespace TrenchBroom {
         return [self mapViewFocused] && (selection.selectionMode() == Model::TB_SM_BRUSHES || selection.selectionMode() == Model::TB_SM_ENTITIES || selection.selectionMode() == Model::TB_SM_BRUSHES_ENTITIES);
     } else if (action == @selector(enlargeBrushes:)) {
         return [self mapViewFocused] && selection.selectionMode() == Model::TB_SM_BRUSHES;
+    } else if (action == @selector(moveBrushesToWorld:)) {
+        const Model::BrushList& brushes = selection.selectedBrushes();
+        for (unsigned int i = 0; i < brushes.size(); i++)
+            if (brushes[i]->entity() != map.worldspawn(false))
+                return YES;
+        return NO;
     } else if (action == @selector(toggleGrid:)) {
         [menuItem setState:editor->grid().visible() ? NSOnState : NSOffState];
         return [self mapViewFocused];

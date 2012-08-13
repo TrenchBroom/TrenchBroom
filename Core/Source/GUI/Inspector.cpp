@@ -132,18 +132,18 @@ namespace TrenchBroom {
                 m_textureWadList->AddItem(collections[i]->name());
         }
 
-        void Inspector::propertiesDidChange(const std::vector<Model::Entity*>& entities) {
+        void Inspector::propertiesDidChange(const Model::EntityList& entities) {
             updateTextureControls();
 
             Model::Selection& selection = m_editor.map().selection();
             m_propertiesTable->setEntities(selection.allSelectedEntities());
         }
         
-        void Inspector::brushesDidChange(const std::vector<Model::Brush*>& brushes) {
+        void Inspector::brushesDidChange(const Model::BrushList& brushes) {
             updateTextureControls();
         }
 
-        void Inspector::facesDidChange(const std::vector<Model::Face*>& faces) {
+        void Inspector::facesDidChange(const Model::FaceList& faces) {
             updateTextureControls();
         }
 

@@ -17,38 +17,15 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#import <AppKit/AppKit.h>
-
-@class EditorHolder;
-
-@interface MapView: NSOpenGLView <NSMenuDelegate> {
-    EditorHolder* editorHolder;
-    void* editorGui;
-    void* editorGuiListener;
-    void* fontManager;
-    NSUInteger flags;
-    NSMenu* popupMenu;
-}
-
-- (BOOL)mapViewFocused;
-- (IBAction)createEntityFromPopupMenu:(id)sender;
-- (IBAction)createEntityFromMainMenu:(id)sender;
-
-@end
+#include "EntityMenuUtils.h"
 
 namespace TrenchBroom {
     namespace Gui {
-        class EditorGui;
-        class EditorGuiListener {
-        private:
-            EditorGui* m_editorGui;
-            MapView* m_mapView;
-        public:
-            EditorGuiListener(EditorGui* editorGui, MapView* mapView);
-            ~EditorGuiListener();
-            
-            void editorGuiRedraw(EditorGui& editorGui);
-        };
+        void createEntityMenu(NSMenu* menu, const Model::EntityDefinitionList& definitions, SEL action) {
+            for (unsigned int i = 0; i < definitions.size(); i++) {
+                Model::EntityDefinitionPtr definition = definitions[i];
+                [menu addItemWithTitle:[NSString stringWithCString:definition->name.c_str() encoding:NSASCIIStringEncoding] action:action keyEquivalent:@""];
+            }
+        }
     }
 }
-

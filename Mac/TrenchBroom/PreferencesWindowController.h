@@ -41,6 +41,7 @@ namespace TrenchBroom {
     IBOutlet NSTextField* fovLabel;
     IBOutlet NSSlider* cameraLookSpeedSlider;
     IBOutlet NSTextField* cameraLookSpeedLabel;
+    IBOutlet NSButton* cameraLookInvertXCheckbox;
     IBOutlet NSButton* cameraLookInvertYCheckbox;
     IBOutlet NSSlider* cameraPanSpeedSlider;
     IBOutlet NSTextField* cameraPanSpeedLabel;
@@ -58,6 +59,7 @@ namespace TrenchBroom {
 - (IBAction)changeGridAlpha:(id)sender;
 - (IBAction)changeFov:(id)sender;
 - (IBAction)changeCameraLookSpeed:(id)sender;
+- (IBAction)changeCameraLookInvertX:(id)sender;
 - (IBAction)changeCameraLookInvertY:(id)sender;
 - (IBAction)changeCameraPanSpeed:(id)sender;
 - (IBAction)changeCameraPanInvertX:(id)sender;

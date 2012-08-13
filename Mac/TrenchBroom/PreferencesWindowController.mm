@@ -128,6 +128,7 @@ static PreferencesListener* preferencesListener = nil;
     
     [cameraLookSpeedSlider setFloatValue:prefs.cameraLookSpeed()];
     [cameraLookSpeedLabel setFloatValue:prefs.cameraLookSpeed()];
+    [cameraLookInvertXCheckbox setState:prefs.cameraLookInvertX() ? NSOnState : NSOffState];
     [cameraLookInvertYCheckbox setState:prefs.cameraLookInvertY() ? NSOnState : NSOffState];
     [cameraPanSpeedSlider setFloatValue:prefs.cameraPanSpeed()];
     [cameraPanSpeedLabel setFloatValue:prefs.cameraPanSpeed()];
@@ -173,6 +174,10 @@ static PreferencesListener* preferencesListener = nil;
 
 - (IBAction)changeCameraLookSpeed:(id)sender {
     Preferences::sharedPreferences->setCameraLookSpeed([cameraLookSpeedSlider floatValue]);
+}
+
+- (IBAction)changeCameraLookInvertX:(id)sender {
+    Preferences::sharedPreferences->setCameraLookInvertX([cameraLookInvertXCheckbox state] == NSOnState);
 }
 
 - (IBAction)changeCameraLookInvertY:(id)sender {

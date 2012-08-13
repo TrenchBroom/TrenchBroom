@@ -64,14 +64,14 @@ namespace TrenchBroom {
         }
 
         void Editor::updateFaceTextures() {
-            std::vector<Model::Face*> changedFaces;
+            Model::FaceList changedFaces;
             std::vector<Model::Assets::Texture*> newTextures;
 
-            const std::vector<Model::Entity*>& entities = m_map->entities();
+            const Model::EntityList& entities = m_map->entities();
             for (unsigned int i = 0; i < entities.size(); i++) {
-                const std::vector<Model::Brush*>& brushes = entities[i]->brushes();
+                const Model::BrushList& brushes = entities[i]->brushes();
                 for (unsigned int j = 0; j < brushes.size(); j++) {
-                    const std::vector<Model::Face*>& faces = brushes[j]->faces;
+                    const Model::FaceList& faces = brushes[j]->faces;
                     for (unsigned int k = 0; k < faces.size(); k++) {
                         const std::string& textureName = faces[k]->textureName;
                         Model::Assets::Texture* oldTexture = faces[k]->texture;
@@ -465,12 +465,18 @@ namespace TrenchBroom {
         void Editor::enlargeBrushes() {
         }
 
-        void Editor::createEntity(const std::string& name) {
+        void Editor::moveBrushesToWorld() {
+            m_map->undoManager().begin("Move Brushes to World");
+            m_map->moveBrushesToEntity(*m_map->worldspawn(true));
+            m_map->undoManager().end();
+        }
+
+        void Editor::createEntityAtClickPos(const std::string& name) {
             Model::EntityDefinitionPtr definition = m_map->entityDefinitionManager().definition(name);
             assert(definition.get() != NULL);
             
+            m_map->undoManager().begin("Create " + definition->name);
             if (definition->type == Model::TB_EDT_POINT) {
-                m_map->undoManager().begin("Create " + definition->name);
                 Model::Entity* entity = m_map->createEntity(definition->name);
 
                 Vec3f delta;
@@ -487,15 +493,34 @@ namespace TrenchBroom {
                 }
                 
                 m_map->translateObjects(delta, false);
-                m_map->undoManager().end();
             } else if (definition->type == Model::TB_EDT_BRUSH) {
-                m_map->undoManager().begin("Create " + definition->name);
                 m_map->selection().push();
                 Model::Entity* entity = m_map->createEntity(definition->name);
                 m_map->selection().pop();
                 m_map->moveBrushesToEntity(*entity);
-                m_map->undoManager().end();
             }
+            m_map->undoManager().end();
+        }
+
+        void Editor::createEntityAtDefaultPos(const std::string& name) {
+            Model::EntityDefinitionPtr definition = m_map->entityDefinitionManager().definition(name);
+            assert(definition.get() != NULL);
+            
+            m_map->undoManager().begin("Create " + definition->name);
+            if (definition->type == Model::TB_EDT_POINT) {
+                Model::Entity* entity = m_map->createEntity(definition->name);
+                
+                Vec3f newPos = m_camera->defaultPoint();
+                Vec3f delta = m_grid->moveDeltaForEntity(entity->bounds().center(), m_map->worldBounds(), newPos - entity->bounds().center());
+                
+                m_map->translateObjects(delta, false);
+            } else if (definition->type == Model::TB_EDT_BRUSH) {
+                m_map->selection().push();
+                Model::Entity* entity = m_map->createEntity(definition->name);
+                m_map->selection().pop();
+                m_map->moveBrushesToEntity(*entity);
+            }
+            m_map->undoManager().end();
         }
 
         void Editor::toggleGrid() {

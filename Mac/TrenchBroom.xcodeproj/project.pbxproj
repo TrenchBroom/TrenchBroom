@@ -131,10 +131,10 @@
 		4832DAFF15C570A40042561F /* ResizeBrushToolFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4832DAFD15C56F090042561F /* ResizeBrushToolFigure.cpp */; };
 		4832DB0215C576390042561F /* DragEntityTargetToolFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4832DB0115C576390042561F /* DragEntityTargetToolFigure.cpp */; };
 		4833E9F815790E9D0089FD2A /* EntityRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4833E9F715790E9D0089FD2A /* EntityRenderer.cpp */; };
+		483C6A8915D92FA9004F0E9A /* EntityMenuUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 483C6A8815D92FA9004F0E9A /* EntityMenuUtils.mm */; };
 		483DE918154DCE62002FD6B0 /* PreferencesWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 483DE917154DCE62002FD6B0 /* PreferencesWindow.xib */; };
 		483DE91C154DCFCF002FD6B0 /* PreferencesWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 483DE91B154DCFCF002FD6B0 /* PreferencesWindowController.mm */; };
 		484299EF158236330069BC97 /* DragEntityTargetTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 484299EE158236330069BC97 /* DragEntityTargetTool.cpp */; };
-		484544F51553374B0032E983 /* ChangeSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 484544F41553374B0032E983 /* ChangeSet.cpp */; };
 		48487FC7158C97BE003C0C46 /* CreateBrushTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48487FC6158C97BE003C0C46 /* CreateBrushTool.cpp */; };
 		48487FCA158C9DD0003C0C46 /* BrushFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48487FC9158C9DD0003C0C46 /* BrushFigure.cpp */; };
 		484D24BA15A3845B00B803C2 /* MainMenuDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 484D24B915A3845B00B803C2 /* MainMenuDelegate.mm */; };
@@ -467,13 +467,13 @@
 		4832DB0015C5762C0042561F /* DragEntityTargetToolFigure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragEntityTargetToolFigure.h; sourceTree = "<group>"; };
 		4832DB0115C576390042561F /* DragEntityTargetToolFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragEntityTargetToolFigure.cpp; sourceTree = "<group>"; };
 		4833E9F715790E9D0089FD2A /* EntityRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityRenderer.cpp; sourceTree = "<group>"; };
+		483C6A8615D92E20004F0E9A /* EntityMenuUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityMenuUtils.h; sourceTree = "<group>"; };
+		483C6A8815D92FA9004F0E9A /* EntityMenuUtils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EntityMenuUtils.mm; sourceTree = "<group>"; };
 		483DE917154DCE62002FD6B0 /* PreferencesWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PreferencesWindow.xib; sourceTree = "<group>"; };
 		483DE91A154DCFCF002FD6B0 /* PreferencesWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesWindowController.h; sourceTree = "<group>"; };
 		483DE91B154DCFCF002FD6B0 /* PreferencesWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PreferencesWindowController.mm; sourceTree = "<group>"; };
 		484299EC158235E80069BC97 /* DragEntityTargetTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragEntityTargetTool.h; sourceTree = "<group>"; };
 		484299EE158236330069BC97 /* DragEntityTargetTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragEntityTargetTool.cpp; sourceTree = "<group>"; };
-		484544F2155336EF0032E983 /* ChangeSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChangeSet.h; sourceTree = "<group>"; };
-		484544F41553374B0032E983 /* ChangeSet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChangeSet.cpp; sourceTree = "<group>"; };
 		484544F6155338190032E983 /* RenderContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderContext.h; sourceTree = "<group>"; };
 		48487FC4158C97B5003C0C46 /* CreateBrushTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CreateBrushTool.h; sourceTree = "<group>"; };
 		48487FC6158C97BE003C0C46 /* CreateBrushTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CreateBrushTool.cpp; sourceTree = "<group>"; };
@@ -744,8 +744,6 @@
 				4825B405153AE59F007E3AE1 /* AliasRenderer.h */,
 				4825B406153AE59F007E3AE1 /* BspRenderer.cpp */,
 				4825B407153AE59F007E3AE1 /* BspRenderer.h */,
-				484544F2155336EF0032E983 /* ChangeSet.h */,
-				484544F41553374B0032E983 /* ChangeSet.cpp */,
 				4825B408153AE59F007E3AE1 /* EntityClassnameAnchor.cpp */,
 				4825B409153AE59F007E3AE1 /* EntityClassnameAnchor.h */,
 				48650ED915AF297A000CD40D /* EntityClassnameFilter.h */,
@@ -1123,6 +1121,8 @@
 				480ED5341549CEE4003CA78F /* AppDelegate.mm */,
 				48886BA31545FE09006A781B /* EditorHolder.h */,
 				48886BA41545FE09006A781B /* EditorHolder.mm */,
+				483C6A8615D92E20004F0E9A /* EntityMenuUtils.h */,
+				483C6A8815D92FA9004F0E9A /* EntityMenuUtils.mm */,
 				48F579F7154C5B3D0039B369 /* MacConsole.h */,
 				48F579F8154C5B3D0039B369 /* MacConsole.mm */,
 				486571BC157C117900698829 /* MacFileManager.h */,
@@ -1370,7 +1370,6 @@
 				48F579FB154C749E0039B369 /* Console.cpp in Sources */,
 				48F579FD154CA9340039B369 /* MacOSX.mm in Sources */,
 				483DE91C154DCFCF002FD6B0 /* PreferencesWindowController.mm in Sources */,
-				484544F51553374B0032E983 /* ChangeSet.cpp in Sources */,
 				485395DB155EE50F00636357 /* MoveObjectTool.cpp in Sources */,
 				485395EA155FB69300636357 /* InvocationUndoItem.cpp in Sources */,
 				485395EF155FC16800636357 /* UndoManager.cpp in Sources */,
@@ -1411,6 +1410,7 @@
 				4832DAF915C545B80042561F /* VertexToolFigure.cpp in Sources */,
 				4832DAFC15C56C210042561F /* MoveObjectToolFigure.cpp in Sources */,
 				4832DB0215C576390042561F /* DragEntityTargetToolFigure.cpp in Sources */,
+				483C6A8915D92FA9004F0E9A /* EntityMenuUtils.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

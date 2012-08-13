@@ -21,6 +21,9 @@
 #define TrenchBroom_Inspector_h
 
 #include "Gwen/Controls/Base.h"
+#include "Model/Map/BrushTypes.h"
+#include "Model/Map/EntityTypes.h"
+#include "Model/Map/FaceTypes.h"
 
 namespace Gwen {
     namespace Controls {
@@ -41,9 +44,6 @@ namespace TrenchBroom {
             class TextureManager;
         }
         class SelectionEventData;
-        class Entity;
-        class Brush;
-        class Face;
     }
     
     namespace Controller {
@@ -82,9 +82,9 @@ namespace TrenchBroom {
             void updateNumericControl(Gwen::Controls::NumericUpDown* control, bool disabled, bool multi, float value);
             void updateTextureControls();
             void updateTextureWadList();
-            void propertiesDidChange(const std::vector<Model::Entity*>& entities);
-            void brushesDidChange(const std::vector<Model::Brush*>& brushes);
-            void facesDidChange(const std::vector<Model::Face*>& faces);
+            void propertiesDidChange(const Model::EntityList& entities);
+            void brushesDidChange(const Model::BrushList& brushes);
+            void facesDidChange(const Model::FaceList& faces);
             void selectionChanged(const Model::SelectionEventData& data);
             void onEntityBrowserGroupChanged(Gwen::Controls::Base* control);
             void onEntityBrowserFilterTextChanged(Gwen::Controls::Base* control);

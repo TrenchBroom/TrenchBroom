@@ -130,7 +130,10 @@ namespace TrenchBroom {
             void duplicateObjects();
             void enlargeBrushes();
             
-            void createEntity(const std::string& name);
+            void moveBrushesToWorld();
+            
+            void createEntityAtClickPos(const std::string& name);
+            void createEntityAtDefaultPos(const std::string& name);
             
             void toggleGrid();
             void toggleSnapToGrid();

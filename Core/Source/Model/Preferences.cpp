@@ -26,6 +26,7 @@ namespace TrenchBroom {
         const std::string Preferences::CameraLookSpeed                   = "Controls: camera look speed";
         const std::string Preferences::CameraPanSpeed                    = "Controls: camera pan speed";
         const std::string Preferences::CameraMoveSpeed                   = "Controls: camera move speed";
+        const std::string Preferences::CameraLookInvertX                 = "Controls: invert camera horizontal look";
         const std::string Preferences::CameraLookInvertY                 = "Controls: invert camera vertical look";
         const std::string Preferences::CameraPanInvertX                  = "Controls: invert camera horizontal pan";
         const std::string Preferences::CameraPanInvertY                  = "Controls: invert camera vertical pan";
@@ -75,6 +76,7 @@ namespace TrenchBroom {
             m_cameraLookSpeed = 0.5f;
             m_cameraPanSpeed = 0.5f;
             m_cameraMoveSpeed = 0.5f;
+            m_cameraLookInvertX = false;
             m_cameraLookInvertY = false;
             m_cameraPanInvertX = false;
             m_cameraPanInvertY = false;
@@ -133,6 +135,7 @@ namespace TrenchBroom {
             loadFloat(CameraLookSpeed, m_cameraLookSpeed);
             loadFloat(CameraPanSpeed, m_cameraPanSpeed);
             loadFloat(CameraMoveSpeed, m_cameraMoveSpeed);
+            loadBool(CameraLookInvertX, m_cameraLookInvertX);
             loadBool(CameraLookInvertY, m_cameraLookInvertY);
             loadBool(CameraPanInvertX, m_cameraPanInvertX);
             loadBool(CameraPanInvertY, m_cameraPanInvertY);
@@ -185,6 +188,7 @@ namespace TrenchBroom {
             saveFloat(CameraLookSpeed, m_cameraLookSpeed);
             saveFloat(CameraPanSpeed, m_cameraPanSpeed);
             saveFloat(CameraMoveSpeed, m_cameraMoveSpeed);
+            saveBool(CameraLookInvertX, m_cameraLookInvertX);
             saveBool(CameraLookInvertY, m_cameraLookInvertY);
             saveBool(CameraPanInvertX, m_cameraPanInvertX);
             saveBool(CameraPanInvertY, m_cameraPanInvertY);
@@ -291,6 +295,20 @@ namespace TrenchBroom {
             if (saveInstantly())
                 saveFloat(CameraMoveSpeed, m_cameraMoveSpeed);
             preferencesDidChange(CameraMoveSpeed);
+        }
+        
+        bool Preferences::cameraLookInvertX() {
+            return m_cameraLookInvertX;
+        }
+        
+        void Preferences::setCameraLookInvertX(bool cameraLookInvertX) {
+            if (cameraLookInvertX == m_cameraLookInvertX)
+                return;
+            
+            m_cameraLookInvertX = cameraLookInvertX;
+            if (saveInstantly())
+                saveBool(CameraLookInvertX, m_cameraLookInvertX);
+            preferencesDidChange(CameraLookInvertX);
         }
         
         bool Preferences::cameraLookInvertY() {

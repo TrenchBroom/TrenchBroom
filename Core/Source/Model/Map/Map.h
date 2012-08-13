@@ -62,6 +62,8 @@ namespace TrenchBroom {
             std::vector<std::string> m_mods;
             
             bool m_postNotifications;
+            
+            void moveBrushesToEntities(const BrushParentMap brushEntityMap);
         public:
             typedef Event<const EntityList&> EntityEvent;
             typedef Event<const BrushList&> BrushEvent;

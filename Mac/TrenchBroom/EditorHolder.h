@@ -17,7 +17,6 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #import <Foundation/Foundation.h>
 
 @interface EditorHolder : NSObject {

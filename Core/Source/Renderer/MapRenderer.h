@@ -23,8 +23,8 @@
 #include "GL/GLee.h"
 #include "Model/Assets/Texture.h"
 #include "Model/Map/BrushTypes.h"
+#include "Model/Map/EntityTypes.h"
 #include "Model/Map/Face.h"
-#include "Renderer/ChangeSet.h"
 #include "Renderer/FontManager.h"
 #include "Renderer/TextRenderer.h"
 #include "Utilities/Event.h"
@@ -158,19 +158,20 @@ namespace TrenchBroom {
             void writeFaceData(RenderContext& context, FacesByTexture& facesByTexture, FaceRenderInfos& renderInfos, VboBlock& block);
             void writeEdgeData(RenderContext& context, Model::BrushList& brushes, Model::FaceList& faces, EdgeRenderInfo& renderInfo, VboBlock& block);
             void rebuildGeometryData(RenderContext& context);
-            void writeEntityBounds(RenderContext& context, const std::vector<Model::Entity*>& entities, EdgeRenderInfo& renderInfo, VboBlock& block);
+            void writeEntityBounds(RenderContext& context, const Model::EntityList& entities, EdgeRenderInfo& renderInfo, VboBlock& block);
             void rebuildEntityData(RenderContext& context);
             bool reloadEntityModel(const Model::Entity& entity, CachedEntityRenderer& cachedRenderer);
             void reloadEntityModels(RenderContext& context, EntityRenderers& renderers);
             void reloadEntityModels(RenderContext& context);
             
-            void entitiesWereAdded(const std::vector<Model::Entity*>& entities);
-            void entitiesWillBeRemoved(const std::vector<Model::Entity*>& entities);
-            void propertiesDidChange(const std::vector<Model::Entity*>& entities);
-            void brushesWereAdded(const std::vector<Model::Brush*>& brushes);
-            void brushesWillBeRemoved(const std::vector<Model::Brush*>& brushes);
-            void brushesDidChange(const std::vector<Model::Brush*>& brushes);
-            void facesDidChange(const std::vector<Model::Face*>& faces);
+            void entitiesWereAdded(const Model::EntityList& entities);
+            void entitiesWillBeRemoved(const Model::EntityList& entities);
+            void propertiesDidChange(const Model::EntityList& entities);
+            void brushesWereAdded(const Model::BrushList& brushes);
+            void brushesWillBeRemoved(const Model::BrushList& brushes);
+            void brushesWillChange(const Model::BrushList& brushes);
+            void brushesDidChange(const Model::BrushList& brushes);
+            void facesDidChange(const Model::FaceList& faces);
             void mapLoaded(Model::Map& map);
             void mapCleared(Model::Map& map);
             void selectionAdded(const Model::SelectionEventData& event);

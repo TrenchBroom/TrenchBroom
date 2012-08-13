@@ -21,6 +21,7 @@
 #define TrenchBroom_EntityPropertyTableControl_h
 
 #include "Gwen/Controls/Base.h"
+#include "Model/Map/EntityTypes.h"
 #include <vector>
 
 namespace Gwen {
@@ -40,10 +41,6 @@ namespace TrenchBroom {
         class Editor;
     }
     
-    namespace Model {
-        class Entity;
-    }
-    
     namespace Gui {
         class EntityPropertyTableControl : public Gwen::Controls::Base {
         protected:
@@ -51,7 +48,7 @@ namespace TrenchBroom {
             Gwen::Controls::Properties* m_properties;
             std::vector<Gwen::Controls::PropertyRow*> m_propertyRows;
             Gwen::Controls::ScrollControl* m_scroller;
-            std::vector<Model::Entity*> m_entities;
+            Model::EntityList m_entities;
             
             virtual void updateProperties();
             void propertyKeyChanged(Gwen::Controls::Base* control);
@@ -63,7 +60,7 @@ namespace TrenchBroom {
             virtual ~EntityPropertyTableControl();
             virtual void Render(Gwen::Skin::Base* skin);
             
-            void setEntities(const std::vector<Model::Entity*>& entities);
+            void setEntities(const Model::EntityList& entities);
         };
     }
 }

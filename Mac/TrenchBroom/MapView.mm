@@ -19,6 +19,7 @@
 
 #import "MapView.h"
 #import "EditorHolder.h"
+#import "EntityMenuUtils.h"
 #import "MacStringFactory.h"
 #import "MapDocument.h"
 
@@ -149,10 +150,16 @@ namespace TrenchBroom {
     return [self editorGui]->mapViewFocused();
 }
 
-- (IBAction)createEntity:(id)sender {
+- (IBAction)createEntityFromPopupMenu:(id)sender {
     NSMenuItem* item = (NSMenuItem*)sender;
     std::string definitionName = [[item title] cStringUsingEncoding:NSASCIIStringEncoding];
-    [self editor]->createEntity(definitionName);
+    [self editor]->createEntityAtClickPos(definitionName);
+}
+
+- (IBAction)createEntityFromMainMenu:(id)sender {
+    NSMenuItem* item = (NSMenuItem*)sender;
+    std::string definitionName = [[item title] cStringUsingEncoding:NSASCIIStringEncoding];
+    [self editor]->createEntityAtDefaultPos(definitionName);
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
@@ -278,15 +285,8 @@ namespace TrenchBroom {
                 NSMenu* brushEntityMenu = [[NSMenu alloc] initWithTitle:@"Create Brush Entity Submenu"];
                 [brushEntityMenuItem setSubmenu:[brushEntityMenu autorelease]];
                 
-                for (unsigned int i = 0; i < pointEntities.size(); i++) {
-                    Model::EntityDefinitionPtr definition = pointEntities[i];
-                    [pointEntityMenu addItemWithTitle:[NSString stringWithCString:definition->name.c_str() encoding:NSASCIIStringEncoding] action:@selector(createEntity:) keyEquivalent:@""];
-                }
-                
-                for (unsigned int i = 0; i < brushEntities.size(); i++) {
-                    Model::EntityDefinitionPtr definition = brushEntities[i];
-                    [brushEntityMenu addItemWithTitle:[NSString stringWithCString:definition->name.c_str() encoding:NSASCIIStringEncoding] action:@selector(createEntity:) keyEquivalent:@""];
-                }
+                Gui::createEntityMenu(pointEntityMenu, pointEntities, @selector(createEntityFromPopupMenu:));
+                Gui::createEntityMenu(brushEntityMenu, brushEntities, @selector(createEntityFromPopupMenu:));
             }
             
             [NSMenu popUpContextMenu:popupMenu withEvent:theEvent forView:self];

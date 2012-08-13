@@ -29,8 +29,12 @@ namespace TrenchBroom {
         float CameraTool::lookSpeed(bool vertical) {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             float speed = prefs.cameraLookSpeed() / -50.0f;
-            if (vertical && prefs.cameraLookInvertY())
+            if (vertical) {
+                if (prefs.cameraLookInvertY())
+                    speed *= -1.0f;
+            } else if (prefs.cameraLookInvertX()) {
                 speed *= -1.0f;
+            }
             return speed;
         }
         

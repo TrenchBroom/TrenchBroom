@@ -190,10 +190,10 @@ namespace TrenchBroom {
             unsigned int totalSelectedEdgeVertexCount = 0;
             
             // collect all visible faces and brushes
-            const std::vector<Model::Entity*>& entities = m_editor.map().entities();
+            const Model::EntityList& entities = m_editor.map().entities();
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
-                const std::vector<Model::Brush*>& brushes = entity->brushes();
+                const Model::BrushList& brushes = entity->brushes();
                 for (unsigned int j = 0; j < brushes.size(); j++) {
                     Model::Brush* brush = brushes[j];
 					assert(brush->geometry->edges.size() >= 6);
@@ -218,7 +218,7 @@ namespace TrenchBroom {
                             }
                         }
                         
-                        const std::vector<Model::Face*>& faces = brush->faces;
+                        const Model::FaceList& faces = brush->faces;
                         for (unsigned int k = 0; k < faces.size(); k++) {
                             Model::Face* face = faces[k];
 							assert(face->side->vertices.size() >= 3);
@@ -292,7 +292,7 @@ namespace TrenchBroom {
             m_selectedGeometryDataValid = true;
         }
 
-        void MapRenderer::writeEntityBounds(RenderContext& context, const std::vector<Model::Entity*>& entities, EdgeRenderInfo& renderInfo, VboBlock& block) {
+        void MapRenderer::writeEntityBounds(RenderContext& context, const Model::EntityList& entities, EdgeRenderInfo& renderInfo, VboBlock& block) {
             if (entities.empty())
                 return;
             
@@ -341,9 +341,9 @@ namespace TrenchBroom {
             }
             
             // collect all model entities
-            std::vector<Model::Entity*> allEntities;
-            std::vector<Model::Entity*> allSelectedEntities;
-            const std::vector<Model::Entity*> entities = m_editor.map().entities();
+            Model::EntityList allEntities;
+            Model::EntityList allSelectedEntities;
+            const Model::EntityList entities = m_editor.map().entities();
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
                 if (context.filter.entityVisible(*entity)) {
@@ -418,7 +418,7 @@ namespace TrenchBroom {
             m_entityRendererCacheValid = true;
         }
         
-        void MapRenderer::entitiesWereAdded(const std::vector<Model::Entity*>& entities) {
+        void MapRenderer::entitiesWereAdded(const Model::EntityList& entities) {
             Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
             const std::string& fontName = prefs.rendererFontName();
             int fontSize = prefs.rendererFontSize();
@@ -440,7 +440,7 @@ namespace TrenchBroom {
             rendererChanged(*this);
         }
 
-        void MapRenderer::entitiesWillBeRemoved(const std::vector<Model::Entity*>& entities) {
+        void MapRenderer::entitiesWillBeRemoved(const Model::EntityList& entities) {
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
                 m_entityRenderers.erase(entity);
@@ -450,7 +450,7 @@ namespace TrenchBroom {
             rendererChanged(*this);
         }
 
-        void MapRenderer::propertiesDidChange(const std::vector<Model::Entity*>& entities) {
+        void MapRenderer::propertiesDidChange(const Model::EntityList& entities) {
             m_selectedEntityDataValid = false;
             Model::Entity* worldspawn = m_editor.map().worldspawn(false);
             if (worldspawn != NULL && find(entities.begin(), entities.end(), worldspawn) != entities.end()) {
@@ -484,29 +484,45 @@ namespace TrenchBroom {
             rendererChanged(*this);
         }
 
-        void MapRenderer::brushesWereAdded(const std::vector<Model::Brush*>& brushes) {
+        void MapRenderer::brushesWereAdded(const Model::BrushList& brushes) {
             m_entityDataValid = false;
             m_geometryDataValid = false;
             rendererChanged(*this);
         }
 
-        void MapRenderer::brushesWillBeRemoved(const std::vector<Model::Brush*>& brushes) {
+        void MapRenderer::brushesWillBeRemoved(const Model::BrushList& brushes) {
             m_entityDataValid = false;
             m_geometryDataValid = false;
             rendererChanged(*this);
         }
 
-        void MapRenderer::brushesDidChange(const std::vector<Model::Brush*>& brushes) {
+        void MapRenderer::brushesWillChange(const Model::BrushList& brushes) {
+            for (unsigned int i = 0; i < brushes.size() && m_entityDataValid; i++) {
+                Model::Brush* brush = brushes[i];
+                Model::Entity* entity = brush->entity();
+                if (!entity->selected() && !entity->worldspawn())
+                    m_entityDataValid = false;
+            }
+        }
+
+        void MapRenderer::brushesDidChange(const Model::BrushList& brushes) {
             m_selectedEntityDataValid = false;
             m_selectedGeometryDataValid = false;
             
+            for (unsigned int i = 0; i < brushes.size() && m_entityDataValid; i++) {
+                Model::Brush* brush = brushes[i];
+                Model::Entity* entity = brush->entity();
+                if (!entity->selected() && !entity->worldspawn())
+                    m_entityDataValid = false;
+            }
+
             if (m_sizeGuideFigure != NULL)
                 m_sizeGuideFigure->setBounds(m_editor.map().selection().bounds());
 
             rendererChanged(*this);
         }
 
-        void MapRenderer::facesDidChange(const std::vector<Model::Face*>& faces) {
+        void MapRenderer::facesDidChange(const Model::FaceList& faces) {
             m_selectedGeometryDataValid = false;
             rendererChanged(*this);
         }
@@ -862,6 +878,7 @@ namespace TrenchBroom {
             map.entitiesWereAdded                   += new Model::Map::EntityEvent::Listener<MapRenderer>(this, &MapRenderer::entitiesWereAdded);
             map.propertiesDidChange                 += new Model::Map::EntityEvent::Listener<MapRenderer>(this, &MapRenderer::propertiesDidChange);
             map.entitiesWillBeRemoved               += new Model::Map::EntityEvent::Listener<MapRenderer>(this, &MapRenderer::entitiesWillBeRemoved);
+            map.brushesWillChange                   += new Model::Map::BrushEvent::Listener<MapRenderer>(this, &MapRenderer::brushesWillChange);
             map.brushesDidChange                    += new Model::Map::BrushEvent::Listener<MapRenderer>(this, &MapRenderer::brushesDidChange);
             map.facesDidChange                      += new Model::Map::FaceEvent::Listener<MapRenderer>(this, &MapRenderer::facesDidChange);
             selection.selectionAdded                += new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionAdded);
@@ -891,6 +908,7 @@ namespace TrenchBroom {
             map.entitiesWereAdded                   -= new Model::Map::EntityEvent::Listener<MapRenderer>(this, &MapRenderer::entitiesWereAdded);
             map.propertiesDidChange                 -= new Model::Map::EntityEvent::Listener<MapRenderer>(this, &MapRenderer::propertiesDidChange);
             map.entitiesWillBeRemoved               -= new Model::Map::EntityEvent::Listener<MapRenderer>(this, &MapRenderer::entitiesWillBeRemoved);
+            map.brushesWillChange                   -= new Model::Map::BrushEvent::Listener<MapRenderer>(this, &MapRenderer::brushesWillChange);
             map.brushesDidChange                    -= new Model::Map::BrushEvent::Listener<MapRenderer>(this, &MapRenderer::brushesDidChange);
             map.facesDidChange                      -= new Model::Map::FaceEvent::Listener<MapRenderer>(this, &MapRenderer::facesDidChange);
             selection.selectionAdded                -= new Model::Selection::SelectionEvent::Listener<MapRenderer>(this, &MapRenderer::selectionAdded);

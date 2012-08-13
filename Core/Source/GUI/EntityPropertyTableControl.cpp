@@ -157,7 +157,7 @@ namespace TrenchBroom {
             skin->DrawBox(this);
         }
 
-        void EntityPropertyTableControl::setEntities(const std::vector<Model::Entity*>& entities) {
+        void EntityPropertyTableControl::setEntities(const Model::EntityList& entities) {
             m_entities = entities;
             updateProperties();
         }
