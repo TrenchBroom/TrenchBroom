@@ -399,6 +399,16 @@
 									<reference key="NSOnImage" ref="1033313550"/>
 									<reference key="NSMixedImage" ref="310636482"/>
 								</object>
+								<object class="NSMenuItem" id="841079084">
+									<reference key="NSMenu" ref="789758025"/>
+									<bool key="NSIsAlternate">YES</bool>
+									<string key="NSTitle">Select Siblings</string>
+									<string key="NSKeyEquiv">a</string>
+									<int key="NSKeyEquivModMask">1572864</int>
+									<int key="NSMnemonicLoc">2147483647</int>
+									<reference key="NSOnImage" ref="1033313550"/>
+									<reference key="NSMixedImage" ref="310636482"/>
+								</object>
 								<object class="NSMenuItem" id="224757740">
 									<reference key="NSMenu" ref="789758025"/>
 									<string key="NSTitle">Select Touching</string>
@@ -537,7 +547,7 @@
 									<reference key="NSOnImage" ref="1033313550"/>
 									<reference key="NSMixedImage" ref="310636482"/>
 								</object>
-								<object class="NSMenuItem" id="798036179">
+								<object class="NSMenuItem" id="781314764">
 									<reference key="NSMenu" ref="789758025"/>
 									<string key="NSTitle">Create Point Entity</string>
 									<string key="NSKeyEquiv"/>
@@ -545,7 +555,7 @@
 									<reference key="NSOnImage" ref="1033313550"/>
 									<reference key="NSMixedImage" ref="310636482"/>
 								</object>
-								<object class="NSMenuItem" id="847363378">
+								<object class="NSMenuItem" id="524472735">
 									<reference key="NSMenu" ref="789758025"/>
 									<string key="NSTitle">Create Brush Entity</string>
 									<string key="NSKeyEquiv"/>
@@ -561,7 +571,7 @@
 									<reference key="NSOnImage" ref="1033313550"/>
 									<reference key="NSMixedImage" ref="310636482"/>
 								</object>
-								<object class="NSMenuItem" id="715911518">
+								<object class="NSMenuItem" id="819865539">
 									<reference key="NSMenu" ref="789758025"/>
 									<string key="NSTitle">Move Brushes to World</string>
 									<string key="NSKeyEquiv"/>
@@ -2017,9 +2027,17 @@
 					<object class="IBActionConnection" key="connection">
 						<string key="label">moveBrushesToWorld:</string>
 						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="715911518"/>
+						<reference key="destination" ref="819865539"/>
 					</object>
 					<int key="connectionID">726</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">selectSiblings:</string>
+						<reference key="source" ref="1014"/>
+						<reference key="destination" ref="841079084"/>
+					</object>
+					<int key="connectionID">728</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -2057,7 +2075,7 @@
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">brushEntityMenuItem</string>
 						<reference key="source" ref="1007386952"/>
-						<reference key="destination" ref="847363378"/>
+						<reference key="destination" ref="524472735"/>
 					</object>
 					<int key="connectionID">724</int>
 				</object>
@@ -2065,7 +2083,7 @@
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">pointEntityMenuItem</string>
 						<reference key="source" ref="1007386952"/>
-						<reference key="destination" ref="798036179"/>
+						<reference key="destination" ref="781314764"/>
 					</object>
 					<int key="connectionID">725</int>
 				</object>
@@ -2245,9 +2263,10 @@
 							<reference ref="415633725"/>
 							<reference ref="538849378"/>
 							<reference ref="36045758"/>
-							<reference ref="715911518"/>
-							<reference ref="798036179"/>
-							<reference ref="847363378"/>
+							<reference ref="819865539"/>
+							<reference ref="781314764"/>
+							<reference ref="524472735"/>
+							<reference ref="841079084"/>
 						</array>
 						<reference key="parent" ref="952259628"/>
 					</object>
@@ -2984,19 +3003,24 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">715</int>
-						<reference key="object" ref="715911518"/>
+						<reference key="object" ref="819865539"/>
 						<reference key="parent" ref="789758025"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">716</int>
-						<reference key="object" ref="798036179"/>
+						<reference key="object" ref="781314764"/>
 						<array class="NSMutableArray" key="children"/>
 						<reference key="parent" ref="789758025"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">719</int>
-						<reference key="object" ref="847363378"/>
+						<reference key="object" ref="524472735"/>
 						<array class="NSMutableArray" key="children"/>
+						<reference key="parent" ref="789758025"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">727</int>
+						<reference key="object" ref="841079084"/>
 						<reference key="parent" ref="789758025"/>
 					</object>
 				</array>
@@ -3146,6 +3170,7 @@
 				<string key="716.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="719.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="72.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="727.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="73.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="74.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="75.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -3161,7 +3186,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">726</int>
+			<int key="maxID">728</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">

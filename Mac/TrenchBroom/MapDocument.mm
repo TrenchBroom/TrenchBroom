@@ -211,6 +211,11 @@ namespace TrenchBroom {
     editor->selectAll();
 }
 
+- (IBAction)selectSiblings:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->selectSiblings();
+}
+
 - (IBAction)selectTouching:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
     editor->selectTouching();
@@ -434,6 +439,8 @@ namespace TrenchBroom {
         return [self mapViewFocused] && (selection.selectionMode() == Model::TB_SM_BRUSHES || selection.selectionMode() == Model::TB_SM_ENTITIES || selection.selectionMode() == Model::TB_SM_BRUSHES_ENTITIES);
     } else if (action == @selector(selectAll:)) {
         return [self mapViewFocused];
+    } else if (action == @selector(selectSiblings:)) {
+        return [self mapViewFocused] && selection.selectionMode() == Model::TB_SM_BRUSHES;
     } else if (action == @selector(selectTouching:)) {
         return [self mapViewFocused] && selection.selectionMode() == Model::TB_SM_BRUSHES && selection.selectedBrushes().size() == 1;
     } else if (action == @selector(selectNone:)) {

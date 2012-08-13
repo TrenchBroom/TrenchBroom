@@ -27,31 +27,46 @@
 
 namespace TrenchBroom {
     namespace Model {
-        void Selection::doSelectEntities(const EntityList& entities) {
+        EntityList Selection::doSelectEntities(const EntityList& entities) {
+            EntityList selectedEntities;
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
-                current().selectedEntities.push_back(entity);
-                entity->setSelected(true);
+                if (!entity->selected()) {
+                    current().selectedEntities.push_back(entity);
+                    entity->setSelected(true);
+                    selectedEntities.push_back(entity);
+                }
             }
+            return selectedEntities;
         }
         
-        void Selection::doSelectBrushes(const BrushList& brushes) {
+        BrushList Selection::doSelectBrushes(const BrushList& brushes) {
+            BrushList selectedBrushes;
             for (unsigned int i = 0; i < brushes.size(); i++) {
                 Brush* brush = brushes[i];
-                current().selectedBrushes.push_back(brush);
-                brush->setSelected(true);
+                if (!brush->selected()) {
+                    current().selectedBrushes.push_back(brush);
+                    brush->setSelected(true);
+                    selectedBrushes.push_back(brush);
+                }
             }
+            return selectedBrushes;
         }
 
-        void Selection::doSelectFaces(const FaceList& faces) {
+        FaceList Selection::doSelectFaces(const FaceList& faces) {
+            FaceList selectedFaces;
             for (unsigned int i = 0; i < faces.size(); i++) {
                 Face* face = faces[i];
-                current().selectedFaces.push_back(face);
-                face->setSelected(true);
+                if (!face->selected()) {
+                    current().selectedFaces.push_back(face);
+                    face->setSelected(true);
+                    selectedFaces.push_back(face);
+                }
             }
             
             if (faces.back()->texture != NULL)
                 selectTexture(*faces.back()->texture);
+            return selectedFaces;
         }
 
         EntityList Selection::doDeselectEntities(const EntityList& entities) {
@@ -238,6 +253,9 @@ namespace TrenchBroom {
         }
 
         void Selection::selectFace(Face& face) {
+            if (face.selected())
+                return;
+            
             if (current().selectionMode != TB_SM_FACES)
                 deselectAll();
 
@@ -258,14 +276,17 @@ namespace TrenchBroom {
             if (current().selectionMode != TB_SM_FACES)
                 deselectAll();
 
-            doSelectFaces(faces);
+            FaceList selectedFaces = doSelectFaces(faces);
             current().selectionMode = TB_SM_FACES;
 
-            SelectionEventData data(faces);
+            SelectionEventData data(selectedFaces);
             selectionAdded(data);
         }
 
         void Selection::selectBrush(Brush& brush) {
+            if (brush.selected())
+                return;
+            
             if (current().selectionMode == TB_SM_FACES)
                 deselectAll();
 
@@ -287,18 +308,21 @@ namespace TrenchBroom {
             if (current().selectionMode == TB_SM_FACES)
                 deselectAll();
 
-            doSelectBrushes(brushes);
+            BrushList selectedBrushes = doSelectBrushes(brushes);
 
             if (current().selectionMode == TB_SM_ENTITIES)
                 current().selectionMode = TB_SM_BRUSHES_ENTITIES;
             else
                 current().selectionMode = TB_SM_BRUSHES;
 
-            SelectionEventData data(brushes);
+            SelectionEventData data(selectedBrushes);
             selectionAdded(data);
         }
 
         void Selection::selectEntity(Entity& entity) {
+            if (entity.selected())
+                return;
+            
             if (current().selectionMode == TB_SM_FACES)
                 deselectAll();
 
@@ -320,14 +344,14 @@ namespace TrenchBroom {
             if (current().selectionMode == TB_SM_FACES)
                 deselectAll();
 
-            doSelectEntities(entities);
+            EntityList selectedEntities = doSelectEntities(entities);
 
             if (current().selectionMode == TB_SM_BRUSHES)
                 current().selectionMode = TB_SM_BRUSHES_ENTITIES;
             else
                 current().selectionMode = TB_SM_ENTITIES;
 
-            SelectionEventData data(entities);
+            SelectionEventData data(selectedEntities);
             selectionAdded(data);
         }
 

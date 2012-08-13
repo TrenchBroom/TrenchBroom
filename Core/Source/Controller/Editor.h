@@ -116,6 +116,7 @@ namespace TrenchBroom {
             void redo();
             
             void selectAll();
+            void selectSiblings();
             void selectTouching(bool deleteBrush = true);
             void selectNone();
             

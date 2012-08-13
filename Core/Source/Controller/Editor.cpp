@@ -323,6 +323,27 @@ namespace TrenchBroom {
                 selection.selectEntities(selectEntities);
         }
         
+        void Editor::selectSiblings() {
+            m_map->undoManager().addSelection(*m_map);
+
+            Model::Selection& selection = m_map->selection();
+            const Model::BrushList& brushes = selection.selectedBrushes();
+            Model::BrushList selectBrushes;
+            for (unsigned int i = 0; i < brushes.size(); i++) {
+                Model::Brush* brush = brushes[i];
+                Model::Entity* entity = brush->entity();
+                const Model::BrushList& entityBrushes = entity->brushes();
+                for (unsigned j = 0; j < entityBrushes.size(); j++) {
+                    Model::Brush* sibling = entityBrushes[j];
+                    if (!sibling->selected())
+                        selectBrushes.push_back(sibling);
+                }
+            }
+            
+            if (!selectBrushes.empty())
+                selection.selectBrushes(selectBrushes);
+        }
+        
         void Editor::selectTouching(bool deleteBrush) {
             Model::Selection& selection = m_map->selection();
             

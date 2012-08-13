@@ -93,9 +93,9 @@ namespace TrenchBroom {
                 return m_state.back();
             }
         protected:
-            void doSelectEntities(const EntityList& entities);
-            void doSelectBrushes(const BrushList& brushes);
-            void doSelectFaces(const FaceList& faces);
+            EntityList doSelectEntities(const EntityList& entities);
+            BrushList doSelectBrushes(const BrushList& brushes);
+            FaceList doSelectFaces(const FaceList& faces);
             EntityList doDeselectEntities(const EntityList& entities);
             BrushList doDeselectBrushes(const BrushList& brushes);
             FaceList doDeselectFaces(const FaceList& faces);
