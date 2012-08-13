@@ -92,24 +92,39 @@ namespace TrenchBroom {
             return true;
         }
 
-        void MapRendererControl::OnMouseClickLeft( int x, int y, bool bDown ) {
+        bool MapRendererControl::OnMouseClickLeft( int x, int y, bool bDown ) {
             Focus();
-            if (bDown) m_editor.inputController().mouseDown(Controller::Tool::TB_MB_LEFT);
-            else m_editor.inputController().mouseUp(Controller::Tool::TB_MB_LEFT);
+            
+            bool handled;
+            if (bDown)
+                handled = m_editor.inputController().mouseDown(Controller::Tool::TB_MB_LEFT);
+            else
+                handled = m_editor.inputController().mouseUp(Controller::Tool::TB_MB_LEFT);
 
             // keep receiving mouse events even if the mouse leaves this control
-            if (bDown) Gwen::MouseFocus = this;
-            else Gwen::MouseFocus = NULL;
+            if (handled && bDown)
+                Gwen::MouseFocus = this;
+            else
+                Gwen::MouseFocus = NULL;
+            
+            return handled;
         }
 
-        void MapRendererControl::OnMouseClickRight( int x, int y, bool bDown ) {
+        bool MapRendererControl::OnMouseClickRight( int x, int y, bool bDown ) {
             Focus();
-            if (bDown)m_editor.inputController().mouseDown(Controller::Tool::TB_MB_RIGHT);
-            else m_editor.inputController().mouseUp(Controller::Tool::TB_MB_RIGHT);
+            
+            bool handled;
+            if (bDown)
+                handled = m_editor.inputController().mouseDown(Controller::Tool::TB_MB_RIGHT);
+            else
+                handled = m_editor.inputController().mouseUp(Controller::Tool::TB_MB_RIGHT);
 
             // keep receiving mouse events even if the mouse leaves this control
-            if (bDown) Gwen::MouseFocus = this;
-            else Gwen::MouseFocus = NULL;
+            if (handled && bDown)
+                Gwen::MouseFocus = this;
+            else
+                Gwen::MouseFocus = NULL;
+            return handled;
         }
 
         bool MapRendererControl::OnChar(Gwen::UnicodeChar c) {

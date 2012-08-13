@@ -87,7 +87,7 @@ namespace Gwen
                 return BaseClass::GetNudgeAmount();
         }
         
-        void VerticalScrollBar::OnMouseClickLeft( int x, int y, bool bDown )
+        bool VerticalScrollBar::OnMouseClickLeft( int x, int y, bool bDown )
         {
             if ( bDown )
             {
@@ -105,6 +105,8 @@ namespace Gwen
                 m_bDepressed = false;
                 Gwen::MouseFocus = NULL;
             }
+            
+            return true;
         }
         
         float VerticalScrollBar::CalculateScrolledAmount()

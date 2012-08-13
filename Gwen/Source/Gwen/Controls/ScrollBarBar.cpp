@@ -37,10 +37,14 @@ namespace Gwen
             InvalidateParent();
         }
         
-        void ScrollBarBar::OnMouseClickLeft( int x, int y, bool bDown )
+        bool ScrollBarBar::OnMouseClickLeft( int x, int y, bool bDown )
         {
-            BaseClass::OnMouseClickLeft( x, y, bDown );
-            InvalidateParent();
+            if (BaseClass::OnMouseClickLeft( x, y, bDown )) {
+                InvalidateParent();
+                return true;
+            }
+            
+            return false;
         }
         
         void ScrollBarBar::Layout( Skin::Base* /*skin*/ )

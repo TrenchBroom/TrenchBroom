@@ -50,7 +50,7 @@ namespace Gwen
             virtual void OnCut( Gwen::Controls::Base* pCtrl );
             virtual void OnSelectAll( Gwen::Controls::Base* pCtrl );
             
-            virtual void OnMouseDoubleClickLeft( int x, int y );
+            virtual bool OnMouseDoubleClickLeft( int x, int y );
             
             virtual void EraseSelection();
             virtual bool HasSelection();
@@ -59,7 +59,7 @@ namespace Gwen
             virtual void SetCursorPos( int i );
             virtual void SetCursorEnd( int i );
             
-            virtual void OnMouseClickLeft( int x, int y, bool bDown );
+            virtual bool OnMouseClickLeft( int x, int y, bool bDown );
             virtual void OnMouseMoved( int x, int y, int deltaX, int deltaY );
             
             virtual void SetSelectAllOnFocus( bool b ){ m_bSelectAll = b; if ( b ) OnSelectAll( this ); }

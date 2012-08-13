@@ -28,7 +28,7 @@ namespace Gwen
 
 			virtual float CalculateValue();
 			virtual void UpdateBarFromValue();
-			virtual void OnMouseClickLeft( int x, int y, bool bDown );
+			virtual bool OnMouseClickLeft( int x, int y, bool bDown );
 		};
 	}
 }

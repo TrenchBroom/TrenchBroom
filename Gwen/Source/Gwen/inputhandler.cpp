@@ -252,16 +252,14 @@ bool Gwen::Input::OnMouseClicked( Controls::Base* pCanvas, int iMouseButton, boo
 				if ( DragAndDrop::OnMouseButton( Gwen::HoveredControl, MousePosition.x, MousePosition.y, bDown ) )
 					return true;
 
-				if ( bIsDoubleClick )	Gwen::HoveredControl->OnMouseDoubleClickLeft( MousePosition.x, MousePosition.y );
-				else					Gwen::HoveredControl->OnMouseClickLeft( MousePosition.x, MousePosition.y, bDown );
-				return true;
+				if ( bIsDoubleClick )	return Gwen::HoveredControl->OnMouseDoubleClickLeft( MousePosition.x, MousePosition.y );
+				else					return Gwen::HoveredControl->OnMouseClickLeft( MousePosition.x, MousePosition.y, bDown );
 			}
 
 		case 1:
 			{
-				if ( bIsDoubleClick )	Gwen::HoveredControl->OnMouseDoubleClickRight( MousePosition.x, MousePosition.y );
-				else					Gwen::HoveredControl->OnMouseClickRight( MousePosition.x, MousePosition.y, bDown );
-				return true;
+				if ( bIsDoubleClick )	return Gwen::HoveredControl->OnMouseDoubleClickRight( MousePosition.x, MousePosition.y );
+				else					return Gwen::HoveredControl->OnMouseClickRight( MousePosition.x, MousePosition.y, bDown );
 			}
 	}
 

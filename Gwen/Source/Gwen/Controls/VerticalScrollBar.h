@@ -24,7 +24,7 @@ namespace Gwen
 
 			virtual void Layout( Skin::Base* skin );
 
-			virtual void OnMouseClickLeft( int x, int y, bool bDown );
+			virtual bool OnMouseClickLeft( int x, int y, bool bDown );
 			virtual void OnBarMoved( Controls::Base* control );
 
 			virtual int GetBarSize() { return  m_Bar->Height(); }

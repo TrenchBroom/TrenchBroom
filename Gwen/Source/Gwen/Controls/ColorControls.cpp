@@ -194,7 +194,7 @@ namespace Gwen {
             }
         }
         
-        void ColorLerpBox::OnMouseClickLeft( int x, int y, bool bDown )
+        bool ColorLerpBox::OnMouseClickLeft( int x, int y, bool bDown )
         {
             m_bDepressed = bDown;
             if ( bDown )
@@ -203,6 +203,7 @@ namespace Gwen {
                 Gwen::MouseFocus = NULL;
             
             OnMouseMoved( x, y, 0, 0);
+            return true;
         }
         
         Gwen::Color ColorLerpBox::GetColorAtPos( int x, int y )
@@ -277,7 +278,7 @@ namespace Gwen {
             skin->GetRender()->DrawFilledRect( Gwen::Rect( Width() - 4, drawHeight + 1, 3, 3 ) );
         }
         
-        void ColorSlider::OnMouseClickLeft( int x, int y, bool bDown )
+        bool ColorSlider::OnMouseClickLeft( int x, int y, bool bDown )
         {
             m_bDepressed = bDown;
             if ( bDown)
@@ -286,6 +287,7 @@ namespace Gwen {
                 Gwen::MouseFocus = NULL;
             
             OnMouseMoved(x, y, 0, 0);
+            return true;
         }
         
         Gwen::Color ColorSlider::GetColorAtHeight( int y )

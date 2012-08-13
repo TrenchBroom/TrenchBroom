@@ -152,9 +152,10 @@ namespace Gwen
             RefreshCursorBounds();
         }
         
-        void TextBox::OnMouseDoubleClickLeft( int /*x*/, int /*y*/ )
+        bool TextBox::OnMouseDoubleClickLeft( int /*x*/, int /*y*/ )
         { 
             OnSelectAll( this );
+            return true;
         }
         
         UnicodeString TextBox::GetSelection()
@@ -336,34 +337,37 @@ namespace Gwen
             m_iCursorEnd = iStart;
         }
         
-        void TextBox::OnMouseClickLeft( int x, int y, bool bDown )
+        bool TextBox::OnMouseClickLeft( int x, int y, bool bDown )
         {
             if ( m_bSelectAll )
             {
                 OnSelectAll( this );
                 m_bSelectAll = false;
-                return;
-            }
-            
-            int iChar = m_Text->GetClosestCharacter( m_Text->CanvasPosToLocal( Gwen::Point( x, y ) ) );
-            
-            if ( bDown )
-            {
-                SetCursorPos( iChar );
-                
-                if ( !Gwen::Input::IsShiftDown() )
-                    SetCursorEnd( iChar );
-                
-                Gwen::MouseFocus = this;
             }
             else
             {
-                if ( Gwen::MouseFocus == this )
+                int iChar = m_Text->GetClosestCharacter( m_Text->CanvasPosToLocal( Gwen::Point( x, y ) ) );
+                
+                if ( bDown )
                 {
                     SetCursorPos( iChar );
-                    Gwen::MouseFocus = NULL;
+                    
+                    if ( !Gwen::Input::IsShiftDown() )
+                        SetCursorEnd( iChar );
+                    
+                    Gwen::MouseFocus = this;
+                }
+                else
+                {
+                    if ( Gwen::MouseFocus == this )
+                    {
+                        SetCursorPos( iChar );
+                        Gwen::MouseFocus = NULL;
+                    }
                 }
             }
+            
+            return true;
         }
         
         void TextBox::OnMouseMoved( int x, int y, int /*deltaX*/, int /*deltaY*/ )

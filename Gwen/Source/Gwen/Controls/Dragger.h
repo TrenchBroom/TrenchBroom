@@ -25,7 +25,7 @@ namespace Gwen
 
 				virtual void OnMouseMoved( int x, int y, int deltaX, int deltaY );
 
-				virtual void OnMouseClickLeft( int x, int y, bool bDown );
+				virtual bool OnMouseClickLeft( int x, int y, bool bDown );
 				virtual void Render( Skin::Base* skin );
 
 				virtual void SetTarget( Controls::Base* pBase ){ m_pTarget = pBase; }

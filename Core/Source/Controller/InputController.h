@@ -67,6 +67,8 @@ namespace TrenchBroom {
             InputController(Editor& editor);
             ~InputController();
             
+            inline Tool::InputEvent& event() { return m_currentEvent; }
+            
             void toggleMoveVertexTool();
             void toggleMoveEdgeTool();
             void toggleMoveFaceTool();
@@ -80,8 +82,8 @@ namespace TrenchBroom {
             bool key(wchar_t c);
             void modifierKeyDown(Tool::EModifierKeys modifierKey);
             void modifierKeyUp(Tool::EModifierKeys modifierKey);
-            void mouseDown(Tool::EMouseButton mouseButton);
-            void mouseUp(Tool::EMouseButton mouseButton);
+            bool mouseDown(Tool::EMouseButton mouseButton);
+            bool mouseUp(Tool::EMouseButton mouseButton);
             void mouseMoved(float x, float y, float dx, float dy);
             void scrolled(float dx, float dy);
             

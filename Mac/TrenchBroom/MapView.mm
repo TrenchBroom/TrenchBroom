@@ -18,21 +18,24 @@
  */
 
 #import "MapView.h"
-#import "GL/GLee.h"
-#import "EditorGui.h"
-#import "VecMath.h"
-#import <math.h>
-#import "Gwen/InputHandler.h"
-#import "Editor.h"
 #import "EditorHolder.h"
-#import "MapDocument.h"
-#import "Renderer/FontManager.h"
 #import "MacStringFactory.h"
+#import "MapDocument.h"
+
+#import "Controller/Camera.h"
+#import "Controller/Editor.h"
+#import "GL/GLee.h"
+#import "GUI/EditorGui.h"
+#import "Gwen/InputHandler.h"
+#import "Model/Map/Map.h"
+#import "Model/Map/EntityDefinition.h"
+#import "Model/Selection.h"
+#import "Renderer/FontManager.h"
+#import "Utilities/VecMath.h"
+
+#import <math.h>
 
 using namespace TrenchBroom;
-using namespace TrenchBroom::Gui;
-using namespace TrenchBroom::Controller;
-using namespace TrenchBroom::Renderer;
 
 namespace TrenchBroom {
     namespace Gui {
@@ -54,8 +57,8 @@ namespace TrenchBroom {
 - (void)prepareOpenGL;
 - (BOOL)key:(NSEvent*)theEvent down:(BOOL)down;
 - (BOOL)key:(NSEvent*)theEvent mask:(NSUInteger)theMask gwenKey:(int)theGwenKey;
-- (Editor*)editor;
-- (EditorGui*)editorGui;
+- (Controller::Editor*)editor;
+- (Gui::EditorGui*)editorGui;
 @end
 
 @implementation MapView (Private)
@@ -110,18 +113,18 @@ namespace TrenchBroom {
     return NO;
 }
 
-- (Editor*)editor {
+- (Controller::Editor*)editor {
     if (editorHolder == NULL) {
         NSWindow* window = [self window];
         NSWindowController* controller = [window windowController];
         MapDocument* document = [controller document];
         editorHolder = [[document editorHolder] retain];
     }
-    return (Editor*)[editorHolder editor];
+    return (Controller::Editor*)[editorHolder editor];
 }
 
-- (EditorGui*)editorGui {
-    return (EditorGui*)editorGui;
+- (Gui::EditorGui*)editorGui {
+    return (Gui::EditorGui*)editorGui;
 }
 
 @end
@@ -130,18 +133,47 @@ namespace TrenchBroom {
 
 - (void)dealloc {
     if (editorGuiListener != NULL)
-        delete ((EditorGuiListener*)editorGuiListener);
+        delete ((Gui::EditorGuiListener*)editorGuiListener);
     if (editorGui != NULL)
-        delete ((EditorGui*)editorGui);
+        delete ((Gui::EditorGui*)editorGui);
     if (fontManager != NULL)
-        delete ((FontManager*)fontManager);
+        delete ((Renderer::FontManager*)fontManager);
     if (editorHolder != NULL)
         [editorHolder release];
+    if (popupMenu != NULL)
+        [popupMenu release];
     [super dealloc];
 }
 
 - (BOOL)mapViewFocused {
-    return ((EditorGui*)editorGui)->mapViewFocused();
+    return [self editorGui]->mapViewFocused();
+}
+
+- (IBAction)createEntity:(id)sender {
+    NSMenuItem* item = (NSMenuItem*)sender;
+    std::string definitionName = [[item title] cStringUsingEncoding:NSASCIIStringEncoding];
+    [self editor]->createEntity(definitionName);
+}
+
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
+    Controller::Editor* editor = [self editor];
+    Model::Map& map = editor->map();
+    Model::EntityDefinitionManager& entityDefinitionManager = map.entityDefinitionManager();
+    
+    std::string definitionName = [[menuItem title] cStringUsingEncoding:NSASCIIStringEncoding];
+    Model::EntityDefinitionPtr definition = entityDefinitionManager.definition(definitionName);
+    if (definition.get() == NULL)
+        return NO;
+    
+    if (definition->type == Model::TB_EDT_POINT)
+        return true;
+    
+    if (definition->type == Model::TB_EDT_BRUSH) {
+        Model::Selection& selection = map.selection();
+        return !selection.selectedBrushes().empty();
+    }
+    
+    return false;
 }
 
 - (BOOL)acceptsFirstResponder {
@@ -155,13 +187,13 @@ namespace TrenchBroom {
 
 - (void)drawRect:(NSRect)dirtyRect {
     if (fontManager == NULL)
-        fontManager = new FontManager(new MacStringFactory());
+        fontManager = new Renderer::FontManager(new Renderer::MacStringFactory());
     
     if (editorGui == NULL) {
         NSString* skinPath = [[NSBundle mainBundle] pathForResource:@"DefaultSkin" ofType:@"png"];
         std::string skinPathCpp([skinPath cStringUsingEncoding:NSASCIIStringEncoding]);
-        editorGui = new EditorGui(*[self editor], *(FontManager*)fontManager, skinPathCpp);
-        editorGuiListener = new EditorGuiListener((EditorGui *)editorGui, self);
+        editorGui = new Gui::EditorGui(*[self editor], *(Renderer::FontManager*)fontManager, skinPathCpp);
+        editorGuiListener = new Gui::EditorGuiListener((Gui::EditorGui *)editorGui, self);
     }
 
     NSRect viewport = [self visibleRect];
@@ -228,7 +260,38 @@ namespace TrenchBroom {
 }
 
 - (void)rightMouseUp:(NSEvent *)theEvent {
-    if (editorGui != NULL) [self editorGui]->canvas()->InputMouseButton(1, false);
+    if (editorGui != NULL) {
+        if (![self editorGui]->canvas()->InputMouseButton(1, false)) {
+            if (popupMenu == nil) {
+                Controller::Editor* editor = [self editor];
+                Model::Map& map = editor->map();
+                Model::EntityDefinitionManager& entityDefinitionManager = map.entityDefinitionManager();
+                Model::EntityDefinitionList pointEntities = entityDefinitionManager.definitions(Model::TB_EDT_POINT);
+                Model::EntityDefinitionList brushEntities = entityDefinitionManager.definitions(Model::TB_EDT_BRUSH);
+                
+                popupMenu = [[NSMenu alloc] initWithTitle:@"Map View Popup Menu"];
+                NSMenuItem* pointEntityMenuItem = [popupMenu addItemWithTitle:@"Create Point Entity" action:NULL keyEquivalent:@""];
+                NSMenu* pointEntityMenu = [[NSMenu alloc] initWithTitle:@"Create Point Entity Submenu"];
+                [pointEntityMenuItem setSubmenu:[pointEntityMenu autorelease]];
+
+                NSMenuItem* brushEntityMenuItem = [popupMenu addItemWithTitle:@"Create Brush Entity" action:NULL keyEquivalent:@""];
+                NSMenu* brushEntityMenu = [[NSMenu alloc] initWithTitle:@"Create Brush Entity Submenu"];
+                [brushEntityMenuItem setSubmenu:[brushEntityMenu autorelease]];
+                
+                for (unsigned int i = 0; i < pointEntities.size(); i++) {
+                    Model::EntityDefinitionPtr definition = pointEntities[i];
+                    [pointEntityMenu addItemWithTitle:[NSString stringWithCString:definition->name.c_str() encoding:NSASCIIStringEncoding] action:@selector(createEntity:) keyEquivalent:@""];
+                }
+                
+                for (unsigned int i = 0; i < brushEntities.size(); i++) {
+                    Model::EntityDefinitionPtr definition = brushEntities[i];
+                    [brushEntityMenu addItemWithTitle:[NSString stringWithCString:definition->name.c_str() encoding:NSASCIIStringEncoding] action:@selector(createEntity:) keyEquivalent:@""];
+                }
+            }
+            
+            [NSMenu popUpContextMenu:popupMenu withEvent:theEvent forView:self];
+        }
+    }
 }
 
 - (void)rightMouseDragged:(NSEvent *)theEvent {

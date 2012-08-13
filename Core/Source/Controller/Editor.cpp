@@ -31,6 +31,7 @@
 #include "IO/Wad.h"
 #include "Model/Map/Map.h"
 #include "Model/Map/Entity.h"
+#include "Model/Map/Picker.h"
 #include "Model/Preferences.h"
 #include "Model/Undo/UndoManager.h"
 #include "Utilities/Filter.h"
@@ -463,7 +464,40 @@ namespace TrenchBroom {
         
         void Editor::enlargeBrushes() {
         }
-        
+
+        void Editor::createEntity(const std::string& name) {
+            Model::EntityDefinitionPtr definition = m_map->entityDefinitionManager().definition(name);
+            assert(definition.get() != NULL);
+            
+            if (definition->type == Model::TB_EDT_POINT) {
+                m_map->undoManager().begin("Create " + definition->name);
+                Model::Entity* entity = m_map->createEntity(definition->name);
+
+                Vec3f delta;
+                Model::HitList* hits = m_inputController->event().hits;
+                const Ray& ray = m_inputController->event().ray;
+
+                Model::Hit* hit = hits->first(Model::TB_HT_FACE, true);
+                if (hit != NULL) {
+                    Model::Face& face = hit->face();
+                    delta = m_grid->moveDeltaForEntity(face, entity->bounds(), m_map->worldBounds(), ray, hit->hitPoint);
+                } else {
+                    Vec3f newPos = m_camera->defaultPoint(ray.direction);
+                    delta = m_grid->moveDeltaForEntity(entity->bounds().center(), m_map->worldBounds(), newPos - entity->bounds().center());
+                }
+                
+                m_map->translateObjects(delta, false);
+                m_map->undoManager().end();
+            } else if (definition->type == Model::TB_EDT_BRUSH) {
+                m_map->undoManager().begin("Create " + definition->name);
+                m_map->selection().push();
+                Model::Entity* entity = m_map->createEntity(definition->name);
+                m_map->selection().pop();
+                m_map->moveBrushesToEntity(*entity);
+                m_map->undoManager().end();
+            }
+        }
+
         void Editor::toggleGrid() {
             m_grid->toggleVisible();
         }

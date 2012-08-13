@@ -32,13 +32,15 @@ namespace Gwen
                 return m_bSelected;
             }
             
-            void OnMouseClickLeft( int /*x*/, int /*y*/, bool bDown )
+            bool OnMouseClickLeft( int /*x*/, int /*y*/, bool bDown )
             {
                 if ( bDown )
                 {
                     SetSelected( true );
                     onRowSelected.Call( this );
                 }
+                
+                return true;
             }
             
             void SetSelected( bool b )

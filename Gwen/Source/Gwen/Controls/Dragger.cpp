@@ -19,9 +19,9 @@ namespace Gwen
             m_bDepressed = false;
         }
         
-        void Dragger::OnMouseClickLeft( int x, int y, bool bDown )
+        bool Dragger::OnMouseClickLeft( int x, int y, bool bDown )
         {
-            if ( !m_pTarget ) return;
+            if ( !m_pTarget ) return false;
             
             if ( bDown )
             {
@@ -35,6 +35,8 @@ namespace Gwen
                 
                 Gwen::MouseFocus = NULL;
             }
+            
+            return false;
         }
         
         void Dragger::OnMouseMoved( int x, int y, int /*deltaX*/, int /*deltaY*/ )

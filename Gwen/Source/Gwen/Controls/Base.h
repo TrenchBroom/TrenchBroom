@@ -193,10 +193,10 @@ namespace Gwen
             
             virtual void OnMouseMoved( int x, int y, int deltaX, int deltaY );
             virtual bool OnMouseWheeled( int iDelta );
-            virtual void OnMouseClickLeft( int /*x*/, int /*y*/, bool /*bDown*/ ){};
-            virtual void OnMouseClickRight( int /*x*/, int /*y*/, bool /*bDown*/ ){}
-            virtual void OnMouseDoubleClickLeft( int x, int y ){ OnMouseClickLeft( x, y, true ); };
-            virtual void OnMouseDoubleClickRight( int x, int y ){ OnMouseClickRight( x, y, true ); };
+            virtual bool OnMouseClickLeft( int /*x*/, int /*y*/, bool /*bDown*/ ){ return false; };
+            virtual bool OnMouseClickRight( int /*x*/, int /*y*/, bool /*bDown*/ ){ return false; }
+            virtual bool OnMouseDoubleClickLeft( int x, int y ){ return OnMouseClickLeft( x, y, true ); };
+            virtual bool OnMouseDoubleClickRight( int x, int y ){ return OnMouseClickRight( x, y, true ); };
             virtual void OnLostKeyboardFocus(){}
             virtual void OnKeyboardFocus(){}
             

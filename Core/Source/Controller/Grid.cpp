@@ -19,6 +19,7 @@
 
 #include "Grid.h"
 
+#include "Controller/DragPlane.h"
 #include "Model/Map/Brush.h"
 #include "Model/Map/BrushGeometry.h"
 #include "Model/Map/Entity.h"
@@ -159,6 +160,26 @@ namespace TrenchBroom {
                 if (actualDelta[i] > 0 != delta[i] > 0)
                     actualDelta[i] = 0;
             return actualDelta;
+        }
+        
+        Vec3f Grid::moveDeltaForEntity(const Model::Face& face, const BBox& bounds, const BBox& worldBounds, const Ray& ray, const Vec3f& position) {
+            DragPlane dragPlane = DragPlane::orthogonal(face.boundary.normal, true);
+            
+            Vec3f halfSize = bounds.size() * 0.5f;
+            float offsetLength = halfSize | dragPlane.normal();
+            if (offsetLength < 0)
+                offsetLength *= -1.0f;
+            Vec3f offset = dragPlane.normal() * offsetLength;
+            
+            float dist = dragPlane.intersect(ray, position);
+            Vec3f newPos = ray.pointAtDistance(dist);
+            Vec3f delta = moveDeltaForEntity(bounds.center(), worldBounds, newPos - (bounds.center() - offset));
+            
+            EAxis a = dragPlane.normal().firstComponent();
+            if (dragPlane.normal()[a] > 0) delta[a] = position[a] - bounds.min[a];
+            else delta[a] = position[a] - bounds.max[a];
+            
+            return delta;
         }
 
         Vec3f Grid::moveDelta(const BBox& bounds, const BBox& worldBounds, const Vec3f& delta) {

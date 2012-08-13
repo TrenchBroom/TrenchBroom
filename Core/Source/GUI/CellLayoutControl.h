@@ -136,17 +136,18 @@ namespace TrenchBroom {
                 return m_font;
             }
 
-            virtual void OnMouseClickLeft(int x, int y, bool down) {
-                if (!down)
-                    return;
-                
-                Gwen::Point local = CanvasPosToLocal(Gwen::Point(x, y));
-                typename CellRow<CellData>::CellPtr cell;
-                if (m_layout.cellAt(static_cast<float>(local.x), static_cast<float>(local.y), cell)) {
-                    m_selectedCell = cell;
-                    OnCellSelected();
-                    SetDragAndDropPackage(cell);
+            virtual bool OnMouseClickLeft(int x, int y, bool down) {
+                if (down) {
+                    Gwen::Point local = CanvasPosToLocal(Gwen::Point(x, y));
+                    typename CellRow<CellData>::CellPtr cell;
+                    if (m_layout.cellAt(static_cast<float>(local.x), static_cast<float>(local.y), cell)) {
+                        m_selectedCell = cell;
+                        OnCellSelected();
+                        SetDragAndDropPackage(cell);
+                    }
                 }
+                
+                return true;
             }
             
             virtual void SetPadding(const Gwen::Padding& padding) {

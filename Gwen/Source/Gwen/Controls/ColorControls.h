@@ -29,7 +29,7 @@ namespace Gwen
 				Gwen::Color GetColorAtPos(int x, int y );
 				void SetColor( Gwen::Color color, bool onlyHue = true );
 				virtual void OnMouseMoved( int x, int y, int deltaX, int deltaY );
-				virtual void OnMouseClickLeft( int x, int y, bool bDown );
+				virtual bool OnMouseClickLeft( int x, int y, bool bDown );
 				Gwen::Color GetSelectedColor();
 
 				Event::Caller	onSelectionChanged;
@@ -46,7 +46,7 @@ namespace Gwen
 				GWEN_CONTROL( ColorSlider, Controls::Base );
 				virtual void Render( Gwen::Skin::Base* skin );
 				virtual void OnMouseMoved( int x, int y, int deltaX, int deltaY );
-				virtual void OnMouseClickLeft( int x, int y, bool bDown );
+				virtual bool OnMouseClickLeft( int x, int y, bool bDown );
 				Gwen::Color GetSelectedColor();
 				Gwen::Color GetColorAtHeight(int y );
 				void SetColor( Gwen::Color color );

@@ -21,15 +21,17 @@
 
 @class EditorHolder;
 
-@interface MapView: NSOpenGLView {
+@interface MapView: NSOpenGLView <NSMenuDelegate> {
     EditorHolder* editorHolder;
     void* editorGui;
     void* editorGuiListener;
     void* fontManager;
     NSUInteger flags;
+    NSMenu* popupMenu;
 }
 
 - (BOOL)mapViewFocused;
+- (IBAction)createEntity:(id)sender;
 
 @end
 

@@ -45,21 +45,7 @@ namespace TrenchBroom {
                 delta = grid.moveDeltaForEntity(m_bounds.center(), m_editor.map().worldBounds(), newPos - m_bounds.center());
             } else {
                 Model::Face& face = hit->face();
-                DragPlane dragPlane = DragPlane::orthogonal(face.boundary.normal, true);
-
-                Vec3f halfSize = m_bounds.size() * 0.5f;
-                float offsetLength = halfSize | dragPlane.normal();
-                if (offsetLength < 0)
-                    offsetLength *= -1.0f;
-                Vec3f offset = dragPlane.normal() * offsetLength;
-                
-                float dist = dragPlane.intersect(info.event.ray, hit->hitPoint);
-                Vec3f newPos = info.event.ray.pointAtDistance(dist);
-                delta = grid.moveDeltaForEntity(m_bounds.center(), m_editor.map().worldBounds(), newPos - (m_bounds.center() - offset));
-
-                EAxis a = dragPlane.normal().firstComponent();
-                if (dragPlane.normal()[a] > 0) delta[a] = hit->hitPoint[a] - m_bounds.min[a];
-                else delta[a] = hit->hitPoint[a] - m_bounds.max[a];
+                delta = grid.moveDeltaForEntity(face, m_bounds, m_editor.map().worldBounds(), info.event.ray, hit->hitPoint);
             }
             
             if (delta.null())

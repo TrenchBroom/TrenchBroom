@@ -25,9 +25,9 @@ namespace Gwen
 				GWEN_CONTROL( Button, Label );
 				
 				virtual void Render( Skin::Base* skin );
-				virtual void OnMouseClickLeft( int x, int y, bool bDown );
-				virtual void OnMouseClickRight( int x, int y, bool bDown );
-				virtual void OnMouseDoubleClickLeft( int x, int y );
+				virtual bool OnMouseClickLeft( int x, int y, bool bDown );
+				virtual bool OnMouseClickRight( int x, int y, bool bDown );
+				virtual bool OnMouseDoubleClickLeft( int x, int y );
 				virtual bool OnKeySpace( bool bDown );
 
 				virtual void OnPress();

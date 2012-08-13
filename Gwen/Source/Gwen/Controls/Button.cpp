@@ -43,7 +43,7 @@ namespace Gwen
             skin->DrawButton( this, bDrawDepressed, bDrawHovered, IsDisabled() );
         }
         
-        void Button::OnMouseClickLeft( int /*x*/, int /*y*/, bool bDown )
+        bool Button::OnMouseClickLeft( int /*x*/, int /*y*/, bool bDown )
         {
             if ( bDown )
             {
@@ -62,9 +62,11 @@ namespace Gwen
                 Gwen::MouseFocus = NULL;
                 onUp.Call( this );
             }
+            
+            return true;
         }
         
-        void Button::OnMouseClickRight( int /*x*/, int /*y*/, bool bDown )
+        bool Button::OnMouseClickRight( int /*x*/, int /*y*/, bool bDown )
         {
             if ( bDown )
             {
@@ -83,6 +85,8 @@ namespace Gwen
                 Gwen::MouseFocus = NULL;
                 onUp.Call( this );
             }
+            
+            return true;
         }
         
         
@@ -207,10 +211,11 @@ namespace Gwen
             }
         }
         
-        void Button::OnMouseDoubleClickLeft( int x, int y )
+        bool Button::OnMouseDoubleClickLeft( int x, int y )
         { 
-            OnMouseClickLeft( x, y, true ); 
+            OnMouseClickLeft( x, y, true );
             onDoubleClick.Call( this );
+            return true;
         }
         
     }

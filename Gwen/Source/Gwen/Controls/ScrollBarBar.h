@@ -26,7 +26,7 @@ namespace Gwen
 				virtual void Layout( Skin::Base* skin );
 
 				virtual void OnMouseMoved( int x, int y, int deltaX, int deltaY );
-				virtual void OnMouseClickLeft( int x, int y, bool bDown );
+				virtual bool OnMouseClickLeft( int x, int y, bool bDown );
 
 				virtual void MoveTo(int x, int y);
 

@@ -33,6 +33,9 @@ namespace TrenchBroom {
     namespace Controller {
 
         bool SelectionTool::handleMouseUp(InputEvent& event) {
+            if (event.mouseButton != TB_MB_LEFT)
+                return false;
+            
             editor().map().undoManager().addSelection(editor().map());
 
             Model::Selection& selection = editor().map().selection();

@@ -151,22 +151,26 @@ namespace TrenchBroom {
                 chain[i]->modifierKeyChanged(m_currentEvent);
         }
         
-        void InputController::mouseDown(Tool::EMouseButton mouseButton) {
+        bool InputController::mouseDown(Tool::EMouseButton mouseButton) {
             m_currentEvent.mouseButton = mouseButton;
             updateHits();
             
             ToolList chain = m_receiverChain;
-            for (unsigned int i = 0; i < chain.size(); i++)
+            for (unsigned int i = 0; i < chain.size(); i++) {
                 if (chain[i]->mouseDown(m_currentEvent)) {
                     m_mouseDownReceiver = chain[i];
-                    break;
+                    return true;
                 }
+            }
+            
+            return false;
         }
         
-        void InputController::mouseUp(Tool::EMouseButton mouseButton) {
+        bool InputController::mouseUp(Tool::EMouseButton mouseButton) {
             m_currentEvent.mouseButton = mouseButton;
             updateHits();
             
+            bool handled = false;
             if (m_currentEvent.mouseButton == m_dragButton) {
                 if (m_dragScrollReceiver.get() != NULL)
                     m_dragScrollReceiver->endDrag(m_currentEvent);
@@ -175,14 +179,16 @@ namespace TrenchBroom {
                 m_dragScrollReceiver = ToolPtr();
                 m_dragButton = Tool::TB_MB_NONE;
                 m_mouseDownReceiver = ToolPtr();
+                handled = true;
             } else {
                 ToolList chain = m_receiverChain;
-                for (unsigned int i = 0; i < chain.size(); i++)
+                for (unsigned int i = 0; i < chain.size() && !handled; i++)
                     if (chain[i]->mouseUp(m_currentEvent))
-                        break;
+                        handled = true;
             }
             
             m_currentEvent.mouseButton = Tool::TB_MB_NONE;
+            return handled;
         }
         
         void InputController::mouseMoved(float x, float y, float dx, float dy) {
