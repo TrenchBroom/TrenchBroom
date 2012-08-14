@@ -132,6 +132,16 @@ namespace TrenchBroom {
                 m_textureWadList->AddItem(collections[i]->name());
         }
 
+        void Inspector::entitiesWereAdded(const Model::EntityList& entities) {
+            Model::Selection& selection = m_editor.map().selection();
+            m_propertiesTable->setEntities(selection.allSelectedEntities());
+        }
+
+        void Inspector::entitiesWereRemoved(const Model::EntityList& entities) {
+            Model::Selection& selection = m_editor.map().selection();
+            m_propertiesTable->setEntities(selection.allSelectedEntities());
+        }
+
         void Inspector::propertiesDidChange(const Model::EntityList& entities) {
             updateTextureControls();
 
@@ -141,6 +151,9 @@ namespace TrenchBroom {
         
         void Inspector::brushesDidChange(const Model::BrushList& brushes) {
             updateTextureControls();
+            
+            Model::Selection& selection = m_editor.map().selection();
+            m_propertiesTable->setEntities(selection.allSelectedEntities());
         }
 
         void Inspector::facesDidChange(const Model::FaceList& faces) {
@@ -501,6 +514,9 @@ namespace TrenchBroom {
             Model::Selection& selection = map.selection();
             Model::Assets::TextureManager& textureManager = m_editor.textureManager();
 
+            map.entitiesWereAdded                   += new Model::Map::EntityEvent::Listener<Inspector>(this, &Inspector::entitiesWereAdded);
+            map.entitiesWereRemoved                 += new Model::Map::EntityEvent::Listener<Inspector>(this, &Inspector::entitiesWereRemoved);
+            map.propertiesDidChange                 += new Model::Map::EntityEvent::Listener<Inspector>(this, &Inspector::propertiesDidChange);
             map.propertiesDidChange                 += new Model::Map::EntityEvent::Listener<Inspector>(this, &Inspector::propertiesDidChange);
             map.brushesDidChange                    += new Model::Map::BrushEvent::Listener<Inspector>(this, &Inspector::brushesDidChange);
             map.facesDidChange                      += new Model::Map::FaceEvent::Listener<Inspector>(this, &Inspector::facesDidChange);
@@ -517,6 +533,8 @@ namespace TrenchBroom {
             Model::Selection& selection = map.selection();
             Model::Assets::TextureManager& textureManager = m_editor.textureManager();
 
+            map.entitiesWereAdded                   -= new Model::Map::EntityEvent::Listener<Inspector>(this, &Inspector::entitiesWereAdded);
+            map.entitiesWereRemoved                 -= new Model::Map::EntityEvent::Listener<Inspector>(this, &Inspector::entitiesWereRemoved);
             map.propertiesDidChange                 -= new Model::Map::EntityEvent::Listener<Inspector>(this, &Inspector::propertiesDidChange);
             map.brushesDidChange                    -= new Model::Map::BrushEvent::Listener<Inspector>(this, &Inspector::brushesDidChange);
             map.facesDidChange                      -= new Model::Map::FaceEvent::Listener<Inspector>(this, &Inspector::facesDidChange);

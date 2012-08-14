@@ -593,6 +593,7 @@ namespace TrenchBroom {
                     if (it != m_entities.end())
                         m_entities.erase(it);
                 }
+                if (m_postNotifications) entitiesWillBeRemoved(removedEntities);
             }
             
             m_undoManager->begin("Delete Objects");

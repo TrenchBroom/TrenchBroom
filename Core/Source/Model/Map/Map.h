@@ -72,6 +72,7 @@ namespace TrenchBroom {
             typedef Event<Map&> PointFileEvent;
             EntityEvent entitiesWereAdded;
             EntityEvent entitiesWillBeRemoved;
+            EntityEvent entitiesWereRemoved;
             EntityEvent propertiesWillChange;
             EntityEvent propertiesDidChange;
             BrushEvent brushesWereAdded;
