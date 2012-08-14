@@ -295,7 +295,7 @@ void CMapView::OnRButtonUp(UINT nFlags, CPoint point)
 {
 	if (!m_editorGui->canvas()->InputMouseButton(1, false) && m_editorGui->mapViewHovered()) {
 		CMenu parentMenu;
-		bool success = parentMenu.LoadMenuA(IDR_MAPVIEW_POPUP);
+		BOOL success = parentMenu.LoadMenuA(IDR_MAPVIEW_POPUP);
 		assert(success);
 
 		CMenu* popupMenu = parentMenu.GetSubMenu(0);
