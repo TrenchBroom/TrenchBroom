@@ -71,6 +71,7 @@ namespace TrenchBroom {
 			void resizeTo(int width, int height);
 			void render();
 			bool mapViewFocused();
+            bool mapViewHovered();
 			
 			Gwen::Controls::Canvas* canvas();
 			EditorGuiEvent editorGuiRedraw;

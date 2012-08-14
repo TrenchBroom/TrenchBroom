@@ -80,5 +80,10 @@ namespace TrenchBroom {
 		bool EditorGui::mapViewFocused() {
 			return Gwen::KeyboardFocus == m_mapRenderer;
 		}
+        
+        bool EditorGui::mapViewHovered() {
+            return Gwen::HoveredControl == m_mapRenderer;
+        }
+
 	}
 }

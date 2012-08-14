@@ -268,7 +268,7 @@ namespace TrenchBroom {
 
 - (void)rightMouseUp:(NSEvent *)theEvent {
     if (editorGui != NULL) {
-        if (![self editorGui]->canvas()->InputMouseButton(1, false)) {
+        if (![self editorGui]->canvas()->InputMouseButton(1, false) && [self editorGui]->mapViewHovered()) {
             if (popupMenu == nil) {
                 Controller::Editor* editor = [self editor];
                 Model::Map& map = editor->map();
