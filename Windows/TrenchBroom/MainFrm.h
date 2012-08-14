@@ -52,6 +52,7 @@ public:
 
 protected:
 	HACCEL m_originalAccelTable;
+	BOOL m_entityMenuCreated;
 	TrenchBroom::Controller::Editor* currentEditor();
 	bool mapViewFocused();
 	bool validateCommand(UINT id);
@@ -115,7 +116,12 @@ public:
 	afx_msg void OnEditCursorRight();
 	afx_msg void OnEditPageUp();
 	afx_msg void OnEditPageDown();
+	afx_msg void OnCreatePointEntity(UINT nId);
+	afx_msg void OnUpdatePointEntityMenuItem(CCmdUI *pCmdUI);
+	afx_msg void OnCreateBrushEntity(UINT nId);
+	afx_msg void OnUpdateBrushEntityMenuItem(CCmdUI *pCmdUI);
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	afx_msg void OnInitMenu(CMenu* pMenu);
 };
 
 

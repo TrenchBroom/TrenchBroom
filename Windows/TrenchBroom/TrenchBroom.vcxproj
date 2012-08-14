@@ -195,7 +195,6 @@ Copy "$(ProjectDir)..\..\Resources\Graphics\QuakePalette.lmp" "$(TargetDir)\Reso
     <ClInclude Include="..\..\Core\Source\Model\Undo\UndoManager.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\AliasRenderer.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\BspRenderer.h" />
-    <ClInclude Include="..\..\Core\Source\Renderer\ChangeSet.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\EntityClassnameAnchor.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\EntityClassnameFilter.h" />
     <ClInclude Include="..\..\Core\Source\Renderer\EntityRenderer.h" />
@@ -331,6 +330,7 @@ Copy "$(ProjectDir)..\..\Resources\Graphics\QuakePalette.lmp" "$(TargetDir)\Reso
     <ClInclude Include="WinFileManager.h" />
     <ClInclude Include="WinPreferences.h" />
     <ClInclude Include="WinStringFactory.h" />
+    <ClInclude Include="WinUtilities.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Core\Source\Controller\Autosaver.cpp" />
@@ -385,7 +385,6 @@ Copy "$(ProjectDir)..\..\Resources\Graphics\QuakePalette.lmp" "$(TargetDir)\Reso
     <ClCompile Include="..\..\Core\Source\Model\Undo\UndoManager.cpp" />
     <ClCompile Include="..\..\Core\Source\Renderer\AliasRenderer.cpp" />
     <ClCompile Include="..\..\Core\Source\Renderer\BspRenderer.cpp" />
-    <ClCompile Include="..\..\Core\Source\Renderer\ChangeSet.cpp" />
     <ClCompile Include="..\..\Core\Source\Renderer\EntityClassnameAnchor.cpp" />
     <ClCompile Include="..\..\Core\Source\Renderer\EntityRenderer.cpp" />
     <ClCompile Include="..\..\Core\Source\Renderer\EntityRendererManager.cpp" />
@@ -491,6 +490,7 @@ Copy "$(ProjectDir)..\..\Resources\Graphics\QuakePalette.lmp" "$(TargetDir)\Reso
     <ClCompile Include="WinFileManager.cpp" />
     <ClCompile Include="WinPreferences.cpp" />
     <ClCompile Include="WinStringFactory.cpp" />
+    <ClCompile Include="WinUtilitities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="TrenchBroom.rc" />

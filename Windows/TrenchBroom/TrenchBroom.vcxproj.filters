@@ -595,9 +595,6 @@
     <ClInclude Include="PreferencesDialog.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Core\Source\Renderer\ChangeSet.h">
-      <Filter>Header\Core\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Core\Source\Controller\DragPlane.h">
       <Filter>Header\Core\Controller</Filter>
     </ClInclude>
@@ -732,6 +729,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Core\Source\Renderer\Figures\VertexToolFigure.h">
       <Filter>Header\Core\Renderer\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="WinUtilities.h">
+      <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1083,9 +1083,6 @@
     <ClCompile Include="PreferencesDialog.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Core\Source\Renderer\ChangeSet.cpp">
-      <Filter>Source\Core\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Core\Source\Controller\MoveObjectTool.cpp">
       <Filter>Source\Core\Controller</Filter>
     </ClCompile>
@@ -1199,6 +1196,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Core\Source\Renderer\Figures\VertexToolFigure.cpp">
       <Filter>Source\Core\Renderer\Figures</Filter>
+    </ClCompile>
+    <ClCompile Include="WinUtilitities.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

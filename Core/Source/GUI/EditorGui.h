@@ -72,7 +72,8 @@ namespace TrenchBroom {
 			void render();
 			bool mapViewFocused();
             bool mapViewHovered();
-			
+			inline Controller::Editor& editor() { return m_editor; }
+
 			Gwen::Controls::Canvas* canvas();
 			EditorGuiEvent editorGuiRedraw;
 		};

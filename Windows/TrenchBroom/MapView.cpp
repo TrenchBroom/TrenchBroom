@@ -28,10 +28,14 @@
 #include "MapDocument.h"
 #include "MapView.h"
 #include "WinStringFactory.h"
+#include "WinUtilities.h"
 
+#include "Controller/Editor.h"
 #include "Gwen/Controls/Canvas.h"
 #include "GUI/EditorGui.h"
 #include "IO/FileManager.h"
+#include "Model/Map/Map.h"
+#include "Model/Map/EntityDefinition.h"
 #include "Renderer/FontManager.h"
 #include "Utilities/Utils.h"
 #include "Utilities/Console.h"
@@ -289,7 +293,18 @@ void CMapView::OnRButtonDown(UINT nFlags, CPoint point)
 
 void CMapView::OnRButtonUp(UINT nFlags, CPoint point)
 {
-	m_editorGui->canvas()->InputMouseButton(1, false);	
+	if (!m_editorGui->canvas()->InputMouseButton(1, false) && m_editorGui->mapViewHovered()) {
+		CMenu parentMenu;
+		bool success = parentMenu.LoadMenuA(IDR_MAPVIEW_POPUP);
+		assert(success);
+
+		CMenu* popupMenu = parentMenu.GetSubMenu(0);
+		assert(popupMenu != NULL);
+
+		CPoint screen = point;
+		ClientToScreen(&screen);
+		popupMenu->TrackPopupMenu(TPM_LEFTALIGN | TPM_LEFTBUTTON, screen.x, screen.y, GetTopLevelParent(), NULL);
+	}
 	ReleaseCapture();
 }
 

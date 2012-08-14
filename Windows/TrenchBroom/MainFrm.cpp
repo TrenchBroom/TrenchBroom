@@ -23,8 +23,8 @@
 #include "MainFrm.h"
 #include "MapDocument.h"
 #include "MapView.h"
-
 #include "PreferencesDialog.h"
+#include "WinUtilities.h"
 
 #include "Controller/Editor.h"
 #include "Controller/InputController.h"
@@ -155,14 +155,19 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_COMMAND(ID_EDIT_CURSOR_RIGHT, &CMainFrame::OnEditCursorRight)
 	ON_COMMAND(ID_EDIT_PAGE_UP, &CMainFrame::OnEditPageUp)
 	ON_COMMAND(ID_EDIT_PAGE_DOWN, &CMainFrame::OnEditPageDown)
-END_MESSAGE_MAP()
+	ON_COMMAND_RANGE(2000, 3999, &CMainFrame::OnCreatePointEntity)
+	ON_UPDATE_COMMAND_UI_RANGE(2000, 3999, &CMainFrame::OnUpdatePointEntityMenuItem)
+	ON_COMMAND_RANGE(4000, 5999, &CMainFrame::OnCreateBrushEntity)
+	ON_UPDATE_COMMAND_UI_RANGE(4000, 5999, &CMainFrame::OnUpdateBrushEntityMenuItem)
+	ON_WM_INITMENU()
+	END_MESSAGE_MAP()
 
 // CMainFrame construction/destruction
 
 CMainFrame::CMainFrame()
 {
 	m_originalAccelTable = NULL;
-	// TODO: add member initialization code here
+	m_entityMenuCreated = false;
 }
 
 CMainFrame::~CMainFrame()
@@ -799,6 +804,77 @@ void CMainFrame::OnEditPageDown()
 }
 
 
+void CMainFrame::OnCreatePointEntity(UINT nId)
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	TrenchBroom::Model::Map& map = editor->map();
+	TrenchBroom::Model::EntityDefinitionManager& definitionManager = map.entityDefinitionManager();
+	TrenchBroom::Model::EntityDefinitionList pointDefinitions = definitionManager.definitions(TrenchBroom::Model::TB_EDT_POINT);
+	
+	if (nId >= 3000) {
+		// the event came from the main menu
+		unsigned int index = nId - 3000;
+		if (index < 0 || index >= pointDefinitions.size())
+			return;
+		TrenchBroom::Model::EntityDefinitionPtr definition = pointDefinitions[index];
+		editor->createEntityAtDefaultPos(definition->name);
+	} else {
+		// the event came from the popup menu
+		unsigned int index = nId - 2000;
+		if (index < 0 || index >= pointDefinitions.size())
+			return;
+		TrenchBroom::Model::EntityDefinitionPtr definition = pointDefinitions[index];
+		editor->createEntityAtClickPos(definition->name);
+	}
+}
+
+
+void CMainFrame::OnUpdatePointEntityMenuItem(CCmdUI *pCmdUI)
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	pCmdUI->Enable(editor != NULL);
+}
+
+
+void CMainFrame::OnCreateBrushEntity(UINT nId)
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	TrenchBroom::Model::Map& map = editor->map();
+	TrenchBroom::Model::EntityDefinitionManager& definitionManager = map.entityDefinitionManager();
+	TrenchBroom::Model::EntityDefinitionList pointDefinitions = definitionManager.definitions(TrenchBroom::Model::TB_EDT_POINT);
+	TrenchBroom::Model::EntityDefinitionList brushDefinitions = definitionManager.definitions(TrenchBroom::Model::TB_EDT_BRUSH);
+
+	if (nId >= 5000) {
+		// the event came from the main menu
+		unsigned int index = nId - 5000;
+		if (index < 0 || index >= brushDefinitions.size())
+			return;
+		TrenchBroom::Model::EntityDefinitionPtr definition = brushDefinitions[index];
+		editor->createEntityAtDefaultPos(definition->name);
+	} else {
+		// the event came from the popup menu
+		unsigned int index = nId - 4000;
+		if (index < 0 || index >= brushDefinitions.size())
+			return;
+		TrenchBroom::Model::EntityDefinitionPtr definition = brushDefinitions[index];
+		editor->createEntityAtClickPos(definition->name);
+	}
+}
+
+
+void CMainFrame::OnUpdateBrushEntityMenuItem(CCmdUI *pCmdUI)
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL) {
+		pCmdUI->Enable(false);
+		return;
+	}
+
+	TrenchBroom::Model::Selection& selection = editor->map().selection();
+	pCmdUI->Enable(!selection.selectedBrushes().empty());
+}
+
+
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 {
 	// The following code prevents CFrameWnd::PreTranslateMessage from swallowing key presses that
@@ -834,4 +910,49 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 	}
 
 	return CFrameWnd::PreTranslateMessage(pMsg);
+}
+
+
+void CMainFrame::OnInitMenu(CMenu* pMenu)
+{
+	CFrameWnd::OnInitMenu(pMenu);
+
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor == NULL)
+		return;
+
+	CMenu* editMenu = pMenu->GetSubMenu(1);
+	if (editMenu != NULL && m_entityMenuCreated)
+		return;
+
+	TrenchBroom::Model::Map& map = editor->map();
+	TrenchBroom::Model::EntityDefinitionManager& definitionManager = map.entityDefinitionManager();
+	TrenchBroom::Model::EntityDefinitionList pointDefinitions = definitionManager.definitions(TrenchBroom::Model::TB_EDT_POINT);
+	TrenchBroom::Model::EntityDefinitionList brushDefinitions = definitionManager.definitions(TrenchBroom::Model::TB_EDT_BRUSH);
+
+	BOOL success;
+	if (editMenu == NULL) {
+		// it's the popup menu
+		CMenu* pointEntityMenu = TrenchBroom::Gui::createEntityMenu(pointDefinitions, 2000);
+		CMenu* brushEntityMenu = TrenchBroom::Gui::createEntityMenu(brushDefinitions, 4000);
+
+
+		success = pMenu->AppendMenu(MF_ENABLED | MF_STRING | MF_POPUP, (UINT_PTR)pointEntityMenu->GetSafeHmenu(), "Create Point Entity\0");
+		assert(success);
+		success = pMenu->AppendMenu(MF_ENABLED | MF_STRING | MF_POPUP, (UINT_PTR)brushEntityMenu->GetSafeHmenu(), "Create Brush Entity\0");
+		assert(success);
+
+		// delete dummy item
+		pMenu->DeleteMenu(0, MF_BYPOSITION);
+	} else {
+		CMenu* pointEntityMenu = TrenchBroom::Gui::createEntityMenu(pointDefinitions, 3000);
+		CMenu* brushEntityMenu = TrenchBroom::Gui::createEntityMenu(brushDefinitions, 5000);
+
+
+		success = editMenu->InsertMenu(ID_EDIT_CREATE_PREFAB, MF_ENABLED | MF_STRING | MF_POPUP | MF_BYCOMMAND, (UINT_PTR)pointEntityMenu->GetSafeHmenu(), "Create Point Entity\0");
+		assert(success);
+		success = editMenu->InsertMenu(ID_EDIT_CREATE_PREFAB, MF_ENABLED | MF_STRING | MF_POPUP | MF_BYCOMMAND, (UINT_PTR)brushEntityMenu->GetSafeHmenu(), "Create Brush Entity\0");
+		assert(success);
+		m_entityMenuCreated = true;
+	}
 }
