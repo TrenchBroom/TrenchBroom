@@ -102,7 +102,7 @@ namespace TrenchBroom {
                 handled = m_editor.inputController().mouseUp(Controller::Tool::TB_MB_LEFT);
 
             // keep receiving mouse events even if the mouse leaves this control
-            if (handled && bDown)
+            if (bDown)
                 Gwen::MouseFocus = this;
             else
                 Gwen::MouseFocus = NULL;
@@ -120,7 +120,7 @@ namespace TrenchBroom {
                 handled = m_editor.inputController().mouseUp(Controller::Tool::TB_MB_RIGHT);
 
             // keep receiving mouse events even if the mouse leaves this control
-            if (handled && bDown)
+            if (bDown)
                 Gwen::MouseFocus = this;
             else
                 Gwen::MouseFocus = NULL;
