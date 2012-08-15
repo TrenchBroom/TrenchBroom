@@ -121,7 +121,8 @@ public:
 	afx_msg void OnUpdatePointEntityMenuItem(CCmdUI *pCmdUI);
 	afx_msg void OnCreateBrushEntity(UINT nId);
 	afx_msg void OnUpdateBrushEntityMenuItem(CCmdUI *pCmdUI);
-	afx_msg void OnEditMoveBrushesToWorld();
+	afx_msg void OnPopupMoveBrushesToEntity();
+	afx_msg void OnUpdatePopupMoveBrushesToEntityMenuItem(CCmdUI *pCmdUI);
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnInitMenu(CMenu* pMenu);
 };

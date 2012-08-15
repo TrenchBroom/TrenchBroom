@@ -31,8 +31,9 @@
 #include "Controller/Options.h"
 #include "Model/Assets/Alias.h"
 #include "Model/Assets/Bsp.h"
-#include "Model/Map/Map.h"
 #include "Model/Map/EntityDefinition.h"
+#include "Model/Map/Map.h"
+#include "Model/Map/Picker.h"
 #include "Model/Preferences.h"
 #include "Model/Selection.h"
 #include "Model/Undo/UndoManager.h"
@@ -161,8 +162,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_UPDATE_COMMAND_UI_RANGE(2000, 3999, &CMainFrame::OnUpdatePointEntityMenuItem)
 	ON_COMMAND_RANGE(4000, 5999, &CMainFrame::OnCreateBrushEntity)
 	ON_UPDATE_COMMAND_UI_RANGE(4000, 5999, &CMainFrame::OnUpdateBrushEntityMenuItem)
-	ON_COMMAND(ID_EDIT_MOVE_BRUSHES_TO_WORLD, &CMainFrame::OnEditMoveBrushesToWorld)
-	ON_UPDATE_COMMAND_UI(ID_EDIT_MOVE_BRUSHES_TO_WORLD, &CMainFrame::OnUpdateMenuItem)
+	ON_COMMAND(ID_POPUP_MOVE_BRUSHES_TO_ENTITY, &CMainFrame::OnPopupMoveBrushesToEntity)
+	ON_UPDATE_COMMAND_UI(ID_POPUP_MOVE_BRUSHES_TO_ENTITY, &CMainFrame::OnUpdatePopupMoveBrushesToEntityMenuItem)
 	ON_WM_INITMENU()
 	END_MESSAGE_MAP()
 
@@ -894,10 +895,45 @@ void CMainFrame::OnUpdateBrushEntityMenuItem(CCmdUI *pCmdUI)
 }
 
 
-void CMainFrame::OnEditMoveBrushesToWorld()
+void CMainFrame::OnPopupMoveBrushesToEntity()
 {
 	TrenchBroom::Controller::Editor* editor = currentEditor();
-	editor->moveBrushesToWorld();
+	editor->moveBrushesToEntity();
+}
+
+
+void CMainFrame::OnUpdatePopupMoveBrushesToEntityMenuItem(CCmdUI *pCmdUI)
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	if (editor != NULL) {
+		TrenchBroom::Model::Map& map = editor->map();
+		TrenchBroom::Model::Selection& selection = map.selection();
+		const TrenchBroom::Model::BrushList& selectedBrushes = selection.selectedBrushes();
+		if (!selectedBrushes.empty()) {
+			TrenchBroom::Controller::InputController& inputController = editor->inputController();
+			TrenchBroom::Model::Hit* hit = inputController.event().hits->first(TrenchBroom::Model::TB_HT_FACE | TrenchBroom::Model::TB_HT_ENTITY, false);
+			TrenchBroom::Model::Entity* target = NULL;
+			if (hit == NULL)
+				target = map.worldspawn(true);
+			else if (hit->type == TrenchBroom::Model::TB_HT_FACE)
+				target = hit->face().brush()->entity();
+			else
+				target = &hit->entity();
+
+			for (unsigned int i = 0; i < selectedBrushes.size(); i++) {
+				if (selectedBrushes[i]->entity() != target) {
+					std::string classname = target->classname() != NULL ? *target->classname() : "Entity";
+					std::string title = "Move Brushes to " + classname;
+					pCmdUI->SetText(title.c_str());
+					pCmdUI->Enable(TRUE);
+					return;
+				}
+			}
+		}
+	}
+
+	pCmdUI->SetText("Move Brushes to Entity");
+	pCmdUI->Enable(FALSE);
 }
 
 
@@ -962,14 +998,10 @@ void CMainFrame::OnInitMenu(CMenu* pMenu)
 		CMenu* pointEntityMenu = TrenchBroom::Gui::createEntityMenu(pointDefinitions, 2000);
 		CMenu* brushEntityMenu = TrenchBroom::Gui::createEntityMenu(brushDefinitions, 4000);
 
-
-		success = pMenu->AppendMenu(MF_ENABLED | MF_STRING | MF_POPUP, (UINT_PTR)pointEntityMenu->GetSafeHmenu(), "Create Point Entity\0");
+		success = pMenu->InsertMenu(0, MF_ENABLED | MF_STRING | MF_POPUP | MF_BYPOSITION, (UINT_PTR)pointEntityMenu->GetSafeHmenu(), "Create Point Entity\0");
 		assert(success);
-		success = pMenu->AppendMenu(MF_ENABLED | MF_STRING | MF_POPUP, (UINT_PTR)brushEntityMenu->GetSafeHmenu(), "Create Brush Entity\0");
+		success = pMenu->InsertMenu(1, MF_ENABLED | MF_STRING | MF_POPUP | MF_BYPOSITION, (UINT_PTR)brushEntityMenu->GetSafeHmenu(), "Create Brush Entity\0");
 		assert(success);
-
-		// delete dummy item
-		pMenu->DeleteMenu(0, MF_BYPOSITION);
 	} else {
 		CMenu* pointEntityMenu = TrenchBroom::Gui::createEntityMenu(pointDefinitions, 3000);
 		CMenu* brushEntityMenu = TrenchBroom::Gui::createEntityMenu(brushDefinitions, 5000);
