@@ -56,6 +56,8 @@ namespace TrenchBroom {
             m_undoManager->begin("Move Brushes to Entity");
             m_undoManager->addFunctor<const BrushParentMap>(*this, &Map::moveBrushesToEntities, undoMap);
             
+            EntityList deleteEntities;
+            
             if (m_postNotifications) brushesWillChange(brushes);
             for (it = brushEntityMap.begin(); it != brushEntityMap.end(); ++it) {
                 Model::Brush* brush = it->first;
@@ -63,8 +65,18 @@ namespace TrenchBroom {
                 Model::Entity* oldEntity = brush->entity();
                 oldEntity->removeBrush(brush);
                 newEntity->addBrush(brush);
+                
+                if (!oldEntity->worldspawn() && oldEntity->brushes().empty())
+                    deleteEntities.push_back(oldEntity);
             }
             if (m_postNotifications) brushesDidChange(brushes);
+
+            if (!deleteEntities.empty()) {
+                m_selection->push();
+                m_selection->replaceSelection(deleteEntities);
+                deleteObjects();
+                m_selection->pop();
+            }
             
             m_undoManager->end();
         }
@@ -593,7 +605,7 @@ namespace TrenchBroom {
                     if (it != m_entities.end())
                         m_entities.erase(it);
                 }
-                if (m_postNotifications) entitiesWillBeRemoved(removedEntities);
+                if (m_postNotifications) entitiesWereRemoved(removedEntities);
             }
             
             m_undoManager->begin("Delete Objects");

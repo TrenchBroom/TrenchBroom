@@ -141,46 +141,11 @@ namespace TrenchBroom {
         delete ((Renderer::FontManager*)fontManager);
     if (editorHolder != NULL)
         [editorHolder release];
-    if (popupMenu != NULL)
-        [popupMenu release];
     [super dealloc];
 }
 
 - (BOOL)mapViewFocused {
     return [self editorGui]->mapViewFocused();
-}
-
-- (IBAction)createEntityFromPopupMenu:(id)sender {
-    NSMenuItem* item = (NSMenuItem*)sender;
-    std::string definitionName = [[item title] cStringUsingEncoding:NSASCIIStringEncoding];
-    [self editor]->createEntityAtClickPos(definitionName);
-}
-
-- (IBAction)createEntityFromMainMenu:(id)sender {
-    NSMenuItem* item = (NSMenuItem*)sender;
-    std::string definitionName = [[item title] cStringUsingEncoding:NSASCIIStringEncoding];
-    [self editor]->createEntityAtDefaultPos(definitionName);
-}
-
-- (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
-    Controller::Editor* editor = [self editor];
-    Model::Map& map = editor->map();
-    Model::EntityDefinitionManager& entityDefinitionManager = map.entityDefinitionManager();
-    
-    std::string definitionName = [[menuItem title] cStringUsingEncoding:NSASCIIStringEncoding];
-    Model::EntityDefinitionPtr definition = entityDefinitionManager.definition(definitionName);
-    if (definition.get() == NULL)
-        return NO;
-    
-    if (definition->type == Model::TB_EDT_POINT)
-        return true;
-    
-    if (definition->type == Model::TB_EDT_BRUSH) {
-        Model::Selection& selection = map.selection();
-        return !selection.selectedBrushes().empty();
-    }
-    
-    return false;
 }
 
 - (BOOL)acceptsFirstResponder {
@@ -269,24 +234,25 @@ namespace TrenchBroom {
 - (void)rightMouseUp:(NSEvent *)theEvent {
     if (editorGui != NULL) {
         if (![self editorGui]->canvas()->InputMouseButton(1, false) && [self editorGui]->mapViewHovered()) {
-            if (popupMenu == nil) {
+            if ([pointEntityMenuItem submenu] == nil || [brushEntityMenuItem submenu] == nil) {
                 Controller::Editor* editor = [self editor];
                 Model::Map& map = editor->map();
                 Model::EntityDefinitionManager& entityDefinitionManager = map.entityDefinitionManager();
-                Model::EntityDefinitionList pointEntities = entityDefinitionManager.definitions(Model::TB_EDT_POINT);
-                Model::EntityDefinitionList brushEntities = entityDefinitionManager.definitions(Model::TB_EDT_BRUSH);
                 
-                popupMenu = [[NSMenu alloc] initWithTitle:@"Map View Popup Menu"];
-                NSMenuItem* pointEntityMenuItem = [popupMenu addItemWithTitle:@"Create Point Entity" action:NULL keyEquivalent:@""];
-                NSMenu* pointEntityMenu = [[NSMenu alloc] initWithTitle:@"Create Point Entity Submenu"];
-                [pointEntityMenuItem setSubmenu:[pointEntityMenu autorelease]];
+                if ([pointEntityMenuItem submenu] == nil) {
+                    Model::EntityDefinitionList pointEntities = entityDefinitionManager.definitions(Model::TB_EDT_POINT);
+                    NSMenu* pointEntityMenu = [[NSMenu alloc] initWithTitle:@"Create Point Entity Submenu"];
+                    [pointEntityMenuItem setSubmenu:[pointEntityMenu autorelease]];
+                    Gui::createEntityMenu(pointEntityMenu, pointEntities, @selector(createEntityFromPopupMenu:));
+                }
+                
+                if ([brushEntityMenuItem submenu] == nil) {
+                    Model::EntityDefinitionList brushEntities = entityDefinitionManager.definitions(Model::TB_EDT_BRUSH);
+                    NSMenu* brushEntityMenu = [[NSMenu alloc] initWithTitle:@"Create Brush Entity Submenu"];
+                    [brushEntityMenuItem setSubmenu:[brushEntityMenu autorelease]];
+                    Gui::createEntityMenu(brushEntityMenu, brushEntities, @selector(createEntityFromPopupMenu:));
+                }
 
-                NSMenuItem* brushEntityMenuItem = [popupMenu addItemWithTitle:@"Create Brush Entity" action:NULL keyEquivalent:@""];
-                NSMenu* brushEntityMenu = [[NSMenu alloc] initWithTitle:@"Create Brush Entity Submenu"];
-                [brushEntityMenuItem setSubmenu:[brushEntityMenu autorelease]];
-                
-                Gui::createEntityMenu(pointEntityMenu, pointEntities, @selector(createEntityFromPopupMenu:));
-                Gui::createEntityMenu(brushEntityMenu, brushEntities, @selector(createEntityFromPopupMenu:));
             }
             
             [NSMenu popUpContextMenu:popupMenu withEvent:theEvent forView:self];

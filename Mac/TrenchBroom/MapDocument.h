@@ -67,7 +67,10 @@
 - (IBAction)flipObjectsVertically:(id)sender;
 - (IBAction)duplicateObjects:(id)sender;
 - (IBAction)enlargeBrushes:(id)sender;
-- (IBAction)moveBrushesToWorld:(id)sender;
+
+- (IBAction)createEntityFromPopupMenu:(id)sender;
+- (IBAction)createEntityFromMainMenu:(id)sender;
+- (IBAction)moveBrushesToEntity:(id)sender;
 
 - (IBAction)toggleGrid:(id)sender;
 - (IBAction)toggleSnapToGrid:(id)sender;

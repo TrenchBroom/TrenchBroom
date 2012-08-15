@@ -131,7 +131,7 @@ namespace TrenchBroom {
             void duplicateObjects();
             void enlargeBrushes();
             
-            void moveBrushesToWorld();
+            void moveBrushesToEntity();
             
             void createEntityAtClickPos(const std::string& name);
             void createEntityAtDefaultPos(const std::string& name);

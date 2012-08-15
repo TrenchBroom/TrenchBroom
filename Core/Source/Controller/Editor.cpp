@@ -486,9 +486,21 @@ namespace TrenchBroom {
         void Editor::enlargeBrushes() {
         }
 
-        void Editor::moveBrushesToWorld() {
-            m_map->undoManager().begin("Move Brushes to World");
-            m_map->moveBrushesToEntity(*m_map->worldspawn(true));
+        void Editor::moveBrushesToEntity() {
+            Model::Hit* hit = m_inputController->event().hits->first(Model::TB_HT_FACE | Model::TB_HT_ENTITY, false);
+            Model::Entity* target = NULL;
+            if (hit == NULL)
+                target = m_map->worldspawn(true);
+            else if (hit->type == Model::TB_HT_FACE)
+                target = hit->face().brush()->entity();
+            else
+                target = &hit->entity();
+            
+            std::string classname = target->classname() != NULL ? *target->classname() : "Entity";
+            std::string title = "Move Brushes to " + classname;
+
+            m_map->undoManager().begin(title);
+            m_map->moveBrushesToEntity(*target);
             m_map->undoManager().end();
         }
 

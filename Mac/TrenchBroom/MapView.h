@@ -27,12 +27,12 @@
     void* editorGuiListener;
     void* fontManager;
     NSUInteger flags;
-    NSMenu* popupMenu;
+    IBOutlet NSMenu* popupMenu;
+    IBOutlet NSMenuItem* pointEntityMenuItem;
+    IBOutlet NSMenuItem* brushEntityMenuItem;
 }
 
 - (BOOL)mapViewFocused;
-- (IBAction)createEntityFromPopupMenu:(id)sender;
-- (IBAction)createEntityFromMainMenu:(id)sender;
 
 @end
 

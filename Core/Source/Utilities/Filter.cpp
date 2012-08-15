@@ -99,7 +99,7 @@ namespace TrenchBroom {
     
     bool Filter::entityPickable(const Model::Entity& entity) {
         const Controller::TransientOptions& options = m_editor.options();
-        if (!options.renderEntities())
+        if (entity.worldspawn() || !options.renderEntities())
             return false;
         
         Model::EntityDefinitionPtr entityDefinition = entity.entityDefinition();

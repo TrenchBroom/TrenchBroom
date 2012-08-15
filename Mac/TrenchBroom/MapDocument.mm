@@ -36,6 +36,7 @@
 #import "Model/Map/EntityDefinition.h"
 #import "Model/Map/Face.h"
 #import "Model/Map/Map.h"
+#import "Model/Map/Picker.h"
 #import "Model/Selection.h"
 #import "Model/Preferences.h"
 #import "Model/Undo/UndoManager.h"
@@ -355,9 +356,23 @@ namespace TrenchBroom {
 - (IBAction)enlargeBrushes:(id)sender {
 }
 
-- (IBAction)moveBrushesToWorld:(id)sender {
+- (IBAction)createEntityFromPopupMenu:(id)sender {
+    NSMenuItem* item = (NSMenuItem*)sender;
+    std::string definitionName = [[item title] cStringUsingEncoding:NSASCIIStringEncoding];
     Editor* editor = (Editor *)[editorHolder editor];
-    editor->moveBrushesToWorld();
+    editor->createEntityAtClickPos(definitionName);
+}
+
+- (IBAction)createEntityFromMainMenu:(id)sender {
+    NSMenuItem* item = (NSMenuItem*)sender;
+    std::string definitionName = [[item title] cStringUsingEncoding:NSASCIIStringEncoding];
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->createEntityAtDefaultPos(definitionName);
+}
+
+- (IBAction)moveBrushesToEntity:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->moveBrushesToEntity();
 }
 
 - (IBAction)toggleGrid:(id)sender {
@@ -488,12 +503,45 @@ namespace TrenchBroom {
         return [self mapViewFocused] && (selection.selectionMode() == Model::TB_SM_BRUSHES || selection.selectionMode() == Model::TB_SM_ENTITIES || selection.selectionMode() == Model::TB_SM_BRUSHES_ENTITIES);
     } else if (action == @selector(enlargeBrushes:)) {
         return [self mapViewFocused] && selection.selectionMode() == Model::TB_SM_BRUSHES;
-    } else if (action == @selector(moveBrushesToWorld:)) {
-        const Model::BrushList& brushes = selection.selectedBrushes();
-        for (unsigned int i = 0; i < brushes.size(); i++)
-            if (brushes[i]->entity() != map.worldspawn(false))
-                return YES;
-        return NO;
+    } else if (action == @selector(createEntityFromMainMenu:) ||
+               action == @selector(createEntityFromPopupMenu:)) {
+        Model::EntityDefinitionManager& entityDefinitionManager = map.entityDefinitionManager();
+        std::string definitionName = [[menuItem title] cStringUsingEncoding:NSASCIIStringEncoding];
+        Model::EntityDefinitionPtr definition = entityDefinitionManager.definition(definitionName);
+        if (definition.get() == NULL)
+            return NO;
+        
+        if (definition->type == Model::TB_EDT_POINT)
+            return true;
+        
+        if (definition->type == Model::TB_EDT_BRUSH) {
+            Model::Selection& selection = map.selection();
+            return !selection.selectedBrushes().empty();
+        }
+    } else if (action == @selector(moveBrushesToEntity:)) {
+        const Model::BrushList& selectedBrushes = selection.selectedBrushes();
+        if (selectedBrushes.empty())
+            return false;
+        
+        Model::Hit* hit = inputController.event().hits->first(Model::TB_HT_FACE | Model::TB_HT_ENTITY, false);
+        Model::Entity* target = NULL;
+        if (hit == NULL)
+            target = map.worldspawn(true);
+        else if (hit->type == Model::TB_HT_FACE)
+            target = hit->face().brush()->entity();
+        else
+            target = &hit->entity();
+
+        for (unsigned int i = 0; i < selectedBrushes.size(); i++) {
+            if (selectedBrushes[i]->entity() != target) {
+                std::string classname = target->classname() != NULL ? *target->classname() : "Entity";
+                std::string title = "Move Brushes to " + classname;
+                [menuItem setTitle:[NSString stringWithCString:title.c_str() encoding:NSASCIIStringEncoding]];
+                return true;
+            }
+        }
+        [menuItem setTitle:@"Move Brushes to Entity"];
+        return false;
     } else if (action == @selector(toggleGrid:)) {
         [menuItem setState:editor->grid().visible() ? NSOnState : NSOffState];
         return [self mapViewFocused];
