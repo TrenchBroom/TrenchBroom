@@ -190,8 +190,7 @@ namespace Gwen
             
             Gwen::Input::OnMouseMoved( this, x, y, deltaX, deltaY );
             
-            if ( !Gwen::HoveredControl )
-				return false;
+            if ( !Gwen::HoveredControl ) return false;
             if ( Gwen::HoveredControl == this ) return false;
             if ( Gwen::HoveredControl->GetCanvas() != this ) return false;
             

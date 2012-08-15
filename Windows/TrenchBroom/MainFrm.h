@@ -79,6 +79,7 @@ public:
 	afx_msg void OnUpdateToolsToggleTextureLock(CCmdUI* pCmdUI);
 	afx_msg void OnEditDelete();
 	afx_msg void OnEditSelectAll();
+	afx_msg void OnEditSelectSiblings();
 	afx_msg void OnEditSelectTouching();
 	afx_msg void OnEditSelectNone();
 	afx_msg void OnViewIsolateSelection();
@@ -120,6 +121,7 @@ public:
 	afx_msg void OnUpdatePointEntityMenuItem(CCmdUI *pCmdUI);
 	afx_msg void OnCreateBrushEntity(UINT nId);
 	afx_msg void OnUpdateBrushEntityMenuItem(CCmdUI *pCmdUI);
+	afx_msg void OnEditMoveBrushesToWorld();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnInitMenu(CMenu* pMenu);
 };

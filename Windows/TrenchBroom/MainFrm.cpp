@@ -65,6 +65,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_DELETE, &CMainFrame::OnUpdateMenuItem)
 	ON_COMMAND(ID_EDIT_SELECT_ALL, &CMainFrame::OnEditSelectAll)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_SELECT_ALL, &CMainFrame::OnUpdateMenuItem)
+	ON_COMMAND(ID_EDIT_SELECT_SIBLINGS, &CMainFrame::OnEditSelectSiblings)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_SELECT_SIBLINGS, &CMainFrame::OnUpdateMenuItem)
 	ON_COMMAND(ID_EDIT_SELECT_TOUCHING, &CMainFrame::OnEditSelectTouching)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_SELECT_TOUCHING, &CMainFrame::OnUpdateMenuItem)
 	ON_COMMAND(ID_EDIT_SELECT_NONE, &CMainFrame::OnEditSelectNone)
@@ -159,6 +161,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_UPDATE_COMMAND_UI_RANGE(2000, 3999, &CMainFrame::OnUpdatePointEntityMenuItem)
 	ON_COMMAND_RANGE(4000, 5999, &CMainFrame::OnCreateBrushEntity)
 	ON_UPDATE_COMMAND_UI_RANGE(4000, 5999, &CMainFrame::OnUpdateBrushEntityMenuItem)
+	ON_COMMAND(ID_EDIT_MOVE_BRUSHES_TO_WORLD, &CMainFrame::OnEditMoveBrushesToWorld)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_MOVE_BRUSHES_TO_WORLD, &CMainFrame::OnUpdateMenuItem)
 	ON_WM_INITMENU()
 	END_MESSAGE_MAP()
 
@@ -248,6 +252,8 @@ bool CMainFrame::validateCommand(UINT id)
 		return mapViewFocused() && (selection.selectionMode() == TrenchBroom::Model::TB_SM_BRUSHES || selection.selectionMode() == TrenchBroom::Model::TB_SM_ENTITIES || selection.selectionMode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES);
 	case ID_EDIT_SELECT_ALL:
 		return mapViewFocused();
+	case ID_EDIT_SELECT_SIBLINGS:
+		return mapViewFocused() && !selection.selectedBrushes().empty();
 	case ID_EDIT_SELECT_TOUCHING:
 		return mapViewFocused() && selection.selectionMode() == TrenchBroom::Model::TB_SM_BRUSHES && selection.selectedBrushes().size() == 1;
 	case ID_EDIT_SELECT_NONE:
@@ -345,6 +351,12 @@ bool CMainFrame::validateCommand(UINT id)
 			return validateCommand(ID_OBJECT_PITCH_90_CCW);
 		else if (selection.selectionMode() == TrenchBroom::Model::TB_SM_FACES)
 			return validateCommand(ID_TEXTURE_ROTATE_CCW_BY_15);
+		return false;
+	case ID_EDIT_MOVE_BRUSHES_TO_WORLD:
+		const TrenchBroom::Model::BrushList& brushes = selection.selectedBrushes();
+		for (unsigned int i = 0; i < brushes.size(); i++)
+			if (!brushes[i]->entity()->worldspawn())
+				return true;
 		return false;
 	}
 
@@ -489,6 +501,13 @@ void CMainFrame::OnEditSelectAll()
 {
 	TrenchBroom::Controller::Editor* editor = currentEditor();
 	editor->selectAll();
+}
+
+
+void CMainFrame::OnEditSelectSiblings()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	editor->selectSiblings();
 }
 
 
@@ -875,6 +894,13 @@ void CMainFrame::OnUpdateBrushEntityMenuItem(CCmdUI *pCmdUI)
 }
 
 
+void CMainFrame::OnEditMoveBrushesToWorld()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	editor->moveBrushesToWorld();
+}
+
+
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 {
 	// The following code prevents CFrameWnd::PreTranslateMessage from swallowing key presses that
@@ -956,3 +982,4 @@ void CMainFrame::OnInitMenu(CMenu* pMenu)
 		m_entityMenuCreated = true;
 	}
 }
+

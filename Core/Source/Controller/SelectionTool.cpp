@@ -36,12 +36,11 @@ namespace TrenchBroom {
             if (event.mouseButton != TB_MB_LEFT)
                 return false;
             
-            editor().map().undoManager().addSelection(editor().map());
-
             Model::Selection& selection = editor().map().selection();
             Model::Hit* hit = event.hits->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);
             if (hit != NULL) {
                 if (hit->type == Model::TB_HT_ENTITY) {
+			        editor().map().undoManager().addSelection(editor().map());
                     Model::Entity& entity = hit->entity();
                     if (entity.selected()) {
                         if (multiSelectionModiferPressed(event)) {
@@ -60,14 +59,17 @@ namespace TrenchBroom {
                     Model::Brush& brush = *face.brush();
                     if (selection.selectionMode() == Model::TB_SM_FACES) {
                         if (face.selected()) {
+				            editor().map().undoManager().addSelection(editor().map());
                             if (multiSelectionModiferPressed(event))
                                 selection.deselectFace(face);
                             else
                                 selection.replaceSelection(brush);
                         } else {
                             if (multiSelectionModiferPressed(event)) {
+					            editor().map().undoManager().addSelection(editor().map());
                                 selection.selectFace(face);
                             } else if (noModifierPressed(event)) {
+					            editor().map().undoManager().addSelection(editor().map());
                                 if (brush.partiallySelected()) {
                                     selection.replaceSelection(face);
                                 } else {
@@ -77,11 +79,13 @@ namespace TrenchBroom {
                         }
                     } else {
                         if (multiSelectionModiferPressed(event)) {
+				            editor().map().undoManager().addSelection(editor().map());
                             if (brush.selected())
                                 selection.deselectBrush(brush);
                             else
                                 selection.selectBrush(brush);
                         } else if (noModifierPressed(event)) {
+				            editor().map().undoManager().addSelection(editor().map());
                             if (brush.selected()) {
                                 selection.replaceSelection(face);
                             } else {
@@ -90,7 +94,8 @@ namespace TrenchBroom {
                         }
                     }
                 }
-            } else {
+			} else if (!selection.empty()) {
+			    editor().map().undoManager().addSelection(editor().map());
                 selection.deselectAll();
             }
             
