@@ -106,7 +106,7 @@ namespace TrenchBroom {
 				return NULL;
 			}
 
-			SelectObject(m_dc, font);
+			HGDIOBJ oldFont = SelectObject(m_dc, font);
 			SIZE size;
 			GetTextExtentPoint32(m_dc, wstr, str.length(), &size);
 
@@ -169,6 +169,9 @@ namespace TrenchBroom {
                 delete StringFactoryCallback::tempPoints.back(), 
                 StringFactoryCallback::tempPoints.pop_back();
 
+			if (oldFont != NULL)
+				SelectObject(m_dc, oldFont);
+
             DeleteObject(font);
 			delete [] fontName;
 			delete [] wstr;
@@ -196,9 +199,12 @@ namespace TrenchBroom {
 				return StringData::Point();
 			}
 
-			SelectObject(m_dc, font);
+			HGDIOBJ oldFont = SelectObject(m_dc, font);
 			SIZE size;
 			GetTextExtentPoint32(m_dc, wstr, str.length(), &size);		
+
+			if (oldFont != NULL)
+				SelectObject(m_dc, oldFont);
 
             DeleteObject(font);
 			delete [] fontName;

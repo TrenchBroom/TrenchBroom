@@ -25,6 +25,7 @@
 #include "Renderer/MapRenderer.h"
 #include "Renderer/Figures/BrushFigure.h"
 #include "Renderer/Figures/SizeGuideFigure.h"
+#include "Utilities/Console.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -47,11 +48,15 @@ namespace TrenchBroom {
             if (m_createBrushTool.state() != Controller::Tool::TB_TS_DRAG)
                 return;
             
+			log(TB_LL_DEBUG, "render create brush figure\n");
+
             if (m_brushFigure == NULL) {
+				log(TB_LL_DEBUG, "create brush figure\n");
                 m_brushFigure = new BrushFigure();
             }
             
             if (m_sizeGuideFigure == NULL) {
+				log(TB_LL_DEBUG, "create size guide figure\n");
                 Model::Preferences& prefs = *Model::Preferences::sharedPreferences;
                 FontManager& fontManager = m_createBrushTool.editor().renderer()->fontManager();
                 m_sizeGuideFigure = new SizeGuideFigure(fontManager, FontDescriptor(prefs.rendererFontName(), prefs.rendererFontSize()));
@@ -59,14 +64,20 @@ namespace TrenchBroom {
             }
             
             if (!m_createBrushTool.checkFigureDataValid()) {
-                Model::BrushList brushes;
+				log(TB_LL_DEBUG, "Update brush figure\n");
+                
+				Model::BrushList brushes;
                 brushes.push_back(m_createBrushTool.brush());
                 
+				log(TB_LL_DEBUG, "Update size guide figure\n");
                 m_brushFigure->setBrushes(brushes);
                 m_sizeGuideFigure->setBounds(m_createBrushTool.bounds());
             }
             
+			log(TB_LL_DEBUG, "render brush figure\n");
             m_brushFigure->render(context, vbo);
+
+			log(TB_LL_DEBUG, "render size guide figure\n");
             m_sizeGuideFigure->render(context, vbo);
         }
     }

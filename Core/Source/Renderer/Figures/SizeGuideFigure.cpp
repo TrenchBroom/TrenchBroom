@@ -58,6 +58,8 @@ namespace TrenchBroom {
             Vec3fList vertices;
             Vec3fList labelPositions;
             
+			log(TB_LL_DEBUG, "compute size guide positions\n");
+
             // X guide
             if (centerDir.y >= 0) {
                 vertices.push_back(m_bounds.min);
@@ -223,27 +225,39 @@ namespace TrenchBroom {
             }            
 
             if (!m_stringsValid) {
-                while (!m_strings.empty()) m_fontManager.destroyStringRenderer(m_strings.back()), m_strings.pop_back();
-                
+				if (!m_strings.empty()) {
+					log(TB_LL_DEBUG, "delete size guide strings\n");
+					while (!m_strings.empty()) m_fontManager.destroyStringRenderer(m_strings.back()), m_strings.pop_back();
+				}
+
                 Vec3f size = m_bounds.size();
                 for (unsigned int i = 0; i < 3; i++) {
                     std::stringstream str;
                     str.precision(0);
                     str << std::fixed << size[i];
+
+					log(TB_LL_DEBUG, "create size guide string '%s'\n", str.str().c_str());
+
 					StringRendererPtr stringRenderer = m_fontManager.createStringRenderer(m_fontDescriptor, str.str());
                     m_strings.push_back(stringRenderer);
                 }
                 
+				log(TB_LL_DEBUG, "finished creating size guide strings\n");
+
                 m_stringsValid = true;
             }
             
+			log(TB_LL_DEBUG, "write size guide vertices\n");
+
             unsigned int vertexCount = static_cast<unsigned int>(vertices.size());
             VboBlock* block = vbo.allocBlock(vertexCount * sizeof(Vec3f));
             vbo.map();
             block->writeVecs(vertices, 0);
             vbo.unmap();
             
-            glDisable(GL_DEPTH_TEST);
+			log(TB_LL_DEBUG, "initialize size guide stencil buffer\n");
+
+			glDisable(GL_DEPTH_TEST);
 
             // initialize the stencil buffer to cancel out the guides in those areas where the strings will be rendered
             glPolygonMode(GL_FRONT, GL_FILL);
@@ -273,6 +287,8 @@ namespace TrenchBroom {
             glStencilFunc(GL_NOTEQUAL, 1, 1);
             glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
             
+			log(TB_LL_DEBUG, "render size guides\n");
+
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
             glEnableClientState(GL_VERTEX_ARRAY);
             glVertexPointer(3, GL_FLOAT, 0, reinterpret_cast<const GLvoid*>(block->address));
@@ -286,8 +302,13 @@ namespace TrenchBroom {
             glDisable(GL_STENCIL_TEST);
 
             vbo.deactivate();
-            m_fontManager.activate();
+
+			log(TB_LL_DEBUG, "activating font manager for size guide strings\n");
+
+			m_fontManager.activate();
             for (unsigned int i = 0; i < labelPositions.size(); i++) {
+				log(TB_LL_DEBUG, "render size guide string %i\n", i);
+
                 glColorV4f(m_color);
                 
                 float dist = context.camera.distanceTo(labelPositions[i]);
@@ -303,10 +324,14 @@ namespace TrenchBroom {
                 m_strings[i]->render();
                 glPopMatrix();
             }
+
+			log(TB_LL_DEBUG, "finished rendering size guide strings, deactivating font manager\n");
             m_fontManager.deactivate();
             
             vbo.activate();
             glEnable(GL_DEPTH_TEST);
+
+			log(TB_LL_DEBUG, "===== finished rendering size guide =====\n");
         }
     }
 }

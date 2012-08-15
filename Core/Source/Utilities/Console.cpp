@@ -33,11 +33,18 @@ namespace TrenchBroom {
          
         va_list arglist;
         va_start(arglist, format);
+#if defined _MSC_VER
+        vsprintf_s(buffer, format, arglist);
+#else
         vsprintf(buffer, format, arglist);
+#endif
         va_end(arglist);
         
         message = buffer;
         switch (level) {
+			case TB_LL_DEBUG:
+				log("Debug: " + message);
+				break;
             case TB_LL_INFO:
                 log("Info: " + message);
                 break;

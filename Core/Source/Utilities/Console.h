@@ -24,6 +24,7 @@
 
 namespace TrenchBroom {
     typedef enum {
+		TB_LL_DEBUG,
         TB_LL_INFO,
         TB_LL_WARN,
         TB_LL_ERR
