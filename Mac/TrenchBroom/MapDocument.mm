@@ -520,24 +520,23 @@ namespace TrenchBroom {
         }
     } else if (action == @selector(moveBrushesToEntity:)) {
         const Model::BrushList& selectedBrushes = selection.selectedBrushes();
-        if (selectedBrushes.empty())
-            return false;
-        
-        Model::Hit* hit = inputController.event().hits->first(Model::TB_HT_FACE | Model::TB_HT_ENTITY, false);
-        Model::Entity* target = NULL;
-        if (hit == NULL)
-            target = map.worldspawn(true);
-        else if (hit->type == Model::TB_HT_FACE)
-            target = hit->face().brush()->entity();
-        else
-            target = &hit->entity();
-
-        for (unsigned int i = 0; i < selectedBrushes.size(); i++) {
-            if (selectedBrushes[i]->entity() != target) {
-                std::string classname = target->classname() != NULL ? *target->classname() : "Entity";
-                std::string title = "Move Brushes to " + classname;
-                [menuItem setTitle:[NSString stringWithCString:title.c_str() encoding:NSASCIIStringEncoding]];
-                return true;
+        if (!selectedBrushes.empty()) {
+            Model::Hit* hit = inputController.event().hits->first(Model::TB_HT_FACE | Model::TB_HT_ENTITY, false);
+            Model::Entity* target = NULL;
+            if (hit == NULL)
+                target = map.worldspawn(true);
+            else if (hit->type == Model::TB_HT_FACE)
+                target = hit->face().brush()->entity();
+            else
+                target = &hit->entity();
+            
+            for (unsigned int i = 0; i < selectedBrushes.size(); i++) {
+                if (selectedBrushes[i]->entity() != target) {
+                    std::string classname = target->classname() != NULL ? *target->classname() : "Entity";
+                    std::string title = "Move Brushes to " + classname;
+                    [menuItem setTitle:[NSString stringWithCString:title.c_str() encoding:NSASCIIStringEncoding]];
+                    return true;
+                }
             }
         }
         [menuItem setTitle:@"Move Brushes to Entity"];
