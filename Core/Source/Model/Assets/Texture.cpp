@@ -153,12 +153,12 @@ namespace TrenchBroom {
                 while (!m_textures.empty()) delete m_textures.back(), m_textures.pop_back();
             }
 
-            const std::vector<Texture*>& TextureCollection::textures() const {
+            const TextureList& TextureCollection::textures() const {
                 return m_textures;
             }
 
-            std::vector<Texture*> TextureCollection::textures(ETextureSortCriterion criterion) const {
-                std::vector<Texture*> result = m_textures;
+            TextureList TextureCollection::textures(ETextureSortCriterion criterion) const {
+                TextureList result = m_textures;
                 if (criterion == TB_TS_USAGE) sort(result.begin(), result.end(), compareByUsageCount);
                 else sort(result.begin(), result.end(), compareByName);
                 return result;
@@ -173,7 +173,7 @@ namespace TrenchBroom {
                 m_texturesCaseInsensitive.clear();
                 for (unsigned int i = 0; i < m_collections.size(); i++) {
                     TextureCollection* collection = m_collections[i];
-                    const std::vector<Texture*> textures = collection->textures();
+                    const TextureList textures = collection->textures();
                     for (unsigned int j = 0; j < textures.size(); j++) {
                         Texture* texture = textures[j];
                         m_texturesCaseSensitive.insert(std::pair<std::string, Texture*>(texture->name, texture));
@@ -186,19 +186,33 @@ namespace TrenchBroom {
                 clear();
             }
 
-            void TextureManager::addCollection(TextureCollection* collection, unsigned int index) {
+            void TextureManager::addCollection(TextureCollection* collection, size_t index) {
                 assert(index <= m_collections.size());
                 m_collections.insert(m_collections.begin() + index, collection);
                 reloadTextures();
                 textureManagerDidChange(*this);
             }
 
-            void TextureManager::removeCollection(unsigned int index) {
+            void TextureManager::removeCollection(size_t index) {
                 assert(index < m_collections.size());
                 delete m_collections[index];
                 m_collections.erase(m_collections.begin() + index);
                 reloadTextures();
                 textureManagerDidChange(*this);
+            }
+
+            void TextureManager::removeCollection(const std::string& name) {
+                size_t index = m_collections.size();
+                size_t i = 0;
+                TextureCollectionList::iterator it, end;
+                for (it = m_collections.begin(), end = m_collections.end(); it != end; ++it) {
+                    if (name == (*it)->name())
+                        index = i;
+                    i++;
+                }
+                
+                if (index < m_collections.size())
+                    removeCollection(index);
             }
 
             void TextureManager::clear() {
@@ -208,12 +222,12 @@ namespace TrenchBroom {
                 textureManagerDidChange(*this);
             }
 
-            const std::vector<TextureCollection*>& TextureManager::collections() {
+            const TextureCollectionList& TextureManager::collections() {
                 return m_collections;
             }
 
-            const std::vector<Texture*> TextureManager::textures(ETextureSortCriterion criterion) {
-                std::vector<Texture*> result;
+            const TextureList TextureManager::textures(ETextureSortCriterion criterion) {
+                TextureList result;
                 for (TextureMap::iterator it = m_texturesCaseSensitive.begin(); it != m_texturesCaseSensitive.end(); it++)
                     result.push_back(it->second);
 

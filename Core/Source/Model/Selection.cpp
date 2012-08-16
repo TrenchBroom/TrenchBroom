@@ -246,7 +246,7 @@ namespace TrenchBroom {
         }
 
         void Selection::selectTexture(Assets::Texture& texture) {
-            std::vector<Assets::Texture*>::iterator it = find(current().mruTextures.begin(), current().mruTextures.end(), &texture);
+            Assets::TextureList::iterator it = find(current().mruTextures.begin(), current().mruTextures.end(), &texture);
             if (it != current().mruTextures.end())
                 current().mruTextures.erase(it);
             current().mruTextures.push_back(&texture);

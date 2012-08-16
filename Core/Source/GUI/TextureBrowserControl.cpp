@@ -109,18 +109,18 @@ namespace TrenchBroom {
 
         void TextureBrowserPanel::doReloadLayout() {
             if (m_group) {
-                const std::vector<Model::Assets::TextureCollection*>& collections = m_editor.textureManager().collections();
+                const Model::Assets::TextureCollectionList& collections = m_editor.textureManager().collections();
                 for (unsigned int i = 0; i < collections.size(); i++) {
                     Model::Assets::TextureCollection* collection = collections[i];
                     if (m_group)
                         m_layout.addGroup(collection, m_font->size + 2);
                     
-                    std::vector<Model::Assets::Texture*> textures = collection->textures(m_sortCriterion);
+                    Model::Assets::TextureList textures = collection->textures(m_sortCriterion);
                     for (unsigned int j = 0; j < textures.size(); j++)
                         addTexture(textures[j]);
                 }
             } else {
-                std::vector<Model::Assets::Texture*> textures = m_editor.textureManager().textures(m_sortCriterion);
+                Model::Assets::TextureList textures = m_editor.textureManager().textures(m_sortCriterion);
                 for (unsigned int i = 0; i < textures.size(); i++)
                     addTexture(textures[i]);
             }

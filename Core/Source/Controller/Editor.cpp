@@ -65,7 +65,7 @@ namespace TrenchBroom {
 
         void Editor::updateFaceTextures() {
             Model::FaceList changedFaces;
-            std::vector<Model::Assets::Texture*> newTextures;
+            Model::Assets::TextureList newTextures;
 
             const Model::EntityList& entities = m_map->entities();
             for (unsigned int i = 0; i < entities.size(); i++) {
@@ -97,7 +97,7 @@ namespace TrenchBroom {
             selection.push();
             selection.replaceSelection(*m_map->worldspawn(true));
             
-            std::vector<Model::Assets::TextureCollection*> collections = m_textureManager->collections();
+            Model::Assets::TextureCollectionList collections = m_textureManager->collections();
             if (collections.empty()) {
                 m_map->setEntityProperty(Model::WadKey, static_cast<std::string*>(NULL));
             } else {
@@ -238,8 +238,8 @@ namespace TrenchBroom {
             updateWadProperty();
         }
         
-        void Editor::removeTextureWad(unsigned int index) {
-            m_textureManager->removeCollection(index);
+        void Editor::removeTextureWad(const std::string& path) {
+            m_textureManager->removeCollection(path);
             updateWadProperty();
         }
         

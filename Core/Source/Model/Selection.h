@@ -67,7 +67,7 @@ namespace TrenchBroom {
                 EntityList selectedEntities;
                 BrushList selectedBrushes;
                 FaceList selectedFaces;
-                std::vector<Assets::Texture*> mruTextures;
+                Assets::TextureList mruTextures;
                 ESelectionMode selectionMode;
                 
                 State() : selectionMode(TB_SM_NONE) {}
@@ -119,7 +119,7 @@ namespace TrenchBroom {
                 return current().selectionMode == TB_SM_NONE;
             }
             
-            inline const std::vector<Assets::Texture*>& mruTextures() const {
+            inline const Assets::TextureList& mruTextures() const {
                 return current().mruTextures;
             }
             

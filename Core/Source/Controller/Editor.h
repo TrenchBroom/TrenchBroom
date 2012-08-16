@@ -96,7 +96,7 @@ namespace TrenchBroom {
 			void clear();
 
             void addTextureWad(const std::string& path);
-            void removeTextureWad(unsigned int index);
+            void removeTextureWad(const std::string& path);
             
             const std::string& mapPath() const;
             Model::Map& map() const;

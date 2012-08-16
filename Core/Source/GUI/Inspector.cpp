@@ -140,7 +140,7 @@ namespace TrenchBroom {
             m_textureWadList->Clear();
             
             Model::Assets::TextureManager& textureManager = m_editor.textureManager();
-            const std::vector<Model::Assets::TextureCollection*> collections = textureManager.collections();
+            const Model::Assets::TextureCollectionList collections = textureManager.collections();
             for (unsigned int i = 0; i < collections.size(); i++)
                 m_textureWadList->AddItem(collections[i]->name());
         }
@@ -257,9 +257,13 @@ namespace TrenchBroom {
         }
 
         void Inspector::onRemoveTextureWadButtonPressed(Gwen::Controls::Base* control) {
-            Gwen::Controls::ListBox::Rows rows = m_textureWadList->GetSelectedRows();
-            for (int i = static_cast<int>(rows.size()) - 1; i >= 0; i--)
-                m_editor.removeTextureWad(i);
+            Gwen::Controls::ListBox::Rows rowList = m_textureWadList->GetSelectedRows();
+            std::vector<Gwen::Controls::Layout::TableRow*> rows(rowList.begin(), rowList.end());
+            for (int i = static_cast<int>(rows.size()) - 1; i >= 0; i--) {
+                Gwen::Controls::Layout::TableRow* row = rows[i];
+                std::string path = Gwen::Utility::UnicodeToString(row->GetCellContents(0)->GetText());
+                m_editor.removeTextureWad(path);
+            }
         }
 
         Gwen::Controls::Base* Inspector::createEntityInspector() {
