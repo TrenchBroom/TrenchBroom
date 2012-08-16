@@ -143,7 +143,7 @@ bool Gwen::Platform::FileOpen( const String& Name, const String& StartPath, cons
 	}
 
 	OPENFILENAMEA opf;
-	opf.hwndOwner = 0;
+	opf.hwndOwner = GetForegroundWindow();
 	opf.lpstrFilter = FilterBuffer;
 	opf.lpstrCustomFilter = 0;
 	opf.nMaxCustFilter = 0L;
@@ -204,7 +204,7 @@ bool Gwen::Platform::FileSave( const String& Name, const String& StartPath, cons
 	}
 
 	OPENFILENAMEA opf;
-	opf.hwndOwner = 0;
+	opf.hwndOwner = GetForegroundWindow();
 	opf.lpstrFilter = FilterBuffer;
 	opf.lpstrCustomFilter = 0;
 	opf.nMaxCustFilter = 0L;
