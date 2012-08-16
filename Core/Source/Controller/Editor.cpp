@@ -481,6 +481,10 @@ namespace TrenchBroom {
         }
         
         void Editor::duplicateObjects() {
+            Vec3f offset;
+            offset -= (m_camera->direction().firstAxis() * m_grid->actualSize());
+            offset += (m_camera->right().firstAxis() * m_grid->actualSize());
+            m_map->duplicateObjects(offset, m_options->lockTextures());
         }
         
         void Editor::enlargeBrushes() {

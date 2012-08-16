@@ -351,9 +351,13 @@ namespace TrenchBroom {
 }
 
 - (IBAction)duplicateObjects:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->duplicateObjects();
 }
 
 - (IBAction)enlargeBrushes:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->enlargeBrushes();
 }
 
 - (IBAction)createEntityFromPopupMenu:(id)sender {

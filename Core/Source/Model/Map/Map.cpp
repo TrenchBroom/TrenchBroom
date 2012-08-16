@@ -382,8 +382,13 @@ namespace TrenchBroom {
             entity.addBrushes(brushes);
             if (m_postNotifications) brushesWereAdded(brushes);
             
+            m_undoManager->begin("Create Brush");
+            m_undoManager->addSelection(*this);
             m_selection->deselectAll();
             m_selection->selectBrushes(brushes);
+            m_undoManager->addFunctor(*this, &Map::deleteObjects);
+            m_undoManager->end();
+            
             return brush;
         }
 
@@ -435,18 +440,21 @@ namespace TrenchBroom {
             return drag;
         }
 
-        void Map::duplicateObjects(EntityList& newEntities, BrushList& newBrushes) {
+        void Map::duplicateObjects(const Vec3f& offset, bool lockTextures) {
             const EntityList& entities = m_selection->selectedEntities();
             const BrushList& brushes = m_selection->selectedBrushes();
 
+            EntityList newEntities;
+            BrushList newBrushes;
+            
             if (!entities.empty()) {
                 for (unsigned int i = 0; i < entities.size(); i++) {
                     Entity* entity = entities[i];
                     Entity* newEntity = new Entity(entity->properties());
 
                     EntityDefinitionPtr entityDefinition = m_entityDefinitionManager->definition(*newEntity->classname());
-                    assert(entityDefinition.get() != NULL);
-                    newEntity->setEntityDefinition(entityDefinition);
+                    if (entityDefinition.get() != NULL)
+                        newEntity->setEntityDefinition(entityDefinition);
 
                     newEntities.push_back(newEntity);
                     m_entities.push_back(newEntity);
@@ -469,6 +477,13 @@ namespace TrenchBroom {
 
             if (!newEntities.empty() && m_postNotifications) entitiesWereAdded(newEntities);
             if (!newBrushes.empty() && m_postNotifications) brushesWereAdded(newBrushes);
+            
+            m_undoManager->begin("Duplicate Objects");
+            m_undoManager->addSelection(*this);
+            m_selection->replaceSelection(newEntities, newBrushes);
+            m_undoManager->addFunctor(*this, &Map::deleteObjects);
+            translateObjects(offset, lockTextures);
+            m_undoManager->end();
         }
 
         void Map::translateObjects(const Vec3f delta, bool lockTextures) {
