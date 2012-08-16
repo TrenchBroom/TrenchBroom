@@ -95,7 +95,7 @@ namespace TrenchBroom {
         void Editor::updateWadProperty() {
             Model::Selection& selection = m_map->selection();
             selection.push();
-            selection.selectEntity(*m_map->worldspawn(true));
+            selection.replaceSelection(*m_map->worldspawn(true));
             
             std::vector<Model::Assets::TextureCollection*> collections = m_textureManager->collections();
             if (collections.empty()) {

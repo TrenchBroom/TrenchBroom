@@ -81,6 +81,7 @@ namespace TrenchBroom {
         protected:
             void updateNumericControl(Gwen::Controls::NumericUpDown* control, bool disabled, bool multi, float value);
             void updateTextureControls();
+            void updateEntityPropertyTable();
             void updateTextureWadList();
             void entitiesWereAdded(const Model::EntityList& entities);
             void entitiesWereRemoved(const Model::EntityList& entities);

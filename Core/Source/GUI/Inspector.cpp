@@ -123,6 +123,19 @@ namespace TrenchBroom {
             }
         }
         
+        void Inspector::updateEntityPropertyTable() {
+            Model::Selection& selection = m_editor.map().selection();
+            const Model::EntityList& selectedEntities = selection.allSelectedEntities();
+            if (selectedEntities.empty()) {
+                Model::EntityList entities;
+                Model::Entity* worldspawn = m_editor.map().worldspawn(true);
+                entities.push_back(worldspawn);
+                m_propertiesTable->setEntities(entities);
+            } else {
+                m_propertiesTable->setEntities(selection.allSelectedEntities());
+            }
+        }
+        
         void Inspector::updateTextureWadList() {
             m_textureWadList->Clear();
             
@@ -133,27 +146,21 @@ namespace TrenchBroom {
         }
 
         void Inspector::entitiesWereAdded(const Model::EntityList& entities) {
-            Model::Selection& selection = m_editor.map().selection();
-            m_propertiesTable->setEntities(selection.allSelectedEntities());
+            updateEntityPropertyTable();
         }
 
         void Inspector::entitiesWereRemoved(const Model::EntityList& entities) {
-            Model::Selection& selection = m_editor.map().selection();
-            m_propertiesTable->setEntities(selection.allSelectedEntities());
+            updateEntityPropertyTable();
         }
 
         void Inspector::propertiesDidChange(const Model::EntityList& entities) {
             updateTextureControls();
-
-            Model::Selection& selection = m_editor.map().selection();
-            m_propertiesTable->setEntities(selection.allSelectedEntities());
+            updateEntityPropertyTable();
         }
         
         void Inspector::brushesDidChange(const Model::BrushList& brushes) {
             updateTextureControls();
-            
-            Model::Selection& selection = m_editor.map().selection();
-            m_propertiesTable->setEntities(selection.allSelectedEntities());
+            updateEntityPropertyTable();
         }
 
         void Inspector::facesDidChange(const Model::FaceList& faces) {
@@ -162,9 +169,7 @@ namespace TrenchBroom {
 
         void Inspector::selectionChanged(const Model::SelectionEventData& data) {
             updateTextureControls();
-            
-            Model::Selection& selection = m_editor.map().selection();
-            m_propertiesTable->setEntities(selection.allSelectedEntities());
+            updateEntityPropertyTable();
         }
 
         void Inspector::onEntityBrowserGroupChanged(Gwen::Controls::Base* control) {
@@ -526,6 +531,7 @@ namespace TrenchBroom {
             
             updateTextureControls();
             updateTextureWadList();
+            updateEntityPropertyTable();
         }
         
         Inspector::~Inspector() {
