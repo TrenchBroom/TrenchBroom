@@ -253,7 +253,8 @@ namespace TrenchBroom {
         }
         
         void Inspector::onTextureWadChosen(const Gwen::String& path) {
-            m_editor.addTextureWad(path);
+            if (!path.empty())
+                m_editor.addTextureWad(path);
         }
 
         void Inspector::onRemoveTextureWadButtonPressed(Gwen::Controls::Base* control) {

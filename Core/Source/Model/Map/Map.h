@@ -96,7 +96,7 @@ namespace TrenchBroom {
             void unloadPointFile();
             const std::vector<Vec3f>& leakPoints() const;
             
-            const EntityList& entities();
+            const EntityList& entities() const;
             Entity* worldspawn(bool create);
             void addEntity(Entity* entity);
             void addEntities(const EntityList& entities);

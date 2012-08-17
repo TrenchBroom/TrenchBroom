@@ -20,14 +20,16 @@
 #ifndef TrenchBroom_MapParser_h
 #define TrenchBroom_MapParser_h
 
-#include <string>
+#include "Model/Map/EntityTypes.h"
+#include "Model/Map/BrushTypes.h"
+#include "Model/Map/FaceTypes.h"
+#include "Utilities/Console.h"
+#include "Utilities/MessageException.h"
+#include "Utilities/VecMath.h"
+
 #include <istream>
 #include <sstream>
-#include "Model/Map/Map.h"
-#include "Model/Map/Entity.h"
-#include "Model/Map/Brush.h"
-#include "Model/Map/Face.h"
-#include "Model/Assets/Texture.h"
+#include <string>
 
 namespace TrenchBroom {
     namespace Controller {
@@ -104,16 +106,72 @@ namespace TrenchBroom {
             MapTokenizer(std::istream& stream);
             MapToken* next();
             int size();
+            void reset();
+        };
+        
+        class MapParserException : public MessageException {
+        private:
+            std::string type(int type) {
+                std::vector<std::string> names;
+                if ((type & TB_TT_FRAC) != 0)
+                    names.push_back("fractional number");
+                if ((type & TB_TT_DEC) != 0)
+                    names.push_back("decimal number");
+                if ((type & TB_TT_STR) != 0)
+                    names.push_back("string");
+                if ((type & TB_TT_B_O) != 0)
+                    names.push_back("opening parenthesis");
+                if ((type & TB_TT_B_C) != 0)
+                    names.push_back("closing parenthesis");
+                if ((type & TB_TT_CB_O) != 0)
+                    names.push_back("opening brace");
+                if ((type & TB_TT_CB_C) != 0)
+                    names.push_back("closing brace");
+                if ((type & TB_TT_SB_O) != 0)
+                    names.push_back("opening bracket");
+                if ((type & TB_TT_SB_C) != 0)
+                    names.push_back("closing bracket");
+                if ((type & TB_TT_COM) != 0)
+                    names.push_back("comment");
+                
+                if (names.empty())
+                    return "unknown token type";
+                if (names.size() == 1)
+                    return names[0];
+                
+                std::stringstream str;
+                str << names[0];
+                for (unsigned int i = 1; i < names.size() - 1; i++)
+                    str << ", " << names[i];
+                str << ", or " << names[names.size() - 1];
+                return str.str();
+            }
+            
+            std::string buildMessage(const MapToken& token, int expectedType) {
+                std::stringstream msgStream;
+                msgStream << "Malformed map file: expected token of type " << type(expectedType) << ", but found " << type(token.type) << " at line " << token.line << ", column " << token.column;
+                return msgStream.str();
+            }
+        public:
+            MapParserException() : MessageException("Reached unexpected end of file") {}
+            MapParserException(const MapToken& token, int expectedType) : MessageException(buildMessage(token, expectedType)) {}
         };
         
         class MapParser {
         private:
-            unsigned int m_size;
+            size_t m_size;
             EMapFormat m_format;
             MapTokenizer* m_tokenizer;
             std::vector<MapToken*> m_tokenStack;
             
-            void expect(int expectedType, const MapToken* actualToken) const;
+            inline void expect(int expectedType, const MapToken* actualToken) const {
+                if (actualToken == NULL)
+                    throw MapParserException();
+                
+                if ((actualToken->type & expectedType) == 0)
+                    throw MapParserException(*actualToken, expectedType);
+            }
+
             MapToken* nextToken();
             void pushToken(MapToken* token);
         public:
@@ -123,6 +181,10 @@ namespace TrenchBroom {
             Model::Entity* parseEntity(const BBox& worldBounds, Controller::ProgressIndicator* indicator);
             Model::Brush* parseBrush(const BBox& worldBounds, Controller::ProgressIndicator* indicator);
             Model::Face* parseFace(const BBox& worldBounds);
+            
+            bool parseEntities(const BBox& worldBounds, Model::EntityList& entities);
+            bool parseBrushes(const BBox& worldBounds, Model::BrushList& brushes);
+            bool parseFaces(const BBox& worldBounds, Model::FaceList& faces);
         };
     }
 }

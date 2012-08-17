@@ -20,6 +20,10 @@
 #ifndef TrenchBroom_MapWriter_h
 #define TrenchBroom_MapWriter_h
 
+#include "Model/Map/EntityTypes.h"
+#include "Model/Map/BrushTypes.h"
+#include "Model/Map/FaceTypes.h"
+
 #include <string>
 #include <ostream>
 
@@ -34,16 +38,16 @@ namespace TrenchBroom {
     namespace IO {
         class MapWriter {
         protected:
-            Model::Map& m_map;
-            
             void writeFace(const Model::Face& face, std::ostream& stream);
             void writeBrush(const Model::Brush& brush, std::ostream& stream);
+            void writeEntityHeader(const Model::Entity& entity, std::ostream& stream);
+            void writeEntityFooter(std::ostream& stream);
             void writeEntity(const Model::Entity& entity, std::ostream& stream);
         public:
-            MapWriter(Model::Map& map) : m_map(map) {}
-            
-            void writeToStream(std::ostream& stream);
-            void writeToFileAtPath(const std::string& path, bool overwrite);
+            void writeObjectsToStream(const Model::EntityList& entities, const Model::BrushList& brushes, std::ostream& stream);
+            void writeFacesToStream(const Model::FaceList& faces, std::ostream& stream);
+            void writeToStream(const Model::Map& map, std::ostream& stream);
+            void writeToFileAtPath(const Model::Map& map, const std::string& path, bool overwrite);
         };
     }
 }

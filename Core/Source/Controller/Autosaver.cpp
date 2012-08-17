@@ -146,8 +146,8 @@ namespace TrenchBroom {
             const std::string backupFilename = backupName(mapBasename, highestBackupNo + 1);
             const std::string backupFilePath = fileManager.appendPath(autosavePath, backupFilename);
             
-            IO::MapWriter mapWriter(m_editor.map());
-            mapWriter.writeToFileAtPath(backupFilePath, true);
+            IO::MapWriter mapWriter;
+            mapWriter.writeToFileAtPath(m_editor.map(), backupFilePath, true);
         }
         
         void Autosaver::triggerAutosave() {

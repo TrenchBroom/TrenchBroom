@@ -150,7 +150,7 @@ namespace TrenchBroom {
             return m_leakPoints;
         }
 
-        const EntityList& Map::entities() {
+        const EntityList& Map::entities() const {
             return m_entities;
         }
 

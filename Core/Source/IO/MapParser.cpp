@@ -18,11 +18,16 @@
  */
 
 #include "MapParser.h"
+#include "Controller/ProgressIndicator.h"
+#include "Model/Assets/Texture.h"
+#include "Model/Map/Brush.h"
+#include "Model/Map/Entity.h"
+#include "Model/Map/Face.h"
+#include "Model/Map/Map.h"
+#include "Model/Map/MapExceptions.h"
+
 #include <assert.h>
 #include <cmath>
-#include "Controller/ProgressIndicator.h"
-#include "Model/Map/MapExceptions.h"
-#include "Utilities/Console.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -223,11 +228,14 @@ namespace TrenchBroom {
             return (int)m_chars.size();
         }
 
-        void MapParser::expect(int expectedType, const MapToken* actualToken) const {
-            assert(actualToken != NULL);
-            assert((actualToken->type & expectedType) != 0);
+        void MapTokenizer::reset() {
+            m_index = 0;
+            m_bufferIndex = 0;
+            m_state = TB_TS_DEF;
+            m_line = 1;
+            m_column = 1;
         }
-        
+
         MapToken* MapParser::nextToken() {
             MapToken* token = NULL;
             if (!m_tokenStack.empty()) {
@@ -246,11 +254,10 @@ namespace TrenchBroom {
             m_tokenStack.push_back(token);
         }
         
-        MapParser::MapParser(std::istream& stream) {
+        MapParser::MapParser(std::istream& stream) : m_format(TB_MF_UNDEFINED) {
             std::streamoff cur = stream.tellg();
             stream.seekg(0, std::ios::end);
-            m_size = static_cast<unsigned int>(stream.tellg());
-            m_size -= static_cast<unsigned int>(cur);
+            m_size = static_cast<size_t>(stream.tellg() - cur);
             stream.seekg(cur, std::ios::beg);
             m_tokenizer = new MapTokenizer(stream);
         }
@@ -260,11 +267,14 @@ namespace TrenchBroom {
         }
         
         void MapParser::parseMap(Model::Map& map, Controller::ProgressIndicator* indicator) {
-            m_format = TB_MF_UNDEFINED;
             Model::Entity* entity = NULL;
             
             if (indicator != NULL) indicator->reset(static_cast<float>(m_tokenizer->size()));
-            while ((entity = parseEntity(map.worldBounds(), indicator)) != NULL) map.addEntity(entity);
+            try {
+                while ((entity = parseEntity(map.worldBounds(), indicator)) != NULL) map.addEntity(entity);
+            } catch (MapParserException e) {
+                log(TB_LL_ERR, e.std::exception::what());
+            }
             if (indicator != NULL) indicator->update(static_cast<float>(m_tokenizer->size()));
         }
         
@@ -307,8 +317,8 @@ namespace TrenchBroom {
                         return entity;
                     }
                     default:
-                        log(TB_LL_ERR, "Unexpected token type %i at line %i\n", token->type, token->line);
-                        return NULL;
+                        delete entity;
+                        throw MapParserException(*token, TB_TT_STR | TB_TT_CB_O | TB_TT_CB_C);
                 }
             }
             
@@ -316,16 +326,14 @@ namespace TrenchBroom {
         }
         
         Model::Brush* MapParser::parseBrush(const BBox& worldBounds, Controller::ProgressIndicator* indicator) {
-            MapToken* token;
+            MapToken* token = nextToken();
+            if (token == NULL) return NULL;
 
-            expect(TB_TT_CB_O | TB_TT_CB_C, token = nextToken());
+            expect(TB_TT_CB_O | TB_TT_CB_C, token);
             if (token->type == TB_TT_CB_C) return NULL;
             
             Model::Brush* brush = new Model::Brush(worldBounds);
             brush->filePosition = token->line;
-            
-            if (token->line == 56017)
-                brush->filePosition = token->line;
             
             while ((token = nextToken()) != NULL) {
                 switch (token->type) {
@@ -354,9 +362,8 @@ namespace TrenchBroom {
                         }
                         return brush;
                     default:
-                        log(TB_LL_ERR, "Unexpected token type %i at line %i\n", token->type, token->line);
                         delete brush;
-                        return NULL;
+                        throw MapParserException(*token, TB_TT_B_O | TB_TT_CB_C);
                 }
             }
             
@@ -452,6 +459,45 @@ namespace TrenchBroom {
             face->yScale = yScale;
             face->filePosition = token->line;
             return face;
+        }
+
+        bool MapParser::parseEntities(const BBox& worldBounds, Model::EntityList& entities) {
+            size_t oldSize = entities.size();
+            try {
+                Model::Entity* entity = NULL;
+                while ((entity = parseEntity(worldBounds, NULL)) != NULL) entities.push_back(entity);
+                return !entities.empty();
+            } catch (MapParserException e) {
+                while (entities.size() > oldSize) delete entities.back(), entities.pop_back();
+                m_tokenizer->reset();
+                return false;
+            }
+        }
+        
+        bool MapParser::parseBrushes(const BBox& worldBounds, Model::BrushList& brushes) {
+            size_t oldSize = brushes.size();
+            try {
+                Model::Brush* brush = NULL;
+                while ((brush = parseBrush(worldBounds, NULL)) != NULL) brushes.push_back(brush);
+                return !brushes.empty();
+            } catch (MapParserException e) {
+                while (brushes.size() > oldSize) delete brushes.back(), brushes.pop_back();
+                m_tokenizer->reset();
+                return false;
+            }
+        }
+        
+        bool MapParser::parseFaces(const BBox& worldBounds, Model::FaceList& faces) {
+            size_t oldSize = faces.size();
+            try {
+                Model::Face* face = NULL;
+                while ((face = parseFace(worldBounds)) != NULL) faces.push_back(face);
+                return !faces.empty();
+            } catch (MapParserException e) {
+                while (faces.size() > oldSize) delete faces.back(), faces.pop_back();
+                m_tokenizer->reset();
+                return false;
+            }
         }
     }
 }

@@ -221,8 +221,8 @@ namespace TrenchBroom {
         }
 
         void Editor::saveMap(const std::string& path) {
-            IO::MapWriter mapWriter(*m_map);
-            mapWriter.writeToFileAtPath(path, true);
+            IO::MapWriter mapWriter;
+            mapWriter.writeToFileAtPath(*m_map, path, true);
             m_autosaver->clearDirtyFlag();
         }
 
@@ -299,6 +299,129 @@ namespace TrenchBroom {
             m_map->undoManager().redo();
         }
         
+        std::string Editor::copy() {
+            Model::Selection& selection = m_map->selection();
+            
+            if (selection.empty())
+                return "";
+            
+            IO::MapWriter mapWriter;
+            std::stringstream dataStream;
+            
+            if (selection.selectionMode() == Model::TB_SM_FACES) {
+                const Model::FaceList& selectedFaces = selection.selectedFaces();
+                mapWriter.writeFacesToStream(selectedFaces, dataStream);
+            } else {
+                const Model::EntityList& selectedEntities = selection.selectedEntities();
+                const Model::BrushList& selectedBrushes = selection.selectedBrushes();
+                
+                // weed out duplicates
+                Model::EntitySet copyEntities(selectedEntities.begin(), selectedEntities.end());
+                Model::BrushList copyBrushes;
+                
+                // don't copy brushes belonging to entities which are also copied
+                for (unsigned int i = 0; i < selectedBrushes.size(); i++) {
+                    Model::Brush* brush = selectedBrushes[i];
+                    if (copyEntities.find(brush->entity()) == copyEntities.end())
+                        copyBrushes.push_back(brush);
+                }
+                
+                mapWriter.writeObjectsToStream(Model::EntityList(copyEntities.begin(), copyEntities.end()), copyBrushes, dataStream);
+            }
+
+            return dataStream.str();
+        }
+        
+        std::string Editor::cut() {
+            std::string data = copy();
+            
+            m_map->undoManager().begin("Cut Objects");
+            m_map->deleteObjects();
+            m_map->undoManager().end();
+            
+            return data;
+        }
+        
+        void Editor::paste(const std::string& data) {
+            Model::EntityList entities;
+            Model::BrushList brushes;
+            Model::FaceList faces;
+
+            std::istringstream stream(data, std::ios::out);
+            IO::MapParser mapParser(stream);
+            
+            Model::Selection& selection = m_map->selection();
+            if (mapParser.parseEntities(m_map->worldBounds(), entities)) {
+                Model::BrushList allBrushes;
+                
+                Model::EntityList::iterator it = entities.begin();
+                while (it != entities.end()) {
+                    Model::Entity* entity = *it;
+                    Model::BrushList entityBrushes = entity->brushes();
+                    
+                    if (entity->worldspawn()) {
+                        entity->removeBrushes(entityBrushes);
+                        m_map->worldspawn(true)->addBrushes(entityBrushes);
+                        allBrushes.insert(allBrushes.end(), entityBrushes.begin(), entityBrushes.end());
+                        it = entities.erase(it);
+                        delete entity;
+                    } else {
+                        m_map->addEntity(entity);
+                        if (!entityBrushes.empty()) {
+                            allBrushes.insert(allBrushes.end(), entityBrushes.begin(), entityBrushes.end());
+                            it = entities.erase(it);
+                        }
+                    }
+                }
+                
+                m_map->entitiesWereAdded(entities);
+                m_map->brushesWereAdded(allBrushes);
+                m_map->selection().replaceSelection(entities, allBrushes);
+
+                m_map->undoManager().begin("Paste Entities");
+                m_map->undoManager().addFunctor(*m_map, &Model::Map::deleteObjects);
+                m_map->undoManager().end();
+            } else if (mapParser.parseBrushes(m_map->worldBounds(), brushes)) {
+                m_map->worldspawn(true)->addBrushes(brushes);
+                m_map->brushesWereAdded(brushes);
+                m_map->selection().replaceSelection(brushes);
+
+                m_map->undoManager().begin("Paste Brushes");
+                m_map->undoManager().addFunctor(*m_map, &Model::Map::deleteObjects);
+                m_map->undoManager().end();
+            } else if (selection.selectionMode() == Model::TB_SM_FACES && mapParser.parseFaces(m_map->worldBounds(), faces)) {
+                Model::Face* source = faces[0];
+                
+                m_map->undoManager().begin("Paste Face");
+                m_map->undoManager().addSnapshot(*m_map);
+                m_map->undoManager().end();
+
+                const Model::FaceList& selectedFaces = selection.selectedFaces();
+                for (unsigned int i = 0; i < selectedFaces.size(); i++) {
+                    Model::Face* target = selectedFaces[i];
+                    target->restore(*source);
+                }
+            }
+        }
+
+        bool Editor::canPaste(const std::string& data) {
+            Model::EntityList entities;
+            Model::BrushList brushes;
+            Model::FaceList faces;
+            
+            std::istringstream stream(data, std::ios::out);
+            IO::MapParser mapParser(stream);
+            
+            Model::Selection& selection = m_map->selection();
+            if (mapParser.parseEntities(m_map->worldBounds(), entities))
+                return true;
+            else if (mapParser.parseBrushes(m_map->worldBounds(), brushes))
+                return true;
+            else if (selection.selectionMode() == Model::TB_SM_FACES && mapParser.parseFaces(m_map->worldBounds(), faces))
+                return true;
+            return false;
+        }
+
         void Editor::selectAll() {
             m_map->undoManager().addSelection(*m_map);
             

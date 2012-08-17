@@ -65,7 +65,7 @@ namespace TrenchBroom {
             stream << "}" << std::endl;
         }
 
-        void MapWriter::writeEntity(const Model::Entity& entity, std::ostream& stream) {
+        void MapWriter::writeEntityHeader(const Model::Entity& entity, std::ostream& stream) {
             stream << "{" << std::endl;
             
             const Model::Properties& properties = entity.properties();
@@ -74,23 +74,87 @@ namespace TrenchBroom {
                 const Model::PropertyValue& value = it->second;
                 stream << "\"" << key << "\" \"" << value << "\"" << std::endl;
             }
-
-            const Model::BrushList& brushes = entity.brushes();
-            for (unsigned int i = 0; i < brushes.size(); i++)
-                writeBrush(*brushes[i], stream);
-            
+        }
+        
+        void MapWriter::writeEntityFooter(std::ostream& stream) {
             stream << "}" << std::endl;
         }
 
-        void MapWriter::writeToStream(std::ostream& stream) {
+        void MapWriter::writeEntity(const Model::Entity& entity, std::ostream& stream) {
+            writeEntityHeader(entity, stream);
+            const Model::BrushList& brushes = entity.brushes();
+            for (unsigned int i = 0; i < brushes.size(); i++)
+                writeBrush(*brushes[i], stream);
+            writeEntityFooter(stream);
+        }
+
+        void MapWriter::writeObjectsToStream(const Model::EntityList& entities, const Model::BrushList& brushes, std::ostream& stream) {
+            assert(stream.good());
+
+            // find worldspawn so that we can write it first
+            Model::Entity* worldspawn = NULL;
+            for (unsigned int i = 0; i < entities.size() && worldspawn == NULL; i++) {
+                Model::Entity* entity = entities[i];
+                if (entity->worldspawn())
+                    worldspawn = entity;
+            }
+            
+            if (worldspawn != NULL)
+                writeEntity(*worldspawn, stream);
+            
+            worldspawn = NULL;
+            
+            typedef std::map<Model::Entity*, Model::BrushList> EntityBrushMap;
+            EntityBrushMap entityToBrushes;
+            for (unsigned int i = 0; i < brushes.size(); i++) {
+                Model::Brush* brush = brushes[i];
+                Model::Entity* entity = brush->entity();
+                entityToBrushes[entity].push_back(brush);
+                if (entity->worldspawn())
+                    worldspawn = entity;
+            }
+            
+            if (worldspawn != NULL) {
+                Model::BrushList& brushList = entityToBrushes[worldspawn];
+                writeEntityHeader(*worldspawn, stream);
+                for (unsigned int i = 0; i < brushList.size(); i++)
+                    writeBrush(*brushList[i], stream);
+                writeEntityFooter(stream);
+            }
+            
+            for (unsigned int i = 0; i < entities.size(); i++)
+                if (entities[i] != worldspawn)
+                    writeEntity(*entities[i], stream);
+            
+            EntityBrushMap::iterator it, end;
+            for (it = entityToBrushes.begin(), end = entityToBrushes.end(); it != end; ++it) {
+                Model::Entity* entity = it->first;
+                if (entity != worldspawn) {
+                    Model::BrushList& brushList = it->second;
+                    writeEntityHeader(*entity, stream);
+                    for (unsigned int i = 0; i < brushList.size(); i++)
+                        writeBrush(*brushList[i], stream);
+                    writeEntityFooter(stream);
+                }
+            }
+        }
+        
+        void MapWriter::writeFacesToStream(const Model::FaceList& faces, std::ostream& stream) {
             assert(stream.good());
             
-            const Model::EntityList& entities = m_map.entities();
+            for (unsigned int i = 0; i < faces.size(); i++)
+                writeFace(*faces[i], stream);
+        }
+
+        void MapWriter::writeToStream(const Model::Map& map, std::ostream& stream) {
+            assert(stream.good());
+            
+            const Model::EntityList& entities = map.entities();
             for (unsigned int i = 0; i < entities.size(); i++)
                 writeEntity(*entities[i], stream);
         }
         
-        void MapWriter::writeToFileAtPath(const std::string& path, bool overwrite) {
+        void MapWriter::writeToFileAtPath(const Model::Map& map, const std::string& path, bool overwrite) {
             FileManager& fileManager = *FileManager::sharedFileManager;
             if (fileManager.exists(path) && !overwrite) {
                 log(TB_LL_ERR, "Cannot save map file to %s because a file exists at that location", path.c_str());
@@ -102,7 +166,7 @@ namespace TrenchBroom {
                 fileManager.makeDirectory(directoryPath);
             
             std::fstream stream(path.c_str(), std::ios::out | std::ios::trunc);
-            writeToStream(stream);
+            writeToStream(map, stream);
         }
     }
 }

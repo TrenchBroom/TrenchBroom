@@ -115,6 +115,11 @@ namespace TrenchBroom {
             void undo();
             void redo();
             
+            std::string copy();
+            std::string cut();
+            void paste(const std::string& data);
+            bool canPaste(const std::string& data);
+            
             void selectAll();
             void selectSiblings();
             void selectTouching(bool deleteBrush = true);

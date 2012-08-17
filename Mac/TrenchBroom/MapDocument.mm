@@ -18,10 +18,11 @@
  */
 
 #import "MapDocument.h"
-#import "MapWindowController.h"
+
 #import "EditorHolder.h"
 #import "MacProgressIndicator.h"
 #import "MacStringFactory.h"
+#import "MapWindowController.h"
 #import "NSString+StdStringAdditions.h"
 
 #import "Controller/Autosaver.h"
@@ -87,6 +88,8 @@ namespace TrenchBroom {
 @interface MapDocument (Private)
 - (BOOL)mapViewFocused;
 - (BOOL)gridOffModifierPressed;
+- (void)copyToPasteboard:(const std::string&)data;
+- (std::string)pasteboardContents;
 - (void)autosave;
 @end
 
@@ -106,6 +109,27 @@ namespace TrenchBroom {
 
 - (BOOL)gridOffModifierPressed {
     return ([NSEvent modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask;
+}
+
+- (void)copyToPasteboard:(const std::string&)data {
+    NSPasteboard* pasteboard = [NSPasteboard generalPasteboard];
+    [pasteboard clearContents];
+    
+    NSString* nsStr = [NSString stringWithStdString:data];
+    
+    NSArray* pasteboardObjects = [[NSArray alloc] initWithObjects:nsStr, nil];
+    [pasteboard writeObjects:pasteboardObjects];
+    [pasteboardObjects release];
+}
+
+- (std::string)pasteboardContents {
+    NSPasteboard* pasteboard = [NSPasteboard generalPasteboard];
+    NSArray* objects = [pasteboard readObjectsForClasses:[NSArray arrayWithObject:[NSString class]] options:nil];
+    if ([objects count] == 0)
+        return "";
+    
+    NSString* nsStr = [objects objectAtIndex:0];
+    return [nsStr stdString];
 }
 
 - (void)autosave {
@@ -200,6 +224,23 @@ namespace TrenchBroom {
 - (IBAction)customRedo:(id)sender {
     Editor* editor = (Editor *)[editorHolder editor];
     editor->redo();
+}
+
+- (IBAction)copy:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    std::string data = editor->copy();
+    [self copyToPasteboard:data];
+}
+
+- (IBAction)cut:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    std::string data = editor->cut();
+    [self copyToPasteboard:data];
+}
+
+- (IBAction)paste:(id)sender {
+    Editor* editor = (Editor *)[editorHolder editor];
+    editor->paste([self pasteboardContents]);
 }
 
 - (IBAction)delete:(id)sender {
@@ -455,6 +496,17 @@ namespace TrenchBroom {
             NSString* objcName = [NSString stringWithStdString:undoManager.topRedoName()];
             [menuItem setTitle:[NSString stringWithFormat:@"Redo %@", objcName]];
         }
+    } else if (action == @selector(copy:) ||
+               action == @selector(cut:)) {
+        if (![self mapViewFocused])
+            return false;
+        if (selection.empty())
+            return false;
+        if (selection.selectedFaces().size() > 1)
+            return false;
+        return true;
+    } else if (action == @selector(paste:)) {
+        return [self mapViewFocused] && editor->canPaste([self pasteboardContents]);
     } else if (action == @selector(delete:)) {
         return [self mapViewFocused] && (selection.selectionMode() == Model::TB_SM_BRUSHES || selection.selectionMode() == Model::TB_SM_ENTITIES || selection.selectionMode() == Model::TB_SM_BRUSHES_ENTITIES);
     } else if (action == @selector(selectAll:)) {

@@ -20,8 +20,9 @@
 #ifndef TrenchBroom_BrushTypes_h
 #define TrenchBroom_BrushTypes_h
 
-#include <vector>
 #include <map>
+#include <set>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -29,6 +30,7 @@ namespace TrenchBroom {
         class Entity;
         
         typedef std::vector<Brush*> BrushList;
+        typedef std::set<Brush*> BrushSet;
         typedef std::map<Brush*, Entity*> BrushParentMap;
     }
 }
