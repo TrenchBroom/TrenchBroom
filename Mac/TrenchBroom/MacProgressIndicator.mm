@@ -18,6 +18,7 @@
  */
 
 #import "MacProgressIndicator.h"
+#include "NSString+StdStringAdditions.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -28,7 +29,7 @@ namespace TrenchBroom {
             NSTextField* label = [m_windowController label];
             NSProgressIndicator* indicator = [m_windowController progressIndicator];
 
-            [label setStringValue:[NSString stringWithCString:text.c_str() encoding:NSASCIIStringEncoding]];
+            [label setStringValue:[NSString stringWithStdString:text]];
             
             [indicator setIndeterminate:NO];
             [indicator setUsesThreadedAnimation:YES];
@@ -56,7 +57,7 @@ namespace TrenchBroom {
 
         void MacProgressIndicator::setText(const std::string& text) {
             NSTextField* label = [m_windowController label];
-            [label setStringValue:[NSString stringWithCString:text.c_str() encoding:NSASCIIStringEncoding]];
+            [label setStringValue:[NSString stringWithStdString:text]];
             [[NSRunLoop currentRunLoop] runMode:NSModalPanelRunLoopMode beforeDate:[NSDate date]];
         }
     }

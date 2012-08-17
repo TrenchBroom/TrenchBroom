@@ -18,6 +18,7 @@
  */
 
 #import "MacStringFactory.h"
+#include "NSString+StdStringAdditions.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -90,9 +91,9 @@ namespace TrenchBroom {
                 gluTessNormal(m_gluTess, 0, 0, -1);
             }
             
-            NSString* fontName = [NSString stringWithCString:descriptor.name.c_str() encoding:NSASCIIStringEncoding];
+            NSString* fontName = [NSString stringWithStdString:descriptor.name];
             NSFont* font = [NSFont fontWithName:fontName size:descriptor.size];
-            NSString* objCStr = [NSString stringWithCString:str.c_str() encoding:NSASCIIStringEncoding];
+            NSString* objCStr = [NSString stringWithStdString:str];
             configure(font, objCStr);
             
             NSRange glyphRange = [m_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [objCStr length]) actualCharacterRange:NULL];
@@ -160,9 +161,9 @@ namespace TrenchBroom {
         }
 
         StringData::Point MacStringFactory::measureString(const FontDescriptor& descriptor, const std::string& str) {
-            NSString* fontName = [NSString stringWithCString:descriptor.name.c_str() encoding:NSASCIIStringEncoding];
+            NSString* fontName = [NSString stringWithStdString:descriptor.name];
             NSFont* font = [NSFont fontWithName:fontName size:descriptor.size];
-            NSString* objCStr = [NSString stringWithCString:str.c_str() encoding:NSASCIIStringEncoding];
+            NSString* objCStr = [NSString stringWithStdString:str];
             configure(font, objCStr);
 
             NSRange glyphRange = [m_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [objCStr length]) actualCharacterRange:NULL];

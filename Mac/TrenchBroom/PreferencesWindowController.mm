@@ -18,6 +18,8 @@
  */
 
 #import "PreferencesWindowController.h"
+#include "NSString+StdStringAdditions.h"
+
 #import "Model/Preferences.h"
 #import "Utilities/VecMath.h"
 
@@ -43,20 +45,6 @@ namespace TrenchBroom {
 
 static PreferencesWindowController* sharedInstance = nil;
 static PreferencesListener* preferencesListener = nil;
-
-@interface PreferencesWindowController (Private)
-
-- (NSString *)nsString:(const std::string&)cppString;
-
-@end
-
-@implementation PreferencesWindowController (Private)
-
-- (NSString *)nsString:(const std::string&)cppString {
-    return [NSString stringWithCString:cppString.c_str() encoding:NSASCIIStringEncoding];
-}
-
-@end
 
 @implementation PreferencesWindowController
 
@@ -117,7 +105,7 @@ static PreferencesListener* preferencesListener = nil;
 - (void)update {
     Preferences& prefs = *Preferences::sharedPreferences;
     
-    [quakePathLabel setStringValue:[self nsString:prefs.quakePath()]];
+    [quakePathLabel setStringValue:[NSString stringWithStdString:prefs.quakePath()]];
     
     [brightnessSlider setFloatValue:prefs.brightness()];
     [brightnessLabel setFloatValue:prefs.brightness()];
@@ -152,7 +140,7 @@ static PreferencesListener* preferencesListener = nil;
         for (NSURL* url in [openPanel URLs]) {
             NSString* quakePath = [url path];
             if (quakePath != nil) {
-                Preferences::sharedPreferences->setQuakePath([quakePath cStringUsingEncoding:NSASCIIStringEncoding]);
+                Preferences::sharedPreferences->setQuakePath([quakePath stdString]);
             }
         }
     }

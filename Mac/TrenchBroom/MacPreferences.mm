@@ -18,28 +18,30 @@
  */
 
 #import "MacPreferences.h"
+#include "NSString+StdStringAdditions.h"
+
 #import "Controller/Tool.h"
 
 namespace TrenchBroom {
     namespace Model {
         void MacPreferences::setDictionaryValue(NSMutableDictionary* dict, const std::string& key, int value) {
             [dict setObject:[NSNumber numberWithInt:value] 
-                     forKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
+                     forKey:[NSString stringWithStdString:key]];
         }
         
         void MacPreferences::setDictionaryValue(NSMutableDictionary* dict, const std::string& key, float value) {
             [dict setObject:[NSNumber numberWithFloat:value] 
-                     forKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
+                     forKey:[NSString stringWithStdString:key]];
         }
 
         void MacPreferences::setDictionaryValue(NSMutableDictionary* dict, const std::string& key, bool value) {
             [dict setObject:[NSNumber numberWithBool:value == true ? YES : NO] 
-                     forKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
+                     forKey:[NSString stringWithStdString:key]];
         }
         
         void MacPreferences::setDictionaryValue(NSMutableDictionary* dict, const std::string& key, const std::string& value) {
-            [dict setObject:[NSString stringWithCString:value.c_str() encoding:NSASCIIStringEncoding] 
-                     forKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
+            [dict setObject:[NSString stringWithStdString:value]
+                     forKey:[NSString stringWithStdString:key]];
         }
         
         void MacPreferences::setDictionaryValue(NSMutableDictionary* dict, const std::string& key, const Vec3f& value) {
@@ -122,65 +124,65 @@ namespace TrenchBroom {
         }
         
         bool MacPreferences::loadInt(const std::string& key, int& value) {
-            value =  static_cast<int>([[NSUserDefaults standardUserDefaults] integerForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]]);
+            value =  static_cast<int>([[NSUserDefaults standardUserDefaults] integerForKey:[NSString stringWithStdString:key]]);
             return true;
         }
         
         bool MacPreferences::loadFloat(const std::string& key, float& value) {
-            value = [[NSUserDefaults standardUserDefaults] floatForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
+            value = [[NSUserDefaults standardUserDefaults] floatForKey:[NSString stringWithStdString:key]];
             return true;
         }
         
         bool MacPreferences::loadBool(const std::string& key, bool& value) {
-            value = [[NSUserDefaults standardUserDefaults] boolForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]] == YES ? true : false;
+            value = [[NSUserDefaults standardUserDefaults] boolForKey:[NSString stringWithStdString:key]] == YES ? true : false;
             return true;
         }
         
         bool MacPreferences::loadString(const std::string& key, std::string& value) {
-            NSString* objcValue = [[NSUserDefaults standardUserDefaults] stringForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
+            NSString* objcValue = [[NSUserDefaults standardUserDefaults] stringForKey:[NSString stringWithStdString:key]];
             if (objcValue == nil)
                 value = "";
             else
-                value = [objcValue cStringUsingEncoding:NSASCIIStringEncoding];
+                value = [objcValue stdString];
             return true;
         }
         
         bool MacPreferences::loadVec3f(const std::string& key, Vec3f& value) {
-            NSString* objcValue = [[NSUserDefaults standardUserDefaults] stringForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
+            NSString* objcValue = [[NSUserDefaults standardUserDefaults] stringForKey:[NSString stringWithStdString:key]];
             if (objcValue == nil)
                 value = Vec3f();
             else
-                value = Vec3f([objcValue cStringUsingEncoding:NSASCIIStringEncoding]);
+                value = Vec3f([objcValue stdString]);
             return true;
         }
 
         bool MacPreferences::loadVec4f(const std::string& key, Vec4f& value) {
-            NSString* objcValue = [[NSUserDefaults standardUserDefaults] stringForKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
+            NSString* objcValue = [[NSUserDefaults standardUserDefaults] stringForKey:[NSString stringWithStdString:key]];
             if (objcValue == nil)
                 value = Vec4f();
             else
-                value = Vec4f([objcValue cStringUsingEncoding:NSASCIIStringEncoding]);
+                value = Vec4f([objcValue stdString]);
             return true;
         }
 
         void MacPreferences::saveInt(const std::string& key, int value) {
             [[NSUserDefaults standardUserDefaults] setInteger:value 
-                                                       forKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
+                                                       forKey:[NSString stringWithStdString:key]];
         }
         
         void MacPreferences::saveFloat(const std::string& key, float value) {
             [[NSUserDefaults standardUserDefaults] setFloat:value 
-                                                     forKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
+                                                     forKey:[NSString stringWithStdString:key]];
         }
         
         void MacPreferences::saveBool(const std::string& key, bool value) {
             [[NSUserDefaults standardUserDefaults] setBool:value 
-                                                     forKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
+                                                     forKey:[NSString stringWithStdString:key]];
         }
         
         void MacPreferences::saveString(const std::string& key, const std::string& value) {
-            [[NSUserDefaults standardUserDefaults] setObject:[NSString stringWithCString:value.c_str() encoding:NSASCIIStringEncoding] 
-                                                      forKey:[NSString stringWithCString:key.c_str() encoding:NSASCIIStringEncoding]];
+            [[NSUserDefaults standardUserDefaults] setObject:[NSString stringWithStdString:value]
+                                                      forKey:[NSString stringWithStdString:key]];
         }
 
         void MacPreferences::saveVec4f(const std::string& key, const Vec4f& value) {

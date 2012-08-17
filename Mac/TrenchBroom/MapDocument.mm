@@ -22,6 +22,7 @@
 #import "EditorHolder.h"
 #import "MacProgressIndicator.h"
 #import "MacStringFactory.h"
+#import "NSString+StdStringAdditions.h"
 
 #import "Controller/Autosaver.h"
 #import "Controller/Camera.h"
@@ -155,11 +156,11 @@ namespace TrenchBroom {
 
 - (BOOL)readFromURL:(NSURL *)absoluteURL ofType:(NSString *)typeName error:(NSError **)outError {
     NSString* path = [absoluteURL path];
-    const char* pathC = [path cStringUsingEncoding:NSASCIIStringEncoding];
+    std::string cppPath = [path stdString];
 
     MacProgressIndicator* indicator = new MacProgressIndicator("Loading map file...");
     Editor* editor = (Editor *)[editorHolder editor];
-    editor->loadMap(pathC, indicator);
+    editor->loadMap(cppPath, indicator);
     delete indicator;
     
     [self updateChangeCount:NSChangeCleared];
@@ -171,10 +172,10 @@ namespace TrenchBroom {
 
 - (BOOL)writeToURL:(NSURL *)absoluteURL ofType:(NSString *)typeName error:(NSError **)outError {
     NSString* path = [absoluteURL path];
-    const char* pathC = [path cStringUsingEncoding:NSASCIIStringEncoding];
+    std::string cppPath = [path stdString];
 
     Editor* editor = (Editor *)[editorHolder editor];
-    editor->saveMap(pathC);
+    editor->saveMap(cppPath);
 
     [self updateChangeCount:NSChangeCleared];
     for (NSWindowController* controller in [self windowControllers])
@@ -362,14 +363,14 @@ namespace TrenchBroom {
 
 - (IBAction)createEntityFromPopupMenu:(id)sender {
     NSMenuItem* item = (NSMenuItem*)sender;
-    std::string definitionName = [[item title] cStringUsingEncoding:NSASCIIStringEncoding];
+    std::string definitionName = [[item title] stdString];
     Editor* editor = (Editor *)[editorHolder editor];
     editor->createEntityAtClickPos(definitionName);
 }
 
 - (IBAction)createEntityFromMainMenu:(id)sender {
     NSMenuItem* item = (NSMenuItem*)sender;
-    std::string definitionName = [[item title] cStringUsingEncoding:NSASCIIStringEncoding];
+    std::string definitionName = [[item title] stdString];
     Editor* editor = (Editor *)[editorHolder editor];
     editor->createEntityAtDefaultPos(definitionName);
 }
@@ -443,7 +444,7 @@ namespace TrenchBroom {
             [menuItem setTitle:@"Undo"];
             return NO;
         } else {
-            NSString* objcName = [NSString stringWithCString:undoManager.topUndoName().c_str() encoding:NSASCIIStringEncoding];
+            NSString* objcName = [NSString stringWithStdString:undoManager.topUndoName()];
             [menuItem setTitle:[NSString stringWithFormat:@"Undo %@", objcName]];
         }
     } else if (action == @selector(customRedo:)) {
@@ -451,7 +452,7 @@ namespace TrenchBroom {
             [menuItem setTitle:@"Redo"];
             return NO;
         } else {
-            NSString* objcName = [NSString stringWithCString:undoManager.topRedoName().c_str() encoding:NSASCIIStringEncoding];
+            NSString* objcName = [NSString stringWithStdString:undoManager.topRedoName()];
             [menuItem setTitle:[NSString stringWithFormat:@"Redo %@", objcName]];
         }
     } else if (action == @selector(delete:)) {
@@ -510,7 +511,7 @@ namespace TrenchBroom {
     } else if (action == @selector(createEntityFromMainMenu:) ||
                action == @selector(createEntityFromPopupMenu:)) {
         Model::EntityDefinitionManager& entityDefinitionManager = map.entityDefinitionManager();
-        std::string definitionName = [[menuItem title] cStringUsingEncoding:NSASCIIStringEncoding];
+        std::string definitionName = [[menuItem title] stdString];
         Model::EntityDefinitionPtr definition = entityDefinitionManager.definition(definitionName);
         if (definition.get() == NULL)
             return NO;
@@ -538,7 +539,7 @@ namespace TrenchBroom {
                 if (selectedBrushes[i]->entity() != target) {
                     std::string classname = target->classname() != NULL ? *target->classname() : "Entity";
                     std::string title = "Move Brushes to " + classname;
-                    [menuItem setTitle:[NSString stringWithCString:title.c_str() encoding:NSASCIIStringEncoding]];
+                    [menuItem setTitle:[NSString stringWithStdString:title]];
                     return true;
                 }
             }

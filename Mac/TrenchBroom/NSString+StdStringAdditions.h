@@ -17,31 +17,16 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#import <Foundation/Foundation.h>
 
-#import "EditorHolder.h"
-#import "Editor.h"
-#include "NSString+StdStringAdditions.h"
+#import <string>
 
-using namespace TrenchBroom;
-using namespace TrenchBroom::Controller;
+@interface NSString (StdStringAdditions)
 
-@implementation EditorHolder
++ (NSString*)stringWithStdString:(const std::string&)string;
++ (NSString*)stringWithStdWString:(const std::wstring&)string;
 
-- (id)initWithDefinitionPath:(NSString *)definitionPath palettePath:(NSString *)palettePath {
-    if ((self = [self init])) {
-        editor = new Editor([definitionPath stdString], [palettePath stdString]);
-    }
-    
-    return self;
-}
-
-- (void)dealloc {
-    delete ((Editor *)editor);
-    [super dealloc];
-}
-
-- (void*) editor {
-    return editor;
-}
+- (std::string) stdString;
+- (std::wstring) stdWString;
 
 @end

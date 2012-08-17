@@ -4,6 +4,8 @@
  See license in Gwen.h
  */
 
+#include "NSString+StdStringAdditions.h"
+
 #include "Gwen/Macros.h"
 #include "Gwen/Platform.h"
 #include "Gwen/Font.h"
@@ -39,12 +41,23 @@ namespace Gwen {
         
         UnicodeString GetClipboardText()
         {
-            return gs_ClipboardEmulator;
+            NSPasteboard* pasteboard = [NSPasteboard generalPasteboard];
+            NSArray* objects = [pasteboard readObjectsForClasses:[NSArray arrayWithObject:[NSString class]] options:nil];
+            NSString* nsStr = [objects objectAtIndex:0];
+            return [nsStr stdWString];
         }
         
         bool SetClipboardText( const UnicodeString& str )
         {
-            gs_ClipboardEmulator = str;
+            NSPasteboard* pasteboard = [NSPasteboard generalPasteboard];
+            [pasteboard clearContents];
+            
+            NSString* nsStr = [NSString stringWithStdWString:str];
+            
+            NSArray* pasteboardObjects = [[NSArray alloc] initWithObjects:nsStr, nil];
+            [pasteboard writeObjects:pasteboardObjects];
+            [pasteboardObjects release];
+
             return true;
         }
         
@@ -60,13 +73,13 @@ namespace Gwen {
             [openPanel setCanChooseFiles:YES];
             [openPanel setCanChooseDirectories:YES];
             [openPanel setAllowsMultipleSelection:NO];
-            [openPanel setAllowedFileTypes:[NSArray arrayWithObject:[NSString stringWithCString:Extension.c_str() encoding:NSASCIIStringEncoding]]];
+            [openPanel setAllowedFileTypes:[NSArray arrayWithObject:[NSString stringWithStdString:Extension]]];
             [openPanel setAllowsOtherFileTypes:NO];
-            [openPanel setTitle:[NSString stringWithCString:Name.c_str() encoding:NSASCIIStringEncoding]];
+            [openPanel setTitle:[NSString stringWithStdString:Name]];
             [openPanel setNameFieldLabel:@"File"];
             [openPanel setCanCreateDirectories:NO];
             
-            NSURL* startPathUrl = [NSURL fileURLWithPath:[NSString stringWithCString:StartPath.c_str() encoding:NSASCIIStringEncoding]];
+            NSURL* startPathUrl = [NSURL fileURLWithPath:[NSString stringWithStdString:StartPath]];
             [openPanel setDirectoryURL:startPathUrl];
             
             if ([openPanel runModal] == NSFileHandlingPanelOKButton) {
@@ -75,9 +88,8 @@ namespace Gwen {
                     if (path == nil)
                         return false;
                     
-                    String cppPath([path cStringUsingEncoding:NSASCIIStringEncoding]);
                     if (pHandler && fnCallback)
-                        (pHandler->*fnCallback)(cppPath);
+                        (pHandler->*fnCallback)([path stdString]);
                     
                 }
             } else {

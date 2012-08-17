@@ -22,6 +22,7 @@
 #import "EntityMenuUtils.h"
 #import "MacStringFactory.h"
 #import "MapDocument.h"
+#import "NSString+StdStringAdditions.h"
 
 #import "Controller/Camera.h"
 #import "Controller/Editor.h"
@@ -163,7 +164,7 @@ namespace TrenchBroom {
     
     if (editorGui == NULL) {
         NSString* skinPath = [[NSBundle mainBundle] pathForResource:@"DefaultSkin" ofType:@"png"];
-        std::string skinPathCpp([skinPath cStringUsingEncoding:NSASCIIStringEncoding]);
+        std::string skinPathCpp([skinPath stdString]);
         editorGui = new Gui::EditorGui(*[self editor], *(Renderer::FontManager*)fontManager, skinPathCpp);
         editorGuiListener = new Gui::EditorGuiListener((Gui::EditorGui *)editorGui, self);
     }

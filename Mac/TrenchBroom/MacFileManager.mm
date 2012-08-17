@@ -18,6 +18,7 @@
  */
 
 #import "MacFileManager.h"
+#include "NSString+StdStringAdditions.h"
 
 #import "Utilities/Utils.h"
 
@@ -29,18 +30,18 @@ namespace TrenchBroom {
             NSFileManager* fileManager = [NSFileManager defaultManager];
             
             BOOL directory = false;
-            BOOL exists = [fileManager fileExistsAtPath:[NSString stringWithCString:path.c_str() encoding:NSASCIIStringEncoding] isDirectory:&directory];
+            BOOL exists = [fileManager fileExistsAtPath:[NSString stringWithStdString:path] isDirectory:&directory];
             
             return exists && directory;
         }
         
         bool MacFileManager::exists(const std::string& path) {
             NSFileManager* fileManager = [NSFileManager defaultManager];
-            return [fileManager fileExistsAtPath:[NSString stringWithCString:path.c_str() encoding:NSASCIIStringEncoding]];
+            return [fileManager fileExistsAtPath:[NSString stringWithStdString:path]];
         }
         
         bool MacFileManager::makeDirectory(const std::string& path) {
-            NSString* objcPath = [NSString stringWithCString:path.c_str() encoding:NSASCIIStringEncoding];
+            NSString* objcPath = [NSString stringWithStdString:path];
             NSFileManager* fileManager = [NSFileManager defaultManager];
 
             if ([fileManager fileExistsAtPath:objcPath])
@@ -51,7 +52,7 @@ namespace TrenchBroom {
 
         bool MacFileManager::deleteFile(const std::string& path) {
             NSFileManager* fileManager = [NSFileManager defaultManager];
-            NSString* objcPath = [NSString stringWithCString:path.c_str() encoding:NSASCIIStringEncoding];
+            NSString* objcPath = [NSString stringWithStdString:path];
             
             BOOL directory = false;
             BOOL exists = [fileManager fileExistsAtPath:objcPath isDirectory:&directory];
@@ -63,8 +64,8 @@ namespace TrenchBroom {
 
         bool MacFileManager::moveFile(const std::string& sourcePath, const std::string& destPath, bool overwrite) {
             NSFileManager* fileManager = [NSFileManager defaultManager];
-            NSString* objcSourcePath = [NSString stringWithCString:sourcePath.c_str() encoding:NSASCIIStringEncoding];
-            NSString* objcDestPath = [NSString stringWithCString:destPath.c_str() encoding:NSASCIIStringEncoding];
+            NSString* objcSourcePath = [NSString stringWithStdString:sourcePath];
+            NSString* objcDestPath = [NSString stringWithStdString:destPath];
 
             BOOL directory = false;
             BOOL exists = [fileManager fileExistsAtPath:objcSourcePath isDirectory:&directory];
@@ -89,12 +90,12 @@ namespace TrenchBroom {
             std::vector<std::string> result;
             
             NSFileManager* fileManager = [NSFileManager defaultManager];
-            NSArray* entries = [fileManager contentsOfDirectoryAtPath:[NSString stringWithCString:path.c_str() encoding:NSASCIIStringEncoding] error:NULL];
+            NSArray* entries = [fileManager contentsOfDirectoryAtPath:[NSString stringWithStdString:path] error:NULL];
             
             if (entries != nil) {
                 std::string extensionLower = toLower(extension);
                 for (NSString* entry in entries) {
-                    std::string entryName = [entry cStringUsingEncoding:NSASCIIStringEncoding];
+                    std::string entryName = [entry stdString];
                     if (extension.empty() || toLower(pathExtension(entryName)) == extensionLower)
                         result.push_back(pathComponents(entryName).back());
                 }

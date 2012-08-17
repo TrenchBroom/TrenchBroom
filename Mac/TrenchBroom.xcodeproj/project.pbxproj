@@ -132,6 +132,7 @@
 		4832DB0215C576390042561F /* DragEntityTargetToolFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4832DB0115C576390042561F /* DragEntityTargetToolFigure.cpp */; };
 		4833E9F815790E9D0089FD2A /* EntityRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4833E9F715790E9D0089FD2A /* EntityRenderer.cpp */; };
 		483C6A8915D92FA9004F0E9A /* EntityMenuUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 483C6A8815D92FA9004F0E9A /* EntityMenuUtils.mm */; };
+		483C6A9F15DE8565004F0E9A /* NSString+StdStringAdditions.mm in Sources */ = {isa = PBXBuildFile; fileRef = 483C6A9E15DE8564004F0E9A /* NSString+StdStringAdditions.mm */; };
 		483DE918154DCE62002FD6B0 /* PreferencesWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 483DE917154DCE62002FD6B0 /* PreferencesWindow.xib */; };
 		483DE91C154DCFCF002FD6B0 /* PreferencesWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 483DE91B154DCFCF002FD6B0 /* PreferencesWindowController.mm */; };
 		484299EF158236330069BC97 /* DragEntityTargetTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 484299EE158236330069BC97 /* DragEntityTargetTool.cpp */; };
@@ -470,6 +471,8 @@
 		483C6A8615D92E20004F0E9A /* EntityMenuUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityMenuUtils.h; sourceTree = "<group>"; };
 		483C6A8815D92FA9004F0E9A /* EntityMenuUtils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EntityMenuUtils.mm; sourceTree = "<group>"; };
 		483C6A8A15DCE9D6004F0E9A /* TextureTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextureTypes.h; sourceTree = "<group>"; };
+		483C6A9D15DE8563004F0E9A /* NSString+StdStringAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+StdStringAdditions.h"; sourceTree = "<group>"; };
+		483C6A9E15DE8564004F0E9A /* NSString+StdStringAdditions.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSString+StdStringAdditions.mm"; sourceTree = "<group>"; };
 		483DE917154DCE62002FD6B0 /* PreferencesWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PreferencesWindow.xib; sourceTree = "<group>"; };
 		483DE91A154DCFCF002FD6B0 /* PreferencesWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesWindowController.h; sourceTree = "<group>"; };
 		483DE91B154DCFCF002FD6B0 /* PreferencesWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PreferencesWindowController.mm; sourceTree = "<group>"; };
@@ -1143,6 +1146,8 @@
 				48B50E41152CF95500E75402 /* MapView.mm */,
 				48B50E3D152CF8F900E75402 /* MapWindowController.h */,
 				48B50E3E152CF8F900E75402 /* MapWindowController.mm */,
+				483C6A9D15DE8563004F0E9A /* NSString+StdStringAdditions.h */,
+				483C6A9E15DE8564004F0E9A /* NSString+StdStringAdditions.mm */,
 				483DE91A154DCFCF002FD6B0 /* PreferencesWindowController.h */,
 				483DE91B154DCFCF002FD6B0 /* PreferencesWindowController.mm */,
 				48B50E27152CF6E400E75402 /* MapWindow.xib */,
@@ -1413,6 +1418,7 @@
 				4832DAFC15C56C210042561F /* MoveObjectToolFigure.cpp in Sources */,
 				4832DB0215C576390042561F /* DragEntityTargetToolFigure.cpp in Sources */,
 				483C6A8915D92FA9004F0E9A /* EntityMenuUtils.mm in Sources */,
+				483C6A9F15DE8565004F0E9A /* NSString+StdStringAdditions.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

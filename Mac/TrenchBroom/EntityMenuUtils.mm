@@ -18,13 +18,14 @@
  */
 
 #include "EntityMenuUtils.h"
+#include "NSString+StdStringAdditions.h"
 
 namespace TrenchBroom {
     namespace Gui {
         void createEntityMenu(NSMenu* menu, const Model::EntityDefinitionList& definitions, SEL action) {
             for (unsigned int i = 0; i < definitions.size(); i++) {
                 Model::EntityDefinitionPtr definition = definitions[i];
-                [menu addItemWithTitle:[NSString stringWithCString:definition->name.c_str() encoding:NSASCIIStringEncoding] action:action keyEquivalent:@""];
+                [menu addItemWithTitle:[NSString stringWithStdString:definition->name] action:action keyEquivalent:@""];
             }
         }
     }
