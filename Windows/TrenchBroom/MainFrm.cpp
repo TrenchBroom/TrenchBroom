@@ -988,7 +988,7 @@ void CMainFrame::OnUpdatePopupMoveBrushesToEntityMenuItem(CCmdUI *pCmdUI)
 		const TrenchBroom::Model::BrushList& selectedBrushes = selection.selectedBrushes();
 		if (!selectedBrushes.empty()) {
 			TrenchBroom::Controller::InputController& inputController = editor->inputController();
-			TrenchBroom::Model::Hit* hit = inputController.event().hits->first(TrenchBroom::Model::TB_HT_FACE | TrenchBroom::Model::TB_HT_ENTITY, false);
+			TrenchBroom::Model::Hit* hit = inputController.event().pickResults->first(TrenchBroom::Model::TB_HT_FACE | TrenchBroom::Model::TB_HT_ENTITY, false);
 			TrenchBroom::Model::Entity* target = NULL;
 			if (hit == NULL)
 				target = map.worldspawn(true);
