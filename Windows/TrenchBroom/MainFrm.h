@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <string>
+
 namespace TrenchBroom {
 	namespace Controller {
 		class Editor;
@@ -56,7 +58,8 @@ protected:
 	TrenchBroom::Controller::Editor* currentEditor();
 	bool mapViewFocused();
 	bool validateCommand(UINT id);
-
+	void copyToClipboard(const std::string& data);
+	std::string clipboardContents();
 
 // Generated message map functions
 protected:
@@ -68,6 +71,9 @@ public:
 	afx_msg void OnUpdateEditUndo(CCmdUI* pCmdUI);
 	afx_msg void OnEditRedo();
 	afx_msg void OnUpdateEditRedo(CCmdUI* pCmdUI);
+	afx_msg void OnEditCopy();
+	afx_msg void OnEditCut();
+	afx_msg void OnEditPaste();
 	afx_msg void OnToolsOptions();
 	afx_msg void OnToolsToggleVertexTool();
 	afx_msg void OnUpdateToolsToggleVertexTool(CCmdUI* pCmdUI);

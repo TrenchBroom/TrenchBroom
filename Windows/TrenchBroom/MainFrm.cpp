@@ -55,6 +55,12 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_COMMAND(ID_EDIT_REDO, &CMainFrame::OnEditRedo)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, &CMainFrame::OnUpdateEditRedo)
 	ON_COMMAND(ID_TOOLS_TOGGLE_VERTEX_TOOL, &CMainFrame::OnToolsToggleVertexTool)
+	ON_COMMAND(ID_EDIT_COPY, &CMainFrame::OnEditCopy)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, &CMainFrame::OnUpdateMenuItem)
+	ON_COMMAND(ID_EDIT_CUT, &CMainFrame::OnEditCut)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_CUT, &CMainFrame::OnUpdateMenuItem)
+	ON_COMMAND(ID_EDIT_PASTE, &CMainFrame::OnEditPaste)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, &CMainFrame::OnUpdateMenuItem)
 	ON_UPDATE_COMMAND_UI(ID_TOOLS_TOGGLE_VERTEX_TOOL, &CMainFrame::OnUpdateToolsToggleVertexTool)
 	ON_COMMAND(ID_TOOLS_TOGGLE_EDGE_TOOL, &CMainFrame::OnToolsToggleEdgeTool)
 	ON_UPDATE_COMMAND_UI(ID_TOOLS_TOGGLE_EDGE_TOOL, &CMainFrame::OnUpdateToolsToggleEdgeTool)
@@ -241,6 +247,17 @@ bool CMainFrame::validateCommand(UINT id)
 		return !undoManager.undoStackEmpty();
 	case ID_EDIT_REDO:
 		return !undoManager.redoStackEmpty();
+	case ID_EDIT_COPY:
+	case ID_EDIT_CUT:
+		if (!mapViewFocused())
+			return false;
+		if (selection.empty())
+			return false;
+		if (selection.selectedFaces().size() > 1)
+			return false;
+		return true;
+	case ID_EDIT_PASTE:
+		return mapViewFocused() && editor->canPaste(clipboardContents());
 	case ID_TOOLS_TOGGLE_VERTEX_TOOL:
 		return mapViewFocused() && (inputController.moveVertexToolActive() || selection.selectionMode() == TrenchBroom::Model::TB_SM_BRUSHES || selection.selectionMode() == TrenchBroom::Model::TB_SM_BRUSHES_ENTITIES);
 	case ID_TOOLS_TOGGLE_EDGE_TOOL:
@@ -364,6 +381,45 @@ bool CMainFrame::validateCommand(UINT id)
 	return TRUE;
 }
 
+void CMainFrame::copyToClipboard(const std::string& data)
+{
+	if (!OpenClipboard())
+		return;
+
+	EmptyClipboard();
+
+	// Create a buffer to hold the string
+	size_t size = (data.length()+1) * sizeof(TCHAR);
+	HGLOBAL buffer = GlobalAlloc(GMEM_DDESHARE, size);
+
+	// Copy the string into the buffer
+	TCHAR* charBuffer = (TCHAR*) GlobalLock(buffer);
+	data.copy(charBuffer, data.length(), 0);
+	charBuffer[data.length()] = 0;
+	GlobalUnlock(buffer);
+
+	// Place it on the clipboard
+	SetClipboardData(CF_TEXT, buffer);
+	CloseClipboard();
+}
+
+std::string CMainFrame::clipboardContents()
+{
+	if (!OpenClipboard())
+		return "";
+
+	HANDLE hData = GetClipboardData(CF_TEXT);
+
+	if (hData == NULL) {
+		CloseClipboard();
+		return "";
+	}
+	
+	TCHAR* buffer = (TCHAR*)GlobalLock(hData);
+	std::string str = buffer;
+	GlobalUnlock(hData);
+	return str;
+}
 
 // CMainFrame message handlers
 
@@ -418,6 +474,27 @@ void CMainFrame::OnUpdateEditRedo(CCmdUI* pCmdUI)
 		text += "\tCtrl+Y";
 		pCmdUI->SetText(text);
 	}
+}
+
+void CMainFrame::OnEditCopy()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	std::string data = editor->copy();
+	copyToClipboard(data);
+}
+
+void CMainFrame::OnEditCut()
+{
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	std::string data = editor->cut();
+	copyToClipboard(data);
+}
+
+void CMainFrame::OnEditPaste()
+{
+	std::string data = clipboardContents();
+	TrenchBroom::Controller::Editor* editor = currentEditor();
+	editor->paste(data);
 }
 
 void CMainFrame::OnToolsOptions()
