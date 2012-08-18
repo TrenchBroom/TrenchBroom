@@ -342,7 +342,7 @@ namespace TrenchBroom {
             return data;
         }
         
-        void Editor::paste(const std::string& data) {
+        void Editor::paste(const std::string& data, bool inPosition) {
             Model::EntityList entities;
             Model::BrushList brushes;
             Model::FaceList faces;
@@ -376,31 +376,78 @@ namespace TrenchBroom {
                 
                 m_map->entitiesWereAdded(entities);
                 m_map->brushesWereAdded(allBrushes);
-                m_map->selection().replaceSelection(entities, allBrushes);
 
-                m_map->undoManager().begin("Paste Entities");
+                m_map->undoManager().begin("Paste");
+                m_map->undoManager().addSelection(*m_map);
+                m_map->selection().replaceSelection(entities, allBrushes);
                 m_map->undoManager().addFunctor(*m_map, &Model::Map::deleteObjects);
+                
+                if (!inPosition) {
+                    BBox bounds = m_map->selection().bounds();
+                    Vec3f center = bounds.center();
+                    Vec3f offset = m_grid->offset(center);
+                    Vec3f pastePoint = m_grid->snap(m_camera->defaultPoint()) + offset;
+                    m_map->translateObjects(pastePoint - center, m_options->lockTextures());
+                }
+                
                 m_map->undoManager().end();
             } else if (mapParser.parseBrushes(m_map->worldBounds(), brushes)) {
                 m_map->worldspawn(true)->addBrushes(brushes);
                 m_map->brushesWereAdded(brushes);
-                m_map->selection().replaceSelection(brushes);
 
-                m_map->undoManager().begin("Paste Brushes");
+                m_map->undoManager().begin("Paste");
+                m_map->undoManager().addSelection(*m_map);
+                m_map->selection().replaceSelection(brushes);
                 m_map->undoManager().addFunctor(*m_map, &Model::Map::deleteObjects);
+
+                if (!inPosition) {
+                    BBox bounds = m_map->selection().bounds();
+                    Vec3f center = bounds.center();
+                    Vec3f offset = m_grid->offset(center);
+                    Vec3f pastePoint = m_grid->snap(m_camera->defaultPoint()) + offset;
+                    m_map->translateObjects(pastePoint - center, m_options->lockTextures());
+                }
+
                 m_map->undoManager().end();
-            } else if (selection.selectionMode() == Model::TB_SM_FACES && mapParser.parseFaces(m_map->worldBounds(), faces)) {
+            } else if ((selection.selectionMode() == Model::TB_SM_FACES || selection.selectionMode() == Model::TB_SM_BRUSHES) && mapParser.parseFaces(m_map->worldBounds(), faces)) {
                 Model::Face* source = faces[0];
                 
-                m_map->undoManager().begin("Paste Face");
+                m_map->undoManager().begin("Paste");
                 m_map->undoManager().addSnapshot(*m_map);
                 m_map->undoManager().end();
 
-                const Model::FaceList& selectedFaces = selection.selectedFaces();
+                const Model::FaceList& selectedFaces = selection.allSelectedFaces();
                 for (unsigned int i = 0; i < selectedFaces.size(); i++) {
                     Model::Face* target = selectedFaces[i];
-                    target->restore(*source);
+                    target->xOffset = source->xOffset;
+                    target->yOffset = source->yOffset;
+                    target->rotation = source->rotation;
+                    target->xScale = source->xScale;
+                    target->yScale = source->yScale;
+                    target->textureName = source->textureName;
+                    target->texture = NULL;
+                    target->coordsValid = false;
+                    target->texAxesValid = false;
                 }
+            }
+            
+            // update the textures
+            const Model::FaceList& selectedFaces = selection.allSelectedFaces();
+            const Model::BrushList& selectedBrushes = selection.selectedBrushes();
+
+            Model::FaceList updatedFaces(selectedFaces.begin(), selectedFaces.end());
+            for (unsigned int i = 0; i < selectedBrushes.size(); i++) {
+                Model::Brush* brush = selectedBrushes[i];
+                updatedFaces.insert(updatedFaces.end(), brush->faces.begin(), brush->faces.end());
+            }
+            if (!updatedFaces.empty()) {
+                m_map->facesWillChange(updatedFaces);
+                for (unsigned int i = 0; i < updatedFaces.size(); i++) {
+                    Model::Face* face = updatedFaces[i];
+                    Model::Assets::Texture* texture = m_textureManager->texture(face->textureName);
+                    face->setTexture(texture);
+                }
+                m_map->facesDidChange(updatedFaces);
             }
         }
 
@@ -417,7 +464,7 @@ namespace TrenchBroom {
                 return true;
             else if (mapParser.parseBrushes(m_map->worldBounds(), brushes))
                 return true;
-            else if (selection.selectionMode() == Model::TB_SM_FACES && mapParser.parseFaces(m_map->worldBounds(), faces))
+            else if ((selection.selectionMode() == Model::TB_SM_FACES || selection.selectionMode() == Model::TB_SM_BRUSHES) && mapParser.parseFaces(m_map->worldBounds(), faces))
                 return true;
             return false;
         }

@@ -117,7 +117,7 @@ namespace TrenchBroom {
             
             std::string copy();
             std::string cut();
-            void paste(const std::string& data);
+            void paste(const std::string& data, bool inPosition = false);
             bool canPaste(const std::string& data);
             
             void selectAll();

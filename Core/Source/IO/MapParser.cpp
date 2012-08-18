@@ -373,9 +373,10 @@ namespace TrenchBroom {
         Model::Face* MapParser::parseFace(const BBox& worldBounds) {
             Vec3f p1, p2, p3;
             float xOffset, yOffset, rotation, xScale, yScale;
-            MapToken* token;
+            MapToken* token = nextToken();
+            if (token == NULL) return NULL;
             
-            expect(TB_TT_B_O, token = nextToken());
+            expect(TB_TT_B_O, token);
             expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
             p1.x = static_cast<float>(atof(token->data.c_str()));
             expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
