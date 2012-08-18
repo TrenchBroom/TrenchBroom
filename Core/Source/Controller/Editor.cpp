@@ -661,7 +661,7 @@ namespace TrenchBroom {
         }
 
         void Editor::moveBrushesToEntity() {
-            Model::Hit* hit = m_inputController->event().hits->first(Model::TB_HT_FACE | Model::TB_HT_ENTITY, false);
+            Model::Hit* hit = m_inputController->event().pickResults->first(Model::TB_HT_FACE | Model::TB_HT_ENTITY, false);
             Model::Entity* target = NULL;
             if (hit == NULL)
                 target = m_map->worldspawn(true);
@@ -687,10 +687,10 @@ namespace TrenchBroom {
                 Model::Entity* entity = m_map->createEntity(definition->name);
 
                 Vec3f delta;
-                Model::HitList* hits = m_inputController->event().hits;
+                Model::PickResult* pickResults = m_inputController->event().pickResults;
                 const Ray& ray = m_inputController->event().ray;
 
-                Model::Hit* hit = hits->first(Model::TB_HT_FACE, true);
+                Model::Hit* hit = pickResults->first(Model::TB_HT_FACE, true);
                 if (hit != NULL) {
                     Model::Face& face = hit->face();
                     delta = m_grid->moveDeltaForEntity(face, entity->bounds(), m_map->worldBounds(), ray, hit->hitPoint);

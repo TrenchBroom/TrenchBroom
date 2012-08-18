@@ -31,7 +31,7 @@ namespace TrenchBroom {
             TB_MT_BRUSH
         } EMapObjectType;
 
-        class HitList;
+        class PickResult;
         
         class MapObject {
         protected:
@@ -42,7 +42,7 @@ namespace TrenchBroom {
             int uniqueId() const;
             virtual const BBox& bounds() const = 0;
             virtual EMapObjectType objectType() const = 0;
-            virtual void pick(const Ray& ray, HitList& hits, Filter& filter) = 0;
+            virtual void pick(const Ray& ray, PickResult& pickResults, Filter& filter) = 0;
         };
     }
 }

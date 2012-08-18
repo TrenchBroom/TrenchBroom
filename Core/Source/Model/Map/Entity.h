@@ -81,7 +81,7 @@ namespace TrenchBroom {
             const Vec3f& origin() const;
             const BBox& bounds() const;
             
-            void pick(const Ray& ray, HitList& hits, Filter& filter);
+            void pick(const Ray& ray, PickResult& pickResults, Filter& filter);
 
             Map* quakeMap() const;
             void setMap(Map* quakeMap);

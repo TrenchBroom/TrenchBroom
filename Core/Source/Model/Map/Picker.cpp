@@ -51,24 +51,24 @@ namespace TrenchBroom {
             return *(Face*)object;
         }
 
-        bool HitList::compareHits(const Hit* left, const Hit* right) {
+        bool PickResult::compareHits(const Hit* left, const Hit* right) {
             return left->distance < right->distance;
         }
 
-        void HitList::sortHits() {
-            sort(m_hits.begin(), m_hits.end(), HitList::compareHits);
+        void PickResult::sortHits() {
+            sort(m_hits.begin(), m_hits.end(), PickResult::compareHits);
             m_sorted = true;
         }
 
-        HitList::~HitList() {
+        PickResult::~PickResult() {
             while(!m_hits.empty()) delete m_hits.back(), m_hits.pop_back();
         }
 
-        void HitList::add(Hit& hit) {
+        void PickResult::add(Hit& hit) {
             m_hits.push_back(&hit);
         }
 
-        Hit* HitList::first(int typeMask, bool ignoreOccluders) {
+        Hit* PickResult::first(int typeMask, bool ignoreOccluders) {
             if (!m_hits.empty()) {
                 if (!m_sorted) sortHits();
                 if (!ignoreOccluders) {
@@ -85,8 +85,8 @@ namespace TrenchBroom {
             return NULL;
         }
 
-        std::vector<Hit*> HitList::hits(int typeMask) {
-            std::vector<Hit*> result;
+        HitList PickResult::hits(int typeMask) {
+            HitList result;
             if (!m_sorted) sortHits();
             for (unsigned int i = 0; i < m_hits.size(); i++)
                 if (m_hits[i]->hasType(typeMask))
@@ -94,7 +94,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        const std::vector<Hit*>& HitList::hits() {
+        const HitList& PickResult::hits() {
             if (!m_sorted) sortHits();
             return m_hits;
         }
@@ -102,14 +102,14 @@ namespace TrenchBroom {
         Picker::Picker(Octree& octree) : m_octree(octree) {
         }
 
-        HitList* Picker::pick(const Ray& ray, Filter& filter) {
-            HitList* hits = new HitList();
+        PickResult* Picker::pick(const Ray& ray, Filter& filter) {
+            PickResult* pickResults = new PickResult();
 
             std::vector<MapObject*> objects = m_octree.intersect(ray);
             for (unsigned int i = 0; i < objects.size(); i++)
-                objects[i]->pick(ray, *hits, filter);
+                objects[i]->pick(ray, *pickResults, filter);
 
-            return hits;
+            return pickResults;
         }
 
     }

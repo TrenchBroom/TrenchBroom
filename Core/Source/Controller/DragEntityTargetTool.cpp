@@ -39,7 +39,7 @@ namespace TrenchBroom {
             Vec3f delta;
             Controller::Grid& grid = m_editor.grid();
 
-            Model::Hit* hit = info.event.hits->first(Model::TB_HT_FACE, true);
+            Model::Hit* hit = info.event.pickResults->first(Model::TB_HT_FACE, true);
             if (hit == NULL) {
                 Vec3f newPos = m_editor.camera().defaultPoint(info.event.ray.direction);
                 delta = grid.moveDeltaForEntity(m_bounds.center(), m_editor.map().worldBounds(), newPos - m_bounds.center());

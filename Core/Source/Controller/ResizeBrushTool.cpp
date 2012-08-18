@@ -35,6 +35,18 @@ namespace TrenchBroom {
         void ResizeBrushTool::updateDragPlane(InputEvent& event) {
             m_dragPlane = DragPlane::parallel(m_referenceFace->boundary.normal, event.ray.direction);
         }
+        
+        Model::Hit* ResizeBrushTool::selectReferenceHit(InputEvent& event) {
+            Model::HitList hits = event.pickResults->hits(Model::TB_HT_FACE | Model::TB_HT_CLOSE_FACE);
+            for (unsigned int i = 0; i < hits.size(); i++) {
+                Model::Hit* hit = hits[i];
+                Model::Face& face = hit->face();
+                Model::Brush& brush = *face.brush();
+                if (face.selected() || brush.selected())
+                    return hit;
+            }
+            return NULL;
+        }
 
         bool ResizeBrushTool::handleMouseDown(InputEvent& event) {
             if (event.mouseButton != TB_MB_LEFT)
@@ -43,15 +55,11 @@ namespace TrenchBroom {
             if (!resizeBrushModiferPressed(event))
                 return false;
             
-            Model::Hit* hit = event.hits->first(Model::TB_HT_FACE, true);
+            Model::Hit* hit = selectReferenceHit(event);
             if (hit == NULL)
                 return false;
-
-            Model::Face& face = hit->face();
-            Model::Brush& brush = *face.brush();
-            if (!face.selected() && !brush.selected())
-                return false;
             
+            m_referenceFace = &hit->face();
             if (!m_figureCreated) {
                 Renderer::ResizeBrushToolFigure* figure = new Renderer::ResizeBrushToolFigure(*this);
                 addFigure(*figure);
@@ -75,16 +83,11 @@ namespace TrenchBroom {
             if (event.mouseButton != TB_MB_LEFT || !resizeBrushModiferPressed(event))
                 return false;
                 
-            Model::Hit* hit = event.hits->first(Model::TB_HT_FACE | Model::TB_HT_CLOSE_FACE, true);
+            Model::Hit* hit = selectReferenceHit(event);
             if (hit == NULL)
                 return false;
-            
-            Model::Face& face = hit->face();
-            Model::Brush& brush = *face.brush();
-            if (!face.selected() && !brush.selected())
-                return false;
-            
-            m_referenceFace = &face;
+
+            m_referenceFace = &hit->face();
             initialPoint = hit->hitPoint;
             editor().map().undoManager().begin("Resize Brushes");
             return true;
@@ -142,7 +145,7 @@ namespace TrenchBroom {
             Model::Selection& selection = editor().map().selection();
             const Model::BrushList& brushes = selection.selectedBrushes();
             for (unsigned int i = 0; i < brushes.size(); i++)
-                maxDistance = brushes[i]->pickClosestFace(event.ray, maxDistance, *event.hits);
+                maxDistance = brushes[i]->pickClosestFace(event.ray, maxDistance, *event.pickResults);
         }
         
         bool ResizeBrushTool::resizeBrushModiferPressed(InputEvent& event) {

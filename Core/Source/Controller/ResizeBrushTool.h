@@ -25,6 +25,7 @@
 namespace TrenchBroom {
     namespace Model {
         class Face;
+        class Hit;
     }
     
     namespace Controller {
@@ -36,6 +37,7 @@ namespace TrenchBroom {
             bool m_figureCreated;
             
             virtual void updateDragPlane(InputEvent& event);
+            Model::Hit* selectReferenceHit(InputEvent& event);
 
             bool handleMouseDown(InputEvent& event);
             bool handleMouseUp(InputEvent& event);

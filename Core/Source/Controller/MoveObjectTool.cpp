@@ -39,7 +39,7 @@ namespace TrenchBroom {
             if (event.mouseButton != TB_MB_LEFT)
                 return false;
             
-            Model::Hit* hit = event.hits->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);
+            Model::Hit* hit = event.pickResults->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);
             if (hit == NULL)
                 return false;
             

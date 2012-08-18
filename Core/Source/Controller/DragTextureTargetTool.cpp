@@ -36,7 +36,7 @@ namespace TrenchBroom {
             if (info.name == "Texture") {
                 Model::Assets::Texture* texture = static_cast<Model::Assets::Texture*>(info.payload);
 
-                Model::Hit* hit = info.event.hits->first(Model::TB_HT_FACE, false);
+                Model::Hit* hit = info.event.pickResults->first(Model::TB_HT_FACE, false);
                 if (hit != NULL) {
                     Model::Face* face = static_cast<Model::Face*>(hit->object);
                     if (!face->selected()) {

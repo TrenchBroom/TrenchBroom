@@ -578,7 +578,7 @@ namespace TrenchBroom {
     } else if (action == @selector(moveBrushesToEntity:)) {
         const Model::BrushList& selectedBrushes = selection.selectedBrushes();
         if (!selectedBrushes.empty()) {
-            Model::Hit* hit = inputController.event().hits->first(Model::TB_HT_FACE | Model::TB_HT_ENTITY, false);
+            Model::Hit* hit = inputController.event().pickResults->first(Model::TB_HT_FACE | Model::TB_HT_ENTITY, false);
             Model::Entity* target = NULL;
             if (hit == NULL)
                 target = map.worldspawn(true);

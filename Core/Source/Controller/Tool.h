@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class HitList;
+        class PickResult;
     }
 
     namespace Renderer {
@@ -72,9 +72,9 @@ namespace TrenchBroom {
                 float deltaY;
                 float scrollX;
                 float scrollY;
-                Model::HitList* hits;
+                Model::PickResult* pickResults;
                 Ray ray;
-                InputEvent() : modifierKeys(TB_MK_NONE), mouseButton(TB_MB_NONE), hits(NULL) {}
+                InputEvent() : modifierKeys(TB_MK_NONE), mouseButton(TB_MB_NONE), pickResults(NULL) {}
             };
             
         private:

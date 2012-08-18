@@ -64,7 +64,7 @@ namespace TrenchBroom {
             
             editor().map().selection().deselectAll();
             
-            Model::Hit* hit = event.hits->first(Model::TB_HT_FACE, true);
+            Model::Hit* hit = event.pickResults->first(Model::TB_HT_FACE, true);
             if (hit != NULL)
                 initialPoint = hit->hitPoint.correct();
             else

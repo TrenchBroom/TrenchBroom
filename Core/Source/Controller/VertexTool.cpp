@@ -91,7 +91,7 @@ namespace TrenchBroom {
             if (event.mouseButton != TB_MB_LEFT || !noModifierPressed(event))
                 return false;
             
-            Model::Hit* hit = event.hits->first(hitType(), true);
+            Model::Hit* hit = event.pickResults->first(hitType(), true);
             if (hit != NULL) {
                 m_brush = &hit->brush();
                 m_index = index(*hit);
@@ -124,7 +124,7 @@ namespace TrenchBroom {
             if (event.mouseButton != TB_MB_LEFT || !noModifierPressed(event))
                 return false;
             
-            Model::Hit* hit = event.hits->first(hitType(), true);
+            Model::Hit* hit = event.pickResults->first(hitType(), true);
             if (hit == NULL)
                 return false;
             

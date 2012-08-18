@@ -37,7 +37,7 @@ namespace TrenchBroom {
                 return false;
             
             Model::Selection& selection = editor().map().selection();
-            Model::Hit* hit = event.hits->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);
+            Model::Hit* hit = event.pickResults->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);
             if (hit != NULL) {
                 if (hit->type == Model::TB_HT_ENTITY) {
 			        editor().map().undoManager().addSelection(editor().map());
@@ -125,7 +125,7 @@ namespace TrenchBroom {
             assert(event.mouseButton == TB_MB_LEFT);
             
             Model::Selection& selection = editor().map().selection();
-            Model::Hit* hit = event.hits->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);
+            Model::Hit* hit = event.pickResults->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);
             if (hit == NULL)
                 return false;
             

@@ -57,19 +57,21 @@ namespace TrenchBroom {
             Face& face();
         };
         
-        class HitList {
+        typedef std::vector<Hit*> HitList;
+        
+        class PickResult {
         private:
-            std::vector<Hit*> m_hits;
+            HitList m_hits;
             bool m_sorted;
             static bool compareHits(const Hit* left, const Hit* right);
             void sortHits();
         public:
-            HitList() : m_sorted(false) {}
-            ~HitList();
+            PickResult() : m_sorted(false) {}
+            ~PickResult();
             void add(Hit& hit);
             Hit* first(int typeMask, bool ignoreOccluders);
-            std::vector<Hit*> hits(int typeMask);
-            const std::vector<Hit*>& hits();
+            HitList hits(int typeMask);
+            const HitList& hits();
         };
         
         class Picker {
@@ -78,7 +80,7 @@ namespace TrenchBroom {
             Filter* m_filter;
         public:
             Picker(Octree& octree);
-            HitList* pick(const Ray& ray, Filter& filter);
+            PickResult* pick(const Ray& ray, Filter& filter);
         };
     }
 }

@@ -117,7 +117,7 @@ namespace TrenchBroom {
             return m_bounds;
         }
 
-        void Entity::pick(const Ray& ray, HitList& hits, Filter& filter) {
+        void Entity::pick(const Ray& ray, PickResult& pickResults, Filter& filter) {
             if (!filter.entityPickable(*this))
                 return;
 
@@ -127,7 +127,7 @@ namespace TrenchBroom {
 
             Vec3f hitPoint = ray.pointAtDistance(dist);
             Hit* hit = new Hit(this, TB_HT_ENTITY, hitPoint, dist);
-            hits.add(*hit);
+            pickResults.add(*hit);
         }
 
         Map* Entity::quakeMap() const {

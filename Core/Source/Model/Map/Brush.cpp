@@ -174,7 +174,7 @@ namespace TrenchBroom {
             m_selected = selected;
         }
         
-        void Brush::pick(const Ray& ray, HitList& hits, Filter& filter) {
+        void Brush::pick(const Ray& ray, PickResult& pickResults, Filter& filter) {
             if (!filter.brushPickable(*this))
                 return;
             
@@ -192,11 +192,11 @@ namespace TrenchBroom {
             if (!Math::isnan(dist)) {
                 Vec3f hitPoint = ray.pointAtDistance(dist);
                 Hit* hit = new Hit(side->face, TB_HT_FACE, hitPoint, dist);
-                hits.add(*hit);
+                pickResults.add(*hit);
             }
         }
         
-        void Brush::pickVertexHandles(const Ray& ray, float handleSize, HitList& hits) {
+        void Brush::pickVertexHandles(const Ray& ray, float handleSize, PickResult& pickResults) {
             const VertexList& vertices = geometry->vertices;
             for (unsigned int i = 0; i < vertices.size(); i++) {
                 BBox handle(vertices[i]->position, handleSize);
@@ -204,12 +204,12 @@ namespace TrenchBroom {
                 if (!Math::isnan(dist)) {
                     Vec3f hitPoint = ray.pointAtDistance(dist);
                     Hit* hit = new Hit(this, i, TB_HT_VERTEX_HANDLE, hitPoint, dist);
-                    hits.add(*hit);
+                    pickResults.add(*hit);
                 }
             }
         }
         
-        void Brush::pickEdgeHandles(const Ray& ray, float handleSize, HitList& hits) {
+        void Brush::pickEdgeHandles(const Ray& ray, float handleSize, PickResult& pickResults) {
             const EdgeList& edges = geometry->edges;
             for (unsigned int i = 0; i < edges.size(); i++) {
                 BBox handle(edges[i]->center(), handleSize);
@@ -217,24 +217,24 @@ namespace TrenchBroom {
                 if (!Math::isnan(dist)) {
                     Vec3f hitPoint = ray.pointAtDistance(dist);
                     Hit* hit = new Hit(this, i, TB_HT_EDGE_HANDLE, hitPoint, dist);
-                    hits.add(*hit);
+                    pickResults.add(*hit);
                 }
             }
         }
         
-        void Brush::pickFaceHandles(const Ray& ray, float handleSize, HitList& hits) {
+        void Brush::pickFaceHandles(const Ray& ray, float handleSize, PickResult& pickResults) {
             for (unsigned int i = 0; i < faces.size(); i++) {
                 BBox handle(faces[i]->center(), handleSize);
                 float dist = handle.intersectWithRay(ray);
                 if (!Math::isnan(dist)) {
                     Vec3f hitPoint = ray.pointAtDistance(dist);
                     Hit* hit = new Hit(this, i, TB_HT_FACE_HANDLE, hitPoint, dist);
-                    hits.add(*hit);
+                    pickResults.add(*hit);
                 }
             }
         }
 
-        float Brush::pickClosestFace(const Ray& ray, float maxDistance, HitList& hits) {
+        float Brush::pickClosestFace(const Ray& ray, float maxDistance, PickResult& pickResults) {
             Edge* closestEdge = NULL;
             float distanceToClosestPointOfClosestEdge;
             float closestDistanceOfEdgeToRaySquared = maxDistance * maxDistance + 1.0f;
@@ -276,7 +276,7 @@ namespace TrenchBroom {
                 hit = new Hit(rightFace, TB_HT_CLOSE_FACE, hitPoint, distanceToClosestPointOfClosestEdge);
             }
             
-            hits.add(*hit);
+            pickResults.add(*hit);
             return sqrt(closestDistanceOfEdgeToRaySquared);
         }
 

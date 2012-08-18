@@ -38,13 +38,13 @@
 namespace TrenchBroom {
     namespace Controller {
         void InputController::updateHits() {
-            if (m_currentEvent.hits != NULL)
-                delete m_currentEvent.hits;
+            if (m_currentEvent.pickResults != NULL)
+                delete m_currentEvent.pickResults;
             
             Model::Picker& picker = m_editor.map().picker();
             Camera& camera = m_editor.camera();
             m_currentEvent.ray = camera.pickRay(m_currentEvent.mouseX, m_currentEvent.mouseY);
-            m_currentEvent.hits = picker.pick(m_currentEvent.ray, m_editor.filter());
+            m_currentEvent.pickResults = picker.pick(m_currentEvent.ray, m_editor.filter());
 
             for (unsigned int i = 0; i < m_receiverChain.size(); i++)
                 m_receiverChain[i]->updateHits(m_currentEvent);
@@ -100,8 +100,8 @@ namespace TrenchBroom {
         }
         
         InputController::~InputController() {
-            if (m_currentEvent.hits != NULL)
-                delete m_currentEvent.hits;
+            if (m_currentEvent.pickResults != NULL)
+                delete m_currentEvent.pickResults;
         }
         
         void InputController::toggleMoveVertexTool() {

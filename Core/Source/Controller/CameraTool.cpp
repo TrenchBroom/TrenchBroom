@@ -70,7 +70,7 @@ namespace TrenchBroom {
                     return false;
                 
                 if (orbitModifierPressed(event)) {
-                    Model::Hit* hit = event.hits->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);
+                    Model::Hit* hit = event.pickResults->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);
                     if (hit != NULL) m_orbitCenter = hit->hitPoint;
                     else m_orbitCenter = editor().camera().defaultPoint();
                     m_orbit = true;

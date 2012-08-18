@@ -60,7 +60,7 @@ namespace TrenchBroom {
             Model::Selection& selection = editor().map().selection();
             const Model::BrushList& brushes = selection.selectedBrushes();
             for (unsigned int i = 0; i < brushes.size(); i++)
-                brushes[i]->pickFaceHandles(event.ray, prefs.vertexHandleSize(), *event.hits);
+                brushes[i]->pickFaceHandles(event.ray, prefs.vertexHandleSize(), *event.pickResults);
         }
         
         const Vec4f& MoveFaceTool::handleColor() {
