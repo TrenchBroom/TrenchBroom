@@ -61,6 +61,7 @@ namespace TrenchBroom {
             DragTargetToolMap m_dragTargetTools;
             
             void updateHits();
+            void updateMousePos(float x, float y);
             void toggleModalTool(const ToolPtr& tool, unsigned int index);
             bool modalToolActive(const ToolPtr& tool);
         public:
@@ -82,9 +83,9 @@ namespace TrenchBroom {
             bool key(wchar_t c);
             void modifierKeyDown(Tool::EModifierKeys modifierKey);
             void modifierKeyUp(Tool::EModifierKeys modifierKey);
-            bool mouseDown(Tool::EMouseButton mouseButton);
-            bool mouseUp(Tool::EMouseButton mouseButton);
-            void mouseMoved(float x, float y, float dx, float dy);
+            bool mouseDown(Tool::EMouseButton mouseButton, float x, float y);
+            bool mouseUp(Tool::EMouseButton mouseButton, float x, float y);
+            void mouseMoved(float x, float y);
             void scrolled(float dx, float dy);
             
             bool dragEnter(const std::string& name, void* payload, float x, float y);

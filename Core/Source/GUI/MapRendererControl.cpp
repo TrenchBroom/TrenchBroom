@@ -84,7 +84,7 @@ namespace TrenchBroom {
         }
 
         void MapRendererControl::OnMouseMoved( int x, int y, int deltaX, int deltaY ) {
-            m_editor.inputController().mouseMoved(x, GetBounds().h - y, deltaX, -deltaY);
+            m_editor.inputController().mouseMoved(x, GetBounds().h - y);
         }
 
         bool MapRendererControl::OnMouseWheeled( int iDelta ) {
@@ -97,9 +97,9 @@ namespace TrenchBroom {
             
             bool handled;
             if (bDown)
-                handled = m_editor.inputController().mouseDown(Controller::Tool::TB_MB_LEFT);
+                handled = m_editor.inputController().mouseDown(Controller::Tool::TB_MB_LEFT, x, GetBounds().h - y);
             else
-                handled = m_editor.inputController().mouseUp(Controller::Tool::TB_MB_LEFT);
+                handled = m_editor.inputController().mouseUp(Controller::Tool::TB_MB_LEFT, x, GetBounds().h - y);
 
             // keep receiving mouse events even if the mouse leaves this control
             if (bDown)
@@ -115,9 +115,9 @@ namespace TrenchBroom {
             
             bool handled;
             if (bDown)
-                handled = m_editor.inputController().mouseDown(Controller::Tool::TB_MB_RIGHT);
+                handled = m_editor.inputController().mouseDown(Controller::Tool::TB_MB_RIGHT, x, GetBounds().h - y);
             else
-                handled = m_editor.inputController().mouseUp(Controller::Tool::TB_MB_RIGHT);
+                handled = m_editor.inputController().mouseUp(Controller::Tool::TB_MB_RIGHT, x, GetBounds().h - y);
 
             // keep receiving mouse events even if the mouse leaves this control
             if (bDown)

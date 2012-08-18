@@ -50,6 +50,13 @@ namespace TrenchBroom {
                 m_receiverChain[i]->updateHits(m_currentEvent);
         }
 
+        void InputController::updateMousePos(float x, float y) {
+            m_currentEvent.deltaX = x - m_currentEvent.mouseX;
+            m_currentEvent.deltaY = y - m_currentEvent.mouseY;
+            m_currentEvent.mouseX = x;
+            m_currentEvent.mouseY = y;
+        }
+
         void InputController::toggleModalTool(const ToolPtr& tool, unsigned int index) {
             ToolPtr modalTool;
             if (m_modalReceiverIndex != -1) {
@@ -97,6 +104,11 @@ namespace TrenchBroom {
             
             m_dragTargetTools["Texture"] = DragTargetToolPtr(dragTextureTargetTool);
             m_dragTargetTools["Entity"] = DragTargetToolPtr(dragEntityTargetTool);
+            
+            m_currentEvent.mouseX = 0;
+            m_currentEvent.mouseY = 0;
+            m_currentEvent.deltaX = 0;
+            m_currentEvent.deltaY = 0;
         }
         
         InputController::~InputController() {
@@ -151,8 +163,9 @@ namespace TrenchBroom {
                 chain[i]->modifierKeyChanged(m_currentEvent);
         }
         
-        bool InputController::mouseDown(Tool::EMouseButton mouseButton) {
+        bool InputController::mouseDown(Tool::EMouseButton mouseButton, float x, float y) {
             m_currentEvent.mouseButton = mouseButton;
+            updateMousePos(x, y);
             updateHits();
             
             ToolList chain = m_receiverChain;
@@ -166,8 +179,9 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool InputController::mouseUp(Tool::EMouseButton mouseButton) {
+        bool InputController::mouseUp(Tool::EMouseButton mouseButton, float x, float y) {
             m_currentEvent.mouseButton = mouseButton;
+            updateMousePos(x, y);
             updateHits();
             
             bool handled = false;
@@ -178,7 +192,6 @@ namespace TrenchBroom {
                     m_mouseDownReceiver->mouseUp(m_currentEvent);
                 m_dragScrollReceiver = ToolPtr();
                 m_dragButton = Tool::TB_MB_NONE;
-                m_mouseDownReceiver = ToolPtr();
                 handled = true;
             } else {
                 ToolList chain = m_receiverChain;
@@ -187,11 +200,12 @@ namespace TrenchBroom {
                         handled = true;
             }
             
+            m_mouseDownReceiver = ToolPtr();
             m_currentEvent.mouseButton = Tool::TB_MB_NONE;
             return handled;
         }
         
-        void InputController::mouseMoved(float x, float y, float dx, float dy) {
+        void InputController::mouseMoved(float x, float y) {
             if (m_currentEvent.mouseButton != Tool::TB_MB_NONE && m_dragButton == Tool::TB_MB_NONE) {
                 m_dragButton = m_currentEvent.mouseButton;
                 ToolList chain = m_receiverChain;
@@ -202,11 +216,8 @@ namespace TrenchBroom {
                     }
                 }
             }
-            
-            m_currentEvent.mouseX = x;
-            m_currentEvent.mouseY = y;
-            m_currentEvent.deltaX = dx;
-            m_currentEvent.deltaY = dy;
+
+            updateMousePos(x, y);
             updateHits();
             
             if (m_dragButton != Tool::TB_MB_NONE && m_dragScrollReceiver != NULL) {

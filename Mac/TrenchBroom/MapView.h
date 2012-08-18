@@ -22,6 +22,8 @@
 @class EditorHolder;
 
 @interface MapView: NSOpenGLView <NSMenuDelegate> {
+    BOOL mouseButtonState[3];
+    NSPoint lastMouseLocation;
     EditorHolder* editorHolder;
     void* editorGui;
     void* editorGuiListener;

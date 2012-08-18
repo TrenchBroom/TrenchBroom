@@ -156,6 +156,9 @@ namespace TrenchBroom {
 - (void)awakeFromNib {
     [[self window] setAcceptsMouseMovedEvents:YES];
     flags = [NSEvent modifierFlags];
+    for (unsigned int i = 0; i < 3; i++)
+        mouseButtonState[i] = NO;
+    lastMouseLocation = [NSEvent mouseLocation];
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
@@ -217,11 +220,22 @@ namespace TrenchBroom {
 }
 
 - (void)mouseDown:(NSEvent *)theEvent {
-    if (editorGui != NULL) [self editorGui]->canvas()->InputMouseButton(0, true);
+    mouseButtonState[0] = YES;
+    if (editorGui != NULL) {
+        [self mouseMoved:theEvent];
+        [self editorGui]->canvas()->InputMouseButton(0, true);
+    }
 }
 
 - (void)mouseUp:(NSEvent *)theEvent {
-    if (editorGui != NULL) [self editorGui]->canvas()->InputMouseButton(0, false);
+    if (!mouseButtonState[0])
+        return;
+    
+    if (editorGui != NULL) {
+        [self mouseMoved:theEvent];
+        [self editorGui]->canvas()->InputMouseButton(0, false);
+    }
+    mouseButtonState[0] = NO;
 }
 
 - (void)mouseDragged:(NSEvent *)theEvent {
@@ -229,11 +243,19 @@ namespace TrenchBroom {
 }
 
 - (void)rightMouseDown:(NSEvent *)theEvent {
-    if (editorGui != NULL) [self editorGui]->canvas()->InputMouseButton(1, true);
+    mouseButtonState[1] = YES;
+    if (editorGui != NULL) {
+        [self mouseMoved:theEvent];
+        [self editorGui]->canvas()->InputMouseButton(1, true);
+    }
 }
 
 - (void)rightMouseUp:(NSEvent *)theEvent {
+    if (!mouseButtonState[1])
+        return;
+    
     if (editorGui != NULL) {
+        [self mouseMoved:theEvent];
         if (![self editorGui]->canvas()->InputMouseButton(1, false) && [self editorGui]->mapViewHovered()) {
             if ([pointEntityMenuItem submenu] == nil || [brushEntityMenuItem submenu] == nil) {
                 Controller::Editor* editor = [self editor];
@@ -259,6 +281,8 @@ namespace TrenchBroom {
             [NSMenu popUpContextMenu:popupMenu withEvent:theEvent forView:self];
         }
     }
+    
+    mouseButtonState[1] = NO;
 }
 
 - (void)rightMouseDragged:(NSEvent *)theEvent {
@@ -266,11 +290,22 @@ namespace TrenchBroom {
 }
 
 - (void)otherMouseDown:(NSEvent *)theEvent {
-    if (editorGui != NULL) [self editorGui]->canvas()->InputMouseButton(2, true);
+    mouseButtonState[2] = YES;
+    if (editorGui != NULL) {
+        [self mouseMoved:theEvent];
+        [self editorGui]->canvas()->InputMouseButton(2, true);
+    }
 }
 
 - (void)otherMouseUp:(NSEvent *)theEvent {
-    if (editorGui != NULL) [self editorGui]->canvas()->InputMouseButton(2, false);
+    if (!mouseButtonState[2])
+        return;
+    
+    if (editorGui != NULL) {
+        [self mouseMoved:theEvent];
+        [self editorGui]->canvas()->InputMouseButton(2, false);
+    }
+    mouseButtonState[2] = NO;
 }
 
 - (void)otherMouseDragged:(NSEvent *)theEvent {
@@ -278,9 +313,15 @@ namespace TrenchBroom {
 }
 
 - (void)mouseMoved:(NSEvent *)theEvent {
+    NSPoint mouseLocation = [NSEvent mouseLocation];
+    if (mouseLocation.x == lastMouseLocation.x && mouseLocation.y == lastMouseLocation.y)
+        return;
+    
     NSPoint pos = [self convertPoint:[theEvent locationInWindow] fromView:nil];
     pos.y = [self visibleRect].size.height - pos.y;
-    if (editorGui != NULL) [self editorGui]->canvas()->InputMouseMoved(pos.x, pos.y, theEvent.deltaX, -theEvent.deltaY);
+    if (editorGui != NULL)
+        [self editorGui]->canvas()->InputMouseMoved(pos.x, pos.y, mouseLocation.x - lastMouseLocation.x, -(mouseLocation.y - lastMouseLocation.y));
+    lastMouseLocation = mouseLocation;
 }
 
 @end
