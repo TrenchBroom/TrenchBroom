@@ -342,9 +342,6 @@ void CMapView::OnMouseMove(UINT nFlags, CPoint point)
 	else if (m_lastMousePos->x == point.x && m_lastMousePos->y == point.y)
 		return;
 
-	static unsigned int count = 0;
-	TrenchBroom::log(TrenchBroom::TB_LL_INFO, "mouse move %i\n", count++);
-
 	m_editorGui->canvas()->InputMouseMoved(point.x, point.y, point.x - m_lastMousePos->x, point.y - m_lastMousePos->y);
 	*m_lastMousePos = point;
 }
@@ -357,9 +354,7 @@ void CMapView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 void CMapView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) 
 {
-	int iKey = -1;
-	if ( gwenKey(nChar, nFlags) == -1 )
-		m_editorGui->canvas()->InputCharacter(Gwen::UnicodeChar(nChar));
+	m_editorGui->canvas()->InputCharacter(Gwen::UnicodeChar(nChar));
 }
 
 

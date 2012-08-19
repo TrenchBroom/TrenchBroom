@@ -57,6 +57,7 @@ namespace Gwen
 
         void NumericUpDown::OnButtonDown( Base* /*control*/ )
         {
+            if (!m_bHasValue) return;
             SyncNumberFromText();
             SetValue( m_fNumber - m_fIncrement, true );
         }
@@ -73,7 +74,7 @@ namespace Gwen
 
         void NumericUpDown::SyncNumberFromText()
         {
-            m_bHasValue = IsTextAllowed(GetText(), 0);
+            m_bHasValue = IsTextAllowed(L"", 0);
             if (m_bHasValue)
                 SetValue( GetFloatFromText(), true );
         }
