@@ -59,6 +59,7 @@ public:
 // Generated message map functions
 protected:
 	CPoint* m_lastMousePos;
+	BOOL m_mouseButtonDown[3];
 
 	DECLARE_MESSAGE_MAP()
 

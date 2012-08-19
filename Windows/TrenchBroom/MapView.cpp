@@ -72,7 +72,8 @@ END_MESSAGE_MAP()
 CMapView::CMapView() : m_lastMousePos(NULL), m_deviceContext(NULL), m_openGLContext(NULL), m_editorGui(NULL), m_fontManager(NULL)
 {
 	// TODO: add construction code here
-
+	for (unsigned int i = 0; i < 3; i++)
+		m_mouseButtonDown[i] = FALSE;
 }
 
 CMapView::~CMapView()
@@ -272,6 +273,8 @@ void CMapView::OnDestroy()
 
 void CMapView::OnLButtonDown(UINT nFlags, CPoint point)
 {
+	m_mouseButtonDown[0] = TRUE;
+	OnMouseMove(nFlags, point);
 	SetCapture();
 	m_editorGui->canvas()->InputMouseButton(0, true);	
 }
@@ -279,13 +282,20 @@ void CMapView::OnLButtonDown(UINT nFlags, CPoint point)
 
 void CMapView::OnLButtonUp(UINT nFlags, CPoint point)
 {
+	if (!m_mouseButtonDown[0])
+		return;
+
+	OnMouseMove(nFlags, point);
 	m_editorGui->canvas()->InputMouseButton(0, false);
 	ReleaseCapture();
+	m_mouseButtonDown[0] = FALSE;
 }
 
 
 void CMapView::OnRButtonDown(UINT nFlags, CPoint point)
 {
+	m_mouseButtonDown[1] = TRUE;
+	OnMouseMove(nFlags, point);
 	SetCapture();
 	m_editorGui->canvas()->InputMouseButton(1, true);	
 }
@@ -293,6 +303,10 @@ void CMapView::OnRButtonDown(UINT nFlags, CPoint point)
 
 void CMapView::OnRButtonUp(UINT nFlags, CPoint point)
 {
+	if (!m_mouseButtonDown[1])
+		return;
+
+	OnMouseMove(nFlags, point);
 	if (!m_editorGui->canvas()->InputMouseButton(1, false) && m_editorGui->mapViewHovered()) {
 		CMenu parentMenu;
 		BOOL success = parentMenu.LoadMenuA(IDR_MAPVIEW_POPUP);
@@ -306,6 +320,7 @@ void CMapView::OnRButtonUp(UINT nFlags, CPoint point)
 		popupMenu->TrackPopupMenu(TPM_LEFTALIGN | TPM_LEFTBUTTON, screen.x, screen.y, GetTopLevelParent(), NULL);
 	}
 	ReleaseCapture();
+	m_mouseButtonDown[1] = FALSE;
 }
 
 
@@ -323,15 +338,15 @@ void CMapView::OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt)
 void CMapView::OnMouseMove(UINT nFlags, CPoint point)
 {
 	if (m_lastMousePos == NULL)
-		m_lastMousePos = new CPoint(0, 0);
+		m_lastMousePos = new CPoint(point);
+	else if (m_lastMousePos->x == point.x && m_lastMousePos->y == point.y)
+		return;
 
-	RECT clientRect;
-	GetClientRect(&clientRect);
-	int x = point.x;
-	int y = point.y;
-	m_editorGui->canvas()->InputMouseMoved(x, y, x - m_lastMousePos->x, y - m_lastMousePos->y);
-	m_lastMousePos->x = x;
-	m_lastMousePos->y = y;
+	static unsigned int count = 0;
+	TrenchBroom::log(TrenchBroom::TB_LL_INFO, "mouse move %i\n", count++);
+
+	m_editorGui->canvas()->InputMouseMoved(point.x, point.y, point.x - m_lastMousePos->x, point.y - m_lastMousePos->y);
+	*m_lastMousePos = point;
 }
 
 
