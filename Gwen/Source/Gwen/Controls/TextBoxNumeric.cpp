@@ -21,17 +21,20 @@ namespace Gwen
             SetText( L"0" );
         }
         
-        bool TextBoxNumeric::IsTextAllowed( const Gwen::UnicodeString& str, int iPos )
+        bool TextBoxNumeric::IsTextAllowed( const Gwen::UnicodeString& insertStr, int iPos )
         {
-            if ( str.length() == 0 )
+            if ( insertStr.length() == 0 )
                 return true;
+
+            UnicodeString content = GetText();
+            content.insert(iPos, insertStr);
             
             bool hasMinus = false;
             bool hasDot = false;
             
-            for (size_t i=0; i<str.length(); i++)
+            for (size_t i=0;  i <content.length(); i++)
             {
-                if ( str[i] == L'-' )
+                if ( content[i] == L'-' )
                 {
                     // Has to be at the start
                     if ( i != 0 || iPos != 0 )
@@ -45,21 +48,25 @@ namespace Gwen
                     continue;
                 }
                 
-                if ( str[i] == L'0' ) continue;
-                if ( str[i] == L'1' ) continue;
-                if ( str[i] == L'2' ) continue;
-                if ( str[i] == L'3' ) continue;
-                if ( str[i] == L'4' ) continue;
-                if ( str[i] == L'5' ) continue;
-                if ( str[i] == L'6' ) continue;
-                if ( str[i] == L'7' ) continue;
-                if ( str[i] == L'8' ) continue;
-                if ( str[i] == L'9' ) continue;
+                if ( content[i] == L'0' ) continue;
+                if ( content[i] == L'1' ) continue;
+                if ( content[i] == L'2' ) continue;
+                if ( content[i] == L'3' ) continue;
+                if ( content[i] == L'4' ) continue;
+                if ( content[i] == L'5' ) continue;
+                if ( content[i] == L'6' ) continue;
+                if ( content[i] == L'7' ) continue;
+                if ( content[i] == L'8' ) continue;
+                if ( content[i] == L'9' ) continue;
                 
-                if ( str[i] == L'.' )
+                if ( content[i] == L'.' )
                 {
-                    // Can't be at the start or the end
-                    if (i == 0 || i == str.length() - 1)
+                    // Can't be at the start
+                    if (i == 0)
+                        return false;
+                    
+                    // Can't be at the end either unless it was just inserted there
+                    if (i == content.length() - 1 && static_cast<int>(i) != iPos)
                         return false;
                     
                     // Already a dot

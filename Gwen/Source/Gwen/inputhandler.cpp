@@ -32,7 +32,6 @@ struct t_KeyData
 		for ( int i=0; i<Gwen::Key::Count; i++ )
 		{
 			KeyState[i] = false;
-			NextRepeat[i] = 0;
 		}
 
 		Target = NULL;
@@ -41,7 +40,6 @@ struct t_KeyData
 	}
 
 	bool KeyState[ Gwen::Key::Count ];
-	float NextRepeat[ Gwen::Key::Count ];
     Gwen::Controls::Base* Target;
 	bool LeftMouseDown;
 	bool RightMouseDown;
@@ -340,12 +338,11 @@ bool Gwen::Input::OnKeyEvent( Controls::Base* pCanvas, int iKey, bool bDown )
 		if ( !KeyData.KeyState[ iKey ] )
 		{
 			KeyData.KeyState[ iKey ] = true;
-			KeyData.NextRepeat[ iKey ] = Gwen::Platform::GetTimeInSeconds() + KeyRepeatDelay;
 			KeyData.Target = pTarget;
-
-			if ( pTarget )
-				return pTarget->OnKeyPress( iKey );
 		}
+
+        if ( pTarget )
+            return pTarget->OnKeyPress( iKey );
 	}
 	else
 	{

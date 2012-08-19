@@ -33,6 +33,7 @@
 #import "Model/Map/EntityDefinition.h"
 #import "Model/Selection.h"
 #import "Renderer/FontManager.h"
+#import "Utilities/Console.h"
 #import "Utilities/VecMath.h"
 
 #import <math.h>
