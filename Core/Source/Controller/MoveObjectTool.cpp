@@ -56,6 +56,7 @@ namespace TrenchBroom {
                 m_referenceObject = &entity;
             }
             initialPoint = hit->hitPoint;
+            m_totalDelta = Vec3f::Null;
             
             if (!m_figureCreated) {
                 Renderer::MoveObjectToolFigure* figure = new Renderer::MoveObjectToolFigure(*this);
@@ -87,6 +88,7 @@ namespace TrenchBroom {
                 return true;
             
             referencePoint += delta;
+            m_totalDelta += delta;
             map.translateObjects(delta, editor().options().lockTextures());
             refreshFigure(true);
             
@@ -96,7 +98,10 @@ namespace TrenchBroom {
         void MoveObjectTool::handleEndPlaneDrag(InputEvent& event) {
             assert(event.mouseButton == TB_MB_LEFT);
             
-            editor().map().undoManager().end();
+            if (m_totalDelta.null())
+                editor().map().undoManager().discard();
+            else
+                editor().map().undoManager().end();
             refreshFigure(false);
             m_referenceObject = NULL;
         }

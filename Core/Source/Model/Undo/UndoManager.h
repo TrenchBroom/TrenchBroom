@@ -39,6 +39,7 @@ namespace TrenchBroom {
             UndoGroup(const std::string name);
             ~UndoGroup();
             void addItem(UndoItem* item);
+            void discardLastItem();
             void undo();
             const std::string& name();
             bool empty() const;
@@ -109,6 +110,8 @@ namespace TrenchBroom {
                 FunctorUndoItem* undoItem = new FunctorUndoItem(map, functor);
                 addItem(undoItem);
             }
+            
+            void discardLastItem();
             
             bool undoStackEmpty();
             bool redoStackEmpty();

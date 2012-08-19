@@ -34,6 +34,7 @@ namespace TrenchBroom {
         class ResizeBrushTool : public DragTool {
         protected:
             Model::Face* m_referenceFace;
+            float m_totalDistance;
             bool m_figureCreated;
             
             virtual void updateDragPlane(InputEvent& event);

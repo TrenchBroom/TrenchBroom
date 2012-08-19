@@ -133,6 +133,7 @@ namespace TrenchBroom {
             m_brush = &hit->brush();
             m_index = index(*hit);
             initialPoint = hit->hitPoint;
+            m_totalDelta = Vec3f::Null;
             
             editor().map().undoManager().begin(undoName());
             return true;
@@ -152,6 +153,8 @@ namespace TrenchBroom {
                 
                 Model::MoveResult result = performMove(*m_brush, m_index, delta);
                 m_index = result.index;
+                m_totalDelta += delta;
+
                 if (result.deleted)
                     return false;
                 else if (result.moved)
@@ -167,7 +170,10 @@ namespace TrenchBroom {
             assert(event.mouseButton == TB_MB_LEFT);
             
             if (state() == TB_TS_DRAG) {
-                editor().map().undoManager().end();
+                if (m_totalDelta.null())
+                    editor().map().undoManager().discard();
+                else
+                    editor().map().undoManager().end();
                 m_brush = NULL;
                 m_index = 0;
             }

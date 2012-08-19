@@ -37,10 +37,10 @@ namespace TrenchBroom {
         void SelectionUndoItem::undo() {
             Selection& selection = m_map.selection();
             
-            selection.deselectAll();
-            selection.selectEntities(m_selectedEntities);
-            selection.selectBrushes(m_selectedBrushes);
-            selection.selectFaces(m_selectedFaces);
+            if (m_selectedFaces.empty())
+                selection.replaceSelection(m_selectedEntities, m_selectedBrushes);
+            else
+                selection.replaceSelection(m_selectedFaces);
             performUndo();
         }
 
@@ -49,10 +49,10 @@ namespace TrenchBroom {
             
             m_map.undoManager().addSelection(m_map);
             
-            selection.deselectAll();
-            selection.selectEntities(m_selectedEntities);
-            selection.selectBrushes(m_selectedBrushes);
-            selection.selectFaces(m_selectedFaces);
+            if (m_selectedFaces.empty())
+                selection.replaceSelection(m_selectedEntities, m_selectedBrushes);
+            else
+                selection.replaceSelection(m_selectedFaces);
         }
     }
 }

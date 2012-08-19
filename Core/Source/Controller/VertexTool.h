@@ -49,6 +49,7 @@ namespace TrenchBroom {
             Model::Brush* m_brush;
             size_t m_index;
             bool m_figureCreated;
+            Vec3f m_totalDelta;
         protected:
             virtual int hitType() = 0;
             virtual size_t index(Model::Hit& hit);

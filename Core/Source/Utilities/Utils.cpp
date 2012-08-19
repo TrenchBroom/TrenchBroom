@@ -18,9 +18,9 @@
  */
 
 #include "Utils.h"
-#include <algorithm>
-#include <locale>
+
 #include <functional>
+#include <locale>
 
 namespace TrenchBroom {
     std::string trim(const std::string& str) {

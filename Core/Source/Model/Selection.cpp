@@ -20,6 +20,7 @@
 #include "Selection.h"
 
 #include "Model/Map/BrushGeometry.h"
+#include "Utilities/Utils.h"
 
 #include <cassert>
 #include <cmath>
@@ -279,8 +280,10 @@ namespace TrenchBroom {
             FaceList selectedFaces = doSelectFaces(faces);
             current().selectionMode = TB_SM_FACES;
 
-            SelectionEventData data(selectedFaces);
-            selectionAdded(data);
+            if (!selectedFaces.empty()) {
+                SelectionEventData data(selectedFaces);
+                selectionAdded(data);
+            }
         }
 
         void Selection::selectBrush(Brush& brush) {
@@ -315,8 +318,10 @@ namespace TrenchBroom {
             else
                 current().selectionMode = TB_SM_BRUSHES;
 
-            SelectionEventData data(selectedBrushes);
-            selectionAdded(data);
+            if (!selectedBrushes.empty()) {
+                SelectionEventData data(selectedBrushes);
+                selectionAdded(data);
+            }
         }
 
         void Selection::selectEntity(Entity& entity) {
@@ -351,36 +356,43 @@ namespace TrenchBroom {
             else
                 current().selectionMode = TB_SM_ENTITIES;
 
-            SelectionEventData data(selectedEntities);
-            selectionAdded(data);
+            if (!selectedEntities.empty()) {
+                SelectionEventData data(selectedEntities);
+                selectionAdded(data);
+            }
         }
 
         void Selection::replaceSelection(const EntityList& entities, const BrushList& brushes) {
             if (entities.empty() && brushes.empty())
                 return;
+
             
             switch (current().selectionMode) {
                 case TB_SM_ENTITIES: {
-                    EntityList selectedEntities = current().selectedEntities;
-                    selectEntities(entities);
+                    EntityList addEntities = difference(entities, current().selectedEntities);
+                    EntityList removeEntities = difference(current().selectedEntities, entities);
+                    selectEntities(addEntities);
                     selectBrushes(brushes);
-                    deselectEntities(selectedEntities);
+                    deselectEntities(removeEntities);
                     break;
                 }
                 case TB_SM_BRUSHES: {
-                    BrushList selectedBrushes = current().selectedBrushes;
+                    BrushList addBrushes = difference(brushes, current().selectedBrushes);
+                    BrushList removeBrushes = difference(current().selectedBrushes, brushes);
                     selectEntities(entities);
-                    selectBrushes(brushes);
-                    deselectBrushes(selectedBrushes);
+                    selectBrushes(addBrushes);
+                    deselectBrushes(removeBrushes);
                     break;
                 }
                 case TB_SM_BRUSHES_ENTITIES: {
-                    EntityList selectedEntities = current().selectedEntities;
-                    BrushList selectedBrushes = current().selectedBrushes;
-                    selectEntities(entities);
-                    selectBrushes(brushes);
-                    deselectEntities(selectedEntities);
-                    deselectBrushes(selectedBrushes);
+                    EntityList addEntities = difference(entities, current().selectedEntities);
+                    EntityList removeEntities = difference(current().selectedEntities, entities);
+                    BrushList addBrushes = difference(brushes, current().selectedBrushes);
+                    BrushList removeBrushes = difference(current().selectedBrushes, brushes);
+                    selectEntities(addEntities);
+                    selectBrushes(addBrushes);
+                    deselectEntities(removeEntities);
+                    deselectBrushes(removeBrushes);
                     break;
                 }
                 case TB_SM_FACES: {
@@ -462,9 +474,10 @@ namespace TrenchBroom {
                     break;
                 }
                 case TB_SM_FACES: {
-                    FaceList selectedFaces = current().selectedFaces;
-                    selectFaces(faces);
-                    deselectFaces(selectedFaces);
+                    FaceList addFaces = difference(faces, current().selectedFaces);
+                    FaceList removeFaces = difference(current().selectedFaces, faces);
+                    selectFaces(addFaces);
+                    deselectFaces(removeFaces);
                     break;
                 }
                 default:
@@ -503,8 +516,10 @@ namespace TrenchBroom {
             if (current().selectedFaces.size() == 0)
                 current().selectionMode = TB_SM_NONE;
 
-            SelectionEventData data(deselectedFaces);
-            selectionRemoved(data);
+            if (!deselectedFaces.empty()) {
+                SelectionEventData data(deselectedFaces);
+                selectionRemoved(data);
+            }
         }
 
         void Selection::deselectBrush(Brush& brush) {
@@ -539,8 +554,10 @@ namespace TrenchBroom {
                     current().selectionMode = TB_SM_ENTITIES;
             }
 
-            SelectionEventData data(deselectedBrushes);
-            selectionRemoved(data);
+            if (!deselectedBrushes.empty()) {
+                SelectionEventData data(deselectedBrushes);
+                selectionRemoved(data);
+            }
         }
 
         void Selection::deselectEntity(Entity& entity) {
@@ -575,8 +592,10 @@ namespace TrenchBroom {
                     current().selectionMode = TB_SM_BRUSHES;
             }
 
-            SelectionEventData data(deselectedEntities);
-            selectionRemoved(data);
+            if (!deselectedEntities.empty()) {
+                SelectionEventData data(deselectedEntities);
+                selectionRemoved(data);
+            }
         }
 
         void Selection::deselectAll() {

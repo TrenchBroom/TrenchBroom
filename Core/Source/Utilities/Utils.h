@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_Utils_h
 #define TrenchBroom_Utils_h
 
+#include <algorithm>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -32,6 +34,18 @@ namespace TrenchBroom {
     bool caseInsensitiveCharEqual(char c1, char c2);
     bool caseSensitiveCharEqual(char c1, char c2);
     bool containsString(const std::string& haystack, const std::string& needle, bool caseSensitive = true);
+    
+    template <typename T>
+    std::vector<T> difference(const std::vector<T> list1, const std::vector<T> list2) {
+        if (list1.empty() || list2.empty())
+        return list1;
+    
+        std::set<T> set1(list1.begin(), list1.end());
+        std::set<T> set2(list2.begin(), list2.end());
+        std::vector<T> result;
+        std::set_difference(set1.begin(), set1.end(), set2.begin(), set2.end(), result.begin());
+        return result;
+    }
 }
 
 #endif

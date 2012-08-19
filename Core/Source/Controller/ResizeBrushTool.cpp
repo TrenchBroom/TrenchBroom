@@ -89,6 +89,7 @@ namespace TrenchBroom {
 
             m_referenceFace = &hit->face();
             initialPoint = hit->hitPoint;
+            m_totalDistance = 0.0f;
             editor().map().undoManager().begin("Resize Brushes");
             return true;
         }
@@ -116,6 +117,7 @@ namespace TrenchBroom {
                 
                 editor().map().resizeBrushes(faces, dist, editor().options().lockTextures());
                 referencePoint += delta;
+                m_totalDistance += dist;
 
                 refreshFigure(true);
             }
@@ -126,7 +128,10 @@ namespace TrenchBroom {
         void ResizeBrushTool::handleEndPlaneDrag(InputEvent& event) {
             assert(event.mouseButton == TB_MB_LEFT);
             
-            editor().map().undoManager().end();
+            if (Math::fzero(m_totalDistance))
+                editor().map().undoManager().discard();
+            else
+                editor().map().undoManager().end();
             refreshFigure(false);
             m_referenceFace = NULL;
         }

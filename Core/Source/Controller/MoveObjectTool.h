@@ -37,6 +37,7 @@ namespace TrenchBroom {
         class MoveObjectTool : public DragTool {
         protected:
             Model::MapObject* m_referenceObject;
+            Vec3f m_totalDelta;
             bool m_figureCreated;
 
             bool handleBeginPlaneDrag(InputEvent& event, Vec3f& initialPoint);

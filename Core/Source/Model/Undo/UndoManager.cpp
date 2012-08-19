@@ -35,6 +35,10 @@ namespace TrenchBroom {
             m_items.push_back(item);
         }
 
+        void UndoGroup::discardLastItem() {
+            m_items.pop_back();
+        }
+
         void UndoGroup::undo() {
             for (std::vector<UndoItem*>::reverse_iterator it = m_items.rbegin(); it != m_items.rend(); ++it)
                 (*it)->undo();
@@ -144,6 +148,21 @@ namespace TrenchBroom {
                 }
                 m_currentGroup = NULL;
             }
+        }
+
+        void UndoManager::discard() {
+            assert(m_currentGroup != NULL);
+            
+            m_depth--;
+            if (m_depth == 0) {
+                delete m_currentGroup;
+                m_currentGroup = NULL;
+            }
+        }
+        
+        void UndoManager::discardLastItem() {
+            assert(m_currentGroup != NULL);
+            m_currentGroup->discardLastItem();
         }
 
         bool UndoManager::undoStackEmpty() {

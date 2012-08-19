@@ -220,15 +220,14 @@ namespace TrenchBroom {
             updateMousePos(x, y);
             updateHits();
             
-            if (m_dragButton != Tool::TB_MB_NONE && m_dragScrollReceiver != NULL) {
+            if (m_dragButton != Tool::TB_MB_NONE && m_dragScrollReceiver.get() != NULL) {
                 if (!m_dragScrollReceiver->drag(m_currentEvent)) {
                     m_dragScrollReceiver = ToolPtr();
-                    m_dragButton = Tool::TB_MB_NONE;
                     m_mouseDownReceiver = ToolPtr();
                 }
             }
             
-            if (m_dragButton == Tool::TB_MB_NONE || m_dragScrollReceiver == NULL) {
+            if (m_dragButton == Tool::TB_MB_NONE || m_dragScrollReceiver.get() == NULL) {
                 ToolList chain = m_receiverChain;
                 for (unsigned int i = 0; i < chain.size(); i++)
                     chain[i]->mouseMoved(m_currentEvent);

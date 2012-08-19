@@ -871,6 +871,9 @@ namespace TrenchBroom {
             MoveResult result = brush.moveVertex(vertexIndex, delta);
             if (m_postNotifications) brushesDidChange(brushArray);
             
+            if (!result.moved && !result.deleted)
+                m_undoManager->discardLastItem();
+            
             m_undoManager->end();
             
             return result;
@@ -889,6 +892,9 @@ namespace TrenchBroom {
             MoveResult result = brush.moveEdge(edgeIndex, delta);
             if (m_postNotifications) brushesDidChange(brushArray);
             
+            if (!result.moved && !result.deleted)
+                m_undoManager->discardLastItem();
+            
             m_undoManager->end();
             
             return result;
@@ -906,6 +912,9 @@ namespace TrenchBroom {
             if (m_postNotifications) brushesWillChange(brushArray);
             MoveResult result = brush.moveFace(faceIndex, delta);
             if (m_postNotifications) brushesDidChange(brushArray);
+            
+            if (!result.moved && !result.deleted)
+                m_undoManager->discardLastItem();
             
             m_undoManager->end();
             
