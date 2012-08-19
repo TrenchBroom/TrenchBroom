@@ -70,6 +70,8 @@ namespace TrenchBroom {
 		}
 
 		StringData* WinStringFactory::createStringData(const FontDescriptor& descriptor, const std::string& str) {
+			log(TB_LL_INFO, "creating string renderer\n");
+
 			if (m_gluTess == NULL) {
                 m_gluTess = gluNewTess();
                 gluTessProperty(m_gluTess, GLU_TESS_BOUNDARY_ONLY, GL_FALSE);
@@ -100,16 +102,22 @@ namespace TrenchBroom {
 				wstr[i] = str[i];
 			wstr[str.length()] = 0;
 
+			log(TB_LL_INFO, "creating GDI font '%s' (%i)\n", descriptor.name.c_str(), descriptor.size);
 			HFONT font = CreateFont(static_cast<int>(scale * descriptor.size), 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FF_DONTCARE, fontName);
 			if (font == NULL) {
 				log(TrenchBroom::TB_LL_ERR, "Unable to create GDI font '%s' size '%i'", descriptor.name.c_str(), descriptor.size);
 				return NULL;
 			}
 
+			log(TB_LL_INFO, "selecting GDI font and saving old GDI font\n");
 			HGDIOBJ oldFont = SelectObject(m_dc, font);
+			if (oldFont == NULL)
+				log(TB_LL_INFO, "could not save old GDI font\n");
+
 			SIZE size;
 			GetTextExtentPoint32(m_dc, wstr, str.length(), &size);
 
+			log(TB_LL_INFO, "creating path for string\n");
 			BeginPath(m_dc);
 			TextOut(m_dc, 0, 0, wstr, str.length());
 			EndPath(m_dc);
@@ -130,7 +138,10 @@ namespace TrenchBroom {
 			GetPath(m_dc, pathPoints, pathTypes, numPoints);
 
 			StringData* stringData = new StringData(size.cx / scale, size.cy / scale);
-			double coords[2];
+			GLdouble coords[3];
+			coords[2] = 0.0;
+
+			log(TB_LL_INFO, "creating vector data\n");
 
 			int contourSize = 0;
 			gluTessBeginPolygon(m_gluTess, stringData);
@@ -165,14 +176,21 @@ namespace TrenchBroom {
 				gluTessEndContour(m_gluTess);
 			gluTessEndPolygon(m_gluTess);
 
+			log(TB_LL_INFO, "deleting temporary string vertices\n");
             while (!StringFactoryCallback::tempPoints.empty())
                 delete StringFactoryCallback::tempPoints.back(), 
                 StringFactoryCallback::tempPoints.pop_back();
 
-			if (oldFont != NULL)
+			if (oldFont != NULL) {
+				log(TB_LL_INFO, "restoring old GDI font\n");
 				SelectObject(m_dc, oldFont);
+			} else {
+				log(TB_LL_INFO, "not restoring old GDI font\n");
+			}
 
+			log(TB_LL_INFO, "deleting GDI font\n");
             DeleteObject(font);
+			log(TB_LL_INFO, "deleting data\n");
 			delete [] fontName;
 			delete [] wstr;
 			delete [] pathPoints;

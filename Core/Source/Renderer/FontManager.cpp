@@ -269,11 +269,14 @@ namespace TrenchBroom {
         void FontManager::activate() {
             if (m_vbo == NULL)
                 m_vbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
+			log(TB_LL_INFO, "activating vbo for font manager\n");
             m_vbo->activate();
             if (!m_unpreparedStrings.empty()) {
+				log(TB_LL_INFO, "mapping vbo to prepare strings\n");
                 m_vbo->map();
                 for (unsigned int i = 0; i < m_unpreparedStrings.size(); i++) {
                     StringRendererPtr stringRenderer = m_unpreparedStrings[i];
+					log(TB_LL_INFO, "preparing string renderer %i\n", i);
                     
                     StringData* stringData = m_stringFactory->createStringData(stringRenderer->fontDescriptor, stringRenderer->str);
                     if (stringData == NULL) {
@@ -293,6 +296,7 @@ namespace TrenchBroom {
                     m_unpreparedStrings[i]->prepare(*stringData, *m_vbo);
 					delete stringData;
                 }
+				log(TB_LL_INFO, "unmapping vbo after preparing strings\n");
                 m_vbo->unmap();
                 m_unpreparedStrings.clear();
             }
