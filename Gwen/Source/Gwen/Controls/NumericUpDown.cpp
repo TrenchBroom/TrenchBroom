@@ -66,7 +66,7 @@ namespace Gwen
         void NumericUpDown::SyncTextFromNumber()
         {
             if (!m_bHasValue) {
-                SetText( "" );
+                SetText("", false);
             } else {
                 SetText( Utility::ToString( m_fNumber ) );
             }

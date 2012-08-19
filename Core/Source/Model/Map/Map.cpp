@@ -165,8 +165,11 @@ namespace TrenchBroom {
                 }
             }
 
+            // Don't create an undo item for the creation of worldspawn
+            m_undoManager->begin("Create Worldspawn");
             if (create)
                 m_worldspawn = createEntity(WorldspawnClassname);
+            m_undoManager->discard();
             return m_worldspawn;
         }
 
