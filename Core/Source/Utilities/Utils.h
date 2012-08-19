@@ -42,8 +42,11 @@ namespace TrenchBroom {
     
         std::set<T> set1(list1.begin(), list1.end());
         std::set<T> set2(list2.begin(), list2.end());
-        std::vector<T> result;
-        std::set_difference(set1.begin(), set1.end(), set2.begin(), set2.end(), result.begin());
+        std::vector<T> result(set1.size() + set2.size());
+        typename std::vector<T>::iterator end;
+        
+        end = std::set_difference(set1.begin(), set1.end(), set2.begin(), set2.end(), result.begin());
+        result.resize(end - result.begin());
         return result;
     }
 }
