@@ -407,9 +407,9 @@ namespace TrenchBroom {
             token = nextToken();
             if (m_format == TB_MF_UNDEFINED) {
                 expect(TB_TT_DEC | TB_TT_FRAC | TB_TT_SB_O, token);
-                m_format = token->type == TB_TT_DEC ? TB_MF_STANDARD : TB_MF_VALVE;
+                m_format = token->type == TB_TT_SB_O ? TB_MF_VALVE : TB_MF_STANDARD;
                 if (m_format == TB_MF_VALVE) 
-                    log(TB_LL_WARN, "Loading unsupported map Valve 220 map format");
+                    log(TB_LL_WARN, "Loading unsupported map Valve 220 map format\n");
             }
             
             if (m_format == TB_MF_STANDARD) {

@@ -641,7 +641,7 @@ namespace TrenchBroom {
             }
             
             Model::Selection& selection = m_map->selection();
-            m_map->rotateObjects90(absoluteAxis, selection.center(), clockwise, m_options->lockTextures());
+            m_map->rotateObjects90(absoluteAxis, selection.bounds().center(), clockwise, m_options->lockTextures());
         }
         
         void Editor::flipObjects(bool horizontally) {
