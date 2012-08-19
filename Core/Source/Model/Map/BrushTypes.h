@@ -32,6 +32,7 @@ namespace TrenchBroom {
         typedef std::vector<Brush*> BrushList;
         typedef std::set<Brush*> BrushSet;
         typedef std::map<Brush*, Entity*> BrushParentMap;
+        typedef std::map<Entity*, BrushList> EntityBrushesMap;
     }
 }
 

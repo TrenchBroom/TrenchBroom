@@ -468,10 +468,36 @@ namespace TrenchBroom {
             }
 
             if (!brushes.empty()) {
+                EntityBrushesMap entityToBrushes;
+                
                 for (unsigned int i = 0; i < brushes.size(); i++) {
+                    Model::Brush* oldBrush = brushes[i];
+                    Model::Entity* oldEntity = oldBrush->entity();
+                    
                     Brush* newBrush = new Brush(m_worldBounds, *brushes[i]);
                     newBrushes.push_back(newBrush);
-                    worldspawn(true)->addBrush(newBrush);
+                    
+                    if (oldEntity->worldspawn()) {
+                        worldspawn(true)->addBrush(newBrush);
+                    } else {
+                        entityToBrushes[oldEntity].push_back(newBrush);
+                    }
+                }
+                
+                EntityBrushesMap::iterator it, end;
+                for (it = entityToBrushes.begin(), end = entityToBrushes.end(); it != end; ++it) {
+                    Model::Entity* entity = it->first;
+                    Model::BrushList& entityBrushes = it->second;
+                    
+                    Entity* newEntity = new Entity(entity->properties());
+                    EntityDefinitionPtr entityDefinition = m_entityDefinitionManager->definition(*newEntity->classname());
+                    if (entityDefinition.get() != NULL)
+                        newEntity->setEntityDefinition(entityDefinition);
+                    
+                    newEntities.push_back(newEntity);
+                    m_entities.push_back(newEntity);
+                    
+                    newEntity->addBrushes(entityBrushes);
                 }
             }
 
