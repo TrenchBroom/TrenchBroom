@@ -44,6 +44,10 @@ namespace Gwen
                 skin->DrawTreeControl( this );
         }
         
+        void TreeControl::RenderRecursive( Gwen::Skin::Base* skin, const Gwen::Rect& cliprect ) {
+            BaseClass::RenderRecursive(skin, cliprect);
+        }
+
         void TreeControl::OnChildBoundsChanged( Gwen::Rect /*oldChildBounds*/, Base* /*pChild*/ )
         {
             m_ScrollControl->UpdateScrollBars();

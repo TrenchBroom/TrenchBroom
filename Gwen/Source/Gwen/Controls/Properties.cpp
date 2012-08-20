@@ -53,7 +53,7 @@ namespace Gwen
             return firstRow->GetKey()->GetContent().compare(secondRow->GetKey()->GetContent()) <= 0;
         }
         
-        Base::List Properties::GetChildrenForLayout()
+        Base::List& Properties::GetChildrenForLayout()
         {
             if (Children.empty())
                 return Children;
@@ -69,10 +69,10 @@ namespace Gwen
             
             if (m_emptyRow != NULL)
                 SortedChildren.push_back(m_emptyRow);
-            
-            Base::List Result;
-            Result.insert(Result.begin(), SortedChildren.begin(), SortedChildren.end());
-            return Result;
+
+            m_ChildrenForLayout.clear();
+            m_ChildrenForLayout.insert(m_ChildrenForLayout.begin(), SortedChildren.begin(), SortedChildren.end());
+            return m_ChildrenForLayout;
         }
         
         void Properties::PostLayout( Gwen::Skin::Base* /*skin*/ )

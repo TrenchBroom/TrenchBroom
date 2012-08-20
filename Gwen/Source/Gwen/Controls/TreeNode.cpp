@@ -9,6 +9,8 @@
 #include "Gwen/Controls/TreeControl.h"
 #include "Gwen/Utility.h"
 
+#include "Utilities/Console.h"
+
 namespace Gwen
 {
     namespace Controls
@@ -87,6 +89,7 @@ namespace Gwen
             }
             
             skin->DrawTreeNode( this, m_InnerPanel->Visible(), IsSelected(), m_Title->Height(), m_Title->TextRight(), m_ToggleButton->Y() + m_ToggleButton->Height() * 0.5, iBottom, GetParent() == m_TreeControl );
+            TrenchBroom::log(TrenchBroom::TB_LL_INFO, "render node\n");
         }
         
         TreeNode* TreeNode::AddNode( const UnicodeString& strLabel )
@@ -130,6 +133,7 @@ namespace Gwen
                 {
                     m_ToggleButton->Show();
                     m_InnerPanel->SizeToChildren( false, true );
+                    m_InnerPanel->Show();
                 }
             }
             

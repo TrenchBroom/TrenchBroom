@@ -136,6 +136,7 @@
 		483DE918154DCE62002FD6B0 /* PreferencesWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 483DE917154DCE62002FD6B0 /* PreferencesWindow.xib */; };
 		483DE91C154DCFCF002FD6B0 /* PreferencesWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 483DE91B154DCFCF002FD6B0 /* PreferencesWindowController.mm */; };
 		484299EF158236330069BC97 /* DragEntityTargetTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 484299EE158236330069BC97 /* DragEntityTargetTool.cpp */; };
+		4847636715E135C600095BC0 /* MapStructureControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847636515E135C600095BC0 /* MapStructureControl.cpp */; };
 		48487FC7158C97BE003C0C46 /* CreateBrushTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48487FC6158C97BE003C0C46 /* CreateBrushTool.cpp */; };
 		48487FCA158C9DD0003C0C46 /* BrushFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48487FC9158C9DD0003C0C46 /* BrushFigure.cpp */; };
 		484D24BA15A3845B00B803C2 /* MainMenuDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 484D24B915A3845B00B803C2 /* MainMenuDelegate.mm */; };
@@ -479,6 +480,8 @@
 		484299EC158235E80069BC97 /* DragEntityTargetTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragEntityTargetTool.h; sourceTree = "<group>"; };
 		484299EE158236330069BC97 /* DragEntityTargetTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragEntityTargetTool.cpp; sourceTree = "<group>"; };
 		484544F6155338190032E983 /* RenderContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderContext.h; sourceTree = "<group>"; };
+		4847636515E135C600095BC0 /* MapStructureControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapStructureControl.cpp; sourceTree = "<group>"; };
+		4847636615E135C600095BC0 /* MapStructureControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapStructureControl.h; sourceTree = "<group>"; };
 		48487FC4158C97B5003C0C46 /* CreateBrushTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CreateBrushTool.h; sourceTree = "<group>"; };
 		48487FC6158C97BE003C0C46 /* CreateBrushTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CreateBrushTool.cpp; sourceTree = "<group>"; };
 		48487FC8158C9DB9003C0C46 /* BrushFigure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrushFigure.h; sourceTree = "<group>"; };
@@ -647,6 +650,8 @@
 				488E65E31563C67A00B4E72A /* Inspector.h */,
 				4825B3CF153AE59F007E3AE1 /* MapRendererControl.cpp */,
 				4825B3D0153AE59F007E3AE1 /* MapRendererControl.h */,
+				4847636515E135C600095BC0 /* MapStructureControl.cpp */,
+				4847636615E135C600095BC0 /* MapStructureControl.h */,
 				488E65EC15641FA400B4E72A /* SingleTextureControl.cpp */,
 				488E65EB15641E4400B4E72A /* SingleTextureControl.h */,
 				48953FE01567CE7A006DD2E3 /* TextureBrowserControl.h */,
@@ -1419,6 +1424,7 @@
 				4832DB0215C576390042561F /* DragEntityTargetToolFigure.cpp in Sources */,
 				483C6A8915D92FA9004F0E9A /* EntityMenuUtils.mm in Sources */,
 				483C6A9F15DE8565004F0E9A /* NSString+StdStringAdditions.mm in Sources */,
+				4847636715E135C600095BC0 /* MapStructureControl.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

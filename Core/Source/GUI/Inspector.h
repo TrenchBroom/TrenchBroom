@@ -43,6 +43,7 @@ namespace TrenchBroom {
         namespace Assets {
             class TextureManager;
         }
+        class Map;
         class SelectionEventData;
     }
     
@@ -53,6 +54,7 @@ namespace TrenchBroom {
     namespace Gui {
         class EntityPropertyTableControl;
         class EntityBrowserControl;
+        class MapStructureControl;
         class SingleTextureControl;
         class TextureBrowserControl;
         
@@ -60,6 +62,7 @@ namespace TrenchBroom {
         private:
             Gwen::Controls::TabControl* m_sectionTabControl;
             
+            MapStructureControl* m_mapStructureControl;
             EntityPropertyTableControl* m_propertiesTable;
             EntityBrowserControl* m_entityBrowser;
             
@@ -80,9 +83,13 @@ namespace TrenchBroom {
             Controller::Editor& m_editor;
         protected:
             void updateNumericControl(Gwen::Controls::NumericUpDown* control, bool disabled, bool multi, float value);
+            void updateMapControls();
             void updateTextureControls();
             void updateEntityPropertyTable();
             void updateTextureWadList();
+            
+            void mapLoaded(Model::Map& map);
+            void mapCleared(Model::Map& map);
             void entitiesWereAdded(const Model::EntityList& entities);
             void entitiesWereRemoved(const Model::EntityList& entities);
             void propertiesDidChange(const Model::EntityList& entities);
@@ -108,6 +115,7 @@ namespace TrenchBroom {
             void onTextureWadChosen(const Gwen::String& path);
             void onRemoveTextureWadButtonPressed(Gwen::Controls::Base* control);
             
+            Gwen::Controls::Base* createMapInspector();
             Gwen::Controls::Base* createEntityInspector();
             Gwen::Controls::Base* createFaceInspector();
         public:

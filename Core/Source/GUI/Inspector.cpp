@@ -39,6 +39,7 @@
 #include "Controller/Editor.h"
 #include "GUI/EntityBrowserControl.h"
 #include "GUI/EntityPropertyTableControl.h"
+#include "GUI/MapStructureControl.h"
 #include "GUI/SingleTextureControl.h"
 #include "GUI/TextureBrowserControl.h"
 #include "Model/Assets/Texture.h"
@@ -70,6 +71,10 @@ namespace TrenchBroom {
             }
         }
 
+        void Inspector::updateMapControls() {
+            m_mapStructureControl->refresh();
+        }
+        
         void Inspector::updateTextureControls() {
             Model::Selection& selection = m_editor.map().selection();
             const Model::FaceList faces = selection.allSelectedFaces();
@@ -143,6 +148,14 @@ namespace TrenchBroom {
             const Model::Assets::TextureCollectionList collections = textureManager.collections();
             for (unsigned int i = 0; i < collections.size(); i++)
                 m_textureWadList->AddItem(collections[i]->name());
+        }
+
+        void Inspector::mapLoaded(Model::Map& map) {
+            updateMapControls();
+        }
+        
+        void Inspector::mapCleared(Model::Map& map) {
+            updateMapControls();
         }
 
         void Inspector::entitiesWereAdded(const Model::EntityList& entities) {
@@ -265,6 +278,31 @@ namespace TrenchBroom {
                 std::string path = Gwen::Utility::UnicodeToString(row->GetCellContents(0)->GetText());
                 m_editor.removeTextureWad(path);
             }
+        }
+
+        Gwen::Controls::Base* Inspector::createMapInspector() {
+            Gwen::Controls::Base* mapPanel = new Gwen::Controls::Base(m_sectionTabControl);
+            mapPanel->Dock(Gwen::Pos::Fill);
+            
+            Gwen::Controls::Splitter* splitter = new Gwen::Controls::Splitter(mapPanel, false, 250);
+            splitter->Dock(Gwen::Pos::Fill);
+            
+            Gwen::Controls::GroupBox* structureBox = new Gwen::Controls::GroupBox(splitter);
+            structureBox->SetText("Structure");
+            structureBox->SetPadding(Gwen::Padding(10, 7, 10, 10));
+            structureBox->SetMargin(Gwen::Margin(0, 0, 0, 2));
+            splitter->SetPanel(0, structureBox);
+            
+            m_mapStructureControl = new MapStructureControl(structureBox, m_editor);
+            m_mapStructureControl->Dock(Gwen::Pos::Fill);
+            
+            Gwen::Controls::GroupBox* groupsBox = new Gwen::Controls::GroupBox(splitter);
+            groupsBox->SetText("Groups");
+            groupsBox->SetPadding(Gwen::Padding(10, 7, 10, 10));
+            groupsBox->SetMargin(Gwen::Margin(0, 2, 0, 0));
+            splitter->SetPanel(1, groupsBox);
+            
+            return mapPanel;
         }
 
         Gwen::Controls::Base* Inspector::createEntityInspector() {
@@ -511,7 +549,8 @@ namespace TrenchBroom {
             m_sectionTabControl = new Gwen::Controls::TabControl(this);
             m_sectionTabControl->Dock(Gwen::Pos::Fill);
             
-            m_sectionTabControl->AddPage("Map");
+            Gwen::Controls::Base* mapInspector = createMapInspector();
+            m_sectionTabControl->AddPage("Map", mapInspector);
             
             Gwen::Controls::Base* entityInspector = createEntityInspector();
             m_sectionTabControl->AddPage("Entity", entityInspector);
@@ -524,6 +563,8 @@ namespace TrenchBroom {
             Model::Selection& selection = map.selection();
             Model::Assets::TextureManager& textureManager = m_editor.textureManager();
 
+            map.mapLoaded                           += new Model::Map::MapEvent::Listener<Inspector>(this, &Inspector::mapLoaded);
+            map.mapCleared                          += new Model::Map::MapEvent::Listener<Inspector>(this, &Inspector::mapCleared);
             map.entitiesWereAdded                   += new Model::Map::EntityEvent::Listener<Inspector>(this, &Inspector::entitiesWereAdded);
             map.entitiesWereRemoved                 += new Model::Map::EntityEvent::Listener<Inspector>(this, &Inspector::entitiesWereRemoved);
             map.propertiesDidChange                 += new Model::Map::EntityEvent::Listener<Inspector>(this, &Inspector::propertiesDidChange);
@@ -534,6 +575,7 @@ namespace TrenchBroom {
             selection.selectionRemoved              += new Model::Selection::SelectionEvent::Listener<Inspector>(this, &Inspector::selectionChanged);
             textureManager.textureManagerDidChange  += new Model::Assets::TextureManager::TextureManagerEvent::Listener<Inspector>(this, &Inspector::textureManagerDidChange);
             
+            updateMapControls();
             updateTextureControls();
             updateTextureWadList();
             updateEntityPropertyTable();
@@ -544,6 +586,8 @@ namespace TrenchBroom {
             Model::Selection& selection = map.selection();
             Model::Assets::TextureManager& textureManager = m_editor.textureManager();
 
+            map.mapLoaded                           -= new Model::Map::MapEvent::Listener<Inspector>(this, &Inspector::mapLoaded);
+            map.mapCleared                          -= new Model::Map::MapEvent::Listener<Inspector>(this, &Inspector::mapCleared);
             map.entitiesWereAdded                   -= new Model::Map::EntityEvent::Listener<Inspector>(this, &Inspector::entitiesWereAdded);
             map.entitiesWereRemoved                 -= new Model::Map::EntityEvent::Listener<Inspector>(this, &Inspector::entitiesWereRemoved);
             map.propertiesDidChange                 -= new Model::Map::EntityEvent::Listener<Inspector>(this, &Inspector::propertiesDidChange);

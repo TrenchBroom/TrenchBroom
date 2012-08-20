@@ -1,8 +1,8 @@
 /*
-	GWEN
-	Copyright (c) 2010 Facepunch Studios
-	See license in Gwen.h
-*/
+ GWEN
+ Copyright (c) 2010 Facepunch Studios
+ See license in Gwen.h
+ */
 
 #pragma once
 #ifndef GWEN_CONTROLS_TREECONTROL_H
@@ -11,38 +11,40 @@
 #include "Gwen/Controls/Base.h"
 #include "Gwen/Controls/TreeNode.h"
 
-namespace Gwen 
+namespace Gwen
 {
 	namespace Controls
 	{
 		class TreeControl : public TreeNode
 		{
-			public:
+        public:
+            
+            GWEN_CONTROL( TreeControl, TreeNode );
+            
+            virtual void Render( Skin::Base* skin );
 
-				GWEN_CONTROL( TreeControl, TreeNode );
+            virtual void RenderRecursive( Gwen::Skin::Base* skin, const Gwen::Rect& cliprect );
+            
+            virtual void OnChildBoundsChanged( Gwen::Rect oldChildBounds, Base* pChild );
+            
+            ScrollControl* Scroller() { return m_ScrollControl; }
+            
+            virtual void Clear();
+            
+            virtual void Layout( Skin::Base* skin );
+            virtual void PostLayout( Skin::Base* skin );
+            
+            virtual void AllowMultiSelect( bool b ){ m_bAllowMultipleSelection = b; }
+            
+            virtual void OnNodeAdded( TreeNode* pNode );
 
-				virtual void Render( Skin::Base* skin );
-
-				virtual void OnChildBoundsChanged( Gwen::Rect oldChildBounds, Base* pChild );
-
-				ScrollControl* Scroller() { return m_ScrollControl; }
-
-				virtual void Clear();
-
-				virtual void Layout( Skin::Base* skin );
-				virtual void PostLayout( Skin::Base* skin );
-
-				virtual void AllowMultiSelect( bool b ){ m_bAllowMultipleSelection = b; }
-
-				virtual void OnNodeAdded( TreeNode* pNode );
-
-			private:
-
-				void OnNodeSelection( Controls::Base* control );
-
-				ScrollControl*		m_ScrollControl;
-				bool				m_bAllowMultipleSelection;
-				
+        private:
+            
+            void OnNodeSelection( Controls::Base* control );
+            
+            ScrollControl*		m_ScrollControl;
+            bool				m_bAllowMultipleSelection;
+            
 		};
 	}
 }

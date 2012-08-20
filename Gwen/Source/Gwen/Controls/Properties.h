@@ -26,11 +26,13 @@ namespace Gwen
         
 		class Properties : public Base
 		{
+        private:
+            Base::List m_ChildrenForLayout;
         public:
             
             GWEN_CONTROL( Properties, Base );
 
-            virtual Base::List GetChildrenForLayout();
+            virtual Base::List& GetChildrenForLayout();
             
             virtual void PostLayout( Gwen::Skin::Base* skin );
             

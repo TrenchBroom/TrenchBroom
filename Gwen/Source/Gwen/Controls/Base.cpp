@@ -154,11 +154,6 @@ namespace Gwen
             return m_iDock;
         }
         
-        bool Base::Hidden() const
-        {
-            return m_bHidden;
-        }
-        
         bool Base::Visible() const
         {
             if ( Hidden() ) return false;
@@ -753,7 +748,7 @@ namespace Gwen
             rBounds.y += m_Padding.top;
             rBounds.h -= m_Padding.top + m_Padding.bottom;
             
-            Base::List LayoutChildren = GetChildrenForLayout();
+            Base::List& LayoutChildren = GetChildrenForLayout();
             for (Base::List::iterator iter = LayoutChildren.begin(); iter != LayoutChildren.end(); ++iter)
             {
                 Base* pChild = *iter;

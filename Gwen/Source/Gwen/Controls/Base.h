@@ -62,7 +62,7 @@ namespace Gwen
             virtual Controls::Canvas* GetCanvas();
             
             virtual Base::List& GetChildren(){ if ( m_InnerPanel ) return m_InnerPanel->GetChildren(); return Children; }
-            virtual Base::List GetChildrenForLayout() { return Children; }
+            virtual Base::List& GetChildrenForLayout() { return Children; }
             virtual bool IsChild( Controls::Base* pChild );
             virtual unsigned int NumChildren();
             virtual Controls::Base* GetChild( unsigned int i );
@@ -171,11 +171,11 @@ namespace Gwen
             
         public:	
             
-            virtual void SetHidden( bool hidden ) { if ( m_bHidden == hidden ) return; m_bHidden = hidden; Invalidate(); }
-            virtual bool Hidden() const; // Returns true only if this control is hidden
+            virtual inline void SetHidden( bool hidden ) { if ( m_bHidden == hidden ) return; m_bHidden = hidden; Invalidate(); }
+            virtual inline bool Hidden() const { return m_bHidden; } // Returns true only if this control is hidden
             virtual bool Visible() const; // Returns false if this control or its parents are hidden
-            virtual void Hide(){ SetHidden( true ); }
-            virtual void Show(){ SetHidden( false ); }
+            virtual inline void Hide(){ SetHidden( true ); }
+            virtual inline void Show(){ SetHidden( false ); }
             
             //Skin
             virtual void SetSkin( Skin::Base* skin, bool doChildren = false );
@@ -438,6 +438,27 @@ namespace Gwen
             
 		};
         
+        class DebugInnerPanel : public Base {
+        public:
+            DebugInnerPanel(Base* parent) : Base(parent) {}
+            virtual ~DebugInnerPanel() {}
+
+            virtual void RecurseLayout( Skin::Base* skin ) {
+                Base::RecurseLayout(skin);
+            }
+
+            virtual void SetPos( int x, int y ) {
+                Base::SetPos(x, y);
+            }
+            
+            virtual bool SetSize( int w, int h ) {
+                return Base::SetSize(w, h);
+            }
+            
+            virtual bool SetBounds( int x, int y, int w, int h ) {
+                return Base::SetBounds(x, y, w, h);
+            }
+        };
 	}
 }
 /*
