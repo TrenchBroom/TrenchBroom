@@ -38,41 +38,41 @@ namespace TrenchBroom {
             
             Plane(const Vec3f& normal, const Vec3f& anchor) : normal(normal), distance(anchor | normal) {}
             
-            bool SetPoints(const Vec3f& point1, const Vec3f& point2, const Vec3f& point3) {
+            bool setPoints(const Vec3f& point1, const Vec3f& point2, const Vec3f& point3) {
                 Vec3f v1 = point3 - point1;
                 Vec3f v2 = point2 - point1;
                 normal = v1 % v2;
-                if (normal.Equals(Vec3f::Null, Math::AlmostZero))
+                if (normal.equals(Vec3f::Null, Math::AlmostZero))
                     return false;
-                normal.Normalize();
+                normal.normalize();
                 distance = point1 | normal;
                 return true;
             }
             
-            const Vec3f Anchor() const {
+            const Vec3f anchor() const {
                 return normal * distance;
             }
             
-            float IntersectWithRay(const Ray& ray) const {
+            float intersectWithRay(const Ray& ray) const {
                 float d = ray.direction | normal;
                 if (Math::zero(d))
                     return Math::nan();
 
-                float s = ((Anchor() - ray.origin) | normal) / d;
+                float s = ((anchor() - ray.origin) | normal) / d;
                 if (Math::neg(s))
                     return Math::nan();
                 return s;
             }
             
-            float IntersectWithLine(const Line& line) const {
+            float intersectWithLine(const Line& line) const {
                 float d = line.direction | normal;
                 if (Math::zero(d))
                     return Math::nan();
-                return ((Anchor() - line.point) | normal) / d;
+                return ((anchor() - line.point) | normal) / d;
             }
             
             PointStatus pointStatus(const Vec3f& point) const {
-                float dot = normal | (point - Anchor());
+                float dot = normal | (point - anchor());
                 if (dot >  Math::PointStatusEpsilon)
                     return PointStatus::Above;
                 if (dot < -Math::PointStatusEpsilon)
@@ -80,86 +80,86 @@ namespace TrenchBroom {
                 return PointStatus::Inside;
             }
             
-            float X(float y, float z) const {
-                float l = normal | Anchor();
+            float x(float y, float z) const {
+                float l = normal | anchor();
                 return (l - normal.y * y - normal.z * z) / normal.x;
             }
             
-            float Y(float x, float z) const {
-                float l = normal | Anchor();
+            float y(float x, float z) const {
+                float l = normal | anchor();
                 return (l - normal.x * x - normal.z * z) / normal.y;
             }
             
-            float Z(float x, float y) const {
-                float l = normal | Anchor();
+            float z(float x, float y) const {
+                float l = normal | anchor();
                 return (l - normal.x * x - normal.y * y) / normal.z;
             }
             
-            bool Equals(const Plane& other) const {
-                return Equals(other, Math::AlmostZero);
+            bool equals(const Plane& other) const {
+                return equals(other, Math::AlmostZero);
             }
             
-            bool Equals(const Plane& other, float epsilon) const {
-                return normal.Equals(other.normal, epsilon) && fabsf(distance - other.distance) <= epsilon;
+            bool equals(const Plane& other, float epsilon) const {
+                return normal.equals(other.normal, epsilon) && fabsf(distance - other.distance) <= epsilon;
             }
             
-            void Translate(const Vec3f& delta) {
-                distance = (Anchor() + delta) | normal;
+            void translate(const Vec3f& delta) {
+                distance = (anchor() + delta) | normal;
             }
             
-            const Plane Translated(const Vec3f& delta) const {
-                return Plane(normal, (Anchor() + delta) | normal);
+            const Plane translated(const Vec3f& delta) const {
+                return Plane(normal, (anchor() + delta) | normal);
             }
             
-            void Rotate90(Axis axis, bool clockwise) {
-                normal.Rotate90(axis, clockwise);
+            void rotate90(Axis axis, bool clockwise) {
+                normal.rotate90(axis, clockwise);
             }
             
-            const Plane Rotated90(Axis axis, bool clockwise) const {
-                return Plane(normal.Rotated90(axis, clockwise), distance);
+            const Plane rotated90(Axis axis, bool clockwise) const {
+                return Plane(normal.rotated90(axis, clockwise), distance);
             }
             
-            void Rotate90(Axis axis, const Vec3f& center, bool clockwise) {
-                normal.Rotate90(axis, center, clockwise);
-                distance = (Anchor().Rotated90(axis, center, clockwise)) | normal;
+            void rotate90(Axis axis, const Vec3f& center, bool clockwise) {
+                normal.rotate90(axis, center, clockwise);
+                distance = (anchor().rotated90(axis, center, clockwise)) | normal;
             }
             
-            const Plane Rotated90(Axis axis, const Vec3f& center, bool clockwise) const {
-                return Plane(normal.Rotated90(axis, clockwise), Anchor().Rotated90(axis, center, clockwise));
+            const Plane rotated90(Axis axis, const Vec3f& center, bool clockwise) const {
+                return Plane(normal.rotated90(axis, clockwise), anchor().rotated90(axis, center, clockwise));
             }
             
-            void Rotate(const Quat& rotation) {
+            void rotate(const Quat& rotation) {
                 normal = rotation * normal;
             }
             
-            const Plane Rotated(const Quat& rotation) const {
+            const Plane rotated(const Quat& rotation) const {
                 return Plane(rotation * normal, distance);
             }
             
-            void Rotate(const Quat& rotation, const Vec3f& center) {
+            void rotate(const Quat& rotation, const Vec3f& center) {
                 normal = rotation * normal;
-                distance = (rotation * (Anchor() - center) + center) | normal;
+                distance = (rotation * (anchor() - center) + center) | normal;
             }
             
-            const Plane Rotated(const Quat& rotation, const Vec3f& center) const {
-                return Plane(rotation * normal, rotation * (Anchor() - center) + center);
+            const Plane rotated(const Quat& rotation, const Vec3f& center) const {
+                return Plane(rotation * normal, rotation * (anchor() - center) + center);
             }
             
-            void Flip(Axis axis) {
-                normal.Flip(axis);
+            void flip(Axis axis) {
+                normal.flip(axis);
             }
             
-            const Plane Flipped(Axis axis) const {
-                return Plane(normal.Flipped(axis), distance);
+            const Plane flipped(Axis axis) const {
+                return Plane(normal.flipped(axis), distance);
             }
             
-            void Flip(Axis axis, const Vec3f& center) {
-                normal.Flip(axis);
-                distance = Anchor().Flipped(axis, center) | normal;
+            void flip(Axis axis, const Vec3f& center) {
+                normal.flip(axis);
+                distance = anchor().flipped(axis, center) | normal;
             }
             
-            const Plane Flipped(Axis axis, const Vec3f& center) const {
-                return Plane(normal.Flipped(axis), Anchor().Flipped(axis, center));
+            const Plane flipped(Axis axis, const Vec3f& center) const {
+                return Plane(normal.flipped(axis), anchor().flipped(axis, center));
             }
         };
     }

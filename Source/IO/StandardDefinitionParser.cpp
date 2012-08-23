@@ -23,20 +23,20 @@
 
 namespace TrenchBroom {
     namespace IO {
-        StandardDefinitionTokenizer::TokenPtr StandardDefinitionTokenizer::NextToken() {
+        StandardDefinitionTokenizer::TokenPtr StandardDefinitionTokenizer::nextToken() {
             StringStream buffer;
-            while (!Eof()) {
-                char c = NextChar();
+            while (!eof()) {
+                char c = nextChar();
                 switch (m_state) {
                     case TokenizerState::Outside:
                         switch (c) {
                             case '/':
-                                if (PeekChar() == '*') {
+                                if (peekChar() == '*') {
                                     m_state = TokenizerState::Inside;
                                     while (c != ' ')
-                                        NextChar();
-                                    return MakeToken(TokenType::ODefinition, "");
-                                } else if (PeekChar() == '/') {
+                                        nextChar();
+                                    return token(TokenType::ODefinition, "");
+                                } else if (peekChar() == '/') {
                                     m_state = TokenizerState::Comment;
                                 }
                                 break;
@@ -47,28 +47,28 @@ namespace TrenchBroom {
                     case TokenizerState::Inside:
                         switch (c) {
                             case '*':
-                                if (PeekChar() == '/') {
-                                    NextChar();
+                                if (peekChar() == '/') {
+                                    nextChar();
                                     m_state = TokenizerState::Outside;
-                                    return MakeToken(TokenType::CDefinition, "");
+                                    return token(TokenType::CDefinition, "");
                                 }
                                 break;
                             case '(':
-                                return MakeToken(TokenType::OParenthesis, "");
+                                return token(TokenType::OParenthesis, "");
                             case ')':
-                                return MakeToken(TokenType::CParenthesis, "");
+                                return token(TokenType::CParenthesis, "");
                             case '{':
-                                return MakeToken(TokenType::OBrace, "");
+                                return token(TokenType::OBrace, "");
                             case '}':
-                                return MakeToken(TokenType::CBrace, "");
+                                return token(TokenType::CBrace, "");
                             case ';':
-                                return MakeToken(TokenType::Semicolon, "");
+                                return token(TokenType::Semicolon, "");
                             case '?':
-                                return MakeToken(TokenType::Question, "");
+                                return token(TokenType::Question, "");
                             case '\n':
-                                return MakeToken(TokenType::Newline, "");
+                                return token(TokenType::Newline, "");
                             case ',':
-                                return MakeToken(TokenType::Comma, "");
+                                return token(TokenType::Comma, "");
                             case ' ':
                             case '\t':
                                 break;
@@ -105,8 +105,8 @@ namespace TrenchBroom {
                     case TokenizerState::Word:
                         switch (c) {
                             case '/':
-                                if (PeekChar() == '*') {
-                                    PushChar();
+                                if (peekChar() == '*') {
+                                    pushChar();
                                 } else {
                                     buffer << c;
                                     break;
@@ -116,8 +116,8 @@ namespace TrenchBroom {
                             case '\n':
                             case '\t':
                                 m_state = TokenizerState::Inside;
-                                PushChar();
-                                return MakeToken(TokenType::Word, buffer.str());
+                                pushChar();
+                                return token(TokenType::Word, buffer.str());
                             default:
                                 buffer << c;
                                 break;
@@ -126,7 +126,7 @@ namespace TrenchBroom {
                     case TokenizerState::String:
                         if (c == '"') {
                             m_state = TokenizerState::Inside;
-                            return MakeToken(TokenType::String, buffer.str());
+                            return token(TokenType::String, buffer.str());
                         } else {
                             buffer << c;
                         }
@@ -154,13 +154,13 @@ namespace TrenchBroom {
                             case ',':
                             case ' ': {
                                 if (m_state == TokenizerState::Integer) {
-                                    PushChar();
+                                    pushChar();
                                     m_state = TokenizerState::Inside;
-                                    return MakeToken(TokenType::Integer, buffer.str());
+                                    return token(TokenType::Integer, buffer.str());
                                 } else {
-                                    PushChar();
+                                    pushChar();
                                     m_state = TokenizerState::Inside;
-                                    return MakeToken(TokenType::Decimal, buffer.str());
+                                    return token(TokenType::Decimal, buffer.str());
                                 }
                                 break;
                             }
@@ -178,13 +178,13 @@ namespace TrenchBroom {
             return TokenPtr(NULL);
         }
         
-        StandardDefinitionTokenizer::TokenPtr StandardDefinitionTokenizer::PeekToken() {
+        StandardDefinitionTokenizer::TokenPtr StandardDefinitionTokenizer::peekToken() {
             unsigned int oldState = m_state;
             size_t oldLine = m_line;
             size_t oldColumn = m_column;
             size_t oldPosition = m_stream.tellg();
             
-            StandardDefinitionTokenizer::TokenPtr token = NextToken();
+            StandardDefinitionTokenizer::TokenPtr token = nextToken();
             m_state = oldState;
             m_line = oldLine;
             m_column = oldColumn;
@@ -193,20 +193,20 @@ namespace TrenchBroom {
             return token;
         }
 
-        String StandardDefinitionTokenizer::Remainder() {
+        String StandardDefinitionTokenizer::remainder() {
             assert(m_state == TokenizerState::Inside);
             
-            char c = NextChar();
+            char c = nextChar();
             StringStream buffer;
-            while (m_state != TokenizerState::Eof && c != '*' && PeekChar() != '/') {
+            while (m_state != TokenizerState::Eof && c != '*' && peekChar() != '/') {
                 buffer << c;
-                c = NextChar();
+                c = nextChar();
             }
-            PushChar();
+            pushChar();
             return buffer.str();
         }
         
-        String StandardDefinitionParser::TypeNames(unsigned int types) {
+        String StandardDefinitionParser::typeNames(unsigned int types) {
             std::vector<std::string> names;
             if ((types & TokenType::Integer) != 0)
                 names.push_back("integer number");
@@ -250,102 +250,102 @@ namespace TrenchBroom {
             return str.str();
         }
         
-        StandardDefinitionTokenizer::TokenPtr StandardDefinitionParser::NextTokenIgnoringNewlines() {
-            StandardDefinitionTokenizer::TokenPtr token = m_tokenizer.NextToken();
-            while (token->Type() == TokenType::Newline)
-                token = m_tokenizer.NextToken();
+        StandardDefinitionTokenizer::TokenPtr StandardDefinitionParser::nextTokenIgnoringNewlines() {
+            StandardDefinitionTokenizer::TokenPtr token = m_tokenizer.nextToken();
+            while (token->type() == TokenType::Newline)
+                token = m_tokenizer.nextToken();
             return token;
         }
         
-        Vec4f StandardDefinitionParser::ParseColor() {
+        Vec4f StandardDefinitionParser::parseColor() {
             Vec4f color;
             StandardDefinitionTokenizer::TokenPtr token(NULL);
             
-            Expect(TokenType::OBrace, (token = m_tokenizer.NextToken()).get());
-            Expect(TokenType::Decimal, (token = m_tokenizer.NextToken()).get());
-            color.x = token->ToFloat();
-            Expect(TokenType::Decimal, (token = m_tokenizer.NextToken()).get());
-            color.y = token->ToFloat();
-            Expect(TokenType::Decimal, (token = m_tokenizer.NextToken()).get());
-            color.z = token->ToFloat();
-            Expect(TokenType::CBrace, (token = m_tokenizer.NextToken()).get());
+            expect(TokenType::OBrace, (token = m_tokenizer.nextToken()).get());
+            expect(TokenType::Decimal, (token = m_tokenizer.nextToken()).get());
+            color.x = token->toFloat();
+            expect(TokenType::Decimal, (token = m_tokenizer.nextToken()).get());
+            color.y = token->toFloat();
+            expect(TokenType::Decimal, (token = m_tokenizer.nextToken()).get());
+            color.z = token->toFloat();
+            expect(TokenType::CBrace, (token = m_tokenizer.nextToken()).get());
             color.w = 1;
             return color;
         }
 
-        BBox StandardDefinitionParser::ParseBounds() {
+        BBox StandardDefinitionParser::parseBounds() {
             BBox bounds;
             StandardDefinitionTokenizer::TokenPtr token(NULL);
             
-            Expect(TokenType::OBrace, (token = m_tokenizer.NextToken()).get());
-            Expect(TokenType::Integer, (token = m_tokenizer.NextToken()).get());
-            bounds.min.x = token->ToFloat();
-            Expect(TokenType::Integer, (token = m_tokenizer.NextToken()).get());
-            bounds.min.y = token->ToFloat();
-            Expect(TokenType::Integer, (token = m_tokenizer.NextToken()).get());
-            bounds.min.z = token->ToFloat();
-            Expect(TokenType::CBrace, (token = m_tokenizer.NextToken()).get());
-            Expect(TokenType::OBrace, (token = m_tokenizer.NextToken()).get());
-            Expect(TokenType::Integer, (token = m_tokenizer.NextToken()).get());
-            bounds.max.x = token->ToFloat();
-            Expect(TokenType::Integer, (token = m_tokenizer.NextToken()).get());
-            bounds.max.y = token->ToFloat();
-            Expect(TokenType::Integer, (token = m_tokenizer.NextToken()).get());
-            bounds.max.z = token->ToFloat();
-            Expect(TokenType::CBrace, (token = m_tokenizer.NextToken()).get());
+            expect(TokenType::OBrace, (token = m_tokenizer.nextToken()).get());
+            expect(TokenType::Integer, (token = m_tokenizer.nextToken()).get());
+            bounds.min.x = token->toFloat();
+            expect(TokenType::Integer, (token = m_tokenizer.nextToken()).get());
+            bounds.min.y = token->toFloat();
+            expect(TokenType::Integer, (token = m_tokenizer.nextToken()).get());
+            bounds.min.z = token->toFloat();
+            expect(TokenType::CBrace, (token = m_tokenizer.nextToken()).get());
+            expect(TokenType::OBrace, (token = m_tokenizer.nextToken()).get());
+            expect(TokenType::Integer, (token = m_tokenizer.nextToken()).get());
+            bounds.max.x = token->toFloat();
+            expect(TokenType::Integer, (token = m_tokenizer.nextToken()).get());
+            bounds.max.y = token->toFloat();
+            expect(TokenType::Integer, (token = m_tokenizer.nextToken()).get());
+            bounds.max.z = token->toFloat();
+            expect(TokenType::CBrace, (token = m_tokenizer.nextToken()).get());
             return bounds;
         }
 
-        Model::Spawnflag::List StandardDefinitionParser::ParseFlags() {
+        Model::Spawnflag::List StandardDefinitionParser::parseFlags() {
             Model::Spawnflag::List flags;
-            StandardDefinitionTokenizer::TokenPtr token = m_tokenizer.PeekToken();
-            if (token->Type() != TokenType::Word)
+            StandardDefinitionTokenizer::TokenPtr token = m_tokenizer.peekToken();
+            if (token->type() != TokenType::Word)
                 return flags;
             
-            while (token->Type() == TokenType::Word) {
-                token = m_tokenizer.NextToken();
-                String name = token->Data();
+            while (token->type() == TokenType::Word) {
+                token = m_tokenizer.nextToken();
+                String name = token->data();
                 unsigned int value = 1 << flags.size();
                 
                 flags.push_back(Model::Spawnflag(name, value));
-                token = m_tokenizer.PeekToken();
+                token = m_tokenizer.peekToken();
             }
             
             return flags;
         }
         
-        bool StandardDefinitionParser::ParseProperty(StandardProperty::List& properties) {
+        bool StandardDefinitionParser::parseProperty(StandardProperty::List& properties) {
             StandardDefinitionTokenizer::TokenPtr token;
-            Expect(TokenType::Word | TokenType::CBrace, (token = NextTokenIgnoringNewlines()).get());
-            if (token->Type() != TokenType::Word)
+            expect(TokenType::Word | TokenType::CBrace, (token = nextTokenIgnoringNewlines()).get());
+            if (token->type() != TokenType::Word)
                 return false;
 
-            String typeName = token->Data();
+            String typeName = token->data();
             if (typeName == "choice") {
-                Expect(TokenType::String, (token = m_tokenizer.NextToken()).get());
-                String propertyName = token->Data();
+                expect(TokenType::String, (token = m_tokenizer.nextToken()).get());
+                String propertyName = token->data();
 
                 StandardChoiceArgument::List arguments;
-                Expect(TokenType::OParenthesis, (token = NextTokenIgnoringNewlines()).get());
-                token = NextTokenIgnoringNewlines();
-                while (token->Type() == TokenType::OParenthesis) {
-                    Expect(TokenType::Integer, (token = NextTokenIgnoringNewlines()).get());
-                    int key = token->ToInteger();
-                    Expect(TokenType::Comma, (token = NextTokenIgnoringNewlines()).get());
-                    Expect(TokenType::String, (token = NextTokenIgnoringNewlines()).get());
-                    String value = token->Data();
+                expect(TokenType::OParenthesis, (token = nextTokenIgnoringNewlines()).get());
+                token = nextTokenIgnoringNewlines();
+                while (token->type() == TokenType::OParenthesis) {
+                    expect(TokenType::Integer, (token = nextTokenIgnoringNewlines()).get());
+                    int key = token->toInteger();
+                    expect(TokenType::Comma, (token = nextTokenIgnoringNewlines()).get());
+                    expect(TokenType::String, (token = nextTokenIgnoringNewlines()).get());
+                    String value = token->data();
                     arguments.push_back(StandardChoiceArgument(key, value));
 
-                    Expect(TokenType::CParenthesis, (token = NextTokenIgnoringNewlines()).get());
-                    token = NextTokenIgnoringNewlines();
+                    expect(TokenType::CParenthesis, (token = nextTokenIgnoringNewlines()).get());
+                    token = nextTokenIgnoringNewlines();
                 }
                 
-                Expect(TokenType::CParenthesis, token.get());
+                expect(TokenType::CParenthesis, token.get());
                 properties.push_back(StandardChoiceProperty(StandardProperty::PropertyType::Choice, propertyName, arguments));
             } else if (typeName == "model") {
-                Expect(TokenType::OParenthesis, (token = NextTokenIgnoringNewlines()).get());
-                Expect(TokenType::String, (token = NextTokenIgnoringNewlines()).get());
-                String modelPath = token->Data();
+                expect(TokenType::OParenthesis, (token = nextTokenIgnoringNewlines()).get());
+                expect(TokenType::String, (token = nextTokenIgnoringNewlines()).get());
+                String modelPath = token->data();
                 unsigned int skinIndex = 0;
                 size_t lastColon = modelPath.find_last_of(':');
                 if (lastColon > 0 && lastColon != std::string::npos) {
@@ -354,60 +354,60 @@ namespace TrenchBroom {
                 }
 
                 String flagName = "";
-                Expect(TokenType::Comma | TokenType::CParenthesis, (token = NextTokenIgnoringNewlines()).get());
-                if (token->Type() == TokenType::Comma) {
-                    Expect(TokenType::String, (token = NextTokenIgnoringNewlines()).get());
-                    flagName = token->Data();
-                    Expect(TokenType::Comma, (token = NextTokenIgnoringNewlines()).get());
+                expect(TokenType::Comma | TokenType::CParenthesis, (token = nextTokenIgnoringNewlines()).get());
+                if (token->type() == TokenType::Comma) {
+                    expect(TokenType::String, (token = nextTokenIgnoringNewlines()).get());
+                    flagName = token->data();
+                    expect(TokenType::Comma, (token = nextTokenIgnoringNewlines()).get());
                 }
                 
                 properties.push_back(StandardModelProperty(StandardProperty::PropertyType::Model, modelPath, flagName, skinIndex));
             } else if (typeName == "default") {
-                Expect(TokenType::OParenthesis, (token = NextTokenIgnoringNewlines()).get());
-                Expect(TokenType::String, (token = NextTokenIgnoringNewlines()).get());
-                String propertyName = token->Data();
-                Expect(TokenType::Comma, (token = NextTokenIgnoringNewlines()).get());
-                Expect(TokenType::String, (token = NextTokenIgnoringNewlines()).get());
-                String propertyValue = token->Data();
-                Expect(TokenType::CParenthesis, (token = NextTokenIgnoringNewlines()).get());
+                expect(TokenType::OParenthesis, (token = nextTokenIgnoringNewlines()).get());
+                expect(TokenType::String, (token = nextTokenIgnoringNewlines()).get());
+                String propertyName = token->data();
+                expect(TokenType::Comma, (token = nextTokenIgnoringNewlines()).get());
+                expect(TokenType::String, (token = nextTokenIgnoringNewlines()).get());
+                String propertyValue = token->data();
+                expect(TokenType::CParenthesis, (token = nextTokenIgnoringNewlines()).get());
                 
                 properties.push_back(StandardDefaultProperty(StandardProperty::PropertyType::Default, propertyName, propertyValue));
             } else if (typeName == "base") {
-                Expect(TokenType::OParenthesis, (token = NextTokenIgnoringNewlines()).get());
-                Expect(TokenType::String, (token = NextTokenIgnoringNewlines()).get());
-                String basename = token->Data();
-                Expect(TokenType::CParenthesis, (token = NextTokenIgnoringNewlines()).get());
+                expect(TokenType::OParenthesis, (token = nextTokenIgnoringNewlines()).get());
+                expect(TokenType::String, (token = nextTokenIgnoringNewlines()).get());
+                String basename = token->data();
+                expect(TokenType::CParenthesis, (token = nextTokenIgnoringNewlines()).get());
                 
                 properties.push_back(StandardBaseProperty(StandardProperty::PropertyType::Base, basename));
             }
 
-            Expect(TokenType::Semicolon, (token = NextTokenIgnoringNewlines()).get());
+            expect(TokenType::Semicolon, (token = nextTokenIgnoringNewlines()).get());
             return true;
         }
         
-        StandardProperty::List StandardDefinitionParser::ParseProperties() {
+        StandardProperty::List StandardDefinitionParser::parseProperties() {
             StandardProperty::List properties;
-            StandardDefinitionTokenizer::TokenPtr token = m_tokenizer.PeekToken();
-            if (token->Type() == TokenType::OBrace) {
-                token = m_tokenizer.NextToken();
-                while (ParseProperty(properties));
+            StandardDefinitionTokenizer::TokenPtr token = m_tokenizer.peekToken();
+            if (token->type() == TokenType::OBrace) {
+                token = m_tokenizer.nextToken();
+                while (parseProperty(properties));
             }
             return properties;
         }
         
-        String StandardDefinitionParser::ParseDescription() {
-            StandardDefinitionTokenizer::TokenPtr token = m_tokenizer.PeekToken();
-            if (token->Type() == TokenType::CDefinition)
+        String StandardDefinitionParser::parseDescription() {
+            StandardDefinitionTokenizer::TokenPtr token = m_tokenizer.peekToken();
+            if (token->type() == TokenType::CDefinition)
                 return "";
-            return m_tokenizer.Remainder();
+            return m_tokenizer.remainder();
         }
 
-        Model::EntityDefinition* StandardDefinitionParser::NextDefinition() {
-            StandardDefinitionTokenizer::TokenPtr token = m_tokenizer.NextToken();
+        Model::EntityDefinition* StandardDefinitionParser::nextDefinition() {
+            StandardDefinitionTokenizer::TokenPtr token = m_tokenizer.nextToken();
             if (token.get() == NULL)
                 return NULL;
 
-            Expect(TokenType::ODefinition, token.get());
+            expect(TokenType::ODefinition, token.get());
             String name;
             bool hasColor = false;
             bool hasBounds = false;
@@ -419,45 +419,45 @@ namespace TrenchBroom {
             Model::PropertyDefinition::List propertyDefinitions;
             std::string description;
 
-            token = m_tokenizer.NextToken();
-            Expect(TokenType::Word, token.get());
-            name = token->Data();
+            token = m_tokenizer.nextToken();
+            expect(TokenType::Word, token.get());
+            name = token->data();
 
-            token = m_tokenizer.PeekToken();
-            Expect(TokenType::OBrace | TokenType::Newline, token.get());
-            if (token->Type() == TokenType::OBrace) {
+            token = m_tokenizer.peekToken();
+            expect(TokenType::OBrace | TokenType::Newline, token.get());
+            if (token->type() == TokenType::OBrace) {
                 hasColor = true;
-                color = ParseColor();
+                color = parseColor();
                 
-                token = m_tokenizer.PeekToken();
-                Expect(TokenType::OBrace | TokenType::Question, token.get());
-                if (token->Type() == TokenType::OBrace) {
+                token = m_tokenizer.peekToken();
+                expect(TokenType::OBrace | TokenType::Question, token.get());
+                if (token->type() == TokenType::OBrace) {
                     hasBounds = true;
-                    bounds = ParseBounds();
+                    bounds = parseBounds();
                 } else {
-                    m_tokenizer.NextToken();
+                    m_tokenizer.nextToken();
                 }
                 
-                token = m_tokenizer.PeekToken();
-                if (token->Type() == TokenType::Word) {
+                token = m_tokenizer.peekToken();
+                if (token->type() == TokenType::Word) {
                     hasFlags = true;
-                    spawnflags = ParseFlags();
+                    spawnflags = parseFlags();
                 }
             }
 
-            Expect(TokenType::Newline, (token = m_tokenizer.NextToken()).get());
-            standardProperties = ParseProperties();
-            description = ParseDescription();
-            Expect(TokenType::CDefinition, (token = m_tokenizer.NextToken()).get());
+            expect(TokenType::Newline, (token = m_tokenizer.nextToken()).get());
+            standardProperties = parseProperties();
+            description = parseDescription();
+            expect(TokenType::CDefinition, (token = m_tokenizer.nextToken()).get());
 
             if (hasColor) {
                 if (hasBounds) { // point definition
                     // extract the model property
                     for (unsigned int i = 0; i < standardProperties.size(); i++) {
                         StandardProperty& standardProperty = standardProperties[i];
-                        if (standardProperty.Type() == StandardProperty::PropertyType::Model) {
+                        if (standardProperty.type() == StandardProperty::PropertyType::Model) {
                             StandardModelProperty& modelProperty = static_cast<StandardModelProperty&>(standardProperty);
-                            return new Model::PointEntityDefinition(name, color, spawnflags, bounds, description, Model::PropertyDefinition::List(), Model::PointEntityModel(modelProperty.ModelName(), modelProperty.FlagName(), modelProperty.SkinIndex()));
+                            return new Model::PointEntityDefinition(name, color, spawnflags, bounds, description, Model::PropertyDefinition::List(), Model::PointEntityModel(modelProperty.modelName(), modelProperty.flagName(), modelProperty.skinIndex()));
                         }
                     }
                     return new Model::PointEntityDefinition(name, color, spawnflags, bounds, description, Model::PropertyDefinition::List());

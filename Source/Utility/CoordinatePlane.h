@@ -36,7 +36,7 @@ namespace TrenchBroom {
             const Which m_plane;
             CoordinatePlane(Which plane) : m_plane(plane) {}
         public:
-            static const CoordinatePlane& Plane(Which plane) {
+            static const CoordinatePlane& plane(Which plane) {
                 static CoordinatePlane xy(Which::XY);
                 static CoordinatePlane xz(Which::XZ);
                 static CoordinatePlane yz(Which::YZ);
@@ -50,18 +50,18 @@ namespace TrenchBroom {
                 }
             }
             
-            static const CoordinatePlane& Plane(const Vec3f& normal) {
-                switch (normal.FirstComponent()) {
+            static const CoordinatePlane& plane(const Vec3f& normal) {
+                switch (normal.firstComponent()) {
                     case Axis::X:
-                        return Plane(Which::YZ);
+                        return plane(Which::YZ);
                     case Axis::Y:
-                        return Plane(Which::XZ);
+                        return plane(Which::XZ);
                     default:
-                        return Plane(Which::XY);
+                        return plane(Which::XY);
                 }
             }
             
-            inline void Project(const Vec3f& point, Vec3f& result) const {
+            inline void project(const Vec3f& point, Vec3f& result) const {
                 switch (m_plane) {
                     case Which::XY:
                         result.x = point.x;

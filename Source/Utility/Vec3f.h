@@ -159,59 +159,59 @@ namespace TrenchBroom {
                 return z;
             }
             
-            float Length() const {
-                return sqrt(LengthSquared());
+            float length() const {
+                return sqrt(lengthSquared());
             }
             
-            float LengthSquared() const {
+            float lengthSquared() const {
                 return *this | *this;
             }
             
-            void Normalize() {
-                float l = Length();
+            void normalize() {
+                float l = length();
                 x /= l;
                 y /= l;
                 z /= l;
             }
             
-            const Vec3f Normalized() const {
-                float l = Length();
+            const Vec3f normalized() const {
+                float l = length();
                 return Vec3f(x / l,
                              y / l,
                              z / l);
             }
             
-            void Correct() {
+            void correct() {
                 x = Math::correct(x);
                 y = Math::correct(y);
                 z = Math::correct(z);
             }
             
-            const Vec3f Corrected() const {
+            const Vec3f corrected() const {
                 return Vec3f(Math::correct(x),
                              Math::correct(y),
                              Math::correct(z));
             }
             
-            bool Equals(const Vec3f& other) const {
-                return Equals(other, Math::AlmostZero);
+            bool equals(const Vec3f& other) const {
+                return equals(other, Math::AlmostZero);
             }
             
-            bool Equals(const Vec3f& other, float delta) const {
+            bool equals(const Vec3f& other, float delta) const {
                 Vec3f diff = other - *this;
-                return diff.LengthSquared() <= delta * delta;
+                return diff.lengthSquared() <= delta * delta;
             }
             
-            bool IsNull() const {
-                return Equals(Null, Math::AlmostZero);
+            bool null() const {
+                return equals(Null, Math::AlmostZero);
             }
             
-            bool ParallelTo(const Vec3f& other, float delta) const {
+            bool parallelTo(const Vec3f& other, float delta) const {
                 Vec3f cross = *this % other;
-                return cross.Equals(Null, delta);
+                return cross.equals(Null, delta);
             }
             
-            Axis FirstComponent() const {
+            Axis firstComponent() const {
                 float ax = fabsf(x);
                 float ay = fabsf(y);
                 float az = fabsf(z);
@@ -220,7 +220,7 @@ namespace TrenchBroom {
                 return Axis::Z;
             }
             
-            Axis SecondComponent() const {
+            Axis secondComponent() const {
                 float ax = fabsf(x);
                 float ay = fabsf(y);
                 float az = fabsf(z);
@@ -229,7 +229,7 @@ namespace TrenchBroom {
                 return Axis::Z;
             }
             
-            Axis ThirdComponent() const {
+            Axis thirdComponent() const {
                 float ax = fabsf(x);
                 float ay = fabsf(y);
                 float az = fabsf(z);
@@ -238,8 +238,8 @@ namespace TrenchBroom {
                 return Axis::Z;
             }
             
-            const Vec3f& FirstAxis(bool pos = true) const {
-                if (Equals(Null)) {
+            const Vec3f& firstAxis(bool pos = true) const {
+                if (equals(Null)) {
                     return Null;
                 } else {
                     float xa = fabsf(x);
@@ -265,8 +265,8 @@ namespace TrenchBroom {
                 }
             }
             
-            const Vec3f& SecondAxis(bool pos = true) const {
-                if (Equals(Null)) {
+            const Vec3f& secondAxis(bool pos = true) const {
+                if (equals(Null)) {
                     return Null;
                 } else {
                     float xa = fabsf(x);
@@ -294,8 +294,8 @@ namespace TrenchBroom {
                 }
             }
             
-            const Vec3f& ThirdAxis(bool pos = true) const {
-                if (Equals(Null)) {
+            const Vec3f& thirdAxis(bool pos = true) const {
+                if (equals(Null)) {
                     return Null;
                 } else {
                     float xa = fabsf(x);
@@ -321,7 +321,7 @@ namespace TrenchBroom {
                 }
             }
             
-            void Write(std::ostream& str) const {
+            void write(std::ostream& str) const {
                 str << x;
                 str << ' ';
                 str << y;
@@ -329,27 +329,27 @@ namespace TrenchBroom {
                 str << z;
             }
             
-            std::string AsString() const {
+            std::string asString() const {
                 StringStream result;
-                Write(result);
+                write(result);
                 return result.str();
             }
             
-            void Snap() {
-                Snap(Math::AlmostZero);
+            void snap() {
+                snap(Math::AlmostZero);
             }
             
-            void Snap(float epsilon) {
+            void snap(float epsilon) {
                 x = Math::round(x);
                 y = Math::round(y);
                 z = Math::round(z);
             }
             
-            const Vec3f Snapped() const {
-                return Snapped(Math::AlmostZero);
+            const Vec3f snapped() const {
+                return snapped(Math::AlmostZero);
             }
             
-            const Vec3f Snapped(float epsilon) const {
+            const Vec3f snapped(float epsilon) const {
                 float xr = Math::round(x);
                 float yr = Math::round(y);
                 float zr = Math::round(z);
@@ -358,7 +358,7 @@ namespace TrenchBroom {
                              Math::eq(z, zr) ? zr : z);
             }
             
-            void Rotate90(Axis axis, bool clockwise) {
+            void rotate90(Axis axis, bool clockwise) {
                 switch (axis) {
                     case Axis::X:
                         if (clockwise) {
@@ -393,13 +393,13 @@ namespace TrenchBroom {
                 }
             }
             
-            void Rotate90(Axis axis, const Vec3f& center, bool clockwise) {
+            void rotate90(Axis axis, const Vec3f& center, bool clockwise) {
                 *this -= center;
-                Rotate90(axis, clockwise);
+                rotate90(axis, clockwise);
                 *this += center;
             }
             
-            const Vec3f Rotated90(Axis axis, bool clockwise) const {
+            const Vec3f rotated90(Axis axis, bool clockwise) const {
                 switch (axis) {
                     case Axis::X:
                         if (clockwise)
@@ -416,14 +416,14 @@ namespace TrenchBroom {
                 }
             }
             
-            const Vec3f Rotated90(Axis axis, const Vec3f& center, bool clockwise) const {
+            const Vec3f rotated90(Axis axis, const Vec3f& center, bool clockwise) const {
                 Vec3f result = *this - center;
-                result.Rotate90(axis, clockwise);
+                result.rotate90(axis, clockwise);
                 result += center;
                 return result;
             }
             
-            void Flip(Axis axis) {
+            void flip(Axis axis) {
                 switch (axis) {
                     case Axis::X:
                         x = -x;
@@ -434,13 +434,13 @@ namespace TrenchBroom {
                 }
             }
             
-            void Flip(Axis axis, const Vec3f& center) {
+            void flip(Axis axis, const Vec3f& center) {
                 *this -= center;
-                Flip(axis);
+                flip(axis);
                 *this += center;
             }
             
-            const Vec3f Flipped(Axis axis) const {
+            const Vec3f flipped(Axis axis) const {
                 switch (axis) {
                     case Axis::X:
                         return Vec3f(-x, y, z);
@@ -451,9 +451,9 @@ namespace TrenchBroom {
                 }
             }
             
-            const Vec3f Flipped(Axis axis, const Vec3f& center) const {
+            const Vec3f flipped(Axis axis, const Vec3f& center) const {
                 Vec3f result = *this - center;
-                result.Flip(axis);
+                result.flip(axis);
                 result += center;
                 return result;
             }

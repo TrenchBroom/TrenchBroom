@@ -120,42 +120,42 @@ namespace TrenchBroom {
                 return v[index];
             }
             
-            void SetIdentity() {
+            void setIdentity() {
                 for (unsigned int c = 0; c < 2; c++)
                     for (unsigned int r = 0; r < 2; r++)
                         v[c * 2 + r] = c == r ? 1.0f : 0.0f;
             }
             
-            void SetValue(unsigned int row, unsigned int col, float value) {
+            void setValue(unsigned int row, unsigned int col, float value) {
                 assert(row >= 0 && row < 2);
                 assert(col >= 0 && col < 2);
                 v[2 * col + row] = value;
             }
             
-            void SetColumn(unsigned int col, const Vec2f& values) {
+            void setColumn(unsigned int col, const Vec2f& values) {
                 assert(col >= 0 && col < 2);
                 v[col + 0] = values.x;
                 v[col + 1] = values.y;
             }
             
-            void Invert(bool& invertible) {
-                float det = Determinant();
+            void invert(bool& invertible) {
+                float det = determinant();
                 if (det == 0.0f) {
                     invertible = false;
                 } else {
                     invertible = true;
-                    Adjugate();
+                    adjugate();
                     *this /= det;
                 }
             }
 
-            const Mat2f Inverted(bool& invertible) const {
+            const Mat2f inverted(bool& invertible) const {
                 Mat2f result = *this;
-                result.Invert(invertible);
+                result.invert(invertible);
                 return result;
             }
             
-            void Adjugate() {
+            void adjugate() {
                 float t[4];
                 for (unsigned int i = 0; i < 4; i++)
                     t[i] = v[i];
@@ -166,35 +166,35 @@ namespace TrenchBroom {
                 v[2] = -t[2];
             }
 
-            const Mat2f Adjugated() const {
+            const Mat2f adjugated() const {
                 Mat2f result = *this;
-                result.Adjugate();
+                result.adjugate();
                 return result;
             }
             
-            void Negate() {
+            void negate() {
                 for (unsigned int i = 0; i < 4; i++)
                     v[i] = -v[i];
             }
 
-            const Mat2f Negated() const {
+            const Mat2f negated() const {
                 return Mat2f(v[0] * -1, v[1] * -1,
                              v[2] * -1, v[3] * -1);
             }
             
-            void Transpose() {
+            void transpose() {
                 for (unsigned int c = 0; c < 2; c++)
                     for (unsigned int r = c + 1; r < 2; r++)
                         std::swap(v[c * 2 + r], v[r * 2 + c]);
             }
 
-            const Mat2f Transposed() const {
+            const Mat2f transposed() const {
                 Mat2f result = *this;
-                result.Transpose();
+                result.transpose();
                 return result;
             }
             
-            float Determinant() const {
+            float determinant() const {
                 return v[0] * v[3] - v[2] * v[1];
             }
         };

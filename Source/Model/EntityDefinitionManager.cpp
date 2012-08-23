@@ -32,15 +32,15 @@ namespace TrenchBroom {
             m_entityDefinitions.clear();
         }
         
-        bool EntityDefinitionManager::Load(const String& path) {
+        bool EntityDefinitionManager::load(const String& path) {
         }
 
-        EntityDefinition* EntityDefinitionManager::Definition(const String& name) {
+        EntityDefinition* EntityDefinitionManager::definition(const String& name) {
             EntityDefinitionMap::iterator it = m_entityDefinitions.find(name);
             return it != m_entityDefinitions.end() ? it->second : NULL;
         }
         
-        PointEntityDefinition::List EntityDefinitionManager::Definitions(EntityDefinition::Type type, SortOrder order) {
+        PointEntityDefinition::List EntityDefinitionManager::definitions(EntityDefinition::Type type, SortOrder order) {
             PointEntityDefinition::List result;
             EntityDefinitionMap::iterator it, end;
             for (it = m_entityDefinitions.begin(), end = m_entityDefinitions.end(); it != end; ++it)

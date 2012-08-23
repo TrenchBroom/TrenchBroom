@@ -151,19 +151,19 @@ namespace TrenchBroom {
                 return v[index];
             }
             
-            void SetIdentity() {
+            void setIdentity() {
                 for (unsigned int r = 0; r < 4; r++)
                     for (unsigned int c = 0; c < 4; c++)
                         v[c * 4 + r] = r == c ? 1.0f : 0.0f;
             }
             
-            void SetValue(unsigned int row, unsigned int col, float value) {
+            void setValue(unsigned int row, unsigned int col, float value) {
                 assert(row >= 0 && row < 4);
                 assert(col >= 0 && col < 4);
                 v[col * 4 + row] = value;
             }
             
-            void SetColumn(unsigned int col, const Vec3f& values) {
+            void setColumn(unsigned int col, const Vec3f& values) {
                 assert(col >= 0 && col < 4);
                 v[col * 4 + 0] = values.x;
                 v[col * 4 + 1] = values.y;
@@ -171,7 +171,7 @@ namespace TrenchBroom {
                 v[col * 4 + 3] = 0;
             }
             
-            void SetColumn(unsigned int col, const Vec4f& values) {
+            void setColumn(unsigned int col, const Vec4f& values) {
                 assert(col >= 0 && col < 4);
                 v[col * 4 + 0] = values.x;
                 v[col * 4 + 1] = values.y;
@@ -179,7 +179,7 @@ namespace TrenchBroom {
                 v[col * 4 + 3] = values.w;
             }
             
-            void SetSubMatrix(int index, const Mat2f& values) {
+            void setSubMatrix(int index, const Mat2f& values) {
                 switch (index) {
                     case 0:
                         v[ 0] = values.v[0];
@@ -210,7 +210,7 @@ namespace TrenchBroom {
                 }
             }
             
-            const Mat2f SubMatrix(int index) const {
+            const Mat2f subMatrix(int index) const {
                 Mat2f result;
                 switch (index) {
                     case 0:
@@ -243,99 +243,99 @@ namespace TrenchBroom {
                 return result;
             }
             
-            void Invert(bool& invertible) {
-                float det = Determinant();
+            void invert(bool& invertible) {
+                float det = determinant();
                 invertible = det != 0.0f;
                 if (invertible) {
                     Mat2f A, Ai;
                     bool invertibleA;
                     
-                    A = SubMatrix(0);
-                    Ai = A.Inverted(invertibleA);
+                    A = subMatrix(0);
+                    Ai = A.inverted(invertibleA);
                     if (invertibleA) { // use quick method
                         Mat4f result;
                         Mat2f B, C, D, CAi, CAiB, AiB;
                         bool invertibleD;
                         
-                        B = SubMatrix(2);
-                        C = SubMatrix(1);
-                        D = SubMatrix(3);
+                        B = subMatrix(2);
+                        C = subMatrix(1);
+                        D = subMatrix(3);
                         
                         CAi = C * Ai;
                         CAiB = CAi * B;
                         AiB = Ai * B;
                         
                         // calculate D
-                        D = (D - CAiB).Inverted(invertibleD);
+                        D = (D - CAiB).inverted(invertibleD);
                         
                         // calculate -C and -B
-                        C = (D * CAi).Negated();
+                        C = (D * CAi).negated();
                         B = AiB * D;
-                        A = (B * CAi * Ai).Negated();
+                        A = (B * CAi * Ai).negated();
                         
-                        SetSubMatrix(0, A);
-                        SetSubMatrix(1, C);
-                        SetSubMatrix(2, B);
-                        SetSubMatrix(3, D);
+                        setSubMatrix(0, A);
+                        setSubMatrix(1, C);
+                        setSubMatrix(2, B);
+                        setSubMatrix(3, D);
                     } else {
-                        Adjugate();
+                        adjugate();
                         *this /= det;
                     }
                 }
             }
             
-            const Mat4f Inverted(bool& invertible) const {
+            const Mat4f inverted(bool& invertible) const {
                 Mat4f result = *this;
-                result.Invert(invertible);
+                result.invert(invertible);
                 return result;
             }
             
-            void Adjugate() {
-                *this = Adjugated();
+            void adjugate() {
+                *this = adjugated();
             }
             
-            const Mat4f Adjugated() const {
+            const Mat4f adjugated() const {
                 Mat4f result = *this;
                 for (unsigned int c = 0; c < 4; c++)
                     for (unsigned int r = 0; r < 4; r++)
-                        result[c * 4 + r] = ((c + r) % 2 == 0 ? 1 : -1) * SubMatrix(c, r).Determinant();
-                result.Transpose();
+                        result[c * 4 + r] = ((c + r) % 2 == 0 ? 1 : -1) * subMatrix(c, r).determinant();
+                result.transpose();
                 return result;
             }
             
-            void Negate() {
+            void negate() {
                 for (unsigned int i = 0; i < 16; i++)
                     v[i] = -v[i];
             }
             
-            const Mat4f Negated() const {
+            const Mat4f negated() const {
                 return Mat4f(v[ 0] * -1, v[ 1] * -1, v[ 2] * -1, v[ 3] * -1,
                              v[ 4] * -1, v[ 5] * -1, v[ 6] * -1, v[ 7] * -1,
                              v[ 8] * -1, v[ 9] * -1, v[10] * -1, v[11] * -1,
                              v[12] * -1, v[13] * -1, v[14] * -1, v[15] * -1);
             }
             
-            void Transpose() {
+            void transpose() {
                 for (unsigned int c = 0; c < 4; c++)
                     for (unsigned int r = c + 1; r < 4; r++)
                         std::swap(v[c * 4 + r], v[r * 4 + c]);
             }
             
-            const Mat4f Transposed() const {
+            const Mat4f transposed() const {
                 Mat4f result = *this;
-                result.Transpose();
+                result.transpose();
                 return result;
             }
             
-            float Determinant() const {
+            float determinant() const {
                 // Laplace after first col
                 float det = 0;
                 for (unsigned int r = 0; r < 4; r++)
-                    det += (r % 2 == 0 ? 1 : -1) *v[r] * SubMatrix(0, r).Determinant();
+                    det += (r % 2 == 0 ? 1 : -1) *v[r] * subMatrix(0, r).determinant();
                 return det;
             }
             
-            const Mat3f SubMatrix(unsigned int row, unsigned int col) const {
+            const Mat3f subMatrix(unsigned int row, unsigned int col) const {
                 Mat3f result;
                 int i = 0;
                 for (unsigned int c = 0; c < 4; c++)
@@ -345,7 +345,7 @@ namespace TrenchBroom {
                 return result;
             }
             
-            void Rotate(float angle, const Vec3f& axis) {
+            void rotate(float angle, const Vec3f& axis) {
                 float s = sinf(angle);
                 float c = cosf(angle);
                 float i = 1 - c;
@@ -389,13 +389,13 @@ namespace TrenchBroom {
                 *this *= temp;
             }
             
-            const Mat4f Rotated(float angle, const Vec3f& axis) const {
+            const Mat4f rotated(float angle, const Vec3f& axis) const {
                 Mat4f result = *this;
-                result.Rotate(angle, axis);
+                result.rotate(angle, axis);
                 return result;
             }
 
-            void Rotate(const Quat& rotation) {
+            void rotate(const Quat& rotation) {
                 float a = rotation.s;
                 float b = rotation.v.x;
                 float c = rotation.v.y;
@@ -430,28 +430,28 @@ namespace TrenchBroom {
                 *this *= temp;
             }
             
-            const Mat4f Rotated(const Quat& rotation) const {
+            const Mat4f rotated(const Quat& rotation) const {
                 Mat4f result = *this;
-                result.Rotate(rotation);
+                result.rotate(rotation);
                 return result;
             }
 
-            void Translate(const Vec3f& delta) {
+            void translate(const Vec3f& delta) {
                 Mat4f temp;
-                temp.SetIdentity();
+                temp.setIdentity();
                 temp[12] += delta.x;
                 temp[13] += delta.y;
                 temp[14] += delta.z;
                 *this *= temp;
             }
             
-            const Mat4f Translated(const Vec3f& delta) const {
+            const Mat4f translated(const Vec3f& delta) const {
                 Mat4f result = *this;
-                result.Translate(delta);
+                result.translate(delta);
                 return result;
             }
 
-            void Scale(const Vec3f& factors) {
+            void scale(const Vec3f& factors) {
                 for (unsigned int i = 0; i < 4; i++)
                     for (unsigned int j = 0; j < 3; j++)
                         v[i * 4 + j] *= factors[j];

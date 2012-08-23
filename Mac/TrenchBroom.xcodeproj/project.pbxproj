@@ -12,6 +12,7 @@
 		4810276F15E53DD300250C9C /* EntityDefinition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810276D15E53DD300250C9C /* EntityDefinition.cpp */; };
 		4810277315E54A3000250C9C /* EntityDefinitionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810277115E54A3000250C9C /* EntityDefinitionManager.cpp */; };
 		4810277F15E56F9B00250C9C /* StandardDefinitionParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810277D15E56F9B00250C9C /* StandardDefinitionParser.cpp */; };
+		4810278B15E67A7300250C9C /* Brush.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810278915E67A7300250C9C /* Brush.cpp */; };
 		484763D615E2BC5000095BC0 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 484763D515E2BC5000095BC0 /* Cocoa.framework */; };
 		484763E015E2BC5000095BC0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 484763DE15E2BC5000095BC0 /* InfoPlist.strings */; };
 		4847640B15E2DEE100095BC0 /* MapDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847640915E2DEE100095BC0 /* MapDocument.cpp */; };
@@ -42,6 +43,8 @@
 		4810278115E594C400250C9C /* MessageException.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageException.h; sourceTree = "<group>"; };
 		4810278215E5954A00250C9C /* ParserException.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ParserException.h; sourceTree = "<group>"; };
 		4810278615E621FA00250C9C /* PropertyDefinition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PropertyDefinition.h; sourceTree = "<group>"; };
+		4810278915E67A7300250C9C /* Brush.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Brush.cpp; sourceTree = "<group>"; };
+		4810278A15E67A7300250C9C /* Brush.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Brush.h; sourceTree = "<group>"; };
 		484763D115E2BC5000095BC0 /* TrenchBroom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrenchBroom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		484763D515E2BC5000095BC0 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		484763D815E2BC5000095BC0 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -176,6 +179,8 @@
 		4847640715E2DECB00095BC0 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				4810278915E67A7300250C9C /* Brush.cpp */,
+				4810278A15E67A7300250C9C /* Brush.h */,
 				4847640C15E2E03000095BC0 /* Entity.cpp */,
 				4847640D15E2E03000095BC0 /* Entity.h */,
 				4810276D15E53DD300250C9C /* EntityDefinition.cpp */,
@@ -310,6 +315,7 @@
 				4810276F15E53DD300250C9C /* EntityDefinition.cpp in Sources */,
 				4810277315E54A3000250C9C /* EntityDefinitionManager.cpp in Sources */,
 				4810277F15E56F9B00250C9C /* StandardDefinitionParser.cpp in Sources */,
+				4810278B15E67A7300250C9C /* Brush.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

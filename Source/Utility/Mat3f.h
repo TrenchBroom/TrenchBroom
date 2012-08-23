@@ -122,77 +122,77 @@ namespace TrenchBroom {
                 return v[index];
             }
             
-            void SetIdentity() {
+            void setIdentity() {
                 for (unsigned int c = 0; c < 3; c++)
                     for (unsigned int r = 0; r < 3; r++)
                         v[c * 3 + r] = c == r ? 1.0f : 0.0f;
             }
             
-            void SetValue(unsigned int row, unsigned int col, float value) {
+            void setValue(unsigned int row, unsigned int col, float value) {
                 assert(row >= 0 && row < 3);
                 assert(col >= 0 && col < 3);
                 v[col * 3 + row] = value;
             }
             
-            void SetColumn(unsigned int col, const Vec3f& values) {
+            void setColumn(unsigned int col, const Vec3f& values) {
                 v[col + 0] = values.x;
                 v[col + 1] = values.y;
                 v[col + 2] = values.z;
             }
             
-            void Invert(bool& invertible) {
-                float det = Determinant();
+            void invert(bool& invertible) {
+                float det = determinant();
                 if (det == 0.0f) {
                     invertible = false;
                 } else {
                     invertible = true;
-                    Adjugate();
+                    adjugate();
                     *this /= det;
                 }
             }
 
-            const Mat3f Inverted(bool& invertible) const {
+            const Mat3f inverted(bool& invertible) const {
                 Mat3f result = *this;
-                result.Invert(invertible);
+                result.invert(invertible);
                 return result;
             }
             
-            void Adjugate() {
-                *this = Adjugated();
+            void adjugate() {
+                *this = adjugated();
             }
 
-            const Mat3f Adjugated() const {
+            const Mat3f adjugated() const {
                 Mat3f result;
                 for (unsigned int c = 0; c < 3; c++)
                     for (unsigned int r = 0; r < 3; r++)
-                        result[c * 3 + r] = ((c + r) % 2 == 0 ? 1 : -1) * SubMatrix(c, r).Determinant();
+                        result[c * 3 + r] = ((c + r) % 2 == 0 ? 1 : -1) * subMatrix(c, r).determinant();
                 return result;
             }
             
-            void Negate() {
+            void negate() {
                 for (unsigned int i = 0; i < 9; i++)
                     v[i] = -v[i];
             }
             
-            const Mat3f Negated() const {
+            const Mat3f negated() const {
                 return Mat3f(v[0] * - 1, v[1] * - 1, v[2] * - 1,
                              v[3] * - 1, v[4] * - 1, v[5] * - 1,
                              v[6] * - 1, v[7] * - 1, v[8] * - 1);
             }
             
-            void Transpose() {
+            void transpose() {
                 for (unsigned int c = 0; c < 3; c++)
                     for (unsigned int r = c + 1; r < 3; r++)
                         std::swap(v[c * 3 + r], v[r * 3 + c]);
             }
 
-            const Mat3f Transposed() const {
+            const Mat3f transposed() const {
                 Mat3f result = *this;
-                result.Transpose();
+                result.transpose();
                 return result;
             }
             
-            float Determinant() const {
+            float determinant() const {
                 return v[0] * v[4] * v[8]
                 + v[3] * v[7] * v[2]
                 + v[6] * v[1] * v[5]
@@ -201,7 +201,7 @@ namespace TrenchBroom {
                 - v[8] * v[1] * v[3];
             }
             
-            const Mat2f SubMatrix(unsigned int row, unsigned int col) const {
+            const Mat2f subMatrix(unsigned int row, unsigned int col) const {
                 Mat2f result;
                 int i = 0;
                 for (unsigned int c = 0; c < 3; c++)

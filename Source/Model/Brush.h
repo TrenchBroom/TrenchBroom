@@ -17,33 +17,18 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapObject__
-#define __TrenchBroom__MapObject__
+#ifndef __TrenchBroom__Brush__
+#define __TrenchBroom__Brush__
 
-#include "Utility/VecMath.h"
-
-using namespace TrenchBroom::Math;
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class Filter;
-        class PickResult;
-        
-        class MapObject {
+        class Brush {
         public:
-            enum class Type {
-                Entity,
-                Brush
-            };
-
-            MapObject() {}
-            virtual ~MapObject() {}
-            
-            virtual const BBox& Bounds() const = 0;
-            virtual Type ObjectType() const = 0;
-            virtual void Pick(const Ray& ray, PickResult& pickResults, Filter& filter) = 0;
+            typedef std::vector<Brush*> List;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MapObject__) */
+#endif /* defined(__TrenchBroom__Brush__) */

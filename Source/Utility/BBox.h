@@ -96,49 +96,49 @@ namespace TrenchBroom {
                 return *this;
             }
             
-            const BBox MaxBounds() const {
-                Vec3f c = Center();
+            const BBox maxBounds() const {
+                Vec3f c = center();
                 Vec3f diff = max - c;
                 diff.x = diff.y = diff.z = std::max(diff.x, std::max(diff.y, diff.z));
                 return BBox(c - diff, c + diff);
             }
             
-            const Vec3f Center() const {
+            const Vec3f center() const {
                 return Vec3f((max.x + min.x) / 2.0f,
                              (max.y + min.y) / 2.0f,
                              (max.z + min.z) / 2.0f);
             }
             
-            const Vec3f Size() const {
+            const Vec3f size() const {
                 return Vec3f(max.x - min.x,
                              max.y - min.y,
                              max.z - min.z);
             }
             
-            void TranslateToOrigin() {
-                Vec3f c = Center();
+            void translateToOrigin() {
+                Vec3f c = center();
                 min - c;
                 max - c;
             }
             
-            const BBox TranslatedToOrigin() const {
-                Vec3f c = Center();
+            const BBox translatedToOrigin() const {
+                Vec3f c = center();
                 return BBox(min - c, max - c);
             }
             
-            void Repair() {
+            void repair() {
                 for (int i = 0; i < 3; i++)
                     if (min[i] > max[i])
                         std::swap(min[i], max[i]);
             }
             
-            const BBox Repaired() const {
+            const BBox repaired() const {
                 BBox result(min, max);
-                result.Repair();
+                result.repair();
                 return result;
             }
             
-            const Vec3f Vertex(bool x, bool y, bool z) const {
+            const Vec3f vertex(bool x, bool y, bool z) const {
                 Vec3f vertex;
                 vertex.x = x ? min.x : max.x;
                 vertex.y = y ? min.y : max.y;
@@ -146,31 +146,31 @@ namespace TrenchBroom {
                 return vertex;
             }
             
-            bool Contains(const Vec3f& point) const {
+            bool contains(const Vec3f& point) const {
                 return point.x >= min.x && point.x <= max.x &&
                 point.y >= min.y && point.y <= max.y &&
                 point.z >= min.z && point.z <= max.z;
             }
             
-            bool Contains(const BBox& bounds) const {
+            bool contains(const BBox& bounds) const {
                 return bounds.min.x >= min.x && bounds.max.x <= max.x &&
                 bounds.min.y >= min.y && bounds.max.y <= max.y &&
                 bounds.min.z >= min.z && bounds.max.z <= max.z;
             }
             
-            bool Intersects(const BBox& bounds) const {
+            bool intersects(const BBox& bounds) const {
                 return ((bounds.min.x >= min.x && bounds.min.x <= max.x) || (bounds.max.x >= min.x && bounds.max.x <= max.x)) || (bounds.min.x <= min.x && bounds.max.x >= max.x) ||
                 ((bounds.min.y >= min.y && bounds.min.y <= max.y) || (bounds.max.y >= min.y && bounds.max.y <= max.y)) || (bounds.min.y <= min.y && bounds.max.y >= max.y) ||
                 ((bounds.min.z >= min.z && bounds.min.z <= max.z) || (bounds.max.z >= min.z && bounds.max.z <= max.z)) || (bounds.min.z <= min.z && bounds.max.z >= max.z);
                 
             }
             
-            float IntersectWithRay(const Ray& ray, Vec3f* sideNormal) const {
+            float intersectWithRay(const Ray& ray, Vec3f* sideNormal) const {
                 if (ray.direction.x < 0) {
                     Plane plane(Vec3f::PosX, max);
-                    float distance = plane.IntersectWithRay(ray);
+                    float distance = plane.intersectWithRay(ray);
                     if (!Math::isnan(distance)) {
-                        Vec3f point = ray.PointAtDistance(distance);
+                        Vec3f point = ray.pointAtDistance(distance);
                         if (point.y >= min.y && point.y <= max.y && point.z >= min.z && point.z <= max.z) {
                             if (sideNormal != NULL) *sideNormal = Vec3f::PosX;
                             return distance;
@@ -178,9 +178,9 @@ namespace TrenchBroom {
                     }
                 } else if (ray.direction.x > 0) {
                     Plane plane(Vec3f::NegX, min);
-                    float distance = plane.IntersectWithRay(ray);
+                    float distance = plane.intersectWithRay(ray);
                     if (!Math::isnan(distance)) {
-                        Vec3f point = ray.PointAtDistance(distance);
+                        Vec3f point = ray.pointAtDistance(distance);
                         if (point.y >= min.y && point.y <= max.y && point.z >= min.z && point.z <= max.z) {
                             if (sideNormal != NULL) *sideNormal = Vec3f::NegX;
                             return distance;
@@ -190,9 +190,9 @@ namespace TrenchBroom {
                 
                 if (ray.direction.y < 0) {
                     Plane plane(Vec3f::PosY, max);
-                    float distance = plane.IntersectWithRay(ray);
+                    float distance = plane.intersectWithRay(ray);
                     if (!Math::isnan(distance)) {
-                        Vec3f point = ray.PointAtDistance(distance);
+                        Vec3f point = ray.pointAtDistance(distance);
                         if (point.x >= min.x && point.x <= max.x && point.z >= min.z && point.z <= max.z) {
                             if (sideNormal != NULL) *sideNormal = Vec3f::PosY;
                             return distance;
@@ -200,9 +200,9 @@ namespace TrenchBroom {
                     }
                 } else if (ray.direction.y > 0) {
                     Plane plane(Vec3f::NegY, min);
-                    float distance = plane.IntersectWithRay(ray);
+                    float distance = plane.intersectWithRay(ray);
                     if (!Math::isnan(distance)) {
-                        Vec3f point = ray.PointAtDistance(distance);
+                        Vec3f point = ray.pointAtDistance(distance);
                         if (point.x >= min.x && point.x <= max.x && point.z >= min.z && point.z <= max.z) {
                             if (sideNormal != NULL) *sideNormal = Vec3f::NegY;
                             return distance;
@@ -212,9 +212,9 @@ namespace TrenchBroom {
                 
                 if (ray.direction.z < 0) {
                     Plane plane(Vec3f::PosZ, max);
-                    float distance = plane.IntersectWithRay(ray);
+                    float distance = plane.intersectWithRay(ray);
                     if (!Math::isnan(distance)) {
-                        Vec3f point = ray.PointAtDistance(distance);
+                        Vec3f point = ray.pointAtDistance(distance);
                         if (point.x >= min.x && point.x <= max.x && point.y >= min.y && point.y <= max.y) {
                             if (sideNormal != NULL) *sideNormal = Vec3f::PosZ;
                             return distance;
@@ -222,9 +222,9 @@ namespace TrenchBroom {
                     }
                 } else if (ray.direction.z > 0) {
                     Plane plane(Vec3f::NegZ, min);
-                    float distance = plane.IntersectWithRay(ray);
+                    float distance = plane.intersectWithRay(ray);
                     if (!Math::isnan(distance)) {
-                        Vec3f point = ray.PointAtDistance(distance);
+                        Vec3f point = ray.pointAtDistance(distance);
                         if (point.x >= min.x && point.x <= max.x && point.y >= min.y && point.y <= max.y) {
                             if (sideNormal != NULL) *sideNormal = Vec3f::NegZ;
                             return distance;
@@ -235,11 +235,11 @@ namespace TrenchBroom {
                 return std::numeric_limits<float>::quiet_NaN();
             }
             
-            float IntersectWithRay(const Ray& ray) const {
-                return IntersectWithRay(ray, NULL);
+            float intersectWithRay(const Ray& ray) const {
+                return intersectWithRay(ray, NULL);
             }
             
-            const BBox Translate(const Vec3f& delta) const {
+            const BBox translate(const Vec3f& delta) const {
                 return BBox(min.x + delta.x,
                             min.y + delta.y,
                             min.z + delta.z,
@@ -248,100 +248,100 @@ namespace TrenchBroom {
                             max.z + delta.z);
             }
 
-            void Rotate90(Axis axis, bool clockwise) {
-                min.Rotate90(axis, clockwise);
-                max.Rotate90(axis, clockwise);
-                Repair();
+            void rotate90(Axis axis, bool clockwise) {
+                min.rotate90(axis, clockwise);
+                max.rotate90(axis, clockwise);
+                repair();
             }
             
-            const BBox Rotated90(Axis axis, bool clockwise) const {
+            const BBox rotated90(Axis axis, bool clockwise) const {
                 BBox result = *this;
-                result.Rotate90(axis, clockwise);
+                result.rotate90(axis, clockwise);
                 return result;
             }
             
-            void Rotate90(Axis axis, const Vec3f& center, bool clockwise) {
-                min.Rotate90(axis, center, clockwise);
-                max.Rotate90(axis, center, clockwise);
-                Repair();
+            void rotate90(Axis axis, const Vec3f& center, bool clockwise) {
+                min.rotate90(axis, center, clockwise);
+                max.rotate90(axis, center, clockwise);
+                repair();
             }
             
-            const BBox Rotated90(Axis axis, const Vec3f& center, bool clockwise) const {
+            const BBox rotated90(Axis axis, const Vec3f& center, bool clockwise) const {
                 BBox result = *this;
-                result.Rotate90(axis, center, clockwise);
+                result.rotate90(axis, center, clockwise);
                 return result;
             }
             
-            void Rotate(const Quat& rotation) {
+            void rotate(const Quat& rotation) {
                 min = rotation * min;
                 max = rotation * max;
-                Repair();
+                repair();
             }
             
-            const BBox Rotated(const Quat& rotation) const {
+            const BBox rotated(const Quat& rotation) const {
                 BBox result = *this;
-                result.Rotate(rotation);
+                result.rotate(rotation);
                 return result;
             }
             
-            void Rotate(const Quat& rotation, const Vec3f& center) {
+            void rotate(const Quat& rotation, const Vec3f& center) {
                 min = rotation * (min - center) + center;
                 max = rotation * (max - center) + center;
-                Repair();
+                repair();
             }
             
-            const BBox Rotated(const Quat& rotation, const Vec3f& center) const {
+            const BBox rotated(const Quat& rotation, const Vec3f& center) const {
                 BBox result = *this;
-                result.Rotate(rotation, center);
+                result.rotate(rotation, center);
                 return result;
             }
             
-            const BBox BoundsAfterRotation(const Quat& rotation) const {
+            const BBox boundsAfterRotation(const Quat& rotation) const {
                 BBox result;
-                Vec3f c = Center();
-                result += (rotation * (Vertex(false, false, false) - c) + c);
-                result += (rotation * (Vertex(false, false, true ) - c) + c);
-                result += (rotation * (Vertex(false, true , false) - c) + c);
-                result += (rotation * (Vertex(false, true , true ) - c) + c);
-                result += (rotation * (Vertex(true , false, false) - c) + c);
-                result += (rotation * (Vertex(true , false, true ) - c) + c);
-                result += (rotation * (Vertex(true , true , false) - c) + c);
-                result += (rotation * (Vertex(true , true , true ) - c) + c);
+                Vec3f c = center();
+                result += (rotation * (vertex(false, false, false) - c) + c);
+                result += (rotation * (vertex(false, false, true ) - c) + c);
+                result += (rotation * (vertex(false, true , false) - c) + c);
+                result += (rotation * (vertex(false, true , true ) - c) + c);
+                result += (rotation * (vertex(true , false, false) - c) + c);
+                result += (rotation * (vertex(true , false, true ) - c) + c);
+                result += (rotation * (vertex(true , true , false) - c) + c);
+                result += (rotation * (vertex(true , true , true ) - c) + c);
                 return result;
             }
             
-            void Flip(Axis axis) {
-                min.Flip(axis);
-                max.Flip(axis);
-                Repair();
+            void flip(Axis axis) {
+                min.flip(axis);
+                max.flip(axis);
+                repair();
             }
             
-            const BBox Flipped(Axis axis) const {
+            const BBox flipped(Axis axis) const {
                 BBox result = *this;
-                result.Flip(axis);
+                result.flip(axis);
                 return result;
             }
             
-            void Flip(Axis axis, const Vec3f& center) {
-                min.Flip(axis, center);
-                max.Flip(axis, center);
-                Repair();
+            void flip(Axis axis, const Vec3f& center) {
+                min.flip(axis, center);
+                max.flip(axis, center);
+                repair();
             }
             
-            const BBox Flipped(Axis axis, const Vec3f& center) const {
+            const BBox flipped(Axis axis, const Vec3f& center) const {
                 BBox result = *this;
-                result.Flip(axis, center);
+                result.flip(axis, center);
                 return result;
             }
             
-            void Expand(float f) {
+            void expand(float f) {
                 for (unsigned int i = 0; i < 3; i++) {
                     min[i] -= f;
                     max[i] += f;
                 }
             }
             
-            const BBox Expanded(float f) {
+            const BBox expanded(float f) {
                 return BBox(min.x -= f,
                             min.y -= f,
                             min.z -= f,

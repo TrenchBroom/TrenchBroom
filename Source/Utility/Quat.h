@@ -32,7 +32,7 @@ namespace TrenchBroom {
             Quat() : s(0), v(Vec3f::Null) {}
             
             Quat(float angle, const Vec3f& axis) {
-                SetRotation(angle, axis);
+                setRotation(angle, axis);
             }
             
             const Quat operator* (const Quat& right) const {
@@ -44,7 +44,7 @@ namespace TrenchBroom {
                 Quat p;
                 p.s = 0;
                 p.v = right;
-                p = *this * p * Conjugated();
+                p = *this * p * conjugated();
                 return p.v;
             }
             
@@ -63,16 +63,16 @@ namespace TrenchBroom {
                 return *this;
             }
             
-            void SetRotation(float angle, const Vec3f axis) {
+            void setRotation(float angle, const Vec3f axis) {
                 s = cosf(angle / 2);
                 v = axis * sinf(angle / 2);
             }
             
-            void Conjugate() {
+            void conjugate() {
                 v *= -1.0f;
             }
 
-            const Quat Conjugated() const {
+            const Quat conjugated() const {
                 Quat result;
                 result.s = s;
                 result.v = v * -1.0f;

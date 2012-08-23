@@ -104,54 +104,54 @@ namespace TrenchBroom {
                 return y;
             }
             
-            float Length() const {
-                return sqrt(LengthSquared());
+            float length() const {
+                return sqrt(lengthSquared());
             }
             
-            float LengthSquared() const {
+            float lengthSquared() const {
                 return *this | *this;
             }
             
-            void Normalize() {
-                float l = Length();
+            void normalize() {
+                float l = length();
                 x /= l;
                 y /= l;
             }
             
-            const Vec2f Normalized() const {
-                float l = Length();
+            const Vec2f normalized() const {
+                float l = length();
                 return Vec2f(x / l,
                              y / l);
             }
             
-            void Correct() {
+            void correct() {
                 x = Math::correct(x);
                 y = Math::correct(y);
             }
             
-            const Vec2f Corrected() const {
+            const Vec2f corrected() const {
                 return Vec2f(Math::correct(x),
                              Math::correct(y));
             }
             
-            bool Equals(const Vec2f& other) const {
-                return Equals(other, AlmostZero);
+            bool equals(const Vec2f& other) const {
+                return equals(other, AlmostZero);
             }
             
-            bool Equals(const Vec2f& other, float delta) const {
+            bool equals(const Vec2f& other, float delta) const {
                 Vec2f diff = other - *this;
-                return diff.LengthSquared() <= delta * delta;
+                return diff.lengthSquared() <= delta * delta;
             }
             
-            void Write(std::ostream& str) const {
+            void write(std::ostream& str) const {
                 str << x;
                 str << ' ';
                 str << y;
             }
             
-            std::string AsString() const {
+            std::string asString() const {
                 StringStream result;
-                Write(result);
+                write(result);
                 return result.str();
             }
         };

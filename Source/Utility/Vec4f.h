@@ -150,54 +150,54 @@ namespace TrenchBroom {
                 return w;
             }
             
-            float Length() const {
-                return sqrt(LengthSquared());
+            float length() const {
+                return sqrt(lengthSquared());
             }
             
-            float LengthSquared() const {
+            float lengthSquared() const {
                 return *this | *this;
             }
             
-            void Normalize() {
-                float l = Length();
+            void normalize() {
+                float l = length();
                 x /= l;
                 y /= l;
                 z /= l;
                 w /= l;
             }
             
-            const Vec4f Normalized() const {
-                float l = Length();
+            const Vec4f normalized() const {
+                float l = length();
                 return Vec4f(x / l,
                              y / l,
                              z / l,
                              w / l);
             }
             
-            void Correct() {
+            void correct() {
                 x = Math::correct(x);
                 y = Math::correct(y);
                 z = Math::correct(z);
                 w = Math::correct(w);
             }
             
-            const Vec4f Corrected() const {
+            const Vec4f corrected() const {
                 return Vec4f(Math::correct(x),
                              Math::correct(y),
                              Math::correct(z),
                              Math::correct(w));
             }
             
-            bool Equals(const Vec4f& other) const {
-                return Equals(other, Math::AlmostZero);
+            bool equals(const Vec4f& other) const {
+                return equals(other, Math::AlmostZero);
             }
             
-            bool Equals(const Vec4f& other, float delta) const {
+            bool equals(const Vec4f& other, float delta) const {
                 Vec4f diff = other - *this;
-                return diff.LengthSquared() <= delta * delta;
+                return diff.lengthSquared() <= delta * delta;
             }
             
-            void Write(std::ostream& str) const {
+            void write(std::ostream& str) const {
                 str << x;
                 str << ' ';
                 str << y;
@@ -207,9 +207,9 @@ namespace TrenchBroom {
                 str << w;
             }
             
-            std::string AsString() const {
+            std::string asString() const {
                 StringStream result;
-                Write(result);
+                write(result);
                 return result.str();
             }
         };

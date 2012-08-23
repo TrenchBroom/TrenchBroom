@@ -58,10 +58,10 @@ namespace TrenchBroom {
             EntityDefinitionManager();
             ~EntityDefinitionManager();
             
-            bool Load(const String& path);
+            bool load(const String& path);
             
-            EntityDefinition* Definition(const String& name);
-            PointEntityDefinition::List Definitions(EntityDefinition::Type type, SortOrder order = SortOrder::Name);
+            EntityDefinition* definition(const String& name);
+            PointEntityDefinition::List definitions(EntityDefinition::Type type, SortOrder order = SortOrder::Name);
         };
     }
 }

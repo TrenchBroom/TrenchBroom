@@ -77,15 +77,15 @@ namespace TrenchBroom {
         protected:
             unsigned int m_state;
             
-            inline TokenPtr MakeToken(unsigned int type, const String& data) {
+            inline TokenPtr token(unsigned int type, const String& data) {
                 return TokenPtr(new Token(type, data, m_stream.tellg(), m_line, m_column));
             }
         public:
             StandardDefinitionTokenizer(const String& name, std::istream& stream) : AbstractTokenizer(name, stream), m_state(TokenizerState::Outside) {}
             
-            TokenPtr NextToken();
-            TokenPtr PeekToken();
-            String Remainder();
+            TokenPtr nextToken();
+            TokenPtr peekToken();
+            String remainder();
         };
         
         class StandardProperty {
@@ -103,7 +103,7 @@ namespace TrenchBroom {
             
             StandardProperty(PropertyType type) : m_type(type) {}
             
-            inline PropertyType Type() const {
+            inline PropertyType type() const {
                 return m_type;
             }
         };
@@ -114,7 +114,7 @@ namespace TrenchBroom {
         public:
             StandardBaseProperty(StandardProperty::PropertyType type, const String& basename) : StandardProperty(type), m_basename(basename) {}
             
-            inline const String& Basename() const {
+            inline const String& basename() const {
                 return m_basename;
             }
         };
@@ -128,11 +128,11 @@ namespace TrenchBroom {
             
             StandardChoiceArgument(int key, const String& value) : m_key(key), m_value(value) {}
             
-            inline int Key() const {
+            inline int key() const {
                 return m_key;
             }
             
-            inline const String& Value() const {
+            inline const String& value() const {
                 return m_value;
             }
         };
@@ -147,11 +147,11 @@ namespace TrenchBroom {
             m_propertyName(propertyName),
             m_arguments(arguments) {}
             
-            inline const String& PropertyName() const {
+            inline const String& propertyName() const {
                 return m_propertyName;
             }
             
-            inline const StandardChoiceArgument::List& Arguments() const {
+            inline const StandardChoiceArgument::List& arguments() const {
                 return m_arguments;
             }
         };
@@ -166,11 +166,11 @@ namespace TrenchBroom {
             m_propertyName(propertyName),
             m_propertyValue(propertyValue) {}
             
-            inline const String& PropertyName() const {
+            inline const String& propertyName() const {
                 return m_propertyName;
             }
             
-            inline const String& PropertyValue() const {
+            inline const String& propertyValue() const {
                 return m_propertyValue;
             }
         };
@@ -187,15 +187,15 @@ namespace TrenchBroom {
             m_flagName(flagName),
             m_skinIndex(skinIndex) {}
             
-            inline const String& ModelName() const {
+            inline const String& modelName() const {
                 return m_modelName;
             }
             
-            inline const String& FlagName() const {
+            inline const String& flagName() const {
                 return m_flagName;
             }
             
-            inline unsigned int SkinIndex() const {
+            inline unsigned int skinIndex() const {
                 return m_skinIndex;
             }
         };
@@ -205,26 +205,26 @@ namespace TrenchBroom {
             
             StandardDefinitionTokenizer m_tokenizer;
             
-            String TypeNames(unsigned int types);
+            String typeNames(unsigned int types);
             
-            inline void Expect(unsigned int types, StandardDefinitionTokenizer::Token* token) {
+            inline void expect(unsigned int types, StandardDefinitionTokenizer::Token* token) {
                 if (token == NULL)
-                    throw ParserException(m_tokenizer.Path(), m_tokenizer.Line(), m_tokenizer.Column(), "Expected token type " + TypeNames(types) + " but got NULL");
-                else if ((token->Type() & types) == 0)
-                    throw ParserException(m_tokenizer.Path(), m_tokenizer.Line(), m_tokenizer.Column(), "Expected token type " + TypeNames(types) + " but got " + TypeNames(token->Type()));
+                    throw ParserException(m_tokenizer.path(), m_tokenizer.line(), m_tokenizer.column(), "Expected token type " + typeNames(types) + " but got NULL");
+                else if ((token->type() & types) == 0)
+                    throw ParserException(m_tokenizer.path(), m_tokenizer.line(), m_tokenizer.column(), "Expected token type " + typeNames(types) + " but got " + typeNames(token->type()));
             }
             
-            StandardDefinitionTokenizer::TokenPtr NextTokenIgnoringNewlines();
-            Vec4f ParseColor();
-            BBox ParseBounds();
-            Model::Spawnflag::List ParseFlags();
-            bool ParseProperty(StandardProperty::List& properties);
-            StandardProperty::List ParseProperties();
-            String ParseDescription();
+            StandardDefinitionTokenizer::TokenPtr nextTokenIgnoringNewlines();
+            Vec4f parseColor();
+            BBox parseBounds();
+            Model::Spawnflag::List parseFlags();
+            bool parseProperty(StandardProperty::List& properties);
+            StandardProperty::List parseProperties();
+            String parseDescription();
         public:
             StandardDefinitionParser(const String& name, std::istream& stream) : m_tokenizer(name, stream) {}
         
-            Model::EntityDefinition* NextDefinition();
+            Model::EntityDefinition* nextDefinition();
         };
     }
 }
