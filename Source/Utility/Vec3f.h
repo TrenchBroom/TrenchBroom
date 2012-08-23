@@ -21,12 +21,11 @@
 #define TrenchBroom_Vec3f_h
 
 #include "Utility/Math.h"
+#include "Utility/String.h"
 
 #include <cassert>
 #include <cmath>
 #include <ostream>
-#include <sstream>
-#include <string>
 
 namespace TrenchBroom {
     namespace Math {
@@ -331,7 +330,7 @@ namespace TrenchBroom {
             }
             
             std::string AsString() const {
-                std::stringstream result;
+                StringStream result;
                 Write(result);
                 return result.str();
             }

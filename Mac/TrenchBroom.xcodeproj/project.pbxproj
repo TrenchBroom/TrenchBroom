@@ -7,17 +7,41 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4810276615E4FBF000250C9C /* MapGLCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810276415E4FBF000250C9C /* MapGLCanvas.cpp */; };
+		4810276C15E5313F00250C9C /* Inspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810276A15E5313F00250C9C /* Inspector.cpp */; };
+		4810276F15E53DD300250C9C /* EntityDefinition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810276D15E53DD300250C9C /* EntityDefinition.cpp */; };
+		4810277315E54A3000250C9C /* EntityDefinitionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810277115E54A3000250C9C /* EntityDefinitionManager.cpp */; };
+		4810277F15E56F9B00250C9C /* StandardDefinitionParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810277D15E56F9B00250C9C /* StandardDefinitionParser.cpp */; };
 		484763D615E2BC5000095BC0 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 484763D515E2BC5000095BC0 /* Cocoa.framework */; };
 		484763E015E2BC5000095BC0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 484763DE15E2BC5000095BC0 /* InfoPlist.strings */; };
-		484763F915E2BC8C00095BC0 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 484763F715E2BC8C00095BC0 /* main.cpp */; };
 		4847640B15E2DEE100095BC0 /* MapDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847640915E2DEE100095BC0 /* MapDocument.cpp */; };
 		4847640E15E2E03000095BC0 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847640C15E2E03000095BC0 /* Entity.cpp */; };
-		4847641115E2E06900095BC0 /* MapObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847640F15E2E06900095BC0 /* MapObject.cpp */; };
 		48D1BE9D15E2E5550073C030 /* Vec3f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BE9C15E2E5550073C030 /* Vec3f.cpp */; };
 		48D1BEA315E2F3BC0073C030 /* Mat4f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEA215E2F3BB0073C030 /* Mat4f.cpp */; };
+		48D1BEAE15E3AC060073C030 /* EditorView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEAC15E3AC060073C030 /* EditorView.cpp */; };
+		48D1BEB415E4237B0073C030 /* EditorFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEB215E4237A0073C030 /* EditorFrame.cpp */; };
+		48D1BEB715E423F60073C030 /* TrenchBroomApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEB515E423F60073C030 /* TrenchBroomApp.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4810276415E4FBF000250C9C /* MapGLCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapGLCanvas.cpp; sourceTree = "<group>"; };
+		4810276515E4FBF000250C9C /* MapGLCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapGLCanvas.h; sourceTree = "<group>"; };
+		4810276815E52F3700250C9C /* GLee.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = GLee.c; sourceTree = "<group>"; };
+		4810276915E52F3700250C9C /* GLee.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GLee.h; sourceTree = "<group>"; };
+		4810276A15E5313F00250C9C /* Inspector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Inspector.cpp; sourceTree = "<group>"; };
+		4810276B15E5313F00250C9C /* Inspector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Inspector.h; sourceTree = "<group>"; };
+		4810276D15E53DD300250C9C /* EntityDefinition.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityDefinition.cpp; sourceTree = "<group>"; };
+		4810276E15E53DD300250C9C /* EntityDefinition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinition.h; sourceTree = "<group>"; };
+		4810277015E541A200250C9C /* String.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = String.h; sourceTree = "<group>"; };
+		4810277115E54A3000250C9C /* EntityDefinitionManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityDefinitionManager.cpp; sourceTree = "<group>"; };
+		4810277215E54A3000250C9C /* EntityDefinitionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionManager.h; sourceTree = "<group>"; };
+		4810277C15E56F9B00250C9C /* AbstractTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractTokenizer.h; sourceTree = "<group>"; };
+		4810277D15E56F9B00250C9C /* StandardDefinitionParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StandardDefinitionParser.cpp; sourceTree = "<group>"; };
+		4810277E15E56F9B00250C9C /* StandardDefinitionParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StandardDefinitionParser.h; sourceTree = "<group>"; };
+		4810278015E5701E00250C9C /* Pool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Pool.h; sourceTree = "<group>"; };
+		4810278115E594C400250C9C /* MessageException.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageException.h; sourceTree = "<group>"; };
+		4810278215E5954A00250C9C /* ParserException.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ParserException.h; sourceTree = "<group>"; };
+		4810278615E621FA00250C9C /* PropertyDefinition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PropertyDefinition.h; sourceTree = "<group>"; };
 		484763D115E2BC5000095BC0 /* TrenchBroom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrenchBroom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		484763D515E2BC5000095BC0 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		484763D815E2BC5000095BC0 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -26,12 +50,10 @@
 		484763DD15E2BC5000095BC0 /* TrenchBroom-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TrenchBroom-Info.plist"; sourceTree = "<group>"; };
 		484763DF15E2BC5000095BC0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		484763E315E2BC5000095BC0 /* TrenchBroom-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TrenchBroom-Prefix.pch"; sourceTree = "<group>"; };
-		484763F715E2BC8C00095BC0 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		4847640915E2DEE100095BC0 /* MapDocument.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapDocument.cpp; sourceTree = "<group>"; };
 		4847640A15E2DEE100095BC0 /* MapDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapDocument.h; sourceTree = "<group>"; };
 		4847640C15E2E03000095BC0 /* Entity.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Entity.cpp; sourceTree = "<group>"; };
 		4847640D15E2E03000095BC0 /* Entity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Entity.h; sourceTree = "<group>"; };
-		4847640F15E2E06900095BC0 /* MapObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapObject.cpp; sourceTree = "<group>"; };
 		4847641015E2E06900095BC0 /* MapObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapObject.h; sourceTree = "<group>"; };
 		4847641415E2E0E800095BC0 /* Vec2f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vec2f.h; sourceTree = "<group>"; };
 		48D1BE9815E2E2930073C030 /* Math.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Math.h; sourceTree = "<group>"; };
@@ -49,6 +71,12 @@
 		48D1BEA915E2FC150073C030 /* BBox.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BBox.h; sourceTree = "<group>"; };
 		48D1BEAA15E2FF860073C030 /* Plane.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Plane.h; sourceTree = "<group>"; };
 		48D1BEAB15E305FA0073C030 /* CoordinatePlane.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CoordinatePlane.h; sourceTree = "<group>"; };
+		48D1BEAC15E3AC060073C030 /* EditorView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EditorView.cpp; sourceTree = "<group>"; };
+		48D1BEAD15E3AC060073C030 /* EditorView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorView.h; sourceTree = "<group>"; };
+		48D1BEB215E4237A0073C030 /* EditorFrame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EditorFrame.cpp; sourceTree = "<group>"; };
+		48D1BEB315E4237B0073C030 /* EditorFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorFrame.h; sourceTree = "<group>"; };
+		48D1BEB515E423F60073C030 /* TrenchBroomApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TrenchBroomApp.cpp; sourceTree = "<group>"; };
+		48D1BEB615E423F60073C030 /* TrenchBroomApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrenchBroomApp.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,10 +91,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4810277B15E56F9B00250C9C /* IO */ = {
+			isa = PBXGroup;
+			children = (
+				4810277C15E56F9B00250C9C /* AbstractTokenizer.h */,
+				4810278215E5954A00250C9C /* ParserException.h */,
+				4810277D15E56F9B00250C9C /* StandardDefinitionParser.cpp */,
+				4810277E15E56F9B00250C9C /* StandardDefinitionParser.h */,
+			);
+			name = IO;
+			path = ../Source/IO;
+			sourceTree = "<group>";
+		};
 		484763C615E2BC5000095BC0 = {
 			isa = PBXGroup;
 			children = (
 				4847640615E2DECB00095BC0 /* Controller */,
+				4810277B15E56F9B00250C9C /* IO */,
 				4847640715E2DECB00095BC0 /* Model */,
 				4847641215E2E0C200095BC0 /* Utility */,
 				4847640815E2DECB00095BC0 /* View */,
@@ -107,7 +148,8 @@
 			isa = PBXGroup;
 			children = (
 				484763DC15E2BC5000095BC0 /* Supporting Files */,
-				484763F715E2BC8C00095BC0 /* main.cpp */,
+				48D1BEB515E423F60073C030 /* TrenchBroomApp.cpp */,
+				48D1BEB615E423F60073C030 /* TrenchBroomApp.h */,
 			);
 			name = Mac;
 			path = TrenchBroom;
@@ -136,10 +178,14 @@
 			children = (
 				4847640C15E2E03000095BC0 /* Entity.cpp */,
 				4847640D15E2E03000095BC0 /* Entity.h */,
+				4810276D15E53DD300250C9C /* EntityDefinition.cpp */,
+				4810276E15E53DD300250C9C /* EntityDefinition.h */,
+				4810277115E54A3000250C9C /* EntityDefinitionManager.cpp */,
+				4810277215E54A3000250C9C /* EntityDefinitionManager.h */,
 				4847640915E2DEE100095BC0 /* MapDocument.cpp */,
 				4847640A15E2DEE100095BC0 /* MapDocument.h */,
-				4847640F15E2E06900095BC0 /* MapObject.cpp */,
 				4847641015E2E06900095BC0 /* MapObject.h */,
+				4810278615E621FA00250C9C /* PropertyDefinition.h */,
 			);
 			name = Model;
 			path = ../Source/Model;
@@ -148,6 +194,14 @@
 		4847640815E2DECB00095BC0 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				48D1BEAC15E3AC060073C030 /* EditorView.cpp */,
+				48D1BEAD15E3AC060073C030 /* EditorView.h */,
+				48D1BEB215E4237A0073C030 /* EditorFrame.cpp */,
+				48D1BEB315E4237B0073C030 /* EditorFrame.h */,
+				4810276415E4FBF000250C9C /* MapGLCanvas.cpp */,
+				4810276515E4FBF000250C9C /* MapGLCanvas.h */,
+				4810276A15E5313F00250C9C /* Inspector.cpp */,
+				4810276B15E5313F00250C9C /* Inspector.h */,
 			);
 			name = View;
 			path = ../Source/View;
@@ -156,17 +210,22 @@
 		4847641215E2E0C200095BC0 /* Utility */ = {
 			isa = PBXGroup;
 			children = (
+				4810276815E52F3700250C9C /* GLee.c */,
+				4810276915E52F3700250C9C /* GLee.h */,
 				48D1BEA915E2FC150073C030 /* BBox.h */,
 				48D1BEAB15E305FA0073C030 /* CoordinatePlane.h */,
+				4810278015E5701E00250C9C /* Pool.h */,
 				48D1BEA815E2FBAC0073C030 /* Line.h */,
 				48D1BE9F15E2EDAE0073C030 /* Mat2f.h */,
 				48D1BEA015E2EE920073C030 /* Mat3f.h */,
 				48D1BEA215E2F3BB0073C030 /* Mat4f.cpp */,
 				48D1BEA115E2F3200073C030 /* Mat4f.h */,
 				48D1BE9815E2E2930073C030 /* Math.h */,
+				4810278115E594C400250C9C /* MessageException.h */,
 				48D1BEAA15E2FF860073C030 /* Plane.h */,
 				48D1BEA415E2F4F80073C030 /* Quat.h */,
 				48D1BEA515E2F8CC0073C030 /* Ray.h */,
+				4810277015E541A200250C9C /* String.h */,
 				4847641415E2E0E800095BC0 /* Vec2f.h */,
 				48D1BE9C15E2E5550073C030 /* Vec3f.cpp */,
 				48D1BE9A15E2E35C0073C030 /* Vec3f.h */,
@@ -239,12 +298,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				484763F915E2BC8C00095BC0 /* main.cpp in Sources */,
 				4847640B15E2DEE100095BC0 /* MapDocument.cpp in Sources */,
 				4847640E15E2E03000095BC0 /* Entity.cpp in Sources */,
-				4847641115E2E06900095BC0 /* MapObject.cpp in Sources */,
 				48D1BE9D15E2E5550073C030 /* Vec3f.cpp in Sources */,
 				48D1BEA315E2F3BC0073C030 /* Mat4f.cpp in Sources */,
+				48D1BEAE15E3AC060073C030 /* EditorView.cpp in Sources */,
+				48D1BEB415E4237B0073C030 /* EditorFrame.cpp in Sources */,
+				48D1BEB715E423F60073C030 /* TrenchBroomApp.cpp in Sources */,
+				4810276615E4FBF000250C9C /* MapGLCanvas.cpp in Sources */,
+				4810276C15E5313F00250C9C /* Inspector.cpp in Sources */,
+				4810276F15E53DD300250C9C /* EntityDefinition.cpp in Sources */,
+				4810277315E54A3000250C9C /* EntityDefinitionManager.cpp in Sources */,
+				4810277F15E56F9B00250C9C /* StandardDefinitionParser.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

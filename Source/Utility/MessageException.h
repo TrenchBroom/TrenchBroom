@@ -17,33 +17,28 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapObject__
-#define __TrenchBroom__MapObject__
+#ifndef TrenchBroom_FormattedException_h
+#define TrenchBroom_FormattedException_h
 
-#include "Utility/VecMath.h"
-
-using namespace TrenchBroom::Math;
+#include "Utility/String.h"
+#include <exception>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Filter;
-        class PickResult;
-        
-        class MapObject {
+    namespace Utility {
+        class MessageException : public std::exception {
+        protected:
+            String m_msg;
         public:
-            enum class Type {
-                Entity,
-                Brush
-            };
-
-            MapObject() {}
-            virtual ~MapObject() {}
+            MessageException(const String& msg) throw() : m_msg(msg) {}
+            MessageException(const StringStream& str) throw() : m_msg(str.str()) {}
             
-            virtual const BBox& bounds() const = 0;
-            virtual Type objectType() const = 0;
-            virtual void pick(const Ray& ray, PickResult& pickResults, Filter& filter) = 0;
+            virtual ~MessageException() throw() {}
+            
+            virtual const char* what() const throw() {
+                return m_msg.c_str();
+            }        
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MapObject__) */
+#endif

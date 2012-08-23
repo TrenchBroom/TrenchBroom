@@ -17,9 +17,25 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapObject.h"
+#ifndef __TrenchBroom__EditorFrame__
+#define __TrenchBroom__EditorFrame__
+
+#include <wx/frame.h>
+
+class wxSplitterWindow;
 
 namespace TrenchBroom {
-    namespace Model {
+    namespace View {
+        class EditorFrame : public wxFrame {
+        protected:
+        public:
+            EditorFrame();
+            ~EditorFrame();
+
+            void mainSplitterOnIdle(wxIdleEvent&);
+        };
     }
 }
+
+
+#endif /* defined(__TrenchBroom__EditorFrame__) */

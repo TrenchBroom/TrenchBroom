@@ -18,3 +18,13 @@
  */
 
 #include "Entity.h"
+
+namespace TrenchBroom {
+    namespace Model {
+        Entity::Entity() {
+        }
+        
+        Entity::~Entity() {
+        }
+    }
+}

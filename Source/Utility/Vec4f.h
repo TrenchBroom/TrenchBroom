@@ -208,7 +208,7 @@ namespace TrenchBroom {
             }
             
             std::string AsString() const {
-                std::stringstream result;
+                StringStream result;
                 Write(result);
                 return result.str();
             }

@@ -17,33 +17,28 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapObject__
-#define __TrenchBroom__MapObject__
+#ifndef __TrenchBroom__MapGLCanvas__
+#define __TrenchBroom__MapGLCanvas__
 
-#include "Utility/VecMath.h"
-
-using namespace TrenchBroom::Math;
+#include <wx/glcanvas.h>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Filter;
-        class PickResult;
-        
-        class MapObject {
-        public:
-            enum class Type {
-                Entity,
-                Brush
-            };
-
-            MapObject() {}
-            virtual ~MapObject() {}
+    namespace View {
+        class MapGLCanvas : public wxGLCanvas {
+        protected:
+            int* m_attribs;
+            wxGLContext* m_glContext;
             
-            virtual const BBox& bounds() const = 0;
-            virtual Type objectType() const = 0;
-            virtual void pick(const Ray& ray, PickResult& pickResults, Filter& filter) = 0;
+            int* Attribs();
+        public:
+            MapGLCanvas(wxWindow* parent);
+            ~MapGLCanvas();
+            
+            void OnPaint(wxPaintEvent& event);
+        protected:
+            DECLARE_EVENT_TABLE()
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MapObject__) */
+#endif /* defined(__TrenchBroom__MapGLCanvas__) */

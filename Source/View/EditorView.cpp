@@ -17,33 +17,29 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapObject__
-#define __TrenchBroom__MapObject__
+#include "EditorView.h"
 
-#include "Utility/VecMath.h"
-
-using namespace TrenchBroom::Math;
+#include "View/EditorFrame.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class Filter;
-        class PickResult;
+    namespace View {
+        IMPLEMENT_DYNAMIC_CLASS(EditorView, wxView);
         
-        class MapObject {
-        public:
-            enum class Type {
-                Entity,
-                Brush
-            };
+        EditorView::EditorView() : wxView() {
+            EditorFrame* frame = new EditorFrame();
+            SetFrame(frame);
+            frame->Show();
+        }
+        
+        void EditorView::OnDraw(wxDC* dc) {
+        }
+        
+        void EditorView::OnUpdate(wxView* sender, wxObject* hint) {
+        }
+        
+        bool EditorView::OnClose(bool deleteWindow) {
+            return wxView::OnClose(deleteWindow);
+        }
 
-            MapObject() {}
-            virtual ~MapObject() {}
-            
-            virtual const BBox& bounds() const = 0;
-            virtual Type objectType() const = 0;
-            virtual void pick(const Ray& ray, PickResult& pickResults, Filter& filter) = 0;
-        };
     }
 }
-
-#endif /* defined(__TrenchBroom__MapObject__) */

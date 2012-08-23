@@ -17,27 +17,24 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapDocument.h"
+#ifndef __TrenchBroom__TrenchBroomApp__
+#define __TrenchBroom__TrenchBroomApp__
 
-namespace TrenchBroom {
-    namespace Model {
-        IMPLEMENT_DYNAMIC_CLASS(MapDocument, wxDocument)
+#include <wx/wx.h>
+#include <wx/docview.h>
 
-        MapDocument::MapDocument() {}
-        
-        std::istream& MapDocument::LoadObject(std::istream& stream) {
-            return wxDocument::LoadObject(stream);
-        }
-        
-        std::ostream& MapDocument::SaveObject(std::ostream& stream) {
-            return wxDocument::SaveObject(stream);
-        }
-        
-        bool MapDocument::OnCreate(const wxString& path, long flags) {
-            // initialize here
-            
-            return wxDocument::OnCreate(path, flags);
-        }
+class TrenchBroomApp : public wxApp {
+protected:
+	wxDocManager* m_docManager;
+public:
+    DECLARE_EVENT_TABLE();
+    
+	virtual bool OnInit();
+    virtual int OnExit();
+    
+    void OnNew(wxCommandEvent& event);
+};
 
-    }
-}
+DECLARE_APP(TrenchBroomApp)
+
+#endif /* defined(__TrenchBroom__TrenchBroomApp__) */

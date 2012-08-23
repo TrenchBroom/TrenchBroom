@@ -21,10 +21,28 @@
 #define __TrenchBroom__Entity__
 
 #include "Model/MapObject.h"
+#include "Utility/VecMath.h"
+
+using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Model {
         class Entity : public MapObject {
+        protected:
+            BBox m_bounds;
+        public:
+            Entity();
+            ~Entity();
+            
+            inline const BBox& bounds() const {
+                return m_bounds;
+            }
+            
+            inline Type objectType() const {
+                return Type::Entity;
+            }
+            
+            void pick(const Ray& ray, PickResult& pickResults, Filter& filter) {}
         };
     }
 }

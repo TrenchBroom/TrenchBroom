@@ -17,33 +17,25 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapObject__
-#define __TrenchBroom__MapObject__
+#ifndef TrenchBroom_ParserException_h
+#define TrenchBroom_ParserException_h
 
-#include "Utility/VecMath.h"
-
-using namespace TrenchBroom::Math;
+#include "Utility/MessageException.h"
+#include "Utility/String.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class Filter;
-        class PickResult;
-        
-        class MapObject {
+    namespace IO {
+        class ParserException : public Utility::MessageException {
+        protected:
+            inline String buildMessage(const String& path, size_t line, size_t column, const String& message) {
+                StringStream msg;
+                msg << "Parse error in file '" << path << "', line " << line << " column " << column << ": " << message;
+                return msg.str();
+            }
         public:
-            enum class Type {
-                Entity,
-                Brush
-            };
-
-            MapObject() {}
-            virtual ~MapObject() {}
-            
-            virtual const BBox& bounds() const = 0;
-            virtual Type objectType() const = 0;
-            virtual void pick(const Ray& ray, PickResult& pickResults, Filter& filter) = 0;
+            ParserException(const String& path, size_t line, size_t column, const String& message) throw() : MessageException(buildMessage(path, line, column, message)) {}
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MapObject__) */
+#endif

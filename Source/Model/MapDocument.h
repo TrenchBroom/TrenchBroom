@@ -25,11 +25,14 @@
 namespace TrenchBroom {
     namespace Model {
         class MapDocument : public wxDocument {
-        protected:
-            
+            DECLARE_DYNAMIC_CLASS(MapDocument)
         public:
-            virtual std::istream& LoadObject(std::istream& stream);
-            virtual std::ostream& SaveObject(std::ostream& stream);
+            MapDocument();
+
+            std::istream& LoadObject(std::istream& stream);
+            std::ostream& SaveObject(std::ostream& stream);
+            
+            bool OnCreate(const wxString& path, long flags);
         };
     }
 }
