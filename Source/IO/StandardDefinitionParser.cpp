@@ -296,8 +296,8 @@ namespace TrenchBroom {
             return bounds;
         }
 
-        Model::Spawnflag::List StandardDefinitionParser::parseFlags() {
-            Model::Spawnflag::List flags;
+        Model::SpawnflagList StandardDefinitionParser::parseFlags() {
+            Model::SpawnflagList flags;
             StandardDefinitionTokenizer::TokenPtr token = m_tokenizer.peekToken();
             if (token->type() != TokenType::Word)
                 return flags;
@@ -414,7 +414,7 @@ namespace TrenchBroom {
             bool hasFlags = false;
             Vec4f color;
             BBox bounds;
-            Model::Spawnflag::List spawnflags;
+            Model::SpawnflagList spawnflags;
             StandardProperty::List standardProperties;
             Model::PropertyDefinition::List propertyDefinitions;
             std::string description;

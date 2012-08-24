@@ -40,8 +40,8 @@ namespace TrenchBroom {
             return it != m_entityDefinitions.end() ? it->second : NULL;
         }
         
-        PointEntityDefinition::List EntityDefinitionManager::definitions(EntityDefinition::Type type, SortOrder order) {
-            PointEntityDefinition::List result;
+        EntityDefinitionList EntityDefinitionManager::definitions(EntityDefinition::Type type, SortOrder order) {
+            EntityDefinitionList result;
             EntityDefinitionMap::iterator it, end;
             for (it = m_entityDefinitions.begin(), end = m_entityDefinitions.end(); it != end; ++it)
                 if (it->second->type() == type)

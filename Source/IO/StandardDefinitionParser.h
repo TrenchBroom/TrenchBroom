@@ -22,6 +22,7 @@
 #include "IO/AbstractTokenizer.h"
 #include "IO/ParserException.h"
 #include "Model/EntityDefinition.h"
+#include "Model/EntityDefinitionTypes.h"
 #include "Model/PropertyDefinition.h"
 #include "Utility/Pool.h"
 #include "Utility/String.h"
@@ -217,7 +218,7 @@ namespace TrenchBroom {
             StandardDefinitionTokenizer::TokenPtr nextTokenIgnoringNewlines();
             Vec4f parseColor();
             BBox parseBounds();
-            Model::Spawnflag::List parseFlags();
+            Model::SpawnflagList parseFlags();
             bool parseProperty(StandardProperty::List& properties);
             StandardProperty::List parseProperties();
             String parseDescription();

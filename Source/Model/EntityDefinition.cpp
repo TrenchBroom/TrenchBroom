@@ -21,7 +21,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        EntityDefinition::EntityDefinition(const String& name, const Vec4f& color, const Spawnflag::List& spawnflags, const String& description, const PropertyDefinition::List& propertyDefinitions) :
+        EntityDefinition::EntityDefinition(const String& name, const Vec4f& color, const SpawnflagList& spawnflags, const String& description, const PropertyDefinition::List& propertyDefinitions) :
         m_name(name),
         m_color(color),
         m_spawnflags(spawnflags),
@@ -33,13 +33,13 @@ namespace TrenchBroom {
         EntityDefinition::~EntityDefinition() {
         }
 
-        PointEntityDefinition::PointEntityDefinition(const String& name, const Vec4f& color, const Spawnflag::List& spawnflags, const BBox& bounds, const String& description, const PropertyDefinition::List& propertyDefinitions) :
+        PointEntityDefinition::PointEntityDefinition(const String& name, const Vec4f& color, const SpawnflagList& spawnflags, const BBox& bounds, const String& description, const PropertyDefinition::List& propertyDefinitions) :
         EntityDefinition(name, color, spawnflags, description, propertyDefinitions),
         m_bounds(bounds),
         m_model(NULL) {
         }
         
-        PointEntityDefinition::PointEntityDefinition(const String& name, const Vec4f& color, const Spawnflag::List& spawnflags, const BBox& bounds, const String& description, const PropertyDefinition::List& propertyDefinitions, const PointEntityModel& model) :
+        PointEntityDefinition::PointEntityDefinition(const String& name, const Vec4f& color, const SpawnflagList& spawnflags, const BBox& bounds, const String& description, const PropertyDefinition::List& propertyDefinitions, const PointEntityModel& model) :
         EntityDefinition(name, color, spawnflags, description, propertyDefinitions),
         m_bounds(bounds),
         m_model(new PointEntityModel(model)) {
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             }
         }
 
-        BrushEntityDefinition::BrushEntityDefinition(const String& name, const Vec4f& color, const Spawnflag::List& spawnflags, const String& description, const PropertyDefinition::List& propertyDefinitions) :
+        BrushEntityDefinition::BrushEntityDefinition(const String& name, const Vec4f& color, const SpawnflagList& spawnflags, const String& description, const PropertyDefinition::List& propertyDefinitions) :
         EntityDefinition(name, color, spawnflags, description, propertyDefinitions) {
         }
         

@@ -19,6 +19,7 @@
 #ifndef __TrenchBroom__EntityDefinitionManager__
 #define __TrenchBroom__EntityDefinitionManager__
 
+#include "Model/EntityDefinitionTypes.h"
 #include "Model/EntityDefinition.h"
 #include "Utility/String.h"
 
@@ -26,6 +27,7 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class EntityDefinition;
         
         class EntityDefinitionManager {
         public:
@@ -61,7 +63,7 @@ namespace TrenchBroom {
             bool load(const String& path);
             
             EntityDefinition* definition(const String& name);
-            PointEntityDefinition::List definitions(EntityDefinition::Type type, SortOrder order = SortOrder::Name);
+            EntityDefinitionList definitions(EntityDefinition::Type type, SortOrder order = SortOrder::Name);
         };
     }
 }

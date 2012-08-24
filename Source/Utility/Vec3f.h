@@ -26,6 +26,7 @@
 #include <cassert>
 #include <cmath>
 #include <ostream>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Math {
@@ -40,6 +41,8 @@ namespace TrenchBroom {
             static const Vec3f Null;
             static const Vec3f NaN;
 
+            typedef std::vector<Vec3f> List;
+            
             float x, y, z;
             
             Vec3f() : x(0), y(0), z(0) {}
@@ -206,7 +209,7 @@ namespace TrenchBroom {
                 return equals(Null, Math::AlmostZero);
             }
             
-            bool parallelTo(const Vec3f& other, float delta) const {
+            bool parallelTo(const Vec3f& other, float delta = Math::AlmostZero) const {
                 Vec3f cross = *this % other;
                 return cross.equals(Null, delta);
             }

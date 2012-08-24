@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__EntityDefinition__
 #define __TrenchBroom__EntityDefinition__
 
+#include "Model/EntityDefinitionTypes.h"
 #include "Model/PropertyDefinition.h"
 #include "Utility/String.h"
 #include "Utility/VecMath.h"
@@ -32,8 +33,6 @@ namespace TrenchBroom {
     namespace Model {
         
         class Spawnflag {
-        public:
-            typedef std::vector<Spawnflag> List;
         protected:
             String m_name;
             int m_value;
@@ -71,12 +70,10 @@ namespace TrenchBroom {
         };
         
         class EntityDefinition {
-        public:
-            typedef std::vector<EntityDefinition*> List;
         protected:
             String m_name;
             Vec4f m_color;
-            Spawnflag::List m_spawnflags;
+            SpawnflagList m_spawnflags;
             String m_description;
             unsigned int m_usageCount;
             PropertyDefinition::List m_propertyDefinitions;
@@ -86,7 +83,7 @@ namespace TrenchBroom {
                 Brush
             };
             
-            EntityDefinition(const String& name, const Vec4f& color, const Spawnflag::List& spawnflags, const String& description, const PropertyDefinition::List& propertyDefinitions);
+            EntityDefinition(const String& name, const Vec4f& color, const SpawnflagList& spawnflags, const String& description, const PropertyDefinition::List& propertyDefinitions);
             virtual ~EntityDefinition();
             
             virtual Type type() const = 0;
@@ -117,8 +114,8 @@ namespace TrenchBroom {
             BBox m_bounds;
             PointEntityModel* m_model;
         public:
-            PointEntityDefinition(const String& name, const Vec4f& color, const Spawnflag::List& spawnflags, const BBox& bounds, const String& description, const PropertyDefinition::List& propertyDefinitions);
-            PointEntityDefinition(const String& name, const Vec4f& color, const Spawnflag::List& spawnflags, const BBox& bounds, const String& description, const PropertyDefinition::List& propertyDefinitions, const PointEntityModel& model);
+            PointEntityDefinition(const String& name, const Vec4f& color, const SpawnflagList& spawnflags, const BBox& bounds, const String& description, const PropertyDefinition::List& propertyDefinitions);
+            PointEntityDefinition(const String& name, const Vec4f& color, const SpawnflagList& spawnflags, const BBox& bounds, const String& description, const PropertyDefinition::List& propertyDefinitions, const PointEntityModel& model);
             ~PointEntityDefinition();
             
             inline Type type() const {
@@ -137,7 +134,7 @@ namespace TrenchBroom {
         
         class BrushEntityDefinition : public EntityDefinition {
         public:
-            BrushEntityDefinition(const String& name, const Vec4f& color, const Spawnflag::List& spawnflags, const String& description, const PropertyDefinition::List& propertyDefinitions);
+            BrushEntityDefinition(const String& name, const Vec4f& color, const SpawnflagList& spawnflags, const String& description, const PropertyDefinition::List& propertyDefinitions);
             ~BrushEntityDefinition();
             
             inline Type type() const {

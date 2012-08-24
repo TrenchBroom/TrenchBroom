@@ -20,13 +20,53 @@
 #ifndef __TrenchBroom__Brush__
 #define __TrenchBroom__Brush__
 
+#include "Model/EditState.h"
+#include "Model/FaceTypes.h"
+#include "Utility/VecMath.h"
+
 #include <vector>
+
+using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Model {
+        class Entity;
+        class Face;
+        
         class Brush {
+        protected:
+            Entity* m_entity;
+            FaceList m_faces;
+            
+            EditState m_editState;
+            unsigned int m_selectedFaceCount;
+            
+            const BBox& m_worldBounds;
         public:
-            typedef std::vector<Brush*> List;
+            Brush(const BBox& worldBounds);
+            ~Brush();
+            
+            inline Entity* entity() const {
+                return m_entity;
+            }
+            
+            void setEntity(Entity* entity);
+            
+            inline bool partiallySelected() const {
+                return m_selectedFaceCount > 0;
+            }
+            
+            inline void incSelectedFaceCount() {
+                m_selectedFaceCount++;
+            }
+            
+            inline void decSelectedFaceCount() {
+                m_selectedFaceCount--;
+            }
+            
+            inline const BBox& worldBounds() const {
+                return m_worldBounds;
+            }
         };
     }
 }

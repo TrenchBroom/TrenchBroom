@@ -18,3 +18,33 @@
  */
 
 #include "Brush.h"
+
+#include "Model/Entity.h"
+#include "Model/Face.h"
+
+namespace TrenchBroom {
+    namespace Model {
+        Brush::Brush(const BBox& worldBounds) :
+        m_entity(NULL),
+        m_editState(EditState::Default),
+        m_worldBounds(worldBounds) {}
+
+        Brush::~Brush() {
+            setEntity(NULL);
+            while (!m_faces.empty()) delete m_faces.back(), m_faces.pop_back();
+            m_editState = EditState::Default;
+        }
+
+        void Brush::setEntity(Entity* entity) {
+            if (entity == m_entity)
+                return;
+            
+            if (m_entity != NULL && m_editState == EditState::Selected)
+                m_entity->decSelectedBrushCount();
+            
+            m_entity = entity;
+            if (m_entity != NULL && m_editState == EditState::Selected)
+                m_entity->incSelectedBrushCount();
+        }
+    }
+}

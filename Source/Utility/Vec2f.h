@@ -26,11 +26,14 @@
 #include <cassert>
 #include <cmath>
 #include <ostream>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Math {
         class Vec2f {
         public:
+            typedef std::vector<Vec2f> List;
+            
             float x,y;
             
             Vec2f() : x(0), y(0) {}
