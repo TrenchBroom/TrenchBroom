@@ -943,6 +943,7 @@ namespace TrenchBroom {
             mergeSides(newFaces, droppedFaces);
             mergeEdges();
             bounds = boundsOfVertices(vertices);
+            center = centerOfVertices(vertices);
             
             // find the index of the moved vertex
             size_t newVertexIndex = findVertex(vertices, newPosition);
@@ -1327,6 +1328,7 @@ namespace TrenchBroom {
             sides[5] = down;
             
             this->bounds = bounds;
+            this->center = centerOfVertices(vertices);
         }
         
         BrushGeometry::BrushGeometry(const BrushGeometry& original) {
@@ -1483,6 +1485,7 @@ namespace TrenchBroom {
             }
             
             bounds = boundsOfVertices(vertices);
+            center = centerOfVertices(vertices);
             return CutResult::Split;
         }
         
@@ -1496,25 +1499,29 @@ namespace TrenchBroom {
         void BrushGeometry::translate(const Vec3f& delta) {
             for (unsigned int i = 0; i < vertices.size(); i++)
                 vertices[i]->position += delta;
-            bounds = bounds.translate(delta);
+            bounds.translate(delta);
+            center += delta;
         }
         
-        void BrushGeometry::rotate90(Axis axis, const Vec3f& center, bool clockwise) {
+        void BrushGeometry::rotate90(Axis axis, const Vec3f& rotationCenter, bool clockwise) {
             for (unsigned int i = 0; i < vertices.size(); i++)
                 vertices[i]->position.rotate90(axis, center, clockwise);
-            bounds.rotate90(axis, center, clockwise);
+            bounds.rotate90(axis, rotationCenter, clockwise);
+            center.rotate90(axis, rotationCenter, clockwise);
         }
         
-        void BrushGeometry::rotate(const Quat& rotation, const Vec3f& center) {
+        void BrushGeometry::rotate(const Quat& rotation, const Vec3f& rotationCenter) {
             for (unsigned int i = 0; i < vertices.size(); i++)
                 vertices[i]->position = rotation * (vertices[i]->position - center) + center;
-            bounds.rotate(rotation, center);
+            bounds.rotate(rotation, rotationCenter);
+            center = rotation * (center - rotationCenter) + rotationCenter;
         }
         
-        void BrushGeometry::flip(Axis axis, const Vec3f& center) {
+        void BrushGeometry::flip(Axis axis, const Vec3f& flipCenter) {
             for (unsigned int i = 0; i < vertices.size(); i++)
                 vertices[i]->position.flip(axis, center);
             bounds.flip(axis, center);
+            center.flip(axis, center);
             
             for (unsigned int i = 0; i < edges.size(); i++)
                 edges[i]->flip();

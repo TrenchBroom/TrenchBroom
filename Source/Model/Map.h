@@ -20,9 +20,24 @@
 #ifndef __TrenchBroom__Map__
 #define __TrenchBroom__Map__
 
+#include "Utility/VecMath.h"
+
+using namespace TrenchBroom::Math;
+
 namespace TrenchBroom {
     namespace Model {
+        class Entity;
+        
         class Map {
+        protected:
+            BBox m_worldBounds;
+        public:
+            
+            void addEntity(Entity* entity);
+            
+            inline const BBox& worldBounds() const {
+                return m_worldBounds;
+            }
         };
     }
 }

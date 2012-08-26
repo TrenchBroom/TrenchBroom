@@ -20,8 +20,10 @@
 #ifndef __TrenchBroom__Brush__
 #define __TrenchBroom__Brush__
 
+#include "Model/BrushGeometry.h"
 #include "Model/EditState.h"
 #include "Model/FaceTypes.h"
+#include "Model/MapObject.h"
 #include "Utility/VecMath.h"
 
 #include <vector>
@@ -32,25 +34,46 @@ namespace TrenchBroom {
     namespace Model {
         class Entity;
         class Face;
+        class Texture;
         
-        class Brush {
+        class Brush : public MapObject {
         protected:
             Entity* m_entity;
             FaceList m_faces;
+            BrushGeometry* m_geometry;
             
             EditState m_editState;
             unsigned int m_selectedFaceCount;
             
             const BBox& m_worldBounds;
+            
+            size_t m_filePosition;
+            
+            void init();
+            void validateGeometry();
         public:
             Brush(const BBox& worldBounds);
+            Brush(const BBox& worldBounds, const Brush& brushTemplate);
+            Brush(const BBox& worldBounds, const BBox& brushBounds, Texture* texture);
             ~Brush();
+            
+            void restore(const Brush& brushTemplate, bool checkId = false);
+            
+            inline MapObject::Type objectType() const {
+                return MapObject::Type::Brush;
+            }
             
             inline Entity* entity() const {
                 return m_entity;
             }
             
             void setEntity(Entity* entity);
+            
+            inline const FaceList& faces() const {
+                return m_faces;
+            }
+            
+            bool addFace(Face* face);
             
             inline bool partiallySelected() const {
                 return m_selectedFaceCount > 0;
@@ -67,6 +90,24 @@ namespace TrenchBroom {
             inline const BBox& worldBounds() const {
                 return m_worldBounds;
             }
+            
+            inline const Vec3f& center() const {
+                return m_geometry->center;
+            }
+            
+            inline const BBox& bounds() const {
+                return m_geometry->bounds;
+            }
+
+            inline size_t filePosition() const {
+                return m_filePosition;
+            }
+            
+            inline void setFilePosition(size_t filePosition) {
+                m_filePosition = filePosition;
+            }
+
+            void pick(const Ray& ray, PickResult& pickResults, Filter& filter) const;
         };
     }
 }

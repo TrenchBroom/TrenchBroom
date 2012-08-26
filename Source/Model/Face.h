@@ -63,7 +63,7 @@ namespace TrenchBroom {
             Vec2f::List m_gridCoords;
             Vec2f::List m_texCoords;
             
-            int m_filePosition;
+            size_t m_filePosition;
             bool m_selected;
             
             void init();
@@ -187,7 +187,7 @@ namespace TrenchBroom {
                 m_selected = selected;
             }
             
-            inline unsigned int filePosition() const {
+            inline size_t filePosition() const {
                 return m_filePosition;
             }
         };

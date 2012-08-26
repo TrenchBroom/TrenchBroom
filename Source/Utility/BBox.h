@@ -239,7 +239,12 @@ namespace TrenchBroom {
                 return intersectWithRay(ray, NULL);
             }
             
-            const BBox translate(const Vec3f& delta) const {
+            void translate(const Vec3f& delta) {
+                min += delta;
+                max += delta;
+            }
+            
+            const BBox translated(const Vec3f& delta) const {
                 return BBox(min.x + delta.x,
                             min.y + delta.y,
                             min.z + delta.z,

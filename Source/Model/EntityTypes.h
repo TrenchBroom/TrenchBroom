@@ -20,6 +20,9 @@
 #ifndef TrenchBroom_EntityTypes_h
 #define TrenchBroom_EntityTypes_h
 
+#include <map>
+#include <set>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -27,6 +30,10 @@ namespace TrenchBroom {
         class Entity;
         
         typedef std::vector<Entity*> EntityList;
+        typedef std::set<Entity*> EntitySet;
+        typedef std::string PropertyKey;
+        typedef std::string PropertyValue;
+        typedef std::map<PropertyKey, PropertyValue> Properties;
     }
 }
 

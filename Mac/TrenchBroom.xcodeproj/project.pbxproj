@@ -21,6 +21,7 @@
 		4847640E15E2E03000095BC0 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847640C15E2E03000095BC0 /* Entity.cpp */; };
 		48AF491F15E77BF90083DE52 /* BrushGeometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AF491D15E77BF90083DE52 /* BrushGeometry.cpp */; };
 		48AF492515E8265B0083DE52 /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AF492315E8265A0083DE52 /* Texture.cpp */; };
+		48AF492815E8CC270083DE52 /* MapParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AF492615E8CC270083DE52 /* MapParser.cpp */; };
 		48D1BE9D15E2E5550073C030 /* Vec3f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BE9C15E2E5550073C030 /* Vec3f.cpp */; };
 		48D1BEA315E2F3BC0073C030 /* Mat4f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEA215E2F3BB0073C030 /* Mat4f.cpp */; };
 		48D1BEAE15E3AC060073C030 /* EditorView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEAC15E3AC060073C030 /* EditorView.cpp */; };
@@ -78,6 +79,9 @@
 		48AF492215E784590083DE52 /* MapExceptions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapExceptions.h; sourceTree = "<group>"; };
 		48AF492315E8265A0083DE52 /* Texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Texture.cpp; sourceTree = "<group>"; };
 		48AF492415E8265A0083DE52 /* Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Texture.h; sourceTree = "<group>"; };
+		48AF492615E8CC270083DE52 /* MapParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapParser.cpp; sourceTree = "<group>"; };
+		48AF492715E8CC270083DE52 /* MapParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapParser.h; sourceTree = "<group>"; };
+		48AF492915E8F0B20083DE52 /* ProgressIndicator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProgressIndicator.h; sourceTree = "<group>"; };
 		48D1BE9815E2E2930073C030 /* Math.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Math.h; sourceTree = "<group>"; };
 		48D1BE9A15E2E35C0073C030 /* Vec3f.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Vec3f.h; sourceTree = "<group>"; };
 		48D1BE9B15E2E3B50073C030 /* VecMath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VecMath.h; sourceTree = "<group>"; };
@@ -117,6 +121,8 @@
 			isa = PBXGroup;
 			children = (
 				4810277C15E56F9B00250C9C /* AbstractTokenizer.h */,
+				48AF492615E8CC270083DE52 /* MapParser.cpp */,
+				48AF492715E8CC270083DE52 /* MapParser.h */,
 				4810278215E5954A00250C9C /* ParserException.h */,
 				4810277D15E56F9B00250C9C /* StandardDefinitionParser.cpp */,
 				4810277E15E56F9B00250C9C /* StandardDefinitionParser.h */,
@@ -262,6 +268,7 @@
 				48D1BE9815E2E2930073C030 /* Math.h */,
 				4810278115E594C400250C9C /* MessageException.h */,
 				48D1BEAA15E2FF860073C030 /* Plane.h */,
+				48AF492915E8F0B20083DE52 /* ProgressIndicator.h */,
 				48D1BEA415E2F4F80073C030 /* Quat.h */,
 				48D1BEA515E2F8CC0073C030 /* Ray.h */,
 				4810277015E541A200250C9C /* String.h */,
@@ -354,6 +361,7 @@
 				481028A915E77A8D00250C9C /* Map.cpp in Sources */,
 				48AF491F15E77BF90083DE52 /* BrushGeometry.cpp in Sources */,
 				48AF492515E8265B0083DE52 /* Texture.cpp in Sources */,
+				48AF492815E8CC270083DE52 /* MapParser.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -285,6 +285,7 @@ namespace TrenchBroom {
             VertexList vertices;
             EdgeList edges;
             SideList sides;
+            Vec3f center;
             BBox bounds;
             
             BrushGeometry(const BBox& bounds);
@@ -298,9 +299,9 @@ namespace TrenchBroom {
             bool addFaces(FaceList& faces, FaceList& droppedFaces) throw (GeometryException);
             
             void translate(const Vec3f& delta);
-            void rotate90(Axis axis, const Vec3f& center, bool clockwise);
-            void rotate(const Quat& rotation, const Vec3f& center);
-            void flip(Axis axis, const Vec3f& center);
+            void rotate90(Axis axis, const Vec3f& rotationCenter, bool clockwise);
+            void rotate(const Quat& rotation, const Vec3f& rotationCenter);
+            void flip(Axis axis, const Vec3f& flipCenter);
             void snap();
             
             VertexMoveResult moveVertex(size_t vertexIndex, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);

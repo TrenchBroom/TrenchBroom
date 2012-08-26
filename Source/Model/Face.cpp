@@ -35,7 +35,7 @@ namespace TrenchBroom {
             m_yScale = 1.0f;
             m_brush = NULL;
             m_texture = NULL;
-            m_filePosition = -1;
+            m_filePosition = 0;
             m_selected = false;
             m_texAxesValid = false;
             m_coordsValid = false;

@@ -30,18 +30,29 @@ namespace TrenchBroom {
         class PickResult;
         
         class MapObject {
+        private:
+            int m_uniqueId;
         public:
             enum class Type {
                 Entity,
                 Brush
             };
 
-            MapObject() {}
+            MapObject() {
+                static int currentId = 1;
+                m_uniqueId = currentId++;
+            }
+            
             virtual ~MapObject() {}
             
-            virtual const BBox& Bounds() const = 0;
-            virtual Type ObjectType() const = 0;
-            virtual void Pick(const Ray& ray, PickResult& pickResults, Filter& filter) = 0;
+            inline int uniqueId() const {
+                return m_uniqueId;
+            }
+            
+            virtual const Vec3f& center() const = 0;
+            virtual const BBox& bounds() const = 0;
+            virtual Type objectType() const = 0;
+            virtual void pick(const Ray& ray, PickResult& pickResults, Filter& filter) const = 0;
         };
     }
 }
