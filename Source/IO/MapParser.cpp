@@ -23,6 +23,7 @@
 #include "Model/Entity.h"
 #include "Model/Face.h"
 #include "Model/Map.h"
+#include "Model/Texture.h"
 #include "Utility/ProgressIndicator.h"
 
 namespace TrenchBroom {
@@ -169,7 +170,7 @@ namespace TrenchBroom {
                 }
             }
             
-            return MapTokenizer::TokenPtr();
+            return MapTokenizer::TokenPtr(NULL);
         }
         
         MapTokenizer::TokenPtr MapTokenizer::peekToken() {
@@ -200,8 +201,8 @@ namespace TrenchBroom {
             m_stream.seekg(0, std::ios::beg);
         }
 
-        MapParser::MapParser(const String& path, std::istream& stream) :
-        m_tokenizer(path, stream),
+        MapParser::MapParser(std::istream& stream) :
+        m_tokenizer(stream),
         m_format(MapFormat::Undefined) {
             std::streamoff cur = stream.tellg();
             stream.seekg(0, std::ios::end);
@@ -232,7 +233,7 @@ namespace TrenchBroom {
             if (token->type() == TokenType::CBrace)
                 return NULL;
             
-            Model::Entity* entity = new Model::Entity();
+            Model::Entity* entity = new Model::Entity(worldBounds);
             entity->setFilePosition(token->line());
             
             while ((token = nextToken()).get() != NULL) {
@@ -285,16 +286,16 @@ namespace TrenchBroom {
             Model::Brush* brush = new Model::Brush(worldBounds);
             brush->setFilePosition(token->line());
             
-            while ((token = nextToken()) != NULL) {
-                switch (token->type) {
-                    case TB_TT_B_O: {
+            while ((token = nextToken()).get() != NULL) {
+                switch (token->type()) {
+                    case TokenType::OParenthesis: {
                         pushToken(token);
                         Model::Face* face = parseFace(worldBounds);
                         if (face == NULL) {
-                            log(TB_LL_WARN, "Skipping malformed face at line %i\n", token->line);
+                            // log(TB_LL_WARN, "Skipping malformed face at line %i\n", token->line);
                         } else if (brush != NULL) {
                             if (!brush->addFace(face)) {
-                                log(TB_LL_WARN, "Skipping malformed brush at line %i\n", brush->filePosition);
+                                // log(TB_LL_WARN, "Skipping malformed brush at line %i\n", brush->filePosition);
                                 delete brush;
                                 brush = NULL;
                             }
@@ -303,17 +304,17 @@ namespace TrenchBroom {
                         }
                         break;
                     }
-                    case TB_TT_CB_C:
-                        if (indicator != NULL) indicator->update(static_cast<float>(token->charsRead));
-                        if (brush != NULL && !brush->geometry->closed()) {
-                            log(TB_LL_WARN, "Skipping non-closed brush at line %i\n", brush->filePosition);
+                    case TokenType::CParenthesis:
+                        if (indicator != NULL) indicator->update(static_cast<float>(token->position()));
+                        if (brush != NULL && !brush->closed()) {
+                            // log(TB_LL_WARN, "Skipping non-closed brush at line %i\n", brush->filePosition);
                             delete brush;
                             brush = NULL;
                         }
                         return brush;
                     default:
                         delete brush;
-                        throw MapParserException(*token, TB_TT_B_O | TB_TT_CB_C);
+                        throw MapParserException(token.get(), TokenType::OParenthesis | TokenType::CParenthesis);
                 }
             }
             
@@ -323,92 +324,93 @@ namespace TrenchBroom {
         Model::Face* MapParser::parseFace(const BBox& worldBounds) {
             Vec3f p1, p2, p3;
             float xOffset, yOffset, rotation, xScale, yScale;
-            MapToken* token = nextToken();
-            if (token == NULL) return NULL;
+            MapTokenizer::TokenPtr token = nextToken();
+            if (token.get() == NULL)
+                return NULL;
             
-            expect(TB_TT_B_O, token);
-            expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p1.x = static_cast<float>(atof(token->data.c_str()));
-            expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p1.y = static_cast<float>(atof(token->data.c_str()));
-            expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p1.z = static_cast<float>(atof(token->data.c_str()));
-            expect(TB_TT_B_C, token = nextToken());
-            expect(TB_TT_B_O, token = nextToken());
-            expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p2.x = static_cast<float>(atof(token->data.c_str()));
-            expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p2.y = static_cast<float>(atof(token->data.c_str()));
-            expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p2.z = static_cast<float>(atof(token->data.c_str()));
-            expect(TB_TT_B_C, token = nextToken());
-            expect(TB_TT_B_O, token = nextToken());
-            expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p3.x = static_cast<float>(atof(token->data.c_str()));
-            expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p3.y = static_cast<float>(atof(token->data.c_str()));
-            expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            p3.z = static_cast<float>(atof(token->data.c_str()));
-            expect(TB_TT_B_C, token = nextToken());
+            expect(TokenType::OParenthesis, token.get());
+            expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
+            p1.x = token->toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
+            p1.y = token->toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
+            p1.z = token->toFloat();
+            expect(TokenType::CParenthesis, (token = nextToken()).get());
+            expect(TokenType::OParenthesis, (token = nextToken()).get());
+            expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
+            p2.x = token->toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
+            p2.y = token->toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
+            p2.z = token->toFloat();
+            expect(TokenType::CParenthesis, (token = nextToken()).get());
+            expect(TokenType::OParenthesis, (token = nextToken()).get());
+            expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
+            p3.x = token->toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
+            p3.y = token->toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
+            p3.z = token->toFloat();
+            expect(TokenType::CParenthesis, (token = nextToken()).get());
             
-            expect(TB_TT_STR, token = nextToken());
-            String textureName = token->data;
+            expect(TokenType::String, (token = nextToken()).get());
+            String textureName = token->data();
             
             token = nextToken();
-            if (m_format == TB_MF_UNDEFINED) {
-                expect(TB_TT_DEC | TB_TT_FRAC | TB_TT_SB_O, token);
-                m_format = token->type == TB_TT_SB_O ? TB_MF_VALVE : TB_MF_STANDARD;
-                if (m_format == TB_MF_VALVE)
-                    log(TB_LL_WARN, "Loading unsupported map Valve 220 map format\n");
+            if (m_format == MapFormat::Undefined) {
+                expect(TokenType::Integer | TokenType::Decimal | TokenType::OBracket, token.get());
+                m_format = token->type() == TokenType::OBracket ? MapFormat::Valve : MapFormat::Standard;
+//                if (m_format == MapFormat::Valve)
+//                    log(TB_LL_WARN, "Loading unsupported map Valve 220 map format\n");
             }
             
-            if (m_format == TB_MF_STANDARD) {
-                expect(TB_TT_DEC | TB_TT_FRAC, token);
-                bool frac = token->type == TB_TT_FRAC;
-                xOffset = static_cast<float>(atof(token->data.c_str()));
-                expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-                yOffset = static_cast<float>(atof(token->data.c_str()));
-                if (frac || token->type == TB_TT_FRAC)
-                    log(TB_LL_WARN, "Rounding fractional texture offset in line %i", token->line);
+            if (m_format == MapFormat::Standard) {
+                expect(TokenType::Integer | TokenType::Decimal, token.get());
+                bool dec = token->type() == TokenType::Decimal;
+                xOffset = token->toFloat();
+                expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
+                yOffset = token->toFloat();
+                //if (dec || token->type() == TokenType::Decimal)
+                  //  log(TB_LL_WARN, "Rounding fractional texture offset in line %i", token->line);
             } else { // Valve 220 format
-                expect(TB_TT_SB_O, token);
-                expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken()); // X texture axis x
-                expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken()); // X texture axis y
-                expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken()); // X texture axis z
-                expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken()); // X texture axis offset
-                xOffset = static_cast<float>(atof(token->data.c_str()));
-                expect(TB_TT_SB_C, token = nextToken());
-                expect(TB_TT_SB_O, token = nextToken());
-                expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken()); // Y texture axis x
-                expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken()); // Y texture axis y
-                expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken()); // Y texture axis z
-                expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken()); // Y texture axis offset
-                yOffset = static_cast<float>(atof(token->data.c_str()));
-                expect(TB_TT_SB_C, token = nextToken());
+                expect(TokenType::OBracket, token.get());
+                expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get()); // X texture axis x
+                expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get()); // X texture axis y
+                expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get()); // X texture axis z
+                expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get()); // X texture axis offset
+                xOffset = token->toFloat();
+                expect(TokenType::CBracket, (token = nextToken()).get());
+                expect(TokenType::OBracket, (token = nextToken()).get());
+                expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get()); // Y texture axis x
+                expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get()); // Y texture axis y
+                expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get()); // Y texture axis z
+                expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get()); // Y texture axis offset
+                yOffset = token->toFloat();
+                expect(TokenType::CBracket, (token = nextToken()).get());
             }
             
-            expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            rotation = static_cast<float>(atof(token->data.c_str()));
-            expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            xScale = static_cast<float>(atof(token->data.c_str()));
-            expect(TB_TT_DEC | TB_TT_FRAC, token = nextToken());
-            yScale = static_cast<float>(atof(token->data.c_str()));
+            expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
+            rotation = token->toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
+            xScale = token->toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
+            yScale = token->toFloat();
             
             if (((p3 - p1) % (p2 - p1)).null()) {
-                log(TB_LL_WARN, "Skipping invalid face in line %i", token->line);
+                // log(TB_LL_WARN, "Skipping invalid face in line %i", token->line);
                 return NULL;
             }
             
-            if (textureName == Model::Assets::Texture::EMPTY)
+            if (textureName == Model::Texture::Empty)
                 textureName = "";
             
             Model::Face* face = new Model::Face(worldBounds, p1, p2, p3, textureName);
-            face->xOffset = xOffset;
-            face->yOffset = yOffset;
-            face->rotation = rotation;
-            face->xScale = xScale;
-            face->yScale = yScale;
-            face->filePosition = token->line;
+            face->setXOffset(xOffset);
+            face->setYOffset(yOffset);
+            face->setRotation(rotation);
+            face->setXScale(xScale);
+            face->setYScale(yScale);
+            face->setFilePosition(token->line());
             return face;
         }
         
@@ -420,7 +422,7 @@ namespace TrenchBroom {
                 return !entities.empty();
             } catch (MapParserException e) {
                 while (entities.size() > oldSize) delete entities.back(), entities.pop_back();
-                m_tokenizer->reset();
+                m_tokenizer.reset();
                 return false;
             }
         }
@@ -433,7 +435,7 @@ namespace TrenchBroom {
                 return !brushes.empty();
             } catch (MapParserException e) {
                 while (brushes.size() > oldSize) delete brushes.back(), brushes.pop_back();
-                m_tokenizer->reset();
+                m_tokenizer.reset();
                 return false;
             }
         }
@@ -446,7 +448,7 @@ namespace TrenchBroom {
                 return !faces.empty();
             } catch (MapParserException e) {
                 while (faces.size() > oldSize) delete faces.back(), faces.pop_back();
-                m_tokenizer->reset();
+                m_tokenizer.reset();
                 return false;
             }
         }

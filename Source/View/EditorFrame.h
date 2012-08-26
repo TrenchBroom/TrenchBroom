@@ -32,7 +32,8 @@ namespace TrenchBroom {
             EditorFrame();
             ~EditorFrame();
 
-            void mainSplitterOnIdle(wxIdleEvent&);
+            void logSplitterOnIdle(wxIdleEvent&);
+            void inspectorSplitterOnIdle(wxIdleEvent&);
         };
     }
 }

@@ -88,7 +88,7 @@ namespace TrenchBroom {
                 return token(type, data, m_line, m_column);
             }
         public:
-            MapTokenizer(const String& name, std::istream& stream) : AbstractTokenizer(name, stream), m_state(TokenizerState::Default) {}
+            MapTokenizer(std::istream& stream) : AbstractTokenizer(stream), m_state(TokenizerState::Default) {}
             
             TokenPtr nextToken();
             TokenPtr peekToken();
@@ -146,19 +146,19 @@ namespace TrenchBroom {
             }
         public:
             MapParserException() : MessageException("Reached unexpected end of file") {}
-            MapParserException(const MapTokenizer::Token* token, int expectedType) : MessageException(buildMessage(token, expectedType)) {}
+            MapParserException(MapTokenizer::Token* token, int expectedType) : MessageException(buildMessage(token, expectedType)) {}
         };
 
         class MapParser {
         private:
-            typedef std::vector<MapTokenizer::TokenPtr> TokenStack;
+            typedef std::vector<MapTokenizer::Token*> TokenStack;
             
             size_t m_size;
             MapFormat m_format;
             MapTokenizer m_tokenizer;
             TokenStack m_tokenStack;
             
-            inline void expect(int expectedType, const MapTokenizer::Token* actualToken) const {
+            inline void expect(int expectedType, MapTokenizer::Token* actualToken) const {
                 if (actualToken == NULL)
                     throw MapParserException();
                 
@@ -169,7 +169,7 @@ namespace TrenchBroom {
             inline MapTokenizer::TokenPtr nextToken() {
                 MapTokenizer::TokenPtr token;
                 if (!m_tokenStack.empty()) {
-                    token = m_tokenStack.back();
+                    token = MapTokenizer::TokenPtr(m_tokenStack.back());
                     m_tokenStack.pop_back();
                 } else {
                     token = m_tokenizer.nextToken();
@@ -181,10 +181,10 @@ namespace TrenchBroom {
             }
             
             inline void pushToken(MapTokenizer::TokenPtr token) {
-                m_tokenStack.push_back(token);
+                m_tokenStack.push_back(new MapTokenizer::Token(*token.get()));
             }
         public:
-            MapParser(const String& path, std::istream& stream);
+            MapParser(std::istream& stream);
             
             void parseMap(Model::Map& map, Utility::ProgressIndicator* indicator);
             Model::Entity* parseEntity(const BBox& worldBounds, Utility::ProgressIndicator* indicator);

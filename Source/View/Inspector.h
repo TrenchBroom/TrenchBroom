@@ -21,11 +21,13 @@
 #define __TrenchBroom__Inspector__
 
 #include <wx/notebook.h>
+#include <wx/panel.h>
 
 namespace TrenchBroom {
     namespace View {
-        class Inspector : public wxNotebook {
+        class Inspector : public wxPanel {
         protected:
+            wxNotebook* m_notebook;
             wxNotebookPage* CreateMapInspector();
             wxNotebookPage* CreateEntityInspector();
             wxNotebookPage* CreateBrushInspector();

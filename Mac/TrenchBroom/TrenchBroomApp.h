@@ -32,7 +32,8 @@ public:
 	virtual bool OnInit();
     virtual int OnExit();
     
-    void OnNew(wxCommandEvent& event);
+    void OnFileNew(wxCommandEvent& event);
+    void OnFileOpen(wxCommandEvent& event);
 };
 
 DECLARE_APP(TrenchBroomApp)

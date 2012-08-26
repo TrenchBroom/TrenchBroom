@@ -98,6 +98,10 @@ namespace TrenchBroom {
             inline const BBox& bounds() const {
                 return m_geometry->bounds;
             }
+            
+            inline bool closed() const {
+                return m_geometry->closed();
+            }
 
             inline size_t filePosition() const {
                 return m_filePosition;

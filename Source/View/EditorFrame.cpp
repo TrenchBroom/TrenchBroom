@@ -22,25 +22,37 @@
 #include "View/Inspector.h"
 #include "View/MapGLCanvas.h"
 
+#include <wx/colour.h>
 #include <wx/panel.h>
 #include <wx/sizer.h>
 #include <wx/splitter.h>
+#include <wx/textctrl.h>
 
 namespace TrenchBroom {
     namespace View {
         EditorFrame::EditorFrame() : wxFrame(NULL, wxID_ANY, wxT("TrenchBroom")) {
-            wxSizer* mainSplitterSizer = new wxBoxSizer(wxVERTICAL);
-            wxSplitterWindow* mainSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3DSASH | wxSP_LIVE_UPDATE);
-            mainSplitter->SetSashGravity(1.0f);
-            mainSplitter->SetMinimumPaneSize(300);
-            mainSplitter->Connect(wxEVT_IDLE, wxIdleEventHandler( EditorFrame::mainSplitterOnIdle ), NULL, this);
-
-            MapGLCanvas* mapCanvas = new MapGLCanvas(mainSplitter);
-            Inspector* inspector = new Inspector(mainSplitter);
-            mainSplitter->SplitVertically(mapCanvas, inspector, 0);
-            mainSplitterSizer->Add(mainSplitter, 1, wxEXPAND, 5);
+            wxSplitterWindow* logSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3DSASH | wxSP_LIVE_UPDATE);
+            logSplitter->SetSashGravity(1.0f);
+            logSplitter->SetMinimumPaneSize(0);
+            logSplitter->Connect(wxEVT_IDLE, wxIdleEventHandler(EditorFrame::logSplitterOnIdle), NULL, this);
             
-            SetSizer(mainSplitterSizer);
+            wxSplitterWindow* inspectorSplitter = new wxSplitterWindow(logSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3DSASH | wxSP_LIVE_UPDATE);
+            inspectorSplitter->SetSashGravity(1.0f);
+            inspectorSplitter->SetMinimumPaneSize(300);
+            inspectorSplitter->Connect(wxEVT_IDLE, wxIdleEventHandler( EditorFrame::inspectorSplitterOnIdle ), NULL, this);
+
+            MapGLCanvas* mapCanvas = new MapGLCanvas(inspectorSplitter);
+            Inspector* inspector = new Inspector(inspectorSplitter);
+            inspectorSplitter->SplitVertically(mapCanvas, inspector, 0);
+            
+            wxTextCtrl* logView = new wxTextCtrl(logSplitter, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP);
+            logView->SetBackgroundColour(*wxBLACK);
+            logView->SetForegroundColour(*wxLIGHT_GREY);
+            logSplitter->SplitHorizontally(inspectorSplitter, logView);
+            
+            wxSizer* logSplitterSizer = new wxBoxSizer(wxVERTICAL);
+            logSplitterSizer->Add(logSplitter, 1, wxEXPAND);
+            SetSizer(logSplitterSizer);
 
             SetSize(800, 600);
             Layout();
@@ -49,11 +61,19 @@ namespace TrenchBroom {
         EditorFrame::~EditorFrame() {
         }
         
-        void EditorFrame::mainSplitterOnIdle(wxIdleEvent& event) {
+        void EditorFrame::logSplitterOnIdle(wxIdleEvent& event) {
+            wxSplitterWindow* splitterWindow = dynamic_cast<wxSplitterWindow*>(event.GetEventObject());
+            if (splitterWindow != NULL) {
+                splitterWindow->SetSashPosition(GetSize().y - 150);
+                splitterWindow->Disconnect(wxEVT_IDLE, wxIdleEventHandler(EditorFrame::logSplitterOnIdle ), NULL, this);
+            }
+        }
+        
+        void EditorFrame::inspectorSplitterOnIdle(wxIdleEvent& event) {
             wxSplitterWindow* splitterWindow = dynamic_cast<wxSplitterWindow*>(event.GetEventObject());
             if (splitterWindow != NULL) {
                 splitterWindow->SetSashPosition(GetSize().x - 300);
-                splitterWindow->Disconnect(wxEVT_IDLE, wxIdleEventHandler(EditorFrame::mainSplitterOnIdle ), NULL, this);
+                splitterWindow->Disconnect(wxEVT_IDLE, wxIdleEventHandler(EditorFrame::inspectorSplitterOnIdle ), NULL, this);
             }
         }
     }

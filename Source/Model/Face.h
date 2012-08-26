@@ -190,6 +190,10 @@ namespace TrenchBroom {
             inline size_t filePosition() const {
                 return m_filePosition;
             }
+            
+            inline void setFilePosition(size_t filePosition) {
+                m_filePosition = filePosition;
+            }
         };
     }
 }

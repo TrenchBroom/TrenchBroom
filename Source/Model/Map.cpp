@@ -19,7 +19,37 @@
 
 #include "Map.h"
 
+#include "Model/Entity.h"
+
 namespace TrenchBroom {
     namespace Model {
+        void Map::setEntityDefinition(Entity* entity) {
+        }
+        
+        void Map::addEntity(Entity* entity) {
+            assert(entity != NULL);
+            if (!entity->worldspawn() || worldspawn(false) == NULL) {
+                m_entities.push_back(entity);
+                entity->setMap(this);
+                setEntityDefinition(entity);
+            }
+        }
+        
+        Entity* Map::createEntity(const PropertyValue& classname) {
+            return NULL;
+        }
+
+        Entity* Map::worldspawn(bool create) {
+            for (unsigned int i = 0; i < m_entities.size() && m_worldspawn == NULL; i++) {
+                Entity* entity = m_entities[i];
+                if (entity->worldspawn())
+                    m_worldspawn = entity;
+            }
+
+            if (m_worldspawn == NULL && create)
+                m_worldspawn = createEntity(Entity::WorldspawnClassname);
+            
+            return m_worldspawn;
+        }
     }
 }

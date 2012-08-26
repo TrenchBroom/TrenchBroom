@@ -27,13 +27,13 @@ namespace TrenchBroom {
     namespace IO {
         class ParserException : public Utility::MessageException {
         protected:
-            inline String buildMessage(const String& path, size_t line, size_t column, const String& message) {
+            inline String buildMessage(size_t line, size_t column, const String& message) {
                 StringStream msg;
-                msg << "Parse error in file '" << path << "', line " << line << " column " << column << ": " << message;
+                msg << "Parse error at line " << line << ", column " << column << ": " << message;
                 return msg.str();
             }
         public:
-            ParserException(const String& path, size_t line, size_t column, const String& message) throw() : MessageException(buildMessage(path, line, column, message)) {}
+            ParserException(size_t line, size_t column, const String& message) throw() : MessageException(buildMessage(line, column, message)) {}
         };
     }
 }

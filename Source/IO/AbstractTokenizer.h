@@ -87,14 +87,13 @@ namespace TrenchBroom {
         
         class AbstractTokenizer {
         protected:
-            String m_path;
             std::istream& m_stream;
             size_t m_line;
             size_t m_column;
 
             inline char nextChar() {
                 if (eof())
-                    throw ParserException(m_path, m_line, m_column, "unexpected end of file");
+                    throw ParserException(m_line, m_column, "unexpected end of file");
                 
                 char c;
                 m_stream.get(c);
@@ -128,7 +127,7 @@ namespace TrenchBroom {
             
             inline char peekChar(unsigned int offset = 0) {
                 if (eof())
-                    throw ParserException(m_path, m_line, m_column, "unexpected end of file");
+                    throw ParserException(m_line, m_column, "unexpected end of file");
 
                 if (offset == 0)
                     return m_stream.peek();
@@ -145,7 +144,7 @@ namespace TrenchBroom {
                 return m_stream.eof();
             }
         public:
-            AbstractTokenizer(const String& path, std::istream& stream) : m_path(path), m_stream(stream), m_line(1), m_column(1) {}
+            AbstractTokenizer(std::istream& stream) : m_stream(stream), m_line(1), m_column(1) {}
 
             inline size_t line() const {
                 return m_line;
@@ -157,10 +156,6 @@ namespace TrenchBroom {
             
             inline size_t position() const {
                 return m_stream.tellg();
-            }
-            
-            inline const String& path() const {
-                return m_path;
             }
         };
     }

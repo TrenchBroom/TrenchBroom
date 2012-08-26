@@ -83,7 +83,7 @@ namespace TrenchBroom {
                 return TokenPtr(new Token(type, data, m_stream.tellg(), m_line, m_column));
             }
         public:
-            StandardDefinitionTokenizer(const String& name, std::istream& stream) : AbstractTokenizer(name, stream), m_state(TokenizerState::Outside) {}
+            StandardDefinitionTokenizer(std::istream& stream) : AbstractTokenizer(stream), m_state(TokenizerState::Outside) {}
             
             TokenPtr nextToken();
             TokenPtr peekToken();
@@ -211,9 +211,9 @@ namespace TrenchBroom {
             
             inline void expect(unsigned int types, StandardDefinitionTokenizer::Token* token) {
                 if (token == NULL)
-                    throw ParserException(m_tokenizer.path(), m_tokenizer.line(), m_tokenizer.column(), "Expected token type " + typeNames(types) + " but got NULL");
+                    throw ParserException(m_tokenizer.line(), m_tokenizer.column(), "Expected token type " + typeNames(types) + " but got NULL");
                 else if ((token->type() & types) == 0)
-                    throw ParserException(m_tokenizer.path(), m_tokenizer.line(), m_tokenizer.column(), "Expected token type " + typeNames(types) + " but got " + typeNames(token->type()));
+                    throw ParserException(m_tokenizer.line(), m_tokenizer.column(), "Expected token type " + typeNames(types) + " but got " + typeNames(token->type()));
             }
             
             StandardDefinitionTokenizer::TokenPtr nextTokenIgnoringNewlines();
@@ -224,7 +224,7 @@ namespace TrenchBroom {
             StandardProperty::List parseProperties();
             String parseDescription();
         public:
-            StandardDefinitionParser(const String& name, std::istream& stream) : m_tokenizer(name, stream) {}
+            StandardDefinitionParser(std::istream& stream) : m_tokenizer(stream) {}
         
             Model::EntityDefinition* nextDefinition();
         };

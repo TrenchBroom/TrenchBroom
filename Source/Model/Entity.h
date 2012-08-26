@@ -70,7 +70,6 @@ namespace TrenchBroom {
             void init();
             void validateGeometry() const;
         public:
-            Entity();
             Entity(const BBox& worldBounds);
             ~Entity();
             

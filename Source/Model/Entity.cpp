@@ -70,7 +70,7 @@ namespace TrenchBroom {
             m_geometryValid = true;
         }
 
-        Entity::Entity(const BBox& worldBounds) : m_worldBounds(worldBounds) {
+        Entity::Entity(const BBox& worldBounds) : MapObject(), m_worldBounds(worldBounds) {
             init();
         }
 

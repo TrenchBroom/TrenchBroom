@@ -19,14 +19,21 @@
 
 #include "MapDocument.h"
 
+#include "IO/MapParser.h"
+#include "Model/Map.h"
+
 namespace TrenchBroom {
     namespace Model {
         IMPLEMENT_DYNAMIC_CLASS(MapDocument, wxDocument)
-
+        
         MapDocument::MapDocument() {}
         
         std::istream& MapDocument::LoadObject(std::istream& stream) {
-            return wxDocument::LoadObject(stream);
+            wxDocument::LoadObject(stream);
+            
+            IO::MapParser parser(stream);
+            parser.parseMap(*m_map, NULL);
+            return stream;
         }
         
         std::ostream& MapDocument::SaveObject(std::ostream& stream) {
@@ -34,10 +41,12 @@ namespace TrenchBroom {
         }
         
         bool MapDocument::OnCreate(const wxString& path, long flags) {
+            m_map = new Map();
+            
             // initialize here
             
             return wxDocument::OnCreate(path, flags);
         }
-
+        
     }
 }

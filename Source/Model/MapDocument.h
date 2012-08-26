@@ -24,8 +24,12 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class Map;
+        
         class MapDocument : public wxDocument {
             DECLARE_DYNAMIC_CLASS(MapDocument)
+        protected:
+            Map* m_map;
         public:
             MapDocument();
 

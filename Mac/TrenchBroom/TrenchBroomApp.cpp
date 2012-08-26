@@ -27,7 +27,8 @@
 IMPLEMENT_APP(TrenchBroomApp)
 
 BEGIN_EVENT_TABLE(TrenchBroomApp, wxApp)
-EVT_MENU    (wxID_NEW, TrenchBroomApp::OnNew)
+EVT_MENU    (wxID_NEW, TrenchBroomApp::OnFileNew)
+EVT_MENU    (wxID_OPEN, TrenchBroomApp::OnFileOpen)
 END_EVENT_TABLE()
 
 bool TrenchBroomApp::OnInit() {
@@ -71,6 +72,10 @@ int TrenchBroomApp::OnExit() {
     return wxApp::OnExit();
 }
 
-void TrenchBroomApp::OnNew(wxCommandEvent& event) {
-    m_docManager->CreateNewDocument();
+void TrenchBroomApp::OnFileNew(wxCommandEvent& event) {
+    m_docManager->OnFileNew(event);
+}
+
+void TrenchBroomApp::OnFileOpen(wxCommandEvent& event) {
+    m_docManager->OnFileOpen(event);
 }

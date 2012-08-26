@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__Map__
 #define __TrenchBroom__Map__
 
+#include "Model/EntityTypes.h"
 #include "Utility/VecMath.h"
 
 using namespace TrenchBroom::Math;
@@ -30,10 +31,17 @@ namespace TrenchBroom {
         
         class Map {
         protected:
+            EntityList m_entities;
+            Entity* m_worldspawn;
             BBox m_worldBounds;
+
+            void setEntityDefinition(Entity* entity);
         public:
-            
             void addEntity(Entity* entity);
+            
+            Entity* createEntity(const PropertyValue& classname);
+            
+            Entity* worldspawn(bool create);
             
             inline const BBox& worldBounds() const {
                 return m_worldBounds;
