@@ -32,7 +32,7 @@ namespace TrenchBroom {
             int32_t width = 0;
 			int32_t height = 0;
 			int32_t mip0Offset = 0;
-			int mip0Size = 0;
+			unsigned int mip0Size = 0;
 
             m_stream.seekg(entry.address(), std::ios::beg);
             m_stream.seekg(WadLayout::TexWidthOffset, std::ios::cur);
@@ -44,7 +44,7 @@ namespace TrenchBroom {
             unsigned char* mip0 = new unsigned char[mip0Size];
             
             m_stream.seekg(entry.address() + mip0Offset, std::ios::beg);
-            m_stream.read((char *)mip0, mip0Size);
+            m_stream.read(reinterpret_cast<char *>(mip0), mip0Size);
             
             return new Mip(entry.name(), width, height, mip0);
         }
@@ -72,7 +72,7 @@ namespace TrenchBroom {
                     m_stream.seekg(WadLayout::DirEntryTypeOffset, std::ios::cur);
                     m_stream.read(&entryType, 1);
                     m_stream.seekg(WadLayout::DirEntryNameOffset, std::ios::cur);
-                    m_stream.read((char *)entryName, WadLayout::DirEntryNameLength);
+                    m_stream.read(reinterpret_cast<char *>(entryName), WadLayout::DirEntryNameLength);
                     
                     m_entries.push_back(WadEntry(entryAddress, entryLength, entryType, entryName));
                 }

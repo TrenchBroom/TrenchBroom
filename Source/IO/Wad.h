@@ -53,7 +53,7 @@ namespace TrenchBroom {
             char m_type;
             String m_name;
         public:
-            WadEntry(int32_t address, int32_t length, char type, const String& name) : m_address(address), m_length(length), m_name(name) {}
+            WadEntry(int32_t address, int32_t length, char type, const String& name) : m_address(address), m_length(length), m_type(type), m_name(name) {}
             
             inline int32_t address() const {
                 return m_address;
@@ -98,7 +98,7 @@ namespace TrenchBroom {
                 return m_height;
             }
             
-            inline unsigned char const* mip0() const {
+            inline const unsigned char const* mip0() const {
                 return m_mip0;
             }
         };
@@ -111,7 +111,6 @@ namespace TrenchBroom {
             Mip* loadMip(const WadEntry& entry) const;
         public:
             Wad(const String& path);
-            ~Wad();
             
             Mip::List loadMips() const;
         };

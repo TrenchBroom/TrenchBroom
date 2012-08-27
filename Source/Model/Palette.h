@@ -36,7 +36,7 @@ namespace TrenchBroom {
             
             inline void indexedToRgb(const unsigned char* indexedImage, unsigned char* rgbImage, size_t pixelCount) const {
                 for (unsigned int i = 0; i < pixelCount; i++) {
-                    unsigned char index = indexedImage[i];
+                    unsigned int index = indexedImage[i];
                     assert(index < m_size);
                     for (unsigned int j = 0; j < 3; j++)
                         rgbImage[i * 3 + j] = m_data[index * 3 + j];

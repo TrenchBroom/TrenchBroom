@@ -24,6 +24,7 @@
 #include "Model/TextureTypes.h"
 #include "Utility/String.h"
 
+#include <algorithm>
 #include <map>
 
 namespace TrenchBroom {
@@ -42,7 +43,7 @@ namespace TrenchBroom {
         class CompareTexturesByName {
         public:
             inline bool operator() (const Texture* left, const Texture* right) const {
-                return left->name().compare(right->name());
+                return left->name() < right->name();
             }
         };
         
@@ -50,7 +51,7 @@ namespace TrenchBroom {
         public:
             inline bool operator() (const Texture* left, const Texture* right) const {
                 if (left->usageCount() == right->usageCount())
-                    return left->name().compare(right->name());
+                    return left->name() < right->name();
                 return left->usageCount() > right->usageCount();
             }
         };
@@ -59,7 +60,7 @@ namespace TrenchBroom {
         private:
             TextureList m_textures;
             TextureList m_texturesByName;
-            TextureList m_texturesByUsage;
+            mutable TextureList m_texturesByUsage;
             String m_name;
         public:
             TextureCollection(const String& name, const IO::Wad& wad, const Palette& palette);
@@ -72,6 +73,7 @@ namespace TrenchBroom {
             inline TextureList textures(TextureSortOrder order) const {
                 if (order == TextureSortOrder::Name)
                     return m_texturesByName;
+                std::sort(m_texturesByUsage.begin(), m_texturesByUsage.end(), CompareTexturesByUsage());
                 return m_texturesByUsage;
             }
             
@@ -90,7 +92,7 @@ namespace TrenchBroom {
             TextureMap m_texturesCaseSensitive;
             TextureMap m_texturesCaseInsensitive;
             TextureList m_texturesByName;
-            TextureList m_texturesByUsage;
+            mutable TextureList m_texturesByUsage;
             void reloadTextures();
         public:
             ~TextureManager();
@@ -107,6 +109,7 @@ namespace TrenchBroom {
             inline const TextureList textures(TextureSortOrder order) {
                 if (order == TextureSortOrder::Name)
                     return m_texturesByName;
+                std::sort(m_texturesByUsage.begin(), m_texturesByUsage.end(), CompareTexturesByUsage());
                 return m_texturesByUsage;
             }
             

@@ -21,8 +21,6 @@
 
 #include "IO/Wad.h"
 
-#include <algorithm>
-
 namespace TrenchBroom {
     namespace Model {
         TextureCollection::TextureCollection(const String& name, const IO::Wad& wad, const Palette& palette) : m_name(name) {
@@ -36,13 +34,14 @@ namespace TrenchBroom {
             }
 
             m_texturesByName = m_textures;
-            m_texturesByUsage = m_texturesByUsage;
+            m_texturesByUsage = m_textures;
             std::sort(m_texturesByName.begin(), m_texturesByName.end(), CompareTexturesByName());
-            std::sort(m_texturesByUsage.begin(), m_texturesByUsage.end(), CompareTexturesByUsage());
         }
         
         TextureCollection::~TextureCollection() {
             while (!m_textures.empty()) delete m_textures.back(), m_textures.pop_back();
+            m_texturesByName.clear();
+            m_texturesByUsage.clear();
         }
 
         void TextureManager::reloadTextures() {
@@ -64,7 +63,6 @@ namespace TrenchBroom {
             }
 
             std::sort(m_texturesByName.begin(), m_texturesByName.end(), CompareTexturesByName());
-            std::sort(m_texturesByUsage.begin(), m_texturesByUsage.end(), CompareTexturesByUsage());
         }
         
         TextureManager::~TextureManager() {

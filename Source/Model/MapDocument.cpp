@@ -19,22 +19,28 @@
 
 #include "MapDocument.h"
 
+#include "IO/FileManager.h"
 #include "IO/MapParser.h"
+#include "IO/Wad.h"
+#include "Model/Brush.h"
+#include "Model/Entity.h"
+#include "Model/Face.h"
 #include "Model/Map.h"
+#include "Model/Palette.h"
+#include "Model/TextureManager.h"
 #include "Utility/Console.h"
 #include "Utility/VecMath.h"
 #include "View/EditorView.h"
 
 #include <cassert>
-#include <ctime>
+
+#include <wx/stopwatch.h>
 
 using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Model {
         IMPLEMENT_DYNAMIC_CLASS(MapDocument, wxDocument)
-        
-        MapDocument::MapDocument() {}
         
         bool MapDocument::DoOpenDocument(const wxString& file) {
             console().info("Loading file %s", file.mbc_str().data());
@@ -45,20 +51,107 @@ namespace TrenchBroom {
             return wxDocument::DoSaveDocument(file);
         }
 
+        void MapDocument::LoadTextureWad(const String& path) {
+            IO::FileManager fileManager;
+            
+            String wadPath = path;
+            String mapPath = GetFilename().ToStdString();
+            if (!fileManager.exists(wadPath) && !mapPath.empty()) {
+                String folderPath = fileManager.deleteLastPathComponent(mapPath);
+                wadPath = fileManager.appendPath(folderPath, wadPath);
+            }
+            
+            if (fileManager.exists(wadPath)) {
+                wxStopWatch watch;
+                IO::Wad wad(wadPath);
+                Model::TextureCollection* collection = new Model::TextureCollection(wadPath, wad, *m_palette);
+                unsigned int index = static_cast<unsigned int>(m_textureManager->collections().size());
+                m_textureManager->addCollection(collection, index);
+                console().info("Loaded %s in %f seconds", wadPath.c_str(), watch.Time() / 1000.0f);
+            } else {
+                console().error("Could not open texture wad %s", path.c_str());
+            }
+        }
+        
+        void MapDocument::UpdateFaceTextures() {
+            Model::FaceList changedFaces;
+            Model::TextureList newTextures;
+            
+            const Model::EntityList& entities = m_map->entities();
+            for (unsigned int i = 0; i < entities.size(); i++) {
+                const Model::BrushList& brushes = entities[i]->brushes();
+                for (unsigned int j = 0; j < brushes.size(); j++) {
+                    const Model::FaceList& faces = brushes[j]->faces();
+                    for (unsigned int k = 0; k < faces.size(); k++) {
+                        const String& textureName = faces[k]->textureName();
+                        Model::Texture* oldTexture = faces[k]->texture();
+                        Model::Texture* newTexture = m_textureManager->texture(textureName);
+                        if (oldTexture != newTexture) {
+                            changedFaces.push_back(faces[k]);
+                            newTextures.push_back(newTexture);
+                        }
+                    }
+                }
+            }
+            
+            if (!changedFaces.empty()) {
+                for (unsigned int i = 0; i < changedFaces.size(); i++)
+                    changedFaces[i]->setTexture(newTextures[i]);
+            }
+        }
+
         std::istream& MapDocument::LoadObject(std::istream& stream) {
             wxDocument::LoadObject(stream);
-            
-            clock_t start = clock();
+
+            wxStopWatch watch;
             IO::MapParser parser(stream, console());
             parser.parseMap(*m_map, NULL);
             stream.clear(); // everything went well, prevent wx from displaying an error dialog
-            console().info("Loaded map file in %f seconds", (clock() - start) / CLOCKS_PER_SEC / 10000.0f);
+            console().info("Loaded map file in %f seconds", watch.Time() / 1000.0f);
 
+            // load palette, in the future, we might get the path from the map's config
+            IO::FileManager fileManager;
+            String resourcePath = fileManager.resourceDirectory();
+            String palettePath = fileManager.appendPath(resourcePath, "QuakePalette.lmp");
+            if (m_palette != NULL)
+                delete m_palette;
+            
+            console().info("Loading palette file %s", palettePath.c_str());
+            m_palette = new Palette(palettePath);
+            
+            const String* wads = m_map->worldspawn(true)->propertyForKey(Entity::WadKey);
+            if (wads != NULL) {
+                StringList wadPaths = Utility::split(*wads, ';');
+                for (unsigned int i = 0; i < wadPaths.size(); i++) {
+                    String wadPath = Utility::trim(wadPaths[i]);
+                    LoadTextureWad(wadPath);
+                }
+            }
+            
+            UpdateFaceTextures();
+            
             return stream;
         }
         
         std::ostream& MapDocument::SaveObject(std::ostream& stream) {
             return wxDocument::SaveObject(stream);
+        }
+        
+        MapDocument::MapDocument() : m_map(NULL), m_palette(NULL), m_textureManager(NULL) {}
+        
+        MapDocument::~MapDocument() {
+            if (m_map != NULL) {
+                delete m_map;
+                m_map = NULL;
+            }
+            if (m_palette != NULL) {
+                delete m_palette;
+                m_palette = NULL;
+            }
+            if (m_textureManager != NULL) {
+                delete m_textureManager;
+                m_textureManager = NULL;
+            }
         }
         
         Model::Map& MapDocument::map() const {
@@ -74,6 +167,7 @@ namespace TrenchBroom {
         bool MapDocument::OnCreate(const wxString& path, long flags) {
             BBox worldBounds(Vec3f(-4096, -4096, -4096), Vec3f(4096, 4096, 4096));
             m_map = new Map(worldBounds);
+            m_textureManager = new TextureManager();
             
             // initialize here
             

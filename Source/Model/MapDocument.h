@@ -20,6 +20,8 @@
 #ifndef __TrenchBroom__MapDocument__
 #define __TrenchBroom__MapDocument__
 
+#include "Utility/String.h"
+
 #include <wx/docview.h>
 
 namespace TrenchBroom {
@@ -29,16 +31,24 @@ namespace TrenchBroom {
     
     namespace Model {
         class Map;
+        class Palette;
+        class TextureManager;
         
         class MapDocument : public wxDocument {
             DECLARE_DYNAMIC_CLASS(MapDocument)
         protected:
             Map* m_map;
+            Palette* m_palette;
+            TextureManager* m_textureManager;
             
             virtual bool DoOpenDocument(const wxString& file);
             virtual bool DoSaveDocument(const wxString& file);
+            
+            void LoadTextureWad(const String& path);
+            void UpdateFaceTextures();
         public:
             MapDocument();
+            virtual ~MapDocument();
 
             std::istream& LoadObject(std::istream& stream);
             std::ostream& SaveObject(std::ostream& stream);

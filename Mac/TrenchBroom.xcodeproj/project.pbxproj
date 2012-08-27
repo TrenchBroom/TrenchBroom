@@ -29,6 +29,10 @@
 		4847640E15E2E03000095BC0 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847640C15E2E03000095BC0 /* Entity.cpp */; };
 		48819C3815EBE97A00BEA604 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3615EBE92800BEA604 /* Camera.cpp */; };
 		48819C3915EBE98100BEA604 /* GLee.c in Sources */ = {isa = PBXBuildFile; fileRef = 4810276815E52F3700250C9C /* GLee.c */; };
+		48819C3C15EC066E00BEA604 /* AbstractFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3A15EC066E00BEA604 /* AbstractFileManager.cpp */; };
+		48819C3F15EC0CE700BEA604 /* MacFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3D15EC0CE700BEA604 /* MacFileManager.cpp */; };
+		48819C4415EC107700BEA604 /* quake.def in Resources */ = {isa = PBXBuildFile; fileRef = 48819C4315EC107700BEA604 /* quake.def */; };
+		48819C4615EC108400BEA604 /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48819C4515EC108400BEA604 /* QuakePalette.lmp */; };
 		48AF491F15E77BF90083DE52 /* BrushGeometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AF491D15E77BF90083DE52 /* BrushGeometry.cpp */; };
 		48AF492515E8265B0083DE52 /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AF492315E8265A0083DE52 /* Texture.cpp */; };
 		48AF492815E8CC270083DE52 /* MapParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AF492615E8CC270083DE52 /* MapParser.cpp */; };
@@ -105,6 +109,13 @@
 		4847641415E2E0E800095BC0 /* Vec2f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vec2f.h; sourceTree = "<group>"; };
 		48819C3615EBE92800BEA604 /* Camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
 		48819C3715EBE92800BEA604 /* Camera.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
+		48819C3A15EC066E00BEA604 /* AbstractFileManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractFileManager.cpp; sourceTree = "<group>"; };
+		48819C3B15EC066E00BEA604 /* AbstractFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractFileManager.h; sourceTree = "<group>"; };
+		48819C3D15EC0CE700BEA604 /* MacFileManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MacFileManager.cpp; path = TrenchBroom/MacFileManager.cpp; sourceTree = SOURCE_ROOT; };
+		48819C3E15EC0CE700BEA604 /* MacFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MacFileManager.h; path = TrenchBroom/MacFileManager.h; sourceTree = SOURCE_ROOT; };
+		48819C4015EC0D9300BEA604 /* FileManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileManager.h; sourceTree = "<group>"; };
+		48819C4315EC107700BEA604 /* quake.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = quake.def; path = ../../Resources/Defs/quake.def; sourceTree = "<group>"; };
+		48819C4515EC108400BEA604 /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; name = QuakePalette.lmp; path = ../../Resources/Graphics/QuakePalette.lmp; sourceTree = "<group>"; };
 		48AF491D15E77BF90083DE52 /* BrushGeometry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BrushGeometry.cpp; sourceTree = "<group>"; };
 		48AF491E15E77BF90083DE52 /* BrushGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushGeometry.h; sourceTree = "<group>"; };
 		48AF492115E782E90083DE52 /* BrushGeometryTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrushGeometryTypes.h; sourceTree = "<group>"; };
@@ -153,6 +164,9 @@
 			isa = PBXGroup;
 			children = (
 				4810277C15E56F9B00250C9C /* AbstractTokenizer.h */,
+				48819C3A15EC066E00BEA604 /* AbstractFileManager.cpp */,
+				48819C3B15EC066E00BEA604 /* AbstractFileManager.h */,
+				48819C4015EC0D9300BEA604 /* FileManager.h */,
 				48AF492615E8CC270083DE52 /* MapParser.cpp */,
 				48AF492715E8CC270083DE52 /* MapParser.h */,
 				4810278215E5954A00250C9C /* ParserException.h */,
@@ -237,6 +251,8 @@
 			isa = PBXGroup;
 			children = (
 				484763DC15E2BC5000095BC0 /* Supporting Files */,
+				48819C3E15EC0CE700BEA604 /* MacFileManager.h */,
+				48819C3D15EC0CE700BEA604 /* MacFileManager.cpp */,
 				48D1BEB515E423F60073C030 /* TrenchBroomApp.cpp */,
 				48D1BEB615E423F60073C030 /* TrenchBroomApp.h */,
 			);
@@ -247,6 +263,8 @@
 		484763DC15E2BC5000095BC0 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				48819C4315EC107700BEA604 /* quake.def */,
+				48819C4515EC108400BEA604 /* QuakePalette.lmp */,
 				484763DD15E2BC5000095BC0 /* TrenchBroom-Info.plist */,
 				484763DE15E2BC5000095BC0 /* InfoPlist.strings */,
 				484763E315E2BC5000095BC0 /* TrenchBroom-Prefix.pch */,
@@ -398,6 +416,8 @@
 			files = (
 				484763E015E2BC5000095BC0 /* InfoPlist.strings in Resources */,
 				48312B2815EABBD600607868 /* Icon.icns in Resources */,
+				48819C4415EC107700BEA604 /* quake.def in Resources */,
+				48819C4615EC108400BEA604 /* QuakePalette.lmp in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -435,6 +455,8 @@
 				48312B3C15EB814700607868 /* Wad.cpp in Sources */,
 				48312B3F15EB8A1A00607868 /* Palette.cpp in Sources */,
 				48312B4215EB9EA900607868 /* RenderContext.cpp in Sources */,
+				48819C3C15EC066E00BEA604 /* AbstractFileManager.cpp in Sources */,
+				48819C3F15EC0CE700BEA604 /* MacFileManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
