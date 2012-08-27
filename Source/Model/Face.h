@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__Face__
 #define __TrenchBroom__Face__
 
+#include "Model/BrushGeometry.h"
 #include "Model/FaceTypes.h"
 #include "Utility/String.h"
 #include "Utility/VecMath.h"
@@ -30,7 +31,6 @@ namespace TrenchBroom {
     namespace Model {
         class Brush;
         class Texture;
-        class Side;
         
         class Face {
         protected:
@@ -51,22 +51,25 @@ namespace TrenchBroom {
             float m_xScale;
             float m_yScale;
 
-            bool m_texAxesValid;
-            bool m_coordsValid;
-            int m_texPlaneNormIndex;
-            int m_texFaceNormIndex;
-            Vec3f m_texAxisX;
-            Vec3f m_texAxisY;
-            Vec3f m_scaledTexAxisX;
-            Vec3f m_scaledTexAxisY;
+            mutable bool m_texAxesValid;
+            mutable int m_texPlaneNormIndex;
+            mutable int m_texFaceNormIndex;
+            mutable Vec3f m_texAxisX;
+            mutable Vec3f m_texAxisY;
+            mutable Vec3f m_scaledTexAxisX;
+            mutable Vec3f m_scaledTexAxisY;
             
-            Vec2f::List m_gridCoords;
-            Vec2f::List m_texCoords;
+            mutable bool m_coordsValid;
+            mutable Vec2f::List m_gridCoords;
+            mutable Vec2f::List m_texCoords;
             
             size_t m_filePosition;
             bool m_selected;
             
             void init();
+            void texAxesAndIndices(const Vec3f& faceNormal, Vec3f& xAxis, Vec3f& yAxis, int& planeNormIndex, int& faceNormIndex) const;
+            void validateTexAxes(const Vec3f& faceNormal) const;
+            void validateCoords() const;
         public:
             Face(const BBox& worldBounds, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const String& textureName);
             Face(const BBox& worldBounds, const Face& faceTemplate);
@@ -109,6 +112,14 @@ namespace TrenchBroom {
                 return m_worldBounds;
             }
 
+            inline const VertexList& vertices() const {
+                return m_side->vertices;
+            }
+            
+            inline const EdgeList& edges() const {
+                return m_side->edges;
+            }
+            
             inline const String& textureName() const {
                 return m_textureName;
             }
@@ -177,6 +188,18 @@ namespace TrenchBroom {
                 m_yScale = yScale;
                 m_texAxesValid = false;
                 m_coordsValid = false;
+            }
+            
+            inline const Vec2f::List& texCoords() const {
+                if (!m_coordsValid)
+                    validateCoords();
+                return m_texCoords;
+            }
+            
+            inline const Vec2f::List& gridCoords() const {
+                if (!m_coordsValid)
+                    validateCoords();
+                return m_gridCoords;
             }
             
             inline bool selected() const {

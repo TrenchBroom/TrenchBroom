@@ -75,6 +75,10 @@ namespace TrenchBroom {
             
             bool addFace(Face* face);
             
+            inline bool selected() const {
+                return m_editState == EditState::Selected;
+            }
+            
             inline bool partiallySelected() const {
                 return m_selectedFaceCount > 0;
             }
@@ -97,6 +101,14 @@ namespace TrenchBroom {
             
             inline const BBox& bounds() const {
                 return m_geometry->bounds;
+            }
+            
+            inline const VertexList& vertices() const {
+                return m_geometry->vertices;
+            }
+            
+            inline const EdgeList& edges() const {
+                return m_geometry->edges;
             }
             
             inline bool closed() const {

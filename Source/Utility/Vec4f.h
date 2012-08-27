@@ -21,6 +21,7 @@
 #define TrenchBroom_Vec4f_h
 
 #include "Utility/Math.h"
+#include "Utility/String.h"
 
 #include <cassert>
 #include <cmath>
@@ -36,10 +37,10 @@ namespace TrenchBroom {
             
             Vec4f() : x(0), y(0), z(0), w(0) {}
             
-            Vec4f(const std::string& str) {
+            Vec4f(const String& str) {
                 const char* cstr = str.c_str();
                 size_t pos = 0;
-                std::string blank = " \t\n\r";
+                String blank = " \t\n\r";
                 
                 pos = str.find_first_not_of(blank, pos);
                 x = static_cast<float>(atof(cstr + pos));
@@ -207,7 +208,7 @@ namespace TrenchBroom {
                 str << w;
             }
             
-            std::string asString() const {
+            String asString() const {
                 StringStream result;
                 write(result);
                 return result.str();

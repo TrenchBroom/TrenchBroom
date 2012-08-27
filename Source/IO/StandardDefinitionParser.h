@@ -25,6 +25,7 @@
 #include "Model/EntityDefinition.h"
 #include "Model/EntityDefinitionTypes.h"
 #include "Model/PropertyDefinition.h"
+#include "Utility/Color.h"
 #include "Utility/Pool.h"
 #include "Utility/String.h"
 #include "Utility/VecMath.h"
@@ -217,7 +218,7 @@ namespace TrenchBroom {
             }
             
             StandardDefinitionTokenizer::TokenPtr nextTokenIgnoringNewlines();
-            Vec4f parseColor();
+            Color parseColor();
             BBox parseBounds();
             Model::SpawnflagList parseFlags();
             bool parseProperty(StandardProperty::List& properties);

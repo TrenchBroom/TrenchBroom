@@ -25,6 +25,15 @@
 
 namespace TrenchBroom {
     namespace Model {
+        static const Vec3f* BaseAxes[18] = {
+            &Vec3f::PosZ, &Vec3f::PosX, &Vec3f::NegY,
+            &Vec3f::NegZ, &Vec3f::PosX, &Vec3f::NegY,
+            &Vec3f::PosX, &Vec3f::PosY, &Vec3f::NegZ,
+            &Vec3f::NegX, &Vec3f::PosY, &Vec3f::NegZ,
+            &Vec3f::PosY, &Vec3f::PosX, &Vec3f::NegZ,
+            &Vec3f::NegY, &Vec3f::PosX, &Vec3f::NegZ
+        };
+        
         void Face::init() {
             static int currentId = 1;
             m_faceId = currentId++;
@@ -39,6 +48,73 @@ namespace TrenchBroom {
             m_selected = false;
             m_texAxesValid = false;
             m_coordsValid = false;
+        }
+        
+        void Face::texAxesAndIndices(const Vec3f& faceNormal, Vec3f& xAxis, Vec3f& yAxis, int& planeNormIndex, int& faceNormIndex) const {
+            int bestIndex = 0;
+            float bestDot = -1;
+            for (unsigned int i = 0; i < 6; i++) {
+                float dot = faceNormal | *BaseAxes[i * 3];
+                if (dot >= bestDot) {
+                    bestDot = dot;
+                    bestIndex = i;
+                }
+            }
+            
+            xAxis = *BaseAxes[bestIndex * 3 + 1];
+            yAxis = *BaseAxes[bestIndex * 3 + 2];
+            faceNormIndex = bestIndex * 3;
+            planeNormIndex = (bestIndex / 2) * 6;
+        }
+        
+        void Face::validateTexAxes(const Vec3f& faceNormal) const {
+            texAxesAndIndices(faceNormal, m_texAxisX, m_texAxisY, m_texPlaneNormIndex, m_texFaceNormIndex);
+            
+            Quat rot(m_rotation * Math::Pi / 180, *BaseAxes[m_texPlaneNormIndex]);
+            m_texAxisX = rot * m_texAxisX;
+            m_texAxisY = rot * m_texAxisY;
+            m_scaledTexAxisX = m_texAxisX / m_xScale;
+            m_scaledTexAxisY = m_texAxisY / m_yScale;
+            
+            m_texAxesValid = true;
+        }
+        
+        void Face::validateCoords() const {
+            assert(m_side != NULL);
+            
+            if (!m_texAxesValid)
+                validateTexAxes(m_boundary.normal);
+            
+            Axis axis = m_boundary.normal.firstComponent();
+            int width = m_texture != NULL ? m_texture->width() : 1;
+            int height = m_texture != NULL ? m_texture->height() : 1;
+            
+            size_t vertexCount = m_side->vertices.size();
+            m_gridCoords.resize(vertexCount);
+            m_texCoords.resize(vertexCount);
+            for (unsigned int i = 0; i < vertexCount; i++) {
+                const Vec3f& vertex = m_side->vertices[i]->position;
+                
+                m_texCoords[i].x = ((vertex | m_scaledTexAxisX) + m_xOffset) / width,
+                m_texCoords[i].y = ((vertex | m_scaledTexAxisY) + m_yOffset) / height;
+                
+                switch (axis) {
+                    case Axis::X:
+                        m_gridCoords[i].x = (vertex.y + 0.5f) / 256.0f;
+                        m_gridCoords[i].y = (vertex.z + 0.5f) / 256.0f;
+                        break;
+                    case Axis::Y:
+                        m_gridCoords[i].x = (vertex.x + 0.5f) / 256.0f;
+                        m_gridCoords[i].y = (vertex.z + 0.5f) / 256.0f;
+                        break;
+                    default:
+                        m_gridCoords[i].x = (vertex.x + 0.5f) / 256.0f;
+                        m_gridCoords[i].y = (vertex.y + 0.5f) / 256.0f;
+                        break;
+                }
+            }
+            
+            m_coordsValid = true;
         }
         
         Face::Face(const BBox& worldBounds, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const String& textureName) : m_worldBounds(worldBounds), m_textureName(textureName) {

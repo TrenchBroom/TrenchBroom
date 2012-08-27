@@ -19,9 +19,17 @@
 
 #include "MapGLCanvas.h"
 
+#include "Renderer/Camera.h"
+#include "Renderer/MapRenderer.h"
+#include "Renderer/RenderContext.h"
+#include "Model/Filter.h"
 #include "Utility/GLee.h"
+#include "Utility/Preferences.h"
+#include "Utility/VecMath.h"
 
 #include <wx/wx.h>
+
+using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace View {
@@ -44,21 +52,43 @@ namespace TrenchBroom {
             return m_attribs;
         }
         
-        MapGLCanvas::MapGLCanvas(wxWindow* parent) : wxGLCanvas(parent, wxID_ANY, Attribs()) {
+        MapGLCanvas::MapGLCanvas(wxWindow* parent) : wxGLCanvas(parent, wxID_ANY, Attribs()), m_renderer(NULL), m_camera(NULL) {
             m_glContext = new wxGLContext(this);
         }
 
-        MapGLCanvas::~MapGLCanvas() {
-            delete [] m_attribs;
+        void MapGLCanvas::Initialize(Renderer::Camera& camera, Renderer::MapRenderer& renderer) {
+            m_camera = &camera;
+            m_renderer = &renderer;
         }
-        
+
         void MapGLCanvas::OnPaint(wxPaintEvent& event) {
             SetCurrent(*m_glContext);
             wxPaintDC(this);
             
-            glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            const Color& backgroundColor = prefs.getColor(Preferences::BackgroundColor);
+            glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, backgroundColor.w);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            glViewport(0, 0, static_cast<GLint>(GetSize().x), static_cast<GLint>(GetSize().y));
+            
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+
+            if (m_renderer != NULL && m_camera != NULL) {
+                glDisableClientState(GL_VERTEX_ARRAY);
+                glDisableClientState(GL_COLOR_ARRAY);
+                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                glBindTexture(GL_TEXTURE_2D, 0);
+                glDisable(GL_TEXTURE_2D);
+                
+                m_camera->update(0.0f, 0.0f, GetSize().x, GetSize().y);
+                
+                Model::Filter filter;
+                Renderer::RenderContext renderContext(filter);
+                m_renderer->render(renderContext);
+            }
+            
             
             SwapBuffers();
         }

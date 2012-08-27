@@ -40,6 +40,7 @@ namespace TrenchBroom {
 
         void Entity::init() {
             m_map = NULL;
+            m_definition = NULL;
             m_filePosition = 0;
             m_editState = EditState::Default;
             m_selectedBrushCount = 0;
@@ -158,7 +159,7 @@ namespace TrenchBroom {
             invalidateGeometry();
         }
         void Entity::addBrush(Brush* brush) {
-            if (m_definition == NULL || m_definition->type() == EntityDefinition::Type::Point)
+            if (m_definition != NULL && m_definition->type() == EntityDefinition::Type::Point)
                 return;
             
             brush->setEntity(this);

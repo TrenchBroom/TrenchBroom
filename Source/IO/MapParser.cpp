@@ -24,6 +24,7 @@
 #include "Model/Face.h"
 #include "Model/Map.h"
 #include "Model/Texture.h"
+#include "Utility/Console.h"
 #include "Utility/ProgressIndicator.h"
 
 namespace TrenchBroom {
@@ -201,8 +202,9 @@ namespace TrenchBroom {
             m_stream.seekg(0, std::ios::beg);
         }
 
-        MapParser::MapParser(std::istream& stream) :
+        MapParser::MapParser(std::istream& stream, Utility::Console& console) :
         m_tokenizer(stream),
+        m_console(console),
         m_format(MapFormat::Undefined) {
             std::streamoff cur = stream.tellg();
             stream.seekg(0, std::ios::end);
@@ -292,10 +294,10 @@ namespace TrenchBroom {
                         pushToken(token);
                         Model::Face* face = parseFace(worldBounds);
                         if (face == NULL) {
-                            // log(TB_LL_WARN, "Skipping malformed face at line %i\n", token->line);
+                            m_console.warn("Skipping malformed face at line %i", token->line());
                         } else if (brush != NULL) {
                             if (!brush->addFace(face)) {
-                                // log(TB_LL_WARN, "Skipping malformed brush at line %i\n", brush->filePosition);
+                                m_console.warn("Skipping malformed brush at line %i", brush->filePosition());
                                 delete brush;
                                 brush = NULL;
                             }
@@ -304,10 +306,10 @@ namespace TrenchBroom {
                         }
                         break;
                     }
-                    case TokenType::CParenthesis:
+                    case TokenType::CBrace:
                         if (indicator != NULL) indicator->update(static_cast<float>(token->position()));
                         if (brush != NULL && !brush->closed()) {
-                            // log(TB_LL_WARN, "Skipping non-closed brush at line %i\n", brush->filePosition);
+                            m_console.warn("Skipping non-closed brush at line %i", brush->filePosition());
                             delete brush;
                             brush = NULL;
                         }
@@ -360,8 +362,8 @@ namespace TrenchBroom {
             if (m_format == MapFormat::Undefined) {
                 expect(TokenType::Integer | TokenType::Decimal | TokenType::OBracket, token.get());
                 m_format = token->type() == TokenType::OBracket ? MapFormat::Valve : MapFormat::Standard;
-//                if (m_format == MapFormat::Valve)
-//                    log(TB_LL_WARN, "Loading unsupported map Valve 220 map format\n");
+                if (m_format == MapFormat::Valve)
+                    m_console.warn("Loading unsupported map Valve 220 map format");
             }
             
             if (m_format == MapFormat::Standard) {
@@ -370,8 +372,8 @@ namespace TrenchBroom {
                 xOffset = token->toFloat();
                 expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
                 yOffset = token->toFloat();
-                //if (dec || token->type() == TokenType::Decimal)
-                  //  log(TB_LL_WARN, "Rounding fractional texture offset in line %i", token->line);
+                if (dec || token->type() == TokenType::Decimal)
+                    m_console.warn("Rounding fractional texture offset in line %i", token->line());
             } else { // Valve 220 format
                 expect(TokenType::OBracket, token.get());
                 expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get()); // X texture axis x
@@ -397,7 +399,7 @@ namespace TrenchBroom {
             yScale = token->toFloat();
             
             if (((p3 - p1) % (p2 - p1)).null()) {
-                // log(TB_LL_WARN, "Skipping invalid face in line %i", token->line);
+                m_console.warn("Skipping invalid face in line %i", token->line());
                 return NULL;
             }
             

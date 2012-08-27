@@ -134,6 +134,14 @@ namespace TrenchBroom {
             }
         
             void setDefinition(EntityDefinition* definition);
+
+            inline bool selected() const {
+                return m_editState == EditState::Selected;
+            }
+            
+            inline bool partiallySelected() const {
+                return m_selectedBrushCount > 0;
+            }
             
             inline void incSelectedBrushCount() {
                 m_selectedBrushCount++;

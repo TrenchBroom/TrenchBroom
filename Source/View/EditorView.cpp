@@ -19,25 +19,56 @@
 
 #include "EditorView.h"
 
+#include "Model/MapDocument.h"
+#include "Renderer/Camera.h"
+#include "Renderer/MapRenderer.h"
+#include "Utility/Console.h"
+#include "Utility/Preferences.h"
 #include "View/EditorFrame.h"
+#include "View/MapGLCanvas.h"
 
 namespace TrenchBroom {
     namespace View {
         IMPLEMENT_DYNAMIC_CLASS(EditorView, wxView);
         
-        EditorView::EditorView() : wxView() {
+        EditorView::EditorView() : wxView(), m_camera(NULL), m_renderer(NULL) {
             EditorFrame* frame = new EditorFrame();
+            m_console = new Utility::Console(frame->logView());
             SetFrame(frame);
             frame->Show();
+        }
+        
+        bool EditorView::OnCreate(wxDocument* doc, long flags) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            float fieldOfVision = prefs.getFloat(Preferences::CameraFieldOfVision);
+            float nearPlane = prefs.getFloat(Preferences::CameraNearPlane);
+            float farPlane = prefs.getFloat(Preferences::CameraFarPlane);
+            Vec3f position(0.0f, 0.0f, 0.0f);
+            Vec3f direction(1.0f, 0.0f, 0.0f);
+            m_camera = new Renderer::Camera(fieldOfVision, nearPlane, farPlane, position, direction);
+            
+            Model::MapDocument* document = static_cast<Model::MapDocument*>(doc);
+            m_renderer = new Renderer::MapRenderer(document->map());
+            m_renderer->loadMap();
+            
+            EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+            frame->mapCanvas()->Initialize(*m_camera, *m_renderer);
+            
+            return wxView::OnCreate(doc, flags);
+        }
+        
+        void EditorView::OnUpdate(wxView* sender, wxObject* hint) {
+            m_renderer->loadMap();
         }
         
         void EditorView::OnDraw(wxDC* dc) {
         }
         
-        void EditorView::OnUpdate(wxView* sender, wxObject* hint) {
-        }
-        
         bool EditorView::OnClose(bool deleteWindow) {
+            delete m_camera;
+            m_camera = NULL;
+            delete m_renderer;
+            m_renderer = NULL;
             return wxView::OnClose(deleteWindow);
         }
 

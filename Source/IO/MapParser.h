@@ -40,6 +40,7 @@ namespace TrenchBroom {
     }
     
     namespace Utility {
+        class Console;
         class ProgressIndicator;
     }
     
@@ -151,6 +152,7 @@ namespace TrenchBroom {
 
         class MapParser {
         private:
+            Utility::Console& m_console;
             typedef std::vector<MapTokenizer::Token*> TokenStack;
             
             size_t m_size;
@@ -184,7 +186,7 @@ namespace TrenchBroom {
                 m_tokenStack.push_back(new MapTokenizer::Token(*token.get()));
             }
         public:
-            MapParser(std::istream& stream);
+            MapParser(std::istream& stream, Utility::Console& console);
             
             void parseMap(Model::Map& map, Utility::ProgressIndicator* indicator);
             Model::Entity* parseEntity(const BBox& worldBounds, Utility::ProgressIndicator* indicator);

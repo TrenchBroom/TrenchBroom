@@ -23,16 +23,24 @@
 #include <wx/glcanvas.h>
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class Camera;
+        class MapRenderer;
+    }
+    
     namespace View {
         class MapGLCanvas : public wxGLCanvas {
         protected:
             int* m_attribs;
             wxGLContext* m_glContext;
+            Renderer::Camera* m_camera;
+            Renderer::MapRenderer* m_renderer;
             
             int* Attribs();
         public:
             MapGLCanvas(wxWindow* parent);
-            ~MapGLCanvas();
+            
+            void Initialize(Renderer::Camera& camera, Renderer::MapRenderer& renderer);
             
             void OnPaint(wxPaintEvent& event);
         protected:

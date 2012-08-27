@@ -23,16 +23,36 @@
 #include <wx/docview.h>
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class Camera;
+        class MapRenderer;
+    }
+    
+    namespace Utility {
+        class Console;
+    }
+    
     namespace View {
         class MapWindow;
         
         class EditorView : public wxView {
             DECLARE_DYNAMIC_CLASS(EditorView)
+        protected:
+            Renderer::Camera* m_camera;
+            Renderer::MapRenderer* m_renderer;
+            Utility::Console* m_console;
         public:
             EditorView();
 
-            void OnDraw(wxDC* dc);
+            inline Utility::Console& console() const {
+                return *m_console;
+            }
+            
+            
+            bool OnCreate(wxDocument* doc, long flags);
             void OnUpdate(wxView* sender, wxObject* hint = (wxObject*) NULL);
+            void OnDraw(wxDC* dc);
+
             bool OnClose(bool deleteWindow = true);
         };
     }

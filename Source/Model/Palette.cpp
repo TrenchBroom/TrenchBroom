@@ -17,27 +17,26 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TrenchBroomApp__
-#define __TrenchBroom__TrenchBroomApp__
+#include "Palette.h"
 
-#include <wx/wx.h>
-#include <wx/docview.h>
+#include <fstream>
 
-class TrenchBroomApp : public wxApp {
-protected:
-	wxDocManager* m_docManager;
-public:
-    DECLARE_EVENT_TABLE();
-    
-	virtual bool OnInit();
-    virtual int OnExit();
-    
-    void OnFileNew(wxCommandEvent& event);
-    void OnFileOpen(wxCommandEvent& event);
-    
-    void OnUnhandledException();
-};
-
-DECLARE_APP(TrenchBroomApp)
-
-#endif /* defined(__TrenchBroom__TrenchBroomApp__) */
+namespace TrenchBroom {
+    namespace Model {
+        Palette::Palette(const String& path) {
+            std::ifstream stream(path.c_str(), std::ios::binary | std::ios::in);
+            assert(stream.is_open());
+            
+            stream.seekg(0, std::ios::end);
+            m_size = stream.tellg();
+            stream.seekg(0, std::ios::beg);
+            m_data = new unsigned char[m_size];
+            stream.read(reinterpret_cast<char*>(m_data), m_size);
+            stream.close();
+        }
+        
+        Palette::~Palette() {
+            delete[] m_data;
+        }
+    }
+}

@@ -17,27 +17,18 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TrenchBroomApp__
-#define __TrenchBroom__TrenchBroomApp__
+#ifndef TrenchBroom_Color_h
+#define TrenchBroom_Color_h
 
-#include <wx/wx.h>
-#include <wx/docview.h>
+#include "Utility/Vec4f.h"
 
-class TrenchBroomApp : public wxApp {
-protected:
-	wxDocManager* m_docManager;
-public:
-    DECLARE_EVENT_TABLE();
-    
-	virtual bool OnInit();
-    virtual int OnExit();
-    
-    void OnFileNew(wxCommandEvent& event);
-    void OnFileOpen(wxCommandEvent& event);
-    
-    void OnUnhandledException();
-};
+namespace TrenchBroom {
+    class Color : public Math::Vec4f {
+    public:
+        Color() : Vec4f() {}
+        Color(const std::string& str) : Vec4f(str) {}
+        Color(float x, float y, float z, float w) : Vec4f(x, y, z, w) {}
+    };
+}
 
-DECLARE_APP(TrenchBroomApp)
-
-#endif /* defined(__TrenchBroom__TrenchBroomApp__) */
+#endif

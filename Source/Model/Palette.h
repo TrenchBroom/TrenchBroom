@@ -17,38 +17,33 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EditorFrame__
-#define __TrenchBroom__EditorFrame__
+#ifndef __TrenchBroom__Palette__
+#define __TrenchBroom__Palette__
 
-#include <wx/frame.h>
+#include "Utility/String.h"
 
-class wxTextCtrl;
+#include <cassert>
 
 namespace TrenchBroom {
-    namespace View {
-        class MapGLCanvas;
-        
-        class EditorFrame : public wxFrame {
-        protected:
-            wxTextCtrl* m_logView;
-            MapGLCanvas* m_mapCanvas;
+    namespace Model {
+        class Palette {
+        private:
+            unsigned char* m_data;
+            size_t m_size;
         public:
-            EditorFrame();
-            ~EditorFrame();
-
-            inline wxTextCtrl* logView() const {
-                return m_logView;
-            }
+            Palette(const String& path);
+            ~Palette();
             
-            inline MapGLCanvas* mapCanvas() const {
-                return m_mapCanvas;
+            inline void indexedToRgb(const unsigned char* indexedImage, unsigned char* rgbImage, size_t pixelCount) const {
+                for (unsigned int i = 0; i < pixelCount; i++) {
+                    unsigned char index = indexedImage[i];
+                    assert(index < m_size);
+                    for (unsigned int j = 0; j < 3; j++)
+                        rgbImage[i * 3 + j] = m_data[index * 3 + j];
+                }
             }
-            
-            void logSplitterOnIdle(wxIdleEvent&);
-            void inspectorSplitterOnIdle(wxIdleEvent&);
         };
     }
 }
 
-
-#endif /* defined(__TrenchBroom__EditorFrame__) */
+#endif /* defined(__TrenchBroom__Palette__) */

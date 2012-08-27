@@ -257,8 +257,8 @@ namespace TrenchBroom {
             return token;
         }
         
-        Vec4f StandardDefinitionParser::parseColor() {
-            Vec4f color;
+        Color StandardDefinitionParser::parseColor() {
+            Color color;
             StandardDefinitionTokenizer::TokenPtr token(NULL);
             
             expect(TokenType::OBrace, (token = m_tokenizer.nextToken()).get());
@@ -412,7 +412,7 @@ namespace TrenchBroom {
             bool hasColor = false;
             bool hasBounds = false;
             bool hasFlags = false;
-            Vec4f color;
+            Color color;
             BBox bounds;
             Model::SpawnflagList spawnflags;
             StandardProperty::List standardProperties;

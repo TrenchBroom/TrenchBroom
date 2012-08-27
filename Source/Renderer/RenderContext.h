@@ -17,27 +17,26 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TrenchBroomApp__
-#define __TrenchBroom__TrenchBroomApp__
+#ifndef __TrenchBroom__RenderContext__
+#define __TrenchBroom__RenderContext__
 
-#include <wx/wx.h>
-#include <wx/docview.h>
-
-class TrenchBroomApp : public wxApp {
-protected:
-	wxDocManager* m_docManager;
-public:
-    DECLARE_EVENT_TABLE();
+namespace TrenchBroom {
+    namespace Model {
+        class Filter;
+    }
     
-	virtual bool OnInit();
-    virtual int OnExit();
-    
-    void OnFileNew(wxCommandEvent& event);
-    void OnFileOpen(wxCommandEvent& event);
-    
-    void OnUnhandledException();
-};
+    namespace Renderer {
+        class RenderContext {
+        private:
+            Model::Filter& m_filter;
+        public:
+            RenderContext(Model::Filter& filter) : m_filter(filter) {}
+            
+            inline const Model::Filter& filter() const {
+                return m_filter;
+            }
+        };
+    }
+}
 
-DECLARE_APP(TrenchBroomApp)
-
-#endif /* defined(__TrenchBroom__TrenchBroomApp__) */
+#endif /* defined(__TrenchBroom__RenderContext__) */

@@ -17,38 +17,34 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapDocument__
-#define __TrenchBroom__MapDocument__
+#ifndef __TrenchBroom__Console__
+#define __TrenchBroom__Console__
 
-#include <wx/docview.h>
+#include "Utility/String.h"
+
+#include <wx/textctrl.h>
 
 namespace TrenchBroom {
     namespace Utility {
-        class Console;
-    }
-    
-    namespace Model {
-        class Map;
-        
-        class MapDocument : public wxDocument {
-            DECLARE_DYNAMIC_CLASS(MapDocument)
+        class Console {
         protected:
-            Map* m_map;
+            wxTextCtrl* m_textCtrl;
             
-            virtual bool DoOpenDocument(const wxString& file);
-            virtual bool DoSaveDocument(const wxString& file);
+            void formatMessage(const char* format, va_list arguments, String& result);
         public:
-            MapDocument();
-
-            std::istream& LoadObject(std::istream& stream);
-            std::ostream& SaveObject(std::ostream& stream);
+            Console(wxTextCtrl* textCtrl);
+            virtual ~Console();
             
-            Model::Map& map() const;
-            Utility::Console& console() const;
+            void log(const String& message, bool setDefaultColor = true);
             
-            bool OnCreate(const wxString& path, long flags);
+            void info(const String& message);
+            void info(const char* format, ...);
+            void warn(const String& message);
+            void warn(const char* format, ...);
+            void error(const String& message);
+            void error(const char* format, ...);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MapDocument__) */
+#endif /* defined(__TrenchBroom__Console__) */

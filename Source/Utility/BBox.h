@@ -138,12 +138,24 @@ namespace TrenchBroom {
                 return result;
             }
             
-            const Vec3f vertex(bool x, bool y, bool z) const {
+            inline const Vec3f vertex(bool x, bool y, bool z) const {
                 Vec3f vertex;
                 vertex.x = x ? min.x : max.x;
                 vertex.y = y ? min.y : max.y;
                 vertex.z = z ? min.z : max.z;
                 return vertex;
+            }
+
+            inline void vertices(Vec3f::List& result) const {
+                result.resize(24);
+                result[ 0] = result[ 7] = result[16] = vertex(false, false, false);
+                result[ 1] = result[ 2] = result[20] = vertex(true , false, false);
+                result[ 3] = result[ 4] = result[22] = vertex(true , true , false);
+                result[ 5] = result[ 6] = result[18] = vertex(false, true , false);
+                result[ 8] = result[15] = result[17] = vertex(false, false, true );
+                result[ 9] = result[10] = result[21] = vertex(true , false, true );
+                result[11] = result[12] = result[23] = vertex(true , true , true );
+                result[13] = result[14] = result[19] = vertex(false, true , true );
             }
             
             bool contains(const Vec3f& point) const {

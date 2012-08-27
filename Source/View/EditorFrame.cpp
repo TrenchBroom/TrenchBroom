@@ -41,14 +41,14 @@ namespace TrenchBroom {
             inspectorSplitter->SetMinimumPaneSize(300);
             inspectorSplitter->Connect(wxEVT_IDLE, wxIdleEventHandler( EditorFrame::inspectorSplitterOnIdle ), NULL, this);
 
-            MapGLCanvas* mapCanvas = new MapGLCanvas(inspectorSplitter);
+            m_mapCanvas = new MapGLCanvas(inspectorSplitter);
             Inspector* inspector = new Inspector(inspectorSplitter);
-            inspectorSplitter->SplitVertically(mapCanvas, inspector, 0);
+            inspectorSplitter->SplitVertically(m_mapCanvas, inspector, 0);
             
-            wxTextCtrl* logView = new wxTextCtrl(logSplitter, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP);
-            logView->SetBackgroundColour(*wxBLACK);
-            logView->SetForegroundColour(*wxLIGHT_GREY);
-            logSplitter->SplitHorizontally(inspectorSplitter, logView);
+            m_logView = new wxTextCtrl(logSplitter, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2);
+            m_logView->SetDefaultStyle(wxTextAttr(*wxLIGHT_GREY, *wxBLACK));
+            m_logView->SetBackgroundColour(*wxBLACK);
+            logSplitter->SplitHorizontally(inspectorSplitter, m_logView);
             
             wxSizer* logSplitterSizer = new wxBoxSizer(wxVERTICAL);
             logSplitterSizer->Add(logSplitter, 1, wxEXPAND);

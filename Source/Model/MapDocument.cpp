@@ -21,6 +21,14 @@
 
 #include "IO/MapParser.h"
 #include "Model/Map.h"
+#include "Utility/Console.h"
+#include "Utility/VecMath.h"
+#include "View/EditorView.h"
+
+#include <cassert>
+#include <ctime>
+
+using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Model {
@@ -28,11 +36,24 @@ namespace TrenchBroom {
         
         MapDocument::MapDocument() {}
         
+        bool MapDocument::DoOpenDocument(const wxString& file) {
+            console().info("Loading file %s", file.mbc_str().data());
+            return wxDocument::DoOpenDocument(file);
+        }
+        
+        bool MapDocument::DoSaveDocument(const wxString& file) {
+            return wxDocument::DoSaveDocument(file);
+        }
+
         std::istream& MapDocument::LoadObject(std::istream& stream) {
             wxDocument::LoadObject(stream);
             
-            IO::MapParser parser(stream);
+            clock_t start = clock();
+            IO::MapParser parser(stream, console());
             parser.parseMap(*m_map, NULL);
+            stream.clear(); // everything went well, prevent wx from displaying an error dialog
+            console().info("Loaded map file in %f seconds", (clock() - start) / CLOCKS_PER_SEC / 10000.0f);
+
             return stream;
         }
         
@@ -40,8 +61,19 @@ namespace TrenchBroom {
             return wxDocument::SaveObject(stream);
         }
         
+        Model::Map& MapDocument::map() const {
+            return *m_map;
+        }
+        
+        Utility::Console& MapDocument::console() const {
+            View::EditorView* editorView = dynamic_cast<View::EditorView*>(GetFirstView());
+            assert(editorView != NULL);
+            return editorView->console();
+        }
+
         bool MapDocument::OnCreate(const wxString& path, long flags) {
-            m_map = new Map();
+            BBox worldBounds(Vec3f(-4096, -4096, -4096), Vec3f(4096, 4096, 4096));
+            m_map = new Map(worldBounds);
             
             // initialize here
             

@@ -176,7 +176,9 @@ namespace TrenchBroom {
                 
                 face->setBrush(this);
                 m_faces.push_back(face);
-                m_entity->invalidateGeometry();
+
+                if (m_entity != NULL)
+                    m_entity->invalidateGeometry();
                 
                 return true;
             } catch (GeometryException e) {

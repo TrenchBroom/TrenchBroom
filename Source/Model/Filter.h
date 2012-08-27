@@ -17,38 +17,34 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapDocument__
-#define __TrenchBroom__MapDocument__
-
-#include <wx/docview.h>
+#ifndef TrenchBroom_Filter_h
+#define TrenchBroom_Filter_h
 
 namespace TrenchBroom {
-    namespace Utility {
-        class Console;
-    }
-    
     namespace Model {
-        class Map;
-        
-        class MapDocument : public wxDocument {
-            DECLARE_DYNAMIC_CLASS(MapDocument)
-        protected:
-            Map* m_map;
-            
-            virtual bool DoOpenDocument(const wxString& file);
-            virtual bool DoSaveDocument(const wxString& file);
+        class Filter {
         public:
-            MapDocument();
-
-            std::istream& LoadObject(std::istream& stream);
-            std::ostream& SaveObject(std::ostream& stream);
+            inline bool brushVisible(const Model::Brush& brush) const {
+                return true;
+            }
             
-            Model::Map& map() const;
-            Utility::Console& console() const;
+            inline bool entityVisible(const Model::Entity& entity) const {
+                return true;
+            }
             
-            bool OnCreate(const wxString& path, long flags);
+            inline bool brushPickable(const Model::Brush& brush) const {
+                return true;
+            }
+            
+            inline bool brushVerticesPickable(const Model::Brush& brush) const {
+                return true;
+            }
+            
+            inline bool entityPickable(const Model::Entity& entity) const {
+                return true;
+            }
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MapDocument__) */
+#endif

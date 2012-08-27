@@ -17,27 +17,4 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TrenchBroomApp__
-#define __TrenchBroom__TrenchBroomApp__
-
-#include <wx/wx.h>
-#include <wx/docview.h>
-
-class TrenchBroomApp : public wxApp {
-protected:
-	wxDocManager* m_docManager;
-public:
-    DECLARE_EVENT_TABLE();
-    
-	virtual bool OnInit();
-    virtual int OnExit();
-    
-    void OnFileNew(wxCommandEvent& event);
-    void OnFileOpen(wxCommandEvent& event);
-    
-    void OnUnhandledException();
-};
-
-DECLARE_APP(TrenchBroomApp)
-
-#endif /* defined(__TrenchBroom__TrenchBroomApp__) */
+#include "RenderContext.h"

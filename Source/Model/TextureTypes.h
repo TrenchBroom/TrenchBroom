@@ -16,28 +16,17 @@
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
+#ifndef TrenchBroom_TextureTypes_h
+#define TrenchBroom_TextureTypes_h
 
-#ifndef __TrenchBroom__TrenchBroomApp__
-#define __TrenchBroom__TrenchBroomApp__
+#include <vector>
 
-#include <wx/wx.h>
-#include <wx/docview.h>
+namespace TrenchBroom {
+    namespace Model {
+        class Texture;
+        
+        typedef std::vector<Texture*> TextureList;
+    }
+}
 
-class TrenchBroomApp : public wxApp {
-protected:
-	wxDocManager* m_docManager;
-public:
-    DECLARE_EVENT_TABLE();
-    
-	virtual bool OnInit();
-    virtual int OnExit();
-    
-    void OnFileNew(wxCommandEvent& event);
-    void OnFileOpen(wxCommandEvent& event);
-    
-    void OnUnhandledException();
-};
-
-DECLARE_APP(TrenchBroomApp)
-
-#endif /* defined(__TrenchBroom__TrenchBroomApp__) */
+#endif

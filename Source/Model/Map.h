@@ -37,7 +37,14 @@ namespace TrenchBroom {
 
             void setEntityDefinition(Entity* entity);
         public:
+            Map(const BBox& worldBounds);
+            ~Map();
+            
             void addEntity(Entity* entity);
+
+            inline const EntityList& entities() const {
+                return m_entities;
+            }
             
             Entity* createEntity(const PropertyValue& classname);
             

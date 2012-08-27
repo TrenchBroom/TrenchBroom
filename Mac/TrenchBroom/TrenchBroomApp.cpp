@@ -79,3 +79,11 @@ void TrenchBroomApp::OnFileNew(wxCommandEvent& event) {
 void TrenchBroomApp::OnFileOpen(wxCommandEvent& event) {
     m_docManager->OnFileOpen(event);
 }
+
+void TrenchBroomApp::OnUnhandledException() {
+    try {
+        throw;
+    } catch (std::exception& e) {
+        wxLogWarning(e.what());
+    }
+}
