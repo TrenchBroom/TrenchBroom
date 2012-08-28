@@ -22,6 +22,7 @@
 #include "IO/FileManager.h"
 #include "IO/MapParser.h"
 #include "IO/Wad.h"
+#include "IO/mmapped_fstream.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Face.h"
@@ -44,7 +45,13 @@ namespace TrenchBroom {
         
         bool MapDocument::DoOpenDocument(const wxString& file) {
             console().info("Loading file %s", file.mbc_str().data());
-            return wxDocument::DoOpenDocument(file);
+            
+            mmapped_fstream stream(file.mbc_str().data(), std::ios::in);
+            if (!stream.is_open() || !stream.good())
+                return false;
+            
+            LoadObject(stream);
+            return true;
         }
         
         bool MapDocument::DoSaveDocument(const wxString& file) {
@@ -101,7 +108,7 @@ namespace TrenchBroom {
         }
 
         std::istream& MapDocument::LoadObject(std::istream& stream) {
-            wxDocument::LoadObject(stream);
+//            wxDocument::LoadObject(stream);
 
             wxStopWatch watch;
             IO::MapParser parser(stream, console());

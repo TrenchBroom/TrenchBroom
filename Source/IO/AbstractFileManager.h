@@ -20,6 +20,8 @@
 #ifndef __TrenchBroom__AbstractFileManager__
 #define __TrenchBroom__AbstractFileManager__
 
+#include "IO/mmapped_fstream.h"
+
 #include "Utility/MessageException.h"
 #include "Utility/String.h"
 

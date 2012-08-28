@@ -29,6 +29,8 @@
 
 #include <wx/wx.h>
 
+#include <cassert>
+
 using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
@@ -62,7 +64,7 @@ namespace TrenchBroom {
         }
 
         void MapGLCanvas::OnPaint(wxPaintEvent& event) {
-            SetCurrent(*m_glContext);
+            assert(SetCurrent(*m_glContext));
             wxPaintDC(this);
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();

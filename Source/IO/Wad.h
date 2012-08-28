@@ -22,7 +22,7 @@
 
 #include "Utility/String.h"
 
-#include <fstream>
+#include "IO/mmapped_fstream.h"
 #include <vector>
 
 namespace TrenchBroom {
@@ -105,7 +105,7 @@ namespace TrenchBroom {
 
         class Wad {
         private:
-            mutable std::ifstream m_stream;
+            mutable mmapped_fstream m_stream;
             WadEntry::List m_entries;
 
             Mip* loadMip(const WadEntry& entry) const;

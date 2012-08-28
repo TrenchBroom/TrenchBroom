@@ -24,7 +24,6 @@
 namespace TrenchBroom {
     namespace IO {
         Mip* Wad::loadMip(const WadEntry& entry) const {
-			assert(m_stream.is_open());
 			assert(!m_stream.eof());
             if (entry.type() != WadEntryType::Mip)
                 return NULL;
