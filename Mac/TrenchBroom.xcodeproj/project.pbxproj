@@ -34,6 +34,9 @@
 		48819C4415EC107700BEA604 /* quake.def in Resources */ = {isa = PBXBuildFile; fileRef = 48819C4315EC107700BEA604 /* quake.def */; };
 		48819C4615EC108400BEA604 /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48819C4515EC108400BEA604 /* QuakePalette.lmp */; };
 		48AB57F115ECEEE500321C47 /* ProgressIndicatorDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AB57EF15ECEEE500321C47 /* ProgressIndicatorDialog.cpp */; };
+		48AB580215ECFED800321C47 /* InputController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AB580015ECFED800321C47 /* InputController.cpp */; };
+		48AB580515ED01CB00321C47 /* CameraTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AB580315ED01CB00321C47 /* CameraTool.cpp */; };
+		48AB580715ED1C1E00321C47 /* Preferences.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AB580615ED1C1E00321C47 /* Preferences.cpp */; };
 		48AF491F15E77BF90083DE52 /* BrushGeometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AF491D15E77BF90083DE52 /* BrushGeometry.cpp */; };
 		48AF492515E8265B0083DE52 /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AF492315E8265A0083DE52 /* Texture.cpp */; };
 		48AF492815E8CC270083DE52 /* MapParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AF492615E8CC270083DE52 /* MapParser.cpp */; };
@@ -120,6 +123,13 @@
 		48819C4515EC108400BEA604 /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; name = QuakePalette.lmp; path = ../../Resources/Graphics/QuakePalette.lmp; sourceTree = "<group>"; };
 		48AB57EF15ECEEE500321C47 /* ProgressIndicatorDialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProgressIndicatorDialog.cpp; sourceTree = "<group>"; };
 		48AB57F015ECEEE500321C47 /* ProgressIndicatorDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProgressIndicatorDialog.h; sourceTree = "<group>"; };
+		48AB57FE15ECFBDF00321C47 /* Tool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Tool.h; sourceTree = "<group>"; };
+		48AB57FF15ECFC5F00321C47 /* Input.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Input.h; sourceTree = "<group>"; };
+		48AB580015ECFED800321C47 /* InputController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InputController.cpp; sourceTree = "<group>"; };
+		48AB580115ECFED800321C47 /* InputController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputController.h; sourceTree = "<group>"; };
+		48AB580315ED01CB00321C47 /* CameraTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraTool.cpp; sourceTree = "<group>"; };
+		48AB580415ED01CB00321C47 /* CameraTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraTool.h; sourceTree = "<group>"; };
+		48AB580615ED1C1E00321C47 /* Preferences.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Preferences.cpp; sourceTree = "<group>"; };
 		48AF491D15E77BF90083DE52 /* BrushGeometry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BrushGeometry.cpp; sourceTree = "<group>"; };
 		48AF491E15E77BF90083DE52 /* BrushGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushGeometry.h; sourceTree = "<group>"; };
 		48AF492115E782E90083DE52 /* BrushGeometryTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrushGeometryTypes.h; sourceTree = "<group>"; };
@@ -201,19 +211,11 @@
 			path = ../Source/Renderer;
 			sourceTree = "<group>";
 		};
-		48312B4B15EBE4B000607868 /* Controller */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Controller;
-			path = ../Source/Controller;
-			sourceTree = "<group>";
-		};
 		484763C615E2BC5000095BC0 = {
 			isa = PBXGroup;
 			children = (
 				48312B2715EABBD600607868 /* Icon.icns */,
-				48312B4B15EBE4B000607868 /* Controller */,
+				48AB57F615ECFB8600321C47 /* Controller */,
 				4810277B15E56F9B00250C9C /* IO */,
 				4847640715E2DECB00095BC0 /* Model */,
 				48312B2F15EB800600607868 /* Renderer */,
@@ -354,6 +356,7 @@
 				48D1BE9815E2E2930073C030 /* Math.h */,
 				4810278115E594C400250C9C /* MessageException.h */,
 				48D1BEAA15E2FF860073C030 /* Plane.h */,
+				48AB580615ED1C1E00321C47 /* Preferences.cpp */,
 				48312B4415EBA43700607868 /* Preferences.h */,
 				48AF492915E8F0B20083DE52 /* ProgressIndicator.h */,
 				48D1BEA415E2F4F80073C030 /* Quat.h */,
@@ -368,6 +371,20 @@
 			);
 			name = Utility;
 			path = ../Source/Utility;
+			sourceTree = "<group>";
+		};
+		48AB57F615ECFB8600321C47 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				48AB580315ED01CB00321C47 /* CameraTool.cpp */,
+				48AB580415ED01CB00321C47 /* CameraTool.h */,
+				48AB57FF15ECFC5F00321C47 /* Input.h */,
+				48AB580015ECFED800321C47 /* InputController.cpp */,
+				48AB580115ECFED800321C47 /* InputController.h */,
+				48AB57FE15ECFBDF00321C47 /* Tool.h */,
+			);
+			name = Controller;
+			path = ../Source/Controller;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -465,6 +482,9 @@
 				48819C3C15EC066E00BEA604 /* AbstractFileManager.cpp in Sources */,
 				48819C3F15EC0CE700BEA604 /* MacFileManager.cpp in Sources */,
 				48AB57F115ECEEE500321C47 /* ProgressIndicatorDialog.cpp in Sources */,
+				48AB580215ECFED800321C47 /* InputController.cpp in Sources */,
+				48AB580515ED01CB00321C47 /* CameraTool.cpp in Sources */,
+				48AB580715ED1C1E00321C47 /* Preferences.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

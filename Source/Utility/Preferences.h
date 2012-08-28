@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__Preferences__
 #define __TrenchBroom__Preferences__
 
+#include "Controller/Input.h"
 #include "Utility/Color.h"
 #include "Utility/MessageException.h"
 #include "Utility/String.h"
@@ -31,6 +32,8 @@
 #include <map>
 
 using namespace TrenchBroom::Math;
+using namespace TrenchBroom::Controller::ModifierKeys;
+using namespace TrenchBroom::Controller::MouseButtons;
 
 namespace TrenchBroom {
     namespace Preferences {
@@ -113,6 +116,9 @@ namespace TrenchBroom {
         static const Preference<Color>  UsedTextureColor(               "Texture browser/Used texture color",               Color(0.8f,  0.8f,  0.0f,  1.0f ));
         static const Preference<Color>  OverriddenTextureColor(         "Texture browser/Overridden texture color",         Color(0.5f,  0.5f,  0.5f,  1.0f ));
         
+        static const Preference<Controller::MouseState> CameraLookMouseState(   "Controls/Camera look",         Controller::MouseState(Shift, Left));
+        static const Preference<Controller::MouseState> CameraPanMouseState(    "Controls/Camera pan",          Controller::MouseState(Shift, Right));
+        
         class PreferenceManager {
         private:
             wxConfig* m_config;
@@ -125,6 +131,8 @@ namespace TrenchBroom {
                 delete m_config;
                 m_config = NULL;
             }
+            
+            bool parseMouseState(const String& str, Controller::MouseState& mouseState) const;
         public:
             inline static PreferenceManager& preferences() {
                 static PreferenceManager prefs;
@@ -172,6 +180,19 @@ namespace TrenchBroom {
                     wxString str;
                     if (m_config->Read(preference.name(), &str))
                         preference.setValue(Color(str.ToStdString()));
+                }
+                
+                return preference.value();
+            }
+            
+            inline const Controller::MouseState& getMouseState(const Preference<Controller::MouseState>& preference) const {
+                if (!preference.initialized()) {
+                    wxString str;
+                    if (m_config->Read(preference.name(), &str)) {
+                        Controller::MouseState mouseState;
+                        if (parseMouseState(str.ToStdString(), mouseState))
+                            preference.setValue(mouseState);
+                    }
                 }
                 
                 return preference.value();
