@@ -20,25 +20,24 @@
 #ifndef TrenchBroom_ProgressIndicator_h
 #define TrenchBroom_ProgressIndicator_h
 
+#include "Utility/String.h"
+
 #include <cassert>
-#include <string>
 
 namespace TrenchBroom {
     namespace Utility {
         class ProgressIndicator {
         private:
-            float m_maxValue;
+            int m_maxValue;
             float m_percent;
         protected:
             virtual void doReset() = 0;
             virtual void doUpdate() = 0;
         public:
-            ProgressIndicator(float maxValue) : m_maxValue(maxValue), m_percent(0) {
-                assert(m_maxValue > 0);
-            }
+            ProgressIndicator() : m_maxValue(100), m_percent(0.0f) {}
             virtual ~ProgressIndicator() {};
             
-            float maxValue() {
+            int maxValue() {
                 return m_maxValue;
             }
             
@@ -46,20 +45,20 @@ namespace TrenchBroom {
                 return m_percent;
             }
             
-            void reset(float maxValue) {
+            void reset(int maxValue) {
                 assert(maxValue > 0);
                 m_maxValue = maxValue;
                 doReset();
             };
             
-            void update(float progress) {
-                float percent = progress / m_maxValue * 100;
-                if ((int)m_percent == (int)percent) return;
+            void update(int progress) {
+                float percent = static_cast<float>(progress) / m_maxValue * 100.0f;
+                if (static_cast<int>(m_percent) == static_cast<int>(percent)) return;
                 m_percent = percent;
                 doUpdate();
             }
             
-            virtual void setText(const std::string& text) = 0;
+            virtual void setText(const String& text) = 0;
         };
     }
 }

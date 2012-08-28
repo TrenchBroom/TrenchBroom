@@ -19,6 +19,8 @@
 
 #include "Console.h"
 
+#include <wx/wx.h>
+
 namespace TrenchBroom {
     namespace Utility {
         void Console::formatMessage(const char* format, va_list arguments, String& result) {
@@ -46,6 +48,7 @@ namespace TrenchBroom {
             } else {
                 m_textCtrl->AppendText(message);
             }
+            wxYieldIfNeeded();
         }
         
         void Console::info(const String& message) {

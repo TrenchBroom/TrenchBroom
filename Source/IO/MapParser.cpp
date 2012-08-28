@@ -30,7 +30,7 @@
 namespace TrenchBroom {
     namespace IO {
         MapTokenizer::TokenPtr MapTokenizer::nextToken() {
-            StringStream buffer;
+            m_buffer.str(String());
             while (!eof()) {
                 char c = nextChar();
                 switch (m_state) {
@@ -80,13 +80,13 @@ namespace TrenchBroom {
                             case '8':
                             case '9':
                                 m_state = TokenizerState::Integer;
-                                buffer << c;
+                                m_buffer << c;
                                 m_startLine = m_line;
                                 m_startColumn = m_column;
                                 break;
                             default:
                                 m_state = TokenizerState::String;
-                                buffer << c;
+                                m_buffer << c;
                                 m_startLine = m_line;
                                 m_startColumn = m_column;
                                 break;
@@ -96,10 +96,10 @@ namespace TrenchBroom {
                         switch (c) {
                             case '"': {
                                 m_state = TokenizerState::Default;
-                                return token(TokenType::String, buffer.str(), m_startLine, m_startColumn);
+                                return token(TokenType::String, m_buffer.str(), m_startLine, m_startColumn);
                             }
                             default:
-                                buffer << c;
+                                m_buffer << c;
                                 break;
                         }
                         break;
@@ -117,10 +117,10 @@ namespace TrenchBroom {
                             case '\t':
                             case ' ': {
                                 m_state = comment ? TokenizerState::Comment : TokenizerState::Default;
-                                return token(TokenType::String, buffer.str(), m_startLine, m_startColumn);
+                                return token(TokenType::String, m_buffer.str(), m_startLine, m_startColumn);
                             }
                             default:
-                                buffer << c;
+                                m_buffer << c;
                                 break;
                         }
                         break;
@@ -143,13 +143,13 @@ namespace TrenchBroom {
                                 unsigned int previousState = m_state;
                                 m_state = comment ? TokenizerState::Comment : TokenizerState::Default;
                                 if (previousState == TokenizerState::Integer)
-                                    return token(TokenType::Integer, buffer.str(), m_startLine, m_startColumn);
-                                return token(TokenType::Decimal, buffer.str(), m_startLine, m_startColumn);
+                                    return token(TokenType::Integer, m_buffer.str(), m_startLine, m_startColumn);
+                                return token(TokenType::Decimal, m_buffer.str(), m_startLine, m_startColumn);
                             }
                             default:
                                 if ((c < '0' || c > '9') && (c != '.'))
                                     m_state = TokenizerState::String;
-                                buffer << c;
+                                m_buffer << c;
                                 break;
                         }
                         break;
@@ -159,10 +159,10 @@ namespace TrenchBroom {
                             case '\r':
                             case '\n': {
                                 m_state = TokenizerState::Default;
-                                return token(TokenType::Comment, buffer.str(), m_startLine, m_startColumn);
+                                return token(TokenType::Comment, m_buffer.str(), m_startLine, m_startColumn);
                             }
                             default:
-                                buffer << c;
+                                m_buffer << c;
                                 break;
                         }
                         break;
@@ -220,7 +220,7 @@ namespace TrenchBroom {
                 while ((entity = parseEntity(map.worldBounds(), indicator)) != NULL)
                     map.addEntity(entity);
             } catch (MapParserException e) {
-                // log(TB_LL_ERR, e.std::exception::what());
+                m_console.error(e.what());
             }
             if (indicator != NULL)
                 indicator->update(static_cast<float>(m_size));

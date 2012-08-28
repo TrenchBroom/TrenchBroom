@@ -90,6 +90,7 @@ namespace TrenchBroom {
             std::istream& m_stream;
             size_t m_line;
             size_t m_column;
+            size_t m_position;
 
             inline char nextChar() {
                 if (eof())
@@ -97,6 +98,7 @@ namespace TrenchBroom {
                 
                 char c;
                 m_stream.get(c);
+                m_position++;
                 
                 if (c == '\n') {
                     m_line++;
@@ -111,6 +113,7 @@ namespace TrenchBroom {
             inline void pushChar() {
                 m_stream.seekg(-1, std::ios::cur);
                 char c = m_stream.peek();
+                m_position--;
                 if (c == '\n') {
                     m_line--;
                     m_column = 0;
@@ -144,7 +147,7 @@ namespace TrenchBroom {
                 return m_stream.eof();
             }
         public:
-            AbstractTokenizer(std::istream& stream) : m_stream(stream), m_line(1), m_column(1) {}
+            AbstractTokenizer(std::istream& stream) : m_stream(stream), m_line(1), m_column(1), m_position(0) {}
 
             inline size_t line() const {
                 return m_line;
@@ -155,7 +158,7 @@ namespace TrenchBroom {
             }
             
             inline size_t position() const {
-                return m_stream.tellg();
+                return m_position;
             }
         };
     }

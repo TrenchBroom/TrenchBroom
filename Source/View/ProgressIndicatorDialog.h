@@ -17,35 +17,29 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EditorFrame__
-#define __TrenchBroom__EditorFrame__
+#ifndef __TrenchBroom__ProgressIndicatorDialog__
+#define __TrenchBroom__ProgressIndicatorDialog__
 
-#include <wx/frame.h>
+#include "Utility/ProgressIndicator.h"
 
-class wxTextCtrl;
+class wxGenericProgressDialog;
 
 namespace TrenchBroom {
     namespace View {
-        class MapGLCanvas;
-        
-        class EditorFrame : public wxFrame {
+        class ProgressIndicatorDialog : public Utility::ProgressIndicator {
         protected:
-            wxTextCtrl* m_logView;
-            MapGLCanvas* m_mapCanvas;
-        public:
-            EditorFrame();
-            ~EditorFrame();
-
-            inline wxTextCtrl* logView() const {
-                return m_logView;
-            }
+            wxGenericProgressDialog* m_dialog;
             
-            inline MapGLCanvas* mapCanvas() const {
-                return m_mapCanvas;
-            }
+            void doReset();
+            void doUpdate();
+        public:
+            ProgressIndicatorDialog();
+            ~ProgressIndicatorDialog();
+
+            void setText(const String& text);
+            void pulse();
         };
     }
 }
 
-
-#endif /* defined(__TrenchBroom__EditorFrame__) */
+#endif /* defined(__TrenchBroom__ProgressIndicatorDialog__) */

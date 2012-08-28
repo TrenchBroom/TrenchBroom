@@ -32,6 +32,7 @@
 #include "Utility/Console.h"
 #include "Utility/VecMath.h"
 #include "View/EditorView.h"
+#include "View/ProgressIndicatorDialog.h"
 
 #include <cassert>
 
@@ -110,9 +111,12 @@ namespace TrenchBroom {
         std::istream& MapDocument::LoadObject(std::istream& stream) {
 //            wxDocument::LoadObject(stream);
 
+            View::ProgressIndicatorDialog progressIndicator;
+            progressIndicator.setText("Loading map file...");
+            
             wxStopWatch watch;
             IO::MapParser parser(stream, console());
-            parser.parseMap(*m_map, NULL);
+            parser.parseMap(*m_map, &progressIndicator);
             stream.clear(); // everything went well, prevent wx from displaying an error dialog
             console().info("Loaded map file in %f seconds", watch.Time() / 1000.0f);
 

@@ -78,10 +78,11 @@ namespace TrenchBroom {
             
             typedef std::auto_ptr<Token> TokenPtr;
         protected:
+            StringStream m_buffer;
             unsigned int m_state;
             
             inline TokenPtr token(unsigned int type, const String& data) {
-                return TokenPtr(new Token(type, data, m_stream.tellg(), m_line, m_column));
+                return TokenPtr(new Token(type, data, m_position, m_line, m_column));
             }
         public:
             StandardDefinitionTokenizer(std::istream& stream) : AbstractTokenizer(stream), m_state(TokenizerState::Outside) {}

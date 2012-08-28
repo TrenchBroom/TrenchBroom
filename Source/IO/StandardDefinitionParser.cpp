@@ -24,7 +24,7 @@
 namespace TrenchBroom {
     namespace IO {
         StandardDefinitionTokenizer::TokenPtr StandardDefinitionTokenizer::nextToken() {
-            StringStream buffer;
+            m_buffer.str(String());
             while (!eof()) {
                 char c = nextChar();
                 switch (m_state) {
@@ -84,17 +84,17 @@ namespace TrenchBroom {
                             case '8':
                             case '9':
                                 m_state = TokenizerState::Integer;
-                                buffer.clear();
-                                buffer << c;
+                                m_buffer.str(String());
+                                m_buffer << c;
                                 break;
                             case '"':
                                 m_state = TokenizerState::String;
-                                buffer.clear();
+                                m_buffer.str(String());
                                 break;
                             default:
                                 m_state = TokenizerState::Word;
-                                buffer.clear();
-                                buffer << c;
+                                m_buffer.str(String());
+                                m_buffer << c;
                                 break;
                         }
                         break;
@@ -108,7 +108,7 @@ namespace TrenchBroom {
                                 if (peekChar() == '*') {
                                     pushChar();
                                 } else {
-                                    buffer << c;
+                                    m_buffer << c;
                                     break;
                                 }
                             case '(':
@@ -117,18 +117,18 @@ namespace TrenchBroom {
                             case '\t':
                                 m_state = TokenizerState::Inside;
                                 pushChar();
-                                return token(TokenType::Word, buffer.str());
+                                return token(TokenType::Word, m_buffer.str());
                             default:
-                                buffer << c;
+                                m_buffer << c;
                                 break;
                         }
                         break;
                     case TokenizerState::String:
                         if (c == '"') {
                             m_state = TokenizerState::Inside;
-                            return token(TokenType::String, buffer.str());
+                            return token(TokenType::String, m_buffer.str());
                         } else {
-                            buffer << c;
+                            m_buffer << c;
                         }
                         break;
                     case TokenizerState::Integer:
@@ -147,7 +147,7 @@ namespace TrenchBroom {
                             case '8':
                             case '9':
                             case '.':
-                                buffer << c;
+                                m_buffer << c;
                                 break;
                             case ')':
                             case '\t':
@@ -156,11 +156,11 @@ namespace TrenchBroom {
                                 if (m_state == TokenizerState::Integer) {
                                     pushChar();
                                     m_state = TokenizerState::Inside;
-                                    return token(TokenType::Integer, buffer.str());
+                                    return token(TokenType::Integer, m_buffer.str());
                                 } else {
                                     pushChar();
                                     m_state = TokenizerState::Inside;
-                                    return token(TokenType::Decimal, buffer.str());
+                                    return token(TokenType::Decimal, m_buffer.str());
                                 }
                                 break;
                             }
@@ -196,14 +196,14 @@ namespace TrenchBroom {
         String StandardDefinitionTokenizer::remainder() {
             assert(m_state == TokenizerState::Inside);
             
+            m_buffer.str(String());
             char c = nextChar();
-            StringStream buffer;
             while (m_state != TokenizerState::Eof && c != '*' && peekChar() != '/') {
-                buffer << c;
+                m_buffer << c;
                 c = nextChar();
             }
             pushChar();
-            return buffer.str();
+            return m_buffer.str();
         }
         
         String StandardDefinitionParser::typeNames(unsigned int types) {

@@ -34,12 +34,10 @@ namespace TrenchBroom {
             wxSplitterWindow* logSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3DSASH | wxSP_LIVE_UPDATE);
             logSplitter->SetSashGravity(1.0f);
             logSplitter->SetMinimumPaneSize(0);
-            logSplitter->Connect(wxEVT_IDLE, wxIdleEventHandler(EditorFrame::logSplitterOnIdle), NULL, this);
             
             wxSplitterWindow* inspectorSplitter = new wxSplitterWindow(logSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3DSASH | wxSP_LIVE_UPDATE);
             inspectorSplitter->SetSashGravity(1.0f);
             inspectorSplitter->SetMinimumPaneSize(300);
-            inspectorSplitter->Connect(wxEVT_IDLE, wxIdleEventHandler( EditorFrame::inspectorSplitterOnIdle ), NULL, this);
 
             m_mapCanvas = new MapGLCanvas(inspectorSplitter);
             Inspector* inspector = new Inspector(inspectorSplitter);
@@ -55,26 +53,12 @@ namespace TrenchBroom {
             SetSizer(logSplitterSizer);
 
             SetSize(800, 600);
+            inspectorSplitter->SetSashPosition(GetSize().x - 300);
+            logSplitter->SetSashPosition(GetSize().y - 150);
             Layout();
         }
         
         EditorFrame::~EditorFrame() {
-        }
-        
-        void EditorFrame::logSplitterOnIdle(wxIdleEvent& event) {
-            wxSplitterWindow* splitterWindow = dynamic_cast<wxSplitterWindow*>(event.GetEventObject());
-            if (splitterWindow != NULL) {
-                splitterWindow->SetSashPosition(GetSize().y - 150);
-                splitterWindow->Disconnect(wxEVT_IDLE, wxIdleEventHandler(EditorFrame::logSplitterOnIdle ), NULL, this);
-            }
-        }
-        
-        void EditorFrame::inspectorSplitterOnIdle(wxIdleEvent& event) {
-            wxSplitterWindow* splitterWindow = dynamic_cast<wxSplitterWindow*>(event.GetEventObject());
-            if (splitterWindow != NULL) {
-                splitterWindow->SetSashPosition(GetSize().x - 300);
-                splitterWindow->Disconnect(wxEVT_IDLE, wxIdleEventHandler(EditorFrame::inspectorSplitterOnIdle ), NULL, this);
-            }
         }
     }
 }
