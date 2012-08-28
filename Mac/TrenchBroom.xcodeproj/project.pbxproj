@@ -33,6 +33,7 @@
 		48819C3F15EC0CE700BEA604 /* MacFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3D15EC0CE700BEA604 /* MacFileManager.cpp */; };
 		48819C4415EC107700BEA604 /* quake.def in Resources */ = {isa = PBXBuildFile; fileRef = 48819C4315EC107700BEA604 /* quake.def */; };
 		48819C4615EC108400BEA604 /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48819C4515EC108400BEA604 /* QuakePalette.lmp */; };
+		48819C5015ED5C7700BEA604 /* CameraEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C4F15ED5C7700BEA604 /* CameraEvent.cpp */; };
 		48AB57F115ECEEE500321C47 /* ProgressIndicatorDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AB57EF15ECEEE500321C47 /* ProgressIndicatorDialog.cpp */; };
 		48AB580215ECFED800321C47 /* InputController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AB580015ECFED800321C47 /* InputController.cpp */; };
 		48AB580515ED01CB00321C47 /* CameraTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AB580315ED01CB00321C47 /* CameraTool.cpp */; };
@@ -121,6 +122,8 @@
 		48819C4015EC0D9300BEA604 /* FileManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileManager.h; sourceTree = "<group>"; };
 		48819C4315EC107700BEA604 /* quake.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = quake.def; path = ../../Resources/Defs/quake.def; sourceTree = "<group>"; };
 		48819C4515EC108400BEA604 /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; name = QuakePalette.lmp; path = ../../Resources/Graphics/QuakePalette.lmp; sourceTree = "<group>"; };
+		48819C4C15ED52B200BEA604 /* CameraEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraEvent.h; sourceTree = "<group>"; };
+		48819C4F15ED5C7700BEA604 /* CameraEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraEvent.cpp; sourceTree = "<group>"; };
 		48AB57EF15ECEEE500321C47 /* ProgressIndicatorDialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProgressIndicatorDialog.cpp; sourceTree = "<group>"; };
 		48AB57F015ECEEE500321C47 /* ProgressIndicatorDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProgressIndicatorDialog.h; sourceTree = "<group>"; };
 		48AB57FE15ECFBDF00321C47 /* Tool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Tool.h; sourceTree = "<group>"; };
@@ -378,6 +381,8 @@
 			children = (
 				48AB580315ED01CB00321C47 /* CameraTool.cpp */,
 				48AB580415ED01CB00321C47 /* CameraTool.h */,
+				48819C4F15ED5C7700BEA604 /* CameraEvent.cpp */,
+				48819C4C15ED52B200BEA604 /* CameraEvent.h */,
 				48AB57FF15ECFC5F00321C47 /* Input.h */,
 				48AB580015ECFED800321C47 /* InputController.cpp */,
 				48AB580115ECFED800321C47 /* InputController.h */,
@@ -485,6 +490,7 @@
 				48AB580215ECFED800321C47 /* InputController.cpp in Sources */,
 				48AB580515ED01CB00321C47 /* CameraTool.cpp in Sources */,
 				48AB580715ED1C1E00321C47 /* Preferences.cpp in Sources */,
+				48819C5015ED5C7700BEA604 /* CameraEvent.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

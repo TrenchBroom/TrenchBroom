@@ -19,6 +19,9 @@
 
 #include "MapGLCanvas.h"
 
+#include "Controller/CameraEvent.h"
+#include "Controller/Input.h"
+#include "Controller/InputController.h"
 #include "Renderer/Camera.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderContext.h"
@@ -32,11 +35,24 @@
 #include <cassert>
 
 using namespace TrenchBroom::Math;
+using namespace TrenchBroom::Controller::ModifierKeys;
+using namespace TrenchBroom::Controller::MouseButtons;
 
 namespace TrenchBroom {
     namespace View {
         BEGIN_EVENT_TABLE(MapGLCanvas, wxGLCanvas)
         EVT_PAINT(MapGLCanvas::OnPaint)
+        EVT_CAMERA_MOVE(wxID_ANY, MapGLCanvas::OnCameraMove)
+        EVT_CAMERA_LOOK(wxID_ANY, MapGLCanvas::OnCameraLook)
+        EVT_CAMERA_ORBIT(wxID_ANY, MapGLCanvas::OnCameraOrbit)
+        EVT_LEFT_DOWN(MapGLCanvas::OnMouseLeftDown)
+        EVT_LEFT_UP(MapGLCanvas::OnMouseLeftUp)
+        EVT_RIGHT_DOWN(MapGLCanvas::OnMouseRightDown)
+        EVT_RIGHT_UP(MapGLCanvas::OnMouseRightUp)
+        EVT_MIDDLE_DOWN(MapGLCanvas::OnMouseMiddleDown)
+        EVT_MIDDLE_UP(MapGLCanvas::OnMouseMiddleUp)
+        EVT_MOTION(MapGLCanvas::OnMouseMove)
+        EVT_MOUSEWHEEL(MapGLCanvas::OnMouseWheel)
         END_EVENT_TABLE()
         
         int* MapGLCanvas::Attribs() {
@@ -54,13 +70,22 @@ namespace TrenchBroom {
             return m_attribs;
         }
         
-        MapGLCanvas::MapGLCanvas(wxWindow* parent) : wxGLCanvas(parent, wxID_ANY, Attribs()), m_renderer(NULL), m_camera(NULL) {
+        MapGLCanvas::MapGLCanvas(wxWindow* parent) : wxGLCanvas(parent, wxID_ANY, Attribs()), m_renderer(NULL), m_camera(NULL), m_inputController(NULL) {
             m_glContext = new wxGLContext(this);
         }
 
+        MapGLCanvas::~MapGLCanvas() {
+            if (m_inputController != NULL) {
+                delete m_inputController;
+                m_inputController = NULL;
+            }
+        }
+
+        
         void MapGLCanvas::Initialize(Renderer::Camera& camera, Renderer::MapRenderer& renderer) {
             m_camera = &camera;
             m_renderer = &renderer;
+            m_inputController = new Controller::InputController(*GetEventHandler());
         }
 
         void MapGLCanvas::OnPaint(wxPaintEvent& event) {
@@ -93,6 +118,61 @@ namespace TrenchBroom {
             
             
             SwapBuffers();
+        }
+
+        void MapGLCanvas::OnCameraMove(Controller::CameraMoveEvent& event) {
+            if (m_camera != NULL)
+                m_camera->moveBy(event.forward(), event.right(), event.up());
+        }
+        
+        void MapGLCanvas::OnCameraLook(Controller::CameraLookEvent& event) {
+            if (m_camera != NULL)
+                m_camera->rotate(event.hAngle(), event.vAngle());
+        }
+        
+        void MapGLCanvas::OnCameraOrbit(Controller::CameraOrbitEvent& event) {
+            if (m_camera != NULL)
+                m_camera->orbit(event.center(), event.hAngle(), event.vAngle());
+        }
+
+        void MapGLCanvas::OnMouseLeftDown(wxMouseEvent& event) {
+            if (m_inputController != NULL)
+                m_inputController->mouseDown(Left, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
+        }
+        
+        void MapGLCanvas::OnMouseLeftUp(wxMouseEvent& event) {
+            if (m_inputController != NULL)
+                m_inputController->mouseUp(Left, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
+        }
+        
+        void MapGLCanvas::OnMouseRightDown(wxMouseEvent& event) {
+            if (m_inputController != NULL)
+                m_inputController->mouseDown(Right, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
+        }
+        
+        void MapGLCanvas::OnMouseRightUp(wxMouseEvent& event) {
+            if (m_inputController != NULL)
+                m_inputController->mouseUp(Right, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
+        }
+        
+        void MapGLCanvas::OnMouseMiddleDown(wxMouseEvent& event) {
+            if (m_inputController != NULL)
+                m_inputController->mouseDown(Middle, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
+        }
+        
+        void MapGLCanvas::OnMouseMiddleUp(wxMouseEvent& event) {
+            if (m_inputController != NULL)
+                m_inputController->mouseUp(Middle, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
+        }
+        
+        void MapGLCanvas::OnMouseMove(wxMouseEvent& event) {
+            if (m_inputController != NULL)
+                m_inputController->mouseMoved(static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
+        }
+        
+        void MapGLCanvas::OnMouseWheel(wxMouseEvent& event) {
+            if (m_inputController != NULL)
+                m_inputController->scrolled(0.0f, static_cast<float>(event.GetWheelDelta()));
         }
     }
 }

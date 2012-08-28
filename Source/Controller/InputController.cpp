@@ -19,6 +19,8 @@
 
 #include "InputController.h"
 
+#include "Controller/CameraTool.h"
+
 namespace TrenchBroom {
     namespace Controller {
         void InputController::updateHits() {
@@ -31,7 +33,9 @@ namespace TrenchBroom {
             m_currentEvent.mouseY = y;
         }
 
-        InputController::InputController() : m_dragReceiver(NULL), m_mouseUpReceiver(NULL), m_modalReceiverIndex(-1) {
+        InputController::InputController(wxEvtHandler& eventHandler) : m_dragReceiver(NULL), m_mouseUpReceiver(NULL), m_modalReceiverIndex(-1) {
+            CameraTool* cameraTool = new CameraTool(eventHandler);
+            m_receivers.push_back(cameraTool);
         }
         
         InputController::~InputController() {

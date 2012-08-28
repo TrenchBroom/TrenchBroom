@@ -23,6 +23,13 @@
 #include <wx/glcanvas.h>
 
 namespace TrenchBroom {
+    namespace Controller {
+        class CameraMoveEvent;
+        class CameraLookEvent;
+        class CameraOrbitEvent;
+        class InputController;
+    }
+    
     namespace Renderer {
         class Camera;
         class MapRenderer;
@@ -33,16 +40,31 @@ namespace TrenchBroom {
         protected:
             int* m_attribs;
             wxGLContext* m_glContext;
+            Controller::InputController* m_inputController;
             Renderer::Camera* m_camera;
             Renderer::MapRenderer* m_renderer;
             
             int* Attribs();
         public:
             MapGLCanvas(wxWindow* parent);
+            ~MapGLCanvas();
             
             void Initialize(Renderer::Camera& camera, Renderer::MapRenderer& renderer);
             
             void OnPaint(wxPaintEvent& event);
+
+            void OnCameraMove(Controller::CameraMoveEvent& event);
+            void OnCameraLook(Controller::CameraLookEvent& event);
+            void OnCameraOrbit(Controller::CameraOrbitEvent& event);
+
+            void OnMouseLeftDown(wxMouseEvent& event);
+            void OnMouseLeftUp(wxMouseEvent& event);
+            void OnMouseRightDown(wxMouseEvent& event);
+            void OnMouseRightUp(wxMouseEvent& event);
+            void OnMouseMiddleDown(wxMouseEvent& event);
+            void OnMouseMiddleUp(wxMouseEvent& event);
+            void OnMouseMove(wxMouseEvent& event);
+            void OnMouseWheel(wxMouseEvent& event);
         protected:
             DECLARE_EVENT_TABLE()
         };

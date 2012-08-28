@@ -25,15 +25,12 @@
 
 using namespace TrenchBroom::Math;
 
+class wxEvtHandler;
+
 namespace TrenchBroom {
-    namespace Renderer {
-        class Camera;
-    }
-    
     namespace Controller {
         class CameraTool : public Tool {
         private:
-            Renderer::Camera& m_camera;
             Vec3f m_orbitCenter;
             bool m_orbit;
             
@@ -41,15 +38,12 @@ namespace TrenchBroom {
             float panSpeed(bool vertical);
             float moveSpeed();
         public:
-            CameraTool(Renderer::Camera& camera) : m_camera(camera), m_orbit(false) {}
+            CameraTool(wxEvtHandler& eventHandler) : Tool(eventHandler), m_orbit(false) {}
             
             bool handleScrolled(InputEvent& event);
             bool handleBeginDrag(InputEvent& event);
             bool handleDrag(InputEvent& event);
             void handleEndDrag(InputEvent& event);
-            
-            static bool cameraModifierPressed(InputEvent& event);
-            static bool orbitModifierPressed(InputEvent& event);
         };
     }
 }

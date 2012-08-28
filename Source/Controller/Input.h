@@ -27,20 +27,20 @@ using namespace TrenchBroom::Math;
 namespace TrenchBroom {
     namespace Controller {
         namespace ModifierKeys {
-            static const unsigned int None  = 1 << 0;
-            static const unsigned int Shift = 1 << 1;
-            static const unsigned int Ctrl  = 1 << 2;
-            static const unsigned int Alt   = 1 << 3;
-            static const unsigned int Cmd   = 1 << 4;
+            static const unsigned int None  = 0;
+            static const unsigned int Shift = 1 << 0;
+            static const unsigned int Ctrl  = 1 << 1;
+            static const unsigned int Alt   = 1 << 2;
+            static const unsigned int Cmd   = 1 << 3;
         }
         
         typedef unsigned int ModifierKeyState;
         
         namespace MouseButtons {
-            static const unsigned int None      = 1 << 0;
-            static const unsigned int Left      = 1 << 1;
-            static const unsigned int Right     = 1 << 2;
-            static const unsigned int Middle    = 1 << 3;
+            static const unsigned int None      = 0;
+            static const unsigned int Left      = 1 << 0;
+            static const unsigned int Right     = 1 << 1;
+            static const unsigned int Middle    = 1 << 2;
         }
         
         typedef unsigned int MouseButtonState;

@@ -116,9 +116,6 @@ namespace TrenchBroom {
         static const Preference<Color>  UsedTextureColor(               "Texture browser/Used texture color",               Color(0.8f,  0.8f,  0.0f,  1.0f ));
         static const Preference<Color>  OverriddenTextureColor(         "Texture browser/Overridden texture color",         Color(0.5f,  0.5f,  0.5f,  1.0f ));
         
-        static const Preference<Controller::MouseState> CameraLookMouseState(   "Controls/Camera look",         Controller::MouseState(Shift, Left));
-        static const Preference<Controller::MouseState> CameraPanMouseState(    "Controls/Camera pan",          Controller::MouseState(Shift, Right));
-        
         class PreferenceManager {
         private:
             wxConfig* m_config;

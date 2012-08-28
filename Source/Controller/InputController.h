@@ -23,6 +23,8 @@
 #include "Controller/Input.h"
 #include "Controller/Tool.h"
 
+class wxEvtHandler;
+
 namespace TrenchBroom {
     namespace Controller {
         class InputController {
@@ -38,7 +40,7 @@ namespace TrenchBroom {
             void updateHits();
             void updateMousePos(float x, float y);
         public:
-            InputController();
+            InputController(wxEvtHandler& eventHandler);
             ~InputController();
             
             void modifierKeyDown(ModifierKeyState modifierKey);

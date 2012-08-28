@@ -19,9 +19,12 @@
 
 #include "CameraTool.h"
 
+#include "Controller/CameraEvent.h"
 #include "Controller/Input.h"
 #include "Utility/Preferences.h"
 #include "Renderer/Camera.h"
+
+#include <wx/event.h>
 
 namespace TrenchBroom {
     namespace Controller {
@@ -53,55 +56,63 @@ namespace TrenchBroom {
         }
         
         bool CameraTool::handleScrolled(InputEvent& event) {
-            if (!cameraModifierPressed(event) && !orbitModifierPressed(event))
+            if (event.modifierKeys != ModifierKeys::None)
                 return false;
             
             float forward = event.scrollX * moveSpeed();
-            float right = 0;
-            float up = 0;
-            m_camera.moveBy(forward, right, up);
+            float right = 0.0f;
+            float up = 0.0f;
+            
+            CameraMoveEvent cameraEvent(forward, right, up);
+            postEvent(cameraEvent);
             return true;
         }
         
         bool CameraTool::handleBeginDrag(InputEvent& event) {
-            if (event.mouseButtons == MouseButtons::Left) {
-                if (!cameraModifierPressed(event) && !orbitModifierPressed(event))
-                    return false;
-                
-                /*
-                if (orbitModifierPressed(event)) {
+            if(event.mouseButtons == MouseButtons::Right) {
+                if (event.modifierKeys == ModifierKeys::Shift) {
+                    /*
                     Model::Hit* hit = event.pickResults->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);
                     if (hit != NULL) m_orbitCenter = hit->hitPoint;
-                    else m_orbitCenter = m_camera.defaultPoint();
+                    else 
+                    m_orbitCenter = m_camera.defaultPoint();
                     m_orbit = true;
+                     */
+                    return true;
+                } else if (event.modifierKeys == ModifierKeys::None) {
+                    return true;
                 }
-                 */
+            } else if (event.mouseButtons == (MouseButtons::Left | MouseButtons::Right) && event.modifierKeys == ModifierKeys::None) {
                 return true;
-            } else if (event.mouseButtons == MouseButtons::Right) {
-                return cameraModifierPressed(event) || orbitModifierPressed(event);
             }
             
             return false;
         }
         
         bool CameraTool::handleDrag(InputEvent& event) {
-            if (event.mouseButtons == MouseButtons::Left) {
+            if (event.mouseButtons == MouseButtons::Right) {
                 if (m_orbit) {
                     float hAngle = event.deltaX * lookSpeed(false);
                     float vAngle = event.deltaY * lookSpeed(true);
-                    m_camera.orbit(m_orbitCenter, hAngle, vAngle);
+
+                    CameraOrbitEvent cameraEvent(hAngle, vAngle, m_orbitCenter);
+                    postEvent(cameraEvent);
                 } else {
                     float yawAngle = event.deltaX * lookSpeed(false);
                     float pitchAngle = event.deltaY * lookSpeed(true);
-                    m_camera.rotate(yawAngle, pitchAngle);
+                    
+                    CameraLookEvent cameraEvent(yawAngle, pitchAngle);
+                    postEvent(cameraEvent);
                 }
                 
                 return true;
-            } else if (event.mouseButtons == MouseButtons::Right) {
+            } else if (event.mouseButtons == (MouseButtons::Left | MouseButtons::Right) && event.modifierKeys == ModifierKeys::None) {
                 float forward = 0;
                 float right = event.deltaX * panSpeed(false);
                 float up = event.deltaY * panSpeed(true);
-                m_camera.moveBy(forward, right, up);
+                
+                CameraMoveEvent cameraEvent(forward, right, up);
+                postEvent(cameraEvent);
                 return true;
             }
             
@@ -110,14 +121,6 @@ namespace TrenchBroom {
         
         void CameraTool::handleEndDrag(InputEvent& event) {
             m_orbit = false;
-        }
-        
-        bool CameraTool::cameraModifierPressed(InputEvent& event) {
-            return false;
-        }
-        
-        bool CameraTool::orbitModifierPressed(InputEvent& event) {
-            return false;
         }
     }
 }
