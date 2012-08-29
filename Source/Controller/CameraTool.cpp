@@ -60,8 +60,8 @@ namespace TrenchBroom {
                 return false;
             
             CameraMoveEvent cameraEvent;
-            cameraEvent.setForward(event.scrollY * moveSpeed());
-            cameraEvent.setRight(event.scrollX * moveSpeed());
+            cameraEvent.setForward(event.scrollY * moveSpeed() / 10.0f);
+            cameraEvent.setRight(event.scrollX * moveSpeed() / 10.0f);
             postEvent(cameraEvent);
             return true;
         }

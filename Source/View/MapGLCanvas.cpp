@@ -57,6 +57,8 @@ namespace TrenchBroom {
         END_EVENT_TABLE()
         
         int* MapGLCanvas::Attribs() {
+            // Todo: make multisample and depth size configurable through prefs
+            
             m_attribs = new int[10];
             m_attribs[0] = WX_GL_RGBA;
             m_attribs[1] = WX_GL_DOUBLEBUFFER;
@@ -65,12 +67,9 @@ namespace TrenchBroom {
             m_attribs[4] = WX_GL_SAMPLES;
             m_attribs[5] = 4;
             m_attribs[6] = WX_GL_DEPTH_SIZE;
-            m_attribs[7] = 32;
+            m_attribs[7] = 24;
             m_attribs[8] = 0;
             m_attribs[9] = 0;
-            
-            if (IsDisplaySupported(m_attribs))
-                return m_attribs;
             
             return m_attribs;
         }
