@@ -24,6 +24,7 @@
 #include "Utility/VecMath.h"
 
 #include <wx/event.h>
+#include <wx/window.h>
 
 #include <cstdio>
 
@@ -40,7 +41,7 @@ namespace TrenchBroom {
                 Scroll
             };
         private:
-            wxEvtHandler& m_eventHandler;
+            wxWindow& m_control;
             State m_state;
             bool m_active;
             bool m_figureDataValid;
@@ -57,10 +58,11 @@ namespace TrenchBroom {
             virtual void handleEndDrag(InputEvent& event) {}
             
             void postEvent(wxEvent& event) {
-                m_eventHandler.ProcessEvent(event);
+                event.SetEventObject(&m_control);
+                m_control.GetEventHandler()->ProcessEvent(event);
             }
         public:
-            Tool(wxEvtHandler& eventHandler) : m_eventHandler(eventHandler), m_state(State::Default), m_active(false), m_figureDataValid(false) {}
+            Tool(wxWindow& control) : m_control(control), m_state(State::Default), m_active(false), m_figureDataValid(false) {}
             virtual ~Tool() {}
             
             virtual void updateHits(InputEvent& event) {}

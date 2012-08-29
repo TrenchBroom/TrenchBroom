@@ -52,18 +52,15 @@ namespace TrenchBroom {
         
         float CameraTool::moveSpeed() {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            return prefs.getFloat(Preferences::CameraMoveSpeed) * 12.0f;
+            return prefs.getFloat(Preferences::CameraMoveSpeed);
         }
         
         bool CameraTool::handleScrolled(InputEvent& event) {
             if (event.modifierKeys != ModifierKeys::None)
                 return false;
             
-            float forward = event.scrollX * moveSpeed();
-            float right = 0.0f;
-            float up = 0.0f;
-            
-            CameraMoveEvent cameraEvent(forward, right, up);
+            CameraMoveEvent cameraEvent;
+            cameraEvent.setForward(event.scrollY * moveSpeed());
             postEvent(cameraEvent);
             return true;
         }
@@ -92,26 +89,23 @@ namespace TrenchBroom {
         bool CameraTool::handleDrag(InputEvent& event) {
             if (event.mouseButtons == MouseButtons::Right) {
                 if (m_orbit) {
-                    float hAngle = event.deltaX * lookSpeed(false);
-                    float vAngle = event.deltaY * lookSpeed(true);
-
-                    CameraOrbitEvent cameraEvent(hAngle, vAngle, m_orbitCenter);
+                    CameraOrbitEvent cameraEvent;
+                    cameraEvent.setHAngle(event.deltaX * lookSpeed(false));
+                    cameraEvent.setVAngle(event.deltaY * lookSpeed(true));
+                    cameraEvent.setCenter(m_orbitCenter);
                     postEvent(cameraEvent);
                 } else {
-                    float yawAngle = event.deltaX * lookSpeed(false);
-                    float pitchAngle = event.deltaY * lookSpeed(true);
-                    
-                    CameraLookEvent cameraEvent(yawAngle, pitchAngle);
+                    CameraLookEvent cameraEvent;
+                    cameraEvent.setHAngle(event.deltaX * lookSpeed(false));
+                    cameraEvent.setVAngle(event.deltaY * lookSpeed(true));
                     postEvent(cameraEvent);
                 }
                 
                 return true;
             } else if (event.mouseButtons == (MouseButtons::Left | MouseButtons::Right) && event.modifierKeys == ModifierKeys::None) {
-                float forward = 0;
-                float right = event.deltaX * panSpeed(false);
-                float up = event.deltaY * panSpeed(true);
-                
-                CameraMoveEvent cameraEvent(forward, right, up);
+                CameraMoveEvent cameraEvent;
+                cameraEvent.setRight(event.deltaX * panSpeed(false));
+                cameraEvent.setUp(event.deltaY * panSpeed(true));
                 postEvent(cameraEvent);
                 return true;
             }

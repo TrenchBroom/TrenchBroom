@@ -42,9 +42,9 @@ namespace TrenchBroom {
     namespace View {
         BEGIN_EVENT_TABLE(MapGLCanvas, wxGLCanvas)
         EVT_PAINT(MapGLCanvas::OnPaint)
-        EVT_CAMERA_MOVE(wxID_ANY, MapGLCanvas::OnCameraMove)
-        EVT_CAMERA_LOOK(wxID_ANY, MapGLCanvas::OnCameraLook)
-        EVT_CAMERA_ORBIT(wxID_ANY, MapGLCanvas::OnCameraOrbit)
+        EVT_CAMERA_MOVE(MapGLCanvas::OnCameraMove)
+        EVT_CAMERA_LOOK(MapGLCanvas::OnCameraLook)
+        EVT_CAMERA_ORBIT(MapGLCanvas::OnCameraOrbit)
         EVT_LEFT_DOWN(MapGLCanvas::OnMouseLeftDown)
         EVT_LEFT_UP(MapGLCanvas::OnMouseLeftUp)
         EVT_RIGHT_DOWN(MapGLCanvas::OnMouseRightDown)
@@ -85,7 +85,7 @@ namespace TrenchBroom {
         void MapGLCanvas::Initialize(Renderer::Camera& camera, Renderer::MapRenderer& renderer) {
             m_camera = &camera;
             m_renderer = &renderer;
-            m_inputController = new Controller::InputController(*GetEventHandler());
+            m_inputController = new Controller::InputController(*this);
         }
 
         void MapGLCanvas::OnPaint(wxPaintEvent& event) {
@@ -123,16 +123,19 @@ namespace TrenchBroom {
         void MapGLCanvas::OnCameraMove(Controller::CameraMoveEvent& event) {
             if (m_camera != NULL)
                 m_camera->moveBy(event.forward(), event.right(), event.up());
+            Refresh();
         }
         
         void MapGLCanvas::OnCameraLook(Controller::CameraLookEvent& event) {
             if (m_camera != NULL)
                 m_camera->rotate(event.hAngle(), event.vAngle());
+            Refresh();
         }
         
         void MapGLCanvas::OnCameraOrbit(Controller::CameraOrbitEvent& event) {
             if (m_camera != NULL)
                 m_camera->orbit(event.center(), event.hAngle(), event.vAngle());
+            Refresh();
         }
 
         void MapGLCanvas::OnMouseLeftDown(wxMouseEvent& event) {
@@ -171,8 +174,11 @@ namespace TrenchBroom {
         }
         
         void MapGLCanvas::OnMouseWheel(wxMouseEvent& event) {
-            if (m_inputController != NULL)
-                m_inputController->scrolled(0.0f, static_cast<float>(event.GetWheelDelta()));
+            if (m_inputController != NULL) {
+                float delta = static_cast<float>(event.GetWheelDelta());
+                delta *= event.GetWheelRotation();
+                m_inputController->scrolled(0.0f, delta);
+            }
         }
     }
 }

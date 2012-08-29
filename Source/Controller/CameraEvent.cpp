@@ -23,3 +23,28 @@
 DEFINE_EVENT_TYPE(EVT_CAMERA_MOVE)
 DEFINE_EVENT_TYPE(EVT_CAMERA_LOOK)
 DEFINE_EVENT_TYPE(EVT_CAMERA_ORBIT)
+
+namespace TrenchBroom {
+    namespace Controller {
+        IMPLEMENT_DYNAMIC_CLASS(CameraMoveEvent, wxEvent)
+        CameraMoveEvent::CameraMoveEvent() : wxEvent(wxID_ANY, EVT_CAMERA_MOVE), m_forward(0.0f), m_right(0.0f), m_up(0.0f) {}
+        
+        wxEvent* CameraMoveEvent::Clone() const {
+            return new CameraMoveEvent(*this);
+        }
+        
+        IMPLEMENT_DYNAMIC_CLASS(CameraLookEvent, wxEvent)
+        CameraLookEvent::CameraLookEvent() : wxEvent(wxID_ANY, EVT_CAMERA_MOVE), m_hAngle(0.0f), m_vAngle(0.0f) {}
+
+        wxEvent* CameraLookEvent::Clone() const {
+            return new CameraLookEvent(*this);
+        }
+
+        IMPLEMENT_DYNAMIC_CLASS(CameraOrbitEvent, CameraLookEvent)
+        CameraOrbitEvent::CameraOrbitEvent() : CameraLookEvent(), m_center(Vec3f::Null) {}
+
+        wxEvent* CameraOrbitEvent::Clone() const {
+            return new CameraOrbitEvent(*this);
+        }
+    }
+}

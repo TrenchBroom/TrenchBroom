@@ -26,6 +26,12 @@
 
 using namespace TrenchBroom::Math;
 
+BEGIN_DECLARE_EVENT_TYPES()
+DECLARE_EVENT_TYPE(EVT_CAMERA_MOVE,     7777)
+DECLARE_EVENT_TYPE(EVT_CAMERA_LOOK,     7777)
+DECLARE_EVENT_TYPE(EVT_CAMERA_ORBIT,    7777)
+END_DECLARE_EVENT_TYPES()
+
 namespace TrenchBroom {
     namespace Controller {
         class CameraMoveEvent : public wxEvent {
@@ -34,23 +40,35 @@ namespace TrenchBroom {
             float m_right;
             float m_up;
         public:
-            CameraMoveEvent(float forward, float right, float up) : m_forward(forward), m_right(right), m_up(up) {};
-
+            CameraMoveEvent();
+            
             inline float forward() const {
                 return m_forward;
+            }
+            
+            inline void setForward(float forward) {
+                m_forward = forward;
             }
             
             inline float right() const {
                 return m_right;
             }
             
+            inline void setRight(float right) {
+                m_right = right;
+            }
+            
             inline float up() const {
                 return m_up;
             }
             
-            wxEvent* Clone() const {
-                return new CameraMoveEvent(m_forward, m_right, m_up);
+            inline void setUp(float up) {
+                m_up = up;
             }
+            
+            virtual wxEvent* Clone() const;
+
+            DECLARE_DYNAMIC_CLASS(CameraMoveEvent)
         };
         
         class CameraLookEvent : public wxEvent {
@@ -58,61 +76,67 @@ namespace TrenchBroom {
             float m_hAngle;
             float m_vAngle;
         public:
-            CameraLookEvent(float hAngle, float vAngle) : m_hAngle(hAngle), m_vAngle(vAngle) {}
+            CameraLookEvent();
             
             inline float hAngle() const {
                 return m_hAngle;
+            }
+            
+            inline void setHAngle(float hAngle) {
+                m_hAngle = hAngle;
             }
             
             inline float vAngle() const {
                 return m_vAngle;
             }
             
-            wxEvent* Clone() const {
-                return new CameraLookEvent(m_hAngle, m_vAngle);
+            inline void setVAngle(float vAngle) {
+                m_vAngle = vAngle;
             }
+            
+            virtual wxEvent* Clone() const;
+
+            DECLARE_DYNAMIC_CLASS(CameraLookEvent)
         };
         
         class CameraOrbitEvent : public CameraLookEvent {
         private:
             Vec3f m_center;
         public:
-            CameraOrbitEvent(float hAngle, float vAngle, const Vec3f& center) : CameraLookEvent(hAngle, vAngle), m_center(center) {}
+            CameraOrbitEvent();
             
             inline const Vec3f& center() const {
                 return m_center;
             }
 
-            wxEvent* Clone() const {
-                return new CameraOrbitEvent(hAngle(), vAngle(), m_center);
+            inline void setCenter(const Vec3f& center) {
+                m_center = center;
             }
+            
+            virtual wxEvent* Clone() const;
+            
+            DECLARE_DYNAMIC_CLASS(CameraOrbitEvent)
         };
     }
 }
-
-BEGIN_DECLARE_EVENT_TYPES()
-DECLARE_EVENT_TYPE(EVT_CAMERA_MOVE, -1)
-DECLARE_EVENT_TYPE(EVT_CAMERA_LOOK, -1)
-DECLARE_EVENT_TYPE(EVT_CAMERA_ORBIT, -1)
-END_DECLARE_EVENT_TYPES()
 
 typedef void (wxEvtHandler::*cameraMoveEventFunction)(TrenchBroom::Controller::CameraMoveEvent&);
 typedef void (wxEvtHandler::*cameraLookEventFunction)(TrenchBroom::Controller::CameraLookEvent&);
 typedef void (wxEvtHandler::*cameraOrbitEventFunction)(TrenchBroom::Controller::CameraOrbitEvent&);
 
-#define EVT_CAMERA_MOVE(id,fn) \
-    DECLARE_EVENT_TABLE_ENTRY( EVT_CAMERA_MOVE, id, -1, \
-    (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction) (wxNotifyEventFunction) \
-    wxStaticCastEvent(cameraMoveEventFunction, & fn ), (wxObject *) NULL ),
+#define EVT_CAMERA_MOVE(fn) \
+DECLARE_EVENT_TABLE_ENTRY( EVT_CAMERA_MOVE, wxID_ANY, wxID_ANY, \
+(wxObjectEventFunction) (wxEventFunction) \
+wxStaticCastEvent(cameraMoveEventFunction, & fn ), (wxObject *) NULL ),
 
-#define EVT_CAMERA_LOOK(id,fn) \
-    DECLARE_EVENT_TABLE_ENTRY( EVT_CAMERA_LOOK, id, -1, \
-    (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction) (wxNotifyEventFunction) \
-    wxStaticCastEvent(cameraLookEventFunction, & fn ), (wxObject *) NULL ),
+#define EVT_CAMERA_LOOK(fn) \
+DECLARE_EVENT_TABLE_ENTRY( EVT_CAMERA_LOOK, wxID_ANY, wxID_ANY, \
+(wxObjectEventFunction) (wxEventFunction) \
+wxStaticCastEvent(cameraLookEventFunction, & fn ), (wxObject *) NULL ),
 
-#define EVT_CAMERA_ORBIT(id,fn) \
-    DECLARE_EVENT_TABLE_ENTRY( EVT_CAMERA_ORBIT, id, -1, \
-    (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction) (wxNotifyEventFunction) \
-    wxStaticCastEvent(cameraOrbitEventFunction, & fn ), (wxObject *) NULL ),
+#define EVT_CAMERA_ORBIT(fn) \
+DECLARE_EVENT_TABLE_ENTRY( EVT_CAMERA_ORBIT, wxID_ANY, wxID_ANY, \
+(wxObjectEventFunction) (wxEventFunction) \
+wxStaticCastEvent(cameraOrbitEventFunction, & fn ), (wxObject *) NULL ),
 
 #endif /* defined(__TrenchBroom__CameraEvent__) */

@@ -38,7 +38,7 @@ namespace TrenchBroom {
             float panSpeed(bool vertical);
             float moveSpeed();
         public:
-            CameraTool(wxEvtHandler& eventHandler) : Tool(eventHandler), m_orbit(false) {}
+            CameraTool(wxWindow& control) : Tool(control), m_orbit(false) {}
             
             bool handleScrolled(InputEvent& event);
             bool handleBeginDrag(InputEvent& event);

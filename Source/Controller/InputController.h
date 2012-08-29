@@ -40,7 +40,7 @@ namespace TrenchBroom {
             void updateHits();
             void updateMousePos(float x, float y);
         public:
-            InputController(wxEvtHandler& eventHandler);
+            InputController(wxWindow& control);
             ~InputController();
             
             void modifierKeyDown(ModifierKeyState modifierKey);

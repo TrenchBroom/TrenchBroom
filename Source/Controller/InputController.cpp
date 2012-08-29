@@ -33,8 +33,8 @@ namespace TrenchBroom {
             m_currentEvent.mouseY = y;
         }
 
-        InputController::InputController(wxEvtHandler& eventHandler) : m_dragReceiver(NULL), m_mouseUpReceiver(NULL), m_modalReceiverIndex(-1) {
-            CameraTool* cameraTool = new CameraTool(eventHandler);
+        InputController::InputController(wxWindow& control) : m_dragReceiver(NULL), m_mouseUpReceiver(NULL), m_modalReceiverIndex(-1) {
+            CameraTool* cameraTool = new CameraTool(control);
             m_receivers.push_back(cameraTool);
         }
         
