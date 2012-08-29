@@ -80,7 +80,7 @@ namespace TrenchBroom {
                 } else if (event.modifierKeys == ModifierKeys::None) {
                     return true;
                 }
-            } else if (event.mouseButtons == (MouseButtons::Left | MouseButtons::Right) && event.modifierKeys == ModifierKeys::None) {
+            } else if (event.mouseButtons == MouseButtons::Middle && event.modifierKeys == ModifierKeys::None) {
                 return true;
             }
             
@@ -103,7 +103,7 @@ namespace TrenchBroom {
                 }
                 
                 return true;
-            } else if (event.mouseButtons == (MouseButtons::Left | MouseButtons::Right) && event.modifierKeys == ModifierKeys::None) {
+            } else if (event.mouseButtons == MouseButtons::Middle && event.modifierKeys == ModifierKeys::None) {
                 CameraMoveEvent cameraEvent;
                 cameraEvent.setRight(event.deltaX * panSpeed(false));
                 cameraEvent.setUp(event.deltaY * panSpeed(true));

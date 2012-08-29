@@ -378,7 +378,7 @@ namespace TrenchBroom {
 			if (renderInfo.vertexCount == 0)
 				return;
             
-            glSetEdgeOffset(0.5f);
+            glSetEdgeOffset(0.01f);
             
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
             if (color != NULL) {
@@ -646,7 +646,7 @@ namespace TrenchBroom {
                 
             m_edgeVbo->activate();
             glEnableClientState(GL_VERTEX_ARRAY);
-            glSetEdgeOffset(0.1f);
+            glSetEdgeOffset(0.01f);
             renderEdges(context, m_edgeRenderInfo, NULL);
             glResetEdgeOffset();
             glDisableClientState(GL_VERTEX_ARRAY);
