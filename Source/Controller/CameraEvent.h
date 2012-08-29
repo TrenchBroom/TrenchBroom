@@ -35,7 +35,7 @@ END_DECLARE_EVENT_TYPES()
 namespace TrenchBroom {
     namespace Controller {
         class CameraMoveEvent : public wxEvent {
-        private:
+        protected:
             float m_forward;
             float m_right;
             float m_up;
@@ -72,7 +72,7 @@ namespace TrenchBroom {
         };
         
         class CameraLookEvent : public wxEvent {
-        private:
+        protected:
             float m_hAngle;
             float m_vAngle;
         public:
@@ -100,7 +100,7 @@ namespace TrenchBroom {
         };
         
         class CameraOrbitEvent : public CameraLookEvent {
-        private:
+        protected:
             Vec3f m_center;
         public:
             CameraOrbitEvent();

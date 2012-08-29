@@ -67,6 +67,10 @@ namespace TrenchBroom {
             m_attribs[7] = 32;
             m_attribs[8] = 0;
             m_attribs[9] = 0;
+            
+            if (IsDisplaySupported(m_attribs))
+                return m_attribs;
+            
             return m_attribs;
         }
         
@@ -177,7 +181,10 @@ namespace TrenchBroom {
             if (m_inputController != NULL) {
                 float delta = static_cast<float>(event.GetWheelDelta());
                 delta *= event.GetWheelRotation();
-                m_inputController->scrolled(0.0f, delta);
+                if (event.GetWheelAxis() == wxMOUSE_WHEEL_HORIZONTAL)
+                    m_inputController->scrolled(delta, 0.0f);
+                else if (event.GetWheelAxis() == wxMOUSE_WHEEL_VERTICAL)
+                    m_inputController->scrolled(0.0f, delta);
             }
         }
     }

@@ -34,14 +34,16 @@ namespace TrenchBroom {
         }
         
         IMPLEMENT_DYNAMIC_CLASS(CameraLookEvent, wxEvent)
-        CameraLookEvent::CameraLookEvent() : wxEvent(wxID_ANY, EVT_CAMERA_MOVE), m_hAngle(0.0f), m_vAngle(0.0f) {}
+        CameraLookEvent::CameraLookEvent() : wxEvent(wxID_ANY, EVT_CAMERA_LOOK), m_hAngle(0.0f), m_vAngle(0.0f) {}
 
         wxEvent* CameraLookEvent::Clone() const {
             return new CameraLookEvent(*this);
         }
 
         IMPLEMENT_DYNAMIC_CLASS(CameraOrbitEvent, CameraLookEvent)
-        CameraOrbitEvent::CameraOrbitEvent() : CameraLookEvent(), m_center(Vec3f::Null) {}
+        CameraOrbitEvent::CameraOrbitEvent() : CameraLookEvent(), m_center(Vec3f::Null) {
+            SetEventType(EVT_CAMERA_ORBIT);
+        }
 
         wxEvent* CameraOrbitEvent::Clone() const {
             return new CameraOrbitEvent(*this);

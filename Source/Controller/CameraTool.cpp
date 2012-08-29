@@ -30,7 +30,7 @@ namespace TrenchBroom {
     namespace Controller {
         float CameraTool::lookSpeed(bool vertical) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            float speed = prefs.getFloat(Preferences::CameraLookSpeed);
+            float speed = prefs.getFloat(Preferences::CameraLookSpeed) / -50.0f;
             if (vertical) {
                 if (prefs.getBool(Preferences::CameraLookInvertY))
                     speed *= -1.0f;
@@ -61,6 +61,7 @@ namespace TrenchBroom {
             
             CameraMoveEvent cameraEvent;
             cameraEvent.setForward(event.scrollY * moveSpeed());
+            cameraEvent.setRight(event.scrollX * moveSpeed());
             postEvent(cameraEvent);
             return true;
         }
