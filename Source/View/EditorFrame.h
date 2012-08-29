@@ -25,19 +25,23 @@
 class wxTextCtrl;
 
 namespace TrenchBroom {
+    namespace Utility {
+        class Console;
+    }
+    
     namespace View {
         class MapGLCanvas;
         
         class EditorFrame : public wxFrame {
         protected:
-            wxTextCtrl* m_logView;
+            Utility::Console* m_console;
             MapGLCanvas* m_mapCanvas;
         public:
             EditorFrame();
             ~EditorFrame();
 
-            inline wxTextCtrl* logView() const {
-                return m_logView;
+            inline Utility::Console& console() const {
+                return *m_console;
             }
             
             inline MapGLCanvas* mapCanvas() const {

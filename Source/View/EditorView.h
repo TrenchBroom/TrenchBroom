@@ -40,14 +40,10 @@ namespace TrenchBroom {
         protected:
             Renderer::Camera* m_camera;
             Renderer::MapRenderer* m_renderer;
-            Utility::Console* m_console;
         public:
             EditorView();
 
-            inline Utility::Console& console() const {
-                return *m_console;
-            }
-            
+            Utility::Console& console() const;
             
             bool OnCreate(wxDocument* doc, long flags);
             void OnUpdate(wxView* sender, wxObject* hint = (wxObject*) NULL);

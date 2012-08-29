@@ -19,6 +19,7 @@
 
 #include "EditorFrame.h"
 
+#include "Utility/Console.h"
 #include "View/Inspector.h"
 #include "View/MapGLCanvas.h"
 
@@ -39,14 +40,16 @@ namespace TrenchBroom {
             inspectorSplitter->SetSashGravity(1.0f);
             inspectorSplitter->SetMinimumPaneSize(300);
 
-            m_mapCanvas = new MapGLCanvas(inspectorSplitter);
+            wxTextCtrl* logView = new wxTextCtrl(logSplitter, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2);
+            logView->SetDefaultStyle(wxTextAttr(*wxLIGHT_GREY, *wxBLACK));
+            logView->SetBackgroundColour(*wxBLACK);
+            m_console = new Utility::Console(logView);
+
+            m_mapCanvas = new MapGLCanvas(inspectorSplitter, *m_console);
             Inspector* inspector = new Inspector(inspectorSplitter);
+
             inspectorSplitter->SplitVertically(m_mapCanvas, inspector, 0);
-            
-            m_logView = new wxTextCtrl(logSplitter, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2);
-            m_logView->SetDefaultStyle(wxTextAttr(*wxLIGHT_GREY, *wxBLACK));
-            m_logView->SetBackgroundColour(*wxBLACK);
-            logSplitter->SplitHorizontally(inspectorSplitter, m_logView);
+            logSplitter->SplitHorizontally(inspectorSplitter, logView);
             
             wxSizer* logSplitterSizer = new wxBoxSizer(wxVERTICAL);
             logSplitterSizer->Add(logSplitter, 1, wxEXPAND);
@@ -56,9 +59,12 @@ namespace TrenchBroom {
             inspectorSplitter->SetSashPosition(GetSize().x - 300);
             logSplitter->SetSashPosition(GetSize().y - 150);
             Layout();
+            
         }
         
         EditorFrame::~EditorFrame() {
+            delete m_console;
+            m_console = NULL;
         }
     }
 }

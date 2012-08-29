@@ -26,6 +26,7 @@
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Model/Filter.h"
+#include "Utility/Console.h"
 #include "Utility/GLee.h"
 #include "Utility/Preferences.h"
 #include "Utility/VecMath.h"
@@ -74,8 +75,14 @@ namespace TrenchBroom {
             return m_attribs;
         }
         
-        MapGLCanvas::MapGLCanvas(wxWindow* parent) : wxGLCanvas(parent, wxID_ANY, Attribs()), m_renderer(NULL), m_camera(NULL), m_inputController(NULL) {
+        MapGLCanvas::MapGLCanvas(wxWindow* parent, Utility::Console& console) :
+        wxGLCanvas(parent, wxID_ANY, Attribs()),
+        m_console(console),
+        m_renderer(NULL),
+        m_camera(NULL),
+        m_inputController(NULL) {
             m_glContext = new wxGLContext(this);
+            m_console.info("Created OpenGL context");
         }
 
         MapGLCanvas::~MapGLCanvas() {
@@ -90,6 +97,13 @@ namespace TrenchBroom {
             m_camera = &camera;
             m_renderer = &renderer;
             m_inputController = new Controller::InputController(*this);
+            
+            if (SetCurrent(*m_glContext)) {
+                const char* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+                const char* renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+                const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+                m_console.info("Renderer info: %s, version %s from %s", renderer, version, vendor);
+            }
         }
 
         void MapGLCanvas::OnPaint(wxPaintEvent& event) {

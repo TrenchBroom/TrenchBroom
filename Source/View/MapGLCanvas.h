@@ -35,6 +35,10 @@ namespace TrenchBroom {
         class MapRenderer;
     }
     
+    namespace Utility {
+        class Console;
+    }
+    
     namespace View {
         class MapGLCanvas : public wxGLCanvas {
         protected:
@@ -43,10 +47,11 @@ namespace TrenchBroom {
             Controller::InputController* m_inputController;
             Renderer::Camera* m_camera;
             Renderer::MapRenderer* m_renderer;
+            Utility::Console& m_console;
             
             int* Attribs();
         public:
-            MapGLCanvas(wxWindow* parent);
+            MapGLCanvas(wxWindow* parent, Utility::Console& console);
             ~MapGLCanvas();
             
             void Initialize(Renderer::Camera& camera, Renderer::MapRenderer& renderer);

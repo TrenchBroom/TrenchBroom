@@ -33,11 +33,15 @@ namespace TrenchBroom {
         
         EditorView::EditorView() : wxView(), m_camera(NULL), m_renderer(NULL) {
             EditorFrame* frame = new EditorFrame();
-            m_console = new Utility::Console(frame->logView());
             SetFrame(frame);
             frame->Show();
         }
         
+        Utility::Console& EditorView::console() const {
+            EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+            return frame->console();
+        }
+
         bool EditorView::OnCreate(wxDocument* doc, long flags) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             float fieldOfVision = prefs.getFloat(Preferences::CameraFieldOfVision);
