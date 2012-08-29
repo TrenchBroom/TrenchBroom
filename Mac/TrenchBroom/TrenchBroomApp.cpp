@@ -20,6 +20,7 @@
 #include "TrenchBroomApp.h"
 
 #include "wx/config.h"
+#include "wx/event.h"
 
 #include "Model/MapDocument.h"
 #include "View/EditorView.h"
@@ -27,12 +28,11 @@
 IMPLEMENT_APP(TrenchBroomApp)
 
 BEGIN_EVENT_TABLE(TrenchBroomApp, wxApp)
-EVT_MENU    (wxID_NEW, TrenchBroomApp::OnFileNew)
-EVT_MENU    (wxID_OPEN, TrenchBroomApp::OnFileOpen)
+EVT_MENU    (wxID_EXIT, TrenchBroomApp::OnFileExit)
 END_EVENT_TABLE()
 
 bool TrenchBroomApp::OnInit() {
-	m_docManager = new wxDocManager;
+	m_docManager = new wxDocManager();
 
     new wxDocTemplate(m_docManager, wxT("Quake map document"), wxT("*.map"), wxEmptyString, wxT("map"), wxT("Quake map document"), wxT("TrenchBroom editor view"), CLASSINFO(TrenchBroom::Model::MapDocument), CLASSINFO(TrenchBroom::View::EditorView));
 
@@ -60,7 +60,10 @@ bool TrenchBroomApp::OnInit() {
     fileMenu->Append(wxID_PREFERENCES, wxT("Preferences...\tCtrl-,"));
     fileMenu->Append(wxID_EXIT, wxT("Exit"));
 
+    fileMenu->SetEventHandler(m_docManager);
+    
     menuBar->Append(fileMenu, wxT("File"));
+    
     wxMenuBar::MacSetCommonMenuBar(menuBar);
 #endif
     
@@ -72,18 +75,14 @@ int TrenchBroomApp::OnExit() {
     return wxApp::OnExit();
 }
 
-void TrenchBroomApp::OnFileNew(wxCommandEvent& event) {
-    m_docManager->OnFileNew(event);
-}
-
-void TrenchBroomApp::OnFileOpen(wxCommandEvent& event) {
-    m_docManager->OnFileOpen(event);
-}
-
 void TrenchBroomApp::OnUnhandledException() {
     try {
         throw;
     } catch (std::exception& e) {
         wxLogWarning(e.what());
     }
+}
+
+void TrenchBroomApp::OnFileExit(wxCommandEvent& event) {
+    Exit();
 }

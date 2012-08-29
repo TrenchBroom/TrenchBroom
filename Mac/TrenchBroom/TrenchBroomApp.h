@@ -27,15 +27,13 @@ class TrenchBroomApp : public wxApp {
 protected:
 	wxDocManager* m_docManager;
 public:
-    DECLARE_EVENT_TABLE();
-    
 	virtual bool OnInit();
     virtual int OnExit();
-    
-    void OnFileNew(wxCommandEvent& event);
-    void OnFileOpen(wxCommandEvent& event);
-    
     void OnUnhandledException();
+    
+    virtual void OnFileExit(wxCommandEvent& event);
+    
+    DECLARE_EVENT_TABLE();
 };
 
 DECLARE_APP(TrenchBroomApp)
