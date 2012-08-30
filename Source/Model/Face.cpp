@@ -85,7 +85,7 @@ namespace TrenchBroom {
             if (!m_texAxesValid)
                 validateTexAxes(m_boundary.normal);
             
-            Axis axis = m_boundary.normal.firstComponent();
+            Axis::Type axis = m_boundary.normal.firstComponent();
             int width = m_texture != NULL ? m_texture->width() : 1;
             int height = m_texture != NULL ? m_texture->height() : 1;
             

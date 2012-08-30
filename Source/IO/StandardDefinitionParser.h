@@ -94,7 +94,7 @@ namespace TrenchBroom {
         
         class StandardProperty {
         public:
-            enum class PropertyType {
+            enum PropertyType {
                 Base,
                 Choice,
                 Default,

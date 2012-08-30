@@ -205,7 +205,7 @@ namespace TrenchBroom {
         MapParser::MapParser(std::istream& stream, Utility::Console& console) :
         m_tokenizer(stream),
         m_console(console),
-        m_format(MapFormat::Undefined) {
+        m_format(Undefined) {
             std::streamoff cur = stream.tellg();
             stream.seekg(0, std::ios::end);
             m_size = static_cast<size_t>(stream.tellg() - cur);
@@ -359,14 +359,14 @@ namespace TrenchBroom {
             String textureName = token->data();
             
             token = nextToken();
-            if (m_format == MapFormat::Undefined) {
+            if (m_format == Undefined) {
                 expect(TokenType::Integer | TokenType::Decimal | TokenType::OBracket, token.get());
-                m_format = token->type() == TokenType::OBracket ? MapFormat::Valve : MapFormat::Standard;
-                if (m_format == MapFormat::Valve)
+                m_format = token->type() == TokenType::OBracket ? Valve : Standard;
+                if (m_format == Valve)
                     m_console.warn("Loading unsupported map Valve 220 map format");
             }
             
-            if (m_format == MapFormat::Standard) {
+            if (m_format == Standard) {
                 expect(TokenType::Integer | TokenType::Decimal, token.get());
                 bool dec = token->type() == TokenType::Decimal;
                 xOffset = token->toFloat();

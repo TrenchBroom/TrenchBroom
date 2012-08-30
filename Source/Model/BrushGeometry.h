@@ -32,15 +32,9 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Model {
-        enum class CutResult {
-            Redundant,  // the given face is redundant and need not be added to the brush
-            Null,       // the given face has nullified the entire brush
-            Split       // the given face has split the brush
-        };
-        
         class Vertex {
         public:
-            enum class Mark {
+            enum Mark {
                 Drop,
                 Keep,
                 Undecided,
@@ -53,17 +47,17 @@ namespace TrenchBroom {
             Vec3f position;
             Mark mark;
             
-            Vertex(float x, float y, float z) : mark(Mark::New) {
+            Vertex(float x, float y, float z) : mark(New) {
                 position.x = x;
                 position.y = y;
                 position.z = z;
             }
             
-            Vertex() : mark(Mark::New) {}
+            Vertex() : mark(New) {}
             
 			~Vertex() {
                 position = Vec3f::NaN;
-                mark = Mark::Drop;
+                mark = Drop;
             }
             
             inline void* operator new(size_t size) {
@@ -82,7 +76,7 @@ namespace TrenchBroom {
         
         class Edge {
         public:
-            enum class Mark {
+            enum Mark {
                 Drop,
                 Keep,
                 Split,
@@ -99,15 +93,15 @@ namespace TrenchBroom {
             Side* right;
             Mark mark;
             
-            Edge(Vertex* start, Vertex* end) : start(start), end(end), left(NULL), right(NULL), mark(Mark::New) {}
-            Edge() : start(NULL), end(NULL), left(NULL), right(NULL), mark(Mark::New) {}
+            Edge(Vertex* start, Vertex* end) : start(start), end(end), left(NULL), right(NULL), mark(New) {}
+            Edge() : start(NULL), end(NULL), left(NULL), right(NULL), mark(New) {}
 			
             ~Edge() {
                 start = NULL;
                 end = NULL;
                 left = NULL;
                 right = NULL;
-                mark = Mark::Drop;
+                mark = Drop;
             }
             
             inline void* operator new(size_t size) {
@@ -212,7 +206,7 @@ namespace TrenchBroom {
         
         class Side {
         public:
-            enum class Mark {
+            enum Mark {
                 Keep,
                 Drop,
                 Split,
@@ -227,7 +221,7 @@ namespace TrenchBroom {
             Face* face;
             Mark mark;
 
-            Side() : mark(Mark::New), face(NULL) {}
+            Side() : mark(New), face(NULL) {}
             Side(Edge* newEdges[], bool invert[], unsigned int count);
             Side(Face& face, EdgeList& newEdges);
 			~Side();
@@ -265,6 +259,13 @@ namespace TrenchBroom {
         };
         
         class BrushGeometry {
+        public:
+            enum CutResult {
+                Redundant,  // the given face is redundant and need not be added to the brush
+                Null,       // the given face has nullified the entire brush
+                Split       // the given face has split the brush
+            };
+        private:
             SideList incidentSides(size_t vertexIndex);
             void deleteDegenerateTriangle(Side* side, Edge* edge, FaceList& newFaces, FaceList& droppedFaces);
             void triangulateSide(Side* sideToTriangluate, size_t vertexIndex, FaceList& newFaces);
@@ -299,9 +300,9 @@ namespace TrenchBroom {
             bool addFaces(FaceList& faces, FaceList& droppedFaces) throw (GeometryException);
             
             void translate(const Vec3f& delta);
-            void rotate90(Axis axis, const Vec3f& rotationCenter, bool clockwise);
+            void rotate90(Axis::Type axis, const Vec3f& rotationCenter, bool clockwise);
             void rotate(const Quat& rotation, const Vec3f& rotationCenter);
-            void flip(Axis axis, const Vec3f& flipCenter);
+            void flip(Axis::Type axis, const Vec3f& flipCenter);
             void snap();
             
             VertexMoveResult moveVertex(size_t vertexIndex, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
@@ -350,7 +351,7 @@ namespace TrenchBroom {
         
         Vec3f centerOfVertices(const VertexList& vertices);
         BBox boundsOfVertices(const VertexList& vertices);
-        PointStatus vertexStatusFromRay(const Vec3f& origin, const Vec3f& direction, const VertexList& vertices);
+        PointStatus::Type vertexStatusFromRay(const Vec3f& origin, const Vec3f& direction, const VertexList& vertices);
     }
 }
 

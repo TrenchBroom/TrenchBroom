@@ -30,7 +30,7 @@ namespace TrenchBroom {
         public:
             typedef std::vector<PropertyDefinition*> List;
             
-            enum class Type {
+            enum Type {
                 Enum
             };
         private:
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             StringList m_values;
         public:
             EnumPropertyDefinition(const String& name, const StringList& values) :
-            PropertyDefinition(name, Type::Enum), m_values(values) {}
+            PropertyDefinition(name, Enum), m_values(values) {}
             
             inline const StringList& values() const {
                 return m_values;

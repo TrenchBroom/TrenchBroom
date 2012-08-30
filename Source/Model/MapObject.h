@@ -33,9 +33,9 @@ namespace TrenchBroom {
         private:
             int m_uniqueId;
         public:
-            enum class Type {
-                Entity,
-                Brush
+            enum Type {
+                EntityObject,
+                BrushObject
             };
 
             MapObject() {

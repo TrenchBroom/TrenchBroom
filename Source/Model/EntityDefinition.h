@@ -79,9 +79,9 @@ namespace TrenchBroom {
             unsigned int m_usageCount;
             PropertyDefinition::List m_propertyDefinitions;
         public:
-            enum class Type {
-                Point,
-                Brush
+            enum Type {
+                PointEntity,
+                BrushEntity
             };
             
             EntityDefinition(const String& name, const Color& color, const SpawnflagList& spawnflags, const String& description, const PropertyDefinition::List& propertyDefinitions);
@@ -120,7 +120,7 @@ namespace TrenchBroom {
             ~PointEntityDefinition();
             
             inline Type type() const {
-                return Type::Point;
+                return PointEntity;
             }
             
             inline const BBox& bounds() const {
@@ -139,7 +139,7 @@ namespace TrenchBroom {
             ~BrushEntityDefinition();
             
             inline Type type() const {
-                return Type::Brush;
+                return BrushEntity;
             }
         };
     }

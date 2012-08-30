@@ -46,7 +46,7 @@ namespace TrenchBroom {
             for (it = m_entityDefinitions.begin(), end = m_entityDefinitions.end(); it != end; ++it)
                 if (it->second->type() == type)
                     result.push_back(it->second);
-            if (order == SortOrder::Usage)
+            if (order == Usage)
                 std::sort(result.begin(), result.end(), CompareEntityDefinitionsByUsage());
             else
                 std::sort(result.begin(), result.end(), CompareEntityDefinitionsByName());

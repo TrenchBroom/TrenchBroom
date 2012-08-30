@@ -155,14 +155,14 @@ namespace TrenchBroom {
         bool Brush::addFace(Face* face) {
             try {
                 FaceList droppedFaces;
-                CutResult result = m_geometry->addFace(*face, droppedFaces);
+                BrushGeometry::CutResult result = m_geometry->addFace(*face, droppedFaces);
                 
-                if (result == CutResult::Redundant) {
+                if (result == BrushGeometry::Redundant) {
                     delete face;
                     return true;
                 }
                 
-                if (result == CutResult::Null) {
+                if (result == BrushGeometry::Null) {
                     delete face;
                     return false;
                 }

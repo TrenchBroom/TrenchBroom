@@ -38,11 +38,11 @@ namespace TrenchBroom {
         
         class Brush : public MapObject {
         protected:
-            Entity* m_entity;
+            class Entity* m_entity;
             FaceList m_faces;
             BrushGeometry* m_geometry;
             
-            EditState m_editState;
+            EditState::Type m_editState;
             unsigned int m_selectedFaceCount;
             
             const BBox& m_worldBounds;
@@ -60,14 +60,14 @@ namespace TrenchBroom {
             void restore(const Brush& brushTemplate, bool checkId = false);
             
             inline MapObject::Type objectType() const {
-                return MapObject::Type::Brush;
+                return MapObject::BrushObject;
             }
             
-            inline Entity* entity() const {
+            inline class Entity* entity() const {
                 return m_entity;
             }
             
-            void setEntity(Entity* entity);
+            void setEntity(class Entity* entity);
             
             inline const FaceList& faces() const {
                 return m_faces;

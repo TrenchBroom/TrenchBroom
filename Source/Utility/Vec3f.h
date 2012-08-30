@@ -214,7 +214,7 @@ namespace TrenchBroom {
                 return cross.equals(Null, delta);
             }
             
-            Axis firstComponent() const {
+            Axis::Type firstComponent() const {
                 float ax = fabsf(x);
                 float ay = fabsf(y);
                 float az = fabsf(z);
@@ -223,7 +223,7 @@ namespace TrenchBroom {
                 return Axis::Z;
             }
             
-            Axis secondComponent() const {
+            Axis::Type secondComponent() const {
                 float ax = fabsf(x);
                 float ay = fabsf(y);
                 float az = fabsf(z);
@@ -232,7 +232,7 @@ namespace TrenchBroom {
                 return Axis::Z;
             }
             
-            Axis thirdComponent() const {
+            Axis::Type thirdComponent() const {
                 float ax = fabsf(x);
                 float ay = fabsf(y);
                 float az = fabsf(z);
@@ -361,7 +361,7 @@ namespace TrenchBroom {
                              Math::eq(z, zr) ? zr : z);
             }
             
-            void rotate90(Axis axis, bool clockwise) {
+            void rotate90(Axis::Type axis, bool clockwise) {
                 switch (axis) {
                     case Axis::X:
                         if (clockwise) {
@@ -396,13 +396,13 @@ namespace TrenchBroom {
                 }
             }
             
-            void rotate90(Axis axis, const Vec3f& center, bool clockwise) {
+            void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise) {
                 *this -= center;
                 rotate90(axis, clockwise);
                 *this += center;
             }
             
-            const Vec3f rotated90(Axis axis, bool clockwise) const {
+            const Vec3f rotated90(Axis::Type axis, bool clockwise) const {
                 switch (axis) {
                     case Axis::X:
                         if (clockwise)
@@ -419,14 +419,14 @@ namespace TrenchBroom {
                 }
             }
             
-            const Vec3f rotated90(Axis axis, const Vec3f& center, bool clockwise) const {
+            const Vec3f rotated90(Axis::Type axis, const Vec3f& center, bool clockwise) const {
                 Vec3f result = *this - center;
                 result.rotate90(axis, clockwise);
                 result += center;
                 return result;
             }
             
-            void flip(Axis axis) {
+            void flip(Axis::Type axis) {
                 switch (axis) {
                     case Axis::X:
                         x = -x;
@@ -437,13 +437,13 @@ namespace TrenchBroom {
                 }
             }
             
-            void flip(Axis axis, const Vec3f& center) {
+            void flip(Axis::Type axis, const Vec3f& center) {
                 *this -= center;
                 flip(axis);
                 *this += center;
             }
             
-            const Vec3f flipped(Axis axis) const {
+            const Vec3f flipped(Axis::Type axis) const {
                 switch (axis) {
                     case Axis::X:
                         return Vec3f(-x, y, z);
@@ -454,7 +454,7 @@ namespace TrenchBroom {
                 }
             }
             
-            const Vec3f flipped(Axis axis, const Vec3f& center) const {
+            const Vec3f flipped(Axis::Type axis, const Vec3f& center) const {
                 Vec3f result = *this - center;
                 result.flip(axis);
                 result += center;

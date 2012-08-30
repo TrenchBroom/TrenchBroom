@@ -341,7 +341,7 @@ namespace TrenchBroom {
                 }
                 
                 expect(TokenType::CParenthesis, token.get());
-                properties.push_back(StandardChoiceProperty(StandardProperty::PropertyType::Choice, propertyName, arguments));
+                properties.push_back(StandardChoiceProperty(StandardProperty::Choice, propertyName, arguments));
             } else if (typeName == "model") {
                 expect(TokenType::OParenthesis, (token = nextTokenIgnoringNewlines()).get());
                 expect(TokenType::String, (token = nextTokenIgnoringNewlines()).get());
@@ -361,7 +361,7 @@ namespace TrenchBroom {
                     expect(TokenType::Comma, (token = nextTokenIgnoringNewlines()).get());
                 }
                 
-                properties.push_back(StandardModelProperty(StandardProperty::PropertyType::Model, modelPath, flagName, skinIndex));
+                properties.push_back(StandardModelProperty(StandardProperty::Model, modelPath, flagName, skinIndex));
             } else if (typeName == "default") {
                 expect(TokenType::OParenthesis, (token = nextTokenIgnoringNewlines()).get());
                 expect(TokenType::String, (token = nextTokenIgnoringNewlines()).get());
@@ -371,14 +371,14 @@ namespace TrenchBroom {
                 String propertyValue = token->data();
                 expect(TokenType::CParenthesis, (token = nextTokenIgnoringNewlines()).get());
                 
-                properties.push_back(StandardDefaultProperty(StandardProperty::PropertyType::Default, propertyName, propertyValue));
+                properties.push_back(StandardDefaultProperty(StandardProperty::Default, propertyName, propertyValue));
             } else if (typeName == "base") {
                 expect(TokenType::OParenthesis, (token = nextTokenIgnoringNewlines()).get());
                 expect(TokenType::String, (token = nextTokenIgnoringNewlines()).get());
                 String basename = token->data();
                 expect(TokenType::CParenthesis, (token = nextTokenIgnoringNewlines()).get());
                 
-                properties.push_back(StandardBaseProperty(StandardProperty::PropertyType::Base, basename));
+                properties.push_back(StandardBaseProperty(StandardProperty::Base, basename));
             }
 
             expect(TokenType::Semicolon, (token = nextTokenIgnoringNewlines()).get());
@@ -455,7 +455,7 @@ namespace TrenchBroom {
                     // extract the model property
                     for (unsigned int i = 0; i < standardProperties.size(); i++) {
                         StandardProperty& standardProperty = standardProperties[i];
-                        if (standardProperty.type() == StandardProperty::PropertyType::Model) {
+                        if (standardProperty.type() == StandardProperty::Model) {
                             StandardModelProperty& modelProperty = static_cast<StandardModelProperty&>(standardProperty);
                             return new Model::PointEntityDefinition(name, color, spawnflags, bounds, description, Model::PropertyDefinition::List(), Model::PointEntityModel(modelProperty.modelName(), modelProperty.flagName(), modelProperty.skinIndex()));
                         }

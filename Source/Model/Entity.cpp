@@ -52,7 +52,7 @@ namespace TrenchBroom {
         void Entity::validateGeometry() const {
             assert(!m_geometryValid);
             
-            if (m_definition == NULL || m_definition->type() == EntityDefinition::Type::Brush) {
+            if (m_definition == NULL || m_definition->type() == EntityDefinition::BrushEntity) {
                 if (!m_brushes.empty()) {
                     m_bounds = m_brushes[0]->bounds();
                     for (unsigned int i = 1; i < m_brushes.size(); i++)
@@ -158,8 +158,9 @@ namespace TrenchBroom {
             m_properties.erase(key);
             invalidateGeometry();
         }
+        
         void Entity::addBrush(Brush* brush) {
-            if (m_definition != NULL && m_definition->type() == EntityDefinition::Type::Point)
+            if (m_definition != NULL && m_definition->type() == EntityDefinition::PointEntity)
                 return;
             
             brush->setEntity(this);
@@ -168,7 +169,7 @@ namespace TrenchBroom {
         }
         
         void Entity::addBrushes(const BrushList& brushes) {
-            if (m_definition == NULL || m_definition->type() == EntityDefinition::Type::Point)
+            if (m_definition == NULL || m_definition->type() == EntityDefinition::PointEntity)
                 return;
             
             for (unsigned int i = 0; i < brushes.size(); i++) {
@@ -180,7 +181,7 @@ namespace TrenchBroom {
         }
         
         void Entity::removeBrush(Brush* brush) {
-            if (m_definition == NULL || m_definition->type() == EntityDefinition::Type::Point)
+            if (m_definition == NULL || m_definition->type() == EntityDefinition::PointEntity)
                 return;
             
             brush->setEntity(NULL);

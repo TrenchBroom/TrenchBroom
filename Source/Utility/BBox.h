@@ -265,25 +265,25 @@ namespace TrenchBroom {
                             max.z + delta.z);
             }
 
-            void rotate90(Axis axis, bool clockwise) {
+            void rotate90(Axis::Type axis, bool clockwise) {
                 min.rotate90(axis, clockwise);
                 max.rotate90(axis, clockwise);
                 repair();
             }
             
-            const BBox rotated90(Axis axis, bool clockwise) const {
+            const BBox rotated90(Axis::Type axis, bool clockwise) const {
                 BBox result = *this;
                 result.rotate90(axis, clockwise);
                 return result;
             }
             
-            void rotate90(Axis axis, const Vec3f& center, bool clockwise) {
+            void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise) {
                 min.rotate90(axis, center, clockwise);
                 max.rotate90(axis, center, clockwise);
                 repair();
             }
             
-            const BBox rotated90(Axis axis, const Vec3f& center, bool clockwise) const {
+            const BBox rotated90(Axis::Type axis, const Vec3f& center, bool clockwise) const {
                 BBox result = *this;
                 result.rotate90(axis, center, clockwise);
                 return result;
@@ -327,25 +327,25 @@ namespace TrenchBroom {
                 return result;
             }
             
-            void flip(Axis axis) {
+            void flip(Axis::Type axis) {
                 min.flip(axis);
                 max.flip(axis);
                 repair();
             }
             
-            const BBox flipped(Axis axis) const {
+            const BBox flipped(Axis::Type axis) const {
                 BBox result = *this;
                 result.flip(axis);
                 return result;
             }
             
-            void flip(Axis axis, const Vec3f& center) {
+            void flip(Axis::Type axis, const Vec3f& center) {
                 min.flip(axis, center);
                 max.flip(axis, center);
                 repair();
             }
             
-            const BBox flipped(Axis axis, const Vec3f& center) const {
+            const BBox flipped(Axis::Type axis, const Vec3f& center) const {
                 BBox result = *this;
                 result.flip(axis, center);
                 return result;

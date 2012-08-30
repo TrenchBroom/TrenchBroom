@@ -31,7 +31,7 @@ namespace TrenchBroom {
         
         class EntityDefinitionManager {
         public:
-            enum class SortOrder {
+            enum SortOrder {
                 Name,
                 Usage
             };
@@ -63,7 +63,7 @@ namespace TrenchBroom {
             bool load(const String& path);
             
             EntityDefinition* definition(const String& name);
-            EntityDefinitionList definitions(EntityDefinition::Type type, SortOrder order = SortOrder::Name);
+            EntityDefinitionList definitions(EntityDefinition::Type type, SortOrder order = Name);
         };
     }
 }

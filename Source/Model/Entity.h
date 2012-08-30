@@ -54,7 +54,7 @@ namespace TrenchBroom {
             
             EntityDefinition* m_definition;
             
-            EditState m_editState;
+            EditState::Type m_editState;
             unsigned int m_selectedBrushCount;
             
             const BBox& m_worldBounds;
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             ~Entity();
             
             inline MapObject::Type objectType() const {
-                return MapObject::Type::Entity;
+                return MapObject::EntityObject;
             }
             
             inline Map* map() const {

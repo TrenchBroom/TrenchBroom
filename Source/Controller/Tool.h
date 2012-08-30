@@ -34,7 +34,7 @@ namespace TrenchBroom {
     namespace Controller {
         class Tool {
         public:
-            enum class State {
+            enum State {
                 Default,
                 MouseDown,
                 Drag,
@@ -62,7 +62,7 @@ namespace TrenchBroom {
                 m_control.GetEventHandler()->ProcessEvent(event);
             }
         public:
-            Tool(wxWindow& control) : m_control(control), m_state(State::Default), m_active(false), m_figureDataValid(false) {}
+            Tool(wxWindow& control) : m_control(control), m_state(Default), m_active(false), m_figureDataValid(false) {}
             virtual ~Tool() {}
             
             virtual void updateHits(InputEvent& event) {}
@@ -93,7 +93,7 @@ namespace TrenchBroom {
             bool deactivated(InputEvent& event) {
                 if (handleDeactivated(event)) {
                     m_active = false;
-                    m_state = State::Default;
+                    m_state = Default;
                     return true;
                 }
                 
@@ -106,7 +106,7 @@ namespace TrenchBroom {
             
             bool mouseDown(InputEvent& event) {
                 if (handleMouseDown(event)) {
-                    m_state = State::MouseDown;
+                    m_state = MouseDown;
                     return true;
                 }
                 
@@ -115,7 +115,7 @@ namespace TrenchBroom {
             
             bool mouseUp(InputEvent& event) {
                 if (handleMouseUp(event)) {
-                    m_state = State::Default;
+                    m_state = Default;
                     return true;
                 }
                 
@@ -132,7 +132,7 @@ namespace TrenchBroom {
             
             bool beginDrag(InputEvent& event) {
                 if (handleBeginDrag(event)) {
-                    m_state = State::Drag;
+                    m_state = Drag;
                     return true;
                 }
                 
@@ -150,7 +150,7 @@ namespace TrenchBroom {
             
             void endDrag(InputEvent& event) {
                 handleEndDrag(event);
-                m_state = State::Default;
+                m_state = Default;
             }
             
             static bool noModifierPressed(InputEvent& event) {

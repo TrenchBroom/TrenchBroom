@@ -26,49 +26,49 @@
 namespace TrenchBroom {
     namespace Math {
         class CoordinatePlane {
-        public:
-            enum class Which {
+        private:
+            enum Which {
                 XY,
                 XZ,
                 YZ
             };
-        private:
+
             const Which m_plane;
             CoordinatePlane(Which plane) : m_plane(plane) {}
-        public:
             static const CoordinatePlane& plane(Which plane) {
-                static CoordinatePlane xy(Which::XY);
-                static CoordinatePlane xz(Which::XZ);
-                static CoordinatePlane yz(Which::YZ);
+                static CoordinatePlane xy(XY);
+                static CoordinatePlane xz(XZ);
+                static CoordinatePlane yz(YZ);
                 switch (plane) {
-                    case Which::XY:
+                    case XY:
                         return xy;
-                    case Which::XZ:
+                    case XZ:
                         return xz;
                     default:
                         return yz;
                 }
             }
-            
+
+        public:
             static const CoordinatePlane& plane(const Vec3f& normal) {
                 switch (normal.firstComponent()) {
                     case Axis::X:
-                        return plane(Which::YZ);
+                        return plane(YZ);
                     case Axis::Y:
-                        return plane(Which::XZ);
+                        return plane(XZ);
                     default:
-                        return plane(Which::XY);
+                        return plane(XY);
                 }
             }
             
             inline void project(const Vec3f& point, Vec3f& result) const {
                 switch (m_plane) {
-                    case Which::XY:
+                    case XY:
                         result.x = point.x;
                         result.y = point.y;
                         result.z = point.z;
                         break;
-                    case Which::YZ:
+                    case YZ:
                         result.x = point.y;
                         result.y = point.z;
                         result.z = point.x;

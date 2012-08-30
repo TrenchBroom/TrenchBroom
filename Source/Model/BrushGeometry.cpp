@@ -38,30 +38,30 @@ namespace TrenchBroom {
             unsigned int drop = 0;
             unsigned int undecided = 0;
             
-            if (start->mark == Vertex::Mark::Keep)
+            if (start->mark == Vertex::Keep)
                 keep++;
-            else if (start->mark == Vertex::Mark::Drop)
+            else if (start->mark == Vertex::Drop)
                 drop++;
-            else if (start->mark == Vertex::Mark::Undecided)
+            else if (start->mark == Vertex::Undecided)
                 undecided++;
             
-            if (end->mark == Vertex::Mark::Keep)
+            if (end->mark == Vertex::Keep)
                 keep++;
-            else if (end->mark == Vertex::Mark::Drop)
+            else if (end->mark == Vertex::Drop)
                 drop++;
-            else if (end->mark == Vertex::Mark::Undecided)
+            else if (end->mark == Vertex::Undecided)
                 undecided++;
             
             assert(keep + drop + undecided == 2);
             
             if (keep == 1 && drop == 1)
-                mark = Mark::Split;
+                mark = Split;
             else if (keep > 0)
-                mark = Mark::Keep;
+                mark = Keep;
             else if (drop > 0)
-                mark = Mark::Drop;
+                mark = Drop;
             else
-                mark = Mark::Undecided;
+                mark = Undecided;
         }
         
         Vertex* Edge::split(const Plane& plane) {
@@ -70,9 +70,9 @@ namespace TrenchBroom {
             
             float dist = plane.intersectWithLine(line);
             newVertex->position = line.pointAtDistance(dist).snapped();
-            newVertex->mark = Vertex::Mark::New;
+            newVertex->mark = Vertex::New;
             
-            if (start->mark == Vertex::Mark::Drop)
+            if (start->mark == Vertex::Drop)
                 start = newVertex;
             else
                 end = newVertex;
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             return newVertex;
         }
         
-        Side::Side(Edge* newEdges[], bool invert[], unsigned int count) : mark(Side::Mark::New), face(NULL) {
+        Side::Side(Edge* newEdges[], bool invert[], unsigned int count) : mark(Side::New), face(NULL) {
             for (unsigned int i = 0; i < count; i++) {
                 Edge* edge = newEdges[i];
                 edges.push_back(edge);
@@ -94,7 +94,7 @@ namespace TrenchBroom {
             }
         }
         
-        Side::Side(Face& face, EdgeList& newEdges) : mark(Side::Mark::New), face(&face) {
+        Side::Side(Face& face, EdgeList& newEdges) : mark(Side::New), face(&face) {
             vertices.reserve(newEdges.size());
             edges.reserve(newEdges.size());
             for (unsigned int i = 0; i < newEdges.size(); i++) {
@@ -111,7 +111,7 @@ namespace TrenchBroom {
 			vertices.clear();
 			edges.clear();
 			face = NULL;
-			mark = Side::Mark::Drop;
+			mark = Side::Drop;
 		}
         
         float Side::intersectWithRay(const Ray& ray) {
@@ -228,22 +228,22 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < edges.size(); i++) {
                 edge = edges[i];
                 Edge::Mark currentMark = edge->mark;
-                if (currentMark == Edge::Mark::Split) {
+                if (currentMark == Edge::Split) {
                     Vertex* start = edge->startVertex(this);
-                    if (start->mark == Vertex::Mark::Keep)
+                    if (start->mark == Vertex::Keep)
                         splitIndex1 = i;
                     else
                         splitIndex2 = i;
                     split++;
-                } else if (currentMark == Edge::Mark::Undecided) {
+                } else if (currentMark == Edge::Undecided) {
                     undecided++;
                     undecidedEdge = edge;
-                } else if (currentMark == Edge::Mark::Keep) {
-                    if (lastMark == Edge::Mark::Drop)
+                } else if (currentMark == Edge::Keep) {
+                    if (lastMark == Edge::Drop)
                         splitIndex2 = i;
                     keep++;
-                } else if (currentMark == Edge::Mark::Drop) {
-                    if (lastMark == Edge::Mark::Keep)
+                } else if (currentMark == Edge::Drop) {
+                    if (lastMark == Edge::Keep)
                         splitIndex1 = i > 0 ? i - 1 : (int)edges.size() - 1;
                     drop++;
                 }
@@ -251,17 +251,17 @@ namespace TrenchBroom {
             }
             
             if (keep == edges.size()) {
-                mark = Side::Mark::Keep;
+                mark = Side::Keep;
                 return NULL;
             }
             
             if (undecided == 1 && keep == edges.size() - 1) {
-                mark = Side::Mark::Keep;
+                mark = Side::Keep;
                 return undecidedEdge;
             }
             
             if (drop + undecided == edges.size()) {
-                mark = Side::Mark::Drop;
+                mark = Side::Drop;
                 return NULL;
             }
             
@@ -270,14 +270,14 @@ namespace TrenchBroom {
             
             assert(splitIndex1 >= 0 && splitIndex2 >= 0);
             
-            mark = Side::Mark::Split;
+            mark = Side::Split;
             
             Edge* newEdge = new Edge();
             newEdge->start = edges[splitIndex1]->endVertex(this);
             newEdge->end = edges[splitIndex2]->startVertex(this);
             newEdge->left = NULL;
             newEdge->right = this;
-            newEdge->mark = Edge::Mark::New;
+            newEdge->mark = Edge::New;
             
             replaceEdges(splitIndex1, splitIndex2, newEdge);
             return newEdge;
@@ -434,7 +434,7 @@ namespace TrenchBroom {
                 sideEdges[2]->end = vertex;
                 sideEdges[2]->left= NULL;
                 sideEdges[2]->right = NULL;
-                sideEdges[2]->mark = Edge::Mark::New;
+                sideEdges[2]->mark = Edge::New;
                 flipped[2] = false;
                 edges.push_back(sideEdges[2]);
                 
@@ -479,7 +479,7 @@ namespace TrenchBroom {
             sideEdges[2]->end = sideToSplit->vertices[succ(sideVertexIndex, sideToSplit->vertices.size())];
             sideEdges[2]->left = NULL;
             sideEdges[2]->right = sideToSplit;
-            sideEdges[2]->mark = Edge::Mark::New;
+            sideEdges[2]->mark = Edge::New;
             flipped[2] = true;
             edges.push_back(sideEdges[2]);
             sideToSplit->replaceEdges(pred(sideVertexIndex, sideToSplit->edges.size(), 2),
@@ -1353,7 +1353,7 @@ namespace TrenchBroom {
                 sides[i]->face->setSide(sides[i]);
         }
         
-        CutResult BrushGeometry::addFace(Face& face, FaceList& droppedFaces) throw (GeometryException) {
+        BrushGeometry::CutResult BrushGeometry::addFace(Face& face, FaceList& droppedFaces) throw (GeometryException) {
             Plane boundary = face.boundary();
             
             unsigned int keep = 0;
@@ -1363,30 +1363,30 @@ namespace TrenchBroom {
             // mark vertices
             for (unsigned int i = 0; i < vertices.size(); i++) {
                 Vertex& vertex = *vertices[i];
-                PointStatus vs = boundary.pointStatus(vertex.position);
+                PointStatus::Type vs = boundary.pointStatus(vertex.position);
                 if (vs == PointStatus::Above) {
-                    vertex.mark = Vertex::Mark::Drop;
+                    vertex.mark = Vertex::Drop;
                     drop++;
                 } else if (vs == PointStatus::Below) {
-                    vertex.mark  = Vertex::Mark::Keep;
+                    vertex.mark  = Vertex::Keep;
                     keep++;
                 } else {
-                    vertex.mark = Vertex::Mark::Undecided;
+                    vertex.mark = Vertex::Undecided;
                     undecided++;
                 }
             }
             
             if (keep + undecided == vertices.size())
-                return CutResult::Redundant;
+                return Redundant;
             
             if (drop + undecided == vertices.size())
-                return CutResult::Null;
+                return Null;
             
             // mark and split edges
             for (unsigned int i = 0; i < edges.size(); i++) {
                 Edge& edge = *edges[i];
                 edge.updateMark();
-                if (edge.mark == Edge::Mark::Split) {
+                if (edge.mark == Edge::Split) {
                     Vertex* vertex = edge.split(boundary);
                     vertices.push_back(vertex);
                 }
@@ -1400,7 +1400,7 @@ namespace TrenchBroom {
                 Side* side = *sideIt;
                 Edge* newEdge = side->split();
                 
-                if (side->mark == Side::Mark::Drop) {
+                if (side->mark == Side::Drop) {
                     Face* face = side->face;
                     if (face != NULL) {
                         droppedFaces.push_back(face);
@@ -1408,20 +1408,20 @@ namespace TrenchBroom {
                     }
                     delete side;
                     sideIt = sides.erase(sideIt);
-                } else if (side->mark == Side::Mark::Split) {
+                } else if (side->mark == Side::Split) {
                     edges.push_back(newEdge);
                     newEdges.push_back(newEdge);
-                    side->mark = Side::Mark::Unknown;
+                    side->mark = Side::Unknown;
                     ++sideIt;
-                } else if (side->mark == Side::Mark::Keep && newEdge != NULL) {
+                } else if (side->mark == Side::Keep && newEdge != NULL) {
                     // the edge is an undecided edge, so it needs to be flipped in order to act as a new edge
                     if (newEdge->right != side)
                         newEdge->flip();
                     newEdges.push_back(newEdge);
-                    side->mark = Side::Mark::Unknown;
+                    side->mark = Side::Unknown;
                     ++sideIt;
                 } else {
-                    side->mark = Side::Mark::Unknown;
+                    side->mark = Side::Unknown;
                     ++sideIt;
                 }
             }
@@ -1451,8 +1451,8 @@ namespace TrenchBroom {
                 EdgeList& edges = side->edges;
                 assert(vertices.size() == edges.size());
                 for (unsigned int j = 0; j < vertices.size(); j++) {
-                    assert(vertices[j]->mark != Vertex::Mark::Drop);
-                    assert(edges[j]->mark != Edge::Mark::Drop);
+                    assert(vertices[j]->mark != Vertex::Drop);
+                    assert(edges[j]->mark != Edge::Drop);
                     assert(edges[j]->startVertex(side) == vertices[j]);
                 }
             }
@@ -1462,11 +1462,11 @@ namespace TrenchBroom {
             VertexList::iterator vertexIt = vertices.begin();
             while (vertexIt != vertices.end()) {
                 Vertex* vertex = *vertexIt;
-                if (vertex->mark == Vertex::Mark::Drop) {
+                if (vertex->mark == Vertex::Drop) {
                     delete vertex;
                     vertexIt = vertices.erase(vertexIt);
                 } else {
-                    vertex->mark = Vertex::Mark::Unknown;
+                    vertex->mark = Vertex::Unknown;
                     ++vertexIt;
                 }
             }
@@ -1475,23 +1475,23 @@ namespace TrenchBroom {
             EdgeList::iterator edgeIt = edges.begin();
             while (edgeIt != edges.end()) {
                 Edge* edge = *edgeIt;
-                if (edge->mark == Edge::Mark::Drop) {
+                if (edge->mark == Edge::Drop) {
                     delete edge;
                     edgeIt = edges.erase(edgeIt);
                 } else {
-                    edge->mark = Edge::Mark::Unknown;
+                    edge->mark = Edge::Unknown;
                     ++edgeIt;
                 }
             }
             
             bounds = boundsOfVertices(vertices);
             center = centerOfVertices(vertices);
-            return CutResult::Split;
+            return Split;
         }
         
         bool BrushGeometry::addFaces(FaceList& faces, FaceList& droppedFaces) throw (GeometryException) {
             for (unsigned int i = 0; i < faces.size(); i++)
-                if (addFace(*faces[i], droppedFaces) == CutResult::Null)
+                if (addFace(*faces[i], droppedFaces) == Null)
                     return false;
             return true;
         }
@@ -1503,7 +1503,7 @@ namespace TrenchBroom {
             center += delta;
         }
         
-        void BrushGeometry::rotate90(Axis axis, const Vec3f& rotationCenter, bool clockwise) {
+        void BrushGeometry::rotate90(Axis::Type axis, const Vec3f& rotationCenter, bool clockwise) {
             for (unsigned int i = 0; i < vertices.size(); i++)
                 vertices[i]->position.rotate90(axis, center, clockwise);
             bounds.rotate90(axis, rotationCenter, clockwise);
@@ -1517,7 +1517,7 @@ namespace TrenchBroom {
             center = rotation * (center - rotationCenter) + rotationCenter;
         }
         
-        void BrushGeometry::flip(Axis axis, const Vec3f& flipCenter) {
+        void BrushGeometry::flip(Axis::Type axis, const Vec3f& flipCenter) {
             for (unsigned int i = 0; i < vertices.size(); i++)
                 vertices[i]->position.flip(axis, center);
             bounds.flip(axis, center);
@@ -1714,12 +1714,12 @@ namespace TrenchBroom {
             return bounds;
         }
         
-        PointStatus vertexStatusFromRay(const Vec3f& origin, const Vec3f& direction, const VertexList& vertices) {
+        PointStatus::Type vertexStatusFromRay(const Vec3f& origin, const Vec3f& direction, const VertexList& vertices) {
             Ray ray(origin, direction);
             unsigned int above = 0;
             unsigned int below = 0;
             for (unsigned int i = 0; i < vertices.size(); i++) {
-                PointStatus status = ray.pointStatus(vertices[i]->position);
+                PointStatus::Type status = ray.pointStatus(vertices[i]->position);
                 if (status == PointStatus::Above)
                     above++;
                 else if (status == PointStatus::Below)

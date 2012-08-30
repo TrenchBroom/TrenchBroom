@@ -71,7 +71,7 @@ namespace TrenchBroom {
                 return ((anchor() - line.point) | normal) / d;
             }
             
-            PointStatus pointStatus(const Vec3f& point) const {
+            PointStatus::Type pointStatus(const Vec3f& point) const {
                 float dot = normal | (point - anchor());
                 if (dot >  Math::PointStatusEpsilon)
                     return PointStatus::Above;
@@ -111,20 +111,20 @@ namespace TrenchBroom {
                 return Plane(normal, (anchor() + delta) | normal);
             }
             
-            void rotate90(Axis axis, bool clockwise) {
+            void rotate90(Axis::Type axis, bool clockwise) {
                 normal.rotate90(axis, clockwise);
             }
             
-            const Plane rotated90(Axis axis, bool clockwise) const {
+            const Plane rotated90(Axis::Type axis, bool clockwise) const {
                 return Plane(normal.rotated90(axis, clockwise), distance);
             }
             
-            void rotate90(Axis axis, const Vec3f& center, bool clockwise) {
+            void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise) {
                 normal.rotate90(axis, center, clockwise);
                 distance = (anchor().rotated90(axis, center, clockwise)) | normal;
             }
             
-            const Plane rotated90(Axis axis, const Vec3f& center, bool clockwise) const {
+            const Plane rotated90(Axis::Type axis, const Vec3f& center, bool clockwise) const {
                 return Plane(normal.rotated90(axis, clockwise), anchor().rotated90(axis, center, clockwise));
             }
             
@@ -145,20 +145,20 @@ namespace TrenchBroom {
                 return Plane(rotation * normal, rotation * (anchor() - center) + center);
             }
             
-            void flip(Axis axis) {
+            void flip(Axis::Type axis) {
                 normal.flip(axis);
             }
             
-            const Plane flipped(Axis axis) const {
+            const Plane flipped(Axis::Type axis) const {
                 return Plane(normal.flipped(axis), distance);
             }
             
-            void flip(Axis axis, const Vec3f& center) {
+            void flip(Axis::Type axis, const Vec3f& center) {
                 normal.flip(axis);
                 distance = anchor().flipped(axis, center) | normal;
             }
             
-            const Plane flipped(Axis axis, const Vec3f& center) const {
+            const Plane flipped(Axis::Type axis, const Vec3f& center) const {
                 return Plane(normal.flipped(axis), anchor().flipped(axis, center));
             }
         };

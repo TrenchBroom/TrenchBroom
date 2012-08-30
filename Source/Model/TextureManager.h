@@ -35,10 +35,11 @@ namespace TrenchBroom {
     namespace Model {
         class Palette;
         
-        enum class TextureSortOrder {
-            Name,
-            Usage
-        };
+        namespace TextureSortOrder {
+            typedef unsigned int Type;
+            static const Type Name = 0;
+            static const Type Usage = 1;
+        }
 
         class CompareTexturesByName {
         public:
@@ -70,7 +71,7 @@ namespace TrenchBroom {
                 return m_textures;
             }
             
-            inline TextureList textures(TextureSortOrder order) const {
+            inline TextureList textures(TextureSortOrder::Type order) const {
                 if (order == TextureSortOrder::Name)
                     return m_texturesByName;
                 std::sort(m_texturesByUsage.begin(), m_texturesByUsage.end(), CompareTexturesByUsage());
@@ -99,14 +100,14 @@ namespace TrenchBroom {
             
             void addCollection(TextureCollection* collection, size_t index);
             void removeCollection(size_t index);
-            void removeCollection(const std::string& name);
+            void removeCollection(const String& name);
             void clear();
             
             inline const TextureCollectionList& collections() const {
                 return m_collections;
             }
             
-            inline const TextureList textures(TextureSortOrder order) {
+            inline const TextureList textures(TextureSortOrder::Type order) {
                 if (order == TextureSortOrder::Name)
                     return m_texturesByName;
                 std::sort(m_texturesByUsage.begin(), m_texturesByUsage.end(), CompareTexturesByUsage());

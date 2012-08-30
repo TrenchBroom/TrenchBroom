@@ -22,12 +22,13 @@
 
 namespace TrenchBroom {
     namespace Model {
-        enum class EditState {
-            Default,
-            Selected,
-            Hidden,
-            Locked
-        };
+        namespace EditState {
+            typedef unsigned int Type;
+            static const Type Default = 0;
+            static const Type Selected = 1;
+            static const Type Hidden = 2;
+            static const Type Locked = 3;
+        }
     }
 }
 

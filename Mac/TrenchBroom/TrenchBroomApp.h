@@ -27,7 +27,7 @@ protected:
     virtual wxMenu* CreateFileMenu();
     virtual void PostInit();
 public:
-    DECLARE_EVENT_TABLE();
+    DECLARE_EVENT_TABLE()
 };
 
 DECLARE_APP(TrenchBroomApp)

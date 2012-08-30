@@ -97,12 +97,6 @@ namespace TrenchBroom {
             void reset();
         };
         
-        enum class MapFormat {
-            Undefined,
-            Standard,
-            Valve
-        };
-
         class MapParserException : public Utility::MessageException {
         private:
             String type(unsigned int type) {
@@ -153,6 +147,12 @@ namespace TrenchBroom {
 
         class MapParser {
         private:
+            enum MapFormat {
+                Undefined,
+                Standard,
+                Valve
+            };
+            
             Utility::Console& m_console;
             typedef std::vector<MapTokenizer::Token*> TokenStack;
             

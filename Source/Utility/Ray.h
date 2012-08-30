@@ -39,7 +39,7 @@ namespace TrenchBroom {
                              origin.z + direction.z * distance);
             }
             
-            PointStatus pointStatus(const Vec3f& point) const {
+            PointStatus::Type pointStatus(const Vec3f& point) const {
                 float dot = direction | (point - origin);
                 if (dot >  Math::PointStatusEpsilon) return PointStatus::Above;
                 if (dot < -Math::PointStatusEpsilon) return PointStatus::Below;
