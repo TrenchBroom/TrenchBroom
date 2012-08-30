@@ -26,6 +26,11 @@ IMPLEMENT_APP(TrenchBroomApp)
 BEGIN_EVENT_TABLE(TrenchBroomApp, AbstractApp)
 END_EVENT_TABLE()
 
-void TrenchBroomApp::PostInit() {
-	m_docManager->CreateNewDocument();
+bool TrenchBroomApp::OnInit() {
+	if (AbstractApp::OnInit()) {
+		m_docManager->CreateNewDocument();
+		return true;
+	}
+
+	return false;
 }

@@ -111,7 +111,6 @@
     <ClCompile Include="..\..\Source\View\Inspector.cpp" />
     <ClCompile Include="..\..\Source\View\MapGLCanvas.cpp" />
     <ClCompile Include="..\..\Source\View\ProgressIndicatorDialog.cpp" />
-    <ClCompile Include="temp.cpp" />
     <ClCompile Include="TrenchBroomApp.cpp" />
     <ClCompile Include="WinFileManager.cpp" />
   </ItemGroup>

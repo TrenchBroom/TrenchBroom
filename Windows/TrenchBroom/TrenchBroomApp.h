@@ -22,7 +22,7 @@
 
 class TrenchBroomApp : public AbstractApp {
 protected:
-	void PostInit();
+	bool OnInit();
 public:
     DECLARE_EVENT_TABLE()
 };

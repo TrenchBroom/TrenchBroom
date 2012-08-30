@@ -69,7 +69,6 @@ namespace TrenchBroom {
             if (deleteWindow) {
                 wxWindow* frame = GetFrame();
                 SetFrame(NULL);
-                wxDELETE(frame);
             }
             
             delete m_camera;
