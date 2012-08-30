@@ -89,17 +89,19 @@ namespace TrenchBroom {
             return !gt(f1, f2);
         }
 
-        enum class Axis {
-            X,
-            Y,
-            Z
-        };
+		namespace Axis {
+			typedef unsigned int Type;
+			static const Type X = 0;
+			static const Type Y = 1;
+			static const Type Z = 2;
+		}
 
-        enum class PointStatus {
-            Above,
-            Below,
-            Inside
-        };
+		namespace PointStatus {
+			typedef unsigned int Type;
+			static const Type Above = 0;
+			static const Type Below = 1;
+			static const Type Inside = 2;
+		}
     }
 }
 

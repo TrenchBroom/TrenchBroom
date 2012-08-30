@@ -17,31 +17,12 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__AbstractApp__
-#define __TrenchBroom__AbstractApp__
+#pragma once
+#include "View/AbstractApp.h"
 
-#include <wx/wx.h>
-
-class wxDocManager;
-class wxCommandEvent;
-class wxMenu;
-class wxMenuBar;
-
-class AbstractApp : public wxApp {
-protected:
-	wxDocManager* m_docManager;
-    wxMenuBar* m_menuBar;
-    
-    virtual wxMenu* CreateFileMenu();
-	virtual void PostInit() {};
+class TrenchBroomApp : public AbstractApp {
 public:
-	virtual bool OnInit();
-    virtual int OnExit();
-    void OnUnhandledException();
-    
-    virtual void OnFileExit(wxCommandEvent& event);
-    
-    DECLARE_EVENT_TABLE();
+    DECLARE_EVENT_TABLE()
 };
 
-#endif /* defined(__TrenchBroom__AbstractApp__) */
+DECLARE_APP(TrenchBroomApp)

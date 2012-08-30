@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_String_h
 #define TrenchBroom_String_h
 
+#include <algorithm>
 #include <functional>
 #include <locale>
 #include <sstream>

@@ -49,7 +49,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;WINVER=0x0400;WXUSINGDLL;wxMSVC_VERSION_AUTO;__WXMSW__;_WINDOWS;wxUSE_GUI=1;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_DEBUG;__WXDEBUG__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(WXWIN)\include\msvc;$(WXWIN)\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(WXWIN)\include\msvc;$(WXWIN)\include;..\..\Source</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -65,7 +65,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;WINVER=0x0400;WXUSINGDLL;wxMSVC_VERSION_AUTO;__WXMSW__;_WINDOWS;wxUSE_GUI=1;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(WXWIN)\include\msvc;$(WXWIN)\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(WXWIN)\include\msvc;$(WXWIN)\include;..\..\Source</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -76,7 +76,112 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\Controller\CameraEvent.cpp" />
+    <ClCompile Include="..\..\Source\Controller\CameraTool.cpp" />
+    <ClCompile Include="..\..\Source\Controller\InputController.cpp" />
+    <ClCompile Include="..\..\Source\IO\AbstractFileManager.cpp" />
+    <ClCompile Include="..\..\Source\IO\MapParser.cpp" />
+    <ClCompile Include="..\..\Source\IO\StandardDefinitionParser.cpp" />
+    <ClCompile Include="..\..\Source\IO\Wad.cpp" />
+    <ClCompile Include="..\..\Source\Model\Brush.cpp" />
+    <ClCompile Include="..\..\Source\Model\BrushGeometry.cpp" />
+    <ClCompile Include="..\..\Source\Model\Entity.cpp" />
+    <ClCompile Include="..\..\Source\Model\EntityDefinition.cpp" />
+    <ClCompile Include="..\..\Source\Model\EntityDefinitionManager.cpp" />
+    <ClCompile Include="..\..\Source\Model\Face.cpp" />
+    <ClCompile Include="..\..\Source\Model\Map.cpp" />
+    <ClCompile Include="..\..\Source\Model\MapDocument.cpp" />
+    <ClCompile Include="..\..\Source\Model\Palette.cpp" />
+    <ClCompile Include="..\..\Source\Model\Texture.cpp" />
+    <ClCompile Include="..\..\Source\Model\TextureManager.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\Camera.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\MapRenderer.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\RenderContext.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\Vbo.cpp" />
+    <ClCompile Include="..\..\Source\Utility\Console.cpp" />
+    <ClCompile Include="..\..\Source\Utility\GLee.c" />
+    <ClCompile Include="..\..\Source\Utility\Mat4f.cpp" />
+    <ClCompile Include="..\..\Source\Utility\Preferences.cpp" />
+    <ClCompile Include="..\..\Source\Utility\Vec3f.cpp" />
+    <ClCompile Include="..\..\Source\View\AbstractApp.cpp" />
+    <ClCompile Include="..\..\Source\View\EditorFrame.cpp" />
+    <ClCompile Include="..\..\Source\View\EditorView.cpp" />
+    <ClCompile Include="..\..\Source\View\Inspector.cpp" />
+    <ClCompile Include="..\..\Source\View\MapGLCanvas.cpp" />
+    <ClCompile Include="..\..\Source\View\ProgressIndicatorDialog.cpp" />
     <ClCompile Include="temp.cpp" />
+    <ClCompile Include="TrenchBroomApp.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Source\Controller\CameraEvent.h" />
+    <ClInclude Include="..\..\Source\Controller\CameraTool.h" />
+    <ClInclude Include="..\..\Source\Controller\Input.h" />
+    <ClInclude Include="..\..\Source\Controller\InputController.h" />
+    <ClInclude Include="..\..\Source\Controller\Tool.h" />
+    <ClInclude Include="..\..\Source\IO\AbstractFileManager.h" />
+    <ClInclude Include="..\..\Source\IO\AbstractTokenizer.h" />
+    <ClInclude Include="..\..\Source\IO\FileManager.h" />
+    <ClInclude Include="..\..\Source\IO\MapParser.h" />
+    <ClInclude Include="..\..\Source\IO\mmapped_fstream.h" />
+    <ClInclude Include="..\..\Source\IO\ParserException.h" />
+    <ClInclude Include="..\..\Source\IO\StandardDefinitionParser.h" />
+    <ClInclude Include="..\..\Source\IO\Wad.h" />
+    <ClInclude Include="..\..\Source\Model\Brush.h" />
+    <ClInclude Include="..\..\Source\Model\BrushGeometry.h" />
+    <ClInclude Include="..\..\Source\Model\BrushGeometryTypes.h" />
+    <ClInclude Include="..\..\Source\Model\BrushTypes.h" />
+    <ClInclude Include="..\..\Source\Model\EditState.h" />
+    <ClInclude Include="..\..\Source\Model\Entity.h" />
+    <ClInclude Include="..\..\Source\Model\EntityDefinition.h" />
+    <ClInclude Include="..\..\Source\Model\EntityDefinitionManager.h" />
+    <ClInclude Include="..\..\Source\Model\EntityDefinitionTypes.h" />
+    <ClInclude Include="..\..\Source\Model\EntityTypes.h" />
+    <ClInclude Include="..\..\Source\Model\Face.h" />
+    <ClInclude Include="..\..\Source\Model\FaceTypes.h" />
+    <ClInclude Include="..\..\Source\Model\Filter.h" />
+    <ClInclude Include="..\..\Source\Model\Map.h" />
+    <ClInclude Include="..\..\Source\Model\MapDocument.h" />
+    <ClInclude Include="..\..\Source\Model\MapExceptions.h" />
+    <ClInclude Include="..\..\Source\Model\MapObject.h" />
+    <ClInclude Include="..\..\Source\Model\Palette.h" />
+    <ClInclude Include="..\..\Source\Model\PropertyDefinition.h" />
+    <ClInclude Include="..\..\Source\Model\Texture.h" />
+    <ClInclude Include="..\..\Source\Model\TextureManager.h" />
+    <ClInclude Include="..\..\Source\Model\TextureTypes.h" />
+    <ClInclude Include="..\..\Source\Renderer\Camera.h" />
+    <ClInclude Include="..\..\Source\Renderer\MapRenderer.h" />
+    <ClInclude Include="..\..\Source\Renderer\RenderContext.h" />
+    <ClInclude Include="..\..\Source\Renderer\RenderUtils.h" />
+    <ClInclude Include="..\..\Source\Renderer\Vbo.h" />
+    <ClInclude Include="..\..\Source\Utility\BBox.h" />
+    <ClInclude Include="..\..\Source\Utility\Color.h" />
+    <ClInclude Include="..\..\Source\Utility\Console.h" />
+    <ClInclude Include="..\..\Source\Utility\CoordinatePlane.h" />
+    <ClInclude Include="..\..\Source\Utility\GLee.h" />
+    <ClInclude Include="..\..\Source\Utility\Line.h" />
+    <ClInclude Include="..\..\Source\Utility\Mat2f.h" />
+    <ClInclude Include="..\..\Source\Utility\Mat3f.h" />
+    <ClInclude Include="..\..\Source\Utility\Mat4f.h" />
+    <ClInclude Include="..\..\Source\Utility\Math.h" />
+    <ClInclude Include="..\..\Source\Utility\MessageException.h" />
+    <ClInclude Include="..\..\Source\Utility\Plane.h" />
+    <ClInclude Include="..\..\Source\Utility\Pool.h" />
+    <ClInclude Include="..\..\Source\Utility\Preferences.h" />
+    <ClInclude Include="..\..\Source\Utility\ProgressIndicator.h" />
+    <ClInclude Include="..\..\Source\Utility\Quat.h" />
+    <ClInclude Include="..\..\Source\Utility\Ray.h" />
+    <ClInclude Include="..\..\Source\Utility\String.h" />
+    <ClInclude Include="..\..\Source\Utility\Vec2f.h" />
+    <ClInclude Include="..\..\Source\Utility\Vec3f.h" />
+    <ClInclude Include="..\..\Source\Utility\Vec4f.h" />
+    <ClInclude Include="..\..\Source\Utility\VecMath.h" />
+    <ClInclude Include="..\..\Source\View\AbstractApp.h" />
+    <ClInclude Include="..\..\Source\View\EditorFrame.h" />
+    <ClInclude Include="..\..\Source\View\EditorView.h" />
+    <ClInclude Include="..\..\Source\View\Inspector.h" />
+    <ClInclude Include="..\..\Source\View\MapGLCanvas.h" />
+    <ClInclude Include="..\..\Source\View\ProgressIndicatorDialog.h" />
+    <ClInclude Include="TrenchBroomApp.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
