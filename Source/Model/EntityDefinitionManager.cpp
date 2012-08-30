@@ -33,6 +33,7 @@ namespace TrenchBroom {
         }
         
         bool EntityDefinitionManager::load(const String& path) {
+			return false;
         }
 
         EntityDefinition* EntityDefinitionManager::definition(const String& name) {

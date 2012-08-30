@@ -182,7 +182,7 @@ namespace TrenchBroom {
             unsigned int oldState = m_state;
             size_t oldLine = m_line;
             size_t oldColumn = m_column;
-            size_t oldPosition = m_stream.tellg();
+            size_t oldPosition = static_cast<size_t>(m_stream.tellg());
             
             StandardDefinitionTokenizer::TokenPtr token = nextToken();
             m_state = oldState;

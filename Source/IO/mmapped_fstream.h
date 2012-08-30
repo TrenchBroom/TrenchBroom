@@ -53,7 +53,7 @@ private:
     
     std::streampos seekpos (std::streampos sp, std::ios_base::openmode which = std::ios_base::in | std::ios_base::out) {
         if (begin_ + sp > end_)
-            return - 1;
+            return -1;
         current_ = begin_ + sp;
         return current_ - begin_;
     }
@@ -98,7 +98,8 @@ public:
 };
 
 #if defined _WIN32
-
+#include "mmapped_fstream_win32.h"
+typedef mmapped_fstream_win32 mmapped_fstream;
 #elif defined __APPLE__
 #include "mmapped_fstream_posix.h"
 typedef mmapped_fstream_posix mmapped_fstream;

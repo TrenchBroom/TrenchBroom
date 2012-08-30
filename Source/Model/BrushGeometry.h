@@ -241,7 +241,7 @@ namespace TrenchBroom {
             
             void replaceEdges(size_t index1, size_t index2, Edge* edge);
             
-            Edge* split() throw (GeometryException);
+            Edge* split();
             void flip();
             void shift(size_t offset);
             bool isDegenerate();
@@ -296,8 +296,8 @@ namespace TrenchBroom {
             bool closed() const;
             void restoreFaceSides();
             
-            CutResult addFace(Face& face, FaceList& droppedFaces) throw (GeometryException);
-            bool addFaces(FaceList& faces, FaceList& droppedFaces) throw (GeometryException);
+            CutResult addFace(Face& face, FaceList& droppedFaces);
+            bool addFaces(FaceList& faces, FaceList& droppedFaces);
             
             void translate(const Vec3f& delta);
             void rotate90(Axis::Type axis, const Vec3f& rotationCenter, bool clockwise);

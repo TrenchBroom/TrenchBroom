@@ -156,6 +156,9 @@
     <ClCompile Include="TrenchBroomApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WinFileManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\Controller\CameraEvent.h">
@@ -363,6 +366,12 @@
       <Filter>Header Files\View</Filter>
     </ClInclude>
     <ClInclude Include="TrenchBroomApp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\IO\mmapped_fstream_win32.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="WinFileManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -19,7 +19,13 @@
 
 #include "TrenchBroomApp.h"
 
+#include <wx/docview.h>
+
 IMPLEMENT_APP(TrenchBroomApp)
 
 BEGIN_EVENT_TABLE(TrenchBroomApp, AbstractApp)
 END_EVENT_TABLE()
+
+void TrenchBroomApp::PostInit() {
+	m_docManager->CreateNewDocument();
+}

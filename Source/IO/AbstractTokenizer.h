@@ -57,7 +57,7 @@ namespace TrenchBroom {
                 return m_type;
             }
             
-            inline const String const data() const {
+            inline const String& data() const {
                 return m_data;
             }
             
@@ -139,7 +139,7 @@ namespace TrenchBroom {
                 
                 m_stream.seekg(offset, std::ios::cur);
                 char c = m_stream.peek();
-                m_stream.seekg(-offset, std::ios::cur);
+                m_stream.seekg(-static_cast<long>(offset), std::ios::cur);
                 return c;
             }
             

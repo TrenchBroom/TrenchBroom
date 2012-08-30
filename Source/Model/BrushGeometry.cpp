@@ -211,7 +211,7 @@ namespace TrenchBroom {
             assert(vertices.size() == edges.size());
         }
         
-        Edge* Side::split() throw (GeometryException) {
+        Edge* Side::split() {
             unsigned int keep = 0;
             unsigned int drop = 0;
             unsigned int split = 0;
@@ -1353,7 +1353,7 @@ namespace TrenchBroom {
                 sides[i]->face->setSide(sides[i]);
         }
         
-        BrushGeometry::CutResult BrushGeometry::addFace(Face& face, FaceList& droppedFaces) throw (GeometryException) {
+        BrushGeometry::CutResult BrushGeometry::addFace(Face& face, FaceList& droppedFaces) {
             Plane boundary = face.boundary();
             
             unsigned int keep = 0;
@@ -1489,7 +1489,7 @@ namespace TrenchBroom {
             return Split;
         }
         
-        bool BrushGeometry::addFaces(FaceList& faces, FaceList& droppedFaces) throw (GeometryException) {
+        bool BrushGeometry::addFaces(FaceList& faces, FaceList& droppedFaces) {
             for (unsigned int i = 0; i < faces.size(); i++)
                 if (addFace(*faces[i], droppedFaces) == Null)
                     return false;

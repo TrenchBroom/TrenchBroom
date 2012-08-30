@@ -39,7 +39,7 @@ namespace TrenchBroom {
             class CompareEntityDefinitionsByName {
             public:
                 inline bool operator() (const EntityDefinition* left, const EntityDefinition* right) const {
-                    return left->name().compare(right->name());
+                    return left->name() < right->name();
                 }
             };
 
@@ -47,7 +47,7 @@ namespace TrenchBroom {
             public:
                 inline bool operator() (const EntityDefinition* left, const EntityDefinition* right) const {
                     if (left->usageCount() == right->usageCount())
-                        return left->name().compare(right->name());
+                        return left->name() < right->name();
                     return left->usageCount() > right->usageCount();
                 }
             };

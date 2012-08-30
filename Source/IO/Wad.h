@@ -25,6 +25,12 @@
 #include "IO/mmapped_fstream.h"
 #include <vector>
 
+#ifdef _MSC_VER
+#include <cstdint>
+#elif defined __GNUC__
+#include <stdint.h>
+#endif
+
 namespace TrenchBroom {
     namespace IO {
         namespace WadLayout {
@@ -98,7 +104,7 @@ namespace TrenchBroom {
                 return m_height;
             }
             
-            inline const unsigned char const* mip0() const {
+            inline const unsigned char* const mip0() const {
                 return m_mip0;
             }
         };

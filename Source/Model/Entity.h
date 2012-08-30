@@ -118,7 +118,7 @@ namespace TrenchBroom {
             }
             
             inline const int angle() const {
-                return m_angle;
+                return static_cast<int>(m_angle);
             }
             
             inline const BrushList& brushes() const {

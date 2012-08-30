@@ -21,6 +21,8 @@
 #include "View/AbstractApp.h"
 
 class TrenchBroomApp : public AbstractApp {
+protected:
+	void PostInit();
 public:
     DECLARE_EVENT_TABLE()
 };

@@ -22,7 +22,12 @@
 
 
 #if defined _WIN32
-
+#include "WinFileManager.h"
+namespace TrenchBroom {
+	namespace IO {
+		typedef TrenchBroom::IO::WinFileManager FileManager;
+	}
+}
 #elif defined __APPLE__
 #include "MacFileManager.h"
 namespace TrenchBroom {

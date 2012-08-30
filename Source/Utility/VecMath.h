@@ -20,6 +20,14 @@
 #ifndef TrenchBroom_VecMath_h
 #define TrenchBroom_VecMath_h
 
+#ifdef max
+#undef max
+#endif
+
+#ifdef min
+#undef min
+#endif
+
 #include "Utility/BBox.h"
 #include "Utility/CoordinatePlane.h"
 #include "Utility/Line.h"

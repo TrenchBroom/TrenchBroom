@@ -49,12 +49,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;WINVER=0x0400;WXUSINGDLL;wxMSVC_VERSION_AUTO;__WXMSW__;_WINDOWS;wxUSE_GUI=1;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_DEBUG;__WXDEBUG__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(WXWIN)\include\msvc;$(WXWIN)\include;..\..\Source</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(WXWIN)\include\msvc;$(WXWIN)\include;..\..\Source;.</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(WXWIN)\lib\vc100_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -65,7 +66,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;WINVER=0x0400;WXUSINGDLL;wxMSVC_VERSION_AUTO;__WXMSW__;_WINDOWS;wxUSE_GUI=1;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(WXWIN)\include\msvc;$(WXWIN)\include;..\..\Source</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(WXWIN)\include\msvc;$(WXWIN)\include;..\..\Source;.</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -73,6 +74,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(WXWIN)\lib\vc100_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -111,6 +113,7 @@
     <ClCompile Include="..\..\Source\View\ProgressIndicatorDialog.cpp" />
     <ClCompile Include="temp.cpp" />
     <ClCompile Include="TrenchBroomApp.cpp" />
+    <ClCompile Include="WinFileManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\Controller\CameraEvent.h" />
@@ -123,6 +126,7 @@
     <ClInclude Include="..\..\Source\IO\FileManager.h" />
     <ClInclude Include="..\..\Source\IO\MapParser.h" />
     <ClInclude Include="..\..\Source\IO\mmapped_fstream.h" />
+    <ClInclude Include="..\..\Source\IO\mmapped_fstream_win32.h" />
     <ClInclude Include="..\..\Source\IO\ParserException.h" />
     <ClInclude Include="..\..\Source\IO\StandardDefinitionParser.h" />
     <ClInclude Include="..\..\Source\IO\Wad.h" />
@@ -182,6 +186,7 @@
     <ClInclude Include="..\..\Source\View\MapGLCanvas.h" />
     <ClInclude Include="..\..\Source\View\ProgressIndicatorDialog.h" />
     <ClInclude Include="TrenchBroomApp.h" />
+    <ClInclude Include="WinFileManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
