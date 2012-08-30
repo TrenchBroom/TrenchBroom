@@ -73,14 +73,14 @@ namespace TrenchBroom {
             fileMenu->Append(wxID_CLOSE, wxT("Close\tCtrl-W"));
             fileMenu->Append(wxID_SAVE, wxT("Save\tCtrl-S"));
             fileMenu->Append(wxID_SAVEAS, wxT("Save as...\tCtrl-Shift-S"));
-            fileMenu->SetEventHandler(&docManager);
 
             docManager.FileHistoryUseMenu(fileMenu);
             docManager.FileHistoryLoad(*wxConfig::Get());
             
             menuBar->Append(fileMenu, wxT("File"));
-			menuBar->SetEventHandler(&docManager);
 			SetMenuBar(menuBar);
+            
+            // TODO handle events here and delegate them to the docmanager manually!
         }
 
         EditorFrame::EditorFrame(wxDocManager& docManager, Renderer::Camera& camera, Renderer::MapRenderer& renderer) : wxFrame(NULL, wxID_ANY, wxT("TrenchBroom")) {
