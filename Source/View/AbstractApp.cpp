@@ -19,52 +19,17 @@
 
 #include "AbstractApp.h"
 
-#include "wx/config.h"
 #include <wx/docview.h>
-#include "wx/event.h"
 
 #include "Model/MapDocument.h"
 #include "View/EditorView.h"
 
 BEGIN_EVENT_TABLE(AbstractApp, wxApp)
-EVT_MENU    (wxID_EXIT, AbstractApp::OnFileExit)
 END_EVENT_TABLE()
-
-wxMenu* AbstractApp::CreateFileMenu() {
-    wxMenu* fileMenu = new wxMenu();
-    fileMenu->Append(wxID_NEW, wxT("New\tCtrl-N"));
-    fileMenu->Append(wxID_OPEN, wxT("Open...\tCtrl-O"));
-    fileMenu->AppendSeparator();
-    fileMenu->Append(wxID_CLOSE, wxT("Close\tCtrl-W"));
-    fileMenu->Append(wxID_SAVE, wxT("Save\tCtrl-S"));
-    fileMenu->Append(wxID_SAVEAS, wxT("Save as...\tCtrl-Shift-S"));
-    return fileMenu;
-}
 
 bool AbstractApp::OnInit() {
 	m_docManager = new wxDocManager();
     new wxDocTemplate(m_docManager, wxT("Quake map document"), wxT("*.map"), wxEmptyString, wxT("map"), wxT("Quake map document"), wxT("TrenchBroom editor view"), CLASSINFO(TrenchBroom::Model::MapDocument), CLASSINFO(TrenchBroom::View::EditorView));
-    wxMenuBar* menuBar = new wxMenuBar();
-
-    wxMenu* fileMenu = CreateFileMenu();
-    m_docManager->FileHistoryUseMenu(fileMenu);
-    m_docManager->FileHistoryLoad(*wxConfig::Get());
-    fileMenu->SetEventHandler(m_docManager);
-    menuBar->Append(fileMenu, wxT("File"));
-
-    PostInit();
-#ifdef __APPLE__
-    
-    // file history menu
-    
-    // won't show up in the app's menu if we don't add them here
-    
-    
-    
-    SetExitOnFrameDelete(false);
-    wxMenuBar::MacSetCommonMenuBar(menuBar);
-#endif
-    
     return true;
 }
 
@@ -79,8 +44,4 @@ void AbstractApp::OnUnhandledException() {
     } catch (std::exception& e) {
         wxLogWarning(e.what());
     }
-}
-
-void AbstractApp::OnFileExit(wxCommandEvent& event) {
-    Exit();
 }

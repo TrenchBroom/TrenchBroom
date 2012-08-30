@@ -53,8 +53,8 @@ namespace TrenchBroom {
             std::istream& LoadObject(std::istream& stream);
             std::ostream& SaveObject(std::ostream& stream);
             
-            Model::Map& map() const;
-            Utility::Console& console() const;
+            Model::Map& Map() const;
+            Utility::Console& Console() const;
             
             bool OnCreate(const wxString& path, long flags);
         };

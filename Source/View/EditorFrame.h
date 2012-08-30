@@ -22,9 +22,15 @@
 
 #include <wx/frame.h>
 
+class wxDocManager;
 class wxTextCtrl;
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class Camera;
+        class MapRenderer;
+    }
+    
     namespace Utility {
         class Console;
     }
@@ -36,16 +42,15 @@ namespace TrenchBroom {
         protected:
             Utility::Console* m_console;
             MapGLCanvas* m_mapCanvas;
+            
+            void CreateGui(Renderer::Camera& camera, Renderer::MapRenderer& renderer);
+            void CreateMenuBar(wxDocManager& docManager);
         public:
-            EditorFrame();
+            EditorFrame(wxDocManager& docManager, Renderer::Camera& camera, Renderer::MapRenderer& renderer);
             ~EditorFrame();
 
-            inline Utility::Console& console() const {
+            inline Utility::Console& Console() const {
                 return *m_console;
-            }
-            
-            inline MapGLCanvas* mapCanvas() const {
-                return m_mapCanvas;
             }
         };
     }

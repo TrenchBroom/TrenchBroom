@@ -31,15 +31,11 @@ namespace TrenchBroom {
     namespace View {
         IMPLEMENT_DYNAMIC_CLASS(EditorView, wxView);
         
-        EditorView::EditorView() : wxView(), m_camera(NULL), m_renderer(NULL) {
-            EditorFrame* frame = new EditorFrame();
-            SetFrame(frame);
-            frame->Show();
-        }
+        EditorView::EditorView() : wxView(), m_camera(NULL), m_renderer(NULL) {}
         
-        Utility::Console& EditorView::console() const {
+        Utility::Console& EditorView::Console() const {
             EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
-            return frame->console();
+            return frame->Console();
         }
 
         bool EditorView::OnCreate(wxDocument* doc, long flags) {
@@ -52,12 +48,13 @@ namespace TrenchBroom {
             m_camera = new Renderer::Camera(fieldOfVision, nearPlane, farPlane, position, direction);
             
             Model::MapDocument* document = static_cast<Model::MapDocument*>(doc);
-            m_renderer = new Renderer::MapRenderer(document->map());
+            m_renderer = new Renderer::MapRenderer(document->Map());
             m_renderer->loadMap();
             
-            EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
-            frame->mapCanvas()->Initialize(*m_camera, *m_renderer);
-            
+            EditorFrame* frame = new EditorFrame(*GetDocumentManager(), *m_camera, *m_renderer);
+            SetFrame(frame);
+            frame->Show();
+
             return wxView::OnCreate(doc, flags);
         }
         

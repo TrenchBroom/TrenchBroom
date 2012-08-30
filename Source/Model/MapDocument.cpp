@@ -45,7 +45,7 @@ namespace TrenchBroom {
         IMPLEMENT_DYNAMIC_CLASS(MapDocument, wxDocument)
         
         bool MapDocument::DoOpenDocument(const wxString& file) {
-            console().info("Loading file %s", file.mbc_str().data());
+            Console().info("Loading file %s", file.mbc_str().data());
             
             mmapped_fstream stream(file.mbc_str().data(), std::ios::in);
             if (!stream.is_open() || !stream.good())
@@ -75,9 +75,9 @@ namespace TrenchBroom {
                 Model::TextureCollection* collection = new Model::TextureCollection(wadPath, wad, *m_palette);
                 unsigned int index = static_cast<unsigned int>(m_textureManager->collections().size());
                 m_textureManager->addCollection(collection, index);
-                console().info("Loaded %s in %f seconds", wadPath.c_str(), watch.Time() / 1000.0f);
+                Console().info("Loaded %s in %f seconds", wadPath.c_str(), watch.Time() / 1000.0f);
             } else {
-                console().error("Could not open texture wad %s", path.c_str());
+                Console().error("Could not open texture wad %s", path.c_str());
             }
         }
         
@@ -115,10 +115,10 @@ namespace TrenchBroom {
             progressIndicator.setText("Loading map file...");
             
             wxStopWatch watch;
-            IO::MapParser parser(stream, console());
+            IO::MapParser parser(stream, Console());
             parser.parseMap(*m_map, &progressIndicator);
             stream.clear(); // everything went well, prevent wx from displaying an error dialog
-            console().info("Loaded map file in %f seconds", watch.Time() / 1000.0f);
+            Console().info("Loaded map file in %f seconds", watch.Time() / 1000.0f);
 
             // load palette, in the future, we might get the path from the map's config
             IO::FileManager fileManager;
@@ -127,7 +127,7 @@ namespace TrenchBroom {
             if (m_palette != NULL)
                 delete m_palette;
             
-            console().info("Loading palette file %s", palettePath.c_str());
+            Console().info("Loading palette file %s", palettePath.c_str());
             m_palette = new Palette(palettePath);
             
             const String* wads = m_map->worldspawn(true)->propertyForKey(Entity::WadKey);
@@ -165,19 +165,19 @@ namespace TrenchBroom {
             }
         }
         
-        Model::Map& MapDocument::map() const {
+        Model::Map& MapDocument::Map() const {
             return *m_map;
         }
         
-        Utility::Console& MapDocument::console() const {
+        Utility::Console& MapDocument::Console() const {
             View::EditorView* editorView = dynamic_cast<View::EditorView*>(GetFirstView());
             assert(editorView != NULL);
-            return editorView->console();
+            return editorView->Console();
         }
 
         bool MapDocument::OnCreate(const wxString& path, long flags) {
             BBox worldBounds(Vec3f(-4096, -4096, -4096), Vec3f(4096, 4096, 4096));
-            m_map = new Map(worldBounds);
+            m_map = new Model::Map(worldBounds);
             m_textureManager = new TextureManager();
             
             // initialize here

@@ -30,16 +30,10 @@ class wxMenuBar;
 class AbstractApp : public wxApp {
 protected:
 	wxDocManager* m_docManager;
-    wxMenuBar* m_menuBar;
-    
-    virtual wxMenu* CreateFileMenu();
-	virtual void PostInit() {};
 public:
 	virtual bool OnInit();
     virtual int OnExit();
     void OnUnhandledException();
-    
-    virtual void OnFileExit(wxCommandEvent& event);
     
     DECLARE_EVENT_TABLE();
 };

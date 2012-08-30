@@ -24,6 +24,9 @@
 #include "View/MapGLCanvas.h"
 
 #include <wx/colour.h>
+#include <wx/config.h>
+#include <wx/docview.h>
+#include <wx/menu.h>
 #include <wx/panel.h>
 #include <wx/sizer.h>
 #include <wx/splitter.h>
@@ -31,7 +34,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        EditorFrame::EditorFrame() : wxFrame(NULL, wxID_ANY, wxT("TrenchBroom")) {
+        void EditorFrame::CreateGui(Renderer::Camera& camera, Renderer::MapRenderer& renderer) {
             wxSplitterWindow* logSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3DSASH | wxSP_LIVE_UPDATE);
             logSplitter->SetSashGravity(1.0f);
             logSplitter->SetMinimumPaneSize(0);
@@ -39,27 +42,47 @@ namespace TrenchBroom {
             wxSplitterWindow* inspectorSplitter = new wxSplitterWindow(logSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3DSASH | wxSP_LIVE_UPDATE);
             inspectorSplitter->SetSashGravity(1.0f);
             inspectorSplitter->SetMinimumPaneSize(300);
-
+            
             wxTextCtrl* logView = new wxTextCtrl(logSplitter, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2);
             logView->SetDefaultStyle(wxTextAttr(*wxLIGHT_GREY, *wxBLACK));
             logView->SetBackgroundColour(*wxBLACK);
             m_console = new Utility::Console(logView);
-
-            m_mapCanvas = new MapGLCanvas(inspectorSplitter, *m_console);
+            
+            m_mapCanvas = new MapGLCanvas(inspectorSplitter, *m_console, camera, renderer);
             Inspector* inspector = new Inspector(inspectorSplitter);
-
+            
             inspectorSplitter->SplitVertically(m_mapCanvas, inspector, 0);
             logSplitter->SplitHorizontally(inspectorSplitter, logView);
             
             wxSizer* logSplitterSizer = new wxBoxSizer(wxVERTICAL);
             logSplitterSizer->Add(logSplitter, 1, wxEXPAND);
             SetSizer(logSplitterSizer);
-
+            
             SetSize(800, 600);
             inspectorSplitter->SetSashPosition(GetSize().x - 300);
             logSplitter->SetSashPosition(GetSize().y - 150);
             Layout();
+        }
+        
+        void EditorFrame::CreateMenuBar(wxDocManager& docManager) {
+            wxMenuBar* menuBar = new wxMenuBar();
+            wxMenu* fileMenu = new wxMenu();
+            fileMenu->Append(wxID_NEW, wxT("New\tCtrl-N"));
+            fileMenu->Append(wxID_OPEN, wxT("Open...\tCtrl-O"));
+            fileMenu->AppendSeparator();
+            fileMenu->Append(wxID_CLOSE, wxT("Close\tCtrl-W"));
+            fileMenu->Append(wxID_SAVE, wxT("Save\tCtrl-S"));
+            fileMenu->Append(wxID_SAVEAS, wxT("Save as...\tCtrl-Shift-S"));
             
+            docManager.FileHistoryUseMenu(fileMenu);
+            docManager.FileHistoryLoad(*wxConfig::Get());
+            
+            menuBar->Append(fileMenu, wxT("File"));
+        }
+
+        EditorFrame::EditorFrame(wxDocManager& docManager, Renderer::Camera& camera, Renderer::MapRenderer& renderer) : wxFrame(NULL, wxID_ANY, wxT("TrenchBroom")) {
+            CreateGui(camera, renderer);
+            CreateMenuBar(docManager);
         }
         
         EditorFrame::~EditorFrame() {

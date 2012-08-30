@@ -19,23 +19,47 @@
 
 #include "TrenchBroomApp.h"
 
+#include <wx/config.h>
+#include <wx/docview.h>
+
 IMPLEMENT_APP(TrenchBroomApp)
 
 BEGIN_EVENT_TABLE(TrenchBroomApp, AbstractApp)
+EVT_MENU    (wxID_EXIT, TrenchBroomApp::OnFileExit)
 END_EVENT_TABLE()
 
-wxMenu* TrenchBroomApp::CreateFileMenu() {
-    wxMenu* fileMenu = AbstractApp::CreateFileMenu();
+bool TrenchBroomApp::OnInit() {
+    if (AbstractApp::OnInit()) {
+        wxMenuBar* menuBar = new wxMenuBar();
+        wxMenu* fileMenu = new wxMenu();
+        fileMenu->Append(wxID_NEW, wxT("New\tCtrl-N"));
+        fileMenu->Append(wxID_OPEN, wxT("Open...\tCtrl-O"));
+        fileMenu->AppendSeparator();
+        fileMenu->Append(wxID_CLOSE, wxT("Close\tCtrl-W"));
+        fileMenu->Append(wxID_SAVE, wxT("Save\tCtrl-S"));
+        fileMenu->Append(wxID_SAVEAS, wxT("Save as...\tCtrl-Shift-S"));
+        
+        m_docManager->FileHistoryUseMenu(fileMenu);
+        m_docManager->FileHistoryLoad(*wxConfig::Get());
+
+        // these won't show up in the app menu if we don't add them here
+        fileMenu->Append(wxID_ABOUT, wxT("About"));
+        fileMenu->Append(wxID_PREFERENCES, wxT("Preferences...\tCtrl-,"));
+        fileMenu->Append(wxID_EXIT, wxT("Exit"));
+
+        fileMenu->SetEventHandler(m_docManager);
+        menuBar->Append(fileMenu, wxT("File"));
+
+        wxMenuBar::MacSetCommonMenuBar(menuBar);
+        SetExitOnFrameDelete(false);
+        
+        return true;
+    }
     
-    // these won't show up in the app menu if we don't add them here
-    fileMenu->Append(wxID_ABOUT, wxT("About"));
-    fileMenu->Append(wxID_PREFERENCES, wxT("Preferences...\tCtrl-,"));
-    fileMenu->Append(wxID_EXIT, wxT("Exit"));
-    
-    return fileMenu;
+    return false;
 }
 
-void TrenchBroomApp::PostInit() {
-    SetExitOnFrameDelete(false);
-    wxMenuBar::MacSetCommonMenuBar(m_menuBar);
+
+void TrenchBroomApp::OnFileExit(wxCommandEvent& event) {
+    Exit();
 }

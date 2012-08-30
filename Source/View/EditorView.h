@@ -43,7 +43,7 @@ namespace TrenchBroom {
         public:
             EditorView();
 
-            Utility::Console& console() const;
+            Utility::Console& Console() const;
             
             bool OnCreate(wxDocument* doc, long flags);
             void OnUpdate(wxView* sender, wxObject* hint = (wxObject*) NULL);

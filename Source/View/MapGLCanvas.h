@@ -43,18 +43,17 @@ namespace TrenchBroom {
         class MapGLCanvas : public wxGLCanvas {
         protected:
             int* m_attribs;
+            bool m_firstFrame;
             wxGLContext* m_glContext;
             Controller::InputController* m_inputController;
-            Renderer::Camera* m_camera;
-            Renderer::MapRenderer* m_renderer;
+            Renderer::Camera& m_camera;
+            Renderer::MapRenderer& m_renderer;
             Utility::Console& m_console;
             
             int* Attribs();
         public:
-            MapGLCanvas(wxWindow* parent, Utility::Console& console);
+            MapGLCanvas(wxWindow* parent, Utility::Console& console, Renderer::Camera& camera, Renderer::MapRenderer& renderer);
             ~MapGLCanvas();
-            
-            void Initialize(Renderer::Camera& camera, Renderer::MapRenderer& renderer);
             
             void OnPaint(wxPaintEvent& event);
 
