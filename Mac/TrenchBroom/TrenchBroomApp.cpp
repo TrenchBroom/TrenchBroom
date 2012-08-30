@@ -19,70 +19,23 @@
 
 #include "TrenchBroomApp.h"
 
-#include "wx/config.h"
-#include "wx/event.h"
-
-#include "Model/MapDocument.h"
-#include "View/EditorView.h"
-
 IMPLEMENT_APP(TrenchBroomApp)
 
-BEGIN_EVENT_TABLE(TrenchBroomApp, wxApp)
-EVT_MENU    (wxID_EXIT, TrenchBroomApp::OnFileExit)
+BEGIN_EVENT_TABLE(TrenchBroomApp, AbstractApp)
 END_EVENT_TABLE()
 
-bool TrenchBroomApp::OnInit() {
-	m_docManager = new wxDocManager();
-
-    new wxDocTemplate(m_docManager, wxT("Quake map document"), wxT("*.map"), wxEmptyString, wxT("map"), wxT("Quake map document"), wxT("TrenchBroom editor view"), CLASSINFO(TrenchBroom::Model::MapDocument), CLASSINFO(TrenchBroom::View::EditorView));
-
-#ifdef __APPLE__
-    // don't close app when the last frame closes
-    SetExitOnFrameDelete(false);
+wxMenu* TrenchBroomApp::CreateFileMenu() {
+    wxMenu* fileMenu = AbstractApp::CreateFileMenu();
     
-    // show menu bar even when no frame is open
-    wxMenuBar* menuBar = new wxMenuBar();
-    
-    wxMenu* fileMenu = new wxMenu();
-    fileMenu->Append(wxID_NEW, wxT("New\tCtrl-N"));
-    fileMenu->Append(wxID_OPEN, wxT("Open...\tCtrl-O"));
-    fileMenu->AppendSeparator();
-    fileMenu->Append(wxID_CLOSE, wxT("Close\tCtrl-W"));
-    fileMenu->Append(wxID_SAVE, wxT("Save\tCtrl-S"));
-    fileMenu->Append(wxID_SAVEAS, wxT("Save as...\tCtrl-Shift-S"));
-    
-    // file history menu
-    m_docManager->FileHistoryUseMenu(fileMenu);
-    m_docManager->FileHistoryLoad(*wxConfig::Get());
-
-    // won't show up in the app's menu if we don't add them here
+    // these won't show up in the app menu if we don't add them here
     fileMenu->Append(wxID_ABOUT, wxT("About"));
     fileMenu->Append(wxID_PREFERENCES, wxT("Preferences...\tCtrl-,"));
     fileMenu->Append(wxID_EXIT, wxT("Exit"));
-
-    fileMenu->SetEventHandler(m_docManager);
     
-    menuBar->Append(fileMenu, wxT("File"));
-    
-    wxMenuBar::MacSetCommonMenuBar(menuBar);
-#endif
-    
-    return true;
+    return fileMenu;
 }
 
-int TrenchBroomApp::OnExit() {
-    wxDELETE(m_docManager);
-    return wxApp::OnExit();
-}
-
-void TrenchBroomApp::OnUnhandledException() {
-    try {
-        throw;
-    } catch (std::exception& e) {
-        wxLogWarning(e.what());
-    }
-}
-
-void TrenchBroomApp::OnFileExit(wxCommandEvent& event) {
-    Exit();
+void TrenchBroomApp::PostInit() {
+    SetExitOnFrameDelete(false);
+    wxMenuBar::MacSetCommonMenuBar(m_menuBar);
 }
