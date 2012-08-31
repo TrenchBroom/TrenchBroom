@@ -187,7 +187,8 @@ namespace TrenchBroom {
         }
         
         void MapGLCanvas::OnMouseWheel(wxMouseEvent& event) {
-            float delta = static_cast<float>(event.GetWheelDelta());
+            int lines = event.GetLinesPerAction();
+            float delta = static_cast<float>(event.GetWheelDelta()) / lines;
             delta *= event.GetWheelRotation();
             if (event.GetWheelAxis() == wxMOUSE_WHEEL_HORIZONTAL)
                 m_inputController->scrolled(delta, 0.0f);
