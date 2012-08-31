@@ -77,6 +77,7 @@ namespace TrenchBroom {
         MapGLCanvas::MapGLCanvas(wxWindow* parent, Utility::Console& console, Renderer::Camera& camera, Renderer::MapRenderer& renderer) :
         wxGLCanvas(parent, wxID_ANY, Attribs()),
         m_firstFrame(true),
+		m_mouseCaptured(false),
         m_console(console),
         m_renderer(renderer),
         m_camera(camera),
@@ -146,26 +147,38 @@ namespace TrenchBroom {
         }
         
         void MapGLCanvas::OnMouseLeftDown(wxMouseEvent& event) {
+			CaptureMouse();
+			m_mouseCaptured = true;
             m_inputController->mouseDown(Left, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
         }
         
         void MapGLCanvas::OnMouseLeftUp(wxMouseEvent& event) {
+			if (m_mouseCaptured)
+				ReleaseMouse();
             m_inputController->mouseUp(Left, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
         }
         
         void MapGLCanvas::OnMouseRightDown(wxMouseEvent& event) {
+			CaptureMouse();
+			m_mouseCaptured = true;
             m_inputController->mouseDown(Right, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
         }
         
         void MapGLCanvas::OnMouseRightUp(wxMouseEvent& event) {
+			if (m_mouseCaptured)
+				ReleaseMouse();
             m_inputController->mouseUp(Right, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
         }
         
         void MapGLCanvas::OnMouseMiddleDown(wxMouseEvent& event) {
+			CaptureMouse();
+			m_mouseCaptured = true;
             m_inputController->mouseDown(Middle, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
         }
         
         void MapGLCanvas::OnMouseMiddleUp(wxMouseEvent& event) {
+			if (m_mouseCaptured)
+				ReleaseMouse();
             m_inputController->mouseUp(Middle, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
         }
         

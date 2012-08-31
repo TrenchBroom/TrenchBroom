@@ -44,6 +44,7 @@ namespace TrenchBroom {
         protected:
             int* m_attribs;
             bool m_firstFrame;
+			bool m_mouseCaptured;
             wxGLContext* m_glContext;
             Controller::InputController* m_inputController;
             Renderer::Camera& m_camera;
