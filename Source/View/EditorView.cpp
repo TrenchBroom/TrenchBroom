@@ -66,10 +66,8 @@ namespace TrenchBroom {
         }
         
         bool EditorView::OnClose(bool deleteWindow) {
-            if (deleteWindow) {
-                wxWindow* frame = GetFrame();
+            if (deleteWindow)
                 SetFrame(NULL);
-            }
             
             delete m_camera;
             m_camera = NULL;

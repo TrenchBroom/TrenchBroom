@@ -203,7 +203,7 @@ namespace TrenchBroom {
             
             const Mat2f subMatrix(unsigned int row, unsigned int col) const {
                 Mat2f result;
-                int i = 0;
+                unsigned int i = 0;
                 for (unsigned int c = 0; c < 3; c++)
                     for (unsigned int r = 0; r < 3; r++)
                         if (c != col && r != row)

@@ -337,7 +337,7 @@ namespace TrenchBroom {
             
             const Mat3f subMatrix(unsigned int row, unsigned int col) const {
                 Mat3f result;
-                int i = 0;
+                unsigned int i = 0;
                 for (unsigned int c = 0; c < 4; c++)
                     for (unsigned int r = 0; r < 4; r++)
                         if (c != col && r != row)

@@ -127,7 +127,7 @@ namespace TrenchBroom {
             }
             
             void repair() {
-                for (int i = 0; i < 3; i++)
+                for (unsigned int i = 0; i < 3; i++)
                     if (min[i] > max[i])
                         std::swap(min[i], max[i]);
             }

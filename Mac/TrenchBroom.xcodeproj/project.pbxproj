@@ -23,12 +23,11 @@
 		48312B3C15EB814700607868 /* Wad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B3A15EB814700607868 /* Wad.cpp */; };
 		48312B3F15EB8A1A00607868 /* Palette.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B3D15EB8A1A00607868 /* Palette.cpp */; };
 		48312B4215EB9EA900607868 /* RenderContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B4015EB9EA900607868 /* RenderContext.cpp */; };
-		484763D615E2BC5000095BC0 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 484763D515E2BC5000095BC0 /* Cocoa.framework */; };
 		484763E015E2BC5000095BC0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 484763DE15E2BC5000095BC0 /* InfoPlist.strings */; };
 		4847640B15E2DEE100095BC0 /* MapDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847640915E2DEE100095BC0 /* MapDocument.cpp */; };
 		4847640E15E2E03000095BC0 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847640C15E2E03000095BC0 /* Entity.cpp */; };
 		48819C3815EBE97A00BEA604 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3615EBE92800BEA604 /* Camera.cpp */; };
-		48819C3915EBE98100BEA604 /* GLee.c in Sources */ = {isa = PBXBuildFile; fileRef = 4810276815E52F3700250C9C /* GLee.c */; };
+		48819C3915EBE98100BEA604 /* GLee.c in Sources */ = {isa = PBXBuildFile; fileRef = 4810276815E52F3700250C9C /* GLee.c */; settings = {COMPILER_FLAGS = "-w"; }; };
 		48819C3C15EC066E00BEA604 /* AbstractFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3A15EC066E00BEA604 /* AbstractFileManager.cpp */; };
 		48819C3F15EC0CE700BEA604 /* MacFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3D15EC0CE700BEA604 /* MacFileManager.cpp */; };
 		48819C4415EC107700BEA604 /* quake.def in Resources */ = {isa = PBXBuildFile; fileRef = 48819C4315EC107700BEA604 /* quake.def */; };
@@ -174,7 +173,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				484763D615E2BC5000095BC0 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -569,15 +567,19 @@
 				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
 				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TrenchBroom/TrenchBroom-Prefix.pch";
+				GCC_WARN_SHADOW = NO;
 				HEADER_SEARCH_PATHS = ../Source;
 				INFOPLIST_FILE = "TrenchBroom/TrenchBroom-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = (
-					"-I/usr/local/lib/wx/include/osx_cocoa-unicode-2.9",
-					"-I/usr/local/include/wx-2.9",
+					"-isystem",
+					"/usr/local/lib/wx/include/osx_cocoa-unicode-2.9",
+					"-isystem",
+					"/usr/local/include/wx-2.9",
 					"-D_FILE_OFFSET_BITS=64",
 					"-DWXUSINGDLL",
 					"-D__WXMAC__",
@@ -615,15 +617,19 @@
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
 				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TrenchBroom/TrenchBroom-Prefix.pch";
+				GCC_WARN_SHADOW = NO;
 				HEADER_SEARCH_PATHS = ../Source;
 				INFOPLIST_FILE = "TrenchBroom/TrenchBroom-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = (
-					"-I/usr/local/lib/wx/include/osx_cocoa-unicode-2.9",
-					"-I/usr/local/include/wx-2.9",
+					"-isystem",
+					"/usr/local/lib/wx/include/osx_cocoa-unicode-2.9",
+					"-isystem",
+					"/usr/local/include/wx-2.9",
 					"-D_FILE_OFFSET_BITS=64",
 					"-DWXUSINGDLL",
 					"-D__WXMAC__",

@@ -54,7 +54,7 @@ private:
         
         m_filedesc = open(filename, flags);
         if (m_filedesc >= 0) {
-            m_length = lseek(m_filedesc, 0, SEEK_END);
+            m_length = static_cast<size_t>(lseek(m_filedesc, 0, SEEK_END));
             lseek(m_filedesc, 0, SEEK_SET);
             m_address = mmap(NULL, m_length, prot, MAP_FILE | MAP_PRIVATE, m_filedesc, 0);
             if (m_address == NULL) {
