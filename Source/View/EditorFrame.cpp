@@ -73,6 +73,7 @@ namespace TrenchBroom {
             fileMenu->Append(wxID_CLOSE, wxT("Close\tCtrl-W"));
             fileMenu->Append(wxID_SAVE, wxT("Save\tCtrl-S"));
             fileMenu->Append(wxID_SAVEAS, wxT("Save as...\tCtrl-Shift-S"));
+			fileMenu->SetEventHandler(&docManager);
 
             docManager.FileHistoryUseMenu(fileMenu);
             docManager.FileHistoryLoad(*wxConfig::Get());

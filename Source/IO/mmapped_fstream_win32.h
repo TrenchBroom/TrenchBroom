@@ -36,7 +36,7 @@ private:
 
     mmapped_streambuf* makebuf(const char* filename, ios_base::openmode mode = ios_base::in | ios_base::out) {
 		m_fileHandle = INVALID_HANDLE_VALUE;
-		m_mappingHandle = INVALID_HANDLE_VALUE;
+		m_mappingHandle = NULL;
         m_address = NULL;
         m_length = 0;
         m_buf = NULL;
@@ -61,27 +61,35 @@ private:
 		unsigned int numChars = strlen(filename);
 		LPWSTR uFilename = new TCHAR[numChars + 1];
 		MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, filename, numChars, uFilename, numChars + 1);
+		uFilename[numChars] = 0;
 
 		m_fileHandle = CreateFile(uFilename, accessMode, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         if (m_fileHandle != INVALID_HANDLE_VALUE) {
-			DWORD length;
-			GetFileSize(m_fileHandle, &length);
-			m_length = static_cast<size_t>(length);
+			m_length = static_cast<size_t>(GetFileSize(m_fileHandle, NULL));
 
-			m_mappingHandle = CreateFileMapping(m_fileHandle, NULL, protect, 0, 0, uFilename);
-			if (m_mappingHandle != INVALID_HANDLE_VALUE) {
+			m_mappingHandle = CreateFileMapping(m_fileHandle, NULL, protect, 0, 0, NULL);
+			if (m_mappingHandle != NULL) {
 				m_address = MapViewOfFile(m_mappingHandle, mapAccess, 0, 0, 0);
-				if (m_address == NULL) {
+				if (m_address != NULL) {
+                char* begin = static_cast<char*>(m_address);
+                char* end = begin + m_length;
+                m_buf = new mmapped_streambuf(begin, end);
+				} else {
 					CloseHandle(m_mappingHandle);
-					m_mappingHandle = INVALID_HANDLE_VALUE;
+					m_mappingHandle = NULL;
 					CloseHandle(m_fileHandle);
 					m_fileHandle = INVALID_HANDLE_VALUE;
+					clear(std::ios::failbit);
 				}
 			} else {
+				DWORD errorCode = GetLastError();
 				CloseHandle(m_fileHandle);
 				m_fileHandle = INVALID_HANDLE_VALUE;
+				clear(std::ios::failbit);
 			}
-        }
+        } else {
+			clear(std::ios::failbit);
+		}
         
 		delete [] uFilename;
         return m_buf;
@@ -105,9 +113,9 @@ public:
             m_buf = NULL;
         }
 
-		if (m_mappingHandle != INVALID_HANDLE_VALUE) {
+		if (m_mappingHandle != NULL) {
 			CloseHandle(m_mappingHandle);
-			m_mappingHandle = INVALID_HANDLE_VALUE;
+			m_mappingHandle = NULL;
 		}
 
 		if (m_fileHandle != INVALID_HANDLE_VALUE) {
