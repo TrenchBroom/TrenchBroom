@@ -35,6 +35,7 @@ namespace TrenchBroom {
             m_dummy = false;
             m_usageCount = 0;
             m_textureBuffer = NULL;
+			m_textureId = 0;
         }
         
         void Texture::init(const String& name, const unsigned char* indexedImage, unsigned int width, unsigned int height, const Palette& palette) {
