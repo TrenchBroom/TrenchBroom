@@ -112,12 +112,11 @@ namespace TrenchBroom {
 //            wxDocument::LoadObject(stream);
 
             View::ProgressIndicatorDialog progressIndicator;
-            progressIndicator.setText("Unloading...");
             Console().info("Unloading existing map file and textures...");
             m_map->clear();
             m_textureManager->clear();
-            
-            progressIndicator.setText("Loading map file...");
+
+			progressIndicator.setText("Loading map file...");
             
             wxStopWatch watch;
             IO::MapParser parser(stream, Console());
@@ -182,6 +181,7 @@ namespace TrenchBroom {
 
         bool MapDocument::OnCreate(const wxString& path, long flags) {
             BBox worldBounds(Vec3f(-4096, -4096, -4096), Vec3f(4096, 4096, 4096));
+
             m_map = new Model::Map(worldBounds);
             m_textureManager = new TextureManager();
             
@@ -189,5 +189,16 @@ namespace TrenchBroom {
             
             return wxDocument::OnCreate(path, flags);
         }
-    }
+ 
+		bool MapDocument::OnNewDocument() {
+			if (wxDocument::OnNewDocument()) {
+				// prompt for initial stuff like world bounds, mods, palette, def here
+				m_map->clear();
+				m_textureManager->clear();
+				return true;
+			}
+
+			return false;
+		}
+	}
 }

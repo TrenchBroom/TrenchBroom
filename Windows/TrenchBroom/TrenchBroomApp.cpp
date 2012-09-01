@@ -21,6 +21,8 @@
 
 #include <wx/docview.h>
 
+#include "Utility/DocManager.h"
+
 IMPLEMENT_APP(TrenchBroomApp)
 
 BEGIN_EVENT_TABLE(TrenchBroomApp, AbstractApp)
@@ -28,6 +30,7 @@ END_EVENT_TABLE()
 
 bool TrenchBroomApp::OnInit() {
 	if (AbstractApp::OnInit()) {
+        m_docManager->SetUseSDI(true);
 		m_docManager->CreateNewDocument();
 		return true;
 	}

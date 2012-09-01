@@ -57,6 +57,7 @@ namespace TrenchBroom {
             Utility::Console& Console() const;
             
             bool OnCreate(const wxString& path, long flags);
+			bool OnNewDocument();
         };
     }
 }

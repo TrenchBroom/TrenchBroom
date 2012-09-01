@@ -156,6 +156,9 @@
     <ClCompile Include="WinFileManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Utility\DocManager.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\Controller\CameraEvent.h">
@@ -370,6 +373,9 @@
     </ClInclude>
     <ClInclude Include="WinFileManager.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utility\DocManager.h">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
