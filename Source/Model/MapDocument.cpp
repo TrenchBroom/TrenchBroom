@@ -112,6 +112,11 @@ namespace TrenchBroom {
 //            wxDocument::LoadObject(stream);
 
             View::ProgressIndicatorDialog progressIndicator;
+            progressIndicator.setText("Unloading...");
+            Console().info("Unloading existing map file and textures...");
+            m_map->clear();
+            m_textureManager->clear();
+            
             progressIndicator.setText("Loading map file...");
             
             wxStopWatch watch;

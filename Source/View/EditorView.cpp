@@ -59,7 +59,9 @@ namespace TrenchBroom {
         }
         
         void EditorView::OnUpdate(wxView* sender, wxObject* hint) {
-            m_renderer->loadMap();
+            if (sender == NULL)
+                m_renderer->loadMap();
+            GetFrame()->Refresh();
         }
         
         void EditorView::OnDraw(wxDC* dc) {

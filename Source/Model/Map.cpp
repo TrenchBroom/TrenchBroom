@@ -26,8 +26,7 @@ namespace TrenchBroom {
         Map::Map(const BBox& worldBounds) : m_worldBounds(worldBounds), m_worldspawn(NULL) {}
 
         Map::~Map() {
-            while (!m_entities.empty()) delete m_entities.back(), m_entities.pop_back();
-            m_worldspawn = NULL;
+            clear();
         }
 
         void Map::setEntityDefinition(Entity* entity) {
@@ -57,6 +56,11 @@ namespace TrenchBroom {
                 m_worldspawn = createEntity(Entity::WorldspawnClassname);
             
             return m_worldspawn;
+        }
+
+        void Map::clear() {
+            while (!m_entities.empty()) delete m_entities.back(), m_entities.pop_back();
+            m_worldspawn = NULL;
         }
     }
 }

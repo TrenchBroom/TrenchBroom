@@ -26,6 +26,7 @@
 		484763E015E2BC5000095BC0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 484763DE15E2BC5000095BC0 /* InfoPlist.strings */; };
 		4847640B15E2DEE100095BC0 /* MapDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847640915E2DEE100095BC0 /* MapDocument.cpp */; };
 		4847640E15E2E03000095BC0 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847640C15E2E03000095BC0 /* Entity.cpp */; };
+		4850D24615F2AC71005B162D /* DocManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D24415F2AAE8005B162D /* DocManager.cpp */; };
 		48819C3815EBE97A00BEA604 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3615EBE92800BEA604 /* Camera.cpp */; };
 		48819C3915EBE98100BEA604 /* GLee.c in Sources */ = {isa = PBXBuildFile; fileRef = 4810276815E52F3700250C9C /* GLee.c */; settings = {COMPILER_FLAGS = "-w"; }; };
 		48819C3C15EC066E00BEA604 /* AbstractFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3A15EC066E00BEA604 /* AbstractFileManager.cpp */; };
@@ -113,6 +114,8 @@
 		4847640D15E2E03000095BC0 /* Entity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Entity.h; sourceTree = "<group>"; };
 		4847641015E2E06900095BC0 /* MapObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapObject.h; sourceTree = "<group>"; };
 		4847641415E2E0E800095BC0 /* Vec2f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vec2f.h; sourceTree = "<group>"; };
+		4850D24415F2AAE8005B162D /* DocManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DocManager.cpp; sourceTree = "<group>"; };
+		4850D24515F2AAE8005B162D /* DocManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DocManager.h; sourceTree = "<group>"; };
 		486C61E615EF713C0091AA97 /* mmapped_fstream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mmapped_fstream.h; sourceTree = "<group>"; };
 		48819C3615EBE92800BEA604 /* Camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
 		48819C3715EBE92800BEA604 /* Camera.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
@@ -355,7 +358,8 @@
 				48312B2A15EB706D00607868 /* Console.cpp */,
 				48312B2B15EB706D00607868 /* Console.h */,
 				48D1BEAB15E305FA0073C030 /* CoordinatePlane.h */,
-				4810278015E5701E00250C9C /* Pool.h */,
+				4850D24415F2AAE8005B162D /* DocManager.cpp */,
+				4850D24515F2AAE8005B162D /* DocManager.h */,
 				48D1BEA815E2FBAC0073C030 /* Line.h */,
 				48D1BE9F15E2EDAE0073C030 /* Mat2f.h */,
 				48D1BEA015E2EE920073C030 /* Mat3f.h */,
@@ -364,6 +368,7 @@
 				48D1BE9815E2E2930073C030 /* Math.h */,
 				4810278115E594C400250C9C /* MessageException.h */,
 				48D1BEAA15E2FF860073C030 /* Plane.h */,
+				4810278015E5701E00250C9C /* Pool.h */,
 				48AB580615ED1C1E00321C47 /* Preferences.cpp */,
 				48312B4415EBA43700607868 /* Preferences.h */,
 				48AF492915E8F0B20083DE52 /* ProgressIndicator.h */,
@@ -462,6 +467,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4850D24615F2AC71005B162D /* DocManager.cpp in Sources */,
 				48819C3915EBE98100BEA604 /* GLee.c in Sources */,
 				48819C3815EBE97A00BEA604 /* Camera.cpp in Sources */,
 				4847640B15E2DEE100095BC0 /* MapDocument.cpp in Sources */,

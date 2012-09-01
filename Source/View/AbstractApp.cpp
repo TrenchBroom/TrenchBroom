@@ -23,13 +23,14 @@
 #include <wx/docview.h>
 
 #include "Model/MapDocument.h"
+#include "Utility/DocManager.h"
 #include "View/EditorView.h"
 
 BEGIN_EVENT_TABLE(AbstractApp, wxApp)
 END_EVENT_TABLE()
 
 bool AbstractApp::OnInit() {
-	m_docManager = new wxDocManager();
+	m_docManager = new DocManager();
     new wxDocTemplate(m_docManager, wxT("Quake map document"), wxT("*.map"), wxEmptyString, wxT("map"), wxT("Quake map document"), wxT("TrenchBroom editor view"), CLASSINFO(TrenchBroom::Model::MapDocument), CLASSINFO(TrenchBroom::View::EditorView));
     return true;
 }

@@ -22,6 +22,8 @@
 #include <wx/config.h>
 #include <wx/docview.h>
 
+#include "Utility/DocManager.h"
+
 IMPLEMENT_APP(TrenchBroomApp)
 
 BEGIN_EVENT_TABLE(TrenchBroomApp, AbstractApp)
@@ -30,6 +32,8 @@ END_EVENT_TABLE()
 
 bool TrenchBroomApp::OnInit() {
     if (AbstractApp::OnInit()) {
+        m_docManager->SetUseSDI(false);
+        
         wxMenuBar* menuBar = new wxMenuBar();
         wxMenu* fileMenu = new wxMenu();
         fileMenu->Append(wxID_NEW, wxT("New\tCtrl-N"));

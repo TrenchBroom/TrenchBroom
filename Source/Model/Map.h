@@ -50,6 +50,8 @@ namespace TrenchBroom {
             
             Entity* worldspawn(bool create);
             
+            void clear();
+            
             inline const BBox& worldBounds() const {
                 return m_worldBounds;
             }

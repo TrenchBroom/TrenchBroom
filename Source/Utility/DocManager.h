@@ -17,25 +17,29 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__AbstractApp__
-#define __TrenchBroom__AbstractApp__
+#ifndef __TrenchBroom__DocManager__
+#define __TrenchBroom__DocManager__
 
 #include <wx/wx.h>
+#include <wx/docview.h>
+#include <wx/event.h>
 
-class DocManager;
-class wxCommandEvent;
-class wxMenu;
-class wxMenuBar;
-
-class AbstractApp : public wxApp {
-protected:
-	DocManager* m_docManager;
+class DocManager : public wxDocManager {
+private:
+    DECLARE_DYNAMIC_CLASS(DocManager)
+    bool m_useSDI;
 public:
-	virtual bool OnInit();
-    virtual int OnExit();
-    void OnUnhandledException();
+    DocManager(long flags = wxDEFAULT_DOCMAN_FLAGS, bool initialize = true) : wxDocManager(flags, initialize), m_useSDI(false) {}
     
-    DECLARE_EVENT_TABLE();
+    inline bool GetUseSDI() const {
+        return m_useSDI;
+    }
+    
+    inline void SetUseSDI(bool useSDI) {
+        m_useSDI = useSDI;
+    }
+    
+    wxDocument* CreateDocument(const wxString& pathOrig, long flags = 0);
 };
 
-#endif /* defined(__TrenchBroom__AbstractApp__) */
+#endif /* defined(__TrenchBroom__DocManager__) */
