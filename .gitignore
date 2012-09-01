@@ -1,9 +1,3 @@
-build/*
-build/**/*
-
-Gwen/Projects/macosx/xcode4/obj/*
-Gwen/Projects/macosx/xcode4/obj/**/*
-
 xcuserdata
 
 .DS_Store
@@ -12,14 +6,15 @@ xcuserdata
 /Windows/TrenchBroom/obj
 /Windows/TrenchBroom/wx_pch.h.gch
 
-/Windows/TrenchBroom/Debug
 /Windows/Debug
-/Windows/TrenchBroom/Release
 /Windows/Release
 /Windows/TrenchBroom.sdf
 /Windows/TrenchBroom.opensdf
 /Windows/TrenchBroom/TrenchBroom.aps
 /Windows/ipch
+
+/Windows/x64/Debug
+/Windows/x64/Release
 
 *.suo
 Thumbs.db
