@@ -46,7 +46,7 @@ namespace TrenchBroom {
         
         char AbstractFileManager::pathSeparator() {
             char c;
-            assert(wxFileName::GetPathSeparator().GetAsChar(&c));
+			wxFileName::GetPathSeparator().GetAsChar(&c);
             return c;
         }
         

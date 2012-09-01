@@ -29,6 +29,7 @@ namespace TrenchBroom {
 
 			char* appPath = new char[numChars];
 			WideCharToMultiByte(CP_ACP, 0, uAppPath, numChars, appPath, numChars, NULL, NULL);
+			appPath[numChars] = 0;
 
 			String appDirectory = deleteLastPathComponent(appPath);
 			return appendPath(appDirectory, "Resources");

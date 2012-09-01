@@ -94,41 +94,42 @@ namespace TrenchBroom {
         }
         
         void MapGLCanvas::OnPaint(wxPaintEvent& event) {
-            assert(SetCurrent(*m_glContext));
             wxPaintDC(this);
+			if (SetCurrent(*m_glContext)) {
+				if (m_firstFrame) {
+					m_firstFrame = false;
+					const char* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+					const char* renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+					const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+					m_console.info("Renderer info: %s, version %s from %s", renderer, version, vendor);
+				}
             
-            if (m_firstFrame) {
-                m_firstFrame = false;
-                const char* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
-                const char* renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
-                const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
-                m_console.info("Renderer info: %s, version %s from %s", renderer, version, vendor);
-            }
+				Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+				const Color& backgroundColor = prefs.getColor(Preferences::BackgroundColor);
+				glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, backgroundColor.w);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            const Color& backgroundColor = prefs.getColor(Preferences::BackgroundColor);
-            glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, backgroundColor.w);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				glMatrixMode(GL_PROJECTION);
+				glLoadIdentity();
+				glMatrixMode(GL_MODELVIEW);
+				glLoadIdentity();
             
-            glMatrixMode(GL_PROJECTION);
-            glLoadIdentity();
-            glMatrixMode(GL_MODELVIEW);
-            glLoadIdentity();
+				glDisableClientState(GL_VERTEX_ARRAY);
+				glDisableClientState(GL_COLOR_ARRAY);
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+				glBindTexture(GL_TEXTURE_2D, 0);
+				glDisable(GL_TEXTURE_2D);
             
-            glDisableClientState(GL_VERTEX_ARRAY);
-            glDisableClientState(GL_COLOR_ARRAY);
-            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-            glBindTexture(GL_TEXTURE_2D, 0);
-            glDisable(GL_TEXTURE_2D);
+				m_camera.update(0.0f, 0.0f, GetSize().x, GetSize().y);
             
-            m_camera.update(0.0f, 0.0f, GetSize().x, GetSize().y);
+				Model::Filter filter;
+				Renderer::RenderContext renderContext(filter);
+				m_renderer.render(renderContext);
             
-            Model::Filter filter;
-            Renderer::RenderContext renderContext(filter);
-            m_renderer.render(renderContext);
-            
-            
-            SwapBuffers();
+				SwapBuffers();
+			} else {
+				m_console.error("Unable to set current OpenGL context");
+			}
         }
         
         void MapGLCanvas::OnCameraMove(Controller::CameraMoveEvent& event) {

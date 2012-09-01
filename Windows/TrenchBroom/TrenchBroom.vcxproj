@@ -61,6 +61,12 @@
       <Command>Mkdir "$(TargetDir)\Resources"
 Copy "$(ProjectDir)..\..\Resources\Defs\Quake.def" "$(TargetDir)\Resources"
 Copy "$(ProjectDir)..\..\Resources\Graphics\QuakePalette.lmp" "$(TargetDir)\Resources"
+Copy "$(WXWIN)\lib\vc100_dll\wxbase294ud_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxbase294ud_vc100.pdb" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_core_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_core_vc100.pdb" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_gl_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_gl_vc100.pdb" "$(TargetDir)"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -86,6 +92,9 @@ Copy "$(ProjectDir)..\..\Resources\Graphics\QuakePalette.lmp" "$(TargetDir)\Reso
       <Command>Mkdir "$(TargetDir)\Resources"
 Copy "$(ProjectDir)..\..\Resources\Defs\Quake.def" "$(TargetDir)\Resources"
 Copy "$(ProjectDir)..\..\Resources\Graphics\QuakePalette.lmp" "$(TargetDir)\Resources"
+Copy "$(WXWIN)\lib\vc100_dll\wxbase294u_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw294u_core_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw294u_gl_vc100.dll" "$(TargetDir)"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

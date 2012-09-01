@@ -42,7 +42,7 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Model {
-        IMPLEMENT_DYNAMIC_CLASS(MapDocument, wxDocument)
+		IMPLEMENT_DYNAMIC_CLASS(MapDocument, wxDocument)
         
         bool MapDocument::DoOpenDocument(const wxString& file) {
             Console().info("Loading file %s", file.mbc_str().data());
@@ -184,6 +184,5 @@ namespace TrenchBroom {
             
             return wxDocument::OnCreate(path, flags);
         }
-        
     }
 }

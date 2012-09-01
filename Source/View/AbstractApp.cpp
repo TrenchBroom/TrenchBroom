@@ -19,6 +19,7 @@
 
 #include "AbstractApp.h"
 
+#include <wx/config.h>
 #include <wx/docview.h>
 
 #include "Model/MapDocument.h"
@@ -34,6 +35,7 @@ bool AbstractApp::OnInit() {
 }
 
 int AbstractApp::OnExit() {
+    m_docManager->FileHistorySave(*wxConfig::Get());
     wxDELETE(m_docManager);
     return wxApp::OnExit();
 }
@@ -42,6 +44,6 @@ void AbstractApp::OnUnhandledException() {
     try {
         throw;
     } catch (std::exception& e) {
-        wxLogWarning(e.what());
+        wxLogError(e.what());
     }
 }
