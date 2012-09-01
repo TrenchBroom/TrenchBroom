@@ -34,7 +34,11 @@ wxDocument* DocManager::CreateDocument(const wxString& pathOrig, long flags) {
         wxString path = pathOrig;   // may be modified below
         
         wxDocTemplate* docTemplate = document->GetDocumentTemplate();
-        wxDocTemplate *temp = SelectDocumentPath(&docTemplate, 1, path, flags);
+        wxDocTemplate *temp = NULL;
+        if (!path.empty())
+            temp = SelectDocumentType(&docTemplate, 1);
+        else
+            temp = SelectDocumentPath(&docTemplate, 1, path, flags);
         if (temp) {
             document->SetFilename(path);
             document->SetDocumentName(temp->GetDocumentName());
