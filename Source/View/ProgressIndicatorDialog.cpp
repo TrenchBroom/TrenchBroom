@@ -33,10 +33,12 @@ namespace TrenchBroom {
         }
 
         ProgressIndicatorDialog::ProgressIndicatorDialog() {
-            m_dialog = new wxProgressDialog("Progress", "Please wait...", 100, wxTheApp->GetTopWindow(), wxPD_APP_MODAL | wxPD_AUTO_HIDE | wxPD_SMOOTH);
+            m_dialog = new wxProgressDialog("Progress", "Please wait...", 100, NULL, wxPD_APP_MODAL | wxPD_AUTO_HIDE | wxPD_SMOOTH);
         }
         
         ProgressIndicatorDialog::~ProgressIndicatorDialog() {
+                m_dialog->Close();
+                m_dialog->Destroy();
         }
         
         void ProgressIndicatorDialog::setText(const String& text) {

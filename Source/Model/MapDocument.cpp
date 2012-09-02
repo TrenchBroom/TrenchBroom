@@ -45,6 +45,10 @@ namespace TrenchBroom {
 		IMPLEMENT_DYNAMIC_CLASS(MapDocument, wxDocument)
         
         bool MapDocument::DoOpenDocument(const wxString& file) {
+            Console().info("Unloading existing map file and textures...");
+            m_map->clear();
+            m_textureManager->clear();
+
             Console().info("Loading file %s", file.mbc_str().data());
             
             mmapped_fstream stream(file.mbc_str().data(), std::ios::in);
@@ -112,10 +116,6 @@ namespace TrenchBroom {
 //            wxDocument::LoadObject(stream);
 
             View::ProgressIndicatorDialog progressIndicator;
-            Console().info("Unloading existing map file and textures...");
-            m_map->clear();
-            m_textureManager->clear();
-
 			progressIndicator.setText("Loading map file...");
             
             wxStopWatch watch;
