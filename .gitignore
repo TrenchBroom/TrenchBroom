@@ -8,13 +8,15 @@ xcuserdata
 
 /Windows/Debug
 /Windows/Release
+/Windows/TrenchBroom/Debug
+/Windows/TrenchBroom/Release
 /Windows/TrenchBroom.sdf
 /Windows/TrenchBroom.opensdf
 /Windows/TrenchBroom/TrenchBroom.aps
 /Windows/ipch
 
-/Windows/x64/Debug
-/Windows/x64/Release
+/Windows/x64
+/Windows/TrenchBroom/x64
 
 *.suo
 Thumbs.db
