@@ -22,8 +22,12 @@
 IMPLEMENT_DYNAMIC_CLASS(DocManager, wxDocManager)
 wxDocument* DocManager::CreateDocument(const wxString& pathOrig, long flags) {
     wxDocument* document = GetCurrentDocument();
-    if (!m_useSDI || document == NULL)
+    if (!m_useSDI || document == NULL) {
         return wxDocManager::CreateDocument(pathOrig, flags);
+        if (m_useSDI)
+            wxTheApp->SetTopWindow(document->GetDocumentWindow());
+        return document;
+    }
     
     document->OnSaveModified();
     

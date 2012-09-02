@@ -19,6 +19,7 @@
 
 #include "ProgressIndicatorDialog.h"
 
+#include <wx/wx.h>
 #include <wx/progdlg.h>
 
 namespace TrenchBroom {
@@ -32,7 +33,7 @@ namespace TrenchBroom {
         }
 
         ProgressIndicatorDialog::ProgressIndicatorDialog() {
-            m_dialog = new wxProgressDialog("Progress", "", 100, NULL, wxPD_APP_MODAL | wxPD_AUTO_HIDE | wxPD_SMOOTH);
+            m_dialog = new wxProgressDialog("Progress", "Please wait...", 100, wxTheApp->GetTopWindow(), wxPD_APP_MODAL | wxPD_AUTO_HIDE | wxPD_SMOOTH);
         }
         
         ProgressIndicatorDialog::~ProgressIndicatorDialog() {
