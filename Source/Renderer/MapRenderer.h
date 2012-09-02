@@ -32,6 +32,7 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class EditStateChangeSet;
         class Map;
     }
     
@@ -155,6 +156,7 @@ namespace TrenchBroom {
             ~MapRenderer();
             
             void addEntities(const Model::EntityList& entities);
+            void changeEditState(const Model::EditStateChangeSet& changeSet);
             void loadMap();
             void clearMap();
 

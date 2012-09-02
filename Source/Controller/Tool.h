@@ -21,10 +21,12 @@
 #define TrenchBroom_Tool_h
 
 #include "Controller/Input.h"
+#include "Model/MapDocument.h"
+#include "View/EditorView.h"
 #include "Utility/VecMath.h"
 
+#include <wx/cmdproc.h>
 #include <wx/event.h>
-#include <wx/window.h>
 
 #include <cstdio>
 
@@ -41,7 +43,8 @@ namespace TrenchBroom {
                 Scroll
             };
         private:
-            wxWindow& m_control;
+            Model::MapDocument& m_document;
+            View::EditorView& m_view;
             State m_state;
             bool m_active;
             bool m_figureDataValid;
@@ -57,13 +60,22 @@ namespace TrenchBroom {
             virtual bool handleDrag(InputEvent& event) { return false; }
             virtual void handleEndDrag(InputEvent& event) {}
             
-            void postEvent(wxEvent& event) {
-                event.SetEventObject(&m_control);
-                m_control.GetEventHandler()->ProcessEvent(event);
+            inline void postEvent(wxEvent& event) {
+                event.SetEventObject(&m_view);
+                m_view.ProcessEvent(event);
+            }
+            
+            inline void postCommand(wxCommand* command) {
+                m_document.GetCommandProcessor()->Submit(command);
+            }
+            
+            inline Model::MapDocument& document() const {
+                return m_document;
             }
         public:
-            Tool(wxWindow& control) :
-            m_control(control),
+            Tool(Model::MapDocument& document, View::EditorView& view) :
+            m_document(document),
+            m_view(view),
             m_state(Default),
             m_active(false),
             m_figureDataValid(false) {}

@@ -30,6 +30,10 @@ namespace TrenchBroom {
     }
     
     namespace Model {
+        class Brush;
+        class EditStateManager;
+        class Entity;
+        class Face;
         class Map;
         class Octree;
         class Palette;
@@ -40,6 +44,7 @@ namespace TrenchBroom {
             DECLARE_DYNAMIC_CLASS(MapDocument)
         protected:
             Map* m_map;
+            EditStateManager* m_editStateManager;
             Octree* m_octree;
             Picker* m_picker;
             Palette* m_palette;
@@ -50,6 +55,7 @@ namespace TrenchBroom {
             
             void LoadTextureWad(const String& path);
             void UpdateFaceTextures();
+            void Clear();
         public:
             MapDocument();
             virtual ~MapDocument();
@@ -57,12 +63,14 @@ namespace TrenchBroom {
             std::istream& LoadObject(std::istream& stream);
             std::ostream& SaveObject(std::ostream& stream);
             
-            Model::Map& Map() const;
-            Model::Picker& Picker() const;
+            Map& Map() const;
+            EditStateManager& EditStateManager() const;
+            Picker& Picker() const;
             Utility::Console& Console() const;
             
             bool OnCreate(const wxString& path, long flags);
 			bool OnNewDocument();
+            bool OnOpenDocument(const wxString& path);
         };
     }
 }

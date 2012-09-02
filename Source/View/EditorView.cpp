@@ -19,6 +19,9 @@
 
 #include "EditorView.h"
 
+#include "Controller/CameraEvent.h"
+#include "Controller/Command.h"
+#include "Controller/ChangeEditStateCommand.h"
 #include "Model/MapDocument.h"
 #include "Renderer/Camera.h"
 #include "Renderer/MapRenderer.h"
@@ -29,6 +32,12 @@
 
 namespace TrenchBroom {
     namespace View {
+        BEGIN_EVENT_TABLE(EditorView, wxView)
+        EVT_CAMERA_MOVE(EditorView::OnCameraMove)
+        EVT_CAMERA_LOOK(EditorView::OnCameraLook)
+        EVT_CAMERA_ORBIT(EditorView::OnCameraOrbit)
+        END_EVENT_TABLE()
+
         IMPLEMENT_DYNAMIC_CLASS(EditorView, wxView);
         
         EditorView::EditorView() : wxView(), m_camera(NULL), m_renderer(NULL) {}
@@ -38,6 +47,14 @@ namespace TrenchBroom {
             return frame->Console();
         }
 
+        Renderer::Camera& EditorView::Camera() const {
+            return *m_camera;
+        }
+        
+        Renderer::MapRenderer& EditorView::Renderer() const {
+            return *m_renderer;
+        }
+        
         bool EditorView::OnCreate(wxDocument* doc, long flags) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             float fieldOfVision = prefs.getFloat(Preferences::CameraFieldOfVision);
@@ -47,11 +64,11 @@ namespace TrenchBroom {
             Vec3f direction(1.0f, 0.0f, 0.0f);
             m_camera = new Renderer::Camera(fieldOfVision, nearPlane, farPlane, position, direction);
             
-            Model::MapDocument* document = static_cast<Model::MapDocument*>(doc);
-            m_renderer = new Renderer::MapRenderer(document->Map());
+            Model::MapDocument& document = *static_cast<Model::MapDocument*>(doc);
+            m_renderer = new Renderer::MapRenderer(document.Map());
             m_renderer->loadMap();
             
-            EditorFrame* frame = new EditorFrame(*GetDocumentManager(), *m_camera, *m_renderer);
+            EditorFrame* frame = new EditorFrame(document, *this);
             SetFrame(frame);
             frame->Show();
 
@@ -59,9 +76,27 @@ namespace TrenchBroom {
         }
         
         void EditorView::OnUpdate(wxView* sender, wxObject* hint) {
-            if (sender == NULL)
-                m_renderer->loadMap();
-            GetFrame()->Refresh();
+            if (hint != NULL) {
+                Controller::Command* command = static_cast<Controller::Command*>(hint);
+                switch (command->type()) {
+                    case Controller::Command::LoadMap:
+                    case Controller::Command::ClearMap: {
+                        m_renderer->loadMap();
+                        break;
+                    }
+                    case Controller::Command::ChangeEditState: {
+                        Controller::ChangeEditStateCommand* changeEditStateCommand = static_cast<Controller::ChangeEditStateCommand*>(command);
+                        m_renderer->changeEditState(changeEditStateCommand->changeSet());
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+
+            EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+            if (frame != NULL)
+                frame->MapCanvas().Refresh();
         }
         
         void EditorView::OnDraw(wxDC* dc) {
@@ -78,5 +113,20 @@ namespace TrenchBroom {
             return wxView::OnClose(deleteWindow);
         }
 
+        void EditorView::OnCameraMove(Controller::CameraMoveEvent& event) {
+            m_camera->moveBy(event.forward(), event.right(), event.up());
+            OnUpdate(this);
+        }
+        
+        void EditorView::OnCameraLook(Controller::CameraLookEvent& event) {
+            m_camera->rotate(event.hAngle(), event.vAngle());
+            OnUpdate(this);
+        }
+        
+        void EditorView::OnCameraOrbit(Controller::CameraOrbitEvent& event) {
+            m_camera->orbit(event.center(), event.hAngle(), event.vAngle());
+            OnUpdate(this);
+        }
+        
     }
 }

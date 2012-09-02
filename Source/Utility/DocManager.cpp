@@ -33,7 +33,6 @@ wxDocument* DocManager::CreateDocument(const wxString& pathOrig, long flags) {
     
     if (flags == wxDOC_NEW) {
         document->OnNewDocument();
-        document->UpdateAllViews();
     } else {
         wxString path = pathOrig;   // may be modified below
         

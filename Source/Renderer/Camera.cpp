@@ -61,7 +61,7 @@ namespace TrenchBroom {
 
         const Vec3f Camera::unproject(float x, float y, float depth) const {
             GLdouble rx, ry, rz;
-            gluUnProject(x, y, depth, m_modelview, m_projection, m_viewport, &rx, &ry, &rz);
+            gluUnProject(x, m_viewport[3] - y, depth, m_modelview, m_projection, m_viewport, &rx, &ry, &rz);
             
             return Vec3f(static_cast<float>(rx), static_cast<float>(ry), static_cast<float>(rz));
         }

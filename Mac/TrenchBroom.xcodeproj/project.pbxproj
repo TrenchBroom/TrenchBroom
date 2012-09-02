@@ -29,6 +29,10 @@
 		4850D24615F2AC71005B162D /* DocManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D24415F2AAE8005B162D /* DocManager.cpp */; };
 		4850D24A15F363FC005B162D /* Octree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D24715F360BF005B162D /* Octree.cpp */; };
 		4850D24D15F364CD005B162D /* Picker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D24B15F364A1005B162D /* Picker.cpp */; };
+		4850D25015F389B5005B162D /* EditStateManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D24E15F389B5005B162D /* EditStateManager.cpp */; };
+		4850D25415F3B36C005B162D /* SelectionTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D25215F3B36C005B162D /* SelectionTool.cpp */; };
+		4850D26315F3E260005B162D /* ChangeEditStateCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D26115F3E202005B162D /* ChangeEditStateCommand.cpp */; };
+		4850D26615F3E757005B162D /* Command.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D26415F3E757005B162D /* Command.cpp */; };
 		48819C3815EBE97A00BEA604 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3615EBE92800BEA604 /* Camera.cpp */; };
 		48819C3915EBE98100BEA604 /* GLee.c in Sources */ = {isa = PBXBuildFile; fileRef = 4810276815E52F3700250C9C /* GLee.c */; settings = {COMPILER_FLAGS = "-w"; }; };
 		48819C3C15EC066E00BEA604 /* AbstractFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3A15EC066E00BEA604 /* AbstractFileManager.cpp */; };
@@ -123,6 +127,15 @@
 		4850D24915F36172005B162D /* MapObjectTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapObjectTypes.h; sourceTree = "<group>"; };
 		4850D24B15F364A1005B162D /* Picker.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Picker.cpp; sourceTree = "<group>"; };
 		4850D24C15F364A1005B162D /* Picker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Picker.h; sourceTree = "<group>"; };
+		4850D24E15F389B5005B162D /* EditStateManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EditStateManager.cpp; sourceTree = "<group>"; };
+		4850D24F15F389B5005B162D /* EditStateManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditStateManager.h; sourceTree = "<group>"; };
+		4850D25115F39974005B162D /* List.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = List.h; sourceTree = "<group>"; };
+		4850D25215F3B36C005B162D /* SelectionTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SelectionTool.cpp; sourceTree = "<group>"; };
+		4850D25315F3B36C005B162D /* SelectionTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionTool.h; sourceTree = "<group>"; };
+		4850D26115F3E202005B162D /* ChangeEditStateCommand.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ChangeEditStateCommand.cpp; sourceTree = "<group>"; };
+		4850D26215F3E202005B162D /* ChangeEditStateCommand.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChangeEditStateCommand.h; sourceTree = "<group>"; };
+		4850D26415F3E757005B162D /* Command.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Command.cpp; sourceTree = "<group>"; };
+		4850D26515F3E757005B162D /* Command.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Command.h; sourceTree = "<group>"; };
 		486C61E615EF713C0091AA97 /* mmapped_fstream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mmapped_fstream.h; sourceTree = "<group>"; };
 		48819C3615EBE92800BEA604 /* Camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
 		48819C3715EBE92800BEA604 /* Camera.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
@@ -305,6 +318,8 @@
 				48AF492115E782E90083DE52 /* BrushGeometryTypes.h */,
 				481028A315E75C3400250C9C /* BrushTypes.h */,
 				481028A615E7778200250C9C /* EditState.h */,
+				4850D24E15F389B5005B162D /* EditStateManager.cpp */,
+				4850D24F15F389B5005B162D /* EditStateManager.h */,
 				4847640C15E2E03000095BC0 /* Entity.cpp */,
 				4847640D15E2E03000095BC0 /* Entity.h */,
 				4810276D15E53DD300250C9C /* EntityDefinition.cpp */,
@@ -373,6 +388,7 @@
 				4850D24415F2AAE8005B162D /* DocManager.cpp */,
 				4850D24515F2AAE8005B162D /* DocManager.h */,
 				48D1BEA815E2FBAC0073C030 /* Line.h */,
+				4850D25115F39974005B162D /* List.h */,
 				48D1BE9F15E2EDAE0073C030 /* Mat2f.h */,
 				48D1BEA015E2EE920073C030 /* Mat3f.h */,
 				48D1BEA215E2F3BB0073C030 /* Mat4f.cpp */,
@@ -405,9 +421,15 @@
 				48AB580415ED01CB00321C47 /* CameraTool.h */,
 				48819C4F15ED5C7700BEA604 /* CameraEvent.cpp */,
 				48819C4C15ED52B200BEA604 /* CameraEvent.h */,
+				4850D26115F3E202005B162D /* ChangeEditStateCommand.cpp */,
+				4850D26215F3E202005B162D /* ChangeEditStateCommand.h */,
+				4850D26415F3E757005B162D /* Command.cpp */,
+				4850D26515F3E757005B162D /* Command.h */,
 				48AB57FF15ECFC5F00321C47 /* Input.h */,
 				48AB580015ECFED800321C47 /* InputController.cpp */,
 				48AB580115ECFED800321C47 /* InputController.h */,
+				4850D25215F3B36C005B162D /* SelectionTool.cpp */,
+				4850D25315F3B36C005B162D /* SelectionTool.h */,
 				48AB57FE15ECFBDF00321C47 /* Tool.h */,
 			);
 			name = Controller;
@@ -479,6 +501,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4850D26315F3E260005B162D /* ChangeEditStateCommand.cpp in Sources */,
 				4850D24D15F364CD005B162D /* Picker.cpp in Sources */,
 				4850D24A15F363FC005B162D /* Octree.cpp in Sources */,
 				4850D24615F2AC71005B162D /* DocManager.cpp in Sources */,
@@ -517,6 +540,9 @@
 				48AB580715ED1C1E00321C47 /* Preferences.cpp in Sources */,
 				48819C5015ED5C7700BEA604 /* CameraEvent.cpp in Sources */,
 				4887937615EF56C10044D66A /* AbstractApp.cpp in Sources */,
+				4850D25015F389B5005B162D /* EditStateManager.cpp in Sources */,
+				4850D25415F3B36C005B162D /* SelectionTool.cpp in Sources */,
+				4850D26615F3E757005B162D /* Command.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -44,7 +44,7 @@ namespace TrenchBroom {
             m_map = NULL;
             m_definition = NULL;
             m_filePosition = 0;
-            m_editState = EditState::Default;
+            setEditState(EditState::Default);
             m_selectedBrushCount = 0;
             m_origin = Vec3f::Null;
             m_angle = 0.0f;

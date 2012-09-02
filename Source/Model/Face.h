@@ -206,9 +206,7 @@ namespace TrenchBroom {
                 return m_selected;
             }
             
-            inline void setSelected(bool selected) {
-                m_selected = selected;
-            }
+            void setSelected(bool selected);
             
             inline size_t filePosition() const {
                 return m_filePosition;

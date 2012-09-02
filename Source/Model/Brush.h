@@ -42,7 +42,6 @@ namespace TrenchBroom {
             FaceList m_faces;
             BrushGeometry* m_geometry;
             
-            EditState::Type m_editState;
             unsigned int m_selectedFaceCount;
             
             const BBox& m_worldBounds;
@@ -75,10 +74,6 @@ namespace TrenchBroom {
             
             bool addFace(Face* face);
             
-            inline bool selected() const {
-                return m_editState == EditState::Selected;
-            }
-            
             inline bool partiallySelected() const {
                 return m_selectedFaceCount > 0;
             }
@@ -91,6 +86,8 @@ namespace TrenchBroom {
                 m_selectedFaceCount--;
             }
             
+            virtual EditState::Type setEditState(EditState::Type editState);
+
             inline const BBox& worldBounds() const {
                 return m_worldBounds;
             }

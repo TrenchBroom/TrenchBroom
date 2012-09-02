@@ -20,30 +20,50 @@
 #ifndef TrenchBroom_Filter_h
 #define TrenchBroom_Filter_h
 
+#include "Model/Brush.h"
+#include "Model/Entity.h"
+#include "Model/EntityDefinition.h"
+
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
-        class Entity;
-        
         class Filter {
         public:
             inline bool brushVisible(const Model::Brush& brush) const {
+                if (brush.hidden())
+                    return false;
+                
                 return true;
             }
             
             inline bool entityVisible(const Model::Entity& entity) const {
+                if (entity.hidden() || entity.worldspawn())
+                    return false;
+                
                 return true;
             }
             
             inline bool brushPickable(const Model::Brush& brush) const {
+                if (brush.hidden() || brush.locked())
+                    return false;
+                
                 return true;
             }
             
             inline bool brushVerticesPickable(const Model::Brush& brush) const {
+                if (brush.hidden() || brush.locked())
+                    return false;
+                
                 return true;
             }
             
             inline bool entityPickable(const Model::Entity& entity) const {
+                if (entity.worldspawn() || entity.hidden() || entity.locked())
+                    return false;
+                
+                EntityDefinition* definition = entity.definition();
+                if (definition != NULL && definition->type() == EntityDefinition::BrushEntity && !entity.brushes().empty())
+                    return false;
+                
                 return true;
             }
         };

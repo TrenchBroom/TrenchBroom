@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__MapObject__
 #define __TrenchBroom__MapObject__
 
+#include "Model/EditState.h"
 #include "Utility/VecMath.h"
 
 using namespace TrenchBroom::Math;
@@ -32,6 +33,7 @@ namespace TrenchBroom {
         class MapObject {
         private:
             int m_uniqueId;
+            EditState::Type m_editState;
         public:
             enum Type {
                 EntityObject,
@@ -41,12 +43,37 @@ namespace TrenchBroom {
             MapObject() {
                 static int currentId = 1;
                 m_uniqueId = currentId++;
+                m_editState = EditState::Default;
             }
             
-            virtual ~MapObject() {}
+            virtual ~MapObject() {
+                m_editState = EditState::Default;
+            }
             
             inline int uniqueId() const {
                 return m_uniqueId;
+            }
+            
+            inline EditState::Type editState() const {
+                return m_editState;
+            }
+            
+            virtual EditState::Type setEditState(EditState::Type editState) {
+                EditState::Type previous = m_editState;
+                m_editState = editState;
+                return previous;
+            }
+            
+            inline bool selected() const {
+                return m_editState == EditState::Selected;
+            }
+            
+            inline bool hidden() const {
+                return m_editState == EditState::Hidden;
+            }
+            
+            inline bool locked() const {
+                return m_editState == EditState::Locked;
             }
             
             virtual const Vec3f& center() const = 0;

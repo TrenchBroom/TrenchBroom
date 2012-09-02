@@ -30,7 +30,7 @@ namespace TrenchBroom {
         void Brush::init() {
             m_entity = NULL;
             m_filePosition = 0;
-            m_editState = EditState::Default;
+            setEditState(EditState::Default);
             m_selectedFaceCount = 0;
             m_geometry = new BrushGeometry(m_worldBounds);
         }
@@ -120,7 +120,6 @@ namespace TrenchBroom {
             delete m_geometry;
             m_geometry = NULL;
             while (!m_faces.empty()) delete m_faces.back(), m_faces.pop_back();
-            m_editState = EditState::Default;
         }
 
         void Brush::restore(const Brush& brushTemplate, bool checkId) {
@@ -146,11 +145,11 @@ namespace TrenchBroom {
             if (entity == m_entity)
                 return;
             
-            if (m_entity != NULL && m_editState == EditState::Selected)
+            if (m_entity != NULL && selected())
                 m_entity->decSelectedBrushCount();
             
             m_entity = entity;
-            if (m_entity != NULL && m_editState == EditState::Selected)
+            if (m_entity != NULL && selected())
                 m_entity->incSelectedBrushCount();
         }
 
@@ -189,6 +188,17 @@ namespace TrenchBroom {
             }
         }
         
+        EditState::Type Brush::setEditState(EditState::Type editState) {
+            EditState::Type previous = MapObject::setEditState(editState);
+            if (m_entity != NULL) {
+                if (previous != EditState::Selected && editState == EditState::Selected)
+                    m_entity->incSelectedBrushCount();
+                else if (previous == EditState::Selected && editState != EditState::Selected)
+                    m_entity->decSelectedBrushCount();
+            }
+            return previous;
+        }
+
         void Brush::pick(const Ray& ray, PickResult& pickResults, Filter& filter) {
             if (!filter.brushPickable(*this))
                 return;

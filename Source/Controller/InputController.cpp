@@ -20,9 +20,11 @@
 #include "InputController.h"
 
 #include "Controller/CameraTool.h"
+#include "Controller/SelectionTool.h"
 #include "Model/MapDocument.h"
 #include "Model/Picker.h"
 #include "Renderer/Camera.h"
+#include "View/EditorView.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -45,14 +47,14 @@ namespace TrenchBroom {
             m_currentEvent.mouseY = y;
         }
 
-        InputController::InputController(Model::MapDocument& document, Renderer::Camera& camera, wxWindow& control) :
+        InputController::InputController(Model::MapDocument& document, View::EditorView& view) :
         m_dragReceiver(NULL),
         m_mouseUpReceiver(NULL),
         m_modalReceiverIndex(-1),
         m_picker(document.Picker()),
-        m_camera(camera) {
-            CameraTool* cameraTool = new CameraTool(control);
-            m_receivers.push_back(cameraTool);
+        m_camera(view.Camera()) {
+            m_receivers.push_back(new CameraTool(document, view));
+            m_receivers.push_back(new SelectionTool(document, view));
         }
         
         InputController::~InputController() {
@@ -90,7 +92,6 @@ namespace TrenchBroom {
         }
         
         bool InputController::mouseUp(MouseButtonState mouseButton, float x, float y) {
-            m_currentEvent.mouseButtons &= ~mouseButton;
             updateMousePos(x, y);
             updateHits();
             
@@ -110,7 +111,7 @@ namespace TrenchBroom {
             }
             
             m_mouseUpReceiver = NULL;
-            m_currentEvent.mouseButtons = MouseButtons::None;
+            m_currentEvent.mouseButtons &= ~mouseButton;
             return handled;
         }
         

@@ -35,7 +35,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        void EditorFrame::CreateGui(wxDocManager& docManager, Renderer::Camera& camera, Renderer::MapRenderer& renderer) {
+        void EditorFrame::CreateGui(Model::MapDocument& document, EditorView& view) {
             wxSplitterWindow* logSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3DSASH | wxSP_LIVE_UPDATE);
             logSplitter->SetSashGravity(1.0f);
             logSplitter->SetMinimumPaneSize(0);
@@ -49,9 +49,7 @@ namespace TrenchBroom {
             logView->SetBackgroundColour(*wxBLACK);
             m_console = new Utility::Console(logView);
             
-            Model::MapDocument* document = static_cast<Model::MapDocument*>(docManager.GetCurrentDocument());
-            
-            m_mapCanvas = new MapGLCanvas(inspectorSplitter, *document, *m_console, camera, renderer);
+            m_mapCanvas = new MapGLCanvas(inspectorSplitter, document, view);
             Inspector* inspector = new Inspector(inspectorSplitter);
             
             inspectorSplitter->SplitVertically(m_mapCanvas, inspector, 0);
@@ -67,7 +65,9 @@ namespace TrenchBroom {
             Layout();
         }
         
-        void EditorFrame::CreateMenuBar(wxDocManager& docManager) {
+        void EditorFrame::CreateMenuBar(Model::MapDocument& document) {
+            wxDocManager* docManager = document.GetDocumentManager();
+
             wxMenuBar* menuBar = new wxMenuBar();
             wxMenu* fileMenu = new wxMenu();
             fileMenu->Append(wxID_NEW, wxT("New\tCtrl-N"));
@@ -76,10 +76,10 @@ namespace TrenchBroom {
             fileMenu->Append(wxID_CLOSE, wxT("Close\tCtrl-W"));
             fileMenu->Append(wxID_SAVE, wxT("Save\tCtrl-S"));
             fileMenu->Append(wxID_SAVEAS, wxT("Save as...\tCtrl-Shift-S"));
-			fileMenu->SetEventHandler(&docManager);
-
-            docManager.FileHistoryUseMenu(fileMenu);
-            docManager.FileHistoryLoad(*wxConfig::Get());
+			fileMenu->SetEventHandler(docManager);
+            
+            docManager->FileHistoryUseMenu(fileMenu);
+            docManager->FileHistoryLoad(*wxConfig::Get());
             
             menuBar->Append(fileMenu, wxT("File"));
 			SetMenuBar(menuBar);
@@ -87,9 +87,9 @@ namespace TrenchBroom {
             // TODO handle events here and delegate them to the docmanager manually!
         }
 
-        EditorFrame::EditorFrame(wxDocManager& docManager, Renderer::Camera& camera, Renderer::MapRenderer& renderer) : wxFrame(NULL, wxID_ANY, wxT("TrenchBroom")) {
-            CreateGui(docManager, camera, renderer);
-            CreateMenuBar(docManager);
+        EditorFrame::EditorFrame(Model::MapDocument& document, EditorView& view) : wxFrame(NULL, wxID_ANY, wxT("TrenchBroom")) {
+            CreateGui(document, view);
+            CreateMenuBar(document);
         }
         
         EditorFrame::~EditorFrame() {

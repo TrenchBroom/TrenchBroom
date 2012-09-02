@@ -21,6 +21,7 @@
 
 #include "Model/Brush.h"
 #include "Model/BrushGeometry.h"
+#include "Model/EditStateManager.h"
 #include "Model/Entity.h"
 #include "Model/EntityDefinition.h"
 #include "Model/Face.h"
@@ -100,8 +101,8 @@ namespace TrenchBroom {
                 const Color& color = (!entity->worldspawn() && definition != NULL && definition->type() == Model::EntityDefinition::BrushEntity) ? definition->color() : worldColor;
                 
                 const Model::EdgeList& edges = brush->edges();
-                for (unsigned int i = 0; i < edges.size(); i++) {
-                    Model::Edge* edge = edges[i];
+                for (unsigned int j = 0; j < edges.size(); j++) {
+                    Model::Edge* edge = edges[j];
                     offset = block.writeColor(color, offset);
                     offset = block.writeVec(edge->start->position, offset);
                     offset = block.writeColor(color, offset);
@@ -117,9 +118,9 @@ namespace TrenchBroom {
                 Model::EntityDefinition* definition = entity->definition();
                 const Color& color = (!entity->worldspawn() && definition != NULL && definition->type() == Model::EntityDefinition::BrushEntity) ? definition->color() : worldColor;
                 
-                const Model::EdgeList& edges = brush->edges();
-                for (unsigned int i = 0; i < edges.size(); i++) {
-                    Model::Edge* edge = edges[i];
+                const Model::EdgeList& edges = face->edges();
+                for (unsigned int j = 0; j < edges.size(); j++) {
+                    Model::Edge* edge = edges[j];
                     offset = block.writeColor(color, offset);
                     offset = block.writeVec(edge->start->position, offset);
                     offset = block.writeColor(color, offset);
@@ -604,6 +605,18 @@ namespace TrenchBroom {
         void MapRenderer::addEntities(const Model::EntityList& entities) {
         }
 
+        void MapRenderer::changeEditState(const Model::EditStateChangeSet& changeSet) {
+            if (changeSet.entitySelectionChanged()) {
+                m_entityDataValid = false;
+                m_selectedEntityDataValid = false;
+            }
+            
+            if (changeSet.brushSelectionChanged() || changeSet.faceSelectionChanged()) {
+                m_geometryDataValid = false;
+                m_selectedGeometryDataValid = false;
+            }
+        }
+
         void MapRenderer::loadMap() {
             addEntities(m_map.entities());
             
@@ -629,6 +642,8 @@ namespace TrenchBroom {
         void MapRenderer::render(RenderContext& context) {
             validate(context);
             
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glFrontFace(GL_CW);
@@ -641,6 +656,7 @@ namespace TrenchBroom {
             m_faceVbo->activate();
             glEnableClientState(GL_VERTEX_ARRAY);
             renderFaces(context, true, false, m_faceRenderInfos);
+            renderFaces(context, true, true, m_selectedFaceRenderInfos);
             glDisableClientState(GL_VERTEX_ARRAY);
             m_faceVbo->deactivate();
                 
@@ -648,6 +664,13 @@ namespace TrenchBroom {
             glEnableClientState(GL_VERTEX_ARRAY);
             glSetEdgeOffset(0.01f);
             renderEdges(context, m_edgeRenderInfo, NULL);
+            
+            glSetEdgeOffset(0.02f);
+            glDisable(GL_DEPTH_TEST);
+            renderEdges(context, m_selectedEdgeRenderInfo, &prefs.getColor(Preferences::HiddenSelectedEdgeColor));
+            glEnable(GL_DEPTH_TEST);
+            renderEdges(context, m_selectedEdgeRenderInfo, &prefs.getColor(Preferences::SelectedEdgeColor));
+            
             glResetEdgeOffset();
             glDisableClientState(GL_VERTEX_ARRAY);
             m_edgeVbo->deactivate();

@@ -17,35 +17,20 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CameraTool__
-#define __TrenchBroom__CameraTool__
+#ifndef __TrenchBroom__SelectionTool__
+#define __TrenchBroom__SelectionTool__
 
 #include "Controller/Tool.h"
-#include "Utility/VecMath.h"
-
-using namespace TrenchBroom::Math;
-
-class wxEvtHandler;
 
 namespace TrenchBroom {
     namespace Controller {
-        class CameraTool : public Tool {
-        private:
-            Vec3f m_orbitCenter;
-            bool m_orbit;
-            
-            float lookSpeed(bool vertical);
-            float panSpeed(bool vertical);
-            float moveSpeed();
+        class SelectionTool : public Tool {
+        protected:
+            bool handleMouseUp(InputEvent& event);
         public:
-            CameraTool(Model::MapDocument& document, View::EditorView& view) : Tool(document, view), m_orbit(false) {}
-            
-            bool handleScrolled(InputEvent& event);
-            bool handleBeginDrag(InputEvent& event);
-            bool handleDrag(InputEvent& event);
-            void handleEndDrag(InputEvent& event);
+            SelectionTool(Model::MapDocument& document, View::EditorView& view) : Tool(document, view) {}
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__CameraTool__) */
+#endif /* defined(__TrenchBroom__SelectionTool__) */

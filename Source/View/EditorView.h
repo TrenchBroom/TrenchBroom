@@ -23,6 +23,12 @@
 #include <wx/docview.h>
 
 namespace TrenchBroom {
+    namespace Controller {
+        class CameraMoveEvent;
+        class CameraLookEvent;
+        class CameraOrbitEvent;
+    }
+    
     namespace Renderer {
         class Camera;
         class MapRenderer;
@@ -44,12 +50,20 @@ namespace TrenchBroom {
             EditorView();
 
             Utility::Console& Console() const;
+            Renderer::Camera& Camera() const;
+            Renderer::MapRenderer& Renderer() const;
             
             bool OnCreate(wxDocument* doc, long flags);
             void OnUpdate(wxView* sender, wxObject* hint = (wxObject*) NULL);
             void OnDraw(wxDC* dc);
 
             bool OnClose(bool deleteWindow = true);
+
+            void OnCameraMove(Controller::CameraMoveEvent& event);
+            void OnCameraLook(Controller::CameraLookEvent& event);
+            void OnCameraOrbit(Controller::CameraOrbitEvent& event);
+            
+            DECLARE_EVENT_TABLE();
         };
     }
 }

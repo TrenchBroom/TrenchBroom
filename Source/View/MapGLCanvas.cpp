@@ -43,9 +43,6 @@ namespace TrenchBroom {
     namespace View {
         BEGIN_EVENT_TABLE(MapGLCanvas, wxGLCanvas)
         EVT_PAINT(MapGLCanvas::OnPaint)
-        EVT_CAMERA_MOVE(MapGLCanvas::OnCameraMove)
-        EVT_CAMERA_LOOK(MapGLCanvas::OnCameraLook)
-        EVT_CAMERA_ORBIT(MapGLCanvas::OnCameraOrbit)
         EVT_KEY_DOWN(MapGLCanvas::OnKeyDown)
         EVT_KEY_UP(MapGLCanvas::OnKeyUp)
         EVT_LEFT_DOWN(MapGLCanvas::OnMouseLeftDown)
@@ -107,16 +104,13 @@ namespace TrenchBroom {
             return false;
         }
 
-        MapGLCanvas::MapGLCanvas(wxWindow* parent, Model::MapDocument& document, Utility::Console& console, Renderer::Camera& camera, Renderer::MapRenderer& renderer) :
+        MapGLCanvas::MapGLCanvas(wxWindow* parent, Model::MapDocument& document, View::EditorView& view) :
         wxGLCanvas(parent, wxID_ANY, Attribs()),
         m_firstFrame(true),
 		m_mouseCaptured(false),
-        m_console(console),
-        m_renderer(renderer),
-        m_camera(camera),
-        m_inputController(new Controller::InputController(document, camera, *this)) {
+        m_view(view) {
+            m_inputController = new Controller::InputController(document, view);
             m_glContext = new wxGLContext(this);
-            m_console.info("Created OpenGL context");
         }
         
         MapGLCanvas::~MapGLCanvas() {
@@ -134,7 +128,8 @@ namespace TrenchBroom {
 					const char* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
 					const char* renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
 					const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
-					m_console.info("Renderer info: %s, version %s from %s", renderer, version, vendor);
+                    m_view.Console().info("Created OpenGL context");
+					m_view.Console().info("Renderer info: %s version %s from %s", renderer, version, vendor);
 				}
             
 				Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
@@ -153,31 +148,16 @@ namespace TrenchBroom {
 				glBindTexture(GL_TEXTURE_2D, 0);
 				glDisable(GL_TEXTURE_2D);
             
-				m_camera.update(0.0f, 0.0f, GetSize().x, GetSize().y);
+				m_view.Camera().update(0.0f, 0.0f, GetSize().x, GetSize().y);
             
 				Model::Filter filter;
 				Renderer::RenderContext renderContext(filter);
-				m_renderer.render(renderContext);
+				m_view.Renderer().render(renderContext);
             
 				SwapBuffers();
 			} else {
-				m_console.error("Unable to set current OpenGL context");
+				m_view.Console().error("Unable to set current OpenGL context");
 			}
-        }
-        
-        void MapGLCanvas::OnCameraMove(Controller::CameraMoveEvent& event) {
-            m_camera.moveBy(event.forward(), event.right(), event.up());
-            Refresh();
-        }
-        
-        void MapGLCanvas::OnCameraLook(Controller::CameraLookEvent& event) {
-            m_camera.rotate(event.hAngle(), event.vAngle());
-            Refresh();
-        }
-        
-        void MapGLCanvas::OnCameraOrbit(Controller::CameraOrbitEvent& event) {
-            m_camera.orbit(event.center(), event.hAngle(), event.vAngle());
-            Refresh();
         }
         
         void MapGLCanvas::OnKeyDown(wxKeyEvent& event) {

@@ -24,9 +24,6 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        class CameraMoveEvent;
-        class CameraLookEvent;
-        class CameraOrbitEvent;
         class InputController;
     }
     
@@ -44,6 +41,8 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class EditorView;
+        
         class MapGLCanvas : public wxGLCanvas {
         protected:
             int* m_attribs;
@@ -51,21 +50,16 @@ namespace TrenchBroom {
 			bool m_mouseCaptured;
             wxGLContext* m_glContext;
             Controller::InputController* m_inputController;
-            Renderer::Camera& m_camera;
-            Renderer::MapRenderer& m_renderer;
-            Utility::Console& m_console;
+
+            EditorView& m_view;
             
             int* Attribs();
             bool HandleModifierKey(int keyCode, bool down);
         public:
-            MapGLCanvas(wxWindow* parent, Model::MapDocument& document, Utility::Console& console, Renderer::Camera& camera, Renderer::MapRenderer& renderer);
+            MapGLCanvas(wxWindow* parent, Model::MapDocument& document, EditorView& view);
             ~MapGLCanvas();
             
             void OnPaint(wxPaintEvent& event);
-
-            void OnCameraMove(Controller::CameraMoveEvent& event);
-            void OnCameraLook(Controller::CameraLookEvent& event);
-            void OnCameraOrbit(Controller::CameraOrbitEvent& event);
 
             void OnKeyDown(wxKeyEvent& event);
             void OnKeyUp(wxKeyEvent& event);

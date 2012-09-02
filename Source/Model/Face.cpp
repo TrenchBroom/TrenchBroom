@@ -261,5 +261,18 @@ namespace TrenchBroom {
                 m_texture->incUsageCount();
             m_coordsValid = false;
         }
+
+        void Face::setSelected(bool selected) {
+            if (selected == m_selected)
+                return;
+
+            m_selected = selected;
+            if (m_brush != NULL) {
+                if (m_selected)
+                    m_brush->incSelectedFaceCount();
+                else
+                    m_brush->decSelectedFaceCount();
+            }
+        }
     }
 }

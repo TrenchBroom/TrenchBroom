@@ -51,7 +51,7 @@ namespace TrenchBroom {
             void updateHits();
             void updateMousePos(float x, float y);
         public:
-            InputController(Model::MapDocument& document, Renderer::Camera& camera, wxWindow& control);
+            InputController(Model::MapDocument& document, View::EditorView& view);
             ~InputController();
             
             void modifierKeyDown(ModifierKeyState modifierKey);

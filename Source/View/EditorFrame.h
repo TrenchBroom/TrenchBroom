@@ -26,6 +26,10 @@ class wxDocManager;
 class wxTextCtrl;
 
 namespace TrenchBroom {
+    namespace Model {
+        class MapDocument;
+    }
+    
     namespace Renderer {
         class Camera;
         class MapRenderer;
@@ -36,6 +40,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class EditorView;
         class MapGLCanvas;
         
         class EditorFrame : public wxFrame {
@@ -43,14 +48,18 @@ namespace TrenchBroom {
             Utility::Console* m_console;
             MapGLCanvas* m_mapCanvas;
             
-            void CreateGui(wxDocManager& docManager, Renderer::Camera& camera, Renderer::MapRenderer& renderer);
-            void CreateMenuBar(wxDocManager& docManager);
+            void CreateGui(Model::MapDocument& document, EditorView& view);
+            void CreateMenuBar(Model::MapDocument& document);
         public:
-            EditorFrame(wxDocManager& docManager, Renderer::Camera& camera, Renderer::MapRenderer& renderer);
+            EditorFrame(Model::MapDocument& document, EditorView& view);
             ~EditorFrame();
 
             inline Utility::Console& Console() const {
                 return *m_console;
+            }
+            
+            inline MapGLCanvas& MapCanvas() const {
+                return *m_mapCanvas;
             }
         };
     }
