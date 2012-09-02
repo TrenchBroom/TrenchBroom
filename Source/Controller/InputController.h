@@ -26,6 +26,15 @@
 class wxEvtHandler;
 
 namespace TrenchBroom {
+    namespace Model {
+        class MapDocument;
+        class Picker;
+    }
+    
+    namespace Renderer {
+        class Camera;
+    }
+    
     namespace Controller {
         class InputController {
         protected:
@@ -36,11 +45,13 @@ namespace TrenchBroom {
             Tool* m_dragReceiver;
             Tool* m_mouseUpReceiver;
             int m_modalReceiverIndex;
-            
+
+            Renderer::Camera& m_camera;
+            Model::Picker& m_picker;
             void updateHits();
             void updateMousePos(float x, float y);
         public:
-            InputController(wxWindow& control);
+            InputController(Model::MapDocument& document, Renderer::Camera& camera, wxWindow& control);
             ~InputController();
             
             void modifierKeyDown(ModifierKeyState modifierKey);

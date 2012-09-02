@@ -46,6 +46,8 @@ namespace TrenchBroom {
         EVT_CAMERA_MOVE(MapGLCanvas::OnCameraMove)
         EVT_CAMERA_LOOK(MapGLCanvas::OnCameraLook)
         EVT_CAMERA_ORBIT(MapGLCanvas::OnCameraOrbit)
+        EVT_KEY_DOWN(MapGLCanvas::OnKeyDown)
+        EVT_KEY_UP(MapGLCanvas::OnKeyUp)
         EVT_LEFT_DOWN(MapGLCanvas::OnMouseLeftDown)
         EVT_LEFT_UP(MapGLCanvas::OnMouseLeftUp)
         EVT_RIGHT_DOWN(MapGLCanvas::OnMouseRightDown)
@@ -74,14 +76,45 @@ namespace TrenchBroom {
             return m_attribs;
         }
         
-        MapGLCanvas::MapGLCanvas(wxWindow* parent, Utility::Console& console, Renderer::Camera& camera, Renderer::MapRenderer& renderer) :
+        bool MapGLCanvas::HandleModifierKey(int keyCode, bool down) {
+            Controller::ModifierKeyState key;
+            switch (keyCode) {
+                case WXK_SHIFT:
+                    key = Controller::ModifierKeys::Shift;
+                    break;
+                case WXK_ALT:
+                    key = Controller::ModifierKeys::Alt;
+                    break;
+                case WXK_RAW_CONTROL:
+                    key = Controller::ModifierKeys::Ctrl;
+                    break;
+                case WXK_COMMAND:
+                    key = Controller::ModifierKeys::Cmd;
+                    break;
+                default:
+                    key = Controller::ModifierKeys::None;
+                    break;
+            }
+            
+            if (key != Controller::ModifierKeys::None) {
+                if (down)
+                    m_inputController->modifierKeyDown(key);
+                else
+                    m_inputController->modifierKeyUp(key);
+                return true;
+            }
+            
+            return false;
+        }
+
+        MapGLCanvas::MapGLCanvas(wxWindow* parent, Model::MapDocument& document, Utility::Console& console, Renderer::Camera& camera, Renderer::MapRenderer& renderer) :
         wxGLCanvas(parent, wxID_ANY, Attribs()),
         m_firstFrame(true),
 		m_mouseCaptured(false),
         m_console(console),
         m_renderer(renderer),
         m_camera(camera),
-        m_inputController(new Controller::InputController(*this)) {
+        m_inputController(new Controller::InputController(document, camera, *this)) {
             m_glContext = new wxGLContext(this);
             m_console.info("Created OpenGL context");
         }
@@ -145,6 +178,14 @@ namespace TrenchBroom {
         void MapGLCanvas::OnCameraOrbit(Controller::CameraOrbitEvent& event) {
             m_camera.orbit(event.center(), event.hAngle(), event.vAngle());
             Refresh();
+        }
+        
+        void MapGLCanvas::OnKeyDown(wxKeyEvent& event) {
+            HandleModifierKey(event.GetKeyCode(), true);
+        }
+        
+        void MapGLCanvas::OnKeyUp(wxKeyEvent& event) {
+            HandleModifierKey(event.GetKeyCode(), false);
         }
         
         void MapGLCanvas::OnMouseLeftDown(wxMouseEvent& event) {

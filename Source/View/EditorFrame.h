@@ -43,7 +43,7 @@ namespace TrenchBroom {
             Utility::Console* m_console;
             MapGLCanvas* m_mapCanvas;
             
-            void CreateGui(Renderer::Camera& camera, Renderer::MapRenderer& renderer);
+            void CreateGui(wxDocManager& docManager, Renderer::Camera& camera, Renderer::MapRenderer& renderer);
             void CreateMenuBar(wxDocManager& docManager);
         public:
             EditorFrame(wxDocManager& docManager, Renderer::Camera& camera, Renderer::MapRenderer& renderer);

@@ -19,6 +19,7 @@
 
 #include "EditorFrame.h"
 
+#include "Model/MapDocument.h"
 #include "Utility/Console.h"
 #include "View/Inspector.h"
 #include "View/MapGLCanvas.h"
@@ -34,7 +35,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        void EditorFrame::CreateGui(Renderer::Camera& camera, Renderer::MapRenderer& renderer) {
+        void EditorFrame::CreateGui(wxDocManager& docManager, Renderer::Camera& camera, Renderer::MapRenderer& renderer) {
             wxSplitterWindow* logSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3DSASH | wxSP_LIVE_UPDATE);
             logSplitter->SetSashGravity(1.0f);
             logSplitter->SetMinimumPaneSize(0);
@@ -48,7 +49,9 @@ namespace TrenchBroom {
             logView->SetBackgroundColour(*wxBLACK);
             m_console = new Utility::Console(logView);
             
-            m_mapCanvas = new MapGLCanvas(inspectorSplitter, *m_console, camera, renderer);
+            Model::MapDocument* document = static_cast<Model::MapDocument*>(docManager.GetCurrentDocument());
+            
+            m_mapCanvas = new MapGLCanvas(inspectorSplitter, *document, *m_console, camera, renderer);
             Inspector* inspector = new Inspector(inspectorSplitter);
             
             inspectorSplitter->SplitVertically(m_mapCanvas, inspector, 0);
@@ -85,7 +88,7 @@ namespace TrenchBroom {
         }
 
         EditorFrame::EditorFrame(wxDocManager& docManager, Renderer::Camera& camera, Renderer::MapRenderer& renderer) : wxFrame(NULL, wxID_ANY, wxT("TrenchBroom")) {
-            CreateGui(camera, renderer);
+            CreateGui(docManager, camera, renderer);
             CreateMenuBar(docManager);
         }
         

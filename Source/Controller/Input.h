@@ -25,6 +25,14 @@
 using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
+    namespace Model {
+        class PickResult;
+    }
+    
+    namespace Renderer {
+        class Camera;
+    }
+    
     namespace Controller {
         namespace ModifierKeys {
             static const unsigned int None  = 0;
@@ -56,7 +64,10 @@ namespace TrenchBroom {
             float scrollX;
             float scrollY;
             Ray ray;
-            InputEvent() : modifierKeys(ModifierKeys::None), mouseButtons(MouseButtons::None) {}
+            Model::PickResult* pickResult;
+            Renderer::Camera* camera;
+
+            InputEvent() : modifierKeys(ModifierKeys::None), mouseButtons(MouseButtons::None), pickResult(NULL), camera(NULL) {}
         };
 
         class MouseState {

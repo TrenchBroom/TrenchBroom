@@ -27,7 +27,9 @@
 #include "Model/Entity.h"
 #include "Model/Face.h"
 #include "Model/Map.h"
+#include "Model/Octree.h"
 #include "Model/Palette.h"
+#include "Model/Picker.h"
 #include "Model/TextureManager.h"
 #include "Utility/Console.h"
 #include "Utility/VecMath.h"
@@ -47,6 +49,7 @@ namespace TrenchBroom {
         bool MapDocument::DoOpenDocument(const wxString& file) {
             Console().info("Unloading existing map file and textures...");
             m_map->clear();
+            m_octree->clear();
             m_textureManager->clear();
 
             Console().info("Loading file %s", file.mbc_str().data());
@@ -121,6 +124,7 @@ namespace TrenchBroom {
             wxStopWatch watch;
             IO::MapParser parser(stream, Console());
             parser.parseMap(*m_map, &progressIndicator);
+            m_octree->loadMap();
             stream.clear(); // everything went well, prevent wx from displaying an error dialog
             Console().info("Loaded map file in %f seconds", watch.Time() / 1000.0f);
 
@@ -152,9 +156,24 @@ namespace TrenchBroom {
             return wxDocument::SaveObject(stream);
         }
         
-        MapDocument::MapDocument() : m_map(NULL), m_palette(NULL), m_textureManager(NULL) {}
+        MapDocument::MapDocument() :
+        m_map(NULL),
+        m_octree(NULL),
+        m_picker(NULL),
+        m_palette(NULL),
+        m_textureManager(NULL) {}
         
         MapDocument::~MapDocument() {
+            if (m_picker != NULL) {
+                delete m_picker;
+                m_picker = NULL;
+            }
+            
+            if (m_octree != NULL) {
+                delete m_octree;
+                m_octree = NULL;
+            }
+            
             if (m_map != NULL) {
                 delete m_map;
                 m_map = NULL;
@@ -173,6 +192,10 @@ namespace TrenchBroom {
             return *m_map;
         }
         
+        Model::Picker& MapDocument::Picker() const {
+            return *m_picker;
+        }
+
         Utility::Console& MapDocument::Console() const {
             View::EditorView* editorView = dynamic_cast<View::EditorView*>(GetFirstView());
             assert(editorView != NULL);
@@ -183,6 +206,8 @@ namespace TrenchBroom {
             BBox worldBounds(Vec3f(-4096, -4096, -4096), Vec3f(4096, 4096, 4096));
 
             m_map = new Model::Map(worldBounds);
+            m_octree = new Model::Octree(*m_map);
+            m_picker = new Model::Picker(*m_octree);
             m_textureManager = new TextureManager();
             
             // initialize here
@@ -194,6 +219,7 @@ namespace TrenchBroom {
 			if (wxDocument::OnNewDocument()) {
 				// prompt for initial stuff like world bounds, mods, palette, def here
 				m_map->clear();
+                m_octree->clear();
 				m_textureManager->clear();
 				return true;
 			}

@@ -37,8 +37,8 @@ namespace TrenchBroom {
         }
         
         ProgressIndicatorDialog::~ProgressIndicatorDialog() {
-                m_dialog->Close();
-                m_dialog->Destroy();
+            m_dialog->Close();
+            m_dialog->Destroy();
         }
         
         void ProgressIndicatorDialog::setText(const String& text) {

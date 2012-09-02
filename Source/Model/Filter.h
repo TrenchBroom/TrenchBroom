@@ -22,6 +22,9 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class Brush;
+        class Entity;
+        
         class Filter {
         public:
             inline bool brushVisible(const Model::Brush& brush) const {

@@ -21,6 +21,8 @@
 
 #include "Model/Entity.h"
 #include "Model/Face.h"
+#include "Model/Filter.h"
+#include "Model/Picker.h"
 #include "Model/Texture.h"
 
 namespace TrenchBroom {
@@ -187,7 +189,26 @@ namespace TrenchBroom {
             }
         }
         
-        void Brush::pick(const Ray& ray, PickResult& pickResults, Filter& filter) const {
+        void Brush::pick(const Ray& ray, PickResult& pickResults, Filter& filter) {
+            if (!filter.brushPickable(*this))
+                return;
+            
+            float dist = bounds().intersectWithRay(ray, NULL);
+            if (Math::isnan(dist))
+                return;
+            
+            dist = Math::nan();
+            Side* side;
+            for (unsigned int i = 0; i < m_geometry->sides.size() && Math::isnan(dist); i++) {
+                side = m_geometry->sides[i];
+                dist = side->intersectWithRay(ray);
+            }
+            
+            if (!Math::isnan(dist)) {
+                Vec3f hitPoint = ray.pointAtDistance(dist);
+                Hit* hit = new Hit(side->face, Hit::FaceHit, hitPoint, dist);
+                pickResults.add(*hit);
+            }
         }
     }
 }

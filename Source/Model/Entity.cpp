@@ -21,6 +21,8 @@
 
 #include "Model/Brush.h"
 #include "Model/EntityDefinition.h"
+#include "Model/Filter.h"
+#include "Model/Picker.h"
 
 #include <algorithm>
 
@@ -198,7 +200,17 @@ namespace TrenchBroom {
             invalidateGeometry();
         }
 
-        void Entity::pick(const Ray& ray, PickResult& pickResults, Filter& filter) const {
+        void Entity::pick(const Ray& ray, PickResult& pickResults, Filter& filter) {
+            if (!filter.entityPickable(*this))
+                return;
+            
+            float dist = bounds().intersectWithRay(ray, NULL);
+            if (Math::isnan(dist))
+                return;
+            
+            Vec3f hitPoint = ray.pointAtDistance(dist);
+            Hit* hit = new Hit(this, Hit::EntityHit, hitPoint, dist);
+            pickResults.add(*hit);
         }
     }
 }

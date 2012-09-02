@@ -31,13 +31,17 @@ namespace TrenchBroom {
     
     namespace Model {
         class Map;
+        class Octree;
         class Palette;
+        class Picker;
         class TextureManager;
         
         class MapDocument : public wxDocument {
             DECLARE_DYNAMIC_CLASS(MapDocument)
         protected:
             Map* m_map;
+            Octree* m_octree;
+            Picker* m_picker;
             Palette* m_palette;
             TextureManager* m_textureManager;
             
@@ -54,6 +58,7 @@ namespace TrenchBroom {
             std::ostream& SaveObject(std::ostream& stream);
             
             Model::Map& Map() const;
+            Model::Picker& Picker() const;
             Utility::Console& Console() const;
             
             bool OnCreate(const wxString& path, long flags);

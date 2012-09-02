@@ -21,6 +21,7 @@
 
 #include "Controller/CameraEvent.h"
 #include "Controller/Input.h"
+#include "Model/Picker.h"
 #include "Utility/Preferences.h"
 #include "Renderer/Camera.h"
 
@@ -69,13 +70,12 @@ namespace TrenchBroom {
         bool CameraTool::handleBeginDrag(InputEvent& event) {
             if(event.mouseButtons == MouseButtons::Right) {
                 if (event.modifierKeys == ModifierKeys::Shift) {
-                    /*
-                    Model::Hit* hit = event.pickResults->first(Model::TB_HT_ENTITY | Model::TB_HT_FACE, true);
-                    if (hit != NULL) m_orbitCenter = hit->hitPoint;
-                    else 
-                    m_orbitCenter = m_camera.defaultPoint();
+                    Model::Hit* hit = event.pickResult->first(Model::Hit::EntityHit | Model::Hit::FaceHit, true);
+                    if (hit != NULL)
+                        m_orbitCenter = hit->hitPoint();
+                    else
+                        m_orbitCenter = event.camera->defaultPoint();
                     m_orbit = true;
-                     */
                     return true;
                 } else if (event.modifierKeys == ModifierKeys::None) {
                     return true;

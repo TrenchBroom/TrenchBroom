@@ -27,6 +27,8 @@
 		4847640B15E2DEE100095BC0 /* MapDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847640915E2DEE100095BC0 /* MapDocument.cpp */; };
 		4847640E15E2E03000095BC0 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847640C15E2E03000095BC0 /* Entity.cpp */; };
 		4850D24615F2AC71005B162D /* DocManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D24415F2AAE8005B162D /* DocManager.cpp */; };
+		4850D24A15F363FC005B162D /* Octree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D24715F360BF005B162D /* Octree.cpp */; };
+		4850D24D15F364CD005B162D /* Picker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D24B15F364A1005B162D /* Picker.cpp */; };
 		48819C3815EBE97A00BEA604 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3615EBE92800BEA604 /* Camera.cpp */; };
 		48819C3915EBE98100BEA604 /* GLee.c in Sources */ = {isa = PBXBuildFile; fileRef = 4810276815E52F3700250C9C /* GLee.c */; settings = {COMPILER_FLAGS = "-w"; }; };
 		48819C3C15EC066E00BEA604 /* AbstractFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3A15EC066E00BEA604 /* AbstractFileManager.cpp */; };
@@ -116,6 +118,11 @@
 		4847641415E2E0E800095BC0 /* Vec2f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vec2f.h; sourceTree = "<group>"; };
 		4850D24415F2AAE8005B162D /* DocManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DocManager.cpp; sourceTree = "<group>"; };
 		4850D24515F2AAE8005B162D /* DocManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DocManager.h; sourceTree = "<group>"; };
+		4850D24715F360BF005B162D /* Octree.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Octree.cpp; sourceTree = "<group>"; };
+		4850D24815F360BF005B162D /* Octree.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Octree.h; sourceTree = "<group>"; };
+		4850D24915F36172005B162D /* MapObjectTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapObjectTypes.h; sourceTree = "<group>"; };
+		4850D24B15F364A1005B162D /* Picker.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Picker.cpp; sourceTree = "<group>"; };
+		4850D24C15F364A1005B162D /* Picker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Picker.h; sourceTree = "<group>"; };
 		486C61E615EF713C0091AA97 /* mmapped_fstream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mmapped_fstream.h; sourceTree = "<group>"; };
 		48819C3615EBE92800BEA604 /* Camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
 		48819C3715EBE92800BEA604 /* Camera.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
@@ -314,11 +321,16 @@
 				481028A815E77A8D00250C9C /* Map.h */,
 				4847640915E2DEE100095BC0 /* MapDocument.cpp */,
 				4847640A15E2DEE100095BC0 /* MapDocument.h */,
-				4847641015E2E06900095BC0 /* MapObject.h */,
-				4810278615E621FA00250C9C /* PropertyDefinition.h */,
 				48AF492215E784590083DE52 /* MapExceptions.h */,
+				4847641015E2E06900095BC0 /* MapObject.h */,
+				4850D24915F36172005B162D /* MapObjectTypes.h */,
+				4850D24715F360BF005B162D /* Octree.cpp */,
+				4850D24815F360BF005B162D /* Octree.h */,
 				48312B3D15EB8A1A00607868 /* Palette.cpp */,
 				48312B3E15EB8A1A00607868 /* Palette.h */,
+				4850D24B15F364A1005B162D /* Picker.cpp */,
+				4850D24C15F364A1005B162D /* Picker.h */,
+				4810278615E621FA00250C9C /* PropertyDefinition.h */,
 				48AF492315E8265A0083DE52 /* Texture.cpp */,
 				48AF492415E8265A0083DE52 /* Texture.h */,
 				48312B3615EB80C000607868 /* TextureManager.cpp */,
@@ -467,6 +479,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4850D24D15F364CD005B162D /* Picker.cpp in Sources */,
+				4850D24A15F363FC005B162D /* Octree.cpp in Sources */,
 				4850D24615F2AC71005B162D /* DocManager.cpp in Sources */,
 				48819C3915EBE98100BEA604 /* GLee.c in Sources */,
 				48819C3815EBE97A00BEA604 /* Camera.cpp in Sources */,

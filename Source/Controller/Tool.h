@@ -62,7 +62,12 @@ namespace TrenchBroom {
                 m_control.GetEventHandler()->ProcessEvent(event);
             }
         public:
-            Tool(wxWindow& control) : m_control(control), m_state(Default), m_active(false), m_figureDataValid(false) {}
+            Tool(wxWindow& control) :
+            m_control(control),
+            m_state(Default),
+            m_active(false),
+            m_figureDataValid(false) {}
+            
             virtual ~Tool() {}
             
             virtual void updateHits(InputEvent& event) {}

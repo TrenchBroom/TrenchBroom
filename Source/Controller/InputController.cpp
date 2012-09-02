@@ -20,10 +20,22 @@
 #include "InputController.h"
 
 #include "Controller/CameraTool.h"
+#include "Model/MapDocument.h"
+#include "Model/Picker.h"
+#include "Renderer/Camera.h"
 
 namespace TrenchBroom {
     namespace Controller {
         void InputController::updateHits() {
+            if (m_currentEvent.pickResult != NULL)
+                delete m_currentEvent.pickResult;
+            
+            m_currentEvent.camera = &m_camera;
+            m_currentEvent.ray = m_camera.pickRay(m_currentEvent.mouseX, m_currentEvent.mouseY);
+            m_currentEvent.pickResult = m_picker.pick(m_currentEvent.ray);
+            
+            for (unsigned int i = 0; i < m_receivers.size(); i++)
+                m_receivers[i]->updateHits(m_currentEvent);
         }
 
         void InputController::updateMousePos(float x, float y) {
@@ -33,7 +45,12 @@ namespace TrenchBroom {
             m_currentEvent.mouseY = y;
         }
 
-        InputController::InputController(wxWindow& control) : m_dragReceiver(NULL), m_mouseUpReceiver(NULL), m_modalReceiverIndex(-1) {
+        InputController::InputController(Model::MapDocument& document, Renderer::Camera& camera, wxWindow& control) :
+        m_dragReceiver(NULL),
+        m_mouseUpReceiver(NULL),
+        m_modalReceiverIndex(-1),
+        m_picker(document.Picker()),
+        m_camera(camera) {
             CameraTool* cameraTool = new CameraTool(control);
             m_receivers.push_back(cameraTool);
         }
