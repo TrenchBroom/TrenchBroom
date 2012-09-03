@@ -34,7 +34,7 @@ namespace TrenchBroom {
                                 if (peekChar() == '*') {
                                     m_state = TokenizerState::Inside;
                                     while (c != ' ')
-                                        nextChar();
+                                        c = nextChar();
                                     return token(TokenType::ODefinition, "");
                                 } else if (peekChar() == '/') {
                                     m_state = TokenizerState::Comment;
@@ -182,13 +182,15 @@ namespace TrenchBroom {
             unsigned int oldState = m_state;
             size_t oldLine = m_line;
             size_t oldColumn = m_column;
-            size_t oldPosition = static_cast<size_t>(m_stream.tellg());
+            std::ios::pos_type oldPosition = m_stream.tellg();
             
             StandardDefinitionTokenizer::TokenPtr token = nextToken();
             m_state = oldState;
             m_line = oldLine;
             m_column = oldColumn;
             m_stream.seekg(oldPosition, std::ios::beg);
+            
+            assert(oldPosition == m_stream.tellg());
             
             return token;
         }
@@ -261,14 +263,14 @@ namespace TrenchBroom {
             Color color;
             StandardDefinitionTokenizer::TokenPtr token(NULL);
             
-            expect(TokenType::OBrace, (token = m_tokenizer.nextToken()).get());
+            expect(TokenType::OParenthesis, (token = m_tokenizer.nextToken()).get());
             expect(TokenType::Decimal, (token = m_tokenizer.nextToken()).get());
             color.x = token->toFloat();
             expect(TokenType::Decimal, (token = m_tokenizer.nextToken()).get());
             color.y = token->toFloat();
             expect(TokenType::Decimal, (token = m_tokenizer.nextToken()).get());
             color.z = token->toFloat();
-            expect(TokenType::CBrace, (token = m_tokenizer.nextToken()).get());
+            expect(TokenType::CParenthesis, (token = m_tokenizer.nextToken()).get());
             color.w = 1;
             return color;
         }
@@ -277,22 +279,22 @@ namespace TrenchBroom {
             BBox bounds;
             StandardDefinitionTokenizer::TokenPtr token(NULL);
             
-            expect(TokenType::OBrace, (token = m_tokenizer.nextToken()).get());
+            expect(TokenType::OParenthesis, (token = m_tokenizer.nextToken()).get());
             expect(TokenType::Integer, (token = m_tokenizer.nextToken()).get());
             bounds.min.x = token->toFloat();
             expect(TokenType::Integer, (token = m_tokenizer.nextToken()).get());
             bounds.min.y = token->toFloat();
             expect(TokenType::Integer, (token = m_tokenizer.nextToken()).get());
             bounds.min.z = token->toFloat();
-            expect(TokenType::CBrace, (token = m_tokenizer.nextToken()).get());
-            expect(TokenType::OBrace, (token = m_tokenizer.nextToken()).get());
+            expect(TokenType::CParenthesis, (token = m_tokenizer.nextToken()).get());
+            expect(TokenType::OParenthesis, (token = m_tokenizer.nextToken()).get());
             expect(TokenType::Integer, (token = m_tokenizer.nextToken()).get());
             bounds.max.x = token->toFloat();
             expect(TokenType::Integer, (token = m_tokenizer.nextToken()).get());
             bounds.max.y = token->toFloat();
             expect(TokenType::Integer, (token = m_tokenizer.nextToken()).get());
             bounds.max.z = token->toFloat();
-            expect(TokenType::CBrace, (token = m_tokenizer.nextToken()).get());
+            expect(TokenType::CParenthesis, (token = m_tokenizer.nextToken()).get());
             return bounds;
         }
 
@@ -341,7 +343,7 @@ namespace TrenchBroom {
                 }
                 
                 expect(TokenType::CParenthesis, token.get());
-                properties.push_back(StandardChoiceProperty(StandardProperty::Choice, propertyName, arguments));
+                properties.push_back(new StandardChoiceProperty(propertyName, arguments));
             } else if (typeName == "model") {
                 expect(TokenType::OParenthesis, (token = nextTokenIgnoringNewlines()).get());
                 expect(TokenType::String, (token = nextTokenIgnoringNewlines()).get());
@@ -358,10 +360,10 @@ namespace TrenchBroom {
                 if (token->type() == TokenType::Comma) {
                     expect(TokenType::String, (token = nextTokenIgnoringNewlines()).get());
                     flagName = token->data();
-                    expect(TokenType::Comma, (token = nextTokenIgnoringNewlines()).get());
+                    expect(TokenType::CParenthesis, (token = nextTokenIgnoringNewlines()).get());
                 }
                 
-                properties.push_back(StandardModelProperty(StandardProperty::Model, modelPath, flagName, skinIndex));
+                properties.push_back(new StandardModelProperty(modelPath, flagName, skinIndex));
             } else if (typeName == "default") {
                 expect(TokenType::OParenthesis, (token = nextTokenIgnoringNewlines()).get());
                 expect(TokenType::String, (token = nextTokenIgnoringNewlines()).get());
@@ -371,14 +373,14 @@ namespace TrenchBroom {
                 String propertyValue = token->data();
                 expect(TokenType::CParenthesis, (token = nextTokenIgnoringNewlines()).get());
                 
-                properties.push_back(StandardDefaultProperty(StandardProperty::Default, propertyName, propertyValue));
+                properties.push_back(new StandardDefaultProperty(propertyName, propertyValue));
             } else if (typeName == "base") {
                 expect(TokenType::OParenthesis, (token = nextTokenIgnoringNewlines()).get());
                 expect(TokenType::String, (token = nextTokenIgnoringNewlines()).get());
                 String basename = token->data();
                 expect(TokenType::CParenthesis, (token = nextTokenIgnoringNewlines()).get());
                 
-                properties.push_back(StandardBaseProperty(StandardProperty::Base, basename));
+                properties.push_back(new StandardBaseProperty(StandardProperty::Base, basename));
             }
 
             expect(TokenType::Semicolon, (token = nextTokenIgnoringNewlines()).get());
@@ -424,14 +426,14 @@ namespace TrenchBroom {
             name = token->data();
 
             token = m_tokenizer.peekToken();
-            expect(TokenType::OBrace | TokenType::Newline, token.get());
-            if (token->type() == TokenType::OBrace) {
+            expect(TokenType::OParenthesis | TokenType::Newline, token.get());
+            if (token->type() == TokenType::OParenthesis) {
                 hasColor = true;
                 color = parseColor();
                 
                 token = m_tokenizer.peekToken();
-                expect(TokenType::OBrace | TokenType::Question, token.get());
-                if (token->type() == TokenType::OBrace) {
+                expect(TokenType::OParenthesis | TokenType::Question, token.get());
+                if (token->type() == TokenType::OParenthesis) {
                     hasBounds = true;
                     bounds = parseBounds();
                 } else {
@@ -450,23 +452,34 @@ namespace TrenchBroom {
             description = parseDescription();
             expect(TokenType::CDefinition, (token = m_tokenizer.nextToken()).get());
 
+            Model::EntityDefinition* definition = NULL;
+            
             if (hasColor) {
                 if (hasBounds) { // point definition
                     // extract the model property
+                    StandardModelProperty* modelProperty = NULL;
                     for (unsigned int i = 0; i < standardProperties.size(); i++) {
-                        StandardProperty& standardProperty = standardProperties[i];
-                        if (standardProperty.type() == StandardProperty::Model) {
-                            StandardModelProperty& modelProperty = static_cast<StandardModelProperty&>(standardProperty);
-                            return new Model::PointEntityDefinition(name, color, spawnflags, bounds, description, Model::PropertyDefinition::List(), Model::PointEntityModel(modelProperty.modelName(), modelProperty.flagName(), modelProperty.skinIndex()));
+                        StandardProperty* standardProperty = standardProperties[i];
+                        if (standardProperty->type() == StandardProperty::Model) {
+                            modelProperty = static_cast<StandardModelProperty*>(standardProperty);
+                            break;
                         }
                     }
-                    return new Model::PointEntityDefinition(name, color, spawnflags, bounds, description, Model::PropertyDefinition::List());
+                    if (modelProperty != NULL) {
+                        Model::PointEntityModel model = Model::PointEntityModel(modelProperty->modelName(), modelProperty->flagName(), modelProperty->skinIndex());
+                        definition =  new Model::PointEntityDefinition(name, color, spawnflags, bounds, description, Model::PropertyDefinition::List(), model);
+                    } else {
+                        definition = new Model::PointEntityDefinition(name, color, spawnflags, bounds, description, Model::PropertyDefinition::List());
+                    }
                 } else {
-                    return new Model::BrushEntityDefinition(name, color, spawnflags, description, Model::PropertyDefinition::List());
+                    definition = new Model::BrushEntityDefinition(name, color, spawnflags, description, Model::PropertyDefinition::List());
                 }
             }
             
-            return NULL;
+            // clean up
+            while (!standardProperties.empty()) delete standardProperties.back(), standardProperties.pop_back();
+            
+            return definition;
         }
     }
 }

@@ -19,6 +19,9 @@
 
 #include "EntityDefinitionManager.h"
 
+#include "IO/StandardDefinitionParser.h"
+#include "IO/mmapped_fstream.h"
+
 #include <algorithm>
 
 namespace TrenchBroom {
@@ -26,14 +29,26 @@ namespace TrenchBroom {
         EntityDefinitionManager::EntityDefinitionManager() {}
         
         EntityDefinitionManager::~EntityDefinitionManager() {
+            clear();
+        }
+        
+        void EntityDefinitionManager::load(const String& path) {
+            mmapped_fstream stream(path.c_str(), std::ios::in);
+            IO::StandardDefinitionParser parser(stream);
+            
+            EntityDefinition* definition = NULL;
+            while ((definition = parser.nextDefinition()) != NULL) {
+                m_entityDefinitions[definition->name()] = definition;
+            }
+            
+            m_name = path;
+        }
+        
+        void EntityDefinitionManager::clear() {
             EntityDefinitionMap::iterator it, end;
             for (it = m_entityDefinitions.begin(), end = m_entityDefinitions.end(); it != end; ++it)
                 delete it->second;
             m_entityDefinitions.clear();
-        }
-        
-        bool EntityDefinitionManager::load(const String& path) {
-			return false;
         }
 
         EntityDefinition* EntityDefinitionManager::definition(const String& name) {

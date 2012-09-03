@@ -33,6 +33,8 @@ namespace TrenchBroom {
     }
     
     namespace Model {
+        class AliasSkin;
+        class BspTexture;
         class Palette;
         
         class Texture {
@@ -58,8 +60,8 @@ namespace TrenchBroom {
             Texture(const String& name, const unsigned char* rgbImage, unsigned int width, unsigned int height);
             Texture(const String& name, const unsigned char* indexedImage, unsigned int width, unsigned int height, const Palette& palette);
             Texture(const IO::Mip& mip, const Palette& palette);
-//            Texture(const String& name, const AliasSkin& skin, unsigned int skinIndex, const Palette& palette);
-//            Texture(const String& name, const BspTexture& texture, const Palette& palette);
+            Texture(const String& name, const AliasSkin& skin, unsigned int skinIndex, const Palette& palette);
+            Texture(const String& name, const BspTexture& texture, const Palette& palette);
             Texture(const String& name);
             ~Texture();
 

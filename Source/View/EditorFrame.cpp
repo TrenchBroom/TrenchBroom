@@ -44,16 +44,15 @@ namespace TrenchBroom {
             inspectorSplitter->SetSashGravity(1.0f);
             inspectorSplitter->SetMinimumPaneSize(300);
             
-            wxTextCtrl* logView = new wxTextCtrl(logSplitter, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2);
-            logView->SetDefaultStyle(wxTextAttr(*wxLIGHT_GREY, *wxBLACK));
-            logView->SetBackgroundColour(*wxBLACK);
-            m_console = new Utility::Console(logView);
+            m_logView = new wxTextCtrl(logSplitter, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2);
+            m_logView->SetDefaultStyle(wxTextAttr(*wxLIGHT_GREY, *wxBLACK));
+            m_logView->SetBackgroundColour(*wxBLACK);
             
             m_mapCanvas = new MapGLCanvas(inspectorSplitter, document, view);
             Inspector* inspector = new Inspector(inspectorSplitter);
             
             inspectorSplitter->SplitVertically(m_mapCanvas, inspector, 0);
-            logSplitter->SplitHorizontally(inspectorSplitter, logView);
+            logSplitter->SplitHorizontally(inspectorSplitter, m_logView);
             
             wxSizer* logSplitterSizer = new wxBoxSizer(wxVERTICAL);
             logSplitterSizer->Add(logSplitter, 1, wxEXPAND);
@@ -90,11 +89,6 @@ namespace TrenchBroom {
         EditorFrame::EditorFrame(Model::MapDocument& document, EditorView& view) : wxFrame(NULL, wxID_ANY, wxT("TrenchBroom")) {
             CreateGui(document, view);
             CreateMenuBar(document);
-        }
-        
-        EditorFrame::~EditorFrame() {
-            delete m_console;
-            m_console = NULL;
         }
     }
 }

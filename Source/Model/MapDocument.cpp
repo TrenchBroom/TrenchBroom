@@ -27,6 +27,7 @@
 #include "Model/Brush.h"
 #include "Model/EditStateManager.h"
 #include "Model/Entity.h"
+#include "Model/EntityDefinitionManager.h"
 #include "Model/Face.h"
 #include "Model/Map.h"
 #include "Model/Octree.h"
@@ -65,28 +66,6 @@ namespace TrenchBroom {
             return wxDocument::DoSaveDocument(file);
         }
 
-        void MapDocument::LoadTextureWad(const String& path) {
-            IO::FileManager fileManager;
-            
-            String wadPath = path;
-            String mapPath = GetFilename().ToStdString();
-            if (!fileManager.exists(wadPath) && !mapPath.empty()) {
-                String folderPath = fileManager.deleteLastPathComponent(mapPath);
-                wadPath = fileManager.appendPath(folderPath, wadPath);
-            }
-            
-            if (fileManager.exists(wadPath)) {
-                wxStopWatch watch;
-                IO::Wad wad(wadPath);
-                Model::TextureCollection* collection = new Model::TextureCollection(wadPath, wad, *m_palette);
-                unsigned int index = static_cast<unsigned int>(m_textureManager->collections().size());
-                m_textureManager->addCollection(collection, index);
-                Console().info("Loaded %s in %f seconds", wadPath.c_str(), watch.Time() / 1000.0f);
-            } else {
-                Console().error("Could not open texture wad %s", path.c_str());
-            }
-        }
-        
         void MapDocument::UpdateFaceTextures() {
             Model::FaceList changedFaces;
             Model::TextureList newTextures;
@@ -113,29 +92,73 @@ namespace TrenchBroom {
                     changedFaces[i]->setTexture(newTextures[i]);
             }
         }
+        
+        void MapDocument::UpdateEntityDefinitions() {
+            const EntityList& entities = m_map->entities();
+            for (unsigned int i = 0; i < entities.size(); i++) {
+                Entity& entity = *entities[i];
+                const PropertyValue* classname = entity.classname();
+                
+                if (classname != NULL) {
+                    EntityDefinition* definition = m_definitionManager->definition(*classname);
+                    entity.setDefinition(definition);
+                }
+            }
+        }
 
-        std::istream& MapDocument::LoadObject(std::istream& stream) {
-//            wxDocument::LoadObject(stream);
-
-            View::ProgressIndicatorDialog progressIndicator;
-			progressIndicator.setText("Loading map file...");
-            
-            wxStopWatch watch;
-            IO::MapParser parser(stream, Console());
-            parser.parseMap(*m_map, &progressIndicator);
-            m_octree->loadMap();
-            stream.clear(); // everything went well, prevent wx from displaying an error dialog
-            Console().info("Loaded map file in %f seconds", watch.Time() / 1000.0f);
-
-            // load palette, in the future, we might get the path from the map's config
+        void MapDocument::Clear() {
+            m_editStateManager->clear();
+            m_map->clear();
+            m_octree->clear();
+            m_textureManager->clear();
+            m_definitionManager->clear();
+        }
+        
+        void MapDocument::LoadPalette() {
             IO::FileManager fileManager;
             String resourcePath = fileManager.resourceDirectory();
             String palettePath = fileManager.appendPath(resourcePath, "QuakePalette.lmp");
             if (m_palette != NULL)
                 delete m_palette;
+            m_palette = new Model::Palette(palettePath);
+        }
+        
+        void MapDocument::LoadMap(std::istream& stream, Utility::ProgressIndicator& progressIndicator) {
+			progressIndicator.setText("Loading map file...");
+
+            wxStopWatch watch;
+            IO::MapParser parser(stream, Console());
+            parser.parseMap(*m_map, &progressIndicator);
+            m_octree->loadMap();
+            stream.clear(); // everything went well, prevent wx from displaying an error dialog
             
-            Console().info("Loading palette file %s", palettePath.c_str());
-            m_palette = new Palette(palettePath);
+            Console().info("Loaded map file in %f seconds", watch.Time() / 1000.0f);
+        }
+
+        void MapDocument::LoadTextureWad(const String& path) {
+            IO::FileManager fileManager;
+            
+            String wadPath = path;
+            String mapPath = GetFilename().ToStdString();
+            if (!fileManager.exists(wadPath) && !mapPath.empty()) {
+                String folderPath = fileManager.deleteLastPathComponent(mapPath);
+                wadPath = fileManager.appendPath(folderPath, wadPath);
+            }
+            
+            if (fileManager.exists(wadPath)) {
+                wxStopWatch watch;
+                IO::Wad wad(wadPath);
+                Model::TextureCollection* collection = new Model::TextureCollection(wadPath, wad, *m_palette);
+                unsigned int index = static_cast<unsigned int>(m_textureManager->collections().size());
+                m_textureManager->addCollection(collection, index);
+                Console().info("Loaded %s in %f seconds", wadPath.c_str(), watch.Time() / 1000.0f);
+            } else {
+                Console().error("Could not open texture wad %s", path.c_str());
+            }
+        }
+        
+        void MapDocument::LoadTextures(Utility::ProgressIndicator& progressIndicator) {
+            progressIndicator.setText("Loading textures...");
             
             const String* wads = m_map->worldspawn(true)->propertyForKey(Entity::WadKey);
             if (wads != NULL) {
@@ -145,8 +168,29 @@ namespace TrenchBroom {
                     LoadTextureWad(wadPath);
                 }
             }
+        }
+        
+        void MapDocument::LoadEntityDefinitions(Utility::ProgressIndicator& progressIndicator) {
+            progressIndicator.setText("Loading entity definitions...");
+
+            IO::FileManager fileManager;
+            String resourcePath = fileManager.resourceDirectory();
+            String defPath = fileManager.appendPath(resourcePath, "Quake.def");
+            Console().info("Loading entity definition file %s", defPath.c_str());
             
+            m_definitionManager->load(defPath);
+        }
+        
+        std::istream& MapDocument::LoadObject(std::istream& stream) {
+//            wxDocument::LoadObject(stream);
+
+            View::ProgressIndicatorDialog progressIndicator;
+            LoadMap(stream, progressIndicator);
+            LoadTextures(progressIndicator);
+            LoadEntityDefinitions(progressIndicator);
+
             UpdateFaceTextures();
+            UpdateEntityDefinitions();
             
             return stream;
         }
@@ -161,7 +205,8 @@ namespace TrenchBroom {
         m_octree(NULL),
         m_picker(NULL),
         m_palette(NULL),
-        m_textureManager(NULL) {}
+        m_textureManager(NULL),
+        m_definitionManager(NULL) {}
         
         MapDocument::~MapDocument() {
             if (m_picker != NULL) {
@@ -183,23 +228,23 @@ namespace TrenchBroom {
                 delete m_map;
                 m_map = NULL;
             }
+            
+            if (m_definitionManager != NULL) {
+                delete m_definitionManager;
+                m_definitionManager = NULL;
+            }
+            
             if (m_palette != NULL) {
                 delete m_palette;
                 m_palette = NULL;
             }
+            
             if (m_textureManager != NULL) {
                 delete m_textureManager;
                 m_textureManager = NULL;
             }
         }
         
-        void MapDocument::Clear() {
-            m_editStateManager->clear();
-            m_map->clear();
-            m_octree->clear();
-            m_textureManager->clear();
-        }
-
         Map& MapDocument::Map() const {
             return *m_map;
         }
@@ -218,6 +263,14 @@ namespace TrenchBroom {
             return editorView->Console();
         }
 
+        const StringList& MapDocument::Mods() const {
+            return m_mods;
+        }
+        
+        const Palette& MapDocument::Palette() const {
+            return *m_palette;
+        }
+
         bool MapDocument::OnCreate(const wxString& path, long flags) {
             BBox worldBounds(Vec3f(-4096, -4096, -4096), Vec3f(4096, 4096, 4096));
 
@@ -226,8 +279,10 @@ namespace TrenchBroom {
             m_octree = new Octree(*m_map);
             m_picker = new Model::Picker(*m_octree);
             m_textureManager = new TextureManager();
-            
-            // initialize here
+            m_definitionManager = new EntityDefinitionManager();
+            m_mods.push_back("id1");
+
+            LoadPalette();
             
             return wxDocument::OnCreate(path, flags);
         }

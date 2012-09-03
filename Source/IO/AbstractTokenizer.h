@@ -119,6 +119,7 @@ namespace TrenchBroom {
                     m_column = 0;
                     char d;
                     do {
+                        m_stream.seekg(-1, std::ios::cur);
                         d = m_stream.peek();
                         m_column++;
                     } while (d != '\n' && m_stream.tellg() > 0);
@@ -132,14 +133,14 @@ namespace TrenchBroom {
                 if (eof())
                     throw ParserException(m_line, m_column, "unexpected end of file");
 
-                if (offset == 0)
-                    return m_stream.peek();
-                if (m_stream.eof())
-                    return 0;
-                
-                m_stream.seekg(offset, std::ios::cur);
-                char c = m_stream.peek();
-                m_stream.seekg(-static_cast<long>(offset), std::ios::cur);
+                char c;
+                if (offset == 0) {
+                    c = m_stream.peek();
+                } else {
+                    m_stream.seekg(offset, std::ios::cur);
+                    c = m_stream.peek();
+                    m_stream.seekg(-static_cast<long>(offset), std::ios::cur);
+                }
                 return c;
             }
             

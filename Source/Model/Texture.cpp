@@ -20,6 +20,8 @@
 #include "Texture.h"
 
 #include "IO/Wad.h"
+#include "Model/Alias.h"
+#include "Model/Bsp.h"
 #include "Model/Palette.h"
 
 namespace TrenchBroom {
@@ -77,15 +79,13 @@ namespace TrenchBroom {
             init(mip.name(), mip.mip0(), mip.width(), mip.height(), palette);
         }
         
-        /*
         Texture::Texture(const String& name, const AliasSkin& skin, unsigned int skinIndex, const Palette& palette) {
-            init(name, skin.pictures[skinIndex], skin.width, skin.height, palette);
+            init(name, skin.pictures()[skinIndex], skin.width(), skin.height(), palette);
         }
         
         Texture::Texture(const String& name, const BspTexture& texture, const Palette& palette) {
-            init(name, texture.image, texture.width, texture.height, palette);
+            init(name, texture.image(), texture.width(), texture.height(), palette);
         }
-        */
         
         Texture::Texture(const String& name) {
             init(name, 1, 1);

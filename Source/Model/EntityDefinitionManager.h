@@ -60,7 +60,8 @@ namespace TrenchBroom {
             EntityDefinitionManager();
             ~EntityDefinitionManager();
             
-            bool load(const String& path);
+            void load(const String& path);
+            void clear();
             
             EntityDefinition* definition(const String& name);
             EntityDefinitionList definitions(EntityDefinition::Type type, SortOrder order = Name);

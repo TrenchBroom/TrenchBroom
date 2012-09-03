@@ -35,31 +35,26 @@ namespace TrenchBroom {
         class MapRenderer;
     }
     
-    namespace Utility {
-        class Console;
-    }
-    
     namespace View {
         class EditorView;
         class MapGLCanvas;
         
         class EditorFrame : public wxFrame {
         protected:
-            Utility::Console* m_console;
             MapGLCanvas* m_mapCanvas;
+            wxTextCtrl* m_logView;
             
             void CreateGui(Model::MapDocument& document, EditorView& view);
             void CreateMenuBar(Model::MapDocument& document);
         public:
             EditorFrame(Model::MapDocument& document, EditorView& view);
-            ~EditorFrame();
-
-            inline Utility::Console& Console() const {
-                return *m_console;
-            }
             
             inline MapGLCanvas& MapCanvas() const {
                 return *m_mapCanvas;
+            }
+            
+            inline wxTextCtrl* LogView() const {
+                return m_logView;
             }
         };
     }

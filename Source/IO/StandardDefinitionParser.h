@@ -103,7 +103,7 @@ namespace TrenchBroom {
         protected:
             PropertyType m_type;
         public:
-            typedef std::vector<StandardProperty> List;
+            typedef std::vector<StandardProperty*> List;
             
             StandardProperty(PropertyType type) : m_type(type) {}
             
@@ -146,8 +146,8 @@ namespace TrenchBroom {
             String m_propertyName;
             StandardChoiceArgument::List m_arguments;
         public:
-            StandardChoiceProperty(StandardProperty::PropertyType type, const String& propertyName, const StandardChoiceArgument::List& arguments) :
-            StandardProperty(type),
+            StandardChoiceProperty(const String& propertyName, const StandardChoiceArgument::List& arguments) :
+            StandardProperty(StandardProperty::Choice),
             m_propertyName(propertyName),
             m_arguments(arguments) {}
             
@@ -165,8 +165,8 @@ namespace TrenchBroom {
             String m_propertyName;
             String m_propertyValue;
         public:
-            StandardDefaultProperty(StandardProperty::PropertyType type, const String& propertyName, const String& propertyValue) :
-            StandardProperty(type),
+            StandardDefaultProperty(const String& propertyName, const String& propertyValue) :
+            StandardProperty(StandardProperty::Default),
             m_propertyName(propertyName),
             m_propertyValue(propertyValue) {}
             
@@ -185,8 +185,8 @@ namespace TrenchBroom {
             String m_flagName;
             unsigned int m_skinIndex;
         public:
-            StandardModelProperty(StandardProperty::PropertyType type, const String& modelName, const String& flagName, unsigned int skinIndex) :
-            StandardProperty(type),
+            StandardModelProperty(const String& modelName, const String& flagName, unsigned int skinIndex) :
+            StandardProperty(StandardProperty::Model),
             m_modelName(modelName),
             m_flagName(flagName),
             m_skinIndex(skinIndex) {}

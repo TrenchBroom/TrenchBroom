@@ -33,10 +33,12 @@
 namespace TrenchBroom {
     namespace Model {
         class EditStateChangeSet;
-        class Map;
+        class MapDocument;
     }
     
     namespace Renderer {
+        class EntityRendererManager;
+        class EntityRenderer;
         class RenderContext;
         class Vbo;
         class VboBlock;
@@ -66,20 +68,18 @@ namespace TrenchBroom {
                 TexturedTriangleRenderInfo(Model::Texture* texture, GLuint offset, GLuint vertexCount) : texture(texture), offset(offset), vertexCount(vertexCount) {}
             };
             
-            /*
             class CachedEntityRenderer {
             public:
                 EntityRenderer* renderer;
                 String classname;
                 CachedEntityRenderer() : renderer(NULL), classname("") {}
-                CachedEntityRenderer(EntityRenderer* renderer, const std::string& classname) : renderer(renderer), classname(classname) {}
+                CachedEntityRenderer(EntityRenderer* renderer, const String& classname) : renderer(renderer), classname(classname) {}
             };
-            */
             
             typedef std::vector<GLuint> IndexBuffer;
             typedef std::map<Model::Texture*, Model::FaceList, CompareTexturesById> FacesByTexture;
             typedef std::vector<TexturedTriangleRenderInfo> FaceRenderInfos;
-            //typedef std::map<Model::Entity*, CachedEntityRenderer> EntityRenderers;
+            typedef std::map<Model::Entity*, CachedEntityRenderer> EntityRenderers;
 
             // level geometry rendering
             Vbo* m_faceVbo;
@@ -100,13 +100,13 @@ namespace TrenchBroom {
             EdgeRenderInfo m_entityBoundsRenderInfo;
             EdgeRenderInfo m_selectedEntityBoundsRenderInfo;
             
-            /*
             // entity model rendering
             EntityRendererManager* m_entityRendererManager;
             EntityRenderers m_entityRenderers;
             EntityRenderers m_selectedEntityRenderers;
             bool m_entityRendererCacheValid;
-             
+
+            /*
             // classnames
             TextRenderer<Model::Entity*>* m_classnameRenderer;
             TextRenderer<Model::Entity*>* m_selectedClassnameRenderer;
@@ -120,10 +120,12 @@ namespace TrenchBroom {
             */
              
             // state
-            bool m_entityDataValid;
-            bool m_selectedEntityDataValid;
             bool m_geometryDataValid;
+            bool m_entityDataValid;
             bool m_selectedGeometryDataValid;
+            bool m_selectedEntityDataValid;
+            bool m_lockedGeometryDataValid;
+            bool m_lockedEntityDataValid;
             
             /*
             GridRenderer* m_gridRenderer;
@@ -131,31 +133,31 @@ namespace TrenchBroom {
              */
 
             Model::Texture* m_dummyTexture;
-            Model::Map& m_map;
+
+            Model::MapDocument& m_document;
             
             void writeFaceData(RenderContext& context, FacesByTexture& facesByTexture, FaceRenderInfos& renderInfos, VboBlock& block);
             void writeEdgeData(RenderContext& context, Model::BrushList& brushes, Model::FaceList& faces, EdgeRenderInfo& renderInfo, VboBlock& block);
             void rebuildGeometryData(RenderContext& context);
             void writeEntityBounds(RenderContext& context, const Model::EntityList& entities, EdgeRenderInfo& renderInfo, VboBlock& block);
             void rebuildEntityData(RenderContext& context);
-            /*
             bool reloadEntityModel(const Model::Entity& entity, CachedEntityRenderer& cachedRenderer);
             void reloadEntityModels(RenderContext& context, EntityRenderers& renderers);
             void reloadEntityModels(RenderContext& context);
-             */
             
             void validate(RenderContext& context);
 
             void renderEntityBounds(RenderContext& context, const EdgeRenderInfo& renderInfo, const Color* color);
-//            void renderEntityModels(RenderContext& context, EntityRenderers& entities);
+            void renderEntityModels(RenderContext& context, EntityRenderers& entities);
             void renderEdges(RenderContext& context, const EdgeRenderInfo& renderInfo, const Color* color);
             void renderFaces(RenderContext& context, bool textured, bool selected, const FaceRenderInfos& renderInfos);
             void renderFigures(RenderContext& context);
         public:
-            MapRenderer(Model::Map& map);
+            MapRenderer(Model::MapDocument& document);
             ~MapRenderer();
             
             void addEntities(const Model::EntityList& entities);
+            void removeEntities(const Model::EntityList& entities);
             void changeEditState(const Model::EditStateChangeSet& changeSet);
             void loadMap();
             void clearMap();

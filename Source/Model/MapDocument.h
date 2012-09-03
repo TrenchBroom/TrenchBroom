@@ -27,12 +27,14 @@
 namespace TrenchBroom {
     namespace Utility {
         class Console;
+        class ProgressIndicator;
     }
     
     namespace Model {
         class Brush;
         class EditStateManager;
         class Entity;
+        class EntityDefinitionManager;
         class Face;
         class Map;
         class Octree;
@@ -49,13 +51,21 @@ namespace TrenchBroom {
             Picker* m_picker;
             Palette* m_palette;
             TextureManager* m_textureManager;
+            EntityDefinitionManager* m_definitionManager;
+            StringList m_mods;
             
             virtual bool DoOpenDocument(const wxString& file);
             virtual bool DoSaveDocument(const wxString& file);
             
-            void LoadTextureWad(const String& path);
             void UpdateFaceTextures();
+            void UpdateEntityDefinitions();
             void Clear();
+
+            void LoadPalette();
+            void LoadMap(std::istream& stream, Utility::ProgressIndicator& progressIndicator);
+            void LoadTextureWad(const String& path);
+            void LoadTextures(Utility::ProgressIndicator& progressIndicator);
+            void LoadEntityDefinitions(Utility::ProgressIndicator& progressIndicator);
         public:
             MapDocument();
             virtual ~MapDocument();
@@ -67,6 +77,8 @@ namespace TrenchBroom {
             EditStateManager& EditStateManager() const;
             Picker& Picker() const;
             Utility::Console& Console() const;
+            const StringList& Mods() const;
+            const Palette& Palette() const;
             
             bool OnCreate(const wxString& path, long flags);
 			bool OnNewDocument();

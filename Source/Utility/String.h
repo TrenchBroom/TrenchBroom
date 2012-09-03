@@ -63,6 +63,19 @@ namespace TrenchBroom {
             return result;
         }
         
+        inline String join(const StringList& strs, const String& d) {
+            if (strs.empty())
+                return "";
+            if (strs.size() == 1)
+                return strs[0];
+            
+            StringStream result;
+            result << strs[0];
+            for (unsigned int i = 1; i < strs.size(); i++)
+                result << d << strs[i];
+            return result.str();
+        }
+        
         inline bool isBlank(const String& str) {
             if (str.empty())
                 return true;

@@ -42,6 +42,14 @@ namespace TrenchBroom {
                 
                 if (hit->type() == Model::Hit::EntityHit) {
                     Model::Entity& entity = hit->entity();
+                    if (multi) {
+                        if (entity.selected())
+                            command = ChangeEditStateCommand::deselect(document(), entity);
+                        else
+                            command = ChangeEditStateCommand::select(document(), entity);
+                    } else {
+                        command = ChangeEditStateCommand::replace(document(), entity);
+                    }
                 } else {
                     Model::Face& face = hit->face();
                     Model::Brush& brush = *face.brush();

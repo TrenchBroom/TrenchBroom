@@ -27,6 +27,9 @@
 #include "Model/Face.h"
 #include "Model/Filter.h"
 #include "Model/Map.h"
+#include "Model/MapDocument.h"
+#include "Renderer/EntityRendererManager.h"
+#include "Renderer/EntityRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Vbo.h"
@@ -172,7 +175,7 @@ namespace TrenchBroom {
             unsigned int totalSelectedEdgeVertexCount = 0;
             
             // collect all visible faces and brushes
-            const Model::EntityList& entities = m_map.entities();
+            const Model::EntityList& entities = m_document.Map().entities();
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
                 const Model::BrushList& brushes = entity->brushes();
@@ -328,7 +331,7 @@ namespace TrenchBroom {
             // collect all model entities
             Model::EntityList allEntities;
             Model::EntityList allSelectedEntities;
-            const Model::EntityList entities = m_map.entities();
+            const Model::EntityList entities = m_document.Map().entities();
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
                 if (context.filter().entityVisible(*entity)) {
@@ -364,11 +367,48 @@ namespace TrenchBroom {
             m_selectedEntityDataValid = true;
         }
         
+        bool MapRenderer::reloadEntityModel(const Model::Entity& entity, CachedEntityRenderer& cachedRenderer) {
+            EntityRenderer* renderer = m_entityRendererManager->entityRenderer(entity, m_document.Mods());
+            if (renderer != NULL) {
+                cachedRenderer = CachedEntityRenderer(renderer, *entity.classname());
+                return true;
+            }
+            
+            return false;
+        }
+        
+        void MapRenderer::reloadEntityModels(RenderContext& context, EntityRenderers& renderers) {
+            EntityRenderers::iterator it = renderers.begin();
+            while (it != renderers.end()) {
+                if (reloadEntityModel(*it->first, it->second))
+                    ++it;
+                else
+                    renderers.erase(it++);
+            }
+        }
+        
+        void MapRenderer::reloadEntityModels(RenderContext& context) {
+            m_entityRenderers.clear();
+            m_selectedEntityRenderers.clear();
+            
+            const Model::EntityList& entities = m_document.Map().entities();
+            for (unsigned int i = 0; i < entities.size(); i++) {
+                Model::Entity* entity = entities[i];
+                EntityRenderer* renderer = m_entityRendererManager->entityRenderer(*entity, m_document.Mods());
+                if (renderer != NULL) {
+                    if (entity->selected())
+                        m_selectedEntityRenderers[entity] = CachedEntityRenderer(renderer, *entity->classname());
+                    else
+                        m_entityRenderers[entity] = CachedEntityRenderer(renderer, *entity->classname());
+                }
+            }
+            
+            m_entityRendererCacheValid = true;
+        }
+        
         void MapRenderer::validate(RenderContext& context) {
-            /*
             if (!m_entityRendererCacheValid)
                 reloadEntityModels(context);
-             */
             if (!m_geometryDataValid || !m_selectedGeometryDataValid)
                 rebuildGeometryData(context);
             if (!m_entityDataValid || !m_selectedEntityDataValid)
@@ -395,23 +435,24 @@ namespace TrenchBroom {
             glResetEdgeOffset();
         }
         
-        /*
         void MapRenderer::renderEntityModels(RenderContext& context, EntityRenderers& entities) {
 			if (entities.empty())
 				return;
             
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+
             glPushAttrib(GL_TEXTURE_BIT);
             glPolygonMode(GL_FRONT, GL_FILL);
             glEnable(GL_TEXTURE_2D);
             
-            glSetBrightness(context.preferences.brightness(), false);
+            glSetBrightness(prefs.getFloat(Preferences::RendererBrightness), false);
             m_entityRendererManager->activate();
             
             glMatrixMode(GL_MODELVIEW);
             EntityRenderers::iterator it;
             for (it = entities.begin(); it != entities.end(); ++it) {
                 Model::Entity* entity = it->first;
-                if (context.filter.entityVisible(*entity)) {
+                if (context.filter().entityVisible(*entity)) {
                     EntityRenderer* renderer = it->second.renderer;
                     renderer->render(*entity);
                 }
@@ -420,7 +461,6 @@ namespace TrenchBroom {
             m_entityRendererManager->deactivate();
             glPopAttrib();
         }
-        */
          
         void MapRenderer::renderEdges(RenderContext& context, const EdgeRenderInfo& renderInfo, const Color* color) {
             if (renderInfo.vertexCount == 0)
@@ -548,7 +588,8 @@ namespace TrenchBroom {
              */
         }
         
-        MapRenderer::MapRenderer(Model::Map& map) : m_map(map) {
+        MapRenderer::MapRenderer(Model::MapDocument& document) :
+        m_document(document) {
             m_faceVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
             m_faceBlock = NULL;
             m_selectedFaceBlock = NULL;
@@ -561,15 +602,19 @@ namespace TrenchBroom {
             m_entityBoundsBlock = NULL;
             m_selectedEntityBoundsBlock = NULL;
             
-            m_entityDataValid = false;
-            m_selectedEntityDataValid = false;
             m_geometryDataValid = false;
+            m_entityDataValid = false;
             m_selectedGeometryDataValid = false;
+            m_selectedEntityDataValid = false;
+            m_lockedGeometryDataValid = false;
+            m_lockedEntityDataValid = false;
 
-            /*
-            m_entityRendererManager = new EntityRendererManager(prefs.quakePath(), m_editor.palette());
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+
+            m_entityRendererManager = new EntityRendererManager(prefs.getString(Preferences::QuakePath), document.Palette(), document.Console());
             m_entityRendererCacheValid = true;
             
+            /*
             m_classnameRenderer = new TextRenderer<Model::Entity*>(m_fontManager, prefs.infoOverlayFadeDistance());
             m_selectedClassnameRenderer = new TextRenderer<Model::Entity*>(m_fontManager, prefs.selectedInfoOverlayFadeDistance());
             
@@ -589,9 +634,9 @@ namespace TrenchBroom {
             delete m_edgeVbo;
             delete m_entityBoundsVbo;
             
-            /*
             delete m_entityRendererManager;
             
+            /*
             delete m_classnameRenderer;
             delete m_selectedClassnameRenderer;
             
@@ -603,8 +648,39 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::addEntities(const Model::EntityList& entities) {
+            /*
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            const std::string& fontName = prefs.rendererFontName();
+            int fontSize = prefs.rendererFontSize();
+            FontDescriptor descriptor(fontName, fontSize);
+            */
+             
+            for (unsigned int i = 0; i < entities.size(); i++) {
+                Model::Entity* entity = entities[i];
+                EntityRenderer* renderer = m_entityRendererManager->entityRenderer(*entity, m_document.Mods());
+                if (renderer != NULL)
+                    m_entityRenderers[entity] = CachedEntityRenderer(renderer, *entity->classname());
+                
+                /*
+                const Model::PropertyValue& classname = *entity->classname();
+                EntityClassnameAnchor* anchor = new EntityClassnameAnchor(*entity);
+                TextAnchorPtr anchorPtr(anchor);
+                m_classnameRenderer->addString(entity, classname, descriptor, anchorPtr);
+                */
+            }
+            
+            m_entityDataValid = false;
         }
 
+        void MapRenderer::removeEntities(const Model::EntityList& entities) {
+            for (unsigned int i = 0; i < entities.size(); i++) {
+                Model::Entity* entity = entities[i];
+                m_entityRenderers.erase(entity);
+                // m_classnameRenderer->removeString(entity);
+            }
+            m_entityDataValid = false;
+        }
+        
         void MapRenderer::changeEditState(const Model::EditStateChangeSet& changeSet) {
             if (changeSet.entitySelectionChanged()) {
                 m_entityDataValid = false;
@@ -618,7 +694,7 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::loadMap() {
-            addEntities(m_map.entities());
+            addEntities(m_document.Map().entities());
             
             m_entityDataValid = false;
             m_selectedEntityDataValid = false;
@@ -627,9 +703,9 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::clearMap() {
-            /*
             m_entityRenderers.clear();
             m_selectedEntityRenderers.clear();
+            /*
 			m_classnameRenderer->clear();
 			m_selectedClassnameRenderer->clear();
              */
@@ -653,13 +729,15 @@ namespace TrenchBroom {
             glShadeModel(GL_SMOOTH);
             glResetEdgeOffset();
             
+            // render geometry faces
             m_faceVbo->activate();
             glEnableClientState(GL_VERTEX_ARRAY);
             renderFaces(context, true, false, m_faceRenderInfos);
             renderFaces(context, true, true, m_selectedFaceRenderInfos);
             glDisableClientState(GL_VERTEX_ARRAY);
             m_faceVbo->deactivate();
-                
+            
+            // render geometry edges
             m_edgeVbo->activate();
             glEnableClientState(GL_VERTEX_ARRAY);
             glSetEdgeOffset(0.01f);
@@ -675,11 +753,25 @@ namespace TrenchBroom {
             glDisableClientState(GL_VERTEX_ARRAY);
             m_edgeVbo->deactivate();
 
+            // render entity bounds
             m_entityBoundsVbo->activate();
             glEnableClientState(GL_VERTEX_ARRAY);
             renderEntityBounds(context, m_entityBoundsRenderInfo, NULL);
+
+            glDisable(GL_DEPTH_TEST);
+            renderEntityBounds(context, m_selectedEntityBoundsRenderInfo, &prefs.getColor(Preferences::HiddenSelectedEntityBoundsColor));
+            glEnable(GL_DEPTH_TEST);
+            
+            glDepthFunc(GL_LEQUAL);
+            renderEntityBounds(context, m_selectedEntityBoundsRenderInfo, &prefs.getColor(Preferences::SelectedEntityBoundsColor));
+            glDepthFunc(GL_LESS);
+
             glDisableClientState(GL_VERTEX_ARRAY);
             m_entityBoundsVbo->deactivate();
+
+            // render entity models
+            renderEntityModels(context, m_entityRenderers);
+            renderEntityModels(context, m_selectedEntityRenderers);
         }
     }
 }

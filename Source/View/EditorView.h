@@ -46,6 +46,7 @@ namespace TrenchBroom {
         protected:
             Renderer::Camera* m_camera;
             Renderer::MapRenderer* m_renderer;
+            Utility::Console* m_console;
         public:
             EditorView();
 

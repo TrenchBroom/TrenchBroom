@@ -22,6 +22,9 @@
 #include <wx/config.h>
 #include <wx/docview.h>
 
+#include "IO/Pak.h"
+#include "Model/Alias.h"
+#include "Model/Bsp.h"
 #include "Model/MapDocument.h"
 #include "Utility/DocManager.h"
 #include "View/EditorView.h"
@@ -30,6 +33,11 @@ BEGIN_EVENT_TABLE(AbstractApp, wxApp)
 END_EVENT_TABLE()
 
 bool AbstractApp::OnInit() {
+    // initialize globals
+    TrenchBroom::IO::PakManager::sharedManager = new TrenchBroom::IO::PakManager();
+    TrenchBroom::Model::AliasManager::sharedManager = new TrenchBroom::Model::AliasManager();
+    TrenchBroom::Model::BspManager::sharedManager = new TrenchBroom::Model::BspManager();
+    
 	m_docManager = new DocManager();
     new wxDocTemplate(m_docManager, wxT("Quake map document"), wxT("*.map"), wxEmptyString, wxT("map"), wxT("Quake map document"), wxT("TrenchBroom editor view"), CLASSINFO(TrenchBroom::Model::MapDocument), CLASSINFO(TrenchBroom::View::EditorView));
     return true;
@@ -38,6 +46,14 @@ bool AbstractApp::OnInit() {
 int AbstractApp::OnExit() {
     m_docManager->FileHistorySave(*wxConfig::Get());
     wxDELETE(m_docManager);
+    
+    delete TrenchBroom::IO::PakManager::sharedManager;
+    TrenchBroom::IO::PakManager::sharedManager = NULL;
+    delete TrenchBroom::Model::AliasManager::sharedManager;
+    TrenchBroom::Model::AliasManager::sharedManager = NULL;
+    delete TrenchBroom::Model::BspManager::sharedManager;
+    TrenchBroom::Model::BspManager::sharedManager = NULL;
+    
     return wxApp::OnExit();
 }
 

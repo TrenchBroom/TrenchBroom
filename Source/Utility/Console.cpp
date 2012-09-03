@@ -35,20 +35,28 @@ namespace TrenchBroom {
             result = buffer;
         }
         
-        Console::Console(wxTextCtrl* textCtrl) : m_textCtrl(textCtrl) {}
-        
-        Console::~Console() {}
+        void Console::setTextCtrl(wxTextCtrl* textCtrl) {
+            m_textCtrl = textCtrl;
+            if (m_textCtrl != NULL) {
+                log(m_buffer.str(), true);
+                m_buffer.str("");
+            }
+        }
         
         void Console::log(const String& message, bool setDefaultColor) {
-            if (setDefaultColor) {
-                long start = m_textCtrl->GetLastPosition();
-                m_textCtrl->AppendText(message);
-                long end = m_textCtrl->GetLastPosition();
-                m_textCtrl->SetStyle(start, end, wxTextAttr(*wxLIGHT_GREY, *wxBLACK)); // SetDefaultStyle doesn't work on OS X / Cocoa
+            if (m_textCtrl != NULL) {
+                if (setDefaultColor) {
+                    long start = m_textCtrl->GetLastPosition();
+                    m_textCtrl->AppendText(message);
+                    long end = m_textCtrl->GetLastPosition();
+                    m_textCtrl->SetStyle(start, end, wxTextAttr(*wxLIGHT_GREY, *wxBLACK)); // SetDefaultStyle doesn't work on OS X / Cocoa
+                } else {
+                    m_textCtrl->AppendText(message);
+                }
+                wxYieldIfNeeded();
             } else {
-                m_textCtrl->AppendText(message);
+                m_buffer << message;
             }
-            wxYieldIfNeeded();
         }
         
         void Console::info(const String& message) {

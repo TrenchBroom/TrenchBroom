@@ -68,7 +68,7 @@ namespace TrenchBroom {
             }
         };
         
-        static const Preference<String> QuakePath(                      "General/Quake path",                               "");
+        static const Preference<String> QuakePath(                      "General/Quake path",                               "/Applications/Quake");
         static const Preference<float>  CameraLookSpeed(                "Controls/Camera/Look speed",                       0.5f);
         static const Preference<float>  CameraPanSpeed(                 "Controls/Camera/Pan speed",                        0.5f);
         static const Preference<float>  CameraMoveSpeed(                "Controls/Camera/Move speed",                       0.5f);

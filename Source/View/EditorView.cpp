@@ -43,8 +43,7 @@ namespace TrenchBroom {
         EditorView::EditorView() : wxView(), m_camera(NULL), m_renderer(NULL) {}
         
         Utility::Console& EditorView::Console() const {
-            EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
-            return frame->Console();
+            return *m_console;
         }
 
         Renderer::Camera& EditorView::Camera() const {
@@ -56,6 +55,8 @@ namespace TrenchBroom {
         }
         
         bool EditorView::OnCreate(wxDocument* doc, long flags) {
+            m_console = new Utility::Console();
+            
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             float fieldOfVision = prefs.getFloat(Preferences::CameraFieldOfVision);
             float nearPlane = prefs.getFloat(Preferences::CameraNearPlane);
@@ -65,13 +66,15 @@ namespace TrenchBroom {
             m_camera = new Renderer::Camera(fieldOfVision, nearPlane, farPlane, position, direction);
             
             Model::MapDocument& document = *static_cast<Model::MapDocument*>(doc);
-            m_renderer = new Renderer::MapRenderer(document.Map());
+            m_renderer = new Renderer::MapRenderer(document);
             m_renderer->loadMap();
             
             EditorFrame* frame = new EditorFrame(document, *this);
             SetFrame(frame);
             frame->Show();
 
+            m_console->setTextCtrl(frame->LogView());
+            
             return wxView::OnCreate(doc, flags);
         }
         

@@ -28,12 +28,14 @@ namespace TrenchBroom {
     namespace Utility {
         class Console {
         protected:
+            StringStream m_buffer;
             wxTextCtrl* m_textCtrl;
             
             void formatMessage(const char* format, va_list arguments, String& result);
         public:
-            Console(wxTextCtrl* textCtrl);
-            virtual ~Console();
+            Console() : m_textCtrl(NULL) {}
+            
+            void setTextCtrl(wxTextCtrl* textCtrl);
             
             void log(const String& message, bool setDefaultColor = true);
             
