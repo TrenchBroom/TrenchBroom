@@ -17,7 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AbstractFileManager.h"
+#include "FileManager.h"
 
 #include <wx/wx.h>
 #include <wx/filename.h>

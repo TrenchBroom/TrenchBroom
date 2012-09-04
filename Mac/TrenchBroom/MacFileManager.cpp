@@ -21,6 +21,8 @@
 
 #include "CoreFoundation/CoreFoundation.h"
 
+#include <fstream>
+
 namespace TrenchBroom {
     namespace IO {
         String MacFileManager::resourceDirectory() {
@@ -40,6 +42,22 @@ namespace TrenchBroom {
             }
             
             return result.str();
+        }
+
+        String MacFileManager::resolveFontPath(const String& fontName) {
+            String fontDirectoryPaths[2] = {"/System/Library/Fonts/", "/Library/Fonts/"};
+            String extensions[2] = {".ttf", ".ttc"};
+            
+            for (int i = 0; i < 2; i++) {
+                for (int j = 0; j < 2; j++) {
+                    String fontPath = fontDirectoryPaths[i] + fontName + extensions[j];
+                    std::fstream fs(fontPath.c_str(), std::ios::binary | std::ios::in);
+                    if (fs.is_open())
+                        return fontPath;
+                }
+            }
+            
+            return "/System/Library/Fonts/LucidaGrande.ttc";
         }
     }
 }

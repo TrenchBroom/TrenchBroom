@@ -20,6 +20,40 @@
 #ifndef TrenchBroom_FileManager_h
 #define TrenchBroom_FileManager_h
 
+#include "Utility/MessageException.h"
+#include "Utility/String.h"
+
+namespace TrenchBroom {
+    namespace IO {
+        class AbstractFileManager {
+        public:
+            bool isDirectory(const String& path);
+            bool exists(const String& path);
+            bool makeDirectory(const String& path);
+            bool deleteFile(const String& path);
+            bool moveFile(const String& sourcePath, const String& destPath, bool overwrite);
+            char pathSeparator();
+            StringList directoryContents(const String& path, String extension = "");
+            
+            StringList pathComponents(const String& path);
+            String deleteLastPathComponent(const String& path);
+            String appendPathComponent(const String& path, const String& component);
+            String appendPath(const String& prefix, const String& suffix);
+            
+            String pathExtension(const String& path);
+            String appendExtension(const String& path, const String& ext);
+            String deleteExtension(const String& path);
+            
+            virtual String resourceDirectory() = 0;
+            virtual String resolveFontPath(const String& fontName) = 0;
+        };
+        
+        class FileManagerException : public Utility::MessageException {
+        public:
+            FileManagerException(const StringStream& msg) : MessageException(msg) {}
+        };
+    }
+}
 
 #if defined _WIN32
 #include "WinFileManager.h"

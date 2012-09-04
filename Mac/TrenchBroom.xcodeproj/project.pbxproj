@@ -40,9 +40,12 @@
 		4850D27A15F4C9E8005B162D /* EntityRendererManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D27715F4C9C2005B162D /* EntityRendererManager.cpp */; };
 		4850D27F15F4CA62005B162D /* AliasRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D27B15F4CA61005B162D /* AliasRenderer.cpp */; };
 		4850D28015F4CA62005B162D /* BspRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D27D15F4CA62005B162D /* BspRenderer.cpp */; };
+		4850D28F15F53C88005B162D /* libfreetype.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4850D28E15F53C87005B162D /* libfreetype.a */; };
+		4850D29715F53CE9005B162D /* StringVectorizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D29515F53CE9005B162D /* StringVectorizer.cpp */; };
+		4850D29A15F5475E005B162D /* PathBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D29815F5475E005B162D /* PathBuilder.cpp */; };
 		48819C3815EBE97A00BEA604 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3615EBE92800BEA604 /* Camera.cpp */; };
 		48819C3915EBE98100BEA604 /* GLee.c in Sources */ = {isa = PBXBuildFile; fileRef = 4810276815E52F3700250C9C /* GLee.c */; settings = {COMPILER_FLAGS = "-w"; }; };
-		48819C3C15EC066E00BEA604 /* AbstractFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3A15EC066E00BEA604 /* AbstractFileManager.cpp */; };
+		48819C3C15EC066E00BEA604 /* FileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3A15EC066E00BEA604 /* FileManager.cpp */; };
 		48819C3F15EC0CE700BEA604 /* MacFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3D15EC0CE700BEA604 /* MacFileManager.cpp */; };
 		48819C4415EC107700BEA604 /* quake.def in Resources */ = {isa = PBXBuildFile; fileRef = 48819C4315EC107700BEA604 /* quake.def */; };
 		48819C4615EC108400BEA604 /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48819C4515EC108400BEA604 /* QuakePalette.lmp */; };
@@ -159,11 +162,17 @@
 		4850D27C15F4CA61005B162D /* AliasRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AliasRenderer.h; sourceTree = "<group>"; };
 		4850D27D15F4CA62005B162D /* BspRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BspRenderer.cpp; sourceTree = "<group>"; };
 		4850D27E15F4CA62005B162D /* BspRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BspRenderer.h; sourceTree = "<group>"; };
+		4850D28315F52CCE005B162D /* Path.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Path.h; sourceTree = "<group>"; };
+		4850D28915F53168005B162D /* FontDescriptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontDescriptor.h; sourceTree = "<group>"; };
+		4850D28E15F53C87005B162D /* libfreetype.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreetype.a; path = Lib/libfreetype.a; sourceTree = "<group>"; };
+		4850D29515F53CE9005B162D /* StringVectorizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringVectorizer.cpp; sourceTree = "<group>"; };
+		4850D29615F53CE9005B162D /* StringVectorizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringVectorizer.h; sourceTree = "<group>"; };
+		4850D29815F5475E005B162D /* PathBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PathBuilder.cpp; sourceTree = "<group>"; };
+		4850D29915F5475E005B162D /* PathBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathBuilder.h; sourceTree = "<group>"; };
 		486C61E615EF713C0091AA97 /* mmapped_fstream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mmapped_fstream.h; sourceTree = "<group>"; };
 		48819C3615EBE92800BEA604 /* Camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
 		48819C3715EBE92800BEA604 /* Camera.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
-		48819C3A15EC066E00BEA604 /* AbstractFileManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractFileManager.cpp; sourceTree = "<group>"; };
-		48819C3B15EC066E00BEA604 /* AbstractFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractFileManager.h; sourceTree = "<group>"; };
+		48819C3A15EC066E00BEA604 /* FileManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileManager.cpp; sourceTree = "<group>"; };
 		48819C3D15EC0CE700BEA604 /* MacFileManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MacFileManager.cpp; path = TrenchBroom/MacFileManager.cpp; sourceTree = SOURCE_ROOT; };
 		48819C3E15EC0CE700BEA604 /* MacFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MacFileManager.h; path = TrenchBroom/MacFileManager.h; sourceTree = SOURCE_ROOT; };
 		48819C4015EC0D9300BEA604 /* FileManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileManager.h; sourceTree = "<group>"; };
@@ -219,6 +228,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4850D28F15F53C88005B162D /* libfreetype.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -229,8 +239,7 @@
 			isa = PBXGroup;
 			children = (
 				4810277C15E56F9B00250C9C /* AbstractTokenizer.h */,
-				48819C3A15EC066E00BEA604 /* AbstractFileManager.cpp */,
-				48819C3B15EC066E00BEA604 /* AbstractFileManager.h */,
+				48819C3A15EC066E00BEA604 /* FileManager.cpp */,
 				48819C4015EC0D9300BEA604 /* FileManager.h */,
 				48AF492615E8CC270083DE52 /* MapParser.cpp */,
 				48AF492715E8CC270083DE52 /* MapParser.h */,
@@ -252,6 +261,7 @@
 		48312B2F15EB800600607868 /* Renderer */ = {
 			isa = PBXGroup;
 			children = (
+				4850D28115F52CBE005B162D /* Text */,
 				4850D27B15F4CA61005B162D /* AliasRenderer.cpp */,
 				4850D27C15F4CA61005B162D /* AliasRenderer.h */,
 				4850D27D15F4CA62005B162D /* BspRenderer.cpp */,
@@ -277,6 +287,7 @@
 		484763C615E2BC5000095BC0 = {
 			isa = PBXGroup;
 			children = (
+				4850D28E15F53C87005B162D /* libfreetype.a */,
 				48312B2715EABBD600607868 /* Icon.icns */,
 				48AB57F615ECFB8600321C47 /* Controller */,
 				4810277B15E56F9B00250C9C /* IO */,
@@ -453,6 +464,19 @@
 			path = ../Source/Utility;
 			sourceTree = "<group>";
 		};
+		4850D28115F52CBE005B162D /* Text */ = {
+			isa = PBXGroup;
+			children = (
+				4850D28315F52CCE005B162D /* Path.h */,
+				4850D29815F5475E005B162D /* PathBuilder.cpp */,
+				4850D29915F5475E005B162D /* PathBuilder.h */,
+				4850D28915F53168005B162D /* FontDescriptor.h */,
+				4850D29515F53CE9005B162D /* StringVectorizer.cpp */,
+				4850D29615F53CE9005B162D /* StringVectorizer.h */,
+			);
+			path = Text;
+			sourceTree = "<group>";
+		};
 		48AB57F615ECFB8600321C47 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
@@ -575,7 +599,7 @@
 				48312B3C15EB814700607868 /* Wad.cpp in Sources */,
 				48312B3F15EB8A1A00607868 /* Palette.cpp in Sources */,
 				48312B4215EB9EA900607868 /* RenderContext.cpp in Sources */,
-				48819C3C15EC066E00BEA604 /* AbstractFileManager.cpp in Sources */,
+				48819C3C15EC066E00BEA604 /* FileManager.cpp in Sources */,
 				48819C3F15EC0CE700BEA604 /* MacFileManager.cpp in Sources */,
 				48AB57F115ECEEE500321C47 /* ProgressIndicatorDialog.cpp in Sources */,
 				48AB580215ECFED800321C47 /* InputController.cpp in Sources */,
@@ -589,6 +613,8 @@
 				4850D26915F4A01C005B162D /* Pak.cpp in Sources */,
 				4850D27F15F4CA62005B162D /* AliasRenderer.cpp in Sources */,
 				4850D28015F4CA62005B162D /* BspRenderer.cpp in Sources */,
+				4850D29715F53CE9005B162D /* StringVectorizer.cpp in Sources */,
+				4850D29A15F5475E005B162D /* PathBuilder.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -664,8 +690,15 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TrenchBroom/TrenchBroom-Prefix.pch";
 				GCC_WARN_SHADOW = NO;
-				HEADER_SEARCH_PATHS = ../Source;
+				HEADER_SEARCH_PATHS = (
+					../Source,
+					../Include,
+				);
 				INFOPLIST_FILE = "TrenchBroom/TrenchBroom-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/Lib\"",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = (
 					"-isystem",
@@ -714,8 +747,15 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TrenchBroom/TrenchBroom-Prefix.pch";
 				GCC_WARN_SHADOW = NO;
-				HEADER_SEARCH_PATHS = ../Source;
+				HEADER_SEARCH_PATHS = (
+					../Source,
+					../Include,
+				);
 				INFOPLIST_FILE = "TrenchBroom/TrenchBroom-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/Lib\"",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = (
 					"-isystem",

@@ -16,19 +16,26 @@
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __TrenchBroom__FileManager__
-#define __TrenchBroom__FileManager__
 
-#include "IO/FileManager.h"
+#ifndef __TrenchBroom__PathBuilder__
+#define __TrenchBroom__PathBuilder__
+
+#include "Renderer/Text/Path.h"
 
 namespace TrenchBroom {
-    namespace IO {
-        class MacFileManager : public AbstractFileManager {
-        public:
-            String resourceDirectory();
-            String resolveFontPath(const String& fontName);
-        };
+    namespace Renderer {
+        namespace Text {
+            class PathBuilder {
+            private:
+                Path* m_path;
+            public:
+                PathBuilder(Path* path);
+                
+                void beginContour(PathContour::Winding winding);
+                void endContour();
+            };
+        }
     }
 }
 
-#endif /* defined(__TrenchBroom__FileManager__) */
+#endif /* defined(__TrenchBroom__PathBuilder__) */
