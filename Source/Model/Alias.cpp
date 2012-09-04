@@ -65,7 +65,7 @@ namespace TrenchBroom {
             if (m_frames.size() > 0) {
                 m_bounds = m_frames[0]->bounds();
                 for (unsigned int i = 1; i < m_frames.size(); i++)
-                    m_bounds += m_frames[0]->bounds();
+                    m_bounds.mergeWith(m_frames[0]->bounds());
             } else {
                 m_bounds.min = m_bounds.max = Vec3f::Null;
             }
@@ -107,7 +107,7 @@ namespace TrenchBroom {
             for (unsigned int i = 1; i < vertices.size(); i++) {
                 frameVertices[i] = unpackFrameVertex(packedFrameVertices[i], origin, scale);
                 center += frameVertices[i];
-                bounds += frameVertices[i];
+                bounds.mergeWith(frameVertices[i]);
             }
             
             center /= static_cast<float>(vertices.size());

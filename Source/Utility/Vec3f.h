@@ -101,16 +101,6 @@ namespace TrenchBroom {
                              z / right);
             }
             
-            const float operator| (const Vec3f& right) const {
-                return x * right.x + y * right.y + z * right.z;
-            }
-            
-            const Vec3f operator% (const Vec3f& right) const {
-                return Vec3f(y * right.z - z * right.y,
-                             z * right.x - x * right.z,
-                             x * right.y - y * right.x);
-            }
-            
             Vec3f& operator+= (const Vec3f& right) {
                 x += right.x;
                 y += right.y;
@@ -139,15 +129,6 @@ namespace TrenchBroom {
                 return *this;
             }
             
-            Vec3f& operator%= (const Vec3f& right) {
-                float xt = y * right.z - z * right.y;
-                float yt = z * right.x - x * right.z;
-                z = x * right.y - y * right.x;
-                x = xt;
-                y = yt;
-                return *this;
-            }
-            
             float& operator[] (const unsigned int index) {
                 assert(index >= 0 && index < 3);
                 if (index == 0) return x;
@@ -162,12 +143,30 @@ namespace TrenchBroom {
                 return z;
             }
             
+            const float dot(const Vec3f& right) const {
+                return x * right.x + y * right.y + z * right.z;
+            }
+            
+            void cross(const Vec3f& right) {
+                float xt = y * right.z - z * right.y;
+                float yt = z * right.x - x * right.z;
+                z = x * right.y - y * right.x;
+                x = xt;
+                y = yt;
+            }
+            
+            const Vec3f crossed(const Vec3f& right) const {
+                return Vec3f(y * right.z - z * right.y,
+                             z * right.x - x * right.z,
+                             x * right.y - y * right.x);
+            }
+            
             float length() const {
                 return sqrt(lengthSquared());
             }
             
             float lengthSquared() const {
-                return *this | *this;
+                return this->dot(*this);
             }
             
             void normalize() {
@@ -210,7 +209,7 @@ namespace TrenchBroom {
             }
             
             bool parallelTo(const Vec3f& other, float delta = Math::AlmostZero) const {
-                Vec3f cross = *this % other;
+                Vec3f cross = this->crossed(other);
                 return cross.equals(Null, delta);
             }
             
@@ -461,6 +460,12 @@ namespace TrenchBroom {
                 return result;
             }
         };
+        
+        inline Vec3f operator*(float left, const Vec3f& right) {
+            return Vec3f(left * right.x,
+                         left * right.y,
+                         left * right.z);
+        }
     }
 }
 

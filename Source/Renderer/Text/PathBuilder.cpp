@@ -29,21 +29,21 @@ namespace TrenchBroom {
             void PathBuilder::addQuadraticBezierCurve(const Vec2f& a, const Vec2f& b, const Vec2f& c) {
                 for (unsigned int i = 1; i < m_bezierSegments; i++) {
                     float t = static_cast<float>(i) / m_bezierSegments;
-                    Vec2f u = a * (1.0f - t) + b * t;
-                    Vec2f v = b * (1.0f - t) + c * t;
-                    addPoint(u * (1.0f - t) + v * t);
+                    Vec2f u = (1.0f - t) * a + t * b;
+                    Vec2f v = (1.0f - t) * b + t * c;
+                    addPoint((1.0f - t) * u + t * v);
                 }
             }
             
             void PathBuilder::addCubicBezierCurve(const Vec2f& a, const Vec2f& b, const Vec2f& c, const Vec2f& d) {
                 for (unsigned int i = 0; i < m_bezierSegments; i++) {
                     float t = static_cast<float>(i) / m_bezierSegments;
-                    Vec2f u = a * (1.0f - t) + b * t;
-                    Vec2f v = b * (1.0f - t) + c * t;
-                    Vec2f w = c * (1.0f - t) + d * t;
-                    Vec2f m = u * (1.0f - t) + v * t;
-                    Vec2f n = v * (1.0f - t) + w * t;
-                    addPoint(m * (1.0f - t) + n * t);
+                    Vec2f u = (1.0f - t) * a + t * b;
+                    Vec2f v = (1.0f - t) * b + t * c;
+                    Vec2f w = (1.0f - t) * c + t * d;
+                    Vec2f m = (1.0f - t) * u + t * v;
+                    Vec2f n = (1.0f - t) * v + t * w;
+                    addPoint((1.0f - t) * m + t * n);
                 }
             }
         }

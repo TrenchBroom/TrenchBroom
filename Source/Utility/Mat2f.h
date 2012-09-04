@@ -36,10 +36,8 @@ namespace TrenchBroom {
             }
             
             Mat2f(float v11, float v12, float v21, float v22) {
-                v[0] = v11;
-                v[2] = v12;
-                v[1] = v21;
-                v[3] = v22;
+                v[0] = v11; v[2] = v12;
+                v[1] = v21; v[3] = v22;
             }
             
             Mat2f& operator= (const Mat2f& right) {
@@ -49,18 +47,18 @@ namespace TrenchBroom {
             }
             
             const Mat2f operator+ (const Mat2f& right) const {
-                return Mat2f(v[0] + right.v[0], v[2] + right.v[2],
-                             v[1] + right.v[1], v[3] + right.v[3]);
+                return Mat2f(v[0] + right.v[0], v[1] + right.v[1],
+                             v[2] + right.v[2], v[3] + right.v[3]);
             }
             
             const Mat2f operator- (const Mat2f& right) const {
-                return Mat2f(v[0] - right.v[0], v[2] - right.v[2],
-                             v[1] - right.v[1], v[3] - right.v[3]);
+                return Mat2f(v[0] - right.v[0], v[1] - right.v[1],
+                             v[2] - right.v[2], v[3] - right.v[3]);
             }
             
             const Mat2f operator* (const float right) const {
-                return Mat2f(v[0] * right, v[2] * right,
-                             v[1] * right, v[3] * right);
+                return Mat2f(v[0] * right, v[1] * right,
+                             v[2] * right, v[3] * right);
             }
             
             const Vec2f operator* (const Vec2f& right) const {
@@ -69,17 +67,13 @@ namespace TrenchBroom {
             }
             
             const Mat2f operator* (const Mat2f& right) const {
-                return Mat2f(v[0] * right.v[0] + v[2] * right.v[1],
-                             v[1] * right.v[0] + v[3] * right.v[1],
-                             v[0] * right.v[2] + v[2] * right.v[3],
-                             v[1] * right.v[2] + v[3] * right.v[3]);
+                return Mat2f(v[0] * right.v[0] + v[2] * right.v[1], v[1] * right.v[0] + v[3] * right.v[1],
+                             v[0] * right.v[2] + v[2] * right.v[3], v[1] * right.v[2] + v[3] * right.v[3]);
             }
             
             const Mat2f operator/ (const float right) const {
-                return Mat2f(v[0] / right,
-                             v[1] / right,
-                             v[2] / right,
-                             v[3] / right);
+                return Mat2f(v[0] / right, v[1] / right,
+                             v[2] / right, v[3] / right);
             }
             
             Mat2f& operator+= (const Mat2f& right) {
@@ -198,6 +192,11 @@ namespace TrenchBroom {
                 return v[0] * v[3] - v[2] * v[1];
             }
         };
+        
+        inline Mat2f operator*(float left, const Mat2f& right) {
+            return Mat2f(left * right.v[0], left * right.v[1],
+                         left * right.v[2], left * right.v[3]);
+        }
     }
 }
 

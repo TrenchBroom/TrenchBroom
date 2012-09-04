@@ -398,7 +398,7 @@ namespace TrenchBroom {
             expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
             yScale = token->toFloat();
             
-            if (((p3 - p1) % (p2 - p1)).null()) {
+            if (((p3 - p1).crossed(p2 - p1)).null()) {
                 m_console.warn("Skipping invalid face in line %i", token->line());
                 return NULL;
             }

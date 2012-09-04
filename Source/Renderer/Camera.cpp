@@ -31,8 +31,8 @@ namespace TrenchBroom {
                 m_right = Vec3f::NegY;
                 m_up = Vec3f::PosX;
             } else {
-                m_right = m_direction % Vec3f::PosZ;
-                m_up = m_right % m_direction;
+                m_right = m_direction.crossed(Vec3f::PosZ);
+                m_up = m_right.crossed(m_direction);
             }
         }
         
@@ -93,7 +93,7 @@ namespace TrenchBroom {
         void Camera::setBillboard() {
             Vec3f bbLook = m_direction * -1;
             Vec3f bbUp = m_up;
-            Vec3f bbRight = bbUp % bbLook;
+            Vec3f bbRight = bbUp.crossed(bbLook);
             
             float matrix[] = {bbRight.x, bbRight.y, bbRight.z, 0.0f, bbUp.x, bbUp.y, bbUp.z, 0.0f, bbLook.x, bbLook.y, bbLook.z, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
             glMultMatrixf(matrix);
@@ -123,8 +123,8 @@ namespace TrenchBroom {
         
         void Camera::setDirection(Vec3f direction, Vec3f up) {
             m_direction = direction;
-            m_right = (m_direction % up).normalized();
-            m_up = m_right % m_direction;
+            m_right = (m_direction.crossed(up)).normalized();
+            m_up = m_right.crossed(m_direction);
         }
         
         void Camera::rotate(float yawAngle, float pitchAngle) {
@@ -158,10 +158,10 @@ namespace TrenchBroom {
                 newDirection.normalize();
                 
                 // correct rounding errors
-                float cos = (std::max)(-1.0f, (std::min)(1.0f, m_direction | newDirection));
+                float cos = (std::max)(-1.0f, (std::min)(1.0f, m_direction.dot(newDirection)));
                 float angle = acosf(cos);
                 if (!Math::zero(angle)) {
-                    Vec3f axis = (m_direction % newDirection).normalized();
+                    Vec3f axis = (m_direction.crossed(newDirection)).normalized();
                     rotation = Quat(angle, axis);
                     offset = rotation * offset;
                     newUp = rotation * newUp;

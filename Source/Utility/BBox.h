@@ -58,7 +58,7 @@ namespace TrenchBroom {
                 return min == right.min && max == right.max;
             }
             
-            const BBox operator+ (const BBox& right) const {
+            const BBox mergedWith(const BBox& right) const {
                 return BBox(std::min(min.x, right.min.x),
                             std::min(min.y, right.min.y),
                             std::min(min.z, right.min.z),
@@ -66,17 +66,9 @@ namespace TrenchBroom {
                             std::max(max.y, right.max.y),
                             std::max(max.z, right.max.z));
             }
+
             
-            const BBox operator+ (const Vec3f& right) const {
-                return BBox(std::min(min.x, right.x),
-                            std::min(min.y, right.y),
-                            std::min(min.z, right.z),
-                            std::max(max.x, right.x),
-                            std::max(max.y, right.y),
-                            std::max(max.z, right.z));
-            }
-            
-            BBox& operator+= (const BBox& right) {
+            BBox& mergeWith(const BBox& right) {
                 min.x = std::min(min.x, right.min.x);
                 min.y = std::min(min.y, right.min.y);
                 min.z = std::min(min.z, right.min.z);
@@ -85,8 +77,17 @@ namespace TrenchBroom {
                 max.z = std::max(max.z, right.max.z);
                 return *this;
             }
+
+            const BBox mergedWith(const Vec3f& right) const {
+                return BBox(std::min(min.x, right.x),
+                            std::min(min.y, right.y),
+                            std::min(min.z, right.z),
+                            std::max(max.x, right.x),
+                            std::max(max.y, right.y),
+                            std::max(max.z, right.z));
+            }
             
-            BBox& operator+= (const Vec3f& right) {
+            BBox& mergeWith(const Vec3f& right) {
                 min.x = std::min(min.x, right.x);
                 min.y = std::min(min.y, right.y);
                 min.z = std::min(min.z, right.z);
@@ -316,14 +317,14 @@ namespace TrenchBroom {
             const BBox boundsAfterRotation(const Quat& rotation) const {
                 BBox result;
                 Vec3f c = center();
-                result += (rotation * (vertex(false, false, false) - c) + c);
-                result += (rotation * (vertex(false, false, true ) - c) + c);
-                result += (rotation * (vertex(false, true , false) - c) + c);
-                result += (rotation * (vertex(false, true , true ) - c) + c);
-                result += (rotation * (vertex(true , false, false) - c) + c);
-                result += (rotation * (vertex(true , false, true ) - c) + c);
-                result += (rotation * (vertex(true , true , false) - c) + c);
-                result += (rotation * (vertex(true , true , true ) - c) + c);
+                result.mergeWith(rotation * (vertex(false, false, false) - c) + c);
+                result.mergeWith(rotation * (vertex(false, false, true ) - c) + c);
+                result.mergeWith(rotation * (vertex(false, true , false) - c) + c);
+                result.mergeWith(rotation * (vertex(false, true , true ) - c) + c);
+                result.mergeWith(rotation * (vertex(true , false, false) - c) + c);
+                result.mergeWith(rotation * (vertex(true , false, true ) - c) + c);
+                result.mergeWith(rotation * (vertex(true , true , false) - c) + c);
+                result.mergeWith(rotation * (vertex(true , true , true ) - c) + c);
                 return result;
             }
             

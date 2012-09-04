@@ -42,7 +42,7 @@ namespace TrenchBroom {
             m_bounds.min = m_bounds.max = m_vertices.front();
             
             for (unsigned int i = 1; i < m_vertices.size(); i++)
-                m_bounds += m_vertices[i];
+                m_bounds.mergeWith(m_vertices[i]);
         }
         
         BspModel::BspModel(const BspFaceList& faces, unsigned int vertexCount, const Vec3f& center, const BBox& bounds) :
@@ -258,7 +258,7 @@ namespace TrenchBroom {
                 for (int i = 1; i < modelVertexCount; i++) {
                     int vertexIndex = modelVertices[i];
                     center += vertices[vertexIndex];
-                    bounds += vertices[vertexIndex];
+                    bounds.mergeWith(vertices[vertexIndex]);
                     vertexMark[vertexIndex] = false;
                 }
                 

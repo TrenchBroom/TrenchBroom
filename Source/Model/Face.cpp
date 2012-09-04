@@ -54,7 +54,7 @@ namespace TrenchBroom {
             int bestIndex = 0;
             float bestDot = -1;
             for (unsigned int i = 0; i < 6; i++) {
-                float dot = faceNormal | *BaseAxes[i * 3];
+                float dot = faceNormal.dot(*BaseAxes[i * 3]);
                 if (dot >= bestDot) {
                     bestDot = dot;
                     bestIndex = i;
@@ -95,8 +95,8 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < vertexCount; i++) {
                 const Vec3f& vertex = m_side->vertices[i]->position;
                 
-                m_texCoords[i].x = ((vertex | m_scaledTexAxisX) + m_xOffset) / width,
-                m_texCoords[i].y = ((vertex | m_scaledTexAxisY) + m_yOffset) / height;
+                m_texCoords[i].x = (vertex.dot(m_scaledTexAxisX) + m_xOffset) / width,
+                m_texCoords[i].y = (vertex.dot(m_scaledTexAxisY) + m_yOffset) / height;
                 
                 switch (axis) {
                     case Axis::X:
@@ -220,7 +220,7 @@ namespace TrenchBroom {
                 
                 v1 = (m_points[2] - m_points[0]).normalized();
                 v2 = (m_points[1] - m_points[0]).normalized();
-                float dot = v1 | v2;
+                float dot = v1.dot(v2);
                 if (dot < bestDot) {
                     bestDot = dot;
                     best = i;

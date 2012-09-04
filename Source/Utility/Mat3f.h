@@ -211,6 +211,12 @@ namespace TrenchBroom {
                 return result;
             }
         };
+
+        inline Mat3f operator*(float left, const Mat3f& right) {
+            return Mat3f(left * right.v[0], left * right.v[1], left * right.v[2],
+                         left * right.v[3], left * right.v[4], left * right.v[5],
+                         left * right.v[6], left * right.v[7], left * right.v[8]);
+        }
     }
 }
 

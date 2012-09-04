@@ -30,6 +30,7 @@
 
 namespace TrenchBroom {
     namespace Math {
+        
         class Vec2f {
         public:
             typedef std::vector<Vec2f> List;
@@ -65,10 +66,6 @@ namespace TrenchBroom {
             const Vec2f operator/ (const float right) const {
                 return Vec2f(x / right,
                              y / right);
-            }
-            
-            const float operator| (const Vec2f& right) const {
-                return x * right.x + y * right.y;
             }
             
             Vec2f& operator+= (const Vec2f& right) {
@@ -107,12 +104,16 @@ namespace TrenchBroom {
                 return y;
             }
             
+            const float dot(const Vec2f& right) const {
+                return x * right.x + y * right.y;
+            }
+            
             float length() const {
                 return sqrt(lengthSquared());
             }
             
             float lengthSquared() const {
-                return *this | *this;
+                return this->dot(*this);
             }
             
             void normalize() {
@@ -158,6 +159,11 @@ namespace TrenchBroom {
                 return result.str();
             }
         };
+        
+        inline Vec2f operator*(float left, const Vec2f& right) {
+            return Vec2f(left * right.x,
+                         left * right.y);
+        }
     }
 }
 

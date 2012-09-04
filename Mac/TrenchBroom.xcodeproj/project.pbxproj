@@ -40,7 +40,6 @@
 		4850D27A15F4C9E8005B162D /* EntityRendererManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D27715F4C9C2005B162D /* EntityRendererManager.cpp */; };
 		4850D27F15F4CA62005B162D /* AliasRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D27B15F4CA61005B162D /* AliasRenderer.cpp */; };
 		4850D28015F4CA62005B162D /* BspRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D27D15F4CA62005B162D /* BspRenderer.cpp */; };
-		4850D28F15F53C88005B162D /* libfreetype.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4850D28E15F53C87005B162D /* libfreetype.a */; };
 		4850D29715F53CE9005B162D /* StringVectorizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D29515F53CE9005B162D /* StringVectorizer.cpp */; };
 		4850D29A15F5475E005B162D /* PathBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D29815F5475E005B162D /* PathBuilder.cpp */; };
 		48819C3815EBE97A00BEA604 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3615EBE92800BEA604 /* Camera.cpp */; };
@@ -63,6 +62,7 @@
 		48D1BEAE15E3AC060073C030 /* EditorView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEAC15E3AC060073C030 /* EditorView.cpp */; };
 		48D1BEB415E4237B0073C030 /* EditorFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEB215E4237A0073C030 /* EditorFrame.cpp */; };
 		48D1BEB715E423F60073C030 /* TrenchBroomApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEB515E423F60073C030 /* TrenchBroomApp.cpp */; };
+		48FFCF8015F64FAF00DB7BC2 /* libfreetype.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48FFCF7F15F64FAF00DB7BC2 /* libfreetype.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -164,7 +164,6 @@
 		4850D27E15F4CA62005B162D /* BspRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BspRenderer.h; sourceTree = "<group>"; };
 		4850D28315F52CCE005B162D /* Path.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Path.h; sourceTree = "<group>"; };
 		4850D28915F53168005B162D /* FontDescriptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontDescriptor.h; sourceTree = "<group>"; };
-		4850D28E15F53C87005B162D /* libfreetype.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreetype.a; path = Lib/libfreetype.a; sourceTree = "<group>"; };
 		4850D29515F53CE9005B162D /* StringVectorizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringVectorizer.cpp; sourceTree = "<group>"; };
 		4850D29615F53CE9005B162D /* StringVectorizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringVectorizer.h; sourceTree = "<group>"; };
 		4850D29815F5475E005B162D /* PathBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PathBuilder.cpp; sourceTree = "<group>"; };
@@ -221,6 +220,7 @@
 		48D1BEB315E4237B0073C030 /* EditorFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorFrame.h; sourceTree = "<group>"; };
 		48D1BEB515E423F60073C030 /* TrenchBroomApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TrenchBroomApp.cpp; sourceTree = "<group>"; };
 		48D1BEB615E423F60073C030 /* TrenchBroomApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrenchBroomApp.h; sourceTree = "<group>"; };
+		48FFCF7F15F64FAF00DB7BC2 /* libfreetype.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreetype.a; path = Lib/libfreetype.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -228,7 +228,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4850D28F15F53C88005B162D /* libfreetype.a in Frameworks */,
+				48FFCF8015F64FAF00DB7BC2 /* libfreetype.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -287,7 +287,7 @@
 		484763C615E2BC5000095BC0 = {
 			isa = PBXGroup;
 			children = (
-				4850D28E15F53C87005B162D /* libfreetype.a */,
+				48FFCF7F15F64FAF00DB7BC2 /* libfreetype.a */,
 				48312B2715EABBD600607868 /* Icon.icns */,
 				48AB57F615ECFB8600321C47 /* Controller */,
 				4810277B15E56F9B00250C9C /* IO */,
@@ -725,11 +725,10 @@
 					System,
 					"-framework",
 					OpenGL,
-					"-framework",
-					QuickTime,
 					"-lwx_osx_cocoau_core-2.9",
 					"-lwx_baseu-2.9",
 					"-lwx_osx_cocoau_gl-2.9",
+					"-lz",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
@@ -744,6 +743,7 @@
 				CLANG_CXX_LIBRARY = "compiler-default";
 				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = NO;
 				COMBINE_HIDPI_IMAGES = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TrenchBroom/TrenchBroom-Prefix.pch";
 				GCC_WARN_SHADOW = NO;
@@ -782,11 +782,10 @@
 					System,
 					"-framework",
 					OpenGL,
-					"-framework",
-					QuickTime,
 					"-lwx_osx_cocoau_core-2.9",
 					"-lwx_baseu-2.9",
 					"-lwx_osx_cocoau_gl-2.9",
+					"-lz",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;

@@ -99,10 +99,6 @@ namespace TrenchBroom {
                              w / right);
             }
             
-            const float operator| (const Vec4f right) const {
-                return x * right.x + y * right.y + z * right.z + w * right.w;
-            }
-            
             Vec4f& operator+= (const Vec4f& right) {
                 x += right.x;
                 y += right.y;
@@ -151,12 +147,16 @@ namespace TrenchBroom {
                 return w;
             }
             
+            const float dot(const Vec4f right) const {
+                return x * right.x + y * right.y + z * right.z + w * right.w;
+            }
+            
             float length() const {
                 return sqrt(lengthSquared());
             }
             
             float lengthSquared() const {
-                return *this | *this;
+                return this->dot(*this);
             }
             
             void normalize() {
@@ -214,6 +214,13 @@ namespace TrenchBroom {
                 return result.str();
             }
         };
+        
+        inline Vec4f operator*(float left, const Vec4f& right) {
+            return Vec4f(left * right.x,
+                         left * right.y,
+                         left * right.z,
+                         left * right.w);
+        }
     }
 }
 

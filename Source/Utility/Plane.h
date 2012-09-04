@@ -36,16 +36,16 @@ namespace TrenchBroom {
             
             Plane(const Vec3f& normal, float distance) : normal(normal), distance(distance) {}
             
-            Plane(const Vec3f& normal, const Vec3f& anchor) : normal(normal), distance(anchor | normal) {}
+            Plane(const Vec3f& normal, const Vec3f& anchor) : normal(normal), distance(anchor.dot(normal)) {}
             
             bool setPoints(const Vec3f& point1, const Vec3f& point2, const Vec3f& point3) {
                 Vec3f v1 = point3 - point1;
                 Vec3f v2 = point2 - point1;
-                normal = v1 % v2;
+                normal = v1.crossed(v2);
                 if (normal.equals(Vec3f::Null, Math::AlmostZero))
                     return false;
                 normal.normalize();
-                distance = point1 | normal;
+                distance = point1.dot(normal);
                 return true;
             }
             
@@ -54,25 +54,25 @@ namespace TrenchBroom {
             }
             
             float intersectWithRay(const Ray& ray) const {
-                float d = ray.direction | normal;
+                float d = ray.direction.dot(normal);
                 if (Math::zero(d))
                     return Math::nan();
 
-                float s = ((anchor() - ray.origin) | normal) / d;
+                float s = ((anchor() - ray.origin).dot(normal)) / d;
                 if (Math::neg(s))
                     return Math::nan();
                 return s;
             }
             
             float intersectWithLine(const Line& line) const {
-                float d = line.direction | normal;
+                float d = line.direction.dot(normal);
                 if (Math::zero(d))
                     return Math::nan();
-                return ((anchor() - line.point) | normal) / d;
+                return ((anchor() - line.point).dot(normal)) / d;
             }
             
             PointStatus::Type pointStatus(const Vec3f& point) const {
-                float dot = normal | (point - anchor());
+                float dot = normal.dot(point - anchor());
                 if (dot >  Math::PointStatusEpsilon)
                     return PointStatus::Above;
                 if (dot < -Math::PointStatusEpsilon)
@@ -81,17 +81,17 @@ namespace TrenchBroom {
             }
             
             float x(float y, float z) const {
-                float l = normal | anchor();
+                float l = normal.dot(anchor());
                 return (l - normal.y * y - normal.z * z) / normal.x;
             }
             
             float y(float x, float z) const {
-                float l = normal | anchor();
+                float l = normal.dot(anchor());
                 return (l - normal.x * x - normal.z * z) / normal.y;
             }
             
             float z(float x, float y) const {
-                float l = normal | anchor();
+                float l = normal.dot(anchor());
                 return (l - normal.x * x - normal.y * y) / normal.z;
             }
             
@@ -104,11 +104,11 @@ namespace TrenchBroom {
             }
             
             void translate(const Vec3f& delta) {
-                distance = (anchor() + delta) | normal;
+                distance = (anchor() + delta).dot(normal);
             }
             
             const Plane translated(const Vec3f& delta) const {
-                return Plane(normal, (anchor() + delta) | normal);
+                return Plane(normal, (anchor() + delta).dot(normal));
             }
             
             void rotate90(Axis::Type axis, bool clockwise) {
@@ -121,7 +121,7 @@ namespace TrenchBroom {
             
             void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise) {
                 normal.rotate90(axis, center, clockwise);
-                distance = (anchor().rotated90(axis, center, clockwise)) | normal;
+                distance = (anchor().rotated90(axis, center, clockwise)).dot(normal);
             }
             
             const Plane rotated90(Axis::Type axis, const Vec3f& center, bool clockwise) const {
@@ -138,7 +138,7 @@ namespace TrenchBroom {
             
             void rotate(const Quat& rotation, const Vec3f& center) {
                 normal = rotation * normal;
-                distance = (rotation * (anchor() - center) + center) | normal;
+                distance = (rotation * (anchor() - center) + center).dot(normal);
             }
             
             const Plane rotated(const Quat& rotation, const Vec3f& center) const {
@@ -155,7 +155,7 @@ namespace TrenchBroom {
             
             void flip(Axis::Type axis, const Vec3f& center) {
                 normal.flip(axis);
-                distance = anchor().flipped(axis, center) | normal;
+                distance = anchor().flipped(axis, center).dot(normal);
             }
             
             const Plane flipped(Axis::Type axis, const Vec3f& center) const {

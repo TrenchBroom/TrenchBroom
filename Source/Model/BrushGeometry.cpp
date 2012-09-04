@@ -118,7 +118,7 @@ namespace TrenchBroom {
             assert(face != NULL);
             
             const Plane& boundary = face->boundary();
-            float dot = boundary.normal | ray.direction;
+            float dot = boundary.normal.dot(ray.direction);
             if (!Math::neg(dot))
                 return Math::nan();
             
@@ -315,8 +315,8 @@ namespace TrenchBroom {
                 
                 edgeVector = edge->vector(this);
                 nextVector = next->vector(this);
-                cross = nextVector % edgeVector;
-                if (!Math::pos(cross | face->boundary().normal))
+                cross = nextVector.crossed(edgeVector);
+                if (!Math::pos(cross.dot(face->boundary().normal)))
                     return true;
             }
             
@@ -502,9 +502,9 @@ namespace TrenchBroom {
                 if (side->vertices.size() > 3) {
                     v1 = side->vertices[side->vertices.size() - 1]->position - side->vertices[0]->position;
                     v2 = side->vertices[1]->position - side->vertices[0]->position;
-                    v1 = v1 % v2; // points in the direction of the side's normal
+                    v1.cross(v2); // points in the direction of the side's normal
                     
-                    float dot = v1 | ray.direction;
+                    float dot = v1.dot(ray.direction);
                     if (Math::neg(dot)) { // movement direction is downwards into the side
                         splitSide(side, vertexIndex, newFaces);
                         assert(sanityCheck());
@@ -892,8 +892,8 @@ namespace TrenchBroom {
                     if (v1.parallelTo(v2)) {
                         // vertex is somewhere on the line defined by the edge
                         edgeVector = edge->vector();
-                        dot1 = v1 | edgeVector;
-                        dot2 = v2 | edgeVector;
+                        dot1 = v1.dot(edgeVector);
+                        dot2 = v2.dot(edgeVector);
                         if ((dot1 > 0 != dot2 > 0)) {
                             // vertex is between the edge points
                             // undo the vertex move
@@ -983,8 +983,8 @@ namespace TrenchBroom {
             // detect whether the drag would make the incident faces invalid
             leftNorm = edge->left->face->boundary().normal;
             rightNorm = edge->right->face->boundary().normal;
-            if (Math::neg((delta | leftNorm)) ||
-                Math::neg((delta | rightNorm))) {
+            if (Math::neg(delta.dot(leftNorm)) ||
+                Math::neg(delta.dot(rightNorm))) {
                 result.moved = false;
                 result.index = index;
                 return result;
@@ -1044,7 +1044,7 @@ namespace TrenchBroom {
             
             // detect whether the drag would lead to an indented face
             norm = side->face->boundary().normal;
-            if (Math::zero((delta | norm))) {
+            if (Math::zero(delta.dot(norm))) {
                 result.moved = false;
                 result.index = sideIndex;
                 return result;
@@ -1572,7 +1572,7 @@ namespace TrenchBroom {
             endPosition += delta;
             
             VertexMoveResult result;
-            if ((dir | delta) > 0) {
+            if (dir.dot(delta) > 0) {
                 result = testGeometry.moveVertex(findElement(testGeometry.vertices, endVertex), false, delta, newFaces, droppedFaces);
                 if (result.moved)
                     result = testGeometry.moveVertex(findElement(testGeometry.vertices, startVertex), false, delta, newFaces, droppedFaces);
@@ -1619,7 +1619,7 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < sideVertexCount; i++) {
                 sideVertices[i] = side->vertices[i]->position;
                 Vec3f diff = sideVertices[i] - center;
-                dots[i] = diff | dir;
+                dots[i] = diff.dot(dir);
                 indices[i] = findElement(testGeometry.vertices, side->vertices[i]);
                 sideVertices[i] += delta;
             }
@@ -1710,7 +1710,7 @@ namespace TrenchBroom {
             bounds.max = vertices[0]->position;
             
             for (unsigned int i = 1; i < vertices.size(); i++)
-                bounds += vertices[i]->position;
+                bounds.mergeWith(vertices[i]->position);
             return bounds;
         }
         

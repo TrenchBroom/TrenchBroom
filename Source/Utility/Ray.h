@@ -40,7 +40,7 @@ namespace TrenchBroom {
             }
             
             PointStatus::Type pointStatus(const Vec3f& point) const {
-                float dot = direction | (point - origin);
+                float dot = direction.dot(point - origin);
                 if (dot >  Math::PointStatusEpsilon) return PointStatus::Above;
                 if (dot < -Math::PointStatusEpsilon) return PointStatus::Below;
                 return PointStatus::Inside;

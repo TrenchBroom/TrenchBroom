@@ -464,6 +464,13 @@ namespace TrenchBroom {
                              v[12] * factors.x, v[13] * factors.y, v[14] * factors.z, v[15]);
             }
         };
+        
+        inline Mat4f operator*(float left, const Mat4f& right) {
+            return Mat4f(left * right.v[ 0], left * right.v[ 1], left * right.v[ 2], left * right.v[ 3],
+                         left * right.v[ 4], left * right.v[ 5], left * right.v[ 6], left * right.v[ 7],
+                         left * right.v[ 8], left * right.v[ 9], left * right.v[10], left * right.v[11],
+                         left * right.v[12], left * right.v[13], left * right.v[14], left * right.v[15]);
+        }
     }
 }
 

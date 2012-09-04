@@ -21,6 +21,9 @@
 #define __TrenchBroom__PathBuilder__
 
 #include "Renderer/Text/Path.h"
+#include "Utility/VecMath.h"
+
+using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {

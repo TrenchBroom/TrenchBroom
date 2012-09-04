@@ -58,7 +58,7 @@ namespace TrenchBroom {
                 if (!m_brushes.empty()) {
                     m_bounds = m_brushes[0]->bounds();
                     for (unsigned int i = 1; i < m_brushes.size(); i++)
-                        m_bounds += m_brushes[i]->bounds();
+                        m_bounds.mergeWith(m_brushes[i]->bounds());
                 } else {
                     m_bounds = BBox(Vec3f(-8, -8, -8), Vec3f(8, 8, 8));
                     m_bounds.translate(m_origin);

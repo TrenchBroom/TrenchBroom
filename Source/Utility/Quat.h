@@ -56,7 +56,7 @@ namespace TrenchBroom {
                 float ny = s * w.y + t * v.y + v.z * w.x - v.x * w.z;
                 float nz = s * w.z + t * v.z + v.x * w.y - v.y * w.x;
                 
-                s = s * t - (v | w);
+                s = s * t - (v.dot(w));
                 v.x = nx;
                 v.y = ny;
                 v.z = nz;

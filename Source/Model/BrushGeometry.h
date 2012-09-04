@@ -160,11 +160,11 @@ namespace TrenchBroom {
                 Vec3f u = vector();
                 Vec3f w = start->position - ray.origin;
                 
-                float a = u | u;
-                float b = u | ray.direction;
-                float c = ray.direction | ray.direction;
-                float d = u | w;
-                float e = ray.direction | w;
+                float a = u.dot(u);
+                float b = u.dot(ray.direction);
+                float c = ray.direction.dot(ray.direction);
+                float d = u.dot(w);
+                float e = ray.direction.dot(w);
                 float D = a * c - b * b;
                 float sN, sD = D;
                 float tN, tD = D;
