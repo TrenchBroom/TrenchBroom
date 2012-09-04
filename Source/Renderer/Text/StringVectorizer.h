@@ -56,6 +56,11 @@ namespace TrenchBroom {
                 inline bool cubicBezierPoint(char tag) {
                     return (tag & 0x3) == 0x3;
                 }
+                
+                inline void setPoint(const FT_Vector* points, size_t index, Vec2f& result) {
+                    result.x = static_cast<float>(points[index].x);
+                    result.y = static_cast<float>(points[index].y);
+                }
             public:
                 StringVectorizer(Utility::Console& console);
                 ~StringVectorizer();

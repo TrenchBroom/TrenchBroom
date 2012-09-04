@@ -22,6 +22,9 @@
 #include "IO/FileManager.h"
 #include "Renderer/Text/PathBuilder.h"
 #include "Utility/Console.h"
+#include "Utility/VecMath.h"
+
+using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -99,21 +102,49 @@ namespace TrenchBroom {
                     
                     unsigned int start = 0;
                     unsigned int end = 0;
+                    unsigned int count;
+                    
+                    Vec2f previousPoint, currentPoint, nextPoint, nextNextPoint;
+                    
                     
                     for (unsigned int j = 0; j < numContours; j++) {
                         start = end;
                         end = outline->contours[j] + 1;
+                        count = end - start;
+
+                        setPoint(outline->points, pred(start, count), previousPoint);
+                        setPoint(outline->points, start, currentPoint);
                         
                         pathBuilder.beginContour(winding);
-                        
                         for (unsigned int k = start; k < end; k++) {
-                            float x = static_cast<float>(outline->points[k].x);
-                            float y = static_cast<float>(outline->points[k].y);
+                            setPoint(outline->points, succ(k, count), nextPoint);
                             
                             if (linearPoint(outline->tags[k])) {
+                                pathBuilder.addPoint(currentPoint);
                             } else if (quadraticBezierPoint(outline->tags[k])) {
-                            } else if (cubicBezierPoint(outline->tags[k])) {
+                                Vec2f startPoint, endPoint;
+                                if (quadraticBezierPoint(outline->tags[pred(k, count)])) {
+                                    startPoint = (currentPoint + previousPoint) / 2.0f;
+                                    pathBuilder.addPoint(startPoint);
+                                } else {
+                                    startPoint = previousPoint;
+                                }
+                                
+                                if (quadraticBezierPoint(outline->tags[succ(k, count)])) {
+                                    endPoint = (currentPoint + nextPoint) / 2.0f;
+                                } else {
+                                    endPoint = nextPoint;
+                                }
+                                
+                                pathBuilder.addQuadraticBezierCurve(startPoint, currentPoint, endPoint);
+                            } else if (cubicBezierPoint(outline->tags[k]) &&
+                                       cubicBezierPoint(outline->tags[succ(k, count)])) {
+                                setPoint(outline->points, succ(k, count, 2), nextNextPoint);
+                                pathBuilder.addCubicBezierCurve(previousPoint, currentPoint, nextPoint, nextNextPoint);
                             }
+
+                            previousPoint = currentPoint;
+                            currentPoint = nextPoint;
                         }
                         
                         pathBuilder.endContour();

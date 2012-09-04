@@ -28,11 +28,24 @@ namespace TrenchBroom {
             class PathBuilder {
             private:
                 Path* m_path;
+                unsigned int m_bezierSegments;
             public:
-                PathBuilder(Path* path);
+                PathBuilder(Path* path, unsigned int bezierSegments = 6);
                 
-                void beginContour(PathContour::Winding winding);
-                void endContour();
+                inline void beginContour(PathContour::Winding winding) {
+                    m_path->beginContour(winding);
+                }
+                
+                inline void endContour() {
+                    m_path->endContour();
+                }
+                
+                inline void addPoint(const Vec2f& point) {
+                    m_path->addPoint(point);
+                }
+                
+                void addQuadraticBezierCurve(const Vec2f& a, const Vec2f& b, const Vec2f& c);
+                void addCubicBezierCurve(const Vec2f& a, const Vec2f& b, const Vec2f& c, const Vec2f& d);
             };
         }
     }

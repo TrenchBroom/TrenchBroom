@@ -89,6 +89,14 @@ namespace TrenchBroom {
             return !gt(f1, f2);
         }
 
+        inline size_t succ(size_t index, size_t count, size_t offset = 1) {
+            return (index + offset) % count;
+        }
+        
+        inline size_t pred(size_t index, size_t count, size_t offset = 1) {
+            return ((index + count) - (offset % count)) % count;
+        }
+
 		namespace Axis {
 			typedef unsigned int Type;
 			static const Type X = 0;

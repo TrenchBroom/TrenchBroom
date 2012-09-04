@@ -340,15 +340,6 @@ namespace TrenchBroom {
         size_t findEdge(const EdgeList& edges, const Vec3f& v1, const Vec3f& v2);
         size_t findSide(const SideList& sides, const Vec3f::List& vertices);
         
-        inline size_t succ(size_t index, size_t count, size_t offset = 1) {
-            return (index + offset) % count;
-        }
-        
-        inline size_t pred(size_t index, size_t count, size_t offset = 1) {
-            return ((index + count) - (offset % count)) % count;
-        }
-
-        
         Vec3f centerOfVertices(const VertexList& vertices);
         BBox boundsOfVertices(const VertexList& vertices);
         PointStatus::Type vertexStatusFromRay(const Vec3f& origin, const Vec3f& direction, const VertexList& vertices);

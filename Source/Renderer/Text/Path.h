@@ -20,43 +20,17 @@
 #ifndef __TrenchBroom__Path__
 #define __TrenchBroom__Path__
 
+#include "Utility/VecMath.h"
+
+#include <cassert>
+#include <memory>
 #include <vector>
+
+using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
         namespace Text {
-            class PathPoint {
-            public:
-                typedef enum {
-                    MoveTo,
-                    LineTo,
-                    ClosePath
-                } Type;
-            private:
-                Type m_type;
-                float m_x;
-                float m_y;
-            public:
-                PathPoint(Type type, float x, float y):
-                m_type(type),
-                m_x(x),
-                m_y(y) {}
-                
-                inline Type type() const {
-                    return m_type;
-                }
-                
-                inline float x() const {
-                    return m_x;
-                }
-                
-                inline float y() const {
-                    return m_y;
-                }
-            };
-            
-            typedef std::vector<const PathPoint*> PathPoints;
-
             class PathContour {
             public:
                 typedef enum {
@@ -65,25 +39,21 @@ namespace TrenchBroom {
                 } Winding;
             private:
                 Winding m_winding;
-                PathPoints m_points;
+                Vec2f::List m_points;
             public:
                 PathContour(Winding winding) :
                 m_winding(winding) {}
                 
-                PathContour() {
-                    while (!m_points.empty()) delete m_points.back(), m_points.pop_back();
-                }
-
                 inline Winding winding() const {
                     return m_winding;
                 }
                 
-                inline const PathPoints& points() const {
+                inline const Vec2f::List& points() const {
                     return m_points;
                 }
 
-                inline void addPoint(PathPoint::Type type, float x, float y) {
-                    m_points.push_back(new PathPoint(type, x, y));
+                inline void addPoint(const Vec2f& location) {
+                    m_points.push_back(location);
                 }
             };
             
@@ -134,9 +104,9 @@ namespace TrenchBroom {
                     m_current = NULL;
                 }
 
-                inline void addPoint(PathPoint::Type type, float x, float y) {
+                inline void addPoint(const Vec2f& location) {
                     assert(m_current != NULL);
-                    m_current->addPoint(type, x, y);
+                    m_current->addPoint(location);
                 }
             };
             

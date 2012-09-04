@@ -38,6 +38,10 @@ namespace TrenchBroom {
                     assert(size > 0);
                 }
                 
+                inline bool operator< (const FontDescriptor& other) const {
+                    return this < &other;
+                }
+                
                 inline const String& name() const {
                     return m_name;
                 }
