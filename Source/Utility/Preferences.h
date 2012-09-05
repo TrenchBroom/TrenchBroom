@@ -115,7 +115,7 @@ namespace TrenchBroom {
         static const Preference<Color>  OverriddenTextureColor(         "Texture browser/Overridden texture color",         Color(0.5f,  0.5f,  0.5f,  1.0f ));
         
 #if defined _WIN32
-        static const Preference<String> QuakePath(                      "General/Quake path",                               "C:\Program Files\Quake");
+        static const Preference<String> QuakePath(                      "General/Quake path",                               "C:\\Program Files\\Quake");
         static const Preference<String> RendererFontName(               "Renderer/Font name",                               "Arial");
 #elif defined __APPLE__
         static const Preference<String> QuakePath(                      "General/Quake path",                               "/Applications/Quake");

@@ -97,7 +97,7 @@ namespace TrenchBroom {
             void reset();
         };
         
-        class MapParserException : public Utility::MessageException {
+        class MapParserException : public TrenchBroom::Utility::MessageException {
         private:
             String type(unsigned int type) {
                 StringList names;

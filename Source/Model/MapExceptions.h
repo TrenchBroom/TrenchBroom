@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class GeometryException : public Utility::MessageException {
+        class GeometryException : public TrenchBroom::Utility::MessageException {
         public:
             GeometryException(const String& msg) throw() : MessageException(msg) {}
             GeometryException(const StringStream& str) throw() : MessageException(str) {}

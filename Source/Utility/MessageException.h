@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FormattedException_h
-#define TrenchBroom_FormattedException_h
+#ifndef TrenchBroom_MessageException_h
+#define TrenchBroom_MessageException_h
 
 #include "Utility/String.h"
 #include <exception>

@@ -79,19 +79,21 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;WINVER=0x0400;WXUSINGDLL;wxMSVC_VERSION_AUTO;__WXMSW__;_WINDOWS;wxUSE_GUI=1;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_DEBUG;__WXDEBUG__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(WXWIN)\include\msvc;$(WXWIN)\include;..\..\Source;.</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NOMINMAX;WIN32;WINVER=0x0400;WXUSINGDLL;wxMSVC_VERSION_AUTO;__WXMSW__;_WINDOWS;wxUSE_GUI=1;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_DEBUG;__WXDEBUG__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(WXWIN)\include\msvc;$(WXWIN)\include;..\..\Source;..\..\Include;.</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(WXWIN)\lib\vc100_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;..\Lib\freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>Mkdir "$(TargetDir)\Resources"
-Copy "$(ProjectDir)..\..\Resources\Defs\Quake.def" "$(TargetDir)\Resources"
+      <Command>Copy "$(ProjectDir)..\..\Resources\Defs\Quake.def" "$(TargetDir)\Resources"
 Copy "$(ProjectDir)..\..\Resources\Graphics\QuakePalette.lmp" "$(TargetDir)\Resources"
+Copy "$(ProjectDir)..\Lib\freetype6.dll" "$(TargetDir)"
+Copy "$(ProjectDir)..\Lib\zlib1.dll" "$(TargetDir)"
+
 Copy "$(WXWIN)\lib\vc100_dll\wxbase294ud_vc100.dll" "$(TargetDir)"
 Copy "$(WXWIN)\lib\vc100_dll\wxbase294ud_vc100.pdb" "$(TargetDir)"
 Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_core_vc100.dll" "$(TargetDir)"
@@ -135,8 +137,8 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294ud_gl_vc100_x64.pdb" "$(TargetDir)"
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;WINVER=0x0400;WXUSINGDLL;wxMSVC_VERSION_AUTO;__WXMSW__;_WINDOWS;wxUSE_GUI=1;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(WXWIN)\include\msvc;$(WXWIN)\include;..\..\Source;.</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NOMINMAX;WIN32;WINVER=0x0400;WXUSINGDLL;wxMSVC_VERSION_AUTO;__WXMSW__;_WINDOWS;wxUSE_GUI=1;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(WXWIN)\include\msvc;$(WXWIN)\include;..\..\Source;..\..\Include;.</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -144,12 +146,14 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294ud_gl_vc100_x64.pdb" "$(TargetDir)"
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(WXWIN)\lib\vc100_dll;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;..\Lib\freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>Mkdir "$(TargetDir)\Resources"
-Copy "$(ProjectDir)..\..\Resources\Defs\Quake.def" "$(TargetDir)\Resources"
+      <Command>Copy "$(ProjectDir)..\..\Resources\Defs\Quake.def" "$(TargetDir)\Resources"
 Copy "$(ProjectDir)..\..\Resources\Graphics\QuakePalette.lmp" "$(TargetDir)\Resources"
+Copy "$(ProjectDir)..\Lib\freetype6.dll" "$(TargetDir)"
+Copy "$(ProjectDir)..\Lib\zlib1.dll" "$(TargetDir)"
+
 Copy "$(WXWIN)\lib\vc100_dll\wxbase294u_vc100.dll" "$(TargetDir)"
 Copy "$(WXWIN)\lib\vc100_dll\wxbase294u_vc100.pdb" "$(TargetDir)"
 Copy "$(WXWIN)\lib\vc100_dll\wxmsw294u_core_vc100.dll" "$(TargetDir)"
@@ -193,31 +197,49 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
   <ItemGroup>
     <ClCompile Include="..\..\Source\Controller\CameraEvent.cpp" />
     <ClCompile Include="..\..\Source\Controller\CameraTool.cpp" />
+    <ClCompile Include="..\..\Source\Controller\ChangeEditStateCommand.cpp" />
+    <ClCompile Include="..\..\Source\Controller\Command.cpp" />
     <ClCompile Include="..\..\Source\Controller\InputController.cpp" />
+    <ClCompile Include="..\..\Source\Controller\SelectionTool.cpp" />
     <ClCompile Include="..\..\Source\IO\AbstractFileManager.cpp" />
     <ClCompile Include="..\..\Source\IO\MapParser.cpp" />
+    <ClCompile Include="..\..\Source\IO\Pak.cpp" />
     <ClCompile Include="..\..\Source\IO\StandardDefinitionParser.cpp" />
     <ClCompile Include="..\..\Source\IO\Wad.cpp" />
+    <ClCompile Include="..\..\Source\Model\Alias.cpp" />
     <ClCompile Include="..\..\Source\Model\Brush.cpp" />
     <ClCompile Include="..\..\Source\Model\BrushGeometry.cpp" />
+    <ClCompile Include="..\..\Source\Model\Bsp.cpp" />
+    <ClCompile Include="..\..\Source\Model\EditStateManager.cpp" />
     <ClCompile Include="..\..\Source\Model\Entity.cpp" />
     <ClCompile Include="..\..\Source\Model\EntityDefinition.cpp" />
     <ClCompile Include="..\..\Source\Model\EntityDefinitionManager.cpp" />
     <ClCompile Include="..\..\Source\Model\Face.cpp" />
     <ClCompile Include="..\..\Source\Model\Map.cpp" />
     <ClCompile Include="..\..\Source\Model\MapDocument.cpp" />
+    <ClCompile Include="..\..\Source\Model\Octree.cpp" />
     <ClCompile Include="..\..\Source\Model\Palette.cpp" />
+    <ClCompile Include="..\..\Source\Model\Picker.cpp" />
     <ClCompile Include="..\..\Source\Model\Texture.cpp" />
     <ClCompile Include="..\..\Source\Model\TextureManager.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\AliasRenderer.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\BspRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\Camera.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\EntityClassnameAnchor.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\EntityRenderer.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\EntityRendererManager.cpp" />
     <ClCompile Include="..\..\Source\Renderer\MapRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\RenderContext.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\Text\PathBuilder.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\Text\PathRenderer.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\Text\PathTesselator.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\Text\StringManager.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\Text\StringVectorizer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\Vbo.cpp" />
     <ClCompile Include="..\..\Source\Utility\Console.cpp" />
     <ClCompile Include="..\..\Source\Utility\DocManager.cpp" />
     <ClCompile Include="..\..\Source\Utility\GLee.c" />
     <ClCompile Include="..\..\Source\Utility\Mat4f.cpp" />
-    <ClCompile Include="..\..\Source\Utility\Preferences.cpp" />
     <ClCompile Include="..\..\Source\Utility\Vec3f.cpp" />
     <ClCompile Include="..\..\Source\View\AbstractApp.cpp" />
     <ClCompile Include="..\..\Source\View\EditorFrame.cpp" />
@@ -231,8 +253,11 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
   <ItemGroup>
     <ClInclude Include="..\..\Source\Controller\CameraEvent.h" />
     <ClInclude Include="..\..\Source\Controller\CameraTool.h" />
+    <ClInclude Include="..\..\Source\Controller\ChangeEditStateCommand.h" />
+    <ClInclude Include="..\..\Source\Controller\Command.h" />
     <ClInclude Include="..\..\Source\Controller\Input.h" />
     <ClInclude Include="..\..\Source\Controller\InputController.h" />
+    <ClInclude Include="..\..\Source\Controller\SelectionTool.h" />
     <ClInclude Include="..\..\Source\Controller\Tool.h" />
     <ClInclude Include="..\..\Source\IO\AbstractFileManager.h" />
     <ClInclude Include="..\..\Source\IO\AbstractTokenizer.h" />
@@ -240,14 +265,19 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\IO\MapParser.h" />
     <ClInclude Include="..\..\Source\IO\mmapped_fstream.h" />
     <ClInclude Include="..\..\Source\IO\mmapped_fstream_win32.h" />
+    <ClInclude Include="..\..\Source\IO\Pak.h" />
     <ClInclude Include="..\..\Source\IO\ParserException.h" />
     <ClInclude Include="..\..\Source\IO\StandardDefinitionParser.h" />
+    <ClInclude Include="..\..\Source\IO\substream.h" />
     <ClInclude Include="..\..\Source\IO\Wad.h" />
+    <ClInclude Include="..\..\Source\Model\Alias.h" />
     <ClInclude Include="..\..\Source\Model\Brush.h" />
     <ClInclude Include="..\..\Source\Model\BrushGeometry.h" />
     <ClInclude Include="..\..\Source\Model\BrushGeometryTypes.h" />
     <ClInclude Include="..\..\Source\Model\BrushTypes.h" />
+    <ClInclude Include="..\..\Source\Model\Bsp.h" />
     <ClInclude Include="..\..\Source\Model\EditState.h" />
+    <ClInclude Include="..\..\Source\Model\EditStateManager.h" />
     <ClInclude Include="..\..\Source\Model\Entity.h" />
     <ClInclude Include="..\..\Source\Model\EntityDefinition.h" />
     <ClInclude Include="..\..\Source\Model\EntityDefinitionManager.h" />
@@ -260,15 +290,33 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Model\MapDocument.h" />
     <ClInclude Include="..\..\Source\Model\MapExceptions.h" />
     <ClInclude Include="..\..\Source\Model\MapObject.h" />
+    <ClInclude Include="..\..\Source\Model\MapObjectTypes.h" />
+    <ClInclude Include="..\..\Source\Model\Octree.h" />
     <ClInclude Include="..\..\Source\Model\Palette.h" />
+    <ClInclude Include="..\..\Source\Model\Picker.h" />
     <ClInclude Include="..\..\Source\Model\PropertyDefinition.h" />
     <ClInclude Include="..\..\Source\Model\Texture.h" />
     <ClInclude Include="..\..\Source\Model\TextureManager.h" />
     <ClInclude Include="..\..\Source\Model\TextureTypes.h" />
+    <ClInclude Include="..\..\Source\Renderer\AliasRenderer.h" />
+    <ClInclude Include="..\..\Source\Renderer\BspRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\Camera.h" />
+    <ClInclude Include="..\..\Source\Renderer\EntityClassnameAnchor.h" />
+    <ClInclude Include="..\..\Source\Renderer\EntityClassnameFilter.h" />
+    <ClInclude Include="..\..\Source\Renderer\EntityRenderer.h" />
+    <ClInclude Include="..\..\Source\Renderer\EntityRendererManager.h" />
     <ClInclude Include="..\..\Source\Renderer\MapRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\RenderContext.h" />
     <ClInclude Include="..\..\Source\Renderer\RenderUtils.h" />
+    <ClInclude Include="..\..\Source\Renderer\Text\FontDescriptor.h" />
+    <ClInclude Include="..\..\Source\Renderer\Text\Path.h" />
+    <ClInclude Include="..\..\Source\Renderer\Text\PathBuilder.h" />
+    <ClInclude Include="..\..\Source\Renderer\Text\PathMesh.h" />
+    <ClInclude Include="..\..\Source\Renderer\Text\PathRenderer.h" />
+    <ClInclude Include="..\..\Source\Renderer\Text\PathTesselator.h" />
+    <ClInclude Include="..\..\Source\Renderer\Text\StringManager.h" />
+    <ClInclude Include="..\..\Source\Renderer\Text\StringVectorizer.h" />
+    <ClInclude Include="..\..\Source\Renderer\Text\TextRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\Vbo.h" />
     <ClInclude Include="..\..\Source\Utility\BBox.h" />
     <ClInclude Include="..\..\Source\Utility\Color.h" />
@@ -277,6 +325,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Utility\DocManager.h" />
     <ClInclude Include="..\..\Source\Utility\GLee.h" />
     <ClInclude Include="..\..\Source\Utility\Line.h" />
+    <ClInclude Include="..\..\Source\Utility\List.h" />
     <ClInclude Include="..\..\Source\Utility\Mat2f.h" />
     <ClInclude Include="..\..\Source\Utility\Mat3f.h" />
     <ClInclude Include="..\..\Source\Utility\Mat4f.h" />

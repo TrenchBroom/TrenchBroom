@@ -20,19 +20,47 @@
 #include "WinFileManager.h"
 
 #include <Windows.h>
+#include <fstream>
 
 namespace TrenchBroom {
 	namespace IO {
         String WinFileManager::resourceDirectory() {
-			TCHAR uAppPath[MAX_PATH] = L"";
-			DWORD numChars = GetModuleFileName(0, uAppPath, MAX_PATH - 1);
+			TCHAR uAppPathC[MAX_PATH] = L"";
+			DWORD numChars = GetModuleFileName(0, uAppPathC, MAX_PATH - 1);
 
-			char* appPath = new char[numChars];
-			WideCharToMultiByte(CP_ACP, 0, uAppPath, numChars, appPath, numChars, NULL, NULL);
-			appPath[numChars] = 0;
+			char appPathC[MAX_PATH];
+			WideCharToMultiByte(CP_ACP, 0, uAppPathC, numChars, appPathC, numChars, NULL, NULL);
+			appPathC[numChars] = 0;
 
+			String appPath(appPathC);
 			String appDirectory = deleteLastPathComponent(appPath);
 			return appendPath(appDirectory, "Resources");
+		}
+
+		String WinFileManager::resolveFontPath(const String& fontName) {
+			TCHAR uWindowsPathC[MAX_PATH] = L"";
+			DWORD numChars = GetWindowsDirectory(uWindowsPathC, MAX_PATH - 1);
+
+			char windowsPathC[MAX_PATH];
+			WideCharToMultiByte(CP_ACP, 0, uWindowsPathC, numChars, windowsPathC, numChars, NULL, NULL);
+			windowsPathC[numChars] = 0;
+
+			String windowsPath(windowsPathC);
+			if (windowsPath.back() != '\\')
+				windowsPath.push_back('\\');
+
+			String extensions[2] = {".ttf", ".ttc"};
+			String fontDirectoryPath = windowsPath + "Fonts\\";
+			String fontBasePath = fontDirectoryPath + fontName;
+
+			for (int i = 0; i < 2; i++) {
+				String fontPath = fontBasePath + extensions[i];
+				std::fstream fs(fontPath.c_str(), std::ios::binary | std::ios::in);
+				if (fs.is_open())
+					return fontPath;
+			}
+
+			return fontDirectoryPath + "Arial.ttf";            
 		}
 	}
 }

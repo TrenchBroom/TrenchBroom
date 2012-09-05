@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class ParserException : public Utility::MessageException {
+        class ParserException : public TrenchBroom::Utility::MessageException {
         protected:
             inline String buildMessage(size_t line, size_t column, const String& message) {
                 StringStream msg;

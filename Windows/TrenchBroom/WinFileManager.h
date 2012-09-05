@@ -25,6 +25,7 @@ namespace TrenchBroom {
         class WinFileManager : public AbstractFileManager {
         public:
             String resourceDirectory();
+            String resolveFontPath(const String& fontName);
         };
     }
 }

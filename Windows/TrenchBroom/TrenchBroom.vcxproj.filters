@@ -49,6 +49,12 @@
     <Filter Include="Source Files\Renderer">
       <UniqueIdentifier>{554e19eb-db55-478b-9e80-c7abb4aefa4c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Renderer\Text">
+      <UniqueIdentifier>{b416e764-50d4-4344-85cc-2265e3ef424d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\Text">
+      <UniqueIdentifier>{c54c1e9a-fd98-4248-93fa-7a2894c33933}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\Controller\CameraTool.cpp">
@@ -64,9 +70,6 @@
       <Filter>Source Files\IO</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\IO\Wad.cpp">
-      <Filter>Source Files\IO</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\IO\AbstractFileManager.cpp">
       <Filter>Source Files\IO</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\IO\MapParser.cpp">
@@ -126,9 +129,6 @@
     <ClCompile Include="..\..\Source\Utility\Mat4f.cpp">
       <Filter>Source Files\Utility</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Utility\Preferences.cpp">
-      <Filter>Source Files\Utility</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Utility\Vec3f.cpp">
       <Filter>Source Files\Utility</Filter>
     </ClCompile>
@@ -159,6 +159,66 @@
     <ClCompile Include="..\..\Source\Utility\DocManager.cpp">
       <Filter>Source Files\Utility</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\Text\PathBuilder.cpp">
+      <Filter>Source Files\Renderer\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\Text\PathRenderer.cpp">
+      <Filter>Source Files\Renderer\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\Text\PathTesselator.cpp">
+      <Filter>Source Files\Renderer\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\Text\StringManager.cpp">
+      <Filter>Source Files\Renderer\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\Text\StringVectorizer.cpp">
+      <Filter>Source Files\Renderer\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\IO\AbstractFileManager.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\ChangeEditStateCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\Command.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\SelectionTool.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\IO\Pak.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Model\Octree.cpp">
+      <Filter>Source Files\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Model\Picker.cpp">
+      <Filter>Source Files\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Model\Alias.cpp">
+      <Filter>Source Files\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Model\Bsp.cpp">
+      <Filter>Source Files\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Model\EditStateManager.cpp">
+      <Filter>Source Files\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\EntityRendererManager.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\AliasRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\BspRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\EntityClassnameAnchor.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\EntityRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\Controller\CameraEvent.h">
@@ -186,9 +246,6 @@
       <Filter>Header Files\IO</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\IO\Wad.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\IO\AbstractFileManager.h">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\IO\AbstractTokenizer.h">
@@ -375,6 +432,90 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Utility\DocManager.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Text\PathBuilder.h">
+      <Filter>Header Files\Renderer\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Text\PathMesh.h">
+      <Filter>Header Files\Renderer\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Text\PathRenderer.h">
+      <Filter>Header Files\Renderer\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Text\PathTesselator.h">
+      <Filter>Header Files\Renderer\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Text\StringManager.h">
+      <Filter>Header Files\Renderer\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Text\StringVectorizer.h">
+      <Filter>Header Files\Renderer\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Text\TextRenderer.h">
+      <Filter>Header Files\Renderer\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Text\FontDescriptor.h">
+      <Filter>Header Files\Renderer\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Text\Path.h">
+      <Filter>Header Files\Renderer\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\IO\AbstractFileManager.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\ChangeEditStateCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\Command.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\SelectionTool.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\IO\Pak.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\IO\substream.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Model\MapObjectTypes.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Model\Octree.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Model\Picker.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Model\Alias.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Model\Bsp.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Model\EditStateManager.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\AliasRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\BspRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\EntityClassnameAnchor.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\EntityClassnameFilter.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\EntityRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\EntityRendererManager.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utility\List.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
   </ItemGroup>

@@ -24,7 +24,11 @@
 namespace TrenchBroom {
     namespace Renderer {
         namespace Text {
+#if defined _WIN32
+            typedef GLvoid (__stdcall *GluTessCallbackType)();
+#else
             typedef GLvoid (*GluTessCallbackType)();
+#endif
             
             namespace PathTesselatorCallback {
                 typedef std::vector<Vec2f*> PointList;
