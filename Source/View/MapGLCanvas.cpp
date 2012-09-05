@@ -82,11 +82,8 @@ namespace TrenchBroom {
                 case WXK_ALT:
                     key = Controller::ModifierKeys::Alt;
                     break;
-                case WXK_RAW_CONTROL:
-                    key = Controller::ModifierKeys::Ctrl;
-                    break;
-                case WXK_COMMAND:
-                    key = Controller::ModifierKeys::Cmd;
+                case WXK_CONTROL:
+                    key = Controller::ModifierKeys::CtrlCmd;
                     break;
                 default:
                     key = Controller::ModifierKeys::None;

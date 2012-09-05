@@ -38,7 +38,7 @@ namespace TrenchBroom {
             Model::EditStateManager& editStateManager = document().EditStateManager();
             
             if (hit != NULL) {
-                bool multi = event.modifierKeys == ModifierKeys::Cmd;
+                bool multi = event.modifierKeys == ModifierKeys::CtrlCmd;
                 
                 if (hit->type() == Model::Hit::EntityHit) {
                     Model::Entity& entity = hit->entity();

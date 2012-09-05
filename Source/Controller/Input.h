@@ -35,11 +35,10 @@ namespace TrenchBroom {
     
     namespace Controller {
         namespace ModifierKeys {
-            static const unsigned int None  = 0;
-            static const unsigned int Shift = 1 << 0;
-            static const unsigned int Ctrl  = 1 << 1;
-            static const unsigned int Alt   = 1 << 2;
-            static const unsigned int Cmd   = 1 << 3;
+            static const unsigned int None      = 0;
+            static const unsigned int Shift     = 1 << 0;
+            static const unsigned int CtrlCmd   = 1 << 1; // Cmd on Mac, Ctrl on other systems
+            static const unsigned int Alt       = 1 << 2;
         }
         
         typedef unsigned int ModifierKeyState;

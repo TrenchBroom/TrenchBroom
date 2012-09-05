@@ -19,7 +19,7 @@
 #ifndef __TrenchBroom__FileManager__
 #define __TrenchBroom__FileManager__
 
-#include "IO/FileManager.h"
+#include "IO/AbstractFileManager.h"
 
 namespace TrenchBroom {
     namespace IO {

@@ -17,7 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "FileManager.h"
+#include "AbstractFileManager.h"
 
 #include <wx/wx.h>
 #include <wx/filename.h>
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             
             return result;
         }
-
+        
         StringList AbstractFileManager::pathComponents(const String& path) {
             StringList components;
             if (path.empty()) return components;
