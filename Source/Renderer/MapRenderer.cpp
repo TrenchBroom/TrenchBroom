@@ -28,11 +28,15 @@
 #include "Model/Filter.h"
 #include "Model/Map.h"
 #include "Model/MapDocument.h"
+#include "Renderer/EntityClassnameAnchor.h"
+#include "Renderer/EntityClassnameFilter.h"
 #include "Renderer/EntityRendererManager.h"
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Vbo.h"
+#include "Renderer/Text/FontDescriptor.h"
+#include "Renderer/Text/StringManager.h"
 #include "Utility/Preferences.h"
 
 namespace TrenchBroom {
@@ -614,10 +618,15 @@ namespace TrenchBroom {
             m_entityRendererManager = new EntityRendererManager(prefs.getString(Preferences::QuakePath), document.Palette(), document.Console());
             m_entityRendererCacheValid = true;
             
-            /*
-            m_classnameRenderer = new TextRenderer<Model::Entity*>(m_fontManager, prefs.infoOverlayFadeDistance());
-            m_selectedClassnameRenderer = new TextRenderer<Model::Entity*>(m_fontManager, prefs.selectedInfoOverlayFadeDistance());
+            m_stringManager = new Text::StringManager(document.Console());
             
+            float infoOverlayFadeDistance = prefs.getFloat(Preferences::InfoOverlayFadeDistance);
+            float selectedInfoOverlayFadeDistance = prefs.getFloat(Preferences::SelectedInfoOverlayFadeDistance);
+            
+            m_classnameRenderer = new Text::TextRenderer<Model::Entity*>(*m_stringManager, infoOverlayFadeDistance);
+            m_selectedClassnameRenderer = new Text::TextRenderer<Model::Entity*>(*m_stringManager, selectedInfoOverlayFadeDistance);
+            
+            /*
             m_figureVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
 
             m_gridRenderer = new Renderer::GridRenderer();
@@ -630,30 +639,56 @@ namespace TrenchBroom {
         MapRenderer::~MapRenderer() {
 //            m_figures.clear();
             
-            delete m_faceVbo;
-            delete m_edgeVbo;
-            delete m_entityBoundsVbo;
+            if (m_faceVbo != NULL) {
+                delete m_faceVbo;
+                m_faceVbo = NULL;
+            }
             
-            delete m_entityRendererManager;
+            if (m_edgeVbo != NULL) {
+                delete m_edgeVbo;
+                m_edgeVbo = NULL;
+            }
             
+            if (m_entityBoundsVbo != NULL) {
+                delete m_entityBoundsVbo;
+                m_entityBoundsVbo = NULL;
+            }
+
             /*
-            delete m_classnameRenderer;
-            delete m_selectedClassnameRenderer;
-            
-            delete m_figureVbo;
+             delete m_figureVbo;
              */
+            if (m_entityRendererManager != NULL) {
+                delete m_entityRendererManager;
+                m_entityRendererManager = NULL;
+            }
             
-            if (m_dummyTexture != NULL)
+            if (m_classnameRenderer != NULL) {
+                delete m_classnameRenderer;
+                m_classnameRenderer = NULL;
+            }
+            
+            if (m_selectedClassnameRenderer != NULL) {
+                delete m_selectedClassnameRenderer;
+                m_selectedClassnameRenderer = NULL;
+            }
+            
+            
+            if (m_stringManager != NULL) {
+                delete m_stringManager;
+                m_stringManager = NULL;
+            }
+            
+            if (m_dummyTexture != NULL) {
                 delete m_dummyTexture;
+                m_dummyTexture = NULL;
+            }
         }
 
         void MapRenderer::addEntities(const Model::EntityList& entities) {
-            /*
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            const std::string& fontName = prefs.rendererFontName();
-            int fontSize = prefs.rendererFontSize();
-            FontDescriptor descriptor(fontName, fontSize);
-            */
+            const String& fontName = prefs.getString(Preferences::RendererFontName);
+            int fontSize = prefs.getInt(Preferences::RendererFontSize);
+            Text::FontDescriptor fontDescriptor(fontName, fontSize);
              
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
@@ -661,12 +696,9 @@ namespace TrenchBroom {
                 if (renderer != NULL)
                     m_entityRenderers[entity] = CachedEntityRenderer(renderer, *entity->classname());
                 
-                /*
                 const Model::PropertyValue& classname = *entity->classname();
                 EntityClassnameAnchor* anchor = new EntityClassnameAnchor(*entity);
-                TextAnchorPtr anchorPtr(anchor);
-                m_classnameRenderer->addString(entity, classname, descriptor, anchorPtr);
-                */
+                m_classnameRenderer->addString(entity, fontDescriptor, classname, anchor);
             }
             
             m_entityDataValid = false;
@@ -676,7 +708,7 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
                 m_entityRenderers.erase(entity);
-                // m_classnameRenderer->removeString(entity);
+                m_classnameRenderer->removeString(entity);
             }
             m_entityDataValid = false;
         }
@@ -705,10 +737,8 @@ namespace TrenchBroom {
         void MapRenderer::clearMap() {
             m_entityRenderers.clear();
             m_selectedEntityRenderers.clear();
-            /*
 			m_classnameRenderer->clear();
 			m_selectedClassnameRenderer->clear();
-             */
             m_entityDataValid = false;
             m_selectedEntityDataValid = false;
             m_geometryDataValid = false;
@@ -772,6 +802,13 @@ namespace TrenchBroom {
             // render entity models
             renderEntityModels(context, m_entityRenderers);
             renderEntityModels(context, m_selectedEntityRenderers);
+
+            // render classnames
+            EntityClassnameFilter classnameFilter;
+            m_stringManager->activate();
+            m_classnameRenderer->render(context, classnameFilter, prefs.getColor(Preferences::InfoOverlayColor));
+            m_selectedClassnameRenderer->render(context, classnameFilter, prefs.getColor(Preferences::SelectedInfoOverlayColor));
+            m_stringManager->deactivate();
         }
     }
 }

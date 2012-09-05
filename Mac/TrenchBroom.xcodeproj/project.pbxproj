@@ -42,6 +42,10 @@
 		4850D28015F4CA62005B162D /* BspRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D27D15F4CA62005B162D /* BspRenderer.cpp */; };
 		4850D29715F53CE9005B162D /* StringVectorizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D29515F53CE9005B162D /* StringVectorizer.cpp */; };
 		4850D29A15F5475E005B162D /* PathBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D29815F5475E005B162D /* PathBuilder.cpp */; };
+		4850D2A515F73FC7005B162D /* PathRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2A315F73FC7005B162D /* PathRenderer.cpp */; };
+		4850D2A915F742CB005B162D /* PathTesselator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2A715F742CA005B162D /* PathTesselator.cpp */; };
+		4850D2AF15F76245005B162D /* StringManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2AD15F76244005B162D /* StringManager.cpp */; };
+		4850D2B415F776B9005B162D /* EntityClassnameAnchor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2B115F776A7005B162D /* EntityClassnameAnchor.cpp */; };
 		48819C3815EBE97A00BEA604 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3615EBE92800BEA604 /* Camera.cpp */; };
 		48819C3915EBE98100BEA604 /* GLee.c in Sources */ = {isa = PBXBuildFile; fileRef = 4810276815E52F3700250C9C /* GLee.c */; settings = {COMPILER_FLAGS = "-w"; }; };
 		48819C3C15EC066E00BEA604 /* FileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3A15EC066E00BEA604 /* FileManager.cpp */; };
@@ -168,6 +172,17 @@
 		4850D29615F53CE9005B162D /* StringVectorizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringVectorizer.h; sourceTree = "<group>"; };
 		4850D29815F5475E005B162D /* PathBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PathBuilder.cpp; sourceTree = "<group>"; };
 		4850D29915F5475E005B162D /* PathBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathBuilder.h; sourceTree = "<group>"; };
+		4850D2A315F73FC7005B162D /* PathRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PathRenderer.cpp; sourceTree = "<group>"; };
+		4850D2A415F73FC7005B162D /* PathRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathRenderer.h; sourceTree = "<group>"; };
+		4850D2A715F742CA005B162D /* PathTesselator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PathTesselator.cpp; sourceTree = "<group>"; };
+		4850D2A815F742CA005B162D /* PathTesselator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathTesselator.h; sourceTree = "<group>"; };
+		4850D2AB15F743BA005B162D /* PathMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathMesh.h; sourceTree = "<group>"; };
+		4850D2AD15F76244005B162D /* StringManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringManager.cpp; sourceTree = "<group>"; };
+		4850D2AE15F76245005B162D /* StringManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringManager.h; sourceTree = "<group>"; };
+		4850D2B015F76EC0005B162D /* TextRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextRenderer.h; sourceTree = "<group>"; };
+		4850D2B115F776A7005B162D /* EntityClassnameAnchor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = EntityClassnameAnchor.cpp; sourceTree = "<group>"; };
+		4850D2B215F776A8005B162D /* EntityClassnameAnchor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityClassnameAnchor.h; sourceTree = "<group>"; };
+		4850D2B315F776A8005B162D /* EntityClassnameFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityClassnameFilter.h; sourceTree = "<group>"; };
 		486C61E615EF713C0091AA97 /* mmapped_fstream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mmapped_fstream.h; sourceTree = "<group>"; };
 		48819C3615EBE92800BEA604 /* Camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
 		48819C3715EBE92800BEA604 /* Camera.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
@@ -268,6 +283,9 @@
 				4850D27E15F4CA62005B162D /* BspRenderer.h */,
 				48819C3615EBE92800BEA604 /* Camera.cpp */,
 				48819C3715EBE92800BEA604 /* Camera.h */,
+				4850D2B115F776A7005B162D /* EntityClassnameAnchor.cpp */,
+				4850D2B215F776A8005B162D /* EntityClassnameAnchor.h */,
+				4850D2B315F776A8005B162D /* EntityClassnameFilter.h */,
 				4850D27515F4C9C2005B162D /* EntityRenderer.cpp */,
 				4850D27615F4C9C2005B162D /* EntityRenderer.h */,
 				4850D27715F4C9C2005B162D /* EntityRendererManager.cpp */,
@@ -470,9 +488,17 @@
 				4850D28315F52CCE005B162D /* Path.h */,
 				4850D29815F5475E005B162D /* PathBuilder.cpp */,
 				4850D29915F5475E005B162D /* PathBuilder.h */,
+				4850D2AB15F743BA005B162D /* PathMesh.h */,
+				4850D2A315F73FC7005B162D /* PathRenderer.cpp */,
+				4850D2A415F73FC7005B162D /* PathRenderer.h */,
+				4850D2A715F742CA005B162D /* PathTesselator.cpp */,
+				4850D2A815F742CA005B162D /* PathTesselator.h */,
 				4850D28915F53168005B162D /* FontDescriptor.h */,
 				4850D29515F53CE9005B162D /* StringVectorizer.cpp */,
 				4850D29615F53CE9005B162D /* StringVectorizer.h */,
+				4850D2AD15F76244005B162D /* StringManager.cpp */,
+				4850D2AE15F76245005B162D /* StringManager.h */,
+				4850D2B015F76EC0005B162D /* TextRenderer.h */,
 			);
 			path = Text;
 			sourceTree = "<group>";
@@ -564,6 +590,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4850D2B415F776B9005B162D /* EntityClassnameAnchor.cpp in Sources */,
 				4850D27915F4C9E8005B162D /* EntityRenderer.cpp in Sources */,
 				4850D27A15F4C9E8005B162D /* EntityRendererManager.cpp in Sources */,
 				4850D27415F4BF18005B162D /* Bsp.cpp in Sources */,
@@ -615,6 +642,9 @@
 				4850D28015F4CA62005B162D /* BspRenderer.cpp in Sources */,
 				4850D29715F53CE9005B162D /* StringVectorizer.cpp in Sources */,
 				4850D29A15F5475E005B162D /* PathBuilder.cpp in Sources */,
+				4850D2A515F73FC7005B162D /* PathRenderer.cpp in Sources */,
+				4850D2A915F742CB005B162D /* PathTesselator.cpp in Sources */,
+				4850D2AF15F76245005B162D /* StringManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

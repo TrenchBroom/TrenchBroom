@@ -91,8 +91,8 @@ namespace TrenchBroom {
             void update(float x, float y, float width, float height);
             void setBillboard();
 
-            float distanceTo(const Vec3f& point);
-            float squaredDistanceTo(const Vec3f& point);
+            float distanceTo(const Vec3f& point) const;
+            float squaredDistanceTo(const Vec3f& point) const;
 
             void moveTo(Vec3f position);
             void moveBy(float forward, float right, float up);

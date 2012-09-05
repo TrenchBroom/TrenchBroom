@@ -17,35 +17,26 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RenderContext__
-#define __TrenchBroom__RenderContext__
+#ifndef TrenchBroom_EntityClassnameFilter_h
+#define TrenchBroom_EntityClassnameFilter_h
+
+#include "Model/Entity.h"
+#include "Model/Filter.h"
+#include "Renderer/RenderContext.h"
+#include "Renderer/Text/TextRenderer.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class Filter;
-    }
-    
     namespace Renderer {
-        class Camera;
-
-        class RenderContext {
-        private:
-            Camera& m_camera;
-            Model::Filter& m_filter;
+        class RenderContext;
+        
+        typedef Model::Entity* EntityKey;
+        class EntityClassnameFilter : public Text::TextRenderer<EntityKey>::TextRendererFilter {
         public:
-            RenderContext(Camera& camera, Model::Filter& filter) :
-            m_camera(camera),
-            m_filter(filter) {}
-            
-            inline Camera& camera() const {
-                return m_camera;
-            }
-            
-            inline const Model::Filter& filter() const {
-                return m_filter;
+            bool stringVisible(RenderContext& context, const EntityKey& entity) {
+                return context.filter().entityVisible(*entity);
             }
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__RenderContext__) */
+#endif

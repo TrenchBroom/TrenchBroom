@@ -29,6 +29,7 @@ namespace TrenchBroom {
         namespace Text {
             class FontDescriptor {
             private:
+                unsigned long m_nameHash;
                 String m_name;
                 unsigned int m_size;
             public:
@@ -36,10 +37,36 @@ namespace TrenchBroom {
                 m_name(name),
                 m_size(size) {
                     assert(size > 0);
+                    m_nameHash = Utility::makeHash(m_name);
+                }
+                
+                inline int compare(const FontDescriptor& other) const {
+                    if (m_nameHash < other.nameHash())
+                        return -1;
+                    if (m_nameHash > other.nameHash())
+                        return +1;
+                    
+                    // hashes are the same, but it might be a collision
+                    int strOrder = m_name.compare(other.name());
+                    if (strOrder < 0)
+                        return -1;
+                    if (strOrder > 0)
+                        return +1;
+                    
+                    // names are the same, use the size
+                    if (m_size < other.size())
+                        return -1;
+                    if (m_size > other.size())
+                        return +1;
+                    return 0;
                 }
                 
                 inline bool operator< (const FontDescriptor& other) const {
-                    return this < &other;
+                    return compare(other) < 0;
+                }
+
+                inline const unsigned long nameHash() const {
+                    return m_nameHash;
                 }
                 
                 inline const String& name() const {

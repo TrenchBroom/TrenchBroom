@@ -17,35 +17,15 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RenderContext__
-#define __TrenchBroom__RenderContext__
+#include "EntityClassnameAnchor.h"
+#include "Model/Entity.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class Filter;
-    }
-    
     namespace Renderer {
-        class Camera;
-
-        class RenderContext {
-        private:
-            Camera& m_camera;
-            Model::Filter& m_filter;
-        public:
-            RenderContext(Camera& camera, Model::Filter& filter) :
-            m_camera(camera),
-            m_filter(filter) {}
-            
-            inline Camera& camera() const {
-                return m_camera;
-            }
-            
-            inline const Model::Filter& filter() const {
-                return m_filter;
-            }
-        };
+        const Vec3f& EntityClassnameAnchor::position() {
+            m_position = m_entity.center();
+            m_position.z += m_entity.bounds().size().z / 2 + 3;
+            return m_position;
+        }
     }
 }
-
-#endif /* defined(__TrenchBroom__RenderContext__) */

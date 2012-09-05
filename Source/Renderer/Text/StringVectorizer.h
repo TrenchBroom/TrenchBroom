@@ -46,20 +46,20 @@ namespace TrenchBroom {
                 FT_Face makeFont(const FontDescriptor& fontDescriptor);
                 
                 inline bool linearPoint(char tag) {
-                    return (tag & 0x3) == 0x0;
+                    return (tag & 0x1) == 0x1;
                 }
                 
                 inline bool quadraticBezierPoint(char tag) {
-                    return (tag & 0x3) == 0x1;
+                    return (tag & 0x3) == 0x0;
                 }
                 
                 inline bool cubicBezierPoint(char tag) {
-                    return (tag & 0x3) == 0x3;
+                    return (tag & 0x3) == 0x2;
                 }
                 
                 inline void setPoint(const FT_Vector* points, size_t index, Vec2f& result) {
-                    result.x = static_cast<float>(points[index].x);
-                    result.y = static_cast<float>(points[index].y);
+                    result.x = points[index].x / 64.0f;
+                    result.y = points[index].y / 64.0f;
                 }
             public:
                 StringVectorizer(Utility::Console& console);

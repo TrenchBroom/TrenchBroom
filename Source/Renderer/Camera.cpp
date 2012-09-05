@@ -99,11 +99,11 @@ namespace TrenchBroom {
             glMultMatrixf(matrix);
         }
 
-        float Camera::distanceTo(const Vec3f& point) {
+        float Camera::distanceTo(const Vec3f& point) const {
             return sqrt(squaredDistanceTo(point));
         }
         
-        float Camera::squaredDistanceTo(const Vec3f& point) {
+        float Camera::squaredDistanceTo(const Vec3f& point) const {
             return (point - m_position).lengthSquared();
         }
 

@@ -45,6 +45,7 @@ namespace TrenchBroom {
                 }
                 
                 FT_Set_Pixel_Sizes(face, 0, fontDescriptor.size());
+                // FT_Set_Char_Size(face, 0, fontDescriptor.size() * 64, 72, 72);
                 m_fontCache[fontDescriptor] = face;
                 return face;
             }
@@ -78,46 +79,72 @@ namespace TrenchBroom {
                 
                 float width = 0.0f;
                 float height = static_cast<float>(fontDescriptor.size());
-
+                unsigned int bezierSegments = fontDescriptor.size() / 10 + 2;
+                
                 Path* path = new Path();
-                PathBuilder pathBuilder(path);
+                PathBuilder pathBuilder(path, bezierSegments);
+                
+                FT_Bool useKerning = FT_HAS_KERNING(face);
+                FT_UInt previousIndex = 0;
                 
                 for (unsigned int i = 0; i < string.length(); i++) {
                     char c = string[i];
-                    FT_Error error = FT_Load_Char(face, c, FT_LOAD_NO_BITMAP);
+                    FT_UInt glyphIndex = FT_Get_Char_Index(face, c);
+                    FT_Error error = FT_Load_Glyph(face, glyphIndex, FT_LOAD_NO_HINTING | FT_LOAD_NO_AUTOHINT | FT_LOAD_NO_BITMAP);
                     if (error != 0) {
                         m_console.error("Error loading glyph (FT error: %i)", error);
                         delete path;
                         return PathPtr(NULL);
                     }
+
+                    float advance = 0.0f;
+                    if (useKerning && previousIndex && glyphIndex) {
+                        FT_Vector delta;
+                        FT_Get_Kerning(face, previousIndex, glyphIndex, FT_KERNING_DEFAULT, &delta);
+                        advance += delta.x / 64.0f;
+                    }
+                    previousIndex = glyphIndex;
                     
                     FT_GlyphSlot glyph = face->glyph;
-                    width += glyph->metrics.horiAdvance;
+                    advance += glyph->advance.x / 64.0f;
+                    width += advance;
                     
                     FT_Outline* outline = &glyph->outline;
-                    
                     unsigned int numContours = outline->n_contours;
-                    unsigned int numPoints = outline->n_points;
-                    PathContour::Winding winding = (outline->flags & FT_OUTLINE_EVEN_ODD_FILL) ? PathContour::EvenOdd : PathContour::NonZero;
+                    PathPolygon::Winding winding = (outline->flags & FT_OUTLINE_EVEN_ODD_FILL) ? PathPolygon::EvenOdd : PathPolygon::NonZero;
                     
                     unsigned int start = 0;
                     unsigned int end = 0;
                     unsigned int count;
                     
-                    Vec2f previousPoint, currentPoint, nextPoint, nextNextPoint;
-                    
-                    
+                    Vec2f previousPoint, currentPoint, nextPoint, nextNextPoint, diff;
+
+                    pathBuilder.beginPolygon(winding);
                     for (unsigned int j = 0; j < numContours; j++) {
                         start = end;
                         end = outline->contours[j] + 1;
                         count = end - start;
 
-                        setPoint(outline->points, pred(start, count), previousPoint);
+                        setPoint(outline->points, start + pred(start - start, count), previousPoint);
                         setPoint(outline->points, start, currentPoint);
                         
-                        pathBuilder.beginContour(winding);
+                        diff = currentPoint - previousPoint;
+                        double dir, oldDir = atan2(diff.x, diff.y);
+                        double angle = 0.0;
+
+                        pathBuilder.beginContour();
                         for (unsigned int k = start; k < end; k++) {
-                            setPoint(outline->points, succ(k, count), nextPoint);
+                            setPoint(outline->points, start + succ(k - start, count), nextPoint);
+                            
+                            diff = nextPoint - currentPoint;
+                            dir = atan2(diff.x, diff.y);
+                            
+                            double t = dir - oldDir;
+                            if (t < -Math::Pi)
+                                t += 2 * Math::Pi;
+                            if (t > Math::Pi)
+                                t -= 2 * Math::Pi;
+                            angle += t;
                             
                             if (linearPoint(outline->tags[k])) {
                                 pathBuilder.addPoint(currentPoint);
@@ -146,9 +173,10 @@ namespace TrenchBroom {
                             previousPoint = currentPoint;
                             currentPoint = nextPoint;
                         }
-                        
-                        pathBuilder.endContour();
+                        pathBuilder.endContour(angle < 0.0);
                     }
+                    pathBuilder.endPolygon();
+                    pathBuilder.translate(advance, 0.0f);
                 }
                 
                 path->setBounds(width, height);

@@ -151,7 +151,7 @@ namespace TrenchBroom {
 				m_view.Camera().update(0.0f, 0.0f, GetSize().x, GetSize().y);
             
 				Model::Filter filter;
-				Renderer::RenderContext renderContext(filter);
+				Renderer::RenderContext renderContext(m_view.Camera(), filter);
 				m_view.Renderer().render(renderContext);
             
 				SwapBuffers();

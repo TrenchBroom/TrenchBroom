@@ -83,7 +83,7 @@ namespace TrenchBroom {
         static const Preference<float>  InfoOverlayFadeDistance(        "Renderer/Info overlay fade distance",              400.0f);
         static const Preference<float>  SelectedInfoOverlayFadeDistance("Renderer/Selected info overlay fade distance",     2000.0f);
         static const Preference<String> RendererFontName(               "Renderer/Font name",                               "Arial.ttf");
-        static const Preference<float>  RendererFontSize(               "Renderer/Font size",                               11.0f);
+        static const Preference<int>    RendererFontSize(               "Renderer/Font size",                               16);
         static const Preference<float>  RendererBrightness(             "Renderer/Brightness",                              1.0f);
         static const Preference<Color>  BackgroundColor(                "Renderer/Colors/Background",                       Color(0.0f,  0.0f,  0.0f,  1.0f ));
         static const Preference<Color>  GridColor(                      "Renderer/Colors/Grid",                             Color(1.0f,  1.0f,  1.0f,  0.22f));
@@ -143,6 +143,19 @@ namespace TrenchBroom {
                         long longValue;
                         if (str.ToLong(&longValue))
                             preference.setValue(longValue > 0L);
+                    }
+                }
+                
+                return preference.value();
+            }
+            
+            inline int getInt(const Preference<int>& preference) const {
+                if (!preference.initialized()) {
+                    wxString str;
+                    if (m_config->Read(preference.name(), &str)) {
+                        long longValue;
+                        if (str.ToLong(&longValue))
+                            preference.setValue(static_cast<int>(longValue));
                     }
                 }
                 

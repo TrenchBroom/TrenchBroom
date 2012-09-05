@@ -33,6 +33,14 @@ typedef std::vector<String> StringList;
 
 namespace TrenchBroom {
     namespace Utility {
+        inline long makeHash(const String& str) {
+            unsigned long hash = 0;
+            String::const_iterator it, end;
+            for (it = str.begin(), end = str.end(); it != end; ++it)
+                hash = (*it) + (hash << 6) + (hash << 16) - hash;
+            return hash;
+        }
+
         inline String trim(const String& str) {
             if (str.length() == 0)
                 return str;

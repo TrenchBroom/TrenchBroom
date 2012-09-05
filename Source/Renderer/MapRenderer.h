@@ -24,6 +24,7 @@
 #include "Model/EntityTypes.h"
 #include "Model/FaceTypes.h"
 #include "Model/Texture.h"
+#include "Renderer/Text/TextRenderer.h"
 #include "Utility/Color.h"
 #include "Utility/GLee.h"
 
@@ -42,6 +43,10 @@ namespace TrenchBroom {
         class RenderContext;
         class Vbo;
         class VboBlock;
+        
+        namespace Text {
+            class StringManager;
+        }
         
         class MapRenderer {
         private:
@@ -106,11 +111,11 @@ namespace TrenchBroom {
             EntityRenderers m_selectedEntityRenderers;
             bool m_entityRendererCacheValid;
 
-            /*
             // classnames
-            TextRenderer<Model::Entity*>* m_classnameRenderer;
-            TextRenderer<Model::Entity*>* m_selectedClassnameRenderer;
-            
+            Text::TextRenderer<Model::Entity*>* m_classnameRenderer;
+            Text::TextRenderer<Model::Entity*>* m_selectedClassnameRenderer;
+
+            /*
             // selection guides
             SizeGuideFigure* m_sizeGuideFigure;
             
@@ -129,8 +134,9 @@ namespace TrenchBroom {
             
             /*
             GridRenderer* m_gridRenderer;
-            FontManager& m_fontManager;
              */
+            
+            Text::StringManager* m_stringManager;
 
             Model::Texture* m_dummyTexture;
 

@@ -36,7 +36,7 @@ namespace TrenchBroom {
             }
             
             void PathBuilder::addCubicBezierCurve(const Vec2f& a, const Vec2f& b, const Vec2f& c, const Vec2f& d) {
-                for (unsigned int i = 0; i < m_bezierSegments; i++) {
+                for (unsigned int i = 1; i < m_bezierSegments; i++) {
                     float t = static_cast<float>(i) / m_bezierSegments;
                     Vec2f u = (1.0f - t) * a + t * b;
                     Vec2f v = (1.0f - t) * b + t * c;
