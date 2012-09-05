@@ -271,7 +271,7 @@ namespace TrenchBroom {
             expect(TokenType::Decimal, (token = m_tokenizer.nextToken()).get());
             color.z = token->toFloat();
             expect(TokenType::CParenthesis, (token = m_tokenizer.nextToken()).get());
-            color.w = 1;
+            color.w = 1.0f;
             return color;
         }
 

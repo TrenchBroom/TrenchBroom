@@ -29,10 +29,15 @@
 #include "Utility/DocManager.h"
 #include "View/EditorView.h"
 
+#include <clocale>
+
 BEGIN_EVENT_TABLE(AbstractApp, wxApp)
 END_EVENT_TABLE()
 
 bool AbstractApp::OnInit() {
+    // set the locale to US so that we can parse floats property
+    std::setlocale(LC_ALL, "en_US");
+    
     // initialize globals
     TrenchBroom::IO::PakManager::sharedManager = new TrenchBroom::IO::PakManager();
     TrenchBroom::Model::AliasManager::sharedManager = new TrenchBroom::Model::AliasManager();
