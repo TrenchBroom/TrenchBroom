@@ -68,7 +68,6 @@ namespace TrenchBroom {
             }
         };
         
-        static const Preference<String> QuakePath(                      "General/Quake path",                               "/Applications/Quake");
         static const Preference<float>  CameraLookSpeed(                "Controls/Camera/Look speed",                       0.5f);
         static const Preference<float>  CameraPanSpeed(                 "Controls/Camera/Pan speed",                        0.5f);
         static const Preference<float>  CameraMoveSpeed(                "Controls/Camera/Move speed",                       0.5f);
@@ -82,7 +81,6 @@ namespace TrenchBroom {
         static const Preference<float>  CameraFarPlane(                 "Renderer/Camera far plane",                        5000.0f);
         static const Preference<float>  InfoOverlayFadeDistance(        "Renderer/Info overlay fade distance",              400.0f);
         static const Preference<float>  SelectedInfoOverlayFadeDistance("Renderer/Selected info overlay fade distance",     2000.0f);
-        static const Preference<String> RendererFontName(               "Renderer/Font name",                               "Arial.ttf");
         static const Preference<int>    RendererFontSize(               "Renderer/Font size",                               16);
         static const Preference<float>  RendererBrightness(             "Renderer/Brightness",                              1.0f);
         static const Preference<Color>  BackgroundColor(                "Renderer/Colors/Background",                       Color(0.0f,  0.0f,  0.0f,  1.0f ));
@@ -116,6 +114,15 @@ namespace TrenchBroom {
         static const Preference<Color>  UsedTextureColor(               "Texture browser/Used texture color",               Color(0.8f,  0.8f,  0.0f,  1.0f ));
         static const Preference<Color>  OverriddenTextureColor(         "Texture browser/Overridden texture color",         Color(0.5f,  0.5f,  0.5f,  1.0f ));
         
+#if defined _WIN32
+        static const Preference<String> QuakePath(                      "General/Quake path",                               "C:\Program Files\Quake");
+        static const Preference<String> RendererFontName(               "Renderer/Font name",                               "Arial");
+#elif defined __APPLE__
+        static const Preference<String> QuakePath(                      "General/Quake path",                               "/Applications/Quake");
+        static const Preference<String> RendererFontName(               "Renderer/Font name",                               "LucidaGrande");
+#elif defined __linux__
+#endif
+
         class PreferenceManager {
         private:
             wxConfig* m_config;
