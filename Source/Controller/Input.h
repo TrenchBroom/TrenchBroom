@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_Input_h
 #define TrenchBroom_Input_h
 
+#include "Model/Picker.h"
 #include "Utility/VecMath.h"
 
 using namespace TrenchBroom::Math;
@@ -67,6 +68,13 @@ namespace TrenchBroom {
             Renderer::Camera* camera;
 
             InputEvent() : modifierKeys(ModifierKeys::None), mouseButtons(MouseButtons::None), pickResult(NULL), camera(NULL) {}
+			
+			~InputEvent() {
+				if (pickResult != NULL) {
+					delete pickResult;
+					pickResult = NULL;
+				}
+			}
         };
 
         class MouseState {
