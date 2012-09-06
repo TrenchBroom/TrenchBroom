@@ -46,7 +46,9 @@ namespace TrenchBroom {
                                     break;
                                 }
                             }
-                            case '\r':
+							case '\r':
+								if (peekChar() == '\n')
+									nextChar();
                             case '\n':
                             case '\t':
                             case ' ':
@@ -112,7 +114,9 @@ namespace TrenchBroom {
                                     nextChar();
                                 }
                             }
-                            case '\r':
+							case '\r':
+								if (peekChar() == '\n')
+									nextChar();
                             case '\n':
                             case '\t':
                             case ' ': {
@@ -136,7 +140,9 @@ namespace TrenchBroom {
                                     comment = true;
                                     nextChar();
                                 }
-                            case '\r':
+							case '\r':
+								if (peekChar() == '\n')
+									nextChar();
                             case '\n':
                             case '\t':
                             case ' ': {
@@ -156,7 +162,9 @@ namespace TrenchBroom {
                     }
                     case TokenizerState::Comment:
                         switch (c) {
-                            case '\r':
+							case '\r':
+								if (peekChar() == '\n')
+									nextChar();
                             case '\n': {
                                 m_state = TokenizerState::Default;
                                 return token(TokenType::Comment, m_buffer.str(), m_startLine, m_startColumn);

@@ -199,6 +199,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Controller\CameraTool.cpp" />
     <ClCompile Include="..\..\Source\Controller\ChangeEditStateCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\Command.cpp" />
+    <ClCompile Include="..\..\Source\Controller\Grid.cpp" />
     <ClCompile Include="..\..\Source\Controller\InputController.cpp" />
     <ClCompile Include="..\..\Source\Controller\SelectionTool.cpp" />
     <ClCompile Include="..\..\Source\IO\AbstractFileManager.cpp" />
@@ -228,6 +229,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Renderer\EntityClassnameAnchor.cpp" />
     <ClCompile Include="..\..\Source\Renderer\EntityRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\EntityRendererManager.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\GridRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\MapRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\RenderContext.cpp" />
     <ClCompile Include="..\..\Source\Renderer\Text\PathBuilder.cpp" />
@@ -255,6 +257,8 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Controller\CameraTool.h" />
     <ClInclude Include="..\..\Source\Controller\ChangeEditStateCommand.h" />
     <ClInclude Include="..\..\Source\Controller\Command.h" />
+    <ClInclude Include="..\..\Source\Controller\DragPlane.h" />
+    <ClInclude Include="..\..\Source\Controller\Grid.h" />
     <ClInclude Include="..\..\Source\Controller\Input.h" />
     <ClInclude Include="..\..\Source\Controller\InputController.h" />
     <ClInclude Include="..\..\Source\Controller\SelectionTool.h" />
@@ -305,6 +309,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Renderer\EntityClassnameFilter.h" />
     <ClInclude Include="..\..\Source\Renderer\EntityRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\EntityRendererManager.h" />
+    <ClInclude Include="..\..\Source\Renderer\GridRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\MapRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\RenderContext.h" />
     <ClInclude Include="..\..\Source\Renderer\RenderUtils.h" />

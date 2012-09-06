@@ -34,10 +34,10 @@ namespace TrenchBroom {
             class Path;
             
             namespace PathTesselatorCallback {
-                void gluTessBeginData(GLenum type, PathMesh* mesh);
-                void gluTessVertexData(Vec2f* vertex, PathMesh* mesh);
-                void gluTessCombineData(GLdouble coords[3], void *vertexData[4], GLfloat weight[4], void **outData, PathMesh* mesh);
-                void gluTessEndData(PathMesh* mesh);
+                void CALLBACK gluTessBeginData(GLenum type, PathMesh* mesh);
+                void CALLBACK gluTessVertexData(Vec2f* vertex, PathMesh* mesh);
+                void CALLBACK gluTessCombineData(GLdouble coords[3], void *vertexData[4], GLfloat weight[4], void **outData, PathMesh* mesh);
+                void CALLBACK gluTessEndData(PathMesh* mesh);
             }
 
             class PathTesselator {

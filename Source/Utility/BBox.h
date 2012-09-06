@@ -139,7 +139,7 @@ namespace TrenchBroom {
                 return result;
             }
             
-            inline inline const Vec3f vertex(bool x, bool y, bool z) const {
+            inline const Vec3f vertex(bool x, bool y, bool z) const {
                 Vec3f vertex;
                 vertex.x = x ? min.x : max.x;
                 vertex.y = y ? min.y : max.y;

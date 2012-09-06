@@ -65,6 +65,9 @@ namespace TrenchBroom {
                                 return token(TokenType::Semicolon, "");
                             case '?':
                                 return token(TokenType::Question, "");
+							case '\r':
+								if (peekChar() == '\n')
+									nextChar();
                             case '\n':
                                 return token(TokenType::Newline, "");
                             case ',':
@@ -113,6 +116,9 @@ namespace TrenchBroom {
                                 }
                             case '(':
                             case ' ':
+							case '\r':
+								if (peekChar() == '\n')
+									nextChar();
                             case '\n':
                             case '\t':
                                 m_state = TokenizerState::Inside;
