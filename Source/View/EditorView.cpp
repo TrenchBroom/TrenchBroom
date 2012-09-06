@@ -22,14 +22,20 @@
 #include "Controller/CameraEvent.h"
 #include "Controller/Command.h"
 #include "Controller/ChangeEditStateCommand.h"
-#include "Model/MapDocument.h"
+#include "Model/Brush.h"
+#include "Model/Entity.h"
+#include "Model/EntityDefinition.h"
+#include "Model/Face.h"
 #include "Model/Filter.h"
+#include "Model/MapDocument.h"
+#include "Model/Map.h"
 #include "Renderer/Camera.h"
 #include "Renderer/MapRenderer.h"
 #include "Utility/Console.h"
 #include "Utility/Preferences.h"
 #include "View/EditorFrame.h"
 #include "View/MapGLCanvas.h"
+#include "View/MenuCommandIds.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -37,6 +43,11 @@ namespace TrenchBroom {
         EVT_CAMERA_MOVE(EditorView::OnCameraMove)
         EVT_CAMERA_LOOK(EditorView::OnCameraLook)
         EVT_CAMERA_ORBIT(EditorView::OnCameraOrbit)
+
+        EVT_MENU(MenuCommandIds::tbID_EDIT_SELECT_ALL, EditorView::OnEditSelectAll)
+        EVT_MENU(MenuCommandIds::tbID_EDIT_SELECT_NONE, EditorView::OnEditSelectNone)
+        
+        EVT_UPDATE_UI_RANGE(MenuCommandIds::tbID_MENU_LOWEST, MenuCommandIds::tbID_MENU_HIGHEST, EditorView::OnUpdateMenuItem)
         END_EVENT_TABLE()
 
         IMPLEMENT_DYNAMIC_CLASS(EditorView, wxView);
@@ -47,6 +58,10 @@ namespace TrenchBroom {
             return *m_filter;
         }
         
+        Model::MapDocument& EditorView::MapDocument() const {
+            return *static_cast<Model::MapDocument*>(GetDocument());
+        }
+
         Renderer::Camera& EditorView::Camera() const {
             return *m_camera;
         }
@@ -59,6 +74,10 @@ namespace TrenchBroom {
             return *m_console;
         }
         
+        void EditorView::Submit(wxCommand* command) {
+            MapDocument().GetCommandProcessor()->Submit(command);
+        }
+
         bool EditorView::OnCreate(wxDocument* doc, long flags) {
             m_console = new Utility::Console();
             m_filter = new Model::Filter();
@@ -146,5 +165,45 @@ namespace TrenchBroom {
             OnUpdate(this);
         }
         
+        void EditorView::OnEditSelectAll(wxCommandEvent& event) {
+            const Model::EntityList& entities = MapDocument().Map().entities();
+            Model::EntityList selectEntities;
+            Model::BrushList selectBrushes;
+            
+            for (unsigned int i = 0; i < entities.size(); i++) {
+                Model::Entity& entity = *entities[i];
+                if (entity.selectable()) {
+                    selectEntities.push_back(&entity);
+                } else {
+                    const Model::BrushList& entityBrushes = entity.brushes();
+                    selectBrushes.insert(selectBrushes.end(), entityBrushes.begin(), entityBrushes.end());
+                }
+            }
+    
+            wxCommand* command = Controller::ChangeEditStateCommand::replace(MapDocument(), selectEntities, selectBrushes);
+            Submit(command);
+        }
+
+        void EditorView::OnEditSelectNone(wxCommandEvent& event) {
+            wxCommand* command = Controller::ChangeEditStateCommand::deselectAll(MapDocument());
+            Submit(command);
+        }
+        
+        void EditorView::OnUpdateMenuItem(wxUpdateUIEvent& event) {
+            Model::EditStateManager& editStateManager = MapDocument().EditStateManager();
+            switch (event.GetId()) {
+                case MenuCommandIds::tbID_EDIT_SELECT_ALL:
+                    break;
+                case MenuCommandIds::tbID_EDIT_SELECT_SIBLINGS:
+                    event.Enable(false);
+                    break;
+                case MenuCommandIds::tbID_EDIT_SELECT_TOUCHING:
+                    event.Enable(false);
+                    break;
+                case MenuCommandIds::tbID_EDIT_SELECT_NONE:
+                    return event.Enable(editStateManager.selectionMode() != Model::EditStateManager::None);
+                    break;
+            }
+        }
     }
 }

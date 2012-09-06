@@ -21,8 +21,10 @@
 
 #include "Model/MapDocument.h"
 #include "Utility/Console.h"
+#include "View/EditorView.h"
 #include "View/Inspector.h"
 #include "View/MapGLCanvas.h"
+#include "View/MenuCommandIds.h"
 
 #include <wx/colour.h>
 #include <wx/config.h>
@@ -64,10 +66,7 @@ namespace TrenchBroom {
             Layout();
         }
         
-        void EditorFrame::CreateMenuBar(Model::MapDocument& document) {
-            wxDocManager* docManager = document.GetDocumentManager();
-
-            wxMenuBar* menuBar = new wxMenuBar();
+        wxMenu* EditorFrame::CreateFileMenu(Model::MapDocument& document, EditorView& view) {
             wxMenu* fileMenu = new wxMenu();
             fileMenu->Append(wxID_NEW, wxT("New\tCtrl-N"));
             fileMenu->Append(wxID_OPEN, wxT("Open...\tCtrl-O"));
@@ -75,12 +74,58 @@ namespace TrenchBroom {
             fileMenu->Append(wxID_CLOSE, wxT("Close\tCtrl-W"));
             fileMenu->Append(wxID_SAVE, wxT("Save\tCtrl-S"));
             fileMenu->Append(wxID_SAVEAS, wxT("Save as...\tCtrl-Shift-S"));
+            return fileMenu;
+        }
+        
+        wxMenu* EditorFrame::CreateEditMenu(Model::MapDocument& document, EditorView& view) {
+            wxMenu* editMenu = new wxMenu();
+            editMenu->Append(wxID_UNDO, wxT("Undo\tCtrl-Z"));
+            editMenu->Append(wxID_REDO, wxT("Redo\tCtrl-Shift-Z"));
+            editMenu->AppendSeparator();
+            editMenu->Append(wxID_CUT, wxT("Cut\tCtrl+X"));
+            editMenu->Append(wxID_COPY, wxT("Copy\tCtrl+C"));
+            editMenu->Append(wxID_PASTE, wxT("Paste\tCtrl+V"));
+            editMenu->AppendSeparator();
+            editMenu->Append(MenuCommandIds::tbID_EDIT_SELECT_ALL, wxT("Select All\tCtrl+A"));
+            editMenu->Append(MenuCommandIds::tbID_EDIT_SELECT_SIBLINGS, wxT("Select Siblings\tCtrl+Alt+A"));
+            editMenu->Append(MenuCommandIds::tbID_EDIT_SELECT_TOUCHING, wxT("Select Touching\tCtrl+T"));
+            editMenu->Append(MenuCommandIds::tbID_EDIT_SELECT_NONE, wxT("Select None\tCtrl+Shift+A"));
+            return editMenu;
+        }
+        
+        wxMenu* EditorFrame::CreateViewMenu(Model::MapDocument& document, EditorView& view) {
+            wxMenu* viewMenu = new wxMenu();
+            return viewMenu;
+        }
+        
+        wxMenu* EditorFrame::CreateHelpMenu(Model::MapDocument& document, EditorView& view) {
+            wxMenu* helpMenu = new wxMenu();
+            return helpMenu;
+        }
+
+        void EditorFrame::CreateMenuBar(Model::MapDocument& document, EditorView& view) {
+            wxDocManager* docManager = document.GetDocumentManager();
+
+            wxMenu* fileMenu = CreateFileMenu(document, view);
 			fileMenu->SetEventHandler(docManager);
-            
             docManager->FileHistoryUseMenu(fileMenu);
             docManager->FileHistoryLoad(*wxConfig::Get());
             
+            wxMenu* editMenu = CreateEditMenu(document, view);
+            editMenu->SetEventHandler(&view);
+            
+            wxMenu* viewMenu = CreateViewMenu(document, view);
+            viewMenu->SetEventHandler(&view);
+            
+            wxMenu* helpMenu = CreateHelpMenu(document, view);
+            helpMenu->SetEventHandler(&view);
+            
+            wxMenuBar* menuBar = new wxMenuBar();
             menuBar->Append(fileMenu, wxT("File"));
+            menuBar->Append(editMenu, wxT("Edit"));
+            menuBar->Append(viewMenu, wxT("View"));
+            menuBar->Append(helpMenu, wxT("Help"));
+            
 			SetMenuBar(menuBar);
             
             // TODO handle events here and delegate them to the docmanager manually!
@@ -88,7 +133,7 @@ namespace TrenchBroom {
 
         EditorFrame::EditorFrame(Model::MapDocument& document, EditorView& view) : wxFrame(NULL, wxID_ANY, wxT("TrenchBroom")) {
             CreateGui(document, view);
-            CreateMenuBar(document);
+            CreateMenuBar(document, view);
         }
     }
 }

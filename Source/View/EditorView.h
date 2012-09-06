@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__EditorView__
 #define __TrenchBroom__EditorView__
 
+#include <wx/cmdproc.h>
 #include <wx/docview.h>
 
 namespace TrenchBroom {
@@ -31,6 +32,7 @@ namespace TrenchBroom {
     
     namespace Model {
         class Filter;
+        class MapDocument;
     }
     
     namespace Renderer {
@@ -52,10 +54,13 @@ namespace TrenchBroom {
             Renderer::Camera* m_camera;
             Renderer::MapRenderer* m_renderer;
             Utility::Console* m_console;
+            
+            void Submit(wxCommand* command);
         public:
             EditorView();
 
             Model::Filter& Filter() const;
+            Model::MapDocument& MapDocument() const;
             Renderer::Camera& Camera() const;
             Renderer::MapRenderer& Renderer() const;
             Utility::Console& Console() const;
@@ -69,6 +74,11 @@ namespace TrenchBroom {
             void OnCameraMove(Controller::CameraMoveEvent& event);
             void OnCameraLook(Controller::CameraLookEvent& event);
             void OnCameraOrbit(Controller::CameraOrbitEvent& event);
+
+            void OnEditSelectAll(wxCommandEvent& event);
+            void OnEditSelectNone(wxCommandEvent& event);
+            
+            void OnUpdateMenuItem(wxUpdateUIEvent& event);
             
             DECLARE_EVENT_TABLE();
         };

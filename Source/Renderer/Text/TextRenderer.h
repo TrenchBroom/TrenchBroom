@@ -142,7 +142,7 @@ namespace TrenchBroom {
                     typename TextMap::iterator it = m_entries.find(key);
                     if (it != m_entries.end()) {
                         TextEntry& entry = it->second;
-                        destination.addString(key, entry.fontDescriptor(), entry.string(), entry.stringRenderer(), entry.anchor());
+                        destination.addString(key, entry.fontDescriptor(), entry.string(), entry.stringRenderer(), entry.textAnchor());
                         m_entries.erase(it);
                     }
                 }

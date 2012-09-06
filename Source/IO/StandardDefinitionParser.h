@@ -31,6 +31,7 @@
 #include "Utility/VecMath.h"
 
 #include <istream>
+#include <map>
 #include <memory>
 
 using namespace TrenchBroom::Math;
@@ -211,8 +212,10 @@ namespace TrenchBroom {
         
         class StandardDefinitionParser {
         protected:
+            typedef std::map<String, StandardProperty::List> BasePropertiesMap;
             
             StandardDefinitionTokenizer m_tokenizer;
+            BasePropertiesMap m_baseProperties;
             
             String typeNames(unsigned int types);
             
@@ -232,6 +235,7 @@ namespace TrenchBroom {
             String parseDescription();
         public:
             StandardDefinitionParser(std::istream& stream) : m_tokenizer(stream) {}
+            ~StandardDefinitionParser();
         
             Model::EntityDefinition* nextDefinition();
         };

@@ -98,6 +98,7 @@ namespace TrenchBroom {
         static const Preference<Color>  HiddenSelectionGuideColor(      "Renderer/Colors/Hidden selection guide",           Color(1.0f,  0.0f,  0.0f,  0.35f));
         static const Preference<Color>  InfoOverlayColor(               "Renderer/Colors/Info overlay",                     Color(1.0f,  1.0f,  1.0f,  1.0f ));
         static const Preference<Color>  SelectedInfoOverlayColor(       "Renderer/Colors/Selected info overlay",            Color(1.0f,  0.0f,  0.0f,  1.0f ));
+        static const Preference<Color>  HiddenSelectedInfoOverlayColor( "Renderer/Colors/Hidden selected info overlay",     Color(1.0f,  0.0f,  0.0f,  0.35f));
         static const Preference<Color>  VertexHandleColor(              "Renderer/Colors/Vertex handle",                    Color(1.0f,  1.0f,  1.0f,  1.0f ));
         static const Preference<Color>  HiddenVertexHandleColor(        "Renderer/Colors/Hidden vertex handle",             Color(1.0f,  1.0f,  1.0f,  0.35f));
         static const Preference<Color>  SelectedVertexHandleColor(      "Renderer/Colors/Selected vertex handle",           Color(1.0f,  0.0f,  0.0f,  1.0f ));

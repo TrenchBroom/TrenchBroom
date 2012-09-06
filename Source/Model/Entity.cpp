@@ -200,6 +200,10 @@ namespace TrenchBroom {
             invalidateGeometry();
         }
 
+        bool Entity::selectable() const {
+            return m_definition == NULL || m_definition->type() == EntityDefinition::PointEntity;
+        }
+
         void Entity::pick(const Ray& ray, PickResult& pickResults, Filter& filter) {
             if (!filter.entityPickable(*this))
                 return;

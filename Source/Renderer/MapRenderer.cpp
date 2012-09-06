@@ -717,6 +717,18 @@ namespace TrenchBroom {
             if (changeSet.entitySelectionChanged()) {
                 m_entityDataValid = false;
                 m_selectedEntityDataValid = false;
+                
+                const Model::EntityList& selectedEntities = changeSet.entities(Model::EditState::Default);
+                for (unsigned int i = 0; i < selectedEntities.size(); i++) {
+                    Model::Entity* entity = selectedEntities[i];
+                    m_classnameRenderer->transferString(entity, *m_selectedClassnameRenderer);
+                }
+                
+                const Model::EntityList& deselectedEntities = changeSet.entities(Model::EditState::Selected);
+                for (unsigned int i = 0; i < deselectedEntities.size(); i++) {
+                    Model::Entity* entity = deselectedEntities[i];
+                    m_selectedClassnameRenderer->transferString(entity, *m_classnameRenderer);
+                }
             }
             
             if (changeSet.brushSelectionChanged() || changeSet.faceSelectionChanged()) {
@@ -807,6 +819,10 @@ namespace TrenchBroom {
             EntityClassnameFilter classnameFilter;
             m_stringManager->activate();
             m_classnameRenderer->render(context, classnameFilter, prefs.getColor(Preferences::InfoOverlayColor));
+            
+            glDisable(GL_DEPTH_TEST);
+            m_selectedClassnameRenderer->render(context, classnameFilter, prefs.getColor(Preferences::HiddenSelectedInfoOverlayColor));
+            glEnable(GL_DEPTH_TEST);
             m_selectedClassnameRenderer->render(context, classnameFilter, prefs.getColor(Preferences::SelectedInfoOverlayColor));
             m_stringManager->deactivate();
         }

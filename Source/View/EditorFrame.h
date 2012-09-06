@@ -45,7 +45,11 @@ namespace TrenchBroom {
             wxTextCtrl* m_logView;
             
             void CreateGui(Model::MapDocument& document, EditorView& view);
-            void CreateMenuBar(Model::MapDocument& document);
+            wxMenu* CreateFileMenu(Model::MapDocument& document, EditorView& view);
+            wxMenu* CreateEditMenu(Model::MapDocument& document, EditorView& view);
+            wxMenu* CreateViewMenu(Model::MapDocument& document, EditorView& view);
+            wxMenu* CreateHelpMenu(Model::MapDocument& document, EditorView& view);
+            void CreateMenuBar(Model::MapDocument& document, EditorView& view);
         public:
             EditorFrame(Model::MapDocument& document, EditorView& view);
             

@@ -223,6 +223,7 @@
 		48AF492915E8F0B20083DE52 /* ProgressIndicator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProgressIndicator.h; sourceTree = "<group>"; };
 		48AF61F315F8B7360027C465 /* libfreetype.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreetype.a; path = Lib/libfreetype.a; sourceTree = "<group>"; };
 		48AF61F515F8B7720027C465 /* libbz2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbz2.a; path = Lib/libbz2.a; sourceTree = "<group>"; };
+		48AF61F715F91B610027C465 /* MenuCommandIds.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MenuCommandIds.h; sourceTree = "<group>"; };
 		48D1BE9815E2E2930073C030 /* Math.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Math.h; sourceTree = "<group>"; };
 		48D1BE9A15E2E35C0073C030 /* Vec3f.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Vec3f.h; sourceTree = "<group>"; };
 		48D1BE9B15E2E3B50073C030 /* VecMath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VecMath.h; sourceTree = "<group>"; };
@@ -450,6 +451,7 @@
 				4810276515E4FBF000250C9C /* MapGLCanvas.h */,
 				4810276A15E5313F00250C9C /* Inspector.cpp */,
 				4810276B15E5313F00250C9C /* Inspector.h */,
+				48AF61F715F91B610027C465 /* MenuCommandIds.h */,
 				48AB57EF15ECEEE500321C47 /* ProgressIndicatorDialog.cpp */,
 				48AB57F015ECEEE500321C47 /* ProgressIndicatorDialog.h */,
 			);

@@ -410,6 +410,15 @@ namespace TrenchBroom {
             return m_tokenizer.remainder();
         }
 
+        StandardDefinitionParser::~StandardDefinitionParser() {
+            BasePropertiesMap::iterator it, end;
+            for (it = m_baseProperties.begin(), end = m_baseProperties.end(); it != end; ++it) {
+                StandardProperty::List& properties = it->second;
+                while (!properties.empty()) delete properties.back(), properties.pop_back();
+            }
+            m_baseProperties.clear();
+        }
+
         Model::EntityDefinition* StandardDefinitionParser::nextDefinition() {
             StandardDefinitionTokenizer::TokenPtr token = m_tokenizer.nextToken();
             if (token.get() == NULL)
@@ -461,6 +470,7 @@ namespace TrenchBroom {
             Model::EntityDefinition* definition = NULL;
             
             if (hasColor) {
+                // TODO: if we handle properties, we must add the base properties here!
                 if (hasBounds) { // point definition
                     // extract the model property
                     StandardModelProperty* modelProperty = NULL;
@@ -480,6 +490,11 @@ namespace TrenchBroom {
                 } else {
                     definition = new Model::BrushEntityDefinition(name, color, spawnflags, description, Model::PropertyDefinition::List());
                 }
+            } else { // base definition
+                m_baseProperties[name] = standardProperties;
+                standardProperties.clear(); // to prevent them from being deleted
+                
+                definition = nextDefinition();
             }
             
             // clean up

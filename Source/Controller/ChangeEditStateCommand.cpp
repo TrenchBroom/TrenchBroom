@@ -169,7 +169,7 @@ namespace TrenchBroom {
                 return replace(document, brushes);
             if (brushes.empty())
                 return replace(document, entities);
-            return new ChangeEditStateCommand(document, "Select objects", Model::EditState::Selected, entities, true);
+            return new ChangeEditStateCommand(document, "Select objects", Model::EditState::Selected, entities, brushes, true);
         }
         
         ChangeEditStateCommand* ChangeEditStateCommand::replace(Model::MapDocument& document, const Model::FaceList& faces) {

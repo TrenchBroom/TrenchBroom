@@ -174,12 +174,12 @@ namespace TrenchBroom {
             if (replace)
                 setDefaultAndClear(newState, changeSet);
             
+            bool deselectFaces = doSetEditState(entities, newState, changeSet);
+            deselectFaces |= doSetEditState(brushes, newState, changeSet);
+
             FaceList& selectedFaces = current().selectedFaces;
-            if ((doSetEditState(entities, newState, changeSet) || doSetEditState(brushes, newState, changeSet)) &&
-                newState == EditState::Selected &&
-                !selectedFaces.empty()) {
+            if (deselectFaces && newState == EditState::Selected && !selectedFaces.empty())
                 deselectAndClear(selectedFaces, changeSet);
-            }
             
             return changeSet;
         }

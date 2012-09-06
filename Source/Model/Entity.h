@@ -134,6 +134,8 @@ namespace TrenchBroom {
         
             void setDefinition(EntityDefinition* definition);
 
+            bool selectable() const;
+            
             inline bool partiallySelected() const {
                 return m_selectedBrushCount > 0;
             }
