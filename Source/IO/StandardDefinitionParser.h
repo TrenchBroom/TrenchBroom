@@ -106,6 +106,7 @@ namespace TrenchBroom {
             typedef std::vector<StandardProperty*> List;
             
             StandardProperty(PropertyType type) : m_type(type) {}
+            virtual ~StandardProperty() {}
             
             inline PropertyType type() const {
                 return m_type;
@@ -117,6 +118,7 @@ namespace TrenchBroom {
             String m_basename;
         public:
             StandardBaseProperty(StandardProperty::PropertyType type, const String& basename) : StandardProperty(type), m_basename(basename) {}
+            virtual ~StandardBaseProperty() {}
             
             inline const String& basename() const {
                 return m_basename;
@@ -150,6 +152,7 @@ namespace TrenchBroom {
             StandardProperty(StandardProperty::Choice),
             m_propertyName(propertyName),
             m_arguments(arguments) {}
+            virtual ~StandardChoiceProperty() {}
             
             inline const String& propertyName() const {
                 return m_propertyName;
@@ -169,6 +172,7 @@ namespace TrenchBroom {
             StandardProperty(StandardProperty::Default),
             m_propertyName(propertyName),
             m_propertyValue(propertyValue) {}
+            virtual ~StandardDefaultProperty() {}
             
             inline const String& propertyName() const {
                 return m_propertyName;
@@ -190,6 +194,7 @@ namespace TrenchBroom {
             m_modelName(modelName),
             m_flagName(flagName),
             m_skinIndex(skinIndex) {}
+            virtual ~StandardModelProperty() {}
             
             inline const String& modelName() const {
                 return m_modelName;
