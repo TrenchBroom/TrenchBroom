@@ -24,6 +24,8 @@
 
 #include "Utility/DocManager.h"
 
+#include <clocale>
+
 IMPLEMENT_APP(TrenchBroomApp)
 
 BEGIN_EVENT_TABLE(TrenchBroomApp, AbstractApp)
@@ -31,6 +33,9 @@ EVT_MENU    (wxID_EXIT, TrenchBroomApp::OnFileExit)
 END_EVENT_TABLE()
 
 bool TrenchBroomApp::OnInit() {
+    // set the locale to US so that we can parse floats property
+    std::setlocale(LC_ALL, "en_US");
+    
     if (AbstractApp::OnInit()) {
         m_docManager->SetUseSDI(false);
         
