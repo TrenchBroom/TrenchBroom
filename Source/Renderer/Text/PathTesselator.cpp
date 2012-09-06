@@ -34,15 +34,15 @@ namespace TrenchBroom {
                 typedef std::vector<Vec2f*> PointList;
                 static PointList tempPoints;
 
-                void CALLBACK gluTessBeginData(GLenum type, PathMesh* mesh) {
+                TESS_CALLBACK gluTessBeginData(GLenum type, PathMesh* mesh) {
                     mesh->begin(type);
                 }
                 
-                void CALLBACK gluTessVertexData(Vec2f* vertex, PathMesh* mesh) {
+                TESS_CALLBACK gluTessVertexData(Vec2f* vertex, PathMesh* mesh) {
                     mesh->append(*vertex);
                 }
                 
-                void CALLBACK gluTessCombineData(GLdouble coords[3], void *vertexData[4], GLfloat weight[4], void **outData, PathMesh* mesh) {
+                TESS_CALLBACK gluTessCombineData(GLdouble coords[3], void *vertexData[4], GLfloat weight[4], void **outData, PathMesh* mesh) {
                     Vec2f* vertex = new Vec2f();
                     vertex->x = static_cast<float>(coords[0]);
                     vertex->y = static_cast<float>(coords[1]);
@@ -50,11 +50,11 @@ namespace TrenchBroom {
                     tempPoints.push_back(vertex);
                 }
                 
-                void CALLBACK gluTessEndData(PathMesh* mesh) {
+                TESS_CALLBACK gluTessEndData(PathMesh* mesh) {
                     mesh->end();
                 }
 
-				void CALLBACK gluTessError(GLenum errorCode) {
+				TESS_CALLBACK gluTessError(GLenum errorCode) {
 					const GLubyte *estring;
 
 					estring = gluErrorString(errorCode);
@@ -84,10 +84,10 @@ namespace TrenchBroom {
                     gluTessCallback(m_gluTess, GLU_TESS_VERTEX_DATA,		reinterpret_cast<GluTessCallbackType>(PathTesselatorCallback::gluTessVertexData));
 					gluTessCallback(m_gluTess, GLU_TESS_EDGE_FLAG,		NULL);
 					gluTessCallback(m_gluTess, GLU_TESS_EDGE_FLAG_DATA,	NULL);
-					gluTessCallback(m_gluTess, GLU_TESS_COMBINE,			NULL);
-                    gluTessCallback(m_gluTess, GLU_TESS_COMBINE_DATA,		reinterpret_cast<GluTessCallbackType>(PathTesselatorCallback::gluTessCombineData));
-					gluTessCallback(m_gluTess, GLU_TESS_END,				NULL);
-                    gluTessCallback(m_gluTess, GLU_TESS_END_DATA,			reinterpret_cast<GluTessCallbackType>(PathTesselatorCallback::gluTessEndData));
+					gluTessCallback(m_gluTess, GLU_TESS_COMBINE,		NULL);
+                    gluTessCallback(m_gluTess, GLU_TESS_COMBINE_DATA,	reinterpret_cast<GluTessCallbackType>(PathTesselatorCallback::gluTessCombineData));
+					gluTessCallback(m_gluTess, GLU_TESS_END,			NULL);
+                    gluTessCallback(m_gluTess, GLU_TESS_END_DATA,		reinterpret_cast<GluTessCallbackType>(PathTesselatorCallback::gluTessEndData));
 					gluTessCallback(m_gluTess, GLU_TESS_ERROR,			reinterpret_cast<GluTessCallbackType>(PathTesselatorCallback::gluTessError));
 					gluTessCallback(m_gluTess, GLU_TESS_ERROR_DATA,		NULL);
 

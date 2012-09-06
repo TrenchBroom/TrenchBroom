@@ -28,16 +28,23 @@
 
 using namespace TrenchBroom::Math;
 
+#if defined _WIN32
+#define TESS_CALLBACK void CALLBACK
+#else
+#define TESS_CALLBACK void
+#endif
+
+
 namespace TrenchBroom {
     namespace Renderer {
         namespace Text {
             class Path;
             
             namespace PathTesselatorCallback {
-                void CALLBACK gluTessBeginData(GLenum type, PathMesh* mesh);
-                void CALLBACK gluTessVertexData(Vec2f* vertex, PathMesh* mesh);
-                void CALLBACK gluTessCombineData(GLdouble coords[3], void *vertexData[4], GLfloat weight[4], void **outData, PathMesh* mesh);
-                void CALLBACK gluTessEndData(PathMesh* mesh);
+                TESS_CALLBACK gluTessBeginData(GLenum type, PathMesh* mesh);
+                TESS_CALLBACK gluTessVertexData(Vec2f* vertex, PathMesh* mesh);
+                TESS_CALLBACK gluTessCombineData(GLdouble coords[3], void *vertexData[4], GLfloat weight[4], void **outData, PathMesh* mesh);
+                TESS_CALLBACK gluTessEndData(PathMesh* mesh);
             }
 
             class PathTesselator {
