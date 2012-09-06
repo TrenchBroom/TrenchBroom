@@ -85,12 +85,12 @@ namespace TrenchBroom {
 
         Picker::Picker(Octree& octree) : m_octree(octree) {}
 
-        PickResult* Picker::pick(const Ray& ray, Filter* filter) {
+        PickResult* Picker::pick(const Ray& ray, Filter& filter) {
             PickResult* pickResults = new PickResult();
 
             MapObjectList objects = m_octree.intersect(ray);
             for (unsigned int i = 0; i < objects.size(); i++)
-                objects[i]->pick(ray, *pickResults, *filter);
+                objects[i]->pick(ray, *pickResults, filter);
 
             return pickResults;
         }

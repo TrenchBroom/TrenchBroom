@@ -35,9 +35,16 @@ namespace TrenchBroom {
         class Camera;
     }
     
+    namespace View {
+        class EditorView;
+    }
+    
     namespace Controller {
         class InputController {
         protected:
+            Model::MapDocument& m_document;
+            View::EditorView& m_view;
+            
             InputEvent m_currentEvent;
             MouseButtonState m_dragButtons;
             

@@ -23,6 +23,7 @@
 #include "Controller/Command.h"
 #include "Controller/ChangeEditStateCommand.h"
 #include "Model/MapDocument.h"
+#include "Model/Filter.h"
 #include "Renderer/Camera.h"
 #include "Renderer/MapRenderer.h"
 #include "Utility/Console.h"
@@ -40,12 +41,12 @@ namespace TrenchBroom {
 
         IMPLEMENT_DYNAMIC_CLASS(EditorView, wxView);
         
-        EditorView::EditorView() : wxView(), m_camera(NULL), m_renderer(NULL) {}
+        EditorView::EditorView() : wxView(), m_camera(NULL), m_renderer(NULL), m_filter(NULL) {}
         
-        Utility::Console& EditorView::Console() const {
-            return *m_console;
+        Model::Filter& EditorView::Filter() const {
+            return *m_filter;
         }
-
+        
         Renderer::Camera& EditorView::Camera() const {
             return *m_camera;
         }
@@ -54,8 +55,13 @@ namespace TrenchBroom {
             return *m_renderer;
         }
         
+        Utility::Console& EditorView::Console() const {
+            return *m_console;
+        }
+        
         bool EditorView::OnCreate(wxDocument* doc, long flags) {
             m_console = new Utility::Console();
+            m_filter = new Model::Filter();
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             float fieldOfVision = prefs.getFloat(Preferences::CameraFieldOfVision);
@@ -109,10 +115,19 @@ namespace TrenchBroom {
             if (deleteWindow)
                 SetFrame(NULL);
             
-            delete m_camera;
-            m_camera = NULL;
-            delete m_renderer;
-            m_renderer = NULL;
+            if (m_filter != NULL) {
+                delete m_filter;
+                m_filter = NULL;
+            }
+            if (m_camera != NULL) {
+                delete m_camera;
+                m_camera = NULL;
+            }
+            if (m_renderer != NULL) {
+                delete m_renderer;
+                m_renderer = NULL;
+            }
+            
             return wxView::OnClose(deleteWindow);
         }
 

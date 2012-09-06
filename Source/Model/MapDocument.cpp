@@ -291,7 +291,8 @@ namespace TrenchBroom {
 			if (wxDocument::OnNewDocument()) {
 				// prompt for initial stuff like world bounds, mods, palette, def here
                 Clear();
-                UpdateAllViews(NULL, new Controller::Command(Controller::Command::LoadMap, *this, false, "Load map"));
+                Controller::Command loadCommand(Controller::Command::LoadMap, *this, false, "Load map");
+                UpdateAllViews(NULL, &loadCommand);
 				return true;
 			}
 
@@ -300,7 +301,8 @@ namespace TrenchBroom {
 
         bool MapDocument::OnOpenDocument(const wxString& path) {
             if (wxDocument::OnOpenDocument(path)) {
-                UpdateAllViews(NULL, new Controller::Command(Controller::Command::LoadMap, *this, false, "Load map"));
+                Controller::Command loadCommand(Controller::Command::LoadMap, *this, false, "Load map");
+                UpdateAllViews(NULL, &loadCommand);
 				return true;
             }
             

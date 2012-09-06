@@ -188,7 +188,7 @@ namespace TrenchBroom {
             size_t oldColumn = m_column;
             size_t oldStartLine = m_startLine;
             size_t oldStartColumn = m_startColumn;
-            size_t oldPosition = m_stream.tellg();
+            std::ios::pos_type oldPosition = m_stream.tellg();
             
             MapTokenizer::TokenPtr token = nextToken();
             m_state = oldState;

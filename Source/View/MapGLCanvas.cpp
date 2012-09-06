@@ -108,12 +108,22 @@ namespace TrenchBroom {
         m_view(view) {
             m_inputController = new Controller::InputController(document, view);
             m_glContext = new wxGLContext(this);
+            delete m_attribs;
+            m_attribs = NULL;
         }
         
         MapGLCanvas::~MapGLCanvas() {
             if (m_inputController != NULL) {
                 delete m_inputController;
                 m_inputController = NULL;
+            }
+            if (m_glContext != NULL) {
+                wxDELETE(m_glContext);
+                m_glContext = NULL;
+            }
+            if (m_attribs != NULL) {
+                delete m_attribs;
+                m_attribs = NULL;
             }
         }
         
@@ -147,8 +157,7 @@ namespace TrenchBroom {
             
 				m_view.Camera().update(0.0f, 0.0f, GetSize().x, GetSize().y);
             
-				Model::Filter filter;
-				Renderer::RenderContext renderContext(m_view.Camera(), filter);
+				Renderer::RenderContext renderContext(m_view.Camera(), m_view.Filter());
 				m_view.Renderer().render(renderContext);
             
 				SwapBuffers();

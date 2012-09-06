@@ -34,7 +34,7 @@ namespace TrenchBroom {
             
             m_currentEvent.camera = &m_camera;
             m_currentEvent.ray = m_camera.pickRay(m_currentEvent.mouseX, m_currentEvent.mouseY);
-            m_currentEvent.pickResult = m_picker.pick(m_currentEvent.ray);
+            m_currentEvent.pickResult = m_picker.pick(m_currentEvent.ray, m_view.Filter());
             
             for (unsigned int i = 0; i < m_receivers.size(); i++)
                 m_receivers[i]->updateHits(m_currentEvent);
@@ -48,16 +48,19 @@ namespace TrenchBroom {
         }
 
         InputController::InputController(Model::MapDocument& document, View::EditorView& view) :
+        m_document(document),
+        m_view(view),
         m_dragReceiver(NULL),
         m_mouseUpReceiver(NULL),
         m_modalReceiverIndex(-1),
         m_picker(document.Picker()),
-        m_camera(view.Camera()) {
-            m_receivers.push_back(new CameraTool(document, view));
-            m_receivers.push_back(new SelectionTool(document, view));
+        m_camera(m_view.Camera()) {
+            m_receivers.push_back(new CameraTool(m_document, m_view));
+            m_receivers.push_back(new SelectionTool(m_document, m_view));
         }
         
         InputController::~InputController() {
+            while (!m_receivers.empty()) delete m_receivers.back(), m_receivers.pop_back();
         }
 
         void InputController::modifierKeyDown(ModifierKeyState modifierKey) {

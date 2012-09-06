@@ -117,7 +117,7 @@ namespace TrenchBroom {
             Octree& m_octree;
         public:
             Picker(Octree& octree);
-            PickResult* pick(const Ray& ray, Filter* filter = new Filter());
+            PickResult* pick(const Ray& ray, Filter& filter);
         };
     }
 }

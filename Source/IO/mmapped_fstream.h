@@ -52,9 +52,10 @@ private:
     }
     
     std::streampos seekpos (std::streampos sp, std::ios_base::openmode which = std::ios_base::in | std::ios_base::out) {
-        if (begin_ + sp > end_)
+        int offset = static_cast<int>(sp);
+        if (begin_ + offset > end_)
             return -1;
-        current_ = begin_ + sp;
+        current_ = begin_ + offset;
         return current_ - begin_;
     }
     

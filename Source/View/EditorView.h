@@ -29,6 +29,10 @@ namespace TrenchBroom {
         class CameraOrbitEvent;
     }
     
+    namespace Model {
+        class Filter;
+    }
+    
     namespace Renderer {
         class Camera;
         class MapRenderer;
@@ -44,15 +48,17 @@ namespace TrenchBroom {
         class EditorView : public wxView {
             DECLARE_DYNAMIC_CLASS(EditorView)
         protected:
+            Model::Filter* m_filter;
             Renderer::Camera* m_camera;
             Renderer::MapRenderer* m_renderer;
             Utility::Console* m_console;
         public:
             EditorView();
 
-            Utility::Console& Console() const;
+            Model::Filter& Filter() const;
             Renderer::Camera& Camera() const;
             Renderer::MapRenderer& Renderer() const;
+            Utility::Console& Console() const;
             
             bool OnCreate(wxDocument* doc, long flags);
             void OnUpdate(wxView* sender, wxObject* hint = (wxObject*) NULL);
