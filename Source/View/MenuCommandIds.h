@@ -30,6 +30,12 @@ namespace TrenchBroom {
             static const int tbID_EDIT_SELECT_SIBLINGS      = wxID_HIGHEST +  1;
             static const int tbID_EDIT_SELECT_TOUCHING      = wxID_HIGHEST +  2;
             static const int tbID_EDIT_SELECT_NONE          = wxID_HIGHEST +  3;
+            static const int tbID_EDIT_HIDE_SELECTED        = wxID_HIGHEST +  4;
+            static const int tbID_EDIT_HIDE_UNSELECTED      = wxID_HIGHEST +  5;
+            static const int tbID_EDIT_UNHIDE_ALL           = wxID_HIGHEST +  6;
+            static const int tbID_EDIT_LOCK_SELECTED        = wxID_HIGHEST +  7;
+            static const int tbID_EDIT_LOCK_UNSELECTED      = wxID_HIGHEST +  8;
+            static const int tbID_EDIT_UNLOCK_ALL           = wxID_HIGHEST +  9;
             static const int tbID_MENU_HIGHEST              = wxID_HIGHEST + 99;
         }
     }

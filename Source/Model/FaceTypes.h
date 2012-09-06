@@ -27,6 +27,7 @@ namespace TrenchBroom {
         class Face;
         
         typedef std::vector<Face*> FaceList;
+        static const FaceList EmptyFaceList;
     }
 }
 

@@ -32,7 +32,7 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity& entity = *entities[i];
                 if (entity.editState() != newState) {
-                    EditState::Type previousState = entity.setEditState(EditState::Selected);
+                    EditState::Type previousState = entity.setEditState(newState);
                     changeSet.addEntity(previousState, entity);
                     
                     if (previousState == EditState::Selected)
@@ -61,7 +61,7 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < brushes.size(); i++) {
                 Brush& brush = *brushes[i];
                 if (brush.editState() != newState) {
-                    EditState::Type previousState = brush.setEditState(EditState::Selected);
+                    EditState::Type previousState = brush.setEditState(newState);
                     changeSet.addBrush(previousState, brush);
                     
                     if (previousState == EditState::Selected)

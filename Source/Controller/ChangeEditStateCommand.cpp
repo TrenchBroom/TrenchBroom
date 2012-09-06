@@ -81,11 +81,11 @@ namespace TrenchBroom {
         }
         
         ChangeEditStateCommand* ChangeEditStateCommand::select(Model::MapDocument& document, const Model::EntityList& entities) {
-            return new ChangeEditStateCommand(document, entities.size() == 1 ? "Select entity" : "Select entities", Model::EditState::Selected, entities, false);
+            return new ChangeEditStateCommand(document, entities.size() == 1 ? wxT("Select Entity") : wxT("Select Entities"), Model::EditState::Selected, entities, false);
         }
         
         ChangeEditStateCommand* ChangeEditStateCommand::select(Model::MapDocument& document, const Model::BrushList& brushes) {
-            return new ChangeEditStateCommand(document, brushes.size() == 1 ? "Select brush" : "Select brushes", Model::EditState::Selected, brushes, false);
+            return new ChangeEditStateCommand(document, brushes.size() == 1 ? wxT("Select Brush") : wxT("Select Brushes"), Model::EditState::Selected, brushes, false);
         }
         
         ChangeEditStateCommand* ChangeEditStateCommand::select(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes) {
@@ -93,11 +93,11 @@ namespace TrenchBroom {
                 return select(document, brushes);
             if (brushes.empty())
                 return select(document, entities);
-            return new ChangeEditStateCommand(document, "Select objects", Model::EditState::Selected, entities, false);
+            return new ChangeEditStateCommand(document, wxT("Select Objects"), Model::EditState::Selected, entities, false);
         }
         
         ChangeEditStateCommand* ChangeEditStateCommand::select(Model::MapDocument& document, const Model::FaceList& faces) {
-            return new ChangeEditStateCommand(document, faces.size() == 1 ? "Select face" : "Select faces", Model::EditState::Selected, faces, false);
+            return new ChangeEditStateCommand(document, faces.size() == 1 ? wxT("Select Face") : wxT("Select Faces"), Model::EditState::Selected, faces, false);
         }
         
         ChangeEditStateCommand* ChangeEditStateCommand::deselect(Model::MapDocument& document, Model::Entity& entity) {
@@ -119,11 +119,11 @@ namespace TrenchBroom {
         }
         
         ChangeEditStateCommand* ChangeEditStateCommand::deselect(Model::MapDocument& document, const Model::EntityList& entities) {
-            return new ChangeEditStateCommand(document, entities.size() == 1 ? "Deselect entity" : "Deselect entities", Model::EditState::Default, entities, false);
+            return new ChangeEditStateCommand(document, entities.size() == 1 ? wxT("Deselect Entity") : wxT("Deselect Entities"), Model::EditState::Default, entities, false);
         }
         
         ChangeEditStateCommand* ChangeEditStateCommand::deselect(Model::MapDocument& document, const Model::BrushList& brushes) {
-            return new ChangeEditStateCommand(document, brushes.size() == 1 ? "Deselect brush" : "Deselect brushes", Model::EditState::Default, brushes, false);
+            return new ChangeEditStateCommand(document, brushes.size() == 1 ? wxT("Deselect Brush") : wxT("Deselect Brushes"), Model::EditState::Default, brushes, false);
         }
         
         ChangeEditStateCommand* ChangeEditStateCommand::deselect(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes) {
@@ -131,11 +131,11 @@ namespace TrenchBroom {
                 return deselect(document, brushes);
             if (brushes.empty())
                 return deselect(document, entities);
-            return new ChangeEditStateCommand(document, "Deselect objects", Model::EditState::Default, entities, false);
+            return new ChangeEditStateCommand(document, wxT("Deselect Objects"), Model::EditState::Default, entities, false);
         }
         
         ChangeEditStateCommand* ChangeEditStateCommand::deselect(Model::MapDocument& document, const Model::FaceList& faces) {
-            return new ChangeEditStateCommand(document, faces.size() == 1 ? "Deselect face" : "Deselect faces", Model::EditState::Default, faces, false);
+            return new ChangeEditStateCommand(document, faces.size() == 1 ? wxT("Deselect Face") : wxT("Deselect Faces"), Model::EditState::Default, faces, false);
         }
         
         ChangeEditStateCommand* ChangeEditStateCommand::replace(Model::MapDocument& document, Model::Entity& entity) {
@@ -157,11 +157,11 @@ namespace TrenchBroom {
         }
         
         ChangeEditStateCommand* ChangeEditStateCommand::replace(Model::MapDocument& document, const Model::EntityList& entities) {
-            return new ChangeEditStateCommand(document, entities.size() == 1 ? "Select entity" : "Select entities", Model::EditState::Selected, entities, true);
+            return new ChangeEditStateCommand(document, entities.size() == 1 ? wxT("Select Entity") : wxT("Select Entities"), Model::EditState::Selected, entities, true);
         }
         
         ChangeEditStateCommand* ChangeEditStateCommand::replace(Model::MapDocument& document, const Model::BrushList& brushes) {
-            return new ChangeEditStateCommand(document, brushes.size() == 1 ? "Select brush" : "Select brushes", Model::EditState::Selected, brushes, true);
+            return new ChangeEditStateCommand(document, brushes.size() == 1 ? wxT("Select Brush") : wxT("Select Brushes"), Model::EditState::Selected, brushes, true);
         }
         
         ChangeEditStateCommand* ChangeEditStateCommand::replace(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes) {
@@ -169,15 +169,39 @@ namespace TrenchBroom {
                 return replace(document, brushes);
             if (brushes.empty())
                 return replace(document, entities);
-            return new ChangeEditStateCommand(document, "Select objects", Model::EditState::Selected, entities, brushes, true);
+            return new ChangeEditStateCommand(document, wxT("Select Objects"), Model::EditState::Selected, entities, brushes, true);
         }
         
         ChangeEditStateCommand* ChangeEditStateCommand::replace(Model::MapDocument& document, const Model::FaceList& faces) {
-            return new ChangeEditStateCommand(document, faces.size() == 1 ? "Select face" : "Select faces", Model::EditState::Selected, faces, true);
+            return new ChangeEditStateCommand(document, faces.size() == 1 ? wxT("Select Face") : wxT("Select Faces"), Model::EditState::Selected, faces, true);
         }
         
         ChangeEditStateCommand* ChangeEditStateCommand::deselectAll(Model::MapDocument& document) {
-            return new ChangeEditStateCommand(document, "Deselect all", Model::EditState::Selected);
+            return new ChangeEditStateCommand(document, wxT("Deselect All"), Model::EditState::Selected);
+        }
+
+        ChangeEditStateCommand* ChangeEditStateCommand::hide(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes) {
+            if (entities.empty())
+                return new ChangeEditStateCommand(document, brushes.size() == 1 ? wxT("Hide Brush") : wxT("Hide Brushes"), Model::EditState::Hidden, brushes, false);
+            if (brushes.empty())
+                return new ChangeEditStateCommand(document, entities.size() == 1 ? wxT("Hide Entity") : wxT("Hide Entities"), Model::EditState::Hidden, entities, false);
+            return new ChangeEditStateCommand(document, wxT("Hide Objects"), Model::EditState::Hidden, entities, brushes, false);
+        }
+        
+        ChangeEditStateCommand* ChangeEditStateCommand::unhideAll(Model::MapDocument& document) {
+            return new ChangeEditStateCommand(document, wxT("Unhide all"), Model::EditState::Hidden);
+        }
+        
+        ChangeEditStateCommand* ChangeEditStateCommand::lock(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes) {
+            if (entities.empty())
+                return new ChangeEditStateCommand(document, brushes.size() == 1 ? wxT("Lock Brush") : wxT("Lock Brushes"), Model::EditState::Locked, brushes, false);
+            if (brushes.empty())
+                return new ChangeEditStateCommand(document, entities.size() == 1 ? wxT("Lock Entity") : wxT("Lock Entities"), Model::EditState::Locked, entities, false);
+            return new ChangeEditStateCommand(document, wxT("Lock Objects"), Model::EditState::Locked, entities, brushes, false);
+        }
+        
+        ChangeEditStateCommand* ChangeEditStateCommand::unlockAll(Model::MapDocument& document) {
+            return new ChangeEditStateCommand(document, wxT("Unlock all"), Model::EditState::Locked);
         }
 
         bool ChangeEditStateCommand::Do() {

@@ -28,6 +28,7 @@ namespace TrenchBroom {
             static const Type Selected = 1;
             static const Type Hidden = 2;
             static const Type Locked = 3;
+            static const unsigned int Count = 4;
         }
     }
 }

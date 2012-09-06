@@ -76,6 +76,14 @@ namespace TrenchBroom {
                 return m_editState == EditState::Locked;
             }
             
+            virtual inline bool hideable() const {
+                return m_editState != EditState::Hidden && (m_editState == EditState::Default || m_editState == EditState::Selected);
+            }
+            
+            virtual inline bool lockable() const {
+                return m_editState != EditState::Locked && (m_editState == EditState::Default || m_editState == EditState::Selected);
+            }
+            
             virtual const Vec3f& center() const = 0;
             virtual const BBox& bounds() const = 0;
             virtual Type objectType() const = 0;

@@ -106,6 +106,14 @@ namespace TrenchBroom {
                 return current().selectionMode();
             }
             
+            inline bool hasHiddenObjects() const {
+                return !hiddenEntities().empty() || !hiddenBrushes().empty();
+            }
+            
+            inline bool hasLockedObjects() const {
+                return !lockedEntities().empty() || !lockedBrushes().empty();
+            }
+
             inline const EntityList& selectedEntities() const {
                 return current().selectedEntities;
             }
@@ -153,26 +161,31 @@ namespace TrenchBroom {
             typedef std::map<EditState::Type, EntityList> EntityStateChange;
             typedef std::map<EditState::Type, BrushList> BrushStateChange;
         private:
-            mutable EntityStateChange m_entityStateChanges;
-            mutable BrushStateChange m_brushStateChanges;
+            mutable EntityStateChange m_entityStateChangesFrom;
+            mutable EntityStateChange m_entityStateChangesTo;
+            mutable BrushStateChange m_brushStateChangesFrom;
+            mutable BrushStateChange m_brushStateChangesTo;
             FaceList m_selectedFaces;
             FaceList m_deselectedFaces;
             bool m_empty;
-            bool m_entitySelectionChanged;
-            bool m_brushSelectionChanged;
+            
+            bool m_entityStateTransitions[EditState::Count][EditState::Count];
+            bool m_brushStateTransitions[EditState::Count][EditState::Count];
             bool m_faceSelectionChanged;
             
             friend class EditStateManager;
             inline void addEntity(EditState::Type previousState, Entity& entity) {
-                m_entityStateChanges[previousState].push_back(&entity);
+                m_entityStateChangesFrom[previousState].push_back(&entity);
+                m_entityStateChangesTo[entity.editState()].push_back(&entity);
+                m_entityStateTransitions[previousState][entity.editState()] = true;
                 m_empty = false;
-                m_entitySelectionChanged = previousState == EditState::Selected || entity.selected();
             }
             
             inline void addBrush(EditState::Type previousState, Brush& brush) {
-                m_brushStateChanges[previousState].push_back(&brush);
+                m_brushStateChangesFrom[previousState].push_back(&brush);
+                m_brushStateChangesTo[brush.editState()].push_back(&brush);
+                m_brushStateTransitions[previousState][brush.editState()] = true;
                 m_empty = false;
-                m_brushSelectionChanged = previousState == EditState::Selected || brush.selected();
             }
             
             inline void addFace(bool previouslySelected, Face& face) {
@@ -186,16 +199,29 @@ namespace TrenchBroom {
         public:
             EditStateChangeSet() :
             m_empty(true),
-            m_entitySelectionChanged(false),
-            m_brushSelectionChanged(false),
-            m_faceSelectionChanged(false) {}
-            
-            inline const EntityList& entities(EditState::Type previousState) const {
-                return m_entityStateChanges[previousState];
+            m_faceSelectionChanged(false) {
+                for (unsigned int i = 0; i < EditState::Count; i++) {
+                    for (unsigned int j = 0; j < EditState::Count; j++) {
+                        m_entityStateTransitions[i][j] = false;
+                        m_brushStateTransitions[i][j] = false;
+                    }
+                }
             }
             
-            inline const BrushList& brushes(EditState::Type previousState) const {
-                return m_brushStateChanges[previousState];
+            inline const EntityList& entitiesFrom(EditState::Type previousState) const {
+                return m_entityStateChangesFrom[previousState];
+            }
+            
+            inline const EntityList& entitiesTo(EditState::Type newState) const {
+                return m_entityStateChangesTo[newState];
+            }
+            
+            inline const BrushList& brushesFrom(EditState::Type previousState) const {
+                return m_brushStateChangesFrom[previousState];
+            }
+            
+            inline const BrushList& brushChangesTo(EditState::Type newState) const {
+                return m_brushStateChangesTo[newState];
             }
             
             inline const FaceList& faces(bool previouslySelected) const {
@@ -204,14 +230,42 @@ namespace TrenchBroom {
                 return m_selectedFaces;
             }
             
-            inline bool entitySelectionChanged() const {
-                return m_entitySelectionChanged;
+            inline bool entityStateChanged(EditState::Type previousState, EditState::Type newState) const {
+                return m_entityStateTransitions[previousState][newState];
             }
             
-            inline bool brushSelectionChanged() const {
-                return m_brushSelectionChanged;
+            inline bool entityStateChangedFrom(EditState::Type previousState) const {
+                for (unsigned int i = 0; i < EditState::Count; i++)
+                    if (m_entityStateTransitions[previousState][i])
+                        return true;
+                return false;
             }
             
+            inline bool entityStateChangedTo(EditState::Type newState) const {
+                for (unsigned int i = 0; i < EditState::Count; i++)
+                    if (m_entityStateTransitions[i][newState])
+                        return true;
+                return false;
+            }
+
+            inline bool brushStateChanged(EditState::Type previousState, EditState::Type newState) const {
+                return m_brushStateTransitions[previousState][newState];
+            }
+            
+            inline bool brushStateChangedFrom(EditState::Type previousState) const {
+                for (unsigned int i = 0; i < EditState::Count; i++)
+                    if (m_brushStateTransitions[previousState][i])
+                        return true;
+                return false;
+            }
+            
+            inline bool brushStateChangedTo(EditState::Type newState) const {
+                for (unsigned int i = 0; i < EditState::Count; i++)
+                    if (m_brushStateTransitions[i][newState])
+                        return true;
+                return false;
+            }
+
             inline bool faceSelectionChanged() const {
                 return m_faceSelectionChanged;
             }

@@ -47,6 +47,14 @@ namespace TrenchBroom {
         EVT_MENU(MenuCommandIds::tbID_EDIT_SELECT_ALL, EditorView::OnEditSelectAll)
         EVT_MENU(MenuCommandIds::tbID_EDIT_SELECT_NONE, EditorView::OnEditSelectNone)
         
+        EVT_MENU(MenuCommandIds::tbID_EDIT_HIDE_SELECTED, EditorView::OnEditHideSelected)
+        EVT_MENU(MenuCommandIds::tbID_EDIT_HIDE_UNSELECTED, EditorView::OnEditHideUnselected)
+        EVT_MENU(MenuCommandIds::tbID_EDIT_UNHIDE_ALL, EditorView::OnEditUnhideAll)
+        
+        EVT_MENU(MenuCommandIds::tbID_EDIT_LOCK_SELECTED, EditorView::OnEditLockSelected)
+        EVT_MENU(MenuCommandIds::tbID_EDIT_LOCK_UNSELECTED, EditorView::OnEditLockUnselected)
+        EVT_MENU(MenuCommandIds::tbID_EDIT_UNLOCK_ALL, EditorView::OnEditUnlockAll)
+
         EVT_UPDATE_UI_RANGE(MenuCommandIds::tbID_MENU_LOWEST, MenuCommandIds::tbID_MENU_HIGHEST, EditorView::OnUpdateMenuItem)
         END_EVENT_TABLE()
 
@@ -189,6 +197,80 @@ namespace TrenchBroom {
             Submit(command);
         }
         
+        void EditorView::OnEditHideSelected(wxCommandEvent& event) {
+            Model::EditStateManager& editStateManager = MapDocument().EditStateManager();
+            const Model::EntityList& hideEntities = editStateManager.selectedEntities();
+            const Model::BrushList& hideBrushes = editStateManager.selectedBrushes();
+            
+            wxCommand* command = Controller::ChangeEditStateCommand::hide(MapDocument(), hideEntities, hideBrushes);
+            Submit(command);
+        }
+        
+        void EditorView::OnEditHideUnselected(wxCommandEvent& event) {
+            const Model::EntityList& entities = MapDocument().Map().entities();
+            Model::EntityList hideEntities;
+            Model::BrushList hideBrushes;
+            
+            for (unsigned int i = 0; i < entities.size(); i++) {
+                Model::Entity& entity = *entities[i];
+                if (!entity.selected() && entity.hideable()) {
+                    hideEntities.push_back(&entity);
+
+                    const Model::BrushList& entityBrushes = entity.brushes();
+                    for (unsigned int j = 0; j < entityBrushes.size(); j++) {
+                        Model::Brush& brush = *entityBrushes[j];
+                        if (!brush.selected() && brush.hideable())
+                            hideBrushes.push_back(&brush);
+                    }
+                }
+            }
+            
+            wxCommand* command = Controller::ChangeEditStateCommand::hide(MapDocument(), hideEntities, hideBrushes);
+            Submit(command);
+        }
+        
+        void EditorView::OnEditUnhideAll(wxCommandEvent& event) {
+            wxCommand* command = Controller::ChangeEditStateCommand::unhideAll(MapDocument());
+            Submit(command);
+        }
+        
+        void EditorView::OnEditLockSelected(wxCommandEvent& event) {
+            Model::EditStateManager& editStateManager = MapDocument().EditStateManager();
+            const Model::EntityList& lockEntities = editStateManager.selectedEntities();
+            const Model::BrushList& lockBrushes = editStateManager.selectedBrushes();
+            
+            wxCommand* command = Controller::ChangeEditStateCommand::lock(MapDocument(), lockEntities, lockBrushes);
+            Submit(command);
+        }
+        
+        void EditorView::OnEditLockUnselected(wxCommandEvent& event) {
+            const Model::EntityList& entities = MapDocument().Map().entities();
+            Model::EntityList lockEntities;
+            Model::BrushList lockBrushes;
+            
+            for (unsigned int i = 0; i < entities.size(); i++) {
+                Model::Entity& entity = *entities[i];
+                if (!entity.selected() && entity.lockable()) {
+                    lockEntities.push_back(&entity);
+                    
+                    const Model::BrushList& entityBrushes = entity.brushes();
+                    for (unsigned int j = 0; j < entityBrushes.size(); j++) {
+                        Model::Brush& brush = *entityBrushes[j];
+                        if (!brush.selected() && brush.lockable())
+                            lockBrushes.push_back(&brush);
+                    }
+                }
+            }
+            
+            wxCommand* command = Controller::ChangeEditStateCommand::lock(MapDocument(), lockEntities, lockBrushes);
+            Submit(command);
+        }
+        
+        void EditorView::OnEditUnlockAll(wxCommandEvent& event) {
+            wxCommand* command = Controller::ChangeEditStateCommand::unlockAll(MapDocument());
+            Submit(command);
+        }
+
         void EditorView::OnUpdateMenuItem(wxUpdateUIEvent& event) {
             Model::EditStateManager& editStateManager = MapDocument().EditStateManager();
             switch (event.GetId()) {
@@ -201,7 +283,23 @@ namespace TrenchBroom {
                     event.Enable(false);
                     break;
                 case MenuCommandIds::tbID_EDIT_SELECT_NONE:
-                    return event.Enable(editStateManager.selectionMode() != Model::EditStateManager::None);
+                    event.Enable(editStateManager.selectionMode() != Model::EditStateManager::None);
+                    break;
+                case MenuCommandIds::tbID_EDIT_HIDE_SELECTED:
+                case MenuCommandIds::tbID_EDIT_HIDE_UNSELECTED:
+                    event.Enable(editStateManager.selectionMode() != Model::EditStateManager::None &&
+                                 editStateManager.selectionMode() != Model::EditStateManager::Faces);
+                    break;
+                case MenuCommandIds::tbID_EDIT_UNHIDE_ALL:
+                    event.Enable(editStateManager.hasHiddenObjects());
+                    break;
+                case MenuCommandIds::tbID_EDIT_LOCK_SELECTED:
+                case MenuCommandIds::tbID_EDIT_LOCK_UNSELECTED:
+                    event.Enable(editStateManager.selectionMode() != Model::EditStateManager::None &&
+                                 editStateManager.selectionMode() != Model::EditStateManager::Faces);
+                    break;
+                case MenuCommandIds::tbID_EDIT_UNLOCK_ALL:
+                    event.Enable(editStateManager.hasLockedObjects());
                     break;
             }
         }

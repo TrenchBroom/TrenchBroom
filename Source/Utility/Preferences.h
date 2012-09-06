@@ -68,59 +68,73 @@ namespace TrenchBroom {
             }
         };
         
-        static const Preference<float>  CameraLookSpeed(                "Controls/Camera/Look speed",                       0.5f);
-        static const Preference<float>  CameraPanSpeed(                 "Controls/Camera/Pan speed",                        0.5f);
-        static const Preference<float>  CameraMoveSpeed(                "Controls/Camera/Move speed",                       0.5f);
-        static const Preference<bool>   CameraLookInvertX(              "Controls/Camera/Look X inverted",                  false);
-        static const Preference<bool>   CameraLookInvertY(              "Controls/Camera/Look Y inverted",                  false);
-        static const Preference<bool>   CameraPanInvertX(               "Controls/Camera/Pan X inverted",                   false);
-        static const Preference<bool>   CameraPanInvertY(               "Controls/Camera/Pan Y inverted",                   false);
-        static const Preference<float>  VertexHandleSize(               "Controls/Vertex handle size",                      1.5f);
-        static const Preference<float>  CameraFieldOfVision(            "Renderer/Camera field of vision",                  90.0f);
-        static const Preference<float>  CameraNearPlane(                "Renderer/Camera near plane",                       1.0f);
-        static const Preference<float>  CameraFarPlane(                 "Renderer/Camera far plane",                        5000.0f);
-        static const Preference<float>  InfoOverlayFadeDistance(        "Renderer/Info overlay fade distance",              400.0f);
-        static const Preference<float>  SelectedInfoOverlayFadeDistance("Renderer/Selected info overlay fade distance",     2000.0f);
-        static const Preference<int>    RendererFontSize(               "Renderer/Font size",                               16);
-        static const Preference<float>  RendererBrightness(             "Renderer/Brightness",                              1.0f);
-        static const Preference<Color>  BackgroundColor(                "Renderer/Colors/Background",                       Color(0.0f,  0.0f,  0.0f,  1.0f ));
-        static const Preference<Color>  GridColor(                      "Renderer/Colors/Grid",                             Color(1.0f,  1.0f,  1.0f,  0.22f));
-        static const Preference<Color>  EdgeColor(                      "Renderer/Colors/Edge",                             Color(0.6f,  0.6f,  0.6f,  1.0f ));
-        static const Preference<Color>  FaceColor(                      "Renderer/Colors/Face",                             Color(0.2f,  0.2f,  0.2f,  1.0f ));
-        static const Preference<Color>  EntityBoundsColor(              "Renderer/Colors/Entity bounds",                    Color(0.5f,  0.5f,  0.5f,  1.0f ));
-        static const Preference<Color>  EntityBoundsWireframeColor(     "Renderer/Colors/Entity bounds (wireframe mode)",   Color(0.5f,  0.5f,  0.5f,  0.6f ));
-        static const Preference<Color>  SelectedEdgeColor(              "Renderer/Colors/Selected edge",                    Color(1.0f,  0.0f,  0.0f,  1.0f ));
-        static const Preference<Color>  SelectedFaceColor(              "Renderer/Colors/Selected face",                    Color(0.6f,  0.35f, 0.35f, 1.0f ));
-        static const Preference<Color>  SelectedEntityBoundsColor(      "Renderer/Colors/Selected entity bounds",           Color(1.0f,  0.0f,  0.0f,  1.0f ));
-        static const Preference<Color>  HiddenSelectedEdgeColor(        "Renderer/Colors/Hidden selected edge",             Color(1.0f,  0.0f,  0.0f,  0.35f));
-        static const Preference<Color>  HiddenSelectedEntityBoundsColor("Renderer/Colors/Hidden selected entity bounds",    Color(1.0f,  0.0f,  0.0f,  0.35f));
-        static const Preference<Color>  SelectionGuideColor(            "Renderer/Colors/Selection guide",                  Color(1.0f,  0.0f,  0.0f,  1.0f ));
-        static const Preference<Color>  HiddenSelectionGuideColor(      "Renderer/Colors/Hidden selection guide",           Color(1.0f,  0.0f,  0.0f,  0.35f));
-        static const Preference<Color>  InfoOverlayColor(               "Renderer/Colors/Info overlay",                     Color(1.0f,  1.0f,  1.0f,  1.0f ));
-        static const Preference<Color>  SelectedInfoOverlayColor(       "Renderer/Colors/Selected info overlay",            Color(1.0f,  0.0f,  0.0f,  1.0f ));
-        static const Preference<Color>  HiddenSelectedInfoOverlayColor( "Renderer/Colors/Hidden selected info overlay",     Color(1.0f,  0.0f,  0.0f,  0.35f));
-        static const Preference<Color>  VertexHandleColor(              "Renderer/Colors/Vertex handle",                    Color(1.0f,  1.0f,  1.0f,  1.0f ));
-        static const Preference<Color>  HiddenVertexHandleColor(        "Renderer/Colors/Hidden vertex handle",             Color(1.0f,  1.0f,  1.0f,  0.35f));
-        static const Preference<Color>  SelectedVertexHandleColor(      "Renderer/Colors/Selected vertex handle",           Color(1.0f,  0.0f,  0.0f,  1.0f ));
-        static const Preference<Color>  HiddenSelectedVertexHandleColor("Renderer/Colors/Hidden selected vertex handle",    Color(1.0f,  0.0f,  0.0f,  0.35f));
-        static const Preference<Color>  EdgeHandleColor(                "Renderer/Colors/edge handle",                      Color(1.0f,  1.0f,  1.0f,  1.0f ));
-        static const Preference<Color>  HiddenEdgeHandleColor(          "Renderer/Colors/Hidden edge handle",               Color(1.0f,  1.0f,  1.0f,  0.35f));
-        static const Preference<Color>  SelectedEdgeHandleColor(        "Renderer/Colors/Selected edge handle",             Color(1.0f,  0.0f,  0.0f,  1.0f ));
-        static const Preference<Color>  HiddenSelectedEdgeHandleColor(  "Renderer/Colors/Hidden selected edge handle",      Color(1.0f,  0.0f,  0.0f,  0.35f));
-        static const Preference<Color>  FaceHandleColor(                "Renderer/Colors/face handle",                      Color(1.0f,  1.0f,  1.0f,  1.0f ));
-        static const Preference<Color>  HiddenFaceHandleColor(          "Renderer/Colors/Hidden face handle",               Color(1.0f,  1.0f,  1.0f,  0.35f));
-        static const Preference<Color>  SelectedFaceHandleColor(        "Renderer/Colors/Selected face handle",             Color(1.0f,  0.0f,  0.0f,  1.0f ));
-        static const Preference<Color>  HiddenSelectedFaceHandleColor(  "Renderer/Colors/Hidden selected face handle",      Color(1.0f,  0.0f,  0.0f,  0.35f));
-        static const Preference<Color>  SelectedTextureColor(           "Texture browser/Selected texture color",           Color(0.8f,  0.0f,  0.0f,  1.0f ));
-        static const Preference<Color>  UsedTextureColor(               "Texture browser/Used texture color",               Color(0.8f,  0.8f,  0.0f,  1.0f ));
-        static const Preference<Color>  OverriddenTextureColor(         "Texture browser/Overridden texture color",         Color(0.5f,  0.5f,  0.5f,  1.0f ));
+        static const Preference<float>  CameraLookSpeed(                    "Controls/Camera/Look speed",                       0.5f);
+        static const Preference<float>  CameraPanSpeed(                     "Controls/Camera/Pan speed",                        0.5f);
+        static const Preference<float>  CameraMoveSpeed(                    "Controls/Camera/Move speed",                       0.5f);
+        static const Preference<bool>   CameraLookInvertX(                  "Controls/Camera/Look X inverted",                  false);
+        static const Preference<bool>   CameraLookInvertY(                  "Controls/Camera/Look Y inverted",                  false);
+        static const Preference<bool>   CameraPanInvertX(                   "Controls/Camera/Pan X inverted",                   false);
+        static const Preference<bool>   CameraPanInvertY(                   "Controls/Camera/Pan Y inverted",                   false);
+        static const Preference<float>  VertexHandleSize(                   "Controls/Vertex handle size",                      1.5f);
+        static const Preference<float>  CameraFieldOfVision(                "Renderer/Camera field of vision",                  90.0f);
+        static const Preference<float>  CameraNearPlane(                    "Renderer/Camera near plane",                       1.0f);
+        static const Preference<float>  CameraFarPlane(                     "Renderer/Camera far plane",                        5000.0f);
+
+        static const Preference<float>  InfoOverlayFadeDistance(            "Renderer/Info overlay fade distance",              400.0f);
+        static const Preference<float>  SelectedInfoOverlayFadeDistance(    "Renderer/Selected info overlay fade distance",     400.0f);
+        static const Preference<int>    RendererFontSize(                   "Renderer/Font size",                               16);
+        static const Preference<float>  RendererBrightness(                 "Renderer/Brightness",                              1.0f);
+
+        static const Preference<Color>  BackgroundColor(                    "Renderer/Colors/Background",                       Color(0.0f,  0.0f,  0.0f,  1.0f ));
+        static const Preference<Color>  GridColor(                          "Renderer/Colors/Grid",                             Color(1.0f,  1.0f,  1.0f,  0.22f));
+
+        static const Preference<Color>  FaceColor(                          "Renderer/Colors/Face",                             Color(0.2f,  0.2f,  0.2f,  1.0f ));
+        static const Preference<Color>  SelectedFaceColor(                  "Renderer/Colors/Selected face",                    Color(0.6f,  0.35f, 0.35f, 1.0f ));
+        static const Preference<Color>  LockedFaceColor(                    "Renderer/Colors/Locked face",                      Color(1.0f,  1.0f,  1.0f,  0.5f ));
+        
+        static const Preference<Color>  EdgeColor(                          "Renderer/Colors/Edge",                             Color(0.6f,  0.6f,  0.6f,  1.0f ));
+        static const Preference<Color>  SelectedEdgeColor(                  "Renderer/Colors/Selected edge",                    Color(1.0f,  0.0f,  0.0f,  1.0f ));
+        static const Preference<Color>  OccludedSelectedEdgeColor(          "Renderer/Colors/Occluded selected edge",           Color(1.0f,  0.0f,  0.0f,  0.35f));
+        static const Preference<Color>  LockedEdgeColor(                    "Renderer/Colors/Locked edge",                      Color(0.6f,  0.6f,  0.6f,  0.5f ));
+        
+        static const Preference<Color>  EntityBoundsColor(                  "Renderer/Colors/Entity bounds",                    Color(0.5f,  0.5f,  0.5f,  1.0f ));
+        static const Preference<Color>  SelectedEntityBoundsColor(          "Renderer/Colors/Selected entity bounds",           Color(1.0f,  0.0f,  0.0f,  1.0f ));
+        static const Preference<Color>  OccludedSelectedEntityBoundsColor(  "Renderer/Colors/Occluded selected entity bounds",  Color(1.0f,  0.0f,  0.0f,  0.35f));
+        static const Preference<Color>  LockedEntityBoundsColor(            "Renderer/Colors/Locked entity bounds",             Color(0.5f,  0.5f,  0.5f,  0.5f ));
+        static const Preference<Color>  EntityBoundsWireframeColor(         "Renderer/Colors/Entity bounds (wireframe mode)",   Color(0.5f,  0.5f,  0.5f,  0.6f ));
+
+        static const Preference<Color>  SelectionGuideColor(                "Renderer/Colors/Selection guide",                  Color(1.0f,  0.0f,  0.0f,  1.0f ));
+        static const Preference<Color>  OccludedSelectionGuideColor(        "Renderer/Colors/Occluded selection guide",         Color(1.0f,  0.0f,  0.0f,  0.35f));
+        
+        static const Preference<Color>  InfoOverlayColor(                   "Renderer/Colors/Info overlay",                     Color(1.0f,  1.0f,  1.0f,  1.0f ));
+        static const Preference<Color>  SelectedInfoOverlayColor(           "Renderer/Colors/Selected info overlay",            Color(1.0f,  0.0f,  0.0f,  1.0f ));
+        static const Preference<Color>  OccludedSelectedInfoOverlayColor(   "Renderer/Colors/Occluded selected info overlay",   Color(1.0f,  0.0f,  0.0f,  0.35f));
+        
+        static const Preference<Color>  VertexHandleColor(                  "Renderer/Colors/Vertex handle",                    Color(1.0f,  1.0f,  1.0f,  1.0f ));
+        static const Preference<Color>  OccludedVertexHandleColor(          "Renderer/Colors/Occluded vertex handle",           Color(1.0f,  1.0f,  1.0f,  0.35f));
+        static const Preference<Color>  SelectedVertexHandleColor(          "Renderer/Colors/Selected vertex handle",           Color(1.0f,  0.0f,  0.0f,  1.0f ));
+        static const Preference<Color>  OccludedSelectedVertexHandleColor(  "Renderer/Colors/Occluded selected vertex handle",  Color(1.0f,  0.0f,  0.0f,  0.35f));
+
+        static const Preference<Color>  EdgeHandleColor(                    "Renderer/Colors/edge handle",                      Color(1.0f,  1.0f,  1.0f,  1.0f ));
+        static const Preference<Color>  OccludedEdgeHandleColor(            "Renderer/Colors/Occluded edge handle",             Color(1.0f,  1.0f,  1.0f,  0.35f));
+        static const Preference<Color>  SelectedEdgeHandleColor(            "Renderer/Colors/Selected edge handle",             Color(1.0f,  0.0f,  0.0f,  1.0f ));
+        static const Preference<Color>  OccludedSelectedEdgeHandleColor(    "Renderer/Colors/Occluded selected edge handle",    Color(1.0f,  0.0f,  0.0f,  0.35f));
+
+        static const Preference<Color>  FaceHandleColor(                    "Renderer/Colors/face handle",                      Color(1.0f,  1.0f,  1.0f,  1.0f ));
+        static const Preference<Color>  OccludedFaceHandleColor(            "Renderer/Colors/Occluded face handle",             Color(1.0f,  1.0f,  1.0f,  0.35f));
+        static const Preference<Color>  SelectedFaceHandleColor(            "Renderer/Colors/Selected face handle",             Color(1.0f,  0.0f,  0.0f,  1.0f ));
+        static const Preference<Color>  OccludedSelectedFaceHandleColor(    "Renderer/Colors/Occluded selected face handle",    Color(1.0f,  0.0f,  0.0f,  0.35f));
+        
+        static const Preference<Color>  SelectedTextureColor(               "Texture browser/Selected texture color",           Color(0.8f,  0.0f,  0.0f,  1.0f ));
+        static const Preference<Color>  UsedTextureColor(                   "Texture browser/Used texture color",               Color(0.8f,  0.8f,  0.0f,  1.0f ));
+        static const Preference<Color>  OverriddenTextureColor(             "Texture browser/Overridden texture color",         Color(0.5f,  0.5f,  0.5f,  1.0f ));
         
 #if defined _WIN32
-        static const Preference<String> QuakePath(                      "General/Quake path",                               "C:\\Program Files\\Quake");
-        static const Preference<String> RendererFontName(               "Renderer/Font name",                               "Arial");
+        static const Preference<String> QuakePath(                          "General/Quake path",                               "C:\\Program Files\\Quake");
+        static const Preference<String> RendererFontName(                   "Renderer/Font name",                               "Arial");
 #elif defined __APPLE__
-        static const Preference<String> QuakePath(                      "General/Quake path",                               "/Applications/Quake");
-        static const Preference<String> RendererFontName(               "Renderer/Font name",                               "LucidaGrande");
+        static const Preference<String> QuakePath(                          "General/Quake path",                               "/Applications/Quake");
+        static const Preference<String> RendererFontName(                   "Renderer/Font name",                               "LucidaGrande");
 #elif defined __linux__
 #endif
 

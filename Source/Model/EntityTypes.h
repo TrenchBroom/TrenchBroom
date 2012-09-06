@@ -30,6 +30,7 @@ namespace TrenchBroom {
         class Entity;
         
         typedef std::vector<Entity*> EntityList;
+        static const EntityList EmptyEntityList;
         typedef std::set<Entity*> EntitySet;
         typedef std::string PropertyKey;
         typedef std::string PropertyValue;

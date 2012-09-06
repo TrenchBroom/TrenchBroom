@@ -49,17 +49,17 @@ namespace TrenchBroom {
         static const int EdgeVertexSize = ColorSize + VertexSize;
         static const int EntityBoundsVertexSize = ColorSize + VertexSize;
 
-        void MapRenderer::writeFaceData(RenderContext& context, FacesByTexture& facesByTexture, FaceRenderInfos& renderInfos, VboBlock& block) {
+        void MapRenderer::writeFaceData(RenderContext& context, const FacesByTexture& facesByTexture, FaceRenderInfos& renderInfos, VboBlock& block) {
             if (facesByTexture.empty())
                 return;
             
             unsigned int address = block.address();
             unsigned int offset = 0;
             
-            FacesByTexture::iterator textureIt;
-            for (textureIt = facesByTexture.begin(); textureIt != facesByTexture.end(); ++textureIt) {
-                Model::Texture* texture = textureIt->first;
-                Model::FaceList& faces = textureIt->second;
+            FacesByTexture::const_iterator it, end;
+            for (it = facesByTexture.begin(), end = facesByTexture.end(); it != end; ++it) {
+                Model::Texture* texture = it->first;
+                const Model::FaceList& faces = it->second;
                 
                 unsigned int vertexCount = 0;
                 
@@ -91,7 +91,7 @@ namespace TrenchBroom {
             }
         }
         
-        void MapRenderer::writeEdgeData(RenderContext& context, Model::BrushList& brushes, Model::FaceList& faces, EdgeRenderInfo& renderInfo, VboBlock& block) {
+        void MapRenderer::writeEdgeData(RenderContext& context, const Model::BrushList& brushes, const Model::FaceList& faces, EdgeRenderInfo& renderInfo, VboBlock& block) {
             if (brushes.empty() && faces.empty())
                 return;
             
@@ -166,17 +166,34 @@ namespace TrenchBroom {
                 m_selectedEdgeRenderInfo = EdgeRenderInfo(0, 0);
             }
             
+            if (!m_lockedGeometryDataValid) {
+                if (m_lockedFaceBlock != NULL) {
+                    m_lockedFaceBlock->freeBlock();
+                    m_lockedFaceBlock = NULL;
+                }
+                if (m_lockedEdgeBlock != NULL) {
+                    m_lockedEdgeBlock->freeBlock();
+                    m_lockedEdgeBlock = NULL;
+                }
+                m_lockedFaceRenderInfos.clear();
+                m_lockedEdgeRenderInfo = EdgeRenderInfo(0, 0);
+            }
+            
             FacesByTexture unselectedFaces;
             FacesByTexture selectedFaces;
+            FacesByTexture lockedFaces;
             unsigned int totalUnselectedFaceVertexCount = 0;
             unsigned int totalSelectedFaceVertexCount = 0;
+            unsigned int totalLockedFaceVertexCount = 0;
             
             Model::BrushList unselectedWorldBrushes;
             Model::BrushList unselectedEntityBrushes;
             Model::BrushList selectedBrushes;
+            Model::BrushList lockedBrushes;
             Model::FaceList partiallySelectedBrushFaces;
             unsigned int totalUnselectedEdgeVertexCount = 0;
             unsigned int totalSelectedEdgeVertexCount = 0;
+            unsigned int totalLockedEdgeVertexCount = 0;
             
             // collect all visible faces and brushes
             const Model::EntityList& entities = m_document.Map().entities();
@@ -189,6 +206,9 @@ namespace TrenchBroom {
                         if (entity->selected() || brush->selected()) {
                             selectedBrushes.push_back(brush);
                             totalSelectedEdgeVertexCount += (2 * brush->edges().size());
+                        } else if (entity->locked() || brush->locked()) {
+                            lockedBrushes.push_back(brush);
+                            totalLockedEdgeVertexCount+= (2 * brush->edges().size());
                         } else {
                             if (entity->worldspawn())
                                 unselectedWorldBrushes.push_back(brush);
@@ -216,8 +236,9 @@ namespace TrenchBroom {
                             
                             // because it is often the case that there are subsequences of faces with the same texture,
                             // we always keep an iterator to the texture / face list that was last used
-                            FacesByTexture::iterator lastSelectedTextureIt = selectedFaces.end();
                             FacesByTexture::iterator lastUnselectedTextureIt = unselectedFaces.end();
+                            FacesByTexture::iterator lastSelectedTextureIt = selectedFaces.end();
+                            FacesByTexture::iterator lastLockedTextureIt = lockedFaces.end();
                             
                             if (entity->selected() || brush->selected() || face->selected()) {
                                 if (lastSelectedTextureIt == selectedFaces.end() || lastSelectedTextureIt->first != texture)
@@ -225,6 +246,12 @@ namespace TrenchBroom {
                                 
                                 lastSelectedTextureIt->second.push_back(face);
                                 totalSelectedFaceVertexCount += (3 * face->vertices().size() - 6);
+                            } else if (entity->locked() || brush->locked()) {
+                                if (lastLockedTextureIt == lockedFaces.end() || lastLockedTextureIt->first != texture)
+                                    lastLockedTextureIt = lockedFaces.insert(std::pair<Model::Texture*, Model::FaceList>(texture, Model::FaceList())).first;
+                                
+                                lastLockedTextureIt->second.push_back(face);
+                                totalLockedFaceVertexCount += (3 * face->vertices().size() - 6);
                             } else {
                                 if (lastUnselectedTextureIt == unselectedFaces.end() || lastUnselectedTextureIt->first != texture)
                                     lastUnselectedTextureIt = unselectedFaces.insert(std::pair<Model::Texture*, Model::FaceList>(texture, Model::FaceList())).first;
@@ -249,11 +276,15 @@ namespace TrenchBroom {
                 m_faceBlock = m_faceVbo->allocBlock(totalUnselectedFaceVertexCount * FaceVertexSize);
             if (!m_selectedGeometryDataValid && !selectedFaces.empty())
                 m_selectedFaceBlock = m_faceVbo->allocBlock(totalSelectedFaceVertexCount * FaceVertexSize);
+            if (!m_lockedGeometryDataValid && !lockedFaces.empty())
+                m_lockedFaceBlock = m_faceVbo->allocBlock(totalLockedFaceVertexCount * FaceVertexSize);
             
             if (!m_geometryDataValid && !unselectedFaces.empty())
                 writeFaceData(context, unselectedFaces, m_faceRenderInfos, *m_faceBlock);
             if (!m_selectedGeometryDataValid && !selectedFaces.empty())
                 writeFaceData(context, selectedFaces, m_selectedFaceRenderInfos, *m_selectedFaceBlock);
+            if (!m_lockedGeometryDataValid && !lockedFaces.empty())
+                writeFaceData(context, lockedFaces, m_lockedFaceRenderInfos, *m_lockedFaceBlock);
             
             m_faceVbo->unmap();
             m_faceVbo->deactivate();
@@ -266,19 +297,22 @@ namespace TrenchBroom {
                 m_edgeBlock = m_edgeVbo->allocBlock(totalUnselectedEdgeVertexCount * EdgeVertexSize);
             if (!m_selectedGeometryDataValid && (!selectedBrushes.empty() || !partiallySelectedBrushFaces.empty()))
                 m_selectedEdgeBlock = m_edgeVbo->allocBlock(totalSelectedEdgeVertexCount * EdgeVertexSize);
+            if (!m_lockedGeometryDataValid && !lockedBrushes.empty())
+                m_lockedEdgeBlock = m_edgeVbo->allocBlock(totalLockedEdgeVertexCount * EdgeVertexSize);
             
-            if (!m_geometryDataValid && !unselectedBrushes.empty()) {
-                Model::FaceList temp;
-                writeEdgeData(context, unselectedBrushes, temp, m_edgeRenderInfo, *m_edgeBlock);
-            }
+            if (!m_geometryDataValid && !unselectedBrushes.empty())
+                writeEdgeData(context, unselectedBrushes, Model::EmptyFaceList, m_edgeRenderInfo, *m_edgeBlock);
             if (!m_selectedGeometryDataValid && (!selectedBrushes.empty() || !partiallySelectedBrushFaces.empty()))
                 writeEdgeData(context, selectedBrushes, partiallySelectedBrushFaces, m_selectedEdgeRenderInfo, *m_selectedEdgeBlock);
+            if (!m_lockedGeometryDataValid && !lockedBrushes.empty())
+                writeEdgeData(context, lockedBrushes, Model::EmptyFaceList, m_lockedEdgeRenderInfo, *m_lockedEdgeBlock);
             
             m_edgeVbo->unmap();
             m_edgeVbo->deactivate();
             
             m_geometryDataValid = true;
             m_selectedGeometryDataValid = true;
+            m_lockedGeometryDataValid = true;
         }
         
         void MapRenderer::writeEntityBounds(RenderContext& context, const Model::EntityList& entities, EdgeRenderInfo& renderInfo, VboBlock& block) {
@@ -332,15 +366,26 @@ namespace TrenchBroom {
                 m_selectedEntityBoundsRenderInfo = EdgeRenderInfo(0, 0);
             }
             
+            if (!m_lockedEntityDataValid) {
+                if (m_lockedEntityBoundsBlock != NULL) {
+                    m_lockedEntityBoundsBlock->freeBlock();
+                    m_lockedEntityBoundsBlock = NULL;
+                }
+                m_lockedEntityBoundsRenderInfo = EdgeRenderInfo(0, 0);
+            }
+            
             // collect all model entities
             Model::EntityList allEntities;
             Model::EntityList allSelectedEntities;
+            Model::EntityList allLockedEntities;
             const Model::EntityList entities = m_document.Map().entities();
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
                 if (context.filter().entityVisible(*entity)) {
                     if (entity->selected() || entity->partiallySelected())
                         allSelectedEntities.push_back(entity);
+                    else if (entity->locked())
+                        allLockedEntities.push_back(entity);
                     else
                         allEntities.push_back(entity);
                 }
@@ -359,16 +404,24 @@ namespace TrenchBroom {
                 m_selectedEntityBoundsBlock = m_entityBoundsVbo->allocBlock(selectedEntityBoundsVertexCount * EntityBoundsVertexSize);
             }
             
+            if (!m_lockedEntityDataValid && !allLockedEntities.empty()) {
+                unsigned int lockedEntityBoundsVertexCount = 2 * 4 * 6 * static_cast<unsigned int>(allLockedEntities.size());
+                m_lockedEntityBoundsBlock = m_entityBoundsVbo->allocBlock(lockedEntityBoundsVertexCount * EntityBoundsVertexSize);
+            }
+            
             if (!m_entityDataValid && !allEntities.empty())
                 writeEntityBounds(context, allEntities, m_entityBoundsRenderInfo, *m_entityBoundsBlock);
             if (!m_selectedEntityDataValid && !allSelectedEntities.empty())
                 writeEntityBounds(context, allSelectedEntities, m_selectedEntityBoundsRenderInfo, *m_selectedEntityBoundsBlock);
+            if (!m_lockedEntityDataValid && !allLockedEntities.empty())
+                writeEntityBounds(context, allLockedEntities, m_lockedEntityBoundsRenderInfo, *m_lockedEntityBoundsBlock);
             
             m_entityBoundsVbo->unmap();
             m_entityBoundsVbo->deactivate();
             
             m_entityDataValid = true;
             m_selectedEntityDataValid = true;
+            m_lockedEntityDataValid = true;
         }
         
         bool MapRenderer::reloadEntityModel(const Model::Entity& entity, CachedEntityRenderer& cachedRenderer) {
@@ -402,6 +455,8 @@ namespace TrenchBroom {
                 if (renderer != NULL) {
                     if (entity->selected())
                         m_selectedEntityRenderers[entity] = CachedEntityRenderer(renderer, *entity->classname());
+                    else if (entity->locked())
+                        m_lockedEntityRenderers[entity] = CachedEntityRenderer(renderer, *entity->classname());
                     else
                         m_entityRenderers[entity] = CachedEntityRenderer(renderer, *entity->classname());
                 }
@@ -413,9 +468,9 @@ namespace TrenchBroom {
         void MapRenderer::validate(RenderContext& context) {
             if (!m_entityRendererCacheValid)
                 reloadEntityModels(context);
-            if (!m_geometryDataValid || !m_selectedGeometryDataValid)
+            if (!m_geometryDataValid || !m_selectedGeometryDataValid || !m_lockedGeometryDataValid)
                 rebuildGeometryData(context);
-            if (!m_entityDataValid || !m_selectedEntityDataValid)
+            if (!m_entityDataValid || !m_selectedEntityDataValid || !m_lockedEntityDataValid)
                 rebuildEntityData(context);
         }
 
@@ -484,7 +539,7 @@ namespace TrenchBroom {
             glPopClientAttrib();
         }
         
-        void MapRenderer::renderFaces(RenderContext& context, bool textured, bool selected, const FaceRenderInfos& renderInfos) {
+        void MapRenderer::renderFaces(RenderContext& context, bool textured, bool selected, bool locked, const FaceRenderInfos& renderInfos) {
             if (renderInfos.empty())
                 return;
             
@@ -513,14 +568,30 @@ namespace TrenchBroom {
                 glActiveTexture(GL_TEXTURE1);
                 glEnable(GL_TEXTURE_2D);
                 m_dummyTexture->activate();
-                glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-                glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
-                glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+                glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+                glTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+                glTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
                 glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, color);
-                glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_PREVIOUS);
-                glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_PREVIOUS);
-                glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_CONSTANT);
-                glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2);
+                glTexEnvi (GL_TEXTURE_ENV, GL_SRC0_RGB, GL_PREVIOUS);
+                glTexEnvi (GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_PREVIOUS);
+                glTexEnvi (GL_TEXTURE_ENV, GL_SRC1_RGB, GL_CONSTANT);
+                glTexEnvf (GL_TEXTURE_ENV, GL_RGB_SCALE, 2);
+            } else if (locked) {
+                const Color lockedFaceColor = prefs.getColor(Preferences::LockedFaceColor);
+                GLfloat color[4] = {lockedFaceColor.x, lockedFaceColor.y, lockedFaceColor.z, lockedFaceColor.w};
+                
+                glActiveTexture(GL_TEXTURE1);
+                glEnable(GL_TEXTURE_2D);
+                m_dummyTexture->activate();
+                glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+                glTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
+                glTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_MODULATE);
+                glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, color);
+                glTexEnvi (GL_TEXTURE_ENV, GL_SRC0_RGB, GL_PREVIOUS);
+                glTexEnvi (GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_PREVIOUS);
+                glTexEnvi (GL_TEXTURE_ENV, GL_SRC1_RGB, GL_CONSTANT);
+                glTexEnvi (GL_TEXTURE_ENV, GL_SRC1_ALPHA, GL_CONSTANT);
+                glTexEnvf (GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
             }
             
             bool textureActive = textured;
@@ -564,7 +635,7 @@ namespace TrenchBroom {
             if (textured && textureActive)
                 glDisable(GL_TEXTURE_2D);
             
-            if (selected) {
+            if (selected || locked) {
                 glActiveTexture(GL_TEXTURE1);
                 m_dummyTexture->deactivate();
                 glDisable(GL_TEXTURE_2D);
@@ -597,20 +668,24 @@ namespace TrenchBroom {
             m_faceVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
             m_faceBlock = NULL;
             m_selectedFaceBlock = NULL;
+            m_lockedFaceBlock = NULL;
             
             m_edgeVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
             m_edgeBlock = NULL;
             m_selectedEdgeBlock = NULL;
+            m_lockedEdgeBlock = NULL;
             
             m_entityBoundsVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
             m_entityBoundsBlock = NULL;
             m_selectedEntityBoundsBlock = NULL;
+            m_lockedEntityBoundsBlock = NULL;
             
             m_geometryDataValid = false;
-            m_entityDataValid = false;
             m_selectedGeometryDataValid = false;
-            m_selectedEntityDataValid = false;
             m_lockedGeometryDataValid = false;
+
+            m_entityDataValid = false;
+            m_selectedEntityDataValid = false;
             m_lockedEntityDataValid = false;
 
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
@@ -625,6 +700,7 @@ namespace TrenchBroom {
             
             m_classnameRenderer = new Text::TextRenderer<Model::Entity*>(*m_stringManager, infoOverlayFadeDistance);
             m_selectedClassnameRenderer = new Text::TextRenderer<Model::Entity*>(*m_stringManager, selectedInfoOverlayFadeDistance);
+            m_lockedClassnameRenderer = new Text::TextRenderer<Model::Entity*>(*m_stringManager, infoOverlayFadeDistance);
             
             /*
             m_figureVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
@@ -672,6 +748,10 @@ namespace TrenchBroom {
                 m_selectedClassnameRenderer = NULL;
             }
             
+            if (m_lockedClassnameRenderer != NULL) {
+                delete m_lockedClassnameRenderer;
+                m_lockedClassnameRenderer = NULL;
+            }
             
             if (m_stringManager != NULL) {
                 delete m_stringManager;
@@ -714,36 +794,73 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::changeEditState(const Model::EditStateChangeSet& changeSet) {
-            if (changeSet.entitySelectionChanged()) {
+            if (changeSet.entityStateChangedFrom(Model::EditState::Default) ||
+                changeSet.entityStateChangedTo(Model::EditState::Default)) {
                 m_entityDataValid = false;
+            }
+            
+            if (changeSet.entityStateChangedFrom(Model::EditState::Selected) ||
+                changeSet.entityStateChangedTo(Model::EditState::Selected)) {
                 m_selectedEntityDataValid = false;
                 
-                const Model::EntityList& selectedEntities = changeSet.entities(Model::EditState::Default);
+                const Model::EntityList& selectedEntities = changeSet.entitiesTo(Model::EditState::Selected);
                 for (unsigned int i = 0; i < selectedEntities.size(); i++) {
                     Model::Entity* entity = selectedEntities[i];
                     m_classnameRenderer->transferString(entity, *m_selectedClassnameRenderer);
                 }
                 
-                const Model::EntityList& deselectedEntities = changeSet.entities(Model::EditState::Selected);
+                const Model::EntityList& deselectedEntities = changeSet.entitiesFrom(Model::EditState::Selected);
                 for (unsigned int i = 0; i < deselectedEntities.size(); i++) {
                     Model::Entity* entity = deselectedEntities[i];
                     m_selectedClassnameRenderer->transferString(entity, *m_classnameRenderer);
                 }
             }
             
-            if (changeSet.brushSelectionChanged() || changeSet.faceSelectionChanged()) {
+            if (changeSet.entityStateChangedFrom(Model::EditState::Locked) ||
+                changeSet.entityStateChangedTo(Model::EditState::Locked)) {
+                m_lockedEntityDataValid = false;
+                
+                const Model::EntityList& lockedEntities = changeSet.entitiesTo(Model::EditState::Locked);
+                for (unsigned int i = 0; i < lockedEntities.size(); i++) {
+                    Model::Entity* entity = lockedEntities[i];
+                    m_classnameRenderer->transferString(entity, *m_lockedClassnameRenderer);
+                }
+                
+                const Model::EntityList& unlockedEntities = changeSet.entitiesFrom(Model::EditState::Locked);
+                for (unsigned int i = 0; i < unlockedEntities.size(); i++) {
+                    Model::Entity* entity = unlockedEntities[i];
+                    m_lockedClassnameRenderer->transferString(entity, *m_classnameRenderer);
+                }
+            }
+            
+            if (changeSet.brushStateChangedFrom(Model::EditState::Default) ||
+                changeSet.brushStateChangedTo(Model::EditState::Default) ||
+                changeSet.faceSelectionChanged()) {
                 m_geometryDataValid = false;
+            }
+
+            if (changeSet.brushStateChangedFrom(Model::EditState::Selected) ||
+                changeSet.brushStateChangedTo(Model::EditState::Selected) ||
+                changeSet.faceSelectionChanged()) {
                 m_selectedGeometryDataValid = false;
+            }
+            
+            if (changeSet.brushStateChangedFrom(Model::EditState::Locked) ||
+                changeSet.brushStateChangedTo(Model::EditState::Locked) ||
+                changeSet.faceSelectionChanged()) {
+                m_lockedGeometryDataValid = false;
             }
         }
 
         void MapRenderer::loadMap() {
             addEntities(m_document.Map().entities());
             
-            m_entityDataValid = false;
-            m_selectedEntityDataValid = false;
             m_geometryDataValid = false;
             m_selectedGeometryDataValid = false;
+            m_lockedGeometryDataValid = false;
+            m_entityDataValid = false;
+            m_selectedEntityDataValid = false;
+            m_lockedEntityDataValid = false;
         }
         
         void MapRenderer::clearMap() {
@@ -751,10 +868,13 @@ namespace TrenchBroom {
             m_selectedEntityRenderers.clear();
 			m_classnameRenderer->clear();
 			m_selectedClassnameRenderer->clear();
-            m_entityDataValid = false;
-            m_selectedEntityDataValid = false;
+
             m_geometryDataValid = false;
             m_selectedGeometryDataValid = false;
+            m_lockedGeometryDataValid = false;
+            m_entityDataValid = false;
+            m_selectedEntityDataValid = false;
+            m_lockedEntityDataValid = false;
         }
 
         void MapRenderer::render(RenderContext& context) {
@@ -771,23 +891,17 @@ namespace TrenchBroom {
             glShadeModel(GL_SMOOTH);
             glResetEdgeOffset();
             
-            // render geometry faces
-            m_faceVbo->activate();
-            glEnableClientState(GL_VERTEX_ARRAY);
-            renderFaces(context, true, false, m_faceRenderInfos);
-            renderFaces(context, true, true, m_selectedFaceRenderInfos);
-            glDisableClientState(GL_VERTEX_ARRAY);
-            m_faceVbo->deactivate();
-            
             // render geometry edges
             m_edgeVbo->activate();
             glEnableClientState(GL_VERTEX_ARRAY);
             glSetEdgeOffset(0.01f);
             renderEdges(context, m_edgeRenderInfo, NULL);
-            
+
+            renderEdges(context, m_lockedEdgeRenderInfo, &prefs.getColor(Preferences::LockedEdgeColor));
+
             glSetEdgeOffset(0.02f);
             glDisable(GL_DEPTH_TEST);
-            renderEdges(context, m_selectedEdgeRenderInfo, &prefs.getColor(Preferences::HiddenSelectedEdgeColor));
+            renderEdges(context, m_selectedEdgeRenderInfo, &prefs.getColor(Preferences::OccludedSelectedEdgeColor));
             glEnable(GL_DEPTH_TEST);
             renderEdges(context, m_selectedEdgeRenderInfo, &prefs.getColor(Preferences::SelectedEdgeColor));
             
@@ -799,9 +913,10 @@ namespace TrenchBroom {
             m_entityBoundsVbo->activate();
             glEnableClientState(GL_VERTEX_ARRAY);
             renderEntityBounds(context, m_entityBoundsRenderInfo, NULL);
+            renderEntityBounds(context, m_lockedEntityBoundsRenderInfo, &prefs.getColor(Preferences::LockedEntityBoundsColor));
 
             glDisable(GL_DEPTH_TEST);
-            renderEntityBounds(context, m_selectedEntityBoundsRenderInfo, &prefs.getColor(Preferences::HiddenSelectedEntityBoundsColor));
+            renderEntityBounds(context, m_selectedEntityBoundsRenderInfo, &prefs.getColor(Preferences::OccludedSelectedEntityBoundsColor));
             glEnable(GL_DEPTH_TEST);
             
             glDepthFunc(GL_LEQUAL);
@@ -815,14 +930,25 @@ namespace TrenchBroom {
             renderEntityModels(context, m_entityRenderers);
             renderEntityModels(context, m_selectedEntityRenderers);
 
+            // render geometry faces
+            m_faceVbo->activate();
+            glEnableClientState(GL_VERTEX_ARRAY);
+            renderFaces(context, true, false, false, m_faceRenderInfos);
+            renderFaces(context, true, true, false, m_selectedFaceRenderInfos);
+            renderFaces(context, true, false, true, m_lockedFaceRenderInfos);
+            glDisableClientState(GL_VERTEX_ARRAY);
+            m_faceVbo->deactivate();
+            
             // render classnames
             EntityClassnameFilter classnameFilter;
             m_stringManager->activate();
             m_classnameRenderer->render(context, classnameFilter, prefs.getColor(Preferences::InfoOverlayColor));
-            
+
+            /*
             glDisable(GL_DEPTH_TEST);
-            m_selectedClassnameRenderer->render(context, classnameFilter, prefs.getColor(Preferences::HiddenSelectedInfoOverlayColor));
+            m_selectedClassnameRenderer->render(context, classnameFilter, prefs.getColor(Preferences::OccludedSelectedInfoOverlayColor));
             glEnable(GL_DEPTH_TEST);
+            */
             m_selectedClassnameRenderer->render(context, classnameFilter, prefs.getColor(Preferences::SelectedInfoOverlayColor));
             m_stringManager->deactivate();
         }

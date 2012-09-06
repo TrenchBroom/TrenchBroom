@@ -78,6 +78,14 @@ namespace TrenchBroom {
             void OnEditSelectAll(wxCommandEvent& event);
             void OnEditSelectNone(wxCommandEvent& event);
             
+            void OnEditHideSelected(wxCommandEvent& event);
+            void OnEditHideUnselected(wxCommandEvent& event);
+            void OnEditUnhideAll(wxCommandEvent& event);
+            
+            void OnEditLockSelected(wxCommandEvent& event);
+            void OnEditLockUnselected(wxCommandEvent& event);
+            void OnEditUnlockAll(wxCommandEvent& event);
+            
             void OnUpdateMenuItem(wxUpdateUIEvent& event);
             
             DECLARE_EVENT_TABLE();

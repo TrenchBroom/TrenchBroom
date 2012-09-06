@@ -27,6 +27,7 @@ namespace TrenchBroom {
         class Brush;
         
         typedef std::vector<Brush*> BrushList;
+        static const BrushList EmptyBrushList;
     }
 }
 

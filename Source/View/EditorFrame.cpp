@@ -90,6 +90,14 @@ namespace TrenchBroom {
             editMenu->Append(MenuCommandIds::tbID_EDIT_SELECT_SIBLINGS, wxT("Select Siblings\tCtrl+Alt+A"));
             editMenu->Append(MenuCommandIds::tbID_EDIT_SELECT_TOUCHING, wxT("Select Touching\tCtrl+T"));
             editMenu->Append(MenuCommandIds::tbID_EDIT_SELECT_NONE, wxT("Select None\tCtrl+Shift+A"));
+            editMenu->AppendSeparator();
+            editMenu->Append(MenuCommandIds::tbID_EDIT_HIDE_SELECTED, wxT("Hide Selected\tCtrl+H"));
+            editMenu->Append(MenuCommandIds::tbID_EDIT_HIDE_UNSELECTED, wxT("Hide Unselected\tCtrl+Alt+H"));
+            editMenu->Append(MenuCommandIds::tbID_EDIT_UNHIDE_ALL, wxT("Unhide All\tCtrl+Shift+H"));
+            editMenu->AppendSeparator();
+            editMenu->Append(MenuCommandIds::tbID_EDIT_LOCK_SELECTED, wxT("Lock Selected\tCtrl+L"));
+            editMenu->Append(MenuCommandIds::tbID_EDIT_LOCK_UNSELECTED, wxT("Lock Unselected\tCtrl+Alt+L"));
+            editMenu->Append(MenuCommandIds::tbID_EDIT_UNLOCK_ALL, wxT("Unlock All\tCtrl+Shift+L"));
             return editMenu;
         }
         

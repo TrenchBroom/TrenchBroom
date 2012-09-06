@@ -104,7 +104,6 @@ namespace TrenchBroom {
         MapGLCanvas::MapGLCanvas(wxWindow* parent, Model::MapDocument& document, View::EditorView& view) :
         wxGLCanvas(parent, wxID_ANY, Attribs()),
         m_firstFrame(true),
-		m_mouseCaptured(false),
         m_view(view) {
             m_inputController = new Controller::InputController(document, view);
             m_glContext = new wxGLContext(this);
@@ -176,36 +175,33 @@ namespace TrenchBroom {
         
         void MapGLCanvas::OnMouseLeftDown(wxMouseEvent& event) {
 			CaptureMouse();
-			m_mouseCaptured = true;
             m_inputController->mouseDown(Left, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
         }
         
         void MapGLCanvas::OnMouseLeftUp(wxMouseEvent& event) {
-			if (m_mouseCaptured)
+			if (GetCapture() == this)
 				ReleaseMouse();
             m_inputController->mouseUp(Left, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
         }
         
         void MapGLCanvas::OnMouseRightDown(wxMouseEvent& event) {
 			CaptureMouse();
-			m_mouseCaptured = true;
             m_inputController->mouseDown(Right, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
         }
         
         void MapGLCanvas::OnMouseRightUp(wxMouseEvent& event) {
-			if (m_mouseCaptured)
+			if (GetCapture() == this)
 				ReleaseMouse();
             m_inputController->mouseUp(Right, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
         }
         
         void MapGLCanvas::OnMouseMiddleDown(wxMouseEvent& event) {
 			CaptureMouse();
-			m_mouseCaptured = true;
             m_inputController->mouseDown(Middle, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
         }
         
         void MapGLCanvas::OnMouseMiddleUp(wxMouseEvent& event) {
-			if (m_mouseCaptured)
+			if (GetCapture() == this)
 				ReleaseMouse();
             m_inputController->mouseUp(Middle, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
         }

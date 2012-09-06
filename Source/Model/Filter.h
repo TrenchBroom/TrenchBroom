@@ -43,14 +43,14 @@ namespace TrenchBroom {
             }
             
             inline bool brushPickable(const Model::Brush& brush) const {
-                if (brush.hidden() || brush.locked())
+                if (brush.hidden() || brush.locked() || brush.entity()->locked())
                     return false;
                 
                 return true;
             }
             
             inline bool brushVerticesPickable(const Model::Brush& brush) const {
-                if (brush.hidden() || brush.locked())
+                if (!brushPickable(brush))
                     return false;
                 
                 return true;

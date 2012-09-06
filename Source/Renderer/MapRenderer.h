@@ -90,30 +90,38 @@ namespace TrenchBroom {
             Vbo* m_faceVbo;
             VboBlock* m_faceBlock;
             VboBlock* m_selectedFaceBlock;
+            VboBlock* m_lockedFaceBlock;
             Vbo* m_edgeVbo;
             VboBlock* m_edgeBlock;
             VboBlock* m_selectedEdgeBlock;
+            VboBlock* m_lockedEdgeBlock;
             FaceRenderInfos m_faceRenderInfos;
             FaceRenderInfos m_selectedFaceRenderInfos;
+            FaceRenderInfos m_lockedFaceRenderInfos;
             EdgeRenderInfo m_edgeRenderInfo;
             EdgeRenderInfo m_selectedEdgeRenderInfo;
+            EdgeRenderInfo m_lockedEdgeRenderInfo;
             
             // entity bounds rendering
             Vbo* m_entityBoundsVbo;
             VboBlock* m_entityBoundsBlock;
             VboBlock* m_selectedEntityBoundsBlock;
+            VboBlock* m_lockedEntityBoundsBlock;
             EdgeRenderInfo m_entityBoundsRenderInfo;
             EdgeRenderInfo m_selectedEntityBoundsRenderInfo;
+            EdgeRenderInfo m_lockedEntityBoundsRenderInfo;
             
             // entity model rendering
             EntityRendererManager* m_entityRendererManager;
             EntityRenderers m_entityRenderers;
             EntityRenderers m_selectedEntityRenderers;
+            EntityRenderers m_lockedEntityRenderers;
             bool m_entityRendererCacheValid;
 
             // classnames
             Text::TextRenderer<Model::Entity*>* m_classnameRenderer;
             Text::TextRenderer<Model::Entity*>* m_selectedClassnameRenderer;
+            Text::TextRenderer<Model::Entity*>* m_lockedClassnameRenderer;
 
             /*
             // selection guides
@@ -126,10 +134,10 @@ namespace TrenchBroom {
              
             // state
             bool m_geometryDataValid;
-            bool m_entityDataValid;
             bool m_selectedGeometryDataValid;
-            bool m_selectedEntityDataValid;
             bool m_lockedGeometryDataValid;
+            bool m_entityDataValid;
+            bool m_selectedEntityDataValid;
             bool m_lockedEntityDataValid;
             
             /*
@@ -142,8 +150,8 @@ namespace TrenchBroom {
 
             Model::MapDocument& m_document;
             
-            void writeFaceData(RenderContext& context, FacesByTexture& facesByTexture, FaceRenderInfos& renderInfos, VboBlock& block);
-            void writeEdgeData(RenderContext& context, Model::BrushList& brushes, Model::FaceList& faces, EdgeRenderInfo& renderInfo, VboBlock& block);
+            void writeFaceData(RenderContext& context, const FacesByTexture& facesByTexture, FaceRenderInfos& renderInfos, VboBlock& block);
+            void writeEdgeData(RenderContext& context, const Model::BrushList& brushes, const Model::FaceList& faces, EdgeRenderInfo& renderInfo, VboBlock& block);
             void rebuildGeometryData(RenderContext& context);
             void writeEntityBounds(RenderContext& context, const Model::EntityList& entities, EdgeRenderInfo& renderInfo, VboBlock& block);
             void rebuildEntityData(RenderContext& context);
@@ -156,7 +164,7 @@ namespace TrenchBroom {
             void renderEntityBounds(RenderContext& context, const EdgeRenderInfo& renderInfo, const Color* color);
             void renderEntityModels(RenderContext& context, EntityRenderers& entities);
             void renderEdges(RenderContext& context, const EdgeRenderInfo& renderInfo, const Color* color);
-            void renderFaces(RenderContext& context, bool textured, bool selected, const FaceRenderInfos& renderInfos);
+            void renderFaces(RenderContext& context, bool textured, bool selected, bool locked, const FaceRenderInfos& renderInfos);
             void renderFigures(RenderContext& context);
         public:
             MapRenderer(Model::MapDocument& document);

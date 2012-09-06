@@ -80,6 +80,12 @@ namespace TrenchBroom {
 
             static ChangeEditStateCommand* deselectAll(Model::MapDocument& document);
             
+            static ChangeEditStateCommand* hide(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes);
+            static ChangeEditStateCommand* unhideAll(Model::MapDocument& document);
+            
+            static ChangeEditStateCommand* lock(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes);
+            static ChangeEditStateCommand* unlockAll(Model::MapDocument& document);
+            
             bool Do();
             bool Undo();
             
