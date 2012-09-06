@@ -23,12 +23,17 @@
 
 #include "Utility/DocManager.h"
 
+#include <clocale>
+
 IMPLEMENT_APP(TrenchBroomApp)
 
 BEGIN_EVENT_TABLE(TrenchBroomApp, AbstractApp)
 END_EVENT_TABLE()
 
 bool TrenchBroomApp::OnInit() {
+    // set the locale to US so that we can parse floats property
+    std::setlocale(LC_ALL, "us");
+    
 	if (AbstractApp::OnInit()) {
         m_docManager->SetUseSDI(true);
 		m_docManager->CreateNewDocument();
