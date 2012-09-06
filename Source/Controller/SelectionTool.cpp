@@ -26,6 +26,7 @@
 #include "Model/Entity.h"
 #include "Model/Face.h"
 #include "Model/Picker.h"
+#include "Utility/List.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -82,6 +83,75 @@ namespace TrenchBroom {
                 command = ChangeEditStateCommand::deselectAll(document());
             }
 
+            if (command != NULL) {
+                postCommand(command);
+                return true;
+            }
+            
+            return false;
+        }
+        
+        bool SelectionTool::handleScrolled(InputEvent& event) {
+            if (event.modifierKeys != ModifierKeys::CtrlCmd)
+                return false;
+            
+            Model::EditStateManager& editStateManager = document().EditStateManager();
+            if (editStateManager.selectionMode() == Model::EditStateManager::None ||
+                editStateManager.selectionMode() == Model::EditStateManager::Faces)
+                return false;
+            
+            Model::HitList hits = event.pickResult->hits(Model::Hit::EntityHit | Model::Hit::FaceHit);
+            if (hits.empty())
+                return false;
+            
+            Model::EntityList entities = editStateManager.selectedEntities();
+            Model::BrushList brushes = editStateManager.selectedBrushes();
+            
+            Command* command = NULL;
+            bool selectNext = false;
+            for (unsigned int i = 0; i < hits.size() && !selectNext; i++) {
+                Model::Hit* hit = hits[i];
+                if (hit->type() == Model::Hit::EntityHit) {
+                    Model::Entity& entity = hit->entity();
+                    if (entity.selected()) {
+                        Utility::erase(entities, &entity);
+                        selectNext = true;
+                    }
+                } else {
+                    Model::Face& face = hit->face();
+                    Model::Brush& brush = *face.brush();
+                    if (brush.selected()) {
+                        Utility::erase(brushes, &brush);
+                        selectNext = true;
+                    }
+                }
+                
+                if (selectNext) {
+                    Model::Hit* hit = NULL;
+                    if (event.scrollY > 0.0f && i < hits.size() - 1)
+                        hit = hits[i + 1];
+                    else if (event.scrollY < 0.0f && i > 0)
+                        hit = hits[i - 1];
+                    
+                    if (hit != NULL) {
+                        if (hit->type() == Model::Hit::EntityHit) {
+                            Model::Entity& entity = hit->entity();
+                            if (!entity.selected()) {
+                                entities.push_back(&entity);
+                                command = ChangeEditStateCommand::replace(document(), entities, brushes);
+                            }
+                        } else {
+                            Model::Face& face = hit->face();
+                            Model::Brush& brush = *face.brush();
+                            if (!brush.selected()) {
+                                brushes.push_back(&brush);
+                                command = ChangeEditStateCommand::replace(document(), entities, brushes);
+                            }
+                        }
+                    }
+                }
+            }
+            
             if (command != NULL) {
                 postCommand(command);
                 return true;

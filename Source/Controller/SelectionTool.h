@@ -27,6 +27,7 @@ namespace TrenchBroom {
         class SelectionTool : public Tool {
         protected:
             bool handleMouseUp(InputEvent& event);
+            bool handleScrolled(InputEvent& event);
         public:
             SelectionTool(Model::MapDocument& document, View::EditorView& view) : Tool(document, view) {}
         };
