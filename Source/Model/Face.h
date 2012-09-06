@@ -208,6 +208,8 @@ namespace TrenchBroom {
             
             void setSelected(bool selected);
             
+            void move(float dist, bool lockTexture);
+            
             inline size_t filePosition() const {
                 return m_filePosition;
             }

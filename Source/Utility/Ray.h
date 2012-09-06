@@ -33,13 +33,13 @@ namespace TrenchBroom {
             
             Ray(const Vec3f& origin, const Vec3f& direction) : origin(origin), direction(direction) {}
             
-            const Vec3f pointAtDistance(float distance) const {
+            inline const Vec3f pointAtDistance(float distance) const {
                 return Vec3f(origin.x + direction.x * distance,
                              origin.y + direction.y * distance,
                              origin.z + direction.z * distance);
             }
             
-            PointStatus::Type pointStatus(const Vec3f& point) const {
+            inline PointStatus::Type pointStatus(const Vec3f& point) const {
                 float dot = direction.dot(point - origin);
                 if (dot >  Math::PointStatusEpsilon) return PointStatus::Above;
                 if (dot < -Math::PointStatusEpsilon) return PointStatus::Below;

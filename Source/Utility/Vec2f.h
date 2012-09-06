@@ -40,7 +40,7 @@ namespace TrenchBroom {
             Vec2f() : x(0), y(0) {}
             Vec2f(float x, float y) : x(x), y(y) {}
             
-            Vec2f& operator= (const Vec2f& right) {
+            inline Vec2f& operator= (const Vec2f& right) {
                 if (this != &right) {
                     x = right.x;
                     y = right.y;
@@ -48,101 +48,101 @@ namespace TrenchBroom {
                 return *this;
             }
             
-            const Vec2f operator+ (const Vec2f& right) const {
+            inline const Vec2f operator+ (const Vec2f& right) const {
                 return Vec2f(x + right.x,
                              y + right.y);
             }
             
-            const Vec2f operator- (const Vec2f& right) const {
+            inline const Vec2f operator- (const Vec2f& right) const {
                 return Vec2f(x - right.x,
                              y - right.y);
             }
             
-            const Vec2f operator* (const float right) const {
+            inline const Vec2f operator* (const float right) const {
                 return Vec2f(x * right,
                              y * right);
             }
             
-            const Vec2f operator/ (const float right) const {
+            inline const Vec2f operator/ (const float right) const {
                 return Vec2f(x / right,
                              y / right);
             }
             
-            Vec2f& operator+= (const Vec2f& right) {
+            inline Vec2f& operator+= (const Vec2f& right) {
                 x += right.x;
                 y += right.y;
                 return *this;
             }
             
-            Vec2f& operator-= (const Vec2f& right) {
+            inline Vec2f& operator-= (const Vec2f& right) {
                 x -= right.x;
                 y -= right.y;
                 return *this;
             }
             
-            Vec2f& operator*= (const float right) {
+            inline Vec2f& operator*= (const float right) {
                 x *= right;
                 y *= right;
                 return *this;
             }
             
-            Vec2f& operator/= (const float right) {
+            inline Vec2f& operator/= (const float right) {
                 x /= right;
                 y /= right;
                 return *this;
             }
             
-            float& operator[] (const unsigned int index) {
+            inline float& operator[] (const unsigned int index) {
                 assert(index >= 0 && index < 2);
                 if (index == 0) return x;
                 return y;
             }
             
-            const float& operator[] (const unsigned int index) const {
+            inline const float& operator[] (const unsigned int index) const {
                 assert(index >= 0 && index < 2);
                 if (index == 0) return x;
                 return y;
             }
             
-            const float dot(const Vec2f& right) const {
+            inline const float dot(const Vec2f& right) const {
                 return x * right.x + y * right.y;
             }
             
-            float length() const {
+            inline float length() const {
                 return sqrt(lengthSquared());
             }
             
-            float lengthSquared() const {
+            inline float lengthSquared() const {
                 return this->dot(*this);
             }
             
-            void normalize() {
+            inline void normalize() {
                 float l = length();
                 x /= l;
                 y /= l;
             }
             
-            const Vec2f normalized() const {
+            inline const Vec2f normalized() const {
                 float l = length();
                 return Vec2f(x / l,
                              y / l);
             }
             
-            void correct() {
+            inline void correct() {
                 x = Math::correct(x);
                 y = Math::correct(y);
             }
             
-            const Vec2f corrected() const {
+            inline const Vec2f corrected() const {
                 return Vec2f(Math::correct(x),
                              Math::correct(y));
             }
             
-            bool equals(const Vec2f& other) const {
+            inline bool equals(const Vec2f& other) const {
                 return equals(other, AlmostZero);
             }
             
-            bool equals(const Vec2f& other, float delta) const {
+            inline bool equals(const Vec2f& other, float delta) const {
                 Vec2f diff = other - *this;
                 return diff.lengthSquared() <= delta * delta;
             }

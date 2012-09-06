@@ -57,11 +57,11 @@ namespace TrenchBroom {
             
             Vec4f(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
 
-            bool operator== (const Vec4f& right) const {
+            inline bool operator== (const Vec4f& right) const {
                 return x == right.x && y == right.y && z == right.z && w == right.w;
             }
             
-            Vec4f& operator= (const Vec4f& right) {
+            inline Vec4f& operator= (const Vec4f& right) {
                 if (this != &right) {
                     x = right.x;
                     y = right.y;
@@ -71,35 +71,35 @@ namespace TrenchBroom {
                 return *this;
             }
             
-            const Vec4f operator+ (const Vec4f& right) const {
+            inline const Vec4f operator+ (const Vec4f& right) const {
                 return Vec4f(x + right.x,
                              y + right.y,
                              z + right.z,
                              w + right.w);
             }
             
-            const Vec4f operator- (const Vec4f& right) const {
+            inline const Vec4f operator- (const Vec4f& right) const {
                 return Vec4f(x - right.x,
                              y - right.y,
                              z - right.z,
                              w - right.w);
             }
             
-            const Vec4f operator* (const float right) const {
+            inline const Vec4f operator* (const float right) const {
                 return Vec4f(x * right,
                              y * right,
                              z * right,
                              w * right);
             }
             
-            const Vec4f operator/ (const float right) const {
+            inline const Vec4f operator/ (const float right) const {
                 return Vec4f(x / right,
                              y / right,
                              z / right,
                              w / right);
             }
             
-            Vec4f& operator+= (const Vec4f& right) {
+            inline Vec4f& operator+= (const Vec4f& right) {
                 x += right.x;
                 y += right.y;
                 z += right.z;
@@ -107,7 +107,7 @@ namespace TrenchBroom {
                 return *this;
             }
             
-            Vec4f& operator-= (const Vec4f& right) {
+            inline Vec4f& operator-= (const Vec4f& right) {
                 x -= right.x;
                 y -= right.y;
                 z -= right.z;
@@ -115,7 +115,7 @@ namespace TrenchBroom {
                 return *this;
             }
             
-            Vec4f& operator*= (const float right) {
+            inline Vec4f& operator*= (const float right) {
                 x *= right;
                 y *= right;
                 z *= right;
@@ -123,7 +123,7 @@ namespace TrenchBroom {
                 return *this;
             }
             
-            Vec4f& operator/= (const float right) {
+            inline Vec4f& operator/= (const float right) {
                 x /= right;
                 y /= right;
                 z /= right;
@@ -131,7 +131,7 @@ namespace TrenchBroom {
                 return *this;
             }
             
-            float& operator[] (const unsigned int index) {
+            inline float& operator[] (const unsigned int index) {
                 assert(index >= 0 && index < 4);
                 if (index == 0) return x;
                 if (index == 1) return y;
@@ -139,7 +139,7 @@ namespace TrenchBroom {
                 return w;
             }
             
-            const float& operator[] (const unsigned int index) const {
+            inline const float& operator[] (const unsigned int index) const {
                 assert(index >= 0 && index < 4);
                 if (index == 0) return x;
                 if (index == 1) return y;
@@ -147,19 +147,19 @@ namespace TrenchBroom {
                 return w;
             }
             
-            const float dot(const Vec4f right) const {
+            inline const float dot(const Vec4f right) const {
                 return x * right.x + y * right.y + z * right.z + w * right.w;
             }
             
-            float length() const {
+            inline float length() const {
                 return sqrt(lengthSquared());
             }
             
-            float lengthSquared() const {
+            inline float lengthSquared() const {
                 return this->dot(*this);
             }
             
-            void normalize() {
+            inline void normalize() {
                 float l = length();
                 x /= l;
                 y /= l;
@@ -167,7 +167,7 @@ namespace TrenchBroom {
                 w /= l;
             }
             
-            const Vec4f normalized() const {
+            inline const Vec4f normalized() const {
                 float l = length();
                 return Vec4f(x / l,
                              y / l,
@@ -175,25 +175,25 @@ namespace TrenchBroom {
                              w / l);
             }
             
-            void correct() {
+            inline void correct() {
                 x = Math::correct(x);
                 y = Math::correct(y);
                 z = Math::correct(z);
                 w = Math::correct(w);
             }
             
-            const Vec4f corrected() const {
+            inline const Vec4f corrected() const {
                 return Vec4f(Math::correct(x),
                              Math::correct(y),
                              Math::correct(z),
                              Math::correct(w));
             }
             
-            bool equals(const Vec4f& other) const {
+            inline bool equals(const Vec4f& other) const {
                 return equals(other, Math::AlmostZero);
             }
             
-            bool equals(const Vec4f& other, float delta) const {
+            inline bool equals(const Vec4f& other, float delta) const {
                 Vec4f diff = other - *this;
                 return diff.lengthSquared() <= delta * delta;
             }

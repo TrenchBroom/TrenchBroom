@@ -55,48 +55,48 @@ namespace TrenchBroom {
                 v[ 3] = v41; v[ 7] = v42; v[11] = v43; v[15] = v44;
             }
             
-            Mat4f& operator= (const Mat4f& right) {
+            inline Mat4f& operator= (const Mat4f& right) {
                 for (unsigned int i = 0; i < 16; i++)
                     v[i] = right.v[i];
                 return *this;
             }
             
-            const Mat4f operator+ (const Mat4f& right) const {
+            inline const Mat4f operator+ (const Mat4f& right) const {
                 return Mat4f(v[ 0] + right.v[ 0], v[ 1] + right.v[ 1], v[ 2] + right.v[ 2], v[ 3] + right.v[ 3],
                              v[ 4] + right.v[ 4], v[ 5] + right.v[ 5], v[ 6] + right.v[ 6], v[ 7] + right.v[ 7],
                              v[ 8] + right.v[ 8], v[ 9] + right.v[ 9], v[10] + right.v[10], v[11] + right.v[11],
                              v[12] + right.v[12], v[13] + right.v[13], v[14] + right.v[14], v[15] + right.v[15]);
             }
             
-            const Mat4f operator- (const Mat4f& right) const {
+            inline const Mat4f operator- (const Mat4f& right) const {
                 return Mat4f(v[ 0] - right.v[ 0], v[ 1] - right.v[ 1], v[ 2] - right.v[ 2], v[ 3] - right.v[ 3],
                              v[ 4] - right.v[ 4], v[ 5] - right.v[ 5], v[ 6] - right.v[ 6], v[ 7] - right.v[ 7],
                              v[ 8] - right.v[ 8], v[ 9] - right.v[ 9], v[10] - right.v[10], v[11] - right.v[11],
                              v[12] - right.v[12], v[13] - right.v[13], v[14] - right.v[14], v[15] - right.v[15]);
             }
             
-            const Mat4f operator* (const float right) const {
+            inline const Mat4f operator* (const float right) const {
                 return Mat4f(v[ 0] * right, v[ 1] * right, v[ 2] * right, v[ 3] * right,
                              v[ 4] * right, v[ 5] * right, v[ 6] * right, v[ 7] * right,
                              v[ 8] * right, v[ 9] * right, v[10] * right, v[11] * right,
                              v[12] * right, v[13] * right, v[14] * right, v[15] * right);
             }
             
-            const Vec3f operator* (const Vec3f& right) const {
+            inline const Vec3f operator* (const Vec3f& right) const {
                 float w = v[ 3] * right.x + v[ 7] * right.y + v[11] * right.z + v[15];
                 return Vec3f((v[ 0] * right.x + v[ 4] * right.y + v[ 8] * right.z + v[12]) / w,
                              (v[ 1] * right.x + v[ 5] * right.y + v[ 9] * right.z + v[13]) / w,
                              (v[ 2] * right.x + v[ 6] * right.y + v[10] * right.z + v[14]) / w);
             }
             
-            const Vec4f operator* (const Vec4f& right) const {
+            inline const Vec4f operator* (const Vec4f& right) const {
                 return Vec4f(v[ 0] * right.x + v[ 4] * right.y + v[ 8] * right.z + v[12] * right.w,
                              v[ 1] * right.x + v[ 5] * right.y + v[ 9] * right.z + v[13] * right.w,
                              v[ 2] * right.x + v[ 6] * right.y + v[10] * right.z + v[14] * right.w,
                              v[ 3] * right.x + v[ 7] * right.y + v[11] * right.z + v[15] * right.w);
             }
             
-            const Mat4f operator* (const Mat4f& right) const {
+            inline const Mat4f operator* (const Mat4f& right) const {
                 Mat4f result;
                 for (unsigned int c = 0; c < 4; c++) {
                     for (unsigned int r = 0; r < 4; r++) {
@@ -108,62 +108,62 @@ namespace TrenchBroom {
                 return result;
             }
             
-            const Mat4f operator/ (const float right) const {
+            inline const Mat4f operator/ (const float right) const {
                 Mat4f result = *this;
                 return result /= right;
             }
             
-            Mat4f& operator+= (const Mat4f& right) {
+            inline Mat4f& operator+= (const Mat4f& right) {
                 for (unsigned int i = 0; i < 16; i++)
                     v[i] += right.v[i];
                 return *this;
             }
             
-            Mat4f& operator-= (const Mat4f& right) {
+            inline Mat4f& operator-= (const Mat4f& right) {
                 for (unsigned int i = 0; i < 16; i++)
                     v[i] -= right.v[i];
                 return *this;
             }
             
-            Mat4f& operator*= (const float right) {
+            inline Mat4f& operator*= (const float right) {
                 for (unsigned int i = 0; i < 16; i++)
                     v[i] *= right;
                 return *this;
             }
             
-            Mat4f& operator*= (const Mat4f& right) {
+            inline Mat4f& operator*= (const Mat4f& right) {
                 *this = *this * right;
                 return *this;
             }
             
-            Mat4f& operator/= (const float right) {
+            inline Mat4f& operator/= (const float right) {
                 *this *= (1.0f / right);
                 return *this;
             }
             
-            float& operator[] (const unsigned int index) {
+            inline float& operator[] (const unsigned int index) {
                 assert(index >= 0 && index < 16);
                 return v[index];
             }
             
-            const float& operator[] (const unsigned int index) const {
+            inline const float& operator[] (const unsigned int index) const {
                 assert(index >= 0 && index < 16);
                 return v[index];
             }
             
-            void setIdentity() {
+            inline void setIdentity() {
                 for (unsigned int r = 0; r < 4; r++)
                     for (unsigned int c = 0; c < 4; c++)
                         v[c * 4 + r] = r == c ? 1.0f : 0.0f;
             }
             
-            void setValue(unsigned int row, unsigned int col, float value) {
+            inline void setValue(unsigned int row, unsigned int col, float value) {
                 assert(row >= 0 && row < 4);
                 assert(col >= 0 && col < 4);
                 v[col * 4 + row] = value;
             }
             
-            void setColumn(unsigned int col, const Vec3f& values) {
+            inline void setColumn(unsigned int col, const Vec3f& values) {
                 assert(col >= 0 && col < 4);
                 v[col * 4 + 0] = values.x;
                 v[col * 4 + 1] = values.y;
@@ -171,7 +171,7 @@ namespace TrenchBroom {
                 v[col * 4 + 3] = 0;
             }
             
-            void setColumn(unsigned int col, const Vec4f& values) {
+            inline void setColumn(unsigned int col, const Vec4f& values) {
                 assert(col >= 0 && col < 4);
                 v[col * 4 + 0] = values.x;
                 v[col * 4 + 1] = values.y;
@@ -436,7 +436,7 @@ namespace TrenchBroom {
                 return result;
             }
 
-            void translate(const Vec3f& delta) {
+            inline void translate(const Vec3f& delta) {
                 Mat4f temp;
                 temp.setIdentity();
                 temp[12] += delta.x;
@@ -445,7 +445,7 @@ namespace TrenchBroom {
                 *this *= temp;
             }
             
-            const Mat4f translated(const Vec3f& delta) const {
+            inline const Mat4f translated(const Vec3f& delta) const {
                 Mat4f result = *this;
                 result.translate(delta);
                 return result;

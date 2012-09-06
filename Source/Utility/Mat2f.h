@@ -40,93 +40,93 @@ namespace TrenchBroom {
                 v[1] = v21; v[3] = v22;
             }
             
-            Mat2f& operator= (const Mat2f& right) {
+            inline Mat2f& operator= (const Mat2f& right) {
                 for (unsigned int i = 0; i < 4; i++)
                     v[i] = right.v[i];
                 return *this;
             }
             
-            const Mat2f operator+ (const Mat2f& right) const {
+            inline const Mat2f operator+ (const Mat2f& right) const {
                 return Mat2f(v[0] + right.v[0], v[1] + right.v[1],
                              v[2] + right.v[2], v[3] + right.v[3]);
             }
             
-            const Mat2f operator- (const Mat2f& right) const {
+            inline const Mat2f operator- (const Mat2f& right) const {
                 return Mat2f(v[0] - right.v[0], v[1] - right.v[1],
                              v[2] - right.v[2], v[3] - right.v[3]);
             }
             
-            const Mat2f operator* (const float right) const {
+            inline const Mat2f operator* (const float right) const {
                 return Mat2f(v[0] * right, v[1] * right,
                              v[2] * right, v[3] * right);
             }
             
-            const Vec2f operator* (const Vec2f& right) const {
+            inline const Vec2f operator* (const Vec2f& right) const {
                 return Vec2f(v[0] * right.x + v[2] * right.y,
                              v[1] * right.x + v[3] * right.y);
             }
             
-            const Mat2f operator* (const Mat2f& right) const {
+            inline const Mat2f operator* (const Mat2f& right) const {
                 return Mat2f(v[0] * right.v[0] + v[2] * right.v[1], v[1] * right.v[0] + v[3] * right.v[1],
                              v[0] * right.v[2] + v[2] * right.v[3], v[1] * right.v[2] + v[3] * right.v[3]);
             }
             
-            const Mat2f operator/ (const float right) const {
+            inline const Mat2f operator/ (const float right) const {
                 return Mat2f(v[0] / right, v[1] / right,
                              v[2] / right, v[3] / right);
             }
             
-            Mat2f& operator+= (const Mat2f& right) {
+            inline Mat2f& operator+= (const Mat2f& right) {
                 for (unsigned int i = 0; i < 4; i++)
                     v[i] += right.v[i];
                 return *this;
             }
             
-            Mat2f& operator-= (const Mat2f& right) {
+            inline Mat2f& operator-= (const Mat2f& right) {
                 for (unsigned int i = 0; i < 4; i++)
                     v[i] -= right.v[i];
                 return *this;
             }
             
-            Mat2f& operator*= (const float right) {
+            inline Mat2f& operator*= (const float right) {
                 for (unsigned int i = 0; i < 4; i++)
                     v[i] *= right;
                 return *this;
             }
             
-            Mat2f& operator*= (const Mat2f& right) {
+            inline Mat2f& operator*= (const Mat2f& right) {
                 *this = *this * right;
                 return *this;
             }
             
-            Mat2f& operator/= (const float right) {
+            inline Mat2f& operator/= (const float right) {
                 *this *= (1.0f / right);
                 return *this;
             }
             
-            float& operator[] (const unsigned int index) {
+            inline float& operator[] (const unsigned int index) {
                 assert(index >= 0 && index < 4);
                 return v[index];
             }
             
-            const float& operator[] (const unsigned int index) const {
+            inline const float& operator[] (const unsigned int index) const {
                 assert(index >= 0 && index < 4);
                 return v[index];
             }
             
-            void setIdentity() {
+            inline void setIdentity() {
                 for (unsigned int c = 0; c < 2; c++)
                     for (unsigned int r = 0; r < 2; r++)
                         v[c * 2 + r] = c == r ? 1.0f : 0.0f;
             }
             
-            void setValue(unsigned int row, unsigned int col, float value) {
+            inline void setValue(unsigned int row, unsigned int col, float value) {
                 assert(row >= 0 && row < 2);
                 assert(col >= 0 && col < 2);
                 v[2 * col + row] = value;
             }
             
-            void setColumn(unsigned int col, const Vec2f& values) {
+            inline void setColumn(unsigned int col, const Vec2f& values) {
                 assert(col >= 0 && col < 2);
                 v[col + 0] = values.x;
                 v[col + 1] = values.y;

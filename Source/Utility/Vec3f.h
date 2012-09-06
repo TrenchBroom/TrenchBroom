@@ -64,11 +64,11 @@ namespace TrenchBroom {
             
             Vec3f(float x, float y, float z) : x(x), y(y), z(z) {}
             
-            bool operator== (const Vec3f& right) const {
+            inline bool operator== (const Vec3f& right) const {
                 return x == right.x && y == right.y && z == right.z;
             }
             
-            Vec3f& operator= (const Vec3f& right) {
+            inline Vec3f& operator= (const Vec3f& right) {
                 if (this != &right) {
                     x = right.x;
                     y = right.y;
@@ -77,77 +77,77 @@ namespace TrenchBroom {
                 return *this;
             }
             
-            const Vec3f operator+ (const Vec3f& right) const {
+            inline const Vec3f operator+ (const Vec3f& right) const {
                 return Vec3f(x + right.x,
                              y + right.y,
                              z + right.z);
             }
             
-            const Vec3f operator- (const Vec3f& right) const {
+            inline const Vec3f operator- (const Vec3f& right) const {
                 return Vec3f(x - right.x,
                              y - right.y,
                              z - right.z);
             }
             
-            const Vec3f operator* (const float right) const {
+            inline const Vec3f operator* (const float right) const {
                 return Vec3f(x * right,
                              y * right,
                              z * right);
             }
             
-            const Vec3f operator/ (const float right) const {
+            inline const Vec3f operator/ (const float right) const {
                 return Vec3f(x / right,
                              y / right,
                              z / right);
             }
             
-            Vec3f& operator+= (const Vec3f& right) {
+            inline Vec3f& operator+= (const Vec3f& right) {
                 x += right.x;
                 y += right.y;
                 z += right.z;
                 return *this;
             }
             
-            Vec3f& operator-= (const Vec3f& right) {
+            inline Vec3f& operator-= (const Vec3f& right) {
                 x -= right.x;
                 y -= right.y;
                 z -= right.z;
                 return *this;
             }
             
-            Vec3f& operator*= (const float right) {
+            inline Vec3f& operator*= (const float right) {
                 x *= right;
                 y *= right;
                 z *= right;
                 return *this;
             }
             
-            Vec3f& operator/= (const float right) {
+            inline Vec3f& operator/= (const float right) {
                 x /= right;
                 y /= right;
                 z /= right;
                 return *this;
             }
             
-            float& operator[] (const unsigned int index) {
+            inline float& operator[] (const unsigned int index) {
                 assert(index >= 0 && index < 3);
                 if (index == 0) return x;
                 if (index == 1) return y;
                 return z;
             }
             
-            const float& operator[] (const unsigned int index) const {
+            inline const float& operator[] (const unsigned int index) const {
                 assert(index >= 0 && index < 3);
                 if (index == 0) return x;
                 if (index == 1) return y;
                 return z;
             }
             
-            const float dot(const Vec3f& right) const {
+            inline const float dot(const Vec3f& right) const {
                 return x * right.x + y * right.y + z * right.z;
             }
             
-            void cross(const Vec3f& right) {
+            inline void cross(const Vec3f& right) {
                 float xt = y * right.z - z * right.y;
                 float yt = z * right.x - x * right.z;
                 z = x * right.y - y * right.x;
@@ -155,65 +155,65 @@ namespace TrenchBroom {
                 y = yt;
             }
             
-            const Vec3f crossed(const Vec3f& right) const {
+            inline const Vec3f crossed(const Vec3f& right) const {
                 return Vec3f(y * right.z - z * right.y,
                              z * right.x - x * right.z,
                              x * right.y - y * right.x);
             }
             
-            float length() const {
+            inline float length() const {
                 return sqrt(lengthSquared());
             }
             
-            float lengthSquared() const {
+            inline float lengthSquared() const {
                 return this->dot(*this);
             }
             
-            void normalize() {
+            inline void normalize() {
                 float l = length();
                 x /= l;
                 y /= l;
                 z /= l;
             }
             
-            const Vec3f normalized() const {
+            inline const Vec3f normalized() const {
                 float l = length();
                 return Vec3f(x / l,
                              y / l,
                              z / l);
             }
             
-            void correct() {
+            inline void correct() {
                 x = Math::correct(x);
                 y = Math::correct(y);
                 z = Math::correct(z);
             }
             
-            const Vec3f corrected() const {
+            inline const Vec3f corrected() const {
                 return Vec3f(Math::correct(x),
                              Math::correct(y),
                              Math::correct(z));
             }
             
-            bool equals(const Vec3f& other) const {
+            inline bool equals(const Vec3f& other) const {
                 return equals(other, Math::AlmostZero);
             }
             
-            bool equals(const Vec3f& other, float delta) const {
+            inline bool equals(const Vec3f& other, float delta) const {
                 Vec3f diff = other - *this;
                 return diff.lengthSquared() <= delta * delta;
             }
             
-            bool null() const {
+            inline bool null() const {
                 return equals(Null, Math::AlmostZero);
             }
             
-            bool parallelTo(const Vec3f& other, float delta = Math::AlmostZero) const {
+            inline bool parallelTo(const Vec3f& other, float delta = Math::AlmostZero) const {
                 Vec3f cross = this->crossed(other);
                 return cross.equals(Null, delta);
             }
             
-            Axis::Type firstComponent() const {
+            inline Axis::Type firstComponent() const {
                 float ax = fabsf(x);
                 float ay = fabsf(y);
                 float az = fabsf(z);
@@ -222,7 +222,7 @@ namespace TrenchBroom {
                 return Axis::Z;
             }
             
-            Axis::Type secondComponent() const {
+            inline Axis::Type secondComponent() const {
                 float ax = fabsf(x);
                 float ay = fabsf(y);
                 float az = fabsf(z);
@@ -231,7 +231,7 @@ namespace TrenchBroom {
                 return Axis::Z;
             }
             
-            Axis::Type thirdComponent() const {
+            inline Axis::Type thirdComponent() const {
                 float ax = fabsf(x);
                 float ay = fabsf(y);
                 float az = fabsf(z);
@@ -240,7 +240,7 @@ namespace TrenchBroom {
                 return Axis::Z;
             }
             
-            const Vec3f& firstAxis(bool pos = true) const {
+            inline const Vec3f& firstAxis(bool pos = true) const {
                 if (equals(Null)) {
                     return Null;
                 } else {
@@ -267,7 +267,7 @@ namespace TrenchBroom {
                 }
             }
             
-            const Vec3f& secondAxis(bool pos = true) const {
+            inline const Vec3f& secondAxis(bool pos = true) const {
                 if (equals(Null)) {
                     return Null;
                 } else {
@@ -296,7 +296,7 @@ namespace TrenchBroom {
                 }
             }
             
-            const Vec3f& thirdAxis(bool pos = true) const {
+            inline const Vec3f& thirdAxis(bool pos = true) const {
                 if (equals(Null)) {
                     return Null;
                 } else {
@@ -337,21 +337,21 @@ namespace TrenchBroom {
                 return result.str();
             }
             
-            void snap() {
+            inline void snap() {
                 snap(Math::AlmostZero);
             }
             
-            void snap(float epsilon) {
+            inline void snap(float epsilon) {
                 x = Math::round(x);
                 y = Math::round(y);
                 z = Math::round(z);
             }
             
-            const Vec3f snapped() const {
+            inline const Vec3f snapped() const {
                 return snapped(Math::AlmostZero);
             }
             
-            const Vec3f snapped(float epsilon) const {
+            inline const Vec3f snapped(float epsilon) const {
                 float xr = Math::round(x);
                 float yr = Math::round(y);
                 float zr = Math::round(z);
@@ -360,7 +360,7 @@ namespace TrenchBroom {
                              Math::eq(z, zr) ? zr : z);
             }
             
-            void rotate90(Axis::Type axis, bool clockwise) {
+            inline void rotate90(Axis::Type axis, bool clockwise) {
                 switch (axis) {
                     case Axis::X:
                         if (clockwise) {
@@ -395,13 +395,13 @@ namespace TrenchBroom {
                 }
             }
             
-            void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise) {
+            inline void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise) {
                 *this -= center;
                 rotate90(axis, clockwise);
                 *this += center;
             }
             
-            const Vec3f rotated90(Axis::Type axis, bool clockwise) const {
+            inline const Vec3f rotated90(Axis::Type axis, bool clockwise) const {
                 switch (axis) {
                     case Axis::X:
                         if (clockwise)
@@ -418,14 +418,14 @@ namespace TrenchBroom {
                 }
             }
             
-            const Vec3f rotated90(Axis::Type axis, const Vec3f& center, bool clockwise) const {
+            inline const Vec3f rotated90(Axis::Type axis, const Vec3f& center, bool clockwise) const {
                 Vec3f result = *this - center;
                 result.rotate90(axis, clockwise);
                 result += center;
                 return result;
             }
             
-            void flip(Axis::Type axis) {
+            inline void flip(Axis::Type axis) {
                 switch (axis) {
                     case Axis::X:
                         x = -x;
@@ -436,13 +436,13 @@ namespace TrenchBroom {
                 }
             }
             
-            void flip(Axis::Type axis, const Vec3f& center) {
+            inline void flip(Axis::Type axis, const Vec3f& center) {
                 *this -= center;
                 flip(axis);
                 *this += center;
             }
             
-            const Vec3f flipped(Axis::Type axis) const {
+            inline const Vec3f flipped(Axis::Type axis) const {
                 switch (axis) {
                     case Axis::X:
                         return Vec3f(-x, y, z);
@@ -453,7 +453,7 @@ namespace TrenchBroom {
                 }
             }
             
-            const Vec3f flipped(Axis::Type axis, const Vec3f& center) const {
+            inline const Vec3f flipped(Axis::Type axis, const Vec3f& center) const {
                 Vec3f result = *this - center;
                 result.flip(axis);
                 result += center;

@@ -33,7 +33,7 @@ namespace TrenchBroom {
             
             Line(const Vec3f& point, const Vec3f& direction) : point(point), direction(direction) {}
             
-            const Vec3f pointAtDistance(float distance) const {
+            inline const Vec3f pointAtDistance(float distance) const {
                 return Vec3f(point.x + direction.x * distance,
                              point.y + direction.y * distance,
                              point.z + direction.z * distance);

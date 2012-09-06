@@ -274,5 +274,8 @@ namespace TrenchBroom {
                     m_brush->decSelectedFaceCount();
             }
         }
+
+        void Face::move(float dist, bool lockTexture) {
+        }
     }
 }

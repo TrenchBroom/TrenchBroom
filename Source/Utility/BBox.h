@@ -54,11 +54,11 @@ namespace TrenchBroom {
                 max.z = center.z + size;
             }
             
-            bool operator== (const BBox& right) const {
+            inline bool operator== (const BBox& right) const {
                 return min == right.min && max == right.max;
             }
             
-            const BBox mergedWith(const BBox& right) const {
+            inline const BBox mergedWith(const BBox& right) const {
                 return BBox(std::min(min.x, right.min.x),
                             std::min(min.y, right.min.y),
                             std::min(min.z, right.min.z),
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             }
 
             
-            BBox& mergeWith(const BBox& right) {
+            inline BBox& mergeWith(const BBox& right) {
                 min.x = std::min(min.x, right.min.x);
                 min.y = std::min(min.y, right.min.y);
                 min.z = std::min(min.z, right.min.z);
@@ -78,7 +78,7 @@ namespace TrenchBroom {
                 return *this;
             }
 
-            const BBox mergedWith(const Vec3f& right) const {
+            inline const BBox mergedWith(const Vec3f& right) const {
                 return BBox(std::min(min.x, right.x),
                             std::min(min.y, right.y),
                             std::min(min.z, right.z),
@@ -87,7 +87,7 @@ namespace TrenchBroom {
                             std::max(max.z, right.z));
             }
             
-            BBox& mergeWith(const Vec3f& right) {
+            inline BBox& mergeWith(const Vec3f& right) {
                 min.x = std::min(min.x, right.x);
                 min.y = std::min(min.y, right.y);
                 min.z = std::min(min.z, right.z);
@@ -97,49 +97,49 @@ namespace TrenchBroom {
                 return *this;
             }
             
-            const BBox maxBounds() const {
+            inline const BBox maxBounds() const {
                 Vec3f c = center();
                 Vec3f diff = max - c;
                 diff.x = diff.y = diff.z = std::max(diff.x, std::max(diff.y, diff.z));
                 return BBox(c - diff, c + diff);
             }
             
-            const Vec3f center() const {
+            inline  const Vec3f center() const {
                 return Vec3f((max.x + min.x) / 2.0f,
                              (max.y + min.y) / 2.0f,
                              (max.z + min.z) / 2.0f);
             }
             
-            const Vec3f size() const {
+            inline const Vec3f size() const {
                 return Vec3f(max.x - min.x,
                              max.y - min.y,
                              max.z - min.z);
             }
             
-            void translateToOrigin() {
+            inline void translateToOrigin() {
                 Vec3f c = center();
                 min - c;
                 max - c;
             }
             
-            const BBox translatedToOrigin() const {
+            inline const BBox translatedToOrigin() const {
                 Vec3f c = center();
                 return BBox(min - c, max - c);
             }
             
-            void repair() {
+            inline void repair() {
                 for (unsigned int i = 0; i < 3; i++)
                     if (min[i] > max[i])
                         std::swap(min[i], max[i]);
             }
             
-            const BBox repaired() const {
+            inline const BBox repaired() const {
                 BBox result(min, max);
                 result.repair();
                 return result;
             }
             
-            inline const Vec3f vertex(bool x, bool y, bool z) const {
+            inline inline const Vec3f vertex(bool x, bool y, bool z) const {
                 Vec3f vertex;
                 vertex.x = x ? min.x : max.x;
                 vertex.y = y ? min.y : max.y;
@@ -159,19 +159,19 @@ namespace TrenchBroom {
                 result[13] = result[14] = result[19] = vertex(false, true , true );
             }
             
-            bool contains(const Vec3f& point) const {
+            inline bool contains(const Vec3f& point) const {
                 return point.x >= min.x && point.x <= max.x &&
                 point.y >= min.y && point.y <= max.y &&
                 point.z >= min.z && point.z <= max.z;
             }
             
-            bool contains(const BBox& bounds) const {
+            inline bool contains(const BBox& bounds) const {
                 return bounds.min.x >= min.x && bounds.max.x <= max.x &&
                 bounds.min.y >= min.y && bounds.max.y <= max.y &&
                 bounds.min.z >= min.z && bounds.max.z <= max.z;
             }
             
-            bool intersects(const BBox& bounds) const {
+            inline bool intersects(const BBox& bounds) const {
                 return ((bounds.min.x >= min.x && bounds.min.x <= max.x) || (bounds.max.x >= min.x && bounds.max.x <= max.x)) || (bounds.min.x <= min.x && bounds.max.x >= max.x) ||
                 ((bounds.min.y >= min.y && bounds.min.y <= max.y) || (bounds.max.y >= min.y && bounds.max.y <= max.y)) || (bounds.min.y <= min.y && bounds.max.y >= max.y) ||
                 ((bounds.min.z >= min.z && bounds.min.z <= max.z) || (bounds.max.z >= min.z && bounds.max.z <= max.z)) || (bounds.min.z <= min.z && bounds.max.z >= max.z);
@@ -248,16 +248,16 @@ namespace TrenchBroom {
                 return std::numeric_limits<float>::quiet_NaN();
             }
             
-            float intersectWithRay(const Ray& ray) const {
+            inline float intersectWithRay(const Ray& ray) const {
                 return intersectWithRay(ray, NULL);
             }
             
-            void translate(const Vec3f& delta) {
+            inline void translate(const Vec3f& delta) {
                 min += delta;
                 max += delta;
             }
             
-            const BBox translated(const Vec3f& delta) const {
+            inline const BBox translated(const Vec3f& delta) const {
                 return BBox(min.x + delta.x,
                             min.y + delta.y,
                             min.z + delta.z,
@@ -266,49 +266,49 @@ namespace TrenchBroom {
                             max.z + delta.z);
             }
 
-            void rotate90(Axis::Type axis, bool clockwise) {
+            inline void rotate90(Axis::Type axis, bool clockwise) {
                 min.rotate90(axis, clockwise);
                 max.rotate90(axis, clockwise);
                 repair();
             }
             
-            const BBox rotated90(Axis::Type axis, bool clockwise) const {
+            inline const BBox rotated90(Axis::Type axis, bool clockwise) const {
                 BBox result = *this;
                 result.rotate90(axis, clockwise);
                 return result;
             }
             
-            void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise) {
+            inline void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise) {
                 min.rotate90(axis, center, clockwise);
                 max.rotate90(axis, center, clockwise);
                 repair();
             }
             
-            const BBox rotated90(Axis::Type axis, const Vec3f& center, bool clockwise) const {
+           inline  const BBox rotated90(Axis::Type axis, const Vec3f& center, bool clockwise) const {
                 BBox result = *this;
                 result.rotate90(axis, center, clockwise);
                 return result;
             }
             
-            void rotate(const Quat& rotation) {
+            inline void rotate(const Quat& rotation) {
                 min = rotation * min;
                 max = rotation * max;
                 repair();
             }
             
-            const BBox rotated(const Quat& rotation) const {
+            inline const BBox rotated(const Quat& rotation) const {
                 BBox result = *this;
                 result.rotate(rotation);
                 return result;
             }
             
-            void rotate(const Quat& rotation, const Vec3f& center) {
+            inline void rotate(const Quat& rotation, const Vec3f& center) {
                 min = rotation * (min - center) + center;
                 max = rotation * (max - center) + center;
                 repair();
             }
             
-            const BBox rotated(const Quat& rotation, const Vec3f& center) const {
+            inline const BBox rotated(const Quat& rotation, const Vec3f& center) const {
                 BBox result = *this;
                 result.rotate(rotation, center);
                 return result;
@@ -328,38 +328,38 @@ namespace TrenchBroom {
                 return result;
             }
             
-            void flip(Axis::Type axis) {
+            inline void flip(Axis::Type axis) {
                 min.flip(axis);
                 max.flip(axis);
                 repair();
             }
             
-            const BBox flipped(Axis::Type axis) const {
+            inline const BBox flipped(Axis::Type axis) const {
                 BBox result = *this;
                 result.flip(axis);
                 return result;
             }
             
-            void flip(Axis::Type axis, const Vec3f& center) {
+            inline void flip(Axis::Type axis, const Vec3f& center) {
                 min.flip(axis, center);
                 max.flip(axis, center);
                 repair();
             }
             
-            const BBox flipped(Axis::Type axis, const Vec3f& center) const {
+            inline const BBox flipped(Axis::Type axis, const Vec3f& center) const {
                 BBox result = *this;
                 result.flip(axis, center);
                 return result;
             }
             
-            void expand(float f) {
+            inline void expand(float f) {
                 for (unsigned int i = 0; i < 3; i++) {
                     min[i] -= f;
                     max[i] += f;
                 }
             }
             
-            const BBox expanded(float f) {
+            inline const BBox expanded(float f) {
                 return BBox(min.x -= f,
                             min.y -= f,
                             min.z -= f,

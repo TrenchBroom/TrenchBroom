@@ -39,37 +39,37 @@ namespace TrenchBroom {
                 v[2] = v31; v[5] = v32; v[8] = v33;
             }
             
-            Mat3f& operator= (const Mat3f& right) {
+            inline Mat3f& operator= (const Mat3f& right) {
                 for (unsigned int i = 0; i < 9; i++)
                     v[i] = right.v[i];
                 return *this;
             }
             
-            const Mat3f operator+ (const Mat3f& right) const {
+            inline const Mat3f operator+ (const Mat3f& right) const {
                 return Mat3f(v[0] + right.v[0], v[1] + right.v[1], v[2] + right.v[2],
                              v[3] + right.v[3], v[4] + right.v[4], v[5] + right.v[5],
                              v[6] + right.v[6], v[7] + right.v[7], v[8] + right.v[8]);
             }
             
-            const Mat3f operator- (const Mat3f& right) const {
+            inline const Mat3f operator- (const Mat3f& right) const {
                 return Mat3f(v[0] - right.v[0], v[1] - right.v[1], v[2] - right.v[2],
                              v[3] - right.v[3], v[4] - right.v[4], v[5] - right.v[5],
                              v[6] - right.v[6], v[7] - right.v[7], v[8] - right.v[8]);
             }
             
-            const Mat3f operator* (const float right) const {
+            inline const Mat3f operator* (const float right) const {
                 return Mat3f(v[0] * right, v[1] * right, v[2] * right,
                              v[3] * right, v[4] * right, v[5] * right,
                              v[6] * right, v[7] * right, v[8] * right);
             }
             
-            const Vec3f operator* (const Vec3f& right) const {
+            inline const Vec3f operator* (const Vec3f& right) const {
                 return Vec3f(v[0] * right.x + v[3] * right.y + v[6] * right.z,
                              v[1] * right.x + v[4] * right.y + v[7] * right.z,
                              v[2] * right.x + v[5] * right.y + v[8] * right.z);
             }
             
-            const Mat3f operator* (const Mat3f& right) const {
+            inline const Mat3f operator* (const Mat3f& right) const {
                 Mat3f result;
                 for (unsigned int c = 0; c < 3; c++)
                     for (unsigned int r = 0; r < 3; r++)
@@ -78,63 +78,63 @@ namespace TrenchBroom {
                 return result;
             }
             
-            const Mat3f operator/ (const float right) const {
+            inline const Mat3f operator/ (const float right) const {
                 return Mat3f(v[0] / right, v[1] / right, v[2] / right,
                              v[3] / right, v[4] / right, v[5] / right,
                              v[6] / right, v[7] / right, v[8] / right);
             }
             
-            Mat3f& operator+= (const Mat3f& right) {
+            inline Mat3f& operator+= (const Mat3f& right) {
                 for (unsigned int i = 0; i < 9; i++)
                     v[i] += right.v[i];
                 return *this;
             }
             
-            Mat3f& operator-= (const Mat3f& right) {
+            inline Mat3f& operator-= (const Mat3f& right) {
                 for (unsigned int i = 0; i < 9; i++)
                     v[i] -= right.v[i];
                 return *this;
             }
             
-            Mat3f& operator*= (const float right) {
+            inline Mat3f& operator*= (const float right) {
                 for (unsigned int i = 0; i < 9; i++)
                     v[i] *= right;
                 return *this;
             }
             
-            Mat3f& operator*= (const Mat3f& right) {
+            inline Mat3f& operator*= (const Mat3f& right) {
                 *this = *this * right;
                 return *this;
             }
             
-            Mat3f& operator/= (const float right) {
+            inline Mat3f& operator/= (const float right) {
                 *this *= (1 / right);
                 return *this;
             }
             
-            float& operator[] (const unsigned int index) {
+            inline float& operator[] (const unsigned int index) {
                 assert(index >= 0 && index < 9);
                 return v[index];
             }
             
-            const float& operator[] (const unsigned int index) const {
+            inline const float& operator[] (const unsigned int index) const {
                 assert(index >= 0 && index < 9);
                 return v[index];
             }
             
-            void setIdentity() {
+            inline void setIdentity() {
                 for (unsigned int c = 0; c < 3; c++)
                     for (unsigned int r = 0; r < 3; r++)
                         v[c * 3 + r] = c == r ? 1.0f : 0.0f;
             }
             
-            void setValue(unsigned int row, unsigned int col, float value) {
+            inline void setValue(unsigned int row, unsigned int col, float value) {
                 assert(row >= 0 && row < 3);
                 assert(col >= 0 && col < 3);
                 v[col * 3 + row] = value;
             }
             
-            void setColumn(unsigned int col, const Vec3f& values) {
+            inline void setColumn(unsigned int col, const Vec3f& values) {
                 v[col + 0] = values.x;
                 v[col + 1] = values.y;
                 v[col + 2] = values.z;
