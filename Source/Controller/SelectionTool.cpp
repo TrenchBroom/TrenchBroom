@@ -92,12 +92,12 @@ namespace TrenchBroom {
         }
         
         bool SelectionTool::handleScrolled(InputEvent& event) {
-            if (event.modifierKeys != ModifierKeys::CtrlCmd)
+            if (event.modifierKeys != ModifierKeys::CtrlCmd &&
+                event.modifierKeys != (ModifierKeys::CtrlCmd | ModifierKeys::Shift))
                 return false;
             
             Model::EditStateManager& editStateManager = document().EditStateManager();
-            if (editStateManager.selectionMode() == Model::EditStateManager::None ||
-                editStateManager.selectionMode() == Model::EditStateManager::Faces)
+            if (editStateManager.selectionMode() == Model::EditStateManager::Faces)
                 return false;
             
             Model::HitList hits = event.pickResult->hits(Model::Hit::EntityHit | Model::Hit::FaceHit);
@@ -108,29 +108,33 @@ namespace TrenchBroom {
             Model::BrushList brushes = editStateManager.selectedBrushes();
             
             Command* command = NULL;
-            bool selectNext = false;
-            for (unsigned int i = 0; i < hits.size() && !selectNext; i++) {
+            bool appendSelection = event.modifierKeys == (ModifierKeys::CtrlCmd | ModifierKeys::Shift);
+            bool foundSelection = false;
+            
+            for (unsigned int i = 0; i < hits.size() && !foundSelection; i++) {
                 Model::Hit* hit = hits[i];
                 if (hit->type() == Model::Hit::EntityHit) {
                     Model::Entity& entity = hit->entity();
                     if (entity.selected()) {
-                        Utility::erase(entities, &entity);
-                        selectNext = true;
+                        if (!appendSelection)
+                            Utility::erase(entities, &entity);
+                        foundSelection = true;
                     }
                 } else {
                     Model::Face& face = hit->face();
                     Model::Brush& brush = *face.brush();
                     if (brush.selected()) {
-                        Utility::erase(brushes, &brush);
-                        selectNext = true;
+                        if (!appendSelection)
+                            Utility::erase(brushes, &brush);
+                        foundSelection = true;
                     }
                 }
                 
-                if (selectNext) {
+                if (foundSelection) {
                     Model::Hit* hit = NULL;
-                    if (event.scrollY > 0.0f && i < hits.size() - 1)
+                    if (event.scroll() > 0.0f && i < hits.size() - 1)
                         hit = hits[i + 1];
-                    else if (event.scrollY < 0.0f && i > 0)
+                    else if (event.scroll() < 0.0f && i > 0)
                         hit = hits[i - 1];
                     
                     if (hit != NULL) {
@@ -150,6 +154,19 @@ namespace TrenchBroom {
                         }
                     }
                 }
+            }
+            
+            if (!foundSelection) {
+                Model::Hit* hit = hits[0];
+                if (hit->type() == Model::Hit::EntityHit) {
+                    Model::Entity& entity = hit->entity();
+                    entities.push_back(&entity);
+                } else {
+                    Model::Face& face = hit->face();
+                    Model::Brush& brush = *face.brush();
+                    brushes.push_back(&brush);
+                }
+                command = ChangeEditStateCommand::replace(document(), entities, brushes);
             }
             
             if (command != NULL) {

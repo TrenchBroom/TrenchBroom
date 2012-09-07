@@ -32,6 +32,7 @@
 #include "Renderer/EntityClassnameFilter.h"
 #include "Renderer/EntityRendererManager.h"
 #include "Renderer/EntityRenderer.h"
+#include "Renderer/GrayScaleShader.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Vbo.h"
@@ -710,6 +711,13 @@ namespace TrenchBroom {
              */
             
             m_dummyTexture = new Model::Texture("dummy");
+            
+            /*
+            m_grayScaleShader = glCreateShader(GL_FRAGMENT_SHADER);
+            const char* str = Shader::GrayScale.c_str();
+            glShaderSource(m_grayScaleShader, 1, &str, NULL);
+            glCompileShader(m_grayScaleShader);
+             */
         }
         
         MapRenderer::~MapRenderer() {
@@ -891,6 +899,15 @@ namespace TrenchBroom {
             glShadeModel(GL_SMOOTH);
             glResetEdgeOffset();
             
+            // render geometry faces
+            m_faceVbo->activate();
+            glEnableClientState(GL_VERTEX_ARRAY);
+            renderFaces(context, true, false, false, m_faceRenderInfos);
+            renderFaces(context, true, true, false, m_selectedFaceRenderInfos);
+            renderFaces(context, true, false, true, m_lockedFaceRenderInfos);
+            glDisableClientState(GL_VERTEX_ARRAY);
+            m_faceVbo->deactivate();
+            
             // render geometry edges
             m_edgeVbo->activate();
             glEnableClientState(GL_VERTEX_ARRAY);
@@ -930,15 +947,6 @@ namespace TrenchBroom {
             renderEntityModels(context, m_entityRenderers);
             renderEntityModels(context, m_selectedEntityRenderers);
 
-            // render geometry faces
-            m_faceVbo->activate();
-            glEnableClientState(GL_VERTEX_ARRAY);
-            renderFaces(context, true, false, false, m_faceRenderInfos);
-            renderFaces(context, true, true, false, m_selectedFaceRenderInfos);
-            renderFaces(context, true, false, true, m_lockedFaceRenderInfos);
-            glDisableClientState(GL_VERTEX_ARRAY);
-            m_faceVbo->deactivate();
-            
             // render classnames
             EntityClassnameFilter classnameFilter;
             m_stringManager->activate();

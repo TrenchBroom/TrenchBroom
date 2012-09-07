@@ -224,6 +224,7 @@
 		48AF61F315F8B7360027C465 /* libfreetype.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreetype.a; path = Lib/libfreetype.a; sourceTree = "<group>"; };
 		48AF61F515F8B7720027C465 /* libbz2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbz2.a; path = Lib/libbz2.a; sourceTree = "<group>"; };
 		48AF61F715F91B610027C465 /* MenuCommandIds.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MenuCommandIds.h; sourceTree = "<group>"; };
+		48AF61F915F9E38F0027C465 /* GrayScaleShader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrayScaleShader.h; sourceTree = "<group>"; };
 		48D1BE9815E2E2930073C030 /* Math.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Math.h; sourceTree = "<group>"; };
 		48D1BE9A15E2E35C0073C030 /* Vec3f.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Vec3f.h; sourceTree = "<group>"; };
 		48D1BE9B15E2E3B50073C030 /* VecMath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VecMath.h; sourceTree = "<group>"; };
@@ -290,6 +291,7 @@
 				4850D28115F52CBE005B162D /* Text */,
 				4850D27B15F4CA61005B162D /* AliasRenderer.cpp */,
 				4850D27C15F4CA61005B162D /* AliasRenderer.h */,
+				48AF61F915F9E38F0027C465 /* GrayScaleShader.h */,
 				4850D27D15F4CA62005B162D /* BspRenderer.cpp */,
 				4850D27E15F4CA62005B162D /* BspRenderer.h */,
 				48819C3615EBE92800BEA604 /* Camera.cpp */,

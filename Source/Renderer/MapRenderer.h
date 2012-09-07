@@ -123,6 +123,9 @@ namespace TrenchBroom {
             Text::TextRenderer<Model::Entity*>* m_selectedClassnameRenderer;
             Text::TextRenderer<Model::Entity*>* m_lockedClassnameRenderer;
 
+            // shaders
+            GLuint m_grayScaleShader;
+            
             /*
             // selection guides
             SizeGuideFigure* m_sizeGuideFigure;

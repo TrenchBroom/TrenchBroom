@@ -75,6 +75,12 @@ namespace TrenchBroom {
 					pickResult = NULL;
 				}
 			}
+            
+            inline float scroll() const {
+                if (scrollY != 0.0f)
+                    return scrollY;
+                return scrollX;
+            }
         };
 
         class MouseState {
