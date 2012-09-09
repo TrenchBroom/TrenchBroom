@@ -199,10 +199,7 @@ namespace TrenchBroom {
             return previous;
         }
 
-        void Brush::pick(const Ray& ray, PickResult& pickResults, Filter& filter) {
-            if (!filter.brushPickable(*this))
-                return;
-            
+        void Brush::pick(const Ray& ray, PickResult& pickResults) {
             float dist = bounds().intersectWithRay(ray, NULL);
             if (Math::isnan(dist))
                 return;

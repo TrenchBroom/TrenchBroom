@@ -23,7 +23,40 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        Camera::Camera(float fieldOfVision, float nearPlane, float farPlane, const Vec3f& position, const Vec3f& direction) : m_fieldOfVision(fieldOfVision), m_nearPlane(nearPlane), m_farPlane(farPlane), m_position(position), m_direction(direction) {
+        void Camera::validate() const {
+            float vFrustum = static_cast<float>(tan(m_fieldOfVision * Math::Pi / 360.0)) * 0.75f * m_nearPlane;
+            float hFrustum = vFrustum * m_viewport.width / m_viewport.height;
+            
+            float depth = m_farPlane - m_nearPlane;
+            m_matrix.set(m_nearPlane / hFrustum,    0.0f,                   0.0f,                                   0.0f,
+                         0.0f,                      m_nearPlane / vFrustum, 0.0f,                                   0.0f,
+                         0.0f,                      0.0f,                   -(m_farPlane + m_nearPlane) / depth,    -2.0f * (m_farPlane * m_nearPlane) / depth,
+                         0.0f,                      0.0f,                   -1.0f,                                  0.0f);
+            
+            const Vec3f& f = m_direction;
+            Vec3f s = f.crossed(m_up);
+            Vec3f u = s.crossed(f);
+            
+            Mat4f modelView( s.x,  s.y,  s.z, 0.0f,
+                             u.x,  u.y,  u.z, 0.0f,
+                            -f.x, -f.y, -f.z, 0.0f,
+                            0.0f, 0.0f, 0.0f, 1.0f);
+            modelView.translate(-1.0f * m_position);
+            
+            m_matrix *= modelView;
+            
+            bool invertible;
+            m_invertedMatrix = m_matrix.inverted(invertible);
+            assert(invertible);
+        }
+        
+        Camera::Camera(float fieldOfVision, float nearPlane, float farPlane, const Vec3f& position, const Vec3f& direction) :
+        m_fieldOfVision(fieldOfVision),
+        m_nearPlane(nearPlane),
+        m_farPlane(farPlane),
+        m_position(position),
+        m_direction(direction),
+        m_valid(false) {
             if (m_direction.equals(Vec3f::PosZ)) {
                 m_right = Vec3f::NegY;
                 m_up = Vec3f::NegX;
@@ -36,6 +69,19 @@ namespace TrenchBroom {
             }
         }
         
+        void Camera::update(float x, float y, float width, float height) {
+            setViewport(x, y, width, height);
+            
+            if (!m_valid)
+                validate();
+            
+            glViewport(m_viewport.x, m_viewport.y, m_viewport.width, m_viewport.height);
+            glMatrixMode(GL_PROJECTION);
+            glLoadMatrixf(m_matrix.v);
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+        }
+
         const Vec3f Camera::defaultPoint() const {
             return defaultPoint(m_direction);
         }
@@ -50,20 +96,26 @@ namespace TrenchBroom {
         }
 
         const Vec3f Camera::project(const Vec3f& point) const {
-            GLdouble objX, objY, objZ, winX, winY, winZ;
-            objX = static_cast<GLdouble>(point.x);
-            objY = static_cast<GLdouble>(point.y);
-            objZ = static_cast<GLdouble>(point.z);
+            if (!m_valid)
+                validate();
             
-            gluProject(objX, objY, objZ, m_modelview, m_projection, m_viewport, &winX, &winY, &winZ);
-            return Vec3f(static_cast<float>(winX), static_cast<float>(winY), static_cast<float>(winZ));
+            Vec3f win = m_matrix * point;
+            win.x = m_viewport.x + (m_viewport.width  * (win.x + 1.0f)) / 2.0f;
+            win.y = m_viewport.y + (m_viewport.height * (win.y + 1.0f)) / 2.0f;
+            win.z = (win.z + 1.0f) / 2.0f;
+            return win;
         }
 
         const Vec3f Camera::unproject(float x, float y, float depth) const {
-            GLdouble rx, ry, rz;
-            gluUnProject(x, m_viewport[3] - y, depth, m_modelview, m_projection, m_viewport, &rx, &ry, &rz);
+            if (!m_valid)
+                validate();
             
-            return Vec3f(static_cast<float>(rx), static_cast<float>(ry), static_cast<float>(rz));
+            Vec3f normalized;
+            normalized.x = 2.0f * (x - m_viewport.x) / m_viewport.width  - 1.0f;
+            normalized.y = 2.0f * (m_viewport.height - y - m_viewport.y) / m_viewport.height - 1.0f;
+            normalized.z = 2.0f * depth - 1.0f;
+            
+            return m_invertedMatrix * normalized;
         }
 
         const Ray Camera::pickRay(float x, float y) const {
@@ -71,32 +123,19 @@ namespace TrenchBroom {
             return Ray(m_position, direction);
         }
 
-        void Camera::update(float x, float y, float width, float height) {
-            glMatrixMode(GL_PROJECTION);
-            float vfrustum = static_cast<float>(tan(m_fieldOfVision * Math::Pi / 360)) * 0.75f * m_nearPlane;
-            float hfrustum = vfrustum * width / height;
-            glFrustum(-hfrustum, hfrustum, -vfrustum, vfrustum, m_nearPlane, m_farPlane);
-            
-            const Vec3f& pos = m_position;
-            const Vec3f& at = m_position + m_direction;
-            const Vec3f& up = m_up;
-            
-            glMatrixMode(GL_MODELVIEW);
-            glViewport(static_cast<int>(x), static_cast<int>(y), static_cast<int>(width), static_cast<int>(height));
-            gluLookAt(pos.x, pos.y, pos.z, at.x, at.y, at.z, up.x, up.y, up.z);
-
-            glGetIntegerv(GL_VIEWPORT, m_viewport);
-            glGetDoublev(GL_MODELVIEW_MATRIX, m_modelview);
-            glGetDoublev(GL_PROJECTION_MATRIX, m_projection);
+        const Mat4f& Camera::matrix() const {
+            return m_matrix;
         }
-        
-        void Camera::setBillboard() {
-            Vec3f bbLook = m_direction * -1;
+
+        const Mat4f Camera::billboardMatrix() const {
+            Vec3f bbLook = m_direction * -1.0f;
             Vec3f bbUp = m_up;
             Vec3f bbRight = bbUp.crossed(bbLook);
-            
-            float matrix[] = {bbRight.x, bbRight.y, bbRight.z, 0.0f, bbUp.x, bbUp.y, bbUp.z, 0.0f, bbLook.x, bbLook.y, bbLook.z, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
-            glMultMatrixf(matrix);
+
+            return Mat4f(bbRight.x,  bbUp.x,     bbLook.x,   0.0f,
+                         bbRight.y,  bbUp.y,     bbLook.y,   0.0f,
+                         bbRight.z,  bbUp.z,     bbLook.z,   0.0f,
+                         0.0f,       0.0f,       0.0f,       1.0f);
         }
 
         float Camera::distanceTo(const Vec3f& point) const {

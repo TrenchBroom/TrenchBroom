@@ -20,6 +20,8 @@
 #ifndef __TrenchBroom__RenderContext__
 #define __TrenchBroom__RenderContext__
 
+#include "Renderer/Transformation.h"
+
 namespace TrenchBroom {
     namespace Model {
         class Filter;
@@ -32,10 +34,12 @@ namespace TrenchBroom {
         private:
             Camera& m_camera;
             Model::Filter& m_filter;
+            Transformation m_transformation;
         public:
             RenderContext(Camera& camera, Model::Filter& filter) :
             m_camera(camera),
-            m_filter(filter) {}
+            m_filter(filter),
+            m_transformation(m_camera.matrix()) {}
             
             inline Camera& camera() const {
                 return m_camera;
@@ -43,6 +47,10 @@ namespace TrenchBroom {
             
             inline const Model::Filter& filter() const {
                 return m_filter;
+            }
+            
+            inline Transformation& transformation() {
+                return m_transformation;
             }
         };
     }

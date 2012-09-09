@@ -26,10 +26,14 @@
 #include "Utility/Vec3f.h"
 #include "Utility/Vec4f.h"
 
+#include <cassert>
+#include <vector>
+
 namespace TrenchBroom {
     namespace Math {
         class Mat4f {
         public:
+            static const Mat4f Null;
             static const Mat4f Identity;
             static const Mat4f Rot90XCW;
             static const Mat4f Rot90YCW;
@@ -41,6 +45,8 @@ namespace TrenchBroom {
             static const Mat4f MirY;
             static const Mat4f MirZ;
             
+            typedef std::vector<Mat4f> List;
+            
             float v[16];
             
             Mat4f() {
@@ -48,7 +54,10 @@ namespace TrenchBroom {
                     v[i] = 0;
             }
             
-            Mat4f(float v11, float v12, float v13, float v14, float v21, float v22, float v23, float v24, float v31, float v32, float v33, float v34, float v41, float v42, float v43, float v44) {
+            Mat4f(float v11, float v12, float v13, float v14,
+                  float v21, float v22, float v23, float v24,
+                  float v31, float v32, float v33, float v34,
+                  float v41, float v42, float v43, float v44) {
                 v[ 0] = v11; v[ 4] = v12; v[ 8] = v13; v[12] = v14;
                 v[ 1] = v21; v[ 5] = v22; v[ 9] = v23; v[13] = v24;
                 v[ 2] = v31; v[ 6] = v32; v[10] = v33; v[14] = v34;
@@ -62,28 +71,28 @@ namespace TrenchBroom {
             }
             
             inline const Mat4f operator+ (const Mat4f& right) const {
-                return Mat4f(v[ 0] + right.v[ 0], v[ 1] + right.v[ 1], v[ 2] + right.v[ 2], v[ 3] + right.v[ 3],
-                             v[ 4] + right.v[ 4], v[ 5] + right.v[ 5], v[ 6] + right.v[ 6], v[ 7] + right.v[ 7],
-                             v[ 8] + right.v[ 8], v[ 9] + right.v[ 9], v[10] + right.v[10], v[11] + right.v[11],
-                             v[12] + right.v[12], v[13] + right.v[13], v[14] + right.v[14], v[15] + right.v[15]);
+                return Mat4f(v[ 0] + right.v[ 0], v[ 4] + right.v[ 4], v[ 8] + right.v[ 8], v[12] + right.v[12],
+                             v[ 1] + right.v[ 1], v[ 5] + right.v[ 5], v[ 9] + right.v[ 9], v[13] + right.v[13],
+                             v[ 2] + right.v[ 2], v[ 6] + right.v[ 6], v[10] + right.v[10], v[14] + right.v[14],
+                             v[ 3] + right.v[ 3], v[ 7] + right.v[ 7], v[11] + right.v[11], v[15] + right.v[15]);
             }
             
             inline const Mat4f operator- (const Mat4f& right) const {
-                return Mat4f(v[ 0] - right.v[ 0], v[ 1] - right.v[ 1], v[ 2] - right.v[ 2], v[ 3] - right.v[ 3],
-                             v[ 4] - right.v[ 4], v[ 5] - right.v[ 5], v[ 6] - right.v[ 6], v[ 7] - right.v[ 7],
-                             v[ 8] - right.v[ 8], v[ 9] - right.v[ 9], v[10] - right.v[10], v[11] - right.v[11],
-                             v[12] - right.v[12], v[13] - right.v[13], v[14] - right.v[14], v[15] - right.v[15]);
+                return Mat4f(v[ 0] - right.v[ 0], v[ 4] - right.v[ 4], v[ 8] - right.v[ 8], v[12] - right.v[12],
+                             v[ 1] - right.v[ 1], v[ 5] - right.v[ 5], v[ 9] - right.v[ 9], v[13] - right.v[13],
+                             v[ 2] - right.v[ 2], v[ 6] - right.v[ 6], v[10] - right.v[10], v[14] - right.v[14],
+                             v[ 3] - right.v[ 3], v[ 7] - right.v[ 7], v[11] - right.v[11], v[15] - right.v[15]);
             }
             
             inline const Mat4f operator* (const float right) const {
-                return Mat4f(v[ 0] * right, v[ 1] * right, v[ 2] * right, v[ 3] * right,
-                             v[ 4] * right, v[ 5] * right, v[ 6] * right, v[ 7] * right,
-                             v[ 8] * right, v[ 9] * right, v[10] * right, v[11] * right,
-                             v[12] * right, v[13] * right, v[14] * right, v[15] * right);
+                return Mat4f(v[ 0] * right, v[ 4] * right, v[ 8] * right, v[12] * right,
+                             v[ 1] * right, v[ 5] * right, v[ 9] * right, v[13] * right,
+                             v[ 2] * right, v[ 6] * right, v[10] * right, v[14] * right,
+                             v[ 3] * right, v[ 7] * right, v[11] * right, v[15] * right);
             }
             
             inline const Vec3f operator* (const Vec3f& right) const {
-                float w = v[ 3] * right.x + v[ 7] * right.y + v[11] * right.z + v[15];
+                float w =     v[ 3] * right.x + v[ 7] * right.y + v[11] * right.z + v[15];
                 return Vec3f((v[ 0] * right.x + v[ 4] * right.y + v[ 8] * right.z + v[12]) / w,
                              (v[ 1] * right.x + v[ 5] * right.y + v[ 9] * right.z + v[13]) / w,
                              (v[ 2] * right.x + v[ 6] * right.y + v[10] * right.z + v[14]) / w);
@@ -100,7 +109,7 @@ namespace TrenchBroom {
                 Mat4f result;
                 for (unsigned int c = 0; c < 4; c++) {
                     for (unsigned int r = 0; r < 4; r++) {
-                        result[c * 4 + r] = 0;
+                        result[c * 4 + r] = 0.0f;
                         for (unsigned int i = 0; i < 4; i++)
                             result[c * 4 + r] += v[i * 4 + r] * right.v[c * 4 + i];
                     }
@@ -151,12 +160,41 @@ namespace TrenchBroom {
                 return v[index];
             }
             
+            inline bool equals(const Mat4f& other) const {
+                return equals(other, Math::AlmostZero);
+            }
+            
+            inline bool equals(const Mat4f& other, float delta) const {
+                for (unsigned int i = 0; i < 16; i++)
+                    if (fabsf(v[i] - other.v[i]) > delta)
+                        return false;
+                return true;
+            }
+
+            inline bool identity() const {
+                return equals(Identity);
+            }
+            
+            inline bool null() const {
+                return equals(Null);
+            }
+            
             inline void setIdentity() {
                 for (unsigned int r = 0; r < 4; r++)
                     for (unsigned int c = 0; c < 4; c++)
                         v[c * 4 + r] = r == c ? 1.0f : 0.0f;
             }
             
+            inline void set(float v11, float v12, float v13, float v14,
+                            float v21, float v22, float v23, float v24,
+                            float v31, float v32, float v33, float v34,
+                            float v41, float v42, float v43, float v44) {
+                v[ 0] = v11; v[ 4] = v12; v[ 8] = v13; v[12] = v14;
+                v[ 1] = v21; v[ 5] = v22; v[ 9] = v23; v[13] = v24;
+                v[ 2] = v31; v[ 6] = v32; v[10] = v33; v[14] = v34;
+                v[ 3] = v41; v[ 7] = v42; v[11] = v43; v[15] = v44;
+            }
+
             inline void setValue(unsigned int row, unsigned int col, float value) {
                 assert(row >= 0 && row < 4);
                 assert(col >= 0 && col < 4);
@@ -168,7 +206,7 @@ namespace TrenchBroom {
                 v[col * 4 + 0] = values.x;
                 v[col * 4 + 1] = values.y;
                 v[col * 4 + 2] = values.z;
-                v[col * 4 + 3] = 0;
+                v[col * 4 + 3] = 0.0f;
             }
             
             inline void setColumn(unsigned int col, const Vec4f& values) {
@@ -179,7 +217,7 @@ namespace TrenchBroom {
                 v[col * 4 + 3] = values.w;
             }
             
-            void setSubMatrix(int index, const Mat2f& values) {
+            void setSubMatrix(unsigned int index, const Mat2f& values) {
                 switch (index) {
                     case 0:
                         v[ 0] = values.v[0];
@@ -210,7 +248,7 @@ namespace TrenchBroom {
                 }
             }
             
-            const Mat2f subMatrix(int index) const {
+            const Mat2f subMatrix(unsigned int index) const {
                 Mat2f result;
                 switch (index) {
                     case 0:
@@ -247,40 +285,8 @@ namespace TrenchBroom {
                 float det = determinant();
                 invertible = det != 0.0f;
                 if (invertible) {
-                    Mat2f A, Ai;
-                    bool invertibleA;
-                    
-                    A = subMatrix(0);
-                    Ai = A.inverted(invertibleA);
-                    if (invertibleA) { // use quick method
-                        Mat4f result;
-                        Mat2f B, C, D, CAi, CAiB, AiB;
-                        bool invertibleD;
-                        
-                        B = subMatrix(2);
-                        C = subMatrix(1);
-                        D = subMatrix(3);
-                        
-                        CAi = C * Ai;
-                        CAiB = CAi * B;
-                        AiB = Ai * B;
-                        
-                        // calculate D
-                        D = (D - CAiB).inverted(invertibleD);
-                        
-                        // calculate -C and -B
-                        C = (D * CAi).negated();
-                        B = AiB * D;
-                        A = (B * CAi * Ai).negated();
-                        
-                        setSubMatrix(0, A);
-                        setSubMatrix(1, C);
-                        setSubMatrix(2, B);
-                        setSubMatrix(3, D);
-                    } else {
-                        adjugate();
-                        *this /= det;
-                    }
+                    adjugate();
+                    *this /= det;
                 }
             }
             
@@ -299,7 +305,7 @@ namespace TrenchBroom {
                 for (unsigned int c = 0; c < 4; c++)
                     for (unsigned int r = 0; r < 4; r++)
                         result[c * 4 + r] = ((c + r) % 2 == 0 ? 1 : -1) * subMatrix(c, r).determinant();
-                result.transpose();
+                // result.transpose();
                 return result;
             }
             
@@ -329,9 +335,9 @@ namespace TrenchBroom {
             
             float determinant() const {
                 // Laplace after first col
-                float det = 0;
+                float det = 0.0f;
                 for (unsigned int r = 0; r < 4; r++)
-                    det += (r % 2 == 0 ? 1 : -1) *v[r] * subMatrix(0, r).determinant();
+                    det += (r % 2 == 0 ? 1.0f : -1.0f) * v[r] * subMatrix(r, 0).determinant();
                 return det;
             }
             
@@ -437,12 +443,11 @@ namespace TrenchBroom {
             }
 
             inline void translate(const Vec3f& delta) {
-                Mat4f temp;
-                temp.setIdentity();
-                temp[12] += delta.x;
-                temp[13] += delta.y;
-                temp[14] += delta.z;
-                *this *= temp;
+                Mat4f translation = Mat4f::Identity;
+                translation[12] += delta.x;
+                translation[13] += delta.y;
+                translation[14] += delta.z;
+                *this *= translation;
             }
             
             inline const Mat4f translated(const Vec3f& delta) const {
@@ -452,16 +457,16 @@ namespace TrenchBroom {
             }
 
             void scale(const Vec3f& factors) {
-                for (unsigned int i = 0; i < 4; i++)
-                    for (unsigned int j = 0; j < 3; j++)
-                        v[i * 4 + j] *= factors[j];
+                Mat4f scaling = Mat4f::Identity;
+                for (unsigned int i = 0; i < 3; i++)
+                    scaling.v[i * 4 + i] *= factors[i];
+                *this *= scaling;
             }
             
             const Mat4f scaled(const Vec3f& factors) const {
-                return Mat4f(v[ 0] * factors.x, v[ 1] * factors.y, v[ 2] * factors.z, v[ 3],
-                             v[ 4] * factors.x, v[ 5] * factors.y, v[ 6] * factors.z, v[ 7],
-                             v[ 8] * factors.x, v[ 9] * factors.y, v[10] * factors.z, v[11],
-                             v[12] * factors.x, v[13] * factors.y, v[14] * factors.z, v[15]);
+                Mat4f result = *this;
+                result.scale(factors);
+                return result;
             }
         };
         

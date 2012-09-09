@@ -87,7 +87,7 @@ namespace TrenchBroom {
             virtual const Vec3f& center() const = 0;
             virtual const BBox& bounds() const = 0;
             virtual Type objectType() const = 0;
-            virtual void pick(const Ray& ray, PickResult& pickResults, Filter& filter) = 0;
+            virtual void pick(const Ray& ray, PickResult& pickResults) = 0;
         };
     }
 }

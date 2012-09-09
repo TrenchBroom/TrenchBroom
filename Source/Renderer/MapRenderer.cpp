@@ -32,7 +32,6 @@
 #include "Renderer/EntityClassnameFilter.h"
 #include "Renderer/EntityRendererManager.h"
 #include "Renderer/EntityRenderer.h"
-#include "Renderer/GrayScaleShader.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Vbo.h"
@@ -514,7 +513,7 @@ namespace TrenchBroom {
                 Model::Entity* entity = it->first;
                 if (context.filter().entityVisible(*entity)) {
                     EntityRenderer* renderer = it->second.renderer;
-                    renderer->render(*entity);
+                    renderer->render(context.transformation(), *entity);
                 }
             }
             
@@ -577,22 +576,6 @@ namespace TrenchBroom {
                 glTexEnvi (GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_PREVIOUS);
                 glTexEnvi (GL_TEXTURE_ENV, GL_SRC1_RGB, GL_CONSTANT);
                 glTexEnvf (GL_TEXTURE_ENV, GL_RGB_SCALE, 2);
-            } else if (locked) {
-                const Color lockedFaceColor = prefs.getColor(Preferences::LockedFaceColor);
-                GLfloat color[4] = {lockedFaceColor.x, lockedFaceColor.y, lockedFaceColor.z, lockedFaceColor.w};
-                
-                glActiveTexture(GL_TEXTURE1);
-                glEnable(GL_TEXTURE_2D);
-                m_dummyTexture->activate();
-                glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-                glTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
-                glTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_MODULATE);
-                glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, color);
-                glTexEnvi (GL_TEXTURE_ENV, GL_SRC0_RGB, GL_PREVIOUS);
-                glTexEnvi (GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_PREVIOUS);
-                glTexEnvi (GL_TEXTURE_ENV, GL_SRC1_RGB, GL_CONSTANT);
-                glTexEnvi (GL_TEXTURE_ENV, GL_SRC1_ALPHA, GL_CONSTANT);
-                glTexEnvf (GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
             }
             
             bool textureActive = textured;
@@ -636,7 +619,7 @@ namespace TrenchBroom {
             if (textured && textureActive)
                 glDisable(GL_TEXTURE_2D);
             
-            if (selected || locked) {
+            if (selected) {
                 glActiveTexture(GL_TEXTURE1);
                 m_dummyTexture->deactivate();
                 glDisable(GL_TEXTURE_2D);
@@ -904,7 +887,7 @@ namespace TrenchBroom {
             glEnableClientState(GL_VERTEX_ARRAY);
             renderFaces(context, true, false, false, m_faceRenderInfos);
             renderFaces(context, true, true, false, m_selectedFaceRenderInfos);
-            renderFaces(context, true, false, true, m_lockedFaceRenderInfos);
+            renderFaces(context, false, false, true, m_lockedFaceRenderInfos);
             glDisableClientState(GL_VERTEX_ARRAY);
             m_faceVbo->deactivate();
             
@@ -913,15 +896,12 @@ namespace TrenchBroom {
             glEnableClientState(GL_VERTEX_ARRAY);
             glSetEdgeOffset(0.01f);
             renderEdges(context, m_edgeRenderInfo, NULL);
-
             renderEdges(context, m_lockedEdgeRenderInfo, &prefs.getColor(Preferences::LockedEdgeColor));
-
             glSetEdgeOffset(0.02f);
             glDisable(GL_DEPTH_TEST);
             renderEdges(context, m_selectedEdgeRenderInfo, &prefs.getColor(Preferences::OccludedSelectedEdgeColor));
             glEnable(GL_DEPTH_TEST);
             renderEdges(context, m_selectedEdgeRenderInfo, &prefs.getColor(Preferences::SelectedEdgeColor));
-            
             glResetEdgeOffset();
             glDisableClientState(GL_VERTEX_ARRAY);
             m_edgeVbo->deactivate();
@@ -931,15 +911,12 @@ namespace TrenchBroom {
             glEnableClientState(GL_VERTEX_ARRAY);
             renderEntityBounds(context, m_entityBoundsRenderInfo, NULL);
             renderEntityBounds(context, m_lockedEntityBoundsRenderInfo, &prefs.getColor(Preferences::LockedEntityBoundsColor));
-
             glDisable(GL_DEPTH_TEST);
             renderEntityBounds(context, m_selectedEntityBoundsRenderInfo, &prefs.getColor(Preferences::OccludedSelectedEntityBoundsColor));
             glEnable(GL_DEPTH_TEST);
-            
             glDepthFunc(GL_LEQUAL);
             renderEntityBounds(context, m_selectedEntityBoundsRenderInfo, &prefs.getColor(Preferences::SelectedEntityBoundsColor));
             glDepthFunc(GL_LESS);
-
             glDisableClientState(GL_VERTEX_ARRAY);
             m_entityBoundsVbo->deactivate();
 

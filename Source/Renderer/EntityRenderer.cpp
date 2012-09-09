@@ -20,29 +20,36 @@
 #include "EntityRenderer.h"
 
 #include "Model/Entity.h"
+#include "Renderer/PushMatrix.h"
+#include "Renderer/Transformation.h"
 #include "Utility/GLee.h"
+#include "Utility/VecMath.h"
+
+using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
-        void EntityRenderer::render(const Model::Entity& entity) {
-            render(entity.origin(), static_cast<float>(entity.angle()));
+        void EntityRenderer::render(Transformation& transformation, const Model::Entity& entity) {
+            render(transformation, entity.origin(), static_cast<float>(entity.angle()));
         }
 
-        void EntityRenderer::render(const Vec3f& position, float angle) {
-            glPushMatrix();
+        void EntityRenderer::render(Transformation& transformation, const Vec3f& position, float angle) {
+            PushMatrix pushMatrix(transformation);
+
+            Mat4f matrix = pushMatrix.matrix();
+            matrix.translate(position);
             
-            glTranslatef(position.x, position.y, position.z);
             if (angle != 0.0f) {
                 if (angle == -1.0f)
-                    glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
+                    matrix.rotate(90.0f, Vec3f::PosX);
                 else if (angle == -2.0f)
-                    glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
+                    matrix.rotate(-90.0f, Vec3f::PosX);
                 else
-                    glRotatef(angle, 0.0f, 0.0f, 1.0f);
+                    matrix.rotate(angle, Vec3f::PosZ);
             }
-            
+            pushMatrix.load(matrix);
+
             render();
-            glPopMatrix();
         }
     }
 }

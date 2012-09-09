@@ -33,7 +33,9 @@ namespace TrenchBroom {
                     v[i] = 0;
             }
             
-            Mat3f(float v11, float v12, float v13, float v21, float v22, float v23, float v31, float v32, float v33) {
+            Mat3f(float v11, float v12, float v13,
+                  float v21, float v22, float v23,
+                  float v31, float v32, float v33) {
                 v[0] = v11; v[3] = v12; v[6] = v13;
                 v[1] = v21; v[4] = v22; v[7] = v23;
                 v[2] = v31; v[5] = v32; v[8] = v33;
@@ -46,21 +48,21 @@ namespace TrenchBroom {
             }
             
             inline const Mat3f operator+ (const Mat3f& right) const {
-                return Mat3f(v[0] + right.v[0], v[1] + right.v[1], v[2] + right.v[2],
-                             v[3] + right.v[3], v[4] + right.v[4], v[5] + right.v[5],
-                             v[6] + right.v[6], v[7] + right.v[7], v[8] + right.v[8]);
+                return Mat3f(v[0] + right.v[0], v[3] + right.v[3], v[6] + right.v[6],
+                             v[1] + right.v[1], v[4] + right.v[4], v[7] + right.v[7],
+                             v[2] + right.v[2], v[5] + right.v[5], v[8] + right.v[8]);
             }
             
             inline const Mat3f operator- (const Mat3f& right) const {
-                return Mat3f(v[0] - right.v[0], v[1] - right.v[1], v[2] - right.v[2],
-                             v[3] - right.v[3], v[4] - right.v[4], v[5] - right.v[5],
-                             v[6] - right.v[6], v[7] - right.v[7], v[8] - right.v[8]);
+                return Mat3f(v[0] - right.v[0], v[3] - right.v[3], v[6] - right.v[6],
+                             v[1] - right.v[1], v[4] - right.v[4], v[7] - right.v[7],
+                             v[2] - right.v[2], v[5] - right.v[5], v[8] - right.v[8]);
             }
             
             inline const Mat3f operator* (const float right) const {
-                return Mat3f(v[0] * right, v[1] * right, v[2] * right,
-                             v[3] * right, v[4] * right, v[5] * right,
-                             v[6] * right, v[7] * right, v[8] * right);
+                return Mat3f(v[0] * right, v[3] * right, v[6] * right,
+                             v[1] * right, v[4] * right, v[7] * right,
+                             v[2] * right, v[5] * right, v[8] * right);
             }
             
             inline const Vec3f operator* (const Vec3f& right) const {
@@ -79,9 +81,9 @@ namespace TrenchBroom {
             }
             
             inline const Mat3f operator/ (const float right) const {
-                return Mat3f(v[0] / right, v[1] / right, v[2] / right,
-                             v[3] / right, v[4] / right, v[5] / right,
-                             v[6] / right, v[7] / right, v[8] / right);
+                return Mat3f(v[0] / right, v[3] / right, v[6] / right,
+                             v[1] / right, v[4] / right, v[7] / right,
+                             v[2] / right, v[5] / right, v[8] / right);
             }
             
             inline Mat3f& operator+= (const Mat3f& right) {
@@ -194,11 +196,11 @@ namespace TrenchBroom {
             
             float determinant() const {
                 return v[0] * v[4] * v[8]
-                + v[3] * v[7] * v[2]
-                + v[6] * v[1] * v[5]
-                - v[2] * v[4] * v[6]
-                - v[5] * v[7] * v[0]
-                - v[8] * v[1] * v[3];
+                     + v[3] * v[7] * v[2]
+                     + v[6] * v[1] * v[5]
+                     - v[2] * v[4] * v[6]
+                     - v[5] * v[7] * v[0]
+                     - v[8] * v[1] * v[3];
             }
             
             const Mat2f subMatrix(unsigned int row, unsigned int col) const {

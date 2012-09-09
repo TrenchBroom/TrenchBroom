@@ -70,7 +70,7 @@ namespace TrenchBroom {
         bool CameraTool::handleBeginDrag(InputEvent& event) {
             if(event.mouseButtons == MouseButtons::Right) {
                 if (event.modifierKeys == ModifierKeys::Alt) {
-                    Model::Hit* hit = event.pickResult->first(Model::Hit::EntityHit | Model::Hit::FaceHit, true);
+                    Model::Hit* hit = event.pickResult->first(Model::Hit::EntityHit | Model::Hit::FaceHit, true, m_filter);
                     if (hit != NULL)
                         m_orbitCenter = hit->hitPoint();
                     else

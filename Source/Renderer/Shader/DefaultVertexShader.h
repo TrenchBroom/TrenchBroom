@@ -17,31 +17,18 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityRenderer_h
-#define TrenchBroom_EntityRenderer_h
-
-#include "Utility/VecMath.h"
-
-using namespace TrenchBroom::Math;
+#ifndef TrenchBroom_DefaultVertexShader_h
+#define TrenchBroom_DefaultVertexShader_h
 
 namespace TrenchBroom {
-    namespace Model {
-        class Entity;
-    }
-    
     namespace Renderer {
-        class Transformation;
-        
-        class EntityRenderer {
-        public:
-            virtual ~EntityRenderer() {};
-            virtual void render(Transformation& transformation, const Model::Entity& entity);
-            virtual void render(Transformation& transformation, const Vec3f& position, float angle);
-            virtual void render() = 0;
-            virtual const Vec3f& center() const = 0;
-            virtual const BBox& bounds() const = 0;
-        };
+        namespace VertexShader {
+            static const String Default = "\
+            void main(void) {\
+            }";
+        }
     }
 }
+
 
 #endif

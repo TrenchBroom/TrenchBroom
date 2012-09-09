@@ -35,7 +35,8 @@ namespace TrenchBroom {
                     v[i] = 0;
             }
             
-            Mat2f(float v11, float v12, float v21, float v22) {
+            Mat2f(float v11, float v12,
+                  float v21, float v22) {
                 v[0] = v11; v[2] = v12;
                 v[1] = v21; v[3] = v22;
             }
@@ -47,18 +48,18 @@ namespace TrenchBroom {
             }
             
             inline const Mat2f operator+ (const Mat2f& right) const {
-                return Mat2f(v[0] + right.v[0], v[1] + right.v[1],
-                             v[2] + right.v[2], v[3] + right.v[3]);
+                return Mat2f(v[0] + right.v[0], v[2] + right.v[2],
+                             v[1] + right.v[1], v[3] + right.v[3]);
             }
             
             inline const Mat2f operator- (const Mat2f& right) const {
-                return Mat2f(v[0] - right.v[0], v[1] - right.v[1],
-                             v[2] - right.v[2], v[3] - right.v[3]);
+                return Mat2f(v[0] - right.v[0], v[2] - right.v[2],
+                             v[1] - right.v[1], v[3] - right.v[3]);
             }
             
             inline const Mat2f operator* (const float right) const {
-                return Mat2f(v[0] * right, v[1] * right,
-                             v[2] * right, v[3] * right);
+                return Mat2f(v[0] * right, v[2] * right,
+                             v[1] * right, v[3] * right);
             }
             
             inline const Vec2f operator* (const Vec2f& right) const {
@@ -67,13 +68,13 @@ namespace TrenchBroom {
             }
             
             inline const Mat2f operator* (const Mat2f& right) const {
-                return Mat2f(v[0] * right.v[0] + v[2] * right.v[1], v[1] * right.v[0] + v[3] * right.v[1],
-                             v[0] * right.v[2] + v[2] * right.v[3], v[1] * right.v[2] + v[3] * right.v[3]);
+                return Mat2f(v[0] * right.v[0] + v[2] * right.v[1], v[0] * right.v[2] + v[1] * right.v[3],
+                             v[1] * right.v[0] + v[3] * right.v[1], v[1] * right.v[2] + v[3] * right.v[3]);
             }
             
             inline const Mat2f operator/ (const float right) const {
-                return Mat2f(v[0] / right, v[1] / right,
-                             v[2] / right, v[3] / right);
+                return Mat2f(v[0] / right, v[2] / right,
+                             v[1] / right, v[3] / right);
             }
             
             inline Mat2f& operator+= (const Mat2f& right) {
@@ -132,7 +133,7 @@ namespace TrenchBroom {
                 v[col + 1] = values.y;
             }
             
-            void invert(bool& invertible) {
+            inline void invert(bool& invertible) {
                 float det = determinant();
                 if (det == 0.0f) {
                     invertible = false;
@@ -143,52 +144,47 @@ namespace TrenchBroom {
                 }
             }
 
-            const Mat2f inverted(bool& invertible) const {
+            inline const Mat2f inverted(bool& invertible) const {
                 Mat2f result = *this;
                 result.invert(invertible);
                 return result;
             }
             
-            void adjugate() {
-                float t[4];
-                for (unsigned int i = 0; i < 4; i++)
-                    t[i] = v[i];
-                
-                v[0] =  t[3];
-                v[3] =  t[0];
-                v[1] = -t[1];
-                v[2] = -t[2];
+            inline void adjugate() {
+                std::swap(v[0], v[3]);
+                v[1] *= -1.0f;
+                v[2] *= -1.0f;
             }
 
-            const Mat2f adjugated() const {
+            inline const Mat2f adjugated() const {
                 Mat2f result = *this;
                 result.adjugate();
                 return result;
             }
             
-            void negate() {
+            inline void negate() {
                 for (unsigned int i = 0; i < 4; i++)
                     v[i] = -v[i];
             }
 
-            const Mat2f negated() const {
+            inline const Mat2f negated() const {
                 return Mat2f(v[0] * -1, v[1] * -1,
                              v[2] * -1, v[3] * -1);
             }
             
-            void transpose() {
+            inline void transpose() {
                 for (unsigned int c = 0; c < 2; c++)
                     for (unsigned int r = c + 1; r < 2; r++)
                         std::swap(v[c * 2 + r], v[r * 2 + c]);
             }
 
-            const Mat2f transposed() const {
+            inline const Mat2f transposed() const {
                 Mat2f result = *this;
                 result.transpose();
                 return result;
             }
             
-            float determinant() const {
+            inline float determinant() const {
                 return v[0] * v[3] - v[2] * v[1];
             }
         };

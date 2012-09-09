@@ -34,7 +34,7 @@ namespace TrenchBroom {
             
             m_currentEvent.camera = &m_camera;
             m_currentEvent.ray = m_camera.pickRay(m_currentEvent.mouseX, m_currentEvent.mouseY);
-            m_currentEvent.pickResult = m_picker.pick(m_currentEvent.ray, m_view.Filter());
+            m_currentEvent.pickResult = m_picker.pick(m_currentEvent.ray);
             
             for (unsigned int i = 0; i < m_receivers.size(); i++)
                 m_receivers[i]->updateHits(m_currentEvent);

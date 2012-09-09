@@ -17,29 +17,37 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityRenderer_h
-#define TrenchBroom_EntityRenderer_h
+#ifndef TrenchBroom_PushMatrix_h
+#define TrenchBroom_PushMatrix_h
 
+#include "Renderer/Transformation.h"
+#include "Utility/GLee.h"
 #include "Utility/VecMath.h"
 
 using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
-    namespace Model {
-        class Entity;
-    }
-    
     namespace Renderer {
-        class Transformation;
-        
-        class EntityRenderer {
+        class PushMatrix {
+        protected:
+            Transformation& m_transformation;
+            Mat4f& m_matrix;
         public:
-            virtual ~EntityRenderer() {};
-            virtual void render(Transformation& transformation, const Model::Entity& entity);
-            virtual void render(Transformation& transformation, const Vec3f& position, float angle);
-            virtual void render() = 0;
-            virtual const Vec3f& center() const = 0;
-            virtual const BBox& bounds() const = 0;
+            PushMatrix(Transformation& transformation) :
+            m_transformation(transformation),
+            m_matrix(m_transformation.pushMatrix()) {}
+            
+            ~PushMatrix() {
+                m_transformation.popMatrix();
+            }
+            
+            inline const Mat4f& matrix() const {
+                return m_matrix;
+            }
+            
+            inline void load(const Mat4f& matrix) {
+                m_transformation.loadMatrix(matrix);
+            }
         };
     }
 }

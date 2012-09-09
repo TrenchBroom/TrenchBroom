@@ -28,35 +28,35 @@ namespace TrenchBroom {
     namespace Model {
         class Filter {
         public:
-            inline bool brushVisible(const Model::Brush& brush) const {
+            virtual inline bool brushVisible(const Model::Brush& brush) const {
                 if (brush.hidden())
                     return false;
                 
                 return true;
             }
             
-            inline bool entityVisible(const Model::Entity& entity) const {
+            virtual inline bool entityVisible(const Model::Entity& entity) const {
                 if (entity.hidden() || entity.worldspawn())
                     return false;
                 
                 return true;
             }
             
-            inline bool brushPickable(const Model::Brush& brush) const {
+            virtual inline bool brushPickable(const Model::Brush& brush) const {
                 if (brush.hidden() || brush.locked() || brush.entity()->locked())
                     return false;
                 
                 return true;
             }
             
-            inline bool brushVerticesPickable(const Model::Brush& brush) const {
+            virtual inline bool brushVerticesPickable(const Model::Brush& brush) const {
                 if (!brushPickable(brush))
                     return false;
                 
                 return true;
             }
             
-            inline bool entityPickable(const Model::Entity& entity) const {
+            virtual inline bool entityPickable(const Model::Entity& entity) const {
                 if (entity.worldspawn() || entity.hidden() || entity.locked())
                     return false;
                 

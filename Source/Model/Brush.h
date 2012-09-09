@@ -120,7 +120,7 @@ namespace TrenchBroom {
                 m_filePosition = filePosition;
             }
 
-            void pick(const Ray& ray, PickResult& pickResults, Filter& filter);
+            void pick(const Ray& ray, PickResult& pickResults);
         };
     }
 }

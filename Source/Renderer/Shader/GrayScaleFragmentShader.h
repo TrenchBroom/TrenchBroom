@@ -24,7 +24,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        namespace Shader {
+        namespace FragmentShader {
             static const String GrayScale = "\
             void main(void) {\
             }";

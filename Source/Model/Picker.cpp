@@ -18,6 +18,7 @@
  */
 
 #include "Picker.h"
+#include "Model/Face.h"
 #include "Model/MapObject.h"
 #include "Model/Octree.h"
 
@@ -38,7 +39,23 @@ namespace TrenchBroom {
         m_type(type),
         m_hitPoint(hitPoint),
         m_distance(distance) {}
-
+        
+        bool Hit::pickable(Filter& filter) const {
+            switch (m_type) {
+                case EntityHit:
+                    return filter.entityPickable(entity());
+                case FaceHit:
+                case NearFaceHit:
+                    return filter.brushPickable(*face().brush());
+                case VertexHandleHit:
+                case EdgeHandleHit:
+                case FaceHandleHit:
+                    return filter.brushPickable(brush());
+                default:
+                    return false;
+            }
+        }
+        
         void PickResult::sortHits() {
             sort(m_hits.begin(), m_hits.end(), CompareHitsByDistance());
             m_sorted = true;
@@ -52,45 +69,57 @@ namespace TrenchBroom {
             m_hits.push_back(&hit);
         }
 
-        Hit* PickResult::first(int typeMask, bool ignoreOccluders) {
+        Hit* PickResult::first(int typeMask, bool ignoreOccluders, Filter& filter) {
             if (!m_hits.empty()) {
-                if (!m_sorted) sortHits();
+                if (!m_sorted)
+                    sortHits();
                 if (!ignoreOccluders) {
-                    if (m_hits[0]->hasType(typeMask)) return m_hits[0];
+                    unsigned int i = 0;
+                    while (i < m_hits.size()) {
+                        if (m_hits[i]->pickable(filter)) {
+                            if (m_hits[i]->hasType(typeMask))
+                                return m_hits[i];
+                            break;
+                        }
+                        i++;
+                    }
 
-                    float closest = m_hits[0]->distance();
-                    for (unsigned int i = 1; i < m_hits.size() && m_hits[i]->distance() == closest; i++)
-                        if (m_hits[i]->hasType(typeMask)) return m_hits[i];
+                    if (i < m_hits.size()) {
+                        float closest = m_hits[i]->distance();
+                        for (i = i + 1; i < m_hits.size() && m_hits[i]->distance() == closest; i++)
+                            if (m_hits[i]->hasType(typeMask) && m_hits[i]->pickable(filter))
+                                return m_hits[i];
+                    }
                 } else {
                     for (unsigned int i = 0; i < m_hits.size(); i++)
-                        if (m_hits[i]->hasType(typeMask)) return m_hits[i];
+                        if (m_hits[i]->hasType(typeMask) && m_hits[i]->pickable(filter))
+                            return m_hits[i];
                 }
             }
             return NULL;
         }
 
-        HitList PickResult::hits(int typeMask) {
+        HitList PickResult::hits(int typeMask, Filter& filter) {
             HitList result;
             if (!m_sorted) sortHits();
             for (unsigned int i = 0; i < m_hits.size(); i++)
-                if (m_hits[i]->hasType(typeMask))
+                if (m_hits[i]->hasType(typeMask) && m_hits[i]->pickable(filter))
                     result.push_back(m_hits[i]);
             return result;
         }
 
-        const HitList& PickResult::hits() {
-            if (!m_sorted) sortHits();
-            return m_hits;
+        HitList PickResult::hits(Filter& filter) {
+            return hits(Hit::All, filter);
         }
 
         Picker::Picker(Octree& octree) : m_octree(octree) {}
 
-        PickResult* Picker::pick(const Ray& ray, Filter& filter) {
+        PickResult* Picker::pick(const Ray& ray) {
             PickResult* pickResults = new PickResult();
 
             MapObjectList objects = m_octree.intersect(ray);
             for (unsigned int i = 0; i < objects.size(); i++)
-                objects[i]->pick(ray, *pickResults, filter);
+                objects[i]->pick(ray, *pickResults);
 
             return pickResults;
         }

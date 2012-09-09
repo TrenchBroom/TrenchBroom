@@ -72,6 +72,10 @@ namespace TrenchBroom {
             inline Model::MapDocument& document() const {
                 return m_document;
             }
+            
+            inline View::EditorView& view() const {
+                return m_view;
+            }
         public:
             Tool(Model::MapDocument& document, View::EditorView& view) :
             m_document(document),

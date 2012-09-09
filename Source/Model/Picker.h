@@ -40,7 +40,8 @@ namespace TrenchBroom {
                 NearFaceHit     = 1 << 2,
                 VertexHandleHit = 1 << 3,
                 EdgeHandleHit   = 1 << 4,
-                FaceHandleHit   = 1 << 5
+                FaceHandleHit   = 1 << 5,
+                All             = EntityHit | FaceHit | NearFaceHit | VertexHandleHit | EdgeHandleHit | FaceHandleHit
             } Type;
         private:
             void* m_object;
@@ -86,6 +87,8 @@ namespace TrenchBroom {
                 assert(m_type == FaceHit || m_type == NearFaceHit);
                 return *(reinterpret_cast<Face*>(m_object));
             }
+            
+            bool pickable(Filter& filter) const;
         };
         
         typedef std::vector<Hit*> HitList;
@@ -107,9 +110,9 @@ namespace TrenchBroom {
             ~PickResult();
             
             void add(Hit& hit);
-            Hit* first(int typeMask, bool ignoreOccluders);
-            HitList hits(int typeMask);
-            const HitList& hits();
+            Hit* first(int typeMask, bool ignoreOccluders, Filter& filter);
+            HitList hits(int typeMask, Filter& filter);
+            HitList hits(Filter& filter);
         };
         
         class Picker {
@@ -117,7 +120,7 @@ namespace TrenchBroom {
             Octree& m_octree;
         public:
             Picker(Octree& octree);
-            PickResult* pick(const Ray& ray, Filter& filter);
+            PickResult* pick(const Ray& ray);
         };
     }
 }

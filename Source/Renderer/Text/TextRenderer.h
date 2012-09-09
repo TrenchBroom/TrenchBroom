@@ -21,6 +21,7 @@
 #define TrenchBroom_TextRenderer_h
 
 #include "Renderer/Camera.h"
+#include "Renderer/PushMatrix.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Text/PathRenderer.h"
@@ -164,6 +165,8 @@ namespace TrenchBroom {
                     glDisable(GL_TEXTURE_2D);
                     glPolygonMode(GL_FRONT, GL_FILL);
                     float cutoff = (m_fadeDistance + 100) * (m_fadeDistance + 100);
+
+                    PushMatrix pushMatrix(context.transformation());
                     
                     typename TextMap::iterator it, end;
                     for (it = m_entries.begin(), end = m_entries.end(); it != end; ++it) {
@@ -180,11 +183,13 @@ namespace TrenchBroom {
                                 float factor = dist / 300;
                                 float width = stringRenderer->width();
                                 
-                                glPushMatrix();
-                                glTranslatef(position.x, position.y, position.z);
-                                context.camera().setBillboard();
-                                glScalef(factor, factor, 0);
-                                glTranslatef(-width / 2, 0, 0);
+                                Mat4f matrix = pushMatrix.matrix();
+                                matrix.translate(position);
+                                matrix *= context.camera().billboardMatrix();
+                                matrix.scale(Vec3f(factor, factor, 0.0f));
+                                matrix.translate(Vec3f(-width / 2.0f, 0.0f, 0.0f));
+
+                                pushMatrix.load(matrix);
                                 
                                 float alphaFactor = 1.0f - (std::max)(dist - m_fadeDistance, 0.0f) / 100.0f;
                                 
@@ -195,7 +200,6 @@ namespace TrenchBroom {
                                 glColorV4f(color, alphaFactor);
                                 stringRenderer->render(context);
                                 glResetEdgeOffset();
-                                glPopMatrix();
                             }
                         }
                     }

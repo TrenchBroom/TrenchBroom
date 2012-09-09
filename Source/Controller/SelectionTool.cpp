@@ -34,7 +34,7 @@ namespace TrenchBroom {
             if (event.mouseButtons != MouseButtons::Left)
                 return false;
             
-            Model::Hit* hit = event.pickResult->first(Model::Hit::EntityHit | Model::Hit::FaceHit, false);
+            Model::Hit* hit = event.pickResult->first(Model::Hit::EntityHit | Model::Hit::FaceHit, false, view().Filter());
             Command* command = NULL;
             Model::EditStateManager& editStateManager = document().EditStateManager();
             
@@ -100,7 +100,7 @@ namespace TrenchBroom {
             if (editStateManager.selectionMode() == Model::EditStateManager::Faces)
                 return false;
             
-            Model::HitList hits = event.pickResult->hits(Model::Hit::EntityHit | Model::Hit::FaceHit);
+            Model::HitList hits = event.pickResult->hits(Model::Hit::EntityHit | Model::Hit::FaceHit, view().Filter());
             if (hits.empty())
                 return false;
             

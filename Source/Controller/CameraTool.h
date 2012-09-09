@@ -21,6 +21,10 @@
 #define __TrenchBroom__CameraTool__
 
 #include "Controller/Tool.h"
+#include "Model/Brush.h"
+#include "Model/Entity.h"
+#include "Model/EntityDefinition.h"
+#include "Model/Filter.h"
 #include "Utility/VecMath.h"
 
 using namespace TrenchBroom::Math;
@@ -29,10 +33,36 @@ class wxEvtHandler;
 
 namespace TrenchBroom {
     namespace Controller {
+        class CameraFilter : public Model::Filter {
+        public:
+            virtual inline bool brushPickable(const Model::Brush& brush) const {
+                if (brush.hidden())
+                    return false;
+                
+                return true;
+            }
+            
+            virtual inline bool brushVerticesPickable(const Model::Brush& brush) const {
+                return false;
+            }
+            
+            virtual inline bool entityPickable(const Model::Entity& entity) const {
+                if (entity.worldspawn() || entity.hidden())
+                    return false;
+                
+                Model::EntityDefinition* definition = entity.definition();
+                if (definition != NULL && definition->type() == Model::EntityDefinition::BrushEntity && !entity.brushes().empty())
+                    return false;
+                
+                return true;
+            }
+        };
+        
         class CameraTool : public Tool {
         private:
             Vec3f m_orbitCenter;
             bool m_orbit;
+            CameraFilter m_filter;
             
             float lookSpeed(bool vertical);
             float panSpeed(bool vertical);
