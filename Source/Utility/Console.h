@@ -39,6 +39,8 @@ namespace TrenchBroom {
             
             void log(const String& message, bool setDefaultColor = true);
             
+            void debug(const String& message);
+            void debug(const char* format, ...);
             void info(const String& message);
             void info(const char* format, ...);
             void warn(const String& message);

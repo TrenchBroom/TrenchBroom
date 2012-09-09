@@ -69,6 +69,7 @@
 		48D1BEAE15E3AC060073C030 /* EditorView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEAC15E3AC060073C030 /* EditorView.cpp */; };
 		48D1BEB415E4237B0073C030 /* EditorFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEB215E4237A0073C030 /* EditorFrame.cpp */; };
 		48D1BEB715E423F60073C030 /* TrenchBroomApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEB515E423F60073C030 /* TrenchBroomApp.cpp */; };
+		48F0B7C315FCB4CF0089B0B5 /* Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -250,6 +251,8 @@
 		48EA11A615FA7CAD00391885 /* GrayScaleFragmentShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrayScaleFragmentShader.h; sourceTree = "<group>"; };
 		48EA11A715FA7CC900391885 /* DefaultVertexShader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DefaultVertexShader.h; sourceTree = "<group>"; };
 		48EA11A815FA7CE500391885 /* DefaultFragmentShader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DefaultFragmentShader.h; sourceTree = "<group>"; };
+		48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Shader.cpp; sourceTree = "<group>"; };
+		48F0B7C215FCB4CF0089B0B5 /* Shader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Shader.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -556,6 +559,8 @@
 				48EA11A815FA7CE500391885 /* DefaultFragmentShader.h */,
 				48EA11A715FA7CC900391885 /* DefaultVertexShader.h */,
 				48EA11A615FA7CAD00391885 /* GrayScaleFragmentShader.h */,
+				48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */,
+				48F0B7C215FCB4CF0089B0B5 /* Shader.h */,
 			);
 			path = Shader;
 			sourceTree = "<group>";
@@ -681,6 +686,7 @@
 				48009AF515F7FA8B001A9993 /* AbstractFileManager.cpp in Sources */,
 				48009AF915F8930E001A9993 /* Grid.cpp in Sources */,
 				48009AFC15F89323001A9993 /* GridRenderer.cpp in Sources */,
+				48F0B7C315FCB4CF0089B0B5 /* Shader.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

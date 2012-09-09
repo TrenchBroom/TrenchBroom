@@ -59,6 +59,22 @@ namespace TrenchBroom {
             }
         }
         
+        void Console::debug(const String& message) {
+            long start = m_textCtrl->GetLastPosition();
+            log(message + "\n", false);
+            long end = m_textCtrl->GetLastPosition();
+            m_textCtrl->SetStyle(start, end, wxTextAttr(*wxBLUE, *wxBLACK)); // SetDefaultStyle doesn't work on OS X / Cocoa
+        }
+        
+        void Console::debug(const char* format, ...) {
+            String message;
+            va_list(arguments);
+            va_start(arguments, format);
+            formatMessage(format, arguments, message);
+            va_end(arguments);
+            debug(message);
+        }
+
         void Console::info(const String& message) {
             log(message + "\n");
         }
