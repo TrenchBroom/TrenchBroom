@@ -17,18 +17,27 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_DefaultFragmentShader_h
-#define TrenchBroom_DefaultFragmentShader_h
+#ifndef TrenchBroom_FaceShader_h
+#define TrenchBroom_FaceShader_h
 
 namespace TrenchBroom {
     namespace Renderer {
-        namespace FragmentShader {
-            static const String Default = "\
-            void main(void) {\
-            }";
+        namespace Shaders {
+            static const String FaceVertexShader = "#version 120\n\
+            void main(void) {\n\
+                gl_Position = ftransform();\n\
+                gl_TexCoord[0] = gl_MultiTexCoord0;\n\
+            }\n";
+            
+            static const String FaceFragmentShader = "#version 120\n\
+            uniform sampler2D FaceTexture;\n\
+            \n\
+            void main() {\n\
+                gl_FragColor = texture2D(FaceTexture, vec2(0.5, 0.6));//gl_TexCoord[0].st);\n\
+                // gl_FragColor = vec4(gl_TexCoord[0].st, 1.0, 1.0);\n\
+            }\n ";
         }
     }
 }
-
 
 #endif

@@ -143,11 +143,6 @@ namespace TrenchBroom {
 				glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, backgroundColor.w);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
-				glMatrixMode(GL_PROJECTION);
-				glLoadIdentity();
-				glMatrixMode(GL_MODELVIEW);
-				glLoadIdentity();
-            
 				glDisableClientState(GL_VERTEX_ARRAY);
 				glDisableClientState(GL_COLOR_ARRAY);
 				glDisableClientState(GL_TEXTURE_COORD_ARRAY);

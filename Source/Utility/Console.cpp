@@ -37,33 +37,54 @@ namespace TrenchBroom {
         
         void Console::setTextCtrl(wxTextCtrl* textCtrl) {
             m_textCtrl = textCtrl;
-            if (m_textCtrl != NULL) {
-                log(m_buffer.str(), true);
+            String bufferStr = Utility::trim(m_buffer.str());
+            if (m_textCtrl != NULL && !bufferStr.empty()) {
+                log(bufferStr, true);
                 m_buffer.str("");
             }
         }
         
         void Console::log(const String& message, bool setDefaultColor) {
+            String trimmed = Utility::trim(message);
+            if (trimmed.empty())
+                return;
+            StringStream cleanMessage;
+            bool previousWasNewline = false;
+            for (unsigned int i = 0; i < trimmed.length(); i++) {
+                char c = trimmed[i];
+                if (c == '\r')
+                    continue;
+                if (c == '\n') {
+                    if (!previousWasNewline)
+                        cleanMessage << c;
+                    previousWasNewline = true;
+                } else {
+                    cleanMessage << c;
+                    previousWasNewline = false;
+                }
+            }
+            cleanMessage << '\n';
+
             if (m_textCtrl != NULL) {
                 if (setDefaultColor) {
                     long start = m_textCtrl->GetLastPosition();
-                    m_textCtrl->AppendText(message);
+                    m_textCtrl->AppendText(cleanMessage.str());
                     long end = m_textCtrl->GetLastPosition();
-                    m_textCtrl->SetStyle(start, end, wxTextAttr(*wxLIGHT_GREY, *wxBLACK)); // SetDefaultStyle doesn't work on OS X / Cocoa
+                    m_textCtrl->SetStyle(start, end, wxTextAttr(*wxWHITE, *wxBLACK)); // SetDefaultStyle doesn't work on OS X / Cocoa
                 } else {
-                    m_textCtrl->AppendText(message);
+                    m_textCtrl->AppendText(cleanMessage.str());
                 }
                 wxYieldIfNeeded();
             } else {
-                m_buffer << message;
+                m_buffer << cleanMessage.str();
             }
         }
         
         void Console::debug(const String& message) {
             long start = m_textCtrl->GetLastPosition();
-            log(message + "\n", false);
+            log(message, false);
             long end = m_textCtrl->GetLastPosition();
-            m_textCtrl->SetStyle(start, end, wxTextAttr(*wxBLUE, *wxBLACK)); // SetDefaultStyle doesn't work on OS X / Cocoa
+            m_textCtrl->SetStyle(start, end, wxTextAttr(*wxLIGHT_GREY, *wxBLACK)); // SetDefaultStyle doesn't work on OS X / Cocoa
         }
         
         void Console::debug(const char* format, ...) {
@@ -76,7 +97,7 @@ namespace TrenchBroom {
         }
 
         void Console::info(const String& message) {
-            log(message + "\n");
+            log(message);
         }
         
         void Console::info(const char* format, ...) {
@@ -90,7 +111,7 @@ namespace TrenchBroom {
 
         void Console::warn(const String& message) {
             long start = m_textCtrl->GetLastPosition();
-            log(message + "\n", false);
+            log(message, false);
             long end = m_textCtrl->GetLastPosition();
             m_textCtrl->SetStyle(start, end, wxTextAttr(*wxYELLOW, *wxBLACK)); // SetDefaultStyle doesn't work on OS X / Cocoa
         }
@@ -106,7 +127,7 @@ namespace TrenchBroom {
 
         void Console::error(const String& message) {
             long start = m_textCtrl->GetLastPosition();
-            log(message + "\n", false);
+            log(message, false);
             long end = m_textCtrl->GetLastPosition();
             m_textCtrl->SetStyle(start, end, wxTextAttr(*wxRED, *wxBLACK)); // SetDefaultStyle doesn't work on OS X / Cocoa
         }

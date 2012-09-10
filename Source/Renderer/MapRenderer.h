@@ -22,8 +22,9 @@
 
 #include "Model/BrushTypes.h"
 #include "Model/EntityTypes.h"
-#include "Model/FaceTypes.h"
+#include "Model/Face.h"
 #include "Model/Texture.h"
+#include "Renderer/VertexArray.h"
 #include "Renderer/Text/TextRenderer.h"
 #include "Utility/Color.h"
 #include "Utility/GLee.h"
@@ -41,6 +42,8 @@ namespace TrenchBroom {
         class EntityRendererManager;
         class EntityRenderer;
         class RenderContext;
+        class Shader;
+        class ShaderProgram;
         class Vbo;
         class VboBlock;
         
@@ -57,21 +60,20 @@ namespace TrenchBroom {
                 }
             };
             
-            class EdgeRenderInfo {
-            public:
-                GLuint offset;
-                GLuint vertexCount;
-                EdgeRenderInfo() : offset(0), vertexCount(0) {};
-                EdgeRenderInfo(GLuint offset, GLuint vertexCount) : offset(offset), vertexCount(vertexCount) {}
-            };
-            
-            class TexturedTriangleRenderInfo {
+            class FaceRenderInfo {
             public:
                 Model::Texture* texture;
-                GLuint offset;
-                GLuint vertexCount;
-                TexturedTriangleRenderInfo(Model::Texture* texture, GLuint offset, GLuint vertexCount) : texture(texture), offset(offset), vertexCount(vertexCount) {}
+                mutable VertexArrayPtr vertexArray;
+                
+                FaceRenderInfo(Model::Texture* texture, VertexArrayPtr vertexArray) :
+                texture(texture),
+                vertexArray(vertexArray) {}
+                
+                FaceRenderInfo(const FaceRenderInfo& other) : texture(other.texture), vertexArray(other.vertexArray) {}
+                FaceRenderInfo() : texture(NULL) {}
             };
+            
+            typedef std::vector<FaceRenderInfo> FaceRenderInfoList;
             
             class CachedEntityRenderer {
             public:
@@ -81,35 +83,43 @@ namespace TrenchBroom {
                 CachedEntityRenderer(EntityRenderer* renderer, const String& classname) : renderer(renderer), classname(classname) {}
             };
             
+            class TextureFaceList {
+            private:
+                Model::FaceList m_faces;
+                size_t m_vertexCount;
+            public:
+                TextureFaceList() : m_vertexCount(0) {}
+
+                inline void add(Model::Face& face) {
+                    m_faces.push_back(&face);
+                    m_vertexCount += (face.vertices().size() - 2) * 3;
+                }
+                
+                inline const Model::FaceList& faces() const {
+                    return m_faces;
+                }
+                
+                inline size_t vertexCount() const {
+                    return m_vertexCount;
+                }
+            };
+            
             typedef std::vector<GLuint> IndexBuffer;
-            typedef std::map<Model::Texture*, Model::FaceList, CompareTexturesById> FacesByTexture;
-            typedef std::vector<TexturedTriangleRenderInfo> FaceRenderInfos;
+            typedef std::map<Model::Texture*, TextureFaceList, CompareTexturesById> FacesByTexture;
             typedef std::map<Model::Entity*, CachedEntityRenderer> EntityRenderers;
 
             // level geometry rendering
-            Vbo* m_faceVbo;
-            VboBlock* m_faceBlock;
-            VboBlock* m_selectedFaceBlock;
-            VboBlock* m_lockedFaceBlock;
-            Vbo* m_edgeVbo;
-            VboBlock* m_edgeBlock;
-            VboBlock* m_selectedEdgeBlock;
-            VboBlock* m_lockedEdgeBlock;
-            FaceRenderInfos m_faceRenderInfos;
-            FaceRenderInfos m_selectedFaceRenderInfos;
-            FaceRenderInfos m_lockedFaceRenderInfos;
-            EdgeRenderInfo m_edgeRenderInfo;
-            EdgeRenderInfo m_selectedEdgeRenderInfo;
-            EdgeRenderInfo m_lockedEdgeRenderInfo;
+            VboPtr m_faceVbo;
+            FaceRenderInfoList m_faceRenderInfos;
+            FaceRenderInfoList m_selectedFaceRenderInfos;
+            FaceRenderInfoList m_lockedFaceRenderInfos;
+            VboPtr m_edgeVbo;
+            VertexArrayPtr m_edgeVertexArray;
+            VertexArrayPtr m_selectedEdgeVertexArray;
+            VertexArrayPtr m_lockedEdgeVertexArray;
             
             // entity bounds rendering
-            Vbo* m_entityBoundsVbo;
-            VboBlock* m_entityBoundsBlock;
-            VboBlock* m_selectedEntityBoundsBlock;
-            VboBlock* m_lockedEntityBoundsBlock;
-            EdgeRenderInfo m_entityBoundsRenderInfo;
-            EdgeRenderInfo m_selectedEntityBoundsRenderInfo;
-            EdgeRenderInfo m_lockedEntityBoundsRenderInfo;
+            VboPtr m_entityBoundsVbo;
             
             // entity model rendering
             EntityRendererManager* m_entityRendererManager;
@@ -124,7 +134,15 @@ namespace TrenchBroom {
             Text::TextRenderer<Model::Entity*>* m_lockedClassnameRenderer;
 
             // shaders
-            GLuint m_grayScaleShader;
+            bool m_shadersCreated;
+            ShaderPtr m_coloredEdgeVertexShader;
+            ShaderPtr m_constantColoredEdgeVertexShader;
+            ShaderPtr m_edgeFragmentShader;
+            ShaderPtr m_faceVertexShader;
+            ShaderPtr m_faceFragmentShader;
+            ShaderProgramPtr m_coloredEdgeProgram;
+            ShaderProgramPtr m_constantColoredEdgeProgram;
+            ShaderProgramPtr m_faceProgram;
             
             /*
             // selection guides
@@ -136,6 +154,7 @@ namespace TrenchBroom {
             */
              
             // state
+            bool m_rendering;
             bool m_geometryDataValid;
             bool m_selectedGeometryDataValid;
             bool m_lockedGeometryDataValid;
@@ -153,22 +172,24 @@ namespace TrenchBroom {
 
             Model::MapDocument& m_document;
             
-            void writeFaceData(RenderContext& context, const FacesByTexture& facesByTexture, FaceRenderInfos& renderInfos, VboBlock& block);
-            void writeEdgeData(RenderContext& context, const Model::BrushList& brushes, const Model::FaceList& faces, EdgeRenderInfo& renderInfo, VboBlock& block);
+            void writeFaceData(RenderContext& context, const FacesByTexture& facesByTexture, FaceRenderInfoList& renderInfos, ShaderProgram& program);
+            void writeColoredEdgeData(RenderContext& context, const Model::BrushList& brushes, const Model::FaceList& faces, VertexArray& vertexArray);
+            void writeEdgeData(RenderContext& context, const Model::BrushList& brushes, const Model::FaceList& faces, VertexArray& vertexArray);
             void rebuildGeometryData(RenderContext& context);
-            void writeEntityBounds(RenderContext& context, const Model::EntityList& entities, EdgeRenderInfo& renderInfo, VboBlock& block);
+//            void writeEntityBounds(RenderContext& context, const Model::EntityList& entities, EdgeRenderInfo& renderInfo, VboBlock& block);
             void rebuildEntityData(RenderContext& context);
             bool reloadEntityModel(const Model::Entity& entity, CachedEntityRenderer& cachedRenderer);
             void reloadEntityModels(RenderContext& context, EntityRenderers& renderers);
             void reloadEntityModels(RenderContext& context);
             
+            void createShaders();
             void validate(RenderContext& context);
 
-            void renderEntityBounds(RenderContext& context, const EdgeRenderInfo& renderInfo, const Color* color);
-            void renderEntityModels(RenderContext& context, EntityRenderers& entities);
-            void renderEdges(RenderContext& context, const EdgeRenderInfo& renderInfo, const Color* color);
-            void renderFaces(RenderContext& context, bool textured, bool selected, bool locked, const FaceRenderInfos& renderInfos);
-            void renderFigures(RenderContext& context);
+//            void renderEntityBounds(RenderContext& context, const EdgeRenderInfo& renderInfo, const Color* color);
+//            void renderEntityModels(RenderContext& context, EntityRenderers& entities);
+            void renderEdges(RenderContext& context, VertexArray* renderInfo, const Color* color);
+//            void renderFaces(RenderContext& context, bool textured, bool selected, bool locked, const FaceRenderInfos& renderInfos);
+//            void renderFigures(RenderContext& context);
         public:
             MapRenderer(Model::MapDocument& document);
             ~MapRenderer();

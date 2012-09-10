@@ -73,6 +73,10 @@ namespace TrenchBroom {
                 return m_uniqueId;
             }
             
+            inline GLuint textureId() const {
+                return m_textureId;
+            }
+            
             inline unsigned int width() const {
                 return m_width;
             }

@@ -80,6 +80,7 @@ namespace TrenchBroom {
             m_width(m_path->width()),
             m_height(m_path->height()),
             m_listId(0),
+            m_block(NULL),
             m_hasTriangleSet(false),
             m_hasTriangleStrips(false),
             m_hasTriangleFans(false),

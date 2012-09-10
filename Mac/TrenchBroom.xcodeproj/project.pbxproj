@@ -69,6 +69,7 @@
 		48D1BEAE15E3AC060073C030 /* EditorView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEAC15E3AC060073C030 /* EditorView.cpp */; };
 		48D1BEB415E4237B0073C030 /* EditorFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEB215E4237A0073C030 /* EditorFrame.cpp */; };
 		48D1BEB715E423F60073C030 /* TrenchBroomApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEB515E423F60073C030 /* TrenchBroomApp.cpp */; };
+		48E2EC9915FCD22B00B8D476 /* VertexArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48E2EC9715FCD22B00B8D476 /* VertexArray.cpp */; };
 		48F0B7C315FCB4CF0089B0B5 /* Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */; };
 /* End PBXBuildFile section */
 
@@ -246,11 +247,12 @@
 		48D1BEB315E4237B0073C030 /* EditorFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorFrame.h; sourceTree = "<group>"; };
 		48D1BEB515E423F60073C030 /* TrenchBroomApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TrenchBroomApp.cpp; sourceTree = "<group>"; };
 		48D1BEB615E423F60073C030 /* TrenchBroomApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrenchBroomApp.h; sourceTree = "<group>"; };
+		48E2EC9715FCD22B00B8D476 /* VertexArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VertexArray.cpp; sourceTree = "<group>"; };
+		48E2EC9815FCD22B00B8D476 /* VertexArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexArray.h; sourceTree = "<group>"; };
+		48E2ECB815FD1DCC00B8D476 /* EdgeShader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EdgeShader.h; sourceTree = "<group>"; };
+		48E2ECBA15FE6A6B00B8D476 /* FaceShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceShader.h; sourceTree = "<group>"; };
 		48EA119F15FA67F700391885 /* PushMatrix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PushMatrix.h; sourceTree = "<group>"; };
 		48EA11A415FA71F700391885 /* Transformation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Transformation.h; sourceTree = "<group>"; };
-		48EA11A615FA7CAD00391885 /* GrayScaleFragmentShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrayScaleFragmentShader.h; sourceTree = "<group>"; };
-		48EA11A715FA7CC900391885 /* DefaultVertexShader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DefaultVertexShader.h; sourceTree = "<group>"; };
-		48EA11A815FA7CE500391885 /* DefaultFragmentShader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DefaultFragmentShader.h; sourceTree = "<group>"; };
 		48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Shader.cpp; sourceTree = "<group>"; };
 		48F0B7C215FCB4CF0089B0B5 /* Shader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Shader.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -319,6 +321,8 @@
 				48312B4115EB9EA900607868 /* RenderContext.h */,
 				48312B4A15EBC35800607868 /* RenderUtils.h */,
 				48EA11A415FA71F700391885 /* Transformation.h */,
+				48E2EC9715FCD22B00B8D476 /* VertexArray.cpp */,
+				48E2EC9815FCD22B00B8D476 /* VertexArray.h */,
 				48312B3015EB800600607868 /* Vbo.cpp */,
 				48312B3115EB800600607868 /* Vbo.h */,
 			);
@@ -556,9 +560,8 @@
 		48EA11A515FA7CAD00391885 /* Shader */ = {
 			isa = PBXGroup;
 			children = (
-				48EA11A815FA7CE500391885 /* DefaultFragmentShader.h */,
-				48EA11A715FA7CC900391885 /* DefaultVertexShader.h */,
-				48EA11A615FA7CAD00391885 /* GrayScaleFragmentShader.h */,
+				48E2ECB815FD1DCC00B8D476 /* EdgeShader.h */,
+				48E2ECBA15FE6A6B00B8D476 /* FaceShader.h */,
 				48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */,
 				48F0B7C215FCB4CF0089B0B5 /* Shader.h */,
 			);
@@ -687,6 +690,7 @@
 				48009AF915F8930E001A9993 /* Grid.cpp in Sources */,
 				48009AFC15F89323001A9993 /* GridRenderer.cpp in Sources */,
 				48F0B7C315FCB4CF0089B0B5 /* Shader.cpp in Sources */,
+				48E2EC9915FCD22B00B8D476 /* VertexArray.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

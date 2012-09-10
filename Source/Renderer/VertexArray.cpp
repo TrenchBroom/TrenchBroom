@@ -17,19 +17,4 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_GrayScaleShader_h
-#define TrenchBroom_GrayScaleShader_h
-
-#include "Utility/String.h"
-
-namespace TrenchBroom {
-    namespace Renderer {
-        namespace FragmentShader {
-            static const String GrayScale = "\
-            void main(void) {\
-            }";
-        }
-    }
-}
-
-#endif
+#include "VertexArray.h"

@@ -103,10 +103,11 @@ namespace TrenchBroom {
             m_renderer->loadMap();
             
             EditorFrame* frame = new EditorFrame(document, *this);
+            m_console->setTextCtrl(frame->LogView());
+
             SetFrame(frame);
             frame->Show();
 
-            m_console->setTextCtrl(frame->LogView());
             
             return wxView::OnCreate(doc, flags);
         }

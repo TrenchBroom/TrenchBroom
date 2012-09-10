@@ -20,14 +20,15 @@
 #ifndef TrenchBroom_Vbo_h
 #define TrenchBroom_Vbo_h
 
-#include <cassert>
-#include <cstring>
-#include <exception>
-#include <vector>
-
 #include "Utility/Color.h"
 #include "Utility/GLee.h"
 #include "Utility/VecMath.h"
+
+#include <cassert>
+#include <cstring>
+#include <memory>
+#include <exception>
+#include <vector>
 
 //#define _DEBUG_VBO 1
 
@@ -171,6 +172,8 @@ namespace TrenchBroom {
 			    return m_msg.c_str();
 			}
  		};
+        
+        typedef std::auto_ptr<Vbo> VboPtr;
     }
 }
 
