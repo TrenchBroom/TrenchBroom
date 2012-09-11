@@ -43,13 +43,13 @@ namespace TrenchBroom {
             Utility::Console& m_console;
             String m_name;
             GLenum m_type;
-            String m_source;
             GLuint m_shaderId;
         public:
-            Shader(const String& name, GLenum type, const String& source, Utility::Console& console);
+            static StringList loadSource(const String& path);
+            
+            Shader(const String& path, GLenum type, Utility::Console& console);
             ~Shader();
             
-            bool createShader();
             void attachTo(GLuint programId);
             void detachFrom(GLuint programId);
         };
@@ -67,15 +67,8 @@ namespace TrenchBroom {
             GLint uniformLocation(const String& name);
         public:
             ShaderProgram(const String& name, Utility::Console& console);
-            ShaderProgram(const String& name, Utility::Console& console, const String& uniformVariable1);
-            ShaderProgram(const String& name, Utility::Console& console, const String& uniformVariable1, const String& uniformVariable2);
-            ShaderProgram(const String& name, Utility::Console& console, const String& uniformVariable1, const String& uniformVariable2, const String& uniformVariable3);
-            ShaderProgram(const String& name, Utility::Console& console, const String& uniformVariable1, const String& uniformVariable2, const String& uniformVariable3, const String& uniformVariable4);
-            ShaderProgram(const String& name, Utility::Console& console, const String& uniformVariable1, const String& uniformVariable2, const String& uniformVariable3, const String& uniformVariable4, const String& uniformVariable5);
-            ShaderProgram(const String& name, Utility::Console& console, const StringList& uniformVariables);
             ~ShaderProgram();
             
-            bool createProgram();
 
             inline GLuint programId() const {
                 return m_programId;

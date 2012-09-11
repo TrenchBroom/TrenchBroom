@@ -19,20 +19,67 @@
 
 #include "Shader.h"
 
+#include "IO/FileManager.h"
 #include "Model/Texture.h"
 #include "Utility/Console.h"
 
 #include <cassert>
+#include <fstream>
 
 namespace TrenchBroom {
     namespace Renderer {
-        Shader::Shader(const String& name, GLenum type, const String& source, Utility::Console& console) :
-        m_name(name),
+        StringList Shader::loadSource(const String& path) {
+            std::fstream stream(path.c_str());
+            assert(stream.is_open());
+
+            String line;
+            StringList lines;
+            
+            while (!stream.eof()) {
+                std::getline(stream, line);
+                lines.push_back(line + '\n');
+            }
+            
+            return lines;
+        }
+        
+        Shader::Shader(const String& path, GLenum type, Utility::Console& console) :
         m_type(type),
-        m_source(source),
         m_console(console),
         m_shaderId(0) {
             assert(m_type == GL_VERTEX_SHADER || m_type == GL_FRAGMENT_SHADER);
+            m_shaderId = glCreateShader(m_type);
+            if (m_shaderId != 0) {
+                IO::FileManager fileManager;
+                m_name = fileManager.pathComponents(path).back();
+                StringList source = loadSource(path);
+                
+                const char** linePtrs = new const char*[source.size()];
+                for (unsigned int i = 0; i < source.size(); i++)
+                    linePtrs[i] = source[i].c_str();
+                
+                glShaderSource(m_shaderId, static_cast<GLsizei>(source.size()), linePtrs, NULL);
+                delete[] linePtrs;
+                
+                glCompileShader(m_shaderId);
+                GLint compileStatus;
+                glGetShaderiv(m_shaderId, GL_COMPILE_STATUS, &compileStatus);
+                
+                GLint infoLogLength;
+                glGetShaderiv(m_shaderId, GL_INFO_LOG_LENGTH, &infoLogLength);
+                char infoLog[infoLogLength];
+                glGetShaderInfoLog(m_shaderId, infoLogLength, &infoLogLength, infoLog);
+                
+                if (compileStatus != 0) {
+                    m_console.debug(infoLog);
+                    m_console.debug("Created %s", m_name.c_str());
+                } else {
+                    m_console.error("Unable to compile %s, compilation output was:", m_name.c_str());
+                    m_console.error(infoLog);
+                }
+            } else {
+                m_console.error("Unable to create %s", m_name.c_str());
+            }
         }
         
         Shader::~Shader() {
@@ -40,39 +87,6 @@ namespace TrenchBroom {
                 glDeleteShader(m_shaderId);
                 m_shaderId = 0;
             }
-        }
-
-        bool Shader::createShader() {
-            assert(m_shaderId == 0);
-            m_shaderId = glCreateShader(m_type);
-            if (m_shaderId == 0) {
-                m_console.error("Unable to create %s", m_name.c_str());
-                return false;
-            }
-            
-            const char* cSource = m_source.c_str();
-            glShaderSource(m_shaderId, 1, &cSource, NULL);
-            glCompileShader(m_shaderId);
-            
-            GLint compileStatus;
-            glGetShaderiv(m_shaderId, GL_COMPILE_STATUS, &compileStatus);
-
-            GLint infoLogLength;
-            glGetShaderiv(m_shaderId, GL_INFO_LOG_LENGTH, &infoLogLength);
-            char infoLog[infoLogLength];
-            glGetShaderInfoLog(m_shaderId, infoLogLength, &infoLogLength, infoLog);
-            
-            if (compileStatus == 0) {
-                m_console.error("Unable to compile %s, compilation output was:", m_name.c_str());
-                m_console.error(infoLog);
-                return false;
-            } else {
-                m_console.debug(infoLog);
-            }
-
-            m_console.debug("Created %s", m_name.c_str());
-
-            return true;
         }
 
         void Shader::attachTo(GLuint programId) {
@@ -100,17 +114,16 @@ namespace TrenchBroom {
         m_name(name),
         m_console(console),
         m_programId(0),
-        m_needsLinking(true) {}
-        
-        ShaderProgram::ShaderProgram(const String& name, Utility::Console& console, const StringList& uniformVariables) :
-        m_name(name),
-        m_console(console),
-        m_programId(0),
         m_needsLinking(true) {
-            for (unsigned int i = 0; i < uniformVariables.size(); i++)
-                m_uniformVariables[uniformVariables[i]] = -1;
+            m_programId = glCreateProgram();
+            
+            if (m_programId != 0) {
+                m_console.debug("Created %s", m_name.c_str());
+            } else {
+                m_console.error("Unable to create %s", m_name.c_str());
+            }
         }
-
+        
         ShaderProgram::~ShaderProgram() {
             if (m_programId != 0) {
                 glDeleteProgram(m_programId);
@@ -118,19 +131,6 @@ namespace TrenchBroom {
             }
         }
         
-        bool ShaderProgram::createProgram() {
-            assert(m_programId == 0);
-            m_programId = glCreateProgram();
-            if (m_programId == 0) {
-                m_console.error("Unable to create %s", m_name.c_str());
-                return false;
-            } else {
-                m_console.debug("Created %s", m_name.c_str());
-            }
-
-            return true;
-        }
-
         void ShaderProgram::attachShader(Shader& shader) {
             assert(m_programId != 0);
             shader.attachTo(m_programId);
@@ -163,10 +163,11 @@ namespace TrenchBroom {
                 if (linkStatus == 0) {
                     m_console.error("Unable to link %s, linker output was:", m_name.c_str());
                     m_console.error(infoLog);
-                    return false;
+                } else {
+                    m_console.debug(infoLog);
                 }
                 
-                m_console.debug(infoLog);
+                // always set to false to prevent console spam
                 m_needsLinking = false;
             }
             

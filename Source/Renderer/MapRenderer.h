@@ -153,12 +153,12 @@ namespace TrenchBroom {
             // shaders
             bool m_shadersCreated;
             ShaderPtr m_coloredEdgeVertexShader;
-            ShaderPtr m_constantColoredEdgeVertexShader;
+            ShaderPtr m_edgeVertexShader;
             ShaderPtr m_edgeFragmentShader;
             ShaderPtr m_faceVertexShader;
             ShaderPtr m_faceFragmentShader;
             ShaderProgramPtr m_coloredEdgeProgram;
-            ShaderProgramPtr m_constantColoredEdgeProgram;
+            ShaderProgramPtr m_edgeProgram;
             ShaderProgramPtr m_faceProgram;
             
             /*

@@ -1,0 +1,10 @@
+#version 120
+
+uniform vec4 Color;
+
+varying vec4 vertexColor;
+
+void main(void) {
+    vertexColor = Color;
+    gl_Position = ftransform();
+}

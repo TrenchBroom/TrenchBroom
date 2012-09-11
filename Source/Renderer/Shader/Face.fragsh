@@ -1,0 +1,63 @@
+#version 120
+
+uniform float Brightness;
+uniform sampler2D FaceTexture;
+uniform bool ApplyTinting;
+uniform vec4 TintColor;
+uniform bool GrayScale;
+uniform bool RenderGrid;
+uniform float GridSize;
+uniform vec4 GridColor;
+
+varying vec4 modelCoordinates;
+varying vec3 modelNormal;
+
+void gridXY() {
+    if (floor(mod(modelCoordinates.x + 0.5, GridSize)) == 0.0 ||
+        floor(mod(modelCoordinates.y + 0.5, GridSize)) == 0.0)
+        gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a), gl_FragColor.a);
+}
+
+void gridXZ() {
+    if (floor(mod(modelCoordinates.x + 0.5, GridSize)) == 0.0 ||
+        floor(mod(modelCoordinates.z + 0.5, GridSize)) == 0.0)
+        gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a), gl_FragColor.a);
+}
+
+void gridYZ() {
+    if (floor(mod(modelCoordinates.y + 0.5, GridSize)) == 0.0 ||
+        floor(mod(modelCoordinates.z + 0.5, GridSize)) == 0.0)
+        gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a), gl_FragColor.a);
+}
+
+void main() {
+    vec4 texel = texture2D(FaceTexture, gl_TexCoord[0].st);
+    gl_FragColor = vec4(vec3(Brightness * texel), texel.a);
+    gl_FragColor = clamp(2 * gl_FragColor, 0.0, 1.0);
+    
+    if (GrayScale) {
+        float gray = dot(gl_FragColor.rgb, vec3(0.299, 0.587, 0.114));
+        gl_FragColor = vec4(gray, gray, gray, gl_FragColor.a);
+    }
+    
+    if (ApplyTinting) {
+        gl_FragColor = vec4(gl_FragColor.rgb * TintColor.rgb * TintColor.a, gl_FragColor.a);
+        gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
+    }
+    
+    if (RenderGrid) {
+        float normX = abs(modelNormal.x);
+        float normY = abs(modelNormal.y);
+        float normZ = abs(modelNormal.z);
+        if (normX > normY) {
+            if (normX > normZ)
+                gridYZ();
+            else
+                gridXY();
+        } else if (normY > normZ) {
+            gridXZ();
+        } else {
+            gridXY();
+        }
+    }
+}

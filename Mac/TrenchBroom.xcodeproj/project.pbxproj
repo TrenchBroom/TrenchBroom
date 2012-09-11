@@ -69,6 +69,11 @@
 		48D1BEB715E423F60073C030 /* TrenchBroomApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEB515E423F60073C030 /* TrenchBroomApp.cpp */; };
 		48E2EC9915FCD22B00B8D476 /* VertexArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48E2EC9715FCD22B00B8D476 /* VertexArray.cpp */; };
 		48E2ECBD15FF8FDF00B8D476 /* Grid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48E2ECBB15FF8FDF00B8D476 /* Grid.cpp */; };
+		48E2ECC615FFC31600B8D476 /* Face.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48E2ECC515FFC31600B8D476 /* Face.fragsh */; };
+		48E2ECC815FFC39D00B8D476 /* ColoredEdge.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48E2ECC715FFC39D00B8D476 /* ColoredEdge.vertsh */; };
+		48E2ECCA15FFC40800B8D476 /* Edge.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48E2ECC915FFC40800B8D476 /* Edge.vertsh */; };
+		48E2ECCC15FFC43E00B8D476 /* Edge.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48E2ECCB15FFC43E00B8D476 /* Edge.fragsh */; };
+		48E2ECCD15FFCA4C00B8D476 /* Face.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48E2ECBE15FFC14400B8D476 /* Face.vertsh */; };
 		48F0B7C315FCB4CF0089B0B5 /* Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */; };
 /* End PBXBuildFile section */
 
@@ -244,10 +249,13 @@
 		48D1BEB615E423F60073C030 /* TrenchBroomApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrenchBroomApp.h; sourceTree = "<group>"; };
 		48E2EC9715FCD22B00B8D476 /* VertexArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VertexArray.cpp; sourceTree = "<group>"; };
 		48E2EC9815FCD22B00B8D476 /* VertexArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexArray.h; sourceTree = "<group>"; };
-		48E2ECB815FD1DCC00B8D476 /* EdgeShader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EdgeShader.h; sourceTree = "<group>"; };
-		48E2ECBA15FE6A6B00B8D476 /* FaceShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceShader.h; sourceTree = "<group>"; };
 		48E2ECBB15FF8FDF00B8D476 /* Grid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Grid.cpp; sourceTree = "<group>"; };
 		48E2ECBC15FF8FDF00B8D476 /* Grid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Grid.h; sourceTree = "<group>"; };
+		48E2ECBE15FFC14400B8D476 /* Face.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = Face.vertsh; sourceTree = "<group>"; };
+		48E2ECC515FFC31600B8D476 /* Face.fragsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = Face.fragsh; sourceTree = "<group>"; };
+		48E2ECC715FFC39D00B8D476 /* ColoredEdge.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = ColoredEdge.vertsh; sourceTree = "<group>"; };
+		48E2ECC915FFC40800B8D476 /* Edge.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = Edge.vertsh; sourceTree = "<group>"; };
+		48E2ECCB15FFC43E00B8D476 /* Edge.fragsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = Edge.fragsh; sourceTree = "<group>"; };
 		48EA119F15FA67F700391885 /* PushMatrix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PushMatrix.h; sourceTree = "<group>"; };
 		48EA11A415FA71F700391885 /* Transformation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Transformation.h; sourceTree = "<group>"; };
 		48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Shader.cpp; sourceTree = "<group>"; };
@@ -555,8 +563,11 @@
 		48EA11A515FA7CAD00391885 /* Shader */ = {
 			isa = PBXGroup;
 			children = (
-				48E2ECB815FD1DCC00B8D476 /* EdgeShader.h */,
-				48E2ECBA15FE6A6B00B8D476 /* FaceShader.h */,
+				48E2ECC715FFC39D00B8D476 /* ColoredEdge.vertsh */,
+				48E2ECC915FFC40800B8D476 /* Edge.vertsh */,
+				48E2ECCB15FFC43E00B8D476 /* Edge.fragsh */,
+				48E2ECBE15FFC14400B8D476 /* Face.vertsh */,
+				48E2ECC515FFC31600B8D476 /* Face.fragsh */,
 				48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */,
 				48F0B7C215FCB4CF0089B0B5 /* Shader.h */,
 			);
@@ -614,10 +625,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				48E2ECCD15FFCA4C00B8D476 /* Face.vertsh in Resources */,
 				484763E015E2BC5000095BC0 /* InfoPlist.strings in Resources */,
 				48312B2815EABBD600607868 /* Icon.icns in Resources */,
 				48819C4415EC107700BEA604 /* quake.def in Resources */,
 				48819C4615EC108400BEA604 /* QuakePalette.lmp in Resources */,
+				48E2ECC615FFC31600B8D476 /* Face.fragsh in Resources */,
+				48E2ECC815FFC39D00B8D476 /* ColoredEdge.vertsh in Resources */,
+				48E2ECCA15FFC40800B8D476 /* Edge.vertsh in Resources */,
+				48E2ECCC15FFC43E00B8D476 /* Edge.fragsh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

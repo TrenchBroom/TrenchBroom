@@ -1,0 +1,11 @@
+#version 120
+
+varying vec4 modelCoordinates;
+varying vec3 modelNormal;
+
+void main(void) {
+    gl_Position = ftransform();
+    gl_TexCoord[0] = gl_MultiTexCoord0;
+    modelCoordinates = gl_Vertex;
+    modelNormal = gl_Normal;
+}
