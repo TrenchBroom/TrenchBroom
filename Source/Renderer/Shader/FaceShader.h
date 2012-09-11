@@ -30,11 +30,24 @@ namespace TrenchBroom {
             }\n";
             
             static const String FaceFragmentShader = "#version 120\n\
+            uniform float Brightness;\n\
             uniform sampler2D FaceTexture;\n\
+            uniform bool ApplyTinting;\n\
+            uniform vec4 TintColor;\n\
+            uniform bool GrayScale;\n\
             \n\
             void main() {\n\
-                gl_FragColor = texture2D(FaceTexture, vec2(0.5, 0.6));//gl_TexCoord[0].st);\n\
-                // gl_FragColor = vec4(gl_TexCoord[0].st, 1.0, 1.0);\n\
+                vec4 texel = texture2D(FaceTexture, gl_TexCoord[0].st);\n\
+                gl_FragColor = vec4(vec3(Brightness * texel), texel.a);\n\
+                gl_FragColor = clamp(2 * gl_FragColor, 0.0, 1.0);\n\
+                if (ApplyTinting) {\n\
+                    gl_FragColor = vec4(vec3(gl_FragColor * TintColor), gl_FragColor.a);\n\
+                    gl_FragColor = clamp(2 * gl_FragColor, 0.0, 1.0);\n\
+                }\n\
+                if (GrayScale) {\n\
+                    float gray = dot(gl_FragColor.rgb, vec3(0.299, 0.587, 0.114));\n\
+                    gl_FragColor = vec4(gray, gray, gray, gl_FragColor.a);\n\
+                }\n\
             }\n ";
         }
     }

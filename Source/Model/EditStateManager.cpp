@@ -87,8 +87,8 @@ namespace TrenchBroom {
         void EditStateManager::setDefaultAndClear(EntityList& entities, EditStateChangeSet& changeSet) {
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity& entity = *entities[i];
-                entity.setEditState(EditState::Default);
-                changeSet.addEntity(EditState::Selected, entity);
+                EditState::Type previousState = entity.setEditState(EditState::Default);
+                changeSet.addEntity(previousState, entity);
             }
             entities.clear();
         }
@@ -96,8 +96,8 @@ namespace TrenchBroom {
         void EditStateManager::setDefaultAndClear(BrushList& brushes, EditStateChangeSet& changeSet) {
             for (unsigned int i = 0; i < brushes.size(); i++) {
                 Brush& brush = *brushes[i];
-                brush.setEditState(EditState::Default);
-                changeSet.addBrush(EditState::Selected, brush);
+                EditState::Type previousState = brush.setEditState(EditState::Default);
+                changeSet.addBrush(previousState, brush);
             }
             brushes.clear();
         }

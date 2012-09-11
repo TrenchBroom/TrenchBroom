@@ -273,10 +273,16 @@ namespace TrenchBroom {
                 writeColoredEdgeData(context, unselectedBrushes, Model::EmptyFaceList, *m_edgeVertexArray);
             }
             
-            if (!m_geometryDataValid && (!selectedBrushes.empty() || !partiallySelectedBrushFaces.empty())) {
+            if (!m_selectedGeometryDataValid && (!selectedBrushes.empty() || !partiallySelectedBrushFaces.empty())) {
                 m_selectedEdgeVertexArray = VertexArrayPtr(new VertexArray(*m_edgeVbo, GL_LINES, totalSelectedEdgeVertexCount, VertexAttribute(3, GL_FLOAT, VertexAttribute::Position)));
                 m_selectedEdgeVertexArray->bindAttributes(*m_constantColoredEdgeProgram);
                 writeEdgeData(context, selectedBrushes, partiallySelectedBrushFaces, *m_selectedEdgeVertexArray);
+            }
+            
+            if (!m_lockedGeometryDataValid && !lockedBrushes.empty()) {
+                m_lockedEdgeVertexArray = VertexArrayPtr(new VertexArray(*m_edgeVbo, GL_LINES, totalLockedEdgeVertexCount, VertexAttribute(3, GL_FLOAT, VertexAttribute::Position)));
+                m_lockedEdgeVertexArray->bindAttributes(*m_constantColoredEdgeProgram);
+                writeEdgeData(context, lockedBrushes, Model::EmptyFaceList, *m_lockedEdgeVertexArray);
             }
             
             m_edgeVbo->unmap();
@@ -466,7 +472,7 @@ namespace TrenchBroom {
             m_faceFragmentShader = ShaderPtr(new Shader("face fragment shader", GL_FRAGMENT_SHADER, Shaders::FaceFragmentShader, m_document.Console()));
             m_faceFragmentShader->createShader();
             
-            m_constantColoredEdgeProgram = ShaderProgramPtr(new ShaderProgram("constant colored edge shader program", m_document.Console(), "Color"));
+            m_constantColoredEdgeProgram = ShaderProgramPtr(new ShaderProgram("constant colored edge shader program", m_document.Console()));
             m_constantColoredEdgeProgram->createProgram();
             m_constantColoredEdgeProgram->attachShader(*m_constantColoredEdgeVertexShader);
             m_constantColoredEdgeProgram->attachShader(*m_edgeFragmentShader);
@@ -476,7 +482,7 @@ namespace TrenchBroom {
             m_coloredEdgeProgram->attachShader(*m_coloredEdgeVertexShader);
             m_coloredEdgeProgram->attachShader(*m_edgeFragmentShader);
             
-            m_faceProgram = ShaderProgramPtr(new ShaderProgram("face shader program", m_document.Console(), "FaceTexture"));
+            m_faceProgram = ShaderProgramPtr(new ShaderProgram("face shader program", m_document.Console()));
             m_faceProgram->createProgram();
             m_faceProgram->attachShader(*m_faceVertexShader);
             m_faceProgram->attachShader(*m_faceFragmentShader);
@@ -863,40 +869,79 @@ namespace TrenchBroom {
             glFrontFace(GL_CW);
             glEnable(GL_CULL_FACE);
             glEnable(GL_DEPTH_TEST);
-            glDepthFunc(GL_LESS);
+            glDepthFunc(GL_LEQUAL);
             glShadeModel(GL_SMOOTH);
             glResetEdgeOffset();
             
-            glDisable(GL_TEXTURE_2D);
+            glPolygonMode(GL_FRONT, GL_FILL);
+            m_faceVbo->activate();
+            if (m_faceProgram->activate()) {
+                glActiveTexture(GL_TEXTURE0);
+                m_faceProgram->setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
+                m_faceProgram->setUniformVariable("GrayScale", false);
+                if (!m_faceRenderInfos.empty()) {
+                    m_faceProgram->setUniformVariable("ApplyTinting", false);
+                    for (unsigned int i = 0; i < m_faceRenderInfos.size(); i++) {
+                        FaceRenderInfo& renderInfo = m_faceRenderInfos[i];
+                        renderInfo.texture->activate();
+                        m_faceProgram->setUniformVariable("FaceTexture", 0);
+                        renderInfo.vertexArray->render();
+                        renderInfo.texture->deactivate();
+                    }
+                }
+                if (!m_selectedFaceRenderInfos.empty()) {
+                    m_faceProgram->setUniformVariable("ApplyTinting", true);
+                    m_faceProgram->setUniformVariable("TintColor", prefs.getColor(Preferences::SelectedFaceColor));
+                    for (unsigned int i = 0; i < m_selectedFaceRenderInfos.size(); i++) {
+                        FaceRenderInfo& renderInfo = m_selectedFaceRenderInfos[i];
+                        renderInfo.texture->activate();
+                        m_faceProgram->setUniformVariable("FaceTexture", 0);
+                        renderInfo.vertexArray->render();
+                        renderInfo.texture->deactivate();
+                    }
+                }
+                if (!m_lockedFaceRenderInfos.empty()) {
+                    m_faceProgram->setUniformVariable("ApplyTinting", false);
+                    m_faceProgram->setUniformVariable("GrayScale", true);
+                    for (unsigned int i = 0; i < m_lockedFaceRenderInfos.size(); i++) {
+                        FaceRenderInfo& renderInfo = m_lockedFaceRenderInfos[i];
+                        renderInfo.texture->activate();
+                        m_faceProgram->setUniformVariable("FaceTexture", 0);
+                        renderInfo.vertexArray->render();
+                        renderInfo.texture->deactivate();
+                    }
+                }
+                m_faceProgram->deactivate();
+            }
+            m_faceVbo->deactivate();
+
             m_edgeVbo->activate();
             if (m_edgeVertexArray.get() != NULL && m_coloredEdgeProgram->activate()) {
-                glSetEdgeOffset(0.01f);
+                glSetEdgeOffset(0.02f);
                 m_edgeVertexArray->render();
                 m_coloredEdgeProgram->deactivate();
             }
-            if (m_selectedEdgeVertexArray.get() != NULL && m_constantColoredEdgeProgram->activate()) {
-                m_constantColoredEdgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::SelectedEdgeColor));
-                glSetEdgeOffset(0.015f);
-                m_selectedEdgeVertexArray->render();
+            if (m_constantColoredEdgeProgram->activate()) {
+                if (m_lockedEdgeVertexArray.get() != NULL) {
+                    m_constantColoredEdgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::LockedEdgeColor));
+                    glSetEdgeOffset(0.02f);
+                    m_lockedEdgeVertexArray->render();
+                }
+                if (m_selectedEdgeVertexArray.get() != NULL) {
+                    glDisable(GL_DEPTH_TEST);
+                    m_constantColoredEdgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::OccludedSelectedEdgeColor));
+                    glSetEdgeOffset(0.02f);
+                    m_selectedEdgeVertexArray->render();
+                    glEnable(GL_DEPTH_TEST);
+                    m_constantColoredEdgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::SelectedEdgeColor));
+                    glSetEdgeOffset(0.025f);
+                    m_selectedEdgeVertexArray->render();
+                }
                 m_constantColoredEdgeProgram->deactivate();
             }
             m_edgeVbo->deactivate();
             glResetEdgeOffset();
             
-            glPolygonMode(GL_FRONT, GL_FILL);
-            m_faceVbo->activate();
-            if (!m_faceRenderInfos.empty() && m_faceProgram->activate()) {
-                for (unsigned int i = 0; i < m_faceRenderInfos.size(); i++) {
-                    FaceRenderInfo& renderInfo = m_faceRenderInfos[i];
-                    glActiveTexture(GL_TEXTURE0);
-                    renderInfo.texture->activate();
-                    m_faceProgram->setUniformVariable("FaceTexture", renderInfo.texture);
-                    renderInfo.vertexArray->render();
-                    renderInfo.texture->deactivate();
-                }
-                m_faceProgram->deactivate();
-            }
-            m_faceVbo->deactivate();
             
             /*
             // render geometry faces

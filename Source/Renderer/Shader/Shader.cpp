@@ -86,17 +86,14 @@ namespace TrenchBroom {
         GLint ShaderProgram::uniformLocation(const String& name) {
             UniformVariableMap::iterator it = m_uniformVariables.find(name);
             if (it == m_uniformVariables.end()) {
-                m_console.warn("Cannot set unknown uniform variable '%s' in %s", name.c_str(), m_name.c_str());
-                return -1;
+                GLint index = glGetUniformLocation(m_programId, name.c_str());
+                if (index == -1)
+                    m_console.warn("Location of uniform variable '%s' could not be found in %s", name.c_str(), m_name.c_str());
+                m_uniformVariables[name] = index;
+                return index;
             }
             
-            GLint location = it->second;
-            if (location == -1) {
-                m_console.warn("Cannot set uniform variable '%s' with unknown location in %s", name.c_str(), m_name.c_str());
-                return -1;
-            }
-            
-            return location;
+            return it->second;
         }
 
         ShaderProgram::ShaderProgram(const String& name, Utility::Console& console) :
@@ -104,56 +101,6 @@ namespace TrenchBroom {
         m_console(console),
         m_programId(0),
         m_needsLinking(true) {}
-        
-        ShaderProgram::ShaderProgram(const String& name, Utility::Console& console, const String& uniformVariable1) :
-        m_name(name),
-        m_console(console),
-        m_programId(0),
-        m_needsLinking(true) {
-            m_uniformVariables[uniformVariable1] = -1;
-        }
-        
-        ShaderProgram::ShaderProgram(const String& name, Utility::Console& console, const String& uniformVariable1, const String& uniformVariable2) :
-        m_name(name),
-        m_console(console),
-        m_programId(0),
-        m_needsLinking(true) {
-            m_uniformVariables[uniformVariable1] = -1;
-            m_uniformVariables[uniformVariable2] = -1;
-        }
-        
-        ShaderProgram::ShaderProgram(const String& name, Utility::Console& console, const String& uniformVariable1, const String& uniformVariable2, const String& uniformVariable3) :
-        m_name(name),
-        m_console(console),
-        m_programId(0),
-        m_needsLinking(true) {
-            m_uniformVariables[uniformVariable1] = -1;
-            m_uniformVariables[uniformVariable2] = -1;
-            m_uniformVariables[uniformVariable3] = -1;
-        }
-        
-        ShaderProgram::ShaderProgram(const String& name, Utility::Console& console, const String& uniformVariable1, const String& uniformVariable2, const String& uniformVariable3, const String& uniformVariable4) :
-        m_name(name),
-        m_console(console),
-        m_programId(0),
-        m_needsLinking(true) {
-            m_uniformVariables[uniformVariable1] = -1;
-            m_uniformVariables[uniformVariable2] = -1;
-            m_uniformVariables[uniformVariable3] = -1;
-            m_uniformVariables[uniformVariable4] = -1;
-        }
-        
-        ShaderProgram::ShaderProgram(const String& name, Utility::Console& console, const String& uniformVariable1, const String& uniformVariable2, const String& uniformVariable3, const String& uniformVariable4, const String& uniformVariable5) :
-        m_name(name),
-        m_console(console),
-        m_programId(0),
-        m_needsLinking(true) {
-            m_uniformVariables[uniformVariable1] = -1;
-            m_uniformVariables[uniformVariable2] = -1;
-            m_uniformVariables[uniformVariable3] = -1;
-            m_uniformVariables[uniformVariable4] = -1;
-            m_uniformVariables[uniformVariable5] = -1;
-        }
         
         ShaderProgram::ShaderProgram(const String& name, Utility::Console& console, const StringList& uniformVariables) :
         m_name(name),
@@ -201,6 +148,8 @@ namespace TrenchBroom {
                 return false;
             
             if (m_needsLinking) {
+                m_uniformVariables.clear();
+                
                 glLinkProgram(m_programId);
 
                 GLint linkStatus;
@@ -219,15 +168,6 @@ namespace TrenchBroom {
                 
                 m_console.debug(infoLog);
                 m_needsLinking = false;
-                
-                UniformVariableMap::iterator it, end;
-                for (it = m_uniformVariables.begin(), end = m_uniformVariables.end(); it != end; ++it) {
-                    const String& uniformVariable = it->first;
-                    GLint index = glGetUniformLocation(m_programId, uniformVariable.c_str());
-                    if (index == -1)
-                        m_console.warn("Location of uniform variable '%s' could not be found in %s", uniformVariable.c_str(), m_name.c_str());
-                    it->second = index;
-                }
             }
             
             glUseProgram(m_programId);
@@ -236,6 +176,10 @@ namespace TrenchBroom {
         
         void ShaderProgram::deactivate() {
             glUseProgram(0);
+        }
+
+        bool ShaderProgram::setUniformVariable(const String& name, bool value) {
+            return setUniformVariable(name, static_cast<int>(value));
         }
 
         bool ShaderProgram::setUniformVariable(const String& name, int value) {
@@ -301,10 +245,5 @@ namespace TrenchBroom {
             glUniformMatrix4fv(location, 1, false, value.v);
             return true;
         }
-
-        bool ShaderProgram::setUniformVariable(const String& name, Model::Texture* texture) {
-            return setUniformVariable(name, static_cast<int>(texture->textureId()));
-        }
-        
     }
 }

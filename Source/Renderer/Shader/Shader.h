@@ -90,6 +90,7 @@ namespace TrenchBroom {
             bool activate();
             void deactivate();
             
+            bool setUniformVariable(const String& name, bool value);
             bool setUniformVariable(const String& name, int value);
             bool setUniformVariable(const String& name, float value);
             bool setUniformVariable(const String& name, const Vec2f& value);
@@ -98,7 +99,6 @@ namespace TrenchBroom {
             bool setUniformVariable(const String& name, const Mat2f& value);
             bool setUniformVariable(const String& name, const Mat3f& value);
             bool setUniformVariable(const String& name, const Mat4f& value);
-            bool setUniformVariable(const String& name, Model::Texture* texture);
         };
         
         typedef std::auto_ptr<ShaderProgram> ShaderProgramPtr;
