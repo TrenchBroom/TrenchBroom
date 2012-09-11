@@ -325,12 +325,12 @@
 				48312B4115EB9EA900607868 /* RenderContext.h */,
 				48E2ECCE15FFD07100B8D476 /* RenderTypes.h */,
 				48312B4A15EBC35800607868 /* RenderUtils.h */,
+				48E2ECCF15FFDD0D00B8D476 /* TexturedPolygonSorter.h */,
+				48E2ECD015FFE48F00B8D476 /* TextureVertexArray.h */,
 				48EA11A415FA71F700391885 /* Transformation.h */,
 				48E2EC9815FCD22B00B8D476 /* VertexArray.h */,
 				48312B3015EB800600607868 /* Vbo.cpp */,
 				48312B3115EB800600607868 /* Vbo.h */,
-				48E2ECCF15FFDD0D00B8D476 /* TexturedPolygonSorter.h */,
-				48E2ECD015FFE48F00B8D476 /* TextureVertexArray.h */,
 			);
 			name = Renderer;
 			path = ../Source/Renderer;

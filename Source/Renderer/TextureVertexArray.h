@@ -20,7 +20,13 @@
 #ifndef TrenchBroom_TextureVertexArray_h
 #define TrenchBroom_TextureVertexArray_h
 
+#include "Renderer/RenderTypes.h"
+
 namespace TrenchBroom {
+    namespace Model {
+        class Texture;
+    }
+    
     namespace Renderer {
         class TextureVertexArray {
         public:

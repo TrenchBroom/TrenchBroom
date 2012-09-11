@@ -20,36 +20,36 @@
 #ifndef TrenchBroom_AliasRenderer_h
 #define TrenchBroom_AliasRenderer_h
 
+#include "Model/TextureTypes.h"
 #include "Renderer/EntityRenderer.h"
+#include "Renderer/RenderTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
         class Alias;
         class Entity;
         class Palette;
-        class Texture;
     }
 
     namespace Renderer {
         class RenderContext;
+        class ShaderProgram;
         class Vbo;
-        class VboBlock;
+        
 
         class AliasRenderer : public EntityRenderer {
         private:
+            unsigned int m_skinIndex;
             const Model::Alias& m_alias;
             const Model::Palette& m_palette;
-            Model::Texture* m_texture;
-
             Vbo& m_vbo;
-            VboBlock* m_vboBlock;
-            unsigned int m_skinIndex;
-            unsigned int m_triangleCount;
+
+            Model::TexturePtr m_texture;
+            VertexArrayPtr m_vertexArray;
         public:
             AliasRenderer(const Model::Alias& alias, int unsigned skinIndex, Vbo& vbo, const Model::Palette& palette);
-            ~AliasRenderer();
             
-            void render();
+            void render(ShaderProgram& shaderProgram);
             
             const Vec3f& center() const;
             const BBox& bounds() const;

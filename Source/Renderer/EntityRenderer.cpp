@@ -20,8 +20,7 @@
 #include "EntityRenderer.h"
 
 #include "Model/Entity.h"
-#include "Renderer/PushMatrix.h"
-#include "Renderer/Transformation.h"
+#include "Renderer/Shader/Shader.h"
 #include "Utility/GLee.h"
 #include "Utility/VecMath.h"
 
@@ -29,14 +28,12 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
-        void EntityRenderer::render(Transformation& transformation, const Model::Entity& entity) {
-            render(transformation, entity.origin(), static_cast<float>(entity.angle()));
+        void EntityRenderer::render(ShaderProgram& shaderProgram, const Model::Entity& entity) {
+            render(shaderProgram, entity.origin(), static_cast<float>(entity.angle()));
         }
 
-        void EntityRenderer::render(Transformation& transformation, const Vec3f& position, float angle) {
-            PushMatrix pushMatrix(transformation);
-
-            Mat4f matrix = pushMatrix.matrix();
+        void EntityRenderer::render(ShaderProgram& shaderProgram, const Vec3f& position, float angle) {
+            Mat4f matrix;
             matrix.translate(position);
             
             if (angle != 0.0f) {
@@ -47,9 +44,9 @@ namespace TrenchBroom {
                 else
                     matrix.rotate(angle, Vec3f::PosZ);
             }
-            pushMatrix.load(matrix);
 
-            render();
+            shaderProgram.setUniformVariable("Transformation", matrix);
+            render(shaderProgram);
         }
     }
 }

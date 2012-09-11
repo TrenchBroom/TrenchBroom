@@ -21,6 +21,7 @@
 #define TrenchBroom_BspRenderer_h
 
 #include "Renderer/EntityRenderer.h"
+#include "Renderer/TextureVertexArray.h"
 #include "Utility/GLee.h"
 
 #include <map>
@@ -35,28 +36,27 @@ namespace TrenchBroom {
     }
 
     namespace Renderer {
+        class ShaderProgram;
         class Vbo;
         class VboBlock;
 
         class BspRenderer : public EntityRenderer {
         private:
             typedef std::map<String, Model::Texture*> TextureCache;
-            typedef std::vector<GLint> IntBuffer;
-            typedef std::pair<IntBuffer, IntBuffer> InfoBuffer;
-            typedef std::map<Model::Texture*, InfoBuffer> TextureVertexInfo;
 
             const Model::Bsp& m_bsp;
             const Model::Palette& m_palette;
-
             Vbo& m_vbo;
-            VboBlock* m_vboBlock;
+            
             TextureCache m_textures;
-            TextureVertexInfo m_vertexInfos;
+            TextureVertexArrayList m_vertexArrays;
+            
+            void buildVertexArrays();
         public:
             BspRenderer(const Model::Bsp& bsp, Vbo& vbo, const Model::Palette& palette);
             ~BspRenderer();
             
-            void render();
+            void render(ShaderProgram& shaderProgram);
             
             const Vec3f& center() const;
             const BBox& bounds() const;

@@ -25,7 +25,9 @@
 #include "Model/Texture.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/Shader/Shader.h"
 #include "Renderer/Vbo.h"
+#include "Renderer/VertexArray.h"
 #include "Utility/GLee.h"
 
 namespace TrenchBroom {
@@ -35,54 +37,37 @@ namespace TrenchBroom {
         m_skinIndex(skinIndex),
         m_vbo(vbo),
         m_palette(palette),
-        m_vboBlock(NULL),
         m_texture(NULL) {}
 
-        AliasRenderer::~AliasRenderer() {
-            if (m_vboBlock != NULL) {
-                m_vboBlock->freeBlock();
-                m_vboBlock = NULL;
-            }
-            
-            if (m_texture != NULL) {
-                delete m_texture;
-                m_texture = NULL;
-            }
-        }
-
-        void AliasRenderer::render() {
-            if (m_vboBlock == NULL) {
+        void AliasRenderer::render(ShaderProgram& shaderProgram) {
+            if (m_vertexArray.get() == NULL) {
                 Model::AliasSkin& skin = *m_alias.skins()[m_skinIndex];
-                m_texture = new Model::Texture(m_alias.name(), skin, 0, m_palette);
+                m_texture = Model::TexturePtr(new Model::Texture(m_alias.name(), skin, 0, m_palette));
 
                 Model::AliasSingleFrame& frame = m_alias.firstFrame();
                 const Model::AliasFrameTriangleList& triangles = frame.triangles();
-                m_triangleCount = static_cast<unsigned int>(triangles.size());
-                unsigned int vertexSize = 3 * 8;
+                unsigned int vertexCount = static_cast<unsigned int>(3 * triangles.size());
+                
+                m_vertexArray = VertexArrayPtr(new VertexArray(m_vbo,GL_TRIANGLES, vertexCount,
+                                                               VertexAttribute(3, GL_FLOAT, VertexAttribute::Position),
+                                                               VertexAttribute(2, GL_FLOAT, VertexAttribute::TexCoord0)));
 
-                m_vboBlock = m_vbo.allocBlock(m_triangleCount * vertexSize * sizeof(float));
                 m_vbo.map();
-                int offset = 0;
-                for (unsigned int i = 0; i < m_triangleCount; i++) {
+                for (unsigned int i = 0; i < triangles.size(); i++) {
                     Model::AliasFrameTriangle& triangle = *triangles[i];
                     for (unsigned int j = 0; j < 3; j++) {
                         Model::AliasFrameVertex& vertex = triangle[j];
-                        // GL_T2F_N3F_V3F format
-                        offset = m_vboBlock->writeVec(vertex.texCoords(), offset);
-                        offset = m_vboBlock->writeVec(vertex.normal(), offset);
-                        offset = m_vboBlock->writeVec(vertex.position(), offset);
+                        m_vertexArray->addAttribute(vertex.position());
+                        m_vertexArray->addAttribute(vertex.texCoords());
                     }
                 }
                 m_vbo.unmap();
             }
 
+            glActiveTexture(GL_TEXTURE0);
             m_texture->activate();
-            
-            glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
-            glInterleavedArrays(GL_T2F_N3F_V3F, 0, reinterpret_cast<const GLvoid *>(m_vboBlock->address()));
-            glDrawArrays(GL_TRIANGLES, 0, m_triangleCount * 3);
-            glPopClientAttrib();
-
+            shaderProgram.setUniformVariable("Texture", 0);
+            m_vertexArray->render();
             m_texture->deactivate();
         }
 
