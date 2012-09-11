@@ -27,6 +27,7 @@
 namespace TrenchBroom {
     namespace Utility {
         class Console;
+        class Grid;
         class ProgressIndicator;
     }
     
@@ -52,6 +53,7 @@ namespace TrenchBroom {
             Palette* m_palette;
             TextureManager* m_textureManager;
             EntityDefinitionManager* m_definitionManager;
+            Utility::Grid* m_grid;
             StringList m_mods;
             
             virtual bool DoOpenDocument(const wxString& file);
@@ -76,6 +78,7 @@ namespace TrenchBroom {
             Map& Map() const;
             EditStateManager& EditStateManager() const;
             Picker& Picker() const;
+            Utility::Grid& Grid() const;
             Utility::Console& Console() const;
             const StringList& Mods() const;
             const Palette& Palette() const;

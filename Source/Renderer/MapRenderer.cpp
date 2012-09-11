@@ -39,6 +39,7 @@
 #include "Renderer/Vbo.h"
 #include "Renderer/Text/FontDescriptor.h"
 #include "Renderer/Text/StringManager.h"
+#include "Utility/Grid.h"
 #include "Utility/Preferences.h"
 
 namespace TrenchBroom {
@@ -61,7 +62,10 @@ namespace TrenchBroom {
                 const TextureFaceList& textureFaceList = it->second;
                 const Model::FaceList& faces = textureFaceList.faces();
                 unsigned int vertexCount = static_cast<unsigned int>(textureFaceList.vertexCount());
-                VertexArrayPtr vertexArray = VertexArrayPtr(new VertexArray(*m_faceVbo, GL_TRIANGLES, vertexCount, VertexAttribute(3, GL_FLOAT, VertexAttribute::Position), VertexAttribute(2, GL_FLOAT, VertexAttribute::TexCoord0)));
+                VertexArrayPtr vertexArray = VertexArrayPtr(new VertexArray(*m_faceVbo, GL_TRIANGLES, vertexCount,
+                                                                            VertexAttribute(3, GL_FLOAT, VertexAttribute::Position),
+                                                                            VertexAttribute(3, GL_FLOAT, VertexAttribute::Normal),
+                                                                            VertexAttribute(2, GL_FLOAT, VertexAttribute::TexCoord0)));
 
                 for (unsigned int i = 0; i < faces.size(); i++) {
                     Model::Face* face = faces[i];
@@ -70,10 +74,13 @@ namespace TrenchBroom {
 
                     for (unsigned int j = 1; j < vertices.size() - 1; j++) {
                         vertexArray->addAttribute(vertices[0]->position);
+                        vertexArray->addAttribute(face->boundary().normal);
                         vertexArray->addAttribute(texCoords[0]);
                         vertexArray->addAttribute(vertices[j]->position);
+                        vertexArray->addAttribute(face->boundary().normal);
                         vertexArray->addAttribute(texCoords[j]);
                         vertexArray->addAttribute(vertices[j + 1]->position);
+                        vertexArray->addAttribute(face->boundary().normal);
                         vertexArray->addAttribute(texCoords[j + 1]);
                     }
                 }
@@ -214,7 +221,7 @@ namespace TrenchBroom {
                             Model::Face* face = faces[k];
 							assert(face->vertices().size() >= 3);
                             
-                            Model::Texture* texture = face->texture() != NULL ? face->texture() : m_dummyTexture;
+                            Model::Texture* texture = face->texture() != NULL ? face->texture() : m_dummyTexture.get();
                             
                             // because it is often the case that there are subsequences of faces with the same texture,
                             // we always keep an iterator to the texture / face list that was last used
@@ -293,13 +300,9 @@ namespace TrenchBroom {
             m_lockedGeometryDataValid = true;
         }
         
-        /*
-        void MapRenderer::writeEntityBounds(RenderContext& context, const Model::EntityList& entities, EdgeRenderInfo& renderInfo, VboBlock& block) {
+        void MapRenderer::writeColoredEntityBounds(RenderContext& context, const Model::EntityList& entities, VertexArray& vertexArray) {
             if (entities.empty())
                 return;
-            
-            unsigned int offset = 0;
-            unsigned int vertexCount = 0;
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             Vec3f::List vertices(24);
@@ -318,42 +321,34 @@ namespace TrenchBroom {
                 
                 bounds.vertices(vertices);
                 for (unsigned int i = 0; i < vertices.size(); i++) {
-                    offset = block.writeColor(entityColor, offset);
-                    offset = block.writeVec(vertices[i], offset);
+                    vertexArray.addAttribute(vertices[i]);
+                    vertexArray.addAttribute(entityColor);
                 }
-                
-                vertexCount += vertices.size();
             }
-            
-            renderInfo = EdgeRenderInfo(block.address(), vertexCount);
         }
-         */
         
+        void MapRenderer::writeEntityBounds(RenderContext& context, const Model::EntityList& entities, VertexArray& vertexArray) {
+            if (entities.empty())
+                return;
+            
+            Vec3f::List vertices(24);
+            for (unsigned int i = 0; i < entities.size(); i++) {
+                Model::Entity* entity = entities[i];
+                const BBox& bounds = entity->bounds();
+                bounds.vertices(vertices);
+
+                for (unsigned int i = 0; i < vertices.size(); i++)
+                    vertexArray.addAttribute(vertices[i]);
+            }
+        }
+
         void MapRenderer::rebuildEntityData(RenderContext& context) {
-            /*
-            if (!m_entityDataValid) {
-                if (m_entityBoundsBlock != NULL) {
-                    m_entityBoundsBlock->freeBlock();
-                    m_entityBoundsBlock = NULL;
-                }
-                m_entityBoundsRenderInfo = EdgeRenderInfo(0, 0);
-            }
-            
-            if (!m_selectedEntityDataValid) {
-                if (m_selectedEntityBoundsBlock != NULL) {
-                    m_selectedEntityBoundsBlock->freeBlock();
-                    m_selectedEntityBoundsBlock = NULL;
-                }
-                m_selectedEntityBoundsRenderInfo = EdgeRenderInfo(0, 0);
-            }
-            
-            if (!m_lockedEntityDataValid) {
-                if (m_lockedEntityBoundsBlock != NULL) {
-                    m_lockedEntityBoundsBlock->freeBlock();
-                    m_lockedEntityBoundsBlock = NULL;
-                }
-                m_lockedEntityBoundsRenderInfo = EdgeRenderInfo(0, 0);
-            }
+            if (!m_entityDataValid)
+                m_entityBoundsVertexArray = VertexArrayPtr(NULL);
+            if (!m_selectedEntityDataValid)
+                m_selectedEntityBoundsVertexArray = VertexArrayPtr(NULL);
+            if (!m_lockedEntityDataValid)
+                m_lockedEntityBoundsVertexArray = VertexArrayPtr(NULL);
             
             // collect all model entities
             Model::EntityList allEntities;
@@ -377,29 +372,24 @@ namespace TrenchBroom {
             
             if (!m_entityDataValid && !allEntities.empty()) {
                 unsigned int entityBoundsVertexCount = 2 * 4 * 6 * static_cast<unsigned int>(allEntities.size());
-                m_entityBoundsBlock = m_entityBoundsVbo->allocBlock(entityBoundsVertexCount * EntityBoundsVertexSize);
+                m_entityBoundsVertexArray = VertexArrayPtr(new VertexArray(*m_entityBoundsVbo, GL_LINES, entityBoundsVertexCount, VertexAttribute(3, GL_FLOAT, VertexAttribute::Position), VertexAttribute(4, GL_FLOAT, VertexAttribute::Color)));
+                writeColoredEntityBounds(context, allEntities, *m_entityBoundsVertexArray);
             }
             
             if (!m_selectedEntityDataValid && !allSelectedEntities.empty()) {
                 unsigned int selectedEntityBoundsVertexCount = 2 * 4 * 6 * static_cast<unsigned int>(allSelectedEntities.size());
-                m_selectedEntityBoundsBlock = m_entityBoundsVbo->allocBlock(selectedEntityBoundsVertexCount * EntityBoundsVertexSize);
+                m_selectedEntityBoundsVertexArray = VertexArrayPtr(new VertexArray(*m_entityBoundsVbo, GL_LINES, selectedEntityBoundsVertexCount, VertexAttribute(3, GL_FLOAT, VertexAttribute::Position)));
+                writeEntityBounds(context, allSelectedEntities, *m_selectedEntityBoundsVertexArray);
             }
             
             if (!m_lockedEntityDataValid && !allLockedEntities.empty()) {
                 unsigned int lockedEntityBoundsVertexCount = 2 * 4 * 6 * static_cast<unsigned int>(allLockedEntities.size());
-                m_lockedEntityBoundsBlock = m_entityBoundsVbo->allocBlock(lockedEntityBoundsVertexCount * EntityBoundsVertexSize);
+                m_lockedEntityBoundsVertexArray = VertexArrayPtr(new VertexArray(*m_entityBoundsVbo, GL_LINES, lockedEntityBoundsVertexCount, VertexAttribute(3, GL_FLOAT, VertexAttribute::Position)));
+                writeEntityBounds(context, allLockedEntities, *m_lockedEntityBoundsVertexArray);
             }
-            
-            if (!m_entityDataValid && !allEntities.empty())
-                writeEntityBounds(context, allEntities, m_entityBoundsRenderInfo, *m_entityBoundsBlock);
-            if (!m_selectedEntityDataValid && !allSelectedEntities.empty())
-                writeEntityBounds(context, allSelectedEntities, m_selectedEntityBoundsRenderInfo, *m_selectedEntityBoundsBlock);
-            if (!m_lockedEntityDataValid && !allLockedEntities.empty())
-                writeEntityBounds(context, allLockedEntities, m_lockedEntityBoundsRenderInfo, *m_lockedEntityBoundsBlock);
             
             m_entityBoundsVbo->unmap();
             m_entityBoundsVbo->deactivate();
-            */
             
             m_entityDataValid = true;
             m_selectedEntityDataValid = true;
@@ -498,166 +488,6 @@ namespace TrenchBroom {
             if (!m_entityDataValid || !m_selectedEntityDataValid || !m_lockedEntityDataValid)
                 rebuildEntityData(context);
         }
-
-        /*
-        void MapRenderer::renderEntityBounds(RenderContext& context, const EdgeRenderInfo& renderInfo, const Color* color) {
-			if (renderInfo.vertexCount == 0)
-				return;
-            
-            glSetEdgeOffset(0.01f);
-            
-            glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
-            if (color != NULL) {
-                glColorV4f(*color);
-                glVertexPointer(3, GL_FLOAT, EntityBoundsVertexSize, reinterpret_cast<const GLvoid *>(ColorSize));
-            } else {
-                glInterleavedArrays(GL_C4UB_V3F, EntityBoundsVertexSize, 0);
-            }
-            
-            glDrawArrays(GL_LINES, renderInfo.offset / EntityBoundsVertexSize, renderInfo.vertexCount);
-            
-            glPopClientAttrib();
-            glResetEdgeOffset();
-        }
-        
-        void MapRenderer::renderEntityModels(RenderContext& context, EntityRenderers& entities) {
-			if (entities.empty())
-				return;
-            
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-
-            glPushAttrib(GL_TEXTURE_BIT);
-            glPolygonMode(GL_FRONT, GL_FILL);
-            glEnable(GL_TEXTURE_2D);
-            
-            glSetBrightness(prefs.getFloat(Preferences::RendererBrightness), false);
-            m_entityRendererManager->activate();
-            
-            glMatrixMode(GL_MODELVIEW);
-            EntityRenderers::iterator it;
-            for (it = entities.begin(); it != entities.end(); ++it) {
-                Model::Entity* entity = it->first;
-                if (context.filter().entityVisible(*entity)) {
-                    EntityRenderer* renderer = it->second.renderer;
-                    renderer->render(context.transformation(), *entity);
-                }
-            }
-            
-            m_entityRendererManager->deactivate();
-            glPopAttrib();
-        }
-         */
-         
-        void MapRenderer::renderEdges(RenderContext& context, VertexArray* edgeVertexArray, const Color* color) {
-            if (edgeVertexArray == NULL)
-                return;
-            glDisable(GL_TEXTURE_2D);
-            edgeVertexArray->render();
-        }
-        
-        /*
-        void MapRenderer::renderFaces(RenderContext& context, bool textured, bool selected, bool locked, const FaceRenderInfos& renderInfos) {
-            if (renderInfos.empty())
-                return;
-            
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-
-            glPolygonMode(GL_FRONT, GL_FILL);
-            glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
-            
-            if (m_editor.grid().visible()) {
-                glActiveTexture(GL_TEXTURE2);
-                glEnable(GL_TEXTURE_2D);
-                context.gridRenderer.activate(context.grid);
-                glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-                
-                glClientActiveTexture(GL_TEXTURE2);
-                glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                glTexCoordPointer(2, GL_FLOAT, FaceVertexSize, (const GLvoid *)0L);
-            }
-            
-            if (selected) {
-                const Color selectedFaceColor = prefs.getColor(Preferences::SelectedFaceColor);
-                GLfloat color[4] = {selectedFaceColor.x, selectedFaceColor.y, selectedFaceColor.z, selectedFaceColor.w};
-                
-                glActiveTexture(GL_TEXTURE1);
-                glEnable(GL_TEXTURE_2D);
-                m_dummyTexture->activate();
-                glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-                glTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
-                glTexEnvi (GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
-                glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, color);
-                glTexEnvi (GL_TEXTURE_ENV, GL_SRC0_RGB, GL_PREVIOUS);
-                glTexEnvi (GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_PREVIOUS);
-                glTexEnvi (GL_TEXTURE_ENV, GL_SRC1_RGB, GL_CONSTANT);
-                glTexEnvf (GL_TEXTURE_ENV, GL_RGB_SCALE, 2);
-            }
-            
-            bool textureActive = textured;
-            glActiveTexture(GL_TEXTURE0);
-            if (textured) {
-                glEnable(GL_TEXTURE_2D);
-                glSetBrightness(prefs.getFloat(Preferences::RendererBrightness), false);
-                
-                glClientActiveTexture(GL_TEXTURE0);
-                glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                glTexCoordPointer(2, GL_FLOAT, FaceVertexSize, (const GLvoid *)(long)TexCoordSize);
-            } else {
-                glDisable(GL_TEXTURE_2D);
-            }
-            
-            glVertexPointer(3, GL_FLOAT, FaceVertexSize, (const GLvoid *)(long)(TexCoordSize + TexCoordSize));
-            
-            for (unsigned int i = 0; i < renderInfos.size(); i++) {
-                const TexturedTriangleRenderInfo& renderInfo = renderInfos[i];
-                if (textured) {
-                    if (renderInfo.texture->dummy() && textureActive)
-                        glDisable(GL_TEXTURE_2D);
-                    else
-                        glEnable(GL_TEXTURE_2D);
-                    if (!renderInfo.texture->dummy())
-                        renderInfo.texture->activate();
-                    else
-                        glColorV4f(prefs.getColor(Preferences::FaceColor));
-                } else {
-                    if (!renderInfo.texture->dummy())
-                        glColorV4f(renderInfo.texture->averageColor());
-                    else
-                        glColorV4f(prefs.getColor(Preferences::FaceColor));
-                }
-                
-                glDrawArrays(GL_TRIANGLES, renderInfo.offset / FaceVertexSize, renderInfo.vertexCount);
-                if (renderInfo.texture && !renderInfo.texture->dummy())
-                    renderInfo.texture->deactivate();
-            }
-            
-            if (textured && textureActive)
-                glDisable(GL_TEXTURE_2D);
-            
-            if (selected) {
-                glActiveTexture(GL_TEXTURE1);
-                m_dummyTexture->deactivate();
-                glDisable(GL_TEXTURE_2D);
-                glActiveTexture(GL_TEXTURE0);
-            }
-            
-            if (m_editor.grid().visible()) {
-                glActiveTexture(GL_TEXTURE2);
-                context.gridRenderer.deactivate();
-                glDisable(GL_TEXTURE_2D);
-                glActiveTexture(GL_TEXTURE0);
-            }
-            
-            glPopClientAttrib();
-        }
-        
-        void MapRenderer::renderFigures(RenderContext& context) {
-            m_figureVbo->activate();
-            for (unsigned int i = 0; i < m_figures.size(); i++)
-                m_figures[i]->render(context, *m_figureVbo);
-            m_figureVbo->deactivate();
-        }
-    */
         
         MapRenderer::MapRenderer(Model::MapDocument& document) :
         m_document(document) {
@@ -677,67 +507,22 @@ namespace TrenchBroom {
 
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
-            m_entityRendererManager = new EntityRendererManager(prefs.getString(Preferences::QuakePath), document.Palette(), document.Console());
+            m_entityRendererManager = EntityRendererManagerPtr(new EntityRendererManager(prefs.getString(Preferences::QuakePath), document.Palette(), document.Console()));
             m_entityRendererCacheValid = true;
             
-            m_stringManager = new Text::StringManager(document.Console());
+            m_stringManager = StringManagerPtr(new Text::StringManager(document.Console()));
             
             float infoOverlayFadeDistance = prefs.getFloat(Preferences::InfoOverlayFadeDistance);
             float selectedInfoOverlayFadeDistance = prefs.getFloat(Preferences::SelectedInfoOverlayFadeDistance);
             
-            m_classnameRenderer = new Text::TextRenderer<Model::Entity*>(*m_stringManager, infoOverlayFadeDistance);
-            m_selectedClassnameRenderer = new Text::TextRenderer<Model::Entity*>(*m_stringManager, selectedInfoOverlayFadeDistance);
-            m_lockedClassnameRenderer = new Text::TextRenderer<Model::Entity*>(*m_stringManager, infoOverlayFadeDistance);
+            m_classnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(*m_stringManager, infoOverlayFadeDistance));
+            m_selectedClassnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(*m_stringManager, selectedInfoOverlayFadeDistance));
+            m_lockedClassnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(*m_stringManager, infoOverlayFadeDistance));
             
-            /*
-            m_figureVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
-
-            m_gridRenderer = new Renderer::GridRenderer();
-            m_gridRenderer->setColor(prefs.gridColor());
-             */
-            
-            m_dummyTexture = new Model::Texture("dummy");
-            
-            /*
-            m_grayScaleShader = glCreateShader(GL_FRAGMENT_SHADER);
-            const char* str = Shader::GrayScale.c_str();
-            glShaderSource(m_grayScaleShader, 1, &str, NULL);
-            glCompileShader(m_grayScaleShader);
-             */
+            m_dummyTexture = TexturePtr(new Model::Texture("dummy"));
         }
         
         MapRenderer::~MapRenderer() {
-//            m_figures.clear();
-            
-            if (m_entityRendererManager != NULL) {
-                delete m_entityRendererManager;
-                m_entityRendererManager = NULL;
-            }
-            
-            if (m_classnameRenderer != NULL) {
-                delete m_classnameRenderer;
-                m_classnameRenderer = NULL;
-            }
-            
-            if (m_selectedClassnameRenderer != NULL) {
-                delete m_selectedClassnameRenderer;
-                m_selectedClassnameRenderer = NULL;
-            }
-            
-            if (m_lockedClassnameRenderer != NULL) {
-                delete m_lockedClassnameRenderer;
-                m_lockedClassnameRenderer = NULL;
-            }
-            
-            if (m_stringManager != NULL) {
-                delete m_stringManager;
-                m_stringManager = NULL;
-            }
-            
-            if (m_dummyTexture != NULL) {
-                delete m_dummyTexture;
-                m_dummyTexture = NULL;
-            }
         }
 
         void MapRenderer::addEntities(const Model::EntityList& entities) {
@@ -863,6 +648,7 @@ namespace TrenchBroom {
             validate(context);
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            Utility::Grid& grid = m_document.Grid();
 
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -878,8 +664,11 @@ namespace TrenchBroom {
             if (m_faceProgram->activate()) {
                 glActiveTexture(GL_TEXTURE0);
                 m_faceProgram->setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
-                m_faceProgram->setUniformVariable("GrayScale", false);
+                m_faceProgram->setUniformVariable("RenderGrid", grid.visible());
+                m_faceProgram->setUniformVariable("GridSize", static_cast<float>(grid.actualSize()));
+                m_faceProgram->setUniformVariable("GridColor", prefs.getColor(Preferences::GridColor));
                 if (!m_faceRenderInfos.empty()) {
+                    m_faceProgram->setUniformVariable("GrayScale", false);
                     m_faceProgram->setUniformVariable("ApplyTinting", false);
                     for (unsigned int i = 0; i < m_faceRenderInfos.size(); i++) {
                         FaceRenderInfo& renderInfo = m_faceRenderInfos[i];
@@ -890,6 +679,7 @@ namespace TrenchBroom {
                     }
                 }
                 if (!m_selectedFaceRenderInfos.empty()) {
+                    m_faceProgram->setUniformVariable("GrayScale", false);
                     m_faceProgram->setUniformVariable("ApplyTinting", true);
                     m_faceProgram->setUniformVariable("TintColor", prefs.getColor(Preferences::SelectedFaceColor));
                     for (unsigned int i = 0; i < m_selectedFaceRenderInfos.size(); i++) {
@@ -901,7 +691,8 @@ namespace TrenchBroom {
                     }
                 }
                 if (!m_lockedFaceRenderInfos.empty()) {
-                    m_faceProgram->setUniformVariable("ApplyTinting", false);
+                    m_faceProgram->setUniformVariable("ApplyTinting", true);
+                    m_faceProgram->setUniformVariable("TintColor", prefs.getColor(Preferences::LockedFaceColor));
                     m_faceProgram->setUniformVariable("GrayScale", true);
                     for (unsigned int i = 0; i < m_lockedFaceRenderInfos.size(); i++) {
                         FaceRenderInfo& renderInfo = m_lockedFaceRenderInfos[i];
@@ -942,6 +733,27 @@ namespace TrenchBroom {
             m_edgeVbo->deactivate();
             glResetEdgeOffset();
             
+            m_entityBoundsVbo->activate();
+            if (m_entityBoundsVertexArray.get() != NULL && m_coloredEdgeProgram->activate()) {
+                m_entityBoundsVertexArray->render();
+                m_coloredEdgeProgram->deactivate();
+            }
+            if (m_constantColoredEdgeProgram->activate()) {
+                if (m_lockedEntityBoundsVertexArray.get() != NULL) {
+                    m_constantColoredEdgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::LockedEntityBoundsColor));
+                    m_lockedEntityBoundsVertexArray->render();
+                }
+                if (m_selectedEntityBoundsVertexArray.get() != NULL) {
+                    glDisable(GL_DEPTH_TEST);
+                    m_constantColoredEdgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::OccludedSelectedEdgeColor));
+                    m_selectedEntityBoundsVertexArray->render();
+                    glEnable(GL_DEPTH_TEST);
+                    m_constantColoredEdgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::SelectedEdgeColor));
+                    m_selectedEntityBoundsVertexArray->render();
+                }
+                m_constantColoredEdgeProgram->deactivate();
+            }
+            m_entityBoundsVbo->deactivate();
             
             /*
             // render geometry faces

@@ -33,7 +33,7 @@
 using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
-    namespace Controller {
+    namespace Utility {
         unsigned int Grid::size() const {
             return m_size;
         }
@@ -162,7 +162,7 @@ namespace TrenchBroom {
         }
         
         Vec3f Grid::moveDeltaForEntity(const Model::Face& face, const BBox& bounds, const BBox& worldBounds, const Ray& ray, const Vec3f& position) {
-            DragPlane dragPlane = DragPlane::orthogonal(face.boundary().normal, true);
+            Controller::DragPlane dragPlane = Controller::DragPlane::orthogonal(face.boundary().normal, true);
             
             Vec3f halfSize = bounds.size() * 0.5f;
             float offsetLength = halfSize.dot(dragPlane.normal());

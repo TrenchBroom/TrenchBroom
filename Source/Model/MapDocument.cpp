@@ -35,6 +35,7 @@
 #include "Model/Picker.h"
 #include "Model/TextureManager.h"
 #include "Utility/Console.h"
+#include "Utility/Grid.h"
 #include "Utility/VecMath.h"
 #include "View/EditorView.h"
 #include "View/ProgressIndicatorDialog.h"
@@ -206,7 +207,8 @@ namespace TrenchBroom {
         m_picker(NULL),
         m_palette(NULL),
         m_textureManager(NULL),
-        m_definitionManager(NULL) {}
+        m_definitionManager(NULL),
+        m_grid(new Utility::Grid(4)) {}
         
         MapDocument::~MapDocument() {
             if (m_picker != NULL) {
@@ -243,6 +245,11 @@ namespace TrenchBroom {
                 delete m_textureManager;
                 m_textureManager = NULL;
             }
+            
+            if (m_grid != NULL) {
+                delete m_grid;
+                m_grid = NULL;
+            }
         }
         
         Map& MapDocument::Map() const {
@@ -257,6 +264,10 @@ namespace TrenchBroom {
             return *m_picker;
         }
 
+        Utility::Grid& MapDocument::Grid() const {
+            return *m_grid;
+        }
+        
         Utility::Console& MapDocument::Console() const {
             View::EditorView* editorView = dynamic_cast<View::EditorView*>(GetFirstView());
             assert(editorView != NULL);

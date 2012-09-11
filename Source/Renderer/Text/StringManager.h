@@ -24,6 +24,7 @@
 #include "Utility/String.h"
 
 #include <map>
+#include <memory>
 
 namespace TrenchBroom {
     namespace Utility {
@@ -41,6 +42,8 @@ namespace TrenchBroom {
             typedef TrenchBroom::Renderer::Text::PathRenderer StringRenderer;
             
             class StringManager {
+            public:
+                typedef std::auto_ptr<StringManager> Ptr;
             protected:
                 class CacheEntry {
                 protected:

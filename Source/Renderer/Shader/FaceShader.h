@@ -24,9 +24,14 @@ namespace TrenchBroom {
     namespace Renderer {
         namespace Shaders {
             static const String FaceVertexShader = "#version 120\n\
+            varying vec4 modelCoordinates;\n\
+            varying vec3 modelNormal;\n\
+            \n\
             void main(void) {\n\
                 gl_Position = ftransform();\n\
                 gl_TexCoord[0] = gl_MultiTexCoord0;\n\
+                modelCoordinates = gl_Vertex;\n\
+                modelNormal = gl_Normal;\n\
             }\n";
             
             static const String FaceFragmentShader = "#version 120\n\
@@ -35,18 +40,60 @@ namespace TrenchBroom {
             uniform bool ApplyTinting;\n\
             uniform vec4 TintColor;\n\
             uniform bool GrayScale;\n\
+            uniform bool RenderGrid;\n\
+            uniform float GridSize;\n\
+            uniform vec4 GridColor;\n\
+            \n\
+            varying vec4 modelCoordinates;\n\
+            varying vec3 modelNormal;\n\
+            \n\
+            void gridXY() {\n\
+                if (floor(mod(modelCoordinates.x + 0.5, GridSize)) == 0.0 || \n\
+                    floor(mod(modelCoordinates.y + 0.5, GridSize)) == 0.0)\n\
+                    gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a), gl_FragColor.a);\n\
+            }\n\
+            \n\
+            void gridXZ() {\n\
+                if (floor(mod(modelCoordinates.x + 0.5, GridSize)) == 0.0 || \n\
+                    floor(mod(modelCoordinates.z + 0.5, GridSize)) == 0.0)\n\
+                    gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a), gl_FragColor.a);\n\
+            }\n\
+            \n\
+            void gridYZ() {\n\
+                if (floor(mod(modelCoordinates.y + 0.5, GridSize)) == 0.0 || \n\
+                    floor(mod(modelCoordinates.z + 0.5, GridSize)) == 0.0)\n\
+                    gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a), gl_FragColor.a);\n\
+            }\n\
             \n\
             void main() {\n\
                 vec4 texel = texture2D(FaceTexture, gl_TexCoord[0].st);\n\
                 gl_FragColor = vec4(vec3(Brightness * texel), texel.a);\n\
                 gl_FragColor = clamp(2 * gl_FragColor, 0.0, 1.0);\n\
-                if (ApplyTinting) {\n\
-                    gl_FragColor = vec4(vec3(gl_FragColor * TintColor), gl_FragColor.a);\n\
-                    gl_FragColor = clamp(2 * gl_FragColor, 0.0, 1.0);\n\
-                }\n\
+                \n\
                 if (GrayScale) {\n\
                     float gray = dot(gl_FragColor.rgb, vec3(0.299, 0.587, 0.114));\n\
                     gl_FragColor = vec4(gray, gray, gray, gl_FragColor.a);\n\
+                }\n\
+                \n\
+                if (ApplyTinting) {\n\
+                    gl_FragColor = vec4(gl_FragColor.rgb * TintColor.rgb * TintColor.a, gl_FragColor.a);\n\
+                    gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);\n\
+                }\n\
+                \n\
+                if (RenderGrid) {\n\
+                    float normX = abs(modelNormal.x);\n\
+                    float normY = abs(modelNormal.y);\n\
+                    float normZ = abs(modelNormal.z);\n\
+                    if (normX > normY) {\n\
+                        if (normX > normZ) \n\
+                            gridYZ();\n\
+                        else\n\
+                            gridXY();\n\
+                    } else if (normY > normZ) {\n\
+                        gridXZ();\n\
+                    } else {\n\
+                        gridXY();\n\
+                    }\n\
                 }\n\
             }\n ";
         }

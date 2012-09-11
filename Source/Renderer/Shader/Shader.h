@@ -25,7 +25,6 @@
 #include "Utility/VecMath.h"
 
 #include <map>
-#include <memory>
 
 using namespace TrenchBroom::Math;
 
@@ -54,8 +53,6 @@ namespace TrenchBroom {
             void attachTo(GLuint programId);
             void detachFrom(GLuint programId);
         };
-        
-        typedef std::auto_ptr<Shader> ShaderPtr;
         
         class ShaderProgram {
         private:
@@ -100,8 +97,6 @@ namespace TrenchBroom {
             bool setUniformVariable(const String& name, const Mat3f& value);
             bool setUniformVariable(const String& name, const Mat4f& value);
         };
-        
-        typedef std::auto_ptr<ShaderProgram> ShaderProgramPtr;
     }
 }
 

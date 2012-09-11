@@ -29,9 +29,9 @@
 #include "Utility/String.h"
 #include "Utility/VecMath.h"
 
+#include <algorithm>
 #include <cassert>
 #include <map>
-#include <algorithm>
 
 using namespace TrenchBroom::Math;
 

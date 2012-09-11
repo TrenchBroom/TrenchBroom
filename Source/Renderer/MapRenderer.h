@@ -53,6 +53,16 @@ namespace TrenchBroom {
         
         class MapRenderer {
         private:
+            typedef Text::TextRenderer<Model::Entity*> EntityClassnameRenderer;
+            typedef std::auto_ptr<EntityRendererManager> EntityRendererManagerPtr;
+            typedef std::auto_ptr<EntityClassnameRenderer> EntityClassnameRendererPtr;
+            typedef std::auto_ptr<Shader> ShaderPtr;
+            typedef std::auto_ptr<ShaderProgram> ShaderProgramPtr;
+            typedef std::auto_ptr<Text::StringManager> StringManagerPtr;
+            typedef std::auto_ptr<Model::Texture> TexturePtr;
+            typedef std::auto_ptr<VertexArray> VertexArrayPtr;
+            typedef std::auto_ptr<Vbo> VboPtr;
+        private:
             class CompareTexturesById {
             public:
                 inline bool operator() (const Model::Texture* left, const Model::Texture* right) const {
@@ -108,6 +118,10 @@ namespace TrenchBroom {
             typedef std::map<Model::Texture*, TextureFaceList, CompareTexturesById> FacesByTexture;
             typedef std::map<Model::Entity*, CachedEntityRenderer> EntityRenderers;
 
+            // resources
+            TexturePtr m_dummyTexture;
+            StringManagerPtr m_stringManager;
+
             // level geometry rendering
             VboPtr m_faceVbo;
             FaceRenderInfoList m_faceRenderInfos;
@@ -120,18 +134,21 @@ namespace TrenchBroom {
             
             // entity bounds rendering
             VboPtr m_entityBoundsVbo;
+            VertexArrayPtr m_entityBoundsVertexArray;
+            VertexArrayPtr m_selectedEntityBoundsVertexArray;
+            VertexArrayPtr m_lockedEntityBoundsVertexArray;
             
             // entity model rendering
-            EntityRendererManager* m_entityRendererManager;
+            EntityRendererManagerPtr m_entityRendererManager;
             EntityRenderers m_entityRenderers;
             EntityRenderers m_selectedEntityRenderers;
             EntityRenderers m_lockedEntityRenderers;
             bool m_entityRendererCacheValid;
 
             // classnames
-            Text::TextRenderer<Model::Entity*>* m_classnameRenderer;
-            Text::TextRenderer<Model::Entity*>* m_selectedClassnameRenderer;
-            Text::TextRenderer<Model::Entity*>* m_lockedClassnameRenderer;
+            EntityClassnameRendererPtr m_classnameRenderer;
+            EntityClassnameRendererPtr m_selectedClassnameRenderer;
+            EntityClassnameRendererPtr m_lockedClassnameRenderer;
 
             // shaders
             bool m_shadersCreated;
@@ -162,21 +179,14 @@ namespace TrenchBroom {
             bool m_selectedEntityDataValid;
             bool m_lockedEntityDataValid;
             
-            /*
-            GridRenderer* m_gridRenderer;
-             */
-            
-            Text::StringManager* m_stringManager;
-
-            Model::Texture* m_dummyTexture;
-
             Model::MapDocument& m_document;
             
             void writeFaceData(RenderContext& context, const FacesByTexture& facesByTexture, FaceRenderInfoList& renderInfos, ShaderProgram& program);
             void writeColoredEdgeData(RenderContext& context, const Model::BrushList& brushes, const Model::FaceList& faces, VertexArray& vertexArray);
             void writeEdgeData(RenderContext& context, const Model::BrushList& brushes, const Model::FaceList& faces, VertexArray& vertexArray);
             void rebuildGeometryData(RenderContext& context);
-//            void writeEntityBounds(RenderContext& context, const Model::EntityList& entities, EdgeRenderInfo& renderInfo, VboBlock& block);
+            void writeColoredEntityBounds(RenderContext& context, const Model::EntityList& entities, VertexArray& vertexArray);
+            void writeEntityBounds(RenderContext& context, const Model::EntityList& entities, VertexArray& vertexArray);
             void rebuildEntityData(RenderContext& context);
             bool reloadEntityModel(const Model::Entity& entity, CachedEntityRenderer& cachedRenderer);
             void reloadEntityModels(RenderContext& context, EntityRenderers& renderers);

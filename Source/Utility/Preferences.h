@@ -86,22 +86,22 @@ namespace TrenchBroom {
         static const Preference<float>  RendererBrightness(                 "Renderer/Brightness",                              1.0f);
 
         static const Preference<Color>  BackgroundColor(                    "Renderer/Colors/Background",                       Color(0.0f,  0.0f,  0.0f,  1.0f ));
-        static const Preference<Color>  GridColor(                          "Renderer/Colors/Grid",                             Color(1.0f,  1.0f,  1.0f,  0.22f));
+        static const Preference<Color>  GridColor(                          "Renderer/Colors/Grid",                             Color(1.0f,  1.0f,  1.0f,  0.3f));
 
         static const Preference<Color>  FaceColor(                          "Renderer/Colors/Face",                             Color(0.2f,  0.2f,  0.2f,  1.0f ));
         static const Preference<Color>  SelectedFaceColor(                  "Renderer/Colors/Selected face",                    Color(0.6f,  0.35f, 0.35f, 1.0f ));
-        static const Preference<Color>  LockedFaceColor(                    "Renderer/Colors/Locked face",                      Color(1.0f,  1.0f,  1.0f,  0.5f ));
+        static const Preference<Color>  LockedFaceColor(                    "Renderer/Colors/Locked face",                      Color(0.5f,  0.5f,  0.6f,  1.0f ));
         
         static const Preference<Color>  EdgeColor(                          "Renderer/Colors/Edge",                             Color(0.6f,  0.6f,  0.6f,  1.0f ));
         static const Preference<Color>  SelectedEdgeColor(                  "Renderer/Colors/Selected edge",                    Color(1.0f,  0.0f,  0.0f,  1.0f ));
         static const Preference<Color>  OccludedSelectedEdgeColor(          "Renderer/Colors/Occluded selected edge",           Color(1.0f,  0.0f,  0.0f,  0.5f));
-        static const Preference<Color>  LockedEdgeColor(                    "Renderer/Colors/Locked edge",                      Color(0.6f,  0.6f,  0.6f,  1.0f ));
+        static const Preference<Color>  LockedEdgeColor(                    "Renderer/Colors/Locked edge",                      Color(0.13f, 0.3f,  1.0f,  1.0f ));
         
         static const Preference<Color>  EntityBoundsColor(                  "Renderer/Colors/Entity bounds",                    Color(0.5f,  0.5f,  0.5f,  1.0f ));
         static const Preference<Color>  SelectedEntityBoundsColor(          "Renderer/Colors/Selected entity bounds",           Color(1.0f,  0.0f,  0.0f,  1.0f ));
         static const Preference<Color>  OccludedSelectedEntityBoundsColor(  "Renderer/Colors/Occluded selected entity bounds",  Color(1.0f,  0.0f,  0.0f,  0.5f));
-        static const Preference<Color>  LockedEntityBoundsColor(            "Renderer/Colors/Locked entity bounds",             Color(0.5f,  0.5f,  0.5f,  0.5f ));
-        static const Preference<Color>  EntityBoundsWireframeColor(         "Renderer/Colors/Entity bounds (wireframe mode)",   Color(0.5f,  0.5f,  0.5f,  0.6f ));
+        static const Preference<Color>  LockedEntityBoundsColor(            "Renderer/Colors/Locked entity bounds",             Color(0.13f, 0.3f,  1.0f,  1.0f ));
+        static const Preference<Color>  EntityBoundsWireframeColor(         "Renderer/Colors/Entity bounds (wireframe mode)",   Color(0.13f, 0.3f,  1.0f,  1.0f ));
 
         static const Preference<Color>  SelectionGuideColor(                "Renderer/Colors/Selection guide",                  Color(1.0f,  0.0f,  0.0f,  1.0f ));
         static const Preference<Color>  OccludedSelectionGuideColor(        "Renderer/Colors/Occluded selection guide",         Color(1.0f,  0.0f,  0.0f,  0.5f));

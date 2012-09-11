@@ -26,7 +26,6 @@
 
 #include <cassert>
 #include <cstring>
-#include <memory>
 #include <exception>
 #include <vector>
 
@@ -172,8 +171,6 @@ namespace TrenchBroom {
 			    return m_msg.c_str();
 			}
  		};
-        
-        typedef std::auto_ptr<Vbo> VboPtr;
     }
 }
 

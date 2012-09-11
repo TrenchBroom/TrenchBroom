@@ -30,7 +30,7 @@ namespace TrenchBroom {
         class Face;
     }
     
-    namespace Controller {
+    namespace Utility {
         class Grid {
         private:
             static const unsigned int MaxSize = 9;

@@ -26,7 +26,6 @@
 #include "Utility/String.h"
 
 #include <cassert>
-#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -365,8 +364,6 @@ namespace TrenchBroom {
                 }
             }
         };
-        
-        typedef std::auto_ptr<VertexArray> VertexArrayPtr;
     }
 }
 
