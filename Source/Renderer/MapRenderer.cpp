@@ -33,7 +33,6 @@
 #include "Renderer/EntityRendererManager.h"
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/RenderContext.h"
-#include "Renderer/RenderUtils.h"
 #include "Renderer/Shader/Shader.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/Text/FontDescriptor.h"
@@ -51,16 +50,16 @@ namespace TrenchBroom {
         static const int EdgeVertexSize = ColorSize + VertexSize;
         static const int EntityBoundsVertexSize = ColorSize + VertexSize;
 
-        void MapRenderer::writeFaceData(RenderContext& context, const FacesByTexture& facesByTexture, FaceRenderInfoList& renderInfos, ShaderProgram& shaderProgram) {
-            if (facesByTexture.empty())
+        void MapRenderer::writeFaceData(RenderContext& context, const FaceCollectionMap& faceCollectionMap, TextureVertexArrayList& vertexArrays, ShaderProgram& shaderProgram) {
+            if (faceCollectionMap.empty())
                 return;
             
-            FacesByTexture::const_iterator it, end;
-            for (it = facesByTexture.begin(), end = facesByTexture.end(); it != end; ++it) {
+            FaceCollectionMap::const_iterator it, end;
+            for (it = faceCollectionMap.begin(), end = faceCollectionMap.end(); it != end; ++it) {
                 Model::Texture* texture = it->first;
-                const TextureFaceList& textureFaceList = it->second;
-                const Model::FaceList& faces = textureFaceList.faces();
-                unsigned int vertexCount = static_cast<unsigned int>(textureFaceList.vertexCount());
+                const FaceCollection& faceCollection = it->second;
+                const Model::FaceList& faces = faceCollection.polygons();
+                unsigned int vertexCount = static_cast<unsigned int>(3 * faceCollection.vertexCount() - 2 * faces.size());
                 VertexArrayPtr vertexArray = VertexArrayPtr(new VertexArray(*m_faceVbo, GL_TRIANGLES, vertexCount,
                                                                             VertexAttribute(3, GL_FLOAT, VertexAttribute::Position),
                                                                             VertexAttribute(3, GL_FLOAT, VertexAttribute::Normal),
@@ -84,7 +83,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                renderInfos.push_back(FaceRenderInfo(texture, vertexArray));
+                vertexArrays.push_back(TextureVertexArray(texture, vertexArray));
             }
         }
         
@@ -159,20 +158,20 @@ namespace TrenchBroom {
         void MapRenderer::rebuildGeometryData(RenderContext& context) {
             if (!m_geometryDataValid) {
                 m_edgeVertexArray = VertexArrayPtr(NULL);
-                m_faceRenderInfos.clear();
+                m_faceVertexArrays.clear();
             }
             if (!m_selectedGeometryDataValid) {
                 m_selectedEdgeVertexArray = VertexArrayPtr(NULL);
-                m_selectedFaceRenderInfos.clear();
+                m_selectedFaceVertexArrays.clear();
             }
             if (!m_lockedGeometryDataValid) {
                 m_lockedEdgeVertexArray = VertexArrayPtr(NULL);
-                m_lockedFaceRenderInfos.clear();
+                m_lockedFaceVertexArrays.clear();
             }
             
-            FacesByTexture unselectedFaces;
-            FacesByTexture selectedFaces;
-            FacesByTexture lockedFaces;
+            FaceSorter unselectedFaceSorter;
+            FaceSorter selectedFaceSorter;
+            FaceSorter lockedFaceSorter;
             
             Model::BrushList unselectedWorldBrushes;
             Model::BrushList unselectedEntityBrushes;
@@ -218,35 +217,13 @@ namespace TrenchBroom {
                         const Model::FaceList& faces = brush->faces();
                         for (unsigned int k = 0; k < faces.size(); k++) {
                             Model::Face* face = faces[k];
-							assert(face->vertices().size() >= 3);
-                            
                             Model::Texture* texture = face->texture() != NULL ? face->texture() : m_dummyTexture.get();
-                            
-                            // because it is often the case that there are subsequences of faces with the same texture,
-                            // we always keep an iterator to the texture / face list that was last used
-                            FacesByTexture::iterator lastUnselectedTextureIt = unselectedFaces.end();
-                            FacesByTexture::iterator lastSelectedTextureIt = selectedFaces.end();
-                            FacesByTexture::iterator lastLockedTextureIt = lockedFaces.end();
-                            
-                            if (entity->selected() || brush->selected() || face->selected()) {
-                                if (lastSelectedTextureIt == selectedFaces.end() || lastSelectedTextureIt->first != texture)
-                                    lastSelectedTextureIt = selectedFaces.insert(std::pair<Model::Texture*, TextureFaceList>(texture, TextureFaceList())).first;
-                                
-                                TextureFaceList& textureFaceList = lastSelectedTextureIt->second;
-                                textureFaceList.add(*face);
-                            } else if (entity->locked() || brush->locked()) {
-                                if (lastLockedTextureIt == lockedFaces.end() || lastLockedTextureIt->first != texture)
-                                    lastLockedTextureIt = lockedFaces.insert(std::pair<Model::Texture*, TextureFaceList>(texture, TextureFaceList())).first;
-                                
-                                TextureFaceList& textureFaceList = lastLockedTextureIt->second;
-                                textureFaceList.add(*face);
-                            } else {
-                                if (lastUnselectedTextureIt == unselectedFaces.end() || lastUnselectedTextureIt->first != texture)
-                                    lastUnselectedTextureIt = unselectedFaces.insert(std::pair<Model::Texture*, TextureFaceList>(texture, TextureFaceList())).first;
-
-                                TextureFaceList& textureFaceList = lastUnselectedTextureIt->second;
-                                textureFaceList.add(*face);
-                            }
+                            if (entity->selected() || brush->selected() || face->selected())
+                                selectedFaceSorter.addPolygon(texture, face, face->vertices().size());
+                            else if (entity->locked() || brush->locked())
+                                lockedFaceSorter.addPolygon(texture, face, face->vertices().size());
+                            else
+                                unselectedFaceSorter.addPolygon(texture, face, face->vertices().size());
                         }
                     }
                 }
@@ -259,12 +236,12 @@ namespace TrenchBroom {
             // write face triangles
             m_faceVbo->activate();
             m_faceVbo->map();
-            if (!m_geometryDataValid && !unselectedFaces.empty())
-                writeFaceData(context, unselectedFaces, m_faceRenderInfos, *m_faceProgram.get());
-            if (!m_selectedGeometryDataValid && !selectedFaces.empty())
-                writeFaceData(context, selectedFaces, m_selectedFaceRenderInfos, *m_faceProgram.get());
-            if (!m_lockedGeometryDataValid && !lockedFaces.empty())
-                writeFaceData(context, lockedFaces, m_lockedFaceRenderInfos, *m_faceProgram.get());
+            if (!m_geometryDataValid && !unselectedFaceSorter.empty())
+                writeFaceData(context, unselectedFaceSorter.collections(), m_faceVertexArrays, *m_faceProgram.get());
+            if (!m_selectedGeometryDataValid && !selectedFaceSorter.empty())
+                writeFaceData(context, selectedFaceSorter.collections(), m_selectedFaceVertexArrays, *m_faceProgram.get());
+            if (!m_lockedGeometryDataValid && !lockedFaceSorter.empty())
+                writeFaceData(context, lockedFaceSorter.collections(), m_lockedFaceVertexArrays, *m_faceProgram.get());
             
             m_faceVbo->unmap();
             m_faceVbo->deactivate();
@@ -511,7 +488,7 @@ namespace TrenchBroom {
             m_selectedClassnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(*m_stringManager, selectedInfoOverlayFadeDistance));
             m_lockedClassnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(*m_stringManager, infoOverlayFadeDistance));
             
-            m_dummyTexture = TexturePtr(new Model::Texture("dummy"));
+            m_dummyTexture = Model::TexturePtr(new Model::Texture("dummy"));
         }
         
         MapRenderer::~MapRenderer() {
@@ -659,39 +636,39 @@ namespace TrenchBroom {
                 m_faceProgram->setUniformVariable("RenderGrid", grid.visible());
                 m_faceProgram->setUniformVariable("GridSize", static_cast<float>(grid.actualSize()));
                 m_faceProgram->setUniformVariable("GridColor", prefs.getColor(Preferences::GridColor));
-                if (!m_faceRenderInfos.empty()) {
+                if (!m_faceVertexArrays.empty()) {
                     m_faceProgram->setUniformVariable("GrayScale", false);
                     m_faceProgram->setUniformVariable("ApplyTinting", false);
-                    for (unsigned int i = 0; i < m_faceRenderInfos.size(); i++) {
-                        FaceRenderInfo& renderInfo = m_faceRenderInfos[i];
-                        renderInfo.texture->activate();
+                    for (unsigned int i = 0; i < m_faceVertexArrays.size(); i++) {
+                        TextureVertexArray& textureVertexArray = m_faceVertexArrays[i];
+                        textureVertexArray.texture->activate();
                         m_faceProgram->setUniformVariable("FaceTexture", 0);
-                        renderInfo.vertexArray->render();
-                        renderInfo.texture->deactivate();
+                        textureVertexArray.vertexArray->render();
+                        textureVertexArray.texture->deactivate();
                     }
                 }
-                if (!m_selectedFaceRenderInfos.empty()) {
+                if (!m_selectedFaceVertexArrays.empty()) {
                     m_faceProgram->setUniformVariable("GrayScale", false);
                     m_faceProgram->setUniformVariable("ApplyTinting", true);
                     m_faceProgram->setUniformVariable("TintColor", prefs.getColor(Preferences::SelectedFaceColor));
-                    for (unsigned int i = 0; i < m_selectedFaceRenderInfos.size(); i++) {
-                        FaceRenderInfo& renderInfo = m_selectedFaceRenderInfos[i];
-                        renderInfo.texture->activate();
+                    for (unsigned int i = 0; i < m_selectedFaceVertexArrays.size(); i++) {
+                        TextureVertexArray& textureVertexArray = m_selectedFaceVertexArrays[i];
+                        textureVertexArray.texture->activate();
                         m_faceProgram->setUniformVariable("FaceTexture", 0);
-                        renderInfo.vertexArray->render();
-                        renderInfo.texture->deactivate();
+                        textureVertexArray.vertexArray->render();
+                        textureVertexArray.texture->deactivate();
                     }
                 }
-                if (!m_lockedFaceRenderInfos.empty()) {
+                if (!m_lockedFaceVertexArrays.empty()) {
                     m_faceProgram->setUniformVariable("ApplyTinting", true);
                     m_faceProgram->setUniformVariable("TintColor", prefs.getColor(Preferences::LockedFaceColor));
                     m_faceProgram->setUniformVariable("GrayScale", true);
-                    for (unsigned int i = 0; i < m_lockedFaceRenderInfos.size(); i++) {
-                        FaceRenderInfo& renderInfo = m_lockedFaceRenderInfos[i];
-                        renderInfo.texture->activate();
+                    for (unsigned int i = 0; i < m_lockedFaceVertexArrays.size(); i++) {
+                        TextureVertexArray& textureVertexArray = m_lockedFaceVertexArrays[i];
+                        textureVertexArray.texture->activate();
                         m_faceProgram->setUniformVariable("FaceTexture", 0);
-                        renderInfo.vertexArray->render();
-                        renderInfo.texture->deactivate();
+                        textureVertexArray.vertexArray->render();
+                        textureVertexArray.texture->deactivate();
                     }
                 }
                 m_faceProgram->deactivate();

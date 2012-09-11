@@ -16,18 +16,30 @@
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef TrenchBroom_TextureTypes_h
-#define TrenchBroom_TextureTypes_h
+
+#ifndef TrenchBroom_RendererTypes_h
+#define TrenchBroom_RendererTypes_h
 
 #include <memory>
-#include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Texture;
+    namespace Renderer {
+        namespace Text {
+            class StringManager;
+        }
         
-        typedef std::vector<Texture*> TextureList;
-        typedef std::auto_ptr<Texture> TexturePtr;
+        class EntityRendererManager;
+        class Shader;
+        class ShaderProgram;
+        class VertexArray;
+        class Vbo;
+        
+        typedef std::auto_ptr<EntityRendererManager> EntityRendererManagerPtr;
+        typedef std::auto_ptr<Shader> ShaderPtr;
+        typedef std::auto_ptr<ShaderProgram> ShaderProgramPtr;
+        typedef std::auto_ptr<Text::StringManager> StringManagerPtr;
+        typedef std::auto_ptr<VertexArray> VertexArrayPtr;
+        typedef std::auto_ptr<Vbo> VboPtr;
     }
 }
 

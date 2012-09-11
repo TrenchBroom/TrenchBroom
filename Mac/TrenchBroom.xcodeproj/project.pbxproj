@@ -67,7 +67,6 @@
 		48D1BEAE15E3AC060073C030 /* EditorView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEAC15E3AC060073C030 /* EditorView.cpp */; };
 		48D1BEB415E4237B0073C030 /* EditorFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEB215E4237A0073C030 /* EditorFrame.cpp */; };
 		48D1BEB715E423F60073C030 /* TrenchBroomApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEB515E423F60073C030 /* TrenchBroomApp.cpp */; };
-		48E2EC9915FCD22B00B8D476 /* VertexArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48E2EC9715FCD22B00B8D476 /* VertexArray.cpp */; };
 		48E2ECBD15FF8FDF00B8D476 /* Grid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48E2ECBB15FF8FDF00B8D476 /* Grid.cpp */; };
 		48E2ECC615FFC31600B8D476 /* Face.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48E2ECC515FFC31600B8D476 /* Face.fragsh */; };
 		48E2ECC815FFC39D00B8D476 /* ColoredEdge.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48E2ECC715FFC39D00B8D476 /* ColoredEdge.vertsh */; };
@@ -247,7 +246,6 @@
 		48D1BEB315E4237B0073C030 /* EditorFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorFrame.h; sourceTree = "<group>"; };
 		48D1BEB515E423F60073C030 /* TrenchBroomApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TrenchBroomApp.cpp; sourceTree = "<group>"; };
 		48D1BEB615E423F60073C030 /* TrenchBroomApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrenchBroomApp.h; sourceTree = "<group>"; };
-		48E2EC9715FCD22B00B8D476 /* VertexArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VertexArray.cpp; sourceTree = "<group>"; };
 		48E2EC9815FCD22B00B8D476 /* VertexArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexArray.h; sourceTree = "<group>"; };
 		48E2ECBB15FF8FDF00B8D476 /* Grid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Grid.cpp; sourceTree = "<group>"; };
 		48E2ECBC15FF8FDF00B8D476 /* Grid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Grid.h; sourceTree = "<group>"; };
@@ -256,6 +254,9 @@
 		48E2ECC715FFC39D00B8D476 /* ColoredEdge.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = ColoredEdge.vertsh; sourceTree = "<group>"; };
 		48E2ECC915FFC40800B8D476 /* Edge.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = Edge.vertsh; sourceTree = "<group>"; };
 		48E2ECCB15FFC43E00B8D476 /* Edge.fragsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = Edge.fragsh; sourceTree = "<group>"; };
+		48E2ECCE15FFD07100B8D476 /* RenderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RenderTypes.h; sourceTree = "<group>"; };
+		48E2ECCF15FFDD0D00B8D476 /* TexturedPolygonSorter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TexturedPolygonSorter.h; sourceTree = "<group>"; };
+		48E2ECD015FFE48F00B8D476 /* TextureVertexArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextureVertexArray.h; sourceTree = "<group>"; };
 		48EA119F15FA67F700391885 /* PushMatrix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PushMatrix.h; sourceTree = "<group>"; };
 		48EA11A415FA71F700391885 /* Transformation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Transformation.h; sourceTree = "<group>"; };
 		48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Shader.cpp; sourceTree = "<group>"; };
@@ -322,12 +323,14 @@
 				48EA119F15FA67F700391885 /* PushMatrix.h */,
 				48312B4015EB9EA900607868 /* RenderContext.cpp */,
 				48312B4115EB9EA900607868 /* RenderContext.h */,
+				48E2ECCE15FFD07100B8D476 /* RenderTypes.h */,
 				48312B4A15EBC35800607868 /* RenderUtils.h */,
 				48EA11A415FA71F700391885 /* Transformation.h */,
-				48E2EC9715FCD22B00B8D476 /* VertexArray.cpp */,
 				48E2EC9815FCD22B00B8D476 /* VertexArray.h */,
 				48312B3015EB800600607868 /* Vbo.cpp */,
 				48312B3115EB800600607868 /* Vbo.h */,
+				48E2ECCF15FFDD0D00B8D476 /* TexturedPolygonSorter.h */,
+				48E2ECD015FFE48F00B8D476 /* TextureVertexArray.h */,
 			);
 			name = Renderer;
 			path = ../Source/Renderer;
@@ -699,7 +702,6 @@
 				4850D2AF15F76245005B162D /* StringManager.cpp in Sources */,
 				48009AF515F7FA8B001A9993 /* AbstractFileManager.cpp in Sources */,
 				48F0B7C315FCB4CF0089B0B5 /* Shader.cpp in Sources */,
-				48E2EC9915FCD22B00B8D476 /* VertexArray.cpp in Sources */,
 				48E2ECBD15FF8FDF00B8D476 /* Grid.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

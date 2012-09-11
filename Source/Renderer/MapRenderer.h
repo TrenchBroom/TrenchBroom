@@ -23,7 +23,11 @@
 #include "Model/BrushTypes.h"
 #include "Model/EntityTypes.h"
 #include "Model/Face.h"
-#include "Model/Texture.h"
+#include "Model/TextureTypes.h"
+#include "Renderer/RenderTypes.h"
+#include "Renderer/RenderUtils.h"
+#include "Renderer/TexturedPolygonSorter.h"
+#include "Renderer/TextureVertexArray.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/Text/TextRenderer.h"
 #include "Utility/Color.h"
@@ -54,36 +58,11 @@ namespace TrenchBroom {
         class MapRenderer {
         private:
             typedef Text::TextRenderer<Model::Entity*> EntityClassnameRenderer;
-            typedef std::auto_ptr<EntityRendererManager> EntityRendererManagerPtr;
             typedef std::auto_ptr<EntityClassnameRenderer> EntityClassnameRendererPtr;
-            typedef std::auto_ptr<Shader> ShaderPtr;
-            typedef std::auto_ptr<ShaderProgram> ShaderProgramPtr;
-            typedef std::auto_ptr<Text::StringManager> StringManagerPtr;
-            typedef std::auto_ptr<Model::Texture> TexturePtr;
-            typedef std::auto_ptr<VertexArray> VertexArrayPtr;
-            typedef std::auto_ptr<Vbo> VboPtr;
+            typedef TexturedPolygonSorter<Model::Face*> FaceSorter;
+            typedef FaceSorter::PolygonCollection FaceCollection;
+            typedef FaceSorter::PolygonCollectionMap FaceCollectionMap;
         private:
-            class CompareTexturesById {
-            public:
-                inline bool operator() (const Model::Texture* left, const Model::Texture* right) const {
-                    return left->uniqueId() < right->uniqueId();
-                }
-            };
-            
-            class FaceRenderInfo {
-            public:
-                Model::Texture* texture;
-                mutable VertexArrayPtr vertexArray;
-                
-                FaceRenderInfo(Model::Texture* texture, VertexArrayPtr vertexArray) :
-                texture(texture),
-                vertexArray(vertexArray) {}
-                
-                FaceRenderInfo(const FaceRenderInfo& other) : texture(other.texture), vertexArray(other.vertexArray) {}
-                FaceRenderInfo() : texture(NULL) {}
-            };
-            
-            typedef std::vector<FaceRenderInfo> FaceRenderInfoList;
             
             class CachedEntityRenderer {
             public:
@@ -93,40 +72,17 @@ namespace TrenchBroom {
                 CachedEntityRenderer(EntityRenderer* renderer, const String& classname) : renderer(renderer), classname(classname) {}
             };
             
-            class TextureFaceList {
-            private:
-                Model::FaceList m_faces;
-                size_t m_vertexCount;
-            public:
-                TextureFaceList() : m_vertexCount(0) {}
-
-                inline void add(Model::Face& face) {
-                    m_faces.push_back(&face);
-                    m_vertexCount += (face.vertices().size() - 2) * 3;
-                }
-                
-                inline const Model::FaceList& faces() const {
-                    return m_faces;
-                }
-                
-                inline size_t vertexCount() const {
-                    return m_vertexCount;
-                }
-            };
-            
-            typedef std::vector<GLuint> IndexBuffer;
-            typedef std::map<Model::Texture*, TextureFaceList, CompareTexturesById> FacesByTexture;
             typedef std::map<Model::Entity*, CachedEntityRenderer> EntityRenderers;
 
             // resources
-            TexturePtr m_dummyTexture;
+            Model::TexturePtr m_dummyTexture;
             StringManagerPtr m_stringManager;
 
             // level geometry rendering
             VboPtr m_faceVbo;
-            FaceRenderInfoList m_faceRenderInfos;
-            FaceRenderInfoList m_selectedFaceRenderInfos;
-            FaceRenderInfoList m_lockedFaceRenderInfos;
+            TextureVertexArrayList m_faceVertexArrays;
+            TextureVertexArrayList m_selectedFaceVertexArrays;
+            TextureVertexArrayList m_lockedFaceVertexArrays;
             VboPtr m_edgeVbo;
             VertexArrayPtr m_edgeVertexArray;
             VertexArrayPtr m_selectedEdgeVertexArray;
@@ -181,7 +137,7 @@ namespace TrenchBroom {
             
             Model::MapDocument& m_document;
             
-            void writeFaceData(RenderContext& context, const FacesByTexture& facesByTexture, FaceRenderInfoList& renderInfos, ShaderProgram& program);
+            void writeFaceData(RenderContext& context, const FaceCollectionMap& faceCollectionMap, TextureVertexArrayList& vertexArrays, ShaderProgram& program);
             void writeColoredEdgeData(RenderContext& context, const Model::BrushList& brushes, const Model::FaceList& faces, VertexArray& vertexArray);
             void writeEdgeData(RenderContext& context, const Model::BrushList& brushes, const Model::FaceList& faces, VertexArray& vertexArray);
             void rebuildGeometryData(RenderContext& context);
