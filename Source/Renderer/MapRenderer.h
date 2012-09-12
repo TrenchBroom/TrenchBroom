@@ -117,11 +117,14 @@ namespace TrenchBroom {
             ShaderPtr m_entityModelFragmentShader;
             ShaderPtr m_textVertexShader;
             ShaderPtr m_textFragmentShader;
+            ShaderPtr m_textBackgroundVertexShader;
+            ShaderPtr m_textBackgroundFragmentShader;
             ShaderProgramPtr m_coloredEdgeProgram;
             ShaderProgramPtr m_edgeProgram;
             ShaderProgramPtr m_faceProgram;
             ShaderProgramPtr m_entityModelProgram;
             ShaderProgramPtr m_textProgram;
+            ShaderProgramPtr m_textBackgroundProgram;
             
             /*
             // selection guides

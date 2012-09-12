@@ -438,6 +438,9 @@ namespace TrenchBroom {
             m_textVertexShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "Text.vertsh"), GL_VERTEX_SHADER, m_document.Console()));
             m_textFragmentShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "Text.fragsh"), GL_FRAGMENT_SHADER, m_document.Console()));
             
+            m_textBackgroundVertexShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "TextBackground.vertsh"), GL_VERTEX_SHADER, m_document.Console()));
+            m_textBackgroundFragmentShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "TextBackground.fragsh"), GL_FRAGMENT_SHADER, m_document.Console()));
+
             m_edgeProgram = ShaderProgramPtr(new ShaderProgram("constant colored edge shader program", m_document.Console()));
             m_edgeProgram->attachShader(*m_edgeVertexShader);
             m_edgeProgram->attachShader(*m_edgeFragmentShader);
@@ -457,6 +460,10 @@ namespace TrenchBroom {
             m_textProgram = ShaderProgramPtr(new ShaderProgram("text shader program", m_document.Console()));
             m_textProgram->attachShader(*m_textVertexShader);
             m_textProgram->attachShader(*m_textFragmentShader);
+            
+            m_textBackgroundProgram = ShaderProgramPtr(new ShaderProgram("text background shader program", m_document.Console()));
+            m_textBackgroundProgram->attachShader(*m_textBackgroundVertexShader);
+            m_textBackgroundProgram->attachShader(*m_textBackgroundFragmentShader);
             
             m_shadersCreated = true;
         }
@@ -590,6 +597,22 @@ namespace TrenchBroom {
                 changeSet.brushStateChangedTo(Model::EditState::Selected) ||
                 changeSet.faceSelectionChanged()) {
                 m_selectedGeometryDataValid = false;
+
+                const Model::BrushList& selectedBrushes = changeSet.brushesTo(Model::EditState::Selected);
+                for (unsigned int i = 0; i < selectedBrushes.size(); i++) {
+                    Model::Brush* brush = selectedBrushes[i];
+                    Model::Entity* entity = brush->entity();
+                    if (!entity->worldspawn() && entity->partiallySelected())
+                        m_classnameRenderer->transferString(entity, *m_selectedClassnameRenderer);
+                }
+
+                const Model::BrushList& deselectedBrushes = changeSet.brushesFrom(Model::EditState::Selected);
+                for (unsigned int i = 0; i < deselectedBrushes.size(); i++) {
+                    Model::Brush* brush = deselectedBrushes[i];
+                    Model::Entity* entity = brush->entity();
+                    if (!entity->worldspawn() && !entity->partiallySelected())
+                        m_selectedClassnameRenderer->transferString(entity, *m_classnameRenderer);
+                }
             }
             
             if (changeSet.brushStateChangedFrom(Model::EditState::Locked) ||
@@ -783,18 +806,21 @@ namespace TrenchBroom {
             }
             m_entityBoundsVbo->deactivate();
             
-            if (m_textProgram->activate()) {
-                EntityClassnameFilter classnameFilter;
-                m_stringManager->activate();
-                m_classnameRenderer->render(context, *m_textProgram, classnameFilter, prefs.getColor(Preferences::InfoOverlayColor));
-                m_lockedClassnameRenderer->render(context, *m_textProgram, classnameFilter, prefs.getColor(Preferences::LockedInfoOverlayColor));
-                glDisable(GL_DEPTH_TEST);
-                m_selectedClassnameRenderer->render(context, *m_textProgram, classnameFilter, prefs.getColor(Preferences::OccludedSelectedInfoOverlayColor));
-                glEnable(GL_DEPTH_TEST);
-                m_selectedClassnameRenderer->render(context, *m_textProgram, classnameFilter, prefs.getColor(Preferences::SelectedInfoOverlayColor));
-                m_stringManager->deactivate();
-                m_textProgram->deactivate();
-            }
+            EntityClassnameFilter classnameFilter;
+            m_classnameRenderer->render(context, classnameFilter, *m_textProgram,
+                                        prefs.getColor(Preferences::InfoOverlayTextColor), *m_textBackgroundProgram,
+                                        prefs.getColor(Preferences::InfoOverlayBackgroundColor));
+            m_lockedClassnameRenderer->render(context, classnameFilter, *m_textProgram,
+                                              prefs.getColor(Preferences::LockedInfoOverlayTextColor), *m_textBackgroundProgram,
+                                              prefs.getColor(Preferences::LockedInfoOverlayBackgroundColor));
+            glDisable(GL_DEPTH_TEST);
+            m_selectedClassnameRenderer->render(context, classnameFilter, *m_textProgram,
+                                                prefs.getColor(Preferences::OccludedSelectedInfoOverlayTextColor), *m_textBackgroundProgram,
+                                                prefs.getColor(Preferences::OccludedSelectedInfoOverlayBackgroundColor));
+            glEnable(GL_DEPTH_TEST);
+            m_selectedClassnameRenderer->render(context, classnameFilter, *m_textProgram,
+                                                prefs.getColor(Preferences::SelectedInfoOverlayTextColor), *m_textBackgroundProgram,
+                                                prefs.getColor(Preferences::SelectedInfoOverlayBackgroundColor));
             
             m_rendering = false;
         }

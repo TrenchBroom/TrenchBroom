@@ -37,7 +37,12 @@ namespace TrenchBroom {
             Vec3f m_position;
         public:
             EntityClassnameAnchor(Model::Entity& entity) : m_entity(entity) {}
-            const Vec3f& position();
+
+            inline const Vec3f& position() {
+                m_position = m_entity.center();
+                m_position.z += m_entity.bounds().size().z / 2.0f + 3.0f;
+                return m_position;
+            }
         };
     }
 }

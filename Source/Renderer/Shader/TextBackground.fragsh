@@ -1,3 +1,5 @@
+#version 120
+
 /*
  Copyright (C) 2010-2012 Kristian Duske
  
@@ -17,15 +19,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EntityClassnameAnchor.h"
-#include "Model/Entity.h"
+varying vec4 vertexColor;
 
-namespace TrenchBroom {
-    namespace Renderer {
-        const Vec3f& EntityClassnameAnchor::position() {
-            m_position = m_entity.center();
-            m_position.z += m_entity.bounds().size().z / 2 + 3;
-            return m_position;
-        }
-    }
+void main() {
+    gl_FragColor = vertexColor;
 }

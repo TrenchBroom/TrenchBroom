@@ -46,7 +46,6 @@
 		4850D2A515F73FC7005B162D /* PathRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2A315F73FC7005B162D /* PathRenderer.cpp */; };
 		4850D2A915F742CB005B162D /* PathTesselator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2A715F742CA005B162D /* PathTesselator.cpp */; };
 		4850D2AF15F76245005B162D /* StringManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2AD15F76244005B162D /* StringManager.cpp */; };
-		4850D2B415F776B9005B162D /* EntityClassnameAnchor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2B115F776A7005B162D /* EntityClassnameAnchor.cpp */; };
 		48819C3815EBE97A00BEA604 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3615EBE92800BEA604 /* Camera.cpp */; };
 		48819C3915EBE98100BEA604 /* GLee.c in Sources */ = {isa = PBXBuildFile; fileRef = 4810276815E52F3700250C9C /* GLee.c */; settings = {COMPILER_FLAGS = "-w"; }; };
 		48819C3F15EC0CE700BEA604 /* MacFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3D15EC0CE700BEA604 /* MacFileManager.cpp */; };
@@ -77,6 +76,8 @@
 		48E2ECD416007A7400B8D476 /* EntityModel.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48E2ECD316007A7400B8D476 /* EntityModel.fragsh */; };
 		48E2ECD616008E3300B8D476 /* Text.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48E2ECD516008E3300B8D476 /* Text.vertsh */; };
 		48E2ECD816008E5600B8D476 /* Text.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48E2ECD716008E5500B8D476 /* Text.fragsh */; };
+		48E2ECDA1600B50B00B8D476 /* TextBackground.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48E2ECD91600B50B00B8D476 /* TextBackground.vertsh */; };
+		48E2ECDC1600B52100B8D476 /* TextBackground.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48E2ECDB1600B52000B8D476 /* TextBackground.fragsh */; };
 		48F0B7C315FCB4CF0089B0B5 /* Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */; };
 /* End PBXBuildFile section */
 
@@ -194,7 +195,6 @@
 		4850D2AD15F76244005B162D /* StringManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringManager.cpp; sourceTree = "<group>"; };
 		4850D2AE15F76245005B162D /* StringManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringManager.h; sourceTree = "<group>"; };
 		4850D2B015F76EC0005B162D /* TextRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextRenderer.h; sourceTree = "<group>"; };
-		4850D2B115F776A7005B162D /* EntityClassnameAnchor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = EntityClassnameAnchor.cpp; sourceTree = "<group>"; };
 		4850D2B215F776A8005B162D /* EntityClassnameAnchor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityClassnameAnchor.h; sourceTree = "<group>"; };
 		4850D2B315F776A8005B162D /* EntityClassnameFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityClassnameFilter.h; sourceTree = "<group>"; };
 		486C61E615EF713C0091AA97 /* mmapped_fstream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mmapped_fstream.h; sourceTree = "<group>"; };
@@ -265,6 +265,8 @@
 		48E2ECD316007A7400B8D476 /* EntityModel.fragsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = EntityModel.fragsh; sourceTree = "<group>"; };
 		48E2ECD516008E3300B8D476 /* Text.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = Text.vertsh; sourceTree = "<group>"; };
 		48E2ECD716008E5500B8D476 /* Text.fragsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = Text.fragsh; sourceTree = "<group>"; };
+		48E2ECD91600B50B00B8D476 /* TextBackground.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = TextBackground.vertsh; sourceTree = "<group>"; };
+		48E2ECDB1600B52000B8D476 /* TextBackground.fragsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = TextBackground.fragsh; sourceTree = "<group>"; };
 		48EA119F15FA67F700391885 /* PushMatrix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PushMatrix.h; sourceTree = "<group>"; };
 		48EA11A415FA71F700391885 /* Transformation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Transformation.h; sourceTree = "<group>"; };
 		48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Shader.cpp; sourceTree = "<group>"; };
@@ -319,7 +321,6 @@
 				4850D27E15F4CA62005B162D /* BspRenderer.h */,
 				48819C3615EBE92800BEA604 /* Camera.cpp */,
 				48819C3715EBE92800BEA604 /* Camera.h */,
-				4850D2B115F776A7005B162D /* EntityClassnameAnchor.cpp */,
 				4850D2B215F776A8005B162D /* EntityClassnameAnchor.h */,
 				4850D2B315F776A8005B162D /* EntityClassnameFilter.h */,
 				4850D27515F4C9C2005B162D /* EntityRenderer.cpp */,
@@ -583,6 +584,8 @@
 				48E2ECC515FFC31600B8D476 /* Face.fragsh */,
 				48E2ECD516008E3300B8D476 /* Text.vertsh */,
 				48E2ECD716008E5500B8D476 /* Text.fragsh */,
+				48E2ECD91600B50B00B8D476 /* TextBackground.vertsh */,
+				48E2ECDB1600B52000B8D476 /* TextBackground.fragsh */,
 				48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */,
 				48F0B7C215FCB4CF0089B0B5 /* Shader.h */,
 			);
@@ -653,6 +656,8 @@
 				48E2ECD416007A7400B8D476 /* EntityModel.fragsh in Resources */,
 				48E2ECD616008E3300B8D476 /* Text.vertsh in Resources */,
 				48E2ECD816008E5600B8D476 /* Text.fragsh in Resources */,
+				48E2ECDA1600B50B00B8D476 /* TextBackground.vertsh in Resources */,
+				48E2ECDC1600B52100B8D476 /* TextBackground.fragsh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -663,7 +668,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4850D2B415F776B9005B162D /* EntityClassnameAnchor.cpp in Sources */,
 				4850D27915F4C9E8005B162D /* EntityRenderer.cpp in Sources */,
 				4850D27A15F4C9E8005B162D /* EntityRendererManager.cpp in Sources */,
 				4850D27415F4BF18005B162D /* Bsp.cpp in Sources */,

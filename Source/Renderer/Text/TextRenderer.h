@@ -92,21 +92,141 @@ namespace TrenchBroom {
                     }
                 };
                 
+                class EntryWithDistance {
+                protected:
+                    TextEntry* m_entry;
+                    float m_distance;
+                public:
+                    EntryWithDistance(TextEntry* entry, float distance) :
+                    m_entry(entry),
+                    m_distance(distance) {}
+                    
+                    inline TextEntry& entry() const {
+                        return *m_entry;
+                    }
+                    
+                    inline float distance() const {
+                        return m_distance;
+                    }
+                };
+                
                 typedef std::map<Key, TextEntry> TextMap;
+                typedef std::vector<EntryWithDistance> EntryList;
                 
                 float m_fadeDistance;
                 StringManager& m_stringManager;
                 TextMap m_entries;
-                VertexArrayPtr m_quad;
+                VboPtr m_backgroundVbo;
+                float m_hInset;
+                float m_vInset;
                 
                 void addString(Key key, const FontDescriptor& fontDescriptor, const String& string, StringRenderer* stringRenderer, TextAnchor* anchor) {
                     removeString(key);
                     m_entries.insert(std::pair<Key, TextEntry>(key, TextEntry(fontDescriptor, string, stringRenderer, anchor)));
                 }
+                
+                EntryList visibleEntries(RenderContext& context, TextRendererFilter& filter) {
+                    float cutoff = (m_fadeDistance + 100) * (m_fadeDistance + 100);
+                    EntryList result;
+                    
+                    typename TextMap::iterator it, end;
+                    for (it = m_entries.begin(), end = m_entries.end(); it != end; ++it) {
+                        Key key = it->first;
+                        if (filter.stringVisible(context, key)) {
+                            TextEntry& entry = it->second;
+                            TextAnchor* anchor = entry.textAnchor();
+                            const Vec3f& position = anchor->position();
+                            
+                            float dist2 = context.camera().squaredDistanceTo(position);
+                            if (dist2 <= cutoff)
+                                result.push_back(EntryWithDistance(&entry, sqrt(dist2)));
+                        }
+                    }
+                    
+                    return result;
+                }
+                
+                void renderBackground(const EntryList& entries, RenderContext& context, ShaderProgram& shaderProgram, const Color& color) {
+                    if (shaderProgram.activate()) {
+                        Mat4f billboardMatrix = context.camera().billboardMatrix();
+                        
+                        unsigned int vertexCount = static_cast<unsigned int>(3 * 16 * entries.size()); // 16 triangles (for a rounded rect with 3 triangles per corner: 3 * 4 + 4 = 16)
+                        VertexArrayPtr vertexArray = VertexArrayPtr(new VertexArray(*m_backgroundVbo, GL_TRIANGLES, vertexCount,
+                                                                                    VertexAttribute(3, GL_FLOAT, VertexAttribute::Position),
+                                                                                    VertexAttribute(4, GL_FLOAT, VertexAttribute::Color)));
+                        m_backgroundVbo->activate();
+                        m_backgroundVbo->map();
+                        for (unsigned int i = 0; i < entries.size(); i++) {
+                            const EntryWithDistance& entryWithDistance = entries[i];
+                            TextEntry& entry = entryWithDistance.entry();
+                            float dist = entryWithDistance.distance();
+                            float factor = dist / 300.0f;
+                            
+                            StringRenderer* stringRenderer = entry.stringRenderer();
+                            TextAnchor* anchor = entry.textAnchor();
+                            const Vec3f& position = anchor->position();
+                            
+                            Mat4f matrix;
+                            matrix.translate(position);
+                            matrix *= billboardMatrix;
+                            matrix.scale(Vec3f(factor, factor, 0.0f));
+                            matrix.translate(Vec3f(0.0f, (stringRenderer->height() - m_vInset) / 2.0f, 0.0f));
+                             
+                            float a = 1.0f - (std::max)(dist - m_fadeDistance, 0.0f) / 100.0f;
+                            Vec2f::List vertices = roundedRect(stringRenderer->width() + m_hInset, stringRenderer->height() + m_vInset, 3.0f, 3);
+                            for (unsigned int j = 0; j < vertices.size(); j++) {
+                                Vec3f vertex = Vec3f(vertices[j].x, vertices[j].y, 0.0f);
+                                vertexArray->addAttribute(matrix * vertex);
+                                vertexArray->addAttribute(Color(color.x, color.y, color.z, color.w * a));
+                            }
+                        }
+                        m_backgroundVbo->unmap();
+                        
+                        vertexArray->render();
+                        m_backgroundVbo->deactivate();
+                        shaderProgram.deactivate();
+                    }
+                }
+                
+                void renderText(const EntryList& entries, RenderContext& context, ShaderProgram& shaderProgram, const Color& color)  {
+                    PushMatrix pushMatrix(context.transformation());
+                    Mat4f billboardMatrix = context.camera().billboardMatrix();
+
+                    if (shaderProgram.activate()) {
+                        m_stringManager.activate();
+                        glSetEdgeOffset(0.01f);
+                        for (unsigned int i = 0; i < entries.size(); i++) {
+                            const EntryWithDistance& entryWithDistance = entries[i];
+                            TextEntry& entry = entryWithDistance.entry();
+                            float dist = entryWithDistance.distance();
+                            float factor = dist / 300.0f;
+                            
+                            StringRenderer* stringRenderer = entry.stringRenderer();
+                            TextAnchor* anchor = entry.textAnchor();
+                            const Vec3f& position = anchor->position();
+                            
+                            Mat4f matrix = pushMatrix.matrix();
+                            matrix.translate(position);
+                            matrix *= billboardMatrix;
+                            matrix.scale(Vec3f(factor, factor, 0.0f));
+                            matrix.translate(Vec3f(-stringRenderer->width() / 2.0f, m_vInset / 2.0f, 0.0f));
+                            pushMatrix.load(matrix);
+
+                            float a = 1.0f - (std::max)(dist - m_fadeDistance, 0.0f) / 100.0f;
+                            shaderProgram.setUniformVariable("Color", Vec4f(color.x, color.y, color.z, color.w * a));
+                            stringRenderer->render();
+                        }
+                        glResetEdgeOffset();
+                        m_stringManager.deactivate();
+                        shaderProgram.deactivate();
+                    }
+                }
             public:
                 TextRenderer(StringManager& stringManager, float fadeDistance) :
                 m_stringManager(stringManager),
-                m_fadeDistance(fadeDistance) {}
+                m_fadeDistance(fadeDistance),
+                m_hInset(3.0f),
+                m_vInset(3.0f) {}
                 
                 ~TextRenderer() {
                     clear();
@@ -164,39 +284,19 @@ namespace TrenchBroom {
                     m_fadeDistance = fadeDistance;
                 }
                 
-                void render(RenderContext& context, ShaderProgram& shaderProgram, TextRendererFilter& filter, const Color& color)  {
-                    float cutoff = (m_fadeDistance + 100) * (m_fadeDistance + 100);
-
-                    PushMatrix pushMatrix(context.transformation());
+                void render(RenderContext& context, TextRendererFilter& filter, ShaderProgram& textProgram, const Color& textColor, ShaderProgram& backgroundProgram, const Color& backgroundColor) {
+                    if (m_entries.empty())
+                        return;
                     
-                    typename TextMap::iterator it, end;
-                    for (it = m_entries.begin(), end = m_entries.end(); it != end; ++it) {
-                        Key key = it->first;
-                        if (filter.stringVisible(context, key)) {
-                            TextEntry& entry = it->second;
-                            StringRenderer* stringRenderer = entry.stringRenderer();
-                            TextAnchor* anchor = entry.textAnchor();
-                            const Vec3f& position = anchor->position();
-                            
-                            float dist2 = context.camera().squaredDistanceTo(position);
-                            if (dist2 <= cutoff) {
-                                float dist = sqrt(dist2);
-                                float factor = dist / 300;
-                                float width = stringRenderer->width();
-                                
-                                Mat4f matrix = pushMatrix.matrix();
-                                matrix.translate(position);
-                                matrix *= context.camera().billboardMatrix();
-                                matrix.scale(Vec3f(factor, factor, 0.0f));
-                                matrix.translate(Vec3f(-width / 2.0f, 0.0f, 0.0f));
-                                pushMatrix.load(matrix);
-                                
-                                float a = 1.0f - (std::max)(dist - m_fadeDistance, 0.0f) / 100.0f;
-                                shaderProgram.setUniformVariable("Color", Vec4f(color.x, color.y, color.z, color.w * a));
-                                stringRenderer->render();
-                            }
-                        }
-                    }
+                    EntryList entries = visibleEntries(context, filter);
+                    if (entries.empty())
+                        return;
+                    
+                    if (m_backgroundVbo.get() == NULL)
+                        m_backgroundVbo = VboPtr(new Vbo(GL_ARRAY_BUFFER, 0xFFFF));
+                    
+                    renderBackground(entries, context, backgroundProgram, backgroundColor);
+                    renderText(entries, context, textProgram, textColor);
                 }
             };
         }

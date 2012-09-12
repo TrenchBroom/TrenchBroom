@@ -220,7 +220,7 @@ namespace TrenchBroom {
                 return m_brushStateChangesFrom[previousState];
             }
             
-            inline const BrushList& brushChangesTo(EditState::Type newState) const {
+            inline const BrushList& brushesTo(EditState::Type newState) const {
                 return m_brushStateChangesTo[newState];
             }
             

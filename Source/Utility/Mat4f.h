@@ -50,8 +50,7 @@ namespace TrenchBroom {
             float v[16];
             
             Mat4f() {
-                for (unsigned int i = 0; i < 16; i++)
-                    v[i] = 0;
+                setIdentity();
             }
             
             Mat4f(float v11, float v12, float v13, float v14,

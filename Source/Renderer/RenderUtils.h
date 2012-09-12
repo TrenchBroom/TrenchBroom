@@ -28,6 +28,7 @@
 #include "Utility/VecMath.h"
 
 #include <algorithm>
+#include <cmath>
 #include <map>
 #include <string>
 #include <vector>
@@ -56,6 +57,95 @@ namespace TrenchBroom {
         
         inline void glResetEdgeOffset() {
             glDepthRange(EdgeOffset, 1.0f);
+        }
+        
+        inline Vec2f::List roundedRect(float width, float height, float cornerRadius, unsigned int cornerSegments) {
+            assert(cornerSegments > 0);
+            assert(cornerRadius <= width / 2.0f &&
+                   cornerRadius <= height / 2.0f);
+            
+            const float angle = Math::Pi / 2.0f / cornerSegments;
+            Vec2f::List vertices;
+            Vec2f center(0.0f, 0.0f);
+            Vec2f translation;
+
+            float curAngle = 0.0f;
+            float x = cos(curAngle) * cornerRadius;
+            float y = sin(curAngle) * cornerRadius;
+
+            // lower right corner
+            translation.x =  (width  / 2.0f - cornerRadius);
+            translation.y = -(height / 2.0f - cornerRadius);
+            for (unsigned int i = 0; i < cornerSegments; i++) {
+                vertices.push_back(center);
+                vertices.push_back(translation + Vec2f(x, y));
+
+                curAngle -= angle;
+                x = cos(curAngle) * cornerRadius;
+                y = sin(curAngle) * cornerRadius;
+                vertices.push_back(translation + Vec2f(x, y));
+            }
+
+            // lower left corner
+            translation.x = -(width  / 2.0f - cornerRadius);
+            translation.y = -(height / 2.0f - cornerRadius);
+            for (unsigned int i = 0; i < cornerSegments; i++) {
+                vertices.push_back(center);
+                vertices.push_back(translation + Vec2f(x, y));
+                
+                curAngle -= angle;
+                x = cos(curAngle) * cornerRadius;
+                y = sin(curAngle) * cornerRadius;
+                vertices.push_back(translation + Vec2f(x, y));
+            }
+            
+            // upper left corner
+            translation.x = -(width  / 2.0f - cornerRadius);
+            translation.y =  (height / 2.0f - cornerRadius);
+            for (unsigned int i = 0; i < cornerSegments; i++) {
+                vertices.push_back(center);
+                vertices.push_back(translation + Vec2f(x, y));
+                
+                curAngle -= angle;
+                x = cos(curAngle) * cornerRadius;
+                y = sin(curAngle) * cornerRadius;
+                vertices.push_back(translation + Vec2f(x, y));
+            }
+
+            // upper right corner
+            translation.x =  (width  / 2.0f - cornerRadius);
+            translation.y =  (height / 2.0f - cornerRadius);
+            for (unsigned int i = 0; i < cornerSegments; i++) {
+                vertices.push_back(center);
+                vertices.push_back(translation + Vec2f(x, y));
+                
+                curAngle -= angle;
+                x = cos(curAngle) * cornerRadius;
+                y = sin(curAngle) * cornerRadius;
+                vertices.push_back(translation + Vec2f(x, y));
+            }
+            
+            // upper body triangle
+            vertices.push_back(center);
+            vertices.push_back(Vec2f(-(width / 2.0f - cornerRadius), height / 2.0f));
+            vertices.push_back(Vec2f( (width / 2.0f - cornerRadius), height / 2.0f));
+            
+            // right body triangle
+            vertices.push_back(center);
+            vertices.push_back(Vec2f(width / 2.0f,  (height / 2.0f - cornerRadius)));
+            vertices.push_back(Vec2f(width / 2.0f, -(height / 2.0f - cornerRadius)));
+
+            // lower body triangle
+            vertices.push_back(center);
+            vertices.push_back(Vec2f( (width / 2.0f - cornerRadius), -height / 2.0f));
+            vertices.push_back(Vec2f(-(width / 2.0f - cornerRadius), -height / 2.0f));
+
+            // left body triangle
+            vertices.push_back(center);
+            vertices.push_back(Vec2f(-width / 2.0f, -(height / 2.0f - cornerRadius)));
+            vertices.push_back(Vec2f(-width / 2.0f,  (height / 2.0f - cornerRadius)));
+            
+            return vertices;
         }
     }
 }
