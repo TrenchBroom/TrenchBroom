@@ -28,13 +28,15 @@ namespace TrenchBroom {
             static const int StaticBoxTopMargin             = 5;
             static const int ControlHorizontalMargin        = 10;
             static const int ControlVerticalMargin          = 10;
-            static const int CheckBoxHierarchyMargin        = 20;
+            static const int CheckBoxHierarchyLeftMargin    = 20;
+            static const int CheckBoxVerticalMargin         = 10;
 #elif defined __APPLE__
             static const int StaticBoxInnerMargin           = 5;
             static const int StaticBoxTopMargin             = 0;
             static const int ControlHorizontalMargin        = 10;
             static const int ControlVerticalMargin          = 5;
-            static const int CheckBoxHierarchyMargin        = 20;
+            static const int CheckBoxHierarchyLeftMargin    = 20;
+            static const int CheckBoxVerticalMargin         = 0;
 #elif defined __linux__
 #endif
         }

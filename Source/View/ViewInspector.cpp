@@ -57,9 +57,12 @@ namespace TrenchBroom {
                     
                     wxSizer* entityPanelSizer = new wxBoxSizer(wxVERTICAL);
                     entityPanelSizer->Add(toggleEntities, 0, wxEXPAND);
-                    entityPanelSizer->Add(toggleEntityModels, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyMargin);
-                    entityPanelSizer->Add(toggleEntityBounds, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyMargin);
-                    entityPanelSizer->Add(toggleEntityClassnames, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyMargin);
+                    entityPanelSizer->AddSpacer(LayoutConstants::CheckBoxVerticalMargin);
+                    entityPanelSizer->Add(toggleEntityModels, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
+                    entityPanelSizer->AddSpacer(LayoutConstants::CheckBoxVerticalMargin);
+                    entityPanelSizer->Add(toggleEntityBounds, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
+                    entityPanelSizer->AddSpacer(LayoutConstants::CheckBoxVerticalMargin);
+                    entityPanelSizer->Add(toggleEntityClassnames, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
                     entityPanel->SetSizer(entityPanelSizer);
                 }
                 wxPanel* brushPanel = new wxPanel(togglePanel);
@@ -69,7 +72,8 @@ namespace TrenchBroom {
 
                     wxSizer* brushPanelSizer = new wxBoxSizer(wxVERTICAL);
                     brushPanelSizer->Add(toggleBrushes, 0, wxEXPAND);
-                    brushPanelSizer->Add(toggleClipBrushes, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyMargin);
+                    brushPanelSizer->AddSpacer(LayoutConstants::CheckBoxVerticalMargin);
+                    brushPanelSizer->Add(toggleClipBrushes, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
                     brushPanel->SetSizer(brushPanelSizer);
                 }
                 
