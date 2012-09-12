@@ -48,7 +48,7 @@ namespace TrenchBroom {
             String trimmed = Utility::trim(message);
             if (trimmed.empty())
                 return;
-            StringStream cleanMessage;
+            StringStream buffer;
             bool previousWasNewline = false;
             for (unsigned int i = 0; i < trimmed.length(); i++) {
                 char c = trimmed[i];
@@ -56,27 +56,28 @@ namespace TrenchBroom {
                     continue;
                 if (c == '\n') {
                     if (!previousWasNewline)
-                        cleanMessage << c;
+                        buffer << c;
                     previousWasNewline = true;
                 } else {
-                    cleanMessage << c;
+                    buffer << c;
                     previousWasNewline = false;
                 }
             }
-            cleanMessage << '\n';
+            buffer << '\n';
+			String cleanedMessage = buffer.str();
 
             if (m_textCtrl != NULL) {
                 if (setDefaultColor) {
                     long start = m_textCtrl->GetLastPosition();
-                    m_textCtrl->AppendText(cleanMessage.str());
+                    m_textCtrl->AppendText(cleanedMessage);
                     long end = m_textCtrl->GetLastPosition();
                     m_textCtrl->SetStyle(start, end, wxTextAttr(*wxWHITE, *wxBLACK)); // SetDefaultStyle doesn't work on OS X / Cocoa
                 } else {
-                    m_textCtrl->AppendText(cleanMessage.str());
+                    m_textCtrl->AppendText(cleanedMessage);
                 }
-                wxYieldIfNeeded();
+                // wxYieldIfNeeded(); yielding can change the order of message processing, so I'm removing it here
             } else {
-                m_buffer << cleanMessage.str();
+                m_buffer << cleanedMessage;
             }
         }
         

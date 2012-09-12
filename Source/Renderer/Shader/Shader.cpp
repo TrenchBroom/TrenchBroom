@@ -65,19 +65,23 @@ namespace TrenchBroom {
                 GLint compileStatus;
                 glGetShaderiv(m_shaderId, GL_COMPILE_STATUS, &compileStatus);
                 
-                GLint infoLogLength;
-                glGetShaderiv(m_shaderId, GL_INFO_LOG_LENGTH, &infoLogLength);
-				char* infoLog = new char[infoLogLength];
-                glGetShaderInfoLog(m_shaderId, infoLogLength, &infoLogLength, infoLog);
-                
-                if (compileStatus != 0) {
-                    m_console.debug(infoLog);
+                if (compileStatus != 0)
                     m_console.debug("Created %s", m_name.c_str());
-                } else {
+                else
                     m_console.error("Unable to compile %s, compilation output was:", m_name.c_str());
-                    m_console.error(infoLog);
-                }
-				delete [] infoLog;
+
+				GLint infoLogLength;
+                glGetShaderiv(m_shaderId, GL_INFO_LOG_LENGTH, &infoLogLength);
+				if (infoLogLength > 0) {
+					char* infoLog = new char[infoLogLength];
+					glGetShaderInfoLog(m_shaderId, infoLogLength, &infoLogLength, infoLog);
+                
+					if (compileStatus != 0)
+						m_console.debug(infoLog);
+					else
+	                    m_console.error(infoLog);
+					delete [] infoLog;
+				}
             } else {
                 m_console.error("Unable to create %s", m_name.c_str());
             }
@@ -156,21 +160,24 @@ namespace TrenchBroom {
                 GLint linkStatus;
                 glGetProgramiv(m_programId, GL_LINK_STATUS, &linkStatus);
                 
-                GLint infoLogLength;
-                glGetProgramiv(m_programId, GL_INFO_LOG_LENGTH, &infoLogLength);
-				char* infoLog = new char[infoLogLength];
-                glGetProgramInfoLog(m_programId, infoLogLength, &infoLogLength, infoLog);
-                
-                if (linkStatus == 0) {
+                if (linkStatus == 0)
                     m_console.error("Unable to link %s, linker output was:", m_name.c_str());
-                    m_console.error(infoLog);
-                } else {
-                    m_console.debug(infoLog);
-                }
+
+				GLint infoLogLength;
+                glGetProgramiv(m_programId, GL_INFO_LOG_LENGTH, &infoLogLength);
+				if (infoLogLength > 0) {
+					char* infoLog = new char[infoLogLength];
+					glGetProgramInfoLog(m_programId, infoLogLength, &infoLogLength, infoLog);
+                
+	                if (linkStatus == 0)
+		                m_console.error(infoLog);
+			        else
+				        m_console.debug(infoLog);
+					delete [] infoLog;
+				}
                 
                 // always set to false to prevent console spam
                 m_needsLinking = false;
-				delete [] infoLog;
             }
             
             glUseProgram(m_programId);
