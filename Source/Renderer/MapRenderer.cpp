@@ -413,6 +413,14 @@ namespace TrenchBroom {
             m_entityRendererCacheValid = true;
         }
         
+        void MapRenderer::moveEntityRenderer(Model::Entity* entity, EntityRenderers& from, EntityRenderers& to) {
+            EntityRenderers::iterator it = from.find(entity);
+            if (it != from.end()) {
+                to[entity] = it->second;
+                from.erase(it);
+            }
+        }
+
         void MapRenderer::createShaders() {
             assert(m_coloredEdgeVertexShader.get() == NULL);
             assert(m_edgeVertexShader.get() == NULL);
@@ -433,6 +441,9 @@ namespace TrenchBroom {
             m_faceVertexShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "Face.vertsh"), GL_VERTEX_SHADER, m_document.Console()));
             m_faceFragmentShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "Face.fragsh"), GL_FRAGMENT_SHADER, m_document.Console()));
 
+            m_entityModelVertexShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "EntityModel.vertsh"), GL_VERTEX_SHADER, m_document.Console()));
+            m_entityModelFragmentShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "EntityModel.fragsh"), GL_FRAGMENT_SHADER, m_document.Console()));
+            
             m_edgeProgram = ShaderProgramPtr(new ShaderProgram("constant colored edge shader program", m_document.Console()));
             m_edgeProgram->attachShader(*m_edgeVertexShader);
             m_edgeProgram->attachShader(*m_edgeFragmentShader);
@@ -444,6 +455,10 @@ namespace TrenchBroom {
             m_faceProgram = ShaderProgramPtr(new ShaderProgram("face shader program", m_document.Console()));
             m_faceProgram->attachShader(*m_faceVertexShader);
             m_faceProgram->attachShader(*m_faceFragmentShader);
+            
+            m_entityModelProgram = ShaderProgramPtr(new ShaderProgram("entity model shader program", m_document.Console()));
+            m_entityModelProgram->attachShader(*m_entityModelVertexShader);
+            m_entityModelProgram->attachShader(*m_entityModelFragmentShader);
             
             m_shadersCreated = true;
         }
@@ -536,12 +551,14 @@ namespace TrenchBroom {
                 const Model::EntityList& selectedEntities = changeSet.entitiesTo(Model::EditState::Selected);
                 for (unsigned int i = 0; i < selectedEntities.size(); i++) {
                     Model::Entity* entity = selectedEntities[i];
+                    moveEntityRenderer(entity, m_entityRenderers, m_selectedEntityRenderers);
                     m_classnameRenderer->transferString(entity, *m_selectedClassnameRenderer);
                 }
                 
                 const Model::EntityList& deselectedEntities = changeSet.entitiesFrom(Model::EditState::Selected);
                 for (unsigned int i = 0; i < deselectedEntities.size(); i++) {
                     Model::Entity* entity = deselectedEntities[i];
+                    moveEntityRenderer(entity, m_selectedEntityRenderers, m_entityRenderers);
                     m_selectedClassnameRenderer->transferString(entity, *m_classnameRenderer);
                 }
             }
@@ -553,12 +570,14 @@ namespace TrenchBroom {
                 const Model::EntityList& lockedEntities = changeSet.entitiesTo(Model::EditState::Locked);
                 for (unsigned int i = 0; i < lockedEntities.size(); i++) {
                     Model::Entity* entity = lockedEntities[i];
+                    moveEntityRenderer(entity, m_entityRenderers, m_lockedEntityRenderers);
                     m_classnameRenderer->transferString(entity, *m_lockedClassnameRenderer);
                 }
                 
                 const Model::EntityList& unlockedEntities = changeSet.entitiesFrom(Model::EditState::Locked);
                 for (unsigned int i = 0; i < unlockedEntities.size(); i++) {
                     Model::Entity* entity = unlockedEntities[i];
+                    moveEntityRenderer(entity, m_lockedEntityRenderers, m_entityRenderers);
                     m_lockedClassnameRenderer->transferString(entity, *m_classnameRenderer);
                 }
             }
@@ -637,8 +656,8 @@ namespace TrenchBroom {
                 m_faceProgram->setUniformVariable("GridSize", static_cast<float>(grid.actualSize()));
                 m_faceProgram->setUniformVariable("GridColor", prefs.getColor(Preferences::GridColor));
                 if (!m_faceVertexArrays.empty()) {
-                    m_faceProgram->setUniformVariable("GrayScale", false);
                     m_faceProgram->setUniformVariable("ApplyTinting", false);
+                    m_faceProgram->setUniformVariable("GrayScale", false);
                     for (unsigned int i = 0; i < m_faceVertexArrays.size(); i++) {
                         TextureVertexArray& textureVertexArray = m_faceVertexArrays[i];
                         textureVertexArray.texture->activate();
@@ -648,9 +667,9 @@ namespace TrenchBroom {
                     }
                 }
                 if (!m_selectedFaceVertexArrays.empty()) {
-                    m_faceProgram->setUniformVariable("GrayScale", false);
                     m_faceProgram->setUniformVariable("ApplyTinting", true);
                     m_faceProgram->setUniformVariable("TintColor", prefs.getColor(Preferences::SelectedFaceColor));
+                    m_faceProgram->setUniformVariable("GrayScale", false);
                     for (unsigned int i = 0; i < m_selectedFaceVertexArrays.size(); i++) {
                         TextureVertexArray& textureVertexArray = m_selectedFaceVertexArrays[i];
                         textureVertexArray.texture->activate();
@@ -702,6 +721,48 @@ namespace TrenchBroom {
             m_edgeVbo->deactivate();
             glResetEdgeOffset();
             
+            if (m_entityModelProgram->activate()) {
+                EntityRenderers::iterator it, end;
+
+                m_entityModelProgram->setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
+                m_entityRendererManager->activate();
+
+                m_entityModelProgram->setUniformVariable("ApplyTinting", false);
+                m_entityModelProgram->setUniformVariable("GrayScale", false);
+                for (it = m_entityRenderers.begin(), end = m_entityRenderers.end(); it != end; ++it) {
+                    Model::Entity* entity = it->first;
+                    if (context.filter().entityVisible(*entity)) {
+                        EntityRenderer* renderer = it->second.renderer;
+                        renderer->render(*m_entityModelProgram, context.transformation(), *entity);
+                    }
+                }
+
+                m_entityModelProgram->setUniformVariable("ApplyTinting", true);
+                m_entityModelProgram->setUniformVariable("TintColor", prefs.getColor(Preferences::SelectedFaceColor));
+                m_entityModelProgram->setUniformVariable("GrayScale", false);
+                for (it = m_selectedEntityRenderers.begin(), end = m_selectedEntityRenderers.end(); it != end; ++it) {
+                    Model::Entity* entity = it->first;
+                    if (context.filter().entityVisible(*entity)) {
+                        EntityRenderer* renderer = it->second.renderer;
+                        renderer->render(*m_entityModelProgram, context.transformation(), *entity);
+                    }
+                }
+
+                m_entityModelProgram->setUniformVariable("ApplyTinting", true);
+                m_entityModelProgram->setUniformVariable("TintColor", prefs.getColor(Preferences::LockedFaceColor));
+                m_entityModelProgram->setUniformVariable("GrayScale", true);
+                for (it = m_lockedEntityRenderers.begin(), end = m_lockedEntityRenderers.end(); it != end; ++it) {
+                    Model::Entity* entity = it->first;
+                    if (context.filter().entityVisible(*entity)) {
+                        EntityRenderer* renderer = it->second.renderer;
+                        renderer->render(*m_entityModelProgram, context.transformation(), *entity);
+                    }
+                }
+                
+                m_entityRendererManager->deactivate();
+                m_entityModelProgram->deactivate();
+            }
+            
             m_entityBoundsVbo->activate();
             if (m_entityBoundsVertexArray.get() != NULL && m_coloredEdgeProgram->activate()) {
                 m_entityBoundsVertexArray->render();
@@ -724,61 +785,6 @@ namespace TrenchBroom {
             }
             m_entityBoundsVbo->deactivate();
             
-            /*
-            // render geometry faces
-            m_faceVbo->activate();
-            glEnableClientState(GL_VERTEX_ARRAY);
-            renderFaces(context, true, false, false, m_faceRenderInfos);
-            renderFaces(context, true, true, false, m_selectedFaceRenderInfos);
-            renderFaces(context, false, false, true, m_lockedFaceRenderInfos);
-            glDisableClientState(GL_VERTEX_ARRAY);
-            m_faceVbo->deactivate();
-            
-            // render geometry edges
-            m_edgeVbo->activate();
-            glEnableClientState(GL_VERTEX_ARRAY);
-            glSetEdgeOffset(0.01f);
-            renderEdges(context, m_edgeRenderInfo, NULL);
-            renderEdges(context, m_lockedEdgeRenderInfo, &prefs.getColor(Preferences::LockedEdgeColor));
-            glSetEdgeOffset(0.02f);
-            glDisable(GL_DEPTH_TEST);
-            renderEdges(context, m_selectedEdgeRenderInfo, &prefs.getColor(Preferences::OccludedSelectedEdgeColor));
-            glEnable(GL_DEPTH_TEST);
-            renderEdges(context, m_selectedEdgeRenderInfo, &prefs.getColor(Preferences::SelectedEdgeColor));
-            glResetEdgeOffset();
-            glDisableClientState(GL_VERTEX_ARRAY);
-            m_edgeVbo->deactivate();
-
-            // render entity bounds
-            m_entityBoundsVbo->activate();
-            glEnableClientState(GL_VERTEX_ARRAY);
-            renderEntityBounds(context, m_entityBoundsRenderInfo, NULL);
-            renderEntityBounds(context, m_lockedEntityBoundsRenderInfo, &prefs.getColor(Preferences::LockedEntityBoundsColor));
-            glDisable(GL_DEPTH_TEST);
-            renderEntityBounds(context, m_selectedEntityBoundsRenderInfo, &prefs.getColor(Preferences::OccludedSelectedEntityBoundsColor));
-            glEnable(GL_DEPTH_TEST);
-            glDepthFunc(GL_LEQUAL);
-            renderEntityBounds(context, m_selectedEntityBoundsRenderInfo, &prefs.getColor(Preferences::SelectedEntityBoundsColor));
-            glDepthFunc(GL_LESS);
-            glDisableClientState(GL_VERTEX_ARRAY);
-            m_entityBoundsVbo->deactivate();
-
-            // render entity models
-            renderEntityModels(context, m_entityRenderers);
-            renderEntityModels(context, m_selectedEntityRenderers);
-
-            // render classnames
-            EntityClassnameFilter classnameFilter;
-            m_stringManager->activate();
-            m_classnameRenderer->render(context, classnameFilter, prefs.getColor(Preferences::InfoOverlayColor));
-
-            glDisable(GL_DEPTH_TEST);
-            m_selectedClassnameRenderer->render(context, classnameFilter, prefs.getColor(Preferences::OccludedSelectedInfoOverlayColor));
-            glEnable(GL_DEPTH_TEST);
-
-             m_selectedClassnameRenderer->render(context, classnameFilter, prefs.getColor(Preferences::SelectedInfoOverlayColor));
-            m_stringManager->deactivate();
-             */
             m_rendering = false;
         }
     }

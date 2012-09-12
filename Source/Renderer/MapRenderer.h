@@ -113,9 +113,12 @@ namespace TrenchBroom {
             ShaderPtr m_edgeFragmentShader;
             ShaderPtr m_faceVertexShader;
             ShaderPtr m_faceFragmentShader;
+            ShaderPtr m_entityModelVertexShader;
+            ShaderPtr m_entityModelFragmentShader;
             ShaderProgramPtr m_coloredEdgeProgram;
             ShaderProgramPtr m_edgeProgram;
             ShaderProgramPtr m_faceProgram;
+            ShaderProgramPtr m_entityModelProgram;
             
             /*
             // selection guides
@@ -147,15 +150,10 @@ namespace TrenchBroom {
             bool reloadEntityModel(const Model::Entity& entity, CachedEntityRenderer& cachedRenderer);
             void reloadEntityModels(RenderContext& context, EntityRenderers& renderers);
             void reloadEntityModels(RenderContext& context);
+            void moveEntityRenderer(Model::Entity* entity, EntityRenderers& from, EntityRenderers& to);
             
             void createShaders();
             void validate(RenderContext& context);
-
-//            void renderEntityBounds(RenderContext& context, const EdgeRenderInfo& renderInfo, const Color* color);
-//            void renderEntityModels(RenderContext& context, EntityRenderers& entities);
-            void renderEdges(RenderContext& context, VertexArray* renderInfo, const Color* color);
-//            void renderFaces(RenderContext& context, bool textured, bool selected, bool locked, const FaceRenderInfos& renderInfos);
-//            void renderFigures(RenderContext& context);
         public:
             MapRenderer(Model::MapDocument& document);
             ~MapRenderer();

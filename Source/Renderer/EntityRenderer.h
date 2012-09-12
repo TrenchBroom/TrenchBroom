@@ -31,12 +31,13 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class ShaderProgram;
+        class Transformation;
         
         class EntityRenderer {
         public:
             virtual ~EntityRenderer() {};
-            virtual void render(ShaderProgram& shaderProgram, const Model::Entity& entity);
-            virtual void render(ShaderProgram& shaderProgram, const Vec3f& position, float angle);
+            virtual void render(ShaderProgram& shaderProgram, Transformation& transformation, const Model::Entity& entity);
+            virtual void render(ShaderProgram& shaderProgram, Transformation& transformation, const Vec3f& position, float angle);
             virtual void render(ShaderProgram& shaderProgram) = 0;
             virtual const Vec3f& center() const = 0;
             virtual const BBox& bounds() const = 0;
