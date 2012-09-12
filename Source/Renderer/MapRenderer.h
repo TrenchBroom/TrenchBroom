@@ -160,6 +160,12 @@ namespace TrenchBroom {
             
             void createShaders();
             void validate(RenderContext& context);
+            
+            void renderFaces(RenderContext& context);
+            void renderEdges(RenderContext& context);
+            void renderEntityBounds(RenderContext& context);
+            void renderEntityModels(RenderContext& context);
+            void renderEntityClassnames(RenderContext& context);
         public:
             MapRenderer(Model::MapDocument& document);
             ~MapRenderer();

@@ -477,6 +477,180 @@ namespace TrenchBroom {
                 rebuildEntityData(context);
         }
         
+        void MapRenderer::renderFaces(RenderContext& context) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            Utility::Grid& grid = m_document.Grid();
+            
+            m_faceVbo->activate();
+            if (m_faceProgram->activate()) {
+                glActiveTexture(GL_TEXTURE0);
+                m_faceProgram->setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
+                m_faceProgram->setUniformVariable("RenderGrid", grid.visible());
+                m_faceProgram->setUniformVariable("GridSize", static_cast<float>(grid.actualSize()));
+                m_faceProgram->setUniformVariable("GridColor", prefs.getColor(Preferences::GridColor));
+                if (!m_faceVertexArrays.empty()) {
+                    m_faceProgram->setUniformVariable("ApplyTinting", false);
+                    m_faceProgram->setUniformVariable("GrayScale", false);
+                    for (unsigned int i = 0; i < m_faceVertexArrays.size(); i++) {
+                        TextureVertexArray& textureVertexArray = m_faceVertexArrays[i];
+                        textureVertexArray.texture->activate();
+                        m_faceProgram->setUniformVariable("FaceTexture", 0);
+                        textureVertexArray.vertexArray->render();
+                        textureVertexArray.texture->deactivate();
+                    }
+                }
+                if (!m_selectedFaceVertexArrays.empty()) {
+                    m_faceProgram->setUniformVariable("ApplyTinting", true);
+                    m_faceProgram->setUniformVariable("TintColor", prefs.getColor(Preferences::SelectedFaceColor));
+                    m_faceProgram->setUniformVariable("GrayScale", false);
+                    for (unsigned int i = 0; i < m_selectedFaceVertexArrays.size(); i++) {
+                        TextureVertexArray& textureVertexArray = m_selectedFaceVertexArrays[i];
+                        textureVertexArray.texture->activate();
+                        m_faceProgram->setUniformVariable("FaceTexture", 0);
+                        textureVertexArray.vertexArray->render();
+                        textureVertexArray.texture->deactivate();
+                    }
+                }
+                if (!m_lockedFaceVertexArrays.empty()) {
+                    m_faceProgram->setUniformVariable("ApplyTinting", true);
+                    m_faceProgram->setUniformVariable("TintColor", prefs.getColor(Preferences::LockedFaceColor));
+                    m_faceProgram->setUniformVariable("GrayScale", true);
+                    for (unsigned int i = 0; i < m_lockedFaceVertexArrays.size(); i++) {
+                        TextureVertexArray& textureVertexArray = m_lockedFaceVertexArrays[i];
+                        textureVertexArray.texture->activate();
+                        m_faceProgram->setUniformVariable("FaceTexture", 0);
+                        textureVertexArray.vertexArray->render();
+                        textureVertexArray.texture->deactivate();
+                    }
+                }
+                m_faceProgram->deactivate();
+            }
+            m_faceVbo->deactivate();
+        }
+        
+        void MapRenderer::renderEdges(RenderContext& context) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+
+            m_edgeVbo->activate();
+            if (m_edgeVertexArray.get() != NULL && m_coloredEdgeProgram->activate()) {
+                glSetEdgeOffset(0.02f);
+                m_edgeVertexArray->render();
+                m_coloredEdgeProgram->deactivate();
+            }
+            if (m_edgeProgram->activate()) {
+                if (m_lockedEdgeVertexArray.get() != NULL) {
+                    m_edgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::LockedEdgeColor));
+                    glSetEdgeOffset(0.02f);
+                    m_lockedEdgeVertexArray->render();
+                }
+                if (m_selectedEdgeVertexArray.get() != NULL) {
+                    glDisable(GL_DEPTH_TEST);
+                    m_edgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::OccludedSelectedEdgeColor));
+                    glSetEdgeOffset(0.02f);
+                    m_selectedEdgeVertexArray->render();
+                    glEnable(GL_DEPTH_TEST);
+                    m_edgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::SelectedEdgeColor));
+                    glSetEdgeOffset(0.025f);
+                    m_selectedEdgeVertexArray->render();
+                }
+                m_edgeProgram->deactivate();
+            }
+            m_edgeVbo->deactivate();
+            glResetEdgeOffset();
+        }
+        
+        void MapRenderer::renderEntityBounds(RenderContext& context) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            
+            m_entityBoundsVbo->activate();
+            if (m_entityBoundsVertexArray.get() != NULL && m_coloredEdgeProgram->activate()) {
+                m_entityBoundsVertexArray->render();
+                m_coloredEdgeProgram->deactivate();
+            }
+            if (m_edgeProgram->activate()) {
+                if (m_lockedEntityBoundsVertexArray.get() != NULL) {
+                    m_edgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::LockedEntityBoundsColor));
+                    m_lockedEntityBoundsVertexArray->render();
+                }
+                if (m_selectedEntityBoundsVertexArray.get() != NULL) {
+                    glDisable(GL_DEPTH_TEST);
+                    m_edgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::OccludedSelectedEdgeColor));
+                    m_selectedEntityBoundsVertexArray->render();
+                    glEnable(GL_DEPTH_TEST);
+                    m_edgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::SelectedEdgeColor));
+                    m_selectedEntityBoundsVertexArray->render();
+                }
+                m_edgeProgram->deactivate();
+            }
+            m_entityBoundsVbo->deactivate();
+        }
+        
+        void MapRenderer::renderEntityModels(RenderContext& context) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+
+            if (m_entityModelProgram->activate()) {
+                EntityRenderers::iterator it, end;
+                
+                m_entityModelProgram->setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
+                m_entityRendererManager->activate();
+                
+                m_entityModelProgram->setUniformVariable("ApplyTinting", false);
+                m_entityModelProgram->setUniformVariable("GrayScale", false);
+                for (it = m_entityRenderers.begin(), end = m_entityRenderers.end(); it != end; ++it) {
+                    Model::Entity* entity = it->first;
+                    if (context.filter().entityVisible(*entity)) {
+                        EntityRenderer* renderer = it->second.renderer;
+                        renderer->render(*m_entityModelProgram, context.transformation(), *entity);
+                    }
+                }
+                
+                m_entityModelProgram->setUniformVariable("ApplyTinting", true);
+                m_entityModelProgram->setUniformVariable("TintColor", prefs.getColor(Preferences::SelectedFaceColor));
+                m_entityModelProgram->setUniformVariable("GrayScale", false);
+                for (it = m_selectedEntityRenderers.begin(), end = m_selectedEntityRenderers.end(); it != end; ++it) {
+                    Model::Entity* entity = it->first;
+                    if (context.filter().entityVisible(*entity)) {
+                        EntityRenderer* renderer = it->second.renderer;
+                        renderer->render(*m_entityModelProgram, context.transformation(), *entity);
+                    }
+                }
+                
+                m_entityModelProgram->setUniformVariable("ApplyTinting", true);
+                m_entityModelProgram->setUniformVariable("TintColor", prefs.getColor(Preferences::LockedFaceColor));
+                m_entityModelProgram->setUniformVariable("GrayScale", true);
+                for (it = m_lockedEntityRenderers.begin(), end = m_lockedEntityRenderers.end(); it != end; ++it) {
+                    Model::Entity* entity = it->first;
+                    if (context.filter().entityVisible(*entity)) {
+                        EntityRenderer* renderer = it->second.renderer;
+                        renderer->render(*m_entityModelProgram, context.transformation(), *entity);
+                    }
+                }
+                
+                m_entityRendererManager->deactivate();
+                m_entityModelProgram->deactivate();
+            }
+        }
+        
+        void MapRenderer::renderEntityClassnames(RenderContext& context) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+
+            EntityClassnameFilter classnameFilter;
+            m_classnameRenderer->render(context, classnameFilter, *m_textProgram,
+                                        prefs.getColor(Preferences::InfoOverlayTextColor), *m_textBackgroundProgram,
+                                        prefs.getColor(Preferences::InfoOverlayBackgroundColor));
+            m_lockedClassnameRenderer->render(context, classnameFilter, *m_textProgram,
+                                              prefs.getColor(Preferences::LockedInfoOverlayTextColor), *m_textBackgroundProgram,
+                                              prefs.getColor(Preferences::LockedInfoOverlayBackgroundColor));
+            glDisable(GL_DEPTH_TEST);
+            m_selectedClassnameRenderer->render(context, classnameFilter, *m_textProgram,
+                                                prefs.getColor(Preferences::OccludedSelectedInfoOverlayTextColor), *m_textBackgroundProgram,
+                                                prefs.getColor(Preferences::OccludedSelectedInfoOverlayBackgroundColor));
+            glEnable(GL_DEPTH_TEST);
+            m_selectedClassnameRenderer->render(context, classnameFilter, *m_textProgram,
+                                                prefs.getColor(Preferences::SelectedInfoOverlayTextColor), *m_textBackgroundProgram,
+                                                prefs.getColor(Preferences::SelectedInfoOverlayBackgroundColor));
+        }
+
         MapRenderer::MapRenderer(Model::MapDocument& document) :
         m_document(document) {
             m_rendering = false;
@@ -656,9 +830,6 @@ namespace TrenchBroom {
                 createShaders();
             validate(context);
             
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            Utility::Grid& grid = m_document.Grid();
-
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glFrontFace(GL_CW);
@@ -668,159 +839,11 @@ namespace TrenchBroom {
             glShadeModel(GL_SMOOTH);
             glResetEdgeOffset();
             
-            glPolygonMode(GL_FRONT, GL_FILL);
-            m_faceVbo->activate();
-            if (m_faceProgram->activate()) {
-                glActiveTexture(GL_TEXTURE0);
-                m_faceProgram->setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
-                m_faceProgram->setUniformVariable("RenderGrid", grid.visible());
-                m_faceProgram->setUniformVariable("GridSize", static_cast<float>(grid.actualSize()));
-                m_faceProgram->setUniformVariable("GridColor", prefs.getColor(Preferences::GridColor));
-                if (!m_faceVertexArrays.empty()) {
-                    m_faceProgram->setUniformVariable("ApplyTinting", false);
-                    m_faceProgram->setUniformVariable("GrayScale", false);
-                    for (unsigned int i = 0; i < m_faceVertexArrays.size(); i++) {
-                        TextureVertexArray& textureVertexArray = m_faceVertexArrays[i];
-                        textureVertexArray.texture->activate();
-                        m_faceProgram->setUniformVariable("FaceTexture", 0);
-                        textureVertexArray.vertexArray->render();
-                        textureVertexArray.texture->deactivate();
-                    }
-                }
-                if (!m_selectedFaceVertexArrays.empty()) {
-                    m_faceProgram->setUniformVariable("ApplyTinting", true);
-                    m_faceProgram->setUniformVariable("TintColor", prefs.getColor(Preferences::SelectedFaceColor));
-                    m_faceProgram->setUniformVariable("GrayScale", false);
-                    for (unsigned int i = 0; i < m_selectedFaceVertexArrays.size(); i++) {
-                        TextureVertexArray& textureVertexArray = m_selectedFaceVertexArrays[i];
-                        textureVertexArray.texture->activate();
-                        m_faceProgram->setUniformVariable("FaceTexture", 0);
-                        textureVertexArray.vertexArray->render();
-                        textureVertexArray.texture->deactivate();
-                    }
-                }
-                if (!m_lockedFaceVertexArrays.empty()) {
-                    m_faceProgram->setUniformVariable("ApplyTinting", true);
-                    m_faceProgram->setUniformVariable("TintColor", prefs.getColor(Preferences::LockedFaceColor));
-                    m_faceProgram->setUniformVariable("GrayScale", true);
-                    for (unsigned int i = 0; i < m_lockedFaceVertexArrays.size(); i++) {
-                        TextureVertexArray& textureVertexArray = m_lockedFaceVertexArrays[i];
-                        textureVertexArray.texture->activate();
-                        m_faceProgram->setUniformVariable("FaceTexture", 0);
-                        textureVertexArray.vertexArray->render();
-                        textureVertexArray.texture->deactivate();
-                    }
-                }
-                m_faceProgram->deactivate();
-            }
-            m_faceVbo->deactivate();
-
-            m_edgeVbo->activate();
-            if (m_edgeVertexArray.get() != NULL && m_coloredEdgeProgram->activate()) {
-                glSetEdgeOffset(0.02f);
-                m_edgeVertexArray->render();
-                m_coloredEdgeProgram->deactivate();
-            }
-            if (m_edgeProgram->activate()) {
-                if (m_lockedEdgeVertexArray.get() != NULL) {
-                    m_edgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::LockedEdgeColor));
-                    glSetEdgeOffset(0.02f);
-                    m_lockedEdgeVertexArray->render();
-                }
-                if (m_selectedEdgeVertexArray.get() != NULL) {
-                    glDisable(GL_DEPTH_TEST);
-                    m_edgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::OccludedSelectedEdgeColor));
-                    glSetEdgeOffset(0.02f);
-                    m_selectedEdgeVertexArray->render();
-                    glEnable(GL_DEPTH_TEST);
-                    m_edgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::SelectedEdgeColor));
-                    glSetEdgeOffset(0.025f);
-                    m_selectedEdgeVertexArray->render();
-                }
-                m_edgeProgram->deactivate();
-            }
-            m_edgeVbo->deactivate();
-            glResetEdgeOffset();
-            
-            if (m_entityModelProgram->activate()) {
-                EntityRenderers::iterator it, end;
-
-                m_entityModelProgram->setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
-                m_entityRendererManager->activate();
-
-                m_entityModelProgram->setUniformVariable("ApplyTinting", false);
-                m_entityModelProgram->setUniformVariable("GrayScale", false);
-                for (it = m_entityRenderers.begin(), end = m_entityRenderers.end(); it != end; ++it) {
-                    Model::Entity* entity = it->first;
-                    if (context.filter().entityVisible(*entity)) {
-                        EntityRenderer* renderer = it->second.renderer;
-                        renderer->render(*m_entityModelProgram, context.transformation(), *entity);
-                    }
-                }
-
-                m_entityModelProgram->setUniformVariable("ApplyTinting", true);
-                m_entityModelProgram->setUniformVariable("TintColor", prefs.getColor(Preferences::SelectedFaceColor));
-                m_entityModelProgram->setUniformVariable("GrayScale", false);
-                for (it = m_selectedEntityRenderers.begin(), end = m_selectedEntityRenderers.end(); it != end; ++it) {
-                    Model::Entity* entity = it->first;
-                    if (context.filter().entityVisible(*entity)) {
-                        EntityRenderer* renderer = it->second.renderer;
-                        renderer->render(*m_entityModelProgram, context.transformation(), *entity);
-                    }
-                }
-
-                m_entityModelProgram->setUniformVariable("ApplyTinting", true);
-                m_entityModelProgram->setUniformVariable("TintColor", prefs.getColor(Preferences::LockedFaceColor));
-                m_entityModelProgram->setUniformVariable("GrayScale", true);
-                for (it = m_lockedEntityRenderers.begin(), end = m_lockedEntityRenderers.end(); it != end; ++it) {
-                    Model::Entity* entity = it->first;
-                    if (context.filter().entityVisible(*entity)) {
-                        EntityRenderer* renderer = it->second.renderer;
-                        renderer->render(*m_entityModelProgram, context.transformation(), *entity);
-                    }
-                }
-                
-                m_entityRendererManager->deactivate();
-                m_entityModelProgram->deactivate();
-            }
-            
-            m_entityBoundsVbo->activate();
-            if (m_entityBoundsVertexArray.get() != NULL && m_coloredEdgeProgram->activate()) {
-                m_entityBoundsVertexArray->render();
-                m_coloredEdgeProgram->deactivate();
-            }
-            if (m_edgeProgram->activate()) {
-                if (m_lockedEntityBoundsVertexArray.get() != NULL) {
-                    m_edgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::LockedEntityBoundsColor));
-                    m_lockedEntityBoundsVertexArray->render();
-                }
-                if (m_selectedEntityBoundsVertexArray.get() != NULL) {
-                    glDisable(GL_DEPTH_TEST);
-                    m_edgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::OccludedSelectedEdgeColor));
-                    m_selectedEntityBoundsVertexArray->render();
-                    glEnable(GL_DEPTH_TEST);
-                    m_edgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::SelectedEdgeColor));
-                    m_selectedEntityBoundsVertexArray->render();
-                }
-                m_edgeProgram->deactivate();
-            }
-            m_entityBoundsVbo->deactivate();
-            
-            EntityClassnameFilter classnameFilter;
-            m_classnameRenderer->render(context, classnameFilter, *m_textProgram,
-                                        prefs.getColor(Preferences::InfoOverlayTextColor), *m_textBackgroundProgram,
-                                        prefs.getColor(Preferences::InfoOverlayBackgroundColor));
-            m_lockedClassnameRenderer->render(context, classnameFilter, *m_textProgram,
-                                              prefs.getColor(Preferences::LockedInfoOverlayTextColor), *m_textBackgroundProgram,
-                                              prefs.getColor(Preferences::LockedInfoOverlayBackgroundColor));
-            glDisable(GL_DEPTH_TEST);
-            m_selectedClassnameRenderer->render(context, classnameFilter, *m_textProgram,
-                                                prefs.getColor(Preferences::OccludedSelectedInfoOverlayTextColor), *m_textBackgroundProgram,
-                                                prefs.getColor(Preferences::OccludedSelectedInfoOverlayBackgroundColor));
-            glEnable(GL_DEPTH_TEST);
-            m_selectedClassnameRenderer->render(context, classnameFilter, *m_textProgram,
-                                                prefs.getColor(Preferences::SelectedInfoOverlayTextColor), *m_textBackgroundProgram,
-                                                prefs.getColor(Preferences::SelectedInfoOverlayBackgroundColor));
+            renderFaces(context);
+            renderEdges(context);
+            renderEntityModels(context);
+            renderEntityBounds(context);
+            renderEntityClassnames(context);
             
             m_rendering = false;
         }

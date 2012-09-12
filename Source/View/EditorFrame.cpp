@@ -44,7 +44,7 @@ namespace TrenchBroom {
             
             wxSplitterWindow* inspectorSplitter = new wxSplitterWindow(logSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3DSASH | wxSP_LIVE_UPDATE);
             inspectorSplitter->SetSashGravity(1.0f);
-            inspectorSplitter->SetMinimumPaneSize(300);
+            inspectorSplitter->SetMinimumPaneSize(350);
             
             m_logView = new wxTextCtrl(logSplitter, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2);
             m_logView->SetDefaultStyle(wxTextAttr(*wxLIGHT_GREY, *wxBLACK));
@@ -61,7 +61,7 @@ namespace TrenchBroom {
             SetSizer(logSplitterSizer);
             
             SetSize(800, 600);
-            inspectorSplitter->SetSashPosition(GetSize().x - 300);
+            inspectorSplitter->SetSashPosition(GetSize().x - 350);
             logSplitter->SetSashPosition(GetSize().y - 150);
             Layout();
         }

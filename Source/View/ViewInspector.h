@@ -17,26 +17,21 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Inspector__
-#define __TrenchBroom__Inspector__
+#ifndef __TrenchBroom__ViewInspector__
+#define __TrenchBroom__ViewInspector__
 
-#include <wx/notebook.h>
 #include <wx/panel.h>
 
 namespace TrenchBroom {
     namespace View {
-        class Inspector : public wxPanel {
+        class ViewInspector : public wxPanel {
         protected:
-            wxNotebook* m_notebook;
-            wxNotebookPage* CreateMapInspector();
-            wxNotebookPage* CreateEntityInspector();
-            wxNotebookPage* CreateBrushInspector();
-            wxNotebookPage* CreateFaceInspector();
-            wxNotebookPage* CreateViewInspector();
+            wxWindow* createFilterBox();
+            wxWindow* createRenderModeSelector();
         public:
-            Inspector(wxWindow* parent);
+            ViewInspector(wxWindow* parent);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Inspector__) */
+#endif /* defined(__TrenchBroom__ViewInspector__) */

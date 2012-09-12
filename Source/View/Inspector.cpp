@@ -21,6 +21,8 @@
 
 #include <wx/sizer.h>
 
+#include "View/ViewInspector.h"
+
 namespace TrenchBroom {
     namespace View {
         wxNotebookPage* Inspector::CreateMapInspector() {
@@ -38,14 +40,19 @@ namespace TrenchBroom {
         wxNotebookPage* Inspector::CreateFaceInspector() {
             return new wxPanel(m_notebook);
         }
-
+        
+        wxNotebookPage* Inspector::CreateViewInspector() {
+            return new ViewInspector(m_notebook);
+        }
+        
         Inspector::Inspector(wxWindow* parent) : wxPanel(parent) {
             m_notebook = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNB_TOP | wxCLIP_CHILDREN);
             m_notebook->AddPage(CreateMapInspector(), wxT("Map"));
             m_notebook->AddPage(CreateEntityInspector(), wxT("Entity"));
             m_notebook->AddPage(CreateBrushInspector(), wxT("Brush"));
             m_notebook->AddPage(CreateFaceInspector(), wxT("Face"));
-
+            m_notebook->AddPage(CreateViewInspector(), wxT("View"));
+            
             wxSizer* notebookSizer = new wxBoxSizer(wxVERTICAL);
             notebookSizer->Add(m_notebook, 1, wxEXPAND);
             SetSizer(notebookSizer);
