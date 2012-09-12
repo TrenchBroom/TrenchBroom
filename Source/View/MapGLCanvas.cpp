@@ -66,7 +66,7 @@ namespace TrenchBroom {
             m_attribs[4] = WX_GL_SAMPLES;
             m_attribs[5] = 4;
             m_attribs[6] = WX_GL_DEPTH_SIZE;
-            m_attribs[7] = 32;
+            m_attribs[7] = 24;
             m_attribs[8] = 0;
             m_attribs[9] = 0;
             
