@@ -27,6 +27,8 @@
 #include <wx/statline.h>
 #include <wx/stattext.h>
 
+#include "View/LayoutConstants.h"
+
 namespace TrenchBroom {
     namespace View {
         
@@ -39,7 +41,7 @@ namespace TrenchBroom {
                 
                 wxSizer* searchPanelSizer = new wxBoxSizer(wxHORIZONTAL);
                 searchPanelSizer->Add(searchLabel, 0, wxEXPAND | wxTOP, 2);
-                searchPanelSizer->AddSpacer(10);
+                searchPanelSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
                 searchPanelSizer->Add(searchBox, 1, wxEXPAND);
                 searchPanel->SetSizer(searchPanelSizer);
             }
@@ -55,9 +57,9 @@ namespace TrenchBroom {
                     
                     wxSizer* entityPanelSizer = new wxBoxSizer(wxVERTICAL);
                     entityPanelSizer->Add(toggleEntities, 0, wxEXPAND);
-                    entityPanelSizer->Add(toggleEntityModels, 0, wxEXPAND | wxLEFT, 20);
-                    entityPanelSizer->Add(toggleEntityBounds, 0, wxEXPAND | wxLEFT, 20);
-                    entityPanelSizer->Add(toggleEntityClassnames, 0, wxEXPAND | wxLEFT, 20);
+                    entityPanelSizer->Add(toggleEntityModels, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyMargin);
+                    entityPanelSizer->Add(toggleEntityBounds, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyMargin);
+                    entityPanelSizer->Add(toggleEntityClassnames, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyMargin);
                     entityPanel->SetSizer(entityPanelSizer);
                 }
                 wxPanel* brushPanel = new wxPanel(togglePanel);
@@ -67,20 +69,20 @@ namespace TrenchBroom {
 
                     wxSizer* brushPanelSizer = new wxBoxSizer(wxVERTICAL);
                     brushPanelSizer->Add(toggleBrushes, 0, wxEXPAND);
-                    brushPanelSizer->Add(toggleClipBrushes, 0, wxEXPAND | wxLEFT, 20);
+                    brushPanelSizer->Add(toggleClipBrushes, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyMargin);
                     brushPanel->SetSizer(brushPanelSizer);
                 }
                 
                 wxSizer* togglePanelSizer = new wxBoxSizer(wxHORIZONTAL);
                 togglePanelSizer->Add(entityPanel, 0, wxEXPAND);
-                togglePanelSizer->AddSpacer(10);
+                togglePanelSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
                 togglePanelSizer->Add(brushPanel, 1, wxEXPAND);
                 togglePanel->SetSizer(togglePanelSizer);
             }
             
             // layout of the contained controls
             wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
-            innerSizer->Add(searchPanel, 0, wxEXPAND);
+            innerSizer->Add(searchPanel, 0, wxEXPAND | wxTOP, LayoutConstants::StaticBoxTopMargin);
             innerSizer->AddSpacer(5);
             innerSizer->Add(new wxStaticLine(filterBox), 0, wxEXPAND);
             innerSizer->AddSpacer(5);
@@ -88,7 +90,7 @@ namespace TrenchBroom {
             
             // creates 5 pixel border inside the static box
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(innerSizer, 0, wxEXPAND | wxALL, 5);
+            outerSizer->Add(innerSizer, 0, wxEXPAND | wxALL, LayoutConstants::StaticBoxInnerMargin);
             
             filterBox->SetSizer(outerSizer);
             return filterBox;
@@ -110,7 +112,7 @@ namespace TrenchBroom {
             // put both next to each other, allowing the dropdown to expand
             wxSizer* renderModePanelSizer = new wxBoxSizer(wxHORIZONTAL);
             renderModePanelSizer->Add(renderModeLabel, 0, wxEXPAND | wxTOP, 1);
-            renderModePanelSizer->AddSpacer(10);
+            renderModePanelSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
             renderModePanelSizer->Add(renderModeChoice, 1, wxEXPAND);
             renderModePanel->SetSizer(renderModePanelSizer);
             
@@ -123,7 +125,7 @@ namespace TrenchBroom {
             // layout of the contained controls
             wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
             innerSizer->Add(createFilterBox(), 1, wxEXPAND);
-            innerSizer->AddSpacer(5);
+            innerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
             innerSizer->Add(createRenderModeSelector(), 0, wxEXPAND | wxBOTTOM, 2);
             
             // creates 5 pixel border inside the page
