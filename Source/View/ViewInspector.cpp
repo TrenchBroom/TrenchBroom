@@ -87,9 +87,9 @@ namespace TrenchBroom {
             // layout of the contained controls
             wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
             innerSizer->Add(searchPanel, 0, wxEXPAND | wxTOP, LayoutConstants::StaticBoxTopMargin);
-            innerSizer->AddSpacer(5);
+            innerSizer->AddSpacer(LayoutConstants::DefaultVerticalMargin);
             innerSizer->Add(new wxStaticLine(filterBox), 0, wxEXPAND);
-            innerSizer->AddSpacer(5);
+            innerSizer->AddSpacer(LayoutConstants::DefaultVerticalMargin);
             innerSizer->Add(togglePanel, 1, wxEXPAND);
             
             // creates 5 pixel border inside the static box
