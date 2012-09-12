@@ -67,7 +67,7 @@ namespace TrenchBroom {
                 
                 GLint infoLogLength;
                 glGetShaderiv(m_shaderId, GL_INFO_LOG_LENGTH, &infoLogLength);
-                char infoLog[infoLogLength];
+				char* infoLog = new char[infoLogLength];
                 glGetShaderInfoLog(m_shaderId, infoLogLength, &infoLogLength, infoLog);
                 
                 if (compileStatus != 0) {
@@ -77,6 +77,7 @@ namespace TrenchBroom {
                     m_console.error("Unable to compile %s, compilation output was:", m_name.c_str());
                     m_console.error(infoLog);
                 }
+				delete [] infoLog;
             } else {
                 m_console.error("Unable to create %s", m_name.c_str());
             }
@@ -157,7 +158,7 @@ namespace TrenchBroom {
                 
                 GLint infoLogLength;
                 glGetProgramiv(m_programId, GL_INFO_LOG_LENGTH, &infoLogLength);
-                char infoLog[infoLogLength];
+				char* infoLog = new char[infoLogLength];
                 glGetProgramInfoLog(m_programId, infoLogLength, &infoLogLength, infoLog);
                 
                 if (linkStatus == 0) {
@@ -169,6 +170,7 @@ namespace TrenchBroom {
                 
                 // always set to false to prevent console spam
                 m_needsLinking = false;
+				delete [] infoLog;
             }
             
             glUseProgram(m_programId);

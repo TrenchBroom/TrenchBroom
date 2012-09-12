@@ -20,7 +20,6 @@
 #include "PathRenderer.h"
 
 #include "Renderer/Vbo.h"
-#include "Renderer/VertexArray.h"
 #include "Renderer/Text/PathTesselator.h"
 
 namespace TrenchBroom {

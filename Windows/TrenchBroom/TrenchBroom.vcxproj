@@ -89,8 +89,12 @@
       <AdditionalDependencies>opengl32.lib;glu32.lib;..\Lib\freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>Copy "$(ProjectDir)..\..\Resources\Defs\Quake.def" "$(TargetDir)\Resources"
+      <Command>Mkdir "$(TargetDir)\Resources"
+Copy "$(ProjectDir)..\..\Resources\Defs\Quake.def" "$(TargetDir)\Resources"
 Copy "$(ProjectDir)..\..\Resources\Graphics\QuakePalette.lmp" "$(TargetDir)\Resources"
+Copy "$(ProjectDir)..\..\Source\Renderer\Shader\*.vertsh" "$(TargetDir)\Resources"
+Copy "$(ProjectDir)..\..\Source\Renderer\Shader\*.fragsh" "$(TargetDir)\Resources"
+
 Copy "$(ProjectDir)..\Lib\freetype6.dll" "$(TargetDir)"
 Copy "$(ProjectDir)..\Lib\zlib1.dll" "$(TargetDir)"
 
@@ -149,8 +153,12 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294ud_gl_vc100_x64.pdb" "$(TargetDir)"
       <AdditionalDependencies>opengl32.lib;glu32.lib;..\Lib\freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>Copy "$(ProjectDir)..\..\Resources\Defs\Quake.def" "$(TargetDir)\Resources"
+      <Command>Mkdir "$(TargetDir)\Resources"
+Copy "$(ProjectDir)..\..\Resources\Defs\Quake.def" "$(TargetDir)\Resources"
 Copy "$(ProjectDir)..\..\Resources\Graphics\QuakePalette.lmp" "$(TargetDir)\Resources"
+Copy "$(ProjectDir)..\..\Source\Renderer\Shader\*.vertsh" "$(TargetDir)\Resources"
+Copy "$(ProjectDir)..\..\Source\Renderer\Shader\*.fragsh" "$(TargetDir)\Resources"
+
 Copy "$(ProjectDir)..\Lib\freetype6.dll" "$(TargetDir)"
 Copy "$(ProjectDir)..\Lib\zlib1.dll" "$(TargetDir)"
 
@@ -199,7 +207,6 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Controller\CameraTool.cpp" />
     <ClCompile Include="..\..\Source\Controller\ChangeEditStateCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\Command.cpp" />
-    <ClCompile Include="..\..\Source\Controller\Grid.cpp" />
     <ClCompile Include="..\..\Source\Controller\InputController.cpp" />
     <ClCompile Include="..\..\Source\Controller\SelectionTool.cpp" />
     <ClCompile Include="..\..\Source\IO\AbstractFileManager.cpp" />
@@ -226,12 +233,11 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Renderer\AliasRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\BspRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\Camera.cpp" />
-    <ClCompile Include="..\..\Source\Renderer\EntityClassnameAnchor.cpp" />
     <ClCompile Include="..\..\Source\Renderer\EntityRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\EntityRendererManager.cpp" />
-    <ClCompile Include="..\..\Source\Renderer\GridRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\MapRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\RenderContext.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\Shader\Shader.cpp" />
     <ClCompile Include="..\..\Source\Renderer\Text\PathBuilder.cpp" />
     <ClCompile Include="..\..\Source\Renderer\Text\PathRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\Text\PathTesselator.cpp" />
@@ -241,6 +247,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Utility\Console.cpp" />
     <ClCompile Include="..\..\Source\Utility\DocManager.cpp" />
     <ClCompile Include="..\..\Source\Utility\GLee.c" />
+    <ClCompile Include="..\..\Source\Utility\Grid.cpp" />
     <ClCompile Include="..\..\Source\Utility\Mat4f.cpp" />
     <ClCompile Include="..\..\Source\Utility\Vec3f.cpp" />
     <ClCompile Include="..\..\Source\View\AbstractApp.cpp" />
@@ -249,6 +256,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\View\Inspector.cpp" />
     <ClCompile Include="..\..\Source\View\MapGLCanvas.cpp" />
     <ClCompile Include="..\..\Source\View\ProgressIndicatorDialog.cpp" />
+    <ClCompile Include="..\..\Source\View\ViewInspector.cpp" />
     <ClCompile Include="TrenchBroomApp.cpp" />
     <ClCompile Include="WinFileManager.cpp" />
   </ItemGroup>
@@ -258,7 +266,6 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Controller\ChangeEditStateCommand.h" />
     <ClInclude Include="..\..\Source\Controller\Command.h" />
     <ClInclude Include="..\..\Source\Controller\DragPlane.h" />
-    <ClInclude Include="..\..\Source\Controller\Grid.h" />
     <ClInclude Include="..\..\Source\Controller\Input.h" />
     <ClInclude Include="..\..\Source\Controller\InputController.h" />
     <ClInclude Include="..\..\Source\Controller\SelectionTool.h" />
@@ -309,10 +316,14 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Renderer\EntityClassnameFilter.h" />
     <ClInclude Include="..\..\Source\Renderer\EntityRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\EntityRendererManager.h" />
-    <ClInclude Include="..\..\Source\Renderer\GridRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\MapRenderer.h" />
+    <ClInclude Include="..\..\Source\Renderer\PushMatrix.h" />
     <ClInclude Include="..\..\Source\Renderer\RenderContext.h" />
+    <ClInclude Include="..\..\Source\Renderer\RenderTypes.h" />
     <ClInclude Include="..\..\Source\Renderer\RenderUtils.h" />
+    <ClInclude Include="..\..\Source\Renderer\Shader\Shader.h" />
+    <ClInclude Include="..\..\Source\Renderer\TexturedPolygonSorter.h" />
+    <ClInclude Include="..\..\Source\Renderer\TextureVertexArray.h" />
     <ClInclude Include="..\..\Source\Renderer\Text\FontDescriptor.h" />
     <ClInclude Include="..\..\Source\Renderer\Text\Path.h" />
     <ClInclude Include="..\..\Source\Renderer\Text\PathBuilder.h" />
@@ -322,13 +333,16 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Renderer\Text\StringManager.h" />
     <ClInclude Include="..\..\Source\Renderer\Text\StringVectorizer.h" />
     <ClInclude Include="..\..\Source\Renderer\Text\TextRenderer.h" />
+    <ClInclude Include="..\..\Source\Renderer\Transformation.h" />
     <ClInclude Include="..\..\Source\Renderer\Vbo.h" />
+    <ClInclude Include="..\..\Source\Renderer\VertexArray.h" />
     <ClInclude Include="..\..\Source\Utility\BBox.h" />
     <ClInclude Include="..\..\Source\Utility\Color.h" />
     <ClInclude Include="..\..\Source\Utility\Console.h" />
     <ClInclude Include="..\..\Source\Utility\CoordinatePlane.h" />
     <ClInclude Include="..\..\Source\Utility\DocManager.h" />
     <ClInclude Include="..\..\Source\Utility\GLee.h" />
+    <ClInclude Include="..\..\Source\Utility\Grid.h" />
     <ClInclude Include="..\..\Source\Utility\Line.h" />
     <ClInclude Include="..\..\Source\Utility\List.h" />
     <ClInclude Include="..\..\Source\Utility\Mat2f.h" />
@@ -351,8 +365,11 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\View\EditorFrame.h" />
     <ClInclude Include="..\..\Source\View\EditorView.h" />
     <ClInclude Include="..\..\Source\View\Inspector.h" />
+    <ClInclude Include="..\..\Source\View\LayoutConstants.h" />
     <ClInclude Include="..\..\Source\View\MapGLCanvas.h" />
+    <ClInclude Include="..\..\Source\View\MenuCommandIds.h" />
     <ClInclude Include="..\..\Source\View\ProgressIndicatorDialog.h" />
+    <ClInclude Include="..\..\Source\View\ViewInspector.h" />
     <ClInclude Include="TrenchBroomApp.h" />
     <ClInclude Include="WinFileManager.h" />
   </ItemGroup>

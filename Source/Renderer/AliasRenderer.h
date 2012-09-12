@@ -23,6 +23,7 @@
 #include "Model/TextureTypes.h"
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/RenderTypes.h"
+#include "Renderer/VertexArray.h"
 
 namespace TrenchBroom {
     namespace Model {

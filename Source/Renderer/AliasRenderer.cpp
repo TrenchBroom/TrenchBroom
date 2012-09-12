@@ -27,7 +27,6 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shader/Shader.h"
 #include "Renderer/Vbo.h"
-#include "Renderer/VertexArray.h"
 #include "Utility/GLee.h"
 
 namespace TrenchBroom {

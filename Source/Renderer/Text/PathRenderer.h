@@ -21,6 +21,7 @@
 #define __TrenchBroom__PathRenderer__
 
 #include "Renderer/RenderTypes.h"
+#include "Renderer/VertexArray.h"
 #include "Renderer/Text/Path.h"
 #include "Renderer/Text/PathMesh.h"
 #include "Utility/GLee.h"
