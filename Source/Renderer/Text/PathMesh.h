@@ -35,88 +35,56 @@ namespace TrenchBroom {
         class VboBlock;
         
         namespace Text {
-            typedef std::vector<GLfloat> FloatBuffer;
-            typedef std::vector<FloatBuffer*> PathMeshData;
-
             class PathMesh {
             protected:
-                // raw data
-                FloatBuffer m_triangleSet;
-                PathMeshData m_triangleStrips;
-                PathMeshData m_triangleFans;
-                unsigned int m_vertexCount;
+                Vec2f::List m_vertices;
                 GLenum m_currentType;
+                size_t m_currentVertexCount;
             public:
                 PathMesh() :
-                m_vertexCount(0),
                 m_currentType(0) {}
                 
-                ~PathMesh() {
-                    m_triangleSet.clear();
-                    while (!m_triangleStrips.empty()) delete m_triangleStrips.back(), m_triangleStrips.pop_back();
-                    while (!m_triangleFans.empty()) delete m_triangleFans.back(), m_triangleFans.pop_back();
-                    m_vertexCount = 0;
-                }
-                
-                inline const FloatBuffer& triangleSet() const {
-                    return m_triangleSet;
-                }
-                
-                inline const PathMeshData& triangleStrips() const {
-                    return m_triangleStrips;
-                }
-                
-                inline const PathMeshData& triangleFans() const {
-                    return m_triangleFans;
-                }
-                
-                inline unsigned int vertexCount() const {
-                    return m_vertexCount;
+                inline const Vec2f::List& vertices() const {
+                    return m_vertices;
                 }
                 
                 inline void begin(GLenum type) {
                     assert(m_currentType == 0);
                     m_currentType = type;
-                    switch (m_currentType) {
-                        case GL_TRIANGLE_STRIP: {
-                            FloatBuffer* strip = new FloatBuffer();
-                            m_triangleStrips.push_back(strip);
-                            break;
-                        }
-                        case GL_TRIANGLE_FAN: {
-                            FloatBuffer* fan = new FloatBuffer();
-                            m_triangleFans.push_back(fan);
-                            break;
-                        }
-                        default:
-                            break;
-                    }
+                    m_currentVertexCount = 0;
                 }
                 
                 inline void append(const Vec2f& vertex) {
                     switch (m_currentType) {
                         case GL_TRIANGLES:
-                            m_triangleSet.push_back(vertex.x);
-                            m_triangleSet.push_back(vertex.y);
+                            m_vertices.push_back(vertex);
                             break;
-                        case GL_TRIANGLE_STRIP: {
-                            assert(!m_triangleStrips.empty());
-                            FloatBuffer* strip = m_triangleStrips.back();
-                            strip->push_back(vertex.x);
-                            strip->push_back(vertex.y);
+                        case GL_TRIANGLE_STRIP:
+                            if (m_currentVertexCount < 3) {
+                                m_vertices.push_back(vertex);
+                            } else if (m_currentVertexCount % 2 == 1) {
+                                m_vertices.push_back(vertex);
+                                m_vertices.push_back(m_vertices[m_currentVertexCount - 2]);
+                                m_vertices.push_back(m_vertices[m_currentVertexCount - 1]);
+                            } else {
+                                m_vertices.push_back(vertex);
+                                m_vertices.push_back(m_vertices[m_currentVertexCount - 1]);
+                                m_vertices.push_back(m_vertices[m_currentVertexCount - 2]);
+                            }
                             break;
-                        }
-                        case GL_TRIANGLE_FAN: {
-                            assert(!m_triangleFans.empty());
-                            FloatBuffer* fan = m_triangleFans.back();
-                            fan->push_back(vertex.x);
-                            fan->push_back(vertex.y);
+                        case GL_TRIANGLE_FAN:
+                            if (m_currentVertexCount < 3) {
+                                m_vertices.push_back(vertex);
+                            } else {
+                                m_vertices.push_back(vertex);
+                                m_vertices.push_back(m_vertices[0]);
+                                m_vertices.push_back(m_vertices[m_currentVertexCount - 1]);
+                            }
                             break;
-                        }
                         default:
                             break;
                     }
-                    m_vertexCount++;
+                    m_currentVertexCount++;
                 }
                 
                 inline void end() {

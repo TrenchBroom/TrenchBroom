@@ -75,6 +75,8 @@
 		48E2ECCD15FFCA4C00B8D476 /* Face.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48E2ECBE15FFC14400B8D476 /* Face.vertsh */; };
 		48E2ECD216007A4400B8D476 /* EntityModel.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48E2ECD116007A4400B8D476 /* EntityModel.vertsh */; };
 		48E2ECD416007A7400B8D476 /* EntityModel.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48E2ECD316007A7400B8D476 /* EntityModel.fragsh */; };
+		48E2ECD616008E3300B8D476 /* Text.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48E2ECD516008E3300B8D476 /* Text.vertsh */; };
+		48E2ECD816008E5600B8D476 /* Text.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48E2ECD716008E5500B8D476 /* Text.fragsh */; };
 		48F0B7C315FCB4CF0089B0B5 /* Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */; };
 /* End PBXBuildFile section */
 
@@ -261,6 +263,8 @@
 		48E2ECD015FFE48F00B8D476 /* TextureVertexArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextureVertexArray.h; sourceTree = "<group>"; };
 		48E2ECD116007A4400B8D476 /* EntityModel.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = EntityModel.vertsh; sourceTree = "<group>"; };
 		48E2ECD316007A7400B8D476 /* EntityModel.fragsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = EntityModel.fragsh; sourceTree = "<group>"; };
+		48E2ECD516008E3300B8D476 /* Text.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = Text.vertsh; sourceTree = "<group>"; };
+		48E2ECD716008E5500B8D476 /* Text.fragsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = Text.fragsh; sourceTree = "<group>"; };
 		48EA119F15FA67F700391885 /* PushMatrix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PushMatrix.h; sourceTree = "<group>"; };
 		48EA11A415FA71F700391885 /* Transformation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Transformation.h; sourceTree = "<group>"; };
 		48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Shader.cpp; sourceTree = "<group>"; };
@@ -577,6 +581,8 @@
 				48E2ECD316007A7400B8D476 /* EntityModel.fragsh */,
 				48E2ECBE15FFC14400B8D476 /* Face.vertsh */,
 				48E2ECC515FFC31600B8D476 /* Face.fragsh */,
+				48E2ECD516008E3300B8D476 /* Text.vertsh */,
+				48E2ECD716008E5500B8D476 /* Text.fragsh */,
 				48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */,
 				48F0B7C215FCB4CF0089B0B5 /* Shader.h */,
 			);
@@ -645,6 +651,8 @@
 				48E2ECCC15FFC43E00B8D476 /* Edge.fragsh in Resources */,
 				48E2ECD216007A4400B8D476 /* EntityModel.vertsh in Resources */,
 				48E2ECD416007A7400B8D476 /* EntityModel.fragsh in Resources */,
+				48E2ECD616008E3300B8D476 /* Text.vertsh in Resources */,
+				48E2ECD816008E5600B8D476 /* Text.fragsh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

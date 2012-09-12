@@ -422,15 +422,6 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::createShaders() {
-            assert(m_coloredEdgeVertexShader.get() == NULL);
-            assert(m_edgeVertexShader.get() == NULL);
-            assert(m_edgeFragmentShader.get() == NULL);
-            assert(m_faceVertexShader.get() == NULL);
-            assert(m_faceFragmentShader.get() == NULL);
-            assert(m_edgeProgram.get() == NULL);
-            assert(m_coloredEdgeProgram.get() == NULL);
-            assert(m_faceProgram.get() == NULL);
-            
             IO::FileManager fileManager;
             String resourceDirectory = fileManager.resourceDirectory();
             
@@ -443,6 +434,9 @@ namespace TrenchBroom {
 
             m_entityModelVertexShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "EntityModel.vertsh"), GL_VERTEX_SHADER, m_document.Console()));
             m_entityModelFragmentShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "EntityModel.fragsh"), GL_FRAGMENT_SHADER, m_document.Console()));
+            
+            m_textVertexShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "Text.vertsh"), GL_VERTEX_SHADER, m_document.Console()));
+            m_textFragmentShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "Text.fragsh"), GL_FRAGMENT_SHADER, m_document.Console()));
             
             m_edgeProgram = ShaderProgramPtr(new ShaderProgram("constant colored edge shader program", m_document.Console()));
             m_edgeProgram->attachShader(*m_edgeVertexShader);
@@ -459,6 +453,10 @@ namespace TrenchBroom {
             m_entityModelProgram = ShaderProgramPtr(new ShaderProgram("entity model shader program", m_document.Console()));
             m_entityModelProgram->attachShader(*m_entityModelVertexShader);
             m_entityModelProgram->attachShader(*m_entityModelFragmentShader);
+            
+            m_textProgram = ShaderProgramPtr(new ShaderProgram("text shader program", m_document.Console()));
+            m_textProgram->attachShader(*m_textVertexShader);
+            m_textProgram->attachShader(*m_textFragmentShader);
             
             m_shadersCreated = true;
         }
@@ -784,6 +782,19 @@ namespace TrenchBroom {
                 m_edgeProgram->deactivate();
             }
             m_entityBoundsVbo->deactivate();
+            
+            if (m_textProgram->activate()) {
+                EntityClassnameFilter classnameFilter;
+                m_stringManager->activate();
+                m_classnameRenderer->render(context, *m_textProgram, classnameFilter, prefs.getColor(Preferences::InfoOverlayColor));
+                m_lockedClassnameRenderer->render(context, *m_textProgram, classnameFilter, prefs.getColor(Preferences::LockedInfoOverlayColor));
+                glDisable(GL_DEPTH_TEST);
+                m_selectedClassnameRenderer->render(context, *m_textProgram, classnameFilter, prefs.getColor(Preferences::OccludedSelectedInfoOverlayColor));
+                glEnable(GL_DEPTH_TEST);
+                m_selectedClassnameRenderer->render(context, *m_textProgram, classnameFilter, prefs.getColor(Preferences::SelectedInfoOverlayColor));
+                m_stringManager->deactivate();
+                m_textProgram->deactivate();
+            }
             
             m_rendering = false;
         }

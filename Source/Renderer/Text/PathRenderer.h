@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__PathRenderer__
 #define __TrenchBroom__PathRenderer__
 
+#include "Renderer/RenderTypes.h"
 #include "Renderer/Text/Path.h"
 #include "Renderer/Text/PathMesh.h"
 #include "Utility/GLee.h"
@@ -45,23 +46,11 @@ namespace TrenchBroom {
                 float m_width;
                 float m_height;
 
-                // render data
-                GLuint m_listId;
-                VboBlock* m_block;
-                bool m_hasTriangleSet;
-                bool m_hasTriangleStrips;
-                bool m_hasTriangleFans;
-                GLint m_triangleSetIndex;
-                GLsizei m_triangleSetCount;
-                IndexBuffer m_triangleStripIndices;
-                CountBuffer m_triangleStripCounts;
-                IndexBuffer m_triangleFanIndices;
-                CountBuffer m_triangleFanCounts;
+                VertexArrayPtr m_vertexArray;
                 
                 void uploadMeshData(PathMeshPtr mesh, Vbo& vbo);
             public:
                 PathRenderer(PathPtr path);
-                ~PathRenderer();
                 
                 inline float width() const {
                     return m_width;
@@ -76,9 +65,7 @@ namespace TrenchBroom {
                 }
                 
                 bool prepare(PathTesselator& tesselator, Vbo& vbo);
-                
-                void renderBackground(RenderContext& context, float hInset, float vInset);
-                void render(RenderContext& context);
+                void render();
             };
         }
     }

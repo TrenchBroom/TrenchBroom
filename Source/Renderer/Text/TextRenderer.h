@@ -24,6 +24,8 @@
 #include "Renderer/PushMatrix.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
+#include "Renderer/VertexArray.h"
+#include "Renderer/Shader/Shader.h"
 #include "Renderer/Text/PathRenderer.h"
 #include "Renderer/Text/StringManager.h"
 #include "Utility/String.h"
@@ -95,6 +97,7 @@ namespace TrenchBroom {
                 float m_fadeDistance;
                 StringManager& m_stringManager;
                 TextMap m_entries;
+                VertexArrayPtr m_quad;
                 
                 void addString(Key key, const FontDescriptor& fontDescriptor, const String& string, StringRenderer* stringRenderer, TextAnchor* anchor) {
                     removeString(key);
@@ -161,9 +164,7 @@ namespace TrenchBroom {
                     m_fadeDistance = fadeDistance;
                 }
                 
-                void render(RenderContext& context, TextRendererFilter& filter, const Color& color)  {
-                    glDisable(GL_TEXTURE_2D);
-                    glPolygonMode(GL_FRONT, GL_FILL);
+                void render(RenderContext& context, ShaderProgram& shaderProgram, TextRendererFilter& filter, const Color& color)  {
                     float cutoff = (m_fadeDistance + 100) * (m_fadeDistance + 100);
 
                     PushMatrix pushMatrix(context.transformation());
@@ -188,18 +189,11 @@ namespace TrenchBroom {
                                 matrix *= context.camera().billboardMatrix();
                                 matrix.scale(Vec3f(factor, factor, 0.0f));
                                 matrix.translate(Vec3f(-width / 2.0f, 0.0f, 0.0f));
-
                                 pushMatrix.load(matrix);
                                 
-                                float alphaFactor = 1.0f - (std::max)(dist - m_fadeDistance, 0.0f) / 100.0f;
-                                
-                                glColor4f(0, 0, 0, 0.6f * alphaFactor);
-                                stringRenderer->renderBackground(context, 2.0f, 1.0f);
-                                
-                                glSetEdgeOffset(0.01f);
-                                glColorV4f(color, alphaFactor);
-                                stringRenderer->render(context);
-                                glResetEdgeOffset();
+                                float a = 1.0f - (std::max)(dist - m_fadeDistance, 0.0f) / 100.0f;
+                                shaderProgram.setUniformVariable("Color", Vec4f(color.x, color.y, color.z, color.w * a));
+                                stringRenderer->render();
                             }
                         }
                     }
