@@ -23,44 +23,42 @@
 #include <wx/docview.h>
 
 #include "Utility/DocManager.h"
+#include "View/MenuCommandIds.h"
 
 #include <clocale>
 
 IMPLEMENT_APP(TrenchBroomApp)
 
 BEGIN_EVENT_TABLE(TrenchBroomApp, AbstractApp)
-EVT_MENU    (wxID_EXIT, TrenchBroomApp::OnFileExit)
+EVT_MENU(wxID_EXIT, TrenchBroomApp::OnFileExit)
+EVT_UPDATE_UI(wxID_UNDO, TrenchBroomApp::OnUpdateMenuItem)
+EVT_UPDATE_UI(wxID_REDO, TrenchBroomApp::OnUpdateMenuItem)
+EVT_UPDATE_UI_RANGE(TrenchBroom::View::MenuCommandIds::tbID_MENU_LOWEST, TrenchBroom::View::MenuCommandIds::tbID_MENU_HIGHEST, TrenchBroomApp::OnUpdateMenuItem)
 END_EVENT_TABLE()
+
+wxMenu* TrenchBroomApp::CreateFileMenu() {
+    wxMenu* fileMenu = AbstractApp::CreateFileMenu();
+
+    // these won't show up in the app menu if we don't add them here
+    fileMenu->Append(wxID_ABOUT, wxT("About"));
+    fileMenu->Append(wxID_PREFERENCES, wxT("Preferences...\tCtrl-,"));
+    fileMenu->Append(wxID_EXIT, wxT("Exit"));
+    
+    return fileMenu;
+}
 
 bool TrenchBroomApp::OnInit() {
     // set the locale to US so that we can parse floats property
     std::setlocale(LC_ALL, "en_US");
     
     if (AbstractApp::OnInit()) {
-        m_docManager->SetUseSDI(false);
-        
-        wxMenuBar* menuBar = new wxMenuBar();
-        wxMenu* fileMenu = new wxMenu();
-        fileMenu->Append(wxID_NEW, wxT("New\tCtrl-N"));
-        fileMenu->Append(wxID_OPEN, wxT("Open...\tCtrl-O"));
-        fileMenu->AppendSeparator();
-        fileMenu->Append(wxID_CLOSE, wxT("Close\tCtrl-W"));
-        fileMenu->Append(wxID_SAVE, wxT("Save\tCtrl-S"));
-        fileMenu->Append(wxID_SAVEAS, wxT("Save as...\tCtrl-Shift-S"));
-        
-        m_docManager->FileHistoryUseMenu(fileMenu);
-        m_docManager->FileHistoryLoad(*wxConfig::Get());
-
-        // these won't show up in the app menu if we don't add them here
-        fileMenu->Append(wxID_ABOUT, wxT("About"));
-        fileMenu->Append(wxID_PREFERENCES, wxT("Preferences...\tCtrl-,"));
-        fileMenu->Append(wxID_EXIT, wxT("Exit"));
-
-        fileMenu->SetEventHandler(m_docManager);
-        menuBar->Append(fileMenu, wxT("File"));
-
-        wxMenuBar::MacSetCommonMenuBar(menuBar);
         SetExitOnFrameDelete(false);
+
+        m_docManager->SetUseSDI(false);
+        m_docManager->FileHistoryLoad(*wxConfig::Get());
+        
+        wxMenuBar* menuBar = CreateMenuBar(this);
+        wxMenuBar::MacSetCommonMenuBar(menuBar);
         
         return true;
     }
@@ -71,4 +69,8 @@ bool TrenchBroomApp::OnInit() {
 
 void TrenchBroomApp::OnFileExit(wxCommandEvent& event) {
     Exit();
+}
+
+void TrenchBroomApp::OnUpdateMenuItem(wxUpdateUIEvent& event) {
+    event.Enable(false); // disable everything (except maybe help?)
 }

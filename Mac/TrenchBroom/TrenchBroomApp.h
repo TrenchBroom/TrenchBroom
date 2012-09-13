@@ -23,10 +23,15 @@
 #include "View/AbstractApp.h"
 
 class TrenchBroomApp : public AbstractApp {
+protected:
+    virtual wxMenu* CreateFileMenu();
 public:
+
     virtual bool OnInit();
     virtual void OnFileExit(wxCommandEvent& event);
     
+    void OnUpdateMenuItem(wxUpdateUIEvent& event);
+
     DECLARE_EVENT_TABLE()
 };
 

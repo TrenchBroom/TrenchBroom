@@ -28,9 +28,87 @@
 #include "Model/MapDocument.h"
 #include "Utility/DocManager.h"
 #include "View/EditorView.h"
+#include "View/MenuCommandIds.h"
 
 BEGIN_EVENT_TABLE(AbstractApp, wxApp)
 END_EVENT_TABLE()
+
+wxMenu* AbstractApp::CreateFileMenu() {
+    wxMenu* fileHistoryMenu = new wxMenu();
+    fileHistoryMenu->SetEventHandler(m_docManager);
+    m_docManager->FileHistoryUseMenu(fileHistoryMenu);
+    m_docManager->FileHistoryAddFilesToMenu(fileHistoryMenu);
+    
+    wxMenu* fileMenu = new wxMenu();
+    fileMenu->Append(wxID_NEW, wxT("New\tCtrl-N"));
+    fileMenu->Append(wxID_OPEN, wxT("Open...\tCtrl-O"));
+    fileMenu->AppendSubMenu(fileHistoryMenu, "Open Recent");
+    fileMenu->AppendSeparator();
+    fileMenu->Append(wxID_SAVE, wxT("Save\tCtrl-S"));
+    fileMenu->Append(wxID_SAVEAS, wxT("Save as...\tCtrl-Shift-S"));
+    fileMenu->AppendSeparator();
+    fileMenu->Append(wxID_CLOSE, wxT("Close\tCtrl-W"));
+    return fileMenu;
+}
+
+wxMenu* AbstractApp::CreateEditMenu() {
+    using namespace TrenchBroom::View;
+    
+    wxMenu* editMenu = new wxMenu();
+    editMenu->Append(wxID_UNDO, wxT("Undo\tCtrl-Z"));
+    editMenu->Append(wxID_REDO, wxT("Redo\tCtrl-Shift-Z"));
+    editMenu->AppendSeparator();
+    editMenu->Append(wxID_CUT, wxT("Cut\tCtrl+X"));
+    editMenu->Append(wxID_COPY, wxT("Copy\tCtrl+C"));
+    editMenu->Append(wxID_PASTE, wxT("Paste\tCtrl+V"));
+    editMenu->AppendSeparator();
+    editMenu->Append(MenuCommandIds::tbID_EDIT_SELECT_ALL, wxT("Select All\tCtrl+A"));
+    editMenu->Append(MenuCommandIds::tbID_EDIT_SELECT_SIBLINGS, wxT("Select Siblings\tCtrl+Alt+A"));
+    editMenu->Append(MenuCommandIds::tbID_EDIT_SELECT_TOUCHING, wxT("Select Touching\tCtrl+T"));
+    editMenu->Append(MenuCommandIds::tbID_EDIT_SELECT_NONE, wxT("Select None\tCtrl+Shift+A"));
+    editMenu->AppendSeparator();
+    editMenu->Append(MenuCommandIds::tbID_EDIT_HIDE_SELECTED, wxT("Hide Selected\tCtrl+H"));
+    editMenu->Append(MenuCommandIds::tbID_EDIT_HIDE_UNSELECTED, wxT("Hide Unselected\tCtrl+Alt+H"));
+    editMenu->Append(MenuCommandIds::tbID_EDIT_UNHIDE_ALL, wxT("Unhide All\tCtrl+Shift+H"));
+    editMenu->AppendSeparator();
+    editMenu->Append(MenuCommandIds::tbID_EDIT_LOCK_SELECTED, wxT("Lock Selected\tCtrl+L"));
+    editMenu->Append(MenuCommandIds::tbID_EDIT_LOCK_UNSELECTED, wxT("Lock Unselected\tCtrl+Alt+L"));
+    editMenu->Append(MenuCommandIds::tbID_EDIT_UNLOCK_ALL, wxT("Unlock All\tCtrl+Shift+L"));
+    
+    return editMenu;
+}
+
+wxMenu* AbstractApp::CreateViewMenu() {
+    wxMenu* viewMenu = new wxMenu();
+    return viewMenu;
+}
+
+wxMenu* AbstractApp::CreateHelpMenu() {
+    wxMenu* helpMenu = new wxMenu();
+    return helpMenu;
+}
+
+wxMenuBar* AbstractApp::CreateMenuBar(wxEvtHandler* eventHandler) {
+    wxMenu* fileMenu = CreateFileMenu();
+    fileMenu->SetEventHandler(m_docManager);
+    
+    wxMenu* editMenu = CreateEditMenu();
+    editMenu->SetEventHandler(eventHandler);
+    
+    wxMenu* viewMenu = CreateViewMenu();
+    viewMenu->SetEventHandler(eventHandler);
+    
+    wxMenu* helpMenu = CreateHelpMenu();
+    helpMenu->SetEventHandler(eventHandler);
+    
+    wxMenuBar* menuBar = new wxMenuBar();
+    menuBar->Append(fileMenu, wxT("File"));
+    menuBar->Append(editMenu, wxT("Edit"));
+    menuBar->Append(viewMenu, wxT("View"));
+    menuBar->Append(helpMenu, wxT("Help"));
+    
+    return menuBar;
+}
 
 bool AbstractApp::OnInit() {
     // initialize globals
@@ -40,6 +118,7 @@ bool AbstractApp::OnInit() {
     
 	m_docManager = new DocManager();
     new wxDocTemplate(m_docManager, wxT("Quake map document"), wxT("*.map"), wxEmptyString, wxT("map"), wxT("Quake map document"), wxT("TrenchBroom editor view"), CLASSINFO(TrenchBroom::Model::MapDocument), CLASSINFO(TrenchBroom::View::EditorView));
+    
     return true;
 }
 

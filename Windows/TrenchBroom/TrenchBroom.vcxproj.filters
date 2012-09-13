@@ -566,5 +566,8 @@
     <ClInclude Include="..\..\Source\View\LayoutConstants.h">
       <Filter>Header Files\View</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\View\ViewOptions.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

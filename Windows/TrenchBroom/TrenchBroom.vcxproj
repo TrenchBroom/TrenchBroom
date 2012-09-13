@@ -370,6 +370,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\View\MenuCommandIds.h" />
     <ClInclude Include="..\..\Source\View\ProgressIndicatorDialog.h" />
     <ClInclude Include="..\..\Source\View\ViewInspector.h" />
+    <ClInclude Include="..\..\Source\View\ViewOptions.h" />
     <ClInclude Include="TrenchBroomApp.h" />
     <ClInclude Include="WinFileManager.h" />
   </ItemGroup>

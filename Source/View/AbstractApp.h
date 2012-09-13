@@ -22,19 +22,29 @@
 
 #include <wx/wx.h>
 
-class DocManager;
 class wxCommandEvent;
+class wxDocManager;
+class wxEvtHandler;
 class wxMenu;
 class wxMenuBar;
+class DocManager;
 
 class AbstractApp : public wxApp {
 protected:
 	DocManager* m_docManager;
+
+    virtual wxMenu* CreateFileMenu();
+    virtual wxMenu* CreateEditMenu();
+    virtual wxMenu* CreateViewMenu();
+    virtual wxMenu* CreateHelpMenu();
 public:
+    virtual wxMenuBar* CreateMenuBar(wxEvtHandler* eventHandler);
+
 	virtual bool OnInit();
     virtual int OnExit();
     void OnUnhandledException();
-    
+
+
     DECLARE_EVENT_TABLE();
 };
 
