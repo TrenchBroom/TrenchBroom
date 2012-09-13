@@ -83,10 +83,10 @@ namespace TrenchBroom {
         static const Preference<float>  InfoOverlayFadeDistance(                    "Renderer/Info overlay fade distance",                          400.0f);
         static const Preference<float>  SelectedInfoOverlayFadeDistance(            "Renderer/Selected info overlay fade distance",                 400.0f);
         static const Preference<int>    RendererFontSize(                           "Renderer/Font size",                                           16);
-        static const Preference<float>  RendererBrightness(                         "Renderer/Brightness",                                          1.0f);
+        static const Preference<float>  RendererBrightness(                         "Renderer/Brightness",                                          1.4f);
         
         static const Preference<Color>  BackgroundColor(                            "Renderer/Colors/Background",                                   Color(0.0f,  0.0f,  0.0f,  1.0f ));
-        static const Preference<Color>  GridColor(                                  "Renderer/Colors/Grid",                                         Color(1.0f,  1.0f,  1.0f,  0.3f ));
+        static const Preference<Color>  GridColor(                                  "Renderer/Colors/Grid",                                         Color(1.0f,  1.0f,  1.0f,  0.2f ));
 
         static const Preference<Color>  FaceColor(                                  "Renderer/Colors/Face",                                         Color(0.2f,  0.2f,  0.2f,  1.0f ));
         static const Preference<Color>  SelectedFaceColor(                          "Renderer/Colors/Selected face",                                Color(0.6f,  0.35f, 0.35f, 1.0f ));

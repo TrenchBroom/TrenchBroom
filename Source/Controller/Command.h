@@ -33,7 +33,10 @@ namespace TrenchBroom {
             typedef enum {
                 LoadMap,
                 ClearMap,
-                ChangeEditState
+                ChangeEditState,
+                InvalidateRendererEntityState,
+                InvalidateRendererBrushState,
+                InvalidateRendererState
             } Type;
         private:
             Type m_type;

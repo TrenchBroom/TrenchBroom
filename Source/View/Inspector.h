@@ -24,9 +24,18 @@
 #include <wx/panel.h>
 
 namespace TrenchBroom {
+    namespace Model {
+        class MapDocument;
+    }
+    
     namespace View {
+        class EditorView;
+        
         class Inspector : public wxPanel {
         protected:
+            Model::MapDocument& m_document;
+            EditorView& m_view;
+            
             wxNotebook* m_notebook;
             wxNotebookPage* CreateMapInspector();
             wxNotebookPage* CreateEntityInspector();
@@ -34,7 +43,7 @@ namespace TrenchBroom {
             wxNotebookPage* CreateFaceInspector();
             wxNotebookPage* CreateViewInspector();
         public:
-            Inspector(wxWindow* parent);
+            Inspector(wxWindow* parent, Model::MapDocument& document, EditorView& view);
         };
     }
 }

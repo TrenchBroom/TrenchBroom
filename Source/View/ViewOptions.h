@@ -20,26 +20,48 @@
 #ifndef TrenchBroom_ViewOptions_h
 #define TrenchBroom_ViewOptions_h
 
-#include "Utilities/String.h"
+#include "Utility/String.h"
 
 namespace TrenchBroom {
     namespace View {
         class ViewOptions {
+        public:
+            typedef enum {
+                Textured,
+                Flat,
+                Discard
+            } FaceRenderMode;
         private:
-            bool m_showEntities;
-            bool m_showBrushes;
             String m_filterPattern;
+            bool m_showEntities;
             bool m_showEntityModels;
             bool m_showEntityBounds;
             bool m_showEntityClassnames;
+            bool m_showBrushes;
+            bool m_showClipBrushes;
+            bool m_showSkipBrushes;
+            FaceRenderMode m_faceRenderMode;
+            bool m_renderEdges;
         public:
             ViewOptions() :
-            m_showEntities(true),
-            m_showBrushes(true),
             m_filterPattern(""),
+            m_showEntities(true),
             m_showEntityModels(true),
             m_showEntityBounds(true),
-            m_showEntityClassnames(true) {}
+            m_showEntityClassnames(true),
+            m_showBrushes(true),
+            m_showClipBrushes(true),
+            m_showSkipBrushes(true),
+            m_faceRenderMode(Textured),
+            m_renderEdges(true) {}
+            
+            inline const String& filterPattern() const {
+                return m_filterPattern;
+            }
+            
+            inline void setFilterPattern(const String& filterPattern) {
+                m_filterPattern = Utility::trim(filterPattern);
+            }
             
             inline bool showEntities() const {
                 return m_showEntities;
@@ -47,22 +69,6 @@ namespace TrenchBroom {
             
             inline void setShowEntities(bool showEntities) {
                 m_showEntities = showEntities;
-            }
-            
-            inline bool showBrushes() const {
-                return m_showBrushes;
-            }
-            
-            inline void setShowBrushes(bool showBrushes) {
-                m_showBrushes = showBrushes;
-            }
-            
-            inline const String& filterPattern() const {
-                return m_filterPattern;
-            }
-            
-            inline void setFilterPattern(const String& filterPattern) const {
-                m_filterPattern = Utility::trim(filterPattern);
             }
             
             inline bool showEntityModels() const {
@@ -87,6 +93,46 @@ namespace TrenchBroom {
             
             inline void setShowEntityClassnames(bool showEntityClassnames) {
                 m_showEntityClassnames = showEntityClassnames;
+            }
+
+            inline bool showBrushes() const {
+                return m_showBrushes;
+            }
+            
+            inline void setShowBrushes(bool showBrushes) {
+                m_showBrushes = showBrushes;
+            }
+            
+            inline bool showClipBrushes() const {
+                return m_showClipBrushes;
+            }
+            
+            inline void setShowClipBrushes(bool showClipBrushes) {
+                m_showClipBrushes = showClipBrushes;
+            }
+            
+            inline bool showSkipBrushes() const {
+                return m_showSkipBrushes;
+            }
+            
+            inline void setShowSkipBrushes(bool showSkipBrushes) {
+                m_showSkipBrushes = showSkipBrushes;
+            }
+            
+            inline FaceRenderMode faceRenderMode() const {
+                return m_faceRenderMode;
+            }
+            
+            inline void setFaceRenderMode(FaceRenderMode faceRenderMode) {
+                m_faceRenderMode = faceRenderMode;
+            }
+            
+            inline bool renderEdges() const {
+                return m_renderEdges;
+            }
+            
+            inline void setRenderEdges(bool renderEdges) {
+                m_renderEdges = renderEdges;
             }
         };
     }

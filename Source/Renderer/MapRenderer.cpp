@@ -54,6 +54,9 @@ namespace TrenchBroom {
             if (faceCollectionMap.empty())
                 return;
             
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            const Color& faceColor = prefs.getColor(Preferences::FaceColor);
+
             FaceCollectionMap::const_iterator it, end;
             for (it = faceCollectionMap.begin(), end = faceCollectionMap.end(); it != end; ++it) {
                 Model::Texture* texture = it->first;
@@ -63,23 +66,29 @@ namespace TrenchBroom {
                 VertexArrayPtr vertexArray = VertexArrayPtr(new VertexArray(*m_faceVbo, GL_TRIANGLES, vertexCount,
                                                                             VertexAttribute(3, GL_FLOAT, VertexAttribute::Position),
                                                                             VertexAttribute(3, GL_FLOAT, VertexAttribute::Normal),
-                                                                            VertexAttribute(2, GL_FLOAT, VertexAttribute::TexCoord0)));
+                                                                            VertexAttribute(2, GL_FLOAT, VertexAttribute::TexCoord0),
+                                                                            VertexAttribute(4, GL_FLOAT, VertexAttribute::Color)));
 
                 for (unsigned int i = 0; i < faces.size(); i++) {
                     Model::Face* face = faces[i];
                     const Model::VertexList& vertices = face->vertices();
                     const Vec2f::List& texCoords = face->texCoords();
-
+                    Model::Texture* texture = face->texture();
+                    const Color& color = texture != NULL ? texture->averageColor() : faceColor;
+                    
                     for (unsigned int j = 1; j < vertices.size() - 1; j++) {
                         vertexArray->addAttribute(vertices[0]->position);
                         vertexArray->addAttribute(face->boundary().normal);
                         vertexArray->addAttribute(texCoords[0]);
+                        vertexArray->addAttribute(color);
                         vertexArray->addAttribute(vertices[j]->position);
                         vertexArray->addAttribute(face->boundary().normal);
                         vertexArray->addAttribute(texCoords[j]);
+                        vertexArray->addAttribute(color);
                         vertexArray->addAttribute(vertices[j + 1]->position);
                         vertexArray->addAttribute(face->boundary().normal);
                         vertexArray->addAttribute(texCoords[j + 1]);
+                        vertexArray->addAttribute(color);
                     }
                 }
                 
@@ -478,12 +487,16 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::renderFaces(RenderContext& context) {
+            if (m_faceVertexArrays.empty() && m_selectedFaceVertexArrays.empty() && m_lockedFaceVertexArrays.empty())
+                return;
+            
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             Utility::Grid& grid = m_document.Grid();
             
             m_faceVbo->activate();
             if (m_faceProgram->activate()) {
                 glActiveTexture(GL_TEXTURE0);
+                m_faceProgram->setUniformVariable("ApplyTexture", context.viewOptions().faceRenderMode() == View::ViewOptions::Textured);
                 m_faceProgram->setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
                 m_faceProgram->setUniformVariable("RenderGrid", grid.visible());
                 m_faceProgram->setUniformVariable("GridSize", static_cast<float>(grid.actualSize()));
@@ -529,6 +542,9 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::renderEdges(RenderContext& context) {
+            if (m_edgeVertexArray.get() == NULL && m_selectedEdgeVertexArray.get() == NULL && m_lockedEdgeVertexArray.get() == NULL)
+                return;
+            
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
             m_edgeVbo->activate();
@@ -560,6 +576,9 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::renderEntityBounds(RenderContext& context) {
+            if (m_entityBoundsVertexArray.get() == NULL && m_selectedEntityBoundsVertexArray.get() == NULL && m_lockedEntityBoundsVertexArray.get() == NULL)
+                return;
+            
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             
             m_entityBoundsVbo->activate();
@@ -586,6 +605,9 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::renderEntityModels(RenderContext& context) {
+            if (m_entityRenderers.empty() && m_selectedEntityRenderers.empty() && m_lockedEntityRenderers.empty())
+                return;
+            
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
             if (m_entityModelProgram->activate()) {
@@ -632,6 +654,9 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::renderEntityClassnames(RenderContext& context) {
+            if (m_classnameRenderer->empty() && m_selectedClassnameRenderer->empty() && m_lockedClassnameRenderer->empty())
+                return;
+            
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
             EntityClassnameFilter classnameFilter;
@@ -810,15 +835,29 @@ namespace TrenchBroom {
         void MapRenderer::clearMap() {
             m_entityRenderers.clear();
             m_selectedEntityRenderers.clear();
+            m_lockedEntityRenderers.clear();
 			m_classnameRenderer->clear();
 			m_selectedClassnameRenderer->clear();
+            m_lockedClassnameRenderer->clear();
 
-            m_geometryDataValid = false;
-            m_selectedGeometryDataValid = false;
-            m_lockedGeometryDataValid = false;
+            invalidateAll();
+        }
+
+        void MapRenderer::invalidateEntities() {
             m_entityDataValid = false;
             m_selectedEntityDataValid = false;
             m_lockedEntityDataValid = false;
+        }
+
+        void MapRenderer::invalidateBrushes() {
+            m_geometryDataValid = false;
+            m_selectedGeometryDataValid = false;
+            m_lockedGeometryDataValid = false;
+        }
+
+        void MapRenderer::invalidateAll() {
+            invalidateEntities();
+            invalidateBrushes();
         }
 
         void MapRenderer::render(RenderContext& context) {
@@ -839,11 +878,19 @@ namespace TrenchBroom {
             glShadeModel(GL_SMOOTH);
             glResetEdgeOffset();
             
-            renderFaces(context);
-            renderEdges(context);
-            renderEntityModels(context);
-            renderEntityBounds(context);
-            renderEntityClassnames(context);
+            if (context.viewOptions().showBrushes() && context.viewOptions().faceRenderMode() != View::ViewOptions::Discard)
+                renderFaces(context);
+            if (context.viewOptions().showBrushes() && context.viewOptions().renderEdges())
+                renderEdges(context);
+            
+            if (context.viewOptions().showEntities()) {
+                if (context.viewOptions().showEntityModels())
+                    renderEntityModels(context);
+                if (context.viewOptions().showEntityBounds())
+                    renderEntityBounds(context);
+                if (context.viewOptions().showEntityClassnames())
+                    renderEntityClassnames(context);
+            }
             
             m_rendering = false;
         }

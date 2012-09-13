@@ -25,51 +25,45 @@
 #include "Model/EntityDefinition.h"
 #include "Model/Face.h"
 #include "Utility/String.h"
+#include "View/ViewOptions.h"
 
 namespace TrenchBroom {
     namespace Model {
         class Filter {
         public:
-            inline const String& pattern() const {
-                return m_pattern;
-            }
+            virtual ~Filter() {}
             
-            inline void setPattern(const String& pattern) {
-                m_pattern = Utility::trim(pattern);
-            }
-            
-            inline bool showEntities() const {
-                return m_showEntities;
-            }
-            
-            inline void setShowEntities(bool showEntities) {
-                m_showEntities = showEntities;
-            }
-            
-            inline bool showBrushes() const {
-                return m_showBrushes;
-            }
-            
-            inline void setShowBrushes(bool showBrushes) {
-                m_showBrushes = showBrushes;
-            }
+            virtual inline bool entityVisible(const Model::Entity& entity) const = 0;
+            virtual inline bool entityPickable(const Model::Entity& entity) const = 0;
+            virtual inline bool brushVisible(const Model::Brush& brush) const = 0;
+            virtual inline bool brushPickable(const Model::Brush& brush) const = 0;
+            virtual inline bool brushVerticesPickable(const Model::Brush& brush) const = 0;
+        };
+
+        class DefaultFilter : public Filter {
+        protected:
+            const View::ViewOptions& m_viewOptions;
+        public:
+            DefaultFilter(const View::ViewOptions& viewOptions) :
+            m_viewOptions(viewOptions) {}
             
             virtual inline bool entityVisible(const Model::Entity& entity) const {
                 EntityDefinition* definition = entity.definition();
-                if (definition != NULL && definition->type() == EntityDefinition::PointEntity && m_showEntities == false)
+                if (definition != NULL && definition->type() == EntityDefinition::PointEntity && m_viewOptions.showEntities() == false)
                     return false;
                 
                 if (entity.hidden() || entity.worldspawn())
                     return false;
                 
-                if (!m_pattern.empty()) {
+                const String& pattern = m_viewOptions.filterPattern();
+                if (!pattern.empty()) {
                     const Model::Properties& properties = entity.properties();
                     Model::Properties::const_iterator it, end;
                     for (it = properties.begin(), end = properties.end(); it != end; ++it) {
                         const PropertyKey& key = it->first;
                         const PropertyValue& value = it->second;
-                        if (Utility::containsString(key, m_pattern, false) ||
-                            Utility::containsString(value, m_pattern, false))
+                        if (Utility::containsString(key, pattern, false) ||
+                            Utility::containsString(value, pattern, false))
                             return true;
                     }
                     return false;
@@ -90,15 +84,31 @@ namespace TrenchBroom {
             }
 
             virtual inline bool brushVisible(const Model::Brush& brush) const {
-                if (!m_showBrushes || brush.hidden())
+                if (!m_viewOptions.showBrushes() || brush.hidden())
                     return false;
                 
-                if (!m_pattern.empty()) {
+                const String& pattern = m_viewOptions.filterPattern();
+                if (!pattern.empty() || !m_viewOptions.showClipBrushes() || !m_viewOptions.showSkipBrushes()) {
                     const Model::FaceList& faces = brush.faces();
-                    for (unsigned int i = 0; i < faces.size(); i++)
-                        if (Utility::containsString(faces[i]->textureName(), m_pattern, false))
-                            return true;
-                    return false;
+                    unsigned int clipCount = 0;
+                    unsigned int skipCount = 0;
+                    bool matches = pattern.empty();
+                    for (unsigned int i = 0; i < faces.size(); i++) {
+                        const String& textureName = faces[i]->textureName();
+                        if (!m_viewOptions.showClipBrushes() && Utility::containsString(textureName, "clip", false))
+                            clipCount++;
+                        if (!m_viewOptions.showSkipBrushes() && Utility::containsString(textureName, "skip", false))
+                            skipCount++;
+                        if (!matches)
+                            matches = Utility::containsString(textureName, pattern, false);
+                    }
+                    
+                    if (!m_viewOptions.showClipBrushes() && clipCount == faces.size())
+                        return false;
+                    if (!m_viewOptions.showSkipBrushes() && skipCount == faces.size())
+                        return false;
+                    
+                    return matches;
                 }
                 
                 return true;

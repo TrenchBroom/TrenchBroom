@@ -99,7 +99,7 @@ namespace TrenchBroom {
         bool EditorView::OnCreate(wxDocument* doc, long flags) {
             m_console = new Utility::Console();
             m_viewOptions = new ViewOptions();
-            m_filter = new Model::Filter();
+            m_filter = new Model::DefaultFilter(*m_viewOptions);
 //            m_filter->setPattern("light");
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
@@ -137,6 +137,15 @@ namespace TrenchBroom {
                         Controller::ChangeEditStateCommand* changeEditStateCommand = static_cast<Controller::ChangeEditStateCommand*>(command);
                         m_renderer->changeEditState(changeEditStateCommand->changeSet());
                         break;
+                    }
+                    case Controller::Command::InvalidateRendererEntityState: {
+                        m_renderer->invalidateEntities();
+                    }
+                    case Controller::Command::InvalidateRendererBrushState: {
+                        m_renderer->invalidateBrushes();
+                    }
+                    case Controller::Command::InvalidateRendererState: {
+                        m_renderer->invalidateAll();
                     }
                     default:
                         break;
@@ -197,11 +206,15 @@ namespace TrenchBroom {
             
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity& entity = *entities[i];
-                if (entity.selectable()) {
+                if (entity.selectable() && m_filter->entityVisible(entity)) {
                     selectEntities.push_back(&entity);
                 } else {
                     const Model::BrushList& entityBrushes = entity.brushes();
-                    selectBrushes.insert(selectBrushes.end(), entityBrushes.begin(), entityBrushes.end());
+                    for (unsigned int j = 0; j < entityBrushes.size(); j++) {
+                        Model::Brush& brush = *entityBrushes[j];
+                        if (m_filter->brushVisible(brush))
+                            selectBrushes.push_back(&brush);
+                    }
                 }
             }
     

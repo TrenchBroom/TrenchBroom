@@ -27,61 +27,111 @@
 #include <wx/statline.h>
 #include <wx/stattext.h>
 
+#include "Controller/Command.h"
+#include "View/EditorView.h"
 #include "View/LayoutConstants.h"
+#include "View/ViewOptions.h"
 
 namespace TrenchBroom {
     namespace View {
+        static const unsigned int ShowEntitiesCheckBoxId            = wxID_HIGHEST + 1;
+        static const unsigned int ShowEntityModelsCheckBoxId        = wxID_HIGHEST + 2;
+        static const unsigned int ShowEntityBoundsCheckBoxId        = wxID_HIGHEST + 3;
+        static const unsigned int ShowEntityClassnamesCheckBoxId    = wxID_HIGHEST + 4;
+        static const unsigned int ShowBrushesCheckBoxId             = wxID_HIGHEST + 5;
+        static const unsigned int ShowClipBrushesCheckBoxId         = wxID_HIGHEST + 6;
+        static const unsigned int ShowSkipBrushesCheckBoxId         = wxID_HIGHEST + 7;
+        static const unsigned int FaceRenderModeChoiceId            = wxID_HIGHEST + 8;
+        static const unsigned int RenderEdgesCheckBoxId             = wxID_HIGHEST + 9;
         
-        wxWindow* ViewInspector::createFilterBox() {
+        BEGIN_EVENT_TABLE(ViewInspector, wxPanel)
+        EVT_TEXT(wxID_ANY, ViewInspector::OnFilterPatternChanged)
+        EVT_CHECKBOX(ShowEntitiesCheckBoxId, ViewInspector::OnFilterOptionChanged)
+        EVT_CHECKBOX(ShowEntityModelsCheckBoxId, ViewInspector::OnFilterOptionChanged)
+        EVT_CHECKBOX(ShowEntityBoundsCheckBoxId, ViewInspector::OnFilterOptionChanged)
+        EVT_CHECKBOX(ShowEntityClassnamesCheckBoxId, ViewInspector::OnFilterOptionChanged)
+        EVT_CHECKBOX(ShowBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
+        EVT_CHECKBOX(ShowClipBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
+        EVT_CHECKBOX(ShowSkipBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
+        EVT_CHOICE(FaceRenderModeChoiceId, ViewInspector::OnRenderFaceModeSelected)
+        EVT_CHECKBOX(RenderEdgesCheckBoxId, ViewInspector::OnRenderEdgesChanged)
+        END_EVENT_TABLE()
+        
+        void ViewInspector::updateControls() {
+            ViewOptions& viewOptions = m_editorView.viewOptions();
+            
+            m_searchBox->ChangeValue(viewOptions.filterPattern());
+            m_toggleEntities->SetValue(viewOptions.showEntities());
+            m_toggleEntityModels->SetValue(viewOptions.showEntityModels());
+            m_toggleEntityBounds->SetValue(viewOptions.showEntityBounds());
+            m_toggleEntityClassnames->SetValue(viewOptions.showEntityClassnames());
+            m_toggleBrushes->SetValue(viewOptions.showBrushes());
+            m_toggleClipBrushes->SetValue(viewOptions.showClipBrushes());
+            m_toggleSkipBrushes->SetValue(viewOptions.showSkipBrushes());
+
+            m_toggleEntityModels->Enable(viewOptions.showEntities());
+            m_toggleEntityBounds->Enable(viewOptions.showEntities());
+            m_toggleEntityClassnames->Enable(viewOptions.showEntities());
+            m_toggleClipBrushes->Enable(viewOptions.showBrushes());
+            m_toggleSkipBrushes->Enable(viewOptions.showBrushes());
+            
+            m_faceRenderModeChoice->SetSelection(viewOptions.faceRenderMode());
+            m_toggleRenderEdges->SetValue(viewOptions.renderEdges());
+        }
+
+        wxWindow* ViewInspector::createFilterBox(ViewOptions& viewOptions) {
             wxStaticBox* filterBox = new wxStaticBox(this, wxID_ANY, "Filter");
             wxPanel* searchPanel = new wxPanel(filterBox);
             {
                 wxStaticText* searchLabel = new wxStaticText(searchPanel, wxID_ANY, "Show objects matching");
-                wxSearchCtrl* searchBox = new wxSearchCtrl(searchPanel, wxID_ANY);
+                m_searchBox = new wxSearchCtrl(searchPanel, wxID_ANY);
                 
                 wxSizer* searchPanelSizer = new wxBoxSizer(wxHORIZONTAL);
                 searchPanelSizer->Add(searchLabel, 0, wxEXPAND | wxTOP, 2);
                 searchPanelSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
-                searchPanelSizer->Add(searchBox, 1, wxEXPAND);
-                searchPanel->SetSizer(searchPanelSizer);
+                searchPanelSizer->Add(m_searchBox, 1, wxEXPAND);
+                searchPanel->SetSizerAndFit(searchPanelSizer);
             }
             
             wxPanel* togglePanel = new wxPanel(filterBox);
             {
                 wxPanel* entityPanel = new wxPanel(togglePanel);
                 {
-                    wxCheckBox* toggleEntities = new wxCheckBox(entityPanel, wxID_ANY, "Entities");
-                    wxCheckBox* toggleEntityModels = new wxCheckBox(entityPanel, wxID_ANY, "Models");
-                    wxCheckBox* toggleEntityBounds = new wxCheckBox(entityPanel, wxID_ANY, "Bounds");
-                    wxCheckBox* toggleEntityClassnames = new wxCheckBox(entityPanel, wxID_ANY, "Classnames");
+                    m_toggleEntities = new wxCheckBox(entityPanel, ShowEntitiesCheckBoxId, "Entities");
+                    m_toggleEntityModels = new wxCheckBox(entityPanel, ShowEntityModelsCheckBoxId, "Models");
+                    m_toggleEntityBounds = new wxCheckBox(entityPanel, ShowEntityBoundsCheckBoxId, "Bounds");
+                    m_toggleEntityClassnames = new wxCheckBox(entityPanel, ShowEntityClassnamesCheckBoxId, "Classnames");
                     
                     wxSizer* entityPanelSizer = new wxBoxSizer(wxVERTICAL);
-                    entityPanelSizer->Add(toggleEntities, 0, wxEXPAND);
+                    entityPanelSizer->Add(m_toggleEntities, 0, wxEXPAND);
                     entityPanelSizer->AddSpacer(LayoutConstants::CheckBoxVerticalMargin);
-                    entityPanelSizer->Add(toggleEntityModels, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
+                    entityPanelSizer->Add(m_toggleEntityModels, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
                     entityPanelSizer->AddSpacer(LayoutConstants::CheckBoxVerticalMargin);
-                    entityPanelSizer->Add(toggleEntityBounds, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
+                    entityPanelSizer->Add(m_toggleEntityBounds, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
                     entityPanelSizer->AddSpacer(LayoutConstants::CheckBoxVerticalMargin);
-                    entityPanelSizer->Add(toggleEntityClassnames, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
-                    entityPanel->SetSizer(entityPanelSizer);
+                    entityPanelSizer->Add(m_toggleEntityClassnames, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
+                    entityPanel->SetSizerAndFit(entityPanelSizer);
                 }
                 wxPanel* brushPanel = new wxPanel(togglePanel);
                 {
-                    wxCheckBox* toggleBrushes = new wxCheckBox(brushPanel, wxID_ANY, "Brushes");
-                    wxCheckBox* toggleClipBrushes = new wxCheckBox(brushPanel, wxID_ANY, "Clip brushes");
+                    m_toggleBrushes = new wxCheckBox(brushPanel, ShowBrushesCheckBoxId, "Brushes");
+                    m_toggleClipBrushes = new wxCheckBox(brushPanel, ShowClipBrushesCheckBoxId, "Clip brushes");
+                    m_toggleSkipBrushes = new wxCheckBox(brushPanel, ShowSkipBrushesCheckBoxId, "Skip brushes");
 
                     wxSizer* brushPanelSizer = new wxBoxSizer(wxVERTICAL);
-                    brushPanelSizer->Add(toggleBrushes, 0, wxEXPAND);
+                    brushPanelSizer->Add(m_toggleBrushes, 0, wxEXPAND);
                     brushPanelSizer->AddSpacer(LayoutConstants::CheckBoxVerticalMargin);
-                    brushPanelSizer->Add(toggleClipBrushes, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
-                    brushPanel->SetSizer(brushPanelSizer);
+                    brushPanelSizer->Add(m_toggleClipBrushes, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
+                    brushPanelSizer->AddSpacer(LayoutConstants::CheckBoxVerticalMargin);
+                    brushPanelSizer->Add(m_toggleSkipBrushes, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
+                    brushPanel->SetSizerAndFit(brushPanelSizer);
                 }
                 
                 wxSizer* togglePanelSizer = new wxBoxSizer(wxHORIZONTAL);
                 togglePanelSizer->Add(entityPanel, 0, wxEXPAND);
                 togglePanelSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
                 togglePanelSizer->Add(brushPanel, 1, wxEXPAND);
-                togglePanel->SetSizer(togglePanelSizer);
+                togglePanel->SetSizerAndFit(togglePanelSizer);
             }
             
             // layout of the contained controls
@@ -96,46 +146,113 @@ namespace TrenchBroom {
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(innerSizer, 0, wxEXPAND | wxALL, LayoutConstants::StaticBoxInnerMargin);
             
-            filterBox->SetSizer(outerSizer);
+            filterBox->SetSizerAndFit(outerSizer);
             return filterBox;
         }
 
-        wxWindow* ViewInspector::createRenderModeSelector() {
-            wxPanel* renderModePanel = new wxPanel(this);
+        wxWindow* ViewInspector::createRenderModeSelector(ViewOptions& viewOptions) {
+            wxStaticBox* renderModeBox = new wxStaticBox(this, wxID_ANY, "Render mode");
             
-            // label
-            wxStaticText* renderModeLabel = new wxStaticText(renderModePanel, wxID_ANY, "Render mode");
-            wxFont font = renderModeLabel->GetFont();
-            font.SetWeight(wxFONTWEIGHT_BOLD);
-            renderModeLabel->SetFont(font);
+            wxStaticText* faceRenderModeLabel = new wxStaticText(renderModeBox, wxID_ANY, "Faces");
+            wxString faceRenderModes[3] = {"Render with textures", "Render flat", "Don't render"};
+            m_faceRenderModeChoice = new wxChoice(renderModeBox, FaceRenderModeChoiceId, wxDefaultPosition, wxDefaultSize, 3, faceRenderModes);
             
-            // choice drop down
-            wxString renderModes[3] = {"Textured", "Flat", "Wireframe"};
-            wxChoice* renderModeChoice = new wxChoice(renderModePanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, 3, renderModes);
+            wxStaticText* toggleRenderEdgesLabel = new wxStaticText(renderModeBox, wxID_ANY, "");
+            m_toggleRenderEdges = new wxCheckBox(renderModeBox, RenderEdgesCheckBoxId, "Render edges");
             
-            // put both next to each other, allowing the dropdown to expand
-            wxSizer* renderModePanelSizer = new wxBoxSizer(wxHORIZONTAL);
-            renderModePanelSizer->Add(renderModeLabel, 0, wxEXPAND | wxTOP, 1);
-            renderModePanelSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
-            renderModePanelSizer->Add(renderModeChoice, 1, wxEXPAND);
-            renderModePanel->SetSizer(renderModePanelSizer);
+            // layout of the contained controls
+            wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
+            innerSizer->Add(faceRenderModeLabel);
+            innerSizer->Add(m_faceRenderModeChoice);
+            innerSizer->Add(toggleRenderEdgesLabel);
+            innerSizer->Add(m_toggleRenderEdges);
             
-            return renderModePanel;
+            // creates 5 pixel border inside the static box
+            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            outerSizer->Add(innerSizer, 0, wxEXPAND | wxALL, LayoutConstants::StaticBoxInnerMargin);
+            
+            renderModeBox->SetSizerAndFit(outerSizer);
+            return renderModeBox;
         }
 
-        ViewInspector::ViewInspector(wxWindow* parent) :
-        wxPanel(parent) {
+        ViewInspector::ViewInspector(wxWindow* parent, EditorView& editorView) :
+        wxPanel(parent),
+        m_editorView(editorView) {
             
             // layout of the contained controls
             wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
-            innerSizer->Add(createFilterBox(), 1, wxEXPAND);
+            innerSizer->Add(createFilterBox(m_editorView.viewOptions()), 0, wxEXPAND);
             innerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            innerSizer->Add(createRenderModeSelector(), 0, wxEXPAND | wxBOTTOM, 2);
+            innerSizer->Add(createRenderModeSelector(m_editorView.viewOptions()), 0, wxEXPAND | wxBOTTOM, 2);
             
             // creates 5 pixel border inside the page
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(innerSizer, 1, wxEXPAND | wxALL, 5);
-            SetSizer(outerSizer);
+            SetSizerAndFit(outerSizer);
+            
+            updateControls();
+        }
+
+        void ViewInspector::OnFilterPatternChanged(wxCommandEvent& event) {
+            m_editorView.viewOptions().setFilterPattern(m_searchBox->GetValue().ToStdString());
+            Controller::Command command(Controller::Command::InvalidateRendererState, m_editorView.MapDocument(), false, "Change filter text");
+            m_editorView.OnUpdate(NULL, &command);
+        }
+
+        void ViewInspector::OnFilterOptionChanged(wxCommandEvent& event){
+            switch (event.GetId()) {
+                case ShowEntitiesCheckBoxId:
+                    m_editorView.viewOptions().setShowEntities(event.GetInt() != 0);
+                    m_editorView.OnUpdate(NULL); // will just trigger a refresh
+                    break;
+                case ShowEntityModelsCheckBoxId:
+                    m_editorView.viewOptions().setShowEntityModels(event.GetInt() != 0);
+                    m_editorView.OnUpdate(NULL); // will just trigger a refresh
+                    break;
+                case ShowEntityBoundsCheckBoxId:
+                    m_editorView.viewOptions().setShowEntityBounds(event.GetInt() != 0);
+                    m_editorView.OnUpdate(NULL); // will just trigger a refresh
+                    break;
+                case ShowEntityClassnamesCheckBoxId:
+                    m_editorView.viewOptions().setShowEntityClassnames(event.GetInt() != 0);
+                    m_editorView.OnUpdate(NULL); // will just trigger a refresh
+                    break;
+                case ShowBrushesCheckBoxId:
+                    m_editorView.viewOptions().setShowBrushes(event.GetInt() != 0);
+                    m_editorView.OnUpdate(NULL); // will just trigger a refresh
+                    break;
+                case ShowClipBrushesCheckBoxId: {
+                    m_editorView.viewOptions().setShowClipBrushes(event.GetInt() != 0);
+                    Controller::Command command(Controller::Command::InvalidateRendererBrushState, m_editorView.MapDocument(), false, "Change brush state");
+                    m_editorView.OnUpdate(NULL, &command);
+                    break;
+                }
+                case ShowSkipBrushesCheckBoxId: {
+                    m_editorView.viewOptions().setShowSkipBrushes(event.GetInt() != 0);
+                    Controller::Command command(Controller::Command::InvalidateRendererBrushState, m_editorView.MapDocument(), false, "Change brush state");
+                    m_editorView.OnUpdate(NULL, &command);
+                    break;
+                }
+            }
+            updateControls();
+        }
+
+        void ViewInspector::OnRenderFaceModeSelected(wxCommandEvent& event) {
+            ViewOptions::FaceRenderMode mode;
+            if (m_faceRenderModeChoice->GetSelection() == 1)
+                mode = ViewOptions::Flat;
+            else if (m_faceRenderModeChoice->GetSelection() == 2)
+                mode = ViewOptions::Discard;
+            else
+                mode = ViewOptions::Textured;
+            m_editorView.viewOptions().setFaceRenderMode(mode);
+            m_editorView.OnUpdate(NULL); // will just trigger a refresh
+            updateControls(); // if something went wrong, set the choice selection to the default value ("Textured")
+        }
+        
+        void ViewInspector::OnRenderEdgesChanged(wxCommandEvent& event) {
+            m_editorView.viewOptions().setRenderEdges(event.GetInt() != 0);
+            m_editorView.OnUpdate(NULL); // will just trigger a refresh
         }
     }
 }

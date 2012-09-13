@@ -120,7 +120,7 @@ namespace TrenchBroom {
                 float m_hInset;
                 float m_vInset;
                 
-                void addString(Key key, const FontDescriptor& fontDescriptor, const String& string, StringRenderer* stringRenderer, TextAnchor* anchor) {
+                inline void addString(Key key, const FontDescriptor& fontDescriptor, const String& string, StringRenderer* stringRenderer, TextAnchor* anchor) {
                     removeString(key);
                     m_entries.insert(std::pair<Key, TextEntry>(key, TextEntry(fontDescriptor, string, stringRenderer, anchor)));
                 }
@@ -232,14 +232,14 @@ namespace TrenchBroom {
                     clear();
                 }
                 
-                void addString(Key key, const FontDescriptor& fontDescriptor, const String& string, TextAnchor* anchor) {
+                inline void addString(Key key, const FontDescriptor& fontDescriptor, const String& string, TextAnchor* anchor) {
                     StringRenderer* stringRenderer = m_stringManager.createStringRenderer(fontDescriptor, string);
                     assert(stringRenderer != NULL);
                     
                     addString(key, fontDescriptor, string, stringRenderer, anchor);
                 }
                 
-                void removeString(Key key)  {
+                inline void removeString(Key key)  {
                     typename TextMap::iterator it = m_entries.find(key);
                     if (it != m_entries.end()) {
                         TextEntry& entry = it->second;
@@ -249,7 +249,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                void updateString(Key key, const std::string& str) {
+                inline void updateString(Key key, const std::string& str) {
                     typename TextMap::iterator it = m_entries.find(key);
                     if (it != m_entries.end()) {
                         TextEntry& entry = it->second;
@@ -262,7 +262,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                void transferString(Key key, TextRenderer& destination)  {
+                inline void transferString(Key key, TextRenderer& destination)  {
                     typename TextMap::iterator it = m_entries.find(key);
                     if (it != m_entries.end()) {
                         TextEntry& entry = it->second;
@@ -271,16 +271,21 @@ namespace TrenchBroom {
                     }
                 }
                 
-                void clear()  {
+                inline bool empty() const {
+                    return m_entries.empty();
+                }
+                
+                inline void clear()  {
                     typename TextMap::iterator it, end;
                     for (it = m_entries.begin(), end = m_entries.end(); it != end; ++it) {
                         TextEntry& entry = it->second;
                         m_stringManager.destroyStringRenderer(entry.stringRenderer());
                         delete entry.textAnchor();
                     }
+                    m_entries.clear();
                 }
                 
-                void setFadeDistance(float fadeDistance)  {
+                inline void setFadeDistance(float fadeDistance)  {
                     m_fadeDistance = fadeDistance;
                 }
                 

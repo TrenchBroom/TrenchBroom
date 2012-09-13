@@ -175,7 +175,10 @@ namespace TrenchBroom {
             void changeEditState(const Model::EditStateChangeSet& changeSet);
             void loadMap();
             void clearMap();
-
+            void invalidateEntities();
+            void invalidateBrushes();
+            void invalidateAll();
+            
             void render(RenderContext& context);
         };
     }

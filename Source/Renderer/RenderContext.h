@@ -27,6 +27,10 @@ namespace TrenchBroom {
         class Filter;
     }
     
+    namespace View {
+        class ViewOptions;
+    }
+    
     namespace Renderer {
         class Camera;
 
@@ -35,11 +39,13 @@ namespace TrenchBroom {
             Camera& m_camera;
             Model::Filter& m_filter;
             Transformation m_transformation;
+            View::ViewOptions& m_viewOptions;
         public:
-            RenderContext(Camera& camera, Model::Filter& filter) :
+            RenderContext(Camera& camera, Model::Filter& filter, View::ViewOptions& viewOptions) :
             m_camera(camera),
             m_filter(filter),
-            m_transformation(m_camera.matrix()) {}
+            m_transformation(m_camera.matrix()),
+            m_viewOptions(viewOptions) {}
             
             inline Camera& camera() const {
                 return m_camera;
@@ -51,6 +57,10 @@ namespace TrenchBroom {
             
             inline Transformation& transformation() {
                 return m_transformation;
+            }
+            
+            inline View::ViewOptions& viewOptions() const {
+                return m_viewOptions;
             }
         };
     }

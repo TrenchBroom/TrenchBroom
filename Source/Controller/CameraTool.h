@@ -34,27 +34,30 @@ class wxEvtHandler;
 namespace TrenchBroom {
     namespace Controller {
         class CameraFilter : public Model::Filter {
+        protected:
+            Model::Filter& m_defaultFilter;
         public:
+            CameraFilter(Model::Filter& defaultFilter) :
+            m_defaultFilter(defaultFilter) {}
+            
+            virtual inline bool entityVisible(const Model::Entity& entity) const {
+                return m_defaultFilter.entityVisible(entity);
+            }
+            
+            virtual inline bool entityPickable(const Model::Entity& entity) const {
+                return entityVisible(entity);
+            }
+            
+            virtual inline bool brushVisible(const Model::Brush& brush) const {
+                return m_defaultFilter.brushVisible(brush);
+            }
+            
             virtual inline bool brushPickable(const Model::Brush& brush) const {
-                if (brush.hidden())
-                    return false;
-                
-                return true;
+                return brushVisible(brush);
             }
             
             virtual inline bool brushVerticesPickable(const Model::Brush& brush) const {
                 return false;
-            }
-            
-            virtual inline bool entityPickable(const Model::Entity& entity) const {
-                if (entity.worldspawn() || entity.hidden())
-                    return false;
-                
-                Model::EntityDefinition* definition = entity.definition();
-                if (definition != NULL && definition->type() == Model::EntityDefinition::BrushEntity && !entity.brushes().empty())
-                    return false;
-                
-                return true;
             }
         };
         
@@ -68,7 +71,10 @@ namespace TrenchBroom {
             float panSpeed(bool vertical);
             float moveSpeed();
         public:
-            CameraTool(Model::MapDocument& document, View::EditorView& view) : Tool(document, view), m_orbit(false) {}
+            CameraTool(Model::MapDocument& document, View::EditorView& view) :
+            Tool(document, view),
+            m_filter(view.Filter()),
+            m_orbit(false) {}
             
             bool handleScrolled(InputEvent& event);
             bool handleBeginDrag(InputEvent& event);

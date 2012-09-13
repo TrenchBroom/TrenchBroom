@@ -42,10 +42,13 @@ namespace TrenchBroom {
         }
         
         wxNotebookPage* Inspector::CreateViewInspector() {
-            return new ViewInspector(m_notebook);
+            return new ViewInspector(m_notebook, m_view);
         }
         
-        Inspector::Inspector(wxWindow* parent) : wxPanel(parent) {
+        Inspector::Inspector(wxWindow* parent, Model::MapDocument& document, EditorView& view) :
+        wxPanel(parent),
+        m_document(document),
+        m_view(view) {
             m_notebook = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNB_TOP | wxCLIP_CHILDREN);
             m_notebook->AddPage(CreateMapInspector(), wxT("Map"));
             m_notebook->AddPage(CreateEntityInspector(), wxT("Entity"));
