@@ -28,7 +28,7 @@
 #include "Model/MapDocument.h"
 #include "Utility/DocManager.h"
 #include "View/EditorView.h"
-#include "View/MenuCommandIds.h"
+#include "View/CommandIds.h"
 
 BEGIN_EVENT_TABLE(AbstractApp, wxApp)
 END_EVENT_TABLE()
@@ -62,18 +62,18 @@ wxMenu* AbstractApp::CreateEditMenu() {
     editMenu->Append(wxID_COPY, wxT("Copy\tCtrl+C"));
     editMenu->Append(wxID_PASTE, wxT("Paste\tCtrl+V"));
     editMenu->AppendSeparator();
-    editMenu->Append(MenuCommandIds::tbID_EDIT_SELECT_ALL, wxT("Select All\tCtrl+A"));
-    editMenu->Append(MenuCommandIds::tbID_EDIT_SELECT_SIBLINGS, wxT("Select Siblings\tCtrl+Alt+A"));
-    editMenu->Append(MenuCommandIds::tbID_EDIT_SELECT_TOUCHING, wxT("Select Touching\tCtrl+T"));
-    editMenu->Append(MenuCommandIds::tbID_EDIT_SELECT_NONE, wxT("Select None\tCtrl+Shift+A"));
+    editMenu->Append(CommandIds::Menu::EditSelectAll, wxT("Select All\tCtrl+A"));
+    editMenu->Append(CommandIds::Menu::EditSelectSiblings, wxT("Select Siblings\tCtrl+Alt+A"));
+    editMenu->Append(CommandIds::Menu::EditSelectTouching, wxT("Select Touching\tCtrl+T"));
+    editMenu->Append(CommandIds::Menu::EditSelectNone, wxT("Select None\tCtrl+Shift+A"));
     editMenu->AppendSeparator();
-    editMenu->Append(MenuCommandIds::tbID_EDIT_HIDE_SELECTED, wxT("Hide Selected\tCtrl+H"));
-    editMenu->Append(MenuCommandIds::tbID_EDIT_HIDE_UNSELECTED, wxT("Hide Unselected\tCtrl+Alt+H"));
-    editMenu->Append(MenuCommandIds::tbID_EDIT_UNHIDE_ALL, wxT("Unhide All\tCtrl+Shift+H"));
+    editMenu->Append(CommandIds::Menu::EditHideSelected, wxT("Hide Selected\tCtrl+H"));
+    editMenu->Append(CommandIds::Menu::EditHideUnselected, wxT("Hide Unselected\tCtrl+Alt+H"));
+    editMenu->Append(CommandIds::Menu::EditUnhideAll, wxT("Unhide All\tCtrl+Shift+H"));
     editMenu->AppendSeparator();
-    editMenu->Append(MenuCommandIds::tbID_EDIT_LOCK_SELECTED, wxT("Lock Selected\tCtrl+L"));
-    editMenu->Append(MenuCommandIds::tbID_EDIT_LOCK_UNSELECTED, wxT("Lock Unselected\tCtrl+Alt+L"));
-    editMenu->Append(MenuCommandIds::tbID_EDIT_UNLOCK_ALL, wxT("Unlock All\tCtrl+Shift+L"));
+    editMenu->Append(CommandIds::Menu::EditLockSelected, wxT("Lock Selected\tCtrl+L"));
+    editMenu->Append(CommandIds::Menu::EditLockUnselected, wxT("Lock Unselected\tCtrl+Alt+L"));
+    editMenu->Append(CommandIds::Menu::EditUnlockAll, wxT("Unlock All\tCtrl+Shift+L"));
     
     return editMenu;
 }

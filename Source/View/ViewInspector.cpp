@@ -28,33 +28,25 @@
 #include <wx/stattext.h>
 
 #include "Controller/Command.h"
+#include "View/CommandIds.h"
 #include "View/EditorView.h"
 #include "View/LayoutConstants.h"
 #include "View/ViewOptions.h"
 
 namespace TrenchBroom {
     namespace View {
-        static const unsigned int ShowEntitiesCheckBoxId            = wxID_HIGHEST + 1;
-        static const unsigned int ShowEntityModelsCheckBoxId        = wxID_HIGHEST + 2;
-        static const unsigned int ShowEntityBoundsCheckBoxId        = wxID_HIGHEST + 3;
-        static const unsigned int ShowEntityClassnamesCheckBoxId    = wxID_HIGHEST + 4;
-        static const unsigned int ShowBrushesCheckBoxId             = wxID_HIGHEST + 5;
-        static const unsigned int ShowClipBrushesCheckBoxId         = wxID_HIGHEST + 6;
-        static const unsigned int ShowSkipBrushesCheckBoxId         = wxID_HIGHEST + 7;
-        static const unsigned int FaceRenderModeChoiceId            = wxID_HIGHEST + 8;
-        static const unsigned int RenderEdgesCheckBoxId             = wxID_HIGHEST + 9;
         
         BEGIN_EVENT_TABLE(ViewInspector, wxPanel)
         EVT_TEXT(wxID_ANY, ViewInspector::OnFilterPatternChanged)
-        EVT_CHECKBOX(ShowEntitiesCheckBoxId, ViewInspector::OnFilterOptionChanged)
-        EVT_CHECKBOX(ShowEntityModelsCheckBoxId, ViewInspector::OnFilterOptionChanged)
-        EVT_CHECKBOX(ShowEntityBoundsCheckBoxId, ViewInspector::OnFilterOptionChanged)
-        EVT_CHECKBOX(ShowEntityClassnamesCheckBoxId, ViewInspector::OnFilterOptionChanged)
-        EVT_CHECKBOX(ShowBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
-        EVT_CHECKBOX(ShowClipBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
-        EVT_CHECKBOX(ShowSkipBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
-        EVT_CHOICE(FaceRenderModeChoiceId, ViewInspector::OnRenderFaceModeSelected)
-        EVT_CHECKBOX(RenderEdgesCheckBoxId, ViewInspector::OnRenderEdgesChanged)
+        EVT_CHECKBOX(CommandIds::ViewInspector::ShowEntitiesCheckBoxId, ViewInspector::OnFilterOptionChanged)
+        EVT_CHECKBOX(CommandIds::ViewInspector::ShowEntityModelsCheckBoxId, ViewInspector::OnFilterOptionChanged)
+        EVT_CHECKBOX(CommandIds::ViewInspector::ShowEntityBoundsCheckBoxId, ViewInspector::OnFilterOptionChanged)
+        EVT_CHECKBOX(CommandIds::ViewInspector::ShowEntityClassnamesCheckBoxId, ViewInspector::OnFilterOptionChanged)
+        EVT_CHECKBOX(CommandIds::ViewInspector::ShowBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
+        EVT_CHECKBOX(CommandIds::ViewInspector::ShowClipBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
+        EVT_CHECKBOX(CommandIds::ViewInspector::ShowSkipBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
+        EVT_CHOICE(CommandIds::ViewInspector::FaceRenderModeChoiceId, ViewInspector::OnRenderFaceModeSelected)
+        EVT_CHECKBOX(CommandIds::ViewInspector::RenderEdgesCheckBoxId, ViewInspector::OnRenderEdgesChanged)
         END_EVENT_TABLE()
         
         void ViewInspector::updateControls() {
@@ -97,10 +89,10 @@ namespace TrenchBroom {
             {
                 wxPanel* entityPanel = new wxPanel(togglePanel);
                 {
-                    m_toggleEntities = new wxCheckBox(entityPanel, ShowEntitiesCheckBoxId, "Entities");
-                    m_toggleEntityModels = new wxCheckBox(entityPanel, ShowEntityModelsCheckBoxId, "Models");
-                    m_toggleEntityBounds = new wxCheckBox(entityPanel, ShowEntityBoundsCheckBoxId, "Bounds");
-                    m_toggleEntityClassnames = new wxCheckBox(entityPanel, ShowEntityClassnamesCheckBoxId, "Classnames");
+                    m_toggleEntities = new wxCheckBox(entityPanel, CommandIds::ViewInspector::ShowEntitiesCheckBoxId, "Entities");
+                    m_toggleEntityModels = new wxCheckBox(entityPanel, CommandIds::ViewInspector::ShowEntityModelsCheckBoxId, "Models");
+                    m_toggleEntityBounds = new wxCheckBox(entityPanel, CommandIds::ViewInspector::ShowEntityBoundsCheckBoxId, "Bounds");
+                    m_toggleEntityClassnames = new wxCheckBox(entityPanel, CommandIds::ViewInspector::ShowEntityClassnamesCheckBoxId, "Classnames");
                     
                     wxSizer* entityPanelSizer = new wxBoxSizer(wxVERTICAL);
                     entityPanelSizer->Add(m_toggleEntities, 0, wxEXPAND);
@@ -114,9 +106,9 @@ namespace TrenchBroom {
                 }
                 wxPanel* brushPanel = new wxPanel(togglePanel);
                 {
-                    m_toggleBrushes = new wxCheckBox(brushPanel, ShowBrushesCheckBoxId, "Brushes");
-                    m_toggleClipBrushes = new wxCheckBox(brushPanel, ShowClipBrushesCheckBoxId, "Clip brushes");
-                    m_toggleSkipBrushes = new wxCheckBox(brushPanel, ShowSkipBrushesCheckBoxId, "Skip brushes");
+                    m_toggleBrushes = new wxCheckBox(brushPanel, CommandIds::ViewInspector::ShowBrushesCheckBoxId, "Brushes");
+                    m_toggleClipBrushes = new wxCheckBox(brushPanel, CommandIds::ViewInspector::ShowClipBrushesCheckBoxId, "Clip brushes");
+                    m_toggleSkipBrushes = new wxCheckBox(brushPanel, CommandIds::ViewInspector::ShowSkipBrushesCheckBoxId, "Skip brushes");
 
                     wxSizer* brushPanelSizer = new wxBoxSizer(wxVERTICAL);
                     brushPanelSizer->Add(m_toggleBrushes, 0, wxEXPAND);
@@ -155,10 +147,10 @@ namespace TrenchBroom {
             
             wxStaticText* faceRenderModeLabel = new wxStaticText(renderModeBox, wxID_ANY, "Faces");
             wxString faceRenderModes[3] = {"Render with textures", "Render flat", "Don't render"};
-            m_faceRenderModeChoice = new wxChoice(renderModeBox, FaceRenderModeChoiceId, wxDefaultPosition, wxDefaultSize, 3, faceRenderModes);
+            m_faceRenderModeChoice = new wxChoice(renderModeBox, CommandIds::ViewInspector::FaceRenderModeChoiceId, wxDefaultPosition, wxDefaultSize, 3, faceRenderModes);
             
             wxStaticText* toggleRenderEdgesLabel = new wxStaticText(renderModeBox, wxID_ANY, "");
-            m_toggleRenderEdges = new wxCheckBox(renderModeBox, RenderEdgesCheckBoxId, "Render edges");
+            m_toggleRenderEdges = new wxCheckBox(renderModeBox, CommandIds::ViewInspector::RenderEdgesCheckBoxId, "Render edges");
             
             // layout of the contained controls
             wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
@@ -201,33 +193,33 @@ namespace TrenchBroom {
 
         void ViewInspector::OnFilterOptionChanged(wxCommandEvent& event){
             switch (event.GetId()) {
-                case ShowEntitiesCheckBoxId:
+                case CommandIds::ViewInspector::ShowEntitiesCheckBoxId:
                     m_editorView.viewOptions().setShowEntities(event.GetInt() != 0);
                     m_editorView.OnUpdate(NULL); // will just trigger a refresh
                     break;
-                case ShowEntityModelsCheckBoxId:
+                case CommandIds::ViewInspector::ShowEntityModelsCheckBoxId:
                     m_editorView.viewOptions().setShowEntityModels(event.GetInt() != 0);
                     m_editorView.OnUpdate(NULL); // will just trigger a refresh
                     break;
-                case ShowEntityBoundsCheckBoxId:
+                case CommandIds::ViewInspector::ShowEntityBoundsCheckBoxId:
                     m_editorView.viewOptions().setShowEntityBounds(event.GetInt() != 0);
                     m_editorView.OnUpdate(NULL); // will just trigger a refresh
                     break;
-                case ShowEntityClassnamesCheckBoxId:
+                case CommandIds::ViewInspector::ShowEntityClassnamesCheckBoxId:
                     m_editorView.viewOptions().setShowEntityClassnames(event.GetInt() != 0);
                     m_editorView.OnUpdate(NULL); // will just trigger a refresh
                     break;
-                case ShowBrushesCheckBoxId:
+                case CommandIds::ViewInspector::ShowBrushesCheckBoxId:
                     m_editorView.viewOptions().setShowBrushes(event.GetInt() != 0);
                     m_editorView.OnUpdate(NULL); // will just trigger a refresh
                     break;
-                case ShowClipBrushesCheckBoxId: {
+                case CommandIds::ViewInspector::ShowClipBrushesCheckBoxId: {
                     m_editorView.viewOptions().setShowClipBrushes(event.GetInt() != 0);
                     Controller::Command command(Controller::Command::InvalidateRendererBrushState, m_editorView.MapDocument(), false, "Change brush state");
                     m_editorView.OnUpdate(NULL, &command);
                     break;
                 }
-                case ShowSkipBrushesCheckBoxId: {
+                case CommandIds::ViewInspector::ShowSkipBrushesCheckBoxId: {
                     m_editorView.viewOptions().setShowSkipBrushes(event.GetInt() != 0);
                     Controller::Command command(Controller::Command::InvalidateRendererBrushState, m_editorView.MapDocument(), false, "Change brush state");
                     m_editorView.OnUpdate(NULL, &command);

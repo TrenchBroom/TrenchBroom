@@ -16,6 +16,7 @@
 		4810278B15E67A7300250C9C /* Brush.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810278915E67A7300250C9C /* Brush.cpp */; };
 		481028A015E68E5300250C9C /* Face.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810289E15E68E5300250C9C /* Face.cpp */; };
 		481028A915E77A8D00250C9C /* Map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481028A715E77A8D00250C9C /* Map.cpp */; };
+		481CDAD816026C48003E2EE9 /* PreferencesDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481CDAD616026C48003E2EE9 /* PreferencesDialog.cpp */; };
 		48312B2815EABBD600607868 /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 48312B2715EABBD600607868 /* Icon.icns */; };
 		48312B2C15EB706D00607868 /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B2A15EB706D00607868 /* Console.cpp */; };
 		48312B3215EB800600607868 /* Vbo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B3015EB800600607868 /* Vbo.cpp */; };
@@ -115,6 +116,8 @@
 		481028A615E7778200250C9C /* EditState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EditState.h; sourceTree = "<group>"; };
 		481028A715E77A8D00250C9C /* Map.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Map.cpp; sourceTree = "<group>"; };
 		481028A815E77A8D00250C9C /* Map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Map.h; sourceTree = "<group>"; };
+		481CDAD616026C48003E2EE9 /* PreferencesDialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PreferencesDialog.cpp; sourceTree = "<group>"; };
+		481CDAD716026C48003E2EE9 /* PreferencesDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesDialog.h; sourceTree = "<group>"; };
 		48312B2715EABBD600607868 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
 		48312B2A15EB706D00607868 /* Console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Console.cpp; sourceTree = "<group>"; };
 		48312B2B15EB706D00607868 /* Console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Console.h; sourceTree = "<group>"; };
@@ -230,7 +233,7 @@
 		48AF492915E8F0B20083DE52 /* ProgressIndicator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProgressIndicator.h; sourceTree = "<group>"; };
 		48AF61F315F8B7360027C465 /* libfreetype.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreetype.a; path = Lib/libfreetype.a; sourceTree = "<group>"; };
 		48AF61F515F8B7720027C465 /* libbz2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbz2.a; path = Lib/libbz2.a; sourceTree = "<group>"; };
-		48AF61F715F91B610027C465 /* MenuCommandIds.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MenuCommandIds.h; sourceTree = "<group>"; };
+		48AF61F715F91B610027C465 /* CommandIds.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommandIds.h; sourceTree = "<group>"; };
 		48D1BE9815E2E2930073C030 /* Math.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Math.h; sourceTree = "<group>"; };
 		48D1BE9A15E2E35C0073C030 /* Vec3f.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Vec3f.h; sourceTree = "<group>"; };
 		48D1BE9B15E2E3B50073C030 /* VecMath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VecMath.h; sourceTree = "<group>"; };
@@ -487,7 +490,9 @@
 				4810276515E4FBF000250C9C /* MapGLCanvas.h */,
 				4810276A15E5313F00250C9C /* Inspector.cpp */,
 				4810276B15E5313F00250C9C /* Inspector.h */,
-				48AF61F715F91B610027C465 /* MenuCommandIds.h */,
+				48AF61F715F91B610027C465 /* CommandIds.h */,
+				481CDAD616026C48003E2EE9 /* PreferencesDialog.cpp */,
+				481CDAD716026C48003E2EE9 /* PreferencesDialog.h */,
 				48AB57EF15ECEEE500321C47 /* ProgressIndicatorDialog.cpp */,
 				48AB57F015ECEEE500321C47 /* ProgressIndicatorDialog.h */,
 				48E2ED15160102E400B8D476 /* ViewInspector.cpp */,
@@ -733,6 +738,7 @@
 				48F0B7C315FCB4CF0089B0B5 /* Shader.cpp in Sources */,
 				48E2ECBD15FF8FDF00B8D476 /* Grid.cpp in Sources */,
 				48E2ED17160102E400B8D476 /* ViewInspector.cpp in Sources */,
+				481CDAD816026C48003E2EE9 /* PreferencesDialog.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

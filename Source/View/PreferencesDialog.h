@@ -17,25 +17,22 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TrenchBroomApp__
-#define __TrenchBroom__TrenchBroomApp__
+#ifndef __TrenchBroom__PreferencesDialog__
+#define __TrenchBroom__PreferencesDialog__
 
-#include "View/AbstractApp.h"
+#include <wx/dialog.h>
 
-class TrenchBroomApp : public AbstractApp {
-protected:
-    virtual wxMenu* CreateFileMenu();
-public:
+namespace TrenchBroom {
+    namespace View {
+        class PreferencesDialog : public wxDialog {
+        protected:
+            wxWindow* createQuakePreferences();
+            wxWindow* createViewPreferences();
+            wxWindow* createMousePreferences();
+        public:
+            PreferencesDialog();
+        };
+    }
+}
 
-    virtual bool OnInit();
-    virtual void OnFileExit(wxCommandEvent& event);
-    virtual void OnOpenPreferences(wxCommandEvent& event);
-    
-    void OnUpdateMenuItem(wxUpdateUIEvent& event);
-
-    DECLARE_EVENT_TABLE()
-};
-
-DECLARE_APP(TrenchBroomApp)
-
-#endif /* defined(__TrenchBroom__TrenchBroomApp__) */
+#endif /* defined(__TrenchBroom__PreferencesDialog__) */

@@ -23,7 +23,8 @@
 #include <wx/docview.h>
 
 #include "Utility/DocManager.h"
-#include "View/MenuCommandIds.h"
+#include "View/CommandIds.h"
+#include "View/PreferencesDialog.h"
 
 #include <clocale>
 
@@ -31,9 +32,11 @@ IMPLEMENT_APP(TrenchBroomApp)
 
 BEGIN_EVENT_TABLE(TrenchBroomApp, AbstractApp)
 EVT_MENU(wxID_EXIT, TrenchBroomApp::OnFileExit)
+EVT_MENU(wxID_PREFERENCES, TrenchBroomApp::OnOpenPreferences)
+
 EVT_UPDATE_UI(wxID_UNDO, TrenchBroomApp::OnUpdateMenuItem)
 EVT_UPDATE_UI(wxID_REDO, TrenchBroomApp::OnUpdateMenuItem)
-EVT_UPDATE_UI_RANGE(TrenchBroom::View::MenuCommandIds::tbID_MENU_LOWEST, TrenchBroom::View::MenuCommandIds::tbID_MENU_HIGHEST, TrenchBroomApp::OnUpdateMenuItem)
+EVT_UPDATE_UI_RANGE(TrenchBroom::View::CommandIds::Menu::Lowest, TrenchBroom::View::CommandIds::Menu::Highest, TrenchBroomApp::OnUpdateMenuItem)
 END_EVENT_TABLE()
 
 wxMenu* TrenchBroomApp::CreateFileMenu() {
@@ -69,6 +72,11 @@ bool TrenchBroomApp::OnInit() {
 
 void TrenchBroomApp::OnFileExit(wxCommandEvent& event) {
     Exit();
+}
+
+void TrenchBroomApp::OnOpenPreferences(wxCommandEvent& event) {
+    TrenchBroom::View::PreferencesDialog dialog;
+    dialog.ShowModal();
 }
 
 void TrenchBroomApp::OnUpdateMenuItem(wxUpdateUIEvent& event) {

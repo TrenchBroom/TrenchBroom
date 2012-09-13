@@ -35,7 +35,7 @@
 #include "Utility/Preferences.h"
 #include "View/EditorFrame.h"
 #include "View/MapGLCanvas.h"
-#include "View/MenuCommandIds.h"
+#include "View/CommandIds.h"
 #include "View/ViewOptions.h"
 
 namespace TrenchBroom {
@@ -45,18 +45,18 @@ namespace TrenchBroom {
         EVT_CAMERA_LOOK(EditorView::OnCameraLook)
         EVT_CAMERA_ORBIT(EditorView::OnCameraOrbit)
 
-        EVT_MENU(MenuCommandIds::tbID_EDIT_SELECT_ALL, EditorView::OnEditSelectAll)
-        EVT_MENU(MenuCommandIds::tbID_EDIT_SELECT_NONE, EditorView::OnEditSelectNone)
+        EVT_MENU(CommandIds::Menu::EditSelectAll, EditorView::OnEditSelectAll)
+        EVT_MENU(CommandIds::Menu::EditSelectNone, EditorView::OnEditSelectNone)
         
-        EVT_MENU(MenuCommandIds::tbID_EDIT_HIDE_SELECTED, EditorView::OnEditHideSelected)
-        EVT_MENU(MenuCommandIds::tbID_EDIT_HIDE_UNSELECTED, EditorView::OnEditHideUnselected)
-        EVT_MENU(MenuCommandIds::tbID_EDIT_UNHIDE_ALL, EditorView::OnEditUnhideAll)
+        EVT_MENU(CommandIds::Menu::EditHideSelected, EditorView::OnEditHideSelected)
+        EVT_MENU(CommandIds::Menu::EditHideUnselected, EditorView::OnEditHideUnselected)
+        EVT_MENU(CommandIds::Menu::EditUnhideAll, EditorView::OnEditUnhideAll)
         
-        EVT_MENU(MenuCommandIds::tbID_EDIT_LOCK_SELECTED, EditorView::OnEditLockSelected)
-        EVT_MENU(MenuCommandIds::tbID_EDIT_LOCK_UNSELECTED, EditorView::OnEditLockUnselected)
-        EVT_MENU(MenuCommandIds::tbID_EDIT_UNLOCK_ALL, EditorView::OnEditUnlockAll)
+        EVT_MENU(CommandIds::Menu::EditLockSelected, EditorView::OnEditLockSelected)
+        EVT_MENU(CommandIds::Menu::EditLockUnselected, EditorView::OnEditLockUnselected)
+        EVT_MENU(CommandIds::Menu::EditUnlockAll, EditorView::OnEditUnlockAll)
 
-        EVT_UPDATE_UI_RANGE(MenuCommandIds::tbID_MENU_LOWEST, MenuCommandIds::tbID_MENU_HIGHEST, EditorView::OnUpdateMenuItem)
+        EVT_UPDATE_UI_RANGE(CommandIds::Menu::Lowest, CommandIds::Menu::Highest, EditorView::OnUpdateMenuItem)
         END_EVENT_TABLE()
 
         IMPLEMENT_DYNAMIC_CLASS(EditorView, wxView);
@@ -304,31 +304,32 @@ namespace TrenchBroom {
         void EditorView::OnUpdateMenuItem(wxUpdateUIEvent& event) {
             Model::EditStateManager& editStateManager = MapDocument().EditStateManager();
             switch (event.GetId()) {
-                case MenuCommandIds::tbID_EDIT_SELECT_ALL:
+                case CommandIds::Menu::EditSelectAll:
+                    event.Enable(true);
                     break;
-                case MenuCommandIds::tbID_EDIT_SELECT_SIBLINGS:
+                case CommandIds::Menu::EditSelectSiblings:
                     event.Enable(false);
                     break;
-                case MenuCommandIds::tbID_EDIT_SELECT_TOUCHING:
+                case CommandIds::Menu::EditSelectTouching:
                     event.Enable(false);
                     break;
-                case MenuCommandIds::tbID_EDIT_SELECT_NONE:
+                case CommandIds::Menu::EditSelectNone:
                     event.Enable(editStateManager.selectionMode() != Model::EditStateManager::None);
                     break;
-                case MenuCommandIds::tbID_EDIT_HIDE_SELECTED:
-                case MenuCommandIds::tbID_EDIT_HIDE_UNSELECTED:
+                case CommandIds::Menu::EditHideSelected:
+                case CommandIds::Menu::EditHideUnselected:
                     event.Enable(editStateManager.selectionMode() != Model::EditStateManager::None &&
                                  editStateManager.selectionMode() != Model::EditStateManager::Faces);
                     break;
-                case MenuCommandIds::tbID_EDIT_UNHIDE_ALL:
+                case CommandIds::Menu::EditUnhideAll:
                     event.Enable(editStateManager.hasHiddenObjects());
                     break;
-                case MenuCommandIds::tbID_EDIT_LOCK_SELECTED:
-                case MenuCommandIds::tbID_EDIT_LOCK_UNSELECTED:
+                case CommandIds::Menu::EditLockSelected:
+                case CommandIds::Menu::EditLockUnselected:
                     event.Enable(editStateManager.selectionMode() != Model::EditStateManager::None &&
                                  editStateManager.selectionMode() != Model::EditStateManager::Faces);
                     break;
-                case MenuCommandIds::tbID_EDIT_UNLOCK_ALL:
+                case CommandIds::Menu::EditUnlockAll:
                     event.Enable(editStateManager.hasLockedObjects());
                     break;
             }

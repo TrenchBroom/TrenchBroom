@@ -32,7 +32,7 @@ namespace TrenchBroom {
             static const int CheckBoxVerticalMargin         = 5;
             static const int DefaultVerticalMargin          = 10;
 #elif defined __APPLE__
-            static const int StaticBoxInnerMargin           = 5;
+            static const int StaticBoxInnerMargin           = 10;
             static const int StaticBoxTopMargin             = 0;
             static const int ControlHorizontalMargin        = 10;
             static const int ControlVerticalMargin          = 5;

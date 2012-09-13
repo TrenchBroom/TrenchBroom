@@ -24,7 +24,7 @@
 #include "View/EditorView.h"
 #include "View/Inspector.h"
 #include "View/MapGLCanvas.h"
-#include "View/MenuCommandIds.h"
+#include "View/CommandIds.h"
 #include "TrenchBroomApp.h"
 
 #include <wx/colour.h>

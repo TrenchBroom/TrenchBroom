@@ -833,6 +833,12 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::clearMap() {
+			m_faceVertexArrays.clear();
+			m_selectedFaceVertexArrays.clear();
+			m_lockedFaceVertexArrays.clear();
+			m_edgeVertexArray = VertexArrayPtr();
+			m_selectedEdgeVertexArray = VertexArrayPtr();
+			m_lockedEdgeVertexArray = VertexArrayPtr();
             m_entityRenderers.clear();
             m_selectedEntityRenderers.clear();
             m_lockedEntityRenderers.clear();
