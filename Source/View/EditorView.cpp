@@ -100,6 +100,7 @@ namespace TrenchBroom {
             m_console = new Utility::Console();
             m_viewOptions = new ViewOptions();
             m_filter = new Model::Filter();
+//            m_filter->setPattern("light");
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             float fieldOfVision = prefs.getFloat(Preferences::CameraFieldOfVision);
