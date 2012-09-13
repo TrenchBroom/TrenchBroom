@@ -210,6 +210,7 @@
 		48819C4F15ED5C7700BEA604 /* CameraEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraEvent.cpp; sourceTree = "<group>"; };
 		4887937415EF56C10044D66A /* AbstractApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractApp.cpp; sourceTree = "<group>"; };
 		4887937515EF56C10044D66A /* AbstractApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractApp.h; sourceTree = "<group>"; };
+		48A922B01601D0D20037FEFE /* ViewOptions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewOptions.h; sourceTree = "<group>"; };
 		48AB57EF15ECEEE500321C47 /* ProgressIndicatorDialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProgressIndicatorDialog.cpp; sourceTree = "<group>"; };
 		48AB57F015ECEEE500321C47 /* ProgressIndicatorDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProgressIndicatorDialog.h; sourceTree = "<group>"; };
 		48AB57FE15ECFBDF00321C47 /* Tool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Tool.h; sourceTree = "<group>"; };
@@ -491,6 +492,7 @@
 				48AB57F015ECEEE500321C47 /* ProgressIndicatorDialog.h */,
 				48E2ED15160102E400B8D476 /* ViewInspector.cpp */,
 				48E2ED16160102E400B8D476 /* ViewInspector.h */,
+				48A922B01601D0D20037FEFE /* ViewOptions.h */,
 			);
 			name = View;
 			path = ../Source/View;

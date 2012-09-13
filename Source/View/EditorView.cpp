@@ -36,6 +36,7 @@
 #include "View/EditorFrame.h"
 #include "View/MapGLCanvas.h"
 #include "View/MenuCommandIds.h"
+#include "View/ViewOptions.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -60,8 +61,17 @@ namespace TrenchBroom {
 
         IMPLEMENT_DYNAMIC_CLASS(EditorView, wxView);
         
-        EditorView::EditorView() : wxView(), m_camera(NULL), m_renderer(NULL), m_filter(NULL) {}
+        EditorView::EditorView() :
+        wxView(),
+        m_camera(NULL),
+        m_renderer(NULL),
+        m_filter(NULL),
+        m_viewOptions(NULL) {}
         
+        ViewOptions& EditorView::viewOptions() const {
+            return *m_viewOptions;
+        }
+
         Model::Filter& EditorView::Filter() const {
             return *m_filter;
         }
@@ -88,6 +98,7 @@ namespace TrenchBroom {
 
         bool EditorView::OnCreate(wxDocument* doc, long flags) {
             m_console = new Utility::Console();
+            m_viewOptions = new ViewOptions();
             m_filter = new Model::Filter();
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
@@ -146,6 +157,10 @@ namespace TrenchBroom {
             if (m_filter != NULL) {
                 delete m_filter;
                 m_filter = NULL;
+            }
+            if (m_viewOptions != NULL) {
+                delete m_viewOptions;
+                m_viewOptions = NULL;
             }
             if (m_camera != NULL) {
                 delete m_camera;

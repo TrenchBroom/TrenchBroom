@@ -46,10 +46,12 @@ namespace TrenchBroom {
     
     namespace View {
         class MapWindow;
+        class ViewOptions;
         
         class EditorView : public wxView {
             DECLARE_DYNAMIC_CLASS(EditorView)
         protected:
+            ViewOptions* m_viewOptions;
             Model::Filter* m_filter;
             Renderer::Camera* m_camera;
             Renderer::MapRenderer* m_renderer;
@@ -59,6 +61,7 @@ namespace TrenchBroom {
         public:
             EditorView();
 
+            ViewOptions& viewOptions() const;
             Model::Filter& Filter() const;
             Model::MapDocument& MapDocument() const;
             Renderer::Camera& Camera() const;
