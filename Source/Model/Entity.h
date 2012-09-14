@@ -148,6 +148,8 @@ namespace TrenchBroom {
                 m_selectedBrushCount--;
             }
             
+            virtual EditState::Type setEditState(EditState::Type editState);
+
             inline const BBox& worldBounds() const {
                 return m_worldBounds;
             }

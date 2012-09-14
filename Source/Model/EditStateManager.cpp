@@ -111,15 +111,15 @@ namespace TrenchBroom {
             faces.clear();
         }
 
-        void EditStateManager::setDefaultAndClear(EditState::Type state, EditStateChangeSet& changeSet) {
-            if (state == EditState::Selected) {
+        void EditStateManager::setDefaultAndClear(EditState::Type previousState, EditStateChangeSet& changeSet) {
+            if (previousState == EditState::Selected) {
                 setDefaultAndClear(current().selectedEntities, changeSet);
                 setDefaultAndClear(current().selectedBrushes, changeSet);
                 deselectAndClear(current().selectedFaces, changeSet);
-            } else if (state == EditState::Hidden) {
+            } else if (previousState == EditState::Hidden) {
                 setDefaultAndClear(current().hiddenEntities, changeSet);
                 setDefaultAndClear(current().hiddenBrushes, changeSet);
-            } else if (state == EditState::Locked) {
+            } else if (previousState == EditState::Locked) {
                 setDefaultAndClear(current().lockedEntities, changeSet);
                 setDefaultAndClear(current().lockedBrushes, changeSet);
             }

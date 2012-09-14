@@ -98,7 +98,7 @@ namespace TrenchBroom {
             void setDefaultAndClear(EntityList& entities, EditStateChangeSet& changeSet);
             void setDefaultAndClear(BrushList& brushes, EditStateChangeSet& changeSet);
             void deselectAndClear(FaceList& faces, EditStateChangeSet& changeSet);
-            void setDefaultAndClear(EditState::Type state, EditStateChangeSet& changeSet);
+            void setDefaultAndClear(EditState::Type previousState, EditStateChangeSet& changeSet);
         public:
             EditStateManager();
             

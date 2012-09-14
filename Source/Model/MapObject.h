@@ -34,16 +34,18 @@ namespace TrenchBroom {
         private:
             int m_uniqueId;
             EditState::Type m_editState;
+            bool m_previouslyLocked;
         public:
             enum Type {
                 EntityObject,
                 BrushObject
             };
 
-            MapObject() {
+            MapObject() :
+            m_editState(EditState::Default),
+            m_previouslyLocked(false) {
                 static int currentId = 1;
                 m_uniqueId = currentId++;
-                m_editState = EditState::Default;
             }
             
             virtual ~MapObject() {
@@ -60,7 +62,17 @@ namespace TrenchBroom {
             
             virtual EditState::Type setEditState(EditState::Type editState) {
                 EditState::Type previous = m_editState;
-                m_editState = editState;
+                
+                if (m_previouslyLocked && editState == EditState::Default)
+                    m_editState = EditState::Locked;
+                else
+                    m_editState = editState;
+
+                if (previous == EditState::Locked && editState == EditState::Hidden) {
+                    m_previouslyLocked = true;
+                } else
+                    m_previouslyLocked = false;
+
                 return previous;
             }
             
@@ -77,7 +89,7 @@ namespace TrenchBroom {
             }
             
             virtual inline bool hideable() const {
-                return m_editState != EditState::Hidden && (m_editState == EditState::Default || m_editState == EditState::Selected);
+                return m_editState != EditState::Hidden;
             }
             
             virtual inline bool lockable() const {
