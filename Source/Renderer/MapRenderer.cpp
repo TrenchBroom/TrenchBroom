@@ -496,7 +496,7 @@ namespace TrenchBroom {
             m_faceVbo->activate();
             if (m_faceProgram->activate()) {
                 glActiveTexture(GL_TEXTURE0);
-                m_faceProgram->setUniformVariable("ApplyTexture", context.viewOptions().faceRenderMode() == View::ViewOptions::Textured);
+                bool applyTexture = context.viewOptions().faceRenderMode() == View::ViewOptions::Textured;
                 m_faceProgram->setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
                 m_faceProgram->setUniformVariable("RenderGrid", grid.visible());
                 m_faceProgram->setUniformVariable("GridSize", static_cast<float>(grid.actualSize()));
@@ -507,6 +507,7 @@ namespace TrenchBroom {
                     for (unsigned int i = 0; i < m_faceVertexArrays.size(); i++) {
                         TextureVertexArray& textureVertexArray = m_faceVertexArrays[i];
                         textureVertexArray.texture->activate();
+                        m_faceProgram->setUniformVariable("ApplyTexture", applyTexture && textureVertexArray.texture != m_dummyTexture.get());
                         m_faceProgram->setUniformVariable("FaceTexture", 0);
                         textureVertexArray.vertexArray->render();
                         textureVertexArray.texture->deactivate();
@@ -519,6 +520,7 @@ namespace TrenchBroom {
                     for (unsigned int i = 0; i < m_selectedFaceVertexArrays.size(); i++) {
                         TextureVertexArray& textureVertexArray = m_selectedFaceVertexArrays[i];
                         textureVertexArray.texture->activate();
+                        m_faceProgram->setUniformVariable("ApplyTexture", applyTexture && textureVertexArray.texture != m_dummyTexture.get());
                         m_faceProgram->setUniformVariable("FaceTexture", 0);
                         textureVertexArray.vertexArray->render();
                         textureVertexArray.texture->deactivate();
@@ -531,6 +533,7 @@ namespace TrenchBroom {
                     for (unsigned int i = 0; i < m_lockedFaceVertexArrays.size(); i++) {
                         TextureVertexArray& textureVertexArray = m_lockedFaceVertexArrays[i];
                         textureVertexArray.texture->activate();
+                        m_faceProgram->setUniformVariable("ApplyTexture", applyTexture && textureVertexArray.texture != m_dummyTexture.get());
                         m_faceProgram->setUniformVariable("FaceTexture", 0);
                         textureVertexArray.vertexArray->render();
                         textureVertexArray.texture->deactivate();
