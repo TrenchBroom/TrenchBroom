@@ -27,10 +27,12 @@
 #include "Model/Bsp.h"
 #include "Model/MapDocument.h"
 #include "Utility/DocManager.h"
-#include "View/EditorView.h"
 #include "View/CommandIds.h"
+#include "View/EditorView.h"
+#include "View/PreferencesDialog.h"
 
 BEGIN_EVENT_TABLE(AbstractApp, wxApp)
+EVT_MENU(wxID_PREFERENCES, AbstractApp::OnOpenPreferences)
 END_EVENT_TABLE()
 
 wxMenu* AbstractApp::CreateFileMenu() {
@@ -127,6 +129,8 @@ bool AbstractApp::OnInit() {
     TrenchBroom::Model::BspManager::sharedManager = new TrenchBroom::Model::BspManager();
     
 	m_docManager = new DocManager();
+    m_docManager->FileHistoryLoad(*wxConfig::Get());
+
     new wxDocTemplate(m_docManager, wxT("Quake map document"), wxT("*.map"), wxEmptyString, wxT("map"), wxT("Quake map document"), wxT("TrenchBroom editor view"), CLASSINFO(TrenchBroom::Model::MapDocument), CLASSINFO(TrenchBroom::View::EditorView));
     
     return true;
@@ -153,3 +157,10 @@ void AbstractApp::OnUnhandledException() {
         wxLogError(e.what());
     }
 }
+
+void AbstractApp::OnOpenPreferences(wxCommandEvent& event) {
+    TrenchBroom::View::PreferencesDialog dialog;
+    dialog.ShowModal();
+}
+
+

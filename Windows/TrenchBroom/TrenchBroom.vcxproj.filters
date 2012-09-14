@@ -231,6 +231,12 @@
     <ClCompile Include="..\..\Source\View\ViewInspector.cpp">
       <Filter>Source Files\View</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Utility\Preferences.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\View\PreferencesDialog.cpp">
+      <Filter>Source Files\View</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\Controller\CameraEvent.h">
@@ -533,9 +539,6 @@
     <ClInclude Include="..\..\Source\Controller\DragPlane.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\View\MenuCommandIds.h">
-      <Filter>Header Files\View</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Renderer\Shader\Shader.h">
       <Filter>Header Files\Renderer\Shader</Filter>
     </ClInclude>
@@ -567,6 +570,12 @@
       <Filter>Header Files\View</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\View\ViewOptions.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\PreferencesDialog.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\CommandIds.h">
       <Filter>Header Files\View</Filter>
     </ClInclude>
   </ItemGroup>

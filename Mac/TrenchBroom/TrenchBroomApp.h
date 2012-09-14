@@ -29,7 +29,6 @@ public:
 
     virtual bool OnInit();
     virtual void OnFileExit(wxCommandEvent& event);
-    virtual void OnOpenPreferences(wxCommandEvent& event);
     
     void OnUpdateMenuItem(wxUpdateUIEvent& event);
 

@@ -20,6 +20,7 @@
 #include "TrenchBroomApp.h"
 
 #include <wx/docview.h>
+#include <wx/menu.h>
 
 #include "Utility/DocManager.h"
 
@@ -29,6 +30,13 @@ IMPLEMENT_APP(TrenchBroomApp)
 
 BEGIN_EVENT_TABLE(TrenchBroomApp, AbstractApp)
 END_EVENT_TABLE()
+
+wxMenu* TrenchBroomApp::CreateViewMenu() {
+	wxMenu* viewMenu = AbstractApp::CreateViewMenu();
+	viewMenu->AppendSeparator();
+    viewMenu->Append(wxID_PREFERENCES, wxT("Preferences..."));
+	return viewMenu;
+}
 
 bool TrenchBroomApp::OnInit() {
     // set the locale to US so that we can parse floats property

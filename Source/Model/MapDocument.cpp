@@ -108,6 +108,9 @@ namespace TrenchBroom {
         }
 
         void MapDocument::Clear() {
+            Controller::Command clearCommand(Controller::Command::ClearMap);
+            UpdateAllViews(NULL, &clearCommand);
+
             m_editStateManager->clear();
             m_map->clear();
             m_octree->clear();
@@ -302,6 +305,7 @@ namespace TrenchBroom {
 			if (wxDocument::OnNewDocument()) {
 				// prompt for initial stuff like world bounds, mods, palette, def here
                 Clear();
+                
                 Controller::Command loadCommand(Controller::Command::LoadMap);
                 UpdateAllViews(NULL, &loadCommand);
 				return true;

@@ -48,7 +48,7 @@ wxDocument* DocManager::CreateDocument(const wxString& pathOrig, long flags) {
             document->SetDocumentTemplate(temp);
             document->OnOpenDocument(path);
             
-            if (!temp->FileMatchesTemplate(path))
+            if (temp->FileMatchesTemplate(path))
                 AddFileToHistory(path);
         }
     }

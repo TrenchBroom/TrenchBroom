@@ -38,6 +38,10 @@
 
 namespace TrenchBroom {
     namespace View {
+        BEGIN_EVENT_TABLE(EditorFrame, wxFrame)
+		EVT_CLOSE(EditorFrame::OnClose)
+		END_EVENT_TABLE()
+
         void EditorFrame::CreateGui(Model::MapDocument& document, EditorView& view) {
             wxSplitterWindow* logSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3DSASH | wxSP_LIVE_UPDATE);
             logSplitter->SetSashGravity(1.0f);
@@ -67,11 +71,19 @@ namespace TrenchBroom {
             Layout();
         }
         
-        EditorFrame::EditorFrame(Model::MapDocument& document, EditorView& view) : wxFrame(NULL, wxID_ANY, wxT("TrenchBroom")) {
+        EditorFrame::EditorFrame(Model::MapDocument& document, EditorView& view) :
+        wxFrame(NULL, wxID_ANY, wxT("TrenchBroom")),
+        m_document(document),
+        m_view(view) {
             CreateGui(document, view);
 
             wxMenuBar* menuBar = static_cast<TrenchBroomApp*>(wxTheApp)->CreateMenuBar(&view);
             SetMenuBar(menuBar);
+        }
+
+        void EditorFrame::OnClose(wxCloseEvent& event) {
+            // if the user closes the editor frame, the document must also be closed:
+            m_document.GetDocumentManager()->CloseDocument(&m_document);
         }
     }
 }

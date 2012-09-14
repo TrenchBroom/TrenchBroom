@@ -25,6 +25,7 @@
 #include <wx/sizer.h>
 #include <wx/slider.h>
 #include <wx/statbox.h>
+#include <wx/statline.h>
 #include <wx/stattext.h>
 
 #include "TrenchBroomApp.h"
@@ -55,7 +56,11 @@ namespace TrenchBroom {
         EVT_CHECKBOX(CommandIds::PreferencesDialog::InvertPanYAxisCheckBoxId, PreferencesDialog::OnInvertAxisChanged)
 
         EVT_COMMAND_SCROLL(CommandIds::PreferencesDialog::MoveSpeedSliderId, PreferencesDialog::OnMouseSliderChanged)
-        END_EVENT_TABLE()
+
+        EVT_BUTTON(wxID_OK, PreferencesDialog::OnOkClicked)
+        EVT_BUTTON(wxID_CANCEL, PreferencesDialog::OnCancelClicked)
+		EVT_CLOSE(PreferencesDialog::OnCloseDialog)
+		END_EVENT_TABLE()
 
         void PreferencesDialog::updateControls() {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
@@ -67,11 +72,11 @@ namespace TrenchBroom {
         }
 
         wxWindow* PreferencesDialog::createQuakePreferences() {
-            wxStaticBox* quakeBox = new wxStaticBox(this, wxID_ANY, "Quake");
+            wxStaticBox* quakeBox = new wxStaticBox(this, wxID_ANY, wxT("Quake"));
             
-            wxStaticText* quakePathLabel = new wxStaticText(quakeBox, wxID_ANY, "Quake Path");
-            m_quakePathValueLabel = new wxStaticText(quakeBox, wxID_ANY, "");
-            wxButton* chooseQuakePathButton = new wxButton(quakeBox, CommandIds::PreferencesDialog::ChooseQuakePathButtonId, "Choose...");
+            wxStaticText* quakePathLabel = new wxStaticText(quakeBox, wxID_ANY, wxT("Quake Path"));
+            m_quakePathValueLabel = new wxStaticText(quakeBox, wxID_ANY, wxT(""));
+            wxButton* chooseQuakePathButton = new wxButton(quakeBox, CommandIds::PreferencesDialog::ChooseQuakePathButtonId, wxT("Choose..."));
             
             wxFlexGridSizer* innerSizer = new wxFlexGridSizer(3, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
             innerSizer->AddGrowableCol(1);
@@ -88,12 +93,12 @@ namespace TrenchBroom {
         }
 
         wxWindow* PreferencesDialog::createViewPreferences() {
-            wxStaticBox* viewBox = new wxStaticBox(this, wxID_ANY, "View");
+            wxStaticBox* viewBox = new wxStaticBox(this, wxID_ANY, wxT("View"));
             
-            wxStaticText* brightnessLabel = new wxStaticText(viewBox, wxID_ANY, "Brightness");
+            wxStaticText* brightnessLabel = new wxStaticText(viewBox, wxID_ANY, wxT("Brightness"));
             m_brightnessSlider = new wxSlider(viewBox, CommandIds::PreferencesDialog::BrightnessSliderId, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
             
-            wxStaticText* gridAlphaLabel = new wxStaticText(viewBox, wxID_ANY, "Grid Alpha");
+            wxStaticText* gridAlphaLabel = new wxStaticText(viewBox, wxID_ANY, wxT("Grid Alpha"));
             m_gridAlphaSlider = new wxSlider(viewBox, CommandIds::PreferencesDialog::GridAlphaSliderId, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
             
             wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
@@ -112,25 +117,25 @@ namespace TrenchBroom {
         }
         
         wxWindow* PreferencesDialog::createMousePreferences() {
-            wxStaticBox* mouseBox = new wxStaticBox(this, wxID_ANY, "Mouse");
+            wxStaticBox* mouseBox = new wxStaticBox(this, wxID_ANY, wxT("Mouse"));
 
-            wxStaticText* lookSpeedLabel = new wxStaticText(mouseBox, wxID_ANY, "Mouse Look");
+            wxStaticText* lookSpeedLabel = new wxStaticText(mouseBox, wxID_ANY, wxT("Mouse Look"));
             m_lookSpeedSlider = new wxSlider(mouseBox, CommandIds::PreferencesDialog::LookSpeedSliderId, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
 
-            wxStaticText* invertLookFakeLabel = new wxStaticText(mouseBox, wxID_ANY, "");
-            m_invertLookXAxisCheckBox = new wxCheckBox(mouseBox, CommandIds::PreferencesDialog::InvertLookXAxisCheckBoxId, "Invert X Axis");
-            m_invertLookYAxisCheckBox = new wxCheckBox(mouseBox, CommandIds::PreferencesDialog::InvertLookYAxisCheckBoxId, "Invert Y Axis");
+            wxStaticText* invertLookFakeLabel = new wxStaticText(mouseBox, wxID_ANY, wxT(""));
+            m_invertLookXAxisCheckBox = new wxCheckBox(mouseBox, CommandIds::PreferencesDialog::InvertLookXAxisCheckBoxId, wxT("Invert X Axis"));
+            m_invertLookYAxisCheckBox = new wxCheckBox(mouseBox, CommandIds::PreferencesDialog::InvertLookYAxisCheckBoxId, wxT("Invert Y Axis"));
             wxSizer* invertLookSizer = new wxBoxSizer(wxHORIZONTAL);
             invertLookSizer->Add(m_invertLookXAxisCheckBox);
             invertLookSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
             invertLookSizer->Add(m_invertLookYAxisCheckBox);
             
-            wxStaticText* panSpeedLabel = new wxStaticText(mouseBox, wxID_ANY, "Mouse Pan");
+            wxStaticText* panSpeedLabel = new wxStaticText(mouseBox, wxID_ANY, wxT("Mouse Pan"));
             m_panSpeedSlider = new wxSlider(mouseBox, CommandIds::PreferencesDialog::PanSpeedSliderId, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
             
             wxStaticText* invertPanFakeLabel = new wxStaticText(mouseBox, wxID_ANY, "");
-            m_invertPanXAxisCheckBox = new wxCheckBox(mouseBox, CommandIds::PreferencesDialog::InvertPanXAxisCheckBoxId, "Invert X Axis");
-            m_invertPanYAxisCheckBox = new wxCheckBox(mouseBox, CommandIds::PreferencesDialog::InvertPanYAxisCheckBoxId, "Invert Y Axis");
+            m_invertPanXAxisCheckBox = new wxCheckBox(mouseBox, CommandIds::PreferencesDialog::InvertPanXAxisCheckBoxId, wxT("Invert X Axis"));
+            m_invertPanYAxisCheckBox = new wxCheckBox(mouseBox, CommandIds::PreferencesDialog::InvertPanYAxisCheckBoxId, wxT("Invert Y Axis"));
             wxSizer* invertPanSizer = new wxBoxSizer(wxHORIZONTAL);
             invertPanSizer->Add(m_invertPanXAxisCheckBox);
             invertPanSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
@@ -161,7 +166,7 @@ namespace TrenchBroom {
         }
 
         PreferencesDialog::PreferencesDialog() :
-        wxDialog(NULL, wxID_ANY, "Preferences") {
+        wxDialog(NULL, wxID_ANY, wxT("Preferences")) {
             wxWindow* quakePreferences = createQuakePreferences();
             wxWindow* viewPreferences = createViewPreferences();
             wxWindow* mousePreferences = createMousePreferences();
@@ -172,6 +177,19 @@ namespace TrenchBroom {
             innerSizer->Add(viewPreferences, 0, wxEXPAND);
             innerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
             innerSizer->Add(mousePreferences, 0, wxEXPAND);
+
+#if defined _WIN32
+            wxButton* okButton = new wxButton(this, wxID_OK, "Ok");
+            wxButton* cancelButton = new wxButton(this, wxID_CANCEL, "Cancel");
+            
+            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            buttonSizer->Add(okButton);
+            buttonSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            buttonSizer->Add(cancelButton);
+
+			innerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+			innerSizer->Add(buttonSizer, 0, wxALIGN_RIGHT);
+#endif
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(innerSizer, 0, wxEXPAND | wxALL, 10);
@@ -265,5 +283,33 @@ namespace TrenchBroom {
                     break;
             }
         }
-    }
+
+        void PreferencesDialog::OnOkClicked(wxCommandEvent& event) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+			prefs.save();
+			EndModal(wxID_OK);
+		}
+
+		void PreferencesDialog::OnCancelClicked(wxCommandEvent& event) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+			prefs.discardChanges();
+
+			Controller::Command command(Controller::Command::InvalidateEntityRendererCache);
+            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &command);
+
+			EndModal(wxID_CANCEL);
+		}
+
+		void PreferencesDialog::OnCloseDialog(wxCloseEvent& event) {
+#if defined _WIN32
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+			prefs.discardChanges();
+
+			Controller::Command command(Controller::Command::InvalidateEntityRendererCache);
+            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &command);
+			
+			event.Skip();
+#endif
+		}
+	}
 }

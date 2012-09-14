@@ -53,7 +53,10 @@ namespace TrenchBroom {
             void OnViewSliderChanged(wxScrollEvent& event);
             void OnMouseSliderChanged(wxScrollEvent& event);
             void OnInvertAxisChanged(wxCommandEvent& event);
-            
+            void OnOkClicked(wxCommandEvent& event);
+			void OnCancelClicked(wxCommandEvent& event);
+			void OnCloseDialog(wxCloseEvent& event);
+
             DECLARE_EVENT_TABLE();
         };
     }

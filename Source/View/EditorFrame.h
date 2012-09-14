@@ -41,6 +41,8 @@ namespace TrenchBroom {
         
         class EditorFrame : public wxFrame {
         protected:
+            Model::MapDocument& m_document;
+            EditorView& m_view;
             MapGLCanvas* m_mapCanvas;
             wxTextCtrl* m_logView;
             
@@ -55,6 +57,10 @@ namespace TrenchBroom {
             inline wxTextCtrl* LogView() const {
                 return m_logView;
             }
+            
+            void OnClose(wxCloseEvent& event);
+        
+            DECLARE_EVENT_TABLE()
         };
     }
 }

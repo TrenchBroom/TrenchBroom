@@ -822,14 +822,8 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::loadMap() {
+            clearMap();
             addEntities(m_document.Map().entities());
-            
-            m_geometryDataValid = false;
-            m_selectedGeometryDataValid = false;
-            m_lockedGeometryDataValid = false;
-            m_entityDataValid = false;
-            m_selectedEntityDataValid = false;
-            m_lockedEntityDataValid = false;
         }
         
         void MapRenderer::clearMap() {
@@ -847,6 +841,7 @@ namespace TrenchBroom {
             m_lockedClassnameRenderer->clear();
 
             invalidateAll();
+            invalidateEntityRendererCache();
         }
 
         void MapRenderer::invalidateEntities() {

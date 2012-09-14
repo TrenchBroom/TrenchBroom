@@ -72,10 +72,10 @@ namespace TrenchBroom {
         }
 
         wxWindow* ViewInspector::createFilterBox(ViewOptions& viewOptions) {
-            wxStaticBox* filterBox = new wxStaticBox(this, wxID_ANY, "Filter");
+            wxStaticBox* filterBox = new wxStaticBox(this, wxID_ANY, wxT("Filter"));
             wxPanel* searchPanel = new wxPanel(filterBox);
             {
-                wxStaticText* searchLabel = new wxStaticText(searchPanel, wxID_ANY, "Show objects matching");
+                wxStaticText* searchLabel = new wxStaticText(searchPanel, wxID_ANY, wxT("Show objects matching"));
                 m_searchBox = new wxSearchCtrl(searchPanel, wxID_ANY);
                 
                 wxSizer* searchPanelSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -89,10 +89,10 @@ namespace TrenchBroom {
             {
                 wxPanel* entityPanel = new wxPanel(togglePanel);
                 {
-                    m_toggleEntities = new wxCheckBox(entityPanel, CommandIds::ViewInspector::ShowEntitiesCheckBoxId, "Entities");
-                    m_toggleEntityModels = new wxCheckBox(entityPanel, CommandIds::ViewInspector::ShowEntityModelsCheckBoxId, "Models");
-                    m_toggleEntityBounds = new wxCheckBox(entityPanel, CommandIds::ViewInspector::ShowEntityBoundsCheckBoxId, "Bounds");
-                    m_toggleEntityClassnames = new wxCheckBox(entityPanel, CommandIds::ViewInspector::ShowEntityClassnamesCheckBoxId, "Classnames");
+                    m_toggleEntities = new wxCheckBox(entityPanel, CommandIds::ViewInspector::ShowEntitiesCheckBoxId, wxT("Entities"));
+                    m_toggleEntityModels = new wxCheckBox(entityPanel, CommandIds::ViewInspector::ShowEntityModelsCheckBoxId, wxT("Models"));
+                    m_toggleEntityBounds = new wxCheckBox(entityPanel, CommandIds::ViewInspector::ShowEntityBoundsCheckBoxId, wxT("Bounds"));
+                    m_toggleEntityClassnames = new wxCheckBox(entityPanel, CommandIds::ViewInspector::ShowEntityClassnamesCheckBoxId, wxT("Classnames"));
                     
                     wxSizer* entityPanelSizer = new wxBoxSizer(wxVERTICAL);
                     entityPanelSizer->Add(m_toggleEntities, 0, wxEXPAND);
@@ -106,9 +106,9 @@ namespace TrenchBroom {
                 }
                 wxPanel* brushPanel = new wxPanel(togglePanel);
                 {
-                    m_toggleBrushes = new wxCheckBox(brushPanel, CommandIds::ViewInspector::ShowBrushesCheckBoxId, "Brushes");
-                    m_toggleClipBrushes = new wxCheckBox(brushPanel, CommandIds::ViewInspector::ShowClipBrushesCheckBoxId, "Clip brushes");
-                    m_toggleSkipBrushes = new wxCheckBox(brushPanel, CommandIds::ViewInspector::ShowSkipBrushesCheckBoxId, "Skip brushes");
+                    m_toggleBrushes = new wxCheckBox(brushPanel, CommandIds::ViewInspector::ShowBrushesCheckBoxId, wxT("Brushes"));
+                    m_toggleClipBrushes = new wxCheckBox(brushPanel, CommandIds::ViewInspector::ShowClipBrushesCheckBoxId, wxT("Clip brushes"));
+                    m_toggleSkipBrushes = new wxCheckBox(brushPanel, CommandIds::ViewInspector::ShowSkipBrushesCheckBoxId, wxT("Skip brushes"));
 
                     wxSizer* brushPanelSizer = new wxBoxSizer(wxVERTICAL);
                     brushPanelSizer->Add(m_toggleBrushes, 0, wxEXPAND);
@@ -143,14 +143,14 @@ namespace TrenchBroom {
         }
 
         wxWindow* ViewInspector::createRenderModeSelector(ViewOptions& viewOptions) {
-            wxStaticBox* renderModeBox = new wxStaticBox(this, wxID_ANY, "Render mode");
+            wxStaticBox* renderModeBox = new wxStaticBox(this, wxID_ANY, wxT("Render mode"));
             
-            wxStaticText* faceRenderModeLabel = new wxStaticText(renderModeBox, wxID_ANY, "Faces");
-            wxString faceRenderModes[3] = {"Render with textures", "Render flat", "Don't render"};
+            wxStaticText* faceRenderModeLabel = new wxStaticText(renderModeBox, wxID_ANY, wxT("Faces"));
+            wxString faceRenderModes[3] = {wxT("Render with textures"), wxT("Render flat"), wxT("Don't render")};
             m_faceRenderModeChoice = new wxChoice(renderModeBox, CommandIds::ViewInspector::FaceRenderModeChoiceId, wxDefaultPosition, wxDefaultSize, 3, faceRenderModes);
             
-            wxStaticText* toggleRenderEdgesLabel = new wxStaticText(renderModeBox, wxID_ANY, "");
-            m_toggleRenderEdges = new wxCheckBox(renderModeBox, CommandIds::ViewInspector::RenderEdgesCheckBoxId, "Render edges");
+            wxStaticText* toggleRenderEdgesLabel = new wxStaticText(renderModeBox, wxID_ANY, wxT(""));
+            m_toggleRenderEdges = new wxCheckBox(renderModeBox, CommandIds::ViewInspector::RenderEdgesCheckBoxId, wxT("Render edges"));
             
             // layout of the contained controls
             wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);

@@ -32,7 +32,6 @@ IMPLEMENT_APP(TrenchBroomApp)
 
 BEGIN_EVENT_TABLE(TrenchBroomApp, AbstractApp)
 EVT_MENU(wxID_EXIT, TrenchBroomApp::OnFileExit)
-EVT_MENU(wxID_PREFERENCES, TrenchBroomApp::OnOpenPreferences)
 
 EVT_UPDATE_UI(wxID_UNDO, TrenchBroomApp::OnUpdateMenuItem)
 EVT_UPDATE_UI(wxID_REDO, TrenchBroomApp::OnUpdateMenuItem)
@@ -56,9 +55,7 @@ bool TrenchBroomApp::OnInit() {
     
     if (AbstractApp::OnInit()) {
         SetExitOnFrameDelete(false);
-
         m_docManager->SetUseSDI(false);
-        m_docManager->FileHistoryLoad(*wxConfig::Get());
         
         wxMenuBar* menuBar = CreateMenuBar(this);
         wxMenuBar::MacSetCommonMenuBar(menuBar);
@@ -72,11 +69,6 @@ bool TrenchBroomApp::OnInit() {
 
 void TrenchBroomApp::OnFileExit(wxCommandEvent& event) {
     Exit();
-}
-
-void TrenchBroomApp::OnOpenPreferences(wxCommandEvent& event) {
-    TrenchBroom::View::PreferencesDialog dialog;
-    dialog.ShowModal();
 }
 
 void TrenchBroomApp::OnUpdateMenuItem(wxUpdateUIEvent& event) {

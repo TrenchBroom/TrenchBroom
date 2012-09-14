@@ -112,7 +112,6 @@ namespace TrenchBroom {
             
             Model::MapDocument& document = *static_cast<Model::MapDocument*>(doc);
             m_renderer = new Renderer::MapRenderer(document);
-            m_renderer->loadMap();
             
             EditorFrame* frame = new EditorFrame(document, *this);
             m_console->setTextCtrl(frame->LogView());
@@ -129,8 +128,10 @@ namespace TrenchBroom {
                 Controller::Command* command = static_cast<Controller::Command*>(hint);
                 switch (command->type()) {
                     case Controller::Command::LoadMap:
-                    case Controller::Command::ClearMap:
                         m_renderer->loadMap();
+                        break;
+                    case Controller::Command::ClearMap:
+                        m_renderer->clearMap();
                         break;
                     case Controller::Command::ChangeEditState: {
                         Controller::ChangeEditStateCommand* changeEditStateCommand = static_cast<Controller::ChangeEditStateCommand*>(command);
@@ -163,9 +164,15 @@ namespace TrenchBroom {
         }
         
         bool EditorView::OnClose(bool deleteWindow) {
-            if (deleteWindow)
-                SetFrame(NULL);
+            if (!wxView::OnClose(deleteWindow))
+                return false;
             
+            if (deleteWindow) {
+                EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+                if (frame != NULL)
+                    wxDELETE(frame);
+            }
+
             if (m_filter != NULL) {
                 delete m_filter;
                 m_filter = NULL;
@@ -182,8 +189,7 @@ namespace TrenchBroom {
                 delete m_renderer;
                 m_renderer = NULL;
             }
-            
-            return wxView::OnClose(deleteWindow);
+            return true;
         }
 
         void EditorView::OnCameraMove(Controller::CameraMoveEvent& event) {

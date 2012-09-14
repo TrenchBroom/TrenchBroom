@@ -30,7 +30,7 @@
 #include <wx/confbase.h>
 
 #include <limits>
-#include <vector>
+#include <map>
 
 using namespace TrenchBroom::Math;
 using namespace TrenchBroom::Controller::ModifierKeys;
@@ -127,13 +127,28 @@ namespace TrenchBroom {
             }
         };
 
+        class ValueHolderBase {
+        };
+        
+        template <typename T>
+        class ValueHolder : public ValueHolderBase {
+        private:
+            T m_value;
+        public:
+            ValueHolder(T value) :
+            m_value(value) {}
+            
+            inline const T& value() const {
+                return m_value;
+            }
+        };
+        
         class PreferenceBase {
         public:
             virtual void load(wxConfigBase* config) const = 0;
             virtual void save(wxConfigBase* config) const = 0;
+            virtual void setValue(const ValueHolderBase* valueHolder) const = 0;
         };
-        
-        typedef std::vector<const PreferenceBase*> PreferenceList;
         
         template <typename T>
         class Preference : public PreferenceBase {
@@ -179,6 +194,11 @@ namespace TrenchBroom {
                 m_modified = m_initialized;
             }
             
+            void setValue(const ValueHolderBase* valueHolder) const {
+                const ValueHolder<T>* actualValueHolder = static_cast<const ValueHolder<T>*>(valueHolder);
+                setValue(actualValueHolder->value());
+            }
+
             inline const String& name() const {
                 return m_name;
             }
@@ -259,8 +279,10 @@ namespace TrenchBroom {
 
         class PreferenceManager {
         private:
+            typedef std::map<const PreferenceBase*, ValueHolderBase*> UnsavedPreferences;
+
             bool m_saveInstantly;
-            PreferenceList m_unsavedPreferences;
+            UnsavedPreferences m_unsavedPreferences;
 
             PreferenceManager() {
 #if defined __APPLE__
@@ -270,6 +292,14 @@ namespace TrenchBroom {
 #endif
             }
             
+            void markAsUnsaved(const PreferenceBase* preference, ValueHolderBase* valueHolder) {
+                UnsavedPreferences::iterator it = m_unsavedPreferences.find(preference);
+                if (it == m_unsavedPreferences.end())
+                    m_unsavedPreferences[preference] = valueHolder;
+                else
+                    delete valueHolder;
+            }
+            
         public:
             inline static PreferenceManager& preferences() {
                 static PreferenceManager prefs;
@@ -277,10 +307,23 @@ namespace TrenchBroom {
             }
             
             inline void save() {
-                while (!m_unsavedPreferences.empty()) {
-                    m_unsavedPreferences.back()->save(wxConfig::Get());
-                    m_unsavedPreferences.pop_back();
+                UnsavedPreferences::iterator it, end;
+                for (it = m_unsavedPreferences.begin(), end = m_unsavedPreferences.end(); it != end; ++it) {
+                    it->first->save(wxConfig::Get());
+                    delete it->second;
                 }
+                
+                m_unsavedPreferences.clear();
+            }
+            
+            inline void discardChanges() {
+                UnsavedPreferences::iterator it, end;
+                for (it = m_unsavedPreferences.begin(), end = m_unsavedPreferences.end(); it != end; ++it) {
+                    it->first->setValue(it->second);
+                    delete it->second;
+                }
+                
+                m_unsavedPreferences.clear();
             }
             
             inline bool getBool(const Preference<bool>& preference) const {
@@ -291,11 +334,12 @@ namespace TrenchBroom {
             }
             
             inline void setBool(const Preference<bool>& preference, bool value) {
+                bool previousValue = preference.value();
                 preference.setValue(value);
                 if (m_saveInstantly)
                     preference.save(wxConfig::Get());
                 else
-                    m_unsavedPreferences.push_back(&preference);
+                    markAsUnsaved(&preference, new ValueHolder<bool>(previousValue));
             }
             
             inline int getInt(const Preference<int>& preference) const {
@@ -306,11 +350,12 @@ namespace TrenchBroom {
             }
             
             inline void setInt(const Preference<int>& preference, int value) {
+                int previousValue = preference.value();
                 preference.setValue(value);
                 if (m_saveInstantly)
                     preference.save(wxConfig::Get());
                 else
-                    m_unsavedPreferences.push_back(&preference);
+                    markAsUnsaved(&preference, new ValueHolder<int>(previousValue));
             }
             
             inline float getFloat(const Preference<float>& preference) const {
@@ -321,11 +366,12 @@ namespace TrenchBroom {
             }
             
             inline void setFloat(const Preference<float>& preference, float value) {
+                float previousValue = preference.value();
                 preference.setValue(value);
                 if (m_saveInstantly)
                     preference.save(wxConfig::Get());
                 else
-                    m_unsavedPreferences.push_back(&preference);
+                    markAsUnsaved(&preference, new ValueHolder<float>(previousValue));
             }
             
             inline const String& getString(const Preference<String>& preference) const {
@@ -336,11 +382,12 @@ namespace TrenchBroom {
             }
 
             inline void setString(const Preference<String>& preference, const String& value) {
+                String previousValue = preference.value();
                 preference.setValue(value);
                 if (m_saveInstantly)
                     preference.save(wxConfig::Get());
                 else
-                    m_unsavedPreferences.push_back(&preference);
+                    markAsUnsaved(&preference, new ValueHolder<String>(previousValue));
             }
             
             inline const Color& getColor(const Preference<Color>& preference) const {
@@ -351,11 +398,12 @@ namespace TrenchBroom {
             }
             
             inline void setColor(const Preference<Color>& preference, const Color& value) {
+                Color previousValue = preference.value();
                 preference.setValue(value);
                 if (m_saveInstantly)
                     preference.save(wxConfig::Get());
                 else
-                    m_unsavedPreferences.push_back(&preference);
+                    markAsUnsaved(&preference, new ValueHolder<Color>(previousValue));
             }
         };
     }
