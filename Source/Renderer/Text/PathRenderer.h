@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__PathRenderer__
 #define __TrenchBroom__PathRenderer__
 
+#include "Renderer/IndexedVertexArray.h"
 #include "Renderer/RenderTypes.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/Text/Path.h"
@@ -39,19 +40,20 @@ namespace TrenchBroom {
 
             class PathRenderer {
             protected:
-                typedef std::vector<GLint> IndexBuffer;
-                typedef std::vector<GLsizei> CountBuffer;
-
                 PathPtr m_path;
                 
                 float m_width;
                 float m_height;
 
-                VertexArrayPtr m_vertexArray;
+                GLuint m_listId;
+                VertexArrayPtr m_triangleSetVertexArray;
+                IndexedVertexArrayPtr m_triangleStripVertexArray;
+                IndexedVertexArrayPtr m_triangleFanVertexArray;
                 
                 void uploadMeshData(PathMeshPtr mesh, Vbo& vbo);
             public:
                 PathRenderer(PathPtr path);
+                ~PathRenderer();
                 
                 inline float width() const {
                     return m_width;

@@ -42,7 +42,7 @@ namespace TrenchBroom {
 		EVT_CLOSE(EditorFrame::OnClose)
 		END_EVENT_TABLE()
 
-        void EditorFrame::CreateGui(Model::MapDocument& document, EditorView& view) {
+        void EditorFrame::CreateGui() {
             wxSplitterWindow* logSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3DSASH | wxSP_LIVE_UPDATE);
             logSplitter->SetSashGravity(1.0f);
             logSplitter->SetMinimumPaneSize(0);
@@ -55,8 +55,8 @@ namespace TrenchBroom {
             m_logView->SetDefaultStyle(wxTextAttr(*wxLIGHT_GREY, *wxBLACK));
             m_logView->SetBackgroundColour(*wxBLACK);
             
-            m_mapCanvas = new MapGLCanvas(inspectorSplitter, document, view);
-            Inspector* inspector = new Inspector(inspectorSplitter, document, view);
+            m_mapCanvas = new MapGLCanvas(inspectorSplitter, m_documentViewHolder);
+            Inspector* inspector = new Inspector(inspectorSplitter, m_documentViewHolder);
             
             inspectorSplitter->SplitVertically(m_mapCanvas, inspector, 0);
             logSplitter->SplitHorizontally(inspectorSplitter, m_logView);
@@ -73,17 +73,22 @@ namespace TrenchBroom {
         
         EditorFrame::EditorFrame(Model::MapDocument& document, EditorView& view) :
         wxFrame(NULL, wxID_ANY, wxT("TrenchBroom")),
-        m_document(document),
-        m_view(view) {
-            CreateGui(document, view);
+        m_documentViewHolder(DocumentViewHolder(&document, &view)) {
+            CreateGui();
 
             wxMenuBar* menuBar = static_cast<TrenchBroomApp*>(wxTheApp)->CreateMenuBar(&view);
             SetMenuBar(menuBar);
         }
 
+        void EditorFrame::DisableProcessing() {
+            m_documentViewHolder.invalidate();
+        }
+
         void EditorFrame::OnClose(wxCloseEvent& event) {
             // if the user closes the editor frame, the document must also be closed:
-            m_document.GetDocumentManager()->CloseDocument(&m_document);
+            assert(m_documentViewHolder.valid());
+            Model::MapDocument& document = m_documentViewHolder.document();
+            document.GetDocumentManager()->CloseDocument(&document);
         }
     }
 }

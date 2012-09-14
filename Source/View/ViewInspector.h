@@ -29,13 +29,13 @@ class wxSearchCtrl;
 
 namespace TrenchBroom {
     namespace View {
+        class DocumentViewHolder;
         class EditorView;
         class ViewOptions;
         
         class ViewInspector : public wxPanel {
         protected:
-            EditorView& m_editorView;
-            
+            DocumentViewHolder& m_documentViewHolder;
             wxSearchCtrl* m_searchBox;
             wxCheckBox* m_toggleEntities;
             wxCheckBox* m_toggleEntityModels;
@@ -49,10 +49,10 @@ namespace TrenchBroom {
             
             void updateControls();
             
-            wxWindow* createFilterBox(ViewOptions& viewOptions);
-            wxWindow* createRenderModeSelector(ViewOptions& viewOptions);
+            wxWindow* createFilterBox();
+            wxWindow* createRenderModeSelector();
         public:
-            ViewInspector(wxWindow* parent, EditorView& editorView);
+            ViewInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder);
             
             void OnFilterPatternChanged(wxCommandEvent& event);
             void OnFilterOptionChanged(wxCommandEvent& event);

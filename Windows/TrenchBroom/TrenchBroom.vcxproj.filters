@@ -578,5 +578,11 @@
     <ClInclude Include="..\..\Source\View\CommandIds.h">
       <Filter>Header Files\View</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\AbstractVertexArray.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\IndexedVertexArray.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

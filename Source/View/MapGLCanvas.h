@@ -41,21 +41,22 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class DocumentViewHolder;
         class EditorView;
         
         class MapGLCanvas : public wxGLCanvas {
         protected:
+            DocumentViewHolder& m_documentViewHolder;
+            
             int* m_attribs;
             bool m_firstFrame;
             wxGLContext* m_glContext;
             Controller::InputController* m_inputController;
 
-            EditorView& m_view;
-            
             int* Attribs();
             bool HandleModifierKey(int keyCode, bool down);
         public:
-            MapGLCanvas(wxWindow* parent, Model::MapDocument& document, EditorView& view);
+            MapGLCanvas(wxWindow* parent, DocumentViewHolder& documentViewHolder);
             ~MapGLCanvas();
             
             void OnPaint(wxPaintEvent& event);

@@ -24,6 +24,7 @@
 #include "Model/MapDocument.h"
 #include "Model/Picker.h"
 #include "Renderer/Camera.h"
+#include "View/DocumentViewHolder.h"
 #include "View/EditorView.h"
 
 namespace TrenchBroom {
@@ -32,9 +33,15 @@ namespace TrenchBroom {
             if (m_currentEvent.pickResult != NULL)
                 delete m_currentEvent.pickResult;
             
-            m_currentEvent.camera = &m_camera;
-            m_currentEvent.ray = m_camera.pickRay(m_currentEvent.mouseX, m_currentEvent.mouseY);
-            m_currentEvent.pickResult = m_picker.pick(m_currentEvent.ray);
+            if (!m_documentViewHolder.valid())
+                return;
+            
+            Renderer::Camera& camera = m_documentViewHolder.view().Camera();
+            Model::Picker& picker = m_documentViewHolder.document().Picker();
+            
+            m_currentEvent.camera = &camera;
+            m_currentEvent.ray = camera.pickRay(m_currentEvent.mouseX, m_currentEvent.mouseY);
+            m_currentEvent.pickResult = picker.pick(m_currentEvent.ray);
             
             for (unsigned int i = 0; i < m_receivers.size(); i++)
                 m_receivers[i]->updateHits(m_currentEvent);
@@ -47,16 +54,13 @@ namespace TrenchBroom {
             m_currentEvent.mouseY = y;
         }
 
-        InputController::InputController(Model::MapDocument& document, View::EditorView& view) :
-        m_document(document),
-        m_view(view),
+        InputController::InputController(View::DocumentViewHolder& documentViewHolder) :
+        m_documentViewHolder(documentViewHolder),
         m_dragReceiver(NULL),
         m_mouseUpReceiver(NULL),
-        m_modalReceiverIndex(-1),
-        m_picker(document.Picker()),
-        m_camera(m_view.Camera()) {
-            m_receivers.push_back(new CameraTool(m_document, m_view));
-            m_receivers.push_back(new SelectionTool(m_document, m_view));
+        m_modalReceiverIndex(-1) {
+            m_receivers.push_back(new CameraTool(m_documentViewHolder));
+            m_receivers.push_back(new SelectionTool(m_documentViewHolder));
         }
         
         InputController::~InputController() {
@@ -64,6 +68,9 @@ namespace TrenchBroom {
         }
 
         void InputController::modifierKeyDown(ModifierKeyState modifierKey) {
+            if (!m_documentViewHolder.valid())
+                return;
+            
             updateHits();
             
             for (unsigned int i = 0; i < m_receivers.size(); i++)
@@ -71,6 +78,9 @@ namespace TrenchBroom {
         }
         
         void InputController::modifierKeyUp(ModifierKeyState modifierKey) {
+            if (!m_documentViewHolder.valid())
+                return;
+            
             updateHits();
             
             for (unsigned int i = 0; i < m_receivers.size(); i++)
@@ -78,6 +88,10 @@ namespace TrenchBroom {
         }
         
         bool InputController::mouseDown(MouseButtonState mouseButton, float x, float y) {
+            if (!m_documentViewHolder.valid())
+                return false;
+            
+            m_currentEvent.mouseButtons |= mouseButton;
             updateMousePos(x, y);
             updateHits();
             
@@ -92,6 +106,9 @@ namespace TrenchBroom {
         }
         
         bool InputController::mouseUp(MouseButtonState mouseButton, float x, float y) {
+            if (!m_documentViewHolder.valid())
+                return false;
+            
             updateMousePos(x, y);
             updateHits();
             
@@ -111,12 +128,16 @@ namespace TrenchBroom {
             }
             
             m_mouseUpReceiver = NULL;
+            m_currentEvent.mouseButtons &= ~mouseButton;
             return handled;
         }
         
         void InputController::mouseMoved(float x, float y) {
-            if (m_currentEvent.mouseButtons() != MouseButtons::None && m_dragButtons == MouseButtons::None) {
-                m_dragButtons = m_currentEvent.mouseButtons();
+            if (!m_documentViewHolder.valid())
+                return;
+            
+            if (m_currentEvent.mouseButtons != MouseButtons::None && m_dragButtons == MouseButtons::None) {
+                m_dragButtons = m_currentEvent.mouseButtons;
                 for (unsigned int i = 0; i < m_receivers.size(); i++) {
                     if (m_receivers[i]->beginDrag(m_currentEvent)) {
                         m_dragReceiver = m_receivers[i];
@@ -142,6 +163,9 @@ namespace TrenchBroom {
         }
         
         void InputController::scrolled(float dx, float dy) {
+            if (!m_documentViewHolder.valid())
+                return;
+            
             m_currentEvent.scrollX = dx;
             m_currentEvent.scrollY = dy;
             updateHits();

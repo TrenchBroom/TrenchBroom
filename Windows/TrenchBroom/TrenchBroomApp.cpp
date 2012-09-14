@@ -43,7 +43,8 @@ bool TrenchBroomApp::OnInit() {
     std::setlocale(LC_ALL, "us");
     
 	if (AbstractApp::OnInit()) {
-        m_docManager->SetUseSDI(true);
+		SetExitOnFrameDelete(true);
+		m_docManager->SetUseSDI(true);
 		m_docManager->CreateNewDocument();
 		return true;
 	}

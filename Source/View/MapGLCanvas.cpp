@@ -101,11 +101,11 @@ namespace TrenchBroom {
             return false;
         }
 
-        MapGLCanvas::MapGLCanvas(wxWindow* parent, Model::MapDocument& document, View::EditorView& view) :
+        MapGLCanvas::MapGLCanvas(wxWindow* parent, DocumentViewHolder& documentViewHolder) :
+        m_documentViewHolder(documentViewHolder),
         wxGLCanvas(parent, wxID_ANY, Attribs()),
-        m_firstFrame(true),
-        m_view(view) {
-            m_inputController = new Controller::InputController(document, view);
+        m_firstFrame(true) {
+            m_inputController = new Controller::InputController(documentViewHolder);
             m_glContext = new wxGLContext(this);
             delete m_attribs;
             m_attribs = NULL;
@@ -127,6 +127,11 @@ namespace TrenchBroom {
         }
         
         void MapGLCanvas::OnPaint(wxPaintEvent& event) {
+            if (!m_documentViewHolder.valid())
+                return;
+            
+            EditorView& view = m_documentViewHolder.view();
+            
             wxPaintDC(this);
 			if (SetCurrent(*m_glContext)) {
 				if (m_firstFrame) {
@@ -134,8 +139,8 @@ namespace TrenchBroom {
 					const char* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
 					const char* renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
 					const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
-                    m_view.Console().info("Created OpenGL context");
-					m_view.Console().info("Renderer info: %s version %s from %s", renderer, version, vendor);
+                    view.Console().info("Created OpenGL context");
+					view.Console().info("Renderer info: %s version %s from %s", renderer, version, vendor);
 				}
             
 				Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
@@ -149,14 +154,14 @@ namespace TrenchBroom {
 				glBindTexture(GL_TEXTURE_2D, 0);
 				glDisable(GL_TEXTURE_2D);
             
-				m_view.Camera().update(0.0f, 0.0f, GetSize().x, GetSize().y);
+				view.Camera().update(0.0f, 0.0f, GetSize().x, GetSize().y);
             
-				Renderer::RenderContext renderContext(m_view.Camera(), m_view.Filter(), m_view.viewOptions());
-				m_view.Renderer().render(renderContext);
+				Renderer::RenderContext renderContext(view.Camera(), view.Filter(), view.viewOptions());
+				view.Renderer().render(renderContext);
             
 				SwapBuffers();
 			} else {
-				m_view.Console().error("Unable to set current OpenGL context");
+				view.Console().error("Unable to set current OpenGL context");
 			}
         }
         

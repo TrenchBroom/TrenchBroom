@@ -57,6 +57,7 @@ namespace TrenchBroom {
 
         class InputEvent {
         public:
+            MouseButtonState mouseButtons;
             float mouseX;
             float mouseY;
             float deltaX;
@@ -67,7 +68,10 @@ namespace TrenchBroom {
             Model::PickResult* pickResult;
             Renderer::Camera* camera;
 
-            InputEvent() : pickResult(NULL), camera(NULL) {}
+            InputEvent() :
+            mouseButtons(MouseButtons::None),
+            pickResult(NULL),
+            camera(NULL) {}
 			
 			~InputEvent() {
 				if (pickResult != NULL) {
@@ -86,19 +90,6 @@ namespace TrenchBroom {
                     state |= ModifierKeys::Shift;
                 if (mouseState.AltDown())
                     state |= ModifierKeys::Alt;
-                return state;
-            }
-            
-            inline MouseButtonState mouseButtons() const {
-                wxMouseState mouseState = wxGetMouseState();
-                
-                MouseButtonState state = MouseButtons::None;
-                if (mouseState.LeftIsDown())
-                    state |= MouseButtons::Left;
-                if (mouseState.RightIsDown())
-                    state |= MouseButtons::Right;
-                if (mouseState.MiddleIsDown())
-                    state |= MouseButtons::Middle;
                 return state;
             }
             
@@ -139,7 +130,7 @@ namespace TrenchBroom {
             }
             
             bool matches(InputEvent& event) {
-                return m_modifierKeys == event.modifierKeys() && m_mouseButtons == event.mouseButtons();
+                return m_modifierKeys == event.modifierKeys() && m_mouseButtons == event.mouseButtons;
             }
         };
     }

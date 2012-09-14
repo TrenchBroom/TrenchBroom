@@ -36,14 +36,14 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class DocumentViewHolder;
         class EditorView;
     }
     
     namespace Controller {
         class InputController {
         protected:
-            Model::MapDocument& m_document;
-            View::EditorView& m_view;
+            View::DocumentViewHolder& m_documentViewHolder;
             
             InputEvent m_currentEvent;
             MouseButtonState m_dragButtons;
@@ -53,12 +53,10 @@ namespace TrenchBroom {
             Tool* m_mouseUpReceiver;
             int m_modalReceiverIndex;
 
-            Renderer::Camera& m_camera;
-            Model::Picker& m_picker;
             void updateHits();
             void updateMousePos(float x, float y);
         public:
-            InputController(Model::MapDocument& document, View::EditorView& view);
+            InputController(View::DocumentViewHolder& documentViewHolder);
             ~InputController();
             
             void modifierKeyDown(ModifierKeyState modifierKey);

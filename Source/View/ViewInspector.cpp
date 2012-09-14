@@ -29,6 +29,7 @@
 
 #include "Controller/Command.h"
 #include "View/CommandIds.h"
+#include "View/DocumentViewHolder.h"
 #include "View/EditorView.h"
 #include "View/LayoutConstants.h"
 #include "View/ViewOptions.h"
@@ -50,7 +51,11 @@ namespace TrenchBroom {
         END_EVENT_TABLE()
         
         void ViewInspector::updateControls() {
-            ViewOptions& viewOptions = m_editorView.viewOptions();
+            if (!m_documentViewHolder.valid())
+                return;
+            
+            EditorView& editorView = m_documentViewHolder.view();
+            ViewOptions& viewOptions = editorView.viewOptions();
             
             m_searchBox->ChangeValue(viewOptions.filterPattern());
             m_toggleEntities->SetValue(viewOptions.showEntities());
@@ -71,7 +76,7 @@ namespace TrenchBroom {
             m_toggleRenderEdges->SetValue(viewOptions.renderEdges());
         }
 
-        wxWindow* ViewInspector::createFilterBox(ViewOptions& viewOptions) {
+        wxWindow* ViewInspector::createFilterBox() {
             wxStaticBox* filterBox = new wxStaticBox(this, wxID_ANY, wxT("Filter"));
             wxPanel* searchPanel = new wxPanel(filterBox);
             {
@@ -142,7 +147,7 @@ namespace TrenchBroom {
             return filterBox;
         }
 
-        wxWindow* ViewInspector::createRenderModeSelector(ViewOptions& viewOptions) {
+        wxWindow* ViewInspector::createRenderModeSelector() {
             wxStaticBox* renderModeBox = new wxStaticBox(this, wxID_ANY, wxT("Render mode"));
             
             wxStaticText* faceRenderModeLabel = new wxStaticText(renderModeBox, wxID_ANY, wxT("Faces"));
@@ -167,15 +172,15 @@ namespace TrenchBroom {
             return renderModeBox;
         }
 
-        ViewInspector::ViewInspector(wxWindow* parent, EditorView& editorView) :
+        ViewInspector::ViewInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder) :
         wxPanel(parent),
-        m_editorView(editorView) {
+        m_documentViewHolder(documentViewHolder) {
             
             // layout of the contained controls
             wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
-            innerSizer->Add(createFilterBox(m_editorView.viewOptions()), 0, wxEXPAND);
+            innerSizer->Add(createFilterBox(), 0, wxEXPAND);
             innerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            innerSizer->Add(createRenderModeSelector(m_editorView.viewOptions()), 0, wxEXPAND | wxBOTTOM, 2);
+            innerSizer->Add(createRenderModeSelector(), 0, wxEXPAND | wxBOTTOM, 2);
             
             // creates 5 pixel border inside the page
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
@@ -186,43 +191,51 @@ namespace TrenchBroom {
         }
 
         void ViewInspector::OnFilterPatternChanged(wxCommandEvent& event) {
-            m_editorView.viewOptions().setFilterPattern(m_searchBox->GetValue().ToStdString());
+            if (!m_documentViewHolder.valid())
+                return;
+            
+            EditorView& editorView = m_documentViewHolder.view();
+            editorView.viewOptions().setFilterPattern(m_searchBox->GetValue().ToStdString());
             Controller::Command command(Controller::Command::InvalidateRendererState);
-            m_editorView.OnUpdate(NULL, &command);
+            editorView.OnUpdate(NULL, &command);
         }
 
         void ViewInspector::OnFilterOptionChanged(wxCommandEvent& event){
+            if (!m_documentViewHolder.valid())
+                return;
+            
+            EditorView& editorView = m_documentViewHolder.view();
             switch (event.GetId()) {
                 case CommandIds::ViewInspector::ShowEntitiesCheckBoxId:
-                    m_editorView.viewOptions().setShowEntities(event.GetInt() != 0);
-                    m_editorView.OnUpdate(NULL); // will just trigger a refresh
+                    editorView.viewOptions().setShowEntities(event.GetInt() != 0);
+                    editorView.OnUpdate(NULL); // will just trigger a refresh
                     break;
                 case CommandIds::ViewInspector::ShowEntityModelsCheckBoxId:
-                    m_editorView.viewOptions().setShowEntityModels(event.GetInt() != 0);
-                    m_editorView.OnUpdate(NULL); // will just trigger a refresh
+                    editorView.viewOptions().setShowEntityModels(event.GetInt() != 0);
+                    editorView.OnUpdate(NULL); // will just trigger a refresh
                     break;
                 case CommandIds::ViewInspector::ShowEntityBoundsCheckBoxId:
-                    m_editorView.viewOptions().setShowEntityBounds(event.GetInt() != 0);
-                    m_editorView.OnUpdate(NULL); // will just trigger a refresh
+                    editorView.viewOptions().setShowEntityBounds(event.GetInt() != 0);
+                    editorView.OnUpdate(NULL); // will just trigger a refresh
                     break;
                 case CommandIds::ViewInspector::ShowEntityClassnamesCheckBoxId:
-                    m_editorView.viewOptions().setShowEntityClassnames(event.GetInt() != 0);
-                    m_editorView.OnUpdate(NULL); // will just trigger a refresh
+                    editorView.viewOptions().setShowEntityClassnames(event.GetInt() != 0);
+                    editorView.OnUpdate(NULL); // will just trigger a refresh
                     break;
                 case CommandIds::ViewInspector::ShowBrushesCheckBoxId:
-                    m_editorView.viewOptions().setShowBrushes(event.GetInt() != 0);
-                    m_editorView.OnUpdate(NULL); // will just trigger a refresh
+                    editorView.viewOptions().setShowBrushes(event.GetInt() != 0);
+                    editorView.OnUpdate(NULL); // will just trigger a refresh
                     break;
                 case CommandIds::ViewInspector::ShowClipBrushesCheckBoxId: {
-                    m_editorView.viewOptions().setShowClipBrushes(event.GetInt() != 0);
+                    editorView.viewOptions().setShowClipBrushes(event.GetInt() != 0);
                     Controller::Command command(Controller::Command::InvalidateRendererBrushState);
-                    m_editorView.OnUpdate(NULL, &command);
+                    editorView.OnUpdate(NULL, &command);
                     break;
                 }
                 case CommandIds::ViewInspector::ShowSkipBrushesCheckBoxId: {
-                    m_editorView.viewOptions().setShowSkipBrushes(event.GetInt() != 0);
+                    editorView.viewOptions().setShowSkipBrushes(event.GetInt() != 0);
                     Controller::Command command(Controller::Command::InvalidateRendererBrushState);
-                    m_editorView.OnUpdate(NULL, &command);
+                    editorView.OnUpdate(NULL, &command);
                     break;
                 }
             }
@@ -230,6 +243,10 @@ namespace TrenchBroom {
         }
 
         void ViewInspector::OnRenderFaceModeSelected(wxCommandEvent& event) {
+            if (!m_documentViewHolder.valid())
+                return;
+            
+            EditorView& editorView = m_documentViewHolder.view();
             ViewOptions::FaceRenderMode mode;
             if (m_faceRenderModeChoice->GetSelection() == 1)
                 mode = ViewOptions::Flat;
@@ -237,14 +254,18 @@ namespace TrenchBroom {
                 mode = ViewOptions::Discard;
             else
                 mode = ViewOptions::Textured;
-            m_editorView.viewOptions().setFaceRenderMode(mode);
-            m_editorView.OnUpdate(NULL); // will just trigger a refresh
+            editorView.viewOptions().setFaceRenderMode(mode);
+            editorView.OnUpdate(NULL); // will just trigger a refresh
             updateControls(); // if something went wrong, set the choice selection to the default value ("Textured")
         }
         
         void ViewInspector::OnRenderEdgesChanged(wxCommandEvent& event) {
-            m_editorView.viewOptions().setRenderEdges(event.GetInt() != 0);
-            m_editorView.OnUpdate(NULL); // will just trigger a refresh
+            if (!m_documentViewHolder.valid())
+                return;
+            
+            EditorView& editorView = m_documentViewHolder.view();
+            editorView.viewOptions().setRenderEdges(event.GetInt() != 0);
+            editorView.OnUpdate(NULL); // will just trigger a refresh
         }
     }
 }

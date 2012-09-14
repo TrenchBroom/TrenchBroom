@@ -29,13 +29,12 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class DocumentViewHolder;
         class EditorView;
         
         class Inspector : public wxPanel {
         protected:
-            Model::MapDocument& m_document;
-            EditorView& m_view;
-            
+            DocumentViewHolder& m_documentViewHolder;
             wxNotebook* m_notebook;
             wxNotebookPage* CreateMapInspector();
             wxNotebookPage* CreateEntityInspector();
@@ -43,7 +42,7 @@ namespace TrenchBroom {
             wxNotebookPage* CreateFaceInspector();
             wxNotebookPage* CreateViewInspector();
         public:
-            Inspector(wxWindow* parent, Model::MapDocument& document, EditorView& view);
+            Inspector(wxWindow* parent, DocumentViewHolder& documentViewHolder);
         };
     }
 }

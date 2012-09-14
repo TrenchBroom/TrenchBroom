@@ -93,7 +93,7 @@ namespace TrenchBroom {
                 }
 
                 std::sort(newPaks.begin(), newPaks.end(), ComparePaksByPath());
-                m_paks[path] = newPaks;
+                m_paks[lowerPath] = newPaks;
                 result = newPaks;
                 return true;
             }

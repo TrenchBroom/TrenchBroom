@@ -71,9 +71,9 @@ namespace TrenchBroom {
             float panSpeed(bool vertical);
             float moveSpeed();
         public:
-            CameraTool(Model::MapDocument& document, View::EditorView& view) :
-            Tool(document, view),
-            m_filter(view.Filter()),
+            CameraTool(View::DocumentViewHolder& documentViewHolder) :
+            Tool(documentViewHolder),
+            m_filter(documentViewHolder.view().Filter()),
             m_orbit(false) {}
             
             bool handleScrolled(InputEvent& event);

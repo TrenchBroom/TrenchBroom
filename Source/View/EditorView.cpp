@@ -169,8 +169,11 @@ namespace TrenchBroom {
             
             if (deleteWindow) {
                 EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
-                if (frame != NULL)
-                    wxDELETE(frame);
+                if (frame != NULL) {
+					frame->Disable();
+                    frame->DisableProcessing();
+                    frame->Destroy(); // don't call close because that method will try to destroy the document again
+				}
             }
 
             if (m_filter != NULL) {

@@ -22,6 +22,7 @@
 
 #include "Controller/Input.h"
 #include "Model/MapDocument.h"
+#include "View/DocumentViewHolder.h"
 #include "View/EditorView.h"
 #include "Utility/VecMath.h"
 
@@ -43,8 +44,7 @@ namespace TrenchBroom {
                 Scroll
             };
         private:
-            Model::MapDocument& m_document;
-            View::EditorView& m_view;
+            View::DocumentViewHolder& m_documentViewHolder;
             State m_state;
             bool m_active;
             bool m_figureDataValid;
@@ -61,25 +61,28 @@ namespace TrenchBroom {
             virtual void handleEndDrag(InputEvent& event) {}
             
             inline void postEvent(wxEvent& event) {
-                event.SetEventObject(&m_view);
-                m_view.ProcessEvent(event);
+                if (!m_documentViewHolder.valid())
+                    return;
+                
+                View::EditorView& view = m_documentViewHolder.view();
+                event.SetEventObject(&view);
+                view.ProcessEvent(event);
             }
             
             inline void postCommand(wxCommand* command) {
-                m_document.GetCommandProcessor()->Submit(command);
+                if (!m_documentViewHolder.valid())
+                    return;
+                
+                Model::MapDocument& document = m_documentViewHolder.document();
+                document.GetCommandProcessor()->Submit(command);
             }
-            
-            inline Model::MapDocument& document() const {
-                return m_document;
-            }
-            
-            inline View::EditorView& view() const {
-                return m_view;
+
+            inline View::DocumentViewHolder& documentViewHolder() {
+                return m_documentViewHolder;
             }
         public:
-            Tool(Model::MapDocument& document, View::EditorView& view) :
-            m_document(document),
-            m_view(view),
+            Tool(View::DocumentViewHolder& documentViewHolder) :
+            m_documentViewHolder(documentViewHolder),
             m_state(Default),
             m_active(false),
             m_figureDataValid(false) {}

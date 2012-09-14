@@ -22,6 +22,8 @@
 
 #include <wx/frame.h>
 
+#include "View/DocumentViewHolder.h"
+
 class wxDocManager;
 class wxTextCtrl;
 
@@ -41,12 +43,11 @@ namespace TrenchBroom {
         
         class EditorFrame : public wxFrame {
         protected:
-            Model::MapDocument& m_document;
-            EditorView& m_view;
+            DocumentViewHolder m_documentViewHolder;
             MapGLCanvas* m_mapCanvas;
             wxTextCtrl* m_logView;
             
-            void CreateGui(Model::MapDocument& document, EditorView& view);
+            void CreateGui();
         public:
             EditorFrame(Model::MapDocument& document, EditorView& view);
             
@@ -57,6 +58,8 @@ namespace TrenchBroom {
             inline wxTextCtrl* LogView() const {
                 return m_logView;
             }
+            
+            void DisableProcessing();
             
             void OnClose(wxCloseEvent& event);
         
