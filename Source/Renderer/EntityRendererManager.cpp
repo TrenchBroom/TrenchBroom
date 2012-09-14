@@ -31,6 +31,7 @@
 #include "IO/FileManager.h"
 #include "Utility/Console.h"
 #include "Utility/GLee.h"
+#include "Utility/Preferences.h"
 
 #include <cassert>
 
@@ -48,10 +49,12 @@ namespace TrenchBroom {
 
         EntityRenderer* EntityRendererManager::entityRenderer(const Model::PointEntityModel& modelInfo, const StringList& mods) {
             IO::FileManager fileManager;
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            const String& quakePath = prefs.getString(Preferences::QuakePath);
             
             StringList searchPaths;
             for (unsigned int i = 0; i < mods.size(); i++)
-                searchPaths.push_back(fileManager.appendPath(m_quakePath, mods[i]));
+                searchPaths.push_back(fileManager.appendPath(quakePath, mods[i]));
 
             const String key = entityRendererKey(modelInfo, searchPaths);
 
@@ -90,8 +93,7 @@ namespace TrenchBroom {
             return NULL;
         }
 
-        EntityRendererManager::EntityRendererManager(const String& quakePath, const Model::Palette& palette, Utility::Console& console) :
-        m_quakePath(quakePath),
+        EntityRendererManager::EntityRendererManager(const Model::Palette& palette, Utility::Console& console) :
         m_palette(palette),
         m_console(console) {
             m_vbo = new Renderer::Vbo(GL_ARRAY_BUFFER, 0xFFFF);
@@ -124,12 +126,6 @@ namespace TrenchBroom {
                 delete it->second;
             m_entityRenderers.clear();
             m_mismatches.clear();
-        }
-
-        void EntityRendererManager::setQuakePath(const String& quakePath) {
-            if (m_quakePath == quakePath) return;
-            m_quakePath = quakePath;
-            clear();
         }
 
         void EntityRendererManager::activate() {

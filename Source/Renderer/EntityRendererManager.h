@@ -53,12 +53,11 @@ namespace TrenchBroom {
             Vbo* m_vbo;
             EntityRendererCache m_entityRenderers;
             MismatchCache m_mismatches;
-            String m_quakePath;
 
             const String entityRendererKey(const Model::PointEntityModel& modelInfo, const StringList& searchPaths);
             EntityRenderer* entityRenderer(const Model::PointEntityModel& modelInfo, const StringList& mods);
         public:
-            EntityRendererManager(const String& quakePath, const Model::Palette& palette, Utility::Console& console);
+            EntityRendererManager(const Model::Palette& palette, Utility::Console& console);
             ~EntityRendererManager();
             
             EntityRenderer* entityRenderer(const Model::PointEntityDefinition& entityDefinition, const StringList& mods);

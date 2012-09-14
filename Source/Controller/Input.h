@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_Input_h
 #define TrenchBroom_Input_h
 
+#include <wx/utils.h>
+
 #include "Model/Picker.h"
 #include "Utility/VecMath.h"
 
@@ -55,8 +57,6 @@ namespace TrenchBroom {
 
         class InputEvent {
         public:
-            ModifierKeyState modifierKeys;
-            MouseButtonState mouseButtons;
             float mouseX;
             float mouseY;
             float deltaX;
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             Model::PickResult* pickResult;
             Renderer::Camera* camera;
 
-            InputEvent() : modifierKeys(ModifierKeys::None), mouseButtons(MouseButtons::None), pickResult(NULL), camera(NULL) {}
+            InputEvent() : pickResult(NULL), camera(NULL) {}
 			
 			~InputEvent() {
 				if (pickResult != NULL) {
@@ -75,6 +75,32 @@ namespace TrenchBroom {
 					pickResult = NULL;
 				}
 			}
+            
+            inline ModifierKeyState modifierKeys() const {
+                wxMouseState mouseState = wxGetMouseState();
+                
+                ModifierKeyState state = ModifierKeys::None;
+                if (mouseState.ControlDown() || mouseState.CmdDown())
+                    state |= ModifierKeys::CtrlCmd;
+                if (mouseState.ShiftDown())
+                    state |= ModifierKeys::Shift;
+                if (mouseState.AltDown())
+                    state |= ModifierKeys::Alt;
+                return state;
+            }
+            
+            inline MouseButtonState mouseButtons() const {
+                wxMouseState mouseState = wxGetMouseState();
+                
+                MouseButtonState state = MouseButtons::None;
+                if (mouseState.LeftIsDown())
+                    state |= MouseButtons::Left;
+                if (mouseState.RightIsDown())
+                    state |= MouseButtons::Right;
+                if (mouseState.MiddleIsDown())
+                    state |= MouseButtons::Middle;
+                return state;
+            }
             
             inline float scroll() const {
                 if (scrollY != 0.0f)
@@ -113,7 +139,7 @@ namespace TrenchBroom {
             }
             
             bool matches(InputEvent& event) {
-                return m_modifierKeys == event.modifierKeys && m_mouseButtons == event.mouseButtons;
+                return m_modifierKeys == event.modifierKeys() && m_mouseButtons == event.mouseButtons();
             }
         };
     }

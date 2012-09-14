@@ -29,7 +29,8 @@
 #include <wx/config.h>
 #include <wx/confbase.h>
 
-#include <map>
+#include <limits>
+#include <vector>
 
 using namespace TrenchBroom::Math;
 using namespace TrenchBroom::Controller::ModifierKeys;
@@ -38,26 +39,145 @@ using namespace TrenchBroom::Controller::MouseButtons;
 namespace TrenchBroom {
     namespace Preferences {
         class PreferenceManager;
+
+        template <typename T>
+        class Converter {
+        public:
+            wxString toWxString(const T& value) const {
+                return "";
+            }
+
+            T fromWxString(const wxString& string) const {
+                return T();
+            }
+        };
+        
+        template <>
+        class Converter<bool> {
+        public:
+            wxString toWxString(const bool& value) const {
+                wxString string;
+                string << (value ? 1 : 0);
+                return string;
+            }
+            
+            bool fromWxString(const wxString& string) const {
+                long longValue;
+                if (string.ToLong(&longValue))
+                    return longValue != 0L;
+                return false;
+            }
+        };
+        
+        template <>
+        class Converter<int> {
+        public:
+            wxString toWxString(const int& value) const {
+                wxString string;
+                string << value;
+                return string;
+            }
+            
+            int fromWxString(const wxString& string) const {
+                long longValue;
+                if (string.ToLong(&longValue) && longValue >= std::numeric_limits<int>::min() && longValue <= std::numeric_limits<int>::max())
+                    return static_cast<int>(longValue);
+                return 0;
+            }
+        };
+        
+        template <>
+        class Converter<float> {
+        public:
+            wxString toWxString(const float& value) const {
+                wxString string;
+                string << value;
+                return string;
+            }
+            
+            float fromWxString(const wxString& string) const {
+                double doubleValue;
+                if (string.ToDouble(&doubleValue) && doubleValue >= std::numeric_limits<float>::min() && doubleValue <= std::numeric_limits<float>::max())
+                    return static_cast<float>(doubleValue);
+                return 0.0f;
+            }
+        };
+        
+        template <>
+        class Converter<String> {
+        public:
+            wxString toWxString(const String& value) const {
+                return wxString(value);
+            }
+            
+            String fromWxString(const wxString& string) const {
+                return string.ToStdString();
+            }
+        };
+
+        template <>
+        class Converter<Color> {
+        public:
+            wxString toWxString(const Color& value) const {
+                return wxString(value.asString());
+            }
+            
+            Color fromWxString(const wxString& string) const {
+                return Color(string.ToStdString());
+            }
+        };
+
+        class PreferenceBase {
+        public:
+            virtual void load(wxConfigBase* config) const = 0;
+            virtual void save(wxConfigBase* config) const = 0;
+        };
+        
+        typedef std::vector<const PreferenceBase*> PreferenceList;
         
         template <typename T>
-        class Preference {
+        class Preference : public PreferenceBase {
         protected:
             friend class PreferenceManager;
 
+            Converter<T> m_converter;
             String m_name;
             mutable T m_value;
             mutable bool m_initialized;
+            mutable bool m_modified;
             
             inline void setValue(const T& value) const {
+                m_modified = true;
                 m_value = value;
-                m_initialized = true;
             }
             
             inline bool initialized() const {
                 return m_initialized;
             }
+            
+            inline void load(wxConfigBase* config) const {
+                wxString string;
+                if (config->Read(m_name, &string)) {
+                    m_value = m_converter.fromWxString(string);
+                    m_initialized = true;
+                }
+            }
+            
+            inline void save(wxConfigBase* config) const {
+                if (m_modified) {
+                    wxString string = m_converter.toWxString(m_value);
+                    if (config->Write(m_name, string))
+                        m_modified = false;
+                }
+            }
         public:
-            Preference(const String& name, const T& defaultValue) :  m_name(name), m_value(defaultValue), m_initialized(false) {}
+            Preference(const String& name, const T& defaultValue) :
+            m_name(name),
+            m_value(defaultValue),
+            m_initialized(false),
+            m_modified(false) {
+                m_modified = m_initialized;
+            }
             
             inline const String& name() const {
                 return m_name;
@@ -68,171 +188,174 @@ namespace TrenchBroom {
             }
         };
         
-        static const Preference<float>  CameraLookSpeed(                            "Controls/Camera/Look speed",                                   0.5f);
-        static const Preference<float>  CameraPanSpeed(                             "Controls/Camera/Pan speed",                                    0.5f);
-        static const Preference<float>  CameraMoveSpeed(                            "Controls/Camera/Move speed",                                   0.5f);
-        static const Preference<bool>   CameraLookInvertX(                          "Controls/Camera/Look X inverted",                              false);
-        static const Preference<bool>   CameraLookInvertY(                          "Controls/Camera/Look Y inverted",                              false);
-        static const Preference<bool>   CameraPanInvertX(                           "Controls/Camera/Pan X inverted",                               false);
-        static const Preference<bool>   CameraPanInvertY(                           "Controls/Camera/Pan Y inverted",                               false);
-        static const Preference<float>  VertexHandleSize(                           "Controls/Vertex handle size",                                  1.5f);
-        static const Preference<float>  CameraFieldOfVision(                        "Renderer/Camera field of vision",                              90.0f);
-        static const Preference<float>  CameraNearPlane(                            "Renderer/Camera near plane",                                   1.0f);
-        static const Preference<float>  CameraFarPlane(                             "Renderer/Camera far plane",                                    5000.0f);
-
-        static const Preference<float>  InfoOverlayFadeDistance(                    "Renderer/Info overlay fade distance",                          400.0f);
-        static const Preference<float>  SelectedInfoOverlayFadeDistance(            "Renderer/Selected info overlay fade distance",                 400.0f);
-        static const Preference<int>    RendererFontSize(                           "Renderer/Font size",                                           16);
-        static const Preference<float>  RendererBrightness(                         "Renderer/Brightness",                                          1.4f);
+        extern const Preference<float>  CameraLookSpeed;
+        extern const Preference<float>  CameraPanSpeed;
+        extern const Preference<float>  CameraMoveSpeed;
+        extern const Preference<bool>   CameraLookInvertX;
+        extern const Preference<bool>   CameraLookInvertY;
+        extern const Preference<bool>   CameraPanInvertX;
+        extern const Preference<bool>   CameraPanInvertY;
+        extern const Preference<float>  VertexHandleSize;
+        extern const Preference<float>  CameraFieldOfVision;
+        extern const Preference<float>  CameraNearPlane;
+        extern const Preference<float>  CameraFarPlane;
         
-        static const Preference<Color>  BackgroundColor(                            "Renderer/Colors/Background",                                   Color(0.0f,  0.0f,  0.0f,  1.0f ));
-        static const Preference<Color>  GridColor(                                  "Renderer/Colors/Grid",                                         Color(1.0f,  1.0f,  1.0f,  0.2f ));
-
-        static const Preference<Color>  FaceColor(                                  "Renderer/Colors/Face",                                         Color(0.2f,  0.2f,  0.2f,  1.0f ));
-        static const Preference<Color>  SelectedFaceColor(                          "Renderer/Colors/Selected face",                                Color(0.6f,  0.35f, 0.35f, 1.0f ));
-        static const Preference<Color>  LockedFaceColor(                            "Renderer/Colors/Locked face",                                  Color(0.5f,  0.5f,  0.6f,  1.0f ));
-            
-        static const Preference<Color>  EdgeColor(                                  "Renderer/Colors/Edge",                                         Color(0.6f,  0.6f,  0.6f,  1.0f ));
-        static const Preference<Color>  SelectedEdgeColor(                          "Renderer/Colors/Selected edge",                                Color(1.0f,  0.0f,  0.0f,  1.0f ));
-        static const Preference<Color>  OccludedSelectedEdgeColor(                  "Renderer/Colors/Occluded selected edge",                       Color(1.0f,  0.0f,  0.0f,  0.5f ));
-        static const Preference<Color>  LockedEdgeColor(                            "Renderer/Colors/Locked edge",                                  Color(0.13f, 0.3f,  1.0f,  1.0f ));
+        extern const Preference<float>  InfoOverlayFadeDistance;
+        extern const Preference<float>  SelectedInfoOverlayFadeDistance;
+        extern const Preference<int>    RendererFontSize;
+        extern const Preference<float>  RendererBrightness;
         
-        static const Preference<Color>  EntityBoundsColor(                          "Renderer/Colors/Entity bounds",                                Color(0.5f,  0.5f,  0.5f,  1.0f ));
-        static const Preference<Color>  SelectedEntityBoundsColor(                  "Renderer/Colors/Selected entity bounds",                       Color(1.0f,  0.0f,  0.0f,  1.0f ));
-        static const Preference<Color>  OccludedSelectedEntityBoundsColor(          "Renderer/Colors/Occluded selected entity bounds",              Color(1.0f,  0.0f,  0.0f,  0.5f ));
-        static const Preference<Color>  LockedEntityBoundsColor(                    "Renderer/Colors/Locked entity bounds",                         Color(0.13f, 0.3f,  1.0f,  1.0f ));
-        static const Preference<Color>  EntityBoundsWireframeColor(                 "Renderer/Colors/Entity bounds (wireframe mode)",               Color(0.13f, 0.3f,  1.0f,  1.0f ));
+        extern const Preference<Color>  BackgroundColor;
+        extern const Preference<Color>  GridColor;
         
-        static const Preference<Color>  SelectionGuideColor(                        "Renderer/Colors/Selection guide",                              Color(1.0f,  0.0f,  0.0f,  1.0f ));
-        static const Preference<Color>  OccludedSelectionGuideColor(                "Renderer/Colors/Occluded selection guide",                     Color(1.0f,  0.0f,  0.0f,  0.5f ));
+        extern const Preference<Color>  FaceColor;
+        extern const Preference<Color>  SelectedFaceColor;
+        extern const Preference<Color>  LockedFaceColor;
         
-        static const Preference<Color>  InfoOverlayTextColor(                       "Renderer/Colors/Info overlay text",                            Color(1.0f,  1.0f,  1.0f,  1.0f ));
-        static const Preference<Color>  InfoOverlayBackgroundColor(                 "Renderer/Colors/Info overlay background",                      Color(0.0f,  0.0f,  0.0f,  0.6f ));
-        static const Preference<Color>  SelectedInfoOverlayTextColor(               "Renderer/Colors/Selected info overlay text",                   Color(1.0f,  1.0f,  1.0f,  1.0f ));
-        static const Preference<Color>  SelectedInfoOverlayBackgroundColor(         "Renderer/Colors/Selected info overlay backtround",             Color(1.0f,  0.0f,  0.0f,  0.6f ));
-        static const Preference<Color>  OccludedSelectedInfoOverlayTextColor(       "Renderer/Colors/Occluded selected info overlay text",          Color(1.0f,  1.0f,  1.0f,  0.5f ));
-        static const Preference<Color>  OccludedSelectedInfoOverlayBackgroundColor( "Renderer/Colors/Occluded selected info overlay background",    Color(1.0f,  0.0f,  0.0f,  0.3f ));
-        static const Preference<Color>  LockedInfoOverlayTextColor(                 "Renderer/Colors/Locked info overlay text",                     Color(1.0f,  1.0f,  1.0f,  1.0f ));
-        static const Preference<Color>  LockedInfoOverlayBackgroundColor(           "Renderer/Colors/Locked info overlay background",               Color(0.13f, 0.3f,  1.0f,  0.6f ));
+        extern const Preference<Color>  EdgeColor;
+        extern const Preference<Color>  SelectedEdgeColor;
+        extern const Preference<Color>  OccludedSelectedEdgeColor;
+        extern const Preference<Color>  LockedEdgeColor;
         
-        static const Preference<Color>  VertexHandleColor(                          "Renderer/Colors/Vertex handle",                                Color(1.0f,  1.0f,  1.0f,  1.0f ));
-        static const Preference<Color>  OccludedVertexHandleColor(                  "Renderer/Colors/Occluded vertex handle",                       Color(1.0f,  1.0f,  1.0f,  0.5f ));
-        static const Preference<Color>  SelectedVertexHandleColor(                  "Renderer/Colors/Selected vertex handle",                       Color(1.0f,  0.0f,  0.0f,  1.0f ));
-        static const Preference<Color>  OccludedSelectedVertexHandleColor(          "Renderer/Colors/Occluded selected vertex handle",              Color(1.0f,  0.0f,  0.0f,  0.5f ));
-
-        static const Preference<Color>  EdgeHandleColor(                            "Renderer/Colors/edge handle",                                  Color(1.0f,  1.0f,  1.0f,  1.0f ));
-        static const Preference<Color>  OccludedEdgeHandleColor(                    "Renderer/Colors/Occluded edge handle",                         Color(1.0f,  1.0f,  1.0f,  0.5f ));
-        static const Preference<Color>  SelectedEdgeHandleColor(                    "Renderer/Colors/Selected edge handle",                         Color(1.0f,  0.0f,  0.0f,  1.0f ));
-        static const Preference<Color>  OccludedSelectedEdgeHandleColor(            "Renderer/Colors/Occluded selected edge handle",                Color(1.0f,  0.0f,  0.0f,  0.5f ));
-
-        static const Preference<Color>  FaceHandleColor(                            "Renderer/Colors/face handle",                                  Color(1.0f,  1.0f,  1.0f,  1.0f ));
-        static const Preference<Color>  OccludedFaceHandleColor(                    "Renderer/Colors/Occluded face handle",                         Color(1.0f,  1.0f,  1.0f,  0.5f ));
-        static const Preference<Color>  SelectedFaceHandleColor(                    "Renderer/Colors/Selected face handle",                         Color(1.0f,  0.0f,  0.0f,  1.0f ));
-        static const Preference<Color>  OccludedSelectedFaceHandleColor(            "Renderer/Colors/Occluded selected face handle",                Color(1.0f,  0.0f,  0.0f,  0.5f ));
+        extern const Preference<Color>  EntityBoundsColor;
+        extern const Preference<Color>  SelectedEntityBoundsColor;
+        extern const Preference<Color>  OccludedSelectedEntityBoundsColor;
+        extern const Preference<Color>  LockedEntityBoundsColor;
+        extern const Preference<Color>  EntityBoundsWireframeColor;
         
-        static const Preference<Color>  SelectedTextureColor(                       "Texture browser/Selected texture color",                       Color(0.8f,  0.0f,  0.0f,  1.0f ));
-        static const Preference<Color>  UsedTextureColor(                           "Texture browser/Used texture color",                           Color(0.8f,  0.8f,  0.0f,  1.0f ));
-        static const Preference<Color>  OverriddenTextureColor(                     "Texture browser/Overridden texture color",                     Color(0.5f,  0.5f,  0.5f,  1.0f ));
+        extern const Preference<Color>  SelectionGuideColor;
+        extern const Preference<Color>  OccludedSelectionGuideColor;
         
-#if defined _WIN32
-        static const Preference<String> QuakePath(                                  "General/Quake path",                                           "C:\\Program Files\\Quake");
-        static const Preference<String> RendererFontName(                           "Renderer/Font name",                                           "Arial");
-#elif defined __APPLE__
-        static const Preference<String> QuakePath(                                  "General/Quake path",                                           "/Applications/Quake");
-        static const Preference<String> RendererFontName(                           "Renderer/Font name",                                           "LucidaGrande");
-#elif defined __linux__
-#endif
+        extern const Preference<Color>  InfoOverlayTextColor;
+        extern const Preference<Color>  InfoOverlayBackgroundColor;
+        extern const Preference<Color>  SelectedInfoOverlayTextColor;
+        extern const Preference<Color>  SelectedInfoOverlayBackgroundColor;
+        extern const Preference<Color>  OccludedSelectedInfoOverlayTextColor;
+        extern const Preference<Color>  OccludedSelectedInfoOverlayBackgroundColor;
+        extern const Preference<Color>  LockedInfoOverlayTextColor;
+        extern const Preference<Color>  LockedInfoOverlayBackgroundColor;
+        
+        extern const Preference<Color>  VertexHandleColor;
+        extern const Preference<Color>  OccludedVertexHandleColor;
+        extern const Preference<Color>  SelectedVertexHandleColor;
+        extern const Preference<Color>  OccludedSelectedVertexHandleColor;
+        
+        extern const Preference<Color>  EdgeHandleColor;
+        extern const Preference<Color>  OccludedEdgeHandleColor;
+        extern const Preference<Color>  SelectedEdgeHandleColor;
+        extern const Preference<Color>  OccludedSelectedEdgeHandleColor;
+        
+        extern const Preference<Color>  FaceHandleColor;
+        extern const Preference<Color>  OccludedFaceHandleColor;
+        extern const Preference<Color>  SelectedFaceHandleColor;
+        extern const Preference<Color>  OccludedSelectedFaceHandleColor;
+        
+        extern const Preference<Color>  SelectedTextureColor;
+        extern const Preference<Color>  UsedTextureColor;
+        extern const Preference<Color>  OverriddenTextureColor;
+        
+        extern const Preference<String> QuakePath;
+        extern const Preference<String> RendererFontName;
 
         class PreferenceManager {
         private:
-            wxConfig* m_config;
+            bool m_saveInstantly;
+            PreferenceList m_unsavedPreferences;
 
             PreferenceManager() {
-                m_config = new wxConfig("TrenchBroom");
+#if defined __APPLE__
+                m_saveInstantly = true;
+#else
+                m_saveInstantly = false;
+#endif
             }
             
-            ~PreferenceManager() {
-                delete m_config;
-                m_config = NULL;
-            }
-            
-            bool parseMouseState(const String& str, Controller::MouseState& mouseState) const;
         public:
             inline static PreferenceManager& preferences() {
                 static PreferenceManager prefs;
                 return prefs;
             }
             
-            inline bool getBool(const Preference<bool>& preference) const {
-                if (!preference.initialized()) {
-                    wxString str;
-                    if (m_config->Read(preference.name(), &str)) {
-                        long longValue;
-                        if (str.ToLong(&longValue))
-                            preference.setValue(longValue > 0L);
-                    }
+            inline void save() {
+                while (!m_unsavedPreferences.empty()) {
+                    m_unsavedPreferences.back()->save(wxConfig::Get());
+                    m_unsavedPreferences.pop_back();
                 }
+            }
+            
+            inline bool getBool(const Preference<bool>& preference) const {
+                if (!preference.initialized())
+                    preference.load(wxConfig::Get());
                 
                 return preference.value();
+            }
+            
+            inline void setBool(const Preference<bool>& preference, bool value) {
+                preference.setValue(value);
+                if (m_saveInstantly)
+                    preference.save(wxConfig::Get());
+                else
+                    m_unsavedPreferences.push_back(&preference);
             }
             
             inline int getInt(const Preference<int>& preference) const {
-                if (!preference.initialized()) {
-                    wxString str;
-                    if (m_config->Read(preference.name(), &str)) {
-                        long longValue;
-                        if (str.ToLong(&longValue))
-                            preference.setValue(static_cast<int>(longValue));
-                    }
-                }
+                if (!preference.initialized())
+                    preference.load(wxConfig::Get());
                 
                 return preference.value();
+            }
+            
+            inline void setInt(const Preference<int>& preference, int value) {
+                preference.setValue(value);
+                if (m_saveInstantly)
+                    preference.save(wxConfig::Get());
+                else
+                    m_unsavedPreferences.push_back(&preference);
             }
             
             inline float getFloat(const Preference<float>& preference) const {
-                if (!preference.initialized()) {
-                    wxString str;
-                    if (m_config->Read(preference.name(), &str)) {
-                        double doubleValue;
-                        if (str.ToDouble(&doubleValue))
-                            preference.setValue(static_cast<float>(doubleValue));
-                    }
-                }
+                if (!preference.initialized())
+                    preference.load(wxConfig::Get());
                 
                 return preference.value();
             }
             
+            inline void setFloat(const Preference<float>& preference, float value) {
+                preference.setValue(value);
+                if (m_saveInstantly)
+                    preference.save(wxConfig::Get());
+                else
+                    m_unsavedPreferences.push_back(&preference);
+            }
+            
             inline const String& getString(const Preference<String>& preference) const {
-                if (!preference.initialized()) {
-                    wxString str;
-                    if (m_config->Read(preference.name(), &str))
-                        preference.setValue(str.ToStdString());
-                }
+                if (!preference.initialized())
+                    preference.load(wxConfig::Get());
                 
                 return preference.value();
             }
 
+            inline void setString(const Preference<String>& preference, const String& value) {
+                preference.setValue(value);
+                if (m_saveInstantly)
+                    preference.save(wxConfig::Get());
+                else
+                    m_unsavedPreferences.push_back(&preference);
+            }
+            
             inline const Color& getColor(const Preference<Color>& preference) const {
-                if (!preference.initialized()) {
-                    wxString str;
-                    if (m_config->Read(preference.name(), &str))
-                        preference.setValue(Color(str.ToStdString()));
-                }
+                if (!preference.initialized())
+                    preference.load(wxConfig::Get());
                 
                 return preference.value();
             }
             
-            inline const Controller::MouseState& getMouseState(const Preference<Controller::MouseState>& preference) const {
-                if (!preference.initialized()) {
-                    wxString str;
-                    if (m_config->Read(preference.name(), &str)) {
-                        Controller::MouseState mouseState;
-                        if (parseMouseState(str.ToStdString(), mouseState))
-                            preference.setValue(mouseState);
-                    }
-                }
-                
-                return preference.value();
+            inline void setColor(const Preference<Color>& preference, const Color& value) {
+                preference.setValue(value);
+                if (m_saveInstantly)
+                    preference.save(wxConfig::Get());
+                else
+                    m_unsavedPreferences.push_back(&preference);
             }
         };
     }

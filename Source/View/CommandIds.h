@@ -53,6 +53,21 @@ namespace TrenchBroom {
                 static const int RenderEdgesCheckBoxId              = Menu::Highest +  9;
                 static const int Highest                            = Menu::Highest + 99;
             }
+            
+            namespace PreferencesDialog {
+                static const int Lowest                             = ViewInspector::Highest +  1;
+                static const int ChooseQuakePathButtonId            = ViewInspector::Highest +  1;
+                static const int BrightnessSliderId                 = ViewInspector::Highest +  2;
+                static const int GridAlphaSliderId                  = ViewInspector::Highest +  3;
+                static const int LookSpeedSliderId                  = ViewInspector::Highest +  4;
+                static const int InvertLookXAxisCheckBoxId          = ViewInspector::Highest +  5;
+                static const int InvertLookYAxisCheckBoxId          = ViewInspector::Highest +  6;
+                static const int PanSpeedSliderId                   = ViewInspector::Highest +  7;
+                static const int InvertPanXAxisCheckBoxId           = ViewInspector::Highest +  8;
+                static const int InvertPanYAxisCheckBoxId           = ViewInspector::Highest +  9;
+                static const int MoveSpeedSliderId                  = ViewInspector::Highest + 10;
+                static const int Highest                            = ViewInspector::Highest + 99;
+            }
         }
     }
 }

@@ -26,27 +26,27 @@
 namespace TrenchBroom {
     namespace Controller {
         ChangeEditStateCommand::ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type previousState) :
-        Command(Command::ChangeEditState, document, true,name),
+        DocumentCommand(Command::ChangeEditState, document, true,name),
         m_state(previousState),
         m_affectAll(true),
         m_replace(false) {}
 
         ChangeEditStateCommand::ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type newState, const Model::EntityList& entities, bool replace) :
-        Command(Command::ChangeEditState, document, true, name),
+        DocumentCommand(Command::ChangeEditState, document, true, name),
         m_state(newState),
         m_entities(entities),
         m_affectAll(false),
         m_replace(replace) {}
         
         ChangeEditStateCommand::ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type newState, const Model::BrushList& brushes, bool replace) :
-        Command(Command::ChangeEditState, document, true, name),
+        DocumentCommand(Command::ChangeEditState, document, true, name),
         m_state(newState),
         m_brushes(brushes),
         m_affectAll(false),
         m_replace(replace) {}
         
         ChangeEditStateCommand::ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type newState, const Model::EntityList& entities, const Model::BrushList& brushes, bool replace) :
-        Command(Command::ChangeEditState, document, true, name),
+        DocumentCommand(Command::ChangeEditState, document, true, name),
         m_state(newState),
         m_entities(entities),
         m_brushes(brushes),
@@ -54,7 +54,7 @@ namespace TrenchBroom {
         m_replace(replace) {}
         
         ChangeEditStateCommand::ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type newState, const Model::FaceList& faces, bool replace) :
-        Command(Command::ChangeEditState, document, true, name),
+        DocumentCommand(Command::ChangeEditState, document, true, name),
         m_state(newState),
         m_faces(faces),
         m_affectAll(false),

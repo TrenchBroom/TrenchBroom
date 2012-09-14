@@ -187,7 +187,7 @@ namespace TrenchBroom {
 
         void ViewInspector::OnFilterPatternChanged(wxCommandEvent& event) {
             m_editorView.viewOptions().setFilterPattern(m_searchBox->GetValue().ToStdString());
-            Controller::Command command(Controller::Command::InvalidateRendererState, m_editorView.MapDocument(), false, "Change filter text");
+            Controller::Command command(Controller::Command::InvalidateRendererState);
             m_editorView.OnUpdate(NULL, &command);
         }
 
@@ -215,13 +215,13 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::ViewInspector::ShowClipBrushesCheckBoxId: {
                     m_editorView.viewOptions().setShowClipBrushes(event.GetInt() != 0);
-                    Controller::Command command(Controller::Command::InvalidateRendererBrushState, m_editorView.MapDocument(), false, "Change brush state");
+                    Controller::Command command(Controller::Command::InvalidateRendererBrushState);
                     m_editorView.OnUpdate(NULL, &command);
                     break;
                 }
                 case CommandIds::ViewInspector::ShowSkipBrushesCheckBoxId: {
                     m_editorView.viewOptions().setShowSkipBrushes(event.GetInt() != 0);
-                    Controller::Command command(Controller::Command::InvalidateRendererBrushState, m_editorView.MapDocument(), false, "Change brush state");
+                    Controller::Command command(Controller::Command::InvalidateRendererBrushState);
                     m_editorView.OnUpdate(NULL, &command);
                     break;
                 }

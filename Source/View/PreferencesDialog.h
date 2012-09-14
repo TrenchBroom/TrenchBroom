@@ -22,15 +22,39 @@
 
 #include <wx/dialog.h>
 
+class wxCheckBox;
+class wxSlider;
+class wxStaticText;
+
 namespace TrenchBroom {
     namespace View {
         class PreferencesDialog : public wxDialog {
         protected:
+            wxStaticText* m_quakePathValueLabel;
+            wxSlider* m_brightnessSlider;
+            wxSlider* m_gridAlphaSlider;
+            wxSlider* m_lookSpeedSlider;
+            wxCheckBox* m_invertLookXAxisCheckBox;
+            wxCheckBox* m_invertLookYAxisCheckBox;
+            wxSlider* m_panSpeedSlider;
+            wxCheckBox* m_invertPanXAxisCheckBox;
+            wxCheckBox* m_invertPanYAxisCheckBox;
+            wxSlider* m_moveSpeedSlider;
+            
+            void updateControls();
+
             wxWindow* createQuakePreferences();
             wxWindow* createViewPreferences();
             wxWindow* createMousePreferences();
         public:
             PreferencesDialog();
+
+            void OnChooseQuakePathClicked(wxCommandEvent& event);
+            void OnViewSliderChanged(wxScrollEvent& event);
+            void OnMouseSliderChanged(wxScrollEvent& event);
+            void OnInvertAxisChanged(wxCommandEvent& event);
+            
+            DECLARE_EVENT_TABLE();
         };
     }
 }

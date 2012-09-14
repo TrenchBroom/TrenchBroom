@@ -57,7 +57,7 @@ namespace TrenchBroom {
         }
         
         bool CameraTool::handleScrolled(InputEvent& event) {
-            if (event.modifierKeys != ModifierKeys::None)
+            if (event.modifierKeys() != ModifierKeys::None)
                 return false;
             
             CameraMoveEvent cameraEvent;
@@ -68,8 +68,8 @@ namespace TrenchBroom {
         }
         
         bool CameraTool::handleBeginDrag(InputEvent& event) {
-            if(event.mouseButtons == MouseButtons::Right) {
-                if (event.modifierKeys == ModifierKeys::Alt) {
+            if(event.mouseButtons() == MouseButtons::Right) {
+                if (event.modifierKeys() == ModifierKeys::Alt) {
                     Model::Hit* hit = event.pickResult->first(Model::Hit::EntityHit | Model::Hit::FaceHit, true, m_filter);
                     if (hit != NULL)
                         m_orbitCenter = hit->hitPoint();
@@ -77,10 +77,10 @@ namespace TrenchBroom {
                         m_orbitCenter = event.camera->defaultPoint();
                     m_orbit = true;
                     return true;
-                } else if (event.modifierKeys == ModifierKeys::None) {
+                } else if (event.modifierKeys() == ModifierKeys::None) {
                     return true;
                 }
-            } else if (event.mouseButtons == MouseButtons::Middle && event.modifierKeys == ModifierKeys::None) {
+            } else if (event.mouseButtons() == MouseButtons::Middle && event.modifierKeys() == ModifierKeys::None) {
                 return true;
             }
             
@@ -88,7 +88,7 @@ namespace TrenchBroom {
         }
         
         bool CameraTool::handleDrag(InputEvent& event) {
-            if (event.mouseButtons == MouseButtons::Right) {
+            if (event.mouseButtons() == MouseButtons::Right) {
                 if (m_orbit) {
                     CameraOrbitEvent cameraEvent;
                     cameraEvent.setHAngle(event.deltaX * lookSpeed(false));
@@ -103,7 +103,7 @@ namespace TrenchBroom {
                 }
                 
                 return true;
-            } else if (event.mouseButtons == MouseButtons::Middle && event.modifierKeys == ModifierKeys::None) {
+            } else if (event.mouseButtons() == MouseButtons::Middle && event.modifierKeys() == ModifierKeys::None) {
                 CameraMoveEvent cameraEvent;
                 cameraEvent.setRight(event.deltaX * panSpeed(false));
                 cameraEvent.setUp(event.deltaY * panSpeed(true));

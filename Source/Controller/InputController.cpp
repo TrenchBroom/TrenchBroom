@@ -64,7 +64,6 @@ namespace TrenchBroom {
         }
 
         void InputController::modifierKeyDown(ModifierKeyState modifierKey) {
-            m_currentEvent.modifierKeys |= modifierKey;
             updateHits();
             
             for (unsigned int i = 0; i < m_receivers.size(); i++)
@@ -72,7 +71,6 @@ namespace TrenchBroom {
         }
         
         void InputController::modifierKeyUp(ModifierKeyState modifierKey) {
-            m_currentEvent.modifierKeys &= ~modifierKey;
             updateHits();
             
             for (unsigned int i = 0; i < m_receivers.size(); i++)
@@ -80,7 +78,6 @@ namespace TrenchBroom {
         }
         
         bool InputController::mouseDown(MouseButtonState mouseButton, float x, float y) {
-            m_currentEvent.mouseButtons |= mouseButton;
             updateMousePos(x, y);
             updateHits();
             
@@ -114,13 +111,12 @@ namespace TrenchBroom {
             }
             
             m_mouseUpReceiver = NULL;
-            m_currentEvent.mouseButtons &= ~mouseButton;
             return handled;
         }
         
         void InputController::mouseMoved(float x, float y) {
-            if (m_currentEvent.mouseButtons != MouseButtons::None && m_dragButtons == MouseButtons::None) {
-                m_dragButtons = m_currentEvent.mouseButtons;
+            if (m_currentEvent.mouseButtons() != MouseButtons::None && m_dragButtons == MouseButtons::None) {
+                m_dragButtons = m_currentEvent.mouseButtons();
                 for (unsigned int i = 0; i < m_receivers.size(); i++) {
                     if (m_receivers[i]->beginDrag(m_currentEvent)) {
                         m_dragReceiver = m_receivers[i];

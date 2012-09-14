@@ -36,7 +36,7 @@ namespace TrenchBroom {
     }
     
     namespace Controller {
-        class ChangeEditStateCommand : public Command {
+        class ChangeEditStateCommand : public DocumentCommand {
         protected:
             Model::EditState::Type m_state;
             bool m_affectAll;

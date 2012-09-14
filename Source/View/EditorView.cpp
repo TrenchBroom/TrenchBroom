@@ -129,24 +129,26 @@ namespace TrenchBroom {
                 Controller::Command* command = static_cast<Controller::Command*>(hint);
                 switch (command->type()) {
                     case Controller::Command::LoadMap:
-                    case Controller::Command::ClearMap: {
+                    case Controller::Command::ClearMap:
                         m_renderer->loadMap();
                         break;
-                    }
                     case Controller::Command::ChangeEditState: {
                         Controller::ChangeEditStateCommand* changeEditStateCommand = static_cast<Controller::ChangeEditStateCommand*>(command);
                         m_renderer->changeEditState(changeEditStateCommand->changeSet());
                         break;
                     }
-                    case Controller::Command::InvalidateRendererEntityState: {
+                    case Controller::Command::InvalidateRendererEntityState:
                         m_renderer->invalidateEntities();
-                    }
-                    case Controller::Command::InvalidateRendererBrushState: {
+                        break;
+                    case Controller::Command::InvalidateRendererBrushState:
                         m_renderer->invalidateBrushes();
-                    }
-                    case Controller::Command::InvalidateRendererState: {
+                        break;
+                    case Controller::Command::InvalidateRendererState:
                         m_renderer->invalidateAll();
-                    }
+                        break;
+                    case Controller::Command::InvalidateEntityRendererCache:
+                        m_renderer->invalidateEntityRendererCache();
+                        break;
                     default:
                         break;
                 }

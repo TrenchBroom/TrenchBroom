@@ -110,6 +110,16 @@ wxMenuBar* AbstractApp::CreateMenuBar(wxEvtHandler* eventHandler) {
     return menuBar;
 }
 
+void AbstractApp::UpdateAllViews(wxView* sender, wxObject* hint) {
+    const wxList& documents = m_docManager->GetDocuments();
+    
+    wxList::const_iterator it, end;
+    for (it = documents.begin(), end = documents.end(); it != end; ++it) {
+        wxDocument* document = static_cast<wxDocument*>(*it);
+        document->UpdateAllViews(sender, hint);
+    }
+}
+
 bool AbstractApp::OnInit() {
     // initialize globals
     TrenchBroom::IO::PakManager::sharedManager = new TrenchBroom::IO::PakManager();

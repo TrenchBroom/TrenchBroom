@@ -31,7 +31,7 @@
 namespace TrenchBroom {
     namespace Controller {
         bool SelectionTool::handleMouseUp(InputEvent& event) {
-            if (event.mouseButtons != MouseButtons::Left)
+            if (event.mouseButtons() != MouseButtons::Left)
                 return false;
             
             Model::Hit* hit = event.pickResult->first(Model::Hit::EntityHit | Model::Hit::FaceHit, false, view().Filter());
@@ -39,7 +39,7 @@ namespace TrenchBroom {
             Model::EditStateManager& editStateManager = document().EditStateManager();
             
             if (hit != NULL) {
-                bool multi = event.modifierKeys == ModifierKeys::CtrlCmd;
+                bool multi = event.modifierKeys() == ModifierKeys::CtrlCmd;
                 
                 if (hit->type() == Model::Hit::EntityHit) {
                     Model::Entity& entity = hit->entity();
@@ -92,8 +92,8 @@ namespace TrenchBroom {
         }
         
         bool SelectionTool::handleScrolled(InputEvent& event) {
-            if (event.modifierKeys != ModifierKeys::CtrlCmd &&
-                event.modifierKeys != (ModifierKeys::CtrlCmd | ModifierKeys::Shift))
+            if (event.modifierKeys() != ModifierKeys::CtrlCmd &&
+                event.modifierKeys() != (ModifierKeys::CtrlCmd | ModifierKeys::Shift))
                 return false;
             
             Model::EditStateManager& editStateManager = document().EditStateManager();
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             Model::BrushList brushes = editStateManager.selectedBrushes();
             
             Command* command = NULL;
-            bool appendSelection = event.modifierKeys == (ModifierKeys::CtrlCmd | ModifierKeys::Shift);
+            bool appendSelection = event.modifierKeys() == (ModifierKeys::CtrlCmd | ModifierKeys::Shift);
             bool foundSelection = false;
             
             for (unsigned int i = 0; i < hits.size() && !foundSelection; i++) {

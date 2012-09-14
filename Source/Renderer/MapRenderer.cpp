@@ -695,7 +695,7 @@ namespace TrenchBroom {
 
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
-            m_entityRendererManager = EntityRendererManagerPtr(new EntityRendererManager(prefs.getString(Preferences::QuakePath), document.Palette(), document.Console()));
+            m_entityRendererManager = EntityRendererManagerPtr(new EntityRendererManager(document.Palette(), document.Console()));
             m_entityRendererCacheValid = true;
             
             m_stringManager = StringManagerPtr(new Text::StringManager(document.Console()));
@@ -864,6 +864,10 @@ namespace TrenchBroom {
         void MapRenderer::invalidateAll() {
             invalidateEntities();
             invalidateBrushes();
+        }
+
+        void MapRenderer::invalidateEntityRendererCache() {
+            m_entityRendererCacheValid = false;
         }
 
         void MapRenderer::render(RenderContext& context) {

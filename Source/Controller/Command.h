@@ -36,20 +36,19 @@ namespace TrenchBroom {
                 ChangeEditState,
                 InvalidateRendererEntityState,
                 InvalidateRendererBrushState,
-                InvalidateRendererState
+                InvalidateRendererState,
+                InvalidateEntityRendererCache
             } Type;
         private:
             Type m_type;
-            Model::MapDocument& m_document;
-        protected:
-            inline Model::MapDocument& document() const {
-                return m_document;
-            }
         public:
-            Command(Type type, Model::MapDocument& document, bool undoable, const wxString& name) :
+            Command(Type type) :
+            wxCommand(false, ""),
+            m_type(type) {}
+
+            Command(Type type, bool undoable, const wxString& name) :
             wxCommand(undoable, name),
-            m_type(type),
-            m_document(document) {}
+            m_type(type) {}
             
             inline Type type() const {
                 return m_type;
@@ -62,6 +61,19 @@ namespace TrenchBroom {
             bool Undo() {
                 return true;
             }
+        };
+        
+        class DocumentCommand : public Command {
+            Model::MapDocument& m_document;
+        protected:
+            inline Model::MapDocument& document() const {
+                return m_document;
+            }
+        public:
+            DocumentCommand(Type type, Model::MapDocument& document, bool undoable, const wxString& name) :
+            Command(type, undoable, name),
+            m_document(document) {}
+            
         };
     }
 }

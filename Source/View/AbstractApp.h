@@ -27,6 +27,7 @@ class wxDocManager;
 class wxEvtHandler;
 class wxMenu;
 class wxMenuBar;
+class wxView;
 class DocManager;
 
 class AbstractApp : public wxApp {
@@ -39,6 +40,8 @@ protected:
     virtual wxMenu* CreateHelpMenu();
 public:
     virtual wxMenuBar* CreateMenuBar(wxEvtHandler* eventHandler);
+
+    void UpdateAllViews(wxView* sender = NULL, wxObject* hint = NULL);
 
 	virtual bool OnInit();
     virtual int OnExit();
