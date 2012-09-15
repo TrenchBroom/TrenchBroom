@@ -25,3 +25,6 @@ Thumbs.db
 /Linux/bin/**/*
 /Linux/obj/*
 /Linux/obj/**/*
+
+/Mac/build/
+/Mac/wxWidgets

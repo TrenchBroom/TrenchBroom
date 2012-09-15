@@ -1,0 +1,1 @@
+xcodebuild -alltargets clean

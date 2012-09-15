@@ -787,7 +787,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 			};
@@ -808,7 +808,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -835,18 +835,15 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = (
-					"-isystem",
-					"/usr/local/lib/wx/include/osx_cocoa-unicode-2.9",
-					"-isystem",
-					"/usr/local/include/wx-2.9",
+					"-isystem\"$(SRCROOT)/wxWidgets/macbuild-debug/lib/wx/include/osx_cocoa-unicode-static-2.9\"",
+					"-isystem\"$(SRCROOT)/wxWidgets/include\"",
 					"-D_FILE_OFFSET_BITS=64",
-					"-DWXUSINGDLL",
 					"-D__WXMAC__",
 					"-D__WXOSX__",
 					"-D__WXOSX_COCOA__",
 				);
 				OTHER_LDFLAGS = (
-					"-L/usr/local/lib",
+					"-L\"$(SRCROOT)/wxWidgets/macbuild-debug/lib\"",
 					"-framework",
 					IOKit,
 					"-framework",
@@ -859,10 +856,28 @@
 					System,
 					"-framework",
 					OpenGL,
-					"-lwx_osx_cocoau_core-2.9",
-					"-lwx_baseu-2.9",
-					"-lwx_osx_cocoau_gl-2.9",
+					"-framework",
+					QuickTime,
+					"\"$(SRCROOT)/wxWidgets/macbuild-debug/lib/libwx_osx_cocoau_gl-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/macbuild-debug/lib/libwx_osx_cocoau_xrc-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/macbuild-debug/lib/libwx_osx_cocoau_webview-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/macbuild-debug/lib/libwx_osx_cocoau_qa-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/macbuild-debug/lib/libwx_baseu_net-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/macbuild-debug/lib/libwx_osx_cocoau_html-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/macbuild-debug/lib/libwx_osx_cocoau_adv-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/macbuild-debug/lib/libwx_osx_cocoau_core-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/macbuild-debug/lib/libwx_baseu_xml-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/macbuild-debug/lib/libwx_baseu-2.9.a\"",
+					"-framework",
+					WebKit,
+					"-lexpat",
+					"-lwxregexu-2.9",
+					"-lwxtiff-2.9",
+					"-lwxjpeg-2.9",
+					"-lwxpng-2.9",
 					"-lz",
+					"-lpthread",
+					"-liconv",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
@@ -893,18 +908,15 @@
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = (
-					"-isystem",
-					"/usr/local/lib/wx/include/osx_cocoa-unicode-2.9",
-					"-isystem",
-					"/usr/local/include/wx-2.9",
+					"-isystem\"$(SRCROOT)/wxWidgets/macbuild/lib/wx/include/osx_cocoa-unicode-static-2.9\"",
+					"-isystem\"$(SRCROOT)/wxWidgets/include\"",
 					"-D_FILE_OFFSET_BITS=64",
-					"-DWXUSINGDLL",
 					"-D__WXMAC__",
 					"-D__WXOSX__",
 					"-D__WXOSX_COCOA__",
 				);
 				OTHER_LDFLAGS = (
-					"-L/usr/local/lib",
+					"-L\"$(SRCROOT)/wxWidgets/macbuild/lib\"",
 					"-framework",
 					IOKit,
 					"-framework",
@@ -917,10 +929,28 @@
 					System,
 					"-framework",
 					OpenGL,
-					"-lwx_osx_cocoau_core-2.9",
-					"-lwx_baseu-2.9",
-					"-lwx_osx_cocoau_gl-2.9",
+					"-framework",
+					QuickTime,
+					"\"$(SRCROOT)/wxWidgets/macbuild/lib/libwx_osx_cocoau_gl-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/macbuild/lib/libwx_osx_cocoau_xrc-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/macbuild/lib/libwx_osx_cocoau_webview-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/macbuild/lib/libwx_osx_cocoau_qa-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/macbuild/lib/libwx_baseu_net-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/macbuild/lib/libwx_osx_cocoau_html-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/macbuild/lib/libwx_osx_cocoau_adv-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/macbuild/lib/libwx_osx_cocoau_core-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/macbuild/lib/libwx_baseu_xml-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/macbuild/lib/libwx_baseu-2.9.a\"",
+					"-framework",
+					WebKit,
+					"-lexpat",
+					"-lwxregexu-2.9",
+					"-lwxtiff-2.9",
+					"-lwxjpeg-2.9",
+					"-lwxpng-2.9",
 					"-lz",
+					"-lpthread",
+					"-liconv",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
