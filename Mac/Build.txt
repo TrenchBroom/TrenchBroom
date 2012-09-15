@@ -5,9 +5,9 @@ Build environment
 - Open a terminal and change into the wxwidgets directory.
 - Create two directories: macbuild and macbuild-debug
 - Change into wxwidgets/macbuild
-- Run ../configure --with-osx_cocoa --with-opengl --enable-universal-binary=i386,x86_64
-- Run make, then sudo make install
+- Run ../configure --with-osx_cocoa --disable-shared --with-opengl --enable-universal-binary=i386,x86_64
+- Run make
 - Change into wxwidgets/macbuild-debug
-- Run ../configure --enable-debug --with-osx_cocoa --with-opengl --enable-universal-binary=i386,x86_64
-- Run make, then sudo make install
+- Run ../configure --enable-debug --with-osx_cocoa --disable-shared --with-opengl --enable-universal-binary=i386,x86_64
+- Run make
 
