@@ -79,7 +79,7 @@ namespace TrenchBroom {
                 
                 float width = 0.0f;
                 float height = static_cast<float>(fontDescriptor.size());
-                unsigned int bezierSegments = fontDescriptor.size() / 10 + 2;
+                unsigned int bezierSegments = fontDescriptor.size() / 10 + 1;
                 
                 Path* path = new Path();
                 PathBuilder pathBuilder(path, bezierSegments);

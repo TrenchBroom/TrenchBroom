@@ -179,24 +179,26 @@ namespace TrenchBroom {
             innerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
             innerSizer->Add(mousePreferences, 0, wxEXPAND);
 
-#if defined _WIN32
-            wxButton* okButton = new wxButton(this, wxID_OK, "Ok");
-            wxButton* cancelButton = new wxButton(this, wxID_CANCEL, "Cancel");
-            
-            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
-            buttonSizer->Add(okButton);
-            buttonSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
-            buttonSizer->Add(cancelButton);
+            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
 
-			innerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-			innerSizer->Add(buttonSizer, 0, wxALIGN_RIGHT);
+#if defined _WIN32
+            outerSizer->Add(innerSizer, 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::DialogOuterMargin);
+            wxSizer* buttonSizer = CreateButtonSizer(wxOK | wxCANCEL);
+            outerSizer->Add(buttonSizer, 0, wxEXPAND | wxALL, 7);
+#else
+            outerSizer->Add(innerSizer, 0, wxEXPAND | wxALL, LayoutConstants::DialogOuterMargin);
 #endif
             
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(innerSizer, 0, wxEXPAND | wxALL, 10);
             outerSizer->SetItemMinSize(innerSizer, 600, innerSizer->GetSize().y);
-            
             SetSizerAndFit(outerSizer);
+            
+#if defined __APPLE__
+            // allow the dialog to be closed using CMD+W
+            wxAcceleratorEntry acceleratorEntries[1];
+            acceleratorEntries[0].Set(wxACCEL_CMD, static_cast<int>('W'), wxID_CLOSE);
+            wxAcceleratorTable accceleratorTable(4, acceleratorEntries);
+            SetAcceleratorTable(accceleratorTable);
+#endif
             
             updateControls();
         }
