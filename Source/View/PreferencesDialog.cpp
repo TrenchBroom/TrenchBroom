@@ -60,6 +60,7 @@ namespace TrenchBroom {
         EVT_BUTTON(wxID_OK, PreferencesDialog::OnOkClicked)
         EVT_BUTTON(wxID_CANCEL, PreferencesDialog::OnCancelClicked)
 		EVT_CLOSE(PreferencesDialog::OnCloseDialog)
+        EVT_MENU(wxID_CLOSE, PreferencesDialog::OnFileExit)
 		END_EVENT_TABLE()
 
         void PreferencesDialog::updateControls() {
@@ -307,9 +308,12 @@ namespace TrenchBroom {
 
 			Controller::Command command(Controller::Command::InvalidateEntityRendererCache);
             static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &command);
-			
-			event.Skip();
 #endif
+            event.Skip();
 		}
+
+        void PreferencesDialog::OnFileExit(wxCommandEvent& event) {
+            Close();
+        }
 	}
 }

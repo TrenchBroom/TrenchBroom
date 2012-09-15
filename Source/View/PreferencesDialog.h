@@ -56,6 +56,7 @@ namespace TrenchBroom {
             void OnOkClicked(wxCommandEvent& event);
 			void OnCancelClicked(wxCommandEvent& event);
 			void OnCloseDialog(wxCloseEvent& event);
+            void OnFileExit(wxCommandEvent& event);
 
             DECLARE_EVENT_TABLE();
         };
