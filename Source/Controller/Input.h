@@ -84,7 +84,7 @@ namespace TrenchBroom {
                 wxMouseState mouseState = wxGetMouseState();
                 
                 ModifierKeyState state = ModifierKeys::None;
-                if (mouseState.ControlDown() || mouseState.CmdDown())
+                if (mouseState.CmdDown())
                     state |= ModifierKeys::CtrlCmd;
                 if (mouseState.ShiftDown())
                     state |= ModifierKeys::Shift;
