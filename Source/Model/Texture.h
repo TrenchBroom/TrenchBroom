@@ -20,8 +20,8 @@
 #ifndef __TrenchBroom__Texture__
 #define __TrenchBroom__Texture__
 
+#include <GL/glew.h>
 #include "Utility/Color.h"
-#include "Utility/GLee.h"
 #include "Utility/String.h"
 #include "Utility/VecMath.h"
 

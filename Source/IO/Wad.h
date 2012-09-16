@@ -33,21 +33,11 @@
 
 namespace TrenchBroom {
     namespace IO {
-        namespace WadLayout {
-            static const unsigned int NumEntriesAddress     = 4;
-            static const unsigned int DirOffsetAddress      = 8;
-            static const unsigned int DirEntryTypeOffset    = 4;
-            static const unsigned int DirEntryNameOffset    = 3;
-            static const unsigned int DirEntryNameLength    = 16;
-            static const unsigned int PalLength             = 256;
-            static const unsigned int TexWidthOffset        = 16;
-        }
-        
         namespace WadEntryType {
-            static const char Status    = 'B';
-            static const char Console   = 'C';
-            static const char Mip       = 'D';
-            static const char Palette   = '@';
+            static const char WEStatus    = 'B';
+            static const char WEConsole   = 'C';
+            static const char WEMip       = 'D';
+            static const char WEPalette   = '@';
         }
         
         class WadEntry {

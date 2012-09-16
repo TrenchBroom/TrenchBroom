@@ -19,6 +19,7 @@
 
 #include "AliasRenderer.h"
 
+#include <GL/glew.h>
 #include "Model/Alias.h"
 #include "Model/Entity.h"
 #include "Model/Palette.h"
@@ -27,7 +28,6 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shader/Shader.h"
 #include "Renderer/Vbo.h"
-#include "Utility/GLee.h"
 
 namespace TrenchBroom {
     namespace Renderer {

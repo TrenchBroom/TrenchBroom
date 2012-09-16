@@ -100,16 +100,16 @@ namespace TrenchBroom {
 
 		namespace Axis {
 			typedef unsigned int Type;
-			static const Type X = 0;
-			static const Type Y = 1;
-			static const Type Z = 2;
+			static const Type AX = 0;
+			static const Type AY = 1;
+			static const Type AZ = 2;
 		}
 
 		namespace PointStatus {
 			typedef unsigned int Type;
-			static const Type Above = 0;
-			static const Type Below = 1;
-			static const Type Inside = 2;
+			static const Type PSAbove = 0;
+			static const Type PSBelow = 1;
+			static const Type PSInside = 2;
 		}
     }
 }

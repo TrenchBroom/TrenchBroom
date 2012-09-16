@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_Vbo_h
 #define TrenchBroom_Vbo_h
 
+#include <GL/glew.h>
 #include "Utility/Color.h"
-#include "Utility/GLee.h"
 #include "Utility/VecMath.h"
 
 #include <cassert>

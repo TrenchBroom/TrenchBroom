@@ -217,27 +217,27 @@ namespace TrenchBroom {
                 float ax = fabsf(x);
                 float ay = fabsf(y);
                 float az = fabsf(z);
-                if (ax >= ay && ax >= az) return Axis::X;
-                if (ay >= ax && ay >= az) return Axis::Y;
-                return Axis::Z;
+                if (ax >= ay && ax >= az) return Axis::AX;
+                if (ay >= ax && ay >= az) return Axis::AY;
+                return Axis::AZ;
             }
             
             inline Axis::Type secondComponent() const {
                 float ax = fabsf(x);
                 float ay = fabsf(y);
                 float az = fabsf(z);
-                if (ax >= ay && ax <= az) return Axis::X;
-                if (ay >= ax && ay <= az) return Axis::Y;
-                return Axis::Z;
+                if (ax >= ay && ax <= az) return Axis::AX;
+                if (ay >= ax && ay <= az) return Axis::AY;
+                return Axis::AZ;
             }
             
             inline Axis::Type thirdComponent() const {
                 float ax = fabsf(x);
                 float ay = fabsf(y);
                 float az = fabsf(z);
-                if (ax <= ay && ax <= az) return Axis::X;
-                if (ay <= ax && ay <= az) return Axis::Y;
-                return Axis::Z;
+                if (ax <= ay && ax <= az) return Axis::AX;
+                if (ay <= ax && ay <= az) return Axis::AY;
+                return Axis::AZ;
             }
             
             inline const Vec3f& firstAxis(bool pos = true) const {
@@ -362,7 +362,7 @@ namespace TrenchBroom {
             
             inline void rotate90(Axis::Type axis, bool clockwise) {
                 switch (axis) {
-                    case Axis::X:
+                    case Axis::AX:
                         if (clockwise) {
                             float t = y;
                             y = z;
@@ -372,7 +372,7 @@ namespace TrenchBroom {
                             y = -z;
                             z = t;
                         }
-                    case Axis::Y:
+                    case Axis::AY:
                         if (clockwise) {
                             float t = x;
                             x = -z;
@@ -403,11 +403,11 @@ namespace TrenchBroom {
             
             inline const Vec3f rotated90(Axis::Type axis, bool clockwise) const {
                 switch (axis) {
-                    case Axis::X:
+                    case Axis::AX:
                         if (clockwise)
                             return Vec3f(x, z, -y);
                         return Vec3f(x, -z, y);
-                    case Axis::Y:
+                    case Axis::AY:
                         if (clockwise)
                             return Vec3f(-z, y, x);
                         return Vec3f(z, y, -x);
@@ -427,9 +427,9 @@ namespace TrenchBroom {
             
             inline void flip(Axis::Type axis) {
                 switch (axis) {
-                    case Axis::X:
+                    case Axis::AX:
                         x = -x;
-                    case Axis::Y:
+                    case Axis::AY:
                         y = -y;
                     default:
                         z = -z;
@@ -444,9 +444,9 @@ namespace TrenchBroom {
             
             inline const Vec3f flipped(Axis::Type axis) const {
                 switch (axis) {
-                    case Axis::X:
+                    case Axis::AX:
                         return Vec3f(-x, y, z);
-                    case Axis::Y:
+                    case Axis::AY:
                         return Vec3f(x, -y, z);
                     default:
                         return Vec3f(x, y, -z);

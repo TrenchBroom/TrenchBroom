@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__MapRenderer__
 #define __TrenchBroom__MapRenderer__
 
+#include <GL/glew.h>
 #include "Model/BrushTypes.h"
 #include "Model/EntityTypes.h"
 #include "Model/Face.h"
@@ -31,7 +32,6 @@
 #include "Renderer/VertexArray.h"
 #include "Renderer/Text/TextRenderer.h"
 #include "Utility/Color.h"
-#include "Utility/GLee.h"
 
 #include <map>
 #include <vector>

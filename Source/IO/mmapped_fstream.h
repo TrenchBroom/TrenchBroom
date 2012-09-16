@@ -101,11 +101,9 @@ public:
 #if defined _WIN32
 #include "mmapped_fstream_win32.h"
 typedef mmapped_fstream_win32 mmapped_fstream;
-#elif defined __APPLE__
+#else
 #include "mmapped_fstream_posix.h"
 typedef mmapped_fstream_posix mmapped_fstream;
-#elif defined __linux__
-
 #endif
 
 #endif

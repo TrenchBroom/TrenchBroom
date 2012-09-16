@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -40,7 +40,7 @@ namespace TrenchBroom {
             }
             return speed;
         }
-        
+
         float CameraTool::panSpeed(bool vertical) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             float speed = prefs.getFloat(Preferences::CameraPanSpeed);
@@ -50,26 +50,26 @@ namespace TrenchBroom {
                 speed *= prefs.getBool(Preferences::CameraPanInvertX) ? 1.0f : -1.0f;
             return speed;
         }
-        
+
         float CameraTool::moveSpeed() {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             return prefs.getFloat(Preferences::CameraMoveSpeed);
         }
-        
+
         bool CameraTool::handleScrolled(InputEvent& event) {
-            if (event.modifierKeys() != ModifierKeys::None)
+            if (event.modifierKeys() != ModifierKeys::MKNone)
                 return false;
-            
+
             CameraMoveEvent cameraEvent;
             cameraEvent.setForward(event.scrollY * moveSpeed() * 5.0f);
             cameraEvent.setRight(event.scrollX * moveSpeed() * 5.0f);
             postEvent(cameraEvent);
             return true;
         }
-        
+
         bool CameraTool::handleBeginDrag(InputEvent& event) {
-            if(event.mouseButtons == MouseButtons::Right) {
-                if (event.modifierKeys() == ModifierKeys::Alt) {
+            if(event.mouseButtons == MouseButtons::MBRight) {
+                if (event.modifierKeys() == ModifierKeys::MKAlt) {
                     Model::Hit* hit = event.pickResult->first(Model::Hit::EntityHit | Model::Hit::FaceHit, true, m_filter);
                     if (hit != NULL)
                         m_orbitCenter = hit->hitPoint();
@@ -77,18 +77,18 @@ namespace TrenchBroom {
                         m_orbitCenter = event.camera->defaultPoint();
                     m_orbit = true;
                     return true;
-                } else if (event.modifierKeys() == ModifierKeys::None) {
+                } else if (event.modifierKeys() == ModifierKeys::MKNone) {
                     return true;
                 }
-            } else if (event.mouseButtons == MouseButtons::Middle && event.modifierKeys() == ModifierKeys::None) {
+            } else if (event.mouseButtons == MouseButtons::MBMiddle && event.modifierKeys() == ModifierKeys::MKNone) {
                 return true;
             }
-            
+
             return false;
         }
-        
+
         bool CameraTool::handleDrag(InputEvent& event) {
-            if (event.mouseButtons == MouseButtons::Right) {
+            if (event.mouseButtons == MouseButtons::MBRight) {
                 if (m_orbit) {
                     CameraOrbitEvent cameraEvent;
                     cameraEvent.setHAngle(event.deltaX * lookSpeed(false));
@@ -101,19 +101,19 @@ namespace TrenchBroom {
                     cameraEvent.setVAngle(event.deltaY * lookSpeed(true));
                     postEvent(cameraEvent);
                 }
-                
+
                 return true;
-            } else if (event.mouseButtons == MouseButtons::Middle && event.modifierKeys() == ModifierKeys::None) {
+            } else if (event.mouseButtons == MouseButtons::MBMiddle && event.modifierKeys() == ModifierKeys::MKNone) {
                 CameraMoveEvent cameraEvent;
                 cameraEvent.setRight(event.deltaX * panSpeed(false));
                 cameraEvent.setUp(event.deltaY * panSpeed(true));
                 postEvent(cameraEvent);
                 return true;
             }
-            
+
             return false;
         }
-        
+
         void CameraTool::handleEndDrag(InputEvent& event) {
             m_orbit = false;
         }

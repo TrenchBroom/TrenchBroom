@@ -20,9 +20,9 @@
 #ifndef TrenchBroom_BspRenderer_h
 #define TrenchBroom_BspRenderer_h
 
+#include <GL/glew.h>
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/TextureVertexArray.h"
-#include "Utility/GLee.h"
 
 #include <map>
 #include <vector>

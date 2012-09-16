@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,29 +31,29 @@ namespace TrenchBroom {
     namespace Model {
         class PickResult;
     }
-    
+
     namespace Renderer {
         class Camera;
     }
-    
+
     namespace Controller {
-        namespace ModifierKeys {
-            static const unsigned int None      = 0;
-            static const unsigned int Shift     = 1 << 0;
-            static const unsigned int CtrlCmd   = 1 << 1; // Cmd on Mac, Ctrl on other systems
-            static const unsigned int Alt       = 1 << 2;
-        }
-        
         typedef unsigned int ModifierKeyState;
-        
-        namespace MouseButtons {
-            static const unsigned int None      = 0;
-            static const unsigned int Left      = 1 << 0;
-            static const unsigned int Right     = 1 << 1;
-            static const unsigned int Middle    = 1 << 2;
+
+        namespace ModifierKeys {
+            static const ModifierKeyState MKNone      = 0;
+            static const ModifierKeyState MKShift     = 1 << 0;
+            static const ModifierKeyState MKCtrlCmd   = 1 << 1; // Cmd on Mac, Ctrl on other systems
+            static const ModifierKeyState MKAlt       = 1 << 2;
         }
-        
+
         typedef unsigned int MouseButtonState;
+
+        namespace MouseButtons {
+            static const MouseButtonState MBNone      = 0;
+            static const MouseButtonState MBLeft      = 1 << 0;
+            static const MouseButtonState MBRight     = 1 << 1;
+            static const MouseButtonState MBMiddle    = 1 << 2;
+        }
 
         class InputEvent {
         public:
@@ -69,30 +69,30 @@ namespace TrenchBroom {
             Renderer::Camera* camera;
 
             InputEvent() :
-            mouseButtons(MouseButtons::None),
+            mouseButtons(MouseButtons::MBNone),
             pickResult(NULL),
             camera(NULL) {}
-			
+
 			~InputEvent() {
 				if (pickResult != NULL) {
 					delete pickResult;
 					pickResult = NULL;
 				}
 			}
-            
-            inline ModifierKeyState modifierKeys() const {
+
+            inline const ModifierKeyState modifierKeys() const {
                 wxMouseState mouseState = wxGetMouseState();
-                
-                ModifierKeyState state = ModifierKeys::None;
+
+                ModifierKeyState state = ModifierKeys::MKNone;
                 if (mouseState.CmdDown())
-                    state |= ModifierKeys::CtrlCmd;
+                    state |= ModifierKeys::MKCtrlCmd;
                 if (mouseState.ShiftDown())
-                    state |= ModifierKeys::Shift;
+                    state |= ModifierKeys::MKShift;
                 if (mouseState.AltDown())
-                    state |= ModifierKeys::Alt;
+                    state |= ModifierKeys::MKAlt;
                 return state;
             }
-            
+
             inline float scroll() const {
                 if (scrollY != 0.0f)
                     return scrollY;
@@ -106,30 +106,30 @@ namespace TrenchBroom {
             MouseButtonState m_mouseButtons;
         public:
             MouseState() :
-            m_modifierKeys(ModifierKeys::None),
-            m_mouseButtons(MouseButtons::None) {}
-            
+            m_modifierKeys(ModifierKeys::MKNone),
+            m_mouseButtons(MouseButtons::MBNone) {}
+
             MouseState(ModifierKeyState modifierKeys, MouseButtonState mouseButtons) :
             m_modifierKeys(modifierKeys),
             m_mouseButtons(mouseButtons) {}
-            
-            inline ModifierKeyState modifierKeys() const {
+
+            inline const ModifierKeyState modifierKeys() const {
                 return m_modifierKeys;
             }
-            
+
             inline void setModifierKeys(ModifierKeyState modifierKeys) {
                 m_modifierKeys = modifierKeys;
             }
-            
-            inline MouseButtonState mouseButtons() const {
+
+            inline const MouseButtonState mouseButtons() const {
                 return m_mouseButtons;
             }
-            
+
             inline void setMouseButtons(MouseButtonState mouseButtons) {
                 m_mouseButtons = mouseButtons;
             }
-            
-            bool matches(InputEvent& event) {
+
+            bool matches(InputEvent& event) const {
                 return m_modifierKeys == event.modifierKeys() && m_mouseButtons == event.mouseButtons;
             }
         };

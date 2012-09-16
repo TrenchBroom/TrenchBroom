@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,6 +20,8 @@
 #include "PathTesselator.h"
 
 #include "Renderer/Text/Path.h"
+
+#include <cstdio>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -29,7 +31,7 @@ namespace TrenchBroom {
 #else
             typedef GLvoid (*GluTessCallbackType)();
 #endif
-            
+
             namespace PathTesselatorCallback {
                 typedef std::vector<Vec2f*> PointList;
                 static PointList tempPoints;
@@ -37,11 +39,11 @@ namespace TrenchBroom {
                 TESS_CALLBACK gluTessBeginData(GLenum type, PathMesh* mesh) {
                     mesh->begin(type);
                 }
-                
+
                 TESS_CALLBACK gluTessVertexData(Vec2f* vertex, PathMesh* mesh) {
                     mesh->append(*vertex);
                 }
-                
+
                 TESS_CALLBACK gluTessCombineData(GLdouble coords[3], void *vertexData[4], GLfloat weight[4], void **outData, PathMesh* mesh) {
                     Vec2f* vertex = new Vec2f();
                     vertex->x = static_cast<float>(coords[0]);
@@ -49,7 +51,7 @@ namespace TrenchBroom {
                     *outData = vertex;
                     tempPoints.push_back(vertex);
                 }
-                
+
                 TESS_CALLBACK gluTessEndData(PathMesh* mesh) {
                     mesh->end();
                 }
@@ -61,10 +63,10 @@ namespace TrenchBroom {
 					fprintf (stderr, "Tessellation Error: %s\n", estring);
 				}
 			}
-            
+
             PathTesselator::PathTesselator() :
             m_gluTess(NULL) {}
-            
+
             PathTesselator::~PathTesselator() {
                 if (m_gluTess != NULL) {
                     gluDeleteTess(m_gluTess);
@@ -77,7 +79,7 @@ namespace TrenchBroom {
                     m_gluTess = gluNewTess();
                     gluTessProperty(m_gluTess, GLU_TESS_BOUNDARY_ONLY, GL_FALSE);
                     gluTessProperty(m_gluTess, GLU_TESS_TOLERANCE, 0);
-                    
+
 					gluTessCallback(m_gluTess, GLU_TESS_BEGIN,			NULL);
 					gluTessCallback(m_gluTess, GLU_TESS_BEGIN_DATA,		reinterpret_cast<GluTessCallbackType>(PathTesselatorCallback::gluTessBeginData));
 					gluTessCallback(m_gluTess, GLU_TESS_VERTEX,			NULL);
@@ -93,11 +95,11 @@ namespace TrenchBroom {
 
                     gluTessNormal(m_gluTess, 0, 0, -1);
                 }
-                
+
                 PathMesh* mesh = new PathMesh();
                 GLdouble coords[3];
                 coords[2] = 0.0;
-                
+
                 const PathPolygons& polygons = path->polygons();
                 for (unsigned int i = 0; i < polygons.size(); i++) {
                     const PathPolygon& polygon = *polygons[i];
@@ -111,7 +113,7 @@ namespace TrenchBroom {
                     const PathContours& contours = polygon.contours();
                     for (unsigned int j = 0; j < contours.size(); j++) {
                         const PathContour& contour = *contours[j];
-                        
+
                         gluTessBeginContour(m_gluTess);
                         const PathPoints& points = contour.points();
                         PathPoints::const_iterator it, end;
@@ -125,13 +127,13 @@ namespace TrenchBroom {
                     }
                     gluTessEndPolygon(m_gluTess);
                 }
-                
+
                 // clean up
                 while (!PathTesselatorCallback::tempPoints.empty()) {
                     delete PathTesselatorCallback::tempPoints.back();
                     PathTesselatorCallback::tempPoints.pop_back();
                 }
-                
+
                 return PathMeshPtr(mesh);
             }
         }

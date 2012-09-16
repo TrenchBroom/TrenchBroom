@@ -27,7 +27,6 @@
 #include "Renderer/RenderContext.h"
 #include "Model/Filter.h"
 #include "Utility/Console.h"
-#include "Utility/GLee.h"
 #include "Utility/Preferences.h"
 #include "Utility/VecMath.h"
 
@@ -36,8 +35,6 @@
 #include <cassert>
 
 using namespace TrenchBroom::Math;
-using namespace TrenchBroom::Controller::ModifierKeys;
-using namespace TrenchBroom::Controller::MouseButtons;
 
 namespace TrenchBroom {
     namespace View {
@@ -77,20 +74,20 @@ namespace TrenchBroom {
             Controller::ModifierKeyState key;
             switch (keyCode) {
                 case WXK_SHIFT:
-                    key = Controller::ModifierKeys::Shift;
+                    key = Controller::ModifierKeys::MKShift;
                     break;
                 case WXK_ALT:
-                    key = Controller::ModifierKeys::Alt;
+                    key = Controller::ModifierKeys::MKAlt;
                     break;
                 case WXK_CONTROL:
-                    key = Controller::ModifierKeys::CtrlCmd;
+                    key = Controller::ModifierKeys::MKCtrlCmd;
                     break;
                 default:
-                    key = Controller::ModifierKeys::None;
+                    key = Controller::ModifierKeys::MKNone;
                     break;
             }
             
-            if (key != Controller::ModifierKeys::None) {
+            if (key != Controller::ModifierKeys::MKNone) {
                 if (down)
                     m_inputController->modifierKeyDown(key);
                 else
@@ -139,10 +136,16 @@ namespace TrenchBroom {
 					const char* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
 					const char* renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
 					const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
-                    view.console().info("Created OpenGL context");
 					view.console().info("Renderer info: %s version %s from %s", renderer, version, vendor);
-				}
+                    
+                    m_glewState = glewInit();
+                    if (m_glewState != GLEW_OK)
+                        view.console().error("Unable to initialize glew: %s", glewGetErrorString(m_glewState));
+                }
             
+                if (m_glewState != GLEW_OK)
+                    return;
+                
 				Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 				const Color& backgroundColor = prefs.getColor(Preferences::BackgroundColor);
 				glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, backgroundColor.w);
@@ -175,35 +178,35 @@ namespace TrenchBroom {
         
         void MapGLCanvas::OnMouseLeftDown(wxMouseEvent& event) {
 			CaptureMouse();
-            m_inputController->mouseDown(Left, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
+            m_inputController->mouseDown(Controller::MouseButtons::MBLeft, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
         }
         
         void MapGLCanvas::OnMouseLeftUp(wxMouseEvent& event) {
 			if (GetCapture() == this)
 				ReleaseMouse();
-            m_inputController->mouseUp(Left, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
+            m_inputController->mouseUp(Controller::MouseButtons::MBLeft, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
         }
         
         void MapGLCanvas::OnMouseRightDown(wxMouseEvent& event) {
 			CaptureMouse();
-            m_inputController->mouseDown(Right, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
+            m_inputController->mouseDown(Controller::MouseButtons::MBRight, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
         }
         
         void MapGLCanvas::OnMouseRightUp(wxMouseEvent& event) {
 			if (GetCapture() == this)
 				ReleaseMouse();
-            m_inputController->mouseUp(Right, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
+            m_inputController->mouseUp(Controller::MouseButtons::MBRight, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
         }
         
         void MapGLCanvas::OnMouseMiddleDown(wxMouseEvent& event) {
 			CaptureMouse();
-            m_inputController->mouseDown(Middle, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
+            m_inputController->mouseDown(Controller::MouseButtons::MBMiddle, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
         }
         
         void MapGLCanvas::OnMouseMiddleUp(wxMouseEvent& event) {
 			if (GetCapture() == this)
 				ReleaseMouse();
-            m_inputController->mouseUp(Middle, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
+            m_inputController->mouseUp(Controller::MouseButtons::MBMiddle, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
         }
         
         void MapGLCanvas::OnMouseMove(wxMouseEvent& event) {

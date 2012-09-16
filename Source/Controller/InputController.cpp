@@ -113,13 +113,13 @@ namespace TrenchBroom {
             updateHits();
             
             bool handled = false;
-            if (m_dragButtons != MouseButtons::None) {
+            if (m_dragButtons != MouseButtons::MBNone) {
                 if (m_dragReceiver != NULL)
                     m_dragReceiver->endDrag(m_currentEvent);
                 if (m_mouseUpReceiver != NULL && m_mouseUpReceiver != m_dragReceiver)
                     m_mouseUpReceiver->mouseUp(m_currentEvent);
                 m_dragReceiver = NULL;
-                m_dragButtons = MouseButtons::None;
+                m_dragButtons = MouseButtons::MBNone;
                 handled = true;
             } else {
                 for (unsigned int i = 0; i < m_receivers.size() && !handled; i++)
@@ -136,7 +136,7 @@ namespace TrenchBroom {
             if (!m_documentViewHolder.valid())
                 return;
             
-            if (m_currentEvent.mouseButtons != MouseButtons::None && m_dragButtons == MouseButtons::None) {
+            if (m_currentEvent.mouseButtons != MouseButtons::MBNone && m_dragButtons == MouseButtons::MBNone) {
                 m_dragButtons = m_currentEvent.mouseButtons;
                 for (unsigned int i = 0; i < m_receivers.size(); i++) {
                     if (m_receivers[i]->beginDrag(m_currentEvent)) {
@@ -149,14 +149,14 @@ namespace TrenchBroom {
             updateMousePos(x, y);
             updateHits();
             
-            if (m_dragButtons != MouseButtons::None && m_dragReceiver != NULL) {
+            if (m_dragButtons != MouseButtons::MBNone && m_dragReceiver != NULL) {
                 if (!m_dragReceiver->drag(m_currentEvent)) {
                     m_dragReceiver = NULL;
                     m_mouseUpReceiver = NULL;
                 }
             }
             
-            if (m_dragButtons == MouseButtons::None || m_dragReceiver == NULL) {
+            if (m_dragButtons == MouseButtons::MBNone || m_dragReceiver == NULL) {
                 for (unsigned int i = 0; i < m_receivers.size(); i++)
                     m_receivers[i]->mouseMoved(m_currentEvent);
             }

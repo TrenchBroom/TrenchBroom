@@ -19,6 +19,7 @@
 
 #include "EntityRendererManager.h"
 
+#include <GL/glew.h>
 #include "Model/Alias.h"
 #include "Model/Bsp.h"
 #include "Model/Entity.h"
@@ -30,7 +31,6 @@
 #include "Renderer/Vbo.h"
 #include "IO/FileManager.h"
 #include "Utility/Console.h"
-#include "Utility/GLee.h"
 #include "Utility/Preferences.h"
 
 #include <cassert>

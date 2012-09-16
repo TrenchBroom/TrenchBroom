@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_PushMatrix_h
 #define TrenchBroom_PushMatrix_h
 
+#include <GL/glew.h>
 #include "Renderer/Transformation.h"
-#include "Utility/GLee.h"
 #include "Utility/VecMath.h"
 
 using namespace TrenchBroom::Math;

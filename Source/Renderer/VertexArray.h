@@ -22,9 +22,9 @@
 
 #include "Renderer/AbstractVertexArray.h"
 
+#include <GL/glew.h>
 #include "Renderer/Vbo.h"
 #include "Renderer/Shader/Shader.h"
-#include "Utility/GLee.h"
 #include "Utility/String.h"
 
 #include <cassert>

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,6 +27,7 @@
 #include "Utility/MessageException.h"
 #include "Utility/VecMath.h"
 
+#include <memory>
 #include <vector>
 
 using namespace TrenchBroom::Math;
@@ -38,12 +39,12 @@ namespace TrenchBroom {
         class Face;
         class Map;
     }
-    
+
     namespace Utility {
         class Console;
         class ProgressIndicator;
     }
-    
+
     namespace IO {
         namespace TokenType {
             static const unsigned int Integer       = 1 << 0; // integer number
@@ -67,36 +68,36 @@ namespace TrenchBroom {
             static const unsigned int Comment   = 5; // currently parsing a comment
             static const unsigned int Eof       = 6; // reached end of file / parsing complete
         };
-        
+
         class MapTokenizer : public AbstractTokenizer {
         public:
             class Token : public AbstractToken<unsigned int, Token> {
             public:
                 Token(unsigned int type, const String& data, size_t position, size_t line, size_t column) : AbstractToken(type, data, position, line, column) {}
             };
-            
+
             typedef std::auto_ptr<Token> TokenPtr;
         protected:
             StringStream m_buffer;
             unsigned int m_state;
             size_t m_startLine;
             size_t m_startColumn;
-            
+
             inline TokenPtr token(unsigned int type, const String& data, size_t line, size_t column) {
                 return TokenPtr(new Token(type, data, m_position, line, column));
             }
-            
+
             inline TokenPtr token(unsigned int type, const String& data) {
                 return token(type, data, m_line, m_column);
             }
         public:
             MapTokenizer(std::istream& stream) : AbstractTokenizer(stream), m_state(TokenizerState::Default) {}
-            
+
             TokenPtr nextToken();
             TokenPtr peekToken();
             void reset();
         };
-        
+
         class MapParserException : public TrenchBroom::Utility::MessageException {
         private:
             String type(unsigned int type) {
@@ -121,12 +122,12 @@ namespace TrenchBroom {
                     names.push_back("closing bracket");
                 if ((type & TokenType::Comment) != 0)
                     names.push_back("comment");
-                
+
                 if (names.empty())
                     return "unknown token type";
                 if (names.size() == 1)
                     return names[0];
-                
+
                 StringStream str;
                 str << names[0];
                 for (unsigned int i = 1; i < names.size() - 1; i++)
@@ -134,7 +135,7 @@ namespace TrenchBroom {
                 str << ", or " << names[names.size() - 1];
                 return str.str();
             }
-            
+
             std::string buildMessage(const MapTokenizer::Token* token, int expectedType) {
                 std::stringstream msgStream;
                 msgStream << "Malformed map file: expected token of type " << type(expectedType) << ", but found " << type(token->type()) << " at line " << token->line() << ", column " << token->column();
@@ -152,23 +153,23 @@ namespace TrenchBroom {
                 Standard,
                 Valve
             };
-            
+
             Utility::Console& m_console;
             typedef std::vector<MapTokenizer::Token*> TokenStack;
-            
+
             size_t m_size;
             MapFormat m_format;
             MapTokenizer m_tokenizer;
             TokenStack m_tokenStack;
-            
+
             inline void expect(int expectedType, MapTokenizer::Token* actualToken) const {
                 if (actualToken == NULL)
                     throw MapParserException();
-                
+
                 if ((actualToken->type() & expectedType) == 0)
                     throw MapParserException(actualToken, expectedType);
             }
-            
+
             inline MapTokenizer::TokenPtr nextToken() {
                 MapTokenizer::TokenPtr token;
                 if (!m_tokenStack.empty()) {
@@ -179,26 +180,26 @@ namespace TrenchBroom {
                     while (token.get() != NULL && token->type() == TokenType::Comment)
                         token = m_tokenizer.nextToken();
                 }
-                
+
                 return token;
             }
-            
+
             inline void pushToken(MapTokenizer::TokenPtr token) {
                 m_tokenStack.push_back(new MapTokenizer::Token(*token.get()));
             }
         public:
             MapParser(std::istream& stream, Utility::Console& console);
-            
+
             void parseMap(Model::Map& map, Utility::ProgressIndicator* indicator);
             Model::Entity* parseEntity(const BBox& worldBounds, Utility::ProgressIndicator* indicator);
             Model::Brush* parseBrush(const BBox& worldBounds, Utility::ProgressIndicator* indicator);
             Model::Face* parseFace(const BBox& worldBounds);
-            
+
             bool parseEntities(const BBox& worldBounds, Model::EntityList& entities);
             bool parseBrushes(const BBox& worldBounds, Model::BrushList& brushes);
             bool parseFaces(const BBox& worldBounds, Model::FaceList& faces);
         };
-        
+
     }
 }
 

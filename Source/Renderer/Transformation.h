@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_Transformation_h
 #define TrenchBroom_Transformation_h
 
+#include <GL/glew.h>
 #include "Renderer/Camera.h"
-#include "Utility/GLee.h"
 #include "Utility/VecMath.h"
 
 #include <cassert>

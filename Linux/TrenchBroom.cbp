@@ -7,6 +7,7 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
+				<Option platforms="Unix;" />
 				<Option output="bin/Debug/TrenchBroom" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="0" />
@@ -17,7 +18,7 @@
 					<Add option="-I$(#WXWIN)/build-debug/lib/wx/include/gtk2-unicode-static-2.9" />
 					<Add option="-I$(#WXWIN)/include" />
 					<Add option="-D_FILE_OFFSET_BITS=64" />
-					<Add option="-D__WXGTK__ -pthread" />
+					<Add option="-D__WXGTK__" />
 				</Compiler>
 				<Linker>
 					<Add option="-L$(#WXWIN)/build-debug/lib" />
@@ -54,6 +55,7 @@
 				</Linker>
 			</Target>
 			<Target title="Release">
+				<Option platforms="Unix;" />
 				<Option output="bin/Release/TrenchBroom" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="0" />
@@ -105,10 +107,15 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
-			<Add option="-DWX_PRECOMP" />
 			<Add directory="../Source" />
 			<Add directory="../Include" />
+			<Add directory="../Linux" />
 		</Compiler>
+		<Linker>
+			<Add library="Lib/libGLEW.a" />
+		</Linker>
+		<Unit filename="LinuxFileManager.cpp" />
+		<Unit filename="LinuxFileManager.h" />
 		<Unit filename="TrenchBroomApp.cpp" />
 		<Unit filename="TrenchBroomApp.h" />
 		<Unit filename="../Source/Controller/CameraEvent.cpp" />
@@ -238,10 +245,6 @@
 		<Unit filename="../Source/Utility/CoordinatePlane.h" />
 		<Unit filename="../Source/Utility/DocManager.cpp" />
 		<Unit filename="../Source/Utility/DocManager.h" />
-		<Unit filename="../Source/Utility/GLee.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="../Source/Utility/GLee.h" />
 		<Unit filename="../Source/Utility/Grid.cpp" />
 		<Unit filename="../Source/Utility/Grid.h" />
 		<Unit filename="../Source/Utility/Line.h" />

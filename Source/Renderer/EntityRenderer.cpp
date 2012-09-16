@@ -19,11 +19,11 @@
 
 #include "EntityRenderer.h"
 
+#include <GL/glew.h>
 #include "Model/Entity.h"
 #include "Renderer/PushMatrix.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/Shader/Shader.h"
-#include "Utility/GLee.h"
 #include "Utility/VecMath.h"
 
 using namespace TrenchBroom::Math;

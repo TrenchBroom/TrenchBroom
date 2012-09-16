@@ -36,7 +36,7 @@ namespace TrenchBroom {
             }
             
             static DragPlane vertical(const Vec3f& vector) {
-                if (vector.firstComponent() != Axis::Z)
+                if (vector.firstComponent() != Axis::AZ)
                     return DragPlane(vector.firstAxis());
                 return DragPlane(vector.secondAxis());
             }

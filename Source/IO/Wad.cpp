@@ -23,9 +23,19 @@
 
 namespace TrenchBroom {
     namespace IO {
+        namespace WadLayout {
+            static const unsigned int NumEntriesAddress     = 4;
+            static const unsigned int DirOffsetAddress      = 8;
+            static const unsigned int DirEntryTypeOffset    = 4;
+            static const unsigned int DirEntryNameOffset    = 3;
+            static const unsigned int DirEntryNameLength    = 16;
+            static const unsigned int PalLength             = 256;
+            static const unsigned int TexWidthOffset        = 16;
+        }
+
         Mip* Wad::loadMip(const WadEntry& entry) const {
 			assert(!m_stream.eof());
-            if (entry.type() != WadEntryType::Mip)
+            if (entry.type() != WadEntryType::WEMip)
                 return NULL;
             
             int32_t width = 0;
@@ -84,7 +94,7 @@ namespace TrenchBroom {
             Mip::List mips;
             for (unsigned int i = 0; i < m_entries.size(); i++) {
                 const WadEntry& entry = m_entries[i];
-                if (entry.type() == WadEntryType::Mip) {
+                if (entry.type() == WadEntryType::WEMip) {
                     Mip* mip = loadMip(entry);
                     if (mip != NULL)
                         mips.push_back(mip);

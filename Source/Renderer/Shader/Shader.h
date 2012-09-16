@@ -20,7 +20,7 @@
 #ifndef __TrenchBroom__Shader__
 #define __TrenchBroom__Shader__
 
-#include "Utility/GLee.h"
+#include <GL/glew.h>
 #include "Utility/String.h"
 #include "Utility/VecMath.h"
 

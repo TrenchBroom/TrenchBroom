@@ -20,8 +20,8 @@
 #ifndef __TrenchBroom__PathTesselator__
 #define __TrenchBroom__PathTesselator__
 
+#include <GL/glew.h>
 #include "Renderer/Text/PathMesh.h"
-#include "Utility/GLee.h"
 #include "Utility/VecMath.h"
 
 #include <vector>

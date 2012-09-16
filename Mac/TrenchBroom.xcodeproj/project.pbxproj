@@ -49,7 +49,6 @@
 		4850D2A915F742CB005B162D /* PathTesselator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2A715F742CA005B162D /* PathTesselator.cpp */; };
 		4850D2AF15F76245005B162D /* StringManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2AD15F76244005B162D /* StringManager.cpp */; };
 		48819C3815EBE97A00BEA604 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3615EBE92800BEA604 /* Camera.cpp */; };
-		48819C3915EBE98100BEA604 /* GLee.c in Sources */ = {isa = PBXBuildFile; fileRef = 4810276815E52F3700250C9C /* GLee.c */; settings = {COMPILER_FLAGS = "-w"; }; };
 		48819C3F15EC0CE700BEA604 /* MacFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3D15EC0CE700BEA604 /* MacFileManager.cpp */; };
 		48819C4415EC107700BEA604 /* quake.def in Resources */ = {isa = PBXBuildFile; fileRef = 48819C4315EC107700BEA604 /* quake.def */; };
 		48819C4615EC108400BEA604 /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48819C4515EC108400BEA604 /* QuakePalette.lmp */; };
@@ -68,6 +67,7 @@
 		48D1BEAE15E3AC060073C030 /* EditorView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEAC15E3AC060073C030 /* EditorView.cpp */; };
 		48D1BEB415E4237B0073C030 /* EditorFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEB215E4237A0073C030 /* EditorFrame.cpp */; };
 		48D1BEB715E423F60073C030 /* TrenchBroomApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEB515E423F60073C030 /* TrenchBroomApp.cpp */; };
+		48DFD4B816061AAE00E554E1 /* glew.c in Sources */ = {isa = PBXBuildFile; fileRef = 48DFD4B416061AAE00E554E1 /* glew.c */; };
 		48E2ECBD15FF8FDF00B8D476 /* Grid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48E2ECBB15FF8FDF00B8D476 /* Grid.cpp */; };
 		48E2ECC615FFC31600B8D476 /* Face.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48E2ECC515FFC31600B8D476 /* Face.fragsh */; };
 		48E2ECC815FFC39D00B8D476 /* ColoredEdge.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48E2ECC715FFC39D00B8D476 /* ColoredEdge.vertsh */; };
@@ -90,8 +90,6 @@
 		48009AFD15F8A4E7001A9993 /* DragPlane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DragPlane.h; sourceTree = "<group>"; };
 		4810276415E4FBF000250C9C /* MapGLCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapGLCanvas.cpp; sourceTree = "<group>"; };
 		4810276515E4FBF000250C9C /* MapGLCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapGLCanvas.h; sourceTree = "<group>"; };
-		4810276815E52F3700250C9C /* GLee.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = GLee.c; sourceTree = "<group>"; };
-		4810276915E52F3700250C9C /* GLee.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GLee.h; sourceTree = "<group>"; };
 		4810276A15E5313F00250C9C /* Inspector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Inspector.cpp; sourceTree = "<group>"; };
 		4810276B15E5313F00250C9C /* Inspector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Inspector.h; sourceTree = "<group>"; };
 		4810276D15E53DD300250C9C /* EntityDefinition.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityDefinition.cpp; sourceTree = "<group>"; };
@@ -260,6 +258,10 @@
 		48D1BEB315E4237B0073C030 /* EditorFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorFrame.h; sourceTree = "<group>"; };
 		48D1BEB515E423F60073C030 /* TrenchBroomApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TrenchBroomApp.cpp; sourceTree = "<group>"; };
 		48D1BEB615E423F60073C030 /* TrenchBroomApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrenchBroomApp.h; sourceTree = "<group>"; };
+		48DFD4B416061AAE00E554E1 /* glew.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glew.c; path = ../Source/GL/glew.c; sourceTree = "<group>"; };
+		48DFD4B516061AAE00E554E1 /* glew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glew.h; path = ../Source/GL/glew.h; sourceTree = "<group>"; };
+		48DFD4B616061AAE00E554E1 /* glxew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glxew.h; path = ../Source/GL/glxew.h; sourceTree = "<group>"; };
+		48DFD4B716061AAE00E554E1 /* wglew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wglew.h; path = ../Source/GL/wglew.h; sourceTree = "<group>"; };
 		48E2EC9815FCD22B00B8D476 /* VertexArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexArray.h; sourceTree = "<group>"; };
 		48E2ECBB15FF8FDF00B8D476 /* Grid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Grid.cpp; sourceTree = "<group>"; };
 		48E2ECBC15FF8FDF00B8D476 /* Grid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Grid.h; sourceTree = "<group>"; };
@@ -367,6 +369,7 @@
 				48AF61F315F8B7360027C465 /* libfreetype.a */,
 				48312B2715EABBD600607868 /* Icon.icns */,
 				48AB57F615ECFB8600321C47 /* Controller */,
+				48DFD4B316061A9C00E554E1 /* GL */,
 				4810277B15E56F9B00250C9C /* IO */,
 				4847640715E2DECB00095BC0 /* Model */,
 				48312B2F15EB800600607868 /* Renderer */,
@@ -514,8 +517,6 @@
 		4847641215E2E0C200095BC0 /* Utility */ = {
 			isa = PBXGroup;
 			children = (
-				4810276815E52F3700250C9C /* GLee.c */,
-				4810276915E52F3700250C9C /* GLee.h */,
 				48D1BEA915E2FC150073C030 /* BBox.h */,
 				48312B4815EBC14F00607868 /* Color.h */,
 				48312B2A15EB706D00607868 /* Console.cpp */,
@@ -593,6 +594,17 @@
 			);
 			name = Controller;
 			path = ../Source/Controller;
+			sourceTree = "<group>";
+		};
+		48DFD4B316061A9C00E554E1 /* GL */ = {
+			isa = PBXGroup;
+			children = (
+				48DFD4B416061AAE00E554E1 /* glew.c */,
+				48DFD4B516061AAE00E554E1 /* glew.h */,
+				48DFD4B616061AAE00E554E1 /* glxew.h */,
+				48DFD4B716061AAE00E554E1 /* wglew.h */,
+			);
+			name = GL;
 			sourceTree = "<group>";
 		};
 		48EA11A515FA7CAD00391885 /* Shader */ = {
@@ -699,7 +711,6 @@
 				4850D24D15F364CD005B162D /* Picker.cpp in Sources */,
 				4850D24A15F363FC005B162D /* Octree.cpp in Sources */,
 				4850D24615F2AC71005B162D /* DocManager.cpp in Sources */,
-				48819C3915EBE98100BEA604 /* GLee.c in Sources */,
 				48819C3815EBE97A00BEA604 /* Camera.cpp in Sources */,
 				4847640B15E2DEE100095BC0 /* MapDocument.cpp in Sources */,
 				4847640E15E2E03000095BC0 /* Entity.cpp in Sources */,
@@ -749,6 +760,7 @@
 				48E2ED17160102E400B8D476 /* ViewInspector.cpp in Sources */,
 				481CDAD816026C48003E2EE9 /* PreferencesDialog.cpp in Sources */,
 				481CDADB16034034003E2EE9 /* Preferences.cpp in Sources */,
+				48DFD4B816061AAE00E554E1 /* glew.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

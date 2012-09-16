@@ -52,9 +52,9 @@ namespace TrenchBroom {
         public:
             static const CoordinatePlane& plane(const Vec3f& normal) {
                 switch (normal.firstComponent()) {
-                    case Axis::X:
+                    case Axis::AX:
                         return plane(YZ);
-                    case Axis::Y:
+                    case Axis::AY:
                         return plane(XZ);
                     default:
                         return plane(XY);

@@ -99,11 +99,11 @@ namespace TrenchBroom {
                 m_texCoords[i].y = (vertex.dot(m_scaledTexAxisY) + m_yOffset) / height;
                 
                 switch (axis) {
-                    case Axis::X:
+                    case Axis::AX:
                         m_gridCoords[i].x = (vertex.y + 0.5f) / 256.0f;
                         m_gridCoords[i].y = (vertex.z + 0.5f) / 256.0f;
                         break;
-                    case Axis::Y:
+                    case Axis::AY:
                         m_gridCoords[i].x = (vertex.x + 0.5f) / 256.0f;
                         m_gridCoords[i].y = (vertex.z + 0.5f) / 256.0f;
                         break;

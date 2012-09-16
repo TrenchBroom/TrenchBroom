@@ -178,7 +178,7 @@ namespace TrenchBroom {
             }
             
             static bool noModifierPressed(InputEvent& event) {
-                return event.modifierKeys() == ModifierKeys::None;
+                return event.modifierKeys() == ModifierKeys::MKNone;
             }
         };
         

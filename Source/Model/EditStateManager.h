@@ -36,11 +36,11 @@ namespace TrenchBroom {
         class EditStateManager {
         public:
             typedef enum {
-                None,
-                Entities,
-                Brushes,
-                EntitiesAndBrushes,
-                Faces
+                SMNone,
+                SMEntities,
+                SMBrushes,
+                SMEntitiesAndBrushes,
+                SMFaces
             } SelectionMode;
 
             class State {
@@ -57,18 +57,18 @@ namespace TrenchBroom {
                     if (!selectedEntities.empty()) {
                         assert(selectedFaces.empty());
                         if (!selectedBrushes.empty())
-                            return EntitiesAndBrushes;
-                        return Entities;
+                            return SMEntitiesAndBrushes;
+                        return SMEntities;
                     }
                     
                     if (!selectedBrushes.empty()) {
                         assert(selectedFaces.empty());
-                        return Brushes;
+                        return SMBrushes;
                     }
                     
                     if (!selectedFaces.empty())
-                        return Faces;
-                    return None;
+                        return SMFaces;
+                    return SMNone;
                 }
                 
                 inline void clear() {

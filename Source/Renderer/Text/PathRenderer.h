@@ -20,12 +20,12 @@
 #ifndef __TrenchBroom__PathRenderer__
 #define __TrenchBroom__PathRenderer__
 
+#include <GL/glew.h>
 #include "Renderer/IndexedVertexArray.h"
 #include "Renderer/RenderTypes.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/Text/Path.h"
 #include "Renderer/Text/PathMesh.h"
-#include "Utility/GLee.h"
 
 #include <vector>
 

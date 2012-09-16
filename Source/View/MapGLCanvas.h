@@ -20,6 +20,8 @@
 #ifndef __TrenchBroom__MapGLCanvas__
 #define __TrenchBroom__MapGLCanvas__
 
+// glew must be included before glcanvas
+#include <GL/glew.h>
 #include <wx/glcanvas.h>
 
 namespace TrenchBroom {
@@ -50,6 +52,7 @@ namespace TrenchBroom {
             
             int* m_attribs;
             bool m_firstFrame;
+            GLenum m_glewState;
             wxGLContext* m_glContext;
             Controller::InputController* m_inputController;
 

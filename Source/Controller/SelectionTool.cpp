@@ -35,7 +35,7 @@ namespace TrenchBroom {
             if (!documentViewHolder().valid())
                 return false;
             
-            if (event.mouseButtons != MouseButtons::Left)
+            if (event.mouseButtons != MouseButtons::MBLeft)
                 return false;
             
             Model::MapDocument& document = documentViewHolder().document();
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             Model::EditStateManager& editStateManager = document.editStateManager();
             
             if (hit != NULL) {
-                bool multi = event.modifierKeys() == ModifierKeys::CtrlCmd;
+                bool multi = event.modifierKeys() == ModifierKeys::MKCtrlCmd;
                 
                 if (hit->type() == Model::Hit::EntityHit) {
                     Model::Entity& entity = hit->entity();
@@ -74,12 +74,12 @@ namespace TrenchBroom {
                             command = ChangeEditStateCommand::select(document, brush);
                     } else {
                         if (multi) {
-                            if (editStateManager.selectionMode() == Model::EditStateManager::Faces)
+                            if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces)
                                 command = ChangeEditStateCommand::select(document, face);
                             else
                                 command = ChangeEditStateCommand::select(document, brush);
                         } else {
-                            if (editStateManager.selectionMode() == Model::EditStateManager::Faces)
+                            if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces)
                                 command = ChangeEditStateCommand::replace(document, face);
                             else
                                 command = ChangeEditStateCommand::replace(document, brush);
@@ -102,15 +102,15 @@ namespace TrenchBroom {
             if (!documentViewHolder().valid())
                 return false;
             
-            if (event.modifierKeys() != ModifierKeys::CtrlCmd &&
-                event.modifierKeys() != (ModifierKeys::CtrlCmd | ModifierKeys::Shift))
+            if (event.modifierKeys() != ModifierKeys::MKCtrlCmd &&
+                event.modifierKeys() != (ModifierKeys::MKCtrlCmd | ModifierKeys::MKShift))
                 return false;
             
             Model::MapDocument& document = documentViewHolder().document();
             View::EditorView& view = documentViewHolder().view();
             
             Model::EditStateManager& editStateManager = document.editStateManager();
-            if (editStateManager.selectionMode() == Model::EditStateManager::Faces)
+            if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces)
                 return false;
             
             Model::HitList hits = event.pickResult->hits(Model::Hit::EntityHit | Model::Hit::FaceHit, view.filter());
@@ -121,7 +121,7 @@ namespace TrenchBroom {
             Model::BrushList brushes = editStateManager.selectedBrushes();
             
             Command* command = NULL;
-            bool appendSelection = event.modifierKeys() == (ModifierKeys::CtrlCmd | ModifierKeys::Shift);
+            bool appendSelection = event.modifierKeys() == (ModifierKeys::MKCtrlCmd | ModifierKeys::MKShift);
             bool foundSelection = false;
             
             for (unsigned int i = 0; i < hits.size() && !foundSelection; i++) {

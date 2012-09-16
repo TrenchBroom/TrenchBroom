@@ -325,20 +325,20 @@ namespace TrenchBroom {
                     event.Enable(false);
                     break;
                 case CommandIds::Menu::EditSelectNone:
-                    event.Enable(editStateManager.selectionMode() != Model::EditStateManager::None);
+                    event.Enable(editStateManager.selectionMode() != Model::EditStateManager::SMNone);
                     break;
                 case CommandIds::Menu::EditHideSelected:
                 case CommandIds::Menu::EditHideUnselected:
-                    event.Enable(editStateManager.selectionMode() != Model::EditStateManager::None &&
-                                 editStateManager.selectionMode() != Model::EditStateManager::Faces);
+                    event.Enable(editStateManager.selectionMode() != Model::EditStateManager::SMNone &&
+                                 editStateManager.selectionMode() != Model::EditStateManager::SMFaces);
                     break;
                 case CommandIds::Menu::EditUnhideAll:
                     event.Enable(editStateManager.hasHiddenObjects());
                     break;
                 case CommandIds::Menu::EditLockSelected:
                 case CommandIds::Menu::EditLockUnselected:
-                    event.Enable(editStateManager.selectionMode() != Model::EditStateManager::None &&
-                                 editStateManager.selectionMode() != Model::EditStateManager::Faces);
+                    event.Enable(editStateManager.selectionMode() != Model::EditStateManager::SMNone &&
+                                 editStateManager.selectionMode() != Model::EditStateManager::SMFaces);
                     break;
                 case CommandIds::Menu::EditUnlockAll:
                     event.Enable(editStateManager.hasLockedObjects());

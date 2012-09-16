@@ -74,10 +74,10 @@ namespace TrenchBroom {
             inline PointStatus::Type pointStatus(const Vec3f& point) const {
                 float dot = normal.dot(point - anchor());
                 if (dot >  Math::PointStatusEpsilon)
-                    return PointStatus::Above;
+                    return PointStatus::PSAbove;
                 if (dot < -Math::PointStatusEpsilon)
-                    return PointStatus::Below;
-                return PointStatus::Inside;
+                    return PointStatus::PSBelow;
+                return PointStatus::PSInside;
             }
             
             inline float x(float y, float z) const {
