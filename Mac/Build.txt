@@ -4,12 +4,12 @@ Build environment
 - Get the latest sources of wxWidgets 2.9 from wxwidgets.org and unpack them.
 - Move the unpacked directory someplace where you want to keep it.
 - Open a terminal and change into the wxwidgets directory.
-- Create two directories: macbuild and macbuild-debug (don't rename those!)
-- Change into wxwidgets/macbuild
+- Create two directories: build-release and build-debug (don't rename those!)
+- Change into wxwidgets/build-release
 - Run 
   ../configure --with-osx_cocoa --disable-shared --with-opengl --enable-universal-binary=i386,x86_64
 - Run make (don't run make install!)
-- Change into wxwidgets/macbuild-debug
+- Change into wxwidgets/build-debug
 - Run 
   ../configure --enable-debug --with-osx_cocoa --disable-shared --with-opengl --enable-universal-binary=i386,x86_64
 - Run make (don't run make install!)
