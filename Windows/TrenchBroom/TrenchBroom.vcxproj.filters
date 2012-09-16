@@ -61,6 +61,12 @@
     <Filter Include="Source Files\Renderer\Shader">
       <UniqueIdentifier>{9b6b4aa9-a475-4886-bab6-8ea4da985151}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\GL">
+      <UniqueIdentifier>{5403e423-d307-48c0-934c-f3212d2ae93d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GL">
+      <UniqueIdentifier>{56bc9316-09da-4571-a21f-c60183e592c1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\Controller\CameraTool.cpp">
@@ -127,9 +133,6 @@
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Utility\Console.cpp">
-      <Filter>Source Files\Utility</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Utility\GLee.c">
       <Filter>Source Files\Utility</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Utility\Mat4f.cpp">
@@ -236,6 +239,12 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\View\PreferencesDialog.cpp">
       <Filter>Source Files\View</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\GL\glew.c">
+      <Filter>Source Files\GL</Filter>
+    </ClCompile>
+    <ClCompile Include="WinCapabilities.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -366,9 +375,6 @@
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Utility\CoordinatePlane.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Utility\GLee.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Utility\Line.h">
@@ -583,6 +589,15 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Renderer\IndexedVertexArray.h">
       <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\GL\Capabilities.h">
+      <Filter>Header Files\GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\GL\wglew.h">
+      <Filter>Header Files\GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\GL\glew.h">
+      <Filter>Header Files\GL</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

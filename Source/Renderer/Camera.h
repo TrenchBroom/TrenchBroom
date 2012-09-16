@@ -117,7 +117,7 @@ namespace TrenchBroom {
                 }
             }
             
-            void update(float x, float y, float width, float height);
+            void update(int x, int y, int width, int height);
             
             const Vec3f defaultPoint() const;
             const Vec3f defaultPoint(const Vec3f& direction) const;

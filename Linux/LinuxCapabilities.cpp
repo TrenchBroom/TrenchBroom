@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace GL {
-        Capabilities glCapabilities() {
+        Capabilities doGlCapabilities() {
             Capabilities capabilities;
 
             Display *dpy = XOpenDisplay(0);

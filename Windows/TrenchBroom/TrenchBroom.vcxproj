@@ -209,6 +209,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Controller\Command.cpp" />
     <ClCompile Include="..\..\Source\Controller\InputController.cpp" />
     <ClCompile Include="..\..\Source\Controller\SelectionTool.cpp" />
+    <ClCompile Include="..\..\Source\GL\glew.c" />
     <ClCompile Include="..\..\Source\IO\AbstractFileManager.cpp" />
     <ClCompile Include="..\..\Source\IO\MapParser.cpp" />
     <ClCompile Include="..\..\Source\IO\Pak.cpp" />
@@ -246,7 +247,6 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Renderer\Vbo.cpp" />
     <ClCompile Include="..\..\Source\Utility\Console.cpp" />
     <ClCompile Include="..\..\Source\Utility\DocManager.cpp" />
-    <ClCompile Include="..\..\Source\Utility\GLee.c" />
     <ClCompile Include="..\..\Source\Utility\Grid.cpp" />
     <ClCompile Include="..\..\Source\Utility\Mat4f.cpp" />
     <ClCompile Include="..\..\Source\Utility\Preferences.cpp" />
@@ -260,6 +260,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\View\ProgressIndicatorDialog.cpp" />
     <ClCompile Include="..\..\Source\View\ViewInspector.cpp" />
     <ClCompile Include="TrenchBroomApp.cpp" />
+    <ClCompile Include="WinCapabilities.cpp" />
     <ClCompile Include="WinFileManager.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -272,6 +273,9 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Controller\InputController.h" />
     <ClInclude Include="..\..\Source\Controller\SelectionTool.h" />
     <ClInclude Include="..\..\Source\Controller\Tool.h" />
+    <ClInclude Include="..\..\Source\GL\Capabilities.h" />
+    <ClInclude Include="..\..\Source\GL\glew.h" />
+    <ClInclude Include="..\..\Source\GL\wglew.h" />
     <ClInclude Include="..\..\Source\IO\AbstractFileManager.h" />
     <ClInclude Include="..\..\Source\IO\AbstractTokenizer.h" />
     <ClInclude Include="..\..\Source\IO\FileManager.h" />
@@ -345,7 +349,6 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Utility\Console.h" />
     <ClInclude Include="..\..\Source\Utility\CoordinatePlane.h" />
     <ClInclude Include="..\..\Source\Utility\DocManager.h" />
-    <ClInclude Include="..\..\Source\Utility\GLee.h" />
     <ClInclude Include="..\..\Source\Utility\Grid.h" />
     <ClInclude Include="..\..\Source\Utility\Line.h" />
     <ClInclude Include="..\..\Source\Utility\List.h" />

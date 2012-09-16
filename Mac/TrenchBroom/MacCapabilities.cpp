@@ -17,7 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Capabilities.h"
+#include "GL/Capabilities.h"
 
 #include <OpenGL/OpenGL.h>
 
@@ -26,7 +26,7 @@
 
 namespace TrenchBroom {
     namespace GL {
-        Capabilities glCapabilities() {
+        Capabilities doGlCapabilities() {
             Capabilities capabilities;
             
             CGLPixelFormatAttribute stop = static_cast<CGLPixelFormatAttribute>(0);

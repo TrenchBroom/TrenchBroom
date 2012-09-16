@@ -148,6 +148,11 @@ namespace TrenchBroom {
 					const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
 					view.console().info("Renderer info: %s version %s from %s", renderer, version, vendor);
 
+                    if (GL::glCapabilities().multisample)
+                        view.console().info("Multisampling enabled");
+                    else
+                        view.console().info("Multisampling disabled");
+                    
                     m_glewState = glewInit();
                     if (m_glewState != GLEW_OK)
                         view.console().error("Unable to initialize glew: %s", glewGetErrorString(m_glewState));

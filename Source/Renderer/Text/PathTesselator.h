@@ -26,14 +26,14 @@
 
 #include <vector>
 
-using namespace TrenchBroom::Math;
-
 #if defined _WIN32
+#include <Windows.h>
 #define TESS_CALLBACK void CALLBACK
 #else
 #define TESS_CALLBACK void
 #endif
 
+using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {

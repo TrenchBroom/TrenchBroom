@@ -34,7 +34,12 @@ namespace TrenchBroom {
             depthBits(16) {}
         };
 
-        Capabilities glCapabilities();
+        Capabilities doGlCapabilities();
+        
+        inline Capabilities glCapabilities() {
+            static Capabilities capabilities = doGlCapabilities();
+            return capabilities;
+        }
     }
 }
 

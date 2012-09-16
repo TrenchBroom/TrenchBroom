@@ -69,7 +69,7 @@ namespace TrenchBroom {
             }
         }
         
-        void Camera::update(float x, float y, float width, float height) {
+        void Camera::update(int x, int y, int width, int height) {
             setViewport(x, y, width, height);
             
             if (!m_valid)
