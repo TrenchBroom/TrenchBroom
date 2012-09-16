@@ -113,13 +113,13 @@
 		</Compiler>
 		<ExtraCommands>
 			<Add after="mkdir -p $(TARGET_OUTPUT_DIR)Resources" />
-			<Add after="cp $(PROJECT_DIR)../Resources/Defs/quake.def $(TARGET_OUTPUT_DIR)Resources/" />
-			<Add after="cp $(PROJECT_DIR)../Resources/Graphics/QuakePalette.lmp $(TARGET_OUTPUT_DIR)Resources/" />
-			<Add after="cp $(PROJECT_DIR)../Resources/Graphics/QuakePalette.lmp $(TARGET_OUTPUT_DIR)Resources/" />
-			<Add after="cp $(PROJECT_DIR)../Source/Renderer/Shader/*.vertsh $(TARGET_OUTPUT_DIR)Resources/" />
-			<Add after="cp $(PROJECT_DIR)../Source/Renderer/Shader/*.fragsh $(TARGET_OUTPUT_DIR)Resources/" />
+			<Add after='cp &quot;$(PROJECT_DIR)../Resources/Defs/&quot;quake.def $(TARGET_OUTPUT_DIR)Resources/' />
+			<Add after='cp &quot;$(PROJECT_DIR)../Resources/Graphics/&quot;QuakePalette.lmp $(TARGET_OUTPUT_DIR)Resources/' />
+			<Add after='cp &quot;$(PROJECT_DIR)../Source/Renderer/Shader/&quot;*.vertsh $(TARGET_OUTPUT_DIR)Resources/' />
+			<Add after='cp &quot;$(PROJECT_DIR)../Source/Renderer/Shader/&quot;*.fragsh $(TARGET_OUTPUT_DIR)Resources/' />
 			<Mode after="always" />
 		</ExtraCommands>
+		<Unit filename="LinuxCapabilities.cpp" />
 		<Unit filename="LinuxFileManager.cpp" />
 		<Unit filename="LinuxFileManager.h" />
 		<Unit filename="TrenchBroomApp.cpp" />
@@ -139,6 +139,7 @@
 		<Unit filename="../Source/Controller/SelectionTool.cpp" />
 		<Unit filename="../Source/Controller/SelectionTool.h" />
 		<Unit filename="../Source/Controller/Tool.h" />
+		<Unit filename="../Source/GL/Capabilities.h" />
 		<Unit filename="../Source/GL/glew.c">
 			<Option compilerVar="CC" />
 		</Unit>

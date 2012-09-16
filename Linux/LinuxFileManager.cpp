@@ -43,7 +43,7 @@ namespace TrenchBroom {
                     return fontPath;
             }
 
-            return fontDirectoryPath + "freefont/FreeSans.ttf";
+            return appendPath(fontDirectoryPath, "freefont/FreeSans.ttf");
         }
     }
 }
