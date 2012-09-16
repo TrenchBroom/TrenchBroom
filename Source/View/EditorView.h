@@ -57,16 +57,16 @@ namespace TrenchBroom {
             Renderer::MapRenderer* m_renderer;
             Utility::Console* m_console;
             
-            void Submit(wxCommand* command);
+            void submit(wxCommand* command);
         public:
             EditorView();
 
             ViewOptions& viewOptions() const;
-            Model::Filter& Filter() const;
-            Model::MapDocument& MapDocument() const;
-            Renderer::Camera& Camera() const;
-            Renderer::MapRenderer& Renderer() const;
-            Utility::Console& Console() const;
+            Model::Filter& filter() const;
+            Model::MapDocument& mapDocument() const;
+            Renderer::Camera& camera() const;
+            Renderer::MapRenderer& renderer() const;
+            Utility::Console& console() const;
             
             bool OnCreate(wxDocument* doc, long flags);
             void OnUpdate(wxView* sender, wxObject* hint = (wxObject*) NULL);

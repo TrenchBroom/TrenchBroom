@@ -73,7 +73,7 @@ namespace TrenchBroom {
         public:
             CameraTool(View::DocumentViewHolder& documentViewHolder) :
             Tool(documentViewHolder),
-            m_filter(documentViewHolder.view().Filter()),
+            m_filter(documentViewHolder.view().filter()),
             m_orbit(false) {}
             
             bool handleScrolled(InputEvent& event);

@@ -51,15 +51,15 @@ namespace TrenchBroom {
         public:
             EditorFrame(Model::MapDocument& document, EditorView& view);
             
-            inline MapGLCanvas& MapCanvas() const {
+            inline MapGLCanvas& mapCanvas() const {
                 return *m_mapCanvas;
             }
             
-            inline wxTextCtrl* LogView() const {
+            inline wxTextCtrl* logView() const {
                 return m_logView;
             }
             
-            void DisableProcessing();
+            void disableProcessing();
             
             void OnClose(wxCloseEvent& event);
         

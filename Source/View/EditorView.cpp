@@ -61,6 +61,10 @@ namespace TrenchBroom {
 
         IMPLEMENT_DYNAMIC_CLASS(EditorView, wxView);
         
+        void EditorView::submit(wxCommand* command) {
+            mapDocument().GetCommandProcessor()->Submit(command);
+        }
+        
         EditorView::EditorView() :
         wxView(),
         m_camera(NULL),
@@ -72,30 +76,26 @@ namespace TrenchBroom {
             return *m_viewOptions;
         }
 
-        Model::Filter& EditorView::Filter() const {
+        Model::Filter& EditorView::filter() const {
             return *m_filter;
         }
         
-        Model::MapDocument& EditorView::MapDocument() const {
+        Model::MapDocument& EditorView::mapDocument() const {
             return *static_cast<Model::MapDocument*>(GetDocument());
         }
 
-        Renderer::Camera& EditorView::Camera() const {
+        Renderer::Camera& EditorView::camera() const {
             return *m_camera;
         }
         
-        Renderer::MapRenderer& EditorView::Renderer() const {
+        Renderer::MapRenderer& EditorView::renderer() const {
             return *m_renderer;
         }
         
-        Utility::Console& EditorView::Console() const {
+        Utility::Console& EditorView::console() const {
             return *m_console;
         }
         
-        void EditorView::Submit(wxCommand* command) {
-            MapDocument().GetCommandProcessor()->Submit(command);
-        }
-
         bool EditorView::OnCreate(wxDocument* doc, long flags) {
             m_console = new Utility::Console();
             m_viewOptions = new ViewOptions();
@@ -114,7 +114,7 @@ namespace TrenchBroom {
             m_renderer = new Renderer::MapRenderer(document);
             
             EditorFrame* frame = new EditorFrame(document, *this);
-            m_console->setTextCtrl(frame->LogView());
+            m_console->setTextCtrl(frame->logView());
 
             SetFrame(frame);
             frame->Show();
@@ -157,7 +157,7 @@ namespace TrenchBroom {
 
             EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
             if (frame != NULL)
-                frame->MapCanvas().Refresh();
+                frame->mapCanvas().Refresh();
         }
         
         void EditorView::OnDraw(wxDC* dc) {
@@ -171,7 +171,7 @@ namespace TrenchBroom {
                 EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
                 if (frame != NULL) {
 					frame->Disable();
-                    frame->DisableProcessing();
+                    frame->disableProcessing();
                     frame->Destroy(); // don't call close because that method will try to destroy the document again
 				}
             }
@@ -211,7 +211,7 @@ namespace TrenchBroom {
         }
         
         void EditorView::OnEditSelectAll(wxCommandEvent& event) {
-            const Model::EntityList& entities = MapDocument().Map().entities();
+            const Model::EntityList& entities = mapDocument().Map().entities();
             Model::EntityList selectEntities;
             Model::BrushList selectBrushes;
             
@@ -229,26 +229,26 @@ namespace TrenchBroom {
                 }
             }
     
-            wxCommand* command = Controller::ChangeEditStateCommand::replace(MapDocument(), selectEntities, selectBrushes);
-            Submit(command);
+            wxCommand* command = Controller::ChangeEditStateCommand::replace(mapDocument(), selectEntities, selectBrushes);
+            submit(command);
         }
 
         void EditorView::OnEditSelectNone(wxCommandEvent& event) {
-            wxCommand* command = Controller::ChangeEditStateCommand::deselectAll(MapDocument());
-            Submit(command);
+            wxCommand* command = Controller::ChangeEditStateCommand::deselectAll(mapDocument());
+            submit(command);
         }
         
         void EditorView::OnEditHideSelected(wxCommandEvent& event) {
-            Model::EditStateManager& editStateManager = MapDocument().EditStateManager();
+            Model::EditStateManager& editStateManager = mapDocument().EditStateManager();
             const Model::EntityList& hideEntities = editStateManager.selectedEntities();
             const Model::BrushList& hideBrushes = editStateManager.selectedBrushes();
             
-            wxCommand* command = Controller::ChangeEditStateCommand::hide(MapDocument(), hideEntities, hideBrushes);
-            Submit(command);
+            wxCommand* command = Controller::ChangeEditStateCommand::hide(mapDocument(), hideEntities, hideBrushes);
+            submit(command);
         }
         
         void EditorView::OnEditHideUnselected(wxCommandEvent& event) {
-            const Model::EntityList& entities = MapDocument().Map().entities();
+            const Model::EntityList& entities = mapDocument().Map().entities();
             Model::EntityList hideEntities;
             Model::BrushList hideBrushes;
             
@@ -266,26 +266,26 @@ namespace TrenchBroom {
                 }
             }
             
-            wxCommand* command = Controller::ChangeEditStateCommand::hide(MapDocument(), hideEntities, hideBrushes);
-            Submit(command);
+            wxCommand* command = Controller::ChangeEditStateCommand::hide(mapDocument(), hideEntities, hideBrushes);
+            submit(command);
         }
         
         void EditorView::OnEditUnhideAll(wxCommandEvent& event) {
-            wxCommand* command = Controller::ChangeEditStateCommand::unhideAll(MapDocument());
-            Submit(command);
+            wxCommand* command = Controller::ChangeEditStateCommand::unhideAll(mapDocument());
+            submit(command);
         }
         
         void EditorView::OnEditLockSelected(wxCommandEvent& event) {
-            Model::EditStateManager& editStateManager = MapDocument().EditStateManager();
+            Model::EditStateManager& editStateManager = mapDocument().EditStateManager();
             const Model::EntityList& lockEntities = editStateManager.selectedEntities();
             const Model::BrushList& lockBrushes = editStateManager.selectedBrushes();
             
-            wxCommand* command = Controller::ChangeEditStateCommand::lock(MapDocument(), lockEntities, lockBrushes);
-            Submit(command);
+            wxCommand* command = Controller::ChangeEditStateCommand::lock(mapDocument(), lockEntities, lockBrushes);
+            submit(command);
         }
         
         void EditorView::OnEditLockUnselected(wxCommandEvent& event) {
-            const Model::EntityList& entities = MapDocument().Map().entities();
+            const Model::EntityList& entities = mapDocument().Map().entities();
             Model::EntityList lockEntities;
             Model::BrushList lockBrushes;
             
@@ -303,17 +303,17 @@ namespace TrenchBroom {
                 }
             }
             
-            wxCommand* command = Controller::ChangeEditStateCommand::lock(MapDocument(), lockEntities, lockBrushes);
-            Submit(command);
+            wxCommand* command = Controller::ChangeEditStateCommand::lock(mapDocument(), lockEntities, lockBrushes);
+            submit(command);
         }
         
         void EditorView::OnEditUnlockAll(wxCommandEvent& event) {
-            wxCommand* command = Controller::ChangeEditStateCommand::unlockAll(MapDocument());
-            Submit(command);
+            wxCommand* command = Controller::ChangeEditStateCommand::unlockAll(mapDocument());
+            submit(command);
         }
 
         void EditorView::OnUpdateMenuItem(wxUpdateUIEvent& event) {
-            Model::EditStateManager& editStateManager = MapDocument().EditStateManager();
+            Model::EditStateManager& editStateManager = mapDocument().EditStateManager();
             switch (event.GetId()) {
                 case CommandIds::Menu::EditSelectAll:
                     event.Enable(true);

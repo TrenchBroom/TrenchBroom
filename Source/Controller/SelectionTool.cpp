@@ -41,7 +41,7 @@ namespace TrenchBroom {
             Model::MapDocument& document = documentViewHolder().document();
             View::EditorView& view = documentViewHolder().view();
             
-            Model::Hit* hit = event.pickResult->first(Model::Hit::EntityHit | Model::Hit::FaceHit, false, view.Filter());
+            Model::Hit* hit = event.pickResult->first(Model::Hit::EntityHit | Model::Hit::FaceHit, false, view.filter());
             Command* command = NULL;
             Model::EditStateManager& editStateManager = document.EditStateManager();
             
@@ -113,7 +113,7 @@ namespace TrenchBroom {
             if (editStateManager.selectionMode() == Model::EditStateManager::Faces)
                 return false;
             
-            Model::HitList hits = event.pickResult->hits(Model::Hit::EntityHit | Model::Hit::FaceHit, view.Filter());
+            Model::HitList hits = event.pickResult->hits(Model::Hit::EntityHit | Model::Hit::FaceHit, view.filter());
             if (hits.empty())
                 return false;
             

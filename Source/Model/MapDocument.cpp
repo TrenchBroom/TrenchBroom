@@ -274,7 +274,7 @@ namespace TrenchBroom {
         Utility::Console& MapDocument::Console() const {
             View::EditorView* editorView = dynamic_cast<View::EditorView*>(GetFirstView());
             assert(editorView != NULL);
-            return editorView->Console();
+            return editorView->console();
         }
 
         const StringList& MapDocument::Mods() const {

@@ -80,7 +80,7 @@ namespace TrenchBroom {
             SetMenuBar(menuBar);
         }
 
-        void EditorFrame::DisableProcessing() {
+        void EditorFrame::disableProcessing() {
             m_documentViewHolder.invalidate();
         }
 

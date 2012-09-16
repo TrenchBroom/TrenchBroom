@@ -36,7 +36,7 @@ namespace TrenchBroom {
             if (!m_documentViewHolder.valid())
                 return;
             
-            Renderer::Camera& camera = m_documentViewHolder.view().Camera();
+            Renderer::Camera& camera = m_documentViewHolder.view().camera();
             Model::Picker& picker = m_documentViewHolder.document().Picker();
             
             m_currentEvent.camera = &camera;

@@ -139,8 +139,8 @@ namespace TrenchBroom {
 					const char* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
 					const char* renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
 					const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
-                    view.Console().info("Created OpenGL context");
-					view.Console().info("Renderer info: %s version %s from %s", renderer, version, vendor);
+                    view.console().info("Created OpenGL context");
+					view.console().info("Renderer info: %s version %s from %s", renderer, version, vendor);
 				}
             
 				Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
@@ -154,14 +154,14 @@ namespace TrenchBroom {
 				glBindTexture(GL_TEXTURE_2D, 0);
 				glDisable(GL_TEXTURE_2D);
             
-				view.Camera().update(0.0f, 0.0f, GetSize().x, GetSize().y);
+				view.camera().update(0.0f, 0.0f, GetSize().x, GetSize().y);
             
-				Renderer::RenderContext renderContext(view.Camera(), view.Filter(), view.viewOptions());
-				view.Renderer().render(renderContext);
+				Renderer::RenderContext renderContext(view.camera(), view.filter(), view.viewOptions());
+				view.renderer().render(renderContext);
             
 				SwapBuffers();
 			} else {
-				view.Console().error("Unable to set current OpenGL context");
+				view.console().error("Unable to set current OpenGL context");
 			}
         }
         
