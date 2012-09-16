@@ -211,7 +211,7 @@ namespace TrenchBroom {
         }
         
         void EditorView::OnEditSelectAll(wxCommandEvent& event) {
-            const Model::EntityList& entities = mapDocument().Map().entities();
+            const Model::EntityList& entities = mapDocument().map().entities();
             Model::EntityList selectEntities;
             Model::BrushList selectBrushes;
             
@@ -239,7 +239,7 @@ namespace TrenchBroom {
         }
         
         void EditorView::OnEditHideSelected(wxCommandEvent& event) {
-            Model::EditStateManager& editStateManager = mapDocument().EditStateManager();
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             const Model::EntityList& hideEntities = editStateManager.selectedEntities();
             const Model::BrushList& hideBrushes = editStateManager.selectedBrushes();
             
@@ -248,7 +248,7 @@ namespace TrenchBroom {
         }
         
         void EditorView::OnEditHideUnselected(wxCommandEvent& event) {
-            const Model::EntityList& entities = mapDocument().Map().entities();
+            const Model::EntityList& entities = mapDocument().map().entities();
             Model::EntityList hideEntities;
             Model::BrushList hideBrushes;
             
@@ -276,7 +276,7 @@ namespace TrenchBroom {
         }
         
         void EditorView::OnEditLockSelected(wxCommandEvent& event) {
-            Model::EditStateManager& editStateManager = mapDocument().EditStateManager();
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             const Model::EntityList& lockEntities = editStateManager.selectedEntities();
             const Model::BrushList& lockBrushes = editStateManager.selectedBrushes();
             
@@ -285,7 +285,7 @@ namespace TrenchBroom {
         }
         
         void EditorView::OnEditLockUnselected(wxCommandEvent& event) {
-            const Model::EntityList& entities = mapDocument().Map().entities();
+            const Model::EntityList& entities = mapDocument().map().entities();
             Model::EntityList lockEntities;
             Model::BrushList lockBrushes;
             
@@ -313,7 +313,7 @@ namespace TrenchBroom {
         }
 
         void EditorView::OnUpdateMenuItem(wxUpdateUIEvent& event) {
-            Model::EditStateManager& editStateManager = mapDocument().EditStateManager();
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             switch (event.GetId()) {
                 case CommandIds::Menu::EditSelectAll:
                     event.Enable(true);

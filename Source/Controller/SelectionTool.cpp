@@ -43,7 +43,7 @@ namespace TrenchBroom {
             
             Model::Hit* hit = event.pickResult->first(Model::Hit::EntityHit | Model::Hit::FaceHit, false, view.filter());
             Command* command = NULL;
-            Model::EditStateManager& editStateManager = document.EditStateManager();
+            Model::EditStateManager& editStateManager = document.editStateManager();
             
             if (hit != NULL) {
                 bool multi = event.modifierKeys() == ModifierKeys::CtrlCmd;
@@ -109,7 +109,7 @@ namespace TrenchBroom {
             Model::MapDocument& document = documentViewHolder().document();
             View::EditorView& view = documentViewHolder().view();
             
-            Model::EditStateManager& editStateManager = document.EditStateManager();
+            Model::EditStateManager& editStateManager = document.editStateManager();
             if (editStateManager.selectionMode() == Model::EditStateManager::Faces)
                 return false;
             

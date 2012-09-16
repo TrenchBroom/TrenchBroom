@@ -59,15 +59,15 @@ namespace TrenchBroom {
             virtual bool DoOpenDocument(const wxString& file);
             virtual bool DoSaveDocument(const wxString& file);
             
-            void UpdateFaceTextures();
-            void UpdateEntityDefinitions();
-            void Clear();
+            void updateFaceTextures();
+            void updateEntityDefinitions();
+            void clear();
 
-            void LoadPalette();
-            void LoadMap(std::istream& stream, Utility::ProgressIndicator& progressIndicator);
-            void LoadTextureWad(const String& path);
-            void LoadTextures(Utility::ProgressIndicator& progressIndicator);
-            void LoadEntityDefinitions(Utility::ProgressIndicator& progressIndicator);
+            void loadPalette();
+            void loadMap(std::istream& stream, Utility::ProgressIndicator& progressIndicator);
+            void loadTextureWad(const String& path);
+            void loadTextures(Utility::ProgressIndicator& progressIndicator);
+            void loadEntityDefinitions(Utility::ProgressIndicator& progressIndicator);
         public:
             MapDocument();
             virtual ~MapDocument();
@@ -75,13 +75,13 @@ namespace TrenchBroom {
             std::istream& LoadObject(std::istream& stream);
             std::ostream& SaveObject(std::ostream& stream);
             
-            Map& Map() const;
-            EditStateManager& EditStateManager() const;
-            Picker& Picker() const;
-            Utility::Grid& Grid() const;
-            Utility::Console& Console() const;
-            const StringList& Mods() const;
-            const Palette& Palette() const;
+            Map& map() const;
+            EditStateManager& editStateManager() const;
+            Picker& picker() const;
+            Utility::Grid& grid() const;
+            Utility::Console& console() const;
+            const StringList& mods() const;
+            const Palette& palette() const;
             
             bool OnCreate(const wxString& path, long flags);
 			bool OnNewDocument();

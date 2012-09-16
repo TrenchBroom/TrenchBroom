@@ -37,7 +37,7 @@ namespace TrenchBroom {
                 return;
             
             Renderer::Camera& camera = m_documentViewHolder.view().camera();
-            Model::Picker& picker = m_documentViewHolder.document().Picker();
+            Model::Picker& picker = m_documentViewHolder.document().picker();
             
             m_currentEvent.camera = &camera;
             m_currentEvent.ray = camera.pickRay(m_currentEvent.mouseX, m_currentEvent.mouseY);

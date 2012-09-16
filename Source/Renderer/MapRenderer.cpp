@@ -192,7 +192,7 @@ namespace TrenchBroom {
             unsigned int totalLockedEdgeVertexCount = 0;
             
             // collect all visible faces and brushes
-            const Model::EntityList& entities = m_document.Map().entities();
+            const Model::EntityList& entities = m_document.map().entities();
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
                 const Model::BrushList& brushes = entity->brushes();
@@ -339,7 +339,7 @@ namespace TrenchBroom {
             Model::EntityList allEntities;
             Model::EntityList allSelectedEntities;
             Model::EntityList allLockedEntities;
-            const Model::EntityList entities = m_document.Map().entities();
+            const Model::EntityList entities = m_document.map().entities();
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
                 if (context.filter().entityVisible(*entity)) {
@@ -382,7 +382,7 @@ namespace TrenchBroom {
         }
         
         bool MapRenderer::reloadEntityModel(const Model::Entity& entity, CachedEntityRenderer& cachedRenderer) {
-            EntityRenderer* renderer = m_entityRendererManager->entityRenderer(entity, m_document.Mods());
+            EntityRenderer* renderer = m_entityRendererManager->entityRenderer(entity, m_document.mods());
             if (renderer != NULL) {
                 cachedRenderer = CachedEntityRenderer(renderer, *entity.classname());
                 return true;
@@ -405,10 +405,10 @@ namespace TrenchBroom {
             m_entityRenderers.clear();
             m_selectedEntityRenderers.clear();
             
-            const Model::EntityList& entities = m_document.Map().entities();
+            const Model::EntityList& entities = m_document.map().entities();
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
-                EntityRenderer* renderer = m_entityRendererManager->entityRenderer(*entity, m_document.Mods());
+                EntityRenderer* renderer = m_entityRendererManager->entityRenderer(*entity, m_document.mods());
                 if (renderer != NULL) {
                     if (entity->selected())
                         m_selectedEntityRenderers[entity] = CachedEntityRenderer(renderer, *entity->classname());
@@ -434,43 +434,43 @@ namespace TrenchBroom {
             IO::FileManager fileManager;
             String resourceDirectory = fileManager.resourceDirectory();
             
-            m_coloredEdgeVertexShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "ColoredEdge.vertsh"), GL_VERTEX_SHADER, m_document.Console()));
-            m_edgeVertexShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "Edge.vertsh"), GL_VERTEX_SHADER, m_document.Console()));
-            m_edgeFragmentShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "Edge.fragsh"), GL_FRAGMENT_SHADER, m_document.Console()));
+            m_coloredEdgeVertexShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "ColoredEdge.vertsh"), GL_VERTEX_SHADER, m_document.console()));
+            m_edgeVertexShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "Edge.vertsh"), GL_VERTEX_SHADER, m_document.console()));
+            m_edgeFragmentShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "Edge.fragsh"), GL_FRAGMENT_SHADER, m_document.console()));
 
-            m_faceVertexShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "Face.vertsh"), GL_VERTEX_SHADER, m_document.Console()));
-            m_faceFragmentShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "Face.fragsh"), GL_FRAGMENT_SHADER, m_document.Console()));
+            m_faceVertexShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "Face.vertsh"), GL_VERTEX_SHADER, m_document.console()));
+            m_faceFragmentShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "Face.fragsh"), GL_FRAGMENT_SHADER, m_document.console()));
 
-            m_entityModelVertexShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "EntityModel.vertsh"), GL_VERTEX_SHADER, m_document.Console()));
-            m_entityModelFragmentShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "EntityModel.fragsh"), GL_FRAGMENT_SHADER, m_document.Console()));
+            m_entityModelVertexShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "EntityModel.vertsh"), GL_VERTEX_SHADER, m_document.console()));
+            m_entityModelFragmentShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "EntityModel.fragsh"), GL_FRAGMENT_SHADER, m_document.console()));
             
-            m_textVertexShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "Text.vertsh"), GL_VERTEX_SHADER, m_document.Console()));
-            m_textFragmentShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "Text.fragsh"), GL_FRAGMENT_SHADER, m_document.Console()));
+            m_textVertexShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "Text.vertsh"), GL_VERTEX_SHADER, m_document.console()));
+            m_textFragmentShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "Text.fragsh"), GL_FRAGMENT_SHADER, m_document.console()));
             
-            m_textBackgroundVertexShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "TextBackground.vertsh"), GL_VERTEX_SHADER, m_document.Console()));
-            m_textBackgroundFragmentShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "TextBackground.fragsh"), GL_FRAGMENT_SHADER, m_document.Console()));
+            m_textBackgroundVertexShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "TextBackground.vertsh"), GL_VERTEX_SHADER, m_document.console()));
+            m_textBackgroundFragmentShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "TextBackground.fragsh"), GL_FRAGMENT_SHADER, m_document.console()));
 
-            m_edgeProgram = ShaderProgramPtr(new ShaderProgram("constant colored edge shader program", m_document.Console()));
+            m_edgeProgram = ShaderProgramPtr(new ShaderProgram("constant colored edge shader program", m_document.console()));
             m_edgeProgram->attachShader(*m_edgeVertexShader);
             m_edgeProgram->attachShader(*m_edgeFragmentShader);
             
-            m_coloredEdgeProgram = ShaderProgramPtr(new ShaderProgram("colored edge shader program", m_document.Console()));
+            m_coloredEdgeProgram = ShaderProgramPtr(new ShaderProgram("colored edge shader program", m_document.console()));
             m_coloredEdgeProgram->attachShader(*m_coloredEdgeVertexShader);
             m_coloredEdgeProgram->attachShader(*m_edgeFragmentShader);
             
-            m_faceProgram = ShaderProgramPtr(new ShaderProgram("face shader program", m_document.Console()));
+            m_faceProgram = ShaderProgramPtr(new ShaderProgram("face shader program", m_document.console()));
             m_faceProgram->attachShader(*m_faceVertexShader);
             m_faceProgram->attachShader(*m_faceFragmentShader);
             
-            m_entityModelProgram = ShaderProgramPtr(new ShaderProgram("entity model shader program", m_document.Console()));
+            m_entityModelProgram = ShaderProgramPtr(new ShaderProgram("entity model shader program", m_document.console()));
             m_entityModelProgram->attachShader(*m_entityModelVertexShader);
             m_entityModelProgram->attachShader(*m_entityModelFragmentShader);
             
-            m_textProgram = ShaderProgramPtr(new ShaderProgram("text shader program", m_document.Console()));
+            m_textProgram = ShaderProgramPtr(new ShaderProgram("text shader program", m_document.console()));
             m_textProgram->attachShader(*m_textVertexShader);
             m_textProgram->attachShader(*m_textFragmentShader);
             
-            m_textBackgroundProgram = ShaderProgramPtr(new ShaderProgram("text background shader program", m_document.Console()));
+            m_textBackgroundProgram = ShaderProgramPtr(new ShaderProgram("text background shader program", m_document.console()));
             m_textBackgroundProgram->attachShader(*m_textBackgroundVertexShader);
             m_textBackgroundProgram->attachShader(*m_textBackgroundFragmentShader);
             
@@ -491,7 +491,7 @@ namespace TrenchBroom {
                 return;
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            Utility::Grid& grid = m_document.Grid();
+            Utility::Grid& grid = m_document.grid();
             
             m_faceVbo->activate();
             if (m_faceProgram->activate()) {
@@ -698,10 +698,10 @@ namespace TrenchBroom {
 
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
-            m_entityRendererManager = EntityRendererManagerPtr(new EntityRendererManager(document.Palette(), document.Console()));
+            m_entityRendererManager = EntityRendererManagerPtr(new EntityRendererManager(document.palette(), document.console()));
             m_entityRendererCacheValid = true;
             
-            m_stringManager = StringManagerPtr(new Text::StringManager(document.Console()));
+            m_stringManager = StringManagerPtr(new Text::StringManager(document.console()));
             
             float infoOverlayFadeDistance = prefs.getFloat(Preferences::InfoOverlayFadeDistance);
             float selectedInfoOverlayFadeDistance = prefs.getFloat(Preferences::SelectedInfoOverlayFadeDistance);
@@ -724,7 +724,7 @@ namespace TrenchBroom {
              
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
-                EntityRenderer* renderer = m_entityRendererManager->entityRenderer(*entity, m_document.Mods());
+                EntityRenderer* renderer = m_entityRendererManager->entityRenderer(*entity, m_document.mods());
                 if (renderer != NULL)
                     m_entityRenderers[entity] = CachedEntityRenderer(renderer, *entity->classname());
                 
@@ -826,7 +826,7 @@ namespace TrenchBroom {
 
         void MapRenderer::loadMap() {
             clearMap();
-            addEntities(m_document.Map().entities());
+            addEntities(m_document.map().entities());
         }
         
         void MapRenderer::clearMap() {

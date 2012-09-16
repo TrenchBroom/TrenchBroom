@@ -207,22 +207,22 @@ namespace TrenchBroom {
         bool ChangeEditStateCommand::Do() {
             if (m_affectAll) {
                 if (m_state == Model::EditState::Selected)
-                    m_changeSet = document().EditStateManager().deselectAll();
+                    m_changeSet = document().editStateManager().deselectAll();
                 else if (m_state == Model::EditState::Hidden)
-                    m_changeSet = document().EditStateManager().unhideAll();
+                    m_changeSet = document().editStateManager().unhideAll();
                 else if (m_state == Model::EditState::Locked)
-                    m_changeSet = document().EditStateManager().unlockAll();
+                    m_changeSet = document().editStateManager().unlockAll();
             } else {
                 if (!m_faces.empty()) {
-                    m_changeSet = document().EditStateManager().setSelected(m_faces, m_state == Model::EditState::Selected, m_replace);
+                    m_changeSet = document().editStateManager().setSelected(m_faces, m_state == Model::EditState::Selected, m_replace);
                 } else {
                     if (!m_entities.empty()) {
                         if (!m_brushes.empty())
-                            m_changeSet = document().EditStateManager().setEditState(m_entities, m_brushes, m_state, m_replace);
+                            m_changeSet = document().editStateManager().setEditState(m_entities, m_brushes, m_state, m_replace);
                         else
-                            m_changeSet = document().EditStateManager().setEditState(m_entities, m_state, m_replace);
+                            m_changeSet = document().editStateManager().setEditState(m_entities, m_state, m_replace);
                     } else if (!m_brushes.empty()) {
-                        m_changeSet = document().EditStateManager().setEditState(m_brushes, m_state, m_replace);
+                        m_changeSet = document().editStateManager().setEditState(m_brushes, m_state, m_replace);
                     }
                 }
             }
