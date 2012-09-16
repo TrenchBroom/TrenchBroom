@@ -111,9 +111,6 @@
 			<Add directory="../Include" />
 			<Add directory="../Linux" />
 		</Compiler>
-		<Linker>
-			<Add library="Lib/libGLEW.a" />
-		</Linker>
 		<Unit filename="LinuxFileManager.cpp" />
 		<Unit filename="LinuxFileManager.h" />
 		<Unit filename="TrenchBroomApp.cpp" />
@@ -133,6 +130,12 @@
 		<Unit filename="../Source/Controller/SelectionTool.cpp" />
 		<Unit filename="../Source/Controller/SelectionTool.h" />
 		<Unit filename="../Source/Controller/Tool.h" />
+		<Unit filename="../Source/GL/glew.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../Source/GL/glew.h" />
+		<Unit filename="../Source/GL/glxew.h" />
+		<Unit filename="../Source/GL/wglew.h" />
 		<Unit filename="../Source/IO/AbstractFileManager.cpp" />
 		<Unit filename="../Source/IO/AbstractFileManager.h" />
 		<Unit filename="../Source/IO/AbstractTokenizer.h" />
