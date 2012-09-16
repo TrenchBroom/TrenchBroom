@@ -25,6 +25,7 @@ Thumbs.db
 /Linux/bin/**/*
 /Linux/obj/*
 /Linux/obj/**/*
+/Linux/TrenchBroom.depend
 
 /Mac/build/
 /Mac/wxWidgets

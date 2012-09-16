@@ -1,2 +1,17 @@
-Install wxWidgets according to this:
-http://wiki.wxpython.org/InstallingOnUbuntuOrDebian
+Build environment
+
+1. wxWidgets
+- Get the latest sources of wxWidgets 2.9 from wxwidgets.org and unpack them.
+- Move the unpacked directory someplace where you want to keep it.
+- Open a terminal and change into the wxwidgets directory.
+- Create two directories: build-release and build-debug (don't rename those!)
+- Change into wxwidgets/build-release
+- Run 
+  ../configure --disable-shared --with-opengl
+- Run make (don't run make install!)
+- Change into wxwidgets/build-debug
+- Run 
+  ../configure --enable-debug --disable-shared --with-opengl
+- Run make (don't run make install!)
+- Create a global variable named "WXWIN" in Code::Blocks (Menu > Settings > Global Variables...)
+  and set its base field to point to your wxWidgets directory

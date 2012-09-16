@@ -14,10 +14,43 @@
 				<Option projectLinkerOptionsRelation="2" />
 				<Compiler>
 					<Add option="-g" />
-					<Add option="`wx-config  --version=2.9 --static=yes --unicode=no --debug=yes --cflags`" />
+					<Add option="-I$(#WXWIN)/build-debug/lib/wx/include/gtk2-unicode-static-2.9" />
+					<Add option="-I$(#WXWIN)/include" />
+					<Add option="-D_FILE_OFFSET_BITS=64" />
+					<Add option="-D__WXGTK__ -pthread" />
 				</Compiler>
 				<Linker>
-					<Add option="`wx-config  --version=2.9 --static=yes --unicode=no --debug=yes --libs`" />
+					<Add option="-L$(#WXWIN)/build-debug/lib" />
+					<Add option="-pthread" />
+					<Add option="$(#WXWIN)/build-debug/lib/libwx_gtk2u_gl-2.9.a" />
+					<Add option="$(#WXWIN)/build-debug/lib/libwx_gtk2u_core-2.9.a" />
+					<Add option="$(#WXWIN)/build-debug/lib/libwx_baseu-2.9.a" />
+					<Add option="-lGL" />
+					<Add option="-lGLU" />
+					<Add option="-lgtk-x11-2.0" />
+					<Add option="-lgdk-x11-2.0" />
+					<Add option="-latk-1.0" />
+					<Add option="-lgio-2.0" />
+					<Add option="-lpangoft2-1.0" />
+					<Add option="-lpangocairo-1.0" />
+					<Add option="-lgdk_pixbuf-2.0" />
+					<Add option="-lcairo -lpango-1.0" />
+					<Add option="-lfreetype" />
+					<Add option="-lfontconfig" />
+					<Add option="-lgobject-2.0" />
+					<Add option="-lgmodule-2.0" />
+					<Add option="-lgthread-2.0" />
+					<Add option="-lrt" />
+					<Add option="-lglib-2.0" />
+					<Add option="-lX11" />
+					<Add option="-lSM" />
+					<Add option="-lpng" />
+					<Add option="-lwxregexu-2.9" />
+					<Add option="-lwxtiff-2.9" />
+					<Add option="-lwxjpeg-2.9" />
+					<Add option="-lz" />
+					<Add option="-ldl" />
+					<Add option="-lm" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -27,29 +60,57 @@
 				<Option compiler="gcc" />
 				<Option projectLinkerOptionsRelation="2" />
 				<Compiler>
-					<Add option="-O2" />
-					<Add option="`wx-config  --version=2.9 --static=yes --unicode=no --debug=no --cflags`" />
+					<Add option="-O3" />
+					<Add option="-I$(#WXWIN)/build-release/lib/wx/include/gtk2-unicode-static-2.9" />
+					<Add option="-I$(#WXWIN)/include" />
+					<Add option="-pthread" />
+					<Add option="-D_FILE_OFFSET_BITS=64" />
+					<Add option="-D__WXGTK__" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add option="`wx-config  --version=2.9 --static=yes --unicode=no --debug=no --libs`" />
+					<Add option="-L$(#WXWIN)/build-release/lib" />
+					<Add option="-pthread" />
+					<Add option="$(#WXWIN)/build-release/lib/libwx_gtk2u_gl-2.9.a" />
+					<Add option="$(#WXWIN)/build-release/lib/libwx_gtk2u_core-2.9.a" />
+					<Add option="$(#WXWIN)/build-release/lib/libwx_baseu-2.9.a" />
+					<Add option="-lGL" />
+					<Add option="-lGLU" />
+					<Add option="-lgtk-x11-2.0" />
+					<Add option="-lgdk-x11-2.0" />
+					<Add option="-latk-1.0" />
+					<Add option="-lgio-2.0" />
+					<Add option="-lpangoft2-1.0" />
+					<Add option="-lpangocairo-1.0" />
+					<Add option="-lgdk_pixbuf-2.0 -lcairo" />
+					<Add option="-lpango-1.0" />
+					<Add option="-lfreetype" />
+					<Add option="-lfontconfig" />
+					<Add option="-lgobject-2.0" />
+					<Add option="-lgmodule-2.0" />
+					<Add option="-lgthread-2.0" />
+					<Add option="-lrt" />
+					<Add option="-lglib-2.0" />
+					<Add option="-lX11" />
+					<Add option="-lSM" />
+					<Add option="-lpng" />
+					<Add option="-lwxregexu-2.9" />
+					<Add option="-lwxtiff-2.9" />
+					<Add option="-lwxjpeg-2.9" />
+					<Add option="-lz" />
+					<Add option="-ldl" />
+					<Add option="-lm" />
 				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
-			<Add option="-Winvalid-pch" />
-			<Add option="-include wx_pch.h" />
 			<Add option="-DWX_PRECOMP" />
 			<Add directory="../Source" />
 			<Add directory="../Include" />
 		</Compiler>
 		<Unit filename="TrenchBroomApp.cpp" />
 		<Unit filename="TrenchBroomApp.h" />
-		<Unit filename="wx_pch.h">
-			<Option compile="1" />
-			<Option weight="0" />
-		</Unit>
 		<Unit filename="../Source/Controller/CameraEvent.cpp" />
 		<Unit filename="../Source/Controller/CameraEvent.h" />
 		<Unit filename="../Source/Controller/CameraTool.cpp" />
