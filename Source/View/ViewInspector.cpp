@@ -82,6 +82,7 @@ namespace TrenchBroom {
             {
                 wxStaticText* searchLabel = new wxStaticText(searchPanel, wxID_ANY, wxT("Show objects matching"));
                 m_searchBox = new wxSearchCtrl(searchPanel, wxID_ANY);
+                m_searchBox->ShowCancelButton(true);
                 
                 wxSizer* searchPanelSizer = new wxBoxSizer(wxHORIZONTAL);
                 searchPanelSizer->Add(searchLabel, 0, wxEXPAND | wxTOP, 2);

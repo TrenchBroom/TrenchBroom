@@ -1,0 +1,2 @@
+Install wxWidgets according to this:
+http://wiki.wxpython.org/InstallingOnUbuntuOrDebian
