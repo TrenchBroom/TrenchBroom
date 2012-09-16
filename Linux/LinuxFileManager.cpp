@@ -27,7 +27,9 @@ namespace TrenchBroom {
         String LinuxFileManager::resourceDirectory() {
             char buf[1024];
             ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf));
-            return String(buf, len);
+            String appPath(buf, len);
+            String appDir = deleteLastPathComponent(appPath);
+            return appendPath(appDir, "Resources");
         }
 
         String LinuxFileManager::resolveFontPath(const String& fontName) {

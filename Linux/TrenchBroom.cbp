@@ -111,6 +111,15 @@
 			<Add directory="../Include" />
 			<Add directory="../Linux" />
 		</Compiler>
+		<ExtraCommands>
+			<Add after="mkdir -p $(TARGET_OUTPUT_DIR)Resources" />
+			<Add after="cp $(PROJECT_DIR)../Resources/Defs/quake.def $(TARGET_OUTPUT_DIR)Resources/" />
+			<Add after="cp $(PROJECT_DIR)../Resources/Graphics/QuakePalette.lmp $(TARGET_OUTPUT_DIR)Resources/" />
+			<Add after="cp $(PROJECT_DIR)../Resources/Graphics/QuakePalette.lmp $(TARGET_OUTPUT_DIR)Resources/" />
+			<Add after="cp $(PROJECT_DIR)../Source/Renderer/Shader/*.vertsh $(TARGET_OUTPUT_DIR)Resources/" />
+			<Add after="cp $(PROJECT_DIR)../Source/Renderer/Shader/*.fragsh $(TARGET_OUTPUT_DIR)Resources/" />
+			<Mode after="always" />
+		</ExtraCommands>
 		<Unit filename="LinuxFileManager.cpp" />
 		<Unit filename="LinuxFileManager.h" />
 		<Unit filename="TrenchBroomApp.cpp" />
