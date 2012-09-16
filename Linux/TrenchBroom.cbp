@@ -37,11 +37,15 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-Wall" />
 			<Add option="-Winvalid-pch" />
 			<Add option="-include wx_pch.h" />
 			<Add option="-DWX_PRECOMP" />
-			<Add option="-Wall" />
+			<Add directory="../Source" />
+			<Add directory="../Include" />
 		</Compiler>
+		<Unit filename="TrenchBroomApp.cpp" />
+		<Unit filename="TrenchBroomApp.h" />
 		<Unit filename="wx_pch.h">
 			<Option compile="1" />
 			<Option weight="0" />
