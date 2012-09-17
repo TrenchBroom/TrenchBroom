@@ -81,7 +81,9 @@ namespace TrenchBroom {
             return newVertex;
         }
 
-        Side::Side(Edge* newEdges[], bool invert[], unsigned int count) : mark(Side::New), face(NULL) {
+        Side::Side(Edge* newEdges[], bool invert[], unsigned int count) :
+        face(NULL),
+        mark(Side::New) {
             for (unsigned int i = 0; i < count; i++) {
                 Edge* edge = newEdges[i];
                 edges.push_back(edge);
@@ -95,7 +97,9 @@ namespace TrenchBroom {
             }
         }
 
-        Side::Side(Face& face, EdgeList& newEdges) : mark(Side::New), face(&face) {
+        Side::Side(Face& face, EdgeList& newEdges) :
+        face(&face),
+        mark(Side::New) {
             vertices.reserve(newEdges.size());
             edges.reserve(newEdges.size());
             for (unsigned int i = 0; i < newEdges.size(); i++) {
@@ -895,7 +899,7 @@ namespace TrenchBroom {
                         edgeVector = edge->vector();
                         dot1 = v1.dot(edgeVector);
                         dot2 = v2.dot(edgeVector);
-                        if ((dot1 > 0 != dot2 > 0)) {
+                        if ((dot1 > 0) != (dot2 > 0)) {
                             // vertex is between the edge points
                             // undo the vertex move
                             vertex->position = ray.origin;

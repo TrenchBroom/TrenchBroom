@@ -39,6 +39,7 @@ namespace TrenchBroom {
 
         class Vbo {
         private:
+            GLenum m_type;
             unsigned int m_totalCapacity;
             unsigned int m_freeCapacity;
             std::vector<VboBlock*> m_freeBlocks;
@@ -46,7 +47,6 @@ namespace TrenchBroom {
             VboBlock* m_last;
             unsigned char* m_buffer;
             GLuint m_vboId;
-            GLenum m_type;
             bool m_active;
             bool m_mapped;
             unsigned int findFreeBlockInRange(unsigned int address, unsigned int capacity, unsigned int start, unsigned int length);
@@ -86,43 +86,43 @@ namespace TrenchBroom {
             VboBlock* m_next;
         public:
             inline VboBlock(Vbo& vbo, int address, int capacity) : m_vbo(vbo), m_address(address), m_capacity(capacity), m_free(true), m_previous(NULL), m_next(NULL) {}
-            
+
             inline unsigned int address() const {
                 return m_address;
             }
-            
+
             inline unsigned int capacity() const {
                 return m_capacity;
             }
-            
+
             inline bool free() const {
                 return m_free;
             }
-            
+
             inline unsigned int writeBuffer(const unsigned char* buffer, unsigned int offset, unsigned int length) {
                 assert(offset >= 0 && offset + length <= m_capacity);
                 memcpy(m_vbo.m_buffer + m_address + offset, buffer, length);
                 return offset + length;
             }
-            
+
             inline unsigned int writeByte(unsigned char b, unsigned int offset) {
                 assert(offset >= 0 && offset < m_capacity);
                 m_vbo.m_buffer[m_address + offset] = b;
                 return offset + 1;
             }
-            
+
             inline unsigned int writeFloat(float f, unsigned int offset) {
                 assert(offset >= 0 && offset + sizeof(float) <= m_capacity);
                 memcpy(m_vbo.m_buffer + m_address + offset, &f, sizeof(float));
                 return offset + sizeof(float);
             }
-            
+
             inline unsigned int writeUInt32(unsigned int i, unsigned int offset) {
                 assert(offset >= 0 && offset + sizeof(unsigned int) <= m_capacity);
                 memcpy(m_vbo.m_buffer + m_address + offset, &i, sizeof(unsigned int));
                 return offset + sizeof(unsigned int);
             }
-            
+
             inline unsigned int writeColor(const Color& color, unsigned int offset) {
                 assert(offset >= 0 && offset + 4 <= m_capacity);
                 offset = writeByte(static_cast<unsigned char>(color.x * 0xFF), offset);
@@ -138,7 +138,7 @@ namespace TrenchBroom {
                 memcpy(m_vbo.m_buffer + m_address + offset, &vec, sizeof(T));
                 return offset + sizeof(T);
             }
-            
+
             template<class T>
             inline unsigned int writeVecs(const std::vector<T>& vecs, unsigned int offset) {
                 unsigned int size = static_cast<unsigned int>(vecs.size() * sizeof(T));
@@ -146,9 +146,9 @@ namespace TrenchBroom {
                 memcpy(m_vbo.m_buffer + m_address + offset, &(vecs[0]), size);
                 return offset + size;
             }
-            
+
             void freeBlock();
-            
+
             inline int compare(unsigned int address, unsigned int capacity) {
                 if (m_capacity < capacity) return -1;
                 if (m_capacity > capacity) return 1;
@@ -166,7 +166,7 @@ namespace TrenchBroom {
 		public:
 			VboException(Vbo& vbo, const std::string& msg, GLenum glError) throw() : m_vbo(vbo), m_msg(msg), m_glError(glError) {}
             ~VboException() throw() {}
-            
+
 			virtual const char* what() const throw() {
 			    return m_msg.c_str();
 			}

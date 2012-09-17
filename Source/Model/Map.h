@@ -31,9 +31,9 @@ namespace TrenchBroom {
         
         class Map {
         protected:
+            BBox m_worldBounds;
             EntityList m_entities;
             Entity* m_worldspawn;
-            BBox m_worldBounds;
 
             void setEntityDefinition(Entity* entity);
         public:

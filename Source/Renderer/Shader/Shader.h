@@ -40,10 +40,10 @@ namespace TrenchBroom {
     namespace Renderer {
         class Shader {
         private:
-            Utility::Console& m_console;
             String m_name;
             GLenum m_type;
             GLuint m_shaderId;
+            Utility::Console& m_console;
         public:
             static StringList loadSource(const String& path);
             
@@ -58,11 +58,11 @@ namespace TrenchBroom {
         private:
             typedef std::map<String, GLint> UniformVariableMap;
             
-            Utility::Console& m_console;
             String m_name;
             GLuint m_programId;
             UniformVariableMap m_uniformVariables;
             bool m_needsLinking;
+            Utility::Console& m_console;
             
             GLint uniformLocation(const String& name);
         public:

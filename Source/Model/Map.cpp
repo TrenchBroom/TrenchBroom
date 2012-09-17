@@ -23,7 +23,9 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Map::Map(const BBox& worldBounds) : m_worldBounds(worldBounds), m_worldspawn(NULL) {}
+        Map::Map(const BBox& worldBounds) :
+        m_worldBounds(worldBounds),
+        m_worldspawn(NULL) {}
 
         Map::~Map() {
             clear();

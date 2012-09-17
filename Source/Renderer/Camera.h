@@ -37,14 +37,15 @@ namespace TrenchBroom {
                 Viewport(int x, int y, int width, int height) : x(x), y(y), width(width), height(height) {}
             };
         protected:
-            
+            float m_fieldOfVision;
+            float m_nearPlane;
+            float m_farPlane;
+
             Vec3f m_position;
             Vec3f m_direction;
             Vec3f m_up;
             Vec3f m_right;
-            float m_fieldOfVision;
-            float m_nearPlane;
-            float m_farPlane;
+
             Viewport m_viewport;
             
             mutable Mat4f m_matrix;

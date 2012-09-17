@@ -119,9 +119,9 @@ namespace TrenchBroom {
                 InverseCacheMap m_inverseCache;
                 StringRendererList m_unpreparedStrings;
                 
-                Vbo* m_vbo;
                 StringVectorizer* m_stringVectorizer;
                 PathTesselator* m_tesselator;
+                Vbo* m_vbo;
                 
                 void prepare();
             public:

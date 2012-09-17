@@ -154,13 +154,13 @@ namespace TrenchBroom {
                 Valve
             };
 
-            Utility::Console& m_console;
             typedef std::vector<MapTokenizer::Token*> TokenStack;
 
-            size_t m_size;
-            MapFormat m_format;
+            Utility::Console& m_console;
             MapTokenizer m_tokenizer;
             TokenStack m_tokenStack;
+            MapFormat m_format;
+            size_t m_size;
 
             inline void expect(int expectedType, MapTokenizer::Token* actualToken) const {
                 if (actualToken == NULL)

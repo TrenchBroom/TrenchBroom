@@ -149,11 +149,10 @@ namespace TrenchBroom {
 
         class BspModel {
         private:
-
-            Vec3f m_center;
-            BBox m_bounds;
             BspFaceList m_faces;
             unsigned int m_vertexCount;
+            Vec3f m_center;
+            BBox m_bounds;
         public:
             BspModel(const BspFaceList& faces, unsigned int vertexCount, const Vec3f& center, const BBox& bounds);
             ~BspModel();

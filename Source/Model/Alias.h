@@ -122,11 +122,11 @@ namespace TrenchBroom {
         class AliasSkin {
         public:
         private:
+            AliasPictureList m_pictures;
+            AliasTimeList m_times;
+            unsigned int m_count;
             unsigned int m_width;
             unsigned int m_height;
-            unsigned int m_count;
-            AliasTimeList m_times;
-            AliasPictureList m_pictures;
         public:
             AliasSkin(const unsigned char* picture, unsigned int width, unsigned int height);
             AliasSkin(const AliasPictureList& pictures, const AliasTimeList& times, unsigned int count, unsigned int width, unsigned int height);

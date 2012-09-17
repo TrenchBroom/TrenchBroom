@@ -34,9 +34,9 @@ namespace TrenchBroom {
         AliasRenderer::AliasRenderer(const Model::Alias& alias, unsigned int skinIndex, Vbo& vbo, const Model::Palette& palette) :
         m_alias(alias),
         m_skinIndex(skinIndex),
-        m_vbo(vbo),
         m_palette(palette),
-        m_texture(NULL) {}
+        m_texture(NULL),
+        m_vbo(vbo){}
 
         void AliasRenderer::render(ShaderProgram& shaderProgram) {
             if (m_vertexArray.get() == NULL) {

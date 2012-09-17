@@ -211,8 +211,8 @@ namespace TrenchBroom {
         }
 
         MapParser::MapParser(std::istream& stream, Utility::Console& console) :
-        m_tokenizer(stream),
         m_console(console),
+        m_tokenizer(stream),
         m_format(Undefined) {
             std::streamoff cur = stream.tellg();
             stream.seekg(0, std::ios::end);

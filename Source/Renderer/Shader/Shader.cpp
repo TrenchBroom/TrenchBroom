@@ -45,10 +45,11 @@ namespace TrenchBroom {
         
         Shader::Shader(const String& path, GLenum type, Utility::Console& console) :
         m_type(type),
-        m_console(console),
-        m_shaderId(0) {
+        m_shaderId(0),
+        m_console(console) {
             assert(m_type == GL_VERTEX_SHADER || m_type == GL_FRAGMENT_SHADER);
             m_shaderId = glCreateShader(m_type);
+            
             if (m_shaderId != 0) {
                 IO::FileManager fileManager;
                 m_name = fileManager.pathComponents(path).back();
@@ -117,9 +118,9 @@ namespace TrenchBroom {
 
         ShaderProgram::ShaderProgram(const String& name, Utility::Console& console) :
         m_name(name),
-        m_console(console),
         m_programId(0),
-        m_needsLinking(true) {
+        m_needsLinking(true),
+        m_console(console) {
             m_programId = glCreateProgram();
             
             if (m_programId != 0) {
@@ -132,7 +133,7 @@ namespace TrenchBroom {
         ShaderProgram::~ShaderProgram() {
             if (m_programId != 0) {
                 glDeleteProgram(m_programId);
-                m_programId = NULL;
+                m_programId = 0;
             }
         }
         

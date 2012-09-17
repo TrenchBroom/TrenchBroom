@@ -97,7 +97,9 @@ namespace TrenchBroom {
             return m_children[childIndex]->addObject(object);
         }
 
-        OctreeNode::OctreeNode(const BBox& bounds, int minSize) : m_bounds(bounds), m_minSize(minSize) {
+        OctreeNode::OctreeNode(const BBox& bounds, int minSize) :
+        m_minSize(minSize),
+        m_bounds(bounds) {
             for (unsigned int i = 0; i < 8; i++)
                 m_children[i] = NULL;
         }

@@ -109,8 +109,8 @@ namespace TrenchBroom {
         }
 
         MapGLCanvas::MapGLCanvas(wxWindow* parent, DocumentViewHolder& documentViewHolder) :
-        m_documentViewHolder(documentViewHolder),
         wxGLCanvas(parent, wxID_ANY, Attribs()),
+        m_documentViewHolder(documentViewHolder),
         m_firstFrame(true) {
             m_inputController = new Controller::InputController(documentViewHolder);
             m_glContext = new wxGLContext(this);

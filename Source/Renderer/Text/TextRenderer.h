@@ -113,12 +113,13 @@ namespace TrenchBroom {
                 typedef std::map<Key, TextEntry> TextMap;
                 typedef std::vector<EntryWithDistance> EntryList;
                 
-                float m_fadeDistance;
                 StringManager& m_stringManager;
-                TextMap m_entries;
-                VboPtr m_backgroundVbo;
+                float m_fadeDistance;
                 float m_hInset;
                 float m_vInset;
+
+                TextMap m_entries;
+                VboPtr m_backgroundVbo;
                 
                 inline void addString(Key key, const FontDescriptor& fontDescriptor, const String& string, StringRenderer* stringRenderer, TextAnchor* anchor) {
                     removeString(key);

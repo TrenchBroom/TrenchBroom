@@ -25,6 +25,18 @@
 
 namespace TrenchBroom {
     namespace Controller {
+        /*
+        Model::EditState::Type m_state;
+        bool m_affectAll;
+        bool m_replace;
+        
+        Model::EntityList m_entities;
+        Model::BrushList m_brushes;
+        Model::FaceList m_faces;
+        Model::EditStateChangeSet m_changeSet;
+         */
+        
+
         ChangeEditStateCommand::ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type previousState) :
         DocumentCommand(Command::ChangeEditState, document, true,name),
         m_state(previousState),
@@ -34,31 +46,31 @@ namespace TrenchBroom {
         ChangeEditStateCommand::ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type newState, const Model::EntityList& entities, bool replace) :
         DocumentCommand(Command::ChangeEditState, document, true, name),
         m_state(newState),
-        m_entities(entities),
         m_affectAll(false),
-        m_replace(replace) {}
+        m_replace(replace),
+        m_entities(entities) {}
         
         ChangeEditStateCommand::ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type newState, const Model::BrushList& brushes, bool replace) :
         DocumentCommand(Command::ChangeEditState, document, true, name),
         m_state(newState),
-        m_brushes(brushes),
         m_affectAll(false),
-        m_replace(replace) {}
+        m_replace(replace),
+        m_brushes(brushes) {}
         
         ChangeEditStateCommand::ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type newState, const Model::EntityList& entities, const Model::BrushList& brushes, bool replace) :
         DocumentCommand(Command::ChangeEditState, document, true, name),
         m_state(newState),
-        m_entities(entities),
-        m_brushes(brushes),
         m_affectAll(false),
-        m_replace(replace) {}
+        m_replace(replace),
+        m_entities(entities),
+        m_brushes(brushes) {}
         
         ChangeEditStateCommand::ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type newState, const Model::FaceList& faces, bool replace) :
         DocumentCommand(Command::ChangeEditState, document, true, name),
         m_state(newState),
-        m_faces(faces),
         m_affectAll(false),
-        m_replace(replace) {
+        m_replace(replace),
+        m_faces(faces) {
             assert(m_state == Model::EditState::Selected || m_state == Model::EditState::Default);
         }
         

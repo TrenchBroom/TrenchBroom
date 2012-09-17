@@ -428,7 +428,6 @@ namespace TrenchBroom {
             String name;
             bool hasColor = false;
             bool hasBounds = false;
-            bool hasFlags = false;
             Color color;
             BBox bounds;
             Model::SpawnflagList spawnflags;
@@ -456,10 +455,8 @@ namespace TrenchBroom {
                 }
                 
                 token = m_tokenizer.peekToken();
-                if (token->type() == TokenType::Word) {
-                    hasFlags = true;
+                if (token->type() == TokenType::Word)
                     spawnflags = parseFlags();
-                }
             }
 
             expect(TokenType::Newline, (token = m_tokenizer.nextToken()).get());

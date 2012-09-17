@@ -40,12 +40,13 @@ namespace TrenchBroom {
 
         class AliasRenderer : public EntityRenderer {
         private:
-            unsigned int m_skinIndex;
             const Model::Alias& m_alias;
-            const Model::Palette& m_palette;
-            Vbo& m_vbo;
+            unsigned int m_skinIndex;
 
+            const Model::Palette& m_palette;
             Model::TexturePtr m_texture;
+
+            Vbo& m_vbo;
             VertexArrayPtr m_vertexArray;
         public:
             AliasRenderer(const Model::Alias& alias, int unsigned skinIndex, Vbo& vbo, const Model::Palette& palette);

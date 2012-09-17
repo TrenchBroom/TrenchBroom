@@ -114,17 +114,17 @@ namespace TrenchBroom {
         }
         
         Face::Face(const Face& face) :
+        m_side(NULL),
         m_faceId(face.faceId()),
         m_boundary(face.boundary()),
         m_worldBounds(face.worldBounds()),
-        m_texture(face.texture()),
         m_textureName(face.textureName()),
+        m_texture(face.texture()),
         m_xOffset(face.xOffset()),
         m_yOffset(face.yOffset()),
+        m_rotation(face.rotation()),
         m_xScale(face.xScale()),
         m_yScale(face.yScale()),
-        m_rotation(face.rotation()),
-        m_side(NULL),
         m_texAxesValid(false),
         m_coordsValid(false),
         m_filePosition(face.filePosition()),

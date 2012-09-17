@@ -156,7 +156,7 @@ namespace TrenchBroom {
             Vec3f actualDelta = newOrigin - origin;
             
             for (unsigned int i = 0; i < 3; i++)
-                if (actualDelta[i] > 0 != delta[i] > 0)
+                if ((actualDelta[i] > 0) != (delta[i] > 0))
                     actualDelta[i] = 0;
             return actualDelta;
         }

@@ -45,10 +45,11 @@ namespace TrenchBroom {
             typedef std::map<String, Model::Texture*> TextureCache;
 
             const Model::Bsp& m_bsp;
+
             const Model::Palette& m_palette;
-            Vbo& m_vbo;
-            
             TextureCache m_textures;
+
+            Vbo& m_vbo;
             TextureVertexArrayList m_vertexArrays;
             
             void buildVertexArrays();

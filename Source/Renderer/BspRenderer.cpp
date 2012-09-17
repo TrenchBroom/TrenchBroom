@@ -95,8 +95,8 @@ namespace TrenchBroom {
         
         BspRenderer::BspRenderer(const Model::Bsp& bsp, Vbo& vbo, const Model::Palette& palette) :
         m_bsp(bsp),
-        m_vbo(vbo),
-        m_palette(palette) {}
+        m_palette(palette),
+        m_vbo(vbo) {}
         
         BspRenderer::~BspRenderer() {
             TextureCache::iterator it, end;
