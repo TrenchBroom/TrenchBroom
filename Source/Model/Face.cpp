@@ -85,33 +85,16 @@ namespace TrenchBroom {
             if (!m_texAxesValid)
                 validateTexAxes(m_boundary.normal);
             
-            Axis::Type axis = m_boundary.normal.firstComponent();
             int width = m_texture != NULL ? m_texture->width() : 1;
             int height = m_texture != NULL ? m_texture->height() : 1;
             
             size_t vertexCount = m_side->vertices.size();
-            m_gridCoords.resize(vertexCount);
             m_texCoords.resize(vertexCount);
             for (unsigned int i = 0; i < vertexCount; i++) {
                 const Vec3f& vertex = m_side->vertices[i]->position;
                 
                 m_texCoords[i].x = (vertex.dot(m_scaledTexAxisX) + m_xOffset) / width,
                 m_texCoords[i].y = (vertex.dot(m_scaledTexAxisY) + m_yOffset) / height;
-                
-                switch (axis) {
-                    case Axis::AX:
-                        m_gridCoords[i].x = (vertex.y + 0.5f) / 256.0f;
-                        m_gridCoords[i].y = (vertex.z + 0.5f) / 256.0f;
-                        break;
-                    case Axis::AY:
-                        m_gridCoords[i].x = (vertex.x + 0.5f) / 256.0f;
-                        m_gridCoords[i].y = (vertex.z + 0.5f) / 256.0f;
-                        break;
-                    default:
-                        m_gridCoords[i].x = (vertex.x + 0.5f) / 256.0f;
-                        m_gridCoords[i].y = (vertex.y + 0.5f) / 256.0f;
-                        break;
-                }
             }
             
             m_coordsValid = true;
@@ -157,7 +140,6 @@ namespace TrenchBroom {
 			m_scaledTexAxisX = Vec3f::NaN;
 			m_scaledTexAxisY = Vec3f::NaN;
             
-			m_gridCoords.clear();
 			m_texCoords.clear();
             
 			m_faceId *= -1;

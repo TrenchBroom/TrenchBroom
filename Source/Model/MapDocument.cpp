@@ -295,6 +295,7 @@ namespace TrenchBroom {
             m_textureManager = new TextureManager();
             m_definitionManager = new EntityDefinitionManager();
             m_mods.push_back("id1");
+            m_mods.push_back("ID1");
 
             loadPalette();
             

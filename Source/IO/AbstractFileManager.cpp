@@ -55,10 +55,13 @@ namespace TrenchBroom {
             if (!wxSetWorkingDirectory(path))
                 return result;
             
-            wxString spec = extension.empty() ? "*.*" : "*." + extension;
-            wxString filename = wxFindFirstFile(spec);
+            String lowerExtension = Utility::toLower(extension);
+            wxString filename = wxFindFirstFile("*.*");
             while (!filename.empty()) {
-                result.push_back(pathComponents(filename.ToStdString()).back());
+                String stdFilename = filename.ToStdString();
+                String fileExtension = Utility::toLower(pathExtension(stdFilename));
+                if (fileExtension == lowerExtension)
+                    result.push_back(pathComponents(stdFilename).back());
                 filename = wxFindNextFile();
             }
             
