@@ -130,7 +130,7 @@ namespace TrenchBroom {
                     error = CGLDescribePixelFormat(pixelFormat, 0, kCGLPFAAccelerated, &accelerated);
                     assert(error == kCGLNoError);
                     if (accelerated == 0) {
-                        // CGLReleasePixelFormat(pixelFormat);
+                        CGLDestroyPixelFormat(pixelFormat);
                         pixelFormat = NULL;
                     }
                 }
@@ -158,7 +158,7 @@ namespace TrenchBroom {
                     capabilities.samples = value;
                 }
                 
-                // CGLReleasePixelFormat(pixelFormat);
+                CGLDestroyPixelFormat(pixelFormat);
                 pixelFormat = NULL;
             }
 

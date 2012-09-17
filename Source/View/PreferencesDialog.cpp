@@ -70,6 +70,16 @@ namespace TrenchBroom {
             
             m_brightnessSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::RendererBrightness) * 40.0f));
             m_gridAlphaSlider->SetValue(static_cast<int>(prefs.getColor(Preferences::GridColor).w * m_gridAlphaSlider->GetMax()));
+
+            m_lookSpeedSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::CameraLookSpeed) * m_lookSpeedSlider->GetMax()));
+            m_invertLookXAxisCheckBox->SetValue(prefs.getBool(Preferences::CameraLookInvertX));
+            m_invertLookYAxisCheckBox->SetValue(prefs.getBool(Preferences::CameraLookInvertY));
+            
+            m_panSpeedSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::CameraPanSpeed) * m_panSpeedSlider->GetMax()));
+            m_invertPanXAxisCheckBox->SetValue(prefs.getBool(Preferences::CameraPanInvertX));
+            m_invertPanYAxisCheckBox->SetValue(prefs.getBool(Preferences::CameraPanInvertY));
+
+            m_moveSpeedSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::CameraMoveSpeed) * m_moveSpeedSlider->GetMax()));
         }
 
         wxWindow* PreferencesDialog::createQuakePreferences() {

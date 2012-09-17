@@ -25,7 +25,6 @@ namespace TrenchBroom {
 
         const Preference<float> CameraLookSpeed = Preference<float>(                            "Controls/Camera/Look speed",                                   0.5f);
         const Preference<float> CameraPanSpeed = Preference<float>(                             "Controls/Camera/Pan speed",                                    0.5f);
-        const Preference<float> CameraMoveSpeed = Preference<float>(                            "Controls/Camera/Move speed",                                   0.5f);
         const Preference<bool> CameraLookInvertX = Preference<bool>(                            "Controls/Camera/Look X inverted",                              false);
         const Preference<bool> CameraLookInvertY = Preference<bool>(                            "Controls/Camera/Look Y inverted",                              false);
         const Preference<bool> CameraPanInvertX = Preference<bool>(                             "Controls/Camera/Pan X inverted",                               false);
@@ -90,12 +89,15 @@ namespace TrenchBroom {
         const Preference<Color> OverriddenTextureColor = Preference<Color>(                     "Texture browser/Overridden texture color",                     Color(0.5f,  0.5f,  0.5f,  1.0f ));
 
 #if defined _WIN32
+        const Preference<float> CameraMoveSpeed = Preference<float>(                            "Controls/Camera/Move speed",                                   0.3f);
         const Preference<String> QuakePath = Preference<String>(                                "General/Quake path",                                           "C:\\Program Files\\Quake");
         const Preference<String> RendererFontName = Preference<String>(                         "Renderer/Font name",                                           "Arial");
 #elif defined __APPLE__
+        const Preference<float> CameraMoveSpeed = Preference<float>(                            "Controls/Camera/Move speed",                                   0.3f);
         const Preference<String> QuakePath = Preference<String>(                                "General/Quake path",                                           "/Applications/Quake");
         const Preference<String> RendererFontName = Preference<String>(                         "Renderer/Font name",                                           "LucidaGrande");
 #elif defined __linux__
+        const Preference<float> CameraMoveSpeed = Preference<float>(                            "Controls/Camera/Move speed",                                   0.5f);
         const Preference<String> QuakePath = Preference<String>(                                "General/Quake path",                                           "/Quake");
         const Preference<String> RendererFontName = Preference<String>(                         "Renderer/Font name",                                           "Arial");
 #endif

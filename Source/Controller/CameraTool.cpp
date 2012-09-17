@@ -53,7 +53,7 @@ namespace TrenchBroom {
 
         float CameraTool::moveSpeed() {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            return prefs.getFloat(Preferences::CameraMoveSpeed);
+            return prefs.getFloat(Preferences::CameraMoveSpeed) * 2.0f;
         }
 
         bool CameraTool::handleScrolled(InputEvent& event) {

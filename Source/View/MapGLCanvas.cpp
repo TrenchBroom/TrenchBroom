@@ -58,11 +58,11 @@ namespace TrenchBroom {
 
             GL::Capabilities capabilities = GL::glCapabilities();
             if (capabilities.multisample) {
-                m_attribs = new int[8];
+                m_attribs = new int[9];
                 m_attribs[0] = WX_GL_RGBA;
                 m_attribs[1] = WX_GL_DOUBLEBUFFER;
                 m_attribs[2] = WX_GL_SAMPLE_BUFFERS;
-                m_attribs[3] = GL_TRUE;
+                m_attribs[3] = 1;
                 m_attribs[4] = WX_GL_SAMPLES;
                 m_attribs[5] = capabilities.samples;
                 m_attribs[6] = WX_GL_DEPTH_SIZE;
