@@ -76,7 +76,7 @@ namespace TrenchBroom {
                 m_attribs[3] = capabilities.depthBits;
                 m_attribs[4] = 0;
             }
-            
+
             return m_attribs;
         }
 
@@ -114,7 +114,7 @@ namespace TrenchBroom {
         m_firstFrame(true) {
             m_inputController = new Controller::InputController(documentViewHolder);
             m_glContext = new wxGLContext(this);
-            delete m_attribs;
+            delete [] m_attribs;
             m_attribs = NULL;
         }
 
@@ -152,7 +152,7 @@ namespace TrenchBroom {
                         view.console().info("Multisampling enabled");
                     else
                         view.console().info("Multisampling disabled");
-                    
+
                     m_glewState = glewInit();
                     if (m_glewState != GLEW_OK)
                         view.console().error("Unable to initialize glew: %s", glewGetErrorString(m_glewState));
