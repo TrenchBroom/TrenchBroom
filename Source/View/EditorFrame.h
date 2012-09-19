@@ -39,11 +39,13 @@ namespace TrenchBroom {
     
     namespace View {
         class EditorView;
+        class Inspector;
         class MapGLCanvas;
         
         class EditorFrame : public wxFrame {
         protected:
             DocumentViewHolder m_documentViewHolder;
+            Inspector* m_inspector;
             MapGLCanvas* m_mapCanvas;
             wxTextCtrl* m_logView;
             
@@ -53,6 +55,10 @@ namespace TrenchBroom {
             
             inline MapGLCanvas& mapCanvas() const {
                 return *m_mapCanvas;
+            }
+
+            inline Inspector& inspector() const {
+                return *m_inspector;
             }
             
             inline wxTextCtrl* logView() const {

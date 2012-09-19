@@ -181,11 +181,11 @@ namespace TrenchBroom {
             wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
             innerSizer->Add(createFilterBox(), 0, wxEXPAND);
             innerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            innerSizer->Add(createRenderModeSelector(), 0, wxEXPAND | wxBOTTOM, 2);
+            innerSizer->Add(createRenderModeSelector(), 0, wxEXPAND | wxBOTTOM, LayoutConstants::NotebookPageExtraBottomMargin);
             
             // creates 5 pixel border inside the page
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(innerSizer, 1, wxEXPAND | wxALL, 5);
+            outerSizer->Add(innerSizer, 1, wxEXPAND | wxALL, LayoutConstants::NotebookPageInnerMargin);
             SetSizerAndFit(outerSizer);
             
             updateControls();

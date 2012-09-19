@@ -45,6 +45,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class Inspector;
         class MapWindow;
         class ViewOptions;
         
@@ -66,6 +67,7 @@ namespace TrenchBroom {
             Model::MapDocument& mapDocument() const;
             Renderer::Camera& camera() const;
             Renderer::MapRenderer& renderer() const;
+            View::Inspector& inspector() const;
             Utility::Console& console() const;
             
             bool OnCreate(wxDocument* doc, long flags);

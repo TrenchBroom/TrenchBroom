@@ -54,8 +54,6 @@ namespace TrenchBroom {
         END_EVENT_TABLE()
 
         int* MapGLCanvas::Attribs() {
-            // Todo: make multisample and depth size configurable through prefs
-
             GL::Capabilities capabilities = GL::glCapabilities();
             if (capabilities.multisample) {
                 m_attribs = new int[9];
@@ -111,6 +109,7 @@ namespace TrenchBroom {
         MapGLCanvas::MapGLCanvas(wxWindow* parent, DocumentViewHolder& documentViewHolder) :
         wxGLCanvas(parent, wxID_ANY, Attribs()),
         m_documentViewHolder(documentViewHolder),
+        m_glContext(NULL),
         m_firstFrame(true) {
             m_inputController = new Controller::InputController(documentViewHolder);
             m_glContext = new wxGLContext(this);

@@ -24,26 +24,12 @@
 namespace TrenchBroom {
     namespace Renderer {
         void Camera::validate() const {
-            float vFrustum = static_cast<float>(tan(m_fieldOfVision * Math::Pi / 360.0)) * 0.75f * m_nearPlane;
-            float hFrustum = vFrustum * m_viewport.width / m_viewport.height;
+            m_matrix.setPerspective(m_fieldOfVision, m_nearPlane, m_farPlane, m_viewport.width, m_viewport.height);
             
-            float depth = m_farPlane - m_nearPlane;
-            m_matrix.set(m_nearPlane / hFrustum,    0.0f,                   0.0f,                                   0.0f,
-                         0.0f,                      m_nearPlane / vFrustum, 0.0f,                                   0.0f,
-                         0.0f,                      0.0f,                   -(m_farPlane + m_nearPlane) / depth,    -2.0f * (m_farPlane * m_nearPlane) / depth,
-                         0.0f,                      0.0f,                   -1.0f,                                  0.0f);
-            
-            const Vec3f& f = m_direction;
-            Vec3f s = f.crossed(m_up);
-            Vec3f u = s.crossed(f);
-            
-            Mat4f modelView( s.x,  s.y,  s.z, 0.0f,
-                             u.x,  u.y,  u.z, 0.0f,
-                            -f.x, -f.y, -f.z, 0.0f,
-                            0.0f, 0.0f, 0.0f, 1.0f);
-            modelView.translate(-1.0f * m_position);
-            
-            m_matrix *= modelView;
+            Mat4f view;
+            view.setView(m_direction, m_up);
+            view.translate(-1.0f * m_position);
+            m_matrix *= view;
             
             bool invertible;
             m_invertedMatrix = m_matrix.inverted(invertible);

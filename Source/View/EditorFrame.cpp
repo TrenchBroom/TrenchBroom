@@ -56,9 +56,9 @@ namespace TrenchBroom {
             m_logView->SetBackgroundColour(*wxBLACK);
             
             m_mapCanvas = new MapGLCanvas(inspectorSplitter, m_documentViewHolder);
-            Inspector* inspector = new Inspector(inspectorSplitter, m_documentViewHolder);
+            m_inspector = new Inspector(inspectorSplitter, m_documentViewHolder, m_mapCanvas->glContext());
             
-            inspectorSplitter->SplitVertically(m_mapCanvas, inspector, 0);
+            inspectorSplitter->SplitVertically(m_mapCanvas, m_inspector, 0);
             logSplitter->SplitHorizontally(inspectorSplitter, m_logView);
             
             wxSizer* logSplitterSizer = new wxBoxSizer(wxVERTICAL);

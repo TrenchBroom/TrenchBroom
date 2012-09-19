@@ -17,47 +17,46 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Inspector__
-#define __TrenchBroom__Inspector__
 
-#include <wx/notebook.h>
+#ifndef __TrenchBroom__FaceInspector__
+#define __TrenchBroom__FaceInspector__
+
 #include <wx/panel.h>
 
 #include "Model/BrushTypes.h"
 #include "Model/FaceTypes.h"
 
 class wxGLContext;
+class wxSpinCtrlDouble;
+class wxStaticText;
 
 namespace TrenchBroom {
-    namespace Model {
-        class MapDocument;
-    }
-    
     namespace View {
         class DocumentViewHolder;
-        class EditorView;
-        class FaceInspector;
-        class ViewInspector;
+        class SingleTextureViewer;
         
-        class Inspector : public wxPanel {
+        class FaceInspector : public wxPanel {
         protected:
             DocumentViewHolder& m_documentViewHolder;
             
-            FaceInspector* m_faceInspector;
+            SingleTextureViewer* m_textureViewer;
+            wxStaticText* m_textureNameLabel;
             
-            wxNotebook* m_notebook;
-            wxNotebookPage* CreateMapInspector();
-            wxNotebookPage* CreateEntityInspector();
-            wxNotebookPage* CreateBrushInspector();
-            FaceInspector* CreateFaceInspector(wxGLContext* sharedContext);
-            ViewInspector* CreateViewInspector();
+            wxSpinCtrlDouble* m_xOffsetEditor;
+            wxSpinCtrlDouble* m_yOffsetEditor;
+            wxSpinCtrlDouble* m_xScaleEditor;
+            wxSpinCtrlDouble* m_yScaleEditor;
+            wxSpinCtrlDouble* m_rotationEditor;
+            
+            wxWindow* createFaceEditor(wxGLContext* sharedContext);
+            wxWindow* createTextureBrowser(wxGLContext* sharedContext);
         public:
-            Inspector(wxWindow* parent, DocumentViewHolder& documentViewHolder, wxGLContext* sharedContext);
+            FaceInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder, wxGLContext* sharedContext);
             
-            void updateFaceInspector(const Model::FaceList& faces);
-            void updateFaceInspector(const Model::BrushList& brushes);
+            void update(const Model::FaceList& faces);
+            void update(const Model::BrushList& brushes);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Inspector__) */
+#endif /* defined(__TrenchBroom__FaceInspector__) */

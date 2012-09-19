@@ -62,6 +62,8 @@
 		48AF492815E8CC270083DE52 /* MapParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AF492615E8CC270083DE52 /* MapParser.cpp */; };
 		48AF61F415F8B7360027C465 /* libfreetype.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48AF61F315F8B7360027C465 /* libfreetype.a */; };
 		48AF61F615F8B7720027C465 /* libbz2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48AF61F515F8B7720027C465 /* libbz2.a */; };
+		48C0FA421608FFD00023F467 /* FaceInspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C0FA401608FFD00023F467 /* FaceInspector.cpp */; };
+		48C0FA46160901CB0023F467 /* SingleTextureViewer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C0FA44160901CB0023F467 /* SingleTextureViewer.cpp */; };
 		48D1BE9D15E2E5550073C030 /* Vec3f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BE9C15E2E5550073C030 /* Vec3f.cpp */; };
 		48D1BEA315E2F3BC0073C030 /* Mat4f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEA215E2F3BB0073C030 /* Mat4f.cpp */; };
 		48D1BEAE15E3AC060073C030 /* EditorView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEAC15E3AC060073C030 /* EditorView.cpp */; };
@@ -238,6 +240,10 @@
 		48AF61F315F8B7360027C465 /* libfreetype.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreetype.a; path = Lib/libfreetype.a; sourceTree = "<group>"; };
 		48AF61F515F8B7720027C465 /* libbz2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbz2.a; path = Lib/libbz2.a; sourceTree = "<group>"; };
 		48AF61F715F91B610027C465 /* CommandIds.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommandIds.h; sourceTree = "<group>"; };
+		48C0FA401608FFD00023F467 /* FaceInspector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FaceInspector.cpp; sourceTree = "<group>"; };
+		48C0FA411608FFD00023F467 /* FaceInspector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceInspector.h; sourceTree = "<group>"; };
+		48C0FA44160901CB0023F467 /* SingleTextureViewer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SingleTextureViewer.cpp; sourceTree = "<group>"; };
+		48C0FA45160901CB0023F467 /* SingleTextureViewer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleTextureViewer.h; sourceTree = "<group>"; };
 		48D1BE9815E2E2930073C030 /* Math.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Math.h; sourceTree = "<group>"; };
 		48D1BE9A15E2E35C0073C030 /* Vec3f.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Vec3f.h; sourceTree = "<group>"; };
 		48D1BE9B15E2E3B50073C030 /* VecMath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VecMath.h; sourceTree = "<group>"; };
@@ -500,6 +506,8 @@
 				48D1BEAD15E3AC060073C030 /* EditorView.h */,
 				48D1BEB215E4237A0073C030 /* EditorFrame.cpp */,
 				48D1BEB315E4237B0073C030 /* EditorFrame.h */,
+				48C0FA401608FFD00023F467 /* FaceInspector.cpp */,
+				48C0FA411608FFD00023F467 /* FaceInspector.h */,
 				48E2ED181601184F00B8D476 /* LayoutConstants.h */,
 				4810276415E4FBF000250C9C /* MapGLCanvas.cpp */,
 				4810276515E4FBF000250C9C /* MapGLCanvas.h */,
@@ -510,6 +518,8 @@
 				481CDAD716026C48003E2EE9 /* PreferencesDialog.h */,
 				48AB57EF15ECEEE500321C47 /* ProgressIndicatorDialog.cpp */,
 				48AB57F015ECEEE500321C47 /* ProgressIndicatorDialog.h */,
+				48C0FA44160901CB0023F467 /* SingleTextureViewer.cpp */,
+				48C0FA45160901CB0023F467 /* SingleTextureViewer.h */,
 				48E2ED15160102E400B8D476 /* ViewInspector.cpp */,
 				48E2ED16160102E400B8D476 /* ViewInspector.h */,
 				48A922B01601D0D20037FEFE /* ViewOptions.h */,
@@ -767,6 +777,8 @@
 				481CDADB16034034003E2EE9 /* Preferences.cpp in Sources */,
 				48DFD4B816061AAE00E554E1 /* glew.c in Sources */,
 				48DFD4BC1606308E00E554E1 /* MacCapabilities.cpp in Sources */,
+				48C0FA421608FFD00023F467 /* FaceInspector.cpp in Sources */,
+				48C0FA46160901CB0023F467 /* SingleTextureViewer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -859,6 +871,7 @@
 					"-D__WXMAC__",
 					"-D__WXOSX__",
 					"-D__WXOSX_COCOA__",
+					"-D__WXDEBUG__",
 				);
 				OTHER_LDFLAGS = (
 					"-L\"$(SRCROOT)/wxWidgets/build-debug/lib\"",
@@ -877,14 +890,7 @@
 					"-framework",
 					QuickTime,
 					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_osx_cocoau_gl-2.9.a\"",
-					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_osx_cocoau_xrc-2.9.a\"",
-					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_osx_cocoau_webview-2.9.a\"",
-					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_osx_cocoau_qa-2.9.a\"",
-					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_baseu_net-2.9.a\"",
-					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_osx_cocoau_html-2.9.a\"",
-					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_osx_cocoau_adv-2.9.a\"",
 					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_osx_cocoau_core-2.9.a\"",
-					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_baseu_xml-2.9.a\"",
 					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_baseu-2.9.a\"",
 					"-framework",
 					WebKit,
@@ -951,14 +957,7 @@
 					"-framework",
 					QuickTime,
 					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_gl-2.9.a\"",
-					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_xrc-2.9.a\"",
-					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_webview-2.9.a\"",
-					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_qa-2.9.a\"",
-					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_baseu_net-2.9.a\"",
-					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_html-2.9.a\"",
-					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_adv-2.9.a\"",
 					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_core-2.9.a\"",
-					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_baseu_xml-2.9.a\"",
 					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_baseu-2.9.a\"",
 					"-framework",
 					WebKit,

@@ -24,6 +24,8 @@ namespace TrenchBroom {
     namespace View {
         namespace LayoutConstants {
 #if defined _WIN32
+            static const int NotebookPageInnerMargin        = 5;
+            static const int NotebookPageExtraBottomMargin  = 2;
             static const int StaticBoxInnerMargin           = 15;
             static const int StaticBoxTopMargin             = 5;
             static const int ControlHorizontalMargin        = 10;
@@ -33,6 +35,8 @@ namespace TrenchBroom {
             static const int DefaultVerticalMargin          = 10;
             static const int DialogOuterMargin              = 10;
 #elif defined __APPLE__
+            static const int NotebookPageInnerMargin        = 5;
+            static const int NotebookPageExtraBottomMargin  = 2;
             static const int StaticBoxInnerMargin           = 10;
             static const int StaticBoxTopMargin             = 0;
             static const int ControlHorizontalMargin        = 10;
@@ -42,6 +46,8 @@ namespace TrenchBroom {
             static const int DefaultVerticalMargin          = 5;
             static const int DialogOuterMargin              = 10;
 #elif defined __linux__
+            static const int NotebookPageInnerMargin        = 5;
+            static const int NotebookPageExtraBottomMargin  = 2;
             static const int StaticBoxInnerMargin           = 15;
             static const int StaticBoxTopMargin             = 5;
             static const int ControlHorizontalMargin        = 10;

@@ -62,6 +62,10 @@ namespace TrenchBroom {
             MapGLCanvas(wxWindow* parent, DocumentViewHolder& documentViewHolder);
             ~MapGLCanvas();
             
+            inline wxGLContext* glContext() {
+                return m_glContext;
+            }
+            
             void OnPaint(wxPaintEvent& event);
 
             void OnKeyDown(wxKeyEvent& event);
@@ -74,7 +78,7 @@ namespace TrenchBroom {
             void OnMouseMiddleUp(wxMouseEvent& event);
             void OnMouseMove(wxMouseEvent& event);
             void OnMouseWheel(wxMouseEvent& event);
-        protected:
+
             DECLARE_EVENT_TABLE()
         };
     }

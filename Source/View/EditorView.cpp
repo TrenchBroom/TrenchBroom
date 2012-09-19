@@ -33,9 +33,10 @@
 #include "Renderer/MapRenderer.h"
 #include "Utility/Console.h"
 #include "Utility/Preferences.h"
+#include "View/CommandIds.h"
 #include "View/EditorFrame.h"
 #include "View/MapGLCanvas.h"
-#include "View/CommandIds.h"
+#include "View/Inspector.h"
 #include "View/ViewOptions.h"
 
 namespace TrenchBroom {
@@ -92,6 +93,11 @@ namespace TrenchBroom {
             return *m_renderer;
         }
         
+        View::Inspector& EditorView::inspector() const {
+            EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+            return frame->inspector();
+        }
+
         Utility::Console& EditorView::console() const {
             return *m_console;
         }
@@ -119,7 +125,6 @@ namespace TrenchBroom {
             SetFrame(frame);
             frame->Show();
 
-            
             return wxView::OnCreate(doc, flags);
         }
         
@@ -136,6 +141,13 @@ namespace TrenchBroom {
                     case Controller::Command::ChangeEditState: {
                         Controller::ChangeEditStateCommand* changeEditStateCommand = static_cast<Controller::ChangeEditStateCommand*>(command);
                         m_renderer->changeEditState(changeEditStateCommand->changeSet());
+                        
+                        Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+                        if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces)
+                            inspector().updateFaceInspector(editStateManager.selectedFaces());
+                        else
+                            inspector().updateFaceInspector(editStateManager.selectedBrushes());
+                        
                         break;
                     }
                     case Controller::Command::InvalidateRendererEntityState:
