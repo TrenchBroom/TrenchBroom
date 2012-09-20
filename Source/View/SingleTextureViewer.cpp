@@ -94,32 +94,48 @@ namespace TrenchBroom {
 
                 if (m_texture != NULL) {
                     wxRect bounds = GetRect();
-                    float left      = static_cast<float>(bounds.GetLeft());
-                    float top       = static_cast<float>(bounds.GetTop());
-                    float right     = static_cast<float>(bounds.GetRight());
-                    float bottom    = static_cast<float>(bounds.GetBottom());
+                    float viewLeft      = static_cast<float>(bounds.GetLeft());
+                    float viewTop       = static_cast<float>(bounds.GetTop());
+                    float viewRight     = static_cast<float>(bounds.GetRight());
+                    float viewBottom    = static_cast<float>(bounds.GetBottom());
+                    float viewWidth = viewRight - viewLeft;
+                    float viewHeight = viewBottom - viewTop;
                     
                     Mat4f projection;
-                    projection.setOrtho(-1.0f, 1.0f, left, top, right, bottom);
+                    projection.setOrtho(-1.0f, 1.0f, viewLeft, viewTop, viewRight, viewBottom);
                     
                     Mat4f view;
                     view.setView(Vec3f::NegZ, Vec3f::PosY);
+                    view.translate(Vec3f(0.0f, 0.0f, 0.1f));
                     
                     glMatrixMode(GL_PROJECTION);
                     glLoadMatrixf(projection.v);
                     glMatrixMode(GL_MODELVIEW);
                     glLoadMatrixf(view.v);
                     
+                    float texLeft, texTop, texRight, texBottom;
+                    float scale;
+                    if (m_texture->width() >= m_texture->height())
+                        scale = m_texture->width() <= viewWidth ? 1.0f : viewWidth / m_texture->width();
+                    else
+                        scale = m_texture->height() <= viewHeight ? 1.0f : viewHeight / m_texture->height();
+                    
+                    texLeft = viewLeft + (viewWidth - m_texture->width() * scale) / 2.0f;
+                    texRight = texLeft + m_texture->width() * scale;
+                    texBottom = viewTop + (viewHeight - m_texture->height() * scale) / 2.0f;
+                    texTop = texBottom + m_texture->height() * scale;
+
+                    glEnable(GL_TEXTURE_2D);
                     m_texture->activate();
                     glBegin(GL_QUADS);
                     glTexCoord2f(0.0f, 0.0f);
-                    glVertex3f(0.0f, 0.0f, 0.0f);
+                    glVertex3f(texLeft, texBottom, 0.0f);
                     glTexCoord2f(1.0f, 0.0f);
-                    glVertex3f(1.0f, 0.0f, 0.0f);
+                    glVertex3f(texRight, texBottom, 0.0f);
                     glTexCoord2f(1.0f, 1.0f);
-                    glVertex3f(1.0f, 1.0f, 0.0f);
+                    glVertex3f(texRight, texTop, 0.0f);
                     glTexCoord2f(0.0f, 1.0f);
-                    glVertex3f(0.0f, 1.0f, 0.0f);
+                    glVertex3f(texLeft, texTop, 0.0f);
                     glEnd();
                     m_texture->deactivate();
                 }
