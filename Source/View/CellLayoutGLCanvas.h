@@ -22,11 +22,28 @@
 
 #include <wx/glcanvas.h>
 
+#include "Renderer/Text/FontDescriptor.h"
 #include "View/CellLayout.h"
 
 namespace TrenchBroom {
     namespace View {
+        template <typename CellData, typename GroupData>
         class CellLayoutGLCanvas : public wxGLCanvas {
+        protected:
+            typedef CellLayout<CellData, GroupData> Layout;
+            Layout m_layout;
+            typename Layout::Group::Row::Cell* m_selectedCell;
+            
+            Renderer::Text::FontDescriptor m_font;
+            
+            virtual void reloadLayout() {
+                m_layout.clear();
+                doReloadLayout();
+                
+                // update actual height and scrollbars here
+            }
+            
+            virtual void doReloadLayout() = 0;
         };
     }
 }
