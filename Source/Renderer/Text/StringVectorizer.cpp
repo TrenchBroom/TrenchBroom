@@ -22,9 +22,6 @@
 #include "IO/FileManager.h"
 #include "Renderer/Text/PathBuilder.h"
 #include "Utility/Console.h"
-#include "Utility/VecMath.h"
-
-using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -181,6 +178,42 @@ namespace TrenchBroom {
                 
                 path->setBounds(width, height);
                 return PathPtr(path);
+            }
+            
+            Vec2f StringVectorizer::measureString(const FontDescriptor& fontDescriptor, const String& string) {
+                FT_Face face = makeFont(fontDescriptor);
+                if (face == NULL)
+                    return Vec2f();
+                
+                float width = 0.0f;
+                float height = static_cast<float>(fontDescriptor.size());
+                
+                FT_Bool useKerning = FT_HAS_KERNING(face);
+                FT_UInt previousIndex = 0;
+                
+                for (unsigned int i = 0; i < string.length(); i++) {
+                    char c = string[i];
+                    FT_UInt glyphIndex = FT_Get_Char_Index(face, c);
+                    FT_Error error = FT_Load_Glyph(face, glyphIndex, FT_LOAD_NO_HINTING | FT_LOAD_NO_AUTOHINT | FT_LOAD_NO_BITMAP);
+                    if (error != 0) {
+                        m_console.error("Error loading glyph (FT error: %i)", error);
+                        return Vec2f();
+                    }
+                    
+                    float advance = 0.0f;
+                    if (useKerning && previousIndex && glyphIndex) {
+                        FT_Vector delta;
+                        FT_Get_Kerning(face, previousIndex, glyphIndex, FT_KERNING_DEFAULT, &delta);
+                        advance += delta.x / 64.0f;
+                    }
+                    previousIndex = glyphIndex;
+                    
+                    FT_GlyphSlot glyph = face->glyph;
+                    advance += glyph->advance.x / 64.0f;
+                    width += advance;
+                }
+                
+                return Vec2f(width, height);
             }
         }
     }

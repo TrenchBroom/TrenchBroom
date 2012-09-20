@@ -22,11 +22,14 @@
 
 #include "Renderer/Text/FontDescriptor.h"
 #include "Renderer/Text/Path.h"
+#include "Utility/VecMath.h"
 
 #include <map>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+
+using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Utility {
@@ -66,6 +69,7 @@ namespace TrenchBroom {
                 ~StringVectorizer();
                 
                 PathPtr makePath(const FontDescriptor& fontDescriptor, const String& string);
+                Vec2f measureString(const FontDescriptor& fontDescriptor, const String& string);
             };
         }
     }

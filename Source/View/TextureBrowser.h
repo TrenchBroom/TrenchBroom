@@ -20,11 +20,59 @@
 #ifndef __TrenchBroom__TextureBrowser__
 #define __TrenchBroom__TextureBrowser__
 
+#include "Model/TextureManager.h"
+#include "Renderer/Text/StringManager.h"
 #include "View/CellLayoutGLCanvas.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class Texture;
+        class TextureCollection;
+        class TextureManager;
+    }
+    
+    namespace Renderer {
+        namespace Text {
+            class FontDescriptor;
+        }
+        
+        class Vbo;
+    }
+    
+    namespace Utility {
+        class Console;
+    }
+    
     namespace View {
-        class TextureBrowser : public CellLayoutGLCanvas {
+        class TextureCellData {
+        public:
+            Model::Texture* texture;
+            Renderer::Text::FontDescriptor fontDescriptor;
+            
+            TextureCellData(Model::Texture* texture, const Renderer::Text::FontDescriptor& fontDescriptor) :
+            texture(texture),
+            fontDescriptor(fontDescriptor) {}
+        };
+        
+        class TextureBrowser : public CellLayoutGLCanvas<TextureCellData, Model::TextureCollection*> {
+        protected:
+            Utility::Console& m_console;
+            Model::TextureManager& m_textureManager;
+            Renderer::Text::StringManager m_stringManager;
+            Renderer::Vbo* m_vbo;
+            
+            bool m_group;
+            bool m_hideUnused;
+            Model::TextureSortOrder::Type m_sortOrder;
+            String m_filterText;
+            
+            virtual void doInitLayout(Layout& layout);
+            void addTextureToLayout(Layout& layout, Model::Texture* texture, const Renderer::Text::FontDescriptor& font);
+            virtual void doReloadLayout(Layout& layout);
+            virtual void doRender(Layout& layout, const wxRect& rect);
+        public:
+            TextureBrowser(wxWindow* parent, wxGLContext* sharedContext, Utility::Console& console, Model::TextureManager& textureManager);
+            ~TextureBrowser();
         };
     }
 }

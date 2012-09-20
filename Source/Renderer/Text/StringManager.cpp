@@ -132,6 +132,28 @@ namespace TrenchBroom {
                 glPopClientAttrib();
                 m_vbo->deactivate();
             }
+            
+            Vec2f StringManager::measureString(const FontDescriptor& fontDescriptor, const String& string) {
+                CacheKey cacheKey(fontDescriptor, string);
+                StringCache::iterator it = m_stringCache.find(cacheKey);
+                if (it != m_stringCache.end()) {
+                    CacheEntry& cacheEntry = it->second;
+                    StringRenderer& stringRenderer = *cacheEntry.stringRenderer();
+                    return Vec2f(stringRenderer.width(), stringRenderer.height());
+                }
+                
+                return m_stringVectorizer->measureString(fontDescriptor, string);
+            }
+            
+            Vec2f StringManager::selectFontSize(const FontDescriptor& fontDescriptor, const String& string, const Vec2f& bounds, unsigned int minSize, FontDescriptor& result) {
+                result = fontDescriptor;
+                Vec2f actualBounds = measureString(result, string);
+                while (actualBounds.x > bounds.x && result.size() > minSize) {
+                    result = FontDescriptor(result.name(), result.size() - 1);
+                    actualBounds = measureString(result, string);
+                }
+                return actualBounds;
+            }
         }
     }
 }

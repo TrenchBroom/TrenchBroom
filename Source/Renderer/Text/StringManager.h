@@ -22,9 +22,12 @@
 
 #include "Renderer/Text/FontDescriptor.h"
 #include "Utility/String.h"
+#include "Utility/VecMath.h"
 
 #include <map>
 #include <memory>
+
+using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Utility {
@@ -130,7 +133,10 @@ namespace TrenchBroom {
                 
                 StringRenderer* createStringRenderer(const FontDescriptor& fontDescriptor, const String& string);
                 void destroyStringRenderer(StringRenderer* stringRenderer);
-                
+
+                Vec2f measureString(const FontDescriptor& fontDescriptor, const String& string);
+                Vec2f selectFontSize(const FontDescriptor& fontDescriptor, const String& string, const Vec2f& bounds, unsigned int minSize, FontDescriptor& result);
+
                 void activate();
                 void deactivate();
             };
