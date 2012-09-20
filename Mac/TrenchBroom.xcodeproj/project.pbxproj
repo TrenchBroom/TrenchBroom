@@ -69,6 +69,7 @@
 		48D1BEAE15E3AC060073C030 /* EditorView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEAC15E3AC060073C030 /* EditorView.cpp */; };
 		48D1BEB415E4237B0073C030 /* EditorFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEB215E4237A0073C030 /* EditorFrame.cpp */; };
 		48D1BEB715E423F60073C030 /* TrenchBroomApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEB515E423F60073C030 /* TrenchBroomApp.cpp */; };
+		48D417D7160B3A3C003AECBB /* TextureBrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D417D5160B3A3C003AECBB /* TextureBrowser.cpp */; };
 		48DFD4B816061AAE00E554E1 /* glew.c in Sources */ = {isa = PBXBuildFile; fileRef = 48DFD4B416061AAE00E554E1 /* glew.c */; };
 		48DFD4BC1606308E00E554E1 /* MacCapabilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48DFD4BA1606308E00E554E1 /* MacCapabilities.cpp */; };
 		48E2ECBD15FF8FDF00B8D476 /* Grid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48E2ECBB15FF8FDF00B8D476 /* Grid.cpp */; };
@@ -265,6 +266,10 @@
 		48D1BEB315E4237B0073C030 /* EditorFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorFrame.h; sourceTree = "<group>"; };
 		48D1BEB515E423F60073C030 /* TrenchBroomApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TrenchBroomApp.cpp; sourceTree = "<group>"; };
 		48D1BEB615E423F60073C030 /* TrenchBroomApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrenchBroomApp.h; sourceTree = "<group>"; };
+		48D417D2160B39A5003AECBB /* CellLayout.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CellLayout.h; sourceTree = "<group>"; };
+		48D417D4160B39CD003AECBB /* CellLayoutGLCanvas.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CellLayoutGLCanvas.h; sourceTree = "<group>"; };
+		48D417D5160B3A3C003AECBB /* TextureBrowser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureBrowser.cpp; sourceTree = "<group>"; };
+		48D417D6160B3A3C003AECBB /* TextureBrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureBrowser.h; sourceTree = "<group>"; };
 		48DFD4B416061AAE00E554E1 /* glew.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glew.c; path = ../Source/GL/glew.c; sourceTree = "<group>"; };
 		48DFD4B516061AAE00E554E1 /* glew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glew.h; path = ../Source/GL/glew.h; sourceTree = "<group>"; };
 		48DFD4B616061AAE00E554E1 /* glxew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glxew.h; path = ../Source/GL/glxew.h; sourceTree = "<group>"; };
@@ -501,6 +506,8 @@
 			children = (
 				4887937415EF56C10044D66A /* AbstractApp.cpp */,
 				4887937515EF56C10044D66A /* AbstractApp.h */,
+				48D417D2160B39A5003AECBB /* CellLayout.h */,
+				48D417D4160B39CD003AECBB /* CellLayoutGLCanvas.h */,
 				481CDADD1603BAF2003E2EE9 /* DocumentViewHolder.h */,
 				48D1BEAC15E3AC060073C030 /* EditorView.cpp */,
 				48D1BEAD15E3AC060073C030 /* EditorView.h */,
@@ -520,6 +527,8 @@
 				48AB57F015ECEEE500321C47 /* ProgressIndicatorDialog.h */,
 				48C0FA44160901CB0023F467 /* SingleTextureViewer.cpp */,
 				48C0FA45160901CB0023F467 /* SingleTextureViewer.h */,
+				48D417D5160B3A3C003AECBB /* TextureBrowser.cpp */,
+				48D417D6160B3A3C003AECBB /* TextureBrowser.h */,
 				48E2ED15160102E400B8D476 /* ViewInspector.cpp */,
 				48E2ED16160102E400B8D476 /* ViewInspector.h */,
 				48A922B01601D0D20037FEFE /* ViewOptions.h */,
@@ -779,6 +788,7 @@
 				48DFD4BC1606308E00E554E1 /* MacCapabilities.cpp in Sources */,
 				48C0FA421608FFD00023F467 /* FaceInspector.cpp in Sources */,
 				48C0FA46160901CB0023F467 /* SingleTextureViewer.cpp in Sources */,
+				48D417D7160B3A3C003AECBB /* TextureBrowser.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
