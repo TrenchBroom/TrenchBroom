@@ -273,7 +273,8 @@ namespace TrenchBroom {
                     m_contentBounds = LayoutBounds(m_contentBounds.left(), m_contentBounds.top(), m_contentBounds.width(), m_contentBounds.height());
                 }
                 
-                const LayoutBounds& oldBounds = m_rows.back().bounds();
+                const LayoutBounds oldBounds = m_rows.back().bounds();
+                const float oldRowHeight = m_rows.back().bounds().height();
                 if (!m_rows.back().addItem(item, itemWidth, itemHeight, titleWidth, titleHeight)) {
                     float y = oldBounds.bottom() + m_rowMargin;
                     m_rows.push_back(Row(m_contentBounds.left(), y, m_cellMargin, m_contentBounds.width(), m_maxCellsPerRow, m_fixedCellWidth));
@@ -281,9 +282,11 @@ namespace TrenchBroom {
                     bool added = (m_rows.back().addItem(item, itemWidth, itemHeight, titleWidth, titleHeight));
                     assert(added);
 
-                    m_contentBounds = LayoutBounds(m_contentBounds.left(), m_contentBounds.top(), m_contentBounds.width(), m_contentBounds.height() + m_rows.back().bounds().height() + m_rowMargin);
+                    const float newRowHeight = m_rows.back().bounds().height();
+                    m_contentBounds = LayoutBounds(m_contentBounds.left(), m_contentBounds.top(), m_contentBounds.width(), m_contentBounds.height() + newRowHeight + m_rowMargin);
                 } else {
-                    m_contentBounds = LayoutBounds(m_contentBounds.left(), m_contentBounds.top(), m_contentBounds.width(), m_contentBounds.height() + (m_rows.back().bounds().height() - oldBounds.height()));
+                    const float newRowHeight = m_rows.back().bounds().height();
+                    m_contentBounds = LayoutBounds(m_contentBounds.left(), m_contentBounds.top(), m_contentBounds.width(), m_contentBounds.height() + (newRowHeight - oldRowHeight));
                 }
             }
             
@@ -449,7 +452,7 @@ namespace TrenchBroom {
                 
                 float y = m_outerMargin;
                 if (!m_groups.empty())
-                    y += m_groups.back().bounds().bottom() + m_groupMargin;
+                    y = m_groups.back().bounds().bottom() + m_groupMargin;
                 
                 m_height += titleHeight;
                 if (!m_groups.empty())
@@ -469,9 +472,11 @@ namespace TrenchBroom {
                         m_height += m_rowMargin;
                 }
                 
-                const LayoutBounds oldBounds = m_groups.back().bounds();
+                const float oldGroupHeight = m_groups.back().bounds().height();
                 m_groups.back().addItem(item, itemWidth, itemHeight, titleWidth, titleHeight);
-                m_height += (m_groups.back().bounds().height() - oldBounds.height());
+                const float newGroupHeight = m_groups.back().bounds().height();
+                
+                m_height += (newGroupHeight - oldGroupHeight);
             }
             
             inline void clear() {

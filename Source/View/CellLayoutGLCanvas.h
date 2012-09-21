@@ -21,13 +21,15 @@
 #define TrenchBroom_CellLayoutGLCanvas_h
 
 #include "GL/glew.h"
-#include <wx/glcanvas.h>
-#include <wx/wx.h>
 
 #include "GL/Capabilities.h"
 #include "Renderer/Text/FontDescriptor.h"
 #include "Utility/Preferences.h"
 #include "View/CellLayout.h"
+
+#include <wx/wx.h>
+#include <wx/event.h>
+#include <wx/glcanvas.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -43,6 +45,17 @@ namespace TrenchBroom {
             wxGLContext* m_glContext;
             int* m_attribs;
 
+            wxScrollBar* m_scrollBar;
+            
+            void updateScrollBar() {
+                if (m_scrollBar != NULL) {
+                    int position = m_scrollBar->GetThumbPosition();
+                    int thumbSize = GetClientSize().y;
+                    int range = static_cast<int>(m_layout.height());
+                    m_scrollBar->SetScrollbar(position, thumbSize, range, thumbSize);
+                }
+            }
+            
             void initLayout() {
                 doInitLayout(m_layout);
                 m_layoutInitialized = true;
@@ -52,14 +65,9 @@ namespace TrenchBroom {
                 if (!m_layoutInitialized)
                     initLayout();
 
-                m_layout.setWidth(static_cast<float>(GetClientSize().x));
                 m_layout.clear();
                 doReloadLayout(m_layout);
-                
-                int height = static_cast<int>(m_layout.height());
-                
-                int position = GetScrollPos(wxVERTICAL);
-                SetScrollbar(wxVERTICAL, position, GetClientSize().y, height);
+                updateScrollBar();
             }
 
             int* Attribs() {
@@ -91,15 +99,28 @@ namespace TrenchBroom {
             virtual void doReloadLayout(Layout& layout) = 0;
             virtual void doRender(Layout& layout, const wxRect& rect) = 0;
         public:
-            CellLayoutGLCanvas(wxWindow* parent, wxGLContext* sharedContext, int flags = wxBORDER_SUNKEN) :
-            wxGLCanvas(parent, wxID_ANY, Attribs(), wxDefaultPosition, wxDefaultSize, flags | wxVSCROLL),
-            m_layoutInitialized(false) {
+            CellLayoutGLCanvas(wxWindow* parent, wxGLContext* sharedContext, wxScrollBar* scrollBar = NULL) :
+            wxGLCanvas(parent, wxID_ANY, Attribs(), wxDefaultPosition, wxDefaultSize),
+            m_layoutInitialized(false),
+            m_scrollBar(scrollBar) {
                 m_glContext = new wxGLContext(this, sharedContext);
                 delete [] m_attribs;
                 m_attribs = NULL;
                 
                 Bind(wxEVT_PAINT, &CellLayoutGLCanvas::OnPaint, this);
                 Bind(wxEVT_SIZE, &CellLayoutGLCanvas::OnSize, this);
+                
+                if (m_scrollBar != NULL) {
+                    m_scrollBar->Bind(wxEVT_SCROLL_TOP, &CellLayoutGLCanvas::OnScrollBarChange, this);
+                    m_scrollBar->Bind(wxEVT_SCROLL_BOTTOM, &CellLayoutGLCanvas::OnScrollBarChange, this);
+                    m_scrollBar->Bind(wxEVT_SCROLL_LINEUP, &CellLayoutGLCanvas::OnScrollBarChange, this);
+                    m_scrollBar->Bind(wxEVT_SCROLL_LINEDOWN, &CellLayoutGLCanvas::OnScrollBarChange, this);
+                    m_scrollBar->Bind(wxEVT_SCROLL_PAGEUP, &CellLayoutGLCanvas::OnScrollBarChange, this);
+                    m_scrollBar->Bind(wxEVT_SCROLL_PAGEDOWN, &CellLayoutGLCanvas::OnScrollBarChange, this);
+                    m_scrollBar->Bind(wxEVT_SCROLL_THUMBTRACK, &CellLayoutGLCanvas::OnScrollBarChange, this);
+                    
+                    Bind(wxEVT_MOUSEWHEEL, &CellLayoutGLCanvas::OnMouseWheel, this);
+                }
             }
             
             virtual ~CellLayoutGLCanvas() {
@@ -121,14 +142,24 @@ namespace TrenchBroom {
                 if (!m_layoutInitialized)
                     initLayout();
                 
-                wxPaintDC(this);
+                Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+                const Color& backgroundColor = prefs.getColor(Preferences::BackgroundColor);
+
+                wxColour wxBackgroundColor(static_cast<unsigned char>(backgroundColor.x * 0xFF),
+                                           static_cast<unsigned char>(backgroundColor.y * 0xFF),
+                                           static_cast<unsigned char>(backgroundColor.z * 0xFF),
+                                           static_cast<unsigned char>(backgroundColor.w * 0xFF));
+                
+                wxPaintDC dc(this);
+                dc.SetPen(wxPen(wxBackgroundColor));
+                dc.SetBrush(wxBrush(wxBackgroundColor));
+                dc.DrawRectangle(GetRect());
+                
                 if (SetCurrent(*m_glContext)) {
-                    Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-                    const Color& backgroundColor = prefs.getColor(Preferences::BackgroundColor);
                     glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, backgroundColor.w);
                     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-                    int top = GetScrollPos(wxVERTICAL);
+                    int top = m_scrollBar != NULL ? m_scrollBar->GetThumbPosition() : 0;
                     doRender(m_layout, wxRect(wxPoint(0, top), GetClientSize()));
                     
                     SwapBuffers();
@@ -136,7 +167,21 @@ namespace TrenchBroom {
             }
             
             void OnSize(wxSizeEvent& event) {
-                reloadLayout();
+                m_layout.setWidth(static_cast<float>(GetClientSize().x));
+                updateScrollBar();
+            }
+            
+            void OnScrollBarChange(wxScrollEvent& event) {
+                Refresh();
+            }
+            
+            void OnMouseWheel(wxMouseEvent& event) {
+                if (m_scrollBar != NULL) {
+                    int lines = event.GetLinesPerAction();
+                    float delta = static_cast<float>(event.GetWheelRotation()) / lines;
+                    m_scrollBar->SetThumbPosition(m_scrollBar->GetThumbPosition() - static_cast<int>(delta));
+                    Refresh();
+                }
             }
         };
     }

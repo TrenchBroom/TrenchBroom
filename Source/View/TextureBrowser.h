@@ -20,26 +20,13 @@
 #ifndef __TrenchBroom__TextureBrowser__
 #define __TrenchBroom__TextureBrowser__
 
-#include "Model/TextureManager.h"
-#include "Renderer/RenderTypes.h"
-#include "Renderer/Text/StringManager.h"
-#include "View/CellLayoutGLCanvas.h"
+#include <wx/panel.h>
+
+class wxGLContext;
 
 namespace TrenchBroom {
     namespace Model {
-        class Texture;
-        class TextureCollection;
         class TextureManager;
-    }
-    
-    namespace Renderer {
-        namespace Text {
-            class FontDescriptor;
-        }
-        
-        class Shader;
-        class ShaderProgram;
-        class Vbo;
     }
     
     namespace Utility {
@@ -47,40 +34,16 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class TextureCellData {
-        public:
-            Model::Texture* texture;
-            Renderer::Text::FontDescriptor fontDescriptor;
-            
-            TextureCellData(Model::Texture* texture, const Renderer::Text::FontDescriptor& fontDescriptor) :
-            texture(texture),
-            fontDescriptor(fontDescriptor) {}
-        };
+        class TextureBrowserCanvas;
         
-        class TextureBrowser : public CellLayoutGLCanvas<TextureCellData, Model::TextureCollection*> {
+        class TextureBrowser : public wxPanel {
         protected:
-            Utility::Console& m_console;
-            Model::TextureManager& m_textureManager;
-            Renderer::Text::StringManager m_stringManager;
-            
-            Renderer::ShaderPtr m_vertexShader;
-            Renderer::ShaderPtr m_fragmentShader;
-            Renderer::ShaderProgramPtr m_shaderProgram;
-            bool m_shadersCreated;
-            
-            bool m_group;
-            bool m_hideUnused;
-            Model::TextureSortOrder::Type m_sortOrder;
-            String m_filterText;
-            
-            void createShaders();
-            
-            void addTextureToLayout(Layout& layout, Model::Texture* texture, const Renderer::Text::FontDescriptor& font);
-            virtual void doInitLayout(Layout& layout);
-            virtual void doReloadLayout(Layout& layout);
-            virtual void doRender(Layout& layout, const wxRect& rect);
+            TextureBrowserCanvas* m_canvas;
+            wxScrollBar* m_scrollBar;
         public:
             TextureBrowser(wxWindow* parent, wxGLContext* sharedContext, Utility::Console& console, Model::TextureManager& textureManager);
+            
+            void reload();
         };
     }
 }
