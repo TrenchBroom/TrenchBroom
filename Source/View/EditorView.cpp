@@ -134,9 +134,11 @@ namespace TrenchBroom {
                 switch (command->type()) {
                     case Controller::Command::LoadMap:
                         m_renderer->loadMap();
+                        inspector().updateTextureBrowser();
                         break;
                     case Controller::Command::ClearMap:
                         m_renderer->clearMap();
+                        inspector().updateTextureBrowser();
                         break;
                     case Controller::Command::ChangeEditState: {
                         Controller::ChangeEditStateCommand* changeEditStateCommand = static_cast<Controller::ChangeEditStateCommand*>(command);

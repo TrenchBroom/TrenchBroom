@@ -55,6 +55,10 @@ namespace TrenchBroom {
             
             VertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const VertexAttribute::List& attributes, GLsizei padTo = 16) :
             AbstractVertexArray(vbo, primType, vertexCapacity, attributes, padTo) {}
+            
+            inline void renderPrimitives(unsigned int index, unsigned int vertexCount) {
+                glDrawArrays(m_primType, index, vertexCount);
+            }
         };
     }
 }

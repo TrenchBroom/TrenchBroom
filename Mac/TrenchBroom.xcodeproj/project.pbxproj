@@ -62,6 +62,8 @@
 		48AF492815E8CC270083DE52 /* MapParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AF492615E8CC270083DE52 /* MapParser.cpp */; };
 		48AF61F415F8B7360027C465 /* libfreetype.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48AF61F315F8B7360027C465 /* libfreetype.a */; };
 		48AF61F615F8B7720027C465 /* libbz2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48AF61F515F8B7720027C465 /* libbz2.a */; };
+		48B75F72160BA512009D4E99 /* TextureBrowser.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48B75F71160BA512009D4E99 /* TextureBrowser.vertsh */; };
+		48B75F75160BA531009D4E99 /* TextureBrowser.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48B75F74160BA531009D4E99 /* TextureBrowser.fragsh */; };
 		48C0FA421608FFD00023F467 /* FaceInspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C0FA401608FFD00023F467 /* FaceInspector.cpp */; };
 		48C0FA46160901CB0023F467 /* SingleTextureViewer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C0FA44160901CB0023F467 /* SingleTextureViewer.cpp */; };
 		48D1BE9D15E2E5550073C030 /* Vec3f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BE9C15E2E5550073C030 /* Vec3f.cpp */; };
@@ -241,6 +243,8 @@
 		48AF61F315F8B7360027C465 /* libfreetype.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreetype.a; path = Lib/libfreetype.a; sourceTree = "<group>"; };
 		48AF61F515F8B7720027C465 /* libbz2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbz2.a; path = Lib/libbz2.a; sourceTree = "<group>"; };
 		48AF61F715F91B610027C465 /* CommandIds.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommandIds.h; sourceTree = "<group>"; };
+		48B75F71160BA512009D4E99 /* TextureBrowser.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = TextureBrowser.vertsh; sourceTree = "<group>"; };
+		48B75F74160BA531009D4E99 /* TextureBrowser.fragsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = TextureBrowser.fragsh; sourceTree = "<group>"; };
 		48C0FA401608FFD00023F467 /* FaceInspector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FaceInspector.cpp; sourceTree = "<group>"; };
 		48C0FA411608FFD00023F467 /* FaceInspector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceInspector.h; sourceTree = "<group>"; };
 		48C0FA44160901CB0023F467 /* SingleTextureViewer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SingleTextureViewer.cpp; sourceTree = "<group>"; };
@@ -645,6 +649,8 @@
 				48E2ECD716008E5500B8D476 /* Text.fragsh */,
 				48E2ECD91600B50B00B8D476 /* TextBackground.vertsh */,
 				48E2ECDB1600B52000B8D476 /* TextBackground.fragsh */,
+				48B75F71160BA512009D4E99 /* TextureBrowser.vertsh */,
+				48B75F74160BA531009D4E99 /* TextureBrowser.fragsh */,
 				48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */,
 				48F0B7C215FCB4CF0089B0B5 /* Shader.h */,
 			);
@@ -717,6 +723,8 @@
 				48E2ECD816008E5600B8D476 /* Text.fragsh in Resources */,
 				48E2ECDA1600B50B00B8D476 /* TextBackground.vertsh in Resources */,
 				48E2ECDC1600B52100B8D476 /* TextBackground.fragsh in Resources */,
+				48B75F72160BA512009D4E99 /* TextureBrowser.vertsh in Resources */,
+				48B75F75160BA531009D4E99 /* TextureBrowser.fragsh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

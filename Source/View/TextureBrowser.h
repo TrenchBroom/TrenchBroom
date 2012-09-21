@@ -21,6 +21,7 @@
 #define __TrenchBroom__TextureBrowser__
 
 #include "Model/TextureManager.h"
+#include "Renderer/RenderTypes.h"
 #include "Renderer/Text/StringManager.h"
 #include "View/CellLayoutGLCanvas.h"
 
@@ -36,6 +37,8 @@ namespace TrenchBroom {
             class FontDescriptor;
         }
         
+        class Shader;
+        class ShaderProgram;
         class Vbo;
     }
     
@@ -59,20 +62,25 @@ namespace TrenchBroom {
             Utility::Console& m_console;
             Model::TextureManager& m_textureManager;
             Renderer::Text::StringManager m_stringManager;
-            Renderer::Vbo* m_vbo;
+            
+            Renderer::ShaderPtr m_vertexShader;
+            Renderer::ShaderPtr m_fragmentShader;
+            Renderer::ShaderProgramPtr m_shaderProgram;
+            bool m_shadersCreated;
             
             bool m_group;
             bool m_hideUnused;
             Model::TextureSortOrder::Type m_sortOrder;
             String m_filterText;
             
-            virtual void doInitLayout(Layout& layout);
+            void createShaders();
+            
             void addTextureToLayout(Layout& layout, Model::Texture* texture, const Renderer::Text::FontDescriptor& font);
+            virtual void doInitLayout(Layout& layout);
             virtual void doReloadLayout(Layout& layout);
             virtual void doRender(Layout& layout, const wxRect& rect);
         public:
             TextureBrowser(wxWindow* parent, wxGLContext* sharedContext, Utility::Console& console, Model::TextureManager& textureManager);
-            ~TextureBrowser();
         };
     }
 }

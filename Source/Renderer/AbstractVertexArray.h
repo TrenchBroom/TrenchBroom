@@ -348,22 +348,28 @@ namespace TrenchBroom {
                 }
             }
 
-            inline void render() {
+            inline void preRender() {
                 assert(m_specIndex == 0);
-
+                
                 unsigned int offset = m_block->address();
                 for (unsigned int i = 0; i < m_attributes.size(); i++) {
                     VertexAttribute& attribute = m_attributes[i];
                     attribute.setGLState(i, m_vertexSize + m_padBy, offset);
                     offset += attribute.sizeInBytes();
                 }
-
-                doRender();
-
+            }
+            
+            inline void postRender() {
                 for (unsigned int i = 0; i < m_attributes.size(); i++) {
                     VertexAttribute& attribute = m_attributes[i];
                     attribute.clearGLState(i);
                 }
+            }
+            
+            inline void render() {
+                preRender();
+                doRender();
+                postRender();
             }
         };
     }

@@ -200,10 +200,10 @@ namespace TrenchBroom {
                 float height = top - bottom;
                 float depth = far - near;
                 
-                set(2.0f / width,   0.0f,           0.0f,           -(left + right) / width,
-                    0.0f,           2.0f / height,  0.0f,           -(top + bottom) / height,
-                    0.0f,           0.0f,           2.0f / depth,   -(far + near) / depth,
-                    0.0f,           0.0f,           0.0f,           1.0f);
+                set(2.0f / width,   0.0f,            0.0f,           -(left + right) / width,
+                    0.0f,           2.0f / height,   0.0f,           -(top + bottom) / height,
+                    0.0f,           0.0f,           -2.0f / depth,   -(far + near) / depth,
+                    0.0f,           0.0f,            0.0f,           1.0f);
             }
             
             inline void setView(const Vec3f& direction, const Vec3f& up) {

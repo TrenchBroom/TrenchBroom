@@ -263,6 +263,10 @@ namespace TrenchBroom {
             return *m_editStateManager;
         }
 
+        TextureManager& MapDocument::textureManager() const {
+            return *m_textureManager;
+        }
+
         Picker& MapDocument::picker() const {
             return *m_picker;
         }

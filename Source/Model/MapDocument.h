@@ -77,6 +77,7 @@ namespace TrenchBroom {
             
             Map& map() const;
             EditStateManager& editStateManager() const;
+            TextureManager& textureManager() const;
             Picker& picker() const;
             Utility::Grid& grid() const;
             Utility::Console& console() const;

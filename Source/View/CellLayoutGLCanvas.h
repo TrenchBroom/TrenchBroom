@@ -38,23 +38,28 @@ namespace TrenchBroom {
         private:
             Layout m_layout;
             typename Layout::Group::Row::Cell* m_selectedCell;
+            bool m_layoutInitialized;
             
             wxGLContext* m_glContext;
             int* m_attribs;
 
             void initLayout() {
                 doInitLayout(m_layout);
+                m_layoutInitialized = true;
             }
             
             void reloadLayout() {
-                m_layout.setWidth(static_cast<float>(GetSize().x));
+                if (!m_layoutInitialized)
+                    initLayout();
+
+                m_layout.setWidth(static_cast<float>(GetClientSize().x));
                 m_layout.clear();
                 doReloadLayout(m_layout);
                 
                 int height = static_cast<int>(m_layout.height());
                 
                 int position = GetScrollPos(wxVERTICAL);
-                SetScrollbar(wxVERTICAL, position, GetSize().y, height);
+                SetScrollbar(wxVERTICAL, position, GetClientSize().y, height);
             }
 
             int* Attribs() {
@@ -87,15 +92,14 @@ namespace TrenchBroom {
             virtual void doRender(Layout& layout, const wxRect& rect) = 0;
         public:
             CellLayoutGLCanvas(wxWindow* parent, wxGLContext* sharedContext, int flags = wxBORDER_SUNKEN) :
-            wxGLCanvas(parent, wxID_ANY, Attribs(), wxDefaultPosition, wxDefaultSize, flags | wxVSCROLL) {
+            wxGLCanvas(parent, wxID_ANY, Attribs(), wxDefaultPosition, wxDefaultSize, flags | wxVSCROLL),
+            m_layoutInitialized(false) {
                 m_glContext = new wxGLContext(this, sharedContext);
                 delete [] m_attribs;
                 m_attribs = NULL;
                 
-                initLayout();
-                
                 Bind(wxEVT_PAINT, &CellLayoutGLCanvas::OnPaint, this);
-                Bind(wxEVT_SIZING, &CellLayoutGLCanvas::OnSize, this);
+                Bind(wxEVT_SIZE, &CellLayoutGLCanvas::OnSize, this);
             }
             
             virtual ~CellLayoutGLCanvas() {
@@ -109,7 +113,14 @@ namespace TrenchBroom {
                 }
             }
             
+            void reload() {
+                reloadLayout();
+            }
+            
             void OnPaint(wxPaintEvent& event) {
+                if (!m_layoutInitialized)
+                    initLayout();
+                
                 wxPaintDC(this);
                 if (SetCurrent(*m_glContext)) {
                     Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
@@ -118,7 +129,7 @@ namespace TrenchBroom {
                     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
                     int top = GetScrollPos(wxVERTICAL);
-                    doRender(m_layout, wxRect(wxPoint(0, top), GetSize()));
+                    doRender(m_layout, wxRect(wxPoint(0, top), GetClientSize()));
                     
                     SwapBuffers();
                 }

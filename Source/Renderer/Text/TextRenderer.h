@@ -155,6 +155,9 @@ namespace TrenchBroom {
                         VertexArrayPtr vertexArray = VertexArrayPtr(new VertexArray(*m_backgroundVbo, GL_TRIANGLES, vertexCount,
                                                                                     VertexAttribute(3, GL_FLOAT, VertexAttribute::Position),
                                                                                     VertexAttribute(4, GL_FLOAT, VertexAttribute::Color)));
+                        Vec2f::List vertices;
+                        vertices.reserve(vertexCount);
+                        
                         m_backgroundVbo->activate();
                         m_backgroundVbo->map();
                         for (unsigned int i = 0; i < entries.size(); i++) {
@@ -174,12 +177,13 @@ namespace TrenchBroom {
                             matrix.translate(Vec3f(0.0f, (stringRenderer->height() - m_vInset) / 2.0f, 0.0f));
                              
                             float a = 1.0f - (std::max)(dist - m_fadeDistance, 0.0f) / 100.0f;
-                            Vec2f::List vertices = roundedRect(stringRenderer->width() + m_hInset, stringRenderer->height() + m_vInset, 3.0f, 3);
+                            roundedRect(stringRenderer->width() + m_hInset, stringRenderer->height() + m_vInset, 3.0f, 3, vertices);
                             for (unsigned int j = 0; j < vertices.size(); j++) {
                                 Vec3f vertex = Vec3f(vertices[j].x, vertices[j].y, 0.0f);
                                 vertexArray->addAttribute(matrix * vertex);
                                 vertexArray->addAttribute(Color(color.x, color.y, color.z, color.w * a));
                             }
+                            vertices.clear();
                         }
                         m_backgroundVbo->unmap();
                         

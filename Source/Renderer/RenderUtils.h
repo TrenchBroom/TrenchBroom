@@ -59,13 +59,12 @@ namespace TrenchBroom {
             glDepthRange(EdgeOffset, 1.0f);
         }
         
-        inline Vec2f::List roundedRect(float width, float height, float cornerRadius, unsigned int cornerSegments) {
+        inline void roundedRect(float width, float height, float cornerRadius, unsigned int cornerSegments, Vec2f::List& vertices) {
             assert(cornerSegments > 0);
             assert(cornerRadius <= width / 2.0f &&
                    cornerRadius <= height / 2.0f);
             
             const float angle = Math::Pi / 2.0f / cornerSegments;
-            Vec2f::List vertices;
             Vec2f center(0.0f, 0.0f);
             Vec2f translation;
 
@@ -144,8 +143,6 @@ namespace TrenchBroom {
             vertices.push_back(center);
             vertices.push_back(Vec2f(-width / 2.0f, -(height / 2.0f - cornerRadius)));
             vertices.push_back(Vec2f(-width / 2.0f,  (height / 2.0f - cornerRadius)));
-            
-            return vertices;
         }
     }
 }

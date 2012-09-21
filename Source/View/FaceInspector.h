@@ -34,6 +34,7 @@ namespace TrenchBroom {
     namespace View {
         class DocumentViewHolder;
         class SingleTextureViewer;
+        class TextureBrowser;
         
         class FaceInspector : public wxPanel {
         protected:
@@ -48,6 +49,8 @@ namespace TrenchBroom {
             wxSpinCtrlDouble* m_yScaleEditor;
             wxSpinCtrlDouble* m_rotationEditor;
             
+            TextureBrowser* m_textureBrowser;
+            
             wxWindow* createFaceEditor(wxGLContext* sharedContext);
             wxWindow* createTextureBrowser(wxGLContext* sharedContext);
         public:
@@ -55,6 +58,7 @@ namespace TrenchBroom {
             
             void update(const Model::FaceList& faces);
             void update(const Model::BrushList& brushes);
+            void updateTextureBrowser();
         };
     }
 }

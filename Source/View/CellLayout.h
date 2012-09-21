@@ -156,12 +156,12 @@ namespace TrenchBroom {
             float m_cellMargin;
             LayoutBounds m_bounds;
         public:
-            LayoutRow(float y, float cellMargin, float maxWidth, unsigned int maxCells, float fixedCellWidth) :
+            LayoutRow(float x, float y, float cellMargin, float maxWidth, unsigned int maxCells, float fixedCellWidth) :
             m_cellMargin(cellMargin),
             m_maxWidth(maxWidth),
             m_maxCells(maxCells),
             m_fixedCellWidth(fixedCellWidth),
-            m_bounds(0.0f, y, 0.0f, 0.0f) {}
+            m_bounds(x, y, 0.0f, 0.0f) {}
             
             inline const Cell& operator[] (const unsigned int index) const {
                 assert(index >= 0 && index < m_cells.size());
@@ -170,17 +170,20 @@ namespace TrenchBroom {
             
             inline bool addItem(CellType item, float itemWidth, float itemHeight, float titleWidth, float titleHeight) {
                 float x = m_bounds.right();
-                if (!m_cells.empty())
+                float width = m_bounds.width();
+                if (!m_cells.empty()) {
                     x += m_cellMargin;
+                    width += m_cellMargin;
+                }
                 
                 Cell cell(item, x, m_bounds.top(), itemWidth, itemHeight, titleWidth, titleHeight, m_fixedCellWidth);
+                width += cell.cellBounds().width();
 
-                if (m_maxCells == 0 && m_bounds.right() + cell.cellBounds().width() + 2 * m_cellMargin > m_maxWidth && !m_cells.empty())
+                if (m_maxCells == 0 && width > m_maxWidth && !m_cells.empty())
                     return false;
                 if (m_maxCells > 0 && m_cells.size() >= m_maxCells - 1)
                     return false;
                 
-                float width = x + cell.cellBounds().width();
                 float height = (std::max)(m_bounds.height(), cell.cellBounds().height());
                 m_bounds = LayoutBounds(m_bounds.left(), m_bounds.top(), width, height);
                 
@@ -266,14 +269,14 @@ namespace TrenchBroom {
                     if (m_titleBounds.height() > 0)
                         y += m_rowMargin;
                     
-                    m_rows.push_back(Row(y, m_cellMargin, m_contentBounds.width(), m_maxCellsPerRow, m_fixedCellWidth));
-                    m_contentBounds = LayoutBounds(m_contentBounds.left(), m_contentBounds.top(), m_contentBounds.width(), m_contentBounds.height() + m_rowMargin);
+                    m_rows.push_back(Row(m_contentBounds.left(), y, m_cellMargin, m_contentBounds.width(), m_maxCellsPerRow, m_fixedCellWidth));
+                    m_contentBounds = LayoutBounds(m_contentBounds.left(), m_contentBounds.top(), m_contentBounds.width(), m_contentBounds.height());
                 }
                 
                 const LayoutBounds& oldBounds = m_rows.back().bounds();
                 if (!m_rows.back().addItem(item, itemWidth, itemHeight, titleWidth, titleHeight)) {
                     float y = oldBounds.bottom() + m_rowMargin;
-                    m_rows.push_back(Row(y, m_cellMargin, m_contentBounds.width(), m_maxCellsPerRow, m_fixedCellWidth));
+                    m_rows.push_back(Row(m_contentBounds.left(), y, m_cellMargin, m_contentBounds.width(), m_maxCellsPerRow, m_fixedCellWidth));
 
                     bool added = (m_rows.back().addItem(item, itemWidth, itemHeight, titleWidth, titleHeight));
                     assert(added);

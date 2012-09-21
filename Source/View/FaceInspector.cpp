@@ -28,9 +28,13 @@
 
 #include "Model/Brush.h"
 #include "Model/Face.h"
+#include "Model/MapDocument.h"
 #include "Model/Texture.h"
+#include "View/DocumentViewHolder.h"
+#include "View/EditorView.h"
 #include "View/LayoutConstants.h"
 #include "View/SingleTextureViewer.h"
+#include "View/TextureBrowser.h"
 
 #include <limits>
 
@@ -107,7 +111,17 @@ namespace TrenchBroom {
         }
         
         wxWindow* FaceInspector::createTextureBrowser(wxGLContext* sharedContext) {
-            return NULL;
+            wxPanel* textureBrowserPanel = new wxPanel(this);
+
+            Utility::Console& console = m_documentViewHolder.view().console();
+            Model::TextureManager& textureManager = m_documentViewHolder.document().textureManager();
+            m_textureBrowser = new TextureBrowser(textureBrowserPanel, sharedContext, console, textureManager);
+            
+            wxSizer* textureBrowserSizer = new wxBoxSizer(wxVERTICAL);
+            textureBrowserSizer->Add(m_textureBrowser, 1, wxEXPAND);
+            
+            textureBrowserPanel->SetSizerAndFit(textureBrowserSizer);
+            return textureBrowserPanel;
         }
         
         FaceInspector::FaceInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder, wxGLContext* sharedContext) :
@@ -120,8 +134,8 @@ namespace TrenchBroom {
             innerSizer->AddSpacer(LayoutConstants::DefaultVerticalMargin);
             innerSizer->Add(new wxStaticLine(this), 0, wxEXPAND);
             innerSizer->AddSpacer(LayoutConstants::DefaultVerticalMargin);
-//            innerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-//            innerSizer->Add(createTextureBrowser(sharedContext), 1, wxEXPAND | wxBOTTOM, LayoutConstants::NotebookPageExtraBottomMargin);
+            innerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            innerSizer->Add(createTextureBrowser(sharedContext), 1, wxEXPAND | wxBOTTOM, LayoutConstants::NotebookPageExtraBottomMargin);
             
             // creates 5 pixel border inside the page
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
@@ -213,6 +227,10 @@ namespace TrenchBroom {
                 faces.insert(faces.end(), brush->faces().begin(), brush->faces().end());
             }
             update(faces);
+        }
+
+        void FaceInspector::updateTextureBrowser() {
+            m_textureBrowser->reload();
         }
     }
 }

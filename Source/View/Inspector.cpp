@@ -69,5 +69,9 @@ namespace TrenchBroom {
         void Inspector::updateFaceInspector(const Model::BrushList& brushes) {
             m_faceInspector->update(brushes);
         }
+
+        void Inspector::updateTextureBrowser() {
+            m_faceInspector->updateTextureBrowser();
+        }
     }
 }
