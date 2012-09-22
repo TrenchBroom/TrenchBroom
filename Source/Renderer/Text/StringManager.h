@@ -21,6 +21,7 @@
 #define __TrenchBroom__StringManager__
 
 #include "Renderer/Text/FontDescriptor.h"
+#include "Utility/CachedPtr.h"
 #include "Utility/String.h"
 #include "Utility/VecMath.h"
 
@@ -43,34 +44,12 @@ namespace TrenchBroom {
             class StringVectorizer;
             
             typedef TrenchBroom::Renderer::Text::PathRenderer StringRenderer;
+            typedef Utility::CachedPtr<StringRenderer> StringRendererPtr;
             
-            class StringManager {
+            class StringManager : public Utility::CachedPtr<StringRenderer>::Cache {
             public:
                 typedef std::auto_ptr<StringManager> Ptr;
             protected:
-                class CacheEntry {
-                protected:
-                    StringRenderer* m_stringRenderer;
-                    unsigned int m_usageCount;
-                public:
-                    CacheEntry(StringRenderer* stringRenderer) :
-                    m_stringRenderer(stringRenderer),
-                    m_usageCount(1) {}
-                    
-                    inline StringRenderer* stringRenderer() const {
-                        return m_stringRenderer;
-                    }
-                    
-                    inline void incUsageCount() {
-                        m_usageCount++;
-                    }
-                    
-                    inline bool decUsageCount() {
-                        m_usageCount--;
-                        return m_usageCount == 0;
-                    }
-                };
-                
                 class CacheKey {
                 protected:
                     FontDescriptor m_fontDescriptor;
@@ -114,25 +93,28 @@ namespace TrenchBroom {
                     }
                 };
                 
-                typedef std::map<CacheKey, CacheEntry> StringCache;
+                typedef std::map<CacheKey, StringRendererPtr> StringCache;
                 typedef std::map<StringRenderer*, CacheKey> InverseCacheMap;
+                typedef std::map<CacheKey, StringRenderer*> UnpreparedStringMap;
                 typedef std::vector<StringRenderer*> StringRendererList;
                 
                 StringCache m_stringCache;
                 InverseCacheMap m_inverseCache;
-                StringRendererList m_unpreparedStrings;
+                UnpreparedStringMap m_unpreparedStrings;
+                StringRendererList m_deletableStrings;
                 
                 StringVectorizer* m_stringVectorizer;
                 PathTesselator* m_tesselator;
                 Vbo* m_vbo;
                 
-                void prepare();
+                void prepareStrings();
+                void deleteStrings();
             public:
                 StringManager(Utility::Console& console);
                 ~StringManager();
                 
-                StringRenderer* createStringRenderer(const FontDescriptor& fontDescriptor, const String& string);
-                void destroyStringRenderer(StringRenderer* stringRenderer);
+                StringRendererPtr stringRenderer(const FontDescriptor& fontDescriptor, const String& string);
+                void deleteElement(StringRenderer* stringRenderer);
 
                 Vec2f measureString(const FontDescriptor& fontDescriptor, const String& string);
                 Vec2f selectFontSize(const FontDescriptor& fontDescriptor, const String& string, const Vec2f& bounds, unsigned int minSize, FontDescriptor& result);

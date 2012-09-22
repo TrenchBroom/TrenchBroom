@@ -20,9 +20,12 @@
 #include "TextureBrowserCanvas.h"
 
 #include "IO/FileManager.h"
+#include "Renderer/PushMatrix.h"
 #include "Renderer/RenderUtils.h"
+#include "Renderer/Transformation.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexArray.h"
+#include "Renderer/Text/PathRenderer.h"
 #include "Utility/Preferences.h"
 #include "Utility/VecMath.h"
 
@@ -58,13 +61,14 @@ namespace TrenchBroom {
                 Renderer::Text::FontDescriptor actualFont(font);
                 Vec2f actualSize;
                 
-                float cellWidth = layout.fixedCellWidth();
-                if  (cellWidth > 0.0f)
-                    actualSize = m_stringManager.selectFontSize(font, texture->name(), Vec2f(cellWidth, static_cast<float>(font.size())), 5, actualFont);
+                float cellSize = layout.fixedCellSize();
+                if  (cellSize > 0.0f)
+                    actualSize = m_stringManager.selectFontSize(font, texture->name(), Vec2f(cellSize, static_cast<float>(font.size())), 5, actualFont);
                 else
                     actualSize = m_stringManager.measureString(font, texture->name());
                 
-                layout.addItem(TextureCellData(texture, actualFont), texture->width(), texture->height(), actualSize.x, font.size() + 2.0f);
+                Renderer::Text::StringRendererPtr stringRenderer = m_stringManager.stringRenderer(actualFont, texture->name());
+                layout.addItem(TextureCellData(texture, stringRenderer), texture->width(), texture->height(), actualSize.x, font.size() + 2.0f);
             }
         }
         
@@ -73,7 +77,7 @@ namespace TrenchBroom {
             layout.setGroupMargin(5.0f);
             layout.setRowMargin(5.0f);
             layout.setCellMargin(5.0f);
-            layout.setFixedCellWidth(64.0f);
+            layout.setFixedCellSize(CRBoth, 64.0f);
         }
         
         void TextureBrowserCanvas::doReloadLayout(Layout& layout) {
@@ -117,10 +121,7 @@ namespace TrenchBroom {
             view.translate(Vec3f(0.0f, 0.0f, 0.1f));
             
             glViewport(viewLeft, viewBottom, viewRight - viewLeft, viewTop - viewBottom);
-            glMatrixMode(GL_PROJECTION);
-            glLoadMatrixf(projection.v);
-            glMatrixMode(GL_MODELVIEW);
-            glLoadMatrixf(view.v);
+            Renderer::Transformation transformation(projection * view, true);
 
             if (!m_shadersCreated)
                 createShaders();
@@ -132,8 +133,6 @@ namespace TrenchBroom {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             m_textureShaderProgram->setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
 
-            glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-            // glEnable(GL_TEXTURE_2D);
             for (unsigned int i = 0; i < layout.size(); i++) {
                 const Layout::Group& group = layout[i];
                 if (group.intersectsY(rect.y, height)) {
@@ -163,7 +162,31 @@ namespace TrenchBroom {
             m_textureShaderProgram->deactivate();
             
             m_textShaderProgram->activate();
+            m_textShaderProgram->setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
             m_stringManager.activate();
+
+            Renderer::PushMatrix matrix(transformation);
+            
+            for (unsigned int i = 0; i < layout.size(); i++) {
+                const Layout::Group& group = layout[i];
+                if (group.intersectsY(rect.y, height)) {
+                    for (unsigned int j = 0; j < group.size(); j++) {
+                        const Layout::Group::Row& row = group[j];
+                        if (row.intersectsY(rect.y, height)) {
+                            for (unsigned int k = 0; k < row.size(); k++) {
+                                const Layout::Group::Row::Cell& cell = row[k];
+                                
+                                Mat4f translate = matrix.matrix();
+                                translate.translate(Vec3f(cell.titleBounds().left(), height - (cell.titleBounds().top() - y) - cell.titleBounds().height() + 2.0f, 0.0f));
+                                matrix.load(translate);
+                                
+                                Renderer::Text::StringRendererPtr stringRenderer = cell.item().stringRenderer;
+                                stringRenderer->render();
+                            }
+                        }
+                    }
+                }
+            }
             
             m_stringManager.deactivate();
             m_textShaderProgram->deactivate();
@@ -179,5 +202,9 @@ namespace TrenchBroom {
         m_hideUnused(false),
         m_sortOrder(Model::TextureSortOrder::Name),
         m_shadersCreated(false) {}
+
+        TextureBrowserCanvas::~TextureBrowserCanvas() {
+            clear();
+        }
     }
 }

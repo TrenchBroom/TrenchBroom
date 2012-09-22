@@ -62,10 +62,10 @@ namespace TrenchBroom {
                 protected:
                     FontDescriptor m_fontDescriptor;
                     String m_string;
-                    StringRenderer* m_stringRenderer;
+                    StringRendererPtr m_stringRenderer;
                     TextAnchor* m_textAnchor;
                 public:
-                    TextEntry(const FontDescriptor& fontDescriptor, const String& string, StringRenderer* stringRenderer, TextAnchor* textAnchor) :
+                    TextEntry(const FontDescriptor& fontDescriptor, const String& string, StringRendererPtr stringRenderer, TextAnchor* textAnchor) :
                     m_fontDescriptor(fontDescriptor),
                     m_string(string),
                     m_stringRenderer(stringRenderer),
@@ -79,11 +79,11 @@ namespace TrenchBroom {
                         return m_string;
                     }
                     
-                    inline StringRenderer* stringRenderer() const {
+                    inline StringRendererPtr stringRenderer() const {
                         return m_stringRenderer;
                     }
                     
-                    inline void setStringRenderer(StringRenderer* stringRenderer) const {
+                    inline void setStringRenderer(StringRendererPtr stringRenderer) const {
                         m_stringRenderer = stringRenderer;
                     }
                     
@@ -121,7 +121,7 @@ namespace TrenchBroom {
                 TextMap m_entries;
                 VboPtr m_backgroundVbo;
                 
-                inline void addString(Key key, const FontDescriptor& fontDescriptor, const String& string, StringRenderer* stringRenderer, TextAnchor* anchor) {
+                inline void addString(Key key, const FontDescriptor& fontDescriptor, const String& string, StringRendererPtr stringRenderer, TextAnchor* anchor) {
                     removeString(key);
                     m_entries.insert(std::pair<Key, TextEntry>(key, TextEntry(fontDescriptor, string, stringRenderer, anchor)));
                 }
@@ -166,7 +166,7 @@ namespace TrenchBroom {
                             float dist = entryWithDistance.distance();
                             float factor = dist / 300.0f;
                             
-                            StringRenderer* stringRenderer = entry.stringRenderer();
+                            StringRendererPtr stringRenderer = entry.stringRenderer();
                             TextAnchor* anchor = entry.textAnchor();
                             const Vec3f& position = anchor->position();
                             
@@ -206,7 +206,7 @@ namespace TrenchBroom {
                             float dist = entryWithDistance.distance();
                             float factor = dist / 300.0f;
                             
-                            StringRenderer* stringRenderer = entry.stringRenderer();
+                            StringRendererPtr stringRenderer = entry.stringRenderer();
                             TextAnchor* anchor = entry.textAnchor();
                             const Vec3f& position = anchor->position();
                             
@@ -238,8 +238,8 @@ namespace TrenchBroom {
                 }
                 
                 inline void addString(Key key, const FontDescriptor& fontDescriptor, const String& string, TextAnchor* anchor) {
-                    StringRenderer* stringRenderer = m_stringManager.createStringRenderer(fontDescriptor, string);
-                    assert(stringRenderer != NULL);
+                    StringRendererPtr stringRenderer = m_stringManager.stringRenderer(fontDescriptor, string);
+                    assert(stringRenderer.get() != NULL);
                     
                     addString(key, fontDescriptor, string, stringRenderer, anchor);
                 }
@@ -248,7 +248,6 @@ namespace TrenchBroom {
                     typename TextMap::iterator it = m_entries.find(key);
                     if (it != m_entries.end()) {
                         TextEntry& entry = it->second;
-                        m_stringManager.destroyStringRenderer(entry.stringRenderer());
                         delete entry.textAnchor();
                         m_entries.erase(it);
                     }
@@ -261,8 +260,7 @@ namespace TrenchBroom {
                         const FontDescriptor& fontDescriptor = entry.fontDescriptor();
                         const String& string = entry.string();
                         
-                        m_stringManager.destroyStringRenderer(entry.stringRenderer());
-                        StringRenderer* stringRenderer = m_stringManager.createStringRenderer(fontDescriptor, string);
+                        StringRendererPtr stringRenderer = m_stringManager.stringRenderer(fontDescriptor, string);
                         entry.setStringRenderer(stringRenderer);
                     }
                 }
@@ -284,7 +282,6 @@ namespace TrenchBroom {
                     typename TextMap::iterator it, end;
                     for (it = m_entries.begin(), end = m_entries.end(); it != end; ++it) {
                         TextEntry& entry = it->second;
-                        m_stringManager.destroyStringRenderer(entry.stringRenderer());
                         delete entry.textAnchor();
                     }
                     m_entries.clear();

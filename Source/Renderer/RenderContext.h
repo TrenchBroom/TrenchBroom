@@ -44,7 +44,7 @@ namespace TrenchBroom {
             RenderContext(Camera& camera, Model::Filter& filter, View::ViewOptions& viewOptions) :
             m_camera(camera),
             m_filter(filter),
-            m_transformation(m_camera.matrix()),
+            m_transformation(m_camera.matrix(), false),
             m_viewOptions(viewOptions) {}
             
             inline Camera& camera() const {

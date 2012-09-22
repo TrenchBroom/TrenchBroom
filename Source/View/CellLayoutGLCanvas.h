@@ -138,6 +138,10 @@ namespace TrenchBroom {
                 reloadLayout();
             }
             
+            void clear() {
+                m_layout.clear();
+            }
+            
             void OnPaint(wxPaintEvent& event) {
                 if (!m_layoutInitialized)
                     initLayout();

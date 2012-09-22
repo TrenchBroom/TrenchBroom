@@ -248,6 +248,7 @@
 		48B75F74160BA531009D4E99 /* TextureBrowser.fragsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = TextureBrowser.fragsh; sourceTree = "<group>"; };
 		48B75F77160CF79E009D4E99 /* TextureBrowser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureBrowser.cpp; sourceTree = "<group>"; };
 		48B75F78160CF79E009D4E99 /* TextureBrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureBrowser.h; sourceTree = "<group>"; };
+		48B75F7B160DAE61009D4E99 /* CachedPtr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CachedPtr.h; sourceTree = "<group>"; };
 		48C0FA401608FFD00023F467 /* FaceInspector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FaceInspector.cpp; sourceTree = "<group>"; };
 		48C0FA411608FFD00023F467 /* FaceInspector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceInspector.h; sourceTree = "<group>"; };
 		48C0FA44160901CB0023F467 /* SingleTextureViewer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SingleTextureViewer.cpp; sourceTree = "<group>"; };
@@ -550,6 +551,7 @@
 			isa = PBXGroup;
 			children = (
 				48D1BEA915E2FC150073C030 /* BBox.h */,
+				48B75F7B160DAE61009D4E99 /* CachedPtr.h */,
 				48312B4815EBC14F00607868 /* Color.h */,
 				48312B2A15EB706D00607868 /* Console.cpp */,
 				48312B2B15EB706D00607868 /* Console.h */,

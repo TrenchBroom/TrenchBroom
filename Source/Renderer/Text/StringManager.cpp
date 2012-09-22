@@ -28,16 +28,21 @@
 namespace TrenchBroom {
     namespace Renderer {
         namespace Text {
-            void StringManager::prepare() {
+            void StringManager::prepareStrings() {
                 m_vbo->map();
                 
-                for (unsigned int i = 0; i < m_unpreparedStrings.size(); i++) {
-                    StringRenderer* stringRenderer = m_unpreparedStrings[i];
+                UnpreparedStringMap::iterator it, end;
+                for (it = m_unpreparedStrings.begin(), end = m_unpreparedStrings.end(); it != end; ++it) {
+                    StringRenderer* stringRenderer = it->second;
                     stringRenderer->prepare(*m_tesselator, *m_vbo);
                 }
                 
                 m_unpreparedStrings.clear();
                 m_vbo->unmap();
+            }
+            
+            void StringManager::deleteStrings() {
+                while (!m_deletableStrings.empty()) delete m_deletableStrings.back(), m_deletableStrings.pop_back();
             }
             
             StringManager::StringManager(Utility::Console& console) :
@@ -49,6 +54,12 @@ namespace TrenchBroom {
             }
             
             StringManager::~StringManager() {
+                assert(m_stringCache.empty());
+                assert(m_inverseCache.empty());
+                assert(m_unpreparedStrings.empty());
+
+                deleteStrings();
+                
                 if (m_stringVectorizer != NULL) {
                     delete m_stringVectorizer;
                     m_stringVectorizer = NULL;
@@ -59,40 +70,29 @@ namespace TrenchBroom {
                     m_tesselator = NULL;
                 }
                 
-                StringCache::iterator it, end;
-                for (it = m_stringCache.begin(), end = m_stringCache.end(); it != end; ++it) {
-                    CacheEntry& cacheEntry = it->second;
-                    delete cacheEntry.stringRenderer();
-                }
-                m_stringCache.clear();
-                m_inverseCache.clear();
-                m_unpreparedStrings.clear();
-                
                 if (m_vbo != NULL) {
                     delete m_vbo;
                     m_vbo = NULL;
                 }
             }
 
-            StringRenderer* StringManager::createStringRenderer(const FontDescriptor& fontDescriptor, const String& string) {
+            StringRendererPtr StringManager::stringRenderer(const FontDescriptor& fontDescriptor, const String& string) {
                 CacheKey cacheKey(fontDescriptor, string);
                 StringCache::iterator it = m_stringCache.find(cacheKey);
-                if (it != m_stringCache.end()) {
-                    CacheEntry& cacheEntry = it->second;
-                    cacheEntry.incUsageCount();
-                    return cacheEntry.stringRenderer();
-                }
+                if (it != m_stringCache.end())
+                    return it->second;
                 
                 PathPtr path = m_stringVectorizer->makePath(fontDescriptor, string);
                 StringRenderer* stringRenderer = new StringRenderer(path);
-                m_stringCache.insert(std::pair<CacheKey, CacheEntry>(cacheKey, CacheEntry(stringRenderer)));
+                StringRendererPtr stringRendererPtr(this, stringRenderer);
+                m_stringCache.insert(std::pair<CacheKey, StringRendererPtr>(cacheKey, stringRendererPtr));
                 m_inverseCache.insert(std::pair<StringRenderer*, CacheKey>(stringRenderer, cacheKey));
-                m_unpreparedStrings.push_back(stringRenderer);
+                m_unpreparedStrings.insert(std::pair<CacheKey, StringRenderer*>(cacheKey, stringRenderer));
 
-                return stringRenderer;
+                return stringRendererPtr;
             }
             
-            void StringManager::destroyStringRenderer(StringRenderer* stringRenderer) {
+            void StringManager::deleteElement(StringRenderer* stringRenderer) {
                 InverseCacheMap::iterator inverseIt = m_inverseCache.find(stringRenderer);
                 assert(inverseIt != m_inverseCache.end());
                 
@@ -100,25 +100,25 @@ namespace TrenchBroom {
                 StringCache::iterator cacheIt = m_stringCache.find(cacheKey);
                 assert(cacheIt != m_stringCache.end());
                 
-                CacheEntry& cacheEntry = cacheIt->second;
-                if (cacheEntry.decUsageCount()) {
-                    StringRendererList::iterator it = find(m_unpreparedStrings.begin(), m_unpreparedStrings.end(), stringRenderer);
-                    if (it != m_unpreparedStrings.end())
-                        m_unpreparedStrings.erase(it);
-                    
-                    delete cacheEntry.stringRenderer();
-                    m_inverseCache.erase(inverseIt);
-                    m_stringCache.erase(cacheIt);
-                }
+                UnpreparedStringMap::iterator unpreparedIt = m_unpreparedStrings.find(cacheKey);
+                if (unpreparedIt != m_unpreparedStrings.end())
+                    m_unpreparedStrings.erase(unpreparedIt);
+                
+                m_deletableStrings.push_back(cacheIt->second.get());
+                m_stringCache.erase(cacheIt);
+                m_inverseCache.erase(inverseIt);
             }
             
             void StringManager::activate() {
+                if (!m_deletableStrings.empty())
+                    deleteStrings();
+                
                 if (m_vbo == NULL)
                     m_vbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
                 m_vbo->activate();
                 
                 if (!m_unpreparedStrings.empty())
-                    prepare();
+                    prepareStrings();
                 
                 glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
                 glEnableClientState(GL_VERTEX_ARRAY);
@@ -128,6 +128,9 @@ namespace TrenchBroom {
             }
             
             void StringManager::deactivate() {
+                if (!m_deletableStrings.empty())
+                    deleteStrings();
+
                 glDisable(GL_POLYGON_SMOOTH);
                 glPopClientAttrib();
                 m_vbo->deactivate();
@@ -137,9 +140,8 @@ namespace TrenchBroom {
                 CacheKey cacheKey(fontDescriptor, string);
                 StringCache::iterator it = m_stringCache.find(cacheKey);
                 if (it != m_stringCache.end()) {
-                    CacheEntry& cacheEntry = it->second;
-                    StringRenderer& stringRenderer = *cacheEntry.stringRenderer();
-                    return Vec2f(stringRenderer.width(), stringRenderer.height());
+                    StringRendererPtr stringRenderer = it->second;
+                    return Vec2f(stringRenderer->width(), stringRenderer->height());
                 }
                 
                 return m_stringVectorizer->measureString(fontDescriptor, string);

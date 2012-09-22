@@ -34,8 +34,10 @@ namespace TrenchBroom {
         private:
             Mat4f::List m_matrixStack;
         public:
-            Transformation(const Mat4f& matrix) {
+            Transformation(const Mat4f& matrix, bool load) {
                 m_matrixStack.push_back(matrix);
+                if (load)
+                    loadMatrix(matrix);
             }
             
             ~Transformation() {

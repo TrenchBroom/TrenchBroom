@@ -50,11 +50,11 @@ namespace TrenchBroom {
         class TextureCellData {
         public:
             Model::Texture* texture;
-            Renderer::Text::FontDescriptor fontDescriptor;
+            Renderer::Text::StringRendererPtr stringRenderer;
             
-            TextureCellData(Model::Texture* texture, const Renderer::Text::FontDescriptor& fontDescriptor) :
+            TextureCellData(Model::Texture* texture, Renderer::Text::StringRendererPtr stringRenderer) :
             texture(texture),
-            fontDescriptor(fontDescriptor) {}
+            stringRenderer(stringRenderer) {}
         };
         
         class TextureBrowserCanvas : public CellLayoutGLCanvas<TextureCellData, Model::TextureCollection*> {
@@ -84,6 +84,7 @@ namespace TrenchBroom {
             virtual void doRender(Layout& layout, const wxRect& rect);
         public:
             TextureBrowserCanvas(wxWindow* parent, wxGLContext* sharedContext, Utility::Console& console, Model::TextureManager& textureManager, wxScrollBar* scrollBar);
+            ~TextureBrowserCanvas();
         };
     }
 }

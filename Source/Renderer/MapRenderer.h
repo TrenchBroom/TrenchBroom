@@ -77,7 +77,7 @@ namespace TrenchBroom {
             // resources
             Model::TexturePtr m_dummyTexture;
             StringManagerPtr m_stringManager;
-
+            
             // level geometry rendering
             VboPtr m_faceVbo;
             TextureVertexArrayList m_faceVertexArrays;
@@ -134,7 +134,7 @@ namespace TrenchBroom {
             Vbo* m_figureVbo;
             std::vector<Figure*> m_figures;
             */
-             
+            
             // state
             bool m_rendering;
             bool m_geometryDataValid;
