@@ -109,38 +109,50 @@ namespace TrenchBroom {
         public:
             LayoutCell(CellType item, float x, float y, float itemWidth, float itemHeight, float titleWidth, float titleHeight, LayoutCellRestriction restriction, float fixedCellSize = 0.0f) :
             m_item(item) {
+                float itemY = y;
+
                 if (restriction != CRNone) {
                     assert(fixedCellSize > 0.0f);
                     
                     float scale = 1.0f;
                     float clippedTitleWidth = titleWidth;
+                    float cellWidth;
+                    float cellHeight;
                     
                     if (restriction == CRWidth) {
                         if (itemWidth > fixedCellSize)
                             scale = fixedCellSize / itemWidth;
                         clippedTitleWidth = (std::min)(fixedCellSize, titleWidth);
+                        cellWidth = fixedCellSize;
+                        cellHeight = scale * itemHeight;
                     } else if (restriction == CRHeight) {
                         if (itemHeight > fixedCellSize)
                             scale = fixedCellSize / itemHeight;
+                        else
+                            itemY += fixedCellSize - (scale * itemHeight);
                         clippedTitleWidth = (std::min)(scale * itemWidth, titleWidth);
+                        cellWidth = (std::max)(clippedTitleWidth, scale * itemWidth);
+                        cellHeight = fixedCellSize;
                     } else {
                         if (itemWidth >= itemHeight && itemWidth > fixedCellSize)
                             scale = fixedCellSize / itemWidth;
-                        else if (itemHeight > fixedCellSize)
+                        else if (itemWidth <= itemHeight && itemHeight > fixedCellSize)
                             scale = fixedCellSize / itemHeight;
+                        itemY += fixedCellSize - (scale * itemHeight);
                         clippedTitleWidth = (std::min)(fixedCellSize, titleWidth);
+                        cellWidth = fixedCellSize;
+                        cellHeight = fixedCellSize;
                     }
 
                     float scaledItemWidth = scale * itemWidth;
                     float scaledItemHeight = scale * itemHeight;
-                    float cellWidth = (std::max)(clippedTitleWidth, scaledItemWidth);
 
-                    m_cellBounds = LayoutBounds(x, y, cellWidth, scaledItemHeight + titleHeight);
-                    m_itemBounds = LayoutBounds(x + (m_cellBounds.width() - scaledItemWidth) / 2.0f, y, scaledItemWidth, scaledItemHeight);
+                    m_cellBounds = LayoutBounds(x, y, cellWidth, cellHeight + titleHeight);
+                    m_itemBounds = LayoutBounds(x + (m_cellBounds.width() - scaledItemWidth) / 2.0f, itemY, scaledItemWidth, scaledItemHeight);
                     m_titleBounds = LayoutBounds(x + (m_cellBounds.width() - clippedTitleWidth) / 2.0f, m_itemBounds.bottom(), clippedTitleWidth, titleHeight);
                 } else {
                     m_cellBounds = LayoutBounds(x, y, (std::max)(itemWidth, titleWidth), itemHeight + titleHeight);
-                    m_itemBounds = LayoutBounds(x + (m_cellBounds.width() - itemWidth) / 2.0f, y, itemWidth, itemHeight);
+                    m_itemBounds = LayoutBounds(x + (m_cellBounds.width() - itemWidth) / 2.0f, itemY, itemWidth, itemHeight);
                     m_titleBounds = LayoutBounds(x + (m_cellBounds.width() - titleWidth) / 2.0f, m_itemBounds.bottom(), titleWidth, titleHeight);
                 }
             }
@@ -159,6 +171,17 @@ namespace TrenchBroom {
             
             inline const LayoutBounds& itemBounds() const {
                 return m_itemBounds;
+            }
+            
+            inline void alignItemToBottom(float itemHeight) {
+                float delta = itemHeight - m_itemBounds.height();
+                assert(delta >= 0.0f);
+                
+                if (delta > 0.0f) {
+                    m_itemBounds = LayoutBounds(m_itemBounds.left(), m_itemBounds.top() + delta, m_itemBounds.width(), m_itemBounds.height());
+                    m_titleBounds = LayoutBounds(m_titleBounds.left(), m_titleBounds.top() + delta, m_titleBounds.width(), m_titleBounds.height());
+                    m_cellBounds = LayoutBounds(m_cellBounds.left(), m_cellBounds.top(), m_cellBounds.width(), m_cellBounds.height() + delta);
+                }
             }
             
             inline CellType item() const {
@@ -180,6 +203,11 @@ namespace TrenchBroom {
             float m_fixedCellSize;
             float m_cellMargin;
             LayoutBounds m_bounds;
+            
+            inline void alignItemsToBottom() {
+                for (unsigned int i = 0; i < m_cells.size(); i++)
+                    m_cells[i].alignItemToBottom(m_bounds.height());
+            }
         public:
             LayoutRow(float x, float y, float cellMargin, float maxWidth, unsigned int maxCells, LayoutCellRestriction cellRestriction, float fixedCellSize) :
             m_cellMargin(cellMargin),
@@ -211,7 +239,11 @@ namespace TrenchBroom {
                     return false;
                 
                 float height = (std::max)(m_bounds.height(), cell.cellBounds().height());
+                bool readjust = height > m_bounds.height();
                 m_bounds = LayoutBounds(m_bounds.left(), m_bounds.top(), width, height);
+
+                if (readjust && m_cellRestriction == CRWidth)
+                    alignItemsToBottom();
                 
                 m_cells.push_back(cell);
                 return true;

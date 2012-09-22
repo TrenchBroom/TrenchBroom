@@ -270,6 +270,7 @@ namespace TrenchBroom {
         extern const Preference<Color>  SelectedFaceHandleColor;
         extern const Preference<Color>  OccludedSelectedFaceHandleColor;
         
+        extern const Preference<Color>  BrowserTextureColor;
         extern const Preference<Color>  SelectedTextureColor;
         extern const Preference<Color>  UsedTextureColor;
         extern const Preference<Color>  OverriddenTextureColor;

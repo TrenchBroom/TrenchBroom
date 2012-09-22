@@ -63,10 +63,13 @@ namespace TrenchBroom {
             Model::TextureManager& m_textureManager;
             Renderer::Text::StringManager m_stringManager;
             
+            Renderer::ShaderPtr m_textureBorderVertexShader;
+            Renderer::ShaderPtr m_textureBorderFragmentShader;
             Renderer::ShaderPtr m_textureVertexShader;
             Renderer::ShaderPtr m_textureFragmentShader;
             Renderer::ShaderPtr m_textVertexShader;
             Renderer::ShaderPtr m_textFragmentShader;
+            Renderer::ShaderProgramPtr m_textureBorderShaderProgram;
             Renderer::ShaderProgramPtr m_textureShaderProgram;
             Renderer::ShaderProgramPtr m_textShaderProgram;
             bool m_shadersCreated;

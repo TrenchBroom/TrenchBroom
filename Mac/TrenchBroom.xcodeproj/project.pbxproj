@@ -54,6 +54,8 @@
 		48819C4615EC108400BEA604 /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48819C4515EC108400BEA604 /* QuakePalette.lmp */; };
 		48819C5015ED5C7700BEA604 /* CameraEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C4F15ED5C7700BEA604 /* CameraEvent.cpp */; };
 		4887937615EF56C10044D66A /* AbstractApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4887937415EF56C10044D66A /* AbstractApp.cpp */; };
+		4896F38E160E06F50029B30C /* TextureBrowserBorder.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 4896F38D160E06F50029B30C /* TextureBrowserBorder.fragsh */; };
+		4896F390160E07010029B30C /* TextureBrowserBorder.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 4896F38F160E07010029B30C /* TextureBrowserBorder.vertsh */; };
 		48AB57F115ECEEE500321C47 /* ProgressIndicatorDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AB57EF15ECEEE500321C47 /* ProgressIndicatorDialog.cpp */; };
 		48AB580215ECFED800321C47 /* InputController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AB580015ECFED800321C47 /* InputController.cpp */; };
 		48AB580515ED01CB00321C47 /* CameraTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AB580315ED01CB00321C47 /* CameraTool.cpp */; };
@@ -223,6 +225,8 @@
 		48819C4F15ED5C7700BEA604 /* CameraEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraEvent.cpp; sourceTree = "<group>"; };
 		4887937415EF56C10044D66A /* AbstractApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractApp.cpp; sourceTree = "<group>"; };
 		4887937515EF56C10044D66A /* AbstractApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractApp.h; sourceTree = "<group>"; };
+		4896F38D160E06F50029B30C /* TextureBrowserBorder.fragsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TextureBrowserBorder.fragsh; sourceTree = "<group>"; };
+		4896F38F160E07010029B30C /* TextureBrowserBorder.vertsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TextureBrowserBorder.vertsh; sourceTree = "<group>"; };
 		48A922B01601D0D20037FEFE /* ViewOptions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewOptions.h; sourceTree = "<group>"; };
 		48AB57EF15ECEEE500321C47 /* ProgressIndicatorDialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProgressIndicatorDialog.cpp; sourceTree = "<group>"; };
 		48AB57F015ECEEE500321C47 /* ProgressIndicatorDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProgressIndicatorDialog.h; sourceTree = "<group>"; };
@@ -658,6 +662,8 @@
 				48E2ECDB1600B52000B8D476 /* TextBackground.fragsh */,
 				48B75F71160BA512009D4E99 /* TextureBrowser.vertsh */,
 				48B75F74160BA531009D4E99 /* TextureBrowser.fragsh */,
+				4896F38F160E07010029B30C /* TextureBrowserBorder.vertsh */,
+				4896F38D160E06F50029B30C /* TextureBrowserBorder.fragsh */,
 				48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */,
 				48F0B7C215FCB4CF0089B0B5 /* Shader.h */,
 			);
@@ -732,6 +738,8 @@
 				48E2ECDC1600B52100B8D476 /* TextBackground.fragsh in Resources */,
 				48B75F72160BA512009D4E99 /* TextureBrowser.vertsh in Resources */,
 				48B75F75160BA531009D4E99 /* TextureBrowser.fragsh in Resources */,
+				4896F38E160E06F50029B30C /* TextureBrowserBorder.fragsh in Resources */,
+				4896F390160E07010029B30C /* TextureBrowserBorder.vertsh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
