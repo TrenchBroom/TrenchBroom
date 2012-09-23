@@ -52,6 +52,7 @@ namespace TrenchBroom {
             unsigned int m_height;
             Color m_averageColor;
             unsigned int m_usageCount;
+            bool m_overridden;
             bool m_dummy;
 
             void init(const String& name, unsigned int width, unsigned int height);
@@ -99,6 +100,14 @@ namespace TrenchBroom {
             
             inline void decUsageCount() {
                 m_usageCount--;
+            }
+            
+            inline bool overridden() const {
+                return m_overridden;
+            }
+            
+            inline void setOverridden(bool overridden) {
+                m_overridden = overridden;
             }
             
             inline bool dummy() const {

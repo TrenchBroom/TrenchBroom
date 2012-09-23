@@ -19,22 +19,65 @@
 
 #include "TextureBrowser.h"
 
+#include "View/LayoutConstants.h"
 #include "View/TextureBrowserCanvas.h"
 
+#include <wx/tglbtn.h>
+#include <wx/choice.h>
+#include <wx/srchctrl.h>
 #include <wx/sizer.h>
 
 namespace TrenchBroom {
     namespace View {
+        namespace LayoutConstants {
+#if defined _WIN32
+            static const int ChoiceLeftMargin                   = 0;
+            static const int BrowserControlsHorizontalMargin    = 3;
+#elif defined __APPLE__
+            static const int ChoiceLeftMargin                   = 1;
+            static const int BrowserControlsHorizontalMargin    = 3;
+#elif defined __linux__
+            static const int ChoiceLeftMargin                   = 0;
+            static const int BrowserControlsHorizontalMargin    = 3;
+#endif
+        }
+
         TextureBrowser::TextureBrowser(wxWindow* parent, wxGLContext* sharedContext, Utility::Console& console, Model::TextureManager& textureManager) :
-        wxPanel(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN) {
-            m_scrollBar = new wxScrollBar(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSB_VERTICAL);
-            m_canvas = new TextureBrowserCanvas(this, sharedContext, console, textureManager, m_scrollBar);
+        wxPanel(parent) {
+            wxString sortOrders[2] = {wxT("Name"), wxT("Usage")};
+            m_sortOrderChoice = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
             
-            wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-            sizer->Add(m_canvas, 1, wxEXPAND);
-            sizer->Add(m_scrollBar, 0, wxEXPAND);
+            m_groupButton = new wxToggleButton(this, wxID_ANY, wxT("Group"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
+            m_usedButton = new wxToggleButton(this, wxID_ANY, wxT("Used"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
             
-            SetSizerAndFit(sizer);
+            m_filterBox = new wxSearchCtrl(this, wxID_ANY);
+            m_filterBox->ShowCancelButton(true);
+            
+            wxSizer* controlSizer = new wxBoxSizer(wxHORIZONTAL);
+            controlSizer->AddSpacer(LayoutConstants::ChoiceLeftMargin);
+            controlSizer->Add(m_sortOrderChoice, 0, wxEXPAND);
+            controlSizer->AddSpacer(LayoutConstants::BrowserControlsHorizontalMargin);
+            controlSizer->Add(m_groupButton, 0, wxEXPAND);
+            controlSizer->AddSpacer(LayoutConstants::BrowserControlsHorizontalMargin);
+            controlSizer->Add(m_usedButton, 0, wxEXPAND);
+            controlSizer->AddSpacer(LayoutConstants::BrowserControlsHorizontalMargin);
+            controlSizer->Add(m_filterBox, 1, wxEXPAND);
+            
+            wxPanel* browserPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
+            m_scrollBar = new wxScrollBar(browserPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSB_VERTICAL);
+            m_canvas = new TextureBrowserCanvas(browserPanel, sharedContext, console, textureManager, m_scrollBar);
+            
+            wxSizer* browserPanelSizer = new wxBoxSizer(wxHORIZONTAL);
+            browserPanelSizer->Add(m_canvas, 1, wxEXPAND);
+            browserPanelSizer->Add(m_scrollBar, 0, wxEXPAND);
+            browserPanel->SetSizerAndFit(browserPanelSizer);
+            
+            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            outerSizer->Add(controlSizer, 0, wxEXPAND);
+            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            outerSizer->Add(browserPanel, 1, wxEXPAND);
+            
+            SetSizerAndFit(outerSizer);
         }
 
         void TextureBrowser::reload() {

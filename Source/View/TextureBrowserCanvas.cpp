@@ -145,8 +145,14 @@ namespace TrenchBroom {
                             for (unsigned int k = 0; k < row.size(); k++) {
                                 const Layout::Group::Row::Cell& cell = row[k];
                                 
-                                if (cell.item().texture->usageCount() > 0) {
-                                    m_textureBorderShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::UsedTextureColor));
+                                bool inUse = cell.item().texture->usageCount() > 0;
+                                bool overridden = cell.item().texture->overridden();
+                                
+                                if (inUse || overridden) {
+                                    if (inUse)
+                                        m_textureBorderShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::UsedTextureColor));
+                                    else
+                                        m_textureBorderShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::OverriddenTextureColor));
                                     
                                     glBegin(GL_QUADS);
                                     glVertex2f(cell.itemBounds().left() - 1.5f, height - (cell.itemBounds().top() - 1.5f - y));
@@ -210,6 +216,8 @@ namespace TrenchBroom {
 
                                 if (cell.item().texture->usageCount() > 0)
                                     m_textShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::UsedTextureColor));
+                                else if (cell.item().texture->overridden())
+                                    m_textShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::OverriddenTextureColor));
                                 else
                                     m_textShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::BrowserTextureColor));
 

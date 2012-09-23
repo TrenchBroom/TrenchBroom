@@ -36,6 +36,7 @@ namespace TrenchBroom {
             m_height = height;
             m_dummy = false;
             m_usageCount = 0;
+            m_overridden = false;
             m_textureBuffer = NULL;
 			m_textureId = 0;
         }

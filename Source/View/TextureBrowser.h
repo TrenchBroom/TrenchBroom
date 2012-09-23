@@ -22,7 +22,10 @@
 
 #include <wx/panel.h>
 
+class wxToggleButton;
+class wxChoice;
 class wxGLContext;
+class wxSearchCtrl;
 
 namespace TrenchBroom {
     namespace Model {
@@ -38,6 +41,10 @@ namespace TrenchBroom {
         
         class TextureBrowser : public wxPanel {
         protected:
+            wxChoice* m_sortOrderChoice;
+            wxToggleButton* m_groupButton;
+            wxToggleButton* m_usedButton;
+            wxSearchCtrl* m_filterBox;
             TextureBrowserCanvas* m_canvas;
             wxScrollBar* m_scrollBar;
         public:

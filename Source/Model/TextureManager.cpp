@@ -62,6 +62,16 @@ namespace TrenchBroom {
                 }
             }
 
+            for (unsigned int i = 0; i < m_collections.size(); i++) {
+                TextureCollection* collection = m_collections[i];
+                const TextureList textures = collection->textures();
+                for (unsigned int j = 0; j < textures.size(); j++) {
+                    Texture* texture = textures[j];
+                    texture->setOverridden(m_texturesCaseSensitive.find(texture->name())->second != texture);
+                }
+            }
+            
+            
             std::sort(m_texturesByName.begin(), m_texturesByName.end(), CompareTexturesByName());
         }
         
