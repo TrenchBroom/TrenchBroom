@@ -377,7 +377,7 @@ namespace TrenchBroom {
                 return m_titleBounds;
             }
             
-            const LayoutBounds titleBoundsForVisibleRect(float y, float height) {
+            const LayoutBounds titleBoundsForVisibleRect(float y, float height) const {
                 if (intersectsY(y, height) && m_titleBounds.top() < y) {
                     if (y > m_contentBounds.bottom() - m_titleBounds.height())
                         return LayoutBounds(m_titleBounds.left(), m_contentBounds.bottom() - m_titleBounds.height(), m_titleBounds.width(), m_titleBounds.height());

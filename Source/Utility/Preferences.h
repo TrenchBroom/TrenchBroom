@@ -274,6 +274,8 @@ namespace TrenchBroom {
         extern const Preference<Color>  SelectedTextureColor;
         extern const Preference<Color>  UsedTextureColor;
         extern const Preference<Color>  OverriddenTextureColor;
+        extern const Preference<Color>  BrowserGroupBackgroundColor;
+        extern const Preference<Color>  BrowserGroupTextColor;
         
         extern const Preference<String> QuakePath;
         extern const Preference<String> RendererFontName;

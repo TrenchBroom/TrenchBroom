@@ -99,13 +99,16 @@ namespace TrenchBroom {
             String fontName = prefs.getString(Preferences::RendererFontName);
             int fontSize = prefs.getInt(Preferences::RendererFontSize);
             Renderer::Text::FontDescriptor font(fontName, fontSize);
-
+            IO::FileManager fileManager;
+            
             if (m_group) {
                 const Model::TextureCollectionList& collections = m_textureManager.collections();
                 for (unsigned int i = 0; i < collections.size(); i++) {
                     Model::TextureCollection* collection = collections[i];
-                    if (m_group)
-                        layout.addGroup(collection, fontSize + 2.0f);
+                    if (m_group) {
+                        String name = fileManager.pathComponents(collection->name()).back();
+                        layout.addGroup(TextureGroupData(collection, m_stringManager.stringRenderer(font, name)), fontSize + 2.0f);
+                    }
                     
                     Model::TextureList textures = collection->textures(m_sortOrder);
                     for (unsigned int j = 0; j < textures.size(); j++)
@@ -142,6 +145,7 @@ namespace TrenchBroom {
 
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
+            // render borders
             m_textureBorderShaderProgram->activate();
             for (unsigned int i = 0; i < layout.size(); i++) {
                 const Layout::Group& group = layout[i];
@@ -175,12 +179,11 @@ namespace TrenchBroom {
             }
             m_textureBorderShaderProgram->deactivate();
             
-            
+            // render textures
             m_textureShaderProgram->activate();
             m_textureShaderProgram->setUniformVariable("ApplyTinting", false);
             m_textureShaderProgram->setUniformVariable("GrayScale", false);
             m_textureShaderProgram->setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
-
             for (unsigned int i = 0; i < layout.size(); i++) {
                 const Layout::Group& group = layout[i];
                 if (group.intersectsY(rect.y, height)) {
@@ -208,10 +211,10 @@ namespace TrenchBroom {
                 }
             }
             m_textureShaderProgram->deactivate();
-            
+
+            // render texture captions
             m_textShaderProgram->activate();
             m_stringManager.activate();
-
             for (unsigned int i = 0; i < layout.size(); i++) {
                 const Layout::Group& group = layout[i];
                 if (group.intersectsY(rect.y, height)) {
@@ -240,7 +243,47 @@ namespace TrenchBroom {
                     }
                 }
             }
+            m_stringManager.deactivate();
+            m_textShaderProgram->deactivate();
             
+            // render group title background
+            m_textureBorderShaderProgram->activate();
+            for (unsigned int i = 0; i < layout.size(); i++) {
+                const Layout::Group& group = layout[i];
+                if (group.intersectsY(rect.y, height)) {
+                    if (group.item().textureCollection != NULL) {
+                        m_textureBorderShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupBackgroundColor));
+                        LayoutBounds titleBounds = group.titleBoundsForVisibleRect(y, height);
+                        glBegin(GL_QUADS);
+                        glVertex2f(titleBounds.left(), height - (titleBounds.top() - y));
+                        glVertex2f(titleBounds.left(), height - (titleBounds.bottom() - y));
+                        glVertex2f(titleBounds.right(), height - (titleBounds.bottom() - y));
+                        glVertex2f(titleBounds.right(), height - (titleBounds.top() - y));
+                        glEnd();
+                    }
+                }
+            }
+            m_textureBorderShaderProgram->deactivate();
+            
+            // render group captions
+            m_textShaderProgram->activate();
+            m_stringManager.activate();
+            for (unsigned int i = 0; i < layout.size(); i++) {
+                const Layout::Group& group = layout[i];
+                if (group.intersectsY(rect.y, height)) {
+                    if (group.item().textureCollection != NULL) {
+                        LayoutBounds titleBounds = group.titleBoundsForVisibleRect(y, height);
+                        Renderer::PushMatrix matrix(transformation);
+                        Mat4f translate = matrix.matrix();
+                        translate.translate(Vec3f(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height() + 4.0f, 0.0f));
+                        matrix.load(translate);
+                        
+                        m_textShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupTextColor));
+                        Renderer::Text::StringRendererPtr stringRenderer = group.item().stringRenderer;
+                        stringRenderer->render();
+                    }
+                }
+            }
             m_stringManager.deactivate();
             m_textShaderProgram->deactivate();
             
