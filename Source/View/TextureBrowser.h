@@ -51,6 +51,13 @@ namespace TrenchBroom {
             TextureBrowser(wxWindow* parent, wxGLContext* sharedContext, Utility::Console& console, Model::TextureManager& textureManager);
             
             void reload();
+
+            void OnSortOrderChanged(wxCommandEvent& event);
+            void OnGroupButtonToggled(wxCommandEvent& event);
+            void OnUsedButtonToggled(wxCommandEvent& event);
+            void OnFilterPatternChanged(wxCommandEvent& event);
+
+            DECLARE_EVENT_TABLE();
         };
     }
 }

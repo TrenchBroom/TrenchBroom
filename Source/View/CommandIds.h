@@ -27,46 +27,54 @@ namespace TrenchBroom {
         namespace CommandIds {
             namespace Menu {
                 static const int Lowest                     = wxID_HIGHEST +  1;
-                static const int EditSelectAll              = wxID_HIGHEST +  2;
-                static const int EditSelectSiblings         = wxID_HIGHEST +  3;
-                static const int EditSelectTouching         = wxID_HIGHEST +  4;
-                static const int EditSelectNone             = wxID_HIGHEST +  5;
-                static const int EditHideSelected           = wxID_HIGHEST +  6;
-                static const int EditHideUnselected         = wxID_HIGHEST +  7;
-                static const int EditUnhideAll              = wxID_HIGHEST +  8;
-                static const int EditLockSelected           = wxID_HIGHEST +  9;
-                static const int EditLockUnselected         = wxID_HIGHEST + 10;
-                static const int EditUnlockAll              = wxID_HIGHEST + 11;
-                static const int Highest                    = wxID_HIGHEST + 99;
+                static const int EditSelectAll              = Lowest +  2;
+                static const int EditSelectSiblings         = Lowest +  3;
+                static const int EditSelectTouching         = Lowest +  4;
+                static const int EditSelectNone             = Lowest +  5;
+                static const int EditHideSelected           = Lowest +  6;
+                static const int EditHideUnselected         = Lowest +  7;
+                static const int EditUnhideAll              = Lowest +  8;
+                static const int EditLockSelected           = Lowest +  9;
+                static const int EditLockUnselected         = Lowest + 10;
+                static const int EditUnlockAll              = Lowest + 11;
+                static const int Highest                    = Lowest + 99;
             }
 
             namespace ViewInspector {
                 static const int Lowest                             = Menu::Highest +  1;
-                static const int ShowEntitiesCheckBoxId             = Menu::Highest +  1;
-                static const int ShowEntityModelsCheckBoxId         = Menu::Highest +  2;
-                static const int ShowEntityBoundsCheckBoxId         = Menu::Highest +  3;
-                static const int ShowEntityClassnamesCheckBoxId     = Menu::Highest +  4;
-                static const int ShowBrushesCheckBoxId              = Menu::Highest +  5;
-                static const int ShowClipBrushesCheckBoxId          = Menu::Highest +  6;
-                static const int ShowSkipBrushesCheckBoxId          = Menu::Highest +  7;
-                static const int FaceRenderModeChoiceId             = Menu::Highest +  8;
-                static const int RenderEdgesCheckBoxId              = Menu::Highest +  9;
-                static const int Highest                            = Menu::Highest + 99;
+                static const int ShowEntitiesCheckBoxId             = Lowest +  1;
+                static const int ShowEntityModelsCheckBoxId         = Lowest +  2;
+                static const int ShowEntityBoundsCheckBoxId         = Lowest +  3;
+                static const int ShowEntityClassnamesCheckBoxId     = Lowest +  4;
+                static const int ShowBrushesCheckBoxId              = Lowest +  5;
+                static const int ShowClipBrushesCheckBoxId          = Lowest +  6;
+                static const int ShowSkipBrushesCheckBoxId          = Lowest +  7;
+                static const int FaceRenderModeChoiceId             = Lowest +  8;
+                static const int RenderEdgesCheckBoxId              = Lowest +  9;
+                static const int Highest                            = Lowest + 99;
             }
             
             namespace PreferencesDialog {
                 static const int Lowest                             = ViewInspector::Highest +  1;
-                static const int ChooseQuakePathButtonId            = ViewInspector::Highest +  1;
-                static const int BrightnessSliderId                 = ViewInspector::Highest +  2;
-                static const int GridAlphaSliderId                  = ViewInspector::Highest +  3;
-                static const int LookSpeedSliderId                  = ViewInspector::Highest +  4;
-                static const int InvertLookXAxisCheckBoxId          = ViewInspector::Highest +  5;
-                static const int InvertLookYAxisCheckBoxId          = ViewInspector::Highest +  6;
-                static const int PanSpeedSliderId                   = ViewInspector::Highest +  7;
-                static const int InvertPanXAxisCheckBoxId           = ViewInspector::Highest +  8;
-                static const int InvertPanYAxisCheckBoxId           = ViewInspector::Highest +  9;
-                static const int MoveSpeedSliderId                  = ViewInspector::Highest + 10;
-                static const int Highest                            = ViewInspector::Highest + 99;
+                static const int ChooseQuakePathButtonId            = Lowest +  1;
+                static const int BrightnessSliderId                 = Lowest +  2;
+                static const int GridAlphaSliderId                  = Lowest +  3;
+                static const int LookSpeedSliderId                  = Lowest +  4;
+                static const int InvertLookXAxisCheckBoxId          = Lowest +  5;
+                static const int InvertLookYAxisCheckBoxId          = Lowest +  6;
+                static const int PanSpeedSliderId                   = Lowest +  7;
+                static const int InvertPanXAxisCheckBoxId           = Lowest +  8;
+                static const int InvertPanYAxisCheckBoxId           = Lowest +  9;
+                static const int MoveSpeedSliderId                  = Lowest + 10;
+                static const int Highest                            = Lowest + 99;
+            }
+            
+            namespace FaceInspector {
+                static const int Lowest                             = PreferencesDialog::Highest + 1;
+                static const int TextureBrowserSortOrderChoiceId    = Lowest + 1;
+                static const int TextureBrowserGroupButtonId        = Lowest + 2;
+                static const int TextureBrowserUsedButtonId         = Lowest + 3;
+                static const int TextureBrowserFilterBoxId          = Lowest + 4;
             }
         }
     }

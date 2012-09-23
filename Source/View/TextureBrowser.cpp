@@ -19,6 +19,8 @@
 
 #include "TextureBrowser.h"
 
+#include "Model/TextureManager.h"
+#include "View/CommandIds.h"
 #include "View/LayoutConstants.h"
 #include "View/TextureBrowserCanvas.h"
 
@@ -42,15 +44,22 @@ namespace TrenchBroom {
 #endif
         }
 
+        BEGIN_EVENT_TABLE(TextureBrowser, wxPanel)
+        EVT_CHOICE(CommandIds::FaceInspector::TextureBrowserSortOrderChoiceId, TextureBrowser::OnSortOrderChanged)
+        EVT_TOGGLEBUTTON(CommandIds::FaceInspector::TextureBrowserGroupButtonId, TextureBrowser::OnGroupButtonToggled)
+        EVT_TOGGLEBUTTON(CommandIds::FaceInspector::TextureBrowserUsedButtonId, TextureBrowser::OnUsedButtonToggled)
+        EVT_TEXT(CommandIds::FaceInspector::TextureBrowserFilterBoxId, TextureBrowser::OnFilterPatternChanged)
+        END_EVENT_TABLE()
+
         TextureBrowser::TextureBrowser(wxWindow* parent, wxGLContext* sharedContext, Utility::Console& console, Model::TextureManager& textureManager) :
         wxPanel(parent) {
             wxString sortOrders[2] = {wxT("Name"), wxT("Usage")};
-            m_sortOrderChoice = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
+            m_sortOrderChoice = new wxChoice(this, CommandIds::FaceInspector::TextureBrowserSortOrderChoiceId, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
             
-            m_groupButton = new wxToggleButton(this, wxID_ANY, wxT("Group"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
-            m_usedButton = new wxToggleButton(this, wxID_ANY, wxT("Used"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
+            m_groupButton = new wxToggleButton(this, CommandIds::FaceInspector::TextureBrowserGroupButtonId, wxT("Group"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
+            m_usedButton = new wxToggleButton(this, CommandIds::FaceInspector::TextureBrowserUsedButtonId, wxT("Used"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
             
-            m_filterBox = new wxSearchCtrl(this, wxID_ANY);
+            m_filterBox = new wxSearchCtrl(this, CommandIds::FaceInspector::TextureBrowserFilterBoxId);
             m_filterBox->ShowCancelButton(true);
             
             wxSizer* controlSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -82,6 +91,23 @@ namespace TrenchBroom {
 
         void TextureBrowser::reload() {
             m_canvas->reload();
+        }
+
+        void TextureBrowser::OnSortOrderChanged(wxCommandEvent& event) {
+            Model::TextureSortOrder::Type sortOrder = event.GetSelection() == 0 ? Model::TextureSortOrder::Name : Model::TextureSortOrder::Usage;
+            m_canvas->setSortOrder(sortOrder);
+        }
+        
+        void TextureBrowser::OnGroupButtonToggled(wxCommandEvent& event) {
+            m_canvas->setGroup(m_groupButton->GetValue());
+        }
+        
+        void TextureBrowser::OnUsedButtonToggled(wxCommandEvent& event) {
+            m_canvas->setHideUnused(m_usedButton->GetValue());
+        }
+
+        void TextureBrowser::OnFilterPatternChanged(wxCommandEvent& event) {
+            m_canvas->setFilterText(m_filterBox->GetValue().ToStdString());
         }
     }
 }

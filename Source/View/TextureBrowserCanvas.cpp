@@ -68,13 +68,20 @@ namespace TrenchBroom {
                 Renderer::Text::FontDescriptor actualFont(font);
                 Vec2f actualSize;
                 
-                float cellSize = layout.fixedCellSize();
-                if  (cellSize > 0.0f)
-                    actualSize = m_stringManager.selectFontSize(font, texture->name(), Vec2f(cellSize, static_cast<float>(font.size())), 5, actualFont);
-                else
-                    actualSize = m_stringManager.measureString(font, texture->name());
-                
-                Renderer::Text::StringRendererPtr stringRenderer = m_stringManager.stringRenderer(actualFont, texture->name());
+                Renderer::Text::StringRendererPtr stringRenderer(NULL);
+                StringRendererCache::iterator it = m_stringRendererCache.find(texture);
+                if (it != m_stringRendererCache.end()) {
+                    stringRenderer = it->second;
+                    actualSize = Vec2f(stringRenderer->width(), stringRenderer->height());
+                } else {
+                    float cellSize = layout.fixedCellSize();
+                    if  (cellSize > 0.0f)
+                        actualSize = m_stringManager.selectFontSize(font, texture->name(), Vec2f(cellSize, static_cast<float>(font.size())), 5, actualFont);
+                    else
+                        actualSize = m_stringManager.measureString(font, texture->name());
+                    stringRenderer = m_stringManager.stringRenderer(actualFont, texture->name());
+                    m_stringRendererCache.insert(std::pair<Model::Texture*, Renderer::Text::StringRendererPtr>(texture, stringRenderer));
+                }
                 layout.addItem(TextureCellData(texture, stringRenderer), texture->width(), texture->height(), actualSize.x, font.size() + 2.0f);
             }
         }
@@ -251,6 +258,7 @@ namespace TrenchBroom {
 
         TextureBrowserCanvas::~TextureBrowserCanvas() {
             clear();
+            m_stringRendererCache.clear();
         }
     }
 }

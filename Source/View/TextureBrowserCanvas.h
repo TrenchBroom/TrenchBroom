@@ -63,6 +63,9 @@ namespace TrenchBroom {
             Model::TextureManager& m_textureManager;
             Renderer::Text::StringManager m_stringManager;
             
+            typedef std::map<Model::Texture*, Renderer::Text::StringRendererPtr> StringRendererCache;
+            StringRendererCache m_stringRendererCache;
+            
             Renderer::ShaderPtr m_textureBorderVertexShader;
             Renderer::ShaderPtr m_textureBorderFragmentShader;
             Renderer::ShaderPtr m_textureVertexShader;
@@ -88,6 +91,38 @@ namespace TrenchBroom {
         public:
             TextureBrowserCanvas(wxWindow* parent, wxGLContext* sharedContext, Utility::Console& console, Model::TextureManager& textureManager, wxScrollBar* scrollBar);
             ~TextureBrowserCanvas();
+            
+            inline void setSortOrder(Model::TextureSortOrder::Type sortOrder) {
+                if (sortOrder == m_sortOrder)
+                    return;
+                m_sortOrder = sortOrder;
+                reload();
+                Refresh();
+            }
+        
+            inline void setGroup(bool group) {
+                if (group == m_group)
+                    return;
+                m_group = group;
+                reload();
+                Refresh();
+            }
+        
+            inline void setHideUnused(bool hideUnused) {
+                if (hideUnused == m_hideUnused)
+                    return;
+                m_hideUnused = hideUnused;
+                reload();
+                Refresh();
+            }
+        
+            inline void setFilterText(const String& filterText) {
+                if (filterText == m_filterText)
+                    return;
+                m_filterText = filterText;
+                reload();
+                Refresh();
+            }
         };
     }
 }
