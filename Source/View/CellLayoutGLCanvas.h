@@ -23,6 +23,8 @@
 #include "GL/glew.h"
 
 #include "GL/Capabilities.h"
+#include "Renderer/RenderUtils.h"
+#include "Renderer/Transformation.h"
 #include "Renderer/Text/FontDescriptor.h"
 #include "Utility/Preferences.h"
 #include "View/CellLayout.h"
@@ -97,7 +99,7 @@ namespace TrenchBroom {
         protected:
             virtual void doInitLayout(Layout& layout) = 0;
             virtual void doReloadLayout(Layout& layout) = 0;
-            virtual void doRender(Layout& layout, const wxRect& rect) = 0;
+            virtual void doRender(Layout& layout, Renderer::Transformation& transformation, float y, float height) = 0;
         public:
             CellLayoutGLCanvas(wxWindow* parent, wxGLContext* sharedContext, wxScrollBar* scrollBar = NULL) :
             wxGLCanvas(parent, wxID_ANY, Attribs(), wxDefaultPosition, wxDefaultSize),
@@ -164,7 +166,27 @@ namespace TrenchBroom {
                     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
                     int top = m_scrollBar != NULL ? m_scrollBar->GetThumbPosition() : 0;
-                    doRender(m_layout, wxRect(wxPoint(0, top), GetClientSize()));
+                    wxRect visibleRect = wxRect(wxPoint(0, top), GetClientSize());
+                    
+                    float y = static_cast<float>(visibleRect.GetY());
+                    float height = static_cast<float>(visibleRect.GetHeight());
+                    
+                    float viewLeft      = static_cast<float>(GetClientRect().GetLeft());
+                    float viewTop       = static_cast<float>(GetClientRect().GetBottom());
+                    float viewRight     = static_cast<float>(GetClientRect().GetRight());
+                    float viewBottom    = static_cast<float>(GetClientRect().GetTop());
+                    
+                    Mat4f projection;
+                    projection.setOrtho(-1.0f, 1.0f, viewLeft, viewTop, viewRight, viewBottom);
+                    
+                    Mat4f view;
+                    view.setView(Vec3f::NegZ, Vec3f::PosY);
+                    view.translate(Vec3f(0.0f, 0.0f, 0.1f));
+                    
+                    glViewport(viewLeft, viewBottom, viewRight - viewLeft, viewTop - viewBottom);
+                    Renderer::Transformation transformation(projection * view, true);
+
+                    doRender(m_layout, transformation, y, height);
                     
                     SwapBuffers();
                 }

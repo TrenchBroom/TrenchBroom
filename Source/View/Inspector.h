@@ -31,6 +31,7 @@ class wxGLContext;
 namespace TrenchBroom {
     namespace Model {
         class MapDocument;
+        class Texture;
     }
     
     namespace View {
@@ -56,6 +57,7 @@ namespace TrenchBroom {
             
             void updateFaceInspector(const Model::FaceList& faces);
             void updateFaceInspector(const Model::BrushList& brushes);
+            void updateSelectedTexture(Model::Texture* texture);
             void updateTextureBrowser();
         };
     }

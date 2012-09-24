@@ -70,6 +70,10 @@ namespace TrenchBroom {
             m_faceInspector->update(brushes);
         }
 
+        void Inspector::updateSelectedTexture(Model::Texture* texture) {
+            m_faceInspector->updateSelectedTexture(texture);
+        }
+
         void Inspector::updateTextureBrowser() {
             m_faceInspector->updateTextureBrowser();
         }

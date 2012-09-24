@@ -29,6 +29,7 @@ class wxSearchCtrl;
 
 namespace TrenchBroom {
     namespace Model {
+        class Texture;
         class TextureManager;
     }
     
@@ -51,6 +52,8 @@ namespace TrenchBroom {
             TextureBrowser(wxWindow* parent, wxGLContext* sharedContext, Utility::Console& console, Model::TextureManager& textureManager);
             
             void reload();
+
+            void setSelectedTexture(Model::Texture* texture);
 
             void OnSortOrderChanged(wxCommandEvent& event);
             void OnGroupButtonToggled(wxCommandEvent& event);

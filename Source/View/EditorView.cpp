@@ -145,10 +145,13 @@ namespace TrenchBroom {
                         m_renderer->changeEditState(changeEditStateCommand->changeSet());
                         
                         Model::EditStateManager& editStateManager = mapDocument().editStateManager();
-                        if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces)
+                        if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces) {
                             inspector().updateFaceInspector(editStateManager.selectedFaces());
-                        else
+                            if (!editStateManager.textureMRUList().empty())
+                                inspector().updateSelectedTexture(editStateManager.textureMRUList().back());
+                        } else {
                             inspector().updateFaceInspector(editStateManager.selectedBrushes());
+                        }
                         
                         break;
                     }

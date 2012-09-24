@@ -31,6 +31,10 @@ class wxSpinCtrlDouble;
 class wxStaticText;
 
 namespace TrenchBroom {
+    namespace Model {
+        class Texture;
+    }
+    
     namespace View {
         class DocumentViewHolder;
         class SingleTextureViewer;
@@ -58,6 +62,7 @@ namespace TrenchBroom {
             
             void update(const Model::FaceList& faces);
             void update(const Model::BrushList& brushes);
+            void updateSelectedTexture(Model::Texture* texture);
             void updateTextureBrowser();
         };
     }

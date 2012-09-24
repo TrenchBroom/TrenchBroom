@@ -93,6 +93,10 @@ namespace TrenchBroom {
             m_canvas->reload();
         }
 
+        void TextureBrowser::setSelectedTexture(Model::Texture* texture) {
+            m_canvas->setSelectedTexture(texture);
+        }
+
         void TextureBrowser::OnSortOrderChanged(wxCommandEvent& event) {
             Model::TextureSortOrder::Type sortOrder = event.GetSelection() == 0 ? Model::TextureSortOrder::Name : Model::TextureSortOrder::Usage;
             m_canvas->setSortOrder(sortOrder);

@@ -312,7 +312,7 @@ namespace TrenchBroom {
                 m_maxCellsPerRow(maxCellsPerRow),
                 m_cellRestriction(cellRestriction),
                 m_fixedCellSize(fixedCellSize),
-                m_titleBounds(x, y, width, titleHeight),
+                m_titleBounds(0.0f, y, width + 2.0f * x, titleHeight),
                 m_contentBounds(x, y + titleHeight, width, 0.0f) {}
             
             LayoutGroup(float x, float y, float cellMargin, float rowMargin, float width, int maxCellsPerRow, LayoutCellRestriction cellRestriction, float fixedCellSize) :
@@ -502,7 +502,7 @@ namespace TrenchBroom {
                 if (!m_valid)
                     validate();
                 
-                float y = m_outerMargin;
+                float y = 0.0f;
                 if (!m_groups.empty())
                     y = m_groups.back().bounds().bottom() + m_groupMargin;
                 

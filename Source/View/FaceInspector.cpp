@@ -229,6 +229,10 @@ namespace TrenchBroom {
             update(faces);
         }
 
+        void FaceInspector::updateSelectedTexture(Model::Texture* texture) {
+            m_textureBrowser->setSelectedTexture(texture);
+        }
+
         void FaceInspector::updateTextureBrowser() {
             m_textureBrowser->reload();
         }

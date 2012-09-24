@@ -75,6 +75,7 @@ namespace TrenchBroom {
         protected:
             Utility::Console& m_console;
             Model::TextureManager& m_textureManager;
+            Model::Texture* m_selectedTexture;
             Renderer::Text::StringManager m_stringManager;
             
             typedef std::map<Model::Texture*, Renderer::Text::StringRendererPtr> StringRendererCache;
@@ -101,7 +102,7 @@ namespace TrenchBroom {
             void addTextureToLayout(Layout& layout, Model::Texture* texture, const Renderer::Text::FontDescriptor& font);
             virtual void doInitLayout(Layout& layout);
             virtual void doReloadLayout(Layout& layout);
-            virtual void doRender(Layout& layout, const wxRect& rect);
+            virtual void doRender(Layout& layout, Renderer::Transformation& transformation, float y, float height);
         public:
             TextureBrowserCanvas(wxWindow* parent, wxGLContext* sharedContext, Utility::Console& console, Model::TextureManager& textureManager, wxScrollBar* scrollBar);
             ~TextureBrowserCanvas();
@@ -135,6 +136,13 @@ namespace TrenchBroom {
                     return;
                 m_filterText = filterText;
                 reload();
+                Refresh();
+            }
+            
+            inline void setSelectedTexture(Model::Texture* texture) {
+                if (texture == m_selectedTexture)
+                    return;
+                m_selectedTexture = texture;
                 Refresh();
             }
         };

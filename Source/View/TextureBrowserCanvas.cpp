@@ -121,25 +121,7 @@ namespace TrenchBroom {
             }
         }
         
-        void TextureBrowserCanvas::doRender(Layout& layout, const wxRect& rect) {
-            float y = static_cast<float>(rect.GetY());
-            float height = static_cast<float>(rect.GetHeight());
-            
-            float viewLeft      = static_cast<float>(GetClientRect().GetLeft());
-            float viewTop       = static_cast<float>(GetClientRect().GetBottom());
-            float viewRight     = static_cast<float>(GetClientRect().GetRight());
-            float viewBottom    = static_cast<float>(GetClientRect().GetTop());
-            
-            Mat4f projection;
-            projection.setOrtho(-1.0f, 1.0f, viewLeft, viewTop, viewRight, viewBottom);
-            
-            Mat4f view;
-            view.setView(Vec3f::NegZ, Vec3f::PosY);
-            view.translate(Vec3f(0.0f, 0.0f, 0.1f));
-            
-            glViewport(viewLeft, viewBottom, viewRight - viewLeft, viewTop - viewBottom);
-            Renderer::Transformation transformation(projection * view, true);
-
+        void TextureBrowserCanvas::doRender(Layout& layout, Renderer::Transformation& transformation, float y, float height) {
             if (!m_shadersCreated)
                 createShaders();
 
@@ -149,18 +131,21 @@ namespace TrenchBroom {
             m_textureBorderShaderProgram->activate();
             for (unsigned int i = 0; i < layout.size(); i++) {
                 const Layout::Group& group = layout[i];
-                if (group.intersectsY(rect.y, height)) {
+                if (group.intersectsY(y, height)) {
                     for (unsigned int j = 0; j < group.size(); j++) {
                         const Layout::Group::Row& row = group[j];
-                        if (row.intersectsY(rect.y, height)) {
+                        if (row.intersectsY(y, height)) {
                             for (unsigned int k = 0; k < row.size(); k++) {
                                 const Layout::Group::Row::Cell& cell = row[k];
                                 
+                                bool selected = cell.item().texture == m_selectedTexture;
                                 bool inUse = cell.item().texture->usageCount() > 0;
                                 bool overridden = cell.item().texture->overridden();
                                 
-                                if (inUse || overridden) {
-                                    if (inUse)
+                                if (selected || inUse || overridden) {
+                                    if (selected)
+                                        m_textureBorderShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::SelectedTextureColor));
+                                    else if (inUse)
                                         m_textureBorderShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::UsedTextureColor));
                                     else
                                         m_textureBorderShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::OverriddenTextureColor));
@@ -186,10 +171,10 @@ namespace TrenchBroom {
             m_textureShaderProgram->setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
             for (unsigned int i = 0; i < layout.size(); i++) {
                 const Layout::Group& group = layout[i];
-                if (group.intersectsY(rect.y, height)) {
+                if (group.intersectsY(y, height)) {
                     for (unsigned int j = 0; j < group.size(); j++) {
                         const Layout::Group::Row& row = group[j];
-                        if (row.intersectsY(rect.y, height)) {
+                        if (row.intersectsY(y, height)) {
                             for (unsigned int k = 0; k < row.size(); k++) {
                                 const Layout::Group::Row::Cell& cell = row[k];
                                 m_textureShaderProgram->setUniformVariable("Texture", 0);
@@ -217,14 +202,16 @@ namespace TrenchBroom {
             m_stringManager.activate();
             for (unsigned int i = 0; i < layout.size(); i++) {
                 const Layout::Group& group = layout[i];
-                if (group.intersectsY(rect.y, height)) {
+                if (group.intersectsY(y, height)) {
                     for (unsigned int j = 0; j < group.size(); j++) {
                         const Layout::Group::Row& row = group[j];
-                        if (row.intersectsY(rect.y, height)) {
+                        if (row.intersectsY(y, height)) {
                             for (unsigned int k = 0; k < row.size(); k++) {
                                 const Layout::Group::Row::Cell& cell = row[k];
 
-                                if (cell.item().texture->usageCount() > 0)
+                                if (cell.item().texture == m_selectedTexture)
+                                    m_textShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::SelectedTextureColor));
+                                else if (cell.item().texture->usageCount() > 0)
                                     m_textShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::UsedTextureColor));
                                 else if (cell.item().texture->overridden())
                                     m_textShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::OverriddenTextureColor));
@@ -250,7 +237,7 @@ namespace TrenchBroom {
             m_textureBorderShaderProgram->activate();
             for (unsigned int i = 0; i < layout.size(); i++) {
                 const Layout::Group& group = layout[i];
-                if (group.intersectsY(rect.y, height)) {
+                if (group.intersectsY(y, height)) {
                     if (group.item().textureCollection != NULL) {
                         m_textureBorderShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupBackgroundColor));
                         LayoutBounds titleBounds = group.titleBoundsForVisibleRect(y, height);
@@ -270,7 +257,7 @@ namespace TrenchBroom {
             m_stringManager.activate();
             for (unsigned int i = 0; i < layout.size(); i++) {
                 const Layout::Group& group = layout[i];
-                if (group.intersectsY(rect.y, height)) {
+                if (group.intersectsY(y, height)) {
                     if (group.item().textureCollection != NULL) {
                         LayoutBounds titleBounds = group.titleBoundsForVisibleRect(y, height);
                         Renderer::PushMatrix matrix(transformation);
@@ -293,6 +280,7 @@ namespace TrenchBroom {
         CellLayoutGLCanvas(parent, sharedContext, scrollBar),
         m_console(console),
         m_textureManager(textureManager),
+        m_selectedTexture(NULL),
         m_stringManager(console),
         m_group(false),
         m_hideUnused(false),
@@ -302,6 +290,7 @@ namespace TrenchBroom {
         TextureBrowserCanvas::~TextureBrowserCanvas() {
             clear();
             m_stringRendererCache.clear();
+            m_selectedTexture = NULL;
         }
     }
 }
