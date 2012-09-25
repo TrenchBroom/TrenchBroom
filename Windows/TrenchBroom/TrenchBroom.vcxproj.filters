@@ -189,9 +189,6 @@
     <ClCompile Include="..\..\Source\Controller\ChangeEditStateCommand.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\Command.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Controller\SelectionTool.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
@@ -245,6 +242,24 @@
     </ClCompile>
     <ClCompile Include="WinCapabilities.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\SetFaceAttributeCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\SnapshotCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\View\FaceInspector.cpp">
+      <Filter>Source Files\View</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\View\SingleTextureViewer.cpp">
+      <Filter>Source Files\View</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\View\TextureBrowser.cpp">
+      <Filter>Source Files\View</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\View\TextureBrowserCanvas.cpp">
+      <Filter>Source Files\View</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -598,6 +613,27 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\GL\glew.h">
       <Filter>Header Files\GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\SnapshotCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\SetFaceAttributeCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\CellLayoutGLCanvas.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\FaceInspector.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\SingleTextureViewer.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\TextureBrowser.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\TextureBrowserCanvas.h">
+      <Filter>Header Files\View</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

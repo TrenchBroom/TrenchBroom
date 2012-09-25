@@ -25,6 +25,7 @@
 class wxToggleButton;
 class wxChoice;
 class wxGLContext;
+class wxScrollBar;
 class wxSearchCtrl;
 
 namespace TrenchBroom {

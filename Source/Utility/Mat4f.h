@@ -22,11 +22,13 @@
 
 #include "Utility/Mat2f.h"
 #include "Utility/Mat3f.h"
+#include "Utility/Math.h"
 #include "Utility/Quat.h"
 #include "Utility/Vec3f.h"
 #include "Utility/Vec4f.h"
 
 #include <cassert>
+#include <cmath>
 #include <vector>
 
 namespace TrenchBroom {
@@ -184,26 +186,26 @@ namespace TrenchBroom {
                         v[c * 4 + r] = r == c ? 1.0f : 0.0f;
             }
             
-            inline void setPerspective(float fov, float near, float far, int width, int height) {
-                float vFrustum = static_cast<float>(tan(fov * Math::Pi / 360.0)) * 0.75f * near;
+            inline void setPerspective(float fov, float nearPlane, float farPlane, int width, int height) {
+                float vFrustum = static_cast<float>(tan(fov * Math::Pi / 360.0)) * 0.75f * nearPlane;
                 float hFrustum = vFrustum * static_cast<float>(width) / static_cast<float>(height);
-                float depth = far - near;
+                float depth = farPlane - nearPlane;
 
-                set(near / hFrustum,   0.0f,               0.0f,                   0.0f,
-                    0.0f,              near / vFrustum,    0.0f,                   0.0f,
-                    0.0f,              0.0f,               -(far + near) / depth,  -2.0f * (far * near) / depth,
-                    0.0f,              0.0f,               -1.0f,                  0.0f);
+                set(nearPlane / hFrustum,   0.0f,                    0.0f,                               0.0f,
+                    0.0f,                   nearPlane / vFrustum,    0.0f,                               0.0f,
+                    0.0f,                   0.0f,                   -(farPlane + nearPlane) / depth,    -2.0f * (farPlane * nearPlane) / depth,
+                    0.0f,                   0.0f,                   -1.0f,                               0.0f);
             }
 
-            inline void setOrtho(float near, float far, float left, float top, float right, float bottom) {
+            inline void setOrtho(float nearPlane, float farPlane, float left, float top, float right, float bottom) {
                 float width = right - left;
                 float height = top - bottom;
-                float depth = far - near;
+                float depth = farPlane - nearPlane;
                 
                 set(2.0f / width,   0.0f,            0.0f,           -(left + right) / width,
                     0.0f,           2.0f / height,   0.0f,           -(top + bottom) / height,
-                    0.0f,           0.0f,           -2.0f / depth,   -(far + near) / depth,
-                    0.0f,           0.0f,            0.0f,           1.0f);
+                    0.0f,           0.0f,           -2.0f / depth,   -(farPlane + nearPlane) / depth,
+                    0.0f,           0.0f,            0.0f,            1.0f);
             }
             
             inline void setView(const Vec3f& direction, const Vec3f& up) {
