@@ -25,18 +25,6 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        /*
-        Model::EditState::Type m_state;
-        bool m_affectAll;
-        bool m_replace;
-        
-        Model::EntityList m_entities;
-        Model::BrushList m_brushes;
-        Model::FaceList m_faces;
-        Model::EditStateChangeSet m_changeSet;
-         */
-        
-
         ChangeEditStateCommand::ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type previousState) :
         DocumentCommand(Command::ChangeEditState, document, true,name),
         m_state(previousState),

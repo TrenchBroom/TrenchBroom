@@ -26,15 +26,18 @@
 #include <wx/statline.h>
 #include <wx/stattext.h>
 
+#include "Controller/SetFaceAttributeCommand.h"
 #include "Model/Brush.h"
 #include "Model/Face.h"
 #include "Model/MapDocument.h"
 #include "Model/Texture.h"
+#include "View/CommandIds.h"
 #include "View/DocumentViewHolder.h"
 #include "View/EditorView.h"
 #include "View/LayoutConstants.h"
 #include "View/SingleTextureViewer.h"
 #include "View/TextureBrowser.h"
+#include "View/TextureBrowserCanvas.h"
 
 #include <limits>
 
@@ -49,6 +52,10 @@ namespace TrenchBroom {
             static const int TextureAttribsControlMargin    = 5;
 #endif
         }
+
+        BEGIN_EVENT_TABLE(FaceInspector, wxPanel)
+        EVT_TEXTURE_SELECTED(CommandIds::FaceInspector::TextureBrowserId, FaceInspector::OnTextureSelected)
+        END_EVENT_TABLE()
 
         wxWindow* FaceInspector::createFaceEditor(wxGLContext* sharedContext) {
             wxPanel* faceEditorPanel = new wxPanel(this);
@@ -113,9 +120,7 @@ namespace TrenchBroom {
         wxWindow* FaceInspector::createTextureBrowser(wxGLContext* sharedContext) {
             wxPanel* textureBrowserPanel = new wxPanel(this);
 
-            Utility::Console& console = m_documentViewHolder.view().console();
-            Model::TextureManager& textureManager = m_documentViewHolder.document().textureManager();
-            m_textureBrowser = new TextureBrowser(textureBrowserPanel, sharedContext, console, textureManager);
+            m_textureBrowser = new TextureBrowser(textureBrowserPanel, CommandIds::FaceInspector::TextureBrowserId, sharedContext, m_documentViewHolder);
             
             wxSizer* textureBrowserSizer = new wxBoxSizer(wxVERTICAL);
             textureBrowserSizer->Add(m_textureBrowser, 1, wxEXPAND);
@@ -235,6 +240,17 @@ namespace TrenchBroom {
 
         void FaceInspector::updateTextureBrowser() {
             m_textureBrowser->reload();
+        }
+
+        
+        void FaceInspector::OnTextureSelected(TextureSelectedCommand& event) {
+            if (!m_documentViewHolder.valid())
+                return;
+            
+            Model::MapDocument& document = m_documentViewHolder.document();
+            Controller::SetFaceAttributeCommand* command = new Controller::SetFaceAttributeCommand(document, "Set Texture");
+            command->setTexture(m_textureBrowser->selectedTexture());
+            document.GetCommandProcessor()->Submit(command);
         }
     }
 }

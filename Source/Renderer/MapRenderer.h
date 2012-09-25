@@ -177,6 +177,7 @@ namespace TrenchBroom {
             void clearMap();
             void invalidateEntities();
             void invalidateBrushes();
+            void invalidateSelectedBrushes();
             void invalidateAll();
             void invalidateEntityRendererCache();
             

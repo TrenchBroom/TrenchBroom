@@ -859,6 +859,10 @@ namespace TrenchBroom {
             m_lockedGeometryDataValid = false;
         }
 
+        void MapRenderer::invalidateSelectedBrushes() {
+            m_selectedGeometryDataValid = false;
+        }
+
         void MapRenderer::invalidateAll() {
             invalidateEntities();
             invalidateBrushes();

@@ -39,6 +39,7 @@ namespace TrenchBroom {
         class DocumentViewHolder;
         class SingleTextureViewer;
         class TextureBrowser;
+        class TextureSelectedCommand;
         
         class FaceInspector : public wxPanel {
         protected:
@@ -64,6 +65,10 @@ namespace TrenchBroom {
             void update(const Model::BrushList& brushes);
             void updateSelectedTexture(Model::Texture* texture);
             void updateTextureBrowser();
+            
+            void OnTextureSelected(TextureSelectedCommand& event);
+
+            DECLARE_EVENT_TABLE()
         };
     }
 }

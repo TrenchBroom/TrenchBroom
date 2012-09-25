@@ -188,6 +188,21 @@ namespace TrenchBroom {
             }
         }
         
+        void Brush::replaceFaces(const FaceList& newFaces) {
+            while (!m_faces.empty()) delete m_faces.back(), m_faces.pop_back();
+            if (m_geometry != NULL)
+                delete m_geometry;
+            m_geometry = new BrushGeometry(m_worldBounds);
+
+            for (unsigned int i = 0; i < newFaces.size(); i++) {
+                m_faces.push_back(newFaces[i]);
+                newFaces[i]->setBrush(this);
+            }
+
+            if (m_entity != NULL)
+                m_entity->invalidateGeometry();
+        }
+        
         EditState::Type Brush::setEditState(EditState::Type editState) {
             EditState::Type previous = MapObject::setEditState(editState);
             if (m_entity != NULL) {

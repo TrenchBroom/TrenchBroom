@@ -55,22 +55,23 @@ namespace TrenchBroom {
                 const TextureList textures = collection->textures();
                 for (unsigned int j = 0; j < textures.size(); j++) {
                     Texture* texture = textures[j];
-                    m_texturesCaseSensitive.insert(std::pair<String, Texture*>(texture->name(), texture));
-                    m_texturesCaseInsensitive.insert(std::pair<String, Texture*>(Utility::toLower(texture->name()), texture));
-                    m_texturesByName.push_back(texture);
-                    m_texturesByUsage.push_back(texture);
+                    
+                    std::pair<TextureMap::iterator, bool> inserted = m_texturesCaseSensitive.insert(std::pair<String, Texture*>(texture->name(), texture));
+                    if (!inserted.second) { // texture with this name already existed
+                        inserted.first->second->setOverridden(true);
+                        inserted.first->second = texture;
+                    }
+                    m_texturesCaseInsensitive[Utility::toLower(texture->name())] = texture;
+                    texture->setOverridden(false);
                 }
             }
 
-            for (unsigned int i = 0; i < m_collections.size(); i++) {
-                TextureCollection* collection = m_collections[i];
-                const TextureList textures = collection->textures();
-                for (unsigned int j = 0; j < textures.size(); j++) {
-                    Texture* texture = textures[j];
-                    texture->setOverridden(m_texturesCaseSensitive.find(texture->name())->second != texture);
-                }
+            TextureMap::iterator it, end;
+            for (it = m_texturesCaseSensitive.begin(), end = m_texturesCaseSensitive.end(); it != end; ++it) {
+                Texture* texture = it->second;
+                m_texturesByName.push_back(texture);
+                m_texturesByUsage.push_back(texture);
             }
-            
             
             std::sort(m_texturesByName.begin(), m_texturesByName.end(), CompareTexturesByName());
         }

@@ -106,7 +106,6 @@ namespace TrenchBroom {
             m_console = new Utility::Console();
             m_viewOptions = new ViewOptions();
             m_filter = new Model::DefaultFilter(*m_viewOptions);
-//            m_filter->setPattern("light");
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             float fieldOfVision = prefs.getFloat(Preferences::CameraFieldOfVision);
@@ -167,6 +166,17 @@ namespace TrenchBroom {
                     case Controller::Command::InvalidateEntityRendererCache:
                         m_renderer->invalidateEntityRendererCache();
                         break;
+                    case Controller::Command::SetFaceAttribute: {
+                        m_renderer->invalidateSelectedBrushes();
+                        Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+                        if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces) {
+                            inspector().updateFaceInspector(editStateManager.selectedFaces());
+                            if (!editStateManager.textureMRUList().empty())
+                                inspector().updateSelectedTexture(editStateManager.textureMRUList().back());
+                        } else {
+                            inspector().updateFaceInspector(editStateManager.selectedBrushes());
+                        }
+                    }
                     default:
                         break;
                 }

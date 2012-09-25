@@ -75,6 +75,7 @@ namespace TrenchBroom {
                 static const int TextureBrowserGroupButtonId        = Lowest + 2;
                 static const int TextureBrowserUsedButtonId         = Lowest + 3;
                 static const int TextureBrowserFilterBoxId          = Lowest + 4;
+                static const int TextureBrowserId                   = Lowest + 5;
             }
         }
     }

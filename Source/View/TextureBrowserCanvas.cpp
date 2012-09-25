@@ -20,6 +20,7 @@
 #include "TextureBrowserCanvas.h"
 
 #include "IO/FileManager.h"
+#include "Model/MapDocument.h"
 #include "Renderer/PushMatrix.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Transformation.h"
@@ -28,35 +29,41 @@
 #include "Renderer/Text/PathRenderer.h"
 #include "Utility/Preferences.h"
 #include "Utility/VecMath.h"
+#include "View/DocumentViewHolder.h"
+#include "View/EditorView.h"
 
 #include <cassert>
 
 using namespace TrenchBroom::Math;
+
+DEFINE_EVENT_TYPE(EVT_TEXTURE_SELECTED_EVENT)
 
 namespace TrenchBroom {
     namespace View {
         void TextureBrowserCanvas::createShaders() {
             assert(!m_shadersCreated);
             
+            Utility::Console& console = m_documentViewHolder.view().console();
             IO::FileManager fileManager;
             String resourceDirectory = fileManager.resourceDirectory();
             
-            m_textureBorderVertexShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "TextureBrowserBorder.vertsh"), GL_VERTEX_SHADER, m_console));
-            m_textureBorderFragmentShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "TextureBrowserBorder.fragsh"), GL_FRAGMENT_SHADER, m_console));
-            m_textureBorderShaderProgram = Renderer::ShaderProgramPtr(new Renderer::ShaderProgram("texture browser border shader program", m_console));
+            
+            m_textureBorderVertexShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "TextureBrowserBorder.vertsh"), GL_VERTEX_SHADER, console));
+            m_textureBorderFragmentShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "TextureBrowserBorder.fragsh"), GL_FRAGMENT_SHADER, console));
+            m_textureBorderShaderProgram = Renderer::ShaderProgramPtr(new Renderer::ShaderProgram("texture browser border shader program", console));
             m_textureBorderShaderProgram->attachShader(*m_textureBorderVertexShader.get());
             m_textureBorderShaderProgram->attachShader(*m_textureBorderFragmentShader.get());
 
             
-            m_textureVertexShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "TextureBrowser.vertsh"), GL_VERTEX_SHADER, m_console));
-            m_textureFragmentShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "TextureBrowser.fragsh"), GL_FRAGMENT_SHADER, m_console));
-            m_textureShaderProgram = Renderer::ShaderProgramPtr(new Renderer::ShaderProgram("texture browser shader program", m_console));
+            m_textureVertexShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "TextureBrowser.vertsh"), GL_VERTEX_SHADER, console));
+            m_textureFragmentShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "TextureBrowser.fragsh"), GL_FRAGMENT_SHADER, console));
+            m_textureShaderProgram = Renderer::ShaderProgramPtr(new Renderer::ShaderProgram("texture browser shader program", console));
             m_textureShaderProgram->attachShader(*m_textureVertexShader.get());
             m_textureShaderProgram->attachShader(*m_textureFragmentShader.get());
             
-            m_textVertexShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "Text.vertsh"), GL_VERTEX_SHADER, m_console));
-            m_textFragmentShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "Text.fragsh"), GL_FRAGMENT_SHADER, m_console));
-            m_textShaderProgram = Renderer::ShaderProgramPtr(new Renderer::ShaderProgram("text shader program", m_console));
+            m_textVertexShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "Text.vertsh"), GL_VERTEX_SHADER, console));
+            m_textFragmentShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "Text.fragsh"), GL_FRAGMENT_SHADER, console));
+            m_textShaderProgram = Renderer::ShaderProgramPtr(new Renderer::ShaderProgram("text shader program", console));
             m_textShaderProgram->attachShader(*m_textVertexShader.get());
             m_textShaderProgram->attachShader(*m_textFragmentShader.get());
             
@@ -96,13 +103,14 @@ namespace TrenchBroom {
         
         void TextureBrowserCanvas::doReloadLayout(Layout& layout) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            Model::TextureManager& textureManager = m_documentViewHolder.document().textureManager();
             String fontName = prefs.getString(Preferences::RendererFontName);
             int fontSize = prefs.getInt(Preferences::RendererFontSize);
             Renderer::Text::FontDescriptor font(fontName, fontSize);
             IO::FileManager fileManager;
             
             if (m_group) {
-                const Model::TextureCollectionList& collections = m_textureManager.collections();
+                const Model::TextureCollectionList& collections = textureManager.collections();
                 for (unsigned int i = 0; i < collections.size(); i++) {
                     Model::TextureCollection* collection = collections[i];
                     if (m_group) {
@@ -115,7 +123,7 @@ namespace TrenchBroom {
                         addTextureToLayout(layout, textures[j], font);
                 }
             } else {
-                Model::TextureList textures = m_textureManager.textures(m_sortOrder);
+                Model::TextureList textures = textureManager.textures(m_sortOrder);
                 for (unsigned int i = 0; i < textures.size(); i++)
                     addTextureToLayout(layout, textures[i], font);
             }
@@ -167,7 +175,6 @@ namespace TrenchBroom {
             // render textures
             m_textureShaderProgram->activate();
             m_textureShaderProgram->setUniformVariable("ApplyTinting", false);
-            m_textureShaderProgram->setUniformVariable("GrayScale", false);
             m_textureShaderProgram->setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
             for (unsigned int i = 0; i < layout.size(); i++) {
                 const Layout::Group& group = layout[i];
@@ -177,6 +184,7 @@ namespace TrenchBroom {
                         if (row.intersectsY(y, height)) {
                             for (unsigned int k = 0; k < row.size(); k++) {
                                 const Layout::Group::Row::Cell& cell = row[k];
+                                m_textureShaderProgram->setUniformVariable("GrayScale", cell.item().texture->overridden());
                                 m_textureShaderProgram->setUniformVariable("Texture", 0);
                                 cell.item().texture->activate();
                                 glBegin(GL_QUADS);
@@ -276,12 +284,26 @@ namespace TrenchBroom {
             
         }
 
-        TextureBrowserCanvas::TextureBrowserCanvas(wxWindow* parent, wxGLContext* sharedContext, Utility::Console& console, Model::TextureManager& textureManager, wxScrollBar* scrollBar) :
-        CellLayoutGLCanvas(parent, sharedContext, scrollBar),
-        m_console(console),
-        m_textureManager(textureManager),
+        void TextureBrowserCanvas::handleLeftClick(Layout& layout, float x, float y) {
+            const Layout::Group::Row::Cell* result = NULL;
+            if (layout.cellAt(x, y, &result)) {
+                m_selectedTexture = result->item().texture;
+                Refresh();
+
+                if (m_documentViewHolder.valid()) {
+                    TextureSelectedCommand command(m_selectedTexture);
+                    command.SetEventObject(this);
+                    command.SetId(GetId());
+                    ProcessEvent(command);
+                }
+            }
+        }
+
+        TextureBrowserCanvas::TextureBrowserCanvas(wxWindow* parent, wxWindowID windowId, wxGLContext* sharedContext, wxScrollBar* scrollBar, DocumentViewHolder& documentViewHolder) :
+        CellLayoutGLCanvas(parent, windowId, sharedContext, scrollBar),
+        m_documentViewHolder(documentViewHolder),
         m_selectedTexture(NULL),
-        m_stringManager(console),
+        m_stringManager(m_documentViewHolder.view().console()),
         m_group(false),
         m_hideUnused(false),
         m_sortOrder(Model::TextureSortOrder::Name),
@@ -294,3 +316,4 @@ namespace TrenchBroom {
         }
     }
 }
+

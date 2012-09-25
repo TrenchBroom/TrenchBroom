@@ -181,6 +181,13 @@ namespace TrenchBroom {
             }
 
             /**
+             * Sets the name of the texture for this face.
+             */
+            inline void setTextureName(const String& textureName) {
+                m_textureName = textureName;
+            }
+            
+            /**
              * Returns the texture for this face. May return null if the texture was not set, due to e.g. no texture
              * being found in the texture manager during map load.
              */

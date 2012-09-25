@@ -254,16 +254,16 @@ namespace TrenchBroom {
                 return m_cells;
             }
             
-            inline bool cellAt(float x, float y, Cell* result) const {
+            inline bool cellAt(float x, float y, const Cell** result) const {
                 for (unsigned int i = 0; i < m_cells.size(); i++) {
-                    Cell* cell = m_cells[i].get();
-                    const LayoutBounds& cellBounds = cell->cellBounds();
+                    const Cell& cell = m_cells[i];
+                    const LayoutBounds& cellBounds = cell.cellBounds();
                     if (x > cellBounds.right())
                         continue;
                     else if (x < cellBounds.left())
                         break;
-                    if (cell->hitTest(x, y)) {
-                        result = cell;
+                    if (cell.hitTest(x, y)) {
+                        *result = &cell;
                         return true;
                     }
                 }
@@ -351,19 +351,16 @@ namespace TrenchBroom {
                 }
             }
             
-            bool cellAt(float x, float y, typename Row::Cell* result) {
+            bool cellAt(float x, float y, const typename Row::Cell** result) const {
                 for (unsigned int i = 0; i < m_rows.size(); i++) {
-                    Row* row = m_rows[i].get();
-                    const LayoutBounds& rowBounds = row->bounds();
+                    const Row& row = m_rows[i];
+                    const LayoutBounds& rowBounds = row.bounds();
                     if (y > rowBounds.bottom())
                         continue;
                     else if (y < rowBounds.top())
                         break;
-                    typename Row::Cell* cell;
-                    if (row->cellAt(x, y, cell)) {
-                        result = cell;
+                    if (row.cellAt(x, y, result))
                         return true;
-                    }
                 }
                 
                 return false;
@@ -536,22 +533,19 @@ namespace TrenchBroom {
                 invalidate();
             }
             
-            bool cellAt(float x, float y, typename Group::Row::Cell* result) {
+            bool cellAt(float x, float y, const typename Group::Row::Cell** result) {
                 if (!m_valid)
                     validate();
                 
                 for (unsigned int i = 0; i < m_groups.size(); i++) {
-                    Group group = m_groups[i].get();
-                    const LayoutBounds groupBounds = group->bounds();
+                    const Group& group = m_groups[i];
+                    const LayoutBounds groupBounds = group.bounds();
                     if (y > groupBounds.bottom())
                         continue;
                     else if (y < groupBounds.top())
                         break;
-                    typename Group::Row::Cell* cell;
-                    if (group->cellAt(x, y, cell)) {
-                        result = cell;
+                    if (group.cellAt(x, y, result))
                         return true;
-                    }
                 }
                 
                 return false;

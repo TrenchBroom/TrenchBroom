@@ -100,9 +100,10 @@ namespace TrenchBroom {
             virtual void doInitLayout(Layout& layout) = 0;
             virtual void doReloadLayout(Layout& layout) = 0;
             virtual void doRender(Layout& layout, Renderer::Transformation& transformation, float y, float height) = 0;
+            virtual void handleLeftClick(Layout& layout, float x, float y) {}
         public:
-            CellLayoutGLCanvas(wxWindow* parent, wxGLContext* sharedContext, wxScrollBar* scrollBar = NULL) :
-            wxGLCanvas(parent, wxID_ANY, Attribs(), wxDefaultPosition, wxDefaultSize),
+            CellLayoutGLCanvas(wxWindow* parent, wxWindowID windowId, wxGLContext* sharedContext, wxScrollBar* scrollBar = NULL) :
+            wxGLCanvas(parent, windowId, Attribs(), wxDefaultPosition, wxDefaultSize),
             m_layoutInitialized(false),
             m_scrollBar(scrollBar) {
                 m_glContext = new wxGLContext(this, sharedContext);
@@ -111,6 +112,7 @@ namespace TrenchBroom {
                 
                 Bind(wxEVT_PAINT, &CellLayoutGLCanvas::OnPaint, this);
                 Bind(wxEVT_SIZE, &CellLayoutGLCanvas::OnSize, this);
+                Bind(wxEVT_LEFT_UP, &CellLayoutGLCanvas::OnMouseLeftUp, this);
                 
                 if (m_scrollBar != NULL) {
                     m_scrollBar->Bind(wxEVT_SCROLL_TOP, &CellLayoutGLCanvas::OnScrollBarChange, this);
@@ -199,6 +201,13 @@ namespace TrenchBroom {
             
             void OnScrollBarChange(wxScrollEvent& event) {
                 Refresh();
+            }
+            
+            void OnMouseLeftUp(wxMouseEvent& event) {
+                int top = m_scrollBar != NULL ? m_scrollBar->GetThumbPosition() : 0;
+                float x = static_cast<float>(event.GetX());
+                float y = static_cast<float>(event.GetY() + top);
+                handleLeftClick(m_layout, x, y);
             }
             
             void OnMouseWheel(wxMouseEvent& event) {

@@ -37,7 +37,8 @@ namespace TrenchBroom {
                 InvalidateRendererEntityState,
                 InvalidateRendererBrushState,
                 InvalidateRendererState,
-                InvalidateEntityRendererCache
+                InvalidateEntityRendererCache,
+                SetFaceAttribute
             } Type;
         private:
             Type m_type;

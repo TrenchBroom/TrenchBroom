@@ -74,6 +74,8 @@ namespace TrenchBroom {
             
             bool addFace(Face* face);
             
+            void replaceFaces(const FaceList& newFaces);
+            
             inline bool partiallySelected() const {
                 return m_selectedFaceCount > 0;
             }

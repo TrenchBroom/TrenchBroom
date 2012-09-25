@@ -51,8 +51,8 @@ namespace TrenchBroom {
         EVT_TEXT(CommandIds::FaceInspector::TextureBrowserFilterBoxId, TextureBrowser::OnFilterPatternChanged)
         END_EVENT_TABLE()
 
-        TextureBrowser::TextureBrowser(wxWindow* parent, wxGLContext* sharedContext, Utility::Console& console, Model::TextureManager& textureManager) :
-        wxPanel(parent) {
+        TextureBrowser::TextureBrowser(wxWindow* parent, wxWindowID windowId, wxGLContext* sharedContext, DocumentViewHolder& documentViewHolder) :
+        wxPanel(parent, windowId) {
             wxString sortOrders[2] = {wxT("Name"), wxT("Usage")};
             m_sortOrderChoice = new wxChoice(this, CommandIds::FaceInspector::TextureBrowserSortOrderChoiceId, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
             
@@ -74,7 +74,9 @@ namespace TrenchBroom {
             
             wxPanel* browserPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
             m_scrollBar = new wxScrollBar(browserPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSB_VERTICAL);
-            m_canvas = new TextureBrowserCanvas(browserPanel, sharedContext, console, textureManager, m_scrollBar);
+            m_canvas = new TextureBrowserCanvas(browserPanel, wxID_ANY, sharedContext, m_scrollBar, documentViewHolder);
+            
+            m_canvas->Bind(EVT_TEXTURE_SELECTED_EVENT, EVT_TEXTURE_SELECTED_HANDLER(TextureBrowser::OnTextureSelected), this);
             
             wxSizer* browserPanelSizer = new wxBoxSizer(wxHORIZONTAL);
             browserPanelSizer->Add(m_canvas, 1, wxEXPAND);
@@ -93,6 +95,10 @@ namespace TrenchBroom {
             m_canvas->reload();
         }
 
+        Model::Texture* TextureBrowser::selectedTexture() const {
+            return m_canvas->selectedTexture();
+        }
+        
         void TextureBrowser::setSelectedTexture(Model::Texture* texture) {
             m_canvas->setSelectedTexture(texture);
         }
@@ -112,6 +118,12 @@ namespace TrenchBroom {
 
         void TextureBrowser::OnFilterPatternChanged(wxCommandEvent& event) {
             m_canvas->setFilterText(m_filterBox->GetValue().ToStdString());
+        }
+
+        void TextureBrowser::OnTextureSelected(TextureSelectedCommand& event) {
+            event.SetEventObject(this);
+            event.SetId(GetId());
+            event.Skip(true);
         }
     }
 }

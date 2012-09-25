@@ -16,6 +16,8 @@
 		4810278B15E67A7300250C9C /* Brush.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810278915E67A7300250C9C /* Brush.cpp */; };
 		481028A015E68E5300250C9C /* Face.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810289E15E68E5300250C9C /* Face.cpp */; };
 		481028A915E77A8D00250C9C /* Map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481028A715E77A8D00250C9C /* Map.cpp */; };
+		4817C7EE1611DC8F00A01A99 /* SetFaceAttributeCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4817C7EC1611DC8F00A01A99 /* SetFaceAttributeCommand.cpp */; };
+		4817C7F11611DFA900A01A99 /* SnapshotCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4817C7EF1611DFA900A01A99 /* SnapshotCommand.cpp */; };
 		481CDAD816026C48003E2EE9 /* PreferencesDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481CDAD616026C48003E2EE9 /* PreferencesDialog.cpp */; };
 		481CDADB16034034003E2EE9 /* Preferences.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481CDADA16034034003E2EE9 /* Preferences.cpp */; };
 		48312B2815EABBD600607868 /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 48312B2715EABBD600607868 /* Icon.icns */; };
@@ -35,7 +37,6 @@
 		4850D25015F389B5005B162D /* EditStateManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D24E15F389B5005B162D /* EditStateManager.cpp */; };
 		4850D25415F3B36C005B162D /* SelectionTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D25215F3B36C005B162D /* SelectionTool.cpp */; };
 		4850D26315F3E260005B162D /* ChangeEditStateCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D26115F3E202005B162D /* ChangeEditStateCommand.cpp */; };
-		4850D26615F3E757005B162D /* Command.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D26415F3E757005B162D /* Command.cpp */; };
 		4850D26915F4A01C005B162D /* Pak.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D26715F4A01C005B162D /* Pak.cpp */; };
 		4850D27015F4AD8E005B162D /* Alias.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D26B15F4AD3D005B162D /* Alias.cpp */; };
 		4850D27415F4BF18005B162D /* Bsp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D27215F4BEFC005B162D /* Bsp.cpp */; };
@@ -124,6 +125,10 @@
 		481028A615E7778200250C9C /* EditState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EditState.h; sourceTree = "<group>"; };
 		481028A715E77A8D00250C9C /* Map.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Map.cpp; sourceTree = "<group>"; };
 		481028A815E77A8D00250C9C /* Map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Map.h; sourceTree = "<group>"; };
+		4817C7EC1611DC8F00A01A99 /* SetFaceAttributeCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SetFaceAttributeCommand.cpp; sourceTree = "<group>"; };
+		4817C7ED1611DC8F00A01A99 /* SetFaceAttributeCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SetFaceAttributeCommand.h; sourceTree = "<group>"; };
+		4817C7EF1611DFA900A01A99 /* SnapshotCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SnapshotCommand.cpp; sourceTree = "<group>"; };
+		4817C7F01611DFA900A01A99 /* SnapshotCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SnapshotCommand.h; sourceTree = "<group>"; };
 		481CDAD616026C48003E2EE9 /* PreferencesDialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PreferencesDialog.cpp; sourceTree = "<group>"; };
 		481CDAD716026C48003E2EE9 /* PreferencesDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesDialog.h; sourceTree = "<group>"; };
 		481CDADA16034034003E2EE9 /* Preferences.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Preferences.cpp; sourceTree = "<group>"; };
@@ -179,7 +184,6 @@
 		4850D25315F3B36C005B162D /* SelectionTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionTool.h; sourceTree = "<group>"; };
 		4850D26115F3E202005B162D /* ChangeEditStateCommand.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ChangeEditStateCommand.cpp; sourceTree = "<group>"; };
 		4850D26215F3E202005B162D /* ChangeEditStateCommand.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChangeEditStateCommand.h; sourceTree = "<group>"; };
-		4850D26415F3E757005B162D /* Command.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Command.cpp; sourceTree = "<group>"; };
 		4850D26515F3E757005B162D /* Command.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Command.h; sourceTree = "<group>"; };
 		4850D26715F4A01C005B162D /* Pak.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Pak.cpp; sourceTree = "<group>"; };
 		4850D26815F4A01C005B162D /* Pak.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pak.h; sourceTree = "<group>"; };
@@ -620,7 +624,6 @@
 				48819C4C15ED52B200BEA604 /* CameraEvent.h */,
 				4850D26115F3E202005B162D /* ChangeEditStateCommand.cpp */,
 				4850D26215F3E202005B162D /* ChangeEditStateCommand.h */,
-				4850D26415F3E757005B162D /* Command.cpp */,
 				4850D26515F3E757005B162D /* Command.h */,
 				48009AFD15F8A4E7001A9993 /* DragPlane.h */,
 				48AB57FF15ECFC5F00321C47 /* Input.h */,
@@ -628,6 +631,10 @@
 				48AB580115ECFED800321C47 /* InputController.h */,
 				4850D25215F3B36C005B162D /* SelectionTool.cpp */,
 				4850D25315F3B36C005B162D /* SelectionTool.h */,
+				4817C7EC1611DC8F00A01A99 /* SetFaceAttributeCommand.cpp */,
+				4817C7ED1611DC8F00A01A99 /* SetFaceAttributeCommand.h */,
+				4817C7EF1611DFA900A01A99 /* SnapshotCommand.cpp */,
+				4817C7F01611DFA900A01A99 /* SnapshotCommand.h */,
 				48AB57FE15ECFBDF00321C47 /* Tool.h */,
 			);
 			name = Controller;
@@ -792,7 +799,6 @@
 				4887937615EF56C10044D66A /* AbstractApp.cpp in Sources */,
 				4850D25015F389B5005B162D /* EditStateManager.cpp in Sources */,
 				4850D25415F3B36C005B162D /* SelectionTool.cpp in Sources */,
-				4850D26615F3E757005B162D /* Command.cpp in Sources */,
 				4850D26915F4A01C005B162D /* Pak.cpp in Sources */,
 				4850D27F15F4CA62005B162D /* AliasRenderer.cpp in Sources */,
 				4850D28015F4CA62005B162D /* BspRenderer.cpp in Sources */,
@@ -813,6 +819,8 @@
 				48C0FA46160901CB0023F467 /* SingleTextureViewer.cpp in Sources */,
 				48D417D7160B3A3C003AECBB /* TextureBrowserCanvas.cpp in Sources */,
 				48B75F79160CF79F009D4E99 /* TextureBrowser.cpp in Sources */,
+				4817C7EE1611DC8F00A01A99 /* SetFaceAttributeCommand.cpp in Sources */,
+				4817C7F11611DFA900A01A99 /* SnapshotCommand.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -30,15 +30,12 @@ class wxSearchCtrl;
 namespace TrenchBroom {
     namespace Model {
         class Texture;
-        class TextureManager;
-    }
-    
-    namespace Utility {
-        class Console;
     }
     
     namespace View {
+        class DocumentViewHolder;
         class TextureBrowserCanvas;
+        class TextureSelectedCommand;
         
         class TextureBrowser : public wxPanel {
         protected:
@@ -49,16 +46,19 @@ namespace TrenchBroom {
             TextureBrowserCanvas* m_canvas;
             wxScrollBar* m_scrollBar;
         public:
-            TextureBrowser(wxWindow* parent, wxGLContext* sharedContext, Utility::Console& console, Model::TextureManager& textureManager);
+            TextureBrowser(wxWindow* parent, wxWindowID windowId, wxGLContext* sharedContext, DocumentViewHolder& documentViewHolder);
             
             void reload();
 
+            Model::Texture* selectedTexture() const;
             void setSelectedTexture(Model::Texture* texture);
 
             void OnSortOrderChanged(wxCommandEvent& event);
             void OnGroupButtonToggled(wxCommandEvent& event);
             void OnUsedButtonToggled(wxCommandEvent& event);
             void OnFilterPatternChanged(wxCommandEvent& event);
+
+            void OnTextureSelected(TextureSelectedCommand& event);
 
             DECLARE_EVENT_TABLE();
         };

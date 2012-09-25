@@ -25,6 +25,10 @@
 #include "Renderer/Text/StringManager.h"
 #include "View/CellLayoutGLCanvas.h"
 
+BEGIN_DECLARE_EVENT_TYPES()
+DECLARE_EVENT_TYPE(EVT_TEXTURE_SELECTED_EVENT, 7777)
+END_DECLARE_EVENT_TYPES()
+
 namespace TrenchBroom {
     namespace Model {
         class Texture;
@@ -47,6 +51,25 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class DocumentViewHolder;
+        
+        class TextureSelectedCommand : public wxCommandEvent {
+        protected:
+            Model::Texture* m_texture;
+        public:
+            TextureSelectedCommand(Model::Texture* texture) :
+            wxCommandEvent(EVT_TEXTURE_SELECTED_EVENT, wxID_ANY),
+            m_texture(texture) {}
+
+            inline Model::Texture* texture() const {
+                return m_texture;
+            }
+            
+            inline wxEvent* Clone() const {
+                return new TextureSelectedCommand(*this);
+            }
+        };
+
         class TextureGroupData {
         public:
             Model::TextureCollection* textureCollection;
@@ -73,8 +96,7 @@ namespace TrenchBroom {
         
         class TextureBrowserCanvas : public CellLayoutGLCanvas<TextureCellData, TextureGroupData> {
         protected:
-            Utility::Console& m_console;
-            Model::TextureManager& m_textureManager;
+            DocumentViewHolder& m_documentViewHolder;
             Model::Texture* m_selectedTexture;
             Renderer::Text::StringManager m_stringManager;
             
@@ -103,8 +125,9 @@ namespace TrenchBroom {
             virtual void doInitLayout(Layout& layout);
             virtual void doReloadLayout(Layout& layout);
             virtual void doRender(Layout& layout, Renderer::Transformation& transformation, float y, float height);
+            virtual void handleLeftClick(Layout& layout, float x, float y);
         public:
-            TextureBrowserCanvas(wxWindow* parent, wxGLContext* sharedContext, Utility::Console& console, Model::TextureManager& textureManager, wxScrollBar* scrollBar);
+            TextureBrowserCanvas(wxWindow* parent, wxWindowID windowId, wxGLContext* sharedContext, wxScrollBar* scrollBar, DocumentViewHolder& documentViewHolder);
             ~TextureBrowserCanvas();
             
             inline void setSortOrder(Model::TextureSortOrder::Type sortOrder) {
@@ -139,6 +162,10 @@ namespace TrenchBroom {
                 Refresh();
             }
             
+            inline Model::Texture* selectedTexture() const {
+                return m_selectedTexture;
+            }
+            
             inline void setSelectedTexture(Model::Texture* texture) {
                 if (texture == m_selectedTexture)
                     return;
@@ -148,5 +175,16 @@ namespace TrenchBroom {
         };
     }
 }
+
+typedef void (wxEvtHandler::*textureSelectedEventFunction)(TrenchBroom::View::TextureSelectedCommand&);
+
+#define EVT_TEXTURE_SELECTED_HANDLER(fn) \
+(wxObjectEventFunction)(wxEventFunction) (wxCommandEventFunction) \
+wxStaticCastEvent(textureSelectedEventFunction, &fn)
+
+#define EVT_TEXTURE_SELECTED(id,fn) \
+DECLARE_EVENT_TABLE_ENTRY(EVT_TEXTURE_SELECTED_EVENT, id, wxID_ANY, \
+(wxObjectEventFunction)(wxEventFunction) (wxCommandEventFunction) \
+wxStaticCastEvent(textureSelectedEventFunction, &fn), (wxObject*) NULL ),
 
 #endif /* defined(__TrenchBroom__TextureBrowserCanvas__) */
