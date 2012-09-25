@@ -71,11 +71,16 @@ namespace TrenchBroom {
             
             namespace FaceInspector {
                 static const int Lowest                             = PreferencesDialog::Highest + 1;
-                static const int TextureBrowserSortOrderChoiceId    = Lowest + 1;
-                static const int TextureBrowserGroupButtonId        = Lowest + 2;
-                static const int TextureBrowserUsedButtonId         = Lowest + 3;
-                static const int TextureBrowserFilterBoxId          = Lowest + 4;
-                static const int TextureBrowserId                   = Lowest + 5;
+                static const int TextureBrowserSortOrderChoiceId    = Lowest +  1;
+                static const int TextureBrowserGroupButtonId        = Lowest +  2;
+                static const int TextureBrowserUsedButtonId         = Lowest +  3;
+                static const int TextureBrowserFilterBoxId          = Lowest +  4;
+                static const int TextureBrowserId                   = Lowest +  5;
+                static const int XOffsetEditorId                    = Lowest +  6;
+                static const int YOffsetEditorId                    = Lowest +  7;
+                static const int XScaleEditorId                     = Lowest +  8;
+                static const int YScaleEditorId                     = Lowest +  9;
+                static const int RotationEditorId                   = Lowest + 10;
             }
         }
     }

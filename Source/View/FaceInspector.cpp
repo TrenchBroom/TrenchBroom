@@ -54,6 +54,11 @@ namespace TrenchBroom {
         }
 
         BEGIN_EVENT_TABLE(FaceInspector, wxPanel)
+        EVT_SPINCTRLDOUBLE(CommandIds::FaceInspector::XOffsetEditorId, FaceInspector::OnXOffsetChanged)
+        EVT_SPINCTRLDOUBLE(CommandIds::FaceInspector::YOffsetEditorId, FaceInspector::OnYOffsetChanged)
+        EVT_SPINCTRLDOUBLE(CommandIds::FaceInspector::XScaleEditorId, FaceInspector::OnXScaleChanged)
+        EVT_SPINCTRLDOUBLE(CommandIds::FaceInspector::YScaleEditorId, FaceInspector::OnYScaleChanged)
+        EVT_SPINCTRLDOUBLE(CommandIds::FaceInspector::RotationEditorId, FaceInspector::OnRotationChanged)
         EVT_TEXTURE_SELECTED(CommandIds::FaceInspector::TextureBrowserId, FaceInspector::OnTextureSelected)
         END_EVENT_TABLE()
 
@@ -72,19 +77,19 @@ namespace TrenchBroom {
             double max = std::numeric_limits<double>::max();
             double min = -max;
             
-            m_xOffsetEditor = new wxSpinCtrlDouble(faceEditorPanel);
+            m_xOffsetEditor = new wxSpinCtrlDouble(faceEditorPanel, CommandIds::FaceInspector::XOffsetEditorId);
             m_xOffsetEditor->SetRange(min, max);
             m_xOffsetEditor->SetIncrement(1.0);
-            m_yOffsetEditor = new wxSpinCtrlDouble(faceEditorPanel);
+            m_yOffsetEditor = new wxSpinCtrlDouble(faceEditorPanel, CommandIds::FaceInspector::YOffsetEditorId);
             m_yOffsetEditor->SetRange(min, max);
             m_yOffsetEditor->SetIncrement(1.0);
-            m_xScaleEditor = new wxSpinCtrlDouble(faceEditorPanel);
+            m_xScaleEditor = new wxSpinCtrlDouble(faceEditorPanel, CommandIds::FaceInspector::XScaleEditorId);
             m_xScaleEditor->SetRange(min, max);
             m_xScaleEditor->SetIncrement(0.1);
-            m_yScaleEditor = new wxSpinCtrlDouble(faceEditorPanel);
+            m_yScaleEditor = new wxSpinCtrlDouble(faceEditorPanel, CommandIds::FaceInspector::YScaleEditorId);
             m_yScaleEditor->SetRange(min, max);
             m_yScaleEditor->SetIncrement(0.1);
-            m_rotationEditor = new wxSpinCtrlDouble(faceEditorPanel);
+            m_rotationEditor = new wxSpinCtrlDouble(faceEditorPanel, CommandIds::FaceInspector::RotationEditorId);
             m_rotationEditor->SetRange(min, max);
             m_rotationEditor->SetIncrement(1.0);
             
@@ -242,7 +247,41 @@ namespace TrenchBroom {
             m_textureBrowser->reload();
         }
 
+        void FaceInspector::OnXOffsetChanged(wxSpinDoubleEvent& event) {
+            Model::MapDocument& document = m_documentViewHolder.document();
+            Controller::SetFaceAttributeCommand* command = new Controller::SetFaceAttributeCommand(document, "Set X Offset");
+            command->setXOffset(static_cast<float>(event.GetValue()));
+            document.GetCommandProcessor()->Submit(command);
+        }
         
+        void FaceInspector::OnYOffsetChanged(wxSpinDoubleEvent& event) {
+            Model::MapDocument& document = m_documentViewHolder.document();
+            Controller::SetFaceAttributeCommand* command = new Controller::SetFaceAttributeCommand(document, "Set Y Offset");
+            command->setYOffset(static_cast<float>(event.GetValue()));
+            document.GetCommandProcessor()->Submit(command);
+        }
+        
+        void FaceInspector::OnXScaleChanged(wxSpinDoubleEvent& event) {
+            Model::MapDocument& document = m_documentViewHolder.document();
+            Controller::SetFaceAttributeCommand* command = new Controller::SetFaceAttributeCommand(document, "Set X Scale");
+            command->setXScale(static_cast<float>(event.GetValue()));
+            document.GetCommandProcessor()->Submit(command);
+        }
+        
+        void FaceInspector::OnYScaleChanged(wxSpinDoubleEvent& event) {
+            Model::MapDocument& document = m_documentViewHolder.document();
+            Controller::SetFaceAttributeCommand* command = new Controller::SetFaceAttributeCommand(document, "Set Y Scale");
+            command->setYScale(static_cast<float>(event.GetValue()));
+            document.GetCommandProcessor()->Submit(command);
+        }
+        
+        void FaceInspector::OnRotationChanged(wxSpinDoubleEvent& event) {
+            Model::MapDocument& document = m_documentViewHolder.document();
+            Controller::SetFaceAttributeCommand* command = new Controller::SetFaceAttributeCommand(document, "Set Rotation");
+            command->setRotation(static_cast<float>(event.GetValue()));
+            document.GetCommandProcessor()->Submit(command);
+        }
+
         void FaceInspector::OnTextureSelected(TextureSelectedCommand& event) {
             if (!m_documentViewHolder.valid())
                 return;

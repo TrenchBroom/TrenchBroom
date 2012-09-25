@@ -28,6 +28,7 @@
 
 class wxGLContext;
 class wxSpinCtrlDouble;
+class wxSpinDoubleEvent;
 class wxStaticText;
 
 namespace TrenchBroom {
@@ -66,6 +67,11 @@ namespace TrenchBroom {
             void updateSelectedTexture(Model::Texture* texture);
             void updateTextureBrowser();
             
+            void OnXOffsetChanged(wxSpinDoubleEvent& event);
+            void OnYOffsetChanged(wxSpinDoubleEvent& event);
+            void OnXScaleChanged(wxSpinDoubleEvent& event);
+            void OnYScaleChanged(wxSpinDoubleEvent& event);
+            void OnRotationChanged(wxSpinDoubleEvent& event);
             void OnTextureSelected(TextureSelectedCommand& event);
 
             DECLARE_EVENT_TABLE()
