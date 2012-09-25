@@ -54,11 +54,10 @@ namespace TrenchBroom {
             ViewInspector* CreateViewInspector();
         public:
             Inspector(wxWindow* parent, DocumentViewHolder& documentViewHolder, wxGLContext* sharedContext);
-            
-            void updateFaceInspector(const Model::FaceList& faces);
-            void updateFaceInspector(const Model::BrushList& brushes);
-            void updateSelectedTexture(Model::Texture* texture);
-            void updateTextureBrowser();
+
+            inline FaceInspector& faceInspector() const {
+                return *m_faceInspector;
+            }
         };
     }
 }

@@ -30,6 +30,7 @@ namespace TrenchBroom {
             static const int StaticBoxTopMargin             = 5;
             static const int ControlHorizontalMargin        = 10;
             static const int ControlVerticalMargin          = 10;
+            static const int ControlMargin                  = 10;
             static const int CheckBoxHierarchyLeftMargin    = 20;
             static const int CheckBoxVerticalMargin         = 5;
             static const int DefaultVerticalMargin          = 10;
@@ -41,6 +42,7 @@ namespace TrenchBroom {
             static const int StaticBoxTopMargin             = 0;
             static const int ControlHorizontalMargin        = 10;
             static const int ControlVerticalMargin          = 5;
+            static const int ControlMargin                  = 5;
             static const int CheckBoxHierarchyLeftMargin    = 20;
             static const int CheckBoxVerticalMargin         = 0;
             static const int DefaultVerticalMargin          = 5;
@@ -52,6 +54,7 @@ namespace TrenchBroom {
             static const int StaticBoxTopMargin             = 5;
             static const int ControlHorizontalMargin        = 10;
             static const int ControlVerticalMargin          = 10;
+            static const int ControlMargin                  = 10;
             static const int CheckBoxHierarchyLeftMargin    = 20;
             static const int CheckBoxVerticalMargin         = 5;
             static const int DefaultVerticalMargin          = 10;

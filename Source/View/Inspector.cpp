@@ -61,21 +61,5 @@ namespace TrenchBroom {
             notebookSizer->Add(m_notebook, 1, wxEXPAND);
             SetSizer(notebookSizer);
         }
-
-        void Inspector::updateFaceInspector(const Model::FaceList& faces) {
-            m_faceInspector->update(faces);
-        }
-        
-        void Inspector::updateFaceInspector(const Model::BrushList& brushes) {
-            m_faceInspector->update(brushes);
-        }
-
-        void Inspector::updateSelectedTexture(Model::Texture* texture) {
-            m_faceInspector->updateSelectedTexture(texture);
-        }
-
-        void Inspector::updateTextureBrowser() {
-            m_faceInspector->updateTextureBrowser();
-        }
     }
 }

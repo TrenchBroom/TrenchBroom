@@ -81,6 +81,9 @@ namespace TrenchBroom {
                 static const int XScaleEditorId                     = Lowest +  8;
                 static const int YScaleEditorId                     = Lowest +  9;
                 static const int RotationEditorId                   = Lowest + 10;
+                static const int TextureCollectionListId            = Lowest + 11;
+                static const int AddTextureCollectionButtonId       = Lowest + 12;
+                static const int RemoveTextureCollectionsButtonId   = Lowest + 13;
             }
         }
     }

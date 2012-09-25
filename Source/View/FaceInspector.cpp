@@ -20,7 +20,10 @@
 
 #include "FaceInspector.h"
 
+#include <wx/button.h>
+#include <wx/filedlg.h>
 #include <wx/gbsizer.h>
+#include <wx/listbox.h>
 #include <wx/sizer.h>
 #include <wx/spinctrl.h>
 #include <wx/statline.h>
@@ -60,6 +63,9 @@ namespace TrenchBroom {
         EVT_SPINCTRLDOUBLE(CommandIds::FaceInspector::YScaleEditorId, FaceInspector::OnYScaleChanged)
         EVT_SPINCTRLDOUBLE(CommandIds::FaceInspector::RotationEditorId, FaceInspector::OnRotationChanged)
         EVT_TEXTURE_SELECTED(CommandIds::FaceInspector::TextureBrowserId, FaceInspector::OnTextureSelected)
+        EVT_BUTTON(CommandIds::FaceInspector::AddTextureCollectionButtonId, FaceInspector::OnAddTextureCollectionPressed)
+        EVT_BUTTON(CommandIds::FaceInspector::RemoveTextureCollectionsButtonId, FaceInspector::OnRemoveTextureCollectionsPressed)
+        EVT_UPDATE_UI(CommandIds::FaceInspector::RemoveTextureCollectionsButtonId, FaceInspector::OnUpdateRemoveTextureCollectionsButton)
         END_EVENT_TABLE()
 
         wxWindow* FaceInspector::createFaceEditor(wxGLContext* sharedContext) {
@@ -127,8 +133,24 @@ namespace TrenchBroom {
 
             m_textureBrowser = new TextureBrowser(textureBrowserPanel, CommandIds::FaceInspector::TextureBrowserId, sharedContext, m_documentViewHolder);
             
+            m_textureCollectionList = new wxListBox(textureBrowserPanel, CommandIds::FaceInspector::TextureCollectionListId, wxDefaultPosition, wxSize(100, 70), 0, NULL, wxLB_MULTIPLE | wxLB_NEEDED_SB);
+            m_addTextureCollectionButton = new wxButton(textureBrowserPanel, CommandIds::FaceInspector::AddTextureCollectionButtonId, wxT("+"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
+            m_removeTextureCollectionsButton = new wxButton(textureBrowserPanel, CommandIds::FaceInspector::RemoveTextureCollectionsButtonId, wxT("-"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
+
+            wxSizer* textureCollectionEditorButtonsSizer = new wxBoxSizer(wxVERTICAL);
+            textureCollectionEditorButtonsSizer->Add(m_addTextureCollectionButton, 0, wxEXPAND);
+            textureCollectionEditorButtonsSizer->AddSpacer(LayoutConstants::ControlMargin);
+            textureCollectionEditorButtonsSizer->Add(m_removeTextureCollectionsButton, 0, wxEXPAND);
+            
+            wxSizer* textureCollectionEditorSizer = new wxBoxSizer(wxHORIZONTAL);
+            textureCollectionEditorSizer->Add(m_textureCollectionList, 1, wxEXPAND);
+            textureCollectionEditorSizer->AddSpacer(LayoutConstants::ControlMargin);
+            textureCollectionEditorSizer->Add(textureCollectionEditorButtonsSizer);
+            
             wxSizer* textureBrowserSizer = new wxBoxSizer(wxVERTICAL);
             textureBrowserSizer->Add(m_textureBrowser, 1, wxEXPAND);
+            textureBrowserSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            textureBrowserSizer->Add(textureCollectionEditorSizer, 0, wxEXPAND);
             
             textureBrowserPanel->SetSizerAndFit(textureBrowserSizer);
             return textureBrowserPanel;
@@ -153,6 +175,7 @@ namespace TrenchBroom {
             SetSizerAndFit(outerSizer);
             
             update(Model::EmptyFaceList);
+            updateTextureCollectionList();
         }
 
         void FaceInspector::update(const Model::FaceList& faces) {
@@ -247,6 +270,18 @@ namespace TrenchBroom {
             m_textureBrowser->reload();
         }
 
+        void FaceInspector::updateTextureCollectionList() {
+            m_textureCollectionList->Clear();
+            
+            Model::TextureManager& textureManager = m_documentViewHolder.document().textureManager();
+            const Model::TextureCollectionList& collections = textureManager.collections();
+
+            for (unsigned int i = 0; i < collections.size(); i++) {
+                Model::TextureCollection* collection = collections[i];
+                m_textureCollectionList->Append(collection->name());
+            }
+        }
+
         void FaceInspector::OnXOffsetChanged(wxSpinDoubleEvent& event) {
             Model::MapDocument& document = m_documentViewHolder.document();
             Controller::SetFaceAttributeCommand* command = new Controller::SetFaceAttributeCommand(document, "Set X Offset");
@@ -290,6 +325,24 @@ namespace TrenchBroom {
             Controller::SetFaceAttributeCommand* command = new Controller::SetFaceAttributeCommand(document, "Set Texture");
             command->setTexture(m_textureBrowser->selectedTexture());
             document.GetCommandProcessor()->Submit(command);
+        }
+
+        void FaceInspector::OnAddTextureCollectionPressed(wxCommandEvent& event) {
+            wxFileDialog addTextureCollectionDialog(NULL, wxT("Choose texture wad"), wxT(""), wxT(""), wxT("*.wad"), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+            if (addTextureCollectionDialog.ShowModal() == wxID_OK) {
+                String wadPath = addTextureCollectionDialog.GetPath().ToStdString();
+                 // TODO: fire command to add a texture collection
+            }
+        }
+        
+        void FaceInspector::OnRemoveTextureCollectionsPressed(wxCommandEvent& event) {
+            // TODO: fire a command to remove some texture collections
+        }
+
+        void FaceInspector::OnUpdateRemoveTextureCollectionsButton(wxUpdateUIEvent& event) {
+            wxArrayInt selections;
+            int selectionCount = m_textureCollectionList->GetSelections(selections);
+            event.Enable(selectionCount > 0);
         }
     }
 }

@@ -26,6 +26,8 @@
 #include "Model/BrushTypes.h"
 #include "Model/FaceTypes.h"
 
+class wxButton;
+class wxListBox;
 class wxGLContext;
 class wxSpinCtrlDouble;
 class wxSpinDoubleEvent;
@@ -56,6 +58,9 @@ namespace TrenchBroom {
             wxSpinCtrlDouble* m_rotationEditor;
             
             TextureBrowser* m_textureBrowser;
+            wxListBox* m_textureCollectionList;
+            wxButton* m_addTextureCollectionButton;
+            wxButton* m_removeTextureCollectionsButton;
             
             wxWindow* createFaceEditor(wxGLContext* sharedContext);
             wxWindow* createTextureBrowser(wxGLContext* sharedContext);
@@ -66,6 +71,7 @@ namespace TrenchBroom {
             void update(const Model::BrushList& brushes);
             void updateSelectedTexture(Model::Texture* texture);
             void updateTextureBrowser();
+            void updateTextureCollectionList();
             
             void OnXOffsetChanged(wxSpinDoubleEvent& event);
             void OnYOffsetChanged(wxSpinDoubleEvent& event);
@@ -74,6 +80,10 @@ namespace TrenchBroom {
             void OnRotationChanged(wxSpinDoubleEvent& event);
             void OnTextureSelected(TextureSelectedCommand& event);
 
+            void OnAddTextureCollectionPressed(wxCommandEvent& event);
+            void OnRemoveTextureCollectionsPressed(wxCommandEvent& event);
+            void OnUpdateRemoveTextureCollectionsButton(wxUpdateUIEvent& event);
+            
             DECLARE_EVENT_TABLE()
         };
     }

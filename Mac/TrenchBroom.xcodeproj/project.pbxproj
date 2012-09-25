@@ -18,6 +18,7 @@
 		481028A915E77A8D00250C9C /* Map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481028A715E77A8D00250C9C /* Map.cpp */; };
 		4817C7EE1611DC8F00A01A99 /* SetFaceAttributeCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4817C7EC1611DC8F00A01A99 /* SetFaceAttributeCommand.cpp */; };
 		4817C7F11611DFA900A01A99 /* SnapshotCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4817C7EF1611DFA900A01A99 /* SnapshotCommand.cpp */; };
+		4817C7F416123E0500A01A99 /* EntityInspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4817C7F216123E0500A01A99 /* EntityInspector.cpp */; };
 		481CDAD816026C48003E2EE9 /* PreferencesDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481CDAD616026C48003E2EE9 /* PreferencesDialog.cpp */; };
 		481CDADB16034034003E2EE9 /* Preferences.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481CDADA16034034003E2EE9 /* Preferences.cpp */; };
 		48312B2815EABBD600607868 /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 48312B2715EABBD600607868 /* Icon.icns */; };
@@ -129,6 +130,8 @@
 		4817C7ED1611DC8F00A01A99 /* SetFaceAttributeCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SetFaceAttributeCommand.h; sourceTree = "<group>"; };
 		4817C7EF1611DFA900A01A99 /* SnapshotCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SnapshotCommand.cpp; sourceTree = "<group>"; };
 		4817C7F01611DFA900A01A99 /* SnapshotCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SnapshotCommand.h; sourceTree = "<group>"; };
+		4817C7F216123E0500A01A99 /* EntityInspector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityInspector.cpp; sourceTree = "<group>"; };
+		4817C7F316123E0500A01A99 /* EntityInspector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityInspector.h; sourceTree = "<group>"; };
 		481CDAD616026C48003E2EE9 /* PreferencesDialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PreferencesDialog.cpp; sourceTree = "<group>"; };
 		481CDAD716026C48003E2EE9 /* PreferencesDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesDialog.h; sourceTree = "<group>"; };
 		481CDADA16034034003E2EE9 /* Preferences.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Preferences.cpp; sourceTree = "<group>"; };
@@ -529,6 +532,8 @@
 				48D1BEAD15E3AC060073C030 /* EditorView.h */,
 				48D1BEB215E4237A0073C030 /* EditorFrame.cpp */,
 				48D1BEB315E4237B0073C030 /* EditorFrame.h */,
+				4817C7F216123E0500A01A99 /* EntityInspector.cpp */,
+				4817C7F316123E0500A01A99 /* EntityInspector.h */,
 				48C0FA401608FFD00023F467 /* FaceInspector.cpp */,
 				48C0FA411608FFD00023F467 /* FaceInspector.h */,
 				48E2ED181601184F00B8D476 /* LayoutConstants.h */,
@@ -821,6 +826,7 @@
 				48B75F79160CF79F009D4E99 /* TextureBrowser.cpp in Sources */,
 				4817C7EE1611DC8F00A01A99 /* SetFaceAttributeCommand.cpp in Sources */,
 				4817C7F11611DFA900A01A99 /* SnapshotCommand.cpp in Sources */,
+				4817C7F416123E0500A01A99 /* EntityInspector.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

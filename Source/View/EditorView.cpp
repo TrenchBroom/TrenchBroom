@@ -35,8 +35,9 @@
 #include "Utility/Preferences.h"
 #include "View/CommandIds.h"
 #include "View/EditorFrame.h"
-#include "View/MapGLCanvas.h"
+#include "View/FaceInspector.h"
 #include "View/Inspector.h"
+#include "View/MapGLCanvas.h"
 #include "View/ViewOptions.h"
 
 namespace TrenchBroom {
@@ -138,11 +139,13 @@ namespace TrenchBroom {
                 switch (command->type()) {
                     case Controller::Command::LoadMap:
                         m_renderer->loadMap();
-                        inspector().updateTextureBrowser();
+                        inspector().faceInspector().updateTextureBrowser();
+                        inspector().faceInspector().updateTextureCollectionList();
                         break;
                     case Controller::Command::ClearMap:
                         m_renderer->clearMap();
-                        inspector().updateTextureBrowser();
+                        inspector().faceInspector().updateTextureBrowser();
+                        inspector().faceInspector().updateTextureCollectionList();
                         break;
                     case Controller::Command::ChangeEditState: {
                         Controller::ChangeEditStateCommand* changeEditStateCommand = static_cast<Controller::ChangeEditStateCommand*>(command);
@@ -150,11 +153,11 @@ namespace TrenchBroom {
                         
                         Model::EditStateManager& editStateManager = mapDocument().editStateManager();
                         if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces) {
-                            inspector().updateFaceInspector(editStateManager.selectedFaces());
+                            inspector().faceInspector().update(editStateManager.selectedFaces());
                             if (!editStateManager.textureMRUList().empty())
-                                inspector().updateSelectedTexture(editStateManager.textureMRUList().back());
+                                inspector().faceInspector().updateSelectedTexture(editStateManager.textureMRUList().back());
                         } else {
-                            inspector().updateFaceInspector(editStateManager.selectedBrushes());
+                            inspector().faceInspector().update(editStateManager.selectedBrushes());
                         }
                         
                         break;
@@ -173,13 +176,14 @@ namespace TrenchBroom {
                         break;
                     case Controller::Command::SetFaceAttribute: {
                         m_renderer->invalidateSelectedBrushes();
+
                         Model::EditStateManager& editStateManager = mapDocument().editStateManager();
                         if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces) {
-                            inspector().updateFaceInspector(editStateManager.selectedFaces());
+                            inspector().faceInspector().update(editStateManager.selectedFaces());
                             if (!editStateManager.textureMRUList().empty())
-                                inspector().updateSelectedTexture(editStateManager.textureMRUList().back());
+                                inspector().faceInspector().updateSelectedTexture(editStateManager.textureMRUList().back());
                         } else {
-                            inspector().updateFaceInspector(editStateManager.selectedBrushes());
+                            inspector().faceInspector().update(editStateManager.selectedBrushes());
                         }
                     }
                     default:
