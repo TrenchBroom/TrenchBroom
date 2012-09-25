@@ -98,6 +98,7 @@ namespace TrenchBroom {
             
             bool doSetEditState(const EntityList& entities, EditState::Type newState, EditStateChangeSet& changeSet);
             bool doSetEditState(const BrushList& brushes, EditState::Type newState, EditStateChangeSet& changeSet);
+            bool doSetSelected(const FaceList& faces, bool newState, EditStateChangeSet& changeSet);
             void setDefaultAndClear(EntityList& entities, EditStateChangeSet& changeSet);
             void setDefaultAndClear(BrushList& brushes, EditStateChangeSet& changeSet);
             void deselectAndClear(FaceList& faces, EditStateChangeSet& changeSet);
@@ -157,6 +158,8 @@ namespace TrenchBroom {
             EditStateChangeSet deselectAll();
             EditStateChangeSet unhideAll();
             EditStateChangeSet unlockAll();
+            
+            EditStateChangeSet undoChangeSet(const EditStateChangeSet& undoChangeSet);
             
             inline void clear() {
                 current().clear();

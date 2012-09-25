@@ -227,14 +227,16 @@ namespace TrenchBroom {
                 }
             }
             
-            if (!m_changeSet.empty()) {
+            if (!m_changeSet.empty())
                 document().UpdateAllViews(NULL, this);
-            }
             
             return true;
         }
         
         bool ChangeEditStateCommand::Undo() {
+            m_changeSet = document().editStateManager().undoChangeSet(m_changeSet);
+            if (!m_changeSet.empty())
+                document().UpdateAllViews(NULL, this);
             return true;
         }
     }

@@ -78,6 +78,7 @@ namespace TrenchBroom {
             restoreSnapshots(faces);
             clear();
             
+            document().UpdateAllViews(NULL, this);
             return true;
         }
     }

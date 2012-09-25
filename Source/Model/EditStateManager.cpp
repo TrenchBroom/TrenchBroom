@@ -84,6 +84,26 @@ namespace TrenchBroom {
             return changed;
         }
         
+        bool EditStateManager::doSetSelected(const FaceList& faces, bool newState, EditStateChangeSet& changeSet) {
+            bool changed = false;
+            for (unsigned int i = 0; i < faces.size(); i++) {
+                Face& face = *faces[i];
+                if (face.selected() != newState) {
+                    if (newState) {
+                        current().selectedFaces.push_back(&face);
+                        if (face.texture() != NULL && (current().textureMRUList.empty() || current().textureMRUList.back() != face.texture()))
+                            current().textureMRUList.push_back(face.texture());
+                    } else {
+                        Utility::erase(current().selectedFaces, &face);
+                    }
+                    face.setSelected(newState);
+                    changeSet.addFace(!newState, face);
+                    changed = true;
+                }
+            }
+            return changed;
+        }
+
         void EditStateManager::setDefaultAndClear(EntityList& entities, EditStateChangeSet& changeSet) {
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity& entity = *entities[i];
@@ -193,23 +213,7 @@ namespace TrenchBroom {
             if (select && replace)
                 setDefaultAndClear(EditState::Selected, changeSet);
             
-            bool changed = false;
-            for (unsigned int i = 0; i < faces.size(); i++) {
-                Face& face = *faces[i];
-                if (face.selected() != select) {
-                    if (select) {
-                        current().selectedFaces.push_back(&face);
-                        if (face.texture() != NULL)
-                            current().textureMRUList.push_back(face.texture());
-                    } else {
-                        Utility::erase(current().selectedFaces, &face);
-                    }
-                    face.setSelected(select);
-                    changeSet.addFace(!select, face);
-                    changed = true;
-                }
-            }
-            
+            bool changed = doSetSelected(faces, select, changeSet);
             if (select && changed) {
                 EntityList& entities = current().selectedEntities;
                 BrushList& brushes = current().selectedBrushes;
@@ -238,6 +242,25 @@ namespace TrenchBroom {
         EditStateChangeSet EditStateManager::unlockAll() {
             EditStateChangeSet changeSet;
             setDefaultAndClear(EditState::Locked, changeSet);
+            return changeSet;
+        }
+ 
+        EditStateChangeSet EditStateManager::undoChangeSet(const EditStateChangeSet& undoChangeSet) {
+            EditStateChangeSet changeSet;
+
+            doSetEditState(undoChangeSet.entitiesFrom(EditState::Default), EditState::Default, changeSet);
+            doSetEditState(undoChangeSet.entitiesFrom(EditState::Selected), EditState::Selected, changeSet);
+            doSetEditState(undoChangeSet.entitiesFrom(EditState::Hidden), EditState::Hidden, changeSet);
+            doSetEditState(undoChangeSet.entitiesFrom(EditState::Locked), EditState::Locked, changeSet);
+
+            doSetEditState(undoChangeSet.brushesFrom(EditState::Default), EditState::Default, changeSet);
+            doSetEditState(undoChangeSet.brushesFrom(EditState::Selected), EditState::Selected, changeSet);
+            doSetEditState(undoChangeSet.brushesFrom(EditState::Hidden), EditState::Hidden, changeSet);
+            doSetEditState(undoChangeSet.brushesFrom(EditState::Locked), EditState::Locked, changeSet);
+            
+            doSetSelected(undoChangeSet.faces(true), true, changeSet);
+            doSetSelected(undoChangeSet.faces(false), false, changeSet);
+            
             return changeSet;
         }
     }

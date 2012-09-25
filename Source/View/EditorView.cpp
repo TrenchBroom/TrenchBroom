@@ -46,6 +46,9 @@ namespace TrenchBroom {
         EVT_CAMERA_LOOK(EditorView::OnCameraLook)
         EVT_CAMERA_ORBIT(EditorView::OnCameraOrbit)
 
+        EVT_MENU(wxID_UNDO, EditorView::OnUndo)
+        EVT_MENU(wxID_REDO, EditorView::OnRedo)
+
         EVT_MENU(CommandIds::Menu::EditSelectAll, EditorView::OnEditSelectAll)
         EVT_MENU(CommandIds::Menu::EditSelectNone, EditorView::OnEditSelectNone)
         
@@ -57,6 +60,8 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::EditLockUnselected, EditorView::OnEditLockUnselected)
         EVT_MENU(CommandIds::Menu::EditUnlockAll, EditorView::OnEditUnlockAll)
 
+        EVT_UPDATE_UI(wxID_UNDO, EditorView::OnUpdateMenuItem)
+        EVT_UPDATE_UI(wxID_REDO, EditorView::OnUpdateMenuItem)
         EVT_UPDATE_UI_RANGE(CommandIds::Menu::Lowest, CommandIds::Menu::Highest, EditorView::OnUpdateMenuItem)
         END_EVENT_TABLE()
 
@@ -237,6 +242,14 @@ namespace TrenchBroom {
             OnUpdate(this);
         }
         
+        void EditorView::OnUndo(wxCommandEvent& event) {
+            GetDocumentManager()->OnUndo(event);
+        }
+        
+        void EditorView::OnRedo(wxCommandEvent& event) {
+            GetDocumentManager()->OnRedo(event);
+        }
+
         void EditorView::OnEditSelectAll(wxCommandEvent& event) {
             const Model::EntityList& entities = mapDocument().map().entities();
             Model::EntityList selectEntities;
@@ -342,6 +355,12 @@ namespace TrenchBroom {
         void EditorView::OnUpdateMenuItem(wxUpdateUIEvent& event) {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             switch (event.GetId()) {
+                case wxID_UNDO:
+                    GetDocumentManager()->OnUpdateUndo(event);
+                    break;
+                case wxID_REDO:
+                    GetDocumentManager()->OnUpdateRedo(event);
+                    break;
                 case CommandIds::Menu::EditSelectAll:
                     event.Enable(true);
                     break;

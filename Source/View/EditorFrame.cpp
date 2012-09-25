@@ -77,6 +77,11 @@ namespace TrenchBroom {
             CreateGui();
 
             wxMenuBar* menuBar = static_cast<TrenchBroomApp*>(wxTheApp)->CreateMenuBar(&view);
+            int editMenuIndex = menuBar->FindMenu(wxT("Edit"));
+            if (editMenuIndex != wxNOT_FOUND) {
+                wxMenu* editMenu = menuBar->GetMenu(editMenuIndex);
+                document.GetCommandProcessor()->SetEditMenu(editMenu);
+            }
             SetMenuBar(menuBar);
         }
 
