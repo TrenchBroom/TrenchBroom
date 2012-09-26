@@ -86,14 +86,15 @@ namespace TrenchBroom {
             reloadTextures();
         }
         
-        void TextureManager::removeCollection(size_t index) {
+        TextureCollection* TextureManager::removeCollection(size_t index) {
             assert(index < m_collections.size());
-            delete m_collections[index];
+            TextureCollection* collection = m_collections[index];
             m_collections.erase(m_collections.begin() + index);
             reloadTextures();
+            return collection;
         }
         
-        void TextureManager::removeCollection(const std::string& name) {
+        size_t TextureManager::indexOfTextureCollection(const String& name) {
             size_t index = m_collections.size();
             size_t i = 0;
             TextureCollectionList::iterator it, end;
@@ -102,9 +103,7 @@ namespace TrenchBroom {
                     index = i;
                 i++;
             }
-            
-            if (index < m_collections.size())
-                removeCollection(index);
+            return index;
         }
         
         void TextureManager::clear() {

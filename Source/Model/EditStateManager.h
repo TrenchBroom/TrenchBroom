@@ -53,7 +53,6 @@ namespace TrenchBroom {
                 BrushList hiddenBrushes;
                 BrushList lockedBrushes;
                 FaceList selectedFaces;
-                TextureList textureMRUList;
                 
                 inline SelectionMode selectionMode() const {
                     if (!selectedEntities.empty()) {
@@ -81,7 +80,6 @@ namespace TrenchBroom {
                     hiddenBrushes.clear();
                     lockedBrushes.clear();
                     selectedFaces.clear();
-                    textureMRUList.clear();
                 }
             };
             
@@ -144,10 +142,6 @@ namespace TrenchBroom {
             
             inline const FaceList& selectedFaces() const {
                 return current().selectedFaces;
-            }
-            
-            inline const TextureList& textureMRUList() const {
-                return current().textureMRUList;
             }
             
             EditStateChangeSet setEditState(const EntityList& entities, EditState::Type newState, bool replace = false);

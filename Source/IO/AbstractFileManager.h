@@ -36,9 +36,13 @@ namespace TrenchBroom {
             StringList directoryContents(const String& path, String extension = "");
             
             StringList pathComponents(const String& path);
+            String joinComponents(const StringList& pathComponents);
             String deleteLastPathComponent(const String& path);
             String appendPathComponent(const String& path, const String& component);
             String appendPath(const String& prefix, const String& suffix);
+            String resolvePath(const String& path);
+            StringList resolvePath(const StringList& pathComponents);
+            String makeRelative(const String& absolutePath, const String& referencePath);
             
             String pathExtension(const String& path);
             String appendExtension(const String& path, const String& ext);

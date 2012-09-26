@@ -29,6 +29,7 @@
 #include "Model/Filter.h"
 #include "Model/MapDocument.h"
 #include "Model/Map.h"
+#include "Model/TextureManager.h"
 #include "Renderer/Camera.h"
 #include "Renderer/MapRenderer.h"
 #include "Utility/Console.h"
@@ -70,6 +71,20 @@ namespace TrenchBroom {
         
         void EditorView::submit(wxCommand* command) {
             mapDocument().GetCommandProcessor()->Submit(command);
+        }
+        
+        void EditorView::updateFaceInspector() {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces) {
+                inspector().faceInspector().update(editStateManager.selectedFaces());
+                if (!m_textureMRUList.empty()) {
+                    Model::TextureManager& textureManager = mapDocument().textureManager();
+                    Model::Texture* texture = textureManager.texture(m_textureMRUList.back());
+                    inspector().faceInspector().updateSelectedTexture(texture);
+                }
+            } else {
+                inspector().faceInspector().update(editStateManager.selectedBrushes());
+            }
         }
         
         EditorView::EditorView() :
@@ -151,15 +166,14 @@ namespace TrenchBroom {
                         Controller::ChangeEditStateCommand* changeEditStateCommand = static_cast<Controller::ChangeEditStateCommand*>(command);
                         m_renderer->changeEditState(changeEditStateCommand->changeSet());
                         
-                        Model::EditStateManager& editStateManager = mapDocument().editStateManager();
-                        if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces) {
-                            inspector().faceInspector().update(editStateManager.selectedFaces());
-                            if (!editStateManager.textureMRUList().empty())
-                                inspector().faceInspector().updateSelectedTexture(editStateManager.textureMRUList().back());
-                        } else {
-                            inspector().faceInspector().update(editStateManager.selectedBrushes());
+                        const Model::FaceList& newlySelectedFaces = changeEditStateCommand->changeSet().faces(false);
+                        for (unsigned int i = 0; i < newlySelectedFaces.size(); i++) {
+                            Model::Face* face = newlySelectedFaces[i];
+                            if (face->texture() != NULL && (m_textureMRUList.empty() || m_textureMRUList.back() != face->texture()->name()))
+                                m_textureMRUList.push_back(face->texture()->name());
                         }
-                        
+
+                        updateFaceInspector();
                         break;
                     }
                     case Controller::Command::InvalidateRendererEntityState:
@@ -176,15 +190,25 @@ namespace TrenchBroom {
                         break;
                     case Controller::Command::SetFaceAttribute: {
                         m_renderer->invalidateSelectedBrushes();
-
-                        Model::EditStateManager& editStateManager = mapDocument().editStateManager();
-                        if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces) {
-                            inspector().faceInspector().update(editStateManager.selectedFaces());
-                            if (!editStateManager.textureMRUList().empty())
-                                inspector().faceInspector().updateSelectedTexture(editStateManager.textureMRUList().back());
-                        } else {
-                            inspector().faceInspector().update(editStateManager.selectedBrushes());
+                        updateFaceInspector();
+                        break;
+                    }
+                    case Controller::Command::RemoveTextureCollection: {
+                        Model::TextureManager& textureManager = mapDocument().textureManager();
+                        StringList::iterator it = m_textureMRUList.begin();
+                        while (it != m_textureMRUList.end()) {
+                            if (textureManager.texture(*it) == NULL)
+                                it = m_textureMRUList.erase(it);
+                            else
+                                ++it;
                         }
+                    }
+                    case Controller::Command::AddTextureCollection: {
+                        m_renderer->loadMap();
+                        inspector().faceInspector().updateTextureBrowser();
+                        inspector().faceInspector().updateTextureCollectionList();
+                        updateFaceInspector();
+                        break;
                     }
                     default:
                         break;

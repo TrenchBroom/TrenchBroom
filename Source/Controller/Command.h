@@ -38,7 +38,9 @@ namespace TrenchBroom {
                 InvalidateRendererBrushState,
                 InvalidateRendererState,
                 InvalidateEntityRendererCache,
-                SetFaceAttribute
+                SetFaceAttribute,
+                AddTextureCollection,
+                RemoveTextureCollection
             } Type;
         private:
             Type m_type;

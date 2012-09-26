@@ -140,6 +140,7 @@ namespace TrenchBroom {
             
             void reload() {
                 reloadLayout();
+                Refresh();
             }
             
             void clear() {

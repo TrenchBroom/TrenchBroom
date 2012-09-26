@@ -30,6 +30,8 @@
 #include <wx/stattext.h>
 
 #include "Controller/SetFaceAttributeCommand.h"
+#include "Controller/TextureCollectionCommand.h"
+#include "IO/FileManager.h"
 #include "Model/Brush.h"
 #include "Model/Face.h"
 #include "Model/MapDocument.h"
@@ -193,6 +195,7 @@ namespace TrenchBroom {
                 const float yScale = faces[0]->yScale();
                 const float rotation = faces[0]->rotation();
                 Model::Texture* const texture = faces[0]->texture();
+                const String& textureName = faces[0]->textureName();
                 
                 for (unsigned int i = 1; i < faces.size(); i++) {
                     Model::Face* face = faces[i];
@@ -235,7 +238,7 @@ namespace TrenchBroom {
                     m_textureNameLabel->SetLabel(wxT("multi"));
                 } else {
                     m_textureViewer->setTexture(texture);
-                    m_textureNameLabel->SetLabel(texture->name());
+                    m_textureNameLabel->SetLabel(textureName);
                 }
             } else {
                 m_xOffsetEditor->SetValue(wxT("n/a"));
@@ -330,13 +333,43 @@ namespace TrenchBroom {
         void FaceInspector::OnAddTextureCollectionPressed(wxCommandEvent& event) {
             wxFileDialog addTextureCollectionDialog(NULL, wxT("Choose texture wad"), wxT(""), wxT(""), wxT("*.wad"), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
             if (addTextureCollectionDialog.ShowModal() == wxID_OK) {
-                String wadPath = addTextureCollectionDialog.GetPath().ToStdString();
-                 // TODO: fire command to add a texture collection
+                String absWadPath = addTextureCollectionDialog.GetPath().ToStdString();
+
+                Model::MapDocument& document = m_documentViewHolder.document();
+                String documentFilename = document.GetFilename().ToStdString();
+                if (!documentFilename.empty()) {
+                    IO::FileManager fileManager;
+                    String relWadPath = fileManager.makeRelative(absWadPath, documentFilename);
+                    StringStream message;
+                    message << "Would you like to add this texture wad with a path relative to the path of the map file?\n\nAbsolute path: " << absWadPath << "\n\nRelative path: " << relWadPath;
+                    wxMessageDialog makeRelativeDialog(NULL, wxString(message.str()), wxT("Add texture wad"), wxYES_NO | wxCANCEL | wxCENTER);
+                    makeRelativeDialog.SetYesNoCancelLabels(wxT("Use absolute path"), wxT("Use relative path"), wxT("Cancel"));
+                    
+                    int result = makeRelativeDialog.ShowModal();
+                    if (result == wxID_YES) {
+                        Controller::TextureCollectionCommand* command = Controller::TextureCollectionCommand::addTextureWad(document, absWadPath);
+                        document.GetCommandProcessor()->Submit(command);
+                    } else if (result == wxID_NO) {
+                        Controller::TextureCollectionCommand* command = Controller::TextureCollectionCommand::addTextureWad(document, relWadPath);
+                        document.GetCommandProcessor()->Submit(command);
+                    }
+                }
             }
         }
         
         void FaceInspector::OnRemoveTextureCollectionsPressed(wxCommandEvent& event) {
-            // TODO: fire a command to remove some texture collections
+            wxArrayInt selections;
+            int selectionCount = m_textureCollectionList->GetSelections(selections);
+            if (selectionCount <= 0)
+                return;
+            
+            Controller::TextureCollectionCommand::IndexList indices;
+            for (unsigned int i = 0; i < selectionCount; i++)
+                indices.push_back(static_cast<size_t>(selections[i]));
+            
+            Model::MapDocument& document = m_documentViewHolder.document();
+            Controller::TextureCollectionCommand* command = Controller::TextureCollectionCommand::removeTextureWads(document, indices);
+            document.GetCommandProcessor()->Submit(command);
         }
 
         void FaceInspector::OnUpdateRemoveTextureCollectionsButton(wxUpdateUIEvent& event) {

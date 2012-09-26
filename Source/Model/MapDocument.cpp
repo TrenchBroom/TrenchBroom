@@ -67,33 +67,6 @@ namespace TrenchBroom {
             return wxDocument::DoSaveDocument(file);
         }
 
-        void MapDocument::updateFaceTextures() {
-            Model::FaceList changedFaces;
-            Model::TextureList newTextures;
-            
-            const Model::EntityList& entities = m_map->entities();
-            for (unsigned int i = 0; i < entities.size(); i++) {
-                const Model::BrushList& brushes = entities[i]->brushes();
-                for (unsigned int j = 0; j < brushes.size(); j++) {
-                    const Model::FaceList& faces = brushes[j]->faces();
-                    for (unsigned int k = 0; k < faces.size(); k++) {
-                        const String& textureName = faces[k]->textureName();
-                        Model::Texture* oldTexture = faces[k]->texture();
-                        Model::Texture* newTexture = m_textureManager->texture(textureName);
-                        if (oldTexture != newTexture) {
-                            changedFaces.push_back(faces[k]);
-                            newTextures.push_back(newTexture);
-                        }
-                    }
-                }
-            }
-            
-            if (!changedFaces.empty()) {
-                for (unsigned int i = 0; i < changedFaces.size(); i++)
-                    changedFaces[i]->setTexture(newTextures[i]);
-            }
-        }
-        
         void MapDocument::updateEntityDefinitions() {
             const EntityList& entities = m_map->entities();
             for (unsigned int i = 0; i < entities.size(); i++) {
@@ -139,28 +112,6 @@ namespace TrenchBroom {
             console().info("Loaded map file in %f seconds", watch.Time() / 1000.0f);
         }
 
-        void MapDocument::loadTextureWad(const String& path) {
-            IO::FileManager fileManager;
-            
-            String wadPath = path;
-            String mapPath = GetFilename().ToStdString();
-            if (!fileManager.exists(wadPath) && !mapPath.empty()) {
-                String folderPath = fileManager.deleteLastPathComponent(mapPath);
-                wadPath = fileManager.appendPath(folderPath, wadPath);
-            }
-            
-            if (fileManager.exists(wadPath)) {
-                wxStopWatch watch;
-                IO::Wad wad(wadPath);
-                Model::TextureCollection* collection = new Model::TextureCollection(wadPath, wad, *m_palette);
-                unsigned int index = static_cast<unsigned int>(m_textureManager->collections().size());
-                m_textureManager->addCollection(collection, index);
-                console().info("Loaded %s in %f seconds", wadPath.c_str(), watch.Time() / 1000.0f);
-            } else {
-                console().error("Could not open texture wad %s", path.c_str());
-            }
-        }
-        
         void MapDocument::loadTextures(Utility::ProgressIndicator& progressIndicator) {
             progressIndicator.setText("Loading textures...");
             
@@ -193,7 +144,7 @@ namespace TrenchBroom {
             loadTextures(progressIndicator);
             loadEntityDefinitions(progressIndicator);
 
-            updateFaceTextures();
+            updateAfterTextureManagerChanged();
             updateEntityDefinitions();
             
             return stream;
@@ -287,6 +238,60 @@ namespace TrenchBroom {
         
         const Palette& MapDocument::palette() const {
             return *m_palette;
+        }
+
+        void MapDocument::updateAfterTextureManagerChanged() {
+            Model::FaceList changedFaces;
+            Model::TextureList newTextures;
+            
+            const Model::EntityList& entities = m_map->entities();
+            for (unsigned int i = 0; i < entities.size(); i++) {
+                const Model::BrushList& brushes = entities[i]->brushes();
+                for (unsigned int j = 0; j < brushes.size(); j++) {
+                    const Model::FaceList& faces = brushes[j]->faces();
+                    for (unsigned int k = 0; k < faces.size(); k++) {
+                        const String& textureName = faces[k]->textureName();
+                        Model::Texture* oldTexture = faces[k]->texture();
+                        Model::Texture* newTexture = m_textureManager->texture(textureName);
+                        if (oldTexture != newTexture) {
+                            changedFaces.push_back(faces[k]);
+                            newTextures.push_back(newTexture);
+                        }
+                    }
+                }
+            }
+            
+            if (!changedFaces.empty()) {
+                for (unsigned int i = 0; i < changedFaces.size(); i++)
+                    changedFaces[i]->setTexture(newTextures[i]);
+            }
+            
+        }
+        
+        void MapDocument::loadTextureWad(const String& path) {
+            loadTextureWad(path, m_textureManager->collections().size());
+        }
+        
+        void MapDocument::loadTextureWad(const String& path, size_t index) {
+            IO::FileManager fileManager;
+            
+            String collectionName = path;
+            String wadPath = path;
+            String mapPath = GetFilename().ToStdString();
+            if (!fileManager.exists(wadPath) && !mapPath.empty()) {
+                String folderPath = fileManager.deleteLastPathComponent(mapPath);
+                wadPath = fileManager.appendPath(folderPath, wadPath);
+            }
+            
+            if (fileManager.exists(wadPath)) {
+                wxStopWatch watch;
+                IO::Wad wad(wadPath);
+                Model::TextureCollection* collection = new Model::TextureCollection(collectionName, wad, *m_palette);
+                m_textureManager->addCollection(collection, index);
+                console().info("Loaded %s in %f seconds", wadPath.c_str(), watch.Time() / 1000.0f);
+            } else {
+                console().error("Could not open texture wad %s", path.c_str());
+            }
         }
 
         bool MapDocument::OnCreate(const wxString& path, long flags) {

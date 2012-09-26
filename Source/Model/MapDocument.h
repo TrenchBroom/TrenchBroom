@@ -59,13 +59,11 @@ namespace TrenchBroom {
             virtual bool DoOpenDocument(const wxString& file);
             virtual bool DoSaveDocument(const wxString& file);
             
-            void updateFaceTextures();
             void updateEntityDefinitions();
             void clear();
 
             void loadPalette();
             void loadMap(std::istream& stream, Utility::ProgressIndicator& progressIndicator);
-            void loadTextureWad(const String& path);
             void loadTextures(Utility::ProgressIndicator& progressIndicator);
             void loadEntityDefinitions(Utility::ProgressIndicator& progressIndicator);
         public:
@@ -84,6 +82,10 @@ namespace TrenchBroom {
             const StringList& mods() const;
             const Palette& palette() const;
             
+            void updateAfterTextureManagerChanged();
+            void loadTextureWad(const String& path);
+            void loadTextureWad(const String& path, size_t index);
+
             bool OnCreate(const wxString& path, long flags);
 			bool OnNewDocument();
             bool OnOpenDocument(const wxString& path);

@@ -287,14 +287,16 @@ namespace TrenchBroom {
         void TextureBrowserCanvas::handleLeftClick(Layout& layout, float x, float y) {
             const Layout::Group::Row::Cell* result = NULL;
             if (layout.cellAt(x, y, &result)) {
-                m_selectedTexture = result->item().texture;
-                Refresh();
-
-                if (m_documentViewHolder.valid()) {
-                    TextureSelectedCommand command(m_selectedTexture);
-                    command.SetEventObject(this);
-                    command.SetId(GetId());
-                    ProcessEvent(command);
+                if (!result->item().texture->overridden()) {
+                    m_selectedTexture = result->item().texture;
+                    Refresh();
+                    
+                    if (m_documentViewHolder.valid()) {
+                        TextureSelectedCommand command(m_selectedTexture);
+                        command.SetEventObject(this);
+                        command.SetId(GetId());
+                        ProcessEvent(command);
+                    }
                 }
             }
         }

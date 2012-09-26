@@ -89,6 +89,17 @@ namespace TrenchBroom {
             return components;
         }
         
+        String AbstractFileManager::joinComponents(const StringList& pathComponents) {
+            if (pathComponents.empty())
+                return "";
+            StringStream result;
+            for (unsigned int i = 0; i < pathComponents.size() - 1; i++)
+                result << pathComponents[i] << pathSeparator();
+            result << pathComponents.back();
+            
+            return result.str();
+        }
+        
         String AbstractFileManager::deleteLastPathComponent(const String& path) {
             if (path.empty()) return path;
             size_t sepPos = path.find_last_of(pathSeparator());
@@ -110,6 +121,58 @@ namespace TrenchBroom {
             return path + suffix;
         }
         
+        String AbstractFileManager::resolvePath(const String& path) {
+            StringList components = resolvePath(pathComponents(path));
+            String cleanPath = joinComponents(components);
+            if (path[0] == '/')
+                cleanPath = "/" + cleanPath;
+            return cleanPath;
+        }
+
+        StringList AbstractFileManager::resolvePath(const StringList& pathComponents) {
+            StringList cleanComponents;
+            for (unsigned int i = 0; i < pathComponents.size(); i++) {
+                const String& component = pathComponents[i];
+                if (component != ".") {
+                    if (component == ".." && !cleanComponents.empty())
+                        cleanComponents.pop_back();
+                    else
+                        cleanComponents.push_back(component);
+                }
+            }
+            return cleanComponents;
+        }
+
+        String AbstractFileManager::makeRelative(const String& absolutePath, const String& referencePath) {
+            if (!::wxIsAbsolutePath(absolutePath))
+                return absolutePath;
+            if (!::wxIsAbsolutePath(referencePath))
+                return "";
+            
+            StringList absolutePathComponents = resolvePath(pathComponents(absolutePath));
+            StringList referencePathComponents = resolvePath(pathComponents(referencePath));
+            StringList relativePathComponents;
+
+            if (!isDirectory(referencePath))
+                referencePathComponents.pop_back();
+            
+            unsigned int i = 0;
+            for (; i < (std::min)(absolutePathComponents.size(), referencePathComponents.size()); i++) {
+                const String& absolutePathComponent = absolutePathComponents[i];
+                const String& referencePathComponent = referencePathComponents[i];
+                if (absolutePathComponent != referencePathComponent)
+                    break;
+            }
+            
+            for (unsigned int j = i; j < referencePathComponents.size(); j++)
+                relativePathComponents.push_back("..");
+            
+            for (unsigned int j = i; j < absolutePathComponents.size(); j++)
+                relativePathComponents.push_back(absolutePathComponents[j]);
+            
+            return joinComponents(relativePathComponents);
+        }
+
         String AbstractFileManager::pathExtension(const String& path) {
             size_t pos = path.find_last_of('.');
             if (pos == String::npos) return "";

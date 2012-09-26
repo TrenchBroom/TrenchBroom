@@ -99,8 +99,8 @@ namespace TrenchBroom {
             ~TextureManager();
             
             void addCollection(TextureCollection* collection, size_t index);
-            void removeCollection(size_t index);
-            void removeCollection(const String& name);
+            TextureCollection* removeCollection(size_t index);
+            size_t indexOfTextureCollection(const String& name);
             void clear();
             
             inline const TextureCollectionList& collections() const {

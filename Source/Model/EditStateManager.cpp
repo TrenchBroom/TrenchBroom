@@ -89,13 +89,10 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < faces.size(); i++) {
                 Face& face = *faces[i];
                 if (face.selected() != newState) {
-                    if (newState) {
+                    if (newState)
                         current().selectedFaces.push_back(&face);
-                        if (face.texture() != NULL && (current().textureMRUList.empty() || current().textureMRUList.back() != face.texture()))
-                            current().textureMRUList.push_back(face.texture());
-                    } else {
+                    else
                         Utility::erase(current().selectedFaces, &face);
-                    }
                     face.setSelected(newState);
                     changeSet.addFace(!newState, face);
                     changed = true;

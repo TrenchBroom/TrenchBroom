@@ -236,8 +236,6 @@ namespace TrenchBroom {
             m_texture = texture;
             if (m_texture != NULL)
                 m_textureName = texture->name();
-            else
-                m_textureName = Texture::Empty;
             
             if (m_texture != NULL)
                 m_texture->incUsageCount();
