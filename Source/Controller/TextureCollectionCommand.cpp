@@ -34,7 +34,6 @@ namespace TrenchBroom {
                     document().loadTextureWad(m_paths[i]);
             }
             document().updateAfterTextureManagerChanged();
-            document().UpdateAllViews(NULL, this);
         }
 
         void TextureCollectionCommand::removeTextureCollectionsByPaths() {
@@ -51,8 +50,6 @@ namespace TrenchBroom {
             }
             
             document().updateAfterTextureManagerChanged();
-            document().UpdateAllViews(NULL, this);
-            
             while (!collections.empty()) delete collections.back(), collections.pop_back();
         }
 
@@ -78,15 +75,20 @@ namespace TrenchBroom {
             if (type() == AddTextureCollection) {
                 m_indices.clear();
                 addTextureCollectionsByPaths();
+                document().UpdateAllViews(NULL, this);
                 return true;
             } else if (type() == RemoveTextureCollection) {
-                Model::TextureManager& textureManager = document().textureManager();
+                Model::Texture* mruTexture = document().mruTexture();
+                m_mruTextureName = mruTexture != NULL ? mruTexture->name() : "";
                 m_paths.clear();
+
+                Model::TextureManager& textureManager = document().textureManager();
                 for (unsigned int i = 0; i < m_indices.size(); i++) {
                     Model::TextureCollection* collection = textureManager.collections()[m_indices[i]];
                     m_paths.push_back(collection->name());
                 }
                 removeTextureCollectionsByPaths();
+                document().UpdateAllViews(NULL, this);
                 return true;
             }
             
@@ -96,9 +98,14 @@ namespace TrenchBroom {
         bool TextureCollectionCommand::Undo() {
             if (type() == AddTextureCollection) {
                 removeTextureCollectionsByPaths();
+                document().UpdateAllViews(NULL, this);
                 return true;
             } else if (type() == RemoveTextureCollection) {
                 addTextureCollectionsByPaths();
+                Model::TextureManager& textureManager = document().textureManager();
+                Model::Texture* mruTexture = textureManager.texture(m_mruTextureName);
+                document().setMruTexture(mruTexture);
+                document().UpdateAllViews(NULL, this);
                 return true;
             }
             

@@ -21,7 +21,6 @@
 #define __TrenchBroom__EditorView__
 
 #include "Model/TextureTypes.h"
-#include "Utility/String.h"
 
 #include <wx/cmdproc.h>
 #include <wx/docview.h>
@@ -60,7 +59,6 @@ namespace TrenchBroom {
             Model::Filter* m_filter;
             ViewOptions* m_viewOptions;
             Utility::Console* m_console;
-            StringList m_textureMRUList;
             
             void submit(wxCommand* command);
             void updateFaceInspector();

@@ -162,7 +162,9 @@ namespace TrenchBroom {
         m_palette(NULL),
         m_textureManager(NULL),
         m_definitionManager(NULL),
-        m_grid(new Utility::Grid(4)) {}
+        m_grid(new Utility::Grid(4)),
+        m_mruTexture(NULL),
+        m_mruTextureName("") {}
         
         MapDocument::~MapDocument() {
             if (m_picker != NULL) {
@@ -240,6 +242,18 @@ namespace TrenchBroom {
             return *m_palette;
         }
 
+        Model::Texture* MapDocument::mruTexture() const {
+            return m_mruTexture;
+        }
+        
+        void MapDocument::setMruTexture(Model::Texture* texture) {
+            if (texture == NULL)
+                m_mruTextureName = "";
+            else
+                m_mruTextureName = texture->name();
+            m_mruTexture = texture;
+        }
+
         void MapDocument::updateAfterTextureManagerChanged() {
             Model::FaceList changedFaces;
             Model::TextureList newTextures;
@@ -266,6 +280,8 @@ namespace TrenchBroom {
                     changedFaces[i]->setTexture(newTextures[i]);
             }
             
+            if (m_mruTexture != NULL && m_mruTexture != m_textureManager->texture(m_mruTextureName))
+                setMruTexture(NULL);
         }
         
         void MapDocument::loadTextureWad(const String& path) {

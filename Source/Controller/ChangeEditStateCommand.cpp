@@ -19,6 +19,7 @@
 
 #include "ChangeEditStateCommand.h"
 
+#include "Model/Face.h"
 #include "Model/MapDocument.h"
 
 #include <cassert>
@@ -29,21 +30,24 @@ namespace TrenchBroom {
         DocumentCommand(Command::ChangeEditState, document, true,name),
         m_state(previousState),
         m_affectAll(true),
-        m_replace(false) {}
+        m_replace(false),
+        m_mruTexture(NULL) {}
 
         ChangeEditStateCommand::ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type newState, const Model::EntityList& entities, bool replace) :
         DocumentCommand(Command::ChangeEditState, document, true, name),
         m_state(newState),
         m_affectAll(false),
         m_replace(replace),
-        m_entities(entities) {}
+        m_entities(entities),
+        m_mruTexture(NULL) {}
         
         ChangeEditStateCommand::ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type newState, const Model::BrushList& brushes, bool replace) :
         DocumentCommand(Command::ChangeEditState, document, true, name),
         m_state(newState),
         m_affectAll(false),
         m_replace(replace),
-        m_brushes(brushes) {}
+        m_brushes(brushes),
+        m_mruTexture(NULL) {}
         
         ChangeEditStateCommand::ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type newState, const Model::EntityList& entities, const Model::BrushList& brushes, bool replace) :
         DocumentCommand(Command::ChangeEditState, document, true, name),
@@ -51,14 +55,16 @@ namespace TrenchBroom {
         m_affectAll(false),
         m_replace(replace),
         m_entities(entities),
-        m_brushes(brushes) {}
+        m_brushes(brushes),
+        m_mruTexture(NULL) {}
         
         ChangeEditStateCommand::ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type newState, const Model::FaceList& faces, bool replace) :
         DocumentCommand(Command::ChangeEditState, document, true, name),
         m_state(newState),
         m_affectAll(false),
         m_replace(replace),
-        m_faces(faces) {
+        m_faces(faces),
+        m_mruTexture(NULL) {
             assert(m_state == Model::EditState::Selected || m_state == Model::EditState::Default);
         }
         
@@ -215,6 +221,8 @@ namespace TrenchBroom {
             } else {
                 if (!m_faces.empty()) {
                     m_changeSet = document().editStateManager().setSelected(m_faces, m_state == Model::EditState::Selected, m_replace);
+                    m_mruTexture = document().mruTexture();
+                    document().setMruTexture(m_faces.back()->texture());
                 } else {
                     if (!m_entities.empty()) {
                         if (!m_brushes.empty())
@@ -235,6 +243,7 @@ namespace TrenchBroom {
         
         bool ChangeEditStateCommand::Undo() {
             m_changeSet = document().editStateManager().undoChangeSet(m_changeSet);
+            document().setMruTexture(m_mruTexture);
             if (!m_changeSet.empty())
                 document().UpdateAllViews(NULL, this);
             return true;

@@ -41,6 +41,7 @@ namespace TrenchBroom {
         class Octree;
         class Palette;
         class Picker;
+        class Texture;
         class TextureManager;
         
         class MapDocument : public wxDocument {
@@ -55,6 +56,8 @@ namespace TrenchBroom {
             EntityDefinitionManager* m_definitionManager;
             Utility::Grid* m_grid;
             StringList m_mods;
+            Model::Texture* m_mruTexture;
+            String m_mruTextureName;
             
             virtual bool DoOpenDocument(const wxString& file);
             virtual bool DoSaveDocument(const wxString& file);
@@ -81,6 +84,9 @@ namespace TrenchBroom {
             Utility::Console& console() const;
             const StringList& mods() const;
             const Palette& palette() const;
+            
+            Model::Texture* mruTexture() const;
+            void setMruTexture(Model::Texture* texture);
             
             void updateAfterTextureManagerChanged();
             void loadTextureWad(const String& path);

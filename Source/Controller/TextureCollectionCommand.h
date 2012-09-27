@@ -36,9 +36,9 @@ namespace TrenchBroom {
         public:
             typedef std::vector<size_t> IndexList;
         protected:
-            
             StringList m_paths;
             IndexList m_indices;
+            String m_mruTextureName;
             
             void addTextureCollectionsByPaths();
             void removeTextureCollectionsByPaths();

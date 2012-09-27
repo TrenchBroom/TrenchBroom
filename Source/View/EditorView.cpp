@@ -75,16 +75,11 @@ namespace TrenchBroom {
         
         void EditorView::updateFaceInspector() {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
-            if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces) {
+            if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces)
                 inspector().faceInspector().update(editStateManager.selectedFaces());
-                if (!m_textureMRUList.empty()) {
-                    Model::TextureManager& textureManager = mapDocument().textureManager();
-                    Model::Texture* texture = textureManager.texture(m_textureMRUList.back());
-                    inspector().faceInspector().updateSelectedTexture(texture);
-                }
-            } else {
+            else
                 inspector().faceInspector().update(editStateManager.selectedBrushes());
-            }
+            inspector().faceInspector().updateSelectedTexture(mapDocument().mruTexture());
         }
         
         EditorView::EditorView() :
@@ -165,14 +160,6 @@ namespace TrenchBroom {
                     case Controller::Command::ChangeEditState: {
                         Controller::ChangeEditStateCommand* changeEditStateCommand = static_cast<Controller::ChangeEditStateCommand*>(command);
                         m_renderer->changeEditState(changeEditStateCommand->changeSet());
-                        
-                        const Model::FaceList& newlySelectedFaces = changeEditStateCommand->changeSet().faces(false);
-                        for (unsigned int i = 0; i < newlySelectedFaces.size(); i++) {
-                            Model::Face* face = newlySelectedFaces[i];
-                            if (face->texture() != NULL && (m_textureMRUList.empty() || m_textureMRUList.back() != face->texture()->name()))
-                                m_textureMRUList.push_back(face->texture()->name());
-                        }
-
                         updateFaceInspector();
                         break;
                     }
@@ -193,16 +180,7 @@ namespace TrenchBroom {
                         updateFaceInspector();
                         break;
                     }
-                    case Controller::Command::RemoveTextureCollection: {
-                        Model::TextureManager& textureManager = mapDocument().textureManager();
-                        StringList::iterator it = m_textureMRUList.begin();
-                        while (it != m_textureMRUList.end()) {
-                            if (textureManager.texture(*it) == NULL)
-                                it = m_textureMRUList.erase(it);
-                            else
-                                ++it;
-                        }
-                    }
+                    case Controller::Command::RemoveTextureCollection:
                     case Controller::Command::AddTextureCollection: {
                         m_renderer->loadMap();
                         inspector().faceInspector().updateTextureBrowser();

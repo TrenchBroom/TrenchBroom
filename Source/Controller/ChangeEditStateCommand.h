@@ -33,6 +33,7 @@ namespace TrenchBroom {
         class Entity;
         class Face;
         class MapDocument;
+        class Texture;
     }
     
     namespace Controller {
@@ -45,6 +46,7 @@ namespace TrenchBroom {
             Model::EntityList m_entities;
             Model::BrushList m_brushes;
             Model::FaceList m_faces;
+            Model::Texture* m_mruTexture;
             
             Model::EditStateChangeSet m_changeSet;
             
