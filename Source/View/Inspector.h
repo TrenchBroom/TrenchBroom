@@ -37,6 +37,7 @@ namespace TrenchBroom {
     namespace View {
         class DocumentViewHolder;
         class EditorView;
+        class EntityInspector;
         class FaceInspector;
         class ViewInspector;
         
@@ -44,17 +45,22 @@ namespace TrenchBroom {
         protected:
             DocumentViewHolder& m_documentViewHolder;
             
+            EntityInspector* m_entityInspector;
             FaceInspector* m_faceInspector;
             
             wxNotebook* m_notebook;
             wxNotebookPage* CreateMapInspector();
-            wxNotebookPage* CreateEntityInspector();
+            EntityInspector* CreateEntityInspector(wxGLContext* sharedContext);
             wxNotebookPage* CreateBrushInspector();
             FaceInspector* CreateFaceInspector(wxGLContext* sharedContext);
             ViewInspector* CreateViewInspector();
         public:
             Inspector(wxWindow* parent, DocumentViewHolder& documentViewHolder, wxGLContext* sharedContext);
 
+            inline EntityInspector& entityInspector() const {
+                return *m_entityInspector;
+            }
+            
             inline FaceInspector& faceInspector() const {
                 return *m_faceInspector;
             }

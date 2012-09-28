@@ -61,7 +61,6 @@ namespace TrenchBroom {
             Utility::Console* m_console;
             
             void submit(wxCommand* command);
-            void updateFaceInspector();
         public:
             EditorView();
 

@@ -40,7 +40,10 @@ namespace TrenchBroom {
                 InvalidateEntityRendererCache,
                 SetFaceAttribute,
                 AddTextureCollection,
-                RemoveTextureCollection
+                RemoveTextureCollection,
+                SetEntityPropertyValue,
+                SetEntityPropertyKey,
+                RemoveEntityProperty
             } Type;
         private:
             Type m_type;

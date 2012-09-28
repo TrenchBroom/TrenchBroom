@@ -21,6 +21,7 @@
 
 #include <wx/sizer.h>
 
+#include "View/EntityInspector.h"
 #include "View/FaceInspector.h"
 #include "View/ViewInspector.h"
 
@@ -30,8 +31,8 @@ namespace TrenchBroom {
             return new wxPanel(m_notebook);
         }
         
-        wxNotebookPage* Inspector::CreateEntityInspector() {
-            return new wxPanel(m_notebook);
+        EntityInspector* Inspector::CreateEntityInspector(wxGLContext* sharedContext) {
+            return new EntityInspector(m_notebook, m_documentViewHolder, sharedContext);
         }
         
         wxNotebookPage* Inspector::CreateBrushInspector() {
@@ -51,7 +52,8 @@ namespace TrenchBroom {
         m_documentViewHolder(documentViewHolder) {
             m_notebook = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNB_TOP | wxCLIP_CHILDREN);
             m_notebook->AddPage(CreateMapInspector(), wxT("Map"));
-            m_notebook->AddPage(CreateEntityInspector(), wxT("Entity"));
+            m_entityInspector= CreateEntityInspector(sharedContext);
+            m_notebook->AddPage(m_entityInspector, wxT("Entity"));
             m_notebook->AddPage(CreateBrushInspector(), wxT("Brush"));
             m_faceInspector = CreateFaceInspector(sharedContext);
             m_notebook->AddPage(m_faceInspector, wxT("Face"));

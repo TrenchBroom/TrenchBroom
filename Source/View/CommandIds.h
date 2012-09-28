@@ -84,6 +84,13 @@ namespace TrenchBroom {
                 static const int TextureCollectionListId            = Lowest + 11;
                 static const int AddTextureCollectionButtonId       = Lowest + 12;
                 static const int RemoveTextureCollectionsButtonId   = Lowest + 13;
+                static const int Highest                            = Lowest + 99;
+            }
+            
+            namespace EntityInspector {
+                static const int Lowest                             = FaceInspector::Highest + 1;
+                static const int EntityPropertyViewId               = Lowest + 1;
+                static const int Highest                            = Lowest + 99;
             }
         }
     }

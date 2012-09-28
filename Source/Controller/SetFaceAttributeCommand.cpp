@@ -41,9 +41,8 @@ namespace TrenchBroom {
         m_setTexture(false) {}
 
         bool SetFaceAttributeCommand::Do() {
-            
             Model::EditStateManager& editStateManager = document().editStateManager();
-            const Model::FaceList& faces = editStateManager.selectedFaces();
+            const Model::FaceList faces = editStateManager.allSelectedFaces();
             if (faces.empty())
                 return false;
             
@@ -71,7 +70,7 @@ namespace TrenchBroom {
         
         bool SetFaceAttributeCommand::Undo() {
             Model::EditStateManager& editStateManager = document().editStateManager();
-            const Model::FaceList& faces = editStateManager.selectedFaces();
+            const Model::FaceList faces = editStateManager.allSelectedFaces();
             if (faces.empty())
                 return false;
 

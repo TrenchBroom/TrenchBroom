@@ -144,6 +144,20 @@ namespace TrenchBroom {
                 return current().selectedFaces;
             }
             
+            inline FaceList allSelectedFaces() const {
+                if (selectionMode() == SMFaces)
+                    return current().selectedFaces;
+                
+                FaceList faces;
+                const BrushList& brushes = current().selectedBrushes;
+                for (unsigned int i = 0; i < brushes.size(); i++) {
+                    Brush& brush = *brushes[i];
+                    const FaceList& brushFaces = brush.faces();
+                    faces.insert(faces.end(), brushFaces.begin(), brushFaces.end());
+                }
+                return faces;
+            }
+            
             EditStateChangeSet setEditState(const EntityList& entities, EditState::Type newState, bool replace = false);
             EditStateChangeSet setEditState(const BrushList& brushes, EditState::Type newState, bool replace = false);
             EditStateChangeSet setEditState(const EntityList& entities, const BrushList& brushes, EditState::Type newState, bool replace = false);

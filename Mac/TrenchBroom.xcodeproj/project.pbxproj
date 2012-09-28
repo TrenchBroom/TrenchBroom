@@ -66,6 +66,8 @@
 		48AF492815E8CC270083DE52 /* MapParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AF492615E8CC270083DE52 /* MapParser.cpp */; };
 		48AF61F415F8B7360027C465 /* libfreetype.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48AF61F315F8B7360027C465 /* libfreetype.a */; };
 		48AF61F615F8B7720027C465 /* libbz2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48AF61F515F8B7720027C465 /* libbz2.a */; };
+		48B059A41615A07200E6B0AD /* EntityPropertyDataViewModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B059A21615A07200E6B0AD /* EntityPropertyDataViewModel.cpp */; };
+		48B059A81615EF3800E6B0AD /* EntityPropertyCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B059A61615EF3800E6B0AD /* EntityPropertyCommand.cpp */; };
 		48B75F72160BA512009D4E99 /* TextureBrowser.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48B75F71160BA512009D4E99 /* TextureBrowser.vertsh */; };
 		48B75F75160BA531009D4E99 /* TextureBrowser.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48B75F74160BA531009D4E99 /* TextureBrowser.fragsh */; };
 		48B75F79160CF79F009D4E99 /* TextureBrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B75F77160CF79E009D4E99 /* TextureBrowser.cpp */; };
@@ -256,6 +258,11 @@
 		48AF61F315F8B7360027C465 /* libfreetype.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreetype.a; path = Lib/libfreetype.a; sourceTree = "<group>"; };
 		48AF61F515F8B7720027C465 /* libbz2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbz2.a; path = Lib/libbz2.a; sourceTree = "<group>"; };
 		48AF61F715F91B610027C465 /* CommandIds.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommandIds.h; sourceTree = "<group>"; };
+		48B059A21615A07200E6B0AD /* EntityPropertyDataViewModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityPropertyDataViewModel.cpp; sourceTree = "<group>"; };
+		48B059A31615A07200E6B0AD /* EntityPropertyDataViewModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityPropertyDataViewModel.h; sourceTree = "<group>"; };
+		48B059A61615EF3800E6B0AD /* EntityPropertyCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityPropertyCommand.cpp; sourceTree = "<group>"; };
+		48B059A71615EF3800E6B0AD /* EntityPropertyCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityPropertyCommand.h; sourceTree = "<group>"; };
+		48B059AF16162FF100E6B0AD /* SpinControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpinControl.h; sourceTree = "<group>"; };
 		48B75F71160BA512009D4E99 /* TextureBrowser.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = TextureBrowser.vertsh; sourceTree = "<group>"; };
 		48B75F74160BA531009D4E99 /* TextureBrowser.fragsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = TextureBrowser.fragsh; sourceTree = "<group>"; };
 		48B75F77160CF79E009D4E99 /* TextureBrowser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureBrowser.cpp; sourceTree = "<group>"; };
@@ -537,6 +544,8 @@
 				48D1BEB315E4237B0073C030 /* EditorFrame.h */,
 				4817C7F216123E0500A01A99 /* EntityInspector.cpp */,
 				4817C7F316123E0500A01A99 /* EntityInspector.h */,
+				48B059A21615A07200E6B0AD /* EntityPropertyDataViewModel.cpp */,
+				48B059A31615A07200E6B0AD /* EntityPropertyDataViewModel.h */,
 				48C0FA401608FFD00023F467 /* FaceInspector.cpp */,
 				48C0FA411608FFD00023F467 /* FaceInspector.h */,
 				48E2ED181601184F00B8D476 /* LayoutConstants.h */,
@@ -551,6 +560,7 @@
 				48AB57F015ECEEE500321C47 /* ProgressIndicatorDialog.h */,
 				48C0FA44160901CB0023F467 /* SingleTextureViewer.cpp */,
 				48C0FA45160901CB0023F467 /* SingleTextureViewer.h */,
+				48B059AF16162FF100E6B0AD /* SpinControl.h */,
 				48B75F77160CF79E009D4E99 /* TextureBrowser.cpp */,
 				48B75F78160CF79E009D4E99 /* TextureBrowser.h */,
 				48D417D5160B3A3C003AECBB /* TextureBrowserCanvas.cpp */,
@@ -639,6 +649,8 @@
 				48AB580115ECFED800321C47 /* InputController.h */,
 				4850D25215F3B36C005B162D /* SelectionTool.cpp */,
 				4850D25315F3B36C005B162D /* SelectionTool.h */,
+				48B059A61615EF3800E6B0AD /* EntityPropertyCommand.cpp */,
+				48B059A71615EF3800E6B0AD /* EntityPropertyCommand.h */,
 				4817C7EC1611DC8F00A01A99 /* SetFaceAttributeCommand.cpp */,
 				4817C7ED1611DC8F00A01A99 /* SetFaceAttributeCommand.h */,
 				4817C7EF1611DFA900A01A99 /* SnapshotCommand.cpp */,
@@ -833,6 +845,8 @@
 				4817C7F11611DFA900A01A99 /* SnapshotCommand.cpp in Sources */,
 				4817C7F416123E0500A01A99 /* EntityInspector.cpp in Sources */,
 				48E1A518161390AD006BB6C4 /* TextureCollectionCommand.cpp in Sources */,
+				48B059A41615A07200E6B0AD /* EntityPropertyDataViewModel.cpp in Sources */,
+				48B059A81615EF3800E6B0AD /* EntityPropertyCommand.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -944,6 +958,7 @@
 					"-framework",
 					QuickTime,
 					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_osx_cocoau_gl-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_osx_cocoau_adv-2.9.a\"",
 					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_osx_cocoau_core-2.9.a\"",
 					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_baseu-2.9.a\"",
 					"-framework",
@@ -1011,6 +1026,7 @@
 					"-framework",
 					QuickTime,
 					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_gl-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_adv-2.9.a\"",
 					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_core-2.9.a\"",
 					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_baseu-2.9.a\"",
 					"-framework",

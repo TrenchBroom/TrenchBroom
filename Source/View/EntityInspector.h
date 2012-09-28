@@ -20,10 +20,15 @@
 #ifndef __TrenchBroom__EntityInspector__
 #define __TrenchBroom__EntityInspector__
 
+#include "Model/EntityTypes.h"
+#include "View/EntityPropertyDataViewModel.h"
+
+#include <wx/object.h>
 #include <wx/panel.h>
 
-class wxWindow;
+class wxDataViewCtrl;
 class wxGLContext;
+class wxWindow;
 
 namespace TrenchBroom {
     namespace View {
@@ -33,10 +38,19 @@ namespace TrenchBroom {
         protected:
             DocumentViewHolder& m_documentViewHolder;
 
-            wxWindow* createPropertyEditor();
-            wxWindow* createEntityBrowser(wxGLContext* sharedContext);
+            wxDataViewCtrl* m_propertyView;
+            wxDataViewColumn* m_keyColumn;
+            wxDataViewColumn* m_valueColumn;
+            wxObjectDataPtr<EntityPropertyDataViewModel> m_propertyViewModel;
+            
+            wxWindow* createPropertyEditor(wxWindow* parent);
+            wxWindow* createEntityBrowser(wxWindow* parent, wxGLContext* sharedContext);
         public:
             EntityInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder, wxGLContext* sharedContext);
+            
+            void update();
+
+            DECLARE_EVENT_TABLE()
         };
     }
 }

@@ -77,6 +77,7 @@ namespace TrenchBroom {
             std::ostream& SaveObject(std::ostream& stream);
             
             Map& map() const;
+            EntityDefinitionManager& definitionManager() const;
             EditStateManager& editStateManager() const;
             TextureManager& textureManager() const;
             Picker& picker() const;

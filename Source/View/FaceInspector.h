@@ -26,10 +26,10 @@
 #include "Model/BrushTypes.h"
 #include "Model/FaceTypes.h"
 
+class SpinControl;
 class wxButton;
 class wxListBox;
 class wxGLContext;
-class wxSpinCtrlDouble;
 class wxSpinDoubleEvent;
 class wxStaticText;
 
@@ -51,11 +51,11 @@ namespace TrenchBroom {
             SingleTextureViewer* m_textureViewer;
             wxStaticText* m_textureNameLabel;
             
-            wxSpinCtrlDouble* m_xOffsetEditor;
-            wxSpinCtrlDouble* m_yOffsetEditor;
-            wxSpinCtrlDouble* m_xScaleEditor;
-            wxSpinCtrlDouble* m_yScaleEditor;
-            wxSpinCtrlDouble* m_rotationEditor;
+            SpinControl* m_xOffsetEditor;
+            SpinControl* m_yOffsetEditor;
+            SpinControl* m_xScaleEditor;
+            SpinControl* m_yScaleEditor;
+            SpinControl* m_rotationEditor;
             
             TextureBrowser* m_textureBrowser;
             wxListBox* m_textureCollectionList;
@@ -67,9 +67,8 @@ namespace TrenchBroom {
         public:
             FaceInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder, wxGLContext* sharedContext);
             
-            void update(const Model::FaceList& faces);
-            void update(const Model::BrushList& brushes);
-            void updateSelectedTexture(Model::Texture* texture);
+            void updateFaceAttributes();
+            void updateSelectedTexture();
             void updateTextureBrowser();
             void updateTextureCollectionList();
             

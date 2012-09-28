@@ -26,6 +26,7 @@
 #include <wx/listbox.h>
 #include <wx/sizer.h>
 #include <wx/spinctrl.h>
+#include <wx/splitter.h>
 #include <wx/statline.h>
 #include <wx/stattext.h>
 
@@ -33,6 +34,7 @@
 #include "Controller/TextureCollectionCommand.h"
 #include "IO/FileManager.h"
 #include "Model/Brush.h"
+#include "Model/EditStateManager.h"
 #include "Model/Face.h"
 #include "Model/MapDocument.h"
 #include "Model/Texture.h"
@@ -43,6 +45,8 @@
 #include "View/SingleTextureViewer.h"
 #include "View/TextureBrowser.h"
 #include "View/TextureBrowserCanvas.h"
+
+#include "View/SpinControl.h"
 
 #include <limits>
 
@@ -85,19 +89,19 @@ namespace TrenchBroom {
             double max = std::numeric_limits<double>::max();
             double min = -max;
             
-            m_xOffsetEditor = new wxSpinCtrlDouble(faceEditorPanel, CommandIds::FaceInspector::XOffsetEditorId);
+            m_xOffsetEditor = new SpinControl(faceEditorPanel, CommandIds::FaceInspector::XOffsetEditorId);
             m_xOffsetEditor->SetRange(min, max);
             m_xOffsetEditor->SetIncrement(1.0);
-            m_yOffsetEditor = new wxSpinCtrlDouble(faceEditorPanel, CommandIds::FaceInspector::YOffsetEditorId);
+            m_yOffsetEditor = new SpinControl(faceEditorPanel, CommandIds::FaceInspector::YOffsetEditorId);
             m_yOffsetEditor->SetRange(min, max);
             m_yOffsetEditor->SetIncrement(1.0);
-            m_xScaleEditor = new wxSpinCtrlDouble(faceEditorPanel, CommandIds::FaceInspector::XScaleEditorId);
+            m_xScaleEditor = new SpinControl(faceEditorPanel, CommandIds::FaceInspector::XScaleEditorId);
             m_xScaleEditor->SetRange(min, max);
             m_xScaleEditor->SetIncrement(0.1);
-            m_yScaleEditor = new wxSpinCtrlDouble(faceEditorPanel, CommandIds::FaceInspector::YScaleEditorId);
+            m_yScaleEditor = new SpinControl(faceEditorPanel, CommandIds::FaceInspector::YScaleEditorId);
             m_yScaleEditor->SetRange(min, max);
             m_yScaleEditor->SetIncrement(0.1);
-            m_rotationEditor = new wxSpinCtrlDouble(faceEditorPanel, CommandIds::FaceInspector::RotationEditorId);
+            m_rotationEditor = new SpinControl(faceEditorPanel, CommandIds::FaceInspector::RotationEditorId);
             m_rotationEditor->SetRange(min, max);
             m_rotationEditor->SetIncrement(1.0);
             
@@ -131,13 +135,16 @@ namespace TrenchBroom {
         }
         
         wxWindow* FaceInspector::createTextureBrowser(wxGLContext* sharedContext) {
-            wxPanel* textureBrowserPanel = new wxPanel(this);
+            wxSplitterWindow* browserSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3DSASH | wxSP_LIVE_UPDATE);
+            browserSplitter->SetSashGravity(1.0f);
+            browserSplitter->SetMinimumPaneSize(30);
 
-            m_textureBrowser = new TextureBrowser(textureBrowserPanel, CommandIds::FaceInspector::TextureBrowserId, sharedContext, m_documentViewHolder);
+            m_textureBrowser = new TextureBrowser(browserSplitter, CommandIds::FaceInspector::TextureBrowserId, sharedContext, m_documentViewHolder);
             
-            m_textureCollectionList = new wxListBox(textureBrowserPanel, CommandIds::FaceInspector::TextureCollectionListId, wxDefaultPosition, wxSize(100, 70), 0, NULL, wxLB_MULTIPLE | wxLB_NEEDED_SB);
-            m_addTextureCollectionButton = new wxButton(textureBrowserPanel, CommandIds::FaceInspector::AddTextureCollectionButtonId, wxT("+"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
-            m_removeTextureCollectionsButton = new wxButton(textureBrowserPanel, CommandIds::FaceInspector::RemoveTextureCollectionsButtonId, wxT("-"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
+            wxPanel* textureCollectionEditor = new wxPanel(browserSplitter);
+            m_textureCollectionList = new wxListBox(textureCollectionEditor, CommandIds::FaceInspector::TextureCollectionListId, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE | wxLB_NEEDED_SB);
+            m_addTextureCollectionButton = new wxButton(textureCollectionEditor, CommandIds::FaceInspector::AddTextureCollectionButtonId, wxT("+"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
+            m_removeTextureCollectionsButton = new wxButton(textureCollectionEditor, CommandIds::FaceInspector::RemoveTextureCollectionsButtonId, wxT("-"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
 
             wxSizer* textureCollectionEditorButtonsSizer = new wxBoxSizer(wxVERTICAL);
             textureCollectionEditorButtonsSizer->Add(m_addTextureCollectionButton, 0, wxEXPAND);
@@ -148,14 +155,10 @@ namespace TrenchBroom {
             textureCollectionEditorSizer->Add(m_textureCollectionList, 1, wxEXPAND);
             textureCollectionEditorSizer->AddSpacer(LayoutConstants::ControlMargin);
             textureCollectionEditorSizer->Add(textureCollectionEditorButtonsSizer);
-            
-            wxSizer* textureBrowserSizer = new wxBoxSizer(wxVERTICAL);
-            textureBrowserSizer->Add(m_textureBrowser, 1, wxEXPAND);
-            textureBrowserSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            textureBrowserSizer->Add(textureCollectionEditorSizer, 0, wxEXPAND);
-            
-            textureBrowserPanel->SetSizerAndFit(textureBrowserSizer);
-            return textureBrowserPanel;
+            textureCollectionEditor->SetSizerAndFit(textureCollectionEditorSizer);
+
+            browserSplitter->SplitHorizontally(m_textureBrowser, textureCollectionEditor);
+            return browserSplitter;
         }
         
         FaceInspector::FaceInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder, wxGLContext* sharedContext) :
@@ -176,11 +179,18 @@ namespace TrenchBroom {
             outerSizer->Add(innerSizer, 1, wxEXPAND | wxALL, LayoutConstants::NotebookPageInnerMargin);
             SetSizerAndFit(outerSizer);
             
-            update(Model::EmptyFaceList);
+            updateFaceAttributes();
+            updateSelectedTexture();
             updateTextureCollectionList();
         }
 
-        void FaceInspector::update(const Model::FaceList& faces) {
+        void FaceInspector::updateFaceAttributes() {
+            Model::FaceList faces;
+            if (m_documentViewHolder.valid()) {
+                Model::EditStateManager& editStateManager = m_documentViewHolder.document().editStateManager();
+                faces = editStateManager.allSelectedFaces();
+            }
+            
             if (!faces.empty()) {
                 bool xOffsetMulti = false;
                 bool yOffsetMulti = false;
@@ -213,26 +223,41 @@ namespace TrenchBroom {
                 m_yScaleEditor->Enable();
                 m_rotationEditor->Enable();
 
-                if (xOffsetMulti)
-                    m_xOffsetEditor->SetValue(wxT("multi"));
-                else
+                if (xOffsetMulti) {
+                    m_xOffsetEditor->SetHint(wxT("multi"));
+                    m_xOffsetEditor->SetValue(wxT(""));
+                } else {
+                    m_xOffsetEditor->SetHint(wxT(""));
                     m_xOffsetEditor->SetValue(xOffset);
-                if (yOffsetMulti)
-                    m_yOffsetEditor->SetValue(wxT("multi"));
-                else
+                }
+                if (yOffsetMulti) {
+                    m_yOffsetEditor->SetHint(wxT("multi"));
+                    m_yOffsetEditor->SetValue(wxT(""));
+                } else {
+                    m_yOffsetEditor->SetHint(wxT(""));
                     m_yOffsetEditor->SetValue(yOffset);
-                if (xScaleMulti)
-                    m_xScaleEditor->SetValue(wxT("multi"));
-                else
+                }
+                if (xScaleMulti){
+                    m_xScaleEditor->SetHint(wxT("multi"));
+                    m_xScaleEditor->SetValue(wxT(""));
+                } else {
+                    m_xScaleEditor->SetHint(wxT(""));
                     m_xScaleEditor->SetValue(xScale);
-                if (yScaleMulti)
-                    m_yScaleEditor->SetValue(wxT("multi"));
-                else
+                }
+                if (yScaleMulti) {
+                    m_yScaleEditor->SetHint(wxT("multi"));
+                    m_yScaleEditor->SetValue(wxT(""));
+                } else {
+                    m_yScaleEditor->SetHint(wxT(""));
                     m_yScaleEditor->SetValue(yScale);
-                if (rotationMulti)
-                    m_rotationEditor->SetValue(wxT("multi"));
-                else
+                }
+                if (rotationMulti) {
+                    m_rotationEditor->SetHint(wxT("multi"));
+                    m_rotationEditor->SetValue(wxT(""));
+                } else {
+                    m_rotationEditor->SetHint(wxT(""));
                     m_rotationEditor->SetValue(rotation);
+                }
                 if (textureMulti) {
                     m_textureViewer->setTexture(NULL);
                     m_textureNameLabel->SetLabel(wxT("multi"));
@@ -256,17 +281,11 @@ namespace TrenchBroom {
             }
         }
         
-        void FaceInspector::update(const Model::BrushList& brushes) {
-            Model::FaceList faces;
-            for (unsigned int i = 0; i < brushes.size(); i++) {
-                Model::Brush* brush = brushes[i];
-                faces.insert(faces.end(), brush->faces().begin(), brush->faces().end());
-            }
-            update(faces);
-        }
-
-        void FaceInspector::updateSelectedTexture(Model::Texture* texture) {
-            m_textureBrowser->setSelectedTexture(texture);
+        void FaceInspector::updateSelectedTexture() {
+            if (m_documentViewHolder.valid())
+                m_textureBrowser->setSelectedTexture(m_documentViewHolder.document().mruTexture());
+            else
+                m_textureBrowser->setSelectedTexture(NULL);
         }
 
         void FaceInspector::updateTextureBrowser() {

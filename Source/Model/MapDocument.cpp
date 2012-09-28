@@ -212,6 +212,10 @@ namespace TrenchBroom {
             return *m_map;
         }
         
+        EntityDefinitionManager& MapDocument::definitionManager() const {
+            return *m_definitionManager;
+        }
+
         EditStateManager& MapDocument::editStateManager() const {
             return *m_editStateManager;
         }

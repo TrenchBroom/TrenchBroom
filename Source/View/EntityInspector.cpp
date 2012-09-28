@@ -19,21 +19,58 @@
 
 #include "EntityInspector.h"
 
+#include "View/CommandIds.h"
+#include "View/DocumentViewHolder.h"
+#include "View/LayoutConstants.h"
+
+#include <wx/dataview.h>
+#include <wx/sizer.h>
+#include <wx/splitter.h>
+#include <wx/statline.h>
+
 namespace TrenchBroom {
     namespace View {
-        wxWindow* EntityInspector::createPropertyEditor() {
-            wxPanel* propertyEditorPanel = new wxPanel(this);
+        BEGIN_EVENT_TABLE(EntityInspector, wxPanel)
+        END_EVENT_TABLE()
+
+        wxWindow* EntityInspector::createPropertyEditor(wxWindow* parent) {
+            wxPanel* propertyEditorPanel = new wxPanel(parent);
+
+            m_propertyViewModel = new EntityPropertyDataViewModel(m_documentViewHolder.document());
+            m_propertyView = new wxDataViewCtrl(propertyEditorPanel, CommandIds::EntityInspector::EntityPropertyViewId, wxDefaultPosition, wxDefaultSize);
+            m_propertyView->AssociateModel(m_propertyViewModel.get());
+            m_keyColumn = m_propertyView->AppendTextColumn("Key", 0, wxDATAVIEW_CELL_EDITABLE, 100, wxALIGN_LEFT, wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
+            m_valueColumn = m_propertyView->AppendTextColumn("Value", 1, wxDATAVIEW_CELL_EDITABLE, 200, wxALIGN_LEFT, wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
+            
+            wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
+            outerSizer->Add(m_propertyView, 1, wxEXPAND);
+            propertyEditorPanel->SetSizerAndFit(outerSizer);
             
             return propertyEditorPanel;
         }
         
-        wxWindow* EntityInspector::createEntityBrowser(wxGLContext* sharedContext) {
-            return new wxPanel(this);
+        wxWindow* EntityInspector::createEntityBrowser(wxWindow* parent, wxGLContext* sharedContext) {
+            return new wxPanel(parent);
         }
 
         EntityInspector::EntityInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder, wxGLContext* sharedContext) :
         wxPanel(parent),
         m_documentViewHolder(documentViewHolder) {
+            
+            wxSplitterWindow* inspectorSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3DSASH | wxSP_LIVE_UPDATE);
+            inspectorSplitter->SetSashGravity(1.0f);
+            inspectorSplitter->SetMinimumPaneSize(50);
+
+            inspectorSplitter->SplitHorizontally(createPropertyEditor(inspectorSplitter), createEntityBrowser(inspectorSplitter, sharedContext));
+            
+            // creates 5 pixel border inside the page
+            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            outerSizer->Add(inspectorSplitter, 1, wxEXPAND | wxALL, LayoutConstants::NotebookPageInnerMargin);
+            SetSizerAndFit(outerSizer);
+        }
+
+        void EntityInspector::update() {
+            m_propertyViewModel->update();
         }
     }
 }

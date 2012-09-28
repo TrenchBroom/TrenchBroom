@@ -22,6 +22,7 @@
 #include "Controller/CameraEvent.h"
 #include "Controller/Command.h"
 #include "Controller/ChangeEditStateCommand.h"
+#include "Controller/EntityPropertyCommand.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/EntityDefinition.h"
@@ -36,6 +37,7 @@
 #include "Utility/Preferences.h"
 #include "View/CommandIds.h"
 #include "View/EditorFrame.h"
+#include "View/EntityInspector.h"
 #include "View/FaceInspector.h"
 #include "View/Inspector.h"
 #include "View/MapGLCanvas.h"
@@ -71,15 +73,6 @@ namespace TrenchBroom {
         
         void EditorView::submit(wxCommand* command) {
             mapDocument().GetCommandProcessor()->Submit(command);
-        }
-        
-        void EditorView::updateFaceInspector() {
-            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
-            if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces)
-                inspector().faceInspector().update(editStateManager.selectedFaces());
-            else
-                inspector().faceInspector().update(editStateManager.selectedBrushes());
-            inspector().faceInspector().updateSelectedTexture(mapDocument().mruTexture());
         }
         
         EditorView::EditorView() :
@@ -149,18 +142,26 @@ namespace TrenchBroom {
                 switch (command->type()) {
                     case Controller::Command::LoadMap:
                         m_renderer->loadMap();
+                        inspector().faceInspector().updateFaceAttributes();
                         inspector().faceInspector().updateTextureBrowser();
+                        inspector().faceInspector().updateSelectedTexture();
                         inspector().faceInspector().updateTextureCollectionList();
+                        inspector().entityInspector().update();
                         break;
                     case Controller::Command::ClearMap:
                         m_renderer->clearMap();
+                        inspector().faceInspector().updateFaceAttributes();
                         inspector().faceInspector().updateTextureBrowser();
+                        inspector().faceInspector().updateSelectedTexture();
                         inspector().faceInspector().updateTextureCollectionList();
+                        inspector().entityInspector().update();
                         break;
                     case Controller::Command::ChangeEditState: {
                         Controller::ChangeEditStateCommand* changeEditStateCommand = static_cast<Controller::ChangeEditStateCommand*>(command);
                         m_renderer->changeEditState(changeEditStateCommand->changeSet());
-                        updateFaceInspector();
+                        inspector().faceInspector().updateFaceAttributes();
+                        inspector().faceInspector().updateSelectedTexture();
+                        inspector().entityInspector().update();
                         break;
                     }
                     case Controller::Command::InvalidateRendererEntityState:
@@ -177,15 +178,26 @@ namespace TrenchBroom {
                         break;
                     case Controller::Command::SetFaceAttribute: {
                         m_renderer->invalidateSelectedBrushes();
-                        updateFaceInspector();
+                        inspector().faceInspector().updateFaceAttributes();
                         break;
                     }
                     case Controller::Command::RemoveTextureCollection:
                     case Controller::Command::AddTextureCollection: {
-                        m_renderer->loadMap();
+                        m_renderer->invalidateAll();
+                        inspector().faceInspector().updateFaceAttributes();
                         inspector().faceInspector().updateTextureBrowser();
+                        inspector().faceInspector().updateSelectedTexture();
                         inspector().faceInspector().updateTextureCollectionList();
-                        updateFaceInspector();
+                        break;
+                    }
+                    case Controller::Command::SetEntityPropertyKey:
+                    case Controller::Command::SetEntityPropertyValue:
+                    case Controller::Command::RemoveEntityProperty: {
+                        Controller::EntityPropertyCommand* entityPropertyCommand = static_cast<Controller::EntityPropertyCommand*>(command);
+                        m_renderer->invalidateEntities();
+                        if (entityPropertyCommand->definitionChanged())
+                            m_renderer->invalidateEntityRendererCache();
+                        inspector().entityInspector().update();
                         break;
                     }
                     default:
