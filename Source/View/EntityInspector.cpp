@@ -37,10 +37,10 @@ namespace TrenchBroom {
             wxPanel* propertyEditorPanel = new wxPanel(parent);
 
             m_propertyViewModel = new EntityPropertyDataViewModel(m_documentViewHolder.document());
-            m_propertyView = new wxDataViewCtrl(propertyEditorPanel, CommandIds::EntityInspector::EntityPropertyViewId, wxDefaultPosition, wxDefaultSize);
+            m_propertyView = new wxDataViewCtrl(propertyEditorPanel, CommandIds::EntityInspector::EntityPropertyViewId, wxDefaultPosition, wxDefaultSize, wxDV_HORIZ_RULES | wxDV_VERT_RULES);
             m_propertyView->AssociateModel(m_propertyViewModel.get());
-            m_keyColumn = m_propertyView->AppendTextColumn("Key", 0, wxDATAVIEW_CELL_EDITABLE, 100, wxALIGN_LEFT, wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
-            m_valueColumn = m_propertyView->AppendTextColumn("Value", 1, wxDATAVIEW_CELL_EDITABLE, 200, wxALIGN_LEFT, wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
+            m_keyColumn = m_propertyView->AppendTextColumn("Key", 0, wxDATAVIEW_CELL_EDITABLE, 100, wxALIGN_LEFT, wxDATAVIEW_COL_RESIZABLE);
+            m_valueColumn = m_propertyView->AppendTextColumn("Value", 1, wxDATAVIEW_CELL_EDITABLE, 190, wxALIGN_LEFT, wxDATAVIEW_COL_RESIZABLE);
             
             wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
             outerSizer->Add(m_propertyView, 1, wxEXPAND);

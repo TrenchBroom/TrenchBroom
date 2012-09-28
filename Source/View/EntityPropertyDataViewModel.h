@@ -57,6 +57,7 @@ namespace TrenchBroom {
             
             Model::MapDocument& m_document;
             EntityPropertyList m_properties;
+            bool m_hasEmptyRow;
             
             void clear();
         public:
@@ -66,6 +67,7 @@ namespace TrenchBroom {
             virtual wxString GetColumnType(unsigned int col) const;
             virtual void GetValueByRow(wxVariant &variant, unsigned int row, unsigned int col) const;
             virtual bool SetValueByRow(const wxVariant &variant, unsigned int row, unsigned int col);
+            virtual bool IsEnabledByRow(unsigned int row, unsigned int col) const;
             virtual bool GetAttrByRow(unsigned int row, unsigned int col, wxDataViewItemAttr &attr) const;
 
             void update();

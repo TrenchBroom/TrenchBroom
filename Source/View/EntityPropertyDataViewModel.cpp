@@ -30,14 +30,18 @@ namespace TrenchBroom {
     namespace View {
         void EntityPropertyDataViewModel::clear() {
             wxArrayInt rows;
-            for (unsigned int i = 0; i < m_properties.size(); i++)
+            for (int i = 0; i < m_properties.size(); i++)
                 rows.push_back(i);
+            if (m_hasEmptyRow)
+                rows.push_back(static_cast<int>(m_properties.size()));
             RowsDeleted(rows);
             m_properties.clear();
+            m_hasEmptyRow = false;
         }
         
         EntityPropertyDataViewModel::EntityPropertyDataViewModel(Model::MapDocument& document) :
-        m_document(document) {}
+        m_document(document),
+        m_hasEmptyRow(false) {}
 
         unsigned int EntityPropertyDataViewModel::GetColumnCount() const {
             return 2;
@@ -48,19 +52,29 @@ namespace TrenchBroom {
         }
         
         void EntityPropertyDataViewModel::GetValueByRow(wxVariant &variant, unsigned int row, unsigned int col) const {
-            assert(row < m_properties.size());
+            assert(row <= m_properties.size());
             assert(col < 2);
             
-            const EntityProperty& property = m_properties[row];
-            if (col == 0)
-                variant = property.key;
-            else if (property.multi)
-                variant = "";
-            else
-                variant = property.value;
+            if (row == m_properties.size()) {
+                if (col == 0)
+                    variant = "new property";
+                else
+                    variant = "";
+            } else {
+                const EntityProperty& property = m_properties[row];
+                if (col == 0)
+                    variant = property.key;
+                else if (property.multi)
+                    variant = "";
+                else
+                    variant = property.value;
+            }
         }
         
         bool EntityPropertyDataViewModel::SetValueByRow(const wxVariant &variant, unsigned int row, unsigned int col) {
+            assert(row <= m_properties.size());
+            assert(col < 2);
+
             Model::EditStateManager& editStateManager = m_document.editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
 
@@ -68,6 +82,25 @@ namespace TrenchBroom {
             if (!variant.Convert(&wxValue))
                 return false;
 
+            if (row == m_properties.size()) {
+                if (col == 1)
+                    return false;
+                
+                Model::PropertyKey key = wxValue.ToStdString();
+                bool canSetKey = true;
+                for (unsigned int i = 0; i < entities.size() && canSetKey; i++) {
+                    Model::Entity& entity = *entities[i];
+                    canSetKey = (entity.propertyForKey(key) == NULL);
+                }
+                
+                if (!canSetKey)
+                    return false;
+                
+                Controller::EntityPropertyCommand* command = Controller::EntityPropertyCommand::setEntityPropertyValue(m_document, key, "new value");
+                m_document.GetCommandProcessor()->Submit(command);
+                return true;
+            }
+            
             if (col == 0) {
                 Model::PropertyKey newKey = wxValue.ToStdString();
                 bool canSetKey = true;
@@ -96,9 +129,24 @@ namespace TrenchBroom {
             return true;
         }
 
+        bool EntityPropertyDataViewModel::IsEnabledByRow(unsigned int row, unsigned int col) const {
+            assert(col < 2);
+            assert(row <= m_properties.size());
+            
+            if (row < m_properties.size())
+                return true;
+            
+            return col == 0;
+        }
+
         bool EntityPropertyDataViewModel::GetAttrByRow(unsigned int row, unsigned int col, wxDataViewItemAttr &attr) const {
             assert(col < 2);
-            assert(row < m_properties.size());
+            assert(row <= m_properties.size());
+            
+            if (row == m_properties.size()) {
+                attr.SetItalic(true);
+                return true;
+            }
             
             if (col == 1)
                 return false;
@@ -169,6 +217,11 @@ namespace TrenchBroom {
                     else
                         m_properties.push_back(EntityProperty(cProp->first, cProp->second));
                     RowAppended();
+                }
+                
+                if (!m_hasEmptyRow) {
+                    RowAppended();
+                    m_hasEmptyRow = true;
                 }
             } else {
                 clear();
