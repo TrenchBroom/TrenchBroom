@@ -20,7 +20,6 @@
 #include "TextureCollectionCommand.h"
 
 #include "IO/Wad.h"
-#include "Model/Palette.h"
 #include "Model/MapDocument.h"
 #include "Model/TextureManager.h"
 

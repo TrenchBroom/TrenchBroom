@@ -50,21 +50,13 @@ namespace TrenchBroom {
         protected:
             DocumentViewHolder& m_documentViewHolder;
             
-            int* m_attribs;
-            bool m_firstFrame;
-            GLenum m_glewState;
             wxGLContext* m_glContext;
             Controller::InputController* m_inputController;
 
-            int* Attribs();
             bool HandleModifierKey(int keyCode, bool down);
         public:
             MapGLCanvas(wxWindow* parent, DocumentViewHolder& documentViewHolder);
             ~MapGLCanvas();
-            
-            inline wxGLContext* glContext() {
-                return m_glContext;
-            }
             
             void OnPaint(wxPaintEvent& event);
 

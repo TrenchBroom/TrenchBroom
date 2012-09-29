@@ -47,9 +47,9 @@ namespace TrenchBroom {
             wxButton* m_removePropertiesButton;
             
             wxWindow* createPropertyEditor(wxWindow* parent);
-            wxWindow* createEntityBrowser(wxWindow* parent, wxGLContext* sharedContext);
+            wxWindow* createEntityBrowser(wxWindow* parent);
         public:
-            EntityInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder, wxGLContext* sharedContext);
+            EntityInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder);
             
             void update();
 

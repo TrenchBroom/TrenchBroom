@@ -31,9 +31,9 @@
 #include "Model/Face.h"
 #include "Model/Map.h"
 #include "Model/Octree.h"
-#include "Model/Palette.h"
 #include "Model/Picker.h"
 #include "Model/TextureManager.h"
+#include "Renderer/RenderResources.h"
 #include "Utility/Console.h"
 #include "Utility/Grid.h"
 #include "Utility/VecMath.h"
@@ -95,9 +95,7 @@ namespace TrenchBroom {
             IO::FileManager fileManager;
             String resourcePath = fileManager.resourceDirectory();
             String palettePath = fileManager.appendPath(resourcePath, "QuakePalette.lmp");
-            if (m_palette != NULL)
-                delete m_palette;
-            m_palette = new Model::Palette(palettePath);
+            m_renderResources->loadPalette(palettePath);
         }
         
         void MapDocument::loadMap(std::istream& stream, Utility::ProgressIndicator& progressIndicator) {
@@ -155,11 +153,12 @@ namespace TrenchBroom {
         }
         
         MapDocument::MapDocument() :
+        m_console(NULL),
+        m_renderResources(NULL),
         m_map(NULL),
         m_editStateManager(NULL),
         m_octree(NULL),
         m_picker(NULL),
-        m_palette(NULL),
         m_textureManager(NULL),
         m_definitionManager(NULL),
         m_grid(new Utility::Grid(4)),
@@ -192,11 +191,6 @@ namespace TrenchBroom {
                 m_definitionManager = NULL;
             }
             
-            if (m_palette != NULL) {
-                delete m_palette;
-                m_palette = NULL;
-            }
-            
             if (m_textureManager != NULL) {
                 delete m_textureManager;
                 m_textureManager = NULL;
@@ -206,8 +200,26 @@ namespace TrenchBroom {
                 delete m_grid;
                 m_grid = NULL;
             }
+            
+            if (m_renderResources != NULL) {
+                delete m_renderResources;
+                m_renderResources = NULL;
+            }
+            
+            if (m_console != NULL) {
+                delete m_console;
+                m_console = NULL;
+            }
         }
         
+        Utility::Console& MapDocument::console() const {
+            return *m_console;
+        }
+        
+        Renderer::RenderResources& MapDocument::renderResources() const {
+            return *m_renderResources;
+        }
+
         Map& MapDocument::map() const {
             return *m_map;
         }
@@ -232,20 +244,10 @@ namespace TrenchBroom {
             return *m_grid;
         }
         
-        Utility::Console& MapDocument::console() const {
-            View::EditorView* editorView = dynamic_cast<View::EditorView*>(GetFirstView());
-            assert(editorView != NULL);
-            return editorView->console();
-        }
-
         const StringList& MapDocument::mods() const {
             return m_mods;
         }
         
-        const Palette& MapDocument::palette() const {
-            return *m_palette;
-        }
-
         Model::Texture* MapDocument::mruTexture() const {
             return m_mruTexture;
         }
@@ -306,7 +308,7 @@ namespace TrenchBroom {
             if (fileManager.exists(wadPath)) {
                 wxStopWatch watch;
                 IO::Wad wad(wadPath);
-                Model::TextureCollection* collection = new Model::TextureCollection(collectionName, wad, *m_palette);
+                Model::TextureCollection* collection = new Model::TextureCollection(collectionName, wad);
                 m_textureManager->addCollection(collection, index);
                 console().info("Loaded %s in %f seconds", wadPath.c_str(), watch.Time() / 1000.0f);
             } else {

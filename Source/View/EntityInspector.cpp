@@ -67,11 +67,11 @@ namespace TrenchBroom {
             return propertyEditorPanel;
         }
         
-        wxWindow* EntityInspector::createEntityBrowser(wxWindow* parent, wxGLContext* sharedContext) {
+        wxWindow* EntityInspector::createEntityBrowser(wxWindow* parent) {
             return new wxPanel(parent);
         }
 
-        EntityInspector::EntityInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder, wxGLContext* sharedContext) :
+        EntityInspector::EntityInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder) :
         wxPanel(parent),
         m_documentViewHolder(documentViewHolder) {
             
@@ -79,7 +79,7 @@ namespace TrenchBroom {
             inspectorSplitter->SetSashGravity(1.0f);
             inspectorSplitter->SetMinimumPaneSize(50);
 
-            inspectorSplitter->SplitHorizontally(createPropertyEditor(inspectorSplitter), createEntityBrowser(inspectorSplitter, sharedContext));
+            inspectorSplitter->SplitHorizontally(createPropertyEditor(inspectorSplitter), createEntityBrowser(inspectorSplitter));
             
             // creates 5 pixel border inside the page
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);

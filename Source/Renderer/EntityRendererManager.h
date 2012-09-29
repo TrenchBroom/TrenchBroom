@@ -29,7 +29,6 @@
 namespace TrenchBroom {
     namespace Model {
         class Entity;
-        class Palette;
         class PointEntityDefinition;
         class PointEntityModel;
     }
@@ -39,31 +38,36 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
-        class Vbo;
         class EntityRenderer;
+        class Palette;
+        class Vbo;
         
         class EntityRendererManager {
         private:
             typedef std::map<String, EntityRenderer*> EntityRendererCache;
             typedef std::set<String> MismatchCache;
             
-            const Model::Palette& m_palette;
+            String m_quakePath;
+            const Palette* m_palette;
             Utility::Console& m_console;
             
             Vbo* m_vbo;
             EntityRendererCache m_entityRenderers;
             MismatchCache m_mismatches;
+            bool m_valid;
 
             const String entityRendererKey(const Model::PointEntityModel& modelInfo, const StringList& searchPaths);
             EntityRenderer* entityRenderer(const Model::PointEntityModel& modelInfo, const StringList& mods);
         public:
-            EntityRendererManager(const Model::Palette& palette, Utility::Console& console);
+            EntityRendererManager(Utility::Console& console);
             ~EntityRendererManager();
             
             EntityRenderer* entityRenderer(const Model::PointEntityDefinition& entityDefinition, const StringList& mods);
             EntityRenderer* entityRenderer(const Model::Entity& entity, const StringList& mods);
             void clear();
+            
             void setQuakePath(const String& quakePath);
+            void setPalette(const Palette& palette);
             
             void activate();
             void deactivate();

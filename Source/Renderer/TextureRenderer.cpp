@@ -17,32 +17,24 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Texture.h"
+#include "TextureRenderer.h"
 
 #include "IO/Wad.h"
-#include "Model/Alias.h"
 #include "Model/Bsp.h"
-#include "Model/Palette.h"
+#include "Model/Alias.h"
+#include "Renderer/Palette.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        const String Texture::Empty = "__TB__empty";
-
-        void Texture::init(const String& name, unsigned int width, unsigned int height) {
-            static IdType currentId = 1;
-            m_uniqueId = currentId++;
-            m_name = name;
+    namespace Renderer {
+        void TextureRenderer::init(unsigned int width, unsigned int height) {
             m_width = width;
             m_height = height;
-            m_dummy = false;
-            m_usageCount = 0;
-            m_overridden = false;
             m_textureBuffer = NULL;
 			m_textureId = 0;
         }
         
-        void Texture::init(const String& name, const unsigned char* indexedImage, unsigned int width, unsigned int height, const Palette& palette) {
-            init(name, width, height);
+        void TextureRenderer::init(const unsigned char* indexedImage, unsigned int width, unsigned int height, const Palette& palette) {
+            init(width, height);
             
             if (indexedImage != NULL) {
                 unsigned int pixelCount = width * height;
@@ -62,9 +54,9 @@ namespace TrenchBroom {
                 m_averageColor.z /= pixelCount;
             }
         }
-
-        Texture::Texture(const String& name, const unsigned char* rgbImage, unsigned int width, unsigned int height) {
-            init(name, width, height);
+        
+        TextureRenderer::TextureRenderer(const unsigned char* rgbImage, unsigned int width, unsigned int height) {
+            init(width, height);
             if (rgbImage != NULL) {
                 int pixelCount = width * height;
                 m_textureBuffer = new unsigned char[pixelCount * 3];
@@ -72,38 +64,37 @@ namespace TrenchBroom {
             }
         }
         
-        Texture::Texture(const String& name, const unsigned char* indexImage, unsigned int width, unsigned int height, const Palette& palette) {
-            init(name, indexImage, width, height, palette);
+        TextureRenderer::TextureRenderer(const unsigned char* indexImage, unsigned int width, unsigned int height, const Palette& palette) {
+            init(indexImage, width, height, palette);
         }
         
-        Texture::Texture(const IO::Mip& mip, const Palette& palette) {
-            init(mip.name(), mip.mip0(), mip.width(), mip.height(), palette);
+        TextureRenderer::TextureRenderer(const IO::Mip& mip, const Palette& palette) {
+            init(mip.mip0(), mip.width(), mip.height(), palette);
         }
         
-        Texture::Texture(const String& name, const AliasSkin& skin, unsigned int skinIndex, const Palette& palette) {
-            init(name, skin.pictures()[skinIndex], skin.width(), skin.height(), palette);
+        TextureRenderer::TextureRenderer(const Model::AliasSkin& skin, unsigned int skinIndex, const Palette& palette) {
+            init(skin.pictures()[skinIndex], skin.width(), skin.height(), palette);
         }
         
-        Texture::Texture(const String& name, const BspTexture& texture, const Palette& palette) {
-            init(name, texture.image(), texture.width(), texture.height(), palette);
+        TextureRenderer::TextureRenderer(const Model::BspTexture& texture, const Palette& palette) {
+            init(texture.image(), texture.width(), texture.height(), palette);
         }
         
-        Texture::Texture(const String& name) {
-            init(name, 1, 1);
+        TextureRenderer::TextureRenderer() {
+            init(1, 1);
             m_textureBuffer = new unsigned char[4];
             for (int i = 0; i < 4; i++)
                 m_textureBuffer[i] = 0;
-            m_dummy = true;
         }
         
-        Texture::~Texture() {
+        TextureRenderer::~TextureRenderer() {
             if (m_textureId > 0)
                 glDeleteTextures(1, &m_textureId);
             if (m_textureBuffer != NULL)
                 delete[] m_textureBuffer;
         }
 
-        void Texture::activate() {
+        void TextureRenderer::activate() {
             if (m_textureId == 0) {
                 if (m_textureBuffer != NULL) {
                     glGenTextures(1, &m_textureId);
@@ -121,7 +112,7 @@ namespace TrenchBroom {
             glBindTexture(GL_TEXTURE_2D, m_textureId);
         }
         
-        void Texture::deactivate() {
+        void TextureRenderer::deactivate() {
             glBindTexture(GL_TEXTURE_2D, 0);
         }
     }

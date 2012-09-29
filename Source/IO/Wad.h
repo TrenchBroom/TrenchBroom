@@ -104,11 +104,11 @@ namespace TrenchBroom {
             mutable mmapped_fstream m_stream;
             WadEntry::List m_entries;
 
-            Mip* loadMip(const WadEntry& entry) const;
+            Mip* loadMip(const WadEntry& entry, unsigned int mipCount) const;
         public:
             Wad(const String& path);
             
-            Mip::List loadMips() const;
+            Mip::List loadMips(unsigned int mipCount) const;
         };
     }
 }

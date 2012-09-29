@@ -20,18 +20,18 @@
 #include "BspRenderer.h"
 #include "Model/Bsp.h"
 #include "Model/Entity.h"
-#include "Model/Texture.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shader/Shader.h"
 #include "Renderer/TexturedPolygonSorter.h"
+#include "Renderer/TextureRenderer.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexArray.h"
 
 namespace TrenchBroom {
     namespace Renderer {
         void BspRenderer::buildVertexArrays() {
-            typedef TexturedPolygonSorter<Model::BspFace*> FaceSorter;
+            typedef TexturedPolygonSorter<const Model::BspTexture, Model::BspFace*> FaceSorter;
             typedef FaceSorter::PolygonCollection FaceCollection;
             typedef FaceSorter::PolygonCollectionMap FaceCollectionMap;
             
@@ -41,18 +41,18 @@ namespace TrenchBroom {
             const Model::BspFaceList& faces = model.faces();
             for (unsigned int i = 0; i < faces.size(); i++) {
                 Model::BspFace* face = faces[i];
-                const String& textureName = face->textureName();
-                Model::Texture* texture = NULL;
+                const Model::BspTexture& texture = face->texture();
+                TextureRenderer* textureRenderer = NULL;
                 
-                TextureCache::iterator textureIt = m_textures.find(textureName);
+                TextureCache::iterator textureIt = m_textures.find(&texture);
                 if (textureIt == m_textures.end()) {
-                    texture = new Model::Texture(textureName, face->texture(), m_palette);
-                    m_textures[textureName] = texture;
+                    textureRenderer = new TextureRenderer(texture, m_palette);
+                    m_textures[&texture] = textureRenderer;
                 } else {
-                    texture = textureIt->second;
+                    textureRenderer = textureIt->second;
                 }
                 
-                faceSorter.addPolygon(texture, face, face->vertices().size());
+                faceSorter.addPolygon(&texture, face, face->vertices().size());
             }
             
             const FaceCollectionMap& faceCollectionMap = faceSorter.collections();
@@ -61,7 +61,8 @@ namespace TrenchBroom {
             
             m_vbo.map();
             for (it = faceCollectionMap.begin(), end = faceCollectionMap.end(); it != end; ++it) {
-                Model::Texture* texture = it->first;
+                const Model::BspTexture* texture = it->first;
+                Renderer::TextureRenderer* textureRenderer = m_textures[texture];
                 const FaceCollection& faceCollection = it->second;
                 const Model::BspFaceList& collectedFaces = faceCollection.polygons();
                 unsigned int vertexCount = static_cast<unsigned int>(3 * faceCollection.vertexCount() - 2 * collectedFaces.size());
@@ -88,12 +89,12 @@ namespace TrenchBroom {
                     }
                 }
                 
-                m_vertexArrays.push_back(TextureVertexArray(texture, vertexArray));
+                m_vertexArrays.push_back(TextureVertexArray(textureRenderer, vertexArray));
             }
             m_vbo.unmap();
         }
         
-        BspRenderer::BspRenderer(const Model::Bsp& bsp, Vbo& vbo, const Model::Palette& palette) :
+        BspRenderer::BspRenderer(const Model::Bsp& bsp, Vbo& vbo, const Palette& palette) :
         m_bsp(bsp),
         m_palette(palette),
         m_vbo(vbo) {}

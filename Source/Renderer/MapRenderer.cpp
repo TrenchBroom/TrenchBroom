@@ -33,6 +33,9 @@
 #include "Renderer/EntityRendererManager.h"
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/RenderResources.h"
+#include "Renderer/TextureRenderer.h"
+#include "Renderer/TextureRendererManager.h"
 #include "Renderer/Shader/Shader.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/Text/FontDescriptor.h"
@@ -55,11 +58,13 @@ namespace TrenchBroom {
                 return;
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            TextureRendererManager& textureRendererManager = m_document.renderResources().textureRendererManager();
             const Color& faceColor = prefs.getColor(Preferences::FaceColor);
 
             FaceCollectionMap::const_iterator it, end;
             for (it = faceCollectionMap.begin(), end = faceCollectionMap.end(); it != end; ++it) {
                 Model::Texture* texture = it->first;
+                TextureRenderer& textureRenderer = textureRendererManager.renderer(texture);
                 const FaceCollection& faceCollection = it->second;
                 const Model::FaceList& faces = faceCollection.polygons();
                 unsigned int vertexCount = static_cast<unsigned int>(3 * faceCollection.vertexCount() - 2 * faces.size());
@@ -74,7 +79,7 @@ namespace TrenchBroom {
                     const Model::VertexList& vertices = face->vertices();
                     const Vec2f::List& texCoords = face->texCoords();
                     Model::Texture* texture = face->texture();
-                    const Color& color = texture != NULL ? texture->averageColor() : faceColor;
+                    const Color& color = texture != NULL ? textureRenderer.averageColor() : faceColor;
                     
                     for (unsigned int j = 1; j < vertices.size() - 1; j++) {
                         vertexArray->addAttribute(vertices[0]->position);
@@ -92,7 +97,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                vertexArrays.push_back(TextureVertexArray(texture, vertexArray));
+                vertexArrays.push_back(TextureVertexArray(&textureRenderer, vertexArray));
             }
         }
         
@@ -226,7 +231,7 @@ namespace TrenchBroom {
                         const Model::FaceList& faces = brush->faces();
                         for (unsigned int k = 0; k < faces.size(); k++) {
                             Model::Face* face = faces[k];
-                            Model::Texture* texture = face->texture() != NULL ? face->texture() : m_dummyTexture.get();
+                            Model::Texture* texture = face->texture();
                             if (entity->selected() || brush->selected() || face->selected())
                                 selectedFaceSorter.addPolygon(texture, face, face->vertices().size());
                             else if (entity->locked() || brush->locked())
@@ -382,7 +387,8 @@ namespace TrenchBroom {
         }
         
         bool MapRenderer::reloadEntityModel(const Model::Entity& entity, CachedEntityRenderer& cachedRenderer) {
-            EntityRenderer* renderer = m_entityRendererManager->entityRenderer(entity, m_document.mods());
+            EntityRendererManager& entityRendererManager = m_document.renderResources().entityRendererManager();
+            EntityRenderer* renderer = entityRendererManager.entityRenderer(entity, m_document.mods());
             if (renderer != NULL) {
                 cachedRenderer = CachedEntityRenderer(renderer, *entity.classname());
                 return true;
@@ -405,10 +411,11 @@ namespace TrenchBroom {
             m_entityRenderers.clear();
             m_selectedEntityRenderers.clear();
             
+            EntityRendererManager& entityRendererManager = m_document.renderResources().entityRendererManager();
             const Model::EntityList& entities = m_document.map().entities();
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
-                EntityRenderer* renderer = m_entityRendererManager->entityRenderer(*entity, m_document.mods());
+                EntityRenderer* renderer = entityRendererManager.entityRenderer(*entity, m_document.mods());
                 if (renderer != NULL) {
                     if (entity->selected())
                         m_selectedEntityRenderers[entity] = CachedEntityRenderer(renderer, *entity->classname());
@@ -501,13 +508,13 @@ namespace TrenchBroom {
                 m_faceProgram->setUniformVariable("RenderGrid", grid.visible());
                 m_faceProgram->setUniformVariable("GridSize", static_cast<float>(grid.actualSize()));
                 m_faceProgram->setUniformVariable("GridColor", prefs.getColor(Preferences::GridColor));
+                m_faceProgram->setUniformVariable("ApplyTexture", applyTexture);
                 if (!m_faceVertexArrays.empty()) {
                     m_faceProgram->setUniformVariable("ApplyTinting", false);
                     m_faceProgram->setUniformVariable("GrayScale", false);
                     for (unsigned int i = 0; i < m_faceVertexArrays.size(); i++) {
                         TextureVertexArray& textureVertexArray = m_faceVertexArrays[i];
                         textureVertexArray.texture->activate();
-                        m_faceProgram->setUniformVariable("ApplyTexture", applyTexture && textureVertexArray.texture != m_dummyTexture.get());
                         m_faceProgram->setUniformVariable("FaceTexture", 0);
                         textureVertexArray.vertexArray->render();
                         textureVertexArray.texture->deactivate();
@@ -520,7 +527,6 @@ namespace TrenchBroom {
                     for (unsigned int i = 0; i < m_selectedFaceVertexArrays.size(); i++) {
                         TextureVertexArray& textureVertexArray = m_selectedFaceVertexArrays[i];
                         textureVertexArray.texture->activate();
-                        m_faceProgram->setUniformVariable("ApplyTexture", applyTexture && textureVertexArray.texture != m_dummyTexture.get());
                         m_faceProgram->setUniformVariable("FaceTexture", 0);
                         textureVertexArray.vertexArray->render();
                         textureVertexArray.texture->deactivate();
@@ -533,7 +539,6 @@ namespace TrenchBroom {
                     for (unsigned int i = 0; i < m_lockedFaceVertexArrays.size(); i++) {
                         TextureVertexArray& textureVertexArray = m_lockedFaceVertexArrays[i];
                         textureVertexArray.texture->activate();
-                        m_faceProgram->setUniformVariable("ApplyTexture", applyTexture && textureVertexArray.texture != m_dummyTexture.get());
                         m_faceProgram->setUniformVariable("FaceTexture", 0);
                         textureVertexArray.vertexArray->render();
                         textureVertexArray.texture->deactivate();
@@ -612,12 +617,13 @@ namespace TrenchBroom {
                 return;
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            EntityRendererManager& entityRendererManager = m_document.renderResources().entityRendererManager();
 
             if (m_entityModelProgram->activate()) {
                 EntityRenderers::iterator it, end;
                 
                 m_entityModelProgram->setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
-                m_entityRendererManager->activate();
+                entityRendererManager.activate();
                 
                 m_entityModelProgram->setUniformVariable("ApplyTinting", false);
                 m_entityModelProgram->setUniformVariable("GrayScale", false);
@@ -651,7 +657,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                m_entityRendererManager->deactivate();
+                entityRendererManager.deactivate();
                 m_entityModelProgram->deactivate();
             }
         }
@@ -695,22 +701,16 @@ namespace TrenchBroom {
             m_entityDataValid = false;
             m_selectedEntityDataValid = false;
             m_lockedEntityDataValid = false;
+            m_entityRendererCacheValid = true;
 
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-
-            m_entityRendererManager = EntityRendererManagerPtr(new EntityRendererManager(document.palette(), document.console()));
-            m_entityRendererCacheValid = true;
-            
-            m_stringManager = StringManagerPtr(new Text::StringManager(document.console()));
-            
             float infoOverlayFadeDistance = prefs.getFloat(Preferences::InfoOverlayFadeDistance);
             float selectedInfoOverlayFadeDistance = prefs.getFloat(Preferences::SelectedInfoOverlayFadeDistance);
-            
-            m_classnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(*m_stringManager, infoOverlayFadeDistance));
-            m_selectedClassnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(*m_stringManager, selectedInfoOverlayFadeDistance));
-            m_lockedClassnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(*m_stringManager, infoOverlayFadeDistance));
-            
-            m_dummyTexture = Model::TexturePtr(new Model::Texture("dummy"));
+
+            Text::StringManager& stringManager = m_document.renderResources().stringManager();
+            m_classnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(stringManager, infoOverlayFadeDistance));
+            m_selectedClassnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(stringManager, selectedInfoOverlayFadeDistance));
+            m_lockedClassnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(stringManager, infoOverlayFadeDistance));
         }
         
         MapRenderer::~MapRenderer() {
@@ -718,13 +718,15 @@ namespace TrenchBroom {
 
         void MapRenderer::addEntities(const Model::EntityList& entities) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            EntityRendererManager& entityRendererManager = m_document.renderResources().entityRendererManager();
+
             const String& fontName = prefs.getString(Preferences::RendererFontName);
             int fontSize = prefs.getInt(Preferences::RendererFontSize);
             Text::FontDescriptor fontDescriptor(fontName, fontSize);
-             
+            
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
-                EntityRenderer* renderer = m_entityRendererManager->entityRenderer(*entity, m_document.mods());
+                EntityRenderer* renderer = entityRendererManager.entityRenderer(*entity, m_document.mods());
                 if (renderer != NULL)
                     m_entityRenderers[entity] = CachedEntityRenderer(renderer, *entity->classname());
                 

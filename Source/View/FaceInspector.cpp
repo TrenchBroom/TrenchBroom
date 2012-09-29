@@ -38,6 +38,7 @@
 #include "Model/Face.h"
 #include "Model/MapDocument.h"
 #include "Model/Texture.h"
+#include "Renderer/RenderResources.h"
 #include "View/CommandIds.h"
 #include "View/DocumentViewHolder.h"
 #include "View/EditorView.h"
@@ -74,10 +75,10 @@ namespace TrenchBroom {
         EVT_UPDATE_UI(CommandIds::FaceInspector::RemoveTextureCollectionsButtonId, FaceInspector::OnUpdateRemoveTextureCollectionsButton)
         END_EVENT_TABLE()
 
-        wxWindow* FaceInspector::createFaceEditor(wxGLContext* sharedContext) {
+        wxWindow* FaceInspector::createFaceEditor() {
             wxPanel* faceEditorPanel = new wxPanel(this);
             
-            m_textureViewer = new SingleTextureViewer(faceEditorPanel, sharedContext);
+            m_textureViewer = new SingleTextureViewer(faceEditorPanel, m_documentViewHolder.document().renderResources());
             m_textureNameLabel = new wxStaticText(faceEditorPanel, wxID_ANY, wxT("none"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER);
             
             wxSizer* textureViewerSizer = new wxBoxSizer(wxVERTICAL);
@@ -134,12 +135,12 @@ namespace TrenchBroom {
             return faceEditorPanel;
         }
         
-        wxWindow* FaceInspector::createTextureBrowser(wxGLContext* sharedContext) {
+        wxWindow* FaceInspector::createTextureBrowser() {
             wxSplitterWindow* browserSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3DSASH | wxSP_LIVE_UPDATE);
             browserSplitter->SetSashGravity(1.0f);
             browserSplitter->SetMinimumPaneSize(30);
 
-            m_textureBrowser = new TextureBrowser(browserSplitter, CommandIds::FaceInspector::TextureBrowserId, sharedContext, m_documentViewHolder);
+            m_textureBrowser = new TextureBrowser(browserSplitter, CommandIds::FaceInspector::TextureBrowserId, m_documentViewHolder);
             
             wxPanel* textureCollectionEditor = new wxPanel(browserSplitter);
             m_textureCollectionList = new wxListBox(textureCollectionEditor, CommandIds::FaceInspector::TextureCollectionListId, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE | wxLB_NEEDED_SB);
@@ -161,18 +162,18 @@ namespace TrenchBroom {
             return browserSplitter;
         }
         
-        FaceInspector::FaceInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder, wxGLContext* sharedContext) :
+        FaceInspector::FaceInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder) :
         wxPanel(parent),
         m_documentViewHolder(documentViewHolder) {
             
             // layout of the contained controls
             wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
-            innerSizer->Add(createFaceEditor(sharedContext), 0, wxEXPAND);
+            innerSizer->Add(createFaceEditor(), 0, wxEXPAND);
             innerSizer->AddSpacer(LayoutConstants::DefaultVerticalMargin);
             innerSizer->Add(new wxStaticLine(this), 0, wxEXPAND);
             innerSizer->AddSpacer(LayoutConstants::DefaultVerticalMargin);
             innerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            innerSizer->Add(createTextureBrowser(sharedContext), 1, wxEXPAND | wxBOTTOM, LayoutConstants::NotebookPageExtraBottomMargin);
+            innerSizer->Add(createTextureBrowser(), 1, wxEXPAND | wxBOTTOM, LayoutConstants::NotebookPageExtraBottomMargin);
             
             // creates 5 pixel border inside the page
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);

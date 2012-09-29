@@ -21,6 +21,9 @@
 
 #include "GL/Capabilities.h"
 #include "Model/Texture.h"
+#include "Renderer/RenderResources.h"
+#include "Renderer/TextureRenderer.h"
+#include "Renderer/TextureRendererManager.h"
 #include "Utility/Preferences.h"
 #include "Utility/VecMath.h"
 
@@ -33,49 +36,19 @@ namespace TrenchBroom {
         BEGIN_EVENT_TABLE(SingleTextureViewer, wxGLCanvas)
         EVT_PAINT(SingleTextureViewer::OnPaint)
         END_EVENT_TABLE()
-
-        int* SingleTextureViewer::Attribs() {
-            GL::Capabilities capabilities = GL::glCapabilities();
-            if (capabilities.multisample) {
-                m_attribs = new int[9];
-                m_attribs[0] = WX_GL_RGBA;
-                m_attribs[1] = WX_GL_DOUBLEBUFFER;
-                m_attribs[2] = WX_GL_SAMPLE_BUFFERS;
-                m_attribs[3] = 1;
-                m_attribs[4] = WX_GL_SAMPLES;
-                m_attribs[5] = capabilities.samples;
-                m_attribs[6] = WX_GL_DEPTH_SIZE;
-                m_attribs[7] = capabilities.depthBits;
-                m_attribs[8] = 0;
-            } else {
-                m_attribs = new int[5];
-                m_attribs[0] = WX_GL_RGBA;
-                m_attribs[1] = WX_GL_DOUBLEBUFFER;
-                m_attribs[2] = WX_GL_DEPTH_SIZE;
-                m_attribs[3] = capabilities.depthBits;
-                m_attribs[4] = 0;
-            }
-            
-            return m_attribs;
-        }
         
-        SingleTextureViewer::SingleTextureViewer(wxWindow* parent, wxGLContext* sharedContext) :
-        wxGLCanvas(parent, wxID_ANY, Attribs(), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN),
+        SingleTextureViewer::SingleTextureViewer(wxWindow* parent, Renderer::RenderResources& renderResources) :
+        wxGLCanvas(parent, wxID_ANY, renderResources.attribs(), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN),
+        m_textureRendererManager(renderResources.textureRendererManager()),
         m_glContext(NULL),
         m_texture(NULL) {
-            m_glContext = new wxGLContext(this, sharedContext);
-            delete [] m_attribs;
-            m_attribs = NULL;
+            m_glContext = new wxGLContext(this, renderResources.sharedContext());
         }
 
         SingleTextureViewer::~SingleTextureViewer() {
             if (m_glContext != NULL) {
                 wxDELETE(m_glContext);
                 m_glContext = NULL;
-            }
-            if (m_attribs != NULL) {
-                delete m_attribs;
-                m_attribs = NULL;
             }
         }
 
@@ -93,6 +66,7 @@ namespace TrenchBroom {
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
                 if (m_texture != NULL) {
+                    Renderer::TextureRenderer& textureRenderer = m_textureRendererManager.renderer(m_texture);
                     wxRect bounds = GetRect();
                     float viewLeft      = static_cast<float>(bounds.GetLeft());
                     float viewTop       = static_cast<float>(bounds.GetTop());
@@ -124,9 +98,9 @@ namespace TrenchBroom {
                     texRight = texLeft + m_texture->width() * scale;
                     texBottom = viewTop + (viewHeight - m_texture->height() * scale) / 2.0f;
                     texTop = texBottom + m_texture->height() * scale;
-
+                    
                     glEnable(GL_TEXTURE_2D);
-                    m_texture->activate();
+                    textureRenderer.activate();
                     glBegin(GL_QUADS);
                     glTexCoord2f(0.0f, 0.0f);
                     glVertex3f(texLeft, texBottom, 0.0f);
@@ -137,7 +111,7 @@ namespace TrenchBroom {
                     glTexCoord2f(0.0f, 1.0f);
                     glVertex3f(texLeft, texTop, 0.0f);
                     glEnd();
-                    m_texture->deactivate();
+                    textureRenderer.deactivate();
                 }
                 
 				SwapBuffers();

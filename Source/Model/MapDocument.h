@@ -25,6 +25,10 @@
 #include <wx/docview.h>
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class RenderResources;
+    }
+    
     namespace Utility {
         class Console;
         class Grid;
@@ -47,11 +51,12 @@ namespace TrenchBroom {
         class MapDocument : public wxDocument {
             DECLARE_DYNAMIC_CLASS(MapDocument)
         protected:
+            Utility::Console* m_console;
+            Renderer::RenderResources* m_renderResources;
             Map* m_map;
             EditStateManager* m_editStateManager;
             Octree* m_octree;
             Picker* m_picker;
-            Palette* m_palette;
             TextureManager* m_textureManager;
             EntityDefinitionManager* m_definitionManager;
             Utility::Grid* m_grid;
@@ -76,15 +81,15 @@ namespace TrenchBroom {
             std::istream& LoadObject(std::istream& stream);
             std::ostream& SaveObject(std::ostream& stream);
             
+            Utility::Console& console() const;
+            Renderer::RenderResources& renderResources() const;
             Map& map() const;
             EntityDefinitionManager& definitionManager() const;
             EditStateManager& editStateManager() const;
             TextureManager& textureManager() const;
             Picker& picker() const;
             Utility::Grid& grid() const;
-            Utility::Console& console() const;
             const StringList& mods() const;
-            const Palette& palette() const;
             
             Model::Texture* mruTexture() const;
             void setMruTexture(Model::Texture* texture);

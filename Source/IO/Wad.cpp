@@ -33,7 +33,7 @@ namespace TrenchBroom {
             static const unsigned int TexWidthOffset        = 16;
         }
 
-        Mip* Wad::loadMip(const WadEntry& entry) const {
+        Mip* Wad::loadMip(const WadEntry& entry, unsigned int mipCount) const {
 			assert(!m_stream.eof());
             if (entry.type() != WadEntryType::WEMip)
                 return NULL;
@@ -50,10 +50,13 @@ namespace TrenchBroom {
             m_stream.read(reinterpret_cast<char *>(&mip0Offset), sizeof(int32_t));
             mip0Size = width * height;
             
-            unsigned char* mip0 = new unsigned char[mip0Size];
-            
-            m_stream.seekg(entry.address() + mip0Offset, std::ios::beg);
-            m_stream.read(reinterpret_cast<char *>(mip0), mip0Size);
+            unsigned char* mip0 = NULL;
+
+            if (mipCount > 0) {
+                mip0 = new unsigned char[mip0Size];
+                m_stream.seekg(entry.address() + mip0Offset, std::ios::beg);
+                m_stream.read(reinterpret_cast<char *>(mip0), mip0Size);
+            }
             
             return new Mip(entry.name(), width, height, mip0);
         }
@@ -90,12 +93,12 @@ namespace TrenchBroom {
 			m_stream.clear();
         }
         
-        Mip::List Wad::loadMips() const {
+        Mip::List Wad::loadMips(unsigned int mipCount) const {
             Mip::List mips;
             for (unsigned int i = 0; i < m_entries.size(); i++) {
                 const WadEntry& entry = m_entries[i];
                 if (entry.type() == WadEntryType::WEMip) {
-                    Mip* mip = loadMip(entry);
+                    Mip* mip = loadMip(entry, mipCount);
                     if (mip != NULL)
                         mips.push_back(mip);
                 }

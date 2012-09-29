@@ -21,51 +21,40 @@
 #define __TrenchBroom__Texture__
 
 #include <GL/glew.h>
-#include "Utility/Color.h"
 #include "Utility/String.h"
-#include "Utility/VecMath.h"
-
-using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
-    namespace IO {
-        class Mip;
-    }
-    
     namespace Model {
-        class AliasSkin;
-        class BspTexture;
-        class Palette;
+        class TextureCollection;
         
         class Texture {
         public:
             static const String Empty;
-        protected:
             typedef int IdType;
-
-            GLuint m_textureId;
-            unsigned char* m_textureBuffer;
-
+        protected:
+            TextureCollection& m_collection;
             String m_name;
             IdType m_uniqueId;
             unsigned int m_width;
             unsigned int m_height;
-            Color m_averageColor;
             unsigned int m_usageCount;
             bool m_overridden;
-            bool m_dummy;
-
-            void init(const String& name, unsigned int width, unsigned int height);
-            void init(const String& name, const unsigned char* indexedImage, unsigned int width, unsigned int height, const Palette& palette);
         public:
-            Texture(const String& name, const unsigned char* rgbImage, unsigned int width, unsigned int height);
-            Texture(const String& name, const unsigned char* indexedImage, unsigned int width, unsigned int height, const Palette& palette);
-            Texture(const IO::Mip& mip, const Palette& palette);
-            Texture(const String& name, const AliasSkin& skin, unsigned int skinIndex, const Palette& palette);
-            Texture(const String& name, const BspTexture& texture, const Palette& palette);
-            Texture(const String& name);
-            ~Texture();
+            Texture(TextureCollection& collection, const String& name, unsigned int width, unsigned int height) :
+            m_collection(collection),
+            m_name(name),
+            m_width(width),
+            m_height(height),
+            m_usageCount(0),
+            m_overridden(false) {
+                static unsigned int uniqueId = 0;
+                m_uniqueId = uniqueId++;
+            }
 
+            inline TextureCollection& collection() const {
+                return m_collection;
+            }
+            
             inline const String& name() const {
                 return m_name;
             }
@@ -74,20 +63,12 @@ namespace TrenchBroom {
                 return m_uniqueId;
             }
             
-            inline GLuint textureId() const {
-                return m_textureId;
-            }
-            
             inline unsigned int width() const {
                 return m_width;
             }
             
             inline unsigned int height() const {
                 return m_height;
-            }
-            
-            inline const Color& averageColor() const {
-                return m_averageColor;
             }
             
             inline unsigned int usageCount() const {
@@ -109,13 +90,6 @@ namespace TrenchBroom {
             inline void setOverridden(bool overridden) {
                 m_overridden = overridden;
             }
-            
-            inline bool dummy() const {
-                return m_dummy;
-            }
-            
-            void activate();
-            void deactivate();
         };
     }
 }

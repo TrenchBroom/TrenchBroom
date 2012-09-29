@@ -57,6 +57,11 @@ namespace TrenchBroom {
             }
         };
 
+        class TextureCollectionLoader {
+        public:
+            const unsigned char* load(const Texture& texture);
+        };
+        
         class TextureCollection {
         private:
             TextureList m_textures;
@@ -64,7 +69,7 @@ namespace TrenchBroom {
             mutable TextureList m_texturesByUsage;
             String m_name;
         public:
-            TextureCollection(const String& name, const IO::Wad& wad, const Palette& palette);
+            TextureCollection(const String& name, const IO::Wad& wad);
             ~TextureCollection();
             
             inline const TextureList& textures() const {
@@ -81,15 +86,16 @@ namespace TrenchBroom {
             inline const String& name() const {
                 return m_name;
             }
+            
+            TextureCollectionLoader loader() const;
         };
 
-        typedef std::vector<TextureCollection*> TextureCollectionList;
-        
         class TextureManager {
         private:
-            typedef std::map<String, Texture*> TextureMap;
+            typedef std::map<Texture*, TextureCollection*> TextureCollectionMap;
             
             TextureCollectionList m_collections;
+            TextureCollectionMap m_collectionMap;
             TextureMap m_texturesCaseSensitive;
             TextureMap m_texturesCaseInsensitive;
             TextureList m_texturesByName;

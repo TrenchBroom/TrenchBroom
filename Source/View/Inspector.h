@@ -50,12 +50,12 @@ namespace TrenchBroom {
             
             wxNotebook* m_notebook;
             wxNotebookPage* CreateMapInspector();
-            EntityInspector* CreateEntityInspector(wxGLContext* sharedContext);
+            EntityInspector* CreateEntityInspector();
             wxNotebookPage* CreateBrushInspector();
-            FaceInspector* CreateFaceInspector(wxGLContext* sharedContext);
+            FaceInspector* CreateFaceInspector();
             ViewInspector* CreateViewInspector();
         public:
-            Inspector(wxWindow* parent, DocumentViewHolder& documentViewHolder, wxGLContext* sharedContext);
+            Inspector(wxWindow* parent, DocumentViewHolder& documentViewHolder);
 
             inline EntityInspector& entityInspector() const {
                 return *m_entityInspector;

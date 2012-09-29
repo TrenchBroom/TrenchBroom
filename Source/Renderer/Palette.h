@@ -25,7 +25,7 @@
 #include <cassert>
 
 namespace TrenchBroom {
-    namespace Model {
+    namespace Renderer {
         class Palette {
         private:
             unsigned char* m_data;

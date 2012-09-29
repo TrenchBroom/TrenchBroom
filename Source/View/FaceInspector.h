@@ -62,10 +62,10 @@ namespace TrenchBroom {
             wxButton* m_addTextureCollectionButton;
             wxButton* m_removeTextureCollectionsButton;
             
-            wxWindow* createFaceEditor(wxGLContext* sharedContext);
-            wxWindow* createTextureBrowser(wxGLContext* sharedContext);
+            wxWindow* createFaceEditor();
+            wxWindow* createTextureBrowser();
         public:
-            FaceInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder, wxGLContext* sharedContext);
+            FaceInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder);
             
             void updateFaceAttributes();
             void updateSelectedTexture();

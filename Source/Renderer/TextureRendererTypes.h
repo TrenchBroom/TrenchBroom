@@ -17,26 +17,18 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Palette.h"
 
-#include <fstream>
+#ifndef TrenchBroom_TextureRendererTypes_h
+#define TrenchBroom_TextureRendererTypes_h
+
+#include <memory>
 
 namespace TrenchBroom {
-    namespace Model {
-        Palette::Palette(const String& path) {
-            std::ifstream stream(path.c_str(), std::ios::binary | std::ios::in);
-            assert(stream.is_open());
-            
-            stream.seekg(0, std::ios::end);
-            m_size = static_cast<size_t>(stream.tellg());
-            stream.seekg(0, std::ios::beg);
-            m_data = new unsigned char[m_size];
-            stream.read(reinterpret_cast<char*>(m_data), m_size);
-            stream.close();
-        }
+    namespace Renderer {
+        class TextureRenderer;
         
-        Palette::~Palette() {
-            delete[] m_data;
-        }
+        typedef std::auto_ptr<TextureRenderer> TextureRendererPtr;
     }
 }
+
+#endif

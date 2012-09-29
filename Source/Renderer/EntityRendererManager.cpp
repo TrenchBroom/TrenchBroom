@@ -24,14 +24,13 @@
 #include "Model/Bsp.h"
 #include "Model/Entity.h"
 #include "Model/EntityDefinition.h"
-#include "Model/Palette.h"
 #include "Renderer/AliasRenderer.h"
 #include "Renderer/BspRenderer.h"
 #include "Renderer/EntityRenderer.h"
+#include "Renderer/Palette.h"
 #include "Renderer/Vbo.h"
 #include "IO/FileManager.h"
 #include "Utility/Console.h"
-#include "Utility/Preferences.h"
 
 #include <cassert>
 
@@ -48,13 +47,18 @@ namespace TrenchBroom {
         }
 
         EntityRenderer* EntityRendererManager::entityRenderer(const Model::PointEntityModel& modelInfo, const StringList& mods) {
+            assert(m_palette != NULL);
+            
+            if (!m_valid) {
+                clear();
+                m_valid = true;
+            }
+            
             IO::FileManager fileManager;
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            const String& quakePath = prefs.getString(Preferences::QuakePath);
             
             StringList searchPaths;
             for (unsigned int i = 0; i < mods.size(); i++)
-                searchPaths.push_back(fileManager.appendPath(quakePath, mods[i]));
+                searchPaths.push_back(fileManager.appendPath(m_quakePath, mods[i]));
 
             const String key = entityRendererKey(modelInfo, searchPaths);
 
@@ -73,7 +77,7 @@ namespace TrenchBroom {
                 const Model::Alias* alias = aliasManager.alias(modelName, searchPaths, m_console);
                 if (alias != NULL) {
                     unsigned int skinIndex = modelInfo.skinIndex();
-                    Renderer::EntityRenderer* renderer = new Renderer::AliasRenderer(*alias, skinIndex, *m_vbo, m_palette);
+                    Renderer::EntityRenderer* renderer = new AliasRenderer(*alias, skinIndex, *m_vbo, *m_palette);
                     m_entityRenderers[key] = renderer;
                     return renderer;
                 }
@@ -81,7 +85,7 @@ namespace TrenchBroom {
                 Model::BspManager& bspManager = *Model::BspManager::sharedManager;
                 const Model::Bsp* bsp = bspManager.bsp(modelName, searchPaths, m_console);
                 if (bsp != NULL) {
-                    Renderer::EntityRenderer* renderer = new Renderer::BspRenderer(*bsp, *m_vbo, m_palette);
+                    Renderer::EntityRenderer* renderer = new BspRenderer(*bsp, *m_vbo, *m_palette);
                     m_entityRenderers[key] = renderer;
                     return renderer;
                 }
@@ -93,9 +97,10 @@ namespace TrenchBroom {
             return NULL;
         }
 
-        EntityRendererManager::EntityRendererManager(const Model::Palette& palette, Utility::Console& console) :
-        m_palette(palette),
-        m_console(console) {
+        EntityRendererManager::EntityRendererManager(Utility::Console& console) :
+        m_palette(NULL),
+        m_console(console),
+        m_valid(true) {
             m_vbo = new Renderer::Vbo(GL_ARRAY_BUFFER, 0xFFFF);
         }
 
@@ -128,14 +133,26 @@ namespace TrenchBroom {
             m_mismatches.clear();
         }
 
+        void EntityRendererManager::setQuakePath(const String& quakePath) {
+            if (quakePath == m_quakePath)
+                return;
+            m_quakePath = quakePath;
+            m_valid = false;
+        }
+        
+        void EntityRendererManager::setPalette(const Palette& palette) {
+            if (&palette == m_palette)
+                return;
+            m_palette = &palette;
+            m_valid = false;
+        }
+
         void EntityRendererManager::activate() {
-            glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
             m_vbo->activate();
         }
 
         void EntityRendererManager::deactivate() {
             m_vbo->deactivate();
-            glPopClientAttrib();
         }
     }
 }

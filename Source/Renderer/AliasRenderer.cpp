@@ -22,16 +22,16 @@
 #include <GL/glew.h>
 #include "Model/Alias.h"
 #include "Model/Entity.h"
-#include "Model/Palette.h"
-#include "Model/Texture.h"
 #include "Renderer/MapRenderer.h"
+#include "Renderer/Palette.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/TextureRenderer.h"
 #include "Renderer/Shader/Shader.h"
 #include "Renderer/Vbo.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        AliasRenderer::AliasRenderer(const Model::Alias& alias, unsigned int skinIndex, Vbo& vbo, const Model::Palette& palette) :
+        AliasRenderer::AliasRenderer(const Model::Alias& alias, unsigned int skinIndex, Vbo& vbo, const Palette& palette) :
         m_alias(alias),
         m_skinIndex(skinIndex),
         m_palette(palette),
@@ -41,7 +41,7 @@ namespace TrenchBroom {
         void AliasRenderer::render(ShaderProgram& shaderProgram) {
             if (m_vertexArray.get() == NULL) {
                 Model::AliasSkin& skin = *m_alias.skins()[m_skinIndex];
-                m_texture = Model::TexturePtr(new Model::Texture(m_alias.name(), skin, 0, m_palette));
+                m_texture = TextureRendererPtr(new TextureRenderer(skin, 0, m_palette));
 
                 Model::AliasSingleFrame& frame = m_alias.firstFrame();
                 const Model::AliasFrameTriangleList& triangles = frame.triangles();

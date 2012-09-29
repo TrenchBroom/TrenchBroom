@@ -51,7 +51,7 @@ namespace TrenchBroom {
         EVT_TEXT(CommandIds::FaceInspector::TextureBrowserFilterBoxId, TextureBrowser::OnFilterPatternChanged)
         END_EVENT_TABLE()
 
-        TextureBrowser::TextureBrowser(wxWindow* parent, wxWindowID windowId, wxGLContext* sharedContext, DocumentViewHolder& documentViewHolder) :
+        TextureBrowser::TextureBrowser(wxWindow* parent, wxWindowID windowId, DocumentViewHolder& documentViewHolder) :
         wxPanel(parent, windowId) {
             wxString sortOrders[2] = {wxT("Name"), wxT("Usage")};
             m_sortOrderChoice = new wxChoice(this, CommandIds::FaceInspector::TextureBrowserSortOrderChoiceId, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             
             wxPanel* browserPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
             m_scrollBar = new wxScrollBar(browserPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSB_VERTICAL);
-            m_canvas = new TextureBrowserCanvas(browserPanel, wxID_ANY, sharedContext, m_scrollBar, documentViewHolder);
+            m_canvas = new TextureBrowserCanvas(browserPanel, wxID_ANY, m_scrollBar, documentViewHolder);
             
             m_canvas->Bind(EVT_TEXTURE_SELECTED_EVENT, EVT_TEXTURE_SELECTED_HANDLER(TextureBrowser::OnTextureSelected), this);
             

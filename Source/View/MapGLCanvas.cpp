@@ -22,10 +22,10 @@
 #include "Controller/CameraEvent.h"
 #include "Controller/Input.h"
 #include "Controller/InputController.h"
-#include "GL/Capabilities.h"
 #include "Renderer/Camera.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/RenderResources.h"
 #include "Model/Filter.h"
 #include "Utility/Console.h"
 #include "Utility/Preferences.h"
@@ -52,31 +52,6 @@ namespace TrenchBroom {
         EVT_MOTION(MapGLCanvas::OnMouseMove)
         EVT_MOUSEWHEEL(MapGLCanvas::OnMouseWheel)
         END_EVENT_TABLE()
-
-        int* MapGLCanvas::Attribs() {
-            GL::Capabilities capabilities = GL::glCapabilities();
-            if (capabilities.multisample) {
-                m_attribs = new int[9];
-                m_attribs[0] = WX_GL_RGBA;
-                m_attribs[1] = WX_GL_DOUBLEBUFFER;
-                m_attribs[2] = WX_GL_SAMPLE_BUFFERS;
-                m_attribs[3] = 1;
-                m_attribs[4] = WX_GL_SAMPLES;
-                m_attribs[5] = capabilities.samples;
-                m_attribs[6] = WX_GL_DEPTH_SIZE;
-                m_attribs[7] = capabilities.depthBits;
-                m_attribs[8] = 0;
-            } else {
-                m_attribs = new int[5];
-                m_attribs[0] = WX_GL_RGBA;
-                m_attribs[1] = WX_GL_DOUBLEBUFFER;
-                m_attribs[2] = WX_GL_DEPTH_SIZE;
-                m_attribs[3] = capabilities.depthBits;
-                m_attribs[4] = 0;
-            }
-
-            return m_attribs;
-        }
 
         bool MapGLCanvas::HandleModifierKey(int keyCode, bool down) {
             Controller::ModifierKeyState key;
@@ -107,14 +82,11 @@ namespace TrenchBroom {
         }
 
         MapGLCanvas::MapGLCanvas(wxWindow* parent, DocumentViewHolder& documentViewHolder) :
-        wxGLCanvas(parent, wxID_ANY, Attribs()),
+        wxGLCanvas(parent, wxID_ANY, documentViewHolder.document().renderResources().attribs()),
         m_documentViewHolder(documentViewHolder),
-        m_glContext(NULL),
-        m_firstFrame(true) {
+        m_glContext(NULL) {
             m_inputController = new Controller::InputController(documentViewHolder);
-            m_glContext = new wxGLContext(this);
-            delete [] m_attribs;
-            m_attribs = NULL;
+            m_glContext = new wxGLContext(this, documentViewHolder.document().renderResources().sharedContext());
         }
 
         MapGLCanvas::~MapGLCanvas() {
@@ -126,10 +98,6 @@ namespace TrenchBroom {
                 wxDELETE(m_glContext);
                 m_glContext = NULL;
             }
-            if (m_attribs != NULL) {
-                delete m_attribs;
-                m_attribs = NULL;
-            }
         }
 
         void MapGLCanvas::OnPaint(wxPaintEvent& event) {
@@ -140,26 +108,6 @@ namespace TrenchBroom {
 
             wxPaintDC(this);
 			if (SetCurrent(*m_glContext)) {
-				if (m_firstFrame) {
-					m_firstFrame = false;
-					const char* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
-					const char* renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
-					const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
-					view.console().info("Renderer info: %s version %s from %s", renderer, version, vendor);
-
-                    if (GL::glCapabilities().multisample)
-                        view.console().info("Multisampling enabled");
-                    else
-                        view.console().info("Multisampling disabled");
-
-                    m_glewState = glewInit();
-                    if (m_glewState != GLEW_OK)
-                        view.console().error("Unable to initialize glew: %s", glewGetErrorString(m_glewState));
-                }
-
-                if (m_glewState != GLEW_OK)
-                    return;
-
 				Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 				const Color& backgroundColor = prefs.getColor(Preferences::BackgroundColor);
 				glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, backgroundColor.w);

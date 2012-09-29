@@ -16,26 +16,27 @@
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef TrenchBroom_TextureTypes_h
-#define TrenchBroom_TextureTypes_h
 
-#include "Utility/String.h"
+#include "Palette.h"
 
-#include <map>
-#include <memory>
-#include <vector>
+#include <fstream>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Texture;
-        class TextureCollection;
+    namespace Renderer {
+        Palette::Palette(const String& path) {
+            std::ifstream stream(path.c_str(), std::ios::binary | std::ios::in);
+            assert(stream.is_open());
+            
+            stream.seekg(0, std::ios::end);
+            m_size = static_cast<size_t>(stream.tellg());
+            stream.seekg(0, std::ios::beg);
+            m_data = new unsigned char[m_size];
+            stream.read(reinterpret_cast<char*>(m_data), m_size);
+            stream.close();
+        }
         
-        typedef std::vector<Texture*> TextureList;
-        typedef std::map<String, Texture*> TextureMap;
-        typedef std::pair<String, Texture*> TextureMapEntry;
-        typedef std::auto_ptr<Texture> TexturePtr;
-        typedef std::vector<TextureCollection*> TextureCollectionList;
+        Palette::~Palette() {
+            delete[] m_data;
+        }
     }
 }
-
-#endif

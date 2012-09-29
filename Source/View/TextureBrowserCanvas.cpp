@@ -22,7 +22,10 @@
 #include "IO/FileManager.h"
 #include "Model/MapDocument.h"
 #include "Renderer/PushMatrix.h"
+#include "Renderer/RenderResources.h"
 #include "Renderer/RenderUtils.h"
+#include "Renderer/TextureRenderer.h"
+#include "Renderer/TextureRendererManager.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexArray.h"
@@ -89,7 +92,10 @@ namespace TrenchBroom {
                     stringRenderer = m_stringManager.stringRenderer(actualFont, texture->name());
                     m_stringRendererCache.insert(std::pair<Model::Texture*, Renderer::Text::StringRendererPtr>(texture, stringRenderer));
                 }
-                layout.addItem(TextureCellData(texture, stringRenderer), texture->width(), texture->height(), actualSize.x, font.size() + 2.0f);
+                
+                Renderer::TextureRendererManager& textureRendererManager = m_documentViewHolder.document().renderResources().textureRendererManager();
+                Renderer::TextureRenderer& textureRenderer = textureRendererManager.renderer(texture);
+                layout.addItem(TextureCellData(texture, &textureRenderer, stringRenderer), texture->width(), texture->height(), actualSize.x, font.size() + 2.0f);
             }
         }
         
@@ -186,7 +192,7 @@ namespace TrenchBroom {
                                 const Layout::Group::Row::Cell& cell = row[k];
                                 m_textureShaderProgram->setUniformVariable("GrayScale", cell.item().texture->overridden());
                                 m_textureShaderProgram->setUniformVariable("Texture", 0);
-                                cell.item().texture->activate();
+                                cell.item().textureRenderer->activate();
                                 glBegin(GL_QUADS);
                                 glTexCoord2f(0.0f, 0.0f);
                                 glVertex2f(cell.itemBounds().left(), height - (cell.itemBounds().top() - y));
@@ -197,7 +203,7 @@ namespace TrenchBroom {
                                 glTexCoord2f(1.0f, 0.0f);
                                 glVertex2f(cell.itemBounds().right(), height - (cell.itemBounds().top() - y));
                                 glEnd();
-                                cell.item().texture->deactivate();
+                                cell.item().textureRenderer->deactivate();
                             }
                         }
                     }
@@ -301,8 +307,8 @@ namespace TrenchBroom {
             }
         }
 
-        TextureBrowserCanvas::TextureBrowserCanvas(wxWindow* parent, wxWindowID windowId, wxGLContext* sharedContext, wxScrollBar* scrollBar, DocumentViewHolder& documentViewHolder) :
-        CellLayoutGLCanvas(parent, windowId, sharedContext, scrollBar),
+        TextureBrowserCanvas::TextureBrowserCanvas(wxWindow* parent, wxWindowID windowId, wxScrollBar* scrollBar, DocumentViewHolder& documentViewHolder) :
+        CellLayoutGLCanvas(parent, windowId, documentViewHolder.document().renderResources().attribs(), documentViewHolder.document().renderResources().sharedContext(), scrollBar),
         m_documentViewHolder(documentViewHolder),
         m_selectedTexture(NULL),
         m_stringManager(m_documentViewHolder.view().console()),

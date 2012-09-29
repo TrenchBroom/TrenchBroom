@@ -47,7 +47,7 @@ namespace TrenchBroom {
             TextureBrowserCanvas* m_canvas;
             wxScrollBar* m_scrollBar;
         public:
-            TextureBrowser(wxWindow* parent, wxWindowID windowId, wxGLContext* sharedContext, DocumentViewHolder& documentViewHolder);
+            TextureBrowser(wxWindow* parent, wxWindowID windowId, DocumentViewHolder& documentViewHolder);
             
             void reload();
 

@@ -23,17 +23,15 @@
 #include "Renderer/RenderTypes.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class Texture;
-    }
-    
     namespace Renderer {
+        class TextureRenderer;
+        
         class TextureVertexArray {
         public:
-            Model::Texture* texture;
+            TextureRenderer* texture;
             mutable VertexArrayPtr vertexArray;
             
-            TextureVertexArray(Model::Texture* texture, VertexArrayPtr vertexArray) :
+            TextureVertexArray(TextureRenderer* texture, VertexArrayPtr vertexArray) :
             texture(texture),
             vertexArray(vertexArray) {}
             

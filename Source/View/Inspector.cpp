@@ -31,31 +31,31 @@ namespace TrenchBroom {
             return new wxPanel(m_notebook);
         }
         
-        EntityInspector* Inspector::CreateEntityInspector(wxGLContext* sharedContext) {
-            return new EntityInspector(m_notebook, m_documentViewHolder, sharedContext);
+        EntityInspector* Inspector::CreateEntityInspector() {
+            return new EntityInspector(m_notebook, m_documentViewHolder);
         }
         
         wxNotebookPage* Inspector::CreateBrushInspector() {
             return new wxPanel(m_notebook);
         }
         
-        FaceInspector* Inspector::CreateFaceInspector(wxGLContext* sharedContext) {
-            return new FaceInspector(m_notebook, m_documentViewHolder, sharedContext);
+        FaceInspector* Inspector::CreateFaceInspector() {
+            return new FaceInspector(m_notebook, m_documentViewHolder);
         }
         
         ViewInspector* Inspector::CreateViewInspector() {
             return new ViewInspector(m_notebook, m_documentViewHolder);
         }
         
-        Inspector::Inspector(wxWindow* parent, DocumentViewHolder& documentViewHolder, wxGLContext* sharedContext) :
+        Inspector::Inspector(wxWindow* parent, DocumentViewHolder& documentViewHolder) :
         wxPanel(parent),
         m_documentViewHolder(documentViewHolder) {
             m_notebook = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNB_TOP | wxCLIP_CHILDREN);
             m_notebook->AddPage(CreateMapInspector(), wxT("Map"));
-            m_entityInspector= CreateEntityInspector(sharedContext);
+            m_entityInspector= CreateEntityInspector();
             m_notebook->AddPage(m_entityInspector, wxT("Entity"));
             m_notebook->AddPage(CreateBrushInspector(), wxT("Brush"));
-            m_faceInspector = CreateFaceInspector(sharedContext);
+            m_faceInspector = CreateFaceInspector();
             m_notebook->AddPage(m_faceInspector, wxT("Face"));
             m_notebook->AddPage(CreateViewInspector(), wxT("View"));
             

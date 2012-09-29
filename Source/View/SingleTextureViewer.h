@@ -30,16 +30,19 @@ namespace TrenchBroom {
         class Texture;
     }
     
+    namespace Renderer {
+        class RenderResources;
+        class TextureRendererManager;
+    }
+    
     namespace View {
         class SingleTextureViewer : public wxGLCanvas {
         private:
-            int* m_attribs;
+            Renderer::TextureRendererManager& m_textureRendererManager;
             wxGLContext* m_glContext;
             Model::Texture* m_texture;
-            
-            int* Attribs();
         public:
-            SingleTextureViewer(wxWindow* parent, wxGLContext* sharedContext);
+            SingleTextureViewer(wxWindow* parent, Renderer::RenderResources& renderResources);
             ~SingleTextureViewer();
  
             void setTexture(Model::Texture* texture);

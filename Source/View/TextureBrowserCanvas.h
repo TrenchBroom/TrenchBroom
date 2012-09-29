@@ -43,6 +43,7 @@ namespace TrenchBroom {
         
         class Shader;
         class ShaderProgram;
+        class TextureRenderer;
         class Vbo;
     }
     
@@ -87,10 +88,12 @@ namespace TrenchBroom {
         class TextureCellData {
         public:
             Model::Texture* texture;
+            Renderer::TextureRenderer* textureRenderer;
             Renderer::Text::StringRendererPtr stringRenderer;
             
-            TextureCellData(Model::Texture* texture, Renderer::Text::StringRendererPtr stringRenderer) :
+            TextureCellData(Model::Texture* texture, Renderer::TextureRenderer* textureRenderer, Renderer::Text::StringRendererPtr stringRenderer) :
             texture(texture),
+            textureRenderer(textureRenderer),
             stringRenderer(stringRenderer) {}
         };
         
@@ -127,7 +130,7 @@ namespace TrenchBroom {
             virtual void doRender(Layout& layout, Renderer::Transformation& transformation, float y, float height);
             virtual void handleLeftClick(Layout& layout, float x, float y);
         public:
-            TextureBrowserCanvas(wxWindow* parent, wxWindowID windowId, wxGLContext* sharedContext, wxScrollBar* scrollBar, DocumentViewHolder& documentViewHolder);
+            TextureBrowserCanvas(wxWindow* parent, wxWindowID windowId, wxScrollBar* scrollBar, DocumentViewHolder& documentViewHolder);
             ~TextureBrowserCanvas();
             
             inline void setSortOrder(Model::TextureSortOrder::Type sortOrder) {

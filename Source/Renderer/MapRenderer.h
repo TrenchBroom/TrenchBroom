@@ -59,7 +59,7 @@ namespace TrenchBroom {
         private:
             typedef Text::TextRenderer<Model::Entity*> EntityClassnameRenderer;
             typedef std::auto_ptr<EntityClassnameRenderer> EntityClassnameRendererPtr;
-            typedef TexturedPolygonSorter<Model::Face*> FaceSorter;
+            typedef TexturedPolygonSorter<Model::Texture, Model::Face*> FaceSorter;
             typedef FaceSorter::PolygonCollection FaceCollection;
             typedef FaceSorter::PolygonCollectionMap FaceCollectionMap;
         private:
@@ -74,10 +74,6 @@ namespace TrenchBroom {
             
             typedef std::map<Model::Entity*, CachedEntityRenderer> EntityRenderers;
 
-            // resources
-            Model::TexturePtr m_dummyTexture;
-            StringManagerPtr m_stringManager;
-            
             // level geometry rendering
             VboPtr m_faceVbo;
             TextureVertexArrayList m_faceVertexArrays;
@@ -95,7 +91,6 @@ namespace TrenchBroom {
             VertexArrayPtr m_lockedEntityBoundsVertexArray;
             
             // entity model rendering
-            EntityRendererManagerPtr m_entityRendererManager;
             EntityRenderers m_entityRenderers;
             EntityRenderers m_selectedEntityRenderers;
             EntityRenderers m_lockedEntityRenderers;

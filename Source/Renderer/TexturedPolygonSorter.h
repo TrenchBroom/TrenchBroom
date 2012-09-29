@@ -22,17 +22,17 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        template <typename T>
+        template <typename TextureType, typename PolygonType>
         class TexturedPolygonSorter {
         private:
             class CompareTexturesById {
             public:
-                inline bool operator() (const Model::Texture* left, const Model::Texture* right) const {
-                    return left->uniqueId() < right->uniqueId();
+                inline bool operator() (const TextureType* left, const TextureType* right) const {
+                    return left < right;
                 }
             };
         public:
-            typedef std::vector<T> PolygonList;
+            typedef std::vector<PolygonType> PolygonList;
             class PolygonCollection {
             private:
                 PolygonList m_polygons;
@@ -49,13 +49,14 @@ namespace TrenchBroom {
                     return m_vertexCount;
                 }
                 
-                inline void addPolygon(T polygon, size_t vertexCount) {
+                inline void addPolygon(PolygonType polygon, size_t vertexCount) {
                     m_polygons.push_back(polygon);
                     m_vertexCount += vertexCount;
                 }
             };
 
-            typedef std::map<Model::Texture*, PolygonCollection, CompareTexturesById> PolygonCollectionMap;
+            typedef std::map<TextureType*, PolygonCollection, CompareTexturesById> PolygonCollectionMap;
+            typedef std::pair<TextureType*, PolygonCollection> PolygonCollectionEntry;
         private:
             
             PolygonCollectionMap m_polygonCollections;
@@ -64,9 +65,9 @@ namespace TrenchBroom {
             TexturedPolygonSorter() :
             m_lastPolygonCollection(m_polygonCollections.end()) {}
             
-            inline void addPolygon(Model::Texture* texture, T polygon, size_t vertexCount) {
+            inline void addPolygon(TextureType* texture, PolygonType polygon, size_t vertexCount) {
                 if (m_lastPolygonCollection == m_polygonCollections.end() || m_lastPolygonCollection->first != texture)
-                    m_lastPolygonCollection = m_polygonCollections.insert(std::pair<Model::Texture*, PolygonCollection>(texture, PolygonCollection())).first;
+                    m_lastPolygonCollection = m_polygonCollections.insert(PolygonCollectionEntry(texture, PolygonCollection())).first;
                 
                 m_lastPolygonCollection->second.addPolygon(polygon, vertexCount);
             }

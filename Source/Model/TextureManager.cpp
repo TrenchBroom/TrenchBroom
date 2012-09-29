@@ -23,11 +23,12 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TextureCollection::TextureCollection(const String& name, const IO::Wad& wad, const Palette& palette) : m_name(name) {
-            IO::Mip::List mips = wad.loadMips();
+        TextureCollection::TextureCollection(const String& name, const IO::Wad& wad) :
+        m_name(name) {
+            IO::Mip::List mips = wad.loadMips(0);
             while (!mips.empty()) {
                 IO::Mip* mip = mips.back();
-                Texture* texture = new Texture(*mip, palette);
+                Texture* texture = new Texture(*this, mip->name(), mip->width(), mip->height());
                 m_textures.push_back(texture);
                 delete mip;
                 mips.pop_back();
@@ -45,21 +46,25 @@ namespace TrenchBroom {
         }
 
         void TextureManager::reloadTextures() {
+            m_collectionMap.clear();
             m_texturesCaseSensitive.clear();
             m_texturesCaseInsensitive.clear();
             m_texturesByName.clear();
             m_texturesByUsage.clear();
+            
+            typedef std::pair<TextureMap::iterator, bool> InsertResult;
             
             for (unsigned int i = 0; i < m_collections.size(); i++) {
                 TextureCollection* collection = m_collections[i];
                 const TextureList textures = collection->textures();
                 for (unsigned int j = 0; j < textures.size(); j++) {
                     Texture* texture = textures[j];
+                    m_collectionMap[texture] = collection;
                     
-                    std::pair<TextureMap::iterator, bool> inserted = m_texturesCaseSensitive.insert(std::pair<String, Texture*>(texture->name(), texture));
-                    if (!inserted.second) { // texture with this name already existed
-                        inserted.first->second->setOverridden(true);
-                        inserted.first->second = texture;
+                    InsertResult result = m_texturesCaseSensitive.insert(TextureMapEntry(texture->name(), texture));
+                    if (!result.second) { // texture with this name already existed
+                        result.first->second->setOverridden(true);
+                        result.first->second = texture;
                     }
                     m_texturesCaseInsensitive[Utility::toLower(texture->name())] = texture;
                     texture->setOverridden(false);

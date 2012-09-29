@@ -45,8 +45,6 @@ namespace TrenchBroom {
             bool m_layoutInitialized;
             
             wxGLContext* m_glContext;
-            int* m_attribs;
-
             wxScrollBar* m_scrollBar;
             
             void updateScrollBar() {
@@ -71,44 +69,17 @@ namespace TrenchBroom {
                 doReloadLayout(m_layout);
                 updateScrollBar();
             }
-
-            int* Attribs() {
-                GL::Capabilities capabilities = GL::glCapabilities();
-                if (capabilities.multisample) {
-                    m_attribs = new int[9];
-                    m_attribs[0] = WX_GL_RGBA;
-                    m_attribs[1] = WX_GL_DOUBLEBUFFER;
-                    m_attribs[2] = WX_GL_SAMPLE_BUFFERS;
-                    m_attribs[3] = 1;
-                    m_attribs[4] = WX_GL_SAMPLES;
-                    m_attribs[5] = capabilities.samples;
-                    m_attribs[6] = WX_GL_DEPTH_SIZE;
-                    m_attribs[7] = capabilities.depthBits;
-                    m_attribs[8] = 0;
-                } else {
-                    m_attribs = new int[5];
-                    m_attribs[0] = WX_GL_RGBA;
-                    m_attribs[1] = WX_GL_DOUBLEBUFFER;
-                    m_attribs[2] = WX_GL_DEPTH_SIZE;
-                    m_attribs[3] = capabilities.depthBits;
-                    m_attribs[4] = 0;
-                }
-                
-                return m_attribs;
-            }
         protected:
             virtual void doInitLayout(Layout& layout) = 0;
             virtual void doReloadLayout(Layout& layout) = 0;
             virtual void doRender(Layout& layout, Renderer::Transformation& transformation, float y, float height) = 0;
             virtual void handleLeftClick(Layout& layout, float x, float y) {}
         public:
-            CellLayoutGLCanvas(wxWindow* parent, wxWindowID windowId, wxGLContext* sharedContext, wxScrollBar* scrollBar = NULL) :
-            wxGLCanvas(parent, windowId, Attribs(), wxDefaultPosition, wxDefaultSize),
+            CellLayoutGLCanvas(wxWindow* parent, wxWindowID windowId, const int* attribs, wxGLContext* sharedContext, wxScrollBar* scrollBar = NULL) :
+            wxGLCanvas(parent, windowId, attribs, wxDefaultPosition, wxDefaultSize),
             m_layoutInitialized(false),
             m_scrollBar(scrollBar) {
                 m_glContext = new wxGLContext(this, sharedContext);
-                delete [] m_attribs;
-                m_attribs = NULL;
                 
                 Bind(wxEVT_PAINT, &CellLayoutGLCanvas::OnPaint, this);
                 Bind(wxEVT_SIZE, &CellLayoutGLCanvas::OnSize, this);
@@ -131,10 +102,6 @@ namespace TrenchBroom {
                 if (m_glContext != NULL) {
                     wxDELETE(m_glContext);
                     m_glContext = NULL;
-                }
-                if (m_attribs != NULL) {
-                    delete [] m_attribs;
-                    m_attribs = NULL;
                 }
             }
             

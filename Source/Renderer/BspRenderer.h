@@ -30,23 +30,24 @@
 namespace TrenchBroom {
     namespace Model {
         class Bsp;
+        class BspTexture;
         class Entity;
-        class Palette;
-        class Texture;
     }
 
     namespace Renderer {
+        class Palette;
         class ShaderProgram;
+        class TextureRenderer;
         class Vbo;
         class VboBlock;
 
         class BspRenderer : public EntityRenderer {
         private:
-            typedef std::map<String, Model::Texture*> TextureCache;
+            typedef std::map<const Model::BspTexture*, TextureRenderer*> TextureCache;
 
             const Model::Bsp& m_bsp;
 
-            const Model::Palette& m_palette;
+            const Palette& m_palette;
             TextureCache m_textures;
 
             Vbo& m_vbo;
@@ -54,7 +55,7 @@ namespace TrenchBroom {
             
             void buildVertexArrays();
         public:
-            BspRenderer(const Model::Bsp& bsp, Vbo& vbo, const Model::Palette& palette);
+            BspRenderer(const Model::Bsp& bsp, Vbo& vbo, const Palette& palette);
             ~BspRenderer();
             
             void render(ShaderProgram& shaderProgram);
