@@ -25,8 +25,6 @@
 #include "Model/EntityDefinitionManager.h"
 #include "Model/MapDocument.h"
 
-#include <cassert>
-
 namespace TrenchBroom {
     namespace Controller {
         EntityPropertyCommand::EntityPropertyCommand(Type type, Model::MapDocument& document, const wxString& name) :
@@ -53,6 +51,12 @@ namespace TrenchBroom {
             return command;
         }
 
+        EntityPropertyCommand* EntityPropertyCommand::removeEntityProperties(Model::MapDocument& document, const Model::PropertyKeyList& keys) {
+            EntityPropertyCommand* command = new EntityPropertyCommand(RemoveEntityProperty, document, wxT("Delete Properties"));
+            command->setKeys(keys);
+            return command;
+        }
+
         bool EntityPropertyCommand::Do() {
             const Model::EditStateManager& editStateManager = document().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
@@ -62,11 +66,11 @@ namespace TrenchBroom {
             Model::EntityDefinitionManager& definitionManager = document().definitionManager();
             if (type() == SetEntityPropertyKey) {
                 makeSnapshots(entities);
-                m_definitionChanged = (m_key == Model::Entity::ClassnameKey || m_newKey == Model::Entity::ClassnameKey);
+                m_definitionChanged = (key() == Model::Entity::ClassnameKey || m_newKey == Model::Entity::ClassnameKey);
                 for (unsigned int i = 0; i < entities.size(); i++) {
                     Model::Entity& entity = *entities[i];
-                    Model::PropertyValue value = *entity.propertyForKey(m_key);
-                    entity.deleteProperty(m_key);
+                    Model::PropertyValue value = *entity.propertyForKey(key());
+                    entity.deleteProperty(key());
                     entity.setProperty(m_newKey, value);
                     
                     if (m_definitionChanged) {
@@ -78,10 +82,10 @@ namespace TrenchBroom {
             }
             if (type() == SetEntityPropertyValue) {
                 makeSnapshots(entities);
-                m_definitionChanged = (m_key == Model::Entity::ClassnameKey);
+                m_definitionChanged = (key() == Model::Entity::ClassnameKey);
                 for (unsigned int i = 0; i < entities.size(); i++) {
                     Model::Entity& entity = *entities[i];
-                    entity.setProperty(m_key, m_newValue);
+                    entity.setProperty(key(), m_newValue);
                     if (m_definitionChanged)
                         entity.setDefinition(definitionManager.definition(m_newValue));
                 }
@@ -90,12 +94,16 @@ namespace TrenchBroom {
             }
             if (type() == RemoveEntityProperty) {
                 makeSnapshots(entities);
-                m_definitionChanged = (m_key == Model::Entity::ClassnameKey);
-                for (unsigned int i = 0; i < entities.size(); i++) {
-                    Model::Entity& entity = *entities[i];
-                    entity.deleteProperty(m_key);
-                    if (m_key == Model::Entity::ClassnameKey)
-                        entity.setDefinition(NULL);
+                for (unsigned int i = 0; i < m_keys.size(); i++) {
+                    const Model::PropertyKey& key = m_keys[i];
+                    m_definitionChanged |= (key == Model::Entity::ClassnameKey);
+                    
+                    for (unsigned int j = 0; j < entities.size(); j++) {
+                        Model::Entity& entity = *entities[j];
+                        entity.deleteProperty(key);
+                        if (key == Model::Entity::ClassnameKey)
+                            entity.setDefinition(NULL);
+                    }
                 }
                 document().UpdateAllViews(NULL, this);
                 return true;

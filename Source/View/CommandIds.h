@@ -90,6 +90,8 @@ namespace TrenchBroom {
             namespace EntityInspector {
                 static const int Lowest                             = FaceInspector::Highest + 1;
                 static const int EntityPropertyViewId               = Lowest + 1;
+                static const int AddEntityPropertyButtonId          = Lowest + 2;
+                static const int RemoveEntityPropertiesButtonId     = Lowest + 3;
                 static const int Highest                            = Lowest + 99;
             }
         }

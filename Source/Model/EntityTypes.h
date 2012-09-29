@@ -35,6 +35,7 @@ namespace TrenchBroom {
         typedef std::string PropertyKey;
         typedef std::string PropertyValue;
         typedef std::map<PropertyKey, PropertyValue> Properties;
+        typedef std::vector<PropertyKey> PropertyKeyList;
     }
 }
 

@@ -26,6 +26,7 @@
 #include <wx/object.h>
 #include <wx/panel.h>
 
+class wxButton;
 class wxDataViewCtrl;
 class wxGLContext;
 class wxWindow;
@@ -42,6 +43,8 @@ namespace TrenchBroom {
             wxDataViewColumn* m_keyColumn;
             wxDataViewColumn* m_valueColumn;
             wxObjectDataPtr<EntityPropertyDataViewModel> m_propertyViewModel;
+            wxButton* m_addPropertyButton;
+            wxButton* m_removePropertiesButton;
             
             wxWindow* createPropertyEditor(wxWindow* parent);
             wxWindow* createEntityBrowser(wxWindow* parent, wxGLContext* sharedContext);
@@ -49,6 +52,11 @@ namespace TrenchBroom {
             EntityInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder, wxGLContext* sharedContext);
             
             void update();
+
+            void OnAddPropertyPressed(wxCommandEvent& event);
+            void OnRemovePropertiesPressed(wxCommandEvent& event);
+            void OnUpdatePropertyViewOrAddPropertiesButton(wxUpdateUIEvent& event);
+            void OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event);
 
             DECLARE_EVENT_TABLE()
         };

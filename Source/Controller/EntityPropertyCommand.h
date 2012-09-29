@@ -25,21 +25,36 @@
 
 #include <wx/wx.h>
 
+#include <cassert>
+
 namespace TrenchBroom {
     namespace Controller {
         class EntityPropertyCommand : public SnapshotCommand {
         protected:
-            Model::PropertyKey m_key;
+            Model::PropertyKeyList m_keys;
             Model::PropertyKey m_newKey;
             Model::PropertyValue m_newValue;
             bool m_definitionChanged;
             
             inline const Model::PropertyKey& key() const {
-                return m_key;
+                assert(m_keys.size() == 1);
+                return m_keys.back();
             }
             
             inline void setKey(const Model::PropertyKey& key) {
-                m_key = key;
+                assert(m_keys.size() <= 1);
+                if (m_keys.empty())
+                    m_keys.push_back(key);
+                else
+                    m_keys[0] = key;
+            }
+            
+            inline const Model::PropertyKeyList& keys() const {
+                return m_keys;
+            }
+            
+            inline void setKeys(const Model::PropertyKeyList&keys) {
+                m_keys = keys;
             }
             
             inline const Model::PropertyKey& newKey() const {
@@ -63,6 +78,7 @@ namespace TrenchBroom {
             static EntityPropertyCommand* setEntityPropertyKey(Model::MapDocument& document, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey);
             static EntityPropertyCommand* setEntityPropertyValue(Model::MapDocument& document, const Model::PropertyKey& key, const Model::PropertyValue& newValue);
             static EntityPropertyCommand* removeEntityProperty(Model::MapDocument& document, const Model::PropertyKey& key);
+            static EntityPropertyCommand* removeEntityProperties(Model::MapDocument& document, const Model::PropertyKeyList& keys);
             
             inline bool definitionChanged() const {
                 return m_definitionChanged;
