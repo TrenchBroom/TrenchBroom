@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__TextureManager__
 #define __TrenchBroom__TextureManager__
 
+#include "IO/Wad.h"
 #include "Model/Texture.h"
 #include "Model/TextureTypes.h"
 #include "Utility/String.h"
@@ -30,6 +31,10 @@
 namespace TrenchBroom {
     namespace IO {
         class Wad;
+    }
+
+    namespace Renderer {
+        class Palette;
     }
     
     namespace Model {
@@ -58,18 +63,24 @@ namespace TrenchBroom {
         };
 
         class TextureCollectionLoader {
+        protected:
+            IO::Wad m_wad;
         public:
-            const unsigned char* load(const Texture& texture);
+            TextureCollectionLoader(const String& path);
+            unsigned char* load(const Texture& texture, const Renderer::Palette& palette);
         };
         
         class TextureCollection {
+        public:
+            typedef std::auto_ptr<TextureCollectionLoader> LoaderPtr;
         private:
             TextureList m_textures;
             TextureList m_texturesByName;
             mutable TextureList m_texturesByUsage;
             String m_name;
+            String m_path;
         public:
-            TextureCollection(const String& name, const IO::Wad& wad);
+            TextureCollection(const String& name, const String& path);
             ~TextureCollection();
             
             inline const TextureList& textures() const {
@@ -87,7 +98,7 @@ namespace TrenchBroom {
                 return m_name;
             }
             
-            TextureCollectionLoader loader() const;
+            LoaderPtr loader() const;
         };
 
         class TextureManager {

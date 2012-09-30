@@ -52,7 +52,7 @@ namespace TrenchBroom {
         
         StringList AbstractFileManager::directoryContents(const String& path, String extension) {
             StringList result;
-            if (!wxSetWorkingDirectory(path))
+            if (!isDirectory(path) || !wxSetWorkingDirectory(path))
                 return result;
             
             String lowerExtension = Utility::toLower(extension);

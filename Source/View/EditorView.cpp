@@ -108,11 +108,10 @@ namespace TrenchBroom {
         }
 
         Utility::Console& EditorView::console() const {
-            return *m_console;
+            return mapDocument().console();
         }
         
         bool EditorView::OnCreate(wxDocument* doc, long flags) {
-            m_console = new Utility::Console();
             m_viewOptions = new ViewOptions();
             m_filter = new Model::DefaultFilter(*m_viewOptions);
             
@@ -128,7 +127,7 @@ namespace TrenchBroom {
             m_renderer = new Renderer::MapRenderer(document);
             
             EditorFrame* frame = new EditorFrame(document, *this);
-            m_console->setTextCtrl(frame->logView());
+            console().setTextCtrl(frame->logView());
 
             SetFrame(frame);
             frame->Show();

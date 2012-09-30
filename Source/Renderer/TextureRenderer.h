@@ -45,11 +45,9 @@ namespace TrenchBroom {
             Color m_averageColor;
             
             void init(unsigned int width, unsigned int height);
-            void init(const unsigned char* indexedImage, unsigned int width, unsigned int height, const Palette& palette);
+            void init(unsigned char* rgbImage, unsigned int width, unsigned int height);
         public:
-            TextureRenderer(const unsigned char* rgbImage, unsigned int width, unsigned int height);
-            TextureRenderer(const unsigned char* indexedImage, unsigned int width, unsigned int height, const Palette& palette);
-            TextureRenderer(const IO::Mip& mip, const Palette& palette);
+            TextureRenderer(unsigned char* rgbImage, unsigned int width, unsigned int height);
             TextureRenderer(const Model::AliasSkin& skin, unsigned int skinIndex, const Palette& palette);
             TextureRenderer(const Model::BspTexture& texture, const Palette& palette);
             TextureRenderer();

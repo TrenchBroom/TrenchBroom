@@ -25,6 +25,7 @@
 #include "Renderer/TextureRendererManager.h"
 #include "Renderer/Text/StringManager.h"
 #include "Utility/Console.h"
+#include "Utility/Preferences.h"
 
 #include <GL/glew.h>
 #include <wx/glCanvas.h>
@@ -82,6 +83,10 @@ namespace TrenchBroom {
             m_entityRendererManager = new EntityRendererManager(console);
             m_textureRendererManager = new TextureRendererManager(textureManager);
             m_stringManager = new Text::StringManager(console);
+            
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            const String& quakePath = prefs.getString(Preferences::QuakePath);
+            m_entityRendererManager->setQuakePath(quakePath);
         }
         
         RenderResources::~RenderResources() {

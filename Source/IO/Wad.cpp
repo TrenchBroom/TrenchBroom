@@ -86,17 +86,26 @@ namespace TrenchBroom {
                     m_stream.seekg(WadLayout::DirEntryNameOffset, std::ios::cur);
                     m_stream.read(reinterpret_cast<char *>(entryName), WadLayout::DirEntryNameLength);
                     
-                    m_entries.push_back(WadEntry(entryAddress, entryLength, entryType, entryName));
+                    // might leak if there are duplicate entries
+                    m_entries[entryName] = WadEntry(entryAddress, entryLength, entryType, entryName);
                 }
             }
             
 			m_stream.clear();
         }
         
+        Mip* Wad::loadMip(const String& name, unsigned int mipCount) const {
+            EntryMap::const_iterator it = m_entries.find(name);
+            if (it == m_entries.end())
+                return NULL;
+            return loadMip(it->second, mipCount);
+        }
+
         Mip::List Wad::loadMips(unsigned int mipCount) const {
             Mip::List mips;
-            for (unsigned int i = 0; i < m_entries.size(); i++) {
-                const WadEntry& entry = m_entries[i];
+            EntryMap::const_iterator it, end;
+            for (it = m_entries.begin(), end = m_entries.end(); it != end; ++it) {
+                const WadEntry& entry = it->second;
                 if (entry.type() == WadEntryType::WEMip) {
                     Mip* mip = loadMip(entry, mipCount);
                     if (mip != NULL)

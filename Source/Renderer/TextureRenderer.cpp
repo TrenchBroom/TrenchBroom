@@ -33,51 +33,25 @@ namespace TrenchBroom {
 			m_textureId = 0;
         }
         
-        void TextureRenderer::init(const unsigned char* indexedImage, unsigned int width, unsigned int height, const Palette& palette) {
+        void TextureRenderer::init(unsigned char* rgbImage, unsigned int width, unsigned int height) {
             init(width, height);
-            
-            if (indexedImage != NULL) {
-                unsigned int pixelCount = width * height;
-                m_textureBuffer = new unsigned char[pixelCount * 3];
-                palette.indexedToRgb(indexedImage, m_textureBuffer, pixelCount);
-                
-                m_averageColor.x = m_averageColor.y = m_averageColor.z = 0.0f;
-                m_averageColor.w = 1.0f;
-                for (unsigned int i = 0; i < pixelCount; i++) {
-                    m_averageColor.x += (m_textureBuffer[i * 3 + 0] / 255.0f);
-                    m_averageColor.y += (m_textureBuffer[i * 3 + 1] / 255.0f);
-                    m_averageColor.z += (m_textureBuffer[i * 3 + 2] / 255.0f);
-                }
-                
-                m_averageColor.x /= pixelCount;
-                m_averageColor.y /= pixelCount;
-                m_averageColor.z /= pixelCount;
-            }
+            m_textureBuffer = rgbImage;
         }
         
-        TextureRenderer::TextureRenderer(const unsigned char* rgbImage, unsigned int width, unsigned int height) {
-            init(width, height);
-            if (rgbImage != NULL) {
-                int pixelCount = width * height;
-                m_textureBuffer = new unsigned char[pixelCount * 3];
-                memcpy(m_textureBuffer, rgbImage, pixelCount * 3);
-            }
-        }
-        
-        TextureRenderer::TextureRenderer(const unsigned char* indexImage, unsigned int width, unsigned int height, const Palette& palette) {
-            init(indexImage, width, height, palette);
-        }
-        
-        TextureRenderer::TextureRenderer(const IO::Mip& mip, const Palette& palette) {
-            init(mip.mip0(), mip.width(), mip.height(), palette);
+        TextureRenderer::TextureRenderer(unsigned char* rgbImage, unsigned int width, unsigned int height) {
+            init(rgbImage, width, height);
         }
         
         TextureRenderer::TextureRenderer(const Model::AliasSkin& skin, unsigned int skinIndex, const Palette& palette) {
-            init(skin.pictures()[skinIndex], skin.width(), skin.height(), palette);
+            init(skin.width(), skin.height());
+            m_textureBuffer = new unsigned char[m_width * m_height * 3];
+            palette.indexedToRgb(skin.pictures()[skinIndex], m_textureBuffer, m_width * m_height);
         }
         
         TextureRenderer::TextureRenderer(const Model::BspTexture& texture, const Palette& palette) {
-            init(texture.image(), texture.width(), texture.height(), palette);
+            init(texture.width(), texture.height());
+            m_textureBuffer = new unsigned char[m_width * m_height * 3];
+            palette.indexedToRgb(texture.image(), m_textureBuffer, m_width * m_height);
         }
         
         TextureRenderer::TextureRenderer() {
@@ -91,7 +65,7 @@ namespace TrenchBroom {
             if (m_textureId > 0)
                 glDeleteTextures(1, &m_textureId);
             if (m_textureBuffer != NULL)
-                delete[] m_textureBuffer;
+                delete [] m_textureBuffer;
         }
 
         void TextureRenderer::activate() {
@@ -104,7 +78,7 @@ namespace TrenchBroom {
                     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
                     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
                     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, m_textureBuffer);
-                    delete[] m_textureBuffer;
+                    delete [] m_textureBuffer;
                     m_textureBuffer = NULL;
                 }
             }

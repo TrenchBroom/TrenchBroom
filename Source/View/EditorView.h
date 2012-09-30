@@ -58,7 +58,6 @@ namespace TrenchBroom {
             Renderer::MapRenderer* m_renderer;
             Model::Filter* m_filter;
             ViewOptions* m_viewOptions;
-            Utility::Console* m_console;
             
             void submit(wxCommand* command);
         public:

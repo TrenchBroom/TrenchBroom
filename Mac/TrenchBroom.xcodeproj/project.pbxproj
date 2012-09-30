@@ -70,6 +70,7 @@
 		48B059C71617866100E6B0AD /* Palette.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B059C51617866100E6B0AD /* Palette.cpp */; };
 		48B059CA1617886800E6B0AD /* TextureRendererManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B059C81617886800E6B0AD /* TextureRendererManager.cpp */; };
 		48B059CE161799FC00E6B0AD /* RenderResources.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B059CC161799FC00E6B0AD /* RenderResources.cpp */; };
+		48B059D11618859A00E6B0AD /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B059D01618859A00E6B0AD /* Texture.cpp */; };
 		48B75F72160BA512009D4E99 /* TextureBrowser.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48B75F71160BA512009D4E99 /* TextureBrowser.vertsh */; };
 		48B75F75160BA531009D4E99 /* TextureBrowser.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48B75F74160BA531009D4E99 /* TextureBrowser.fragsh */; };
 		48B75F79160CF79F009D4E99 /* TextureBrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B75F77160CF79E009D4E99 /* TextureBrowser.cpp */; };
@@ -271,6 +272,7 @@
 		48B059CC161799FC00E6B0AD /* RenderResources.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderResources.cpp; sourceTree = "<group>"; };
 		48B059CD161799FC00E6B0AD /* RenderResources.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderResources.h; sourceTree = "<group>"; };
 		48B059CF16179BCA00E6B0AD /* TextureRendererTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextureRendererTypes.h; sourceTree = "<group>"; };
+		48B059D01618859A00E6B0AD /* Texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Texture.cpp; sourceTree = "<group>"; };
 		48B75F71160BA512009D4E99 /* TextureBrowser.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = TextureBrowser.vertsh; sourceTree = "<group>"; };
 		48B75F74160BA531009D4E99 /* TextureBrowser.fragsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = TextureBrowser.fragsh; sourceTree = "<group>"; };
 		48B75F77160CF79E009D4E99 /* TextureBrowser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureBrowser.cpp; sourceTree = "<group>"; };
@@ -535,6 +537,7 @@
 				4850D24B15F364A1005B162D /* Picker.cpp */,
 				4850D24C15F364A1005B162D /* Picker.h */,
 				4810278615E621FA00250C9C /* PropertyDefinition.h */,
+				48B059D01618859A00E6B0AD /* Texture.cpp */,
 				48AF492415E8265A0083DE52 /* Texture.h */,
 				48312B3615EB80C000607868 /* TextureManager.cpp */,
 				48312B3715EB80C000607868 /* TextureManager.h */,
@@ -863,6 +866,7 @@
 				48B059C71617866100E6B0AD /* Palette.cpp in Sources */,
 				48B059CA1617886800E6B0AD /* TextureRendererManager.cpp in Sources */,
 				48B059CE161799FC00E6B0AD /* RenderResources.cpp in Sources */,
+				48B059D11618859A00E6B0AD /* Texture.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

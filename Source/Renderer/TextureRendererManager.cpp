@@ -30,15 +30,16 @@ namespace TrenchBroom {
         TextureRendererCollection::TextureRendererCollection(Model::TextureCollection& textureCollection, const Palette& palette) {
             typedef std::pair<TextureRendererMap::iterator, bool> InsertResult;
 
-            Model::TextureCollectionLoader loader = textureCollection.loader();
+            Model::TextureCollection::LoaderPtr loader = textureCollection.loader();
             const Model::TextureList& textures = textureCollection.textures();
             for (unsigned int i = 0; i < textures.size(); i++) {
                 Model::Texture& texture = *textures[i];
-                const unsigned char* textureImage = loader.load(texture);
-                
-                TextureRenderer* textureRenderer = new TextureRenderer(textureImage, texture.width(), texture.height(), palette);
-                InsertResult result = m_textures.insert(TextureRendererEntry(&texture, textureRenderer));
-                assert(result.second);
+                unsigned char* textureImage = loader->load(texture, palette);
+                if (textureImage != NULL) {
+                    TextureRenderer* textureRenderer = new TextureRenderer(textureImage, texture.width(), texture.height());
+                    InsertResult result = m_textures.insert(TextureRendererEntry(&texture, textureRenderer));
+                    assert(result.second);
+                }
             }
         }
         

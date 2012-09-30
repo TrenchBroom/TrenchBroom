@@ -24,20 +24,69 @@
 
 #include <wx/textctrl.h>
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Utility {
         class Console {
         protected:
-            StringStream m_buffer;
+            typedef enum {
+                LLDebug,
+                LLInfo,
+                LLWarn,
+                LLError
+            } LogLevel;
+            
+            class LogMessage {
+            protected:
+                LogLevel m_level;
+                String m_string;
+            public:
+                LogMessage(const LogLevel level, const String& string) :
+                m_level(level) {
+                    String trimmed = Utility::trim(string);
+                    StringStream buffer;
+                    bool previousWasNewline = false;
+                    for (unsigned int i = 0; i < trimmed.length(); i++) {
+                        char c = trimmed[i];
+                        if (c == '\r')
+                            continue;
+                        if (c == '\n') {
+                            if (!previousWasNewline)
+                                buffer << c;
+                            previousWasNewline = true;
+                        } else {
+                            buffer << c;
+                            previousWasNewline = false;
+                        }
+                    }
+                    m_string = buffer.str();
+                }
+                
+                inline const LogLevel level() const {
+                    return m_level;
+                }
+                
+                inline const String& string() const {
+                    return m_string;
+                }
+            };
+            
+            typedef std::vector<LogMessage> LogMessageList;
+
+            LogMessageList m_buffer;
+            
             wxTextCtrl* m_textCtrl;
             
             void formatMessage(const char* format, va_list arguments, String& result);
+            void logToDebug(const LogMessage& message);
+            void logToConsole(const LogMessage& message);
         public:
             Console() : m_textCtrl(NULL) {}
             
             void setTextCtrl(wxTextCtrl* textCtrl);
             
-            void log(const String& message, bool setDefaultColor = true);
+            void log(const LogMessage& message);
             
             void debug(const String& message);
             void debug(const char* format, ...);

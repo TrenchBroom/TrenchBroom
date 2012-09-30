@@ -307,8 +307,7 @@ namespace TrenchBroom {
             
             if (fileManager.exists(wadPath)) {
                 wxStopWatch watch;
-                IO::Wad wad(wadPath);
-                Model::TextureCollection* collection = new Model::TextureCollection(collectionName, wad);
+                Model::TextureCollection* collection = new Model::TextureCollection(collectionName, wadPath);
                 m_textureManager->addCollection(collection, index);
                 console().info("Loaded %s in %f seconds", wadPath.c_str(), watch.Time() / 1000.0f);
             } else {
@@ -319,11 +318,13 @@ namespace TrenchBroom {
         bool MapDocument::OnCreate(const wxString& path, long flags) {
             BBox worldBounds(Vec3f(-4096, -4096, -4096), Vec3f(4096, 4096, 4096));
 
+            m_console = new Utility::Console();
+            m_textureManager = new TextureManager();
+            m_renderResources = new Renderer::RenderResources(*m_textureManager, *m_console);
             m_map = new Model::Map(worldBounds);
             m_editStateManager = new Model::EditStateManager();
             m_octree = new Octree(*m_map);
             m_picker = new Model::Picker(*m_octree);
-            m_textureManager = new TextureManager();
             m_definitionManager = new EntityDefinitionManager();
             m_mods.push_back("id1");
             m_mods.push_back("ID1");

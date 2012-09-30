@@ -23,6 +23,8 @@
 #include "Utility/String.h"
 
 #include "IO/mmapped_fstream.h"
+
+#include <map>
 #include <vector>
 
 #ifdef _MSC_VER
@@ -49,7 +51,17 @@ namespace TrenchBroom {
             char m_type;
             String m_name;
         public:
-            WadEntry(int32_t address, int32_t length, char type, const String& name) : m_address(address), m_length(length), m_type(type), m_name(name) {}
+            WadEntry(int32_t address, int32_t length, char type, const String& name) :
+            m_address(address),
+            m_length(length),
+            m_type(type),
+            m_name(name) {}
+            
+            WadEntry() :
+            m_address(0),
+            m_length(0),
+            m_type(WadEntryType::WEStatus),
+            m_name("") {}
             
             inline int32_t address() const {
                 return m_address;
@@ -101,13 +113,16 @@ namespace TrenchBroom {
 
         class Wad {
         private:
+            typedef std::map<String, WadEntry> EntryMap;
+            
             mutable mmapped_fstream m_stream;
-            WadEntry::List m_entries;
+            EntryMap m_entries;
 
             Mip* loadMip(const WadEntry& entry, unsigned int mipCount) const;
         public:
             Wad(const String& path);
             
+            Mip* loadMip(const String& name, unsigned int mipCount) const;
             Mip::List loadMips(unsigned int mipCount) const;
         };
     }
