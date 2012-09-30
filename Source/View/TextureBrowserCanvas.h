@@ -101,9 +101,9 @@ namespace TrenchBroom {
         protected:
             DocumentViewHolder& m_documentViewHolder;
             Model::Texture* m_selectedTexture;
-            Renderer::Text::StringManager m_stringManager;
             
             typedef std::map<Model::Texture*, Renderer::Text::StringRendererPtr> StringRendererCache;
+            typedef std::pair<Model::Texture*, Renderer::Text::StringRendererPtr> StringRendererCacheEntry;
             StringRendererCache m_stringRendererCache;
             
             Renderer::ShaderPtr m_textureBorderVertexShader;
@@ -127,7 +127,7 @@ namespace TrenchBroom {
             void addTextureToLayout(Layout& layout, Model::Texture* texture, const Renderer::Text::FontDescriptor& font);
             virtual void doInitLayout(Layout& layout);
             virtual void doReloadLayout(Layout& layout);
-            virtual void doRender(Layout& layout, Renderer::Transformation& transformation, float y, float height);
+            virtual void doRender(Layout& layout, float y, float height);
             virtual void handleLeftClick(Layout& layout, float x, float y);
         public:
             TextureBrowserCanvas(wxWindow* parent, wxWindowID windowId, wxScrollBar* scrollBar, DocumentViewHolder& documentViewHolder);

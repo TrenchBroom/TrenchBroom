@@ -21,7 +21,7 @@
 
 #include "GL/Capabilities.h"
 #include "Model/Texture.h"
-#include "Renderer/RenderResources.h"
+#include "Renderer/SharedResources.h"
 #include "Renderer/TextureRenderer.h"
 #include "Renderer/TextureRendererManager.h"
 #include "Utility/Preferences.h"
@@ -37,12 +37,12 @@ namespace TrenchBroom {
         EVT_PAINT(SingleTextureViewer::OnPaint)
         END_EVENT_TABLE()
         
-        SingleTextureViewer::SingleTextureViewer(wxWindow* parent, Renderer::RenderResources& renderResources) :
-        wxGLCanvas(parent, wxID_ANY, renderResources.attribs(), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN),
-        m_textureRendererManager(renderResources.textureRendererManager()),
+        SingleTextureViewer::SingleTextureViewer(wxWindow* parent, Renderer::SharedResources& sharedResources) :
+        wxGLCanvas(parent, wxID_ANY, sharedResources.attribs(), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN),
+        m_textureRendererManager(sharedResources.textureRendererManager()),
         m_glContext(NULL),
         m_texture(NULL) {
-            m_glContext = new wxGLContext(this, renderResources.sharedContext());
+            m_glContext = new wxGLContext(this, sharedResources.sharedContext());
         }
 
         SingleTextureViewer::~SingleTextureViewer() {

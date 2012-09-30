@@ -145,7 +145,8 @@ namespace TrenchBroom {
                         inspector().faceInspector().updateTextureBrowser();
                         inspector().faceInspector().updateSelectedTexture();
                         inspector().faceInspector().updateTextureCollectionList();
-                        inspector().entityInspector().update();
+                        inspector().entityInspector().updateProperties();
+                        inspector().entityInspector().updateEntityBrowser();
                         break;
                     case Controller::Command::ClearMap:
                         m_renderer->clearMap();
@@ -153,14 +154,15 @@ namespace TrenchBroom {
                         inspector().faceInspector().updateTextureBrowser();
                         inspector().faceInspector().updateSelectedTexture();
                         inspector().faceInspector().updateTextureCollectionList();
-                        inspector().entityInspector().update();
+                        inspector().entityInspector().updateProperties();
+                        inspector().entityInspector().updateEntityBrowser();
                         break;
                     case Controller::Command::ChangeEditState: {
                         Controller::ChangeEditStateCommand* changeEditStateCommand = static_cast<Controller::ChangeEditStateCommand*>(command);
                         m_renderer->changeEditState(changeEditStateCommand->changeSet());
                         inspector().faceInspector().updateFaceAttributes();
                         inspector().faceInspector().updateSelectedTexture();
-                        inspector().entityInspector().update();
+                        inspector().entityInspector().updateProperties();
                         break;
                     }
                     case Controller::Command::InvalidateRendererEntityState:
@@ -196,7 +198,7 @@ namespace TrenchBroom {
                         m_renderer->invalidateEntities();
                         if (entityPropertyCommand->definitionChanged())
                             m_renderer->invalidateEntityRendererCache();
-                        inspector().entityInspector().update();
+                        inspector().entityInspector().updateProperties();
                         break;
                     }
                     default:

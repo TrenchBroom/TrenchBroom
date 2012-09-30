@@ -22,7 +22,7 @@
 #include "IO/FileManager.h"
 #include "Model/MapDocument.h"
 #include "Renderer/PushMatrix.h"
-#include "Renderer/RenderResources.h"
+#include "Renderer/SharedResources.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/TextureRenderer.h"
 #include "Renderer/TextureRendererManager.h"
@@ -60,13 +60,13 @@ namespace TrenchBroom {
             
             m_textureVertexShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "TextureBrowser.vertsh"), GL_VERTEX_SHADER, console));
             m_textureFragmentShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "TextureBrowser.fragsh"), GL_FRAGMENT_SHADER, console));
-            m_textureShaderProgram = Renderer::ShaderProgramPtr(new Renderer::ShaderProgram("texture browser shader program", console));
+            m_textureShaderProgram = Renderer::ShaderProgramPtr(new Renderer::ShaderProgram("texture browser texture shader program", console));
             m_textureShaderProgram->attachShader(*m_textureVertexShader.get());
             m_textureShaderProgram->attachShader(*m_textureFragmentShader.get());
             
             m_textVertexShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "Text.vertsh"), GL_VERTEX_SHADER, console));
             m_textFragmentShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "Text.fragsh"), GL_FRAGMENT_SHADER, console));
-            m_textShaderProgram = Renderer::ShaderProgramPtr(new Renderer::ShaderProgram("text shader program", console));
+            m_textShaderProgram = Renderer::ShaderProgramPtr(new Renderer::ShaderProgram("texture browser text shader program", console));
             m_textShaderProgram->attachShader(*m_textVertexShader.get());
             m_textShaderProgram->attachShader(*m_textFragmentShader.get());
             
@@ -78,6 +78,7 @@ namespace TrenchBroom {
                 Renderer::Text::FontDescriptor actualFont(font);
                 Vec2f actualSize;
                 
+                Renderer::Text::StringManager& stringManager = m_documentViewHolder.document().sharedResources().stringManager();
                 Renderer::Text::StringRendererPtr stringRenderer(NULL);
                 StringRendererCache::iterator it = m_stringRendererCache.find(texture);
                 if (it != m_stringRendererCache.end()) {
@@ -86,14 +87,14 @@ namespace TrenchBroom {
                 } else {
                     float cellSize = layout.fixedCellSize();
                     if  (cellSize > 0.0f)
-                        actualSize = m_stringManager.selectFontSize(font, texture->name(), Vec2f(cellSize, static_cast<float>(font.size())), 5, actualFont);
+                        actualSize = stringManager.selectFontSize(font, texture->name(), Vec2f(cellSize, static_cast<float>(font.size())), 5, actualFont);
                     else
-                        actualSize = m_stringManager.measureString(font, texture->name());
-                    stringRenderer = m_stringManager.stringRenderer(actualFont, texture->name());
-                    m_stringRendererCache.insert(std::pair<Model::Texture*, Renderer::Text::StringRendererPtr>(texture, stringRenderer));
+                        actualSize = stringManager.measureString(font, texture->name());
+                    stringRenderer = stringManager.stringRenderer(actualFont, texture->name());
+                    m_stringRendererCache.insert(StringRendererCacheEntry(texture, stringRenderer));
                 }
                 
-                Renderer::TextureRendererManager& textureRendererManager = m_documentViewHolder.document().renderResources().textureRendererManager();
+                Renderer::TextureRendererManager& textureRendererManager = m_documentViewHolder.document().sharedResources().textureRendererManager();
                 Renderer::TextureRenderer& textureRenderer = textureRendererManager.renderer(texture);
                 layout.addItem(TextureCellData(texture, &textureRenderer, stringRenderer), texture->width(), texture->height(), actualSize.x, font.size() + 2.0f);
             }
@@ -110,6 +111,8 @@ namespace TrenchBroom {
         void TextureBrowserCanvas::doReloadLayout(Layout& layout) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             Model::TextureManager& textureManager = m_documentViewHolder.document().textureManager();
+            Renderer::Text::StringManager& stringManager = m_documentViewHolder.document().sharedResources().stringManager();
+
             String fontName = prefs.getString(Preferences::RendererFontName);
             int fontSize = prefs.getInt(Preferences::RendererFontSize);
             Renderer::Text::FontDescriptor font(fontName, fontSize);
@@ -121,7 +124,7 @@ namespace TrenchBroom {
                     Model::TextureCollection* collection = collections[i];
                     if (m_group) {
                         String name = fileManager.pathComponents(collection->name()).back();
-                        layout.addGroup(TextureGroupData(collection, m_stringManager.stringRenderer(font, name)), fontSize + 2.0f);
+                        layout.addGroup(TextureGroupData(collection, stringManager.stringRenderer(font, name)), fontSize + 2.0f);
                     }
                     
                     Model::TextureList textures = collection->textures(m_sortOrder);
@@ -135,11 +138,25 @@ namespace TrenchBroom {
             }
         }
         
-        void TextureBrowserCanvas::doRender(Layout& layout, Renderer::Transformation& transformation, float y, float height) {
+        void TextureBrowserCanvas::doRender(Layout& layout, float y, float height) {
             if (!m_shadersCreated)
                 createShaders();
 
+            float viewLeft      = static_cast<float>(GetClientRect().GetLeft());
+            float viewTop       = static_cast<float>(GetClientRect().GetBottom());
+            float viewRight     = static_cast<float>(GetClientRect().GetRight());
+            float viewBottom    = static_cast<float>(GetClientRect().GetTop());
+            
+            Mat4f projection;
+            projection.setOrtho(-1.0f, 1.0f, viewLeft, viewTop, viewRight, viewBottom);
+            
+            Mat4f view;
+            view.setView(Vec3f::NegZ, Vec3f::PosY);
+            view.translate(Vec3f(0.0f, 0.0f, 0.1f));
+            Renderer::Transformation transformation(projection * view, true);
+
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            Renderer::Text::StringManager& stringManager = m_documentViewHolder.document().sharedResources().stringManager();
 
             // render borders
             m_textureBorderShaderProgram->activate();
@@ -213,7 +230,7 @@ namespace TrenchBroom {
 
             // render texture captions
             m_textShaderProgram->activate();
-            m_stringManager.activate();
+            stringManager.activate();
             for (unsigned int i = 0; i < layout.size(); i++) {
                 const Layout::Group& group = layout[i];
                 if (group.intersectsY(y, height)) {
@@ -244,7 +261,7 @@ namespace TrenchBroom {
                     }
                 }
             }
-            m_stringManager.deactivate();
+            stringManager.deactivate();
             m_textShaderProgram->deactivate();
             
             // render group title background
@@ -268,7 +285,7 @@ namespace TrenchBroom {
             
             // render group captions
             m_textShaderProgram->activate();
-            m_stringManager.activate();
+            stringManager.activate();
             for (unsigned int i = 0; i < layout.size(); i++) {
                 const Layout::Group& group = layout[i];
                 if (group.intersectsY(y, height)) {
@@ -285,7 +302,7 @@ namespace TrenchBroom {
                     }
                 }
             }
-            m_stringManager.deactivate();
+            stringManager.deactivate();
             m_textShaderProgram->deactivate();
             
         }
@@ -308,10 +325,9 @@ namespace TrenchBroom {
         }
 
         TextureBrowserCanvas::TextureBrowserCanvas(wxWindow* parent, wxWindowID windowId, wxScrollBar* scrollBar, DocumentViewHolder& documentViewHolder) :
-        CellLayoutGLCanvas(parent, windowId, documentViewHolder.document().renderResources().attribs(), documentViewHolder.document().renderResources().sharedContext(), scrollBar),
+        CellLayoutGLCanvas(parent, windowId, documentViewHolder.document().sharedResources().attribs(), documentViewHolder.document().sharedResources().sharedContext(), scrollBar),
         m_documentViewHolder(documentViewHolder),
         m_selectedTexture(NULL),
-        m_stringManager(m_documentViewHolder.view().console()),
         m_group(false),
         m_hideUnused(false),
         m_sortOrder(Model::TextureSortOrder::Name),

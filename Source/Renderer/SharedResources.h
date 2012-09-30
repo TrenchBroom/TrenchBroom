@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RenderResources__
-#define __TrenchBroom__RenderResources__
+#ifndef __TrenchBroom__SharedResources__
+#define __TrenchBroom__SharedResources__
 
 #include "Utility/String.h"
 
@@ -47,7 +47,7 @@ namespace TrenchBroom {
         class Palette;
         class TextureRendererManager;
         
-        class RenderResources : public wxFrame {
+        class SharedResources : public wxFrame {
         protected:
             Palette* m_palette;
             EntityRendererManager* m_entityRendererManager;
@@ -57,9 +57,11 @@ namespace TrenchBroom {
             int* m_attribs;
             wxGLContext* m_sharedContext;
             wxGLCanvas* m_glCanvas;
+            
+            unsigned int m_retainCount;
         public:
-            RenderResources(Model::TextureManager& textureManager, Utility::Console& console);
-            ~RenderResources();
+            SharedResources(Model::TextureManager& textureManager, Utility::Console& console);
+            ~SharedResources();
             
             inline const Palette& palette() const {
                 assert(m_palette != NULL);
@@ -91,4 +93,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__RenderResources__) */
+#endif /* defined(__TrenchBroom__SharedResources__) */

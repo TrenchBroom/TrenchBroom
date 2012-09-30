@@ -33,7 +33,7 @@
 #include "Renderer/EntityRendererManager.h"
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/RenderContext.h"
-#include "Renderer/RenderResources.h"
+#include "Renderer/SharedResources.h"
 #include "Renderer/TextureRenderer.h"
 #include "Renderer/TextureRendererManager.h"
 #include "Renderer/Shader/Shader.h"
@@ -58,7 +58,7 @@ namespace TrenchBroom {
                 return;
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            TextureRendererManager& textureRendererManager = m_document.renderResources().textureRendererManager();
+            TextureRendererManager& textureRendererManager = m_document.sharedResources().textureRendererManager();
             const Color& faceColor = prefs.getColor(Preferences::FaceColor);
 
             FaceCollectionMap::const_iterator it, end;
@@ -387,7 +387,7 @@ namespace TrenchBroom {
         }
         
         bool MapRenderer::reloadEntityModel(const Model::Entity& entity, CachedEntityRenderer& cachedRenderer) {
-            EntityRendererManager& entityRendererManager = m_document.renderResources().entityRendererManager();
+            EntityRendererManager& entityRendererManager = m_document.sharedResources().entityRendererManager();
             EntityRenderer* renderer = entityRendererManager.entityRenderer(entity, m_document.mods());
             if (renderer != NULL) {
                 cachedRenderer = CachedEntityRenderer(renderer, *entity.classname());
@@ -411,7 +411,7 @@ namespace TrenchBroom {
             m_entityRenderers.clear();
             m_selectedEntityRenderers.clear();
             
-            EntityRendererManager& entityRendererManager = m_document.renderResources().entityRendererManager();
+            EntityRendererManager& entityRendererManager = m_document.sharedResources().entityRendererManager();
             const Model::EntityList& entities = m_document.map().entities();
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
@@ -617,7 +617,7 @@ namespace TrenchBroom {
                 return;
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            EntityRendererManager& entityRendererManager = m_document.renderResources().entityRendererManager();
+            EntityRendererManager& entityRendererManager = m_document.sharedResources().entityRendererManager();
 
             if (m_entityModelProgram->activate()) {
                 EntityRenderers::iterator it, end;
@@ -707,7 +707,7 @@ namespace TrenchBroom {
             float infoOverlayFadeDistance = prefs.getFloat(Preferences::InfoOverlayFadeDistance);
             float selectedInfoOverlayFadeDistance = prefs.getFloat(Preferences::SelectedInfoOverlayFadeDistance);
 
-            Text::StringManager& stringManager = m_document.renderResources().stringManager();
+            Text::StringManager& stringManager = m_document.sharedResources().stringManager();
             m_classnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(stringManager, infoOverlayFadeDistance));
             m_selectedClassnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(stringManager, selectedInfoOverlayFadeDistance));
             m_lockedClassnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(stringManager, infoOverlayFadeDistance));
@@ -718,7 +718,7 @@ namespace TrenchBroom {
 
         void MapRenderer::addEntities(const Model::EntityList& entities) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            EntityRendererManager& entityRendererManager = m_document.renderResources().entityRendererManager();
+            EntityRendererManager& entityRendererManager = m_document.sharedResources().entityRendererManager();
 
             const String& fontName = prefs.getString(Preferences::RendererFontName);
             int fontSize = prefs.getInt(Preferences::RendererFontSize);

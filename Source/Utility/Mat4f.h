@@ -476,31 +476,56 @@ namespace TrenchBroom {
                 return result;
             }
 
-            inline void translate(const Vec3f& delta) {
+            inline void translate(float x, float y, float z) {
                 Mat4f translation = Mat4f::Identity;
-                translation[12] += delta.x;
-                translation[13] += delta.y;
-                translation[14] += delta.z;
+                translation[12] += x;
+                translation[13] += y;
+                translation[14] += z;
                 *this *= translation;
             }
             
-            inline const Mat4f translated(const Vec3f& delta) const {
+            inline Mat4f translated(float x, float y, float z) const {
                 Mat4f result = *this;
-                result.translate(delta);
+                result.translate(x, y, z);
                 return result;
             }
+            
+            inline void translate(const Vec3f& delta) {
+                translate(delta.x, delta.y, delta.z);
+            }
+            
+            inline const Mat4f translated(const Vec3f& delta) const {
+                return translated(delta.x, delta.y, delta.z);
+            }
 
-            void scale(const Vec3f& factors) {
+            void scale(float x, float y, float z) {
                 Mat4f scaling = Mat4f::Identity;
-                for (unsigned int i = 0; i < 3; i++)
-                    scaling.v[i * 4 + i] *= factors[i];
+                scaling.v[ 0] *= x;
+                scaling.v[ 5] *= y;
+                scaling.v[10] *= z;
                 *this *= scaling;
             }
             
-            const Mat4f scaled(const Vec3f& factors) const {
+            const Mat4f scaled(float x, float y, float z) const {
                 Mat4f result = *this;
-                result.scale(factors);
+                result.scale(x, y, z);
                 return result;
+            }
+            
+            inline void scale(float f) {
+                scale(f, f, f);
+            }
+            
+            inline const Mat4f scaled(float f) const {
+                return scaled(f, f, f);
+            }
+            
+            inline void scale(const Vec3f& factors) {
+                scale(factors.x, factors.y, factors.z);
+            }
+            
+            inline const Mat4f scaled(const Vec3f& factors) const {
+                return scaled(factors.x, factors.y, factors.z);
             }
         };
         

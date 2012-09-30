@@ -97,6 +97,25 @@ namespace TrenchBroom {
             return result;
         }
         
+        inline String capitalize(String str) {
+            StringStream buffer;
+            bool initial = true;
+            for (unsigned int i = 0; i < str.size(); i++) {
+                char c = str[i];
+                if (c == ' ' || c == '\n' || c == '\t' || c == '\r') {
+                    initial = true;
+                    buffer << c;
+                } else if (initial) {
+                    buffer << toupper(c);
+                    initial = false;
+                } else {
+                    buffer << c;
+                    initial = false;
+                }
+            }
+            return buffer.str();
+        }
+        
         inline bool caseInsensitiveCharEqual(char c1, char c2) {
             return std::toupper(c1, std::locale::classic()) == std::toupper(c2, std::locale::classic());
         }

@@ -38,7 +38,7 @@
 #include "Model/Face.h"
 #include "Model/MapDocument.h"
 #include "Model/Texture.h"
-#include "Renderer/RenderResources.h"
+#include "Renderer/SharedResources.h"
 #include "View/CommandIds.h"
 #include "View/DocumentViewHolder.h"
 #include "View/EditorView.h"
@@ -78,7 +78,7 @@ namespace TrenchBroom {
         wxWindow* FaceInspector::createFaceEditor() {
             wxPanel* faceEditorPanel = new wxPanel(this);
             
-            m_textureViewer = new SingleTextureViewer(faceEditorPanel, m_documentViewHolder.document().renderResources());
+            m_textureViewer = new SingleTextureViewer(faceEditorPanel, m_documentViewHolder.document().sharedResources());
             m_textureNameLabel = new wxStaticText(faceEditorPanel, wxID_ANY, wxT("none"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER);
             
             wxSizer* textureViewerSizer = new wxBoxSizer(wxVERTICAL);

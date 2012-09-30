@@ -5,3 +5,16 @@
 #ifdef __OBJC__
     #import <Cocoa/Cocoa.h>
 #endif
+
+#ifdef __cplusplus
+
+#include "Utility/Math.h"
+#include "Utility/String.h"
+
+#include <wx/wx.h>
+
+#include <map>
+#include <string>
+#include <vector>
+
+#endif

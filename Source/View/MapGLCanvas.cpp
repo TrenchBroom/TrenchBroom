@@ -25,7 +25,7 @@
 #include "Renderer/Camera.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderContext.h"
-#include "Renderer/RenderResources.h"
+#include "Renderer/SharedResources.h"
 #include "Model/Filter.h"
 #include "Utility/Console.h"
 #include "Utility/Preferences.h"
@@ -82,9 +82,9 @@ namespace TrenchBroom {
         }
 
         MapGLCanvas::MapGLCanvas(wxWindow* parent, DocumentViewHolder& documentViewHolder) :
-        wxGLCanvas(parent, wxID_ANY, documentViewHolder.document().renderResources().attribs()),
+        wxGLCanvas(parent, wxID_ANY, documentViewHolder.document().sharedResources().attribs()),
         m_documentViewHolder(documentViewHolder),
-        m_glContext(new wxGLContext(this, documentViewHolder.document().renderResources().sharedContext())),
+        m_glContext(new wxGLContext(this, documentViewHolder.document().sharedResources().sharedContext())),
         m_inputController(new Controller::InputController(documentViewHolder)){
         }
 

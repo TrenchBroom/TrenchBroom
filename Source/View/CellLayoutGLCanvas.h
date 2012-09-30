@@ -72,7 +72,7 @@ namespace TrenchBroom {
         protected:
             virtual void doInitLayout(Layout& layout) = 0;
             virtual void doReloadLayout(Layout& layout) = 0;
-            virtual void doRender(Layout& layout, Renderer::Transformation& transformation, float y, float height) = 0;
+            virtual void doRender(Layout& layout, float y, float height) = 0;
             virtual void handleLeftClick(Layout& layout, float x, float y) {}
         public:
             CellLayoutGLCanvas(wxWindow* parent, wxWindowID windowId, const int* attribs, wxGLContext* sharedContext, wxScrollBar* scrollBar = NULL) :
@@ -145,18 +145,9 @@ namespace TrenchBroom {
                     float viewTop       = static_cast<float>(GetClientRect().GetBottom());
                     float viewRight     = static_cast<float>(GetClientRect().GetRight());
                     float viewBottom    = static_cast<float>(GetClientRect().GetTop());
-                    
-                    Mat4f projection;
-                    projection.setOrtho(-1.0f, 1.0f, viewLeft, viewTop, viewRight, viewBottom);
-                    
-                    Mat4f view;
-                    view.setView(Vec3f::NegZ, Vec3f::PosY);
-                    view.translate(Vec3f(0.0f, 0.0f, 0.1f));
-                    
                     glViewport(viewLeft, viewBottom, viewRight - viewLeft, viewTop - viewBottom);
-                    Renderer::Transformation transformation(projection * view, true);
 
-                    doRender(m_layout, transformation, y, height);
+                    doRender(m_layout, y, height);
                     
                     SwapBuffers();
                 }

@@ -33,7 +33,7 @@
 #include "Model/Octree.h"
 #include "Model/Picker.h"
 #include "Model/TextureManager.h"
-#include "Renderer/RenderResources.h"
+#include "Renderer/SharedResources.h"
 #include "Utility/Console.h"
 #include "Utility/Grid.h"
 #include "Utility/VecMath.h"
@@ -95,7 +95,7 @@ namespace TrenchBroom {
             IO::FileManager fileManager;
             String resourcePath = fileManager.resourceDirectory();
             String palettePath = fileManager.appendPath(resourcePath, "QuakePalette.lmp");
-            m_renderResources->loadPalette(palettePath);
+            m_sharedResources->loadPalette(palettePath);
         }
         
         void MapDocument::loadMap(std::istream& stream, Utility::ProgressIndicator& progressIndicator) {
@@ -154,7 +154,7 @@ namespace TrenchBroom {
         
         MapDocument::MapDocument() :
         m_console(NULL),
-        m_renderResources(NULL),
+        m_sharedResources(NULL),
         m_map(NULL),
         m_editStateManager(NULL),
         m_octree(NULL),
@@ -201,9 +201,9 @@ namespace TrenchBroom {
                 m_grid = NULL;
             }
             
-            if (m_renderResources != NULL) {
-                delete m_renderResources;
-                m_renderResources = NULL;
+            if (m_sharedResources != NULL) {
+                m_sharedResources->Destroy(); // makes sure that the resources are deleted after the last frame
+                m_sharedResources = NULL;
             }
             
             if (m_console != NULL) {
@@ -216,8 +216,8 @@ namespace TrenchBroom {
             return *m_console;
         }
         
-        Renderer::RenderResources& MapDocument::renderResources() const {
-            return *m_renderResources;
+        Renderer::SharedResources& MapDocument::sharedResources() const {
+            return *m_sharedResources;
         }
 
         Map& MapDocument::map() const {
@@ -320,7 +320,7 @@ namespace TrenchBroom {
 
             m_console = new Utility::Console();
             m_textureManager = new TextureManager();
-            m_renderResources = new Renderer::RenderResources(*m_textureManager, *m_console);
+            m_sharedResources = new Renderer::SharedResources(*m_textureManager, *m_console);
             m_map = new Model::Map(worldBounds);
             m_editStateManager = new Model::EditStateManager();
             m_octree = new Octree(*m_map);

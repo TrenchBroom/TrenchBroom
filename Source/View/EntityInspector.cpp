@@ -23,6 +23,7 @@
 #include "Model/MapDocument.h"
 #include "View/CommandIds.h"
 #include "View/DocumentViewHolder.h"
+#include "View/EntityBrowser.h"
 #include "View/LayoutConstants.h"
 
 #include <wx/button.h>
@@ -68,7 +69,8 @@ namespace TrenchBroom {
         }
         
         wxWindow* EntityInspector::createEntityBrowser(wxWindow* parent) {
-            return new wxPanel(parent);
+            m_entityBrowser = new EntityBrowser(parent, CommandIds::EntityInspector::EntityBrowserId, m_documentViewHolder);
+            return m_entityBrowser;
         }
 
         EntityInspector::EntityInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder) :
@@ -87,8 +89,12 @@ namespace TrenchBroom {
             SetSizerAndFit(outerSizer);
         }
 
-        void EntityInspector::update() {
+        void EntityInspector::updateProperties() {
             m_propertyViewModel->update();
+        }
+        
+        void EntityInspector::updateEntityBrowser() {
+            m_entityBrowser->reload();
         }
 
         void EntityInspector::OnAddPropertyPressed(wxCommandEvent& event) {

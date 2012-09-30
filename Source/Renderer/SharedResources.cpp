@@ -17,7 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "RenderResources.h"
+#include "SharedResources.h"
 
 #include "GL/Capabilities.h"
 #include "Renderer/EntityRendererManager.h"
@@ -32,7 +32,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        RenderResources::RenderResources(Model::TextureManager& textureManager, Utility::Console& console) :
+        SharedResources::SharedResources(Model::TextureManager& textureManager, Utility::Console& console) :
         wxFrame(NULL, wxID_ANY, wxT("TrenchBroom Render Resources")),
         m_palette(NULL),
         m_entityRendererManager(NULL),
@@ -89,7 +89,7 @@ namespace TrenchBroom {
             m_entityRendererManager->setQuakePath(quakePath);
         }
         
-        RenderResources::~RenderResources() {
+        SharedResources::~SharedResources() {
             if (m_sharedContext != NULL && m_glCanvas != NULL)
                 m_sharedContext->SetCurrent(*m_glCanvas);
             
@@ -111,7 +111,7 @@ namespace TrenchBroom {
             }
         }
         
-        void RenderResources::loadPalette(const String& palettePath) {
+        void SharedResources::loadPalette(const String& palettePath) {
             if (m_palette != NULL)
                 delete m_palette;
             m_palette = new Palette(palettePath);

@@ -26,7 +26,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class RenderResources;
+        class SharedResources;
     }
     
     namespace Utility {
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             DECLARE_DYNAMIC_CLASS(MapDocument)
         protected:
             Utility::Console* m_console;
-            Renderer::RenderResources* m_renderResources;
+            Renderer::SharedResources* m_sharedResources;
             Map* m_map;
             EditStateManager* m_editStateManager;
             Octree* m_octree;
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             std::ostream& SaveObject(std::ostream& stream);
             
             Utility::Console& console() const;
-            Renderer::RenderResources& renderResources() const;
+            Renderer::SharedResources& sharedResources() const;
             Map& map() const;
             EntityDefinitionManager& definitionManager() const;
             EditStateManager& editStateManager() const;

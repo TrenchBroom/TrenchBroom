@@ -34,6 +34,7 @@ class wxWindow;
 namespace TrenchBroom {
     namespace View {
         class DocumentViewHolder;
+        class EntityBrowser;
         
         class EntityInspector : public wxPanel {
         protected:
@@ -46,12 +47,15 @@ namespace TrenchBroom {
             wxButton* m_addPropertyButton;
             wxButton* m_removePropertiesButton;
             
+            EntityBrowser* m_entityBrowser;
+            
             wxWindow* createPropertyEditor(wxWindow* parent);
             wxWindow* createEntityBrowser(wxWindow* parent);
         public:
             EntityInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder);
             
-            void update();
+            void updateProperties();
+            void updateEntityBrowser();
 
             void OnAddPropertyPressed(wxCommandEvent& event);
             void OnRemovePropertiesPressed(wxCommandEvent& event);

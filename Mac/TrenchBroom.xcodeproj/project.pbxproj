@@ -69,8 +69,10 @@
 		48B059C3161785D300E6B0AD /* TextureRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B059C1161785D300E6B0AD /* TextureRenderer.cpp */; };
 		48B059C71617866100E6B0AD /* Palette.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B059C51617866100E6B0AD /* Palette.cpp */; };
 		48B059CA1617886800E6B0AD /* TextureRendererManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B059C81617886800E6B0AD /* TextureRendererManager.cpp */; };
-		48B059CE161799FC00E6B0AD /* RenderResources.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B059CC161799FC00E6B0AD /* RenderResources.cpp */; };
+		48B059CE161799FC00E6B0AD /* SharedResources.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B059CC161799FC00E6B0AD /* SharedResources.cpp */; };
 		48B059D11618859A00E6B0AD /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B059D01618859A00E6B0AD /* Texture.cpp */; };
+		48B059D416189A7600E6B0AD /* EntityBrowserCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B059D216189A7500E6B0AD /* EntityBrowserCanvas.cpp */; };
+		48B059D71618AB2500E6B0AD /* EntityBrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B059D51618AB2400E6B0AD /* EntityBrowser.cpp */; };
 		48B75F72160BA512009D4E99 /* TextureBrowser.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48B75F71160BA512009D4E99 /* TextureBrowser.vertsh */; };
 		48B75F75160BA531009D4E99 /* TextureBrowser.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48B75F74160BA531009D4E99 /* TextureBrowser.fragsh */; };
 		48B75F79160CF79F009D4E99 /* TextureBrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B75F77160CF79E009D4E99 /* TextureBrowser.cpp */; };
@@ -269,10 +271,14 @@
 		48B059C61617866100E6B0AD /* Palette.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Palette.h; sourceTree = "<group>"; };
 		48B059C81617886800E6B0AD /* TextureRendererManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureRendererManager.cpp; sourceTree = "<group>"; };
 		48B059CB16178CBC00E6B0AD /* TextureRendererManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextureRendererManager.h; sourceTree = "<group>"; };
-		48B059CC161799FC00E6B0AD /* RenderResources.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderResources.cpp; sourceTree = "<group>"; };
-		48B059CD161799FC00E6B0AD /* RenderResources.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderResources.h; sourceTree = "<group>"; };
+		48B059CC161799FC00E6B0AD /* SharedResources.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SharedResources.cpp; sourceTree = "<group>"; };
+		48B059CD161799FC00E6B0AD /* SharedResources.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SharedResources.h; sourceTree = "<group>"; };
 		48B059CF16179BCA00E6B0AD /* TextureRendererTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextureRendererTypes.h; sourceTree = "<group>"; };
 		48B059D01618859A00E6B0AD /* Texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Texture.cpp; sourceTree = "<group>"; };
+		48B059D216189A7500E6B0AD /* EntityBrowserCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityBrowserCanvas.cpp; sourceTree = "<group>"; };
+		48B059D316189A7600E6B0AD /* EntityBrowserCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityBrowserCanvas.h; sourceTree = "<group>"; };
+		48B059D51618AB2400E6B0AD /* EntityBrowser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityBrowser.cpp; sourceTree = "<group>"; };
+		48B059D61618AB2400E6B0AD /* EntityBrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityBrowser.h; sourceTree = "<group>"; };
 		48B75F71160BA512009D4E99 /* TextureBrowser.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = TextureBrowser.vertsh; sourceTree = "<group>"; };
 		48B75F74160BA531009D4E99 /* TextureBrowser.fragsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = TextureBrowser.fragsh; sourceTree = "<group>"; };
 		48B75F77160CF79E009D4E99 /* TextureBrowser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureBrowser.cpp; sourceTree = "<group>"; };
@@ -402,10 +408,10 @@
 				48EA119F15FA67F700391885 /* PushMatrix.h */,
 				48312B4015EB9EA900607868 /* RenderContext.cpp */,
 				48312B4115EB9EA900607868 /* RenderContext.h */,
-				48B059CC161799FC00E6B0AD /* RenderResources.cpp */,
-				48B059CD161799FC00E6B0AD /* RenderResources.h */,
 				48E2ECCE15FFD07100B8D476 /* RenderTypes.h */,
 				48312B4A15EBC35800607868 /* RenderUtils.h */,
+				48B059CC161799FC00E6B0AD /* SharedResources.cpp */,
+				48B059CD161799FC00E6B0AD /* SharedResources.h */,
 				48E2ECCF15FFDD0D00B8D476 /* TexturedPolygonSorter.h */,
 				48B059C1161785D300E6B0AD /* TextureRenderer.cpp */,
 				48B059C2161785D300E6B0AD /* TextureRenderer.h */,
@@ -559,6 +565,10 @@
 				48D1BEAD15E3AC060073C030 /* EditorView.h */,
 				48D1BEB215E4237A0073C030 /* EditorFrame.cpp */,
 				48D1BEB315E4237B0073C030 /* EditorFrame.h */,
+				48B059D51618AB2400E6B0AD /* EntityBrowser.cpp */,
+				48B059D61618AB2400E6B0AD /* EntityBrowser.h */,
+				48B059D216189A7500E6B0AD /* EntityBrowserCanvas.cpp */,
+				48B059D316189A7600E6B0AD /* EntityBrowserCanvas.h */,
 				4817C7F216123E0500A01A99 /* EntityInspector.cpp */,
 				4817C7F316123E0500A01A99 /* EntityInspector.h */,
 				48B059A21615A07200E6B0AD /* EntityPropertyDataViewModel.cpp */,
@@ -865,8 +875,10 @@
 				48B059C3161785D300E6B0AD /* TextureRenderer.cpp in Sources */,
 				48B059C71617866100E6B0AD /* Palette.cpp in Sources */,
 				48B059CA1617886800E6B0AD /* TextureRendererManager.cpp in Sources */,
-				48B059CE161799FC00E6B0AD /* RenderResources.cpp in Sources */,
+				48B059CE161799FC00E6B0AD /* SharedResources.cpp in Sources */,
 				48B059D11618859A00E6B0AD /* Texture.cpp in Sources */,
+				48B059D416189A7600E6B0AD /* EntityBrowserCanvas.cpp in Sources */,
+				48B059D71618AB2500E6B0AD /* EntityBrowser.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

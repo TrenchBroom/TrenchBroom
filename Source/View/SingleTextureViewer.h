@@ -31,7 +31,7 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
-        class RenderResources;
+        class SharedResources;
         class TextureRendererManager;
     }
     
@@ -42,7 +42,7 @@ namespace TrenchBroom {
             wxGLContext* m_glContext;
             Model::Texture* m_texture;
         public:
-            SingleTextureViewer(wxWindow* parent, Renderer::RenderResources& renderResources);
+            SingleTextureViewer(wxWindow* parent, Renderer::SharedResources& sharedResources);
             ~SingleTextureViewer();
  
             void setTexture(Model::Texture* texture);
