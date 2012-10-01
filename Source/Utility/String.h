@@ -106,7 +106,8 @@ namespace TrenchBroom {
                     initial = true;
                     buffer << c;
                 } else if (initial) {
-                    buffer << toupper(c);
+                    char d = toupper(c);
+                    buffer << d;
                     initial = false;
                 } else {
                     buffer << c;

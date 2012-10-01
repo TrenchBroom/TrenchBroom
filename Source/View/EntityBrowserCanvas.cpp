@@ -24,7 +24,9 @@
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/EntityRendererManager.h"
 #include "Renderer/PushMatrix.h"
+#include "Renderer/RenderUtils.h"
 #include "Renderer/SharedResources.h"
+#include "Renderer/VertexArray.h"
 #include "Renderer/Text/PathRenderer.h"
 #include "View/DocumentViewHolder.h"
 #include "View/EditorView.h"
@@ -73,12 +75,20 @@ namespace TrenchBroom {
                     stringRenderer = it->second;
                     actualSize = Vec2f(stringRenderer->width(), stringRenderer->height());
                 } else {
+                    String definitionName = definition->name();
+                    String shortName;
+                    size_t uscoreIndex = definitionName.find_first_of('_');
+                    if (uscoreIndex != String::npos)
+                        shortName = Utility::capitalize(definitionName.substr(uscoreIndex + 1));
+                    else
+                        shortName = definitionName;
+                    
                     float cellSize = layout.fixedCellSize();
                     if  (cellSize > 0.0f)
-                        actualSize = stringManager.selectFontSize(font, definition->name(), Vec2f(cellSize, static_cast<float>(font.size())), 5, actualFont);
+                        actualSize = stringManager.selectFontSize(font, shortName, Vec2f(cellSize, static_cast<float>(font.size())), 5, actualFont);
                     else
-                        actualSize = stringManager.measureString(font, definition->name());
-                    stringRenderer = stringManager.stringRenderer(actualFont, definition->name());
+                        actualSize = stringManager.measureString(font, shortName);
+                    stringRenderer = stringManager.stringRenderer(actualFont, shortName);
                     m_stringRendererCache.insert(StringRendererCacheEntry(definition, stringRenderer));
                 }
                 
@@ -86,13 +96,11 @@ namespace TrenchBroom {
                 const StringList& mods = m_documentViewHolder.document().mods();
                 Renderer::EntityRenderer* entityRenderer = entityRendererManager.entityRenderer(*definition, mods);
                 
-                BBox bounds = definition->bounds();
-                if (entityRenderer != NULL)
-                    bounds.mergeWith(entityRenderer->bounds());
+                BBox bounds = entityRenderer != NULL ? entityRenderer->bounds() : definition->bounds();
                 bounds = bounds.boundsAfterRotation(m_rotation);
                 Vec3f size = bounds.size();
                 
-                layout.addItem(EntityCellData(definition, entityRenderer, stringRenderer), size.y, size.z, actualSize.x, font.size() + 2.0f);
+                layout.addItem(EntityCellData(definition, entityRenderer, stringRenderer), size.x, size.z, actualSize.x, font.size() + 2.0f);
             }
         }
         
@@ -101,8 +109,8 @@ namespace TrenchBroom {
             layout.setGroupMargin(5.0f);
             layout.setRowMargin(5.0f);
             layout.setCellMargin(5.0f);
-            layout.setFixedCellSize(CRBoth, 128.0f);
-            layout.setScaleCellsUp(true);
+            layout.setFixedCellSize(CRBoth, 64.0f);
+            layout.setScaleCellsUp(true, 1.5f);
         }
         
         void EntityBrowserCanvas::doReloadLayout(Layout& layout) {
@@ -111,7 +119,7 @@ namespace TrenchBroom {
             Renderer::Text::StringManager& stringManager = m_documentViewHolder.document().sharedResources().stringManager();
             
             String fontName = prefs.getString(Preferences::RendererFontName);
-            int fontSize = prefs.getInt(Preferences::RendererFontSize);
+            int fontSize = prefs.getInt(Preferences::EntityBrowserFontSize);
             Renderer::Text::FontDescriptor font(fontName, fontSize);
             IO::FileManager fileManager;
             
@@ -163,13 +171,64 @@ namespace TrenchBroom {
             
             Mat4f view;
             view.setView(Vec3f::NegX, Vec3f::PosZ);
-            view.translate(Vec3f(-256.0f, 0.0f, 0.0f));
+            view.translate(Vec3f(256.0f, 0.0f, 0.0f));
             Renderer::Transformation transformation(projection * view, true);
 
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             Renderer::EntityRendererManager& entityRendererManager = m_documentViewHolder.document().sharedResources().entityRendererManager();
             Renderer::Text::StringManager& stringManager = m_documentViewHolder.document().sharedResources().stringManager();
 
+            // render bounds
+            m_boundsShaderProgram->activate();
+            for (unsigned int i = 0; i < layout.size(); i++) {
+                const Layout::Group& group = layout[i];
+                if (group.intersectsY(y, height)) {
+                    for (unsigned int j = 0; j < group.size(); j++) {
+                        const Layout::Group::Row& row = group[j];
+                        if (row.intersectsY(y, height)) {
+                            for (unsigned int k = 0; k < row.size(); k++) {
+                                const Layout::Group::Row::Cell& cell = row[k];
+                                Model::PointEntityDefinition* definition = cell.item().entityDefinition;
+                                Renderer::EntityRenderer* entityRenderer = cell.item().entityRenderer;
+                                if (entityRenderer != NULL)
+                                    continue;
+                                
+                                const BBox& bounds = definition->bounds();
+                                BBox rotBounds = bounds.boundsAfterRotation(m_rotation);
+                                
+                                Renderer::PushMatrix pushMatrix(transformation);
+                                Mat4f itemMatrix = pushMatrix.matrix();
+                                itemMatrix.translate(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y));
+                                itemMatrix.scale(cell.scale());
+                                itemMatrix.translate(0.0f, -rotBounds.min.y, -rotBounds.min.z);
+                                itemMatrix.translate(bounds.center());
+                                itemMatrix.rotate(m_rotation);
+                                itemMatrix.translate(-1.0f * bounds.center());
+                                pushMatrix.load(itemMatrix);
+
+                                Color entityColor;
+                                if (definition != NULL) {
+                                    entityColor = definition->color();
+                                    entityColor.w = prefs.getColor(Preferences::EntityBoundsColor).w;
+                                } else {
+                                    entityColor = prefs.getColor(Preferences::EntityBoundsColor);
+                                }
+                                m_boundsShaderProgram->setUniformVariable("Color", entityColor);
+                                
+                                Vec3f::List vertices;
+                                bounds.vertices(vertices);
+                                
+                                glBegin(GL_LINES);
+                                for (unsigned int i = 0; i < vertices.size(); i++)
+                                    Renderer::glVertexV3f(vertices[i]);
+                                glEnd();
+                            }
+                        }
+                    }
+                }
+            }
+            m_boundsShaderProgram->deactivate();
+            
             // render models
             entityRendererManager.activate();
             m_modelShaderProgram->activate();
@@ -183,24 +242,23 @@ namespace TrenchBroom {
                         if (row.intersectsY(y, height)) {
                             for (unsigned int k = 0; k < row.size(); k++) {
                                 const Layout::Group::Row::Cell& cell = row[k];
-                                Model::PointEntityDefinition* definition = cell.item().entityDefinition;
                                 Renderer::EntityRenderer* entityRenderer = cell.item().entityRenderer;
+                                if (entityRenderer == NULL)
+                                    continue;
                                 
-                                BBox bounds = definition->bounds();
-                                if (entityRenderer != NULL)
-                                    bounds.mergeWith(entityRenderer->bounds());
-                                bounds = bounds.boundsAfterRotation(m_rotation);
+                                BBox bounds = entityRenderer->bounds().boundsAfterRotation(m_rotation);
 
                                 Renderer::PushMatrix pushMatrix(transformation);
                                 Mat4f itemMatrix = pushMatrix.matrix();
-//                                itemMatrix.rotate(m_rotation);
-                                itemMatrix.translate(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().top() - y));
+                                itemMatrix.translate(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y));
                                 itemMatrix.scale(cell.scale());
                                 itemMatrix.translate(0.0f, -bounds.min.y, -bounds.min.z);
+                                itemMatrix.translate(bounds.center());
+                                itemMatrix.rotate(m_rotation);
+                                itemMatrix.translate(-1.0f * bounds.center());
                                 pushMatrix.load(itemMatrix);
                                 
-                                if (entityRenderer != NULL)
-                                    entityRenderer->render(*m_modelShaderProgram);
+                                entityRenderer->render(*m_modelShaderProgram);
                             }
                         }
                     }
@@ -208,6 +266,77 @@ namespace TrenchBroom {
             }
             m_modelShaderProgram->deactivate();
             entityRendererManager.deactivate();
+
+            glDisable(GL_DEPTH_TEST);
+            view.setView(Vec3f::NegZ, Vec3f::PosY);
+            view.translate(Vec3f(0.0f, 0.0f, -1.0f));
+            transformation = Renderer::Transformation(projection * view, true);
+
+            // render entity captions
+            m_textShaderProgram->activate();
+            stringManager.activate();
+            for (unsigned int i = 0; i < layout.size(); i++) {
+                const Layout::Group& group = layout[i];
+                if (group.intersectsY(y, height)) {
+                    for (unsigned int j = 0; j < group.size(); j++) {
+                        const Layout::Group::Row& row = group[j];
+                        if (row.intersectsY(y, height)) {
+                            for (unsigned int k = 0; k < row.size(); k++) {
+                                const Layout::Group::Row::Cell& cell = row[k];
+                                
+                                m_textShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::BrowserTextureColor));
+                                
+                                Renderer::PushMatrix matrix(transformation);
+                                Mat4f translate = matrix.matrix();
+                                translate.translate(cell.titleBounds().left(), height - (cell.titleBounds().top() - y) - cell.titleBounds().height() + 2.0f, 0.0f);
+                                matrix.load(translate);
+                                
+                                Renderer::Text::StringRendererPtr stringRenderer = cell.item().stringRenderer;
+                                stringRenderer->render();
+                            }
+                        }
+                    }
+                }
+            }
+            stringManager.deactivate();
+            
+            // render group title background
+            for (unsigned int i = 0; i < layout.size(); i++) {
+                const Layout::Group& group = layout[i];
+                if (group.intersectsY(y, height)) {
+                    if (!group.item().groupName.empty()) {
+                        m_textShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupBackgroundColor));
+                        LayoutBounds titleBounds = group.titleBoundsForVisibleRect(y, height);
+                        glBegin(GL_QUADS);
+                        glVertex2f(titleBounds.left(), height - (titleBounds.top() - y));
+                        glVertex2f(titleBounds.left(), height - (titleBounds.bottom() - y));
+                        glVertex2f(titleBounds.right(), height - (titleBounds.bottom() - y));
+                        glVertex2f(titleBounds.right(), height - (titleBounds.top() - y));
+                        glEnd();
+                    }
+                }
+            }
+            
+            // render group captions
+            stringManager.activate();
+            for (unsigned int i = 0; i < layout.size(); i++) {
+                const Layout::Group& group = layout[i];
+                if (group.intersectsY(y, height)) {
+                    if (!group.item().groupName.empty()) {
+                        LayoutBounds titleBounds = group.titleBoundsForVisibleRect(y, height);
+                        Renderer::PushMatrix matrix(transformation);
+                        Mat4f translate = matrix.matrix();
+                        translate.translate(Vec3f(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height() + 4.0f, 0.0f));
+                        matrix.load(translate);
+                        
+                        m_textShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupTextColor));
+                        Renderer::Text::StringRendererPtr stringRenderer = group.item().stringRenderer;
+                        stringRenderer->render();
+                    }
+                }
+            }
+            stringManager.deactivate();
+            m_textShaderProgram->deactivate();
         }
         
         void EntityBrowserCanvas::handleLeftClick(Layout& layout, float x, float y) {
@@ -220,7 +349,9 @@ namespace TrenchBroom {
         m_hideUnused(false),
         m_sortOrder(Model::EntityDefinitionManager::Name),
         m_shadersCreated(false) {
-            m_rotation = Quat(radians(115.0f), Vec3f::PosZ);
+            Quat hRotation = Quat(radians(-30.0f), Vec3f::PosZ);
+            Quat vRotation = Quat(radians(20.0f), Vec3f::PosY);
+            m_rotation = vRotation * hRotation;
         }
         
         EntityBrowserCanvas::~EntityBrowserCanvas() {

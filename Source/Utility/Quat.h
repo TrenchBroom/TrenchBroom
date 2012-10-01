@@ -35,6 +35,15 @@ namespace TrenchBroom {
                 setRotation(angle, axis);
             }
             
+            inline const Quat operator* (float right) const {
+                return Quat(s * right, v);
+            }
+            
+            inline Quat& operator*= (float right) {
+                s *= right;
+                return *this;
+            }
+            
             inline const Quat operator* (const Quat& right) const {
                 Quat result = *this;
                 return result *= right;
@@ -79,6 +88,10 @@ namespace TrenchBroom {
                 return result;
             }
         };
+
+        inline Quat operator*(float left, const Quat& right) {
+            return Quat(left * right.s, right.v);
+        }
     }
 }
 

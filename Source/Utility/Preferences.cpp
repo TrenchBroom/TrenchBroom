@@ -90,6 +90,8 @@ namespace TrenchBroom {
         const Preference<Color> OverriddenTextureColor = Preference<Color>(                     "Texture browser/Overridden texture color",                     Color(0.5f,  0.5f,  0.5f,  1.0f ));
         const Preference<Color> BrowserGroupBackgroundColor = Preference<Color>(                "Texture browser/Group background color",                       Color(0.5f,  0.5f,  0.5f,  1.0f ));
         const Preference<Color> BrowserGroupTextColor = Preference<Color>(                      "Texture browser/Group text color",                             Color(1.0f,  1.0f,  1.0f,  1.0f ));
+        const Preference<int>   TextureBrowserFontSize = Preference<int>(                       "Texture browser/Font size",                                    12);
+        const Preference<int>   EntityBrowserFontSize = Preference<int>(                        "Entity browser/Font size",                                     12);
 
 #if defined _WIN32
         const Preference<float> CameraMoveSpeed = Preference<float>(                            "Controls/Camera/Move speed",                                   0.3f);

@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <limits>
 #include <memory>
 #include <vector>
 
@@ -108,7 +109,7 @@ namespace TrenchBroom {
             LayoutBounds m_titleBounds;
             CellType m_item;
         public:
-            LayoutCell(CellType item, float x, float y, float itemWidth, float itemHeight, float titleWidth, float titleHeight, LayoutCellRestriction restriction, bool scaleUp, float fixedCellSize) :
+            LayoutCell(CellType item, float x, float y, float itemWidth, float itemHeight, float titleWidth, float titleHeight, LayoutCellRestriction restriction, bool scaleUp, float maxUpScale, float fixedCellSize) :
             m_item(item) {
                 float itemY = y;
                 
@@ -122,13 +123,13 @@ namespace TrenchBroom {
                     
                     if (restriction == CRWidth) {
                         if (scaleUp || itemWidth > fixedCellSize)
-                            m_scale = fixedCellSize / itemWidth;
+                            m_scale = (std::min)(maxUpScale, fixedCellSize / itemWidth);
                         clippedTitleWidth = (std::min)(fixedCellSize, titleWidth);
                         cellWidth = fixedCellSize;
                         cellHeight = m_scale * itemHeight;
                     } else if (restriction == CRHeight) {
                         if (scaleUp || itemHeight > fixedCellSize)
-                            m_scale = fixedCellSize / itemHeight;
+                            m_scale = (std::min)(maxUpScale, fixedCellSize / itemHeight);
                         else
                             itemY += fixedCellSize - itemHeight;
                         clippedTitleWidth = (std::min)(m_scale * itemWidth, titleWidth);
@@ -136,9 +137,9 @@ namespace TrenchBroom {
                         cellHeight = fixedCellSize;
                     } else {
                         if (itemWidth >= itemHeight && (scaleUp || itemWidth > fixedCellSize))
-                            m_scale = fixedCellSize / itemWidth;
+                            m_scale = (std::min)(maxUpScale, fixedCellSize / itemWidth);
                         else if (itemWidth <= itemHeight && (scaleUp || itemHeight > fixedCellSize))
-                            m_scale = fixedCellSize / itemHeight;
+                            m_scale = (std::min)(maxUpScale, fixedCellSize / itemHeight);
                         itemY += fixedCellSize - (m_scale * itemHeight);
                         clippedTitleWidth = (std::min)(fixedCellSize, titleWidth);
                         cellWidth = fixedCellSize;
@@ -206,6 +207,7 @@ namespace TrenchBroom {
             float m_maxWidth;
             LayoutCellRestriction m_cellRestriction;
             bool m_scaleCellsUp;
+            float m_maxUpScale;
             float m_fixedCellSize;
             float m_cellMargin;
             LayoutBounds m_bounds;
@@ -215,12 +217,13 @@ namespace TrenchBroom {
                     m_cells[i].alignItemToBottom(m_bounds.height());
             }
         public:
-            LayoutRow(float x, float y, float cellMargin, float maxWidth, unsigned int maxCells, LayoutCellRestriction cellRestriction, bool scaleCellsUp, float fixedCellSize) :
+            LayoutRow(float x, float y, float cellMargin, float maxWidth, unsigned int maxCells, LayoutCellRestriction cellRestriction, bool scaleCellsUp, float maxUpScale, float fixedCellSize) :
             m_cellMargin(cellMargin),
             m_maxWidth(maxWidth),
             m_maxCells(maxCells),
             m_cellRestriction(cellRestriction),
             m_scaleCellsUp(scaleCellsUp),
+            m_maxUpScale(maxUpScale),
             m_fixedCellSize(fixedCellSize),
             m_bounds(x, y, 0.0f, 0.0f) {}
             
@@ -237,7 +240,7 @@ namespace TrenchBroom {
                     width += m_cellMargin;
                 }
                 
-                Cell cell(item, x, m_bounds.top(), itemWidth, itemHeight, titleWidth, titleHeight, m_cellRestriction, m_scaleCellsUp, m_fixedCellSize);
+                Cell cell(item, x, m_bounds.top(), itemWidth, itemHeight, titleWidth, titleHeight, m_cellRestriction, m_scaleCellsUp, m_maxUpScale, m_fixedCellSize);
                 width += cell.cellBounds().width();
                 
                 if (m_maxCells == 0 && width > m_maxWidth && !m_cells.empty())
@@ -302,6 +305,7 @@ namespace TrenchBroom {
             unsigned int m_maxCellsPerRow;
             LayoutCellRestriction m_cellRestriction;
             bool m_scaleCellsUp;
+            float m_maxUpScale;
             float m_fixedCellSize;
             float m_maxWidth;
             float m_cellMargin;
@@ -313,23 +317,25 @@ namespace TrenchBroom {
                 return m_rows[index];
             }
             
-            LayoutGroup(GroupType item, float x, float y, float cellMargin, float rowMargin, float titleHeight, float width, int maxCellsPerRow, LayoutCellRestriction cellRestriction, bool scaleCellsUp, float fixedCellSize) :
+            LayoutGroup(GroupType item, float x, float y, float cellMargin, float rowMargin, float titleHeight, float width, int maxCellsPerRow, LayoutCellRestriction cellRestriction, bool scaleCellsUp, float maxUpScale, float fixedCellSize) :
             m_item(item),
             m_cellMargin(cellMargin),
             m_rowMargin(rowMargin),
             m_maxCellsPerRow(maxCellsPerRow),
             m_cellRestriction(cellRestriction),
             m_scaleCellsUp(scaleCellsUp),
+            m_maxUpScale(maxUpScale),
             m_fixedCellSize(fixedCellSize),
             m_titleBounds(0.0f, y, width + 2.0f * x, titleHeight),
             m_contentBounds(x, y + titleHeight, width, 0.0f) {}
             
-            LayoutGroup(float x, float y, float cellMargin, float rowMargin, float width, int maxCellsPerRow, LayoutCellRestriction cellRestriction, bool scaleCellsUp, float fixedCellSize) :
+            LayoutGroup(float x, float y, float cellMargin, float rowMargin, float width, int maxCellsPerRow, LayoutCellRestriction cellRestriction, bool scaleCellsUp, float maxUpScale, float fixedCellSize) :
             m_cellMargin(cellMargin),
             m_rowMargin(rowMargin),
             m_maxCellsPerRow(maxCellsPerRow),
             m_cellRestriction(cellRestriction),
             m_scaleCellsUp(scaleCellsUp),
+            m_maxUpScale(maxUpScale),
             m_fixedCellSize(fixedCellSize),
             m_titleBounds(x, y, width, 0.0f),
             m_contentBounds(x, y, width, 0.0f) {}
@@ -340,7 +346,7 @@ namespace TrenchBroom {
                     if (m_titleBounds.height() > 0)
                         y += m_rowMargin;
                     
-                    m_rows.push_back(Row(m_contentBounds.left(), y, m_cellMargin, m_contentBounds.width(), m_maxCellsPerRow, m_cellRestriction, m_scaleCellsUp, m_fixedCellSize));
+                    m_rows.push_back(Row(m_contentBounds.left(), y, m_cellMargin, m_contentBounds.width(), m_maxCellsPerRow, m_cellRestriction, m_scaleCellsUp, m_maxUpScale, m_fixedCellSize));
                     m_contentBounds = LayoutBounds(m_contentBounds.left(), m_contentBounds.top(), m_contentBounds.width(), m_contentBounds.height());
                 }
                 
@@ -348,7 +354,7 @@ namespace TrenchBroom {
                 const float oldRowHeight = m_rows.back().bounds().height();
                 if (!m_rows.back().addItem(item, itemWidth, itemHeight, titleWidth, titleHeight)) {
                     float y = oldBounds.bottom() + m_rowMargin;
-                    m_rows.push_back(Row(m_contentBounds.left(), y, m_cellMargin, m_contentBounds.width(), m_maxCellsPerRow, m_cellRestriction, m_scaleCellsUp, m_fixedCellSize));
+                    m_rows.push_back(Row(m_contentBounds.left(), y, m_cellMargin, m_contentBounds.width(), m_maxCellsPerRow, m_cellRestriction, m_scaleCellsUp, m_maxUpScale, m_fixedCellSize));
                     
                     bool added = (m_rows.back().addItem(item, itemWidth, itemHeight, titleWidth, titleHeight));
                     assert(added);
@@ -425,6 +431,7 @@ namespace TrenchBroom {
             unsigned int m_maxCellsPerRow;
             LayoutCellRestriction m_cellRestriction;
             bool m_scaleCellsUp;
+            float m_maxUpScale;
             float m_fixedCellSize;
             float m_width;
             float m_height;
@@ -452,7 +459,10 @@ namespace TrenchBroom {
                                 const typename Group::Row::Cell& cell = row[k];
                                 const LayoutBounds& itemBounds = cell.itemBounds();
                                 const LayoutBounds& titleBounds = cell.titleBounds();
-                                addItem(cell.item(), itemBounds.width(), itemBounds.height(), titleBounds.width(), titleBounds.height());
+                                float scale = cell.scale();
+                                float itemWidth = itemBounds.width() / scale;
+                                float itemHeight = itemBounds.height() / scale;
+                                addItem(cell.item(), itemWidth, itemHeight, titleBounds.width(), titleBounds.height());
                             }
                         }
                     }
@@ -475,7 +485,8 @@ namespace TrenchBroom {
             m_maxCellsPerRow(maxCellsPerRow),
             m_cellRestriction(CRNone),
             m_fixedCellSize(100.0f),
-            m_scaleCellsUp(false) {
+            m_scaleCellsUp(false),
+            m_maxUpScale(std::numeric_limits<float>::max()) {
                 invalidate();
             }
             
@@ -519,7 +530,7 @@ namespace TrenchBroom {
                 if (!m_groups.empty())
                     m_height += m_groupMargin;
                 
-                m_groups.push_back(Group(groupItem, m_outerMargin, y, m_cellMargin, m_rowMargin, titleHeight, m_width - 2.0f * m_outerMargin, m_maxCellsPerRow, m_cellRestriction, m_scaleCellsUp, m_fixedCellSize));
+                m_groups.push_back(Group(groupItem, m_outerMargin, y, m_cellMargin, m_rowMargin, titleHeight, m_width - 2.0f * m_outerMargin, m_maxCellsPerRow, m_cellRestriction, m_scaleCellsUp, m_maxUpScale, m_fixedCellSize));
             }
             
             void addItem(const CellType item, float itemWidth, float itemHeight, float titleWidth, float titleHeight) {
@@ -527,7 +538,7 @@ namespace TrenchBroom {
                     validate();
                 
                 if (m_groups.empty()) {
-                    m_groups.push_back(Group(m_outerMargin, m_outerMargin, m_cellMargin, m_rowMargin, m_width - 2.0f * m_outerMargin, m_maxCellsPerRow, m_cellRestriction, m_scaleCellsUp, m_fixedCellSize));
+                    m_groups.push_back(Group(m_outerMargin, m_outerMargin, m_cellMargin, m_rowMargin, m_width - 2.0f * m_outerMargin, m_maxCellsPerRow, m_cellRestriction, m_scaleCellsUp, m_maxUpScale, m_fixedCellSize));
                     m_height += titleHeight;
                     if (titleHeight > 0.0f)
                         m_height += m_rowMargin;
@@ -608,10 +619,11 @@ namespace TrenchBroom {
                 invalidate();
             }
             
-            inline void setScaleCellsUp(bool scaleCellsUp) {
-                if (scaleCellsUp == m_scaleCellsUp)
+            inline void setScaleCellsUp(bool scaleCellsUp, float maxUpScale) {
+                if (scaleCellsUp == m_scaleCellsUp && maxUpScale == m_maxUpScale)
                     return;
                 m_scaleCellsUp = scaleCellsUp;
+                m_maxUpScale = maxUpScale;
                 invalidate();
             }
             

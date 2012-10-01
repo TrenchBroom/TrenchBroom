@@ -114,7 +114,7 @@ namespace TrenchBroom {
             Renderer::Text::StringManager& stringManager = m_documentViewHolder.document().sharedResources().stringManager();
 
             String fontName = prefs.getString(Preferences::RendererFontName);
-            int fontSize = prefs.getInt(Preferences::RendererFontSize);
+            int fontSize = prefs.getInt(Preferences::TextureBrowserFontSize);
             Renderer::Text::FontDescriptor font(fontName, fontSize);
             IO::FileManager fileManager;
             
