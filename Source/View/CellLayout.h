@@ -327,7 +327,7 @@ namespace TrenchBroom {
             m_maxUpScale(maxUpScale),
             m_fixedCellSize(fixedCellSize),
             m_titleBounds(0.0f, y, width + 2.0f * x, titleHeight),
-            m_contentBounds(x, y + titleHeight, width, 0.0f) {}
+            m_contentBounds(x, y + titleHeight + m_rowMargin, width, 0.0f) {}
             
             LayoutGroup(float x, float y, float cellMargin, float rowMargin, float width, int maxCellsPerRow, LayoutCellRestriction cellRestriction, bool scaleCellsUp, float maxUpScale, float fixedCellSize) :
             m_cellMargin(cellMargin),
@@ -343,11 +343,7 @@ namespace TrenchBroom {
             void addItem(CellType item, float itemWidth, float itemHeight, float titleWidth, float titleHeight) {
                 if (m_rows.empty()) {
                     float y = m_contentBounds.top();
-                    if (m_titleBounds.height() > 0)
-                        y += m_rowMargin;
-                    
                     m_rows.push_back(Row(m_contentBounds.left(), y, m_cellMargin, m_contentBounds.width(), m_maxCellsPerRow, m_cellRestriction, m_scaleCellsUp, m_maxUpScale, m_fixedCellSize));
-                    m_contentBounds = LayoutBounds(m_contentBounds.left(), m_contentBounds.top(), m_contentBounds.width(), m_contentBounds.height());
                 }
                 
                 const LayoutBounds oldBounds = m_rows.back().bounds();
@@ -390,10 +386,10 @@ namespace TrenchBroom {
                 return m_titleBounds;
             }
             
-            const LayoutBounds titleBoundsForVisibleRect(float y, float height) const {
+            const LayoutBounds titleBoundsForVisibleRect(float y, float height, float groupMargin) const {
                 if (intersectsY(y, height) && m_titleBounds.top() < y) {
-                    if (y > m_contentBounds.bottom() - m_titleBounds.height())
-                        return LayoutBounds(m_titleBounds.left(), m_contentBounds.bottom() - m_titleBounds.height(), m_titleBounds.width(), m_titleBounds.height());
+                    if (y > m_contentBounds.bottom() - m_titleBounds.height() + groupMargin)
+                        return LayoutBounds(m_titleBounds.left(), m_contentBounds.bottom() - m_titleBounds.height() + groupMargin, m_titleBounds.width(), m_titleBounds.height());
                     return LayoutBounds(m_titleBounds.left(), y, m_titleBounds.width(), m_titleBounds.height());
                 }
                 return m_titleBounds;
@@ -594,6 +590,10 @@ namespace TrenchBroom {
                 return false;
             }
             
+            const LayoutBounds titleBoundsForVisibleRect(const Group& group, float y, float height) const {
+                return group.titleBoundsForVisibleRect(y, height, m_groupMargin);
+            }
+
             inline size_t size() {
                 if (!m_valid)
                     validate();

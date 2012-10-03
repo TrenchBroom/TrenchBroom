@@ -271,7 +271,7 @@ namespace TrenchBroom {
                 if (group.intersectsY(y, height)) {
                     if (group.item().textureCollection != NULL) {
                         m_textureBorderShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupBackgroundColor));
-                        LayoutBounds titleBounds = group.titleBoundsForVisibleRect(y, height);
+                        LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
                         glBegin(GL_QUADS);
                         glVertex2f(titleBounds.left(), height - (titleBounds.top() - y));
                         glVertex2f(titleBounds.left(), height - (titleBounds.bottom() - y));
@@ -290,7 +290,7 @@ namespace TrenchBroom {
                 const Layout::Group& group = layout[i];
                 if (group.intersectsY(y, height)) {
                     if (group.item().textureCollection != NULL) {
-                        LayoutBounds titleBounds = group.titleBoundsForVisibleRect(y, height);
+                        LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
                         Renderer::PushMatrix matrix(transformation);
                         Mat4f translate = matrix.matrix();
                         translate.translate(Vec3f(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height() + 4.0f, 0.0f));
