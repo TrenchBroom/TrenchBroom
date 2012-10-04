@@ -30,11 +30,75 @@
 #include "View/CellLayout.h"
 
 #include <wx/wx.h>
+#include <wx/dnd.h>
 #include <wx/event.h>
 #include <wx/glcanvas.h>
 
 namespace TrenchBroom {
     namespace View {
+        class FeedbackFrame : public wxFrame {
+            wxBitmap m_image;
+        public:
+            FeedbackFrame(wxImage& image) :
+            wxFrame(NULL, wxID_ANY, wxT("TrenchBroom DnD Feedback Frame"), wxDefaultPosition, wxDefaultSize, wxBORDER_NONE),
+            m_image(image) {
+                Bind(wxEVT_PAINT, &FeedbackFrame::OnPaint, this);
+                Bind(wxEVT_ERASE_BACKGROUND, &FeedbackFrame::OnEraseBackground, this);
+                
+                int width = image.GetWidth() + 2;
+                int height = image.GetHeight() + 2;
+                SetClientSize(width, height);
+                Show();
+            }
+            
+            void OnEraseBackground(wxEraseEvent& event) {
+            }
+            
+            void OnPaint(wxPaintEvent& event) {
+                wxPaintDC dc(this);
+                dc.SetPen(*wxRED_PEN);
+                dc.SetBrush(*wxBLACK_BRUSH);
+                dc.DrawRectangle(0, 0, GetClientSize().x, GetClientSize().y);
+                dc.DrawBitmap(m_image, 1, 1);
+            }
+        };
+        
+        class CellLayoutDropSource : public wxDropSource {
+        private:
+            wxFrame* m_feedbackFrame;
+            wxImage* m_feedbackImage;
+            wxPoint m_imageOffset;
+        public:
+            CellLayoutDropSource(wxWindow* window, wxImage* image = NULL, wxPoint imageOffset = wxPoint(0,0)) :
+            wxDropSource(window),
+            m_feedbackFrame(NULL),
+            m_feedbackImage(image),
+            m_imageOffset(imageOffset) {
+            }
+            
+            ~CellLayoutDropSource() {
+                if (m_feedbackFrame != NULL) {
+                    m_feedbackFrame->Destroy();
+                    m_feedbackFrame = NULL;
+                }
+            }
+            
+            bool GiveFeedback(wxDragResult effect) {
+                if (m_feedbackImage == NULL)
+                    return false;
+                
+                wxMouseState mouseState = ::wxGetMouseState();
+                int x = mouseState.GetX() - m_imageOffset.x;
+                int y = mouseState.GetY() - m_imageOffset.y;
+                
+                if (m_feedbackFrame == NULL)
+                    m_feedbackFrame = new FeedbackFrame(*m_feedbackImage);
+                m_feedbackFrame->SetPosition(wxPoint(x, y));
+                
+                return true;
+            }
+        };
+        
         template <typename CellData, typename GroupData>
         class CellLayoutGLCanvas : public wxGLCanvas {
         protected:
@@ -70,10 +134,17 @@ namespace TrenchBroom {
                 updateScrollBar();
             }
         protected:
+            inline wxGLContext* glContext() const {
+                return m_glContext;
+            }
+            
             virtual void doInitLayout(Layout& layout) = 0;
             virtual void doReloadLayout(Layout& layout) = 0;
             virtual void doRender(Layout& layout, float y, float height) = 0;
             virtual void handleLeftClick(Layout& layout, float x, float y) {}
+            virtual bool dndEnabled() { return false; }
+            virtual wxImage* dndImage(const typename Layout::Group::Row::Cell& cell) { return NULL; }
+            virtual wxDataObject* dndData(const typename Layout::Group::Row::Cell& cell) { return NULL; }
         public:
             CellLayoutGLCanvas(wxWindow* parent, wxWindowID windowId, const int* attribs, wxGLContext* sharedContext, wxScrollBar* scrollBar = NULL) :
             wxGLCanvas(parent, windowId, attribs, wxDefaultPosition, wxDefaultSize),
@@ -84,6 +155,7 @@ namespace TrenchBroom {
                 Bind(wxEVT_PAINT, &CellLayoutGLCanvas::OnPaint, this);
                 Bind(wxEVT_SIZE, &CellLayoutGLCanvas::OnSize, this);
                 Bind(wxEVT_LEFT_UP, &CellLayoutGLCanvas::OnMouseLeftUp, this);
+                Bind(wxEVT_MOTION, &CellLayoutGLCanvas::OnMouseMove, this);
                 
                 if (m_scrollBar != NULL) {
                     m_scrollBar->Bind(wxEVT_SCROLL_TOP, &CellLayoutGLCanvas::OnScrollBarChange, this);
@@ -160,6 +232,29 @@ namespace TrenchBroom {
             
             void OnScrollBarChange(wxScrollEvent& event) {
                 Refresh();
+            }
+            
+            void OnMouseMove(wxMouseEvent& event) {
+                if (event.LeftIsDown() && dndEnabled()) {
+                    int top = m_scrollBar != NULL ? m_scrollBar->GetThumbPosition() : 0;
+                    float x = static_cast<float>(event.GetX());
+                    float y = static_cast<float>(event.GetY() + top);
+                    const typename Layout::Group::Row::Cell* cell = NULL;
+                    if (m_layout.cellAt(x, y, &cell)) {
+                        wxImage* feedbackImage = dndImage(*cell);
+                        wxDataObject* dropData = dndData(*cell);
+                        
+                        int xOffset = event.GetX() - cell->itemBounds().left();
+                        int yOffset = event.GetY() - cell->itemBounds().top() + top;
+                        
+                        CellLayoutDropSource dropSource(this, feedbackImage, wxPoint(xOffset, yOffset));
+                        dropSource.SetData(*dropData);
+                        dropSource.DoDragDrop();
+                        
+                        delete feedbackImage;
+                        delete dropData;
+                    }
+                }
             }
             
             void OnMouseLeftUp(wxMouseEvent& event) {

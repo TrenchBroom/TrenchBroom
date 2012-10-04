@@ -147,13 +147,37 @@ namespace TrenchBroom {
                 return m_stringVectorizer->measureString(fontDescriptor, string);
             }
             
-            Vec2f StringManager::selectFontSize(const FontDescriptor& fontDescriptor, const String& string, const Vec2f& bounds, unsigned int minSize, FontDescriptor& result) {
-                result = fontDescriptor;
-                Vec2f actualBounds = measureString(result, string);
-                while (actualBounds.x > bounds.x && result.size() > minSize) {
-                    result = FontDescriptor(result.name(), result.size() - 1);
-                    actualBounds = measureString(result, string);
+            Vec2f StringManager::selectFontSize(const FontDescriptor& fontDescriptor, const String& string, const Vec2f& bounds, unsigned int minSize, FontDescriptor& resultDescriptor) {
+                resultDescriptor = fontDescriptor;
+                Vec2f actualBounds = measureString(resultDescriptor, string);
+                while (actualBounds.x > bounds.x && resultDescriptor.size() > minSize) {
+                    resultDescriptor = FontDescriptor(resultDescriptor.name(), resultDescriptor.size() - 1);
+                    actualBounds = measureString(resultDescriptor, string);
                 }
+                return actualBounds;
+            }
+            
+            Vec2f StringManager::selectFontSizeWithEllipses(const FontDescriptor& fontDescriptor, const String& string, const Vec2f& bounds, unsigned int minSize, FontDescriptor& resultDescriptor, String& resultString) {
+                Vec2f actualBounds = selectFontSize(fontDescriptor, string, bounds, minSize, resultDescriptor);
+                if (actualBounds.x <= bounds.x) {
+                    resultString = string;
+                    return actualBounds;
+                }
+                
+                String temp = string;
+                
+                size_t index = string.size() / 2;
+                size_t length = 1;
+                while (actualBounds.x > bounds.x && index > 1 && index + length < string.length() - 1) {
+                    temp = string.substr(0, index) + "..." + string.substr(index + length);
+                    actualBounds = measureString(resultDescriptor, temp);
+
+                    if (length % 2 == 1)
+                        index--;
+                    length++;
+                }
+                
+                resultString = temp;
                 return actualBounds;
             }
         }

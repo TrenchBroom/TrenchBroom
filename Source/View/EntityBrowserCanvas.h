@@ -21,6 +21,7 @@
 #define __TrenchBroom__EntityBrowserCanvas__
 
 #include "Model/EntityDefinitionManager.h"
+#include "Renderer/OffscreenRenderer.h"
 #include "Renderer/Shader/Shader.h"
 #include "Renderer/Text/StringManager.h"
 #include "Utility/String.h"
@@ -70,6 +71,7 @@ namespace TrenchBroom {
         class EntityBrowserCanvas : public CellLayoutGLCanvas<EntityCellData, EntityGroupData> {
         protected:
             DocumentViewHolder& m_documentViewHolder;
+            Renderer::OffscreenRenderer m_offscreenRenderer;
             Quat m_rotation;
             
             typedef std::map<Model::PointEntityDefinition*, Renderer::Text::StringRendererPtr> StringRendererCache;
@@ -95,10 +97,15 @@ namespace TrenchBroom {
             void createShaders();
             
             void addEntityToLayout(Layout& layout, Model::PointEntityDefinition* definition, const Renderer::Text::FontDescriptor& font);
+            void renderEntityBounds(Renderer::Transformation& transformation, const Model::PointEntityDefinition& definition, const Vec3f& offset, float scale);
+            void renderEntityModel(Renderer::Transformation& transformation, Renderer::EntityRenderer& renderer, const Vec3f& offset, float scale);
+            
             virtual void doInitLayout(Layout& layout);
             virtual void doReloadLayout(Layout& layout);
             virtual void doRender(Layout& layout, float y, float height);
-            virtual void handleLeftClick(Layout& layout, float x, float y);
+            virtual bool dndEnabled();
+            virtual wxImage* dndImage(const Layout::Group::Row::Cell& cell);
+            virtual wxDataObject* dndData(const Layout::Group::Row::Cell& cell);
         public:
             EntityBrowserCanvas(wxWindow* parent, wxWindowID windowId, wxScrollBar* scrollBar, DocumentViewHolder& documentViewHolder);
             ~EntityBrowserCanvas();

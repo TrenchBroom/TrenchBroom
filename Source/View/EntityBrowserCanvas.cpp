@@ -85,7 +85,7 @@ namespace TrenchBroom {
                     
                     float cellSize = layout.fixedCellSize();
                     if  (cellSize > 0.0f)
-                        actualSize = stringManager.selectFontSize(font, shortName, Vec2f(cellSize, static_cast<float>(font.size())), 5, actualFont);
+                        actualSize = stringManager.selectFontSizeWithEllipses(font, shortName, Vec2f(cellSize, static_cast<float>(font.size())), 9, actualFont, shortName);
                     else
                         actualSize = stringManager.measureString(font, shortName);
                     stringRenderer = stringManager.stringRenderer(actualFont, shortName);
@@ -104,6 +104,48 @@ namespace TrenchBroom {
             }
         }
         
+        void EntityBrowserCanvas::renderEntityBounds(Renderer::Transformation& transformation, const Model::PointEntityDefinition& definition, const Vec3f& offset, float scale) {
+            const BBox& bounds = definition.bounds();
+            const BBox rotBounds = bounds.boundsAfterRotation(m_rotation);
+            
+            Renderer::PushMatrix pushMatrix(transformation);
+            Mat4f itemMatrix = pushMatrix.matrix();
+            itemMatrix.translate(offset.x, offset.y, offset.z);
+            itemMatrix.scale(scale);
+            itemMatrix.translate(0.0f, -rotBounds.min.y, -rotBounds.min.z);
+            itemMatrix.translate(bounds.center());
+            itemMatrix.rotate(m_rotation);
+            itemMatrix.translate(-1.0f * bounds.center());
+            pushMatrix.load(itemMatrix);
+            
+            m_boundsShaderProgram->setUniformVariable("Color", definition.color());
+            
+            Vec3f::List vertices;
+            bounds.vertices(vertices);
+            
+            glBegin(GL_LINES);
+            for (unsigned int i = 0; i < vertices.size(); i++)
+                Renderer::glVertexV3f(vertices[i]);
+            glEnd();
+        }
+        
+        void EntityBrowserCanvas::renderEntityModel(Renderer::Transformation& transformation, Renderer::EntityRenderer& renderer, const Vec3f& offset, float scale) {
+            const BBox& bounds = renderer.bounds();
+            const BBox rotBounds = bounds.boundsAfterRotation(m_rotation);
+            
+            Renderer::PushMatrix pushMatrix(transformation);
+            Mat4f itemMatrix = pushMatrix.matrix();
+            itemMatrix.translate(offset.x, offset.y, offset.z);
+            itemMatrix.scale(scale);
+            itemMatrix.translate(0.0f, -rotBounds.min.y, -rotBounds.min.z);
+            itemMatrix.translate(bounds.center());
+            itemMatrix.rotate(m_rotation);
+            itemMatrix.translate(-1.0f * bounds.center());
+            pushMatrix.load(itemMatrix);
+            
+            renderer.render(*m_modelShaderProgram);
+        }
+
         void EntityBrowserCanvas::doInitLayout(Layout& layout) {
             layout.setOuterMargin(5.0f);
             layout.setGroupMargin(5.0f);
@@ -190,38 +232,8 @@ namespace TrenchBroom {
                                 const Layout::Group::Row::Cell& cell = row[k];
                                 Model::PointEntityDefinition* definition = cell.item().entityDefinition;
                                 Renderer::EntityRenderer* entityRenderer = cell.item().entityRenderer;
-                                if (entityRenderer != NULL)
-                                    continue;
-                                
-                                const BBox& bounds = definition->bounds();
-                                BBox rotBounds = bounds.boundsAfterRotation(m_rotation);
-                                
-                                Renderer::PushMatrix pushMatrix(transformation);
-                                Mat4f itemMatrix = pushMatrix.matrix();
-                                itemMatrix.translate(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y));
-                                itemMatrix.scale(cell.scale());
-                                itemMatrix.translate(0.0f, -rotBounds.min.y, -rotBounds.min.z);
-                                itemMatrix.translate(bounds.center());
-                                itemMatrix.rotate(m_rotation);
-                                itemMatrix.translate(-1.0f * bounds.center());
-                                pushMatrix.load(itemMatrix);
-
-                                Color entityColor;
-                                if (definition != NULL) {
-                                    entityColor = definition->color();
-                                    entityColor.w = prefs.getColor(Preferences::EntityBoundsColor).w;
-                                } else {
-                                    entityColor = prefs.getColor(Preferences::EntityBoundsColor);
-                                }
-                                m_boundsShaderProgram->setUniformVariable("Color", entityColor);
-                                
-                                Vec3f::List vertices;
-                                bounds.vertices(vertices);
-                                
-                                glBegin(GL_LINES);
-                                for (unsigned int i = 0; i < vertices.size(); i++)
-                                    Renderer::glVertexV3f(vertices[i]);
-                                glEnd();
+                                if (entityRenderer == NULL)
+                                    renderEntityBounds(transformation, *definition, Vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y)), cell.scale());
                             }
                         }
                     }
@@ -243,22 +255,8 @@ namespace TrenchBroom {
                             for (unsigned int k = 0; k < row.size(); k++) {
                                 const Layout::Group::Row::Cell& cell = row[k];
                                 Renderer::EntityRenderer* entityRenderer = cell.item().entityRenderer;
-                                if (entityRenderer == NULL)
-                                    continue;
-                                
-                                BBox bounds = entityRenderer->bounds().boundsAfterRotation(m_rotation);
-
-                                Renderer::PushMatrix pushMatrix(transformation);
-                                Mat4f itemMatrix = pushMatrix.matrix();
-                                itemMatrix.translate(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y));
-                                itemMatrix.scale(cell.scale());
-                                itemMatrix.translate(0.0f, -bounds.min.y, -bounds.min.z);
-                                itemMatrix.translate(bounds.center());
-                                itemMatrix.rotate(m_rotation);
-                                itemMatrix.translate(-1.0f * bounds.center());
-                                pushMatrix.load(itemMatrix);
-                                
-                                entityRenderer->render(*m_modelShaderProgram);
+                                if (entityRenderer != NULL)
+                                    renderEntityModel(transformation, *entityRenderer, Vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y)), cell.scale());
                             }
                         }
                     }
@@ -339,12 +337,82 @@ namespace TrenchBroom {
             m_textShaderProgram->deactivate();
         }
         
-        void EntityBrowserCanvas::handleLeftClick(Layout& layout, float x, float y) {
+        bool EntityBrowserCanvas::dndEnabled() {
+            return true;
         }
-
+        
+        wxImage* EntityBrowserCanvas::dndImage(const Layout::Group::Row::Cell& cell) {
+            const LayoutBounds& bounds = cell.itemBounds();
+            
+            unsigned int width = static_cast<unsigned int>(bounds.width());
+            unsigned int height = static_cast<unsigned int>(bounds.height());
+            
+            if (!SetCurrent(*glContext()))
+                return NULL;
+            
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            Renderer::EntityRendererManager& entityRendererManager = m_documentViewHolder.document().sharedResources().entityRendererManager();
+            
+            m_offscreenRenderer.setDimensions(width, height);
+            m_offscreenRenderer.preRender();
+            
+            float viewLeft      = 0.0f;
+            float viewTop       = 0.0f;
+            float viewRight     = bounds.width();
+            float viewBottom    = bounds.height();
+            
+            Mat4f projection;
+            projection.setOrtho(-1024.0f, 1024.0f, viewLeft, viewTop, viewRight, viewBottom);
+            
+            Mat4f view;
+            view.setView(Vec3f::NegX, Vec3f::PosZ);
+            view.translate(Vec3f(256.0f, 0.0f, 0.0f));
+            Renderer::Transformation transformation(projection * view, true);
+            
+            glViewport(0, 0, width, height);
+            glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glEnable(GL_DEPTH_TEST);
+            
+            Renderer::EntityRenderer* entityRenderer = cell.item().entityRenderer;
+            if (entityRenderer == NULL) {
+                m_boundsShaderProgram->activate();
+                Model::PointEntityDefinition* definition = cell.item().entityDefinition;
+                renderEntityBounds(transformation, *definition, Vec3f::Null, cell.scale());
+                m_boundsShaderProgram->deactivate();
+            } else {
+                entityRendererManager.activate();
+                m_modelShaderProgram->activate();
+                m_modelShaderProgram->setUniformVariable("ApplyTinting", false);
+                m_modelShaderProgram->setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
+                renderEntityModel(transformation, *entityRenderer, Vec3f::Null, cell.scale());
+                m_modelShaderProgram->deactivate();
+                entityRendererManager.deactivate();
+            }
+            
+            glPixelStorei(GL_PACK_ALIGNMENT, 1);
+            glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+            glPixelStorei(GL_PACK_SKIP_ROWS, 0);
+            glPixelStorei(GL_PACK_SKIP_PIXELS, 0);
+            
+            unsigned char* imageData = new unsigned char[width * height * 3];
+            unsigned char* alphaData = new unsigned char[width * height];
+            glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid*>(imageData));
+            glReadPixels(0, 0, width, height, GL_ALPHA, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid*>(alphaData));
+            
+            wxImage* image = m_offscreenRenderer.getImage();
+            m_offscreenRenderer.postRender();
+            return image;
+        }
+        
+        wxDataObject* EntityBrowserCanvas::dndData(const Layout::Group::Row::Cell& cell) {
+            return new wxTextDataObject("This text will be dragged.");
+        }
+        
         EntityBrowserCanvas::EntityBrowserCanvas(wxWindow* parent, wxWindowID windowId, wxScrollBar* scrollBar, DocumentViewHolder& documentViewHolder) :
         CellLayoutGLCanvas(parent, windowId, documentViewHolder.document().sharedResources().attribs(), documentViewHolder.document().sharedResources().sharedContext(), scrollBar),
         m_documentViewHolder(documentViewHolder),
+        m_offscreenRenderer(GL::glCapabilities()),
         m_group(false),
         m_hideUnused(false),
         m_sortOrder(Model::EntityDefinitionManager::Name),

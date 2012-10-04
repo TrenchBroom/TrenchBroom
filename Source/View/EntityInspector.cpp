@@ -78,7 +78,7 @@ namespace TrenchBroom {
         m_documentViewHolder(documentViewHolder) {
             
             wxSplitterWindow* inspectorSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3DSASH | wxSP_LIVE_UPDATE);
-            inspectorSplitter->SetSashGravity(1.0f);
+            inspectorSplitter->SetSashGravity(0.0f);
             inspectorSplitter->SetMinimumPaneSize(50);
 
             inspectorSplitter->SplitHorizontally(createPropertyEditor(inspectorSplitter), createEntityBrowser(inspectorSplitter));

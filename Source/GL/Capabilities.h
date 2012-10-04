@@ -36,7 +36,7 @@ namespace TrenchBroom {
 
         Capabilities doGlCapabilities();
         
-        inline Capabilities glCapabilities() {
+        inline const Capabilities& glCapabilities() {
             static Capabilities capabilities = doGlCapabilities();
             return capabilities;
         }

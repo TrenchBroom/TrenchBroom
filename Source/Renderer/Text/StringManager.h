@@ -117,7 +117,8 @@ namespace TrenchBroom {
                 void deleteElement(StringRenderer* stringRenderer);
 
                 Vec2f measureString(const FontDescriptor& fontDescriptor, const String& string);
-                Vec2f selectFontSize(const FontDescriptor& fontDescriptor, const String& string, const Vec2f& bounds, unsigned int minSize, FontDescriptor& result);
+                Vec2f selectFontSize(const FontDescriptor& fontDescriptor, const String& string, const Vec2f& bounds, unsigned int minSize, FontDescriptor& resultDescriptor);
+                Vec2f selectFontSizeWithEllipses(const FontDescriptor& fontDescriptor, const String& string, const Vec2f& bounds, unsigned int minSize, FontDescriptor& resultDescriptor, String& resultString);
 
                 void activate();
                 void deactivate();

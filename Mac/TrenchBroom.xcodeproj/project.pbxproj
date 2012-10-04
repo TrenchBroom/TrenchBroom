@@ -54,6 +54,7 @@
 		48819C4415EC107700BEA604 /* quake.def in Resources */ = {isa = PBXBuildFile; fileRef = 48819C4315EC107700BEA604 /* quake.def */; };
 		48819C4615EC108400BEA604 /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48819C4515EC108400BEA604 /* QuakePalette.lmp */; };
 		48819C5015ED5C7700BEA604 /* CameraEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C4F15ED5C7700BEA604 /* CameraEvent.cpp */; };
+		488457D0161C839A002ADDAE /* OffscreenRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488457CE161C839A002ADDAE /* OffscreenRenderer.cpp */; };
 		4887937615EF56C10044D66A /* AbstractApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4887937415EF56C10044D66A /* AbstractApp.cpp */; };
 		4896F38E160E06F50029B30C /* TextureBrowserBorder.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 4896F38D160E06F50029B30C /* TextureBrowserBorder.fragsh */; };
 		4896F390160E07010029B30C /* TextureBrowserBorder.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 4896F38F160E07010029B30C /* TextureBrowserBorder.vertsh */; };
@@ -236,6 +237,8 @@
 		48819C4515EC108400BEA604 /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; name = QuakePalette.lmp; path = ../../Resources/Graphics/QuakePalette.lmp; sourceTree = "<group>"; };
 		48819C4C15ED52B200BEA604 /* CameraEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraEvent.h; sourceTree = "<group>"; };
 		48819C4F15ED5C7700BEA604 /* CameraEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraEvent.cpp; sourceTree = "<group>"; };
+		488457CE161C839A002ADDAE /* OffscreenRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OffscreenRenderer.cpp; sourceTree = "<group>"; };
+		488457CF161C839A002ADDAE /* OffscreenRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OffscreenRenderer.h; sourceTree = "<group>"; };
 		4887937415EF56C10044D66A /* AbstractApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractApp.cpp; sourceTree = "<group>"; };
 		4887937515EF56C10044D66A /* AbstractApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractApp.h; sourceTree = "<group>"; };
 		4896F38D160E06F50029B30C /* TextureBrowserBorder.fragsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TextureBrowserBorder.fragsh; sourceTree = "<group>"; };
@@ -403,6 +406,8 @@
 				4850D27815F4C9C2005B162D /* EntityRendererManager.h */,
 				48312B3315EB805E00607868 /* MapRenderer.cpp */,
 				48312B3415EB805E00607868 /* MapRenderer.h */,
+				488457CE161C839A002ADDAE /* OffscreenRenderer.cpp */,
+				488457CF161C839A002ADDAE /* OffscreenRenderer.h */,
 				48B059C51617866100E6B0AD /* Palette.cpp */,
 				48B059C61617866100E6B0AD /* Palette.h */,
 				48EA119F15FA67F700391885 /* PushMatrix.h */,
@@ -879,6 +884,7 @@
 				48B059D11618859A00E6B0AD /* Texture.cpp in Sources */,
 				48B059D416189A7600E6B0AD /* EntityBrowserCanvas.cpp in Sources */,
 				48B059D71618AB2500E6B0AD /* EntityBrowser.cpp in Sources */,
+				488457D0161C839A002ADDAE /* OffscreenRenderer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
