@@ -127,5 +127,22 @@ namespace TrenchBroom {
         const BBox& BspRenderer::bounds() const {
             return m_bsp.models()[0]->bounds();
         }
+
+        BBox BspRenderer::boundsAfterTransformation(const Mat4f& transformation) const {
+            Model::BspModel& model = *m_bsp.models()[0];
+            const Model::BspFaceList& faces = model.faces();
+
+            BBox bounds;
+            bounds.min = bounds.max = transformation * faces[0]->vertices()[0];
+            
+            for (unsigned int i = 0; i < faces.size(); i++) {
+                Model::BspFace* face = faces[i];
+                const Vec3f::List& vertices = face->vertices();
+                for (unsigned int j = 0; j < vertices.size(); j++)
+                    bounds.mergeWith(transformation * vertices[j]);
+            }
+            
+            return bounds;
+        }
     }
 }

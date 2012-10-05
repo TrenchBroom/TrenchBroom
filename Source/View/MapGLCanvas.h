@@ -22,6 +22,7 @@
 
 // glew must be included before glcanvas
 #include <GL/glew.h>
+#include <wx/dnd.h>
 #include <wx/glcanvas.h>
 
 namespace TrenchBroom {
@@ -45,6 +46,14 @@ namespace TrenchBroom {
     namespace View {
         class DocumentViewHolder;
         class EditorView;
+        
+        class MapGLCanvasDropTarget : public wxTextDropTarget {
+        public:
+            wxDragResult OnEnter(wxCoord x, wxCoord y, wxDragResult def);
+            wxDragResult OnDragOver(wxCoord x, wxCoord y, wxDragResult def);
+            void OnLeave();
+            bool OnDropText(wxCoord x, wxCoord y, const wxString& data);
+        };
         
         class MapGLCanvas : public wxGLCanvas {
         protected:

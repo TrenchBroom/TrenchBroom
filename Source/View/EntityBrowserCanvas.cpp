@@ -95,24 +95,35 @@ namespace TrenchBroom {
                 Renderer::EntityRendererManager& entityRendererManager = m_documentViewHolder.document().sharedResources().entityRendererManager();
                 const StringList& mods = m_documentViewHolder.document().mods();
                 Renderer::EntityRenderer* entityRenderer = entityRendererManager.entityRenderer(*definition, mods);
+
+                BBox rotatedBounds;
+                if (entityRenderer != NULL) {
+                    const Vec3f& center = entityRenderer->center();
+                    Mat4f transformation;
+                    transformation.setIdentity();
+                    transformation.translate(center);
+                    transformation.rotate(m_rotation);
+                    transformation.translate(-1.0f * center);
+                    rotatedBounds = entityRenderer->boundsAfterTransformation(transformation);
+                } else {
+                    rotatedBounds = definition->bounds();
+                    const Vec3f center = rotatedBounds.center();
+                    rotatedBounds.rotate(m_rotation, center);
+                }
                 
-                BBox bounds = entityRenderer != NULL ? entityRenderer->bounds() : definition->bounds();
-                bounds = bounds.boundsAfterRotation(m_rotation);
-                Vec3f size = bounds.size();
-                
-                layout.addItem(EntityCellData(definition, entityRenderer, stringRenderer), size.x, size.z, actualSize.x, font.size() + 2.0f);
+                Vec3f size = rotatedBounds.size();
+                layout.addItem(EntityCellData(definition, entityRenderer, stringRenderer, rotatedBounds), size.x, size.z, actualSize.x, font.size() + 2.0f);
             }
         }
         
-        void EntityBrowserCanvas::renderEntityBounds(Renderer::Transformation& transformation, const Model::PointEntityDefinition& definition, const Vec3f& offset, float scale) {
+        void EntityBrowserCanvas::renderEntityBounds(Renderer::Transformation& transformation, const Model::PointEntityDefinition& definition, const BBox& rotatedBounds, const Vec3f& offset, float scale) {
             const BBox& bounds = definition.bounds();
-            const BBox rotBounds = bounds.boundsAfterRotation(m_rotation);
             
             Renderer::PushMatrix pushMatrix(transformation);
             Mat4f itemMatrix = pushMatrix.matrix();
             itemMatrix.translate(offset.x, offset.y, offset.z);
             itemMatrix.scale(scale);
-            itemMatrix.translate(0.0f, -rotBounds.min.y, -rotBounds.min.z);
+            itemMatrix.translate(0.0f, -rotatedBounds.min.y, -rotatedBounds.min.z);
             itemMatrix.translate(bounds.center());
             itemMatrix.rotate(m_rotation);
             itemMatrix.translate(-1.0f * bounds.center());
@@ -129,18 +140,17 @@ namespace TrenchBroom {
             glEnd();
         }
         
-        void EntityBrowserCanvas::renderEntityModel(Renderer::Transformation& transformation, Renderer::EntityRenderer& renderer, const Vec3f& offset, float scale) {
-            const BBox& bounds = renderer.bounds();
-            const BBox rotBounds = bounds.boundsAfterRotation(m_rotation);
+        void EntityBrowserCanvas::renderEntityModel(Renderer::Transformation& transformation, Renderer::EntityRenderer& renderer, const BBox& rotatedBounds, const Vec3f& offset, float scale) {
+            const Vec3f& rotationCenter = renderer.center();
             
             Renderer::PushMatrix pushMatrix(transformation);
             Mat4f itemMatrix = pushMatrix.matrix();
             itemMatrix.translate(offset.x, offset.y, offset.z);
             itemMatrix.scale(scale);
-            itemMatrix.translate(0.0f, -rotBounds.min.y, -rotBounds.min.z);
-            itemMatrix.translate(bounds.center());
+            itemMatrix.translate(0.0f, -rotatedBounds.min.y, -rotatedBounds.min.z);
+            itemMatrix.translate(rotationCenter);
             itemMatrix.rotate(m_rotation);
-            itemMatrix.translate(-1.0f * bounds.center());
+            itemMatrix.translate(-1.0f * rotationCenter);
             pushMatrix.load(itemMatrix);
             
             renderer.render(*m_modelShaderProgram);
@@ -233,7 +243,7 @@ namespace TrenchBroom {
                                 Model::PointEntityDefinition* definition = cell.item().entityDefinition;
                                 Renderer::EntityRenderer* entityRenderer = cell.item().entityRenderer;
                                 if (entityRenderer == NULL)
-                                    renderEntityBounds(transformation, *definition, Vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y)), cell.scale());
+                                    renderEntityBounds(transformation, *definition, cell.item().bounds, Vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y)), cell.scale());
                             }
                         }
                     }
@@ -256,7 +266,7 @@ namespace TrenchBroom {
                                 const Layout::Group::Row::Cell& cell = row[k];
                                 Renderer::EntityRenderer* entityRenderer = cell.item().entityRenderer;
                                 if (entityRenderer != NULL)
-                                    renderEntityModel(transformation, *entityRenderer, Vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y)), cell.scale());
+                                    renderEntityModel(transformation, *entityRenderer, cell.item().bounds, Vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y)), cell.scale());
                             }
                         }
                     }
@@ -378,14 +388,14 @@ namespace TrenchBroom {
             if (entityRenderer == NULL) {
                 m_boundsShaderProgram->activate();
                 Model::PointEntityDefinition* definition = cell.item().entityDefinition;
-                renderEntityBounds(transformation, *definition, Vec3f::Null, cell.scale());
+                renderEntityBounds(transformation, *definition, cell.item().bounds, Vec3f::Null, cell.scale());
                 m_boundsShaderProgram->deactivate();
             } else {
                 entityRendererManager.activate();
                 m_modelShaderProgram->activate();
                 m_modelShaderProgram->setUniformVariable("ApplyTinting", false);
                 m_modelShaderProgram->setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
-                renderEntityModel(transformation, *entityRenderer, Vec3f::Null, cell.scale());
+                renderEntityModel(transformation, *entityRenderer, cell.item().bounds, Vec3f::Null, cell.scale());
                 m_modelShaderProgram->deactivate();
                 entityRendererManager.deactivate();
             }
@@ -406,7 +416,7 @@ namespace TrenchBroom {
         }
         
         wxDataObject* EntityBrowserCanvas::dndData(const Layout::Group::Row::Cell& cell) {
-            return new wxTextDataObject("This text will be dragged.");
+            return new wxTextDataObject(cell.item().entityDefinition->name());
         }
         
         EntityBrowserCanvas::EntityBrowserCanvas(wxWindow* parent, wxWindowID windowId, wxScrollBar* scrollBar, DocumentViewHolder& documentViewHolder) :

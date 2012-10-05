@@ -55,6 +55,7 @@ namespace TrenchBroom {
             
             const Vec3f& center() const;
             const BBox& bounds() const;
+            BBox boundsAfterTransformation(const Mat4f& transformation) const;
         };
     }
 }

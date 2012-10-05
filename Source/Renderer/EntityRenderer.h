@@ -41,6 +41,7 @@ namespace TrenchBroom {
             virtual void render(ShaderProgram& shaderProgram) = 0;
             virtual const Vec3f& center() const = 0;
             virtual const BBox& bounds() const = 0;
+            virtual BBox boundsAfterTransformation(const Mat4f& transformation) const = 0;
         };
     }
 }

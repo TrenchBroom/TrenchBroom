@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_BBox_h
 #define TrenchBroom_BBox_h
 
+#include "Utility/Mat4f.h"
 #include "Utility/Plane.h"
 #include "Utility/Quat.h"
 #include "Utility/Ray.h"
@@ -291,40 +292,49 @@ namespace TrenchBroom {
             }
             
             inline void rotate(const Quat& rotation) {
-                min = rotation * min;
-                max = rotation * max;
-                repair();
+                *this = rotated(rotation);
             }
             
             inline const BBox rotated(const Quat& rotation) const {
-                BBox result = *this;
-                result.rotate(rotation);
+                BBox result;
+                result.min = result.max = rotation * vertex(false, false, false);
+                result.mergeWith(rotation * vertex(false, false, true ));
+                result.mergeWith(rotation * vertex(false, true , false));
+                result.mergeWith(rotation * vertex(false, true , true ));
+                result.mergeWith(rotation * vertex(true , false, false));
+                result.mergeWith(rotation * vertex(true , false, true ));
+                result.mergeWith(rotation * vertex(true , true , false));
+                result.mergeWith(rotation * vertex(true , true , true ));
                 return result;
             }
             
             inline void rotate(const Quat& rotation, const Vec3f& center) {
-                min = rotation * (min - center) + center;
-                max = rotation * (max - center) + center;
-                repair();
+                *this = rotated(rotation, center);
             }
             
             inline const BBox rotated(const Quat& rotation, const Vec3f& center) const {
-                BBox result = *this;
-                result.rotate(rotation, center);
+                BBox result;
+                result.min = result.max = rotation * (vertex(false, false, false) - center) + center;
+                result.mergeWith(rotation * (vertex(false, false, true ) - center) + center);
+                result.mergeWith(rotation * (vertex(false, true , false) - center) + center);
+                result.mergeWith(rotation * (vertex(false, true , true ) - center) + center);
+                result.mergeWith(rotation * (vertex(true , false, false) - center) + center);
+                result.mergeWith(rotation * (vertex(true , false, true ) - center) + center);
+                result.mergeWith(rotation * (vertex(true , true , false) - center) + center);
+                result.mergeWith(rotation * (vertex(true , true , true ) - center) + center);
                 return result;
             }
             
-            const BBox boundsAfterRotation(const Quat& rotation) const {
+            const BBox transform(const Mat4f& transformation) const {
                 BBox result;
-                Vec3f c = center();
-                result.mergeWith(rotation * (vertex(false, false, false) - c) + c);
-                result.mergeWith(rotation * (vertex(false, false, true ) - c) + c);
-                result.mergeWith(rotation * (vertex(false, true , false) - c) + c);
-                result.mergeWith(rotation * (vertex(false, true , true ) - c) + c);
-                result.mergeWith(rotation * (vertex(true , false, false) - c) + c);
-                result.mergeWith(rotation * (vertex(true , false, true ) - c) + c);
-                result.mergeWith(rotation * (vertex(true , true , false) - c) + c);
-                result.mergeWith(rotation * (vertex(true , true , true ) - c) + c);
+                result.min = result.max = transformation * vertex(false, false, false);
+                result.mergeWith(transformation * vertex(false, false, true ));
+                result.mergeWith(transformation * vertex(false, true , false));
+                result.mergeWith(transformation * vertex(false, true , true ));
+                result.mergeWith(transformation * vertex(true , false, false));
+                result.mergeWith(transformation * vertex(true , false, true ));
+                result.mergeWith(transformation * vertex(true , true , false));
+                result.mergeWith(transformation * vertex(true , true , true ));
                 return result;
             }
             
