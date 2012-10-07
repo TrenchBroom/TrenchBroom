@@ -28,6 +28,7 @@
 #include "Renderer/Text/FontDescriptor.h"
 #include "Utility/Preferences.h"
 #include "View/CellLayout.h"
+#include "View/DragAndDrop.h"
 
 #include <wx/wx.h>
 #include <wx/dnd.h>
@@ -36,69 +37,6 @@
 
 namespace TrenchBroom {
     namespace View {
-        class FeedbackFrame : public wxFrame {
-            wxBitmap m_image;
-        public:
-            FeedbackFrame(wxImage& image) :
-            wxFrame(NULL, wxID_ANY, wxT("TrenchBroom DnD Feedback Frame"), wxDefaultPosition, wxDefaultSize, wxBORDER_NONE),
-            m_image(image) {
-                Bind(wxEVT_PAINT, &FeedbackFrame::OnPaint, this);
-                Bind(wxEVT_ERASE_BACKGROUND, &FeedbackFrame::OnEraseBackground, this);
-                
-                int width = image.GetWidth() + 2;
-                int height = image.GetHeight() + 2;
-                SetClientSize(width, height);
-                Show();
-            }
-            
-            void OnEraseBackground(wxEraseEvent& event) {
-            }
-            
-            void OnPaint(wxPaintEvent& event) {
-                wxPaintDC dc(this);
-                dc.SetPen(*wxRED_PEN);
-                dc.SetBrush(*wxBLACK_BRUSH);
-                dc.DrawRectangle(0, 0, GetClientSize().x, GetClientSize().y);
-                dc.DrawBitmap(m_image, 1, 1);
-            }
-        };
-        
-        class CellLayoutDropSource : public wxDropSource {
-        private:
-            wxFrame* m_feedbackFrame;
-            wxImage* m_feedbackImage;
-            wxPoint m_imageOffset;
-        public:
-            CellLayoutDropSource(wxWindow* window, wxImage* image = NULL, wxPoint imageOffset = wxPoint(0,0)) :
-            wxDropSource(window),
-            m_feedbackFrame(NULL),
-            m_feedbackImage(image),
-            m_imageOffset(imageOffset) {
-            }
-            
-            ~CellLayoutDropSource() {
-                if (m_feedbackFrame != NULL) {
-                    m_feedbackFrame->Destroy();
-                    m_feedbackFrame = NULL;
-                }
-            }
-            
-            bool GiveFeedback(wxDragResult effect) {
-                if (m_feedbackImage == NULL)
-                    return false;
-                
-                wxMouseState mouseState = ::wxGetMouseState();
-                int x = mouseState.GetX() - m_imageOffset.x;
-                int y = mouseState.GetY() - m_imageOffset.y;
-                
-                if (m_feedbackFrame == NULL)
-                    m_feedbackFrame = new FeedbackFrame(*m_feedbackImage);
-                m_feedbackFrame->SetPosition(wxPoint(x, y));
-                
-                return true;
-            }
-        };
-        
         template <typename CellData, typename GroupData>
         class CellLayoutGLCanvas : public wxGLCanvas {
         protected:
@@ -247,7 +185,7 @@ namespace TrenchBroom {
                         int xOffset = event.GetX() - cell->itemBounds().left();
                         int yOffset = event.GetY() - cell->itemBounds().top() + top;
                         
-                        CellLayoutDropSource dropSource(this, feedbackImage, wxPoint(xOffset, yOffset));
+                        DropSource dropSource(this, *feedbackImage, wxPoint(xOffset, yOffset));
                         dropSource.SetData(*dropData);
                         dropSource.DoDragDrop();
                         

@@ -30,6 +30,7 @@
 #include "Utility/Console.h"
 #include "Utility/Preferences.h"
 #include "Utility/VecMath.h"
+#include "View/DragAndDrop.h"
 
 #include <wx/wx.h>
 
@@ -52,6 +53,25 @@ namespace TrenchBroom {
         EVT_MOTION(MapGLCanvas::OnMouseMove)
         EVT_MOUSEWHEEL(MapGLCanvas::OnMouseWheel)
         END_EVENT_TABLE()
+
+        wxDragResult MapGLCanvasDropTarget::OnEnter(wxCoord x, wxCoord y, wxDragResult def) {
+            assert(CurrentDropSource != NULL);
+            CurrentDropSource->setShowFeedback(false);
+            return wxDragCopy;
+        }
+        
+        wxDragResult MapGLCanvasDropTarget::OnDragOver(wxCoord x, wxCoord y, wxDragResult def) {
+            return wxDragCopy;
+        }
+        
+        void MapGLCanvasDropTarget::OnLeave() {
+            assert(CurrentDropSource != NULL);
+            CurrentDropSource->setShowFeedback(true);
+        }
+        
+        bool MapGLCanvasDropTarget::OnDropText(wxCoord x, wxCoord y, const wxString& data) {
+            return false;
+        }
 
         bool MapGLCanvas::HandleModifierKey(int keyCode, bool down) {
             Controller::ModifierKeyState key;
@@ -85,7 +105,8 @@ namespace TrenchBroom {
         wxGLCanvas(parent, wxID_ANY, documentViewHolder.document().sharedResources().attribs()),
         m_documentViewHolder(documentViewHolder),
         m_glContext(new wxGLContext(this, documentViewHolder.document().sharedResources().sharedContext())),
-        m_inputController(new Controller::InputController(documentViewHolder)){
+        m_inputController(new Controller::InputController(documentViewHolder)) {
+            SetDropTarget(new MapGLCanvasDropTarget());
         }
 
         MapGLCanvas::~MapGLCanvas() {

@@ -28,6 +28,7 @@
 		48312B3815EB80C000607868 /* TextureManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B3615EB80C000607868 /* TextureManager.cpp */; };
 		48312B3C15EB814700607868 /* Wad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B3A15EB814700607868 /* Wad.cpp */; };
 		48312B4215EB9EA900607868 /* RenderContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B4015EB9EA900607868 /* RenderContext.cpp */; };
+		4842AF67162176100042AD66 /* DragAndDrop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4842AF66162176100042AD66 /* DragAndDrop.cpp */; };
 		484763E015E2BC5000095BC0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 484763DE15E2BC5000095BC0 /* InfoPlist.strings */; };
 		4847640B15E2DEE100095BC0 /* MapDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847640915E2DEE100095BC0 /* MapDocument.cpp */; };
 		4847640E15E2E03000095BC0 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847640C15E2E03000095BC0 /* Entity.cpp */; };
@@ -165,6 +166,8 @@
 		48312B4715EBB20000607868 /* Filter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Filter.h; sourceTree = "<group>"; };
 		48312B4815EBC14F00607868 /* Color.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Color.h; sourceTree = "<group>"; };
 		48312B4A15EBC35800607868 /* RenderUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RenderUtils.h; sourceTree = "<group>"; };
+		4842AF64162175300042AD66 /* DragAndDrop.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragAndDrop.h; sourceTree = "<group>"; };
+		4842AF66162176100042AD66 /* DragAndDrop.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragAndDrop.cpp; sourceTree = "<group>"; };
 		4845871D15ECBE6A00EC9F8B /* mmapped_fstream_posix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mmapped_fstream_posix.h; sourceTree = "<group>"; };
 		484763D115E2BC5000095BC0 /* TrenchBroom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrenchBroom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		484763D515E2BC5000095BC0 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -566,6 +569,8 @@
 				48D417D2160B39A5003AECBB /* CellLayout.h */,
 				48D417D4160B39CD003AECBB /* CellLayoutGLCanvas.h */,
 				481CDADD1603BAF2003E2EE9 /* DocumentViewHolder.h */,
+				4842AF66162176100042AD66 /* DragAndDrop.cpp */,
+				4842AF64162175300042AD66 /* DragAndDrop.h */,
 				48D1BEAC15E3AC060073C030 /* EditorView.cpp */,
 				48D1BEAD15E3AC060073C030 /* EditorView.h */,
 				48D1BEB215E4237A0073C030 /* EditorFrame.cpp */,
@@ -885,6 +890,7 @@
 				48B059D416189A7600E6B0AD /* EntityBrowserCanvas.cpp in Sources */,
 				48B059D71618AB2500E6B0AD /* EntityBrowser.cpp in Sources */,
 				488457D0161C839A002ADDAE /* OffscreenRenderer.cpp in Sources */,
+				4842AF67162176100042AD66 /* DragAndDrop.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

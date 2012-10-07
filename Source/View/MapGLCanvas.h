@@ -49,6 +49,8 @@ namespace TrenchBroom {
         
         class MapGLCanvasDropTarget : public wxTextDropTarget {
         public:
+            MapGLCanvasDropTarget() : wxTextDropTarget() {}
+            
             wxDragResult OnEnter(wxCoord x, wxCoord y, wxDragResult def);
             wxDragResult OnDragOver(wxCoord x, wxCoord y, wxDragResult def);
             void OnLeave();
