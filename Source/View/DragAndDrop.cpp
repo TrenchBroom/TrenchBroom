@@ -19,6 +19,8 @@
 
 #include "DragAndDrop.h"
 
+#include "MacScreenDC.h"
+
 #include <cassert>
 
 namespace TrenchBroom {
@@ -75,10 +77,14 @@ namespace TrenchBroom {
             int y = mouseState.GetY() - m_imageOffset.y;
             
             if (m_screenDC == NULL) {
-                m_screenDC = new wxScreenDC();
+                m_screenDC = new MacScreenDC();
                 assert(m_screenDC->IsOk());
             }
+            
+            m_screenDC->SetPen(*wxRED_PEN);
+            m_screenDC->DrawCircle(x, y, 10);
             m_screenDC->DrawBitmap(m_feedbackImage, x, y);
+            m_screenDC->Flush();
             
             return true;
         }

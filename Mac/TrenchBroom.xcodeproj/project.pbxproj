@@ -29,6 +29,7 @@
 		48312B3C15EB814700607868 /* Wad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B3A15EB814700607868 /* Wad.cpp */; };
 		48312B4215EB9EA900607868 /* RenderContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B4015EB9EA900607868 /* RenderContext.cpp */; };
 		4842AF67162176100042AD66 /* DragAndDrop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4842AF66162176100042AD66 /* DragAndDrop.cpp */; };
+		4842AF7416220D7A0042AD66 /* MacScreenDC.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4842AF7216220D7A0042AD66 /* MacScreenDC.mm */; };
 		484763E015E2BC5000095BC0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 484763DE15E2BC5000095BC0 /* InfoPlist.strings */; };
 		4847640B15E2DEE100095BC0 /* MapDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847640915E2DEE100095BC0 /* MapDocument.cpp */; };
 		4847640E15E2E03000095BC0 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847640C15E2E03000095BC0 /* Entity.cpp */; };
@@ -168,6 +169,9 @@
 		48312B4A15EBC35800607868 /* RenderUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RenderUtils.h; sourceTree = "<group>"; };
 		4842AF64162175300042AD66 /* DragAndDrop.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragAndDrop.h; sourceTree = "<group>"; };
 		4842AF66162176100042AD66 /* DragAndDrop.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragAndDrop.cpp; sourceTree = "<group>"; };
+		4842AF7216220D7A0042AD66 /* MacScreenDC.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacScreenDC.mm; sourceTree = "<group>"; };
+		4842AF7316220D7A0042AD66 /* MacScreenDC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacScreenDC.h; sourceTree = "<group>"; };
+		4842AF75162211270042AD66 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = ../../../../../../../Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/AppKit.framework; sourceTree = "<group>"; };
 		4845871D15ECBE6A00EC9F8B /* mmapped_fstream_posix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mmapped_fstream_posix.h; sourceTree = "<group>"; };
 		484763D115E2BC5000095BC0 /* TrenchBroom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrenchBroom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		484763D515E2BC5000095BC0 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -441,6 +445,7 @@
 		484763C615E2BC5000095BC0 = {
 			isa = PBXGroup;
 			children = (
+				4842AF75162211270042AD66 /* AppKit.framework */,
 				48AF61F515F8B7720027C465 /* libbz2.a */,
 				48AF61F315F8B7360027C465 /* libfreetype.a */,
 				48312B2715EABBD600607868 /* Icon.icns */,
@@ -491,6 +496,8 @@
 				48DFD4BA1606308E00E554E1 /* MacCapabilities.cpp */,
 				48819C3E15EC0CE700BEA604 /* MacFileManager.h */,
 				48819C3D15EC0CE700BEA604 /* MacFileManager.cpp */,
+				4842AF7216220D7A0042AD66 /* MacScreenDC.mm */,
+				4842AF7316220D7A0042AD66 /* MacScreenDC.h */,
 				48D1BEB515E423F60073C030 /* TrenchBroomApp.cpp */,
 				48D1BEB615E423F60073C030 /* TrenchBroomApp.h */,
 			);
@@ -891,6 +898,7 @@
 				48B059D71618AB2500E6B0AD /* EntityBrowser.cpp in Sources */,
 				488457D0161C839A002ADDAE /* OffscreenRenderer.cpp in Sources */,
 				4842AF67162176100042AD66 /* DragAndDrop.cpp in Sources */,
+				4842AF7416220D7A0042AD66 /* MacScreenDC.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -961,6 +969,7 @@
 				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
 				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_LINK_OBJC_RUNTIME = NO;
 				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -977,16 +986,16 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = (
-					"-isystem\"$(SRCROOT)/wxWidgets/build-debug/lib/wx/include/osx_cocoa-unicode-static-2.9\"",
-					"-isystem\"$(SRCROOT)/wxWidgets/include\"",
+					"-isystem/Users/kristian/Documents/Code/XCode/wxWidgets-2.9.4/build-debug/lib/wx/include/osx_cocoa-unicode-2.9",
+					"-isystem/Users/kristian/Documents/Code/XCode/wxWidgets-2.9.4/include",
 					"-D_FILE_OFFSET_BITS=64",
+					"-DWXUSINGDLL",
 					"-D__WXMAC__",
 					"-D__WXOSX__",
 					"-D__WXOSX_COCOA__",
-					"-D__WXDEBUG__",
 				);
 				OTHER_LDFLAGS = (
-					"-L\"$(SRCROOT)/wxWidgets/build-debug/lib\"",
+					"-L/Users/kristian/Documents/Code/XCode/wxWidgets-2.9.4/build-debug/lib",
 					"-framework",
 					IOKit,
 					"-framework",
@@ -1001,20 +1010,11 @@
 					OpenGL,
 					"-framework",
 					QuickTime,
-					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_osx_cocoau_gl-2.9.a\"",
-					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_osx_cocoau_adv-2.9.a\"",
-					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_osx_cocoau_core-2.9.a\"",
-					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_baseu-2.9.a\"",
-					"-framework",
-					WebKit,
-					"-lexpat",
-					"-lwxregexu-2.9",
-					"-lwxtiff-2.9",
-					"-lwxjpeg-2.9",
-					"-lwxpng-2.9",
+					"-lwx_osx_cocoau_gl-2.9",
+					"-lwx_osx_cocoau_adv-2.9",
+					"-lwx_osx_cocoau_core-2.9",
+					"-lwx_baseu-2.9",
 					"-lz",
-					"-lpthread",
-					"-liconv",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx10.6;
@@ -1028,6 +1028,7 @@
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
 				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_LINK_OBJC_RUNTIME = NO;
 				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_OPTIMIZATION_LEVEL = 3;

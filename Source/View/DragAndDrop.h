@@ -23,6 +23,8 @@
 #include <wx/dnd.h>
 #include <wx/frame.h>
 
+class MacScreenDC;
+
 namespace TrenchBroom {
     namespace View {
         class FeedbackFrame : public wxFrame {
@@ -35,7 +37,7 @@ namespace TrenchBroom {
         
         class DropSource : public wxDropSource {
         private:
-            wxScreenDC* m_screenDC;
+            MacScreenDC* m_screenDC;
             wxBitmap m_feedbackImage;
             wxPoint m_imageOffset;
             bool m_showFeedback;
