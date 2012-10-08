@@ -1,4 +1,4 @@
-/*
+    /*
  Copyright (C) 2010-2012 Kristian Duske
  
  This file is part of TrenchBroom.
@@ -72,17 +72,17 @@ namespace TrenchBroom {
             if (!m_showFeedback)
                 return false;
             
-            wxMouseState mouseState = ::wxGetMouseState();
-            int x = mouseState.GetX() - m_imageOffset.x;
-            int y = mouseState.GetY() - m_imageOffset.y;
-            
             if (m_screenDC == NULL) {
                 m_screenDC = new MacScreenDC();
                 assert(m_screenDC->IsOk());
             }
             
-            m_screenDC->SetPen(*wxRED_PEN);
-            m_screenDC->DrawCircle(x, y, 10);
+            int height = m_screenDC->GetSize().y;
+            
+            wxMouseState mouseState = ::wxGetMouseState();
+            int x = mouseState.GetX() - m_imageOffset.x;
+            int y = height - mouseState.GetY() - (m_feedbackImage.GetHeight() - m_imageOffset.y);
+            
             m_screenDC->DrawBitmap(m_feedbackImage, x, y);
             m_screenDC->Flush();
             

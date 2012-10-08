@@ -112,7 +112,7 @@ namespace TrenchBroom {
                 }
                 
                 Vec3f size = rotatedBounds.size();
-                layout.addItem(EntityCellData(definition, entityRenderer, stringRenderer, rotatedBounds), size.x, size.z, actualSize.x, font.size() + 2.0f);
+                layout.addItem(EntityCellData(definition, entityRenderer, stringRenderer, rotatedBounds), size.y, size.z, actualSize.x, font.size() + 2.0f);
             }
         }
         
@@ -352,13 +352,13 @@ namespace TrenchBroom {
         }
         
         wxImage* EntityBrowserCanvas::dndImage(const Layout::Group::Row::Cell& cell) {
+            if (!SetCurrent(*glContext()))
+                return NULL;
+
             const LayoutBounds& bounds = cell.itemBounds();
             
             unsigned int width = static_cast<unsigned int>(bounds.width());
             unsigned int height = static_cast<unsigned int>(bounds.height());
-            
-            if (!SetCurrent(*glContext()))
-                return NULL;
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             Renderer::EntityRendererManager& entityRendererManager = m_documentViewHolder.document().sharedResources().entityRendererManager();
@@ -412,6 +412,10 @@ namespace TrenchBroom {
             
             wxImage* image = m_offscreenRenderer.getImage();
             m_offscreenRenderer.postRender();
+            
+            wxInitAllImageHandlers();
+            image->SaveFile("/Users/kristian/Temp/entity.png", wxBITMAP_TYPE_PNG);
+            
             return image;
         }
         

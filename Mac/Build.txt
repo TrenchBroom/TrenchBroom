@@ -14,6 +14,7 @@ We're building against dynamic libraries at the default paths (/usr/local/lib) i
 
 - Get the latest sources of wxWidgets 2.9 from wxwidgets.org and unpack them.
 - Move the unpacked directory someplace where you want to keep it.
+- Apply the patches from TrenchBroom/Mac/wxWidgets-patches (manually)
 - Open a terminal and change into the wxwidgets directory.
 - Create two directories: build-release and build-debug (don't rename those!)
 - Change into wxwidgets/build-release

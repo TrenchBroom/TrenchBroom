@@ -22,6 +22,7 @@
 #include "GL/Capabilities.h"
 
 #include <cassert>
+#include <cstring>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -146,6 +147,21 @@ namespace TrenchBroom {
             unsigned char* alphaData = new unsigned char[m_width * m_height];
             glReadPixels(0, 0, m_width, m_height, GL_RGB, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid*>(imageData));
             glReadPixels(0, 0, m_width, m_height, GL_ALPHA, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid*>(alphaData));
+            
+            unsigned char imageLine[m_width * 3];
+            unsigned char alphaLine[m_width];
+            for (unsigned int y = 0; y < m_height / 2; y++) {
+                size_t sourceLine = y * m_width;
+                size_t destLine = (m_height - y - 1) * m_width;
+                
+                memcpy(imageLine, &imageData[destLine * 3], m_width * 3);
+                memcpy(&imageData[destLine * 3], &imageData[sourceLine * 3], m_width * 3);
+                memcpy(&imageData[sourceLine * 3], imageLine, m_width * 3);
+                
+                memcpy(alphaLine, &alphaData[destLine], m_width);
+                memcpy(&alphaData[destLine], &alphaData[sourceLine], m_width);
+                memcpy(&alphaData[sourceLine], alphaLine, m_width);
+            }
             
             return new wxImage(m_width, m_height, imageData, alphaData);
         }

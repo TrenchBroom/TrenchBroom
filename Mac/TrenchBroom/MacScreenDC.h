@@ -31,11 +31,11 @@ public:
     MacScreenDCImpl( wxDC *owner );
     virtual ~MacScreenDCImpl();
     
+    virtual void Clear();
     virtual void Flush();
     virtual wxBitmap DoGetAsBitmap(const wxRect *subrect) const;
 private:
     void* m_overlayWindow;
-    void* m_nativeGraphicsContext;
     
 private:
     DECLARE_CLASS(MacScreenDCImpl)

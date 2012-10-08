@@ -40,24 +40,32 @@ wxWindowDCImpl(owner) {
     NSWindow* overlayWindow = [[NSWindow alloc] initWithContentRect:overlayBounds styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:NO];
     [overlayWindow setIgnoresMouseEvents:YES];
     [overlayWindow setOpaque:NO];
-    [overlayWindow setAlphaValue:0.5f];
+    [overlayWindow setBackgroundColor:[NSColor clearColor]];
     [overlayWindow setLevel:NSFloatingWindowLevel];
     [overlayWindow orderFrontRegardless];
     m_overlayWindow = overlayWindow;
     
-    NSGraphicsContext* graphicsContext = [NSGraphicsContext graphicsContextWithGraphicsPort:[[overlayWindow graphicsContext] graphicsPort] flipped:NO];
-    m_nativeGraphicsContext = [graphicsContext retain];
-    SetGraphicsContext(wxGraphicsContext::CreateFromNative([graphicsContext graphicsPort]));
-    
+    SetGraphicsContext(wxGraphicsContext::CreateFromNative([[overlayWindow graphicsContext] graphicsPort]));
     m_ok = true ;
 }
 
 MacScreenDCImpl::~MacScreenDCImpl() {
     wxDELETE(m_graphicContext);
-    NSGraphicsContext* graphicsContext = (NSGraphicsContext*)m_nativeGraphicsContext;
-    [graphicsContext release];
     NSWindow* overlayWindow = (NSWindow*)m_overlayWindow;
     [overlayWindow release];
+}
+
+void MacScreenDCImpl::Clear() {
+    NSWindow* overlayWindow = (NSWindow*)m_overlayWindow;
+
+    [NSGraphicsContext setCurrentContext:[overlayWindow graphicsContext]];
+    [NSGraphicsContext saveGraphicsState];
+    [[overlayWindow graphicsContext] setCompositingOperation:NSCompositeClear];
+    
+    NSBezierPath* path = [NSBezierPath bezierPathWithRect:[overlayWindow frame]];
+    [path fill];
+    
+    [NSGraphicsContext restoreGraphicsState];
 }
 
 void MacScreenDCImpl::Flush() {
