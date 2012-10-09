@@ -106,23 +106,10 @@ namespace TrenchBroom {
             typedef std::pair<Model::Texture*, Renderer::Text::StringRendererPtr> StringRendererCacheEntry;
             StringRendererCache m_stringRendererCache;
             
-            Renderer::ShaderPtr m_textureBorderVertexShader;
-            Renderer::ShaderPtr m_textureBorderFragmentShader;
-            Renderer::ShaderPtr m_textureVertexShader;
-            Renderer::ShaderPtr m_textureFragmentShader;
-            Renderer::ShaderPtr m_textVertexShader;
-            Renderer::ShaderPtr m_textFragmentShader;
-            Renderer::ShaderProgramPtr m_textureBorderShaderProgram;
-            Renderer::ShaderProgramPtr m_textureShaderProgram;
-            Renderer::ShaderProgramPtr m_textShaderProgram;
-            bool m_shadersCreated;
-            
             bool m_group;
             bool m_hideUnused;
             Model::TextureSortOrder::Type m_sortOrder;
             String m_filterText;
-            
-            void createShaders();
             
             void addTextureToLayout(Layout& layout, Model::Texture* texture, const Renderer::Text::FontDescriptor& font);
             virtual void doInitLayout(Layout& layout);

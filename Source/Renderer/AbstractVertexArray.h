@@ -22,7 +22,7 @@
 
 #include <GL/glew.h>
 #include "Renderer/Vbo.h"
-#include "Renderer/Shader/Shader.h"
+#include "Renderer/Shader/ShaderProgram.h"
 #include "Utility/String.h"
 
 #include <cassert>

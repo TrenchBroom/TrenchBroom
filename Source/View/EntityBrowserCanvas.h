@@ -37,6 +37,7 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class EntityModelRenderer;
+        class ShaderProgram;
     }
     
     namespace View {
@@ -80,27 +81,14 @@ namespace TrenchBroom {
             typedef std::pair<Model::PointEntityDefinition*, Renderer::Text::StringRendererPtr> StringRendererCacheEntry;
             StringRendererCache m_stringRendererCache;
             
-            Renderer::ShaderPtr m_boundsVertexShader;
-            Renderer::ShaderPtr m_boundsFragmentShader;
-            Renderer::ShaderPtr m_modelVertexShader;
-            Renderer::ShaderPtr m_modelFragmentShader;
-            Renderer::ShaderPtr m_textVertexShader;
-            Renderer::ShaderPtr m_textFragmentShader;
-            Renderer::ShaderProgramPtr m_boundsShaderProgram;
-            Renderer::ShaderProgramPtr m_modelShaderProgram;
-            Renderer::ShaderProgramPtr m_textShaderProgram;
-            bool m_shadersCreated;
-            
             bool m_group;
             bool m_hideUnused;
             Model::EntityDefinitionManager::SortOrder m_sortOrder;
             String m_filterText;
             
-            void createShaders();
-            
             void addEntityToLayout(Layout& layout, Model::PointEntityDefinition* definition, const Renderer::Text::FontDescriptor& font);
-            void renderEntityBounds(Renderer::Transformation& transformation, const Model::PointEntityDefinition& definition, const BBox& rotatedBounds, const Vec3f& offset, float scale);
-            void renderEntityModel(Renderer::Transformation& transformation, Renderer::EntityModelRenderer& renderer, const BBox& rotatedBounds, const Vec3f& offset, float scale);
+            void renderEntityBounds(Renderer::Transformation& transformation, Renderer::ShaderProgram& boundsProgram, const Model::PointEntityDefinition& definition, const BBox& rotatedBounds, const Vec3f& offset, float scale);
+            void renderEntityModel(Renderer::Transformation& transformation, Renderer::ShaderProgram& entityModelProgram, Renderer::EntityModelRenderer& renderer, const BBox& rotatedBounds, const Vec3f& offset, float scale);
             
             virtual void doInitLayout(Layout& layout);
             virtual void doReloadLayout(Layout& layout);

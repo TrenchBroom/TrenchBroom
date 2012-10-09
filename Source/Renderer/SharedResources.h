@@ -45,12 +45,14 @@ namespace TrenchBroom {
         
         class EntityModelRendererManager;
         class Palette;
+        class ShaderManager;
         class TextureRendererManager;
         
         class SharedResources : public wxFrame {
         protected:
             Palette* m_palette;
             EntityModelRendererManager* m_modelRendererManager;
+            ShaderManager* m_shaderManager;
             TextureRendererManager* m_textureRendererManager;
             Text::StringManager* m_stringManager;
             
@@ -72,6 +74,10 @@ namespace TrenchBroom {
             
             inline EntityModelRendererManager& modelRendererManager() const {
                 return *m_modelRendererManager;
+            }
+            
+            inline ShaderManager& shaderManager() const {
+                return *m_shaderManager;
             }
             
             inline TextureRendererManager& textureRendererManager() const {

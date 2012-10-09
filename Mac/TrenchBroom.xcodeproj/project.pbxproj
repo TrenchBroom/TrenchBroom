@@ -22,6 +22,9 @@
 		481CDAD816026C48003E2EE9 /* PreferencesDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481CDAD616026C48003E2EE9 /* PreferencesDialog.cpp */; };
 		481CDADB16034034003E2EE9 /* Preferences.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481CDADA16034034003E2EE9 /* Preferences.cpp */; };
 		481E564916242D6B00B403F3 /* EntityDragTargetTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481E564716242D6B00B403F3 /* EntityDragTargetTool.cpp */; };
+		481E566F1624451300B403F3 /* EntityRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481E566D1624451300B403F3 /* EntityRenderer.cpp */; };
+		481E56721624482600B403F3 /* ShaderProgram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481E56701624482600B403F3 /* ShaderProgram.cpp */; };
+		481E5675162448F600B403F3 /* ShaderManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481E5673162448F600B403F3 /* ShaderManager.cpp */; };
 		48312B2815EABBD600607868 /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 48312B2715EABBD600607868 /* Icon.icns */; };
 		48312B2C15EB706D00607868 /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B2A15EB706D00607868 /* Console.cpp */; };
 		48312B3215EB800600607868 /* Vbo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B3015EB800600607868 /* Vbo.cpp */; };
@@ -153,6 +156,12 @@
 		481E56461624120900B403F3 /* DragTargetTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragTargetTool.h; sourceTree = "<group>"; };
 		481E564716242D6B00B403F3 /* EntityDragTargetTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityDragTargetTool.cpp; sourceTree = "<group>"; };
 		481E564816242D6B00B403F3 /* EntityDragTargetTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDragTargetTool.h; sourceTree = "<group>"; };
+		481E566D1624451300B403F3 /* EntityRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityRenderer.cpp; sourceTree = "<group>"; };
+		481E566E1624451300B403F3 /* EntityRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityRenderer.h; sourceTree = "<group>"; };
+		481E56701624482600B403F3 /* ShaderProgram.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShaderProgram.cpp; sourceTree = "<group>"; };
+		481E56711624482600B403F3 /* ShaderProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderProgram.h; sourceTree = "<group>"; };
+		481E5673162448F600B403F3 /* ShaderManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShaderManager.cpp; sourceTree = "<group>"; };
+		481E5674162448F600B403F3 /* ShaderManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderManager.h; sourceTree = "<group>"; };
 		48312B2715EABBD600607868 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
 		48312B2A15EB706D00607868 /* Console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Console.cpp; sourceTree = "<group>"; };
 		48312B2B15EB706D00607868 /* Console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Console.h; sourceTree = "<group>"; };
@@ -415,6 +424,8 @@
 				4850D27615F4C9C2005B162D /* EntityModelRenderer.h */,
 				4850D27715F4C9C2005B162D /* EntityModelRendererManager.cpp */,
 				4850D27815F4C9C2005B162D /* EntityModelRendererManager.h */,
+				481E566D1624451300B403F3 /* EntityRenderer.cpp */,
+				481E566E1624451300B403F3 /* EntityRenderer.h */,
 				48312B3315EB805E00607868 /* MapRenderer.cpp */,
 				48312B3415EB805E00607868 /* MapRenderer.h */,
 				488457CE161C839A002ADDAE /* OffscreenRenderer.cpp */,
@@ -746,6 +757,10 @@
 				4896F38D160E06F50029B30C /* TextureBrowserBorder.fragsh */,
 				48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */,
 				48F0B7C215FCB4CF0089B0B5 /* Shader.h */,
+				481E5673162448F600B403F3 /* ShaderManager.cpp */,
+				481E5674162448F600B403F3 /* ShaderManager.h */,
+				481E56701624482600B403F3 /* ShaderProgram.cpp */,
+				481E56711624482600B403F3 /* ShaderProgram.h */,
 			);
 			path = Shader;
 			sourceTree = "<group>";
@@ -907,6 +922,9 @@
 				4842AF67162176100042AD66 /* DragAndDrop.cpp in Sources */,
 				4842AF7416220D7A0042AD66 /* MacScreenDC.mm in Sources */,
 				481E564916242D6B00B403F3 /* EntityDragTargetTool.cpp in Sources */,
+				481E566F1624451300B403F3 /* EntityRenderer.cpp in Sources */,
+				481E56721624482600B403F3 /* ShaderProgram.cpp in Sources */,
+				481E5675162448F600B403F3 /* ShaderManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

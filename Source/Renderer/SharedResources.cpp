@@ -23,6 +23,7 @@
 #include "Renderer/EntityModelRendererManager.h"
 #include "Renderer/Palette.h"
 #include "Renderer/TextureRendererManager.h"
+#include "Renderer/Shader/ShaderManager.h"
 #include "Renderer/Text/StringManager.h"
 #include "Utility/Console.h"
 #include "Utility/Preferences.h"
@@ -81,6 +82,7 @@ namespace TrenchBroom {
                 console.error("Unable to initialize glew: %s", glewGetErrorString(glewState));
             
             m_modelRendererManager = new EntityModelRendererManager(console);
+            m_shaderManager = new ShaderManager(console);
             m_textureRendererManager = new TextureRendererManager(textureManager);
             m_stringManager = new Text::StringManager(console);
             
@@ -96,6 +98,10 @@ namespace TrenchBroom {
             if (m_stringManager != NULL) {
                 delete m_stringManager;
                 m_stringManager = NULL;
+            }
+            if (m_shaderManager != NULL) {
+                delete m_shaderManager;
+                m_shaderManager = NULL;
             }
             if (m_textureRendererManager != NULL) {
                 delete m_textureRendererManager;

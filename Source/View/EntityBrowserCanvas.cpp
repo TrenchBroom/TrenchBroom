@@ -27,42 +27,15 @@
 #include "Renderer/RenderUtils.h"
 #include "Renderer/SharedResources.h"
 #include "Renderer/VertexArray.h"
+#include "Renderer/Shader/Shader.h"
+#include "Renderer/Shader/ShaderManager.h"
+#include "Renderer/Shader/ShaderProgram.h"
 #include "Renderer/Text/PathRenderer.h"
 #include "View/DocumentViewHolder.h"
 #include "View/EditorView.h"
 
 namespace TrenchBroom {
     namespace View {
-        void EntityBrowserCanvas::createShaders() {
-            assert(!m_shadersCreated);
-            
-            Utility::Console& console = m_documentViewHolder.view().console();
-            IO::FileManager fileManager;
-            String resourceDirectory = fileManager.resourceDirectory();
-            
-            
-            m_boundsVertexShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "Edge.vertsh"), GL_VERTEX_SHADER, console));
-            m_boundsFragmentShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "Edge.fragsh"), GL_FRAGMENT_SHADER, console));
-            m_boundsShaderProgram = Renderer::ShaderProgramPtr(new Renderer::ShaderProgram("entity browser bounds shader program", console));
-            m_boundsShaderProgram->attachShader(*m_boundsVertexShader.get());
-            m_boundsShaderProgram->attachShader(*m_boundsFragmentShader.get());
-            
-            
-            m_modelVertexShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "EntityModel.vertsh"), GL_VERTEX_SHADER, console));
-            m_modelFragmentShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "EntityModel.fragsh"), GL_FRAGMENT_SHADER, console));
-            m_modelShaderProgram = Renderer::ShaderProgramPtr(new Renderer::ShaderProgram("entity browser model shader program", console));
-            m_modelShaderProgram->attachShader(*m_modelVertexShader.get());
-            m_modelShaderProgram->attachShader(*m_modelFragmentShader.get());
-            
-            m_textVertexShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "Text.vertsh"), GL_VERTEX_SHADER, console));
-            m_textFragmentShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "Text.fragsh"), GL_FRAGMENT_SHADER, console));
-            m_textShaderProgram = Renderer::ShaderProgramPtr(new Renderer::ShaderProgram("entity browser text shader program", console));
-            m_textShaderProgram->attachShader(*m_textVertexShader.get());
-            m_textShaderProgram->attachShader(*m_textFragmentShader.get());
-            
-            m_shadersCreated = true;
-        }
-
         void EntityBrowserCanvas::addEntityToLayout(Layout& layout, Model::PointEntityDefinition* definition, const Renderer::Text::FontDescriptor& font) {
             if ((!m_hideUnused || definition->usageCount() > 0) && (m_filterText.empty() || Utility::containsString(definition->name(), m_filterText, false))) {
                 Renderer::Text::FontDescriptor actualFont(font);
@@ -116,7 +89,7 @@ namespace TrenchBroom {
             }
         }
         
-        void EntityBrowserCanvas::renderEntityBounds(Renderer::Transformation& transformation, const Model::PointEntityDefinition& definition, const BBox& rotatedBounds, const Vec3f& offset, float scale) {
+        void EntityBrowserCanvas::renderEntityBounds(Renderer::Transformation& transformation, Renderer::ShaderProgram& boundsProgram, const Model::PointEntityDefinition& definition, const BBox& rotatedBounds, const Vec3f& offset, float scale) {
             const BBox& bounds = definition.bounds();
             
             Renderer::PushMatrix pushMatrix(transformation);
@@ -129,7 +102,7 @@ namespace TrenchBroom {
             itemMatrix.translate(-1.0f * bounds.center());
             pushMatrix.load(itemMatrix);
             
-            m_boundsShaderProgram->setUniformVariable("Color", definition.color());
+            boundsProgram.setUniformVariable("Color", definition.color());
             
             Vec3f::List vertices;
             bounds.vertices(vertices);
@@ -140,7 +113,7 @@ namespace TrenchBroom {
             glEnd();
         }
         
-        void EntityBrowserCanvas::renderEntityModel(Renderer::Transformation& transformation, Renderer::EntityModelRenderer& renderer, const BBox& rotatedBounds, const Vec3f& offset, float scale) {
+        void EntityBrowserCanvas::renderEntityModel(Renderer::Transformation& transformation, Renderer::ShaderProgram& entityModelProgram, Renderer::EntityModelRenderer& renderer, const BBox& rotatedBounds, const Vec3f& offset, float scale) {
             const Vec3f& rotationCenter = renderer.center();
             
             Renderer::PushMatrix pushMatrix(transformation);
@@ -153,7 +126,7 @@ namespace TrenchBroom {
             itemMatrix.translate(-1.0f * rotationCenter);
             pushMatrix.load(itemMatrix);
             
-            renderer.render(*m_modelShaderProgram);
+            renderer.render(entityModelProgram);
         }
 
         void EntityBrowserCanvas::doInitLayout(Layout& layout) {
@@ -208,10 +181,12 @@ namespace TrenchBroom {
         }
 
         void EntityBrowserCanvas::doRender(Layout& layout, float y, float height) {
-            glEnable(GL_DEPTH_TEST);
+            Renderer::ShaderManager& shaderManager = m_documentViewHolder.document().sharedResources().shaderManager();
+            Renderer::ShaderProgram& boundsProgram = shaderManager.shaderProgram(Renderer::Shaders::EdgeShader);
+            Renderer::ShaderProgram& entityModelProgram = shaderManager.shaderProgram(Renderer::Shaders::EntityModelShader);
+            Renderer::ShaderProgram& textProgram = shaderManager.shaderProgram(Renderer::Shaders::TextShader);
             
-            if (!m_shadersCreated)
-                createShaders();
+            glEnable(GL_DEPTH_TEST);
 
             float viewLeft      = static_cast<float>(GetClientRect().GetLeft());
             float viewTop       = static_cast<float>(GetClientRect().GetBottom());
@@ -231,7 +206,7 @@ namespace TrenchBroom {
             Renderer::Text::StringManager& stringManager = m_documentViewHolder.document().sharedResources().stringManager();
 
             // render bounds
-            m_boundsShaderProgram->activate();
+            boundsProgram.activate();
             for (unsigned int i = 0; i < layout.size(); i++) {
                 const Layout::Group& group = layout[i];
                 if (group.intersectsY(y, height)) {
@@ -243,19 +218,20 @@ namespace TrenchBroom {
                                 Model::PointEntityDefinition* definition = cell.item().entityDefinition;
                                 Renderer::EntityModelRenderer* modelRenderer = cell.item().modelRenderer;
                                 if (modelRenderer == NULL)
-                                    renderEntityBounds(transformation, *definition, cell.item().bounds, Vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y)), cell.scale());
+                                    renderEntityBounds(transformation, boundsProgram, *definition, cell.item().bounds, Vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y)), cell.scale());
                             }
                         }
                     }
                 }
             }
-            m_boundsShaderProgram->deactivate();
+            boundsProgram.deactivate();
             
             // render models
             modelRendererManager.activate();
-            m_modelShaderProgram->activate();
-            m_modelShaderProgram->setUniformVariable("ApplyTinting", false);
-            m_modelShaderProgram->setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
+            entityModelProgram.activate();
+            entityModelProgram.setUniformVariable("ApplyTinting", false);
+            entityModelProgram.setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
+            entityModelProgram.setUniformVariable("GrayScale", false);
             for (unsigned int i = 0; i < layout.size(); i++) {
                 const Layout::Group& group = layout[i];
                 if (group.intersectsY(y, height)) {
@@ -266,13 +242,13 @@ namespace TrenchBroom {
                                 const Layout::Group::Row::Cell& cell = row[k];
                                 Renderer::EntityModelRenderer* modelRenderer = cell.item().modelRenderer;
                                 if (modelRenderer != NULL)
-                                    renderEntityModel(transformation, *modelRenderer, cell.item().bounds, Vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y)), cell.scale());
+                                    renderEntityModel(transformation, entityModelProgram, *modelRenderer, cell.item().bounds, Vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y)), cell.scale());
                             }
                         }
                     }
                 }
             }
-            m_modelShaderProgram->deactivate();
+            entityModelProgram.deactivate();
             modelRendererManager.deactivate();
 
             glDisable(GL_DEPTH_TEST);
@@ -281,7 +257,7 @@ namespace TrenchBroom {
             transformation = Renderer::Transformation(projection * view, true);
 
             // render entity captions
-            m_textShaderProgram->activate();
+            textProgram.activate();
             stringManager.activate();
             for (unsigned int i = 0; i < layout.size(); i++) {
                 const Layout::Group& group = layout[i];
@@ -292,7 +268,7 @@ namespace TrenchBroom {
                             for (unsigned int k = 0; k < row.size(); k++) {
                                 const Layout::Group::Row::Cell& cell = row[k];
                                 
-                                m_textShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::BrowserTextureColor));
+                                textProgram.setUniformVariable("Color", prefs.getColor(Preferences::BrowserTextureColor));
                                 
                                 Renderer::PushMatrix matrix(transformation);
                                 Mat4f translate = matrix.matrix();
@@ -313,7 +289,7 @@ namespace TrenchBroom {
                 const Layout::Group& group = layout[i];
                 if (group.intersectsY(y, height)) {
                     if (!group.item().groupName.empty()) {
-                        m_textShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupBackgroundColor));
+                        textProgram.setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupBackgroundColor));
                         LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
                         glBegin(GL_QUADS);
                         glVertex2f(titleBounds.left(), height - (titleBounds.top() - y));
@@ -337,14 +313,14 @@ namespace TrenchBroom {
                         translate.translate(Vec3f(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height() + 4.0f, 0.0f));
                         matrix.load(translate);
                         
-                        m_textShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupTextColor));
+                        textProgram.setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupTextColor));
                         Renderer::Text::StringRendererPtr stringRenderer = group.item().stringRenderer;
                         stringRenderer->render();
                     }
                 }
             }
             stringManager.deactivate();
-            m_textShaderProgram->deactivate();
+            textProgram.deactivate();
         }
         
         bool EntityBrowserCanvas::dndEnabled() {
@@ -363,6 +339,10 @@ namespace TrenchBroom {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             Renderer::EntityModelRendererManager& modelRendererManager = m_documentViewHolder.document().sharedResources().modelRendererManager();
             
+            Renderer::ShaderManager& shaderManager = m_documentViewHolder.document().sharedResources().shaderManager();
+            Renderer::ShaderProgram& boundsProgram = shaderManager.shaderProgram(Renderer::Shaders::EdgeShader);
+            Renderer::ShaderProgram& entityModelProgram = shaderManager.shaderProgram(Renderer::Shaders::EntityModelShader);
+
             m_offscreenRenderer.setDimensions(width, height);
             m_offscreenRenderer.preRender();
             
@@ -386,17 +366,17 @@ namespace TrenchBroom {
             
             Renderer::EntityModelRenderer* modelRenderer = cell.item().modelRenderer;
             if (modelRenderer == NULL) {
-                m_boundsShaderProgram->activate();
+                boundsProgram.activate();
                 Model::PointEntityDefinition* definition = cell.item().entityDefinition;
-                renderEntityBounds(transformation, *definition, cell.item().bounds, Vec3f::Null, cell.scale());
-                m_boundsShaderProgram->deactivate();
+                renderEntityBounds(transformation, boundsProgram, *definition, cell.item().bounds, Vec3f::Null, cell.scale());
+                boundsProgram.deactivate();
             } else {
                 modelRendererManager.activate();
-                m_modelShaderProgram->activate();
-                m_modelShaderProgram->setUniformVariable("ApplyTinting", false);
-                m_modelShaderProgram->setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
-                renderEntityModel(transformation, *modelRenderer, cell.item().bounds, Vec3f::Null, cell.scale());
-                m_modelShaderProgram->deactivate();
+                entityModelProgram.activate();
+                entityModelProgram.setUniformVariable("ApplyTinting", false);
+                entityModelProgram.setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
+                renderEntityModel(transformation, entityModelProgram, *modelRenderer, cell.item().bounds, Vec3f::Null, cell.scale());
+                entityModelProgram.deactivate();
                 modelRendererManager.deactivate();
             }
             
@@ -429,8 +409,7 @@ namespace TrenchBroom {
         m_offscreenRenderer(GL::glCapabilities()),
         m_group(false),
         m_hideUnused(false),
-        m_sortOrder(Model::EntityDefinitionManager::Name),
-        m_shadersCreated(false) {
+        m_sortOrder(Model::EntityDefinitionManager::Name) {
             Quat hRotation = Quat(radians(-30.0f), Vec3f::PosZ);
             Quat vRotation = Quat(radians(20.0f), Vec3f::PosY);
             m_rotation = vRotation * hRotation;

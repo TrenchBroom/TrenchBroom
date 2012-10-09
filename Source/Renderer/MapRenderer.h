@@ -101,26 +101,6 @@ namespace TrenchBroom {
             EntityClassnameRendererPtr m_selectedClassnameRenderer;
             EntityClassnameRendererPtr m_lockedClassnameRenderer;
 
-            // shaders
-            bool m_shadersCreated;
-            ShaderPtr m_coloredEdgeVertexShader;
-            ShaderPtr m_edgeVertexShader;
-            ShaderPtr m_edgeFragmentShader;
-            ShaderPtr m_faceVertexShader;
-            ShaderPtr m_faceFragmentShader;
-            ShaderPtr m_entityModelVertexShader;
-            ShaderPtr m_entityModelFragmentShader;
-            ShaderPtr m_textVertexShader;
-            ShaderPtr m_textFragmentShader;
-            ShaderPtr m_textBackgroundVertexShader;
-            ShaderPtr m_textBackgroundFragmentShader;
-            ShaderProgramPtr m_coloredEdgeProgram;
-            ShaderProgramPtr m_edgeProgram;
-            ShaderProgramPtr m_faceProgram;
-            ShaderProgramPtr m_entityModelProgram;
-            ShaderProgramPtr m_textProgram;
-            ShaderProgramPtr m_textBackgroundProgram;
-            
             /*
             // selection guides
             SizeGuideFigure* m_sizeGuideFigure;
@@ -153,7 +133,6 @@ namespace TrenchBroom {
             void reloadEntityModels(RenderContext& context);
             void moveEntityModelRenderer(Model::Entity* entity, EntityModelRenderers& from, EntityModelRenderers& to);
             
-            void createShaders();
             void validate(RenderContext& context);
             
             void renderFaces(RenderContext& context);

@@ -29,6 +29,9 @@
 #include "Renderer/Transformation.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexArray.h"
+#include "Renderer/Shader/Shader.h"
+#include "Renderer/Shader/ShaderManager.h"
+#include "Renderer/Shader/ShaderProgram.h"
 #include "Renderer/Text/PathRenderer.h"
 #include "Utility/Preferences.h"
 #include "Utility/VecMath.h"
@@ -43,36 +46,6 @@ DEFINE_EVENT_TYPE(EVT_TEXTURE_SELECTED_EVENT)
 
 namespace TrenchBroom {
     namespace View {
-        void TextureBrowserCanvas::createShaders() {
-            assert(!m_shadersCreated);
-            
-            Utility::Console& console = m_documentViewHolder.view().console();
-            IO::FileManager fileManager;
-            String resourceDirectory = fileManager.resourceDirectory();
-            
-            
-            m_textureBorderVertexShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "TextureBrowserBorder.vertsh"), GL_VERTEX_SHADER, console));
-            m_textureBorderFragmentShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "TextureBrowserBorder.fragsh"), GL_FRAGMENT_SHADER, console));
-            m_textureBorderShaderProgram = Renderer::ShaderProgramPtr(new Renderer::ShaderProgram("texture browser border shader program", console));
-            m_textureBorderShaderProgram->attachShader(*m_textureBorderVertexShader.get());
-            m_textureBorderShaderProgram->attachShader(*m_textureBorderFragmentShader.get());
-
-            
-            m_textureVertexShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "TextureBrowser.vertsh"), GL_VERTEX_SHADER, console));
-            m_textureFragmentShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "TextureBrowser.fragsh"), GL_FRAGMENT_SHADER, console));
-            m_textureShaderProgram = Renderer::ShaderProgramPtr(new Renderer::ShaderProgram("texture browser texture shader program", console));
-            m_textureShaderProgram->attachShader(*m_textureVertexShader.get());
-            m_textureShaderProgram->attachShader(*m_textureFragmentShader.get());
-            
-            m_textVertexShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "Text.vertsh"), GL_VERTEX_SHADER, console));
-            m_textFragmentShader = Renderer::ShaderPtr(new Renderer::Shader(fileManager.appendPath(resourceDirectory, "Text.fragsh"), GL_FRAGMENT_SHADER, console));
-            m_textShaderProgram = Renderer::ShaderProgramPtr(new Renderer::ShaderProgram("texture browser text shader program", console));
-            m_textShaderProgram->attachShader(*m_textVertexShader.get());
-            m_textShaderProgram->attachShader(*m_textFragmentShader.get());
-            
-            m_shadersCreated = true;
-        }
-
         void TextureBrowserCanvas::addTextureToLayout(Layout& layout, Model::Texture* texture, const Renderer::Text::FontDescriptor& font) {
             if ((!m_hideUnused || texture->usageCount() > 0) && (m_filterText.empty() || Utility::containsString(texture->name(), m_filterText, false))) {
                 Renderer::Text::FontDescriptor actualFont(font);
@@ -139,9 +112,11 @@ namespace TrenchBroom {
         }
         
         void TextureBrowserCanvas::doRender(Layout& layout, float y, float height) {
-            if (!m_shadersCreated)
-                createShaders();
-
+            Renderer::ShaderManager& shaderManager = m_documentViewHolder.document().sharedResources().shaderManager();
+            Renderer::ShaderProgram& textureProgram = shaderManager.shaderProgram(Renderer::Shaders::TextureBrowserShader);
+            Renderer::ShaderProgram& textureBorderProgram = shaderManager.shaderProgram(Renderer::Shaders::TextureBrowserBorderShader);
+            Renderer::ShaderProgram& textProgram = shaderManager.shaderProgram(Renderer::Shaders::TextShader);
+            
             float viewLeft      = static_cast<float>(GetClientRect().GetLeft());
             float viewTop       = static_cast<float>(GetClientRect().GetBottom());
             float viewRight     = static_cast<float>(GetClientRect().GetRight());
@@ -159,7 +134,7 @@ namespace TrenchBroom {
             Renderer::Text::StringManager& stringManager = m_documentViewHolder.document().sharedResources().stringManager();
 
             // render borders
-            m_textureBorderShaderProgram->activate();
+            textureBorderProgram.activate();
             for (unsigned int i = 0; i < layout.size(); i++) {
                 const Layout::Group& group = layout[i];
                 if (group.intersectsY(y, height)) {
@@ -175,11 +150,11 @@ namespace TrenchBroom {
                                 
                                 if (selected || inUse || overridden) {
                                     if (selected)
-                                        m_textureBorderShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::SelectedTextureColor));
+                                        textureBorderProgram.setUniformVariable("Color", prefs.getColor(Preferences::SelectedTextureColor));
                                     else if (inUse)
-                                        m_textureBorderShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::UsedTextureColor));
+                                        textureBorderProgram.setUniformVariable("Color", prefs.getColor(Preferences::UsedTextureColor));
                                     else
-                                        m_textureBorderShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::OverriddenTextureColor));
+                                        textureBorderProgram.setUniformVariable("Color", prefs.getColor(Preferences::OverriddenTextureColor));
                                     
                                     glBegin(GL_QUADS);
                                     glVertex2f(cell.itemBounds().left() - 1.5f, height - (cell.itemBounds().top() - 1.5f - y));
@@ -193,12 +168,12 @@ namespace TrenchBroom {
                     }
                 }
             }
-            m_textureBorderShaderProgram->deactivate();
+            textureBorderProgram.deactivate();
             
             // render textures
-            m_textureShaderProgram->activate();
-            m_textureShaderProgram->setUniformVariable("ApplyTinting", false);
-            m_textureShaderProgram->setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
+            textureProgram.activate();
+            textureProgram.setUniformVariable("ApplyTinting", false);
+            textureProgram.setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
             for (unsigned int i = 0; i < layout.size(); i++) {
                 const Layout::Group& group = layout[i];
                 if (group.intersectsY(y, height)) {
@@ -207,8 +182,8 @@ namespace TrenchBroom {
                         if (row.intersectsY(y, height)) {
                             for (unsigned int k = 0; k < row.size(); k++) {
                                 const Layout::Group::Row::Cell& cell = row[k];
-                                m_textureShaderProgram->setUniformVariable("GrayScale", cell.item().texture->overridden());
-                                m_textureShaderProgram->setUniformVariable("Texture", 0);
+                                textureProgram.setUniformVariable("GrayScale", cell.item().texture->overridden());
+                                textureProgram.setUniformVariable("Texture", 0);
                                 cell.item().textureRenderer->activate();
                                 glBegin(GL_QUADS);
                                 glTexCoord2f(0.0f, 0.0f);
@@ -226,10 +201,10 @@ namespace TrenchBroom {
                     }
                 }
             }
-            m_textureShaderProgram->deactivate();
+            textureProgram.deactivate();
 
             // render texture captions
-            m_textShaderProgram->activate();
+            textProgram.activate();
             stringManager.activate();
             for (unsigned int i = 0; i < layout.size(); i++) {
                 const Layout::Group& group = layout[i];
@@ -241,13 +216,13 @@ namespace TrenchBroom {
                                 const Layout::Group::Row::Cell& cell = row[k];
 
                                 if (cell.item().texture == m_selectedTexture)
-                                    m_textShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::SelectedTextureColor));
+                                    textProgram.setUniformVariable("Color", prefs.getColor(Preferences::SelectedTextureColor));
                                 else if (cell.item().texture->usageCount() > 0)
-                                    m_textShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::UsedTextureColor));
+                                    textProgram.setUniformVariable("Color", prefs.getColor(Preferences::UsedTextureColor));
                                 else if (cell.item().texture->overridden())
-                                    m_textShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::OverriddenTextureColor));
+                                    textProgram.setUniformVariable("Color", prefs.getColor(Preferences::OverriddenTextureColor));
                                 else
-                                    m_textShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::BrowserTextureColor));
+                                    textProgram.setUniformVariable("Color", prefs.getColor(Preferences::BrowserTextureColor));
 
                                 Renderer::PushMatrix matrix(transformation);
                                 Mat4f translate = matrix.matrix();
@@ -262,15 +237,15 @@ namespace TrenchBroom {
                 }
             }
             stringManager.deactivate();
-            m_textShaderProgram->deactivate();
+            textProgram.deactivate();
             
             // render group title background
-            m_textureBorderShaderProgram->activate();
+            textureBorderProgram.activate();
             for (unsigned int i = 0; i < layout.size(); i++) {
                 const Layout::Group& group = layout[i];
                 if (group.intersectsY(y, height)) {
                     if (group.item().textureCollection != NULL) {
-                        m_textureBorderShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupBackgroundColor));
+                        textureBorderProgram.setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupBackgroundColor));
                         LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
                         glBegin(GL_QUADS);
                         glVertex2f(titleBounds.left(), height - (titleBounds.top() - y));
@@ -281,10 +256,10 @@ namespace TrenchBroom {
                     }
                 }
             }
-            m_textureBorderShaderProgram->deactivate();
+            textureBorderProgram.deactivate();
             
             // render group captions
-            m_textShaderProgram->activate();
+            textProgram.activate();
             stringManager.activate();
             for (unsigned int i = 0; i < layout.size(); i++) {
                 const Layout::Group& group = layout[i];
@@ -296,14 +271,14 @@ namespace TrenchBroom {
                         translate.translate(Vec3f(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height() + 4.0f, 0.0f));
                         matrix.load(translate);
                         
-                        m_textShaderProgram->setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupTextColor));
+                        textProgram.setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupTextColor));
                         Renderer::Text::StringRendererPtr stringRenderer = group.item().stringRenderer;
                         stringRenderer->render();
                     }
                 }
             }
             stringManager.deactivate();
-            m_textShaderProgram->deactivate();
+            textProgram.deactivate();
             
         }
 
@@ -330,8 +305,7 @@ namespace TrenchBroom {
         m_selectedTexture(NULL),
         m_group(false),
         m_hideUnused(false),
-        m_sortOrder(Model::TextureSortOrder::Name),
-        m_shadersCreated(false) {}
+        m_sortOrder(Model::TextureSortOrder::Name) {}
 
         TextureBrowserCanvas::~TextureBrowserCanvas() {
             clear();

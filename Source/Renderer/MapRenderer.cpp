@@ -37,6 +37,8 @@
 #include "Renderer/TextureRenderer.h"
 #include "Renderer/TextureRendererManager.h"
 #include "Renderer/Shader/Shader.h"
+#include "Renderer/Shader/ShaderManager.h"
+#include "Renderer/Shader/ShaderProgram.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/Text/FontDescriptor.h"
 #include "Renderer/Text/StringManager.h"
@@ -246,16 +248,21 @@ namespace TrenchBroom {
             // merge the collected brushes
             Model::BrushList unselectedBrushes(unselectedWorldBrushes);
             unselectedBrushes.insert(unselectedBrushes.end(), unselectedEntityBrushes.begin(), unselectedEntityBrushes.end());
+
+            ShaderManager& shaderManager = m_document.sharedResources().shaderManager();
+            ShaderProgram& faceProgram = shaderManager.shaderProgram(Shaders::FaceShader);
+            ShaderProgram& coloredEdgeProgram = shaderManager.shaderProgram(Shaders::ColoredEdgeShader);
+            ShaderProgram& edgeProgram = shaderManager.shaderProgram(Shaders::EdgeShader);
             
             // write face triangles
             m_faceVbo->activate();
             m_faceVbo->map();
             if (!m_geometryDataValid && !unselectedFaceSorter.empty())
-                writeFaceData(context, unselectedFaceSorter.collections(), m_faceVertexArrays, *m_faceProgram.get());
+                writeFaceData(context, unselectedFaceSorter.collections(), m_faceVertexArrays, faceProgram);
             if (!m_selectedGeometryDataValid && !selectedFaceSorter.empty())
-                writeFaceData(context, selectedFaceSorter.collections(), m_selectedFaceVertexArrays, *m_faceProgram.get());
+                writeFaceData(context, selectedFaceSorter.collections(), m_selectedFaceVertexArrays, faceProgram);
             if (!m_lockedGeometryDataValid && !lockedFaceSorter.empty())
-                writeFaceData(context, lockedFaceSorter.collections(), m_lockedFaceVertexArrays, *m_faceProgram.get());
+                writeFaceData(context, lockedFaceSorter.collections(), m_lockedFaceVertexArrays, faceProgram);
             
             m_faceVbo->unmap();
             m_faceVbo->deactivate();
@@ -266,19 +273,19 @@ namespace TrenchBroom {
             
             if (!m_geometryDataValid && !unselectedBrushes.empty()) {
                 m_edgeVertexArray = VertexArrayPtr(new VertexArray(*m_edgeVbo, GL_LINES, totalUnselectedEdgeVertexCount, VertexAttribute(3, GL_FLOAT, VertexAttribute::Position), VertexAttribute(4, GL_FLOAT, VertexAttribute::Color)));
-                m_edgeVertexArray->bindAttributes(*m_coloredEdgeProgram);
+                m_edgeVertexArray->bindAttributes(coloredEdgeProgram);
                 writeColoredEdgeData(context, unselectedBrushes, Model::EmptyFaceList, *m_edgeVertexArray);
             }
             
             if (!m_selectedGeometryDataValid && (!selectedBrushes.empty() || !partiallySelectedBrushFaces.empty())) {
                 m_selectedEdgeVertexArray = VertexArrayPtr(new VertexArray(*m_edgeVbo, GL_LINES, totalSelectedEdgeVertexCount, VertexAttribute(3, GL_FLOAT, VertexAttribute::Position)));
-                m_selectedEdgeVertexArray->bindAttributes(*m_edgeProgram);
+                m_selectedEdgeVertexArray->bindAttributes(edgeProgram);
                 writeEdgeData(context, selectedBrushes, partiallySelectedBrushFaces, *m_selectedEdgeVertexArray);
             }
             
             if (!m_lockedGeometryDataValid && !lockedBrushes.empty()) {
                 m_lockedEdgeVertexArray = VertexArrayPtr(new VertexArray(*m_edgeVbo, GL_LINES, totalLockedEdgeVertexCount, VertexAttribute(3, GL_FLOAT, VertexAttribute::Position)));
-                m_lockedEdgeVertexArray->bindAttributes(*m_edgeProgram);
+                m_lockedEdgeVertexArray->bindAttributes(edgeProgram);
                 writeEdgeData(context, lockedBrushes, Model::EmptyFaceList, *m_lockedEdgeVertexArray);
             }
             
@@ -437,53 +444,6 @@ namespace TrenchBroom {
             }
         }
 
-        void MapRenderer::createShaders() {
-            IO::FileManager fileManager;
-            String resourceDirectory = fileManager.resourceDirectory();
-            
-            m_coloredEdgeVertexShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "ColoredEdge.vertsh"), GL_VERTEX_SHADER, m_document.console()));
-            m_edgeVertexShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "Edge.vertsh"), GL_VERTEX_SHADER, m_document.console()));
-            m_edgeFragmentShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "Edge.fragsh"), GL_FRAGMENT_SHADER, m_document.console()));
-
-            m_faceVertexShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "Face.vertsh"), GL_VERTEX_SHADER, m_document.console()));
-            m_faceFragmentShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "Face.fragsh"), GL_FRAGMENT_SHADER, m_document.console()));
-
-            m_entityModelVertexShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "EntityModel.vertsh"), GL_VERTEX_SHADER, m_document.console()));
-            m_entityModelFragmentShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "EntityModel.fragsh"), GL_FRAGMENT_SHADER, m_document.console()));
-            
-            m_textVertexShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "Text.vertsh"), GL_VERTEX_SHADER, m_document.console()));
-            m_textFragmentShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "Text.fragsh"), GL_FRAGMENT_SHADER, m_document.console()));
-            
-            m_textBackgroundVertexShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "TextBackground.vertsh"), GL_VERTEX_SHADER, m_document.console()));
-            m_textBackgroundFragmentShader = ShaderPtr(new Shader(fileManager.appendPath(resourceDirectory, "TextBackground.fragsh"), GL_FRAGMENT_SHADER, m_document.console()));
-
-            m_edgeProgram = ShaderProgramPtr(new ShaderProgram("constant colored edge shader program", m_document.console()));
-            m_edgeProgram->attachShader(*m_edgeVertexShader);
-            m_edgeProgram->attachShader(*m_edgeFragmentShader);
-            
-            m_coloredEdgeProgram = ShaderProgramPtr(new ShaderProgram("colored edge shader program", m_document.console()));
-            m_coloredEdgeProgram->attachShader(*m_coloredEdgeVertexShader);
-            m_coloredEdgeProgram->attachShader(*m_edgeFragmentShader);
-            
-            m_faceProgram = ShaderProgramPtr(new ShaderProgram("face shader program", m_document.console()));
-            m_faceProgram->attachShader(*m_faceVertexShader);
-            m_faceProgram->attachShader(*m_faceFragmentShader);
-            
-            m_entityModelProgram = ShaderProgramPtr(new ShaderProgram("entity model shader program", m_document.console()));
-            m_entityModelProgram->attachShader(*m_entityModelVertexShader);
-            m_entityModelProgram->attachShader(*m_entityModelFragmentShader);
-            
-            m_textProgram = ShaderProgramPtr(new ShaderProgram("text shader program", m_document.console()));
-            m_textProgram->attachShader(*m_textVertexShader);
-            m_textProgram->attachShader(*m_textFragmentShader);
-            
-            m_textBackgroundProgram = ShaderProgramPtr(new ShaderProgram("text background shader program", m_document.console()));
-            m_textBackgroundProgram->attachShader(*m_textBackgroundVertexShader);
-            m_textBackgroundProgram->attachShader(*m_textBackgroundFragmentShader);
-            
-            m_shadersCreated = true;
-        }
-        
         void MapRenderer::validate(RenderContext& context) {
             if (!m_modelRendererCacheValid)
                 reloadEntityModels(context);
@@ -500,51 +460,54 @@ namespace TrenchBroom {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             Utility::Grid& grid = m_document.grid();
             
+            ShaderManager& shaderManager = m_document.sharedResources().shaderManager();
+            ShaderProgram& faceProgram = shaderManager.shaderProgram(Shaders::FaceShader);
+
             m_faceVbo->activate();
-            if (m_faceProgram->activate()) {
+            if (faceProgram.activate()) {
                 glActiveTexture(GL_TEXTURE0);
                 bool applyTexture = context.viewOptions().faceRenderMode() == View::ViewOptions::Textured;
-                m_faceProgram->setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
-                m_faceProgram->setUniformVariable("RenderGrid", grid.visible());
-                m_faceProgram->setUniformVariable("GridSize", static_cast<float>(grid.actualSize()));
-                m_faceProgram->setUniformVariable("GridColor", prefs.getColor(Preferences::GridColor));
-                m_faceProgram->setUniformVariable("ApplyTexture", applyTexture);
+                faceProgram.setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
+                faceProgram.setUniformVariable("RenderGrid", grid.visible());
+                faceProgram.setUniformVariable("GridSize", static_cast<float>(grid.actualSize()));
+                faceProgram.setUniformVariable("GridColor", prefs.getColor(Preferences::GridColor));
+                faceProgram.setUniformVariable("ApplyTexture", applyTexture);
                 if (!m_faceVertexArrays.empty()) {
-                    m_faceProgram->setUniformVariable("ApplyTinting", false);
-                    m_faceProgram->setUniformVariable("GrayScale", false);
+                    faceProgram.setUniformVariable("ApplyTinting", false);
+                    faceProgram.setUniformVariable("GrayScale", false);
                     for (unsigned int i = 0; i < m_faceVertexArrays.size(); i++) {
                         TextureVertexArray& textureVertexArray = m_faceVertexArrays[i];
                         textureVertexArray.texture->activate();
-                        m_faceProgram->setUniformVariable("FaceTexture", 0);
+                        faceProgram.setUniformVariable("FaceTexture", 0);
                         textureVertexArray.vertexArray->render();
                         textureVertexArray.texture->deactivate();
                     }
                 }
                 if (!m_selectedFaceVertexArrays.empty()) {
-                    m_faceProgram->setUniformVariable("ApplyTinting", true);
-                    m_faceProgram->setUniformVariable("TintColor", prefs.getColor(Preferences::SelectedFaceColor));
-                    m_faceProgram->setUniformVariable("GrayScale", false);
+                    faceProgram.setUniformVariable("ApplyTinting", true);
+                    faceProgram.setUniformVariable("TintColor", prefs.getColor(Preferences::SelectedFaceColor));
+                    faceProgram.setUniformVariable("GrayScale", false);
                     for (unsigned int i = 0; i < m_selectedFaceVertexArrays.size(); i++) {
                         TextureVertexArray& textureVertexArray = m_selectedFaceVertexArrays[i];
                         textureVertexArray.texture->activate();
-                        m_faceProgram->setUniformVariable("FaceTexture", 0);
+                        faceProgram.setUniformVariable("FaceTexture", 0);
                         textureVertexArray.vertexArray->render();
                         textureVertexArray.texture->deactivate();
                     }
                 }
                 if (!m_lockedFaceVertexArrays.empty()) {
-                    m_faceProgram->setUniformVariable("ApplyTinting", true);
-                    m_faceProgram->setUniformVariable("TintColor", prefs.getColor(Preferences::LockedFaceColor));
-                    m_faceProgram->setUniformVariable("GrayScale", true);
+                    faceProgram.setUniformVariable("ApplyTinting", true);
+                    faceProgram.setUniformVariable("TintColor", prefs.getColor(Preferences::LockedFaceColor));
+                    faceProgram.setUniformVariable("GrayScale", true);
                     for (unsigned int i = 0; i < m_lockedFaceVertexArrays.size(); i++) {
                         TextureVertexArray& textureVertexArray = m_lockedFaceVertexArrays[i];
                         textureVertexArray.texture->activate();
-                        m_faceProgram->setUniformVariable("FaceTexture", 0);
+                        faceProgram.setUniformVariable("FaceTexture", 0);
                         textureVertexArray.vertexArray->render();
                         textureVertexArray.texture->deactivate();
                     }
                 }
-                m_faceProgram->deactivate();
+                faceProgram.deactivate();
             }
             m_faceVbo->deactivate();
         }
@@ -555,29 +518,33 @@ namespace TrenchBroom {
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
+            ShaderManager& shaderManager = m_document.sharedResources().shaderManager();
+            ShaderProgram& coloredEdgeProgram = shaderManager.shaderProgram(Shaders::ColoredEdgeShader);
+            ShaderProgram& edgeProgram = shaderManager.shaderProgram(Shaders::EdgeShader);
+
             m_edgeVbo->activate();
-            if (m_edgeVertexArray.get() != NULL && m_coloredEdgeProgram->activate()) {
+            if (m_edgeVertexArray.get() != NULL && coloredEdgeProgram.activate()) {
                 glSetEdgeOffset(0.02f);
                 m_edgeVertexArray->render();
-                m_coloredEdgeProgram->deactivate();
+                coloredEdgeProgram.deactivate();
             }
-            if (m_edgeProgram->activate()) {
+            if (edgeProgram.activate()) {
                 if (m_lockedEdgeVertexArray.get() != NULL) {
-                    m_edgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::LockedEdgeColor));
+                    edgeProgram.setUniformVariable("Color", prefs.getColor(Preferences::LockedEdgeColor));
                     glSetEdgeOffset(0.02f);
                     m_lockedEdgeVertexArray->render();
                 }
                 if (m_selectedEdgeVertexArray.get() != NULL) {
                     glDisable(GL_DEPTH_TEST);
-                    m_edgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::OccludedSelectedEdgeColor));
+                    edgeProgram.setUniformVariable("Color", prefs.getColor(Preferences::OccludedSelectedEdgeColor));
                     glSetEdgeOffset(0.02f);
                     m_selectedEdgeVertexArray->render();
                     glEnable(GL_DEPTH_TEST);
-                    m_edgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::SelectedEdgeColor));
+                    edgeProgram.setUniformVariable("Color", prefs.getColor(Preferences::SelectedEdgeColor));
                     glSetEdgeOffset(0.025f);
                     m_selectedEdgeVertexArray->render();
                 }
-                m_edgeProgram->deactivate();
+                edgeProgram.deactivate();
             }
             m_edgeVbo->deactivate();
             glResetEdgeOffset();
@@ -589,25 +556,29 @@ namespace TrenchBroom {
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             
+            ShaderManager& shaderManager = m_document.sharedResources().shaderManager();
+            ShaderProgram& coloredEdgeProgram = shaderManager.shaderProgram(Shaders::ColoredEdgeShader);
+            ShaderProgram& edgeProgram = shaderManager.shaderProgram(Shaders::EdgeShader);
+
             m_entityBoundsVbo->activate();
-            if (m_entityBoundsVertexArray.get() != NULL && m_coloredEdgeProgram->activate()) {
+            if (m_entityBoundsVertexArray.get() != NULL && coloredEdgeProgram.activate()) {
                 m_entityBoundsVertexArray->render();
-                m_coloredEdgeProgram->deactivate();
+                coloredEdgeProgram.deactivate();
             }
-            if (m_edgeProgram->activate()) {
+            if (edgeProgram.activate()) {
                 if (m_lockedEntityBoundsVertexArray.get() != NULL) {
-                    m_edgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::LockedEntityBoundsColor));
+                    edgeProgram.setUniformVariable("Color", prefs.getColor(Preferences::LockedEntityBoundsColor));
                     m_lockedEntityBoundsVertexArray->render();
                 }
                 if (m_selectedEntityBoundsVertexArray.get() != NULL) {
                     glDisable(GL_DEPTH_TEST);
-                    m_edgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::OccludedSelectedEdgeColor));
+                    edgeProgram.setUniformVariable("Color", prefs.getColor(Preferences::OccludedSelectedEdgeColor));
                     m_selectedEntityBoundsVertexArray->render();
                     glEnable(GL_DEPTH_TEST);
-                    m_edgeProgram->setUniformVariable("Color", prefs.getColor(Preferences::SelectedEdgeColor));
+                    edgeProgram.setUniformVariable("Color", prefs.getColor(Preferences::SelectedEdgeColor));
                     m_selectedEntityBoundsVertexArray->render();
                 }
-                m_edgeProgram->deactivate();
+                edgeProgram.deactivate();
             }
             m_entityBoundsVbo->deactivate();
         }
@@ -619,46 +590,49 @@ namespace TrenchBroom {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             EntityModelRendererManager& modelRendererManager = m_document.sharedResources().modelRendererManager();
 
-            if (m_entityModelProgram->activate()) {
+            ShaderManager& shaderManager = m_document.sharedResources().shaderManager();
+            ShaderProgram& entityModelProgram = shaderManager.shaderProgram(Shaders::EntityModelShader);
+
+            if (entityModelProgram.activate()) {
                 EntityModelRenderers::iterator it, end;
                 
-                m_entityModelProgram->setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
+                entityModelProgram.setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
                 modelRendererManager.activate();
                 
-                m_entityModelProgram->setUniformVariable("ApplyTinting", false);
-                m_entityModelProgram->setUniformVariable("GrayScale", false);
+                entityModelProgram.setUniformVariable("ApplyTinting", false);
+                entityModelProgram.setUniformVariable("GrayScale", false);
                 for (it = m_modelRenderers.begin(), end = m_modelRenderers.end(); it != end; ++it) {
                     Model::Entity* entity = it->first;
                     if (context.filter().entityVisible(*entity)) {
                         EntityModelRenderer* renderer = it->second.renderer;
-                        renderer->render(*m_entityModelProgram, context.transformation(), *entity);
+                        renderer->render(entityModelProgram, context.transformation(), *entity);
                     }
                 }
                 
-                m_entityModelProgram->setUniformVariable("ApplyTinting", true);
-                m_entityModelProgram->setUniformVariable("TintColor", prefs.getColor(Preferences::SelectedFaceColor));
-                m_entityModelProgram->setUniformVariable("GrayScale", false);
+                entityModelProgram.setUniformVariable("ApplyTinting", true);
+                entityModelProgram.setUniformVariable("TintColor", prefs.getColor(Preferences::SelectedFaceColor));
+                entityModelProgram.setUniformVariable("GrayScale", false);
                 for (it = m_selectedEntityModelRenderers.begin(), end = m_selectedEntityModelRenderers.end(); it != end; ++it) {
                     Model::Entity* entity = it->first;
                     if (context.filter().entityVisible(*entity)) {
                         EntityModelRenderer* renderer = it->second.renderer;
-                        renderer->render(*m_entityModelProgram, context.transformation(), *entity);
+                        renderer->render(entityModelProgram, context.transformation(), *entity);
                     }
                 }
                 
-                m_entityModelProgram->setUniformVariable("ApplyTinting", true);
-                m_entityModelProgram->setUniformVariable("TintColor", prefs.getColor(Preferences::LockedFaceColor));
-                m_entityModelProgram->setUniformVariable("GrayScale", true);
+                entityModelProgram.setUniformVariable("ApplyTinting", true);
+                entityModelProgram.setUniformVariable("TintColor", prefs.getColor(Preferences::LockedFaceColor));
+                entityModelProgram.setUniformVariable("GrayScale", true);
                 for (it = m_lockedEntityModelRenderers.begin(), end = m_lockedEntityModelRenderers.end(); it != end; ++it) {
                     Model::Entity* entity = it->first;
                     if (context.filter().entityVisible(*entity)) {
                         EntityModelRenderer* renderer = it->second.renderer;
-                        renderer->render(*m_entityModelProgram, context.transformation(), *entity);
+                        renderer->render(entityModelProgram, context.transformation(), *entity);
                     }
                 }
                 
                 modelRendererManager.deactivate();
-                m_entityModelProgram->deactivate();
+                entityModelProgram.deactivate();
             }
         }
         
@@ -668,27 +642,30 @@ namespace TrenchBroom {
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
+            ShaderManager& shaderManager = m_document.sharedResources().shaderManager();
+            ShaderProgram& textProgram = shaderManager.shaderProgram(Shaders::TextShader);
+            ShaderProgram& textBackgroundProgram = shaderManager.shaderProgram(Shaders::TextBackgroundShader);
+
             EntityClassnameFilter classnameFilter;
-            m_classnameRenderer->render(context, classnameFilter, *m_textProgram,
-                                        prefs.getColor(Preferences::InfoOverlayTextColor), *m_textBackgroundProgram,
+            m_classnameRenderer->render(context, classnameFilter, textProgram,
+                                        prefs.getColor(Preferences::InfoOverlayTextColor), textBackgroundProgram,
                                         prefs.getColor(Preferences::InfoOverlayBackgroundColor));
-            m_lockedClassnameRenderer->render(context, classnameFilter, *m_textProgram,
-                                              prefs.getColor(Preferences::LockedInfoOverlayTextColor), *m_textBackgroundProgram,
+            m_lockedClassnameRenderer->render(context, classnameFilter, textProgram,
+                                              prefs.getColor(Preferences::LockedInfoOverlayTextColor), textBackgroundProgram,
                                               prefs.getColor(Preferences::LockedInfoOverlayBackgroundColor));
             glDisable(GL_DEPTH_TEST);
-            m_selectedClassnameRenderer->render(context, classnameFilter, *m_textProgram,
-                                                prefs.getColor(Preferences::OccludedSelectedInfoOverlayTextColor), *m_textBackgroundProgram,
+            m_selectedClassnameRenderer->render(context, classnameFilter, textProgram,
+                                                prefs.getColor(Preferences::OccludedSelectedInfoOverlayTextColor), textBackgroundProgram,
                                                 prefs.getColor(Preferences::OccludedSelectedInfoOverlayBackgroundColor));
             glEnable(GL_DEPTH_TEST);
-            m_selectedClassnameRenderer->render(context, classnameFilter, *m_textProgram,
-                                                prefs.getColor(Preferences::SelectedInfoOverlayTextColor), *m_textBackgroundProgram,
+            m_selectedClassnameRenderer->render(context, classnameFilter, textProgram,
+                                                prefs.getColor(Preferences::SelectedInfoOverlayTextColor), textBackgroundProgram,
                                                 prefs.getColor(Preferences::SelectedInfoOverlayBackgroundColor));
         }
 
         MapRenderer::MapRenderer(Model::MapDocument& document) :
         m_document(document) {
             m_rendering = false;
-            m_shadersCreated = false;
 
             m_faceVbo = VboPtr(new Vbo(GL_ARRAY_BUFFER, 0xFFFF));
             m_edgeVbo = VboPtr(new Vbo(GL_ARRAY_BUFFER, 0xFFFF));
@@ -879,8 +856,6 @@ namespace TrenchBroom {
                 return;
             m_rendering = true;
             
-            if (!m_shadersCreated)
-                createShaders();
             validate(context);
             
             glEnable(GL_BLEND);
