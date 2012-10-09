@@ -174,8 +174,8 @@ namespace TrenchBroom {
                     case Controller::Command::InvalidateRendererState:
                         m_renderer->invalidateAll();
                         break;
-                    case Controller::Command::InvalidateEntityRendererCache:
-                        m_renderer->invalidateEntityRendererCache();
+                    case Controller::Command::InvalidateEntityModelRendererCache:
+                        m_renderer->invalidateEntityModelRendererCache();
                         break;
                     case Controller::Command::SetFaceAttribute: {
                         m_renderer->invalidateSelectedBrushes();
@@ -197,7 +197,7 @@ namespace TrenchBroom {
                         Controller::EntityPropertyCommand* entityPropertyCommand = static_cast<Controller::EntityPropertyCommand*>(command);
                         m_renderer->invalidateEntities();
                         if (entityPropertyCommand->definitionChanged())
-                            m_renderer->invalidateEntityRendererCache();
+                            m_renderer->invalidateEntityModelRendererCache();
                         inspector().entityInspector().updateProperties();
                         break;
                     }

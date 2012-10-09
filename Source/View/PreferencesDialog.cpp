@@ -222,7 +222,7 @@ namespace TrenchBroom {
 
                 updateControls();
                 
-                Controller::Command command(Controller::Command::InvalidateEntityRendererCache);
+                Controller::Command command(Controller::Command::InvalidateEntityModelRendererCache);
                 static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &command);
             }
         }
@@ -307,7 +307,7 @@ namespace TrenchBroom {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 			prefs.discardChanges();
 
-			Controller::Command command(Controller::Command::InvalidateEntityRendererCache);
+			Controller::Command command(Controller::Command::InvalidateEntityModelRendererCache);
             static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &command);
 
 			EndModal(wxID_CANCEL);
@@ -318,7 +318,7 @@ namespace TrenchBroom {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 			prefs.discardChanges();
 
-			Controller::Command command(Controller::Command::InvalidateEntityRendererCache);
+			Controller::Command command(Controller::Command::InvalidateEntityModelRendererCache);
             static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &command);
 #endif
             event.Skip();

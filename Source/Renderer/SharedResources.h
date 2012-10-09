@@ -43,14 +43,14 @@ namespace TrenchBroom {
             class StringManager;
         }
         
-        class EntityRendererManager;
+        class EntityModelRendererManager;
         class Palette;
         class TextureRendererManager;
         
         class SharedResources : public wxFrame {
         protected:
             Palette* m_palette;
-            EntityRendererManager* m_entityRendererManager;
+            EntityModelRendererManager* m_modelRendererManager;
             TextureRendererManager* m_textureRendererManager;
             Text::StringManager* m_stringManager;
             
@@ -70,8 +70,8 @@ namespace TrenchBroom {
             
             void loadPalette(const String& palettePath);
             
-            inline EntityRendererManager& entityRendererManager() const {
-                return *m_entityRendererManager;
+            inline EntityModelRendererManager& modelRendererManager() const {
+                return *m_modelRendererManager;
             }
             
             inline TextureRendererManager& textureRendererManager() const {

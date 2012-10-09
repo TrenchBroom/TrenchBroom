@@ -48,8 +48,12 @@ namespace TrenchBroom {
         class EditorView;
         
         class MapGLCanvasDropTarget : public wxTextDropTarget {
+        protected:
+            Controller::InputController& m_inputController;
         public:
-            MapGLCanvasDropTarget() : wxTextDropTarget() {}
+            MapGLCanvasDropTarget(Controller::InputController& inputController) :
+            wxTextDropTarget(),
+            m_inputController(inputController) {}
             
             wxDragResult OnEnter(wxCoord x, wxCoord y, wxDragResult def);
             wxDragResult OnDragOver(wxCoord x, wxCoord y, wxDragResult def);

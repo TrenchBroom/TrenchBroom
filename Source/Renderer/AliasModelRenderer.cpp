@@ -17,7 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AliasRenderer.h"
+#include "AliasModelRenderer.h"
 
 #include <GL/glew.h>
 #include "Model/Alias.h"
@@ -31,14 +31,14 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        AliasRenderer::AliasRenderer(const Model::Alias& alias, unsigned int skinIndex, Vbo& vbo, const Palette& palette) :
+        AliasModelRenderer::AliasModelRenderer(const Model::Alias& alias, unsigned int skinIndex, Vbo& vbo, const Palette& palette) :
         m_alias(alias),
         m_skinIndex(skinIndex),
         m_palette(palette),
         m_texture(NULL),
         m_vbo(vbo){}
 
-        void AliasRenderer::render(ShaderProgram& shaderProgram) {
+        void AliasModelRenderer::render(ShaderProgram& shaderProgram) {
             if (m_vertexArray.get() == NULL) {
                 Model::AliasSkin& skin = *m_alias.skins()[m_skinIndex];
                 m_texture = TextureRendererPtr(new TextureRenderer(skin, 0, m_palette));
@@ -70,15 +70,15 @@ namespace TrenchBroom {
             m_texture->deactivate();
         }
 
-        const Vec3f& AliasRenderer::center() const {
+        const Vec3f& AliasModelRenderer::center() const {
             return m_alias.firstFrame().center();
         }
 
-        const BBox& AliasRenderer::bounds() const {
+        const BBox& AliasModelRenderer::bounds() const {
             return m_alias.firstFrame().bounds();
         }
 
-        BBox AliasRenderer::boundsAfterTransformation(const Mat4f& transformation) const {
+        BBox AliasModelRenderer::boundsAfterTransformation(const Mat4f& transformation) const {
             const Model::AliasSingleFrame& frame = m_alias.firstFrame();
             const Model::AliasFrameTriangleList& triangles = frame.triangles();
 

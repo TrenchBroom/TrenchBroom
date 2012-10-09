@@ -43,8 +43,8 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
-        class EntityRendererManager;
-        class EntityRenderer;
+        class EntityModelRendererManager;
+        class EntityModelRenderer;
         class RenderContext;
         class Shader;
         class ShaderProgram;
@@ -64,15 +64,15 @@ namespace TrenchBroom {
             typedef FaceSorter::PolygonCollectionMap FaceCollectionMap;
         private:
             
-            class CachedEntityRenderer {
+            class CachedEntityModelRenderer {
             public:
-                EntityRenderer* renderer;
+                EntityModelRenderer* renderer;
                 String classname;
-                CachedEntityRenderer() : renderer(NULL), classname("") {}
-                CachedEntityRenderer(EntityRenderer* renderer, const String& classname) : renderer(renderer), classname(classname) {}
+                CachedEntityModelRenderer() : renderer(NULL), classname("") {}
+                CachedEntityModelRenderer(EntityModelRenderer* renderer, const String& classname) : renderer(renderer), classname(classname) {}
             };
             
-            typedef std::map<Model::Entity*, CachedEntityRenderer> EntityRenderers;
+            typedef std::map<Model::Entity*, CachedEntityModelRenderer> EntityModelRenderers;
 
             // level geometry rendering
             VboPtr m_faceVbo;
@@ -91,10 +91,10 @@ namespace TrenchBroom {
             VertexArrayPtr m_lockedEntityBoundsVertexArray;
             
             // entity model rendering
-            EntityRenderers m_entityRenderers;
-            EntityRenderers m_selectedEntityRenderers;
-            EntityRenderers m_lockedEntityRenderers;
-            bool m_entityRendererCacheValid;
+            EntityModelRenderers m_modelRenderers;
+            EntityModelRenderers m_selectedEntityModelRenderers;
+            EntityModelRenderers m_lockedEntityModelRenderers;
+            bool m_modelRendererCacheValid;
 
             // classnames
             EntityClassnameRendererPtr m_classnameRenderer;
@@ -148,10 +148,10 @@ namespace TrenchBroom {
             void writeColoredEntityBounds(RenderContext& context, const Model::EntityList& entities, VertexArray& vertexArray);
             void writeEntityBounds(RenderContext& context, const Model::EntityList& entities, VertexArray& vertexArray);
             void rebuildEntityData(RenderContext& context);
-            bool reloadEntityModel(const Model::Entity& entity, CachedEntityRenderer& cachedRenderer);
-            void reloadEntityModels(RenderContext& context, EntityRenderers& renderers);
+            bool reloadEntityModel(const Model::Entity& entity, CachedEntityModelRenderer& cachedRenderer);
+            void reloadEntityModels(RenderContext& context, EntityModelRenderers& renderers);
             void reloadEntityModels(RenderContext& context);
-            void moveEntityRenderer(Model::Entity* entity, EntityRenderers& from, EntityRenderers& to);
+            void moveEntityModelRenderer(Model::Entity* entity, EntityModelRenderers& from, EntityModelRenderers& to);
             
             void createShaders();
             void validate(RenderContext& context);
@@ -174,7 +174,7 @@ namespace TrenchBroom {
             void invalidateBrushes();
             void invalidateSelectedBrushes();
             void invalidateAll();
-            void invalidateEntityRendererCache();
+            void invalidateEntityModelRendererCache();
             
             void render(RenderContext& context);
         };

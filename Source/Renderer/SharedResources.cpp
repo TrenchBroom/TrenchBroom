@@ -20,7 +20,7 @@
 #include "SharedResources.h"
 
 #include "GL/Capabilities.h"
-#include "Renderer/EntityRendererManager.h"
+#include "Renderer/EntityModelRendererManager.h"
 #include "Renderer/Palette.h"
 #include "Renderer/TextureRendererManager.h"
 #include "Renderer/Text/StringManager.h"
@@ -35,7 +35,7 @@ namespace TrenchBroom {
         SharedResources::SharedResources(Model::TextureManager& textureManager, Utility::Console& console) :
         wxFrame(NULL, wxID_ANY, wxT("TrenchBroom Render Resources")),
         m_palette(NULL),
-        m_entityRendererManager(NULL),
+        m_modelRendererManager(NULL),
         m_textureRendererManager(NULL),
         m_stringManager(NULL),
         m_attribs(NULL),
@@ -80,13 +80,13 @@ namespace TrenchBroom {
             if (glewState != GLEW_OK)
                 console.error("Unable to initialize glew: %s", glewGetErrorString(glewState));
             
-            m_entityRendererManager = new EntityRendererManager(console);
+            m_modelRendererManager = new EntityModelRendererManager(console);
             m_textureRendererManager = new TextureRendererManager(textureManager);
             m_stringManager = new Text::StringManager(console);
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             const String& quakePath = prefs.getString(Preferences::QuakePath);
-            m_entityRendererManager->setQuakePath(quakePath);
+            m_modelRendererManager->setQuakePath(quakePath);
         }
         
         SharedResources::~SharedResources() {
@@ -101,9 +101,9 @@ namespace TrenchBroom {
                 delete m_textureRendererManager;
                 m_textureRendererManager = NULL;
             }
-            if (m_entityRendererManager != NULL) {
-                delete m_entityRendererManager;
-                m_entityRendererManager = NULL;
+            if (m_modelRendererManager != NULL) {
+                delete m_modelRendererManager;
+                m_modelRendererManager = NULL;
             }
             if (m_sharedContext != NULL) {
                 wxDELETE(m_sharedContext);
@@ -116,7 +116,7 @@ namespace TrenchBroom {
                 delete m_palette;
             m_palette = new Palette(palettePath);
             
-            m_entityRendererManager->setPalette(*m_palette);
+            m_modelRendererManager->setPalette(*m_palette);
             m_textureRendererManager->setPalette(*m_palette);
         }
 

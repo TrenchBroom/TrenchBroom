@@ -37,7 +37,7 @@ namespace TrenchBroom {
                 InvalidateRendererEntityState,
                 InvalidateRendererBrushState,
                 InvalidateRendererState,
-                InvalidateEntityRendererCache,
+                InvalidateEntityModelRendererCache,
                 SetFaceAttribute,
                 AddTextureCollection,
                 RemoveTextureCollection,

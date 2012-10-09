@@ -36,7 +36,7 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
-        class EntityRenderer;
+        class EntityModelRenderer;
     }
     
     namespace View {
@@ -59,13 +59,13 @@ namespace TrenchBroom {
         class EntityCellData {
         public:
             Model::PointEntityDefinition* entityDefinition;
-            Renderer::EntityRenderer* entityRenderer;
+            Renderer::EntityModelRenderer* modelRenderer;
             BBox bounds;
             Renderer::Text::StringRendererPtr stringRenderer;
             
-            EntityCellData(Model::PointEntityDefinition* entityDefinition, Renderer::EntityRenderer* entityRenderer, Renderer::Text::StringRendererPtr stringRenderer, const BBox& bounds) :
+            EntityCellData(Model::PointEntityDefinition* entityDefinition, Renderer::EntityModelRenderer* modelRenderer, Renderer::Text::StringRendererPtr stringRenderer, const BBox& bounds) :
             entityDefinition(entityDefinition),
-            entityRenderer(entityRenderer),
+            modelRenderer(modelRenderer),
             stringRenderer(stringRenderer),
             bounds(bounds) {}
         };
@@ -100,7 +100,7 @@ namespace TrenchBroom {
             
             void addEntityToLayout(Layout& layout, Model::PointEntityDefinition* definition, const Renderer::Text::FontDescriptor& font);
             void renderEntityBounds(Renderer::Transformation& transformation, const Model::PointEntityDefinition& definition, const BBox& rotatedBounds, const Vec3f& offset, float scale);
-            void renderEntityModel(Renderer::Transformation& transformation, Renderer::EntityRenderer& renderer, const BBox& rotatedBounds, const Vec3f& offset, float scale);
+            void renderEntityModel(Renderer::Transformation& transformation, Renderer::EntityModelRenderer& renderer, const BBox& rotatedBounds, const Vec3f& offset, float scale);
             
             virtual void doInitLayout(Layout& layout);
             virtual void doReloadLayout(Layout& layout);

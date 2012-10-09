@@ -58,13 +58,15 @@ namespace TrenchBroom {
         m_documentViewHolder(documentViewHolder),
         m_dragReceiver(NULL),
         m_mouseUpReceiver(NULL),
-        m_modalReceiverIndex(-1) {
+        m_modalReceiverIndex(-1),
+        m_dragTargetReceiver(NULL) {
             m_receivers.push_back(new CameraTool(m_documentViewHolder));
             m_receivers.push_back(new SelectionTool(m_documentViewHolder));
         }
         
         InputController::~InputController() {
             while (!m_receivers.empty()) delete m_receivers.back(), m_receivers.pop_back();
+            while (!m_dragTargetTools.empty()) delete m_dragTargetTools.back(), m_dragTargetTools.pop_back();
         }
 
         void InputController::modifierKeyDown(ModifierKeyState modifierKey) {
@@ -177,6 +179,56 @@ namespace TrenchBroom {
                     if (m_receivers[i]->scrolled(m_currentEvent))
                         break;
             }
+        }
+
+        void InputController::dragEnter(const String& payload, float x, float y) {
+            if (!m_documentViewHolder.valid())
+                return;
+
+            updateMousePos(x, y);
+            updateHits();
+
+            for (unsigned int i = 0; i < m_dragTargetTools.size(); i++) {
+                DragTargetTool* tool = m_dragTargetTools[i];
+                if (tool->dragEnter(m_currentEvent, payload)) {
+                    m_dragTargetReceiver = tool;
+                    break;
+                }
+            }
+        }
+        
+        void InputController::dragMove(const String& payload, float x, float y) {
+            if (!m_documentViewHolder.valid())
+                return;
+            if (m_dragTargetReceiver == NULL)
+                return;
+            
+            updateMousePos(x, y);
+            updateHits();
+            
+            m_dragTargetReceiver->dragMove(m_currentEvent);
+        }
+        
+        void InputController::drop(const String& payload, float x, float y) {
+            if (!m_documentViewHolder.valid())
+                return;
+            if (m_dragTargetReceiver == NULL)
+                return;
+            
+            updateMousePos(x, y);
+            updateHits();
+            
+            m_dragTargetReceiver->drop(m_currentEvent);
+            m_dragTargetReceiver = NULL;
+        }
+        
+        void InputController::dragLeave() {
+            if (!m_documentViewHolder.valid())
+                return;
+            if (m_dragTargetReceiver == NULL)
+                return;
+            
+            m_dragTargetReceiver->dragLeave();
         }
     }
 }

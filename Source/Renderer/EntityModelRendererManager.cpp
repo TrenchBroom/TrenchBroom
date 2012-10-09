@@ -17,16 +17,16 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EntityRendererManager.h"
+#include "EntityModelRendererManager.h"
 
 #include <GL/glew.h>
 #include "Model/Alias.h"
 #include "Model/Bsp.h"
 #include "Model/Entity.h"
 #include "Model/EntityDefinition.h"
-#include "Renderer/AliasRenderer.h"
-#include "Renderer/BspRenderer.h"
-#include "Renderer/EntityRenderer.h"
+#include "Renderer/AliasModelRenderer.h"
+#include "Renderer/BspModelRenderer.h"
+#include "Renderer/EntityModelRenderer.h"
 #include "Renderer/Palette.h"
 #include "Renderer/Vbo.h"
 #include "IO/FileManager.h"
@@ -36,7 +36,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        const String EntityRendererManager::entityRendererKey(const Model::PointEntityModel& modelInfo, const StringList& searchPaths) {
+        const String EntityModelRendererManager::modelRendererKey(const Model::PointEntityModel& modelInfo, const StringList& searchPaths) {
             StringStream key;
             for (unsigned int i = 0; i < searchPaths.size(); i++)
                 key << searchPaths[i] << " ";
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             return Utility::toLower(key.str());
         }
 
-        EntityRenderer* EntityRendererManager::entityRenderer(const Model::PointEntityModel& modelInfo, const StringList& mods) {
+        EntityModelRenderer* EntityModelRendererManager::modelRenderer(const Model::PointEntityModel& modelInfo, const StringList& mods) {
             assert(m_palette != NULL);
             
             if (!m_valid) {
@@ -60,14 +60,14 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < mods.size(); i++)
                 searchPaths.push_back(fileManager.appendPath(m_quakePath, mods[i]));
 
-            const String key = entityRendererKey(modelInfo, searchPaths);
+            const String key = modelRendererKey(modelInfo, searchPaths);
 
             MismatchCache::iterator mismatchIt = m_mismatches.find(key);
             if (mismatchIt != m_mismatches.end())
                 return NULL;
             
-            EntityRendererCache::iterator rendererIt = m_entityRenderers.find(key);
-            if (rendererIt != m_entityRenderers.end())
+            EntityModelRendererCache::iterator rendererIt = m_modelRenderers.find(key);
+            if (rendererIt != m_modelRenderers.end())
                 return rendererIt->second;
 
             String modelName = Utility::toLower(modelInfo.name().substr(1));
@@ -77,16 +77,16 @@ namespace TrenchBroom {
                 const Model::Alias* alias = aliasManager.alias(modelName, searchPaths, m_console);
                 if (alias != NULL) {
                     unsigned int skinIndex = modelInfo.skinIndex();
-                    Renderer::EntityRenderer* renderer = new AliasRenderer(*alias, skinIndex, *m_vbo, *m_palette);
-                    m_entityRenderers[key] = renderer;
+                    Renderer::EntityModelRenderer* renderer = new AliasModelRenderer(*alias, skinIndex, *m_vbo, *m_palette);
+                    m_modelRenderers[key] = renderer;
                     return renderer;
                 }
             } else if (ext == "bsp") {
                 Model::BspManager& bspManager = *Model::BspManager::sharedManager;
                 const Model::Bsp* bsp = bspManager.bsp(modelName, searchPaths, m_console);
                 if (bsp != NULL) {
-                    Renderer::EntityRenderer* renderer = new BspRenderer(*bsp, *m_vbo, *m_palette);
-                    m_entityRenderers[key] = renderer;
+                    Renderer::EntityModelRenderer* renderer = new BspModelRenderer(*bsp, *m_vbo, *m_palette);
+                    m_modelRenderers[key] = renderer;
                     return renderer;
                 }
             } else {
@@ -97,61 +97,61 @@ namespace TrenchBroom {
             return NULL;
         }
 
-        EntityRendererManager::EntityRendererManager(Utility::Console& console) :
+        EntityModelRendererManager::EntityModelRendererManager(Utility::Console& console) :
         m_palette(NULL),
         m_console(console),
         m_valid(true) {
             m_vbo = new Renderer::Vbo(GL_ARRAY_BUFFER, 0xFFFF);
         }
 
-        EntityRendererManager::~EntityRendererManager() {
+        EntityModelRendererManager::~EntityModelRendererManager() {
             clear();
             delete m_vbo;
             m_vbo = NULL;
         }
 
-        EntityRenderer* EntityRendererManager::entityRenderer(const Model::PointEntityDefinition& entityDefinition, const StringList& mods) {
+        EntityModelRenderer* EntityModelRendererManager::modelRenderer(const Model::PointEntityDefinition& entityDefinition, const StringList& mods) {
             assert(!mods.empty());
             
             const Model::PointEntityModel* modelInfo = entityDefinition.model();
             if (modelInfo == NULL)
                 return NULL;
-            return entityRenderer(*modelInfo, mods);
+            return modelRenderer(*modelInfo, mods);
         }
 
-        EntityRenderer* EntityRendererManager::entityRenderer(const Model::Entity& entity, const StringList& mods) {
+        EntityModelRenderer* EntityModelRendererManager::modelRenderer(const Model::Entity& entity, const StringList& mods) {
             const Model::EntityDefinition* definition = entity.definition();
             if (definition == NULL || definition->type() != Model::EntityDefinition::PointEntity)
                 return NULL;
-            return entityRenderer(*static_cast<const Model::PointEntityDefinition*>(definition), mods);
+            return modelRenderer(*static_cast<const Model::PointEntityDefinition*>(definition), mods);
         }
 
-        void EntityRendererManager::clear() {
-            for (EntityRendererCache::iterator it = m_entityRenderers.begin(); it != m_entityRenderers.end(); ++it)
+        void EntityModelRendererManager::clear() {
+            for (EntityModelRendererCache::iterator it = m_modelRenderers.begin(); it != m_modelRenderers.end(); ++it)
                 delete it->second;
-            m_entityRenderers.clear();
+            m_modelRenderers.clear();
             m_mismatches.clear();
         }
 
-        void EntityRendererManager::setQuakePath(const String& quakePath) {
+        void EntityModelRendererManager::setQuakePath(const String& quakePath) {
             if (quakePath == m_quakePath)
                 return;
             m_quakePath = quakePath;
             m_valid = false;
         }
         
-        void EntityRendererManager::setPalette(const Palette& palette) {
+        void EntityModelRendererManager::setPalette(const Palette& palette) {
             if (&palette == m_palette)
                 return;
             m_palette = &palette;
             m_valid = false;
         }
 
-        void EntityRendererManager::activate() {
+        void EntityModelRendererManager::activate() {
             m_vbo->activate();
         }
 
-        void EntityRendererManager::deactivate() {
+        void EntityModelRendererManager::deactivate() {
             m_vbo->deactivate();
         }
     }

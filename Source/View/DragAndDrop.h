@@ -27,14 +27,6 @@ class MacScreenDC;
 
 namespace TrenchBroom {
     namespace View {
-        class FeedbackFrame : public wxFrame {
-            wxBitmap m_image;
-        public:
-            FeedbackFrame(wxImage& image);
-            void OnEraseBackground(wxEraseEvent& event);
-            void OnPaint(wxPaintEvent& event);
-        };
-        
         class DropSource : public wxDropSource {
         private:
             MacScreenDC* m_screenDC;

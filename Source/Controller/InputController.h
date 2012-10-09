@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__InputController__
 #define __TrenchBroom__InputController__
 
+#include "Controller/DragTargetTool.h"
 #include "Controller/Input.h"
 #include "Controller/Tool.h"
 
@@ -47,12 +48,14 @@ namespace TrenchBroom {
             
             InputEvent m_currentEvent;
             MouseButtonState m_dragButtons;
-            
             ToolList m_receivers;
             Tool* m_dragReceiver;
             Tool* m_mouseUpReceiver;
             int m_modalReceiverIndex;
 
+            DragTargetToolList m_dragTargetTools;
+            DragTargetTool* m_dragTargetReceiver;
+            
             void updateHits();
             void updateMousePos(float x, float y);
         public:
@@ -65,6 +68,11 @@ namespace TrenchBroom {
             bool mouseUp(MouseButtonState mouseButton, float x, float y);
             void mouseMoved(float x, float y);
             void scrolled(float dx, float dy);
+            
+            void dragEnter(const String& payload, float x, float y);
+            void dragMove(const String& payload, float x, float y);
+            void drop(const String& payload, float x, float y);
+            void dragLeave();
         };
     }
 }

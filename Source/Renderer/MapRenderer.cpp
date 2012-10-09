@@ -30,8 +30,8 @@
 #include "Model/MapDocument.h"
 #include "Renderer/EntityClassnameAnchor.h"
 #include "Renderer/EntityClassnameFilter.h"
-#include "Renderer/EntityRendererManager.h"
-#include "Renderer/EntityRenderer.h"
+#include "Renderer/EntityModelRendererManager.h"
+#include "Renderer/EntityModelRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/SharedResources.h"
 #include "Renderer/TextureRenderer.h"
@@ -386,19 +386,19 @@ namespace TrenchBroom {
             m_lockedEntityDataValid = true;
         }
         
-        bool MapRenderer::reloadEntityModel(const Model::Entity& entity, CachedEntityRenderer& cachedRenderer) {
-            EntityRendererManager& entityRendererManager = m_document.sharedResources().entityRendererManager();
-            EntityRenderer* renderer = entityRendererManager.entityRenderer(entity, m_document.mods());
+        bool MapRenderer::reloadEntityModel(const Model::Entity& entity, CachedEntityModelRenderer& cachedRenderer) {
+            EntityModelRendererManager& modelRendererManager = m_document.sharedResources().modelRendererManager();
+            EntityModelRenderer* renderer = modelRendererManager.modelRenderer(entity, m_document.mods());
             if (renderer != NULL) {
-                cachedRenderer = CachedEntityRenderer(renderer, *entity.classname());
+                cachedRenderer = CachedEntityModelRenderer(renderer, *entity.classname());
                 return true;
             }
             
             return false;
         }
         
-        void MapRenderer::reloadEntityModels(RenderContext& context, EntityRenderers& renderers) {
-            EntityRenderers::iterator it = renderers.begin();
+        void MapRenderer::reloadEntityModels(RenderContext& context, EntityModelRenderers& renderers) {
+            EntityModelRenderers::iterator it = renderers.begin();
             while (it != renderers.end()) {
                 if (reloadEntityModel(*it->first, it->second))
                     ++it;
@@ -408,29 +408,29 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::reloadEntityModels(RenderContext& context) {
-            m_entityRenderers.clear();
-            m_selectedEntityRenderers.clear();
+            m_modelRenderers.clear();
+            m_selectedEntityModelRenderers.clear();
             
-            EntityRendererManager& entityRendererManager = m_document.sharedResources().entityRendererManager();
+            EntityModelRendererManager& modelRendererManager = m_document.sharedResources().modelRendererManager();
             const Model::EntityList& entities = m_document.map().entities();
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
-                EntityRenderer* renderer = entityRendererManager.entityRenderer(*entity, m_document.mods());
+                EntityModelRenderer* renderer = modelRendererManager.modelRenderer(*entity, m_document.mods());
                 if (renderer != NULL) {
                     if (entity->selected())
-                        m_selectedEntityRenderers[entity] = CachedEntityRenderer(renderer, *entity->classname());
+                        m_selectedEntityModelRenderers[entity] = CachedEntityModelRenderer(renderer, *entity->classname());
                     else if (entity->locked())
-                        m_lockedEntityRenderers[entity] = CachedEntityRenderer(renderer, *entity->classname());
+                        m_lockedEntityModelRenderers[entity] = CachedEntityModelRenderer(renderer, *entity->classname());
                     else
-                        m_entityRenderers[entity] = CachedEntityRenderer(renderer, *entity->classname());
+                        m_modelRenderers[entity] = CachedEntityModelRenderer(renderer, *entity->classname());
                 }
             }
             
-            m_entityRendererCacheValid = true;
+            m_modelRendererCacheValid = true;
         }
         
-        void MapRenderer::moveEntityRenderer(Model::Entity* entity, EntityRenderers& from, EntityRenderers& to) {
-            EntityRenderers::iterator it = from.find(entity);
+        void MapRenderer::moveEntityModelRenderer(Model::Entity* entity, EntityModelRenderers& from, EntityModelRenderers& to) {
+            EntityModelRenderers::iterator it = from.find(entity);
             if (it != from.end()) {
                 to[entity] = it->second;
                 from.erase(it);
@@ -485,7 +485,7 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::validate(RenderContext& context) {
-            if (!m_entityRendererCacheValid)
+            if (!m_modelRendererCacheValid)
                 reloadEntityModels(context);
             if (!m_geometryDataValid || !m_selectedGeometryDataValid || !m_lockedGeometryDataValid)
                 rebuildGeometryData(context);
@@ -613,24 +613,24 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::renderEntityModels(RenderContext& context) {
-            if (m_entityRenderers.empty() && m_selectedEntityRenderers.empty() && m_lockedEntityRenderers.empty())
+            if (m_modelRenderers.empty() && m_selectedEntityModelRenderers.empty() && m_lockedEntityModelRenderers.empty())
                 return;
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            EntityRendererManager& entityRendererManager = m_document.sharedResources().entityRendererManager();
+            EntityModelRendererManager& modelRendererManager = m_document.sharedResources().modelRendererManager();
 
             if (m_entityModelProgram->activate()) {
-                EntityRenderers::iterator it, end;
+                EntityModelRenderers::iterator it, end;
                 
                 m_entityModelProgram->setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
-                entityRendererManager.activate();
+                modelRendererManager.activate();
                 
                 m_entityModelProgram->setUniformVariable("ApplyTinting", false);
                 m_entityModelProgram->setUniformVariable("GrayScale", false);
-                for (it = m_entityRenderers.begin(), end = m_entityRenderers.end(); it != end; ++it) {
+                for (it = m_modelRenderers.begin(), end = m_modelRenderers.end(); it != end; ++it) {
                     Model::Entity* entity = it->first;
                     if (context.filter().entityVisible(*entity)) {
-                        EntityRenderer* renderer = it->second.renderer;
+                        EntityModelRenderer* renderer = it->second.renderer;
                         renderer->render(*m_entityModelProgram, context.transformation(), *entity);
                     }
                 }
@@ -638,10 +638,10 @@ namespace TrenchBroom {
                 m_entityModelProgram->setUniformVariable("ApplyTinting", true);
                 m_entityModelProgram->setUniformVariable("TintColor", prefs.getColor(Preferences::SelectedFaceColor));
                 m_entityModelProgram->setUniformVariable("GrayScale", false);
-                for (it = m_selectedEntityRenderers.begin(), end = m_selectedEntityRenderers.end(); it != end; ++it) {
+                for (it = m_selectedEntityModelRenderers.begin(), end = m_selectedEntityModelRenderers.end(); it != end; ++it) {
                     Model::Entity* entity = it->first;
                     if (context.filter().entityVisible(*entity)) {
-                        EntityRenderer* renderer = it->second.renderer;
+                        EntityModelRenderer* renderer = it->second.renderer;
                         renderer->render(*m_entityModelProgram, context.transformation(), *entity);
                     }
                 }
@@ -649,15 +649,15 @@ namespace TrenchBroom {
                 m_entityModelProgram->setUniformVariable("ApplyTinting", true);
                 m_entityModelProgram->setUniformVariable("TintColor", prefs.getColor(Preferences::LockedFaceColor));
                 m_entityModelProgram->setUniformVariable("GrayScale", true);
-                for (it = m_lockedEntityRenderers.begin(), end = m_lockedEntityRenderers.end(); it != end; ++it) {
+                for (it = m_lockedEntityModelRenderers.begin(), end = m_lockedEntityModelRenderers.end(); it != end; ++it) {
                     Model::Entity* entity = it->first;
                     if (context.filter().entityVisible(*entity)) {
-                        EntityRenderer* renderer = it->second.renderer;
+                        EntityModelRenderer* renderer = it->second.renderer;
                         renderer->render(*m_entityModelProgram, context.transformation(), *entity);
                     }
                 }
                 
-                entityRendererManager.deactivate();
+                modelRendererManager.deactivate();
                 m_entityModelProgram->deactivate();
             }
         }
@@ -701,7 +701,7 @@ namespace TrenchBroom {
             m_entityDataValid = false;
             m_selectedEntityDataValid = false;
             m_lockedEntityDataValid = false;
-            m_entityRendererCacheValid = true;
+            m_modelRendererCacheValid = true;
 
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             float infoOverlayFadeDistance = prefs.getFloat(Preferences::InfoOverlayFadeDistance);
@@ -718,7 +718,7 @@ namespace TrenchBroom {
 
         void MapRenderer::addEntities(const Model::EntityList& entities) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            EntityRendererManager& entityRendererManager = m_document.sharedResources().entityRendererManager();
+            EntityModelRendererManager& modelRendererManager = m_document.sharedResources().modelRendererManager();
 
             const String& fontName = prefs.getString(Preferences::RendererFontName);
             int fontSize = prefs.getInt(Preferences::RendererFontSize);
@@ -726,9 +726,9 @@ namespace TrenchBroom {
             
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
-                EntityRenderer* renderer = entityRendererManager.entityRenderer(*entity, m_document.mods());
+                EntityModelRenderer* renderer = modelRendererManager.modelRenderer(*entity, m_document.mods());
                 if (renderer != NULL)
-                    m_entityRenderers[entity] = CachedEntityRenderer(renderer, *entity->classname());
+                    m_modelRenderers[entity] = CachedEntityModelRenderer(renderer, *entity->classname());
                 
                 const Model::PropertyValue& classname = *entity->classname();
                 EntityClassnameAnchor* anchor = new EntityClassnameAnchor(*entity);
@@ -741,7 +741,7 @@ namespace TrenchBroom {
         void MapRenderer::removeEntities(const Model::EntityList& entities) {
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
-                m_entityRenderers.erase(entity);
+                m_modelRenderers.erase(entity);
                 m_classnameRenderer->removeString(entity);
             }
             m_entityDataValid = false;
@@ -760,14 +760,14 @@ namespace TrenchBroom {
                 const Model::EntityList& selectedEntities = changeSet.entitiesTo(Model::EditState::Selected);
                 for (unsigned int i = 0; i < selectedEntities.size(); i++) {
                     Model::Entity* entity = selectedEntities[i];
-                    moveEntityRenderer(entity, m_entityRenderers, m_selectedEntityRenderers);
+                    moveEntityModelRenderer(entity, m_modelRenderers, m_selectedEntityModelRenderers);
                     m_classnameRenderer->transferString(entity, *m_selectedClassnameRenderer);
                 }
                 
                 const Model::EntityList& deselectedEntities = changeSet.entitiesFrom(Model::EditState::Selected);
                 for (unsigned int i = 0; i < deselectedEntities.size(); i++) {
                     Model::Entity* entity = deselectedEntities[i];
-                    moveEntityRenderer(entity, m_selectedEntityRenderers, m_entityRenderers);
+                    moveEntityModelRenderer(entity, m_selectedEntityModelRenderers, m_modelRenderers);
                     m_selectedClassnameRenderer->transferString(entity, *m_classnameRenderer);
                 }
             }
@@ -779,14 +779,14 @@ namespace TrenchBroom {
                 const Model::EntityList& lockedEntities = changeSet.entitiesTo(Model::EditState::Locked);
                 for (unsigned int i = 0; i < lockedEntities.size(); i++) {
                     Model::Entity* entity = lockedEntities[i];
-                    moveEntityRenderer(entity, m_entityRenderers, m_lockedEntityRenderers);
+                    moveEntityModelRenderer(entity, m_modelRenderers, m_lockedEntityModelRenderers);
                     m_classnameRenderer->transferString(entity, *m_lockedClassnameRenderer);
                 }
                 
                 const Model::EntityList& unlockedEntities = changeSet.entitiesFrom(Model::EditState::Locked);
                 for (unsigned int i = 0; i < unlockedEntities.size(); i++) {
                     Model::Entity* entity = unlockedEntities[i];
-                    moveEntityRenderer(entity, m_lockedEntityRenderers, m_entityRenderers);
+                    moveEntityModelRenderer(entity, m_lockedEntityModelRenderers, m_modelRenderers);
                     m_lockedClassnameRenderer->transferString(entity, *m_classnameRenderer);
                 }
             }
@@ -838,15 +838,15 @@ namespace TrenchBroom {
 			m_edgeVertexArray = VertexArrayPtr();
 			m_selectedEdgeVertexArray = VertexArrayPtr();
 			m_lockedEdgeVertexArray = VertexArrayPtr();
-            m_entityRenderers.clear();
-            m_selectedEntityRenderers.clear();
-            m_lockedEntityRenderers.clear();
+            m_modelRenderers.clear();
+            m_selectedEntityModelRenderers.clear();
+            m_lockedEntityModelRenderers.clear();
 			m_classnameRenderer->clear();
 			m_selectedClassnameRenderer->clear();
             m_lockedClassnameRenderer->clear();
 
             invalidateAll();
-            invalidateEntityRendererCache();
+            invalidateEntityModelRendererCache();
         }
 
         void MapRenderer::invalidateEntities() {
@@ -870,8 +870,8 @@ namespace TrenchBroom {
             invalidateBrushes();
         }
 
-        void MapRenderer::invalidateEntityRendererCache() {
-            m_entityRendererCacheValid = false;
+        void MapRenderer::invalidateEntityModelRendererCache() {
+            m_modelRendererCacheValid = false;
         }
 
         void MapRenderer::render(RenderContext& context) {

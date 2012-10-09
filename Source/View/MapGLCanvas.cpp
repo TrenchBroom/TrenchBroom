@@ -57,16 +57,30 @@ namespace TrenchBroom {
         wxDragResult MapGLCanvasDropTarget::OnEnter(wxCoord x, wxCoord y, wxDragResult def) {
             assert(CurrentDropSource != NULL);
             CurrentDropSource->setShowFeedback(false);
+            
+            float fx = static_cast<float>(x);
+            float fy = static_cast<float>(y);
+            wxTextDataObject* dataObject = static_cast<wxTextDataObject*>(CurrentDropSource->GetDataObject());
+            wxString text = dataObject->GetText();
+            m_inputController.dragEnter(text.ToStdString(), fx, fy);
+
             return wxDragCopy;
         }
         
         wxDragResult MapGLCanvasDropTarget::OnDragOver(wxCoord x, wxCoord y, wxDragResult def) {
+            float fx = static_cast<float>(x);
+            float fy = static_cast<float>(y);
+            wxTextDataObject* dataObject = static_cast<wxTextDataObject*>(CurrentDropSource->GetDataObject());
+            wxString text = dataObject->GetText();
+            m_inputController.dragMove(text.ToStdString(), fx, fy);
+            
             return wxDragCopy;
         }
         
         void MapGLCanvasDropTarget::OnLeave() {
             assert(CurrentDropSource != NULL);
             CurrentDropSource->setShowFeedback(true);
+            m_inputController.dragLeave();
         }
         
         bool MapGLCanvasDropTarget::OnDropText(wxCoord x, wxCoord y, const wxString& data) {
@@ -106,7 +120,7 @@ namespace TrenchBroom {
         m_documentViewHolder(documentViewHolder),
         m_glContext(new wxGLContext(this, documentViewHolder.document().sharedResources().sharedContext())),
         m_inputController(new Controller::InputController(documentViewHolder)) {
-            SetDropTarget(new MapGLCanvasDropTarget());
+            SetDropTarget(new MapGLCanvasDropTarget(*m_inputController));
         }
 
         MapGLCanvas::~MapGLCanvas() {

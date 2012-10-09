@@ -17,7 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EntityRenderer.h"
+#include "EntityModelRenderer.h"
 
 #include <GL/glew.h>
 #include "Model/Entity.h"
@@ -30,11 +30,11 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
-        void EntityRenderer::render(ShaderProgram& shaderProgram, Transformation& transformation, const Model::Entity& entity) {
+        void EntityModelRenderer::render(ShaderProgram& shaderProgram, Transformation& transformation, const Model::Entity& entity) {
             render(shaderProgram, transformation, entity.origin(), static_cast<float>(entity.angle()));
         }
 
-        void EntityRenderer::render(ShaderProgram& shaderProgram, Transformation& transformation, const Vec3f& position, float angle) {
+        void EntityModelRenderer::render(ShaderProgram& shaderProgram, Transformation& transformation, const Vec3f& position, float angle) {
             PushMatrix pushMatrix(transformation);
             
             Mat4f matrix = pushMatrix.matrix();

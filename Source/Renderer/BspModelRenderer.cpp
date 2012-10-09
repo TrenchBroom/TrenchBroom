@@ -17,7 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BspRenderer.h"
+#include "BspModelRenderer.h"
+
 #include "Model/Bsp.h"
 #include "Model/Entity.h"
 #include "Renderer/MapRenderer.h"
@@ -30,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        void BspRenderer::buildVertexArrays() {
+        void BspModelRenderer::buildVertexArrays() {
             typedef TexturedPolygonSorter<const Model::BspTexture, Model::BspFace*> FaceSorter;
             typedef FaceSorter::PolygonCollection FaceCollection;
             typedef FaceSorter::PolygonCollectionMap FaceCollectionMap;
@@ -94,19 +95,19 @@ namespace TrenchBroom {
             m_vbo.unmap();
         }
         
-        BspRenderer::BspRenderer(const Model::Bsp& bsp, Vbo& vbo, const Palette& palette) :
+        BspModelRenderer::BspModelRenderer(const Model::Bsp& bsp, Vbo& vbo, const Palette& palette) :
         m_bsp(bsp),
         m_palette(palette),
         m_vbo(vbo) {}
         
-        BspRenderer::~BspRenderer() {
+        BspModelRenderer::~BspModelRenderer() {
             TextureCache::iterator it, end;
             for (it = m_textures.begin(), end = m_textures.end(); it != end; ++it)
                 delete it->second;
             m_textures.clear();
         }
 
-        void BspRenderer::render(ShaderProgram& shaderProgram) {
+        void BspModelRenderer::render(ShaderProgram& shaderProgram) {
             if (m_vertexArrays.empty())
                 buildVertexArrays();
             
@@ -120,15 +121,15 @@ namespace TrenchBroom {
             }
         }
         
-        const Vec3f& BspRenderer::center() const {
+        const Vec3f& BspModelRenderer::center() const {
             return m_bsp.models()[0]->center();
         }
         
-        const BBox& BspRenderer::bounds() const {
+        const BBox& BspModelRenderer::bounds() const {
             return m_bsp.models()[0]->bounds();
         }
 
-        BBox BspRenderer::boundsAfterTransformation(const Mat4f& transformation) const {
+        BBox BspModelRenderer::boundsAfterTransformation(const Mat4f& transformation) const {
             Model::BspModel& model = *m_bsp.models()[0];
             const Model::BspFaceList& faces = model.faces();
 

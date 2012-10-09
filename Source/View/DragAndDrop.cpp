@@ -25,29 +25,6 @@
 
 namespace TrenchBroom {
     namespace View {
-        FeedbackFrame::FeedbackFrame(wxImage& image) :
-        wxFrame(NULL, wxID_ANY, wxT("TrenchBroom DnD Feedback Frame"), wxDefaultPosition, wxDefaultSize, wxBORDER_NONE),
-        m_image(image) {
-            Bind(wxEVT_PAINT, &FeedbackFrame::OnPaint, this);
-            Bind(wxEVT_ERASE_BACKGROUND, &FeedbackFrame::OnEraseBackground, this);
-            
-            int width = image.GetWidth() + 2;
-            int height = image.GetHeight() + 2;
-            SetClientSize(width, height);
-            Show();
-        }
-        
-        void FeedbackFrame::OnEraseBackground(wxEraseEvent& event) {
-        }
-        
-        void FeedbackFrame::OnPaint(wxPaintEvent& event) {
-            wxPaintDC dc(this);
-            dc.SetPen(*wxRED_PEN);
-            dc.SetBrush(*wxBLACK_BRUSH);
-            dc.DrawRectangle(0, 0, GetClientSize().x, GetClientSize().y);
-            dc.DrawBitmap(m_image, 1, 1);
-        }
-
         DropSource::DropSource(wxWindow* window, const wxImage& image, const wxPoint& imageOffset) :
         wxDropSource(window),
         m_screenDC(NULL),
@@ -69,8 +46,10 @@ namespace TrenchBroom {
             if (m_screenDC != NULL)
                 m_screenDC->Clear();
             
-            if (!m_showFeedback)
+            if (!m_showFeedback) {
+                m_screenDC->Flush();
                 return false;
+            }
             
             if (m_screenDC == NULL) {
                 m_screenDC = new MacScreenDC();

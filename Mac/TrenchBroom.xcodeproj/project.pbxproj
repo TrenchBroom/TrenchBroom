@@ -21,6 +21,7 @@
 		4817C7F416123E0500A01A99 /* EntityInspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4817C7F216123E0500A01A99 /* EntityInspector.cpp */; };
 		481CDAD816026C48003E2EE9 /* PreferencesDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481CDAD616026C48003E2EE9 /* PreferencesDialog.cpp */; };
 		481CDADB16034034003E2EE9 /* Preferences.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481CDADA16034034003E2EE9 /* Preferences.cpp */; };
+		481E564916242D6B00B403F3 /* EntityDragTargetTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481E564716242D6B00B403F3 /* EntityDragTargetTool.cpp */; };
 		48312B2815EABBD600607868 /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 48312B2715EABBD600607868 /* Icon.icns */; };
 		48312B2C15EB706D00607868 /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B2A15EB706D00607868 /* Console.cpp */; };
 		48312B3215EB800600607868 /* Vbo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B3015EB800600607868 /* Vbo.cpp */; };
@@ -42,10 +43,10 @@
 		4850D26915F4A01C005B162D /* Pak.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D26715F4A01C005B162D /* Pak.cpp */; };
 		4850D27015F4AD8E005B162D /* Alias.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D26B15F4AD3D005B162D /* Alias.cpp */; };
 		4850D27415F4BF18005B162D /* Bsp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D27215F4BEFC005B162D /* Bsp.cpp */; };
-		4850D27915F4C9E8005B162D /* EntityRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D27515F4C9C2005B162D /* EntityRenderer.cpp */; };
-		4850D27A15F4C9E8005B162D /* EntityRendererManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D27715F4C9C2005B162D /* EntityRendererManager.cpp */; };
-		4850D27F15F4CA62005B162D /* AliasRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D27B15F4CA61005B162D /* AliasRenderer.cpp */; };
-		4850D28015F4CA62005B162D /* BspRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D27D15F4CA62005B162D /* BspRenderer.cpp */; };
+		4850D27915F4C9E8005B162D /* EntityModelRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D27515F4C9C2005B162D /* EntityModelRenderer.cpp */; };
+		4850D27A15F4C9E8005B162D /* EntityModelRendererManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D27715F4C9C2005B162D /* EntityModelRendererManager.cpp */; };
+		4850D27F15F4CA62005B162D /* AliasModelRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D27B15F4CA61005B162D /* AliasModelRenderer.cpp */; };
+		4850D28015F4CA62005B162D /* BspModelRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D27D15F4CA62005B162D /* BspModelRenderer.cpp */; };
 		4850D29715F53CE9005B162D /* StringVectorizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D29515F53CE9005B162D /* StringVectorizer.cpp */; };
 		4850D29A15F5475E005B162D /* PathBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D29815F5475E005B162D /* PathBuilder.cpp */; };
 		4850D2A515F73FC7005B162D /* PathRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2A315F73FC7005B162D /* PathRenderer.cpp */; };
@@ -149,6 +150,9 @@
 		481CDADD1603BAF2003E2EE9 /* DocumentViewHolder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DocumentViewHolder.h; sourceTree = "<group>"; };
 		481CDAE01603CC8C003E2EE9 /* AbstractVertexArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractVertexArray.h; sourceTree = "<group>"; };
 		481CDAE11603CF4B003E2EE9 /* IndexedVertexArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IndexedVertexArray.h; sourceTree = "<group>"; };
+		481E56461624120900B403F3 /* DragTargetTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragTargetTool.h; sourceTree = "<group>"; };
+		481E564716242D6B00B403F3 /* EntityDragTargetTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityDragTargetTool.cpp; sourceTree = "<group>"; };
+		481E564816242D6B00B403F3 /* EntityDragTargetTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDragTargetTool.h; sourceTree = "<group>"; };
 		48312B2715EABBD600607868 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
 		48312B2A15EB706D00607868 /* Console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Console.cpp; sourceTree = "<group>"; };
 		48312B2B15EB706D00607868 /* Console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Console.h; sourceTree = "<group>"; };
@@ -210,14 +214,14 @@
 		4850D26D15F4AD3E005B162D /* AliasNormals.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AliasNormals.h; sourceTree = "<group>"; };
 		4850D27215F4BEFC005B162D /* Bsp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Bsp.cpp; sourceTree = "<group>"; };
 		4850D27315F4BEFC005B162D /* Bsp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Bsp.h; sourceTree = "<group>"; };
-		4850D27515F4C9C2005B162D /* EntityRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = EntityRenderer.cpp; sourceTree = "<group>"; };
-		4850D27615F4C9C2005B162D /* EntityRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityRenderer.h; sourceTree = "<group>"; };
-		4850D27715F4C9C2005B162D /* EntityRendererManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = EntityRendererManager.cpp; sourceTree = "<group>"; };
-		4850D27815F4C9C2005B162D /* EntityRendererManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityRendererManager.h; sourceTree = "<group>"; };
-		4850D27B15F4CA61005B162D /* AliasRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AliasRenderer.cpp; sourceTree = "<group>"; };
-		4850D27C15F4CA61005B162D /* AliasRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AliasRenderer.h; sourceTree = "<group>"; };
-		4850D27D15F4CA62005B162D /* BspRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BspRenderer.cpp; sourceTree = "<group>"; };
-		4850D27E15F4CA62005B162D /* BspRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BspRenderer.h; sourceTree = "<group>"; };
+		4850D27515F4C9C2005B162D /* EntityModelRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = EntityModelRenderer.cpp; sourceTree = "<group>"; };
+		4850D27615F4C9C2005B162D /* EntityModelRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityModelRenderer.h; sourceTree = "<group>"; };
+		4850D27715F4C9C2005B162D /* EntityModelRendererManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = EntityModelRendererManager.cpp; sourceTree = "<group>"; };
+		4850D27815F4C9C2005B162D /* EntityModelRendererManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityModelRendererManager.h; sourceTree = "<group>"; };
+		4850D27B15F4CA61005B162D /* AliasModelRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AliasModelRenderer.cpp; sourceTree = "<group>"; };
+		4850D27C15F4CA61005B162D /* AliasModelRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AliasModelRenderer.h; sourceTree = "<group>"; };
+		4850D27D15F4CA62005B162D /* BspModelRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BspModelRenderer.cpp; sourceTree = "<group>"; };
+		4850D27E15F4CA62005B162D /* BspModelRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BspModelRenderer.h; sourceTree = "<group>"; };
 		4850D28315F52CCE005B162D /* Path.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Path.h; sourceTree = "<group>"; };
 		4850D28915F53168005B162D /* FontDescriptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontDescriptor.h; sourceTree = "<group>"; };
 		4850D29515F53CE9005B162D /* StringVectorizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringVectorizer.cpp; sourceTree = "<group>"; };
@@ -399,18 +403,18 @@
 			children = (
 				48EA11A515FA7CAD00391885 /* Shader */,
 				4850D28115F52CBE005B162D /* Text */,
-				4850D27B15F4CA61005B162D /* AliasRenderer.cpp */,
-				4850D27C15F4CA61005B162D /* AliasRenderer.h */,
-				4850D27D15F4CA62005B162D /* BspRenderer.cpp */,
-				4850D27E15F4CA62005B162D /* BspRenderer.h */,
+				4850D27B15F4CA61005B162D /* AliasModelRenderer.cpp */,
+				4850D27C15F4CA61005B162D /* AliasModelRenderer.h */,
+				4850D27D15F4CA62005B162D /* BspModelRenderer.cpp */,
+				4850D27E15F4CA62005B162D /* BspModelRenderer.h */,
 				48819C3615EBE92800BEA604 /* Camera.cpp */,
 				48819C3715EBE92800BEA604 /* Camera.h */,
 				4850D2B215F776A8005B162D /* EntityClassnameAnchor.h */,
 				4850D2B315F776A8005B162D /* EntityClassnameFilter.h */,
-				4850D27515F4C9C2005B162D /* EntityRenderer.cpp */,
-				4850D27615F4C9C2005B162D /* EntityRenderer.h */,
-				4850D27715F4C9C2005B162D /* EntityRendererManager.cpp */,
-				4850D27815F4C9C2005B162D /* EntityRendererManager.h */,
+				4850D27515F4C9C2005B162D /* EntityModelRenderer.cpp */,
+				4850D27615F4C9C2005B162D /* EntityModelRenderer.h */,
+				4850D27715F4C9C2005B162D /* EntityModelRendererManager.cpp */,
+				4850D27815F4C9C2005B162D /* EntityModelRendererManager.h */,
 				48312B3315EB805E00607868 /* MapRenderer.cpp */,
 				48312B3415EB805E00607868 /* MapRenderer.h */,
 				488457CE161C839A002ADDAE /* OffscreenRenderer.cpp */,
@@ -688,6 +692,9 @@
 				4850D26215F3E202005B162D /* ChangeEditStateCommand.h */,
 				4850D26515F3E757005B162D /* Command.h */,
 				48009AFD15F8A4E7001A9993 /* DragPlane.h */,
+				481E56461624120900B403F3 /* DragTargetTool.h */,
+				481E564716242D6B00B403F3 /* EntityDragTargetTool.cpp */,
+				481E564816242D6B00B403F3 /* EntityDragTargetTool.h */,
 				48AB57FF15ECFC5F00321C47 /* Input.h */,
 				48AB580015ECFED800321C47 /* InputController.cpp */,
 				48AB580115ECFED800321C47 /* InputController.h */,
@@ -823,8 +830,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4850D27915F4C9E8005B162D /* EntityRenderer.cpp in Sources */,
-				4850D27A15F4C9E8005B162D /* EntityRendererManager.cpp in Sources */,
+				4850D27915F4C9E8005B162D /* EntityModelRenderer.cpp in Sources */,
+				4850D27A15F4C9E8005B162D /* EntityModelRendererManager.cpp in Sources */,
 				4850D27415F4BF18005B162D /* Bsp.cpp in Sources */,
 				4850D27015F4AD8E005B162D /* Alias.cpp in Sources */,
 				4850D26315F3E260005B162D /* ChangeEditStateCommand.cpp in Sources */,
@@ -864,8 +871,8 @@
 				4850D25015F389B5005B162D /* EditStateManager.cpp in Sources */,
 				4850D25415F3B36C005B162D /* SelectionTool.cpp in Sources */,
 				4850D26915F4A01C005B162D /* Pak.cpp in Sources */,
-				4850D27F15F4CA62005B162D /* AliasRenderer.cpp in Sources */,
-				4850D28015F4CA62005B162D /* BspRenderer.cpp in Sources */,
+				4850D27F15F4CA62005B162D /* AliasModelRenderer.cpp in Sources */,
+				4850D28015F4CA62005B162D /* BspModelRenderer.cpp in Sources */,
 				4850D29715F53CE9005B162D /* StringVectorizer.cpp in Sources */,
 				4850D29A15F5475E005B162D /* PathBuilder.cpp in Sources */,
 				4850D2A515F73FC7005B162D /* PathRenderer.cpp in Sources */,
@@ -899,6 +906,7 @@
 				488457D0161C839A002ADDAE /* OffscreenRenderer.cpp in Sources */,
 				4842AF67162176100042AD66 /* DragAndDrop.cpp in Sources */,
 				4842AF7416220D7A0042AD66 /* MacScreenDC.mm in Sources */,
+				481E564916242D6B00B403F3 /* EntityDragTargetTool.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

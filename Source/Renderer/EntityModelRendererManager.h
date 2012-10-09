@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityRendererManager_h
-#define TrenchBroom_EntityRendererManager_h
+#ifndef TrenchBroom_EntityModelRendererManager_h
+#define TrenchBroom_EntityModelRendererManager_h
 
 #include "Utility/String.h"
 
@@ -38,13 +38,13 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
-        class EntityRenderer;
+        class EntityModelRenderer;
         class Palette;
         class Vbo;
         
-        class EntityRendererManager {
+        class EntityModelRendererManager {
         private:
-            typedef std::map<String, EntityRenderer*> EntityRendererCache;
+            typedef std::map<String, EntityModelRenderer*> EntityModelRendererCache;
             typedef std::set<String> MismatchCache;
             
             String m_quakePath;
@@ -52,18 +52,18 @@ namespace TrenchBroom {
             Utility::Console& m_console;
             
             Vbo* m_vbo;
-            EntityRendererCache m_entityRenderers;
+            EntityModelRendererCache m_modelRenderers;
             MismatchCache m_mismatches;
             bool m_valid;
 
-            const String entityRendererKey(const Model::PointEntityModel& modelInfo, const StringList& searchPaths);
-            EntityRenderer* entityRenderer(const Model::PointEntityModel& modelInfo, const StringList& mods);
+            const String modelRendererKey(const Model::PointEntityModel& modelInfo, const StringList& searchPaths);
+            EntityModelRenderer* modelRenderer(const Model::PointEntityModel& modelInfo, const StringList& mods);
         public:
-            EntityRendererManager(Utility::Console& console);
-            ~EntityRendererManager();
+            EntityModelRendererManager(Utility::Console& console);
+            ~EntityModelRendererManager();
             
-            EntityRenderer* entityRenderer(const Model::PointEntityDefinition& entityDefinition, const StringList& mods);
-            EntityRenderer* entityRenderer(const Model::Entity& entity, const StringList& mods);
+            EntityModelRenderer* modelRenderer(const Model::PointEntityDefinition& entityDefinition, const StringList& mods);
+            EntityModelRenderer* modelRenderer(const Model::Entity& entity, const StringList& mods);
             void clear();
             
             void setQuakePath(const String& quakePath);

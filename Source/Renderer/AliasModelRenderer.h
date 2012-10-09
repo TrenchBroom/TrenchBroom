@@ -17,46 +17,39 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_BspRenderer_h
-#define TrenchBroom_BspRenderer_h
+#ifndef TrenchBroom_AliasModelRenderer_h
+#define TrenchBroom_AliasModelRenderer_h
 
-#include <GL/glew.h>
-#include "Renderer/EntityRenderer.h"
-#include "Renderer/TextureVertexArray.h"
-
-#include <map>
-#include <vector>
+#include "Renderer/EntityModelRenderer.h"
+#include "Renderer/RenderTypes.h"
+#include "Renderer/TextureRendererTypes.h"
+#include "Renderer/VertexArray.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Bsp;
-        class BspTexture;
+        class Alias;
         class Entity;
     }
 
     namespace Renderer {
         class Palette;
+        class RenderContext;
         class ShaderProgram;
-        class TextureRenderer;
         class Vbo;
-        class VboBlock;
+        
 
-        class BspRenderer : public EntityRenderer {
+        class AliasModelRenderer : public EntityModelRenderer {
         private:
-            typedef std::map<const Model::BspTexture*, TextureRenderer*> TextureCache;
-
-            const Model::Bsp& m_bsp;
+            const Model::Alias& m_alias;
+            unsigned int m_skinIndex;
 
             const Palette& m_palette;
-            TextureCache m_textures;
+            TextureRendererPtr m_texture;
 
             Vbo& m_vbo;
-            TextureVertexArrayList m_vertexArrays;
-            
-            void buildVertexArrays();
+            VertexArrayPtr m_vertexArray;
         public:
-            BspRenderer(const Model::Bsp& bsp, Vbo& vbo, const Palette& palette);
-            ~BspRenderer();
+            AliasModelRenderer(const Model::Alias& alias, int unsigned skinIndex, Vbo& vbo, const Palette& palette);
             
             void render(ShaderProgram& shaderProgram);
             
