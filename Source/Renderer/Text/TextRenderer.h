@@ -227,9 +227,9 @@ namespace TrenchBroom {
                     }
                 }
             public:
-                TextRenderer(StringManager& stringManager, float fadeDistance) :
+                TextRenderer(StringManager& stringManager) :
                 m_stringManager(stringManager),
-                m_fadeDistance(fadeDistance),
+                m_fadeDistance(100.0f),
                 m_hInset(3.0f),
                 m_vInset(3.0f) {}
                 

@@ -92,7 +92,7 @@ namespace TrenchBroom {
             m_boundsVbo.activate();
             m_boundsVbo.map();
             
-            if (m_applyColor) {
+            if (m_overrideBoundsColor) {
                 unsigned int vertexCount = 2 * 4 * 6 * static_cast<unsigned int>(entities.size());
                 m_boundsVertexArray = VertexArrayPtr(new VertexArray(m_boundsVbo, GL_LINES, vertexCount, VertexAttribute(3, GL_FLOAT, VertexAttribute::Position)));
                 writeBounds(context, entities);
@@ -129,16 +129,16 @@ namespace TrenchBroom {
             ShaderManager& shaderManager = m_document.sharedResources().shaderManager();
 
             m_boundsVbo.activate();
-            if (m_applyColor) {
+            if (m_overrideBoundsColor) {
                 ShaderProgram& edgeProgram = shaderManager.shaderProgram(Shaders::EdgeShader);
                 if (edgeProgram.activate()) {
-                    if (m_renderOcclusion) {
+                    if (m_renderOccludedBounds) {
                         glDisable(GL_DEPTH_TEST);
-                        edgeProgram.setUniformVariable("Color", m_occlusionColor);
+                        edgeProgram.setUniformVariable("Color", m_occludedBoundsColor);
                         m_boundsVertexArray->render();
                         glEnable(GL_DEPTH_TEST);
                     }
-                    edgeProgram.setUniformVariable("Color", m_color);
+                    edgeProgram.setUniformVariable("Color", m_boundsColor);
                     m_boundsVertexArray->render();
                     edgeProgram.deactivate();
                 }
@@ -161,22 +161,18 @@ namespace TrenchBroom {
             ShaderProgram& textBackgroundProgram = shaderManager.shaderProgram(Shaders::TextBackgroundShader);
             
             EntityClassnameFilter classnameFilter;
-            if (m_applyColor) {
-                if (m_renderOcclusion) {
-                    glDisable(GL_DEPTH_TEST);
-                    m_classnameRenderer->render(context, classnameFilter, textProgram,
-                                                m_classnameColor, textBackgroundProgram,
-                                                m_occlusionColor);
-                    glEnable(GL_DEPTH_TEST);
-                }
+            if (m_renderOccludedClassnames) {
+                glDisable(GL_DEPTH_TEST);
                 m_classnameRenderer->render(context, classnameFilter, textProgram,
-                                            m_classnameColor, textBackgroundProgram,
-                                            m_color);
-            } else {
-                m_classnameRenderer->render(context, classnameFilter, textProgram,
-                                            m_classnameColor, textBackgroundProgram,
-                                            m_classnameBackgroundColor);
+                                            m_occludedClassnameColor, textBackgroundProgram,
+                                            m_occludedClassnameBackgroundColor);
+                glEnable(GL_DEPTH_TEST);
             }
+            
+            m_classnameRenderer->render(context, classnameFilter, textProgram,
+                                        m_classnameColor, textBackgroundProgram,
+                                        m_classnameBackgroundColor);
+            
         }
 
         void EntityRenderer::renderModels(RenderContext& context) {
@@ -192,9 +188,9 @@ namespace TrenchBroom {
             if (entityModelProgram.activate()) {
                 modelRendererManager.activate();
                 entityModelProgram.setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
-                entityModelProgram.setUniformVariable("ApplyTinting", m_applyColor);
-                entityModelProgram.setUniformVariable("TintColor", m_color);
-                entityModelProgram.setUniformVariable("GrayScale", false);
+                entityModelProgram.setUniformVariable("ApplyTinting", m_applyTinting);
+                entityModelProgram.setUniformVariable("TintColor", m_tintColor);
+                entityModelProgram.setUniformVariable("GrayScale", m_grayscale);
                 
                 EntityModelRenderers::iterator it, end;
                 for (it = m_modelRenderers.begin(), end = m_modelRenderers.end(); it != end; ++it) {
@@ -210,48 +206,26 @@ namespace TrenchBroom {
             }
         }
 
-        EntityRenderer::EntityRenderer(Vbo& boundsVbo, Model::MapDocument& document, float classnameFadeDistance) :
+        EntityRenderer::EntityRenderer(Vbo& boundsVbo, Model::MapDocument& document) :
         m_boundsVbo(boundsVbo),
         m_document(document),
         m_modelRendererCacheValid(true),
         m_boundsValid(true),
         m_classnameColor(1.0f, 1.0f, 1.0f, 1.0f),
         m_classnameBackgroundColor(0.0f, 0.0f, 0.0f, 0.6f),
-        m_applyColor(false),
-        m_renderOcclusion(false) {
+        m_renderOccludedClassnames(false),
+        m_overrideBoundsColor(false),
+        m_renderOccludedBounds(false),
+        m_applyTinting(false),
+        m_grayscale(false) {
             Text::StringManager& stringManager = m_document.sharedResources().stringManager();
-            m_classnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(stringManager, classnameFadeDistance));
-        }
-
-        EntityRenderer::EntityRenderer(Vbo& boundsVbo, Model::MapDocument& document, float classnameFadeDistance, const Color& color) :
-        m_boundsVbo(boundsVbo),
-        m_document(document),
-        m_modelRendererCacheValid(true),
-        m_boundsValid(true),
-        m_classnameColor(1.0f, 1.0f, 1.0f, 1.0f),
-        m_classnameBackgroundColor(0.0f, 0.0f, 0.0f, 0.6f),
-        m_applyColor(true),
-        m_color(color),
-        m_renderOcclusion(false) {
-            Text::StringManager& stringManager = m_document.sharedResources().stringManager();
-            m_classnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(stringManager, classnameFadeDistance));
-        }
-
-        EntityRenderer::EntityRenderer(Vbo& boundsVbo, Model::MapDocument& document, float classnameFadeDistance, const Color& color, const Color& occlusionColor) :
-        m_boundsVbo(boundsVbo),
-        m_document(document),
-        m_modelRendererCacheValid(true),
-        m_boundsValid(true),
-        m_classnameColor(1.0f, 1.0f, 1.0f, 1.0f),
-        m_classnameBackgroundColor(0.0f, 0.0f, 0.0f, 0.6f),
-        m_applyColor(true),
-        m_color(color),
-        m_renderOcclusion(true),
-        m_occlusionColor(occlusionColor) {
-            Text::StringManager& stringManager = m_document.sharedResources().stringManager();
-            m_classnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(stringManager, classnameFadeDistance));
+            m_classnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(stringManager));
         }
         
+        void EntityRenderer::setClassnameFadeDistance(float classnameFadeDistance) {
+            m_classnameRenderer->setFadeDistance(classnameFadeDistance);
+        }
+
         void EntityRenderer::addEntity(Model::Entity& entity) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             EntityModelRendererManager& modelRendererManager = m_document.sharedResources().modelRendererManager();
