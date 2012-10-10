@@ -201,6 +201,8 @@ namespace TrenchBroom {
                         inspector().entityInspector().updateProperties();
                         break;
                     }
+                    case Controller::Command::UpdateFigures:
+                        break;
                     default:
                         break;
                 }

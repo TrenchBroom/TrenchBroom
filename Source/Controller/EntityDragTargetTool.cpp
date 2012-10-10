@@ -19,16 +19,52 @@
 
 #include "EntityDragTargetTool.h"
 
+#include "Controller/Command.h"
+#include "Model/Entity.h"
 #include "Model/EntityDefinition.h"
 #include "Model/EntityDefinitionManager.h"
+#include "Model/Filter.h"
+#include "Model/Map.h"
 #include "Model/MapDocument.h"
-#include "View/DocumentViewHolder.h"
+#include "Model/Picker.h"
+#include "Renderer/Camera.h"
+#include "Renderer/EntityFigure.h"
+#include "Utility/Grid.h"
 #include "Utility/String.h"
+#include "Utility/VecMath.h"
+#include "View/DocumentViewHolder.h"
+#include "View/EditorView.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Controller {
+        void EntityDragTargetTool::updateFigure(InputEvent& event) {
+            Model::MapDocument& document = documentViewHolder().document();
+            View::EditorView& view = documentViewHolder().view();
+            Model::Filter& filter = view.filter();
+            Utility::Grid& grid = document.grid();
+            
+            Model::Hit* hit = event.pickResult->first(Model::Hit::FaceHit, true, filter);
+            
+            Vec3f delta;
+            if (hit == NULL) {
+                Vec3f newPosition = view.camera().defaultPoint(event.ray.direction);
+                const Vec3f& center = m_entity->bounds().center();
+                delta = grid.moveDeltaForEntity(center, document.map().worldBounds(), newPosition - center);
+            } else {
+                Model::Face& face = hit->face();
+                delta = grid.moveDeltaForEntity(face, m_entity->bounds(), document.map().worldBounds(), event.ray, hit->hitPoint());
+            }
+
+            if (delta.null())
+                return;
+            
+            m_entity->setProperty(Model::Entity::OriginKey, m_entity->origin() + delta, true);
+            m_entityFigure->invalidate();
+            document.UpdateAllViews();
+        }
+        
         bool EntityDragTargetTool::handleDragEnter(InputEvent& event, const String& payload) {
             StringList parts = Utility::split(payload, ':');
             if (parts.size() != 2)
@@ -38,20 +74,63 @@ namespace TrenchBroom {
             
             Model::MapDocument& document = documentViewHolder().document();
             Model::EntityDefinitionManager& definitionManager = document.definitionManager();
-            m_definition = definitionManager.definition(parts[1]);
-            return m_definition != NULL;
+            Model::EntityDefinition* definition = definitionManager.definition(parts[1]);
+            if (definition == NULL)
+                return false;
+            
+            m_entity = new Model::Entity(document.map().worldBounds());
+            m_entity->setProperty(Model::Entity::ClassnameKey, definition->name());
+            m_entity->setDefinition(definition);
+            
+            m_entityFigure = new Renderer::EntityFigure(document, *m_entity);
+            addFigure(m_entityFigure);
+            updateFigure(event);
+            
+            return true;
         }
         
         void EntityDragTargetTool::handleDragMove(InputEvent& event) {
-            assert(m_definition != NULL);
-        }
-        
-        void EntityDragTargetTool::handleDrop(InputEvent& event) {
-            assert(m_definition != NULL);
+            assert(m_entity != NULL);
+            updateFigure(event);
         }
         
         void EntityDragTargetTool::handleDragLeave() {
-            assert(m_definition != NULL);
+            assert(m_entity != NULL);
+
+            removeFigure(m_entityFigure);
+            deleteFigure(m_entityFigure);
+            m_entityFigure = NULL;
+            
+            documentViewHolder().document().UpdateAllViews();
+        }
+
+        bool EntityDragTargetTool::handleDrop(InputEvent& event) {
+            assert(m_entity != NULL);
+            
+            removeFigure(m_entityFigure);
+            deleteFigure(m_entityFigure);
+            m_entityFigure = NULL;
+
+            // replace with appropriate command
+            documentViewHolder().document().UpdateAllViews();
+            
+            return true;
+        }
+        
+        EntityDragTargetTool::EntityDragTargetTool(View::DocumentViewHolder& documentViewHolder) :
+        DragTargetTool(documentViewHolder),
+        m_entity(NULL),
+        m_entityFigure(NULL) {}
+
+        EntityDragTargetTool::~EntityDragTargetTool() {
+            if (m_entityFigure != NULL) {
+                deleteFigure(m_entityFigure);
+                m_entityFigure = NULL;
+            }
+            if (m_entity != NULL) {
+                delete m_entity;
+                m_entity = NULL;
+            }
         }
     }
 }

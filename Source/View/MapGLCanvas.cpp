@@ -84,7 +84,13 @@ namespace TrenchBroom {
         }
         
         bool MapGLCanvasDropTarget::OnDropText(wxCoord x, wxCoord y, const wxString& data) {
-            return false;
+            assert(CurrentDropSource != NULL);
+
+            float fx = static_cast<float>(x);
+            float fy = static_cast<float>(y);
+            wxTextDataObject* dataObject = static_cast<wxTextDataObject*>(CurrentDropSource->GetDataObject());
+            wxString text = dataObject->GetText();
+            return m_inputController.drop(text.ToStdString(), fx, fy);
         }
 
         bool MapGLCanvas::HandleModifierKey(int keyCode, bool down) {

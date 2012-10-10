@@ -80,6 +80,7 @@ namespace TrenchBroom {
             void renderBounds(RenderContext& context);
             void renderClassnames(RenderContext& context);
             void renderModels(RenderContext& context);
+            void renderFigures(RenderContext& context);
         public:
             EntityRenderer(Vbo& boundsVbo, Model::MapDocument& document, float classnameFadeDistance);
             EntityRenderer(Vbo& boundsVbo, Model::MapDocument& document, float classnameFadeDistance, const Color& color);

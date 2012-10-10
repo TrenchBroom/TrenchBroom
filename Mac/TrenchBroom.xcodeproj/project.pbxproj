@@ -108,6 +108,7 @@
 		48E2ECDC1600B52100B8D476 /* TextBackground.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48E2ECDB1600B52000B8D476 /* TextBackground.fragsh */; };
 		48E2ED17160102E400B8D476 /* ViewInspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48E2ED15160102E400B8D476 /* ViewInspector.cpp */; };
 		48F0B7C315FCB4CF0089B0B5 /* Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */; };
+		48FBD14116259AD70059953D /* EntityFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD13F16259AD70059953D /* EntityFigure.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -368,6 +369,9 @@
 		48EA11A415FA71F700391885 /* Transformation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Transformation.h; sourceTree = "<group>"; };
 		48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Shader.cpp; sourceTree = "<group>"; };
 		48F0B7C215FCB4CF0089B0B5 /* Shader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Shader.h; sourceTree = "<group>"; };
+		48FBD13C16258DE70059953D /* Figure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Figure.h; sourceTree = "<group>"; };
+		48FBD13F16259AD70059953D /* EntityFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityFigure.cpp; sourceTree = "<group>"; };
+		48FBD14016259AD70059953D /* EntityFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityFigure.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -410,6 +414,7 @@
 		48312B2F15EB800600607868 /* Renderer */ = {
 			isa = PBXGroup;
 			children = (
+				48FBD13E16258DF00059953D /* Figure */,
 				48EA11A515FA7CAD00391885 /* Shader */,
 				4850D28115F52CBE005B162D /* Text */,
 				4850D27B15F4CA61005B162D /* AliasModelRenderer.cpp */,
@@ -765,6 +770,16 @@
 			path = Shader;
 			sourceTree = "<group>";
 		};
+		48FBD13E16258DF00059953D /* Figure */ = {
+			isa = PBXGroup;
+			children = (
+				48FBD13F16259AD70059953D /* EntityFigure.cpp */,
+				48FBD14016259AD70059953D /* EntityFigure.h */,
+				48FBD13C16258DE70059953D /* Figure.h */,
+			);
+			name = Figure;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -925,6 +940,7 @@
 				481E566F1624451300B403F3 /* EntityRenderer.cpp in Sources */,
 				481E56721624482600B403F3 /* ShaderProgram.cpp in Sources */,
 				481E5675162448F600B403F3 /* ShaderManager.cpp in Sources */,
+				48FBD14116259AD70059953D /* EntityFigure.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

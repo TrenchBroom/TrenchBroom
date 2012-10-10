@@ -20,6 +20,7 @@
 #include "InputController.h"
 
 #include "Controller/CameraTool.h"
+#include "Controller/EntityDragTargetTool.h"
 #include "Controller/SelectionTool.h"
 #include "Model/MapDocument.h"
 #include "Model/Picker.h"
@@ -62,6 +63,7 @@ namespace TrenchBroom {
         m_dragTargetReceiver(NULL) {
             m_receivers.push_back(new CameraTool(m_documentViewHolder));
             m_receivers.push_back(new SelectionTool(m_documentViewHolder));
+            m_dragTargetTools.push_back(new EntityDragTargetTool(m_documentViewHolder));
         }
         
         InputController::~InputController() {
@@ -209,17 +211,18 @@ namespace TrenchBroom {
             m_dragTargetReceiver->dragMove(m_currentEvent);
         }
         
-        void InputController::drop(const String& payload, float x, float y) {
+        bool InputController::drop(const String& payload, float x, float y) {
             if (!m_documentViewHolder.valid())
-                return;
+                return false;
             if (m_dragTargetReceiver == NULL)
-                return;
+                return false;
             
             updateMousePos(x, y);
             updateHits();
             
-            m_dragTargetReceiver->drop(m_currentEvent);
+            bool accept = m_dragTargetReceiver->drop(m_currentEvent);
             m_dragTargetReceiver = NULL;
+            return accept;
         }
         
         void InputController::dragLeave() {

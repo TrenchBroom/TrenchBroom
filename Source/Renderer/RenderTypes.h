@@ -29,12 +29,14 @@ namespace TrenchBroom {
         }
         
         class EntityModelRendererManager;
+        class EntityRenderer;
         class IndexedVertexArray;
         class Shader;
         class ShaderProgram;
         class VertexArray;
         class Vbo;
         
+        typedef std::auto_ptr<EntityRenderer> EntityRendererPtr;
         typedef std::auto_ptr<EntityModelRendererManager> EntityModelRendererManagerPtr;
         typedef std::auto_ptr<Shader> ShaderPtr;
         typedef std::auto_ptr<ShaderProgram> ShaderProgramPtr;

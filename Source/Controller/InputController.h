@@ -71,7 +71,7 @@ namespace TrenchBroom {
             
             void dragEnter(const String& payload, float x, float y);
             void dragMove(const String& payload, float x, float y);
-            void drop(const String& payload, float x, float y);
+            bool drop(const String& payload, float x, float y);
             void dragLeave();
         };
     }

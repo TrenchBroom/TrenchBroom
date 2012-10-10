@@ -24,7 +24,11 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class EntityDefinition;
+        class Entity;
+    }
+    
+    namespace Renderer {
+        class EntityFigure;
     }
     
     namespace View {
@@ -34,16 +38,18 @@ namespace TrenchBroom {
     namespace Controller {
         class EntityDragTargetTool : public DragTargetTool {
         protected:
-            Model::EntityDefinition* m_definition;
+            Model::Entity* m_entity;
+            Renderer::EntityFigure* m_entityFigure;
+            
+            void updateFigure(InputEvent& event);
             
             bool handleDragEnter(InputEvent& event, const String& payload);
             void handleDragMove(InputEvent& event);
-            void handleDrop(InputEvent& event);
             void handleDragLeave();
+            bool handleDrop(InputEvent& event);
         public:
-            EntityDragTargetTool(View::DocumentViewHolder& documentViewHolder) :
-            DragTargetTool(documentViewHolder),
-            m_definition(NULL) {}
+            EntityDragTargetTool(View::DocumentViewHolder& documentViewHolder);
+            ~EntityDragTargetTool();
         };
     }
 }

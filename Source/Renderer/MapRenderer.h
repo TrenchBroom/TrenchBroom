@@ -44,6 +44,7 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class EntityRenderer;
+        class Figure;
         class RenderContext;
         class Shader;
         class ShaderProgram;
@@ -56,10 +57,10 @@ namespace TrenchBroom {
         
         class MapRenderer {
         private:
-            typedef std::auto_ptr<EntityRenderer> EntityRendererPtr;
             typedef TexturedPolygonSorter<Model::Texture, Model::Face*> FaceSorter;
             typedef FaceSorter::PolygonCollection FaceCollection;
             typedef FaceSorter::PolygonCollectionMap FaceCollectionMap;
+            typedef std::vector<Figure*> FigureList;
         private:
             
             // level geometry rendering
@@ -76,6 +77,10 @@ namespace TrenchBroom {
             EntityRendererPtr m_entityRenderer;
             EntityRendererPtr m_selectedEntityRenderer;
             EntityRendererPtr m_lockedEntityRenderer;
+            
+            VboPtr m_figureVbo;
+            FigureList m_figures;
+            FigureList m_deletedFigures;
             
             /*
             // selection guides
@@ -98,11 +103,13 @@ namespace TrenchBroom {
             void writeColoredEdgeData(RenderContext& context, const Model::BrushList& brushes, const Model::FaceList& faces, VertexArray& vertexArray);
             void writeEdgeData(RenderContext& context, const Model::BrushList& brushes, const Model::FaceList& faces, VertexArray& vertexArray);
             void rebuildGeometryData(RenderContext& context);
+            void deleteFigures(FigureList& figures);
             
             void validate(RenderContext& context);
             
             void renderFaces(RenderContext& context);
             void renderEdges(RenderContext& context);
+            void renderFigures(RenderContext& context);
         public:
             MapRenderer(Model::MapDocument& document);
             ~MapRenderer();
@@ -117,6 +124,10 @@ namespace TrenchBroom {
             void invalidateSelectedBrushes();
             void invalidateAll();
             void invalidateEntityModelRendererCache();
+            
+            void addFigure(Figure* figure);
+            void removeFigure(Figure* figure);
+            void deleteFigure(Figure* figure);
             
             void render(RenderContext& context);
         };

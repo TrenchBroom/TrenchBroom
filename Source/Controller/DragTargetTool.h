@@ -22,6 +22,7 @@
 
 #include "Controller/Input.h"
 #include "Model/MapDocument.h"
+#include "Renderer/MapRenderer.h"
 #include "View/DocumentViewHolder.h"
 #include "View/EditorView.h"
 
@@ -32,6 +33,10 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class Figure;
+    }
+    
     namespace Controller {
         class DragTargetTool {
         private:
@@ -41,8 +46,8 @@ namespace TrenchBroom {
         protected:
             virtual bool handleDragEnter(InputEvent& event, const String& payload) { return false; }
             virtual void handleDragMove(InputEvent& event) { }
-            virtual void handleDrop(InputEvent& event) { }
             virtual void handleDragLeave() { }
+            virtual bool handleDrop(InputEvent& event) { return false; }
 
             inline void postEvent(wxEvent& event) {
                 if (!m_documentViewHolder.valid())
@@ -59,6 +64,30 @@ namespace TrenchBroom {
                 
                 Model::MapDocument& document = m_documentViewHolder.document();
                 document.GetCommandProcessor()->Submit(command);
+            }
+            
+            inline void addFigure(Renderer::Figure* figure) {
+                if (!m_documentViewHolder.valid())
+                    return;
+                
+                Renderer::MapRenderer& renderer = m_documentViewHolder.view().renderer();
+                renderer.addFigure(figure);
+            }
+            
+            inline void removeFigure(Renderer::Figure* figure) {
+                if (!m_documentViewHolder.valid())
+                    return;
+                
+                Renderer::MapRenderer& renderer = m_documentViewHolder.view().renderer();
+                renderer.removeFigure(figure);
+            }
+            
+            inline void deleteFigure(Renderer::Figure* figure) {
+                if (!m_documentViewHolder.valid())
+                    return;
+                
+                Renderer::MapRenderer& renderer = m_documentViewHolder.view().renderer();
+                renderer.deleteFigure(figure);
             }
             
             inline View::DocumentViewHolder& documentViewHolder() {
@@ -82,9 +111,9 @@ namespace TrenchBroom {
                 handleDragMove(event);
             }
             
-            inline void drop(InputEvent& event) {
+            inline bool drop(InputEvent& event) {
                 assert(m_active);
-                handleDrop(event);
+                return handleDrop(event);
             }
             
             inline void dragLeave() {

@@ -29,6 +29,7 @@
 #include "Model/Map.h"
 #include "Model/MapDocument.h"
 #include "Renderer/EntityRenderer.h"
+#include "Renderer/Figure.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/SharedResources.h"
 #include "Renderer/TextureRenderer.h"
@@ -294,6 +295,15 @@ namespace TrenchBroom {
             m_lockedGeometryDataValid = true;
         }
         
+        void MapRenderer::deleteFigures(FigureList& figures) {
+            FigureList::iterator it, end;
+            for (it = figures.begin(), end = figures.end(); it != end; ++it) {
+                Figure* figure = *it;
+                delete figure;
+            }
+            figures.clear();
+        }
+
         void MapRenderer::validate(RenderContext& context) {
             if (!m_geometryDataValid || !m_selectedGeometryDataValid || !m_lockedGeometryDataValid)
                 rebuildGeometryData(context);
@@ -396,6 +406,14 @@ namespace TrenchBroom {
             glResetEdgeOffset();
         }
         
+        void MapRenderer::renderFigures(RenderContext& context) {
+            FigureList::iterator it, end;
+            for (it = m_figures.begin(), end = m_figures.end(); it != end; ++it) {
+                Figure* figure = *it;
+                figure->render(*m_figureVbo, context);
+            }
+        }
+
         MapRenderer::MapRenderer(Model::MapDocument& document) :
         m_document(document) {
             m_rendering = false;
@@ -403,6 +421,7 @@ namespace TrenchBroom {
             m_faceVbo = VboPtr(new Vbo(GL_ARRAY_BUFFER, 0xFFFF));
             m_edgeVbo = VboPtr(new Vbo(GL_ARRAY_BUFFER, 0xFFFF));
             m_entityVbo = VboPtr(new Vbo(GL_ARRAY_BUFFER, 0xFFFF));
+            m_figureVbo = VboPtr(new Vbo(GL_ARRAY_BUFFER, 0xFFFF));
             
             m_geometryDataValid = false;
             m_selectedGeometryDataValid = false;
@@ -421,6 +440,8 @@ namespace TrenchBroom {
         }
         
         MapRenderer::~MapRenderer() {
+            deleteFigures(m_deletedFigures);
+            deleteFigures(m_figures);
         }
 
         void MapRenderer::addEntities(const Model::EntityList& entities) {
@@ -525,10 +546,25 @@ namespace TrenchBroom {
             m_lockedEntityRenderer->invalidateModels();
         }
 
+        void MapRenderer::addFigure(Figure* figure) {
+            m_figures.push_back(figure);
+        }
+        
+        void MapRenderer::removeFigure(Figure* figure) {
+            m_figures.erase(std::remove(m_figures.begin(), m_figures.end(), figure), m_figures.end());
+        }
+        
+        void MapRenderer::deleteFigure(Figure* figure) {
+            m_deletedFigures.push_back(figure);
+        }
+
         void MapRenderer::render(RenderContext& context) {
             if (m_rendering)
                 return;
             m_rendering = true;
+            
+            if (!m_deletedFigures.empty())
+                deleteFigures(m_deletedFigures);
             
             validate(context);
             
@@ -554,6 +590,8 @@ namespace TrenchBroom {
                 if (context.viewOptions().showEntityClassnames())
                     m_lockedEntityRenderer->render(context);
             }
+            
+            renderFigures(context);
             
             m_rendering = false;
         }

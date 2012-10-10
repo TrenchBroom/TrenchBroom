@@ -43,7 +43,8 @@ namespace TrenchBroom {
                 RemoveTextureCollection,
                 SetEntityPropertyValue,
                 SetEntityPropertyKey,
-                RemoveEntityProperty
+                RemoveEntityProperty,
+                UpdateFigures
             } Type;
         private:
             Type m_type;
