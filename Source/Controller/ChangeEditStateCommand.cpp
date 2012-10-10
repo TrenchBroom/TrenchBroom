@@ -68,6 +68,45 @@ namespace TrenchBroom {
             assert(m_state == Model::EditState::Selected || m_state == Model::EditState::Default);
         }
         
+        bool ChangeEditStateCommand::performDo() {
+            if (m_affectAll) {
+                if (m_state == Model::EditState::Selected)
+                    m_changeSet = document().editStateManager().deselectAll();
+                else if (m_state == Model::EditState::Hidden)
+                    m_changeSet = document().editStateManager().unhideAll();
+                else if (m_state == Model::EditState::Locked)
+                    m_changeSet = document().editStateManager().unlockAll();
+            } else {
+                if (!m_faces.empty()) {
+                    m_changeSet = document().editStateManager().setSelected(m_faces, m_state == Model::EditState::Selected, m_replace);
+                    m_mruTexture = document().mruTexture();
+                    document().setMruTexture(m_faces.back()->texture());
+                } else {
+                    if (!m_entities.empty()) {
+                        if (!m_brushes.empty())
+                            m_changeSet = document().editStateManager().setEditState(m_entities, m_brushes, m_state, m_replace);
+                        else
+                            m_changeSet = document().editStateManager().setEditState(m_entities, m_state, m_replace);
+                    } else if (!m_brushes.empty()) {
+                        m_changeSet = document().editStateManager().setEditState(m_brushes, m_state, m_replace);
+                    }
+                }
+            }
+            
+            if (!m_changeSet.empty())
+                document().UpdateAllViews(NULL, this);
+            
+            return true;
+        }
+        
+        bool ChangeEditStateCommand::performUndo() {
+            m_changeSet = document().editStateManager().undoChangeSet(m_changeSet);
+            document().setMruTexture(m_mruTexture);
+            if (!m_changeSet.empty())
+                document().UpdateAllViews(NULL, this);
+            return true;
+        }
+
         ChangeEditStateCommand* ChangeEditStateCommand::select(Model::MapDocument& document, Model::Entity& entity) {
             Model::EntityList entities;
             entities.push_back(&entity);
@@ -208,45 +247,6 @@ namespace TrenchBroom {
         
         ChangeEditStateCommand* ChangeEditStateCommand::unlockAll(Model::MapDocument& document) {
             return new ChangeEditStateCommand(document, wxT("Unlock all"), Model::EditState::Locked);
-        }
-
-        bool ChangeEditStateCommand::Do() {
-            if (m_affectAll) {
-                if (m_state == Model::EditState::Selected)
-                    m_changeSet = document().editStateManager().deselectAll();
-                else if (m_state == Model::EditState::Hidden)
-                    m_changeSet = document().editStateManager().unhideAll();
-                else if (m_state == Model::EditState::Locked)
-                    m_changeSet = document().editStateManager().unlockAll();
-            } else {
-                if (!m_faces.empty()) {
-                    m_changeSet = document().editStateManager().setSelected(m_faces, m_state == Model::EditState::Selected, m_replace);
-                    m_mruTexture = document().mruTexture();
-                    document().setMruTexture(m_faces.back()->texture());
-                } else {
-                    if (!m_entities.empty()) {
-                        if (!m_brushes.empty())
-                            m_changeSet = document().editStateManager().setEditState(m_entities, m_brushes, m_state, m_replace);
-                        else
-                            m_changeSet = document().editStateManager().setEditState(m_entities, m_state, m_replace);
-                    } else if (!m_brushes.empty()) {
-                        m_changeSet = document().editStateManager().setEditState(m_brushes, m_state, m_replace);
-                    }
-                }
-            }
-            
-            if (!m_changeSet.empty())
-                document().UpdateAllViews(NULL, this);
-            
-            return true;
-        }
-        
-        bool ChangeEditStateCommand::Undo() {
-            m_changeSet = document().editStateManager().undoChangeSet(m_changeSet);
-            document().setMruTexture(m_mruTexture);
-            if (!m_changeSet.empty())
-                document().UpdateAllViews(NULL, this);
-            return true;
         }
     }
 }

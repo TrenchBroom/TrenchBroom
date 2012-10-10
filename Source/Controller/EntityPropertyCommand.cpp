@@ -31,33 +31,7 @@ namespace TrenchBroom {
         SnapshotCommand(type, document, name),
         m_definitionChanged(false) {}
 
-        EntityPropertyCommand* EntityPropertyCommand::setEntityPropertyKey(Model::MapDocument& document, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey) {
-            EntityPropertyCommand* command = new EntityPropertyCommand(SetEntityPropertyKey, document, wxT("Set Property Key"));
-            command->setKey(oldKey);
-            command->setNewKey(newKey);
-            return command;
-        }
-        
-        EntityPropertyCommand* EntityPropertyCommand::setEntityPropertyValue(Model::MapDocument& document, const Model::PropertyKey& key, const Model::PropertyValue& newValue) {
-            EntityPropertyCommand* command = new EntityPropertyCommand(SetEntityPropertyValue, document, wxT("Set Property Value"));
-            command->setKey(key);
-            command->setNewValue(newValue);
-            return command;
-        }
-        
-        EntityPropertyCommand* EntityPropertyCommand::removeEntityProperty(Model::MapDocument& document, const Model::PropertyKey& key) {
-            EntityPropertyCommand* command = new EntityPropertyCommand(RemoveEntityProperty, document, wxT("Delete Property"));
-            command->setKey(key);
-            return command;
-        }
-
-        EntityPropertyCommand* EntityPropertyCommand::removeEntityProperties(Model::MapDocument& document, const Model::PropertyKeyList& keys) {
-            EntityPropertyCommand* command = new EntityPropertyCommand(RemoveEntityProperty, document, wxT("Delete Properties"));
-            command->setKeys(keys);
-            return command;
-        }
-
-        bool EntityPropertyCommand::Do() {
+        bool EntityPropertyCommand::performDo() {
             const Model::EditStateManager& editStateManager = document().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
             if (entities.empty())
@@ -112,7 +86,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool EntityPropertyCommand::Undo() {
+        bool EntityPropertyCommand::performUndo() {
             const Model::EditStateManager& editStateManager = document().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
             assert(!entities.empty());
@@ -131,6 +105,32 @@ namespace TrenchBroom {
             }
             document().UpdateAllViews(NULL, this);
             return true;
+        }
+
+        EntityPropertyCommand* EntityPropertyCommand::setEntityPropertyKey(Model::MapDocument& document, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey) {
+            EntityPropertyCommand* command = new EntityPropertyCommand(SetEntityPropertyKey, document, wxT("Set Property Key"));
+            command->setKey(oldKey);
+            command->setNewKey(newKey);
+            return command;
+        }
+        
+        EntityPropertyCommand* EntityPropertyCommand::setEntityPropertyValue(Model::MapDocument& document, const Model::PropertyKey& key, const Model::PropertyValue& newValue) {
+            EntityPropertyCommand* command = new EntityPropertyCommand(SetEntityPropertyValue, document, wxT("Set Property Value"));
+            command->setKey(key);
+            command->setNewValue(newValue);
+            return command;
+        }
+        
+        EntityPropertyCommand* EntityPropertyCommand::removeEntityProperty(Model::MapDocument& document, const Model::PropertyKey& key) {
+            EntityPropertyCommand* command = new EntityPropertyCommand(RemoveEntityProperty, document, wxT("Delete Property"));
+            command->setKey(key);
+            return command;
+        }
+
+        EntityPropertyCommand* EntityPropertyCommand::removeEntityProperties(Model::MapDocument& document, const Model::PropertyKeyList& keys) {
+            EntityPropertyCommand* command = new EntityPropertyCommand(RemoveEntityProperty, document, wxT("Delete Properties"));
+            command->setKeys(keys);
+            return command;
         }
     }
 }

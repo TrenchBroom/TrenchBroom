@@ -186,11 +186,19 @@ namespace TrenchBroom {
             m_root = new OctreeNode(m_map.worldBounds(), m_minSize);
         }
         
+        void Octree::addObject(MapObject& object) {
+            m_root->addObject(object);
+        }
+
         void Octree::addObjects(const MapObjectList& objects) {
             for (unsigned int i = 0; i < objects.size(); i++) {
                 MapObject* object = objects[i];
                 m_root->addObject(*object);
             }
+        }
+        
+        void Octree::removeObject(MapObject& object) {
+            m_root->removeObject(object);
         }
         
         void Octree::removeObjects(const MapObjectList& objects) {

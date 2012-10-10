@@ -62,15 +62,7 @@ namespace TrenchBroom {
         m_indices(indices) {}
 
 
-        TextureCollectionCommand* TextureCollectionCommand::addTextureWad(Model::MapDocument& document, const String& path) {
-            return new TextureCollectionCommand(AddTextureCollection, document, "Add texture wad", path);
-        }
-        
-        TextureCollectionCommand* TextureCollectionCommand::removeTextureWads(Model::MapDocument& document, const IndexList& indices) {
-            return new TextureCollectionCommand(RemoveTextureCollection, document, indices.size() == 1 ? "Remove texture wad" : "Remove texture wads", indices);
-        }
-
-        bool TextureCollectionCommand::Do() {
+        bool TextureCollectionCommand::performDo() {
             if (type() == AddTextureCollection) {
                 m_indices.clear();
                 addTextureCollectionsByPaths();
@@ -94,7 +86,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool TextureCollectionCommand::Undo() {
+        bool TextureCollectionCommand::performUndo() {
             if (type() == AddTextureCollection) {
                 removeTextureCollectionsByPaths();
                 document().UpdateAllViews(NULL, this);
@@ -109,6 +101,14 @@ namespace TrenchBroom {
             }
             
             return false;
+        }
+
+        TextureCollectionCommand* TextureCollectionCommand::addTextureWad(Model::MapDocument& document, const String& path) {
+            return new TextureCollectionCommand(AddTextureCollection, document, "Add texture wad", path);
+        }
+        
+        TextureCollectionCommand* TextureCollectionCommand::removeTextureWads(Model::MapDocument& document, const IndexList& indices) {
+            return new TextureCollectionCommand(RemoveTextureCollection, document, indices.size() == 1 ? "Remove texture wad" : "Remove texture wads", indices);
         }
     }
 }

@@ -113,7 +113,7 @@ namespace TrenchBroom {
         void MapDocument::loadTextures(Utility::ProgressIndicator& progressIndicator) {
             progressIndicator.setText("Loading textures...");
             
-            const String* wads = m_map->worldspawn(true)->propertyForKey(Entity::WadKey);
+            const String* wads = worldspawn(true)->propertyForKey(Entity::WadKey);
             if (wads != NULL) {
                 StringList wadPaths = Utility::split(*wads, ';');
                 for (unsigned int i = 0; i < wadPaths.size(); i++) {
@@ -133,25 +133,7 @@ namespace TrenchBroom {
             
             m_definitionManager->load(defPath);
         }
-        
-        std::istream& MapDocument::LoadObject(std::istream& stream) {
-//            wxDocument::LoadObject(stream);
 
-            View::ProgressIndicatorDialog progressIndicator;
-            loadMap(stream, progressIndicator);
-            loadTextures(progressIndicator);
-            loadEntityDefinitions(progressIndicator);
-
-            updateAfterTextureManagerChanged();
-            updateEntityDefinitions();
-            
-            return stream;
-        }
-        
-        std::ostream& MapDocument::SaveObject(std::ostream& stream) {
-            return wxDocument::SaveObject(stream);
-        }
-        
         MapDocument::MapDocument() :
         m_console(NULL),
         m_sharedResources(NULL),
@@ -212,6 +194,48 @@ namespace TrenchBroom {
             }
         }
         
+        
+        std::istream& MapDocument::LoadObject(std::istream& stream) {
+            //            wxDocument::LoadObject(stream);
+            
+            View::ProgressIndicatorDialog progressIndicator;
+            loadMap(stream, progressIndicator);
+            loadTextures(progressIndicator);
+            loadEntityDefinitions(progressIndicator);
+            
+            updateAfterTextureManagerChanged();
+            updateEntityDefinitions();
+            
+            return stream;
+        }
+        
+        std::ostream& MapDocument::SaveObject(std::ostream& stream) {
+            return wxDocument::SaveObject(stream);
+        }
+        
+        Entity* MapDocument::worldspawn(bool create) {
+            Entity* worldspawn = m_map->worldspawn();
+            if (worldspawn == NULL && create) {
+                worldspawn = new Entity(m_map->worldBounds());
+                worldspawn->setProperty(Entity::ClassnameKey, Entity::WorldspawnClassname);
+                EntityDefinition* definition = m_definitionManager->definition(Entity::WorldspawnClassname);
+                worldspawn->setDefinition(definition);
+                m_map->addEntity(*worldspawn);
+            }
+            
+            return worldspawn;
+        }
+
+        void MapDocument::addEntity(Entity& entity) {
+            m_map->addEntity(entity);
+            m_octree->addObject(entity);
+        }
+        
+        void MapDocument::removeEntity(Entity& entity) {
+            m_octree->removeObject(entity);
+            m_map->removeEntity(entity);
+        }
+
         Utility::Console& MapDocument::console() const {
             return *m_console;
         }

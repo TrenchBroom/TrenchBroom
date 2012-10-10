@@ -45,12 +45,12 @@ namespace TrenchBroom {
             
             TextureCollectionCommand(Type type, Model::MapDocument& document, const String& name, const String& path);
             TextureCollectionCommand(Type type, Model::MapDocument& document, const String& name, const IndexList& indices);
+            
+            bool performDo();
+            bool performUndo();
         public:
             static TextureCollectionCommand* addTextureWad(Model::MapDocument& document, const String& path);
             static TextureCollectionCommand* removeTextureWads(Model::MapDocument& document, const IndexList& indices);
-
-            bool Do();
-            bool Undo();
         };
     }
 }

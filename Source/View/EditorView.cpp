@@ -22,6 +22,7 @@
 #include "Controller/CameraEvent.h"
 #include "Controller/Command.h"
 #include "Controller/ChangeEditStateCommand.h"
+#include "Controller/CreateEntityCommand.h"
 #include "Controller/EntityPropertyCommand.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
@@ -190,6 +191,14 @@ namespace TrenchBroom {
                         inspector().faceInspector().updateSelectedTexture();
                         inspector().faceInspector().updateTextureCollectionList();
                         break;
+                    }
+                    case Controller::Command::CreateEntity: {
+                        Controller::CreateEntityCommand* createEntityCommand = static_cast<Controller::CreateEntityCommand*>(command);
+                        Model::Entity* entity = createEntityCommand->entity();
+                        if (createEntityCommand->state() == Controller::Command::Doing)
+                            m_renderer->addEntity(*entity);
+                        else if (createEntityCommand->state() == Controller::Command::Undoing)
+                            m_renderer->removeEntity(*entity);
                     }
                     case Controller::Command::SetEntityPropertyKey:
                     case Controller::Command::SetEntityPropertyValue:

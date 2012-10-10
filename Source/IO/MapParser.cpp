@@ -226,7 +226,7 @@ namespace TrenchBroom {
             if (indicator != NULL) indicator->reset(static_cast<float>(m_size));
             try {
                 while ((entity = parseEntity(map.worldBounds(), indicator)) != NULL)
-                    map.addEntity(entity);
+                    map.addEntity(*entity);
             } catch (MapParserException e) {
                 m_console.error(e.what());
             }

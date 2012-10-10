@@ -19,7 +19,8 @@
 
 #include "EntityDragTargetTool.h"
 
-#include "Controller/Command.h"
+#include "Controller/ChangeEditStateCommand.h"
+#include "Controller/CreateEntityCommand.h"
 #include "Model/Entity.h"
 #include "Model/EntityDefinition.h"
 #include "Model/EntityDefinitionManager.h"
@@ -111,8 +112,15 @@ namespace TrenchBroom {
             deleteFigure(m_entityFigure);
             m_entityFigure = NULL;
 
-            // replace with appropriate command
-            documentViewHolder().document().UpdateAllViews();
+            BeginCommandGroup("Create Entity");
+            
+            Controller::CreateEntityCommand* createEntityCommand = Controller::CreateEntityCommand::createFromTemplate(documentViewHolder().document(), *m_entity);
+            postCommand(createEntityCommand);
+            
+            Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::select(documentViewHolder().document(), *createEntityCommand->entity());
+            postCommand(changeEditStateCommand);
+            
+            EndCommandGroup();
             
             return true;
         }

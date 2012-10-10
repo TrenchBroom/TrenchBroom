@@ -41,32 +41,65 @@ namespace TrenchBroom {
                 SetFaceAttribute,
                 AddTextureCollection,
                 RemoveTextureCollection,
+                CreateEntity,
                 SetEntityPropertyValue,
                 SetEntityPropertyKey,
                 RemoveEntityProperty,
                 UpdateFigures
             } Type;
+            
+            typedef enum {
+                None,
+                Doing,
+                Done,
+                Undoing,
+                Undone
+            } State;
         private:
             Type m_type;
+            State m_state;
+        protected:
+            virtual bool performDo() { return true; }
+            virtual bool performUndo() { return true; }
         public:
             Command(Type type) :
             wxCommand(false, ""),
-            m_type(type) {}
+            m_type(type),
+            m_state(None) {}
 
             Command(Type type, bool undoable, const wxString& name) :
             wxCommand(undoable, name),
-            m_type(type) {}
+            m_type(type),
+            m_state(None) {}
             
             inline Type type() const {
                 return m_type;
             }
             
+            inline State state() const {
+                return m_state;
+            }
+            
             bool Do() {
-                return true;
+                State previous = m_state;
+                m_state = Doing;
+                bool result = performDo();
+                if (result)
+                    m_state = Done;
+                else
+                    m_state = previous;
+                return result;
             }
             
             bool Undo() {
-                return true;
+                State previous = m_state;
+                m_state = Undoing;
+                bool result = performUndo();
+                if (result)
+                    m_state = Undone;
+                else
+                    m_state = previous;
+                return result;
             }
         };
         

@@ -19,11 +19,22 @@
 
 #include "DocManager.h"
 
+#include "Utility/CommandProcessor.h"
+
 IMPLEMENT_DYNAMIC_CLASS(DocManager, wxDocManager)
 wxDocument* DocManager::CreateDocument(const wxString& pathOrig, long flags) {
     wxDocument* document = GetCurrentDocument();
     if (!m_useSDI || document == NULL) {
-        return wxDocManager::CreateDocument(pathOrig, flags);
+        document = wxDocManager::CreateDocument(pathOrig, flags);
+        
+        wxCommandProcessor* oldProcessor = document->GetCommandProcessor();
+        CommandProcessor* newProcessor = new CommandProcessor();
+        newProcessor->SetEditMenu(oldProcessor->GetEditMenu());
+        newProcessor->SetRedoAccelerator(oldProcessor->GetRedoAccelerator());
+        newProcessor->SetUndoAccelerator(oldProcessor->GetUndoAccelerator());
+        newProcessor->SetMenuStrings();
+        document->SetCommandProcessor(newProcessor);
+        
         if (m_useSDI)
             wxTheApp->SetTopWindow(document->GetDocumentWindow());
         return document;

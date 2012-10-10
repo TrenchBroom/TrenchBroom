@@ -23,6 +23,7 @@
 #include "Controller/Input.h"
 #include "Model/MapDocument.h"
 #include "Renderer/MapRenderer.h"
+#include "Utility/CommandProcessor.h"
 #include "View/DocumentViewHolder.h"
 #include "View/EditorView.h"
 
@@ -56,6 +57,24 @@ namespace TrenchBroom {
                 View::EditorView& view = m_documentViewHolder.view();
                 event.SetEventObject(&view);
                 view.ProcessEvent(event);
+            }
+            
+            inline void BeginCommandGroup(const wxString& name) {
+                if (!m_documentViewHolder.valid())
+                    return;
+                
+                Model::MapDocument& document = m_documentViewHolder.document();
+                CommandProcessor* commandProcessor = static_cast<CommandProcessor*>(document.GetCommandProcessor());
+                commandProcessor->BeginGroup(name);
+            }
+            
+            inline void EndCommandGroup() {
+                if (!m_documentViewHolder.valid())
+                    return;
+                
+                Model::MapDocument& document = m_documentViewHolder.document();
+                CommandProcessor* commandProcessor = static_cast<CommandProcessor*>(document.GetCommandProcessor());
+                commandProcessor->EndGroup();
             }
             
             inline void postCommand(wxCommand* command) {

@@ -109,6 +109,8 @@
 		48E2ED17160102E400B8D476 /* ViewInspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48E2ED15160102E400B8D476 /* ViewInspector.cpp */; };
 		48F0B7C315FCB4CF0089B0B5 /* Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */; };
 		48FBD14116259AD70059953D /* EntityFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD13F16259AD70059953D /* EntityFigure.cpp */; };
+		48FBD1441625D3F80059953D /* CreateEntityCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD1421625D3F80059953D /* CreateEntityCommand.cpp */; };
+		48FBD147162601900059953D /* CommandProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD145162601900059953D /* CommandProcessor.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -372,6 +374,10 @@
 		48FBD13C16258DE70059953D /* Figure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Figure.h; sourceTree = "<group>"; };
 		48FBD13F16259AD70059953D /* EntityFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityFigure.cpp; sourceTree = "<group>"; };
 		48FBD14016259AD70059953D /* EntityFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityFigure.h; sourceTree = "<group>"; };
+		48FBD1421625D3F80059953D /* CreateEntityCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CreateEntityCommand.cpp; sourceTree = "<group>"; };
+		48FBD1431625D3F80059953D /* CreateEntityCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateEntityCommand.h; sourceTree = "<group>"; };
+		48FBD145162601900059953D /* CommandProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CommandProcessor.cpp; sourceTree = "<group>"; };
+		48FBD146162601900059953D /* CommandProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommandProcessor.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -643,6 +649,8 @@
 				48D1BEA915E2FC150073C030 /* BBox.h */,
 				48B75F7B160DAE61009D4E99 /* CachedPtr.h */,
 				48312B4815EBC14F00607868 /* Color.h */,
+				48FBD145162601900059953D /* CommandProcessor.cpp */,
+				48FBD146162601900059953D /* CommandProcessor.h */,
 				48312B2A15EB706D00607868 /* Console.cpp */,
 				48312B2B15EB706D00607868 /* Console.h */,
 				48D1BEAB15E305FA0073C030 /* CoordinatePlane.h */,
@@ -700,24 +708,26 @@
 		48AB57F615ECFB8600321C47 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
-				48AB580315ED01CB00321C47 /* CameraTool.cpp */,
-				48AB580415ED01CB00321C47 /* CameraTool.h */,
 				48819C4F15ED5C7700BEA604 /* CameraEvent.cpp */,
 				48819C4C15ED52B200BEA604 /* CameraEvent.h */,
+				48AB580315ED01CB00321C47 /* CameraTool.cpp */,
+				48AB580415ED01CB00321C47 /* CameraTool.h */,
 				4850D26115F3E202005B162D /* ChangeEditStateCommand.cpp */,
 				4850D26215F3E202005B162D /* ChangeEditStateCommand.h */,
 				4850D26515F3E757005B162D /* Command.h */,
+				48FBD1421625D3F80059953D /* CreateEntityCommand.cpp */,
+				48FBD1431625D3F80059953D /* CreateEntityCommand.h */,
 				48009AFD15F8A4E7001A9993 /* DragPlane.h */,
 				481E56461624120900B403F3 /* DragTargetTool.h */,
 				481E564716242D6B00B403F3 /* EntityDragTargetTool.cpp */,
 				481E564816242D6B00B403F3 /* EntityDragTargetTool.h */,
+				48B059A61615EF3800E6B0AD /* EntityPropertyCommand.cpp */,
+				48B059A71615EF3800E6B0AD /* EntityPropertyCommand.h */,
 				48AB57FF15ECFC5F00321C47 /* Input.h */,
 				48AB580015ECFED800321C47 /* InputController.cpp */,
 				48AB580115ECFED800321C47 /* InputController.h */,
 				4850D25215F3B36C005B162D /* SelectionTool.cpp */,
 				4850D25315F3B36C005B162D /* SelectionTool.h */,
-				48B059A61615EF3800E6B0AD /* EntityPropertyCommand.cpp */,
-				48B059A71615EF3800E6B0AD /* EntityPropertyCommand.h */,
 				4817C7EC1611DC8F00A01A99 /* SetFaceAttributeCommand.cpp */,
 				4817C7ED1611DC8F00A01A99 /* SetFaceAttributeCommand.h */,
 				4817C7EF1611DFA900A01A99 /* SnapshotCommand.cpp */,
@@ -941,6 +951,8 @@
 				481E56721624482600B403F3 /* ShaderProgram.cpp in Sources */,
 				481E5675162448F600B403F3 /* ShaderManager.cpp in Sources */,
 				48FBD14116259AD70059953D /* EntityFigure.cpp in Sources */,
+				48FBD1441625D3F80059953D /* CreateEntityCommand.cpp in Sources */,
+				48FBD147162601900059953D /* CommandProcessor.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

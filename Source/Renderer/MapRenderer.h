@@ -114,7 +114,9 @@ namespace TrenchBroom {
             MapRenderer(Model::MapDocument& document);
             ~MapRenderer();
             
+            void addEntity(Model::Entity& entity);
             void addEntities(const Model::EntityList& entities);
+            void removeEntity(Model::Entity& entity);
             void removeEntities(const Model::EntityList& entities);
             void changeEditState(const Model::EditStateChangeSet& changeSet);
             void loadMap();

@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__MapDocument__
 #define __TrenchBroom__MapDocument__
 
+#include "Model/EntityTypes.h"
 #include "Utility/String.h"
 
 #include <wx/docview.h>
@@ -80,6 +81,10 @@ namespace TrenchBroom {
 
             std::istream& LoadObject(std::istream& stream);
             std::ostream& SaveObject(std::ostream& stream);
+            
+            Entity* worldspawn(bool create);
+            void addEntity(Entity& entity);
+            void removeEntity(Entity& entity);
             
             Utility::Console& console() const;
             Renderer::SharedResources& sharedResources() const;

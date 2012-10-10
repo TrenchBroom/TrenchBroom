@@ -74,6 +74,9 @@ namespace TrenchBroom {
             }
             
             EntityPropertyCommand(Type type, Model::MapDocument& document, const wxString& name);
+            
+            bool performDo();
+            bool performUndo();
         public:
             static EntityPropertyCommand* setEntityPropertyKey(Model::MapDocument& document, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey);
             static EntityPropertyCommand* setEntityPropertyValue(Model::MapDocument& document, const Model::PropertyKey& key, const Model::PropertyValue& newValue);
@@ -83,9 +86,6 @@ namespace TrenchBroom {
             inline bool definitionChanged() const {
                 return m_definitionChanged;
             }
-            
-            bool Do();
-            bool Undo();
         };
     }
 }

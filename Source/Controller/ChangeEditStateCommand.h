@@ -55,6 +55,9 @@ namespace TrenchBroom {
             ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type newState, const Model::BrushList& brushes, bool replace);
             ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type newState, const Model::EntityList& entities, const Model::BrushList& brushes, bool replace);
             ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type newState, const Model::FaceList& faces, bool replace);
+            
+            bool performDo();
+            bool performUndo();
         public:
             static ChangeEditStateCommand* select(Model::MapDocument& document, Model::Entity& entity);
             static ChangeEditStateCommand* select(Model::MapDocument& document, Model::Brush& brush);
@@ -87,9 +90,6 @@ namespace TrenchBroom {
             
             static ChangeEditStateCommand* lock(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes);
             static ChangeEditStateCommand* unlockAll(Model::MapDocument& document);
-            
-            bool Do();
-            bool Undo();
             
             inline const Model::EditStateChangeSet& changeSet() const {
                 return m_changeSet;

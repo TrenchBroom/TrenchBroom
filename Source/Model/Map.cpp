@@ -31,31 +31,25 @@ namespace TrenchBroom {
             clear();
         }
 
-        void Map::setEntityDefinition(Entity* entity) {
-        }
-        
-        void Map::addEntity(Entity* entity) {
-            assert(entity != NULL);
-            if (!entity->worldspawn() || worldspawn(false) == NULL) {
-                m_entities.push_back(entity);
-                entity->setMap(this);
-                setEntityDefinition(entity);
+        void Map::addEntity(Entity& entity) {
+            if (!entity.worldspawn() || worldspawn() == NULL) {
+                m_entities.push_back(&entity);
+                entity.setMap(this);
             }
         }
         
-        Entity* Map::createEntity(const PropertyValue& classname) {
-            return NULL;
+        void Map::removeEntity(Entity& entity) {
+            if (entity.worldspawn())
+                m_worldspawn = NULL;
+            m_entities.erase(std::remove(m_entities.begin(), m_entities.end(), &entity), m_entities.end());
         }
 
-        Entity* Map::worldspawn(bool create) {
+        Entity* Map::worldspawn() {
             for (unsigned int i = 0; i < m_entities.size() && m_worldspawn == NULL; i++) {
                 Entity* entity = m_entities[i];
                 if (entity->worldspawn())
                     m_worldspawn = entity;
             }
-
-            if (m_worldspawn == NULL && create)
-                m_worldspawn = createEntity(Entity::WorldspawnClassname);
             
             return m_worldspawn;
         }

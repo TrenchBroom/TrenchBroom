@@ -454,10 +454,18 @@ namespace TrenchBroom {
             deleteFigures(m_figures);
         }
 
+        void MapRenderer::addEntity(Model::Entity& entity) {
+            m_entityRenderer->addEntity(entity);
+        }
+
         void MapRenderer::addEntities(const Model::EntityList& entities) {
             m_entityRenderer->addEntities(entities);
         }
 
+        void MapRenderer::removeEntity(Model::Entity& entity) {
+            m_entityRenderer->removeEntity(entity);
+        }
+        
         void MapRenderer::removeEntities(const Model::EntityList& entities) {
             m_entityRenderer->removeEntities(entities);
         }

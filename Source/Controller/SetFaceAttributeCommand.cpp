@@ -25,29 +25,14 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        SetFaceAttributeCommand::SetFaceAttributeCommand(Model::MapDocument& document, const wxString& name) :
-        SnapshotCommand(Command::SetFaceAttribute, document, name),
-        m_xOffset(0.0f),
-        m_yOffset(0.0f),
-        m_xScale(0.0f),
-        m_yScale(0.0f),
-        m_rotation(0.0f),
-        m_texture(NULL),
-        m_setXOffset(false),
-        m_setYOffset(false),
-        m_setXScale(false),
-        m_setYScale(false),
-        m_setRotation(false),
-        m_setTexture(false) {}
-
-        bool SetFaceAttributeCommand::Do() {
+        bool SetFaceAttributeCommand::performDo() {
             Model::EditStateManager& editStateManager = document().editStateManager();
             const Model::FaceList faces = editStateManager.allSelectedFaces();
             if (faces.empty())
                 return false;
             
             makeSnapshots(faces);
-
+            
             for (unsigned int i = 0; i < faces.size(); i++) {
                 Model::Face& face = *faces[i];
                 if (m_setXOffset)
@@ -68,17 +53,32 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool SetFaceAttributeCommand::Undo() {
+        bool SetFaceAttributeCommand::performUndo() {
             Model::EditStateManager& editStateManager = document().editStateManager();
             const Model::FaceList faces = editStateManager.allSelectedFaces();
             if (faces.empty())
                 return false;
-
+            
             restoreSnapshots(faces);
             clear();
             
             document().UpdateAllViews(NULL, this);
             return true;
         }
+
+        SetFaceAttributeCommand::SetFaceAttributeCommand(Model::MapDocument& document, const wxString& name) :
+        SnapshotCommand(Command::SetFaceAttribute, document, name),
+        m_xOffset(0.0f),
+        m_yOffset(0.0f),
+        m_xScale(0.0f),
+        m_yScale(0.0f),
+        m_rotation(0.0f),
+        m_texture(NULL),
+        m_setXOffset(false),
+        m_setYOffset(false),
+        m_setXScale(false),
+        m_setYScale(false),
+        m_setRotation(false),
+        m_setTexture(false) {}
     }
 }

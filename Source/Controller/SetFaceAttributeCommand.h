@@ -44,6 +44,9 @@ namespace TrenchBroom {
             bool m_setYScale;
             bool m_setRotation;
             bool m_setTexture;
+        protected:
+            bool performDo();
+            bool performUndo();
         public:
             SetFaceAttributeCommand(Model::MapDocument& document, const wxString& name);
             
@@ -76,9 +79,6 @@ namespace TrenchBroom {
                 m_texture = texture;
                 m_setTexture = true;
             }
-
-            bool Do();
-            bool Undo();
         };
     }
 }

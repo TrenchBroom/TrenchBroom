@@ -70,7 +70,9 @@ namespace TrenchBroom {
             
             void loadMap();
             void clear();
+            void addObject(MapObject& object);
             void addObjects(const MapObjectList& objects);
+            void removeObject(MapObject& object);
             void removeObjects(const MapObjectList& objects);
             void updateObjects(const MapObjectList& objects);
 

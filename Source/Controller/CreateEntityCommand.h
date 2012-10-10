@@ -17,43 +17,36 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Map__
-#define __TrenchBroom__Map__
+#ifndef __TrenchBroom__CreateEntityCommand__
+#define __TrenchBroom__CreateEntityCommand__
 
+#include "Controller/Command.h"
 #include "Model/EntityTypes.h"
-#include "Utility/VecMath.h"
-
-using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Model {
         class Entity;
-        
-        class Map {
+    }
+    
+    namespace Controller {
+        class CreateEntityCommand : public DocumentCommand {
         protected:
-            BBox m_worldBounds;
-            EntityList m_entities;
-            Entity* m_worldspawn;
+            Model::Properties m_properties;
+            Model::Entity* m_entity;
+            
+            CreateEntityCommand(Model::MapDocument& document, const Model::Properties& properties);
+            ~CreateEntityCommand();
+            
+            bool performDo();
+            bool performUndo();
         public:
-            Map(const BBox& worldBounds);
-            ~Map();
+            static CreateEntityCommand* createFromTemplate(Model::MapDocument& document, const Model::Entity& entityTemplate);
             
-            void addEntity(Entity& entity);
-            void removeEntity(Entity& entity);
-
-            inline const EntityList& entities() const {
-                return m_entities;
-            }
-            
-            Entity* worldspawn();
-            
-            void clear();
-            
-            inline const BBox& worldBounds() const {
-                return m_worldBounds;
+            inline Model::Entity* entity() const {
+                return m_entity;
             }
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Map__) */
+#endif /* defined(__TrenchBroom__CreateEntityCommand__) */
