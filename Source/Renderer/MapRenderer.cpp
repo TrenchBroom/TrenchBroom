@@ -28,10 +28,7 @@
 #include "Model/Filter.h"
 #include "Model/Map.h"
 #include "Model/MapDocument.h"
-#include "Renderer/EntityClassnameAnchor.h"
-#include "Renderer/EntityClassnameFilter.h"
-#include "Renderer/EntityModelRendererManager.h"
-#include "Renderer/EntityModelRenderer.h"
+#include "Renderer/EntityRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/SharedResources.h"
 #include "Renderer/TextureRenderer.h"
@@ -297,160 +294,9 @@ namespace TrenchBroom {
             m_lockedGeometryDataValid = true;
         }
         
-        void MapRenderer::writeColoredEntityBounds(RenderContext& context, const Model::EntityList& entities, VertexArray& vertexArray) {
-            if (entities.empty())
-                return;
-            
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            Vec3f::List vertices(24);
-            
-            for (unsigned int i = 0; i < entities.size(); i++) {
-                Model::Entity* entity = entities[i];
-                const BBox& bounds = entity->bounds();
-                const Model::EntityDefinition* definition = entity->definition();
-                Color entityColor;
-                if (definition != NULL) {
-                    entityColor = definition->color();
-                    entityColor.w = prefs.getColor(Preferences::EntityBoundsColor).w;
-                } else {
-                    entityColor = prefs.getColor(Preferences::EntityBoundsColor);
-                }
-                
-                bounds.vertices(vertices);
-                for (unsigned int i = 0; i < vertices.size(); i++) {
-                    vertexArray.addAttribute(vertices[i]);
-                    vertexArray.addAttribute(entityColor);
-                }
-            }
-        }
-        
-        void MapRenderer::writeEntityBounds(RenderContext& context, const Model::EntityList& entities, VertexArray& vertexArray) {
-            if (entities.empty())
-                return;
-            
-            Vec3f::List vertices(24);
-            for (unsigned int i = 0; i < entities.size(); i++) {
-                Model::Entity* entity = entities[i];
-                const BBox& bounds = entity->bounds();
-                bounds.vertices(vertices);
-
-                for (unsigned int i = 0; i < vertices.size(); i++)
-                    vertexArray.addAttribute(vertices[i]);
-            }
-        }
-
-        void MapRenderer::rebuildEntityData(RenderContext& context) {
-            if (!m_entityDataValid)
-                m_entityBoundsVertexArray = VertexArrayPtr(NULL);
-            if (!m_selectedEntityDataValid)
-                m_selectedEntityBoundsVertexArray = VertexArrayPtr(NULL);
-            if (!m_lockedEntityDataValid)
-                m_lockedEntityBoundsVertexArray = VertexArrayPtr(NULL);
-            
-            // collect all model entities
-            Model::EntityList allEntities;
-            Model::EntityList allSelectedEntities;
-            Model::EntityList allLockedEntities;
-            const Model::EntityList entities = m_document.map().entities();
-            for (unsigned int i = 0; i < entities.size(); i++) {
-                Model::Entity* entity = entities[i];
-                if (context.filter().entityVisible(*entity)) {
-                    if (entity->selected() || entity->partiallySelected())
-                        allSelectedEntities.push_back(entity);
-                    else if (entity->locked())
-                        allLockedEntities.push_back(entity);
-                    else
-                        allEntities.push_back(entity);
-                }
-            }
-            
-            m_entityBoundsVbo->activate();
-            m_entityBoundsVbo->map();
-            
-            if (!m_entityDataValid && !allEntities.empty()) {
-                unsigned int entityBoundsVertexCount = 2 * 4 * 6 * static_cast<unsigned int>(allEntities.size());
-                m_entityBoundsVertexArray = VertexArrayPtr(new VertexArray(*m_entityBoundsVbo, GL_LINES, entityBoundsVertexCount, VertexAttribute(3, GL_FLOAT, VertexAttribute::Position), VertexAttribute(4, GL_FLOAT, VertexAttribute::Color)));
-                writeColoredEntityBounds(context, allEntities, *m_entityBoundsVertexArray);
-            }
-            
-            if (!m_selectedEntityDataValid && !allSelectedEntities.empty()) {
-                unsigned int selectedEntityBoundsVertexCount = 2 * 4 * 6 * static_cast<unsigned int>(allSelectedEntities.size());
-                m_selectedEntityBoundsVertexArray = VertexArrayPtr(new VertexArray(*m_entityBoundsVbo, GL_LINES, selectedEntityBoundsVertexCount, VertexAttribute(3, GL_FLOAT, VertexAttribute::Position)));
-                writeEntityBounds(context, allSelectedEntities, *m_selectedEntityBoundsVertexArray);
-            }
-            
-            if (!m_lockedEntityDataValid && !allLockedEntities.empty()) {
-                unsigned int lockedEntityBoundsVertexCount = 2 * 4 * 6 * static_cast<unsigned int>(allLockedEntities.size());
-                m_lockedEntityBoundsVertexArray = VertexArrayPtr(new VertexArray(*m_entityBoundsVbo, GL_LINES, lockedEntityBoundsVertexCount, VertexAttribute(3, GL_FLOAT, VertexAttribute::Position)));
-                writeEntityBounds(context, allLockedEntities, *m_lockedEntityBoundsVertexArray);
-            }
-            
-            m_entityBoundsVbo->unmap();
-            m_entityBoundsVbo->deactivate();
-            
-            m_entityDataValid = true;
-            m_selectedEntityDataValid = true;
-            m_lockedEntityDataValid = true;
-        }
-        
-        bool MapRenderer::reloadEntityModel(const Model::Entity& entity, CachedEntityModelRenderer& cachedRenderer) {
-            EntityModelRendererManager& modelRendererManager = m_document.sharedResources().modelRendererManager();
-            EntityModelRenderer* renderer = modelRendererManager.modelRenderer(entity, m_document.mods());
-            if (renderer != NULL) {
-                cachedRenderer = CachedEntityModelRenderer(renderer, *entity.classname());
-                return true;
-            }
-            
-            return false;
-        }
-        
-        void MapRenderer::reloadEntityModels(RenderContext& context, EntityModelRenderers& renderers) {
-            EntityModelRenderers::iterator it = renderers.begin();
-            while (it != renderers.end()) {
-                if (reloadEntityModel(*it->first, it->second))
-                    ++it;
-                else
-                    renderers.erase(it++);
-            }
-        }
-        
-        void MapRenderer::reloadEntityModels(RenderContext& context) {
-            m_modelRenderers.clear();
-            m_selectedEntityModelRenderers.clear();
-            
-            EntityModelRendererManager& modelRendererManager = m_document.sharedResources().modelRendererManager();
-            const Model::EntityList& entities = m_document.map().entities();
-            for (unsigned int i = 0; i < entities.size(); i++) {
-                Model::Entity* entity = entities[i];
-                EntityModelRenderer* renderer = modelRendererManager.modelRenderer(*entity, m_document.mods());
-                if (renderer != NULL) {
-                    if (entity->selected())
-                        m_selectedEntityModelRenderers[entity] = CachedEntityModelRenderer(renderer, *entity->classname());
-                    else if (entity->locked())
-                        m_lockedEntityModelRenderers[entity] = CachedEntityModelRenderer(renderer, *entity->classname());
-                    else
-                        m_modelRenderers[entity] = CachedEntityModelRenderer(renderer, *entity->classname());
-                }
-            }
-            
-            m_modelRendererCacheValid = true;
-        }
-        
-        void MapRenderer::moveEntityModelRenderer(Model::Entity* entity, EntityModelRenderers& from, EntityModelRenderers& to) {
-            EntityModelRenderers::iterator it = from.find(entity);
-            if (it != from.end()) {
-                to[entity] = it->second;
-                from.erase(it);
-            }
-        }
-
         void MapRenderer::validate(RenderContext& context) {
-            if (!m_modelRendererCacheValid)
-                reloadEntityModels(context);
             if (!m_geometryDataValid || !m_selectedGeometryDataValid || !m_lockedGeometryDataValid)
                 rebuildGeometryData(context);
-            if (!m_entityDataValid || !m_selectedEntityDataValid || !m_lockedEntityDataValid)
-                rebuildEntityData(context);
         }
         
         void MapRenderer::renderFaces(RenderContext& context) {
@@ -550,223 +396,48 @@ namespace TrenchBroom {
             glResetEdgeOffset();
         }
         
-        void MapRenderer::renderEntityBounds(RenderContext& context) {
-            if (m_entityBoundsVertexArray.get() == NULL && m_selectedEntityBoundsVertexArray.get() == NULL && m_lockedEntityBoundsVertexArray.get() == NULL)
-                return;
-            
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            
-            ShaderManager& shaderManager = m_document.sharedResources().shaderManager();
-            ShaderProgram& coloredEdgeProgram = shaderManager.shaderProgram(Shaders::ColoredEdgeShader);
-            ShaderProgram& edgeProgram = shaderManager.shaderProgram(Shaders::EdgeShader);
-
-            m_entityBoundsVbo->activate();
-            if (m_entityBoundsVertexArray.get() != NULL && coloredEdgeProgram.activate()) {
-                m_entityBoundsVertexArray->render();
-                coloredEdgeProgram.deactivate();
-            }
-            if (edgeProgram.activate()) {
-                if (m_lockedEntityBoundsVertexArray.get() != NULL) {
-                    edgeProgram.setUniformVariable("Color", prefs.getColor(Preferences::LockedEntityBoundsColor));
-                    m_lockedEntityBoundsVertexArray->render();
-                }
-                if (m_selectedEntityBoundsVertexArray.get() != NULL) {
-                    glDisable(GL_DEPTH_TEST);
-                    edgeProgram.setUniformVariable("Color", prefs.getColor(Preferences::OccludedSelectedEdgeColor));
-                    m_selectedEntityBoundsVertexArray->render();
-                    glEnable(GL_DEPTH_TEST);
-                    edgeProgram.setUniformVariable("Color", prefs.getColor(Preferences::SelectedEdgeColor));
-                    m_selectedEntityBoundsVertexArray->render();
-                }
-                edgeProgram.deactivate();
-            }
-            m_entityBoundsVbo->deactivate();
-        }
-        
-        void MapRenderer::renderEntityModels(RenderContext& context) {
-            if (m_modelRenderers.empty() && m_selectedEntityModelRenderers.empty() && m_lockedEntityModelRenderers.empty())
-                return;
-            
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            EntityModelRendererManager& modelRendererManager = m_document.sharedResources().modelRendererManager();
-
-            ShaderManager& shaderManager = m_document.sharedResources().shaderManager();
-            ShaderProgram& entityModelProgram = shaderManager.shaderProgram(Shaders::EntityModelShader);
-
-            if (entityModelProgram.activate()) {
-                EntityModelRenderers::iterator it, end;
-                
-                entityModelProgram.setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
-                modelRendererManager.activate();
-                
-                entityModelProgram.setUniformVariable("ApplyTinting", false);
-                entityModelProgram.setUniformVariable("GrayScale", false);
-                for (it = m_modelRenderers.begin(), end = m_modelRenderers.end(); it != end; ++it) {
-                    Model::Entity* entity = it->first;
-                    if (context.filter().entityVisible(*entity)) {
-                        EntityModelRenderer* renderer = it->second.renderer;
-                        renderer->render(entityModelProgram, context.transformation(), *entity);
-                    }
-                }
-                
-                entityModelProgram.setUniformVariable("ApplyTinting", true);
-                entityModelProgram.setUniformVariable("TintColor", prefs.getColor(Preferences::SelectedFaceColor));
-                entityModelProgram.setUniformVariable("GrayScale", false);
-                for (it = m_selectedEntityModelRenderers.begin(), end = m_selectedEntityModelRenderers.end(); it != end; ++it) {
-                    Model::Entity* entity = it->first;
-                    if (context.filter().entityVisible(*entity)) {
-                        EntityModelRenderer* renderer = it->second.renderer;
-                        renderer->render(entityModelProgram, context.transformation(), *entity);
-                    }
-                }
-                
-                entityModelProgram.setUniformVariable("ApplyTinting", true);
-                entityModelProgram.setUniformVariable("TintColor", prefs.getColor(Preferences::LockedFaceColor));
-                entityModelProgram.setUniformVariable("GrayScale", true);
-                for (it = m_lockedEntityModelRenderers.begin(), end = m_lockedEntityModelRenderers.end(); it != end; ++it) {
-                    Model::Entity* entity = it->first;
-                    if (context.filter().entityVisible(*entity)) {
-                        EntityModelRenderer* renderer = it->second.renderer;
-                        renderer->render(entityModelProgram, context.transformation(), *entity);
-                    }
-                }
-                
-                modelRendererManager.deactivate();
-                entityModelProgram.deactivate();
-            }
-        }
-        
-        void MapRenderer::renderEntityClassnames(RenderContext& context) {
-            if (m_classnameRenderer->empty() && m_selectedClassnameRenderer->empty() && m_lockedClassnameRenderer->empty())
-                return;
-            
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-
-            ShaderManager& shaderManager = m_document.sharedResources().shaderManager();
-            ShaderProgram& textProgram = shaderManager.shaderProgram(Shaders::TextShader);
-            ShaderProgram& textBackgroundProgram = shaderManager.shaderProgram(Shaders::TextBackgroundShader);
-
-            EntityClassnameFilter classnameFilter;
-            m_classnameRenderer->render(context, classnameFilter, textProgram,
-                                        prefs.getColor(Preferences::InfoOverlayTextColor), textBackgroundProgram,
-                                        prefs.getColor(Preferences::InfoOverlayBackgroundColor));
-            m_lockedClassnameRenderer->render(context, classnameFilter, textProgram,
-                                              prefs.getColor(Preferences::LockedInfoOverlayTextColor), textBackgroundProgram,
-                                              prefs.getColor(Preferences::LockedInfoOverlayBackgroundColor));
-            glDisable(GL_DEPTH_TEST);
-            m_selectedClassnameRenderer->render(context, classnameFilter, textProgram,
-                                                prefs.getColor(Preferences::OccludedSelectedInfoOverlayTextColor), textBackgroundProgram,
-                                                prefs.getColor(Preferences::OccludedSelectedInfoOverlayBackgroundColor));
-            glEnable(GL_DEPTH_TEST);
-            m_selectedClassnameRenderer->render(context, classnameFilter, textProgram,
-                                                prefs.getColor(Preferences::SelectedInfoOverlayTextColor), textBackgroundProgram,
-                                                prefs.getColor(Preferences::SelectedInfoOverlayBackgroundColor));
-        }
-
         MapRenderer::MapRenderer(Model::MapDocument& document) :
         m_document(document) {
             m_rendering = false;
 
             m_faceVbo = VboPtr(new Vbo(GL_ARRAY_BUFFER, 0xFFFF));
             m_edgeVbo = VboPtr(new Vbo(GL_ARRAY_BUFFER, 0xFFFF));
-            m_entityBoundsVbo = VboPtr(new Vbo(GL_ARRAY_BUFFER, 0xFFFF));
+            m_entityVbo = VboPtr(new Vbo(GL_ARRAY_BUFFER, 0xFFFF));
             
             m_geometryDataValid = false;
             m_selectedGeometryDataValid = false;
             m_lockedGeometryDataValid = false;
 
-            m_entityDataValid = false;
-            m_selectedEntityDataValid = false;
-            m_lockedEntityDataValid = false;
-            m_modelRendererCacheValid = true;
-
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             float infoOverlayFadeDistance = prefs.getFloat(Preferences::InfoOverlayFadeDistance);
             float selectedInfoOverlayFadeDistance = prefs.getFloat(Preferences::SelectedInfoOverlayFadeDistance);
-
-            Text::StringManager& stringManager = m_document.sharedResources().stringManager();
-            m_classnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(stringManager, infoOverlayFadeDistance));
-            m_selectedClassnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(stringManager, selectedInfoOverlayFadeDistance));
-            m_lockedClassnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(stringManager, infoOverlayFadeDistance));
+            const Color& selectedEntityColor = prefs.getColor(Preferences::SelectedEntityBoundsColor);
+            const Color& occludedEntityColor = prefs.getColor(Preferences::OccludedSelectedEntityBoundsColor);
+            const Color& lockedEntityColor = prefs.getColor(Preferences::LockedEntityBoundsColor);
+            
+            m_entityRenderer = EntityRendererPtr(new EntityRenderer(*m_entityVbo, m_document, infoOverlayFadeDistance));
+            m_selectedEntityRenderer = EntityRendererPtr(new EntityRenderer(*m_entityVbo, m_document, selectedInfoOverlayFadeDistance, selectedEntityColor, occludedEntityColor));
+            m_lockedEntityRenderer = EntityRendererPtr(new EntityRenderer(*m_entityVbo, m_document, infoOverlayFadeDistance, lockedEntityColor));
         }
         
         MapRenderer::~MapRenderer() {
         }
 
         void MapRenderer::addEntities(const Model::EntityList& entities) {
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            EntityModelRendererManager& modelRendererManager = m_document.sharedResources().modelRendererManager();
-
-            const String& fontName = prefs.getString(Preferences::RendererFontName);
-            int fontSize = prefs.getInt(Preferences::RendererFontSize);
-            Text::FontDescriptor fontDescriptor(fontName, fontSize);
-            
-            for (unsigned int i = 0; i < entities.size(); i++) {
-                Model::Entity* entity = entities[i];
-                EntityModelRenderer* renderer = modelRendererManager.modelRenderer(*entity, m_document.mods());
-                if (renderer != NULL)
-                    m_modelRenderers[entity] = CachedEntityModelRenderer(renderer, *entity->classname());
-                
-                const Model::PropertyValue& classname = *entity->classname();
-                EntityClassnameAnchor* anchor = new EntityClassnameAnchor(*entity);
-                m_classnameRenderer->addString(entity, fontDescriptor, classname, anchor);
-            }
-            
-            m_entityDataValid = false;
+            m_entityRenderer->addEntities(entities);
         }
 
         void MapRenderer::removeEntities(const Model::EntityList& entities) {
-            for (unsigned int i = 0; i < entities.size(); i++) {
-                Model::Entity* entity = entities[i];
-                m_modelRenderers.erase(entity);
-                m_classnameRenderer->removeString(entity);
-            }
-            m_entityDataValid = false;
+            m_entityRenderer->removeEntities(entities);
         }
         
         void MapRenderer::changeEditState(const Model::EditStateChangeSet& changeSet) {
-            if (changeSet.entityStateChangedFrom(Model::EditState::Default) ||
-                changeSet.entityStateChangedTo(Model::EditState::Default)) {
-                m_entityDataValid = false;
-            }
-            
-            if (changeSet.entityStateChangedFrom(Model::EditState::Selected) ||
-                changeSet.entityStateChangedTo(Model::EditState::Selected)) {
-                m_selectedEntityDataValid = false;
-                
-                const Model::EntityList& selectedEntities = changeSet.entitiesTo(Model::EditState::Selected);
-                for (unsigned int i = 0; i < selectedEntities.size(); i++) {
-                    Model::Entity* entity = selectedEntities[i];
-                    moveEntityModelRenderer(entity, m_modelRenderers, m_selectedEntityModelRenderers);
-                    m_classnameRenderer->transferString(entity, *m_selectedClassnameRenderer);
-                }
-                
-                const Model::EntityList& deselectedEntities = changeSet.entitiesFrom(Model::EditState::Selected);
-                for (unsigned int i = 0; i < deselectedEntities.size(); i++) {
-                    Model::Entity* entity = deselectedEntities[i];
-                    moveEntityModelRenderer(entity, m_selectedEntityModelRenderers, m_modelRenderers);
-                    m_selectedClassnameRenderer->transferString(entity, *m_classnameRenderer);
-                }
-            }
-            
-            if (changeSet.entityStateChangedFrom(Model::EditState::Locked) ||
-                changeSet.entityStateChangedTo(Model::EditState::Locked)) {
-                m_lockedEntityDataValid = false;
-                
-                const Model::EntityList& lockedEntities = changeSet.entitiesTo(Model::EditState::Locked);
-                for (unsigned int i = 0; i < lockedEntities.size(); i++) {
-                    Model::Entity* entity = lockedEntities[i];
-                    moveEntityModelRenderer(entity, m_modelRenderers, m_lockedEntityModelRenderers);
-                    m_classnameRenderer->transferString(entity, *m_lockedClassnameRenderer);
-                }
-                
-                const Model::EntityList& unlockedEntities = changeSet.entitiesFrom(Model::EditState::Locked);
-                for (unsigned int i = 0; i < unlockedEntities.size(); i++) {
-                    Model::Entity* entity = unlockedEntities[i];
-                    moveEntityModelRenderer(entity, m_lockedEntityModelRenderers, m_modelRenderers);
-                    m_lockedClassnameRenderer->transferString(entity, *m_classnameRenderer);
-                }
-            }
+            m_entityRenderer->addEntities(changeSet.entitiesTo(Model::EditState::Default));
+            m_entityRenderer->removeEntities(changeSet.entitiesFrom(Model::EditState::Default));
+            m_selectedEntityRenderer->addEntities(changeSet.entitiesTo(Model::EditState::Selected));
+            m_selectedEntityRenderer->removeEntities(changeSet.entitiesFrom(Model::EditState::Selected));
+            m_lockedEntityRenderer->addEntities(changeSet.entitiesTo(Model::EditState::Locked));
+            m_lockedEntityRenderer->removeEntities(changeSet.entitiesFrom(Model::EditState::Locked));
             
             if (changeSet.brushStateChangedFrom(Model::EditState::Default) ||
                 changeSet.brushStateChangedTo(Model::EditState::Default) ||
@@ -783,16 +454,20 @@ namespace TrenchBroom {
                 for (unsigned int i = 0; i < selectedBrushes.size(); i++) {
                     Model::Brush* brush = selectedBrushes[i];
                     Model::Entity* entity = brush->entity();
-                    if (!entity->worldspawn() && entity->partiallySelected())
-                        m_classnameRenderer->transferString(entity, *m_selectedClassnameRenderer);
+                    if (!entity->worldspawn() && entity->partiallySelected()) {
+                        m_entityRenderer->removeEntity(*entity);
+                        m_selectedEntityRenderer->addEntity(*entity);
+                    }
                 }
 
                 const Model::BrushList& deselectedBrushes = changeSet.brushesFrom(Model::EditState::Selected);
                 for (unsigned int i = 0; i < deselectedBrushes.size(); i++) {
                     Model::Brush* brush = deselectedBrushes[i];
                     Model::Entity* entity = brush->entity();
-                    if (!entity->worldspawn() && !entity->partiallySelected())
-                        m_selectedClassnameRenderer->transferString(entity, *m_classnameRenderer);
+                    if (!entity->worldspawn() && !entity->partiallySelected()) {
+                        m_selectedEntityRenderer->removeEntity(*entity);
+                        m_entityRenderer->addEntity(*entity);
+                    }
                 }
             }
             
@@ -815,21 +490,18 @@ namespace TrenchBroom {
 			m_edgeVertexArray = VertexArrayPtr();
 			m_selectedEdgeVertexArray = VertexArrayPtr();
 			m_lockedEdgeVertexArray = VertexArrayPtr();
-            m_modelRenderers.clear();
-            m_selectedEntityModelRenderers.clear();
-            m_lockedEntityModelRenderers.clear();
-			m_classnameRenderer->clear();
-			m_selectedClassnameRenderer->clear();
-            m_lockedClassnameRenderer->clear();
+            m_entityRenderer->clear();
+            m_selectedEntityRenderer->clear();
+            m_lockedEntityRenderer->clear();
 
             invalidateAll();
             invalidateEntityModelRendererCache();
         }
 
         void MapRenderer::invalidateEntities() {
-            m_entityDataValid = false;
-            m_selectedEntityDataValid = false;
-            m_lockedEntityDataValid = false;
+            m_entityRenderer->invalidateBounds();
+            m_selectedEntityRenderer->invalidateBounds();
+            m_lockedEntityRenderer->invalidateBounds();
         }
 
         void MapRenderer::invalidateBrushes() {
@@ -848,7 +520,9 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::invalidateEntityModelRendererCache() {
-            m_modelRendererCacheValid = false;
+            m_entityRenderer->invalidateModels();
+            m_selectedEntityRenderer->invalidateModels();
+            m_lockedEntityRenderer->invalidateModels();
         }
 
         void MapRenderer::render(RenderContext& context) {
@@ -874,11 +548,11 @@ namespace TrenchBroom {
             
             if (context.viewOptions().showEntities()) {
                 if (context.viewOptions().showEntityModels())
-                    renderEntityModels(context);
+                    m_entityRenderer->render(context);
                 if (context.viewOptions().showEntityBounds())
-                    renderEntityBounds(context);
+                    m_selectedEntityRenderer->render(context);
                 if (context.viewOptions().showEntityClassnames())
-                    renderEntityClassnames(context);
+                    m_lockedEntityRenderer->render(context);
             }
             
             m_rendering = false;

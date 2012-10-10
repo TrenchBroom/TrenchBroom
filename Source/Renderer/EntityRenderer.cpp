@@ -107,6 +107,21 @@ namespace TrenchBroom {
             m_boundsValid = true;
         }
         
+        void EntityRenderer::validateModels(RenderContext& context) {
+            m_modelRenderers.clear();
+            
+            EntityModelRendererManager& modelRendererManager = m_document.sharedResources().modelRendererManager();
+            Model::EntitySet::iterator entityIt, entityEnd;
+            for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
+                Model::Entity* entity = *entityIt;
+                EntityModelRenderer* renderer = modelRendererManager.modelRenderer(*entity, m_document.mods());
+                if (renderer != NULL)
+                    m_modelRenderers[entity] = CachedEntityModelRenderer(renderer, *entity->classname());
+            }
+            
+            m_modelRendererCacheValid = true;
+        }
+
         void EntityRenderer::renderBounds(RenderContext& context) {
             if (m_boundsVertexArray.get() == NULL)
                 return;
@@ -115,11 +130,6 @@ namespace TrenchBroom {
 
             m_boundsVbo.activate();
             if (m_applyColor) {
-                ShaderProgram& coloredEdgeProgram = shaderManager.shaderProgram(Shaders::ColoredEdgeShader);
-                if (coloredEdgeProgram.activate()) {
-                    coloredEdgeProgram.deactivate();
-                }
-            } else {
                 ShaderProgram& edgeProgram = shaderManager.shaderProgram(Shaders::EdgeShader);
                 if (edgeProgram.activate()) {
                     if (m_renderOcclusion) {
@@ -131,6 +141,12 @@ namespace TrenchBroom {
                     edgeProgram.setUniformVariable("Color", m_color);
                     m_boundsVertexArray->render();
                     edgeProgram.deactivate();
+                }
+            } else {
+                ShaderProgram& coloredEdgeProgram = shaderManager.shaderProgram(Shaders::ColoredEdgeShader);
+                if (coloredEdgeProgram.activate()) {
+                    m_boundsVertexArray->render();
+                    coloredEdgeProgram.deactivate();
                 }
             }
             m_boundsVbo.deactivate();
@@ -257,6 +273,9 @@ namespace TrenchBroom {
         }
         
         void EntityRenderer::addEntities(const Model::EntityList& entities) {
+            if (entities.empty())
+                return;
+            
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             EntityModelRendererManager& modelRendererManager = m_document.sharedResources().modelRendererManager();
             
@@ -283,6 +302,18 @@ namespace TrenchBroom {
             m_boundsValid = false;
         }
         
+        void EntityRenderer::invalidateModels() {
+            m_modelRendererCacheValid = false;
+        }
+
+        void EntityRenderer::clear() {
+            m_entities.clear();
+            m_boundsValid = false;
+            m_modelRenderers.clear();
+            m_modelRendererCacheValid = true;
+            m_classnameRenderer->clear();
+        }
+
         void EntityRenderer::removeEntity(Model::Entity& entity) {
             m_modelRenderers.erase(&entity);
             m_classnameRenderer->removeString(&entity);
@@ -291,6 +322,9 @@ namespace TrenchBroom {
         }
         
         void EntityRenderer::removeEntities(const Model::EntityList& entities) {
+            if (entities.empty())
+                return;
+            
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
                 m_modelRenderers.erase(entity);
@@ -303,6 +337,8 @@ namespace TrenchBroom {
         void EntityRenderer::render(RenderContext& context) {
             if (!m_boundsValid)
                 validateBounds(context);
+            if (!m_modelRendererCacheValid)
+                validateModels(context);
             
             if (context.viewOptions().showEntityModels())
                 renderModels(context);

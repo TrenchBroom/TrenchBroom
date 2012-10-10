@@ -75,6 +75,7 @@ namespace TrenchBroom {
             void writeColoredBounds(RenderContext& context, const Model::EntityList& entities);
             void writeBounds(RenderContext& context, const Model::EntityList& entities);
             void validateBounds(RenderContext& context);
+            void validateModels(RenderContext& context);
             
             void renderBounds(RenderContext& context);
             void renderClassnames(RenderContext& context);
@@ -86,9 +87,11 @@ namespace TrenchBroom {
             
             void addEntity(Model::Entity& entity);
             void addEntities(const Model::EntityList& entities);
-            void invalidateBounds();
             void removeEntity(Model::Entity& entity);
             void removeEntities(const Model::EntityList& entities);
+            void invalidateBounds();
+            void invalidateModels();
+            void clear();
             
             void render(RenderContext& context);
         };
