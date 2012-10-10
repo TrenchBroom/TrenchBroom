@@ -21,20 +21,221 @@
 
 #include "Model/MapDocument.h"
 #include "Renderer/EntityClassnameAnchor.h"
+#include "Renderer/EntityClassnameFilter.h"
+#include "Renderer/EntityModelRenderer.h"
 #include "Renderer/EntityModelRendererManager.h"
 #include "Renderer/SharedResources.h"
+#include "Renderer/Shader/ShaderManager.h"
+#include "Renderer/Shader/ShaderProgram.h"
 #include "Utility/Preferences.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Renderer {
-        EntityRenderer::EntityRenderer(Vbo& vbo, Model::MapDocument& document) :
-        m_vbo(vbo),
+        void EntityRenderer::writeColoredBounds(RenderContext& context, const Model::EntityList& entities) {
+            if (entities.empty())
+                return;
+            
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            Vec3f::List vertices(24);
+            
+            for (unsigned int i = 0; i < entities.size(); i++) {
+                Model::Entity* entity = entities[i];
+                const BBox& bounds = entity->bounds();
+                const Model::EntityDefinition* definition = entity->definition();
+                Color entityColor;
+                if (definition != NULL) {
+                    entityColor = definition->color();
+                    entityColor.w = prefs.getColor(Preferences::EntityBoundsColor).w;
+                } else {
+                    entityColor = prefs.getColor(Preferences::EntityBoundsColor);
+                }
+                
+                bounds.vertices(vertices);
+                for (unsigned int i = 0; i < vertices.size(); i++) {
+                    m_boundsVertexArray->addAttribute(vertices[i]);
+                    m_boundsVertexArray->addAttribute(entityColor);
+                }
+            }
+        }
+        
+        void EntityRenderer::writeBounds(RenderContext& context, const Model::EntityList& entities) {
+            if (entities.empty())
+                return;
+            
+            Vec3f::List vertices(24);
+            for (unsigned int i = 0; i < entities.size(); i++) {
+                Model::Entity* entity = entities[i];
+                const BBox& bounds = entity->bounds();
+                bounds.vertices(vertices);
+                
+                for (unsigned int i = 0; i < vertices.size(); i++)
+                    m_boundsVertexArray->addAttribute(vertices[i]);
+            }
+        }
+
+        void EntityRenderer::validateBounds(RenderContext& context) {
+            m_boundsVertexArray = VertexArrayPtr(NULL);
+            
+            Model::EntityList entities;
+            Model::EntitySet::iterator entityIt, entityEnd;
+            for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
+                Model::Entity* entity = *entityIt;
+                if (context.filter().entityVisible(*entity))
+                    entities.push_back(entity);
+            }
+            
+            if (entities.empty())
+                return;
+            
+            m_boundsVbo.activate();
+            m_boundsVbo.map();
+            
+            if (m_applyColor) {
+                unsigned int vertexCount = 2 * 4 * 6 * static_cast<unsigned int>(entities.size());
+                m_boundsVertexArray = VertexArrayPtr(new VertexArray(m_boundsVbo, GL_LINES, vertexCount, VertexAttribute(3, GL_FLOAT, VertexAttribute::Position)));
+                writeBounds(context, entities);
+            } else {
+                unsigned int vertexCount = 2 * 4 * 6 * static_cast<unsigned int>(entities.size());
+                m_boundsVertexArray = VertexArrayPtr(new VertexArray(m_boundsVbo, GL_LINES, vertexCount, VertexAttribute(3, GL_FLOAT, VertexAttribute::Position), VertexAttribute(4, GL_FLOAT, VertexAttribute::Color)));
+                writeColoredBounds(context, entities);
+            }
+            
+            m_boundsVbo.unmap();
+            m_boundsVbo.deactivate();
+            m_boundsValid = true;
+        }
+        
+        void EntityRenderer::renderBounds(RenderContext& context) {
+            if (m_boundsVertexArray.get() == NULL)
+                return;
+            
+            ShaderManager& shaderManager = m_document.sharedResources().shaderManager();
+
+            m_boundsVbo.activate();
+            if (m_applyColor) {
+                ShaderProgram& coloredEdgeProgram = shaderManager.shaderProgram(Shaders::ColoredEdgeShader);
+                if (coloredEdgeProgram.activate()) {
+                    coloredEdgeProgram.deactivate();
+                }
+            } else {
+                ShaderProgram& edgeProgram = shaderManager.shaderProgram(Shaders::EdgeShader);
+                if (edgeProgram.activate()) {
+                    if (m_renderOcclusion) {
+                        glDisable(GL_DEPTH_TEST);
+                        edgeProgram.setUniformVariable("Color", m_occlusionColor);
+                        m_boundsVertexArray->render();
+                        glEnable(GL_DEPTH_TEST);
+                    }
+                    edgeProgram.setUniformVariable("Color", m_color);
+                    m_boundsVertexArray->render();
+                    edgeProgram.deactivate();
+                }
+            }
+            m_boundsVbo.deactivate();
+        }
+        
+        void EntityRenderer::renderClassnames(RenderContext& context) {
+            if (m_classnameRenderer->empty())
+                return;
+            
+            ShaderManager& shaderManager = m_document.sharedResources().shaderManager();
+            ShaderProgram& textProgram = shaderManager.shaderProgram(Shaders::TextShader);
+            ShaderProgram& textBackgroundProgram = shaderManager.shaderProgram(Shaders::TextBackgroundShader);
+            
+            EntityClassnameFilter classnameFilter;
+            if (m_applyColor) {
+                if (m_renderOcclusion) {
+                    glDisable(GL_DEPTH_TEST);
+                    m_classnameRenderer->render(context, classnameFilter, textProgram,
+                                                m_classnameColor, textBackgroundProgram,
+                                                m_occlusionColor);
+                    glEnable(GL_DEPTH_TEST);
+                }
+                m_classnameRenderer->render(context, classnameFilter, textProgram,
+                                            m_classnameColor, textBackgroundProgram,
+                                            m_color);
+            } else {
+                m_classnameRenderer->render(context, classnameFilter, textProgram,
+                                            m_classnameColor, textBackgroundProgram,
+                                            m_classnameBackgroundColor);
+            }
+        }
+
+        void EntityRenderer::renderModels(RenderContext& context) {
+            if (m_modelRenderers.empty())
+                return;
+            
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            EntityModelRendererManager& modelRendererManager = m_document.sharedResources().modelRendererManager();
+            
+            ShaderManager& shaderManager = m_document.sharedResources().shaderManager();
+            ShaderProgram& entityModelProgram = shaderManager.shaderProgram(Shaders::EntityModelShader);
+            
+            if (entityModelProgram.activate()) {
+                modelRendererManager.activate();
+                entityModelProgram.setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
+                entityModelProgram.setUniformVariable("ApplyTinting", m_applyColor);
+                entityModelProgram.setUniformVariable("TintColor", m_color);
+                entityModelProgram.setUniformVariable("GrayScale", false);
+                
+                EntityModelRenderers::iterator it, end;
+                for (it = m_modelRenderers.begin(), end = m_modelRenderers.end(); it != end; ++it) {
+                    Model::Entity* entity = it->first;
+                    if (context.filter().entityVisible(*entity)) {
+                        EntityModelRenderer* renderer = it->second.renderer;
+                        renderer->render(entityModelProgram, context.transformation(), *entity);
+                    }
+                }
+                
+                modelRendererManager.deactivate();
+                entityModelProgram.deactivate();
+            }
+        }
+
+        EntityRenderer::EntityRenderer(Vbo& boundsVbo, Model::MapDocument& document, float classnameFadeDistance) :
+        m_boundsVbo(boundsVbo),
         m_document(document),
         m_modelRendererCacheValid(true),
-        m_boundsValid(true) {}
+        m_boundsValid(true),
+        m_classnameColor(1.0f, 1.0f, 1.0f, 1.0f),
+        m_classnameBackgroundColor(0.0f, 0.0f, 0.0f, 0.6f),
+        m_applyColor(false),
+        m_renderOcclusion(false) {
+            Text::StringManager& stringManager = m_document.sharedResources().stringManager();
+            m_classnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(stringManager, classnameFadeDistance));
+        }
 
+        EntityRenderer::EntityRenderer(Vbo& boundsVbo, Model::MapDocument& document, float classnameFadeDistance, const Color& color) :
+        m_boundsVbo(boundsVbo),
+        m_document(document),
+        m_modelRendererCacheValid(true),
+        m_boundsValid(true),
+        m_classnameColor(1.0f, 1.0f, 1.0f, 1.0f),
+        m_classnameBackgroundColor(0.0f, 0.0f, 0.0f, 0.6f),
+        m_applyColor(true),
+        m_color(color),
+        m_renderOcclusion(false) {
+            Text::StringManager& stringManager = m_document.sharedResources().stringManager();
+            m_classnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(stringManager, classnameFadeDistance));
+        }
+
+        EntityRenderer::EntityRenderer(Vbo& boundsVbo, Model::MapDocument& document, float classnameFadeDistance, const Color& color, const Color& occlusionColor) :
+        m_boundsVbo(boundsVbo),
+        m_document(document),
+        m_modelRendererCacheValid(true),
+        m_boundsValid(true),
+        m_classnameColor(1.0f, 1.0f, 1.0f, 1.0f),
+        m_classnameBackgroundColor(0.0f, 0.0f, 0.0f, 0.6f),
+        m_applyColor(true),
+        m_color(color),
+        m_renderOcclusion(true),
+        m_occlusionColor(occlusionColor) {
+            Text::StringManager& stringManager = m_document.sharedResources().stringManager();
+            m_classnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(stringManager, classnameFadeDistance));
+        }
+        
         void EntityRenderer::addEntity(Model::Entity& entity) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             EntityModelRendererManager& modelRendererManager = m_document.sharedResources().modelRendererManager();
@@ -51,6 +252,7 @@ namespace TrenchBroom {
             EntityClassnameAnchor* anchor = new EntityClassnameAnchor(entity);
             m_classnameRenderer->addString(&entity, fontDescriptor, classname, anchor);
             
+            m_entities.insert(&entity);
             m_boundsValid = false;
         }
         
@@ -73,18 +275,18 @@ namespace TrenchBroom {
                 m_classnameRenderer->addString(entity, fontDescriptor, classname, anchor);
             }
             
+            m_entities.insert(entities.begin(), entities.end());
             m_boundsValid = false;
         }
-        
-        void EntityRenderer::updateEntity(Model::Entity& entity) {
-        }
-        
-        void EntityRenderer::updateEntities(const Model::EntityList& entities) {
+
+        void EntityRenderer::invalidateBounds() {
+            m_boundsValid = false;
         }
         
         void EntityRenderer::removeEntity(Model::Entity& entity) {
             m_modelRenderers.erase(&entity);
             m_classnameRenderer->removeString(&entity);
+            m_entities.erase(&entity);
             m_boundsValid = false;
         }
         
@@ -93,11 +295,21 @@ namespace TrenchBroom {
                 Model::Entity* entity = entities[i];
                 m_modelRenderers.erase(entity);
                 m_classnameRenderer->removeString(entity);
+                m_entities.erase(entity);
             }
             m_boundsValid = false;
         }
         
         void EntityRenderer::render(RenderContext& context) {
+            if (!m_boundsValid)
+                validateBounds(context);
+            
+            if (context.viewOptions().showEntityModels())
+                renderModels(context);
+            if (context.viewOptions().showEntityBounds())
+                renderBounds(context);
+            if (context.viewOptions().showEntityClassnames())
+                renderClassnames(context);
         }
     }
 }

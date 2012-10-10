@@ -25,7 +25,11 @@
 #include "Renderer/Text/TextRenderer.h"
 #include "Utility/String.h"
 
+#include "Utility/Color.h"
+
+#include <map>
 #include <memory>
+#include <set>
 
 namespace TrenchBroom {
     namespace Model {
@@ -51,23 +55,38 @@ namespace TrenchBroom {
             typedef Text::TextRenderer<Model::Entity*> EntityClassnameRenderer;
             typedef std::auto_ptr<EntityClassnameRenderer> EntityClassnameRendererPtr;
 
-            Vbo& m_vbo;
+            Vbo& m_boundsVbo;
             Model::MapDocument& m_document;
-
-            VertexArrayPtr m_entityBoundsVertexArray;
-            bool m_boundsValid;
             
+            Model::EntitySet m_entities;
+            VertexArrayPtr m_boundsVertexArray;
+            bool m_boundsValid;
             EntityModelRenderers m_modelRenderers;
             bool m_modelRendererCacheValid;
-            
             EntityClassnameRendererPtr m_classnameRenderer;
+            
+            Color m_classnameColor;
+            Color m_classnameBackgroundColor;
+            bool m_applyColor;
+            Color m_color;
+            bool m_renderOcclusion;
+            Color m_occlusionColor;
+            
+            void writeColoredBounds(RenderContext& context, const Model::EntityList& entities);
+            void writeBounds(RenderContext& context, const Model::EntityList& entities);
+            void validateBounds(RenderContext& context);
+            
+            void renderBounds(RenderContext& context);
+            void renderClassnames(RenderContext& context);
+            void renderModels(RenderContext& context);
         public:
-            EntityRenderer(Vbo& vbo, Model::MapDocument& document);
+            EntityRenderer(Vbo& boundsVbo, Model::MapDocument& document, float classnameFadeDistance);
+            EntityRenderer(Vbo& boundsVbo, Model::MapDocument& document, float classnameFadeDistance, const Color& color);
+            EntityRenderer(Vbo& boundsVbo, Model::MapDocument& document, float classnameFadeDistance, const Color& color, const Color& occlusionColor);
             
             void addEntity(Model::Entity& entity);
             void addEntities(const Model::EntityList& entities);
-            void updateEntity(Model::Entity& entity);
-            void updateEntities(const Model::EntityList& entities);
+            void invalidateBounds();
             void removeEntity(Model::Entity& entity);
             void removeEntities(const Model::EntityList& entities);
             

@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_EntityClassnameAnchor_h
 #define TrenchBroom_EntityClassnameAnchor_h
 
+#include "Model/Entity.h"
 #include "Renderer/Text/TextRenderer.h"
 #include "Utility/VecMath.h"
 
