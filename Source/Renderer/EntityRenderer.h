@@ -67,10 +67,15 @@ namespace TrenchBroom {
             
             Color m_classnameColor;
             Color m_classnameBackgroundColor;
-            bool m_applyColor;
-            Color m_color;
-            bool m_renderOcclusion;
-            Color m_occlusionColor;
+            bool m_renderOccludedClassnames;
+            Color m_occludedClassnameColor;
+            Color m_occludedClassnameBackgroundColor;
+            bool m_overrideBoundsColor;
+            Color m_boundsColor;
+            bool m_renderOccludedBounds;
+            Color m_occludedBoundsColor;
+            bool m_applyTinting;
+            Color m_tintColor;
             
             void writeColoredBounds(RenderContext& context, const Model::EntityList& entities);
             void writeBounds(RenderContext& context, const Model::EntityList& entities);
@@ -82,9 +87,51 @@ namespace TrenchBroom {
             void renderModels(RenderContext& context);
             void renderFigures(RenderContext& context);
         public:
-            EntityRenderer(Vbo& boundsVbo, Model::MapDocument& document, float classnameFadeDistance);
-            EntityRenderer(Vbo& boundsVbo, Model::MapDocument& document, float classnameFadeDistance, const Color& color);
-            EntityRenderer(Vbo& boundsVbo, Model::MapDocument& document, float classnameFadeDistance, const Color& color, const Color& occlusionColor);
+            EntityRenderer(Vbo& boundsVbo, Model::MapDocument& document);
+            
+            void setClassnameFadeDistance(float classnameFadeDistance);
+            
+            inline void setClassnameColor(const Color& classnameColor, const Color& classnameBackgroundColor) {
+                m_classnameColor = classnameColor;
+                m_classnameBackgroundColor = classnameBackgroundColor;
+            }
+            
+            inline void setOccludedClassnameColor(const Color& occludedClassnameColor, const Color& occludedClassnameBackgroundColor) {
+                m_occludedClassnameColor = occludedClassnameColor;
+                m_occludedClassnameBackgroundColor = occludedClassnameBackgroundColor;
+                m_renderOccludedClassnames = true;
+            }
+            
+            inline void disableRenderOccludedClassnames() {
+                m_renderOccludedClassnames = false;
+            }
+            
+            inline void setBoundsColor(const Color& boundsColor) {
+                m_boundsColor = boundsColor;
+                m_overrideBoundsColor = true;
+            }
+            
+            inline void disableOverrideBoundsColor() {
+                m_overrideBoundsColor = false;
+            }
+            
+            inline void setOccludedBoundsColor(const Color& occludedBoundsColor) {
+                m_occludedBoundsColor = occludedBoundsColor;
+                m_renderOccludedBounds = true;
+            }
+            
+            inline void disableRenderOccludedBounds() {
+                m_renderOccludedBounds = false;
+            }
+            
+            inline void setTintColor(const Color& tintColor) {
+                m_applyTinting = true;
+                m_tintColor = tintColor;
+            }
+            
+            inline void disableTinting() {
+                m_applyTinting = false;
+            }
             
             void addEntity(Model::Entity& entity);
             void addEntities(const Model::EntityList& entities);

@@ -428,15 +428,24 @@ namespace TrenchBroom {
             m_lockedGeometryDataValid = false;
 
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            float infoOverlayFadeDistance = prefs.getFloat(Preferences::InfoOverlayFadeDistance);
-            float selectedInfoOverlayFadeDistance = prefs.getFloat(Preferences::SelectedInfoOverlayFadeDistance);
-            const Color& selectedEntityColor = prefs.getColor(Preferences::SelectedEntityBoundsColor);
-            const Color& occludedEntityColor = prefs.getColor(Preferences::OccludedSelectedEntityBoundsColor);
-            const Color& lockedEntityColor = prefs.getColor(Preferences::LockedEntityBoundsColor);
             
-            m_entityRenderer = EntityRendererPtr(new EntityRenderer(*m_entityVbo, m_document, infoOverlayFadeDistance));
-            m_selectedEntityRenderer = EntityRendererPtr(new EntityRenderer(*m_entityVbo, m_document, selectedInfoOverlayFadeDistance, selectedEntityColor, occludedEntityColor));
-            m_lockedEntityRenderer = EntityRendererPtr(new EntityRenderer(*m_entityVbo, m_document, infoOverlayFadeDistance, lockedEntityColor));
+            m_entityRenderer = EntityRendererPtr(new EntityRenderer(*m_entityVbo, m_document));
+            m_entityRenderer->setClassnameFadeDistance(prefs.getFloat(Preferences::InfoOverlayFadeDistance));
+            m_entityRenderer->setClassnameColor(prefs.getColor(Preferences::InfoOverlayTextColor), prefs.getColor(Preferences::InfoOverlayBackgroundColor));
+            
+            m_selectedEntityRenderer = EntityRendererPtr(new EntityRenderer(*m_entityVbo, m_document));
+            m_selectedEntityRenderer->setClassnameFadeDistance(prefs.getFloat(Preferences::SelectedInfoOverlayFadeDistance));
+            m_selectedEntityRenderer->setClassnameColor(prefs.getColor(Preferences::SelectedInfoOverlayTextColor), prefs.getColor(Preferences::SelectedInfoOverlayBackgroundColor));
+            m_selectedEntityRenderer->setOccludedClassnameColor(prefs.getColor(Preferences::SelectedInfoOverlayTextColor), prefs.getColor(Preferences::SelectedInfoOverlayBackgroundColor));
+            m_selectedEntityRenderer->setBoundsColor(prefs.getColor(Preferences::SelectedEntityBoundsColor));
+            m_selectedEntityRenderer->setOccludedBoundsColor(prefs.getColor(Preferences::OccludedSelectedEntityBoundsColor));
+            m_selectedEntityRenderer->setTintColor(prefs.getColor(Preferences::SelectedEntityColor));
+            
+            m_lockedEntityRenderer = EntityRendererPtr(new EntityRenderer(*m_entityVbo, m_document));
+            m_lockedEntityRenderer->setClassnameFadeDistance(prefs.getFloat(Preferences::InfoOverlayFadeDistance));
+            m_lockedEntityRenderer->setClassnameColor(prefs.getColor(Preferences::LockedInfoOverlayTextColor), prefs.getColor(Preferences::LockedInfoOverlayBackgroundColor));
+            m_lockedEntityRenderer->setBoundsColor(prefs.getColor(Preferences::LockedEntityBoundsColor));
+            m_lockedEntityRenderer->setTintColor(prefs.getColor(Preferences::LockedEntityColor));
         }
         
         MapRenderer::~MapRenderer() {
