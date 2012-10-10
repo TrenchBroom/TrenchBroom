@@ -137,7 +137,7 @@ namespace TrenchBroom {
             inline void setGrayscale(bool grayscale) {
                 m_grayscale = grayscale;
             }
-            
+
             void addEntity(Model::Entity& entity);
             void addEntities(const Model::EntityList& entities);
             void removeEntity(Model::Entity& entity);
