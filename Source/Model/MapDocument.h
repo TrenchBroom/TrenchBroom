@@ -85,6 +85,8 @@ namespace TrenchBroom {
             Entity* worldspawn(bool create);
             void addEntity(Entity& entity);
             void removeEntity(Entity& entity);
+            void addBrush(Entity& entity, Brush& brush);
+            void removeBrush(Brush& brush);
             
             Utility::Console& console() const;
             Renderer::SharedResources& sharedResources() const;

@@ -124,9 +124,9 @@ namespace TrenchBroom {
                 return m_brushes;
             }
             
-            void addBrush(Brush* brush);
+            void addBrush(Brush& brush);
             void addBrushes(const BrushList& brushes);
-            void removeBrush(Brush* brush);
+            void removeBrush(Brush& brush);
             
             inline EntityDefinition* definition() const {
                 return m_definition;

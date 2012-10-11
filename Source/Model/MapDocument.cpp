@@ -227,6 +227,12 @@ namespace TrenchBroom {
         }
 
         void MapDocument::addEntity(Entity& entity) {
+            const String* classname = entity.classname();
+            if (classname != NULL) {
+                Model::EntityDefinition* definition = m_definitionManager->definition(*classname);
+                if (definition != NULL)
+                    entity.setDefinition(definition);
+            }
             m_map->addEntity(entity);
             m_octree->addObject(entity);
         }
@@ -234,6 +240,19 @@ namespace TrenchBroom {
         void MapDocument::removeEntity(Entity& entity) {
             m_octree->removeObject(entity);
             m_map->removeEntity(entity);
+            entity.setDefinition(NULL);
+        }
+
+        void MapDocument::addBrush(Entity& entity, Brush& brush) {
+            entity.addBrush(brush);
+            m_octree->addObject(brush);
+        }
+
+        void MapDocument::removeBrush(Brush& brush) {
+            m_octree->removeObject(brush);
+            Entity* entity = brush.entity();
+            if (entity != NULL)
+                entity->removeBrush(brush);
         }
 
         Utility::Console& MapDocument::console() const {

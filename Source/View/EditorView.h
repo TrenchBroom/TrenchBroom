@@ -84,6 +84,8 @@ namespace TrenchBroom {
             void OnUndo(wxCommandEvent& event);
             void OnRedo(wxCommandEvent& event);
 
+            void OnEditDelete(wxCommandEvent& event);
+            
             void OnEditSelectAll(wxCommandEvent& event);
             void OnEditSelectNone(wxCommandEvent& event);
             

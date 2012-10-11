@@ -46,6 +46,9 @@ protected:
 public:
     CommandProcessor(int maxCommandLevel = -1);
 
+    static void BeginGroup(wxCommandProcessor* wxCommandProc, const wxString& name);
+    static void EndGroup(wxCommandProcessor* wxCommandProc);
+    
     void BeginGroup(const wxString& name);
     void EndGroup();
     bool Submit(wxCommand* command, bool storeIt = true);

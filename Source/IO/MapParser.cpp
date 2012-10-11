@@ -262,7 +262,7 @@ namespace TrenchBroom {
                         while (moreBrushes) {
                             Model::Brush* brush = parseBrush(worldBounds, indicator);
                             if (brush != NULL)
-                                entity->addBrush(brush);
+                                entity->addBrush(*brush);
                             token = nextToken();
                             expect(TokenType::OBrace | TokenType::CBrace, token.get());
                             moreBrushes = (token->type() == TokenType::OBrace);

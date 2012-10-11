@@ -111,6 +111,7 @@
 		48FBD14116259AD70059953D /* EntityFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD13F16259AD70059953D /* EntityFigure.cpp */; };
 		48FBD1441625D3F80059953D /* CreateEntityCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD1421625D3F80059953D /* CreateEntityCommand.cpp */; };
 		48FBD147162601900059953D /* CommandProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD145162601900059953D /* CommandProcessor.cpp */; };
+		48FBD14E1626AD5C0059953D /* DeleteObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD14C1626AD5B0059953D /* DeleteObjectsCommand.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -378,6 +379,8 @@
 		48FBD1431625D3F80059953D /* CreateEntityCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateEntityCommand.h; sourceTree = "<group>"; };
 		48FBD145162601900059953D /* CommandProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CommandProcessor.cpp; sourceTree = "<group>"; };
 		48FBD146162601900059953D /* CommandProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommandProcessor.h; sourceTree = "<group>"; };
+		48FBD14C1626AD5B0059953D /* DeleteObjectsCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DeleteObjectsCommand.cpp; sourceTree = "<group>"; };
+		48FBD14D1626AD5B0059953D /* DeleteObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeleteObjectsCommand.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -717,6 +720,8 @@
 				4850D26515F3E757005B162D /* Command.h */,
 				48FBD1421625D3F80059953D /* CreateEntityCommand.cpp */,
 				48FBD1431625D3F80059953D /* CreateEntityCommand.h */,
+				48FBD14C1626AD5B0059953D /* DeleteObjectsCommand.cpp */,
+				48FBD14D1626AD5B0059953D /* DeleteObjectsCommand.h */,
 				48009AFD15F8A4E7001A9993 /* DragPlane.h */,
 				481E56461624120900B403F3 /* DragTargetTool.h */,
 				481E564716242D6B00B403F3 /* EntityDragTargetTool.cpp */,
@@ -953,6 +958,7 @@
 				48FBD14116259AD70059953D /* EntityFigure.cpp in Sources */,
 				48FBD1441625D3F80059953D /* CreateEntityCommand.cpp in Sources */,
 				48FBD147162601900059953D /* CommandProcessor.cpp in Sources */,
+				48FBD14E1626AD5C0059953D /* DeleteObjectsCommand.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

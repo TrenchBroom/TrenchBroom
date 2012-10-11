@@ -64,8 +64,7 @@ namespace TrenchBroom {
                     return;
                 
                 Model::MapDocument& document = m_documentViewHolder.document();
-                CommandProcessor* commandProcessor = static_cast<CommandProcessor*>(document.GetCommandProcessor());
-                commandProcessor->BeginGroup(name);
+                CommandProcessor::BeginGroup(document.GetCommandProcessor(), name);
             }
             
             inline void EndCommandGroup() {
@@ -73,8 +72,7 @@ namespace TrenchBroom {
                     return;
                 
                 Model::MapDocument& document = m_documentViewHolder.document();
-                CommandProcessor* commandProcessor = static_cast<CommandProcessor*>(document.GetCommandProcessor());
-                commandProcessor->EndGroup();
+                CommandProcessor::EndGroup(document.GetCommandProcessor());
             }
             
             inline void postCommand(wxCommand* command) {

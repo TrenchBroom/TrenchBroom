@@ -20,14 +20,18 @@
 #ifndef TrenchBroom_BrushTypes_h
 #define TrenchBroom_BrushTypes_h
 
+#include <map>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class Entity;
         class Brush;
         
         typedef std::vector<Brush*> BrushList;
         static const BrushList EmptyBrushList;
+        typedef std::map<Brush*, Entity*> BrushParentMap;
+        typedef std::pair<Brush*, Entity*> BrushParentMapEntry;
     }
 }
 

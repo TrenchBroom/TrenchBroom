@@ -161,12 +161,12 @@ namespace TrenchBroom {
             invalidateGeometry();
         }
         
-        void Entity::addBrush(Brush* brush) {
+        void Entity::addBrush(Brush& brush) {
             if (m_definition != NULL && m_definition->type() == EntityDefinition::PointEntity)
                 return;
             
-            brush->setEntity(this);
-            m_brushes.push_back(brush);
+            brush.setEntity(this);
+            m_brushes.push_back(&brush);
             invalidateGeometry();
         }
         
@@ -182,12 +182,12 @@ namespace TrenchBroom {
             invalidateGeometry();
         }
         
-        void Entity::removeBrush(Brush* brush) {
+        void Entity::removeBrush(Brush& brush) {
             if (m_definition == NULL || m_definition->type() == EntityDefinition::PointEntity)
                 return;
             
-            brush->setEntity(NULL);
-            m_brushes.erase(std::remove(m_brushes.begin(), m_brushes.end(), brush), m_brushes.end());
+            brush.setEntity(NULL);
+            m_brushes.erase(std::remove(m_brushes.begin(), m_brushes.end(), &brush), m_brushes.end());
             invalidateGeometry();
         }
 

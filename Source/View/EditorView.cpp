@@ -23,6 +23,8 @@
 #include "Controller/Command.h"
 #include "Controller/ChangeEditStateCommand.h"
 #include "Controller/CreateEntityCommand.h"
+#include "Controller/DeleteObjectsCommand.h"
+#include "Controller/DeleteObjectsCommand.h"
 #include "Controller/EntityPropertyCommand.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
@@ -34,6 +36,7 @@
 #include "Model/TextureManager.h"
 #include "Renderer/Camera.h"
 #include "Renderer/MapRenderer.h"
+#include "Utility/CommandProcessor.h"
 #include "Utility/Console.h"
 #include "Utility/Preferences.h"
 #include "View/CommandIds.h"
@@ -54,6 +57,8 @@ namespace TrenchBroom {
         EVT_MENU(wxID_UNDO, EditorView::OnUndo)
         EVT_MENU(wxID_REDO, EditorView::OnRedo)
 
+        EVT_MENU(wxID_DELETE, EditorView::OnEditDelete)
+        
         EVT_MENU(CommandIds::Menu::EditSelectAll, EditorView::OnEditSelectAll)
         EVT_MENU(CommandIds::Menu::EditSelectNone, EditorView::OnEditSelectNone)
         
@@ -67,6 +72,10 @@ namespace TrenchBroom {
 
         EVT_UPDATE_UI(wxID_UNDO, EditorView::OnUpdateMenuItem)
         EVT_UPDATE_UI(wxID_REDO, EditorView::OnUpdateMenuItem)
+        EVT_UPDATE_UI(wxID_CUT, EditorView::OnUpdateMenuItem)
+        EVT_UPDATE_UI(wxID_COPY, EditorView::OnUpdateMenuItem)
+        EVT_UPDATE_UI(wxID_PASTE, EditorView::OnUpdateMenuItem)
+        EVT_UPDATE_UI(wxID_DELETE, EditorView::OnUpdateMenuItem)
         EVT_UPDATE_UI_RANGE(CommandIds::Menu::Lowest, CommandIds::Menu::Highest, EditorView::OnUpdateMenuItem)
         END_EVENT_TABLE()
 
@@ -210,6 +219,12 @@ namespace TrenchBroom {
                         inspector().entityInspector().updateProperties();
                         break;
                     }
+                    case Controller::Command::DeleteObjects: {
+                        Controller::DeleteObjectsCommand* deleteObjectsCommand = static_cast<Controller::DeleteObjectsCommand*>(command);
+                        m_renderer->removeEntities(deleteObjectsCommand->deletedEntities());
+                        if (!deleteObjectsCommand->deletedBrushes().empty())
+                            m_renderer->invalidateBrushes();
+                    }
                     case Controller::Command::UpdateFigures:
                         break;
                     default:
@@ -280,6 +295,21 @@ namespace TrenchBroom {
             GetDocumentManager()->OnRedo(event);
         }
 
+        void EditorView::OnEditDelete(wxCommandEvent& event) {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            const Model::EntityList entities = editStateManager.selectedEntities();
+            const Model::BrushList brushes = editStateManager.selectedBrushes();
+            
+            Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::deselectAll(mapDocument());
+            Controller::DeleteObjectsCommand* deleteObjectsCommand = Controller::DeleteObjectsCommand::deleteObjects(mapDocument(), entities, brushes);
+
+            wxCommandProcessor* commandProcessor = mapDocument().GetCommandProcessor();
+            CommandProcessor::BeginGroup(commandProcessor, deleteObjectsCommand->GetName());
+            commandProcessor->Submit(changeEditStateCommand);
+            commandProcessor->Submit(deleteObjectsCommand);
+            CommandProcessor::EndGroup(commandProcessor);
+        }
+        
         void EditorView::OnEditSelectAll(wxCommandEvent& event) {
             const Model::EntityList& entities = mapDocument().map().entities();
             Model::EntityList selectEntities;
@@ -402,6 +432,15 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::EditSelectNone:
                     event.Enable(editStateManager.selectionMode() != Model::EditStateManager::SMNone);
+                    break;
+                case wxID_CUT:
+                case wxID_COPY:
+                case wxID_DELETE:
+                    event.Enable(editStateManager.selectionMode() != Model::EditStateManager::SMNone &&
+                                 editStateManager.selectionMode() != Model::EditStateManager::SMFaces);
+                    break;
+                case wxID_PASTE:
+                    event.Enable(false);
                     break;
                 case CommandIds::Menu::EditHideSelected:
                 case CommandIds::Menu::EditHideUnselected:

@@ -62,6 +62,16 @@ wxCommandProcessor(maxCommandLevel),
 m_groupLevel(0),
 m_compoundCommand(NULL) {}
 
+void CommandProcessor::BeginGroup(wxCommandProcessor* wxCommandProc, const wxString& name) {
+    CommandProcessor* commandProc = static_cast<CommandProcessor*>(wxCommandProc);
+    commandProc->BeginGroup(name);
+}
+
+void CommandProcessor::EndGroup(wxCommandProcessor* wxCommandProc) {
+    CommandProcessor* commandProc = static_cast<CommandProcessor*>(wxCommandProc);
+    commandProc->EndGroup();
+}
+
 void CommandProcessor::BeginGroup(const wxString& name) {
     if (m_groupLevel == 0) {
         assert(m_compoundCommand == NULL);

@@ -63,6 +63,7 @@ wxMenu* AbstractApp::CreateEditMenu() {
     editMenu->Append(wxID_CUT, wxT("Cut\tCtrl+X"));
     editMenu->Append(wxID_COPY, wxT("Copy\tCtrl+C"));
     editMenu->Append(wxID_PASTE, wxT("Paste\tCtrl+V"));
+    editMenu->Append(wxID_DELETE, wxT("Delete\tBack"));
     editMenu->AppendSeparator();
     editMenu->Append(CommandIds::Menu::EditSelectAll, wxT("Select All\tCtrl+A"));
     editMenu->Append(CommandIds::Menu::EditSelectSiblings, wxT("Select Siblings\tCtrl+Alt+A"));
