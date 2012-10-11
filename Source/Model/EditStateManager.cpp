@@ -101,22 +101,32 @@ namespace TrenchBroom {
             return changed;
         }
 
-        void EditStateManager::setDefaultAndClear(EntityList& entities, EditStateChangeSet& changeSet) {
-            for (unsigned int i = 0; i < entities.size(); i++) {
-                Entity& entity = *entities[i];
-                EditState::Type previousState = entity.setEditState(EditState::Default);
-                changeSet.addEntity(previousState, entity);
+        void EditStateManager::setDefaultAndClear(EntityList& entities, EditStateChangeSet& changeSet, const EntityList& except) {
+            EntityList::iterator it = entities.begin();
+            while (it != entities.end()) {
+                Entity& entity = **it;
+                if (except.empty() || std::find(except.begin(), except.end(), &entity) == except.end()) {
+                    EditState::Type previousState = entity.setEditState(EditState::Default);
+                    changeSet.addEntity(previousState, entity);
+                    it = entities.erase(it);
+                } else {
+                    ++it;
+                }
             }
-            entities.clear();
         }
         
-        void EditStateManager::setDefaultAndClear(BrushList& brushes, EditStateChangeSet& changeSet) {
-            for (unsigned int i = 0; i < brushes.size(); i++) {
-                Brush& brush = *brushes[i];
-                EditState::Type previousState = brush.setEditState(EditState::Default);
-                changeSet.addBrush(previousState, brush);
+        void EditStateManager::setDefaultAndClear(BrushList& brushes, EditStateChangeSet& changeSet, const BrushList& except) {
+            BrushList::iterator it = brushes.begin();
+            while (it != brushes.end()) {
+                Brush& brush = **it;
+                if (except.empty() || std::find(except.begin(), except.end(), &brush) == except.end()) {
+                    EditState::Type previousState = brush.setEditState(EditState::Default);
+                    changeSet.addBrush(previousState, brush);
+                    it = brushes.erase(it);
+                } else {
+                    ++it;
+                }
             }
-            brushes.clear();
         }
         
         void EditStateManager::deselectAndClear(FaceList& faces, EditStateChangeSet& changeSet) {
@@ -128,17 +138,17 @@ namespace TrenchBroom {
             faces.clear();
         }
 
-        void EditStateManager::setDefaultAndClear(EditState::Type previousState, EditStateChangeSet& changeSet) {
+        void EditStateManager::setDefaultAndClear(EditState::Type previousState, EditStateChangeSet& changeSet, const EntityList& exceptEntities, const BrushList& exceptBrushes) {
             if (previousState == EditState::Selected) {
-                setDefaultAndClear(current().selectedEntities, changeSet);
-                setDefaultAndClear(current().selectedBrushes, changeSet);
+                setDefaultAndClear(current().selectedEntities, changeSet, exceptEntities);
+                setDefaultAndClear(current().selectedBrushes, changeSet, exceptBrushes);
                 deselectAndClear(current().selectedFaces, changeSet);
             } else if (previousState == EditState::Hidden) {
-                setDefaultAndClear(current().hiddenEntities, changeSet);
-                setDefaultAndClear(current().hiddenBrushes, changeSet);
+                setDefaultAndClear(current().hiddenEntities, changeSet, exceptEntities);
+                setDefaultAndClear(current().hiddenBrushes, changeSet, exceptBrushes);
             } else if (previousState == EditState::Locked) {
-                setDefaultAndClear(current().lockedEntities, changeSet);
-                setDefaultAndClear(current().lockedBrushes, changeSet);
+                setDefaultAndClear(current().lockedEntities, changeSet, exceptEntities);
+                setDefaultAndClear(current().lockedBrushes, changeSet, exceptBrushes);
             }
         }
 
@@ -153,7 +163,7 @@ namespace TrenchBroom {
                 return changeSet;
             
             if (replace)
-                setDefaultAndClear(newState, changeSet);
+                setDefaultAndClear(newState, changeSet, entities, EmptyBrushList);
             
             FaceList& selectedFaces = current().selectedFaces;
             if (doSetEditState(entities, newState, changeSet) &&
@@ -171,7 +181,7 @@ namespace TrenchBroom {
                 return changeSet;
             
             if (replace)
-                setDefaultAndClear(newState, changeSet);
+                setDefaultAndClear(newState, changeSet, EmptyEntityList, brushes);
             
             FaceList& selectedFaces = current().selectedFaces;
             if (doSetEditState(brushes, newState, changeSet) &&
@@ -189,7 +199,7 @@ namespace TrenchBroom {
                 return changeSet;
             
             if (replace)
-                setDefaultAndClear(newState, changeSet);
+                setDefaultAndClear(newState, changeSet, entities, brushes);
             
             bool deselectFaces = doSetEditState(entities, newState, changeSet);
             deselectFaces |= doSetEditState(brushes, newState, changeSet);
@@ -208,7 +218,7 @@ namespace TrenchBroom {
                 return changeSet;
 
             if (select && replace)
-                setDefaultAndClear(EditState::Selected, changeSet);
+                setDefaultAndClear(EditState::Selected, changeSet, EmptyEntityList, EmptyBrushList);
             
             bool changed = doSetSelected(faces, select, changeSet);
             if (select && changed) {
@@ -226,19 +236,19 @@ namespace TrenchBroom {
 
         EditStateChangeSet EditStateManager::deselectAll() {
             EditStateChangeSet changeSet;
-            setDefaultAndClear(EditState::Selected, changeSet);
+            setDefaultAndClear(EditState::Selected, changeSet, EmptyEntityList, EmptyBrushList);
             return changeSet;
         }
         
         EditStateChangeSet EditStateManager::unhideAll() {
             EditStateChangeSet changeSet;
-            setDefaultAndClear(EditState::Hidden, changeSet);
+            setDefaultAndClear(EditState::Hidden, changeSet, EmptyEntityList, EmptyBrushList);
             return changeSet;
         }
         
         EditStateChangeSet EditStateManager::unlockAll() {
             EditStateChangeSet changeSet;
-            setDefaultAndClear(EditState::Locked, changeSet);
+            setDefaultAndClear(EditState::Locked, changeSet, EmptyEntityList, EmptyBrushList);
             return changeSet;
         }
  

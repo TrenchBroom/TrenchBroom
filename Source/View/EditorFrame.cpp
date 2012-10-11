@@ -65,7 +65,7 @@ namespace TrenchBroom {
             logSplitterSizer->Add(logSplitter, 1, wxEXPAND);
             SetSizer(logSplitterSizer);
             
-            SetSize(800, 600);
+            SetSize(1024, 768);
             inspectorSplitter->SetSashPosition(GetSize().x - 350);
             logSplitter->SetSashPosition(GetSize().y - 150);
             Layout();
