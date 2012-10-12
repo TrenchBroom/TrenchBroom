@@ -26,6 +26,8 @@
 #include "Controller/DeleteObjectsCommand.h"
 #include "Controller/DeleteObjectsCommand.h"
 #include "Controller/EntityPropertyCommand.h"
+#include "IO/MapParser.h"
+#include "IO/MapWriter.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/EntityDefinition.h"
@@ -46,6 +48,8 @@
 #include "View/Inspector.h"
 #include "View/MapGLCanvas.h"
 #include "View/ViewOptions.h"
+
+#include <wx/clipbrd.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -103,6 +107,29 @@ namespace TrenchBroom {
             CommandProcessor::EndGroup(commandProcessor);
         }
 
+        bool EditorView::canPaste() {
+            if (wxTheClipboard->Open()) {
+                if (wxTheClipboard->IsSupported(wxDF_TEXT)) {
+                    Model::EntityList entities;
+                    Model::BrushList brushes;
+                    Model::FaceList faces;
+                    
+                    StringStream stream;
+                    IO::MapParser mapParser(stream, console());
+                    
+                    if (mapParser.parseEntities(mapDocument().map().worldBounds(), entities))
+                        return true;
+                    else if (mapParser.parseBrushes(mapDocument().map().worldBounds(), brushes))
+                        return true;
+                    else if (mapParser.parseFaces(mapDocument().map().worldBounds(), faces))
+                        return true;
+                }
+            }
+            
+            return false;
+        }
+
+        
         EditorView::EditorView() :
         wxView(),
         m_camera(NULL),
@@ -319,9 +346,27 @@ namespace TrenchBroom {
         }
         
         void EditorView::OnEditCopy(wxCommandEvent& event) {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            assert(editStateManager.selectionMode() == Model::EditStateManager::SMFaces ||
+                   editStateManager.selectionMode() == Model::EditStateManager::SMEntities ||
+                   editStateManager.selectionMode() == Model::EditStateManager::SMBrushes ||
+                   editStateManager.selectionMode() == Model::EditStateManager::SMEntitiesAndBrushes);
+            
+            if (wxTheClipboard->Open()) {
+                StringStream clipboardData;
+                IO::MapWriter mapWriter;
+                if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces)
+                    mapWriter.writeFacesToStream(editStateManager.selectedFaces(), clipboardData);
+                else
+                    mapWriter.writeObjectsToStream(editStateManager.selectedEntities(), editStateManager.selectedBrushes(), clipboardData);
+                
+                wxTheClipboard->SetData(new wxTextDataObject(clipboardData.str()));
+                wxTheClipboard->Close();
+            }
         }
         
         void EditorView::OnEditPaste(wxCommandEvent& event) {
+            
         }
 
         void EditorView::OnEditDelete(wxCommandEvent& event) {
@@ -451,8 +496,10 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditSelectNone:
                     event.Enable(editStateManager.selectionMode() != Model::EditStateManager::SMNone);
                     break;
-                case wxID_CUT:
                 case wxID_COPY:
+                    event.Enable(editStateManager.selectionMode() != Model::EditStateManager::SMNone);
+                    break;
+                case wxID_CUT:
                 case wxID_DELETE:
                     event.Enable(editStateManager.selectionMode() != Model::EditStateManager::SMNone &&
                                  editStateManager.selectionMode() != Model::EditStateManager::SMFaces);

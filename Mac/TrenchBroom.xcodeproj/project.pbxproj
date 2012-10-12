@@ -112,6 +112,7 @@
 		48FBD1441625D3F80059953D /* CreateEntityCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD1421625D3F80059953D /* CreateEntityCommand.cpp */; };
 		48FBD147162601900059953D /* CommandProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD145162601900059953D /* CommandProcessor.cpp */; };
 		48FBD14E1626AD5C0059953D /* DeleteObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD14C1626AD5B0059953D /* DeleteObjectsCommand.cpp */; };
+		48FBD15116287C5A0059953D /* MapWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD14F16287C5A0059953D /* MapWriter.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -381,6 +382,8 @@
 		48FBD146162601900059953D /* CommandProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommandProcessor.h; sourceTree = "<group>"; };
 		48FBD14C1626AD5B0059953D /* DeleteObjectsCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DeleteObjectsCommand.cpp; sourceTree = "<group>"; };
 		48FBD14D1626AD5B0059953D /* DeleteObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeleteObjectsCommand.h; sourceTree = "<group>"; };
+		48FBD14F16287C5A0059953D /* MapWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapWriter.cpp; sourceTree = "<group>"; };
+		48FBD15016287C5A0059953D /* MapWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapWriter.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -405,6 +408,8 @@
 				48819C4015EC0D9300BEA604 /* FileManager.h */,
 				48AF492615E8CC270083DE52 /* MapParser.cpp */,
 				48AF492715E8CC270083DE52 /* MapParser.h */,
+				48FBD14F16287C5A0059953D /* MapWriter.cpp */,
+				48FBD15016287C5A0059953D /* MapWriter.h */,
 				4850D26715F4A01C005B162D /* Pak.cpp */,
 				4850D26815F4A01C005B162D /* Pak.h */,
 				4810278215E5954A00250C9C /* ParserException.h */,
@@ -959,6 +964,7 @@
 				48FBD1441625D3F80059953D /* CreateEntityCommand.cpp in Sources */,
 				48FBD147162601900059953D /* CommandProcessor.cpp in Sources */,
 				48FBD14E1626AD5C0059953D /* DeleteObjectsCommand.cpp in Sources */,
+				48FBD15116287C5A0059953D /* MapWriter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -980,7 +986,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
@@ -999,7 +1005,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx;
+				SDKROOT = macosx10.6;
 			};
 			name = Debug;
 		};
@@ -1007,19 +1013,20 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				SDKROOT = macosx;
+				SDKROOT = macosx10.6;
 			};
 			name = Release;
 		};
@@ -1091,7 +1098,7 @@
 				CLANG_LINK_OBJC_RUNTIME = NO;
 				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = NO;
 				COMBINE_HIDPI_IMAGES = YES;
-				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_OPTIMIZATION_LEVEL = s;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TrenchBroom/TrenchBroom-Prefix.pch";
 				GCC_WARN_SHADOW = NO;
@@ -1104,7 +1111,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/Lib\"",
 				);
-				LLVM_LTO = YES;
+				LLVM_LTO = NO;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = (
 					"-isystem\"$(SRCROOT)/wxWidgets/build-release/lib/wx/include/osx_cocoa-unicode-static-2.9\"",

@@ -61,6 +61,7 @@ namespace TrenchBroom {
             
             void submit(wxCommand* command);
             void deleteObjects(const wxString& actionName);
+            bool canPaste();
         public:
             EditorView();
 
