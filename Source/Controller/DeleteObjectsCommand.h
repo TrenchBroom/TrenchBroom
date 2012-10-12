@@ -39,7 +39,7 @@ namespace TrenchBroom {
             
             DeleteObjectsCommand(Type type, Model::MapDocument& document, const wxString& name, const Model::EntityList& entities, const Model::BrushList& brushes);
         public:
-            static DeleteObjectsCommand* deleteObjects(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes);
+            static DeleteObjectsCommand* deleteObjects(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const wxString action = wxT("Delete"));
             
             inline const Model::EntityList& deletedEntities() const {
                 return m_deletedEntities;

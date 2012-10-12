@@ -57,6 +57,9 @@ namespace TrenchBroom {
         EVT_MENU(wxID_UNDO, EditorView::OnUndo)
         EVT_MENU(wxID_REDO, EditorView::OnRedo)
 
+        EVT_MENU(wxID_CUT, EditorView::OnEditCut)
+        EVT_MENU(wxID_COPY, EditorView::OnEditCopy)
+        EVT_MENU(wxID_PASTE, EditorView::OnEditPaste)
         EVT_MENU(wxID_DELETE, EditorView::OnEditDelete)
         
         EVT_MENU(CommandIds::Menu::EditSelectAll, EditorView::OnEditSelectAll)
@@ -85,6 +88,21 @@ namespace TrenchBroom {
             mapDocument().GetCommandProcessor()->Submit(command);
         }
         
+        void EditorView::deleteObjects(const wxString& actionName) {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            const Model::EntityList entities = editStateManager.selectedEntities();
+            const Model::BrushList brushes = editStateManager.selectedBrushes();
+            
+            Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::deselectAll(mapDocument());
+            Controller::DeleteObjectsCommand* deleteObjectsCommand = Controller::DeleteObjectsCommand::deleteObjects(mapDocument(), entities, brushes, actionName);
+            
+            wxCommandProcessor* commandProcessor = mapDocument().GetCommandProcessor();
+            CommandProcessor::BeginGroup(commandProcessor, deleteObjectsCommand->GetName());
+            commandProcessor->Submit(changeEditStateCommand);
+            commandProcessor->Submit(deleteObjectsCommand);
+            CommandProcessor::EndGroup(commandProcessor);
+        }
+
         EditorView::EditorView() :
         wxView(),
         m_camera(NULL),
@@ -295,19 +313,19 @@ namespace TrenchBroom {
             GetDocumentManager()->OnRedo(event);
         }
 
-        void EditorView::OnEditDelete(wxCommandEvent& event) {
-            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
-            const Model::EntityList entities = editStateManager.selectedEntities();
-            const Model::BrushList brushes = editStateManager.selectedBrushes();
-            
-            Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::deselectAll(mapDocument());
-            Controller::DeleteObjectsCommand* deleteObjectsCommand = Controller::DeleteObjectsCommand::deleteObjects(mapDocument(), entities, brushes);
+        void EditorView::OnEditCut(wxCommandEvent& event) {
+            OnEditCopy(event);
+            deleteObjects(wxT("Cut"));
+        }
+        
+        void EditorView::OnEditCopy(wxCommandEvent& event) {
+        }
+        
+        void EditorView::OnEditPaste(wxCommandEvent& event) {
+        }
 
-            wxCommandProcessor* commandProcessor = mapDocument().GetCommandProcessor();
-            CommandProcessor::BeginGroup(commandProcessor, deleteObjectsCommand->GetName());
-            commandProcessor->Submit(changeEditStateCommand);
-            commandProcessor->Submit(deleteObjectsCommand);
-            CommandProcessor::EndGroup(commandProcessor);
+        void EditorView::OnEditDelete(wxCommandEvent& event) {
+            deleteObjects(wxT("Delete"));
         }
         
         void EditorView::OnEditSelectAll(wxCommandEvent& event) {

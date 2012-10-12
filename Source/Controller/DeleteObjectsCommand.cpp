@@ -86,17 +86,17 @@ namespace TrenchBroom {
         m_entities(entities),
         m_brushes(brushes) {}
         
-        DeleteObjectsCommand* DeleteObjectsCommand::deleteObjects(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes) {
+        DeleteObjectsCommand* DeleteObjectsCommand::deleteObjects(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const wxString action) {
             wxString name;
             if (entities.empty()) {
                 if (brushes.empty())
-                    name = wxT("Delete Objects");
+                    name = action + wxT(" Objects");
                 else
-                    name = brushes.size() == 1 ? wxT("Delete Brush") : wxT("Delete Brushes");
+                    name = action + (brushes.size() == 1 ? wxT(" Brush") : wxT(" Brushes"));
             } else if (brushes.empty()) {
-                name = entities.size() == 1 ? wxT("Delete Entity") : wxT("Delete Entities");
+                name = action + (entities.size() == 1 ? wxT(" Entity") : wxT(" Entities"));
             } else {
-                name = entities.size() + brushes.size() == 1 ? wxT("Delete object") : wxT("Delete objects");
+                name = action + (entities.size() + brushes.size() == 1 ? wxT(" Object") : wxT(" Objects"));
             }
             
             return new DeleteObjectsCommand(DeleteObjects, document, name, entities, brushes);

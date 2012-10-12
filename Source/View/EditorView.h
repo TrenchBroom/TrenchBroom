@@ -60,6 +60,7 @@ namespace TrenchBroom {
             ViewOptions* m_viewOptions;
             
             void submit(wxCommand* command);
+            void deleteObjects(const wxString& actionName);
         public:
             EditorView();
 
@@ -84,6 +85,9 @@ namespace TrenchBroom {
             void OnUndo(wxCommandEvent& event);
             void OnRedo(wxCommandEvent& event);
 
+            void OnEditCut(wxCommandEvent& event);
+            void OnEditCopy(wxCommandEvent& event);
+            void OnEditPaste(wxCommandEvent& event);
             void OnEditDelete(wxCommandEvent& event);
             
             void OnEditSelectAll(wxCommandEvent& event);
