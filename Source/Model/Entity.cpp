@@ -210,6 +210,15 @@ namespace TrenchBroom {
             return MapObject::setEditState(editState);
         }
 
+        void Entity::translate(const Vec3f& delta, bool lockTextures) {
+            if (delta.null())
+                return;
+            
+            Vec3f newOrigin = origin() + delta;
+            setProperty(OriginKey, newOrigin, true);
+            invalidateGeometry();
+        }
+
         void Entity::pick(const Ray& ray, PickResult& pickResults) {
             float dist = bounds().intersectWithRay(ray, NULL);
             if (Math::isnan(dist))

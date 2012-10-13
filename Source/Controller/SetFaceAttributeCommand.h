@@ -24,6 +24,7 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class Face;
         class MapDocument;
         class Texture;
     }
@@ -79,6 +80,8 @@ namespace TrenchBroom {
                 m_texture = texture;
                 m_setTexture = true;
             }
+            
+            void setTemplate(const Model::Face& face);
         };
     }
 }

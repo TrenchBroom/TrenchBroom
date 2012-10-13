@@ -100,6 +100,9 @@ namespace TrenchBroom {
             m_coordsValid = true;
         }
         
+        void Face::compensateTransformation(const Mat4f& transformation) {
+        }
+
         Face::Face(const BBox& worldBounds, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const String& textureName) : m_worldBounds(worldBounds), m_textureName(textureName) {
             init();
             m_points[0] = point1;
@@ -256,6 +259,18 @@ namespace TrenchBroom {
         }
 
         void Face::move(float dist, bool lockTexture) {
+        }
+        
+        void Face::translate(const Vec3f& delta, bool lockTexture) {
+            if (lockTexture)
+                compensateTransformation(Mat4f::Identity.translated(delta));
+            
+            m_boundary.translate(delta);
+            for (unsigned int i = 0; i < 3; i++)
+                m_points[i] += delta;
+            
+            m_texAxesValid = false;
+            m_coordsValid = false;
         }
     }
 }

@@ -45,6 +45,7 @@ namespace TrenchBroom {
                 SetEntityPropertyValue,
                 SetEntityPropertyKey,
                 RemoveEntityProperty,
+                MoveObjects,
                 DeleteObjects,
                 UpdateFigures
             } Type;

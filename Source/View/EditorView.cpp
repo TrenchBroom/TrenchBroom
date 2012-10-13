@@ -26,6 +26,7 @@
 #include "Controller/DeleteObjectsCommand.h"
 #include "Controller/DeleteObjectsCommand.h"
 #include "Controller/EntityPropertyCommand.h"
+#include "Controller/SetFaceAttributeCommand.h"
 #include "IO/MapParser.h"
 #include "IO/MapWriter.h"
 #include "Model/Brush.h"
@@ -108,25 +109,29 @@ namespace TrenchBroom {
         }
 
         bool EditorView::canPaste() {
+            bool result = false;
             if (wxTheClipboard->Open()) {
                 if (wxTheClipboard->IsSupported(wxDF_TEXT)) {
                     Model::EntityList entities;
                     Model::BrushList brushes;
                     Model::FaceList faces;
                     
+                    wxTextDataObject clipboardData;
+                    wxTheClipboard->GetData(clipboardData);
                     StringStream stream;
+                    stream.str(clipboardData.GetText().ToStdString());
                     IO::MapParser mapParser(stream, console());
                     
                     if (mapParser.parseEntities(mapDocument().map().worldBounds(), entities))
-                        return true;
+                        result = true;
                     else if (mapParser.parseBrushes(mapDocument().map().worldBounds(), brushes))
-                        return true;
+                        result = true;
                     else if (mapParser.parseFaces(mapDocument().map().worldBounds(), faces))
-                        return true;
+                        result = true;
                 }
+                wxTheClipboard->Close();
             }
-            
-            return false;
+            return result;
         }
 
         
@@ -366,7 +371,39 @@ namespace TrenchBroom {
         }
         
         void EditorView::OnEditPaste(wxCommandEvent& event) {
-            
+            if (wxTheClipboard->Open()) {
+                if (wxTheClipboard->IsSupported(wxDF_TEXT)) {
+                    Model::EntityList entities;
+                    Model::BrushList brushes;
+                    Model::FaceList faces;
+                    
+                    wxTextDataObject clipboardData;
+                    wxTheClipboard->GetData(clipboardData);
+                    StringStream stream;
+                    stream.str(clipboardData.GetText().ToStdString());
+                    IO::MapParser mapParser(stream, console());
+                    
+                    if (mapParser.parseFaces(mapDocument().map().worldBounds(), faces)) {
+                        assert(!faces.empty());
+
+                        Model::Face& face = *faces.back();
+                        Model::TextureManager& textureManager = mapDocument().textureManager();
+                        Model::Texture* texture = textureManager.texture(face.textureName());
+                        face.setTexture(texture);
+                        
+                        Controller::SetFaceAttributeCommand* command = new Controller::SetFaceAttributeCommand(mapDocument(), wxT("Paste Faces"));
+                        command->setTemplate(face);
+                        submit(command);
+                    } else {
+                        mapParser.parseEntities(mapDocument().map().worldBounds(), entities);
+                        mapParser.parseBrushes(mapDocument().map().worldBounds(), brushes);
+                        assert(!entities.empty() || !brushes.empty());
+                        
+                        
+                    }
+                }
+                wxTheClipboard->Close();
+            }
         }
 
         void EditorView::OnEditDelete(wxCommandEvent& event) {
@@ -505,7 +542,7 @@ namespace TrenchBroom {
                                  editStateManager.selectionMode() != Model::EditStateManager::SMFaces);
                     break;
                 case wxID_PASTE:
-                    event.Enable(false);
+                    event.Enable(canPaste());
                     break;
                 case CommandIds::Menu::EditHideSelected:
                 case CommandIds::Menu::EditHideUnselected:

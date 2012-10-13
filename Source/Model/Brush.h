@@ -122,6 +122,7 @@ namespace TrenchBroom {
                 m_filePosition = filePosition;
             }
 
+            void translate(const Vec3f& delta, bool lockTextures);
             void pick(const Ray& ray, PickResult& pickResults);
         };
     }

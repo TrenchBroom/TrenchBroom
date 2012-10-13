@@ -80,5 +80,14 @@ namespace TrenchBroom {
         m_setYScale(false),
         m_setRotation(false),
         m_setTexture(false) {}
+
+        void SetFaceAttributeCommand::setTemplate(const Model::Face& face) {
+            setXOffset(face.xOffset());
+            setYOffset(face.yOffset());
+            setXScale(face.xScale());
+            setYScale(face.yScale());
+            setRotation(face.rotation());
+            setTexture(face.texture());
+        }
     }
 }

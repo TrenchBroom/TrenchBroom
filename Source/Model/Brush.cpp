@@ -214,6 +214,19 @@ namespace TrenchBroom {
             return previous;
         }
 
+        void Brush::translate(const Vec3f& delta, bool lockTextures) {
+            if (delta.null())
+                return;
+            
+            if (m_geometry != NULL)
+                m_geometry->translate(delta);
+            FaceList::iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                Model::Face& face = **it;
+                face.translate(delta, lockTextures);
+            }
+        }
+
         void Brush::pick(const Ray& ray, PickResult& pickResults) {
             float dist = bounds().intersectWithRay(ray, NULL);
             if (Math::isnan(dist))

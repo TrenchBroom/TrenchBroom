@@ -79,6 +79,8 @@ namespace TrenchBroom {
             void texAxesAndIndices(const Vec3f& faceNormal, Vec3f& xAxis, Vec3f& yAxis, int& planeNormIndex, int& faceNormIndex) const;
             void validateTexAxes(const Vec3f& faceNormal) const;
             void validateCoords() const;
+            
+            void compensateTransformation(const Mat4f& transformation);
         public:
             Face(const BBox& worldBounds, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const String& textureName);
             Face(const BBox& worldBounds, const Face& faceTemplate);
@@ -323,14 +325,6 @@ namespace TrenchBroom {
             void setSelected(bool selected);
             
             /**
-             * Moves this face along its normal by the given distance.
-             *
-             * @param dist the distance by which to move the face
-             * @param lockTexture specifies whether texture lock is enabled
-             */
-            void move(float dist, bool lockTexture);
-
-            /**
              * Returns the line of the map file from which this texture was read, if applicable. Returns -1 if this face
              * was not read from a map file.
              */
@@ -345,6 +339,19 @@ namespace TrenchBroom {
             inline void setFilePosition(size_t filePosition) {
                 m_filePosition = filePosition;
             }
+            
+            /**
+             * Moves this face along its normal by the given distance.
+             *
+             * @param dist the distance by which to move the face
+             * @param lockTexture specifies whether texture lock is enabled
+             */
+            void move(float dist, bool lockTexture);
+            
+            /**
+             * Translates this face by the given delta vector.
+             */
+            void translate(const Vec3f& delta, bool lockTexture);
         };
     }
 }
