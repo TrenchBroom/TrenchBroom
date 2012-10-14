@@ -235,9 +235,23 @@ namespace TrenchBroom {
             }
             m_map->addEntity(entity);
             m_octree->addObject(entity);
+            
+            const Model::BrushList& brushes = entity.brushes();
+            Model::BrushList::const_iterator brushIt, brushEnd;
+            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
+                Model::Brush& brush = **brushIt;
+                m_octree->addObject(brush);
+            }
         }
         
         void MapDocument::removeEntity(Entity& entity) {
+            const Model::BrushList& brushes = entity.brushes();
+            Model::BrushList::const_iterator brushIt, brushEnd;
+            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
+                Model::Brush& brush = **brushIt;
+                m_octree->removeObject(brush);
+            }
+
             m_octree->removeObject(entity);
             m_map->removeEntity(entity);
             entity.setDefinition(NULL);

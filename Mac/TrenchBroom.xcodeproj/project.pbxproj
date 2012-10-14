@@ -86,6 +86,7 @@
 		48B75F79160CF79F009D4E99 /* TextureBrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B75F77160CF79E009D4E99 /* TextureBrowser.cpp */; };
 		48C0FA421608FFD00023F467 /* FaceInspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C0FA401608FFD00023F467 /* FaceInspector.cpp */; };
 		48C0FA46160901CB0023F467 /* SingleTextureViewer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C0FA44160901CB0023F467 /* SingleTextureViewer.cpp */; };
+		48C3CAF4162A8F2D006547EC /* AddObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C3CAF2162A8F2D006547EC /* AddObjectsCommand.cpp */; };
 		48D1BE9D15E2E5550073C030 /* Vec3f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BE9C15E2E5550073C030 /* Vec3f.cpp */; };
 		48D1BEA315E2F3BC0073C030 /* Mat4f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEA215E2F3BB0073C030 /* Mat4f.cpp */; };
 		48D1BEAE15E3AC060073C030 /* EditorView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEAC15E3AC060073C030 /* EditorView.cpp */; };
@@ -319,6 +320,8 @@
 		48C0FA411608FFD00023F467 /* FaceInspector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceInspector.h; sourceTree = "<group>"; };
 		48C0FA44160901CB0023F467 /* SingleTextureViewer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SingleTextureViewer.cpp; sourceTree = "<group>"; };
 		48C0FA45160901CB0023F467 /* SingleTextureViewer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleTextureViewer.h; sourceTree = "<group>"; };
+		48C3CAF2162A8F2D006547EC /* AddObjectsCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AddObjectsCommand.cpp; sourceTree = "<group>"; };
+		48C3CAF3162A8F2D006547EC /* AddObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddObjectsCommand.h; sourceTree = "<group>"; };
 		48D1BE9815E2E2930073C030 /* Math.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Math.h; sourceTree = "<group>"; };
 		48D1BE9A15E2E35C0073C030 /* Vec3f.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Vec3f.h; sourceTree = "<group>"; };
 		48D1BE9B15E2E3B50073C030 /* VecMath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VecMath.h; sourceTree = "<group>"; };
@@ -719,6 +722,8 @@
 		48AB57F615ECFB8600321C47 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				48C3CAF2162A8F2D006547EC /* AddObjectsCommand.cpp */,
+				48C3CAF3162A8F2D006547EC /* AddObjectsCommand.h */,
 				48819C4F15ED5C7700BEA604 /* CameraEvent.cpp */,
 				48819C4C15ED52B200BEA604 /* CameraEvent.h */,
 				48AB580315ED01CB00321C47 /* CameraTool.cpp */,
@@ -971,6 +976,7 @@
 				48FBD14E1626AD5C0059953D /* DeleteObjectsCommand.cpp in Sources */,
 				48FBD15116287C5A0059953D /* MapWriter.cpp in Sources */,
 				482BB67E162931E800B9FAAE /* MoveObjectsCommand.cpp in Sources */,
+				48C3CAF4162A8F2D006547EC /* AddObjectsCommand.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

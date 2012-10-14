@@ -69,16 +69,12 @@ namespace TrenchBroom {
             assert(!entities.empty() || !brushes.empty());
             
             wxString name;
-            if (entities.empty()) {
-                if (brushes.empty())
-                    name = wxT("Move Objects");
-                else
-                    name = brushes.size() == 1 ? wxT("Move Brush") : wxT("Move Brushes");
-            } else if (brushes.empty()) {
+            if (entities.empty())
+                name = brushes.size() == 1 ? wxT("Move Brush") : wxT("Move Brushes");
+            else if (brushes.empty())
                 name = entities.size() == 1 ? wxT("Move Entity") : wxT("Move Entities");
-            } else {
+            else
                 name = entities.size() + brushes.size() == 1 ? wxT("Move Object") : wxT("Move Objects");
-            }
             
             return new MoveObjectsCommand(document, name, delta, lockTextures);
         }

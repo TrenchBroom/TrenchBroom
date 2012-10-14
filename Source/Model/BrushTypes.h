@@ -21,6 +21,7 @@
 #define TrenchBroom_BrushTypes_h
 
 #include <map>
+#include <set>
 #include <vector>
 
 namespace TrenchBroom {
@@ -28,6 +29,8 @@ namespace TrenchBroom {
         class Entity;
         class Brush;
         
+        typedef std::set<Brush*> BrushSet;
+        static const BrushSet EmptyBrushSet;
         typedef std::vector<Brush*> BrushList;
         static const BrushList EmptyBrushList;
         typedef std::map<Brush*, Entity*> BrushParentMap;
