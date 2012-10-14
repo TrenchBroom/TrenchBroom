@@ -44,8 +44,7 @@ namespace TrenchBroom {
                 Model::Brush& brush = **brushIt;
                 brush.translate(delta, m_lockTextures);
             }
-            
-            document().UpdateAllViews(NULL, this);
+
             return true;
         }
 
@@ -62,20 +61,7 @@ namespace TrenchBroom {
         m_delta(delta),
         m_lockTextures(lockTextures) {}
         
-        MoveObjectsCommand* MoveObjectsCommand::moveObjects(Model::MapDocument& document, const Vec3f& delta, bool lockTextures) {
-            Model::EditStateManager& editStateManager = document.editStateManager();
-            const Model::EntityList& entities = editStateManager.selectedEntities();
-            const Model::BrushList& brushes = editStateManager.selectedBrushes();
-            assert(!entities.empty() || !brushes.empty());
-            
-            wxString name;
-            if (entities.empty())
-                name = brushes.size() == 1 ? wxT("Move Brush") : wxT("Move Brushes");
-            else if (brushes.empty())
-                name = entities.size() == 1 ? wxT("Move Entity") : wxT("Move Entities");
-            else
-                name = entities.size() + brushes.size() == 1 ? wxT("Move Object") : wxT("Move Objects");
-            
+        MoveObjectsCommand* MoveObjectsCommand::moveObjects(Model::MapDocument& document, const wxString& name, const Vec3f& delta, bool lockTextures) {
             return new MoveObjectsCommand(document, name, delta, lockTextures);
         }
     }

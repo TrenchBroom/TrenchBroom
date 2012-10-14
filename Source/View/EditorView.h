@@ -60,7 +60,7 @@ namespace TrenchBroom {
             ViewOptions* m_viewOptions;
             
             void submit(wxCommand* command);
-            void deleteObjects(const wxString& actionName);
+            void removeObjects(const wxString& actionName);
             bool canPaste();
         public:
             EditorView();

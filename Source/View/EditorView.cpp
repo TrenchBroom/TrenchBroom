@@ -19,12 +19,12 @@
 
 #include "EditorView.h"
 
+#include "Controller/AddObjectsCommand.h"
 #include "Controller/CameraEvent.h"
 #include "Controller/Command.h"
 #include "Controller/ChangeEditStateCommand.h"
-#include "Controller/CreateEntityCommand.h"
-#include "Controller/DeleteObjectsCommand.h"
-#include "Controller/DeleteObjectsCommand.h"
+#include "Controller/MoveObjectsCommand.h"
+#include "Controller/RemoveObjectsCommand.h"
 #include "Controller/EntityPropertyCommand.h"
 #include "Controller/SetFaceAttributeCommand.h"
 #include "IO/MapParser.h"
@@ -34,13 +34,15 @@
 #include "Model/EntityDefinition.h"
 #include "Model/Face.h"
 #include "Model/Filter.h"
-#include "Model/MapDocument.h"
 #include "Model/Map.h"
+#include "Model/MapDocument.h"
+#include "Model/MapObject.h"
 #include "Model/TextureManager.h"
 #include "Renderer/Camera.h"
 #include "Renderer/MapRenderer.h"
 #include "Utility/CommandProcessor.h"
 #include "Utility/Console.h"
+#include "Utility/Grid.h"
 #include "Utility/Preferences.h"
 #include "View/CommandIds.h"
 #include "View/EditorFrame.h"
@@ -93,16 +95,16 @@ namespace TrenchBroom {
             mapDocument().GetCommandProcessor()->Submit(command);
         }
         
-        void EditorView::deleteObjects(const wxString& actionName) {
+        void EditorView::removeObjects(const wxString& actionName) {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             const Model::EntityList entities = editStateManager.selectedEntities();
             const Model::BrushList brushes = editStateManager.selectedBrushes();
             
             Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::deselectAll(mapDocument());
-            Controller::DeleteObjectsCommand* deleteObjectsCommand = Controller::DeleteObjectsCommand::deleteObjects(mapDocument(), entities, brushes, actionName);
+            Controller::RemoveObjectsCommand* deleteObjectsCommand = Controller::RemoveObjectsCommand::removeObjects(mapDocument(), entities, brushes);
             
             wxCommandProcessor* commandProcessor = mapDocument().GetCommandProcessor();
-            CommandProcessor::BeginGroup(commandProcessor, deleteObjectsCommand->GetName());
+            CommandProcessor::BeginGroup(commandProcessor, actionName);
             commandProcessor->Submit(changeEditStateCommand);
             commandProcessor->Submit(deleteObjectsCommand);
             CommandProcessor::EndGroup(commandProcessor);
@@ -251,14 +253,6 @@ namespace TrenchBroom {
                         inspector().faceInspector().updateTextureCollectionList();
                         break;
                     }
-                    case Controller::Command::CreateEntity: {
-                        Controller::CreateEntityCommand* createEntityCommand = static_cast<Controller::CreateEntityCommand*>(command);
-                        Model::Entity* entity = createEntityCommand->entity();
-                        if (createEntityCommand->state() == Controller::Command::Doing)
-                            m_renderer->addEntity(*entity);
-                        else if (createEntityCommand->state() == Controller::Command::Undoing)
-                            m_renderer->removeEntity(*entity);
-                    }
                     case Controller::Command::SetEntityPropertyKey:
                     case Controller::Command::SetEntityPropertyValue:
                     case Controller::Command::RemoveEntityProperty: {
@@ -269,10 +263,23 @@ namespace TrenchBroom {
                         inspector().entityInspector().updateProperties();
                         break;
                     }
-                    case Controller::Command::DeleteObjects: {
-                        Controller::DeleteObjectsCommand* deleteObjectsCommand = static_cast<Controller::DeleteObjectsCommand*>(command);
-                        m_renderer->removeEntities(deleteObjectsCommand->deletedEntities());
-                        if (!deleteObjectsCommand->deletedBrushes().empty())
+                    case Controller::Command::AddObjects: {
+                        Controller::AddObjectsCommand* addObjectsCommand = static_cast<Controller::AddObjectsCommand*>(command);
+                        if (addObjectsCommand->state() == Controller::Command::Doing)
+                            m_renderer->addEntities(addObjectsCommand->addedEntities());
+                        else
+                            m_renderer->removeEntities(addObjectsCommand->addedEntities());
+                        if (!addObjectsCommand->addedBrushes().empty())
+                            m_renderer->invalidateBrushes();
+                        break;
+                    }
+                    case Controller::Command::RemoveObjects: {
+                        Controller::RemoveObjectsCommand* removeObjectsCommand = static_cast<Controller::RemoveObjectsCommand*>(command);
+                        if (removeObjectsCommand->state() == Controller::Command::Doing)
+                            m_renderer->removeEntities(removeObjectsCommand->removedEntities());
+                        else
+                            m_renderer->addEntities(removeObjectsCommand->removedEntities());
+                        if (!removeObjectsCommand->removedBrushes().empty())
                             m_renderer->invalidateBrushes();
                     }
                     case Controller::Command::UpdateFigures:
@@ -347,7 +354,7 @@ namespace TrenchBroom {
 
         void EditorView::OnEditCut(wxCommandEvent& event) {
             OnEditCopy(event);
-            deleteObjects(wxT("Cut"));
+            removeObjects(wxT("Cut"));
         }
         
         void EditorView::OnEditCopy(wxCommandEvent& event) {
@@ -397,9 +404,21 @@ namespace TrenchBroom {
                     } else {
                         mapParser.parseEntities(mapDocument().map().worldBounds(), entities);
                         mapParser.parseBrushes(mapDocument().map().worldBounds(), brushes);
-                        assert(!entities.empty() || !brushes.empty());
+                        assert(entities.empty() != brushes.empty());
+
+                        Vec3f delta = camera().defaultPoint() - Model::MapObject::center(entities, brushes);
+                        delta = mapDocument().grid().snap(delta);
                         
+                        Controller::AddObjectsCommand* addObjectsCommand = Controller::AddObjectsCommand::addObjects(mapDocument(), entities, brushes);
+                        Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::replace(mapDocument(), entities, brushes);
+                        Controller::MoveObjectsCommand* moveObjectsCommand = Controller::MoveObjectsCommand::moveObjects(mapDocument(), Controller::Command::makeObjectActionName("Move", entities, brushes), delta, true); // TODO texture lock
                         
+                        wxCommandProcessor* commandProcessor = mapDocument().GetCommandProcessor();
+                        CommandProcessor::BeginGroup(commandProcessor, Controller::Command::makeObjectActionName(wxT("Paste"), entities, brushes));
+                        submit(addObjectsCommand);
+                        submit(changeEditStateCommand);
+                        submit(moveObjectsCommand);
+                        CommandProcessor::EndGroup(commandProcessor);
                     }
                 }
                 wxTheClipboard->Close();
@@ -407,7 +426,7 @@ namespace TrenchBroom {
         }
 
         void EditorView::OnEditDelete(wxCommandEvent& event) {
-            deleteObjects(wxT("Delete"));
+            removeObjects(wxT("Delete"));
         }
         
         void EditorView::OnEditSelectAll(wxCommandEvent& event) {

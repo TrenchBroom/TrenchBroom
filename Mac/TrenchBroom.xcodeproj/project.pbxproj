@@ -111,9 +111,8 @@
 		48E2ED17160102E400B8D476 /* ViewInspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48E2ED15160102E400B8D476 /* ViewInspector.cpp */; };
 		48F0B7C315FCB4CF0089B0B5 /* Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */; };
 		48FBD14116259AD70059953D /* EntityFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD13F16259AD70059953D /* EntityFigure.cpp */; };
-		48FBD1441625D3F80059953D /* CreateEntityCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD1421625D3F80059953D /* CreateEntityCommand.cpp */; };
 		48FBD147162601900059953D /* CommandProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD145162601900059953D /* CommandProcessor.cpp */; };
-		48FBD14E1626AD5C0059953D /* DeleteObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD14C1626AD5B0059953D /* DeleteObjectsCommand.cpp */; };
+		48FBD14E1626AD5C0059953D /* RemoveObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD14C1626AD5B0059953D /* RemoveObjectsCommand.cpp */; };
 		48FBD15116287C5A0059953D /* MapWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD14F16287C5A0059953D /* MapWriter.cpp */; };
 /* End PBXBuildFile section */
 
@@ -382,12 +381,10 @@
 		48FBD13C16258DE70059953D /* Figure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Figure.h; sourceTree = "<group>"; };
 		48FBD13F16259AD70059953D /* EntityFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityFigure.cpp; sourceTree = "<group>"; };
 		48FBD14016259AD70059953D /* EntityFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityFigure.h; sourceTree = "<group>"; };
-		48FBD1421625D3F80059953D /* CreateEntityCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CreateEntityCommand.cpp; sourceTree = "<group>"; };
-		48FBD1431625D3F80059953D /* CreateEntityCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateEntityCommand.h; sourceTree = "<group>"; };
 		48FBD145162601900059953D /* CommandProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CommandProcessor.cpp; sourceTree = "<group>"; };
 		48FBD146162601900059953D /* CommandProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommandProcessor.h; sourceTree = "<group>"; };
-		48FBD14C1626AD5B0059953D /* DeleteObjectsCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DeleteObjectsCommand.cpp; sourceTree = "<group>"; };
-		48FBD14D1626AD5B0059953D /* DeleteObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeleteObjectsCommand.h; sourceTree = "<group>"; };
+		48FBD14C1626AD5B0059953D /* RemoveObjectsCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RemoveObjectsCommand.cpp; sourceTree = "<group>"; };
+		48FBD14D1626AD5B0059953D /* RemoveObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RemoveObjectsCommand.h; sourceTree = "<group>"; };
 		48FBD14F16287C5A0059953D /* MapWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapWriter.cpp; sourceTree = "<group>"; };
 		48FBD15016287C5A0059953D /* MapWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapWriter.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -731,10 +728,6 @@
 				4850D26115F3E202005B162D /* ChangeEditStateCommand.cpp */,
 				4850D26215F3E202005B162D /* ChangeEditStateCommand.h */,
 				4850D26515F3E757005B162D /* Command.h */,
-				48FBD1421625D3F80059953D /* CreateEntityCommand.cpp */,
-				48FBD1431625D3F80059953D /* CreateEntityCommand.h */,
-				48FBD14C1626AD5B0059953D /* DeleteObjectsCommand.cpp */,
-				48FBD14D1626AD5B0059953D /* DeleteObjectsCommand.h */,
 				48009AFD15F8A4E7001A9993 /* DragPlane.h */,
 				481E56461624120900B403F3 /* DragTargetTool.h */,
 				481E564716242D6B00B403F3 /* EntityDragTargetTool.cpp */,
@@ -746,6 +739,8 @@
 				48AB580115ECFED800321C47 /* InputController.h */,
 				482BB67C162931E800B9FAAE /* MoveObjectsCommand.cpp */,
 				482BB67D162931E800B9FAAE /* MoveObjectsCommand.h */,
+				48FBD14C1626AD5B0059953D /* RemoveObjectsCommand.cpp */,
+				48FBD14D1626AD5B0059953D /* RemoveObjectsCommand.h */,
 				4850D25215F3B36C005B162D /* SelectionTool.cpp */,
 				4850D25315F3B36C005B162D /* SelectionTool.h */,
 				4817C7EC1611DC8F00A01A99 /* SetFaceAttributeCommand.cpp */,
@@ -971,9 +966,8 @@
 				481E56721624482600B403F3 /* ShaderProgram.cpp in Sources */,
 				481E5675162448F600B403F3 /* ShaderManager.cpp in Sources */,
 				48FBD14116259AD70059953D /* EntityFigure.cpp in Sources */,
-				48FBD1441625D3F80059953D /* CreateEntityCommand.cpp in Sources */,
 				48FBD147162601900059953D /* CommandProcessor.cpp in Sources */,
-				48FBD14E1626AD5C0059953D /* DeleteObjectsCommand.cpp in Sources */,
+				48FBD14E1626AD5C0059953D /* RemoveObjectsCommand.cpp in Sources */,
 				48FBD15116287C5A0059953D /* MapWriter.cpp in Sources */,
 				482BB67E162931E800B9FAAE /* MoveObjectsCommand.cpp in Sources */,
 				48C3CAF4162A8F2D006547EC /* AddObjectsCommand.cpp in Sources */,

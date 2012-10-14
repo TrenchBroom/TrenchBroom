@@ -20,13 +20,13 @@
 #ifndef __TrenchBroom__Command__
 #define __TrenchBroom__Command__
 
+#include "Model/BrushTypes.h"
+#include "Model/EntityTypes.h"
+#include "Model/MapDocument.h"
+
 #include <wx/cmdproc.h>
 
 namespace TrenchBroom {
-    namespace Model {
-        class MapDocument;
-    }
-    
     namespace Controller {
         class Command : public wxCommand {
         public:
@@ -41,13 +41,12 @@ namespace TrenchBroom {
                 SetFaceAttribute,
                 AddTextureCollection,
                 RemoveTextureCollection,
-                CreateEntity,
                 SetEntityPropertyValue,
                 SetEntityPropertyKey,
                 RemoveEntityProperty,
                 AddObjects,
+                RemoveObjects,
                 MoveObjects,
-                DeleteObjects,
                 UpdateFigures
             } Type;
             
@@ -64,7 +63,18 @@ namespace TrenchBroom {
         protected:
             virtual bool performDo() { return true; }
             virtual bool performUndo() { return true; }
+            virtual void updateViews() {}
         public:
+            static wxString makeObjectActionName(const wxString& action, const Model::EntityList& entities, const Model::BrushList& brushes) {
+                assert(!entities.empty() || !brushes.empty());
+                
+                if (entities.empty())
+                    return action + (brushes.size() == 1 ? wxT(" Brush") : wxT(" Brushes"));
+                if (brushes.empty())
+                    return action + (entities.size() == 1 ? wxT(" Entity") : wxT(" Entities"));
+                return action + wxT(" Objects");
+            }
+            
             Command(Type type) :
             wxCommand(false, ""),
             m_type(type),
@@ -87,10 +97,12 @@ namespace TrenchBroom {
                 State previous = m_state;
                 m_state = Doing;
                 bool result = performDo();
-                if (result)
+                if (result) {
                     m_state = Done;
-                else
+                    updateViews();
+                } else {
                     m_state = previous;
+                }
                 return result;
             }
             
@@ -98,10 +110,12 @@ namespace TrenchBroom {
                 State previous = m_state;
                 m_state = Undoing;
                 bool result = performUndo();
-                if (result)
+                if (result) {
                     m_state = Undone;
-                else
+                    updateViews();
+                } else {
                     m_state = previous;
+                }
                 return result;
             }
         };
@@ -111,6 +125,10 @@ namespace TrenchBroom {
         protected:
             inline Model::MapDocument& document() const {
                 return m_document;
+            }
+            
+            virtual void updateViews() {
+                m_document.UpdateAllViews(NULL, this);
             }
         public:
             DocumentCommand(Type type, Model::MapDocument& document, bool undoable, const wxString& name) :

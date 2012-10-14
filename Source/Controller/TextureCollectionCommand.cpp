@@ -79,7 +79,6 @@ namespace TrenchBroom {
                     m_paths.push_back(collection->name());
                 }
                 removeTextureCollectionsByPaths();
-                document().UpdateAllViews(NULL, this);
                 return true;
             }
             
@@ -96,7 +95,6 @@ namespace TrenchBroom {
                 Model::TextureManager& textureManager = document().textureManager();
                 Model::Texture* mruTexture = textureManager.texture(m_mruTextureName);
                 document().setMruTexture(mruTexture);
-                document().UpdateAllViews(NULL, this);
                 return true;
             }
             

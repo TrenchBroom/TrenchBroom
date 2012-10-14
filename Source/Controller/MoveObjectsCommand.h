@@ -43,7 +43,7 @@ namespace TrenchBroom {
             
             MoveObjectsCommand(Model::MapDocument& document, const wxString& name, const Vec3f& delta, bool lockTextures);
         public:
-            static MoveObjectsCommand* moveObjects(Model::MapDocument& document, const Vec3f& delta, bool lockTextures);
+            static MoveObjectsCommand* moveObjects(Model::MapDocument& document, const wxString& name, const Vec3f& delta, bool lockTextures);
         };
     }
 }

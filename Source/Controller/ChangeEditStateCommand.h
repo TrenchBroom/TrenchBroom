@@ -51,8 +51,6 @@ namespace TrenchBroom {
             Model::EditStateChangeSet m_changeSet;
             
             ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type previousState);
-            ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type newState, const Model::EntityList& entities, bool replace);
-            ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type newState, const Model::BrushList& brushes, bool replace);
             ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type newState, const Model::EntityList& entities, const Model::BrushList& brushes, bool replace);
             ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type newState, const Model::FaceList& faces, bool replace);
             

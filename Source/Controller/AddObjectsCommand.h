@@ -35,6 +35,8 @@ namespace TrenchBroom {
         private:
             Model::EntityList m_entities;
             Model::BrushList m_brushes;
+            
+            Model::EntityList m_addedEntities;
             Model::BrushList m_addedBrushes;
             
             bool performDo();
@@ -43,15 +45,16 @@ namespace TrenchBroom {
             AddObjectsCommand(Model::MapDocument& document, const wxString& name, const Model::EntityList& entities, const Model::BrushList& brushes);
         public:
             static AddObjectsCommand* addObjects(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes);
+            static AddObjectsCommand* addEntity(Model::MapDocument& document, Model::Entity& entity);
 
             ~AddObjectsCommand();
             
-            inline const Model::EntityList& entities() const {
+            inline const Model::EntityList& addedEntities() const {
                 return m_entities;
             }
             
-            inline const Model::BrushList& brushes() const {
-                return m_addedBrushes;
+            inline const Model::BrushList& addedBrushes() const {
+                return m_brushes;
             }
         };
     }

@@ -49,7 +49,6 @@ namespace TrenchBroom {
                     face.setTexture(m_texture);
             }
             
-            document().UpdateAllViews(NULL, this);
             return true;
         }
         
@@ -62,7 +61,6 @@ namespace TrenchBroom {
             restoreSnapshots(faces);
             clear();
             
-            document().UpdateAllViews(NULL, this);
             return true;
         }
 

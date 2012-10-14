@@ -28,10 +28,26 @@
 namespace TrenchBroom {
     namespace Controller {
         bool AddObjectsCommand::performDo() {
+            m_addedEntities.clear();
+            m_addedBrushes = m_brushes;
+            
             Model::EntityList::iterator entityIt, entityEnd;
             for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                 Model::Entity& entity = **entityIt;
-                document().addEntity(entity);
+                const Model::BrushList& entityBrushes = entity.brushes();
+
+                if (!entity.worldspawn() || document().worldspawn(false) == NULL) {
+                    document().addEntity(entity);
+                    m_addedEntities.push_back(&entity);
+                } else {
+                    Model::Entity& worldspawn = *document().worldspawn(true);
+                    Model::BrushList::const_iterator brushIt, brushEnd;
+                    for (brushIt = entityBrushes.begin(), brushEnd = entityBrushes.end(); brushIt != brushEnd; ++brushIt) {
+                        Model::Brush& brush = **brushIt;
+                        document().addBrush(worldspawn, brush);
+                    }
+                }
+                m_addedBrushes.insert(m_addedBrushes.end(), entityBrushes.begin(), entityBrushes.end());
             }
             
             Model::Entity& worldspawn = *document().worldspawn(true);
@@ -52,45 +68,37 @@ namespace TrenchBroom {
             }
 
             Model::EntityList::iterator entityIt, entityEnd;
-            for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
+            for (entityIt = m_addedEntities.begin(), entityEnd = m_addedEntities.end(); entityIt != entityEnd; ++entityIt) {
                 Model::Entity& entity = **entityIt;
                 document().removeEntity(entity);
             }
-            
             return true;
         }
         
         AddObjectsCommand::AddObjectsCommand(Model::MapDocument& document, const wxString& name, const Model::EntityList& entities, const Model::BrushList& brushes) :
         DocumentCommand(AddObjects, document, true, name),
         m_entities(entities),
-        m_brushes(brushes),
-        m_addedBrushes(brushes) {
-            Model::EntityList::iterator entityIt, entityEnd;
-            for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
-                Model::Entity& entity = **entityIt;
-                const Model::BrushList& entityBrushes = entity.brushes();
-                m_addedBrushes.insert(m_addedBrushes.end(), entityBrushes.begin(), entityBrushes.end());
-            }
-        }
+        m_brushes(brushes) {}
 
         AddObjectsCommand* AddObjectsCommand::addObjects(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes){
             assert(!entities.empty() || !brushes.empty());
-
-            wxString name;
-            if (entities.empty())
-                name = brushes.size() == 1 ? wxT("Add Brush") : wxT("Add Brushes");
-            else if (brushes.empty())
-                name = entities.size() == 1 ? wxT("Add Entity") : wxT("Add Entities");
-            else
-                name = entities.size() + brushes.size() == 1 ? wxT("Add Object") : wxT("Add Objects");
-            
-            return new AddObjectsCommand(document, name, entities, brushes);
+            return new AddObjectsCommand(document, makeObjectActionName(wxT("Add"), entities, brushes), entities, brushes);
         };
 
+        AddObjectsCommand* AddObjectsCommand::addEntity(Model::MapDocument& document, Model::Entity& entity) {
+            Model::EntityList entities;
+            entities.push_back(&entity);
+            return new AddObjectsCommand(document, wxT("Add Entity"), entities, Model::EmptyBrushList);
+        }
+
         AddObjectsCommand::~AddObjectsCommand() {
-            while (!m_brushes.empty()) delete m_brushes.back(), m_brushes.pop_back();
-            while (!m_entities.empty()) delete m_entities.back(), m_entities.pop_back();
-            m_addedBrushes.clear();
+            if (state() == Undone) {
+                while (!m_brushes.empty()) delete m_brushes.back(), m_brushes.pop_back();
+                while (!m_entities.empty()) delete m_entities.back(), m_entities.pop_back();
+            } else {
+                m_entities.clear();
+                m_brushes.clear();
+            }
         }
     }
 }

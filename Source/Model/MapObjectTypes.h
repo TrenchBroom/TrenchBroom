@@ -27,6 +27,7 @@ namespace TrenchBroom {
         class MapObject;
         
         typedef std::vector<MapObject*> MapObjectList;
+        static const MapObjectList EmptyMapObjectList;
     }
 }
 

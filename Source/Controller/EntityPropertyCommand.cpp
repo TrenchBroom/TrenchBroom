@@ -51,7 +51,6 @@ namespace TrenchBroom {
                         entity.setDefinition(definitionManager.definition(value));
                     }
                 }
-                document().UpdateAllViews(NULL, this);
                 return true;
             }
             if (type() == SetEntityPropertyValue) {
@@ -63,7 +62,6 @@ namespace TrenchBroom {
                     if (m_definitionChanged)
                         entity.setDefinition(definitionManager.definition(m_newValue));
                 }
-                document().UpdateAllViews(NULL, this);
                 return true;
             }
             if (type() == RemoveEntityProperty) {
@@ -79,7 +77,6 @@ namespace TrenchBroom {
                             entity.setDefinition(NULL);
                     }
                 }
-                document().UpdateAllViews(NULL, this);
                 return true;
             }
             
@@ -103,7 +100,6 @@ namespace TrenchBroom {
                         entity.setDefinition(NULL);
                 }
             }
-            document().UpdateAllViews(NULL, this);
             return true;
         }
 

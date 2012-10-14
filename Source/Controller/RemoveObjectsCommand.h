@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__DeleteObjectsCommand__
-#define __TrenchBroom__DeleteObjectsCommand__
+#ifndef __TrenchBroom__RemoveObjectsCommand__
+#define __TrenchBroom__RemoveObjectsCommand__
 
 #include "Controller/Command.h"
 #include "Model/EntityTypes.h"
@@ -26,34 +26,33 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        class DeleteObjectsCommand : public DocumentCommand {
+        class RemoveObjectsCommand : public DocumentCommand {
         protected:
             Model::EntityList m_entities;
             Model::BrushList m_brushes;
             
-            Model::EntityList m_deletedEntities;
-            Model::BrushParentMap m_deletedBrushes;
+            Model::EntityList m_removedEntities;
+            Model::BrushList m_removedBrushes;
+            Model::BrushParentMap m_removedBrushParents;
             
             bool performDo();
             bool performUndo();
             
-            DeleteObjectsCommand(Type type, Model::MapDocument& document, const wxString& name, const Model::EntityList& entities, const Model::BrushList& brushes);
+            RemoveObjectsCommand(Type type, Model::MapDocument& document, const wxString& name, const Model::EntityList& entities, const Model::BrushList& brushes);
         public:
-            static DeleteObjectsCommand* deleteObjects(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const wxString action = wxT("Delete"));
+            ~RemoveObjectsCommand();
             
-            inline const Model::EntityList& deletedEntities() const {
-                return m_deletedEntities;
+            static RemoveObjectsCommand* removeObjects(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes);
+            
+            inline const Model::EntityList& removedEntities() const {
+                return m_removedEntities;
             }
             
-            inline const Model::BrushList deletedBrushes() const {
-                Model::BrushList result;
-                Model::BrushParentMap::const_iterator it, end;
-                for (it = m_deletedBrushes.begin(), end = m_deletedBrushes.end(); it != end; ++it)
-                    result.push_back(it->first);
-                return result;
+            inline const Model::BrushList& removedBrushes() const {
+                return m_removedBrushes;
             }
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__DeleteObjectsCommand__) */
+#endif /* defined(__TrenchBroom__RemoveObjectsCommand__) */

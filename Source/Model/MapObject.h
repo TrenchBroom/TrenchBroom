@@ -21,7 +21,10 @@
 #define __TrenchBroom__MapObject__
 
 #include "Model/EditState.h"
+#include "Model/MapObjectTypes.h"
 #include "Utility/VecMath.h"
+
+#include <vector>
 
 using namespace TrenchBroom::Math;
 
@@ -103,6 +106,36 @@ namespace TrenchBroom {
             virtual void translate(const Vec3f& delta, bool lockTextures) = 0;
             
             virtual void pick(const Ray& ray, PickResult& pickResults) = 0;
+            
+            template <typename T>
+            static Vec3f center(const std::vector<T*>& objects) {
+                assert(!objects.empty());
+                
+                typename std::vector<T*>::const_iterator it, end;
+                it = objects.begin();
+                end = objects.end();
+                
+                Vec3f result = (**it).center();
+                while (it != end) {
+                    T& object = **it;
+                    result += object.center();
+                    ++it;
+                }
+
+                result /= static_cast<float>(objects.size());
+                return result;
+            }
+
+            template <typename T1, typename T2>
+            static Vec3f center(const std::vector<T1*>& objects1, const std::vector<T2*>& objects2) {
+                assert(!objects1.empty());
+                
+                Vec3f result = center(objects1);
+                if (!objects2.empty())
+                    result = (result + center(objects2)) / 2.0f;
+
+                return result;
+            }
         };
     }
 }
