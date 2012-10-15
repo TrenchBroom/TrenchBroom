@@ -244,6 +244,10 @@ namespace TrenchBroom {
             }
         }
         
+        void MapDocument::updateEntity(Entity& entity) {
+            m_octree->updateObject(entity);
+        }
+
         void MapDocument::removeEntity(Entity& entity) {
             const Model::BrushList& brushes = entity.brushes();
             Model::BrushList::const_iterator brushIt, brushEnd;
@@ -260,6 +264,17 @@ namespace TrenchBroom {
         void MapDocument::addBrush(Entity& entity, Brush& brush) {
             entity.addBrush(brush);
             m_octree->addObject(brush);
+            
+            const FaceList& faces = brush.faces();
+            FaceList::const_iterator faceIt, faceEnd;
+            for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
+                Face& face = **faceIt;
+                face.setTexture(m_textureManager->texture(face.textureName()));
+            }
+        }
+
+        void MapDocument::updateBrush(Brush& brush) {
+            m_octree->updateObject(brush);
         }
 
         void MapDocument::removeBrush(Brush& brush) {

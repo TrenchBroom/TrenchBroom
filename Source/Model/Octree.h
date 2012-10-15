@@ -74,6 +74,7 @@ namespace TrenchBroom {
             void addObjects(const MapObjectList& objects);
             void removeObject(MapObject& object);
             void removeObjects(const MapObjectList& objects);
+            void updateObject(MapObject& object);
             void updateObjects(const MapObjectList& objects);
 
             MapObjectList intersect(const Ray& ray);

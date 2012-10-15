@@ -216,6 +216,11 @@ namespace TrenchBroom {
             }
         }
         
+        void Octree::updateObject(MapObject& object) {
+            m_root->removeObject(object);
+            m_root->addObject(object);
+        }
+
         MapObjectList Octree::intersect(const Ray& ray) {
             MapObjectList result;
             m_root->intersect(ray, result);

@@ -32,6 +32,7 @@
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/EntityDefinition.h"
+#include "Model/EntityDefinitionManager.h"
 #include "Model/Face.h"
 #include "Model/Filter.h"
 #include "Model/Map.h"
@@ -269,7 +270,7 @@ namespace TrenchBroom {
                             m_renderer->addEntities(addObjectsCommand->addedEntities());
                         else
                             m_renderer->removeEntities(addObjectsCommand->addedEntities());
-                        if (!addObjectsCommand->addedBrushes().empty())
+                        if (addObjectsCommand->hasAddedBrushes())
                             m_renderer->invalidateBrushes();
                         break;
                     }
@@ -406,15 +407,28 @@ namespace TrenchBroom {
                         mapParser.parseBrushes(mapDocument().map().worldBounds(), brushes);
                         assert(entities.empty() != brushes.empty());
 
+                        Model::EntityList selectEntities;
+                        Model::BrushList selectBrushes;
+                        
+                        Model::EntityList::iterator entityIt, entityEnd;
+                        for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
+                            Model::Entity& entity = **entityIt;
+                            const Model::BrushList& entityBrushes = entity.brushes();
+                            if (!entityBrushes.empty())
+                                selectBrushes.insert(selectBrushes.begin(), entityBrushes.begin(), entityBrushes.end());
+                            else
+                                selectEntities.push_back(&entity);
+                        }
+                        
                         Vec3f delta = camera().defaultPoint() - Model::MapObject::center(entities, brushes);
                         delta = mapDocument().grid().snap(delta);
                         
                         Controller::AddObjectsCommand* addObjectsCommand = Controller::AddObjectsCommand::addObjects(mapDocument(), entities, brushes);
-                        Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::replace(mapDocument(), entities, brushes);
-                        Controller::MoveObjectsCommand* moveObjectsCommand = Controller::MoveObjectsCommand::moveObjects(mapDocument(), Controller::Command::makeObjectActionName("Move", entities, brushes), delta, true); // TODO texture lock
+                        Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::replace(mapDocument(), selectEntities, selectBrushes);
+                        Controller::MoveObjectsCommand* moveObjectsCommand = Controller::MoveObjectsCommand::moveObjects(mapDocument(), Controller::Command::makeObjectActionName("Move", selectEntities, selectBrushes), delta, true); // TODO texture lock
                         
                         wxCommandProcessor* commandProcessor = mapDocument().GetCommandProcessor();
-                        CommandProcessor::BeginGroup(commandProcessor, Controller::Command::makeObjectActionName(wxT("Paste"), entities, brushes));
+                        CommandProcessor::BeginGroup(commandProcessor, Controller::Command::makeObjectActionName(wxT("Paste"), selectEntities, selectBrushes));
                         submit(addObjectsCommand);
                         submit(changeEditStateCommand);
                         submit(moveObjectsCommand);

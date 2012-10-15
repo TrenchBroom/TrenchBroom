@@ -37,12 +37,14 @@ namespace TrenchBroom {
             for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
                 Model::Entity& entity = **entityIt;
                 entity.translate(delta, m_lockTextures);
+                document().updateEntity(entity);
             }
             
             Model::BrushList::const_iterator brushIt, brushEnd;
             for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
                 Model::Brush& brush = **brushIt;
                 brush.translate(delta, m_lockTextures);
+                document().updateBrush(brush);
             }
 
             return true;

@@ -116,7 +116,7 @@ namespace TrenchBroom {
                 end = objects.end();
                 
                 Vec3f result = (**it).center();
-                while (it != end) {
+                while (++it != end) {
                     T& object = **it;
                     result += object.center();
                     ++it;
@@ -128,13 +128,13 @@ namespace TrenchBroom {
 
             template <typename T1, typename T2>
             static Vec3f center(const std::vector<T1*>& objects1, const std::vector<T2*>& objects2) {
-                assert(!objects1.empty());
+                assert(!objects1.empty() || !objects2.empty());
                 
-                Vec3f result = center(objects1);
-                if (!objects2.empty())
-                    result = (result + center(objects2)) / 2.0f;
-
-                return result;
+                if (objects1.empty())
+                    return center(objects2);
+                if (objects2.empty())
+                    return center(objects1);
+                return (center(objects1) + center(objects2)) / 2.0f;
             }
         };
     }

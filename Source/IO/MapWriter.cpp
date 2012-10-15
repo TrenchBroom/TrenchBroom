@@ -22,6 +22,7 @@
 #include "Model/Texture.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
+#include "Model/EntityDefinition.h"
 #include "Model/Face.h"
 #include "Model/Map.h"
 #include "IO/FileManager.h"
@@ -88,52 +89,50 @@ namespace TrenchBroom {
             writeEntityFooter(stream);
         }
 
-        void MapWriter::writeObjectsToStream(const Model::EntityList& entities, const Model::BrushList& brushes, std::ostream& stream) {
+        void MapWriter::writeObjectsToStream(const Model::EntityList& pointEntities, const Model::BrushList& brushes, std::ostream& stream) {
             assert(stream.good());
 
-            // find worldspawn so that we can write it first
             Model::Entity* worldspawn = NULL;
-            for (unsigned int i = 0; i < entities.size() && worldspawn == NULL; i++) {
-                Model::Entity* entity = entities[i];
-                if (entity->worldspawn())
-                    worldspawn = entity;
-            }
             
-            if (worldspawn != NULL)
-                writeEntity(*worldspawn, stream);
-            
-            worldspawn = NULL;
-            
+            // group the brushes by their containing entities
             typedef std::map<Model::Entity*, Model::BrushList> EntityBrushMap;
             EntityBrushMap entityToBrushes;
-            for (unsigned int i = 0; i < brushes.size(); i++) {
-                Model::Brush* brush = brushes[i];
-                Model::Entity* entity = brush->entity();
-                entityToBrushes[entity].push_back(brush);
-                if (entity->worldspawn())
-                    worldspawn = entity;
+            
+            Model::BrushList::const_iterator brushIt, brushEnd;
+            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
+                Model::Brush& brush = **brushIt;
+                Model::Entity& entity = *brush.entity();
+                entityToBrushes[&entity].push_back(&brush);
+                if (entity.worldspawn())
+                    worldspawn = &entity;
             }
             
+            // write worldspawn first
             if (worldspawn != NULL) {
                 Model::BrushList& brushList = entityToBrushes[worldspawn];
                 writeEntityHeader(*worldspawn, stream);
-                for (unsigned int i = 0; i < brushList.size(); i++)
-                    writeBrush(*brushList[i], stream);
+                for (brushIt = brushList.begin(), brushEnd = brushList.end(); brushIt != brushEnd; ++brushIt)
+                    writeBrush(**brushIt, stream);
                 writeEntityFooter(stream);
             }
             
-            for (unsigned int i = 0; i < entities.size(); i++)
-                if (entities[i] != worldspawn)
-                    writeEntity(*entities[i], stream);
-            
+            // now write the point entities
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            for (entityIt = pointEntities.begin(), entityEnd = pointEntities.end(); entityIt != entityEnd; ++entityIt) {
+                Model::Entity& entity = **entityIt;
+                assert(entity.definition()->type() == Model::EntityDefinition::PointEntity);
+                writeEntity(entity, stream);
+            }
+
+            // finally write the brush entities
             EntityBrushMap::iterator it, end;
             for (it = entityToBrushes.begin(), end = entityToBrushes.end(); it != end; ++it) {
                 Model::Entity* entity = it->first;
                 if (entity != worldspawn) {
                     Model::BrushList& brushList = it->second;
                     writeEntityHeader(*entity, stream);
-                    for (unsigned int i = 0; i < brushList.size(); i++)
-                        writeBrush(*brushList[i], stream);
+                    for (brushIt = brushList.begin(), brushEnd = brushList.end(); brushIt != brushEnd; ++brushIt)
+                        writeBrush(**brushIt, stream);
                     writeEntityFooter(stream);
                 }
             }

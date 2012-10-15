@@ -39,6 +39,8 @@ namespace TrenchBroom {
             Model::EntityList m_addedEntities;
             Model::BrushList m_addedBrushes;
             
+            bool m_hasAddedBrushes;
+            
             bool performDo();
             bool performUndo();
             
@@ -52,9 +54,9 @@ namespace TrenchBroom {
             inline const Model::EntityList& addedEntities() const {
                 return m_entities;
             }
-            
-            inline const Model::BrushList& addedBrushes() const {
-                return m_brushes;
+
+            inline bool hasAddedBrushes() const {
+                return m_hasAddedBrushes;
             }
         };
     }
