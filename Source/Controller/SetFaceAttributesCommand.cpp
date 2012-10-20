@@ -17,7 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SetFaceAttributeCommand.h"
+#include "SetFaceAttributesCommand.h"
 
 #include "Model/EditStateManager.h"
 #include "Model/Face.h"
@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        bool SetFaceAttributeCommand::performDo() {
+        bool SetFaceAttributesCommand::performDo() {
             Model::EditStateManager& editStateManager = document().editStateManager();
             const Model::FaceList faces = editStateManager.allSelectedFaces();
             if (faces.empty())
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool SetFaceAttributeCommand::performUndo() {
+        bool SetFaceAttributesCommand::performUndo() {
             Model::EditStateManager& editStateManager = document().editStateManager();
             const Model::FaceList faces = editStateManager.allSelectedFaces();
             if (faces.empty())
@@ -64,8 +64,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        SetFaceAttributeCommand::SetFaceAttributeCommand(Model::MapDocument& document, const wxString& name) :
-        SnapshotCommand(Command::SetFaceAttribute, document, name),
+        SetFaceAttributesCommand::SetFaceAttributesCommand(Model::MapDocument& document, const wxString& name) :
+        SnapshotCommand(Command::SetFaceAttributes, document, name),
         m_xOffset(0.0f),
         m_yOffset(0.0f),
         m_xScale(0.0f),
@@ -79,7 +79,7 @@ namespace TrenchBroom {
         m_setRotation(false),
         m_setTexture(false) {}
 
-        void SetFaceAttributeCommand::setTemplate(const Model::Face& face) {
+        void SetFaceAttributesCommand::setTemplate(const Model::Face& face) {
             setXOffset(face.xOffset());
             setYOffset(face.yOffset());
             setXScale(face.xScale());

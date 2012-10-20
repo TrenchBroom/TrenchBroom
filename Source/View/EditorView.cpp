@@ -24,9 +24,11 @@
 #include "Controller/Command.h"
 #include "Controller/ChangeEditStateCommand.h"
 #include "Controller/MoveObjectsCommand.h"
+#include "Controller/MoveTextureSCommand.h"
 #include "Controller/RemoveObjectsCommand.h"
+#include "Controller/RotateTexturesCommand.h"
 #include "Controller/EntityPropertyCommand.h"
-#include "Controller/SetFaceAttributeCommand.h"
+#include "Controller/SetFaceAttributesCommand.h"
 #include "IO/MapParser.h"
 #include "IO/MapWriter.h"
 #include "Model/Brush.h"
@@ -45,6 +47,7 @@
 #include "Utility/Console.h"
 #include "Utility/Grid.h"
 #include "Utility/Preferences.h"
+#include "View/AbstractApp.h"
 #include "View/CommandIds.h"
 #include "View/EditorFrame.h"
 #include "View/EntityInspector.h"
@@ -81,6 +84,20 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::EditLockUnselected, EditorView::OnEditLockUnselected)
         EVT_MENU(CommandIds::Menu::EditUnlockAll, EditorView::OnEditUnlockAll)
 
+        EVT_MENU(CommandIds::Menu::EditMoveTexturesUp, EditorView::OnEditMoveTexturesUp)
+        EVT_MENU(CommandIds::Menu::EditMoveTexturesRight, EditorView::OnEditMoveTexturesRight)
+        EVT_MENU(CommandIds::Menu::EditMoveTexturesDown, EditorView::OnEditMoveTexturesDown)
+        EVT_MENU(CommandIds::Menu::EditMoveTexturesLeft, EditorView::OnEditMoveTexturesLeft)
+        EVT_MENU(CommandIds::Menu::EditRotateTexturesCW, EditorView::OnEditRotateTexturesCW)
+        EVT_MENU(CommandIds::Menu::EditRotateTexturesCCW, EditorView::OnEditRotateTexturesCCW)
+        
+        EVT_MENU(CommandIds::Menu::EditMoveObjectsForward, EditorView::OnEditMoveObjectsForward)
+        EVT_MENU(CommandIds::Menu::EditMoveObjectsRight, EditorView::OnEditMoveObjectsRight)
+        EVT_MENU(CommandIds::Menu::EditMoveObjectsBackward, EditorView::OnEditMoveObjectsBackward)
+        EVT_MENU(CommandIds::Menu::EditMoveObjectsLeft, EditorView::OnEditMoveObjectsLeft)
+        EVT_MENU(CommandIds::Menu::EditMoveObjectsUp, EditorView::OnEditMoveObjectsUp)
+        EVT_MENU(CommandIds::Menu::EditMoveObjectsDown, EditorView::OnEditMoveObjectsDown)
+        
         EVT_UPDATE_UI(wxID_UNDO, EditorView::OnUpdateMenuItem)
         EVT_UPDATE_UI(wxID_REDO, EditorView::OnUpdateMenuItem)
         EVT_UPDATE_UI(wxID_CUT, EditorView::OnUpdateMenuItem)
@@ -96,6 +113,89 @@ namespace TrenchBroom {
             mapDocument().GetCommandProcessor()->Submit(command);
         }
         
+        void EditorView::moveTextures(Direction direction, bool snapToGrid) {
+            Vec3f moveDirection;
+            switch (direction) {
+                case DUp:
+                    moveDirection = m_camera->up();
+                    break;
+                case DRight:
+                    moveDirection = m_camera->right();
+                    break;
+                case DDown:
+                    moveDirection = m_camera->up() * -1.0f;
+                    break;
+                case DLeft:
+                    moveDirection = m_camera->right() * -1.0f;
+                    break;
+                default:
+                    assert(false);
+            }
+            
+            float distance = snapToGrid ? static_cast<float>(mapDocument().grid().actualSize()) : 1.0f;
+
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            const Model::FaceList& faces = editStateManager.selectedFaces();
+            wxString actionName = faces.size() == 1 ? wxT("Move Texture") : wxT("Move Textures");
+
+            Controller::MoveTexturesCommand* command = Controller::MoveTexturesCommand::moveTextures(mapDocument(), actionName, distance, moveDirection);
+            submit(command);
+        }
+
+        void EditorView::rotateTextures(bool clockwise, bool snapToGrid) {
+            float angle = snapToGrid ? mapDocument().grid().angle() : 1.0f;
+
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            const Model::FaceList& faces = editStateManager.selectedFaces();
+            wxString actionName = faces.size() == 1 ? wxT("Rotate Texture") : wxT("Rotate Textures");
+            
+            Controller::RotateTexturesCommand* command = NULL;
+            if (clockwise)
+                command = Controller::RotateTexturesCommand::rotateClockwise(mapDocument(), actionName, angle);
+            else
+                command = Controller::RotateTexturesCommand::rotateCounterClockwise(mapDocument(), actionName, angle);
+            submit(command);
+        }
+
+        void EditorView::moveObjects(Direction direction, bool snapToGrid) {
+            Vec3f moveDirection;
+            switch (direction) {
+                case DUp:
+                    moveDirection = Vec3f::PosZ;
+                    break;
+                case DRight:
+                    moveDirection = m_camera->right().firstAxis();
+                    break;
+                case DDown:
+                    moveDirection = Vec3f::NegZ;
+                    break;
+                case DLeft:
+                    moveDirection = (m_camera->right() * -1.0f).firstAxis();
+                    break;
+                case DForward:
+                    moveDirection = m_camera->direction().firstAxis();
+                    if (moveDirection.firstComponent() == Axis::AZ)
+                        moveDirection = m_camera->direction().secondAxis();
+                    break;
+                case DBackward:
+                    moveDirection = (m_camera->direction() * -1.0f).firstAxis();
+                    if (moveDirection.firstComponent() == Axis::AZ)
+                        moveDirection = (m_camera->direction() * -1.0f).secondAxis();
+                    break;
+            }
+            
+            float dist = snapToGrid ? static_cast<float>(mapDocument().grid().actualSize()) : 1.0f;
+            Vec3f delta = moveDirection * dist;
+            
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            const Model::EntityList& entities = editStateManager.selectedEntities();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            wxString actionName = Controller::Command::makeObjectActionName("Move", entities, brushes);
+            
+            Controller::MoveObjectsCommand* command = Controller::MoveObjectsCommand::moveObjects(mapDocument(), actionName, delta, true); // TODO texture lock
+            submit(command);
+        }
+
         void EditorView::removeObjects(const wxString& actionName) {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             const Model::EntityList entities = editStateManager.selectedEntities();
@@ -210,6 +310,8 @@ namespace TrenchBroom {
                         inspector().faceInspector().updateTextureCollectionList();
                         inspector().entityInspector().updateProperties();
                         inspector().entityInspector().updateEntityBrowser();
+                        
+                        static_cast<EditorFrame*>(GetFrame())->updateMenuBar();
                         break;
                     case Controller::Command::ClearMap:
                         m_renderer->clearMap();
@@ -219,6 +321,8 @@ namespace TrenchBroom {
                         inspector().faceInspector().updateTextureCollectionList();
                         inspector().entityInspector().updateProperties();
                         inspector().entityInspector().updateEntityBrowser();
+                        
+                        static_cast<EditorFrame*>(GetFrame())->updateMenuBar();
                         break;
                     case Controller::Command::ChangeEditState: {
                         Controller::ChangeEditStateCommand* changeEditStateCommand = static_cast<Controller::ChangeEditStateCommand*>(command);
@@ -226,6 +330,8 @@ namespace TrenchBroom {
                         inspector().faceInspector().updateFaceAttributes();
                         inspector().faceInspector().updateSelectedTexture();
                         inspector().entityInspector().updateProperties();
+
+                        static_cast<EditorFrame*>(GetFrame())->updateMenuBar();
                         break;
                     }
                     case Controller::Command::InvalidateRendererEntityState:
@@ -240,7 +346,9 @@ namespace TrenchBroom {
                     case Controller::Command::InvalidateEntityModelRendererCache:
                         m_renderer->invalidateEntityModelRendererCache();
                         break;
-                    case Controller::Command::SetFaceAttribute: {
+                    case Controller::Command::SetFaceAttributes:
+                    case Controller::Command::MoveTextures:
+                    case Controller::Command::RotateTextures: {
                         m_renderer->invalidateSelectedBrushes();
                         inspector().faceInspector().updateFaceAttributes();
                         break;
@@ -272,6 +380,10 @@ namespace TrenchBroom {
                             m_renderer->removeEntities(addObjectsCommand->addedEntities());
                         if (addObjectsCommand->hasAddedBrushes())
                             m_renderer->invalidateBrushes();
+                        break;
+                    }
+                    case Controller::Command::MoveObjects: {
+                        m_renderer->invalidateSelectedBrushes();
                         break;
                     }
                     case Controller::Command::RemoveObjects: {
@@ -399,7 +511,7 @@ namespace TrenchBroom {
                         Model::Texture* texture = textureManager.texture(face.textureName());
                         face.setTexture(texture);
                         
-                        Controller::SetFaceAttributeCommand* command = new Controller::SetFaceAttributeCommand(mapDocument(), wxT("Paste Faces"));
+                        Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(mapDocument(), wxT("Paste Faces"));
                         command->setTemplate(face);
                         submit(command);
                     } else {
@@ -545,6 +657,54 @@ namespace TrenchBroom {
             submit(command);
         }
 
+        void EditorView::OnEditMoveObjectsForward(wxCommandEvent& event) {
+            moveObjects(DForward, true);
+        }
+
+        void EditorView::OnEditMoveObjectsRight(wxCommandEvent& event) {
+            moveObjects(DRight, true);
+        }
+        
+        void EditorView::OnEditMoveObjectsBackward(wxCommandEvent& event) {
+            moveObjects(DBackward, true);
+        }
+        
+        void EditorView::OnEditMoveObjectsLeft(wxCommandEvent& event) {
+            moveObjects(DLeft, true);
+        }
+        
+        void EditorView::OnEditMoveObjectsUp(wxCommandEvent& event) {
+            moveObjects(DUp, true);
+        }
+        
+        void EditorView::OnEditMoveObjectsDown(wxCommandEvent& event) {
+            moveObjects(DDown, true);
+        }
+
+        void EditorView::OnEditMoveTexturesUp(wxCommandEvent& event) {
+            moveTextures(DUp, true);
+        }
+        
+        void EditorView::OnEditMoveTexturesRight(wxCommandEvent& event) {
+            moveTextures(DRight, true);
+        }
+        
+        void EditorView::OnEditMoveTexturesDown(wxCommandEvent& event) {
+            moveTextures(DDown, true);
+        }
+        
+        void EditorView::OnEditMoveTexturesLeft(wxCommandEvent& event) {
+            moveTextures(DLeft, true);
+        }
+        
+        void EditorView::OnEditRotateTexturesCW(wxCommandEvent& event) {
+            rotateTextures(true, true);
+        }
+        
+        void EditorView::OnEditRotateTexturesCCW(wxCommandEvent& event) {
+            rotateTextures(false, true);
+        }
+
         void EditorView::OnUpdateMenuItem(wxUpdateUIEvent& event) {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             switch (event.GetId()) {
@@ -592,6 +752,48 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::EditUnlockAll:
                     event.Enable(editStateManager.hasLockedObjects());
+                    break;
+                case CommandIds::Menu::EditToggleClipTool:
+                case CommandIds::Menu::EditToggleClipSide:
+                case CommandIds::Menu::EditPerformClip:
+                case CommandIds::Menu::EditToggleVertexTool:
+                case CommandIds::Menu::EditToggleEdgeTool:
+                case CommandIds::Menu::EditToggleFaceTool:
+                    event.Enable(false);
+                    break;
+                case CommandIds::Menu::EditActions:
+                    event.Enable(true);
+                    break;
+                case CommandIds::Menu::EditMoveTexturesUp:
+                case CommandIds::Menu::EditMoveTexturesRight:
+                case CommandIds::Menu::EditMoveTexturesDown:
+                case CommandIds::Menu::EditMoveTexturesLeft:
+                case CommandIds::Menu::EditRotateTexturesCW:
+                case CommandIds::Menu::EditRotateTexturesCCW:
+                    event.Enable(editStateManager.selectionMode() == Model::EditStateManager::SMFaces);
+                    break;
+                case CommandIds::Menu::EditMoveObjectsForward:
+                case CommandIds::Menu::EditMoveObjectsRight:
+                case CommandIds::Menu::EditMoveObjectsBackward:
+                case CommandIds::Menu::EditMoveObjectsLeft:
+                case CommandIds::Menu::EditMoveObjectsUp:
+                case CommandIds::Menu::EditMoveObjectsDown:
+                case CommandIds::Menu::EditRollObjectsCW:
+                case CommandIds::Menu::EditRollObjectsCCW:
+                case CommandIds::Menu::EditPitchObjectsCW:
+                case CommandIds::Menu::EditPitchObjectsCCW:
+                case CommandIds::Menu::EditYawObjectsCW:
+                case CommandIds::Menu::EditYawObjectsCCW:
+                case CommandIds::Menu::EditFlipObjectsHorizontally:
+                case CommandIds::Menu::EditFlipObjectsVertically:
+                case CommandIds::Menu::EditDuplicateObjects:
+                    event.Enable(editStateManager.selectionMode() == Model::EditStateManager::SMEntities || editStateManager.selectionMode() == Model::EditStateManager::SMBrushes || editStateManager.selectionMode() == Model::EditStateManager::SMEntitiesAndBrushes);
+                    break;
+                case CommandIds::Menu::EditCreatePointEntity:
+                    event.Enable(true);
+                    break;
+                case CommandIds::Menu::EditCreateBrushEntity:
+                    event.Enable(editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
                     break;
             }
         }

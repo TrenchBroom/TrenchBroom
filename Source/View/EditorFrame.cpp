@@ -19,6 +19,7 @@
 
 #include "EditorFrame.h"
 
+#include "Model/EditStateManager.h"
 #include "Model/MapDocument.h"
 #include "Utility/Console.h"
 #include "View/EditorView.h"
@@ -75,13 +76,35 @@ namespace TrenchBroom {
         wxFrame(NULL, wxID_ANY, wxT("TrenchBroom")),
         m_documentViewHolder(DocumentViewHolder(&document, &view)) {
             CreateGui();
+            updateMenuBar();
+        }
 
-            wxMenuBar* menuBar = static_cast<TrenchBroomApp*>(wxTheApp)->CreateMenuBar(&view);
-            int editMenuIndex = menuBar->FindMenu(wxT("Edit"));
-            if (editMenuIndex != wxNOT_FOUND) {
-                wxMenu* editMenu = menuBar->GetMenu(editMenuIndex);
-                document.GetCommandProcessor()->SetEditMenu(editMenu);
+        void EditorFrame::updateMenuBar() {
+            
+            TrenchBroomApp* app = static_cast<TrenchBroomApp*>(wxTheApp);
+            wxMenu* actionMenu = NULL;
+            Model::EditStateManager& editStateManager = m_documentViewHolder.document().editStateManager();
+            switch (editStateManager.selectionMode()) {
+                case Model::EditStateManager::SMFaces:
+                    actionMenu = app->CreateTextureActionMenu();
+                    break;
+                case Model::EditStateManager::SMEntities:
+                case Model::EditStateManager::SMBrushes:
+                case Model::EditStateManager::SMEntitiesAndBrushes:
+                    actionMenu = app->CreateObjectActionMenu();
+                    break;
+                default:
+                    actionMenu =  NULL;
+                    break;
             }
+            
+            SetMenuBar(NULL);
+            wxMenuBar* menuBar = app->CreateMenuBar(&m_documentViewHolder.view(), actionMenu);
+            int editMenuIndex = menuBar->FindMenu(wxT("Edit"));
+            assert(editMenuIndex != wxNOT_FOUND);
+            wxMenu* editMenu = menuBar->GetMenu(editMenuIndex);
+            m_documentViewHolder.document().GetCommandProcessor()->SetEditMenu(editMenu);
+            
             SetMenuBar(menuBar);
         }
 

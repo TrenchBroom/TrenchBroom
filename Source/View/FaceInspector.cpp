@@ -30,7 +30,7 @@
 #include <wx/statline.h>
 #include <wx/stattext.h>
 
-#include "Controller/SetFaceAttributeCommand.h"
+#include "Controller/SetFaceAttributesCommand.h"
 #include "Controller/TextureCollectionCommand.h"
 #include "IO/FileManager.h"
 #include "Model/Brush.h"
@@ -307,35 +307,35 @@ namespace TrenchBroom {
 
         void FaceInspector::OnXOffsetChanged(wxSpinDoubleEvent& event) {
             Model::MapDocument& document = m_documentViewHolder.document();
-            Controller::SetFaceAttributeCommand* command = new Controller::SetFaceAttributeCommand(document, "Set X Offset");
+            Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, "Set X Offset");
             command->setXOffset(static_cast<float>(event.GetValue()));
             document.GetCommandProcessor()->Submit(command);
         }
         
         void FaceInspector::OnYOffsetChanged(wxSpinDoubleEvent& event) {
             Model::MapDocument& document = m_documentViewHolder.document();
-            Controller::SetFaceAttributeCommand* command = new Controller::SetFaceAttributeCommand(document, "Set Y Offset");
+            Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, "Set Y Offset");
             command->setYOffset(static_cast<float>(event.GetValue()));
             document.GetCommandProcessor()->Submit(command);
         }
         
         void FaceInspector::OnXScaleChanged(wxSpinDoubleEvent& event) {
             Model::MapDocument& document = m_documentViewHolder.document();
-            Controller::SetFaceAttributeCommand* command = new Controller::SetFaceAttributeCommand(document, "Set X Scale");
+            Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, "Set X Scale");
             command->setXScale(static_cast<float>(event.GetValue()));
             document.GetCommandProcessor()->Submit(command);
         }
         
         void FaceInspector::OnYScaleChanged(wxSpinDoubleEvent& event) {
             Model::MapDocument& document = m_documentViewHolder.document();
-            Controller::SetFaceAttributeCommand* command = new Controller::SetFaceAttributeCommand(document, "Set Y Scale");
+            Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, "Set Y Scale");
             command->setYScale(static_cast<float>(event.GetValue()));
             document.GetCommandProcessor()->Submit(command);
         }
         
         void FaceInspector::OnRotationChanged(wxSpinDoubleEvent& event) {
             Model::MapDocument& document = m_documentViewHolder.document();
-            Controller::SetFaceAttributeCommand* command = new Controller::SetFaceAttributeCommand(document, "Set Rotation");
+            Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, "Set Rotation");
             command->setRotation(static_cast<float>(event.GetValue()));
             document.GetCommandProcessor()->Submit(command);
         }
@@ -345,7 +345,7 @@ namespace TrenchBroom {
                 return;
             
             Model::MapDocument& document = m_documentViewHolder.document();
-            Controller::SetFaceAttributeCommand* command = new Controller::SetFaceAttributeCommand(document, "Set Texture");
+            Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, "Set Texture");
             command->setTexture(m_textureBrowser->selectedTexture());
             document.GetCommandProcessor()->Submit(command);
         }

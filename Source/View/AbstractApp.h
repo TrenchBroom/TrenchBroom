@@ -34,12 +34,14 @@ class AbstractApp : public wxApp {
 protected:
 	DocManager* m_docManager;
 
-    virtual wxMenu* CreateFileMenu();
-    virtual wxMenu* CreateEditMenu();
-    virtual wxMenu* CreateViewMenu();
-    virtual wxMenu* CreateHelpMenu();
+    virtual wxMenu* CreateFileMenu(wxEvtHandler* eventHandler);
+    virtual wxMenu* CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMenu);
+    virtual wxMenu* CreateViewMenu(wxEvtHandler* eventHandler);
+    virtual wxMenu* CreateHelpMenu(wxEvtHandler* eventHandler);
 public:
-    virtual wxMenuBar* CreateMenuBar(wxEvtHandler* eventHandler);
+    virtual wxMenuBar* CreateMenuBar(wxEvtHandler* eventHandler, wxMenu* actionMenu);
+    virtual wxMenu* CreateTextureActionMenu();
+    virtual wxMenu* CreateObjectActionMenu();
 
     void UpdateAllViews(wxView* sender = NULL, wxObject* hint = NULL);
 

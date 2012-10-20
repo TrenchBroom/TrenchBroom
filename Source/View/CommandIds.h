@@ -26,18 +26,49 @@ namespace TrenchBroom {
     namespace View {
         namespace CommandIds {
             namespace Menu {
-                static const int Lowest                     = wxID_HIGHEST +  1;
-                static const int EditSelectAll              = Lowest +  2;
-                static const int EditSelectSiblings         = Lowest +  3;
-                static const int EditSelectTouching         = Lowest +  4;
-                static const int EditSelectNone             = Lowest +  5;
-                static const int EditHideSelected           = Lowest +  6;
-                static const int EditHideUnselected         = Lowest +  7;
-                static const int EditUnhideAll              = Lowest +  8;
-                static const int EditLockSelected           = Lowest +  9;
-                static const int EditLockUnselected         = Lowest + 10;
-                static const int EditUnlockAll              = Lowest + 11;
-                static const int Highest                    = Lowest + 99;
+                static const int Lowest                             = wxID_HIGHEST +  1;
+                static const int EditSelectAll                      = Lowest +  2;
+                static const int EditSelectSiblings                 = Lowest +  3;
+                static const int EditSelectTouching                 = Lowest +  4;
+                static const int EditSelectNone                     = Lowest +  5;
+                static const int EditHideSelected                   = Lowest +  6;
+                static const int EditHideUnselected                 = Lowest +  7;
+                static const int EditUnhideAll                      = Lowest +  8;
+                static const int EditLockSelected                   = Lowest +  9;
+                static const int EditLockUnselected                 = Lowest + 10;
+                static const int EditUnlockAll                      = Lowest + 11;
+                static const int EditToggleClipTool                 = Lowest + 12;
+                static const int EditToggleClipSide                 = Lowest + 13;
+                static const int EditPerformClip                    = Lowest + 14;
+                static const int EditToggleVertexTool               = Lowest + 15;
+                static const int EditToggleEdgeTool                 = Lowest + 16;
+                static const int EditToggleFaceTool                 = Lowest + 17;
+                static const int EditMoveTexturesUp                 = Lowest + 18;
+                static const int EditMoveTexturesRight              = Lowest + 19;
+                static const int EditMoveTexturesDown               = Lowest + 20;
+                static const int EditMoveTexturesLeft               = Lowest + 21;
+                static const int EditRotateTexturesCW               = Lowest + 22;
+                static const int EditRotateTexturesCCW              = Lowest + 23;
+                static const int EditMoveObjectsForward             = Lowest + 24;
+                static const int EditMoveObjectsRight               = Lowest + 25;
+                static const int EditMoveObjectsBackward            = Lowest + 26;
+                static const int EditMoveObjectsLeft                = Lowest + 27;
+                static const int EditMoveObjectsUp                  = Lowest + 28;
+                static const int EditMoveObjectsDown                = Lowest + 29;
+                static const int EditRollObjectsCW                  = Lowest + 30;
+                static const int EditRollObjectsCCW                 = Lowest + 31;
+                static const int EditPitchObjectsCW                 = Lowest + 32;
+                static const int EditPitchObjectsCCW                = Lowest + 33;
+                static const int EditYawObjectsCW                   = Lowest + 34;
+                static const int EditYawObjectsCCW                  = Lowest + 35;
+                static const int EditFlipObjectsHorizontally        = Lowest + 36;
+                static const int EditFlipObjectsVertically          = Lowest + 37;
+                static const int EditDuplicateObjects               = Lowest + 38;
+                static const int EditActions                        = Lowest + 39;
+                static const int EditCreatePointEntity              = Lowest + 40;
+                static const int EditCreateBrushEntity              = Lowest + 41;
+                static const int EditToggleTextureLock              = Lowest + 42;
+                static const int Highest                            = Lowest + 99;
             }
 
             namespace ViewInspector {

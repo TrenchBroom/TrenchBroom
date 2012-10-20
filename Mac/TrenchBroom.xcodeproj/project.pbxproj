@@ -16,7 +16,7 @@
 		4810278B15E67A7300250C9C /* Brush.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810278915E67A7300250C9C /* Brush.cpp */; };
 		481028A015E68E5300250C9C /* Face.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810289E15E68E5300250C9C /* Face.cpp */; };
 		481028A915E77A8D00250C9C /* Map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481028A715E77A8D00250C9C /* Map.cpp */; };
-		4817C7EE1611DC8F00A01A99 /* SetFaceAttributeCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4817C7EC1611DC8F00A01A99 /* SetFaceAttributeCommand.cpp */; };
+		4817C7EE1611DC8F00A01A99 /* SetFaceAttributesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4817C7EC1611DC8F00A01A99 /* SetFaceAttributesCommand.cpp */; };
 		4817C7F11611DFA900A01A99 /* SnapshotCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4817C7EF1611DFA900A01A99 /* SnapshotCommand.cpp */; };
 		4817C7F416123E0500A01A99 /* EntityInspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4817C7F216123E0500A01A99 /* EntityInspector.cpp */; };
 		481CDAD816026C48003E2EE9 /* PreferencesDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481CDAD616026C48003E2EE9 /* PreferencesDialog.cpp */; };
@@ -63,6 +63,8 @@
 		48819C5015ED5C7700BEA604 /* CameraEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C4F15ED5C7700BEA604 /* CameraEvent.cpp */; };
 		488457D0161C839A002ADDAE /* OffscreenRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488457CE161C839A002ADDAE /* OffscreenRenderer.cpp */; };
 		4887937615EF56C10044D66A /* AbstractApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4887937415EF56C10044D66A /* AbstractApp.cpp */; };
+		4895CDEA16333D55006AA0A6 /* MoveTexturesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4895CDE816333D55006AA0A6 /* MoveTexturesCommand.cpp */; };
+		4895CDEC16334108006AA0A6 /* RotateTexturesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4895CDEB16334108006AA0A6 /* RotateTexturesCommand.cpp */; };
 		4896F38E160E06F50029B30C /* TextureBrowserBorder.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 4896F38D160E06F50029B30C /* TextureBrowserBorder.fragsh */; };
 		4896F390160E07010029B30C /* TextureBrowserBorder.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 4896F38F160E07010029B30C /* TextureBrowserBorder.vertsh */; };
 		48AB57F115ECEEE500321C47 /* ProgressIndicatorDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AB57EF15ECEEE500321C47 /* ProgressIndicatorDialog.cpp */; };
@@ -147,8 +149,8 @@
 		481028A615E7778200250C9C /* EditState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EditState.h; sourceTree = "<group>"; };
 		481028A715E77A8D00250C9C /* Map.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Map.cpp; sourceTree = "<group>"; };
 		481028A815E77A8D00250C9C /* Map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Map.h; sourceTree = "<group>"; };
-		4817C7EC1611DC8F00A01A99 /* SetFaceAttributeCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SetFaceAttributeCommand.cpp; sourceTree = "<group>"; };
-		4817C7ED1611DC8F00A01A99 /* SetFaceAttributeCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SetFaceAttributeCommand.h; sourceTree = "<group>"; };
+		4817C7EC1611DC8F00A01A99 /* SetFaceAttributesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SetFaceAttributesCommand.cpp; sourceTree = "<group>"; };
+		4817C7ED1611DC8F00A01A99 /* SetFaceAttributesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SetFaceAttributesCommand.h; sourceTree = "<group>"; };
 		4817C7EF1611DFA900A01A99 /* SnapshotCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SnapshotCommand.cpp; sourceTree = "<group>"; };
 		4817C7F01611DFA900A01A99 /* SnapshotCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SnapshotCommand.h; sourceTree = "<group>"; };
 		4817C7F216123E0500A01A99 /* EntityInspector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityInspector.cpp; sourceTree = "<group>"; };
@@ -269,6 +271,10 @@
 		488457CF161C839A002ADDAE /* OffscreenRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OffscreenRenderer.h; sourceTree = "<group>"; };
 		4887937415EF56C10044D66A /* AbstractApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractApp.cpp; sourceTree = "<group>"; };
 		4887937515EF56C10044D66A /* AbstractApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractApp.h; sourceTree = "<group>"; };
+		4895CDE816333D55006AA0A6 /* MoveTexturesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveTexturesCommand.cpp; sourceTree = "<group>"; };
+		4895CDE916333D55006AA0A6 /* MoveTexturesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveTexturesCommand.h; sourceTree = "<group>"; };
+		4895CDEB16334108006AA0A6 /* RotateTexturesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RotateTexturesCommand.cpp; sourceTree = "<group>"; };
+		4895CDED16334111006AA0A6 /* RotateTexturesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateTexturesCommand.h; sourceTree = "<group>"; };
 		4896F38D160E06F50029B30C /* TextureBrowserBorder.fragsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TextureBrowserBorder.fragsh; sourceTree = "<group>"; };
 		4896F38F160E07010029B30C /* TextureBrowserBorder.vertsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TextureBrowserBorder.vertsh; sourceTree = "<group>"; };
 		48A922B01601D0D20037FEFE /* ViewOptions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewOptions.h; sourceTree = "<group>"; };
@@ -739,12 +745,16 @@
 				48AB580115ECFED800321C47 /* InputController.h */,
 				482BB67C162931E800B9FAAE /* MoveObjectsCommand.cpp */,
 				482BB67D162931E800B9FAAE /* MoveObjectsCommand.h */,
+				4895CDE816333D55006AA0A6 /* MoveTexturesCommand.cpp */,
+				4895CDE916333D55006AA0A6 /* MoveTexturesCommand.h */,
 				48FBD14C1626AD5B0059953D /* RemoveObjectsCommand.cpp */,
 				48FBD14D1626AD5B0059953D /* RemoveObjectsCommand.h */,
+				4895CDEB16334108006AA0A6 /* RotateTexturesCommand.cpp */,
+				4895CDED16334111006AA0A6 /* RotateTexturesCommand.h */,
 				4850D25215F3B36C005B162D /* SelectionTool.cpp */,
 				4850D25315F3B36C005B162D /* SelectionTool.h */,
-				4817C7EC1611DC8F00A01A99 /* SetFaceAttributeCommand.cpp */,
-				4817C7ED1611DC8F00A01A99 /* SetFaceAttributeCommand.h */,
+				4817C7EC1611DC8F00A01A99 /* SetFaceAttributesCommand.cpp */,
+				4817C7ED1611DC8F00A01A99 /* SetFaceAttributesCommand.h */,
 				4817C7EF1611DFA900A01A99 /* SnapshotCommand.cpp */,
 				4817C7F01611DFA900A01A99 /* SnapshotCommand.h */,
 				48E1A516161390AD006BB6C4 /* TextureCollectionCommand.cpp */,
@@ -945,7 +955,7 @@
 				48C0FA46160901CB0023F467 /* SingleTextureViewer.cpp in Sources */,
 				48D417D7160B3A3C003AECBB /* TextureBrowserCanvas.cpp in Sources */,
 				48B75F79160CF79F009D4E99 /* TextureBrowser.cpp in Sources */,
-				4817C7EE1611DC8F00A01A99 /* SetFaceAttributeCommand.cpp in Sources */,
+				4817C7EE1611DC8F00A01A99 /* SetFaceAttributesCommand.cpp in Sources */,
 				4817C7F11611DFA900A01A99 /* SnapshotCommand.cpp in Sources */,
 				4817C7F416123E0500A01A99 /* EntityInspector.cpp in Sources */,
 				48E1A518161390AD006BB6C4 /* TextureCollectionCommand.cpp in Sources */,
@@ -971,6 +981,8 @@
 				48FBD15116287C5A0059953D /* MapWriter.cpp in Sources */,
 				482BB67E162931E800B9FAAE /* MoveObjectsCommand.cpp in Sources */,
 				48C3CAF4162A8F2D006547EC /* AddObjectsCommand.cpp in Sources */,
+				4895CDEA16333D55006AA0A6 /* MoveTexturesCommand.cpp in Sources */,
+				4895CDEC16334108006AA0A6 /* RotateTexturesCommand.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1081,14 +1093,10 @@
 					System,
 					"-framework",
 					OpenGL,
-					"-framework",
-					QuickTime,
 					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_osx_cocoau_gl-2.9.a\"",
 					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_osx_cocoau_adv-2.9.a\"",
 					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_osx_cocoau_core-2.9.a\"",
 					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_baseu-2.9.a\"",
-					"-framework",
-					WebKit,
 					"-lexpat",
 					"-lwxregexu-2.9",
 					"-lwxtiff-2.9",
@@ -1154,8 +1162,6 @@
 					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_adv-2.9.a\"",
 					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_core-2.9.a\"",
 					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_baseu-2.9.a\"",
-					"-framework",
-					WebKit,
 					"-lexpat",
 					"-lwxregexu-2.9",
 					"-lwxtiff-2.9",

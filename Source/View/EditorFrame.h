@@ -65,6 +65,7 @@ namespace TrenchBroom {
                 return m_logView;
             }
             
+            void updateMenuBar();
             void disableProcessing();
             
             void OnClose(wxCloseEvent& event);

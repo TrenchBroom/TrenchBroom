@@ -24,7 +24,7 @@
 
 class TrenchBroomApp : public AbstractApp {
 protected:
-    virtual wxMenu* CreateFileMenu();
+    virtual wxMenu* CreateFileMenu(wxEvtHandler* eventHandler);
 public:
 
     virtual bool OnInit();

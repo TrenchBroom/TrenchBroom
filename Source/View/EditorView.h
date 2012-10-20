@@ -54,12 +54,24 @@ namespace TrenchBroom {
         class EditorView : public wxView {
             DECLARE_DYNAMIC_CLASS(EditorView)
         protected:
+            typedef enum {
+                DUp,
+                DRight,
+                DDown,
+                DLeft,
+                DForward,
+                DBackward
+            } Direction;
+            
             Renderer::Camera* m_camera;
             Renderer::MapRenderer* m_renderer;
             Model::Filter* m_filter;
             ViewOptions* m_viewOptions;
             
             void submit(wxCommand* command);
+            void moveTextures(Direction direction, bool snapToGrid);
+            void rotateTextures(bool clockwise, bool snapToGrid);
+            void moveObjects(Direction direction, bool snapToGrid);
             void removeObjects(const wxString& actionName);
             bool canPaste();
         public:
@@ -101,6 +113,20 @@ namespace TrenchBroom {
             void OnEditLockSelected(wxCommandEvent& event);
             void OnEditLockUnselected(wxCommandEvent& event);
             void OnEditUnlockAll(wxCommandEvent& event);
+            
+            void OnEditMoveTexturesUp(wxCommandEvent& event);
+            void OnEditMoveTexturesRight(wxCommandEvent& event);
+            void OnEditMoveTexturesDown(wxCommandEvent& event);
+            void OnEditMoveTexturesLeft(wxCommandEvent& event);
+            void OnEditRotateTexturesCW(wxCommandEvent& event);
+            void OnEditRotateTexturesCCW(wxCommandEvent& event);
+            
+            void OnEditMoveObjectsForward(wxCommandEvent& event);
+            void OnEditMoveObjectsRight(wxCommandEvent& event);
+            void OnEditMoveObjectsBackward(wxCommandEvent& event);
+            void OnEditMoveObjectsLeft(wxCommandEvent& event);
+            void OnEditMoveObjectsUp(wxCommandEvent& event);
+            void OnEditMoveObjectsDown(wxCommandEvent& event);
             
             void OnUpdateMenuItem(wxUpdateUIEvent& event);
             

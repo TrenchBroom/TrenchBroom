@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SetFaceAttributeCommand__
-#define __TrenchBroom__SetFaceAttributeCommand__
+#ifndef __TrenchBroom__SetFaceAttributesCommand__
+#define __TrenchBroom__SetFaceAttributesCommand__
 
 #include "Controller/SnapshotCommand.h"
 
@@ -30,7 +30,7 @@ namespace TrenchBroom {
     }
     
     namespace Controller {
-        class SetFaceAttributeCommand : public SnapshotCommand {
+        class SetFaceAttributesCommand : public SnapshotCommand {
         private:
             float m_xOffset;
             float m_yOffset;
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             bool performDo();
             bool performUndo();
         public:
-            SetFaceAttributeCommand(Model::MapDocument& document, const wxString& name);
+            SetFaceAttributesCommand(Model::MapDocument& document, const wxString& name);
             
             inline void setXOffset(float xOffset) {
                 m_xOffset = xOffset;
@@ -86,4 +86,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__SetFaceAttributeCommand__) */
+#endif /* defined(__TrenchBroom__SetFaceAttributesCommand__) */

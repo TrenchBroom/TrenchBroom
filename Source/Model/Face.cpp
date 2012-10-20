@@ -101,6 +101,153 @@ namespace TrenchBroom {
         }
         
         void Face::compensateTransformation(const Mat4f& transformation) {
+            if (!m_texAxesValid)
+                validateTexAxes(m_boundary.normal);
+            
+            Vec3f newTexAxisX, newTexAxisY, newFaceNorm, newCenter, newBaseAxisX, newBaseAxisY, offset, cross;
+            Vec2f curCenterTexCoords, newCenterTexCoords;
+            Plane plane;
+            Vec3f curCenter;
+            int newPlaneNormIndex, newFaceNormIndex;
+            float radX, radY, rad;
+            
+            // calculate the current texture coordinates of the face's center
+            curCenter = centerOfVertices(m_side->vertices);
+            curCenterTexCoords.x = (curCenter.dot(m_scaledTexAxisX)) + m_xOffset;
+            curCenterTexCoords.y = (curCenter.dot(m_scaledTexAxisY)) + m_yOffset;
+            
+            // invert the scale of the current texture axes
+            newTexAxisX = m_texAxisX * m_xScale;
+            newTexAxisY = m_texAxisY * m_yScale;
+            
+            // project the inversely scaled texture axes onto the boundary plane
+            plane.distance = 0.0f;
+            plane.normal = m_boundary.normal;
+            if (BaseAxes[m_texPlaneNormIndex]->x != 0.0f) {
+                newTexAxisX.x = plane.x(newTexAxisX.y, newTexAxisX.z);
+                newTexAxisY.x = plane.x(newTexAxisY.y, newTexAxisY.z);
+            } else if (BaseAxes[m_texPlaneNormIndex]->y != 0.0f) {
+                newTexAxisX.y = plane.y(newTexAxisX.x, newTexAxisX.z);
+                newTexAxisY.y = plane.y(newTexAxisY.x, newTexAxisY.z);
+            } else {
+                newTexAxisX.z = plane.z(newTexAxisX.x, newTexAxisX.y);
+                newTexAxisY.z = plane.z(newTexAxisY.x, newTexAxisY.y);
+            }
+            
+            // apply the transformation
+            newTexAxisX = transformation * newTexAxisX;
+            newTexAxisY = transformation * newTexAxisY;
+            newFaceNorm = transformation * m_boundary.normal;
+            offset = transformation * Vec3f::Null;
+            newCenter = transformation * curCenter;
+            
+            // correct the directional vectors by the translational part of the transformation
+            newTexAxisX -= offset;
+            newTexAxisY -= offset;
+            newFaceNorm -= offset;
+            
+            // fix some rounding errors - if the old and new texture axes are almost the same, use the old axis
+            if (newFaceNorm.equals(m_boundary.normal, 0.001f))
+                newFaceNorm = m_boundary.normal;
+            
+            // obtain the new texture plane norm and the new base texture axes
+            texAxesAndIndices(newFaceNorm, newBaseAxisX, newBaseAxisY, newPlaneNormIndex, newFaceNormIndex);
+            
+            /*
+             float tpnDot = dotV3f(texPlaneNorm, newTexPlaneNorm);
+             if (tpnDot == 1 || tpnDot == -1) {
+             Vec3f transformedTexPlaneNorm;
+             transformM4fV3f(transformation, texPlaneNorm, &transformedTexPlaneNorm);
+             subV3f(&transformedTexPlaneNorm, &offset, &transformedTexPlaneNorm);
+             
+             if (dotV3f(texPlaneNorm, &transformedTexPlaneNorm) == 0) {
+             crossV3f(texPlaneNorm, &transformedTexPlaneNorm, &temp);
+             const Vec3f* rotAxis = closestAxisV3f(&temp);
+             
+             float angle = Math::Pi_2;
+             if (tpnDot == 1)
+             angle *= -1;
+             
+             TQuaternion rot;
+             setAngleAndAxisQ(&rot, angle, rotAxis);
+             
+             rotateQ(&rot, &newTexAxisX, &newTexAxisX);
+             rotateQ(&rot, &newTexAxisY, &newTexAxisY);
+             }
+             }
+             */
+            
+            // project the transformed texture axes onto the new texture plane
+            if (BaseAxes[newPlaneNormIndex]->x != 0.0f) {
+                newTexAxisX.x = 0.0f;
+                newTexAxisY.x = 0.0f;
+            } else if (BaseAxes[newPlaneNormIndex]->y != 0.0f) {
+                newTexAxisX.y = 0.0f;
+                newTexAxisY.y = 0.0f;
+            } else {
+                newTexAxisX.z = 0.0f;
+                newTexAxisY.z = 0.0f;
+            }
+            
+            // the new scaling factors are the lengths of the transformed texture axes
+            m_xScale = newTexAxisX.length();
+            m_yScale = newTexAxisY.length();
+            
+            // normalize the transformed texture axes
+            newTexAxisX /= m_xScale;
+            newTexAxisY /= m_yScale;
+            
+            // WARNING: the texture plane norm is not the rotation axis of the texture (it's always the absolute axis)
+            
+            // determine the rotation angle from the dot product of the new base axes and the transformed texture axes
+            radX = acosf(newBaseAxisX.dot(newTexAxisX));
+            cross = newBaseAxisX.crossed(newTexAxisX);
+            if ((cross.dot(*BaseAxes[newPlaneNormIndex])) < 0.0f)
+                radX *= -1.0f;
+            
+            radY = acosf(newBaseAxisY.dot(newTexAxisY));
+            cross = newBaseAxisY.crossed(newTexAxisY);
+            if ((cross.dot(*BaseAxes[newPlaneNormIndex])) < 0.0f)
+                radY *= -1.0f;
+            
+            rad = radX;
+            m_rotation = rad * 180.0f / Math::Pi;
+            
+            // apply the rotation to the new base axes
+            Quat rot(rad, *BaseAxes[newPlaneNormIndex]);
+            newBaseAxisX = rot * newBaseAxisX;
+            newBaseAxisY = rot * newBaseAxisY;
+            
+            // the sign of the scaling factors depends on the angle between the new base axis and the new texture axis
+            if (newBaseAxisX.dot(newTexAxisX) < 0.0f)
+                m_xScale *= -1.0f;
+            if (newBaseAxisY.dot(newTexAxisY) < 0.0f)
+                m_yScale *= -1.0f;
+            
+            // correct rounding errors
+            m_xScale = Math::correct(m_xScale);
+            m_yScale = Math::correct(m_yScale);
+            m_rotation = Math::correct(m_rotation);
+            
+            validateTexAxes(newFaceNorm);
+            
+            // determine the new texture coordinates of the transformed center of the face, sans offsets
+            newCenterTexCoords.x = newCenter.dot(m_scaledTexAxisX);
+            newCenterTexCoords.y = newCenter.dot(m_scaledTexAxisY);
+            
+            // since the center should be invariant, the offsets are determined by the difference of the current and
+            // the original texture coordinates of the center
+            m_xOffset = curCenterTexCoords.x - newCenterTexCoords.x;
+            m_yOffset = curCenterTexCoords.y - newCenterTexCoords.y;
+            
+            if (m_texture != NULL) {
+                m_xOffset -= static_cast<int>(Math::round(m_xOffset / static_cast<float>(m_texture->width()))) * static_cast<int>(m_texture->width());
+                m_yOffset -= static_cast<int>(Math::round(m_yOffset / static_cast<float>(m_texture->height()))) * static_cast<int>(m_texture->height());
+            }
+            
+            // correct rounding errors
+            m_xOffset = Math::correct(m_xOffset);
+            m_yOffset = Math::correct(m_yOffset);
         }
 
         Face::Face(const BBox& worldBounds, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const String& textureName) : m_worldBounds(worldBounds), m_textureName(textureName) {
@@ -242,6 +389,40 @@ namespace TrenchBroom {
             
             if (m_texture != NULL)
                 m_texture->incUsageCount();
+            m_coordsValid = false;
+        }
+
+        void Face::moveTexture(float distance, const Vec3f& direction) {
+            if (!m_texAxesValid)
+                validateTexAxes(m_boundary.normal);
+            
+            float dotX = direction.dot(m_scaledTexAxisX);
+            float dotY = direction.dot(m_scaledTexAxisY);
+            
+            if (fabsf(dotX) >= fabsf(dotY)) {
+                if (dotX >= 0.0f)
+                    m_xOffset -= distance;
+                else
+                    m_xOffset += distance;
+            } else {
+                if (dotY >= 0.0f)
+                    m_yOffset -= distance;
+                else
+                    m_yOffset += distance;
+            }
+            
+            m_coordsValid = false;
+        }
+        
+        void Face::rotateTexture(float angle) {
+            if (!m_texAxesValid)
+                validateTexAxes(m_boundary.normal);
+            
+            if (m_texPlaneNormIndex == m_texFaceNormIndex)
+                m_rotation += angle;
+            else
+                m_rotation -= angle;
+            m_texAxesValid = false;
             m_coordsValid = false;
         }
 

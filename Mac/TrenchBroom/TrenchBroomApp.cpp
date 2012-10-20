@@ -38,8 +38,8 @@ EVT_UPDATE_UI(wxID_REDO, TrenchBroomApp::OnUpdateMenuItem)
 EVT_UPDATE_UI_RANGE(TrenchBroom::View::CommandIds::Menu::Lowest, TrenchBroom::View::CommandIds::Menu::Highest, TrenchBroomApp::OnUpdateMenuItem)
 END_EVENT_TABLE()
 
-wxMenu* TrenchBroomApp::CreateFileMenu() {
-    wxMenu* fileMenu = AbstractApp::CreateFileMenu();
+wxMenu* TrenchBroomApp::CreateFileMenu(wxEvtHandler* eventHandler) {
+    wxMenu* fileMenu = AbstractApp::CreateFileMenu(eventHandler);
 
     // these won't show up in the app menu if we don't add them here
     fileMenu->Append(wxID_ABOUT, wxT("About"));
@@ -57,7 +57,7 @@ bool TrenchBroomApp::OnInit() {
         SetExitOnFrameDelete(false);
         m_docManager->SetUseSDI(false);
         
-        wxMenuBar* menuBar = CreateMenuBar(this);
+        wxMenuBar* menuBar = CreateMenuBar(this, NULL);
         wxMenuBar::MacSetCommonMenuBar(menuBar);
         
         return true;

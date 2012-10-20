@@ -302,6 +302,17 @@ namespace TrenchBroom {
             }
             
             /**
+             * Modifies the offsets such that the texture is moved in the given direction by the given distance.
+             */
+            void moveTexture(float distance, const Vec3f& direction);
+            
+            /**
+             * Modifies the rotation such that the texture is rotated by the given angle (in degrees) in clockwise
+             * direction.
+             */
+            void rotateTexture(float angle);
+            
+            /**
              * Returns the texture coordinates for each vertex of this face. The texture coordinates are in the same
              * order as the vertices returned by the vertices() function.
              */
