@@ -219,6 +219,44 @@ namespace TrenchBroom {
             invalidateGeometry();
         }
 
+        void Entity::rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTextures) {
+            if (m_definition != NULL && m_definition->type() == EntityDefinition::BrushEntity)
+                return;
+            
+            setProperty(OriginKey, m_origin.rotated90(axis, center, clockwise), true);
+            
+            Vec3f direction;
+            if (m_angle >= 0) {
+                direction.x = cos(2.0f * Math::Pi - m_angle * Math::Pi / 180.0f);
+                direction.y = sin(2.0f * Math::Pi - m_angle * Math::Pi / 180.0f);
+                direction.z = 0.0f;
+            } else if (m_angle == -1) {
+                direction = Vec3f::PosZ;
+            } else if (m_angle == -2) {
+                direction = Vec3f::NegZ;
+            } else {
+                return;
+            }
+            
+            direction.rotate90(axis, clockwise);
+            if (direction.z > 0.9f) {
+                setProperty(AngleKey, -1, true);
+            } else if (direction.z < -0.9f) {
+                setProperty(AngleKey, -2, true);
+            } else {
+                if (direction.z != 0.0f) {
+                    direction.z = 0.0f;
+                    direction.normalize();
+                }
+                
+                m_angle = Math::round(acos(direction.x) * 180.0f / Math::Pi);
+                Vec3f cross = direction.crossed(Vec3f::PosX);
+                if (!cross.null() && cross.z < 0.0f)
+                    m_angle = 360 - m_angle;
+                setProperty(AngleKey, m_angle, true);
+            }
+        }
+
         void Entity::pick(const Ray& ray, PickResult& pickResults) {
             float dist = bounds().intersectWithRay(ray, NULL);
             if (Math::isnan(dist))

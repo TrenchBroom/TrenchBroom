@@ -153,12 +153,12 @@ wxMenu* AbstractApp::CreateObjectActionMenu() {
     objectActionMenu->Append(CommandIds::Menu::EditMoveObjectsUp, wxT("Move Up\tPGUP"));
     objectActionMenu->Append(CommandIds::Menu::EditMoveObjectsDown, wxT("Move Down\tPGDN"));
     objectActionMenu->AppendSeparator();
-    objectActionMenu->Append(CommandIds::Menu::EditRollObjectsCW, wxT("Roll CW\tCtrl+PGUP"));
-    objectActionMenu->Append(CommandIds::Menu::EditRollObjectsCCW, wxT("Roll CCW\tCtrl+PGDN"));
-    objectActionMenu->Append(CommandIds::Menu::EditPitchObjectsCW, wxT("Pitch CW\tCtrl+UP"));
-    objectActionMenu->Append(CommandIds::Menu::EditPitchObjectsCCW, wxT("Pitch CCW\tCtrl+DOWN"));
-    objectActionMenu->Append(CommandIds::Menu::EditYawObjectsCW, wxT("Yaw CW\tCtrl+LEFT"));
-    objectActionMenu->Append(CommandIds::Menu::EditYawObjectsCCW, wxT("Yaw CCW\tCtrl+RIGHT"));
+    objectActionMenu->Append(CommandIds::Menu::EditRollObjectsCW, wxT("Rotate Clockwise CW\tCtrl+UP"));
+    objectActionMenu->Append(CommandIds::Menu::EditRollObjectsCCW, wxT("Rotate Counterclockwise CCW\tCtrl+DOWN"));
+    objectActionMenu->Append(CommandIds::Menu::EditYawObjectsCW, wxT("Rotate Left CW\tCtrl+LEFT"));
+    objectActionMenu->Append(CommandIds::Menu::EditYawObjectsCCW, wxT("Rotate Right CCW\tCtrl+RIGHT"));
+    objectActionMenu->Append(CommandIds::Menu::EditPitchObjectsCW, wxT("Rotate Up CW\tCtrl+PGUP"));
+    objectActionMenu->Append(CommandIds::Menu::EditPitchObjectsCCW, wxT("Rotate Down CCW\tCtrl+PGDN"));
     objectActionMenu->AppendSeparator();
     objectActionMenu->Append(CommandIds::Menu::EditFlipObjectsHorizontally, wxT("Flip Horizontally\tCtrl+F"));
     objectActionMenu->Append(CommandIds::Menu::EditFlipObjectsVertically, wxT("Flip Vertically\tCtrl+Alt+F"));

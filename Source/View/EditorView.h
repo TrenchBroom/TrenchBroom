@@ -63,6 +63,12 @@ namespace TrenchBroom {
                 DBackward
             } Direction;
             
+            typedef enum {
+                ARoll,
+                APitch,
+                AYaw
+            } RotationAxis;
+            
             Renderer::Camera* m_camera;
             Renderer::MapRenderer* m_renderer;
             Model::Filter* m_filter;
@@ -72,6 +78,7 @@ namespace TrenchBroom {
             void moveTextures(Direction direction, bool snapToGrid);
             void rotateTextures(bool clockwise, bool snapToGrid);
             void moveObjects(Direction direction, bool snapToGrid);
+            void rotateObjects(RotationAxis rotationAxis, bool clockwise);
             void removeObjects(const wxString& actionName);
             bool canPaste();
         public:
@@ -127,6 +134,12 @@ namespace TrenchBroom {
             void OnEditMoveObjectsLeft(wxCommandEvent& event);
             void OnEditMoveObjectsUp(wxCommandEvent& event);
             void OnEditMoveObjectsDown(wxCommandEvent& event);
+            void OnEditRollObjectsCW(wxCommandEvent& event);
+            void OnEditRollObjectsCCW(wxCommandEvent& event);
+            void OnEditPitchObjectsCW(wxCommandEvent& event);
+            void OnEditPitchObjectsCCW(wxCommandEvent& event);
+            void OnEditYawObjectsCW(wxCommandEvent& event);
+            void OnEditYawObjectsCCW(wxCommandEvent& event);
             
             void OnUpdateMenuItem(wxUpdateUIEvent& event);
             

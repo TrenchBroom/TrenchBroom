@@ -31,6 +31,7 @@ namespace TrenchBroom {
     namespace Controller {
         class EntityPropertyCommand : public SnapshotCommand {
         protected:
+            Model::EntityList m_entities;
             Model::PropertyKeyList m_keys;
             Model::PropertyKey m_newKey;
             Model::PropertyValue m_newValue;
@@ -73,15 +74,15 @@ namespace TrenchBroom {
                 m_newValue = newValue;
             }
             
-            EntityPropertyCommand(Type type, Model::MapDocument& document, const wxString& name);
+            EntityPropertyCommand(Type type, Model::MapDocument& document, const Model::EntityList& entities, const wxString& name);
             
             bool performDo();
             bool performUndo();
         public:
-            static EntityPropertyCommand* setEntityPropertyKey(Model::MapDocument& document, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey);
-            static EntityPropertyCommand* setEntityPropertyValue(Model::MapDocument& document, const Model::PropertyKey& key, const Model::PropertyValue& newValue);
-            static EntityPropertyCommand* removeEntityProperty(Model::MapDocument& document, const Model::PropertyKey& key);
-            static EntityPropertyCommand* removeEntityProperties(Model::MapDocument& document, const Model::PropertyKeyList& keys);
+            static EntityPropertyCommand* setEntityPropertyKey(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey);
+            static EntityPropertyCommand* setEntityPropertyValue(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyValue& newValue);
+            static EntityPropertyCommand* removeEntityProperty(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key);
+            static EntityPropertyCommand* removeEntityProperties(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKeyList& keys);
             
             inline bool definitionChanged() const {
                 return m_definitionChanged;

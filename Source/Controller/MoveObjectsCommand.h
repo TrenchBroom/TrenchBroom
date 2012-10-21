@@ -21,6 +21,8 @@
 #define __TrenchBroom__MoveObjectsCommand__
 
 #include "Controller/Command.h"
+#include "Model/EntityTypes.h"
+#include "Model/BrushTypes.h"
 #include "Utility/VecMath.h"
 
 using namespace TrenchBroom::Math;
@@ -33,6 +35,9 @@ namespace TrenchBroom {
     namespace Controller {
         class MoveObjectsCommand : public DocumentCommand {
         private:
+            Model::EntityList m_entities;
+            Model::BrushList m_brushes;
+            
             Vec3f m_delta;
             bool m_lockTextures;
 
@@ -41,9 +46,9 @@ namespace TrenchBroom {
             bool performDo();
             bool performUndo();
             
-            MoveObjectsCommand(Model::MapDocument& document, const wxString& name, const Vec3f& delta, bool lockTextures);
+            MoveObjectsCommand(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const wxString& name, const Vec3f& delta, bool lockTextures);
         public:
-            static MoveObjectsCommand* moveObjects(Model::MapDocument& document, const wxString& name, const Vec3f& delta, bool lockTextures);
+            static MoveObjectsCommand* moveObjects(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const Vec3f& delta, bool lockTextures);
         };
     }
 }

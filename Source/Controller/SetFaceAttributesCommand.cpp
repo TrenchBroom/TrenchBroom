@@ -26,15 +26,11 @@
 namespace TrenchBroom {
     namespace Controller {
         bool SetFaceAttributesCommand::performDo() {
-            Model::EditStateManager& editStateManager = document().editStateManager();
-            const Model::FaceList faces = editStateManager.allSelectedFaces();
-            if (faces.empty())
-                return false;
+            makeSnapshots(m_faces);
             
-            makeSnapshots(faces);
-            
-            for (unsigned int i = 0; i < faces.size(); i++) {
-                Model::Face& face = *faces[i];
+            Model::FaceList::const_iterator faceIt, faceEnd;
+            for (faceIt = m_faces.begin(), faceEnd = m_faces.end(); faceIt != faceEnd; ++faceIt) {
+                Model::Face& face = **faceIt;
                 if (m_setXOffset)
                     face.setXOffset(m_xOffset);
                 if (m_setYOffset)
@@ -53,19 +49,15 @@ namespace TrenchBroom {
         }
         
         bool SetFaceAttributesCommand::performUndo() {
-            Model::EditStateManager& editStateManager = document().editStateManager();
-            const Model::FaceList faces = editStateManager.allSelectedFaces();
-            if (faces.empty())
-                return false;
-            
-            restoreSnapshots(faces);
+            restoreSnapshots(m_faces);
             clear();
             
             return true;
         }
 
-        SetFaceAttributesCommand::SetFaceAttributesCommand(Model::MapDocument& document, const wxString& name) :
+        SetFaceAttributesCommand::SetFaceAttributesCommand(Model::MapDocument& document, const Model::FaceList& faces, const wxString& name) :
         SnapshotCommand(Command::SetFaceAttributes, document, name),
+        m_faces(faces),
         m_xOffset(0.0f),
         m_yOffset(0.0f),
         m_xScale(0.0f),

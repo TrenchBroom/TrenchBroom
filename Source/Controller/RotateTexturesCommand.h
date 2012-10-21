@@ -21,20 +21,22 @@
 #define __TrenchBroom__RotateTexturesCommand__
 
 #include "Controller/Command.h"
+#include "Model/FaceTypes.h"
 
 namespace TrenchBroom {
     namespace Controller {
         class RotateTexturesCommand : public DocumentCommand {
         protected:
+            Model::FaceList m_faces;
             float m_angle;
             
             bool performDo();
             bool performUndo();
             
-            RotateTexturesCommand(Model::MapDocument& document, const wxString& name, float angle);
+            RotateTexturesCommand(Model::MapDocument& document, const Model::FaceList& faces, const wxString& name, float angle);
         public:
-            static RotateTexturesCommand* rotateClockwise(Model::MapDocument& document, const wxString& name, float angle);
-            static RotateTexturesCommand* rotateCounterClockwise(Model::MapDocument& document, const wxString& name, float angle);
+            static RotateTexturesCommand* rotateClockwise(Model::MapDocument& document, const Model::FaceList& faces, float angle);
+            static RotateTexturesCommand* rotateCounterClockwise(Model::MapDocument& document, const Model::FaceList& faces, float angle);
         };
     }
 }

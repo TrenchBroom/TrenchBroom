@@ -218,13 +218,29 @@ namespace TrenchBroom {
             if (delta.null())
                 return;
             
-            if (m_geometry != NULL)
-                m_geometry->translate(delta);
-            FaceList::iterator it, end;
-            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
-                Model::Face& face = **it;
+            FaceList::const_iterator faceIt, faceEnd;
+            for (faceIt = m_faces.begin(), faceEnd = m_faces.end(); faceIt != faceEnd; ++faceIt) {
+                Model::Face& face = **faceIt;
                 face.translate(delta, lockTextures);
             }
+
+            if (m_geometry != NULL)
+                m_geometry->translate(delta);
+            if (m_entity != NULL)
+                m_entity->invalidateGeometry();
+        }
+
+        void Brush::rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTextures) {
+            FaceList::const_iterator faceIt, faceEnd;
+            for (faceIt = m_faces.begin(), faceEnd = m_faces.end(); faceIt != faceEnd; ++faceIt) {
+                Face& face = **faceIt;
+                face.rotate90(axis, center, clockwise, lockTextures);
+            }
+
+            if (m_geometry != NULL)
+                m_geometry->rotate90(axis, center, clockwise);
+            if (m_entity != NULL)
+                m_entity->invalidateGeometry();
         }
 
         void Brush::pick(const Ray& ray, PickResult& pickResults) {

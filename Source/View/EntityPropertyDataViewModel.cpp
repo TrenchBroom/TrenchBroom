@@ -83,7 +83,7 @@ namespace TrenchBroom {
                     return false;
                 
                 const Model::PropertyKey& oldKey = m_properties[row].key;
-                Controller::EntityPropertyCommand* command = Controller::EntityPropertyCommand::setEntityPropertyKey(m_document, oldKey, newKey);
+                Controller::EntityPropertyCommand* command = Controller::EntityPropertyCommand::setEntityPropertyKey(m_document, entities, oldKey, newKey);
                 m_document.GetCommandProcessor()->Submit(command);
             } else {
                 const EntityProperty& property = m_properties[row];
@@ -92,7 +92,7 @@ namespace TrenchBroom {
                 
                 const Model::PropertyKey& key = property.key;
                 Model::PropertyValue newValue = wxValue.ToStdString();
-                Controller::EntityPropertyCommand* command = Controller::EntityPropertyCommand::setEntityPropertyValue(m_document, key, newValue);
+                Controller::EntityPropertyCommand* command = Controller::EntityPropertyCommand::setEntityPropertyValue(m_document, entities, key, newValue);
                 m_document.GetCommandProcessor()->Submit(command);
             }
 
@@ -142,20 +142,23 @@ namespace TrenchBroom {
                 }
             }
             
-            Controller::EntityPropertyCommand* command = Controller::EntityPropertyCommand::setEntityPropertyValue(m_document, keyStream.str(), "");
+            Controller::EntityPropertyCommand* command = Controller::EntityPropertyCommand::setEntityPropertyValue(m_document, entities, keyStream.str(), "");
             m_document.GetCommandProcessor()->Submit(command);
             
             return static_cast<unsigned int>(m_properties.size() - 1);
         }
 
         void EntityPropertyDataViewModel::removeRows(const wxDataViewItemArray& items) {
+            Model::EditStateManager& editStateManager = m_document.editStateManager();
+            const Model::EntityList& entities = editStateManager.selectedEntities();
+
             Model::PropertyKeyList keys;
             for (unsigned int i = 0; i < items.size(); i++) {
                 unsigned int row = GetRow(items[i]);
                 keys.push_back(m_properties[row].key);
             }
             
-            Controller::EntityPropertyCommand* command = Controller::EntityPropertyCommand::removeEntityProperties(m_document, keys);
+            Controller::EntityPropertyCommand* command = Controller::EntityPropertyCommand::removeEntityProperties(m_document, entities, keys);
             m_document.GetCommandProcessor()->Submit(command);
         }
 

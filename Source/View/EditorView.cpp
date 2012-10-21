@@ -26,6 +26,7 @@
 #include "Controller/MoveObjectsCommand.h"
 #include "Controller/MoveTextureSCommand.h"
 #include "Controller/RemoveObjectsCommand.h"
+#include "Controller/RotateObjects90Command.h"
 #include "Controller/RotateTexturesCommand.h"
 #include "Controller/EntityPropertyCommand.h"
 #include "Controller/SetFaceAttributesCommand.h"
@@ -97,6 +98,12 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::EditMoveObjectsLeft, EditorView::OnEditMoveObjectsLeft)
         EVT_MENU(CommandIds::Menu::EditMoveObjectsUp, EditorView::OnEditMoveObjectsUp)
         EVT_MENU(CommandIds::Menu::EditMoveObjectsDown, EditorView::OnEditMoveObjectsDown)
+        EVT_MENU(CommandIds::Menu::EditRollObjectsCW, EditorView::OnEditRollObjectsCW)
+        EVT_MENU(CommandIds::Menu::EditRollObjectsCCW, EditorView::OnEditRollObjectsCCW)
+        EVT_MENU(CommandIds::Menu::EditPitchObjectsCW, EditorView::OnEditPitchObjectsCW)
+        EVT_MENU(CommandIds::Menu::EditPitchObjectsCCW, EditorView::OnEditPitchObjectsCCW)
+        EVT_MENU(CommandIds::Menu::EditYawObjectsCW, EditorView::OnEditYawObjectsCW)
+        EVT_MENU(CommandIds::Menu::EditYawObjectsCCW, EditorView::OnEditYawObjectsCCW)
         
         EVT_UPDATE_UI(wxID_UNDO, EditorView::OnUpdateMenuItem)
         EVT_UPDATE_UI(wxID_REDO, EditorView::OnUpdateMenuItem)
@@ -147,13 +154,12 @@ namespace TrenchBroom {
 
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             const Model::FaceList& faces = editStateManager.selectedFaces();
-            wxString actionName = faces.size() == 1 ? wxT("Rotate Texture") : wxT("Rotate Textures");
             
             Controller::RotateTexturesCommand* command = NULL;
             if (clockwise)
-                command = Controller::RotateTexturesCommand::rotateClockwise(mapDocument(), actionName, angle);
+                command = Controller::RotateTexturesCommand::rotateClockwise(mapDocument(), faces, angle);
             else
-                command = Controller::RotateTexturesCommand::rotateCounterClockwise(mapDocument(), actionName, angle);
+                command = Controller::RotateTexturesCommand::rotateCounterClockwise(mapDocument(), faces, angle);
             submit(command);
         }
 
@@ -190,9 +196,36 @@ namespace TrenchBroom {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
-            wxString actionName = Controller::Command::makeObjectActionName("Move", entities, brushes);
             
-            Controller::MoveObjectsCommand* command = Controller::MoveObjectsCommand::moveObjects(mapDocument(), actionName, delta, true); // TODO texture lock
+            Controller::MoveObjectsCommand* command = Controller::MoveObjectsCommand::moveObjects(mapDocument(), entities, brushes, delta, true); // TODO texture lock
+            submit(command);
+        }
+
+        void EditorView::rotateObjects(RotationAxis rotationAxis, bool clockwise) {
+            Axis::Type absoluteAxis;
+            switch (rotationAxis) {
+                case ARoll:
+                    absoluteAxis = m_camera->direction().firstComponent();
+                    break;
+                case APitch:
+                    absoluteAxis = m_camera->right().firstComponent();
+                    break;
+                case AYaw:
+                    absoluteAxis = Axis::AZ;
+                    break;
+            }
+            
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            const Model::EntityList& entities = editStateManager.selectedEntities();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            
+            Vec3f center = Model::MapObject::center(entities, brushes);
+            
+            Controller::RotateObjects90Command* command = NULL;
+            if (clockwise)
+                command = Controller::RotateObjects90Command::rotateClockwise(mapDocument(), entities, brushes, absoluteAxis, center, true);
+            else
+                command = Controller::RotateObjects90Command::rotateCounterClockwise(mapDocument(), entities, brushes, absoluteAxis, center, true);
             submit(command);
         }
 
@@ -382,7 +415,8 @@ namespace TrenchBroom {
                             m_renderer->invalidateBrushes();
                         break;
                     }
-                    case Controller::Command::MoveObjects: {
+                    case Controller::Command::MoveObjects:
+                    case Controller::Command::RotateObjects: {
                         m_renderer->invalidateSelectedBrushes();
                         break;
                     }
@@ -511,7 +545,8 @@ namespace TrenchBroom {
                         Model::Texture* texture = textureManager.texture(face.textureName());
                         face.setTexture(texture);
                         
-                        Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(mapDocument(), wxT("Paste Faces"));
+                        const Model::FaceList& selectedFaces = mapDocument().editStateManager().selectedFaces();
+                        Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(mapDocument(), selectedFaces, wxT("Paste Faces"));
                         command->setTemplate(face);
                         submit(command);
                     } else {
@@ -537,7 +572,7 @@ namespace TrenchBroom {
                         
                         Controller::AddObjectsCommand* addObjectsCommand = Controller::AddObjectsCommand::addObjects(mapDocument(), entities, brushes);
                         Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::replace(mapDocument(), selectEntities, selectBrushes);
-                        Controller::MoveObjectsCommand* moveObjectsCommand = Controller::MoveObjectsCommand::moveObjects(mapDocument(), Controller::Command::makeObjectActionName("Move", selectEntities, selectBrushes), delta, true); // TODO texture lock
+                        Controller::MoveObjectsCommand* moveObjectsCommand = Controller::MoveObjectsCommand::moveObjects(mapDocument(), selectEntities, selectBrushes, delta, true); // TODO texture lock
                         
                         wxCommandProcessor* commandProcessor = mapDocument().GetCommandProcessor();
                         CommandProcessor::BeginGroup(commandProcessor, Controller::Command::makeObjectActionName(wxT("Paste"), selectEntities, selectBrushes));
@@ -703,6 +738,30 @@ namespace TrenchBroom {
         
         void EditorView::OnEditRotateTexturesCCW(wxCommandEvent& event) {
             rotateTextures(false, true);
+        }
+
+        void EditorView::OnEditRollObjectsCW(wxCommandEvent& event) {
+            rotateObjects(ARoll, true);
+        }
+        
+        void EditorView::OnEditRollObjectsCCW(wxCommandEvent& event) {
+            rotateObjects(ARoll, false);
+        }
+        
+        void EditorView::OnEditPitchObjectsCW(wxCommandEvent& event) {
+            rotateObjects(APitch, true);
+        }
+        
+        void EditorView::OnEditPitchObjectsCCW(wxCommandEvent& event) {
+            rotateObjects(APitch, false);
+        }
+        
+        void EditorView::OnEditYawObjectsCW(wxCommandEvent& event) {
+            rotateObjects(AYaw, true);
+        }
+        
+        void EditorView::OnEditYawObjectsCCW(wxCommandEvent& event) {
+            rotateObjects(AYaw, false);
         }
 
         void EditorView::OnUpdateMenuItem(wxUpdateUIEvent& event) {

@@ -17,53 +17,47 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MoveObjectsCommand.h"
+#include "RotateObjects90Command.h"
 
 #include "Model/Brush.h"
-#include "Model/EditStateManager.h"
 #include "Model/Entity.h"
-#include "Model/MapDocument.h"
-
-#include <cassert>
 
 namespace TrenchBroom {
     namespace Controller {
-        bool MoveObjectsCommand::translate(const Vec3f& delta) {
+        bool RotateObjects90Command::performDo() {
             Model::EntityList::const_iterator entityIt, entityEnd;
             for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                 Model::Entity& entity = **entityIt;
-                entity.translate(delta, m_lockTextures);
+                entity.rotate90(m_axis, m_center, m_clockwise, m_lockTextures);
                 document().updateEntity(entity);
             }
             
             Model::BrushList::const_iterator brushIt, brushEnd;
             for (brushIt = m_brushes.begin(), brushEnd = m_brushes.end(); brushIt != brushEnd; ++brushIt) {
                 Model::Brush& brush = **brushIt;
-                brush.translate(delta, m_lockTextures);
+                brush.rotate90(m_axis, m_center, m_clockwise, m_lockTextures);
                 document().updateBrush(brush);
             }
-
+            
+            return true;
+        }
+        
+        bool RotateObjects90Command::performUndo() {
+            m_clockwise = !m_clockwise;
+            performDo();
+            m_clockwise = !m_clockwise;
+            
             return true;
         }
 
-        bool MoveObjectsCommand::performDo() {
-            return translate(m_delta);
+        RotateObjects90Command* RotateObjects90Command::rotateClockwise(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, Axis::Type axis, const Vec3f& center, bool lockTextures) {
+            wxString commandName = Command::makeObjectActionName(wxT("Rotate"), entities, brushes);
+            return new RotateObjects90Command(document, entities, brushes, commandName, axis, center, true, lockTextures);
         }
         
-        bool MoveObjectsCommand::performUndo() {
-            return translate(-1.0f * m_delta);
-        }
-
-        MoveObjectsCommand::MoveObjectsCommand(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const wxString& name, const Vec3f& delta, bool lockTextures) :
-        DocumentCommand(MoveObjects, document, true, name),
-        m_entities(entities),
-        m_brushes(brushes),
-        m_delta(delta),
-        m_lockTextures(lockTextures) {}
-        
-        MoveObjectsCommand* MoveObjectsCommand::moveObjects(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const Vec3f& delta, bool lockTextures) {
-            wxString name = Controller::Command::makeObjectActionName("Move", entities, brushes);
-            return new MoveObjectsCommand(document, entities, brushes, name, delta, lockTextures);
+        RotateObjects90Command* RotateObjects90Command::rotateCounterClockwise(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, Axis::Type axis, const Vec3f& center, bool lockTextures) {
+            wxString commandName = Command::makeObjectActionName(wxT("Rotate"), entities, brushes);
+            return new RotateObjects90Command(document, entities, brushes, commandName, axis, center, false, lockTextures);
         }
     }
 }

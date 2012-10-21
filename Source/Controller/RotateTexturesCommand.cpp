@@ -27,12 +27,8 @@
 namespace TrenchBroom {
     namespace Controller {
         bool RotateTexturesCommand::performDo() {
-            Model::EditStateManager& editStateManager = document().editStateManager();
-            const Model::FaceList& faces = editStateManager.selectedFaces();
-            assert(!faces.empty());
-            
             Model::FaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                 Model::Face& face = **it;
                 face.rotateTexture(m_angle);
             }
@@ -41,12 +37,8 @@ namespace TrenchBroom {
         }
         
         bool RotateTexturesCommand::performUndo() {
-            Model::EditStateManager& editStateManager = document().editStateManager();
-            const Model::FaceList& faces = editStateManager.selectedFaces();
-            assert(!faces.empty());
-            
             Model::FaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                 Model::Face& face = **it;
                 face.rotateTexture(-m_angle);
             }
@@ -54,16 +46,19 @@ namespace TrenchBroom {
             return true;
         }
         
-        RotateTexturesCommand::RotateTexturesCommand(Model::MapDocument& document, const wxString& name, float angle) :
+        RotateTexturesCommand::RotateTexturesCommand(Model::MapDocument& document, const Model::FaceList& faces, const wxString& name, float angle) :
         DocumentCommand(RotateTextures, document, true, name),
+        m_faces(faces),
         m_angle(angle) {}
 
-        RotateTexturesCommand* RotateTexturesCommand::rotateClockwise(Model::MapDocument& document, const wxString& name, float angle) {
-            return new RotateTexturesCommand(document, name, angle);
+        RotateTexturesCommand* RotateTexturesCommand::rotateClockwise(Model::MapDocument& document, const Model::FaceList& faces, float angle) {
+            wxString name = faces.size() == 1 ? wxT("Rotate Texture") : wxT("Rotate Textures");
+            return new RotateTexturesCommand(document, faces, name, angle);
         }
 
-        RotateTexturesCommand* RotateTexturesCommand::rotateCounterClockwise(Model::MapDocument& document, const wxString& name, float angle) {
-            return new RotateTexturesCommand(document, name, -angle);
+        RotateTexturesCommand* RotateTexturesCommand::rotateCounterClockwise(Model::MapDocument& document, const Model::FaceList& faces, float angle) {
+            wxString name = faces.size() == 1 ? wxT("Rotate Texture") : wxT("Rotate Textures");
+            return new RotateTexturesCommand(document, faces, name, -angle);
         }
     }
 }

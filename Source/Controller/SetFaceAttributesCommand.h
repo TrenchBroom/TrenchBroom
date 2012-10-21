@@ -21,6 +21,7 @@
 #define __TrenchBroom__SetFaceAttributesCommand__
 
 #include "Controller/SnapshotCommand.h"
+#include "Model/FaceTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -31,7 +32,9 @@ namespace TrenchBroom {
     
     namespace Controller {
         class SetFaceAttributesCommand : public SnapshotCommand {
-        private:
+        protected:
+            Model::FaceList m_faces;
+            
             float m_xOffset;
             float m_yOffset;
             float m_xScale;
@@ -45,12 +48,13 @@ namespace TrenchBroom {
             bool m_setYScale;
             bool m_setRotation;
             bool m_setTexture;
-        protected:
+
             bool performDo();
             bool performUndo();
+
         public:
-            SetFaceAttributesCommand(Model::MapDocument& document, const wxString& name);
-            
+            SetFaceAttributesCommand(Model::MapDocument& document, const Model::FaceList& faces, const wxString& name);
+
             inline void setXOffset(float xOffset) {
                 m_xOffset = xOffset;
                 m_setXOffset = true;

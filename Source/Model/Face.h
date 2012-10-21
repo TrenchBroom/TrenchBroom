@@ -363,6 +363,11 @@ namespace TrenchBroom {
              * Translates this face by the given delta vector.
              */
             void translate(const Vec3f& delta, bool lockTexture);
+
+            /**
+             * Rotates this face about the given axis and center.
+             */
+            void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTexture);
         };
     }
 }

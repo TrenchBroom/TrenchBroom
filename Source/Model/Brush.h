@@ -123,6 +123,7 @@ namespace TrenchBroom {
             }
 
             void translate(const Vec3f& delta, bool lockTextures);
+            void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTextures);
             void pick(const Ray& ray, PickResult& pickResults);
         };
     }

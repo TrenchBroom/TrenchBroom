@@ -453,5 +453,26 @@ namespace TrenchBroom {
             m_texAxesValid = false;
             m_coordsValid = false;
         }
+
+        void Face::rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTexture) {
+            if (lockTexture) {
+                Mat4f t = Mat4f::Identity.translated(center);
+                if (axis == Axis::AX)
+                    t *= clockwise ? Mat4f::Rot90XCW : Mat4f::Rot90XCCW;
+                else if (axis == Axis::AY)
+                    t *= clockwise ? Mat4f::Rot90YCW : Mat4f::Rot90YCCW;
+                else
+                    t *= clockwise ? Mat4f::Rot90ZCW : Mat4f::Rot90ZCCW;
+                t.translate(center * -1);
+                compensateTransformation(t);
+            }
+            
+            m_boundary.rotate90(axis, center, clockwise);
+            for (unsigned int i = 0; i < 3; i++)
+                m_points[i].rotate90(axis, center, clockwise);
+            
+            m_texAxesValid = false;
+            m_coordsValid = false;
+        }
     }
 }

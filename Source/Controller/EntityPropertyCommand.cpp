@@ -19,7 +19,6 @@
 
 #include "EntityPropertyCommand.h"
 
-#include "Model/EditStateManager.h"
 #include "Model/Entity.h"
 #include "Model/EntityDefinition.h"
 #include "Model/EntityDefinitionManager.h"
@@ -27,51 +26,53 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        EntityPropertyCommand::EntityPropertyCommand(Type type, Model::MapDocument& document, const wxString& name) :
+        EntityPropertyCommand::EntityPropertyCommand(Type type, Model::MapDocument& document, const Model::EntityList& entities, const wxString& name) :
         SnapshotCommand(type, document, name),
+        m_entities(entities),
         m_definitionChanged(false) {}
 
         bool EntityPropertyCommand::performDo() {
-            const Model::EditStateManager& editStateManager = document().editStateManager();
-            const Model::EntityList& entities = editStateManager.selectedEntities();
-            if (entities.empty())
-                return false;
-            
             Model::EntityDefinitionManager& definitionManager = document().definitionManager();
             if (type() == SetEntityPropertyKey) {
-                makeSnapshots(entities);
+                makeSnapshots(m_entities);
                 m_definitionChanged = (key() == Model::Entity::ClassnameKey || m_newKey == Model::Entity::ClassnameKey);
-                for (unsigned int i = 0; i < entities.size(); i++) {
-                    Model::Entity& entity = *entities[i];
+                
+                Model::EntityList::const_iterator entityIt, entityEnd;
+                for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
+                    Model::Entity& entity = **entityIt;
                     Model::PropertyValue value = *entity.propertyForKey(key());
                     entity.deleteProperty(key());
                     entity.setProperty(m_newKey, value);
                     
-                    if (m_definitionChanged) {
+                    if (m_definitionChanged)
                         entity.setDefinition(definitionManager.definition(value));
-                    }
                 }
                 return true;
             }
+            
             if (type() == SetEntityPropertyValue) {
-                makeSnapshots(entities);
+                makeSnapshots(m_entities);
                 m_definitionChanged = (key() == Model::Entity::ClassnameKey);
-                for (unsigned int i = 0; i < entities.size(); i++) {
-                    Model::Entity& entity = *entities[i];
+
+                Model::EntityList::const_iterator entityIt, entityEnd;
+                for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
+                    Model::Entity& entity = **entityIt;
                     entity.setProperty(key(), m_newValue);
                     if (m_definitionChanged)
                         entity.setDefinition(definitionManager.definition(m_newValue));
                 }
                 return true;
             }
+            
             if (type() == RemoveEntityProperty) {
-                makeSnapshots(entities);
+                makeSnapshots(m_entities);
                 for (unsigned int i = 0; i < m_keys.size(); i++) {
                     const Model::PropertyKey& key = m_keys[i];
                     m_definitionChanged |= (key == Model::Entity::ClassnameKey);
                     
-                    for (unsigned int j = 0; j < entities.size(); j++) {
-                        Model::Entity& entity = *entities[j];
+                    Model::EntityList::const_iterator entityIt, entityEnd;
+                    for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
+                        Model::Entity& entity = **entityIt;
                         entity.deleteProperty(key);
                         if (key == Model::Entity::ClassnameKey)
                             entity.setDefinition(NULL);
@@ -84,15 +85,13 @@ namespace TrenchBroom {
         }
         
         bool EntityPropertyCommand::performUndo() {
-            const Model::EditStateManager& editStateManager = document().editStateManager();
-            const Model::EntityList& entities = editStateManager.selectedEntities();
-            assert(!entities.empty());
-            
-            restoreSnapshots(entities);
+            restoreSnapshots(m_entities);
             if (m_definitionChanged) {
                 Model::EntityDefinitionManager& definitionManager = document().definitionManager();
-                for (unsigned int i = 0; i < entities.size(); i++) {
-                    Model::Entity& entity = *entities[i];
+
+                Model::EntityList::const_iterator entityIt, entityEnd;
+                for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
+                    Model::Entity& entity = **entityIt;
                     const String* classname = entity.classname();
                     if (classname != NULL)
                         entity.setDefinition(definitionManager.definition(*classname));
@@ -103,28 +102,28 @@ namespace TrenchBroom {
             return true;
         }
 
-        EntityPropertyCommand* EntityPropertyCommand::setEntityPropertyKey(Model::MapDocument& document, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey) {
-            EntityPropertyCommand* command = new EntityPropertyCommand(SetEntityPropertyKey, document, wxT("Set Property Key"));
+        EntityPropertyCommand* EntityPropertyCommand::setEntityPropertyKey(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey) {
+            EntityPropertyCommand* command = new EntityPropertyCommand(SetEntityPropertyKey, document, entities, wxT("Set Property Key"));
             command->setKey(oldKey);
             command->setNewKey(newKey);
             return command;
         }
         
-        EntityPropertyCommand* EntityPropertyCommand::setEntityPropertyValue(Model::MapDocument& document, const Model::PropertyKey& key, const Model::PropertyValue& newValue) {
-            EntityPropertyCommand* command = new EntityPropertyCommand(SetEntityPropertyValue, document, wxT("Set Property Value"));
+        EntityPropertyCommand* EntityPropertyCommand::setEntityPropertyValue(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyValue& newValue) {
+            EntityPropertyCommand* command = new EntityPropertyCommand(SetEntityPropertyValue, document, entities, wxT("Set Property Value"));
             command->setKey(key);
             command->setNewValue(newValue);
             return command;
         }
         
-        EntityPropertyCommand* EntityPropertyCommand::removeEntityProperty(Model::MapDocument& document, const Model::PropertyKey& key) {
-            EntityPropertyCommand* command = new EntityPropertyCommand(RemoveEntityProperty, document, wxT("Delete Property"));
+        EntityPropertyCommand* EntityPropertyCommand::removeEntityProperty(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key) {
+            EntityPropertyCommand* command = new EntityPropertyCommand(RemoveEntityProperty, document, entities, wxT("Delete Property"));
             command->setKey(key);
             return command;
         }
 
-        EntityPropertyCommand* EntityPropertyCommand::removeEntityProperties(Model::MapDocument& document, const Model::PropertyKeyList& keys) {
-            EntityPropertyCommand* command = new EntityPropertyCommand(RemoveEntityProperty, document, wxT("Delete Properties"));
+        EntityPropertyCommand* EntityPropertyCommand::removeEntityProperties(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKeyList& keys) {
+            EntityPropertyCommand* command = new EntityPropertyCommand(RemoveEntityProperty, document, entities, wxT("Delete Properties"));
             command->setKeys(keys);
             return command;
         }

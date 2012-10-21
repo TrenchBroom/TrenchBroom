@@ -104,6 +104,7 @@ namespace TrenchBroom {
             virtual Type objectType() const = 0;
             
             virtual void translate(const Vec3f& delta, bool lockTextures) = 0;
+            virtual void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTextures) = 0;
             
             virtual void pick(const Ray& ray, PickResult& pickResults) = 0;
             
