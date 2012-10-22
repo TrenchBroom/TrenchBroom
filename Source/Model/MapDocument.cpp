@@ -145,6 +145,7 @@ namespace TrenchBroom {
         m_definitionManager(NULL),
         m_grid(new Utility::Grid(4)),
         m_mruTexture(NULL),
+        m_textureLock(true),
         m_mruTextureName("") {}
         
         MapDocument::~MapDocument() {
@@ -330,6 +331,14 @@ namespace TrenchBroom {
             else
                 m_mruTextureName = texture->name();
             m_mruTexture = texture;
+        }
+
+        bool MapDocument::textureLock() const {
+            return m_textureLock;
+        }
+        
+        void MapDocument::setTextureLock(bool textureLock) {
+            m_textureLock = textureLock;
         }
 
         void MapDocument::updateAfterTextureManagerChanged() {

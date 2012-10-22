@@ -64,6 +64,7 @@ namespace TrenchBroom {
             StringList m_mods;
             Model::Texture* m_mruTexture;
             String m_mruTextureName;
+            bool m_textureLock;
             
             virtual bool DoOpenDocument(const wxString& file);
             virtual bool DoSaveDocument(const wxString& file);
@@ -103,6 +104,9 @@ namespace TrenchBroom {
             Model::Texture* mruTexture() const;
             void setMruTexture(Model::Texture* texture);
             
+            bool textureLock() const;
+            void setTextureLock(bool textureLock);
+
             void updateAfterTextureManagerChanged();
             void loadTextureWad(const String& path);
             void loadTextureWad(const String& path, size_t index);

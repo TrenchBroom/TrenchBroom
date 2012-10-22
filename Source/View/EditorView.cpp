@@ -109,6 +109,8 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::EditFlipObjectsVertically, EditorView::OnEditFlipObjectsV)
         EVT_MENU(CommandIds::Menu::EditDuplicateObjects, EditorView::OnEditDuplicateObjects)
         
+        EVT_MENU(CommandIds::Menu::EditToggleTextureLock, EditorView::OnEditToggleTextureLock)
+        
         EVT_UPDATE_UI(wxID_UNDO, EditorView::OnUpdateMenuItem)
         EVT_UPDATE_UI(wxID_REDO, EditorView::OnUpdateMenuItem)
         EVT_UPDATE_UI(wxID_CUT, EditorView::OnUpdateMenuItem)
@@ -200,8 +202,8 @@ namespace TrenchBroom {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
-            
-            Controller::MoveObjectsCommand* command = Controller::MoveObjectsCommand::moveObjects(mapDocument(), entities, brushes, delta, true); // TODO texture lock
+
+            Controller::MoveObjectsCommand* command = Controller::MoveObjectsCommand::moveObjects(mapDocument(), entities, brushes, delta, mapDocument().textureLock());
             submit(command);
         }
 
@@ -227,9 +229,9 @@ namespace TrenchBroom {
             
             Controller::RotateObjects90Command* command = NULL;
             if (clockwise)
-                command = Controller::RotateObjects90Command::rotateClockwise(mapDocument(), entities, brushes, absoluteAxis, center, true);
+                command = Controller::RotateObjects90Command::rotateClockwise(mapDocument(), entities, brushes, absoluteAxis, center, mapDocument().textureLock());
             else
-                command = Controller::RotateObjects90Command::rotateCounterClockwise(mapDocument(), entities, brushes, absoluteAxis, center, true);
+                command = Controller::RotateObjects90Command::rotateCounterClockwise(mapDocument(), entities, brushes, absoluteAxis, center, mapDocument().textureLock());
             submit(command);
         }
 
@@ -241,7 +243,7 @@ namespace TrenchBroom {
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
 
             Vec3f center = Model::MapObject::center(entities, brushes);
-            Controller::FlipObjectsCommand* command = Controller::FlipObjectsCommand::flip(mapDocument(), entities, brushes, axis, center, true);
+            Controller::FlipObjectsCommand* command = Controller::FlipObjectsCommand::flip(mapDocument(), entities, brushes, axis, center, mapDocument().textureLock());
             submit(command);
         }
 
@@ -589,7 +591,7 @@ namespace TrenchBroom {
                         
                         Controller::AddObjectsCommand* addObjectsCommand = Controller::AddObjectsCommand::addObjects(mapDocument(), entities, brushes);
                         Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::replace(mapDocument(), selectEntities, selectBrushes);
-                        Controller::MoveObjectsCommand* moveObjectsCommand = Controller::MoveObjectsCommand::moveObjects(mapDocument(), selectEntities, selectBrushes, delta, true); // TODO texture lock
+                        Controller::MoveObjectsCommand* moveObjectsCommand = Controller::MoveObjectsCommand::moveObjects(mapDocument(), selectEntities, selectBrushes, delta, mapDocument().textureLock());
                         
                         wxCommandProcessor* commandProcessor = mapDocument().GetCommandProcessor();
                         CommandProcessor::BeginGroup(commandProcessor, Controller::Command::makeObjectActionName(wxT("Paste"), selectEntities, selectBrushes));
@@ -821,7 +823,7 @@ namespace TrenchBroom {
             
             Controller::AddObjectsCommand* addObjectsCommand = Controller::AddObjectsCommand::addObjects(mapDocument(), newEntities, newBrushes);
             Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::replace(mapDocument(), newEntities, newBrushes);
-            Controller::MoveObjectsCommand* moveObjectsCommand = Controller::MoveObjectsCommand::moveObjects(mapDocument(), newEntities, newBrushes, delta, true); // TODO texture lock
+            Controller::MoveObjectsCommand* moveObjectsCommand = Controller::MoveObjectsCommand::moveObjects(mapDocument(), newEntities, newBrushes, delta, mapDocument().textureLock());
             
             wxCommandProcessor* commandProcessor = mapDocument().GetCommandProcessor();
             CommandProcessor::BeginGroup(commandProcessor, Controller::Command::makeObjectActionName(wxT("Duplicate"), newEntities, newBrushes));
@@ -829,6 +831,10 @@ namespace TrenchBroom {
             submit(changeEditStateCommand);
             submit(moveObjectsCommand);
             CommandProcessor::EndGroup(commandProcessor);
+        }
+
+        void EditorView::OnEditToggleTextureLock(wxCommandEvent& event) {
+            mapDocument().setTextureLock(!mapDocument().textureLock());
         }
 
         void EditorView::OnUpdateMenuItem(wxUpdateUIEvent& event) {
@@ -914,6 +920,10 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditFlipObjectsVertically:
                 case CommandIds::Menu::EditDuplicateObjects:
                     event.Enable(editStateManager.selectionMode() == Model::EditStateManager::SMEntities || editStateManager.selectionMode() == Model::EditStateManager::SMBrushes || editStateManager.selectionMode() == Model::EditStateManager::SMEntitiesAndBrushes);
+                    break;
+                case CommandIds::Menu::EditToggleTextureLock:
+                    event.Check(mapDocument().textureLock());
+                    event.Enable(true);
                     break;
                 case CommandIds::Menu::EditCreatePointEntity:
                     event.Enable(true);

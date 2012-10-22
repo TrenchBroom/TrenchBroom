@@ -80,13 +80,13 @@ wxMenu* AbstractApp::CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMe
     editMenu->Append(CommandIds::Menu::EditUnlockAll, wxT("Unlock All\tCtrl+Shift+L"));
 
     wxMenu* toolsMenu = new wxMenu();
-    toolsMenu->Append(CommandIds::Menu::EditToggleClipTool, wxT("Clip Tool\tC"));
+    toolsMenu->AppendCheckItem(CommandIds::Menu::EditToggleClipTool, wxT("Clip Tool\tC"));
     toolsMenu->Append(CommandIds::Menu::EditToggleClipSide, wxT("Toggle Clip Side\tTAB"));
     toolsMenu->Append(CommandIds::Menu::EditPerformClip, wxT("Perform Clip\tENTER"));
     toolsMenu->AppendSeparator();
-    toolsMenu->Append(CommandIds::Menu::EditToggleVertexTool, wxT("Vertex Tool\tV"));
-    toolsMenu->Append(CommandIds::Menu::EditToggleEdgeTool, wxT("Edge Tool\tE"));
-    toolsMenu->Append(CommandIds::Menu::EditToggleFaceTool, wxT("Face Tool\tF"));
+    toolsMenu->AppendCheckItem(CommandIds::Menu::EditToggleVertexTool, wxT("Vertex Tool\tV"));
+    toolsMenu->AppendCheckItem(CommandIds::Menu::EditToggleEdgeTool, wxT("Edge Tool\tE"));
+    toolsMenu->AppendCheckItem(CommandIds::Menu::EditToggleFaceTool, wxT("Face Tool\tF"));
     toolsMenu->SetEventHandler(eventHandler);
 
     editMenu->AppendSeparator();
@@ -101,7 +101,7 @@ wxMenu* AbstractApp::CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMe
     editMenu->Append(CommandIds::Menu::EditCreatePointEntity, wxT("Create Point Entity"));
     editMenu->Append(CommandIds::Menu::EditCreateBrushEntity, wxT("Create Brush Entity"));
     editMenu->AppendSeparator();
-    editMenu->Append(CommandIds::Menu::EditToggleTextureLock, wxT("Toggle Texture Lock\tCtrl+L"));
+    editMenu->AppendCheckItem(CommandIds::Menu::EditToggleTextureLock, wxT("Toggle Texture Lock"));
     editMenu->SetEventHandler(eventHandler);
     
     return editMenu;

@@ -145,6 +145,8 @@ namespace TrenchBroom {
             void OnEditFlipObjectsV(wxCommandEvent& event);
             void OnEditDuplicateObjects(wxCommandEvent& event);
             
+            void OnEditToggleTextureLock(wxCommandEvent& event);
+            
             void OnUpdateMenuItem(wxUpdateUIEvent& event);
             
             DECLARE_EVENT_TABLE();
