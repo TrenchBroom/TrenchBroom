@@ -124,25 +124,28 @@ namespace TrenchBroom {
                 return v[index];
             }
             
-            inline void setIdentity() {
+            inline Mat3f& setIdentity() {
                 for (unsigned int c = 0; c < 3; c++)
                     for (unsigned int r = 0; r < 3; r++)
                         v[c * 3 + r] = c == r ? 1.0f : 0.0f;
+                return *this;
             }
             
-            inline void setValue(unsigned int row, unsigned int col, float value) {
+            inline Mat3f& setValue(unsigned int row, unsigned int col, float value) {
                 assert(row >= 0 && row < 3);
                 assert(col >= 0 && col < 3);
                 v[col * 3 + row] = value;
+                return *this;
             }
             
-            inline void setColumn(unsigned int col, const Vec3f& values) {
+            inline Mat3f& setColumn(unsigned int col, const Vec3f& values) {
                 v[col + 0] = values.x;
                 v[col + 1] = values.y;
                 v[col + 2] = values.z;
+                return *this;
             }
             
-            void invert(bool& invertible) {
+            Mat3f& invert(bool& invertible) {
                 float det = determinant();
                 if (det == 0.0f) {
                     invertible = false;
@@ -151,6 +154,7 @@ namespace TrenchBroom {
                     adjugate();
                     *this /= det;
                 }
+                return *this;
             }
 
             const Mat3f inverted(bool& invertible) const {
@@ -159,8 +163,9 @@ namespace TrenchBroom {
                 return result;
             }
             
-            void adjugate() {
+            Mat3f& adjugate() {
                 *this = adjugated();
+                return *this;
             }
 
             const Mat3f adjugated() const {
@@ -171,9 +176,10 @@ namespace TrenchBroom {
                 return result;
             }
             
-            void negate() {
+            Mat3f& negate() {
                 for (unsigned int i = 0; i < 9; i++)
                     v[i] = -v[i];
+                return *this;
             }
             
             const Mat3f negated() const {
@@ -182,10 +188,11 @@ namespace TrenchBroom {
                              v[6] * - 1, v[7] * - 1, v[8] * - 1);
             }
             
-            void transpose() {
+            Mat3f& transpose() {
                 for (unsigned int c = 0; c < 3; c++)
                     for (unsigned int r = c + 1; r < 3; r++)
                         std::swap(v[c * 3 + r], v[r * 3 + c]);
+                return *this;
             }
 
             const Mat3f transposed() const {

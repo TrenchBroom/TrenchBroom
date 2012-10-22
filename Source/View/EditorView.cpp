@@ -23,6 +23,7 @@
 #include "Controller/CameraEvent.h"
 #include "Controller/Command.h"
 #include "Controller/ChangeEditStateCommand.h"
+#include "Controller/FlipObjectsCommand.h"
 #include "Controller/MoveObjectsCommand.h"
 #include "Controller/MoveTextureSCommand.h"
 #include "Controller/RemoveObjectsCommand.h"
@@ -104,6 +105,9 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::EditPitchObjectsCCW, EditorView::OnEditPitchObjectsCCW)
         EVT_MENU(CommandIds::Menu::EditYawObjectsCW, EditorView::OnEditYawObjectsCW)
         EVT_MENU(CommandIds::Menu::EditYawObjectsCCW, EditorView::OnEditYawObjectsCCW)
+        EVT_MENU(CommandIds::Menu::EditFlipObjectsHorizontally, EditorView::OnEditFlipObjectsH)
+        EVT_MENU(CommandIds::Menu::EditFlipObjectsVertically, EditorView::OnEditFlipObjectsV)
+        EVT_MENU(CommandIds::Menu::EditDuplicateObjects, EditorView::OnEditDuplicateObjects)
         
         EVT_UPDATE_UI(wxID_UNDO, EditorView::OnUpdateMenuItem)
         EVT_UPDATE_UI(wxID_REDO, EditorView::OnUpdateMenuItem)
@@ -226,6 +230,18 @@ namespace TrenchBroom {
                 command = Controller::RotateObjects90Command::rotateClockwise(mapDocument(), entities, brushes, absoluteAxis, center, true);
             else
                 command = Controller::RotateObjects90Command::rotateCounterClockwise(mapDocument(), entities, brushes, absoluteAxis, center, true);
+            submit(command);
+        }
+
+        void EditorView::flipObjects(bool horizontally) {
+            Axis::Type axis = horizontally ? m_camera->right().firstComponent() : Axis::AZ;
+            
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            const Model::EntityList& entities = editStateManager.selectedEntities();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+
+            Vec3f center = Model::MapObject::center(entities, brushes);
+            Controller::FlipObjectsCommand* command = Controller::FlipObjectsCommand::flip(mapDocument(), entities, brushes, axis, center, true);
             submit(command);
         }
 
@@ -416,7 +432,8 @@ namespace TrenchBroom {
                         break;
                     }
                     case Controller::Command::MoveObjects:
-                    case Controller::Command::RotateObjects: {
+                    case Controller::Command::RotateObjects:
+                    case Controller::Command::FlipObjects: {
                         m_renderer->invalidateSelectedBrushes();
                         break;
                     }
@@ -762,6 +779,17 @@ namespace TrenchBroom {
         
         void EditorView::OnEditYawObjectsCCW(wxCommandEvent& event) {
             rotateObjects(AYaw, false);
+        }
+
+        void EditorView::OnEditFlipObjectsH(wxCommandEvent& event) {
+            flipObjects(true);
+        }
+        
+        void EditorView::OnEditFlipObjectsV(wxCommandEvent& event) {
+            flipObjects(false);
+        }
+        
+        void EditorView::OnEditDuplicateObjects(wxCommandEvent& event) {
         }
 
         void EditorView::OnUpdateMenuItem(wxUpdateUIEvent& event) {

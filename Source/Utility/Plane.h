@@ -103,59 +103,66 @@ namespace TrenchBroom {
                 return normal.equals(other.normal, epsilon) && fabsf(distance - other.distance) <= epsilon;
             }
             
-            inline void translate(const Vec3f& delta) {
+            inline Plane& translate(const Vec3f& delta) {
                 distance = (anchor() + delta).dot(normal);
+                return *this;
             }
             
             inline const Plane translated(const Vec3f& delta) const {
                 return Plane(normal, (anchor() + delta).dot(normal));
             }
             
-            inline void rotate90(Axis::Type axis, bool clockwise) {
+            inline Plane& rotate90(Axis::Type axis, bool clockwise) {
                 normal.rotate90(axis, clockwise);
+                return *this;
             }
             
             inline const Plane rotated90(Axis::Type axis, bool clockwise) const {
                 return Plane(normal.rotated90(axis, clockwise), distance);
             }
             
-            inline void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise) {
+            inline Plane& rotate90(Axis::Type axis, const Vec3f& center, bool clockwise) {
                 normal.rotate90(axis, center, clockwise);
                 distance = (anchor().rotated90(axis, center, clockwise)).dot(normal);
+                return *this;
             }
             
             inline const Plane rotated90(Axis::Type axis, const Vec3f& center, bool clockwise) const {
                 return Plane(normal.rotated90(axis, clockwise), anchor().rotated90(axis, center, clockwise));
             }
             
-            inline void rotate(const Quat& rotation) {
+            inline Plane& rotate(const Quat& rotation) {
                 normal = rotation * normal;
+                return *this;
             }
             
             inline const Plane rotated(const Quat& rotation) const {
                 return Plane(rotation * normal, distance);
             }
             
-            inline void rotate(const Quat& rotation, const Vec3f& center) {
+            inline Plane& rotate(const Quat& rotation, const Vec3f& center) {
                 normal = rotation * normal;
                 distance = (rotation * (anchor() - center) + center).dot(normal);
+                return *this;
             }
             
             inline const Plane rotated(const Quat& rotation, const Vec3f& center) const {
                 return Plane(rotation * normal, rotation * (anchor() - center) + center);
             }
             
-            inline void flip(Axis::Type axis) {
+            inline Plane& flip(Axis::Type axis) {
                 normal.flip(axis);
+                return *this;
             }
             
             inline const Plane flipped(Axis::Type axis) const {
                 return Plane(normal.flipped(axis), distance);
             }
             
-            inline void flip(Axis::Type axis, const Vec3f& center) {
+            inline Plane& flip(Axis::Type axis, const Vec3f& center) {
                 normal.flip(axis);
                 distance = anchor().flipped(axis, center).dot(normal);
+                return *this;
             }
             
             inline const Plane flipped(Axis::Type axis, const Vec3f& center) const {

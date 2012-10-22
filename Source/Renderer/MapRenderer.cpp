@@ -601,12 +601,9 @@ namespace TrenchBroom {
                 renderEdges(context);
             
             if (context.viewOptions().showEntities()) {
-                if (context.viewOptions().showEntityModels())
-                    m_entityRenderer->render(context);
-                if (context.viewOptions().showEntityBounds())
-                    m_selectedEntityRenderer->render(context);
-                if (context.viewOptions().showEntityClassnames())
-                    m_lockedEntityRenderer->render(context);
+                m_entityRenderer->render(context);
+                m_selectedEntityRenderer->render(context);
+                m_lockedEntityRenderer->render(context);
             }
             
             renderFigures(context);

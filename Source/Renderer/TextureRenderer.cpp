@@ -38,20 +38,21 @@ namespace TrenchBroom {
             m_textureBuffer = rgbImage;
         }
         
-        TextureRenderer::TextureRenderer(unsigned char* rgbImage, unsigned int width, unsigned int height) {
+        TextureRenderer::TextureRenderer(unsigned char* rgbImage, const Color& averageColor, unsigned int width, unsigned int height) :
+        m_averageColor(averageColor) {
             init(rgbImage, width, height);
         }
         
         TextureRenderer::TextureRenderer(const Model::AliasSkin& skin, unsigned int skinIndex, const Palette& palette) {
             init(skin.width(), skin.height());
             m_textureBuffer = new unsigned char[m_width * m_height * 3];
-            palette.indexedToRgb(skin.pictures()[skinIndex], m_textureBuffer, m_width * m_height);
+            palette.indexedToRgb(skin.pictures()[skinIndex], m_textureBuffer, m_width * m_height, m_averageColor);
         }
         
         TextureRenderer::TextureRenderer(const Model::BspTexture& texture, const Palette& palette) {
             init(texture.width(), texture.height());
             m_textureBuffer = new unsigned char[m_width * m_height * 3];
-            palette.indexedToRgb(texture.image(), m_textureBuffer, m_width * m_height);
+            palette.indexedToRgb(texture.image(), m_textureBuffer, m_width * m_height, m_averageColor);
         }
         
         TextureRenderer::TextureRenderer() {

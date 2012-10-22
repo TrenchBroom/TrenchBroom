@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__Palette__
 #define __TrenchBroom__Palette__
 
+#include "Utility/Color.h"
 #include "Utility/String.h"
 
 #include <cassert>
@@ -34,13 +35,22 @@ namespace TrenchBroom {
             Palette(const String& path);
             ~Palette();
             
-            inline void indexedToRgb(const unsigned char* indexedImage, unsigned char* rgbImage, size_t pixelCount) const {
+            inline void indexedToRgb(const unsigned char* indexedImage, unsigned char* rgbImage, size_t pixelCount, Color& averageColor) const {
+                double avg[3];
+                avg[0] = avg[1] = avg[2] = 0;
                 for (unsigned int i = 0; i < pixelCount; i++) {
                     unsigned int index = indexedImage[i];
                     assert(index < m_size);
-                    for (unsigned int j = 0; j < 3; j++)
-                        rgbImage[i * 3 + j] = m_data[index * 3 + j];
+                    for (unsigned int j = 0; j < 3; j++) {
+                        unsigned char c = m_data[index * 3 + j];
+                        rgbImage[i * 3 + j] = c;
+                        avg[j] += static_cast<double>(c);
+                    }
                 }
+
+                for (unsigned int i = 0; i < 3; i++)
+                    averageColor[i] = static_cast<float>(avg[i] / pixelCount / 0xFF);
+                averageColor.w = 1.0f;
             }
         };
     }

@@ -115,25 +115,28 @@ namespace TrenchBroom {
                 return v[index];
             }
             
-            inline void setIdentity() {
+            inline Mat2f& setIdentity() {
                 for (unsigned int c = 0; c < 2; c++)
                     for (unsigned int r = 0; r < 2; r++)
                         v[c * 2 + r] = c == r ? 1.0f : 0.0f;
+                return *this;
             }
             
-            inline void setValue(unsigned int row, unsigned int col, float value) {
+            inline Mat2f& setValue(unsigned int row, unsigned int col, float value) {
                 assert(row >= 0 && row < 2);
                 assert(col >= 0 && col < 2);
                 v[2 * col + row] = value;
+                return *this;
             }
             
-            inline void setColumn(unsigned int col, const Vec2f& values) {
+            inline Mat2f& setColumn(unsigned int col, const Vec2f& values) {
                 assert(col >= 0 && col < 2);
                 v[col + 0] = values.x;
                 v[col + 1] = values.y;
+                return *this;
             }
             
-            inline void invert(bool& invertible) {
+            inline Mat2f& invert(bool& invertible) {
                 float det = determinant();
                 if (det == 0.0f) {
                     invertible = false;
@@ -142,6 +145,7 @@ namespace TrenchBroom {
                     adjugate();
                     *this /= det;
                 }
+                return *this;
             }
 
             inline const Mat2f inverted(bool& invertible) const {
@@ -150,10 +154,11 @@ namespace TrenchBroom {
                 return result;
             }
             
-            inline void adjugate() {
+            inline Mat2f& adjugate() {
                 std::swap(v[0], v[3]);
                 v[1] *= -1.0f;
                 v[2] *= -1.0f;
+                return *this;
             }
 
             inline const Mat2f adjugated() const {
@@ -162,9 +167,10 @@ namespace TrenchBroom {
                 return result;
             }
             
-            inline void negate() {
+            inline Mat2f& negate() {
                 for (unsigned int i = 0; i < 4; i++)
                     v[i] = -v[i];
+                return *this;
             }
 
             inline const Mat2f negated() const {
@@ -172,10 +178,11 @@ namespace TrenchBroom {
                              v[2] * -1, v[3] * -1);
             }
             
-            inline void transpose() {
+            inline Mat2f& transpose() {
                 for (unsigned int c = 0; c < 2; c++)
                     for (unsigned int r = c + 1; r < 2; r++)
                         std::swap(v[c * 2 + r], v[r * 2 + c]);
+                return *this;
             }
 
             inline const Mat2f transposed() const {

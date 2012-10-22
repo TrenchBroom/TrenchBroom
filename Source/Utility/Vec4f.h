@@ -159,12 +159,13 @@ namespace TrenchBroom {
                 return this->dot(*this);
             }
             
-            inline void normalize() {
+            inline Vec4f& normalize() {
                 float l = length();
                 x /= l;
                 y /= l;
                 z /= l;
                 w /= l;
+                return *this;
             }
             
             inline const Vec4f normalized() const {
@@ -175,11 +176,12 @@ namespace TrenchBroom {
                              w / l);
             }
             
-            inline void correct() {
+            inline Vec4f& correct() {
                 x = Math::correct(x);
                 y = Math::correct(y);
                 z = Math::correct(z);
                 w = Math::correct(w);
+                return *this;
             }
             
             inline const Vec4f corrected() const {

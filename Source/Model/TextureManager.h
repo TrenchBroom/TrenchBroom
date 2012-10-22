@@ -23,6 +23,7 @@
 #include "IO/Wad.h"
 #include "Model/Texture.h"
 #include "Model/TextureTypes.h"
+#include "Utility/Color.h"
 #include "Utility/String.h"
 
 #include <algorithm>
@@ -67,7 +68,7 @@ namespace TrenchBroom {
             IO::Wad m_wad;
         public:
             TextureCollectionLoader(const String& path);
-            unsigned char* load(const Texture& texture, const Renderer::Palette& palette);
+            unsigned char* load(const Texture& texture, const Renderer::Palette& palette, Color& averageColor);
         };
         
         class TextureCollection {

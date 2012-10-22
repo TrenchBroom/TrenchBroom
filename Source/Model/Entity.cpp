@@ -257,6 +257,25 @@ namespace TrenchBroom {
             }
         }
 
+        void Entity::flip(Axis::Type axis, const Vec3f& flipCenter, bool lockTextures) {
+            if (m_definition != NULL && m_definition->type() == EntityDefinition::BrushEntity)
+                return;
+            
+            Vec3f offset = center() - origin();
+            Vec3f newCenter = center().flipped(axis, flipCenter);
+            setProperty(OriginKey, newCenter + offset, true);
+            setProperty(AngleKey, 0, true);
+            
+            if (m_angle >= 0)
+                m_angle = (m_angle + 180) - static_cast<int>(m_angle / 360.0f) * m_angle;
+            else if (m_angle == -1)
+                m_angle = -2;
+            else if (m_angle == -2)
+                m_angle = -1;
+            setProperty(AngleKey, m_angle, true);
+            invalidateGeometry();
+        }
+
         void Entity::pick(const Ray& ray, PickResult& pickResults) {
             float dist = bounds().intersectWithRay(ray, NULL);
             if (Math::isnan(dist))

@@ -289,8 +289,7 @@ namespace TrenchBroom {
         }
 
         void Side::flip() {
-            for (unsigned int i = 0; i < vertices.size() / 2; i++)
-                std::swap(vertices[i], vertices[vertices.size() - i - 1]);
+            // std::reverse(vertices.begin(), vertices.end());
         }
 
         void Side::shift(size_t offset) {
@@ -1524,14 +1523,14 @@ namespace TrenchBroom {
 
         void BrushGeometry::flip(Axis::Type axis, const Vec3f& flipCenter) {
             for (unsigned int i = 0; i < vertices.size(); i++)
-                vertices[i]->position.flip(axis, center);
-            bounds.flip(axis, center);
-            center.flip(axis, center);
-
+                vertices[i]->position.flip(axis, flipCenter);
             for (unsigned int i = 0; i < edges.size(); i++)
                 edges[i]->flip();
             for (unsigned int i = 0; i < sides.size(); i++)
                 sides[i]->flip();
+            
+            bounds.flip(axis, flipCenter);
+            center.flip(axis, flipCenter);
         }
 
         void BrushGeometry::snap() {

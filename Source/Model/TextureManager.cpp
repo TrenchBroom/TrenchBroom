@@ -26,14 +26,14 @@ namespace TrenchBroom {
         TextureCollectionLoader::TextureCollectionLoader(const String& path) :
         m_wad(path) {}
         
-        unsigned char* TextureCollectionLoader::load(const Texture& texture, const Renderer::Palette& palette) {
+        unsigned char* TextureCollectionLoader::load(const Texture& texture, const Renderer::Palette& palette, Color& averageColor) {
             IO::Mip* mip = m_wad.loadMip(texture.name(), 1);
             if (mip == NULL)
                 return NULL;
             
             size_t pixelCount = texture.width() * texture.height();
             unsigned char* rgbImage = new unsigned char[pixelCount * 3];
-            palette.indexedToRgb(mip->mip0(), rgbImage, pixelCount);
+            palette.indexedToRgb(mip->mip0(), rgbImage, pixelCount, averageColor);
             delete mip;
             
             return rgbImage;

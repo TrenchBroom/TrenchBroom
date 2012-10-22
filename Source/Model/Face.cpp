@@ -474,5 +474,42 @@ namespace TrenchBroom {
             m_texAxesValid = false;
             m_coordsValid = false;
         }
+
+        void Face::flip(Axis::Type axis, const Vec3f& center, bool lockTexture) {
+            if (lockTexture) {
+                Mat4f t;
+                Vec3f d;
+                switch (axis) {
+                    case Axis::AX:
+                        d = Vec3f(center.x, 0.0f, 0.0f);
+                        t.setIdentity();
+                        t *= Mat4f::MirX;
+                        t.translate(-1.0f * d);
+                        break;
+                    case Axis::AY:
+                        d = Vec3f(0.0f, center.y, 0.0f);
+                        t.setIdentity();
+                        t *= Mat4f::MirY;
+                        t.translate(-1.0f * d);
+                        break;
+                    case Axis::AZ:
+                        d = Vec3f(0.0f, 0.0f, center.z);
+                        t.setIdentity();
+                        t *= Mat4f::MirZ;
+                        t.translate(-1.0f * d);
+                        break;
+                }
+                compensateTransformation(t);
+            }
+            
+            m_boundary.flip(axis, center);
+            for (unsigned int i = 0; i < 3; i++)
+                m_points[i].flip(axis, center);
+            
+            Vec3f t = m_points[1];
+            m_points[1] = m_points[2];
+            m_points[2] = t;
+            m_texAxesValid = false;
+            m_coordsValid = false;        }
     }
 }

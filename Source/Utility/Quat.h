@@ -72,13 +72,15 @@ namespace TrenchBroom {
                 return *this;
             }
             
-            inline void setRotation(float angle, const Vec3f axis) {
-                s = cosf(angle / 2);
-                v = axis * sinf(angle / 2);
+            inline Quat& setRotation(float angle, const Vec3f axis) {
+                s = cosf(angle / 2.0f);
+                v = axis * sinf(angle / 2.0f);
+                return *this;
             }
             
-            inline void conjugate() {
+            inline Quat& conjugate() {
                 v *= -1.0f;
+                return *this;
             }
 
             inline const Quat conjugated() const {

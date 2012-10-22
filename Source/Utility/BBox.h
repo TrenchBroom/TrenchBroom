@@ -117,10 +117,11 @@ namespace TrenchBroom {
                              max.z - min.z);
             }
             
-            inline void translateToOrigin() {
+            inline BBox& translateToOrigin() {
                 Vec3f c = center();
                 min - c;
                 max - c;
+                return *this;
             }
             
             inline const BBox translatedToOrigin() const {
@@ -128,10 +129,11 @@ namespace TrenchBroom {
                 return BBox(min - c, max - c);
             }
             
-            inline void repair() {
+            inline BBox& repair() {
                 for (unsigned int i = 0; i < 3; i++)
                     if (min[i] > max[i])
                         std::swap(min[i], max[i]);
+                return *this;
             }
             
             inline const BBox repaired() const {
@@ -253,9 +255,10 @@ namespace TrenchBroom {
                 return intersectWithRay(ray, NULL);
             }
             
-            inline void translate(const Vec3f& delta) {
+            inline BBox& translate(const Vec3f& delta) {
                 min += delta;
                 max += delta;
+                return *this;
             }
             
             inline const BBox translated(const Vec3f& delta) const {
@@ -267,10 +270,11 @@ namespace TrenchBroom {
                             max.z + delta.z);
             }
 
-            inline void rotate90(Axis::Type axis, bool clockwise) {
+            inline BBox& rotate90(Axis::Type axis, bool clockwise) {
                 min.rotate90(axis, clockwise);
                 max.rotate90(axis, clockwise);
                 repair();
+                return *this;
             }
             
             inline const BBox rotated90(Axis::Type axis, bool clockwise) const {
@@ -279,10 +283,11 @@ namespace TrenchBroom {
                 return result;
             }
             
-            inline void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise) {
+            inline BBox& rotate90(Axis::Type axis, const Vec3f& center, bool clockwise) {
                 min.rotate90(axis, center, clockwise);
                 max.rotate90(axis, center, clockwise);
                 repair();
+                return *this;
             }
             
            inline  const BBox rotated90(Axis::Type axis, const Vec3f& center, bool clockwise) const {
@@ -291,8 +296,9 @@ namespace TrenchBroom {
                 return result;
             }
             
-            inline void rotate(const Quat& rotation) {
+            inline BBox& rotate(const Quat& rotation) {
                 *this = rotated(rotation);
+                return *this;
             }
             
             inline const BBox rotated(const Quat& rotation) const {
@@ -308,8 +314,9 @@ namespace TrenchBroom {
                 return result;
             }
             
-            inline void rotate(const Quat& rotation, const Vec3f& center) {
+            inline BBox& rotate(const Quat& rotation, const Vec3f& center) {
                 *this = rotated(rotation, center);
+                return *this;
             }
             
             inline const BBox rotated(const Quat& rotation, const Vec3f& center) const {
@@ -325,23 +332,28 @@ namespace TrenchBroom {
                 return result;
             }
             
-            const BBox transform(const Mat4f& transformation) const {
-                BBox result;
-                result.min = result.max = transformation * vertex(false, false, false);
-                result.mergeWith(transformation * vertex(false, false, true ));
-                result.mergeWith(transformation * vertex(false, true , false));
-                result.mergeWith(transformation * vertex(false, true , true ));
-                result.mergeWith(transformation * vertex(true , false, false));
-                result.mergeWith(transformation * vertex(true , false, true ));
-                result.mergeWith(transformation * vertex(true , true , false));
-                result.mergeWith(transformation * vertex(true , true , true ));
-                return result;
+            BBox& transform(const Mat4f& transformation) {
+                min = max = transformation * vertex(false, false, false);
+                mergeWith(transformation * vertex(false, false, true ));
+                mergeWith(transformation * vertex(false, true , false));
+                mergeWith(transformation * vertex(false, true , true ));
+                mergeWith(transformation * vertex(true , false, false));
+                mergeWith(transformation * vertex(true , false, true ));
+                mergeWith(transformation * vertex(true , true , false));
+                mergeWith(transformation * vertex(true , true , true ));
+                return *this;
             }
             
-            inline void flip(Axis::Type axis) {
+            const BBox transformed(const Mat4f& transformation) const {
+                BBox result = *this;
+                return result.transform(transformation);
+            }
+            
+            inline BBox& flip(Axis::Type axis) {
                 min.flip(axis);
                 max.flip(axis);
                 repair();
+                return *this;
             }
             
             inline const BBox flipped(Axis::Type axis) const {
@@ -350,10 +362,11 @@ namespace TrenchBroom {
                 return result;
             }
             
-            inline void flip(Axis::Type axis, const Vec3f& center) {
+            inline BBox& flip(Axis::Type axis, const Vec3f& center) {
                 min.flip(axis, center);
                 max.flip(axis, center);
                 repair();
+                return *this;
             }
             
             inline const BBox flipped(Axis::Type axis, const Vec3f& center) const {
@@ -362,11 +375,12 @@ namespace TrenchBroom {
                 return result;
             }
             
-            inline void expand(float f) {
+            inline BBox& expand(float f) {
                 for (unsigned int i = 0; i < 3; i++) {
                     min[i] -= f;
                     max[i] += f;
                 }
+                return *this;
             }
             
             inline const BBox expanded(float f) {

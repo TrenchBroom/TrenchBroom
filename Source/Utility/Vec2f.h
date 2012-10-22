@@ -116,10 +116,11 @@ namespace TrenchBroom {
                 return this->dot(*this);
             }
             
-            inline void normalize() {
+            inline Vec2f& normalize() {
                 float l = length();
                 x /= l;
                 y /= l;
+                return *this;
             }
             
             inline const Vec2f normalized() const {
@@ -128,9 +129,10 @@ namespace TrenchBroom {
                              y / l);
             }
             
-            inline void correct() {
+            inline Vec2f& correct() {
                 x = Math::correct(x);
                 y = Math::correct(y);
+                return *this;
             }
             
             inline const Vec2f corrected() const {

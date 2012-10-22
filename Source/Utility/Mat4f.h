@@ -180,13 +180,14 @@ namespace TrenchBroom {
                 return equals(Null);
             }
             
-            inline void setIdentity() {
+            inline Mat4f& setIdentity() {
                 for (unsigned int r = 0; r < 4; r++)
                     for (unsigned int c = 0; c < 4; c++)
                         v[c * 4 + r] = r == c ? 1.0f : 0.0f;
+                return *this;
             }
             
-            inline void setPerspective(float fov, float nearPlane, float farPlane, int width, int height) {
+            inline Mat4f& setPerspective(float fov, float nearPlane, float farPlane, int width, int height) {
                 float vFrustum = static_cast<float>(tan(fov * Math::Pi / 360.0)) * 0.75f * nearPlane;
                 float hFrustum = vFrustum * static_cast<float>(width) / static_cast<float>(height);
                 float depth = farPlane - nearPlane;
@@ -195,9 +196,10 @@ namespace TrenchBroom {
                     0.0f,                   nearPlane / vFrustum,    0.0f,                               0.0f,
                     0.0f,                   0.0f,                   -(farPlane + nearPlane) / depth,    -2.0f * (farPlane * nearPlane) / depth,
                     0.0f,                   0.0f,                   -1.0f,                               0.0f);
+                return *this;
             }
 
-            inline void setOrtho(float nearPlane, float farPlane, float left, float top, float right, float bottom) {
+            inline Mat4f& setOrtho(float nearPlane, float farPlane, float left, float top, float right, float bottom) {
                 float width = right - left;
                 float height = top - bottom;
                 float depth = farPlane - nearPlane;
@@ -206,9 +208,10 @@ namespace TrenchBroom {
                     0.0f,           2.0f / height,   0.0f,           -(top + bottom) / height,
                     0.0f,           0.0f,           -2.0f / depth,   -(farPlane + nearPlane) / depth,
                     0.0f,           0.0f,            0.0f,            1.0f);
+                return *this;
             }
             
-            inline void setView(const Vec3f& direction, const Vec3f& up) {
+            inline Mat4f& setView(const Vec3f& direction, const Vec3f& up) {
                 const Vec3f& f = direction;
                 Vec3f s = f.crossed(up);
                 Vec3f u = s.crossed(f);
@@ -217,9 +220,10 @@ namespace TrenchBroom {
                      u.x,  u.y,  u.z, 0.0f,
                     -f.x, -f.y, -f.z, 0.0f,
                      0.0f, 0.0f, 0.0f, 1.0f);
+                return *this;
             }
             
-            inline void set(float v11, float v12, float v13, float v14,
+            inline Mat4f& set(float v11, float v12, float v13, float v14,
                             float v21, float v22, float v23, float v24,
                             float v31, float v32, float v33, float v34,
                             float v41, float v42, float v43, float v44) {
@@ -227,31 +231,35 @@ namespace TrenchBroom {
                 v[ 1] = v21; v[ 5] = v22; v[ 9] = v23; v[13] = v24;
                 v[ 2] = v31; v[ 6] = v32; v[10] = v33; v[14] = v34;
                 v[ 3] = v41; v[ 7] = v42; v[11] = v43; v[15] = v44;
+                return *this;
             }
 
-            inline void setValue(unsigned int row, unsigned int col, float value) {
+            inline Mat4f& setValue(unsigned int row, unsigned int col, float value) {
                 assert(row >= 0 && row < 4);
                 assert(col >= 0 && col < 4);
                 v[col * 4 + row] = value;
+                return *this;
             }
             
-            inline void setColumn(unsigned int col, const Vec3f& values) {
+            inline Mat4f& setColumn(unsigned int col, const Vec3f& values) {
                 assert(col >= 0 && col < 4);
                 v[col * 4 + 0] = values.x;
                 v[col * 4 + 1] = values.y;
                 v[col * 4 + 2] = values.z;
                 v[col * 4 + 3] = 0.0f;
+                return *this;
             }
             
-            inline void setColumn(unsigned int col, const Vec4f& values) {
+            inline Mat4f& setColumn(unsigned int col, const Vec4f& values) {
                 assert(col >= 0 && col < 4);
                 v[col * 4 + 0] = values.x;
                 v[col * 4 + 1] = values.y;
                 v[col * 4 + 2] = values.z;
                 v[col * 4 + 3] = values.w;
+                return *this;
             }
             
-            void setSubMatrix(unsigned int index, const Mat2f& values) {
+            Mat4f& setSubMatrix(unsigned int index, const Mat2f& values) {
                 switch (index) {
                     case 0:
                         v[ 0] = values.v[0];
@@ -280,6 +288,7 @@ namespace TrenchBroom {
                     default:
                         break;
                 }
+                return *this;
             }
             
             const Mat2f subMatrix(unsigned int index) const {
@@ -315,13 +324,14 @@ namespace TrenchBroom {
                 return result;
             }
             
-            void invert(bool& invertible) {
+            Mat4f& invert(bool& invertible) {
                 float det = determinant();
                 invertible = det != 0.0f;
                 if (invertible) {
                     adjugate();
                     *this /= det;
                 }
+                return *this;
             }
             
             const Mat4f inverted(bool& invertible) const {
@@ -330,8 +340,9 @@ namespace TrenchBroom {
                 return result;
             }
             
-            void adjugate() {
+            Mat4f& adjugate() {
                 *this = adjugated();
+                return *this;
             }
             
             const Mat4f adjugated() const {
@@ -343,9 +354,10 @@ namespace TrenchBroom {
                 return result;
             }
             
-            void negate() {
+            Mat4f& negate() {
                 for (unsigned int i = 0; i < 16; i++)
                     v[i] = -v[i];
+                return *this;
             }
             
             const Mat4f negated() const {
@@ -355,10 +367,11 @@ namespace TrenchBroom {
                              v[12] * -1, v[13] * -1, v[14] * -1, v[15] * -1);
             }
             
-            void transpose() {
+            Mat4f& transpose() {
                 for (unsigned int c = 0; c < 4; c++)
                     for (unsigned int r = c + 1; r < 4; r++)
                         std::swap(v[c * 4 + r], v[r * 4 + c]);
+                return *this;
             }
             
             const Mat4f transposed() const {
@@ -385,7 +398,7 @@ namespace TrenchBroom {
                 return result;
             }
             
-            void rotate(float angle, const Vec3f& axis) {
+            Mat4f& rotate(float angle, const Vec3f& axis) {
                 float s = sinf(angle);
                 float c = cosf(angle);
                 float i = 1 - c;
@@ -427,6 +440,7 @@ namespace TrenchBroom {
                 temp[15] = 1;
                 
                 *this *= temp;
+                return *this;
             }
             
             const Mat4f rotated(float angle, const Vec3f& axis) const {
@@ -435,7 +449,7 @@ namespace TrenchBroom {
                 return result;
             }
 
-            void rotate(const Quat& rotation) {
+            Mat4f& rotate(const Quat& rotation) {
                 float a = rotation.s;
                 float b = rotation.v.x;
                 float c = rotation.v.y;
@@ -468,6 +482,7 @@ namespace TrenchBroom {
                 temp[15] = 1;
                 
                 *this *= temp;
+                return *this;
             }
             
             const Mat4f rotated(const Quat& rotation) const {
@@ -476,12 +491,13 @@ namespace TrenchBroom {
                 return result;
             }
 
-            inline void translate(float x, float y, float z) {
+            inline Mat4f& translate(float x, float y, float z) {
                 Mat4f translation = Mat4f::Identity;
                 translation[12] += x;
                 translation[13] += y;
                 translation[14] += z;
                 *this *= translation;
+                return *this;
             }
             
             inline Mat4f translated(float x, float y, float z) const {
@@ -490,20 +506,21 @@ namespace TrenchBroom {
                 return result;
             }
             
-            inline void translate(const Vec3f& delta) {
-                translate(delta.x, delta.y, delta.z);
+            inline Mat4f& translate(const Vec3f& delta) {
+                return translate(delta.x, delta.y, delta.z);
             }
             
             inline const Mat4f translated(const Vec3f& delta) const {
                 return translated(delta.x, delta.y, delta.z);
             }
 
-            void scale(float x, float y, float z) {
+            Mat4f& scale(float x, float y, float z) {
                 Mat4f scaling = Mat4f::Identity;
                 scaling.v[ 0] *= x;
                 scaling.v[ 5] *= y;
                 scaling.v[10] *= z;
                 *this *= scaling;
+                return *this;
             }
             
             const Mat4f scaled(float x, float y, float z) const {
@@ -512,16 +529,17 @@ namespace TrenchBroom {
                 return result;
             }
             
-            inline void scale(float f) {
-                scale(f, f, f);
+            inline Mat4f& scale(float f) {
+                return scale(f, f, f);
             }
             
             inline const Mat4f scaled(float f) const {
                 return scaled(f, f, f);
             }
             
-            inline void scale(const Vec3f& factors) {
+            inline Mat4f& scale(const Vec3f& factors) {
                 scale(factors.x, factors.y, factors.z);
+                return *this;
             }
             
             inline const Mat4f scaled(const Vec3f& factors) const {

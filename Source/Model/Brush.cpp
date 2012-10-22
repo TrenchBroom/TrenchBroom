@@ -243,6 +243,19 @@ namespace TrenchBroom {
                 m_entity->invalidateGeometry();
         }
 
+        void Brush::flip(Axis::Type axis, const Vec3f& center, bool lockTextures) {
+            FaceList::const_iterator faceIt, faceEnd;
+            for (faceIt = m_faces.begin(), faceEnd = m_faces.end(); faceIt != faceEnd; ++faceIt) {
+                Face& face = **faceIt;
+                face.flip(axis, center, lockTextures);
+            }
+            
+            if (m_geometry != NULL)
+                m_geometry->flip(axis, center);
+            if (m_entity != NULL)
+                m_entity->invalidateGeometry();
+        }
+
         void Brush::pick(const Ray& ray, PickResult& pickResults) {
             float dist = bounds().intersectWithRay(ray, NULL);
             if (Math::isnan(dist))

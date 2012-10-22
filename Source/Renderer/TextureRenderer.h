@@ -47,7 +47,7 @@ namespace TrenchBroom {
             void init(unsigned int width, unsigned int height);
             void init(unsigned char* rgbImage, unsigned int width, unsigned int height);
         public:
-            TextureRenderer(unsigned char* rgbImage, unsigned int width, unsigned int height);
+            TextureRenderer(unsigned char* rgbImage, const Color& averageColor, unsigned int width, unsigned int height);
             TextureRenderer(const Model::AliasSkin& skin, unsigned int skinIndex, const Palette& palette);
             TextureRenderer(const Model::BspTexture& texture, const Palette& palette);
             TextureRenderer();

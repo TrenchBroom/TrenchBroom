@@ -368,6 +368,11 @@ namespace TrenchBroom {
              * Rotates this face about the given axis and center.
              */
             void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTexture);
+            
+            /**
+             * Flips this face along the given axis.
+             */
+            void flip(Axis::Type axis, const Vec3f& center, bool lockTexture);
         };
     }
 }

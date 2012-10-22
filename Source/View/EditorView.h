@@ -79,6 +79,7 @@ namespace TrenchBroom {
             void rotateTextures(bool clockwise, bool snapToGrid);
             void moveObjects(Direction direction, bool snapToGrid);
             void rotateObjects(RotationAxis rotationAxis, bool clockwise);
+            void flipObjects(bool horizontally);
             void removeObjects(const wxString& actionName);
             bool canPaste();
         public:
@@ -140,6 +141,9 @@ namespace TrenchBroom {
             void OnEditPitchObjectsCCW(wxCommandEvent& event);
             void OnEditYawObjectsCW(wxCommandEvent& event);
             void OnEditYawObjectsCCW(wxCommandEvent& event);
+            void OnEditFlipObjectsH(wxCommandEvent& event);
+            void OnEditFlipObjectsV(wxCommandEvent& event);
+            void OnEditDuplicateObjects(wxCommandEvent& event);
             
             void OnUpdateMenuItem(wxUpdateUIEvent& event);
             

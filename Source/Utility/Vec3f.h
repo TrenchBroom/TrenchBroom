@@ -147,12 +147,13 @@ namespace TrenchBroom {
                 return x * right.x + y * right.y + z * right.z;
             }
             
-            inline void cross(const Vec3f& right) {
+            inline Vec3f& cross(const Vec3f& right) {
                 float xt = y * right.z - z * right.y;
                 float yt = z * right.x - x * right.z;
                 z = x * right.y - y * right.x;
                 x = xt;
                 y = yt;
+                return *this;
             }
             
             inline const Vec3f crossed(const Vec3f& right) const {
@@ -169,11 +170,12 @@ namespace TrenchBroom {
                 return this->dot(*this);
             }
             
-            inline void normalize() {
+            inline Vec3f& normalize() {
                 float l = length();
                 x /= l;
                 y /= l;
                 z /= l;
+                return *this;
             }
             
             inline const Vec3f normalized() const {
@@ -183,10 +185,11 @@ namespace TrenchBroom {
                              z / l);
             }
             
-            inline void correct() {
+            inline Vec3f& correct() {
                 x = Math::correct(x);
                 y = Math::correct(y);
                 z = Math::correct(z);
+                return *this;
             }
             
             inline const Vec3f corrected() const {
@@ -337,14 +340,16 @@ namespace TrenchBroom {
                 return result.str();
             }
             
-            inline void snap() {
+            inline Vec3f& snap() {
                 snap(Math::AlmostZero);
+                return *this;
             }
             
-            inline void snap(float epsilon) {
+            inline Vec3f& snap(float epsilon) {
                 x = Math::round(x);
                 y = Math::round(y);
                 z = Math::round(z);
+                return *this;
             }
             
             inline const Vec3f snapped() const {
@@ -360,7 +365,7 @@ namespace TrenchBroom {
                              Math::eq(z, zr) ? zr : z);
             }
             
-            inline void rotate90(Axis::Type axis, bool clockwise) {
+            inline Vec3f& rotate90(Axis::Type axis, bool clockwise) {
                 switch (axis) {
                     case Axis::AX:
                         if (clockwise) {
@@ -393,12 +398,14 @@ namespace TrenchBroom {
                             y = t;
                         }
                 }
+                return *this;
             }
             
-            inline void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise) {
+            inline Vec3f& rotate90(Axis::Type axis, const Vec3f& center, bool clockwise) {
                 *this -= center;
                 rotate90(axis, clockwise);
                 *this += center;
+                return *this;
             }
             
             inline const Vec3f rotated90(Axis::Type axis, bool clockwise) const {
@@ -425,7 +432,7 @@ namespace TrenchBroom {
                 return result;
             }
             
-            inline void flip(Axis::Type axis) {
+            inline Vec3f& flip(Axis::Type axis) {
                 switch (axis) {
                     case Axis::AX:
                         x = -x;
@@ -434,12 +441,14 @@ namespace TrenchBroom {
                     default:
                         z = -z;
                 }
+                return *this;
             }
             
-            inline void flip(Axis::Type axis, const Vec3f& center) {
+            inline Vec3f& flip(Axis::Type axis, const Vec3f& center) {
                 *this -= center;
                 flip(axis);
                 *this += center;
+                return *this;
             }
             
             inline const Vec3f flipped(Axis::Type axis) const {
