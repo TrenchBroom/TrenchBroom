@@ -57,6 +57,8 @@ namespace TrenchBroom {
             
             Vec4f(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
 
+            Vec4f(float f) : x(f), y(f), z(f), w(f) {}
+
             inline bool operator== (const Vec4f& right) const {
                 return x == right.x && y == right.y && z == right.z && w == right.w;
             }

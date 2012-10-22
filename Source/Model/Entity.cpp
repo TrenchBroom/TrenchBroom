@@ -77,6 +77,11 @@ namespace TrenchBroom {
             init();
         }
 
+        Entity::Entity(const BBox& worldBounds, const Entity& entityTemplate) : MapObject(), m_worldBounds(worldBounds) {
+            init();
+            setProperties(entityTemplate.properties(), true);
+        }
+
         Entity::~Entity() {
             setMap(NULL);
             while (!m_brushes.empty()) delete m_brushes.back(), m_brushes.pop_back();

@@ -38,8 +38,11 @@ namespace TrenchBroom {
             float x,y;
             
             Vec2f() : x(0), y(0) {}
+
             Vec2f(float x, float y) : x(x), y(y) {}
             
+            Vec2f(float f) : x(f), y(f) {}
+
             inline Vec2f& operator= (const Vec2f& right) {
                 if (this != &right) {
                     x = right.x;

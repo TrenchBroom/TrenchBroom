@@ -64,6 +64,8 @@ namespace TrenchBroom {
             
             Vec3f(float x, float y, float z) : x(x), y(y), z(z) {}
             
+            Vec3f(float f) : x(f), y(f), z(f) {}
+            
             inline bool operator== (const Vec3f& right) const {
                 return x == right.x && y == right.y && z == right.z;
             }

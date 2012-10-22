@@ -70,6 +70,7 @@ namespace TrenchBroom {
             void validateGeometry() const;
         public:
             Entity(const BBox& worldBounds);
+            Entity(const BBox& worldBounds, const Entity& entityTemplate);
             ~Entity();
             
             inline MapObject::Type objectType() const {

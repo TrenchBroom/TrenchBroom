@@ -790,6 +790,45 @@ namespace TrenchBroom {
         }
         
         void EditorView::OnEditDuplicateObjects(wxCommandEvent& event) {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            const Model::EntityList& originalEntities = editStateManager.selectedEntities();
+            const Model::BrushList& originalBrushes = editStateManager.selectedBrushes();
+            
+            Model::EntityList newEntities;
+            Model::BrushList newBrushes;
+            
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            for (entityIt = originalEntities.begin(), entityEnd = originalEntities.end(); entityIt != entityEnd; ++entityIt) {
+                Model::Entity& entity = **entityIt;
+                assert(entity.definition() == NULL || entity.definition()->type() == Model::EntityDefinition::PointEntity);
+                assert(!entity.worldspawn());
+                
+                Model::Entity* newEntity = new Model::Entity(mapDocument().map().worldBounds(), entity);
+                newEntities.push_back(newEntity);
+            }
+            
+            Model::BrushList::const_iterator brushIt, brushEnd;
+            for (brushIt = originalBrushes.begin(), brushEnd = originalBrushes.end(); brushIt != brushEnd; ++brushIt) {
+                Model::Brush& brush = **brushIt;
+                
+                Model::Brush* newBrush = new Model::Brush(mapDocument().map().worldBounds(), brush);
+                newBrushes.push_back(newBrush);
+            }
+            
+            const Vec3f direction = (-1.0f * m_camera->direction() + m_camera->right()) / 2.0f;
+            Vec3f delta = mapDocument().grid().snapTowards(Vec3f::Null, direction, true);
+            delta.z = 0.0f;
+            
+            Controller::AddObjectsCommand* addObjectsCommand = Controller::AddObjectsCommand::addObjects(mapDocument(), newEntities, newBrushes);
+            Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::replace(mapDocument(), newEntities, newBrushes);
+            Controller::MoveObjectsCommand* moveObjectsCommand = Controller::MoveObjectsCommand::moveObjects(mapDocument(), newEntities, newBrushes, delta, true); // TODO texture lock
+            
+            wxCommandProcessor* commandProcessor = mapDocument().GetCommandProcessor();
+            CommandProcessor::BeginGroup(commandProcessor, Controller::Command::makeObjectActionName(wxT("Duplicate"), newEntities, newBrushes));
+            submit(addObjectsCommand);
+            submit(changeEditStateCommand);
+            submit(moveObjectsCommand);
+            CommandProcessor::EndGroup(commandProcessor);
         }
 
         void EditorView::OnUpdateMenuItem(wxUpdateUIEvent& event) {
