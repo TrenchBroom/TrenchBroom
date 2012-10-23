@@ -34,6 +34,10 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class EditStateChangeSet;
+    }
+    
     namespace Renderer {
         class Figure;
     }
@@ -49,6 +53,7 @@ namespace TrenchBroom {
             virtual void handleDragMove(InputEvent& event) { }
             virtual void handleDragLeave() { }
             virtual bool handleDrop(InputEvent& event) { return false; }
+            virtual void handleChangeEditState(const Model::EditStateChangeSet& changeSet) {}
 
             inline void postEvent(wxEvent& event) {
                 if (!m_documentViewHolder.valid())
@@ -137,6 +142,10 @@ namespace TrenchBroom {
                 assert(m_active);
                 handleDragLeave();
                 m_active = false;
+            }
+
+            void changeEditState(const Model::EditStateChangeSet& changeSet) {
+                handleChangeEditState(changeSet);
             }
         };
         

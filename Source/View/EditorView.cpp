@@ -24,6 +24,7 @@
 #include "Controller/Command.h"
 #include "Controller/ChangeEditStateCommand.h"
 #include "Controller/FlipObjectsCommand.h"
+#include "Controller/InputController.h"
 #include "Controller/MoveObjectsCommand.h"
 #include "Controller/MoveTextureSCommand.h"
 #include "Controller/RemoveObjectsCommand.h"
@@ -378,11 +379,14 @@ namespace TrenchBroom {
                     case Controller::Command::ChangeEditState: {
                         Controller::ChangeEditStateCommand* changeEditStateCommand = static_cast<Controller::ChangeEditStateCommand*>(command);
                         m_renderer->changeEditState(changeEditStateCommand->changeSet());
+
+                        EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+                        frame->updateMenuBar();
+                        frame->mapCanvas().inputController().changeEditState(changeEditStateCommand->changeSet());
+
                         inspector().faceInspector().updateFaceAttributes();
                         inspector().faceInspector().updateSelectedTexture();
                         inspector().entityInspector().updateProperties();
-
-                        static_cast<EditorFrame*>(GetFrame())->updateMenuBar();
                         break;
                     }
                     case Controller::Command::InvalidateRendererEntityState:

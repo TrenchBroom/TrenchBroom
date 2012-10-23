@@ -233,5 +233,19 @@ namespace TrenchBroom {
             
             m_dragTargetReceiver->dragLeave();
         }
+
+        void InputController::changeEditState(const Model::EditStateChangeSet& changeSet) {
+            ToolList::const_iterator toolIt, toolEnd;
+            for (toolIt = m_receivers.begin(), toolEnd = m_receivers.end(); toolIt != toolEnd; ++toolIt) {
+                Tool& tool = **toolIt;
+                tool.changeEditState(changeSet);
+            }
+            
+            DragTargetToolList::const_iterator dragToolIt, dragToolEnd;
+            for (dragToolIt = m_dragTargetTools.begin(), dragToolEnd = m_dragTargetTools.end(); dragToolIt != dragToolEnd; ++dragToolIt) {
+                DragTargetTool& tool = **dragToolIt;
+                tool.changeEditState(changeSet);
+            }
+        }
     }
 }

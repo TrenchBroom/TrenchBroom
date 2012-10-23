@@ -38,6 +38,24 @@ namespace TrenchBroom {
             
             Plane(const Vec3f& normal, const Vec3f& anchor) : normal(normal), distance(anchor.dot(normal)) {}
             
+            static const Plane horizontalDragPlane(const Vec3f& position) {
+                return Plane(Vec3f::PosZ, position);
+            }
+            
+            static const Plane verticalDragPlane(const Vec3f& position, const Vec3f& direction) {
+                if (direction.firstComponent() != Axis::AZ)
+                    return Plane(direction.firstAxis(), position);
+                return Plane(direction.secondAxis(), position);
+            }
+            
+            static const Plane orthogonalDragPlane(const Vec3f& position, const Vec3f& direction) {
+                return Plane(direction, position);
+            }
+            
+            static const Plane alignedOrthogonalDragPlane(const Vec3f& position, const Vec3f& direction) {
+                return Plane(direction.firstAxis(), position);
+            }
+            
             inline bool setPoints(const Vec3f& point1, const Vec3f& point2, const Vec3f& point3) {
                 Vec3f v1 = point3 - point1;
                 Vec3f v2 = point2 - point1;

@@ -73,6 +73,10 @@ namespace TrenchBroom {
             MapGLCanvas(wxWindow* parent, DocumentViewHolder& documentViewHolder);
             ~MapGLCanvas();
             
+            inline Controller::InputController& inputController() const {
+                return *m_inputController;
+            }
+            
             void OnPaint(wxPaintEvent& event);
 
             void OnKeyDown(wxKeyEvent& event);

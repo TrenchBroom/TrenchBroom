@@ -19,7 +19,6 @@
 
 #include "Grid.h"
 
-#include "Controller/DragPlane.h"
 #include "Model/Brush.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Entity.h"
@@ -156,26 +155,26 @@ namespace TrenchBroom {
             Vec3f actualDelta = newOrigin - origin;
             
             for (unsigned int i = 0; i < 3; i++)
-                if ((actualDelta[i] > 0) != (delta[i] > 0))
-                    actualDelta[i] = 0;
+                if ((actualDelta[i] > 0.0f) != (delta[i] > 0.0f))
+                    actualDelta[i] = 0.0f;
             return actualDelta;
         }
         
         Vec3f Grid::moveDeltaForEntity(const Model::Face& face, const BBox& bounds, const BBox& worldBounds, const Ray& ray, const Vec3f& position) {
-            Controller::DragPlane dragPlane = Controller::DragPlane::orthogonal(face.boundary().normal, true);
+            Plane dragPlane = Plane::alignedOrthogonalDragPlane(position, face.boundary().normal);
             
             Vec3f halfSize = bounds.size() * 0.5f;
-            float offsetLength = halfSize.dot(dragPlane.normal());
-            if (offsetLength < 0)
+            float offsetLength = halfSize.dot(dragPlane.normal);
+            if (offsetLength < 0.0f)
                 offsetLength *= -1.0f;
-            Vec3f offset = dragPlane.normal() * offsetLength;
+            Vec3f offset = dragPlane.normal * offsetLength;
             
-            float dist = dragPlane.intersect(ray, position);
+            float dist = dragPlane.intersectWithRay(ray);
             Vec3f newPos = ray.pointAtDistance(dist);
             Vec3f delta = moveDeltaForEntity(bounds.center(), worldBounds, newPos - (bounds.center() - offset));
             
-            Axis::Type a = dragPlane.normal().firstComponent();
-            if (dragPlane.normal()[a] > 0) delta[a] = position[a] - bounds.min[a];
+            Axis::Type a = dragPlane.normal.firstComponent();
+            if (dragPlane.normal[a] > 0.0f) delta[a] = position[a] - bounds.min[a];
             else delta[a] = position[a] - bounds.max[a];
             
             return delta;

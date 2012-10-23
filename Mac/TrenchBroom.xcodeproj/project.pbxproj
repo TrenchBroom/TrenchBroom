@@ -91,6 +91,8 @@
 		48C0FA421608FFD00023F467 /* FaceInspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C0FA401608FFD00023F467 /* FaceInspector.cpp */; };
 		48C0FA46160901CB0023F467 /* SingleTextureViewer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C0FA44160901CB0023F467 /* SingleTextureViewer.cpp */; };
 		48C3CAF4162A8F2D006547EC /* AddObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C3CAF2162A8F2D006547EC /* AddObjectsCommand.cpp */; };
+		48CB0DB21635AA36001C8E87 /* MoveObjectsTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48CB0DB01635AA36001C8E87 /* MoveObjectsTool.cpp */; };
+		48CB0DB91635AACE001C8E87 /* DragTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48CB0DB71635AACE001C8E87 /* DragTool.cpp */; };
 		48D1BE9D15E2E5550073C030 /* Vec3f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BE9C15E2E5550073C030 /* Vec3f.cpp */; };
 		48D1BEA315E2F3BC0073C030 /* Mat4f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEA215E2F3BB0073C030 /* Mat4f.cpp */; };
 		48D1BEAE15E3AC060073C030 /* EditorView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEAC15E3AC060073C030 /* EditorView.cpp */; };
@@ -123,7 +125,6 @@
 /* Begin PBXFileReference section */
 		48009AF315F7FA8B001A9993 /* AbstractFileManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractFileManager.cpp; sourceTree = "<group>"; };
 		48009AF415F7FA8B001A9993 /* AbstractFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractFileManager.h; sourceTree = "<group>"; };
-		48009AFD15F8A4E7001A9993 /* DragPlane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DragPlane.h; sourceTree = "<group>"; };
 		4810276415E4FBF000250C9C /* MapGLCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapGLCanvas.cpp; sourceTree = "<group>"; };
 		4810276515E4FBF000250C9C /* MapGLCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapGLCanvas.h; sourceTree = "<group>"; };
 		4810276A15E5313F00250C9C /* Inspector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Inspector.cpp; sourceTree = "<group>"; };
@@ -333,6 +334,10 @@
 		48C0FA45160901CB0023F467 /* SingleTextureViewer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleTextureViewer.h; sourceTree = "<group>"; };
 		48C3CAF2162A8F2D006547EC /* AddObjectsCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AddObjectsCommand.cpp; sourceTree = "<group>"; };
 		48C3CAF3162A8F2D006547EC /* AddObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddObjectsCommand.h; sourceTree = "<group>"; };
+		48CB0DB01635AA36001C8E87 /* MoveObjectsTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveObjectsTool.cpp; sourceTree = "<group>"; };
+		48CB0DB11635AA36001C8E87 /* MoveObjectsTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveObjectsTool.h; sourceTree = "<group>"; };
+		48CB0DB71635AACE001C8E87 /* DragTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragTool.cpp; sourceTree = "<group>"; };
+		48CB0DB81635AACE001C8E87 /* DragTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DragTool.h; sourceTree = "<group>"; };
 		48D1BE9815E2E2930073C030 /* Math.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Math.h; sourceTree = "<group>"; };
 		48D1BE9A15E2E35C0073C030 /* Vec3f.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Vec3f.h; sourceTree = "<group>"; };
 		48D1BE9B15E2E3B50073C030 /* VecMath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VecMath.h; sourceTree = "<group>"; };
@@ -731,26 +736,49 @@
 		48AB57F615ECFB8600321C47 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
-				48C3CAF2162A8F2D006547EC /* AddObjectsCommand.cpp */,
-				48C3CAF3162A8F2D006547EC /* AddObjectsCommand.h */,
+				48CB0DB61635AA9F001C8E87 /* Command */,
+				48CB0DB51635AA95001C8E87 /* Tool */,
 				48819C4F15ED5C7700BEA604 /* CameraEvent.cpp */,
 				48819C4C15ED52B200BEA604 /* CameraEvent.h */,
+				48AB57FF15ECFC5F00321C47 /* Input.h */,
+				48AB580015ECFED800321C47 /* InputController.cpp */,
+				48AB580115ECFED800321C47 /* InputController.h */,
+			);
+			name = Controller;
+			path = ../Source/Controller;
+			sourceTree = "<group>";
+		};
+		48CB0DB51635AA95001C8E87 /* Tool */ = {
+			isa = PBXGroup;
+			children = (
 				48AB580315ED01CB00321C47 /* CameraTool.cpp */,
 				48AB580415ED01CB00321C47 /* CameraTool.h */,
+				481E56461624120900B403F3 /* DragTargetTool.h */,
+				48CB0DB71635AACE001C8E87 /* DragTool.cpp */,
+				48CB0DB81635AACE001C8E87 /* DragTool.h */,
+				481E564716242D6B00B403F3 /* EntityDragTargetTool.cpp */,
+				481E564816242D6B00B403F3 /* EntityDragTargetTool.h */,
+				48CB0DB01635AA36001C8E87 /* MoveObjectsTool.cpp */,
+				48CB0DB11635AA36001C8E87 /* MoveObjectsTool.h */,
+				4850D25215F3B36C005B162D /* SelectionTool.cpp */,
+				4850D25315F3B36C005B162D /* SelectionTool.h */,
+				48AB57FE15ECFBDF00321C47 /* Tool.h */,
+			);
+			name = Tool;
+			sourceTree = "<group>";
+		};
+		48CB0DB61635AA9F001C8E87 /* Command */ = {
+			isa = PBXGroup;
+			children = (
+				48C3CAF2162A8F2D006547EC /* AddObjectsCommand.cpp */,
+				48C3CAF3162A8F2D006547EC /* AddObjectsCommand.h */,
 				4850D26115F3E202005B162D /* ChangeEditStateCommand.cpp */,
 				4850D26215F3E202005B162D /* ChangeEditStateCommand.h */,
 				4850D26515F3E757005B162D /* Command.h */,
-				48009AFD15F8A4E7001A9993 /* DragPlane.h */,
-				481E56461624120900B403F3 /* DragTargetTool.h */,
-				481E564716242D6B00B403F3 /* EntityDragTargetTool.cpp */,
-				481E564816242D6B00B403F3 /* EntityDragTargetTool.h */,
 				48B059A61615EF3800E6B0AD /* EntityPropertyCommand.cpp */,
 				48B059A71615EF3800E6B0AD /* EntityPropertyCommand.h */,
 				48A8391316356CFC00175857 /* FlipObjectsCommand.cpp */,
 				48A8391416356CFC00175857 /* FlipObjectsCommand.h */,
-				48AB57FF15ECFC5F00321C47 /* Input.h */,
-				48AB580015ECFED800321C47 /* InputController.cpp */,
-				48AB580115ECFED800321C47 /* InputController.h */,
 				482BB67C162931E800B9FAAE /* MoveObjectsCommand.cpp */,
 				482BB67D162931E800B9FAAE /* MoveObjectsCommand.h */,
 				4895CDE816333D55006AA0A6 /* MoveTexturesCommand.cpp */,
@@ -761,18 +789,14 @@
 				4888654A1634211C0071F9C6 /* RotateObjects90Command.h */,
 				4895CDEB16334108006AA0A6 /* RotateTexturesCommand.cpp */,
 				4895CDED16334111006AA0A6 /* RotateTexturesCommand.h */,
-				4850D25215F3B36C005B162D /* SelectionTool.cpp */,
-				4850D25315F3B36C005B162D /* SelectionTool.h */,
 				4817C7EC1611DC8F00A01A99 /* SetFaceAttributesCommand.cpp */,
 				4817C7ED1611DC8F00A01A99 /* SetFaceAttributesCommand.h */,
 				4817C7EF1611DFA900A01A99 /* SnapshotCommand.cpp */,
 				4817C7F01611DFA900A01A99 /* SnapshotCommand.h */,
 				48E1A516161390AD006BB6C4 /* TextureCollectionCommand.cpp */,
 				48E1A517161390AD006BB6C4 /* TextureCollectionCommand.h */,
-				48AB57FE15ECFBDF00321C47 /* Tool.h */,
 			);
-			name = Controller;
-			path = ../Source/Controller;
+			name = Command;
 			sourceTree = "<group>";
 		};
 		48DFD4B316061A9C00E554E1 /* GL */ = {
@@ -995,6 +1019,8 @@
 				4895CDEC16334108006AA0A6 /* RotateTexturesCommand.cpp in Sources */,
 				4888654B1634211C0071F9C6 /* RotateObjects90Command.cpp in Sources */,
 				48A8391516356CFC00175857 /* FlipObjectsCommand.cpp in Sources */,
+				48CB0DB21635AA36001C8E87 /* MoveObjectsTool.cpp in Sources */,
+				48CB0DB91635AACE001C8E87 /* DragTool.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -28,6 +28,7 @@ class wxEvtHandler;
 
 namespace TrenchBroom {
     namespace Model {
+        class EditStateChangeSet;
         class MapDocument;
         class Picker;
     }
@@ -73,6 +74,8 @@ namespace TrenchBroom {
             void dragMove(const String& payload, float x, float y);
             bool drop(const String& payload, float x, float y);
             void dragLeave();
+            
+            void changeEditState(const Model::EditStateChangeSet& changeSet);
         };
     }
 }

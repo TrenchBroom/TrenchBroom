@@ -35,6 +35,10 @@
 using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
+    namespace Model {
+        class EditStateChangeSet;
+    }
+    
     namespace Controller {
         class Tool {
         public:
@@ -57,10 +61,13 @@ namespace TrenchBroom {
             virtual bool handleMouseUp(InputEvent& event) { return false; }
             virtual bool handleMouseMoved(InputEvent& event) { return false; }
             virtual bool handleScrolled(InputEvent& event) { return false; }
+
             virtual bool handleBeginDrag(InputEvent& event) { return false; }
             virtual bool handleDrag(InputEvent& event) { return false; }
             virtual void handleEndDrag(InputEvent& event) {}
             
+            virtual void handleChangeEditState(const Model::EditStateChangeSet& changeSet) {}
+
             inline void postEvent(wxEvent& event) {
                 if (!m_documentViewHolder.valid())
                     return;
@@ -196,6 +203,10 @@ namespace TrenchBroom {
             
             static bool noModifierPressed(InputEvent& event) {
                 return event.modifierKeys() == ModifierKeys::MKNone;
+            }
+
+            void changeEditState(const Model::EditStateChangeSet& changeSet) {
+                handleChangeEditState(changeSet);
             }
         };
         
