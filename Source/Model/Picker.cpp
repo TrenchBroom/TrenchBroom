@@ -26,36 +26,37 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Hit::Hit(void* object, Type type, const Vec3f& hitPoint, float distance) :
-        m_object(object), 
-        m_index(-1),
-        m_type(type),
-        m_hitPoint(hitPoint),
-        m_distance(distance) {}
-
-        Hit::Hit(void* object, int index, Type type, const Vec3f& hitPoint, float distance) :
-        m_object(object),
-        m_index(index),
+        Hit::Hit(HitType::Type type, const Vec3f& hitPoint, float distance) :
         m_type(type),
         m_hitPoint(hitPoint),
         m_distance(distance) {}
         
-        bool Hit::pickable(Filter& filter) const {
-            switch (m_type) {
-                case EntityHit:
-                    return filter.entityPickable(entity());
-                case FaceHit:
-                case NearFaceHit:
-                    return filter.brushPickable(*face().brush());
-                case VertexHandleHit:
-                case EdgeHandleHit:
-                case FaceHandleHit:
-                    return filter.brushPickable(brush());
-                default:
-                    return false;
-            }
+        Hit::~Hit() {}
+        
+        EntityHit::EntityHit(Entity& entity, const Vec3f& hitPoint, float distance) :
+        Hit(HitType::EntityHit, hitPoint, distance),
+        m_entity(entity) {}
+
+        bool EntityHit::pickable(Filter& filter) const {
+            return filter.entityPickable(m_entity);
+        }
+
+        FaceHit::FaceHit(HitType::Type type, Face& face, const Vec3f& hitPoint, float distance) :
+        Hit(type, hitPoint, distance),
+        m_face(face) {}
+
+        FaceHit* FaceHit::faceHit(Face& face, const Vec3f& hitPoint, float distance) {
+            return new FaceHit(HitType::FaceHit, face, hitPoint, distance);
         }
         
+        FaceHit* FaceHit::nearFaceHit(Face& face, const Vec3f& hitPoint, float distance) {
+            return new FaceHit(HitType::NearFaceHit, face, hitPoint, distance);
+        }
+
+        bool FaceHit::pickable(Filter& filter) const {
+            return filter.brushPickable(*m_face.brush());
+        }
+
         void PickResult::sortHits() {
             sort(m_hits.begin(), m_hits.end(), CompareHitsByDistance());
             m_sorted = true;
@@ -109,7 +110,7 @@ namespace TrenchBroom {
         }
 
         HitList PickResult::hits(Filter& filter) {
-            return hits(Hit::All, filter);
+            return hits(HitType::Any, filter);
         }
 
         Picker::Picker(Octree& octree) : m_octree(octree) {}

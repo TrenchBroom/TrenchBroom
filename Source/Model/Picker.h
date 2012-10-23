@@ -31,34 +31,32 @@ namespace TrenchBroom {
         class Face;
         class Filter;
         class Octree;
-        
+
+        namespace HitType {
+            typedef const unsigned int Type;
+            static Type EntityHit   = 1 << 0;
+            static Type FaceHit     = 1 << 1;
+            static Type NearFaceHit = 1 << 2;
+            static Type ObjectHit   = EntityHit | FaceHit;
+            static Type Any         = 0xFFFFFFFF;
+        }
+
         class Hit {
-        public:
-            typedef enum {
-                EntityHit       = 1 << 0,
-                FaceHit         = 1 << 1,
-                NearFaceHit     = 1 << 2,
-                VertexHandleHit = 1 << 3,
-                EdgeHandleHit   = 1 << 4,
-                FaceHandleHit   = 1 << 5,
-                All             = EntityHit | FaceHit | NearFaceHit | VertexHandleHit | EdgeHandleHit | FaceHandleHit
-            } Type;
         private:
-            void* m_object;
-            int m_index;
-            Type m_type;
+            HitType::Type m_type;
             Vec3f m_hitPoint;
             float m_distance;
+        protected:
+            Hit(HitType::Type type, const Vec3f& hitPoint, float distance);
         public:
-            Hit(void* object, Type type, const Vec3f& hitPoint, float distance);
-            Hit(void* object, int index, Type type, const Vec3f& hitPoint, float distance);
+            virtual ~Hit();
             
-            inline int index() const {
-                return m_index;
+            inline HitType::Type type() const {
+                return m_type;
             }
             
-            inline Type type() const {
-                return m_type;
+            inline bool hasType(HitType::Type type) const {
+                return (m_type & type) != 0;
             }
             
             inline const Vec3f& hitPoint() const {
@@ -69,25 +67,35 @@ namespace TrenchBroom {
                 return m_distance;
             }
             
-            inline bool hasType(int typeMask) const {
-                return (m_type & typeMask) != 0;
-            }
+            virtual bool pickable(Filter& filter) const = 0;
+        };
+        
+        class EntityHit : public Hit {
+        protected:
+            Entity& m_entity;
+        public:
+            EntityHit(Entity& entity, const Vec3f& hitPoint, float distance);
             
             inline Entity& entity() const {
-                assert(m_type == EntityHit);
-                return *(reinterpret_cast<Entity*>(m_object));
+                return m_entity;
             }
+
+            bool pickable(Filter& filter) const;
+        };
+        
+        class FaceHit : public Hit {
+        protected:
+            Face& m_face;
             
-            inline Brush& brush() const {
-                assert(m_type == VertexHandleHit || m_type == EdgeHandleHit || m_type == FaceHandleHit);
-                return *(reinterpret_cast<Brush*>(m_object));
-            }
+            FaceHit(HitType::Type type, Face& face, const Vec3f& hitPoint, float distance);
+        public:
+            static FaceHit* faceHit(Face& face, const Vec3f& hitPoint, float distance);
+            static FaceHit* nearFaceHit(Face& face, const Vec3f& hitPoint, float distance);
             
             inline Face& face() const {
-                assert(m_type == FaceHit || m_type == NearFaceHit);
-                return *(reinterpret_cast<Face*>(m_object));
+                return m_face;
             }
-            
+
             bool pickable(Filter& filter) const;
         };
         

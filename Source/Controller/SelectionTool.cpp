@@ -41,15 +41,15 @@ namespace TrenchBroom {
             Model::MapDocument& document = documentViewHolder().document();
             View::EditorView& view = documentViewHolder().view();
             
-            Model::Hit* hit = event.pickResult->first(Model::Hit::EntityHit | Model::Hit::FaceHit, false, view.filter());
+            Model::Hit* hit = event.pickResult->first(Model::HitType::ObjectHit, false, view.filter());
             Command* command = NULL;
             Model::EditStateManager& editStateManager = document.editStateManager();
             
             if (hit != NULL) {
                 bool multi = event.modifierKeys() == ModifierKeys::MKCtrlCmd;
                 
-                if (hit->type() == Model::Hit::EntityHit) {
-                    Model::Entity& entity = hit->entity();
+                if (hit->type() == Model::HitType::EntityHit) {
+                    Model::Entity& entity = static_cast<Model::EntityHit*>(hit)->entity();
                     if (multi) {
                         if (entity.selected())
                             command = ChangeEditStateCommand::deselect(document, entity);
@@ -59,7 +59,7 @@ namespace TrenchBroom {
                         command = ChangeEditStateCommand::replace(document, entity);
                     }
                 } else {
-                    Model::Face& face = hit->face();
+                    Model::Face& face = static_cast<Model::FaceHit*>(hit)->face();
                     Model::Brush& brush = *face.brush();
                     
                     if (brush.selected()) {
@@ -113,7 +113,7 @@ namespace TrenchBroom {
             if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces)
                 return false;
             
-            Model::HitList hits = event.pickResult->hits(Model::Hit::EntityHit | Model::Hit::FaceHit, view.filter());
+            const Model::HitList hits = event.pickResult->hits(Model::HitType::ObjectHit, view.filter());
             if (hits.empty())
                 return false;
             
@@ -123,18 +123,18 @@ namespace TrenchBroom {
             Command* command = NULL;
             bool appendSelection = event.modifierKeys() == (ModifierKeys::MKCtrlCmd | ModifierKeys::MKShift);
             bool foundSelection = false;
-            
-            for (unsigned int i = 0; i < hits.size() && !foundSelection; i++) {
+
+            for (size_t i = 0; i < hits.size(); i++) {
                 Model::Hit* hit = hits[i];
-                if (hit->type() == Model::Hit::EntityHit) {
-                    Model::Entity& entity = hit->entity();
+                if (hit->type() == Model::HitType::EntityHit) {
+                    Model::Entity& entity = static_cast<Model::EntityHit*>(hit)->entity();
                     if (entity.selected()) {
                         if (!appendSelection)
                             Utility::erase(entities, &entity);
                         foundSelection = true;
                     }
                 } else {
-                    Model::Face& face = hit->face();
+                    Model::Face& face = static_cast<Model::FaceHit*>(hit)->face();
                     Model::Brush& brush = *face.brush();
                     if (brush.selected()) {
                         if (!appendSelection)
@@ -151,14 +151,14 @@ namespace TrenchBroom {
                         hit = hits[i - 1];
                     
                     if (hit != NULL) {
-                        if (hit->type() == Model::Hit::EntityHit) {
-                            Model::Entity& entity = hit->entity();
+                        if (hit->type() == Model::HitType::EntityHit) {
+                            Model::Entity& entity = static_cast<Model::EntityHit*>(hit)->entity();
                             if (!entity.selected()) {
                                 entities.push_back(&entity);
                                 command = ChangeEditStateCommand::replace(document, entities, brushes);
                             }
                         } else {
-                            Model::Face& face = hit->face();
+                            Model::Face& face = static_cast<Model::FaceHit*>(hit)->face();
                             Model::Brush& brush = *face.brush();
                             if (!brush.selected()) {
                                 brushes.push_back(&brush);
@@ -171,11 +171,11 @@ namespace TrenchBroom {
             
             if (!foundSelection) {
                 Model::Hit* hit = hits[0];
-                if (hit->type() == Model::Hit::EntityHit) {
-                    Model::Entity& entity = hit->entity();
+                if (hit->type() == Model::HitType::EntityHit) {
+                    Model::Entity& entity = static_cast<Model::EntityHit*>(hit)->entity();
                     entities.push_back(&entity);
                 } else {
-                    Model::Face& face = hit->face();
+                    Model::Face& face = static_cast<Model::FaceHit*>(hit)->face();
                     Model::Brush& brush = *face.brush();
                     brushes.push_back(&brush);
                 }

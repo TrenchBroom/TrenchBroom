@@ -270,7 +270,7 @@ namespace TrenchBroom {
             
             if (!Math::isnan(dist)) {
                 Vec3f hitPoint = ray.pointAtDistance(dist);
-                Hit* hit = new Hit(side->face, Hit::FaceHit, hitPoint, dist);
+                FaceHit* hit = FaceHit::faceHit(*side->face, hitPoint, dist);
                 pickResults.add(*hit);
             }
         }

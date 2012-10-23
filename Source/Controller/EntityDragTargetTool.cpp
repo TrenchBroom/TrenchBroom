@@ -46,7 +46,7 @@ namespace TrenchBroom {
             Model::Filter& filter = view.filter();
             Utility::Grid& grid = document.grid();
             
-            Model::Hit* hit = event.pickResult->first(Model::Hit::FaceHit, true, filter);
+            Model::FaceHit* hit = static_cast<Model::FaceHit*>(event.pickResult->first(Model::HitType::FaceHit, true, filter));
             
             Vec3f delta;
             if (hit == NULL) {
