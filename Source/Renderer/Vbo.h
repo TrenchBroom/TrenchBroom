@@ -66,6 +66,7 @@ namespace TrenchBroom {
             void deactivate();
             void map();
             void unmap();
+            void ensureFreeCapacity(unsigned int capacity);
             VboBlock* allocBlock(unsigned int capacity);
             VboBlock* freeBlock(VboBlock& block);
             void freeAllBlocks();

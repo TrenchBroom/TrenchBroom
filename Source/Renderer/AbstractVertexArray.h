@@ -216,6 +216,10 @@ namespace TrenchBroom {
 
             virtual void doRender() = 0;
         public:
+            static inline GLsizei vertexSize(GLsizei size, GLsizei padTo = 16) {
+                return (size / padTo + 1) * padTo - size;
+            }
+            
             AbstractVertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const VertexAttribute& attribute1, GLsizei padTo = 16) :
             m_primType(primType),
             m_padBy(0),

@@ -268,6 +268,12 @@ namespace TrenchBroom {
             m_mapped = false;
         }
         
+        void Vbo::ensureFreeCapacity(unsigned int capacity) {
+            pack();
+            if (m_freeCapacity < capacity)
+                resizeVbo(m_totalCapacity + (capacity - m_freeCapacity));
+        }
+
         VboBlock* Vbo::allocBlock(unsigned int capacity) {
             assert(capacity > 0);
             

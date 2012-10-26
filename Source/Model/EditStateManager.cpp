@@ -102,31 +102,52 @@ namespace TrenchBroom {
         }
 
         void EditStateManager::setDefaultAndClear(EntityList& entities, EditStateChangeSet& changeSet, const EntityList& except) {
-            EntityList::iterator it = entities.begin();
-            while (it != entities.end()) {
-                Entity& entity = **it;
-                if (except.empty() || std::find(except.begin(), except.end(), &entity) == except.end()) {
+            if (except.empty()) {
+                EntityList::iterator it, end;
+                for (it = entities.begin(), end = entities.end(); it != end; ++it) {
+                    Entity& entity = **it;
                     EditState::Type previousState = entity.setEditState(EditState::Default);
                     changeSet.addEntity(previousState, entity);
-                    it = entities.erase(it);
-                } else {
-                    ++it;
+                }
+                entities.clear();
+            } else {
+                EntityList::iterator it = entities.begin();
+                while (it != entities.end()) {
+                    Entity& entity = **it;
+                    if (std::find(except.begin(), except.end(), &entity) == except.end()) {
+                        EditState::Type previousState = entity.setEditState(EditState::Default);
+                        changeSet.addEntity(previousState, entity);
+                        it = entities.erase(it);
+                    } else {
+                        ++it;
+                    }
                 }
             }
         }
         
         void EditStateManager::setDefaultAndClear(BrushList& brushes, EditStateChangeSet& changeSet, const BrushList& except) {
-            BrushList::iterator it = brushes.begin();
-            while (it != brushes.end()) {
-                Brush& brush = **it;
-                if (except.empty() || std::find(except.begin(), except.end(), &brush) == except.end()) {
+            if (except.empty()) {
+                BrushList::iterator it, end;
+                for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
+                    Brush& brush = **it;
                     EditState::Type previousState = brush.setEditState(EditState::Default);
                     changeSet.addBrush(previousState, brush);
-                    it = brushes.erase(it);
-                } else {
-                    ++it;
+                }
+                brushes.clear();
+            } else {
+                BrushList::iterator it = brushes.begin();
+                while (it != brushes.end()) {
+                    Brush& brush = **it;
+                    if (std::find(except.begin(), except.end(), &brush) == except.end()) {
+                        EditState::Type previousState = brush.setEditState(EditState::Default);
+                        changeSet.addBrush(previousState, brush);
+                        it = brushes.erase(it);
+                    } else {
+                        ++it;
+                    }
                 }
             }
+            
         }
         
         void EditStateManager::deselectAndClear(FaceList& faces, EditStateChangeSet& changeSet) {

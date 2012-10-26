@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_Vec3f_h
 #define TrenchBroom_Vec3f_h
 
+#include "Utility/Allocator.h"
 #include "Utility/Math.h"
 #include "Utility/String.h"
 
@@ -30,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace Math {
-        class Vec3f {
+        class Vec3f : public Utility::Allocator<Vec3f> {
         public:
             static const Vec3f PosX;
             static const Vec3f PosY;

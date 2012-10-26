@@ -113,6 +113,7 @@ namespace TrenchBroom {
             center /= static_cast<float>(vertices.size());
 
             AliasFrameTriangleList frameTriangles;
+            frameTriangles.reserve(triangles.size());
             for (unsigned int i = 0; i < triangles.size(); i++) {
                 AliasFrameTriangle* frameTriangle = new AliasFrameTriangle();
                 for (unsigned int j = 0; j < 3; j++) {
@@ -212,7 +213,8 @@ namespace TrenchBroom {
             }
 
             // now stream is at the first frame
-            for (int i = 0; i < frameCount; i++) {
+            // because we only render the first frame, we will read only one
+            for (int i = 0; i < 1/*frameCount*/; i++) {
                 int32_t type;
                 stream->read(reinterpret_cast<char *>(&type), sizeof(int32_t));
                 if (type == 0) { // single frame

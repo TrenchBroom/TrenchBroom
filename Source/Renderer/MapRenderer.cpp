@@ -255,6 +255,12 @@ namespace TrenchBroom {
             // write face triangles
             m_faceVbo->activate();
             m_faceVbo->map();
+            
+            size_t totalFaceVertexCount = unselectedFaceSorter.vertexCount() + selectedFaceSorter.vertexCount() + lockedFaceSorter.vertexCount();
+            size_t totalPolygonCount = unselectedFaceSorter.polygonCount() + selectedFaceSorter.polygonCount() + lockedFaceSorter.polygonCount();
+            size_t totalTriangleVertexCount = 3 * totalFaceVertexCount - 2 * totalPolygonCount;
+            m_faceVbo->ensureFreeCapacity(static_cast<unsigned int>(totalTriangleVertexCount) * 64);
+            
             if (!m_geometryDataValid && !unselectedFaceSorter.empty())
                 writeFaceData(context, unselectedFaceSorter.collections(), m_faceVertexArrays, faceProgram);
             if (!m_selectedGeometryDataValid && !selectedFaceSorter.empty())

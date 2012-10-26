@@ -58,11 +58,14 @@ namespace TrenchBroom {
             typedef std::map<TextureType*, PolygonCollection, CompareTexturesById> PolygonCollectionMap;
             typedef std::pair<TextureType*, PolygonCollection> PolygonCollectionEntry;
         private:
-            
+            size_t m_vertexCount;
+            size_t m_polygonCount;
             PolygonCollectionMap m_polygonCollections;
             typename PolygonCollectionMap::iterator m_lastPolygonCollection;
         public:
             TexturedPolygonSorter() :
+            m_vertexCount(0),
+            m_polygonCount(0),
             m_lastPolygonCollection(m_polygonCollections.end()) {}
             
             inline void addPolygon(TextureType* texture, PolygonType polygon, size_t vertexCount) {
@@ -70,8 +73,18 @@ namespace TrenchBroom {
                     m_lastPolygonCollection = m_polygonCollections.insert(PolygonCollectionEntry(texture, PolygonCollection())).first;
                 
                 m_lastPolygonCollection->second.addPolygon(polygon, vertexCount);
+                m_vertexCount += vertexCount;
+                m_polygonCount++;
             }
             
+            inline size_t vertexCount() const {
+                return m_vertexCount;
+            }
+                    
+            inline size_t polygonCount() const {
+                return m_polygonCount;
+            }
+                    
             inline bool empty() const {
                 return m_polygonCollections.empty();
             }
