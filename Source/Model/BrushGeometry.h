@@ -23,7 +23,7 @@
 #include "Model/BrushGeometryTypes.h"
 #include "Model/FaceTypes.h"
 #include "Model/MapExceptions.h"
-#include "Utility/Pool.h"
+#include "Utility/Allocator.h"
 #include "Utility/VecMath.h"
 
 #include <iostream>
@@ -32,7 +32,7 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Model {
-        class Vertex {
+        class Vertex : public Utility::Allocator<Vertex> {
         public:
             enum Mark {
                 Drop,
@@ -41,8 +41,6 @@ namespace TrenchBroom {
                 New,
                 Unknown
             };
-        private:
-			static Utility::Pool<Vertex> m_pool;
         public:
             Vec3f position;
             Mark mark;
@@ -59,22 +57,11 @@ namespace TrenchBroom {
                 position = Vec3f::NaN;
                 mark = Drop;
             }
-
-            inline void* operator new(size_t size) {
-                if (!m_pool.empty())
-                    return m_pool.pop();
-                    return malloc(size);
-                    }
-
-            inline void operator delete(void* pointer) {
-                if (!m_pool.push(static_cast<Vertex*>(pointer)))
-                    free(pointer);
-                    }
         };
 
         class Side;
 
-        class Edge {
+        class Edge : public Utility::Allocator<Edge> {
         public:
             enum Mark {
                 Drop,
@@ -84,8 +71,6 @@ namespace TrenchBroom {
                 New,
                 Unknown
             };
-        private:
-			static Utility::Pool<Edge> m_pool;
         public:
             Vertex* start;
             Vertex* end;
@@ -103,17 +88,6 @@ namespace TrenchBroom {
                 right = NULL;
                 mark = Drop;
             }
-
-            inline void* operator new(size_t size) {
-                if (!m_pool.empty())
-                    return m_pool.pop();
-                    return malloc(size);
-                    }
-
-            inline void operator delete(void* pointer) {
-                if (!m_pool.push(static_cast<Edge*>(pointer)))
-                    free(pointer);
-                    }
 
             inline Vertex* startVertex(const Side* side) {
                 if (left == side)
@@ -204,7 +178,7 @@ namespace TrenchBroom {
 
         class Face;
 
-        class Side {
+        class Side : public Utility::Allocator<Side> {
         public:
             enum Mark {
                 Keep,
@@ -213,8 +187,6 @@ namespace TrenchBroom {
                 New,
                 Unknown
             };
-        private:
-			static Utility::Pool<Side> m_pool;
         public:
             VertexList vertices;
             EdgeList edges;
@@ -227,17 +199,6 @@ namespace TrenchBroom {
             Side(Edge* newEdges[], bool invert[], unsigned int count);
             Side(Face& face, EdgeList& newEdges);
 			~Side();
-
-            inline void* operator new(size_t size) {
-                if (!m_pool.empty())
-                    return m_pool.pop();
-                return malloc(size);
-            }
-
-            inline void operator delete(void* pointer) {
-                if (!m_pool.push(static_cast<Side*>(pointer)))
-                    free(pointer);
-            }
 
             float intersectWithRay(const Ray& ray);
 

@@ -26,7 +26,6 @@
 #include "Model/EntityDefinitionTypes.h"
 #include "Model/PropertyDefinition.h"
 #include "Utility/Color.h"
-#include "Utility/Pool.h"
 #include "Utility/String.h"
 #include "Utility/VecMath.h"
 

@@ -137,7 +137,6 @@
 		4810277C15E56F9B00250C9C /* AbstractTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractTokenizer.h; sourceTree = "<group>"; };
 		4810277D15E56F9B00250C9C /* StandardDefinitionParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StandardDefinitionParser.cpp; sourceTree = "<group>"; };
 		4810277E15E56F9B00250C9C /* StandardDefinitionParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StandardDefinitionParser.h; sourceTree = "<group>"; };
-		4810278015E5701E00250C9C /* Pool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Pool.h; sourceTree = "<group>"; };
 		4810278115E594C400250C9C /* MessageException.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageException.h; sourceTree = "<group>"; };
 		4810278215E5954A00250C9C /* ParserException.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ParserException.h; sourceTree = "<group>"; };
 		4810278615E621FA00250C9C /* PropertyDefinition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PropertyDefinition.h; sourceTree = "<group>"; };
@@ -282,6 +281,7 @@
 		4895CDED16334111006AA0A6 /* RotateTexturesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateTexturesCommand.h; sourceTree = "<group>"; };
 		4896F38D160E06F50029B30C /* TextureBrowserBorder.fragsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TextureBrowserBorder.fragsh; sourceTree = "<group>"; };
 		4896F38F160E07010029B30C /* TextureBrowserBorder.vertsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TextureBrowserBorder.vertsh; sourceTree = "<group>"; };
+		48A0E91C163A80BD0034F190 /* Allocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Allocator.h; sourceTree = "<group>"; };
 		48A8391316356CFC00175857 /* FlipObjectsCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FlipObjectsCommand.cpp; sourceTree = "<group>"; };
 		48A8391416356CFC00175857 /* FlipObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlipObjectsCommand.h; sourceTree = "<group>"; };
 		48A922B01601D0D20037FEFE /* ViewOptions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewOptions.h; sourceTree = "<group>"; };
@@ -674,6 +674,7 @@
 		4847641215E2E0C200095BC0 /* Utility */ = {
 			isa = PBXGroup;
 			children = (
+				48A0E91C163A80BD0034F190 /* Allocator.h */,
 				48D1BEA915E2FC150073C030 /* BBox.h */,
 				48B75F7B160DAE61009D4E99 /* CachedPtr.h */,
 				48312B4815EBC14F00607868 /* Color.h */,
@@ -695,7 +696,6 @@
 				48D1BE9815E2E2930073C030 /* Math.h */,
 				4810278115E594C400250C9C /* MessageException.h */,
 				48D1BEAA15E2FF860073C030 /* Plane.h */,
-				4810278015E5701E00250C9C /* Pool.h */,
 				48312B4415EBA43700607868 /* Preferences.h */,
 				48AF492915E8F0B20083DE52 /* ProgressIndicator.h */,
 				48D1BEA415E2F4F80073C030 /* Quat.h */,

@@ -24,6 +24,7 @@
 #include "Model/EditState.h"
 #include "Model/EntityTypes.h"
 #include "Model/MapObject.h"
+#include "Utility/Allocator.h"
 #include "Utility/VecMath.h"
 
 using namespace TrenchBroom::Math;
@@ -34,7 +35,7 @@ namespace TrenchBroom {
         class EntityDefinition;
         class Map;
         
-        class Entity : public MapObject {
+        class Entity : public MapObject, public Utility::Allocator<Entity> {
         public:
             static String const ClassnameKey;
             static String const SpawnFlagsKey;

@@ -22,6 +22,7 @@
 
 #include "Model/BrushGeometry.h"
 #include "Model/FaceTypes.h"
+#include "Utility/Allocator.h"
 #include "Utility/String.h"
 #include "Utility/VecMath.h"
 
@@ -42,7 +43,7 @@ namespace TrenchBroom {
          * Texture coordinates and texture axes are transient (computed on demand) and are therefore marked as mutable.
          * Geometric data such as edges and vertices are stored in an instance of class Side.
          */
-        class Face {
+        class Face : public Utility::Allocator<Face> {
         protected:
             Brush* m_brush;
             Side* m_side;

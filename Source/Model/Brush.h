@@ -24,6 +24,7 @@
 #include "Model/EditState.h"
 #include "Model/FaceTypes.h"
 #include "Model/MapObject.h"
+#include "Utility/Allocator.h"
 #include "Utility/VecMath.h"
 
 #include <vector>
@@ -36,7 +37,7 @@ namespace TrenchBroom {
         class Face;
         class Texture;
         
-        class Brush : public MapObject {
+        class Brush : public MapObject, public Utility::Allocator<Brush> {
         protected:
             class Entity* m_entity;
             FaceList m_faces;

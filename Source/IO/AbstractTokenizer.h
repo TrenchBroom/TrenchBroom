@@ -21,7 +21,7 @@
 #define __TrenchBroom__AbstractTokenizer__
 
 #include "IO/ParserException.h"
-#include "Utility/Pool.h"
+#include "Utility/Allocator.h"
 
 #include <cstdlib>
 #include <istream>
@@ -29,9 +29,7 @@
 namespace TrenchBroom {
     namespace IO {
         template <typename TokenType, typename SubClass>
-        class AbstractToken {
-        private:
-			static Utility::Pool<SubClass> pool;
+        class AbstractToken : public Utility::Allocator<SubClass> {
         protected:
             TokenType m_type;
             const String m_data;
@@ -39,18 +37,6 @@ namespace TrenchBroom {
             size_t m_line;
             size_t m_column;
         public:
-            inline void* operator new(size_t size) {
-                if (!pool.empty())
-                    return pool.pop();
-                    
-                    return malloc(size);
-            }
-            
-            inline void operator delete(void* pointer) {
-                if (!pool.push(static_cast<SubClass*>(pointer)))
-                    free(pointer);
-            }
-            
             AbstractToken(TokenType type, const String& data, size_t position, size_t line, size_t column) : m_type(type), m_data(data), m_position(position), m_line(line), m_column(column) {}
             
             inline TokenType type() const {
@@ -81,9 +67,6 @@ namespace TrenchBroom {
                 return static_cast<int>(atoi(m_data.c_str()));
             }
         };
-        
-        template <typename TokenType, typename SubClass>
-        Utility::Pool<SubClass> AbstractToken<TokenType, SubClass>::pool(5);
         
         class AbstractTokenizer {
         protected:

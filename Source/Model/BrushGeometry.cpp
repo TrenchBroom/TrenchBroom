@@ -24,16 +24,8 @@
 #include <map>
 #include <cstdio>
 
-#define VERTEX_MAX_POOL_SIZE 256
-#define EDGE_MAX_POOL_SIZE 256
-#define SIDE_MAX_POOL_SIZE 256
-
 namespace TrenchBroom {
     namespace Model {
-        Utility::Pool<Vertex> Vertex::m_pool = Utility::Pool<Vertex>(VERTEX_MAX_POOL_SIZE);
-		Utility::Pool<Edge> Edge::m_pool = Utility::Pool<Edge>(EDGE_MAX_POOL_SIZE);
-		Utility::Pool<Side> Side::m_pool = Utility::Pool<Side>(SIDE_MAX_POOL_SIZE);
-
         void Edge::updateMark() {
             unsigned int keep = 0;
             unsigned int drop = 0;
