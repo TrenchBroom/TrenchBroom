@@ -23,6 +23,10 @@
 #include "Controller/DragTool.h"
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class MoveObjectsHandleFigure;
+    }
+    
     namespace View {
         class DocumentViewHolder;
     }
@@ -30,6 +34,10 @@ namespace TrenchBroom {
     namespace Controller {
         class MoveObjectsTool : public DragTool {
         protected:
+            Renderer::MoveObjectsHandleFigure* m_handleFigure;
+            
+            bool handleMouseMoved(InputEvent& event);
+
             bool handleBeginPlaneDrag(InputEvent& event, Plane& dragPlane);
             bool handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
             void handleEndPlaneDrag(InputEvent& event);

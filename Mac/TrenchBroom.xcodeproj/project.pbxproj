@@ -68,6 +68,7 @@
 		4895CDEC16334108006AA0A6 /* RotateTexturesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4895CDEB16334108006AA0A6 /* RotateTexturesCommand.cpp */; };
 		4896F38E160E06F50029B30C /* TextureBrowserBorder.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 4896F38D160E06F50029B30C /* TextureBrowserBorder.fragsh */; };
 		4896F390160E07010029B30C /* TextureBrowserBorder.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 4896F38F160E07010029B30C /* TextureBrowserBorder.vertsh */; };
+		48A0E92C163BBB1D0034F190 /* MoveObjectsHandleFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48A0E92A163BBB1D0034F190 /* MoveObjectsHandleFigure.cpp */; };
 		48A8391516356CFC00175857 /* FlipObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48A8391316356CFC00175857 /* FlipObjectsCommand.cpp */; };
 		48AB57F115ECEEE500321C47 /* ProgressIndicatorDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AB57EF15ECEEE500321C47 /* ProgressIndicatorDialog.cpp */; };
 		48AB580215ECFED800321C47 /* InputController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AB580015ECFED800321C47 /* InputController.cpp */; };
@@ -282,6 +283,8 @@
 		4896F38D160E06F50029B30C /* TextureBrowserBorder.fragsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TextureBrowserBorder.fragsh; sourceTree = "<group>"; };
 		4896F38F160E07010029B30C /* TextureBrowserBorder.vertsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TextureBrowserBorder.vertsh; sourceTree = "<group>"; };
 		48A0E91C163A80BD0034F190 /* Allocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Allocator.h; sourceTree = "<group>"; };
+		48A0E92A163BBB1D0034F190 /* MoveObjectsHandleFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveObjectsHandleFigure.cpp; sourceTree = "<group>"; };
+		48A0E92B163BBB1D0034F190 /* MoveObjectsHandleFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveObjectsHandleFigure.h; sourceTree = "<group>"; };
 		48A8391316356CFC00175857 /* FlipObjectsCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FlipObjectsCommand.cpp; sourceTree = "<group>"; };
 		48A8391416356CFC00175857 /* FlipObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlipObjectsCommand.h; sourceTree = "<group>"; };
 		48A922B01601D0D20037FEFE /* ViewOptions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewOptions.h; sourceTree = "<group>"; };
@@ -845,6 +848,8 @@
 				48FBD13F16259AD70059953D /* EntityFigure.cpp */,
 				48FBD14016259AD70059953D /* EntityFigure.h */,
 				48FBD13C16258DE70059953D /* Figure.h */,
+				48A0E92A163BBB1D0034F190 /* MoveObjectsHandleFigure.cpp */,
+				48A0E92B163BBB1D0034F190 /* MoveObjectsHandleFigure.h */,
 			);
 			name = Figure;
 			sourceTree = "<group>";
@@ -1021,6 +1026,7 @@
 				48A8391516356CFC00175857 /* FlipObjectsCommand.cpp in Sources */,
 				48CB0DB21635AA36001C8E87 /* MoveObjectsTool.cpp in Sources */,
 				48CB0DB91635AACE001C8E87 /* DragTool.cpp in Sources */,
+				48A0E92C163BBB1D0034F190 /* MoveObjectsHandleFigure.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

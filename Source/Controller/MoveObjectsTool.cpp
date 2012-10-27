@@ -19,8 +19,36 @@
 
 #include "MoveObjectsTool.h"
 
+#include "Model/Picker.h"
+#include "Renderer/MoveObjectsHandleFigure.h"
+#include "View/DocumentViewHolder.h"
+
 namespace TrenchBroom {
     namespace Controller {
+        bool MoveObjectsTool::handleMouseMoved(InputEvent& event) {
+            View::EditorView& view = documentViewHolder().view();
+            Model::Filter& filter = view.filter();
+
+            Model::Hit* hit = event.pickResult->first(Model::HitType::ObjectHit, false, filter);
+            if (hit != NULL) {
+                Vec3f position;
+                if (hit->type() == Model::HitType::EntityHit)
+                    position = static_cast<Model::EntityHit*>(hit)->entity().center();
+                else
+                    position = static_cast<Model::FaceHit*>(hit)->face().brush()->center();
+                
+                if (m_handleFigure == NULL) {
+                    m_handleFigure = new Renderer::MoveObjectsHandleFigure();
+                    addFigure(m_handleFigure);
+                }
+                m_handleFigure->setPosition(position);
+            } else if (m_handleFigure != NULL) {
+                removeFigure(m_handleFigure);
+                m_handleFigure = NULL;
+            }
+            return false;
+        }
+
         bool MoveObjectsTool::handleBeginPlaneDrag(InputEvent& event, Plane& dragPlane) {
             if (event.mouseButtons != MouseButtons::MBLeft ||
                 event.modifierKeys() != ModifierKeys::MKNone)
@@ -41,6 +69,7 @@ namespace TrenchBroom {
         }
 
         MoveObjectsTool::MoveObjectsTool(View::DocumentViewHolder& documentViewHolder) :
-        DragTool(documentViewHolder) {}
+        DragTool(documentViewHolder),
+        m_handleFigure(NULL) {}
     }
 }

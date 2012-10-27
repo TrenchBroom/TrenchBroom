@@ -22,6 +22,7 @@
 
 #include "Controller/Input.h"
 #include "Model/MapDocument.h"
+#include "Renderer/MapRenderer.h"
 #include "Utility/CommandProcessor.h"
 #include "Utility/VecMath.h"
 #include "View/DocumentViewHolder.h"
@@ -37,6 +38,10 @@ using namespace TrenchBroom::Math;
 namespace TrenchBroom {
     namespace Model {
         class EditStateChangeSet;
+    }
+    
+    namespace Renderer {
+        class Figure;
     }
     
     namespace Controller {
@@ -103,6 +108,30 @@ namespace TrenchBroom {
 
             inline View::DocumentViewHolder& documentViewHolder() {
                 return m_documentViewHolder;
+            }
+
+            inline void addFigure(Renderer::Figure* figure) {
+                if (!m_documentViewHolder.valid())
+                    return;
+                
+                Renderer::MapRenderer& renderer = m_documentViewHolder.view().renderer();
+                renderer.addFigure(figure);
+            }
+            
+            inline void removeFigure(Renderer::Figure* figure) {
+                if (!m_documentViewHolder.valid())
+                    return;
+                
+                Renderer::MapRenderer& renderer = m_documentViewHolder.view().renderer();
+                renderer.removeFigure(figure);
+            }
+            
+            inline void deleteFigure(Renderer::Figure* figure) {
+                if (!m_documentViewHolder.valid())
+                    return;
+                
+                Renderer::MapRenderer& renderer = m_documentViewHolder.view().renderer();
+                renderer.deleteFigure(figure);
             }
         public:
             Tool(View::DocumentViewHolder& documentViewHolder) :
