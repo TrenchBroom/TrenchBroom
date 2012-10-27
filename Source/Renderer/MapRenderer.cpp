@@ -256,6 +256,7 @@ namespace TrenchBroom {
             m_faceVbo->activate();
             m_faceVbo->map();
             
+            // make sure that the VBO is sufficiently large
             size_t totalFaceVertexCount = unselectedFaceSorter.vertexCount() + selectedFaceSorter.vertexCount() + lockedFaceSorter.vertexCount();
             size_t totalPolygonCount = unselectedFaceSorter.polygonCount() + selectedFaceSorter.polygonCount() + lockedFaceSorter.polygonCount();
             size_t totalTriangleVertexCount = 3 * totalFaceVertexCount - 2 * totalPolygonCount;
@@ -579,6 +580,7 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::deleteFigure(Figure* figure) {
+            removeFigure(figure);
             m_deletedFigures.push_back(figure);
         }
 

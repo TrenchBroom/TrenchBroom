@@ -22,6 +22,7 @@
 #include "Model/Picker.h"
 #include "Renderer/MoveObjectsHandleFigure.h"
 #include "View/DocumentViewHolder.h"
+#include "Utility/Console.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -32,19 +33,29 @@ namespace TrenchBroom {
             Model::Hit* hit = event.pickResult->first(Model::HitType::ObjectHit, false, filter);
             if (hit != NULL) {
                 Vec3f position;
-                if (hit->type() == Model::HitType::EntityHit)
-                    position = static_cast<Model::EntityHit*>(hit)->entity().center();
-                else
-                    position = static_cast<Model::FaceHit*>(hit)->face().brush()->center();
+                if (hit->type() == Model::HitType::EntityHit) {
+                    Model::Entity& entity = static_cast<Model::EntityHit*>(hit)->entity();
+                    if (!entity.selected())
+                        return false;
+                    position = entity.center();
+                } else {
+                    Model::Face& face = static_cast<Model::FaceHit*>(hit)->face();
+                    Model::Brush& brush = *face.brush();
+                    if (!brush.selected())
+                        return false;
+                    position = brush.center();
+                }
                 
                 if (m_handleFigure == NULL) {
                     m_handleFigure = new Renderer::MoveObjectsHandleFigure();
                     addFigure(m_handleFigure);
+                    view.console().debug("added figure");
                 }
                 m_handleFigure->setPosition(position);
             } else if (m_handleFigure != NULL) {
-                removeFigure(m_handleFigure);
+                deleteFigure(m_handleFigure);
                 m_handleFigure = NULL;
+                view.console().debug("removed figure");
             }
             return false;
         }

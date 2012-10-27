@@ -255,17 +255,17 @@ namespace TrenchBroom {
                     float za = fabsf(z);
                     
                     if (xa >= ya && xa >= za) {
-                        if (x > 0 && pos)
+                        if (x > 0.0f && pos)
                             return PosX;
                         else
                             return NegX;
                     } else if (ya >= xa && ya >= za) {
-                        if (y > 0 && pos)
+                        if (y > 0.0f && pos)
                             return PosY;
                         else
                             return NegY;
                     } else {
-                        if (z > 0 && pos)
+                        if (z > 0.0f && pos)
                             return PosZ;
                         else
                             return NegZ;
@@ -283,18 +283,18 @@ namespace TrenchBroom {
                     
                     if ((xa <= ya && xa >= za) ||
                         (xa >= ya && xa <= za)) {
-                        if (x > 0 && pos)
+                        if (x > 0.0f && pos)
                             return PosX;
                         else
                             return NegX;
                     } else if ((ya <= xa && ya >= za) || 
                                (ya >= xa && ya <= za)) {
-                        if (y > 0 && pos)
+                        if (y > 0.0f && pos)
                             return PosY;
                         else
                             return NegY;
                     } else {
-                        if (z > 0 && pos)
+                        if (z > 0.0f && pos)
                             return PosZ;
                         else
                             return NegZ;
@@ -311,17 +311,17 @@ namespace TrenchBroom {
                     float za = fabsf(z);
                     
                     if (xa <= ya && xa <= za) {
-                        if (x > 0 && pos)
+                        if (x > 0.0f && pos)
                             return PosX;
                         else
                             return NegX;
                     } else if (ya <= xa && ya <= za) {
-                        if (y > 0 && pos)
+                        if (y > 0.0f && pos)
                             return PosY;
                         else
                             return NegY;
                     } else {
-                        if (z > 0 && pos)
+                        if (z > 0.0f && pos)
                             return PosZ;
                         else
                             return NegZ;

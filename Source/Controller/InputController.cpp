@@ -21,6 +21,7 @@
 
 #include "Controller/CameraTool.h"
 #include "Controller/EntityDragTargetTool.h"
+#include "Controller/MoveObjectsTool.h"
 #include "Controller/SelectionTool.h"
 #include "Model/MapDocument.h"
 #include "Model/Picker.h"
@@ -62,6 +63,7 @@ namespace TrenchBroom {
         m_modalReceiverIndex(-1),
         m_dragTargetReceiver(NULL) {
             m_receivers.push_back(new CameraTool(m_documentViewHolder));
+            m_receivers.push_back(new MoveObjectsTool(m_documentViewHolder));
             m_receivers.push_back(new SelectionTool(m_documentViewHolder));
             m_dragTargetTools.push_back(new EntityDragTargetTool(m_documentViewHolder));
         }

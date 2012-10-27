@@ -1101,7 +1101,7 @@
 				CLANG_LINK_OBJC_RUNTIME = NO;
 				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = NO;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TrenchBroom/TrenchBroom-Prefix.pch";
 				GCC_WARN_SHADOW = NO;
@@ -1116,9 +1116,10 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = (
-					"-isystem\"$(SRCROOT)/wxWidgets/build-debug/lib/wx/include/osx_cocoa-unicode-static-2.9\"",
+					"-isystem\"$(SRCROOT)/wxWidgets/build-debug/lib/wx/include/osx_cocoa-unicode-2.9\"",
 					"-isystem\"$(SRCROOT)/wxWidgets/include\"",
 					"-D_FILE_OFFSET_BITS=64",
+					"-DWXUSINGDLL",
 					"-D__WXMAC__",
 					"-D__WXOSX__",
 					"-D__WXOSX_COCOA__",
@@ -1137,18 +1138,11 @@
 					System,
 					"-framework",
 					OpenGL,
-					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_osx_cocoau_gl-2.9.a\"",
-					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_osx_cocoau_adv-2.9.a\"",
-					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_osx_cocoau_core-2.9.a\"",
-					"\"$(SRCROOT)/wxWidgets/build-debug/lib/libwx_baseu-2.9.a\"",
-					"-lexpat",
-					"-lwxregexu-2.9",
-					"-lwxtiff-2.9",
-					"-lwxjpeg-2.9",
-					"-lwxpng-2.9",
+					"-lwx_osx_cocoau_gl-2.9",
+					"-lwx_osx_cocoau_adv-2.9",
+					"-lwx_osx_cocoau_core-2.9",
+					"-lwx_baseu-2.9",
 					"-lz",
-					"-lpthread",
-					"-liconv",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx10.6;

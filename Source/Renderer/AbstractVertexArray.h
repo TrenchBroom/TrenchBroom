@@ -352,6 +352,12 @@ namespace TrenchBroom {
                 }
             }
 
+            inline void reset() {
+                m_vertexCount = 0;
+                m_specIndex = 0;
+                m_writeOffset = 0;
+            }
+            
             inline void preRender() {
                 assert(m_specIndex == 0);
                 

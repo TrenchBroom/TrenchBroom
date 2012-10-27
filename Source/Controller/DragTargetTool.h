@@ -94,6 +94,9 @@ namespace TrenchBroom {
                 
                 Renderer::MapRenderer& renderer = m_documentViewHolder.view().renderer();
                 renderer.addFigure(figure);
+                
+                Model::MapDocument& document = m_documentViewHolder.document();
+                document.UpdateAllViews();
             }
             
             inline void removeFigure(Renderer::Figure* figure) {
@@ -102,6 +105,9 @@ namespace TrenchBroom {
                 
                 Renderer::MapRenderer& renderer = m_documentViewHolder.view().renderer();
                 renderer.removeFigure(figure);
+                
+                Model::MapDocument& document = m_documentViewHolder.document();
+                document.UpdateAllViews();
             }
             
             inline void deleteFigure(Renderer::Figure* figure) {
@@ -110,6 +116,9 @@ namespace TrenchBroom {
                 
                 Renderer::MapRenderer& renderer = m_documentViewHolder.view().renderer();
                 renderer.deleteFigure(figure);
+                
+                Model::MapDocument& document = m_documentViewHolder.document();
+                document.UpdateAllViews();
             }
             
             inline View::DocumentViewHolder& documentViewHolder() {
