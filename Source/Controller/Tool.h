@@ -98,6 +98,14 @@ namespace TrenchBroom {
                 CommandProcessor::EndGroup(document.GetCommandProcessor());
             }
 
+            inline void CancelCommandGroup() {
+                if (!m_documentViewHolder.valid())
+                    return;
+                
+                Model::MapDocument& document = m_documentViewHolder.document();
+                CommandProcessor::CancelGroup(document.GetCommandProcessor());
+            }
+            
             inline void postCommand(wxCommand* command) {
                 if (!m_documentViewHolder.valid())
                     return;
@@ -110,15 +118,18 @@ namespace TrenchBroom {
                 return m_documentViewHolder;
             }
 
+            inline void updateViews() {
+                Model::MapDocument& document = m_documentViewHolder.document();
+                document.UpdateAllViews();
+            }
+            
             inline void addFigure(Renderer::Figure* figure) {
                 if (!m_documentViewHolder.valid())
                     return;
                 
                 Renderer::MapRenderer& renderer = m_documentViewHolder.view().renderer();
                 renderer.addFigure(figure);
-                
-                Model::MapDocument& document = m_documentViewHolder.document();
-                document.UpdateAllViews();
+                updateViews();
             }
             
             inline void removeFigure(Renderer::Figure* figure) {
@@ -127,9 +138,7 @@ namespace TrenchBroom {
                 
                 Renderer::MapRenderer& renderer = m_documentViewHolder.view().renderer();
                 renderer.removeFigure(figure);
-                
-                Model::MapDocument& document = m_documentViewHolder.document();
-                document.UpdateAllViews();
+                updateViews();
             }
             
             inline void deleteFigure(Renderer::Figure* figure) {
@@ -138,9 +147,7 @@ namespace TrenchBroom {
                 
                 Renderer::MapRenderer& renderer = m_documentViewHolder.view().renderer();
                 renderer.deleteFigure(figure);
-                
-                Model::MapDocument& document = m_documentViewHolder.document();
-                document.UpdateAllViews();
+                updateViews();
             }
         public:
             Tool(View::DocumentViewHolder& documentViewHolder) :

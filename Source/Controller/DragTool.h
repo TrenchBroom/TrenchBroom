@@ -38,7 +38,7 @@ namespace TrenchBroom {
             Vec3f m_lastDragPoint;
             Vec3f m_lastReferencePoint;
         protected:
-            virtual bool handleBeginPlaneDrag(InputEvent& event, Plane& dragPlane) = 0;
+            virtual bool handleBeginPlaneDrag(InputEvent& event, Plane& dragPlane, Vec3f& initialDragPoint) = 0;
             virtual bool handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint) = 0;
             virtual void handleEndPlaneDrag(InputEvent& event) = 0;
 

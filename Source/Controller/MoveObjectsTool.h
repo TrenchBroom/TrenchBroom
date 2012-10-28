@@ -21,12 +21,12 @@
 #define __TrenchBroom__MoveObjectsTool__
 
 #include "Controller/DragTool.h"
+#include "Renderer/MoveObjectsHandleFigure.h"
+#include "Utility/Math.h"
+
+using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class MoveObjectsHandleFigure;
-    }
-    
     namespace View {
         class DocumentViewHolder;
     }
@@ -34,11 +34,16 @@ namespace TrenchBroom {
     namespace Controller {
         class MoveObjectsTool : public DragTool {
         protected:
+            typedef Renderer::MoveObjectsHandleFigure::Hit HandleHit;
+            
+            HandleHit m_currentHit;
+            Ray m_currentRay;
+            Vec3f m_totalDelta;
             Renderer::MoveObjectsHandleFigure* m_handleFigure;
             
             bool handleMouseMoved(InputEvent& event);
 
-            bool handleBeginPlaneDrag(InputEvent& event, Plane& dragPlane);
+            bool handleBeginPlaneDrag(InputEvent& event, Plane& dragPlane, Vec3f& initialDragPoint);
             bool handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
             void handleEndPlaneDrag(InputEvent& event);
 

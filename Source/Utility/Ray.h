@@ -47,6 +47,63 @@ namespace TrenchBroom {
                     return PointStatus::PSBelow;
                 return PointStatus::PSInside;
             }
+
+            float squaredDistanceToSegment(const Vec3f& start, const Vec3f& end, float& distanceToClosestPoint) const {
+                Vec3f u, v, w;
+                u = end - start;
+                v = direction;
+                w = start - origin;
+                
+                float a = u.dot(u);
+                float b = u.dot(v);
+                float c = v.dot(v);
+                float d = u.dot(w);
+                float e = v.dot(w);
+                float D = a * c - b * b;
+                float sN, sD = D;
+                float tN, tD = D;
+                
+                if (zero(D)) {
+                    sN = 0.0f;
+                    sD = 1.0f;
+                    tN = e;
+                    tD = c;
+                } else {
+                    sN = (b * e - c * d);
+                    tN = (a * e - b * d);
+                    if (sN < 0.0f) {
+                        sN = 0.0f;
+                        tN = e;
+                        tD = c;
+                    } else if (sN > sD) {
+                        sN = sD;
+                        tN = e + b;
+                        tD = c;
+                    }
+                }
+                
+                if (tN < 0.0f)
+                    return nan();
+                
+                float sc = zero(sN) ? 0.0f : sN / sD;
+                float tc = zero(tN) ? 0.0f : tN / tD;
+
+                distanceToClosestPoint = tc;
+
+                u = u * sc;
+                v = v * tc;
+                w = w + u;
+                Vec3f dP = w - v;
+
+                return dP.lengthSquared();
+            }
+            
+            float distanceToSegment(const Vec3f& start, const Vec3f& end, float& distanceToClosestPoint) const {
+                float squaredDistance = squaredDistanceToSegment(start, end, distanceToClosestPoint);
+                if (isnan(squaredDistance))
+                    return squaredDistance;
+                return sqrt(squaredDistance);
+            }
         };
     }
 }

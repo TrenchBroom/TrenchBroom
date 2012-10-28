@@ -48,9 +48,11 @@ public:
 
     static void BeginGroup(wxCommandProcessor* wxCommandProc, const wxString& name);
     static void EndGroup(wxCommandProcessor* wxCommandProc);
+    static void CancelGroup(wxCommandProcessor* wxCommandProc);
     
     void BeginGroup(const wxString& name);
     void EndGroup();
+    void CancelGroup();
     bool Submit(wxCommand* command, bool storeIt = true);
 };
 

@@ -80,6 +80,14 @@ namespace TrenchBroom {
                 CommandProcessor::EndGroup(document.GetCommandProcessor());
             }
             
+            inline void CancelCommandGroup() {
+                if (!m_documentViewHolder.valid())
+                    return;
+                
+                Model::MapDocument& document = m_documentViewHolder.document();
+                CommandProcessor::CancelGroup(document.GetCommandProcessor());
+            }
+
             inline void postCommand(wxCommand* command) {
                 if (!m_documentViewHolder.valid())
                     return;

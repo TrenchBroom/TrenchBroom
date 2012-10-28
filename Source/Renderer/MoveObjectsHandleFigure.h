@@ -24,15 +24,89 @@
 
 #include "Utility/VecMath.h"
 
+#include <cassert>
+#include <limits>
+
 using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
         class MoveObjectsHandleFigure : public Figure {
-        protected:
-            Vec3f m_position;
         public:
-            void setPosition(const Vec3f& position);
+            class Hit {
+            public:
+                typedef enum {
+                    TNone,
+                    TXAxis,
+                    TYAxis,
+                    TZAxis,
+                    TXYPlane,
+                    TXZPlane,
+                    TYZPlane
+                } Type;
+            private:
+                Type m_type;
+                Vec3f m_hitPoint;
+                float m_distance;
+
+                Hit(Type type, const Vec3f& hitPoint, float distance) :
+                m_type(type),
+                m_hitPoint(hitPoint),
+                m_distance(distance) {}
+            public:
+                static Hit noHit() {
+                    return Hit(TNone, Vec3f(), std::numeric_limits<float>::max());
+                }
+                
+                static Hit hit(Type type, const Vec3f& hitPoint, float distance) {
+                    assert(type != TNone);
+                    return Hit(type, hitPoint, distance);
+                }
+                
+                inline Type type() const {
+                    return m_type;
+                }
+                
+                inline const Vec3f& hitPoint() const {
+                    return m_hitPoint;
+                }
+                
+                inline float distance() const {
+                    return m_distance;
+                }
+            };
+        protected:
+            float m_axisLength;
+            float m_planeSize;
+            Hit::Type m_lastHit;
+            Vec3f m_position;
+            
+            bool m_locked;
+            Vec3f m_xAxis, m_yAxis, m_zAxis;
+            
+            void axes(const Vec3f& origin, Vec3f& xAxis, Vec3f& yAxis, Vec3f& zAxis);
+            Hit pickAxis(const Ray& ray, const Vec3f& axis, Hit::Type type);
+        public:
+            MoveObjectsHandleFigure(float axisLength, float planeSize);
+
+            Hit pick(const Ray& ray);
+            
+            inline const Vec3f& position() const {
+                return m_position;
+            }
+            
+            inline void setPosition(const Vec3f& position) {
+                m_position = position;
+            }
+            
+            inline void setHitType(Hit::Type type) {
+                m_lastHit = type;
+            }
+            
+            inline void setLocked(bool locked) {
+                m_locked = locked;
+            }
+            
             void render(Vbo& vbo, RenderContext& context);
         };
     }

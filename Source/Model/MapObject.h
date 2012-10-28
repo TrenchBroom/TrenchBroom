@@ -121,7 +121,6 @@ namespace TrenchBroom {
                 while (++it != end) {
                     T& object = **it;
                     result += object.center();
-                    ++it;
                 }
 
                 result /= static_cast<float>(objects.size());

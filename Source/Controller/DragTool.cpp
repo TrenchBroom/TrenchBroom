@@ -22,8 +22,8 @@
 namespace TrenchBroom {
     namespace Controller {
         bool DragTool::handleBeginDrag(InputEvent& event) {
-            if (handleBeginPlaneDrag(event, m_dragPlane)) {
-                m_lastDragPoint = m_lastReferencePoint = m_dragPlane.anchor();
+            if (handleBeginPlaneDrag(event, m_dragPlane, m_lastDragPoint)) {
+                m_lastReferencePoint = m_lastDragPoint;
                 return true;
             }
             return false;

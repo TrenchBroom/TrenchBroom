@@ -72,6 +72,11 @@ void CommandProcessor::EndGroup(wxCommandProcessor* wxCommandProc) {
     commandProc->EndGroup();
 }
 
+void CommandProcessor::CancelGroup(wxCommandProcessor* wxCommandProc) {
+    CommandProcessor* commandProc = static_cast<CommandProcessor*>(wxCommandProc);
+    commandProc->CancelGroup();
+}
+
 void CommandProcessor::BeginGroup(const wxString& name) {
     if (m_groupLevel == 0) {
         assert(m_compoundCommand == NULL);
@@ -86,6 +91,14 @@ void CommandProcessor::EndGroup() {
         assert(m_compoundCommand != NULL);
         wxCommandProcessor::Store(m_compoundCommand);
         m_compoundCommand = NULL;
+    }
+}
+
+void CommandProcessor::CancelGroup() {
+    m_groupLevel--;
+    if (m_groupLevel == 0) {
+        assert(m_compoundCommand != NULL);
+        wxDELETE(m_compoundCommand);
     }
 }
 

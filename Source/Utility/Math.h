@@ -90,6 +90,14 @@ namespace TrenchBroom {
             return !gt(f1, f2);
         }
 
+        inline bool between(float f, float s, float e) {
+            if (eq(f, s) || eq(f, e))
+                return true;
+            if (lt(s, e))
+                return gt(f, s) && lt(f, e);
+            return gt(f, e) && lt(f, s);
+        }
+        
         inline size_t succ(size_t index, size_t count, size_t offset = 1) {
             return (index + offset) % count;
         }

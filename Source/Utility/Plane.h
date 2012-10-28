@@ -56,6 +56,15 @@ namespace TrenchBroom {
                 return Plane(direction.firstAxis(), position);
             }
             
+            static const Plane planeContainingVector(const Vec3f& position, const Vec3f& normalizedVector, const Vec3f& viewPoint) {
+                Vec3f diff = viewPoint - position;
+                float f = diff.dot(normalizedVector);
+                Vec3f point = position + normalizedVector * f;
+                Vec3f normal = viewPoint - point;
+                normal.normalize();
+                return Plane(normal, position);
+            }
+            
             inline bool setPoints(const Vec3f& point1, const Vec3f& point2, const Vec3f& point3) {
                 Vec3f v1 = point3 - point1;
                 Vec3f v2 = point2 - point1;
