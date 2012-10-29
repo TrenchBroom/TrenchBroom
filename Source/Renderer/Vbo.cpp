@@ -85,13 +85,14 @@ namespace TrenchBroom {
         }
         
         void Vbo::resizeVbo(unsigned int newCapacity) {
-            bool wasActive = m_active;
-            bool wasMapped = m_mapped;
+            VboState oldState = m_state;
             
             unsigned char* temp = NULL;
             if (m_vboId != 0 && m_freeCapacity < m_totalCapacity) {
-                if (!wasActive) activate();
-                if (!wasMapped) map();
+                if (m_state < VboActive)
+                    activate();
+                if (m_state < VboMapped)
+                    map();
                 temp = new unsigned char[m_totalCapacity];
                 memcpy(temp, m_buffer, m_totalCapacity);
             }
@@ -109,25 +110,33 @@ namespace TrenchBroom {
             }
             
             if (m_vboId != 0) {
-                if (m_mapped) unmap();
-                if (m_active) deactivate();
+                if (m_state == VboMapped)
+                    unmap();
+                if (m_state == VboActive)
+                    deactivate();
                 glDeleteBuffers(1, &m_vboId);
                 m_vboId = 0;
             }
             
             if (temp != NULL) {
-                if (!m_active) activate();
-                if (!m_mapped) map();
+                if (m_state < VboActive)
+                    activate();
+                if (m_state < VboMapped)
+                    map();
                 
                 memcpy(m_buffer, temp, m_totalCapacity - addedCapacity);
                 delete [] temp;
                 temp = NULL;
                 
-                if (!wasMapped) unmap();
-                if (!wasActive) deactivate();
+                if (oldState < VboMapped)
+                    unmap();
+                if (oldState < VboActive)
+                    deactivate();
             } else {
-                if (wasActive && !m_active) activate();
-                if (wasMapped && !m_mapped) map();
+                if (oldState > VboInactive && m_state < VboActive)
+                    activate();
+                if (oldState > VboActive && m_state < VboMapped)
+                    map();
             }
             
 #ifdef _DEBUG_VBO
@@ -190,7 +199,7 @@ namespace TrenchBroom {
             return last;
         }
         
-        Vbo::Vbo(GLenum type, unsigned int capacity) : m_type(type), m_totalCapacity(capacity), m_freeCapacity(capacity), m_buffer(NULL), m_vboId(0), m_active(false), m_mapped(false) {
+        Vbo::Vbo(GLenum type, unsigned int capacity) : m_type(type), m_totalCapacity(capacity), m_freeCapacity(capacity), m_buffer(NULL), m_vboId(0), m_state(VboInactive) {
             m_first = new VboBlock(*this, 0, m_totalCapacity);
             m_last = m_first;
             m_freeBlocks.push_back(m_first);
@@ -205,9 +214,12 @@ namespace TrenchBroom {
             checkBlockChain();
             checkFreeBlocks();
 #endif
-            if (m_mapped) unmap();
-            if (m_active) deactivate();
-            if (m_vboId != 0) glDeleteBuffers(1, &m_vboId);
+            if (m_state == VboMapped)
+                unmap();
+            if (m_state == VboActive)
+                deactivate();
+            if (m_vboId != 0)
+                glDeleteBuffers(1, &m_vboId);
             m_freeBlocks.clear();
             VboBlock* block = m_first;
             while (block != NULL) {
@@ -218,7 +230,7 @@ namespace TrenchBroom {
         }
         
         void Vbo::activate() {
-            assert(!m_active);
+            assert(m_state != VboActive);
             
             if (m_vboId == 0) {
                 glGenBuffers(1, &m_vboId);
@@ -232,31 +244,29 @@ namespace TrenchBroom {
 			if (error != GL_NO_ERROR)
 				throw VboException(*this, "Vbo could not be activated", error);
 
-            m_active = true;
+            m_state = VboActive;
         }
         
         void Vbo::deactivate() {
-            assert(m_active);
+            assert(m_state == VboActive);
             
             glBindBuffer(m_type, 0);
-            m_active = false;
+            m_state = VboInactive;
         }
         
         void Vbo::map() {
-            assert(m_active);
-            assert(!m_mapped);
+            assert(m_state == VboActive);
             
             m_buffer = (unsigned char *)glMapBuffer(m_type, GL_WRITE_ONLY);
             GLenum error = glGetError();
 			if (m_buffer == NULL || error != GL_NO_ERROR)
 				throw VboException(*this, "Vbo could not be mapped", error);
 
-			m_mapped = true;
+            m_state = VboMapped;
         }
         
         void Vbo::unmap() {
-            assert(m_active);
-            assert(m_mapped);
+            assert(m_state == VboMapped);
             
             glUnmapBuffer(m_type);
 
@@ -265,7 +275,7 @@ namespace TrenchBroom {
 				throw VboException(*this, "Vbo could not be unmapped", error);
 
 			m_buffer = NULL;
-            m_mapped = false;
+            m_state = VboActive;
         }
         
         void Vbo::ensureFreeCapacity(unsigned int capacity) {
@@ -381,7 +391,7 @@ namespace TrenchBroom {
         }
 
         void Vbo::pack() {
-            assert(m_mapped);
+            assert(m_state == VboMapped);
             
 #ifdef _DEBUG_VBO
             checkBlockChain();

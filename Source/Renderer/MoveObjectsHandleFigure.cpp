@@ -20,6 +20,8 @@
 #include "MoveObjectsHandleFigure.h"
 
 #include "Renderer/Camera.h"
+#include "Renderer/CircleFigure.h"
+#include "Renderer/PushMatrix.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/VertexArray.h"
 
@@ -50,22 +52,12 @@ namespace TrenchBroom {
         }
 
         MoveObjectsHandleFigure::Hit MoveObjectsHandleFigure::pickAxis(const Ray& ray, const Vec3f& axis, Hit::Type type) {
-            float distance1, distance2, missDistance1, missDistance2;
-            missDistance1 = ray.squaredDistanceToSegment(m_position + m_planeSize * axis, m_position + m_axisLength * axis, distance1);
-            missDistance2 = ray.squaredDistanceToSegment(m_position - m_planeSize * axis, m_position - m_axisLength * axis, distance2);
+            float distance;
+            float missDistance = ray.squaredDistanceToSegment(m_position - m_axisLength * axis, m_position + m_axisLength * axis, distance);
+            if (isnan(missDistance) || missDistance > 5.0f)
+                return Hit::noHit();
             
-            if (!isnan(missDistance1) && missDistance1 <= 9.0f) {
-                if (!isnan(missDistance2) && missDistance2 <= 9.0f) {
-                    if (distance1 <= distance2)
-                        return Hit::hit(type, ray.pointAtDistance(distance1), distance1);
-                    return Hit::hit(type, ray.pointAtDistance(distance2), distance2);
-                }
-                return Hit::hit(type, ray.pointAtDistance(distance1), distance1);
-            } else if (!isnan(missDistance2) && missDistance2 <= 9.0f) {
-                return Hit::hit(type, ray.pointAtDistance(distance2), distance2);
-            }
-            
-            return Hit::noHit();
+            return Hit::hit(type, ray.pointAtDistance(distance), distance);
         }
 
         MoveObjectsHandleFigure::MoveObjectsHandleFigure(float axisLength, float planeSize) :
@@ -98,61 +90,72 @@ namespace TrenchBroom {
             float distance = plane.intersectWithRay(ray);
             if (!isnan(distance) && distance < closestHit.distance()) {
                 Vec3f hitPoint = ray.pointAtDistance(distance);
-                if (between(hitPoint.x, m_position.x, (m_position + m_planeSize * xAxis).x) &&
-                    between(hitPoint.y, m_position.y, (m_position + m_planeSize * yAxis).y))
+                float missDistance = (hitPoint - m_position).lengthSquared();
+                if (missDistance < (m_planeSize - 5.0f) * (m_planeSize - 5.0f))
                     closestHit = Hit::hit(Hit::TXYPlane, hitPoint, distance);
+                else if (missDistance <= (m_planeSize + 5.0f) * (m_planeSize + 5.0f))
+                    closestHit = Hit::hit(Hit::TZRotation, hitPoint, distance);
             }
             
             plane = Plane(Vec3f::PosY, m_position);
             distance = plane.intersectWithRay(ray);
             if (!isnan(distance) && distance < closestHit.distance()) {
                 Vec3f hitPoint = ray.pointAtDistance(distance);
-                if (between(hitPoint.x, m_position.x, (m_position + m_planeSize * xAxis).x) &&
-                    between(hitPoint.z, m_position.z, (m_position + m_planeSize * zAxis).z))
+                float missDistance = (hitPoint - m_position).lengthSquared();
+                if (missDistance < (m_planeSize - 5.0f) * (m_planeSize - 5.0f))
                     closestHit = Hit::hit(Hit::TXZPlane, hitPoint, distance);
+                else if (missDistance <= (m_planeSize + 5.0f) * (m_planeSize + 5.0f))
+                    closestHit = Hit::hit(Hit::TYRotation, hitPoint, distance);
             }
             
             plane = Plane(Vec3f::PosX, m_position);
             distance = plane.intersectWithRay(ray);
             if (!isnan(distance) && distance < closestHit.distance()) {
                 Vec3f hitPoint = ray.pointAtDistance(distance);
-                if (between(hitPoint.y, m_position.y, (m_position + m_planeSize * yAxis).y) &&
-                    between(hitPoint.z, m_position.z, (m_position + m_planeSize * zAxis).z))
+                float missDistance = (hitPoint - m_position).lengthSquared();
+                if (missDistance < (m_planeSize - 5.0f) * (m_planeSize - 5.0f))
                     closestHit = Hit::hit(Hit::TYZPlane, hitPoint, distance);
+                else if (missDistance <= (m_planeSize + 5.0f) * (m_planeSize + 5.0f))
+                    closestHit = Hit::hit(Hit::TXRotation, hitPoint, distance);
             }
 
             return closestHit;
         }
 
         void MoveObjectsHandleFigure::render(Vbo& vbo, RenderContext& context) {
+            SetVboState mapVbo(vbo, Vbo::VboMapped);
+            
+            glDisable(GL_DEPTH_TEST);
+            glDisable(GL_CULL_FACE);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            
             VertexArray axisArray(vbo, GL_LINES, 6,
                                   VertexAttribute(3, GL_FLOAT, VertexAttribute::Position),
                                   VertexAttribute(4, GL_FLOAT, VertexAttribute::Color));
-            VertexArray quadArray(vbo, GL_QUADS, 12,
-                                  VertexAttribute(3, GL_FLOAT, VertexAttribute::Position),
-                                  VertexAttribute(4, GL_FLOAT, VertexAttribute::Color));
-            VertexArray quadLinesArray(vbo, GL_LINES, 18,
-                                       VertexAttribute(3, GL_FLOAT, VertexAttribute::Position),
-                                       VertexAttribute(4, GL_FLOAT, VertexAttribute::Color));
-            
+
             Color color;
-            
-            vbo.activate();
-            vbo.map();
-            
-            color = m_lastHit == Hit::TXAxis ? Color(1.0f, 1.0f, 1.0f, 1.0f) : Color(1.0f, 0.0f, 0.0f, 1.0f);
+            if (m_lastHit == Hit::TXAxis || m_lastHit == Hit::TXYPlane || m_lastHit == Hit::TXZPlane || m_lastHit == Hit::TXRotation)
+                color = Color(1.0f, 1.0f, 1.0f, 1.0f);
+            else
+                color = Color(1.0f, 0.0f, 0.0f, 1.0f);
             axisArray.addAttribute(Vec3f(m_position.x - m_axisLength, m_position.y, m_position.z));
             axisArray.addAttribute(color);
             axisArray.addAttribute(Vec3f(m_position.x + m_axisLength, m_position.y, m_position.z));
             axisArray.addAttribute(color);
             
-            color = m_lastHit == Hit::TYAxis ? Color(1.0f, 1.0f, 1.0f, 1.0f) : Color(0.0f, 1.0f, 0.0f, 1.0f);
+            if (m_lastHit == Hit::TYAxis || m_lastHit == Hit::TXYPlane || m_lastHit == Hit::TYZPlane || m_lastHit == Hit::TYRotation)
+                color = Color(1.0f, 1.0f, 1.0f, 1.0f);
+            else
+                color = Color(0.0f, 1.0f, 0.0f, 1.0f);
             axisArray.addAttribute(Vec3f(m_position.x, m_position.y - m_axisLength, m_position.z));
             axisArray.addAttribute(color);
             axisArray.addAttribute(Vec3f(m_position.x, m_position.y + m_axisLength, m_position.z));
             axisArray.addAttribute(color);
             
-            color = m_lastHit == Hit::TZAxis ? Color(1.0f, 1.0f, 1.0f, 1.0f) : Color(0.0f, 0.0f, 1.0f, 1.0f);
+            if (m_lastHit == Hit::TZAxis || m_lastHit == Hit::TXZPlane || m_lastHit == Hit::TYZPlane || m_lastHit == Hit::TZRotation)
+                color = Color(1.0f, 1.0f, 1.0f, 1.0f);
+            else
+                color = Color(0.0f, 0.0f, 1.0f, 1.0f);
             axisArray.addAttribute(Vec3f(m_position.x, m_position.y, m_position.z - m_axisLength));
             axisArray.addAttribute(color);
             axisArray.addAttribute(Vec3f(m_position.x, m_position.y, m_position.z + m_axisLength));
@@ -161,88 +164,34 @@ namespace TrenchBroom {
             Vec3f xAxis, yAxis, zAxis;
             axes(context.camera().position(), xAxis, yAxis, zAxis);
 
-            color = m_lastHit == Hit::TXYPlane ? Color(1.0f, 1.0f, 1.0f, 0.35f) : Color(1.0f, 1.0f, 0.0f, 0.35f);
-            quadArray.addAttribute(m_position);
-            quadArray.addAttribute(color);
-            quadArray.addAttribute(m_position + m_planeSize * xAxis);
-            quadArray.addAttribute(color);
-            quadArray.addAttribute(m_position + m_planeSize * (xAxis + yAxis));
-            quadArray.addAttribute(color);
-            quadArray.addAttribute(m_position + m_planeSize * yAxis);
-            quadArray.addAttribute(color);
-            
-            color = m_lastHit == Hit::TXZPlane ? Color(1.0f, 1.0f, 1.0f, 0.35f) : Color(1.0f, 0.0f, 1.0f, 0.35f);
-            quadArray.addAttribute(m_position);
-            quadArray.addAttribute(color);
-            quadArray.addAttribute(m_position + m_planeSize * xAxis);
-            quadArray.addAttribute(color);
-            quadArray.addAttribute(m_position + m_planeSize * (xAxis + zAxis));
-            quadArray.addAttribute(color);
-            quadArray.addAttribute(m_position + m_planeSize * zAxis);
-            quadArray.addAttribute(color);
-            
-            color = m_lastHit == Hit::TYZPlane ? Color(1.0f, 1.0f, 1.0f, 0.35f) : Color(0.0f, 1.0f, 1.0f, 0.35f);
-            quadArray.addAttribute(m_position);
-            quadArray.addAttribute(color);
-            quadArray.addAttribute(m_position + m_planeSize * yAxis);
-            quadArray.addAttribute(color);
-            quadArray.addAttribute(m_position + m_planeSize * (yAxis + zAxis));
-            quadArray.addAttribute(color);
-            quadArray.addAttribute(m_position + m_planeSize * zAxis);
-            quadArray.addAttribute(color);
+            if (m_lastHit == Hit::TXYPlane || m_lastHit == Hit::TXZPlane || m_lastHit == Hit::TYZPlane ||
+                m_lastHit == Hit::TXRotation || m_lastHit == Hit::TYRotation || m_lastHit == Hit::TZRotation) {
+                PushMatrix pushMatrix(context.transformation());
+                Mat4f matrix = pushMatrix.matrix();
+                matrix.translate(m_position);
+                
+                if (m_lastHit == Hit::TXZPlane || m_lastHit == Hit::TYRotation) {
+                    color = m_lastHit == Hit::TXZPlane ? Color(0.0f, 1.0f, 0.0f, 1.0f) : Color(1.0f, 1.0f, 1.0f, 1.0f);
+                    matrix.rotate(Math::Pi / 2.0f, Vec3f::PosX);
+                } else if (m_lastHit == Hit::TYZPlane || m_lastHit == Hit::TXRotation) {
+                    color = m_lastHit == Hit::TYZPlane ? Color(1.0f, 0.0f, 0.0f, 1.0f) : Color(1.0f, 1.0f, 1.0f, 1.0f);
+                    matrix.rotate(Math::Pi / 2.0f, Vec3f::PosY);
+                } else if (m_lastHit == Hit::TXYPlane || m_lastHit == Hit::TZRotation) {
+                    color = m_lastHit == Hit::TXYPlane ? Color(0.0f, 0.0f, 1.0f, 1.0f) : Color(1.0f, 1.0f, 1.0f, 1.0f);
+                }
+                pushMatrix.load(matrix);
 
-            quadLinesArray.addAttribute(m_position);
-            quadLinesArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 0.7f));
-            quadLinesArray.addAttribute(m_position + m_planeSize * xAxis);
-            quadLinesArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 0.7f));
-            quadLinesArray.addAttribute(m_position);
-            quadLinesArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 0.7f));
-            quadLinesArray.addAttribute(m_position + m_planeSize * yAxis);
-            quadLinesArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 0.7f));
-            quadLinesArray.addAttribute(m_position);
-            quadLinesArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 0.7f));
-            quadLinesArray.addAttribute(m_position + m_planeSize * zAxis);
-            quadLinesArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 0.7f));
+                CircleFigure filledCircle(m_planeSize, 24, Color(1.0f, 1.0f, 1.0f, 0.25f), true);
+                filledCircle.render(vbo, context);
+                
+                CircleFigure outlinedCircle(m_planeSize, 24, color, false);
+                outlinedCircle.render(vbo, context);
+            }
             
-            quadLinesArray.addAttribute(m_position + m_planeSize * xAxis);
-            quadLinesArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 0.7f));
-            quadLinesArray.addAttribute(m_position + m_planeSize * (xAxis + yAxis));
-            quadLinesArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 0.7f));
-            quadLinesArray.addAttribute(m_position + m_planeSize * (xAxis + yAxis));
-            quadLinesArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 0.7f));
-            quadLinesArray.addAttribute(m_position + m_planeSize * yAxis);
-            quadLinesArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 0.7f));
-            
-            quadLinesArray.addAttribute(m_position + m_planeSize * xAxis);
-            quadLinesArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 0.7f));
-            quadLinesArray.addAttribute(m_position + m_planeSize * (xAxis + zAxis));
-            quadLinesArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 0.7f));
-            quadLinesArray.addAttribute(m_position + m_planeSize * (xAxis + zAxis));
-            quadLinesArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 0.7f));
-            quadLinesArray.addAttribute(m_position + m_planeSize * zAxis);
-            quadLinesArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 0.7f));
-
-            quadLinesArray.addAttribute(m_position + m_planeSize * yAxis);
-            quadLinesArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 0.7f));
-            quadLinesArray.addAttribute(m_position + m_planeSize * (yAxis + zAxis));
-            quadLinesArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 0.7f));
-            quadLinesArray.addAttribute(m_position + m_planeSize * (yAxis + zAxis));
-            quadLinesArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 0.7f));
-            quadLinesArray.addAttribute(m_position + m_planeSize * zAxis);
-            quadLinesArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 0.7f));
-
-            vbo.unmap();
-            
-            glDisable(GL_DEPTH_TEST);
+            SetVboState activateVbo(vbo, Vbo::VboActive);
             axisArray.render();
-            glDisable(GL_CULL_FACE);
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            quadArray.render();
             glEnable(GL_CULL_FACE);
-            quadLinesArray.render();
             glEnable(GL_DEPTH_TEST);
-            
-            vbo.deactivate();
         }
     }
 }

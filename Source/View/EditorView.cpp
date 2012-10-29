@@ -441,6 +441,7 @@ namespace TrenchBroom {
                     case Controller::Command::RotateObjects:
                     case Controller::Command::FlipObjects: {
                         m_renderer->invalidateSelectedBrushes();
+                        m_renderer->invalidateSelectedEntities();
                         break;
                     }
                     case Controller::Command::RemoveObjects: {

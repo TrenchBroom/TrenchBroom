@@ -38,6 +38,12 @@ namespace TrenchBroom {
         class VboBlock;
 
         class Vbo {
+        public:
+            typedef enum {
+                VboInactive = 0,
+                VboActive   = 1,
+                VboMapped   = 2
+            } VboState;
         private:
             GLenum m_type;
             unsigned int m_totalCapacity;
@@ -47,8 +53,7 @@ namespace TrenchBroom {
             VboBlock* m_last;
             unsigned char* m_buffer;
             GLuint m_vboId;
-            bool m_active;
-            bool m_mapped;
+            VboState m_state;
             unsigned int findFreeBlockInRange(unsigned int address, unsigned int capacity, unsigned int start, unsigned int length);
             unsigned int findFreeBlock(unsigned int address, unsigned int capacity);
             void insertFreeBlock(VboBlock& block);
@@ -66,6 +71,11 @@ namespace TrenchBroom {
             void deactivate();
             void map();
             void unmap();
+            
+            inline VboState state() const {
+                return m_state;
+            }
+            
             void ensureFreeCapacity(unsigned int capacity);
             VboBlock* allocBlock(unsigned int capacity);
             VboBlock* freeBlock(VboBlock& block);
@@ -74,6 +84,60 @@ namespace TrenchBroom {
             bool ownsBlock(VboBlock& block);
         };
 
+        class SetVboState {
+        private:
+            Vbo& m_vbo;
+            Vbo::VboState m_oldState;
+        public:
+            SetVboState(Vbo& vbo, Vbo::VboState newState) :
+            m_vbo(vbo),
+            m_oldState(m_vbo.state()) {
+                if (m_oldState != newState) {
+                    switch (m_oldState) {
+                        case Vbo::VboInactive:
+                            m_vbo.activate();
+                            if (newState == Vbo::VboMapped)
+                                m_vbo.map();
+                            break;
+                        case Vbo::VboActive:
+                            if (newState == Vbo::VboInactive)
+                                m_vbo.deactivate();
+                            else
+                                m_vbo.map();
+                            break;
+                        case Vbo::VboMapped:
+                            m_vbo.unmap();
+                            if (newState == Vbo::VboInactive)
+                                m_vbo.deactivate();
+                            break;
+                    }
+                }
+            }
+            
+            ~SetVboState() {
+                if (m_vbo.state() != m_oldState) {
+                    switch (m_vbo.state()) {
+                        case Vbo::VboInactive:
+                            m_vbo.activate();
+                            if (m_oldState == Vbo::VboMapped)
+                                m_vbo.map();
+                            break;
+                        case Vbo::VboActive:
+                            if (m_oldState == Vbo::VboInactive)
+                                m_vbo.deactivate();
+                            else
+                                m_vbo.map();
+                            break;
+                        case Vbo::VboMapped:
+                            m_vbo.unmap();
+                            if (m_oldState == Vbo::VboInactive)
+                                m_vbo.deactivate();
+                            break;
+                    }
+                }
+            }
+        };
+        
         class VboBlock {
         private:
             Vbo& m_vbo;

@@ -17,23 +17,16 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MoveObjectsHandleFigure__
-#define __TrenchBroom__MoveObjectsHandleFigure__
-
-#include "Renderer/Figure.h"
+#ifndef __TrenchBroom__EditObjectsHandle__
+#define __TrenchBroom__EditObjectsHandle__
 
 #include "Utility/VecMath.h"
-
-#include <cassert>
-#include <limits>
 
 using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class CircleFigure;
-        
-        class MoveObjectsHandleFigure : public Figure {
+    namespace Controller {
+        class EditObjectsHandle {
         public:
             class Hit {
             public:
@@ -50,22 +43,28 @@ namespace TrenchBroom {
                     TZRotation
                 } Type;
             private:
+                Ray m_ray;
                 Type m_type;
                 Vec3f m_hitPoint;
                 float m_distance;
-
-                Hit(Type type, const Vec3f& hitPoint, float distance) :
+                
+                Hit(const Ray& ray, Type type, const Vec3f& hitPoint, float distance) :
+                m_ray(ray),
                 m_type(type),
                 m_hitPoint(hitPoint),
                 m_distance(distance) {}
             public:
-                static Hit noHit() {
-                    return Hit(TNone, Vec3f(), std::numeric_limits<float>::max());
+                static Hit noHit(const Ray& ray) {
+                    return Hit(ray, TNone, Vec3f(), std::numeric_limits<float>::max());
                 }
                 
-                static Hit hit(Type type, const Vec3f& hitPoint, float distance) {
+                static Hit hit(const Ray& ray, Type type, const Vec3f& hitPoint, float distance) {
                     assert(type != TNone);
-                    return Hit(type, hitPoint, distance);
+                    return Hit(ray, type, hitPoint, distance);
+                }
+                
+                inline const Ray& ray() const {
+                    return m_ray;
                 }
                 
                 inline Type type() const {
@@ -82,18 +81,14 @@ namespace TrenchBroom {
             };
         protected:
             float m_axisLength;
-            float m_planeSize;
-            Hit::Type m_lastHit;
             Vec3f m_position;
-            
-            bool m_locked;
-            Vec3f m_xAxis, m_yAxis, m_zAxis;
-            
-            void axes(const Vec3f& origin, Vec3f& xAxis, Vec3f& yAxis, Vec3f& zAxis);
-            Hit pickAxis(const Ray& ray, const Vec3f& axis, Hit::Type type);
-        public:
-            MoveObjectsHandleFigure(float axisLength, float planeSize);
 
+            void axes(const Vec3f& origin, Vec3f& xAxis, Vec3f& yAxis, Vec3f& zAxis);
+            Hit pickAxis(const Ray& ray, Vec3f& axis, Hit::Type type);
+            Hit pickPlaneOrRing(const Ray& ray, const Vec3f& normal, Hit::Type planeType, Hit::Type ringType);
+        public:
+            EditObjectsHandle(float axisLength);
+            
             Hit pick(const Ray& ray);
             
             inline const Vec3f& position() const {
@@ -103,18 +98,8 @@ namespace TrenchBroom {
             inline void setPosition(const Vec3f& position) {
                 m_position = position;
             }
-            
-            inline void setHitType(Hit::Type type) {
-                m_lastHit = type;
-            }
-            
-            inline void setLocked(bool locked) {
-                m_locked = locked;
-            }
-            
-            void render(Vbo& vbo, RenderContext& context);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MoveObjectsHandleFigure__) */
+#endif /* defined(__TrenchBroom__EditObjectsHandle__) */
