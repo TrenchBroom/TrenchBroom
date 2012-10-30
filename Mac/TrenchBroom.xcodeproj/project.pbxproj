@@ -33,7 +33,7 @@
 		48312B3815EB80C000607868 /* TextureManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B3615EB80C000607868 /* TextureManager.cpp */; };
 		48312B3C15EB814700607868 /* Wad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B3A15EB814700607868 /* Wad.cpp */; };
 		48312B4215EB9EA900607868 /* RenderContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B4015EB9EA900607868 /* RenderContext.cpp */; };
-		483E4B29163F236300538F58 /* EditObjectsHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483E4B28163F236300538F58 /* EditObjectsHandle.cpp */; };
+		483E4B29163F236300538F58 /* MoveObjectsHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483E4B28163F236300538F58 /* MoveObjectsHandle.cpp */; };
 		4842AF67162176100042AD66 /* DragAndDrop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4842AF66162176100042AD66 /* DragAndDrop.cpp */; };
 		4842AF7416220D7A0042AD66 /* MacScreenDC.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4842AF7216220D7A0042AD66 /* MacScreenDC.mm */; };
 		484763E015E2BC5000095BC0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 484763DE15E2BC5000095BC0 /* InfoPlist.strings */; };
@@ -195,7 +195,7 @@
 		48312B4715EBB20000607868 /* Filter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Filter.h; sourceTree = "<group>"; };
 		48312B4815EBC14F00607868 /* Color.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Color.h; sourceTree = "<group>"; };
 		48312B4A15EBC35800607868 /* RenderUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RenderUtils.h; sourceTree = "<group>"; };
-		483E4B28163F236300538F58 /* EditObjectsHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EditObjectsHandle.cpp; sourceTree = "<group>"; };
+		483E4B28163F236300538F58 /* MoveObjectsHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveObjectsHandle.cpp; sourceTree = "<group>"; };
 		4842AF64162175300042AD66 /* DragAndDrop.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragAndDrop.h; sourceTree = "<group>"; };
 		4842AF66162176100042AD66 /* DragAndDrop.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragAndDrop.cpp; sourceTree = "<group>"; };
 		4842AF7216220D7A0042AD66 /* MacScreenDC.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacScreenDC.mm; sourceTree = "<group>"; };
@@ -346,7 +346,7 @@
 		48CB0DB81635AACE001C8E87 /* DragTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DragTool.h; sourceTree = "<group>"; };
 		48CB0DCB163EEB26001C8E87 /* CircleFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CircleFigure.cpp; sourceTree = "<group>"; };
 		48CB0DCC163EEB26001C8E87 /* CircleFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CircleFigure.h; sourceTree = "<group>"; };
-		48CB0DD3163F2308001C8E87 /* EditObjectsHandle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditObjectsHandle.h; sourceTree = "<group>"; };
+		48CB0DD3163F2308001C8E87 /* MoveObjectsHandle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveObjectsHandle.h; sourceTree = "<group>"; };
 		48D1BE9815E2E2930073C030 /* Math.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Math.h; sourceTree = "<group>"; };
 		48D1BE9A15E2E35C0073C030 /* Vec3f.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Vec3f.h; sourceTree = "<group>"; };
 		48D1BE9B15E2E3B50073C030 /* VecMath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VecMath.h; sourceTree = "<group>"; };
@@ -765,8 +765,8 @@
 				481E56461624120900B403F3 /* DragTargetTool.h */,
 				48CB0DB71635AACE001C8E87 /* DragTool.cpp */,
 				48CB0DB81635AACE001C8E87 /* DragTool.h */,
-				483E4B28163F236300538F58 /* EditObjectsHandle.cpp */,
-				48CB0DD3163F2308001C8E87 /* EditObjectsHandle.h */,
+				483E4B28163F236300538F58 /* MoveObjectsHandle.cpp */,
+				48CB0DD3163F2308001C8E87 /* MoveObjectsHandle.h */,
 				481E564716242D6B00B403F3 /* EntityDragTargetTool.cpp */,
 				481E564816242D6B00B403F3 /* EntityDragTargetTool.h */,
 				48CB0DB01635AA36001C8E87 /* MoveObjectsTool.cpp */,
@@ -1038,7 +1038,7 @@
 				48CB0DB91635AACE001C8E87 /* DragTool.cpp in Sources */,
 				48A0E92C163BBB1D0034F190 /* MoveObjectsHandleFigure.cpp in Sources */,
 				48CB0DCD163EEB26001C8E87 /* CircleFigure.cpp in Sources */,
-				483E4B29163F236300538F58 /* EditObjectsHandle.cpp in Sources */,
+				483E4B29163F236300538F58 /* MoveObjectsHandle.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

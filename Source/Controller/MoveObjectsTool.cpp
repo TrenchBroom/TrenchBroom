@@ -30,71 +30,89 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        bool MoveObjectsTool::handleMouseMoved(InputEvent& event) {
-            m_currentRay = event.ray;
-            if (m_handleFigure != NULL) {
-                m_currentHit = m_handleFigure->pick(event.ray);
-                m_handleFigure->setHitType(m_currentHit.type());
-                updateViews();
-            }
+        void MoveObjectsTool::updateHits(InputEvent& event) {
+            Model::EditStateManager& editStateManager = documentViewHolder().document().editStateManager();
+            if (editStateManager.selectionMode() == Model::EditStateManager::SMNone ||
+                editStateManager.selectionMode() == Model::EditStateManager::SMFaces)
+                return;
             
-         	return false;
+            Model::MoveObjectsHandleHit* hit = m_handle.pick(event.ray);
+            if (hit != NULL)
+                event.pickResult->add(*hit);
+            if (m_handleFigure != NULL)
+                m_handleFigure->setHit(hit);
         }
         
+        bool MoveObjectsTool::handleMouseMoved(InputEvent& event) {
+            if (m_handleFigure != NULL)
+                updateViews();
+            return false;
+        }
+
         bool MoveObjectsTool::handleBeginPlaneDrag(InputEvent& event, Plane& dragPlane, Vec3f& initialDragPoint) {
             if (event.mouseButtons != MouseButtons::MBLeft ||
                 event.modifierKeys() != ModifierKeys::MKNone)
                 return false;
 
-            if (m_handleFigure == NULL)
-                return false;
-            
-            m_currentHit = m_handleFigure->pick(event.ray);
-            switch (m_currentHit.type()) {
-                case HandleHit::TXAxis:
-                    dragPlane = Plane::planeContainingVector(m_currentHit.hitPoint(), Vec3f::PosX, event.ray.origin);
-                    break;
-                case HandleHit::TYAxis:
-                    dragPlane = Plane::planeContainingVector(m_currentHit.hitPoint(), Vec3f::PosY, event.ray.origin);
-                    break;
-                case HandleHit::TZAxis:
-                    dragPlane = Plane::planeContainingVector(m_currentHit.hitPoint(), Vec3f::PosZ, event.ray.origin);
-                    break;
-                case HandleHit::TXYPlane:
-                    dragPlane = Plane::horizontalDragPlane(m_currentHit.hitPoint());
-                    break;
-                case HandleHit::TXZPlane:
-                    dragPlane = Plane::verticalDragPlane(m_currentHit.hitPoint(), Vec3f::PosY);
-                    break;
-                case HandleHit::TYZPlane:
-                    dragPlane = Plane::verticalDragPlane(m_currentHit.hitPoint(), Vec3f::PosX);
-                    break;
-                 default:
-                    return false;
-            }
-            initialDragPoint = m_currentHit.hitPoint();
-            m_totalDelta = Vec3f::Null;
-            
             Model::EditStateManager& editStateManager = documentViewHolder().document().editStateManager();
+            if (editStateManager.selectionMode() == Model::EditStateManager::SMNone ||
+                editStateManager.selectionMode() == Model::EditStateManager::SMFaces)
+                return false;
+
+            Model::MoveObjectsHandleHit* hit = static_cast<Model::MoveObjectsHandleHit*>(event.pickResult->first(Model::HitType::MoveObjectsHandleHit, true, documentViewHolder().view().filter()));
+            if (hit == NULL)
+                return false;
+
+            switch (hit->hitArea()) {
+                case Model::MoveObjectsHandleHit::HAXAxis:
+                    dragPlane = Plane::planeContainingVector(hit->hitPoint(), Vec3f::PosX, event.ray.origin);
+                    m_restrictToAxis = RXAxis;
+                    break;
+                case Model::MoveObjectsHandleHit::HAYAxis:
+                    dragPlane = Plane::planeContainingVector(hit->hitPoint(), Vec3f::PosY, event.ray.origin);
+                    m_restrictToAxis = RYAxis;
+                    break;
+                case Model::MoveObjectsHandleHit::HAZAxis:
+                    dragPlane = Plane::planeContainingVector(hit->hitPoint(), Vec3f::PosZ, event.ray.origin);
+                    m_restrictToAxis = RZAxis;
+                    break;
+                case Model::MoveObjectsHandleHit::HAXYPlane:
+                    dragPlane = Plane::horizontalDragPlane(hit->hitPoint());
+                    m_restrictToAxis = RNone;
+                    break;
+                case Model::MoveObjectsHandleHit::HAXZPlane:
+                    dragPlane = Plane::verticalDragPlane(hit->hitPoint(), Vec3f::PosY);
+                    m_restrictToAxis = RNone;
+                    break;
+                case Model::MoveObjectsHandleHit::HAYZPlane:
+                    dragPlane = Plane::verticalDragPlane(hit->hitPoint(), Vec3f::PosX);
+                    m_restrictToAxis = RNone;
+                    break;
+            }
+
+            initialDragPoint = hit->hitPoint();
+            m_totalDelta = Vec3f::Null;
+            m_handle.lock();
+            removeFigure(m_handleFigure);
+            
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
             BeginCommandGroup(Controller::Command::makeObjectActionName(wxT("Move"), entities, brushes));
             
-            m_handleFigure->setLocked(true);
             return true;
         }
         
         bool MoveObjectsTool::handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint) {
 
             Vec3f delta = curMousePoint - referencePoint;
-            switch (m_currentHit.type()) {
-                case HandleHit::TXAxis:
+            switch (m_restrictToAxis) {
+                case RXAxis:
                     delta.y = delta.z = 0.0f;
                     break;
-                case HandleHit::TYAxis:
+                case RYAxis:
                     delta.x = delta.z = 0.0f;
                     break;
-                case HandleHit::TZAxis:
+                case RZAxis:
                     delta.x = delta.y = 0.0f;
                     break;
                 default:
@@ -106,7 +124,7 @@ namespace TrenchBroom {
             if (delta.null())
                 return true;
             
-            m_handleFigure->setPosition(m_handleFigure->position() + delta);
+            m_handle.setPosition(m_handle.position() + delta);
             updateViews();
             
             Model::EditStateManager& editStateManager = documentViewHolder().document().editStateManager();
@@ -125,7 +143,8 @@ namespace TrenchBroom {
                 CancelCommandGroup();
             else
                 EndCommandGroup();
-            m_handleFigure->setLocked(false);
+            m_handle.unlock();
+            addFigure(m_handleFigure);
         }
         
         void MoveObjectsTool::handleChangeEditState(const Model::EditStateChangeSet& changeSet) {
@@ -139,14 +158,12 @@ namespace TrenchBroom {
                     m_handleFigure = NULL;
                 }
             } else {
-                Vec3f position = Model::MapObject::center(entities, brushes);
                 if (m_handleFigure == NULL) {
-                    m_handleFigure = new Renderer::MoveObjectsHandleFigure(64.0f, 32.0f);
+                    m_handleFigure = new Renderer::MoveObjectsHandleFigure(m_handle);
                     addFigure(m_handleFigure);
                 }
-
-                m_handleFigure->setHitType(m_handleFigure->pick(m_currentRay).type());
-                m_handleFigure->setPosition(position);
+                Vec3f position = Model::MapObject::center(entities, brushes);
+                m_handle.setPosition(position);
             }
             
             updateViews();
@@ -154,7 +171,6 @@ namespace TrenchBroom {
         
         MoveObjectsTool::MoveObjectsTool(View::DocumentViewHolder& documentViewHolder) :
         DragTool(documentViewHolder),
-        m_currentHit(HandleHit::noHit()),
         m_handleFigure(NULL) {}
     }
 }

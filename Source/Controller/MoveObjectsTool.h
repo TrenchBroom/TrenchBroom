@@ -21,6 +21,7 @@
 #define __TrenchBroom__MoveObjectsTool__
 
 #include "Controller/DragTool.h"
+#include "Controller/MoveObjectsHandle.h"
 #include "Renderer/MoveObjectsHandleFigure.h"
 #include "Utility/Math.h"
 
@@ -34,13 +35,19 @@ namespace TrenchBroom {
     namespace Controller {
         class MoveObjectsTool : public DragTool {
         protected:
-            typedef Renderer::MoveObjectsHandleFigure::Hit HandleHit;
+            typedef enum {
+                RNone,
+                RXAxis,
+                RYAxis,
+                RZAxis
+            } RestrictToAxis;
             
-            HandleHit m_currentHit;
-            Ray m_currentRay;
+            MoveObjectsHandle m_handle = MoveObjectsHandle(64.0f, 27.0f);
             Vec3f m_totalDelta;
+            RestrictToAxis m_restrictToAxis;
             Renderer::MoveObjectsHandleFigure* m_handleFigure;
             
+            void updateHits(InputEvent& event);
             bool handleMouseMoved(InputEvent& event);
 
             bool handleBeginPlaneDrag(InputEvent& event, Plane& dragPlane, Vec3f& initialDragPoint);
