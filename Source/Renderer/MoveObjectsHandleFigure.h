@@ -43,14 +43,9 @@ namespace TrenchBroom {
         class MoveObjectsHandleFigure : public Figure {
         protected:
             Controller::MoveObjectsHandle& m_handle;
-            Model::MoveObjectsHandleHit* m_hit;
         public:
             MoveObjectsHandleFigure(Controller::MoveObjectsHandle& handle);
 
-            inline void setHit(Model::MoveObjectsHandleHit* hit) {
-                m_hit = hit;
-            }
-            
             void render(Vbo& vbo, RenderContext& context);
         };
     }

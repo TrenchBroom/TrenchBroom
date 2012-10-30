@@ -42,13 +42,15 @@ namespace TrenchBroom {
             return new Model::MoveObjectsHandleHit(ray.pointAtDistance(distance), distance, hitArea);
         }
         
-        Model::MoveObjectsHandleHit* MoveObjectsHandle::pickPlane(const Ray& ray, const Vec3f& normal, Model::MoveObjectsHandleHit::HitArea hitArea) {
+        Model::MoveObjectsHandleHit* MoveObjectsHandle::pickPlane(const Ray& ray, const Vec3f& normal, const Vec3f& axis1, const Vec3f& axis2, Model::MoveObjectsHandleHit::HitArea hitArea) {
             Plane plane(normal, m_position);
             float distance = plane.intersectWithRay(ray);
             if (!isnan(distance)) {
                 Vec3f hitPoint = ray.pointAtDistance(distance);
-                float missDistance = (hitPoint - m_position).lengthSquared();
-                if (missDistance < m_planeRadius * m_planeRadius)
+                Vec3f hitVector = hitPoint - m_position;
+                float missDistance = hitVector.lengthSquared();
+                if (missDistance <= m_planeRadius * m_planeRadius &&
+                    hitVector.dot(axis1) >= 0.0f && hitVector.dot(axis2) >= 0.0f)
                     return new Model::MoveObjectsHandleHit(hitPoint, distance, hitArea);
             }
             
@@ -107,10 +109,16 @@ namespace TrenchBroom {
             closestHit = selectHit(closestHit, pickAxis(ray, xAxis, Model::MoveObjectsHandleHit::HAXAxis));
             closestHit = selectHit(closestHit, pickAxis(ray, yAxis, Model::MoveObjectsHandleHit::HAYAxis));
             closestHit = selectHit(closestHit, pickAxis(ray, zAxis, Model::MoveObjectsHandleHit::HAZAxis));
-            closestHit = selectHit(closestHit, pickPlane(ray, Vec3f::PosX, Model::MoveObjectsHandleHit::HAYZPlane));
-            closestHit = selectHit(closestHit, pickPlane(ray, Vec3f::PosY, Model::MoveObjectsHandleHit::HAXZPlane));
-            closestHit = selectHit(closestHit, pickPlane(ray, Vec3f::PosZ, Model::MoveObjectsHandleHit::HAXYPlane));
+            closestHit = selectHit(closestHit, pickPlane(ray, Vec3f::PosX, yAxis, zAxis, Model::MoveObjectsHandleHit::HAYZPlane));
+            closestHit = selectHit(closestHit, pickPlane(ray, Vec3f::PosY, xAxis, zAxis, Model::MoveObjectsHandleHit::HAXZPlane));
+            closestHit = selectHit(closestHit, pickPlane(ray, Vec3f::PosZ, xAxis, yAxis, Model::MoveObjectsHandleHit::HAXYPlane));
 
+            if (!m_locked) {
+                m_hit = closestHit != NULL;
+                if (m_hit)
+                    m_hitArea = closestHit->hitArea();
+            }
+            
             return closestHit;
         }
     }

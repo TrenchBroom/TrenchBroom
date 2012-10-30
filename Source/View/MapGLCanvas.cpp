@@ -161,7 +161,7 @@ namespace TrenchBroom {
 
 				view.camera().update(0.0f, 0.0f, GetSize().x, GetSize().y);
 
-				Renderer::RenderContext renderContext(view.camera(), view.filter(), view.viewOptions());
+				Renderer::RenderContext renderContext(view.camera(), view.filter(), view.viewOptions(), view.console());
 				view.renderer().render(renderContext);
 
 				SwapBuffers();
@@ -212,7 +212,7 @@ namespace TrenchBroom {
         }
 
         void MapGLCanvas::OnMouseMove(wxMouseEvent& event) {
-            m_inputController->mouseMoved(static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
+            m_inputController->mouseMoved(static_cast<float>(event.GetX()), static_cast<float>(event.GetY() - 2));
         }
 
         void MapGLCanvas::OnMouseWheel(wxMouseEvent& event) {

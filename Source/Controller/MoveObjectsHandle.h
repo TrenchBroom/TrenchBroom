@@ -61,9 +61,11 @@ namespace TrenchBroom {
             Vec3f m_position;
             bool m_locked;
             Vec3f m_xAxis, m_yAxis, m_zAxis;
+            bool m_hit;
+            Model::MoveObjectsHandleHit::HitArea m_hitArea;
 
             Model::MoveObjectsHandleHit* pickAxis(const Ray& ray, Vec3f& axis, Model::MoveObjectsHandleHit::HitArea hitArea);
-            Model::MoveObjectsHandleHit* pickPlane(const Ray& ray, const Vec3f& normal, Model::MoveObjectsHandleHit::HitArea hitArea);
+            Model::MoveObjectsHandleHit* pickPlane(const Ray& ray, const Vec3f& normal, const Vec3f& axis1, const Vec3f& axis2, Model::MoveObjectsHandleHit::HitArea hitArea);
             Model::MoveObjectsHandleHit* selectHit(Model::MoveObjectsHandleHit* closestHit, Model::MoveObjectsHandleHit* hit);
         public:
             MoveObjectsHandle(float axisLength, float planeRadius);
@@ -94,6 +96,14 @@ namespace TrenchBroom {
             
             inline void unlock() {
                 m_locked = false;
+            }
+            
+            inline bool hit() const {
+                return m_hit;
+            }
+            
+            inline Model::MoveObjectsHandleHit::HitArea hitArea() const {
+                return m_hitArea;
             }
         };
     }

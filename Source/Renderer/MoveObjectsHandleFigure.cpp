@@ -25,98 +25,82 @@
 #include "Renderer/PushMatrix.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/VertexArray.h"
+#include "Utility/Console.h"
 
 namespace TrenchBroom {
     namespace Renderer {
         MoveObjectsHandleFigure::MoveObjectsHandleFigure(Controller::MoveObjectsHandle& handle) :
-        m_handle(handle),
-        m_hit(NULL) {}
-
+        m_handle(handle) {}
+        
         void MoveObjectsHandleFigure::render(Vbo& vbo, RenderContext& context) {
             SetVboState mapVbo(vbo, Vbo::VboMapped);
+            
+            PushMatrix pushMatrix(context.transformation());
+            Mat4f matrix = pushMatrix.matrix();
+            
+            matrix.translate(m_handle.position());
+            pushMatrix.load(matrix);
             
             glDisable(GL_DEPTH_TEST);
             glDisable(GL_CULL_FACE);
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             
-            VertexArray axisArray(vbo, GL_LINES, 6,
+            VertexArray axisArray(vbo, GL_LINES, 8,
                                   VertexAttribute(3, GL_FLOAT, VertexAttribute::Position),
                                   VertexAttribute(4, GL_FLOAT, VertexAttribute::Color));
-
+            
             Color color;
-            if (m_hit != NULL && (m_hit->hitArea() == Model::MoveObjectsHandleHit::HAXAxis ||
-                                  m_hit->hitArea() == Model::MoveObjectsHandleHit::HAXYPlane ||
-                                  m_hit->hitArea() == Model::MoveObjectsHandleHit::HAXZPlane))
+            if (m_handle.hit() && (m_handle.hitArea()== Model::MoveObjectsHandleHit::HAXAxis ||
+                                   m_handle.hitArea()== Model::MoveObjectsHandleHit::HAXYPlane ||
+                                   m_handle.hitArea()== Model::MoveObjectsHandleHit::HAXZPlane))
                 color = Color(1.0f, 1.0f, 1.0f, 1.0f);
             else
                 color = Color(1.0f, 0.0f, 0.0f, 1.0f);
             
-            axisArray.addAttribute(Vec3f(m_handle.position().x - m_handle.axisLength(), m_handle.position().y, m_handle.position().z));
+            axisArray.addAttribute(Vec3f(-m_handle.axisLength(), 0.0f, 0.0f));
             axisArray.addAttribute(color);
-            axisArray.addAttribute(Vec3f(m_handle.position().x + m_handle.axisLength(), m_handle.position().y, m_handle.position().z));
+            axisArray.addAttribute(Vec3f(m_handle.axisLength(), 0.0f, 0.0f));
             axisArray.addAttribute(color);
             
-            if (m_hit != NULL && (m_hit->hitArea() == Model::MoveObjectsHandleHit::HAYAxis ||
-                                  m_hit->hitArea() == Model::MoveObjectsHandleHit::HAXYPlane ||
-                                  m_hit->hitArea() == Model::MoveObjectsHandleHit::HAYZPlane))
+            if (m_handle.hit() && (m_handle.hitArea()== Model::MoveObjectsHandleHit::HAYAxis ||
+                                   m_handle.hitArea()== Model::MoveObjectsHandleHit::HAXYPlane ||
+                                   m_handle.hitArea()== Model::MoveObjectsHandleHit::HAYZPlane))
                 color = Color(1.0f, 1.0f, 1.0f, 1.0f);
             else
                 color = Color(0.0f, 1.0f, 0.0f, 1.0f);
-
-            axisArray.addAttribute(Vec3f(m_handle.position().x, m_handle.position().y - m_handle.axisLength(), m_handle.position().z));
+            
+            axisArray.addAttribute(Vec3f(0.0f, -m_handle.axisLength(), 0.0f));
             axisArray.addAttribute(color);
-            axisArray.addAttribute(Vec3f(m_handle.position().x, m_handle.position().y + m_handle.axisLength(), m_handle.position().z));
+            axisArray.addAttribute(Vec3f(0.0f, +m_handle.axisLength(), 0.0f));
             axisArray.addAttribute(color);
             
-            if (m_hit != NULL && (m_hit->hitArea() == Model::MoveObjectsHandleHit::HAZAxis ||
-                                  m_hit->hitArea() == Model::MoveObjectsHandleHit::HAXZPlane ||
-                                  m_hit->hitArea() == Model::MoveObjectsHandleHit::HAYZPlane))
+            if (m_handle.hit() && (m_handle.hitArea()== Model::MoveObjectsHandleHit::HAZAxis ||
+                                   m_handle.hitArea()== Model::MoveObjectsHandleHit::HAXZPlane ||
+                                   m_handle.hitArea()== Model::MoveObjectsHandleHit::HAYZPlane))
                 color = Color(1.0f, 1.0f, 1.0f, 1.0f);
             else
                 color = Color(0.0f, 0.0f, 1.0f, 1.0f);
-
-            axisArray.addAttribute(Vec3f(m_handle.position().x, m_handle.position().y, m_handle.position().z - m_handle.axisLength()));
+            
+            axisArray.addAttribute(Vec3f(0.0f, 0.0f, -m_handle.axisLength()));
             axisArray.addAttribute(color);
-            axisArray.addAttribute(Vec3f(m_handle.position().x, m_handle.position().y, m_handle.position().z + m_handle.axisLength()));
+            axisArray.addAttribute(Vec3f(0.0f, 0.0f, +m_handle.axisLength()));
             axisArray.addAttribute(color);
-
+            
             Vec3f xAxis, yAxis, zAxis;
             m_handle.axes(context.camera().position(), xAxis, yAxis, zAxis);
-
-            if (m_hit != NULL && (m_hit->hitArea() == Model::MoveObjectsHandleHit::HAXYPlane ||
-                                  m_hit->hitArea() == Model::MoveObjectsHandleHit::HAXZPlane ||
-                                  m_hit->hitArea() == Model::MoveObjectsHandleHit::HAYZPlane)) {
-                PushMatrix pushMatrix(context.transformation());
-                Mat4f matrix = pushMatrix.matrix();
-                matrix.translate(m_handle.position());
-                
-                if (m_hit->hitArea() == Model::MoveObjectsHandleHit::HAXZPlane)
-                    matrix.rotate(Math::Pi / 2.0f, Vec3f::PosX);
-                else if (m_hit->hitArea() == Model::MoveObjectsHandleHit::HAYZPlane)
-                    matrix.rotate(Math::Pi / 2.0f, Vec3f::PosY);
-                pushMatrix.load(matrix);
-
-                CircleFigure filledCircle(m_handle.planeRadius(), 24, Color(1.0f, 1.0f, 1.0f, 0.25f), true);
-                filledCircle.render(vbo, context);
+            
+            if (m_handle.hit()) {
+                if (m_handle.hitArea()== Model::MoveObjectsHandleHit::HAXYPlane)
+                    CircleFigure(Axis::AZ, xAxis, yAxis, m_handle.planeRadius(), 8, Color(1.0f, 1.0f, 1.0f, 0.25f), true).render(vbo, context);
+                if (m_handle.hitArea()== Model::MoveObjectsHandleHit::HAXZPlane)
+                    CircleFigure(Axis::AY, xAxis, zAxis, m_handle.planeRadius(), 8, Color(1.0f, 1.0f, 1.0f, 0.25f), true).render(vbo, context);
+                if (m_handle.hitArea()== Model::MoveObjectsHandleHit::HAYZPlane)
+                    CircleFigure(Axis::AX, yAxis, zAxis, m_handle.planeRadius(), 8, Color(1.0f, 1.0f, 1.0f, 0.25f), true).render(vbo, context);
             }
             
-            {
-                CircleFigure outlinedCircle(m_handle.planeRadius(), 24, Color(1.0f, 1.0f, 1.0f, 0.6f), false);
-                PushMatrix pushMatrix(context.transformation());
-                Mat4f matrix = pushMatrix.matrix();
-                
-                matrix.translate(m_handle.position());
-                pushMatrix.load(matrix);
-                outlinedCircle.render(vbo, context);
-                
-                matrix.rotate(Math::Pi / 2.0f, Vec3f::PosX);
-                pushMatrix.load(matrix);
-                outlinedCircle.render(vbo, context);
-                
-                matrix.rotate(Math::Pi / 2.0f, Vec3f::PosY);
-                pushMatrix.load(matrix);
-                outlinedCircle.render(vbo, context);
-            }
+            CircleFigure(Axis::AZ, xAxis, yAxis, m_handle.planeRadius(), 8, Color(1.0f, 1.0f, 1.0f, 0.6f), false).render(vbo, context);
+            CircleFigure(Axis::AY, xAxis, zAxis, m_handle.planeRadius(), 8, Color(1.0f, 1.0f, 1.0f, 0.6f), false).render(vbo, context);
+            CircleFigure(Axis::AX, yAxis, zAxis, m_handle.planeRadius(), 8, Color(1.0f, 1.0f, 1.0f, 0.6f), false).render(vbo, context);
             
             SetVboState activateVbo(vbo, Vbo::VboActive);
             axisArray.render();

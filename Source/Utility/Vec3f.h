@@ -219,6 +219,19 @@ namespace TrenchBroom {
                 return cross.equals(Null, delta);
             }
             
+            inline float angleFrom(const Vec3f& axis, const Vec3f& up) const {
+                // all vectors are expected to be normalized
+                float cos = dot(axis);
+                if (eq(cos, 1.0f))
+                    return 0.0f;
+                if (eq(cos, -1.0f))
+                    return Math::Pi;
+                Vec3f cross = crossed(axis);
+                if (cross.dot(up) >= 0.0f)
+                    return acos(cos);
+                return 2.0f * Math::Pi - acos(cos);
+            }
+            
             inline Axis::Type firstComponent() const {
                 float ax = fabsf(x);
                 float ay = fabsf(y);

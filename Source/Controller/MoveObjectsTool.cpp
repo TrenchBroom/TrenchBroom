@@ -39,8 +39,6 @@ namespace TrenchBroom {
             Model::MoveObjectsHandleHit* hit = m_handle.pick(event.ray);
             if (hit != NULL)
                 event.pickResult->add(*hit);
-            if (m_handleFigure != NULL)
-                m_handleFigure->setHit(hit);
         }
         
         bool MoveObjectsTool::handleMouseMoved(InputEvent& event) {
@@ -93,7 +91,6 @@ namespace TrenchBroom {
             initialDragPoint = hit->hitPoint();
             m_totalDelta = Vec3f::Null;
             m_handle.lock();
-            removeFigure(m_handleFigure);
             
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
@@ -144,7 +141,9 @@ namespace TrenchBroom {
             else
                 EndCommandGroup();
             m_handle.unlock();
-            addFigure(m_handleFigure);
+            
+            m_handle.pick(event.ray);
+            updateViews();
         }
         
         void MoveObjectsTool::handleChangeEditState(const Model::EditStateChangeSet& changeSet) {
