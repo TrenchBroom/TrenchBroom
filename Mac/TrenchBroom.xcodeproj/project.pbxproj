@@ -195,6 +195,7 @@
 		48312B4715EBB20000607868 /* Filter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Filter.h; sourceTree = "<group>"; };
 		48312B4815EBC14F00607868 /* Color.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Color.h; sourceTree = "<group>"; };
 		48312B4A15EBC35800607868 /* RenderUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RenderUtils.h; sourceTree = "<group>"; };
+		4835D20516419FC400B01BD8 /* IOException.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IOException.h; sourceTree = "<group>"; };
 		483E4B28163F236300538F58 /* MoveObjectsHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveObjectsHandle.cpp; sourceTree = "<group>"; };
 		4842AF64162175300042AD66 /* DragAndDrop.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragAndDrop.h; sourceTree = "<group>"; };
 		4842AF66162176100042AD66 /* DragAndDrop.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragAndDrop.cpp; sourceTree = "<group>"; };
@@ -435,6 +436,7 @@
 				48009AF415F7FA8B001A9993 /* AbstractFileManager.h */,
 				4810277C15E56F9B00250C9C /* AbstractTokenizer.h */,
 				48819C4015EC0D9300BEA604 /* FileManager.h */,
+				4835D20516419FC400B01BD8 /* IOException.h */,
 				48AF492615E8CC270083DE52 /* MapParser.cpp */,
 				48AF492715E8CC270083DE52 /* MapParser.h */,
 				48FBD14F16287C5A0059953D /* MapWriter.cpp */,

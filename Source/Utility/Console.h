@@ -78,7 +78,6 @@ namespace TrenchBroom {
             
             wxTextCtrl* m_textCtrl;
             
-            void formatMessage(const char* format, va_list arguments, String& result);
             void logToDebug(const LogMessage& message);
             void logToConsole(const LogMessage& message);
         public:

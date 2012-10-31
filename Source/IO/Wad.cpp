@@ -61,34 +61,47 @@ namespace TrenchBroom {
             return new Mip(entry.name(), width, height, mip0);
         }
 
-        Wad::Wad(const String& path) : m_stream(path.c_str(), std::ios::binary | std::ios::in) {
+        Wad::Wad(const String& path) throw (IOException) :
+        m_stream(path.c_str(), std::ios::binary | std::ios::in) {
+            if (!m_stream.is_open())
+                throw IOException::openError(path);
+            
+            if (!m_stream.good())
+                throw IOException::badStream(path, m_stream);
+            
+            m_stream.seekg(0, std::ios::end);
+            size_t length = m_stream.tellg();
+            m_stream.seekg(0, std::ios::beg);
+            
 			m_stream.exceptions(std::ios::failbit | std::ios::badbit);
             
             int32_t entryCount, directoryAddr;
             int32_t entryAddress, entryLength;
             char entryType;
             char entryName[WadLayout::DirEntryNameLength];
-            if (m_stream.is_open()) {
-                m_stream.seekg(WadLayout::NumEntriesAddress, std::ios::beg);
-                m_stream.read(reinterpret_cast<char *>(&entryCount), sizeof(int32_t));
-                
-                m_stream.seekg(WadLayout::DirOffsetAddress, std::ios::beg);
-                m_stream.read(reinterpret_cast<char *>(&directoryAddr), sizeof(int32_t));
-                m_stream.seekg(directoryAddr, std::ios::beg);
-                
-                for (int i = 0; i < entryCount; i++) {
-					assert(!m_stream.eof());
+            m_stream.seekg(WadLayout::NumEntriesAddress, std::ios::beg);
+            m_stream.read(reinterpret_cast<char *>(&entryCount), sizeof(int32_t));
+            
+            m_stream.seekg(WadLayout::DirOffsetAddress, std::ios::beg);
+            m_stream.read(reinterpret_cast<char *>(&directoryAddr), sizeof(int32_t));
+            if (directoryAddr > length)
+                throw IOException("Wad directory beyond end of file");
+            
+            m_stream.seekg(directoryAddr, std::ios::beg);
+            
+            for (int i = 0; i < entryCount; i++) {
+                if (m_stream.eof())
+                    throw IOException::unexpectedEof(path);
                     
-					m_stream.read(reinterpret_cast<char *>(&entryAddress), sizeof(int32_t));
-                    m_stream.read(reinterpret_cast<char *>(&entryLength), sizeof(int32_t));
-                    m_stream.seekg(WadLayout::DirEntryTypeOffset, std::ios::cur);
-                    m_stream.read(&entryType, 1);
-                    m_stream.seekg(WadLayout::DirEntryNameOffset, std::ios::cur);
-                    m_stream.read(reinterpret_cast<char *>(entryName), WadLayout::DirEntryNameLength);
-                    
-                    // might leak if there are duplicate entries
-                    m_entries[entryName] = WadEntry(entryAddress, entryLength, entryType, entryName);
-                }
+                m_stream.read(reinterpret_cast<char *>(&entryAddress), sizeof(int32_t));
+                m_stream.read(reinterpret_cast<char *>(&entryLength), sizeof(int32_t));
+                m_stream.seekg(WadLayout::DirEntryTypeOffset, std::ios::cur);
+                m_stream.read(&entryType, 1);
+                m_stream.seekg(WadLayout::DirEntryNameOffset, std::ios::cur);
+                m_stream.read(reinterpret_cast<char *>(entryName), WadLayout::DirEntryNameLength);
+                
+                // might leak if there are duplicate entries
+                m_entries[entryName] = WadEntry(entryAddress, entryLength, entryType, entryName);
             }
             
 			m_stream.clear();

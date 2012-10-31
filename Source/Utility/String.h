@@ -33,6 +33,18 @@ typedef std::vector<String> StringList;
 
 namespace TrenchBroom {
     namespace Utility {
+        inline void formatString(const char* format, va_list arguments, String& result) {
+            static char buffer[4096];
+            
+#if defined _MSC_VER
+            vsprintf_s(buffer, format, arguments);
+#else
+            vsprintf(buffer, format, arguments);
+#endif
+            
+            result = buffer;
+        }
+        
         inline long makeHash(const String& str) {
             unsigned long hash = 0;
             String::const_iterator it, end;

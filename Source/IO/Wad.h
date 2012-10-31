@@ -23,6 +23,7 @@
 #include "Utility/String.h"
 
 #include "IO/mmapped_fstream.h"
+#include "IO/IOException.h"
 
 #include <map>
 #include <vector>
@@ -120,7 +121,7 @@ namespace TrenchBroom {
 
             Mip* loadMip(const WadEntry& entry, unsigned int mipCount) const;
         public:
-            Wad(const String& path);
+            Wad(const String& path) throw (IOException);
             
             Mip* loadMip(const String& name, unsigned int mipCount) const;
             Mip::List loadMips(unsigned int mipCount) const;

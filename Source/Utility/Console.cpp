@@ -23,18 +23,6 @@
 
 namespace TrenchBroom {
     namespace Utility {
-        void Console::formatMessage(const char* format, va_list arguments, String& result) {
-            static char buffer[4096];
-            
-#if defined _MSC_VER
-            vsprintf_s(buffer, format, arguments);
-#else
-            vsprintf(buffer, format, arguments);
-#endif
-
-            result = buffer;
-        }
-        
         void Console::logToDebug(const LogMessage& message) {
             wxLogDebug(message.string().c_str());
         }
@@ -90,7 +78,7 @@ namespace TrenchBroom {
             String message;
             va_list(arguments);
             va_start(arguments, format);
-            formatMessage(format, arguments, message);
+            formatString(format, arguments, message);
             va_end(arguments);
             debug(message);
         }
@@ -103,7 +91,7 @@ namespace TrenchBroom {
             String message;
             va_list(arguments);
             va_start(arguments, format);
-            formatMessage(format, arguments, message);
+            formatString(format, arguments, message);
             va_end(arguments);
             info(message);
         }
@@ -116,7 +104,7 @@ namespace TrenchBroom {
             String message;
             va_list(arguments);
             va_start(arguments, format);
-            formatMessage(format, arguments, message);
+            formatString(format, arguments, message);
             va_end(arguments);
             warn(message);
         }
@@ -129,7 +117,7 @@ namespace TrenchBroom {
             String message;
             va_list(arguments);
             va_start(arguments, format);
-            formatMessage(format, arguments, message);
+            formatString(format, arguments, message);
             va_end(arguments);
             error(message);
         }

@@ -28,8 +28,18 @@ namespace TrenchBroom {
         class MessageException : public std::exception {
         protected:
             String m_msg;
+            
+            MessageException() throw() {}
         public:
+            MessageException(const char* format, ...) throw() {
+                va_list(arguments);
+                va_start(arguments, format);
+                formatString(format, arguments, m_msg);
+                va_end(arguments);
+            }
+
             MessageException(const String& msg) throw() : m_msg(msg) {}
+            
             MessageException(const StringStream& str) throw() : m_msg(str.str()) {}
             
             virtual ~MessageException() throw() {}
