@@ -35,7 +35,7 @@ namespace TrenchBroom {
     namespace Controller {
         Model::MoveObjectsHandleHit* MoveObjectsHandle::pickAxis(const Ray& ray, Vec3f& axis, Model::MoveObjectsHandleHit::HitArea hitArea) {
             float distance;
-            float missDistance = ray.squaredDistanceToSegment(m_position - m_axisLength * axis, m_position + m_axisLength * axis, distance);
+            float missDistance = ray.squaredDistanceToSegment(position() - m_axisLength * axis, position() + m_axisLength * axis, distance);
             if (isnan(missDistance) || missDistance > 5.0f)
                 return NULL;
             
@@ -43,11 +43,11 @@ namespace TrenchBroom {
         }
         
         Model::MoveObjectsHandleHit* MoveObjectsHandle::pickPlane(const Ray& ray, const Vec3f& normal, const Vec3f& axis1, const Vec3f& axis2, Model::MoveObjectsHandleHit::HitArea hitArea) {
-            Plane plane(normal, m_position);
+            Plane plane(normal, position());
             float distance = plane.intersectWithRay(ray);
             if (!isnan(distance)) {
                 Vec3f hitPoint = ray.pointAtDistance(distance);
-                Vec3f hitVector = hitPoint - m_position;
+                Vec3f hitVector = hitPoint - position();
                 float missDistance = hitVector.lengthSquared();
                 if (missDistance <= m_planeRadius * m_planeRadius &&
                     hitVector.dot(axis1) >= 0.0f && hitVector.dot(axis2) >= 0.0f)
@@ -57,50 +57,12 @@ namespace TrenchBroom {
             return NULL;
         }
         
-        Model::MoveObjectsHandleHit* MoveObjectsHandle::selectHit(Model::MoveObjectsHandleHit* closestHit, Model::MoveObjectsHandleHit* hit) {
-            if (closestHit == NULL)
-                return hit;
-            if (hit != NULL) {
-                if (hit->distance() < closestHit->distance()) {
-                    delete closestHit;
-                    return hit;
-                }
-                
-                delete hit;
-            }
-            
-            return closestHit;
-        }
 
         MoveObjectsHandle::MoveObjectsHandle(float axisLength, float planeRadius) :
+        ObjectsHandle(),
         m_axisLength(axisLength),
-        m_planeRadius(planeRadius),
-        m_locked(false) {}
+        m_planeRadius(planeRadius) {}
         
-        void MoveObjectsHandle::axes(const Vec3f& origin, Vec3f& xAxis, Vec3f& yAxis, Vec3f& zAxis) {
-            if (!m_locked) {
-                Vec3f view = m_position - origin;
-                view.normalize();
-                
-                if (eq(fabsf(view.z), 1.0f)) {
-                    m_xAxis = Vec3f::PosX;
-                    m_yAxis = Vec3f::PosY;
-                } else {
-                    m_xAxis = view.x > 0.0f ? Vec3f::NegX : Vec3f::PosX;
-                    m_yAxis = view.y > 0.0f ? Vec3f::NegY : Vec3f::PosY;
-                }
-                
-                if (view.z >= 0.0f)
-                    m_zAxis = Vec3f::NegZ;
-                else
-                    m_zAxis = Vec3f::PosZ;
-            }
-            
-            xAxis = m_xAxis;
-            yAxis = m_yAxis;
-            zAxis = m_zAxis;
-        }
-
         Model::MoveObjectsHandleHit* MoveObjectsHandle::pick(const Ray& ray) {
             Vec3f xAxis, yAxis, zAxis;
             axes(ray.origin, xAxis, yAxis, zAxis);
@@ -113,7 +75,7 @@ namespace TrenchBroom {
             closestHit = selectHit(closestHit, pickPlane(ray, Vec3f::PosY, xAxis, zAxis, Model::MoveObjectsHandleHit::HAXZPlane));
             closestHit = selectHit(closestHit, pickPlane(ray, Vec3f::PosZ, xAxis, yAxis, Model::MoveObjectsHandleHit::HAXYPlane));
 
-            if (!m_locked) {
+            if (!locked()) {
                 m_hit = closestHit != NULL;
                 if (m_hit)
                     m_hitArea = closestHit->hitArea();

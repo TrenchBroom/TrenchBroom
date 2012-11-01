@@ -100,7 +100,6 @@ namespace TrenchBroom {
         }
         
         bool MoveObjectsTool::handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint) {
-
             Vec3f delta = curMousePoint - referencePoint;
             switch (m_restrictToAxis) {
                 case RXAxis:

@@ -17,48 +17,35 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MoveObjectsTool__
-#define __TrenchBroom__MoveObjectsTool__
+#ifndef __TrenchBroom__RotateObjectsTool__
+#define __TrenchBroom__RotateObjectsTool__
 
 #include "Controller/DragTool.h"
-#include "Controller/MoveObjectsHandle.h"
-#include "Renderer/MoveObjectsHandleFigure.h"
-#include "Utility/Math.h"
-
-using namespace TrenchBroom::Math;
+#include "Controller/RotateObjectsHandle.h"
 
 namespace TrenchBroom {
-    namespace View {
-        class DocumentViewHolder;
+    namespace Renderer {
+        class RotateObjectsHandleFigure;
     }
     
     namespace Controller {
-        class MoveObjectsTool : public DragTool {
+        class RotateObjectsTool : public DragTool {
         protected:
-            typedef enum {
-                RNone,
-                RXAxis,
-                RYAxis,
-                RZAxis
-            } RestrictToAxis;
-            
-            MoveObjectsHandle m_handle = MoveObjectsHandle(64.0f, 32.0f);
-            Vec3f m_totalDelta;
-            RestrictToAxis m_restrictToAxis;
-            Renderer::MoveObjectsHandleFigure* m_handleFigure;
+            RotateObjectsHandle m_handle = RotateObjectsHandle(34.0f, 2.0f);
+            Renderer::RotateObjectsHandleFigure* m_handleFigure;
             
             void updateHits(InputEvent& event);
             bool handleMouseMoved(InputEvent& event);
-
+            
             bool handleBeginPlaneDrag(InputEvent& event, Plane& dragPlane, Vec3f& initialDragPoint);
             bool handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
             void handleEndPlaneDrag(InputEvent& event);
-
+            
             void handleChangeEditState(const Model::EditStateChangeSet& changeSet);
         public:
-            MoveObjectsTool(View::DocumentViewHolder& documentViewHolder);
+            RotateObjectsTool(View::DocumentViewHolder& documentViewHolder);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MoveObjectsTool__) */
+#endif /* defined(__TrenchBroom__RotateObjectsTool__) */
