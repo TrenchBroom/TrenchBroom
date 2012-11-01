@@ -69,10 +69,10 @@ namespace TrenchBroom {
                 const Model::FaceList& faces = faceCollection.polygons();
                 unsigned int vertexCount = static_cast<unsigned int>(3 * faceCollection.vertexCount() - 2 * faces.size());
                 VertexArrayPtr vertexArray = VertexArrayPtr(new VertexArray(*m_faceVbo, GL_TRIANGLES, vertexCount,
-                                                                            VertexAttribute(3, GL_FLOAT, VertexAttribute::Position),
-                                                                            VertexAttribute(3, GL_FLOAT, VertexAttribute::Normal),
-                                                                            VertexAttribute(2, GL_FLOAT, VertexAttribute::TexCoord0),
-                                                                            VertexAttribute(4, GL_FLOAT, VertexAttribute::Color)));
+                                                                            VertexAttribute::position3f(),
+                                                                            VertexAttribute::normal3f(),
+                                                                            VertexAttribute::texCoord02f(),
+                                                                            VertexAttribute::color4f()));
 
                 for (unsigned int i = 0; i < faces.size(); i++) {
                     Model::Face* face = faces[i];
@@ -277,19 +277,23 @@ namespace TrenchBroom {
             m_edgeVbo->map();
             
             if (!m_geometryDataValid && !unselectedBrushes.empty()) {
-                m_edgeVertexArray = VertexArrayPtr(new VertexArray(*m_edgeVbo, GL_LINES, totalUnselectedEdgeVertexCount, VertexAttribute(3, GL_FLOAT, VertexAttribute::Position), VertexAttribute(4, GL_FLOAT, VertexAttribute::Color)));
+                m_edgeVertexArray = VertexArrayPtr(new VertexArray(*m_edgeVbo, GL_LINES, totalUnselectedEdgeVertexCount,
+                                                                   VertexAttribute::position3f(),
+                                                                   VertexAttribute::color4f()));
                 m_edgeVertexArray->bindAttributes(coloredEdgeProgram);
                 writeColoredEdgeData(context, unselectedBrushes, Model::EmptyFaceList, *m_edgeVertexArray);
             }
             
             if (!m_selectedGeometryDataValid && (!selectedBrushes.empty() || !partiallySelectedBrushFaces.empty())) {
-                m_selectedEdgeVertexArray = VertexArrayPtr(new VertexArray(*m_edgeVbo, GL_LINES, totalSelectedEdgeVertexCount, VertexAttribute(3, GL_FLOAT, VertexAttribute::Position)));
+                m_selectedEdgeVertexArray = VertexArrayPtr(new VertexArray(*m_edgeVbo, GL_LINES, totalSelectedEdgeVertexCount,
+                                                                           VertexAttribute::position3f()));
                 m_selectedEdgeVertexArray->bindAttributes(edgeProgram);
                 writeEdgeData(context, selectedBrushes, partiallySelectedBrushFaces, *m_selectedEdgeVertexArray);
             }
             
             if (!m_lockedGeometryDataValid && !lockedBrushes.empty()) {
-                m_lockedEdgeVertexArray = VertexArrayPtr(new VertexArray(*m_edgeVbo, GL_LINES, totalLockedEdgeVertexCount, VertexAttribute(3, GL_FLOAT, VertexAttribute::Position)));
+                m_lockedEdgeVertexArray = VertexArrayPtr(new VertexArray(*m_edgeVbo, GL_LINES, totalLockedEdgeVertexCount,
+                                                                         VertexAttribute::position3f()));
                 m_lockedEdgeVertexArray->bindAttributes(edgeProgram);
                 writeEdgeData(context, lockedBrushes, Model::EmptyFaceList, *m_lockedEdgeVertexArray);
             }

@@ -102,7 +102,7 @@ namespace TrenchBroom {
                 }
             } else {
                 if (m_handleFigure == NULL) {
-                    m_handleFigure = new Renderer::RotateObjectsHandleFigure(m_handle);
+                    m_handleFigure = new Renderer::RotateObjectsHandleFigure(m_handle, 64.0f);
                     addFigure(m_handleFigure);
                 }
                 Vec3f position = Model::MapObject::center(entities, brushes);
@@ -112,8 +112,8 @@ namespace TrenchBroom {
             updateViews();
         }
 
-        RotateObjectsTool::RotateObjectsTool(View::DocumentViewHolder& documentViewHolder) :
-        DragTool(documentViewHolder),
+        RotateObjectsTool::RotateObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
+        DragTool(documentViewHolder, inputController),
         m_handleFigure(NULL) {}
     }
 }

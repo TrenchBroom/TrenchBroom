@@ -65,6 +65,31 @@ namespace TrenchBroom {
                 assert(attributeType != User);
             }
 
+            static const VertexAttribute& position2f() {
+                static const VertexAttribute attr = VertexAttribute(2, GL_FLOAT, Position);
+                return attr;
+            }
+            
+            static const VertexAttribute& position3f() {
+                static const VertexAttribute attr = VertexAttribute(3, GL_FLOAT, Position);
+                return attr;
+            }
+            
+            static const VertexAttribute& normal3f() {
+                static const VertexAttribute attr = VertexAttribute(3, GL_FLOAT, Normal);
+                return attr;
+            }
+            
+            static const VertexAttribute& color4f() {
+                static const VertexAttribute attr = VertexAttribute(4, GL_FLOAT, Color);
+                return attr;
+            }
+            
+            static const VertexAttribute& texCoord02f() {
+                static const VertexAttribute attr = VertexAttribute(2, GL_FLOAT, TexCoord0);
+                return attr;
+            }
+            
             inline GLint size() const {
                 return m_size;
             }

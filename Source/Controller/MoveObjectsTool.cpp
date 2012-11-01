@@ -167,8 +167,8 @@ namespace TrenchBroom {
             updateViews();
         }
         
-        MoveObjectsTool::MoveObjectsTool(View::DocumentViewHolder& documentViewHolder) :
-        DragTool(documentViewHolder),
+        MoveObjectsTool::MoveObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
+        DragTool(documentViewHolder, inputController),
         m_handleFigure(NULL) {}
     }
 }

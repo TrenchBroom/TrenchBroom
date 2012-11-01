@@ -25,7 +25,9 @@
 #include "Renderer/PushMatrix.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/VertexArray.h"
-#include "Utility/Console.h"
+#include "Utility/VecMath.h"
+
+using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -45,9 +47,9 @@ namespace TrenchBroom {
             glDisable(GL_CULL_FACE);
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             
-            VertexArray axisArray(vbo, GL_LINES, 8,
-                                  VertexAttribute(3, GL_FLOAT, VertexAttribute::Position),
-                                  VertexAttribute(4, GL_FLOAT, VertexAttribute::Color));
+            VertexArray axisArray(vbo, GL_LINES, 6,
+                                  VertexAttribute::position3f(),
+                                  VertexAttribute::color4f());
             
             Color color;
             if (m_handle.hit() && (m_handle.hitArea()== Model::MoveObjectsHandleHit::HAXAxis ||

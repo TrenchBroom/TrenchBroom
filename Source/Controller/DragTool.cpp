@@ -49,7 +49,7 @@ namespace TrenchBroom {
             handleEndPlaneDrag(event);
         }
 
-        DragTool::DragTool(View::DocumentViewHolder& documentViewHolder) :
-        Tool(documentViewHolder) {}
+        DragTool::DragTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
+        Tool(documentViewHolder, inputController) {}
     }
 }

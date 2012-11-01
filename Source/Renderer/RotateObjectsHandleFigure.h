@@ -31,8 +31,9 @@ namespace TrenchBroom {
         class RotateObjectsHandleFigure : public Figure {
         protected:
             Controller::RotateObjectsHandle& m_handle;
+            float m_axisLength;
         public:
-            RotateObjectsHandleFigure(Controller::RotateObjectsHandle& handle);
+            RotateObjectsHandleFigure(Controller::RotateObjectsHandle& handle, float axisLength);
 
             void render(Vbo& vbo, RenderContext& context);
         };

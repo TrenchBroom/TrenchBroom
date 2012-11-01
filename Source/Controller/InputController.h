@@ -22,7 +22,8 @@
 
 #include "Controller/DragTargetTool.h"
 #include "Controller/Input.h"
-#include "Controller/Tool.h"
+
+#include <vector>
 
 class wxEvtHandler;
 
@@ -43,8 +44,12 @@ namespace TrenchBroom {
     }
     
     namespace Controller {
+        class Tool;
+        
         class InputController {
         protected:
+            typedef std::vector<Tool*> ToolList;
+
             View::DocumentViewHolder& m_documentViewHolder;
             
             InputEvent m_currentEvent;
@@ -76,6 +81,9 @@ namespace TrenchBroom {
             void dragLeave();
             
             void changeEditState(const Model::EditStateChangeSet& changeSet);
+            
+            void enableFigures();
+            void disableFigures(Tool& except);
         };
     }
 }

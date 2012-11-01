@@ -33,6 +33,8 @@ class wxEvtHandler;
 
 namespace TrenchBroom {
     namespace Controller {
+        class InputController;
+        
         class CameraFilter : public Model::Filter {
         protected:
             Model::Filter& m_defaultFilter;
@@ -71,8 +73,8 @@ namespace TrenchBroom {
             float panSpeed(bool vertical);
             float moveSpeed();
         public:
-            CameraTool(View::DocumentViewHolder& documentViewHolder) :
-            Tool(documentViewHolder),
+            CameraTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
+            Tool(documentViewHolder, inputController),
             m_orbit(false),
             m_filter(documentViewHolder.view().filter()) {}
 

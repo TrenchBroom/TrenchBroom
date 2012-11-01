@@ -32,6 +32,8 @@ namespace TrenchBroom {
     }
     
     namespace Controller {
+        class InputController;
+        
         class DragTool : public Tool {
         private:
             Plane m_dragPlane;
@@ -46,7 +48,7 @@ namespace TrenchBroom {
             bool handleDrag(InputEvent& event);
             void handleEndDrag(InputEvent& event);
         public:
-            DragTool(View::DocumentViewHolder& documentViewHolder);
+            DragTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController);
         };
     }
 }

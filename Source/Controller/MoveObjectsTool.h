@@ -56,7 +56,7 @@ namespace TrenchBroom {
 
             void handleChangeEditState(const Model::EditStateChangeSet& changeSet);
         public:
-            MoveObjectsTool(View::DocumentViewHolder& documentViewHolder);
+            MoveObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController);
         };
     }
 }

@@ -21,6 +21,7 @@
 #define TrenchBroom_Tool_h
 
 #include "Controller/Input.h"
+#include "Controller/InputController.h"
 #include "Model/MapDocument.h"
 #include "Renderer/MapRenderer.h"
 #include "Utility/CommandProcessor.h"
@@ -55,9 +56,11 @@ namespace TrenchBroom {
             };
         private:
             View::DocumentViewHolder& m_documentViewHolder;
+            InputController& m_inputController;
             State m_state;
             bool m_active;
             bool m_figureDataValid;
+            bool m_figuresEnabled;
         protected:
             virtual bool handleActivated(InputEvent& event) { return false; }
             virtual bool handleDeactivated(InputEvent& event) { return false; }
@@ -149,12 +152,22 @@ namespace TrenchBroom {
                 renderer.deleteFigure(figure);
                 updateViews();
             }
+            
+            inline void disableFigures() {
+                m_inputController.disableFigures(*this);
+            }
+            
+            inline void enableFigures() {
+                m_inputController.enableFigures();
+            }
         public:
-            Tool(View::DocumentViewHolder& documentViewHolder) :
+            Tool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
             m_documentViewHolder(documentViewHolder),
+            m_inputController(inputController),
             m_state(Default),
             m_active(false),
-            m_figureDataValid(false) {}
+            m_figureDataValid(false),
+            m_figuresEnabled(true) {}
             
             virtual ~Tool() {}
             
@@ -253,9 +266,15 @@ namespace TrenchBroom {
             void changeEditState(const Model::EditStateChangeSet& changeSet) {
                 handleChangeEditState(changeSet);
             }
+            
+            inline bool figuresEnabled() const {
+                return m_figuresEnabled;
+            }
+            
+            inline void setFiguresEnabled(bool figuresEnabled) {
+                m_figuresEnabled = figuresEnabled;
+            }
         };
-        
-        typedef std::vector<Tool*> ToolList;
     }
 }
 

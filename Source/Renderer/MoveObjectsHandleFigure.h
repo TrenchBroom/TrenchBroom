@@ -21,12 +21,9 @@
 #define __TrenchBroom__MoveObjectsHandleFigure__
 
 #include "Renderer/Figure.h"
-#include "Utility/VecMath.h"
 
 #include <cassert>
 #include <limits>
-
-using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Controller {

@@ -22,6 +22,7 @@
 #include "Controller/CameraTool.h"
 #include "Controller/EntityDragTargetTool.h"
 #include "Controller/MoveObjectsTool.h"
+#include "Controller/RotateObjectsTool.h"
 #include "Controller/SelectionTool.h"
 #include "Model/MapDocument.h"
 #include "Model/Picker.h"
@@ -62,9 +63,10 @@ namespace TrenchBroom {
         m_mouseUpReceiver(NULL),
         m_modalReceiverIndex(-1),
         m_dragTargetReceiver(NULL) {
-            m_receivers.push_back(new CameraTool(m_documentViewHolder));
-            m_receivers.push_back(new MoveObjectsTool(m_documentViewHolder));
-            m_receivers.push_back(new SelectionTool(m_documentViewHolder));
+            m_receivers.push_back(new CameraTool(m_documentViewHolder, *this));
+            m_receivers.push_back(new MoveObjectsTool(m_documentViewHolder, *this));
+            m_receivers.push_back(new RotateObjectsTool(m_documentViewHolder, *this));
+            m_receivers.push_back(new SelectionTool(m_documentViewHolder, *this));
             m_dragTargetTools.push_back(new EntityDragTargetTool(m_documentViewHolder));
         }
         
@@ -247,6 +249,21 @@ namespace TrenchBroom {
             for (dragToolIt = m_dragTargetTools.begin(), dragToolEnd = m_dragTargetTools.end(); dragToolIt != dragToolEnd; ++dragToolIt) {
                 DragTargetTool& tool = **dragToolIt;
                 tool.changeEditState(changeSet);
+            }
+        }
+
+        void InputController::enableFigures() {
+            for (unsigned int i = 0; i < m_receivers.size(); i++) {
+                Tool* tool = m_receivers[i];
+                tool->setFiguresEnabled(false);
+            }
+        }
+        
+        void InputController::disableFigures(Tool& except) {
+            for (unsigned int i = 0; i < m_receivers.size(); i++) {
+                Tool* tool = m_receivers[i];
+                if (tool != &except)
+                    tool->setFiguresEnabled(false);
             }
         }
     }
