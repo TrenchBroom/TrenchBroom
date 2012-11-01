@@ -31,12 +31,14 @@ namespace TrenchBroom {
             static const unsigned int DirEntryNameLength    = 16;
             static const unsigned int PalLength             = 256;
             static const unsigned int TexWidthOffset        = 16;
+            static const unsigned int MaxTextureSize        = 512;
         }
 
-        Mip* Wad::loadMip(const WadEntry& entry, unsigned int mipCount) const {
-			assert(!m_stream.eof());
+        Mip* Wad::loadMip(const WadEntry& entry, unsigned int mipCount) const throw (IOException) {
+            if (m_stream.eof())
+                throw IOException::unexpectedEof();
             if (entry.type() != WadEntryType::WEMip)
-                return NULL;
+                throw IOException("Entry %s is not a mip", entry.name().c_str());
             
             int32_t width = 0;
 			int32_t height = 0;
@@ -50,8 +52,13 @@ namespace TrenchBroom {
             m_stream.read(reinterpret_cast<char *>(&mip0Offset), sizeof(int32_t));
             mip0Size = width * height;
             
+            if (width <= 0 || height <= 0 ||
+                width > WadLayout::MaxTextureSize || height > WadLayout::MaxTextureSize)
+                throw IOException("Invalid mip dimensions (%ix%i)", width, height);
+            if (mip0Offset + mip0Size > entry.length())
+                throw IOException("Mip data beyond wad entry");
+            
             unsigned char* mip0 = NULL;
-
             if (mipCount > 0) {
                 mip0 = new unsigned char[mip0Size];
                 m_stream.seekg(entry.address() + mip0Offset, std::ios::beg);
@@ -64,13 +71,13 @@ namespace TrenchBroom {
         Wad::Wad(const String& path) throw (IOException) :
         m_stream(path.c_str(), std::ios::binary | std::ios::in) {
             if (!m_stream.is_open())
-                throw IOException::openError(path);
+                throw IOException::openError();
             
             if (!m_stream.good())
-                throw IOException::badStream(path, m_stream);
+                throw IOException::badStream(m_stream);
             
             m_stream.seekg(0, std::ios::end);
-            size_t length = m_stream.tellg();
+            m_length = m_stream.tellg();
             m_stream.seekg(0, std::ios::beg);
             
 			m_stream.exceptions(std::ios::failbit | std::ios::badbit);
@@ -84,17 +91,20 @@ namespace TrenchBroom {
             
             m_stream.seekg(WadLayout::DirOffsetAddress, std::ios::beg);
             m_stream.read(reinterpret_cast<char *>(&directoryAddr), sizeof(int32_t));
-            if (directoryAddr > length)
+            if (directoryAddr > m_length)
                 throw IOException("Wad directory beyond end of file");
             
             m_stream.seekg(directoryAddr, std::ios::beg);
             
             for (int i = 0; i < entryCount; i++) {
                 if (m_stream.eof())
-                    throw IOException::unexpectedEof(path);
+                    throw IOException::unexpectedEof();
                     
                 m_stream.read(reinterpret_cast<char *>(&entryAddress), sizeof(int32_t));
                 m_stream.read(reinterpret_cast<char *>(&entryLength), sizeof(int32_t));
+                if (entryAddress + entryLength > m_length)
+                    throw IOException("Wad entry beyond end of file");
+                
                 m_stream.seekg(WadLayout::DirEntryTypeOffset, std::ios::cur);
                 m_stream.read(&entryType, 1);
                 m_stream.seekg(WadLayout::DirEntryNameOffset, std::ios::cur);
@@ -107,14 +117,14 @@ namespace TrenchBroom {
 			m_stream.clear();
         }
         
-        Mip* Wad::loadMip(const String& name, unsigned int mipCount) const {
+        Mip* Wad::loadMip(const String& name, unsigned int mipCount) const throw (IOException) {
             EntryMap::const_iterator it = m_entries.find(name);
             if (it == m_entries.end())
-                return NULL;
+                throw IOException("Wad entry %s not found", name.c_str());
             return loadMip(it->second, mipCount);
         }
 
-        Mip::List Wad::loadMips(unsigned int mipCount) const {
+        Mip::List Wad::loadMips(unsigned int mipCount) const throw (IOException) {
             Mip::List mips;
             EntryMap::const_iterator it, end;
             for (it = m_entries.begin(), end = m_entries.end(); it != end; ++it) {

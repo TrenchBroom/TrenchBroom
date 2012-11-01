@@ -21,6 +21,7 @@
 
 #include "Controller/Command.h"
 #include "IO/FileManager.h"
+#include "IO/IOException.h"
 #include "IO/MapParser.h"
 #include "IO/Wad.h"
 #include "IO/mmapped_fstream.h"
@@ -387,15 +388,22 @@ namespace TrenchBroom {
             }
             
             if (fileManager.exists(wadPath)) {
+                Model::TextureCollection* collection = NULL;
                 wxStopWatch watch;
-                Model::TextureCollection* collection = new Model::TextureCollection(collectionName, wadPath);
-                m_textureManager->addCollection(collection, index);
-                console().info("Loaded %s in %f seconds", wadPath.c_str(), watch.Time() / 1000.0f);
+                try {
+                    collection = new Model::TextureCollection(collectionName, wadPath);
+                    m_textureManager->addCollection(collection, index);
+                    console().info("Loaded %s in %f seconds", wadPath.c_str(), watch.Time() / 1000.0f);
+                } catch (IO::IOException e) {
+                    if (collection != NULL)
+                        delete collection;
+                    console().error("Could not open texture wad %s: %s", path.c_str(), e.what());
+                }
             } else {
                 console().error("Could not open texture wad %s", path.c_str());
             }
         }
-
+        
         bool MapDocument::OnCreate(const wxString& path, long flags) {
             BBox worldBounds(Vec3f(-4096, -4096, -4096), Vec3f(4096, 4096, 4096));
 

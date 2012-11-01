@@ -23,13 +23,20 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TextureCollectionLoader::TextureCollectionLoader(const String& path) :
+        TextureCollectionLoader::TextureCollectionLoader(const String& path) throw (IO::IOException) :
         m_wad(path) {}
         
-        unsigned char* TextureCollectionLoader::load(const Texture& texture, const Renderer::Palette& palette, Color& averageColor) {
-            IO::Mip* mip = m_wad.loadMip(texture.name(), 1);
-            if (mip == NULL)
-                return NULL;
+        unsigned char* TextureCollectionLoader::load(const Texture& texture, const Renderer::Palette& palette, Color& averageColor) throw (IO::IOException) {
+            IO::Mip* mip = NULL;
+            try {
+                mip = m_wad.loadMip(texture.name(), 1);
+            } catch (IO::IOException e) {
+                if (mip != NULL)
+                    delete mip;
+                throw e;
+            }
+
+            assert(mip != NULL);
             
             size_t pixelCount = texture.width() * texture.height();
             unsigned char* rgbImage = new unsigned char[pixelCount * 3];
@@ -39,11 +46,18 @@ namespace TrenchBroom {
             return rgbImage;
         }
 
-        TextureCollection::TextureCollection(const String& name, const String& path) :
+        TextureCollection::TextureCollection(const String& name, const String& path) throw (IO::IOException) :
         m_name(name),
         m_path(path) {
-            IO::Wad wad(m_path);
-            IO::Mip::List mips = wad.loadMips(0);
+            IO::Mip::List mips;
+            try {
+                IO::Wad wad(m_path);
+                mips = wad.loadMips(0);
+            } catch (IO::IOException e) {
+                while (!mips.empty()) delete mips.back(), mips.pop_back();
+                throw e;
+            }
+
             while (!mips.empty()) {
                 IO::Mip* mip = mips.back();
                 Texture* texture = new Texture(*this, mip->name(), mip->width(), mip->height());

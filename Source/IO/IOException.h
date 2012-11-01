@@ -40,20 +40,16 @@ namespace TrenchBroom {
             
             IOException(const StringStream& str) throw() : MessageException(str) {}
             
-            static IOException openError(const String& path) {
-                return IOException("Can't open file %s", path.c_str());
+            static IOException openError() {
+                return IOException("Unable to open file");
             }
             
-            static IOException badStream(const String& path, const std::istream& stream) {
-                return IOException("Error opening file %s", path.c_str());
+            static IOException badStream(const std::istream& stream) {
+                return IOException("Error reading file");
             }
 
-            static IOException badStream(const String& path, const std::ostream& stream) {
-                return IOException("Error opening file %s", path.c_str());
-            }
-
-            static IOException unexpectedEof(const String& path) {
-                return IOException("Reached end of file %s", path.c_str());
+            static IOException unexpectedEof() {
+                return IOException("Reached end of file");
             }
         };
     }

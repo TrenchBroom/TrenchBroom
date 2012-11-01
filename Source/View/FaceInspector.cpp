@@ -159,6 +159,7 @@ namespace TrenchBroom {
             textureCollectionEditor->SetSizerAndFit(textureCollectionEditorSizer);
 
             browserSplitter->SplitHorizontally(m_textureBrowser, textureCollectionEditor);
+            browserSplitter->SetSashPosition(5000); // will force the collection editor to its minimum size
             return browserSplitter;
         }
         

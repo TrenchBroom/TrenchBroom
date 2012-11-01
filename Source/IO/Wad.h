@@ -92,7 +92,10 @@ namespace TrenchBroom {
         public:
             Mip(const String& name, unsigned int width, unsigned int height, unsigned char* mip0) : m_name(name), m_width(width), m_height(height), m_mip0(mip0) {}
             ~Mip() {
-                delete [] m_mip0;
+                if (m_mip0 != NULL) {
+                    delete [] m_mip0;
+                    m_mip0 = NULL;
+                }
             }
             
             inline const String& name() const {
@@ -116,15 +119,16 @@ namespace TrenchBroom {
         private:
             typedef std::map<String, WadEntry> EntryMap;
             
+            size_t m_length;
             mutable mmapped_fstream m_stream;
             EntryMap m_entries;
 
-            Mip* loadMip(const WadEntry& entry, unsigned int mipCount) const;
+            Mip* loadMip(const WadEntry& entry, unsigned int mipCount) const throw (IOException);
         public:
             Wad(const String& path) throw (IOException);
             
-            Mip* loadMip(const String& name, unsigned int mipCount) const;
-            Mip::List loadMips(unsigned int mipCount) const;
+            Mip* loadMip(const String& name, unsigned int mipCount) const throw (IOException);
+            Mip::List loadMips(unsigned int mipCount) const throw (IOException);
         };
     }
 }

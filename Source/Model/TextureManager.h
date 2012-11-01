@@ -67,8 +67,8 @@ namespace TrenchBroom {
         protected:
             IO::Wad m_wad;
         public:
-            TextureCollectionLoader(const String& path);
-            unsigned char* load(const Texture& texture, const Renderer::Palette& palette, Color& averageColor);
+            TextureCollectionLoader(const String& path) throw (IO::IOException);
+            unsigned char* load(const Texture& texture, const Renderer::Palette& palette, Color& averageColor) throw (IO::IOException);
         };
         
         class TextureCollection {
@@ -81,7 +81,7 @@ namespace TrenchBroom {
             String m_name;
             String m_path;
         public:
-            TextureCollection(const String& name, const String& path);
+            TextureCollection(const String& name, const String& path) throw (IO::IOException);
             ~TextureCollection();
             
             inline const TextureList& textures() const {
