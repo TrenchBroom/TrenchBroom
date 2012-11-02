@@ -22,6 +22,8 @@
 
 #include "GL/glew.h"
 
+#include <wx/image.h>
+
 namespace TrenchBroom {
     namespace GL {
         class Capabilities;

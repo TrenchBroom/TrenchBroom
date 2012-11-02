@@ -386,7 +386,7 @@ namespace TrenchBroom {
         
         void FaceInspector::OnRemoveTextureCollectionsPressed(wxCommandEvent& event) {
             wxArrayInt selections;
-            int selectionCount = m_textureCollectionList->GetSelections(selections);
+            unsigned int selectionCount = m_textureCollectionList->GetSelections(selections);
             if (selectionCount <= 0)
                 return;
             

@@ -260,6 +260,49 @@ namespace TrenchBroom {
                     m_angle = 360 - m_angle;
                 setProperty(AngleKey, m_angle, true);
             }
+            invalidateGeometry();
+        }
+
+        void Entity::rotate(const Quat& rotation, const Vec3f& rotationCenter, bool lockTextures) {
+            if (m_definition != NULL && m_definition->type() == EntityDefinition::BrushEntity)
+                return;
+            
+            Vec3f offset = center() - origin();
+            Vec3f newCenter = rotation * (center() - rotationCenter) + rotationCenter;
+            setProperty(OriginKey, newCenter - offset, true);
+            setProperty(AngleKey, 0, true);
+            
+            Vec3f direction;
+            if (m_angle >= 0.0f) {
+                direction.x = cos(2.0f * Math::Pi - m_angle * Math::Pi / 180.0f);
+                direction.y = sin(2.0f * Math::Pi - m_angle * Math::Pi / 180.0f);
+                direction.z = 0.0f;
+            } else if (m_angle == -1) {
+                direction = Vec3f::PosZ;
+            } else if (m_angle == -2) {
+                direction = Vec3f::NegZ;
+            } else {
+                return;
+            }
+            
+            direction = rotation * direction;
+            if (direction.z > 0.9f) {
+                setProperty(AngleKey, -1, true);
+            } else if (direction.z < -0.9f) {
+                setProperty(AngleKey, -2, true);
+            } else {
+                if (direction.z != 0.0f) {
+                    direction.z = 0.0f;
+                    direction = direction.normalize();
+                }
+                
+                m_angle = Math::round(acos(direction.x) * 180.0f / Math::Pi);
+                Vec3f cross = direction.crossed(Vec3f::PosX);
+                if (!cross.null() && cross.z < 0)
+                    m_angle = 360.0f - m_angle;
+                setProperty(AngleKey, m_angle, true);
+            }
+            invalidateGeometry();
         }
 
         void Entity::flip(Axis::Type axis, const Vec3f& flipCenter, bool lockTextures) {

@@ -133,7 +133,7 @@ namespace TrenchBroom {
         
         void MoveObjectsTool::handleEndPlaneDrag(InputEvent& event) {
             if (m_totalDelta.null())
-                CancelCommandGroup();
+                DiscardCommandGroup();
             else
                 EndCommandGroup();
             m_handle.unlock();
@@ -162,6 +162,7 @@ namespace TrenchBroom {
         
         MoveObjectsTool::MoveObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
         DragTool(documentViewHolder, inputController),
+        m_handle(MoveObjectsHandle(64.0f, 32.0f)),
         m_handleFigure(NULL) {}
     }
 }

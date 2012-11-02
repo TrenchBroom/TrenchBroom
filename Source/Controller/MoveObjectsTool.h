@@ -42,7 +42,7 @@ namespace TrenchBroom {
                 RZAxis
             } RestrictToAxis;
             
-            MoveObjectsHandle m_handle = MoveObjectsHandle(64.0f, 32.0f);
+            MoveObjectsHandle m_handle;
             Vec3f m_totalDelta;
             RestrictToAxis m_restrictToAxis;
             Renderer::MoveObjectsHandleFigure* m_handleFigure;

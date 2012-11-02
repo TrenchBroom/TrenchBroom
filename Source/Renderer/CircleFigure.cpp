@@ -22,6 +22,8 @@
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexArray.h"
 
+#include <algorithm>
+
 namespace TrenchBroom {
     namespace Renderer {
         CircleFigure::CircleFigure(Axis::Type normal, float startAngle, float angleLength, float radius, unsigned int segments, const Color& color, bool filled) :
@@ -43,18 +45,18 @@ namespace TrenchBroom {
             if (m_normal == Axis::AX) {
                 angle1 = startAxis.angleFrom(Vec3f::PosZ, Vec3f::PosX);
                 angle2 = endAxis.angleFrom(Vec3f::PosZ, Vec3f::PosX);
-                m_angleLength = fminf(startAxis.angleFrom(endAxis, Vec3f::PosX), endAxis.angleFrom(startAxis, Vec3f::PosX));
+                m_angleLength = std::min(startAxis.angleFrom(endAxis, Vec3f::PosX), endAxis.angleFrom(startAxis, Vec3f::PosX));
             } else if (m_normal == Axis::AY) {
                 angle1 = startAxis.angleFrom(Vec3f::PosX, Vec3f::PosY);
                 angle2 = endAxis.angleFrom(Vec3f::PosX, Vec3f::PosY);
-                m_angleLength = fminf(startAxis.angleFrom(endAxis, Vec3f::PosY), endAxis.angleFrom(startAxis, Vec3f::PosY));
+                m_angleLength = std::min(startAxis.angleFrom(endAxis, Vec3f::PosY), endAxis.angleFrom(startAxis, Vec3f::PosY));
             } else {
                 angle1 = startAxis.angleFrom(Vec3f::PosY, Vec3f::PosZ);
                 angle2 = endAxis.angleFrom(Vec3f::PosY, Vec3f::PosZ);
-                m_angleLength = fminf(startAxis.angleFrom(endAxis, Vec3f::PosZ), endAxis.angleFrom(startAxis, Vec3f::PosZ));
+                m_angleLength = std::min(startAxis.angleFrom(endAxis, Vec3f::PosZ), endAxis.angleFrom(startAxis, Vec3f::PosZ));
             }
-            float minAngle = fminf(angle1, angle2);
-            float maxAngle = fmaxf(angle1, angle2);
+            float minAngle = std::min(angle1, angle2);
+            float maxAngle = std::max(angle1, angle2);
             m_startAngle = (maxAngle - minAngle <= Math::Pi ? minAngle : maxAngle);
         }
 

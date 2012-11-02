@@ -19,6 +19,7 @@
 
 #include "Console.h"
 
+#include <cstdarg>
 #include <wx/wx.h>
 
 namespace TrenchBroom {

@@ -22,6 +22,7 @@
 
 #include <wx/cmdproc.h>
 
+#include <stack>
 #include <vector>
 
 typedef std::vector<wxCommand*> CommandList;
@@ -34,6 +35,7 @@ public:
     ~CompoundCommand();
     
     void addCommand(wxCommand* command);
+    void removeCommand(wxCommand* command);
     
     bool Do();
     bool Undo();
@@ -41,18 +43,21 @@ public:
 
 class CommandProcessor : public wxCommandProcessor {
 protected:
-    unsigned int m_groupLevel;
-    CompoundCommand* m_compoundCommand;
+    typedef std::stack<CompoundCommand*> GroupStack;
+
+    GroupStack m_groupStack;
 public:
     CommandProcessor(int maxCommandLevel = -1);
 
     static void BeginGroup(wxCommandProcessor* wxCommandProc, const wxString& name);
     static void EndGroup(wxCommandProcessor* wxCommandProc);
-    static void CancelGroup(wxCommandProcessor* wxCommandProc);
+    static void RollbackGroup(wxCommandProcessor* wxCommandProc);
+    static void DiscardGroup(wxCommandProcessor* wxCommandProc);
     
     void BeginGroup(const wxString& name);
     void EndGroup();
-    void CancelGroup();
+    void RollbackGroup();
+    void DiscardGroup();
     bool Submit(wxCommand* command, bool storeIt = true);
 };
 

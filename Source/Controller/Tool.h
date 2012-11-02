@@ -99,12 +99,20 @@ namespace TrenchBroom {
                 CommandProcessor::EndGroup(document.GetCommandProcessor());
             }
 
-            inline void CancelCommandGroup() {
+            inline void RollbackCommandGroup() {
                 if (!m_documentViewHolder.valid())
                     return;
                 
                 Model::MapDocument& document = m_documentViewHolder.document();
-                CommandProcessor::CancelGroup(document.GetCommandProcessor());
+                CommandProcessor::RollbackGroup(document.GetCommandProcessor());
+            }
+            
+            inline void DiscardCommandGroup() {
+                if (!m_documentViewHolder.valid())
+                    return;
+                
+                Model::MapDocument& document = m_documentViewHolder.document();
+                CommandProcessor::DiscardGroup(document.GetCommandProcessor());
             }
             
             inline void postCommand(wxCommand* command) {

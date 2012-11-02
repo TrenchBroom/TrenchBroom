@@ -475,6 +475,23 @@ namespace TrenchBroom {
             m_coordsValid = false;
         }
 
+        void Face::rotate(const Quat& rotation, const Vec3f& center, bool lockTexture) {
+            if (lockTexture) {
+                Mat4f t = Mat4f::Identity.translated(center);
+                t.rotate(rotation);
+                t.translate(-1.0f * center);
+                compensateTransformation(t);
+            }
+            
+            m_boundary = m_boundary.rotate(rotation, center);
+            
+            for (unsigned int i = 0; i < 3; i++)
+                m_points[i] = rotation * (m_points[i] - center) + center;
+            
+            m_texAxesValid = false;
+            m_coordsValid = false;
+        }
+
         void Face::flip(Axis::Type axis, const Vec3f& center, bool lockTexture) {
             if (lockTexture) {
                 Mat4f t;

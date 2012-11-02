@@ -21,6 +21,8 @@
 #define TrenchBroom_MessageException_h
 
 #include "Utility/String.h"
+
+#include <cstdarg>
 #include <exception>
 
 namespace TrenchBroom {

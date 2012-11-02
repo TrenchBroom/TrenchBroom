@@ -19,6 +19,7 @@
 
 #include "CommandProcessor.h"
 
+#include <algorithm>
 #include <cassert>
 
 CompoundCommand::CompoundCommand(const wxString& name) :
@@ -35,6 +36,10 @@ CompoundCommand::~CompoundCommand() {
 
 void CompoundCommand::addCommand(wxCommand* command) {
     m_commands.push_back(command);
+}
+
+void CompoundCommand::removeCommand(wxCommand* command) {
+    m_commands.erase(std::remove(m_commands.begin(), m_commands.end(), command), m_commands.end());
 }
 
 bool CompoundCommand::Do() {
@@ -58,9 +63,7 @@ bool CompoundCommand::Undo() {
 }
 
 CommandProcessor::CommandProcessor(int maxCommandLevel) :
-wxCommandProcessor(maxCommandLevel),
-m_groupLevel(0),
-m_compoundCommand(NULL) {}
+wxCommandProcessor(maxCommandLevel) {}
 
 void CommandProcessor::BeginGroup(wxCommandProcessor* wxCommandProc, const wxString& name) {
     CommandProcessor* commandProc = static_cast<CommandProcessor*>(wxCommandProc);
@@ -72,43 +75,57 @@ void CommandProcessor::EndGroup(wxCommandProcessor* wxCommandProc) {
     commandProc->EndGroup();
 }
 
-void CommandProcessor::CancelGroup(wxCommandProcessor* wxCommandProc) {
+void CommandProcessor::RollbackGroup(wxCommandProcessor* wxCommandProc) {
     CommandProcessor* commandProc = static_cast<CommandProcessor*>(wxCommandProc);
-    commandProc->CancelGroup();
+    commandProc->RollbackGroup();
+}
+
+void CommandProcessor::DiscardGroup(wxCommandProcessor* wxCommandProc) {
+    CommandProcessor* commandProc = static_cast<CommandProcessor*>(wxCommandProc);
+    commandProc->DiscardGroup();
 }
 
 void CommandProcessor::BeginGroup(const wxString& name) {
-    if (m_groupLevel == 0) {
-        assert(m_compoundCommand == NULL);
-        m_compoundCommand = new CompoundCommand(name);
-    }
-    m_groupLevel++;
+    CompoundCommand* parentGroup = m_groupStack.empty() ? NULL : m_groupStack.top();
+    CompoundCommand* newGroup = new CompoundCommand(name);
+    m_groupStack.push(newGroup);
+    if (parentGroup != NULL)
+        parentGroup->addCommand(newGroup);
 }
 
 void CommandProcessor::EndGroup() {
-    m_groupLevel--;
-    if (m_groupLevel == 0) {
-        assert(m_compoundCommand != NULL);
-        wxCommandProcessor::Store(m_compoundCommand);
-        m_compoundCommand = NULL;
-    }
+    assert(!m_groupStack.empty());
+    
+    CompoundCommand* group = m_groupStack.top();
+    m_groupStack.pop();
+    if (m_groupStack.empty())
+        wxCommandProcessor::Store(group);
 }
 
-void CommandProcessor::CancelGroup() {
-    m_groupLevel--;
-    if (m_groupLevel == 0) {
-        assert(m_compoundCommand != NULL);
-        wxDELETE(m_compoundCommand);
-    }
+void CommandProcessor::RollbackGroup() {
+    assert(!m_groupStack.empty());
+
+    CompoundCommand* group = m_groupStack.top();
+    UndoCommand(*group);
+}
+
+void CommandProcessor::DiscardGroup() {
+    assert(!m_groupStack.empty());
+    
+    CompoundCommand* group = m_groupStack.top();
+    m_groupStack.pop();
+    if (!m_groupStack.empty())
+        m_groupStack.top()->removeCommand(group);
+    
+    delete group;
 }
 
 bool CommandProcessor::Submit(wxCommand* command, bool storeIt) {
-    if (m_groupLevel == 0)
+    if (m_groupStack.empty())
         return wxCommandProcessor::Submit(command, storeIt);
 
-    assert(m_compoundCommand != NULL);
     bool result = DoCommand(*command);
     if (result && storeIt)
-        m_compoundCommand->addCommand(command);
+        m_groupStack.top()->addCommand(command);
     return result;
 }

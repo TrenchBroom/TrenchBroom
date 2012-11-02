@@ -393,9 +393,6 @@ namespace TrenchBroom {
             wxImage* image = m_offscreenRenderer.getImage();
             m_offscreenRenderer.postRender();
             
-            wxInitAllImageHandlers();
-            image->SaveFile("/Users/kristian/Temp/entity.png", wxBITMAP_TYPE_PNG);
-            
             return image;
         }
         

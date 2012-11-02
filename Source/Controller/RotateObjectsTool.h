@@ -31,7 +31,7 @@ namespace TrenchBroom {
     namespace Controller {
         class RotateObjectsTool : public DragTool {
         protected:
-            RotateObjectsHandle m_handle = RotateObjectsHandle(32.0f, 5.0f);
+            RotateObjectsHandle m_handle;
             Renderer::RotateObjectsHandleFigure* m_handleFigure;
             
             void updateHits(InputEvent& event);

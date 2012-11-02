@@ -19,6 +19,8 @@
 
 #include "InputControllerFeedbackFigure.h"
 
+#include <algorithm>
+
 namespace TrenchBroom {
     namespace Renderer {
         InputControllerFeedbackFigure::InputControllerFeedbackFigure() :

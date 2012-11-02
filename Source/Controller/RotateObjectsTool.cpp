@@ -18,7 +18,7 @@
  */
 
 #include "RotateObjectsTool.h"
-#include "Controller/Command.h"
+#include "Controller/RotateObjectsCommand.h"
 #include "Model/EditStateManager.h"
 #include "Model/MapDocument.h"
 #include "Renderer/RotateObjectsHandleFigure.h"
@@ -81,13 +81,37 @@ namespace TrenchBroom {
         }
         
         bool RotateObjectsTool::handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint) {
+
+            Vec3f axis;
+            if (m_handle.hitArea() == Model::RotateObjectsHandleHit::HAXAxis)
+                axis = Vec3f::PosX;
+            else if (m_handle.hitArea() == Model::RotateObjectsHandleHit::HAYAxis)
+                axis = Vec3f::PosY;
+            else
+                axis = Vec3f::PosZ;
+            
+            Vec3f startVector = referencePoint - m_handle.position();
+            startVector.normalize();
+            Vec3f currentVector = curMousePoint - m_handle.position();
+            currentVector.normalize();
+
+            float angle = currentVector.angleFrom(startVector, axis);
+            if (angle == 0.0f)
+                return true;
+            
+            RollbackCommandGroup();
+            Model::EditStateManager& editStateManager = documentViewHolder().document().editStateManager();
+            const Model::EntityList& entities = editStateManager.selectedEntities();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            RotateObjectsCommand* command = RotateObjectsCommand::rotate(documentViewHolder().document(), entities, brushes, axis, angle, true, m_handle.position(), documentViewHolder().document().textureLock());
+            postCommand(command);
+            
             return true;
         }
         
         void RotateObjectsTool::handleEndPlaneDrag(InputEvent& event) {
             EndCommandGroup();
             m_handle.unlock();
-            
             m_handle.pick(event.ray);
         }
         
@@ -113,6 +137,7 @@ namespace TrenchBroom {
 
         RotateObjectsTool::RotateObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
         DragTool(documentViewHolder, inputController),
+        m_handle(RotateObjectsHandle(32.0f, 5.0f)),
         m_handleFigure(NULL) {}
     }
 }

@@ -105,6 +105,7 @@ namespace TrenchBroom {
             
             virtual void translate(const Vec3f& delta, bool lockTextures) = 0;
             virtual void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTextures) = 0;
+            virtual void rotate(const Quat& rotation, const Vec3f& center, bool lockTextures);
             virtual void flip(Axis::Type axis, const Vec3f& center, bool lockTextures) = 0;
             
             virtual void pick(const Ray& ray, PickResult& pickResults) = 0;

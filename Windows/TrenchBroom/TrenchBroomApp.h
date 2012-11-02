@@ -22,7 +22,7 @@
 
 class TrenchBroomApp : public AbstractApp {
 protected:
-    virtual wxMenu* CreateViewMenu();
+    virtual wxMenu* CreateViewMenu(wxEvtHandler* eventHandler);
 	bool OnInit();
 public:
     DECLARE_EVENT_TABLE()

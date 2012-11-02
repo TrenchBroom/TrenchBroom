@@ -148,8 +148,9 @@ namespace TrenchBroom {
             glReadPixels(0, 0, m_width, m_height, GL_RGB, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid*>(imageData));
             glReadPixels(0, 0, m_width, m_height, GL_ALPHA, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid*>(alphaData));
             
-            unsigned char imageLine[m_width * 3];
-            unsigned char alphaLine[m_width];
+            unsigned char* imageLine = new unsigned char[m_width * 3];
+            unsigned char* alphaLine = new unsigned char[m_width];
+
             for (unsigned int y = 0; y < m_height / 2; y++) {
                 size_t sourceLine = y * m_width;
                 size_t destLine = (m_height - y - 1) * m_width;
@@ -163,6 +164,11 @@ namespace TrenchBroom {
                 memcpy(&alphaData[sourceLine], alphaLine, m_width);
             }
             
+            delete [] imageLine;
+            imageLine = NULL;
+            delete [] alphaLine;
+            alphaLine = NULL;
+
             return new wxImage(m_width, m_height, imageData, alphaData);
         }
     }
