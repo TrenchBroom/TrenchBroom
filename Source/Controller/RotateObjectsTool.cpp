@@ -36,12 +36,14 @@ namespace TrenchBroom {
                 event.pickResult->add(*hit);
         }
         
-        bool RotateObjectsTool::handleMouseMoved(InputEvent& event) {
-            if (m_handleFigure != NULL)
-                updateViews();
-            return false;
+        bool RotateObjectsTool::suppressOtherFeedback(InputEvent& event) {
+            return m_handle.hit();
         }
-        
+
+        bool RotateObjectsTool::updateFeedback(InputEvent& event) {
+            return m_handle.updated();
+        }
+
         bool RotateObjectsTool::handleBeginPlaneDrag(InputEvent& event, Plane& dragPlane, Vec3f& initialDragPoint) {
             if (event.mouseButtons != MouseButtons::MBLeft ||
                 event.modifierKeys() != ModifierKeys::MKNone)
@@ -87,7 +89,6 @@ namespace TrenchBroom {
             m_handle.unlock();
             
             m_handle.pick(event.ray);
-            updateViews();
         }
         
         void RotateObjectsTool::handleChangeEditState(const Model::EditStateChangeSet& changeSet) {
@@ -108,8 +109,6 @@ namespace TrenchBroom {
                 Vec3f position = Model::MapObject::center(entities, brushes);
                 m_handle.setPosition(position);
             }
-            
-            updateViews();
         }
 
         RotateObjectsTool::RotateObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :

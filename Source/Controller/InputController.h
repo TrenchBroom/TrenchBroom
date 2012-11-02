@@ -36,6 +36,8 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class Camera;
+        class InputControllerFeedbackFigure;
+        class Figure;
     }
     
     namespace View {
@@ -57,12 +59,16 @@ namespace TrenchBroom {
             ToolList m_receivers;
             Tool* m_dragReceiver;
             Tool* m_mouseUpReceiver;
+            Tool* m_singleFeedbackProvider;
             int m_modalReceiverIndex;
 
             DragTargetToolList m_dragTargetTools;
             DragTargetTool* m_dragTargetReceiver;
             
+            Renderer::InputControllerFeedbackFigure* m_figureHolder;
+
             void updateHits();
+            void updateFeedback();
             void updateMousePos(float x, float y);
         public:
             InputController(View::DocumentViewHolder& documentViewHolder);
@@ -82,8 +88,9 @@ namespace TrenchBroom {
             
             void changeEditState(const Model::EditStateChangeSet& changeSet);
             
-            void enableFigures();
-            void disableFigures(Tool& except);
+            void addFigure(Tool* tool, Renderer::Figure* figure);
+            void removeFigure(Tool* tool, Renderer::Figure* figure);
+            void deleteFigure(Tool* tool, Renderer::Figure* figure);
         };
     }
 }

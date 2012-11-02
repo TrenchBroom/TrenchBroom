@@ -67,17 +67,17 @@ namespace TrenchBroom {
                     RingFigure(Axis::AY, xAxis, zAxis, m_handle.handleRadius(), m_handle.handleThickness(), 8, Color(1.0f, 1.0f, 1.0f, 0.6f)).render(vbo, context);
                     CircleFigure(Axis::AY, 0.0f, 2 * Math::Pi, m_handle.handleRadius() + m_handle.handleThickness(), 32, Color(1.0f, 1.0f, 1.0f, 1.0f), false).render(vbo, context);
                     SetVboState mapVbo(vbo, Vbo::VboMapped);
-                    axisArray.addAttribute(Vec3f(-m_axisLength, 0.0f, 0.0f));
+                    axisArray.addAttribute(Vec3f(0.0f, -m_axisLength, 0.0f));
                     axisArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 1.0f));
-                    axisArray.addAttribute(Vec3f(+m_axisLength, 0.0f, 0.0f));
+                    axisArray.addAttribute(Vec3f(0.0f, +m_axisLength, 0.0f));
                     axisArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 1.0f));
                 } else {
                     RingFigure(Axis::AZ, xAxis, yAxis, m_handle.handleRadius(), m_handle.handleThickness(), 8, Color(1.0f, 1.0f, 1.0f, 0.6f)).render(vbo, context);
                     CircleFigure(Axis::AZ, 0.0f, 2 * Math::Pi, m_handle.handleRadius() + m_handle.handleThickness(), 32, Color(1.0f, 1.0f, 1.0f, 1.0f), false).render(vbo, context);
                     SetVboState mapVbo(vbo, Vbo::VboMapped);
-                    axisArray.addAttribute(Vec3f(-m_axisLength, 0.0f, 0.0f));
+                    axisArray.addAttribute(Vec3f(0.0f, 0.0f, -m_axisLength));
                     axisArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 1.0f));
-                    axisArray.addAttribute(Vec3f(+m_axisLength, 0.0f, 0.0f));
+                    axisArray.addAttribute(Vec3f(0.0f, 0.0f, +m_axisLength));
                     axisArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 1.0f));
                 }
                 

@@ -76,9 +76,16 @@ namespace TrenchBroom {
             closestHit = selectHit(closestHit, pickPlane(ray, Vec3f::PosZ, xAxis, yAxis, Model::MoveObjectsHandleHit::HAXYPlane));
 
             if (!locked()) {
-                m_hit = closestHit != NULL;
-                if (m_hit)
-                    m_hitArea = closestHit->hitArea();
+                if (closestHit != NULL) {
+                    if (!m_hit || m_hitArea != closestHit->hitArea()) {
+                        m_hit = true;
+                        m_hitArea = closestHit->hitArea();
+                        setUpdated();
+                    }
+                } else if (m_hit) {
+                    m_hit = false;
+                    setUpdated();
+                }
             }
             
             return closestHit;

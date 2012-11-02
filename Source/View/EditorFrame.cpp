@@ -80,7 +80,6 @@ namespace TrenchBroom {
         }
 
         void EditorFrame::updateMenuBar() {
-            
             TrenchBroomApp* app = static_cast<TrenchBroomApp*>(wxTheApp);
             wxMenu* actionMenu = NULL;
             Model::EditStateManager& editStateManager = m_documentViewHolder.document().editStateManager();

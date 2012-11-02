@@ -27,6 +27,7 @@
 #include "Model/MapDocument.h"
 #include "Model/Picker.h"
 #include "Renderer/Camera.h"
+#include "Renderer/InputControllerFeedbackFigure.h"
 #include "View/DocumentViewHolder.h"
 #include "View/EditorView.h"
 
@@ -50,6 +51,38 @@ namespace TrenchBroom {
                 m_receivers[i]->updateHits(m_currentEvent);
         }
 
+        void InputController::updateFeedback() {
+            if (m_singleFeedbackProvider == NULL) {
+                ToolList::iterator it, end;
+                for (it = m_receivers.begin(), end = m_receivers.end(); it != end; ++it) {
+                    Tool& tool = **it;
+                    if (tool.suppressOtherFeedback(m_currentEvent)) {
+                        m_singleFeedbackProvider = &tool;
+                        break;
+                    }
+                }
+            } else {
+                if (!m_singleFeedbackProvider->suppressOtherFeedback(m_currentEvent))
+                    m_singleFeedbackProvider = NULL;
+            }
+            
+            m_figureHolder->setSingleFeedbackProvider(m_singleFeedbackProvider);
+
+            bool updateViews = false;
+            if (m_singleFeedbackProvider == NULL) {
+                ToolList::iterator it, end;
+                for (it = m_receivers.begin(), end = m_receivers.end(); it != end; ++it) {
+                    Tool& tool = **it;
+                    updateViews |= tool.updateFeedback(m_currentEvent);
+                }
+            } else {
+                updateViews = m_singleFeedbackProvider->updateFeedback(m_currentEvent);
+            }
+            
+            if (updateViews)
+                m_documentViewHolder.document().UpdateAllViews();
+        }
+
         void InputController::updateMousePos(float x, float y) {
             m_currentEvent.deltaX = x - m_currentEvent.mouseX;
             m_currentEvent.deltaY = y - m_currentEvent.mouseY;
@@ -61,16 +94,22 @@ namespace TrenchBroom {
         m_documentViewHolder(documentViewHolder),
         m_dragReceiver(NULL),
         m_mouseUpReceiver(NULL),
+        m_singleFeedbackProvider(NULL),
         m_modalReceiverIndex(-1),
-        m_dragTargetReceiver(NULL) {
+        m_dragTargetReceiver(NULL),
+        m_figureHolder(new Renderer::InputControllerFeedbackFigure()) {
             m_receivers.push_back(new CameraTool(m_documentViewHolder, *this));
             m_receivers.push_back(new MoveObjectsTool(m_documentViewHolder, *this));
             m_receivers.push_back(new RotateObjectsTool(m_documentViewHolder, *this));
             m_receivers.push_back(new SelectionTool(m_documentViewHolder, *this));
             m_dragTargetTools.push_back(new EntityDragTargetTool(m_documentViewHolder));
+
+            m_documentViewHolder.view().renderer().addFigure(m_figureHolder);
         }
         
         InputController::~InputController() {
+            if (m_figureHolder != NULL && m_documentViewHolder.valid())
+                m_documentViewHolder.view().renderer().deleteFigure(m_figureHolder);
             while (!m_receivers.empty()) delete m_receivers.back(), m_receivers.pop_back();
             while (!m_dragTargetTools.empty()) delete m_dragTargetTools.back(), m_dragTargetTools.pop_back();
         }
@@ -83,6 +122,7 @@ namespace TrenchBroom {
             
             for (unsigned int i = 0; i < m_receivers.size(); i++)
                 m_receivers[i]->modifierKeyChanged(m_currentEvent);
+            updateFeedback();
         }
         
         void InputController::modifierKeyUp(ModifierKeyState modifierKey) {
@@ -93,6 +133,7 @@ namespace TrenchBroom {
             
             for (unsigned int i = 0; i < m_receivers.size(); i++)
                 m_receivers[i]->modifierKeyChanged(m_currentEvent);
+            updateFeedback();
         }
         
         bool InputController::mouseDown(MouseButtonState mouseButton, float x, float y) {
@@ -103,14 +144,16 @@ namespace TrenchBroom {
             updateMousePos(x, y);
             updateHits();
             
-            for (unsigned int i = 0; i < m_receivers.size(); i++) {
+            bool handled = false;
+            for (unsigned int i = 0; i < m_receivers.size() && !handled; i++) {
                 if (m_receivers[i]->mouseDown(m_currentEvent)) {
                     m_mouseUpReceiver = m_receivers[i];
-                    return true;
+                    handled = true;
                 }
             }
             
-            return false;
+            updateFeedback();
+            return handled;
         }
         
         bool InputController::mouseUp(MouseButtonState mouseButton, float x, float y) {
@@ -137,6 +180,7 @@ namespace TrenchBroom {
             
             m_mouseUpReceiver = NULL;
             m_currentEvent.mouseButtons &= ~mouseButton;
+            updateFeedback();
             return handled;
         }
         
@@ -168,6 +212,8 @@ namespace TrenchBroom {
                 for (unsigned int i = 0; i < m_receivers.size(); i++)
                     m_receivers[i]->mouseMoved(m_currentEvent);
             }
+            
+            updateFeedback();
         }
         
         void InputController::scrolled(float dx, float dy) {
@@ -185,6 +231,7 @@ namespace TrenchBroom {
                     if (m_receivers[i]->scrolled(m_currentEvent))
                         break;
             }
+            updateFeedback();
         }
 
         void InputController::dragEnter(const String& payload, float x, float y) {
@@ -250,21 +297,22 @@ namespace TrenchBroom {
                 DragTargetTool& tool = **dragToolIt;
                 tool.changeEditState(changeSet);
             }
+
+            updateFeedback();
         }
 
-        void InputController::enableFigures() {
-            for (unsigned int i = 0; i < m_receivers.size(); i++) {
-                Tool* tool = m_receivers[i];
-                tool->setFiguresEnabled(false);
-            }
+        void InputController::addFigure(Tool* tool, Renderer::Figure* figure) {
+            m_figureHolder->addFigure(tool, figure);
         }
         
-        void InputController::disableFigures(Tool& except) {
-            for (unsigned int i = 0; i < m_receivers.size(); i++) {
-                Tool* tool = m_receivers[i];
-                if (tool != &except)
-                    tool->setFiguresEnabled(false);
-            }
+        void InputController::removeFigure(Tool* tool, Renderer::Figure* figure) {
+            assert(m_figureHolder != NULL);
+            m_figureHolder->removeFigure(tool, figure);
+        }
+        
+        void InputController::deleteFigure(Tool* tool, Renderer::Figure* figure) {
+            assert(m_figureHolder != NULL);
+            m_figureHolder->deleteFigure(tool, figure);
         }
     }
 }

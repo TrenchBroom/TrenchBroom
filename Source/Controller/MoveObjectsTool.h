@@ -48,7 +48,7 @@ namespace TrenchBroom {
             Renderer::MoveObjectsHandleFigure* m_handleFigure;
             
             void updateHits(InputEvent& event);
-            bool handleMouseMoved(InputEvent& event);
+            bool updateFeedback(InputEvent& event);
 
             bool handleBeginPlaneDrag(InputEvent& event, Plane& dragPlane, Vec3f& initialDragPoint);
             bool handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);

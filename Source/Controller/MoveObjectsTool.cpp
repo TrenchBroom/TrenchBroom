@@ -41,10 +41,8 @@ namespace TrenchBroom {
                 event.pickResult->add(*hit);
         }
         
-        bool MoveObjectsTool::handleMouseMoved(InputEvent& event) {
-            if (m_handleFigure != NULL)
-                updateViews();
-            return false;
+        bool MoveObjectsTool::updateFeedback(InputEvent& event) {
+            return m_handle.updated();
         }
 
         bool MoveObjectsTool::handleBeginPlaneDrag(InputEvent& event, Plane& dragPlane, Vec3f& initialDragPoint) {
@@ -121,7 +119,6 @@ namespace TrenchBroom {
                 return true;
             
             m_handle.setPosition(m_handle.position() + delta);
-            updateViews();
             
             Model::EditStateManager& editStateManager = documentViewHolder().document().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
@@ -140,9 +137,7 @@ namespace TrenchBroom {
             else
                 EndCommandGroup();
             m_handle.unlock();
-            
             m_handle.pick(event.ray);
-            updateViews();
         }
         
         void MoveObjectsTool::handleChangeEditState(const Model::EditStateChangeSet& changeSet) {
@@ -163,8 +158,6 @@ namespace TrenchBroom {
                 Vec3f position = Model::MapObject::center(entities, brushes);
                 m_handle.setPosition(position);
             }
-            
-            updateViews();
         }
         
         MoveObjectsTool::MoveObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :

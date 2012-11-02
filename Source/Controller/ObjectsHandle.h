@@ -35,6 +35,7 @@ namespace TrenchBroom {
         private:
             Vec3f m_position;
             bool m_locked;
+            bool m_updated;
             Vec3f m_xAxis, m_yAxis, m_zAxis;
             
         protected:
@@ -53,7 +54,9 @@ namespace TrenchBroom {
                 return closestHit;
             }
         public:
-            ObjectsHandle() : m_locked(false) {}
+            ObjectsHandle() :
+            m_locked(false),
+            m_updated(false) {}
             virtual ~ObjectsHandle() {}
             
             inline void axes(const Vec3f& origin, Vec3f& xAxis, Vec3f& yAxis, Vec3f& zAxis) {
@@ -85,6 +88,7 @@ namespace TrenchBroom {
             }
             
             inline void setPosition(const Vec3f& position) {
+                m_updated |= m_position == position;
                 m_position = position;
             }
 
@@ -98,6 +102,18 @@ namespace TrenchBroom {
             
             inline void unlock() {
                 m_locked = false;
+            }
+            
+            inline bool updated() {
+                if (m_updated) {
+                    m_updated = false;
+                    return true;
+                }
+                return false;
+            }
+            
+            inline void setUpdated() {
+                m_updated = true;
             }
         };
     }

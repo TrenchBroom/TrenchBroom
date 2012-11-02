@@ -59,8 +59,6 @@ namespace TrenchBroom {
             InputController& m_inputController;
             State m_state;
             bool m_active;
-            bool m_figureDataValid;
-            bool m_figuresEnabled;
         protected:
             virtual bool handleActivated(InputEvent& event) { return false; }
             virtual bool handleDeactivated(InputEvent& event) { return false; }
@@ -120,58 +118,33 @@ namespace TrenchBroom {
             inline View::DocumentViewHolder& documentViewHolder() {
                 return m_documentViewHolder;
             }
-
-            inline void updateViews() {
-                Model::MapDocument& document = m_documentViewHolder.document();
-                document.UpdateAllViews();
-            }
             
             inline void addFigure(Renderer::Figure* figure) {
-                if (!m_documentViewHolder.valid())
-                    return;
-                
-                Renderer::MapRenderer& renderer = m_documentViewHolder.view().renderer();
-                renderer.addFigure(figure);
-                updateViews();
+                m_inputController.addFigure(this, figure);
             }
             
             inline void removeFigure(Renderer::Figure* figure) {
-                if (!m_documentViewHolder.valid())
-                    return;
-                
-                Renderer::MapRenderer& renderer = m_documentViewHolder.view().renderer();
-                renderer.removeFigure(figure);
-                updateViews();
+                m_inputController.removeFigure(this, figure);
             }
             
             inline void deleteFigure(Renderer::Figure* figure) {
-                if (!m_documentViewHolder.valid())
-                    return;
-                
-                Renderer::MapRenderer& renderer = m_documentViewHolder.view().renderer();
-                renderer.deleteFigure(figure);
-                updateViews();
+                m_inputController.deleteFigure(this, figure);
             }
             
-            inline void disableFigures() {
-                m_inputController.disableFigures(*this);
-            }
-            
-            inline void enableFigures() {
-                m_inputController.enableFigures();
-            }
         public:
             Tool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
             m_documentViewHolder(documentViewHolder),
             m_inputController(inputController),
             m_state(Default),
-            m_active(false),
-            m_figureDataValid(false),
-            m_figuresEnabled(true) {}
+            m_active(false) {}
             
             virtual ~Tool() {}
             
             virtual void updateHits(InputEvent& event) {}
+            
+            virtual bool suppressOtherFeedback(InputEvent& event) { return false; }
+            
+            virtual bool updateFeedback(InputEvent& event) { return false; }
             
             inline State state() const {
                 return m_state;
@@ -179,12 +152,6 @@ namespace TrenchBroom {
             
             inline bool active() const {
                 return m_active;
-            }
-            
-            bool checkFigureDataValid() {
-                bool result = m_figureDataValid;
-                m_figureDataValid = true;
-                return result;
             }
             
             bool activated(InputEvent& event) {
@@ -265,14 +232,6 @@ namespace TrenchBroom {
 
             void changeEditState(const Model::EditStateChangeSet& changeSet) {
                 handleChangeEditState(changeSet);
-            }
-            
-            inline bool figuresEnabled() const {
-                return m_figuresEnabled;
-            }
-            
-            inline void setFiguresEnabled(bool figuresEnabled) {
-                m_figuresEnabled = figuresEnabled;
             }
         };
     }

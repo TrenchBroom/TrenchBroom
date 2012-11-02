@@ -26,6 +26,7 @@
 		481E56721624482600B403F3 /* ShaderProgram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481E56701624482600B403F3 /* ShaderProgram.cpp */; };
 		481E5675162448F600B403F3 /* ShaderManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481E5673162448F600B403F3 /* ShaderManager.cpp */; };
 		482A0876164305450000799C /* RingFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482A0874164305450000799C /* RingFigure.cpp */; };
+		482A087A164419CE0000799C /* InputControllerFeedbackFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482A0878164419CD0000799C /* InputControllerFeedbackFigure.cpp */; };
 		482BB67E162931E800B9FAAE /* MoveObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482BB67C162931E800B9FAAE /* MoveObjectsCommand.cpp */; };
 		48312B2815EABBD600607868 /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 48312B2715EABBD600607868 /* Icon.icns */; };
 		48312B2C15EB706D00607868 /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B2A15EB706D00607868 /* Console.cpp */; };
@@ -181,6 +182,8 @@
 		481E5674162448F600B403F3 /* ShaderManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderManager.h; sourceTree = "<group>"; };
 		482A0874164305450000799C /* RingFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RingFigure.cpp; sourceTree = "<group>"; };
 		482A0875164305450000799C /* RingFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RingFigure.h; sourceTree = "<group>"; };
+		482A0878164419CD0000799C /* InputControllerFeedbackFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InputControllerFeedbackFigure.cpp; sourceTree = "<group>"; };
+		482A0879164419CD0000799C /* InputControllerFeedbackFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputControllerFeedbackFigure.h; sourceTree = "<group>"; };
 		482BB67C162931E800B9FAAE /* MoveObjectsCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveObjectsCommand.cpp; sourceTree = "<group>"; };
 		482BB67D162931E800B9FAAE /* MoveObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveObjectsCommand.h; sourceTree = "<group>"; };
 		48312B2715EABBD600607868 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
@@ -877,6 +880,8 @@
 				48CB0DCC163EEB26001C8E87 /* CircleFigure.h */,
 				48FBD13F16259AD70059953D /* EntityFigure.cpp */,
 				48FBD14016259AD70059953D /* EntityFigure.h */,
+				482A0878164419CD0000799C /* InputControllerFeedbackFigure.cpp */,
+				482A0879164419CD0000799C /* InputControllerFeedbackFigure.h */,
 				48FBD13C16258DE70059953D /* Figure.h */,
 				48A0E92A163BBB1D0034F190 /* MoveObjectsHandleFigure.cpp */,
 				48A0E92B163BBB1D0034F190 /* MoveObjectsHandleFigure.h */,
@@ -1067,6 +1072,7 @@
 				4864D9571642C42C00759CE9 /* RotateObjectsHandle.cpp in Sources */,
 				4864D95D1642D9F500759CE9 /* RotateObjectsHandleFigure.cpp in Sources */,
 				482A0876164305450000799C /* RingFigure.cpp in Sources */,
+				482A087A164419CE0000799C /* InputControllerFeedbackFigure.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -57,13 +57,20 @@ namespace TrenchBroom {
             Model::RotateObjectsHandleHit* closestHit = NULL;
             
             closestHit = selectHit(closestHit, pickAxis(ray, xAxis, yAxis, zAxis, Model::RotateObjectsHandleHit::HAXAxis));
-            closestHit = selectHit(closestHit, pickAxis(ray, yAxis, xAxis, zAxis, Model::RotateObjectsHandleHit::HAXAxis));
-            closestHit = selectHit(closestHit, pickAxis(ray, zAxis, xAxis, yAxis, Model::RotateObjectsHandleHit::HAXAxis));
+            closestHit = selectHit(closestHit, pickAxis(ray, yAxis, xAxis, zAxis, Model::RotateObjectsHandleHit::HAYAxis));
+            closestHit = selectHit(closestHit, pickAxis(ray, zAxis, xAxis, yAxis, Model::RotateObjectsHandleHit::HAZAxis));
 
             if (!locked()) {
-                m_hit = closestHit != NULL;
-                if (m_hit)
-                    m_hitArea = closestHit->hitArea();
+                if (closestHit != NULL) {
+                    if (!m_hit || m_hitArea != closestHit->hitArea()) {
+                        m_hit = true;
+                        m_hitArea = closestHit->hitArea();
+                        setUpdated();
+                    }
+                } else if (m_hit) {
+                    m_hit = false;
+                    setUpdated();
+                }
             }
 
             return closestHit;
