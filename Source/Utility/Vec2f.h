@@ -51,6 +51,10 @@ namespace TrenchBroom {
                 return *this;
             }
             
+            inline const Vec2f operator- () const {
+                return Vec2f(-x, -y);
+            }
+            
             inline const Vec2f operator+ (const Vec2f& right) const {
                 return Vec2f(x + right.x,
                              y + right.y);

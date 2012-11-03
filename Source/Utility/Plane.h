@@ -149,8 +149,9 @@ namespace TrenchBroom {
             }
             
             inline Plane& rotate90(Axis::Type axis, const Vec3f& center, bool clockwise) {
-                normal.rotate90(axis, center, clockwise);
-                distance = (anchor().rotated90(axis, center, clockwise)).dot(normal);
+                Vec3f oldAnchor = anchor();
+                normal.rotate90(axis, clockwise);
+                distance = (oldAnchor.rotated90(axis, center, clockwise)).dot(normal);
                 return *this;
             }
             

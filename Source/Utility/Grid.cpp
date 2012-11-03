@@ -33,6 +33,8 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Utility {
+        const float Grid::SnapAngle = Math::radians(15.0f);
+        
         unsigned int Grid::size() const {
             return m_size;
         }
@@ -70,11 +72,21 @@ namespace TrenchBroom {
         }
 
         float Grid::snap(float f) {
+            if (!snap())
+                return f;
             int actSize = actualSize();
             return actSize * Math::round(f / actSize);
         }
 
+        float Grid::snapAngle(float a) {
+            if (!snap())
+                return a;
+            return SnapAngle * Math::round(a / SnapAngle);
+        }
+
         float Grid::snapUp(float f, bool skip) {
+            if (!snap())
+                return f;
             int actSize = actualSize();
             float s = actSize * ceil(f / actSize);
             if (skip && s == f)
@@ -83,6 +95,8 @@ namespace TrenchBroom {
         }
 
         float Grid::snapDown(float f, bool skip) {
+            if (!snap())
+                return f;
             int actSize = actualSize();
             float s = actSize * floor(f / actSize);
             if (skip && s == f)
@@ -91,22 +105,32 @@ namespace TrenchBroom {
         }
         
         float Grid::offset(float f) {
+            if (!snap())
+                return 0.0f;
             return f - snap(f);
         }
 
         Vec3f Grid::snap(const Vec3f& p) {
+            if (!snap())
+                return p;
             return Vec3f(snap(p.x), snap(p.y), snap(p.z));
         }
         
         Vec3f Grid::snapUp(const Vec3f& p, bool skip) {
+            if (!snap())
+                return p;
             return Vec3f(snapUp(p.x, skip), snapUp(p.y, skip), snapUp(p.z, skip));
         }
         
         Vec3f Grid::snapDown(const Vec3f& p, bool skip) {
+            if (!snap())
+                return p;
             return Vec3f(snapDown(p.x, skip), snapDown(p.y, skip), snapDown(p.z, skip));
         }
         
         Vec3f Grid::snapTowards(const Vec3f& p, const Vec3f& d, bool skip) {
+            if (!snap())
+                return p;
             Vec3f result;
             if (Math::pos(d.x))         result.x = snapUp(p.x, skip);
             else if(Math::neg(d.x))     result.x = snapDown(p.x, skip);
@@ -121,6 +145,8 @@ namespace TrenchBroom {
         }
 
         Vec3f Grid::offset(const Vec3f& p) {
+            if (!snap())
+                return Vec3f::Null;
             return p - snap(p);
         }
 

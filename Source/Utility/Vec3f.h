@@ -80,6 +80,10 @@ namespace TrenchBroom {
                 return *this;
             }
             
+            inline const Vec3f operator- () const {
+                return Vec3f(-x, -y, -z);
+            }
+
             inline const Vec3f operator+ (const Vec3f& right) const {
                 return Vec3f(x + right.x,
                              y + right.y,
@@ -393,6 +397,7 @@ namespace TrenchBroom {
                             y = -z;
                             z = t;
                         }
+                        break;
                     case Axis::AY:
                         if (clockwise) {
                             float t = x;
@@ -403,6 +408,7 @@ namespace TrenchBroom {
                             x = z;
                             z = -t;
                         }
+                        break;
                     default:
                         if (clockwise) {
                             float t = x;
@@ -413,6 +419,7 @@ namespace TrenchBroom {
                             x = -y;
                             y = t;
                         }
+                        break;
                 }
                 return *this;
             }

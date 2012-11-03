@@ -71,6 +71,13 @@ namespace TrenchBroom {
                 return *this;
             }
             
+            inline const Mat4f operator- () const {
+                return Mat4f(-v[ 0], -v[ 4], -v[ 8], -v[12],
+                             -v[ 1], -v[ 5], -v[ 9], -v[13],
+                             -v[ 2], -v[ 6], -v[10], -v[14],
+                             -v[ 3], -v[ 7], -v[11], -v[15]);
+            }
+
             inline const Mat4f operator+ (const Mat4f& right) const {
                 return Mat4f(v[ 0] + right.v[ 0], v[ 4] + right.v[ 4], v[ 8] + right.v[ 8], v[12] + right.v[12],
                              v[ 1] + right.v[ 1], v[ 5] + right.v[ 5], v[ 9] + right.v[ 9], v[13] + right.v[13],
@@ -188,7 +195,7 @@ namespace TrenchBroom {
             }
             
             inline Mat4f& setPerspective(float fov, float nearPlane, float farPlane, int width, int height) {
-                float vFrustum = static_cast<float>(tan(fov * Math::Pi / 360.0)) * 0.75f * nearPlane;
+                float vFrustum = static_cast<float>(tan(Math::radians(fov) / 2.0f)) * 0.75f * nearPlane;
                 float hFrustum = vFrustum * static_cast<float>(width) / static_cast<float>(height);
                 float depth = farPlane - nearPlane;
 

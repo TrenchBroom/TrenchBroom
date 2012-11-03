@@ -34,6 +34,7 @@ namespace TrenchBroom {
         class Grid {
         private:
             static const unsigned int MaxSize = 9;
+            static const float SnapAngle;
             unsigned int m_size;
             bool m_snap;
             bool m_visible;
@@ -54,6 +55,7 @@ namespace TrenchBroom {
             bool snap() const;
             
             float snap(float f);
+            float snapAngle(float a);
             float snapUp(float f, bool skip = false);
             float snapDown(float f, bool skip = false);
             float offset(float f);

@@ -47,6 +47,12 @@ namespace TrenchBroom {
                 return *this;
             }
             
+            inline const Mat3f operator- () const {
+                return Mat3f(-v[0], -v[3], -v[6],
+                             -v[1], -v[4], -v[7],
+                             -v[2], -v[5], -v[8]);
+            }
+
             inline const Mat3f operator+ (const Mat3f& right) const {
                 return Mat3f(v[0] + right.v[0], v[3] + right.v[3], v[6] + right.v[6],
                              v[1] + right.v[1], v[4] + right.v[4], v[7] + right.v[7],

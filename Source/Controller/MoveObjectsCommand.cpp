@@ -29,20 +29,24 @@
 namespace TrenchBroom {
     namespace Controller {
         bool MoveObjectsCommand::translate(const Vec3f& delta) {
+            document().entitiesWillChange(m_entities);
+            document().brushesWillChange(m_brushes);
+            
             Model::EntityList::const_iterator entityIt, entityEnd;
             for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                 Model::Entity& entity = **entityIt;
                 entity.translate(delta, m_lockTextures);
-                document().updateEntity(entity);
             }
             
             Model::BrushList::const_iterator brushIt, brushEnd;
             for (brushIt = m_brushes.begin(), brushEnd = m_brushes.end(); brushIt != brushEnd; ++brushIt) {
                 Model::Brush& brush = **brushIt;
                 brush.translate(delta, m_lockTextures);
-                document().updateBrush(brush);
             }
 
+            document().entitiesDidChange(m_entities);
+            document().brushesDidChange(m_brushes);
+            
             return true;
         }
 
@@ -51,7 +55,7 @@ namespace TrenchBroom {
         }
         
         bool MoveObjectsCommand::performUndo() {
-            return translate(-1.0f * m_delta);
+            return translate(-m_delta);
         }
 
         MoveObjectsCommand::MoveObjectsCommand(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const wxString& name, const Vec3f& delta, bool lockTextures) :

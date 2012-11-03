@@ -246,8 +246,24 @@ namespace TrenchBroom {
             }
         }
         
-        void MapDocument::updateEntity(Entity& entity) {
-            m_octree->updateObject(entity);
+        void MapDocument::entityWillChange(Entity& entity) {
+            m_octree->removeObject(entity);
+        }
+        
+        void MapDocument::entityDidChange(Entity& entity) {
+            m_octree->addObject(entity);
+        }
+        
+        void MapDocument::entitiesWillChange(const EntityList& entities) {
+            MapObjectList objects;
+            objects.insert(objects.begin(), entities.begin(), entities.end());
+            m_octree->removeObjects(objects);
+        }
+        
+        void MapDocument::entitiesDidChange(const EntityList& entities) {
+            MapObjectList objects;
+            objects.insert(objects.begin(), entities.begin(), entities.end());
+            m_octree->addObjects(objects);
         }
 
         void MapDocument::removeEntity(Entity& entity) {
@@ -275,8 +291,24 @@ namespace TrenchBroom {
             }
         }
 
-        void MapDocument::updateBrush(Brush& brush) {
-            m_octree->updateObject(brush);
+        void MapDocument::brushWillChange(Brush& brush) {
+            m_octree->removeObject(brush);
+        }
+        
+        void MapDocument::brushDidChange(Brush& brush) {
+            m_octree->addObject(brush);
+        }
+        
+        void MapDocument::brushesWillChange(const BrushList& brushes) {
+            MapObjectList objects;
+            objects.insert(objects.begin(), brushes.begin(), brushes.end());
+            m_octree->removeObjects(objects);
+        }
+        
+        void MapDocument::brushesDidChange(const BrushList& brushes) {
+            MapObjectList objects;
+            objects.insert(objects.begin(), brushes.begin(), brushes.end());
+            m_octree->addObjects(objects);
         }
 
         void MapDocument::removeBrush(Brush& brush) {

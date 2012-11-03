@@ -25,20 +25,24 @@
 namespace TrenchBroom {
     namespace Controller {
         bool FlipObjectsCommand::performDo() {
+            document().entitiesWillChange(m_entities);
+            document().brushesWillChange(m_brushes);
+
             Model::EntityList::const_iterator entityIt, entityEnd;
             for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                 Model::Entity& entity = **entityIt;
                 entity.flip(m_axis, m_center, m_lockTextures);
-                document().updateEntity(entity);
             }
             
             Model::BrushList::const_iterator brushIt, brushEnd;
             for (brushIt = m_brushes.begin(), brushEnd = m_brushes.end(); brushIt != brushEnd; ++brushIt) {
                 Model::Brush& brush = **brushIt;
                 brush.flip(m_axis, m_center, m_lockTextures);
-                document().updateBrush(brush);
             }
             
+            document().entitiesDidChange(m_entities);
+            document().brushesDidChange(m_brushes);
+
             return true;
         }
         

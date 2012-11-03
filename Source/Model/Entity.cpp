@@ -232,8 +232,8 @@ namespace TrenchBroom {
             
             Vec3f direction;
             if (m_angle >= 0) {
-                direction.x = cos(2.0f * Math::Pi - m_angle * Math::Pi / 180.0f);
-                direction.y = sin(2.0f * Math::Pi - m_angle * Math::Pi / 180.0f);
+                direction.x = cos(2.0f * Math::Pi - Math::radians(m_angle));
+                direction.y = sin(2.0f * Math::Pi - Math::radians(m_angle));
                 direction.z = 0.0f;
             } else if (m_angle == -1) {
                 direction = Vec3f::PosZ;
@@ -254,7 +254,7 @@ namespace TrenchBroom {
                     direction.normalize();
                 }
                 
-                m_angle = Math::round(acos(direction.x) * 180.0f / Math::Pi);
+                m_angle = Math::round(Math::degrees(acos(direction.x)));
                 Vec3f cross = direction.crossed(Vec3f::PosX);
                 if (!cross.null() && cross.z < 0.0f)
                     m_angle = 360 - m_angle;
@@ -274,8 +274,8 @@ namespace TrenchBroom {
             
             Vec3f direction;
             if (m_angle >= 0.0f) {
-                direction.x = cos(2.0f * Math::Pi - m_angle * Math::Pi / 180.0f);
-                direction.y = sin(2.0f * Math::Pi - m_angle * Math::Pi / 180.0f);
+                direction.x = cos(2.0f * Math::Pi - Math::radians(m_angle));
+                direction.y = sin(2.0f * Math::Pi - Math::radians(m_angle));
                 direction.z = 0.0f;
             } else if (m_angle == -1) {
                 direction = Vec3f::PosZ;
@@ -296,7 +296,7 @@ namespace TrenchBroom {
                     direction = direction.normalize();
                 }
                 
-                m_angle = Math::round(acos(direction.x) * 180.0f / Math::Pi);
+                m_angle = Math::round(Math::degrees(acos(direction.x)));
                 Vec3f cross = direction.crossed(Vec3f::PosX);
                 if (!cross.null() && cross.z < 0)
                     m_angle = 360.0f - m_angle;
@@ -315,7 +315,7 @@ namespace TrenchBroom {
             setProperty(AngleKey, 0, true);
             
             if (m_angle >= 0)
-                m_angle = (m_angle + 180) - static_cast<int>(m_angle / 360.0f) * m_angle;
+                m_angle = (m_angle + 180.0f) - static_cast<int>(m_angle / 360.0f) * m_angle;
             else if (m_angle == -1)
                 m_angle = -2;
             else if (m_angle == -2)

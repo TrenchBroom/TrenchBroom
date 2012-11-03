@@ -70,7 +70,7 @@ namespace TrenchBroom {
         void Face::validateTexAxes(const Vec3f& faceNormal) const {
             texAxesAndIndices(faceNormal, m_texAxisX, m_texAxisY, m_texPlaneNormIndex, m_texFaceNormIndex);
             
-            Quat rot(m_rotation * Math::Pi / 180, *BaseAxes[m_texPlaneNormIndex]);
+            Quat rot(Math::radians(m_rotation), *BaseAxes[m_texPlaneNormIndex]);
             m_texAxisX = rot * m_texAxisX;
             m_texAxisY = rot * m_texAxisY;
             m_scaledTexAxisX = m_texAxisX / m_xScale;
@@ -211,7 +211,7 @@ namespace TrenchBroom {
                 radY *= -1.0f;
             
             rad = radX;
-            m_rotation = rad * 180.0f / Math::Pi;
+            m_rotation = Math::degrees(rad);
             
             // apply the rotation to the new base axes
             Quat rot(rad, *BaseAxes[newPlaneNormIndex]);
@@ -463,7 +463,7 @@ namespace TrenchBroom {
                     t *= clockwise ? Mat4f::Rot90YCW : Mat4f::Rot90YCCW;
                 else
                     t *= clockwise ? Mat4f::Rot90ZCW : Mat4f::Rot90ZCCW;
-                t.translate(center * -1);
+                t.translate(-center);
                 compensateTransformation(t);
             }
             

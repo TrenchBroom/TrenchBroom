@@ -22,6 +22,8 @@
 #include "Model/EditStateManager.h"
 #include "Model/MapDocument.h"
 #include "Renderer/RotateObjectsHandleFigure.h"
+#include "Utility/Console.h"
+#include "Utility/Grid.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -60,13 +62,13 @@ namespace TrenchBroom {
             
             switch (hit->hitArea()) {
                 case Model::RotateObjectsHandleHit::HAXAxis:
-                    dragPlane = Plane::planeContainingVector(hit->hitPoint(), Vec3f::PosX, event.ray.origin);
+                    dragPlane = Plane::orthogonalDragPlane(hit->hitPoint(), Vec3f::PosX);
                     break;
                 case Model::RotateObjectsHandleHit::HAYAxis:
-                    dragPlane = Plane::planeContainingVector(hit->hitPoint(), Vec3f::PosY, event.ray.origin);
+                    dragPlane = Plane::orthogonalDragPlane(hit->hitPoint(), Vec3f::PosY);
                     break;
                 case Model::RotateObjectsHandleHit::HAZAxis:
-                    dragPlane = Plane::planeContainingVector(hit->hitPoint(), Vec3f::PosZ, event.ray.origin);
+                    dragPlane = Plane::orthogonalDragPlane(hit->hitPoint(), Vec3f::PosZ);
                     break;
             }
             
@@ -95,7 +97,8 @@ namespace TrenchBroom {
             Vec3f currentVector = curMousePoint - m_handle.position();
             currentVector.normalize();
 
-            float angle = currentVector.angleFrom(startVector, axis);
+            Utility::Grid& grid = documentViewHolder().document().grid();
+            float angle = grid.snapAngle(currentVector.angleFrom(startVector, axis));
             if (angle == 0.0f)
                 return true;
             
@@ -103,7 +106,7 @@ namespace TrenchBroom {
             Model::EditStateManager& editStateManager = documentViewHolder().document().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
-            RotateObjectsCommand* command = RotateObjectsCommand::rotate(documentViewHolder().document(), entities, brushes, axis, angle, true, m_handle.position(), documentViewHolder().document().textureLock());
+            RotateObjectsCommand* command = RotateObjectsCommand::rotate(documentViewHolder().document(), entities, brushes, axis, angle, false, m_handle.position(), documentViewHolder().document().textureLock());
             postCommand(command);
             
             return true;

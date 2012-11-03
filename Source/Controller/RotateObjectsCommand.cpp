@@ -46,14 +46,18 @@ namespace TrenchBroom {
             makeSnapshots(m_brushes);
             
             if (angle < 0.0f)
-                angle = 2.0f * Math::Pi - angle;
+                angle = 2.0f * Math::Pi + angle;
             
             assert(angle > 0.0f);
+            
+            document().entitiesWillChange(m_entities);
+            document().brushesWillChange(m_brushes);
             
             // if we are rotating about one of the coordinate system axes, we can get a more precise result by rotating
             // by 90 degrees as often as possible
             if (m_axis.equals(m_axis.firstAxis())) {
-                unsigned int quarters = 2.0f * m_angle / Math::Pi;
+                unsigned int quarters = 2.0f * angle / Math::Pi;
+                quarters %= 4;
                 
                 if (quarters > 0) {
                     angle = angle - quarters * Math::Pi / 2.0f;
@@ -64,34 +68,35 @@ namespace TrenchBroom {
                         for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                             Model::Entity& entity = **entityIt;
                             entity.rotate90(component, m_center, m_clockwise, m_lockTextures);
-                            document().updateEntity(entity);
                         }
                         
                         Model::BrushList::const_iterator brushIt, brushEnd;
                         for (brushIt = m_brushes.begin(), brushEnd = m_brushes.end(); brushIt != brushEnd; ++brushIt) {
                             Model::Brush& brush = **brushIt;
                             brush.rotate90(component, m_center, m_clockwise, m_lockTextures);
-                            document().updateBrush(brush);
                         }
                     }
                 }
             }
+            
+            if (angle > 0.0f) {
+                Quat rotation(angle, m_axis);
+                Model::EntityList::const_iterator entityIt, entityEnd;
+                for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
+                    Model::Entity& entity = **entityIt;
+                    entity.rotate(rotation, m_center, m_lockTextures);
+                }
+                
+                Model::BrushList::const_iterator brushIt, brushEnd;
+                for (brushIt = m_brushes.begin(), brushEnd = m_brushes.end(); brushIt != brushEnd; ++brushIt) {
+                    Model::Brush& brush = **brushIt;
+                    brush.rotate(rotation, m_center, m_lockTextures);
+                }
+            }
+            
+            document().entitiesDidChange(m_entities);
+            document().brushesDidChange(m_brushes);
 
-            Quat rotation(angle, m_axis);
-            Model::EntityList::const_iterator entityIt, entityEnd;
-            for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
-                Model::Entity& entity = **entityIt;
-                entity.rotate(rotation, m_center, m_lockTextures);
-                document().updateEntity(entity);
-            }
-            
-            Model::BrushList::const_iterator brushIt, brushEnd;
-            for (brushIt = m_brushes.begin(), brushEnd = m_brushes.end(); brushIt != brushEnd; ++brushIt) {
-                Model::Brush& brush = **brushIt;
-                brush.rotate(rotation, m_center, m_lockTextures);
-                document().updateBrush(brush);
-            }
-            
             return true;
         }
         

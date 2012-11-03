@@ -187,40 +187,33 @@ namespace TrenchBroom {
         }
         
         void Octree::addObject(MapObject& object) {
-            m_root->addObject(object);
+            bool result = m_root->addObject(object);
+            assert(result);
         }
 
         void Octree::addObjects(const MapObjectList& objects) {
+            bool result;
             for (unsigned int i = 0; i < objects.size(); i++) {
                 MapObject* object = objects[i];
-                m_root->addObject(*object);
+                result = m_root->addObject(*object);
+                assert(result);
             }
         }
         
         void Octree::removeObject(MapObject& object) {
-            m_root->removeObject(object);
+            bool result = m_root->removeObject(object);
+            assert(result);
         }
         
         void Octree::removeObjects(const MapObjectList& objects) {
+            bool result;
             for (unsigned int i = 0; i < objects.size(); i++) {
                 MapObject* object = objects[i];
-                m_root->removeObject(*object);
+                result = m_root->removeObject(*object);
+                assert(result);
             }
         }
         
-        void Octree::updateObjects(const MapObjectList& objects) {
-            for (unsigned int i = 0; i < objects.size(); i++) {
-                MapObject* object = objects[i];
-                m_root->removeObject(*object);
-                m_root->addObject(*object);
-            }
-        }
-        
-        void Octree::updateObject(MapObject& object) {
-            m_root->removeObject(object);
-            m_root->addObject(object);
-        }
-
         MapObjectList Octree::intersect(const Ray& ray) {
             MapObjectList result;
             m_root->intersect(ray, result);

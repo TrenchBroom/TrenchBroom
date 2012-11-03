@@ -73,6 +73,10 @@ namespace TrenchBroom {
                 return *this;
             }
             
+            inline const Vec4f operator- () const {
+                return Vec4f(-x, -y, -z, -w);
+            }
+            
             inline const Vec4f operator+ (const Vec4f& right) const {
                 return Vec4f(x + right.x,
                              y + right.y,

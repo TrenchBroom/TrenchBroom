@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__MapDocument__
 #define __TrenchBroom__MapDocument__
 
+#include "Model/BrushTypes.h"
 #include "Model/EntityTypes.h"
 #include "Utility/String.h"
 
@@ -85,11 +86,17 @@ namespace TrenchBroom {
             
             Entity* worldspawn(bool create);
             void addEntity(Entity& entity);
-            void updateEntity(Entity& entity);
             void removeEntity(Entity& entity);
+            void entityWillChange(Entity& entity);
+            void entityDidChange(Entity& entity);
+            void entitiesWillChange(const EntityList& entities);
+            void entitiesDidChange(const EntityList& entities);
             void addBrush(Entity& entity, Brush& brush);
-            void updateBrush(Brush& brush);
             void removeBrush(Brush& brush);
+            void brushWillChange(Brush& brush);
+            void brushDidChange(Brush& brush);
+            void brushesWillChange(const BrushList& brushes);
+            void brushesDidChange(const BrushList& brushes);
             
             Utility::Console& console() const;
             Renderer::SharedResources& sharedResources() const;

@@ -35,6 +35,10 @@ namespace TrenchBroom {
                 setRotation(angle, axis);
             }
             
+            inline const Quat operator- () const {
+                return Quat(-s, v);
+            }
+
             inline const Quat operator* (float right) const {
                 return Quat(s * right, v);
             }
