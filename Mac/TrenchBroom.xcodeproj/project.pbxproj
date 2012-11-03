@@ -42,6 +42,7 @@
 		484763E015E2BC5000095BC0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 484763DE15E2BC5000095BC0 /* InfoPlist.strings */; };
 		4847640B15E2DEE100095BC0 /* MapDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847640915E2DEE100095BC0 /* MapDocument.cpp */; };
 		4847640E15E2E03000095BC0 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847640C15E2E03000095BC0 /* Entity.cpp */; };
+		4847AC861645B06400726872 /* ClipTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847AC841645B06400726872 /* ClipTool.cpp */; };
 		4850D24615F2AC71005B162D /* DocManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D24415F2AAE8005B162D /* DocManager.cpp */; };
 		4850D24A15F363FC005B162D /* Octree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D24715F360BF005B162D /* Octree.cpp */; };
 		4850D24D15F364CD005B162D /* Picker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D24B15F364A1005B162D /* Picker.cpp */; };
@@ -229,6 +230,8 @@
 		4847640D15E2E03000095BC0 /* Entity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Entity.h; sourceTree = "<group>"; };
 		4847641015E2E06900095BC0 /* MapObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapObject.h; sourceTree = "<group>"; };
 		4847641415E2E0E800095BC0 /* Vec2f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vec2f.h; sourceTree = "<group>"; };
+		4847AC841645B06400726872 /* ClipTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClipTool.cpp; sourceTree = "<group>"; };
+		4847AC851645B06400726872 /* ClipTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipTool.h; sourceTree = "<group>"; };
 		4850D24415F2AAE8005B162D /* DocManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DocManager.cpp; sourceTree = "<group>"; };
 		4850D24515F2AAE8005B162D /* DocManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DocManager.h; sourceTree = "<group>"; };
 		4850D24715F360BF005B162D /* Octree.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Octree.cpp; sourceTree = "<group>"; };
@@ -783,6 +786,8 @@
 			children = (
 				48AB580315ED01CB00321C47 /* CameraTool.cpp */,
 				48AB580415ED01CB00321C47 /* CameraTool.h */,
+				4847AC841645B06400726872 /* ClipTool.cpp */,
+				4847AC851645B06400726872 /* ClipTool.h */,
 				481E56461624120900B403F3 /* DragTargetTool.h */,
 				48CB0DB71635AACE001C8E87 /* DragTool.cpp */,
 				48CB0DB81635AACE001C8E87 /* DragTool.h */,
@@ -1079,6 +1084,7 @@
 				482A0876164305450000799C /* RingFigure.cpp in Sources */,
 				482A087A164419CE0000799C /* InputControllerFeedbackFigure.cpp in Sources */,
 				482A087D16446B470000799C /* RotateObjectsCommand.cpp in Sources */,
+				4847AC861645B06400726872 /* ClipTool.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

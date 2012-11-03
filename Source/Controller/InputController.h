@@ -46,12 +46,15 @@ namespace TrenchBroom {
     }
     
     namespace Controller {
+        class ClipTool;
         class Tool;
         
         class InputController {
         protected:
             typedef std::vector<Tool*> ToolList;
 
+            static const size_t ModalReceiverIndex = 1;
+            
             View::DocumentViewHolder& m_documentViewHolder;
             
             InputEvent m_currentEvent;
@@ -60,7 +63,8 @@ namespace TrenchBroom {
             Tool* m_dragReceiver;
             Tool* m_mouseUpReceiver;
             Tool* m_singleFeedbackProvider;
-            int m_modalReceiverIndex;
+            ClipTool* m_clipTool;
+            bool m_modalToolActive;
 
             DragTargetToolList m_dragTargetTools;
             DragTargetTool* m_dragTargetReceiver;
@@ -70,6 +74,8 @@ namespace TrenchBroom {
             void updateHits();
             void updateFeedback();
             void updateMousePos(float x, float y);
+            
+            bool activateModalTool(Tool* modalTool);
         public:
             InputController(View::DocumentViewHolder& documentViewHolder);
             ~InputController();
@@ -91,6 +97,13 @@ namespace TrenchBroom {
             void addFigure(Tool* tool, Renderer::Figure* figure);
             void removeFigure(Tool* tool, Renderer::Figure* figure);
             void deleteFigure(Tool* tool, Renderer::Figure* figure);
+            
+            bool toggleClipTool();
+            void toggleClipSide();
+            bool canPerformClip();
+            void performClip();
+            bool clipToolActive();
+            bool deactivateModalTool();
         };
     }
 }

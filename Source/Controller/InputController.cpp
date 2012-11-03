@@ -20,6 +20,7 @@
 #include "InputController.h"
 
 #include "Controller/CameraTool.h"
+#include "Controller/ClipTool.h"
 #include "Controller/EntityDragTargetTool.h"
 #include "Controller/MoveObjectsTool.h"
 #include "Controller/RotateObjectsTool.h"
@@ -52,23 +53,26 @@ namespace TrenchBroom {
         }
 
         void InputController::updateFeedback() {
+            bool updateViews = false;
             if (m_singleFeedbackProvider == NULL) {
                 ToolList::iterator it, end;
                 for (it = m_receivers.begin(), end = m_receivers.end(); it != end; ++it) {
                     Tool& tool = **it;
                     if (tool.suppressOtherFeedback(m_currentEvent)) {
                         m_singleFeedbackProvider = &tool;
+                        updateViews = true;
                         break;
                     }
                 }
             } else {
-                if (!m_singleFeedbackProvider->suppressOtherFeedback(m_currentEvent))
+                if (!m_singleFeedbackProvider->suppressOtherFeedback(m_currentEvent)) {
                     m_singleFeedbackProvider = NULL;
+                    updateViews = true;
+                }
             }
             
             m_figureHolder->setSingleFeedbackProvider(m_singleFeedbackProvider);
 
-            bool updateViews = false;
             if (m_singleFeedbackProvider == NULL) {
                 ToolList::iterator it, end;
                 for (it = m_receivers.begin(), end = m_receivers.end(); it != end; ++it) {
@@ -76,7 +80,7 @@ namespace TrenchBroom {
                     updateViews |= tool.updateFeedback(m_currentEvent);
                 }
             } else {
-                updateViews = m_singleFeedbackProvider->updateFeedback(m_currentEvent);
+                updateViews |= m_singleFeedbackProvider->updateFeedback(m_currentEvent);
             }
             
             if (updateViews)
@@ -90,12 +94,24 @@ namespace TrenchBroom {
             m_currentEvent.mouseY = y;
         }
 
+        bool InputController::activateModalTool(Tool* modalTool) {
+            if (deactivateModalTool()) {
+                m_receivers.insert(m_receivers.begin() + ModalReceiverIndex, modalTool);
+                modalTool->activated(m_currentEvent);
+                m_modalToolActive = true;
+                updateHits();
+                updateFeedback();
+                return true;
+            }
+            return false;
+        }
+
         InputController::InputController(View::DocumentViewHolder& documentViewHolder) :
         m_documentViewHolder(documentViewHolder),
         m_dragReceiver(NULL),
         m_mouseUpReceiver(NULL),
         m_singleFeedbackProvider(NULL),
-        m_modalReceiverIndex(-1),
+        m_modalToolActive(false),
         m_dragTargetReceiver(NULL),
         m_figureHolder(new Renderer::InputControllerFeedbackFigure()) {
             m_receivers.push_back(new CameraTool(m_documentViewHolder, *this));
@@ -104,6 +120,8 @@ namespace TrenchBroom {
             m_receivers.push_back(new SelectionTool(m_documentViewHolder, *this));
             m_dragTargetTools.push_back(new EntityDragTargetTool(m_documentViewHolder));
 
+            m_clipTool = new ClipTool(documentViewHolder, *this);
+            
             m_documentViewHolder.view().renderer().addFigure(m_figureHolder);
         }
         
@@ -313,6 +331,40 @@ namespace TrenchBroom {
         void InputController::deleteFigure(Tool* tool, Renderer::Figure* figure) {
             assert(m_figureHolder != NULL);
             m_figureHolder->deleteFigure(tool, figure);
+        }
+
+        bool InputController::toggleClipTool() {
+            if (clipToolActive())
+                return deactivateModalTool();
+            return activateModalTool(m_clipTool);
+        }
+        
+        void InputController::toggleClipSide() {
+        }
+        
+        bool InputController::canPerformClip() {
+            return m_clipTool->canPerformClip();
+        }
+
+        void InputController::performClip() {
+        }
+
+        bool InputController::clipToolActive() {
+            return m_modalToolActive && m_receivers[ModalReceiverIndex] == m_clipTool;
+        }
+
+        bool InputController::deactivateModalTool() {
+            if (m_modalToolActive) {
+                if (m_receivers[ModalReceiverIndex]->deactivated(m_currentEvent)) {
+                    m_receivers.erase(m_receivers.begin() + ModalReceiverIndex);
+                    m_modalToolActive = false;
+                    updateHits();
+                    updateFeedback();
+                    return true;
+                }
+                return false;
+            }
+            return true;
         }
     }
 }

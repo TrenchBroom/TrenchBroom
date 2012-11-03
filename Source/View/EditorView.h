@@ -30,6 +30,7 @@ namespace TrenchBroom {
         class CameraMoveEvent;
         class CameraLookEvent;
         class CameraOrbitEvent;
+        class InputController;
     }
     
     namespace Model {
@@ -92,6 +93,7 @@ namespace TrenchBroom {
             Renderer::MapRenderer& renderer() const;
             View::Inspector& inspector() const;
             Utility::Console& console() const;
+            Controller::InputController& inputController() const;
             
             bool OnCreate(wxDocument* doc, long flags);
             void OnUpdate(wxView* sender, wxObject* hint = (wxObject*) NULL);
@@ -121,6 +123,10 @@ namespace TrenchBroom {
             void OnEditLockSelected(wxCommandEvent& event);
             void OnEditLockUnselected(wxCommandEvent& event);
             void OnEditUnlockAll(wxCommandEvent& event);
+            
+            void OnEditToggleClipTool(wxCommandEvent& event);
+            void OnEditToggleClipSide(wxCommandEvent& event);
+            void OnEditPerformClip(wxCommandEvent& event);
             
             void OnEditMoveTexturesUp(wxCommandEvent& event);
             void OnEditMoveTexturesRight(wxCommandEvent& event);

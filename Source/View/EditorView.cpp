@@ -87,6 +87,10 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::EditLockUnselected, EditorView::OnEditLockUnselected)
         EVT_MENU(CommandIds::Menu::EditUnlockAll, EditorView::OnEditUnlockAll)
 
+        EVT_MENU(CommandIds::Menu::EditToggleClipTool, EditorView::OnEditToggleClipTool)
+        EVT_MENU(CommandIds::Menu::EditToggleClipSide, EditorView::OnEditToggleClipSide)
+        EVT_MENU(CommandIds::Menu::EditPerformClip, EditorView::OnEditPerformClip)
+        
         EVT_MENU(CommandIds::Menu::EditMoveTexturesUp, EditorView::OnEditMoveTexturesUp)
         EVT_MENU(CommandIds::Menu::EditMoveTexturesRight, EditorView::OnEditMoveTexturesRight)
         EVT_MENU(CommandIds::Menu::EditMoveTexturesDown, EditorView::OnEditMoveTexturesDown)
@@ -326,6 +330,11 @@ namespace TrenchBroom {
             return mapDocument().console();
         }
         
+        Controller::InputController& EditorView::inputController() const {
+            EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+            return frame->mapCanvas().inputController();
+        }
+
         bool EditorView::OnCreate(wxDocument* doc, long flags) {
             m_viewOptions = new ViewOptions();
             m_filter = new Model::DefaultFilter(*m_viewOptions);
@@ -382,7 +391,7 @@ namespace TrenchBroom {
 
                         EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
                         frame->updateMenuBar();
-                        frame->mapCanvas().inputController().changeEditState(changeEditStateCommand->changeSet());
+                        inputController().changeEditState(changeEditStateCommand->changeSet());
 
                         inspector().faceInspector().updateFaceAttributes();
                         inspector().faceInspector().updateSelectedTexture();
@@ -716,6 +725,16 @@ namespace TrenchBroom {
             submit(command);
         }
 
+        void EditorView::OnEditToggleClipTool(wxCommandEvent& event) {
+            inputController().toggleClipTool();
+        }
+        
+        void EditorView::OnEditToggleClipSide(wxCommandEvent& event) {
+        }
+        
+        void EditorView::OnEditPerformClip(wxCommandEvent& event) {
+        }
+
         void EditorView::OnEditMoveObjectsForward(wxCommandEvent& event) {
             moveObjects(DForward, true);
         }
@@ -891,8 +910,15 @@ namespace TrenchBroom {
                     event.Enable(editStateManager.hasLockedObjects());
                     break;
                 case CommandIds::Menu::EditToggleClipTool:
+                    event.Enable(editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
+                    event.Check(inputController().clipToolActive());
+                    break;
                 case CommandIds::Menu::EditToggleClipSide:
+                    event.Enable(inputController().clipToolActive());
+                    break;
                 case CommandIds::Menu::EditPerformClip:
+                    event.Enable(inputController().clipToolActive() && inputController().canPerformClip());
+                    break;
                 case CommandIds::Menu::EditToggleVertexTool:
                 case CommandIds::Menu::EditToggleEdgeTool:
                 case CommandIds::Menu::EditToggleFaceTool:
