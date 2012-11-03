@@ -79,7 +79,7 @@ namespace TrenchBroom {
             typedef std::map<unsigned int, EntitySnapshot*> EntitySnapshotMap;
             typedef std::map<unsigned int, BrushSnapshot*> BrushSnapshotMap;
             typedef std::map<unsigned int, FaceSnapshot*> FaceSnapshotMap;
-            
+
             EntitySnapshotMap m_entities;
             BrushSnapshotMap m_brushes;
             FaceSnapshotMap m_faces;

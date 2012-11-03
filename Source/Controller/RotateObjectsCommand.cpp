@@ -42,6 +42,9 @@ namespace TrenchBroom {
             if (angle == 0.0f)
                 return false;
             
+            makeSnapshots(m_entities);
+            makeSnapshots(m_brushes);
+            
             if (angle < 0.0f)
                 angle = 2.0f * Math::Pi - angle;
             
@@ -49,8 +52,7 @@ namespace TrenchBroom {
             
             // if we are rotating about one of the coordinate system axes, we can get a more precise result by rotating
             // by 90 degrees as often as possible
-            if (m_axis.equals(Vec3f::PosX) || m_axis.equals(Vec3f::PosY) || m_axis.equals(Vec3f::PosZ) ||
-                m_axis.equals(Vec3f::NegX) || m_axis.equals(Vec3f::NegY) || m_axis.equals(Vec3f::NegZ)) {
+            if (m_axis.equals(m_axis.firstAxis())) {
                 unsigned int quarters = 2.0f * m_angle / Math::Pi;
                 
                 if (quarters > 0) {
@@ -94,15 +96,15 @@ namespace TrenchBroom {
         }
         
         bool RotateObjectsCommand::performUndo() {
-            m_clockwise = !m_clockwise;
-            performDo();
-            m_clockwise = !m_clockwise;
+            restoreSnapshots(m_brushes);
+            restoreSnapshots(m_entities);
+            clear();
             
             return true;
         }
         
         RotateObjectsCommand::RotateObjectsCommand(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const wxString& name, const Vec3f& axis, float angle, bool clockwise, const Vec3f& center, bool lockTextures) :
-        DocumentCommand(RotateObjects, document, true, name),
+        SnapshotCommand(RotateObjects, document, name),
         m_entities(entities),
         m_brushes(brushes),
         m_axis(axis),

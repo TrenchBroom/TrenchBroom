@@ -26,12 +26,7 @@ CompoundCommand::CompoundCommand(const wxString& name) :
 wxCommand(true, name) {}
 
 CompoundCommand::~CompoundCommand() {
-    CommandList::iterator it, end;
-    for (it = m_commands.begin(), end = m_commands.end(); it != end; ++it) {
-        wxCommand* command = *it;
-        wxDELETE(command);
-    }
-    m_commands.clear();
+    clear();
 }
 
 void CompoundCommand::addCommand(wxCommand* command) {
@@ -40,6 +35,15 @@ void CompoundCommand::addCommand(wxCommand* command) {
 
 void CompoundCommand::removeCommand(wxCommand* command) {
     m_commands.erase(std::remove(m_commands.begin(), m_commands.end(), command), m_commands.end());
+}
+
+void CompoundCommand::clear() {
+    CommandList::iterator it, end;
+    for (it = m_commands.begin(), end = m_commands.end(); it != end; ++it) {
+        wxCommand* command = *it;
+        wxDELETE(command);
+    }
+    m_commands.clear();
 }
 
 bool CompoundCommand::Do() {
@@ -107,6 +111,7 @@ void CommandProcessor::RollbackGroup() {
 
     CompoundCommand* group = m_groupStack.top();
     UndoCommand(*group);
+    group->clear();
 }
 
 void CommandProcessor::DiscardGroup() {

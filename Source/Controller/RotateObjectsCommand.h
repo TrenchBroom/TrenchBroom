@@ -20,7 +20,7 @@
 #ifndef __TrenchBroom__RotateObjectsCommand__
 #define __TrenchBroom__RotateObjectsCommand__
 
-#include "Controller/Command.h"
+#include "Controller/SnapshotCommand.h"
 
 #include "Model/BrushTypes.h"
 #include "Model/EntityTypes.h"
@@ -30,7 +30,7 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Controller {
-        class RotateObjectsCommand : public DocumentCommand {
+        class RotateObjectsCommand : public SnapshotCommand {
         protected:
             Model::EntityList m_entities;
             Model::BrushList m_brushes;

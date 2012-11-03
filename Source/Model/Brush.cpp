@@ -194,13 +194,8 @@ namespace TrenchBroom {
                 delete m_geometry;
             m_geometry = new BrushGeometry(m_worldBounds);
 
-            for (unsigned int i = 0; i < newFaces.size(); i++) {
-                m_faces.push_back(newFaces[i]);
-                newFaces[i]->setBrush(this);
-            }
-
-            if (m_entity != NULL)
-                m_entity->invalidateGeometry();
+            for (unsigned int i = 0; i < newFaces.size(); i++)
+                addFace(newFaces[i]);
         }
         
         EditState::Type Brush::setEditState(EditState::Type editState) {
