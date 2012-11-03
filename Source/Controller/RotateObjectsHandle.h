@@ -58,6 +58,7 @@ namespace TrenchBroom {
             float m_handleThickness;
             bool m_hit;
             Model::RotateObjectsHandleHit::HitArea m_hitArea;
+            float m_angle;
             
             Model::RotateObjectsHandleHit* pickAxis(const Ray& ray, const Vec3f& normal, const Vec3f& axis1, const Vec3f& axis2, Model::RotateObjectsHandleHit::HitArea hitArea);
         public:
@@ -79,6 +80,14 @@ namespace TrenchBroom {
             
             inline Model::RotateObjectsHandleHit::HitArea hitArea() const {
                 return m_hitArea;
+            }
+            
+            inline float angle() const {
+                return m_angle;
+            }
+            
+            inline void setAngle(float angle) {
+                m_angle = angle;
             }
         };
     }

@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_TextRenderer_h
 #define TrenchBroom_TextRenderer_h
 
+#include "Renderer/ApplyMatrix.h"
 #include "Renderer/Camera.h"
-#include "Renderer/PushMatrix.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/VertexArray.h"
@@ -194,10 +194,8 @@ namespace TrenchBroom {
                 }
                 
                 void renderText(const EntryList& entries, RenderContext& context, ShaderProgram& shaderProgram, const Color& color)  {
-                    PushMatrix pushMatrix(context.transformation());
-                    Mat4f billboardMatrix = context.camera().billboardMatrix();
-
                     if (shaderProgram.activate()) {
+                        Mat4f billboardMatrix = context.camera().billboardMatrix();
                         m_stringManager.activate();
                         glSetEdgeOffset(0.01f);
                         for (unsigned int i = 0; i < entries.size(); i++) {
@@ -210,12 +208,12 @@ namespace TrenchBroom {
                             TextAnchor* anchor = entry.textAnchor();
                             const Vec3f& position = anchor->position();
                             
-                            Mat4f matrix = pushMatrix.matrix();
+                            Mat4f matrix = Mat4f::Identity;
                             matrix.translate(position);
                             matrix *= billboardMatrix;
                             matrix.scale(Vec3f(factor, factor, 0.0f));
                             matrix.translate(Vec3f(-stringRenderer->width() / 2.0f, m_vInset / 2.0f, 0.0f));
-                            pushMatrix.load(matrix);
+                            ApplyMatrix applyBillboard(context.transformation(), matrix);
 
                             float a = 1.0f - (std::max)(dist - m_fadeDistance, 0.0f) / 100.0f;
                             shaderProgram.setUniformVariable("Color", Vec4f(color.x, color.y, color.z, color.w * a));

@@ -21,7 +21,7 @@
 
 #include "IO/FileManager.h"
 #include "Model/MapDocument.h"
-#include "Renderer/PushMatrix.h"
+#include "Renderer/ApplyMatrix.h"
 #include "Renderer/SharedResources.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/TextureRenderer.h"
@@ -224,11 +224,10 @@ namespace TrenchBroom {
                                 else
                                     textProgram.setUniformVariable("Color", prefs.getColor(Preferences::BrowserTextureColor));
 
-                                Renderer::PushMatrix matrix(transformation);
-                                Mat4f translate = matrix.matrix();
-                                translate.translate(Vec3f(cell.titleBounds().left(), height - (cell.titleBounds().top() - y) - cell.titleBounds().height() + 2.0f, 0.0f));
-                                matrix.load(translate);
+                                Mat4f translation;
+                                translation.translate(Vec3f(cell.titleBounds().left(), height - (cell.titleBounds().top() - y) - cell.titleBounds().height() + 2.0f, 0.0f));
                                 
+                                Renderer::ApplyMatrix applyTranslation(transformation, translation);
                                 Renderer::Text::StringRendererPtr stringRenderer = cell.item().stringRenderer;
                                 stringRenderer->render();
                             }
@@ -266,11 +265,11 @@ namespace TrenchBroom {
                 if (group.intersectsY(y, height)) {
                     if (group.item().textureCollection != NULL) {
                         LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
-                        Renderer::PushMatrix matrix(transformation);
-                        Mat4f translate = matrix.matrix();
-                        translate.translate(Vec3f(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height() + 4.0f, 0.0f));
-                        matrix.load(translate);
                         
+                        Mat4f translation;
+                        translation.translate(Vec3f(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height() + 4.0f, 0.0f));
+                        
+                        Renderer::ApplyMatrix applyTranslation(transformation, translation);
                         textProgram.setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupTextColor));
                         Renderer::Text::StringRendererPtr stringRenderer = group.item().stringRenderer;
                         stringRenderer->render();

@@ -21,9 +21,9 @@
 
 #include "IO/FileManager.h"
 #include "Model/MapDocument.h"
+#include "Renderer/ApplyMatrix.h"
 #include "Renderer/EntityModelRenderer.h"
 #include "Renderer/EntityModelRendererManager.h"
-#include "Renderer/PushMatrix.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/SharedResources.h"
 #include "Renderer/VertexArray.h"
@@ -92,15 +92,14 @@ namespace TrenchBroom {
         void EntityBrowserCanvas::renderEntityBounds(Renderer::Transformation& transformation, Renderer::ShaderProgram& boundsProgram, const Model::PointEntityDefinition& definition, const BBox& rotatedBounds, const Vec3f& offset, float scale) {
             const BBox& bounds = definition.bounds();
             
-            Renderer::PushMatrix pushMatrix(transformation);
-            Mat4f itemMatrix = pushMatrix.matrix();
+            Mat4f itemMatrix;
             itemMatrix.translate(offset.x, offset.y, offset.z);
             itemMatrix.scale(scale);
             itemMatrix.translate(0.0f, -rotatedBounds.min.y, -rotatedBounds.min.z);
             itemMatrix.translate(bounds.center());
             itemMatrix.rotate(m_rotation);
             itemMatrix.translate(-1.0f * bounds.center());
-            pushMatrix.load(itemMatrix);
+            Renderer::ApplyMatrix applyItemMatrix(transformation, itemMatrix);
             
             boundsProgram.setUniformVariable("Color", definition.color());
             
@@ -116,15 +115,14 @@ namespace TrenchBroom {
         void EntityBrowserCanvas::renderEntityModel(Renderer::Transformation& transformation, Renderer::ShaderProgram& entityModelProgram, Renderer::EntityModelRenderer& renderer, const BBox& rotatedBounds, const Vec3f& offset, float scale) {
             const Vec3f& rotationCenter = renderer.center();
             
-            Renderer::PushMatrix pushMatrix(transformation);
-            Mat4f itemMatrix = pushMatrix.matrix();
+            Mat4f itemMatrix;
             itemMatrix.translate(offset.x, offset.y, offset.z);
             itemMatrix.scale(scale);
             itemMatrix.translate(0.0f, -rotatedBounds.min.y, -rotatedBounds.min.z);
             itemMatrix.translate(rotationCenter);
             itemMatrix.rotate(m_rotation);
             itemMatrix.translate(-1.0f * rotationCenter);
-            pushMatrix.load(itemMatrix);
+            Renderer::ApplyMatrix applyItemMatrix(transformation, itemMatrix);
             
             renderer.render(entityModelProgram);
         }
@@ -270,10 +268,9 @@ namespace TrenchBroom {
                                 
                                 textProgram.setUniformVariable("Color", prefs.getColor(Preferences::BrowserTextureColor));
                                 
-                                Renderer::PushMatrix matrix(transformation);
-                                Mat4f translate = matrix.matrix();
-                                translate.translate(cell.titleBounds().left(), height - (cell.titleBounds().top() - y) - cell.titleBounds().height() + 2.0f, 0.0f);
-                                matrix.load(translate);
+                                Mat4f translation;
+                                translation.translate(cell.titleBounds().left(), height - (cell.titleBounds().top() - y) - cell.titleBounds().height() + 2.0f, 0.0f);
+                                Renderer::ApplyMatrix applyTranslation(transformation, translation);
                                 
                                 Renderer::Text::StringRendererPtr stringRenderer = cell.item().stringRenderer;
                                 stringRenderer->render();
@@ -308,10 +305,9 @@ namespace TrenchBroom {
                 if (group.intersectsY(y, height)) {
                     if (!group.item().groupName.empty()) {
                         LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
-                        Renderer::PushMatrix matrix(transformation);
-                        Mat4f translate = matrix.matrix();
-                        translate.translate(Vec3f(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height() + 4.0f, 0.0f));
-                        matrix.load(translate);
+                        Mat4f translation;
+                        translation.translate(Vec3f(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height() + 4.0f, 0.0f));
+                        Renderer::ApplyMatrix applyTranslation(transformation, translation);
                         
                         textProgram.setUniformVariable("Color", prefs.getColor(Preferences::BrowserGroupTextColor));
                         Renderer::Text::StringRendererPtr stringRenderer = group.item().stringRenderer;

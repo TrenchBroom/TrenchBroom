@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_PushMatrix_h
-#define TrenchBroom_PushMatrix_h
+#ifndef TrenchBroom_ApplyMatrix_h
+#define TrenchBroom_ApplyMatrix_h
 
 #include <GL/glew.h>
 #include "Renderer/Transformation.h"
@@ -28,25 +28,18 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
-        class PushMatrix {
+        class ApplyMatrix {
         protected:
             Transformation& m_transformation;
-            Mat4f& m_matrix;
         public:
-            PushMatrix(Transformation& transformation) :
-            m_transformation(transformation),
-            m_matrix(m_transformation.pushMatrix()) {}
+            ApplyMatrix(Transformation& transformation, const Mat4f& matrix) :
+            m_transformation(transformation) {
+                Mat4f& currentMatrix = m_transformation.pushMatrix();
+                m_transformation.loadMatrix(currentMatrix *= matrix);
+            }
             
-            ~PushMatrix() {
+            ~ApplyMatrix() {
                 m_transformation.popMatrix();
-            }
-            
-            inline const Mat4f& matrix() const {
-                return m_matrix;
-            }
-            
-            inline void load(const Mat4f& matrix) {
-                m_transformation.loadMatrix(matrix);
             }
         };
     }

@@ -420,7 +420,7 @@
 		48E2ED15160102E400B8D476 /* ViewInspector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ViewInspector.cpp; sourceTree = "<group>"; };
 		48E2ED16160102E400B8D476 /* ViewInspector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewInspector.h; sourceTree = "<group>"; };
 		48E2ED181601184F00B8D476 /* LayoutConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LayoutConstants.h; sourceTree = "<group>"; };
-		48EA119F15FA67F700391885 /* PushMatrix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PushMatrix.h; sourceTree = "<group>"; };
+		48EA119F15FA67F700391885 /* ApplyMatrix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ApplyMatrix.h; sourceTree = "<group>"; };
 		48EA11A415FA71F700391885 /* Transformation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Transformation.h; sourceTree = "<group>"; };
 		48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Shader.cpp; sourceTree = "<group>"; };
 		48F0B7C215FCB4CF0089B0B5 /* Shader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Shader.h; sourceTree = "<group>"; };
@@ -483,6 +483,7 @@
 				4850D28115F52CBE005B162D /* Text */,
 				4850D27B15F4CA61005B162D /* AliasModelRenderer.cpp */,
 				4850D27C15F4CA61005B162D /* AliasModelRenderer.h */,
+				48EA119F15FA67F700391885 /* ApplyMatrix.h */,
 				4850D27D15F4CA62005B162D /* BspModelRenderer.cpp */,
 				4850D27E15F4CA62005B162D /* BspModelRenderer.h */,
 				48819C3615EBE92800BEA604 /* Camera.cpp */,
@@ -501,7 +502,6 @@
 				488457CF161C839A002ADDAE /* OffscreenRenderer.h */,
 				48B059C51617866100E6B0AD /* Palette.cpp */,
 				48B059C61617866100E6B0AD /* Palette.h */,
-				48EA119F15FA67F700391885 /* PushMatrix.h */,
 				48312B4015EB9EA900607868 /* RenderContext.cpp */,
 				48312B4115EB9EA900607868 /* RenderContext.h */,
 				48E2ECCE15FFD07100B8D476 /* RenderTypes.h */,

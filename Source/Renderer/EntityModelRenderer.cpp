@@ -21,7 +21,7 @@
 
 #include <GL/glew.h>
 #include "Model/Entity.h"
-#include "Renderer/PushMatrix.h"
+#include "Renderer/ApplyMatrix.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/Shader/Shader.h"
 #include "Utility/VecMath.h"
@@ -35,9 +35,7 @@ namespace TrenchBroom {
         }
 
         void EntityModelRenderer::render(ShaderProgram& shaderProgram, Transformation& transformation, const Vec3f& position, float angle) {
-            PushMatrix pushMatrix(transformation);
-            
-            Mat4f matrix = pushMatrix.matrix();
+            Mat4f matrix;
             matrix.translate(position);
             
             if (angle != 0.0f) {
@@ -48,8 +46,8 @@ namespace TrenchBroom {
                 else
                     matrix.rotate(angle, Vec3f::PosZ);
             }
-            
-            pushMatrix.load(matrix);
+
+            ApplyMatrix applyMatrux(transformation, matrix);
             render(shaderProgram);
         }
     }

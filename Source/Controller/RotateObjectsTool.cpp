@@ -109,6 +109,7 @@ namespace TrenchBroom {
             RotateObjectsCommand* command = RotateObjectsCommand::rotate(documentViewHolder().document(), entities, brushes, axis, angle, false, m_handle.position(), documentViewHolder().document().textureLock());
             postCommand(command);
             
+            m_handle.setAngle(angle);
             return true;
         }
         

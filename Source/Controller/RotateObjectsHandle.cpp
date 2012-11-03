@@ -49,7 +49,8 @@ namespace TrenchBroom {
 
         RotateObjectsHandle::RotateObjectsHandle(float handleRadius, float handleThickness) :
         m_handleRadius(handleRadius),
-        m_handleThickness(handleThickness) {}
+        m_handleThickness(handleThickness),
+        m_angle(0.0f) {}
         
         Model::RotateObjectsHandleHit* RotateObjectsHandle::pick(const Ray& ray) {
             Vec3f xAxis, yAxis, zAxis;

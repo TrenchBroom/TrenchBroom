@@ -20,9 +20,9 @@
 #include "RotateObjectsHandleFigure.h"
 
 #include "Controller/RotateObjectsHandle.h"
+#include "Renderer/ApplyMatrix.h"
 #include "Renderer/Camera.h"
 #include "Renderer/CircleFigure.h"
-#include "Renderer/PushMatrix.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RingFigure.h"
 #include "Renderer/VertexArray.h"
@@ -37,11 +37,9 @@ namespace TrenchBroom {
         m_axisLength(axisLength) {}
 
         void RotateObjectsHandleFigure::render(Vbo& vbo, RenderContext& context) {
-            PushMatrix pushMatrix(context.transformation());
-            Mat4f matrix = pushMatrix.matrix();
-            
-            matrix.translate(m_handle.position());
-            pushMatrix.load(matrix);
+            Mat4f translation;
+            translation.translate(m_handle.position());
+            ApplyMatrix applyTranslation(context.transformation(), translation);
             
             glDisable(GL_DEPTH_TEST);
             glDisable(GL_CULL_FACE);
@@ -56,6 +54,10 @@ namespace TrenchBroom {
                                       VertexAttribute::position3f(),
                                       VertexAttribute::color4f());
                 if (m_handle.hitArea() == Model::RotateObjectsHandleHit::HAXAxis) {
+                    Mat4f rotation;
+                    rotation.rotate(m_handle.angle(), Vec3f::PosX);
+                    ApplyMatrix applyRotation(context.transformation(), rotation);
+                    
                     RingFigure(Axis::AX, yAxis, zAxis, m_handle.handleRadius(), m_handle.handleThickness(), 8, Color(1.0f, 1.0f, 1.0f, 0.6f)).render(vbo, context);
                     CircleFigure(Axis::AX, 0.0f, 2 * Math::Pi, m_handle.handleRadius() + m_handle.handleThickness(), 32, Color(1.0f, 1.0f, 1.0f, 1.0f), false).render(vbo, context);
                     SetVboState mapVbo(vbo, Vbo::VboMapped);
@@ -64,6 +66,10 @@ namespace TrenchBroom {
                     axisArray.addAttribute(Vec3f(+m_axisLength, 0.0f, 0.0f));
                     axisArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 1.0f));
                 } else if (m_handle.hitArea() == Model::RotateObjectsHandleHit::HAYAxis) {
+                    Mat4f rotation;
+                    rotation.rotate(m_handle.angle(), Vec3f::PosY);
+                    ApplyMatrix applyRotation(context.transformation(), rotation);
+                    
                     RingFigure(Axis::AY, xAxis, zAxis, m_handle.handleRadius(), m_handle.handleThickness(), 8, Color(1.0f, 1.0f, 1.0f, 0.6f)).render(vbo, context);
                     CircleFigure(Axis::AY, 0.0f, 2 * Math::Pi, m_handle.handleRadius() + m_handle.handleThickness(), 32, Color(1.0f, 1.0f, 1.0f, 1.0f), false).render(vbo, context);
                     SetVboState mapVbo(vbo, Vbo::VboMapped);
@@ -72,6 +78,10 @@ namespace TrenchBroom {
                     axisArray.addAttribute(Vec3f(0.0f, +m_axisLength, 0.0f));
                     axisArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 1.0f));
                 } else {
+                    Mat4f rotation;
+                    rotation.rotate(m_handle.angle(), Vec3f::PosZ);
+                    ApplyMatrix applyRotation(context.transformation(), rotation);
+                    
                     RingFigure(Axis::AZ, xAxis, yAxis, m_handle.handleRadius(), m_handle.handleThickness(), 8, Color(1.0f, 1.0f, 1.0f, 0.6f)).render(vbo, context);
                     CircleFigure(Axis::AZ, 0.0f, 2 * Math::Pi, m_handle.handleRadius() + m_handle.handleThickness(), 32, Color(1.0f, 1.0f, 1.0f, 1.0f), false).render(vbo, context);
                     SetVboState mapVbo(vbo, Vbo::VboMapped);

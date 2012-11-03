@@ -20,9 +20,9 @@
 #include "MoveObjectsHandleFigure.h"
 
 #include "Controller/MoveObjectsHandle.h"
+#include "Renderer/ApplyMatrix.h"
 #include "Renderer/Camera.h"
 #include "Renderer/CircleFigure.h"
-#include "Renderer/PushMatrix.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/VertexArray.h"
 #include "Utility/VecMath.h"
@@ -37,11 +37,9 @@ namespace TrenchBroom {
         void MoveObjectsHandleFigure::render(Vbo& vbo, RenderContext& context) {
             SetVboState mapVbo(vbo, Vbo::VboMapped);
             
-            PushMatrix pushMatrix(context.transformation());
-            Mat4f matrix = pushMatrix.matrix();
-            
-            matrix.translate(m_handle.position());
-            pushMatrix.load(matrix);
+            Mat4f translation;
+            translation.translate(m_handle.position());
+            ApplyMatrix applyTranslation(context.transformation(), translation);
             
             glDisable(GL_DEPTH_TEST);
             glDisable(GL_CULL_FACE);
