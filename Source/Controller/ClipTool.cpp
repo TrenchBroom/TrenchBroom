@@ -21,8 +21,11 @@
 
 #include "Controller/ClipHandle.h"
 #include "Controller/Input.h"
+#include "Model/Face.h"
+#include "Model/MapDocument.h"
 #include "Model/Picker.h"
-#include "Renderer/ClipToolHandleFigure.h"
+#include "Renderer/ClipHandleFigure.h"
+#include "Utility/Grid.h"
 
 #include <cassert>
 
@@ -30,7 +33,7 @@ namespace TrenchBroom {
     namespace Controller {
         bool ClipTool::handleActivated(InputEvent& event) {
             assert(m_handleFigure == NULL);
-            m_handleFigure = new Renderer::ClipToolHandleFigure(m_handle);
+            m_handleFigure = new Renderer::ClipHandleFigure(m_handle);
             addFigure(m_handleFigure);
             return true;
         }
@@ -39,6 +42,24 @@ namespace TrenchBroom {
             assert(m_handleFigure != NULL);
             deleteFigure(m_handleFigure);
             m_handleFigure = NULL;
+            return true;
+        }
+
+        bool ClipTool::handleMouseUp(InputEvent& event) {
+            assert(active());
+            
+            if (m_handle.numPoints() < 3) {
+                Model::Hit* hit = event.pickResult->first(Model::HitType::FaceHit, false, documentViewHolder().view().filter());
+                if (hit != NULL) {
+                    Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(hit);
+                    Vec3f point = faceHit->hitPoint();
+                    
+                    Utility::Grid& grid = documentViewHolder().document().grid();
+                    point = grid.snap(point, faceHit->face().boundary());
+                    m_handle.addPoint(point);
+                }
+            }
+            
             return true;
         }
 
@@ -53,7 +74,12 @@ namespace TrenchBroom {
                     m_handle.setCurrentHit(true, point);
                 } else {
                     Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(hit);
-                    m_handle.setCurrentHit(true, faceHit->hitPoint());
+                    Vec3f point = faceHit->hitPoint();
+                    
+                    Utility::Grid& grid = documentViewHolder().document().grid();
+                    point = grid.snap(point, faceHit->face().boundary());
+                    
+                    m_handle.setCurrentHit(true, point);
                 }
             } else {
                 m_handle.setCurrentHit(false);
@@ -62,23 +88,23 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool ClipTool::handleBeginPlaneDrag(InputEvent& event, Plane& dragPlane, Vec3f& initialDragPoint) {
+        bool ClipTool::handleBeginDrag(InputEvent& event) {
             assert(active());
             return true;
         }
         
-        bool ClipTool::handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint) {
+        bool ClipTool::handleDrag(InputEvent& event) {
             assert(active());
             return true;
         }
         
-        void ClipTool::handleEndPlaneDrag(InputEvent& event) {
+        void ClipTool::handleEndDrag(InputEvent& event) {
             assert(active());
         }
 
         ClipTool::ClipTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
-        DragTool(documentViewHolder, inputController),
-        m_handle(ClipHandle(5.0f)),
+        Tool(documentViewHolder, inputController),
+        m_handle(ClipHandle(2.0f)),
         m_handleFigure(NULL) {}
 
         bool ClipTool::updateHits(InputEvent& event) {
@@ -94,7 +120,7 @@ namespace TrenchBroom {
         }
 
         bool ClipTool::updateFeedback(InputEvent& event) {
-            return true;
+            return m_handle.updated();
         }
 
         void ClipTool::toggleClipSide() {

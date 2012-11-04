@@ -150,6 +150,27 @@ namespace TrenchBroom {
             return p - snap(p);
         }
 
+        Vec3f Grid::snap(const Vec3f& p, const Plane& onPlane) {
+            Vec3f result;
+            switch(onPlane.normal.firstComponent()) {
+                case Axis::AX:
+                    result.y = snap(p.y);
+                    result.z = snap(p.z);
+                    result.x = onPlane.x(result.y, result.z);
+                    break;
+                case Axis::AY:
+                    result.x = snap(p.x);
+                    result.z = snap(p.z);
+                    result.y = onPlane.y(result.x, result.z);
+                    break;
+                case Axis::AZ:
+                    result.x = snap(p.x);
+                    result.y = snap(p.y);
+                    result.z = onPlane.z(result.x, result.y);
+                    break;
+            }
+            return result;
+        }
         
         float Grid::intersectWithRay(const Ray& ray, unsigned int skip) {
             Vec3f planeAnchor;

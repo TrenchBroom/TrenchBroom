@@ -54,6 +54,7 @@ namespace TrenchBroom {
             unsigned int m_numPoints;
             bool m_hasCurrentHit;
             Vec3f m_currentPoint;
+            bool m_updated;
         public:
             ClipHandle(float handleRadius);
             
@@ -72,6 +73,24 @@ namespace TrenchBroom {
                 return m_numPoints;
             }
 
+            inline void addPoint(const Vec3f& point) {
+                assert(m_numPoints < 3);
+                m_points[m_numPoints++] = point;
+                m_updated = true;
+            }
+            
+            inline void deleteLastPoint() {
+                assert(m_numPoints > 0);
+                m_numPoints--;
+                m_updated = true;
+            }
+            
+            inline void setPoint(unsigned int index, const Vec3f& point) {
+                assert(index < m_numPoints);
+                m_points[index] = point;
+                m_updated = true;
+            }
+            
             inline bool hasCurrentHit() const {
                 return m_hasCurrentHit;
             }
@@ -81,8 +100,18 @@ namespace TrenchBroom {
             }
 
             inline void setCurrentHit(bool hasHit, const Vec3f& currentPoint = Vec3f::Null) {
+                if (m_hasCurrentHit == hasHit && m_currentPoint.equals(currentPoint))
+                    return;
+                
                 m_hasCurrentHit = hasHit;
                 m_currentPoint = currentPoint;
+                m_updated = true;
+            }
+            
+            inline bool updated() {
+                bool updated = m_updated;
+                m_updated = false;
+                return updated;
             }
         };
     }

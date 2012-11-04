@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ClipToolHandleFigure__
-#define __TrenchBroom__ClipToolHandleFigure__
+#ifndef __TrenchBroom__ClipHandleFigure__
+#define __TrenchBroom__ClipHandleFigure__
 
 #include "Renderer/Figure.h"
 
@@ -28,15 +28,15 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
-        class ClipToolHandleFigure : public Figure {
+        class ClipHandleFigure : public Figure {
         protected:
             Controller::ClipHandle& m_handle;
         public:
-            ClipToolHandleFigure(Controller::ClipHandle& handle);
+            ClipHandleFigure(Controller::ClipHandle& handle);
             
             void render(Vbo& vbo, RenderContext& context);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__ClipToolHandleFigure__) */
+#endif /* defined(__TrenchBroom__ClipHandleFigure__) */

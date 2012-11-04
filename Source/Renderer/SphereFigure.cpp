@@ -24,8 +24,26 @@
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexArray.h"
 
+#include <map>
+#include <vector>
+
 namespace TrenchBroom {
     namespace Renderer {
+        size_t SphereFigure::midPoint(Vec3f::List& vertices, MidPointCache& cache, size_t index1, size_t index2) {
+            MidPointCache::iterator it = cache.find(MidPointIndex(index1, index2));
+            if (it == cache.end()) {
+                const Vec3f& vertex1 = vertices[index1];
+                const Vec3f& vertex2 = vertices[index2];
+                Vec3f midPoint = (vertex1 + vertex2) / 2.0f;
+                vertices.push_back(midPoint.normalize());
+                size_t midPointIndex = vertices.size() - 1;
+                cache[MidPointIndex(index1, index2)] = midPointIndex;
+                cache[MidPointIndex(index2, index1)] = midPointIndex;
+                return midPointIndex;
+            }
+            return it->second;
+        }
+
         /**
          see http://blog.andreaskahler.com/2009/06/creating-icosphere-mesh-in-code.html
          */
@@ -79,10 +97,28 @@ namespace TrenchBroom {
             triangles.push_back(Triangle( 1,  8,  9));
             triangles.push_back(Triangle( 5,  9,  4));
             
+            // subdivide the icosahedron
+            MidPointCache cache;
+            for (unsigned int i = 0; i < m_iterations; i++) {
+                TriangleList newTriangles;
+                TriangleList::iterator it, end;
+                for (it = triangles.begin(), end = triangles.end(); it != end; ++it) {
+                    Triangle& triangle = *it;
+                    size_t index1 = midPoint(vertices, cache, triangle[0], triangle[1]);
+                    size_t index2 = midPoint(vertices, cache, triangle[1], triangle[2]);
+                    size_t index3 = midPoint(vertices, cache, triangle[2], triangle[0]);
+                    newTriangles.push_back(Triangle(triangle[0], index1, index3));
+                    newTriangles.push_back(Triangle(triangle[1], index2, index1));
+                    newTriangles.push_back(Triangle(triangle[2], index3, index2));
+                    newTriangles.push_back(Triangle(index1, index2, index3));
+                }
+                triangles = newTriangles;
+            }
+            
             unsigned int vertexCount = static_cast<unsigned int>(3 * triangles.size());
             m_vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_TRIANGLES, vertexCount,
                                                            VertexAttribute::position3f()));
-            
+
             SetVboState mapVbo(vbo, Vbo::VboMapped);
             TriangleList::iterator it, end;
             for (it = triangles.begin(), end = triangles.end(); it != end; ++it) {
@@ -92,8 +128,9 @@ namespace TrenchBroom {
             }
         }
 
-        SphereFigure::SphereFigure(float radius) :
-        m_radius(radius) {}
+        SphereFigure::SphereFigure(float radius, unsigned int iterations) :
+        m_radius(radius),
+        m_iterations(iterations) {}
 
         void SphereFigure::render(Vbo& vbo, RenderContext& context) {
             SetVboState activateVbo(vbo, Vbo::VboActive);

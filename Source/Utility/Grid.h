@@ -64,6 +64,7 @@ namespace TrenchBroom {
             Vec3f snapDown(const Vec3f& p, bool skip = false);
             Vec3f snapTowards(const Vec3f& p, const Vec3f& d, bool skip = false);
             Vec3f offset(const Vec3f& p);
+            Vec3f snap(const Vec3f& p, const Plane& onPlane);
             
             float intersectWithRay(const Ray& ray, unsigned int skip);
 

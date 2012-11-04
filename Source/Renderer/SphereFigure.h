@@ -50,12 +50,35 @@ namespace TrenchBroom {
                     return m_indices[i];
                 }
             };
+
+            class MidPointIndex {
+            private:
+                size_t m_index1;
+                size_t m_index2;
+            public:
+                MidPointIndex(size_t index1, size_t index2) :
+                m_index1(index1),
+                m_index2(index2) {}
+                
+                inline bool operator< (const MidPointIndex& other) const {
+                    if (m_index1 < other.m_index1)
+                        return true;
+                    if (m_index1 > other.m_index1)
+                        return false;
+                    return m_index2 < other.m_index2;
+                }
+            };
             
+            typedef std::map<MidPointIndex, size_t> MidPointCache;
+                    
             float m_radius;
+            unsigned int m_iterations;
             VertexArrayPtr m_vertexArray;
+
+            size_t midPoint(Vec3f::List& vertices, MidPointCache& cache, size_t index1, size_t index2);
             void makeVertices(Vbo& vbo);
         public:
-            SphereFigure(float radius);
+            SphereFigure(float radius, unsigned int iterations);
             void render(Vbo& vbo, RenderContext& context);
         };
     }

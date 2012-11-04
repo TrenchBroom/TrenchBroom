@@ -34,7 +34,8 @@ namespace TrenchBroom {
         ClipHandle::ClipHandle(float handleRadius) :
         m_handleRadius(handleRadius),
         m_numPoints(0),
-        m_hasCurrentHit(false) {
+        m_hasCurrentHit(false),
+        m_updated(true) {
             assert(m_handleRadius > 0.0f);
         }
 

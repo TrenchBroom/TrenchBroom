@@ -17,7 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ClipToolHandleFigure.h"
+#include "ClipHandleFigure.h"
 
 #include "Controller/ClipHandle.h"
 #include "Renderer/ApplyMatrix.h"
@@ -28,22 +28,32 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        ClipToolHandleFigure::ClipToolHandleFigure(Controller::ClipHandle& handle) :
+        ClipHandleFigure::ClipHandleFigure(Controller::ClipHandle& handle) :
         m_handle(handle) {}
         
-        void ClipToolHandleFigure::render(Vbo& vbo, RenderContext& context) {
+        void ClipHandleFigure::render(Vbo& vbo, RenderContext& context) {
+            ActivateShader shader(context.shaderManager(), Shaders::HandleShader);
+
             bool wasHandleHit = false;
-            if (m_handle.numPoints() > 0) {
+            const Vec3f& currentPoint = m_handle.currentPoint();
+            for (unsigned int i = 0; i < m_handle.numPoints(); i++) {
+                const Vec3f& point = m_handle.point(i);
+                ApplyMatrix applyTranslation(context.transformation(), Mat4f().translate(point));
                 
+                if (point.equals(currentPoint)) {
+                    shader.currentShader().setUniformVariable("Color", Color(1.0f, 0.0f, 0.0f, 1.0f));
+                    wasHandleHit = true;
+                } else {
+                    shader.currentShader().setUniformVariable("Color", Color(0.0f, 1.0f, 0.0f, 1.0f));
+                }
+                SphereFigure(m_handle.handleRadius(), 1).render(vbo, context);
             }
             
             if (m_handle.numPoints() < 3 && m_handle.hasCurrentHit() && !wasHandleHit) {
-                const Vec3f& point = m_handle.currentPoint();
-                ApplyMatrix applyTranslation(context.transformation(), Mat4f().translate(point));
+                ApplyMatrix applyTranslation(context.transformation(), Mat4f().translate(currentPoint));
                 
-                ActivateShader shader(context.shaderManager(), Shaders::HandleShader);
                 shader.currentShader().setUniformVariable("Color", Color(0.0f, 1.0f, 0.0f, 1.0f));
-                SphereFigure(m_handle.handleRadius()).render(vbo, context);
+                SphereFigure(m_handle.handleRadius(), 1).render(vbo, context);
             }
         }
     }

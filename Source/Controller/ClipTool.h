@@ -20,28 +20,30 @@
 #ifndef __TrenchBroom__ClipTool__
 #define __TrenchBroom__ClipTool__
 
-#include "Controller/DragTool.h"
+#include "Controller/Tool.h"
 #include "Controller/ClipHandle.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        class ClipToolHandleFigure;
+        class ClipHandleFigure;
     }
     
     namespace Controller {
         class ClipHandle;
         
-        class ClipTool : public DragTool {
+        class ClipTool : public Tool {
         protected:
             ClipHandle m_handle;
-            Renderer::ClipToolHandleFigure* m_handleFigure;
+            Renderer::ClipHandleFigure* m_handleFigure;
             
             virtual bool handleActivated(InputEvent& event);
             virtual bool handleDeactivated(InputEvent& event);
             virtual bool handleMouseMoved(InputEvent& event);
-            virtual bool handleBeginPlaneDrag(InputEvent& event, Plane& dragPlane, Vec3f& initialDragPoint);
-            virtual bool handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
-            virtual void handleEndPlaneDrag(InputEvent& event);
+            virtual bool handleMouseUp(InputEvent& event);
+
+            virtual bool handleBeginDrag(InputEvent& event);
+            virtual bool handleDrag(InputEvent& event);
+            virtual void handleEndDrag(InputEvent& event);
         public:
             ClipTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController);
 

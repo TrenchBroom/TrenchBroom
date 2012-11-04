@@ -30,7 +30,7 @@
 		482A087A164419CE0000799C /* InputControllerFeedbackFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482A0878164419CD0000799C /* InputControllerFeedbackFigure.cpp */; };
 		482A087D16446B470000799C /* RotateObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482A087B16446B470000799C /* RotateObjectsCommand.cpp */; };
 		482BB67E162931E800B9FAAE /* MoveObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482BB67C162931E800B9FAAE /* MoveObjectsCommand.cpp */; };
-		482EFE00164692C7001240BB /* ClipToolHandleFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482EFDFE164692C7001240BB /* ClipToolHandleFigure.cpp */; };
+		482EFE00164692C7001240BB /* ClipHandleFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482EFDFE164692C7001240BB /* ClipHandleFigure.cpp */; };
 		48312B2815EABBD600607868 /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 48312B2715EABBD600607868 /* Icon.icns */; };
 		48312B2C15EB706D00607868 /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B2A15EB706D00607868 /* Console.cpp */; };
 		48312B3215EB800600607868 /* Vbo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B3015EB800600607868 /* Vbo.cpp */; };
@@ -198,8 +198,8 @@
 		482A087C16446B470000799C /* RotateObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateObjectsCommand.h; sourceTree = "<group>"; };
 		482BB67C162931E800B9FAAE /* MoveObjectsCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveObjectsCommand.cpp; sourceTree = "<group>"; };
 		482BB67D162931E800B9FAAE /* MoveObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveObjectsCommand.h; sourceTree = "<group>"; };
-		482EFDFE164692C7001240BB /* ClipToolHandleFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClipToolHandleFigure.cpp; sourceTree = "<group>"; };
-		482EFDFF164692C7001240BB /* ClipToolHandleFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipToolHandleFigure.h; sourceTree = "<group>"; };
+		482EFDFE164692C7001240BB /* ClipHandleFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClipHandleFigure.cpp; sourceTree = "<group>"; };
+		482EFDFF164692C7001240BB /* ClipHandleFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipHandleFigure.h; sourceTree = "<group>"; };
 		48312B2715EABBD600607868 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
 		48312B2A15EB706D00607868 /* Console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Console.cpp; sourceTree = "<group>"; };
 		48312B2B15EB706D00607868 /* Console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Console.h; sourceTree = "<group>"; };
@@ -908,8 +908,8 @@
 			children = (
 				48AD1B391646C151009F839B /* AxisFigure.cpp */,
 				48AD1B3A1646C151009F839B /* AxisFigure.h */,
-				482EFDFE164692C7001240BB /* ClipToolHandleFigure.cpp */,
-				482EFDFF164692C7001240BB /* ClipToolHandleFigure.h */,
+				482EFDFE164692C7001240BB /* ClipHandleFigure.cpp */,
+				482EFDFF164692C7001240BB /* ClipHandleFigure.h */,
 				48CB0DCB163EEB26001C8E87 /* CircleFigure.cpp */,
 				48CB0DCC163EEB26001C8E87 /* CircleFigure.h */,
 				48FBD13F16259AD70059953D /* EntityFigure.cpp */,
@@ -1115,7 +1115,7 @@
 				4847AC861645B06400726872 /* ClipTool.cpp in Sources */,
 				481240831646502F007278F5 /* ClipHandle.cpp in Sources */,
 				4847AC8D16466BED00726872 /* SphereFigure.cpp in Sources */,
-				482EFE00164692C7001240BB /* ClipToolHandleFigure.cpp in Sources */,
+				482EFE00164692C7001240BB /* ClipHandleFigure.cpp in Sources */,
 				48AD1B3B1646C151009F839B /* AxisFigure.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
