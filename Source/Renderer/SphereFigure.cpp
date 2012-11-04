@@ -92,12 +92,16 @@ namespace TrenchBroom {
             }
         }
 
+        SphereFigure::SphereFigure(float radius) :
+        m_radius(radius) {}
+
         void SphereFigure::render(Vbo& vbo, RenderContext& context) {
             SetVboState activateVbo(vbo, Vbo::VboActive);
 
             if (m_vertexArray.get() == NULL)
                 makeVertices(vbo);
             
+            ApplyMatrix scale(context.transformation(), Mat4f().scale(m_radius));
             m_vertexArray->render();
         }
     }

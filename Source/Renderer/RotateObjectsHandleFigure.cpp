@@ -54,7 +54,7 @@ namespace TrenchBroom {
             Vec3f xAxis, yAxis, zAxis;
             m_handle.axes(context.camera().position(), xAxis, yAxis, zAxis);
             
-            ActivateShader shader(context.shaderManager(), Shaders::ColoredHandleShader);
+            ActivateShader shader(context.shaderManager(), Shaders::HandleShader);
             shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.6f));
             
             Mat4f rotation;
@@ -100,7 +100,7 @@ namespace TrenchBroom {
                 Vec3f xAxis, yAxis, zAxis;
                 m_handle.axes(context.camera().position(), xAxis, yAxis, zAxis);
 
-                ActivateShader shader(context.shaderManager(), Shaders::ColoredHandleShader);
+                ActivateShader shader(context.shaderManager(), Shaders::HandleShader);
                 shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.6f));
 
                 RingFigure(Axis::AX, yAxis, zAxis, m_handle.handleRadius(), m_handle.handleThickness(), 8).render(vbo, context);

@@ -30,21 +30,6 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        void MoveObjectsTool::updateHits(InputEvent& event) {
-            Model::EditStateManager& editStateManager = documentViewHolder().document().editStateManager();
-            if (editStateManager.selectionMode() == Model::EditStateManager::SMNone ||
-                editStateManager.selectionMode() == Model::EditStateManager::SMFaces)
-                return;
-            
-            Model::MoveObjectsHandleHit* hit = m_handle.pick(event.ray);
-            if (hit != NULL)
-                event.pickResult->add(*hit);
-        }
-        
-        bool MoveObjectsTool::updateFeedback(InputEvent& event) {
-            return m_handle.updated();
-        }
-
         bool MoveObjectsTool::handleBeginPlaneDrag(InputEvent& event, Plane& dragPlane, Vec3f& initialDragPoint) {
             if (event.mouseButtons != MouseButtons::MBLeft ||
                 event.modifierKeys() != ModifierKeys::MKNone)
@@ -160,6 +145,28 @@ namespace TrenchBroom {
             }
         }
         
+        bool MoveObjectsTool::updateHits(InputEvent& event) {
+            Model::EditStateManager& editStateManager = documentViewHolder().document().editStateManager();
+            if (editStateManager.selectionMode() == Model::EditStateManager::SMNone ||
+                editStateManager.selectionMode() == Model::EditStateManager::SMFaces)
+                return false;
+            
+            Model::MoveObjectsHandleHit* hit = m_handle.pick(event.ray);
+            if (hit != NULL) {
+                event.pickResult->add(*hit);
+                return true;
+            }
+            return false;
+        }
+        
+        bool MoveObjectsTool::suppressOtherFeedback(InputEvent& event) {
+            return event.pickResult->first(Model::HitType::MoveObjectsHandleHit, true, documentViewHolder().view().filter()) != NULL;
+        }
+        
+        bool MoveObjectsTool::updateFeedback(InputEvent& event) {
+            return m_handle.updated();
+        }
+
         MoveObjectsTool::MoveObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
         DragTool(documentViewHolder, inputController),
         m_handle(MoveObjectsHandle(64.0f, 32.0f)),

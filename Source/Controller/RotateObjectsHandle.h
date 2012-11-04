@@ -29,7 +29,7 @@ using namespace TrenchBroom::Math;
 namespace TrenchBroom {
     namespace Model {
         namespace HitType {
-            static Type RotateObjectsHandleHit    = 1 << 4;
+            static const Type RotateObjectsHandleHit    = 1 << 4;
         }
         
         class RotateObjectsHandleHit : public Hit {

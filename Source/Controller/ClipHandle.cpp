@@ -33,7 +33,8 @@ namespace TrenchBroom {
     namespace Controller {
         ClipHandle::ClipHandle(float handleRadius) :
         m_handleRadius(handleRadius),
-        m_numPoints(0) {
+        m_numPoints(0),
+        m_hasCurrentHit(false) {
             assert(m_handleRadius > 0.0f);
         }
 

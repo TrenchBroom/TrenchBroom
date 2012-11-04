@@ -36,29 +36,29 @@ namespace TrenchBroom {
             SetVboState activateVbo(vbo, Vbo::VboActive);
             if (!m_valid) {
                 unsigned int vertexCount = 0;
-                if (m_axes | Axis::AX)
+                if ((m_axes & Axis::AX) != 0)
                     vertexCount += 2;
-                if (m_axes | Axis::AY)
+                if ((m_axes & Axis::AY) != 0)
                     vertexCount += 2;
-                if (m_axes | Axis::AZ)
+                if ((m_axes & Axis::AZ) != 0)
                     vertexCount += 2;
                 m_vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_LINES, vertexCount,
                                                                VertexAttribute::position3f(),
                                                                VertexAttribute::color4f()));
                 SetVboState mapVbo(vbo, Vbo::VboMapped);
-                if (m_axes | Axis::AX) {
+                if ((m_axes & Axis::AX) != 0) {
                     m_vertexArray->addAttribute(Vec3f(-m_axisLength, 0.0f, 0.0f));
                     m_vertexArray->addAttribute(m_xColor);
                     m_vertexArray->addAttribute(Vec3f(+m_axisLength, 0.0f, 0.0f));
                     m_vertexArray->addAttribute(m_xColor);
                 }
-                if (m_axes | Axis::AY) {
+                if ((m_axes & Axis::AY) != 0) {
                     m_vertexArray->addAttribute(Vec3f(0.0f, -m_axisLength, 0.0f));
                     m_vertexArray->addAttribute(m_yColor);
                     m_vertexArray->addAttribute(Vec3f(0.0f, +m_axisLength, 0.0f));
                     m_vertexArray->addAttribute(m_yColor);
                 }
-                if (m_axes | Axis::AZ) {
+                if ((m_axes & Axis::AZ) != 0) {
                     m_vertexArray->addAttribute(Vec3f(0.0f, 0.0f, -m_axisLength));
                     m_vertexArray->addAttribute(m_zColor);
                     m_vertexArray->addAttribute(Vec3f(0.0f, 0.0f, +m_axisLength));

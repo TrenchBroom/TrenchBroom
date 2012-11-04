@@ -40,11 +40,11 @@ namespace TrenchBroom {
                                    m_handle.hitArea()== Model::MoveObjectsHandleHit::HAXYPlane ||
                                    m_handle.hitArea()== Model::MoveObjectsHandleHit::HAXZPlane))
                 axisFigure.setXColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
-            else if (m_handle.hit() && (m_handle.hitArea()== Model::MoveObjectsHandleHit::HAYAxis ||
+            if (m_handle.hit() && (m_handle.hitArea()== Model::MoveObjectsHandleHit::HAYAxis ||
                                         m_handle.hitArea()== Model::MoveObjectsHandleHit::HAXYPlane ||
                                         m_handle.hitArea()== Model::MoveObjectsHandleHit::HAYZPlane))
                 axisFigure.setYColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
-            else if (m_handle.hit() && (m_handle.hitArea()== Model::MoveObjectsHandleHit::HAZAxis ||
+            if (m_handle.hit() && (m_handle.hitArea()== Model::MoveObjectsHandleHit::HAZAxis ||
                                         m_handle.hitArea()== Model::MoveObjectsHandleHit::HAXZPlane ||
                                         m_handle.hitArea()== Model::MoveObjectsHandleHit::HAYZPlane))
                 axisFigure.setZColor(Color(1.0f, 1.0f, 1.0f, 1.0f));

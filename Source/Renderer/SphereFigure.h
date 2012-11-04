@@ -51,9 +51,11 @@ namespace TrenchBroom {
                 }
             };
             
+            float m_radius;
             VertexArrayPtr m_vertexArray;
             void makeVertices(Vbo& vbo);
         public:
+            SphereFigure(float radius);
             void render(Vbo& vbo, RenderContext& context);
         };
     }

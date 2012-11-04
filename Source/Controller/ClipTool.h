@@ -24,12 +24,17 @@
 #include "Controller/ClipHandle.h"
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class ClipToolHandleFigure;
+    }
+    
     namespace Controller {
         class ClipHandle;
         
         class ClipTool : public DragTool {
         protected:
             ClipHandle m_handle;
+            Renderer::ClipToolHandleFigure* m_handleFigure;
             
             virtual bool handleActivated(InputEvent& event);
             virtual bool handleDeactivated(InputEvent& event);
@@ -40,7 +45,9 @@ namespace TrenchBroom {
         public:
             ClipTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController);
 
-            virtual bool suppressOtherFeedback(InputEvent& event);
+            bool updateHits(InputEvent& event);
+            bool suppressOtherFeedback(InputEvent& event);
+            bool updateFeedback(InputEvent& event);
             
             void toggleClipSide();
             bool canPerformClip();

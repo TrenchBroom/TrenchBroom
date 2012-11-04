@@ -20,21 +20,46 @@
 #include "ClipTool.h"
 
 #include "Controller/ClipHandle.h"
+#include "Controller/Input.h"
+#include "Model/Picker.h"
+#include "Renderer/ClipToolHandleFigure.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Controller {
         bool ClipTool::handleActivated(InputEvent& event) {
+            assert(m_handleFigure == NULL);
+            m_handleFigure = new Renderer::ClipToolHandleFigure(m_handle);
+            addFigure(m_handleFigure);
             return true;
         }
         
         bool ClipTool::handleDeactivated(InputEvent& event) {
+            assert(m_handleFigure != NULL);
+            deleteFigure(m_handleFigure);
+            m_handleFigure = NULL;
             return true;
         }
 
         bool ClipTool::handleMouseMoved(InputEvent& event) {
+            assert(active());
             
+            Model::Hit* hit = event.pickResult->first(Model::HitType::ClipHandleHit | Model::HitType::FaceHit, false, documentViewHolder().view().filter());
+            if (hit != NULL) {
+                if (hit->type() == Model::HitType::ClipHandleHit) {
+                    Model::ClipHandleHit* handleHit = static_cast<Model::ClipHandleHit*>(hit);
+                    const Vec3f& point = m_handle.point(handleHit->pointIndex());
+                    m_handle.setCurrentHit(true, point);
+                } else {
+                    Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(hit);
+                    m_handle.setCurrentHit(true, faceHit->hitPoint());
+                }
+            } else {
+                m_handle.setCurrentHit(false);
+            }
+            
+            return false;
         }
 
         bool ClipTool::handleBeginPlaneDrag(InputEvent& event, Plane& dragPlane, Vec3f& initialDragPoint) {
@@ -53,10 +78,23 @@ namespace TrenchBroom {
 
         ClipTool::ClipTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
         DragTool(documentViewHolder, inputController),
-        m_handle(ClipHandle(5.0f)) {}
+        m_handle(ClipHandle(5.0f)),
+        m_handleFigure(NULL) {}
+
+        bool ClipTool::updateHits(InputEvent& event) {
+            assert(active());
+            Model::ClipHandleHit* hit = m_handle.pick(event.ray);
+            if (hit != NULL)
+                event.pickResult->add(*hit);
+            return true;
+        }
 
         bool ClipTool::suppressOtherFeedback(InputEvent& event) {
             return active();
+        }
+
+        bool ClipTool::updateFeedback(InputEvent& event) {
+            return true;
         }
 
         void ClipTool::toggleClipSide() {

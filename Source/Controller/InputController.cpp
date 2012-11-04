@@ -48,8 +48,9 @@ namespace TrenchBroom {
             m_currentEvent.ray = camera.pickRay(m_currentEvent.mouseX, m_currentEvent.mouseY);
             m_currentEvent.pickResult = picker.pick(m_currentEvent.ray);
             
-            for (unsigned int i = 0; i < m_receivers.size(); i++)
-                m_receivers[i]->updateHits(m_currentEvent);
+            bool stopUpdate = false;
+            for (unsigned int i = 0; i < m_receivers.size() && !stopUpdate; i++)
+                stopUpdate = m_receivers[i]->updateHits(m_currentEvent);
         }
 
         void InputController::updateFeedback() {
@@ -67,6 +68,14 @@ namespace TrenchBroom {
             } else {
                 if (!m_singleFeedbackProvider->suppressOtherFeedback(m_currentEvent)) {
                     m_singleFeedbackProvider = NULL;
+                    ToolList::iterator it, end;
+                    for (it = m_receivers.begin(), end = m_receivers.end(); it != end; ++it) {
+                        Tool& tool = **it;
+                        if (tool.suppressOtherFeedback(m_currentEvent)) {
+                            m_singleFeedbackProvider = &tool;
+                            break;
+                        }
+                    }
                     updateViews = true;
                 }
             }

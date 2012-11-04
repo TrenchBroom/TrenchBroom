@@ -19,13 +19,32 @@
 
 #include "ClipToolHandleFigure.h"
 
+#include "Controller/ClipHandle.h"
+#include "Renderer/ApplyMatrix.h"
+#include "Renderer/RenderContext.h"
+#include "Renderer/SphereFigure.h"
+#include "Renderer/Shader/ShaderManager.h"
+#include "Renderer/Shader/ShaderProgram.h"
+
 namespace TrenchBroom {
     namespace Renderer {
-        ClipToolHandleFigure::ClipToolHandleFigure(Controller::ClipToolHandle& handle) :
+        ClipToolHandleFigure::ClipToolHandleFigure(Controller::ClipHandle& handle) :
         m_handle(handle) {}
         
         void ClipToolHandleFigure::render(Vbo& vbo, RenderContext& context) {
+            bool wasHandleHit = false;
+            if (m_handle.numPoints() > 0) {
+                
+            }
             
+            if (m_handle.numPoints() < 3 && m_handle.hasCurrentHit() && !wasHandleHit) {
+                const Vec3f& point = m_handle.currentPoint();
+                ApplyMatrix applyTranslation(context.transformation(), Mat4f().translate(point));
+                
+                ActivateShader shader(context.shaderManager(), Shaders::HandleShader);
+                shader.currentShader().setUniformVariable("Color", Color(0.0f, 1.0f, 0.0f, 1.0f));
+                SphereFigure(m_handle.handleRadius()).render(vbo, context);
+            }
         }
     }
 }

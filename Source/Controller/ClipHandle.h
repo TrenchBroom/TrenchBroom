@@ -30,7 +30,7 @@ using namespace TrenchBroom::Math;
 namespace TrenchBroom {
     namespace Model {
         namespace HitType {
-            static Type ClipHandleHit    = 1 << 5;
+            static const Type ClipHandleHit    = 1 << 5;
         }
         
         class ClipHandleHit : public Hit {
@@ -52,10 +52,16 @@ namespace TrenchBroom {
             float m_handleRadius;
             Vec3f m_points[3];
             unsigned int m_numPoints;
+            bool m_hasCurrentHit;
+            Vec3f m_currentPoint;
         public:
             ClipHandle(float handleRadius);
             
             Model::ClipHandleHit* pick(const Ray& ray);
+            
+            inline float handleRadius() const {
+                return m_handleRadius;
+            }
             
             inline const Vec3f& point(unsigned int index) const {
                 assert(index < m_numPoints);
@@ -64,6 +70,19 @@ namespace TrenchBroom {
             
             inline unsigned int numPoints() const {
                 return m_numPoints;
+            }
+
+            inline bool hasCurrentHit() const {
+                return m_hasCurrentHit;
+            }
+            
+            inline const Vec3f& currentPoint() const {
+                return m_currentPoint;
+            }
+
+            inline void setCurrentHit(bool hasHit, const Vec3f& currentPoint = Vec3f::Null) {
+                m_hasCurrentHit = hasHit;
+                m_currentPoint = currentPoint;
             }
         };
     }

@@ -27,25 +27,6 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        void RotateObjectsTool::updateHits(InputEvent& event) {
-            Model::EditStateManager& editStateManager = documentViewHolder().document().editStateManager();
-            if (editStateManager.selectionMode() == Model::EditStateManager::SMNone ||
-                editStateManager.selectionMode() == Model::EditStateManager::SMFaces)
-                return;
-            
-            Model::RotateObjectsHandleHit* hit = m_handle.pick(event.ray);
-            if (hit != NULL)
-                event.pickResult->add(*hit);
-        }
-        
-        bool RotateObjectsTool::suppressOtherFeedback(InputEvent& event) {
-            return m_handle.hit();
-        }
-
-        bool RotateObjectsTool::updateFeedback(InputEvent& event) {
-            return m_handle.updated();
-        }
-
         bool RotateObjectsTool::handleBeginPlaneDrag(InputEvent& event, Plane& dragPlane, Vec3f& initialDragPoint) {
             if (event.mouseButtons != MouseButtons::MBLeft ||
                 event.modifierKeys() != ModifierKeys::MKNone)
@@ -139,6 +120,28 @@ namespace TrenchBroom {
             }
         }
 
+        bool RotateObjectsTool::updateHits(InputEvent& event) {
+            Model::EditStateManager& editStateManager = documentViewHolder().document().editStateManager();
+            if (editStateManager.selectionMode() == Model::EditStateManager::SMNone ||
+                editStateManager.selectionMode() == Model::EditStateManager::SMFaces)
+                return false;
+            
+            Model::RotateObjectsHandleHit* hit = m_handle.pick(event.ray);
+            if (hit != NULL) {
+                event.pickResult->add(*hit);
+                return true;
+            }
+            return false;
+        }
+        
+        bool RotateObjectsTool::suppressOtherFeedback(InputEvent& event) {
+            return event.pickResult->first(Model::HitType::RotateObjectsHandleHit, true, documentViewHolder().view().filter()) != NULL;
+        }
+        
+        bool RotateObjectsTool::updateFeedback(InputEvent& event) {
+            return m_handle.updated();
+        }
+        
         RotateObjectsTool::RotateObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
         DragTool(documentViewHolder, inputController),
         m_handle(RotateObjectsHandle(32.0f, 5.0f)),

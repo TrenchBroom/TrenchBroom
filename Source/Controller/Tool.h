@@ -148,7 +148,7 @@ namespace TrenchBroom {
             
             virtual ~Tool() {}
             
-            virtual void updateHits(InputEvent& event) {}
+            virtual bool updateHits(InputEvent& event) { return false; }
             
             virtual bool suppressOtherFeedback(InputEvent& event) { return false; }
             

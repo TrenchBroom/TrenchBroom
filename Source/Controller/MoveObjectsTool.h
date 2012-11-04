@@ -47,15 +47,16 @@ namespace TrenchBroom {
             RestrictToAxis m_restrictToAxis;
             Renderer::MoveObjectsHandleFigure* m_handleFigure;
             
-            void updateHits(InputEvent& event);
-            bool updateFeedback(InputEvent& event);
-
             bool handleBeginPlaneDrag(InputEvent& event, Plane& dragPlane, Vec3f& initialDragPoint);
             bool handlePlaneDrag(InputEvent& event, const Vec3f& lastMousePoint, const Vec3f& curMousePoint, Vec3f& referencePoint);
             void handleEndPlaneDrag(InputEvent& event);
 
             void handleChangeEditState(const Model::EditStateChangeSet& changeSet);
         public:
+            bool updateHits(InputEvent& event);
+            bool suppressOtherFeedback(InputEvent& event);
+            bool updateFeedback(InputEvent& event);
+
             MoveObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController);
         };
     }

@@ -24,15 +24,15 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        class ClipToolHandle;
+        class ClipHandle;
     }
     
     namespace Renderer {
         class ClipToolHandleFigure : public Figure {
         protected:
-            Controller::ClipToolHandle& m_handle;
+            Controller::ClipHandle& m_handle;
         public:
-            ClipToolHandleFigure(Controller::ClipToolHandle& handle);
+            ClipToolHandleFigure(Controller::ClipHandle& handle);
             
             void render(Vbo& vbo, RenderContext& context);
         };

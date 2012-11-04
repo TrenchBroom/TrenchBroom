@@ -33,12 +33,13 @@ namespace TrenchBroom {
         class Octree;
 
         namespace HitType {
-            typedef const unsigned int Type;
-            static Type EntityHit   = 1 << 0;
-            static Type FaceHit     = 1 << 1;
-            static Type NearFaceHit = 1 << 2;
-            static Type ObjectHit   = EntityHit | FaceHit;
-            static Type Any         = 0xFFFFFFFF;
+            typedef unsigned int Type;
+            static const Type NoHit       = 0;
+            static const Type EntityHit   = 1 << 0;
+            static const Type FaceHit     = 1 << 1;
+            static const Type NearFaceHit = 1 << 2;
+            static const Type ObjectHit   = EntityHit | FaceHit;
+            static const Type Any         = 0xFFFFFFFF;
         }
 
         class Hit {
