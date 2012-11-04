@@ -161,7 +161,8 @@ namespace TrenchBroom {
 
 				view.camera().update(0.0f, 0.0f, GetSize().x, GetSize().y);
 
-				Renderer::RenderContext renderContext(view.camera(), view.filter(), view.viewOptions(), view.console());
+                Renderer::ShaderManager& shaderManager = m_documentViewHolder.document().sharedResources().shaderManager();
+				Renderer::RenderContext renderContext(view.camera(), view.filter(), shaderManager, view.viewOptions(), view.console());
 				view.renderer().render(renderContext);
 
 				SwapBuffers();

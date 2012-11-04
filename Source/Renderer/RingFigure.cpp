@@ -26,21 +26,19 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        RingFigure::RingFigure(Axis::Type normal, float startAngle, float angleLength, float radius, float thickness, unsigned int segments, const Color& color) :
+        RingFigure::RingFigure(Axis::Type normal, float startAngle, float angleLength, float radius, float thickness, unsigned int segments) :
         m_normal(normal),
         m_startAngle(startAngle),
         m_angleLength(angleLength),
         m_innerRadius(radius),
         m_outerRadius(radius + thickness),
-        m_segments(segments),
-        m_color(color) {}
+        m_segments(segments) {}
         
-        RingFigure::RingFigure(Axis::Type normal, const Vec3f& startAxis, const Vec3f& endAxis, float radius, float thickness, unsigned int segments, const Color& color) :
+        RingFigure::RingFigure(Axis::Type normal, const Vec3f& startAxis, const Vec3f& endAxis, float radius, float thickness, unsigned int segments) :
         m_normal(normal),
         m_innerRadius(radius),
         m_outerRadius(radius + thickness),
-        m_segments(segments),
-        m_color(color) {
+        m_segments(segments) {
             float angle1, angle2;
             if (m_normal == Axis::AX) {
                 angle1 = startAxis.angleFrom(Vec3f::PosZ, Vec3f::PosX);
@@ -65,8 +63,7 @@ namespace TrenchBroom {
             if (m_vertexArray.get() == NULL) {
                 SetVboState mapVbo(vbo, Vbo::VboMapped);
                 m_vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_TRIANGLE_STRIP, 2 * m_segments + 2,
-                                                               VertexAttribute::position3f(),
-                                                               VertexAttribute::color4f()));
+                                                               VertexAttribute::position3f()));
                 
                 float d = m_angleLength / m_segments;
                 float a = m_startAngle;
@@ -75,19 +72,13 @@ namespace TrenchBroom {
                     float c = cos(a);
                     if (m_normal == Axis::AX) {
                         m_vertexArray->addAttribute(Vec3f(0.0f, m_outerRadius * s, m_outerRadius * c));
-                        m_vertexArray->addAttribute(m_color);
                         m_vertexArray->addAttribute(Vec3f(0.0f, m_innerRadius * s, m_innerRadius * c));
-                        m_vertexArray->addAttribute(m_color);
                     } else if (m_normal == Axis::AY) {
                         m_vertexArray->addAttribute(Vec3f(m_outerRadius * c, 0.0f, m_outerRadius * s));
-                        m_vertexArray->addAttribute(m_color);
                         m_vertexArray->addAttribute(Vec3f(m_innerRadius * c, 0.0f, m_innerRadius * s));
-                        m_vertexArray->addAttribute(m_color);
                     } else {
                         m_vertexArray->addAttribute(Vec3f(m_outerRadius * s, m_outerRadius * c, 0.0f));
-                        m_vertexArray->addAttribute(m_color);
                         m_vertexArray->addAttribute(Vec3f(m_innerRadius * s, m_innerRadius * c, 0.0f));
-                        m_vertexArray->addAttribute(m_color);
                     }
                     a += d;
                 }

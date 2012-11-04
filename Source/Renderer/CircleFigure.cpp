@@ -26,20 +26,18 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        CircleFigure::CircleFigure(Axis::Type normal, float startAngle, float angleLength, float radius, unsigned int segments, const Color& color, bool filled) :
+        CircleFigure::CircleFigure(Axis::Type normal, float startAngle, float angleLength, float radius, unsigned int segments, bool filled) :
         m_normal(normal),
         m_startAngle(startAngle),
         m_angleLength(angleLength),
         m_radius(radius),
         m_segments(segments),
-        m_color(color),
         m_filled(filled) {}
         
-        CircleFigure::CircleFigure(Axis::Type normal, const Vec3f& startAxis, const Vec3f& endAxis, float radius, unsigned int segments, const Color& color, bool filled) :
+        CircleFigure::CircleFigure(Axis::Type normal, const Vec3f& startAxis, const Vec3f& endAxis, float radius, unsigned int segments, bool filled) :
         m_normal(normal),
         m_radius(radius),
         m_segments(segments),
-        m_color(color),
         m_filled(filled) {
             float angle1, angle2;
             if (m_normal == Axis::AX) {
@@ -66,14 +64,11 @@ namespace TrenchBroom {
                 SetVboState setVboState(vbo, Vbo::VboMapped);
                 if (m_filled) {
                     m_vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_TRIANGLE_FAN, m_segments + 2,
-                                                                   VertexAttribute::position3f(),
-                                                                   VertexAttribute::color4f()));
+                                                                   VertexAttribute::position3f()));
                     m_vertexArray->addAttribute(Vec3f::Null);
-                    m_vertexArray->addAttribute(m_color);
                 } else {
                     m_vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_LINE_STRIP, m_segments + 1,
-                                                                   VertexAttribute::position3f(),
-                                                                   VertexAttribute::color4f()));
+                                                                   VertexAttribute::position3f()));
                 }
 
                 float d = m_angleLength / m_segments;
@@ -87,7 +82,6 @@ namespace TrenchBroom {
                         m_vertexArray->addAttribute(Vec3f(m_radius * c, 0.0f, m_radius * s));
                     else
                         m_vertexArray->addAttribute(Vec3f(m_radius * s, m_radius * c, 0.0f));
-                    m_vertexArray->addAttribute(m_color);
                     a += d;
                 }
             }

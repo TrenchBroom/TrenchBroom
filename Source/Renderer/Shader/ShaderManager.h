@@ -65,6 +65,8 @@ namespace TrenchBroom {
             extern const ShaderConfig TextBackgroundShader;
             extern const ShaderConfig TextureBrowserShader;
             extern const ShaderConfig TextureBrowserBorderShader;
+            extern const ShaderConfig HandleShader;
+            extern const ShaderConfig ColoredHandleShader;
         }
 
         class Shader;
@@ -87,6 +89,18 @@ namespace TrenchBroom {
             ~ShaderManager();
             
             ShaderProgram& shaderProgram(const ShaderConfig& config);
+        };
+        
+        class ActivateShader {
+        private:
+            ShaderProgram& m_shaderProgram;
+        public:
+            ActivateShader(ShaderManager& shaderManager, const ShaderConfig& shaderConfig);
+            ~ActivateShader();
+            
+            inline ShaderProgram& currentShader() {
+                return m_shaderProgram;
+            }
         };
     }
 }

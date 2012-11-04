@@ -1,3 +1,5 @@
+#version 120
+
 /*
  Copyright (C) 2010-2012 Kristian Duske
  
@@ -17,4 +19,11 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "RenderContext.h"
+uniform vec4 Color;
+
+varying vec4 vertexColor;
+
+void main(void) {
+    vertexColor = Color;
+    gl_Position = ftransform();
+}

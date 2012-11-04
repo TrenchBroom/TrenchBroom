@@ -17,32 +17,53 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RingFigure__
-#define __TrenchBroom__RingFigure__
+#ifndef __TrenchBroom__AxisFigure__
+#define __TrenchBroom__AxisFigure__
 
 #include "Renderer/Figure.h"
 #include "Renderer/RenderTypes.h"
+#include "Utility/Color.h"
 #include "Utility/VecMath.h"
 
 using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
-        class RingFigure : public Figure {
-        private:
-            Axis::Type m_normal;
-            float m_startAngle;
-            float m_angleLength;
-            float m_innerRadius;
-            float m_outerRadius;
-            unsigned int m_segments;
+        class AxisFigure : public Figure {
+        protected:
+            float m_axisLength;
+            Axis::Type m_axes;
+            Color m_xColor;
+            Color m_yColor;
+            Color m_zColor;
+            bool m_valid;
             VertexArrayPtr m_vertexArray;
         public:
-            RingFigure(Axis::Type normal, float startAngle, float angleLength, float radius, float thickness, unsigned int segments);
-            RingFigure(Axis::Type normal, const Vec3f& startAxis, const Vec3f& endAxis, float radius, float thickness, unsigned int segments);
+            AxisFigure(float axisLength);
+            
+            inline void setAxes(Axis::Type axes) {
+                m_axes = axes;
+                m_valid = false;
+            }
+            
+            inline void setXColor(const Color& color) {
+                m_xColor = color;
+                m_valid = false;
+            }
+            
+            inline void setYColor(const Color& color) {
+                m_yColor = color;
+                m_valid = false;
+            }
+            
+            inline void setZColor(const Color& color) {
+                m_zColor = color;
+                m_valid = false;
+            }
+
             void render(Vbo& vbo, RenderContext& context);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__RingFigure__) */
+#endif /* defined(__TrenchBroom__AxisFigure__) */

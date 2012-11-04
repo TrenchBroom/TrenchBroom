@@ -35,6 +35,8 @@ namespace TrenchBroom {
             const ShaderConfig TextBackgroundShader = ShaderConfig("Text Background Shader Program", "TextBackground.vertsh", "TextBackground.fragsh");
             const ShaderConfig TextureBrowserShader = ShaderConfig("Texture Browser Shader Program", "TextureBrowser.vertsh", "TextureBrowser.fragsh");
             const ShaderConfig TextureBrowserBorderShader = ShaderConfig("Texture Browser Border Shader Program", "TextureBrowserBorder.vertsh", "TextureBrowserBorder.fragsh");
+            const ShaderConfig HandleShader = ShaderConfig("Handle Shader Program", "Handle.vertsh", "Handle.fragsh");
+            const ShaderConfig ColoredHandleShader = ShaderConfig("Colored Handle Shader Program", "ColoredHandle.vertsh", "Handle.fragsh");
         }
 
         Shader& ShaderManager::loadShader(const String& path, GLenum type) {
@@ -90,5 +92,15 @@ namespace TrenchBroom {
             m_programs.insert(ShaderProgramCacheEntry(&config, program));
             return *program;
         }
+        
+        ActivateShader::ActivateShader(ShaderManager& shaderManager, const ShaderConfig& shaderConfig) :
+        m_shaderProgram(shaderManager.shaderProgram(shaderConfig)) {
+            m_shaderProgram.activate();
+        }
+        
+        ActivateShader::~ActivateShader() {
+            m_shaderProgram.deactivate();
+        }
+
     }
 }

@@ -17,30 +17,15 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RotateObjectsHandleFigure__
-#define __TrenchBroom__RotateObjectsHandleFigure__
-
-#include "Renderer/Figure.h"
+#include "ClipToolHandleFigure.h"
 
 namespace TrenchBroom {
-    namespace Controller {
-        class RotateObjectsHandle;
-    }
-    
     namespace Renderer {
-        class RotateObjectsHandleFigure : public Figure {
-        protected:
-            Controller::RotateObjectsHandle& m_handle;
-            float m_axisLength;
+        ClipToolHandleFigure::ClipToolHandleFigure(Controller::ClipToolHandle& handle) :
+        m_handle(handle) {}
+        
+        void ClipToolHandleFigure::render(Vbo& vbo, RenderContext& context) {
             
-            void renderAxis(Vbo& vbo, RenderContext& context);
-            void renderRing(Vbo& vbo, RenderContext& context);
-        public:
-            RotateObjectsHandleFigure(Controller::RotateObjectsHandle& handle, float axisLength);
-
-            void render(Vbo& vbo, RenderContext& context);
-        };
+        }
     }
 }
-
-#endif /* defined(__TrenchBroom__RotateObjectsHandleFigure__) */

@@ -21,10 +21,12 @@
 
 #include "Controller/RotateObjectsHandle.h"
 #include "Renderer/ApplyMatrix.h"
+#include "Renderer/AxisFigure.h"
 #include "Renderer/Camera.h"
 #include "Renderer/CircleFigure.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RingFigure.h"
+#include "Renderer/Shader/ShaderManager.h"
 #include "Renderer/VertexArray.h"
 #include "Utility/VecMath.h"
 
@@ -32,10 +34,55 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
+        void RotateObjectsHandleFigure::renderAxis(Vbo& vbo, RenderContext& context) {
+            ActivateShader shader(context.shaderManager(), Shaders::ColoredHandleShader);
+            AxisFigure axisFigure(m_axisLength);
+            if (m_handle.hitArea() == Model::RotateObjectsHandleHit::HAXAxis) {
+                axisFigure.setAxes(Axis::AX);
+                axisFigure.setXColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
+            } else if (m_handle.hitArea() == Model::RotateObjectsHandleHit::HAYAxis) {
+                axisFigure.setAxes(Axis::AY);
+                axisFigure.setYColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
+            } else {
+                axisFigure.setAxes(Axis::AZ);
+                axisFigure.setZColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
+            }
+            axisFigure.render(vbo, context);
+        }
+        
+        void RotateObjectsHandleFigure::renderRing(Vbo& vbo, RenderContext& context) {
+            Vec3f xAxis, yAxis, zAxis;
+            m_handle.axes(context.camera().position(), xAxis, yAxis, zAxis);
+            
+            ActivateShader shader(context.shaderManager(), Shaders::ColoredHandleShader);
+            shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.6f));
+            
+            Mat4f rotation;
+            if (m_handle.hitArea() == Model::RotateObjectsHandleHit::HAXAxis) {
+                rotation.rotate(m_handle.angle(), Vec3f::PosX);
+                ApplyMatrix applyRotation(context.transformation(), rotation);
+                
+                RingFigure(Axis::AX, yAxis, zAxis, m_handle.handleRadius(), m_handle.handleThickness(), 8).render(vbo, context);
+                CircleFigure(Axis::AX, 0.0f, 2 * Math::Pi, m_handle.handleRadius() + m_handle.handleThickness(), 32, false).render(vbo, context);
+            } else if (m_handle.hitArea() == Model::RotateObjectsHandleHit::HAYAxis) {
+                rotation.rotate(m_handle.angle(), Vec3f::PosY);
+                ApplyMatrix applyRotation(context.transformation(), rotation);
+
+                RingFigure(Axis::AY, xAxis, zAxis, m_handle.handleRadius(), m_handle.handleThickness(), 8).render(vbo, context);
+                CircleFigure(Axis::AY, 0.0f, 2 * Math::Pi, m_handle.handleRadius() + m_handle.handleThickness(), 32, false).render(vbo, context);
+            } else {
+                rotation.rotate(m_handle.angle(), Vec3f::PosZ);
+                ApplyMatrix applyRotation(context.transformation(), rotation);
+                
+                RingFigure(Axis::AZ, xAxis, yAxis, m_handle.handleRadius(), m_handle.handleThickness(), 8).render(vbo, context);
+                CircleFigure(Axis::AZ, 0.0f, 2 * Math::Pi, m_handle.handleRadius() + m_handle.handleThickness(), 32, false).render(vbo, context);
+            }
+        }
+        
         RotateObjectsHandleFigure::RotateObjectsHandleFigure(Controller::RotateObjectsHandle& handle, float axisLength) :
         m_handle(handle),
         m_axisLength(axisLength) {}
-
+        
         void RotateObjectsHandleFigure::render(Vbo& vbo, RenderContext& context) {
             Mat4f translation;
             translation.translate(m_handle.position());
@@ -44,64 +91,25 @@ namespace TrenchBroom {
             glDisable(GL_DEPTH_TEST);
             glDisable(GL_CULL_FACE);
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-            Vec3f xAxis, yAxis, zAxis;
-            m_handle.axes(context.camera().position(), xAxis, yAxis, zAxis);
-
+            
             SetVboState activateVbo(vbo, Vbo::VboActive);
             if (m_handle.hit()) {
-                VertexArray axisArray(vbo, GL_LINES, 2,
-                                      VertexAttribute::position3f(),
-                                      VertexAttribute::color4f());
-                if (m_handle.hitArea() == Model::RotateObjectsHandleHit::HAXAxis) {
-                    Mat4f rotation;
-                    rotation.rotate(m_handle.angle(), Vec3f::PosX);
-                    ApplyMatrix applyRotation(context.transformation(), rotation);
-                    
-                    RingFigure(Axis::AX, yAxis, zAxis, m_handle.handleRadius(), m_handle.handleThickness(), 8, Color(1.0f, 1.0f, 1.0f, 0.6f)).render(vbo, context);
-                    CircleFigure(Axis::AX, 0.0f, 2 * Math::Pi, m_handle.handleRadius() + m_handle.handleThickness(), 32, Color(1.0f, 1.0f, 1.0f, 1.0f), false).render(vbo, context);
-                    SetVboState mapVbo(vbo, Vbo::VboMapped);
-                    axisArray.addAttribute(Vec3f(-m_axisLength, 0.0f, 0.0f));
-                    axisArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 1.0f));
-                    axisArray.addAttribute(Vec3f(+m_axisLength, 0.0f, 0.0f));
-                    axisArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 1.0f));
-                } else if (m_handle.hitArea() == Model::RotateObjectsHandleHit::HAYAxis) {
-                    Mat4f rotation;
-                    rotation.rotate(m_handle.angle(), Vec3f::PosY);
-                    ApplyMatrix applyRotation(context.transformation(), rotation);
-                    
-                    RingFigure(Axis::AY, xAxis, zAxis, m_handle.handleRadius(), m_handle.handleThickness(), 8, Color(1.0f, 1.0f, 1.0f, 0.6f)).render(vbo, context);
-                    CircleFigure(Axis::AY, 0.0f, 2 * Math::Pi, m_handle.handleRadius() + m_handle.handleThickness(), 32, Color(1.0f, 1.0f, 1.0f, 1.0f), false).render(vbo, context);
-                    SetVboState mapVbo(vbo, Vbo::VboMapped);
-                    axisArray.addAttribute(Vec3f(0.0f, -m_axisLength, 0.0f));
-                    axisArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 1.0f));
-                    axisArray.addAttribute(Vec3f(0.0f, +m_axisLength, 0.0f));
-                    axisArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 1.0f));
-                } else {
-                    Mat4f rotation;
-                    rotation.rotate(m_handle.angle(), Vec3f::PosZ);
-                    ApplyMatrix applyRotation(context.transformation(), rotation);
-                    
-                    RingFigure(Axis::AZ, xAxis, yAxis, m_handle.handleRadius(), m_handle.handleThickness(), 8, Color(1.0f, 1.0f, 1.0f, 0.6f)).render(vbo, context);
-                    CircleFigure(Axis::AZ, 0.0f, 2 * Math::Pi, m_handle.handleRadius() + m_handle.handleThickness(), 32, Color(1.0f, 1.0f, 1.0f, 1.0f), false).render(vbo, context);
-                    SetVboState mapVbo(vbo, Vbo::VboMapped);
-                    axisArray.addAttribute(Vec3f(0.0f, 0.0f, -m_axisLength));
-                    axisArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 1.0f));
-                    axisArray.addAttribute(Vec3f(0.0f, 0.0f, +m_axisLength));
-                    axisArray.addAttribute(Color(1.0f, 1.0f, 1.0f, 1.0f));
-                }
-                
-                SetVboState activateVbo(vbo, Vbo::VboActive);
-                axisArray.render();
+                renderAxis(vbo, context);
+                renderRing(vbo, context);
             } else {
-                RingFigure(Axis::AX, yAxis, zAxis, m_handle.handleRadius(), m_handle.handleThickness(), 8, Color(1.0f, 1.0f, 1.0f, 0.6f)).render(vbo, context);
-                RingFigure(Axis::AY, xAxis, zAxis, m_handle.handleRadius(), m_handle.handleThickness(), 8, Color(1.0f, 1.0f, 1.0f, 0.6f)).render(vbo, context);
-                RingFigure(Axis::AZ, xAxis, yAxis, m_handle.handleRadius(), m_handle.handleThickness(), 8, Color(1.0f, 1.0f, 1.0f, 0.6f)).render(vbo, context);
+                Vec3f xAxis, yAxis, zAxis;
+                m_handle.axes(context.camera().position(), xAxis, yAxis, zAxis);
+
+                ActivateShader shader(context.shaderManager(), Shaders::ColoredHandleShader);
+                shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.6f));
+
+                RingFigure(Axis::AX, yAxis, zAxis, m_handle.handleRadius(), m_handle.handleThickness(), 8).render(vbo, context);
+                RingFigure(Axis::AY, xAxis, zAxis, m_handle.handleRadius(), m_handle.handleThickness(), 8).render(vbo, context);
+                RingFigure(Axis::AZ, xAxis, yAxis, m_handle.handleRadius(), m_handle.handleThickness(), 8).render(vbo, context);
             }
             
             glEnable(GL_CULL_FACE);
             glEnable(GL_DEPTH_TEST);
-
         }
     }
 }

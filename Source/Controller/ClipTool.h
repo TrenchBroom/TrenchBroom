@@ -21,6 +21,7 @@
 #define __TrenchBroom__ClipTool__
 
 #include "Controller/DragTool.h"
+#include "Controller/ClipHandle.h"
 
 namespace TrenchBroom {
     namespace Controller {

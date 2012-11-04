@@ -36,12 +36,11 @@ namespace TrenchBroom {
             float m_angleLength;
             float m_radius;
             unsigned int m_segments;
-            Color m_color;
             bool m_filled;
             VertexArrayPtr m_vertexArray;
         public:
-            CircleFigure(Axis::Type normal, float startAngle, float angleLength, float radius, unsigned int segments, const Color& color, bool filled);
-            CircleFigure(Axis::Type normal, const Vec3f& startAxis, const Vec3f& endAxis, float radius, unsigned int segments, const Color& color, bool filled);
+            CircleFigure(Axis::Type normal, float startAngle, float angleLength, float radius, unsigned int segments, bool filled);
+            CircleFigure(Axis::Type normal, const Vec3f& startAxis, const Vec3f& endAxis, float radius, unsigned int segments, bool filled);
             void render(Vbo& vbo, RenderContext& context);
         };
     }

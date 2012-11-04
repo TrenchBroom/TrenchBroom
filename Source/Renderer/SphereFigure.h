@@ -17,38 +17,46 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MoveObjectsHandleFigure__
-#define __TrenchBroom__MoveObjectsHandleFigure__
+#ifndef __TrenchBroom__SphereFigure__
+#define __TrenchBroom__SphereFigure__
 
 #include "Renderer/Figure.h"
+#include "Renderer/RenderTypes.h"
+#include "Utility/Color.h"
+#include "Utility/VecMath.h"
 
 #include <cassert>
-#include <limits>
+
+using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
-    namespace Controller {
-        class MoveObjectsHandle;
-    }
-    
-    namespace Model {
-        class MoveObjectsHandleHit;
-    }
-    
     namespace Renderer {
-        class CircleFigure;
+        class Vbo;
         
-        class MoveObjectsHandleFigure : public Figure {
+        class SphereFigure : public Figure {
         protected:
-            Controller::MoveObjectsHandle& m_handle;
+            class Triangle {
+            private:
+                size_t m_indices[3];
+            public:
+                Triangle(size_t index1, size_t index2, size_t index3) {
+                    m_indices[0] = index1;
+                    m_indices[1] = index2;
+                    m_indices[2] = index3;
+                }
+                
+                inline const size_t& operator[] (size_t i) const {
+                    assert(i < 3);
+                    return m_indices[i];
+                }
+            };
             
-            void renderAxes(Vbo& vbo, RenderContext& context);
-            void renderPlanes(Vbo& vbo, RenderContext& context);
+            VertexArrayPtr m_vertexArray;
+            void makeVertices(Vbo& vbo);
         public:
-            MoveObjectsHandleFigure(Controller::MoveObjectsHandle& handle);
-
             void render(Vbo& vbo, RenderContext& context);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MoveObjectsHandleFigure__) */
+#endif /* defined(__TrenchBroom__SphereFigure__) */

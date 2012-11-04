@@ -17,38 +17,26 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MoveObjectsHandleFigure__
-#define __TrenchBroom__MoveObjectsHandleFigure__
+#ifndef __TrenchBroom__ClipToolHandleFigure__
+#define __TrenchBroom__ClipToolHandleFigure__
 
 #include "Renderer/Figure.h"
 
-#include <cassert>
-#include <limits>
-
 namespace TrenchBroom {
     namespace Controller {
-        class MoveObjectsHandle;
-    }
-    
-    namespace Model {
-        class MoveObjectsHandleHit;
+        class ClipToolHandle;
     }
     
     namespace Renderer {
-        class CircleFigure;
-        
-        class MoveObjectsHandleFigure : public Figure {
+        class ClipToolHandleFigure : public Figure {
         protected:
-            Controller::MoveObjectsHandle& m_handle;
-            
-            void renderAxes(Vbo& vbo, RenderContext& context);
-            void renderPlanes(Vbo& vbo, RenderContext& context);
+            Controller::ClipToolHandle& m_handle;
         public:
-            MoveObjectsHandleFigure(Controller::MoveObjectsHandle& handle);
-
+            ClipToolHandleFigure(Controller::ClipToolHandle& handle);
+            
             void render(Vbo& vbo, RenderContext& context);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MoveObjectsHandleFigure__) */
+#endif /* defined(__TrenchBroom__ClipToolHandleFigure__) */

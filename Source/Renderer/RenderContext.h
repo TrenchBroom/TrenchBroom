@@ -37,18 +37,21 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class Camera;
+        class ShaderManager;
 
         class RenderContext {
         private:
             Camera& m_camera;
             Model::Filter& m_filter;
             Transformation m_transformation;
+            ShaderManager& m_shaderManager;
             View::ViewOptions& m_viewOptions;
             Utility::Console& m_console;
         public:
-            RenderContext(Camera& camera, Model::Filter& filter, View::ViewOptions& viewOptions, Utility::Console& console) :
+            RenderContext(Camera& camera, Model::Filter& filter, ShaderManager& shaderManager, View::ViewOptions& viewOptions, Utility::Console& console) :
             m_camera(camera),
             m_filter(filter),
+            m_shaderManager(shaderManager),
             m_transformation(m_camera.matrix(), false),
             m_viewOptions(viewOptions),
             m_console(console) {}
@@ -59,6 +62,10 @@ namespace TrenchBroom {
             
             inline const Model::Filter& filter() const {
                 return m_filter;
+            }
+            
+            inline ShaderManager& shaderManager() const {
+                return m_shaderManager;
             }
             
             inline Transformation& transformation() {
