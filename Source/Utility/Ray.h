@@ -22,6 +22,8 @@
 
 #include "Utility/Vec3f.h"
 
+#include <algorithm>
+
 namespace TrenchBroom {
     namespace Math {
         class Ray {
@@ -48,6 +50,27 @@ namespace TrenchBroom {
                 return PointStatus::PSInside;
             }
 
+            float intersectWithSphere(const Vec3f& position, float radius) const {
+                Vec3f diff = origin - position;
+                
+                float p = 2.0f * diff.dot(direction);
+                float q = diff.lengthSquared() - radius * radius;
+
+                float d = p * p - 4.0f * q;
+                if (d < 0.0f)
+                    return Math::nan();
+                
+                float s = sqrt(d);
+                float t0 = (-p + s) / 2.0f;
+                float t1 = (-p - s) / 2.0f;
+                
+                if (t0 < 0.0f && t1 < 0.0f)
+                    return Math::nan();
+                if (t0 > 0.0f && 1 > 0.0f)
+                    return std::min(t0, t1);
+                return std::max(t0, t1);
+            }
+            
             float squaredDistanceToSegment(const Vec3f& start, const Vec3f& end, float& distanceToClosestPoint) const {
                 Vec3f u, v, w;
                 u = end - start;

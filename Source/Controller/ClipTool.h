@@ -24,10 +24,11 @@
 
 namespace TrenchBroom {
     namespace Controller {
+        class ClipHandle;
+        
         class ClipTool : public DragTool {
         protected:
-            Vec3f m_points[3];
-            unsigned int m_numPoints;
+            ClipHandle m_handle;
             
             virtual bool handleActivated(InputEvent& event);
             virtual bool handleDeactivated(InputEvent& event);

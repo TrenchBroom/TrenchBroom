@@ -16,6 +16,7 @@
 		4810278B15E67A7300250C9C /* Brush.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810278915E67A7300250C9C /* Brush.cpp */; };
 		481028A015E68E5300250C9C /* Face.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810289E15E68E5300250C9C /* Face.cpp */; };
 		481028A915E77A8D00250C9C /* Map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481028A715E77A8D00250C9C /* Map.cpp */; };
+		481240831646502F007278F5 /* ClipHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481240811646502F007278F5 /* ClipHandle.cpp */; };
 		4817C7EE1611DC8F00A01A99 /* SetFaceAttributesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4817C7EC1611DC8F00A01A99 /* SetFaceAttributesCommand.cpp */; };
 		4817C7F11611DFA900A01A99 /* SnapshotCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4817C7EF1611DFA900A01A99 /* SnapshotCommand.cpp */; };
 		4817C7F416123E0500A01A99 /* EntityInspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4817C7F216123E0500A01A99 /* EntityInspector.cpp */; };
@@ -161,6 +162,8 @@
 		481028A615E7778200250C9C /* EditState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EditState.h; sourceTree = "<group>"; };
 		481028A715E77A8D00250C9C /* Map.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Map.cpp; sourceTree = "<group>"; };
 		481028A815E77A8D00250C9C /* Map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Map.h; sourceTree = "<group>"; };
+		481240811646502F007278F5 /* ClipHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClipHandle.cpp; sourceTree = "<group>"; };
+		481240821646502F007278F5 /* ClipHandle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipHandle.h; sourceTree = "<group>"; };
 		4817C7EC1611DC8F00A01A99 /* SetFaceAttributesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SetFaceAttributesCommand.cpp; sourceTree = "<group>"; };
 		4817C7ED1611DC8F00A01A99 /* SetFaceAttributesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SetFaceAttributesCommand.h; sourceTree = "<group>"; };
 		4817C7EF1611DFA900A01A99 /* SnapshotCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SnapshotCommand.cpp; sourceTree = "<group>"; };
@@ -786,6 +789,8 @@
 			children = (
 				48AB580315ED01CB00321C47 /* CameraTool.cpp */,
 				48AB580415ED01CB00321C47 /* CameraTool.h */,
+				481240811646502F007278F5 /* ClipHandle.cpp */,
+				481240821646502F007278F5 /* ClipHandle.h */,
 				4847AC841645B06400726872 /* ClipTool.cpp */,
 				4847AC851645B06400726872 /* ClipTool.h */,
 				481E56461624120900B403F3 /* DragTargetTool.h */,
@@ -1085,6 +1090,7 @@
 				482A087A164419CE0000799C /* InputControllerFeedbackFigure.cpp in Sources */,
 				482A087D16446B470000799C /* RotateObjectsCommand.cpp in Sources */,
 				4847AC861645B06400726872 /* ClipTool.cpp in Sources */,
+				481240831646502F007278F5 /* ClipHandle.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

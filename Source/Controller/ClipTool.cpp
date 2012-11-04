@@ -19,12 +19,13 @@
 
 #include "ClipTool.h"
 
+#include "Controller/ClipHandle.h"
+
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Controller {
         bool ClipTool::handleActivated(InputEvent& event) {
-            m_numPoints = 0;
             return true;
         }
         
@@ -51,7 +52,8 @@ namespace TrenchBroom {
         }
 
         ClipTool::ClipTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
-        DragTool(documentViewHolder, inputController) {}
+        DragTool(documentViewHolder, inputController),
+        m_handle(ClipHandle(5.0f)) {}
 
         bool ClipTool::suppressOtherFeedback(InputEvent& event) {
             return active();
@@ -63,7 +65,7 @@ namespace TrenchBroom {
         
         bool ClipTool::canPerformClip() {
             assert(active());
-            return m_numPoints > 0;
+            return m_handle.numPoints() > 0;
         }
         
         void ClipTool::performClip() {
