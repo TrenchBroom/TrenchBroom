@@ -40,6 +40,7 @@
 		483E4B29163F236300538F58 /* MoveObjectsHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483E4B28163F236300538F58 /* MoveObjectsHandle.cpp */; };
 		4842AF67162176100042AD66 /* DragAndDrop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4842AF66162176100042AD66 /* DragAndDrop.cpp */; };
 		4842AF7416220D7A0042AD66 /* MacScreenDC.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4842AF7216220D7A0042AD66 /* MacScreenDC.mm */; };
+		4842C34B164BCB7800E41B95 /* InputControllerNew.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4842C349164BCB7800E41B95 /* InputControllerNew.cpp */; };
 		484763E015E2BC5000095BC0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 484763DE15E2BC5000095BC0 /* InfoPlist.strings */; };
 		4847640B15E2DEE100095BC0 /* MapDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847640915E2DEE100095BC0 /* MapDocument.cpp */; };
 		4847640E15E2E03000095BC0 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847640C15E2E03000095BC0 /* Entity.cpp */; };
@@ -224,6 +225,9 @@
 		4842AF7216220D7A0042AD66 /* MacScreenDC.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacScreenDC.mm; sourceTree = "<group>"; };
 		4842AF7316220D7A0042AD66 /* MacScreenDC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacScreenDC.h; sourceTree = "<group>"; };
 		4842AF75162211270042AD66 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = ../../../../../../../Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/AppKit.framework; sourceTree = "<group>"; };
+		4842C349164BCB7800E41B95 /* InputControllerNew.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InputControllerNew.cpp; sourceTree = "<group>"; };
+		4842C34A164BCB7800E41B95 /* InputControllerNew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputControllerNew.h; sourceTree = "<group>"; };
+		4842C34C164BD19300E41B95 /* ToolNew.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ToolNew.h; sourceTree = "<group>"; };
 		4845871D15ECBE6A00EC9F8B /* mmapped_fstream_posix.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mmapped_fstream_posix.h; sourceTree = "<group>"; };
 		484763D115E2BC5000095BC0 /* TrenchBroom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrenchBroom.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		484763D515E2BC5000095BC0 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -791,6 +795,8 @@
 				48AB57FF15ECFC5F00321C47 /* Input.h */,
 				48AB580015ECFED800321C47 /* InputController.cpp */,
 				48AB580115ECFED800321C47 /* InputController.h */,
+				4842C349164BCB7800E41B95 /* InputControllerNew.cpp */,
+				4842C34A164BCB7800E41B95 /* InputControllerNew.h */,
 			);
 			name = Controller;
 			path = ../Source/Controller;
@@ -822,6 +828,7 @@
 				4850D25215F3B36C005B162D /* SelectionTool.cpp */,
 				4850D25315F3B36C005B162D /* SelectionTool.h */,
 				48AB57FE15ECFBDF00321C47 /* Tool.h */,
+				4842C34C164BD19300E41B95 /* ToolNew.h */,
 			);
 			name = Tool;
 			sourceTree = "<group>";
@@ -1117,6 +1124,7 @@
 				4847AC8D16466BED00726872 /* SphereFigure.cpp in Sources */,
 				482EFE00164692C7001240BB /* ClipHandleFigure.cpp in Sources */,
 				48AD1B3B1646C151009F839B /* AxisFigure.cpp in Sources */,
+				4842C34B164BCB7800E41B95 /* InputControllerNew.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
