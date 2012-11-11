@@ -137,13 +137,15 @@ namespace TrenchBroom {
             inline Tool* nextTool() const { return m_nextTool; }
             
             /* Activation Protocol */
-            virtual bool handleActivate(InputState& inputState) { return false; }
-            virtual bool handleDeactivate(InputState& inputState) { return false; }
+            virtual bool handleActivate(InputState& inputState) { return true; }
+            virtual bool handleDeactivate(InputState& inputState) { return true; }
             virtual bool handleIsModal(InputState& inputState) { return false; }
             
             /* Feedback Protocol */
-            inline void setNeedsUpdate() { m_needsUpdate = true; }
-            virtual void handleRender(Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {}
+            virtual void handlePick(InputState& inputState) {}
+            virtual bool handleNeedsUpdate(InputState& inputState) { return false; };
+            virtual void setNeedsUpdate() { m_needsUpdate = true; }
+            virtual void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {}
 
             /* Input Protocol */
             virtual void handleModifierKeyChange(InputState& inputState) {}
@@ -213,19 +215,26 @@ namespace TrenchBroom {
 
             /* Feedback Protocol */
 
-            inline bool needsUpdate() {
-                bool update = active() && m_needsUpdate;
+            inline bool needsUpdate(InputState& inputState) {
+                bool update = active() && (m_needsUpdate || handleNeedsUpdate(inputState));
                 m_needsUpdate = false;
                 if (nextTool() != NULL)
-                    update |= nextTool()->needsUpdate();
+                    update |= nextTool()->needsUpdate(inputState);
                 return update;
             }
             
-            inline void render(Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
+            inline void render(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
                 if (active())
-                    handleRender(vbo, renderContext);
+                    handleRender(inputState, vbo, renderContext);
                 if (nextTool() != NULL)
-                    nextTool()->render(vbo, renderContext);
+                    nextTool()->render(inputState, vbo, renderContext);
+            }
+            
+            inline void updateHits(InputState& inputState) {
+                if (active())
+                    handlePick(inputState);
+                if (nextTool() != NULL)
+                    nextTool()->updateHits(inputState);
             }
             
             /* Input Protocol */

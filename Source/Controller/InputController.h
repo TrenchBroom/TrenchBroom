@@ -20,12 +20,17 @@
 #ifndef __TrenchBroom__InputController__
 #define __TrenchBroom__InputController__
 
-#include <iostream>
 #include "Controller/Input.h"
+#include "Renderer/Figure.h"
 
 namespace TrenchBroom {
     namespace Model {
         class EditStateChangeSet;
+    }
+    
+    namespace Renderer {
+        class RenderContext;
+        class Vbo;
     }
     
     namespace View {
@@ -34,15 +39,17 @@ namespace TrenchBroom {
     
     namespace Controller {
         class CameraTool;
+        class MoveObjectsTool;
         class SelectionTool;
         class Tool;
-        
+    
         class InputController {
         private:
             View::DocumentViewHolder& m_documentViewHolder;
             InputState m_inputState;
             
             CameraTool* m_cameraTool;
+            MoveObjectsTool* m_moveObjectsTool;
             SelectionTool* m_selectionTool;
             
             Tool* m_toolChain;
@@ -51,6 +58,7 @@ namespace TrenchBroom {
             
             void updateViews();
             void updateModalTool();
+            void updateHits();
         public:
             InputController(View::DocumentViewHolder& documentViewHolder);
             ~InputController();
@@ -71,7 +79,18 @@ namespace TrenchBroom {
             
             void editStateChange(const Model::EditStateChangeSet& changeSet);
             void cameraChange();
+
+            void render(Renderer::Vbo& vbo, Renderer::RenderContext& context);
         };
+
+        class InputControllerFigure : public Renderer::Figure {
+        private:
+            InputController& m_inputController;
+        public:
+            InputControllerFigure(InputController& inputController);
+            void render(Renderer::Vbo& vbo, Renderer::RenderContext& context);
+        };
+        
     }
 }
 

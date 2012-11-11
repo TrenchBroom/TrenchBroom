@@ -119,6 +119,7 @@
 		48E2ECDC1600B52100B8D476 /* TextBackground.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48E2ECDB1600B52000B8D476 /* TextBackground.fragsh */; };
 		48E2ED17160102E400B8D476 /* ViewInspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48E2ED15160102E400B8D476 /* ViewInspector.cpp */; };
 		48EE7A1716500F18003F5BBE /* SelectionTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48EE7A1516500F18003F5BBE /* SelectionTool.cpp */; };
+		48EE7A1A16502B98003F5BBE /* MoveObjectsTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48EE7A1816502B98003F5BBE /* MoveObjectsTool.cpp */; };
 		48F0B7C315FCB4CF0089B0B5 /* Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */; };
 		48FBD14116259AD70059953D /* EntityFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD13F16259AD70059953D /* EntityFigure.cpp */; };
 		48FBD147162601900059953D /* CommandProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD145162601900059953D /* CommandProcessor.cpp */; };
@@ -403,6 +404,9 @@
 		48EE7A14164FF0A3003F5BBE /* Input.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Input.h; sourceTree = "<group>"; };
 		48EE7A1516500F18003F5BBE /* SelectionTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SelectionTool.cpp; sourceTree = "<group>"; };
 		48EE7A1616500F18003F5BBE /* SelectionTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionTool.h; sourceTree = "<group>"; };
+		48EE7A1816502B98003F5BBE /* MoveObjectsTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveObjectsTool.cpp; sourceTree = "<group>"; };
+		48EE7A1916502B98003F5BBE /* MoveObjectsTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveObjectsTool.h; sourceTree = "<group>"; };
+		48EE7A1C16503AE9003F5BBE /* ObjectsHandle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjectsHandle.h; sourceTree = "<group>"; };
 		48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Shader.cpp; sourceTree = "<group>"; };
 		48F0B7C215FCB4CF0089B0B5 /* Shader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Shader.h; sourceTree = "<group>"; };
 		48FBD13C16258DE70059953D /* Figure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Figure.h; sourceTree = "<group>"; };
@@ -763,6 +767,9 @@
 			children = (
 				487B6C77164E8A70000A77DA /* CameraTool.cpp */,
 				487B6C78164E8A70000A77DA /* CameraTool.h */,
+				48EE7A1816502B98003F5BBE /* MoveObjectsTool.cpp */,
+				48EE7A1916502B98003F5BBE /* MoveObjectsTool.h */,
+				48EE7A1C16503AE9003F5BBE /* ObjectsHandle.h */,
 				48EE7A1516500F18003F5BBE /* SelectionTool.cpp */,
 				48EE7A1616500F18003F5BBE /* SelectionTool.h */,
 				4842C34C164BD19300E41B95 /* Tool.h */,
@@ -1041,6 +1048,7 @@
 				4842C34B164BCB7800E41B95 /* InputController.cpp in Sources */,
 				487B6C79164E8A70000A77DA /* CameraTool.cpp in Sources */,
 				48EE7A1716500F18003F5BBE /* SelectionTool.cpp in Sources */,
+				48EE7A1A16502B98003F5BBE /* MoveObjectsTool.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

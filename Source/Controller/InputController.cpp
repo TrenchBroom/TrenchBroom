@@ -20,13 +20,15 @@
 #include "InputController.h"
 
 #include "Controller/CameraTool.h"
+#include "Controller/MoveObjectsTool.h"
 #include "Controller/SelectionTool.h"
 #include "Model/MapDocument.h"
+#include "Renderer/MapRenderer.h"
 
 namespace TrenchBroom {
     namespace Controller {
         void InputController::updateViews() {
-            if (m_documentViewHolder.valid() && m_toolChain->needsUpdate())
+            if (m_documentViewHolder.valid() && m_toolChain->needsUpdate(m_inputState))
                 m_documentViewHolder.document().UpdateAllViews();
         }
 
@@ -49,36 +51,52 @@ namespace TrenchBroom {
             }
         }
 
+        void InputController::updateHits() {
+            m_inputState.invalidate();
+            if (m_dragTool == NULL)
+                m_toolChain->updateHits(m_inputState);
+        }
+
         InputController::InputController(View::DocumentViewHolder& documentViewHolder) :
         m_documentViewHolder(documentViewHolder),
         m_inputState(m_documentViewHolder.view().camera(), m_documentViewHolder.document().picker()),
         m_cameraTool(NULL),
+        m_moveObjectsTool(NULL),
         m_selectionTool(NULL),
         m_toolChain(NULL),
         m_dragTool(NULL),
         m_modalTool(NULL) {
             m_cameraTool = new CameraTool(m_documentViewHolder);
             m_selectionTool = new SelectionTool(m_documentViewHolder);
-            m_cameraTool->setNextTool(m_selectionTool);
+            m_moveObjectsTool = new MoveObjectsTool(m_documentViewHolder, 64.0f, 32.0f);
+            m_cameraTool->setNextTool(m_moveObjectsTool);
+            m_moveObjectsTool->setNextTool(m_selectionTool);
             m_toolChain = m_cameraTool;
+            m_moveObjectsTool->activate(m_inputState);
+            m_documentViewHolder.view().renderer().addFigure(new InputControllerFigure(*this));
         }
         
         InputController::~InputController() {
+            m_toolChain = NULL;
+            m_dragTool = NULL;
+            m_modalTool = NULL;
+
             if (m_cameraTool != NULL) {
                 delete m_cameraTool;
                 m_cameraTool = NULL;
+            }
+            if (m_moveObjectsTool != NULL) {
+                delete m_moveObjectsTool;
+                m_moveObjectsTool = NULL;
             }
             if (m_selectionTool != NULL) {
                 delete m_selectionTool;
                 m_selectionTool = NULL;
             }
-            m_toolChain = NULL;
-            m_dragTool = NULL;
-            m_modalTool = NULL;
         }
 
         void InputController::modifierKeyDown(ModifierKeyState modifierKey) {
-            m_inputState.invalidate();
+            updateHits();
             m_toolChain->modifierKeyChange(m_inputState);
             updateModalTool();
             updateViews();
@@ -95,7 +113,7 @@ namespace TrenchBroom {
             if (m_dragTool != NULL)
                 return false;
             
-            m_inputState.invalidate();
+            updateHits();
             m_inputState.mouseDown(mouseButton);
             bool handled = m_toolChain->mouseDown(m_inputState) != NULL;
             updateModalTool();
@@ -104,15 +122,15 @@ namespace TrenchBroom {
         }
         
         bool InputController::mouseUp(MouseButtonState mouseButton) {
-            m_inputState.invalidate();
-
             bool handled = false;
             if (m_dragTool != NULL) {
                 m_dragTool->endDrag(m_inputState);
                 m_dragTool = NULL;
                 m_inputState.mouseUp(mouseButton);
+                updateHits();
                 handled = true;
             } else {
+                updateHits();
                 handled = m_toolChain->mouseUp(m_inputState) != NULL;
                 m_inputState.mouseUp(mouseButton);
             }
@@ -123,7 +141,7 @@ namespace TrenchBroom {
         }
         
         void InputController::mouseMove(int x, int y) {
-            m_inputState.invalidate();
+            updateHits();
             
             if (m_inputState.mouseButtons() != MouseButtons::MBNone) {
                 if (m_dragTool == NULL)
@@ -143,7 +161,7 @@ namespace TrenchBroom {
         }
 
         void InputController::scroll(float x, float y) {
-            m_inputState.invalidate();
+            updateHits();
             m_inputState.scroll(x, y);
             if (m_dragTool != NULL)
                 m_dragTool->scroll(m_inputState);
@@ -159,6 +177,7 @@ namespace TrenchBroom {
                 m_dragTool = NULL;
                 m_inputState.mouseUp(m_inputState.mouseButtons());
             }
+            updateHits();
             updateModalTool();
             updateViews();
         }
@@ -177,17 +196,28 @@ namespace TrenchBroom {
         }
 
         void InputController::editStateChange(const Model::EditStateChangeSet& changeSet) {
-            m_inputState.invalidate();
+            updateHits();
             m_toolChain->editStateChange(m_inputState, changeSet);
             updateModalTool();
             updateViews();
         }
         
         void InputController::cameraChange() {
-            m_inputState.invalidate();
+            updateHits();
             m_toolChain->cameraChange(m_inputState);
             updateModalTool();
             updateViews();
+        }
+
+        void InputController::render(Renderer::Vbo& vbo, Renderer::RenderContext& context) {
+            m_toolChain->render(m_inputState, vbo, context);
+        }
+
+        InputControllerFigure::InputControllerFigure(InputController& inputController) :
+        m_inputController(inputController) {}
+        
+        void InputControllerFigure::render(Renderer::Vbo& vbo, Renderer::RenderContext& context) {
+            m_inputController.render(vbo, context);
         }
     }
 }
