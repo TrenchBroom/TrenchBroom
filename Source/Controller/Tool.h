@@ -20,60 +20,71 @@
 #ifndef TrenchBroom_Tool_h
 #define TrenchBroom_Tool_h
 
+#include <cassert>
+
 #include "Controller/Input.h"
-#include "Controller/InputController.h"
 #include "Model/MapDocument.h"
-#include "Renderer/MapRenderer.h"
-#include "Utility/CommandProcessor.h"
-#include "Utility/VecMath.h"
 #include "View/DocumentViewHolder.h"
 #include "View/EditorView.h"
+#include "Utility/CommandProcessor.h"
+#include "Utility/String.h"
+#include "Utility/VecMath.h"
 
 #include <wx/cmdproc.h>
 #include <wx/event.h>
-
-#include <cstdio>
 
 using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Model {
         class EditStateChangeSet;
+        class MapDocument;
     }
     
     namespace Renderer {
-        class Figure;
+        class Camera;
+        class RenderContext;
+        class Vbo;
+    }
+    
+    namespace View {
+        class EditorView;
     }
     
     namespace Controller {
         class Tool {
-        public:
-            enum State {
-                Default,
-                MouseDown,
-                Drag,
-                Scroll
-            };
+        protected:
+            typedef enum {
+                DTNone,
+                DTDrag,
+                DTDragTarget
+            } DragType;
         private:
             View::DocumentViewHolder& m_documentViewHolder;
-            InputController& m_inputController;
-            State m_state;
-            bool m_active;
-        protected:
-            virtual bool handleActivated(InputEvent& event) { return false; }
-            virtual bool handleDeactivated(InputEvent& event) { return false; }
-            virtual void handleModifierKeyChanged(InputEvent& event) {}
-            virtual bool handleMouseDown(InputEvent& event) { return false; }
-            virtual bool handleMouseUp(InputEvent& event) { return false; }
-            virtual bool handleMouseMoved(InputEvent& event) { return false; }
-            virtual bool handleScrolled(InputEvent& event) { return false; }
-
-            virtual bool handleBeginDrag(InputEvent& event) { return false; }
-            virtual bool handleDrag(InputEvent& event) { return false; }
-            virtual void handleEndDrag(InputEvent& event) {}
             
-            virtual void handleChangeEditState(const Model::EditStateChangeSet& changeSet) {}
-
+            bool m_activatable;
+            bool m_active;
+            bool m_needsUpdate;
+            DragType m_dragType;
+            String m_dragPayload;
+            Tool* m_nextTool;
+        protected:
+            Tool(View::DocumentViewHolder& documentViewHolder, bool activatable) :
+            m_documentViewHolder(documentViewHolder),
+            m_activatable(activatable),
+            m_active(!m_activatable),
+            m_needsUpdate(false),
+            m_dragType(DTNone),
+            m_nextTool(NULL) {}
+            
+            inline Model::MapDocument& document() const {
+                return m_documentViewHolder.document();
+            }
+            
+            inline View::EditorView& view() const {
+                return m_documentViewHolder.view();
+            }
+            
             inline void postEvent(wxEvent& event) {
                 if (!m_documentViewHolder.valid())
                     return;
@@ -83,7 +94,7 @@ namespace TrenchBroom {
                 view.ProcessEvent(event);
             }
             
-            inline void BeginCommandGroup(const wxString& name) {
+            inline void beginCommandGroup(const wxString& name) {
                 if (!m_documentViewHolder.valid())
                     return;
                 
@@ -91,15 +102,15 @@ namespace TrenchBroom {
                 CommandProcessor::BeginGroup(document.GetCommandProcessor(), name);
             }
             
-            inline void EndCommandGroup() {
+            inline void endCommandGroup() {
                 if (!m_documentViewHolder.valid())
                     return;
                 
                 Model::MapDocument& document = m_documentViewHolder.document();
                 CommandProcessor::EndGroup(document.GetCommandProcessor());
             }
-
-            inline void RollbackCommandGroup() {
+            
+            inline void rollbackCommandGroup() {
                 if (!m_documentViewHolder.valid())
                     return;
                 
@@ -107,7 +118,7 @@ namespace TrenchBroom {
                 CommandProcessor::RollbackGroup(document.GetCommandProcessor());
             }
             
-            inline void DiscardCommandGroup() {
+            inline void discardCommandGroup() {
                 if (!m_documentViewHolder.valid())
                     return;
                 
@@ -115,135 +126,273 @@ namespace TrenchBroom {
                 CommandProcessor::DiscardGroup(document.GetCommandProcessor());
             }
             
-            inline void postCommand(wxCommand* command) {
+            inline void submitCommand(wxCommand* command) {
                 if (!m_documentViewHolder.valid())
                     return;
                 
                 Model::MapDocument& document = m_documentViewHolder.document();
                 document.GetCommandProcessor()->Submit(command);
             }
+            
+            inline Tool* nextTool() const { return m_nextTool; }
+            
+            /* Activation Protocol */
+            virtual bool handleActivate(InputState& inputState) { return false; }
+            virtual bool handleDeactivate(InputState& inputState) { return false; }
+            virtual bool handleIsModal(InputState& inputState) { return false; }
+            
+            /* Feedback Protocol */
+            inline void setNeedsUpdate() { m_needsUpdate = true; }
+            virtual void handleRender(Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {}
 
-            inline View::DocumentViewHolder& documentViewHolder() {
-                return m_documentViewHolder;
+            /* Input Protocol */
+            virtual void handleModifierKeyChange(InputState& inputState) {}
+            virtual bool handleMouseDown(InputState& inputState) { return false; }
+            virtual bool handleMouseUp(InputState& inputState) { return false; }
+            virtual void handleMouseMove(InputState& inputState) {}
+            virtual void handleScroll(InputState& inputState) {}
+            
+            /* Drag Protocol */
+            inline DragType dragType() const {
+                return m_dragType;
             }
             
-            inline void addFigure(Renderer::Figure* figure) {
-                m_inputController.addFigure(this, figure);
-            }
+            virtual bool handleStartDrag(InputState& inputState) { return false; }
+            virtual void handleDrag(InputState& inputState) {}
+            virtual void handleEndDrag(InputState& inputState) {}
+            virtual void handleCancelDrag(InputState& inputState) {}
+
+            /* Drag Target Protocol */
+            virtual bool handleDragEnter(InputState& inputState, const String& payload) { return false; }
+            virtual void handleDragMove(InputState& inputState, const String& payload) {}
+            virtual void handleDragLeave(InputState& inputState, const String& payload) {}
+            virtual bool handleDragDrop(InputState& inputState, const String& payload) { return false; }
             
-            inline void removeFigure(Renderer::Figure* figure) {
-                m_inputController.removeFigure(this, figure);
-            }
-            
-            inline void deleteFigure(Renderer::Figure* figure) {
-                m_inputController.deleteFigure(this, figure);
-            }
-            
+            virtual void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {}
+            virtual void handleCameraChange(InputState& inputState) {}
         public:
-            Tool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
-            m_documentViewHolder(documentViewHolder),
-            m_inputController(inputController),
-            m_state(Default),
-            m_active(false) {}
-            
             virtual ~Tool() {}
             
-            virtual bool updateHits(InputEvent& event) { return false; }
-            
-            virtual bool suppressOtherFeedback(InputEvent& event) { return false; }
-            
-            virtual bool updateFeedback(InputEvent& event) { return false; }
-            
-            inline State state() const {
-                return m_state;
-            }
-            
-            inline bool active() const {
-                return m_active;
-            }
-            
-            bool activated(InputEvent& event) {
-                if (handleActivated(event)) {
-                    m_active = true;
-                    return true;
-                }
-                
-                return false;
-            }
-            
-            bool deactivated(InputEvent& event) {
-                if (handleDeactivated(event)) {
-                    m_active = false;
-                    m_state = Default;
-                    return true;
-                }
-                
-                return false;
-            }
-            
-            void modifierKeyChanged(InputEvent& event) {
-                handleModifierKeyChanged(event);
-            }
-            
-            bool mouseDown(InputEvent& event) {
-                if (handleMouseDown(event)) {
-                    m_state = MouseDown;
-                    return true;
-                }
-                
-                return false;
-            }
-            
-            bool mouseUp(InputEvent& event) {
-                if (handleMouseUp(event)) {
-                    m_state = Default;
-                    return true;
-                }
-                
-                return false;
-            }
-            
-            bool mouseMoved(InputEvent& event) {
-                return handleMouseMoved(event);
-            }
-            
-            bool scrolled(InputEvent& event) {
-                return handleScrolled(event);
-            }
-            
-            bool beginDrag(InputEvent& event) {
-                if (handleBeginDrag(event)) {
-                    m_state = Drag;
-                    return true;
-                }
-                
-                return false;
-            }
-            
-            bool drag(InputEvent& event) {
-                if (handleDrag(event)) {
-                    return true;
-                } else {
-                    endDrag(event);
-                    return false;
-                }
-            }
-            
-            void endDrag(InputEvent& event) {
-                handleEndDrag(event);
-                m_state = Default;
-            }
-            
-            static bool noModifierPressed(InputEvent& event) {
-                return event.modifierKeys() == ModifierKeys::MKNone;
+            inline void setNextTool(Tool* tool) {
+                m_nextTool = tool;
             }
 
-            void changeEditState(const Model::EditStateChangeSet& changeSet) {
-                handleChangeEditState(changeSet);
+            /* Activation Protocol */
+            
+            inline bool active() const {
+                return !m_activatable || m_active;
             }
+            
+            inline void activate(InputState& inputState) {
+                if (m_activatable) {
+                    assert(!active());
+                    if (handleActivate(inputState))
+                        m_active = !m_active;
+                }
+            }
+            
+            inline void deactivate(InputState& inputState) {
+                if (m_activatable) {
+                    assert(active());
+                    if (handleDeactivate(inputState))
+                        m_active = !m_active;
+                }
+            }
+            
+            inline bool isModal(InputState& inputState) {
+                return active() && handleIsModal(inputState);
+            }
+            
+            inline Tool* modalTool(InputState& inputState) {
+                if (isModal(inputState))
+                    return this;
+                if (nextTool() != NULL)
+                    return nextTool()->modalTool(inputState);
+                return NULL;
+            }
+
+            /* Feedback Protocol */
+
+            inline bool needsUpdate() {
+                bool update = active() && m_needsUpdate;
+                m_needsUpdate = false;
+                if (nextTool() != NULL)
+                    update |= nextTool()->needsUpdate();
+                return update;
+            }
+            
+            inline void render(Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
+                if (active())
+                    handleRender(vbo, renderContext);
+                if (nextTool() != NULL)
+                    nextTool()->render(vbo, renderContext);
+            }
+            
+            /* Input Protocol */
+            
+            void modifierKeyChange(InputState& inputState) {
+                if (active())
+                    handleModifierKeyChange(inputState);
+                if (nextTool() != NULL)
+                    nextTool()->modifierKeyChange(inputState);
+            }
+            
+            Tool* mouseDown(InputState& inputState) {
+                if (active() && handleMouseDown(inputState))
+                    return this;
+                if (nextTool() != NULL)
+                    return nextTool()->mouseDown(inputState);
+                return NULL;
+            }
+            
+            Tool* mouseUp(InputState& inputState) {
+                if (active() && handleMouseUp(inputState))
+                    return this;
+                if (nextTool() != NULL)
+                    return nextTool()->mouseUp(inputState);
+                return NULL;
+            }
+            
+            void mouseMove(InputState& inputState) {
+                if (active())
+                    handleMouseMove(inputState);
+                if (nextTool() != NULL)
+                    nextTool()->mouseMove(inputState);
+            }
+            
+            void scroll(InputState& inputState) {
+                if (active())
+                    handleScroll(inputState);
+                if (nextTool() != NULL)
+                    nextTool()->scroll(inputState);
+            }
+            
+            /* Drag Protocol */
+            
+            Tool* startDrag(InputState& inputState) {
+                assert(dragType() == DTNone);
+                if (active() && handleStartDrag(inputState)) {
+                    m_dragType = DTDrag;
+                    return this;
+                }
+                if (nextTool() != NULL)
+                    return nextTool()->startDrag(inputState);
+                return NULL;
+            }
+            
+            void drag(InputState& inputState) {
+                assert(active());
+                assert(dragType() == DTDrag);
+                handleDrag(inputState);
+            }
+            
+            void endDrag(InputState& inputState) {
+                assert(active());
+                assert(dragType() == DTDrag);
+                handleEndDrag(inputState);
+                m_dragType = DTNone;
+            }
+            
+            void cancelDrag(InputState& inputState) {
+                assert(active());
+                assert(dragType() == DTDrag);
+                handleCancelDrag(inputState);
+                m_dragType = DTNone;
+            }
+            
+            /* DragTarget Protocol */
+            
+            Tool* dragEnter(InputState& inputState, const String& payload) {
+                assert(dragType() == DTNone);
+                if (active() && handleDragEnter(inputState, payload)) {
+                    m_dragType = DTDragTarget;
+                    m_dragPayload = payload;
+                    return this;
+                }
+                if (nextTool() != NULL)
+                    return nextTool()->dragEnter(inputState, payload);
+                return NULL;
+            }
+            
+            void dragMove(InputState& inputState) {
+                assert(active());
+                assert(dragType() == DTDragTarget);
+                handleDragMove(inputState, m_dragPayload);
+            }
+            
+            void dragLeave(InputState& inputState) {
+                assert(active());
+                assert(dragType() == DTDragTarget);
+                handleDragLeave(inputState, m_dragPayload);
+                m_dragPayload = "";
+                m_dragType = DTNone;
+            }
+            
+            bool dragDrop(InputState& inputState) {
+                assert(active());
+                assert(dragType() == DTDragTarget);
+                bool success = handleDragDrop(inputState, m_dragPayload);
+                m_dragPayload = "";
+                m_dragType = DTNone;
+                return success;
+            }
+            
+            void editStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
+                if (active())
+                    handleEditStateChange(inputState, changeSet);
+                if (nextTool() != NULL)
+                    nextTool()->editStateChange(inputState, changeSet);
+            }
+            
+            void cameraChange(InputState& inputState) {
+                if (active())
+                    handleCameraChange(inputState);
+                if (nextTool() != NULL)
+                    nextTool()->cameraChange(inputState);
+            }
+        };
+        
+        class PlaneDragTool : public Tool {
+        private:
+            Plane m_plane;
+            Vec3f m_lastPoint;
+            Vec3f m_refPoint;
+        protected:
+            virtual bool handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint) = 0;
+            virtual void handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) = 0;
+            virtual void handleEndPlaneDrag(InputState& inputState) = 0;
+            
+            bool handleStartDrag(InputState& inputState) {
+                if (handleStartPlaneDrag(inputState, m_plane, m_lastPoint)) {
+                    m_refPoint = m_lastPoint;
+                    return true;
+                }
+                return false;
+            }
+            
+            void handleDrag(InputState& inputState) {
+                float distance = m_plane.intersectWithRay(inputState.pickRay());
+                if (Math::isnan(distance))
+                    return;
+                
+                Vec3f curPoint = inputState.pickRay().pointAtDistance(distance);
+                if (curPoint.equals(m_lastPoint))
+                    return;
+                
+                handlePlaneDrag(inputState, m_lastPoint, curPoint, m_refPoint);
+                m_lastPoint = curPoint;
+            }
+            
+            void handleEndDrag(InputState& inputState) {
+                handleEndPlaneDrag(inputState);
+            }
+        public:
+            PlaneDragTool(View::DocumentViewHolder& documentViewHolder, bool activatable) :
+            Tool(documentViewHolder, activatable) {}
+            
+            virtual ~PlaneDragTool() {}
         };
     }
 }
-
 
 #endif

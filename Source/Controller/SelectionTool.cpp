@@ -17,7 +17,6 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "SelectionTool.h"
 
 #include "Controller/ChangeEditStateCommand.h"
@@ -26,37 +25,32 @@
 #include "Model/Entity.h"
 #include "Model/Face.h"
 #include "Model/Picker.h"
-#include "Utility/List.h"
 #include "View/DocumentViewHolder.h"
+#include "View/EditorView.h"
+#include "Utility/List.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        bool SelectionTool::handleMouseUp(InputEvent& event) {
-            if (!documentViewHolder().valid())
+        bool SelectionTool::handleMouseUp(InputState& inputState) {
+            if (inputState.mouseButtons() != MouseButtons::MBLeft)
                 return false;
             
-            if (event.mouseButtons != MouseButtons::MBLeft)
-                return false;
-            
-            Model::MapDocument& document = documentViewHolder().document();
-            View::EditorView& view = documentViewHolder().view();
-            
-            Model::Hit* hit = event.pickResult->first(Model::HitType::ObjectHit, false, view.filter());
+            Model::Hit* hit = inputState.pickResult().first(Model::HitType::ObjectHit, false, view().filter());
             Command* command = NULL;
-            Model::EditStateManager& editStateManager = document.editStateManager();
+            Model::EditStateManager& editStateManager = document().editStateManager();
             
             if (hit != NULL) {
-                bool multi = event.modifierKeys() == ModifierKeys::MKCtrlCmd;
+                bool multi = inputState.modifierKeys() == ModifierKeys::MKCtrlCmd;
                 
                 if (hit->type() == Model::HitType::EntityHit) {
                     Model::Entity& entity = static_cast<Model::EntityHit*>(hit)->entity();
                     if (multi) {
                         if (entity.selected())
-                            command = ChangeEditStateCommand::deselect(document, entity);
+                            command = ChangeEditStateCommand::deselect(document(), entity);
                         else
-                            command = ChangeEditStateCommand::select(document, entity);
+                            command = ChangeEditStateCommand::select(document(), entity);
                     } else {
-                        command = ChangeEditStateCommand::replace(document, entity);
+                        command = ChangeEditStateCommand::replace(document(), entity);
                     }
                 } else {
                     Model::Face& face = static_cast<Model::FaceHit*>(hit)->face();
@@ -64,66 +58,60 @@ namespace TrenchBroom {
                     
                     if (brush.selected()) {
                         if (multi)
-                            command = ChangeEditStateCommand::deselect(document, brush);
+                            command = ChangeEditStateCommand::deselect(document(), brush);
                         else
-                            command = ChangeEditStateCommand::select(document, face);
+                            command = ChangeEditStateCommand::select(document(), face);
                     } else if (face.selected()) {
                         if (multi)
-                            command = ChangeEditStateCommand::deselect(document, face);
+                            command = ChangeEditStateCommand::deselect(document(), face);
                         else
-                            command = ChangeEditStateCommand::select(document, brush);
+                            command = ChangeEditStateCommand::select(document(), brush);
                     } else {
                         if (multi) {
                             if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces)
-                                command = ChangeEditStateCommand::select(document, face);
+                                command = ChangeEditStateCommand::select(document(), face);
                             else
-                                command = ChangeEditStateCommand::select(document, brush);
+                                command = ChangeEditStateCommand::select(document(), brush);
                         } else {
                             if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces)
-                                command = ChangeEditStateCommand::replace(document, face);
+                                command = ChangeEditStateCommand::replace(document(), face);
                             else
-                                command = ChangeEditStateCommand::replace(document, brush);
+                                command = ChangeEditStateCommand::replace(document(), brush);
                         }
                     }
                 }
             } else {
-                command = ChangeEditStateCommand::deselectAll(document);
+                command = ChangeEditStateCommand::deselectAll(document());
             }
-
+            
             if (command != NULL) {
-                postCommand(command);
+                submitCommand(command);
                 return true;
             }
             
             return false;
         }
         
-        bool SelectionTool::handleScrolled(InputEvent& event) {
-            if (!documentViewHolder().valid())
-                return false;
+        void SelectionTool::handleScroll(InputState& inputState) {
+            if (inputState.modifierKeys() != ModifierKeys::MKCtrlCmd &&
+                inputState.modifierKeys() != (ModifierKeys::MKCtrlCmd | ModifierKeys::MKShift))
+                return;
             
-            if (event.modifierKeys() != ModifierKeys::MKCtrlCmd &&
-                event.modifierKeys() != (ModifierKeys::MKCtrlCmd | ModifierKeys::MKShift))
-                return false;
-            
-            Model::MapDocument& document = documentViewHolder().document();
-            View::EditorView& view = documentViewHolder().view();
-            
-            Model::EditStateManager& editStateManager = document.editStateManager();
+            Model::EditStateManager& editStateManager = document().editStateManager();
             if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces)
-                return false;
+                return;
             
-            const Model::HitList hits = event.pickResult->hits(Model::HitType::ObjectHit, view.filter());
+            const Model::HitList hits = inputState.pickResult().hits(Model::HitType::ObjectHit, view().filter());
             if (hits.empty())
-                return false;
+                return;
             
             Model::EntityList entities = editStateManager.selectedEntities();
             Model::BrushList brushes = editStateManager.selectedBrushes();
             
             Command* command = NULL;
-            bool appendSelection = event.modifierKeys() == (ModifierKeys::MKCtrlCmd | ModifierKeys::MKShift);
+            bool appendSelection = inputState.modifierKeys() == (ModifierKeys::MKCtrlCmd | ModifierKeys::MKShift);
             bool foundSelection = false;
-
+            
             for (size_t i = 0; i < hits.size(); i++) {
                 Model::Hit* hit = hits[i];
                 if (hit->type() == Model::HitType::EntityHit) {
@@ -145,9 +133,9 @@ namespace TrenchBroom {
                 
                 if (foundSelection) {
                     Model::Hit* hit = NULL;
-                    if (event.scroll() > 0.0f && i < hits.size() - 1)
+                    if (inputState.scroll() > 0.0f && i < hits.size() - 1)
                         hit = hits[i + 1];
-                    else if (event.scroll() < 0.0f && i > 0)
+                    else if (inputState.scroll() < 0.0f && i > 0)
                         hit = hits[i - 1];
                     
                     if (hit != NULL) {
@@ -155,14 +143,14 @@ namespace TrenchBroom {
                             Model::Entity& entity = static_cast<Model::EntityHit*>(hit)->entity();
                             if (!entity.selected()) {
                                 entities.push_back(&entity);
-                                command = ChangeEditStateCommand::replace(document, entities, brushes);
+                                command = ChangeEditStateCommand::replace(document(), entities, brushes);
                             }
                         } else {
                             Model::Face& face = static_cast<Model::FaceHit*>(hit)->face();
                             Model::Brush& brush = *face.brush();
                             if (!brush.selected()) {
                                 brushes.push_back(&brush);
-                                command = ChangeEditStateCommand::replace(document, entities, brushes);
+                                command = ChangeEditStateCommand::replace(document(), entities, brushes);
                             }
                         }
                     }
@@ -179,15 +167,14 @@ namespace TrenchBroom {
                     Model::Brush& brush = *face.brush();
                     brushes.push_back(&brush);
                 }
-                command = ChangeEditStateCommand::replace(document, entities, brushes);
+                command = ChangeEditStateCommand::replace(document(), entities, brushes);
             }
             
-            if (command != NULL) {
-                postCommand(command);
-                return true;
-            }
-            
-            return false;
+            if (command != NULL)
+                submitCommand(command);
         }
+
+        SelectionTool::SelectionTool(View::DocumentViewHolder& documentViewHolder) :
+        Tool(documentViewHolder, false) {}
     }
 }

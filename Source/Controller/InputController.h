@@ -20,90 +20,57 @@
 #ifndef __TrenchBroom__InputController__
 #define __TrenchBroom__InputController__
 
-#include "Controller/DragTargetTool.h"
+#include <iostream>
 #include "Controller/Input.h"
-
-#include <vector>
-
-class wxEvtHandler;
 
 namespace TrenchBroom {
     namespace Model {
         class EditStateChangeSet;
-        class MapDocument;
-        class Picker;
-    }
-    
-    namespace Renderer {
-        class Camera;
-        class InputControllerFeedbackFigure;
-        class Figure;
     }
     
     namespace View {
         class DocumentViewHolder;
-        class EditorView;
     }
     
     namespace Controller {
-        class ClipTool;
+        class CameraTool;
+        class SelectionTool;
         class Tool;
         
         class InputController {
-        protected:
-            typedef std::vector<Tool*> ToolList;
-
-            static const size_t ModalReceiverIndex = 1;
-            
+        private:
             View::DocumentViewHolder& m_documentViewHolder;
+            InputState m_inputState;
             
-            InputEvent m_currentEvent;
-            MouseButtonState m_dragButtons;
-            ToolList m_receivers;
-            Tool* m_dragReceiver;
-            Tool* m_mouseUpReceiver;
-            Tool* m_singleFeedbackProvider;
-            ClipTool* m_clipTool;
-            bool m_modalToolActive;
-
-            DragTargetToolList m_dragTargetTools;
-            DragTargetTool* m_dragTargetReceiver;
+            CameraTool* m_cameraTool;
+            SelectionTool* m_selectionTool;
             
-            Renderer::InputControllerFeedbackFigure* m_figureHolder;
-
-            void updateHits();
-            void updateFeedback();
-            void updateMousePos(float x, float y);
+            Tool* m_toolChain;
+            Tool* m_dragTool;
+            Tool* m_modalTool;
             
-            bool activateModalTool(Tool* modalTool);
+            void updateViews();
+            void updateModalTool();
         public:
             InputController(View::DocumentViewHolder& documentViewHolder);
             ~InputController();
             
             void modifierKeyDown(ModifierKeyState modifierKey);
             void modifierKeyUp(ModifierKeyState modifierKey);
-            bool mouseDown(MouseButtonState mouseButton, float x, float y);
-            bool mouseUp(MouseButtonState mouseButton, float x, float y);
-            void mouseMoved(float x, float y);
-            void scrolled(float dx, float dy);
             
-            void dragEnter(const String& payload, float x, float y);
-            void dragMove(const String& payload, float x, float y);
-            bool drop(const String& payload, float x, float y);
+            bool mouseDown(MouseButtonState mouseButton);
+            bool mouseUp(MouseButtonState mouseButton);
+            void mouseMove(int x, int y);
+            void scroll(float x, float y);
+            void cancelDrag();
+            
+            void dragEnter(const String& payload, int x, int y);
+            void dragMove(const String& payload, int x, int y);
+            bool drop(const String& payload, int x, int y);
             void dragLeave();
             
-            void changeEditState(const Model::EditStateChangeSet& changeSet);
-            
-            void addFigure(Tool* tool, Renderer::Figure* figure);
-            void removeFigure(Tool* tool, Renderer::Figure* figure);
-            void deleteFigure(Tool* tool, Renderer::Figure* figure);
-            
-            bool toggleClipTool();
-            void toggleClipSide();
-            bool canPerformClip();
-            void performClip();
-            bool clipToolActive();
-            bool deactivateModalTool();
+            void editStateChange(const Model::EditStateChangeSet& changeSet);
+            void cameraChange();
         };
     }
 }

@@ -24,15 +24,12 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        class InputController;
-
         class SelectionTool : public Tool {
         protected:
-            bool handleMouseUp(InputEvent& event);
-            bool handleScrolled(InputEvent& event);
+            bool handleMouseUp(InputState& inputState);
+            void handleScroll(InputState& inputState);
         public:
-            SelectionTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
-            Tool(documentViewHolder, inputController) {}
+            SelectionTool(View::DocumentViewHolder& documentViewHolder);
         };
     }
 }

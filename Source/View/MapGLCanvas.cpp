@@ -22,6 +22,7 @@
 #include "Controller/CameraEvent.h"
 #include "Controller/Input.h"
 #include "Controller/InputController.h"
+#include "Model/MapDocument.h"
 #include "Renderer/Camera.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderContext.h"
@@ -30,6 +31,8 @@
 #include "Utility/Console.h"
 #include "Utility/Preferences.h"
 #include "Utility/VecMath.h"
+#include "View/DocumentViewHolder.h"
+#include "View/EditorView.h"
 #include "View/DragAndDrop.h"
 
 #include <wx/wx.h>
@@ -52,6 +55,7 @@ namespace TrenchBroom {
         EVT_MIDDLE_UP(MapGLCanvas::OnMouseMiddleUp)
         EVT_MOTION(MapGLCanvas::OnMouseMove)
         EVT_MOUSEWHEEL(MapGLCanvas::OnMouseWheel)
+        EVT_MOUSE_CAPTURE_LOST(MapGLCanvas::OnMouseCaptureLost)
         END_EVENT_TABLE()
 
         wxDragResult MapGLCanvasDropTarget::OnEnter(wxCoord x, wxCoord y, wxDragResult def) {
@@ -181,48 +185,52 @@ namespace TrenchBroom {
 
         void MapGLCanvas::OnMouseLeftDown(wxMouseEvent& event) {
 			CaptureMouse();
-            m_inputController->mouseDown(Controller::MouseButtons::MBLeft, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
+            m_inputController->mouseDown(Controller::MouseButtons::MBLeft);
         }
 
         void MapGLCanvas::OnMouseLeftUp(wxMouseEvent& event) {
 			if (GetCapture() == this)
 				ReleaseMouse();
-            m_inputController->mouseUp(Controller::MouseButtons::MBLeft, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
+            m_inputController->mouseUp(Controller::MouseButtons::MBLeft);
         }
 
         void MapGLCanvas::OnMouseRightDown(wxMouseEvent& event) {
 			CaptureMouse();
-            m_inputController->mouseDown(Controller::MouseButtons::MBRight, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
+            m_inputController->mouseDown(Controller::MouseButtons::MBRight);
         }
 
         void MapGLCanvas::OnMouseRightUp(wxMouseEvent& event) {
 			if (GetCapture() == this)
 				ReleaseMouse();
-            m_inputController->mouseUp(Controller::MouseButtons::MBRight, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
+            m_inputController->mouseUp(Controller::MouseButtons::MBRight);
         }
 
         void MapGLCanvas::OnMouseMiddleDown(wxMouseEvent& event) {
 			CaptureMouse();
-            m_inputController->mouseDown(Controller::MouseButtons::MBMiddle, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
+            m_inputController->mouseDown(Controller::MouseButtons::MBMiddle);
         }
 
         void MapGLCanvas::OnMouseMiddleUp(wxMouseEvent& event) {
 			if (GetCapture() == this)
 				ReleaseMouse();
-            m_inputController->mouseUp(Controller::MouseButtons::MBMiddle, static_cast<float>(event.GetX()), static_cast<float>(event.GetY()));
+            m_inputController->mouseUp(Controller::MouseButtons::MBMiddle);
         }
 
         void MapGLCanvas::OnMouseMove(wxMouseEvent& event) {
-            m_inputController->mouseMoved(static_cast<float>(event.GetX()), static_cast<float>(event.GetY() - 2));
+            m_inputController->mouseMove(event.GetX(), event.GetY());
         }
 
         void MapGLCanvas::OnMouseWheel(wxMouseEvent& event) {
             int lines = event.GetLinesPerAction();
             float delta = static_cast<float>(event.GetWheelRotation()) / lines / event.GetWheelDelta();
             if (event.GetWheelAxis() == wxMOUSE_WHEEL_HORIZONTAL)
-                m_inputController->scrolled(delta, 0.0f);
+                m_inputController->scroll(delta, 0.0f);
             else if (event.GetWheelAxis() == wxMOUSE_WHEEL_VERTICAL)
-                m_inputController->scrolled(0.0f, delta);
+                m_inputController->scroll(0.0f, delta);
+        }
+
+        void MapGLCanvas::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
+            m_inputController->cancelDrag();
         }
     }
 }

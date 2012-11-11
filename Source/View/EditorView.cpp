@@ -391,7 +391,7 @@ namespace TrenchBroom {
 
                         EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
                         frame->updateMenuBar();
-                        inputController().changeEditState(changeEditStateCommand->changeSet());
+                        inputController().editStateChange(changeEditStateCommand->changeSet());
 
                         inspector().faceInspector().updateFaceAttributes();
                         inspector().faceInspector().updateSelectedTexture();
@@ -511,16 +511,19 @@ namespace TrenchBroom {
 
         void EditorView::OnCameraMove(Controller::CameraMoveEvent& event) {
             m_camera->moveBy(event.forward(), event.right(), event.up());
+            inputController().cameraChange();
             OnUpdate(this);
         }
         
         void EditorView::OnCameraLook(Controller::CameraLookEvent& event) {
             m_camera->rotate(event.hAngle(), event.vAngle());
+            inputController().cameraChange();
             OnUpdate(this);
         }
         
         void EditorView::OnCameraOrbit(Controller::CameraOrbitEvent& event) {
             m_camera->orbit(event.center(), event.hAngle(), event.vAngle());
+            inputController().cameraChange();
             OnUpdate(this);
         }
         
@@ -726,7 +729,7 @@ namespace TrenchBroom {
         }
 
         void EditorView::OnEditToggleClipTool(wxCommandEvent& event) {
-            inputController().toggleClipTool();
+            // inputController().toggleClipTool();
         }
         
         void EditorView::OnEditToggleClipSide(wxCommandEvent& event) {
@@ -911,13 +914,13 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::EditToggleClipTool:
                     event.Enable(editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
-                    event.Check(inputController().clipToolActive());
+                    // event.Check(inputController().clipToolActive());
                     break;
                 case CommandIds::Menu::EditToggleClipSide:
-                    event.Enable(inputController().clipToolActive());
+                    // event.Enable(inputController().clipToolActive());
                     break;
                 case CommandIds::Menu::EditPerformClip:
-                    event.Enable(inputController().clipToolActive() && inputController().canPerformClip());
+                    // event.Enable(inputController().clipToolActive() && inputController().canPerformClip());
                     break;
                 case CommandIds::Menu::EditToggleVertexTool:
                 case CommandIds::Menu::EditToggleEdgeTool:

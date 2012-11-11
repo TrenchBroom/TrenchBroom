@@ -89,6 +89,7 @@ namespace TrenchBroom {
             void OnMouseMiddleUp(wxMouseEvent& event);
             void OnMouseMove(wxMouseEvent& event);
             void OnMouseWheel(wxMouseEvent& event);
+            void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
 
             DECLARE_EVENT_TABLE()
         };

@@ -20,360 +20,174 @@
 #include "InputController.h"
 
 #include "Controller/CameraTool.h"
-#include "Controller/ClipTool.h"
-#include "Controller/EntityDragTargetTool.h"
-#include "Controller/MoveObjectsTool.h"
-#include "Controller/RotateObjectsTool.h"
 #include "Controller/SelectionTool.h"
 #include "Model/MapDocument.h"
-#include "Model/Picker.h"
-#include "Renderer/Camera.h"
-#include "Renderer/InputControllerFeedbackFigure.h"
-#include "View/DocumentViewHolder.h"
-#include "View/EditorView.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        void InputController::updateHits() {
-            if (m_currentEvent.pickResult != NULL)
-                delete m_currentEvent.pickResult;
-            
-            if (!m_documentViewHolder.valid())
-                return;
-            
-            Renderer::Camera& camera = m_documentViewHolder.view().camera();
-            Model::Picker& picker = m_documentViewHolder.document().picker();
-            
-            m_currentEvent.camera = &camera;
-            m_currentEvent.ray = camera.pickRay(m_currentEvent.mouseX, m_currentEvent.mouseY);
-            m_currentEvent.pickResult = picker.pick(m_currentEvent.ray);
-            
-            bool stopUpdate = false;
-            for (unsigned int i = 0; i < m_receivers.size() && !stopUpdate; i++)
-                stopUpdate = m_receivers[i]->updateHits(m_currentEvent);
-        }
-
-        void InputController::updateFeedback() {
-            bool updateViews = false;
-            if (m_singleFeedbackProvider == NULL) {
-                ToolList::iterator it, end;
-                for (it = m_receivers.begin(), end = m_receivers.end(); it != end; ++it) {
-                    Tool& tool = **it;
-                    if (tool.suppressOtherFeedback(m_currentEvent)) {
-                        m_singleFeedbackProvider = &tool;
-                        updateViews = true;
-                        break;
-                    }
-                }
-            } else {
-                if (!m_singleFeedbackProvider->suppressOtherFeedback(m_currentEvent)) {
-                    m_singleFeedbackProvider = NULL;
-                    ToolList::iterator it, end;
-                    for (it = m_receivers.begin(), end = m_receivers.end(); it != end; ++it) {
-                        Tool& tool = **it;
-                        if (tool.suppressOtherFeedback(m_currentEvent)) {
-                            m_singleFeedbackProvider = &tool;
-                            break;
-                        }
-                    }
-                    updateViews = true;
-                }
-            }
-            
-            m_figureHolder->setSingleFeedbackProvider(m_singleFeedbackProvider);
-
-            if (m_singleFeedbackProvider == NULL) {
-                ToolList::iterator it, end;
-                for (it = m_receivers.begin(), end = m_receivers.end(); it != end; ++it) {
-                    Tool& tool = **it;
-                    updateViews |= tool.updateFeedback(m_currentEvent);
-                }
-            } else {
-                updateViews |= m_singleFeedbackProvider->updateFeedback(m_currentEvent);
-            }
-            
-            if (updateViews)
+        void InputController::updateViews() {
+            if (m_documentViewHolder.valid() && m_toolChain->needsUpdate())
                 m_documentViewHolder.document().UpdateAllViews();
         }
 
-        void InputController::updateMousePos(float x, float y) {
-            m_currentEvent.deltaX = x - m_currentEvent.mouseX;
-            m_currentEvent.deltaY = y - m_currentEvent.mouseY;
-            m_currentEvent.mouseX = x;
-            m_currentEvent.mouseY = y;
-        }
-
-        bool InputController::activateModalTool(Tool* modalTool) {
-            if (deactivateModalTool()) {
-                m_receivers.insert(m_receivers.begin() + ModalReceiverIndex, modalTool);
-                modalTool->activated(m_currentEvent);
-                m_modalToolActive = true;
-                updateHits();
-                updateFeedback();
-                return true;
+        void InputController::updateModalTool() {
+            if (m_dragTool != NULL)
+                return;
+            
+            if (m_modalTool == NULL) {
+                m_modalTool = m_toolChain->modalTool(m_inputState);
+                if (m_modalTool != NULL) {
+                    // deactivate all tools but the modal tool
+                }
+            } else {
+                if (!m_modalTool->isModal(m_inputState)) {
+                    m_modalTool = m_toolChain->modalTool(m_inputState);
+                    if (m_modalTool != NULL) {
+                        // deactivate all tools but the new modal tool
+                    }
+                }
             }
-            return false;
         }
 
         InputController::InputController(View::DocumentViewHolder& documentViewHolder) :
         m_documentViewHolder(documentViewHolder),
-        m_dragReceiver(NULL),
-        m_mouseUpReceiver(NULL),
-        m_singleFeedbackProvider(NULL),
-        m_modalToolActive(false),
-        m_dragTargetReceiver(NULL),
-        m_figureHolder(new Renderer::InputControllerFeedbackFigure()) {
-            m_receivers.push_back(new CameraTool(m_documentViewHolder, *this));
-            m_receivers.push_back(new MoveObjectsTool(m_documentViewHolder, *this));
-            m_receivers.push_back(new RotateObjectsTool(m_documentViewHolder, *this));
-            m_receivers.push_back(new SelectionTool(m_documentViewHolder, *this));
-            m_dragTargetTools.push_back(new EntityDragTargetTool(m_documentViewHolder));
-
-            m_clipTool = new ClipTool(documentViewHolder, *this);
-            
-            m_documentViewHolder.view().renderer().addFigure(m_figureHolder);
+        m_inputState(m_documentViewHolder.view().camera(), m_documentViewHolder.document().picker()),
+        m_cameraTool(NULL),
+        m_selectionTool(NULL),
+        m_toolChain(NULL),
+        m_dragTool(NULL),
+        m_modalTool(NULL) {
+            m_cameraTool = new CameraTool(m_documentViewHolder);
+            m_selectionTool = new SelectionTool(m_documentViewHolder);
+            m_cameraTool->setNextTool(m_selectionTool);
+            m_toolChain = m_cameraTool;
         }
         
         InputController::~InputController() {
-            if (m_figureHolder != NULL && m_documentViewHolder.valid())
-                m_documentViewHolder.view().renderer().deleteFigure(m_figureHolder);
-            while (!m_receivers.empty()) delete m_receivers.back(), m_receivers.pop_back();
-            while (!m_dragTargetTools.empty()) delete m_dragTargetTools.back(), m_dragTargetTools.pop_back();
+            if (m_cameraTool != NULL) {
+                delete m_cameraTool;
+                m_cameraTool = NULL;
+            }
+            if (m_selectionTool != NULL) {
+                delete m_selectionTool;
+                m_selectionTool = NULL;
+            }
+            m_toolChain = NULL;
+            m_dragTool = NULL;
+            m_modalTool = NULL;
         }
 
         void InputController::modifierKeyDown(ModifierKeyState modifierKey) {
-            if (!m_documentViewHolder.valid())
-                return;
-            
-            updateHits();
-            
-            for (unsigned int i = 0; i < m_receivers.size(); i++)
-                m_receivers[i]->modifierKeyChanged(m_currentEvent);
-            updateFeedback();
+            m_inputState.invalidate();
+            m_toolChain->modifierKeyChange(m_inputState);
+            updateModalTool();
+            updateViews();
         }
         
         void InputController::modifierKeyUp(ModifierKeyState modifierKey) {
-            if (!m_documentViewHolder.valid())
-                return;
-            
-            updateHits();
-            
-            for (unsigned int i = 0; i < m_receivers.size(); i++)
-                m_receivers[i]->modifierKeyChanged(m_currentEvent);
-            updateFeedback();
+            m_inputState.invalidate();
+            m_toolChain->modifierKeyChange(m_inputState);
+            updateModalTool();
+            updateViews();
         }
         
-        bool InputController::mouseDown(MouseButtonState mouseButton, float x, float y) {
-            if (!m_documentViewHolder.valid())
+        bool InputController::mouseDown(MouseButtonState mouseButton) {
+            if (m_dragTool != NULL)
                 return false;
             
-            m_currentEvent.mouseButtons |= mouseButton;
-            updateMousePos(x, y);
-            updateHits();
-            
-            bool handled = false;
-            for (unsigned int i = 0; i < m_receivers.size() && !handled; i++) {
-                if (m_receivers[i]->mouseDown(m_currentEvent)) {
-                    m_mouseUpReceiver = m_receivers[i];
-                    handled = true;
-                }
-            }
-            
-            updateFeedback();
+            m_inputState.invalidate();
+            m_inputState.mouseDown(mouseButton);
+            bool handled = m_toolChain->mouseDown(m_inputState) != NULL;
+            updateModalTool();
+            updateViews();
             return handled;
         }
         
-        bool InputController::mouseUp(MouseButtonState mouseButton, float x, float y) {
-            if (!m_documentViewHolder.valid())
-                return false;
-            
-            updateMousePos(x, y);
-            updateHits();
-            
+        bool InputController::mouseUp(MouseButtonState mouseButton) {
+            m_inputState.invalidate();
+
             bool handled = false;
-            if (m_dragButtons != MouseButtons::MBNone) {
-                if (m_dragReceiver != NULL)
-                    m_dragReceiver->endDrag(m_currentEvent);
-                if (m_mouseUpReceiver != NULL && m_mouseUpReceiver != m_dragReceiver)
-                    m_mouseUpReceiver->mouseUp(m_currentEvent);
-                m_dragReceiver = NULL;
-                m_dragButtons = MouseButtons::MBNone;
+            if (m_dragTool != NULL) {
+                m_dragTool->endDrag(m_inputState);
+                m_dragTool = NULL;
+                m_inputState.mouseUp(mouseButton);
                 handled = true;
             } else {
-                for (unsigned int i = 0; i < m_receivers.size() && !handled; i++)
-                    if (m_receivers[i]->mouseUp(m_currentEvent))
-                        handled = true;
+                handled = m_toolChain->mouseUp(m_inputState) != NULL;
+                m_inputState.mouseUp(mouseButton);
             }
             
-            m_mouseUpReceiver = NULL;
-            m_currentEvent.mouseButtons &= ~mouseButton;
-            updateFeedback();
+            updateModalTool();
+            updateViews();
             return handled;
         }
         
-        void InputController::mouseMoved(float x, float y) {
-            if (!m_documentViewHolder.valid())
-                return;
+        void InputController::mouseMove(int x, int y) {
+            m_inputState.invalidate();
             
-            if (m_currentEvent.mouseButtons != MouseButtons::MBNone && m_dragButtons == MouseButtons::MBNone) {
-                m_dragButtons = m_currentEvent.mouseButtons;
-                for (unsigned int i = 0; i < m_receivers.size(); i++) {
-                    if (m_receivers[i]->beginDrag(m_currentEvent)) {
-                        m_dragReceiver = m_receivers[i];
-                        break;
-                    }
-                }
-            }
-            
-            updateMousePos(x, y);
-            updateHits();
-            
-            if (m_dragButtons != MouseButtons::MBNone && m_dragReceiver != NULL) {
-                if (!m_dragReceiver->drag(m_currentEvent)) {
-                    m_dragReceiver = NULL;
-                    m_mouseUpReceiver = NULL;
-                }
-            }
-            
-            if (m_dragButtons == MouseButtons::MBNone || m_dragReceiver == NULL) {
-                for (unsigned int i = 0; i < m_receivers.size(); i++)
-                    m_receivers[i]->mouseMoved(m_currentEvent);
-            }
-            
-            updateFeedback();
-        }
-        
-        void InputController::scrolled(float dx, float dy) {
-            if (!m_documentViewHolder.valid())
-                return;
-            
-            m_currentEvent.scrollX = dx;
-            m_currentEvent.scrollY = dy;
-            updateHits();
-            
-            if (m_dragReceiver != NULL) {
-                m_dragReceiver->scrolled(m_currentEvent);
+            if (m_inputState.mouseButtons() != MouseButtons::MBNone) {
+                if (m_dragTool == NULL)
+                    m_dragTool = m_toolChain->startDrag(m_inputState);
+                m_inputState.mouseMove(x, y);
+                if (m_dragTool != NULL)
+                    m_dragTool->drag(m_inputState);
+                else
+                    m_toolChain->mouseMove(m_inputState);
             } else {
-                for (unsigned int i = 0; i < m_receivers.size(); i++)
-                    if (m_receivers[i]->scrolled(m_currentEvent))
-                        break;
+                m_inputState.mouseMove(x, y);
+                m_toolChain->mouseMove(m_inputState);
             }
-            updateFeedback();
+            
+            updateModalTool();
+            updateViews();
         }
 
-        void InputController::dragEnter(const String& payload, float x, float y) {
-            if (!m_documentViewHolder.valid())
-                return;
-
-            updateMousePos(x, y);
-            updateHits();
-
-            for (unsigned int i = 0; i < m_dragTargetTools.size(); i++) {
-                DragTargetTool* tool = m_dragTargetTools[i];
-                if (tool->dragEnter(m_currentEvent, payload)) {
-                    m_dragTargetReceiver = tool;
-                    break;
-                }
-            }
+        void InputController::scroll(float x, float y) {
+            m_inputState.invalidate();
+            m_inputState.scroll(x, y);
+            if (m_dragTool != NULL)
+                m_dragTool->scroll(m_inputState);
+            else
+                m_toolChain->scroll(m_inputState);
+            updateModalTool();
+            updateViews();
         }
         
-        void InputController::dragMove(const String& payload, float x, float y) {
-            if (!m_documentViewHolder.valid())
-                return;
-            if (m_dragTargetReceiver == NULL)
-                return;
-            
-            updateMousePos(x, y);
-            updateHits();
-            
-            m_dragTargetReceiver->dragMove(m_currentEvent);
+        void InputController::cancelDrag() {
+            if (m_dragTool != NULL) {
+                m_dragTool->cancelDrag(m_inputState);
+                m_dragTool = NULL;
+                m_inputState.mouseUp(m_inputState.mouseButtons());
+            }
+            updateModalTool();
+            updateViews();
         }
         
-        bool InputController::drop(const String& payload, float x, float y) {
-            if (!m_documentViewHolder.valid())
-                return false;
-            if (m_dragTargetReceiver == NULL)
-                return false;
-            
-            updateMousePos(x, y);
-            updateHits();
-            
-            bool accept = m_dragTargetReceiver->drop(m_currentEvent);
-            m_dragTargetReceiver = NULL;
-            return accept;
+        void InputController::dragEnter(const String& payload, int x, int y) {
+        }
+        
+        void InputController::dragMove(const String& payload, int x, int y) {
+        }
+        
+        bool InputController::drop(const String& payload, int x, int y) {
+            return false;
         }
         
         void InputController::dragLeave() {
-            if (!m_documentViewHolder.valid())
-                return;
-            if (m_dragTargetReceiver == NULL)
-                return;
-            
-            m_dragTargetReceiver->dragLeave();
         }
 
-        void InputController::changeEditState(const Model::EditStateChangeSet& changeSet) {
-            ToolList::const_iterator toolIt, toolEnd;
-            for (toolIt = m_receivers.begin(), toolEnd = m_receivers.end(); toolIt != toolEnd; ++toolIt) {
-                Tool& tool = **toolIt;
-                tool.changeEditState(changeSet);
-            }
-            
-            DragTargetToolList::const_iterator dragToolIt, dragToolEnd;
-            for (dragToolIt = m_dragTargetTools.begin(), dragToolEnd = m_dragTargetTools.end(); dragToolIt != dragToolEnd; ++dragToolIt) {
-                DragTargetTool& tool = **dragToolIt;
-                tool.changeEditState(changeSet);
-            }
-
-            updateFeedback();
-        }
-
-        void InputController::addFigure(Tool* tool, Renderer::Figure* figure) {
-            m_figureHolder->addFigure(tool, figure);
+        void InputController::editStateChange(const Model::EditStateChangeSet& changeSet) {
+            m_inputState.invalidate();
+            m_toolChain->editStateChange(m_inputState, changeSet);
+            updateModalTool();
+            updateViews();
         }
         
-        void InputController::removeFigure(Tool* tool, Renderer::Figure* figure) {
-            assert(m_figureHolder != NULL);
-            m_figureHolder->removeFigure(tool, figure);
-        }
-        
-        void InputController::deleteFigure(Tool* tool, Renderer::Figure* figure) {
-            assert(m_figureHolder != NULL);
-            m_figureHolder->deleteFigure(tool, figure);
-        }
-
-        bool InputController::toggleClipTool() {
-            if (clipToolActive())
-                return deactivateModalTool();
-            return activateModalTool(m_clipTool);
-        }
-        
-        void InputController::toggleClipSide() {
-        }
-        
-        bool InputController::canPerformClip() {
-            return m_clipTool->canPerformClip();
-        }
-
-        void InputController::performClip() {
-        }
-
-        bool InputController::clipToolActive() {
-            return m_modalToolActive && m_receivers[ModalReceiverIndex] == m_clipTool;
-        }
-
-        bool InputController::deactivateModalTool() {
-            if (m_modalToolActive) {
-                if (m_receivers[ModalReceiverIndex]->deactivated(m_currentEvent)) {
-                    m_receivers.erase(m_receivers.begin() + ModalReceiverIndex);
-                    m_modalToolActive = false;
-                    updateHits();
-                    updateFeedback();
-                    return true;
-                }
-                return false;
-            }
-            return true;
+        void InputController::cameraChange() {
+            m_inputState.invalidate();
+            m_toolChain->cameraChange(m_inputState);
+            updateModalTool();
+            updateViews();
         }
     }
 }
