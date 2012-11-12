@@ -21,6 +21,8 @@
 #define __TrenchBroom__EntityPropertyCommand__
 
 #include "Controller/SnapshotCommand.h"
+#include "Controller/ObjectsCommand.h"
+#include "Model/BrushTypes.h"
 #include "Model/EntityTypes.h"
 
 #include <wx/wx.h>
@@ -29,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        class EntityPropertyCommand : public SnapshotCommand {
+        class EntityPropertyCommand : public SnapshotCommand, ObjectsCommand {
         protected:
             Model::EntityList m_entities;
             Model::PropertyKeyList m_keys;
@@ -86,6 +88,15 @@ namespace TrenchBroom {
             
             inline bool definitionChanged() const {
                 return m_definitionChanged;
+            }
+            
+            
+            const Model::EntityList& entities() const {
+                return m_entities;
+            }
+            
+            const Model::BrushList& brushes() const {
+                return Model::EmptyBrushList;
             }
         };
     }

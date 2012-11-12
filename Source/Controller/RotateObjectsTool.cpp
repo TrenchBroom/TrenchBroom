@@ -94,19 +94,19 @@ namespace TrenchBroom {
             
             Mat4f rotation;
             if (hit->hitArea() == Model::RotateObjectsHandleHit::HAXAxis) {
-                rotation.rotate(angle, Vec3f::PosX);
+                rotation.rotate(angle, angle > 0.0f ? Vec3f::PosX : Vec3f::NegX);
                 Renderer::ApplyMatrix applyRotation(context.transformation(), rotation);
                 
                 Renderer::RingFigure(Axis::AX, yAxis, zAxis, m_ringRadius, m_ringThickness, 8).render(vbo, context);
                 Renderer::CircleFigure(Axis::AX, 0.0f, 2 * Math::Pi, m_ringRadius + m_ringThickness, 32, false).render(vbo, context);
             } else if (hit->hitArea() == Model::RotateObjectsHandleHit::HAYAxis) {
-                rotation.rotate(angle, Vec3f::PosY);
+                rotation.rotate(angle, angle > 0.0f ? Vec3f::PosY : Vec3f::NegY);
                 Renderer::ApplyMatrix applyRotation(context.transformation(), rotation);
                 
                 Renderer::RingFigure(Axis::AY, xAxis, zAxis, m_ringRadius, m_ringThickness, 8).render(vbo, context);
                 Renderer::CircleFigure(Axis::AY, 0.0f, 2 * Math::Pi, m_ringRadius + m_ringThickness, 32, false).render(vbo, context);
             } else {
-                rotation.rotate(angle, Vec3f::PosZ);
+                rotation.rotate(angle, angle > 0.0f ? Vec3f::PosZ : Vec3f::NegZ);
                 Renderer::ApplyMatrix applyRotation(context.transformation(), rotation);
                 
                 Renderer::RingFigure(Axis::AZ, xAxis, yAxis, m_ringRadius, m_ringThickness, 8).render(vbo, context);
@@ -256,8 +256,19 @@ namespace TrenchBroom {
         void RotateObjectsTool::handleEndPlaneDrag(InputState& inputState) {
             endCommandGroup();
             unlock();
+            m_angle = 0.0f;
         }
         
+        void RotateObjectsTool::handleObjectsChange(InputState& inputState) {
+            Model::EditStateManager& editStateManager = document().editStateManager();
+            const Model::EntityList& entities = editStateManager.selectedEntities();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            if (entities.empty() && brushes.empty())
+                return;
+            
+            setPosition(Model::MapObject::center(entities, brushes));
+        }
+
         void RotateObjectsTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
             Model::EditStateManager& editStateManager = document().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();

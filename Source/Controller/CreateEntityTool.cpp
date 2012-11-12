@@ -62,10 +62,14 @@ namespace TrenchBroom {
             m_entityFigure->invalidate();
         }
 
+        bool CreateEntityTool::handleIsModal(InputState& inputState) {
+            return dragType() == DTDragTarget;
+        }
+
         bool CreateEntityTool::handleUpdateState(InputState& inputState) {
             if (m_entityFigure == NULL)
                 return false;
-            return m_entityFigure->valid();
+            return !m_entityFigure->valid();
         }
         
         void CreateEntityTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {

@@ -21,6 +21,7 @@
 #define __TrenchBroom__MoveObjectsCommand__
 
 #include "Controller/Command.h"
+#include "Controller/ObjectsCommand.h"
 #include "Model/EntityTypes.h"
 #include "Model/BrushTypes.h"
 #include "Utility/VecMath.h"
@@ -33,7 +34,7 @@ namespace TrenchBroom {
     }
     
     namespace Controller {
-        class MoveObjectsCommand : public DocumentCommand {
+        class MoveObjectsCommand : public DocumentCommand, ObjectsCommand {
         private:
             Model::EntityList m_entities;
             Model::BrushList m_brushes;
@@ -49,6 +50,14 @@ namespace TrenchBroom {
             MoveObjectsCommand(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const wxString& name, const Vec3f& delta, bool lockTextures);
         public:
             static MoveObjectsCommand* moveObjects(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const Vec3f& delta, bool lockTextures);
+            
+            const Model::EntityList& entities() const {
+                return m_entities;
+            }
+            
+            const Model::BrushList& brushes() const {
+                return m_brushes;
+            }
         };
     }
 }

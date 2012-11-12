@@ -270,16 +270,15 @@ namespace TrenchBroom {
             Vec3f offset = center() - origin();
             Vec3f newCenter = rotation * (center() - rotationCenter) + rotationCenter;
             setProperty(OriginKey, newCenter - offset, true);
-            setProperty(AngleKey, 0, true);
             
             Vec3f direction;
             if (m_angle >= 0.0f) {
                 direction.x = cos(2.0f * Math::Pi - Math::radians(m_angle));
                 direction.y = sin(2.0f * Math::Pi - Math::radians(m_angle));
                 direction.z = 0.0f;
-            } else if (m_angle == -1) {
+            } else if (m_angle == -1.0f) {
                 direction = Vec3f::PosZ;
-            } else if (m_angle == -2) {
+            } else if (m_angle == -2.0f) {
                 direction = Vec3f::NegZ;
             } else {
                 return;
@@ -293,12 +292,12 @@ namespace TrenchBroom {
             } else {
                 if (direction.z != 0.0f) {
                     direction.z = 0.0f;
-                    direction = direction.normalize();
+                    direction.normalize();
                 }
                 
                 m_angle = Math::round(Math::degrees(acos(direction.x)));
                 Vec3f cross = direction.crossed(Vec3f::PosX);
-                if (!cross.null() && cross.z < 0)
+                if (!cross.null() && cross.z < 0.0f)
                     m_angle = 360.0f - m_angle;
                 setProperty(AngleKey, m_angle, true);
             }

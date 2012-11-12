@@ -43,6 +43,8 @@ namespace TrenchBroom {
             
             void updateEntityPosition(InputState& inputState);
             
+            bool handleIsModal(InputState& inputState);
+
             bool handleUpdateState(InputState& inputState);
             void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
 

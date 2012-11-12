@@ -92,6 +92,7 @@ namespace TrenchBroom {
             void handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint);
             void handleEndPlaneDrag(InputState& inputState);
 
+            void handleObjectsChange(InputState& inputState);
             void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet);
         public:
             MoveObjectsTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float planeRadius);

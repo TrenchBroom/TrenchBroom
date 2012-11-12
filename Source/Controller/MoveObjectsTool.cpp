@@ -286,6 +286,16 @@ namespace TrenchBroom {
             unlock();
         }
         
+        void MoveObjectsTool::handleObjectsChange(InputState& inputState) {
+            Model::EditStateManager& editStateManager = document().editStateManager();
+            const Model::EntityList& entities = editStateManager.selectedEntities();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            if (entities.empty() && brushes.empty())
+                return;
+            
+            setPosition(Model::MapObject::center(entities, brushes));
+        }
+        
         void MoveObjectsTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
             Model::EditStateManager& editStateManager = document().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();

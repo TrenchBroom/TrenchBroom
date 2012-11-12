@@ -21,6 +21,7 @@
 #define __TrenchBroom__RotateObjectsCommand__
 
 #include "Controller/SnapshotCommand.h"
+#include "Controller/ObjectsCommand.h"
 
 #include "Model/BrushTypes.h"
 #include "Model/EntityTypes.h"
@@ -30,7 +31,7 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Controller {
-        class RotateObjectsCommand : public SnapshotCommand {
+        class RotateObjectsCommand : public SnapshotCommand, ObjectsCommand {
         protected:
             Model::EntityList m_entities;
             Model::BrushList m_brushes;
@@ -38,7 +39,6 @@ namespace TrenchBroom {
             Vec3f m_axis;
             float m_angle;
             Vec3f m_center;
-            bool m_clockwise;
             bool m_lockTextures;
             
             bool performDo();
@@ -47,6 +47,14 @@ namespace TrenchBroom {
             RotateObjectsCommand(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const wxString& name, const Vec3f& axis, float angle, bool clockwise, const Vec3f& center, bool lockTextures);
         public:
             static RotateObjectsCommand* rotate(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const Vec3f& axis, float angle, bool clockwise, const Vec3f& center, bool lockTextures);
+            
+            const Model::EntityList& entities() const {
+                return m_entities;
+            }
+            
+            const Model::BrushList& brushes() const {
+                return m_brushes;
+            }
         };
     }
 }

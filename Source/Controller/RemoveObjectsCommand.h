@@ -21,12 +21,13 @@
 #define __TrenchBroom__RemoveObjectsCommand__
 
 #include "Controller/Command.h"
+#include "Controller/ObjectsCommand.h"
 #include "Model/EntityTypes.h"
 #include "Model/BrushTypes.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        class RemoveObjectsCommand : public DocumentCommand {
+        class RemoveObjectsCommand : public DocumentCommand, ObjectsCommand {
         protected:
             Model::EntityList m_entities;
             Model::BrushList m_brushes;
@@ -50,6 +51,14 @@ namespace TrenchBroom {
             
             inline const Model::BrushList& removedBrushes() const {
                 return m_removedBrushes;
+            }
+            
+            const Model::EntityList& entities() const {
+                return m_entities;
+            }
+            
+            const Model::BrushList& brushes() const {
+                return m_brushes;
             }
         };
     }

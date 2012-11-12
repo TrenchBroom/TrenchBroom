@@ -27,6 +27,7 @@
 #include "Controller/InputController.h"
 #include "Controller/MoveObjectsCommand.h"
 #include "Controller/MoveTextureSCommand.h"
+#include "Controller/ObjectsCommand.h"
 #include "Controller/RemoveObjectsCommand.h"
 #include "Controller/RotateObjects90Command.h"
 #include "Controller/RotateTexturesCommand.h"
@@ -371,6 +372,7 @@ namespace TrenchBroom {
                         inspector().faceInspector().updateTextureCollectionList();
                         inspector().entityInspector().updateProperties();
                         inspector().entityInspector().updateEntityBrowser();
+                        inputController().objectsChange();
                         
                         static_cast<EditorFrame*>(GetFrame())->updateMenuBar();
                         break;
@@ -382,6 +384,7 @@ namespace TrenchBroom {
                         inspector().faceInspector().updateTextureCollectionList();
                         inspector().entityInspector().updateProperties();
                         inspector().entityInspector().updateEntityBrowser();
+                        inputController().objectsChange();
                         
                         static_cast<EditorFrame*>(GetFrame())->updateMenuBar();
                         break;
@@ -434,6 +437,7 @@ namespace TrenchBroom {
                         if (entityPropertyCommand->definitionChanged())
                             m_renderer->invalidateEntityModelRendererCache();
                         inspector().entityInspector().updateProperties();
+                        inputController().objectsChange();
                         break;
                     }
                     case Controller::Command::AddObjects: {
@@ -451,6 +455,7 @@ namespace TrenchBroom {
                     case Controller::Command::FlipObjects: {
                         m_renderer->invalidateSelectedBrushes();
                         m_renderer->invalidateSelectedEntities();
+                        inputController().objectsChange();
                         break;
                     }
                     case Controller::Command::RemoveObjects: {

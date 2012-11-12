@@ -36,15 +36,15 @@ namespace TrenchBroom {
             if (m_modalTool == NULL) {
                 m_modalTool = m_toolChain->modalTool(m_inputState);
                 if (m_modalTool != NULL) {
-                    m_toolChain->deactivateAll(m_inputState, m_modalTool);
+                    m_toolChain->setSuppressed(m_inputState, true, m_modalTool);
                     updateHits();
                 }
             } else {
                 if (!m_modalTool->isModal(m_inputState)) {
-                    m_toolChain->activateAll(m_inputState);
+                    m_toolChain->setSuppressed(m_inputState, false);
                     m_modalTool = m_toolChain->modalTool(m_inputState);
                     if (m_modalTool != NULL)
-                        m_toolChain->deactivateAll(m_inputState, m_modalTool);
+                        m_toolChain->setSuppressed(m_inputState, true, m_modalTool);
                     updateHits();
                 }
             }
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             m_cameraTool = new CameraTool(m_documentViewHolder);
             m_createEntityTool = new CreateEntityTool(m_documentViewHolder);
             m_moveObjectsTool = new MoveObjectsTool(m_documentViewHolder, 64.0f, 32.0f);
-            m_rotateObjectsTool = new RotateObjectsTool(m_documentViewHolder, 64.0f, 32.0f, 3.0f);
+            m_rotateObjectsTool = new RotateObjectsTool(m_documentViewHolder, 64.0f, 32.0f, 5.0f);
             m_selectionTool = new SelectionTool(m_documentViewHolder);
 
             m_cameraTool->setNextTool(m_createEntityTool);
@@ -205,24 +205,59 @@ namespace TrenchBroom {
             
             m_inputState.mouseMove(x, y);
             m_createEntityTool->activate(m_inputState);
+
             updateHits();
-            
-            m_dragTool = m_toolChain->dragEnter(m_inputState, payload);
+            Tool* dragTool = m_toolChain->dragEnter(m_inputState, payload);
+            updateModalTool();
+            m_dragTool = dragTool;
+            updateState();
         }
         
         void InputController::dragMove(const String& payload, int x, int y) {
+            if (m_dragTool == NULL)
+                return;
+
+            m_inputState.mouseMove(x, y);
+            updateHits();
+            m_dragTool->dragMove(m_inputState);
+            updateState();
         }
         
         bool InputController::drop(const String& payload, int x, int y) {
+            if (m_dragTool == NULL)
+                return false;
+            
             updateHits();
-            
-            
+            bool success = m_dragTool->dragDrop(m_inputState);
             m_createEntityTool->deactivate(m_inputState);
-            return false;
+            m_dragTool = NULL;
+
+            updateHits();
+            updateModalTool();
+            updateState();
+
+            return success;
         }
         
         void InputController::dragLeave() {
+            if (m_dragTool == NULL)
+                return;
+            
+            updateHits();
+            m_dragTool->dragLeave(m_inputState);
             m_createEntityTool->deactivate(m_inputState);
+            m_dragTool = NULL;
+
+            updateHits();
+            updateModalTool();
+            updateState();
+        }
+
+        void InputController::objectsChange() {
+            updateHits();
+            m_toolChain->objectsChange(m_inputState);
+            updateModalTool();
+            updateState();
         }
 
         void InputController::editStateChange(const Model::EditStateChangeSet& changeSet) {

@@ -23,7 +23,10 @@
 #include <cassert>
 
 #include "Controller/Input.h"
+#include "Model/BrushTypes.h"
+#include "Model/EntityTypes.h"
 #include "Model/MapDocument.h"
+#include "Renderer/Figure.h"
 #include "Renderer/RenderTypes.h"
 #include "View/DocumentViewHolder.h"
 #include "View/EditorView.h"
@@ -65,6 +68,7 @@ namespace TrenchBroom {
             
             bool m_activatable;
             bool m_active;
+            bool m_suppressed;
             DragType m_dragType;
             String m_dragPayload;
             Tool* m_nextTool;
@@ -79,6 +83,7 @@ namespace TrenchBroom {
             m_documentViewHolder(documentViewHolder),
             m_activatable(activatable),
             m_active(!m_activatable),
+            m_suppressed(false),
             m_dragType(DTNone),
             m_nextTool(NULL) {}
             
@@ -178,6 +183,7 @@ namespace TrenchBroom {
             virtual void handleDragLeave(InputState& inputState, const String& payload) {}
             virtual bool handleDragDrop(InputState& inputState, const String& payload) { return false; }
             
+            virtual void handleObjectsChange(InputState& inputState) {}
             virtual void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {}
             virtual void handleCameraChange(InputState& inputState) {}
         public:
@@ -192,7 +198,9 @@ namespace TrenchBroom {
             /* Activation Protocol */
             
             inline bool active() const {
-                return !m_activatable || m_active;
+                if (!m_activatable)
+                    return true;
+                return m_active && !m_suppressed;
             }
             
             inline void activate(InputState& inputState) {
@@ -211,18 +219,17 @@ namespace TrenchBroom {
                 }
             }
             
-            inline void activateAll(InputState& inputState) {
-                if (!active())
-                    activate(inputState);
+            inline void setSuppressed(InputState& inputState, bool suppressed, Tool* except = NULL) {
+                if (m_activatable && this != except) {
+                    bool wasActive = active();
+                    m_suppressed = suppressed;
+                    if (active() && !wasActive)
+                        handleActivate(inputState);
+                    else if (!active() && wasActive)
+                        handleDeactivate(inputState);
+                }
                 if (nextTool() != NULL)
-                    nextTool()->activateAll(inputState);
-            }
-            
-            inline void deactivateAll(InputState& inputState, Tool* except = NULL) {
-                if (active() && this != except)
-                    deactivate(inputState);
-                if (nextTool() != NULL)
-                    nextTool()->deactivateAll(inputState, except);
+                    nextTool()->setSuppressed(inputState, suppressed, except);
             }
             
             inline bool isModal(InputState& inputState) {
@@ -370,16 +377,20 @@ namespace TrenchBroom {
                 return success;
             }
             
+            void objectsChange(InputState& inputState) {
+                handleObjectsChange(inputState);
+                if (nextTool() != NULL)
+                    nextTool()->objectsChange(inputState);
+            }
+            
             void editStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
-                if (active())
-                    handleEditStateChange(inputState, changeSet);
+                handleEditStateChange(inputState, changeSet);
                 if (nextTool() != NULL)
                     nextTool()->editStateChange(inputState, changeSet);
             }
             
             void cameraChange(InputState& inputState) {
-                if (active())
-                    handleCameraChange(inputState);
+                handleCameraChange(inputState);
                 if (nextTool() != NULL)
                     nextTool()->cameraChange(inputState);
             }

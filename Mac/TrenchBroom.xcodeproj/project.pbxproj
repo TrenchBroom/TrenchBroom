@@ -275,6 +275,7 @@
 		4878F91F1651231D003857EA /* RotateObjectsTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateObjectsTool.h; sourceTree = "<group>"; };
 		4878F922165142B4003857EA /* CreateEntityTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CreateEntityTool.cpp; sourceTree = "<group>"; };
 		4878F923165142B4003857EA /* CreateEntityTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateEntityTool.h; sourceTree = "<group>"; };
+		4878F92516516652003857EA /* ObjectsCommand.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjectsCommand.h; sourceTree = "<group>"; };
 		487B6C77164E8A70000A77DA /* CameraTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraTool.cpp; sourceTree = "<group>"; };
 		487B6C78164E8A70000A77DA /* CameraTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraTool.h; sourceTree = "<group>"; };
 		48819C3615EBE92800BEA604 /* Camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
@@ -803,6 +804,7 @@
 				482BB67D162931E800B9FAAE /* MoveObjectsCommand.h */,
 				4895CDE816333D55006AA0A6 /* MoveTexturesCommand.cpp */,
 				4895CDE916333D55006AA0A6 /* MoveTexturesCommand.h */,
+				4878F92516516652003857EA /* ObjectsCommand.h */,
 				48FBD14C1626AD5B0059953D /* RemoveObjectsCommand.cpp */,
 				48FBD14D1626AD5B0059953D /* RemoveObjectsCommand.h */,
 				488865491634211C0071F9C6 /* RotateObjects90Command.cpp */,

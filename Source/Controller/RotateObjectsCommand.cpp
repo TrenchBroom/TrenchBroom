@@ -21,6 +21,7 @@
 
 #include "Model/Brush.h"
 #include "Model/Entity.h"
+#include "Utility/Console.h"
 
 #include <cassert>
 
@@ -28,9 +29,6 @@ namespace TrenchBroom {
     namespace Controller {
         bool RotateObjectsCommand::performDo() {
             float angle = m_angle;
-            if (!m_clockwise)
-                angle *= -1.0f;
-            
             if (angle > 0.0f) {
                 while (angle - 2.0f * Math::Pi >= 0.0f)
                     angle -= 2.0f * Math::Pi;
@@ -47,6 +45,8 @@ namespace TrenchBroom {
             
             if (angle < 0.0f)
                 angle = 2.0f * Math::Pi + angle;
+            
+            document().console().debug("angle %f -> %f", m_angle, angle);
             
             assert(angle > 0.0f);
             
@@ -67,13 +67,13 @@ namespace TrenchBroom {
                         Model::EntityList::const_iterator entityIt, entityEnd;
                         for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                             Model::Entity& entity = **entityIt;
-                            entity.rotate90(component, m_center, m_clockwise, m_lockTextures);
+                            entity.rotate90(component, m_center, angle > 0.0f, m_lockTextures);
                         }
                         
                         Model::BrushList::const_iterator brushIt, brushEnd;
                         for (brushIt = m_brushes.begin(), brushEnd = m_brushes.end(); brushIt != brushEnd; ++brushIt) {
                             Model::Brush& brush = **brushIt;
-                            brush.rotate90(component, m_center, m_clockwise, m_lockTextures);
+                            brush.rotate90(component, m_center, angle > 0.0f, m_lockTextures);
                         }
                     }
                 }
@@ -101,10 +101,16 @@ namespace TrenchBroom {
         }
         
         bool RotateObjectsCommand::performUndo() {
+            document().entitiesWillChange(m_entities);
+            document().brushesWillChange(m_brushes);
+
             restoreSnapshots(m_brushes);
             restoreSnapshots(m_entities);
             clear();
-            
+
+            document().entitiesDidChange(m_entities);
+            document().brushesDidChange(m_brushes);
+
             return true;
         }
         
@@ -113,8 +119,7 @@ namespace TrenchBroom {
         m_entities(entities),
         m_brushes(brushes),
         m_axis(axis),
-        m_angle(angle),
-        m_clockwise(clockwise),
+        m_angle(clockwise ? angle : -angle),
         m_center(center),
         m_lockTextures(lockTextures) {}
 

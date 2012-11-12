@@ -21,6 +21,7 @@
 #define __TrenchBroom__RotateObjects90Command__
 
 #include "Controller/Command.h"
+#include "Controller/ObjectsCommand.h"
 
 #include "Model/BrushTypes.h"
 #include "Model/EntityTypes.h"
@@ -30,7 +31,7 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Controller {
-        class RotateObjects90Command : public DocumentCommand {
+        class RotateObjects90Command : public DocumentCommand, ObjectsCommand {
         protected:
             Model::EntityList m_entities;
             Model::BrushList m_brushes;
@@ -54,6 +55,14 @@ namespace TrenchBroom {
         public:
             static RotateObjects90Command* rotateClockwise(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, Axis::Type axis, const Vec3f& center, bool lockTextures);
             static RotateObjects90Command* rotateCounterClockwise(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, Axis::Type axis, const Vec3f& center, bool lockTextures);
+            
+            const Model::EntityList& entities() const {
+                return m_entities;
+            }
+            
+            const Model::BrushList& brushes() const {
+                return m_brushes;
+            }
         };
     }
 }

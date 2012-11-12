@@ -21,6 +21,8 @@
 #define __TrenchBroom__InputController__
 
 #include "Controller/Input.h"
+#include "Model/BrushTypes.h"
+#include "Model/EntityTypes.h"
 #include "Renderer/Figure.h"
 
 namespace TrenchBroom {
@@ -81,6 +83,7 @@ namespace TrenchBroom {
             bool drop(const String& payload, int x, int y);
             void dragLeave();
             
+            void objectsChange();
             void editStateChange(const Model::EditStateChangeSet& changeSet);
             void cameraChange();
 
