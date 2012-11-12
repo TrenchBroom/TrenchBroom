@@ -56,9 +56,9 @@ namespace TrenchBroom {
             Tool* m_dragTool;
             Tool* m_modalTool;
             
-            void updateViews();
             void updateModalTool();
             void updateHits();
+            void updateState();
         public:
             InputController(View::DocumentViewHolder& documentViewHolder);
             ~InputController();

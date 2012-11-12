@@ -64,7 +64,6 @@ namespace TrenchBroom {
             
             bool m_activatable;
             bool m_active;
-            bool m_needsUpdate;
             DragType m_dragType;
             String m_dragPayload;
             Tool* m_nextTool;
@@ -73,7 +72,6 @@ namespace TrenchBroom {
             m_documentViewHolder(documentViewHolder),
             m_activatable(activatable),
             m_active(!m_activatable),
-            m_needsUpdate(false),
             m_dragType(DTNone),
             m_nextTool(NULL) {}
             
@@ -143,8 +141,7 @@ namespace TrenchBroom {
             
             /* Feedback Protocol */
             virtual void handlePick(InputState& inputState) {}
-            virtual bool handleNeedsUpdate(InputState& inputState) { return false; };
-            virtual void setNeedsUpdate() { m_needsUpdate = true; }
+            virtual bool handleUpdateState(InputState& inputState) { return false; };
             virtual void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {}
 
             /* Input Protocol */
@@ -215,11 +212,10 @@ namespace TrenchBroom {
 
             /* Feedback Protocol */
 
-            inline bool needsUpdate(InputState& inputState) {
-                bool update = active() && (m_needsUpdate || handleNeedsUpdate(inputState));
-                m_needsUpdate = false;
+            inline bool updateState(InputState& inputState) {
+                bool update = active() && handleUpdateState(inputState);
                 if (nextTool() != NULL)
-                    update |= nextTool()->needsUpdate(inputState);
+                    update |= nextTool()->updateState(inputState);
                 return update;
             }
             

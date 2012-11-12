@@ -34,6 +34,7 @@ namespace TrenchBroom {
         class ObjectsHandle {
         private:
             Vec3f m_position;
+            bool m_positionValid;
             bool m_locked;
             Vec3f m_xAxis, m_yAxis, m_zAxis;
             
@@ -54,6 +55,7 @@ namespace TrenchBroom {
             }
         public:
             ObjectsHandle() :
+            m_positionValid(false),
             m_locked(false) {}
             virtual ~ObjectsHandle() {}
             
@@ -86,9 +88,16 @@ namespace TrenchBroom {
             }
             
             inline void setPosition(const Vec3f& position) {
+                m_positionValid = m_position.equals(position);
                 m_position = position;
             }
 
+            inline bool positionValid() {
+                bool valid = m_positionValid;
+                m_positionValid = true;
+                return valid;
+            }
+            
             inline bool locked() const {
                 return m_locked;
             }

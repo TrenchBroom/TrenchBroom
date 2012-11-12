@@ -83,6 +83,7 @@ namespace TrenchBroom {
             void renderPlanes(Model::MoveObjectsHandleHit* hit, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
 
             void handlePick(InputState& inputState);
+            bool handleUpdateState(InputState& inputState);
             void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
 
             bool handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint);

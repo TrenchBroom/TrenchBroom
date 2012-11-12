@@ -131,21 +131,30 @@ namespace TrenchBroom {
             closestHit = selectHit(closestHit, pickPlane(inputState.pickRay(), Vec3f::PosY, xAxis, zAxis, Model::MoveObjectsHandleHit::HAXZPlane));
             closestHit = selectHit(closestHit, pickPlane(inputState.pickRay(), Vec3f::PosZ, xAxis, yAxis, Model::MoveObjectsHandleHit::HAXYPlane));
             
-            if (closestHit != NULL) {
-                if (m_lastHit == NULL || m_lastHit->hitArea() != closestHit->hitArea()) {
-                    if (m_lastHit != NULL)
-                        delete m_lastHit;
-                    m_lastHit = new Model::MoveObjectsHandleHit(*closestHit);
-                    setNeedsUpdate();
-                }
-            } else if (m_lastHit != NULL) {
-                delete m_lastHit;
-                m_lastHit = NULL;
-                setNeedsUpdate();
-            }
-            
             if (closestHit != NULL)
                 inputState.pickResult().add(*closestHit);
+        }
+
+        bool MoveObjectsTool::handleUpdateState(InputState& inputState) {
+            bool needsUpdate = false;
+            if (!locked()) {
+                Model::MoveObjectsHandleHit* hit = hit = static_cast<Model::MoveObjectsHandleHit*>(inputState.pickResult().first(Model::HitType::MoveObjectsHandleHit, true, view().filter()));
+                if (hit != NULL) {
+                    if (m_lastHit == NULL || m_lastHit->hitArea() != hit->hitArea()) {
+                        if (m_lastHit != NULL)
+                            delete m_lastHit;
+                        m_lastHit = new Model::MoveObjectsHandleHit(*hit);
+                        needsUpdate = true;
+                    }
+                } else if (m_lastHit != NULL) {
+                    delete m_lastHit;
+                    m_lastHit = NULL;
+                    needsUpdate = true;
+                }
+            }
+            needsUpdate |= positionValid();
+            
+            return needsUpdate;
         }
 
         void MoveObjectsTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
@@ -250,7 +259,6 @@ namespace TrenchBroom {
                 return;
             
             setPosition(position() + delta);
-            setNeedsUpdate();
             
             Model::EditStateManager& editStateManager = document().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
@@ -268,7 +276,6 @@ namespace TrenchBroom {
             else
                 endCommandGroup();
             unlock();
-            setNeedsUpdate();
         }
         
         void MoveObjectsTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
@@ -281,7 +288,6 @@ namespace TrenchBroom {
             Vec3f newPosition = Model::MapObject::center(entities, brushes);
             if (!newPosition.equals(position())) {
                 setPosition(newPosition);
-                setNeedsUpdate();
             }
         }
 
