@@ -39,7 +39,9 @@ namespace TrenchBroom {
     
     namespace Controller {
         class CameraTool;
+        class CreateEntityTool;
         class MoveObjectsTool;
+        class RotateObjectsTool;
         class SelectionTool;
         class Tool;
     
@@ -49,7 +51,9 @@ namespace TrenchBroom {
             InputState m_inputState;
             
             CameraTool* m_cameraTool;
+            CreateEntityTool* m_createEntityTool;
             MoveObjectsTool* m_moveObjectsTool;
+            RotateObjectsTool* m_rotateObjectsTool;
             SelectionTool* m_selectionTool;
             
             Tool* m_toolChain;

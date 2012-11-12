@@ -112,6 +112,14 @@ namespace TrenchBroom {
             Renderer::CircleFigure(Axis::AX, yAxis, zAxis, m_planeRadius, 8, false).render(vbo, renderContext);
         }
 
+        bool MoveObjectsTool::handleIsModal(InputState& inputState) {
+            if (dragType() == DTDrag)
+                return true;
+            
+            Model::MoveObjectsHandleHit* hit = hit = static_cast<Model::MoveObjectsHandleHit*>(inputState.pickResult().first(Model::HitType::MoveObjectsHandleHit, true, view().filter()));
+            return hit != NULL;
+        }
+
         void MoveObjectsTool::handlePick(InputState& inputState) {
             if (locked())
                 return;
@@ -285,10 +293,7 @@ namespace TrenchBroom {
             if (entities.empty() && brushes.empty())
                 return;
 
-            Vec3f newPosition = Model::MapObject::center(entities, brushes);
-            if (!newPosition.equals(position())) {
-                setPosition(newPosition);
-            }
+           setPosition(Model::MapObject::center(entities, brushes));
         }
 
         MoveObjectsTool::MoveObjectsTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float planeRadius) :
@@ -297,6 +302,13 @@ namespace TrenchBroom {
         m_planeRadius(planeRadius),
         m_lastHit(NULL) {
             assert(m_planeRadius < m_axisLength);
+        }
+
+        MoveObjectsTool::~MoveObjectsTool() {
+            if (m_lastHit != NULL) {
+                delete m_lastHit;
+                m_lastHit = NULL;
+            }
         }
     }
 }

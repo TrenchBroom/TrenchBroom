@@ -21,6 +21,7 @@
 #define TrenchBroom_RendererTypes_h
 
 #include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -30,6 +31,7 @@ namespace TrenchBroom {
         
         class EntityModelRendererManager;
         class EntityRenderer;
+        class Figure;
         class IndexedVertexArray;
         class Shader;
         class ShaderProgram;
@@ -44,6 +46,7 @@ namespace TrenchBroom {
         typedef std::auto_ptr<VertexArray> VertexArrayPtr;
         typedef std::auto_ptr<IndexedVertexArray> IndexedVertexArrayPtr;
         typedef std::auto_ptr<Vbo> VboPtr;
+        typedef std::vector<Figure*> FigureList;
     }
 }
 

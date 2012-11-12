@@ -37,8 +37,13 @@ namespace TrenchBroom {
             
             Model::MapDocument& m_document;
             Model::Entity& m_entity;
+            bool m_valid;
         public:
             EntityFigure(Model::MapDocument& document, Model::Entity& entity);
+            
+            inline bool valid() const {
+                return m_valid;
+            }
             
             void invalidate();
             

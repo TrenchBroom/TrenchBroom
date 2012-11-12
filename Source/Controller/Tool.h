@@ -24,6 +24,7 @@
 
 #include "Controller/Input.h"
 #include "Model/MapDocument.h"
+#include "Renderer/RenderTypes.h"
 #include "View/DocumentViewHolder.h"
 #include "View/EditorView.h"
 #include "Utility/CommandProcessor.h"
@@ -67,6 +68,12 @@ namespace TrenchBroom {
             DragType m_dragType;
             String m_dragPayload;
             Tool* m_nextTool;
+            
+            Renderer::FigureList m_deleteFigures;
+            
+            void deleteFigures() {
+                while (!m_deleteFigures.empty()) delete m_deleteFigures.back(), m_deleteFigures.pop_back();
+            }
         protected:
             Tool(View::DocumentViewHolder& documentViewHolder, bool activatable) :
             m_documentViewHolder(documentViewHolder),
@@ -143,6 +150,10 @@ namespace TrenchBroom {
             virtual void handlePick(InputState& inputState) {}
             virtual bool handleUpdateState(InputState& inputState) { return false; };
             virtual void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {}
+            
+            inline void deleteFigure(Renderer::Figure* figure) {
+                m_deleteFigures.push_back(figure);
+            }
 
             /* Input Protocol */
             virtual void handleModifierKeyChange(InputState& inputState) {}
@@ -170,7 +181,9 @@ namespace TrenchBroom {
             virtual void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {}
             virtual void handleCameraChange(InputState& inputState) {}
         public:
-            virtual ~Tool() {}
+            virtual ~Tool() {
+                deleteFigures();
+            }
             
             inline void setNextTool(Tool* tool) {
                 m_nextTool = tool;
@@ -198,6 +211,20 @@ namespace TrenchBroom {
                 }
             }
             
+            inline void activateAll(InputState& inputState) {
+                if (!active())
+                    activate(inputState);
+                if (nextTool() != NULL)
+                    nextTool()->activateAll(inputState);
+            }
+            
+            inline void deactivateAll(InputState& inputState, Tool* except = NULL) {
+                if (active() && this != except)
+                    deactivate(inputState);
+                if (nextTool() != NULL)
+                    nextTool()->deactivateAll(inputState, except);
+            }
+            
             inline bool isModal(InputState& inputState) {
                 return active() && handleIsModal(inputState);
             }
@@ -220,6 +247,7 @@ namespace TrenchBroom {
             }
             
             inline void render(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
+                deleteFigures();
                 if (active())
                     handleRender(inputState, vbo, renderContext);
                 if (nextTool() != NULL)

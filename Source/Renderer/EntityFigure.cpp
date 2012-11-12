@@ -27,11 +27,13 @@ namespace TrenchBroom {
     namespace Renderer {
         EntityFigure::EntityFigure(Model::MapDocument& document, Model::Entity& entity) :
         m_document(document),
-        m_entity(entity) {}
+        m_entity(entity),
+        m_valid(false) {}
         
         void EntityFigure::invalidate() {
             if (m_entityRenderer.get() != NULL)
                 m_entityRenderer->invalidateBounds();
+            m_valid = false;
         }
         
         void EntityFigure::render(Vbo& vbo, RenderContext& context) {
@@ -50,6 +52,7 @@ namespace TrenchBroom {
             }
             
             m_entityRenderer->render(context);
+            m_valid = true;
         }
     }
 }

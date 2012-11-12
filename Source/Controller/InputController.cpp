@@ -20,7 +20,9 @@
 #include "InputController.h"
 
 #include "Controller/CameraTool.h"
+#include "Controller/CreateEntityTool.h"
 #include "Controller/MoveObjectsTool.h"
+#include "Controller/RotateObjectsTool.h"
 #include "Controller/SelectionTool.h"
 #include "Model/MapDocument.h"
 #include "Renderer/MapRenderer.h"
@@ -34,14 +36,16 @@ namespace TrenchBroom {
             if (m_modalTool == NULL) {
                 m_modalTool = m_toolChain->modalTool(m_inputState);
                 if (m_modalTool != NULL) {
-                    // deactivate all tools but the modal tool
+                    m_toolChain->deactivateAll(m_inputState, m_modalTool);
+                    updateHits();
                 }
             } else {
                 if (!m_modalTool->isModal(m_inputState)) {
+                    m_toolChain->activateAll(m_inputState);
                     m_modalTool = m_toolChain->modalTool(m_inputState);
-                    if (m_modalTool != NULL) {
-                        // deactivate all tools but the new modal tool
-                    }
+                    if (m_modalTool != NULL)
+                        m_toolChain->deactivateAll(m_inputState, m_modalTool);
+                    updateHits();
                 }
             }
         }
@@ -60,18 +64,28 @@ namespace TrenchBroom {
         m_documentViewHolder(documentViewHolder),
         m_inputState(m_documentViewHolder.view().camera(), m_documentViewHolder.document().picker()),
         m_cameraTool(NULL),
+        m_createEntityTool(NULL),
         m_moveObjectsTool(NULL),
+        m_rotateObjectsTool(NULL),
         m_selectionTool(NULL),
         m_toolChain(NULL),
         m_dragTool(NULL),
         m_modalTool(NULL) {
             m_cameraTool = new CameraTool(m_documentViewHolder);
-            m_selectionTool = new SelectionTool(m_documentViewHolder);
+            m_createEntityTool = new CreateEntityTool(m_documentViewHolder);
             m_moveObjectsTool = new MoveObjectsTool(m_documentViewHolder, 64.0f, 32.0f);
-            m_cameraTool->setNextTool(m_moveObjectsTool);
-            m_moveObjectsTool->setNextTool(m_selectionTool);
+            m_rotateObjectsTool = new RotateObjectsTool(m_documentViewHolder, 64.0f, 32.0f, 3.0f);
+            m_selectionTool = new SelectionTool(m_documentViewHolder);
+
+            m_cameraTool->setNextTool(m_createEntityTool);
+            m_createEntityTool->setNextTool(m_moveObjectsTool);
+            m_moveObjectsTool->setNextTool(m_rotateObjectsTool);
+            m_rotateObjectsTool->setNextTool(m_selectionTool);
             m_toolChain = m_cameraTool;
+            
             m_moveObjectsTool->activate(m_inputState);
+            m_rotateObjectsTool->activate(m_inputState);
+            
             m_documentViewHolder.view().renderer().addFigure(new InputControllerFigure(*this));
         }
         
@@ -87,6 +101,10 @@ namespace TrenchBroom {
             if (m_moveObjectsTool != NULL) {
                 delete m_moveObjectsTool;
                 m_moveObjectsTool = NULL;
+            }
+            if (m_rotateObjectsTool != NULL) {
+                delete m_rotateObjectsTool;
+                m_rotateObjectsTool = NULL;
             }
             if (m_selectionTool != NULL) {
                 delete m_selectionTool;
@@ -183,16 +201,28 @@ namespace TrenchBroom {
         }
         
         void InputController::dragEnter(const String& payload, int x, int y) {
+            assert(m_dragTool == NULL);
+            
+            m_inputState.mouseMove(x, y);
+            m_createEntityTool->activate(m_inputState);
+            updateHits();
+            
+            m_dragTool = m_toolChain->dragEnter(m_inputState, payload);
         }
         
         void InputController::dragMove(const String& payload, int x, int y) {
         }
         
         bool InputController::drop(const String& payload, int x, int y) {
+            updateHits();
+            
+            
+            m_createEntityTool->deactivate(m_inputState);
             return false;
         }
         
         void InputController::dragLeave() {
+            m_createEntityTool->deactivate(m_inputState);
         }
 
         void InputController::editStateChange(const Model::EditStateChangeSet& changeSet) {

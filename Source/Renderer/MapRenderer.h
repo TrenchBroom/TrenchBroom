@@ -60,7 +60,6 @@ namespace TrenchBroom {
             typedef TexturedPolygonSorter<Model::Texture, Model::Face*> FaceSorter;
             typedef FaceSorter::PolygonCollection FaceCollection;
             typedef FaceSorter::PolygonCollectionMap FaceCollectionMap;
-            typedef std::vector<Figure*> FigureList;
         private:
             
             // level geometry rendering

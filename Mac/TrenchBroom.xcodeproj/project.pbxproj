@@ -57,6 +57,8 @@
 		4850D2A515F73FC7005B162D /* PathRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2A315F73FC7005B162D /* PathRenderer.cpp */; };
 		4850D2A915F742CB005B162D /* PathTesselator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2A715F742CA005B162D /* PathTesselator.cpp */; };
 		4850D2AF15F76245005B162D /* StringManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2AD15F76244005B162D /* StringManager.cpp */; };
+		4878F9201651231D003857EA /* RotateObjectsTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F91E1651231D003857EA /* RotateObjectsTool.cpp */; };
+		4878F924165142B4003857EA /* CreateEntityTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F922165142B4003857EA /* CreateEntityTool.cpp */; };
 		487B6C79164E8A70000A77DA /* CameraTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B6C77164E8A70000A77DA /* CameraTool.cpp */; };
 		48819C3815EBE97A00BEA604 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3615EBE92800BEA604 /* Camera.cpp */; };
 		48819C3F15EC0CE700BEA604 /* MacFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3D15EC0CE700BEA604 /* MacFileManager.cpp */; };
@@ -269,6 +271,10 @@
 		4850D2B215F776A8005B162D /* EntityClassnameAnchor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityClassnameAnchor.h; sourceTree = "<group>"; };
 		4850D2B315F776A8005B162D /* EntityClassnameFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityClassnameFilter.h; sourceTree = "<group>"; };
 		486C61E615EF713C0091AA97 /* mmapped_fstream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mmapped_fstream.h; sourceTree = "<group>"; };
+		4878F91E1651231D003857EA /* RotateObjectsTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RotateObjectsTool.cpp; sourceTree = "<group>"; };
+		4878F91F1651231D003857EA /* RotateObjectsTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateObjectsTool.h; sourceTree = "<group>"; };
+		4878F922165142B4003857EA /* CreateEntityTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CreateEntityTool.cpp; sourceTree = "<group>"; };
+		4878F923165142B4003857EA /* CreateEntityTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateEntityTool.h; sourceTree = "<group>"; };
 		487B6C77164E8A70000A77DA /* CameraTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraTool.cpp; sourceTree = "<group>"; };
 		487B6C78164E8A70000A77DA /* CameraTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraTool.h; sourceTree = "<group>"; };
 		48819C3615EBE92800BEA604 /* Camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
@@ -767,8 +773,12 @@
 			children = (
 				487B6C77164E8A70000A77DA /* CameraTool.cpp */,
 				487B6C78164E8A70000A77DA /* CameraTool.h */,
+				4878F922165142B4003857EA /* CreateEntityTool.cpp */,
+				4878F923165142B4003857EA /* CreateEntityTool.h */,
 				48EE7A1816502B98003F5BBE /* MoveObjectsTool.cpp */,
 				48EE7A1916502B98003F5BBE /* MoveObjectsTool.h */,
+				4878F91E1651231D003857EA /* RotateObjectsTool.cpp */,
+				4878F91F1651231D003857EA /* RotateObjectsTool.h */,
 				48EE7A1C16503AE9003F5BBE /* ObjectsHandle.h */,
 				48EE7A1516500F18003F5BBE /* SelectionTool.cpp */,
 				48EE7A1616500F18003F5BBE /* SelectionTool.h */,
@@ -1049,6 +1059,8 @@
 				487B6C79164E8A70000A77DA /* CameraTool.cpp in Sources */,
 				48EE7A1716500F18003F5BBE /* SelectionTool.cpp in Sources */,
 				48EE7A1A16502B98003F5BBE /* MoveObjectsTool.cpp in Sources */,
+				4878F9201651231D003857EA /* RotateObjectsTool.cpp in Sources */,
+				4878F924165142B4003857EA /* CreateEntityTool.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
