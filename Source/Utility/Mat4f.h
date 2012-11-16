@@ -405,10 +405,14 @@ namespace TrenchBroom {
                 return result;
             }
             
-            Mat4f& rotate(float angle, const Vec3f& axis) {
+            inline Mat4f& rotateCW(float angle, const Vec3f& axis) {
+                return rotateCCW(-angle, axis);
+            }
+            
+            Mat4f& rotateCCW(float angle, const Vec3f& axis) {
                 float s = sinf(angle);
                 float c = cosf(angle);
-                float i = 1 - c;
+                float i = 1.0f - c;
                 
                 float ix  = i  * axis.x;
                 float ix2 = ix * axis.x;
@@ -429,30 +433,36 @@ namespace TrenchBroom {
                 temp[ 0] = ix2 + c;
                 temp[ 1] = ixy - sz;
                 temp[ 2] = ixz + sy;
-                temp[ 3] = 0;
+                temp[ 3] = 0.0f;
                 
                 temp[ 4] = ixy + sz;
                 temp[ 5] = iy2 + c;
                 temp[ 6] = iyz - sx;
-                temp[ 7] = 0;
+                temp[ 7] = 0.0f;
                 
                 temp[ 8] = ixz - sy;
                 temp[ 9] = iyz + sx;
                 temp[10] = iz2 + c;
-                temp[11] = 0;
+                temp[11] = 0.0f;
                 
-                temp[12] = 0;
-                temp[13] = 0;
-                temp[14] = 0;
-                temp[15] = 1;
+                temp[12] = 0.0f;
+                temp[13] = 0.0f;
+                temp[14] = 0.0f;
+                temp[15] = 1.0f;
                 
                 *this *= temp;
                 return *this;
             }
             
-            const Mat4f rotated(float angle, const Vec3f& axis) const {
+            const Mat4f rotatedCW(float angle, const Vec3f& axis) const {
                 Mat4f result = *this;
-                result.rotate(angle, axis);
+                result.rotateCW(angle, axis);
+                return result;
+            }
+            
+            const Mat4f rotatedCCW(float angle, const Vec3f& axis) const {
+                Mat4f result = *this;
+                result.rotateCCW(angle, axis);
                 return result;
             }
 

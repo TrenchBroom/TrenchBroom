@@ -455,6 +455,7 @@ namespace TrenchBroom {
                     case Controller::Command::FlipObjects: {
                         m_renderer->invalidateSelectedBrushes();
                         m_renderer->invalidateSelectedEntities();
+                        inspector().entityInspector().updateProperties();
                         inputController().objectsChange();
                         break;
                     }
