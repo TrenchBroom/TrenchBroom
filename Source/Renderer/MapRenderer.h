@@ -64,14 +64,15 @@ namespace TrenchBroom {
             
             // level geometry rendering
             VboPtr m_faceVbo;
+            FaceRendererPtr m_faceRenderer;
+            FaceRendererPtr m_selectedFaceRenderer;
+            FaceRendererPtr m_lockedFaceRenderer;
+            
             VboPtr m_edgeVbo;
-            TextureVertexArrayList m_faceVertexArrays;
-            TextureVertexArrayList m_selectedFaceVertexArrays;
-            TextureVertexArrayList m_lockedFaceVertexArrays;
-            VertexArrayPtr m_edgeVertexArray;
-            VertexArrayPtr m_selectedEdgeVertexArray;
-            VertexArrayPtr m_lockedEdgeVertexArray;
-
+            EdgeRendererPtr m_edgeRenderer;
+            EdgeRendererPtr m_selectedEdgeRenderer;
+            EdgeRendererPtr m_lockedEdgeRenderer;
+            
             VboPtr m_entityVbo;
             EntityRendererPtr m_entityRenderer;
             EntityRendererPtr m_selectedEntityRenderer;
@@ -98,9 +99,6 @@ namespace TrenchBroom {
             
             Model::MapDocument& m_document;
             
-            void writeFaceData(RenderContext& context, const FaceCollectionMap& faceCollectionMap, TextureVertexArrayList& vertexArrays, ShaderProgram& program);
-            void writeColoredEdgeData(RenderContext& context, const Model::BrushList& brushes, const Model::FaceList& faces, VertexArray& vertexArray);
-            void writeEdgeData(RenderContext& context, const Model::BrushList& brushes, const Model::FaceList& faces, VertexArray& vertexArray);
             void rebuildGeometryData(RenderContext& context);
             void deleteFigures(FigureList& figures);
             

@@ -79,13 +79,7 @@ namespace TrenchBroom {
             }
         }
 
-        FaceRenderer::FaceRenderer(Vbo& vbo, TextureRendererManager& textureRendererManager, const Sorter& faces, const Color& faceColor) :
-        m_applyTinting(false),
-        m_grayScale(false) {
-            writeFaceData(vbo, textureRendererManager, faces, faceColor);
-        }
-
-        void FaceRenderer::render(RenderContext& context) {
+        void FaceRenderer::render(RenderContext& context, bool grayScale, const Color* tintColor) {
             if (m_vertexArrays.empty())
                 return;
             
@@ -103,9 +97,10 @@ namespace TrenchBroom {
                 faceProgram.setUniformVariable("GridSize", static_cast<float>(grid.actualSize()));
                 faceProgram.setUniformVariable("GridColor", prefs.getColor(Preferences::GridColor));
                 faceProgram.setUniformVariable("ApplyTexture", applyTexture);
-                faceProgram.setUniformVariable("ApplyTinting", m_applyTinting);
-                faceProgram.setUniformVariable("TintColor", m_tintColor);
-                faceProgram.setUniformVariable("GrayScale", m_grayScale);
+                faceProgram.setUniformVariable("ApplyTinting", tintColor != NULL);
+                if (tintColor != NULL)
+                    faceProgram.setUniformVariable("TintColor", *tintColor);
+                faceProgram.setUniformVariable("GrayScale", grayScale);
                 for (unsigned int i = 0; i < m_vertexArrays.size(); i++) {
                     TextureVertexArray& textureVertexArray = m_vertexArrays[i];
                     textureVertexArray.texture->activate();
@@ -115,6 +110,18 @@ namespace TrenchBroom {
                 }
                 faceProgram.deactivate();
             }
+        }
+
+        FaceRenderer::FaceRenderer(Vbo& vbo, TextureRendererManager& textureRendererManager, const Sorter& faces, const Color& faceColor) {
+            writeFaceData(vbo, textureRendererManager, faces, faceColor);
+        }
+        
+        void FaceRenderer::render(RenderContext& context, bool grayScale) {
+            render(context, grayScale, NULL);
+        }
+        
+        void FaceRenderer::render(RenderContext& context, bool grayScale, const Color& tintColor) {
+            render(context, grayScale, &tintColor);
         }
     }
 }

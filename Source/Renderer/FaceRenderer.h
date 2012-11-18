@@ -44,24 +44,14 @@ namespace TrenchBroom {
             typedef Sorter::PolygonCollectionMap FaceCollectionMap;
 
             TextureVertexArrayList m_vertexArrays;
-            bool m_applyTinting;
-            Color m_tintColor;
-            bool m_grayScale;
             
             void writeFaceData(Vbo& vbo, TextureRendererManager& textureRendererManager, const Sorter& faces, const Color& faceColor);
+            void render(RenderContext& context, bool grayScale, const Color* tintColor);
         public:
             FaceRenderer(Vbo& vbo, TextureRendererManager& textureRendererManager, const Sorter& faces, const Color& faceColor);
             
-            inline void setTintColor(const Color& tintColor) {
-                m_applyTinting = true;
-                m_tintColor = tintColor;
-            }
-            
-            inline void setGrayScale(bool grayScale) {
-                m_grayScale = grayScale;
-            }
-            
-            void render(RenderContext& context);
+            void render(RenderContext& context, bool grayScale);
+            void render(RenderContext& context, bool grayScale, const Color& tintColor);
         };
     }
 }

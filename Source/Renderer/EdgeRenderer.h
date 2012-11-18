@@ -21,18 +21,28 @@
 #define __TrenchBroom__EdgeRenderer__
 
 #include "Model/BrushTypes.h"
+#include "Model/FaceTypes.h"
 #include "Renderer/RenderTypes.h"
+#include "Utility/Color.h"
 
 namespace TrenchBroom {
     namespace Renderer {
+        class RenderContext;
         class Vbo;
         
         class EdgeRenderer {
         protected:
-            Vbo& m_vbo;
             VertexArrayPtr m_vertexArray;
+            
+            unsigned int vertexCount(const Model::BrushList& brushes, const Model::FaceList& faces);
+            void writeEdgeData(Vbo& vbo, const Model::BrushList& brushes, const Model::FaceList& faces);
+            void writeEdgeData(Vbo& vbo, const Model::BrushList& brushes, const Model::FaceList& faces, const Color& defaultColor);
         public:
-            EdgeRenderer(Vbo& vbo, const Model::BrushList& brushes);
+            EdgeRenderer(Vbo& vbo, const Model::BrushList& brushes, const Model::FaceList& faces);
+            EdgeRenderer(Vbo& vbo, const Model::BrushList& brushes, const Model::FaceList& faces, const Color& defaultColor);
+
+            void render(RenderContext& context);
+            void render(RenderContext& context, const Color& color);
         };
     }
 }

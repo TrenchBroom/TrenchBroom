@@ -28,7 +28,9 @@
 #include "Model/Filter.h"
 #include "Model/Map.h"
 #include "Model/MapDocument.h"
+#include "Renderer/EdgeRenderer.h"
 #include "Renderer/EntityRenderer.h"
+#include "Renderer/FaceRenderer.h"
 #include "Renderer/Figure.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/SharedResources.h"
@@ -53,134 +55,18 @@ namespace TrenchBroom {
         static const int EdgeVertexSize = ColorSize + VertexSize;
         static const int EntityBoundsVertexSize = ColorSize + VertexSize;
 
-        void MapRenderer::writeFaceData(RenderContext& context, const FaceCollectionMap& faceCollectionMap, TextureVertexArrayList& vertexArrays, ShaderProgram& shaderProgram) {
-            if (faceCollectionMap.empty())
-                return;
-            
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            TextureRendererManager& textureRendererManager = m_document.sharedResources().textureRendererManager();
-            const Color& faceColor = prefs.getColor(Preferences::FaceColor);
-
-            FaceCollectionMap::const_iterator it, end;
-            for (it = faceCollectionMap.begin(), end = faceCollectionMap.end(); it != end; ++it) {
-                Model::Texture* texture = it->first;
-                TextureRenderer& textureRenderer = textureRendererManager.renderer(texture);
-                const FaceCollection& faceCollection = it->second;
-                const Model::FaceList& faces = faceCollection.polygons();
-                unsigned int vertexCount = static_cast<unsigned int>(3 * faceCollection.vertexCount() - 2 * faces.size());
-                VertexArrayPtr vertexArray = VertexArrayPtr(new VertexArray(*m_faceVbo, GL_TRIANGLES, vertexCount,
-                                                                            VertexAttribute::position3f(),
-                                                                            VertexAttribute::normal3f(),
-                                                                            VertexAttribute::texCoord02f(),
-                                                                            VertexAttribute::color4f()));
-
-                for (unsigned int i = 0; i < faces.size(); i++) {
-                    Model::Face* face = faces[i];
-                    const Model::VertexList& vertices = face->vertices();
-                    const Vec2f::List& texCoords = face->texCoords();
-                    Model::Texture* texture = face->texture();
-                    const Color& color = texture != NULL ? textureRenderer.averageColor() : faceColor;
-                    
-                    for (unsigned int j = 1; j < vertices.size() - 1; j++) {
-                        vertexArray->addAttribute(vertices[0]->position);
-                        vertexArray->addAttribute(face->boundary().normal);
-                        vertexArray->addAttribute(texCoords[0]);
-                        vertexArray->addAttribute(color);
-                        vertexArray->addAttribute(vertices[j]->position);
-                        vertexArray->addAttribute(face->boundary().normal);
-                        vertexArray->addAttribute(texCoords[j]);
-                        vertexArray->addAttribute(color);
-                        vertexArray->addAttribute(vertices[j + 1]->position);
-                        vertexArray->addAttribute(face->boundary().normal);
-                        vertexArray->addAttribute(texCoords[j + 1]);
-                        vertexArray->addAttribute(color);
-                    }
-                }
-                
-                vertexArrays.push_back(TextureVertexArray(&textureRenderer, vertexArray));
-            }
-        }
-        
-        void MapRenderer::writeColoredEdgeData(RenderContext& context, const Model::BrushList& brushes, const Model::FaceList& faces, VertexArray& vertexArray) {
-            if (brushes.empty() && faces.empty())
-                return;
-            
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            const Color& worldColor = prefs.getColor(Preferences::EdgeColor);
-            
-            for (unsigned int i = 0; i < brushes.size(); i++) {
-                Model::Brush* brush = brushes[i];
-                Model::Entity* entity = brush->entity();
-                Model::EntityDefinition* definition = entity->definition();
-                const Color& color = (!entity->worldspawn() && definition != NULL && definition->type() == Model::EntityDefinition::BrushEntity) ? definition->color() : worldColor;
-                
-                const Model::EdgeList& edges = brush->edges();
-                for (unsigned int j = 0; j < edges.size(); j++) {
-                    Model::Edge* edge = edges[j];
-                    vertexArray.addAttribute(edge->start->position);
-                    vertexArray.addAttribute(color);
-                    vertexArray.addAttribute(edge->end->position);
-                    vertexArray.addAttribute(color);
-                }
-            }
-            
-            for (unsigned int i = 0; i < faces.size(); i++) {
-                Model::Face* face = faces[i];
-                Model::Brush* brush = face->brush();
-                Model::Entity* entity = brush->entity();
-                Model::EntityDefinition* definition = entity->definition();
-                const Color& color = (!entity->worldspawn() && definition != NULL && definition->type() == Model::EntityDefinition::BrushEntity) ? definition->color() : worldColor;
-                
-                const Model::EdgeList& edges = face->edges();
-                for (unsigned int j = 0; j < edges.size(); j++) {
-                    Model::Edge* edge = edges[j];
-                    vertexArray.addAttribute(edge->start->position);
-                    vertexArray.addAttribute(color);
-                    vertexArray.addAttribute(edge->end->position);
-                    vertexArray.addAttribute(color);
-                }
-            }
-        }
-        
-        void MapRenderer::writeEdgeData(RenderContext& context, const Model::BrushList& brushes, const Model::FaceList& faces, VertexArray& vertexArray) {
-            if (brushes.empty() && faces.empty())
-                return;
-            
-            for (unsigned int i = 0; i < brushes.size(); i++) {
-                Model::Brush* brush = brushes[i];
-                
-                const Model::EdgeList& edges = brush->edges();
-                for (unsigned int j = 0; j < edges.size(); j++) {
-                    Model::Edge* edge = edges[j];
-                    vertexArray.addAttribute(edge->start->position);
-                    vertexArray.addAttribute(edge->end->position);
-                }
-            }
-            
-            for (unsigned int i = 0; i < faces.size(); i++) {
-                Model::Face* face = faces[i];
-                
-                const Model::EdgeList& edges = face->edges();
-                for (unsigned int j = 0; j < edges.size(); j++) {
-                    Model::Edge* edge = edges[j];
-                    vertexArray.addAttribute(edge->start->position);
-                    vertexArray.addAttribute(edge->end->position);
-                }
-            }
-        }
-        
         void MapRenderer::rebuildGeometryData(RenderContext& context) {
             if (!m_geometryDataValid) {
-                m_edgeVertexArray = VertexArrayPtr(NULL);
-                m_faceVertexArrays.clear();
+                m_faceRenderer = FaceRendererPtr(NULL);
+                m_edgeRenderer = EdgeRendererPtr(NULL);
             }
             if (!m_selectedGeometryDataValid) {
-                m_selectedEdgeVertexArray = VertexArrayPtr(NULL);
-                m_selectedFaceVertexArrays.clear();
+                m_selectedFaceRenderer = FaceRendererPtr(NULL);
+                m_selectedEdgeRenderer = EdgeRendererPtr(NULL);
             }
             if (!m_lockedGeometryDataValid) {
-                m_lockedEdgeVertexArray = VertexArrayPtr(NULL);
-                m_lockedFaceVertexArrays.clear();
+                m_lockedFaceRenderer = FaceRendererPtr(NULL);
+                m_lockedEdgeRenderer = EdgeRendererPtr(NULL);
             }
             
             FaceSorter unselectedFaceSorter;
@@ -247,11 +133,6 @@ namespace TrenchBroom {
             Model::BrushList unselectedBrushes(unselectedWorldBrushes);
             unselectedBrushes.insert(unselectedBrushes.end(), unselectedEntityBrushes.begin(), unselectedEntityBrushes.end());
 
-            ShaderManager& shaderManager = m_document.sharedResources().shaderManager();
-            ShaderProgram& faceProgram = shaderManager.shaderProgram(Shaders::FaceShader);
-            ShaderProgram& coloredEdgeProgram = shaderManager.shaderProgram(Shaders::ColoredEdgeShader);
-            ShaderProgram& edgeProgram = shaderManager.shaderProgram(Shaders::EdgeShader);
-            
             // write face triangles
             m_faceVbo->activate();
             m_faceVbo->map();
@@ -260,14 +141,18 @@ namespace TrenchBroom {
             size_t totalFaceVertexCount = unselectedFaceSorter.vertexCount() + selectedFaceSorter.vertexCount() + lockedFaceSorter.vertexCount();
             size_t totalPolygonCount = unselectedFaceSorter.polygonCount() + selectedFaceSorter.polygonCount() + lockedFaceSorter.polygonCount();
             size_t totalTriangleVertexCount = 3 * totalFaceVertexCount - 2 * totalPolygonCount;
-            m_faceVbo->ensureFreeCapacity(static_cast<unsigned int>(totalTriangleVertexCount) * 64);
+            m_faceVbo->ensureFreeCapacity(static_cast<unsigned int>(totalTriangleVertexCount) * FaceVertexSize);
             
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            TextureRendererManager& textureRendererManager = m_document.sharedResources().textureRendererManager();
+            const Color& faceColor = prefs.getColor(Preferences::FaceColor);
+
             if (!m_geometryDataValid && !unselectedFaceSorter.empty())
-                writeFaceData(context, unselectedFaceSorter.collections(), m_faceVertexArrays, faceProgram);
+                m_faceRenderer = FaceRendererPtr(new FaceRenderer(*m_faceVbo, textureRendererManager, unselectedFaceSorter, faceColor));
             if (!m_selectedGeometryDataValid && !selectedFaceSorter.empty())
-                writeFaceData(context, selectedFaceSorter.collections(), m_selectedFaceVertexArrays, faceProgram);
+                m_selectedFaceRenderer = FaceRendererPtr(new FaceRenderer(*m_faceVbo, textureRendererManager, selectedFaceSorter, faceColor));
             if (!m_lockedGeometryDataValid && !lockedFaceSorter.empty())
-                writeFaceData(context, lockedFaceSorter.collections(), m_lockedFaceVertexArrays, faceProgram);
+                m_lockedFaceRenderer = FaceRendererPtr(new FaceRenderer(*m_faceVbo, textureRendererManager, lockedFaceSorter, faceColor));
             
             m_faceVbo->unmap();
             m_faceVbo->deactivate();
@@ -275,28 +160,16 @@ namespace TrenchBroom {
             // write edges
             m_edgeVbo->activate();
             m_edgeVbo->map();
+            m_edgeVbo->ensureFreeCapacity(totalUnselectedEdgeVertexCount * EdgeVertexSize + (totalSelectedEdgeVertexCount + totalLockedEdgeVertexCount) * VertexSize);
             
-            if (!m_geometryDataValid && !unselectedBrushes.empty()) {
-                m_edgeVertexArray = VertexArrayPtr(new VertexArray(*m_edgeVbo, GL_LINES, totalUnselectedEdgeVertexCount,
-                                                                   VertexAttribute::position3f(),
-                                                                   VertexAttribute::color4f()));
-                m_edgeVertexArray->bindAttributes(coloredEdgeProgram);
-                writeColoredEdgeData(context, unselectedBrushes, Model::EmptyFaceList, *m_edgeVertexArray);
-            }
-            
-            if (!m_selectedGeometryDataValid && (!selectedBrushes.empty() || !partiallySelectedBrushFaces.empty())) {
-                m_selectedEdgeVertexArray = VertexArrayPtr(new VertexArray(*m_edgeVbo, GL_LINES, totalSelectedEdgeVertexCount,
-                                                                           VertexAttribute::position3f()));
-                m_selectedEdgeVertexArray->bindAttributes(edgeProgram);
-                writeEdgeData(context, selectedBrushes, partiallySelectedBrushFaces, *m_selectedEdgeVertexArray);
-            }
-            
-            if (!m_lockedGeometryDataValid && !lockedBrushes.empty()) {
-                m_lockedEdgeVertexArray = VertexArrayPtr(new VertexArray(*m_edgeVbo, GL_LINES, totalLockedEdgeVertexCount,
-                                                                         VertexAttribute::position3f()));
-                m_lockedEdgeVertexArray->bindAttributes(edgeProgram);
-                writeEdgeData(context, lockedBrushes, Model::EmptyFaceList, *m_lockedEdgeVertexArray);
-            }
+            const Color& edgeColor = prefs.getColor(Preferences::EdgeColor);
+
+            if (!m_geometryDataValid && !unselectedBrushes.empty())
+                m_edgeRenderer = EdgeRendererPtr(new EdgeRenderer(*m_edgeVbo, unselectedBrushes, Model::EmptyFaceList, edgeColor));
+            if (!m_selectedGeometryDataValid && (!selectedBrushes.empty() || !partiallySelectedBrushFaces.empty()))
+                m_selectedEdgeRenderer = EdgeRendererPtr(new EdgeRenderer(*m_edgeVbo, selectedBrushes, partiallySelectedBrushFaces));
+            if (!m_lockedGeometryDataValid && !lockedBrushes.empty())
+                m_lockedEdgeRenderer = EdgeRendererPtr(new EdgeRenderer(*m_edgeVbo, lockedBrushes, Model::EmptyFaceList));
             
             m_edgeVbo->unmap();
             m_edgeVbo->deactivate();
@@ -321,97 +194,37 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::renderFaces(RenderContext& context) {
-            if (m_faceVertexArrays.empty() && m_selectedFaceVertexArrays.empty() && m_lockedFaceVertexArrays.empty())
-                return;
-            
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            Utility::Grid& grid = m_document.grid();
             
-            ShaderManager& shaderManager = m_document.sharedResources().shaderManager();
-            ShaderProgram& faceProgram = shaderManager.shaderProgram(Shaders::FaceShader);
-
             m_faceVbo->activate();
-            if (faceProgram.activate()) {
-                glActiveTexture(GL_TEXTURE0);
-                bool applyTexture = context.viewOptions().faceRenderMode() == View::ViewOptions::Textured;
-                faceProgram.setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
-                faceProgram.setUniformVariable("RenderGrid", grid.visible());
-                faceProgram.setUniformVariable("GridSize", static_cast<float>(grid.actualSize()));
-                faceProgram.setUniformVariable("GridColor", prefs.getColor(Preferences::GridColor));
-                faceProgram.setUniformVariable("ApplyTexture", applyTexture);
-                if (!m_faceVertexArrays.empty()) {
-                    faceProgram.setUniformVariable("ApplyTinting", false);
-                    faceProgram.setUniformVariable("GrayScale", false);
-                    for (unsigned int i = 0; i < m_faceVertexArrays.size(); i++) {
-                        TextureVertexArray& textureVertexArray = m_faceVertexArrays[i];
-                        textureVertexArray.texture->activate();
-                        faceProgram.setUniformVariable("FaceTexture", 0);
-                        textureVertexArray.vertexArray->render();
-                        textureVertexArray.texture->deactivate();
-                    }
-                }
-                if (!m_selectedFaceVertexArrays.empty()) {
-                    faceProgram.setUniformVariable("ApplyTinting", true);
-                    faceProgram.setUniformVariable("TintColor", prefs.getColor(Preferences::SelectedFaceColor));
-                    faceProgram.setUniformVariable("GrayScale", false);
-                    for (unsigned int i = 0; i < m_selectedFaceVertexArrays.size(); i++) {
-                        TextureVertexArray& textureVertexArray = m_selectedFaceVertexArrays[i];
-                        textureVertexArray.texture->activate();
-                        faceProgram.setUniformVariable("FaceTexture", 0);
-                        textureVertexArray.vertexArray->render();
-                        textureVertexArray.texture->deactivate();
-                    }
-                }
-                if (!m_lockedFaceVertexArrays.empty()) {
-                    faceProgram.setUniformVariable("ApplyTinting", true);
-                    faceProgram.setUniformVariable("TintColor", prefs.getColor(Preferences::LockedFaceColor));
-                    faceProgram.setUniformVariable("GrayScale", true);
-                    for (unsigned int i = 0; i < m_lockedFaceVertexArrays.size(); i++) {
-                        TextureVertexArray& textureVertexArray = m_lockedFaceVertexArrays[i];
-                        textureVertexArray.texture->activate();
-                        faceProgram.setUniformVariable("FaceTexture", 0);
-                        textureVertexArray.vertexArray->render();
-                        textureVertexArray.texture->deactivate();
-                    }
-                }
-                faceProgram.deactivate();
-            }
+            if (m_faceRenderer.get() != NULL)
+                m_faceRenderer->render(context, false);
+            if (m_selectedFaceRenderer.get() != NULL)
+                m_selectedFaceRenderer->render(context, false, prefs.getColor(Preferences::SelectedFaceColor));
+            if (m_lockedFaceRenderer.get() != NULL)
+                m_lockedFaceRenderer->render(context, true, prefs.getColor(Preferences::LockedFaceColor));
             m_faceVbo->deactivate();
         }
         
         void MapRenderer::renderEdges(RenderContext& context) {
-            if (m_edgeVertexArray.get() == NULL && m_selectedEdgeVertexArray.get() == NULL && m_lockedEdgeVertexArray.get() == NULL)
-                return;
-            
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-
-            ShaderManager& shaderManager = m_document.sharedResources().shaderManager();
-            ShaderProgram& coloredEdgeProgram = shaderManager.shaderProgram(Shaders::ColoredEdgeShader);
-            ShaderProgram& edgeProgram = shaderManager.shaderProgram(Shaders::EdgeShader);
-
+            
             m_edgeVbo->activate();
-            if (m_edgeVertexArray.get() != NULL && coloredEdgeProgram.activate()) {
+            if (m_edgeRenderer.get() != NULL) {
                 glSetEdgeOffset(0.02f);
-                m_edgeVertexArray->render();
-                coloredEdgeProgram.deactivate();
+                m_edgeRenderer->render(context);
             }
-            if (edgeProgram.activate()) {
-                if (m_lockedEdgeVertexArray.get() != NULL) {
-                    edgeProgram.setUniformVariable("Color", prefs.getColor(Preferences::LockedEdgeColor));
-                    glSetEdgeOffset(0.02f);
-                    m_lockedEdgeVertexArray->render();
-                }
-                if (m_selectedEdgeVertexArray.get() != NULL) {
-                    glDisable(GL_DEPTH_TEST);
-                    edgeProgram.setUniformVariable("Color", prefs.getColor(Preferences::OccludedSelectedEdgeColor));
-                    glSetEdgeOffset(0.02f);
-                    m_selectedEdgeVertexArray->render();
-                    glEnable(GL_DEPTH_TEST);
-                    edgeProgram.setUniformVariable("Color", prefs.getColor(Preferences::SelectedEdgeColor));
-                    glSetEdgeOffset(0.025f);
-                    m_selectedEdgeVertexArray->render();
-                }
-                edgeProgram.deactivate();
+            if (m_lockedEdgeRenderer.get() != NULL) {
+                glSetEdgeOffset(0.02f);
+                m_edgeRenderer->render(context, prefs.getColor(Preferences::LockedEdgeColor));
+            }
+            if (m_selectedEdgeRenderer.get() != NULL) {
+                glDisable(GL_DEPTH_TEST);
+                glSetEdgeOffset(0.02f);
+                m_selectedEdgeRenderer->render(context, prefs.getColor(Preferences::OccludedSelectedEdgeColor));
+                glEnable(GL_DEPTH_TEST);
+                glSetEdgeOffset(0.025f);
+                m_selectedEdgeRenderer->render(context, prefs.getColor(Preferences::SelectedEdgeColor));
             }
             m_edgeVbo->deactivate();
             glResetEdgeOffset();
@@ -534,12 +347,12 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::clearMap() {
-			m_faceVertexArrays.clear();
-			m_selectedFaceVertexArrays.clear();
-			m_lockedFaceVertexArrays.clear();
-			m_edgeVertexArray = VertexArrayPtr();
-			m_selectedEdgeVertexArray = VertexArrayPtr();
-			m_lockedEdgeVertexArray = VertexArrayPtr();
+            m_faceRenderer = FaceRendererPtr(NULL);
+            m_selectedFaceRenderer = FaceRendererPtr(NULL);
+            m_lockedFaceRenderer = FaceRendererPtr(NULL);
+            m_edgeRenderer = EdgeRendererPtr(NULL);
+            m_selectedEdgeRenderer = EdgeRendererPtr(NULL);
+            m_lockedEdgeRenderer = EdgeRendererPtr(NULL);
             m_entityRenderer->clear();
             m_selectedEntityRenderer->clear();
             m_lockedEntityRenderer->clear();
