@@ -20,6 +20,7 @@
 #include "InputController.h"
 
 #include "Controller/CameraTool.h"
+#include "Controller/CreateBrushTool.h"
 #include "Controller/CreateEntityTool.h"
 #include "Controller/MoveObjectsTool.h"
 #include "Controller/RotateObjectsTool.h"
@@ -64,6 +65,7 @@ namespace TrenchBroom {
         m_documentViewHolder(documentViewHolder),
         m_inputState(m_documentViewHolder.view().camera(), m_documentViewHolder.document().picker()),
         m_cameraTool(NULL),
+        m_createBrushTool(NULL),
         m_createEntityTool(NULL),
         m_moveObjectsTool(NULL),
         m_rotateObjectsTool(NULL),
@@ -72,17 +74,20 @@ namespace TrenchBroom {
         m_dragTool(NULL),
         m_modalTool(NULL) {
             m_cameraTool = new CameraTool(m_documentViewHolder);
+            m_createBrushTool = new CreateBrushTool(m_documentViewHolder);
             m_createEntityTool = new CreateEntityTool(m_documentViewHolder);
             m_moveObjectsTool = new MoveObjectsTool(m_documentViewHolder, 64.0f, 32.0f);
             m_rotateObjectsTool = new RotateObjectsTool(m_documentViewHolder, 64.0f, 32.0f, 5.0f);
             m_selectionTool = new SelectionTool(m_documentViewHolder);
 
             m_cameraTool->setNextTool(m_createEntityTool);
-            m_createEntityTool->setNextTool(m_moveObjectsTool);
+            m_createEntityTool->setNextTool(m_createBrushTool);
+            m_createBrushTool->setNextTool(m_moveObjectsTool);
             m_moveObjectsTool->setNextTool(m_rotateObjectsTool);
             m_rotateObjectsTool->setNextTool(m_selectionTool);
             m_toolChain = m_cameraTool;
             
+            m_createBrushTool->activate(m_inputState);
             m_moveObjectsTool->activate(m_inputState);
             m_rotateObjectsTool->activate(m_inputState);
             
@@ -93,23 +98,19 @@ namespace TrenchBroom {
             m_toolChain = NULL;
             m_dragTool = NULL;
             m_modalTool = NULL;
-
-            if (m_cameraTool != NULL) {
-                delete m_cameraTool;
-                m_cameraTool = NULL;
-            }
-            if (m_moveObjectsTool != NULL) {
-                delete m_moveObjectsTool;
-                m_moveObjectsTool = NULL;
-            }
-            if (m_rotateObjectsTool != NULL) {
-                delete m_rotateObjectsTool;
-                m_rotateObjectsTool = NULL;
-            }
-            if (m_selectionTool != NULL) {
-                delete m_selectionTool;
-                m_selectionTool = NULL;
-            }
+            
+            delete m_cameraTool;
+            m_cameraTool = NULL;
+            delete m_createBrushTool;
+            m_createBrushTool = NULL;
+            delete m_createEntityTool;
+            m_createEntityTool = NULL;
+            delete m_moveObjectsTool;
+            m_moveObjectsTool = NULL;
+            delete m_rotateObjectsTool;
+            m_rotateObjectsTool = NULL;
+            delete m_selectionTool;
+            m_selectionTool = NULL;
         }
 
         void InputController::modifierKeyDown(ModifierKeyState modifierKey) {

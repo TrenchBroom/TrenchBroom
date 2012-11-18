@@ -87,6 +87,12 @@ namespace TrenchBroom {
             return new AddObjectsCommand(document, wxT("Add Entity"), entities, Model::EmptyBrushList);
         }
 
+        AddObjectsCommand* AddObjectsCommand::addBrush(Model::MapDocument& document, Model::Brush& brush) {
+            Model::BrushList brushes;
+            brushes.push_back(&brush);
+            return new AddObjectsCommand(document, wxT("Add Brush"), Model::EmptyEntityList, brushes);
+        }
+
         AddObjectsCommand::~AddObjectsCommand() {
             if (state() == Undone) {
                 while (!m_brushes.empty()) delete m_brushes.back(), m_brushes.pop_back();

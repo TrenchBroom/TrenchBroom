@@ -60,6 +60,7 @@
 		4850D2AF15F76245005B162D /* StringManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2AD15F76244005B162D /* StringManager.cpp */; };
 		4878F9201651231D003857EA /* RotateObjectsTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F91E1651231D003857EA /* RotateObjectsTool.cpp */; };
 		4878F924165142B4003857EA /* CreateEntityTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F922165142B4003857EA /* CreateEntityTool.cpp */; };
+		4878F95516596915003857EA /* BrushFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F95316596915003857EA /* BrushFigure.cpp */; };
 		487B6C79164E8A70000A77DA /* CameraTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B6C77164E8A70000A77DA /* CameraTool.cpp */; };
 		48819C3815EBE97A00BEA604 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3615EBE92800BEA604 /* Camera.cpp */; };
 		48819C3F15EC0CE700BEA604 /* MacFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3D15EC0CE700BEA604 /* MacFileManager.cpp */; };
@@ -281,6 +282,8 @@
 		4878F922165142B4003857EA /* CreateEntityTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CreateEntityTool.cpp; sourceTree = "<group>"; };
 		4878F923165142B4003857EA /* CreateEntityTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateEntityTool.h; sourceTree = "<group>"; };
 		4878F92516516652003857EA /* ObjectsCommand.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjectsCommand.h; sourceTree = "<group>"; };
+		4878F95316596915003857EA /* BrushFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BrushFigure.cpp; sourceTree = "<group>"; };
+		4878F95416596915003857EA /* BrushFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushFigure.h; sourceTree = "<group>"; };
 		487B6C77164E8A70000A77DA /* CameraTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraTool.cpp; sourceTree = "<group>"; };
 		487B6C78164E8A70000A77DA /* CameraTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraTool.h; sourceTree = "<group>"; };
 		48819C3615EBE92800BEA604 /* Camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
@@ -886,6 +889,8 @@
 			children = (
 				48AD1B391646C151009F839B /* AxisFigure.cpp */,
 				48AD1B3A1646C151009F839B /* AxisFigure.h */,
+				4878F95316596915003857EA /* BrushFigure.cpp */,
+				4878F95416596915003857EA /* BrushFigure.h */,
 				48CB0DCB163EEB26001C8E87 /* CircleFigure.cpp */,
 				48CB0DCC163EEB26001C8E87 /* CircleFigure.h */,
 				48FBD13F16259AD70059953D /* EntityFigure.cpp */,
@@ -1081,6 +1086,7 @@
 				48F1FBA81652ACB100C79278 /* CreateBrushTool.cpp in Sources */,
 				48F1FBAC1652BE8B00C79278 /* FaceRenderer.cpp in Sources */,
 				484CEC49165396A9000913D0 /* EdgeRenderer.cpp in Sources */,
+				4878F95516596915003857EA /* BrushFigure.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

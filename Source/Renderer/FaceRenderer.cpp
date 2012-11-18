@@ -42,7 +42,7 @@ namespace TrenchBroom {
             FaceCollectionMap::const_iterator it, end;
             for (it = faceCollectionMap.begin(), end = faceCollectionMap.end(); it != end; ++it) {
                 Model::Texture* texture = it->first;
-                TextureRenderer& textureRenderer = textureRendererManager.renderer(texture);
+                TextureRenderer* textureRenderer = texture != NULL ? &textureRendererManager.renderer(texture) : NULL;
                 const FaceCollection& faceCollection = it->second;
                 const Model::FaceList& faces = faceCollection.polygons();
                 unsigned int vertexCount = static_cast<unsigned int>(3 * faceCollection.vertexCount() - 2 * faces.size());
@@ -57,7 +57,7 @@ namespace TrenchBroom {
                     const Model::VertexList& vertices = face->vertices();
                     const Vec2f::List& texCoords = face->texCoords();
                     Model::Texture* texture = face->texture();
-                    const Color& color = texture != NULL ? textureRenderer.averageColor() : faceColor;
+                    const Color& color = texture != NULL ? textureRenderer->averageColor() : faceColor;
                     
                     for (unsigned int j = 1; j < vertices.size() - 1; j++) {
                         vertexArray->addAttribute(vertices[0]->position);
@@ -75,7 +75,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                m_vertexArrays.push_back(TextureVertexArray(&textureRenderer, vertexArray));
+                m_vertexArrays.push_back(TextureVertexArray(textureRenderer, vertexArray));
             }
         }
 
@@ -103,10 +103,22 @@ namespace TrenchBroom {
                 faceProgram.setUniformVariable("GrayScale", grayScale);
                 for (unsigned int i = 0; i < m_vertexArrays.size(); i++) {
                     TextureVertexArray& textureVertexArray = m_vertexArrays[i];
-                    textureVertexArray.texture->activate();
-                    faceProgram.setUniformVariable("FaceTexture", 0);
+                    if (textureVertexArray.texture != NULL) {
+                        if (!applyTexture) {
+                            applyTexture = true;
+                            faceProgram.setUniformVariable("ApplyTexture", applyTexture);
+                        }
+                        textureVertexArray.texture->activate();
+                        faceProgram.setUniformVariable("FaceTexture", 0);
+                    } else if (applyTexture) {
+                        applyTexture = false;
+                        faceProgram.setUniformVariable("ApplyTexture", applyTexture);
+                    }
+                    
                     textureVertexArray.vertexArray->render();
-                    textureVertexArray.texture->deactivate();
+                    
+                    if (textureVertexArray.texture != NULL)
+                        textureVertexArray.texture->deactivate();
                 }
                 faceProgram.deactivate();
             }

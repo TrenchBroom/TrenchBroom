@@ -30,6 +30,10 @@ namespace TrenchBroom {
         class Brush;
     }
     
+    namespace Renderer {
+        class BrushFigure;
+    }
+    
     namespace View {
         class DocumentViewHolder;
     }
@@ -39,10 +43,15 @@ namespace TrenchBroom {
         protected:
             Vec3f m_initialPoint;
             BBox m_bounds;
+            bool m_boundsChanged;
             Model::Brush* m_brush;
+            Renderer::BrushFigure* m_brushFigure;
             
             void updateBounds(const Vec3f& currentPoint);
             
+            bool handleUpdateState(InputState& inputState);
+            void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
+
             bool handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint);
             void handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint);
             void handleEndPlaneDrag(InputState& inputState);
