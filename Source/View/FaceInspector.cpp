@@ -307,6 +307,8 @@ namespace TrenchBroom {
         }
 
         void FaceInspector::OnXOffsetChanged(wxSpinDoubleEvent& event) {
+            if (!m_documentViewHolder.valid())
+                return;
             Model::MapDocument& document = m_documentViewHolder.document();
             const Model::FaceList& faces = document.editStateManager().selectedFaces();
             Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, faces, "Set X Offset");
@@ -315,6 +317,8 @@ namespace TrenchBroom {
         }
         
         void FaceInspector::OnYOffsetChanged(wxSpinDoubleEvent& event) {
+            if (!m_documentViewHolder.valid())
+                return;
             Model::MapDocument& document = m_documentViewHolder.document();
             const Model::FaceList& faces = document.editStateManager().selectedFaces();
             Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, faces, "Set Y Offset");
@@ -323,6 +327,8 @@ namespace TrenchBroom {
         }
         
         void FaceInspector::OnXScaleChanged(wxSpinDoubleEvent& event) {
+            if (!m_documentViewHolder.valid())
+                return;
             Model::MapDocument& document = m_documentViewHolder.document();
             const Model::FaceList& faces = document.editStateManager().selectedFaces();
             Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, faces, "Set X Scale");
@@ -331,6 +337,8 @@ namespace TrenchBroom {
         }
         
         void FaceInspector::OnYScaleChanged(wxSpinDoubleEvent& event) {
+            if (!m_documentViewHolder.valid())
+                return;
             Model::MapDocument& document = m_documentViewHolder.document();
             const Model::FaceList& faces = document.editStateManager().selectedFaces();
             Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, faces, "Set Y Scale");
@@ -339,6 +347,8 @@ namespace TrenchBroom {
         }
         
         void FaceInspector::OnRotationChanged(wxSpinDoubleEvent& event) {
+            if (!m_documentViewHolder.valid())
+                return;
             Model::MapDocument& document = m_documentViewHolder.document();
             const Model::FaceList& faces = document.editStateManager().selectedFaces();
             Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, faces, "Set Rotation");
@@ -349,7 +359,6 @@ namespace TrenchBroom {
         void FaceInspector::OnTextureSelected(TextureSelectedCommand& event) {
             if (!m_documentViewHolder.valid())
                 return;
-            
             Model::MapDocument& document = m_documentViewHolder.document();
             const Model::FaceList& faces = document.editStateManager().selectedFaces();
             Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, faces, "Set Texture");
@@ -358,6 +367,8 @@ namespace TrenchBroom {
         }
 
         void FaceInspector::OnAddTextureCollectionPressed(wxCommandEvent& event) {
+            if (!m_documentViewHolder.valid())
+                return;
             wxFileDialog addTextureCollectionDialog(NULL, wxT("Choose texture wad"), wxT(""), wxT(""), wxT("*.wad"), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
             if (addTextureCollectionDialog.ShowModal() == wxID_OK) {
                 String absWadPath = addTextureCollectionDialog.GetPath().ToStdString();
@@ -385,6 +396,8 @@ namespace TrenchBroom {
         }
         
         void FaceInspector::OnRemoveTextureCollectionsPressed(wxCommandEvent& event) {
+            if (!m_documentViewHolder.valid())
+                return;
             wxArrayInt selections;
             unsigned int selectionCount = m_textureCollectionList->GetSelections(selections);
             if (selectionCount <= 0)
@@ -400,6 +413,8 @@ namespace TrenchBroom {
         }
 
         void FaceInspector::OnUpdateRemoveTextureCollectionsButton(wxUpdateUIEvent& event) {
+            if (!m_documentViewHolder.valid())
+                return;
             wxArrayInt selections;
             int selectionCount = m_textureCollectionList->GetSelections(selections);
             event.Enable(selectionCount > 0);
