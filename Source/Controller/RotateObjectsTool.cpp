@@ -96,25 +96,25 @@ namespace TrenchBroom {
                 rotation.rotateCCW(angle, angle > 0.0f ? Vec3f::PosX : Vec3f::NegX);
                 Renderer::ApplyMatrix applyRotation(context.transformation(), rotation);
                 
-                shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
-                Renderer::RingFigure(Axis::AX, yAxis, zAxis, m_ringRadius, m_ringThickness, 8).render(vbo, context);
                 shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.25f));
+                Renderer::RingFigure(Axis::AX, yAxis, zAxis, m_ringRadius, m_ringThickness, 8).render(vbo, context);
+                shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
                 Renderer::CircleFigure(Axis::AX, 0.0f, 2 * Math::Pi, m_ringRadius + m_ringThickness, 32, false).render(vbo, context);
             } else if (hit->hitArea() == Model::RotateObjectsHandleHit::HAYAxis) {
                 rotation.rotateCCW(angle, angle > 0.0f ? Vec3f::PosY : Vec3f::NegY);
                 Renderer::ApplyMatrix applyRotation(context.transformation(), rotation);
                 
-                shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
-                Renderer::RingFigure(Axis::AY, xAxis, zAxis, m_ringRadius, m_ringThickness, 8).render(vbo, context);
                 shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.25f));
+                Renderer::RingFigure(Axis::AY, xAxis, zAxis, m_ringRadius, m_ringThickness, 8).render(vbo, context);
+                shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
                 Renderer::CircleFigure(Axis::AY, 0.0f, 2 * Math::Pi, m_ringRadius + m_ringThickness, 32, false).render(vbo, context);
             } else {
                 rotation.rotateCCW(angle, angle > 0.0f ? Vec3f::PosZ : Vec3f::NegZ);
                 Renderer::ApplyMatrix applyRotation(context.transformation(), rotation);
                 
-                shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
-                Renderer::RingFigure(Axis::AZ, xAxis, yAxis, m_ringRadius, m_ringThickness, 8).render(vbo, context);
                 shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.25f));
+                Renderer::RingFigure(Axis::AZ, xAxis, yAxis, m_ringRadius, m_ringThickness, 8).render(vbo, context);
+                shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
                 Renderer::CircleFigure(Axis::AZ, 0.0f, 2 * Math::Pi, m_ringRadius + m_ringThickness, 32, false).render(vbo, context);
             }
         }
