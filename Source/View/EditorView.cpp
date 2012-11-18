@@ -69,6 +69,9 @@ namespace TrenchBroom {
         EVT_CAMERA_LOOK(EditorView::OnCameraLook)
         EVT_CAMERA_ORBIT(EditorView::OnCameraOrbit)
 
+        EVT_MENU(wxID_SAVE, EditorView::OnFileSave)
+        EVT_MENU(wxID_SAVEAS, EditorView::OnFileSaveAs)
+        
         EVT_MENU(wxID_UNDO, EditorView::OnUndo)
         EVT_MENU(wxID_REDO, EditorView::OnRedo)
 
@@ -117,6 +120,7 @@ namespace TrenchBroom {
         
         EVT_MENU(CommandIds::Menu::EditToggleTextureLock, EditorView::OnEditToggleTextureLock)
         
+        EVT_UPDATE_UI(wxID_SAVE, EditorView::OnUpdateMenuItem)
         EVT_UPDATE_UI(wxID_UNDO, EditorView::OnUpdateMenuItem)
         EVT_UPDATE_UI(wxID_REDO, EditorView::OnUpdateMenuItem)
         EVT_UPDATE_UI(wxID_CUT, EditorView::OnUpdateMenuItem)
@@ -533,6 +537,14 @@ namespace TrenchBroom {
             OnUpdate(this);
         }
         
+        void EditorView::OnFileSave(wxCommandEvent& event) {
+            GetDocument()->Save();
+        }
+        
+        void EditorView::OnFileSaveAs(wxCommandEvent& event) {
+            GetDocument()->SaveAs();
+        }
+
         void EditorView::OnUndo(wxCommandEvent& event) {
             GetDocumentManager()->OnUndo(event);
         }
@@ -890,6 +902,9 @@ namespace TrenchBroom {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             wxTextCtrl* textCtrl = wxDynamicCast(GetFrame()->FindFocus(), wxTextCtrl);
             switch (event.GetId()) {
+                case wxID_SAVE:
+                    event.Enable(mapDocument().IsModified());
+                    break;
                 case wxID_UNDO:
                     GetDocumentManager()->OnUpdateUndo(event);
                     if (textCtrl != NULL)

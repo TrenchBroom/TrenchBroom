@@ -126,6 +126,7 @@ namespace TrenchBroom {
         
         class DocumentCommand : public Command {
             Model::MapDocument& m_document;
+            bool m_modifiesDocument;
         protected:
             inline Model::MapDocument& document() const {
                 return m_document;
@@ -135,10 +136,24 @@ namespace TrenchBroom {
                 m_document.UpdateAllViews(NULL, this);
             }
         public:
-            DocumentCommand(Type type, Model::MapDocument& document, bool undoable, const wxString& name) :
+            DocumentCommand(Type type, Model::MapDocument& document, bool undoable, const wxString& name, bool modifiesDocument) :
             Command(type, undoable, name),
-            m_document(document) {}
+            m_document(document),
+            m_modifiesDocument(modifiesDocument) {}
             
+            bool Do() {
+                bool result = Command::Do();
+                if (result && m_modifiesDocument)
+                    document().incModificationCount();
+                return result;
+            }
+            
+            bool Undo() {
+                bool result = Command::Undo();
+                if (result && m_modifiesDocument)
+                    document().decModificationCount();
+                return result;
+            }
         };
     }
 }

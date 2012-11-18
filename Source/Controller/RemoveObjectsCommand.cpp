@@ -77,7 +77,7 @@ namespace TrenchBroom {
         }
         
         RemoveObjectsCommand::RemoveObjectsCommand(Type type, Model::MapDocument& document, const wxString& name, const Model::EntityList& entities, const Model::BrushList& brushes) :
-        DocumentCommand(type, document, true, name),
+        DocumentCommand(type, document, true, name, true),
         m_entities(entities),
         m_brushes(brushes) {}
         

@@ -85,7 +85,7 @@ namespace TrenchBroom {
         void EditorFrame::updateMenuBar() {
             TrenchBroomApp* app = static_cast<TrenchBroomApp*>(wxTheApp);
             wxMenu* actionMenu = NULL;
-            if (wxDynamicCast(FindFocus(), wxTextCtrl)) {
+            if (wxDynamicCast(FindFocus(), wxTextCtrl) == NULL) {
                 Model::EditStateManager& editStateManager = m_documentViewHolder.document().editStateManager();
                 switch (editStateManager.selectionMode()) {
                     case Model::EditStateManager::SMFaces:

@@ -170,7 +170,7 @@ namespace TrenchBroom {
         }
         
         SnapshotCommand::SnapshotCommand(Command::Type type, Model::MapDocument& document, const wxString& name) :
-        DocumentCommand(type, document, true, name) {}
+        DocumentCommand(type, document, true, name, true) {}
         
         SnapshotCommand::~SnapshotCommand() {
             clear();

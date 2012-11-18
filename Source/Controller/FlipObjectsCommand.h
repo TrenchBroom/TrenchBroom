@@ -43,7 +43,7 @@ namespace TrenchBroom {
             bool performUndo();
             
             FlipObjectsCommand(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const wxString& name, Axis::Type axis, const Vec3f& center, bool lockTextures) :
-            DocumentCommand(FlipObjects, document, true, name),
+            DocumentCommand(FlipObjects, document, true, name, true),
             m_entities(entities),
             m_brushes(brushes),
             m_axis(axis),

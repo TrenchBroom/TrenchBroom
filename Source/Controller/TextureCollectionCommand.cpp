@@ -53,12 +53,12 @@ namespace TrenchBroom {
         }
 
         TextureCollectionCommand::TextureCollectionCommand(Type type, Model::MapDocument& document, const String& name, const String& path) :
-        DocumentCommand(type, document, true, name) {
+        DocumentCommand(type, document, true, name, true) {
             m_paths.push_back(path);
         }
 
         TextureCollectionCommand::TextureCollectionCommand(Type type, Model::MapDocument& document, const String& name, const IndexList& indices) :
-        DocumentCommand(type, document, true, name),
+        DocumentCommand(type, document, true, name, true),
         m_indices(indices) {}
 
 

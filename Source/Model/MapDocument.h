@@ -66,6 +66,7 @@ namespace TrenchBroom {
             Model::Texture* m_mruTexture;
             String m_mruTextureName;
             bool m_textureLock;
+            int m_modificationCount;
             
             virtual bool DoOpenDocument(const wxString& file);
             virtual bool DoSaveDocument(const wxString& file);
@@ -83,6 +84,8 @@ namespace TrenchBroom {
 
             std::istream& LoadObject(std::istream& stream);
             std::ostream& SaveObject(std::ostream& stream);
+            
+            void Modify(bool modify);
             
             Entity* worldspawn(bool create);
             void addEntity(Entity& entity);
@@ -118,6 +121,9 @@ namespace TrenchBroom {
             void loadTextureWad(const String& path);
             void loadTextureWad(const String& path, size_t index);
 
+            void incModificationCount();
+            void decModificationCount();
+            
             bool OnCreate(const wxString& path, long flags);
 			bool OnNewDocument();
             bool OnOpenDocument(const wxString& path);

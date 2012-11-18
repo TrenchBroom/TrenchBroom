@@ -47,7 +47,7 @@ namespace TrenchBroom {
         }
         
         RotateTexturesCommand::RotateTexturesCommand(Model::MapDocument& document, const Model::FaceList& faces, const wxString& name, float angle) :
-        DocumentCommand(RotateTextures, document, true, name),
+        DocumentCommand(RotateTextures, document, true, name, true),
         m_faces(faces),
         m_angle(angle) {}
 

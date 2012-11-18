@@ -55,7 +55,7 @@ namespace TrenchBroom {
         }
         
         MoveTexturesCommand::MoveTexturesCommand(Model::MapDocument& document, const wxString& name, float distance, const Vec3f& direction) :
-        DocumentCommand(MoveTextures, document, true, name),
+        DocumentCommand(MoveTextures, document, true, name, true),
         m_distance(distance),
         m_direction(direction) {}
 

@@ -27,14 +27,14 @@
 namespace TrenchBroom {
     namespace Controller {
         ChangeEditStateCommand::ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type previousState) :
-        DocumentCommand(Command::ChangeEditState, document, true,name),
+        DocumentCommand(Command::ChangeEditState, document, true, name, false),
         m_state(previousState),
         m_affectAll(true),
         m_replace(false),
         m_mruTexture(NULL) {}
 
         ChangeEditStateCommand::ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type newState, const Model::EntityList& entities, const Model::BrushList& brushes, bool replace) :
-        DocumentCommand(Command::ChangeEditState, document, true, name),
+        DocumentCommand(Command::ChangeEditState, document, true, name, false),
         m_state(newState),
         m_affectAll(false),
         m_replace(replace),
@@ -43,7 +43,7 @@ namespace TrenchBroom {
         m_mruTexture(NULL) {}
         
         ChangeEditStateCommand::ChangeEditStateCommand(Model::MapDocument& document, const wxString& name, Model::EditState::Type newState, const Model::FaceList& faces, bool replace) :
-        DocumentCommand(Command::ChangeEditState, document, true, name),
+        DocumentCommand(Command::ChangeEditState, document, true, name, false),
         m_state(newState),
         m_affectAll(false),
         m_replace(replace),

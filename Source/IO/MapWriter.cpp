@@ -39,46 +39,46 @@ namespace TrenchBroom {
             "( " <<
             face.point(0).x     << " " <<
             face.point(0).y     << " " <<
-            face.point(0).z     << " " <<
+            face.point(0).z     <<
             " ) ( " <<
             face.point(1).x     << " " <<
             face.point(1).y     << " " <<
-            face.point(1).z     << " " <<
+            face.point(1).z     <<
             " ) ( " <<
             face.point(2).x     << " " <<
             face.point(2).y     << " " <<
-            face.point(2).z     << " " <<
-            ") " <<
+            face.point(2).z     <<
+            " ) " <<
             textureName         << " " <<
             face.xOffset()      << " " <<
             face.yOffset()      << " " <<
             face.rotation()     << " " <<
             face.xScale()       << " " <<
-            face.yScale()       << std::endl;
+            face.yScale()       << "\n";
         }
 
         void MapWriter::writeBrush(const Model::Brush& brush, std::ostream& stream) {
-            stream << "{" << std::endl;
+            stream << "{" << "\n";
             const Model::FaceList& faces = brush.faces();
             Model::FaceList::const_iterator faceIt, faceEnd;
             for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt)
                 writeFace(**faceIt, stream);
-            stream << "}" << std::endl;
+            stream << "}" << "\n";
         }
 
         void MapWriter::writeEntityHeader(const Model::Entity& entity, std::ostream& stream) {
-            stream << "{" << std::endl;
+            stream << "{" << "\n";
             
             const Model::Properties& properties = entity.properties();
             for (Model::Properties::const_iterator it = properties.begin(); it != properties.end(); ++it) {
                 const Model::PropertyKey& key = it->first;
                 const Model::PropertyValue& value = it->second;
-                stream << "\"" << key << "\" \"" << value << "\"" << std::endl;
+                stream << "\"" << key << "\" \"" << value << "\"" << "\n";
             }
         }
         
         void MapWriter::writeEntityFooter(std::ostream& stream) {
-            stream << "}" << std::endl;
+            stream << "}" << "\n";
         }
 
         void MapWriter::writeEntity(const Model::Entity& entity, std::ostream& stream) {

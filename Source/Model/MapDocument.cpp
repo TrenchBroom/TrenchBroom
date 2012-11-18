@@ -23,6 +23,7 @@
 #include "IO/FileManager.h"
 #include "IO/IOException.h"
 #include "IO/MapParser.h"
+#include "IO/MapWriter.h"
 #include "IO/Wad.h"
 #include "IO/mmapped_fstream.h"
 #include "Model/Brush.h"
@@ -212,7 +213,10 @@ namespace TrenchBroom {
         }
         
         std::ostream& MapDocument::SaveObject(std::ostream& stream) {
-            return wxDocument::SaveObject(stream);
+            IO::MapWriter mapWriter;
+            mapWriter.writeToStream(*m_map, stream);
+            m_modificationCount = 0;
+            return stream;
         }
         
         Entity* MapDocument::worldspawn(bool create) {
@@ -226,6 +230,19 @@ namespace TrenchBroom {
             }
             
             return worldspawn;
+        }
+
+        void MapDocument::Modify(bool modify) {
+            wxDocument::Modify(modify);
+#if defined __APPLE__
+            wxList& views = GetViews();
+            wxList::iterator it, end;
+            for (it = views.begin(), end = views.end(); it != end; ++it) {
+                wxView* view = static_cast<wxView*>(*it);
+                wxFrame* frame = static_cast<wxFrame*>(view->GetFrame());
+                frame->OSXSetModified(IsModified());
+            }
+#endif
         }
 
         void MapDocument::addEntity(Entity& entity) {
@@ -436,6 +453,16 @@ namespace TrenchBroom {
             }
         }
         
+        void MapDocument::incModificationCount() {
+            m_modificationCount++;
+            Modify(m_modificationCount != 0);
+        }
+        
+        void MapDocument::decModificationCount() {
+            m_modificationCount--;
+            Modify(m_modificationCount != 0);
+        }
+
         bool MapDocument::OnCreate(const wxString& path, long flags) {
             BBox worldBounds(Vec3f(-4096, -4096, -4096), Vec3f(4096, 4096, 4096));
 
@@ -449,6 +476,7 @@ namespace TrenchBroom {
             m_definitionManager = new EntityDefinitionManager();
             m_mods.push_back("id1");
             m_mods.push_back("ID1");
+            m_modificationCount = 0;
 
             loadPalette();
             
@@ -462,6 +490,7 @@ namespace TrenchBroom {
                 
                 Controller::Command loadCommand(Controller::Command::LoadMap);
                 UpdateAllViews(NULL, &loadCommand);
+                m_modificationCount = 0;
 				return true;
 			}
 
@@ -472,6 +501,7 @@ namespace TrenchBroom {
             if (wxDocument::OnOpenDocument(path)) {
                 Controller::Command loadCommand(Controller::Command::LoadMap);
                 UpdateAllViews(NULL, &loadCommand);
+                m_modificationCount = 0;
 				return true;
             }
             

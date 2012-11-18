@@ -71,7 +71,7 @@ namespace TrenchBroom {
         }
         
         AddObjectsCommand::AddObjectsCommand(Model::MapDocument& document, const wxString& name, const Model::EntityList& entities, const Model::BrushList& brushes) :
-        DocumentCommand(AddObjects, document, true, name),
+        DocumentCommand(AddObjects, document, true, name, true),
         m_entities(entities),
         m_brushes(brushes),
         m_hasAddedBrushes(false) {}

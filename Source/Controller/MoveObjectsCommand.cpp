@@ -59,7 +59,7 @@ namespace TrenchBroom {
         }
 
         MoveObjectsCommand::MoveObjectsCommand(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const wxString& name, const Vec3f& delta, bool lockTextures) :
-        DocumentCommand(MoveObjects, document, true, name),
+        DocumentCommand(MoveObjects, document, true, name, true),
         m_entities(entities),
         m_brushes(brushes),
         m_delta(delta),

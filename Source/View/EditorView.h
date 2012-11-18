@@ -105,6 +105,9 @@ namespace TrenchBroom {
             void OnCameraLook(Controller::CameraLookEvent& event);
             void OnCameraOrbit(Controller::CameraOrbitEvent& event);
 
+            void OnFileSave(wxCommandEvent& event);
+            void OnFileSaveAs(wxCommandEvent& event);
+            
             void OnUndo(wxCommandEvent& event);
             void OnRedo(wxCommandEvent& event);
 
