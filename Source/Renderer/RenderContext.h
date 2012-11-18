@@ -29,6 +29,7 @@ namespace TrenchBroom {
     
     namespace Utility {
         class Console;
+        class Grid;
     }
     
     namespace View {
@@ -45,13 +46,15 @@ namespace TrenchBroom {
             Model::Filter& m_filter;
             Transformation m_transformation;
             ShaderManager& m_shaderManager;
+            Utility::Grid& m_grid;
             View::ViewOptions& m_viewOptions;
             Utility::Console& m_console;
         public:
-            RenderContext(Camera& camera, Model::Filter& filter, ShaderManager& shaderManager, View::ViewOptions& viewOptions, Utility::Console& console) :
+            RenderContext(Camera& camera, Model::Filter& filter, ShaderManager& shaderManager, Utility::Grid& grid, View::ViewOptions& viewOptions, Utility::Console& console) :
             m_camera(camera),
             m_filter(filter),
             m_shaderManager(shaderManager),
+            m_grid(grid),
             m_transformation(m_camera.matrix(), false),
             m_viewOptions(viewOptions),
             m_console(console) {}
@@ -66,6 +69,10 @@ namespace TrenchBroom {
             
             inline ShaderManager& shaderManager() const {
                 return m_shaderManager;
+            }
+            
+            inline Utility::Grid& grid() const {
+                return m_grid;
             }
             
             inline Transformation& transformation() {

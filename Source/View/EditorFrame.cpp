@@ -70,6 +70,9 @@ namespace TrenchBroom {
             inspectorSplitter->SetSashPosition(GetSize().x - 350);
             logSplitter->SetSashPosition(GetSize().y - 150);
             Layout();
+            
+            m_mapCanvas->Bind(wxEVT_SET_FOCUS, &EditorFrame::OnMapCanvasSetFocus, this);
+            m_mapCanvas->Bind(wxEVT_KILL_FOCUS, &EditorFrame::OnMapCanvasKillFocus, this);
         }
         
         EditorFrame::EditorFrame(Model::MapDocument& document, EditorView& view) :
@@ -82,19 +85,20 @@ namespace TrenchBroom {
         void EditorFrame::updateMenuBar() {
             TrenchBroomApp* app = static_cast<TrenchBroomApp*>(wxTheApp);
             wxMenu* actionMenu = NULL;
-            Model::EditStateManager& editStateManager = m_documentViewHolder.document().editStateManager();
-            switch (editStateManager.selectionMode()) {
-                case Model::EditStateManager::SMFaces:
-                    actionMenu = app->CreateTextureActionMenu();
-                    break;
-                case Model::EditStateManager::SMEntities:
-                case Model::EditStateManager::SMBrushes:
-                case Model::EditStateManager::SMEntitiesAndBrushes:
-                    actionMenu = app->CreateObjectActionMenu();
-                    break;
-                default:
-                    actionMenu =  NULL;
-                    break;
+            if (wxDynamicCast(FindFocus(), wxTextCtrl)) {
+                Model::EditStateManager& editStateManager = m_documentViewHolder.document().editStateManager();
+                switch (editStateManager.selectionMode()) {
+                    case Model::EditStateManager::SMFaces:
+                        actionMenu = app->CreateTextureActionMenu();
+                        break;
+                    case Model::EditStateManager::SMEntities:
+                    case Model::EditStateManager::SMBrushes:
+                    case Model::EditStateManager::SMEntitiesAndBrushes:
+                        actionMenu = app->CreateObjectActionMenu();
+                        break;
+                    default:
+                        break;
+                }
             }
             
             SetMenuBar(NULL);
@@ -109,6 +113,14 @@ namespace TrenchBroom {
 
         void EditorFrame::disableProcessing() {
             m_documentViewHolder.invalidate();
+        }
+
+        void EditorFrame::OnMapCanvasSetFocus(wxFocusEvent& event) {
+            updateMenuBar();
+        }
+        
+        void EditorFrame::OnMapCanvasKillFocus(wxFocusEvent& event) {
+            updateMenuBar();
         }
 
         void EditorFrame::OnClose(wxCloseEvent& event) {

@@ -542,89 +542,101 @@ namespace TrenchBroom {
         }
 
         void EditorView::OnEditCut(wxCommandEvent& event) {
-            OnEditCopy(event);
-            removeObjects(wxT("Cut"));
+            if (wxTextCtrl* textCtrl = wxDynamicCast(GetFrame()->FindFocus(), wxTextCtrl)) {
+                textCtrl->Cut();
+            } else {
+                OnEditCopy(event);
+                removeObjects(wxT("Cut"));
+            }
         }
         
         void EditorView::OnEditCopy(wxCommandEvent& event) {
-            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
-            assert(editStateManager.selectionMode() == Model::EditStateManager::SMFaces ||
-                   editStateManager.selectionMode() == Model::EditStateManager::SMEntities ||
-                   editStateManager.selectionMode() == Model::EditStateManager::SMBrushes ||
-                   editStateManager.selectionMode() == Model::EditStateManager::SMEntitiesAndBrushes);
-            
-            if (wxTheClipboard->Open()) {
-                StringStream clipboardData;
-                IO::MapWriter mapWriter;
-                if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces)
-                    mapWriter.writeFacesToStream(editStateManager.selectedFaces(), clipboardData);
-                else
-                    mapWriter.writeObjectsToStream(editStateManager.selectedEntities(), editStateManager.selectedBrushes(), clipboardData);
+            if (wxTextCtrl* textCtrl = wxDynamicCast(GetFrame()->FindFocus(), wxTextCtrl)) {
+                textCtrl->Copy();
+            } else {
+                Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+                assert(editStateManager.selectionMode() == Model::EditStateManager::SMFaces ||
+                       editStateManager.selectionMode() == Model::EditStateManager::SMEntities ||
+                       editStateManager.selectionMode() == Model::EditStateManager::SMBrushes ||
+                       editStateManager.selectionMode() == Model::EditStateManager::SMEntitiesAndBrushes);
                 
-                wxTheClipboard->SetData(new wxTextDataObject(clipboardData.str()));
-                wxTheClipboard->Close();
+                if (wxTheClipboard->Open()) {
+                    StringStream clipboardData;
+                    IO::MapWriter mapWriter;
+                    if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces)
+                        mapWriter.writeFacesToStream(editStateManager.selectedFaces(), clipboardData);
+                    else
+                        mapWriter.writeObjectsToStream(editStateManager.selectedEntities(), editStateManager.selectedBrushes(), clipboardData);
+                    
+                    wxTheClipboard->SetData(new wxTextDataObject(clipboardData.str()));
+                    wxTheClipboard->Close();
+                }
             }
         }
         
         void EditorView::OnEditPaste(wxCommandEvent& event) {
-            if (wxTheClipboard->Open()) {
-                if (wxTheClipboard->IsSupported(wxDF_TEXT)) {
-                    Model::EntityList entities;
-                    Model::BrushList brushes;
-                    Model::FaceList faces;
-                    
-                    wxTextDataObject clipboardData;
-                    wxTheClipboard->GetData(clipboardData);
-                    StringStream stream;
-                    stream.str(clipboardData.GetText().ToStdString());
-                    IO::MapParser mapParser(stream, console());
-                    
-                    if (mapParser.parseFaces(mapDocument().map().worldBounds(), faces)) {
-                        assert(!faces.empty());
-
-                        Model::Face& face = *faces.back();
-                        Model::TextureManager& textureManager = mapDocument().textureManager();
-                        Model::Texture* texture = textureManager.texture(face.textureName());
-                        face.setTexture(texture);
+            if (wxTextCtrl* textCtrl = wxDynamicCast(GetFrame()->FindFocus(), wxTextCtrl)) {
+                textCtrl->Paste();
+            } else {
+                if (wxTheClipboard->Open()) {
+                    if (wxTheClipboard->IsSupported(wxDF_TEXT)) {
+                        Model::EntityList entities;
+                        Model::BrushList brushes;
+                        Model::FaceList faces;
                         
-                        const Model::FaceList& selectedFaces = mapDocument().editStateManager().selectedFaces();
-                        Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(mapDocument(), selectedFaces, wxT("Paste Faces"));
-                        command->setTemplate(face);
-                        submit(command);
-                    } else {
-                        mapParser.parseEntities(mapDocument().map().worldBounds(), entities);
-                        mapParser.parseBrushes(mapDocument().map().worldBounds(), brushes);
-                        assert(entities.empty() != brushes.empty());
-
-                        Model::EntityList selectEntities;
-                        Model::BrushList selectBrushes;
+                        wxTextDataObject clipboardData;
+                        wxTheClipboard->GetData(clipboardData);
+                        StringStream stream;
+                        stream.str(clipboardData.GetText().ToStdString());
+                        IO::MapParser mapParser(stream, console());
                         
-                        Model::EntityList::iterator entityIt, entityEnd;
-                        for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
-                            Model::Entity& entity = **entityIt;
-                            const Model::BrushList& entityBrushes = entity.brushes();
-                            if (!entityBrushes.empty())
-                                selectBrushes.insert(selectBrushes.begin(), entityBrushes.begin(), entityBrushes.end());
-                            else
-                                selectEntities.push_back(&entity);
+                        if (mapParser.parseFaces(mapDocument().map().worldBounds(), faces)) {
+                            assert(!faces.empty());
+                            
+                            Model::Face& face = *faces.back();
+                            Model::TextureManager& textureManager = mapDocument().textureManager();
+                            Model::Texture* texture = textureManager.texture(face.textureName());
+                            face.setTexture(texture);
+                            
+                            const Model::FaceList& selectedFaces = mapDocument().editStateManager().selectedFaces();
+                            Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(mapDocument(), selectedFaces, wxT("Paste Faces"));
+                            command->setTemplate(face);
+                            submit(command);
+                        } else {
+                            mapParser.parseEntities(mapDocument().map().worldBounds(), entities);
+                            mapParser.parseBrushes(mapDocument().map().worldBounds(), brushes);
+                            assert(entities.empty() != brushes.empty());
+                            
+                            Model::EntityList selectEntities;
+                            Model::BrushList selectBrushes;
+                            
+                            Model::EntityList::iterator entityIt, entityEnd;
+                            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
+                                Model::Entity& entity = **entityIt;
+                                const Model::BrushList& entityBrushes = entity.brushes();
+                                if (!entityBrushes.empty())
+                                    selectBrushes.insert(selectBrushes.begin(), entityBrushes.begin(), entityBrushes.end());
+                                else
+                                    selectEntities.push_back(&entity);
+                            }
+                            
+                            Vec3f delta = camera().defaultPoint() - Model::MapObject::center(entities, brushes);
+                            delta = mapDocument().grid().snap(delta);
+                            
+                            Controller::AddObjectsCommand* addObjectsCommand = Controller::AddObjectsCommand::addObjects(mapDocument(), entities, brushes);
+                            Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::replace(mapDocument(), selectEntities, selectBrushes);
+                            Controller::MoveObjectsCommand* moveObjectsCommand = Controller::MoveObjectsCommand::moveObjects(mapDocument(), selectEntities, selectBrushes, delta, mapDocument().textureLock());
+                            
+                            wxCommandProcessor* commandProcessor = mapDocument().GetCommandProcessor();
+                            CommandProcessor::BeginGroup(commandProcessor, Controller::Command::makeObjectActionName(wxT("Paste"), selectEntities, selectBrushes));
+                            submit(addObjectsCommand);
+                            submit(changeEditStateCommand);
+                            submit(moveObjectsCommand);
+                            CommandProcessor::EndGroup(commandProcessor);
                         }
-                        
-                        Vec3f delta = camera().defaultPoint() - Model::MapObject::center(entities, brushes);
-                        delta = mapDocument().grid().snap(delta);
-                        
-                        Controller::AddObjectsCommand* addObjectsCommand = Controller::AddObjectsCommand::addObjects(mapDocument(), entities, brushes);
-                        Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::replace(mapDocument(), selectEntities, selectBrushes);
-                        Controller::MoveObjectsCommand* moveObjectsCommand = Controller::MoveObjectsCommand::moveObjects(mapDocument(), selectEntities, selectBrushes, delta, mapDocument().textureLock());
-                        
-                        wxCommandProcessor* commandProcessor = mapDocument().GetCommandProcessor();
-                        CommandProcessor::BeginGroup(commandProcessor, Controller::Command::makeObjectActionName(wxT("Paste"), selectEntities, selectBrushes));
-                        submit(addObjectsCommand);
-                        submit(changeEditStateCommand);
-                        submit(moveObjectsCommand);
-                        CommandProcessor::EndGroup(commandProcessor);
                     }
+                    wxTheClipboard->Close();
                 }
-                wxTheClipboard->Close();
             }
         }
 
@@ -633,26 +645,30 @@ namespace TrenchBroom {
         }
         
         void EditorView::OnEditSelectAll(wxCommandEvent& event) {
-            const Model::EntityList& entities = mapDocument().map().entities();
-            Model::EntityList selectEntities;
-            Model::BrushList selectBrushes;
-            
-            for (unsigned int i = 0; i < entities.size(); i++) {
-                Model::Entity& entity = *entities[i];
-                if (entity.selectable() && m_filter->entityVisible(entity)) {
-                    selectEntities.push_back(&entity);
-                } else {
-                    const Model::BrushList& entityBrushes = entity.brushes();
-                    for (unsigned int j = 0; j < entityBrushes.size(); j++) {
-                        Model::Brush& brush = *entityBrushes[j];
-                        if (m_filter->brushVisible(brush))
-                            selectBrushes.push_back(&brush);
+            if (wxTextCtrl* textCtrl = wxDynamicCast(GetFrame()->FindFocus(), wxTextCtrl)) {
+                textCtrl->SelectAll();
+            } else {
+                const Model::EntityList& entities = mapDocument().map().entities();
+                Model::EntityList selectEntities;
+                Model::BrushList selectBrushes;
+                
+                for (unsigned int i = 0; i < entities.size(); i++) {
+                    Model::Entity& entity = *entities[i];
+                    if (entity.selectable() && m_filter->entityVisible(entity)) {
+                        selectEntities.push_back(&entity);
+                    } else {
+                        const Model::BrushList& entityBrushes = entity.brushes();
+                        for (unsigned int j = 0; j < entityBrushes.size(); j++) {
+                            Model::Brush& brush = *entityBrushes[j];
+                            if (m_filter->brushVisible(brush))
+                                selectBrushes.push_back(&brush);
+                        }
                     }
                 }
+                
+                wxCommand* command = Controller::ChangeEditStateCommand::replace(mapDocument(), selectEntities, selectBrushes);
+                submit(command);
             }
-    
-            wxCommand* command = Controller::ChangeEditStateCommand::replace(mapDocument(), selectEntities, selectBrushes);
-            submit(command);
         }
 
         void EditorView::OnEditSelectNone(wxCommandEvent& event) {
@@ -872,12 +888,17 @@ namespace TrenchBroom {
 
         void EditorView::OnUpdateMenuItem(wxUpdateUIEvent& event) {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            wxTextCtrl* textCtrl = wxDynamicCast(GetFrame()->FindFocus(), wxTextCtrl);
             switch (event.GetId()) {
                 case wxID_UNDO:
                     GetDocumentManager()->OnUpdateUndo(event);
+                    if (textCtrl != NULL)
+                        event.Enable(false);
                     break;
                 case wxID_REDO:
                     GetDocumentManager()->OnUpdateRedo(event);
+                    if (textCtrl != NULL)
+                        event.Enable(false);
                     break;
                 case CommandIds::Menu::EditSelectAll:
                     event.Enable(true);
@@ -892,15 +913,24 @@ namespace TrenchBroom {
                     event.Enable(editStateManager.selectionMode() != Model::EditStateManager::SMNone);
                     break;
                 case wxID_COPY:
-                    event.Enable(editStateManager.selectionMode() != Model::EditStateManager::SMNone);
+                    if (textCtrl != NULL)
+                        event.Enable(textCtrl->CanCopy());
+                    else
+                        event.Enable(editStateManager.selectionMode() != Model::EditStateManager::SMNone);
                     break;
                 case wxID_CUT:
                 case wxID_DELETE:
-                    event.Enable(editStateManager.selectionMode() != Model::EditStateManager::SMNone &&
-                                 editStateManager.selectionMode() != Model::EditStateManager::SMFaces);
+                    if (textCtrl != NULL)
+                        event.Enable(textCtrl->CanCut());
+                    else
+                        event.Enable(editStateManager.selectionMode() != Model::EditStateManager::SMNone &&
+                                     editStateManager.selectionMode() != Model::EditStateManager::SMFaces);
                     break;
                 case wxID_PASTE:
-                    event.Enable(canPaste());
+                    if (textCtrl != NULL)
+                        event.Enable(textCtrl->CanPaste());
+                    else
+                        event.Enable(canPaste());
                     break;
                 case CommandIds::Menu::EditHideSelected:
                 case CommandIds::Menu::EditHideUnselected:
