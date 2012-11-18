@@ -40,6 +40,7 @@
 		4847640B15E2DEE100095BC0 /* MapDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847640915E2DEE100095BC0 /* MapDocument.cpp */; };
 		4847640E15E2E03000095BC0 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847640C15E2E03000095BC0 /* Entity.cpp */; };
 		4847AC8D16466BED00726872 /* SphereFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847AC8B16466BED00726872 /* SphereFigure.cpp */; };
+		484CEC49165396A9000913D0 /* EdgeRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 484CEC47165396A9000913D0 /* EdgeRenderer.cpp */; };
 		4850D24615F2AC71005B162D /* DocManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D24415F2AAE8005B162D /* DocManager.cpp */; };
 		4850D24A15F363FC005B162D /* Octree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D24715F360BF005B162D /* Octree.cpp */; };
 		4850D24D15F364CD005B162D /* Picker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D24B15F364A1005B162D /* Picker.cpp */; };
@@ -123,6 +124,8 @@
 		48EE7A1716500F18003F5BBE /* SelectionTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48EE7A1516500F18003F5BBE /* SelectionTool.cpp */; };
 		48EE7A1A16502B98003F5BBE /* MoveObjectsTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48EE7A1816502B98003F5BBE /* MoveObjectsTool.cpp */; };
 		48F0B7C315FCB4CF0089B0B5 /* Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */; };
+		48F1FBA81652ACB100C79278 /* CreateBrushTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48F1FBA61652ACB100C79278 /* CreateBrushTool.cpp */; };
+		48F1FBAC1652BE8B00C79278 /* FaceRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48F1FBAA1652BE8B00C79278 /* FaceRenderer.cpp */; };
 		48FBD14116259AD70059953D /* EntityFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD13F16259AD70059953D /* EntityFigure.cpp */; };
 		48FBD147162601900059953D /* CommandProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD145162601900059953D /* CommandProcessor.cpp */; };
 		48FBD14E1626AD5C0059953D /* RemoveObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD14C1626AD5B0059953D /* RemoveObjectsCommand.cpp */; };
@@ -225,6 +228,8 @@
 		4847641415E2E0E800095BC0 /* Vec2f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vec2f.h; sourceTree = "<group>"; };
 		4847AC8B16466BED00726872 /* SphereFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SphereFigure.cpp; sourceTree = "<group>"; };
 		4847AC8C16466BED00726872 /* SphereFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphereFigure.h; sourceTree = "<group>"; };
+		484CEC47165396A9000913D0 /* EdgeRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EdgeRenderer.cpp; sourceTree = "<group>"; };
+		484CEC48165396A9000913D0 /* EdgeRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EdgeRenderer.h; sourceTree = "<group>"; };
 		4850D24415F2AAE8005B162D /* DocManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DocManager.cpp; sourceTree = "<group>"; };
 		4850D24515F2AAE8005B162D /* DocManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DocManager.h; sourceTree = "<group>"; };
 		4850D24715F360BF005B162D /* Octree.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Octree.cpp; sourceTree = "<group>"; };
@@ -416,6 +421,10 @@
 		48EE7A1C16503AE9003F5BBE /* ObjectsHandle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjectsHandle.h; sourceTree = "<group>"; };
 		48F0B7C115FCB4CF0089B0B5 /* Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Shader.cpp; sourceTree = "<group>"; };
 		48F0B7C215FCB4CF0089B0B5 /* Shader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Shader.h; sourceTree = "<group>"; };
+		48F1FBA61652ACB100C79278 /* CreateBrushTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CreateBrushTool.cpp; sourceTree = "<group>"; };
+		48F1FBA71652ACB100C79278 /* CreateBrushTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateBrushTool.h; sourceTree = "<group>"; };
+		48F1FBAA1652BE8B00C79278 /* FaceRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FaceRenderer.cpp; sourceTree = "<group>"; };
+		48F1FBAB1652BE8B00C79278 /* FaceRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceRenderer.h; sourceTree = "<group>"; };
 		48FBD13C16258DE70059953D /* Figure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Figure.h; sourceTree = "<group>"; };
 		48FBD13F16259AD70059953D /* EntityFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityFigure.cpp; sourceTree = "<group>"; };
 		48FBD14016259AD70059953D /* EntityFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityFigure.h; sourceTree = "<group>"; };
@@ -473,6 +482,7 @@
 				48FBD13E16258DF00059953D /* Figure */,
 				48EA11A515FA7CAD00391885 /* Shader */,
 				4850D28115F52CBE005B162D /* Text */,
+				481CDAE01603CC8C003E2EE9 /* AbstractVertexArray.h */,
 				4850D27B15F4CA61005B162D /* AliasModelRenderer.cpp */,
 				4850D27C15F4CA61005B162D /* AliasModelRenderer.h */,
 				48EA119F15FA67F700391885 /* ApplyMatrix.h */,
@@ -480,6 +490,8 @@
 				4850D27E15F4CA62005B162D /* BspModelRenderer.h */,
 				48819C3615EBE92800BEA604 /* Camera.cpp */,
 				48819C3715EBE92800BEA604 /* Camera.h */,
+				484CEC47165396A9000913D0 /* EdgeRenderer.cpp */,
+				484CEC48165396A9000913D0 /* EdgeRenderer.h */,
 				4850D2B215F776A8005B162D /* EntityClassnameAnchor.h */,
 				4850D2B315F776A8005B162D /* EntityClassnameFilter.h */,
 				4850D27515F4C9C2005B162D /* EntityModelRenderer.cpp */,
@@ -488,6 +500,9 @@
 				4850D27815F4C9C2005B162D /* EntityModelRendererManager.h */,
 				481E566D1624451300B403F3 /* EntityRenderer.cpp */,
 				481E566E1624451300B403F3 /* EntityRenderer.h */,
+				48F1FBAA1652BE8B00C79278 /* FaceRenderer.cpp */,
+				48F1FBAB1652BE8B00C79278 /* FaceRenderer.h */,
+				481CDAE11603CF4B003E2EE9 /* IndexedVertexArray.h */,
 				48312B3315EB805E00607868 /* MapRenderer.cpp */,
 				48312B3415EB805E00607868 /* MapRenderer.h */,
 				488457CE161C839A002ADDAE /* OffscreenRenderer.cpp */,
@@ -507,9 +522,7 @@
 				48B059CB16178CBC00E6B0AD /* TextureRendererManager.h */,
 				48E2ECD015FFE48F00B8D476 /* TextureVertexArray.h */,
 				48EA11A415FA71F700391885 /* Transformation.h */,
-				481CDAE01603CC8C003E2EE9 /* AbstractVertexArray.h */,
 				48E2EC9815FCD22B00B8D476 /* VertexArray.h */,
-				481CDAE11603CF4B003E2EE9 /* IndexedVertexArray.h */,
 				48312B3015EB800600607868 /* Vbo.cpp */,
 				48312B3115EB800600607868 /* Vbo.h */,
 			);
@@ -774,6 +787,8 @@
 			children = (
 				487B6C77164E8A70000A77DA /* CameraTool.cpp */,
 				487B6C78164E8A70000A77DA /* CameraTool.h */,
+				48F1FBA61652ACB100C79278 /* CreateBrushTool.cpp */,
+				48F1FBA71652ACB100C79278 /* CreateBrushTool.h */,
 				4878F922165142B4003857EA /* CreateEntityTool.cpp */,
 				4878F923165142B4003857EA /* CreateEntityTool.h */,
 				48EE7A1816502B98003F5BBE /* MoveObjectsTool.cpp */,
@@ -1063,6 +1078,9 @@
 				48EE7A1A16502B98003F5BBE /* MoveObjectsTool.cpp in Sources */,
 				4878F9201651231D003857EA /* RotateObjectsTool.cpp in Sources */,
 				4878F924165142B4003857EA /* CreateEntityTool.cpp in Sources */,
+				48F1FBA81652ACB100C79278 /* CreateBrushTool.cpp in Sources */,
+				48F1FBAC1652BE8B00C79278 /* FaceRenderer.cpp in Sources */,
+				484CEC49165396A9000913D0 /* EdgeRenderer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
