@@ -43,14 +43,19 @@ namespace TrenchBroom {
         protected:
             Vec3f m_initialPoint;
             BBox m_bounds;
+            Vec3f m_normal;
+            unsigned int m_thickness;
             bool m_boundsChanged;
             Model::Brush* m_brush;
             Renderer::BrushFigure* m_brushFigure;
-            
+
+            void updateBoundsThickness();
             void updateBounds(const Vec3f& currentPoint);
             
             bool handleUpdateState(InputState& inputState);
             void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
+
+            void handleScroll(InputState& inputState);
 
             bool handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint);
             void handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint);
