@@ -83,6 +83,9 @@ namespace TrenchBroom {
         }
 
         void EditorFrame::updateMenuBar() {
+            if (!m_documentViewHolder.valid())
+                return;
+            
             TrenchBroomApp* app = static_cast<TrenchBroomApp*>(wxTheApp);
             wxMenu* actionMenu = NULL;
             if (wxDynamicCast(FindFocus(), wxTextCtrl) == NULL) {

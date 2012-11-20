@@ -199,8 +199,6 @@ namespace TrenchBroom {
         
         
         std::istream& MapDocument::LoadObject(std::istream& stream) {
-            //            wxDocument::LoadObject(stream);
-            
             View::ProgressIndicatorDialog progressIndicator;
             loadMap(stream, progressIndicator);
             loadTextures(progressIndicator);

@@ -200,7 +200,7 @@ namespace TrenchBroom {
             inline bool active() const {
                 if (!m_activatable)
                     return true;
-                return m_active && !m_suppressed;
+                return m_active;
             }
             
             inline void activate(InputState& inputState) {
@@ -221,11 +221,11 @@ namespace TrenchBroom {
             
             inline void setSuppressed(InputState& inputState, bool suppressed, Tool* except = NULL) {
                 if (m_activatable && this != except) {
-                    bool wasActive = active();
+                    bool wasActive = (active() && !m_suppressed);
                     m_suppressed = suppressed;
-                    if (active() && !wasActive)
+                    if ((active() && !m_suppressed) && !wasActive)
                         handleActivate(inputState);
-                    else if (!active() && wasActive)
+                    else if (!(active() && !m_suppressed) && wasActive)
                         handleDeactivate(inputState);
                 }
                 if (nextTool() != NULL)
@@ -233,7 +233,7 @@ namespace TrenchBroom {
             }
             
             inline bool isModal(InputState& inputState) {
-                return active() && handleIsModal(inputState);
+                return (active() /*&& !m_suppressed*/) && handleIsModal(inputState);
             }
             
             inline Tool* modalTool(InputState& inputState) {
@@ -247,7 +247,7 @@ namespace TrenchBroom {
             /* Feedback Protocol */
 
             inline bool updateState(InputState& inputState) {
-                bool update = active() && handleUpdateState(inputState);
+                bool update = (active() && !m_suppressed) && handleUpdateState(inputState);
                 if (nextTool() != NULL)
                     update |= nextTool()->updateState(inputState);
                 return update;
@@ -255,14 +255,14 @@ namespace TrenchBroom {
             
             inline void render(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
                 deleteFigures();
-                if (active())
+                if ((active() && !m_suppressed))
                     handleRender(inputState, vbo, renderContext);
                 if (nextTool() != NULL)
                     nextTool()->render(inputState, vbo, renderContext);
             }
             
             inline void updateHits(InputState& inputState) {
-                if (active())
+                if ((active() && !m_suppressed))
                     handlePick(inputState);
                 if (nextTool() != NULL)
                     nextTool()->updateHits(inputState);
@@ -271,14 +271,14 @@ namespace TrenchBroom {
             /* Input Protocol */
             
             void modifierKeyChange(InputState& inputState) {
-                if (active())
+                if ((active() && !m_suppressed))
                     handleModifierKeyChange(inputState);
                 if (nextTool() != NULL)
                     nextTool()->modifierKeyChange(inputState);
             }
             
             Tool* mouseDown(InputState& inputState) {
-                if (active() && handleMouseDown(inputState))
+                if ((active() && !m_suppressed) && handleMouseDown(inputState))
                     return this;
                 if (nextTool() != NULL)
                     return nextTool()->mouseDown(inputState);
@@ -286,7 +286,7 @@ namespace TrenchBroom {
             }
             
             Tool* mouseUp(InputState& inputState) {
-                if (active() && handleMouseUp(inputState))
+                if ((active() && !m_suppressed) && handleMouseUp(inputState))
                     return this;
                 if (nextTool() != NULL)
                     return nextTool()->mouseUp(inputState);
@@ -294,14 +294,14 @@ namespace TrenchBroom {
             }
             
             void mouseMove(InputState& inputState) {
-                if (active())
+                if ((active() && !m_suppressed))
                     handleMouseMove(inputState);
                 if (nextTool() != NULL)
                     nextTool()->mouseMove(inputState);
             }
             
             void scroll(InputState& inputState) {
-                if (active())
+                if ((active() && !m_suppressed))
                     handleScroll(inputState);
                 if (nextTool() != NULL)
                     nextTool()->scroll(inputState);
@@ -311,7 +311,7 @@ namespace TrenchBroom {
             
             Tool* startDrag(InputState& inputState) {
                 assert(dragType() == DTNone);
-                if (active() && handleStartDrag(inputState)) {
+                if ((active() && !m_suppressed) && handleStartDrag(inputState)) {
                     m_dragType = DTDrag;
                     return this;
                 }
@@ -321,20 +321,20 @@ namespace TrenchBroom {
             }
             
             void drag(InputState& inputState) {
-                assert(active());
+                assert((active() && !m_suppressed));
                 assert(dragType() == DTDrag);
                 handleDrag(inputState);
             }
             
             void endDrag(InputState& inputState) {
-                assert(active());
+                assert((active() && !m_suppressed));
                 assert(dragType() == DTDrag);
                 handleEndDrag(inputState);
                 m_dragType = DTNone;
             }
             
             void cancelDrag(InputState& inputState) {
-                assert(active());
+                assert((active() && !m_suppressed));
                 assert(dragType() == DTDrag);
                 handleCancelDrag(inputState);
                 m_dragType = DTNone;
@@ -344,7 +344,7 @@ namespace TrenchBroom {
             
             Tool* dragEnter(InputState& inputState, const String& payload) {
                 assert(dragType() == DTNone);
-                if (active() && handleDragEnter(inputState, payload)) {
+                if ((active() && !m_suppressed) && handleDragEnter(inputState, payload)) {
                     m_dragType = DTDragTarget;
                     m_dragPayload = payload;
                     return this;
@@ -355,13 +355,13 @@ namespace TrenchBroom {
             }
             
             void dragMove(InputState& inputState) {
-                assert(active());
+                assert((active() && !m_suppressed));
                 assert(dragType() == DTDragTarget);
                 handleDragMove(inputState, m_dragPayload);
             }
             
             void dragLeave(InputState& inputState) {
-                assert(active());
+                assert((active() && !m_suppressed));
                 assert(dragType() == DTDragTarget);
                 handleDragLeave(inputState, m_dragPayload);
                 m_dragPayload = "";
@@ -369,7 +369,7 @@ namespace TrenchBroom {
             }
             
             bool dragDrop(InputState& inputState) {
-                assert(active());
+                assert((active() && !m_suppressed));
                 assert(dragType() == DTDragTarget);
                 bool success = handleDragDrop(inputState, m_dragPayload);
                 m_dragPayload = "";

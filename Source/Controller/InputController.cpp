@@ -20,6 +20,7 @@
 #include "InputController.h"
 
 #include "Controller/CameraTool.h"
+#include "Controller/ClipTool.h"
 #include "Controller/CreateBrushTool.h"
 #include "Controller/CreateEntityTool.h"
 #include "Controller/MoveObjectsTool.h"
@@ -41,12 +42,14 @@ namespace TrenchBroom {
                     updateHits();
                 }
             } else {
-                if (!m_modalTool->isModal(m_inputState)) {
+                if (!m_modalTool->isModal(m_inputState) || m_modalTool != m_toolChain->modalTool(m_inputState)) {
                     m_toolChain->setSuppressed(m_inputState, false);
-                    m_modalTool = m_toolChain->modalTool(m_inputState);
-                    if (m_modalTool != NULL)
-                        m_toolChain->setSuppressed(m_inputState, true, m_modalTool);
                     updateHits();
+                    m_modalTool = m_toolChain->modalTool(m_inputState);
+                    if (m_modalTool != NULL) {
+                        m_toolChain->setSuppressed(m_inputState, true, m_modalTool);
+                        updateHits();
+                    }
                 }
             }
         }
@@ -61,10 +64,12 @@ namespace TrenchBroom {
             if (m_documentViewHolder.valid() && m_toolChain->updateState(m_inputState))
                 m_documentViewHolder.document().UpdateAllViews();
         }
+        
         InputController::InputController(View::DocumentViewHolder& documentViewHolder) :
         m_documentViewHolder(documentViewHolder),
         m_inputState(m_documentViewHolder.view().camera(), m_documentViewHolder.document().picker()),
         m_cameraTool(NULL),
+        m_clipTool(NULL),
         m_createBrushTool(NULL),
         m_createEntityTool(NULL),
         m_moveObjectsTool(NULL),
@@ -74,13 +79,15 @@ namespace TrenchBroom {
         m_dragTool(NULL),
         m_modalTool(NULL) {
             m_cameraTool = new CameraTool(m_documentViewHolder);
+            m_clipTool = new ClipTool(m_documentViewHolder);
             m_createBrushTool = new CreateBrushTool(m_documentViewHolder);
             m_createEntityTool = new CreateEntityTool(m_documentViewHolder);
             m_moveObjectsTool = new MoveObjectsTool(m_documentViewHolder, 64.0f, 32.0f);
             m_rotateObjectsTool = new RotateObjectsTool(m_documentViewHolder, 64.0f, 32.0f, 5.0f);
             m_selectionTool = new SelectionTool(m_documentViewHolder);
 
-            m_cameraTool->setNextTool(m_createEntityTool);
+            m_cameraTool->setNextTool(m_clipTool);
+            m_clipTool->setNextTool(m_createEntityTool);
             m_createEntityTool->setNextTool(m_createBrushTool);
             m_createBrushTool->setNextTool(m_moveObjectsTool);
             m_moveObjectsTool->setNextTool(m_rotateObjectsTool);
@@ -101,6 +108,8 @@ namespace TrenchBroom {
             
             delete m_cameraTool;
             m_cameraTool = NULL;
+            delete m_clipTool;
+            m_clipTool = NULL;
             delete m_createBrushTool;
             m_createBrushTool = NULL;
             delete m_createEntityTool;
@@ -277,6 +286,21 @@ namespace TrenchBroom {
 
         void InputController::render(Renderer::Vbo& vbo, Renderer::RenderContext& context) {
             m_toolChain->render(m_inputState, vbo, context);
+        }
+
+        void InputController::toggleClipTool() {
+            if (m_clipTool->active())
+                m_clipTool->deactivate(m_inputState);
+            else
+                m_clipTool->activate(m_inputState);
+            updateHits();
+            updateModalTool();
+            updateState();
+            m_documentViewHolder.document().UpdateAllViews();
+        }
+
+        bool InputController::clipToolActive() {
+            return m_clipTool->active();
         }
 
         InputControllerFigure::InputControllerFigure(InputController& inputController) :

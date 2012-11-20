@@ -41,6 +41,7 @@ namespace TrenchBroom {
     
     namespace Controller {
         class CameraTool;
+        class ClipTool;
         class CreateBrushTool;
         class CreateEntityTool;
         class MoveObjectsTool;
@@ -54,6 +55,7 @@ namespace TrenchBroom {
             InputState m_inputState;
             
             CameraTool* m_cameraTool;
+            ClipTool* m_clipTool;
             CreateBrushTool* m_createBrushTool;
             CreateEntityTool* m_createEntityTool;
             MoveObjectsTool* m_moveObjectsTool;
@@ -90,6 +92,9 @@ namespace TrenchBroom {
             void cameraChange();
 
             void render(Renderer::Vbo& vbo, Renderer::RenderContext& context);
+            
+            void toggleClipTool();
+            bool clipToolActive();
         };
 
         class InputControllerFigure : public Renderer::Figure {

@@ -763,7 +763,7 @@ namespace TrenchBroom {
         }
 
         void EditorView::OnEditToggleClipTool(wxCommandEvent& event) {
-            // inputController().toggleClipTool();
+            inputController().toggleClipTool();
         }
         
         void EditorView::OnEditToggleClipSide(wxCommandEvent& event) {
@@ -965,10 +965,10 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::EditToggleClipTool:
                     event.Enable(editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
-                    // event.Check(inputController().clipToolActive());
+                    event.Check(inputController().clipToolActive());
                     break;
                 case CommandIds::Menu::EditToggleClipSide:
-                    // event.Enable(inputController().clipToolActive());
+                    event.Enable(inputController().clipToolActive());
                     break;
                 case CommandIds::Menu::EditPerformClip:
                     // event.Enable(inputController().clipToolActive() && inputController().canPerformClip());

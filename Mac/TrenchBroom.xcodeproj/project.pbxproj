@@ -61,6 +61,7 @@
 		4878F9201651231D003857EA /* RotateObjectsTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F91E1651231D003857EA /* RotateObjectsTool.cpp */; };
 		4878F924165142B4003857EA /* CreateEntityTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F922165142B4003857EA /* CreateEntityTool.cpp */; };
 		4878F95516596915003857EA /* BrushFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F95316596915003857EA /* BrushFigure.cpp */; };
+		4878F964165C16BE003857EA /* ClipTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F962165C16BE003857EA /* ClipTool.cpp */; };
 		487B6C79164E8A70000A77DA /* CameraTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B6C77164E8A70000A77DA /* CameraTool.cpp */; };
 		48819C3815EBE97A00BEA604 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3615EBE92800BEA604 /* Camera.cpp */; };
 		48819C3F15EC0CE700BEA604 /* MacFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3D15EC0CE700BEA604 /* MacFileManager.cpp */; };
@@ -284,6 +285,8 @@
 		4878F92516516652003857EA /* ObjectsCommand.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjectsCommand.h; sourceTree = "<group>"; };
 		4878F95316596915003857EA /* BrushFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BrushFigure.cpp; sourceTree = "<group>"; };
 		4878F95416596915003857EA /* BrushFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BrushFigure.h; sourceTree = "<group>"; };
+		4878F962165C16BE003857EA /* ClipTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClipTool.cpp; sourceTree = "<group>"; };
+		4878F963165C16BE003857EA /* ClipTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipTool.h; sourceTree = "<group>"; };
 		487B6C77164E8A70000A77DA /* CameraTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraTool.cpp; sourceTree = "<group>"; };
 		487B6C78164E8A70000A77DA /* CameraTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraTool.h; sourceTree = "<group>"; };
 		48819C3615EBE92800BEA604 /* Camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
@@ -790,6 +793,8 @@
 			children = (
 				487B6C77164E8A70000A77DA /* CameraTool.cpp */,
 				487B6C78164E8A70000A77DA /* CameraTool.h */,
+				4878F962165C16BE003857EA /* ClipTool.cpp */,
+				4878F963165C16BE003857EA /* ClipTool.h */,
 				48F1FBA61652ACB100C79278 /* CreateBrushTool.cpp */,
 				48F1FBA71652ACB100C79278 /* CreateBrushTool.h */,
 				4878F922165142B4003857EA /* CreateEntityTool.cpp */,
@@ -1087,6 +1092,7 @@
 				48F1FBAC1652BE8B00C79278 /* FaceRenderer.cpp in Sources */,
 				484CEC49165396A9000913D0 /* EdgeRenderer.cpp in Sources */,
 				4878F95516596915003857EA /* BrushFigure.cpp in Sources */,
+				4878F964165C16BE003857EA /* ClipTool.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
