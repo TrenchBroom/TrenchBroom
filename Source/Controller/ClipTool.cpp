@@ -46,58 +46,86 @@ namespace TrenchBroom {
             return true;
         }
 
+        void ClipTool::handlePick(InputState& inputState) {
+            for (unsigned int i = 0; i < m_numPoints; i++) {
+                float distance = inputState.pickRay().intersectWithSphere(m_points[i], m_handleRadius);
+                if (!Math::isnan(distance)) {
+                    Vec3f hitPoint = inputState.pickRay().pointAtDistance(distance);
+                    inputState.pickResult().add(new Model::ClipHandleHit(hitPoint, distance, i));
+                }
+            }
+        }
+
         bool ClipTool::handleUpdateState(InputState& inputState) {
-            Model::FaceHit* hit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, m_filter));
-            if (hit == NULL) {
-                bool updateFeedback = m_hitIndex != -1;
+            bool updateFeedback = false;
+            
+            Model::ClipHandleHit* handleHit = static_cast<Model::ClipHandleHit*>(inputState.pickResult().first(Model::HitType::ClipHandleHit, true, m_filter));
+            if (handleHit != NULL) {
+                updateFeedback |= m_directHit == false || m_hitIndex != handleHit->index();
+                m_hitIndex = handleHit->index();
+                m_directHit = true;
+                return updateFeedback;
+            } else {
+                updateFeedback |= m_directHit == true;
+                m_directHit = false;
+            }
+
+            Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, m_filter));
+            if (faceHit == NULL) {
+                updateFeedback |= m_hitIndex != -1;
                 m_hitIndex = -1;
                 return updateFeedback;
             }
             
             Utility::Grid& grid = document().grid();
-            const Model::Face& face = hit->face();
-            Vec3f point = grid.snap(hit->hitPoint(), face.boundary());
+            const Model::Face& face = faceHit->face();
+            Vec3f point = grid.snap(faceHit->hitPoint(), face.boundary());
             Vec3f dir = point - inputState.pickRay().origin;
             dir.normalize();
             
             Ray testRay(inputState.pickRay().origin, dir);
             if (!face.side()->intersectWithRay(testRay)) {
-                bool updateFeedback = m_hitIndex != -1;
+                updateFeedback |= m_hitIndex != -1;
                 m_hitIndex = -1;
                 return updateFeedback;
             }
             
             for (unsigned int i = 0; i < m_numPoints; i++) {
                 if (point.equals(m_points[i])) {
-                    bool updateFeedback = m_hitIndex != i;
+                    updateFeedback |= m_hitIndex != i;
                     m_hitIndex = i;
                     return updateFeedback;
                 }
             }
             
             if (m_numPoints < 3) {
-                bool updateFeedback = (m_hitIndex != m_numPoints || !m_points[m_numPoints].equals(point));
+                updateFeedback |= (m_hitIndex != m_numPoints || !m_points[m_numPoints].equals(point));
                 m_hitIndex = m_numPoints;
                 m_points[m_numPoints] = point;
                 return updateFeedback;
             }
-            
-            return false;
+
+            updateFeedback |= m_hitIndex != -1;
+            m_hitIndex = -1;
+            return updateFeedback;
         }
         
         void ClipTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
             if (m_numPoints == 0 && m_hitIndex == -1)
                 return;
             
+            Model::ClipHandleHit* handleHit = static_cast<Model::ClipHandleHit*>(inputState.pickResult().first(Model::HitType::ClipHandleHit, true, m_filter));
+            
             glDisable(GL_DEPTH_TEST);
             Renderer::ActivateShader shader(renderContext.shaderManager(), Renderer::Shaders::HandleShader);
-            shader.currentShader().setUniformVariable("Color", Color(0.0f, 1.0f, 0.0f, 1.0f));
-            Renderer::SphereFigure sphereFigure(3.0f, 3);
+            Renderer::SphereFigure sphereFigure(m_handleRadius, 3);
             for (unsigned int i = 0; i < m_numPoints; i++) {
-                if (i != m_hitIndex) {
-                    Renderer::ApplyMatrix translate(renderContext.transformation(), Mat4f().translate(m_points[i]));
-                    sphereFigure.render(vbo, renderContext);
-                }
+                if (handleHit != NULL && handleHit->index() == i)
+                    shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
+                else
+                    shader.currentShader().setUniformVariable("Color", Color(0.0f, 1.0f, 0.0f, 1.0f));
+                Renderer::ApplyMatrix translate(renderContext.transformation(), Mat4f().translate(m_points[i]));
+                sphereFigure.render(vbo, renderContext);
             }
             
             if (m_hitIndex == m_numPoints && m_numPoints < 3) {
@@ -108,10 +136,23 @@ namespace TrenchBroom {
             glEnable(GL_DEPTH_TEST);
         }
         
+        bool ClipTool::handleMouseUp(InputState& inputState) {
+            if (inputState.mouseButtons() != MouseButtons::MBLeft)
+                return false;
+            if (m_hitIndex == -1 || m_numPoints == 3)
+                return false;
+
+            m_numPoints++;
+            m_hitIndex = -1;
+            return true;
+        }
+
         ClipTool::ClipTool(View::DocumentViewHolder& documentViewHolder) :
         Tool(documentViewHolder, true),
+        m_handleRadius(2.5f),
         m_filter(view().filter()),
         m_numPoints(0),
-        m_hitIndex(-1) {}
+        m_hitIndex(-1),
+        m_directHit(false) {}
     }
 }

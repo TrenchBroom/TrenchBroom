@@ -66,8 +66,8 @@ namespace TrenchBroom {
             while(!m_hits.empty()) delete m_hits.back(), m_hits.pop_back();
         }
 
-        void PickResult::add(Hit& hit) {
-            m_hits.push_back(&hit);
+        void PickResult::add(Hit* hit) {
+            m_hits.push_back(hit);
         }
 
         Hit* PickResult::first(int typeMask, bool ignoreOccluders, Filter& filter) {

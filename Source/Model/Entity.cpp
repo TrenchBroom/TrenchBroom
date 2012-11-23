@@ -328,7 +328,7 @@ namespace TrenchBroom {
             
             Vec3f hitPoint = ray.pointAtDistance(dist);
             EntityHit* hit = new EntityHit(*this, hitPoint, dist);
-            pickResults.add(*hit);
+            pickResults.add(hit);
         }
     }
 }

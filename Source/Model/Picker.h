@@ -118,7 +118,7 @@ namespace TrenchBroom {
             PickResult() : m_sorted(false) {}
             ~PickResult();
             
-            void add(Hit& hit);
+            void add(Hit* hit);
             Hit* first(int typeMask, bool ignoreOccluders, Filter& filter);
             HitList hits(int typeMask, Filter& filter);
             HitList hits(Filter& filter);

@@ -140,7 +140,7 @@ namespace TrenchBroom {
             closestHit = selectHit(closestHit, pickPlane(inputState.pickRay(), Vec3f::PosZ, xAxis, yAxis, Model::MoveObjectsHandleHit::HAXYPlane));
             
             if (closestHit != NULL)
-                inputState.pickResult().add(*closestHit);
+                inputState.pickResult().add(closestHit);
         }
 
         bool MoveObjectsTool::handleUpdateState(InputState& inputState) {

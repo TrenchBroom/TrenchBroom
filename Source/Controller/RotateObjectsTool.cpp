@@ -137,7 +137,7 @@ namespace TrenchBroom {
             closestHit = selectHit(closestHit, pickRing(inputState.pickRay(), zAxis, xAxis, yAxis, Model::RotateObjectsHandleHit::HAZAxis));
 
             if (closestHit != NULL)
-                inputState.pickResult().add(*closestHit);
+                inputState.pickResult().add(closestHit);
         }
         
         bool RotateObjectsTool::handleUpdateState(InputState& inputState) {

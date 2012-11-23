@@ -85,16 +85,20 @@ namespace TrenchBroom {
 
         class ClipTool : public Tool {
         private:
+            float m_handleRadius;
             ClipFilter m_filter;
             Vec3f m_points[3];
             unsigned int m_numPoints;
             int m_hitIndex;
+            bool m_directHit;
         protected:
             bool handleIsModal(InputState& inputState);
             
-//            void handlePick(InputState& inputState);
+            void handlePick(InputState& inputState);
             bool handleUpdateState(InputState& inputState);
             void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
+
+            bool handleMouseUp(InputState& inputState);
         public:
             ClipTool(View::DocumentViewHolder& documentViewHolder);
         };
