@@ -59,8 +59,6 @@ namespace TrenchBroom {
             m_backBrushes.clear();
             
             const Model::BrushList& brushes = document().editStateManager().selectedBrushes();
-            assert(!brushes.empty());
-            
             if (m_numPoints == 0) {
                 m_frontBrushes = brushes;
             } else {
@@ -375,6 +373,20 @@ namespace TrenchBroom {
         void ClipTool::handleCancelDrag(InputState& inputState) {
         }
         
+        void ClipTool::handleObjectsChange(InputState& inputState) {
+            if (active()) {
+                updateBrushes();
+                setNeedsUpdate();
+            }
+        }
+        
+        void ClipTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
+            if (active()) {
+                updateBrushes();
+                setNeedsUpdate();
+            }
+        }
+
         ClipTool::ClipTool(View::DocumentViewHolder& documentViewHolder) :
         Tool(documentViewHolder, true),
         m_handleRadius(2.5f),

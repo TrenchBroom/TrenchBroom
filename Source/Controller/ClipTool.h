@@ -124,6 +124,9 @@ namespace TrenchBroom {
             void handleDrag(InputState& inputState);
             void handleEndDrag(InputState& inputState);
             void handleCancelDrag(InputState& inputState);
+
+            void handleObjectsChange(InputState& inputState);
+            void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet);
         public:
             ClipTool(View::DocumentViewHolder& documentViewHolder);
             ~ClipTool();
