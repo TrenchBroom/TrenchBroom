@@ -87,8 +87,8 @@ namespace TrenchBroom {
             for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
                 const Model::Brush& brush = **brushIt;
                 const Model::Entity* entity = brush.entity();
-                const Model::EntityDefinition* definition = entity->definition();
-                const Color& color = (!entity->worldspawn() && definition != NULL && definition->type() == Model::EntityDefinition::BrushEntity) ? definition->color() : defaultColor;
+                const Model::EntityDefinition* definition = entity != NULL ? entity->definition() : NULL;
+                const Color& color = (entity != NULL && !entity->worldspawn() && definition != NULL && definition->type() == Model::EntityDefinition::BrushEntity) ? definition->color() : defaultColor;
                 
                 const Model::EdgeList& edges = brush.edges();
                 Model::EdgeList::const_iterator edgeIt, edgeEnd;
@@ -106,8 +106,8 @@ namespace TrenchBroom {
                 const Model::Face& face = **faceIt;
                 const Model::Brush* brush = face.brush();
                 const Model::Entity* entity = brush->entity();
-                const Model::EntityDefinition* definition = entity->definition();
-                const Color& color = (!entity->worldspawn() && definition != NULL && definition->type() == Model::EntityDefinition::BrushEntity) ? definition->color() : defaultColor;
+                const Model::EntityDefinition* definition = entity != NULL ? entity->definition() : NULL;
+                const Color& color = (entity != NULL && !entity->worldspawn() && definition != NULL && definition->type() == Model::EntityDefinition::BrushEntity) ? definition->color() : defaultColor;
                 
                 const Model::EdgeList& edges = face.edges();
                 Model::EdgeList::const_iterator edgeIt, edgeEnd;

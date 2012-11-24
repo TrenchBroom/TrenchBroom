@@ -47,6 +47,7 @@ protected:
     typedef std::stack<CompoundCommand*> GroupStack;
 
     GroupStack m_groupStack;
+    wxCommand* m_block;
 public:
     CommandProcessor(int maxCommandLevel = -1);
 
@@ -54,6 +55,12 @@ public:
     static void EndGroup(wxCommandProcessor* wxCommandProc);
     static void RollbackGroup(wxCommandProcessor* wxCommandProc);
     static void DiscardGroup(wxCommandProcessor* wxCommandProc);
+    static void Block(wxCommandProcessor* wxCommandProc);
+    static void Unblock(wxCommandProcessor* wxCommandProc);
+    
+    void Block();
+    void Unblock();
+    bool CanUndo() const;
     
     void BeginGroup(const wxString& name);
     void EndGroup();

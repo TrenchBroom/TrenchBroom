@@ -81,6 +81,14 @@ namespace TrenchBroom {
             return new AddObjectsCommand(document, makeObjectActionName(wxT("Add"), entities, brushes), entities, brushes);
         };
 
+        AddObjectsCommand* AddObjectsCommand::addEntities(Model::MapDocument& document, const Model::EntityList& entities) {
+            return new AddObjectsCommand(document, makeObjectActionName(wxT("Add"), entities, Model::EmptyBrushList), entities, Model::EmptyBrushList);
+        }
+        
+        AddObjectsCommand* AddObjectsCommand::addBrushes(Model::MapDocument& document, const Model::BrushList& brushes) {
+            return new AddObjectsCommand(document, makeObjectActionName(wxT("Add"), Model::EmptyEntityList, brushes), Model::EmptyEntityList, brushes);
+        }
+
         AddObjectsCommand* AddObjectsCommand::addEntity(Model::MapDocument& document, Model::Entity& entity) {
             Model::EntityList entities;
             entities.push_back(&entity);

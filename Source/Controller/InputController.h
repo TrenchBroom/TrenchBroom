@@ -95,6 +95,11 @@ namespace TrenchBroom {
             
             void toggleClipTool();
             bool clipToolActive();
+            void toggleClipSide();
+            bool canDeleteClipPoint();
+            void deleteClipPoint();
+            bool canPerformClip();
+            void performClip();
         };
 
         class InputControllerFigure : public Renderer::Figure {

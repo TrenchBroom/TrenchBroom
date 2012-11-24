@@ -303,6 +303,32 @@ namespace TrenchBroom {
             return m_clipTool->active();
         }
 
+        void InputController::toggleClipSide() {
+            assert(clipToolActive());
+            m_clipTool->toggleClipSide();
+            updateState();
+        }
+
+        bool InputController::canDeleteClipPoint() {
+            return clipToolActive() && m_clipTool->numPoints() > 0;
+        }
+        
+        void InputController::deleteClipPoint() {
+            assert(canDeleteClipPoint());
+            m_clipTool->deleteLastPoint();
+            updateState();
+        }
+
+        bool InputController::canPerformClip() {
+            return clipToolActive() && m_clipTool->numPoints() > 0;
+        }
+
+        void InputController::performClip() {
+            assert(canPerformClip());
+            m_clipTool->performClip();
+            updateState();
+        }
+
         InputControllerFigure::InputControllerFigure(InputController& inputController) :
         m_inputController(inputController) {}
         

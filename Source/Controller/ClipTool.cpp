@@ -19,14 +19,26 @@
 
 #include "ClipTool.h"
 
+#include "Controller/AddObjectsCommand.h"
+#include "Controller/ChangeEditStateCommand.h"
+#include "Controller/RemoveObjectsCommand.h"
+#include "Model/Brush.h"
+#include "Model/EditStateManager.h"
+#include "Model/Map.h"
+#include "Model/MapDocument.h"
 #include "Model/Picker.h"
+#include "Model/Texture.h"
 #include "Renderer/ApplyMatrix.h"
+#include "Renderer/BrushFigure.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/SharedResources.h"
 #include "Renderer/SphereFigure.h"
+#include "Renderer/VertexArray.h"
 #include "Renderer/Shader/ShaderManager.h"
 #include "Renderer/Shader/ShaderProgram.h"
 #include "View/EditorView.h"
 #include "Utility/Grid.h"
+#include "Utility/Preferences.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -42,10 +54,105 @@ namespace TrenchBroom {
     }
     
     namespace Controller {
+        void ClipTool::updateBrushes() {
+            m_frontBrushes.clear();
+            m_backBrushes.clear();
+            
+            const Model::BrushList& brushes = document().editStateManager().selectedBrushes();
+            assert(!brushes.empty());
+            
+            if (m_numPoints == 0) {
+                m_frontBrushes = brushes;
+            } else {
+                Vec3f planePoints[3];
+                if (m_numPoints == 1) {
+                    planePoints[0] = m_points[0].snapped();
+                    if (m_normals[0].firstComponent() == Axis::AZ) {
+                        planePoints[1] = planePoints[0] + 128.0f * Vec3f::PosY;
+                        planePoints[2] = planePoints[0] + 128.0f * Vec3f::PosX;
+                    } else {
+                        planePoints[1] = planePoints[0] + 128.0f * Vec3f::PosZ;
+                        planePoints[2] = planePoints[0] + 128.0f * m_normals[0].firstAxis();
+                    }
+                } else if (m_numPoints == 2) {
+                    planePoints[0] = m_points[0].snapped();
+                    planePoints[2] = m_points[1].snapped();
+                    if (m_normals[0].firstComponent() != m_normals[1].firstComponent()) {
+                        planePoints[1] = planePoints[0] + 128.0f * m_normals[0].firstAxis();
+                    } else {
+                        Vec3f temp = planePoints[1] - planePoints[0];
+                        temp.normalize();
+                        if (eq(fabsf(temp.dot(m_normals[0].firstAxis())), 1.0f)) {
+                            if (m_normals[0].firstComponent() == Axis::AZ)
+                                planePoints[1] = planePoints[0] + 128.0f * view().camera().direction().firstAxis();
+                            else
+                                planePoints[1] = planePoints[0] + 128.0f * Vec3f::PosZ;
+                        } else {
+                            planePoints[1] = planePoints[0] + 128.0f * m_normals[0].firstAxis();
+                        }
+                    }
+                } else {
+                    planePoints[0] = m_points[0].snapped();
+                    planePoints[1] = m_points[2].snapped();
+                    planePoints[2] = m_points[1].snapped();
+                }
+                
+                const BBox& worldBounds = document().map().worldBounds();
+                String textureName = document().mruTexture() != NULL ? document().mruTexture()->name() : Model::Texture::Empty;
+                
+                Model::BrushList::const_iterator brushIt, brushEnd;
+                for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
+                    Model::Brush& brush = **brushIt;
+                    
+                    Model::Brush* frontBrush = new Model::Brush(worldBounds, brush);
+                    Model::Face* frontFace = new Model::Face(worldBounds, planePoints[0], planePoints[1], planePoints[2], textureName);
+                    if (frontBrush->addFace(frontFace))
+                        m_frontBrushes.push_back(frontBrush);
+                    else
+                        delete frontBrush;
+                    
+                    Model::Brush* backBrush = new Model::Brush(worldBounds, brush);
+                    Model::Face* backFace = new Model::Face(worldBounds, planePoints[0], planePoints[2], planePoints[1], textureName);
+                    if (backBrush->addFace(backFace))
+                        m_backBrushes.push_back(backBrush);
+                    else
+                        delete backBrush;
+                }
+            }
+            
+            m_frontBrushFigure->setBrushes(m_frontBrushes);
+            m_backBrushFigure->setBrushes(m_backBrushes);
+        }
+        
+        bool ClipTool::handleActivate(InputState& inputState) {
+            m_numPoints = 0;
+            m_hitIndex = -1;
+            m_clipSide = CMFront;
+            view().viewOptions().setRenderSelection(false);
+            
+            Renderer::TextureRendererManager& textureRendererManager = document().sharedResources().textureRendererManager();
+            m_frontBrushFigure = new Renderer::BrushFigure(textureRendererManager);
+            m_backBrushFigure = new Renderer::BrushFigure(textureRendererManager);
+            
+            updateBrushes();
+            
+            return true;
+        }
+        
+        bool ClipTool::handleDeactivate(InputState& inputState) {
+            deleteFigure(m_frontBrushFigure);
+            m_frontBrushFigure = NULL;
+            deleteFigure(m_backBrushFigure);
+            m_backBrushFigure = NULL;
+            
+            view().viewOptions().setRenderSelection(true);
+            return true;
+        }
+        
         bool ClipTool::handleIsModal(InputState& inputState) {
             return true;
         }
-
+        
         void ClipTool::handlePick(InputState& inputState) {
             for (unsigned int i = 0; i < m_numPoints; i++) {
                 float distance = inputState.pickRay().intersectWithSphere(m_points[i], m_handleRadius);
@@ -55,8 +162,11 @@ namespace TrenchBroom {
                 }
             }
         }
-
+        
         bool ClipTool::handleUpdateState(InputState& inputState) {
+            if (dragType() != DTNone)
+                return false;
+            
             bool updateFeedback = false;
             
             Model::ClipHandleHit* handleHit = static_cast<Model::ClipHandleHit*>(inputState.pickResult().first(Model::HitType::ClipHandleHit, true, m_filter));
@@ -69,7 +179,7 @@ namespace TrenchBroom {
                 updateFeedback |= m_directHit == true;
                 m_directHit = false;
             }
-
+            
             Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, m_filter));
             if (faceHit == NULL) {
                 updateFeedback |= m_hitIndex != -1;
@@ -102,57 +212,249 @@ namespace TrenchBroom {
                 updateFeedback |= (m_hitIndex != m_numPoints || !m_points[m_numPoints].equals(point));
                 m_hitIndex = m_numPoints;
                 m_points[m_numPoints] = point;
+                m_normals[m_numPoints] = face.boundary().normal;
                 return updateFeedback;
             }
-
+            
             updateFeedback |= m_hitIndex != -1;
             m_hitIndex = -1;
             return updateFeedback;
         }
         
         void ClipTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
-            if (m_numPoints == 0 && m_hitIndex == -1)
-                return;
-            
-            Model::ClipHandleHit* handleHit = static_cast<Model::ClipHandleHit*>(inputState.pickResult().first(Model::HitType::ClipHandleHit, true, m_filter));
-            
-            glDisable(GL_DEPTH_TEST);
-            Renderer::ActivateShader shader(renderContext.shaderManager(), Renderer::Shaders::HandleShader);
-            Renderer::SphereFigure sphereFigure(m_handleRadius, 3);
-            for (unsigned int i = 0; i < m_numPoints; i++) {
-                if (handleHit != NULL && handleHit->index() == i)
-                    shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
-                else
-                    shader.currentShader().setUniformVariable("Color", Color(0.0f, 1.0f, 0.0f, 1.0f));
-                Renderer::ApplyMatrix translate(renderContext.transformation(), Mat4f().translate(m_points[i]));
-                sphereFigure.render(vbo, renderContext);
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            if (m_numPoints == 0 || m_clipSide == CMFront || m_clipSide == CMBoth) {
+                m_frontBrushFigure->setFaceColor(prefs.getColor(Preferences::FaceColor));
+                m_frontBrushFigure->setApplyTinting(true);
+                m_frontBrushFigure->setFaceTintColor(prefs.getColor(Preferences::ClippedFaceColor));
+                m_frontBrushFigure->setEdgeColor(prefs.getColor(Preferences::ClippedEdgeColor));
+                m_frontBrushFigure->setOccludedEdgeColor(prefs.getColor(Preferences::OccludedClippedEdgeColor));
+                m_frontBrushFigure->setEdgeMode(Renderer::BrushFigure::EMRenderOccluded);
+                m_frontBrushFigure->setGrayScale(false);
+            } else {
+                m_frontBrushFigure->setFaceColor(prefs.getColor(Preferences::FaceColor));
+                m_frontBrushFigure->setApplyTinting(false);
+                m_frontBrushFigure->setEdgeColor(prefs.getColor(Preferences::EdgeColor));
+                m_frontBrushFigure->setEdgeMode(Renderer::BrushFigure::EMDefault);
+                m_frontBrushFigure->setGrayScale(true);
+            }
+            if (m_clipSide == CMBack || m_clipSide == CMBoth) {
+                m_backBrushFigure->setFaceColor(prefs.getColor(Preferences::FaceColor));
+                m_backBrushFigure->setApplyTinting(true);
+                m_backBrushFigure->setFaceTintColor(prefs.getColor(Preferences::ClippedFaceColor));
+                m_backBrushFigure->setEdgeColor(prefs.getColor(Preferences::ClippedEdgeColor));
+                m_backBrushFigure->setOccludedEdgeColor(prefs.getColor(Preferences::OccludedClippedEdgeColor));
+                m_backBrushFigure->setEdgeMode(Renderer::BrushFigure::EMRenderOccluded);
+                m_backBrushFigure->setGrayScale(false);
+            } else {
+                m_backBrushFigure->setFaceColor(prefs.getColor(Preferences::FaceColor));
+                m_backBrushFigure->setApplyTinting(false);
+                m_backBrushFigure->setEdgeColor(prefs.getColor(Preferences::EdgeColor));
+                m_backBrushFigure->setEdgeMode(Renderer::BrushFigure::EMDefault);
+                m_backBrushFigure->setGrayScale(true);
             }
             
-            if (m_hitIndex == m_numPoints && m_numPoints < 3) {
-                shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
-                Renderer::ApplyMatrix translate(renderContext.transformation(), Mat4f().translate(m_points[m_hitIndex]));
-                sphereFigure.render(vbo, renderContext);
+            m_frontBrushFigure->renderFaces(vbo, renderContext);
+            m_backBrushFigure->renderFaces(vbo, renderContext);
+            m_frontBrushFigure->renderEdges(vbo, renderContext);
+            m_backBrushFigure->renderEdges(vbo, renderContext);
+            
+            if (m_numPoints > 0 || m_hitIndex > -1) {
+                Model::ClipHandleHit* handleHit = static_cast<Model::ClipHandleHit*>(inputState.pickResult().first(Model::HitType::ClipHandleHit, true, m_filter));
+                
+                Renderer::ActivateShader shader(renderContext.shaderManager(), Renderer::Shaders::HandleShader);
+                Renderer::SphereFigure sphereFigure(m_handleRadius, 3);
+                for (unsigned int i = 0; i < m_numPoints; i++) {
+                    Renderer::ApplyMatrix translate(renderContext.transformation(), Mat4f().translate(m_points[i]));
+                    if (handleHit != NULL && handleHit->index() == i) {
+                        shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::SelectedClipHandleColor));
+                        sphereFigure.render(vbo, renderContext);
+                    } else {
+                        glDisable(GL_DEPTH_TEST);
+                        shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
+                        sphereFigure.render(vbo, renderContext);
+                        glEnable(GL_DEPTH_TEST);
+                        
+                        shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ClipHandleColor));
+                        sphereFigure.render(vbo, renderContext);
+                    }
+                }
+                
+                if (m_numPoints > 1) {
+                    Renderer::SetVboState mapVbo(vbo, Renderer::Vbo::VboMapped);
+                    Renderer::VertexArrayPtr linesArray = Renderer::VertexArrayPtr(new Renderer::VertexArray(vbo, GL_LINE_LOOP, m_numPoints,
+                                                                                                             Renderer::VertexAttribute::position3f()));
+                    for (unsigned int i = 0; i < m_numPoints; i++)
+                        linesArray->addAttribute(m_points[i]);
+                    
+                    Renderer::SetVboState activateVbo(vbo, Renderer::Vbo::VboActive);
+                    glDisable(GL_DEPTH_TEST);
+                    shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
+                    linesArray->render();
+                    glEnable(GL_DEPTH_TEST);
+                    shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ClipHandleColor));
+                    linesArray->render();
+                    
+                    if (m_numPoints == 3) {
+                        Renderer::SetVboState mapVbo(vbo, Renderer::Vbo::VboMapped);
+                        Renderer::VertexArrayPtr triangleArray = Renderer::VertexArrayPtr(new Renderer::VertexArray(vbo, GL_TRIANGLES, m_numPoints,
+                                                                                                                    Renderer::VertexAttribute::position3f()));
+                        for (unsigned int i = 0; i < m_numPoints; i++)
+                            triangleArray->addAttribute(m_points[i]);
+                        
+                        glDisable(GL_DEPTH_TEST);
+                        glDisable(GL_CULL_FACE);
+                        Renderer::SetVboState activateVbo(vbo, Renderer::Vbo::VboActive);
+                        shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ClipPlaneColor));
+                        triangleArray->render();
+                        glEnable(GL_CULL_FACE);
+                        glEnable(GL_DEPTH_TEST);
+                    }
+                }
+                
+                if (m_hitIndex == m_numPoints && m_numPoints < 3) {
+                    shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::SelectedClipHandleColor));
+                    Renderer::ApplyMatrix translate(renderContext.transformation(), Mat4f().translate(m_points[m_hitIndex]));
+                    sphereFigure.render(vbo, renderContext);
+                }
             }
-            glEnable(GL_DEPTH_TEST);
         }
         
         bool ClipTool::handleMouseUp(InputState& inputState) {
-            if (inputState.mouseButtons() != MouseButtons::MBLeft)
+            if (inputState.mouseButtons() != MouseButtons::MBLeft ||
+                inputState.modifierKeys() != ModifierKeys::MKNone)
                 return false;
-            if (m_hitIndex == -1 || m_numPoints == 3)
+            if (m_hitIndex < m_numPoints || m_numPoints == 3)
                 return false;
-
+            
             m_numPoints++;
             m_hitIndex = -1;
+            updateBrushes();
+            
             return true;
         }
-
+        
+        bool ClipTool::handleStartDrag(InputState& inputState) {
+            if (inputState.mouseButtons() != MouseButtons::MBLeft ||
+                inputState.modifierKeys() != ModifierKeys::MKNone)
+                return false;
+            
+            Model::ClipHandleHit* handleHit = static_cast<Model::ClipHandleHit*>(inputState.pickResult().first(Model::HitType::ClipHandleHit, true, m_filter));
+            if (handleHit == NULL)
+                return false;
+            
+            m_hitIndex = handleHit->index();
+            return true;
+        }
+        
+        void ClipTool::handleDrag(InputState& inputState) {
+            assert(m_hitIndex >= 0 && m_hitIndex < m_numPoints);
+            
+            Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, m_filter));
+            if (faceHit == NULL)
+                return;
+            
+            Utility::Grid& grid = document().grid();
+            const Model::Face& face = faceHit->face();
+            Vec3f point = grid.snap(faceHit->hitPoint(), face.boundary());
+            Vec3f dir = point - inputState.pickRay().origin;
+            dir.normalize();
+            
+            Ray testRay(inputState.pickRay().origin, dir);
+            if (!face.side()->intersectWithRay(testRay))
+                return;
+            
+            m_points[m_hitIndex] = point;
+            updateBrushes();
+            setNeedsUpdate();
+        }
+        
+        void ClipTool::handleEndDrag(InputState& inputState) {
+        }
+        
+        void ClipTool::handleCancelDrag(InputState& inputState) {
+        }
+        
         ClipTool::ClipTool(View::DocumentViewHolder& documentViewHolder) :
         Tool(documentViewHolder, true),
         m_handleRadius(2.5f),
         m_filter(view().filter()),
         m_numPoints(0),
         m_hitIndex(-1),
-        m_directHit(false) {}
+        m_directHit(false),
+        m_clipSide(CMFront),
+        m_frontBrushFigure(NULL),
+        m_backBrushFigure(NULL) {}
+        
+        ClipTool::~ClipTool() {
+            /*
+            if (m_frontBrushFigure != NULL)
+                deleteFigure(m_frontBrushFigure);
+            m_frontBrushFigure = NULL;
+            if (m_backBrushFigure != NULL)
+                deleteFigure(m_backBrushFigure);
+            m_backBrushFigure = NULL;
+             */
+        }
+
+        void ClipTool::toggleClipSide() {
+            assert(active());
+            switch (m_clipSide) {
+                case CMFront:
+                    m_clipSide = CMBack;
+                    break;
+                case CMBack:
+                    m_clipSide = CMBoth;
+                    break;
+                default:
+                    m_clipSide = CMFront;
+            }
+            setNeedsUpdate();
+        }
+
+        void ClipTool::deleteLastPoint() {
+            assert(active());
+            assert(m_numPoints > 0);
+            m_numPoints--;
+            updateBrushes();
+            setNeedsUpdate();
+        }
+        
+        void ClipTool::performClip() {
+            assert(active());
+            assert(m_numPoints > 0);
+
+            Model::BrushList addBrushes;
+            switch (m_clipSide) {
+                case CMFront:
+                    addBrushes = m_frontBrushes;
+                    break;
+                case CMBack:
+                    addBrushes = m_backBrushes;
+                    break;
+                default: {
+                    addBrushes.insert(addBrushes.end(), m_frontBrushes.begin(), m_frontBrushes.end());
+                    addBrushes.insert(addBrushes.end(), m_backBrushes.begin(), m_backBrushes.end());
+                    break;
+                }
+            }
+            
+            AddObjectsCommand* addCommand = AddObjectsCommand::addBrushes(document(), addBrushes);
+            ChangeEditStateCommand* changeEditStateCommand = ChangeEditStateCommand::replace(document(), addBrushes);
+            
+            const Model::BrushList& removeBrushes = document().editStateManager().selectedBrushes();
+            RemoveObjectsCommand* removeCommand = RemoveObjectsCommand::removeObjects(document(), Model::EmptyEntityList, removeBrushes);
+
+            beginCommandGroup(wxT("Clip"));
+            submitCommand(addCommand);
+            submitCommand(changeEditStateCommand);
+            submitCommand(removeCommand);
+            endCommandGroup();
+            
+            m_numPoints = 0;
+            m_hitIndex = -1;
+            updateBrushes();
+            setNeedsUpdate();
+       }
     }
 }

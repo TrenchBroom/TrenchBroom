@@ -42,6 +42,7 @@ namespace TrenchBroom {
             bool m_showSkipBrushes;
             FaceRenderMode m_faceRenderMode;
             bool m_renderEdges;
+            bool m_renderSelection;
         public:
             ViewOptions() :
             m_filterPattern(""),
@@ -53,7 +54,8 @@ namespace TrenchBroom {
             m_showClipBrushes(true),
             m_showSkipBrushes(true),
             m_faceRenderMode(Textured),
-            m_renderEdges(true) {}
+            m_renderEdges(true),
+            m_renderSelection(true) {}
             
             inline const String& filterPattern() const {
                 return m_filterPattern;
@@ -133,6 +135,14 @@ namespace TrenchBroom {
             
             inline void setRenderEdges(bool renderEdges) {
                 m_renderEdges = renderEdges;
+            }
+            
+            inline bool renderSelection() const {
+                return m_renderSelection;
+            }
+            
+            inline void setRenderSelection(bool renderSelection) {
+                m_renderSelection = renderSelection;
             }
         };
     }

@@ -67,7 +67,8 @@ bool CompoundCommand::Undo() {
 }
 
 CommandProcessor::CommandProcessor(int maxCommandLevel) :
-wxCommandProcessor(maxCommandLevel) {}
+wxCommandProcessor(maxCommandLevel),
+m_block(NULL) {}
 
 void CommandProcessor::BeginGroup(wxCommandProcessor* wxCommandProc, const wxString& name) {
     CommandProcessor* commandProc = static_cast<CommandProcessor*>(wxCommandProc);
@@ -87,6 +88,30 @@ void CommandProcessor::RollbackGroup(wxCommandProcessor* wxCommandProc) {
 void CommandProcessor::DiscardGroup(wxCommandProcessor* wxCommandProc) {
     CommandProcessor* commandProc = static_cast<CommandProcessor*>(wxCommandProc);
     commandProc->DiscardGroup();
+}
+
+void CommandProcessor::Block(wxCommandProcessor* wxCommandProc) {
+    CommandProcessor* commandProc = static_cast<CommandProcessor*>(wxCommandProc);
+    commandProc->Block();
+}
+
+void CommandProcessor::Unblock(wxCommandProcessor* wxCommandProc) {
+    CommandProcessor* commandProc = static_cast<CommandProcessor*>(wxCommandProc);
+    commandProc->Unblock();
+}
+
+void CommandProcessor::Block() {
+    m_block = GetCurrentCommand();
+}
+
+void CommandProcessor::Unblock() {
+    m_block = NULL;
+}
+
+bool CommandProcessor::CanUndo() const {
+    if (GetCurrentCommand() == m_block)
+        return false;
+    return wxCommandProcessor::CanUndo();
 }
 
 void CommandProcessor::BeginGroup(const wxString& name) {

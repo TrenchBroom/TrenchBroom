@@ -47,6 +47,8 @@ namespace TrenchBroom {
             AddObjectsCommand(Model::MapDocument& document, const wxString& name, const Model::EntityList& entities, const Model::BrushList& brushes);
         public:
             static AddObjectsCommand* addObjects(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes);
+            static AddObjectsCommand* addEntities(Model::MapDocument& document, const Model::EntityList& entities);
+            static AddObjectsCommand* addBrushes(Model::MapDocument& document, const Model::BrushList& brushes);
             static AddObjectsCommand* addEntity(Model::MapDocument& document, Model::Entity& entity);
             static AddObjectsCommand* addBrush(Model::MapDocument& document, Model::Brush& brush);
 

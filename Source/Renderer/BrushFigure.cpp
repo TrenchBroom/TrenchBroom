@@ -31,27 +31,22 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        BrushFigure::BrushFigure(TextureRendererManager& textureRendererManager, const Color& faceColor, const Color& edgeColor, bool overrideEdgeColor) :
+        BrushFigure::BrushFigure(TextureRendererManager& textureRendererManager) :
         m_textureRendererManager(textureRendererManager),
-        m_edgeColor(edgeColor),
-        m_faceColor(faceColor),
-        m_overrideEdgeColor(overrideEdgeColor),
-        m_edgeRendererValid(false),
-        m_faceRendererValid(false) {}
+        m_faceColor(Color(0.5f, 0.5f, 0.5f, 1.0f)),
+        m_applyTinting(false),
+        m_faceTintColor(Color(1.0f, 0.0, 0.0f, 1.0f)),
+        m_edgeColor(Color(1.0f, 1.0f, 1.0f, 1.0f)),
+        m_edgeMode(EMDefault),
+        m_grayScale(false),
+        m_faceRendererValid(false),
+        m_edgeRendererValid(false) {}
+
         
-        void BrushFigure::render(Vbo& vbo, RenderContext& context) {
-            SetVboState activateVbo(vbo, Vbo::VboActive);
-            if (!m_edgeRendererValid || !m_faceRendererValid) {
+        void BrushFigure::renderFaces(Vbo& vbo, RenderContext& context) {
+            if (!m_faceRendererValid) {
                 SetVboState mapVbo(vbo, Vbo::VboMapped);
-                if (!m_edgeRendererValid) {
-                    if (m_overrideEdgeColor)
-                        m_edgeRenderer = EdgeRendererPtr(new EdgeRenderer(vbo, m_brushes, Model::EmptyFaceList));
-                    else
-                        m_edgeRenderer = EdgeRendererPtr(new EdgeRenderer(vbo, m_brushes, Model::EmptyFaceList, m_edgeColor));
-                    m_edgeRendererValid = true;
-                }
-                
-                if (!m_faceRendererValid) {
+                if (!m_brushes.empty()) {
                     typedef TexturedPolygonSorter<Model::Texture, Model::Face*> FaceSorter;
                     FaceSorter faceSorter;
                     
@@ -67,18 +62,56 @@ namespace TrenchBroom {
                     }
                     
                     m_faceRenderer = FaceRendererPtr(new FaceRenderer(vbo, m_textureRendererManager, faceSorter, m_faceColor));
-                    m_faceRendererValid = true;
+                } else {
+                    m_faceRenderer = FaceRendererPtr();
                 }
+                m_faceRendererValid = true;
             }
             
-            m_faceRenderer->render(context, false);
-            
-            glSetEdgeOffset(0.02f);
-            if (m_overrideEdgeColor)
-                m_edgeRenderer->render(context, m_edgeColor);
-            else
-                m_edgeRenderer->render(context);
-            glResetEdgeOffset();
+            if (m_faceRenderer.get() != NULL) {
+                SetVboState activateVbo(vbo, Vbo::VboActive);
+                if (m_applyTinting)
+                    m_faceRenderer->render(context, m_grayScale, m_faceTintColor);
+                else
+                    m_faceRenderer->render(context, m_grayScale);
+            }
+        }
+        
+        void BrushFigure::renderEdges(Vbo& vbo, RenderContext& context) {
+            if (!m_edgeRendererValid) {
+                SetVboState mapVbo(vbo, Vbo::VboMapped);
+                if (!m_brushes.empty()) {
+                    if (m_edgeMode == EMDefault)
+                        m_edgeRenderer = EdgeRendererPtr(new EdgeRenderer(vbo, m_brushes, Model::EmptyFaceList, m_edgeColor));
+                    else
+                        m_edgeRenderer = EdgeRendererPtr(new EdgeRenderer(vbo, m_brushes, Model::EmptyFaceList));
+                } else {
+                    m_edgeRenderer = EdgeRendererPtr();
+                }
+                m_edgeRendererValid = true;
+            }
+
+            if (m_edgeRenderer.get() != NULL) {
+                SetVboState activateVbo(vbo, Vbo::VboActive);
+                glSetEdgeOffset(0.02f);
+                if (m_edgeMode == EMDefault) {
+                    m_edgeRenderer->render(context);
+                } else {
+                    if (m_edgeMode == EMRenderOccluded) {
+                        glDisable(GL_DEPTH_TEST);
+                        m_edgeRenderer->render(context, m_occludedEdgeColor);
+                        glEnable(GL_DEPTH_TEST);
+                        glSetEdgeOffset(0.025f);
+                    }
+                    m_edgeRenderer->render(context, m_edgeColor);
+                }
+                glResetEdgeOffset();
+            }
+        }
+
+        void BrushFigure::render(Vbo& vbo, RenderContext& context) {
+            renderFaces(vbo, context);
+            renderEdges(vbo, context);
         }
     }
 }

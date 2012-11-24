@@ -196,14 +196,22 @@ namespace TrenchBroom {
             return new ChangeEditStateCommand(document, makeObjectActionName(wxT("Hide"), entities, brushes), Model::EditState::Hidden, entities, brushes, false);
         }
         
+        ChangeEditStateCommand* ChangeEditStateCommand::unHide(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes) {
+            return new ChangeEditStateCommand(document, makeObjectActionName(wxT("Unhide"), entities, brushes), Model::EditState::Default, entities, brushes, false);
+        }
+
         ChangeEditStateCommand* ChangeEditStateCommand::unhideAll(Model::MapDocument& document) {
-            return new ChangeEditStateCommand(document, wxT("Unhide Allll"), Model::EditState::Hidden);
+            return new ChangeEditStateCommand(document, wxT("Unhide All"), Model::EditState::Hidden);
         }
         
         ChangeEditStateCommand* ChangeEditStateCommand::lock(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes) {
             return new ChangeEditStateCommand(document, makeObjectActionName(wxT("Lock"), entities, brushes), Model::EditState::Locked, entities, brushes, false);
         }
         
+        ChangeEditStateCommand* ChangeEditStateCommand::unLock(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes) {
+            return new ChangeEditStateCommand(document, makeObjectActionName(wxT("Unlock"), entities, brushes), Model::EditState::Default, entities, brushes, false);
+        }
+
         ChangeEditStateCommand* ChangeEditStateCommand::unlockAll(Model::MapDocument& document) {
             return new ChangeEditStateCommand(document, wxT("Unlock All"), Model::EditState::Locked);
         }

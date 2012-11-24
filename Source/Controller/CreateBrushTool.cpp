@@ -140,9 +140,12 @@ namespace TrenchBroom {
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             Renderer::TextureRendererManager& textureRendererManager = document().sharedResources().textureRendererManager();
-            const Color& faceColor = prefs.getColor(Preferences::FaceColor);
-            const Color& edgeColor = prefs.getColor(Preferences::SelectedEdgeColor);
-            m_brushFigure = new Renderer::BrushFigure(textureRendererManager, faceColor, edgeColor, true);
+
+            m_brushFigure = new Renderer::BrushFigure(textureRendererManager);
+            m_brushFigure->setFaceColor(prefs.getColor(Preferences::FaceColor));
+            m_brushFigure->setEdgeColor(prefs.getColor(Preferences::SelectedEdgeColor));
+            m_brushFigure->setOccludedEdgeColor(prefs.getColor(Preferences::OccludedSelectedEdgeColor));
+            m_brushFigure->setEdgeMode(Renderer::BrushFigure::EMRenderOccluded);
 
             m_brush = new Model::Brush(document().map().worldBounds(), m_bounds, document().mruTexture());
             m_brushFigure->setBrush(*m_brush);
@@ -174,8 +177,8 @@ namespace TrenchBroom {
             endCommandGroup();
             
             m_brush = NULL;
-            
-            delete m_brushFigure;
+
+            deleteFigure(m_brushFigure);
             m_brushFigure = NULL;
         }
 

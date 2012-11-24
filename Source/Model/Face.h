@@ -50,6 +50,19 @@ namespace TrenchBroom {
             
             int m_faceId;
             
+            /*
+             * The order of points, when looking from outside the face:
+             *
+             * 0-----------1
+             * |
+             * |
+             * |
+             * |
+             * 2
+             *
+             * It must hold that 
+             * (m_points[2] - m_points[0]).cross(m_points[1] - m_points[0]).equals(boundary().normal)
+             */
             Vec3f m_points[3];
             Plane m_boundary;
             BBox m_worldBounds;

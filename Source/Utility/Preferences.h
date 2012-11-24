@@ -231,11 +231,14 @@ namespace TrenchBroom {
         extern const Preference<Color>  FaceColor;
         extern const Preference<Color>  SelectedFaceColor;
         extern const Preference<Color>  LockedFaceColor;
+        extern const Preference<Color>  ClippedFaceColor;
         
         extern const Preference<Color>  EdgeColor;
         extern const Preference<Color>  SelectedEdgeColor;
         extern const Preference<Color>  OccludedSelectedEdgeColor;
         extern const Preference<Color>  LockedEdgeColor;
+        extern const Preference<Color>  ClippedEdgeColor;
+        extern const Preference<Color>  OccludedClippedEdgeColor;
         
         extern const Preference<Color>  SelectedEntityColor;
         extern const Preference<Color>  EntityBoundsColor;
@@ -271,6 +274,11 @@ namespace TrenchBroom {
         extern const Preference<Color>  OccludedFaceHandleColor;
         extern const Preference<Color>  SelectedFaceHandleColor;
         extern const Preference<Color>  OccludedSelectedFaceHandleColor;
+        
+        extern const Preference<Color>  ClipHandleColor;
+        extern const Preference<Color>  OccludedClipHandleColor;
+        extern const Preference<Color>  SelectedClipHandleColor;
+        extern const Preference<Color>  ClipPlaneColor;
         
         extern const Preference<Color>  BrowserTextureColor;
         extern const Preference<Color>  SelectedTextureColor;

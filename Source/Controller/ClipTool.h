@@ -24,6 +24,8 @@
 #include "Model/Filter.h"
 #include "Utility/VecMath.h"
 
+#include <cassert>
+
 using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
@@ -46,6 +48,7 @@ namespace TrenchBroom {
     }
 
     namespace Renderer {
+        class BrushFigure;
         class Vbo;
         class RenderContext;
     }
@@ -84,14 +87,31 @@ namespace TrenchBroom {
         };
 
         class ClipTool : public Tool {
+        public:
+            typedef enum {
+                CMFront,
+                CMBack,
+                CMBoth
+            } ClipSide;
         private:
             float m_handleRadius;
             ClipFilter m_filter;
             Vec3f m_points[3];
+            Vec3f m_normals[3];
             unsigned int m_numPoints;
             int m_hitIndex;
             bool m_directHit;
+            
+            ClipSide m_clipSide;
+            Model::BrushList m_frontBrushes;
+            Model::BrushList m_backBrushes;
+            Renderer::BrushFigure* m_frontBrushFigure;
+            Renderer::BrushFigure* m_backBrushFigure;
+            
+            void updateBrushes();
         protected:
+            bool handleActivate(InputState& inputState);
+            bool handleDeactivate(InputState& inputState);
             bool handleIsModal(InputState& inputState);
             
             void handlePick(InputState& inputState);
@@ -99,8 +119,23 @@ namespace TrenchBroom {
             void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
 
             bool handleMouseUp(InputState& inputState);
+
+            bool handleStartDrag(InputState& inputState);
+            void handleDrag(InputState& inputState);
+            void handleEndDrag(InputState& inputState);
+            void handleCancelDrag(InputState& inputState);
         public:
             ClipTool(View::DocumentViewHolder& documentViewHolder);
+            ~ClipTool();
+            
+            inline unsigned int numPoints() const {
+                assert(active());
+                return m_numPoints;
+            }
+            
+            void toggleClipSide();
+            void deleteLastPoint();
+            void performClip();
         };
     }
 }

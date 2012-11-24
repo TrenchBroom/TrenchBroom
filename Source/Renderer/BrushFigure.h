@@ -34,19 +34,29 @@ namespace TrenchBroom {
         class TextureRendererManager;
         
         class BrushFigure : public Figure {
+        public:
+            typedef enum {
+                EMDefault,
+                EMOverride,
+                EMRenderOccluded,
+            } EdgeMode;
         private:
             TextureRendererManager& m_textureRendererManager;
             Model::BrushList m_brushes;
-            EdgeRendererPtr m_edgeRenderer;
             FaceRendererPtr m_faceRenderer;
-            Color m_edgeColor;
+            EdgeRendererPtr m_edgeRenderer;
             Color m_faceColor;
-            bool m_overrideEdgeColor;
+            bool m_applyTinting;
+            Color m_faceTintColor;
+            Color m_edgeColor;
+            Color m_occludedEdgeColor;
+            EdgeMode m_edgeMode;
+            bool m_grayScale;
             
-            bool m_edgeRendererValid;
             bool m_faceRendererValid;
+            bool m_edgeRendererValid;
         public:
-            BrushFigure(TextureRendererManager& textureRendererManager, const Color& faceColor, const Color& edgeColor, bool overrideEdgeColor);
+            BrushFigure(TextureRendererManager& textureRendererManager);
 
             inline void setBrushes(const Model::BrushList& brushes) {
                 m_brushes = brushes;
@@ -68,6 +78,14 @@ namespace TrenchBroom {
                 m_faceRendererValid = false;
             }
             
+            inline void setFaceTintColor(const Color& faceTintColor) {
+                m_faceTintColor = faceTintColor;
+            }
+            
+            inline void setApplyTinting(bool applyTinting) {
+                m_applyTinting = applyTinting;
+            }
+            
             inline void setEdgeColor(const Color& edgeColor) {
                 if (m_edgeColor == edgeColor)
                     return;
@@ -75,12 +93,26 @@ namespace TrenchBroom {
                 m_edgeRendererValid = false;
             }
             
-            inline void setOverrideEdgeColor(bool overrideEdgeColor) {
-                if (m_overrideEdgeColor == overrideEdgeColor)
+            inline void setOccludedEdgeColor(const Color& occludedEdgeColor) {
+                if (m_occludedEdgeColor == occludedEdgeColor)
                     return;
-                m_overrideEdgeColor = overrideEdgeColor;
+                m_occludedEdgeColor = occludedEdgeColor;
                 m_edgeRendererValid = false;
             }
+            
+            inline void setEdgeMode(EdgeMode edgeMode) {
+                if (m_edgeMode == edgeMode)
+                    return;
+                m_edgeMode = edgeMode;
+                m_edgeRendererValid = false;
+            }
+            
+            inline void setGrayScale(bool grayScale) {
+                m_grayScale = grayScale;
+            }
+            
+            void renderFaces(Vbo& vbo, RenderContext& context);
+            void renderEdges(Vbo& vbo, RenderContext& context);
             
             void render(Vbo& vbo, RenderContext& context);
         };

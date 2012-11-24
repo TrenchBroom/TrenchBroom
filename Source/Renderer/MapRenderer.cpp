@@ -199,7 +199,7 @@ namespace TrenchBroom {
             m_faceVbo->activate();
             if (m_faceRenderer.get() != NULL)
                 m_faceRenderer->render(context, false);
-            if (m_selectedFaceRenderer.get() != NULL)
+            if (context.viewOptions().renderSelection() && m_selectedFaceRenderer.get() != NULL)
                 m_selectedFaceRenderer->render(context, false, prefs.getColor(Preferences::SelectedFaceColor));
             if (m_lockedFaceRenderer.get() != NULL)
                 m_lockedFaceRenderer->render(context, true, prefs.getColor(Preferences::LockedFaceColor));
@@ -218,7 +218,7 @@ namespace TrenchBroom {
                 glSetEdgeOffset(0.02f);
                 m_edgeRenderer->render(context, prefs.getColor(Preferences::LockedEdgeColor));
             }
-            if (m_selectedEdgeRenderer.get() != NULL) {
+            if (context.viewOptions().renderSelection() && m_selectedEdgeRenderer.get() != NULL) {
                 glDisable(GL_DEPTH_TEST);
                 glSetEdgeOffset(0.02f);
                 m_selectedEdgeRenderer->render(context, prefs.getColor(Preferences::OccludedSelectedEdgeColor));
@@ -431,7 +431,8 @@ namespace TrenchBroom {
             
             if (context.viewOptions().showEntities()) {
                 m_entityRenderer->render(context);
-                m_selectedEntityRenderer->render(context);
+                if (context.viewOptions().renderSelection())
+                    m_selectedEntityRenderer->render(context);
                 m_lockedEntityRenderer->render(context);
             }
             

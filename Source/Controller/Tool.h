@@ -69,6 +69,7 @@ namespace TrenchBroom {
             bool m_activatable;
             bool m_active;
             bool m_suppressed;
+            bool m_needsUpdate;
             DragType m_dragType;
             String m_dragPayload;
             Tool* m_nextTool;
@@ -84,6 +85,7 @@ namespace TrenchBroom {
             m_activatable(activatable),
             m_active(!m_activatable),
             m_suppressed(false),
+            m_needsUpdate(false),
             m_dragType(DTNone),
             m_nextTool(NULL) {}
             
@@ -136,14 +138,30 @@ namespace TrenchBroom {
                 CommandProcessor::DiscardGroup(document.GetCommandProcessor());
             }
             
-            inline void submitCommand(wxCommand* command) {
+            inline void submitCommand(wxCommand* command, bool store = true) {
                 if (!m_documentViewHolder.valid())
                     return;
                 
                 Model::MapDocument& document = m_documentViewHolder.document();
-                document.GetCommandProcessor()->Submit(command);
+                document.GetCommandProcessor()->Submit(command, store);
             }
             
+            inline void blockUndo() {
+                if (!m_documentViewHolder.valid())
+                    return;
+                
+                Model::MapDocument& document = m_documentViewHolder.document();
+                CommandProcessor::Block(document.GetCommandProcessor());
+            }
+            
+            inline void unblockUndo() {
+                if (!m_documentViewHolder.valid())
+                    return;
+                
+                Model::MapDocument& document = m_documentViewHolder.document();
+                CommandProcessor::Unblock(document.GetCommandProcessor());
+            }
+
             inline Tool* nextTool() const { return m_nextTool; }
             
             /* Activation Protocol */
@@ -248,9 +266,15 @@ namespace TrenchBroom {
 
             inline bool updateState(InputState& inputState) {
                 bool update = (active() && !m_suppressed) && handleUpdateState(inputState);
+                update |= m_needsUpdate;
+                m_needsUpdate = false;
                 if (nextTool() != NULL)
                     update |= nextTool()->updateState(inputState);
                 return update;
+            }
+            
+            inline void setNeedsUpdate() {
+                m_needsUpdate = true;
             }
             
             inline void render(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {

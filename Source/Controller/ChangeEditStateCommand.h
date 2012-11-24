@@ -29,7 +29,6 @@
 namespace TrenchBroom {
     namespace Model {
         class Brush;
-        class EditStateChangeSet;
         class Entity;
         class Face;
         class MapDocument;
@@ -84,9 +83,11 @@ namespace TrenchBroom {
             static ChangeEditStateCommand* deselectAll(Model::MapDocument& document);
             
             static ChangeEditStateCommand* hide(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes);
+            static ChangeEditStateCommand* unHide(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes);
             static ChangeEditStateCommand* unhideAll(Model::MapDocument& document);
             
             static ChangeEditStateCommand* lock(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes);
+            static ChangeEditStateCommand* unLock(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes);
             static ChangeEditStateCommand* unlockAll(Model::MapDocument& document);
             
             inline const Model::EditStateChangeSet& changeSet() const {
