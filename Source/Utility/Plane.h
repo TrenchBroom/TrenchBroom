@@ -81,14 +81,7 @@ namespace TrenchBroom {
             }
             
             inline float intersectWithRay(const Ray& ray) const {
-                float d = ray.direction.dot(normal);
-                if (Math::zero(d))
-                    return Math::nan();
-
-                float s = ((anchor() - ray.origin).dot(normal)) / d;
-                if (Math::neg(s))
-                    return Math::nan();
-                return s;
+                return ray.intersectWithPlane(normal, anchor());
             }
             
             inline float intersectWithLine(const Line& line) const {

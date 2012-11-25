@@ -94,6 +94,7 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::EditToggleClipTool, EditorView::OnEditToggleClipTool)
         EVT_MENU(CommandIds::Menu::EditToggleClipSide, EditorView::OnEditToggleClipSide)
         EVT_MENU(CommandIds::Menu::EditPerformClip, EditorView::OnEditPerformClip)
+        EVT_MENU(CommandIds::Menu::EditToggleVertexTool, EditorView::OnEditToggleVertexTool)
         
         EVT_MENU(CommandIds::Menu::EditMoveTexturesUp, EditorView::OnEditMoveTexturesUp)
         EVT_MENU(CommandIds::Menu::EditMoveTexturesRight, EditorView::OnEditMoveTexturesRight)
@@ -777,6 +778,10 @@ namespace TrenchBroom {
             inputController().performClip();
         }
 
+        void EditorView::OnEditToggleVertexTool(wxCommandEvent& event) {
+            inputController().toggleMoveVertexTool();
+        }
+
         void EditorView::OnEditMoveObjectsForward(wxCommandEvent& event) {
             moveObjects(DForward, true);
         }
@@ -979,6 +984,9 @@ namespace TrenchBroom {
                     event.Enable(inputController().canPerformClip());
                     break;
                 case CommandIds::Menu::EditToggleVertexTool:
+                    event.Enable(editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
+                    event.Check(inputController().moveVertexToolActive());
+                    break;
                 case CommandIds::Menu::EditToggleEdgeTool:
                 case CommandIds::Menu::EditToggleFaceTool:
                     event.Enable(false);

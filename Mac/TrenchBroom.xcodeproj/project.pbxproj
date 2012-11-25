@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		48009AF515F7FA8B001A9993 /* AbstractFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48009AF315F7FA8B001A9993 /* AbstractFileManager.cpp */; };
+		480ED72B16624C5100857A21 /* MoveVertexTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480ED72916624C5100857A21 /* MoveVertexTool.cpp */; };
+		480ED7311662506500857A21 /* MoveHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480ED72F1662506200857A21 /* MoveHandle.cpp */; };
+		480ED74C1662836C00857A21 /* ManyCubesFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480ED74A1662836C00857A21 /* ManyCubesFigure.cpp */; };
 		4810276615E4FBF000250C9C /* MapGLCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810276415E4FBF000250C9C /* MapGLCanvas.cpp */; };
 		4810276C15E5313F00250C9C /* Inspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810276A15E5313F00250C9C /* Inspector.cpp */; };
 		4810276F15E53DD300250C9C /* EntityDefinition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810276D15E53DD300250C9C /* EntityDefinition.cpp */; };
@@ -137,6 +140,12 @@
 /* Begin PBXFileReference section */
 		48009AF315F7FA8B001A9993 /* AbstractFileManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractFileManager.cpp; sourceTree = "<group>"; };
 		48009AF415F7FA8B001A9993 /* AbstractFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractFileManager.h; sourceTree = "<group>"; };
+		480ED72916624C5100857A21 /* MoveVertexTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveVertexTool.cpp; sourceTree = "<group>"; };
+		480ED72A16624C5100857A21 /* MoveVertexTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveVertexTool.h; sourceTree = "<group>"; };
+		480ED72F1662506200857A21 /* MoveHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveHandle.cpp; sourceTree = "<group>"; };
+		480ED7301662506300857A21 /* MoveHandle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveHandle.h; sourceTree = "<group>"; };
+		480ED74A1662836C00857A21 /* ManyCubesFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ManyCubesFigure.cpp; sourceTree = "<group>"; };
+		480ED74B1662836C00857A21 /* ManyCubesFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ManyCubesFigure.h; sourceTree = "<group>"; };
 		4810276415E4FBF000250C9C /* MapGLCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapGLCanvas.cpp; sourceTree = "<group>"; };
 		4810276515E4FBF000250C9C /* MapGLCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapGLCanvas.h; sourceTree = "<group>"; };
 		4810276A15E5313F00250C9C /* Inspector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Inspector.cpp; sourceTree = "<group>"; };
@@ -799,8 +808,12 @@
 				48F1FBA71652ACB100C79278 /* CreateBrushTool.h */,
 				4878F922165142B4003857EA /* CreateEntityTool.cpp */,
 				4878F923165142B4003857EA /* CreateEntityTool.h */,
+				480ED72F1662506200857A21 /* MoveHandle.cpp */,
+				480ED7301662506300857A21 /* MoveHandle.h */,
 				48EE7A1816502B98003F5BBE /* MoveObjectsTool.cpp */,
 				48EE7A1916502B98003F5BBE /* MoveObjectsTool.h */,
+				480ED72916624C5100857A21 /* MoveVertexTool.cpp */,
+				480ED72A16624C5100857A21 /* MoveVertexTool.h */,
 				4878F91E1651231D003857EA /* RotateObjectsTool.cpp */,
 				4878F91F1651231D003857EA /* RotateObjectsTool.h */,
 				48EE7A1C16503AE9003F5BBE /* ObjectsHandle.h */,
@@ -901,6 +914,8 @@
 				48FBD13F16259AD70059953D /* EntityFigure.cpp */,
 				48FBD14016259AD70059953D /* EntityFigure.h */,
 				48FBD13C16258DE70059953D /* Figure.h */,
+				480ED74A1662836C00857A21 /* ManyCubesFigure.cpp */,
+				480ED74B1662836C00857A21 /* ManyCubesFigure.h */,
 				482A0874164305450000799C /* RingFigure.cpp */,
 				482A0875164305450000799C /* RingFigure.h */,
 				4847AC8B16466BED00726872 /* SphereFigure.cpp */,
@@ -1093,6 +1108,9 @@
 				484CEC49165396A9000913D0 /* EdgeRenderer.cpp in Sources */,
 				4878F95516596915003857EA /* BrushFigure.cpp in Sources */,
 				4878F964165C16BE003857EA /* ClipTool.cpp in Sources */,
+				480ED72B16624C5100857A21 /* MoveVertexTool.cpp in Sources */,
+				480ED7311662506500857A21 /* MoveHandle.cpp in Sources */,
+				480ED74C1662836C00857A21 /* ManyCubesFigure.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

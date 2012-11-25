@@ -37,6 +37,7 @@ namespace TrenchBroom {
             bool m_positionValid;
             bool m_locked;
             Vec3f m_xAxis, m_yAxis, m_zAxis;
+            HitClass* m_lastHit;
             
         protected:
             inline HitClass* selectHit(HitClass* closestHit, HitClass* hit) {
@@ -56,8 +57,13 @@ namespace TrenchBroom {
         public:
             ObjectsHandle() :
             m_positionValid(false),
-            m_locked(false) {}
-            virtual ~ObjectsHandle() {}
+            m_locked(false),
+            m_lastHit(NULL) {}
+            
+            virtual ~ObjectsHandle() {
+                delete m_lastHit;
+                m_lastHit = NULL;
+            }
             
             inline void axes(const Vec3f& origin, Vec3f& xAxis, Vec3f& yAxis, Vec3f& zAxis) {
                 if (!m_locked) {
@@ -108,6 +114,16 @@ namespace TrenchBroom {
             
             inline void unlock() {
                 m_locked = false;
+            }
+            
+            inline HitClass* lastHit() const {
+                return m_lastHit;
+            }
+            
+            inline void setLastHit(HitClass* hit) {
+                if (m_lastHit != hit)
+                    delete m_lastHit;
+                m_lastHit = hit != NULL ? new HitClass(*hit) : NULL;
             }
         };
     }

@@ -27,6 +27,7 @@
 #include <cassert>
 #include <cmath>
 #include <ostream>
+#include <set>
 #include <vector>
 
 namespace TrenchBroom {
@@ -42,7 +43,25 @@ namespace TrenchBroom {
             static const Vec3f Null;
             static const Vec3f NaN;
 
+            class LexicographicOrder {
+            public:
+                inline bool operator()(const Vec3f& lhs, const Vec3f& rhs) const {
+                    if (lhs.x < rhs.x)
+                        return true;
+                    if (lhs.x > rhs.x)
+                        return false;
+                    if (lhs.y < rhs.y)
+                        return true;
+                    if (lhs.y > rhs.y)
+                        return false;
+                    if (lhs.z < rhs.z)
+                        return true;
+                    return false;
+                }
+            };
+
             typedef std::vector<Vec3f> List;
+            typedef std::set<Vec3f, LexicographicOrder> Set;
             
             float x, y, z;
             

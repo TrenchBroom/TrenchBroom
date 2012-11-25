@@ -17,21 +17,33 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Figure_h
-#define TrenchBroom_Figure_h
+#ifndef __TrenchBroom__ManyCubesFigure__
+#define __TrenchBroom__ManyCubesFigure__
+
+#include "Renderer/Figure.h"
+#include "Renderer/RenderTypes.h"
+#include "Utility/Color.h"
+#include "Utility/VecMath.h"
+
+using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
-        class RenderContext;
-        class Vbo;
-        
-        class Figure {
+        class ManyCubesFigure : public Figure {
+        protected:
+            float m_offset;
+            Vec3f::List m_positions;
+            VertexArrayPtr m_vertexArray;
+            bool m_valid;
         public:
-            virtual ~Figure() {}
+            ManyCubesFigure(float cubeSize);
             
-            virtual void render(Vbo& vbo, RenderContext& context) = 0;
+            void addCube(const Vec3f& position);
+            void clear();
+            
+            void render(Vbo& vbo, RenderContext& context);
         };
     }
 }
 
-#endif
+#endif /* defined(__TrenchBroom__ManyCubesFigure__) */

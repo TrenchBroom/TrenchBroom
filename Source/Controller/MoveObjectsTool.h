@@ -21,67 +21,25 @@
 #define __TrenchBroom__MoveObjectsTool__
 
 #include "Controller/Tool.h"
-#include "Controller/ObjectsHandle.h"
+#include "Controller/MoveHandle.h"
 #include "Model/Picker.h"
 #include "Utility/VecMath.h"
 
 using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
-    namespace Model {
-        namespace HitType {
-            static const Type MoveObjectsHandleHit    = 1 << 3;
-        }
-        
-        class MoveObjectsHandleHit : public Hit {
-        public:
-            typedef enum {
-                HAXAxis,
-                HAYAxis,
-                HAZAxis,
-                HAXYPlane,
-                HAXZPlane,
-                HAYZPlane
-            } HitArea;
-        private:
-            HitArea m_hitArea;
-        public:
-            MoveObjectsHandleHit(const Vec3f& hitPoint, float distance, HitArea hitArea);
-            bool pickable(Filter& filter) const;
-            
-            inline HitArea hitArea() const {
-                return m_hitArea;
-            }
-        };
-    }
-    
     namespace Renderer {
         class Vbo;
         class RenderContext;
     }
     
     namespace Controller {
-        class MoveObjectsTool : public PlaneDragTool, ObjectsHandle<Model::MoveObjectsHandleHit> {
+        class MoveObjectsTool : public PlaneDragTool {
         protected:
-            typedef enum {
-                RNone,
-                RXAxis,
-                RYAxis,
-                RZAxis
-            } RestrictToAxis;
-
-            float m_axisLength;
-            float m_planeRadius;
-            Model::MoveObjectsHandleHit* m_lastHit;
+            MoveHandle m_moveHandle;
             Vec3f m_totalDelta;
-            RestrictToAxis m_restrictToAxis;
+            MoveHandle::RestrictToAxis m_restrictToAxis;
             
-            Model::MoveObjectsHandleHit* pickAxis(const Ray& ray, Vec3f& axis, Model::MoveObjectsHandleHit::HitArea hitArea);
-            Model::MoveObjectsHandleHit* pickPlane(const Ray& ray, const Vec3f& normal, const Vec3f& axis1, const Vec3f& axis2, Model::MoveObjectsHandleHit::HitArea hitArea);
-            
-            void renderAxes(Model::MoveObjectsHandleHit* hit, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
-            void renderPlanes(Model::MoveObjectsHandleHit* hit, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
-
             bool handleIsModal(InputState& inputState);
 
             void handlePick(InputState& inputState);
@@ -96,7 +54,6 @@ namespace TrenchBroom {
             void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet);
         public:
             MoveObjectsTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float planeRadius);
-            ~MoveObjectsTool();
         };
     }
 }

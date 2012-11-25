@@ -50,6 +50,17 @@ namespace TrenchBroom {
                 return PointStatus::PSInside;
             }
 
+            inline float intersectWithPlane(const Vec3f& normal, const Vec3f& anchor) const {
+                float d = direction.dot(normal);
+                if (Math::zero(d))
+                    return Math::nan();
+                
+                float s = ((anchor - origin).dot(normal)) / d;
+                if (Math::neg(s))
+                    return Math::nan();
+                return s;
+            }
+
             float intersectWithSphere(const Vec3f& position, float radius) const {
                 Vec3f diff = origin - position;
                 
@@ -69,6 +80,84 @@ namespace TrenchBroom {
                 if (t0 > 0.0f && 1 > 0.0f)
                     return std::min(t0, t1);
                 return std::max(t0, t1);
+            }
+            
+            float intersectWithCube(const Vec3f& position, float size) const {
+                float halfSize = size / 2.0f;
+                
+                if (direction.x < 0.0f) {
+                    float distance = intersectWithPlane(Vec3f::PosX, Vec3f(position.x + halfSize, position.y, position.z));
+                    if (!Math::isnan(distance)) {
+                        Vec3f point = pointAtDistance(distance);
+                        if (point.y >= position.y - halfSize &&
+                            point.y <= position.y + halfSize &&
+                            point.z >= position.z - halfSize &&
+                            point.z <= position.z + halfSize) {
+                            return distance;
+                        }
+                    }
+                } else if (direction.x > 0.0f) {
+                    float distance = intersectWithPlane(Vec3f::NegX, Vec3f(position.x - halfSize, position.y, position.z));
+                    if (!Math::isnan(distance)) {
+                        Vec3f point = pointAtDistance(distance);
+                        if (point.y >= position.y - halfSize &&
+                            point.y <= position.y + halfSize &&
+                            point.z >= position.z - halfSize &&
+                            point.z <= position.z + halfSize) {
+                            return distance;
+                        }
+                    }
+                }
+                
+                if (direction.y < 0.0f) {
+                    float distance = intersectWithPlane(Vec3f::PosY, Vec3f(position.x, position.y + halfSize, position.z));
+                    if (!Math::isnan(distance)) {
+                        Vec3f point = pointAtDistance(distance);
+                        if (point.x >= position.x - halfSize &&
+                            point.x <= position.x + halfSize &&
+                            point.z >= position.z - halfSize &&
+                            point.z <= position.z + halfSize) {
+                            return distance;
+                        }
+                    }
+                } else if (direction.y > 0.0f) {
+                    float distance = intersectWithPlane(Vec3f::NegY, Vec3f(position.x, position.y - halfSize, position.z));
+                    if (!Math::isnan(distance)) {
+                        Vec3f point = pointAtDistance(distance);
+                        if (point.x >= position.x - halfSize &&
+                            point.x <= position.x + halfSize &&
+                            point.z >= position.z - halfSize &&
+                            point.z <= position.z + halfSize) {
+                            return distance;
+                        }
+                    }
+                }
+                
+                if (direction.z < 0.0f) {
+                    float distance = intersectWithPlane(Vec3f::PosZ, Vec3f(position.x, position.y, position.z + halfSize));
+                    if (!Math::isnan(distance)) {
+                        Vec3f point = pointAtDistance(distance);
+                        if (point.x >= position.x - halfSize &&
+                            point.x <= position.x + halfSize &&
+                            point.y >= position.y - halfSize &&
+                            point.y <= position.y + halfSize) {
+                            return distance;
+                        }
+                    }
+                } else if (direction.z > 0.0f) {
+                    float distance = intersectWithPlane(Vec3f::NegZ, Vec3f(position.x, position.y, position.z - halfSize));
+                    if (!Math::isnan(distance)) {
+                        Vec3f point = pointAtDistance(distance);
+                        if (point.x >= position.x - halfSize &&
+                            point.x <= position.x + halfSize &&
+                            point.y >= position.y - halfSize &&
+                            point.y <= position.y + halfSize) {
+                            return distance;
+                        }
+                    }
+                }
+                
+                return Math::nan();
             }
             
             float squaredDistanceToSegment(const Vec3f& start, const Vec3f& end, float& distanceToClosestPoint) const {
