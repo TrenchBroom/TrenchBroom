@@ -91,8 +91,8 @@ namespace TrenchBroom {
                     }
                 } else {
                     planePoints[0] = m_points[0].snapped();
-                    planePoints[1] = m_points[2].snapped();
-                    planePoints[2] = m_points[1].snapped();
+                    planePoints[1] = m_points[1].snapped();
+                    planePoints[2] = m_points[2].snapped();
                 }
                 
                 const BBox& worldBounds = document().map().worldBounds();

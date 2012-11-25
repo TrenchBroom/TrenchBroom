@@ -326,7 +326,8 @@ namespace TrenchBroom {
         void InputController::performClip() {
             assert(canPerformClip());
             m_clipTool->performClip();
-            updateState();
+            updateHits();
+                updateState();
         }
 
         InputControllerFigure::InputControllerFigure(InputController& inputController) :

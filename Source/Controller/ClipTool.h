@@ -78,7 +78,7 @@ namespace TrenchBroom {
             }
             
             virtual inline bool brushPickable(const Model::Brush& brush) const {
-                return brush.selected() && m_defaultFilter.brushPickable(brush);
+                return m_defaultFilter.brushPickable(brush);
             }
             
             virtual inline bool brushVerticesPickable(const Model::Brush& brush) const {
