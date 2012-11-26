@@ -146,6 +146,7 @@
 		480ED7301662506300857A21 /* MoveHandle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveHandle.h; sourceTree = "<group>"; };
 		480ED74A1662836C00857A21 /* ManyCubesFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ManyCubesFigure.cpp; sourceTree = "<group>"; };
 		480ED74B1662836C00857A21 /* ManyCubesFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ManyCubesFigure.h; sourceTree = "<group>"; };
+		480ED74D1662C4A200857A21 /* InstancedVertexArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InstancedVertexArray.h; sourceTree = "<group>"; };
 		4810276415E4FBF000250C9C /* MapGLCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapGLCanvas.cpp; sourceTree = "<group>"; };
 		4810276515E4FBF000250C9C /* MapGLCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapGLCanvas.h; sourceTree = "<group>"; };
 		4810276A15E5313F00250C9C /* Inspector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Inspector.cpp; sourceTree = "<group>"; };
@@ -518,6 +519,7 @@
 				48F1FBAA1652BE8B00C79278 /* FaceRenderer.cpp */,
 				48F1FBAB1652BE8B00C79278 /* FaceRenderer.h */,
 				481CDAE11603CF4B003E2EE9 /* IndexedVertexArray.h */,
+				480ED74D1662C4A200857A21 /* InstancedVertexArray.h */,
 				48312B3315EB805E00607868 /* MapRenderer.cpp */,
 				48312B3415EB805E00607868 /* MapRenderer.h */,
 				488457CE161C839A002ADDAE /* OffscreenRenderer.cpp */,
