@@ -20,7 +20,7 @@
 #ifndef __TrenchBroom__VertexArray__
 #define __TrenchBroom__VertexArray__
 
-#include "Renderer/AbstractVertexArray.h"
+#include "Renderer/AttributeArray.h"
 
 #include <GL/glew.h>
 #include "Renderer/Vbo.h"
@@ -32,32 +32,35 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class VertexArray : public AbstractVertexArray {
+        class VertexArray : public RenderArray {
         protected:
-            inline void doRender() {
-                glDrawArrays(m_primType, 0, m_vertexCount);
-            }
         public:
-            VertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const VertexAttribute& attribute1, GLsizei padTo = 16) :
-            AbstractVertexArray(vbo, primType, vertexCapacity, attribute1, padTo) {}
+            VertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, GLsizei padTo = 16) :
+            RenderArray(vbo, primType, vertexCapacity, attribute1, padTo) {}
             
-            VertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const VertexAttribute& attribute1, const VertexAttribute& attribute2, GLsizei padTo = 16) :
-            AbstractVertexArray(vbo, primType, vertexCapacity, attribute1, attribute2, padTo) {}
+            VertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, GLsizei padTo = 16) :
+            RenderArray(vbo, primType, vertexCapacity, attribute1, attribute2, padTo) {}
             
-            VertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const VertexAttribute& attribute1, const VertexAttribute& attribute2, const VertexAttribute& attribute3, GLsizei padTo = 16) :
-            AbstractVertexArray(vbo, primType, vertexCapacity, attribute1, attribute2, attribute3, padTo) {}
+            VertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, GLsizei padTo = 16) :
+            RenderArray(vbo, primType, vertexCapacity, attribute1, attribute2, attribute3, padTo) {}
             
-            VertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const VertexAttribute& attribute1, const VertexAttribute& attribute2, const VertexAttribute& attribute3, const VertexAttribute& attribute4, GLsizei padTo = 16) :
-            AbstractVertexArray(vbo, primType, vertexCapacity, attribute1, attribute2, attribute3, attribute4, padTo) {}
+            VertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, GLsizei padTo = 16) :
+            RenderArray(vbo, primType, vertexCapacity, attribute1, attribute2, attribute3, attribute4, padTo) {}
             
-            VertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const VertexAttribute& attribute1, const VertexAttribute& attribute2, const VertexAttribute& attribute3, const VertexAttribute& attribute4, const VertexAttribute& attribute5, GLsizei padTo = 16) :
-            AbstractVertexArray(vbo, primType, vertexCapacity, attribute1, attribute2, attribute3, attribute4, attribute5, padTo) {}
+            VertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, const Attribute& attribute5, GLsizei padTo = 16) :
+            RenderArray(vbo, primType, vertexCapacity, attribute1, attribute2, attribute3, attribute4, attribute5, padTo) {}
             
-            VertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const VertexAttribute::List& attributes, GLsizei padTo = 16) :
-            AbstractVertexArray(vbo, primType, vertexCapacity, attributes, padTo) {}
+            VertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute::List& attributes, GLsizei padTo = 16) :
+            RenderArray(vbo, primType, vertexCapacity, attributes, padTo) {}
             
             inline void renderPrimitives(unsigned int index, unsigned int vertexCount) {
                 glDrawArrays(m_primType, index, vertexCount);
+            }
+
+            inline void render() {
+                setup();
+                glDrawArrays(m_primType, 0, m_vertexCount);
+                cleanup();
             }
         };
     }

@@ -117,7 +117,7 @@ namespace TrenchBroom {
             
             unsigned int vertexCount = static_cast<unsigned int>(3 * triangles.size());
             m_vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_TRIANGLES, vertexCount,
-                                                           VertexAttribute::position3f()));
+                                                           Attribute::position3f()));
 
             SetVboState mapVbo(vbo, Vbo::VboMapped);
             TriangleList::iterator it, end;

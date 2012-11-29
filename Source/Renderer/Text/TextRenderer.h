@@ -153,8 +153,8 @@ namespace TrenchBroom {
                         
                         unsigned int vertexCount = static_cast<unsigned int>(3 * 16 * entries.size()); // 16 triangles (for a rounded rect with 3 triangles per corner: 3 * 4 + 4 = 16)
                         VertexArrayPtr vertexArray = VertexArrayPtr(new VertexArray(*m_backgroundVbo, GL_TRIANGLES, vertexCount,
-                                                                                    VertexAttribute::position3f(),
-                                                                                    VertexAttribute::color4f()));
+                                                                                    Attribute::position3f(),
+                                                                                    Attribute::color4f()));
                         Vec2f::List vertices;
                         vertices.reserve(vertexCount);
                         

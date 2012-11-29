@@ -281,7 +281,7 @@ namespace TrenchBroom {
                 if (m_numPoints > 1) {
                     Renderer::SetVboState mapVbo(vbo, Renderer::Vbo::VboMapped);
                     Renderer::VertexArrayPtr linesArray = Renderer::VertexArrayPtr(new Renderer::VertexArray(vbo, GL_LINE_LOOP, m_numPoints,
-                                                                                                             Renderer::VertexAttribute::position3f()));
+                                                                                                             Renderer::Attribute::position3f()));
                     for (unsigned int i = 0; i < m_numPoints; i++)
                         linesArray->addAttribute(m_points[i]);
                     
@@ -296,7 +296,7 @@ namespace TrenchBroom {
                     if (m_numPoints == 3) {
                         Renderer::SetVboState mapVbo(vbo, Renderer::Vbo::VboMapped);
                         Renderer::VertexArrayPtr triangleArray = Renderer::VertexArrayPtr(new Renderer::VertexArray(vbo, GL_TRIANGLES, m_numPoints,
-                                                                                                                    Renderer::VertexAttribute::position3f()));
+                                                                                                                    Renderer::Attribute::position3f()));
                         for (unsigned int i = 0; i < m_numPoints; i++)
                             triangleArray->addAttribute(m_points[i]);
                         

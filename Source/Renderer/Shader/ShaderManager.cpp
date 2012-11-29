@@ -36,6 +36,7 @@ namespace TrenchBroom {
             const ShaderConfig TextureBrowserShader = ShaderConfig("Texture Browser Shader Program", "TextureBrowser.vertsh", "TextureBrowser.fragsh");
             const ShaderConfig TextureBrowserBorderShader = ShaderConfig("Texture Browser Border Shader Program", "TextureBrowserBorder.vertsh", "TextureBrowserBorder.fragsh");
             const ShaderConfig HandleShader = ShaderConfig("Handle Shader Program", "Handle.vertsh", "Handle.fragsh");
+            const ShaderConfig InstancedHandleShader = ShaderConfig("Instanced Handle Shader Program", "InstancedHandle.vertsh", "Handle.fragsh");
             const ShaderConfig ColoredHandleShader = ShaderConfig("Colored Handle Shader Program", "ColoredHandle.vertsh", "Handle.fragsh");
         }
 

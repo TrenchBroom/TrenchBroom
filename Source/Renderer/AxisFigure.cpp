@@ -43,8 +43,8 @@ namespace TrenchBroom {
                 if ((m_axes & Axis::AZ) != 0)
                     vertexCount += 2;
                 m_vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_LINES, vertexCount,
-                                                               VertexAttribute::position3f(),
-                                                               VertexAttribute::color4f()));
+                                                               Attribute::position3f(),
+                                                               Attribute::color4f()));
                 SetVboState mapVbo(vbo, Vbo::VboMapped);
                 if ((m_axes & Axis::AX) != 0) {
                     m_vertexArray->addAttribute(Vec3f(-m_axisLength, 0.0f, 0.0f));

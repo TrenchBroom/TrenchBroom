@@ -95,13 +95,13 @@ namespace TrenchBroom {
             if (m_overrideBoundsColor) {
                 unsigned int vertexCount = 2 * 4 * 6 * static_cast<unsigned int>(entities.size());
                 m_boundsVertexArray = VertexArrayPtr(new VertexArray(m_boundsVbo, GL_LINES, vertexCount,
-                                                                     VertexAttribute::position3f()));
+                                                                     Attribute::position3f()));
                 writeBounds(context, entities);
             } else {
                 unsigned int vertexCount = 2 * 4 * 6 * static_cast<unsigned int>(entities.size());
                 m_boundsVertexArray = VertexArrayPtr(new VertexArray(m_boundsVbo, GL_LINES, vertexCount,
-                                                                     VertexAttribute::position3f(),
-                                                                     VertexAttribute::color4f()));
+                                                                     Attribute::position3f(),
+                                                                     Attribute::color4f()));
                 writeColoredBounds(context, entities);
             }
             

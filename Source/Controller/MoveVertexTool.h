@@ -58,7 +58,7 @@ namespace TrenchBroom {
     }
 
     namespace Renderer {
-        class ManyCubesFigure;
+        class ManyCubesInstancedFigure;
         class RenderContext;
         class Vbo;
     }
@@ -123,8 +123,8 @@ namespace TrenchBroom {
             Vec3f m_totalDelta;
             MoveHandle::RestrictToAxis m_restrictToAxis;
 
-            Renderer::ManyCubesFigure* m_vertexFigure;
-            Renderer::ManyCubesFigure* m_selectedVertexFigure;
+            Renderer::ManyCubesInstancedFigure* m_vertexFigure;
+            Renderer::ManyCubesInstancedFigure* m_selectedVertexFigure;
             bool m_vertexFigureValid;
 
             bool handleActivate(InputState& inputState);

@@ -11,6 +11,8 @@
 		480ED72B16624C5100857A21 /* MoveVertexTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480ED72916624C5100857A21 /* MoveVertexTool.cpp */; };
 		480ED7311662506500857A21 /* MoveHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480ED72F1662506200857A21 /* MoveHandle.cpp */; };
 		480ED74C1662836C00857A21 /* ManyCubesFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480ED74A1662836C00857A21 /* ManyCubesFigure.cpp */; };
+		480ED7531663FCF300857A21 /* ManyCubesInstancedFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480ED7511663FCF100857A21 /* ManyCubesInstancedFigure.cpp */; };
+		480ED755166401B200857A21 /* InstancedHandle.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 480ED754166401B100857A21 /* InstancedHandle.vertsh */; };
 		4810276615E4FBF000250C9C /* MapGLCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810276415E4FBF000250C9C /* MapGLCanvas.cpp */; };
 		4810276C15E5313F00250C9C /* Inspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810276A15E5313F00250C9C /* Inspector.cpp */; };
 		4810276F15E53DD300250C9C /* EntityDefinition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810276D15E53DD300250C9C /* EntityDefinition.cpp */; };
@@ -147,6 +149,9 @@
 		480ED74A1662836C00857A21 /* ManyCubesFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ManyCubesFigure.cpp; sourceTree = "<group>"; };
 		480ED74B1662836C00857A21 /* ManyCubesFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ManyCubesFigure.h; sourceTree = "<group>"; };
 		480ED74D1662C4A200857A21 /* InstancedVertexArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InstancedVertexArray.h; sourceTree = "<group>"; };
+		480ED7511663FCF100857A21 /* ManyCubesInstancedFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ManyCubesInstancedFigure.cpp; sourceTree = "<group>"; };
+		480ED7521663FCF200857A21 /* ManyCubesInstancedFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ManyCubesInstancedFigure.h; sourceTree = "<group>"; };
+		480ED754166401B100857A21 /* InstancedHandle.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = InstancedHandle.vertsh; sourceTree = "<group>"; };
 		4810276415E4FBF000250C9C /* MapGLCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapGLCanvas.cpp; sourceTree = "<group>"; };
 		4810276515E4FBF000250C9C /* MapGLCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapGLCanvas.h; sourceTree = "<group>"; };
 		4810276A15E5313F00250C9C /* Inspector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Inspector.cpp; sourceTree = "<group>"; };
@@ -183,7 +188,7 @@
 		481CDAD716026C48003E2EE9 /* PreferencesDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesDialog.h; sourceTree = "<group>"; };
 		481CDADA16034034003E2EE9 /* Preferences.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Preferences.cpp; sourceTree = "<group>"; };
 		481CDADD1603BAF2003E2EE9 /* DocumentViewHolder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DocumentViewHolder.h; sourceTree = "<group>"; };
-		481CDAE01603CC8C003E2EE9 /* AbstractVertexArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractVertexArray.h; sourceTree = "<group>"; };
+		481CDAE01603CC8C003E2EE9 /* AttributeArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AttributeArray.h; sourceTree = "<group>"; };
 		481CDAE11603CF4B003E2EE9 /* IndexedVertexArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IndexedVertexArray.h; sourceTree = "<group>"; };
 		481E566D1624451300B403F3 /* EntityRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityRenderer.cpp; sourceTree = "<group>"; };
 		481E566E1624451300B403F3 /* EntityRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityRenderer.h; sourceTree = "<group>"; };
@@ -498,7 +503,7 @@
 				48FBD13E16258DF00059953D /* Figure */,
 				48EA11A515FA7CAD00391885 /* Shader */,
 				4850D28115F52CBE005B162D /* Text */,
-				481CDAE01603CC8C003E2EE9 /* AbstractVertexArray.h */,
+				481CDAE01603CC8C003E2EE9 /* AttributeArray.h */,
 				4850D27B15F4CA61005B162D /* AliasModelRenderer.cpp */,
 				4850D27C15F4CA61005B162D /* AliasModelRenderer.h */,
 				48EA119F15FA67F700391885 /* ApplyMatrix.h */,
@@ -886,6 +891,7 @@
 				48E2ECC515FFC31600B8D476 /* Face.fragsh */,
 				48AD1B351646C08D009F839B /* Handle.fragsh */,
 				48AD1B331646C067009F839B /* Handle.vertsh */,
+				480ED754166401B100857A21 /* InstancedHandle.vertsh */,
 				48E2ECD516008E3300B8D476 /* Text.vertsh */,
 				48E2ECD716008E5500B8D476 /* Text.fragsh */,
 				48E2ECD91600B50B00B8D476 /* TextBackground.vertsh */,
@@ -918,6 +924,8 @@
 				48FBD13C16258DE70059953D /* Figure.h */,
 				480ED74A1662836C00857A21 /* ManyCubesFigure.cpp */,
 				480ED74B1662836C00857A21 /* ManyCubesFigure.h */,
+				480ED7511663FCF100857A21 /* ManyCubesInstancedFigure.cpp */,
+				480ED7521663FCF200857A21 /* ManyCubesInstancedFigure.h */,
 				482A0874164305450000799C /* RingFigure.cpp */,
 				482A0875164305450000799C /* RingFigure.h */,
 				4847AC8B16466BED00726872 /* SphereFigure.cpp */,
@@ -999,6 +1007,7 @@
 				48AD1B341646C067009F839B /* Handle.vertsh in Resources */,
 				48AD1B361646C08D009F839B /* Handle.fragsh in Resources */,
 				48AD1B381646C10C009F839B /* ColoredHandle.vertsh in Resources */,
+				480ED755166401B200857A21 /* InstancedHandle.vertsh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1113,6 +1122,7 @@
 				480ED72B16624C5100857A21 /* MoveVertexTool.cpp in Sources */,
 				480ED7311662506500857A21 /* MoveHandle.cpp in Sources */,
 				480ED74C1662836C00857A21 /* ManyCubesFigure.cpp in Sources */,
+				480ED7531663FCF300857A21 /* ManyCubesInstancedFigure.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -69,8 +69,8 @@ namespace TrenchBroom {
                 unsigned int vertexCount = static_cast<unsigned int>(3 * faceCollection.vertexCount() - 2 * collectedFaces.size());
                 
                 VertexArrayPtr vertexArray = VertexArrayPtr(new VertexArray(m_vbo, GL_TRIANGLES, vertexCount,
-                                                                            VertexAttribute::position3f(),
-                                                                            VertexAttribute::texCoord02f()));
+                                                                            Attribute::position3f(),
+                                                                            Attribute::texCoord02f()));
                 
                 for (unsigned int i = 0; i < collectedFaces.size(); i++) {
                     Model::BspFace* face = collectedFaces[i];

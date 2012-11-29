@@ -35,7 +35,7 @@ namespace TrenchBroom {
                 if (!triangleSet.empty()) {
                     unsigned int vertexCount = static_cast<unsigned int>(triangleSet.size());
                     m_triangleSetVertexArray = VertexArrayPtr(new VertexArray(vbo, GL_TRIANGLES, vertexCount,
-                                                                              VertexAttribute::position2f()));
+                                                                              Attribute::position2f()));
 
                     for (unsigned int i = 0; i < triangleSet.size(); i++)
                         m_triangleSetVertexArray->addAttribute(triangleSet[i]);
@@ -44,7 +44,7 @@ namespace TrenchBroom {
                 if (!triangleStrips.empty()) {
                     unsigned int vertexCount = mesh->triangleStripsVertexCount();
                     m_triangleStripVertexArray = IndexedVertexArrayPtr(new IndexedVertexArray(vbo, GL_TRIANGLE_STRIP, vertexCount,
-                                                                                              VertexAttribute::position2f()));
+                                                                                              Attribute::position2f()));
                     
                     for (unsigned int i = 0; i < triangleStrips.size(); i++) {
                         const Vec2f::List& vertices = triangleStrips[i];
@@ -57,7 +57,7 @@ namespace TrenchBroom {
                 if (!triangleFans.empty()) {
                     unsigned int vertexCount = mesh->triangleFansVertexCount();
                     m_triangleFanVertexArray = IndexedVertexArrayPtr(new IndexedVertexArray(vbo, GL_TRIANGLE_FAN, vertexCount,
-                                                                                            VertexAttribute::position2f()));
+                                                                                            Attribute::position2f()));
                     
                     for (unsigned int i = 0; i < triangleFans.size(); i++) {
                         const Vec2f::List& vertices = triangleFans[i];

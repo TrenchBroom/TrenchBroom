@@ -48,8 +48,8 @@ namespace TrenchBroom {
                 unsigned int vertexCount = static_cast<unsigned int>(3 * triangles.size());
                 
                 m_vertexArray = VertexArrayPtr(new VertexArray(m_vbo, GL_TRIANGLES, vertexCount,
-                                                               VertexAttribute::position3f(),
-                                                               VertexAttribute::texCoord02f()));
+                                                               Attribute::position3f(),
+                                                               Attribute::texCoord02f()));
 
                 m_vbo.map();
                 for (unsigned int i = 0; i < triangles.size(); i++) {

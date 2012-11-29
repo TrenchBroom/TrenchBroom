@@ -21,7 +21,7 @@
 
 #include "Model/EditStateManager.h"
 #include "Model/MapDocument.h"
-#include "Renderer/ManyCubesFigure.h"
+#include "Renderer/ManyCubesInstancedFigure.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/SharedResources.h"
 #include "Renderer/Shader/ShaderManager.h"
@@ -43,8 +43,8 @@ namespace TrenchBroom {
     namespace Controller {
         bool MoveVertexTool::handleActivate(InputState& inputState) {
             m_selection.clear();
-            m_vertexFigure = new Renderer::ManyCubesFigure(m_vertexHandleSize);
-            m_selectedVertexFigure = new Renderer::ManyCubesFigure(m_vertexHandleSize);
+            m_vertexFigure = new Renderer::ManyCubesInstancedFigure(m_vertexHandleSize);
+            m_selectedVertexFigure = new Renderer::ManyCubesInstancedFigure(m_vertexHandleSize);
             m_vertexFigureValid = false;
             return true;
         }

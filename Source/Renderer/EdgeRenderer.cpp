@@ -51,7 +51,7 @@ namespace TrenchBroom {
         
         void EdgeRenderer::writeEdgeData(Vbo& vbo, const Model::BrushList& brushes, const Model::FaceList& faces) {
             m_vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_LINES, vertexCount(brushes, faces),
-                                                           VertexAttribute::position3f()));
+                                                           Attribute::position3f()));
 
             Model::BrushList::const_iterator brushIt, brushEnd;
             for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
@@ -80,8 +80,8 @@ namespace TrenchBroom {
         
         void EdgeRenderer::writeEdgeData(Vbo& vbo, const Model::BrushList& brushes, const Model::FaceList& faces, const Color& defaultColor) {
             m_vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_LINES, vertexCount(brushes, faces),
-                                                           VertexAttribute::position3f(),
-                                                           VertexAttribute::color4f()));
+                                                           Attribute::position3f(),
+                                                           Attribute::color4f()));
 
             Model::BrushList::const_iterator brushIt, brushEnd;
             for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {

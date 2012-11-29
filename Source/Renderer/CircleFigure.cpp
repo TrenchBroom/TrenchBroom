@@ -64,11 +64,11 @@ namespace TrenchBroom {
                 SetVboState setVboState(vbo, Vbo::VboMapped);
                 if (m_filled) {
                     m_vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_TRIANGLE_FAN, m_segments + 2,
-                                                                   VertexAttribute::position3f()));
+                                                                   Attribute::position3f()));
                     m_vertexArray->addAttribute(Vec3f::Null);
                 } else {
                     m_vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_LINE_STRIP, m_segments + 1,
-                                                                   VertexAttribute::position3f()));
+                                                                   Attribute::position3f()));
                 }
 
                 float d = m_angleLength / m_segments;

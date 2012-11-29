@@ -29,12 +29,14 @@ namespace TrenchBroom {
             class StringManager;
         }
         
+        class AttributeArray;
         class EdgeRenderer;
         class EntityModelRendererManager;
         class EntityRenderer;
         class FaceRenderer;
         class Figure;
         class IndexedVertexArray;
+        class InstancedVertexArray;
         class Shader;
         class ShaderProgram;
         class VertexArray;
@@ -47,8 +49,10 @@ namespace TrenchBroom {
         typedef std::auto_ptr<Shader> ShaderPtr;
         typedef std::auto_ptr<ShaderProgram> ShaderProgramPtr;
         typedef std::auto_ptr<Text::StringManager> StringManagerPtr;
+        typedef std::auto_ptr<AttributeArray> AttributeArrayPtr;
         typedef std::auto_ptr<VertexArray> VertexArrayPtr;
         typedef std::auto_ptr<IndexedVertexArray> IndexedVertexArrayPtr;
+        typedef std::auto_ptr<InstancedVertexArray> InstancedVertexArrayPtr;
         typedef std::auto_ptr<Vbo> VboPtr;
         typedef std::vector<Figure*> FigureList;
     }

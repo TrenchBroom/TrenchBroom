@@ -63,7 +63,7 @@ namespace TrenchBroom {
             if (m_vertexArray.get() == NULL) {
                 SetVboState mapVbo(vbo, Vbo::VboMapped);
                 m_vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_TRIANGLE_STRIP, 2 * m_segments + 2,
-                                                               VertexAttribute::position3f()));
+                                                               Attribute::position3f()));
                 
                 float d = m_angleLength / m_segments;
                 float a = m_startAngle;

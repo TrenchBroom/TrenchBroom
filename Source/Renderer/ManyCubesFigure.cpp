@@ -46,7 +46,7 @@ namespace TrenchBroom {
                 if (!m_positions.empty()) {
                     unsigned int vertexCount = static_cast<unsigned int>(m_positions.size() * 24);
                     m_vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_QUADS, vertexCount,
-                                                                   VertexAttribute::position3f()));
+                                                                   Attribute::position3f()));
                     
                     SetVboState mapVbo(vbo, Vbo::VboMapped);
                     
