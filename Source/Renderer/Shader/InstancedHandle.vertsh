@@ -27,13 +27,15 @@ uniform vec4 Color;
 varying vec4 vertexColor;
 
 uniform sampler2D position;
+uniform int positionSize;
 
 void main(void) {
     vertexColor = Color;
     
-    int y = (gl_InstanceID * 4) / 1024;
+    int y = gl_InstanceID / positionSize;
+    int x = gl_InstanceID - y * positionSize;
     
-    vec4 instancePos = texture2D(position, vec2((gl_InstanceID * 4 + 0) & 1023, y) * (1.0 / 1024.0));
+    vec4 instancePos = texture2D(position, vec2(x, y) * (1.0 / positionSize));
     
     gl_Position = gl_ModelViewProjectionMatrix * (gl_Vertex + instancePos);
 }

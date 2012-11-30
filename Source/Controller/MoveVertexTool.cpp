@@ -121,17 +121,16 @@ namespace TrenchBroom {
             }
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            Renderer::ActivateShader shader(renderContext.shaderManager(), Renderer::Shaders::HandleShader);
             
-            shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::VertexHandleColor));
+            m_vertexFigure->setColor(prefs.getColor(Preferences::VertexHandleColor));
             m_vertexFigure->render(vbo, renderContext);
-            shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::SelectedVertexHandleColor));
+            m_selectedVertexFigure->setColor(prefs.getColor(Preferences::SelectedVertexHandleColor));
             m_selectedVertexFigure->render(vbo, renderContext);
             
             glDisable(GL_DEPTH_TEST);
-            shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedVertexHandleColor));
+            m_vertexFigure->setColor(prefs.getColor(Preferences::OccludedVertexHandleColor));
             m_vertexFigure->render(vbo, renderContext);
-            shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedSelectedVertexHandleColor));
+            m_selectedVertexFigure->setColor(prefs.getColor(Preferences::OccludedSelectedVertexHandleColor));
             m_selectedVertexFigure->render(vbo, renderContext);
             glEnable(GL_DEPTH_TEST);
         }

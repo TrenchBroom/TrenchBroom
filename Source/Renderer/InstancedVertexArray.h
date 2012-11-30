@@ -22,6 +22,7 @@
 
 #include "Renderer/AttributeArray.h"
 #include "Renderer/RenderTypes.h"
+#include "Utility/String.h"
 
 #include <cassert>
 #include <vector>
@@ -35,13 +36,19 @@ namespace TrenchBroom {
         class InstanceAttributes {
         private:
             String m_name;
+            String m_textureSizeName;
             GLuint m_textureId;
+            GLint m_textureSize;
         protected:
-            virtual void createTexture(GLuint textureId) = 0;
+            virtual GLint createTexture(GLuint textureId) = 0;
         public:
             InstanceAttributes(const String& name) :
             m_name(name),
-            m_textureId(0) {}
+            m_textureId(0) {
+                StringStream stream;
+                stream << m_name << "Size";
+                m_textureSizeName = stream.str();
+            }
             
             virtual ~InstanceAttributes() {
                 if (m_textureId > 0) {
@@ -54,12 +61,20 @@ namespace TrenchBroom {
                 return m_name;
             }
             
+            inline const String& textureSizeName() const {
+                return m_textureSizeName;
+            }
+            
+            inline GLint textureSize() const {
+                return m_textureSize;
+            }
+            
             inline void setup() {
                 if (m_textureId == 0) {
                     glGenTextures(1, &m_textureId);
                     assert(m_textureId > 0);
                     glBindTexture(GL_TEXTURE_2D, m_textureId);
-                    createTexture(m_textureId);
+                    m_textureSize = createTexture(m_textureId);
                 } else {
                     glBindTexture(GL_TEXTURE_2D, m_textureId);
                 }
@@ -74,16 +89,17 @@ namespace TrenchBroom {
         private:
             Vec3f::List m_vertices;
         protected:
-            void createTexture(GLuint textureId) {
+            GLint createTexture(GLuint textureId) {
                 GLint size = 1;
                 while (size * size < m_vertices.size())
                     size *= 2;
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, size, size, 0, GL_RGB, GL_FLOAT, &m_vertices[0]);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, size, size, 0, GL_RGB, GL_FLOAT, &m_vertices[0]);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
                 m_vertices.clear();
+                return size;
             }
         public:
             InstanceAttributesVec3f(const String& name, const Vec3f::List& vertices) :
@@ -141,6 +157,7 @@ namespace TrenchBroom {
                     glActiveTexture(GL_TEXTURE0 + textureNum);
                     attributes.setup();
                     program.setUniformVariable(attributes.name(), textureNum);
+                    program.setUniformVariable(attributes.textureSizeName(), attributes.textureSize());
                     textureNum++;
                 }
                 

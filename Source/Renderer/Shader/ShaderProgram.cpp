@@ -42,6 +42,12 @@ namespace TrenchBroom {
             return it->second;
         }
         
+        bool ShaderProgram::checkActive() {
+            GLint currentProgramId;
+            glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgramId);
+            return static_cast<GLuint>(currentProgramId) == m_programId;
+        }
+
         ShaderProgram::ShaderProgram(const String& name, Utility::Console& console) :
         m_name(name),
         m_programId(0),
@@ -120,6 +126,7 @@ namespace TrenchBroom {
         }
         
         bool ShaderProgram::setUniformVariable(const String& name, int value) {
+            assert(checkActive());
             GLint location = uniformLocation(name);
             if (location == -1)
                 return false;
@@ -128,6 +135,7 @@ namespace TrenchBroom {
         }
         
         bool ShaderProgram::setUniformVariable(const String& name, float value) {
+            assert(checkActive());
             GLint location = uniformLocation(name);
             if (location == -1)
                 return false;
@@ -144,6 +152,7 @@ namespace TrenchBroom {
         }
         
         bool ShaderProgram::setUniformVariable(const String& name, const Vec3f& value) {
+            assert(checkActive());
             GLint location = uniformLocation(name);
             if (location == -1)
                 return false;
@@ -152,6 +161,7 @@ namespace TrenchBroom {
         }
         
         bool ShaderProgram::setUniformVariable(const String& name, const Vec4f& value) {
+            assert(checkActive());
             GLint location = uniformLocation(name);
             if (location == -1)
                 return false;
@@ -160,6 +170,7 @@ namespace TrenchBroom {
         }
         
         bool ShaderProgram::setUniformVariable(const String& name, const Mat2f& value) {
+            assert(checkActive());
             GLint location = uniformLocation(name);
             if (location == -1)
                 return false;
@@ -168,6 +179,7 @@ namespace TrenchBroom {
         }
         
         bool ShaderProgram::setUniformVariable(const String& name, const Mat3f& value) {
+            assert(checkActive());
             GLint location = uniformLocation(name);
             if (location == -1)
                 return false;
@@ -176,6 +188,7 @@ namespace TrenchBroom {
         }
         
         bool ShaderProgram::setUniformVariable(const String& name, const Mat4f& value) {
+            assert(checkActive());
             GLint location = uniformLocation(name);
             if (location == -1)
                 return false;

@@ -51,6 +51,7 @@ namespace TrenchBroom {
             Utility::Console& m_console;
             
             GLint uniformLocation(const String& name);
+            bool checkActive();
         public:
             ShaderProgram(const String& name, Utility::Console& console);
             ~ShaderProgram();

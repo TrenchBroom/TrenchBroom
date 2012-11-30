@@ -99,6 +99,7 @@ namespace TrenchBroom {
             
             if (m_vertexArray.get() != NULL) {
                 Renderer::ActivateShader shader(context.shaderManager(), Renderer::Shaders::InstancedHandleShader);
+                shader.currentShader().setUniformVariable("Color", m_color);
                 m_vertexArray->render(shader.currentShader());
             }
         }

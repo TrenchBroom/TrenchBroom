@@ -35,8 +35,17 @@ namespace TrenchBroom {
             Vec3f::List m_positions;
             InstancedVertexArrayPtr m_vertexArray;
             bool m_valid;
+            Color m_color;
         public:
             ManyCubesInstancedFigure(float cubeSize);
+            
+            inline const Color& color() const {
+                return m_color;
+            }
+            
+            inline void setColor(const Color& color) {
+                m_color = color;
+            }
             
             void addCube(const Vec3f& position);
             void clear();
