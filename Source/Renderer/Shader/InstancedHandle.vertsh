@@ -19,18 +19,21 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#extension GL_ARB_draw_instanced : require
+#extension GL_EXT_gpu_shader4 : require
+
 uniform vec4 Color;
 
 varying vec4 vertexColor;
 
-uniform sampler2D positionTex;
+uniform sampler2D position;
 
 void main(void) {
     vertexColor = Color;
     
     int y = (gl_InstanceID * 4) / 1024;
     
-    vec3 position = texture2D(positionTex, vec2((gl_InstanceID * 4 + 0) & 1023, y) * (1.0 / 1024.0));
+    vec4 instancePos = texture2D(position, vec2((gl_InstanceID * 4 + 0) & 1023, y) * (1.0 / 1024.0));
     
-    gl_Position = gl_ModelViewProjectionMatrix * (gl_Vertex + vec4(position, 0.0));
+    gl_Position = gl_ModelViewProjectionMatrix * (gl_Vertex + instancePos);
 }

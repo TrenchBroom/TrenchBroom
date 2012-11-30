@@ -27,6 +27,7 @@
 #include <cassert>
 #include <cstring>
 #include <exception>
+#include <sstream>
 #include <vector>
 
 //#define _DEBUG_VBO 1
@@ -233,7 +234,9 @@ namespace TrenchBroom {
             ~VboException() throw() {}
 
 			virtual const char* what() const throw() {
-			    return m_msg.c_str();
+                std::stringstream msg;
+                msg << m_msg << " (OpenGL error " << m_glError << ")";
+			    return msg.str().c_str();
 			}
  		};
     }
