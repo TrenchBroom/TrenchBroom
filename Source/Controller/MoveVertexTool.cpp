@@ -140,14 +140,33 @@ namespace TrenchBroom {
                 (inputState.modifierKeys() != ModifierKeys::MKNone && inputState.modifierKeys() != ModifierKeys::MKCtrlCmd))
                 return false;
             
-            Model::VertexHandleHit* handleHit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit, true, view().filter()));
-            if (handleHit == NULL)
+            const Model::HitList handleHits = inputState.pickResult().hits(Model::HitType::VertexHandleHit, view().filter());
+            if (handleHits.empty())
                 return false;
+
+            Model::HitList::const_iterator hitIt, hitEnd;
+            hitIt = handleHits.begin();
+            Model::VertexHandleHit* firstHit = static_cast<Model::VertexHandleHit*>(*hitIt++);
+
+            Model::HitList actualHits;
+            actualHits.push_back(firstHit);
             
-            bool selected = m_selection.containsVertex(&handleHit->brush(), handleHit->vertex());
-            if (selected) {
-                if (inputState.modifierKeys() == ModifierKeys::MKCtrlCmd)
-                    m_selection.removeVertex(&handleHit->brush(), handleHit->vertex());
+            bool anySelected = m_selection.containsVertex(&firstHit->brush(), firstHit->vertex());
+            for (hitEnd = handleHits.end(); hitIt != hitEnd; ++hitIt) {
+                Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(*hitIt);
+                if (!hit->vertex().equals(firstHit->vertex()))
+                    break;
+                anySelected |= m_selection.containsVertex(&hit->brush(), hit->vertex());
+                actualHits.push_back(hit);
+            }
+            
+            if (anySelected && inputState.modifierKeys() == ModifierKeys::MKCtrlCmd) {
+                for (hitIt = actualHits.begin(), hitEnd = actualHits.end(); hitIt != hitEnd; ++hitIt) {
+                    Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(*hitIt);
+                    if (m_selection.containsVertex(&hit->brush(), hit->vertex()))
+                        m_selection.removeVertex(&hit->brush(), hit->vertex());
+                }
+                
                 m_vertexFigureValid = false;
                 setNeedsUpdate();
                 return true;
@@ -155,10 +174,14 @@ namespace TrenchBroom {
             
             if (inputState.modifierKeys() == ModifierKeys::MKNone)
                 m_selection.clear();
-            m_selection.addVertex(&handleHit->brush(), handleHit->vertex());
+            
+            for (hitIt = actualHits.begin(), hitEnd = actualHits.end(); hitIt != hitEnd; ++hitIt) {
+                Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(*hitIt);
+                m_selection.addVertex(&hit->brush(), hit->vertex());
+            }
+            
             m_vertexFigureValid = false;
             setNeedsUpdate();
-            
             return true;
         }
 
@@ -173,6 +196,12 @@ namespace TrenchBroom {
         }
 
         void MoveVertexTool::handleObjectsChange(InputState& inputState) {
+            m_selection.clear();
+            m_vertexFigureValid = false;
+            setNeedsUpdate();
+        }
+
+        void MoveVertexTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
             m_selection.clear();
             m_vertexFigureValid = false;
             setNeedsUpdate();

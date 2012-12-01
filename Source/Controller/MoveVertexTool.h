@@ -142,6 +142,7 @@ namespace TrenchBroom {
             void handleEndPlaneDrag(InputState& inputState);
 
             void handleObjectsChange(InputState& inputState);
+            void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet);
         public:
             MoveVertexTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float planeRadius, float vertexSize);
         };

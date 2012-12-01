@@ -93,12 +93,25 @@ namespace TrenchBroom {
                 GLint size = 1;
                 while (size * size < m_vertices.size())
                     size *= 2;
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, size, size, 0, GL_RGB, GL_FLOAT, &m_vertices[0]);
+
+                float* buffer = new float[m_vertices.size() * 4];
+                for (size_t i = 0; i < m_vertices.size(); i++) {
+                    buffer[i * 4 + 0] = m_vertices[i].x;
+                    buffer[i * 4 + 1] = m_vertices[i].y;
+                    buffer[i * 4 + 2] = m_vertices[i].z;
+                    buffer[i * 4 + 3] = 0.0f;
+                }
+                
+                // requires GL_ARB_texture_float, see http://www.opengl.org/wiki/Floating_point_and_mipmapping_and_filtering
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, size, size, 0, GL_RGBA, GL_FLOAT, reinterpret_cast<GLvoid*>(buffer));
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                
+                delete [] buffer;
                 m_vertices.clear();
+                
                 return size;
             }
         public:
