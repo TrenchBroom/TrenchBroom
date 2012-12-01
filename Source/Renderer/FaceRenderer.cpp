@@ -85,6 +85,7 @@ namespace TrenchBroom {
             
             if (faceProgram.activate()) {
                 glActiveTexture(GL_TEXTURE0);
+                
                 const bool applyTexture = context.viewOptions().faceRenderMode() == View::ViewOptions::Textured;
                 faceProgram.setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
                 faceProgram.setUniformVariable("RenderGrid", grid.visible());
@@ -95,6 +96,7 @@ namespace TrenchBroom {
                 if (tintColor != NULL)
                     faceProgram.setUniformVariable("TintColor", *tintColor);
                 faceProgram.setUniformVariable("GrayScale", grayScale);
+                
                 for (unsigned int i = 0; i < m_vertexArrays.size(); i++) {
                     TextureVertexArray& textureVertexArray = m_vertexArrays[i];
                     if (textureVertexArray.texture != NULL) {

@@ -109,13 +109,14 @@ namespace TrenchBroom {
 
         MoveHandle::MoveHandle(float axisLength, float planeRadius) :
         m_axisLength(axisLength),
-        m_planeRadius(planeRadius) {
+        m_planeRadius(planeRadius),
+        m_enabled(true) {
             assert(m_axisLength > 0.0f);
             assert(m_planeRadius > 0.0f);
         }
 
         Model::MoveHandleHit* MoveHandle::pick(const Ray& ray) {
-            if (locked())
+            if (!enabled() || locked())
                 return NULL;
             
             Vec3f xAxis, yAxis, zAxis;
@@ -133,6 +134,9 @@ namespace TrenchBroom {
         }
         
         void MoveHandle::render(Model::MoveHandleHit* hit, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
+            if (!enabled())
+                return;
+            
             Renderer::SetVboState mapVbo(vbo, Renderer::Vbo::VboMapped);
             
             Mat4f translation;

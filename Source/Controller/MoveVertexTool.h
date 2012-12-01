@@ -41,15 +41,10 @@ namespace TrenchBroom {
         
         class VertexHandleHit : public Hit {
         private:
-            Brush& m_brush;
             Vec3f m_vertex;
         public:
-            VertexHandleHit(const Vec3f& hitPoint, float distance, Brush& brush, const Vec3f& vertex);
+            VertexHandleHit(const Vec3f& hitPoint, float distance, const Vec3f& vertex);
             bool pickable(Filter& filter) const;
-            
-            inline Brush& brush() const {
-                return m_brush;
-            }
             
             inline const Vec3f& vertex() const {
                 return m_vertex;
@@ -65,53 +60,110 @@ namespace TrenchBroom {
     
     namespace Controller {
         class VertexSelection {
-        private:
-            typedef std::map<Model::Brush*, Vec3f::Set> SelectionMap;
-            SelectionMap m_selection;
         public:
-            inline const Vec3f::Set& vertices(Model::Brush* brush) const {
-                SelectionMap::const_iterator it = m_selection.find(brush);
-                assert(it != m_selection.end());
-                return it->second;
-            }
+            typedef std::map<Vec3f, Model::BrushList, Vec3f::LexicographicOrder> VertexBrushMap;
+        private:
+            VertexBrushMap m_vertices;
+            VertexBrushMap m_selectedVertices;
             
-            inline void addVertex(Model::Brush* brush, const Vec3f& vertex) {
-                m_selection[brush].insert(vertex);
-            }
-            
-            inline bool containsBrush(Model::Brush* brush) const {
-                SelectionMap::const_iterator mapIt = m_selection.find(brush);
-                return mapIt != m_selection.end();
-            }
-            
-            inline bool containsVertex(Model::Brush* brush, const Vec3f& vertex) const {
-                SelectionMap::const_iterator mapIt = m_selection.find(brush);
-                if (mapIt == m_selection.end())
+            inline bool removeVertex(const Vec3f& vertex, Model::Brush& brush, VertexBrushMap& map) {
+                VertexBrushMap::iterator mapIt = map.find(vertex);
+                if (mapIt == map.end())
                     return false;
-                const Vec3f::Set& vertices = mapIt->second;
-                return vertices.count(vertex) > 0;
+                
+                Model::BrushList& vertexBrushes = mapIt->second;
+                Model::BrushList::iterator brushIt = std::find(vertexBrushes.begin(), vertexBrushes.end(), &brush);
+                if (brushIt == vertexBrushes.end())
+                    return false;
+                
+                vertexBrushes.erase(brushIt);
+                if (vertexBrushes.empty())
+                    map.erase(mapIt);
+                return true;
             }
             
-            inline void removeVertex(Model::Brush* brush, const Vec3f& vertex) {
-                SelectionMap::iterator it = m_selection.find(brush);
-                assert(it != m_selection.end());
-                Vec3f::Set& vertices = it->second;
-                size_t count = vertices.erase(vertex);
-                assert(count > 0);
+            inline bool moveVertex(const Vec3f& vertex, VertexBrushMap& from, VertexBrushMap& to) {
+                VertexBrushMap::iterator mapIt = from.find(vertex);
+                if (mapIt == from.end())
+                    return false;
+                
+                Model::BrushList& fromBrushes = mapIt->second;
+                Model::BrushList& toBrushes = to[vertex];
+                toBrushes.insert(toBrushes.end(), fromBrushes.begin(), fromBrushes.end());
+                
+                from.erase(mapIt);
+                return true;
+            }
+        public:
+            inline const VertexBrushMap& vertices() const {
+                return m_vertices;
             }
             
-            inline void replaceVertices(Model::Brush* brush, const Vec3f::Set& vertices) {
-                m_selection[brush] = vertices;
+            inline const VertexBrushMap& selectedVertices() const {
+                return m_selectedVertices;
             }
             
-            inline void removeVertices(Model::Brush* brush) {
-                SelectionMap::iterator it = m_selection.find(brush);
-                assert(it != m_selection.end());
-                m_selection.erase(it);
+            inline void addVertices(Model::Brush& brush) {
+                const Model::VertexList& brushVertices = brush.vertices();
+                Model::VertexList::const_iterator it, end;
+                for (it = brushVertices.begin(), end = brushVertices.end(); it != end; ++it) {
+                    const Model::Vertex& vertex = **it;
+                    VertexBrushMap::iterator mapIt = m_selectedVertices.find(vertex.position);
+                    if (mapIt != m_selectedVertices.end())
+                        mapIt->second.push_back(&brush);
+                    else
+                        m_vertices[vertex.position].push_back(&brush);
+                }
+            }
+            
+            inline void addVertices(const Model::BrushList& brushes) {
+                Model::BrushList::const_iterator it, end;
+                for (it = brushes.begin(), end = brushes.end(); it != end; ++it)
+                    addVertices(**it);
+            }
+            
+            inline void removeVertices(Model::Brush& brush) {
+                const Model::VertexList& brushVertices = brush.vertices();
+                Model::VertexList::const_iterator it, end;
+                for (it = brushVertices.begin(), end = brushVertices.end(); it != end; ++it) {
+                    const Model::Vertex& vertex = **it;
+                    if (!removeVertex(vertex.position, brush, m_selectedVertices))
+                        removeVertex(vertex.position, brush, m_vertices);
+                }
+            }
+            
+            inline void removeVertices(const Model::BrushList& brushes) {
+                Model::BrushList::const_iterator it, end;
+                for (it = brushes.begin(), end = brushes.end(); it != end; ++it)
+                    removeVertices(**it);
+            }
+            
+            inline bool selected(const Vec3f& vertex) {
+                return m_selectedVertices.find(vertex) != m_selectedVertices.end();
+            }
+            
+            inline bool selectVertex(const Vec3f& vertex) {
+                return moveVertex(vertex, m_vertices, m_selectedVertices);
+            }
+            
+            inline bool deselectVertex(const Vec3f& vertex) {
+                return moveVertex(vertex, m_selectedVertices, m_vertices);
+            }
+            
+            inline void deselectAll() {
+                VertexBrushMap::const_iterator it, end;
+                for (it = m_selectedVertices.begin(), end = m_selectedVertices.end(); it != end; ++it) {
+                    const Vec3f& vertex = it->first;
+                    const Model::BrushList& selectedBrushes = it->second;
+                    Model::BrushList& unselectedBrushes = m_vertices[vertex];
+                    unselectedBrushes.insert(unselectedBrushes.begin(), selectedBrushes.begin(), selectedBrushes.end());
+                }
+                m_selectedVertices.clear();
             }
             
             inline void clear() {
-                m_selection.clear();
+                m_vertices.clear();
+                m_selectedVertices.clear();
             }
         };
         
@@ -127,6 +179,8 @@ namespace TrenchBroom {
             Renderer::ManyCubesInstancedFigure* m_selectedVertexFigure;
             bool m_vertexFigureValid;
 
+            void updateMoveHandle(InputState& inputState);
+            
             bool handleActivate(InputState& inputState);
             bool handleDeactivate(InputState& inputState);
             bool handleIsModal(InputState& inputState);
@@ -136,6 +190,7 @@ namespace TrenchBroom {
             void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
             
             bool handleMouseUp(InputState& inputState);
+            void handleMouseMove(InputState& inputState);
 
             bool handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint);
             void handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) ;
@@ -143,6 +198,7 @@ namespace TrenchBroom {
 
             void handleObjectsChange(InputState& inputState);
             void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet);
+            void handleCameraChange(InputState& inputState);
         public:
             MoveVertexTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float planeRadius, float vertexSize);
         };

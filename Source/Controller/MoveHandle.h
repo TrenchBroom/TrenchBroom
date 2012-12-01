@@ -71,6 +71,7 @@ namespace TrenchBroom {
         protected:
             float m_axisLength;
             float m_planeRadius;
+            bool m_enabled;
             
             Model::MoveHandleHit* pickAxis(const Ray& ray, Vec3f& axis, Model::MoveHandleHit::HitArea hitArea);
             Model::MoveHandleHit* pickPlane(const Ray& ray, const Vec3f& normal, const Vec3f& axis1, const Vec3f& axis2, Model::MoveHandleHit::HitArea hitArea);
@@ -79,6 +80,22 @@ namespace TrenchBroom {
             void renderPlanes(Model::MoveHandleHit* hit, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
         public:
             MoveHandle(float axisLength, float planeRadius);
+            
+            inline float axisLength() const {
+                return m_axisLength;
+            }
+            
+            inline float planeRadius() const {
+                return m_planeRadius;
+            }
+            
+            inline bool enabled() const {
+                return m_enabled;
+            }
+            
+            inline void setEnabled(bool enabled) {
+                m_enabled = enabled;
+            }
             
             Model::MoveHandleHit* pick(const Ray& ray);
             void render(Model::MoveHandleHit* hit, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);

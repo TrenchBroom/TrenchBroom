@@ -160,6 +160,20 @@ namespace TrenchBroom {
                 return Math::nan();
             }
             
+            float squaredDistanceToPoint(const Vec3f& point, float& distanceToClosestPoint) const {
+                distanceToClosestPoint = (point - origin).dot(direction);
+                if (distanceToClosestPoint <= 0.0f)
+                    return Math::nan();
+                return (pointAtDistance(distanceToClosestPoint) - point).lengthSquared();
+            }
+            
+            float distanceToPoint(const Vec3f& point, float& distanceToClosestPoint) const {
+                float squaredDistance = squaredDistanceToPoint(point, distanceToClosestPoint);
+                if (Math::isnan(squaredDistance))
+                    return squaredDistance;
+                return sqrt(squaredDistance);
+            }
+            
             float squaredDistanceToSegment(const Vec3f& start, const Vec3f& end, float& distanceToClosestPoint) const {
                 Vec3f u, v, w;
                 u = end - start;
