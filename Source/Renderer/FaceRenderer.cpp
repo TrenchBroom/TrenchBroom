@@ -34,7 +34,7 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
-        void FaceRenderer::writeFaceData(Vbo& vbo, TextureRendererManager& textureRendererManager, const Sorter& faces, const Color& faceColor) {
+        void FaceRenderer::writeFaceData(Vbo& vbo, TextureRendererManager& textureRendererManager, const Sorter& faces) {
             const FaceCollectionMap& faceCollectionMap = faces.collections();
             if (faceCollectionMap.empty())
                 return;
@@ -49,29 +49,23 @@ namespace TrenchBroom {
                 VertexArrayPtr vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_TRIANGLES, vertexCount,
                                                                             Attribute::position3f(),
                                                                             Attribute::normal3f(),
-                                                                            Attribute::texCoord02f(),
-                                                                            Attribute::color4f()));
+                                                                            Attribute::texCoord02f()));
                 
                 for (unsigned int i = 0; i < faces.size(); i++) {
                     Model::Face* face = faces[i];
                     const Model::VertexList& vertices = face->vertices();
                     const Vec2f::List& texCoords = face->texCoords();
-                    Model::Texture* texture = face->texture();
-                    const Color& color = texture != NULL ? textureRenderer->averageColor() : faceColor;
                     
                     for (unsigned int j = 1; j < vertices.size() - 1; j++) {
                         vertexArray->addAttribute(vertices[0]->position);
                         vertexArray->addAttribute(face->boundary().normal);
                         vertexArray->addAttribute(texCoords[0]);
-                        vertexArray->addAttribute(color);
                         vertexArray->addAttribute(vertices[j]->position);
                         vertexArray->addAttribute(face->boundary().normal);
                         vertexArray->addAttribute(texCoords[j]);
-                        vertexArray->addAttribute(color);
                         vertexArray->addAttribute(vertices[j + 1]->position);
                         vertexArray->addAttribute(face->boundary().normal);
                         vertexArray->addAttribute(texCoords[j + 1]);
-                        vertexArray->addAttribute(color);
                     }
                 }
                 
@@ -91,7 +85,7 @@ namespace TrenchBroom {
             
             if (faceProgram.activate()) {
                 glActiveTexture(GL_TEXTURE0);
-                bool applyTexture = context.viewOptions().faceRenderMode() == View::ViewOptions::Textured;
+                const bool applyTexture = context.viewOptions().faceRenderMode() == View::ViewOptions::Textured;
                 faceProgram.setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
                 faceProgram.setUniformVariable("RenderGrid", grid.visible());
                 faceProgram.setUniformVariable("GridSize", static_cast<float>(grid.actualSize()));
@@ -104,15 +98,13 @@ namespace TrenchBroom {
                 for (unsigned int i = 0; i < m_vertexArrays.size(); i++) {
                     TextureVertexArray& textureVertexArray = m_vertexArrays[i];
                     if (textureVertexArray.texture != NULL) {
-                        if (!applyTexture) {
-                            applyTexture = true;
-                            faceProgram.setUniformVariable("ApplyTexture", applyTexture);
-                        }
                         textureVertexArray.texture->activate();
-                        faceProgram.setUniformVariable("FaceTexture", 0);
-                    } else if (applyTexture) {
-                        applyTexture = false;
                         faceProgram.setUniformVariable("ApplyTexture", applyTexture);
+                        faceProgram.setUniformVariable("FaceTexture", 0);
+                        faceProgram.setUniformVariable("Color", textureVertexArray.texture->averageColor());
+                    } else {
+                        faceProgram.setUniformVariable("ApplyTexture", false);
+                        faceProgram.setUniformVariable("Color", m_faceColor);
                     }
                     
                     textureVertexArray.vertexArray->render();
@@ -124,8 +116,9 @@ namespace TrenchBroom {
             }
         }
 
-        FaceRenderer::FaceRenderer(Vbo& vbo, TextureRendererManager& textureRendererManager, const Sorter& faces, const Color& faceColor) {
-            writeFaceData(vbo, textureRendererManager, faces, faceColor);
+        FaceRenderer::FaceRenderer(Vbo& vbo, TextureRendererManager& textureRendererManager, const Sorter& faces, const Color& faceColor) :
+        m_faceColor(faceColor) {
+            writeFaceData(vbo, textureRendererManager, faces);
         }
         
         void FaceRenderer::render(RenderContext& context, bool grayScale) {

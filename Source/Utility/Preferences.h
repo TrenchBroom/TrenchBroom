@@ -172,17 +172,17 @@ namespace TrenchBroom {
             
             inline void load(wxConfigBase* config) const {
                 wxString string;
-                if (config->Read(m_name, &string)) {
+                if (config->Read(m_name, &string))
                     m_value = m_converter.fromWxString(string);
-                    m_initialized = true;
-                }
+                m_initialized = true;
             }
             
             inline void save(wxConfigBase* config) const {
                 if (m_modified) {
                     wxString string = m_converter.toWxString(m_value);
-                    if (config->Write(m_name, string))
-                        m_modified = false;
+                    bool success = config->Write(m_name, string);
+                    assert(success);
+                    m_modified = false;
                 }
             }
         public:

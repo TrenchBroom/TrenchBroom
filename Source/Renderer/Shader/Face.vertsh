@@ -19,6 +19,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+uniform vec4 Color;
+
 varying vec4 modelCoordinates;
 varying vec3 modelNormal;
 varying vec4 faceColor;
@@ -28,5 +30,5 @@ void main(void) {
     gl_TexCoord[0] = gl_MultiTexCoord0;
     modelCoordinates = gl_Vertex;
     modelNormal = gl_Normal;
-    faceColor = gl_Color;
+    faceColor = Color;
 }

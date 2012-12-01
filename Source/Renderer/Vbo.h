@@ -191,11 +191,11 @@ namespace TrenchBroom {
 
             inline unsigned int writeColor(const Color& color, unsigned int offset) {
                 assert(offset >= 0 && offset + 4 <= m_capacity);
-                offset = writeByte(static_cast<unsigned char>(color.x * 0xFF), offset);
-                offset = writeByte(static_cast<unsigned char>(color.y * 0xFF), offset);
-                offset = writeByte(static_cast<unsigned char>(color.z * 0xFF), offset);
-                offset = writeByte(static_cast<unsigned char>(color.w * 0xFF), offset);
-                return offset;
+                m_vbo.m_buffer[m_address + offset + 0] = static_cast<unsigned char>(color.x * 0xFF);
+                m_vbo.m_buffer[m_address + offset + 1] = static_cast<unsigned char>(color.y * 0xFF);
+                m_vbo.m_buffer[m_address + offset + 2] = static_cast<unsigned char>(color.z * 0xFF);
+                m_vbo.m_buffer[m_address + offset + 3] = static_cast<unsigned char>(color.w * 0xFF);
+                return offset + 4;
             }
 
             template<class T>
