@@ -76,6 +76,7 @@
 		488457D0161C839A002ADDAE /* OffscreenRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488457CE161C839A002ADDAE /* OffscreenRenderer.cpp */; };
 		4887937615EF56C10044D66A /* AbstractApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4887937415EF56C10044D66A /* AbstractApp.cpp */; };
 		4888654B1634211C0071F9C6 /* RotateObjects90Command.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488865491634211C0071F9C6 /* RotateObjects90Command.cpp */; };
+		48932BF4166FAFDC009ED5DB /* MoveVerticesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48932BF2166FAFDC009ED5DB /* MoveVerticesCommand.cpp */; };
 		4895CDEA16333D55006AA0A6 /* MoveTexturesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4895CDE816333D55006AA0A6 /* MoveTexturesCommand.cpp */; };
 		4895CDEC16334108006AA0A6 /* RotateTexturesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4895CDEB16334108006AA0A6 /* RotateTexturesCommand.cpp */; };
 		4896F38E160E06F50029B30C /* TextureBrowserBorder.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 4896F38D160E06F50029B30C /* TextureBrowserBorder.fragsh */; };
@@ -319,6 +320,8 @@
 		4887937515EF56C10044D66A /* AbstractApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractApp.h; sourceTree = "<group>"; };
 		488865491634211C0071F9C6 /* RotateObjects90Command.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RotateObjects90Command.cpp; sourceTree = "<group>"; };
 		4888654A1634211C0071F9C6 /* RotateObjects90Command.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateObjects90Command.h; sourceTree = "<group>"; };
+		48932BF2166FAFDC009ED5DB /* MoveVerticesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveVerticesCommand.cpp; sourceTree = "<group>"; };
+		48932BF3166FAFDC009ED5DB /* MoveVerticesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveVerticesCommand.h; sourceTree = "<group>"; };
 		4895CDE816333D55006AA0A6 /* MoveTexturesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveTexturesCommand.cpp; sourceTree = "<group>"; };
 		4895CDE916333D55006AA0A6 /* MoveTexturesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveTexturesCommand.h; sourceTree = "<group>"; };
 		4895CDEB16334108006AA0A6 /* RotateTexturesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RotateTexturesCommand.cpp; sourceTree = "<group>"; };
@@ -845,6 +848,8 @@
 				48A8391416356CFC00175857 /* FlipObjectsCommand.h */,
 				482BB67C162931E800B9FAAE /* MoveObjectsCommand.cpp */,
 				482BB67D162931E800B9FAAE /* MoveObjectsCommand.h */,
+				48932BF2166FAFDC009ED5DB /* MoveVerticesCommand.cpp */,
+				48932BF3166FAFDC009ED5DB /* MoveVerticesCommand.h */,
 				4895CDE816333D55006AA0A6 /* MoveTexturesCommand.cpp */,
 				4895CDE916333D55006AA0A6 /* MoveTexturesCommand.h */,
 				4878F92516516652003857EA /* ObjectsCommand.h */,
@@ -1123,6 +1128,7 @@
 				480ED7311662506500857A21 /* MoveHandle.cpp in Sources */,
 				480ED74C1662836C00857A21 /* ManyCubesFigure.cpp in Sources */,
 				480ED7531663FCF300857A21 /* ManyCubesInstancedFigure.cpp in Sources */,
+				48932BF4166FAFDC009ED5DB /* MoveVerticesCommand.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
