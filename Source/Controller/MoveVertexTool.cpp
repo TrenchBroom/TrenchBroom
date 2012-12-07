@@ -62,7 +62,8 @@ namespace TrenchBroom {
             if (m_moveHandle.enabled() != enableMoveHandle) {
                 m_moveHandle.setEnabled(enableMoveHandle);
                 setNeedsUpdate();
-            } else if (!m_moveHandle.position().equals(closestVertex)) {
+            }
+            if (!m_moveHandle.position().equals(closestVertex)) {
                 m_moveHandle.setPosition(closestVertex);
                 setNeedsUpdate();
             }
