@@ -24,7 +24,7 @@
 #include "Controller/CreateBrushTool.h"
 #include "Controller/CreateEntityTool.h"
 #include "Controller/MoveObjectsTool.h"
-#include "Controller/MoveVertexTool.h"
+#include "Controller/MoveVerticesTool.h"
 #include "Controller/RotateObjectsTool.h"
 #include "Controller/SelectionTool.h"
 #include "Model/EditStateManager.h"
@@ -82,7 +82,7 @@ namespace TrenchBroom {
         m_modalTool(NULL) {
             m_cameraTool = new CameraTool(m_documentViewHolder);
             m_clipTool = new ClipTool(m_documentViewHolder);
-            m_moveVertexTool = new MoveVertexTool(m_documentViewHolder, 24.0f, 16.0f, 4.0f);
+            m_moveVerticesTool = new MoveVerticesTool(m_documentViewHolder, 24.0f, 16.0f, 4.0f);
             m_createBrushTool = new CreateBrushTool(m_documentViewHolder);
             m_createEntityTool = new CreateEntityTool(m_documentViewHolder);
             m_moveObjectsTool = new MoveObjectsTool(m_documentViewHolder, 64.0f, 32.0f);
@@ -90,8 +90,8 @@ namespace TrenchBroom {
             m_selectionTool = new SelectionTool(m_documentViewHolder);
 
             m_cameraTool->setNextTool(m_clipTool);
-            m_clipTool->setNextTool(m_moveVertexTool);
-            m_moveVertexTool->setNextTool(m_createEntityTool);
+            m_clipTool->setNextTool(m_moveVerticesTool);
+            m_moveVerticesTool->setNextTool(m_createEntityTool);
             m_createEntityTool->setNextTool(m_createBrushTool);
             m_createBrushTool->setNextTool(m_moveObjectsTool);
             m_moveObjectsTool->setNextTool(m_rotateObjectsTool);
@@ -114,8 +114,8 @@ namespace TrenchBroom {
             m_cameraTool = NULL;
             delete m_clipTool;
             m_clipTool = NULL;
-            delete m_moveVertexTool;
-            m_moveVertexTool = NULL;
+            delete m_moveVerticesTool;
+            m_moveVerticesTool = NULL;
             delete m_createBrushTool;
             m_createBrushTool = NULL;
             delete m_createEntityTool;
@@ -301,8 +301,8 @@ namespace TrenchBroom {
             if (m_clipTool->active()) {
                 m_clipTool->deactivate(m_inputState);
             } else {
-                if (m_moveVertexTool->active())
-                    m_moveVertexTool->deactivate(m_inputState);
+                if (m_moveVerticesTool->active())
+                    m_moveVerticesTool->deactivate(m_inputState);
                 m_clipTool->activate(m_inputState);
             }
             updateHits();
@@ -342,13 +342,13 @@ namespace TrenchBroom {
                 updateState();
         }
 
-        void InputController::toggleMoveVertexTool() {
-            if (m_moveVertexTool->active()) {
-                m_moveVertexTool->deactivate(m_inputState);
+        void InputController::toggleMoveVerticesTool() {
+            if (m_moveVerticesTool->active()) {
+                m_moveVerticesTool->deactivate(m_inputState);
             } else {
                 if (m_clipTool->active())
                     m_clipTool->deactivate(m_inputState);
-                m_moveVertexTool->activate(m_inputState);
+                m_moveVerticesTool->activate(m_inputState);
             }
             updateHits();
             updateModalTool();
@@ -356,15 +356,15 @@ namespace TrenchBroom {
             m_documentViewHolder.document().UpdateAllViews();
         }
         
-        bool InputController::moveVertexToolActive() {
-            return m_moveVertexTool->active();
+        bool InputController::moveVerticesToolActive() {
+            return m_moveVerticesTool->active();
         }
 
         void InputController::deactivateAll() {
             if (m_clipTool->active())
                 m_clipTool->deactivate(m_inputState);
-            if (m_moveVertexTool->active())
-                m_moveVertexTool->deactivate(m_inputState);
+            if (m_moveVerticesTool->active())
+                m_moveVerticesTool->deactivate(m_inputState);
             updateHits();
             updateModalTool();
             updateState();

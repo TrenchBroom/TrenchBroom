@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MoveVertexTool__
-#define __TrenchBroom__MoveVertexTool__
+#ifndef __TrenchBroom__MoveVerticesTool__
+#define __TrenchBroom__MoveVerticesTool__
 
 #include "Controller/Tool.h"
 #include "Controller/MoveHandle.h"
@@ -167,7 +167,7 @@ namespace TrenchBroom {
             }
         };
         
-        class MoveVertexTool : public PlaneDragTool {
+        class MoveVerticesTool : public PlaneDragTool {
         protected:
             VertexSelection m_selection;
             MoveHandle m_moveHandle;
@@ -200,9 +200,9 @@ namespace TrenchBroom {
             void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet);
             void handleCameraChange(InputState& inputState);
         public:
-            MoveVertexTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float planeRadius, float vertexSize);
+            MoveVerticesTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float planeRadius, float vertexSize);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MoveVertexTool__) */
+#endif /* defined(__TrenchBroom__MoveVerticesTool__) */

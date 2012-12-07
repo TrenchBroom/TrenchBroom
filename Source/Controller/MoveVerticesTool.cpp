@@ -17,7 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MoveVertexTool.h"
+#include "MoveVerticesTool.h"
 
 #include "Controller/Command.h"
 #include "Model/EditStateManager.h"
@@ -42,7 +42,7 @@ namespace TrenchBroom {
     }
     
     namespace Controller {
-        void MoveVertexTool::updateMoveHandle(InputState& inputState) {
+        void MoveVerticesTool::updateMoveHandle(InputState& inputState) {
             Vec3f closestVertex;
             float closestSquaredDistance = std::numeric_limits<float>::max();
             
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool MoveVertexTool::handleActivate(InputState& inputState) {
+        bool MoveVerticesTool::handleActivate(InputState& inputState) {
             m_selection.clear();
             m_selection.addVertices(document().editStateManager().selectedBrushes());
             updateMoveHandle(inputState);
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool MoveVertexTool::handleDeactivate(InputState& inputState) {
+        bool MoveVerticesTool::handleDeactivate(InputState& inputState) {
             m_selection.clear();
             delete m_vertexFigure;
             m_vertexFigure = NULL;
@@ -89,11 +89,11 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool MoveVertexTool::handleIsModal(InputState& inputState) {
+        bool MoveVerticesTool::handleIsModal(InputState& inputState) {
             return true;
         }
 
-        void MoveVertexTool::handlePick(InputState& inputState) {
+        void MoveVerticesTool::handlePick(InputState& inputState) {
             Model::MoveHandleHit* moveHandleHit = m_moveHandle.pick(inputState.pickRay());
             if (moveHandleHit != NULL)
                 inputState.pickResult().add(moveHandleHit);
@@ -120,7 +120,7 @@ namespace TrenchBroom {
             }
         }
         
-        bool MoveVertexTool::handleUpdateState(InputState& inputState) {
+        bool MoveVerticesTool::handleUpdateState(InputState& inputState) {
             Model::MoveHandleHit* moveHandleHit = m_moveHandle.pick(inputState.pickRay());
             if ((m_moveHandle.lastHit() == NULL) != (moveHandleHit == NULL))
                 setNeedsUpdate();
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        void MoveVertexTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
+        void MoveVerticesTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
             assert(m_vertexFigure != NULL);
             assert(m_selectedVertexFigure != NULL);
             
@@ -173,7 +173,7 @@ namespace TrenchBroom {
             glEnable(GL_DEPTH_TEST);
         }
 
-        bool MoveVertexTool::handleMouseUp(InputState& inputState) {
+        bool MoveVerticesTool::handleMouseUp(InputState& inputState) {
             if (inputState.mouseButtons() != MouseButtons::MBLeft ||
                 (inputState.modifierKeys() != ModifierKeys::MKNone && inputState.modifierKeys() != ModifierKeys::MKCtrlCmd))
                 return false;
@@ -199,11 +199,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        void MoveVertexTool::handleMouseMove(InputState& inputState) {
+        void MoveVerticesTool::handleMouseMove(InputState& inputState) {
             updateMoveHandle(inputState);
         }
 
-        bool MoveVertexTool::handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint) {
+        bool MoveVerticesTool::handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint) {
             if (inputState.mouseButtons() != MouseButtons::MBLeft ||
                 (inputState.modifierKeys() != ModifierKeys::MKNone && inputState.modifierKeys() != ModifierKeys::MKCtrlCmd))
                 return false;
@@ -248,7 +248,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        void MoveVertexTool::handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) {
+        void MoveVerticesTool::handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) {
             Vec3f delta = curPoint - refPoint;
             switch (m_restrictToAxis) {
                 case MoveHandle::RXAxis:
@@ -276,7 +276,7 @@ namespace TrenchBroom {
             m_totalDelta += delta;
         }
         
-        void MoveVertexTool::handleEndPlaneDrag(InputState& inputState) {
+        void MoveVerticesTool::handleEndPlaneDrag(InputState& inputState) {
             if (m_totalDelta.null())
                 discardCommandGroup();
             else
@@ -285,14 +285,14 @@ namespace TrenchBroom {
             updateMoveHandle(inputState);
         }
 
-        void MoveVertexTool::handleObjectsChange(InputState& inputState) {
+        void MoveVerticesTool::handleObjectsChange(InputState& inputState) {
             m_selection.clear();
             m_vertexFigureValid = false;
             setNeedsUpdate();
             updateMoveHandle(inputState);
         }
 
-        void MoveVertexTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
+        void MoveVerticesTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
             if (document().editStateManager().selectedBrushes().empty()) {
                 m_selection.clear();
             } else {
@@ -304,11 +304,11 @@ namespace TrenchBroom {
             setNeedsUpdate();
         }
 
-        void MoveVertexTool::handleCameraChange(InputState& inputState) {
+        void MoveVerticesTool::handleCameraChange(InputState& inputState) {
             updateMoveHandle(inputState);
         }
 
-        MoveVertexTool::MoveVertexTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float planeRadius, float vertexSize) :
+        MoveVerticesTool::MoveVerticesTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float planeRadius, float vertexSize) :
         PlaneDragTool(documentViewHolder, true),
         m_moveHandle(axisLength, planeRadius),
         m_vertexHandleSize(vertexSize),

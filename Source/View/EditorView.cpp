@@ -779,7 +779,7 @@ namespace TrenchBroom {
         }
 
         void EditorView::OnEditToggleVertexTool(wxCommandEvent& event) {
-            inputController().toggleMoveVertexTool();
+            inputController().toggleMoveVerticesTool();
         }
 
         void EditorView::OnEditMoveObjectsForward(wxCommandEvent& event) {
@@ -985,7 +985,7 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::EditToggleVertexTool:
                     event.Enable(editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
-                    event.Check(inputController().moveVertexToolActive());
+                    event.Check(inputController().moveVerticesToolActive());
                     break;
                 case CommandIds::Menu::EditToggleEdgeTool:
                 case CommandIds::Menu::EditToggleFaceTool:

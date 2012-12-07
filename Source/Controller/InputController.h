@@ -45,7 +45,7 @@ namespace TrenchBroom {
         class CreateBrushTool;
         class CreateEntityTool;
         class MoveObjectsTool;
-        class MoveVertexTool;
+        class MoveVerticesTool;
         class RotateObjectsTool;
         class SelectionTool;
         class Tool;
@@ -57,7 +57,7 @@ namespace TrenchBroom {
             
             CameraTool* m_cameraTool;
             ClipTool* m_clipTool;
-            MoveVertexTool* m_moveVertexTool;
+            MoveVerticesTool* m_moveVerticesTool;
             CreateBrushTool* m_createBrushTool;
             CreateEntityTool* m_createEntityTool;
             MoveObjectsTool* m_moveObjectsTool;
@@ -103,8 +103,8 @@ namespace TrenchBroom {
             bool canPerformClip();
             void performClip();
             
-            void toggleMoveVertexTool();
-            bool moveVertexToolActive();
+            void toggleMoveVerticesTool();
+            bool moveVerticesToolActive();
             
             void deactivateAll();
         };

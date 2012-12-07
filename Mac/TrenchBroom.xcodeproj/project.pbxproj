@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		48009AF515F7FA8B001A9993 /* AbstractFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48009AF315F7FA8B001A9993 /* AbstractFileManager.cpp */; };
-		480ED72B16624C5100857A21 /* MoveVertexTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480ED72916624C5100857A21 /* MoveVertexTool.cpp */; };
+		480ED72B16624C5100857A21 /* MoveVerticesTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480ED72916624C5100857A21 /* MoveVerticesTool.cpp */; };
 		480ED7311662506500857A21 /* MoveHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480ED72F1662506200857A21 /* MoveHandle.cpp */; };
 		480ED74C1662836C00857A21 /* ManyCubesFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480ED74A1662836C00857A21 /* ManyCubesFigure.cpp */; };
 		480ED7531663FCF300857A21 /* ManyCubesInstancedFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480ED7511663FCF100857A21 /* ManyCubesInstancedFigure.cpp */; };
@@ -143,8 +143,8 @@
 /* Begin PBXFileReference section */
 		48009AF315F7FA8B001A9993 /* AbstractFileManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractFileManager.cpp; sourceTree = "<group>"; };
 		48009AF415F7FA8B001A9993 /* AbstractFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractFileManager.h; sourceTree = "<group>"; };
-		480ED72916624C5100857A21 /* MoveVertexTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveVertexTool.cpp; sourceTree = "<group>"; };
-		480ED72A16624C5100857A21 /* MoveVertexTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveVertexTool.h; sourceTree = "<group>"; };
+		480ED72916624C5100857A21 /* MoveVerticesTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveVerticesTool.cpp; sourceTree = "<group>"; };
+		480ED72A16624C5100857A21 /* MoveVerticesTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveVerticesTool.h; sourceTree = "<group>"; };
 		480ED72F1662506200857A21 /* MoveHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveHandle.cpp; sourceTree = "<group>"; };
 		480ED7301662506300857A21 /* MoveHandle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveHandle.h; sourceTree = "<group>"; };
 		480ED74A1662836C00857A21 /* ManyCubesFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ManyCubesFigure.cpp; sourceTree = "<group>"; };
@@ -822,8 +822,8 @@
 				480ED7301662506300857A21 /* MoveHandle.h */,
 				48EE7A1816502B98003F5BBE /* MoveObjectsTool.cpp */,
 				48EE7A1916502B98003F5BBE /* MoveObjectsTool.h */,
-				480ED72916624C5100857A21 /* MoveVertexTool.cpp */,
-				480ED72A16624C5100857A21 /* MoveVertexTool.h */,
+				480ED72916624C5100857A21 /* MoveVerticesTool.cpp */,
+				480ED72A16624C5100857A21 /* MoveVerticesTool.h */,
 				4878F91E1651231D003857EA /* RotateObjectsTool.cpp */,
 				4878F91F1651231D003857EA /* RotateObjectsTool.h */,
 				48EE7A1C16503AE9003F5BBE /* ObjectsHandle.h */,
@@ -1124,7 +1124,7 @@
 				484CEC49165396A9000913D0 /* EdgeRenderer.cpp in Sources */,
 				4878F95516596915003857EA /* BrushFigure.cpp in Sources */,
 				4878F964165C16BE003857EA /* ClipTool.cpp in Sources */,
-				480ED72B16624C5100857A21 /* MoveVertexTool.cpp in Sources */,
+				480ED72B16624C5100857A21 /* MoveVerticesTool.cpp in Sources */,
 				480ED7311662506500857A21 /* MoveHandle.cpp in Sources */,
 				480ED74C1662836C00857A21 /* ManyCubesFigure.cpp in Sources */,
 				480ED7531663FCF300857A21 /* ManyCubesInstancedFigure.cpp in Sources */,
