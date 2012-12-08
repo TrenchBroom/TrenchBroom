@@ -138,12 +138,12 @@ namespace TrenchBroom {
                 CommandProcessor::DiscardGroup(document.GetCommandProcessor());
             }
             
-            inline void submitCommand(wxCommand* command, bool store = true) {
+            inline bool submitCommand(wxCommand* command, bool store = true) {
                 if (!m_documentViewHolder.valid())
-                    return;
+                    return false;
                 
                 Model::MapDocument& document = m_documentViewHolder.document();
-                document.GetCommandProcessor()->Submit(command, store);
+                return document.GetCommandProcessor()->Submit(command, store);
             }
             
             inline void blockUndo() {

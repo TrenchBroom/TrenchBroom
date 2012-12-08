@@ -50,7 +50,6 @@ namespace TrenchBroom {
             size_t m_filePosition;
             
             void init();
-            void validateGeometry();
         public:
             Brush(const BBox& worldBounds);
             Brush(const BBox& worldBounds, const Brush& brushTemplate);
@@ -127,6 +126,8 @@ namespace TrenchBroom {
             void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTextures);
             void rotate(const Quat& rotation, const Vec3f& center, bool lockTextures);
             void flip(Axis::Type axis, const Vec3f& center, bool lockTextures);
+            bool canMoveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta);
+            Vec3f::List moveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta);
             void pick(const Ray& ray, PickResult& pickResults);
         };
     }

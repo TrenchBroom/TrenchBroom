@@ -60,8 +60,38 @@ namespace TrenchBroom {
                 }
             };
 
+            class DotOrder {
+            private:
+                const Vec3f& m_dir;
+            public:
+                DotOrder(const Vec3f& dir) :
+                m_dir(dir) {
+                    assert(!m_dir.null());
+                }
+                
+                inline bool operator()(const Vec3f& lhs, const Vec3f& rhs) const {
+                    return lhs.dot(m_dir) < rhs.dot(m_dir);
+                }
+            };
+            
+            class InverseDotOrder {
+            private:
+                const Vec3f& m_dir;
+            public:
+                InverseDotOrder(const Vec3f& dir) :
+                m_dir(dir) {
+                    assert(!m_dir.null());
+                }
+                
+                inline bool operator()(const Vec3f& lhs, const Vec3f& rhs) const {
+                    return lhs.dot(m_dir) > rhs.dot(m_dir);
+                }
+            };
+            
             typedef std::vector<Vec3f> List;
+            static const List EmptyList;
             typedef std::set<Vec3f, LexicographicOrder> Set;
+            static const Set EmptySet;
             
             float x, y, z;
             

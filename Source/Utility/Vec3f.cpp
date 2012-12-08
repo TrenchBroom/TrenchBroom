@@ -33,5 +33,6 @@ namespace TrenchBroom {
         const Vec3f Vec3f::NaN  = Vec3f(std::numeric_limits<float>::quiet_NaN(),
                                         std::numeric_limits<float>::quiet_NaN(),
                                         std::numeric_limits<float>::quiet_NaN());
+        const Vec3f::List Vec3f::EmptyList = Vec3f::List();
     }
 }

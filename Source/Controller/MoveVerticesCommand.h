@@ -35,7 +35,9 @@ namespace TrenchBroom {
         public:
             typedef std::map<Model::Brush*, Vec3f::List> BrushVerticesMap;
         protected:
+            Model::BrushList m_brushes;
             BrushVerticesMap m_brushVertices;
+            BrushVerticesMap m_changedBrushVertices;
             Vec3f m_delta;
             
             bool performDo();
@@ -44,6 +46,10 @@ namespace TrenchBroom {
             MoveVerticesCommand(Model::MapDocument& document, const wxString& name, const BrushVerticesMap& brushVertices, const Vec3f& delta);
         public:
             static MoveVerticesCommand* moveVertices(Model::MapDocument& document, const BrushVerticesMap& brushVertices, const Vec3f& delta);
+            
+            inline const BrushVerticesMap& changedBrushVertices() const {
+                return m_changedBrushVertices;
+            }
         };
     }
 }

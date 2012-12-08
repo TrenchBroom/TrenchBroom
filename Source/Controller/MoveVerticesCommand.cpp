@@ -27,10 +27,40 @@
 namespace TrenchBroom {
     namespace Controller {
         bool MoveVerticesCommand::performDo() {
+            m_brushes.clear();
+            m_changedBrushVertices.clear();
             
+            BrushVerticesMap::const_iterator it, end;
+            for (it = m_brushVertices.begin(), end = m_brushVertices.end(); it != end; ++it) {
+                Model::Brush* brush = it->first;
+                const Vec3f::List& vertices = it->second;
+                if (!brush->canMoveVertices(vertices, m_delta))
+                    return false;
+                m_brushes.push_back(brush);
+            }
+            
+            makeSnapshots(m_brushes);
+            document().brushesWillChange(m_brushes);
+
+            for (it = m_brushVertices.begin(), end = m_brushVertices.end(); it != end; ++it) {
+                Model::Brush* brush = it->first;
+                const Vec3f::List& oldVertexPositions = it->second;
+                Vec3f::List newVertexPositions = brush->moveVertices(oldVertexPositions, m_delta);
+                m_changedBrushVertices[brush] = newVertexPositions;
+            }
+            
+            document().brushesDidChange(m_brushes);
+            return true;
         }
         
         bool MoveVerticesCommand::performUndo() {
+            document().brushesWillChange(m_brushes);
+            restoreSnapshots(m_brushes);
+            document().brushesDidChange(m_brushes);
+
+            m_changedBrushVertices.clear();
+            m_brushes.clear();
+            return true;
         }
         
         MoveVerticesCommand::MoveVerticesCommand(Model::MapDocument& document, const wxString& name, const BrushVerticesMap& brushVertices, const Vec3f& delta) :

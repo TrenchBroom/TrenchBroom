@@ -356,9 +356,8 @@ namespace TrenchBroom {
             }
         }
 
-        SideList BrushGeometry::incidentSides(size_t vertexIndex) {
+        SideList BrushGeometry::incidentSides(Vertex* vertex) {
             SideList result;
-            Vertex* vertex = vertices[vertexIndex];
 
             // find any edge that is incident to vertex
             Edge* edge = NULL;
@@ -411,9 +410,8 @@ namespace TrenchBroom {
             deleteElement(edges, dropEdge);
         }
 
-        void BrushGeometry::triangulateSide(Side* sideToTriangulate, size_t vertexIndex, FaceList& newFaces) {
+        void BrushGeometry::triangulateSide(Side* sideToTriangulate, Vertex* vertex, FaceList& newFaces) {
             Side* newSide;
-            Vertex* vertex = vertices[vertexIndex];
             size_t sideVertexIndex = findElement(sideToTriangulate->vertices, vertex);
             assert(sideVertexIndex < sideToTriangulate->vertices.size());
 
@@ -458,9 +456,8 @@ namespace TrenchBroom {
             newFaces.push_back(newSide->face);
         }
 
-        void BrushGeometry::splitSide(Side* sideToSplit, size_t vertexIndex, FaceList& newFaces) {
+        void BrushGeometry::splitSide(Side* sideToSplit, Vertex* vertex, FaceList& newFaces) {
             Side* newSide;
-            Vertex* vertex = vertices[vertexIndex];
             size_t sideVertexIndex = findElement(sideToSplit->vertices, vertex);
             assert(sideVertexIndex < sideToSplit->vertices.size());
 
@@ -490,7 +487,7 @@ namespace TrenchBroom {
 
         }
 
-        void BrushGeometry::splitSides(SideList& sidesToSplit, const Ray& ray, size_t vertexIndex, FaceList& newFaces, FaceList& droppedFaces) {
+        void BrushGeometry::splitSides(SideList& sidesToSplit, const Ray& ray, Vertex* vertex, FaceList& newFaces, FaceList& droppedFaces) {
             Vec3f v1, v2;
 
             for (unsigned int i = 0; i < sidesToSplit.size(); i++) {
@@ -502,10 +499,10 @@ namespace TrenchBroom {
 
                     float dot = v1.dot(ray.direction);
                     if (Math::neg(dot)) { // movement direction is downwards into the side
-                        splitSide(side, vertexIndex, newFaces);
+                        splitSide(side, vertex, newFaces);
                         assert(sanityCheck());
                     } else { // movement direction is upward out of the side or parallel to the side's boundary plane
-                        triangulateSide(side, vertexIndex, newFaces);
+                        triangulateSide(side, vertex, newFaces);
                         FaceList::iterator faceIt = find(newFaces.begin(), newFaces.end(), side->face);
                         if (faceIt != newFaces.end()) {
                             delete side->face;
@@ -525,34 +522,24 @@ namespace TrenchBroom {
 
         void BrushGeometry::mergeVertices(Vertex* keepVertex, Vertex* dropVertex, FaceList& newFaces, FaceList& droppedFaces) {
             // find the edge incident to both vertex and candidate
-            Edge* dropEdge = NULL;
-            for (unsigned int j = 0; j < edges.size() && dropEdge == NULL; j++) {
-                Edge* edge =edges[j];
-                if ((edge->start == keepVertex && edge->end == dropVertex) ||
-                    (edge->end == keepVertex && edge->start == dropVertex))
-                    dropEdge = edge;
-            }
+            Edge* dropEdge = findEdge(edges, keepVertex->position, dropVertex->position);
 
             // because the algorithm should not allow non-adjacent vertices to be merged in the first place
             assert(dropEdge != NULL);
             assert(dropEdge->left->vertices.size() == 3);
             assert(dropEdge->right->vertices.size() == 3);
 
-            for (unsigned int j = 0; j < edges.size(); j++) {
-                Edge* edge = edges[j];
+            EdgeList::const_iterator edgeIt, edgeEnd;
+            for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
+                Edge* edge = *edgeIt;
                 if (edge != dropEdge && (edge->start == dropVertex || edge->end == dropVertex)) {
                     if (edge->start == dropVertex)
                         edge->start = keepVertex;
                     else
                         edge->end = keepVertex;
-
-                    size_t index = findElement(edge->left->vertices, dropVertex);
-                    if (index < edge->left->vertices.size())
-                        edge->left->vertices[index] = keepVertex;
-
-                    index = findElement(edge->right->vertices, dropVertex);
-                    if (index < edge->right->vertices.size())
-                        edge->right->vertices[index] = keepVertex;
+                    
+                    std::replace(edge->left->vertices.begin(), edge->left->vertices.end(), dropVertex, keepVertex);
+                    std::replace(edge->right->vertices.begin(), edge->right->vertices.end(), dropVertex, keepVertex);
                 }
             }
 
@@ -844,264 +831,198 @@ namespace TrenchBroom {
             return minDist;
         }
 
-        VertexMoveResult BrushGeometry::moveVertex(size_t vertexIndex, bool mergeIncidentVertex, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces) {
-            Vertex* vertex;
-            Vec3f newPosition;
-            Ray ray;
-            float actualMoveDist, moveDist, dot1, dot2;
-            SideList incSides;
-            size_t actualVertexIndex;
-            Vec3f v1, v2, cross, edgeVector;
-            VertexMoveResult result;
-
-            assert(vertexIndex >= 0 && vertexIndex < vertices.size());
-
-            moveDist = delta.length();
-            if (moveDist == 0) {
-                result.moved = false;
-                result.index = vertexIndex;
-                return result;
-            }
-
-            actualVertexIndex = vertexIndex;
-            vertex = vertices[actualVertexIndex];
-            ray.origin = vertex->position;
-            ray.direction = delta / moveDist;
-
+        MoveVertexResult BrushGeometry::moveVertex(Vertex* vertex, bool mergeWithAdjacentVertex, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces) {
+            assert(vertex != NULL);
+            
+            float moveDist = delta.length();
+            if (moveDist == 0.0f)
+                return MoveVertexResult(MoveVertexResult::VertexUnchanged, vertex);
+            
+            const Vec3f originalPosition = vertex->position;
+            const Ray ray = Ray(originalPosition, delta /  moveDist);
+            
             assert(sanityCheck());
-
-            incSides = incidentSides(actualVertexIndex);
-            splitSides(incSides, ray, actualVertexIndex, newFaces, droppedFaces);
-
-            incSides = incidentSides(actualVertexIndex);
-            actualMoveDist = minVertexMoveDist(incSides, vertex, ray, moveDist);
-
-            vertex->position = ray.pointAtDistance(actualMoveDist);
-            newPosition = vertex->position;
-
+            
+            SideList incSides = incidentSides(vertex);
+            splitSides(incSides, ray, vertex, newFaces, droppedFaces);
+            
+            incSides = incidentSides(vertex);
+            const float actualMoveDist = minVertexMoveDist(incSides, vertex, ray, moveDist);
+            
+            const Vec3f newPosition = ray.pointAtDistance(actualMoveDist);
+            vertex->position = newPosition;
+            
             // check whether the vertex is dragged onto a non-incident edge
-            for (unsigned int i = 0; i < edges.size(); i++) {
-                Edge* edge = edges[i];
+            EdgeList::const_iterator edgeIt, edgeEnd;
+            for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
+                Edge* edge = *edgeIt;
                 if (edge->start != vertex && edge->end != vertex) {
-                    v1 = vertex->position - edge->start->position;
-                    v2 = vertex->position - edge->end->position;
-                    if (v1.parallelTo(v2)) {
+                    const Vec3f v1 = vertex->position - edge->start->position;
+                    const Vec3f v2 = vertex->position - edge->end->position;
+                    if (!v1.null() && !v2.null() && v1.parallelTo(v2)) {
                         // vertex is somewhere on the line defined by the edge
-                        edgeVector = edge->vector();
-                        dot1 = v1.dot(edgeVector);
-                        dot2 = v2.dot(edgeVector);
-                        if ((dot1 > 0) != (dot2 > 0)) {
+                        const Vec3f edgeVector = edge->vector();
+                        const float dot1 = v1.dot(edgeVector);
+                        const float dot2 = v2.dot(edgeVector);
+                        if ((dot1 > 0.0f) != (dot2 > 0.0f)) {
                             // vertex is between the edge points
                             // undo the vertex move
-                            vertex->position = ray.origin;
+                            vertex->position = originalPosition;
                             mergeSides(newFaces, droppedFaces);
                             mergeEdges();
-
-                            result.moved = false;
-                            result.index = findElement(vertices, vertex);
-                            return result;
+                            
+                            return MoveVertexResult(MoveVertexResult::VertexUnchanged, vertex);
                         }
                     }
                 }
             }
-
+            
             // check whether the vertex is dragged onto another vertex, if so, kill that vertex
-            for (unsigned int i = 0; i < vertices.size(); i++) {
-                if (i != vertexIndex) {
-                    Vertex* candidate = vertices[i];
+            VertexList::const_iterator vIt, vEnd;
+            for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
+                Vertex* candidate = *vIt;
+                if (candidate != vertex) {
                     if (vertex->position.equals(candidate->position)) {
-                        if (mergeIncidentVertex) {
+                        if (mergeWithAdjacentVertex) {
                             mergeVertices(vertex, candidate, newFaces, droppedFaces);
                             break;
                         } else {
                             // undo the vertex move
-                            vertex->position = ray.origin;
+                            vertex->position = originalPosition;
                             mergeSides(newFaces, droppedFaces);
                             mergeEdges();
-
-                            result.moved = false;
-                            result.index = findElement(vertices, vertex);
-                            return result;
+                            
+                            return MoveVertexResult(MoveVertexResult::VertexUnchanged, vertex);
                         }
                     }
                 }
             }
-
+            
             // some incident sides may have become degenerate, or more specifically, a triangle with collinear vertices
             // at this point, all incident sides have been split so that only triangles remain
-            incSides = incidentSides(actualVertexIndex);
+            incSides = incidentSides(vertex);
             deleteCollinearTriangles(incSides, newFaces, droppedFaces);
-
+            
             assert(sanityCheck());
-
+            
             // now merge all mergeable sides back together
             // then check for consecutive edges that can be merged
             mergeSides(newFaces, droppedFaces);
             mergeEdges();
             bounds = boundsOfVertices(vertices);
             center = centerOfVertices(vertices);
-
-            // find the index of the moved vertex
-            size_t newVertexIndex = findVertex(vertices, newPosition);
-
+            
+            bool vertexDeleted = std::find(vertices.begin(), vertices.end(), vertex) == vertices.end();
+            
             // is the move concluded?
-            if (newVertexIndex == vertices.size() || actualMoveDist == moveDist) {
+            if (vertexDeleted || actualMoveDist == moveDist) {
                 for (unsigned int i = 0; i < vertices.size(); i++)
-                    vertices[i]->position = vertices[i]->position.snapped();
+                    vertices[i]->position.snap();
                 for (unsigned int i = 0; i < sides.size(); i++)
                     sides[i]->face->updatePoints();
-
-                result.deleted = newVertexIndex == vertices.size();
-                result.moved = true;
-                result.index = vertexIndex;
-                return result;
+                
+                if (vertexDeleted)
+                    return MoveVertexResult(MoveVertexResult::VertexDeleted);
+                return MoveVertexResult(MoveVertexResult::VertexMoved, vertex);
             }
-
-            // now safe
-            vertexIndex = newVertexIndex;
-
-            // drag is now concluded, calculate the new delta and call self
-            ray.direction *= (moveDist - actualMoveDist);
-            return moveVertex(vertexIndex, mergeIncidentVertex, ray.direction, newFaces, droppedFaces);
+            
+            // drag must continue, calculate the new delta and call self
+            return moveVertex(vertex, mergeWithAdjacentVertex, ray.direction * (moveDist - actualMoveDist), newFaces, droppedFaces);
         }
-
-        VertexMoveResult BrushGeometry::splitAndMoveEdge(size_t index, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces) {
-            Edge* edge;
-            Vertex* vertex;
-            Vec3f edgeVertices[2];
-            Vec3f leftNorm, rightNorm;
-            VertexMoveResult result;
-            size_t edgeIndex;
-
-            edgeIndex = index - vertices.size();
-            edge = edges[edgeIndex];
-
-            // detect whether the drag would make the incident faces invalid
-            leftNorm = edge->left->face->boundary().normal;
-            rightNorm = edge->right->face->boundary().normal;
-            if (Math::neg(delta.dot(leftNorm)) ||
-                Math::neg(delta.dot(rightNorm))) {
-                result.moved = false;
-                result.index = index;
-                return result;
-            }
-
-            edgeVertices[0] = edge->start->position;
-            edgeVertices[1] = edge->end->position;
-
+        
+        Vertex* BrushGeometry::splitEdge(Edge* edge, FaceList& newFaces, FaceList& droppedFaces) {
             // split the edge
             edge->left->shift(findElement(edge->left->edges, edge) + 1);
             edge->right->shift(findElement(edge->right->edges, edge) + 1);
-
-            vertex = new Vertex();
-            vertex->position = edge->center();
-
-            vertices.push_back(vertex);
-            edge->left->vertices.push_back(vertex);
-            edge->right->vertices.push_back(vertex);
-
-            Edge* newEdge1 = new Edge(edge->start, vertex);
+            
+            // create a new vertex
+            Vertex* newVertex = new Vertex();
+            newVertex->position = edge->center();
+            vertices.push_back(newVertex);
+            edge->left->vertices.push_back(newVertex);
+            edge->right->vertices.push_back(newVertex);
+            
+            // create the new edges
+            Edge* newEdge1 = new Edge(edge->start, newVertex);
             newEdge1->left = edge->left;
             newEdge1->right = edge->right;
-            Edge* newEdge2 = new Edge(vertex, edge->end);
+            Edge* newEdge2 = new Edge(newVertex, edge->end);
             newEdge2->left = edge->left;
             newEdge2->right = edge->right;
-
-            edge->left->edges.pop_back();
-            edge->right->edges.pop_back();
-
             edges.push_back(newEdge1);
             edges.push_back(newEdge2);
+            
+            // remove the split edge from the incident sides
+            edge->left->edges.pop_back();
+            edge->right->edges.pop_back();
+            
+            // delete the split edge
+            edges.erase(std::remove(edges.begin(), edges.end(), edge), edges.end());
+            delete edge;
+
+            // add the new edges to the incident sides
             edge->left->edges.push_back(newEdge2);
             edge->left->edges.push_back(newEdge1);
             edge->right->edges.push_back(newEdge1);
             edge->right->edges.push_back(newEdge2);
-
-            edges.erase(edges.begin() + edgeIndex);
-            delete edge;
-
-            result = moveVertex(vertices.size() - 1, true, delta, newFaces, droppedFaces);
-            if (result.deleted)
-                result.index = vertices.size() + findEdge(edges, edgeVertices[0], edgeVertices[1]);
-
-            return result;
+            
+            return newVertex;
         }
-
-        VertexMoveResult BrushGeometry::splitAndMoveSide(size_t sideIndex, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces) {
-            Side* side;
-            Vertex* vertex;
-            std::vector<Vec3f> sideVertices;
-            Vec3f norm;
-            VertexMoveResult result;
-            size_t index;
-
-            index = sideIndex - edges.size() - vertices.size();
-            side = sides[index];
-
-            // detect whether the drag would lead to an indented face
-            norm = side->face->boundary().normal;
-            if (Math::zero(delta.dot(norm))) {
-                result.moved = false;
-                result.index = sideIndex;
-                return result;
-            }
-
-            // store the side's vertices for later
-            for (unsigned int i = 0; i < side->vertices.size(); i++)
-                sideVertices.push_back(side->vertices[i]->position);
-
-            vertex = new Vertex();
-            vertex->position = centerOfVertices(side->vertices);
-            vertices.push_back(vertex);
-
-            Edge* firstEdge = new Edge(vertex, side->edges[0]->startVertex(side));
+        
+        Vertex* BrushGeometry::splitFace(Face* face, FaceList& newFaces, FaceList& droppedFaces) {
+            Side* side = face->side();
+            
+            // create a new vertex
+            Vertex* newVertex = new Vertex();
+            newVertex->position = centerOfVertices(side->vertices);
+            vertices.push_back(newVertex);
+            
+            // create the new edges
+            Edge* firstEdge = new Edge(newVertex, side->edges[0]->startVertex(side));
             edges.push_back(firstEdge);
-
+            
             Edge* lastEdge = firstEdge;
             for (unsigned int i = 0; i < side->edges.size(); i++) {
                 Edge* sideEdge = side->edges[i];
-
+                
                 Edge* newEdge;
                 if (i == side->edges.size() - 1) {
                     newEdge = firstEdge;
                 } else {
-                    newEdge = new Edge(vertex, sideEdge->endVertex(side));
+                    newEdge = new Edge(newVertex, sideEdge->endVertex(side));
                     edges.push_back(newEdge);
                 }
-
+                
                 Side* newSide = new Side();
-                newSide->vertices.push_back(vertex);
+                newSide->vertices.push_back(newVertex);
                 newSide->edges.push_back(lastEdge);
                 lastEdge->right = newSide;
-
+                
                 newSide->vertices.push_back(lastEdge->end);
                 newSide->edges.push_back(sideEdge);
                 if (sideEdge->left == side)
                     sideEdge->left = newSide;
                 else
                     sideEdge->right = newSide;
-
+                
                 newSide->vertices.push_back(newEdge->end);
                 newSide->edges.push_back(newEdge);
                 newEdge->left = newSide;
-
+                
                 newSide->face = new Face(side->face->worldBounds(), *side->face);
                 newSide->face->setSide(newSide);
                 sides.push_back(newSide);
                 newFaces.push_back(newSide->face);
-
+                
                 lastEdge = newEdge;
             }
-
-            droppedFaces.push_back(side->face);
-            bool success = deleteElement(sides, side);
-            assert(success);
-
-            result = moveVertex(vertices.size() - 1, true, delta, newFaces, droppedFaces);
-            if (result.deleted)
-                result.index = vertices.size() + edges.size() + findSide(sides, sideVertices);
-
-            return result;
+            
+            // delete the split side
+            droppedFaces.push_back(face);
+            sides.erase(std::remove(sides.begin(), sides.end(), side), sides.end());
+            delete side;
+            
+            return newVertex;
         }
 
         void BrushGeometry::copy(const BrushGeometry& original) {
@@ -1528,170 +1449,118 @@ namespace TrenchBroom {
         void BrushGeometry::snap() {
         }
 
-        VertexMoveResult BrushGeometry::moveVertex(size_t vertexIndex, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces) {
-            assert(vertexIndex >= 0);
-            assert(vertexIndex < vertices.size() + edges.size() + sides.size());
+        bool BrushGeometry::canMoveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta) {
+            FaceList newFaces;
+            FaceList droppedFaces;
+            
+            Vec3f::List sortedVertexPositions = vertexPositions;
+            std::sort(sortedVertexPositions.begin(), sortedVertexPositions.end(), Vec3f::InverseDotOrder(delta));
 
-            VertexMoveResult result;
-            if (delta.lengthSquared() == 0)
-                result = VertexMoveResult(vertexIndex, false, false);
-            else if (vertexIndex < vertices.size())
-                result = moveVertex(vertexIndex, true, delta, newFaces, droppedFaces);
-            else if (vertexIndex < vertices.size() + edges.size())
-                result = splitAndMoveEdge(vertexIndex, delta, newFaces, droppedFaces);
-            else
-                result = splitAndMoveSide(vertexIndex, delta, newFaces, droppedFaces);
-
-            return result;
-        }
-
-        VertexMoveResult BrushGeometry::moveEdge(size_t edgeIndex, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces) {
-            assert(edgeIndex >= 0 && edgeIndex < edges.size());
-
-            if (delta.lengthSquared() == 0)
-                return VertexMoveResult(edgeIndex, false, false);
-
+            bool canMove = true;
             BrushGeometry testGeometry(*this);
-            testGeometry.restoreFaceSides();
-            assert(testGeometry.sanityCheck());
-
-            Edge* edge = testGeometry.edges[edgeIndex];
-
-            // remember these in case the edge gets deleted
-            Vertex* startVertex = edge->start;
-            Vertex* endVertex = edge->end;
-
-            Vec3f startPosition = startVertex->position;
-            Vec3f endPosition = endVertex->position;
-            Vec3f dir = endPosition - startPosition;
-            startPosition += delta;
-            endPosition += delta;
-
-            VertexMoveResult result;
-            if (dir.dot(delta) > 0) {
-                result = testGeometry.moveVertex(findElement(testGeometry.vertices, endVertex), false, delta, newFaces, droppedFaces);
-                if (result.moved)
-                    result = testGeometry.moveVertex(findElement(testGeometry.vertices, startVertex), false, delta, newFaces, droppedFaces);
-            } else {
-                result = testGeometry.moveVertex(findElement(testGeometry.vertices, startVertex), false, delta, newFaces, droppedFaces);
-                if (result.moved)
-                    result = testGeometry.moveVertex(findElement(testGeometry.vertices, endVertex), false, delta, newFaces, droppedFaces);
+            Vec3f::List::const_iterator vertexIt, vertexEnd;
+            for (vertexIt = sortedVertexPositions.begin(), vertexEnd = sortedVertexPositions.end(); vertexIt != vertexEnd && canMove; ++vertexIt) {
+                const Vec3f& vertexPosition = *vertexIt;
+                Vertex* vertex = findVertex(testGeometry.vertices, vertexPosition);
+                assert(vertex != NULL);
+                
+                MoveVertexResult result = testGeometry.moveVertex(vertex, true, delta, newFaces, droppedFaces);
+                canMove = result.type != MoveVertexResult::VertexUnchanged;
             }
-
-            if (result.moved) {
-                copy(testGeometry);
-                assert(sanityCheck());
-                result.index = findEdge(testGeometry.edges, startPosition, endPosition);
-                result.deleted = result.index == testGeometry.edges.size();
-            } else {
-                result.index = edgeIndex;
-                newFaces.clear();
-                droppedFaces.clear();
-            }
-
+            while (!newFaces.empty()) delete newFaces.back(), newFaces.pop_back();
             restoreFaceSides();
-            return result;
+            return canMove;
         }
 
-        VertexMoveResult BrushGeometry::moveSide(size_t sideIndex, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces) {
-            assert(sideIndex >= 0 && sideIndex < sides.size());
-
-            float dist = delta.length();
-            if (dist == 0)
-                return VertexMoveResult(sideIndex, false, false);
-
-            BrushGeometry testGeometry(*this);
-            testGeometry.restoreFaceSides();
-
-            Vec3f diff;
-            Vec3f dir = delta / dist;
-            Side* side = testGeometry.sides[sideIndex];
-            Vec3f center = centerOfVertices(side->vertices);
-
-            size_t sideVertexCount = side->vertices.size();
-            std::vector<Vec3f> sideVertices(sideVertexCount);
-            std::vector<size_t> indices(sideVertexCount);
-            std::vector<float> dots(sideVertexCount);
-            for (unsigned int i = 0; i < sideVertexCount; i++) {
-                sideVertices[i] = side->vertices[i]->position;
-                Vec3f diff = sideVertices[i] - center;
-                dots[i] = diff.dot(dir);
-                indices[i] = findElement(testGeometry.vertices, side->vertices[i]);
-                sideVertices[i] += delta;
+        Vec3f::List BrushGeometry::moveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces) {
+            assert(canMoveVertices(vertexPositions, delta));
+            
+            Vec3f::List newVertexPositions;
+            Vec3f::List sortedVertexPositions = vertexPositions;
+            std::sort(sortedVertexPositions.begin(), sortedVertexPositions.end(), Vec3f::InverseDotOrder(delta));
+            
+            Vec3f::List::const_iterator vertexIt, vertexEnd;
+            for (vertexIt = sortedVertexPositions.begin(), vertexEnd = sortedVertexPositions.end(); vertexIt != vertexEnd; ++vertexIt) {
+                const Vec3f& vertexPosition = *vertexIt;
+                Vertex* vertex = findVertex(vertices, vertexPosition);
+                assert(vertex != NULL);
+                
+                MoveVertexResult result = moveVertex(vertex, true, delta, newFaces, droppedFaces);
+                if (result.type == MoveVertexResult::VertexMoved)
+                    newVertexPositions.push_back(result.vertex->position);
             }
-
-            // sort indices by dot value, eek, bubblesort
-            bool switched = true;
-            for (long j = static_cast<long>(sideVertexCount) - 1; j >= 0 && switched; j--) {
-                switched = false;
-                for (long i = 0; i < j; i++) {
-                    if (dots[i] > dots[i + 1]) {
-                        float dt = dots[i];
-                        dots[i] = dots[i + 1];
-                        dots[i + 1] = dt;
-
-                        size_t di = indices[i];
-                        indices[i] = indices[i + 1];
-                        indices[i + 1] = di;
-                        switched = true;
-                    }
-                }
-            }
-
-            VertexMoveResult result;
-            result.moved = true;
-            for (unsigned int i = 0; i < sideVertexCount && result.moved; i++)
-                result = testGeometry.moveVertex(indices[i], false, delta, newFaces, droppedFaces);
-
-            if (result.moved) {
-                copy(testGeometry);
-                assert(sanityCheck());
-                result.index = findSide(sides, sideVertices);
-                result.deleted = result.index == sides.size();
-            } else {
-                result.index = sideIndex;
-                newFaces.clear();
-                droppedFaces.clear();
-            }
-
-            restoreFaceSides();
-            return result;
+            
+            return newVertexPositions;
         }
 
-        size_t findVertex(const VertexList& vertices, const Vec3f& v) {
-            for (unsigned int i = 0; i < vertices.size(); i++)
-                if (vertices[i]->position.equals(v)) return i;
-            return vertices.size();
+        CreateVertexResult BrushGeometry::splitEdge(Edge* edge, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces) {
+            // detect whether the drag would make the incident faces invalid
+            const Vec3f& leftNorm = edge->left->face->boundary().normal;
+            const Vec3f& rightNorm = edge->right->face->boundary().normal;
+            if (Math::neg(delta.dot(leftNorm)) ||
+                Math::neg(delta.dot(rightNorm)))
+                return CreateVertexResult(false);
+            
+            Vertex* newVertex = splitEdge(edge, newFaces, droppedFaces);
+            MoveVertexResult result = moveVertex(newVertex, false, delta, newFaces, droppedFaces);
+            if (result.type == MoveVertexResult::VertexMoved)
+                return CreateVertexResult(true, result.vertex);
+            return CreateVertexResult(false);
         }
 
-        size_t findEdge(const EdgeList& edges, const Vec3f& v1, const Vec3f& v2) {
-            for (unsigned int i = 0; i < edges.size(); i++) {
-                Edge* edge = edges[i];
-                if ((edge->start->position.equals(v1) && edge->end->position.equals(v2)) ||
-                    (edge->start->position.equals(v2) && edge->end->position.equals(v1)))
-                    return i;
+        CreateVertexResult BrushGeometry::splitFace(Face* face, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces) {
+            // detect whether the drag would lead to an indented face
+            const Vec3f& norm = face->boundary().normal;
+            if (Math::zero(delta.dot(norm)))
+                return CreateVertexResult(false);
+            
+            Vertex* newVertex = splitFace(face, newFaces, droppedFaces);
+            MoveVertexResult result = moveVertex(newVertex, false, delta, newFaces, droppedFaces);
+            if (result.type == MoveVertexResult::VertexMoved)
+                return CreateVertexResult(true, result.vertex);
+            return CreateVertexResult(false);
+        }
+
+        Vertex* findVertex(const VertexList& vertices, const Vec3f& position) {
+            VertexList::const_iterator it, end;
+            for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
+                Vertex* vertex = *it;
+                if (vertex->position.equals(position))
+                    return vertex;
             }
-            return edges.size();
+            return NULL;
         }
-
-        size_t findSide(const SideList& sides, const Vec3f::List& vertices) {
-            for (unsigned int i = 0; i < sides.size(); i++) {
-                Side* side = sides[i];
-                if (side->vertices.size() == vertices.size()) {
-                    for (unsigned int j = 0; j < vertices.size(); j++) {
-                        unsigned int k = 0;
-                        while (k < vertices.size() && side->vertices[(j + k) % vertices.size()]->position.equals(vertices[k]))
+        
+        Edge* findEdge(const EdgeList& edges, const Vec3f& vertexPosition1, const Vec3f& vertexPosition2) {
+            EdgeList::const_iterator it, end;
+            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+                Edge* edge = *it;
+                if ((edge->start->position.equals(vertexPosition1) && edge->end->position.equals(vertexPosition2)) ||
+                    (edge->start->position.equals(vertexPosition2) && edge->end->position.equals(vertexPosition1)))
+                    return edge;
+            }
+            return NULL;
+        }
+        
+        Side* findSide(const SideList& sides, const Vec3f::List& vertexPositions) {
+            const size_t n = vertexPositions.size();
+            SideList::const_iterator it, end;
+            for (it = sides.begin(), end = sides.end(); it != end; ++it) {
+                Side* side = *it;
+                if (side->vertices.size() == n) {
+                    for (unsigned int j = 0; j < n; j++) {
+                        size_t k = 0;
+                        while (k < n && side->vertices[(j + k) % n]->position.equals(vertexPositions[k]))
                             k++;
-
-                        if (k == vertices.size())
-                            return i;
+                        
+                        if (k == n)
+                            return side;
                     }
                 }
             }
-
-            return sides.size();
+            return NULL;
         }
-
+        
         Vec3f centerOfVertices(const VertexList& vertices) {
             Vec3f center = vertices[0]->position;
             for (unsigned int i = 1; i < vertices.size(); i++)

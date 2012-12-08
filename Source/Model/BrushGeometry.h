@@ -211,16 +211,30 @@ namespace TrenchBroom {
             size_t isCollinearTriangle();
         };
 
-        class VertexMoveResult {
-        public:
-            size_t index;
-            bool moved;
-            bool deleted;
-
-            VertexMoveResult() {};
-            VertexMoveResult(size_t index, bool moved, bool deleted) : index(index), moved(moved), deleted(deleted) {}
+        struct MoveVertexResult {
+            typedef enum {
+                VertexMoved,
+                VertexDeleted,
+                VertexUnchanged
+            } Type;
+            
+            const Type type;
+            Vertex* vertex;
+            
+            MoveVertexResult(Type type, Vertex* vertex = NULL) :
+            type(type),
+            vertex(vertex) {}
         };
-
+        
+        struct CreateVertexResult {
+            const bool success;
+            Vertex* vertex;
+            
+            CreateVertexResult(bool success, Vertex* vertex = NULL) :
+            success(success),
+            vertex(vertex) {}
+        };
+        
         class BrushGeometry {
         public:
             enum CutResult {
@@ -229,20 +243,22 @@ namespace TrenchBroom {
                 Split       // the given face has split the brush
             };
         private:
-            SideList incidentSides(size_t vertexIndex);
+            SideList incidentSides(Vertex* vertex);
             void deleteDegenerateTriangle(Side* side, Edge* edge, FaceList& newFaces, FaceList& droppedFaces);
-            void triangulateSide(Side* sideToTriangluate, size_t vertexIndex, FaceList& newFaces);
-            void splitSide(Side* sideToSplit, size_t vertexIndex, FaceList& newFaces);
-            void splitSides(SideList& sidesToSplit, const Ray& ray, size_t vertexIndex, FaceList& newFaces, FaceList& droppedFaces);
+            void triangulateSide(Side* sideToTriangluate, Vertex* vertex, FaceList& newFaces);
+            void splitSide(Side* sideToSplit, Vertex* vertex, FaceList& newFaces);
+            void splitSides(SideList& sidesToSplit, const Ray& ray, Vertex* vertex, FaceList& newFaces, FaceList& droppedFaces);
             void mergeVertices(Vertex* keepVertex, Vertex* dropVertex, FaceList& newFaces, FaceList& droppedFaces);
             void mergeEdges();
             void mergeNeighbours(Side* side, size_t edgeIndex);
             void mergeSides(FaceList& newFaces, FaceList&droppedFaces);
             void deleteCollinearTriangles(SideList& incSides, FaceList& newFaces, FaceList& droppedFaces);
             float minVertexMoveDist(const SideList& incSides, const Vertex* vertex, const Ray& ray, float maxDist);
-            VertexMoveResult moveVertex(size_t vertexIndex, bool mergeIncidentVertex, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
-            VertexMoveResult splitAndMoveEdge(size_t index, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
-            VertexMoveResult splitAndMoveSide(size_t sideIndex, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
+            
+            MoveVertexResult moveVertex(Vertex* vertex, bool mergeWithAdjacentVertex, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
+            Vertex* splitEdge(Edge* edge, FaceList& newFaces, FaceList& droppedFaces);
+            Vertex* splitFace(Face* face, FaceList& newFaces, FaceList& droppedFaces);
+            
             void copy(const BrushGeometry& original);
             bool sanityCheck();
         public:
@@ -268,9 +284,10 @@ namespace TrenchBroom {
             void flip(Axis::Type axis, const Vec3f& flipCenter);
             void snap();
 
-            VertexMoveResult moveVertex(size_t vertexIndex, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
-            VertexMoveResult moveEdge(size_t edgeIndex, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
-            VertexMoveResult moveSide(size_t sideIndex, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
+            bool canMoveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta);
+            Vec3f::List moveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
+            CreateVertexResult splitEdge(Edge* edge, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
+            CreateVertexResult splitFace(Face* face, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
         };
 
         template <class T>
@@ -299,9 +316,9 @@ namespace TrenchBroom {
             return true;
         }
 
-        size_t findVertex(const VertexList& vertices, const Vec3f& v);
-        size_t findEdge(const EdgeList& edges, const Vec3f& v1, const Vec3f& v2);
-        size_t findSide(const SideList& sides, const Vec3f::List& vertices);
+        Vertex* findVertex(const VertexList& vertices, const Vec3f& position);
+        Edge* findEdge(const EdgeList& edges, const Vec3f& vertexPosition1, const Vec3f& vertexPosition2);
+        Side* findSide(const SideList& sides, const Vec3f::List& vertexPositions);
 
         Vec3f centerOfVertices(const VertexList& vertices);
         BBox boundsOfVertices(const VertexList& vertices);

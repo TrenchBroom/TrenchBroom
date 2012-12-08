@@ -172,7 +172,6 @@ namespace TrenchBroom {
             VertexSelection m_selection;
             MoveHandle m_moveHandle;
             float m_vertexHandleSize;
-            Vec3f m_totalDelta;
             MoveHandle::RestrictToAxis m_restrictToAxis;
 
             Renderer::ManyCubesInstancedFigure* m_vertexFigure;

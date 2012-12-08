@@ -326,6 +326,10 @@ namespace TrenchBroom {
              */
             void rotateTexture(float angle);
             
+            inline void invalidateCoords() {
+                m_coordsValid = false;
+            }
+            
             /**
              * Returns the texture coordinates for each vertex of this face. The texture coordinates are in the same
              * order as the vertices returned by the vertices() function.

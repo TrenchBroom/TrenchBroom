@@ -19,7 +19,7 @@
 
 #include "MoveVerticesTool.h"
 
-#include "Controller/Command.h"
+#include "Controller/MoveVerticesCommand.h"
 #include "Model/EditStateManager.h"
 #include "Model/MapDocument.h"
 #include "Renderer/ManyCubesInstancedFigure.h"
@@ -240,7 +240,6 @@ namespace TrenchBroom {
             }
             
             initialPoint = hit->hitPoint();
-            m_totalDelta = Vec3f::Null;
             m_moveHandle.lock();
             
             beginCommandGroup(m_selection.selectedVertices().size() == 1 ? wxT("Move Vertex") : wxT("Move Vertices"));
@@ -272,24 +271,55 @@ namespace TrenchBroom {
             m_moveHandle.setPosition(m_moveHandle.position() + delta);
             setNeedsUpdate();
             
+            MoveVerticesCommand::BrushVerticesMap brushVerticesMap;
+            const VertexSelection::VertexBrushMap vertexBrushMap = m_selection.selectedVertices();
+            VertexSelection::VertexBrushMap::const_iterator vertexBrushIt, vertexBrushEnd;
+            for (vertexBrushIt = vertexBrushMap.begin(), vertexBrushEnd = vertexBrushMap.end(); vertexBrushIt != vertexBrushEnd; ++vertexBrushIt) {
+                const Vec3f& vertex = vertexBrushIt->first;
+                const Model::BrushList& brushes = vertexBrushIt->second;
+                Model::BrushList::const_iterator brushIt, brushEnd;
+                for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
+                    Model::Brush* brush = *brushIt;
+                    brushVerticesMap[brush].push_back(vertex);
+                    m_selection.removeVertices(*brush);
+                }
+            }
+            
+            MoveVerticesCommand* command = MoveVerticesCommand::moveVertices(document(), brushVerticesMap, delta);
+            if (submitCommand(command))
+                brushVerticesMap = command->changedBrushVertices();
+            MoveVerticesCommand::BrushVerticesMap::const_iterator brushVertexIt, brushVertexEnd;
+            for (brushVertexIt = brushVerticesMap.begin(), brushVertexEnd = brushVerticesMap.end(); brushVertexIt != brushVertexEnd; ++brushVertexIt) {
+                Model::Brush* brush = brushVertexIt->first;
+                const Vec3f::List& vertices = brushVertexIt->second;
+                m_selection.addVertices(*brush);
+                
+                Vec3f::List::const_iterator vertexIt, vertexEnd;
+                for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt)
+                    m_selection.selectVertex(*vertexIt);
+            }
+            
+            m_vertexFigureValid = false;
+            setNeedsUpdate();
+
             refPoint += delta;
-            m_totalDelta += delta;
         }
         
         void MoveVerticesTool::handleEndPlaneDrag(InputState& inputState) {
-            if (m_totalDelta.null())
-                discardCommandGroup();
-            else
-                endCommandGroup();
+            endCommandGroup();
             m_moveHandle.unlock();
             updateMoveHandle(inputState);
         }
 
         void MoveVerticesTool::handleObjectsChange(InputState& inputState) {
-            m_selection.clear();
-            m_vertexFigureValid = false;
-            setNeedsUpdate();
-            updateMoveHandle(inputState);
+            if (dragType() == DTNone) {
+                m_selection.clear();
+                m_selection.addVertices(document().editStateManager().selectedBrushes());
+                m_vertexFigureValid = false;
+                
+                setNeedsUpdate();
+                updateMoveHandle(inputState);
+            }
         }
 
         void MoveVerticesTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
