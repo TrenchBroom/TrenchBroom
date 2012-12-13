@@ -47,7 +47,7 @@ namespace TrenchBroom {
         /**
          see http://blog.andreaskahler.com/2009/06/creating-icosphere-mesh-in-code.html
          */
-        void SphereFigure::makeVertices(Vbo& vbo) {
+        Vec3f::List SphereFigure::makeVertices() {
             typedef std::vector<Triangle> TriangleList;
             Vec3f::List vertices;
             TriangleList triangles;
@@ -115,17 +115,15 @@ namespace TrenchBroom {
                 triangles = newTriangles;
             }
             
-            unsigned int vertexCount = static_cast<unsigned int>(3 * triangles.size());
-            m_vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_TRIANGLES, vertexCount,
-                                                           Attribute::position3f()));
-
-            SetVboState mapVbo(vbo, Vbo::VboMapped);
+            Vec3f::List allVertices(3 * triangles.size());
             TriangleList::iterator it, end;
             for (it = triangles.begin(), end = triangles.end(); it != end; ++it) {
                 Triangle& triangle = *it;
                 for (unsigned int i = 0; i < 3; i++)
-                    m_vertexArray->addAttribute(vertices[triangle[i]]);
+                    allVertices.push_back(m_radius * vertices[triangle[i]]);
             }
+            
+            return allVertices;
         }
 
         SphereFigure::SphereFigure(float radius, unsigned int iterations) :
@@ -135,10 +133,19 @@ namespace TrenchBroom {
         void SphereFigure::render(Vbo& vbo, RenderContext& context) {
             SetVboState activateVbo(vbo, Vbo::VboActive);
 
-            if (m_vertexArray.get() == NULL)
-                makeVertices(vbo);
+            if (m_vertexArray.get() == NULL) {
+                Vec3f::List vertices = makeVertices();
+
+                unsigned int vertexCount = static_cast<unsigned int>(vertices.size());
+                m_vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_TRIANGLES, vertexCount,
+                                                               Attribute::position3f()));
+                
+                SetVboState mapVbo(vbo, Vbo::VboMapped);
+                Vec3f::List::iterator it, end;
+                for (it = vertices.begin(), end = vertices.end(); it != end; ++it)
+                    m_vertexArray->addAttribute(*it);
+            }
             
-            ApplyMatrix scale(context.transformation(), Mat4f().scale(m_radius));
             m_vertexArray->render();
         }
     }

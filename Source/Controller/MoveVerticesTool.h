@@ -22,12 +22,12 @@
 
 #include "Controller/Tool.h"
 #include "Controller/MoveHandle.h"
+#include "Model/BrushGeometryTypes.h"
 #include "Renderer/RenderTypes.h"
 #include "Utility/VecMath.h"
 
 #include <algorithm>
 #include <cassert>
-#include <map>
 
 using namespace TrenchBroom::Math;
 
@@ -37,13 +37,14 @@ namespace TrenchBroom {
 
         namespace HitType {
             static const Type VertexHandleHit    = 1 << 6;
+            static const Type EdgeHandleHit      = 1 << 7;
         }
         
         class VertexHandleHit : public Hit {
         private:
             Vec3f m_vertex;
         public:
-            VertexHandleHit(const Vec3f& hitPoint, float distance, const Vec3f& vertex);
+            VertexHandleHit(HitType::Type type, const Vec3f& hitPoint, float distance, const Vec3f& vertex);
             bool pickable(Filter& filter) const;
             
             inline const Vec3f& vertex() const {
@@ -53,130 +54,180 @@ namespace TrenchBroom {
     }
 
     namespace Renderer {
-        class ManyCubesInstancedFigure;
+        class ManySpheresInstancedFigure;
         class RenderContext;
         class Vbo;
     }
     
     namespace Controller {
-        class VertexSelection {
-        public:
-            typedef std::map<Vec3f, Model::BrushList, Vec3f::LexicographicOrder> VertexBrushMap;
+        class HandleManager {
         private:
-            VertexBrushMap m_vertices;
-            VertexBrushMap m_selectedVertices;
+            Model::VertexToBrushesMap m_unselectedVertexHandles;
+            Model::VertexToBrushesMap m_selectedVertexHandles;
+            Model::VertexToEdgesMap m_edgeHandles;
             
-            inline bool removeVertex(const Vec3f& vertex, Model::Brush& brush, VertexBrushMap& map) {
-                VertexBrushMap::iterator mapIt = map.find(vertex);
+            template <typename Element>
+            inline bool removeHandle(const Vec3f& position, Element& element, std::map<Vec3f, std::vector<Element*>, Vec3f::LexicographicOrder >& map) {
+                typedef std::vector<Element*> List;
+                typedef std::map<Vec3f, List, Vec3f::LexicographicOrder> Map;
+                
+                typename Map::iterator mapIt = map.find(position);
                 if (mapIt == map.end())
                     return false;
                 
-                Model::BrushList& vertexBrushes = mapIt->second;
-                Model::BrushList::iterator brushIt = std::find(vertexBrushes.begin(), vertexBrushes.end(), &brush);
-                if (brushIt == vertexBrushes.end())
+                List& elements = mapIt->second;
+                typename List::iterator listIt = std::find(elements.begin(), elements.end(), &element);
+                if (listIt == elements.end())
                     return false;
                 
-                vertexBrushes.erase(brushIt);
-                if (vertexBrushes.empty())
+                elements.erase(listIt);
+                if (elements.empty())
                     map.erase(mapIt);
                 return true;
             }
             
-            inline bool moveVertex(const Vec3f& vertex, VertexBrushMap& from, VertexBrushMap& to) {
-                VertexBrushMap::iterator mapIt = from.find(vertex);
+            template <typename Element>
+            inline bool moveHandle(const Vec3f& position, std::map<Vec3f, std::vector<Element*>, Vec3f::LexicographicOrder >& from, std::map<Vec3f, std::vector<Element*>, Vec3f::LexicographicOrder >& to) {
+                typedef std::vector<Element*> List;
+                typedef std::map<Vec3f, List, Vec3f::LexicographicOrder> Map;
+                
+                typename Map::iterator mapIt = from.find(position);
                 if (mapIt == from.end())
                     return false;
                 
-                Model::BrushList& fromBrushes = mapIt->second;
-                Model::BrushList& toBrushes = to[vertex];
-                toBrushes.insert(toBrushes.end(), fromBrushes.begin(), fromBrushes.end());
+                List& fromElements = mapIt->second;
+                List& toElements = to[position];
+                toElements.insert(toElements.end(), fromElements.begin(), fromElements.end());
                 
                 from.erase(mapIt);
                 return true;
             }
+            
         public:
-            inline const VertexBrushMap& vertices() const {
-                return m_vertices;
+            inline const Model::VertexToBrushesMap& unselectedVertexHandles() const {
+                return m_unselectedVertexHandles;
             }
             
-            inline const VertexBrushMap& selectedVertices() const {
-                return m_selectedVertices;
+            inline const Model::VertexToBrushesMap& selectedVertexHandles() const {
+                return m_selectedVertexHandles;
             }
             
-            inline void addVertices(Model::Brush& brush) {
+            inline const Model::VertexToEdgesMap& edgeHandles() const {
+                return m_edgeHandles;
+            }
+            
+            inline const Model::EdgeList& edges(const Vec3f& handlePosition) const {
+                Model::VertexToEdgesMap::const_iterator mapIt = m_edgeHandles.find(handlePosition);
+                if (mapIt == m_edgeHandles.end())
+                    return Model::EmptyEdgeList;
+                return mapIt->second;
+            }
+            
+            inline void add(Model::Brush& brush) {
                 const Model::VertexList& brushVertices = brush.vertices();
-                Model::VertexList::const_iterator it, end;
-                for (it = brushVertices.begin(), end = brushVertices.end(); it != end; ++it) {
-                    const Model::Vertex& vertex = **it;
-                    VertexBrushMap::iterator mapIt = m_selectedVertices.find(vertex.position);
-                    if (mapIt != m_selectedVertices.end())
+                Model::VertexList::const_iterator vIt, vEnd;
+                for (vIt = brushVertices.begin(), vEnd = brushVertices.end(); vIt != vEnd; ++vIt) {
+                    const Model::Vertex& vertex = **vIt;
+                    Model::VertexToBrushesMap::iterator mapIt = m_selectedVertexHandles.find(vertex.position);
+                    if (mapIt != m_selectedVertexHandles.end())
                         mapIt->second.push_back(&brush);
                     else
-                        m_vertices[vertex.position].push_back(&brush);
+                        m_unselectedVertexHandles[vertex.position].push_back(&brush);
+                }
+                
+                const Model::EdgeList& brushEdges = brush.edges();
+                Model::EdgeList::const_iterator eIt, eEnd;
+                for (eIt = brushEdges.begin(), eEnd = brushEdges.end(); eIt != eEnd; ++eIt) {
+                    Model::Edge& edge = **eIt;
+                    Vec3f position = edge.center();
+                    m_edgeHandles[position].push_back(&edge);
                 }
             }
             
-            inline void addVertices(const Model::BrushList& brushes) {
+            inline void add(const Model::BrushList& brushes) {
                 Model::BrushList::const_iterator it, end;
                 for (it = brushes.begin(), end = brushes.end(); it != end; ++it)
-                    addVertices(**it);
+                    add(**it);
             }
             
-            inline void removeVertices(Model::Brush& brush) {
+            inline void remove(Model::Brush& brush) {
                 const Model::VertexList& brushVertices = brush.vertices();
-                Model::VertexList::const_iterator it, end;
-                for (it = brushVertices.begin(), end = brushVertices.end(); it != end; ++it) {
-                    const Model::Vertex& vertex = **it;
-                    if (!removeVertex(vertex.position, brush, m_selectedVertices))
-                        removeVertex(vertex.position, brush, m_vertices);
+                Model::VertexList::const_iterator vIt, vEnd;
+                for (vIt = brushVertices.begin(), vEnd = brushVertices.end(); vIt != vEnd; ++vIt) {
+                    const Model::Vertex& vertex = **vIt;
+                    if (!removeHandle(vertex.position, brush, m_selectedVertexHandles))
+                        removeHandle(vertex.position, brush, m_unselectedVertexHandles);
+                }
+
+                const Model::EdgeList& brushEdges = brush.edges();
+                Model::EdgeList::const_iterator eIt, eEnd;
+                for (eIt = brushEdges.begin(), eEnd = brushEdges.end(); eIt != eEnd; ++eIt) {
+                    Model::Edge& edge = **eIt;
+                    Vec3f position = edge.center();
+                    removeHandle(position, edge, m_edgeHandles);
                 }
             }
             
-            inline void removeVertices(const Model::BrushList& brushes) {
+            inline void remove(const Model::BrushList& brushes) {
                 Model::BrushList::const_iterator it, end;
                 for (it = brushes.begin(), end = brushes.end(); it != end; ++it)
-                    removeVertices(**it);
+                    remove(**it);
             }
             
-            inline bool selected(const Vec3f& vertex) {
-                return m_selectedVertices.find(vertex) != m_selectedVertices.end();
+            inline bool vertexHandleSelected(const Vec3f& position) {
+                return m_selectedVertexHandles.find(position) != m_selectedVertexHandles.end();
             }
             
-            inline bool selectVertex(const Vec3f& vertex) {
-                return moveVertex(vertex, m_vertices, m_selectedVertices);
+            inline bool selectVertexHandle(const Vec3f& position) {
+                return moveHandle(position, m_unselectedVertexHandles, m_selectedVertexHandles);
             }
             
-            inline bool deselectVertex(const Vec3f& vertex) {
-                return moveVertex(vertex, m_selectedVertices, m_vertices);
+            inline bool selectVertexHandles(const Vec3f::Set& positions) {
+                Vec3f::Set::const_iterator it, end;
+                for (it = positions.begin(), end = positions.end(); it != end; ++it)
+                    selectVertexHandle(*it);
             }
             
-            inline void deselectAll() {
-                VertexBrushMap::const_iterator it, end;
-                for (it = m_selectedVertices.begin(), end = m_selectedVertices.end(); it != end; ++it) {
-                    const Vec3f& vertex = it->first;
-                    const Model::BrushList& selectedBrushes = it->second;
-                    Model::BrushList& unselectedBrushes = m_vertices[vertex];
+            inline bool deselectVertexHandle(const Vec3f& position) {
+                return moveHandle(position, m_selectedVertexHandles, m_unselectedVertexHandles);
+            }
+            
+            inline void deselectVertexHandles() {
+                Model::VertexToBrushesMap::const_iterator vIt, vEnd;
+                for (vIt = m_selectedVertexHandles.begin(), vEnd = m_selectedVertexHandles.end(); vIt != vEnd; ++vIt) {
+                    const Vec3f& position = vIt->first;
+                    const Model::BrushList& selectedBrushes = vIt->second;
+                    Model::BrushList& unselectedBrushes = m_unselectedVertexHandles[position];
                     unselectedBrushes.insert(unselectedBrushes.begin(), selectedBrushes.begin(), selectedBrushes.end());
                 }
-                m_selectedVertices.clear();
+                m_selectedVertexHandles.clear();
             }
-            
+
             inline void clear() {
-                m_vertices.clear();
-                m_selectedVertices.clear();
+                m_unselectedVertexHandles.clear();
+                m_selectedVertexHandles.clear();
+                m_edgeHandles.clear();
             }
         };
         
         class MoveVerticesTool : public PlaneDragTool {
         protected:
-            VertexSelection m_selection;
+            typedef enum {
+                VMMove,
+                VMSplit,
+                VMSplitEdge,
+                VMSplitFace
+            } VertexMode;
+
+            VertexMode m_mode;
+            HandleManager m_handleManager;
             MoveHandle m_moveHandle;
             float m_vertexHandleSize;
             MoveHandle::RestrictToAxis m_restrictToAxis;
 
-            Renderer::ManyCubesInstancedFigure* m_vertexFigure;
-            Renderer::ManyCubesInstancedFigure* m_selectedVertexFigure;
-            bool m_vertexFigureValid;
+            Renderer::ManySpheresInstancedFigure* m_unselectedHandleFigure;
+            Renderer::ManySpheresInstancedFigure* m_selectedHandleFigure;
+            bool m_figuresValid;
 
             void updateMoveHandle(InputState& inputState);
             
@@ -188,6 +239,7 @@ namespace TrenchBroom {
             bool handleUpdateState(InputState& inputState);
             void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
             
+            void handleModifierKeyChange(InputState& inputState);
             bool handleMouseUp(InputState& inputState);
             void handleMouseMove(InputState& inputState);
 

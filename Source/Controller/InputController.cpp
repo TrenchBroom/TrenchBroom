@@ -82,7 +82,7 @@ namespace TrenchBroom {
         m_modalTool(NULL) {
             m_cameraTool = new CameraTool(m_documentViewHolder);
             m_clipTool = new ClipTool(m_documentViewHolder);
-            m_moveVerticesTool = new MoveVerticesTool(m_documentViewHolder, 24.0f, 16.0f, 4.0f);
+            m_moveVerticesTool = new MoveVerticesTool(m_documentViewHolder, 24.0f, 16.0f, 2.5f);
             m_createBrushTool = new CreateBrushTool(m_documentViewHolder);
             m_createEntityTool = new CreateEntityTool(m_documentViewHolder);
             m_moveObjectsTool = new MoveObjectsTool(m_documentViewHolder, 64.0f, 32.0f);

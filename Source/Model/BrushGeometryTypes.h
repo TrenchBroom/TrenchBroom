@@ -20,7 +20,13 @@
 #ifndef TrenchBroom_BrushGeometryTypes_h
 #define TrenchBroom_BrushGeometryTypes_h
 
+#include "Model/BrushTypes.h"
+#include "Utility/VecMath.h"
+
+#include <map>
 #include <vector>
+
+using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Model {
@@ -31,6 +37,13 @@ namespace TrenchBroom {
         typedef std::vector<Vertex*> VertexList;
         typedef std::vector<Edge*> EdgeList;
         typedef std::vector<Side*> SideList;
+
+        static const VertexList EmptyVertexList;
+        static const EdgeList EmptyEdgeList;
+        static const SideList EmptySideList;
+        
+        typedef std::map<Vec3f, Model::BrushList, Vec3f::LexicographicOrder> VertexToBrushesMap;
+        typedef std::map<Vec3f, Model::EdgeList, Vec3f::LexicographicOrder> VertexToEdgesMap;
     }
 }
 

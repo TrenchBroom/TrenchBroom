@@ -33,7 +33,7 @@ namespace TrenchBroom {
         m_offset(cubeSize / 2.0f),
         m_valid(false) {}
         
-        void ManyCubesInstancedFigure::addCube(const Vec3f& position) {
+        void ManyCubesInstancedFigure::add(const Vec3f& position) {
             m_positions.push_back(position);
             m_valid = false;
         }

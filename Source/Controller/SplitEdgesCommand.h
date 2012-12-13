@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MoveVerticesCommand__
-#define __TrenchBroom__MoveVerticesCommand__
+#ifndef __TrenchBroom__SplitEdgesCommand__
+#define __TrenchBroom__SplitEdgesCommand__
 
 #include "Controller/SnapshotCommand.h"
 #include "Model/BrushGeometryTypes.h"
@@ -31,23 +31,19 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Controller {
-        class MoveVerticesCommand : public SnapshotCommand {
+        class SplitEdgesCommand : public SnapshotCommand {
         protected:
-            typedef std::map<Model::Brush*, Vec3f::List> BrushVerticesMap;
-            typedef std::pair<Model::Brush*, Vec3f::List> BrushVerticesMapEntry;
-            typedef std::pair<BrushVerticesMap::iterator, bool> BrushVerticesMapInsertResult;
-
+            Model::EdgeList m_edges;
             Model::BrushList m_brushes;
-            BrushVerticesMap m_brushVertices;
             Vec3f::Set m_vertices;
             Vec3f m_delta;
             
             bool performDo();
             bool performUndo();
 
-            MoveVerticesCommand(Model::MapDocument& document, const wxString& name, const Model::VertexToBrushesMap& brushVertices, const Vec3f& delta);
+            SplitEdgesCommand(Model::MapDocument& document, const wxString& name, const Model::EdgeList& edges, const Vec3f& delta);
         public:
-            static MoveVerticesCommand* moveVertices(Model::MapDocument& document, const Model::VertexToBrushesMap& brushVertices, const Vec3f& delta);
+            static SplitEdgesCommand* splitEdges(Model::MapDocument& document, const Model::EdgeList& edges, const Vec3f& delta);
             
             inline const Model::BrushList& brushes() const {
                 return m_brushes;
@@ -60,4 +56,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MoveVerticesCommand__) */
+#endif /* defined(__TrenchBroom__SplitEdgesCommand__) */

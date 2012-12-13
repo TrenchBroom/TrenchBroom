@@ -278,6 +278,70 @@ namespace TrenchBroom {
             return newVertexPositions;
         }
 
+        bool Brush::canSplitEdge(Edge* edge, const Vec3f& delta) {
+            return m_geometry->canSplitEdge(edge, delta);
+        }
+        
+        Vec3f Brush::splitEdge(Edge* edge, const Vec3f& delta) {
+            FaceList newFaces;
+            FaceList droppedFaces;
+            
+            Vec3f newVertexPosition = m_geometry->splitEdge(edge, delta, newFaces, droppedFaces);
+            
+            for (FaceList::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
+                Model::Face* face = *it;
+                face->setBrush(NULL);
+                m_faces.erase(std::remove(m_faces.begin(), m_faces.end(), face), m_faces.end());
+                delete face;
+            }
+            
+            for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
+                Model::Face* face = *it;
+                face->invalidateCoords();
+            }
+            
+            for (FaceList::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
+                Model::Face* face = *it;
+                face->setBrush(this);
+                m_faces.push_back(face);
+            }
+            
+            m_entity->invalidateGeometry();
+            return newVertexPosition;
+        }
+        
+        bool Brush::canSplitFace(Face* face, const Vec3f& delta) {
+            return m_geometry->canSplitFace(face, delta);
+        }
+
+        Vec3f Brush::splitFace(Face* face, const Vec3f& delta) {
+            FaceList newFaces;
+            FaceList droppedFaces;
+            
+            Vec3f newVertexPosition = m_geometry->splitFace(face, delta, newFaces, droppedFaces);
+            
+            for (FaceList::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
+                Model::Face* face = *it;
+                face->setBrush(NULL);
+                m_faces.erase(std::remove(m_faces.begin(), m_faces.end(), face), m_faces.end());
+                delete face;
+            }
+            
+            for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
+                Model::Face* face = *it;
+                face->invalidateCoords();
+            }
+            
+            for (FaceList::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
+                Model::Face* face = *it;
+                face->setBrush(this);
+                m_faces.push_back(face);
+            }
+            
+            m_entity->invalidateGeometry();
+            return newVertexPosition;
+        }
+
         void Brush::pick(const Ray& ray, PickResult& pickResults) {
             float dist = bounds().intersectWithRay(ray, NULL);
             if (Math::isnan(dist))

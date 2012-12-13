@@ -89,7 +89,7 @@ namespace TrenchBroom {
                 mark = Drop;
             }
 
-            inline Vertex* startVertex(const Side* side) {
+            inline Vertex* startVertex(const Side* side) const {
                 if (left == side)
                     return end;
                 if (right == side)
@@ -97,7 +97,7 @@ namespace TrenchBroom {
                 return NULL;
             }
 
-            inline Vertex* endVertex(const Side* side) {
+            inline Vertex* endVertex(const Side* side) const {
                 if (left == side)
                     return start;
                 if (right == side)
@@ -105,19 +105,19 @@ namespace TrenchBroom {
                 return NULL;
             }
 
-            inline Vec3f vector() {
+            inline Vec3f vector() const {
                 return start->position - end->position;
             }
 
-            inline Vec3f vector(const Side* side) {
+            inline Vec3f vector(const Side* side) const {
                 return endVertex(side)->position - startVertex(side)->position;
             }
 
-            inline Vec3f center() {
+            inline Vec3f center() const {
                 return (start->position + end->position) / 2.0f;
             }
 
-            inline bool incidentWith(const Edge* edge) {
+            inline bool incidentWith(const Edge* edge) const {
                 return start == edge->start || start == edge->end || end == edge->start || end == edge->end;
             }
 
@@ -130,7 +130,7 @@ namespace TrenchBroom {
                 std::swap(start, end);
             }
 
-            inline bool intersectWithRay(const Ray& ray, float& distanceToRaySquared, float& distanceOfClosestPoint) {
+            inline bool intersectWithRay(const Ray& ray, float& distanceToRaySquared, float& distanceOfClosestPoint) const {
                 Vec3f u = vector();
                 Vec3f w = start->position - ray.origin;
 
@@ -226,15 +226,6 @@ namespace TrenchBroom {
             vertex(vertex) {}
         };
         
-        struct CreateVertexResult {
-            const bool success;
-            Vertex* vertex;
-            
-            CreateVertexResult(bool success, Vertex* vertex = NULL) :
-            success(success),
-            vertex(vertex) {}
-        };
-        
         class BrushGeometry {
         public:
             enum CutResult {
@@ -286,8 +277,10 @@ namespace TrenchBroom {
 
             bool canMoveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta);
             Vec3f::List moveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
-            CreateVertexResult splitEdge(Edge* edge, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
-            CreateVertexResult splitFace(Face* face, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
+            bool canSplitEdge(Edge* edge, const Vec3f& delta);
+            Vec3f splitEdge(Edge* edge, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
+            bool canSplitFace(Face* face, const Vec3f& delta);
+            Vec3f splitFace(Face* face, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
         };
 
         template <class T>

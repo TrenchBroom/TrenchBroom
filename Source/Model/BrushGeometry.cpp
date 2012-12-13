@@ -1493,32 +1493,62 @@ namespace TrenchBroom {
             return newVertexPositions;
         }
 
-        CreateVertexResult BrushGeometry::splitEdge(Edge* edge, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces) {
+        bool BrushGeometry::canSplitEdge(Edge* edge, const Vec3f& delta) {
             // detect whether the drag would make the incident faces invalid
             const Vec3f& leftNorm = edge->left->face->boundary().normal;
             const Vec3f& rightNorm = edge->right->face->boundary().normal;
             if (Math::neg(delta.dot(leftNorm)) ||
                 Math::neg(delta.dot(rightNorm)))
-                return CreateVertexResult(false);
+                return false;
+            
+            FaceList newFaces;
+            FaceList droppedFaces;
+            BrushGeometry testGeometry(*this);
+            
+            Vertex* newVertex = testGeometry.splitEdge(edge, newFaces, droppedFaces);
+            MoveVertexResult result = testGeometry.moveVertex(newVertex, true, delta, newFaces, droppedFaces);
+            bool canSplit = result.type != MoveVertexResult::VertexUnchanged;
+
+            while (!newFaces.empty()) delete newFaces.back(), newFaces.pop_back();
+            restoreFaceSides();
+            return canSplit;
+        }
+
+        Vec3f BrushGeometry::splitEdge(Edge* edge, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces) {
+            assert(canSplitEdge(edge, delta));
             
             Vertex* newVertex = splitEdge(edge, newFaces, droppedFaces);
             MoveVertexResult result = moveVertex(newVertex, false, delta, newFaces, droppedFaces);
-            if (result.type == MoveVertexResult::VertexMoved)
-                return CreateVertexResult(true, result.vertex);
-            return CreateVertexResult(false);
+            assert(result.type == MoveVertexResult::VertexMoved);
+            return result.vertex->position;
         }
 
-        CreateVertexResult BrushGeometry::splitFace(Face* face, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces) {
+        bool BrushGeometry::canSplitFace(Face* face, const Vec3f& delta) {
             // detect whether the drag would lead to an indented face
             const Vec3f& norm = face->boundary().normal;
             if (Math::zero(delta.dot(norm)))
-                return CreateVertexResult(false);
+                return false;
+            
+            FaceList newFaces;
+            FaceList droppedFaces;
+            BrushGeometry testGeometry(*this);
+            
+            Vertex* newVertex = testGeometry.splitFace(face, newFaces, droppedFaces);
+            MoveVertexResult result = testGeometry.moveVertex(newVertex, true, delta, newFaces, droppedFaces);
+            bool canSplit = result.type != MoveVertexResult::VertexUnchanged;
+            
+            while (!newFaces.empty()) delete newFaces.back(), newFaces.pop_back();
+            restoreFaceSides();
+            return canSplit;
+        }
+
+        Vec3f BrushGeometry::splitFace(Face* face, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces) {
+            assert(canSplitFace(face, delta));
             
             Vertex* newVertex = splitFace(face, newFaces, droppedFaces);
             MoveVertexResult result = moveVertex(newVertex, false, delta, newFaces, droppedFaces);
-            if (result.type == MoveVertexResult::VertexMoved)
-                return CreateVertexResult(true, result.vertex);
-            return CreateVertexResult(false);
+            assert(result.type == MoveVertexResult::VertexMoved);
+            return result.vertex->position;
         }
 
         Vertex* findVertex(const VertexList& vertices, const Vec3f& position) {

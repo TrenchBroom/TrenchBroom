@@ -20,9 +20,10 @@
 #include "MoveVerticesTool.h"
 
 #include "Controller/MoveVerticesCommand.h"
+#include "Controller/SplitEdgesCommand.h"
 #include "Model/EditStateManager.h"
 #include "Model/MapDocument.h"
-#include "Renderer/ManyCubesInstancedFigure.h"
+#include "Renderer/ManySpheresInstancedFigure.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/SharedResources.h"
 #include "Renderer/Shader/ShaderManager.h"
@@ -32,9 +33,12 @@
 
 namespace TrenchBroom {
     namespace Model {
-        VertexHandleHit::VertexHandleHit(const Vec3f& hitPoint, float distance, const Vec3f& vertex) :
-        Hit(HitType::VertexHandleHit, hitPoint, distance),
-        m_vertex(vertex) {}
+        VertexHandleHit::VertexHandleHit(HitType::Type type, const Vec3f& hitPoint, float distance, const Vec3f& vertex) :
+        Hit(type, hitPoint, distance),
+        m_vertex(vertex) {
+            assert(type == HitType::VertexHandleHit ||
+                   type == HitType::EdgeHandleHit);
+        }
         
         bool VertexHandleHit::pickable(Filter& filter) const {
             return true;
@@ -46,15 +50,29 @@ namespace TrenchBroom {
             Vec3f closestVertex;
             float closestSquaredDistance = std::numeric_limits<float>::max();
             
-            VertexSelection::VertexBrushMap::const_iterator it, end;
-            const VertexSelection::VertexBrushMap& selectedVertices = m_selection.selectedVertices();
-            for (it = selectedVertices.begin(), end = selectedVertices.end(); it != end; ++it) {
-                const Vec3f& vertex = it->first;
-                float distanceToClosestPoint;
-                float squaredDistance = inputState.pickRay().squaredDistanceToPoint(vertex, distanceToClosestPoint);
-                if (squaredDistance < closestSquaredDistance) {
-                    closestSquaredDistance = squaredDistance;
-                    closestVertex = vertex;
+            if (m_mode == VMMove) {
+                Model::VertexToBrushesMap::const_iterator vIt, vEnd;
+                const Model::VertexToBrushesMap& selectedVertexHandles = m_handleManager.selectedVertexHandles();
+                for (vIt = selectedVertexHandles.begin(), vEnd = selectedVertexHandles.end(); vIt != vEnd; ++vIt) {
+                    const Vec3f& position = vIt->first;
+                    float distanceToClosestPoint;
+                    float squaredDistance = inputState.pickRay().squaredDistanceToPoint(position, distanceToClosestPoint);
+                    if (squaredDistance < closestSquaredDistance) {
+                        closestSquaredDistance = squaredDistance;
+                        closestVertex = position;
+                    }
+                }
+            } else {
+                Model::VertexToEdgesMap::const_iterator eIt, eEnd;
+                const Model::VertexToEdgesMap& edgeHandles = m_handleManager.edgeHandles();
+                for (eIt = edgeHandles.begin(), eEnd = edgeHandles.end(); eIt != eEnd; ++eIt) {
+                    const Vec3f& position = eIt->first;
+                    float distanceToClosestPoint;
+                    float squaredDistance = inputState.pickRay().squaredDistanceToPoint(position, distanceToClosestPoint);
+                    if (squaredDistance < closestSquaredDistance) {
+                        closestSquaredDistance = squaredDistance;
+                        closestVertex = position;
+                    }
                 }
             }
             
@@ -70,22 +88,22 @@ namespace TrenchBroom {
         }
 
         bool MoveVerticesTool::handleActivate(InputState& inputState) {
-            m_selection.clear();
-            m_selection.addVertices(document().editStateManager().selectedBrushes());
+            m_handleManager.clear();
+            m_handleManager.add(document().editStateManager().selectedBrushes());
             updateMoveHandle(inputState);
             
-            m_vertexFigure = new Renderer::ManyCubesInstancedFigure(m_vertexHandleSize);
-            m_selectedVertexFigure = new Renderer::ManyCubesInstancedFigure(m_vertexHandleSize);
-            m_vertexFigureValid = false;
+            m_unselectedHandleFigure = new Renderer::ManySpheresInstancedFigure(m_vertexHandleSize, 3);
+            m_selectedHandleFigure = new Renderer::ManySpheresInstancedFigure(m_vertexHandleSize, 3);
+            m_figuresValid = false;
             return true;
         }
         
         bool MoveVerticesTool::handleDeactivate(InputState& inputState) {
-            m_selection.clear();
-            delete m_vertexFigure;
-            m_vertexFigure = NULL;
-            delete m_selectedVertexFigure;
-            m_selectedVertexFigure = NULL;
+            m_handleManager.clear();
+            delete m_unselectedHandleFigure;
+            m_unselectedHandleFigure = NULL;
+            delete m_selectedHandleFigure;
+            m_selectedHandleFigure = NULL;
             return true;
         }
         
@@ -98,79 +116,131 @@ namespace TrenchBroom {
             if (moveHandleHit != NULL)
                 inputState.pickResult().add(moveHandleHit);
             
-            VertexSelection::VertexBrushMap::const_iterator it, end;
-            const VertexSelection::VertexBrushMap& unselectedVertices = m_selection.vertices();
-            for (it = unselectedVertices.begin(), end = unselectedVertices.end(); it != end; ++it) {
-                const Vec3f& vertex = it->first;
-                float distance = inputState.pickRay().intersectWithCube(vertex, m_vertexHandleSize);
-                if (!Math::isnan(distance)) {
-                    Vec3f hitPoint = inputState.pickRay().pointAtDistance(distance);
-                    inputState.pickResult().add(new Model::VertexHandleHit(hitPoint, distance, vertex));
+            if (m_mode == VMMove) {
+                Model::VertexToBrushesMap::const_iterator vIt, vEnd;
+                const Model::VertexToBrushesMap& unselectedVertexHandles = m_handleManager.unselectedVertexHandles();
+                for (vIt = unselectedVertexHandles.begin(), vEnd = unselectedVertexHandles.end(); vIt != vEnd; ++vIt) {
+                    const Vec3f& position = vIt->first;
+                    float distance = inputState.pickRay().intersectWithSphere(position, m_vertexHandleSize);
+                    if (!Math::isnan(distance)) {
+                        Vec3f hitPoint = inputState.pickRay().pointAtDistance(distance);
+                        inputState.pickResult().add(new Model::VertexHandleHit(Model::HitType::VertexHandleHit, hitPoint, distance, position));
+                    }
                 }
-            }
-            
-            const VertexSelection::VertexBrushMap& selectedVertices = m_selection.selectedVertices();
-            for (it = selectedVertices.begin(), end = selectedVertices.end(); it != end; ++it) {
-                const Vec3f& vertex = it->first;
-                float distance = inputState.pickRay().intersectWithCube(vertex, m_vertexHandleSize);
-                if (!Math::isnan(distance)) {
-                    Vec3f hitPoint = inputState.pickRay().pointAtDistance(distance);
-                    inputState.pickResult().add(new Model::VertexHandleHit(hitPoint, distance, vertex));
+                
+                const Model::VertexToBrushesMap& selectedVertexHandles = m_handleManager.selectedVertexHandles();
+                for (vIt = selectedVertexHandles.begin(), vEnd = selectedVertexHandles.end(); vIt != vEnd; ++vIt) {
+                    const Vec3f& position = vIt->first;
+                    float distance = inputState.pickRay().intersectWithSphere(position, m_vertexHandleSize);
+                    if (!Math::isnan(distance)) {
+                        Vec3f hitPoint = inputState.pickRay().pointAtDistance(distance);
+                        inputState.pickResult().add(new Model::VertexHandleHit(Model::HitType::VertexHandleHit, hitPoint, distance, position));
+                    }
+                }
+            } else {
+                Model::VertexToEdgesMap::const_iterator eIt, eEnd;
+                const Model::VertexToEdgesMap& edgeHandles = m_handleManager.edgeHandles();
+                for (eIt = edgeHandles.begin(), eEnd = edgeHandles.end(); eIt != eEnd; ++eIt) {
+                    const Vec3f& position = eIt->first;
+                    float distance = inputState.pickRay().intersectWithSphere(position, m_vertexHandleSize);
+                    if (!Math::isnan(distance)) {
+                        Vec3f hitPoint = inputState.pickRay().pointAtDistance(distance);
+                        inputState.pickResult().add(new Model::VertexHandleHit(Model::HitType::EdgeHandleHit, hitPoint, distance, position));
+                    }
                 }
             }
         }
         
         bool MoveVerticesTool::handleUpdateState(InputState& inputState) {
-            Model::MoveHandleHit* moveHandleHit = m_moveHandle.pick(inputState.pickRay());
-            if ((m_moveHandle.lastHit() == NULL) != (moveHandleHit == NULL))
-                setNeedsUpdate();
-            else if (moveHandleHit != NULL && m_moveHandle.lastHit()->hitArea() != moveHandleHit->hitArea())
-                setNeedsUpdate();
-            
-            m_moveHandle.setLastHit(moveHandleHit);
+            if (!m_moveHandle.locked()) {
+                Model::MoveHandleHit* moveHandleHit = m_moveHandle.pick(inputState.pickRay());
+                if ((m_moveHandle.lastHit() == NULL) != (moveHandleHit == NULL))
+                    setNeedsUpdate();
+                else if (moveHandleHit != NULL && m_moveHandle.lastHit()->hitArea() != moveHandleHit->hitArea())
+                    setNeedsUpdate();
+                
+                m_moveHandle.setLastHit(moveHandleHit);
+            }
             return false;
         }
         
         void MoveVerticesTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
-            assert(m_vertexFigure != NULL);
-            assert(m_selectedVertexFigure != NULL);
+            assert(m_unselectedHandleFigure != NULL);
+            assert(m_selectedHandleFigure != NULL);
             
             Model::MoveHandleHit* moveHandleHit = static_cast<Model::MoveHandleHit*>(inputState.pickResult().first(Model::HitType::MoveHandleHit, true, view().filter()));
             m_moveHandle.render(moveHandleHit, vbo, renderContext);
 
-            if (!m_vertexFigureValid) {
-                m_vertexFigure->clear();
-                m_selectedVertexFigure->clear();
+            if (!m_figuresValid) {
+                m_unselectedHandleFigure->clear();
+                m_selectedHandleFigure->clear();
                 
-                VertexSelection::VertexBrushMap::const_iterator it, end;
-                const VertexSelection::VertexBrushMap& unselectedVertices = m_selection.vertices();
-                for (it = unselectedVertices.begin(), end = unselectedVertices.end(); it != end; ++it) {
-                    const Vec3f& vertex = it->first;
-                    m_vertexFigure->addCube(vertex);
+                if (m_mode == VMMove) {
+                    Model::VertexToBrushesMap::const_iterator vIt, vEnd;
+                    const Model::VertexToBrushesMap& unselectedVertexHandles = m_handleManager.unselectedVertexHandles();
+                    for (vIt = unselectedVertexHandles.begin(), vEnd = unselectedVertexHandles.end(); vIt != vEnd; ++vIt) {
+                        const Vec3f& position = vIt->first;
+                        m_unselectedHandleFigure->add(position);
+                    }
+                    
+                    const Model::VertexToBrushesMap& selectedVertexHandles = m_handleManager.selectedVertexHandles();
+                    for (vIt = selectedVertexHandles.begin(), vEnd = selectedVertexHandles.end(); vIt != vEnd; ++vIt) {
+                        const Vec3f& position = vIt->first;
+                        m_selectedHandleFigure->add(position);
+                    }
+                } else {
+                    Model::VertexToEdgesMap::const_iterator eIt, eEnd;
+                    const Model::VertexToEdgesMap& edgeHandles = m_handleManager.edgeHandles();
+                    for (eIt = edgeHandles.begin(), eEnd = edgeHandles.end(); eIt != eEnd; ++eIt) {
+                        const Vec3f& position = eIt->first;
+                        if (position.equals(m_moveHandle.position()))
+                            m_selectedHandleFigure->add(position);
+                        else
+                            m_unselectedHandleFigure->add(position);
+                    }
                 }
                 
-                const VertexSelection::VertexBrushMap& selectedVertices = m_selection.selectedVertices();
-                for (it = selectedVertices.begin(), end = selectedVertices.end(); it != end; ++it) {
-                    const Vec3f& vertex = it->first;
-                    m_selectedVertexFigure->addCube(vertex);
-                }
-                
-                m_vertexFigureValid = true;
+
+                m_figuresValid = true;
             }
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             
-            m_vertexFigure->setColor(prefs.getColor(Preferences::VertexHandleColor));
-            m_vertexFigure->render(vbo, renderContext);
-            m_selectedVertexFigure->setColor(prefs.getColor(Preferences::SelectedVertexHandleColor));
-            m_selectedVertexFigure->render(vbo, renderContext);
-            
+            if (m_mode == VMMove) {
+                m_unselectedHandleFigure->setColor(prefs.getColor(Preferences::VertexHandleColor));
+                m_selectedHandleFigure->setColor(prefs.getColor(Preferences::SelectedVertexHandleColor));
+            } else {
+                m_unselectedHandleFigure->setColor(prefs.getColor(Preferences::SplitHandleColor));
+                m_selectedHandleFigure->setColor(prefs.getColor(Preferences::SelectedSplitHandleColor));
+            }
+
+            m_unselectedHandleFigure->render(vbo, renderContext);
+            m_selectedHandleFigure->render(vbo, renderContext);
+
+            if (m_mode == VMMove) {
+                m_unselectedHandleFigure->setColor(prefs.getColor(Preferences::OccludedVertexHandleColor));
+                m_selectedHandleFigure->setColor(prefs.getColor(Preferences::OccludedSelectedVertexHandleColor));
+            } else {
+                m_unselectedHandleFigure->setColor(prefs.getColor(Preferences::OccludedSplitHandleColor));
+                m_selectedHandleFigure->setColor(prefs.getColor(Preferences::OccludedSelectedSplitHandleColor));
+            }
+
             glDisable(GL_DEPTH_TEST);
-            m_vertexFigure->setColor(prefs.getColor(Preferences::OccludedVertexHandleColor));
-            m_vertexFigure->render(vbo, renderContext);
-            m_selectedVertexFigure->setColor(prefs.getColor(Preferences::OccludedSelectedVertexHandleColor));
-            m_selectedVertexFigure->render(vbo, renderContext);
+            m_selectedHandleFigure->render(vbo, renderContext);
+            m_unselectedHandleFigure->render(vbo, renderContext);
             glEnable(GL_DEPTH_TEST);
+        }
+
+        void MoveVerticesTool::handleModifierKeyChange(InputState& inputState) {
+            if (dragType() == DTNone) {
+                VertexMode newMode = inputState.modifierKeys() == ModifierKeys::MKAlt ? VMSplit : VMMove;
+                if (m_mode != newMode) {
+                    m_mode = newMode;
+                    m_figuresValid = false;
+                    setNeedsUpdate();
+                    updateMoveHandle(inputState);
+                }
+            }
         }
 
         bool MoveVerticesTool::handleMouseUp(InputState& inputState) {
@@ -178,37 +248,45 @@ namespace TrenchBroom {
                 (inputState.modifierKeys() != ModifierKeys::MKNone && inputState.modifierKeys() != ModifierKeys::MKCtrlCmd))
                 return false;
             
-            Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit, true, view().filter()));
+            Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit | Model::HitType::EdgeHandleHit, true, view().filter()));
             if (hit == NULL)
                 return false;
 
-            bool selected = m_selection.selected(hit->vertex());
-            if (inputState.modifierKeys() == ModifierKeys::MKCtrlCmd) {
-                if (selected)
-                    m_selection.deselectVertex(hit->vertex());
-                else
-                    m_selection.selectVertex(hit->vertex());
-            } else {
-                m_selection.deselectAll();
-                m_selection.selectVertex(hit->vertex());
+            if (hit->type() == Model::HitType::VertexHandleHit) {
+                bool selected = m_handleManager.vertexHandleSelected(hit->vertex());
+                if (inputState.modifierKeys() == ModifierKeys::MKCtrlCmd) {
+                    if (selected)
+                        m_handleManager.deselectVertexHandle(hit->vertex());
+                    else
+                        m_handleManager.selectVertexHandle(hit->vertex());
+                } else {
+                    m_handleManager.deselectVertexHandles();
+                    m_handleManager.selectVertexHandle(hit->vertex());
+                }
+
+                m_figuresValid = false;
+                setNeedsUpdate();
+                updateMoveHandle(inputState);
             }
             
-            m_vertexFigureValid = false;
-            setNeedsUpdate();
-            updateMoveHandle(inputState);
             return true;
         }
 
         void MoveVerticesTool::handleMouseMove(InputState& inputState) {
+            Vec3f position = m_moveHandle.position();
             updateMoveHandle(inputState);
+            if (!position.equals(m_moveHandle.position())) {
+                m_figuresValid = false;
+                setNeedsUpdate();
+            }
         }
 
         bool MoveVerticesTool::handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint) {
             if (inputState.mouseButtons() != MouseButtons::MBLeft ||
-                (inputState.modifierKeys() != ModifierKeys::MKNone && inputState.modifierKeys() != ModifierKeys::MKCtrlCmd))
+                (inputState.modifierKeys() != ModifierKeys::MKNone && inputState.modifierKeys() != ModifierKeys::MKAlt))
                 return false;
             
-            Model::MoveHandleHit* hit = static_cast<Model::MoveHandleHit*>(inputState.pickResult().first(Model::HitType::MoveHandleHit, true, view().filter()));
+            Model::MoveHandleHit* hit = static_cast<Model::MoveHandleHit*>(inputState.pickResult().first(Model::HitType::MoveHandleHit | Model::HitType::EdgeHandleHit, true, view().filter()));
             if (hit == NULL)
                 return false;
             
@@ -242,12 +320,29 @@ namespace TrenchBroom {
             initialPoint = hit->hitPoint();
             m_moveHandle.lock();
             
-            beginCommandGroup(m_selection.selectedVertices().size() == 1 ? wxT("Move Vertex") : wxT("Move Vertices"));
+            wxString name;
+            if (m_mode == VMMove) {
+                name = m_handleManager.selectedVertexHandles().size() == 1 ? wxT("Move Vertex") : wxT("Move Vertices");
+            } else {
+                // wrong, it's always a MoveHandleHit!
+                if (hit->type() == Model::HitType::EdgeHandleHit) {
+                    m_mode = VMSplitEdge;
+                    name = wxT("Split Edge");
+                } else {
+                    m_mode = VMSplitFace;
+                    name = wxT("Split Face");
+                }
+            }
+            
+            beginCommandGroup(name);
 
             return true;
         }
         
         void MoveVerticesTool::handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) {
+            if (m_mode == VMSplit)
+                return;
+            
             Vec3f delta = curPoint - refPoint;
             switch (m_restrictToAxis) {
                 case MoveHandle::RXAxis:
@@ -268,54 +363,52 @@ namespace TrenchBroom {
             if (delta.null())
                 return;
             
-            m_moveHandle.setPosition(m_moveHandle.position() + delta);
-            setNeedsUpdate();
-            
-            MoveVerticesCommand::BrushVerticesMap brushVerticesMap;
-            const VertexSelection::VertexBrushMap vertexBrushMap = m_selection.selectedVertices();
-            VertexSelection::VertexBrushMap::const_iterator vertexBrushIt, vertexBrushEnd;
-            for (vertexBrushIt = vertexBrushMap.begin(), vertexBrushEnd = vertexBrushMap.end(); vertexBrushIt != vertexBrushEnd; ++vertexBrushIt) {
-                const Vec3f& vertex = vertexBrushIt->first;
-                const Model::BrushList& brushes = vertexBrushIt->second;
-                Model::BrushList::const_iterator brushIt, brushEnd;
-                for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
-                    Model::Brush* brush = *brushIt;
-                    brushVerticesMap[brush].push_back(vertex);
-                    m_selection.removeVertices(*brush);
-                }
-            }
-            
-            MoveVerticesCommand* command = MoveVerticesCommand::moveVertices(document(), brushVerticesMap, delta);
-            if (submitCommand(command))
-                brushVerticesMap = command->changedBrushVertices();
-            MoveVerticesCommand::BrushVerticesMap::const_iterator brushVertexIt, brushVertexEnd;
-            for (brushVertexIt = brushVerticesMap.begin(), brushVertexEnd = brushVerticesMap.end(); brushVertexIt != brushVertexEnd; ++brushVertexIt) {
-                Model::Brush* brush = brushVertexIt->first;
-                const Vec3f::List& vertices = brushVertexIt->second;
-                m_selection.addVertices(*brush);
+            if (m_mode == VMSplitEdge) {
+                const Model::EdgeList& edges = m_handleManager.edges(m_moveHandle.position());
+                if (edges.empty())
+                    return;
                 
-                Vec3f::List::const_iterator vertexIt, vertexEnd;
-                for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt)
-                    m_selection.selectVertex(*vertexIt);
+                SplitEdgesCommand* command = SplitEdgesCommand::splitEdges(document(), edges, delta);
+                m_handleManager.remove(command->brushes());
+                
+                if (submitCommand(command)) {
+                    m_handleManager.add(command->brushes());
+                    m_handleManager.selectVertexHandles(command->vertices());
+                    m_mode = VMMove;
+                    m_moveHandle.setPosition(m_moveHandle.position() + delta);
+                    refPoint += delta;
+                } else {
+                    m_handleManager.add(command->brushes());
+                }
+            } else if (m_mode == VMSplitFace) {
+            } else {
+                MoveVerticesCommand* command = MoveVerticesCommand::moveVertices(document(), m_handleManager.selectedVertexHandles(), delta);
+                m_handleManager.remove(command->brushes());
+                
+                submitCommand(command);
+                m_handleManager.add(command->brushes());
+                m_handleManager.selectVertexHandles(command->vertices());
+                m_moveHandle.setPosition(m_moveHandle.position() + delta);
+                refPoint += delta;
             }
             
-            m_vertexFigureValid = false;
+            m_figuresValid = false;
             setNeedsUpdate();
 
-            refPoint += delta;
         }
         
         void MoveVerticesTool::handleEndPlaneDrag(InputState& inputState) {
             endCommandGroup();
+            m_mode = inputState.modifierKeys() == ModifierKeys::MKAlt ? VMSplit : VMMove;
             m_moveHandle.unlock();
             updateMoveHandle(inputState);
         }
 
         void MoveVerticesTool::handleObjectsChange(InputState& inputState) {
             if (dragType() == DTNone) {
-                m_selection.clear();
-                m_selection.addVertices(document().editStateManager().selectedBrushes());
-                m_vertexFigureValid = false;
+                m_handleManager.clear();
+                m_handleManager.add(document().editStateManager().selectedBrushes());
+                m_figuresValid = false;
                 
                 setNeedsUpdate();
                 updateMoveHandle(inputState);
@@ -324,13 +417,13 @@ namespace TrenchBroom {
 
         void MoveVerticesTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
             if (document().editStateManager().selectedBrushes().empty()) {
-                m_selection.clear();
+                m_handleManager.clear();
             } else {
-                m_selection.removeVertices(changeSet.brushesFrom(Model::EditState::Selected));
-                m_selection.addVertices(changeSet.brushesTo(Model::EditState::Selected));
+                m_handleManager.remove(changeSet.brushesFrom(Model::EditState::Selected));
+                m_handleManager.add(changeSet.brushesTo(Model::EditState::Selected));
             }
 
-            m_vertexFigureValid = false;
+            m_figuresValid = false;
             setNeedsUpdate();
         }
 
@@ -340,10 +433,11 @@ namespace TrenchBroom {
 
         MoveVerticesTool::MoveVerticesTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float planeRadius, float vertexSize) :
         PlaneDragTool(documentViewHolder, true),
+        m_mode(VMMove),
         m_moveHandle(axisLength, planeRadius),
         m_vertexHandleSize(vertexSize),
-        m_vertexFigure(NULL),
-        m_selectedVertexFigure(NULL),
-        m_vertexFigureValid(false) {}
+        m_unselectedHandleFigure(NULL),
+        m_selectedHandleFigure(NULL),
+        m_figuresValid(false) {}
     }
 }

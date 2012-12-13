@@ -46,6 +46,7 @@
 		4847640E15E2E03000095BC0 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847640C15E2E03000095BC0 /* Entity.cpp */; };
 		4847AC8D16466BED00726872 /* SphereFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847AC8B16466BED00726872 /* SphereFigure.cpp */; };
 		484CEC49165396A9000913D0 /* EdgeRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 484CEC47165396A9000913D0 /* EdgeRenderer.cpp */; };
+		484EA61E1679226700EBFAC7 /* SplitEdgesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 484EA61C1679226700EBFAC7 /* SplitEdgesCommand.cpp */; };
 		4850D24615F2AC71005B162D /* DocManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D24415F2AAE8005B162D /* DocManager.cpp */; };
 		4850D24A15F363FC005B162D /* Octree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D24715F360BF005B162D /* Octree.cpp */; };
 		4850D24D15F364CD005B162D /* Picker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D24B15F364A1005B162D /* Picker.cpp */; };
@@ -109,6 +110,7 @@
 		48C0FA421608FFD00023F467 /* FaceInspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C0FA401608FFD00023F467 /* FaceInspector.cpp */; };
 		48C0FA46160901CB0023F467 /* SingleTextureViewer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C0FA44160901CB0023F467 /* SingleTextureViewer.cpp */; };
 		48C3CAF4162A8F2D006547EC /* AddObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C3CAF2162A8F2D006547EC /* AddObjectsCommand.cpp */; };
+		48C83711167513CD00B658A2 /* ManySpheresInstancedFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C8370F167513CD00B658A2 /* ManySpheresInstancedFigure.cpp */; };
 		48CB0DCD163EEB26001C8E87 /* CircleFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48CB0DCB163EEB26001C8E87 /* CircleFigure.cpp */; };
 		48D1BE9D15E2E5550073C030 /* Vec3f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BE9C15E2E5550073C030 /* Vec3f.cpp */; };
 		48D1BEA315E2F3BC0073C030 /* Mat4f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEA215E2F3BB0073C030 /* Mat4f.cpp */; };
@@ -248,6 +250,8 @@
 		4847AC8C16466BED00726872 /* SphereFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphereFigure.h; sourceTree = "<group>"; };
 		484CEC47165396A9000913D0 /* EdgeRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EdgeRenderer.cpp; sourceTree = "<group>"; };
 		484CEC48165396A9000913D0 /* EdgeRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EdgeRenderer.h; sourceTree = "<group>"; };
+		484EA61C1679226700EBFAC7 /* SplitEdgesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SplitEdgesCommand.cpp; sourceTree = "<group>"; };
+		484EA61D1679226700EBFAC7 /* SplitEdgesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SplitEdgesCommand.h; sourceTree = "<group>"; };
 		4850D24415F2AAE8005B162D /* DocManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DocManager.cpp; sourceTree = "<group>"; };
 		4850D24515F2AAE8005B162D /* DocManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DocManager.h; sourceTree = "<group>"; };
 		4850D24715F360BF005B162D /* Octree.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Octree.cpp; sourceTree = "<group>"; };
@@ -383,6 +387,8 @@
 		48C0FA45160901CB0023F467 /* SingleTextureViewer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleTextureViewer.h; sourceTree = "<group>"; };
 		48C3CAF2162A8F2D006547EC /* AddObjectsCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AddObjectsCommand.cpp; sourceTree = "<group>"; };
 		48C3CAF3162A8F2D006547EC /* AddObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddObjectsCommand.h; sourceTree = "<group>"; };
+		48C8370F167513CD00B658A2 /* ManySpheresInstancedFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ManySpheresInstancedFigure.cpp; sourceTree = "<group>"; };
+		48C83710167513CD00B658A2 /* ManySpheresInstancedFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ManySpheresInstancedFigure.h; sourceTree = "<group>"; };
 		48CB0DCB163EEB26001C8E87 /* CircleFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CircleFigure.cpp; sourceTree = "<group>"; };
 		48CB0DCC163EEB26001C8E87 /* CircleFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CircleFigure.h; sourceTree = "<group>"; };
 		48D1BE9815E2E2930073C030 /* Math.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Math.h; sourceTree = "<group>"; };
@@ -865,6 +871,8 @@
 				4817C7ED1611DC8F00A01A99 /* SetFaceAttributesCommand.h */,
 				4817C7EF1611DFA900A01A99 /* SnapshotCommand.cpp */,
 				4817C7F01611DFA900A01A99 /* SnapshotCommand.h */,
+				484EA61C1679226700EBFAC7 /* SplitEdgesCommand.cpp */,
+				484EA61D1679226700EBFAC7 /* SplitEdgesCommand.h */,
 				48E1A516161390AD006BB6C4 /* TextureCollectionCommand.cpp */,
 				48E1A517161390AD006BB6C4 /* TextureCollectionCommand.h */,
 			);
@@ -931,6 +939,8 @@
 				480ED74B1662836C00857A21 /* ManyCubesFigure.h */,
 				480ED7511663FCF100857A21 /* ManyCubesInstancedFigure.cpp */,
 				480ED7521663FCF200857A21 /* ManyCubesInstancedFigure.h */,
+				48C8370F167513CD00B658A2 /* ManySpheresInstancedFigure.cpp */,
+				48C83710167513CD00B658A2 /* ManySpheresInstancedFigure.h */,
 				482A0874164305450000799C /* RingFigure.cpp */,
 				482A0875164305450000799C /* RingFigure.h */,
 				4847AC8B16466BED00726872 /* SphereFigure.cpp */,
@@ -1129,6 +1139,8 @@
 				480ED74C1662836C00857A21 /* ManyCubesFigure.cpp in Sources */,
 				480ED7531663FCF300857A21 /* ManyCubesInstancedFigure.cpp in Sources */,
 				48932BF4166FAFDC009ED5DB /* MoveVerticesCommand.cpp in Sources */,
+				48C83711167513CD00B658A2 /* ManySpheresInstancedFigure.cpp in Sources */,
+				484EA61E1679226700EBFAC7 /* SplitEdgesCommand.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

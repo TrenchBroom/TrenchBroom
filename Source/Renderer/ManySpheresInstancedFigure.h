@@ -17,28 +17,28 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ManyCubesInstancedFigure__
-#define __TrenchBroom__ManyCubesInstancedFigure__
+#ifndef __TrenchBroom__ManySpheresInstancedFigure__
+#define __TrenchBroom__ManySpheresInstancedFigure__
 
-#include "Renderer/Figure.h"
+#include "Renderer/SphereFigure.h"
 #include "Renderer/RenderTypes.h"
-#include "Utility/Color.h"
 #include "Utility/VecMath.h"
 
 using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
-        class ManyCubesInstancedFigure : public Figure {
+        class Vbo;
+        
+        class ManySpheresInstancedFigure : public SphereFigure {
         protected:
-            float m_offset;
             Vec3f::List m_positions;
             InstancedVertexArrayPtr m_vertexArray;
             bool m_valid;
             Color m_color;
         public:
-            ManyCubesInstancedFigure(float cubeSize);
-            
+            ManySpheresInstancedFigure(float radius, unsigned int iterations);
+
             inline const Color& color() const {
                 return m_color;
             }
@@ -49,10 +49,10 @@ namespace TrenchBroom {
             
             void add(const Vec3f& position);
             void clear();
-            
+
             void render(Vbo& vbo, RenderContext& context);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__ManyCubesInstancedFigure__) */
+#endif /* defined(__TrenchBroom__ManySpheresInstancedFigure__) */

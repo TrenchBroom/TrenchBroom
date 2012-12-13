@@ -128,6 +128,10 @@ namespace TrenchBroom {
             void flip(Axis::Type axis, const Vec3f& center, bool lockTextures);
             bool canMoveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta);
             Vec3f::List moveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta);
+            bool canSplitEdge(Edge* edge, const Vec3f& delta);
+            Vec3f splitEdge(Edge* edge, const Vec3f& delta);
+            bool canSplitFace(Face* face, const Vec3f& delta);
+            Vec3f splitFace(Face* face, const Vec3f& delta);
             void pick(const Ray& ray, PickResult& pickResults);
         };
     }

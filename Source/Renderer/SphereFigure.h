@@ -76,7 +76,7 @@ namespace TrenchBroom {
             VertexArrayPtr m_vertexArray;
 
             size_t midPoint(Vec3f::List& vertices, MidPointCache& cache, size_t index1, size_t index2);
-            void makeVertices(Vbo& vbo);
+            Vec3f::List makeVertices();
         public:
             SphereFigure(float radius, unsigned int iterations);
             void render(Vbo& vbo, RenderContext& context);

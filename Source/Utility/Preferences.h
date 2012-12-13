@@ -265,6 +265,11 @@ namespace TrenchBroom {
         extern const Preference<Color>  SelectedVertexHandleColor;
         extern const Preference<Color>  OccludedSelectedVertexHandleColor;
         
+        extern const Preference<Color>  SplitHandleColor;
+        extern const Preference<Color>  OccludedSplitHandleColor;
+        extern const Preference<Color>  SelectedSplitHandleColor;
+        extern const Preference<Color>  OccludedSelectedSplitHandleColor;
+
         extern const Preference<Color>  EdgeHandleColor;
         extern const Preference<Color>  OccludedEdgeHandleColor;
         extern const Preference<Color>  SelectedEdgeHandleColor;

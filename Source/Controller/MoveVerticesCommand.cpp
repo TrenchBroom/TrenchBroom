@@ -27,18 +27,15 @@
 namespace TrenchBroom {
     namespace Controller {
         bool MoveVerticesCommand::performDo() {
-            m_brushes.clear();
-            m_changedBrushVertices.clear();
-            
             BrushVerticesMap::const_iterator it, end;
             for (it = m_brushVertices.begin(), end = m_brushVertices.end(); it != end; ++it) {
                 Model::Brush* brush = it->first;
                 const Vec3f::List& vertices = it->second;
                 if (!brush->canMoveVertices(vertices, m_delta))
                     return false;
-                m_brushes.push_back(brush);
             }
             
+            m_vertices.clear();
             makeSnapshots(m_brushes);
             document().brushesWillChange(m_brushes);
 
@@ -46,7 +43,7 @@ namespace TrenchBroom {
                 Model::Brush* brush = it->first;
                 const Vec3f::List& oldVertexPositions = it->second;
                 Vec3f::List newVertexPositions = brush->moveVertices(oldVertexPositions, m_delta);
-                m_changedBrushVertices[brush] = newVertexPositions;
+                m_vertices.insert(newVertexPositions.begin(), newVertexPositions.end());
             }
             
             document().brushesDidChange(m_brushes);
@@ -58,35 +55,39 @@ namespace TrenchBroom {
             restoreSnapshots(m_brushes);
             document().brushesDidChange(m_brushes);
 
-            m_changedBrushVertices.clear();
-            m_brushes.clear();
+            m_vertices.clear();
+            BrushVerticesMap::const_iterator it, end;
+            for (it = m_brushVertices.begin(), end = m_brushVertices.end(); it != end; ++it) {
+                const Vec3f::List& vertices = it->second;
+                m_vertices.insert(vertices.begin(), vertices.end());
+            }
+            
             return true;
         }
         
-        MoveVerticesCommand::MoveVerticesCommand(Model::MapDocument& document, const wxString& name, const BrushVerticesMap& brushVertices, const Vec3f& delta) :
+        MoveVerticesCommand::MoveVerticesCommand(Model::MapDocument& document, const wxString& name, const Model::VertexToBrushesMap& brushVertices, const Vec3f& delta) :
         SnapshotCommand(Command::MoveVertices, document, name),
-        m_brushVertices(brushVertices),
         m_delta(delta) {
+            Model::VertexToBrushesMap::const_iterator vIt, vEnd;
+            for (vIt = brushVertices.begin(), vEnd = brushVertices.end(); vIt != vEnd; ++vIt) {
+                const Vec3f& position = vIt->first;
+                const Model::BrushList& brushes = vIt->second;
+                Model::BrushList::const_iterator bIt, bEnd;
+                for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
+                    Model::Brush* brush = *bIt;
+                    BrushVerticesMapInsertResult result = m_brushVertices.insert(BrushVerticesMapEntry(brush, Vec3f::EmptyList));
+                    if (result.second)
+                        m_brushes.push_back(brush);
+                    result.first->second.push_back(position);
+                }
+                m_vertices.insert(position);
+            }
+            assert(!m_brushVertices.empty());
+            assert(m_brushes.size() == m_brushVertices.size());
         }
 
-        MoveVerticesCommand* MoveVerticesCommand::moveVertices(Model::MapDocument& document, const BrushVerticesMap& brushVertices, const Vec3f& delta) {
-            assert(!brushVertices.empty());
-            
-            bool oneVertex = true;
-            Vec3f first = brushVertices.begin()->second.front();
-
-            BrushVerticesMap::const_iterator mapIt, mapEnd;
-            for (mapIt = brushVertices.begin(), mapEnd = brushVertices.end(); mapIt != mapEnd && oneVertex; ++mapIt) {
-                const Vec3f::List& vertices = mapIt->second;
-                Vec3f::List::const_iterator vIt, vEnd;
-                for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
-                    const Vec3f& vertex = *vIt;
-                    if (!vertex.equals(first))
-                        oneVertex = false;
-                }
-            }
-            
-            return new MoveVerticesCommand(document, oneVertex ? wxT("Move Vertex") : wxT("Move Vertices"), brushVertices, delta);
+        MoveVerticesCommand* MoveVerticesCommand::moveVertices(Model::MapDocument& document, const Model::VertexToBrushesMap& brushVertices, const Vec3f& delta) {
+            return new MoveVerticesCommand(document, brushVertices.size() == 1 ? wxT("Move Vertex") : wxT("Move Vertices"), brushVertices, delta);
         }
     }
 }
