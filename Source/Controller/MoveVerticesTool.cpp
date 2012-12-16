@@ -50,29 +50,15 @@ namespace TrenchBroom {
             Vec3f closestVertex;
             float closestSquaredDistance = std::numeric_limits<float>::max();
             
-            if (m_mode == VMMove) {
-                Model::VertexToBrushesMap::const_iterator vIt, vEnd;
-                const Model::VertexToBrushesMap& selectedVertexHandles = m_handleManager.selectedVertexHandles();
-                for (vIt = selectedVertexHandles.begin(), vEnd = selectedVertexHandles.end(); vIt != vEnd; ++vIt) {
-                    const Vec3f& position = vIt->first;
-                    float distanceToClosestPoint;
-                    float squaredDistance = inputState.pickRay().squaredDistanceToPoint(position, distanceToClosestPoint);
-                    if (squaredDistance < closestSquaredDistance) {
-                        closestSquaredDistance = squaredDistance;
-                        closestVertex = position;
-                    }
-                }
-            } else {
-                Model::VertexToEdgesMap::const_iterator eIt, eEnd;
-                const Model::VertexToEdgesMap& edgeHandles = m_handleManager.edgeHandles();
-                for (eIt = edgeHandles.begin(), eEnd = edgeHandles.end(); eIt != eEnd; ++eIt) {
-                    const Vec3f& position = eIt->first;
-                    float distanceToClosestPoint;
-                    float squaredDistance = inputState.pickRay().squaredDistanceToPoint(position, distanceToClosestPoint);
-                    if (squaredDistance < closestSquaredDistance) {
-                        closestSquaredDistance = squaredDistance;
-                        closestVertex = position;
-                    }
+            Model::VertexToBrushesMap::const_iterator vIt, vEnd;
+            const Model::VertexToBrushesMap& selectedVertexHandles = m_handleManager.selectedVertexHandles();
+            for (vIt = selectedVertexHandles.begin(), vEnd = selectedVertexHandles.end(); vIt != vEnd; ++vIt) {
+                const Vec3f& position = vIt->first;
+                float distanceToClosestPoint;
+                float squaredDistance = inputState.pickRay().squaredDistanceToPoint(position, distanceToClosestPoint);
+                if (squaredDistance < closestSquaredDistance) {
+                    closestSquaredDistance = squaredDistance;
+                    closestVertex = position;
                 }
             }
             
@@ -116,37 +102,24 @@ namespace TrenchBroom {
             if (moveHandleHit != NULL)
                 inputState.pickResult().add(moveHandleHit);
             
-            if (m_mode == VMMove) {
-                Model::VertexToBrushesMap::const_iterator vIt, vEnd;
-                const Model::VertexToBrushesMap& unselectedVertexHandles = m_handleManager.unselectedVertexHandles();
-                for (vIt = unselectedVertexHandles.begin(), vEnd = unselectedVertexHandles.end(); vIt != vEnd; ++vIt) {
-                    const Vec3f& position = vIt->first;
-                    float distance = inputState.pickRay().intersectWithSphere(position, m_vertexHandleSize);
-                    if (!Math::isnan(distance)) {
-                        Vec3f hitPoint = inputState.pickRay().pointAtDistance(distance);
-                        inputState.pickResult().add(new Model::VertexHandleHit(Model::HitType::VertexHandleHit, hitPoint, distance, position));
-                    }
+            Model::VertexToBrushesMap::const_iterator vIt, vEnd;
+            const Model::VertexToBrushesMap& unselectedVertexHandles = m_handleManager.unselectedVertexHandles();
+            for (vIt = unselectedVertexHandles.begin(), vEnd = unselectedVertexHandles.end(); vIt != vEnd; ++vIt) {
+                const Vec3f& position = vIt->first;
+                float distance = inputState.pickRay().intersectWithSphere(position, m_vertexHandleSize);
+                if (!Math::isnan(distance)) {
+                    Vec3f hitPoint = inputState.pickRay().pointAtDistance(distance);
+                    inputState.pickResult().add(new Model::VertexHandleHit(Model::HitType::VertexHandleHit, hitPoint, distance, position));
                 }
-                
-                const Model::VertexToBrushesMap& selectedVertexHandles = m_handleManager.selectedVertexHandles();
-                for (vIt = selectedVertexHandles.begin(), vEnd = selectedVertexHandles.end(); vIt != vEnd; ++vIt) {
-                    const Vec3f& position = vIt->first;
-                    float distance = inputState.pickRay().intersectWithSphere(position, m_vertexHandleSize);
-                    if (!Math::isnan(distance)) {
-                        Vec3f hitPoint = inputState.pickRay().pointAtDistance(distance);
-                        inputState.pickResult().add(new Model::VertexHandleHit(Model::HitType::VertexHandleHit, hitPoint, distance, position));
-                    }
-                }
-            } else {
-                Model::VertexToEdgesMap::const_iterator eIt, eEnd;
-                const Model::VertexToEdgesMap& edgeHandles = m_handleManager.edgeHandles();
-                for (eIt = edgeHandles.begin(), eEnd = edgeHandles.end(); eIt != eEnd; ++eIt) {
-                    const Vec3f& position = eIt->first;
-                    float distance = inputState.pickRay().intersectWithSphere(position, m_vertexHandleSize);
-                    if (!Math::isnan(distance)) {
-                        Vec3f hitPoint = inputState.pickRay().pointAtDistance(distance);
-                        inputState.pickResult().add(new Model::VertexHandleHit(Model::HitType::EdgeHandleHit, hitPoint, distance, position));
-                    }
+            }
+            
+            const Model::VertexToBrushesMap& selectedVertexHandles = m_handleManager.selectedVertexHandles();
+            for (vIt = selectedVertexHandles.begin(), vEnd = selectedVertexHandles.end(); vIt != vEnd; ++vIt) {
+                const Vec3f& position = vIt->first;
+                float distance = inputState.pickRay().intersectWithSphere(position, m_vertexHandleSize);
+                if (!Math::isnan(distance)) {
+                    Vec3f hitPoint = inputState.pickRay().pointAtDistance(distance);
+                    inputState.pickResult().add(new Model::VertexHandleHit(Model::HitType::VertexHandleHit, hitPoint, distance, position));
                 }
             }
         }
@@ -175,55 +148,32 @@ namespace TrenchBroom {
                 m_unselectedHandleFigure->clear();
                 m_selectedHandleFigure->clear();
                 
-                if (m_mode == VMMove) {
-                    Model::VertexToBrushesMap::const_iterator vIt, vEnd;
-                    const Model::VertexToBrushesMap& unselectedVertexHandles = m_handleManager.unselectedVertexHandles();
-                    for (vIt = unselectedVertexHandles.begin(), vEnd = unselectedVertexHandles.end(); vIt != vEnd; ++vIt) {
-                        const Vec3f& position = vIt->first;
-                        m_unselectedHandleFigure->add(position);
-                    }
-                    
-                    const Model::VertexToBrushesMap& selectedVertexHandles = m_handleManager.selectedVertexHandles();
-                    for (vIt = selectedVertexHandles.begin(), vEnd = selectedVertexHandles.end(); vIt != vEnd; ++vIt) {
-                        const Vec3f& position = vIt->first;
-                        m_selectedHandleFigure->add(position);
-                    }
-                } else {
-                    Model::VertexToEdgesMap::const_iterator eIt, eEnd;
-                    const Model::VertexToEdgesMap& edgeHandles = m_handleManager.edgeHandles();
-                    for (eIt = edgeHandles.begin(), eEnd = edgeHandles.end(); eIt != eEnd; ++eIt) {
-                        const Vec3f& position = eIt->first;
-                        if (position.equals(m_moveHandle.position()))
-                            m_selectedHandleFigure->add(position);
-                        else
-                            m_unselectedHandleFigure->add(position);
-                    }
+                Model::VertexToBrushesMap::const_iterator vIt, vEnd;
+                const Model::VertexToBrushesMap& unselectedVertexHandles = m_handleManager.unselectedVertexHandles();
+                for (vIt = unselectedVertexHandles.begin(), vEnd = unselectedVertexHandles.end(); vIt != vEnd; ++vIt) {
+                    const Vec3f& position = vIt->first;
+                    m_unselectedHandleFigure->add(position);
                 }
                 
+                const Model::VertexToBrushesMap& selectedVertexHandles = m_handleManager.selectedVertexHandles();
+                for (vIt = selectedVertexHandles.begin(), vEnd = selectedVertexHandles.end(); vIt != vEnd; ++vIt) {
+                    const Vec3f& position = vIt->first;
+                    m_selectedHandleFigure->add(position);
+                }
 
                 m_figuresValid = true;
             }
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             
-            if (m_mode == VMMove) {
-                m_unselectedHandleFigure->setColor(prefs.getColor(Preferences::VertexHandleColor));
-                m_selectedHandleFigure->setColor(prefs.getColor(Preferences::SelectedVertexHandleColor));
-            } else {
-                m_unselectedHandleFigure->setColor(prefs.getColor(Preferences::SplitHandleColor));
-                m_selectedHandleFigure->setColor(prefs.getColor(Preferences::SelectedSplitHandleColor));
-            }
+            m_unselectedHandleFigure->setColor(prefs.getColor(Preferences::VertexHandleColor));
+            m_selectedHandleFigure->setColor(prefs.getColor(Preferences::SelectedVertexHandleColor));
 
             m_unselectedHandleFigure->render(vbo, renderContext);
             m_selectedHandleFigure->render(vbo, renderContext);
 
-            if (m_mode == VMMove) {
-                m_unselectedHandleFigure->setColor(prefs.getColor(Preferences::OccludedVertexHandleColor));
-                m_selectedHandleFigure->setColor(prefs.getColor(Preferences::OccludedSelectedVertexHandleColor));
-            } else {
-                m_unselectedHandleFigure->setColor(prefs.getColor(Preferences::OccludedSplitHandleColor));
-                m_selectedHandleFigure->setColor(prefs.getColor(Preferences::OccludedSelectedSplitHandleColor));
-            }
+            m_unselectedHandleFigure->setColor(prefs.getColor(Preferences::OccludedVertexHandleColor));
+            m_selectedHandleFigure->setColor(prefs.getColor(Preferences::OccludedSelectedVertexHandleColor));
 
             glDisable(GL_DEPTH_TEST);
             m_selectedHandleFigure->render(vbo, renderContext);
@@ -232,15 +182,6 @@ namespace TrenchBroom {
         }
 
         void MoveVerticesTool::handleModifierKeyChange(InputState& inputState) {
-            if (dragType() == DTNone) {
-                VertexMode newMode = inputState.modifierKeys() == ModifierKeys::MKAlt ? VMSplit : VMMove;
-                if (m_mode != newMode) {
-                    m_mode = newMode;
-                    m_figuresValid = false;
-                    setNeedsUpdate();
-                    updateMoveHandle(inputState);
-                }
-            }
         }
 
         bool MoveVerticesTool::handleMouseUp(InputState& inputState) {
@@ -321,18 +262,7 @@ namespace TrenchBroom {
             m_moveHandle.lock();
             
             wxString name;
-            if (m_mode == VMMove) {
-                name = m_handleManager.selectedVertexHandles().size() == 1 ? wxT("Move Vertex") : wxT("Move Vertices");
-            } else {
-                // wrong, it's always a MoveHandleHit!
-                if (hit->type() == Model::HitType::EdgeHandleHit) {
-                    m_mode = VMSplitEdge;
-                    name = wxT("Split Edge");
-                } else {
-                    m_mode = VMSplitFace;
-                    name = wxT("Split Face");
-                }
-            }
+            name = m_handleManager.selectedVertexHandles().size() == 1 ? wxT("Move Vertex") : wxT("Move Vertices");
             
             beginCommandGroup(name);
 
@@ -340,9 +270,6 @@ namespace TrenchBroom {
         }
         
         void MoveVerticesTool::handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) {
-            if (m_mode == VMSplit)
-                return;
-            
             Vec3f delta = curPoint - refPoint;
             switch (m_restrictToAxis) {
                 case MoveHandle::RXAxis:
@@ -363,34 +290,14 @@ namespace TrenchBroom {
             if (delta.null())
                 return;
             
-            if (m_mode == VMSplitEdge) {
-                const Model::EdgeList& edges = m_handleManager.edges(m_moveHandle.position());
-                if (edges.empty())
-                    return;
-                
-                SplitEdgesCommand* command = SplitEdgesCommand::splitEdges(document(), edges, delta);
-                m_handleManager.remove(command->brushes());
-                
-                if (submitCommand(command)) {
-                    m_handleManager.add(command->brushes());
-                    m_handleManager.selectVertexHandles(command->vertices());
-                    m_mode = VMMove;
-                    m_moveHandle.setPosition(m_moveHandle.position() + delta);
-                    refPoint += delta;
-                } else {
-                    m_handleManager.add(command->brushes());
-                }
-            } else if (m_mode == VMSplitFace) {
-            } else {
-                MoveVerticesCommand* command = MoveVerticesCommand::moveVertices(document(), m_handleManager.selectedVertexHandles(), delta);
-                m_handleManager.remove(command->brushes());
-                
-                submitCommand(command);
-                m_handleManager.add(command->brushes());
-                m_handleManager.selectVertexHandles(command->vertices());
-                m_moveHandle.setPosition(m_moveHandle.position() + delta);
-                refPoint += delta;
-            }
+            MoveVerticesCommand* command = MoveVerticesCommand::moveVertices(document(), m_handleManager.selectedVertexHandles(), delta);
+            m_handleManager.remove(command->brushes());
+            
+            submitCommand(command);
+            m_handleManager.add(command->brushes());
+            m_handleManager.selectVertexHandles(command->vertices());
+            m_moveHandle.setPosition(m_moveHandle.position() + delta);
+            refPoint += delta;
             
             m_figuresValid = false;
             setNeedsUpdate();
@@ -399,7 +306,6 @@ namespace TrenchBroom {
         
         void MoveVerticesTool::handleEndPlaneDrag(InputState& inputState) {
             endCommandGroup();
-            m_mode = inputState.modifierKeys() == ModifierKeys::MKAlt ? VMSplit : VMMove;
             m_moveHandle.unlock();
             updateMoveHandle(inputState);
         }
@@ -433,7 +339,6 @@ namespace TrenchBroom {
 
         MoveVerticesTool::MoveVerticesTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float planeRadius, float vertexSize) :
         PlaneDragTool(documentViewHolder, true),
-        m_mode(VMMove),
         m_moveHandle(axisLength, planeRadius),
         m_vertexHandleSize(vertexSize),
         m_unselectedHandleFigure(NULL),

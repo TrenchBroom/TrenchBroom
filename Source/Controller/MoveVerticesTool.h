@@ -64,7 +64,10 @@ namespace TrenchBroom {
         private:
             Model::VertexToBrushesMap m_unselectedVertexHandles;
             Model::VertexToBrushesMap m_selectedVertexHandles;
-            Model::VertexToEdgesMap m_edgeHandles;
+            Model::VertexToEdgesMap m_unselectedEdgeHandles;
+            Model::VertexToEdgesMap m_selectedEdgeHandles;
+            Vec3f::List m_savedVertexSelection;
+            Vec3f::List m_savedEdgeSelection;
             
             template <typename Element>
             inline bool removeHandle(const Vec3f& position, Element& element, std::map<Vec3f, std::vector<Element*>, Vec3f::LexicographicOrder >& map) {
@@ -112,13 +115,19 @@ namespace TrenchBroom {
                 return m_selectedVertexHandles;
             }
             
-            inline const Model::VertexToEdgesMap& edgeHandles() const {
-                return m_edgeHandles;
+            inline const Model::VertexToEdgesMap& unselectedEdgeHandles() const {
+                return m_unselectedEdgeHandles;
+            }
+            
+            inline const Model::VertexToEdgesMap& selectedEdgeHandles() const {
+                return m_selectedEdgeHandles;
             }
             
             inline const Model::EdgeList& edges(const Vec3f& handlePosition) const {
-                Model::VertexToEdgesMap::const_iterator mapIt = m_edgeHandles.find(handlePosition);
-                if (mapIt == m_edgeHandles.end())
+                Model::VertexToEdgesMap::const_iterator mapIt = m_selectedEdgeHandles.find(handlePosition);
+                if (mapIt == m_selectedEdgeHandles.end())
+                    mapIt = m_unselectedEdgeHandles.find(handlePosition);
+                if (mapIt == m_unselectedEdgeHandles.end())
                     return Model::EmptyEdgeList;
                 return mapIt->second;
             }
@@ -140,7 +149,11 @@ namespace TrenchBroom {
                 for (eIt = brushEdges.begin(), eEnd = brushEdges.end(); eIt != eEnd; ++eIt) {
                     Model::Edge& edge = **eIt;
                     Vec3f position = edge.center();
-                    m_edgeHandles[position].push_back(&edge);
+                    Model::VertexToEdgesMap::iterator mapIt = m_selectedEdgeHandles.find(position);
+                    if (mapIt != m_selectedEdgeHandles.end())
+                        mapIt->second.push_back(&edge);
+                    else
+                        m_unselectedEdgeHandles[position].push_back(&edge);
                 }
             }
             
@@ -164,7 +177,8 @@ namespace TrenchBroom {
                 for (eIt = brushEdges.begin(), eEnd = brushEdges.end(); eIt != eEnd; ++eIt) {
                     Model::Edge& edge = **eIt;
                     Vec3f position = edge.center();
-                    removeHandle(position, edge, m_edgeHandles);
+                    if (!removeHandle(position, edge, m_selectedEdgeHandles))
+                        removeHandle(position, edge, m_unselectedEdgeHandles);
                 }
             }
             
@@ -186,6 +200,7 @@ namespace TrenchBroom {
                 Vec3f::Set::const_iterator it, end;
                 for (it = positions.begin(), end = positions.end(); it != end; ++it)
                     selectVertexHandle(*it);
+                return true;
             }
             
             inline bool deselectVertexHandle(const Vec3f& position) {
@@ -203,23 +218,77 @@ namespace TrenchBroom {
                 m_selectedVertexHandles.clear();
             }
 
+            inline bool edgeHandleSelected(const Vec3f& position) {
+                return m_selectedEdgeHandles.find(position) != m_selectedEdgeHandles.end();
+            }
+            
+            inline bool selectEdgeHandle(const Vec3f& position) {
+                return moveHandle(position, m_unselectedEdgeHandles, m_selectedEdgeHandles);
+            }
+            
+            inline bool deselectEdgeHandle(const Vec3f& position) {
+                return moveHandle(position, m_selectedEdgeHandles, m_unselectedEdgeHandles);
+            }
+            
+            inline void deselectEdgeHandles() {
+                Model::VertexToEdgesMap::const_iterator eIt, eEnd;
+                for (eIt = m_selectedEdgeHandles.begin(), eEnd = m_selectedEdgeHandles.end(); eIt != eEnd; ++eIt) {
+                    const Vec3f& position = eIt->first;
+                    const Model::EdgeList& selectedEdges = eIt->second;
+                    Model::EdgeList& unselectedEdges = m_unselectedEdgeHandles[position];
+                    unselectedEdges.insert(unselectedEdges.begin(), selectedEdges.begin(), selectedEdges.end());
+                }
+                m_selectedEdgeHandles.clear();
+            }
+
+            inline void deselectAll() {
+                deselectVertexHandles();
+                deselectEdgeHandles();
+            }
+            
+            inline void saveSelection() {
+                clearSavedSelection();
+                
+                Model::VertexToBrushesMap::const_iterator vIt, vEnd;
+                for (vIt = m_selectedVertexHandles.begin(), vEnd = m_selectedVertexHandles.end(); vIt != vEnd; ++vIt) {
+                    const Vec3f& position = vIt->first;
+                    m_savedVertexSelection.push_back(position);
+                }
+                
+                Model::VertexToEdgesMap::const_iterator eIt, eEnd;
+                for (eIt = m_selectedEdgeHandles.begin(), eEnd = m_selectedEdgeHandles.end(); eIt != eEnd; ++eIt) {
+                    const Vec3f& position = eIt->first;
+                    m_savedEdgeSelection.push_back(position);
+                }
+            }
+            
+            inline void clearSavedSelection() {
+                m_savedVertexSelection.clear();
+                m_savedEdgeSelection.clear();
+            }
+            
+            inline void restoreSavedSelection() {
+                deselectAll();
+                
+                Vec3f::List::const_iterator pIt, pEnd;
+                for (pIt = m_savedVertexSelection.begin(), pEnd = m_savedVertexSelection.end(); pIt != pEnd; ++pIt)
+                    selectVertexHandle(*pIt);
+                for (pIt = m_savedEdgeSelection.begin(), pEnd = m_savedEdgeSelection.end(); pIt != pEnd; ++pIt)
+                    selectEdgeHandle(*pIt);
+                clearSavedSelection();
+            }
+            
             inline void clear() {
                 m_unselectedVertexHandles.clear();
                 m_selectedVertexHandles.clear();
-                m_edgeHandles.clear();
+                m_unselectedEdgeHandles.clear();
+                m_selectedEdgeHandles.clear();
+                clearSavedSelection();
             }
         };
         
         class MoveVerticesTool : public PlaneDragTool {
         protected:
-            typedef enum {
-                VMMove,
-                VMSplit,
-                VMSplitEdge,
-                VMSplitFace
-            } VertexMode;
-
-            VertexMode m_mode;
             HandleManager m_handleManager;
             MoveHandle m_moveHandle;
             float m_vertexHandleSize;
