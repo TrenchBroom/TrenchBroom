@@ -311,7 +311,7 @@ namespace TrenchBroom {
         }
 
         void MoveVerticesTool::handleObjectsChange(InputState& inputState) {
-            if (dragType() == DTNone) {
+            if (active() && dragType() == DTNone) {
                 m_handleManager.clear();
                 m_handleManager.add(document().editStateManager().selectedBrushes());
                 m_figuresValid = false;
@@ -320,21 +320,24 @@ namespace TrenchBroom {
                 updateMoveHandle(inputState);
             }
         }
-
+        
         void MoveVerticesTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
-            if (document().editStateManager().selectedBrushes().empty()) {
-                m_handleManager.clear();
-            } else {
-                m_handleManager.remove(changeSet.brushesFrom(Model::EditState::Selected));
-                m_handleManager.add(changeSet.brushesTo(Model::EditState::Selected));
+            if (active()) {
+                if (document().editStateManager().selectedBrushes().empty()) {
+                    m_handleManager.clear();
+                } else {
+                    m_handleManager.remove(changeSet.brushesFrom(Model::EditState::Selected));
+                    m_handleManager.add(changeSet.brushesTo(Model::EditState::Selected));
+                }
+                
+                m_figuresValid = false;
+                setNeedsUpdate();
             }
-
-            m_figuresValid = false;
-            setNeedsUpdate();
         }
 
         void MoveVerticesTool::handleCameraChange(InputState& inputState) {
-            updateMoveHandle(inputState);
+            if (active())
+                updateMoveHandle(inputState);
         }
 
         MoveVerticesTool::MoveVerticesTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float planeRadius, float vertexSize) :

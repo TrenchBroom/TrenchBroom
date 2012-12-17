@@ -140,7 +140,7 @@ namespace TrenchBroom {
             // make sure that the VBO is sufficiently large
             size_t totalFaceVertexCount = unselectedFaceSorter.vertexCount() + selectedFaceSorter.vertexCount() + lockedFaceSorter.vertexCount();
             size_t totalPolygonCount = unselectedFaceSorter.polygonCount() + selectedFaceSorter.polygonCount() + lockedFaceSorter.polygonCount();
-            size_t totalTriangleVertexCount = 3 * totalFaceVertexCount - 2 * totalPolygonCount;
+            size_t totalTriangleVertexCount = 3 * totalFaceVertexCount - 6 * totalPolygonCount;
             m_faceVbo->ensureFreeCapacity(static_cast<unsigned int>(totalTriangleVertexCount) * FaceVertexSize);
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();

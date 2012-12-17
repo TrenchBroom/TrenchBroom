@@ -88,13 +88,26 @@ namespace TrenchBroom {
             VboState oldState = m_state;
             
             unsigned char* temp = NULL;
+            unsigned int start = 0;
+            unsigned int length = 0;
             if (m_vboId != 0 && m_freeCapacity < m_totalCapacity) {
                 if (m_state < VboActive)
                     activate();
                 if (m_state < VboMapped)
                     map();
-                temp = new unsigned char[m_totalCapacity];
-                memcpy(temp, m_buffer, m_totalCapacity);
+                
+                VboBlock* firstUsed = m_first;
+                while (firstUsed->free())
+                    firstUsed = firstUsed->m_next;
+                VboBlock* lastUsed = m_last;
+                while (lastUsed->free())
+                    lastUsed = lastUsed->m_previous;
+                
+                start = firstUsed->address();
+                length = lastUsed->address() + lastUsed->capacity();
+                
+                temp = new unsigned char[length];
+                memcpy(temp, m_buffer + start, length);
             }
             
             unsigned int addedCapacity = newCapacity - m_totalCapacity;
@@ -119,12 +132,13 @@ namespace TrenchBroom {
             }
             
             if (temp != NULL) {
+                assert(length > 0);
                 if (m_state < VboActive)
                     activate();
                 if (m_state < VboMapped)
                     map();
                 
-                memcpy(m_buffer, temp, m_totalCapacity - addedCapacity);
+                memcpy(m_buffer + start, temp, length);
                 delete [] temp;
                 temp = NULL;
                 

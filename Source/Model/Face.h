@@ -22,6 +22,7 @@
 
 #include "Model/BrushGeometry.h"
 #include "Model/FaceTypes.h"
+#include "Renderer/FaceVertex.h"
 #include "Utility/Allocator.h"
 #include "Utility/String.h"
 #include "Utility/VecMath.h"
@@ -82,9 +83,9 @@ namespace TrenchBroom {
             mutable Vec3f m_texAxisY;
             mutable Vec3f m_scaledTexAxisX;
             mutable Vec3f m_scaledTexAxisY;
-            
-            mutable bool m_coordsValid;
-            mutable Vec2f::List m_texCoords;
+
+            mutable bool m_vertexCacheValid;
+            mutable Renderer::FaceVertex::List m_vertexCache;
             
             size_t m_filePosition;
             bool m_selected;
@@ -92,7 +93,7 @@ namespace TrenchBroom {
             void init();
             void texAxesAndIndices(const Vec3f& faceNormal, Vec3f& xAxis, Vec3f& yAxis, int& planeNormIndex, int& faceNormIndex) const;
             void validateTexAxes(const Vec3f& faceNormal) const;
-            void validateCoords() const;
+            void validateVertexCache() const;
             
             void compensateTransformation(const Mat4f& transformation);
         public:
@@ -241,7 +242,7 @@ namespace TrenchBroom {
                 if (xOffset == m_xOffset)
                     return;
                 m_xOffset = xOffset;
-                m_coordsValid = false;
+                m_vertexCacheValid = false;
             }
             
             /**
@@ -258,7 +259,7 @@ namespace TrenchBroom {
                 if (yOffset == m_yOffset)
                     return;
                 m_yOffset = yOffset;
-                m_coordsValid = false;
+                m_vertexCacheValid = false;
             }
             
             /**
@@ -276,7 +277,7 @@ namespace TrenchBroom {
                     return;
                 m_rotation = rotation;
                 m_texAxesValid = false;
-                m_coordsValid = false;
+                m_vertexCacheValid = false;
             }
             
             /**
@@ -294,7 +295,7 @@ namespace TrenchBroom {
                     return;
                 m_xScale = xScale;
                 m_texAxesValid = false;
-                m_coordsValid = false;
+                m_vertexCacheValid = false;
             }
             
             /**
@@ -312,7 +313,7 @@ namespace TrenchBroom {
                     return;
                 m_yScale = yScale;
                 m_texAxesValid = false;
-                m_coordsValid = false;
+                m_vertexCacheValid = false;
             }
             
             /**
@@ -326,18 +327,17 @@ namespace TrenchBroom {
              */
             void rotateTexture(float angle);
             
-            inline void invalidateCoords() {
-                m_coordsValid = false;
+            /**
+             * Invalidates the vertex cache.
+             */
+            inline void invalidateVertexCache() {
+                m_vertexCacheValid = false;
             }
             
-            /**
-             * Returns the texture coordinates for each vertex of this face. The texture coordinates are in the same
-             * order as the vertices returned by the vertices() function.
-             */
-            inline const Vec2f::List& texCoords() const {
-                if (!m_coordsValid)
-                    validateCoords();
-                return m_texCoords;
+            inline const Renderer::FaceVertex::List& cachedVertices() const {
+                if (!m_vertexCacheValid)
+                    validateVertexCache();
+                return m_vertexCache;
             }
             
             /**

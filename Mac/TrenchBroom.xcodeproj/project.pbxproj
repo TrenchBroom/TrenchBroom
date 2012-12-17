@@ -318,6 +318,7 @@
 		48819C4515EC108400BEA604 /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; name = QuakePalette.lmp; path = ../../Resources/Graphics/QuakePalette.lmp; sourceTree = "<group>"; };
 		48819C4C15ED52B200BEA604 /* CameraEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraEvent.h; sourceTree = "<group>"; };
 		48819C4F15ED5C7700BEA604 /* CameraEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraEvent.cpp; sourceTree = "<group>"; };
+		48820108167F244300C2C799 /* FaceVertex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FaceVertex.h; sourceTree = "<group>"; };
 		488457CE161C839A002ADDAE /* OffscreenRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OffscreenRenderer.cpp; sourceTree = "<group>"; };
 		488457CF161C839A002ADDAE /* OffscreenRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OffscreenRenderer.h; sourceTree = "<group>"; };
 		4887937415EF56C10044D66A /* AbstractApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractApp.cpp; sourceTree = "<group>"; };
@@ -532,6 +533,7 @@
 				481E566E1624451300B403F3 /* EntityRenderer.h */,
 				48F1FBAA1652BE8B00C79278 /* FaceRenderer.cpp */,
 				48F1FBAB1652BE8B00C79278 /* FaceRenderer.h */,
+				48820108167F244300C2C799 /* FaceVertex.h */,
 				481CDAE11603CF4B003E2EE9 /* IndexedVertexArray.h */,
 				480ED74D1662C4A200857A21 /* InstancedVertexArray.h */,
 				48312B3315EB805E00607868 /* MapRenderer.cpp */,

@@ -47,7 +47,7 @@ namespace TrenchBroom {
             m_filePosition = 0;
             m_selected = false;
             m_texAxesValid = false;
-            m_coordsValid = false;
+            m_vertexCacheValid = false;
         }
         
         void Face::texAxesAndIndices(const Vec3f& faceNormal, Vec3f& xAxis, Vec3f& yAxis, int& planeNormIndex, int& faceNormIndex) const {
@@ -79,7 +79,7 @@ namespace TrenchBroom {
             m_texAxesValid = true;
         }
         
-        void Face::validateCoords() const {
+        void Face::validateVertexCache() const {
             assert(m_side != NULL);
             
             if (!m_texAxesValid)
@@ -89,15 +89,29 @@ namespace TrenchBroom {
             int height = m_texture != NULL ? m_texture->height() : 1;
             
             size_t vertexCount = m_side->vertices.size();
-            m_texCoords.resize(vertexCount);
-            for (unsigned int i = 0; i < vertexCount; i++) {
-                const Vec3f& vertex = m_side->vertices[i]->position;
-                
-                m_texCoords[i].x = (vertex.dot(m_scaledTexAxisX) + m_xOffset) / width,
-                m_texCoords[i].y = (vertex.dot(m_scaledTexAxisY) + m_yOffset) / height;
+            m_vertexCache.resize(3 * (vertexCount - 2));
+
+            Vec2f texCoords;
+            size_t j = 0;
+            for (size_t i = 1; i < vertexCount - 1; i++) {
+                m_vertexCache[j++] = Renderer::FaceVertex(m_side->vertices[0]->position,
+                                                          m_boundary.normal,
+                                                          Vec2f((m_side->vertices[0]->position.dot(m_scaledTexAxisX) + m_xOffset) / width,
+                                                                (m_side->vertices[0]->position.dot(m_scaledTexAxisY) + m_yOffset) / height)
+                                                          );
+                m_vertexCache[j++] = Renderer::FaceVertex(m_side->vertices[i]->position,
+                                                          m_boundary.normal,
+                                                          Vec2f((m_side->vertices[i]->position.dot(m_scaledTexAxisX) + m_xOffset) / width,
+                                                                (m_side->vertices[i]->position.dot(m_scaledTexAxisY) + m_yOffset) / height)
+                                                          );
+                m_vertexCache[j++] = Renderer::FaceVertex(m_side->vertices[i+1]->position,
+                                                          m_boundary.normal,
+                                                          Vec2f((m_side->vertices[i+1]->position.dot(m_scaledTexAxisX) + m_xOffset) / width,
+                                                                (m_side->vertices[i+1]->position.dot(m_scaledTexAxisY) + m_yOffset) / height)
+                                                          );
             }
             
-            m_coordsValid = true;
+            m_vertexCacheValid = true;
         }
         
         void Face::compensateTransformation(const Mat4f& transformation) {
@@ -276,7 +290,7 @@ namespace TrenchBroom {
         m_xScale(face.xScale()),
         m_yScale(face.yScale()),
         m_texAxesValid(false),
-        m_coordsValid(false),
+        m_vertexCacheValid(false),
         m_filePosition(face.filePosition()),
         m_selected(false) {
             face.getPoints(m_points[0], m_points[1], m_points[2]);
@@ -289,8 +303,6 @@ namespace TrenchBroom {
 			m_texAxisY = Vec3f::NaN;
 			m_scaledTexAxisX = Vec3f::NaN;
 			m_scaledTexAxisY = Vec3f::NaN;
-            
-			m_texCoords.clear();
             
 			m_faceId *= -1;
 			m_brush = NULL;
@@ -310,7 +322,7 @@ namespace TrenchBroom {
 			m_side = NULL;
 			m_filePosition = -1;
 			m_selected = false;
-			m_coordsValid = false;
+			m_vertexCacheValid = false;
 			m_texAxesValid = false;
 		}
         
@@ -324,7 +336,7 @@ namespace TrenchBroom {
             m_yScale = faceTemplate.yScale();
             setTexture(faceTemplate.texture());
             m_texAxesValid = false;
-            m_coordsValid = false;
+            m_vertexCacheValid = false;
 			m_selected = faceTemplate.selected();
         }
 
@@ -389,7 +401,7 @@ namespace TrenchBroom {
             
             if (m_texture != NULL)
                 m_texture->incUsageCount();
-            m_coordsValid = false;
+            m_vertexCacheValid = false;
         }
 
         void Face::moveTexture(float distance, const Vec3f& direction) {
@@ -411,7 +423,7 @@ namespace TrenchBroom {
                     m_yOffset += distance;
             }
             
-            m_coordsValid = false;
+            m_vertexCacheValid = false;
         }
         
         void Face::rotateTexture(float angle) {
@@ -423,7 +435,7 @@ namespace TrenchBroom {
             else
                 m_rotation -= angle;
             m_texAxesValid = false;
-            m_coordsValid = false;
+            m_vertexCacheValid = false;
         }
 
         void Face::setSelected(bool selected) {
@@ -451,7 +463,7 @@ namespace TrenchBroom {
                 m_points[i] += delta;
             
             m_texAxesValid = false;
-            m_coordsValid = false;
+            m_vertexCacheValid = false;
         }
 
         void Face::rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTexture) {
@@ -472,7 +484,7 @@ namespace TrenchBroom {
                 m_points[i].rotate90(axis, center, clockwise);
             
             m_texAxesValid = false;
-            m_coordsValid = false;
+            m_vertexCacheValid = false;
         }
 
         void Face::rotate(const Quat& rotation, const Vec3f& center, bool lockTexture) {
@@ -489,7 +501,7 @@ namespace TrenchBroom {
                 m_points[i] = rotation * (m_points[i] - center) + center;
             
             m_texAxesValid = false;
-            m_coordsValid = false;
+            m_vertexCacheValid = false;
         }
 
         void Face::flip(Axis::Type axis, const Vec3f& center, bool lockTexture) {
@@ -527,6 +539,6 @@ namespace TrenchBroom {
             m_points[1] = m_points[2];
             m_points[2] = t;
             m_texAxesValid = false;
-            m_coordsValid = false;        }
+            m_vertexCacheValid = false;        }
     }
 }

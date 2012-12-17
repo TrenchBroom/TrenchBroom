@@ -45,28 +45,16 @@ namespace TrenchBroom {
                 TextureRenderer* textureRenderer = texture != NULL ? &textureRendererManager.renderer(texture) : NULL;
                 const FaceCollection& faceCollection = it->second;
                 const Model::FaceList& faces = faceCollection.polygons();
-                unsigned int vertexCount = static_cast<unsigned int>(3 * faceCollection.vertexCount() - 2 * faces.size());
+                unsigned int vertexCount = static_cast<unsigned int>(3 * faceCollection.vertexCount() - 6 * faces.size());
                 VertexArrayPtr vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_TRIANGLES, vertexCount,
                                                                             Attribute::position3f(),
                                                                             Attribute::normal3f(),
-                                                                            Attribute::texCoord02f()));
+                                                                            Attribute::texCoord02f(),
+                                                                            0));
                 
                 for (unsigned int i = 0; i < faces.size(); i++) {
                     Model::Face* face = faces[i];
-                    const Model::VertexList& vertices = face->vertices();
-                    const Vec2f::List& texCoords = face->texCoords();
-                    
-                    for (unsigned int j = 1; j < vertices.size() - 1; j++) {
-                        vertexArray->addAttribute(vertices[0]->position);
-                        vertexArray->addAttribute(face->boundary().normal);
-                        vertexArray->addAttribute(texCoords[0]);
-                        vertexArray->addAttribute(vertices[j]->position);
-                        vertexArray->addAttribute(face->boundary().normal);
-                        vertexArray->addAttribute(texCoords[j]);
-                        vertexArray->addAttribute(vertices[j + 1]->position);
-                        vertexArray->addAttribute(face->boundary().normal);
-                        vertexArray->addAttribute(texCoords[j + 1]);
-                    }
+                    vertexArray->addAttributes(face->cachedVertices());
                 }
                 
                 m_vertexArrays.push_back(TextureVertexArray(textureRenderer, vertexArray));

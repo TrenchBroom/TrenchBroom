@@ -21,6 +21,7 @@
 #define __TrenchBroom__AttributeArray__
 
 #include <GL/glew.h>
+#include "Renderer/FaceVertex.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/Shader/ShaderProgram.h"
 #include "Utility/String.h"
@@ -365,6 +366,20 @@ namespace TrenchBroom {
                 attributeAdded();
             }
 
+            inline void addAttributes(const FaceVertex::List& cachedVertices) {
+                assert(m_attributes[0].valueType() == GL_FLOAT);
+                assert(m_attributes[0].size() == 3);
+                assert(m_attributes[1].valueType() == GL_FLOAT);
+                assert(m_attributes[1].size() == 3);
+                assert(m_attributes[2].valueType() == GL_FLOAT);
+                assert(m_attributes[2].size() == 2);
+                assert(m_padBy == 0);
+                assert(m_vertexCount + cachedVertices.size() <= m_vertexCapacity);
+                
+                m_writeOffset = m_block->writeBuffer(reinterpret_cast<const unsigned char*>(&cachedVertices.front()), m_writeOffset, static_cast<unsigned int>(cachedVertices.size() * sizeof(FaceVertex)));
+                m_vertexCount += cachedVertices.size();
+            }
+            
             inline void bindAttributes(const ShaderProgram& program) {
                 for (unsigned int i = 0; i < m_attributes.size(); i++) {
                     Attribute& attribute = m_attributes[i];
