@@ -28,12 +28,15 @@
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Math {
         class Vec4f {
         public:
             float x, y, z, w;
+            
+            typedef std::vector<Vec4f> List;
             
             Vec4f() : x(0), y(0), z(0), w(0) {}
             

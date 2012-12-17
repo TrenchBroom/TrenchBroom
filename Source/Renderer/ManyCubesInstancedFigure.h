@@ -32,7 +32,7 @@ namespace TrenchBroom {
         class ManyCubesInstancedFigure : public Figure {
         protected:
             float m_offset;
-            Vec3f::List m_positions;
+            Vec4f::List m_positions;
             InstancedVertexArrayPtr m_vertexArray;
             bool m_valid;
             Color m_color;

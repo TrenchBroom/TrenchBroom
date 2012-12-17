@@ -34,7 +34,7 @@ namespace TrenchBroom {
         m_valid(false) {}
         
         void ManyCubesInstancedFigure::add(const Vec3f& position) {
-            m_positions.push_back(position);
+            m_positions.push_back(Vec4f(position.x, position.y, position.z, 0.0f));
             m_valid = false;
         }
         

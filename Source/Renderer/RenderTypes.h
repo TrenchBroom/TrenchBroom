@@ -37,6 +37,7 @@ namespace TrenchBroom {
         class Figure;
         class IndexedVertexArray;
         class InstancedVertexArray;
+        class PointHandleRenderer;
         class Shader;
         class ShaderProgram;
         class VertexArray;
@@ -54,6 +55,7 @@ namespace TrenchBroom {
         typedef std::auto_ptr<IndexedVertexArray> IndexedVertexArrayPtr;
         typedef std::auto_ptr<InstancedVertexArray> InstancedVertexArrayPtr;
         typedef std::auto_ptr<Vbo> VboPtr;
+        typedef std::auto_ptr<PointHandleRenderer> PointHandleRendererPtr;
         typedef std::vector<Figure*> FigureList;
     }
 }

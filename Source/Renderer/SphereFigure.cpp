@@ -115,7 +115,8 @@ namespace TrenchBroom {
                 triangles = newTriangles;
             }
             
-            Vec3f::List allVertices(3 * triangles.size());
+            Vec3f::List allVertices;
+            allVertices.reserve(3 * triangles.size());
             TriangleList::iterator it, end;
             for (it = triangles.begin(), end = triangles.end(); it != end; ++it) {
                 Triangle& triangle = *it;

@@ -32,6 +32,7 @@
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/FaceRenderer.h"
 #include "Renderer/Figure.h"
+#include "Renderer/PointHandleRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/SharedResources.h"
 #include "Renderer/TextureRenderer.h"
@@ -64,6 +65,7 @@ namespace TrenchBroom {
             if (!m_selectedGeometryDataValid) {
                 m_selectedFaceRenderer = FaceRendererPtr(NULL);
                 m_selectedEdgeRenderer = EdgeRendererPtr(NULL);
+                m_vertexHandleRenderer->clear();
             }
             if (!m_lockedGeometryDataValid) {
                 m_lockedFaceRenderer = FaceRendererPtr(NULL);
@@ -175,6 +177,23 @@ namespace TrenchBroom {
             m_edgeVbo->unmap();
             m_edgeVbo->deactivate();
             
+            if (selectedBrushes.size() <= 32) {
+                m_handleVbo->activate();
+                m_handleVbo->map();
+                
+                Model::BrushList::const_iterator brushIt, brushEnd;
+                for (brushIt = selectedBrushes.begin(), brushEnd = selectedBrushes.end(); brushIt != brushEnd; ++brushIt) {
+                    const Model::Brush& brush = **brushIt;
+                    const Model::VertexList& vertices = brush.vertices();
+                    Model::VertexList::const_iterator vertexIt, vertexEnd;
+                    for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt)
+                        m_vertexHandleRenderer->add((*vertexIt)->position);
+                }
+                
+                m_handleVbo->unmap();
+                m_handleVbo->deactivate();
+            }
+                
             m_geometryDataValid = true;
             m_selectedGeometryDataValid = true;
             m_lockedGeometryDataValid = true;
@@ -241,6 +260,8 @@ namespace TrenchBroom {
 
         MapRenderer::MapRenderer(Model::MapDocument& document) :
         m_document(document) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+
             m_rendering = false;
 
             m_faceVbo = VboPtr(new Vbo(GL_ARRAY_BUFFER, 0xFFFF));
@@ -248,11 +269,12 @@ namespace TrenchBroom {
             m_entityVbo = VboPtr(new Vbo(GL_ARRAY_BUFFER, 0xFFFF));
             m_figureVbo = VboPtr(new Vbo(GL_ARRAY_BUFFER, 0xFFFF));
             
+            m_handleVbo = VboPtr(new Vbo(GL_ARRAY_BUFFER, 0xFFFF));
+            m_vertexHandleRenderer = PointHandleRendererPtr(new PointHandleRenderer(prefs.getFloat(Preferences::VertexHandleRadius), 1, prefs.getFloat(Preferences::HandleScalingFactor), prefs.getFloat(Preferences::MaximumHandleDistance)));
+            
             m_geometryDataValid = false;
             m_selectedGeometryDataValid = false;
             m_lockedGeometryDataValid = false;
-
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             
             m_entityRenderer = EntityRendererPtr(new EntityRenderer(*m_entityVbo, m_document));
             m_entityRenderer->setClassnameFadeDistance(prefs.getFloat(Preferences::InfoOverlayFadeDistance));
@@ -407,6 +429,8 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::render(RenderContext& context) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+
             if (m_rendering)
                 return;
             m_rendering = true;
@@ -427,8 +451,18 @@ namespace TrenchBroom {
             
             if (context.viewOptions().showBrushes() && context.viewOptions().faceRenderMode() != View::ViewOptions::Discard)
                 renderFaces(context);
+            
             if (context.viewOptions().showBrushes() && context.viewOptions().renderEdges())
                 renderEdges(context);
+            
+            if (context.viewOptions().showBrushes()) {
+                glDisable(GL_DEPTH_TEST);
+                m_vertexHandleRenderer->setColor(prefs.getColor(Preferences::OccludedVertexHandleColor));
+                m_vertexHandleRenderer->render(*m_handleVbo, context);
+                glEnable(GL_DEPTH_TEST);
+                m_vertexHandleRenderer->setColor(prefs.getColor(Preferences::VertexHandleColor));
+                m_vertexHandleRenderer->render(*m_handleVbo, context);
+            }
             
             if (context.viewOptions().showEntities()) {
                 m_entityRenderer->render(context);

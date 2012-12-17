@@ -29,7 +29,10 @@ namespace TrenchBroom {
         const Preference<bool> CameraLookInvertY = Preference<bool>(                            "Controls/Camera/Look Y inverted",                              false);
         const Preference<bool> CameraPanInvertX = Preference<bool>(                             "Controls/Camera/Pan X inverted",                               false);
         const Preference<bool> CameraPanInvertY = Preference<bool>(                             "Controls/Camera/Pan Y inverted",                               false);
-        const Preference<float> VertexHandleSize = Preference<float>(                           "Controls/Vertex handle size",                                  1.5f);
+        const Preference<float> VertexHandleRadius = Preference<float>(                         "Controls/Vertex handle radius",                                3.0f);
+        const Preference<float> ClipHandleRadius = Preference<float>(                           "Controls/Clip handle radius",                                  3.0f);
+        const Preference<float> MaximumHandleDistance = Preference<float>(                      "Controls/Maximum handle distance",                             1000.0f);
+        const Preference<float> HandleScalingFactor = Preference<float>(                        "Controls/Handle scaling factor",                               1.0f / 300.0f);
         const Preference<float> CameraFieldOfVision = Preference<float>(                        "Renderer/Camera field of vision",                              90.0f);
         const Preference<float> CameraNearPlane = Preference<float>(                            "Renderer/Camera near plane",                                   1.0f);
         const Preference<float> CameraFarPlane = Preference<float>(                             "Renderer/Camera far plane",                                    5000.0f);

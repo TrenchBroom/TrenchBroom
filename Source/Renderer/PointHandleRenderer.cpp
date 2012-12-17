@@ -17,7 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ManySpheresInstancedFigure.h"
+#include "PointHandleRenderer.h"
 
 #include "Renderer/ApplyMatrix.h"
 #include "Renderer/AttributeArray.h"
@@ -30,21 +30,23 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        ManySpheresInstancedFigure::ManySpheresInstancedFigure(float radius, unsigned int iterations) :
+        PointHandleRenderer::PointHandleRenderer(float radius, unsigned int iterations, float scalingFactor, float maximumDistance) :
         SphereFigure(radius, iterations),
+        m_scalingFactor(scalingFactor),
+        m_maximumDistance(maximumDistance),
         m_valid(false) {}
         
-        void ManySpheresInstancedFigure::add(const Vec3f& position) {
-            m_positions.push_back(position);
+        void PointHandleRenderer::add(const Vec3f& position) {
+            m_positions.push_back(Vec4f(position.x, position.y, position.z, 1.0f));
             m_valid = false;
         }
         
-        void ManySpheresInstancedFigure::clear() {
+        void PointHandleRenderer::clear() {
             m_valid &= m_positions.empty();
             m_positions.clear();
         }
         
-        void ManySpheresInstancedFigure::render(Vbo& vbo, RenderContext& context) {
+        void PointHandleRenderer::render(Vbo& vbo, RenderContext& context) {
             SetVboState activateVbo(vbo, Vbo::VboActive);
             
             if (!m_valid) {
@@ -71,6 +73,9 @@ namespace TrenchBroom {
             if (m_vertexArray.get() != NULL) {
                 Renderer::ActivateShader shader(context.shaderManager(), Renderer::Shaders::InstancedHandleShader);
                 shader.currentShader().setUniformVariable("Color", m_color);
+                shader.currentShader().setUniformVariable("CameraPosition", context.camera().position());
+                shader.currentShader().setUniformVariable("ScalingFactor", m_scalingFactor);
+                shader.currentShader().setUniformVariable("MaximumDistance", m_maximumDistance);
                 m_vertexArray->render(shader.currentShader());
             }
         }

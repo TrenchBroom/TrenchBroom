@@ -54,7 +54,6 @@ namespace TrenchBroom {
     }
 
     namespace Renderer {
-        class ManySpheresInstancedFigure;
         class RenderContext;
         class Vbo;
     }
@@ -293,10 +292,6 @@ namespace TrenchBroom {
             MoveHandle m_moveHandle;
             float m_vertexHandleSize;
             MoveHandle::RestrictToAxis m_restrictToAxis;
-
-            Renderer::ManySpheresInstancedFigure* m_unselectedHandleFigure;
-            Renderer::ManySpheresInstancedFigure* m_selectedHandleFigure;
-            bool m_figuresValid;
 
             void updateMoveHandle(InputState& inputState);
             

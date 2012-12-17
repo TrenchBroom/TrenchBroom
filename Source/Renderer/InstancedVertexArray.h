@@ -85,22 +85,17 @@ namespace TrenchBroom {
             }
         };
         
-        class InstanceAttributesVec3f : public InstanceAttributes {
+        class InstanceAttributesVec4f : public InstanceAttributes {
         private:
-            Vec3f::List m_vertices;
+            Vec4f::List m_vertices;
         protected:
             GLint createTexture(GLuint textureId) {
                 GLint size = 1;
                 while (size * size < m_vertices.size())
                     size *= 2;
 
-                float* buffer = new float[m_vertices.size() * 4];
-                for (size_t i = 0; i < m_vertices.size(); i++) {
-                    buffer[i * 4 + 0] = m_vertices[i].x;
-                    buffer[i * 4 + 1] = m_vertices[i].y;
-                    buffer[i * 4 + 2] = m_vertices[i].z;
-                    buffer[i * 4 + 3] = 0.0f;
-                }
+                unsigned char* buffer = new unsigned char[m_vertices.size() * 4 * 4];
+                memcpy(buffer, reinterpret_cast<const unsigned char*>(&m_vertices.front()), m_vertices.size() * 4 * 4);
                 
                 // requires GL_ARB_texture_float, see http://www.opengl.org/wiki/Floating_point_and_mipmapping_and_filtering
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, size, size, 0, GL_RGBA, GL_FLOAT, reinterpret_cast<GLvoid*>(buffer));
@@ -115,7 +110,7 @@ namespace TrenchBroom {
                 return size;
             }
         public:
-            InstanceAttributesVec3f(const String& name, const Vec3f::List& vertices) :
+            InstanceAttributesVec4f(const String& name, const Vec4f::List& vertices) :
             InstanceAttributes(name),
             m_vertices(vertices) {}
         };
@@ -154,9 +149,9 @@ namespace TrenchBroom {
                 while (!m_instanceAttributes.empty()) delete m_instanceAttributes.back(), m_instanceAttributes.pop_back();
             }
             
-            inline void addAttributeArray(const String& name, const Vec3f::List& values) {
+            inline void addAttributeArray(const String& name, const Vec4f::List& values) {
                 assert(values.size() == m_instanceCount);
-                m_instanceAttributes.push_back(new InstanceAttributesVec3f(name, values));
+                m_instanceAttributes.push_back(new InstanceAttributesVec4f(name, values));
             }
             
             inline void render(ShaderProgram& program) {

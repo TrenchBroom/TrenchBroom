@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ManySpheresInstancedFigure__
-#define __TrenchBroom__ManySpheresInstancedFigure__
+#ifndef __TrenchBroom__PointHandleRenderer__
+#define __TrenchBroom__PointHandleRenderer__
 
 #include "Renderer/SphereFigure.h"
 #include "Renderer/RenderTypes.h"
@@ -30,14 +30,16 @@ namespace TrenchBroom {
     namespace Renderer {
         class Vbo;
         
-        class ManySpheresInstancedFigure : public SphereFigure {
+        class PointHandleRenderer : public SphereFigure {
         protected:
-            Vec3f::List m_positions;
+            Vec4f::List m_positions;
             InstancedVertexArrayPtr m_vertexArray;
             bool m_valid;
             Color m_color;
+            float m_scalingFactor;
+            float m_maximumDistance;
         public:
-            ManySpheresInstancedFigure(float radius, unsigned int iterations);
+            PointHandleRenderer(float radius, unsigned int iterations, float scalingFactor, float maximumDistance);
 
             inline const Color& color() const {
                 return m_color;
@@ -55,4 +57,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ManySpheresInstancedFigure__) */
+#endif /* defined(__TrenchBroom__PointHandleRenderer__) */

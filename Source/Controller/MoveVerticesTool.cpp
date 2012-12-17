@@ -23,7 +23,6 @@
 #include "Controller/SplitEdgesCommand.h"
 #include "Model/EditStateManager.h"
 #include "Model/MapDocument.h"
-#include "Renderer/ManySpheresInstancedFigure.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/SharedResources.h"
 #include "Renderer/Shader/ShaderManager.h"
@@ -78,18 +77,11 @@ namespace TrenchBroom {
             m_handleManager.add(document().editStateManager().selectedBrushes());
             updateMoveHandle(inputState);
             
-            m_unselectedHandleFigure = new Renderer::ManySpheresInstancedFigure(m_vertexHandleSize, 3);
-            m_selectedHandleFigure = new Renderer::ManySpheresInstancedFigure(m_vertexHandleSize, 3);
-            m_figuresValid = false;
             return true;
         }
         
         bool MoveVerticesTool::handleDeactivate(InputState& inputState) {
             m_handleManager.clear();
-            delete m_unselectedHandleFigure;
-            m_unselectedHandleFigure = NULL;
-            delete m_selectedHandleFigure;
-            m_selectedHandleFigure = NULL;
             return true;
         }
         
@@ -138,47 +130,8 @@ namespace TrenchBroom {
         }
         
         void MoveVerticesTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
-            assert(m_unselectedHandleFigure != NULL);
-            assert(m_selectedHandleFigure != NULL);
-            
             Model::MoveHandleHit* moveHandleHit = static_cast<Model::MoveHandleHit*>(inputState.pickResult().first(Model::HitType::MoveHandleHit, true, view().filter()));
             m_moveHandle.render(moveHandleHit, vbo, renderContext);
-
-            if (!m_figuresValid) {
-                m_unselectedHandleFigure->clear();
-                m_selectedHandleFigure->clear();
-                
-                Model::VertexToBrushesMap::const_iterator vIt, vEnd;
-                const Model::VertexToBrushesMap& unselectedVertexHandles = m_handleManager.unselectedVertexHandles();
-                for (vIt = unselectedVertexHandles.begin(), vEnd = unselectedVertexHandles.end(); vIt != vEnd; ++vIt) {
-                    const Vec3f& position = vIt->first;
-                    m_unselectedHandleFigure->add(position);
-                }
-                
-                const Model::VertexToBrushesMap& selectedVertexHandles = m_handleManager.selectedVertexHandles();
-                for (vIt = selectedVertexHandles.begin(), vEnd = selectedVertexHandles.end(); vIt != vEnd; ++vIt) {
-                    const Vec3f& position = vIt->first;
-                    m_selectedHandleFigure->add(position);
-                }
-
-                m_figuresValid = true;
-            }
-            
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            
-            m_unselectedHandleFigure->setColor(prefs.getColor(Preferences::VertexHandleColor));
-            m_selectedHandleFigure->setColor(prefs.getColor(Preferences::SelectedVertexHandleColor));
-
-            m_unselectedHandleFigure->render(vbo, renderContext);
-            m_selectedHandleFigure->render(vbo, renderContext);
-
-            m_unselectedHandleFigure->setColor(prefs.getColor(Preferences::OccludedVertexHandleColor));
-            m_selectedHandleFigure->setColor(prefs.getColor(Preferences::OccludedSelectedVertexHandleColor));
-
-            glDisable(GL_DEPTH_TEST);
-            m_selectedHandleFigure->render(vbo, renderContext);
-            m_unselectedHandleFigure->render(vbo, renderContext);
-            glEnable(GL_DEPTH_TEST);
         }
 
         void MoveVerticesTool::handleModifierKeyChange(InputState& inputState) {
@@ -205,7 +158,6 @@ namespace TrenchBroom {
                     m_handleManager.selectVertexHandle(hit->vertex());
                 }
 
-                m_figuresValid = false;
                 setNeedsUpdate();
                 updateMoveHandle(inputState);
             }
@@ -217,7 +169,6 @@ namespace TrenchBroom {
             Vec3f position = m_moveHandle.position();
             updateMoveHandle(inputState);
             if (!position.equals(m_moveHandle.position())) {
-                m_figuresValid = false;
                 setNeedsUpdate();
             }
         }
@@ -299,7 +250,6 @@ namespace TrenchBroom {
             m_moveHandle.setPosition(m_moveHandle.position() + delta);
             refPoint += delta;
             
-            m_figuresValid = false;
             setNeedsUpdate();
 
         }
@@ -314,7 +264,6 @@ namespace TrenchBroom {
             if (active() && dragType() == DTNone) {
                 m_handleManager.clear();
                 m_handleManager.add(document().editStateManager().selectedBrushes());
-                m_figuresValid = false;
                 
                 setNeedsUpdate();
                 updateMoveHandle(inputState);
@@ -330,7 +279,6 @@ namespace TrenchBroom {
                     m_handleManager.add(changeSet.brushesTo(Model::EditState::Selected));
                 }
                 
-                m_figuresValid = false;
                 setNeedsUpdate();
             }
         }
@@ -343,9 +291,6 @@ namespace TrenchBroom {
         MoveVerticesTool::MoveVerticesTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float planeRadius, float vertexSize) :
         PlaneDragTool(documentViewHolder, true),
         m_moveHandle(axisLength, planeRadius),
-        m_vertexHandleSize(vertexSize),
-        m_unselectedHandleFigure(NULL),
-        m_selectedHandleFigure(NULL),
-        m_figuresValid(false) {}
+        m_vertexHandleSize(vertexSize) {}
     }
 }

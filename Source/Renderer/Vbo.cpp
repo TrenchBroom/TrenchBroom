@@ -348,6 +348,7 @@ namespace TrenchBroom {
                     newFreeCapacity = newCapacity - usedCapacity;
                 }
                 resizeVbo(newCapacity);
+                index = findFreeBlock(0, capacity);
             }
             
             VboBlock* block = m_freeBlocks[index];
