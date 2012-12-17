@@ -46,6 +46,19 @@ namespace TrenchBroom {
                 VboMapped   = 2
             } VboState;
         private:
+            struct MemBlock {
+                typedef std::vector<MemBlock> List;
+                
+                unsigned int start;
+                unsigned int length;
+                
+                MemBlock(unsigned int start, unsigned int length) :
+                start(start),
+                length(length) {}
+                
+                MemBlock() {}
+            };
+
             GLenum m_type;
             unsigned int m_totalCapacity;
             unsigned int m_freeCapacity;

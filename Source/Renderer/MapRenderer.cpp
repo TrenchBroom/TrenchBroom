@@ -49,10 +49,11 @@ namespace TrenchBroom {
     namespace Renderer {
         static const int IndexSize = sizeof(GLuint);
         static const int VertexSize = 3 * sizeof(GLfloat);
+        static const int NormalSize = 3 * sizeof(GLfloat);
         static const int ColorSize = 4;
         static const int TexCoordSize = 2 * sizeof(GLfloat);
-        static const int FaceVertexSize = TexCoordSize + TexCoordSize + VertexSize;
-        static const int EdgeVertexSize = ColorSize + VertexSize;
+        static const int FaceVertexSize = VertexSize + NormalSize + TexCoordSize;
+        static const int EdgeVertexSize = VertexSize;
         static const int EntityBoundsVertexSize = ColorSize + VertexSize;
 
         void MapRenderer::rebuildGeometryData(RenderContext& context) {
@@ -160,7 +161,7 @@ namespace TrenchBroom {
             // write edges
             m_edgeVbo->activate();
             m_edgeVbo->map();
-            m_edgeVbo->ensureFreeCapacity(totalUnselectedEdgeVertexCount * EdgeVertexSize + (totalSelectedEdgeVertexCount + totalLockedEdgeVertexCount) * VertexSize);
+//            m_edgeVbo->ensureFreeCapacity(totalUnselectedEdgeVertexCount * EdgeVertexSize + (totalSelectedEdgeVertexCount + totalLockedEdgeVertexCount) * VertexSize);
             
             const Color& edgeColor = prefs.getColor(Preferences::EdgeColor);
 

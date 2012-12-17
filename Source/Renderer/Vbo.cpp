@@ -88,26 +88,39 @@ namespace TrenchBroom {
             VboState oldState = m_state;
             
             unsigned char* temp = NULL;
-            unsigned int start = 0;
-            unsigned int length = 0;
+            MemBlock::List memBlocks;
             if (m_vboId != 0 && m_freeCapacity < m_totalCapacity) {
+                VboBlock* currentBlock = m_first;
+                unsigned int totalLength = 0;
+                
+                while (currentBlock != NULL) {
+                    while (currentBlock != NULL && currentBlock->free())
+                        currentBlock = currentBlock->m_next;
+                    if (currentBlock != NULL) {
+                        unsigned int start = currentBlock->address();
+                        unsigned int length = 0;
+                        while (currentBlock != NULL && !currentBlock->free()) {
+                            length += currentBlock->capacity();
+                            currentBlock = currentBlock->m_next;
+                        }
+                        memBlocks.push_back(MemBlock(start, length));
+                        totalLength += length;
+                    }
+                }
+                
                 if (m_state < VboActive)
                     activate();
                 if (m_state < VboMapped)
                     map();
-                
-                VboBlock* firstUsed = m_first;
-                while (firstUsed->free())
-                    firstUsed = firstUsed->m_next;
-                VboBlock* lastUsed = m_last;
-                while (lastUsed->free())
-                    lastUsed = lastUsed->m_previous;
-                
-                start = firstUsed->address();
-                length = lastUsed->address() + lastUsed->capacity();
-                
-                temp = new unsigned char[length];
-                memcpy(temp, m_buffer + start, length);
+
+                temp = new unsigned char[totalLength];
+                size_t offset = 0;
+                MemBlock::List::const_iterator it, end;
+                for (it = memBlocks.begin(), end = memBlocks.end(); it != end; ++it) {
+                    const MemBlock& memBlock = *it;
+                    memcpy(temp + offset, m_buffer + memBlock.start, memBlock.length);
+                    offset += memBlock.length;
+                }
             }
             
             unsigned int addedCapacity = newCapacity - m_totalCapacity;
@@ -132,15 +145,23 @@ namespace TrenchBroom {
             }
             
             if (temp != NULL) {
-                assert(length > 0);
+                assert(!memBlocks.empty());
+                
                 if (m_state < VboActive)
                     activate();
                 if (m_state < VboMapped)
                     map();
                 
-                memcpy(m_buffer + start, temp, length);
+                size_t offset = 0;
+                MemBlock::List::const_iterator it, end;
+                for (it = memBlocks.begin(), end = memBlocks.end(); it != end; ++it) {
+                    const MemBlock& memBlock = *it;
+                    memcpy(m_buffer + memBlock.start, temp + offset, memBlock.length);
+                }
+                
                 delete [] temp;
                 temp = NULL;
+                memBlocks.clear();
                 
                 if (oldState < VboMapped)
                     unmap();
@@ -307,14 +328,26 @@ namespace TrenchBroom {
 #endif
 
             if (capacity > m_freeCapacity) {
-                resizeVbo(2 * m_totalCapacity);
-                return allocBlock(capacity);
+                const unsigned int usedCapacity = m_totalCapacity - m_freeCapacity;
+                unsigned int newCapacity = m_totalCapacity;
+                unsigned int newFreeCapacity = m_freeCapacity;
+                while (capacity > newFreeCapacity) {
+                    newCapacity *= 2;
+                    newFreeCapacity = newCapacity - usedCapacity;
+                }
+                resizeVbo(newCapacity);
             }
             
             unsigned int index = findFreeBlock(0, capacity);
             if (index >= m_freeBlocks.size()) {
-                resizeVbo(2 * m_totalCapacity);
-                return allocBlock(capacity);
+                const unsigned int usedCapacity = m_totalCapacity - m_freeCapacity;
+                unsigned int newCapacity = m_totalCapacity;
+                unsigned int newFreeCapacity = m_freeCapacity;
+                while (capacity > newFreeCapacity) {
+                    newCapacity *= 2;
+                    newFreeCapacity = newCapacity - usedCapacity;
+                }
+                resizeVbo(newCapacity);
             }
             
             VboBlock* block = m_freeBlocks[index];
