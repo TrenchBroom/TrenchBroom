@@ -20,9 +20,21 @@
 #include "HandleManager.h"
 
 #include "Renderer/PointHandleRenderer.h"
-#include "Utility/Preferences.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        VertexHandleHit::VertexHandleHit(HitType::Type type, const Vec3f& hitPoint, float distance, const Vec3f& vertex) :
+        Hit(type, hitPoint, distance),
+        m_vertex(vertex) {
+            assert(type == HitType::VertexHandleHit ||
+                   type == HitType::EdgeHandleHit);
+        }
+        
+        bool VertexHandleHit::pickable(Filter& filter) const {
+            return true;
+        }
+    }
+    
     namespace Controller {
         HandleManager::HandleManager() :
         m_renderStateValid(false) {
@@ -106,26 +118,23 @@ namespace TrenchBroom {
             m_selectedVertexHandles.clear();
             m_unselectedEdgeHandles.clear();
             m_selectedEdgeHandles.clear();
-            clearSavedSelection();
             m_renderStateValid = false;
         }
 
-        bool HandleManager::selectVertexHandle(const Vec3f& position) {
-            return moveHandle(position, m_unselectedVertexHandles, m_selectedVertexHandles);
-            m_renderStateValid = false;
+        void HandleManager::selectVertexHandle(const Vec3f& position) {
+            if (moveHandle(position, m_unselectedVertexHandles, m_selectedVertexHandles))
+                m_renderStateValid = false;
         }
         
-        bool HandleManager::deselectVertexHandle(const Vec3f& position) {
-            return moveHandle(position, m_selectedVertexHandles, m_unselectedVertexHandles);
-            m_renderStateValid = false;
+        void HandleManager::deselectVertexHandle(const Vec3f& position) {
+            if (moveHandle(position, m_selectedVertexHandles, m_unselectedVertexHandles))
+                m_renderStateValid = false;
         }
         
-        bool HandleManager::selectVertexHandles(const Vec3f::Set& positions) {
+        void HandleManager::selectVertexHandles(const Vec3f::Set& positions) {
             Vec3f::Set::const_iterator it, end;
             for (it = positions.begin(), end = positions.end(); it != end; ++it)
                 selectVertexHandle(*it);
-            m_renderStateValid = false;
-            return true;
         }
         
         void HandleManager::deselectVertexHandles() {
@@ -140,14 +149,14 @@ namespace TrenchBroom {
             m_renderStateValid = false;
         }
         
-        bool HandleManager::selectEdgeHandle(const Vec3f& position) {
-            m_renderStateValid = false;
-            return moveHandle(position, m_unselectedEdgeHandles, m_selectedEdgeHandles);
+        void HandleManager::selectEdgeHandle(const Vec3f& position) {
+            if (moveHandle(position, m_unselectedEdgeHandles, m_selectedEdgeHandles))
+                m_renderStateValid = false;
         }
 
-        bool HandleManager::deselectEdgeHandle(const Vec3f& position) {
-            m_renderStateValid = false;
-            return moveHandle(position, m_selectedEdgeHandles, m_unselectedEdgeHandles);
+        void HandleManager::deselectEdgeHandle(const Vec3f& position) {
+            if (moveHandle(position, m_selectedEdgeHandles, m_unselectedEdgeHandles))
+                m_renderStateValid = false;
         }
         
         void HandleManager::deselectEdgeHandles() {
@@ -165,92 +174,73 @@ namespace TrenchBroom {
         void HandleManager::deselectAll() {
             deselectVertexHandles();
             deselectEdgeHandles();
-            m_renderStateValid = false;
         }
         
-        void HandleManager::saveSelection() {
-            clearSavedSelection();
-            
-            Model::VertexToBrushesMap::const_iterator vIt, vEnd;
-            for (vIt = m_selectedVertexHandles.begin(), vEnd = m_selectedVertexHandles.end(); vIt != vEnd; ++vIt) {
-                const Vec3f& position = vIt->first;
-                m_savedVertexSelection.push_back(position);
-            }
-            
-            Model::VertexToEdgesMap::const_iterator eIt, eEnd;
-            for (eIt = m_selectedEdgeHandles.begin(), eEnd = m_selectedEdgeHandles.end(); eIt != eEnd; ++eIt) {
-                const Vec3f& position = eIt->first;
-                m_savedEdgeSelection.push_back(position);
-            }
-        }
-        
-        void HandleManager::clearSavedSelection() {
-            m_savedVertexSelection.clear();
-            m_savedEdgeSelection.clear();
-        }
-        
-        void HandleManager::restoreSavedSelection() {
-            deselectAll();
-            
-            Vec3f::List::const_iterator pIt, pEnd;
-            for (pIt = m_savedVertexSelection.begin(), pEnd = m_savedVertexSelection.end(); pIt != pEnd; ++pIt)
-                selectVertexHandle(*pIt);
-            for (pIt = m_savedEdgeSelection.begin(), pEnd = m_savedEdgeSelection.end(); pIt != pEnd; ++pIt)
-                selectEdgeHandle(*pIt);
-            clearSavedSelection();
-            m_renderStateValid = false;
-        }
-        
-        void HandleManager::pick(const Ray& ray, Model::PickResult& pickResult) const {
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            float handleRadius = prefs.getFloat(Preferences::VertexHandleRadius);
-            float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
-            float maxDistance = prefs.getFloat(Preferences::MaximumHandleDistance);
-
-            Model::VertexToBrushesMap::const_iterator vIt, vEnd;
-            for (vIt = m_unselectedVertexHandles.begin(), vEnd = m_unselectedVertexHandles.end(); vIt != vEnd; ++vIt) {
-                const Vec3f& position = vIt->first;
-                float distanceToHandle = (position - ray.origin).length();
-                if (distanceToHandle <= maxDistance) {
-                    float scaledRadius = handleRadius * scalingFactor * distanceToHandle;
-                    float distanceToHit = ray.intersectWithSphere(position, scaledRadius);
-                    
-                    if (!Math::isnan(distanceToHit)) {
-                        Vec3f hitPoint = ray.pointAtDistance(distanceToHit);
-                        pickResult.add(new Model::VertexHandleHit(Model::HitType::VertexHandleHit, hitPoint, distanceToHit, position));
-                    }
-                }
-            }
-            
-            for (vIt = m_selectedVertexHandles.begin(), vEnd = m_selectedVertexHandles.end(); vIt != vEnd; ++vIt) {
-                const Vec3f& position = vIt->first;
-                float distanceToHandle = (position - ray.origin).length();
-                if (distanceToHandle <= maxDistance) {
-                    float scaledRadius = handleRadius * scalingFactor * distanceToHandle;
-                    float distanceToHit = ray.intersectWithSphere(position, scaledRadius);
-                    
-                    if (!Math::isnan(distanceToHit)) {
-                        Vec3f hitPoint = ray.pointAtDistance(distanceToHit);
-                        pickResult.add(new Model::VertexHandleHit(Model::HitType::VertexHandleHit, hitPoint, distanceToHit, position));
-                    }
-                }
-            }
-        }
-        
-        void HandleManager::render(Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
-            if (!m_renderStateValid) {
-                m_unselectedHandleRenderer->clear();
-                m_selectedHandleRenderer->clear();
-                
+        void HandleManager::pick(const Ray& ray, Model::PickResult& pickResult, bool vertexHandles, bool edgeHandles, bool faceHandles) const {
+            if (vertexHandles) {
                 Model::VertexToBrushesMap::const_iterator vIt, vEnd;
                 for (vIt = m_unselectedVertexHandles.begin(), vEnd = m_unselectedVertexHandles.end(); vIt != vEnd; ++vIt) {
                     const Vec3f& position = vIt->first;
-                    m_unselectedHandleRenderer->add(position);
+                    Model::VertexHandleHit* hit = pickHandle(ray, position, Model::HitType::VertexHandleHit);
+                    if (hit != NULL)
+                        pickResult.add(hit);
                 }
                 
                 for (vIt = m_selectedVertexHandles.begin(), vEnd = m_selectedVertexHandles.end(); vIt != vEnd; ++vIt) {
                     const Vec3f& position = vIt->first;
-                    m_selectedHandleRenderer->add(position);
+                    Model::VertexHandleHit* hit = pickHandle(ray, position, Model::HitType::VertexHandleHit);
+                    if (hit != NULL)
+                        pickResult.add(hit);
+                }
+            }
+            
+            if (edgeHandles) {
+                Model::VertexToEdgesMap::const_iterator eIt, eEnd;
+                for (eIt = m_unselectedEdgeHandles.begin(), eEnd = m_unselectedEdgeHandles.end(); eIt != eEnd; ++eIt) {
+                    const Vec3f& position = eIt->first;
+                    Model::VertexHandleHit* hit = pickHandle(ray, position, Model::HitType::EdgeHandleHit);
+                    if (hit != NULL)
+                        pickResult.add(hit);
+                }
+                
+                for (eIt = m_selectedEdgeHandles.begin(), eEnd = m_selectedEdgeHandles.end(); eIt != eEnd; ++eIt) {
+                    const Vec3f& position = eIt->first;
+                    Model::VertexHandleHit* hit = pickHandle(ray, position, Model::HitType::EdgeHandleHit);
+                    if (hit != NULL)
+                        pickResult.add(hit);
+                }
+            }
+        }
+        
+        void HandleManager::render(Renderer::Vbo& vbo, Renderer::RenderContext& renderContext, bool vertexHandles, bool edgeHandles, bool faceHandles) {
+            if (!m_renderStateValid) {
+                m_unselectedHandleRenderer->clear();
+                m_selectedHandleRenderer->clear();
+                
+                if (vertexHandles) {
+                    Model::VertexToBrushesMap::const_iterator vIt, vEnd;
+                    for (vIt = m_unselectedVertexHandles.begin(), vEnd = m_unselectedVertexHandles.end(); vIt != vEnd; ++vIt) {
+                        const Vec3f& position = vIt->first;
+                        m_unselectedHandleRenderer->add(position);
+                    }
+
+                    for (vIt = m_selectedVertexHandles.begin(), vEnd = m_selectedVertexHandles.end(); vIt != vEnd; ++vIt) {
+                        const Vec3f& position = vIt->first;
+                        m_selectedHandleRenderer->add(position);
+                    }
+                }
+                
+                if (edgeHandles) {
+                    Model::VertexToEdgesMap::const_iterator eIt, eEnd;
+                    for (eIt = m_unselectedEdgeHandles.begin(), eEnd = m_unselectedEdgeHandles.end(); eIt != eEnd; ++eIt) {
+                        const Vec3f& position = eIt->first;
+                        m_unselectedHandleRenderer->add(position);
+                    }
+                    
+                    for (eIt = m_selectedEdgeHandles.begin(), eEnd = m_selectedEdgeHandles.end(); eIt != eEnd; ++eIt) {
+                        const Vec3f& position = eIt->first;
+                        m_selectedHandleRenderer->add(position);
+                    }
                 }
                 
                 m_renderStateValid = true;

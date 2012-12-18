@@ -31,19 +31,6 @@
 #include "Utility/Preferences.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        VertexHandleHit::VertexHandleHit(HitType::Type type, const Vec3f& hitPoint, float distance, const Vec3f& vertex) :
-        Hit(type, hitPoint, distance),
-        m_vertex(vertex) {
-            assert(type == HitType::VertexHandleHit ||
-                   type == HitType::EdgeHandleHit);
-        }
-        
-        bool VertexHandleHit::pickable(Filter& filter) const {
-            return true;
-        }
-    }
-    
     namespace Controller {
         void MoveVerticesTool::updateMoveHandle(InputState& inputState) {
             Vec3f closestVertex;
@@ -53,6 +40,18 @@ namespace TrenchBroom {
             const Model::VertexToBrushesMap& selectedVertexHandles = m_handleManager.selectedVertexHandles();
             for (vIt = selectedVertexHandles.begin(), vEnd = selectedVertexHandles.end(); vIt != vEnd; ++vIt) {
                 const Vec3f& position = vIt->first;
+                float distanceToClosestPoint;
+                float squaredDistance = inputState.pickRay().squaredDistanceToPoint(position, distanceToClosestPoint);
+                if (squaredDistance < closestSquaredDistance) {
+                    closestSquaredDistance = squaredDistance;
+                    closestVertex = position;
+                }
+            }
+            
+            Model::VertexToEdgesMap::const_iterator eIt, eEnd;
+            const Model::VertexToEdgesMap& selectedEdgeHandles = m_handleManager.selectedEdgeHandles();
+            for (eIt = selectedEdgeHandles.begin(), eEnd = selectedEdgeHandles.end(); eIt != eEnd; ++eIt) {
+                const Vec3f& position = eIt->first;
                 float distanceToClosestPoint;
                 float squaredDistance = inputState.pickRay().squaredDistanceToPoint(position, distanceToClosestPoint);
                 if (squaredDistance < closestSquaredDistance) {
@@ -89,13 +88,13 @@ namespace TrenchBroom {
             if (!m_moveHandle.locked())
                 m_moveHandle.setLastHit(moveHandleHit);
 
-            m_handleManager.pick(inputState.pickRay(), inputState.pickResult());
+            m_handleManager.pick(inputState.pickRay(), inputState.pickResult(), true, true, true);
         }
         
         void MoveVerticesTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
             Model::MoveHandleHit* moveHandleHit = static_cast<Model::MoveHandleHit*>(inputState.pickResult().first(Model::HitType::MoveHandleHit, true, view().filter()));
             m_moveHandle.render(moveHandleHit, vbo, renderContext);
-            m_handleManager.render(vbo, renderContext);
+            m_handleManager.render(vbo, renderContext, true, true, true);
         }
 
         void MoveVerticesTool::handleModifierKeyChange(InputState& inputState) {
@@ -111,6 +110,7 @@ namespace TrenchBroom {
                 return false;
 
             if (hit->type() == Model::HitType::VertexHandleHit) {
+                m_handleManager.deselectEdgeHandles();
                 bool selected = m_handleManager.vertexHandleSelected(hit->vertex());
                 if (inputState.modifierKeys() == ModifierKeys::MKCtrlCmd) {
                     if (selected)
@@ -118,13 +118,15 @@ namespace TrenchBroom {
                     else
                         m_handleManager.selectVertexHandle(hit->vertex());
                 } else {
-                    m_handleManager.deselectVertexHandles();
+                    m_handleManager.deselectAll();
                     m_handleManager.selectVertexHandle(hit->vertex());
                 }
-
-                updateMoveHandle(inputState);
+            } else if (hit->type() == Model::HitType::EdgeHandleHit) {
+                m_handleManager.deselectAll();
+                m_handleManager.selectEdgeHandle(hit->vertex());
             }
             
+            updateMoveHandle(inputState);
             return true;
         }
 
@@ -168,12 +170,16 @@ namespace TrenchBroom {
                     break;
             }
             
+            wxString name;
+            if (!m_handleManager.selectedVertexHandles().empty())
+                name = m_handleManager.selectedVertexHandles().size() == 1 ? wxT("Move Vertex") : wxT("Move Vertices");
+            else if (!m_handleManager.selectedEdgeHandles().empty())
+                name = wxT("Split Edge");
+            else
+                return false;
+            
             initialPoint = hit->hitPoint();
             m_moveHandle.lock();
-            
-            wxString name;
-            name = m_handleManager.selectedVertexHandles().size() == 1 ? wxT("Move Vertex") : wxT("Move Vertices");
-            
             beginCommandGroup(name);
 
             return true;
@@ -200,17 +206,36 @@ namespace TrenchBroom {
             if (delta.null())
                 return true;
             
-            MoveVerticesCommand* command = MoveVerticesCommand::moveVertices(document(), m_handleManager.selectedVertexHandles(), delta);
-            m_handleManager.remove(command->brushes());
-            
-            submitCommand(command);
-            m_handleManager.add(command->brushes());
-            
-            const Vec3f::Set& vertices = command->vertices();
-            if (vertices.empty())
-                return false;
+            if (!m_handleManager.selectedVertexHandles().empty()) {
+                MoveVerticesCommand* command = MoveVerticesCommand::moveVertices(document(), m_handleManager.selectedVertexHandles(), delta);
+                m_handleManager.remove(command->brushes());
                 
-            m_handleManager.selectVertexHandles(command->vertices());
+                submitCommand(command);
+                m_handleManager.add(command->brushes());
+                
+                const Vec3f::Set& vertices = command->vertices();
+                if (vertices.empty())
+                    return false;
+                
+                m_handleManager.selectVertexHandles(command->vertices());
+            } else if (!m_handleManager.selectedEdgeHandles().empty()) {
+                assert(m_handleManager.selectedEdgeHandles().size() == 1);
+                const Vec3f& position = m_handleManager.selectedEdgeHandles().begin()->first;
+
+                SplitEdgesCommand* command = SplitEdgesCommand::splitEdges(document(), m_handleManager.edges(position), delta);
+                m_handleManager.remove(command->brushes());
+                
+                if (submitCommand(command)) {
+                    m_handleManager.add(command->brushes());
+                    const Vec3f::Set& vertices = command->vertices();
+                    assert(!vertices.empty());
+                    m_handleManager.selectVertexHandles(command->vertices());
+                } else {
+                    m_handleManager.add(command->brushes());
+                    m_handleManager.selectEdgeHandle(position);
+                }
+            }
+            
             m_moveHandle.setPosition(m_moveHandle.position() + delta);
             refPoint += delta;
             return true;

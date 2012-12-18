@@ -956,15 +956,15 @@ namespace TrenchBroom {
             edge->left->edges.pop_back();
             edge->right->edges.pop_back();
             
-            // delete the split edge
-            edges.erase(std::remove(edges.begin(), edges.end(), edge), edges.end());
-            delete edge;
-
             // add the new edges to the incident sides
             edge->left->edges.push_back(newEdge2);
             edge->left->edges.push_back(newEdge1);
             edge->right->edges.push_back(newEdge1);
             edge->right->edges.push_back(newEdge2);
+            
+            // delete the split edge
+            edges.erase(std::remove(edges.begin(), edges.end(), edge), edges.end());
+            delete edge;
             
             return newVertex;
         }
@@ -1505,7 +1505,10 @@ namespace TrenchBroom {
             FaceList droppedFaces;
             BrushGeometry testGeometry(*this);
             
-            Vertex* newVertex = testGeometry.splitEdge(edge, newFaces, droppedFaces);
+            // The given edge is not an edge of testGeometry!
+            Edge* testEdge = findEdge(testGeometry.edges, edge->start->position, edge->end->position);
+            
+            Vertex* newVertex = testGeometry.splitEdge(testEdge, newFaces, droppedFaces);
             MoveVertexResult result = testGeometry.moveVertex(newVertex, true, delta, newFaces, droppedFaces);
             bool canSplit = result.type != MoveVertexResult::VertexUnchanged;
 

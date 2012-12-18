@@ -24,6 +24,7 @@
 #include "Model/BrushGeometryTypes.h"
 #include "Model/Picker.h"
 #include "Renderer/RenderTypes.h"
+#include "Utility/Preferences.h"
 #include "Utility/VecMath.h"
 
 using namespace TrenchBroom::Math;
@@ -62,8 +63,6 @@ namespace TrenchBroom {
             Model::VertexToBrushesMap m_selectedVertexHandles;
             Model::VertexToEdgesMap m_unselectedEdgeHandles;
             Model::VertexToEdgesMap m_selectedEdgeHandles;
-            Vec3f::List m_savedVertexSelection;
-            Vec3f::List m_savedEdgeSelection;
             
             Renderer::PointHandleRendererPtr m_selectedHandleRenderer;
             Renderer::PointHandleRendererPtr m_unselectedHandleRenderer;
@@ -106,6 +105,25 @@ namespace TrenchBroom {
                 return true;
             }
             
+            inline Model::VertexHandleHit* pickHandle(const Ray& ray, const Vec3f& position, Model::HitType::Type type) const {
+                Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+                float handleRadius = prefs.getFloat(Preferences::VertexHandleRadius);
+                float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
+                float maxDistance = prefs.getFloat(Preferences::MaximumHandleDistance);
+
+                float distanceToHandle = (position - ray.origin).length();
+                if (distanceToHandle <= maxDistance) {
+                    float scaledRadius = handleRadius * scalingFactor * distanceToHandle;
+                    float distanceToHit = ray.intersectWithSphere(position, scaledRadius);
+                    
+                    if (!Math::isnan(distanceToHit)) {
+                        Vec3f hitPoint = ray.pointAtDistance(distanceToHit);
+                        return new Model::VertexHandleHit(type, hitPoint, distanceToHit, position);
+                    }
+                }
+                
+                return NULL;
+            }
         public:
             HandleManager();
             
@@ -142,23 +160,19 @@ namespace TrenchBroom {
             void remove(const Model::BrushList& brushes);
             void clear();
 
-            bool selectVertexHandle(const Vec3f& position);
-            bool deselectVertexHandle(const Vec3f& position);
-            bool selectVertexHandles(const Vec3f::Set& positions);
+            void selectVertexHandle(const Vec3f& position);
+            void deselectVertexHandle(const Vec3f& position);
+            void selectVertexHandles(const Vec3f::Set& positions);
             void deselectVertexHandles();
 
-            bool selectEdgeHandle(const Vec3f& position);
-            bool deselectEdgeHandle(const Vec3f& position);
+            void selectEdgeHandle(const Vec3f& position);
+            void deselectEdgeHandle(const Vec3f& position);
             void deselectEdgeHandles();
             
             void deselectAll();
             
-            void saveSelection();
-            void clearSavedSelection();
-            void restoreSavedSelection();
-            
-            void pick(const Ray& ray, Model::PickResult& pickResult) const;
-            void render(Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
+            void pick(const Ray& ray, Model::PickResult& pickResult, bool vertexHandles, bool edgeHandles, bool faceHandles) const;
+            void render(Renderer::Vbo& vbo, Renderer::RenderContext& renderContext, bool vertexHandles, bool edgeHandles, bool faceHandles);
             
             inline void invalidateRenderState() {
                 m_renderStateValid = false;
