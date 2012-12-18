@@ -205,14 +205,7 @@ namespace TrenchBroom {
                 last = last->m_next;
             } while (last != NULL && !last->free());
             
-            if (size <= block.capacity()) {
-                memcpy(m_buffer + block.address(), m_buffer + address, size);
-            } else {
-                unsigned char* temp = new unsigned char[size];
-                memcpy(temp, m_buffer + address, size);
-                memcpy(m_buffer + block.address(), temp, size);
-                delete [] temp;
-            }
+            memmove(m_buffer + block.address(), m_buffer + address, size);
             
             if (last != NULL) {
                 last->m_address -= block.capacity();
@@ -327,28 +320,24 @@ namespace TrenchBroom {
             checkFreeBlocks();
 #endif
 
-            if (capacity > m_freeCapacity) {
-                const unsigned int usedCapacity = m_totalCapacity - m_freeCapacity;
-                unsigned int newCapacity = m_totalCapacity;
-                unsigned int newFreeCapacity = m_freeCapacity;
-                while (capacity > newFreeCapacity) {
-                    newCapacity *= 2;
-                    newFreeCapacity = newCapacity - usedCapacity;
-                }
-                resizeVbo(newCapacity);
-            }
-            
             unsigned int index = findFreeBlock(0, capacity);
             if (index >= m_freeBlocks.size()) {
-                const unsigned int usedCapacity = m_totalCapacity - m_freeCapacity;
-                unsigned int newCapacity = m_totalCapacity;
-                unsigned int newFreeCapacity = m_freeCapacity;
-                while (capacity > newFreeCapacity) {
-                    newCapacity *= 2;
-                    newFreeCapacity = newCapacity - usedCapacity;
+                SetVboState mapVbo(*this, VboMapped);
+                pack();
+
+                if (capacity > m_freeCapacity) {
+                    const unsigned int usedCapacity = m_totalCapacity - m_freeCapacity;
+                    unsigned int newCapacity = m_totalCapacity;
+                    unsigned int newFreeCapacity = m_freeCapacity;
+                    while (capacity > newFreeCapacity) {
+                        newCapacity *= 2;
+                        newFreeCapacity = newCapacity - usedCapacity;
+                    }
+                    resizeVbo(newCapacity);
                 }
-                resizeVbo(newCapacity);
+                
                 index = findFreeBlock(0, capacity);
+                assert(index < m_freeBlocks.size());
             }
             
             VboBlock* block = m_freeBlocks[index];
