@@ -53,26 +53,9 @@ namespace TrenchBroom {
             Model::MoveHandleHit* hit = m_moveHandle.pick(inputState.pickRay());
             if (hit != NULL)
                 inputState.pickResult().add(hit);
-        }
 
-        bool MoveObjectsTool::handleUpdateState(InputState& inputState) {
-            bool needsUpdate = false;
-            if (!m_moveHandle.locked()) {
-                Model::MoveHandleHit* lastHit = m_moveHandle.lastHit();
-                Model::MoveHandleHit* currentHit = static_cast<Model::MoveHandleHit*>(inputState.pickResult().first(Model::HitType::MoveHandleHit, true, view().filter()));
-                if (currentHit != NULL) {
-                    if (lastHit == NULL || lastHit->hitArea() != currentHit->hitArea()) {
-                        m_moveHandle.setLastHit(currentHit);
-                        needsUpdate = true;
-                    }
-                } else if (lastHit != NULL) {
-                    m_moveHandle.setLastHit(NULL);
-                    needsUpdate = true;
-                }
-            }
-            needsUpdate |= m_moveHandle.positionValid();
-            
-            return needsUpdate;
+            if (!m_moveHandle.locked())
+                m_moveHandle.setLastHit(hit);
         }
 
         void MoveObjectsTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {

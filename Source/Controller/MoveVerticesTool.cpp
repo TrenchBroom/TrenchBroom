@@ -61,15 +61,8 @@ namespace TrenchBroom {
                 }
             }
             
-            bool enableMoveHandle = closestSquaredDistance <= m_moveHandle.axisLength() * m_moveHandle.axisLength();
-            if (m_moveHandle.enabled() != enableMoveHandle) {
-                m_moveHandle.setEnabled(enableMoveHandle);
-                setNeedsUpdate();
-            }
-            if (!m_moveHandle.position().equals(closestVertex)) {
-                m_moveHandle.setPosition(closestVertex);
-                setNeedsUpdate();
-            }
+            m_moveHandle.setEnabled(closestSquaredDistance <= m_moveHandle.axisLength() * m_moveHandle.axisLength());
+            m_moveHandle.setPosition(closestVertex);
         }
 
         bool MoveVerticesTool::handleActivate(InputState& inputState) {
@@ -93,21 +86,10 @@ namespace TrenchBroom {
             Model::MoveHandleHit* moveHandleHit = m_moveHandle.pick(inputState.pickRay());
             if (moveHandleHit != NULL)
                 inputState.pickResult().add(moveHandleHit);
+            if (!m_moveHandle.locked())
+                m_moveHandle.setLastHit(moveHandleHit);
 
             m_handleManager.pick(inputState.pickRay(), inputState.pickResult());
-        }
-        
-        bool MoveVerticesTool::handleUpdateState(InputState& inputState) {
-            if (!m_moveHandle.locked()) {
-                Model::MoveHandleHit* moveHandleHit = m_moveHandle.pick(inputState.pickRay());
-                if ((m_moveHandle.lastHit() == NULL) != (moveHandleHit == NULL))
-                    setNeedsUpdate();
-                else if (moveHandleHit != NULL && m_moveHandle.lastHit()->hitArea() != moveHandleHit->hitArea())
-                    setNeedsUpdate();
-                
-                m_moveHandle.setLastHit(moveHandleHit);
-            }
-            return false;
         }
         
         void MoveVerticesTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
@@ -141,18 +123,13 @@ namespace TrenchBroom {
                 }
 
                 updateMoveHandle(inputState);
-                setNeedsUpdate();
             }
             
             return true;
         }
 
         void MoveVerticesTool::handleMouseMove(InputState& inputState) {
-            Vec3f position = m_moveHandle.position();
             updateMoveHandle(inputState);
-            if (!position.equals(m_moveHandle.position())) {
-                setNeedsUpdate();
-            }
         }
 
         bool MoveVerticesTool::handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint) {
@@ -236,7 +213,6 @@ namespace TrenchBroom {
             m_handleManager.selectVertexHandles(command->vertices());
             m_moveHandle.setPosition(m_moveHandle.position() + delta);
             refPoint += delta;
-            setNeedsUpdate();
             return true;
         }
         
@@ -250,8 +226,6 @@ namespace TrenchBroom {
             if (active() && dragType() == DTNone) {
                 m_handleManager.clear();
                 m_handleManager.add(document().editStateManager().selectedBrushes());
-                
-                setNeedsUpdate();
                 updateMoveHandle(inputState);
             }
         }
@@ -264,8 +238,6 @@ namespace TrenchBroom {
                     m_handleManager.remove(changeSet.brushesFrom(Model::EditState::Selected));
                     m_handleManager.add(changeSet.brushesTo(Model::EditState::Selected));
                 }
-                
-                setNeedsUpdate();
             }
         }
 

@@ -138,28 +138,13 @@ namespace TrenchBroom {
 
             if (closestHit != NULL)
                 inputState.pickResult().add(closestHit);
-        }
-        
-        bool RotateObjectsTool::handleUpdateState(InputState& inputState) {
-            bool needsUpdate = false;
             if (!locked()) {
-                Model::RotateObjectsHandleHit* hit = hit = static_cast<Model::RotateObjectsHandleHit*>(inputState.pickResult().first(Model::HitType::RotateObjectsHandleHit, true, view().filter()));
-                if (hit != NULL) {
-                    if (m_lastHit == NULL || m_lastHit->hitArea() != hit->hitArea()) {
-                        if (m_lastHit != NULL)
-                            delete m_lastHit;
-                        m_lastHit = new Model::RotateObjectsHandleHit(*hit);
-                        needsUpdate = true;
-                    }
-                } else if (m_lastHit != NULL) {
-                    delete m_lastHit;
+                delete m_lastHit;
+                if (closestHit != NULL)
+                    m_lastHit = new Model::RotateObjectsHandleHit(*closestHit);
+                else
                     m_lastHit = NULL;
-                    needsUpdate = true;
-                }
             }
-            needsUpdate |= positionValid();
-            
-            return needsUpdate;
         }
         
         void RotateObjectsTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {

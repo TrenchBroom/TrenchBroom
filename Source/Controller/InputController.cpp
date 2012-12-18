@@ -62,8 +62,8 @@ namespace TrenchBroom {
                 m_toolChain->updateHits(m_inputState);
         }
 
-        void InputController::updateState() {
-            if (m_documentViewHolder.valid() && m_toolChain->updateState(m_inputState))
+        void InputController::updateViews() {
+            if (m_documentViewHolder.valid())
                 m_documentViewHolder.document().UpdateAllViews();
         }
         
@@ -133,14 +133,14 @@ namespace TrenchBroom {
             updateHits();
             m_toolChain->modifierKeyChange(m_inputState);
             updateModalTool();
-            updateState();
+            updateViews();
         }
         
         void InputController::modifierKeyUp(ModifierKeyState modifierKey) {
             updateHits();
             m_toolChain->modifierKeyChange(m_inputState);
             updateModalTool();
-            updateState();
+            updateViews();
         }
         
         bool InputController::mouseDown(MouseButtonState mouseButton) {
@@ -151,7 +151,7 @@ namespace TrenchBroom {
             updateHits();
             bool handled = m_toolChain->mouseDown(m_inputState) != NULL;
             updateModalTool();
-            updateState();
+            updateViews();
             return handled;
         }
         
@@ -170,7 +170,7 @@ namespace TrenchBroom {
 
             updateHits();
             updateModalTool();
-            updateState();
+            updateViews();
             return handled;
         }
         
@@ -197,7 +197,7 @@ namespace TrenchBroom {
             }
             
             updateModalTool();
-            updateState();
+            updateViews();
         }
 
         void InputController::scroll(float x, float y) {
@@ -210,7 +210,7 @@ namespace TrenchBroom {
                 m_toolChain->scroll(m_inputState);
             
             updateModalTool();
-            updateState();
+            updateViews();
         }
         
         void InputController::cancelDrag() {
@@ -222,7 +222,7 @@ namespace TrenchBroom {
 
             updateHits();
             updateModalTool();
-            updateState();
+            updateViews();
         }
         
         void InputController::dragEnter(const String& payload, int x, int y) {
@@ -235,7 +235,7 @@ namespace TrenchBroom {
             Tool* dragTool = m_toolChain->dragEnter(m_inputState, payload);
             updateModalTool();
             m_dragTool = dragTool;
-            updateState();
+            updateViews();
         }
         
         void InputController::dragMove(const String& payload, int x, int y) {
@@ -245,7 +245,7 @@ namespace TrenchBroom {
             m_inputState.mouseMove(x, y);
             updateHits();
             m_dragTool->dragMove(m_inputState);
-            updateState();
+            updateViews();
         }
         
         bool InputController::drop(const String& payload, int x, int y) {
@@ -259,7 +259,7 @@ namespace TrenchBroom {
 
             updateHits();
             updateModalTool();
-            updateState();
+            updateViews();
 
             return success;
         }
@@ -275,14 +275,14 @@ namespace TrenchBroom {
 
             updateHits();
             updateModalTool();
-            updateState();
+            updateViews();
         }
 
         void InputController::objectsChange() {
             updateHits();
             m_toolChain->objectsChange(m_inputState);
             updateModalTool();
-            updateState();
+            updateViews();
         }
 
         void InputController::editStateChange(const Model::EditStateChangeSet& changeSet) {
@@ -292,14 +292,14 @@ namespace TrenchBroom {
             updateHits();
             m_toolChain->editStateChange(m_inputState, changeSet);
             updateModalTool();
-            updateState();
+            updateViews();
         }
         
         void InputController::cameraChange() {
             updateHits();
             m_toolChain->cameraChange(m_inputState);
             updateModalTool();
-            updateState();
+            updateViews();
         }
 
         void InputController::render(Renderer::Vbo& vbo, Renderer::RenderContext& context) {
@@ -316,8 +316,7 @@ namespace TrenchBroom {
             }
             updateHits();
             updateModalTool();
-            updateState();
-            m_documentViewHolder.document().UpdateAllViews();
+            updateViews();
         }
 
         bool InputController::clipToolActive() {
@@ -327,7 +326,7 @@ namespace TrenchBroom {
         void InputController::toggleClipSide() {
             assert(clipToolActive());
             m_clipTool->toggleClipSide();
-            updateState();
+            updateViews();
         }
 
         bool InputController::canDeleteClipPoint() {
@@ -337,7 +336,7 @@ namespace TrenchBroom {
         void InputController::deleteClipPoint() {
             assert(canDeleteClipPoint());
             m_clipTool->deleteLastPoint();
-            updateState();
+            updateViews();
         }
 
         bool InputController::canPerformClip() {
@@ -348,7 +347,7 @@ namespace TrenchBroom {
             assert(canPerformClip());
             m_clipTool->performClip();
             updateHits();
-                updateState();
+            updateViews();
         }
 
         void InputController::toggleMoveVerticesTool() {
@@ -361,8 +360,7 @@ namespace TrenchBroom {
             }
             updateHits();
             updateModalTool();
-            updateState();
-            m_documentViewHolder.document().UpdateAllViews();
+            updateViews();
         }
         
         bool InputController::moveVerticesToolActive() {
@@ -376,8 +374,7 @@ namespace TrenchBroom {
                 m_moveVerticesTool->deactivate(m_inputState);
             updateHits();
             updateModalTool();
-            updateState();
-            m_documentViewHolder.document().UpdateAllViews();
+            updateViews();
         }
 
         InputControllerFigure::InputControllerFigure(InputController& inputController) :

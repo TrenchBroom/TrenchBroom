@@ -52,7 +52,6 @@ namespace TrenchBroom {
             void updateBoundsThickness();
             void updateBounds(const Vec3f& currentPoint);
             
-            bool handleUpdateState(InputState& inputState);
             void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
 
             void handleScroll(InputState& inputState);

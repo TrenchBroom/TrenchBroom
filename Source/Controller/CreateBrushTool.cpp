@@ -38,15 +38,6 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        bool CreateBrushTool::handleUpdateState(InputState& inputState) {
-            if (dragType() != DTDrag)
-                return false;
-            
-            bool update = m_boundsChanged;
-            m_boundsChanged = false;
-            return update;
-        }
-        
         void CreateBrushTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
             if (dragType() != DTDrag)
                 return;

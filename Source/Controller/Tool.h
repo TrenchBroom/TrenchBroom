@@ -69,7 +69,6 @@ namespace TrenchBroom {
             bool m_activatable;
             bool m_active;
             bool m_suppressed;
-            bool m_needsUpdate;
             DragType m_dragType;
             String m_dragPayload;
             Tool* m_nextTool;
@@ -85,7 +84,6 @@ namespace TrenchBroom {
             m_activatable(activatable),
             m_active(!m_activatable),
             m_suppressed(false),
-            m_needsUpdate(false),
             m_dragType(DTNone),
             m_nextTool(NULL) {}
             
@@ -171,7 +169,6 @@ namespace TrenchBroom {
             
             /* Feedback Protocol */
             virtual void handlePick(InputState& inputState) {}
-            virtual bool handleUpdateState(InputState& inputState) { return false; };
             virtual void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {}
             
             inline void deleteFigure(Renderer::Figure* figure) {
@@ -264,19 +261,6 @@ namespace TrenchBroom {
 
             /* Feedback Protocol */
 
-            inline bool updateState(InputState& inputState) {
-                bool update = (active() && !m_suppressed) && handleUpdateState(inputState);
-                update |= m_needsUpdate;
-                m_needsUpdate = false;
-                if (nextTool() != NULL)
-                    update |= nextTool()->updateState(inputState);
-                return update;
-            }
-            
-            inline void setNeedsUpdate() {
-                m_needsUpdate = true;
-            }
-            
             inline void render(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
                 deleteFigures();
                 if ((active() && !m_suppressed))

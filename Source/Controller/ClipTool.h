@@ -115,7 +115,6 @@ namespace TrenchBroom {
             bool handleIsModal(InputState& inputState);
             
             void handlePick(InputState& inputState);
-            bool handleUpdateState(InputState& inputState);
             void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
 
             bool handleMouseUp(InputState& inputState);

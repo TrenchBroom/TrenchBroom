@@ -71,7 +71,7 @@ namespace TrenchBroom {
             
             void updateModalTool();
             void updateHits();
-            void updateState();
+            void updateViews();
         public:
             InputController(View::DocumentViewHolder& documentViewHolder);
             ~InputController();
