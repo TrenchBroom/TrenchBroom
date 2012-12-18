@@ -73,10 +73,6 @@ namespace TrenchBroom {
             EdgeRendererPtr m_selectedEdgeRenderer;
             EdgeRendererPtr m_lockedEdgeRenderer;
             
-            // vertex handles
-            VboPtr m_handleVbo;
-            PointHandleRendererPtr m_vertexHandleRenderer;
-            
             VboPtr m_entityVbo;
             EntityRendererPtr m_entityRenderer;
             EntityRendererPtr m_selectedEntityRenderer;

@@ -153,7 +153,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        void CreateBrushTool::handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) {
+        bool CreateBrushTool::handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) {
             assert(m_brush != NULL);
             assert(m_brushFigure != NULL);
             
@@ -162,6 +162,7 @@ namespace TrenchBroom {
             delete m_brush;
             m_brush = new Model::Brush(document().map().worldBounds(), m_bounds, document().mruTexture());
             m_brushFigure->setBrush(*m_brush);
+            return true;
         }
         
         void CreateBrushTool::handleEndPlaneDrag(InputState& inputState) {

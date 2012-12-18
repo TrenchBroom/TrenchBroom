@@ -136,7 +136,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        void MoveObjectsTool::handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) {
+        bool MoveObjectsTool::handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) {
             Vec3f delta = curPoint - refPoint;
             switch (m_restrictToAxis) {
                 case MoveHandle::RXAxis:
@@ -155,7 +155,7 @@ namespace TrenchBroom {
             Utility::Grid& grid = document().grid();
             delta = grid.snap(delta);
             if (delta.null())
-                return;
+                return true;
             
             m_moveHandle.setPosition(m_moveHandle.position() + delta);
             
@@ -167,6 +167,7 @@ namespace TrenchBroom {
             
             refPoint += delta;
             m_totalDelta += delta;
+            return true;
         }
         
         void MoveObjectsTool::handleEndPlaneDrag(InputState& inputState) {

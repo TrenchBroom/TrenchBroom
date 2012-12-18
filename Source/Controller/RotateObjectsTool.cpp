@@ -239,7 +239,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        void RotateObjectsTool::handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) {
+        bool RotateObjectsTool::handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) {
             Vec3f startVector = refPoint - position();
             startVector.normalize();
             Vec3f currentVector = curPoint - position();
@@ -248,7 +248,7 @@ namespace TrenchBroom {
             Utility::Grid& grid = document().grid();
             m_angle = grid.snapAngle(currentVector.angleFrom(startVector, m_axis));
             if (m_angle == 0.0f)
-                return;
+                return true;
             
             rollbackCommandGroup();
             Model::EditStateManager& editStateManager = document().editStateManager();
@@ -256,6 +256,7 @@ namespace TrenchBroom {
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
             RotateObjectsCommand* command = RotateObjectsCommand::rotate(document(), entities, brushes, m_axis, m_angle, false, position(), document().textureLock());
             submitCommand(command);
+            return true;
         }
         
         void RotateObjectsTool::handleEndPlaneDrag(InputState& inputState) {

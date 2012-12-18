@@ -118,6 +118,7 @@
 		48D1BEB415E4237B0073C030 /* EditorFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEB215E4237A0073C030 /* EditorFrame.cpp */; };
 		48D1BEB715E423F60073C030 /* TrenchBroomApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEB515E423F60073C030 /* TrenchBroomApp.cpp */; };
 		48D417D7160B3A3C003AECBB /* TextureBrowserCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D417D5160B3A3C003AECBB /* TextureBrowserCanvas.cpp */; };
+		48D590A416807D5E00860B86 /* HandleManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D590A216807D5E00860B86 /* HandleManager.cpp */; };
 		48DFD4B816061AAE00E554E1 /* glew.c in Sources */ = {isa = PBXBuildFile; fileRef = 48DFD4B416061AAE00E554E1 /* glew.c */; };
 		48DFD4BC1606308E00E554E1 /* MacCapabilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48DFD4BA1606308E00E554E1 /* MacCapabilities.cpp */; };
 		48E1A518161390AD006BB6C4 /* TextureCollectionCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48E1A516161390AD006BB6C4 /* TextureCollectionCommand.cpp */; };
@@ -417,6 +418,8 @@
 		48D417D4160B39CD003AECBB /* CellLayoutGLCanvas.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CellLayoutGLCanvas.h; sourceTree = "<group>"; };
 		48D417D5160B3A3C003AECBB /* TextureBrowserCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureBrowserCanvas.cpp; sourceTree = "<group>"; };
 		48D417D6160B3A3C003AECBB /* TextureBrowserCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureBrowserCanvas.h; sourceTree = "<group>"; };
+		48D590A216807D5E00860B86 /* HandleManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HandleManager.cpp; sourceTree = "<group>"; };
+		48D590A316807D5E00860B86 /* HandleManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HandleManager.h; sourceTree = "<group>"; };
 		48DFD4B416061AAE00E554E1 /* glew.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glew.c; path = ../Source/GL/glew.c; sourceTree = "<group>"; };
 		48DFD4B516061AAE00E554E1 /* glew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glew.h; path = ../Source/GL/glew.h; sourceTree = "<group>"; };
 		48DFD4B616061AAE00E554E1 /* glxew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glxew.h; path = ../Source/GL/glxew.h; sourceTree = "<group>"; };
@@ -828,6 +831,8 @@
 				48F1FBA71652ACB100C79278 /* CreateBrushTool.h */,
 				4878F922165142B4003857EA /* CreateEntityTool.cpp */,
 				4878F923165142B4003857EA /* CreateEntityTool.h */,
+				48D590A216807D5E00860B86 /* HandleManager.cpp */,
+				48D590A316807D5E00860B86 /* HandleManager.h */,
 				480ED72F1662506200857A21 /* MoveHandle.cpp */,
 				480ED7301662506300857A21 /* MoveHandle.h */,
 				48EE7A1816502B98003F5BBE /* MoveObjectsTool.cpp */,
@@ -1143,6 +1148,7 @@
 				48932BF4166FAFDC009ED5DB /* MoveVerticesCommand.cpp in Sources */,
 				48C83711167513CD00B658A2 /* PointHandleRenderer.cpp in Sources */,
 				484EA61E1679226700EBFAC7 /* SplitEdgesCommand.cpp in Sources */,
+				48D590A416807D5E00860B86 /* HandleManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

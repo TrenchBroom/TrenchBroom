@@ -79,7 +79,8 @@ namespace TrenchBroom {
         m_selectionTool(NULL),
         m_toolChain(NULL),
         m_dragTool(NULL),
-        m_modalTool(NULL) {
+        m_modalTool(NULL),
+        m_cancelledDrag(false) {
             m_cameraTool = new CameraTool(m_documentViewHolder);
             m_clipTool = new ClipTool(m_documentViewHolder);
             m_moveVerticesTool = new MoveVerticesTool(m_documentViewHolder, 24.0f, 16.0f, 2.5f);
@@ -159,13 +160,14 @@ namespace TrenchBroom {
             if (m_dragTool != NULL) {
                 m_dragTool->endDrag(m_inputState);
                 m_dragTool = NULL;
-                m_inputState.mouseUp(mouseButton);
                 handled = true;
-            } else {
+            } else if (!m_cancelledDrag) {
                 handled = m_toolChain->mouseUp(m_inputState) != NULL;
-                m_inputState.mouseUp(mouseButton);
             }
-            
+
+            m_inputState.mouseUp(mouseButton);
+            m_cancelledDrag = false;
+
             updateHits();
             updateModalTool();
             updateState();
@@ -177,12 +179,19 @@ namespace TrenchBroom {
             updateHits();
             
             if (m_inputState.mouseButtons() != MouseButtons::MBNone) {
-                if (m_dragTool == NULL)
+                if (m_dragTool == NULL && !m_cancelledDrag) {
                     m_dragTool = m_toolChain->startDrag(m_inputState);
-                if (m_dragTool != NULL)
-                    m_dragTool->drag(m_inputState);
-                else
+                }
+                
+                if (m_dragTool != NULL) {
+                    if (!m_dragTool->drag(m_inputState)) {
+                        m_dragTool->endDrag(m_inputState);
+                        m_dragTool = NULL;
+                        m_cancelledDrag = true;
+                    }
+                } else {
                     m_toolChain->mouseMove(m_inputState);
+                }
             } else {
                 m_toolChain->mouseMove(m_inputState);
             }

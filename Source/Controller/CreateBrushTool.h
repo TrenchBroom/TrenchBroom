@@ -58,7 +58,7 @@ namespace TrenchBroom {
             void handleScroll(InputState& inputState);
 
             bool handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint);
-            void handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint);
+            bool handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint);
             void handleEndPlaneDrag(InputState& inputState);
         public:
             CreateBrushTool(View::DocumentViewHolder& documentViewHolder);

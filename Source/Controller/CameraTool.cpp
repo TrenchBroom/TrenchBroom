@@ -80,7 +80,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        void CameraTool::handleDrag(InputState& inputState) {
+        bool CameraTool::handleDrag(InputState& inputState) {
             if (inputState.mouseButtons() == MouseButtons::MBRight) {
                 if (m_orbit) {
                     CameraOrbitEvent cameraEvent;
@@ -100,6 +100,7 @@ namespace TrenchBroom {
                 cameraEvent.setUp(inputState.deltaY() * panSpeed(true));
                 postEvent(cameraEvent);
             }
+            return true;
         }
         
         void CameraTool::handleEndDrag(InputState& inputState) {

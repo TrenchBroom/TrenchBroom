@@ -121,7 +121,7 @@ namespace TrenchBroom {
             bool handleMouseUp(InputState& inputState);
 
             bool handleStartDrag(InputState& inputState);
-            void handleDrag(InputState& inputState);
+            bool handleDrag(InputState& inputState);
             void handleEndDrag(InputState& inputState);
             void handleCancelDrag(InputState& inputState);
 

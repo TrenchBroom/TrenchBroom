@@ -70,7 +70,7 @@ namespace TrenchBroom {
             void handleScroll(InputState& inputState);
 
             bool handleStartDrag(InputState& inputState);
-            void handleDrag(InputState& inputState);
+            bool handleDrag(InputState& inputState);
             void handleEndDrag(InputState& inputState);
         public:
             CameraTool(View::DocumentViewHolder& documentViewHolder) :

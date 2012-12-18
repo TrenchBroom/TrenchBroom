@@ -67,6 +67,7 @@ namespace TrenchBroom {
             Tool* m_toolChain;
             Tool* m_dragTool;
             Tool* m_modalTool;
+            bool m_cancelledDrag;
             
             void updateModalTool();
             void updateHits();

@@ -345,12 +345,12 @@ namespace TrenchBroom {
             return true;
         }
         
-        void ClipTool::handleDrag(InputState& inputState) {
+        bool ClipTool::handleDrag(InputState& inputState) {
             assert(m_hitIndex >= 0 && m_hitIndex < m_numPoints);
             
             Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, m_filter));
             if (faceHit == NULL)
-                return;
+                return true;
             
             Utility::Grid& grid = document().grid();
             const Model::Face& face = faceHit->face();
@@ -360,11 +360,12 @@ namespace TrenchBroom {
             
             Ray testRay(inputState.pickRay().origin, dir);
             if (!face.side()->intersectWithRay(testRay))
-                return;
+                return true;
             
             m_points[m_hitIndex] = point;
             updateBrushes();
             setNeedsUpdate();
+            return true;
         }
         
         void ClipTool::handleEndDrag(InputState& inputState) {

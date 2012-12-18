@@ -191,7 +191,7 @@ namespace TrenchBroom {
             }
             
             virtual bool handleStartDrag(InputState& inputState) { return false; }
-            virtual void handleDrag(InputState& inputState) {}
+            virtual bool handleDrag(InputState& inputState) { return true; }
             virtual void handleEndDrag(InputState& inputState) {}
             virtual void handleCancelDrag(InputState& inputState) {}
 
@@ -344,10 +344,10 @@ namespace TrenchBroom {
                 return NULL;
             }
             
-            void drag(InputState& inputState) {
+            bool drag(InputState& inputState) {
                 assert((active() && !m_suppressed));
                 assert(dragType() == DTDrag);
-                handleDrag(inputState);
+                return handleDrag(inputState);
             }
             
             void endDrag(InputState& inputState) {
@@ -427,7 +427,7 @@ namespace TrenchBroom {
             Vec3f m_refPoint;
         protected:
             virtual bool handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint) = 0;
-            virtual void handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) = 0;
+            virtual bool handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) = 0;
             virtual void handleEndPlaneDrag(InputState& inputState) = 0;
             
             bool handleStartDrag(InputState& inputState) {
@@ -438,17 +438,18 @@ namespace TrenchBroom {
                 return false;
             }
             
-            void handleDrag(InputState& inputState) {
+            bool handleDrag(InputState& inputState) {
                 float distance = m_plane.intersectWithRay(inputState.pickRay());
                 if (Math::isnan(distance))
-                    return;
+                    return true;
                 
                 Vec3f curPoint = inputState.pickRay().pointAtDistance(distance);
                 if (curPoint.equals(m_lastPoint))
-                    return;
+                    return true;
                 
-                handlePlaneDrag(inputState, m_lastPoint, curPoint, m_refPoint);
+                bool result = handlePlaneDrag(inputState, m_lastPoint, curPoint, m_refPoint);
                 m_lastPoint = curPoint;
+                return result;
             }
             
             void handleEndDrag(InputState& inputState) {
