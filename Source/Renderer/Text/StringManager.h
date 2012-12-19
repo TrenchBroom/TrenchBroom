@@ -54,7 +54,7 @@ namespace TrenchBroom {
                 protected:
                     FontDescriptor m_fontDescriptor;
                     String m_string;
-                    unsigned long m_stringHash;
+                    long m_stringHash;
                 public:
                     CacheKey(const FontDescriptor& fontDescriptor, const String& str) :
                     m_fontDescriptor(fontDescriptor),
@@ -88,7 +88,7 @@ namespace TrenchBroom {
                         return m_string;
                     }
                     
-                    inline unsigned long stringHash() const {
+                    inline long stringHash() const {
                         return m_stringHash;
                     }
                 };

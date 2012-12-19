@@ -86,7 +86,7 @@ namespace TrenchBroom {
                 
                 for (unsigned int i = 0; i < string.length(); i++) {
                     char c = string[i];
-                    FT_UInt glyphIndex = FT_Get_Char_Index(face, c);
+                    FT_UInt glyphIndex = FT_Get_Char_Index(face, static_cast<FT_ULong>(c));
                     FT_Error error = FT_Load_Glyph(face, glyphIndex, FT_LOAD_NO_HINTING | FT_LOAD_NO_AUTOHINT | FT_LOAD_NO_BITMAP);
                     if (error != 0) {
                         m_console.error("Error loading glyph (FT error: %i)", error);
@@ -107,7 +107,8 @@ namespace TrenchBroom {
                     width += advance;
                     
                     FT_Outline* outline = &glyph->outline;
-                    unsigned int numContours = outline->n_contours;
+                    assert(outline->n_contours >= 0);
+                    unsigned int numContours = static_cast<unsigned int>(outline->n_contours);
                     PathPolygon::Winding winding = (outline->flags & FT_OUTLINE_EVEN_ODD_FILL) ? PathPolygon::EvenOdd : PathPolygon::NonZero;
                     
                     unsigned int start = 0;
@@ -118,8 +119,10 @@ namespace TrenchBroom {
 
                     pathBuilder.beginPolygon(winding);
                     for (unsigned int j = 0; j < numContours; j++) {
+                        assert(outline->contours[j] >= 0);
+                        
                         start = end;
-                        end = outline->contours[j] + 1;
+                        end = static_cast<unsigned int>(outline->contours[j] + 1);
                         count = end - start;
 
                         setPoint(outline->points, start + pred(start - start, count), previousPoint);
@@ -193,7 +196,7 @@ namespace TrenchBroom {
                 
                 for (unsigned int i = 0; i < string.length(); i++) {
                     char c = string[i];
-                    FT_UInt glyphIndex = FT_Get_Char_Index(face, c);
+                    FT_UInt glyphIndex = FT_Get_Char_Index(face, static_cast<FT_ULong>(c));
                     FT_Error error = FT_Load_Glyph(face, glyphIndex, FT_LOAD_NO_HINTING | FT_LOAD_NO_AUTOHINT | FT_LOAD_NO_BITMAP);
                     if (error != 0) {
                         m_console.error("Error loading glyph (FT error: %i)", error);

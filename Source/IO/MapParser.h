@@ -136,14 +136,14 @@ namespace TrenchBroom {
                 return str.str();
             }
 
-            std::string buildMessage(const MapTokenizer::Token* token, int expectedType) {
+            std::string buildMessage(const MapTokenizer::Token* token, unsigned int expectedType) {
                 std::stringstream msgStream;
                 msgStream << "Malformed map file: expected token of type " << type(expectedType) << ", but found " << type(token->type()) << " at line " << token->line() << ", column " << token->column();
                 return msgStream.str();
             }
         public:
             MapParserException() : MessageException("Reached unexpected end of file") {}
-            MapParserException(MapTokenizer::Token* token, int expectedType) : MessageException(buildMessage(token, expectedType)) {}
+            MapParserException(MapTokenizer::Token* token, unsigned int expectedType) : MessageException(buildMessage(token, expectedType)) {}
         };
 
         class MapParser {
@@ -162,7 +162,7 @@ namespace TrenchBroom {
             MapFormat m_format;
             size_t m_size;
 
-            inline void expect(int expectedType, MapTokenizer::Token* actualToken) const {
+            inline void expect(unsigned int expectedType, MapTokenizer::Token* actualToken) const {
                 if (actualToken == NULL)
                     throw MapParserException();
 

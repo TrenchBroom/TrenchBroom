@@ -49,7 +49,7 @@ namespace TrenchBroom {
             Brush* m_brush;
             Side* m_side;
             
-            int m_faceId;
+            unsigned int m_faceId;
             
             /*
              * The order of points, when looking from outside the face:
@@ -77,8 +77,8 @@ namespace TrenchBroom {
             float m_yScale;
 
             mutable bool m_texAxesValid;
-            mutable int m_texPlaneNormIndex;
-            mutable int m_texFaceNormIndex;
+            mutable unsigned int m_texPlaneNormIndex;
+            mutable unsigned int m_texFaceNormIndex;
             mutable Vec3f m_texAxisX;
             mutable Vec3f m_texAxisY;
             mutable Vec3f m_scaledTexAxisX;
@@ -91,7 +91,7 @@ namespace TrenchBroom {
             bool m_selected;
             
             void init();
-            void texAxesAndIndices(const Vec3f& faceNormal, Vec3f& xAxis, Vec3f& yAxis, int& planeNormIndex, int& faceNormIndex) const;
+            void texAxesAndIndices(const Vec3f& faceNormal, Vec3f& xAxis, Vec3f& yAxis, unsigned int& planeNormIndex, unsigned int& faceNormIndex) const;
             void validateTexAxes(const Vec3f& faceNormal) const;
             void validateVertexCache() const;
             
@@ -142,7 +142,7 @@ namespace TrenchBroom {
             /**
              * Returns a unique id for this face. This id is not persistent.
              */
-            inline int faceId() const {
+            inline unsigned int faceId() const {
                 return m_faceId;
             }
             

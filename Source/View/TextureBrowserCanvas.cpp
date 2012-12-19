@@ -88,7 +88,9 @@ namespace TrenchBroom {
 
             String fontName = prefs.getString(Preferences::RendererFontName);
             int fontSize = prefs.getInt(Preferences::TextureBrowserFontSize);
-            Renderer::Text::FontDescriptor font(fontName, fontSize);
+            
+            assert(fontSize >= 0);
+            Renderer::Text::FontDescriptor font(fontName, static_cast<unsigned int>(fontSize));
             IO::FileManager fileManager;
             
             if (m_group) {

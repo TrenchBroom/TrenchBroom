@@ -108,7 +108,7 @@ namespace TrenchBroom {
             wxMenuBar* menuBar = app->CreateMenuBar(&m_documentViewHolder.view(), actionMenu);
             int editMenuIndex = menuBar->FindMenu(wxT("Edit"));
             assert(editMenuIndex != wxNOT_FOUND);
-            wxMenu* editMenu = menuBar->GetMenu(editMenuIndex);
+            wxMenu* editMenu = menuBar->GetMenu(static_cast<size_t>(editMenuIndex));
             m_documentViewHolder.document().GetCommandProcessor()->SetEditMenu(editMenu);
             
             SetMenuBar(menuBar);

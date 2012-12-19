@@ -27,7 +27,7 @@ namespace TrenchBroom {
         class Capabilities {
         public:
             bool multisample;
-            unsigned int samples;
+            GLint samples;
             GLint depthBits;
 
             Capabilities() :

@@ -30,7 +30,7 @@ namespace TrenchBroom {
     namespace View {
         void EntityPropertyDataViewModel::clear() {
             wxArrayInt rows;
-            for (unsigned int i = 0; i < m_properties.size(); i++)
+            for (int i = 0; i < m_properties.size(); i++)
                 rows.push_back(i);
             RowsDeleted(rows);
             m_properties.clear();
@@ -191,7 +191,7 @@ namespace TrenchBroom {
                 }
                 
                 EntityPropertyList::iterator eProp;
-                int index = 0;
+                unsigned int index = 0;
                 for (eProp = m_properties.begin(); eProp != m_properties.end(); ++eProp) {
                     EntityProperty& propertyRow = *eProp;
                     

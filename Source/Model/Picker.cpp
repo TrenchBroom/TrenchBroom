@@ -70,7 +70,7 @@ namespace TrenchBroom {
             m_hits.push_back(hit);
         }
 
-        Hit* PickResult::first(int typeMask, bool ignoreOccluders, Filter& filter) {
+        Hit* PickResult::first(HitType::Type typeMask, bool ignoreOccluders, Filter& filter) {
             if (!m_hits.empty()) {
                 if (!m_sorted)
                     sortHits();
@@ -100,7 +100,7 @@ namespace TrenchBroom {
             return NULL;
         }
 
-        HitList PickResult::hits(int typeMask, Filter& filter) {
+        HitList PickResult::hits(HitType::Type typeMask, Filter& filter) {
             HitList result;
             if (!m_sorted) sortHits();
             for (unsigned int i = 0; i < m_hits.size(); i++)

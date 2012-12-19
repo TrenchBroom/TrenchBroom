@@ -50,12 +50,16 @@ namespace TrenchBroom {
             m_stream.read(reinterpret_cast<char *>(&width), sizeof(int32_t));
             m_stream.read(reinterpret_cast<char *>(&height), sizeof(int32_t));
             m_stream.read(reinterpret_cast<char *>(&mip0Offset), sizeof(int32_t));
-            mip0Size = width * height;
+            
+            assert(width >= 0);
+            assert(height >= 0);
+            assert(mip0Offset >= 0);
+            mip0Size = static_cast<unsigned int>(width * height);
             
             if (width <= 0 || height <= 0 ||
                 width > WadLayout::MaxTextureSize || height > WadLayout::MaxTextureSize)
                 throw IOException("Invalid mip dimensions (%ix%i)", width, height);
-            if (mip0Offset + mip0Size > entry.length())
+            if (static_cast<unsigned int>(mip0Offset) + mip0Size > entry.length())
                 throw IOException("Mip data beyond wad entry");
             
             unsigned char* mip0 = NULL;
@@ -65,7 +69,7 @@ namespace TrenchBroom {
                 m_stream.read(reinterpret_cast<char *>(mip0), mip0Size);
             }
             
-            return new Mip(entry.name(), width, height, mip0);
+            return new Mip(entry.name(), static_cast<unsigned int>(width), static_cast<unsigned int>(height), mip0);
         }
 
         Wad::Wad(const String& path) throw (IOException) :
@@ -77,7 +81,7 @@ namespace TrenchBroom {
                 throw IOException::badStream(m_stream);
             
             m_stream.seekg(0, std::ios::end);
-            m_length = m_stream.tellg();
+            m_length = static_cast<size_t>(m_stream.tellg());
             m_stream.seekg(0, std::ios::beg);
             
 			m_stream.exceptions(std::ios::failbit | std::ios::badbit);

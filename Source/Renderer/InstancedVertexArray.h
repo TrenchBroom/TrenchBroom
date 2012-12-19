@@ -121,27 +121,27 @@ namespace TrenchBroom {
             InstanceAttributesList m_instanceAttributes;
             unsigned int m_instanceCount;
         public:
-            InstancedVertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, unsigned int instanceCount, const Attribute& attribute1, GLsizei padTo = 16) :
+            InstancedVertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, unsigned int instanceCount, const Attribute& attribute1, unsigned int padTo = 16) :
             RenderArray(vbo, primType, vertexCapacity, attribute1, padTo),
             m_instanceCount(instanceCount) {}
             
-            InstancedVertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, unsigned int instanceCount, const Attribute& attribute1, const Attribute& attribute2, GLsizei padTo = 16) :
+            InstancedVertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, unsigned int instanceCount, const Attribute& attribute1, const Attribute& attribute2, unsigned int padTo = 16) :
             RenderArray(vbo, primType, vertexCapacity, attribute1, attribute2, padTo),
             m_instanceCount(instanceCount) {}
             
-            InstancedVertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, unsigned int instanceCount, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, GLsizei padTo = 16) :
+            InstancedVertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, unsigned int instanceCount, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, unsigned int padTo = 16) :
             RenderArray(vbo, primType, vertexCapacity, attribute1, attribute2, attribute3, padTo),
             m_instanceCount(instanceCount) {}
             
-            InstancedVertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, unsigned int instanceCount, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, GLsizei padTo = 16) :
+            InstancedVertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, unsigned int instanceCount, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, unsigned int padTo = 16) :
             RenderArray(vbo, primType, vertexCapacity, attribute1, attribute2, attribute3, attribute4, padTo),
             m_instanceCount(instanceCount) {}
             
-            InstancedVertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, unsigned int instanceCount, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, const Attribute& attribute5, GLsizei padTo = 16) :
+            InstancedVertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, unsigned int instanceCount, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, const Attribute& attribute5, unsigned int padTo = 16) :
             RenderArray(vbo, primType, vertexCapacity, attribute1, attribute2, attribute3, attribute4, attribute5, padTo),
             m_instanceCount(instanceCount) {}
             
-            InstancedVertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, unsigned int instanceCount, const Attribute::List& attributes, GLsizei padTo = 16) :
+            InstancedVertexArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, unsigned int instanceCount, const Attribute::List& attributes, unsigned int padTo = 16) :
             RenderArray(vbo, primType, vertexCapacity, attributes, padTo),
             m_instanceCount(instanceCount) {}
             
@@ -158,18 +158,18 @@ namespace TrenchBroom {
                 bindAttributes(program);
                 setup();
                 
-                int textureNum = 0;
+                unsigned int textureNum = 0;
                 InstanceAttributesList::const_iterator it, end;
                 for (it = m_instanceAttributes.begin(), end = m_instanceAttributes.end(); it != end; ++it) {
                     InstanceAttributes& attributes = **it;
                     glActiveTexture(GL_TEXTURE0 + textureNum);
                     attributes.setup();
-                    program.setUniformVariable(attributes.name(), textureNum);
+                    program.setUniformVariable(attributes.name(), static_cast<int>(textureNum));
                     program.setUniformVariable(attributes.textureSizeName(), attributes.textureSize());
                     textureNum++;
                 }
                 
-                glDrawArraysInstancedARB(m_primType, 0, m_vertexCount, m_instanceCount);
+                glDrawArraysInstancedARB(m_primType, 0, static_cast<GLsizei>(m_vertexCount), static_cast<GLsizei>(m_instanceCount));
                 
                 textureNum = GL_TEXTURE0;
                 for (it = m_instanceAttributes.begin(), end = m_instanceAttributes.end(); it != end; ++it) {

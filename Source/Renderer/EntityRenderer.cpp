@@ -241,7 +241,9 @@ namespace TrenchBroom {
             
             const String& fontName = prefs.getString(Preferences::RendererFontName);
             int fontSize = prefs.getInt(Preferences::RendererFontSize);
-            Text::FontDescriptor fontDescriptor(fontName, fontSize);
+            
+            assert(fontSize > 0);
+            Text::FontDescriptor fontDescriptor(fontName, static_cast<unsigned int>(fontSize));
             
             const Model::PropertyValue& classname = *entity.classname();
             EntityModelRenderer* renderer = modelRendererManager.modelRenderer(entity, m_document.mods());
@@ -264,7 +266,9 @@ namespace TrenchBroom {
             
             const String& fontName = prefs.getString(Preferences::RendererFontName);
             int fontSize = prefs.getInt(Preferences::RendererFontSize);
-            Text::FontDescriptor fontDescriptor(fontName, fontSize);
+            
+            assert(fontSize > 0);
+            Text::FontDescriptor fontDescriptor(fontName, static_cast<unsigned int>(fontSize));
             
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];

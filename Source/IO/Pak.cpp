@@ -40,7 +40,9 @@ namespace TrenchBroom {
             m_stream.read(magic, PakLayout::HeaderMagicLength);
             m_stream.read(reinterpret_cast<char *>(&directoryAddress), sizeof(int32_t));
             m_stream.read(reinterpret_cast<char *>(&directorySize), sizeof(int32_t));
-            entryCount = directorySize / PakLayout::EntryLength;
+            
+            assert(directorySize >= 0);
+            entryCount = static_cast<size_t>(directorySize) / PakLayout::EntryLength;
             
             m_stream.seekg(directoryAddress, std::ios::beg);
             for (unsigned int i = 0; i < entryCount; i++) {

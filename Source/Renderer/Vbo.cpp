@@ -36,7 +36,7 @@ namespace TrenchBroom {
         unsigned int Vbo::findFreeBlockInRange(unsigned int address, unsigned int capacity, unsigned int start, unsigned int length) {
             assert(length > 0);
             
-            int pivot = start + length / 2;
+            unsigned int pivot = start + length / 2;
             VboBlock* block = m_freeBlocks[pivot];
 
             int order = block->compare(address, capacity);
@@ -55,8 +55,10 @@ namespace TrenchBroom {
         
         unsigned int Vbo::findFreeBlock(unsigned int address, unsigned int capacity) {
             if (m_freeBlocks.empty()) return 0;
-            unsigned int index = findFreeBlockInRange(address, capacity, 0, static_cast<int>(m_freeBlocks.size()));
-            assert(index == m_freeBlocks.size() || capacity < m_freeBlocks[index]->capacity() || (capacity == m_freeBlocks[index]->capacity() && address <= m_freeBlocks[index]->address()));
+            unsigned int index = findFreeBlockInRange(address, capacity, 0, static_cast<unsigned int>(m_freeBlocks.size()));
+            assert(index == m_freeBlocks.size() ||
+                   capacity < m_freeBlocks[index]->capacity() ||
+                   (capacity == m_freeBlocks[index]->capacity() && address <= m_freeBlocks[index]->address()));
             return index;
         }
 

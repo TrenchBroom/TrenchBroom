@@ -123,14 +123,22 @@ namespace TrenchBroom {
 
         void TextureManager::addCollection(TextureCollection* collection, size_t index) {
             assert(index <= m_collections.size());
-            m_collections.insert(m_collections.begin() + index, collection);
+            
+            TextureCollectionList::iterator insertPos = m_collections.begin();
+            std::advance(insertPos, index);
+            m_collections.insert(insertPos, collection);
+            
             reloadTextures();
         }
         
         TextureCollection* TextureManager::removeCollection(size_t index) {
             assert(index < m_collections.size());
             TextureCollection* collection = m_collections[index];
-            m_collections.erase(m_collections.begin() + index);
+            
+            TextureCollectionList::iterator removePos = m_collections.begin();
+            std::advance(removePos, index);
+            m_collections.erase(removePos);
+            
             reloadTextures();
             return collection;
         }

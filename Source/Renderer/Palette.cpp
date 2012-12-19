@@ -31,7 +31,8 @@ namespace TrenchBroom {
             m_size = static_cast<size_t>(stream.tellg());
             stream.seekg(0, std::ios::beg);
             m_data = new unsigned char[m_size];
-            stream.read(reinterpret_cast<char*>(m_data), m_size);
+            
+            stream.read(reinterpret_cast<char*>(m_data), static_cast<std::streamsize>(m_size));
             stream.close();
         }
         

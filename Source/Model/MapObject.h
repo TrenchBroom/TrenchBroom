@@ -35,7 +35,7 @@ namespace TrenchBroom {
         
         class MapObject {
         private:
-            int m_uniqueId;
+            unsigned int m_uniqueId;
             EditState::Type m_editState;
             bool m_previouslyLocked;
         public:
@@ -47,15 +47,16 @@ namespace TrenchBroom {
             MapObject() :
             m_editState(EditState::Default),
             m_previouslyLocked(false) {
-                static int currentId = 1;
+                static unsigned int currentId = 1;
                 m_uniqueId = currentId++;
             }
             
             virtual ~MapObject() {
+                m_uniqueId = 0;
                 m_editState = EditState::Default;
             }
             
-            inline int uniqueId() const {
+            inline unsigned int uniqueId() const {
                 return m_uniqueId;
             }
             

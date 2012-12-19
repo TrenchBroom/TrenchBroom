@@ -399,7 +399,7 @@ namespace TrenchBroom {
             if (!m_documentViewHolder.valid())
                 return;
             wxArrayInt selections;
-            unsigned int selectionCount = m_textureCollectionList->GetSelections(selections);
+            int selectionCount = m_textureCollectionList->GetSelections(selections);
             if (selectionCount <= 0)
                 return;
             

@@ -143,7 +143,9 @@ namespace TrenchBroom {
             
             String fontName = prefs.getString(Preferences::RendererFontName);
             int fontSize = prefs.getInt(Preferences::EntityBrowserFontSize);
-            Renderer::Text::FontDescriptor font(fontName, fontSize);
+            assert(fontSize >= 0);
+            
+            Renderer::Text::FontDescriptor font(fontName, static_cast<unsigned int>(fontSize));
             IO::FileManager fileManager;
             
             const Model::EntityDefinitionList& definitions = definitionManager.definitions(Model::EntityDefinition::PointEntity, m_sortOrder);
@@ -355,7 +357,7 @@ namespace TrenchBroom {
             view.translate(Vec3f(256.0f, 0.0f, 0.0f));
             Renderer::Transformation transformation(projection * view, true);
             
-            glViewport(0, 0, width, height);
+            glViewport(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height));
             glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glEnable(GL_DEPTH_TEST);
@@ -383,8 +385,8 @@ namespace TrenchBroom {
             
             unsigned char* imageData = new unsigned char[width * height * 3];
             unsigned char* alphaData = new unsigned char[width * height];
-            glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid*>(imageData));
-            glReadPixels(0, 0, width, height, GL_ALPHA, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid*>(alphaData));
+            glReadPixels(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height), GL_RGB, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid*>(imageData));
+            glReadPixels(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height), GL_ALPHA, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid*>(alphaData));
             
             wxImage* image = m_offscreenRenderer.getImage();
             m_offscreenRenderer.postRender();

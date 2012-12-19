@@ -35,7 +35,7 @@ namespace TrenchBroom {
         };
         
         void Face::init() {
-            static int currentId = 1;
+            static unsigned int currentId = 1;
             m_faceId = currentId++;
             m_xOffset = 0.0f;
             m_yOffset = 0.0f;
@@ -50,8 +50,8 @@ namespace TrenchBroom {
             m_vertexCacheValid = false;
         }
         
-        void Face::texAxesAndIndices(const Vec3f& faceNormal, Vec3f& xAxis, Vec3f& yAxis, int& planeNormIndex, int& faceNormIndex) const {
-            int bestIndex = 0;
+        void Face::texAxesAndIndices(const Vec3f& faceNormal, Vec3f& xAxis, Vec3f& yAxis, unsigned int& planeNormIndex, unsigned int& faceNormIndex) const {
+            unsigned int bestIndex = 0;
             float bestDot = -1;
             for (unsigned int i = 0; i < 6; i++) {
                 float dot = faceNormal.dot(*BaseAxes[i * 3]);
@@ -85,8 +85,8 @@ namespace TrenchBroom {
             if (!m_texAxesValid)
                 validateTexAxes(m_boundary.normal);
             
-            int width = m_texture != NULL ? m_texture->width() : 1;
-            int height = m_texture != NULL ? m_texture->height() : 1;
+            unsigned int width = m_texture != NULL ? m_texture->width() : 1;
+            unsigned int height = m_texture != NULL ? m_texture->height() : 1;
             
             size_t vertexCount = m_side->vertices.size();
             m_vertexCache.resize(3 * (vertexCount - 2));
@@ -122,7 +122,7 @@ namespace TrenchBroom {
             Vec2f curCenterTexCoords, newCenterTexCoords;
             Plane plane;
             Vec3f curCenter;
-            int newPlaneNormIndex, newFaceNormIndex;
+            unsigned int newPlaneNormIndex, newFaceNormIndex;
             float radX, radY, rad;
             
             // calculate the current texture coordinates of the face's center
@@ -297,14 +297,14 @@ namespace TrenchBroom {
         }
         
 		Face::~Face() {
-			m_texPlaneNormIndex = -1;
-			m_texFaceNormIndex = -1;
+			m_texPlaneNormIndex = 0;
+			m_texFaceNormIndex = 0;
 			m_texAxisX = Vec3f::NaN;
 			m_texAxisY = Vec3f::NaN;
 			m_scaledTexAxisX = Vec3f::NaN;
 			m_scaledTexAxisY = Vec3f::NaN;
             
-			m_faceId *= -1;
+			m_faceId = 0;
 			m_brush = NULL;
 			
 			for (unsigned int i = 0; i < 3; i++)
@@ -320,7 +320,7 @@ namespace TrenchBroom {
 			m_xScale = 0.0f;
 			m_yScale = 0.0f;
 			m_side = NULL;
-			m_filePosition = -1;
+			m_filePosition = 0;
 			m_selected = false;
 			m_vertexCacheValid = false;
 			m_texAxesValid = false;
@@ -355,8 +355,8 @@ namespace TrenchBroom {
             Vec3f v1, v2;
             
             float bestDot = 1;
-            int best = -1;
             size_t vertexCount = m_side->vertices.size();
+            size_t best = vertexCount;
             for (unsigned int i = 0; i < vertexCount && bestDot > 0; i++) {
                 m_points[2] = m_side->vertices[pred(i, vertexCount)]->position;
                 m_points[0] = m_side->vertices[i]->position;
@@ -371,7 +371,7 @@ namespace TrenchBroom {
                 }
             }
             
-            assert(best != -1);
+            assert(best < vertexCount);
             
             m_points[2] = m_side->vertices[pred(best, vertexCount)]->position;
             m_points[0] = m_side->vertices[best]->position;

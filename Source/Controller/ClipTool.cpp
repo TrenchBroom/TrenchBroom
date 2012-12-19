@@ -168,7 +168,7 @@ namespace TrenchBroom {
             
             Model::ClipHandleHit* handleHit = static_cast<Model::ClipHandleHit*>(inputState.pickResult().first(Model::HitType::ClipHandleHit, true, m_filter));
             if (handleHit != NULL) {
-                m_hitIndex = handleHit->index();
+                m_hitIndex = static_cast<int>(handleHit->index());
                 m_directHit = true;
             } else {
                 m_hitIndex = -1;
@@ -186,13 +186,13 @@ namespace TrenchBroom {
                     if (face.side()->intersectWithRay(testRay)) {
                         for (unsigned int i = 0; i < m_numPoints && m_hitIndex == -1; i++) {
                             if (point.equals(m_points[i])) {
-                                m_hitIndex = i;
+                                m_hitIndex = static_cast<int>(i);
                                 return;
                             }
                         }
                         
                         if (m_hitIndex == -1 && m_numPoints < 3) {
-                            m_hitIndex = m_numPoints;
+                            m_hitIndex = static_cast<int>(m_numPoints);
                             m_points[m_numPoints] = point;
                             m_normals[m_numPoints] = face.boundary().normal;
                         }
@@ -330,7 +330,7 @@ namespace TrenchBroom {
             if (handleHit == NULL)
                 return false;
             
-            m_hitIndex = handleHit->index();
+            m_hitIndex = static_cast<int>(handleHit->index());
             return true;
         }
         

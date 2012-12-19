@@ -119,8 +119,8 @@ namespace TrenchBroom {
             ~PickResult();
             
             void add(Hit* hit);
-            Hit* first(int typeMask, bool ignoreOccluders, Filter& filter);
-            HitList hits(int typeMask, Filter& filter);
+            Hit* first(HitType::Type typeMask, bool ignoreOccluders, Filter& filter);
+            HitList hits(HitType::Type typeMask, Filter& filter);
             HitList hits(Filter& filter);
         };
         
