@@ -241,7 +241,7 @@ namespace TrenchBroom {
             void splitSides(SideList& sidesToSplit, const Ray& ray, Vertex* vertex, FaceList& newFaces, FaceList& droppedFaces);
             void mergeVertices(Vertex* keepVertex, Vertex* dropVertex, FaceList& newFaces, FaceList& droppedFaces);
             void mergeEdges();
-            void mergeNeighbours(Side* side, size_t edgeIndex);
+            Face* mergeNeighbours(Side* side, size_t edgeIndex, const FaceList& newFaces);
             void mergeSides(FaceList& newFaces, FaceList&droppedFaces);
             void deleteCollinearTriangles(SideList& incSides, FaceList& newFaces, FaceList& droppedFaces);
             float minVertexMoveDist(const SideList& incSides, const Vertex* vertex, const Ray& ray, float maxDist);
@@ -277,8 +277,11 @@ namespace TrenchBroom {
 
             bool canMoveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta);
             Vec3f::List moveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
-            bool canMoveEdges(const Model::EdgeList& edges, const Vec3f& delta);
-            void moveEdges(const Model::EdgeList& edges, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
+            bool canMoveEdges(const EdgeList& edges, const Vec3f& delta);
+            void moveEdges(const EdgeList& edges, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
+            bool canMoveFaces(const FaceList& faces, const Vec3f& delta);
+            void moveFaces(const FaceList& faces, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
+            
             bool canSplitEdge(Edge* edge, const Vec3f& delta);
             Vec3f splitEdge(Edge* edge, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
             bool canSplitFace(Face* face, const Vec3f& delta);

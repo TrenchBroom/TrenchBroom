@@ -199,6 +199,13 @@ namespace TrenchBroom {
             }
             
             /**
+             * Returns the center of this face.
+             */
+            inline Vec3f center() const {
+                return centerOfVertices(m_side->vertices);
+            }
+            
+            /**
              * Returns the name of the texture for this face.
              */
             inline const String& textureName() const {

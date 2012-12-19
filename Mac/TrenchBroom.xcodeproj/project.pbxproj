@@ -30,6 +30,8 @@
 		481E56721624482600B403F3 /* ShaderProgram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481E56701624482600B403F3 /* ShaderProgram.cpp */; };
 		481E5675162448F600B403F3 /* ShaderManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481E5673162448F600B403F3 /* ShaderManager.cpp */; };
 		482976D41681DAB70057E4D4 /* MoveEdgesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482976D21681DAB70057E4D4 /* MoveEdgesCommand.cpp */; };
+		482976D71681E77A0057E4D4 /* MoveFacesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482976D61681E77A0057E4D4 /* MoveFacesCommand.cpp */; };
+		482976DB1681EEEC0057E4D4 /* SplitFacesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482976DA1681EEEC0057E4D4 /* SplitFacesCommand.cpp */; };
 		482A0876164305450000799C /* RingFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482A0874164305450000799C /* RingFigure.cpp */; };
 		482A087D16446B470000799C /* RotateObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482A087B16446B470000799C /* RotateObjectsCommand.cpp */; };
 		482BB67E162931E800B9FAAE /* MoveObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482BB67C162931E800B9FAAE /* MoveObjectsCommand.cpp */; };
@@ -203,6 +205,10 @@
 		481E5674162448F600B403F3 /* ShaderManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderManager.h; sourceTree = "<group>"; };
 		482976D21681DAB70057E4D4 /* MoveEdgesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveEdgesCommand.cpp; sourceTree = "<group>"; };
 		482976D31681DAB70057E4D4 /* MoveEdgesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveEdgesCommand.h; sourceTree = "<group>"; };
+		482976D61681E77A0057E4D4 /* MoveFacesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveFacesCommand.cpp; sourceTree = "<group>"; };
+		482976D81681E7860057E4D4 /* MoveFacesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveFacesCommand.h; sourceTree = "<group>"; };
+		482976D91681EEBF0057E4D4 /* SplitFacesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SplitFacesCommand.h; sourceTree = "<group>"; };
+		482976DA1681EEEC0057E4D4 /* SplitFacesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SplitFacesCommand.cpp; sourceTree = "<group>"; };
 		482A0874164305450000799C /* RingFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RingFigure.cpp; sourceTree = "<group>"; };
 		482A0875164305450000799C /* RingFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RingFigure.h; sourceTree = "<group>"; };
 		482A087B16446B470000799C /* RotateObjectsCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RotateObjectsCommand.cpp; sourceTree = "<group>"; };
@@ -866,6 +872,8 @@
 				48A8391416356CFC00175857 /* FlipObjectsCommand.h */,
 				482976D21681DAB70057E4D4 /* MoveEdgesCommand.cpp */,
 				482976D31681DAB70057E4D4 /* MoveEdgesCommand.h */,
+				482976D61681E77A0057E4D4 /* MoveFacesCommand.cpp */,
+				482976D81681E7860057E4D4 /* MoveFacesCommand.h */,
 				482BB67C162931E800B9FAAE /* MoveObjectsCommand.cpp */,
 				482BB67D162931E800B9FAAE /* MoveObjectsCommand.h */,
 				48932BF2166FAFDC009ED5DB /* MoveVerticesCommand.cpp */,
@@ -887,6 +895,8 @@
 				4817C7F01611DFA900A01A99 /* SnapshotCommand.h */,
 				484EA61C1679226700EBFAC7 /* SplitEdgesCommand.cpp */,
 				484EA61D1679226700EBFAC7 /* SplitEdgesCommand.h */,
+				482976DA1681EEEC0057E4D4 /* SplitFacesCommand.cpp */,
+				482976D91681EEBF0057E4D4 /* SplitFacesCommand.h */,
 				48E1A516161390AD006BB6C4 /* TextureCollectionCommand.cpp */,
 				48E1A517161390AD006BB6C4 /* TextureCollectionCommand.h */,
 			);
@@ -1155,6 +1165,8 @@
 				484EA61E1679226700EBFAC7 /* SplitEdgesCommand.cpp in Sources */,
 				48D590A416807D5E00860B86 /* HandleManager.cpp in Sources */,
 				482976D41681DAB70057E4D4 /* MoveEdgesCommand.cpp in Sources */,
+				482976D71681E77A0057E4D4 /* MoveFacesCommand.cpp in Sources */,
+				482976DB1681EEEC0057E4D4 /* SplitFacesCommand.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

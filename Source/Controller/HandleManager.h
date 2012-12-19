@@ -36,6 +36,7 @@ namespace TrenchBroom {
         namespace HitType {
             static const Type VertexHandleHit    = 1 << 6;
             static const Type EdgeHandleHit      = 1 << 7;
+            static const Type FaceHandleHit      = 1 << 8;
         }
         
         class VertexHandleHit : public Hit {
@@ -63,6 +64,8 @@ namespace TrenchBroom {
             Model::VertexToBrushesMap m_selectedVertexHandles;
             Model::VertexToEdgesMap m_unselectedEdgeHandles;
             Model::VertexToEdgesMap m_selectedEdgeHandles;
+            Model::VertexToFacesMap m_unselectedFaceHandles;
+            Model::VertexToFacesMap m_selectedFaceHandles;
             
             Renderer::PointHandleRendererPtr m_selectedHandleRenderer;
             Renderer::PointHandleRendererPtr m_unselectedHandleRenderer;
@@ -143,6 +146,14 @@ namespace TrenchBroom {
                 return m_selectedEdgeHandles;
             }
             
+            inline const Model::VertexToFacesMap& unselectedFaceHandles() const {
+                return m_unselectedFaceHandles;
+            }
+            
+            inline const Model::VertexToFacesMap& selectedFaceHandles() const {
+                return m_selectedFaceHandles;
+            }
+            
             inline bool vertexHandleSelected(const Vec3f& position) {
                 return m_selectedVertexHandles.find(position) != m_selectedVertexHandles.end();
             }
@@ -150,9 +161,13 @@ namespace TrenchBroom {
             inline bool edgeHandleSelected(const Vec3f& position) {
                 return m_selectedEdgeHandles.find(position) != m_selectedEdgeHandles.end();
             }
-            
+
+            inline bool faceHandleSelected(const Vec3f& position) {
+                return m_selectedFaceHandles.find(position) != m_selectedFaceHandles.end();
+            }
             
             const Model::EdgeList& edges(const Vec3f& handlePosition) const;
+            const Model::FaceList& faces(const Vec3f& handlePosition) const;
 
             void add(Model::Brush& brush);
             void add(const Model::BrushList& brushes);
@@ -169,6 +184,11 @@ namespace TrenchBroom {
             void deselectEdgeHandle(const Vec3f& position);
             void selectEdgeHandles(const Model::EdgeList& edges);
             void deselectEdgeHandles();
+            
+            void selectFaceHandle(const Vec3f& position);
+            void deselectFaceHandle(const Vec3f& position);
+            void selectFaceHandles(const Model::FaceList& faces);
+            void deselectFaceHandles();
             
             void deselectAll();
             

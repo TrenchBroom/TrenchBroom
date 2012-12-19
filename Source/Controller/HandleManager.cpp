@@ -27,7 +27,8 @@ namespace TrenchBroom {
         Hit(type, hitPoint, distance),
         m_vertex(vertex) {
             assert(type == HitType::VertexHandleHit ||
-                   type == HitType::EdgeHandleHit);
+                   type == HitType::EdgeHandleHit ||
+                   type == HitType::FaceHandleHit);
         }
         
         bool VertexHandleHit::pickable(Filter& filter) const {
@@ -55,6 +56,15 @@ namespace TrenchBroom {
             return mapIt->second;
         }
         
+        const Model::FaceList& HandleManager::faces(const Vec3f& handlePosition) const {
+            Model::VertexToFacesMap::const_iterator mapIt = m_selectedFaceHandles.find(handlePosition);
+            if (mapIt == m_selectedFaceHandles.end())
+                mapIt = m_unselectedFaceHandles.find(handlePosition);
+            if (mapIt == m_unselectedFaceHandles.end())
+                return Model::EmptyFaceList;
+            return mapIt->second;
+        }
+
         void HandleManager::add(Model::Brush& brush) {
             const Model::VertexList& brushVertices = brush.vertices();
             Model::VertexList::const_iterator vIt, vEnd;
@@ -78,6 +88,19 @@ namespace TrenchBroom {
                 else
                     m_unselectedEdgeHandles[position].push_back(&edge);
             }
+            
+            const Model::FaceList& brushFaces = brush.faces();
+            Model::FaceList::const_iterator fIt, fEnd;
+            for (fIt = brushFaces.begin(), fEnd = brushFaces.end(); fIt != fEnd; ++fIt) {
+                Model::Face& face = **fIt;
+                Vec3f position = face.center();
+                Model::VertexToFacesMap::iterator mapIt = m_selectedFaceHandles.find(position);
+                if (mapIt != m_selectedFaceHandles.end())
+                    mapIt->second.push_back(&face);
+                else
+                    m_unselectedFaceHandles[position].push_back(&face);
+            }
+            
             m_renderStateValid = false;
         }
         
@@ -104,6 +127,16 @@ namespace TrenchBroom {
                 if (!removeHandle(position, edge, m_selectedEdgeHandles))
                     removeHandle(position, edge, m_unselectedEdgeHandles);
             }
+            
+            const Model::FaceList& brushFaces = brush.faces();
+            Model::FaceList::const_iterator fIt, fEnd;
+            for (fIt = brushFaces.begin(), fEnd = brushFaces.end(); fIt != fEnd; ++fIt) {
+                Model::Face& face = **fIt;
+                Vec3f position = face.center();
+                if (!removeHandle(position, face, m_selectedFaceHandles))
+                    removeHandle(position, face, m_unselectedFaceHandles);
+            }
+            
             m_renderStateValid = false;
         }
         
@@ -118,6 +151,8 @@ namespace TrenchBroom {
             m_selectedVertexHandles.clear();
             m_unselectedEdgeHandles.clear();
             m_selectedEdgeHandles.clear();
+            m_unselectedFaceHandles.clear();
+            m_selectedFaceHandles.clear();
             m_renderStateValid = false;
         }
 
@@ -179,16 +214,48 @@ namespace TrenchBroom {
             m_renderStateValid = false;
         }
         
+        void HandleManager::selectFaceHandle(const Vec3f& position) {
+            if (moveHandle(position, m_unselectedFaceHandles, m_selectedFaceHandles))
+                m_renderStateValid = false;
+        }
+        
+        void HandleManager::deselectFaceHandle(const Vec3f& position) {
+            if (moveHandle(position, m_selectedFaceHandles, m_unselectedFaceHandles))
+                m_renderStateValid = false;
+        }
+        
+        void HandleManager::selectFaceHandles(const Model::FaceList& faces) {
+            Model::FaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                const Model::Face& face = **it;
+                selectFaceHandle(face.center());
+            }
+        }
+        
+        void HandleManager::deselectFaceHandles() {
+            Model::VertexToFacesMap::const_iterator fIt, fEnd;
+            for (fIt = m_selectedFaceHandles.begin(), fEnd = m_selectedFaceHandles.end(); fIt != fEnd; ++fIt) {
+                const Vec3f& position = fIt->first;
+                const Model::FaceList& selectedFaces = fIt->second;
+                Model::FaceList& unselectedFaces = m_unselectedFaceHandles[position];
+                unselectedFaces.insert(unselectedFaces.begin(), selectedFaces.begin(), selectedFaces.end());
+            }
+            m_selectedFaceHandles.clear();
+            m_renderStateValid = false;
+        }
+
         void HandleManager::deselectAll() {
             deselectVertexHandles();
             deselectEdgeHandles();
+            deselectFaceHandles();
         }
         
         void HandleManager::pick(const Ray& ray, Model::PickResult& pickResult, bool splitMode) const {
             Model::VertexToBrushesMap::const_iterator vIt, vEnd;
             Model::VertexToEdgesMap::const_iterator eIt, eEnd;
+            Model::VertexToFacesMap::const_iterator fIt, fEnd;
             
-            if (m_selectedEdgeHandles.empty() || splitMode) {
+            if ((m_selectedEdgeHandles.empty() && m_selectedFaceHandles.empty()) || splitMode) {
                 for (vIt = m_unselectedVertexHandles.begin(), vEnd = m_unselectedVertexHandles.end(); vIt != vEnd; ++vIt) {
                     const Vec3f& position = vIt->first;
                     Model::VertexHandleHit* hit = pickHandle(ray, position, Model::HitType::VertexHandleHit);
@@ -204,7 +271,7 @@ namespace TrenchBroom {
                     pickResult.add(hit);
             }
             
-            if (m_selectedVertexHandles.empty() && !splitMode) {
+            if (m_selectedVertexHandles.empty() && m_selectedFaceHandles.empty() && !splitMode) {
                 for (eIt = m_unselectedEdgeHandles.begin(), eEnd = m_unselectedEdgeHandles.end(); eIt != eEnd; ++eIt) {
                     const Vec3f& position = eIt->first;
                     Model::VertexHandleHit* hit = pickHandle(ray, position, Model::HitType::EdgeHandleHit);
@@ -219,6 +286,22 @@ namespace TrenchBroom {
                 if (hit != NULL)
                     pickResult.add(hit);
             }
+            
+            if (m_selectedVertexHandles.empty() && m_selectedEdgeHandles.empty() && !splitMode) {
+                for (fIt = m_unselectedFaceHandles.begin(), fEnd = m_unselectedFaceHandles.end(); fIt != fEnd; ++fIt) {
+                    const Vec3f& position = fIt->first;
+                    Model::VertexHandleHit* hit = pickHandle(ray, position, Model::HitType::FaceHandleHit);
+                    if (hit != NULL)
+                        pickResult.add(hit);
+                }
+            }
+            
+            for (fIt = m_selectedFaceHandles.begin(), fEnd = m_selectedFaceHandles.end(); fIt != fEnd; ++fIt) {
+                const Vec3f& position = fIt->first;
+                Model::VertexHandleHit* hit = pickHandle(ray, position, Model::HitType::FaceHandleHit);
+                if (hit != NULL)
+                    pickResult.add(hit);
+            }
         }
         
         void HandleManager::render(Renderer::Vbo& vbo, Renderer::RenderContext& renderContext, bool splitMode) {
@@ -228,35 +311,44 @@ namespace TrenchBroom {
 
                 Model::VertexToBrushesMap::const_iterator vIt, vEnd;
                 Model::VertexToEdgesMap::const_iterator eIt, eEnd;
+                Model::VertexToFacesMap::const_iterator fIt, fEnd;
 
-                if (m_selectedEdgeHandles.empty() || splitMode) {
+                if ((m_selectedEdgeHandles.empty() && m_selectedFaceHandles.empty()) || splitMode) {
                     for (vIt = m_unselectedVertexHandles.begin(), vEnd = m_unselectedVertexHandles.end(); vIt != vEnd; ++vIt) {
                         const Vec3f& position = vIt->first;
                         m_unselectedHandleRenderer->add(position);
                     }
                 }
                 
-                if (!m_selectedEdgeHandles.empty()) {
-                    for (eIt = m_selectedEdgeHandles.begin(), eEnd = m_selectedEdgeHandles.end(); eIt != eEnd; ++eIt) {
-                        const Vec3f& position = eIt->first;
-                        m_selectedHandleRenderer->add(position);
-                    }
+                for (vIt = m_selectedVertexHandles.begin(), vEnd = m_selectedVertexHandles.end(); vIt != vEnd; ++vIt) {
+                    const Vec3f& position = vIt->first;
+                    m_selectedHandleRenderer->add(position);
                 }
 
-                if (m_selectedVertexHandles.empty() && !splitMode) {
+                if (m_selectedVertexHandles.empty() && m_selectedFaceHandles.empty() && !splitMode) {
                     for (eIt = m_unselectedEdgeHandles.begin(), eEnd = m_unselectedEdgeHandles.end(); eIt != eEnd; ++eIt) {
                         const Vec3f& position = eIt->first;
                         m_unselectedHandleRenderer->add(position);
                     }
                 }
                 
-                if (!m_selectedVertexHandles.empty()) {
-                    for (vIt = m_selectedVertexHandles.begin(), vEnd = m_selectedVertexHandles.end(); vIt != vEnd; ++vIt) {
-                        const Vec3f& position = vIt->first;
-                        m_selectedHandleRenderer->add(position);
+                for (eIt = m_selectedEdgeHandles.begin(), eEnd = m_selectedEdgeHandles.end(); eIt != eEnd; ++eIt) {
+                    const Vec3f& position = eIt->first;
+                    m_selectedHandleRenderer->add(position);
+                }
+                
+                if (m_selectedVertexHandles.empty() && m_selectedEdgeHandles.empty() && !splitMode) {
+                    for (fIt = m_unselectedFaceHandles.begin(), fEnd = m_unselectedFaceHandles.end(); fIt != fEnd; ++fIt) {
+                        const Vec3f& position = fIt->first;
+                        m_unselectedHandleRenderer->add(position);
                     }
                 }
                 
+                for (fIt = m_selectedFaceHandles.begin(), fEnd = m_selectedFaceHandles.end(); fIt != fEnd; ++fIt) {
+                    const Vec3f& position = fIt->first;
+                    m_selectedHandleRenderer->add(position);
+                }
+
                 m_renderStateValid = true;
             }
             

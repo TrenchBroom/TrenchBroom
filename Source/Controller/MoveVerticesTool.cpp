@@ -20,8 +20,10 @@
 #include "MoveVerticesTool.h"
 
 #include "Controller/MoveEdgesCommand.h"
+#include "Controller/MoveFacesCommand.h"
 #include "Controller/MoveVerticesCommand.h"
 #include "Controller/SplitEdgesCommand.h"
+#include "Controller/SplitFacesCommand.h"
 #include "Model/EditStateManager.h"
 #include "Model/MapDocument.h"
 #include "Renderer/RenderContext.h"
@@ -53,6 +55,18 @@ namespace TrenchBroom {
             const Model::VertexToEdgesMap& selectedEdgeHandles = m_handleManager.selectedEdgeHandles();
             for (eIt = selectedEdgeHandles.begin(), eEnd = selectedEdgeHandles.end(); eIt != eEnd; ++eIt) {
                 const Vec3f& position = eIt->first;
+                float distanceToClosestPoint;
+                float squaredDistance = inputState.pickRay().squaredDistanceToPoint(position, distanceToClosestPoint);
+                if (squaredDistance < closestSquaredDistance) {
+                    closestSquaredDistance = squaredDistance;
+                    closestVertex = position;
+                }
+            }
+            
+            Model::VertexToFacesMap::const_iterator fIt, fEnd;
+            const Model::VertexToFacesMap& selectedFaceHandles = m_handleManager.selectedFaceHandles();
+            for (fIt = selectedFaceHandles.begin(), fEnd = selectedFaceHandles.end(); fIt != fEnd; ++fIt) {
+                const Vec3f& position = fIt->first;
                 float distanceToClosestPoint;
                 float squaredDistance = inputState.pickRay().squaredDistanceToPoint(position, distanceToClosestPoint);
                 if (squaredDistance < closestSquaredDistance) {
@@ -104,12 +118,13 @@ namespace TrenchBroom {
                 (inputState.modifierKeys() != ModifierKeys::MKNone && inputState.modifierKeys() != ModifierKeys::MKCtrlCmd))
                 return false;
             
-            Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit | Model::HitType::EdgeHandleHit, true, view().filter()));
+            Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit | Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));
             if (hit == NULL)
                 return false;
 
             if (hit->type() == Model::HitType::VertexHandleHit) {
                 m_handleManager.deselectEdgeHandles();
+                m_handleManager.deselectFaceHandles();
                 bool selected = m_handleManager.vertexHandleSelected(hit->vertex());
                 if (inputState.modifierKeys() == ModifierKeys::MKCtrlCmd) {
                     if (selected)
@@ -122,6 +137,7 @@ namespace TrenchBroom {
                 }
             } else if (hit->type() == Model::HitType::EdgeHandleHit) {
                 m_handleManager.deselectVertexHandles();
+                m_handleManager.deselectFaceHandles();
                 bool selected = m_handleManager.edgeHandleSelected(hit->vertex());
                 if (inputState.modifierKeys() == ModifierKeys::MKCtrlCmd) {
                     if (selected)
@@ -131,6 +147,19 @@ namespace TrenchBroom {
                 } else {
                     m_handleManager.deselectAll();
                     m_handleManager.selectEdgeHandle(hit->vertex());
+                }
+            } else if (hit->type() == Model::HitType::FaceHandleHit) {
+                m_handleManager.deselectVertexHandles();
+                m_handleManager.deselectEdgeHandles();
+                bool selected = m_handleManager.faceHandleSelected(hit->vertex());
+                if (inputState.modifierKeys() == ModifierKeys::MKCtrlCmd) {
+                    if (selected)
+                        m_handleManager.deselectFaceHandle(hit->vertex());
+                    else
+                        m_handleManager.selectFaceHandle(hit->vertex());
+                } else {
+                    m_handleManager.deselectAll();
+                    m_handleManager.selectFaceHandle(hit->vertex());
                 }
             }
             m_mode = VMMove;
@@ -144,12 +173,15 @@ namespace TrenchBroom {
                 inputState.modifierKeys() != ModifierKeys::MKNone)
                 return false;
 
-            Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::EdgeHandleHit, true, view().filter()));
+            Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));
             if (hit == NULL)
                 return false;
             
             m_handleManager.deselectAll();
-            m_handleManager.selectEdgeHandle(hit->vertex());
+            if (hit->type() == Model::HitType::EdgeHandleHit)
+                m_handleManager.selectEdgeHandle(hit->vertex());
+            else
+                m_handleManager.selectFaceHandle(hit->vertex());
             m_mode = VMSplit;
             
             updateMoveHandle(inputState);
@@ -198,14 +230,26 @@ namespace TrenchBroom {
             
             wxString name;
             if (m_mode == VMMove) {
-                assert(m_handleManager.selectedVertexHandles().size() > 0 ^ m_handleManager.selectedEdgeHandles().size() > 0);
+                assert(m_handleManager.selectedVertexHandles().size() > 0 ^
+                       m_handleManager.selectedEdgeHandles().size() > 0 ^
+                       m_handleManager.selectedFaceHandles().size() > 0);
+                
                 if (!m_handleManager.selectedVertexHandles().empty())
                     name = m_handleManager.selectedVertexHandles().size() == 1 ? wxT("Move Vertex") : wxT("Move Vertices");
                 else if (!m_handleManager.selectedEdgeHandles().empty())
                     name = m_handleManager.selectedEdgeHandles().size() == 1 ? wxT("Move Edge") : wxT("Move Edges");
+                else if (!m_handleManager.selectedFaceHandles().empty())
+                    name = m_handleManager.selectedFaceHandles().size() == 1 ? wxT("Move Face") : wxT("Move Faces");
             } else {
-                assert(m_handleManager.selectedVertexHandles().size() == 0 && m_handleManager.selectedEdgeHandles().size() > 0);
-                name = wxT("Split Edge");
+                assert(m_handleManager.selectedVertexHandles().size() == 0 &&
+                       (m_handleManager.selectedEdgeHandles().size() == 1 ^
+                        m_handleManager.selectedFaceHandles().size() == 1)
+                       );
+                
+                if (!m_handleManager.selectedEdgeHandles().empty())
+                    name = wxT("Split Edge");
+                else
+                    name = wxT("Split Face");
             }
             
             initialPoint = hit->hitPoint();
@@ -237,6 +281,10 @@ namespace TrenchBroom {
                 return true;
             
             if (m_mode == VMMove) {
+                assert(m_handleManager.selectedVertexHandles().size() > 0 ^
+                       m_handleManager.selectedEdgeHandles().size() > 0 ^
+                       m_handleManager.selectedFaceHandles().size() > 0);
+                
                 if (!m_handleManager.selectedVertexHandles().empty()) {
                     MoveVerticesCommand* command = MoveVerticesCommand::moveVertices(document(), m_handleManager.selectedVertexHandles(), delta);
                     m_handleManager.remove(command->brushes());
@@ -256,23 +304,52 @@ namespace TrenchBroom {
                     submitCommand(command);
                     m_handleManager.add(command->brushes());
                     m_handleManager.selectEdgeHandles(command->edges());
+                } else if (!m_handleManager.selectedFaceHandles().empty()) {
+                    MoveFacesCommand* command = MoveFacesCommand::moveFaces(document(), m_handleManager.selectedFaceHandles(), delta);
+                    m_handleManager.remove(command->brushes());
+                    
+                    submitCommand(command);
+                    m_handleManager.add(command->brushes());
+                    m_handleManager.selectFaceHandles(command->faces());
                 }
             } else {
-                assert(m_handleManager.selectedEdgeHandles().size() == 1);
-                const Vec3f& position = m_handleManager.selectedEdgeHandles().begin()->first;
-                
-                SplitEdgesCommand* command = SplitEdgesCommand::splitEdges(document(), m_handleManager.edges(position), delta);
-                m_handleManager.remove(command->brushes());
-                
-                if (submitCommand(command)) {
-                    m_handleManager.add(command->brushes());
-                    const Vec3f::Set& vertices = command->vertices();
-                    assert(!vertices.empty());
-                    m_handleManager.selectVertexHandles(command->vertices());
-                    m_mode = VMMove;
-                } else {
-                    m_handleManager.add(command->brushes());
-                    m_handleManager.selectEdgeHandle(position);
+                assert(m_handleManager.selectedVertexHandles().size() == 0 &&
+                       (m_handleManager.selectedEdgeHandles().size() == 1 ^
+                        m_handleManager.selectedFaceHandles().size() == 1)
+                       );
+
+                if (!m_handleManager.selectedEdgeHandles().empty()) {
+                    const Vec3f& position = m_handleManager.selectedEdgeHandles().begin()->first;
+                    
+                    SplitEdgesCommand* command = SplitEdgesCommand::splitEdges(document(), m_handleManager.edges(position), delta);
+                    m_handleManager.remove(command->brushes());
+                    
+                    if (submitCommand(command)) {
+                        m_handleManager.add(command->brushes());
+                        const Vec3f::Set& vertices = command->vertices();
+                        assert(!vertices.empty());
+                        m_handleManager.selectVertexHandles(command->vertices());
+                        m_mode = VMMove;
+                    } else {
+                        m_handleManager.add(command->brushes());
+                        m_handleManager.selectEdgeHandle(position);
+                    }
+                } else if (!m_handleManager.selectedFaceHandles().empty()) {
+                    const Vec3f& position = m_handleManager.selectedFaceHandles().begin()->first;
+                    
+                    SplitFacesCommand* command = SplitFacesCommand::splitFaces(document(), m_handleManager.faces(position), delta);
+                    m_handleManager.remove(command->brushes());
+                    
+                    if (submitCommand(command)) {
+                        m_handleManager.add(command->brushes());
+                        const Vec3f::Set& vertices = command->vertices();
+                        assert(!vertices.empty());
+                        m_handleManager.selectVertexHandles(command->vertices());
+                        m_mode = VMMove;
+                    } else {
+                        m_handleManager.add(command->brushes());
+                        m_handleManager.selectFaceHandle(position);
+                    }
                 }
             }
             

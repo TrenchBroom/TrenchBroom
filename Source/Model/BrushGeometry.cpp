@@ -450,10 +450,9 @@ namespace TrenchBroom {
             flipped[2] = sideEdges[2]->left == sideToTriangulate;
 
             newSide = new Side(sideEdges, flipped, 3);
-            newSide->face = new Face(sideToTriangulate->face->worldBounds(), *sideToTriangulate->face);
+            newSide->face = sideToTriangulate->face;
             newSide->face->setSide(newSide);
             sides.push_back(newSide);
-            newFaces.push_back(newSide->face);
         }
 
         void BrushGeometry::splitSide(Side* sideToSplit, Vertex* vertex, FaceList& newFaces) {
@@ -503,15 +502,7 @@ namespace TrenchBroom {
                         assert(sanityCheck());
                     } else { // movement direction is upward out of the side or parallel to the side's boundary plane
                         triangulateSide(side, vertex, newFaces);
-                        FaceList::iterator faceIt = find(newFaces.begin(), newFaces.end(), side->face);
-                        if (faceIt != newFaces.end()) {
-                            delete side->face;
-                            newFaces.erase(faceIt);
-                        } else {
-                            droppedFaces.push_back(side->face);
-                        }
                         side->face = NULL;
-
                         bool success = deleteElement(sides, side);
                         assert(success);
                         assert(sanityCheck());
@@ -633,7 +624,7 @@ namespace TrenchBroom {
             }
         }
 
-        void BrushGeometry::mergeNeighbours(Side* side, size_t edgeIndex) {
+        Face* BrushGeometry::mergeNeighbours(Side* side, size_t edgeIndex, const FaceList& newFaces) {
             Vertex* vertex;
             Edge* edge = side->edges[edgeIndex];
             Side* neighbour = edge->left != side ? edge->left : edge->right;
@@ -697,12 +688,23 @@ namespace TrenchBroom {
                     assert(edge->left != neighbour);
             }
 
-            neighbour->face->setSide(NULL);
+            // attempt to keep original faces instead of newly created faces when merging
+            if (std::find(newFaces.begin(), newFaces.end(), neighbour->face) == newFaces.end()) {
+                Face* face = neighbour->face;
+                neighbour->face = side->face;
+                neighbour->face->setSide(neighbour);
+                
+                side->face = face;
+                side->face->setSide(side);
+            }
+            
+            Face* dropFace = neighbour->face;
             bool success = deleteElement<Side>(sides, neighbour);
             assert(success);
 
             assert(side->vertices.size() == totalVertexCount);
             assert(side->edges.size() == totalVertexCount);
+            return dropFace;
         }
 
         void BrushGeometry::mergeSides(FaceList& newFaces, FaceList&droppedFaces) {
@@ -722,15 +724,14 @@ namespace TrenchBroom {
                                                 neighbour->vertices[2]->position);
 
                     if (sideBoundary.equals(neighbourBoundary)) {
-                        Face* neighbourFace = neighbour->face;
-                        mergeNeighbours(side, j);
+                        Face* dropFace = mergeNeighbours(side, j, newFaces);
 
-                        FaceList::iterator faceIt = find(newFaces.begin(), newFaces.end(), neighbourFace);
+                        FaceList::iterator faceIt = find(newFaces.begin(), newFaces.end(), dropFace);
                         if (faceIt != newFaces.end()) {
-                            delete neighbourFace;
+                            delete dropFace;
                             newFaces.erase(faceIt);
                         } else {
-                            droppedFaces.push_back(neighbourFace);
+                            droppedFaces.push_back(dropFace);
                         }
 
                         i -= 1;
@@ -1493,14 +1494,14 @@ namespace TrenchBroom {
             return newVertexPositions;
         }
 
-        bool BrushGeometry::canMoveEdges(const Model::EdgeList& edges, const Vec3f& delta) {
+        bool BrushGeometry::canMoveEdges(const EdgeList& edges, const Vec3f& delta) {
             FaceList newFaces;
             FaceList droppedFaces;
             
             Vec3f::Set sortedVertexPositions;
-            Model::EdgeList::const_iterator edgeIt, edgeEnd;
+            EdgeList::const_iterator edgeIt, edgeEnd;
             for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
-                const Model::Edge& edge = **edgeIt;
+                const Edge& edge = **edgeIt;
                 sortedVertexPositions.insert(edge.start->position);
                 sortedVertexPositions.insert(edge.end->position);
             }
@@ -1521,15 +1522,73 @@ namespace TrenchBroom {
             return canMove;
         }
     
-        void BrushGeometry::moveEdges(const Model::EdgeList& edges, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces) {
+        void BrushGeometry::moveEdges(const EdgeList& edges, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces) {
             assert(canMoveEdges(edges, delta));
 
             Vec3f::Set sortedVertexPositions;
-            Model::EdgeList::const_iterator edgeIt, edgeEnd;
+            EdgeList::const_iterator edgeIt, edgeEnd;
             for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
-                const Model::Edge& edge = **edgeIt;
+                const Edge& edge = **edgeIt;
                 sortedVertexPositions.insert(edge.start->position);
                 sortedVertexPositions.insert(edge.end->position);
+            }
+
+            Vec3f::Set::const_iterator vertexIt, vertexEnd;
+            for (vertexIt = sortedVertexPositions.begin(), vertexEnd = sortedVertexPositions.end(); vertexIt != vertexEnd; ++vertexIt) {
+                const Vec3f& vertexPosition = *vertexIt;
+                Vertex* vertex = findVertex(vertices, vertexPosition);
+                assert(vertex != NULL);
+                
+                MoveVertexResult result = moveVertex(vertex, false, delta, newFaces, droppedFaces);
+                assert(result.type == MoveVertexResult::VertexMoved);
+            }
+        }
+
+        bool BrushGeometry::canMoveFaces(const FaceList& faces, const Vec3f& delta) {
+            FaceList newFaces;
+            FaceList droppedFaces;
+            
+            Vec3f::Set sortedVertexPositions;
+            FaceList::const_iterator faceIt, faceEnd;
+            for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
+                const Face& face = **faceIt;
+                const VertexList& vertices = face.vertices();
+                VertexList::const_iterator vertexIt, vertexEnd;
+                for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt) {
+                    const Vertex& vertex = **vertexIt;
+                    sortedVertexPositions.insert(vertex.position);
+                }
+            }
+            
+            bool canMove = true;
+            BrushGeometry testGeometry(*this);
+            Vec3f::Set::const_iterator vertexIt, vertexEnd;
+            for (vertexIt = sortedVertexPositions.begin(), vertexEnd = sortedVertexPositions.end(); vertexIt != vertexEnd && canMove; ++vertexIt) {
+                const Vec3f& vertexPosition = *vertexIt;
+                Vertex* vertex = findVertex(testGeometry.vertices, vertexPosition);
+                assert(vertex != NULL);
+                
+                MoveVertexResult result = testGeometry.moveVertex(vertex, true, delta, newFaces, droppedFaces);
+                canMove = result.type == MoveVertexResult::VertexMoved;
+            }
+            while (!newFaces.empty()) delete newFaces.back(), newFaces.pop_back();
+            restoreFaceSides();
+            return canMove;
+        }
+        
+        void BrushGeometry::moveFaces(const FaceList& faces, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces) {
+            assert(canMoveFaces(faces, delta));
+
+            Vec3f::Set sortedVertexPositions;
+            FaceList::const_iterator faceIt, faceEnd;
+            for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
+                const Face& face = **faceIt;
+                const VertexList& vertices = face.vertices();
+                VertexList::const_iterator vertexIt, vertexEnd;
+                for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt) {
+                    const Vertex& vertex = **vertexIt;
+                    sortedVertexPositions.insert(vertex.position);
+                }
             }
 
             Vec3f::Set::const_iterator vertexIt, vertexEnd;

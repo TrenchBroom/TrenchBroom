@@ -201,7 +201,7 @@ namespace TrenchBroom {
             
             FaceList::const_iterator faceIt, faceEnd;
             for (faceIt = m_faces.begin(), faceEnd = m_faces.end(); faceIt != faceEnd; ++faceIt) {
-                Model::Face& face = **faceIt;
+                Face& face = **faceIt;
                 face.translate(delta, lockTextures);
             }
 
@@ -257,19 +257,19 @@ namespace TrenchBroom {
             Vec3f::List newVertexPositions = m_geometry->moveVertices(vertexPositions, delta, newFaces, droppedFaces);
             
             for (FaceList::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
-                Model::Face* face = *it;
+                Face* face = *it;
                 face->setBrush(NULL);
                 m_faces.erase(std::remove(m_faces.begin(), m_faces.end(), face), m_faces.end());
                 delete face;
             }
             
             for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
-                Model::Face* face = *it;
+                Face* face = *it;
                 face->invalidateVertexCache();
             }
             
             for (FaceList::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
-                Model::Face* face = *it;
+                Face* face = *it;
                 face->setBrush(this);
                 m_faces.push_back(face);
             }
@@ -278,30 +278,61 @@ namespace TrenchBroom {
             return newVertexPositions;
         }
 
-        bool Brush::canMoveEdges(const Model::EdgeList& edges, const Vec3f& delta) {
+        bool Brush::canMoveEdges(const EdgeList& edges, const Vec3f& delta) {
             return m_geometry->canMoveEdges(edges, delta);
         }
         
-        void Brush::moveEdges(const Model::EdgeList& edges, const Vec3f& delta) {
+        void Brush::moveEdges(const EdgeList& edges, const Vec3f& delta) {
             FaceList newFaces;
             FaceList droppedFaces;
             
             m_geometry->moveEdges(edges, delta, newFaces, droppedFaces);
             
             for (FaceList::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
-                Model::Face* face = *it;
+                Face* face = *it;
                 face->setBrush(NULL);
                 m_faces.erase(std::remove(m_faces.begin(), m_faces.end(), face), m_faces.end());
                 delete face;
             }
             
             for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
-                Model::Face* face = *it;
+                Face* face = *it;
                 face->invalidateVertexCache();
             }
             
             for (FaceList::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
-                Model::Face* face = *it;
+                Face* face = *it;
+                face->setBrush(this);
+                m_faces.push_back(face);
+            }
+            
+            m_entity->invalidateGeometry();
+        }
+
+        bool Brush::canMoveFaces(const FaceList& faces, const Vec3f& delta) {
+            return m_geometry->canMoveFaces(faces, delta);
+        }
+        
+        void Brush::moveFaces(const FaceList& faces, const Vec3f& delta) {
+            FaceList newFaces;
+            FaceList droppedFaces;
+            
+            m_geometry->moveFaces(faces, delta, newFaces, droppedFaces);
+            
+            for (FaceList::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
+                Face* face = *it;
+                face->setBrush(NULL);
+                m_faces.erase(std::remove(m_faces.begin(), m_faces.end(), face), m_faces.end());
+                delete face;
+            }
+            
+            for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
+                Face* face = *it;
+                face->invalidateVertexCache();
+            }
+            
+            for (FaceList::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
+                Face* face = *it;
                 face->setBrush(this);
                 m_faces.push_back(face);
             }
@@ -320,19 +351,19 @@ namespace TrenchBroom {
             Vec3f newVertexPosition = m_geometry->splitEdge(edge, delta, newFaces, droppedFaces);
             
             for (FaceList::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
-                Model::Face* face = *it;
+                Face* face = *it;
                 face->setBrush(NULL);
                 m_faces.erase(std::remove(m_faces.begin(), m_faces.end(), face), m_faces.end());
                 delete face;
             }
             
             for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
-                Model::Face* face = *it;
+                Face* face = *it;
                 face->invalidateVertexCache();
             }
             
             for (FaceList::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
-                Model::Face* face = *it;
+                Face* face = *it;
                 face->setBrush(this);
                 m_faces.push_back(face);
             }
@@ -352,19 +383,19 @@ namespace TrenchBroom {
             Vec3f newVertexPosition = m_geometry->splitFace(face, delta, newFaces, droppedFaces);
             
             for (FaceList::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
-                Model::Face* face = *it;
+                Face* face = *it;
                 face->setBrush(NULL);
                 m_faces.erase(std::remove(m_faces.begin(), m_faces.end(), face), m_faces.end());
                 delete face;
             }
             
             for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
-                Model::Face* face = *it;
+                Face* face = *it;
                 face->invalidateVertexCache();
             }
             
             for (FaceList::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
-                Model::Face* face = *it;
+                Face* face = *it;
                 face->setBrush(this);
                 m_faces.push_back(face);
             }

@@ -21,6 +21,7 @@
 #define TrenchBroom_BrushGeometryTypes_h
 
 #include "Model/BrushTypes.h"
+#include "Model/FaceTypes.h"
 #include "Utility/VecMath.h"
 
 #include <map>
@@ -44,6 +45,7 @@ namespace TrenchBroom {
         
         typedef std::map<Vec3f, Model::BrushList, Vec3f::LexicographicOrder> VertexToBrushesMap;
         typedef std::map<Vec3f, Model::EdgeList, Vec3f::LexicographicOrder> VertexToEdgesMap;
+        typedef std::map<Vec3f, Model::FaceList, Vec3f::LexicographicOrder> VertexToFacesMap;
     }
 }
 
