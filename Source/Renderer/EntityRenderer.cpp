@@ -76,7 +76,8 @@ namespace TrenchBroom {
         }
 
         void EntityRenderer::validateBounds(RenderContext& context) {
-            m_boundsVertexArray = VertexArrayPtr(NULL);
+            delete m_boundsVertexArray;
+            m_boundsVertexArray = NULL;
             
             Model::EntityList entities;
             Model::EntitySet::iterator entityIt, entityEnd;
@@ -89,24 +90,21 @@ namespace TrenchBroom {
             if (entities.empty())
                 return;
             
-            m_boundsVbo.activate();
-            m_boundsVbo.map();
+            SetVboState mapVbo(m_boundsVbo, Vbo::VboMapped);
             
             if (m_overrideBoundsColor) {
                 unsigned int vertexCount = 2 * 4 * 6 * static_cast<unsigned int>(entities.size());
-                m_boundsVertexArray = VertexArrayPtr(new VertexArray(m_boundsVbo, GL_LINES, vertexCount,
-                                                                     Attribute::position3f()));
+                m_boundsVertexArray = new VertexArray(m_boundsVbo, GL_LINES, vertexCount,
+                                                      Attribute::position3f());
                 writeBounds(context, entities);
             } else {
                 unsigned int vertexCount = 2 * 4 * 6 * static_cast<unsigned int>(entities.size());
-                m_boundsVertexArray = VertexArrayPtr(new VertexArray(m_boundsVbo, GL_LINES, vertexCount,
-                                                                     Attribute::position3f(),
-                                                                     Attribute::color4f()));
+                m_boundsVertexArray = new VertexArray(m_boundsVbo, GL_LINES, vertexCount,
+                                                      Attribute::position3f(),
+                                                      Attribute::color4f());
                 writeColoredBounds(context, entities);
             }
             
-            m_boundsVbo.unmap();
-            m_boundsVbo.deactivate();
             m_boundsValid = true;
         }
         
@@ -126,7 +124,7 @@ namespace TrenchBroom {
         }
 
         void EntityRenderer::renderBounds(RenderContext& context) {
-            if (m_boundsVertexArray.get() == NULL)
+            if (m_boundsVertexArray == NULL)
                 return;
             
             ShaderManager& shaderManager = m_document.sharedResources().shaderManager();
@@ -212,6 +210,7 @@ namespace TrenchBroom {
         EntityRenderer::EntityRenderer(Vbo& boundsVbo, Model::MapDocument& document) :
         m_boundsVbo(boundsVbo),
         m_document(document),
+        m_boundsVertexArray(NULL),
         m_modelRendererCacheValid(true),
         m_boundsValid(true),
         m_classnameColor(1.0f, 1.0f, 1.0f, 1.0f),
@@ -222,9 +221,16 @@ namespace TrenchBroom {
         m_applyTinting(false),
         m_grayscale(false) {
             Text::StringManager& stringManager = m_document.sharedResources().stringManager();
-            m_classnameRenderer = EntityClassnameRendererPtr(new EntityClassnameRenderer(stringManager));
+            m_classnameRenderer = new EntityClassnameRenderer(stringManager);
         }
         
+        EntityRenderer::~EntityRenderer() {
+            delete m_boundsVertexArray;
+            m_boundsVertexArray = NULL;
+            delete m_classnameRenderer;
+            m_classnameRenderer = NULL;
+        }
+
         void EntityRenderer::setClassnameFadeDistance(float classnameFadeDistance) {
             m_classnameRenderer->setFadeDistance(classnameFadeDistance);
         }

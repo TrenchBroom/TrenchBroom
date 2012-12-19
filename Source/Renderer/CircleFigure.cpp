@@ -32,13 +32,15 @@ namespace TrenchBroom {
         m_angleLength(angleLength),
         m_radius(radius),
         m_segments(segments),
-        m_filled(filled) {}
+        m_filled(filled),
+        m_vertexArray(NULL) {}
         
         CircleFigure::CircleFigure(Axis::Type normal, const Vec3f& startAxis, const Vec3f& endAxis, float radius, unsigned int segments, bool filled) :
         m_normal(normal),
         m_radius(radius),
         m_segments(segments),
-        m_filled(filled) {
+        m_filled(filled),
+        m_vertexArray(NULL) {
             float angle1, angle2;
             if (m_normal == Axis::AX) {
                 angle1 = startAxis.angleFrom(Vec3f::PosZ, Vec3f::PosX);
@@ -58,17 +60,22 @@ namespace TrenchBroom {
             m_startAngle = (maxAngle - minAngle <= Math::Pi ? minAngle : maxAngle);
         }
 
+        CircleFigure::~CircleFigure() {
+            delete m_vertexArray;
+            m_vertexArray = NULL;
+        }
+
         void CircleFigure::render(Vbo& vbo, RenderContext& context) {
-            SetVboState setVboState(vbo, Vbo::VboActive);
-            if (m_vertexArray.get() == NULL) {
-                SetVboState setVboState(vbo, Vbo::VboMapped);
+            SetVboState activateVbo(vbo, Vbo::VboActive);
+            if (m_vertexArray == NULL) {
+                SetVboState mapVbo(vbo, Vbo::VboMapped);
                 if (m_filled) {
-                    m_vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_TRIANGLE_FAN, m_segments + 2,
-                                                                   Attribute::position3f()));
+                    m_vertexArray = new VertexArray(vbo, GL_TRIANGLE_FAN, m_segments + 2,
+                                                    Attribute::position3f());
                     m_vertexArray->addAttribute(Vec3f::Null);
                 } else {
-                    m_vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_LINE_STRIP, m_segments + 1,
-                                                                   Attribute::position3f()));
+                    m_vertexArray = new VertexArray(vbo, GL_LINE_STRIP, m_segments + 1,
+                                                    Attribute::position3f());
                 }
 
                 float d = m_angleLength / m_segments;
@@ -86,6 +93,7 @@ namespace TrenchBroom {
                 }
             }
             
+            assert(m_vertexArray != NULL);
             m_vertexArray->render();
         }
     }

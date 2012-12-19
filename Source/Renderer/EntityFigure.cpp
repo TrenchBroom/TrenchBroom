@@ -28,19 +28,23 @@ namespace TrenchBroom {
         EntityFigure::EntityFigure(Model::MapDocument& document, Model::Entity& entity) :
         m_document(document),
         m_entity(entity),
-        m_valid(false) {}
+        m_entityRenderer(NULL) {}
+        
+        EntityFigure::~EntityFigure() {
+            delete m_entityRenderer;
+            m_entityRenderer = NULL;
+        }
         
         void EntityFigure::invalidate() {
-            if (m_entityRenderer.get() != NULL)
+            if (m_entityRenderer != NULL)
                 m_entityRenderer->invalidateBounds();
-            m_valid = false;
         }
         
         void EntityFigure::render(Vbo& vbo, RenderContext& context) {
-            if (m_entityRenderer.get() == NULL) {
+            if (m_entityRenderer == NULL) {
                 Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
-                m_entityRenderer = EntityRendererPtr(new EntityRenderer(vbo, m_document));
+                m_entityRenderer = new EntityRenderer(vbo, m_document);
                 m_entityRenderer->setClassnameFadeDistance(prefs.getFloat(Preferences::SelectedInfoOverlayFadeDistance));
                 m_entityRenderer->setClassnameColor(prefs.getColor(Preferences::SelectedInfoOverlayTextColor), prefs.getColor(Preferences::SelectedInfoOverlayBackgroundColor));
                 m_entityRenderer->setOccludedClassnameColor(prefs.getColor(Preferences::SelectedInfoOverlayTextColor), prefs.getColor(Preferences::SelectedInfoOverlayBackgroundColor));
@@ -51,8 +55,8 @@ namespace TrenchBroom {
                 m_entityRenderer->addEntity(m_entity);
             }
             
+            assert(m_entityRenderer != NULL);
             m_entityRenderer->render(context);
-            m_valid = true;
         }
     }
 }

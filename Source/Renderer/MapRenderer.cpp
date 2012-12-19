@@ -31,7 +31,6 @@
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/FaceRenderer.h"
-#include "Renderer/Figure.h"
 #include "Renderer/PointHandleRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/SharedResources.h"
@@ -59,16 +58,22 @@ namespace TrenchBroom {
 
         void MapRenderer::rebuildGeometryData(RenderContext& context) {
             if (!m_geometryDataValid) {
-                m_faceRenderer = FaceRendererPtr(NULL);
-                m_edgeRenderer = EdgeRendererPtr(NULL);
+                delete m_faceRenderer;
+                m_faceRenderer = NULL;
+                delete m_edgeRenderer;
+                m_edgeRenderer = NULL;
             }
             if (!m_selectedGeometryDataValid) {
-                m_selectedFaceRenderer = FaceRendererPtr(NULL);
-                m_selectedEdgeRenderer = EdgeRendererPtr(NULL);
+                delete m_selectedFaceRenderer;
+                m_selectedFaceRenderer = NULL;
+                delete m_selectedEdgeRenderer;
+                m_selectedEdgeRenderer = NULL;
             }
             if (!m_lockedGeometryDataValid) {
-                m_lockedFaceRenderer = FaceRendererPtr(NULL);
-                m_lockedEdgeRenderer = EdgeRendererPtr(NULL);
+                delete m_lockedFaceRenderer;
+                m_lockedFaceRenderer = NULL;
+                delete m_lockedEdgeRenderer;
+                m_lockedEdgeRenderer = NULL;
             }
             
             FaceSorter unselectedFaceSorter;
@@ -149,12 +154,20 @@ namespace TrenchBroom {
             TextureRendererManager& textureRendererManager = m_document.sharedResources().textureRendererManager();
             const Color& faceColor = prefs.getColor(Preferences::FaceColor);
 
-            if (!m_geometryDataValid && !unselectedFaceSorter.empty())
-                m_faceRenderer = FaceRendererPtr(new FaceRenderer(*m_faceVbo, textureRendererManager, unselectedFaceSorter, faceColor));
-            if (!m_selectedGeometryDataValid && !selectedFaceSorter.empty())
-                m_selectedFaceRenderer = FaceRendererPtr(new FaceRenderer(*m_faceVbo, textureRendererManager, selectedFaceSorter, faceColor));
-            if (!m_lockedGeometryDataValid && !lockedFaceSorter.empty())
-                m_lockedFaceRenderer = FaceRendererPtr(new FaceRenderer(*m_faceVbo, textureRendererManager, lockedFaceSorter, faceColor));
+            if (!m_geometryDataValid && !unselectedFaceSorter.empty()) {
+                assert(m_faceRenderer == NULL);
+                m_faceRenderer = new FaceRenderer(*m_faceVbo, textureRendererManager, unselectedFaceSorter, faceColor);
+            }
+            
+            if (!m_selectedGeometryDataValid && !selectedFaceSorter.empty()) {
+                assert(m_selectedFaceRenderer == NULL);
+                m_selectedFaceRenderer = new FaceRenderer(*m_faceVbo, textureRendererManager, selectedFaceSorter, faceColor);
+            }
+            
+            if (!m_lockedGeometryDataValid && !lockedFaceSorter.empty()) {
+                assert(m_lockedFaceRenderer == NULL);
+                m_lockedFaceRenderer = new FaceRenderer(*m_faceVbo, textureRendererManager, lockedFaceSorter, faceColor);
+            }
             
             m_faceVbo->unmap();
             m_faceVbo->deactivate();
@@ -166,12 +179,20 @@ namespace TrenchBroom {
             
             const Color& edgeColor = prefs.getColor(Preferences::EdgeColor);
 
-            if (!m_geometryDataValid && !unselectedBrushes.empty())
-                m_edgeRenderer = EdgeRendererPtr(new EdgeRenderer(*m_edgeVbo, unselectedBrushes, Model::EmptyFaceList, edgeColor));
-            if (!m_selectedGeometryDataValid && (!selectedBrushes.empty() || !partiallySelectedBrushFaces.empty()))
-                m_selectedEdgeRenderer = EdgeRendererPtr(new EdgeRenderer(*m_edgeVbo, selectedBrushes, partiallySelectedBrushFaces));
-            if (!m_lockedGeometryDataValid && !lockedBrushes.empty())
-                m_lockedEdgeRenderer = EdgeRendererPtr(new EdgeRenderer(*m_edgeVbo, lockedBrushes, Model::EmptyFaceList));
+            if (!m_geometryDataValid && !unselectedBrushes.empty()) {
+                assert(m_edgeRenderer == NULL);
+                m_edgeRenderer = new EdgeRenderer(*m_edgeVbo, unselectedBrushes, Model::EmptyFaceList, edgeColor);
+            }
+            
+            if (!m_selectedGeometryDataValid && (!selectedBrushes.empty() || !partiallySelectedBrushFaces.empty())) {
+                assert(m_selectedEdgeRenderer == NULL);
+                m_selectedEdgeRenderer = new EdgeRenderer(*m_edgeVbo, selectedBrushes, partiallySelectedBrushFaces);
+            }
+            
+            if (!m_lockedGeometryDataValid && !lockedBrushes.empty()) {
+                assert(m_lockedEdgeRenderer == NULL);
+                m_lockedEdgeRenderer = new EdgeRenderer(*m_edgeVbo, lockedBrushes, Model::EmptyFaceList);
+            }
             
             m_edgeVbo->unmap();
             m_edgeVbo->deactivate();
@@ -181,8 +202,8 @@ namespace TrenchBroom {
             m_lockedGeometryDataValid = true;
         }
         
-        void MapRenderer::deleteFigures(FigureList& figures) {
-            FigureList::iterator it, end;
+        void MapRenderer::deleteFigures(Figure::List& figures) {
+            Figure::List::const_iterator it, end;
             for (it = figures.begin(), end = figures.end(); it != end; ++it) {
                 Figure* figure = *it;
                 delete figure;
@@ -199,11 +220,11 @@ namespace TrenchBroom {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             
             m_faceVbo->activate();
-            if (m_faceRenderer.get() != NULL)
+            if (m_faceRenderer != NULL)
                 m_faceRenderer->render(context, false);
-            if (context.viewOptions().renderSelection() && m_selectedFaceRenderer.get() != NULL)
+            if (context.viewOptions().renderSelection() && m_selectedFaceRenderer != NULL)
                 m_selectedFaceRenderer->render(context, false, prefs.getColor(Preferences::SelectedFaceColor));
-            if (m_lockedFaceRenderer.get() != NULL)
+            if (m_lockedFaceRenderer != NULL)
                 m_lockedFaceRenderer->render(context, true, prefs.getColor(Preferences::LockedFaceColor));
             m_faceVbo->deactivate();
         }
@@ -212,15 +233,15 @@ namespace TrenchBroom {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             
             m_edgeVbo->activate();
-            if (m_edgeRenderer.get() != NULL) {
+            if (m_edgeRenderer != NULL) {
                 glSetEdgeOffset(0.02f);
                 m_edgeRenderer->render(context);
             }
-            if (m_lockedEdgeRenderer.get() != NULL) {
+            if (m_lockedEdgeRenderer != NULL) {
                 glSetEdgeOffset(0.02f);
                 m_edgeRenderer->render(context, prefs.getColor(Preferences::LockedEdgeColor));
             }
-            if (context.viewOptions().renderSelection() && m_selectedEdgeRenderer.get() != NULL) {
+            if (context.viewOptions().renderSelection() && m_selectedEdgeRenderer != NULL) {
                 glDisable(GL_DEPTH_TEST);
                 glSetEdgeOffset(0.02f);
                 m_selectedEdgeRenderer->render(context, prefs.getColor(Preferences::OccludedSelectedEdgeColor));
@@ -233,7 +254,7 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::renderFigures(RenderContext& context) {
-            FigureList::iterator it, end;
+            Figure::List::const_iterator it, end;
             for (it = m_figures.begin(), end = m_figures.end(); it != end; ++it) {
                 Figure* figure = *it;
                 figure->render(*m_figureVbo, context);
@@ -241,25 +262,38 @@ namespace TrenchBroom {
         }
 
         MapRenderer::MapRenderer(Model::MapDocument& document) :
-        m_document(document) {
+        m_document(document),
+        m_faceVbo(NULL),
+        m_faceRenderer(NULL),
+        m_selectedFaceRenderer(NULL),
+        m_lockedFaceRenderer(NULL),
+        m_edgeVbo(NULL),
+        m_edgeRenderer(NULL),
+        m_selectedEdgeRenderer(NULL),
+        m_lockedEdgeRenderer(NULL),
+        m_entityVbo(NULL),
+        m_entityRenderer(NULL),
+        m_selectedEntityRenderer(NULL),
+        m_lockedEntityRenderer(NULL),
+        m_figureVbo(NULL) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
             m_rendering = false;
 
-            m_faceVbo = VboPtr(new Vbo(GL_ARRAY_BUFFER, 0xFFFF));
-            m_edgeVbo = VboPtr(new Vbo(GL_ARRAY_BUFFER, 0xFFFF));
-            m_entityVbo = VboPtr(new Vbo(GL_ARRAY_BUFFER, 0xFFFF));
-            m_figureVbo = VboPtr(new Vbo(GL_ARRAY_BUFFER, 0xFFFF));
+            m_faceVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
+            m_edgeVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
+            m_entityVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
+            m_figureVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
             
             m_geometryDataValid = false;
             m_selectedGeometryDataValid = false;
             m_lockedGeometryDataValid = false;
             
-            m_entityRenderer = EntityRendererPtr(new EntityRenderer(*m_entityVbo, m_document));
+            m_entityRenderer = new EntityRenderer(*m_entityVbo, m_document);
             m_entityRenderer->setClassnameFadeDistance(prefs.getFloat(Preferences::InfoOverlayFadeDistance));
             m_entityRenderer->setClassnameColor(prefs.getColor(Preferences::InfoOverlayTextColor), prefs.getColor(Preferences::InfoOverlayBackgroundColor));
             
-            m_selectedEntityRenderer = EntityRendererPtr(new EntityRenderer(*m_entityVbo, m_document));
+            m_selectedEntityRenderer = new EntityRenderer(*m_entityVbo, m_document);
             m_selectedEntityRenderer->setClassnameFadeDistance(prefs.getFloat(Preferences::SelectedInfoOverlayFadeDistance));
             m_selectedEntityRenderer->setClassnameColor(prefs.getColor(Preferences::SelectedInfoOverlayTextColor), prefs.getColor(Preferences::SelectedInfoOverlayBackgroundColor));
             m_selectedEntityRenderer->setOccludedClassnameColor(prefs.getColor(Preferences::SelectedInfoOverlayTextColor), prefs.getColor(Preferences::SelectedInfoOverlayBackgroundColor));
@@ -267,7 +301,7 @@ namespace TrenchBroom {
             m_selectedEntityRenderer->setOccludedBoundsColor(prefs.getColor(Preferences::OccludedSelectedEntityBoundsColor));
             m_selectedEntityRenderer->setTintColor(prefs.getColor(Preferences::SelectedEntityColor));
             
-            m_lockedEntityRenderer = EntityRendererPtr(new EntityRenderer(*m_entityVbo, m_document));
+            m_lockedEntityRenderer = new EntityRenderer(*m_entityVbo, m_document);
             m_lockedEntityRenderer->setClassnameFadeDistance(prefs.getFloat(Preferences::InfoOverlayFadeDistance));
             m_lockedEntityRenderer->setClassnameColor(prefs.getColor(Preferences::LockedInfoOverlayTextColor), prefs.getColor(Preferences::LockedInfoOverlayBackgroundColor));
             m_lockedEntityRenderer->setBoundsColor(prefs.getColor(Preferences::LockedEntityBoundsColor));
@@ -278,6 +312,32 @@ namespace TrenchBroom {
         MapRenderer::~MapRenderer() {
             deleteFigures(m_deletedFigures);
             deleteFigures(m_figures);
+            delete m_figureVbo;
+            m_figureVbo = NULL;
+            delete m_lockedEntityRenderer;
+            m_lockedEntityRenderer = NULL;
+            delete m_selectedEntityRenderer;
+            m_selectedEntityRenderer = NULL;
+            delete m_entityRenderer;
+            m_entityRenderer = NULL;
+            delete m_entityVbo;
+            m_entityVbo = NULL;
+            delete m_lockedEdgeRenderer;
+            m_lockedEdgeRenderer = NULL;
+            delete m_selectedEdgeRenderer;
+            m_selectedEdgeRenderer = NULL;
+            delete m_edgeRenderer;
+            m_edgeRenderer = NULL;
+            delete m_edgeVbo;
+            m_edgeVbo = NULL;
+            delete m_lockedFaceRenderer;
+            m_lockedFaceRenderer = NULL;
+            delete m_selectedFaceRenderer;
+            m_selectedFaceRenderer = NULL;
+            delete m_faceRenderer;
+            m_faceRenderer = NULL;
+            delete m_faceVbo;
+            m_faceVbo = NULL;
         }
 
         void MapRenderer::addEntity(Model::Entity& entity) {
@@ -349,12 +409,20 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::clearMap() {
-            m_faceRenderer = FaceRendererPtr(NULL);
-            m_selectedFaceRenderer = FaceRendererPtr(NULL);
-            m_lockedFaceRenderer = FaceRendererPtr(NULL);
-            m_edgeRenderer = EdgeRendererPtr(NULL);
-            m_selectedEdgeRenderer = EdgeRendererPtr(NULL);
-            m_lockedEdgeRenderer = EdgeRendererPtr(NULL);
+            delete m_faceRenderer;
+            m_faceRenderer = NULL;
+            delete m_selectedFaceRenderer;
+            m_selectedFaceRenderer = NULL;
+            delete m_lockedFaceRenderer;
+            m_lockedFaceRenderer = NULL;
+            
+            delete m_edgeRenderer;
+            m_edgeRenderer = NULL;
+            delete m_selectedEdgeRenderer;
+            m_selectedEdgeRenderer = NULL;
+            delete m_lockedEdgeRenderer;
+            m_lockedEdgeRenderer = NULL;
+
             m_entityRenderer->clear();
             m_selectedEntityRenderer->clear();
             m_lockedEntityRenderer->clear();

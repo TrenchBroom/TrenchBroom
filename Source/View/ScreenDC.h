@@ -17,25 +17,16 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Figure_h
-#define TrenchBroom_Figure_h
+#ifndef TrenchBroom_ScreenDC_h
+#define TrenchBroom_ScreenDC_h
 
-#include <vector>
+#if defined _WIN32
+#include <WinScreenDC.h>
+typedef WinScreenDC ScreenDC;
+#else
+#include "MacScreenDC.h"
+typedef MacScreenDC ScreenDC;
+#endif
 
-namespace TrenchBroom {
-    namespace Renderer {
-        class RenderContext;
-        class Vbo;
-        
-        class Figure {
-        public:
-            typedef std::vector<Figure*> List;
-            
-            virtual ~Figure() {}
-            
-            virtual void render(Vbo& vbo, RenderContext& context) = 0;
-        };
-    }
-}
 
 #endif

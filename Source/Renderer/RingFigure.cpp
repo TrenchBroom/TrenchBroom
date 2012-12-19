@@ -32,13 +32,15 @@ namespace TrenchBroom {
         m_angleLength(angleLength),
         m_innerRadius(radius),
         m_outerRadius(radius + thickness),
-        m_segments(segments) {}
+        m_segments(segments),
+        m_vertexArray(NULL) {}
         
         RingFigure::RingFigure(Axis::Type normal, const Vec3f& startAxis, const Vec3f& endAxis, float radius, float thickness, unsigned int segments) :
         m_normal(normal),
         m_innerRadius(radius),
         m_outerRadius(radius + thickness),
-        m_segments(segments) {
+        m_segments(segments),
+        m_vertexArray(NULL) {
             float angle1, angle2;
             if (m_normal == Axis::AX) {
                 angle1 = startAxis.angleFrom(Vec3f::PosZ, Vec3f::PosX);
@@ -58,12 +60,17 @@ namespace TrenchBroom {
             m_startAngle = (maxAngle - minAngle <= Math::Pi ? minAngle : maxAngle);
         }
         
+        RingFigure::~RingFigure() {
+            delete m_vertexArray;
+            m_vertexArray = NULL;
+        }
+
         void RingFigure::render(Vbo& vbo, RenderContext& context) {
             SetVboState activateVbo(vbo, Vbo::VboActive);
-            if (m_vertexArray.get() == NULL) {
+            if (m_vertexArray == NULL) {
                 SetVboState mapVbo(vbo, Vbo::VboMapped);
-                m_vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_TRIANGLE_STRIP, 2 * m_segments + 2,
-                                                               Attribute::position3f()));
+                m_vertexArray = new VertexArray(vbo, GL_TRIANGLE_STRIP, 2 * m_segments + 2,
+                                                Attribute::position3f());
                 
                 float d = m_angleLength / m_segments;
                 float a = m_startAngle;
@@ -84,6 +91,7 @@ namespace TrenchBroom {
                 }
             }
             
+            assert(m_vertexArray != NULL);
             m_vertexArray->render();
         }
     }

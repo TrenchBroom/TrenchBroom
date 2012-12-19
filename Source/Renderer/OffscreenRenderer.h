@@ -41,7 +41,7 @@ namespace TrenchBroom {
             unsigned int m_height;
 
             bool m_multisample;
-            bool m_samples;
+            unsigned int m_samples;
             
             OffscreenRenderer* m_readBuffers;
         public:

@@ -25,7 +25,7 @@
 #include "Model/EntityTypes.h"
 #include "Model/Face.h"
 #include "Model/TextureTypes.h"
-#include "Renderer/RenderTypes.h"
+#include "Renderer/Figure.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/TexturedPolygonSorter.h"
 #include "Renderer/TextureVertexArray.h"
@@ -43,7 +43,9 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
+        class EdgeRenderer;
         class EntityRenderer;
+        class FaceRenderer;
         class Figure;
         class RenderContext;
         class Shader;
@@ -61,26 +63,27 @@ namespace TrenchBroom {
             typedef FaceSorter::PolygonCollection FaceCollection;
             typedef FaceSorter::PolygonCollectionMap FaceCollectionMap;
         private:
+            Model::MapDocument& m_document;
             
             // level geometry rendering
-            VboPtr m_faceVbo;
-            FaceRendererPtr m_faceRenderer;
-            FaceRendererPtr m_selectedFaceRenderer;
-            FaceRendererPtr m_lockedFaceRenderer;
+            Vbo* m_faceVbo;
+            FaceRenderer* m_faceRenderer;
+            FaceRenderer* m_selectedFaceRenderer;
+            FaceRenderer* m_lockedFaceRenderer;
             
-            VboPtr m_edgeVbo;
-            EdgeRendererPtr m_edgeRenderer;
-            EdgeRendererPtr m_selectedEdgeRenderer;
-            EdgeRendererPtr m_lockedEdgeRenderer;
+            Vbo* m_edgeVbo;
+            EdgeRenderer* m_edgeRenderer;
+            EdgeRenderer* m_selectedEdgeRenderer;
+            EdgeRenderer* m_lockedEdgeRenderer;
             
-            VboPtr m_entityVbo;
-            EntityRendererPtr m_entityRenderer;
-            EntityRendererPtr m_selectedEntityRenderer;
-            EntityRendererPtr m_lockedEntityRenderer;
+            Vbo* m_entityVbo;
+            EntityRenderer* m_entityRenderer;
+            EntityRenderer* m_selectedEntityRenderer;
+            EntityRenderer* m_lockedEntityRenderer;
             
-            VboPtr m_figureVbo;
-            FigureList m_figures;
-            FigureList m_deletedFigures;
+            Vbo* m_figureVbo;
+            Figure::List m_figures;
+            Figure::List m_deletedFigures;
             
             /*
             // selection guides
@@ -97,10 +100,8 @@ namespace TrenchBroom {
             bool m_selectedGeometryDataValid;
             bool m_lockedGeometryDataValid;
             
-            Model::MapDocument& m_document;
-            
             void rebuildGeometryData(RenderContext& context);
-            void deleteFigures(FigureList& figures);
+            void deleteFigures(Figure::List& figures);
             
             void validate(RenderContext& context);
             

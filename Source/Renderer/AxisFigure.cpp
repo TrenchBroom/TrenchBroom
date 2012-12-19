@@ -30,7 +30,13 @@ namespace TrenchBroom {
         m_xColor(Color(1.0f, 0.0f, 0.0f, 1.0f)),
         m_yColor(Color(0.0f, 1.0f, 0.0f, 1.0f)),
         m_zColor(Color(0.0f, 0.0f, 1.0f, 1.0f)),
-        m_valid(false) {}
+        m_valid(false),
+        m_vertexArray(NULL) {}
+        
+        AxisFigure::~AxisFigure() {
+            delete m_vertexArray;
+            m_vertexArray = NULL;
+        }
         
         void AxisFigure::render(Vbo& vbo, RenderContext& context) {
             SetVboState activateVbo(vbo, Vbo::VboActive);
@@ -42,9 +48,9 @@ namespace TrenchBroom {
                     vertexCount += 2;
                 if ((m_axes & Axis::AZ) != 0)
                     vertexCount += 2;
-                m_vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_LINES, vertexCount,
-                                                               Attribute::position3f(),
-                                                               Attribute::color4f()));
+                m_vertexArray = new VertexArray(vbo, GL_LINES, vertexCount,
+                                                Attribute::position3f(),
+                                                Attribute::color4f());
                 SetVboState mapVbo(vbo, Vbo::VboMapped);
                 if ((m_axes & Axis::AX) != 0) {
                     m_vertexArray->addAttribute(Vec3f(-m_axisLength, 0.0f, 0.0f));
@@ -67,6 +73,7 @@ namespace TrenchBroom {
                 m_valid = true;
             }
 
+            assert(m_vertexArray != NULL);
             m_vertexArray->render();
         }
     }

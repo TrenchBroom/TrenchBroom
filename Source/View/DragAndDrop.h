@@ -20,16 +20,16 @@
 #ifndef TrenchBroom_DragAndDrop_h
 #define TrenchBroom_DragAndDrop_h
 
+#include "ScreenDC.h"
+
 #include <wx/dnd.h>
 #include <wx/frame.h>
-
-class MacScreenDC;
 
 namespace TrenchBroom {
     namespace View {
         class DropSource : public wxDropSource {
         private:
-            MacScreenDC* m_screenDC;
+            ScreenDC* m_screenDC;
             wxBitmap m_feedbackImage;
             wxPoint m_imageOffset;
             bool m_showFeedback;

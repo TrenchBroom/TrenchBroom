@@ -28,7 +28,6 @@
 #include "Utility/Color.h"
 
 #include <map>
-#include <memory>
 #include <set>
 
 namespace TrenchBroom {
@@ -40,6 +39,7 @@ namespace TrenchBroom {
     namespace Renderer {
         class EntityModelRenderer;
         class Vbo;
+        class VertexArray;
         
         class EntityRenderer {
         private:
@@ -53,17 +53,16 @@ namespace TrenchBroom {
 
             typedef std::map<Model::Entity*, CachedEntityModelRenderer> EntityModelRenderers;
             typedef Text::TextRenderer<Model::Entity*> EntityClassnameRenderer;
-            typedef std::auto_ptr<EntityClassnameRenderer> EntityClassnameRendererPtr;
 
             Vbo& m_boundsVbo;
             Model::MapDocument& m_document;
             
             Model::EntitySet m_entities;
-            VertexArrayPtr m_boundsVertexArray;
+            VertexArray* m_boundsVertexArray;
             bool m_boundsValid;
             EntityModelRenderers m_modelRenderers;
             bool m_modelRendererCacheValid;
-            EntityClassnameRendererPtr m_classnameRenderer;
+            EntityClassnameRenderer* m_classnameRenderer;
             
             Color m_classnameColor;
             Color m_classnameBackgroundColor;
@@ -89,6 +88,7 @@ namespace TrenchBroom {
             void renderFigures(RenderContext& context);
         public:
             EntityRenderer(Vbo& boundsVbo, Model::MapDocument& document);
+            ~EntityRenderer();
             
             void setClassnameFadeDistance(float classnameFadeDistance);
             

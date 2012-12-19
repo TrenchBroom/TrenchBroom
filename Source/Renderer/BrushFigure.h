@@ -22,7 +22,6 @@
 
 #include "Model/BrushTypes.h"
 #include "Renderer/Figure.h"
-#include "Renderer/RenderTypes.h"
 #include "Utility/Color.h"
 
 namespace TrenchBroom {
@@ -31,6 +30,8 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
+        class EdgeRenderer;
+        class FaceRenderer;
         class TextureRendererManager;
         
         class BrushFigure : public Figure {
@@ -43,8 +44,8 @@ namespace TrenchBroom {
         private:
             TextureRendererManager& m_textureRendererManager;
             Model::BrushList m_brushes;
-            FaceRendererPtr m_faceRenderer;
-            EdgeRendererPtr m_edgeRenderer;
+            FaceRenderer* m_faceRenderer;
+            EdgeRenderer* m_edgeRenderer;
             Color m_faceColor;
             bool m_applyTinting;
             Color m_faceTintColor;
@@ -57,6 +58,7 @@ namespace TrenchBroom {
             bool m_edgeRendererValid;
         public:
             BrushFigure(TextureRendererManager& textureRendererManager);
+            ~BrushFigure();
 
             inline void setBrushes(const Model::BrushList& brushes) {
                 m_brushes = brushes;

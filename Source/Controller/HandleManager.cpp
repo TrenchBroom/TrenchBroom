@@ -38,15 +38,24 @@ namespace TrenchBroom {
     
     namespace Controller {
         HandleManager::HandleManager() :
+        m_unselectedHandleRenderer(NULL),
+        m_selectedHandleRenderer(NULL),
         m_renderStateValid(false) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             float handleRadius = prefs.getFloat(Preferences::VertexHandleRadius);
             float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
             float maxDistance = prefs.getFloat(Preferences::MaximumHandleDistance);
-            m_selectedHandleRenderer = Renderer::PointHandleRendererPtr(new Renderer::PointHandleRenderer(handleRadius, 2, scalingFactor, maxDistance));
-            m_unselectedHandleRenderer = Renderer::PointHandleRendererPtr(new Renderer::PointHandleRenderer(handleRadius, 2, scalingFactor, maxDistance));
+            m_selectedHandleRenderer = new Renderer::PointHandleRenderer(handleRadius, 2, scalingFactor, maxDistance);
+            m_unselectedHandleRenderer = new Renderer::PointHandleRenderer(handleRadius, 2, scalingFactor, maxDistance);
         }
         
+        HandleManager::~HandleManager() {
+            delete m_unselectedHandleRenderer;
+            m_unselectedHandleRenderer = NULL;
+            delete m_selectedHandleRenderer;
+            m_selectedHandleRenderer = NULL;
+        }
+
         const Model::EdgeList& HandleManager::edges(const Vec3f& handlePosition) const {
             Model::VertexToEdgesMap::const_iterator mapIt = m_selectedEdgeHandles.find(handlePosition);
             if (mapIt == m_selectedEdgeHandles.end())

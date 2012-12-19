@@ -50,8 +50,8 @@ namespace TrenchBroom {
         }
         
         void EdgeRenderer::writeEdgeData(Vbo& vbo, const Model::BrushList& brushes, const Model::FaceList& faces) {
-            m_vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_LINES, vertexCount(brushes, faces),
-                                                           Attribute::position3f()));
+            m_vertexArray = new VertexArray(vbo, GL_LINES, vertexCount(brushes, faces),
+                                            Attribute::position3f());
 
             Model::BrushList::const_iterator brushIt, brushEnd;
             for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
@@ -79,9 +79,9 @@ namespace TrenchBroom {
         }
         
         void EdgeRenderer::writeEdgeData(Vbo& vbo, const Model::BrushList& brushes, const Model::FaceList& faces, const Color& defaultColor) {
-            m_vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_LINES, vertexCount(brushes, faces),
-                                                           Attribute::position3f(),
-                                                           Attribute::color4f()));
+            m_vertexArray = new VertexArray(vbo, GL_LINES, vertexCount(brushes, faces),
+                                            Attribute::position3f(),
+                                            Attribute::color4f());
 
             Model::BrushList::const_iterator brushIt, brushEnd;
             for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
@@ -121,16 +121,25 @@ namespace TrenchBroom {
             }
         }
 
-        EdgeRenderer::EdgeRenderer(Vbo& vbo, const Model::BrushList& brushes, const Model::FaceList& faces) {
+        EdgeRenderer::EdgeRenderer(Vbo& vbo, const Model::BrushList& brushes, const Model::FaceList& faces) :
+        m_vertexArray(NULL) {
             writeEdgeData(vbo, brushes, faces);
         }
         
-        EdgeRenderer::EdgeRenderer(Vbo& vbo, const Model::BrushList& brushes, const Model::FaceList& faces, const Color& defaultColor) {
+        EdgeRenderer::EdgeRenderer(Vbo& vbo, const Model::BrushList& brushes, const Model::FaceList& faces, const Color& defaultColor) :
+        m_vertexArray(NULL) {
             writeEdgeData(vbo, brushes, faces, defaultColor);
+        }
+
+        EdgeRenderer::~EdgeRenderer() {
+            delete m_vertexArray;
+            m_vertexArray = NULL;
         }
 
 
         void EdgeRenderer::render(RenderContext& context) {
+            assert(m_vertexArray != NULL);
+            
             ShaderManager& shaderManager = context.shaderManager();
             ShaderProgram& coloredEdgeProgram = shaderManager.shaderProgram(Shaders::ColoredEdgeShader);
             if (coloredEdgeProgram.activate()) {
@@ -140,6 +149,8 @@ namespace TrenchBroom {
         }
         
         void EdgeRenderer::render(RenderContext& context, const Color& color) {
+            assert(m_vertexArray != NULL);
+
             ShaderManager& shaderManager = context.shaderManager();
             ShaderProgram& edgeProgram = shaderManager.shaderProgram(Shaders::EdgeShader);
             if (edgeProgram.activate()) {

@@ -23,7 +23,6 @@
 #include "Controller/Tool.h"
 #include "Controller/HandleManager.h"
 #include "Controller/MoveHandle.h"
-#include "Renderer/RenderTypes.h"
 #include "Utility/VecMath.h"
 
 #include <algorithm>

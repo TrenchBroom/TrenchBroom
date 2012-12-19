@@ -186,7 +186,7 @@ namespace TrenchBroom {
             
             m_inputState.mouseDown(mouseButton);
             updateHits();
-            bool handled = m_toolChain->mouseDClick(m_inputState);
+            bool handled = m_toolChain->mouseDClick(m_inputState) != NULL;
             updateModalTool();
             updateViews();
             return handled;

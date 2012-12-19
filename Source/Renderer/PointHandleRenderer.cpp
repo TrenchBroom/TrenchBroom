@@ -32,10 +32,16 @@ namespace TrenchBroom {
     namespace Renderer {
         PointHandleRenderer::PointHandleRenderer(float radius, unsigned int iterations, float scalingFactor, float maximumDistance) :
         SphereFigure(radius, iterations),
+        m_vertexArray(NULL),
         m_scalingFactor(scalingFactor),
         m_maximumDistance(maximumDistance),
         m_valid(false) {}
         
+        PointHandleRenderer::~PointHandleRenderer() {
+            delete m_vertexArray;
+            m_vertexArray = NULL;
+        }
+
         void PointHandleRenderer::add(const Vec3f& position) {
             m_positions.push_back(Vec4f(position.x, position.y, position.z, 1.0f));
             m_valid = false;
@@ -50,13 +56,16 @@ namespace TrenchBroom {
             SetVboState activateVbo(vbo, Vbo::VboActive);
             
             if (!m_valid) {
+                delete m_vertexArray;
+                m_vertexArray = NULL;
+                
                 if (!m_positions.empty()) {
                     Vec3f::List vertices = makeVertices();
                     
                     unsigned int vertexCount = static_cast<unsigned int>(vertices.size());
                     unsigned int instanceCount = static_cast<unsigned int>(m_positions.size());
-                    m_vertexArray = InstancedVertexArrayPtr(new InstancedVertexArray(vbo, GL_TRIANGLES, vertexCount, instanceCount,
-                                                                                     Attribute::position3f()));
+                    m_vertexArray = new InstancedVertexArray(vbo, GL_TRIANGLES, vertexCount, instanceCount,
+                                                             Attribute::position3f());
                     
                     SetVboState mapVbo(vbo, Vbo::VboMapped);
                     Vec3f::List::iterator it, end;
@@ -64,13 +73,11 @@ namespace TrenchBroom {
                         m_vertexArray->addAttribute(*it);
                     
                     m_vertexArray->addAttributeArray("position", m_positions);
-                } else if (m_vertexArray.get() != NULL) {
-                    m_vertexArray = InstancedVertexArrayPtr(NULL);
                 }
                 m_valid = true;
             }
             
-            if (m_vertexArray.get() != NULL) {
+            if (m_vertexArray != NULL) {
                 Renderer::ActivateShader shader(context.shaderManager(), Renderer::Shaders::InstancedHandleShader);
                 shader.currentShader().setUniformVariable("Color", m_color);
                 shader.currentShader().setUniformVariable("CameraPosition", context.camera().position());

@@ -21,7 +21,6 @@
 #define TrenchBroom_AliasModelRenderer_h
 
 #include "Renderer/EntityModelRenderer.h"
-#include "Renderer/RenderTypes.h"
 #include "Renderer/TextureRendererTypes.h"
 #include "Renderer/VertexArray.h"
 
@@ -47,9 +46,10 @@ namespace TrenchBroom {
             TextureRendererPtr m_texture;
 
             Vbo& m_vbo;
-            VertexArrayPtr m_vertexArray;
+            VertexArray* m_vertexArray;
         public:
             AliasModelRenderer(const Model::Alias& alias, int unsigned skinIndex, Vbo& vbo, const Palette& palette);
+            ~AliasModelRenderer();
             
             void render(ShaderProgram& shaderProgram);
             

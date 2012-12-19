@@ -23,7 +23,6 @@
 #include "Model/Brush.h"
 #include "Model/BrushGeometryTypes.h"
 #include "Model/Picker.h"
-#include "Renderer/RenderTypes.h"
 #include "Utility/Preferences.h"
 #include "Utility/VecMath.h"
 
@@ -53,6 +52,7 @@ namespace TrenchBroom {
     }
 
     namespace Renderer {
+        class PointHandleRenderer;
         class RenderContext;
         class Vbo;
     }
@@ -67,8 +67,8 @@ namespace TrenchBroom {
             Model::VertexToFacesMap m_unselectedFaceHandles;
             Model::VertexToFacesMap m_selectedFaceHandles;
             
-            Renderer::PointHandleRendererPtr m_selectedHandleRenderer;
-            Renderer::PointHandleRendererPtr m_unselectedHandleRenderer;
+            Renderer::PointHandleRenderer* m_selectedHandleRenderer;
+            Renderer::PointHandleRenderer* m_unselectedHandleRenderer;
             bool m_renderStateValid;
             
             template <typename Element>
@@ -129,6 +129,7 @@ namespace TrenchBroom {
             }
         public:
             HandleManager();
+            ~HandleManager();
             
             inline const Model::VertexToBrushesMap& unselectedVertexHandles() const {
                 return m_unselectedVertexHandles;

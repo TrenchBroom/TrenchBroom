@@ -22,7 +22,6 @@
 #define __TrenchBroom__EntityFigure__
 
 #include "Renderer/Figure.h"
-#include "Renderer/RenderTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -31,19 +30,17 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
+        class EntityRenderer;
+        
         class EntityFigure : public Figure {
         private:
-            EntityRendererPtr m_entityRenderer;
-            
             Model::MapDocument& m_document;
+
             Model::Entity& m_entity;
-            bool m_valid;
+            EntityRenderer* m_entityRenderer;
         public:
             EntityFigure(Model::MapDocument& document, Model::Entity& entity);
-            
-            inline bool valid() const {
-                return m_valid;
-            }
+            ~EntityFigure();
             
             void invalidate();
             

@@ -21,25 +21,26 @@
 #define __TrenchBroom__PointHandleRenderer__
 
 #include "Renderer/SphereFigure.h"
-#include "Renderer/RenderTypes.h"
 #include "Utility/VecMath.h"
 
 using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
+        class InstancedVertexArray;
         class Vbo;
         
         class PointHandleRenderer : public SphereFigure {
         protected:
             Vec4f::List m_positions;
-            InstancedVertexArrayPtr m_vertexArray;
+            InstancedVertexArray* m_vertexArray;
             bool m_valid;
             Color m_color;
             float m_scalingFactor;
             float m_maximumDistance;
         public:
             PointHandleRenderer(float radius, unsigned int iterations, float scalingFactor, float maximumDistance);
+            ~PointHandleRenderer();
 
             inline const Color& color() const {
                 return m_color;

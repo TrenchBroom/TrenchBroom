@@ -20,7 +20,6 @@
 #ifndef __TrenchBroom__FaceRenderer__
 #define __TrenchBroom__FaceRenderer__
 
-#include "Renderer/RenderTypes.h"
 #include "Renderer/TexturedPolygonSorter.h"
 #include "Renderer/TextureVertexArray.h"
 #include "Utility/Color.h"

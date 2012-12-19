@@ -725,7 +725,6 @@ namespace TrenchBroom {
 
                     if (sideBoundary.equals(neighbourBoundary)) {
                         Face* dropFace = mergeNeighbours(side, j, newFaces);
-
                         FaceList::iterator faceIt = find(newFaces.begin(), newFaces.end(), dropFace);
                         if (faceIt != newFaces.end()) {
                             delete dropFace;

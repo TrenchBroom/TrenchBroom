@@ -31,7 +31,13 @@ namespace TrenchBroom {
     namespace Renderer {
         ManyCubesInstancedFigure::ManyCubesInstancedFigure(float cubeSize) :
         m_offset(cubeSize / 2.0f),
+        m_vertexArray(NULL),
         m_valid(false) {}
+        
+        ManyCubesInstancedFigure::~ManyCubesInstancedFigure() {
+            delete m_vertexArray;
+            m_vertexArray = NULL;
+        }
         
         void ManyCubesInstancedFigure::add(const Vec3f& position) {
             m_positions.push_back(Vec4f(position.x, position.y, position.z, 0.0f));
@@ -47,10 +53,12 @@ namespace TrenchBroom {
             SetVboState activateVbo(vbo, Vbo::VboActive);
             
             if (!m_valid) {
+                delete m_vertexArray;
+                m_vertexArray = NULL;
                 if (!m_positions.empty()) {
                     unsigned int instanceCount = static_cast<unsigned int>(m_positions.size());
-                    m_vertexArray = InstancedVertexArrayPtr(new InstancedVertexArray(vbo, GL_QUADS, 24, instanceCount,
-                                                                                     Attribute::position3f()));
+                    m_vertexArray = new InstancedVertexArray(vbo, GL_QUADS, 24, instanceCount,
+                                                             Attribute::position3f());
                     
                     SetVboState mapVbo(vbo, Vbo::VboMapped);
                     
@@ -91,13 +99,11 @@ namespace TrenchBroom {
                     m_vertexArray->addAttribute(Vec3f(-m_offset, +m_offset, -m_offset));
 
                     m_vertexArray->addAttributeArray("position", m_positions);
-                } else if (m_vertexArray.get() != NULL) {
-                    m_vertexArray = InstancedVertexArrayPtr(NULL);
                 }
                 m_valid = true;
             }
             
-            if (m_vertexArray.get() != NULL) {
+            if (m_vertexArray != NULL) {
                 Renderer::ActivateShader shader(context.shaderManager(), Renderer::Shaders::InstancedHandleShader);
                 shader.currentShader().setUniformVariable("Color", m_color);
                 m_vertexArray->render(shader.currentShader());

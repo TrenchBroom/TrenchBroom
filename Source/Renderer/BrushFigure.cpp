@@ -33,6 +33,8 @@ namespace TrenchBroom {
     namespace Renderer {
         BrushFigure::BrushFigure(TextureRendererManager& textureRendererManager) :
         m_textureRendererManager(textureRendererManager),
+        m_faceRenderer(NULL),
+        m_edgeRenderer(NULL),
         m_faceColor(Color(0.5f, 0.5f, 0.5f, 1.0f)),
         m_applyTinting(false),
         m_faceTintColor(Color(1.0f, 0.0, 0.0f, 1.0f)),
@@ -42,10 +44,20 @@ namespace TrenchBroom {
         m_faceRendererValid(false),
         m_edgeRendererValid(false) {}
 
+        BrushFigure::~BrushFigure() {
+            delete m_edgeRenderer;
+            m_edgeRenderer = NULL;
+            delete m_faceRenderer;
+            m_faceRenderer = NULL;
+        }
         
         void BrushFigure::renderFaces(Vbo& vbo, RenderContext& context) {
             if (!m_faceRendererValid) {
                 SetVboState mapVbo(vbo, Vbo::VboMapped);
+                
+                delete m_faceRenderer;
+                m_faceRenderer = NULL;
+
                 if (!m_brushes.empty()) {
                     typedef TexturedPolygonSorter<Model::Texture, Model::Face*> FaceSorter;
                     FaceSorter faceSorter;
@@ -61,14 +73,12 @@ namespace TrenchBroom {
                         }
                     }
                     
-                    m_faceRenderer = FaceRendererPtr(new FaceRenderer(vbo, m_textureRendererManager, faceSorter, m_faceColor));
-                } else {
-                    m_faceRenderer = FaceRendererPtr();
+                    m_faceRenderer = new FaceRenderer(vbo, m_textureRendererManager, faceSorter, m_faceColor);
                 }
                 m_faceRendererValid = true;
             }
             
-            if (m_faceRenderer.get() != NULL) {
+            if (m_faceRenderer != NULL) {
                 SetVboState activateVbo(vbo, Vbo::VboActive);
                 if (m_applyTinting)
                     m_faceRenderer->render(context, m_grayScale, m_faceTintColor);
@@ -80,18 +90,20 @@ namespace TrenchBroom {
         void BrushFigure::renderEdges(Vbo& vbo, RenderContext& context) {
             if (!m_edgeRendererValid) {
                 SetVboState mapVbo(vbo, Vbo::VboMapped);
+
+                delete m_edgeRenderer;
+                m_edgeRenderer = NULL;
+                
                 if (!m_brushes.empty()) {
                     if (m_edgeMode == EMDefault)
-                        m_edgeRenderer = EdgeRendererPtr(new EdgeRenderer(vbo, m_brushes, Model::EmptyFaceList, m_edgeColor));
+                        m_edgeRenderer = new EdgeRenderer(vbo, m_brushes, Model::EmptyFaceList, m_edgeColor);
                     else
-                        m_edgeRenderer = EdgeRendererPtr(new EdgeRenderer(vbo, m_brushes, Model::EmptyFaceList));
-                } else {
-                    m_edgeRenderer = EdgeRendererPtr();
+                        m_edgeRenderer = new EdgeRenderer(vbo, m_brushes, Model::EmptyFaceList);
                 }
                 m_edgeRendererValid = true;
             }
 
-            if (m_edgeRenderer.get() != NULL) {
+            if (m_edgeRenderer != NULL) {
                 SetVboState activateVbo(vbo, Vbo::VboActive);
                 glSetEdgeOffset(0.02f);
                 if (m_edgeMode == EMDefault) {

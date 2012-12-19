@@ -33,18 +33,20 @@ namespace TrenchBroom {
                 const PathMeshData& triangleFans = mesh->triangleFans();
                 
                 if (!triangleSet.empty()) {
+                    assert(m_triangleSetVertexArray == NULL);
                     unsigned int vertexCount = static_cast<unsigned int>(triangleSet.size());
-                    m_triangleSetVertexArray = VertexArrayPtr(new VertexArray(vbo, GL_TRIANGLES, vertexCount,
-                                                                              Attribute::position2f()));
+                    m_triangleSetVertexArray = new VertexArray(vbo, GL_TRIANGLES, vertexCount,
+                                                               Attribute::position2f());
 
                     for (unsigned int i = 0; i < triangleSet.size(); i++)
                         m_triangleSetVertexArray->addAttribute(triangleSet[i]);
                 }
                 
                 if (!triangleStrips.empty()) {
+                    assert(m_triangleStripVertexArray == NULL);
                     unsigned int vertexCount = mesh->triangleStripsVertexCount();
-                    m_triangleStripVertexArray = IndexedVertexArrayPtr(new IndexedVertexArray(vbo, GL_TRIANGLE_STRIP, vertexCount,
-                                                                                              Attribute::position2f()));
+                    m_triangleStripVertexArray = new IndexedVertexArray(vbo, GL_TRIANGLE_STRIP, vertexCount,
+                                                                        Attribute::position2f());
                     
                     for (unsigned int i = 0; i < triangleStrips.size(); i++) {
                         const Vec2f::List& vertices = triangleStrips[i];
@@ -55,9 +57,10 @@ namespace TrenchBroom {
                 }
                 
                 if (!triangleFans.empty()) {
+                    assert(m_triangleFanVertexArray == NULL);
                     unsigned int vertexCount = mesh->triangleFansVertexCount();
-                    m_triangleFanVertexArray = IndexedVertexArrayPtr(new IndexedVertexArray(vbo, GL_TRIANGLE_FAN, vertexCount,
-                                                                                            Attribute::position2f()));
+                    m_triangleFanVertexArray = new IndexedVertexArray(vbo, GL_TRIANGLE_FAN, vertexCount,
+                                                                      Attribute::position2f());
                     
                     for (unsigned int i = 0; i < triangleFans.size(); i++) {
                         const Vec2f::List& vertices = triangleFans[i];
@@ -72,13 +75,22 @@ namespace TrenchBroom {
             m_path(path),
             m_width(m_path->width()),
             m_height(m_path->height()),
-            m_listId(0) {}
+            m_listId(0),
+            m_triangleSetVertexArray(NULL),
+            m_triangleStripVertexArray(NULL),
+            m_triangleFanVertexArray(NULL) {}
             
             PathRenderer::~PathRenderer() {
                 if (m_listId != 0) {
                     glDeleteLists(m_listId, 1);
                     m_listId = 0;
                 }
+                delete m_triangleSetVertexArray;
+                m_triangleSetVertexArray = NULL;
+                delete m_triangleStripVertexArray;
+                m_triangleStripVertexArray = NULL;
+                delete m_triangleFanVertexArray;
+                m_triangleFanVertexArray = NULL;
             }
             
             bool PathRenderer::prepare(PathTesselator& tesselator, Vbo& vbo) {
@@ -96,11 +108,11 @@ namespace TrenchBroom {
                     assert(m_listId > 0);
                     
                     glNewList(m_listId, GL_COMPILE);
-                    if (m_triangleSetVertexArray.get() != NULL)
+                    if (m_triangleSetVertexArray != NULL)
                         m_triangleSetVertexArray->render();
-                    if (m_triangleStripVertexArray.get() != NULL)
+                    if (m_triangleStripVertexArray != NULL)
                         m_triangleStripVertexArray->render();
-                    if (m_triangleFanVertexArray.get() != NULL)
+                    if (m_triangleFanVertexArray != NULL)
                         m_triangleFanVertexArray->render();
                     glEndList();
                 }

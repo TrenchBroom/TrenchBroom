@@ -21,17 +21,18 @@
 #define __TrenchBroom__SphereFigure__
 
 #include "Renderer/Figure.h"
-#include "Renderer/RenderTypes.h"
 #include "Utility/Color.h"
 #include "Utility/VecMath.h"
 
 #include <cassert>
+#include <map>
 
 using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
         class Vbo;
+        class VertexArray;
         
         class SphereFigure : public Figure {
         protected:
@@ -73,12 +74,14 @@ namespace TrenchBroom {
                     
             float m_radius;
             unsigned int m_iterations;
-            VertexArrayPtr m_vertexArray;
+            VertexArray* m_vertexArray;
 
             size_t midPoint(Vec3f::List& vertices, MidPointCache& cache, size_t index1, size_t index2);
             Vec3f::List makeVertices();
         public:
             SphereFigure(float radius, unsigned int iterations);
+            ~SphereFigure();
+                    
             void render(Vbo& vbo, RenderContext& context);
         };
     }

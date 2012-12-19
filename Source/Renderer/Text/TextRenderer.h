@@ -119,7 +119,7 @@ namespace TrenchBroom {
                 float m_vInset;
 
                 TextMap m_entries;
-                VboPtr m_backgroundVbo;
+                Vbo* m_backgroundVbo;
                 
                 inline void addString(Key key, const FontDescriptor& fontDescriptor, const String& string, StringRendererPtr stringRenderer, TextAnchor* anchor) {
                     removeString(key);
@@ -152,9 +152,9 @@ namespace TrenchBroom {
                         Mat4f billboardMatrix = context.camera().billboardMatrix();
                         
                         unsigned int vertexCount = static_cast<unsigned int>(3 * 16 * entries.size()); // 16 triangles (for a rounded rect with 3 triangles per corner: 3 * 4 + 4 = 16)
-                        VertexArrayPtr vertexArray = VertexArrayPtr(new VertexArray(*m_backgroundVbo, GL_TRIANGLES, vertexCount,
-                                                                                    Attribute::position3f(),
-                                                                                    Attribute::color4f()));
+                        VertexArray* vertexArray = new VertexArray(*m_backgroundVbo, GL_TRIANGLES, vertexCount,
+                                                                   Attribute::position3f(),
+                                                                   Attribute::color4f());
                         Vec2f::List vertices;
                         vertices.reserve(vertexCount);
                         
@@ -190,6 +190,8 @@ namespace TrenchBroom {
                         vertexArray->render();
                         m_backgroundVbo->deactivate();
                         shaderProgram.deactivate();
+                        
+                        delete vertexArray;
                     }
                 }
                 
@@ -229,10 +231,13 @@ namespace TrenchBroom {
                 m_stringManager(stringManager),
                 m_fadeDistance(100.0f),
                 m_hInset(3.0f),
-                m_vInset(3.0f) {}
+                m_vInset(3.0f),
+                m_backgroundVbo(NULL) {}
                 
                 ~TextRenderer() {
                     clear();
+                    delete m_backgroundVbo;
+                    m_backgroundVbo = NULL;
                 }
                 
                 inline void addString(Key key, const FontDescriptor& fontDescriptor, const String& string, TextAnchor* anchor) {
@@ -297,8 +302,8 @@ namespace TrenchBroom {
                     if (entries.empty())
                         return;
                     
-                    if (m_backgroundVbo.get() == NULL)
-                        m_backgroundVbo = VboPtr(new Vbo(GL_ARRAY_BUFFER, 0xFFFF));
+                    if (m_backgroundVbo == NULL)
+                        m_backgroundVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
                     
                     renderBackground(entries, context, backgroundProgram, backgroundColor);
                     renderText(entries, context, textProgram, textColor);

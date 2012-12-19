@@ -230,9 +230,9 @@ namespace TrenchBroom {
             
             wxString name;
             if (m_mode == VMMove) {
-                assert(m_handleManager.selectedVertexHandles().size() > 0 ^
-                       m_handleManager.selectedEdgeHandles().size() > 0 ^
-                       m_handleManager.selectedFaceHandles().size() > 0);
+                assert((m_handleManager.selectedVertexHandles().empty() ? 0 : 1) +
+                       (m_handleManager.selectedEdgeHandles().empty() ? 0 : 1) +
+                       (m_handleManager.selectedFaceHandles().empty() ? 0 : 1) == 1);
                 
                 if (!m_handleManager.selectedVertexHandles().empty())
                     name = m_handleManager.selectedVertexHandles().size() == 1 ? wxT("Move Vertex") : wxT("Move Vertices");
@@ -281,9 +281,9 @@ namespace TrenchBroom {
                 return true;
             
             if (m_mode == VMMove) {
-                assert(m_handleManager.selectedVertexHandles().size() > 0 ^
-                       m_handleManager.selectedEdgeHandles().size() > 0 ^
-                       m_handleManager.selectedFaceHandles().size() > 0);
+                assert((m_handleManager.selectedVertexHandles().empty() ? 0 : 1) +
+                       (m_handleManager.selectedEdgeHandles().empty() ? 0 : 1) +
+                       (m_handleManager.selectedFaceHandles().empty() ? 0 : 1) == 1);
                 
                 if (!m_handleManager.selectedVertexHandles().empty()) {
                     MoveVerticesCommand* command = MoveVerticesCommand::moveVertices(document(), m_handleManager.selectedVertexHandles(), delta);

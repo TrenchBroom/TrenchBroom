@@ -21,7 +21,6 @@
 #define TrenchBroom_InstancedVertexArray_h
 
 #include "Renderer/AttributeArray.h"
-#include "Renderer/RenderTypes.h"
 #include "Utility/String.h"
 
 #include <cassert>
@@ -90,7 +89,7 @@ namespace TrenchBroom {
             Vec4f::List m_vertices;
         protected:
             GLint createTexture(GLuint textureId) {
-                GLint size = 1;
+                size_t size = 1;
                 while (size * size < m_vertices.size())
                     size *= 2;
 
@@ -98,7 +97,8 @@ namespace TrenchBroom {
                 memcpy(buffer, reinterpret_cast<const unsigned char*>(&m_vertices.front()), m_vertices.size() * 4 * 4);
                 
                 // requires GL_ARB_texture_float, see http://www.opengl.org/wiki/Floating_point_and_mipmapping_and_filtering
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, size, size, 0, GL_RGBA, GL_FLOAT, reinterpret_cast<GLvoid*>(buffer));
+                GLint textureSize = static_cast<GLint>(size);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, textureSize, textureSize, 0, GL_RGBA, GL_FLOAT, reinterpret_cast<GLvoid*>(buffer));
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -107,7 +107,7 @@ namespace TrenchBroom {
                 delete [] buffer;
                 m_vertices.clear();
                 
-                return size;
+                return textureSize;
             }
         public:
             InstanceAttributesVec4f(const String& name, const Vec4f::List& vertices) :

@@ -21,13 +21,14 @@
 #define __TrenchBroom__RingFigure__
 
 #include "Renderer/Figure.h"
-#include "Renderer/RenderTypes.h"
 #include "Utility/VecMath.h"
 
 using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
+        class VertexArray;
+        
         class RingFigure : public Figure {
         private:
             Axis::Type m_normal;
@@ -36,10 +37,12 @@ namespace TrenchBroom {
             float m_innerRadius;
             float m_outerRadius;
             unsigned int m_segments;
-            VertexArrayPtr m_vertexArray;
+            VertexArray* m_vertexArray;
         public:
             RingFigure(Axis::Type normal, float startAngle, float angleLength, float radius, float thickness, unsigned int segments);
             RingFigure(Axis::Type normal, const Vec3f& startAxis, const Vec3f& endAxis, float radius, float thickness, unsigned int segments);
+            ~RingFigure();
+            
             void render(Vbo& vbo, RenderContext& context);
         };
     }

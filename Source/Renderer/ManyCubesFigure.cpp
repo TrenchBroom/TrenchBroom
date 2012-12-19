@@ -27,8 +27,14 @@ namespace TrenchBroom {
     namespace Renderer {
         ManyCubesFigure::ManyCubesFigure(float cubeSize) :
         m_offset(cubeSize / 2.0f),
+        m_vertexArray(NULL),
         m_valid(false) {}
         
+        ManyCubesFigure::~ManyCubesFigure() {
+            delete m_vertexArray;
+            m_vertexArray = NULL;
+        }
+
         void ManyCubesFigure::addCube(const Vec3f& position) {
             m_positions.push_back(position);
             m_valid = false;
@@ -43,10 +49,13 @@ namespace TrenchBroom {
             SetVboState activateVbo(vbo, Vbo::VboActive);
             
             if (!m_valid) {
+                delete m_vertexArray;
+                m_vertexArray = NULL;
+                
                 if (!m_positions.empty()) {
                     unsigned int vertexCount = static_cast<unsigned int>(m_positions.size() * 24);
-                    m_vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_QUADS, vertexCount,
-                                                                   Attribute::position3f()));
+                    m_vertexArray = new VertexArray(vbo, GL_QUADS, vertexCount,
+                                                    Attribute::position3f());
                     
                     SetVboState mapVbo(vbo, Vbo::VboMapped);
                     
@@ -90,13 +99,11 @@ namespace TrenchBroom {
                         m_vertexArray->addAttribute(Vec3f(position.x + m_offset, position.y + m_offset, position.z - m_offset));
                         m_vertexArray->addAttribute(Vec3f(position.x - m_offset, position.y + m_offset, position.z - m_offset));
                     }
-                } else if (m_vertexArray.get() != NULL) {
-                    m_vertexArray = VertexArrayPtr(NULL);
                 }
                 m_valid = true;
             }
             
-            if (m_vertexArray.get() != NULL)
+            if (m_vertexArray != NULL)
                 m_vertexArray->render();
         }
     }

@@ -22,17 +22,17 @@
 
 #include "Model/BrushTypes.h"
 #include "Model/FaceTypes.h"
-#include "Renderer/RenderTypes.h"
 #include "Utility/Color.h"
 
 namespace TrenchBroom {
     namespace Renderer {
         class RenderContext;
         class Vbo;
+        class VertexArray;
         
         class EdgeRenderer {
         protected:
-            VertexArrayPtr m_vertexArray;
+            VertexArray* m_vertexArray;
             
             unsigned int vertexCount(const Model::BrushList& brushes, const Model::FaceList& faces);
             void writeEdgeData(Vbo& vbo, const Model::BrushList& brushes, const Model::FaceList& faces);
@@ -40,6 +40,7 @@ namespace TrenchBroom {
         public:
             EdgeRenderer(Vbo& vbo, const Model::BrushList& brushes, const Model::FaceList& faces);
             EdgeRenderer(Vbo& vbo, const Model::BrushList& brushes, const Model::FaceList& faces, const Color& defaultColor);
+            ~EdgeRenderer();
 
             void render(RenderContext& context);
             void render(RenderContext& context, const Color& color);

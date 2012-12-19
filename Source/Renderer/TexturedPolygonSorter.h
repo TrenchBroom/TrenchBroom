@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_TexturedPolygonSorter_h
 #define TrenchBroom_TexturedPolygonSorter_h
 
+#include <map>
+
 namespace TrenchBroom {
     namespace Renderer {
         template <typename TextureType, typename PolygonType>

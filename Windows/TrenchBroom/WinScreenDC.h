@@ -17,25 +17,15 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Figure_h
-#define TrenchBroom_Figure_h
+#pragma once
 
-#include <vector>
+#include <wx/dcscreen.h>
 
-namespace TrenchBroom {
-    namespace Renderer {
-        class RenderContext;
-        class Vbo;
-        
-        class Figure {
-        public:
-            typedef std::vector<Figure*> List;
-            
-            virtual ~Figure() {}
-            
-            virtual void render(Vbo& vbo, RenderContext& context) = 0;
-        };
-    }
-}
+class WinScreenDC : public wxScreenDC {
+public:
+    WinScreenDC() :
+      wxScreenDC() {}
 
-#endif
+      void Flush() {}
+};
+

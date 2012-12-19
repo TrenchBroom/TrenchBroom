@@ -36,10 +36,16 @@ namespace TrenchBroom {
         m_skinIndex(skinIndex),
         m_palette(palette),
         m_texture(NULL),
-        m_vbo(vbo){}
+        m_vbo(vbo),
+        m_vertexArray(NULL) {}
+
+        AliasModelRenderer::~AliasModelRenderer() {
+            delete m_vertexArray;
+            m_vertexArray = NULL;
+        }
 
         void AliasModelRenderer::render(ShaderProgram& shaderProgram) {
-            if (m_vertexArray.get() == NULL) {
+            if (m_vertexArray == NULL) {
                 Model::AliasSkin& skin = *m_alias.skins()[m_skinIndex];
                 m_texture = TextureRendererPtr(new TextureRenderer(skin, 0, m_palette));
 
@@ -47,11 +53,11 @@ namespace TrenchBroom {
                 const Model::AliasFrameTriangleList& triangles = frame.triangles();
                 unsigned int vertexCount = static_cast<unsigned int>(3 * triangles.size());
                 
-                m_vertexArray = VertexArrayPtr(new VertexArray(m_vbo, GL_TRIANGLES, vertexCount,
-                                                               Attribute::position3f(),
-                                                               Attribute::texCoord02f()));
+                m_vertexArray = new VertexArray(m_vbo, GL_TRIANGLES, vertexCount,
+                                                Attribute::position3f(),
+                                                Attribute::texCoord02f());
 
-                m_vbo.map();
+                SetVboState mapVbo(m_vbo, Vbo::VboMapped);
                 for (unsigned int i = 0; i < triangles.size(); i++) {
                     Model::AliasFrameTriangle& triangle = *triangles[i];
                     for (unsigned int j = 0; j < 3; j++) {
@@ -60,9 +66,10 @@ namespace TrenchBroom {
                         m_vertexArray->addAttribute(vertex.texCoords());
                     }
                 }
-                m_vbo.unmap();
             }
 
+            assert(m_vertexArray != NULL);
+            
             glActiveTexture(GL_TEXTURE0);
             m_texture->activate();
             shaderProgram.setUniformVariable("Texture", 0);

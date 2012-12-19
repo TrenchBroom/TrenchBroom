@@ -21,7 +21,6 @@
 #define __TrenchBroom__CircleFigure__
 
 #include "Renderer/Figure.h"
-#include "Renderer/RenderTypes.h"
 #include "Utility/Color.h"
 #include "Utility/VecMath.h"
 
@@ -29,6 +28,8 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
+        class VertexArray;
+        
         class CircleFigure : public Figure {
         private:
             Axis::Type m_normal;
@@ -37,10 +38,12 @@ namespace TrenchBroom {
             float m_radius;
             unsigned int m_segments;
             bool m_filled;
-            VertexArrayPtr m_vertexArray;
+            VertexArray* m_vertexArray;
         public:
             CircleFigure(Axis::Type normal, float startAngle, float angleLength, float radius, unsigned int segments, bool filled);
             CircleFigure(Axis::Type normal, const Vec3f& startAxis, const Vec3f& endAxis, float radius, unsigned int segments, bool filled);
+            ~CircleFigure();
+            
             void render(Vbo& vbo, RenderContext& context);
         };
     }

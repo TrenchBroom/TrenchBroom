@@ -28,6 +28,9 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
+#if defined _WIN32
+#pragma pack(push,1)
+#endif
         struct FaceVertex {
             typedef std::vector<FaceVertex> List;
             
@@ -47,7 +50,12 @@ namespace TrenchBroom {
             
             FaceVertex() {}
             
+#if defined _WIN32
+        };
+#pragma pack(pop)
+#else
         } __attribute__((packed));
+#endif
     }
 }
 

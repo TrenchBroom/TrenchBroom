@@ -23,7 +23,6 @@
 
 #include <GL/glew.h>
 #include "Model/Texture.h"
-#include "Renderer/RenderTypes.h"
 #include "Utility/Color.h"
 #include "Utility/VecMath.h"
 

@@ -19,8 +19,6 @@
 
 #include "DragAndDrop.h"
 
-#include "MacScreenDC.h"
-
 #include <cassert>
 
 namespace TrenchBroom {
@@ -52,7 +50,7 @@ namespace TrenchBroom {
             }
             
             if (m_screenDC == NULL) {
-                m_screenDC = new MacScreenDC();
+                m_screenDC = new ScreenDC();
                 assert(m_screenDC->IsOk());
             }
             

@@ -21,7 +21,6 @@
 #define __TrenchBroom__ManyCubesInstancedFigure__
 
 #include "Renderer/Figure.h"
-#include "Renderer/RenderTypes.h"
 #include "Utility/Color.h"
 #include "Utility/VecMath.h"
 
@@ -29,15 +28,18 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
+        class InstancedVertexArray;
+        
         class ManyCubesInstancedFigure : public Figure {
         protected:
             float m_offset;
             Vec4f::List m_positions;
-            InstancedVertexArrayPtr m_vertexArray;
+            InstancedVertexArray* m_vertexArray;
             bool m_valid;
             Color m_color;
         public:
             ManyCubesInstancedFigure(float cubeSize);
+            ~ManyCubesInstancedFigure();
             
             inline const Color& color() const {
                 return m_color;

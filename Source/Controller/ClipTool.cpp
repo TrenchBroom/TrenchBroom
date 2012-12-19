@@ -128,6 +128,9 @@ namespace TrenchBroom {
             m_clipSide = CMFront;
             view().viewOptions().setRenderSelection(false);
             
+            assert(m_frontBrushFigure == NULL);
+            assert(m_backBrushFigure == NULL);
+            
             Renderer::TextureRendererManager& textureRendererManager = document().sharedResources().textureRendererManager();
             m_frontBrushFigure = new Renderer::BrushFigure(textureRendererManager);
             m_backBrushFigure = new Renderer::BrushFigure(textureRendererManager);
@@ -259,8 +262,8 @@ namespace TrenchBroom {
                 
                 if (m_numPoints > 1) {
                     Renderer::SetVboState mapVbo(vbo, Renderer::Vbo::VboMapped);
-                    Renderer::VertexArrayPtr linesArray = Renderer::VertexArrayPtr(new Renderer::VertexArray(vbo, GL_LINE_LOOP, m_numPoints,
-                                                                                                             Renderer::Attribute::position3f()));
+                    Renderer::VertexArray* linesArray = new Renderer::VertexArray(vbo, GL_LINE_LOOP, m_numPoints,
+                                                                                  Renderer::Attribute::position3f());
                     for (unsigned int i = 0; i < m_numPoints; i++)
                         linesArray->addAttribute(m_points[i]);
                     
@@ -274,8 +277,8 @@ namespace TrenchBroom {
                     
                     if (m_numPoints == 3) {
                         Renderer::SetVboState mapVbo(vbo, Renderer::Vbo::VboMapped);
-                        Renderer::VertexArrayPtr triangleArray = Renderer::VertexArrayPtr(new Renderer::VertexArray(vbo, GL_TRIANGLES, m_numPoints,
-                                                                                                                    Renderer::Attribute::position3f()));
+                        Renderer::VertexArray* triangleArray = new Renderer::VertexArray(vbo, GL_TRIANGLES, m_numPoints,
+                                                                                         Renderer::Attribute::position3f());
                         for (unsigned int i = 0; i < m_numPoints; i++)
                             triangleArray->addAttribute(m_points[i]);
                         
@@ -286,7 +289,11 @@ namespace TrenchBroom {
                         triangleArray->render();
                         glEnable(GL_CULL_FACE);
                         glEnable(GL_DEPTH_TEST);
+                        
+                        delete triangleArray;
                     }
+                    
+                    delete linesArray;
                 }
                 
                 if (m_hitIndex == m_numPoints && m_numPoints < 3) {
@@ -301,7 +308,7 @@ namespace TrenchBroom {
             if (inputState.mouseButtons() != MouseButtons::MBLeft ||
                 inputState.modifierKeys() != ModifierKeys::MKNone)
                 return false;
-            if (m_hitIndex < m_numPoints || m_numPoints == 3)
+            if (m_hitIndex < static_cast<int>(m_numPoints) || m_numPoints == 3)
                 return false;
             
             m_numPoints++;
@@ -325,7 +332,7 @@ namespace TrenchBroom {
         }
         
         bool ClipTool::handleDrag(InputState& inputState) {
-            assert(m_hitIndex >= 0 && m_hitIndex < m_numPoints);
+            assert(m_hitIndex >= 0 && m_hitIndex < static_cast<int>(m_numPoints));
             
             Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, m_filter));
             if (faceHit == NULL)

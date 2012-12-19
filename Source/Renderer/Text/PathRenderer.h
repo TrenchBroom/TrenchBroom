@@ -22,7 +22,6 @@
 
 #include <GL/glew.h>
 #include "Renderer/IndexedVertexArray.h"
-#include "Renderer/RenderTypes.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/Text/Path.h"
 #include "Renderer/Text/PathMesh.h"
@@ -46,9 +45,9 @@ namespace TrenchBroom {
                 float m_height;
 
                 GLuint m_listId;
-                VertexArrayPtr m_triangleSetVertexArray;
-                IndexedVertexArrayPtr m_triangleStripVertexArray;
-                IndexedVertexArrayPtr m_triangleFanVertexArray;
+                VertexArray* m_triangleSetVertexArray;
+                IndexedVertexArray* m_triangleStripVertexArray;
+                IndexedVertexArray* m_triangleFanVertexArray;
                 
                 void uploadMeshData(PathMeshPtr mesh, Vbo& vbo);
             public:

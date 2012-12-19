@@ -27,7 +27,6 @@
 #include "Model/EntityTypes.h"
 #include "Model/MapDocument.h"
 #include "Renderer/Figure.h"
-#include "Renderer/RenderTypes.h"
 #include "View/DocumentViewHolder.h"
 #include "View/EditorView.h"
 #include "Utility/CommandProcessor.h"
@@ -73,7 +72,7 @@ namespace TrenchBroom {
             String m_dragPayload;
             Tool* m_nextTool;
             
-            Renderer::FigureList m_deleteFigures;
+            Renderer::Figure::List m_deleteFigures;
             
             void deleteFigures() {
                 while (!m_deleteFigures.empty()) delete m_deleteFigures.back(), m_deleteFigures.pop_back();

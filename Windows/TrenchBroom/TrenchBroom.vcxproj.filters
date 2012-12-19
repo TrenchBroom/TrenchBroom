@@ -123,9 +123,6 @@
     <ClCompile Include="..\..\Source\Renderer\MapRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\RenderContext.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Renderer\Vbo.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
@@ -249,12 +246,6 @@
     <ClCompile Include="..\..\Source\Controller\AddObjectsCommand.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\DragTool.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\EntityDragTargetTool.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Controller\EntityPropertyCommand.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
@@ -262,9 +253,6 @@
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Controller\MoveObjectsCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\MoveObjectsHandle.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Controller\MoveObjectsTool.cpp">
@@ -277,9 +265,6 @@
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Controller\RotateObjects90Command.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\RotateObjectsHandle.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Controller\RotateObjectsTool.cpp">
@@ -321,12 +306,6 @@
     <ClCompile Include="..\..\Source\Renderer\EntityRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\InputControllerFeedbackFigure.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\MoveObjectsHandleFigure.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Renderer\OffscreenRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
@@ -334,9 +313,6 @@
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Renderer\RingFigure.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\RotateObjectsHandleFigure.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Renderer\SharedResources.cpp">
@@ -364,6 +340,66 @@
       <Filter>Source Files\View</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Controller\SetFaceAttributesCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\ClipTool.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\CreateBrushTool.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\CreateEntityTool.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\HandleManager.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\MoveEdgesCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\MoveFacesCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\MoveHandle.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\MoveVerticesCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\MoveVerticesTool.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\SplitEdgesCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\SplitFacesCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\SphereFigure.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\AxisFigure.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\BrushFigure.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\EdgeRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\FaceRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\ManyCubesFigure.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\ManyCubesInstancedFigure.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\PointHandleRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\RotateObjectsCommand.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
   </ItemGroup>
@@ -644,9 +680,6 @@
     <ClInclude Include="..\..\Source\Utility\List.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\DragPlane.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Renderer\Shader\Shader.h">
       <Filter>Header Files\Renderer\Shader</Filter>
     </ClInclude>
@@ -722,15 +755,6 @@
     <ClInclude Include="..\..\Source\Controller\AddObjectsCommand.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\DragTargetTool.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\DragTool.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\EntityDragTargetTool.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Controller\EntityPropertyCommand.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
@@ -738,9 +762,6 @@
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\MoveObjectsCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\MoveObjectsHandle.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\MoveObjectsTool.h">
@@ -756,9 +777,6 @@
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\RotateObjects90Command.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\RotateObjectsHandle.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\RotateObjectsTool.h">
@@ -797,12 +815,6 @@
     <ClInclude Include="..\..\Source\Renderer\EntityRenderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\InputControllerFeedbackFigure.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\MoveObjectsHandleFigure.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Renderer\OffscreenRenderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
@@ -810,9 +822,6 @@
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Renderer\RingFigure.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\RotateObjectsHandleFigure.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Renderer\SharedResources.h">
@@ -864,6 +873,81 @@
       <Filter>Header Files\View</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\SetFaceAttributesCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\ClipTool.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\CreateBrushTool.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\CreateEntityTool.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\HandleManager.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\MoveEdgesCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\MoveFacesCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\MoveHandle.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\MoveVerticesCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\MoveVerticesTool.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\SplitEdgesCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\SplitFacesCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\ApplyMatrix.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\AttributeArray.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\AxisFigure.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\BrushFigure.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\EdgeRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\FaceRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\FaceVertex.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\InstancedVertexArray.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\ManyCubesFigure.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\ManyCubesInstancedFigure.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\PointHandleRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\SphereFigure.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="WinScreenDC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\RotateObjectsCommand.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
   </ItemGroup>

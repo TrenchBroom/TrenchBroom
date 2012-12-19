@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_TextureVertexArray_h
 #define TrenchBroom_TextureVertexArray_h
 
-#include "Renderer/RenderTypes.h"
+#include "Renderer/VertexArray.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -29,14 +29,22 @@ namespace TrenchBroom {
         class TextureVertexArray {
         public:
             TextureRenderer* texture;
-            mutable VertexArrayPtr vertexArray;
+            mutable VertexArray* vertexArray;
             
-            TextureVertexArray(TextureRenderer* texture, VertexArrayPtr vertexArray) :
+            TextureVertexArray(TextureRenderer* texture, VertexArray* vertexArray) :
             texture(texture),
             vertexArray(vertexArray) {}
             
-            TextureVertexArray(const TextureVertexArray& other) : texture(other.texture), vertexArray(other.vertexArray) {}
+            TextureVertexArray(const TextureVertexArray& other) : texture(other.texture), vertexArray(other.vertexArray) {
+                other.vertexArray = NULL;
+            }
+            
             TextureVertexArray() : texture(NULL) {}
+            
+            ~TextureVertexArray() {
+                delete vertexArray;
+                vertexArray = NULL;
+            }
         };
         
         typedef std::vector<TextureVertexArray> TextureVertexArrayList;

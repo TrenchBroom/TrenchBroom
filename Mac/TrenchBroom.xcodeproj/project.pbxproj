@@ -209,6 +209,7 @@
 		482976D81681E7860057E4D4 /* MoveFacesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveFacesCommand.h; sourceTree = "<group>"; };
 		482976D91681EEBF0057E4D4 /* SplitFacesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SplitFacesCommand.h; sourceTree = "<group>"; };
 		482976DA1681EEEC0057E4D4 /* SplitFacesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SplitFacesCommand.cpp; sourceTree = "<group>"; };
+		48297ED11682220F00E6A288 /* ScreenDC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScreenDC.h; sourceTree = "<group>"; };
 		482A0874164305450000799C /* RingFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RingFigure.cpp; sourceTree = "<group>"; };
 		482A0875164305450000799C /* RingFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RingFigure.h; sourceTree = "<group>"; };
 		482A087B16446B470000799C /* RotateObjectsCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RotateObjectsCommand.cpp; sourceTree = "<group>"; };
@@ -442,7 +443,6 @@
 		48E2ECBC15FF8FDF00B8D476 /* Grid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Grid.h; sourceTree = "<group>"; };
 		48E2ECBE15FFC14400B8D476 /* Face.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = Face.vertsh; sourceTree = "<group>"; };
 		48E2ECC515FFC31600B8D476 /* Face.fragsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = Face.fragsh; sourceTree = "<group>"; };
-		48E2ECCE15FFD07100B8D476 /* RenderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RenderTypes.h; sourceTree = "<group>"; };
 		48E2ECCF15FFDD0D00B8D476 /* TexturedPolygonSorter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TexturedPolygonSorter.h; sourceTree = "<group>"; };
 		48E2ECD015FFE48F00B8D476 /* TextureVertexArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextureVertexArray.h; sourceTree = "<group>"; };
 		48E2ECD116007A4400B8D476 /* EntityModel.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = EntityModel.vertsh; sourceTree = "<group>"; };
@@ -557,7 +557,6 @@
 				48B059C51617866100E6B0AD /* Palette.cpp */,
 				48B059C61617866100E6B0AD /* Palette.h */,
 				48312B4115EB9EA900607868 /* RenderContext.h */,
-				48E2ECCE15FFD07100B8D476 /* RenderTypes.h */,
 				48312B4A15EBC35800607868 /* RenderUtils.h */,
 				48B059CC161799FC00E6B0AD /* SharedResources.cpp */,
 				48B059CD161799FC00E6B0AD /* SharedResources.h */,
@@ -737,6 +736,7 @@
 				481CDAD716026C48003E2EE9 /* PreferencesDialog.h */,
 				48AB57EF15ECEEE500321C47 /* ProgressIndicatorDialog.cpp */,
 				48AB57F015ECEEE500321C47 /* ProgressIndicatorDialog.h */,
+				48297ED11682220F00E6A288 /* ScreenDC.h */,
 				48C0FA44160901CB0023F467 /* SingleTextureViewer.cpp */,
 				48C0FA45160901CB0023F467 /* SingleTextureViewer.h */,
 				48B059AF16162FF100E6B0AD /* SpinControl.h */,

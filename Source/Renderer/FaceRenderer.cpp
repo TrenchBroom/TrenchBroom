@@ -46,11 +46,11 @@ namespace TrenchBroom {
                 const FaceCollection& faceCollection = it->second;
                 const Model::FaceList& faces = faceCollection.polygons();
                 unsigned int vertexCount = static_cast<unsigned int>(3 * faceCollection.vertexCount() - 6 * faces.size());
-                VertexArrayPtr vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_TRIANGLES, vertexCount,
-                                                                            Attribute::position3f(),
-                                                                            Attribute::normal3f(),
-                                                                            Attribute::texCoord02f(),
-                                                                            0));
+                VertexArray* vertexArray = new VertexArray(vbo, GL_TRIANGLES, vertexCount,
+                                                           Attribute::position3f(),
+                                                           Attribute::normal3f(),
+                                                           Attribute::texCoord02f(),
+                                                           0);
                 
                 for (unsigned int i = 0; i < faces.size(); i++) {
                     Model::Face* face = faces[i];

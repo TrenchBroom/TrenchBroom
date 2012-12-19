@@ -21,7 +21,6 @@
 #define __TrenchBroom__AxisFigure__
 
 #include "Renderer/Figure.h"
-#include "Renderer/RenderTypes.h"
 #include "Utility/Color.h"
 #include "Utility/VecMath.h"
 
@@ -29,6 +28,8 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
+        class VertexArray;
+        
         class AxisFigure : public Figure {
         protected:
             float m_axisLength;
@@ -37,9 +38,10 @@ namespace TrenchBroom {
             Color m_yColor;
             Color m_zColor;
             bool m_valid;
-            VertexArrayPtr m_vertexArray;
+            VertexArray* m_vertexArray;
         public:
             AxisFigure(float axisLength);
+            ~AxisFigure();
             
             inline void setAxes(Axis::Type axes) {
                 m_axes = axes;

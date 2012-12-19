@@ -21,7 +21,6 @@
 #define __TrenchBroom__TextureBrowserCanvas__
 
 #include "Model/TextureManager.h"
-#include "Renderer/RenderTypes.h"
 #include "Renderer/Text/StringManager.h"
 #include "View/CellLayoutGLCanvas.h"
 

@@ -129,17 +129,23 @@ namespace TrenchBroom {
 
         SphereFigure::SphereFigure(float radius, unsigned int iterations) :
         m_radius(radius),
-        m_iterations(iterations) {}
+        m_iterations(iterations),
+        m_vertexArray(NULL) {}
+
+        SphereFigure::~SphereFigure() {
+            delete m_vertexArray;
+            m_vertexArray = NULL;
+        }
 
         void SphereFigure::render(Vbo& vbo, RenderContext& context) {
             SetVboState activateVbo(vbo, Vbo::VboActive);
 
-            if (m_vertexArray.get() == NULL) {
+            if (m_vertexArray == NULL) {
                 Vec3f::List vertices = makeVertices();
 
                 unsigned int vertexCount = static_cast<unsigned int>(vertices.size());
-                m_vertexArray = VertexArrayPtr(new VertexArray(vbo, GL_TRIANGLES, vertexCount,
-                                                               Attribute::position3f()));
+                m_vertexArray = new VertexArray(vbo, GL_TRIANGLES, vertexCount,
+                                                Attribute::position3f());
                 
                 SetVboState mapVbo(vbo, Vbo::VboMapped);
                 Vec3f::List::iterator it, end;
@@ -147,6 +153,7 @@ namespace TrenchBroom {
                     m_vertexArray->addAttribute(*it);
             }
             
+            assert(m_vertexArray != NULL);
             m_vertexArray->render();
         }
     }
