@@ -1493,6 +1493,56 @@ namespace TrenchBroom {
             return newVertexPositions;
         }
 
+        bool BrushGeometry::canMoveEdges(const Model::EdgeList& edges, const Vec3f& delta) {
+            FaceList newFaces;
+            FaceList droppedFaces;
+            
+            Vec3f::Set sortedVertexPositions;
+            Model::EdgeList::const_iterator edgeIt, edgeEnd;
+            for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
+                const Model::Edge& edge = **edgeIt;
+                sortedVertexPositions.insert(edge.start->position);
+                sortedVertexPositions.insert(edge.end->position);
+            }
+
+            bool canMove = true;
+            BrushGeometry testGeometry(*this);
+            Vec3f::Set::const_iterator vertexIt, vertexEnd;
+            for (vertexIt = sortedVertexPositions.begin(), vertexEnd = sortedVertexPositions.end(); vertexIt != vertexEnd && canMove; ++vertexIt) {
+                const Vec3f& vertexPosition = *vertexIt;
+                Vertex* vertex = findVertex(testGeometry.vertices, vertexPosition);
+                assert(vertex != NULL);
+                
+                MoveVertexResult result = testGeometry.moveVertex(vertex, true, delta, newFaces, droppedFaces);
+                canMove = result.type == MoveVertexResult::VertexMoved;
+            }
+            while (!newFaces.empty()) delete newFaces.back(), newFaces.pop_back();
+            restoreFaceSides();
+            return canMove;
+        }
+    
+        void BrushGeometry::moveEdges(const Model::EdgeList& edges, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces) {
+            assert(canMoveEdges(edges, delta));
+
+            Vec3f::Set sortedVertexPositions;
+            Model::EdgeList::const_iterator edgeIt, edgeEnd;
+            for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
+                const Model::Edge& edge = **edgeIt;
+                sortedVertexPositions.insert(edge.start->position);
+                sortedVertexPositions.insert(edge.end->position);
+            }
+
+            Vec3f::Set::const_iterator vertexIt, vertexEnd;
+            for (vertexIt = sortedVertexPositions.begin(), vertexEnd = sortedVertexPositions.end(); vertexIt != vertexEnd; ++vertexIt) {
+                const Vec3f& vertexPosition = *vertexIt;
+                Vertex* vertex = findVertex(vertices, vertexPosition);
+                assert(vertex != NULL);
+                
+                MoveVertexResult result = moveVertex(vertex, false, delta, newFaces, droppedFaces);
+                assert(result.type == MoveVertexResult::VertexMoved);
+            }
+        }
+
         bool BrushGeometry::canSplitEdge(Edge* edge, const Vec3f& delta) {
             // detect whether the drag would make the incident faces invalid
             const Vec3f& leftNorm = edge->left->face->boundary().normal;

@@ -167,12 +167,13 @@ namespace TrenchBroom {
 
             void selectEdgeHandle(const Vec3f& position);
             void deselectEdgeHandle(const Vec3f& position);
+            void selectEdgeHandles(const Model::EdgeList& edges);
             void deselectEdgeHandles();
             
             void deselectAll();
             
-            void pick(const Ray& ray, Model::PickResult& pickResult, bool vertexHandles, bool edgeHandles, bool faceHandles) const;
-            void render(Renderer::Vbo& vbo, Renderer::RenderContext& renderContext, bool vertexHandles, bool edgeHandles, bool faceHandles);
+            void pick(const Ray& ray, Model::PickResult& pickResult, bool splitMode) const;
+            void render(Renderer::Vbo& vbo, Renderer::RenderContext& renderContext, bool splitMode);
             
             inline void invalidateRenderState() {
                 m_renderStateValid = false;

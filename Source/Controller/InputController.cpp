@@ -80,7 +80,8 @@ namespace TrenchBroom {
         m_toolChain(NULL),
         m_dragTool(NULL),
         m_modalTool(NULL),
-        m_cancelledDrag(false) {
+        m_cancelledDrag(false),
+        m_discardNextMouseUp(false) {
             m_cameraTool = new CameraTool(m_documentViewHolder);
             m_clipTool = new ClipTool(m_documentViewHolder);
             m_moveVerticesTool = new MoveVerticesTool(m_documentViewHolder, 24.0f, 16.0f, 2.5f);
@@ -156,6 +157,12 @@ namespace TrenchBroom {
         }
         
         bool InputController::mouseUp(MouseButtonState mouseButton) {
+            if (m_discardNextMouseUp) {
+                m_discardNextMouseUp = false;
+                m_inputState.mouseUp(mouseButton);
+                return false;
+            }
+            
             bool handled = false;
             if (m_dragTool != NULL) {
                 m_dragTool->endDrag(m_inputState);
@@ -174,6 +181,17 @@ namespace TrenchBroom {
             return handled;
         }
         
+        bool InputController::mouseDClick(MouseButtonState mouseButton) {
+            m_discardNextMouseUp = true;
+            
+            m_inputState.mouseDown(mouseButton);
+            updateHits();
+            bool handled = m_toolChain->mouseDClick(m_inputState);
+            updateModalTool();
+            updateViews();
+            return handled;
+        }
+
         void InputController::mouseMove(int x, int y) {
             m_inputState.mouseMove(x, y);
             updateHits();

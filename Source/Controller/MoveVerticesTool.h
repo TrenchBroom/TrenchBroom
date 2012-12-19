@@ -40,10 +40,16 @@ namespace TrenchBroom {
     namespace Controller {
         class MoveVerticesTool : public PlaneDragTool {
         protected:
+            typedef enum {
+                VMMove,
+                VMSplit
+            } VertexToolMode;
+            
             HandleManager m_handleManager;
             MoveHandle m_moveHandle;
             MoveHandle::RestrictToAxis m_restrictToAxis;
-
+            VertexToolMode m_mode;
+            
             void updateMoveHandle(InputState& inputState);
             
             bool handleActivate(InputState& inputState);
@@ -53,8 +59,8 @@ namespace TrenchBroom {
             void handlePick(InputState& inputState);
             void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
             
-            void handleModifierKeyChange(InputState& inputState);
             bool handleMouseUp(InputState& inputState);
+            bool handleMouseDClick(InputState& inputState);
             void handleMouseMove(InputState& inputState);
 
             bool handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint);

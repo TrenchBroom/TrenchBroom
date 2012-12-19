@@ -179,6 +179,7 @@ namespace TrenchBroom {
             virtual void handleModifierKeyChange(InputState& inputState) {}
             virtual bool handleMouseDown(InputState& inputState) { return false; }
             virtual bool handleMouseUp(InputState& inputState) { return false; }
+            virtual bool handleMouseDClick(InputState& inputState) { return false; }
             virtual void handleMouseMove(InputState& inputState) {}
             virtual void handleScroll(InputState& inputState) {}
             
@@ -298,6 +299,14 @@ namespace TrenchBroom {
                     return this;
                 if (nextTool() != NULL)
                     return nextTool()->mouseUp(inputState);
+                return NULL;
+            }
+            
+            Tool* mouseDClick(InputState& inputState) {
+                if ((active() & !m_suppressed) && handleMouseDClick(inputState))
+                    return this;
+                if (nextTool() != NULL)
+                    return nextTool()->mouseDClick(inputState);
                 return NULL;
             }
             

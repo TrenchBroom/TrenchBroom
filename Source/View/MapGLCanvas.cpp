@@ -49,10 +49,13 @@ namespace TrenchBroom {
         EVT_KEY_UP(MapGLCanvas::OnKeyUp)
         EVT_LEFT_DOWN(MapGLCanvas::OnMouseLeftDown)
         EVT_LEFT_UP(MapGLCanvas::OnMouseLeftUp)
+        EVT_LEFT_DCLICK(MapGLCanvas::OnMouseLeftDClick)
         EVT_RIGHT_DOWN(MapGLCanvas::OnMouseRightDown)
         EVT_RIGHT_UP(MapGLCanvas::OnMouseRightUp)
+        EVT_RIGHT_DCLICK(MapGLCanvas::OnMouseRightDClick)
         EVT_MIDDLE_DOWN(MapGLCanvas::OnMouseMiddleDown)
         EVT_MIDDLE_UP(MapGLCanvas::OnMouseMiddleUp)
+        EVT_MIDDLE_DCLICK(MapGLCanvas::OnMouseMiddleDClick)
         EVT_MOTION(MapGLCanvas::OnMouseMove)
         EVT_MOUSEWHEEL(MapGLCanvas::OnMouseWheel)
         EVT_MOUSE_CAPTURE_LOST(MapGLCanvas::OnMouseCaptureLost)
@@ -194,6 +197,12 @@ namespace TrenchBroom {
 				ReleaseMouse();
             m_inputController->mouseUp(Controller::MouseButtons::MBLeft);
         }
+        
+        void MapGLCanvas::OnMouseLeftDClick(wxMouseEvent& event) {
+            if (GetCapture() == this)
+                ReleaseMouse();
+            m_inputController->mouseDClick(Controller::MouseButtons::MBLeft);
+        }
 
         void MapGLCanvas::OnMouseRightDown(wxMouseEvent& event) {
 			CaptureMouse();
@@ -205,6 +214,12 @@ namespace TrenchBroom {
 				ReleaseMouse();
             m_inputController->mouseUp(Controller::MouseButtons::MBRight);
         }
+        
+        void MapGLCanvas::OnMouseRightDClick(wxMouseEvent& event) {
+			if (GetCapture() == this)
+				ReleaseMouse();
+            m_inputController->mouseDClick(Controller::MouseButtons::MBRight);
+        }
 
         void MapGLCanvas::OnMouseMiddleDown(wxMouseEvent& event) {
 			CaptureMouse();
@@ -215,6 +230,12 @@ namespace TrenchBroom {
 			if (GetCapture() == this)
 				ReleaseMouse();
             m_inputController->mouseUp(Controller::MouseButtons::MBMiddle);
+        }
+        
+        void MapGLCanvas::OnMouseMiddleDClick(wxMouseEvent& event) {
+			if (GetCapture() == this)
+				ReleaseMouse();
+            m_inputController->mouseDClick(Controller::MouseButtons::MBMiddle);
         }
 
         void MapGLCanvas::OnMouseMove(wxMouseEvent& event) {

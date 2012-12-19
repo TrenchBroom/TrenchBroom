@@ -83,10 +83,13 @@ namespace TrenchBroom {
             void OnKeyUp(wxKeyEvent& event);
             void OnMouseLeftDown(wxMouseEvent& event);
             void OnMouseLeftUp(wxMouseEvent& event);
+            void OnMouseLeftDClick(wxMouseEvent& event);
             void OnMouseRightDown(wxMouseEvent& event);
             void OnMouseRightUp(wxMouseEvent& event);
+            void OnMouseRightDClick(wxMouseEvent& event);
             void OnMouseMiddleDown(wxMouseEvent& event);
             void OnMouseMiddleUp(wxMouseEvent& event);
+            void OnMouseMiddleDClick(wxMouseEvent& event);
             void OnMouseMove(wxMouseEvent& event);
             void OnMouseWheel(wxMouseEvent& event);
             void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);

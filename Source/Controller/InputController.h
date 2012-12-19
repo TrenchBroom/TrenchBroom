@@ -69,6 +69,8 @@ namespace TrenchBroom {
             Tool* m_modalTool;
             bool m_cancelledDrag;
             
+            bool m_discardNextMouseUp;
+            
             void updateModalTool();
             void updateHits();
             void updateViews();
@@ -81,6 +83,7 @@ namespace TrenchBroom {
             
             bool mouseDown(MouseButtonState mouseButton);
             bool mouseUp(MouseButtonState mouseButton);
+            bool mouseDClick(MouseButtonState mouseButton);
             void mouseMove(int x, int y);
             void scroll(float x, float y);
             void cancelDrag();

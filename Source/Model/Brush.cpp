@@ -278,6 +278,37 @@ namespace TrenchBroom {
             return newVertexPositions;
         }
 
+        bool Brush::canMoveEdges(const Model::EdgeList& edges, const Vec3f& delta) {
+            return m_geometry->canMoveEdges(edges, delta);
+        }
+        
+        void Brush::moveEdges(const Model::EdgeList& edges, const Vec3f& delta) {
+            FaceList newFaces;
+            FaceList droppedFaces;
+            
+            m_geometry->moveEdges(edges, delta, newFaces, droppedFaces);
+            
+            for (FaceList::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
+                Model::Face* face = *it;
+                face->setBrush(NULL);
+                m_faces.erase(std::remove(m_faces.begin(), m_faces.end(), face), m_faces.end());
+                delete face;
+            }
+            
+            for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
+                Model::Face* face = *it;
+                face->invalidateVertexCache();
+            }
+            
+            for (FaceList::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
+                Model::Face* face = *it;
+                face->setBrush(this);
+                m_faces.push_back(face);
+            }
+            
+            m_entity->invalidateGeometry();
+        }
+
         bool Brush::canSplitEdge(Edge* edge, const Vec3f& delta) {
             return m_geometry->canSplitEdge(edge, delta);
         }

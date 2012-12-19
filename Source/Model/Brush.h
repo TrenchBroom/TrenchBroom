@@ -126,8 +126,12 @@ namespace TrenchBroom {
             void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTextures);
             void rotate(const Quat& rotation, const Vec3f& center, bool lockTextures);
             void flip(Axis::Type axis, const Vec3f& center, bool lockTextures);
+            
             bool canMoveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta);
             Vec3f::List moveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta);
+            bool canMoveEdges(const Model::EdgeList& edges, const Vec3f& delta);
+            void moveEdges(const Model::EdgeList& edges, const Vec3f& delta);
+            
             bool canSplitEdge(Edge* edge, const Vec3f& delta);
             Vec3f splitEdge(Edge* edge, const Vec3f& delta);
             bool canSplitFace(Face* face, const Vec3f& delta);

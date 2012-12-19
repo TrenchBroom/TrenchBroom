@@ -19,6 +19,7 @@
 
 #include "MoveVerticesTool.h"
 
+#include "Controller/MoveEdgesCommand.h"
 #include "Controller/MoveVerticesCommand.h"
 #include "Controller/SplitEdgesCommand.h"
 #include "Model/EditStateManager.h"
@@ -65,6 +66,7 @@ namespace TrenchBroom {
         }
 
         bool MoveVerticesTool::handleActivate(InputState& inputState) {
+            m_mode = VMMove;
             m_handleManager.clear();
             m_handleManager.add(document().editStateManager().selectedBrushes());
             updateMoveHandle(inputState);
@@ -88,16 +90,13 @@ namespace TrenchBroom {
             if (!m_moveHandle.locked())
                 m_moveHandle.setLastHit(moveHandleHit);
 
-            m_handleManager.pick(inputState.pickRay(), inputState.pickResult(), true, true, true);
+            m_handleManager.pick(inputState.pickRay(), inputState.pickResult(), m_mode == VMSplit);
         }
         
         void MoveVerticesTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
             Model::MoveHandleHit* moveHandleHit = static_cast<Model::MoveHandleHit*>(inputState.pickResult().first(Model::HitType::MoveHandleHit, true, view().filter()));
             m_moveHandle.render(moveHandleHit, vbo, renderContext);
-            m_handleManager.render(vbo, renderContext, true, true, true);
-        }
-
-        void MoveVerticesTool::handleModifierKeyChange(InputState& inputState) {
+            m_handleManager.render(vbo, renderContext, m_mode == VMSplit);
         }
 
         bool MoveVerticesTool::handleMouseUp(InputState& inputState) {
@@ -122,9 +121,36 @@ namespace TrenchBroom {
                     m_handleManager.selectVertexHandle(hit->vertex());
                 }
             } else if (hit->type() == Model::HitType::EdgeHandleHit) {
-                m_handleManager.deselectAll();
-                m_handleManager.selectEdgeHandle(hit->vertex());
+                m_handleManager.deselectVertexHandles();
+                bool selected = m_handleManager.edgeHandleSelected(hit->vertex());
+                if (inputState.modifierKeys() == ModifierKeys::MKCtrlCmd) {
+                    if (selected)
+                        m_handleManager.deselectEdgeHandle(hit->vertex());
+                    else
+                        m_handleManager.selectEdgeHandle(hit->vertex());
+                } else {
+                    m_handleManager.deselectAll();
+                    m_handleManager.selectEdgeHandle(hit->vertex());
+                }
             }
+            m_mode = VMMove;
+            
+            updateMoveHandle(inputState);
+            return true;
+        }
+
+        bool MoveVerticesTool::handleMouseDClick(InputState& inputState) {
+            if (inputState.mouseButtons() != MouseButtons::MBLeft ||
+                inputState.modifierKeys() != ModifierKeys::MKNone)
+                return false;
+
+            Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::EdgeHandleHit, true, view().filter()));
+            if (hit == NULL)
+                return false;
+            
+            m_handleManager.deselectAll();
+            m_handleManager.selectEdgeHandle(hit->vertex());
+            m_mode = VMSplit;
             
             updateMoveHandle(inputState);
             return true;
@@ -139,7 +165,7 @@ namespace TrenchBroom {
                 (inputState.modifierKeys() != ModifierKeys::MKNone && inputState.modifierKeys() != ModifierKeys::MKAlt))
                 return false;
             
-            Model::MoveHandleHit* hit = static_cast<Model::MoveHandleHit*>(inputState.pickResult().first(Model::HitType::MoveHandleHit | Model::HitType::EdgeHandleHit, true, view().filter()));
+            Model::MoveHandleHit* hit = static_cast<Model::MoveHandleHit*>(inputState.pickResult().first(Model::HitType::MoveHandleHit, true, view().filter()));
             if (hit == NULL)
                 return false;
             
@@ -171,12 +197,16 @@ namespace TrenchBroom {
             }
             
             wxString name;
-            if (!m_handleManager.selectedVertexHandles().empty())
-                name = m_handleManager.selectedVertexHandles().size() == 1 ? wxT("Move Vertex") : wxT("Move Vertices");
-            else if (!m_handleManager.selectedEdgeHandles().empty())
+            if (m_mode == VMMove) {
+                assert(m_handleManager.selectedVertexHandles().size() > 0 ^ m_handleManager.selectedEdgeHandles().size() > 0);
+                if (!m_handleManager.selectedVertexHandles().empty())
+                    name = m_handleManager.selectedVertexHandles().size() == 1 ? wxT("Move Vertex") : wxT("Move Vertices");
+                else if (!m_handleManager.selectedEdgeHandles().empty())
+                    name = m_handleManager.selectedEdgeHandles().size() == 1 ? wxT("Move Edge") : wxT("Move Edges");
+            } else {
+                assert(m_handleManager.selectedVertexHandles().size() == 0 && m_handleManager.selectedEdgeHandles().size() > 0);
                 name = wxT("Split Edge");
-            else
-                return false;
+            }
             
             initialPoint = hit->hitPoint();
             m_moveHandle.lock();
@@ -206,22 +236,31 @@ namespace TrenchBroom {
             if (delta.null())
                 return true;
             
-            if (!m_handleManager.selectedVertexHandles().empty()) {
-                MoveVerticesCommand* command = MoveVerticesCommand::moveVertices(document(), m_handleManager.selectedVertexHandles(), delta);
-                m_handleManager.remove(command->brushes());
-                
-                submitCommand(command);
-                m_handleManager.add(command->brushes());
-                
-                const Vec3f::Set& vertices = command->vertices();
-                if (vertices.empty())
-                    return false;
-                
-                m_handleManager.selectVertexHandles(command->vertices());
-            } else if (!m_handleManager.selectedEdgeHandles().empty()) {
+            if (m_mode == VMMove) {
+                if (!m_handleManager.selectedVertexHandles().empty()) {
+                    MoveVerticesCommand* command = MoveVerticesCommand::moveVertices(document(), m_handleManager.selectedVertexHandles(), delta);
+                    m_handleManager.remove(command->brushes());
+                    
+                    submitCommand(command);
+                    m_handleManager.add(command->brushes());
+                    
+                    const Vec3f::Set& vertices = command->vertices();
+                    if (vertices.empty())
+                        return false;
+                    
+                    m_handleManager.selectVertexHandles(command->vertices());
+                } else if (!m_handleManager.selectedEdgeHandles().empty()) {
+                    MoveEdgesCommand* command = MoveEdgesCommand::moveEdges(document(), m_handleManager.selectedEdgeHandles(), delta);
+                    m_handleManager.remove(command->brushes());
+
+                    submitCommand(command);
+                    m_handleManager.add(command->brushes());
+                    m_handleManager.selectEdgeHandles(command->edges());
+                }
+            } else {
                 assert(m_handleManager.selectedEdgeHandles().size() == 1);
                 const Vec3f& position = m_handleManager.selectedEdgeHandles().begin()->first;
-
+                
                 SplitEdgesCommand* command = SplitEdgesCommand::splitEdges(document(), m_handleManager.edges(position), delta);
                 m_handleManager.remove(command->brushes());
                 
@@ -230,6 +269,7 @@ namespace TrenchBroom {
                     const Vec3f::Set& vertices = command->vertices();
                     assert(!vertices.empty());
                     m_handleManager.selectVertexHandles(command->vertices());
+                    m_mode = VMMove;
                 } else {
                     m_handleManager.add(command->brushes());
                     m_handleManager.selectEdgeHandle(position);
@@ -273,6 +313,7 @@ namespace TrenchBroom {
 
         MoveVerticesTool::MoveVerticesTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float planeRadius, float vertexSize) :
         PlaneDragTool(documentViewHolder, true),
-        m_moveHandle(axisLength, planeRadius) {}
+        m_moveHandle(axisLength, planeRadius),
+        m_mode(VMMove) {}
     }
 }
