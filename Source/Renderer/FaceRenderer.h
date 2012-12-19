@@ -45,10 +45,10 @@ namespace TrenchBroom {
             Color m_faceColor;
             TextureVertexArrayList m_vertexArrays;
             
-            void writeFaceData(Vbo& vbo, TextureRendererManager& textureRendererManager, const Sorter& faces);
+            void writeFaceData(Vbo& vbo, TextureRendererManager& textureRendererManager, const Sorter& faceSorter);
             void render(RenderContext& context, bool grayScale, const Color* tintColor);
         public:
-            FaceRenderer(Vbo& vbo, TextureRendererManager& textureRendererManager, const Sorter& faces, const Color& faceColor);
+            FaceRenderer(Vbo& vbo, TextureRendererManager& textureRendererManager, const Sorter& faceSorter, const Color& faceColor);
             
             void render(RenderContext& context, bool grayScale);
             void render(RenderContext& context, bool grayScale, const Color& tintColor);

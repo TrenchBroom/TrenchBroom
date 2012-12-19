@@ -45,13 +45,13 @@ namespace TrenchBroom {
                 ENT
             } NodePosition;
             
-            int m_minSize;
+            unsigned int m_minSize;
             BBox m_bounds;
             MapObjectList m_objects;
             OctreeNode* m_children[8];
-            bool addObject(MapObject& object, int childIndex);
+            bool addObject(MapObject& object, unsigned int childIndex);
         public:
-            OctreeNode(const BBox& bounds, int minSize);
+            OctreeNode(const BBox& bounds, unsigned int minSize);
             ~OctreeNode();
             bool addObject(MapObject& object);
             bool removeObject(MapObject& object);
@@ -61,11 +61,11 @@ namespace TrenchBroom {
         
         class Octree {
         private:
-            int m_minSize;
+            unsigned int m_minSize;
             Map& m_map;
             OctreeNode* m_root;
         public:
-            Octree(Map& map, int minSize = 64);
+            Octree(Map& map, unsigned int minSize = 64);
             ~Octree();
             
             void loadMap();

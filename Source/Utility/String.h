@@ -46,10 +46,10 @@ namespace TrenchBroom {
         }
         
         inline long makeHash(const String& str) {
-            unsigned long hash = 0;
+            long hash = 0;
             String::const_iterator it, end;
             for (it = str.begin(), end = str.end(); it != end; ++it)
-                hash = (*it) + (hash << 6) + (hash << 16) - hash;
+                hash = static_cast<long>(*it) + (hash << 6) + (hash << 16) - hash;
             return hash;
         }
 

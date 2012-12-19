@@ -53,8 +53,8 @@ namespace TrenchBroom {
                 }
                 
                 bounds.vertices(vertices);
-                for (unsigned int i = 0; i < vertices.size(); i++) {
-                    m_boundsVertexArray->addAttribute(vertices[i]);
+                for (unsigned int j = 0; j < vertices.size(); j++) {
+                    m_boundsVertexArray->addAttribute(vertices[j]);
                     m_boundsVertexArray->addAttribute(entityColor);
                 }
             }
@@ -70,8 +70,8 @@ namespace TrenchBroom {
                 const BBox& bounds = entity->bounds();
                 bounds.vertices(vertices);
                 
-                for (unsigned int i = 0; i < vertices.size(); i++)
-                    m_boundsVertexArray->addAttribute(vertices[i]);
+                for (unsigned int j = 0; j < vertices.size(); j++)
+                    m_boundsVertexArray->addAttribute(vertices[j]);
             }
         }
 

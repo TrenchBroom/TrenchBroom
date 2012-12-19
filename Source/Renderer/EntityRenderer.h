@@ -47,8 +47,12 @@ namespace TrenchBroom {
             public:
                 EntityModelRenderer* renderer;
                 String classname;
+                
                 CachedEntityModelRenderer() : renderer(NULL), classname("") {}
-                CachedEntityModelRenderer(EntityModelRenderer* renderer, const String& classname) : renderer(renderer), classname(classname) {}
+                
+                CachedEntityModelRenderer(EntityModelRenderer* i_renderer, const String& i_classname) :
+                renderer(i_renderer),
+                classname(i_classname) {}
             };
 
             typedef std::map<Model::Entity*, CachedEntityModelRenderer> EntityModelRenderers;

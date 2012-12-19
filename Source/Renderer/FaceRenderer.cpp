@@ -34,8 +34,8 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
-        void FaceRenderer::writeFaceData(Vbo& vbo, TextureRendererManager& textureRendererManager, const Sorter& faces) {
-            const FaceCollectionMap& faceCollectionMap = faces.collections();
+        void FaceRenderer::writeFaceData(Vbo& vbo, TextureRendererManager& textureRendererManager, const Sorter& faceSorter) {
+            const FaceCollectionMap& faceCollectionMap = faceSorter.collections();
             if (faceCollectionMap.empty())
                 return;
             
@@ -106,9 +106,9 @@ namespace TrenchBroom {
             }
         }
 
-        FaceRenderer::FaceRenderer(Vbo& vbo, TextureRendererManager& textureRendererManager, const Sorter& faces, const Color& faceColor) :
+        FaceRenderer::FaceRenderer(Vbo& vbo, TextureRendererManager& textureRendererManager, const Sorter& faceSorter, const Color& faceColor) :
         m_faceColor(faceColor) {
-            writeFaceData(vbo, textureRendererManager, faces);
+            writeFaceData(vbo, textureRendererManager, faceSorter);
         }
         
         void FaceRenderer::render(RenderContext& context, bool grayScale) {

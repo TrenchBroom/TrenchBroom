@@ -60,21 +60,22 @@ namespace TrenchBroom {
             uint32_t width, height, mip0Offset;
             char textureName[BspLayout::TextureNameLength];
             unsigned char* mip0;
-            std::streamoff base;
-
-            base = stream->tellg();
+            const std::streampos base = stream->tellg();
 
             for (unsigned int i = 0; i < count; i++) {
-                stream->seekg(base + (i + 1) * sizeof(int32_t), std::ios::beg);
+                stream->seekg(base + static_cast<std::streamoff>((i + 1) * sizeof(int32_t)), std::ios::beg);
                 stream->read(reinterpret_cast<char *>(&offset), sizeof(int32_t));
-                stream->seekg(base + offset, std::ios::beg);
+                stream->seekg(base + static_cast<std::streamoff>(offset), std::ios::beg);
                 stream->read(textureName, BspLayout::TextureNameLength);
                 stream->read(reinterpret_cast<char *>(&width), sizeof(uint32_t));
                 stream->read(reinterpret_cast<char *>(&height), sizeof(uint32_t));
                 stream->read(reinterpret_cast<char *>(&mip0Offset), sizeof(uint32_t));
 
+                assert(mip0Offset >= 0);
+                int32_t totalOffset = offset + static_cast<int32_t>(mip0Offset);
+
                 mip0 = new unsigned char[width * height];
-                stream->seekg(base + offset + mip0Offset, std::ios::beg);
+                stream->seekg(base + static_cast<std::streamoff>(totalOffset), std::ios::beg);
                 stream->read(reinterpret_cast<char *>(mip0), width * height);
 
                 BspTexture* texture = new BspTexture(textureName, mip0, width, height);
@@ -143,16 +144,20 @@ namespace TrenchBroom {
 
             stream->seekg(textureAddr, std::ios::beg);
             stream->read(reinterpret_cast<char *>(&textureCount), sizeof(int32_t));
-            stream->seekg(-static_cast<int>(sizeof(int32_t)), std::ios::cur);
-            m_textures.resize(textureCount);
-            readTextures(stream, textureCount);
+            assert(textureCount >= 0);
+            
+            stream->seekg(-static_cast<std::streamoff>(sizeof(int32_t)), std::ios::cur);
+            m_textures.resize(static_cast<size_t>(textureCount));
+            readTextures(stream, static_cast<unsigned int>(textureCount));
 
             int32_t texInfosAddr, texInfosLength;
             unsigned int texInfoCount;
             stream->seekg(BspLayout::DirTexInfosAddress, std::ios::beg);
             stream->read(reinterpret_cast<char *>(&texInfosAddr), sizeof(int32_t));
             stream->read(reinterpret_cast<char *>(&texInfosLength), sizeof(int32_t));
-            texInfoCount = texInfosLength / BspLayout::TexInfoSize;
+            
+            assert(texInfosLength >= 0);
+            texInfoCount = static_cast<unsigned int>(texInfosLength) / BspLayout::TexInfoSize;
             m_textureInfos.resize(texInfoCount);
             stream->seekg(texInfosAddr, std::ios::beg);
             readTextureInfos(stream, texInfoCount, m_textures);
@@ -162,7 +167,9 @@ namespace TrenchBroom {
             stream->seekg(BspLayout::DirVerticesAddress, std::ios::beg);
             stream->read(reinterpret_cast<char *>(&verticesAddr), sizeof(int32_t));
             stream->read(reinterpret_cast<char *>(&verticesLength), sizeof(int32_t));
-            vertexCount = verticesLength / sizeof(Vec3f);
+            
+            assert(verticesLength >= 0);
+            vertexCount = static_cast<unsigned int>(verticesLength) / sizeof(Vec3f);
 
             Vec3f::List vertices;
             stream->seekg(verticesAddr, std::ios::beg);
@@ -173,7 +180,9 @@ namespace TrenchBroom {
             stream->seekg(BspLayout::DirEdgesAddress, std::ios::beg);
             stream->read(reinterpret_cast<char *>(&edgesAddr), sizeof(int32_t));
             stream->read(reinterpret_cast<char *>(&edgesLength), sizeof(int32_t));
-            edgeCount = edgesLength / sizeof(BspEdgeInfo);
+            
+            assert(edgesLength >= 0);
+            edgeCount = static_cast<unsigned int>(edgesLength) / sizeof(BspEdgeInfo);
 
             BspEdgeInfoList edges;
             stream->seekg(edgesAddr, std::ios::beg);
@@ -184,7 +193,9 @@ namespace TrenchBroom {
             stream->seekg(BspLayout::DirFacesAddress, std::ios::beg);
             stream->read(reinterpret_cast<char *>(&facesAddr), sizeof(int32_t));
             stream->read(reinterpret_cast<char *>(&facesLength), sizeof(int32_t));
-            faceCount = facesLength / BspLayout::FaceSize;
+            
+            assert(facesLength >= 0);
+            faceCount = static_cast<unsigned int>(facesLength) / BspLayout::FaceSize;
 
             BspFaceInfoList faces;
             stream->seekg(facesAddr, std::ios::beg);
@@ -195,7 +206,9 @@ namespace TrenchBroom {
             stream->seekg(BspLayout::DirFaceEdgesAddress, std::ios::beg);
             stream->read(reinterpret_cast<char *>(&faceEdgesAddr), sizeof(int32_t));
             stream->read(reinterpret_cast<char *>(&faceEdgesLength), sizeof(int32_t));
-            faceEdgesCount = faceEdgesLength / BspLayout::FaceEdgeSize;
+            
+            assert(faceEdgesLength >= 0);
+            faceEdgesCount = static_cast<unsigned int>(faceEdgesLength) / BspLayout::FaceEdgeSize;
 
             int32_t* faceEdges = new int32_t[faceEdgesCount];
             stream->seekg(faceEdgesAddr, std::ios::beg);
@@ -206,25 +219,30 @@ namespace TrenchBroom {
             stream->seekg(BspLayout::DirModelAddress, std::ios::beg);
             stream->read(reinterpret_cast<char *>(&modelsAddr), sizeof(int32_t));
             stream->read(reinterpret_cast<char *>(&modelsLength), sizeof(int32_t));
-            modelCount = modelsLength / BspLayout::ModelSize;
+            
+            assert(modelsLength >= 0);
+            modelCount = static_cast<unsigned int>(modelsLength) / BspLayout::ModelSize;
 
             bool* vertexMark = new bool[vertexCount];
             memset(vertexMark, false, vertexCount * sizeof(bool));
-            int* modelVertices = new int[vertexCount];
+            unsigned int* modelVertices = new unsigned int[vertexCount];
 
             stream->seekg(modelsAddr, std::ios::beg);
             for (unsigned int i = 0; i < modelCount; i++) {
-                int32_t faceIndex, faceCount;
-                int totalVertexCount = 0;
-                int modelVertexCount = 0;
+                int32_t modelFaceIndex, modelFaceCount;
+                unsigned int totalVertexCount = 0;
+                unsigned int modelVertexCount = 0;
 
                 stream->seekg(BspLayout::ModelFaceIndex, std::ios::cur);
-                stream->read(reinterpret_cast<char *>(&faceIndex), sizeof(int32_t));
-                stream->read(reinterpret_cast<char *>(&faceCount), sizeof(int32_t));
+                stream->read(reinterpret_cast<char *>(&modelFaceIndex), sizeof(int32_t));
+                stream->read(reinterpret_cast<char *>(&modelFaceCount), sizeof(int32_t));
 
+                assert(modelFaceIndex >= 0);
+                assert(modelFaceCount >= 0);
+                
                 BspFaceList bspFaces;
-                for (int j = 0; j < faceCount; j++) {
-                    BspFaceInfo& faceInfo = faces[faceIndex + j];
+                for (unsigned int j = 0; j < modelFaceCount; j++) {
+                    BspFaceInfo& faceInfo = faces[static_cast<size_t>(modelFaceIndex) + j];
                     BspTextureInfo* textureInfo = m_textureInfos[faceInfo.textureInfoIndex];
 
                     int faceVertexCount = faceInfo.edgeCount;
@@ -233,19 +251,21 @@ namespace TrenchBroom {
                         int faceEdgeIndex = faceEdges[faceInfo.edgeIndex + k];
                         int vertexIndex;
                         if (faceEdgeIndex < 0)
-                            vertexIndex = edges[-faceEdgeIndex].vertex1;
+                            vertexIndex = edges[static_cast<size_t>(-faceEdgeIndex)].vertex1;
                         else
-                            vertexIndex = edges[faceEdgeIndex].vertex0;
-                        faceVertices.push_back(vertices[vertexIndex]);
+                            vertexIndex = edges[static_cast<size_t>(faceEdgeIndex)].vertex0;
+                        
+                        assert(vertexIndex >= 0);
+                        faceVertices.push_back(vertices[static_cast<size_t>(vertexIndex)]);
                         if (!vertexMark[vertexIndex]) {
                             vertexMark[vertexIndex] = true;
-                            modelVertices[modelVertexCount++] = vertexIndex;
+                            modelVertices[modelVertexCount++] = static_cast<unsigned int>(vertexIndex);
                         }
                     }
 
                     BspFace* bspFace = new BspFace(textureInfo, faceVertices);
                     bspFaces.push_back(bspFace);
-                    totalVertexCount += faceVertexCount;
+                    totalVertexCount += static_cast<unsigned int>(faceVertexCount);
                 }
 
                 Vec3f center;
@@ -255,8 +275,8 @@ namespace TrenchBroom {
                 bounds.min = vertices[modelVertices[0]];
                 bounds.max = vertices[modelVertices[0]];
 
-                for (int i = 1; i < modelVertexCount; i++) {
-                    int vertexIndex = modelVertices[i];
+                for (unsigned int j = 1; j < modelVertexCount; j++) {
+                    unsigned int vertexIndex = modelVertices[j];
                     center += vertices[vertexIndex];
                     bounds.mergeWith(vertices[vertexIndex]);
                     vertexMark[vertexIndex] = false;

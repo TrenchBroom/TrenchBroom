@@ -30,7 +30,7 @@ namespace TrenchBroom {
         class Texture {
         public:
             static const String Empty;
-            typedef int IdType;
+            typedef unsigned int IdType;
         protected:
             TextureCollection& m_collection;
             String m_name;
@@ -47,7 +47,7 @@ namespace TrenchBroom {
             m_height(height),
             m_usageCount(0),
             m_overridden(false) {
-                static unsigned int uniqueId = 0;
+                static IdType uniqueId = 0;
                 m_uniqueId = uniqueId++;
             }
 

@@ -35,7 +35,7 @@ namespace TrenchBroom {
 
             BBox() : min(Vec3f::Null), max(Vec3f::Null) {}
 
-            BBox(const Vec3f& min, const Vec3f& max) : min(min), max(max) {}
+            BBox(const Vec3f& i_min, const Vec3f& i_max) : min(i_min), max(i_max) {}
             
             BBox(float minx, float miny, float minz, float maxx, float maxy, float maxz) {
                 min.x = minx;

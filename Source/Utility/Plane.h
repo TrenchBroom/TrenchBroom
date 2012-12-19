@@ -34,9 +34,9 @@ namespace TrenchBroom {
             
             Plane() : normal(Vec3f::Null), distance(0) {}
             
-            Plane(const Vec3f& normal, float distance) : normal(normal), distance(distance) {}
+            Plane(const Vec3f& i_normal, float i_distance) : normal(i_normal), distance(i_distance) {}
             
-            Plane(const Vec3f& normal, const Vec3f& anchor) : normal(normal), distance(anchor.dot(normal)) {}
+            Plane(const Vec3f& i_normal, const Vec3f& i_anchor) : normal(i_normal), distance(i_anchor.dot(i_normal)) {}
             
             static const Plane horizontalDragPlane(const Vec3f& position) {
                 return Plane(Vec3f::PosZ, position);

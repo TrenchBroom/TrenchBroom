@@ -20,13 +20,15 @@
 #ifndef TrenchBroom_Capabilities_h
 #define TrenchBroom_Capabilities_h
 
+#include <GL/glew.h>
+
 namespace TrenchBroom {
     namespace GL {
         class Capabilities {
         public:
             bool multisample;
             unsigned int samples;
-            unsigned int depthBits;
+            GLint depthBits;
 
             Capabilities() :
             multisample(false),

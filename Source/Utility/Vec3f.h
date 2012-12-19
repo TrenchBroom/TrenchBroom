@@ -112,7 +112,7 @@ namespace TrenchBroom {
                 z = static_cast<float>(atof(cstr + pos));
             }
             
-            Vec3f(float x, float y, float z) : x(x), y(y), z(z) {}
+            Vec3f(float i_x, float i_y, float i_z) : x(i_x), y(i_y), z(i_z) {}
             
             Vec3f(float f) : x(f), y(f), z(f) {}
             

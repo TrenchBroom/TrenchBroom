@@ -313,7 +313,7 @@ namespace TrenchBroom {
             while (token->type() == TokenType::Word) {
                 token = m_tokenizer.nextToken();
                 String name = token->data();
-                unsigned int value = 1 << flags.size();
+                int value = 1 << flags.size();
                 
                 flags.push_back(Model::Spawnflag(name, value));
                 token = m_tokenizer.peekToken();
@@ -357,7 +357,7 @@ namespace TrenchBroom {
                 unsigned int skinIndex = 0;
                 size_t lastColon = modelPath.find_last_of(':');
                 if (lastColon > 0 && lastColon != std::string::npos) {
-                    skinIndex = atoi(modelPath.c_str() + lastColon + 1);
+                    skinIndex = static_cast<unsigned int>(atoi(modelPath.c_str() + lastColon + 1));
                     modelPath = modelPath.substr(0, lastColon);
                 }
 

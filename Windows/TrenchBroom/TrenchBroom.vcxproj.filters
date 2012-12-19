@@ -686,9 +686,6 @@
     <ClInclude Include="..\..\Source\Renderer\PushMatrix.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\RenderTypes.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Renderer\TexturedPolygonSorter.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>

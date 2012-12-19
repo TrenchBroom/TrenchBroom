@@ -106,7 +106,7 @@ namespace TrenchBroom {
                         d = m_stream.peek();
                         m_column++;
                     } while (d != '\n' && m_stream.tellg() > 0);
-                    m_stream.seekg(m_column, std::ios::cur);
+                    m_stream.seekg(static_cast<std::streamoff>(m_column), std::ios::cur);
                 } else {
                     m_column--;
                 }

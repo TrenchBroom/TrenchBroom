@@ -63,9 +63,11 @@ namespace TrenchBroom {
                     assert(contains(t));
 
                     unsigned char* block = reinterpret_cast<unsigned char*>(t);
-                    assert((block - m_blocks) % sizeof(T) == 0);
+                    assert(block >= m_blocks);
+                    size_t offset = static_cast<size_t>(block - m_blocks);
+                    assert(offset % sizeof(T) == 0);
 
-                    size_t index = (block - m_blocks) / sizeof(T);
+                    size_t index = offset / sizeof(T);
                     assert(index < 256);
 
                     *block = m_firstFreeBlock;

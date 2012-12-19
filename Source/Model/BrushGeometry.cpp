@@ -89,8 +89,8 @@ namespace TrenchBroom {
             }
         }
 
-        Side::Side(Face& face, EdgeList& newEdges) :
-        face(&face),
+        Side::Side(Face& i_face, EdgeList& newEdges) :
+        face(&i_face),
         mark(Side::New) {
             vertices.reserve(newEdges.size());
             edges.reserve(newEdges.size());
@@ -675,7 +675,7 @@ namespace TrenchBroom {
                 bool success = deleteElement(edges, neighbour->edges[i]);
                 assert(success);
                 if (i > neighbour->edges.size() - count) {
-                    bool success = deleteElement(vertices, neighbour->vertices[i]);
+                    success = deleteElement(vertices, neighbour->vertices[i]);
                     assert(success);
                 }
             }
@@ -1167,15 +1167,15 @@ namespace TrenchBroom {
             return true;
         }
 
-        BrushGeometry::BrushGeometry(const BBox& bounds) {
-            Vertex* lfd = new Vertex(bounds.min.x, bounds.min.y, bounds.min.z);
-            Vertex* lfu = new Vertex(bounds.min.x, bounds.min.y, bounds.max.z);
-            Vertex* lbd = new Vertex(bounds.min.x, bounds.max.y, bounds.min.z);
-            Vertex* lbu = new Vertex(bounds.min.x, bounds.max.y, bounds.max.z);
-            Vertex* rfd = new Vertex(bounds.max.x, bounds.min.y, bounds.min.z);
-            Vertex* rfu = new Vertex(bounds.max.x, bounds.min.y, bounds.max.z);
-            Vertex* rbd = new Vertex(bounds.max.x, bounds.max.y, bounds.min.z);
-            Vertex* rbu = new Vertex(bounds.max.x, bounds.max.y, bounds.max.z);
+        BrushGeometry::BrushGeometry(const BBox& i_bounds) {
+            Vertex* lfd = new Vertex(i_bounds.min.x, i_bounds.min.y, i_bounds.min.z);
+            Vertex* lfu = new Vertex(i_bounds.min.x, i_bounds.min.y, i_bounds.max.z);
+            Vertex* lbd = new Vertex(i_bounds.min.x, i_bounds.max.y, i_bounds.min.z);
+            Vertex* lbu = new Vertex(i_bounds.min.x, i_bounds.max.y, i_bounds.max.z);
+            Vertex* rfd = new Vertex(i_bounds.max.x, i_bounds.min.y, i_bounds.min.z);
+            Vertex* rfu = new Vertex(i_bounds.max.x, i_bounds.min.y, i_bounds.max.z);
+            Vertex* rbd = new Vertex(i_bounds.max.x, i_bounds.max.y, i_bounds.min.z);
+            Vertex* rbu = new Vertex(i_bounds.max.x, i_bounds.max.y, i_bounds.max.z);
 
             Edge* lfdlbd = new Edge(lfd, lbd);
             Edge* lbdlbu = new Edge(lbd, lbu);
@@ -1244,7 +1244,7 @@ namespace TrenchBroom {
             sides[4] = top;
             sides[5] = down;
 
-            this->bounds = bounds;
+            this->bounds = i_bounds;
             this->center = centerOfVertices(vertices);
         }
 
@@ -1318,10 +1318,10 @@ namespace TrenchBroom {
                 Edge* newEdge = side->split();
 
                 if (side->mark == Side::Drop) {
-                    Face* face = side->face;
-                    if (face != NULL) {
-                        droppedFaces.push_back(face);
-                        face->setSide(NULL);
+                    Face* dropFace = side->face;
+                    if (dropFace != NULL) {
+                        droppedFaces.push_back(dropFace);
+                        dropFace->setSide(NULL);
                     }
                     delete side;
                     sideIt = sides.erase(sideIt);
@@ -1364,13 +1364,13 @@ namespace TrenchBroom {
             // sanity checks
             for (unsigned int i = 0; i < sides.size(); i++) {
                 Side* side = sides[i];
-                VertexList& vertices = side->vertices;
-                EdgeList& edges = side->edges;
-                assert(vertices.size() == edges.size());
-                for (unsigned int j = 0; j < vertices.size(); j++) {
-                    assert(vertices[j]->mark != Vertex::Drop);
-                    assert(edges[j]->mark != Edge::Drop);
-                    assert(edges[j]->startVertex(side) == vertices[j]);
+                VertexList& sideVertices = side->vertices;
+                EdgeList& sideEdges = side->edges;
+                assert(sideVertices.size() == sideEdges.size());
+                for (unsigned int j = 0; j < sideVertices.size(); j++) {
+                    assert(sideVertices[j]->mark != Vertex::Drop);
+                    assert(sideEdges[j]->mark != Edge::Drop);
+                    assert(sideEdges[j]->startVertex(side) == sideVertices[j]);
                 }
             }
 
@@ -1493,13 +1493,13 @@ namespace TrenchBroom {
             return newVertexPositions;
         }
 
-        bool BrushGeometry::canMoveEdges(const EdgeList& edges, const Vec3f& delta) {
+        bool BrushGeometry::canMoveEdges(const EdgeList& i_edges, const Vec3f& delta) {
             FaceList newFaces;
             FaceList droppedFaces;
             
             Vec3f::Set sortedVertexPositions;
             EdgeList::const_iterator edgeIt, edgeEnd;
-            for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
+            for (edgeIt = i_edges.begin(), edgeEnd = i_edges.end(); edgeIt != edgeEnd; ++edgeIt) {
                 const Edge& edge = **edgeIt;
                 sortedVertexPositions.insert(edge.start->position);
                 sortedVertexPositions.insert(edge.end->position);
@@ -1521,12 +1521,12 @@ namespace TrenchBroom {
             return canMove;
         }
     
-        void BrushGeometry::moveEdges(const EdgeList& edges, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces) {
-            assert(canMoveEdges(edges, delta));
+        void BrushGeometry::moveEdges(const EdgeList& i_edges, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces) {
+            assert(canMoveEdges(i_edges, delta));
 
             Vec3f::Set sortedVertexPositions;
             EdgeList::const_iterator edgeIt, edgeEnd;
-            for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
+            for (edgeIt = i_edges.begin(), edgeEnd = i_edges.end(); edgeIt != edgeEnd; ++edgeIt) {
                 const Edge& edge = **edgeIt;
                 sortedVertexPositions.insert(edge.start->position);
                 sortedVertexPositions.insert(edge.end->position);
@@ -1551,9 +1551,9 @@ namespace TrenchBroom {
             FaceList::const_iterator faceIt, faceEnd;
             for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
                 const Face& face = **faceIt;
-                const VertexList& vertices = face.vertices();
+                const VertexList& faceVertices = face.vertices();
                 VertexList::const_iterator vertexIt, vertexEnd;
-                for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt) {
+                for (vertexIt = faceVertices.begin(), vertexEnd = faceVertices.end(); vertexIt != vertexEnd; ++vertexIt) {
                     const Vertex& vertex = **vertexIt;
                     sortedVertexPositions.insert(vertex.position);
                 }
@@ -1582,9 +1582,9 @@ namespace TrenchBroom {
             FaceList::const_iterator faceIt, faceEnd;
             for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
                 const Face& face = **faceIt;
-                const VertexList& vertices = face.vertices();
+                const VertexList& faceVertices = face.vertices();
                 VertexList::const_iterator vertexIt, vertexEnd;
-                for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt) {
+                for (vertexIt = faceVertices.begin(), vertexEnd = faceVertices.end(); vertexIt != vertexEnd; ++vertexIt) {
                     const Vertex& vertex = **vertexIt;
                     sortedVertexPositions.insert(vertex.position);
                 }

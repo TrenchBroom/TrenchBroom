@@ -383,21 +383,21 @@ namespace TrenchBroom {
             Vec3f newVertexPosition = m_geometry->splitFace(face, delta, newFaces, droppedFaces);
             
             for (FaceList::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
-                Face* face = *it;
-                face->setBrush(NULL);
-                m_faces.erase(std::remove(m_faces.begin(), m_faces.end(), face), m_faces.end());
-                delete face;
+                Face* dropFace = *it;
+                dropFace->setBrush(NULL);
+                m_faces.erase(std::remove(m_faces.begin(), m_faces.end(), dropFace), m_faces.end());
+                delete dropFace;
             }
             
             for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
-                Face* face = *it;
-                face->invalidateVertexCache();
+                Face* keepFace = *it;
+                keepFace->invalidateVertexCache();
             }
             
             for (FaceList::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
-                Face* face = *it;
-                face->setBrush(this);
-                m_faces.push_back(face);
+                Face* newFace = *it;
+                newFace->setBrush(this);
+                m_faces.push_back(newFace);
             }
             
             m_entity->invalidateGeometry();

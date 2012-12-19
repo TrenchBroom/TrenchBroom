@@ -21,6 +21,7 @@
 #define TrenchBroom_TexturedPolygonSorter_h
 
 #include <map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {

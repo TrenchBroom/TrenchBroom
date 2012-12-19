@@ -261,11 +261,22 @@ namespace TrenchBroom {
                 }
                 
                 if (m_numPoints > 1) {
+                    Renderer::VertexArray* linesArray = NULL;
+                    Renderer::VertexArray* triangleArray = NULL;
+                    
                     Renderer::SetVboState mapVbo(vbo, Renderer::Vbo::VboMapped);
-                    Renderer::VertexArray* linesArray = new Renderer::VertexArray(vbo, GL_LINE_LOOP, m_numPoints,
-                                                                                  Renderer::Attribute::position3f());
+                    
+                    linesArray = new Renderer::VertexArray(vbo, GL_LINE_LOOP, m_numPoints,
+                                                           Renderer::Attribute::position3f());
                     for (unsigned int i = 0; i < m_numPoints; i++)
                         linesArray->addAttribute(m_points[i]);
+                    
+                    if (m_numPoints == 3) {
+                        triangleArray = new Renderer::VertexArray(vbo, GL_TRIANGLES, m_numPoints,
+                                                                  Renderer::Attribute::position3f());
+                        for (unsigned int i = 0; i < m_numPoints; i++)
+                            triangleArray->addAttribute(m_points[i]);
+                    }
                     
                     Renderer::SetVboState activateVbo(vbo, Renderer::Vbo::VboActive);
                     glDisable(GL_DEPTH_TEST);
@@ -276,24 +287,16 @@ namespace TrenchBroom {
                     linesArray->render();
                     
                     if (m_numPoints == 3) {
-                        Renderer::SetVboState mapVbo(vbo, Renderer::Vbo::VboMapped);
-                        Renderer::VertexArray* triangleArray = new Renderer::VertexArray(vbo, GL_TRIANGLES, m_numPoints,
-                                                                                         Renderer::Attribute::position3f());
-                        for (unsigned int i = 0; i < m_numPoints; i++)
-                            triangleArray->addAttribute(m_points[i]);
-                        
                         glDisable(GL_DEPTH_TEST);
                         glDisable(GL_CULL_FACE);
-                        Renderer::SetVboState activateVbo(vbo, Renderer::Vbo::VboActive);
                         shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ClipPlaneColor));
                         triangleArray->render();
                         glEnable(GL_CULL_FACE);
                         glEnable(GL_DEPTH_TEST);
-                        
-                        delete triangleArray;
                     }
                     
                     delete linesArray;
+                    delete triangleArray;
                 }
                 
                 if (m_hitIndex == m_numPoints && m_numPoints < 3) {

@@ -33,7 +33,7 @@ namespace TrenchBroom {
 
             Ray() : origin(Vec3f::Null), direction(Vec3f::Null) {}
 
-            Ray(const Vec3f& origin, const Vec3f& direction) : origin(origin), direction(direction) {}
+            Ray(const Vec3f& i_origin, const Vec3f& i_direction) : origin(i_origin), direction(i_direction) {}
 
             inline const Vec3f pointAtDistance(float distance) const {
                 return Vec3f(origin.x + direction.x * distance,

@@ -34,7 +34,7 @@ namespace TrenchBroom {
                 int x, y, width, height;
             public:
                 Viewport() : x(0), y(0), width(0), height(0) {}
-                Viewport(int x, int y, int width, int height) : x(x), y(y), width(width), height(height) {}
+                Viewport(int i_x, int i_y, int i_width, int i_height) : x(i_x), y(i_y), width(i_width), height(i_height) {}
             };
         protected:
             float m_fieldOfVision;

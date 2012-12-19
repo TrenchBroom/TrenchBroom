@@ -52,9 +52,9 @@ namespace TrenchBroom {
                 unsigned int start;
                 unsigned int length;
                 
-                MemBlock(unsigned int start, unsigned int length) :
-                start(start),
-                length(length) {}
+                MemBlock(unsigned int i_start, unsigned int i_length) :
+                start(i_start),
+                length(i_length) {}
                 
                 MemBlock() {}
             };
@@ -164,7 +164,13 @@ namespace TrenchBroom {
             VboBlock* m_previous;
             VboBlock* m_next;
         public:
-            inline VboBlock(Vbo& vbo, int address, int capacity) : m_vbo(vbo), m_address(address), m_capacity(capacity), m_free(true), m_previous(NULL), m_next(NULL) {}
+            inline VboBlock(Vbo& vbo, unsigned int address, unsigned int capacity) :
+            m_vbo(vbo),
+            m_address(address),
+            m_capacity(capacity),
+            m_free(true),
+            m_previous(NULL),
+            m_next(NULL) {}
 
             inline unsigned int address() const {
                 return m_address;

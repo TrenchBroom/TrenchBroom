@@ -42,13 +42,13 @@ namespace TrenchBroom {
                 bool multi;
             public:
                 EntityProperty() {}
-                EntityProperty(const String& key, const String& value) :
-                key(key),
-                value(value),
+                EntityProperty(const String& i_key, const String& i_value) :
+                key(i_key),
+                value(i_value),
                 multi(false) {}
 
-                EntityProperty(const String& key) :
-                key(key),
+                EntityProperty(const String& i_key) :
+                key(i_key),
                 value(""),
                 multi(true) {}
             };

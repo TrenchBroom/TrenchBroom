@@ -75,9 +75,9 @@ namespace TrenchBroom {
             Model::TextureCollection* textureCollection;
             Renderer::Text::StringRendererPtr stringRenderer;
             
-            TextureGroupData(Model::TextureCollection* textureCollection, Renderer::Text::StringRendererPtr stringRenderer) :
-            textureCollection(textureCollection),
-            stringRenderer(stringRenderer) {}
+            TextureGroupData(Model::TextureCollection* i_textureCollection, Renderer::Text::StringRendererPtr i_stringRenderer) :
+            textureCollection(i_textureCollection),
+            stringRenderer(i_stringRenderer) {}
             
             TextureGroupData() :
             textureCollection(NULL),
@@ -90,10 +90,10 @@ namespace TrenchBroom {
             Renderer::TextureRenderer* textureRenderer;
             Renderer::Text::StringRendererPtr stringRenderer;
             
-            TextureCellData(Model::Texture* texture, Renderer::TextureRenderer* textureRenderer, Renderer::Text::StringRendererPtr stringRenderer) :
-            texture(texture),
-            textureRenderer(textureRenderer),
-            stringRenderer(stringRenderer) {}
+            TextureCellData(Model::Texture* i_texture, Renderer::TextureRenderer* i_textureRenderer, Renderer::Text::StringRendererPtr i_stringRenderer) :
+            texture(i_texture),
+            textureRenderer(i_textureRenderer),
+            stringRenderer(i_stringRenderer) {}
         };
         
         class TextureBrowserCanvas : public CellLayoutGLCanvas<TextureCellData, TextureGroupData> {

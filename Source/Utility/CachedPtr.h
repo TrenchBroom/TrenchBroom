@@ -37,10 +37,10 @@ namespace TrenchBroom {
                 Element* ptr;
                 unsigned count;
                 
-                Counter(Cache* cache, Element* p = NULL, unsigned c = 1) :
-                cache(cache),
-                ptr(p),
-                count(c) {
+                Counter(Cache* i_cache, Element* i_ptr = NULL, unsigned i_count = 1) :
+                cache(i_cache),
+                ptr(i_ptr),
+                count(i_count) {
                     assert(cache != NULL);
                 }
             }* m_counter;

@@ -425,7 +425,6 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Renderer\PointHandleRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\PushMatrix.h" />
     <ClInclude Include="..\..\Source\Renderer\RenderContext.h" />
-    <ClInclude Include="..\..\Source\Renderer\RenderTypes.h" />
     <ClInclude Include="..\..\Source\Renderer\RenderUtils.h" />
     <ClInclude Include="..\..\Source\Renderer\RingFigure.h" />
     <ClInclude Include="..\..\Source\Renderer\Shader\Shader.h" />

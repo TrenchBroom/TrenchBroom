@@ -50,10 +50,12 @@ namespace TrenchBroom {
         }
         
         HandleManager::~HandleManager() {
+            /* FIXME: deleting the renderers here leads to freeing a VBO block of a VBO that has already been deleted
             delete m_unselectedHandleRenderer;
             m_unselectedHandleRenderer = NULL;
             delete m_selectedHandleRenderer;
             m_selectedHandleRenderer = NULL;
+            */
         }
 
         const Model::EdgeList& HandleManager::edges(const Vec3f& handlePosition) const {

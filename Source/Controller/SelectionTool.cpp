@@ -132,7 +132,7 @@ namespace TrenchBroom {
                 }
                 
                 if (foundSelection) {
-                    Model::Hit* hit = NULL;
+                   hit = NULL;
                     if (inputState.scroll() > 0.0f && i < hits.size() - 1)
                         hit = hits[i + 1];
                     else if (inputState.scroll() < 0.0f && i > 0)

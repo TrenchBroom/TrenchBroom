@@ -58,7 +58,7 @@ namespace TrenchBroom {
                 w = static_cast<float>(atof(cstr + pos));
             }
             
-            Vec4f(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
+            Vec4f(float i_x, float i_y, float i_z, float i_w) : x(i_x), y(i_y), z(i_z), w(i_w) {}
 
             Vec4f(float f) : x(f), y(f), z(f), w(f) {}
 

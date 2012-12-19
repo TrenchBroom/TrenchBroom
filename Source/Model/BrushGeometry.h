@@ -78,7 +78,7 @@ namespace TrenchBroom {
             Side* right;
             Mark mark;
 
-            Edge(Vertex* start, Vertex* end) : start(start), end(end), left(NULL), right(NULL), mark(New) {}
+            Edge(Vertex* i_start, Vertex* i_end) : start(i_start), end(i_end), left(NULL), right(NULL), mark(New) {}
             Edge() : start(NULL), end(NULL), left(NULL), right(NULL), mark(New) {}
 
             ~Edge() {
@@ -221,9 +221,9 @@ namespace TrenchBroom {
             const Type type;
             Vertex* vertex;
             
-            MoveVertexResult(Type type, Vertex* vertex = NULL) :
-            type(type),
-            vertex(vertex) {}
+            MoveVertexResult(Type i_type, Vertex* i_vertex = NULL) :
+            type(i_type),
+            vertex(i_vertex) {}
         };
         
         class BrushGeometry {

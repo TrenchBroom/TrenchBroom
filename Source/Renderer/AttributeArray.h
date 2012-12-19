@@ -56,6 +56,7 @@ namespace TrenchBroom {
             m_valueType(valueType),
             m_attributeType(User),
             m_name(name) {
+                assert(m_size >= 0);
                 assert(!Utility::trim(name).empty());
             }
 
@@ -63,6 +64,7 @@ namespace TrenchBroom {
             m_size(size),
             m_valueType(valueType),
             m_attributeType(attributeType) {
+                assert(m_size >= 0);
                 assert(attributeType != User);
             }
 
@@ -95,21 +97,21 @@ namespace TrenchBroom {
                 return m_size;
             }
 
-            inline GLsizei sizeInBytes() const {
+            inline size_t sizeInBytes() const {
                 switch (m_valueType) {
                     case GL_BYTE:
                     case GL_UNSIGNED_BYTE:
-                        return m_size * sizeof(GLchar);
+                        return static_cast<size_t>(m_size) * sizeof(GLchar);
                     case GL_SHORT:
                     case GL_UNSIGNED_SHORT:
-                        return m_size * sizeof(GLshort);
+                        return static_cast<size_t>(m_size) * sizeof(GLshort);
                     case GL_INT:
                     case GL_UNSIGNED_INT:
-                        return m_size * sizeof(GLint);
+                        return static_cast<size_t>(m_size) * sizeof(GLint);
                     case GL_FLOAT:
-                        return m_size * sizeof(GLfloat);
+                        return static_cast<size_t>(m_size) * sizeof(GLfloat);
                     case GL_DOUBLE:
-                        return m_size * sizeof(GLdouble);
+                        return static_cast<size_t>(m_size) * sizeof(GLdouble);
                 }
 
                 return 0;
@@ -123,45 +125,45 @@ namespace TrenchBroom {
                 return m_name;
             }
 
-            inline void setGLState(GLuint index, GLsizei stride, GLsizei offset) {
+            inline void setGLState(unsigned int index, unsigned int stride, unsigned int offset) {
                 switch (m_attributeType) {
                     case User:
                         glEnableVertexAttribArray(index);
-                        glVertexAttribPointer(index, m_size, m_valueType, true, stride, reinterpret_cast<GLvoid*>(offset));
+                        glVertexAttribPointer(index, m_size, m_valueType, true, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset));
                         break;
                     case Position:
                         glEnableClientState(GL_VERTEX_ARRAY);
-                        glVertexPointer(m_size, m_valueType, stride, reinterpret_cast<GLvoid*>(offset));
+                        glVertexPointer(m_size, m_valueType, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset));
                         break;
                     case Normal:
                         glEnableClientState(GL_NORMAL_ARRAY);
-                        glNormalPointer(m_valueType, stride, reinterpret_cast<GLvoid*>(offset));
+                        glNormalPointer(m_valueType, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset));
                         break;
                     case Color:
                         glEnableClientState(GL_COLOR_ARRAY);
-                        glColorPointer(m_size, m_valueType, stride, reinterpret_cast<GLvoid*>(offset));
+                        glColorPointer(m_size, m_valueType, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset));
                         break;
                     case TexCoord0:
                         glClientActiveTexture(GL_TEXTURE0);
                         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                        glTexCoordPointer(m_size, m_valueType, stride, reinterpret_cast<GLvoid*>(offset));
+                        glTexCoordPointer(m_size, m_valueType, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset));
                         break;
                     case TexCoord1:
                         glClientActiveTexture(GL_TEXTURE1);
                         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                        glTexCoordPointer(m_size, m_valueType, stride, reinterpret_cast<GLvoid*>(offset));
+                        glTexCoordPointer(m_size, m_valueType, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset));
                         glClientActiveTexture(GL_TEXTURE0);
                         break;
                     case TexCoord2:
                         glClientActiveTexture(GL_TEXTURE2);
                         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                        glTexCoordPointer(m_size, m_valueType, stride, reinterpret_cast<GLvoid*>(offset));
+                        glTexCoordPointer(m_size, m_valueType, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset));
                         glClientActiveTexture(GL_TEXTURE0);
                         break;
                     case TexCoord3:
                         glClientActiveTexture(GL_TEXTURE3);
                         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                        glTexCoordPointer(m_size, m_valueType, stride, reinterpret_cast<GLvoid*>(offset));
+                        glTexCoordPointer(m_size, m_valueType, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset));
                         glClientActiveTexture(GL_TEXTURE0);
                         break;
                 }
@@ -214,15 +216,15 @@ namespace TrenchBroom {
             VboBlock* m_block;
             Attribute::List m_attributes;
 
-            GLsizei m_padBy;
-            GLsizei m_vertexSize;
+            unsigned int m_padBy;
+            unsigned int m_vertexSize;
             unsigned int m_vertexCapacity;
             unsigned int m_vertexCount;
 
             unsigned int m_specIndex;
             unsigned int m_writeOffset;
 
-            void init(Vbo& vbo, GLsizei padTo) {
+            void init(Vbo& vbo, unsigned int padTo) {
                 for (unsigned int i = 0; i < m_attributes.size(); i++)
                     m_vertexSize += m_attributes[i].sizeInBytes();
                 if (padTo != 0)
@@ -243,7 +245,7 @@ namespace TrenchBroom {
                 return (size / padTo + 1) * padTo - size;
             }
             
-            AttributeArray(Vbo& vbo, unsigned int vertexCapacity, const Attribute& attribute1, GLsizei padTo = 16) :
+            AttributeArray(Vbo& vbo, unsigned int vertexCapacity, const Attribute& attribute1, unsigned int padTo = 16) :
             m_padBy(0),
             m_vertexSize(0),
             m_vertexCapacity(vertexCapacity),
@@ -254,7 +256,7 @@ namespace TrenchBroom {
                 init(vbo, padTo);
             }
 
-            AttributeArray(Vbo& vbo, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, GLsizei padTo = 16) :
+            AttributeArray(Vbo& vbo, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, unsigned int padTo = 16) :
             m_padBy(0),
             m_vertexSize(0),
             m_vertexCapacity(vertexCapacity),
@@ -266,7 +268,7 @@ namespace TrenchBroom {
                 init(vbo, padTo);
             }
 
-            AttributeArray(Vbo& vbo, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, GLsizei padTo = 16) :
+            AttributeArray(Vbo& vbo, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, unsigned int padTo = 16) :
             m_padBy(0),
             m_vertexSize(0),
             m_vertexCapacity(vertexCapacity),
@@ -279,7 +281,7 @@ namespace TrenchBroom {
                 init(vbo, padTo);
             }
 
-            AttributeArray(Vbo& vbo, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, GLsizei padTo = 16) :
+            AttributeArray(Vbo& vbo, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, unsigned int padTo = 16) :
             m_padBy(0),
             m_vertexSize(0),
             m_vertexCapacity(vertexCapacity),
@@ -293,7 +295,7 @@ namespace TrenchBroom {
                 init(vbo, padTo);
             }
 
-            AttributeArray(Vbo& vbo, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, const Attribute& attribute5, GLsizei padTo = 16) :
+            AttributeArray(Vbo& vbo, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, const Attribute& attribute5, unsigned int padTo = 16) :
             m_padBy(0),
             m_vertexSize(0),
             m_vertexCapacity(vertexCapacity),
@@ -308,7 +310,7 @@ namespace TrenchBroom {
                 init(vbo, padTo);
             }
 
-            AttributeArray(Vbo& vbo, unsigned int vertexCapacity, const Attribute::List& attributes, GLsizei padTo = 16) :
+            AttributeArray(Vbo& vbo, unsigned int vertexCapacity, const Attribute::List& attributes, unsigned int padTo = 16) :
             m_attributes(attributes),
             m_padBy(0),
             m_vertexSize(0),
@@ -416,27 +418,27 @@ namespace TrenchBroom {
         protected:
             GLenum m_primType;
         public:
-            RenderArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, GLsizei padTo = 16) :
+            RenderArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, unsigned int padTo = 16) :
             AttributeArray(vbo, vertexCapacity, attribute1, padTo),
             m_primType(primType) {}
             
-            RenderArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, GLsizei padTo = 16) :
+            RenderArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, unsigned int padTo = 16) :
             AttributeArray(vbo, vertexCapacity, attribute1, attribute2, padTo),
             m_primType(primType) {}
             
-            RenderArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, GLsizei padTo = 16) :
+            RenderArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, unsigned int padTo = 16) :
             AttributeArray(vbo, vertexCapacity, attribute1, attribute2, attribute3, padTo),
             m_primType(primType) {}
             
-            RenderArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, GLsizei padTo = 16) :
+            RenderArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, unsigned int padTo = 16) :
             AttributeArray(vbo, vertexCapacity, attribute1, attribute2, attribute3, attribute4, padTo),
             m_primType(primType) {}
             
-            RenderArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, const Attribute& attribute5, GLsizei padTo = 16) :
+            RenderArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute& attribute1, const Attribute& attribute2, const Attribute& attribute3, const Attribute& attribute4, const Attribute& attribute5, unsigned int padTo = 16) :
             AttributeArray(vbo, vertexCapacity, attribute1, attribute2, attribute3, attribute4, attribute5, padTo),
             m_primType(primType) {}
             
-            RenderArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute::List& attributes, GLsizei padTo = 16) :
+            RenderArray(Vbo& vbo, GLenum primType, unsigned int vertexCapacity, const Attribute::List& attributes, unsigned int padTo = 16) :
             AttributeArray(vbo, vertexCapacity, attributes, padTo),
             m_primType(primType) {}
             

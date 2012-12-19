@@ -29,7 +29,7 @@ namespace TrenchBroom {
         namespace Text {
             class FontDescriptor {
             private:
-                unsigned long m_nameHash;
+                long m_nameHash;
                 String m_name;
                 unsigned int m_size;
             public:
@@ -65,7 +65,7 @@ namespace TrenchBroom {
                     return compare(other) < 0;
                 }
 
-                inline const unsigned long nameHash() const {
+                inline const long nameHash() const {
                     return m_nameHash;
                 }
                 

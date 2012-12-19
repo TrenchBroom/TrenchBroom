@@ -48,9 +48,9 @@ namespace TrenchBroom {
             String groupName;
             Renderer::Text::StringRendererPtr stringRenderer;
             
-            EntityGroupData(const String& groupName, Renderer::Text::StringRendererPtr stringRenderer) :
-            groupName(groupName),
-            stringRenderer(stringRenderer) {}
+            EntityGroupData(const String& i_groupName, Renderer::Text::StringRendererPtr i_stringRenderer) :
+            groupName(i_groupName),
+            stringRenderer(i_stringRenderer) {}
             
             EntityGroupData() :
             groupName(""),
@@ -64,11 +64,11 @@ namespace TrenchBroom {
             BBox bounds;
             Renderer::Text::StringRendererPtr stringRenderer;
             
-            EntityCellData(Model::PointEntityDefinition* entityDefinition, Renderer::EntityModelRenderer* modelRenderer, Renderer::Text::StringRendererPtr stringRenderer, const BBox& bounds) :
-            entityDefinition(entityDefinition),
-            modelRenderer(modelRenderer),
-            stringRenderer(stringRenderer),
-            bounds(bounds) {}
+            EntityCellData(Model::PointEntityDefinition* i_entityDefinition, Renderer::EntityModelRenderer* i_modelRenderer, Renderer::Text::StringRendererPtr i_stringRenderer, const BBox& i_bounds) :
+            entityDefinition(i_entityDefinition),
+            modelRenderer(i_modelRenderer),
+            stringRenderer(i_stringRenderer),
+            bounds(i_bounds) {}
         };
         
         class EntityBrowserCanvas : public CellLayoutGLCanvas<EntityCellData, EntityGroupData> {

@@ -39,7 +39,7 @@ namespace TrenchBroom {
             
             Vec2f() : x(0), y(0) {}
 
-            Vec2f(float x, float y) : x(x), y(y) {}
+            Vec2f(float i_x, float i_y) : x(i_x), y(i_y) {}
             
             Vec2f(float f) : x(f), y(f) {}
 

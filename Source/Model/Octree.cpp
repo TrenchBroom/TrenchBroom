@@ -31,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        bool OctreeNode::addObject(MapObject& object, int childIndex) {
+        bool OctreeNode::addObject(MapObject& object, unsigned int childIndex) {
             if (m_children[childIndex] == NULL) {
                 BBox childBounds;
                 switch (childIndex) {
@@ -97,7 +97,7 @@ namespace TrenchBroom {
             return m_children[childIndex]->addObject(object);
         }
 
-        OctreeNode::OctreeNode(const BBox& bounds, int minSize) :
+        OctreeNode::OctreeNode(const BBox& bounds, unsigned int minSize) :
         m_minSize(minSize),
         m_bounds(bounds) {
             for (unsigned int i = 0; i < 8; i++)
@@ -113,7 +113,8 @@ namespace TrenchBroom {
         }
         
         bool OctreeNode::addObject(MapObject& object) {
-            if (!m_bounds.contains(object.bounds())) return false;
+            if (!m_bounds.contains(object.bounds()))
+                return false;
             if (m_bounds.max.x - m_bounds.min.x > m_minSize)
                 for (unsigned int i = 0; i < 8; i++)
                     if (addObject(object, i))
@@ -161,7 +162,10 @@ namespace TrenchBroom {
             }
         }
         
-        Octree::Octree(Map& map, int minSize) : m_minSize(minSize), m_map(map), m_root(new OctreeNode(map.worldBounds(), minSize)) {}
+        Octree::Octree(Map& map, unsigned int minSize) :
+        m_minSize(minSize),
+        m_map(map),
+        m_root(new OctreeNode(map.worldBounds(), minSize)) {}
         
         Octree::~Octree() {
             delete m_root;
