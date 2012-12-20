@@ -317,7 +317,7 @@ namespace TrenchBroom {
                 return m_rows[index];
             }
             
-            LayoutGroup(GroupType item, float x, float y, float cellMargin, float rowMargin, float titleHeight, float width, int maxCellsPerRow, LayoutCellRestriction cellRestriction, bool scaleCellsUp, float maxUpScale, float fixedCellSize) :
+            LayoutGroup(GroupType item, float x, float y, float cellMargin, float rowMargin, float titleHeight, float width, unsigned int maxCellsPerRow, LayoutCellRestriction cellRestriction, bool scaleCellsUp, float maxUpScale, float fixedCellSize) :
             m_item(item),
             m_cellMargin(cellMargin),
             m_rowMargin(rowMargin),
@@ -329,7 +329,7 @@ namespace TrenchBroom {
             m_titleBounds(0.0f, y, width + 2.0f * x, titleHeight),
             m_contentBounds(x, y + titleHeight + m_rowMargin, width, 0.0f) {}
             
-            LayoutGroup(float x, float y, float cellMargin, float rowMargin, float width, int maxCellsPerRow, LayoutCellRestriction cellRestriction, bool scaleCellsUp, float maxUpScale, float fixedCellSize) :
+            LayoutGroup(float x, float y, float cellMargin, float rowMargin, float width, unsigned int maxCellsPerRow, LayoutCellRestriction cellRestriction, bool scaleCellsUp, float maxUpScale, float fixedCellSize) :
             m_cellMargin(cellMargin),
             m_rowMargin(rowMargin),
             m_maxCellsPerRow(maxCellsPerRow),
@@ -472,7 +472,7 @@ namespace TrenchBroom {
                     return m_groups[index];
             }
             
-            CellLayout(int maxCellsPerRow = 0) :
+            CellLayout(unsigned int maxCellsPerRow = 0) :
             m_width(1.0f),
             m_cellMargin(0.0f),
             m_rowMargin(0.0f),

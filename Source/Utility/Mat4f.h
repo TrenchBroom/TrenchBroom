@@ -174,7 +174,7 @@ namespace TrenchBroom {
             
             inline bool equals(const Mat4f& other, float delta) const {
                 for (unsigned int i = 0; i < 16; i++)
-                    if (fabsf(v[i] - other.v[i]) > delta)
+                    if (std::abs(v[i] - other.v[i]) > delta)
                         return false;
                 return true;
             }

@@ -140,7 +140,7 @@ namespace TrenchBroom {
                             
                             float dist2 = context.camera().squaredDistanceTo(position);
                             if (dist2 <= cutoff)
-                                result.push_back(EntryWithDistance(&entry, sqrt(dist2)));
+                                result.push_back(EntryWithDistance(&entry, std::sqrt(dist2)));
                         }
                     }
                     

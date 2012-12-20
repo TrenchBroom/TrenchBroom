@@ -68,8 +68,8 @@ namespace TrenchBroom {
             Vec2f translation;
 
             float curAngle = 0.0f;
-            float x = cos(curAngle) * cornerRadius;
-            float y = sin(curAngle) * cornerRadius;
+            float x = std::cos(curAngle) * cornerRadius;
+            float y = std::sin(curAngle) * cornerRadius;
 
             // lower right corner
             translation.x =  (width  / 2.0f - cornerRadius);
@@ -79,8 +79,8 @@ namespace TrenchBroom {
                 vertices.push_back(translation + Vec2f(x, y));
 
                 curAngle -= angle;
-                x = cos(curAngle) * cornerRadius;
-                y = sin(curAngle) * cornerRadius;
+                x = std::cos(curAngle) * cornerRadius;
+                y = std::sin(curAngle) * cornerRadius;
                 vertices.push_back(translation + Vec2f(x, y));
             }
 
@@ -92,8 +92,8 @@ namespace TrenchBroom {
                 vertices.push_back(translation + Vec2f(x, y));
                 
                 curAngle -= angle;
-                x = cos(curAngle) * cornerRadius;
-                y = sin(curAngle) * cornerRadius;
+                x = std::cos(curAngle) * cornerRadius;
+                y = std::sin(curAngle) * cornerRadius;
                 vertices.push_back(translation + Vec2f(x, y));
             }
             
@@ -105,8 +105,8 @@ namespace TrenchBroom {
                 vertices.push_back(translation + Vec2f(x, y));
                 
                 curAngle -= angle;
-                x = cos(curAngle) * cornerRadius;
-                y = sin(curAngle) * cornerRadius;
+                x = std::cos(curAngle) * cornerRadius;
+                y = std::sin(curAngle) * cornerRadius;
                 vertices.push_back(translation + Vec2f(x, y));
             }
 
@@ -118,8 +118,8 @@ namespace TrenchBroom {
                 vertices.push_back(translation + Vec2f(x, y));
                 
                 curAngle -= angle;
-                x = cos(curAngle) * cornerRadius;
-                y = sin(curAngle) * cornerRadius;
+                x = std::cos(curAngle) * cornerRadius;
+                y = std::sin(curAngle) * cornerRadius;
                 vertices.push_back(translation + Vec2f(x, y));
             }
             

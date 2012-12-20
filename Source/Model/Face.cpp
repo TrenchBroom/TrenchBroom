@@ -411,7 +411,7 @@ namespace TrenchBroom {
             float dotX = direction.dot(m_scaledTexAxisX);
             float dotY = direction.dot(m_scaledTexAxisY);
             
-            if (fabsf(dotX) >= fabsf(dotY)) {
+            if (std::abs(dotX) >= std::abs(dotY)) {
                 if (dotX >= 0.0f)
                     m_xOffset -= distance;
                 else

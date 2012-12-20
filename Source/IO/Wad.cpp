@@ -19,6 +19,8 @@
 
 #include "Wad.h"
 
+#include "IO/IOUtils.h"
+
 #include <cassert>
 
 namespace TrenchBroom {
@@ -40,26 +42,17 @@ namespace TrenchBroom {
             if (entry.type() != WadEntryType::WEMip)
                 throw IOException("Entry %s is not a mip", entry.name().c_str());
             
-            int32_t width = 0;
-			int32_t height = 0;
-			int32_t mip0Offset = 0;
-			unsigned int mip0Size = 0;
-
             m_stream.seekg(entry.address(), std::ios::beg);
             m_stream.seekg(WadLayout::TexWidthOffset, std::ios::cur);
-            m_stream.read(reinterpret_cast<char *>(&width), sizeof(int32_t));
-            m_stream.read(reinterpret_cast<char *>(&height), sizeof(int32_t));
-            m_stream.read(reinterpret_cast<char *>(&mip0Offset), sizeof(int32_t));
+            unsigned int width = IO::readUnsignedInt<int32_t>(m_stream);
+            unsigned int height = IO::readUnsignedInt<int32_t>(m_stream);
+            unsigned int mip0Size = width * height;
+            unsigned int mip0Offset = IO::readUnsignedInt<int32_t>(m_stream);
             
-            assert(width >= 0);
-            assert(height >= 0);
-            assert(mip0Offset >= 0);
-            mip0Size = static_cast<unsigned int>(width * height);
-            
-            if (width <= 0 || height <= 0 ||
+            if (width == 0 || height == 0 ||
                 width > WadLayout::MaxTextureSize || height > WadLayout::MaxTextureSize)
                 throw IOException("Invalid mip dimensions (%ix%i)", width, height);
-            if (static_cast<unsigned int>(mip0Offset) + mip0Size > entry.length())
+            if (mip0Offset + mip0Size > entry.length())
                 throw IOException("Mip data beyond wad entry");
             
             unsigned char* mip0 = NULL;
@@ -86,26 +79,25 @@ namespace TrenchBroom {
             
 			m_stream.exceptions(std::ios::failbit | std::ios::badbit);
             
-            int32_t entryCount, directoryAddr;
-            int32_t entryAddress, entryLength;
-            char entryType;
-            char entryName[WadLayout::DirEntryNameLength];
             m_stream.seekg(WadLayout::NumEntriesAddress, std::ios::beg);
-            m_stream.read(reinterpret_cast<char *>(&entryCount), sizeof(int32_t));
-            
+            unsigned int entryCount = IO::readUnsignedInt<int32_t>(m_stream);
             m_stream.seekg(WadLayout::DirOffsetAddress, std::ios::beg);
-            m_stream.read(reinterpret_cast<char *>(&directoryAddr), sizeof(int32_t));
+            unsigned int directoryAddr = IO::readUnsignedInt<int32_t>(m_stream);
+
             if (directoryAddr > m_length)
                 throw IOException("Wad directory beyond end of file");
-            
+
+            char entryType;
+            char entryName[WadLayout::DirEntryNameLength];
             m_stream.seekg(directoryAddr, std::ios::beg);
             
-            for (int i = 0; i < entryCount; i++) {
+            for (unsigned int i = 0; i < entryCount; i++) {
                 if (m_stream.eof())
                     throw IOException::unexpectedEof();
-                    
-                m_stream.read(reinterpret_cast<char *>(&entryAddress), sizeof(int32_t));
-                m_stream.read(reinterpret_cast<char *>(&entryLength), sizeof(int32_t));
+                
+                unsigned int entryAddress = IO::readUnsignedInt<int32_t>(m_stream);
+                unsigned int entryLength = IO::readUnsignedInt<int32_t>(m_stream);
+                
                 if (entryAddress + entryLength > m_length)
                     throw IOException("Wad entry beyond end of file");
                 

@@ -26,6 +26,8 @@ namespace TrenchBroom {
     namespace IO {
         class MacFileManager : public AbstractFileManager {
         public:
+            ~MacFileManager() {}
+            
             String resourceDirectory();
             String resolveFontPath(const String& fontName);
         };

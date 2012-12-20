@@ -95,12 +95,12 @@ namespace TrenchBroom {
             
             inline void pushChar() {
                 m_stream.seekg(-1, std::ios::cur);
-                char c = m_stream.peek();
+                int c = m_stream.peek();
                 m_position--;
                 if (c == '\n') {
                     m_line--;
                     m_column = 0;
-                    char d;
+                    int d;
                     do {
                         m_stream.seekg(-1, std::ios::cur);
                         d = m_stream.peek();
@@ -112,11 +112,11 @@ namespace TrenchBroom {
                 }
             }
             
-            inline char peekChar(unsigned int offset = 0) {
+            inline int peekChar(unsigned int offset = 0) {
                 if (eof())
                     throw ParserException(m_line, m_column, "unexpected end of file");
 
-                char c;
+                int c;
                 if (offset == 0) {
                     c = m_stream.peek();
                 } else {

@@ -118,7 +118,7 @@ namespace TrenchBroom {
                     initial = true;
                     buffer << c;
                 } else if (initial) {
-                    char d = toupper(c);
+                    char d = static_cast<char>(toupper(c));
                     buffer << d;
                     initial = false;
                 } else {

@@ -37,7 +37,7 @@ namespace TrenchBroom {
         m_samples(capabilities.samples),
         m_readBuffers(NULL) {}
         
-        OffscreenRenderer::OffscreenRenderer(bool multisample, unsigned int samples) :
+        OffscreenRenderer::OffscreenRenderer(bool multisample, GLint samples) :
         m_framebufferId(0),
         m_colorbufferId(0),
         m_depthbufferId(0),
@@ -93,18 +93,18 @@ namespace TrenchBroom {
             glBindRenderbuffer(GL_RENDERBUFFER, m_colorbufferId);
             if (!m_valid) {
                 if (m_multisample)
-                    glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_samples, GL_RGBA, m_width, m_height);
+                    glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_samples, GL_RGBA, static_cast<GLint>(m_width), static_cast<GLint>(m_height));
                 else
-                    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA, m_width, m_height);
+                    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA, static_cast<GLint>(m_width), static_cast<GLint>(m_height));
             }
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, m_colorbufferId);
             
             glBindRenderbuffer(GL_RENDERBUFFER, m_depthbufferId);
             if (!m_valid) {
                 if (m_multisample)
-                    glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_samples, GL_DEPTH_COMPONENT, m_width, m_height);
+                    glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_samples, GL_DEPTH_COMPONENT, static_cast<GLint>(m_width), static_cast<GLint>(m_height));
                 else
-                    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_width, m_height);
+                    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, static_cast<GLint>(m_width), static_cast<GLint>(m_height));
             }
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthbufferId);
 
@@ -130,7 +130,9 @@ namespace TrenchBroom {
                 m_readBuffers->preRender();
 
                 glBindFramebuffer(GL_READ_FRAMEBUFFER, m_framebufferId);
-                glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+                glBlitFramebuffer(0, 0, static_cast<GLint>(m_width), static_cast<GLint>(m_height),
+                                  0, 0, static_cast<GLint>(m_width), static_cast<GLint>(m_height),
+                                  GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
                 m_readBuffers->postRender();
                 return m_readBuffers->getImage();
@@ -145,8 +147,8 @@ namespace TrenchBroom {
             
             unsigned char* imageData = new unsigned char[m_width * m_height * 3];
             unsigned char* alphaData = new unsigned char[m_width * m_height];
-            glReadPixels(0, 0, m_width, m_height, GL_RGB, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid*>(imageData));
-            glReadPixels(0, 0, m_width, m_height, GL_ALPHA, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid*>(alphaData));
+            glReadPixels(0, 0, static_cast<GLint>(m_width), static_cast<GLint>(m_height), GL_RGB, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid*>(imageData));
+            glReadPixels(0, 0, static_cast<GLint>(m_width), static_cast<GLint>(m_height), GL_ALPHA, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid*>(alphaData));
             
             unsigned char* imageLine = new unsigned char[m_width * 3];
             unsigned char* alphaLine = new unsigned char[m_width];
@@ -169,7 +171,7 @@ namespace TrenchBroom {
             delete [] alphaLine;
             alphaLine = NULL;
 
-            return new wxImage(m_width, m_height, imageData, alphaData);
+            return new wxImage(static_cast<int>(m_width), static_cast<int>(m_height), imageData, alphaData);
         }
     }
 }

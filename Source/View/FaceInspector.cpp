@@ -404,7 +404,7 @@ namespace TrenchBroom {
                 return;
             
             Controller::TextureCollectionCommand::IndexList indices;
-            for (unsigned int i = 0; i < selectionCount; i++)
+            for (unsigned int i = 0; i < static_cast<unsigned int>(selectionCount); i++)
                 indices.push_back(static_cast<size_t>(selections[i]));
             
             Model::MapDocument& document = m_documentViewHolder.document();

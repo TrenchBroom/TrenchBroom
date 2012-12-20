@@ -72,8 +72,8 @@ namespace TrenchBroom {
         
         class BspEdgeInfo {
         public:
-            uint16_t vertex0;
-            uint16_t vertex1;
+            unsigned int vertex0;
+            unsigned int vertex1;
         };
         
         class BspTexture;
@@ -88,9 +88,9 @@ namespace TrenchBroom {
         
         class BspFaceInfo {
         public:
-            int32_t edgeIndex;
-            uint16_t edgeCount;
-            uint16_t textureInfoIndex;
+            unsigned int edgeIndex;
+            unsigned int edgeCount;
+            unsigned int textureInfoIndex;
         };
         
         class BspTexture {
@@ -183,6 +183,7 @@ namespace TrenchBroom {
             typedef std::vector<BspEdgeInfo> BspEdgeInfoList;
             typedef std::vector<BspFaceInfo> BspFaceInfoList;
             typedef std::vector<BspTextureInfo*> BspTextureInfoList;
+            typedef std::vector<int> BspFaceEdgeIndexList;
 
             String m_name;
             BspModelList m_models;
@@ -194,7 +195,7 @@ namespace TrenchBroom {
             void readVertices(IO::PakStream& stream, unsigned int count, Vec3f::List& vertices);
             void readEdges(IO::PakStream& stream, unsigned int count, BspEdgeInfoList& edges);
             void readFaces(IO::PakStream& stream, unsigned int count, BspFaceInfoList& faces);
-            void readFaceEdges(IO::PakStream& stream, unsigned int count, int32_t* indices);
+            void readFaceEdges(IO::PakStream& stream, unsigned int count, BspFaceEdgeIndexList& indices);
         public:
             Bsp(const String& name, IO::PakStream stream);
             ~Bsp();

@@ -49,15 +49,16 @@ namespace TrenchBroom {
         
         class AliasSkinVertex {
         public:
-            int32_t onseam, s, t;
+            bool onseam;
+            int s, t;
         };
         
         typedef std::vector<AliasSkinVertex> AliasSkinVertexList;
         
         class AliasSkinTriangle {
         public:
-            int32_t front;
-            int32_t vertices[3];
+            bool front;
+            unsigned int vertices[3];
         };
         
         typedef std::vector<AliasSkinTriangle> AliasSkinTriangleList;

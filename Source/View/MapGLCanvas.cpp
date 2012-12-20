@@ -65,21 +65,17 @@ namespace TrenchBroom {
             assert(CurrentDropSource != NULL);
             CurrentDropSource->setShowFeedback(false);
             
-            float fx = static_cast<float>(x);
-            float fy = static_cast<float>(y);
             wxTextDataObject* dataObject = static_cast<wxTextDataObject*>(CurrentDropSource->GetDataObject());
             wxString text = dataObject->GetText();
-            m_inputController.dragEnter(text.ToStdString(), fx, fy);
+            m_inputController.dragEnter(text.ToStdString(), x, y);
 
             return wxDragCopy;
         }
         
         wxDragResult MapGLCanvasDropTarget::OnDragOver(wxCoord x, wxCoord y, wxDragResult def) {
-            float fx = static_cast<float>(x);
-            float fy = static_cast<float>(y);
             wxTextDataObject* dataObject = static_cast<wxTextDataObject*>(CurrentDropSource->GetDataObject());
             wxString text = dataObject->GetText();
-            m_inputController.dragMove(text.ToStdString(), fx, fy);
+            m_inputController.dragMove(text.ToStdString(), x, y);
             
             return wxDragCopy;
         }
@@ -93,11 +89,9 @@ namespace TrenchBroom {
         bool MapGLCanvasDropTarget::OnDropText(wxCoord x, wxCoord y, const wxString& data) {
             assert(CurrentDropSource != NULL);
 
-            float fx = static_cast<float>(x);
-            float fy = static_cast<float>(y);
             wxTextDataObject* dataObject = static_cast<wxTextDataObject*>(CurrentDropSource->GetDataObject());
             wxString text = dataObject->GetText();
-            return m_inputController.drop(text.ToStdString(), fx, fy);
+            return m_inputController.drop(text.ToStdString(), x, y);
         }
 
         bool MapGLCanvas::HandleModifierKey(int keyCode, bool down) {

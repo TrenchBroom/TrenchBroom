@@ -81,8 +81,8 @@ namespace TrenchBroom {
                 float d = m_angleLength / m_segments;
                 float a = m_startAngle;
                 for (unsigned int i = 0; i <= m_segments; i++) {
-                    float s = sin(a);
-                    float c = cos(a);
+                    float s = std::sin(a);
+                    float c = std::cos(a);
                     if (m_normal == Axis::AX)
                         m_vertexArray->addAttribute(Vec3f(0.0f, m_radius * s, m_radius * c));
                     else if (m_normal == Axis::AY)

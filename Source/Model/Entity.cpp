@@ -232,8 +232,8 @@ namespace TrenchBroom {
             
             Vec3f direction;
             if (m_angle >= 0) {
-                direction.x = cos(Math::radians(m_angle));
-                direction.y = sin(Math::radians(m_angle));
+                direction.x = std::cos(Math::radians(m_angle));
+                direction.y = std::sin(Math::radians(m_angle));
                 direction.z = 0.0f;
             } else if (m_angle == -1) {
                 direction = Vec3f::PosZ;
@@ -254,7 +254,7 @@ namespace TrenchBroom {
                     direction.normalize();
                 }
                 
-                m_angle = Math::round(Math::degrees(acos(direction.x)));
+                m_angle = Math::round(Math::degrees(std::acos(direction.x)));
                 if (direction.y < 0.0f)
                     m_angle = 360.0f - m_angle;
                 setProperty(AngleKey, m_angle, true);
@@ -272,8 +272,8 @@ namespace TrenchBroom {
             
             Vec3f direction;
             if (m_angle >= 0.0f) {
-                direction.x = cos(Math::radians(m_angle));
-                direction.y = sin(Math::radians(m_angle));
+                direction.x = std::cos(Math::radians(m_angle));
+                direction.y = std::sin(Math::radians(m_angle));
                 direction.z = 0.0f;
             } else if (m_angle == -1.0f) {
                 direction = Vec3f::PosZ;
@@ -294,7 +294,7 @@ namespace TrenchBroom {
                     direction.normalize();
                 }
                 
-                m_angle = Math::round(Math::degrees(acos(direction.x)));
+                m_angle = Math::round(Math::degrees(std::acos(direction.x)));
                 if (direction.y < 0.0f)
                     m_angle = 360.0f - m_angle;
                 setProperty(AngleKey, m_angle, true);

@@ -27,6 +27,8 @@ namespace TrenchBroom {
     namespace IO {
         class AbstractFileManager {
         public:
+            virtual ~AbstractFileManager() {}
+            
             bool isDirectory(const String& path);
             bool exists(const String& path);
             bool makeDirectory(const String& path);

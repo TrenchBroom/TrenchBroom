@@ -74,7 +74,7 @@ namespace TrenchBroom {
         float Grid::snap(float f) {
             if (!snap())
                 return f;
-            int actSize = actualSize();
+            unsigned int actSize = actualSize();
             return actSize * Math::round(f / actSize);
         }
 
@@ -87,8 +87,8 @@ namespace TrenchBroom {
         float Grid::snapUp(float f, bool skip) {
             if (!snap())
                 return f;
-            int actSize = actualSize();
-            float s = actSize * ceil(f / actSize);
+            unsigned int actSize = actualSize();
+            float s = actSize * std::ceil(f / actSize);
             if (skip && s == f)
                 s += actualSize();
             return s;
@@ -97,8 +97,8 @@ namespace TrenchBroom {
         float Grid::snapDown(float f, bool skip) {
             if (!snap())
                 return f;
-            int actSize = actualSize();
-            float s = actSize * floor(f / actSize);
+            unsigned int actSize = actualSize();
+            float s = actSize * std::floor(f / actSize);
             if (skip && s == f)
                 s -= actualSize();
             return s;
@@ -189,9 +189,9 @@ namespace TrenchBroom {
             float distZ = plane.intersectWithRay(ray);
             
             float dist = distX;
-            if (!Math::isnan(distY) && (Math::isnan(dist) || fabsf(distY) < fabsf(dist)))
+            if (!Math::isnan(distY) && (Math::isnan(dist) || std::abs(distY) < std::abs(dist)))
                 dist = distY;
-            if (!Math::isnan(distZ) && (Math::isnan(dist) || fabsf(distZ) < fabsf(dist)))
+            if (!Math::isnan(distZ) && (Math::isnan(dist) || std::abs(distZ) < std::abs(dist)))
                 dist = distZ;
             
             return dist;
@@ -229,13 +229,13 @@ namespace TrenchBroom {
 
         Vec3f Grid::moveDelta(const BBox& bounds, const BBox& worldBounds, const Vec3f& delta) {
             Vec3f actualDelta = Vec3f::Null;
-            for (int i = 0; i < 3; i++) {
+            for (unsigned int i = 0; i < 3; i++) {
                 if (!Math::zero(delta[i])) {
                     float low  = snap(bounds.min[i] + delta[i]) - bounds.min[i];
                     float high = snap(bounds.max[i] + delta[i]) - bounds.max[i];
                     
                     if (low != 0 && high != 0)
-                        actualDelta[i] = fabsf(high) < fabsf(low) ? high : low;
+                        actualDelta[i] = std::abs(high) < std::abs(low) ? high : low;
                     else if (low != 0)
                         actualDelta[i] = low;
                     else if (high != 0)
@@ -253,7 +253,7 @@ namespace TrenchBroom {
         
         Vec3f Grid::moveDelta(const Vec3f& point, const BBox& worldBounds, const Vec3f& delta) {
             Vec3f actualDelta = Vec3f::Null;
-            for (int i = 0; i < 3; i++)
+            for (unsigned int i = 0; i < 3; i++)
                 if (!Math::zero(delta[i]))
                     actualDelta[i] = snap(point[i] + delta[i]) - point[i];
             
@@ -265,7 +265,7 @@ namespace TrenchBroom {
 
         Vec3f Grid::moveDelta(const Vec3f& delta) {
             Vec3f actualDelta = Vec3f::Null;
-            for (int i = 0; i < 3; i++)
+            for (unsigned int i = 0; i < 3; i++)
                 if (!Math::zero(delta[i]))
                     actualDelta[i] = snap(delta[i]);
             
@@ -325,7 +325,7 @@ namespace TrenchBroom {
             }
             
             Vec3f normDelta = face.boundary().normal * dist;
-            int gridSkip = std::max<int>(0, static_cast<int>(normDelta.dot(normDelta.firstAxis())) / actualSize() - 1);
+            unsigned int gridSkip = std::max<unsigned int>(0, static_cast<unsigned int>(normDelta.dot(normDelta.firstAxis())) / actualSize() - 1);
             float actualDist = std::numeric_limits<float>::max();
             
             do {
@@ -345,7 +345,7 @@ namespace TrenchBroom {
                     Vec3f vertexDelta = ray.direction * vertexDist;
                     float vertexNormDist = vertexDelta.dot(face.boundary().normal);
                     
-                    if (fabsf(vertexNormDist) < fabsf(actualDist)) {
+                    if (std::abs(vertexNormDist) < std::abs(actualDist)) {
                         Model::Face testFace(face.worldBounds(), face);
                         testFace.move(vertexNormDist, false);
                         if (!testFace.boundary().equals(face.boundary()))
@@ -356,7 +356,7 @@ namespace TrenchBroom {
                 }
             } while (actualDist == std::numeric_limits<float>::max());
             
-            if (fabsf(actualDist) > fabsf(dist))
+            if (std::abs(actualDist) > std::abs(dist))
                 return Math::nan();
 
             normDelta = face.boundary().normal * actualDist;

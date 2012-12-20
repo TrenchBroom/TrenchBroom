@@ -219,7 +219,7 @@ namespace TrenchBroom {
             }
             
             inline float length() const {
-                return sqrt(lengthSquared());
+                return std::sqrt(lengthSquared());
             }
             
             inline float lengthSquared() const {
@@ -281,32 +281,32 @@ namespace TrenchBroom {
                     return Math::Pi;
                 Vec3f cross = crossed(axis);
                 if (cross.dot(up) >= 0.0f)
-                    return acos(cos);
-                return 2.0f * Math::Pi - acos(cos);
+                    return std::acos(cos);
+                return 2.0f * Math::Pi - std::acos(cos);
             }
             
             inline Axis::Type firstComponent() const {
-                float ax = fabsf(x);
-                float ay = fabsf(y);
-                float az = fabsf(z);
+                float ax = std::abs(x);
+                float ay = std::abs(y);
+                float az = std::abs(z);
                 if (ax >= ay && ax >= az) return Axis::AX;
                 if (ay >= ax && ay >= az) return Axis::AY;
                 return Axis::AZ;
             }
             
             inline Axis::Type secondComponent() const {
-                float ax = fabsf(x);
-                float ay = fabsf(y);
-                float az = fabsf(z);
+                float ax = std::abs(x);
+                float ay = std::abs(y);
+                float az = std::abs(z);
                 if (ax >= ay && ax <= az) return Axis::AX;
                 if (ay >= ax && ay <= az) return Axis::AY;
                 return Axis::AZ;
             }
             
             inline Axis::Type thirdComponent() const {
-                float ax = fabsf(x);
-                float ay = fabsf(y);
-                float az = fabsf(z);
+                float ax = std::abs(x);
+                float ay = std::abs(y);
+                float az = std::abs(z);
                 if (ax <= ay && ax <= az) return Axis::AX;
                 if (ay <= ax && ay <= az) return Axis::AY;
                 return Axis::AZ;
@@ -316,9 +316,9 @@ namespace TrenchBroom {
                 if (equals(Null)) {
                     return Null;
                 } else {
-                    float xa = fabsf(x);
-                    float ya = fabsf(y);
-                    float za = fabsf(z);
+                    float xa = std::abs(x);
+                    float ya = std::abs(y);
+                    float za = std::abs(z);
                     
                     if (xa >= ya && xa >= za) {
                         if (x > 0.0f && pos)
@@ -343,9 +343,9 @@ namespace TrenchBroom {
                 if (equals(Null)) {
                     return Null;
                 } else {
-                    float xa = fabsf(x);
-                    float ya = fabsf(y);
-                    float za = fabsf(z);
+                    float xa = std::abs(x);
+                    float ya = std::abs(y);
+                    float za = std::abs(z);
                     
                     if ((xa <= ya && xa >= za) ||
                         (xa >= ya && xa <= za)) {
@@ -372,9 +372,9 @@ namespace TrenchBroom {
                 if (equals(Null)) {
                     return Null;
                 } else {
-                    float xa = fabsf(x);
-                    float ya = fabsf(y);
-                    float za = fabsf(z);
+                    float xa = std::abs(x);
+                    float ya = std::abs(y);
+                    float za = std::abs(z);
                     
                     if (xa <= ya && xa <= za) {
                         if (x > 0.0f && pos)

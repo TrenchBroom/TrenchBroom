@@ -125,7 +125,7 @@ namespace TrenchBroom {
         }
 
         float Camera::distanceTo(const Vec3f& point) const {
-            return sqrt(squaredDistanceTo(point));
+            return std::sqrt(squaredDistanceTo(point));
         }
         
         float Camera::squaredDistanceTo(const Vec3f& point) const {

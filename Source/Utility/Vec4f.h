@@ -161,7 +161,7 @@ namespace TrenchBroom {
             }
             
             inline float length() const {
-                return sqrt(lengthSquared());
+                return std::sqrt(lengthSquared());
             }
             
             inline float lengthSquared() const {

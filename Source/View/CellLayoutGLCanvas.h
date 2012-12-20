@@ -151,10 +151,10 @@ namespace TrenchBroom {
                     float y = static_cast<float>(visibleRect.GetY());
                     float height = static_cast<float>(visibleRect.GetHeight());
                     
-                    float viewLeft      = static_cast<float>(GetClientRect().GetLeft());
-                    float viewTop       = static_cast<float>(GetClientRect().GetBottom());
-                    float viewRight     = static_cast<float>(GetClientRect().GetRight());
-                    float viewBottom    = static_cast<float>(GetClientRect().GetTop());
+                    GLint viewLeft      = static_cast<GLint>(GetClientRect().GetLeft());
+                    GLint viewTop       = static_cast<GLint>(GetClientRect().GetBottom());
+                    GLint viewRight     = static_cast<GLint>(GetClientRect().GetRight());
+                    GLint viewBottom    = static_cast<GLint>(GetClientRect().GetTop());
                     glViewport(viewLeft, viewBottom, viewRight - viewLeft, viewTop - viewBottom);
 
                     doRender(m_layout, y, height);
@@ -182,8 +182,8 @@ namespace TrenchBroom {
                         wxImage* feedbackImage = dndImage(*cell);
                         wxDataObject* dropData = dndData(*cell);
                         
-                        int xOffset = event.GetX() - cell->itemBounds().left();
-                        int yOffset = event.GetY() - cell->itemBounds().top() + top;
+                        int xOffset = event.GetX() - static_cast<int>(cell->itemBounds().left());
+                        int yOffset = event.GetY() - static_cast<int>(cell->itemBounds().top()) + top;
                         
                         DropSource dropSource(this, *feedbackImage, wxPoint(xOffset, yOffset));
                         dropSource.SetData(*dropData);

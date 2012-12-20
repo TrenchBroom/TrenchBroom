@@ -183,20 +183,33 @@ namespace TrenchBroom {
         }
 
         void Side::replaceEdges(size_t index1, size_t index2, Edge* edge) {
-            if (index2 > index1) {
-                vertices.erase(vertices.begin() + index1 + 1, vertices.begin() + index2 + 1);
-                edges.erase(edges.begin() + index1 + 1, edges.begin() + index2);
-                vertices.insert(vertices.begin() + index1 + 1, edge->startVertex(this));
-                vertices.insert(vertices.begin() + index1 + 2, edge->endVertex(this));
+            VertexList::iterator vIt1 = vertices.begin();
+            VertexList::iterator vIt2 = vertices.begin();
+            EdgeList::iterator eIt1 = edges.begin();
+            EdgeList::iterator eIt2 = edges.begin();
+            
+            std::advance(vIt1, index1 + 1);
+            std::advance(vIt2, index2 + 1);
+            std::advance(eIt1, index1 + 1);
+            std::advance(eIt2, index2);
 
+            if (index2 > index1) {
+                vertices.erase(vIt1, vIt2);
+                edges.erase(eIt1, eIt2);
+                
+                vertices.insert(vIt1, edge->startVertex(this));
+                std::advance(vIt1, 1);
+                vertices.insert(vIt1, edge->endVertex(this));
                 assert(edge->startVertex(this) == vertices[index1 + 1]);
                 assert(edge->endVertex(this) == vertices[index1 + 2]);
-                edges.insert(edges.begin() + index1 + 1, edge);
+                
+                edges.insert(eIt1, edge);
             } else {
-                vertices.erase(vertices.begin() + index1 + 1, vertices.end());
-                vertices.erase(vertices.begin(), vertices.begin() + index2 + 1);
-                edges.erase(edges.begin() + index1 + 1, edges.end());
-                edges.erase(edges.begin(), edges.begin() + index2);
+                vertices.erase(vIt1, vertices.end());
+                vertices.erase(vertices.begin(), vIt2);
+                edges.erase(eIt1, edges.end());
+                edges.erase(edges.begin(), eIt2);
+                
                 vertices.push_back(edge->startVertex(this));
                 vertices.insert(vertices.begin(), edge->endVertex(this));
 
@@ -228,20 +241,20 @@ namespace TrenchBroom {
                 if (currentMark == Edge::Split) {
                     Vertex* start = edge->startVertex(this);
                     if (start->mark == Vertex::Keep)
-                        splitIndex1 = i;
+                        splitIndex1 = static_cast<int>(i);
                     else
-                        splitIndex2 = i;
+                        splitIndex2 = static_cast<int>(i);
                     split++;
                 } else if (currentMark == Edge::Undecided) {
                     undecided++;
                     undecidedEdge = edge;
                 } else if (currentMark == Edge::Keep) {
                     if (lastMark == Edge::Drop)
-                        splitIndex2 = i;
+                        splitIndex2 = static_cast<int>(i);
                     keep++;
                 } else if (currentMark == Edge::Drop) {
                     if (lastMark == Edge::Keep)
-                        splitIndex1 = i > 0 ? i - 1 : (int)edges.size() - 1;
+                        splitIndex1 = i > 0 ? static_cast<int>(i) - 1 : static_cast<int>(edges.size() - 1);
                     drop++;
                 }
                 lastMark = currentMark;
@@ -270,13 +283,13 @@ namespace TrenchBroom {
             mark = Side::Split;
 
             Edge* newEdge = new Edge();
-            newEdge->start = edges[splitIndex1]->endVertex(this);
-            newEdge->end = edges[splitIndex2]->startVertex(this);
+            newEdge->start = edges[static_cast<size_t>(splitIndex1)]->endVertex(this);
+            newEdge->end = edges[static_cast<size_t>(splitIndex2)]->startVertex(this);
             newEdge->left = NULL;
             newEdge->right = this;
             newEdge->mark = Edge::New;
 
-            replaceEdges(splitIndex1, splitIndex2, newEdge);
+            replaceEdges(static_cast<size_t>(splitIndex1), static_cast<size_t>(splitIndex2), newEdge);
             return newEdge;
         }
 
@@ -651,16 +664,17 @@ namespace TrenchBroom {
             // now neighbourEdgeIndex points to the last edge (in CW order) of neighbour that should not be deleted
             // and count is the number of shared edges between side and neighbour
 
-            size_t totalVertexCount = side->edges.size() + neighbour->edges.size() - 2 * count;
+            assert(count >= 0);
+            size_t totalVertexCount = side->edges.size() + neighbour->edges.size() - static_cast<size_t>(2 * count);
 
             // shift the two sides so that their shared edges are at the end of both's edge lists
-            side->shift(succ(sideEdgeIndex, side->edges.size(), count + 1));
+            side->shift(succ(sideEdgeIndex, side->edges.size(), static_cast<size_t>(count + 1)));
             neighbour->shift(neighbourEdgeIndex);
 
-            side->edges.resize(side->edges.size() - count);
-            side->vertices.resize(side->vertices.size() - count);
+            side->edges.resize(side->edges.size() - static_cast<size_t>(count));
+            side->vertices.resize(side->vertices.size() - static_cast<size_t>(count));
 
-            for (unsigned int i = 0; i < neighbour->edges.size() - count; i++) {
+            for (size_t i = 0; i < neighbour->edges.size() - static_cast<size_t>(count); i++) {
                 edge = neighbour->edges[i];
                 vertex = neighbour->vertices[i];
                 if (edge->left == neighbour)
@@ -671,10 +685,10 @@ namespace TrenchBroom {
                 side->vertices.push_back(vertex);
             }
 
-            for (size_t i = neighbour->edges.size() - count; i < neighbour->edges.size(); i++) {
+            for (size_t i = neighbour->edges.size() - static_cast<size_t>(count); i < neighbour->edges.size(); i++) {
                 bool success = deleteElement(edges, neighbour->edges[i]);
                 assert(success);
-                if (i > neighbour->edges.size() - count) {
+                if (i > neighbour->edges.size() - static_cast<size_t>(count)) {
                     success = deleteElement(vertices, neighbour->vertices[i]);
                     assert(success);
                 }
@@ -759,10 +773,20 @@ namespace TrenchBroom {
                     size_t neighbourEdgeIndex = findElement(neighbour->edges, edge);
                     assert(neighbourEdgeIndex < neighbour->edges.size());
 
-                    neighbour->edges.insert(neighbour->edges.begin() + neighbourEdgeIndex + 1, next);
-                    neighbour->edges.insert(neighbour->edges.begin() + neighbourEdgeIndex + 2, nextNext);
-                    neighbour->edges.erase(neighbour->edges.begin() + neighbourEdgeIndex);
-                    neighbour->vertices.insert(neighbour->vertices.begin() + neighbourEdgeIndex + 1, vertex);
+                    EdgeList::iterator eIt0 = neighbour->edges.begin();
+                    EdgeList::iterator eIt1 = neighbour->edges.begin();
+                    EdgeList::iterator eIt2 = neighbour->edges.begin();
+                    VertexList::iterator vIt = neighbour->vertices.begin();
+                    
+                    std::advance(eIt0, neighbourEdgeIndex);
+                    std::advance(eIt1, neighbourEdgeIndex + 1);
+                    std::advance(eIt2, neighbourEdgeIndex + 2);
+                    std::advance(vIt, neighbourEdgeIndex + 1);
+                    
+                    neighbour->edges.insert(eIt1, next);
+                    neighbour->edges.insert(eIt2, nextNext);
+                    neighbour->edges.erase(eIt0);
+                    neighbour->vertices.insert(vIt, vertex);
 
                     if (next->left == side)
                         next->left = neighbour;
@@ -788,7 +812,9 @@ namespace TrenchBroom {
                     success = deleteElement(sides, side);
                     assert(success);
 
-                    incSides.erase(incSides.begin() + i);
+                    SideList::iterator sIt = incSides.begin();
+                    std::advance(sIt, i);
+                    incSides.erase(sIt);
                 } else {
                     i++;
                 }
@@ -1078,7 +1104,7 @@ namespace TrenchBroom {
 
         bool BrushGeometry::sanityCheck() {
             // check Euler characteristic http://en.wikipedia.org/wiki/Euler_characteristic
-            int sideCount = 0;
+            unsigned int sideCount = 0;
             for (unsigned int i = 0; i < sides.size(); i++)
                 if (sides[i]->face != NULL)
                     sideCount++;

@@ -40,12 +40,15 @@ namespace TrenchBroom {
                 m_firstFreeBlock(0),
                 m_numFreeBlocks(255) {
                     for (unsigned int i = 0; i < 255; i++)
-                        m_blocks[i * sizeof(T)] = i + 1;
+                        m_blocks[i * sizeof(T)] = static_cast<unsigned char>(i + 1);
                 }
                 
                 inline bool contains(const T* t) const {
                     const unsigned char* block = reinterpret_cast<const unsigned char*>(t);
-                    return block >= m_blocks && (block - m_blocks) < 255 * sizeof(T);
+                    if (block < m_blocks)
+                        return false;
+                    size_t offset = static_cast<size_t>(block - m_blocks);
+                    return offset < 255 * sizeof(T);
                 }
                 
                 inline T* allocate() {

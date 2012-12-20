@@ -51,7 +51,7 @@ namespace TrenchBroom {
         }
 
         inline float round(float f) {
-            return f > 0.0f ? floor(f + 0.5f) : ceil(f - 0.5f);
+            return f > 0.0f ? std::floor(f + 0.5f) : std::ceil(f - 0.5f);
         }
 
         inline float correct(float f) {
@@ -59,7 +59,7 @@ namespace TrenchBroom {
         }
 
         inline bool zero(float f) {
-            return fabsf(f) <= AlmostZero;
+            return std::abs(f) <= AlmostZero;
         }
 
         inline bool pos(float f) {
@@ -71,7 +71,7 @@ namespace TrenchBroom {
         }
 
         inline bool eq(float f1, float f2) {
-            return fabsf(f1 - f2) < AlmostZero;
+            return std::abs(f1 - f2) < AlmostZero;
         }
 
         inline bool gt(float f1, float f2) {

@@ -80,7 +80,7 @@ namespace TrenchBroom {
                     } else {
                         Vec3f temp = planePoints[1] - planePoints[0];
                         temp.normalize();
-                        if (eq(fabsf(temp.dot(m_normals[0].firstAxis())), 1.0f)) {
+                        if (eq(std::abs(temp.dot(m_normals[0].firstAxis())), 1.0f)) {
                             if (m_normals[0].firstComponent() == Axis::AZ)
                                 planePoints[1] = planePoints[0] + 128.0f * view().camera().direction().firstAxis();
                             else
@@ -299,7 +299,7 @@ namespace TrenchBroom {
                     delete triangleArray;
                 }
                 
-                if (m_hitIndex == m_numPoints && m_numPoints < 3) {
+                if (m_hitIndex == static_cast<int>(m_numPoints) && m_numPoints < 3) {
                     shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::SelectedClipHandleColor));
                     Renderer::ApplyMatrix translate(renderContext.transformation(), Mat4f().translate(m_points[m_hitIndex]));
                     sphereFigure.render(vbo, renderContext);

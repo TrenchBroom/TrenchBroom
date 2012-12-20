@@ -27,6 +27,8 @@ namespace TrenchBroom {
     namespace Controller {
         class ObjectsCommand {
         public:
+            virtual ~ObjectsCommand() {}
+            
             virtual const Model::EntityList& entities() const = 0;
             virtual const Model::BrushList& brushes() const = 0;
         };

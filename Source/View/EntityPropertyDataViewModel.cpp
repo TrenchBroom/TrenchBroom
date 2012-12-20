@@ -30,8 +30,8 @@ namespace TrenchBroom {
     namespace View {
         void EntityPropertyDataViewModel::clear() {
             wxArrayInt rows;
-            for (int i = 0; i < m_properties.size(); i++)
-                rows.push_back(i);
+            for (unsigned int i = 0; i < m_properties.size(); i++)
+                rows.push_back(static_cast<int>(i));
             RowsDeleted(rows);
             m_properties.clear();
         }

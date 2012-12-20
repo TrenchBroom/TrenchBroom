@@ -70,7 +70,7 @@ namespace TrenchBroom {
                     Vec3f view = m_position - origin;
                     view.normalize();
                     
-                    if (eq(fabsf(view.z), 1.0f)) {
+                    if (eq(std::abs(view.z), 1.0f)) {
                         m_xAxis = Vec3f::PosX;
                         m_yAxis = Vec3f::PosY;
                     } else {

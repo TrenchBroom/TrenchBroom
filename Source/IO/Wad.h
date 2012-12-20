@@ -47,12 +47,12 @@ namespace TrenchBroom {
         public:
             typedef std::vector<WadEntry> List;
         private:
-            int32_t m_address;
-            int32_t m_length;
+            unsigned int m_address;
+            unsigned int m_length;
             char m_type;
             String m_name;
         public:
-            WadEntry(int32_t address, int32_t length, char type, const String& name) :
+            WadEntry(unsigned int address, unsigned int length, char type, const String& name) :
             m_address(address),
             m_length(length),
             m_type(type),
@@ -64,11 +64,11 @@ namespace TrenchBroom {
             m_type(WadEntryType::WEStatus),
             m_name("") {}
             
-            inline int32_t address() const {
+            inline unsigned int address() const {
                 return m_address;
             }
             
-            inline int32_t length() const {
+            inline unsigned int length() const {
                 return m_length;
             }
     

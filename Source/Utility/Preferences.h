@@ -145,6 +145,8 @@ namespace TrenchBroom {
         
         class PreferenceBase {
         public:
+            virtual ~PreferenceBase() {}
+            
             virtual void load(wxConfigBase* config) const = 0;
             virtual void save(wxConfigBase* config) const = 0;
             virtual void setValue(const ValueHolderBase* valueHolder) const = 0;

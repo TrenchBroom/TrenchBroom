@@ -111,7 +111,7 @@ namespace TrenchBroom {
                 void deleteStrings();
             public:
                 StringManager(Utility::Console& console);
-                ~StringManager();
+                virtual ~StringManager();
                 
                 StringRendererPtr stringRenderer(const FontDescriptor& fontDescriptor, const String& string);
                 void deleteElement(StringRenderer* stringRenderer);

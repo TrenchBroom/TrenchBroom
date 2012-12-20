@@ -56,7 +56,7 @@ namespace TrenchBroom {
             // if we are rotating about one of the coordinate system axes, we can get a more precise result by rotating
             // by 90 degrees as often as possible
             if (m_axis.equals(m_axis.firstAxis())) {
-                unsigned int quarters = 2.0f * angle / Math::Pi;
+                unsigned int quarters = static_cast<unsigned int>(2.0f * angle / Math::Pi);
                 quarters %= 4;
                 
                 if (quarters > 0) {

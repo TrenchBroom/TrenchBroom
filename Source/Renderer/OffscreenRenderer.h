@@ -41,12 +41,12 @@ namespace TrenchBroom {
             unsigned int m_height;
 
             bool m_multisample;
-            unsigned int m_samples;
+            GLint m_samples;
             
             OffscreenRenderer* m_readBuffers;
         public:
             OffscreenRenderer(const GL::Capabilities& capabilities);
-            OffscreenRenderer(bool multisample, unsigned int samples = 0);
+            OffscreenRenderer(bool multisample, GLint samples = 0);
             ~OffscreenRenderer();
             
             inline void setDimensions(unsigned int width, unsigned int height) {

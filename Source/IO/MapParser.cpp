@@ -37,7 +37,7 @@ namespace TrenchBroom {
                     case TokenizerState::Default:
                         switch (c) {
                             case '/': {
-                                char d = peekChar();
+                                int d = peekChar();
                                 if (d == '/') {
                                     m_state = TokenizerState::Comment;
                                     m_startLine = m_line;
@@ -223,7 +223,7 @@ namespace TrenchBroom {
         void MapParser::parseMap(Model::Map& map, Utility::ProgressIndicator* indicator) {
             Model::Entity* entity = NULL;
             
-            if (indicator != NULL) indicator->reset(static_cast<float>(m_size));
+            if (indicator != NULL) indicator->reset(static_cast<int>(m_size));
             try {
                 while ((entity = parseEntity(map.worldBounds(), indicator)) != NULL)
                     map.addEntity(*entity);
@@ -231,7 +231,7 @@ namespace TrenchBroom {
                 m_console.error(e.what());
             }
             if (indicator != NULL)
-                indicator->update(static_cast<float>(m_size));
+                indicator->update(static_cast<int>(m_size));
         }
 
         Model::Entity* MapParser::parseEntity(const BBox& worldBounds, Utility::ProgressIndicator* indicator) {
@@ -272,7 +272,7 @@ namespace TrenchBroom {
                     }
                     case TokenType::CBrace: {
                         if (indicator != NULL)
-                            indicator->update(static_cast<float>(token->position()));
+                            indicator->update(static_cast<int>(token->position()));
                         return entity;
                     }
                     default:
@@ -315,7 +315,7 @@ namespace TrenchBroom {
                         break;
                     }
                     case TokenType::CBrace:
-                        if (indicator != NULL) indicator->update(static_cast<float>(token->position()));
+                        if (indicator != NULL) indicator->update(static_cast<int>(token->position()));
                         if (brush != NULL && !brush->closed()) {
                             m_console.warn("Skipping non-closed brush at line %i", brush->filePosition());
                             delete brush;

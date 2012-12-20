@@ -45,6 +45,7 @@ namespace TrenchBroom {
                 TESS_CALLBACK gluTessVertexData(Vec2f* vertex, PathMesh* mesh);
                 TESS_CALLBACK gluTessCombineData(GLdouble coords[3], void *vertexData[4], GLfloat weight[4], void **outData, PathMesh* mesh);
                 TESS_CALLBACK gluTessEndData(PathMesh* mesh);
+                TESS_CALLBACK gluTessError(GLenum errorCode);
             }
 
             class PathTesselator {

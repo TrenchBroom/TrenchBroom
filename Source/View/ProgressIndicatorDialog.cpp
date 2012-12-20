@@ -29,7 +29,7 @@ namespace TrenchBroom {
         }
         
         void ProgressIndicatorDialog::doUpdate() {
-            m_dialog->Update(percent());
+            m_dialog->Update(static_cast<int>(percent()));
         }
 
         ProgressIndicatorDialog::ProgressIndicatorDialog() {
@@ -42,7 +42,7 @@ namespace TrenchBroom {
         }
         
         void ProgressIndicatorDialog::setText(const String& text) {
-            m_dialog->Update(percent(), text);
+            m_dialog->Update(static_cast<int>(percent()), text);
         }
         
         void ProgressIndicatorDialog::pulse() {

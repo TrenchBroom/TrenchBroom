@@ -20,6 +20,7 @@
 #include "Pak.h"
 
 #include "IO/FileManager.h"
+#include "IO/IOUtils.h"
 #include "IO/substream.h"
 
 #include <algorithm>
@@ -33,24 +34,18 @@ namespace TrenchBroom {
 
             char magic[PakLayout::HeaderMagicLength];
             char entryName[PakLayout::EntryNameLength];
-            int32_t directoryAddress, directorySize;
-            size_t entryCount;
             
             m_stream.seekg(PakLayout::HeaderAddress, std::ios::beg);
             m_stream.read(magic, PakLayout::HeaderMagicLength);
-            m_stream.read(reinterpret_cast<char *>(&directoryAddress), sizeof(int32_t));
-            m_stream.read(reinterpret_cast<char *>(&directorySize), sizeof(int32_t));
-            
-            assert(directorySize >= 0);
-            entryCount = static_cast<size_t>(directorySize) / PakLayout::EntryLength;
+            unsigned int directoryAddress = IO::readUnsignedInt<int32_t>(m_stream);
+            unsigned int directorySize = IO::readUnsignedInt<int32_t>(m_stream);
+            unsigned int entryCount = directorySize / PakLayout::EntryLength;
             
             m_stream.seekg(directoryAddress, std::ios::beg);
             for (unsigned int i = 0; i < entryCount; i++) {
-                int32_t entryAddress, entryLength;
-                
                 m_stream.read(entryName, PakLayout::EntryNameLength);
-                m_stream.read(reinterpret_cast<char *>(&entryAddress), sizeof(int32_t));
-                m_stream.read(reinterpret_cast<char *>(&entryLength), sizeof(int32_t));
+                unsigned int entryAddress = IO::readUnsignedInt<int32_t>(m_stream);
+                unsigned int entryLength = IO::readUnsignedInt<int32_t>(m_stream);
                 
                 m_directory[Utility::toLower(entryName)] = PakEntry(entryName, entryAddress, entryLength);
             }
@@ -66,7 +61,9 @@ namespace TrenchBroom {
             const PakEntry& entry = it->second;
             
             m_stream.clear();
-            substreambuf* subStreamBuf = new substreambuf(m_stream.rdbuf(), entry.address(), entry.length());
+            substreambuf* subStreamBuf = new substreambuf(m_stream.rdbuf(),
+                                                          static_cast<int>(entry.address()),
+                                                          static_cast<int>(entry.length()));
             std::istream* subStream = new isubstream(subStreamBuf);
             return PakStream(subStream);
         }

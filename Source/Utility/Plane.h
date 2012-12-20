@@ -120,7 +120,7 @@ namespace TrenchBroom {
             }
             
             inline bool equals(const Plane& other, float epsilon) const {
-                return normal.equals(other.normal, epsilon) && fabsf(distance - other.distance) <= epsilon;
+                return normal.equals(other.normal, epsilon) && std::abs(distance - other.distance) <= epsilon;
             }
             
             inline Plane& translate(const Vec3f& delta) {

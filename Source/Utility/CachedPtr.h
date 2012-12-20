@@ -29,6 +29,7 @@ namespace TrenchBroom {
         public:
             class Cache {
             public:
+                virtual ~Cache() {}
                 virtual void deleteElement(Element* element) = 0;
             };
         private:

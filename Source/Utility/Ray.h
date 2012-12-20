@@ -71,7 +71,7 @@ namespace TrenchBroom {
                 if (d < 0.0f)
                     return Math::nan();
                 
-                float s = sqrt(d);
+                float s = std::sqrt(d);
                 float t0 = (-p + s) / 2.0f;
                 float t1 = (-p - s) / 2.0f;
                 
@@ -171,7 +171,7 @@ namespace TrenchBroom {
                 float squaredDistance = squaredDistanceToPoint(point, distanceToClosestPoint);
                 if (Math::isnan(squaredDistance))
                     return squaredDistance;
-                return sqrt(squaredDistance);
+                return std::sqrt(squaredDistance);
             }
             
             float squaredDistanceToSegment(const Vec3f& start, const Vec3f& end, float& distanceToClosestPoint) const {
@@ -228,7 +228,7 @@ namespace TrenchBroom {
                 float squaredDistance = squaredDistanceToSegment(start, end, distanceToClosestPoint);
                 if (isnan(squaredDistance))
                     return squaredDistance;
-                return sqrt(squaredDistance);
+                return std::sqrt(squaredDistance);
             }
         };
     }

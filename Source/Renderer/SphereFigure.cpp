@@ -53,7 +53,7 @@ namespace TrenchBroom {
             TriangleList triangles;
 
             // build initial icosahedron
-            float t = static_cast<float>((1.0 + sqrt(5.0)) / 2.0);
+            float t = static_cast<float>((1.0 + std::sqrt(5.0)) / 2.0);
             vertices.push_back(Vec3f(-1.0f,     t,  0.0f).normalize());
             vertices.push_back(Vec3f( 1.0f,     t,  0.0f).normalize());
             vertices.push_back(Vec3f(-1.0f,    -t,  0.0f).normalize());
