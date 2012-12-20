@@ -72,6 +72,7 @@
 		4878F95516596915003857EA /* BrushFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F95316596915003857EA /* BrushFigure.cpp */; };
 		4878F964165C16BE003857EA /* ClipTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F962165C16BE003857EA /* ClipTool.cpp */; };
 		487B6C79164E8A70000A77DA /* CameraTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B6C77164E8A70000A77DA /* CameraTool.cpp */; };
+		487EC0A2168359020094927A /* TextureSelectedCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487EC0A0168359010094927A /* TextureSelectedCommand.cpp */; };
 		48819C3815EBE97A00BEA604 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3615EBE92800BEA604 /* Camera.cpp */; };
 		48819C3F15EC0CE700BEA604 /* MacFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3D15EC0CE700BEA604 /* MacFileManager.cpp */; };
 		48819C4415EC107700BEA604 /* quake.def in Resources */ = {isa = PBXBuildFile; fileRef = 48819C4315EC107700BEA604 /* quake.def */; };
@@ -122,7 +123,7 @@
 		48D1BEB715E423F60073C030 /* TrenchBroomApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEB515E423F60073C030 /* TrenchBroomApp.cpp */; };
 		48D417D7160B3A3C003AECBB /* TextureBrowserCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D417D5160B3A3C003AECBB /* TextureBrowserCanvas.cpp */; };
 		48D590A416807D5E00860B86 /* HandleManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D590A216807D5E00860B86 /* HandleManager.cpp */; };
-		48DFD4B816061AAE00E554E1 /* glew.c in Sources */ = {isa = PBXBuildFile; fileRef = 48DFD4B416061AAE00E554E1 /* glew.c */; };
+		48DFD4B816061AAE00E554E1 /* glew.c in Sources */ = {isa = PBXBuildFile; fileRef = 48DFD4B416061AAE00E554E1 /* glew.c */; settings = {COMPILER_FLAGS = "-w"; }; };
 		48DFD4BC1606308E00E554E1 /* MacCapabilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48DFD4BA1606308E00E554E1 /* MacCapabilities.cpp */; };
 		48E1A518161390AD006BB6C4 /* TextureCollectionCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48E1A516161390AD006BB6C4 /* TextureCollectionCommand.cpp */; };
 		48E2ECBD15FF8FDF00B8D476 /* Grid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48E2ECBB15FF8FDF00B8D476 /* Grid.cpp */; };
@@ -321,6 +322,8 @@
 		4878F963165C16BE003857EA /* ClipTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipTool.h; sourceTree = "<group>"; };
 		487B6C77164E8A70000A77DA /* CameraTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraTool.cpp; sourceTree = "<group>"; };
 		487B6C78164E8A70000A77DA /* CameraTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraTool.h; sourceTree = "<group>"; };
+		487EC0A0168359010094927A /* TextureSelectedCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureSelectedCommand.cpp; sourceTree = "<group>"; };
+		487EC0A1168359020094927A /* TextureSelectedCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureSelectedCommand.h; sourceTree = "<group>"; };
 		48819C3615EBE92800BEA604 /* Camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
 		48819C3715EBE92800BEA604 /* Camera.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
 		48819C3D15EC0CE700BEA604 /* MacFileManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MacFileManager.cpp; path = TrenchBroom/MacFileManager.cpp; sourceTree = SOURCE_ROOT; };
@@ -746,6 +749,8 @@
 				48B75F78160CF79E009D4E99 /* TextureBrowser.h */,
 				48D417D5160B3A3C003AECBB /* TextureBrowserCanvas.cpp */,
 				48D417D6160B3A3C003AECBB /* TextureBrowserCanvas.h */,
+				487EC0A0168359010094927A /* TextureSelectedCommand.cpp */,
+				487EC0A1168359020094927A /* TextureSelectedCommand.h */,
 				48E2ED15160102E400B8D476 /* ViewInspector.cpp */,
 				48E2ED16160102E400B8D476 /* ViewInspector.h */,
 				48A922B01601D0D20037FEFE /* ViewOptions.h */,
@@ -1169,6 +1174,7 @@
 				482976D41681DAB70057E4D4 /* MoveEdgesCommand.cpp in Sources */,
 				482976D71681E77A0057E4D4 /* MoveFacesCommand.cpp in Sources */,
 				482976DB1681EEEC0057E4D4 /* SplitFacesCommand.cpp in Sources */,
+				487EC0A2168359020094927A /* TextureSelectedCommand.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

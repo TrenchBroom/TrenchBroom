@@ -183,31 +183,39 @@ namespace TrenchBroom {
         }
 
         void Side::replaceEdges(size_t index1, size_t index2, Edge* edge) {
-            VertexList::iterator vIt1 = vertices.begin();
-            VertexList::iterator vIt2 = vertices.begin();
-            EdgeList::iterator eIt1 = edges.begin();
-            EdgeList::iterator eIt2 = edges.begin();
+            VertexList::iterator vIt1, vIt2;
+            EdgeList::iterator eIt1, eIt2;
             
-            std::advance(vIt1, index1 + 1);
-            std::advance(vIt2, index2 + 1);
-            std::advance(eIt1, index1 + 1);
-            std::advance(eIt2, index2);
-
             if (index2 > index1) {
+                std::advance(vIt1 = vertices.begin(), index1 + 1);
+                std::advance(vIt2 = vertices.begin(), index2 + 1);
                 vertices.erase(vIt1, vIt2);
-                edges.erase(eIt1, eIt2);
                 
+                std::advance(eIt1 = edges.begin(), index1 + 1);
+                std::advance(eIt2 = edges.begin(), index2);
+                edges.erase(eIt1, eIt2);
+
+                std::advance(vIt1 = vertices.begin(), index1 + 1);
                 vertices.insert(vIt1, edge->startVertex(this));
-                std::advance(vIt1, 1);
+                
+                std::advance(vIt1 = vertices.begin(), index1 + 2);
                 vertices.insert(vIt1, edge->endVertex(this));
                 assert(edge->startVertex(this) == vertices[index1 + 1]);
                 assert(edge->endVertex(this) == vertices[index1 + 2]);
                 
+                std::advance(eIt1 = edges.begin(), index1 + 1);
                 edges.insert(eIt1, edge);
             } else {
+                std::advance(vIt1 = vertices.begin(), index1 + 1);
                 vertices.erase(vIt1, vertices.end());
+                
+                std::advance(vIt2 = vertices.begin(), index2 + 1);
                 vertices.erase(vertices.begin(), vIt2);
+                
+                std::advance(eIt1 = edges.begin(), index1 + 1);
                 edges.erase(eIt1, edges.end());
+                
+                std::advance(eIt2 = edges.begin(), index2);
                 edges.erase(edges.begin(), eIt2);
                 
                 vertices.push_back(edge->startVertex(this));

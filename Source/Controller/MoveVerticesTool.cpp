@@ -242,8 +242,8 @@ namespace TrenchBroom {
                     name = m_handleManager.selectedFaceHandles().size() == 1 ? wxT("Move Face") : wxT("Move Faces");
             } else {
                 assert(m_handleManager.selectedVertexHandles().size() == 0 &&
-                       (m_handleManager.selectedEdgeHandles().size() == 1 ^
-                        m_handleManager.selectedFaceHandles().size() == 1)
+                       ((m_handleManager.selectedEdgeHandles().size() == 1) ^
+                        (m_handleManager.selectedFaceHandles().size() == 1))
                        );
                 
                 if (!m_handleManager.selectedEdgeHandles().empty())
@@ -314,8 +314,8 @@ namespace TrenchBroom {
                 }
             } else {
                 assert(m_handleManager.selectedVertexHandles().size() == 0 &&
-                       (m_handleManager.selectedEdgeHandles().size() == 1 ^
-                        m_handleManager.selectedFaceHandles().size() == 1)
+                       ((m_handleManager.selectedEdgeHandles().size() == 1) ^
+                        (m_handleManager.selectedFaceHandles().size() == 1))
                        );
 
                 if (!m_handleManager.selectedEdgeHandles().empty()) {

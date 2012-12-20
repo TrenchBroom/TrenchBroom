@@ -62,6 +62,9 @@ FT_BEGIN_HEADER
 #define HAVE_FCNTL_H 1
 
 #define SIZEOF_INT 4
+#if defined SIZEOF_LONG
+#undef SIZEOF_LONG
+#endif
 #define SIZEOF_LONG 4
 
 

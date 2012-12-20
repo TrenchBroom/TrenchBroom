@@ -23,6 +23,7 @@
 #include "View/CommandIds.h"
 #include "View/LayoutConstants.h"
 #include "View/TextureBrowserCanvas.h"
+#include "View/TextureSelectedCommand.h"
 
 #include <wx/tglbtn.h>
 #include <wx/choice.h>

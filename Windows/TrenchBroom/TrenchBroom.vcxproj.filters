@@ -69,14 +69,140 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\Controller\CameraTool.cpp">
+    <ClCompile Include="TrenchBroomApp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WinFileManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\Text\PathBuilder.cpp">
+      <Filter>Source Files\Renderer\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\Text\PathRenderer.cpp">
+      <Filter>Source Files\Renderer\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\Text\PathTesselator.cpp">
+      <Filter>Source Files\Renderer\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\Text\StringManager.cpp">
+      <Filter>Source Files\Renderer\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\Text\StringVectorizer.cpp">
+      <Filter>Source Files\Renderer\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\Shader\Shader.cpp">
+      <Filter>Source Files\Renderer\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\GL\glew.c">
+      <Filter>Source Files\GL</Filter>
+    </ClCompile>
+    <ClCompile Include="WinCapabilities.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\Shader\ShaderManager.cpp">
+      <Filter>Source Files\Renderer\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\Shader\ShaderProgram.cpp">
+      <Filter>Source Files\Renderer\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\EntityPropertyCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\FlipObjectsCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\HandleManager.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Controller\InputController.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\MoveEdgesCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\MoveFacesCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\MoveHandle.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\MoveObjectsCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\MoveObjectsTool.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\MoveTexturesCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\MoveVerticesCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\MoveVerticesTool.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\RemoveObjectsCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\RotateObjects90Command.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\RotateObjectsCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\RotateObjectsTool.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\RotateTexturesCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\SelectionTool.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\SetFaceAttributesCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\SnapshotCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\SplitEdgesCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\SplitFacesCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\TextureCollectionCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\AddObjectsCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Controller\CameraEvent.cpp">
       <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\CameraTool.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\ChangeEditStateCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\ClipTool.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\CreateBrushTool.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\CreateEntityTool.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\IO\MapParser.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\IO\MapWriter.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\IO\Pak.cpp">
+      <Filter>Source Files\IO</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\IO\StandardDefinitionParser.cpp">
       <Filter>Source Files\IO</Filter>
@@ -84,14 +210,8 @@
     <ClCompile Include="..\..\Source\IO\Wad.cpp">
       <Filter>Source Files\IO</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\IO\MapParser.cpp">
+    <ClCompile Include="..\..\Source\IO\AbstractFileManager.cpp">
       <Filter>Source Files\IO</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Model\Brush.cpp">
-      <Filter>Source Files\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Model\BrushGeometry.cpp">
-      <Filter>Source Files\Model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Model\Entity.cpp">
       <Filter>Source Files\Model</Filter>
@@ -111,91 +231,25 @@
     <ClCompile Include="..\..\Source\Model\MapDocument.cpp">
       <Filter>Source Files\Model</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Model\Texture.cpp">
-      <Filter>Source Files\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Model\TextureManager.cpp">
-      <Filter>Source Files\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\Camera.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\MapRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\Vbo.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Utility\Console.cpp">
-      <Filter>Source Files\Utility</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Utility\Mat4f.cpp">
-      <Filter>Source Files\Utility</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Utility\Vec3f.cpp">
-      <Filter>Source Files\Utility</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\View\EditorFrame.cpp">
-      <Filter>Source Files\View</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\View\EditorView.cpp">
-      <Filter>Source Files\View</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\View\Inspector.cpp">
-      <Filter>Source Files\View</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\View\MapGLCanvas.cpp">
-      <Filter>Source Files\View</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\View\ProgressIndicatorDialog.cpp">
-      <Filter>Source Files\View</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\View\AbstractApp.cpp">
-      <Filter>Source Files\View</Filter>
-    </ClCompile>
-    <ClCompile Include="TrenchBroomApp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="WinFileManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Utility\DocManager.cpp">
-      <Filter>Source Files\Utility</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\Text\PathBuilder.cpp">
-      <Filter>Source Files\Renderer\Text</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\Text\PathRenderer.cpp">
-      <Filter>Source Files\Renderer\Text</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\Text\PathTesselator.cpp">
-      <Filter>Source Files\Renderer\Text</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\Text\StringManager.cpp">
-      <Filter>Source Files\Renderer\Text</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\Text\StringVectorizer.cpp">
-      <Filter>Source Files\Renderer\Text</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\IO\AbstractFileManager.cpp">
-      <Filter>Source Files\IO</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\ChangeEditStateCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\SelectionTool.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\IO\Pak.cpp">
-      <Filter>Source Files\IO</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Model\Octree.cpp">
       <Filter>Source Files\Model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Model\Picker.cpp">
       <Filter>Source Files\Model</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Model\Texture.cpp">
+      <Filter>Source Files\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Model\TextureManager.cpp">
+      <Filter>Source Files\Model</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Model\Alias.cpp">
+      <Filter>Source Files\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Model\Brush.cpp">
+      <Filter>Source Files\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Model\BrushGeometry.cpp">
       <Filter>Source Files\Model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Model\Bsp.cpp">
@@ -204,94 +258,16 @@
     <ClCompile Include="..\..\Source\Model\EditStateManager.cpp">
       <Filter>Source Files\Model</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\Shader\Shader.cpp">
-      <Filter>Source Files\Renderer\Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Utility\Grid.cpp">
-      <Filter>Source Files\Utility</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\View\ViewInspector.cpp">
-      <Filter>Source Files\View</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Utility\Preferences.cpp">
-      <Filter>Source Files\Utility</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\View\PreferencesDialog.cpp">
-      <Filter>Source Files\View</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\GL\glew.c">
-      <Filter>Source Files\GL</Filter>
-    </ClCompile>
-    <ClCompile Include="WinCapabilities.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\SnapshotCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\View\FaceInspector.cpp">
-      <Filter>Source Files\View</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\View\SingleTextureViewer.cpp">
-      <Filter>Source Files\View</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\View\TextureBrowser.cpp">
-      <Filter>Source Files\View</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\View\TextureBrowserCanvas.cpp">
-      <Filter>Source Files\View</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\TextureCollectionCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\AddObjectsCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\EntityPropertyCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\FlipObjectsCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\MoveObjectsCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\MoveObjectsTool.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\MoveTexturesCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\RemoveObjectsCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\RotateObjects90Command.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\RotateObjectsTool.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\RotateTexturesCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\IO\MapWriter.cpp">
-      <Filter>Source Files\IO</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\Shader\ShaderManager.cpp">
-      <Filter>Source Files\Renderer\Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\Shader\ShaderProgram.cpp">
-      <Filter>Source Files\Renderer\Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\TextureRendererManager.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\AliasModelRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Renderer\BspModelRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\Camera.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Renderer\CircleFigure.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\EdgeRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Renderer\EntityFigure.cpp">
@@ -306,10 +282,25 @@
     <ClCompile Include="..\..\Source\Renderer\EntityRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\FaceRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\ManyCubesFigure.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\ManyCubesInstancedFigure.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\MapRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Renderer\OffscreenRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Renderer\Palette.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\PointHandleRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Renderer\RingFigure.cpp">
@@ -318,16 +309,55 @@
     <ClCompile Include="..\..\Source\Renderer\SharedResources.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\SphereFigure.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Renderer\TextureRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\TextureRendererManager.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\Vbo.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\AliasModelRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\AxisFigure.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\BrushFigure.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Utility\DocManager.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Utility\Grid.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Utility\Mat4f.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Utility\Preferences.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Utility\Vec3f.cpp">
+      <Filter>Source Files\Utility</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Utility\CommandProcessor.cpp">
       <Filter>Source Files\Utility</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\View\EntityPropertyDataViewModel.cpp">
-      <Filter>Source Files\View</Filter>
+    <ClCompile Include="..\..\Source\Utility\Console.cpp">
+      <Filter>Source Files\Utility</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\View\DragAndDrop.cpp">
+      <Filter>Source Files\View</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\View\EditorFrame.cpp">
+      <Filter>Source Files\View</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\View\EditorView.cpp">
       <Filter>Source Files\View</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\View\EntityBrowser.cpp">
@@ -339,75 +369,129 @@
     <ClCompile Include="..\..\Source\View\EntityInspector.cpp">
       <Filter>Source Files\View</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\SetFaceAttributesCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
+    <ClCompile Include="..\..\Source\View\EntityPropertyDataViewModel.cpp">
+      <Filter>Source Files\View</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\ClipTool.cpp">
-      <Filter>Source Files\Controller</Filter>
+    <ClCompile Include="..\..\Source\View\FaceInspector.cpp">
+      <Filter>Source Files\View</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\CreateBrushTool.cpp">
-      <Filter>Source Files\Controller</Filter>
+    <ClCompile Include="..\..\Source\View\Inspector.cpp">
+      <Filter>Source Files\View</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\CreateEntityTool.cpp">
-      <Filter>Source Files\Controller</Filter>
+    <ClCompile Include="..\..\Source\View\MapGLCanvas.cpp">
+      <Filter>Source Files\View</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\HandleManager.cpp">
-      <Filter>Source Files\Controller</Filter>
+    <ClCompile Include="..\..\Source\View\PreferencesDialog.cpp">
+      <Filter>Source Files\View</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\MoveEdgesCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
+    <ClCompile Include="..\..\Source\View\ProgressIndicatorDialog.cpp">
+      <Filter>Source Files\View</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\MoveFacesCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
+    <ClCompile Include="..\..\Source\View\SingleTextureViewer.cpp">
+      <Filter>Source Files\View</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\MoveHandle.cpp">
-      <Filter>Source Files\Controller</Filter>
+    <ClCompile Include="..\..\Source\View\TextureBrowser.cpp">
+      <Filter>Source Files\View</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\MoveVerticesCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
+    <ClCompile Include="..\..\Source\View\TextureBrowserCanvas.cpp">
+      <Filter>Source Files\View</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\MoveVerticesTool.cpp">
-      <Filter>Source Files\Controller</Filter>
+    <ClCompile Include="..\..\Source\View\ViewInspector.cpp">
+      <Filter>Source Files\View</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\SplitEdgesCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
+    <ClCompile Include="..\..\Source\View\AbstractApp.cpp">
+      <Filter>Source Files\View</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\SplitFacesCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\SphereFigure.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\AxisFigure.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\BrushFigure.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\EdgeRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\FaceRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\ManyCubesFigure.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\ManyCubesInstancedFigure.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\PointHandleRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\RotateObjectsCommand.cpp">
-      <Filter>Source Files\Controller</Filter>
+    <ClCompile Include="..\..\Source\View\TextureSelectedCommand.cpp">
+      <Filter>Source Files\View</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="TrenchBroomApp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WinFileManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Text\PathBuilder.h">
+      <Filter>Header Files\Renderer\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Text\PathMesh.h">
+      <Filter>Header Files\Renderer\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Text\PathRenderer.h">
+      <Filter>Header Files\Renderer\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Text\PathTesselator.h">
+      <Filter>Header Files\Renderer\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Text\StringManager.h">
+      <Filter>Header Files\Renderer\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Text\StringVectorizer.h">
+      <Filter>Header Files\Renderer\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Text\TextRenderer.h">
+      <Filter>Header Files\Renderer\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Text\FontDescriptor.h">
+      <Filter>Header Files\Renderer\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Text\Path.h">
+      <Filter>Header Files\Renderer\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Shader\Shader.h">
+      <Filter>Header Files\Renderer\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\GL\Capabilities.h">
+      <Filter>Header Files\GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\GL\wglew.h">
+      <Filter>Header Files\GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\GL\glew.h">
+      <Filter>Header Files\GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Shader\ShaderManager.h">
+      <Filter>Header Files\Renderer\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Shader\ShaderProgram.h">
+      <Filter>Header Files\Renderer\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="WinScreenDC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\AddObjectsCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Controller\CameraEvent.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\CameraTool.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\ChangeEditStateCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\ClipTool.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\Command.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\CreateBrushTool.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\CreateEntityTool.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\EntityPropertyCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\FlipObjectsCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\HandleManager.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\Input.h">
@@ -416,10 +500,91 @@
     <ClInclude Include="..\..\Source\Controller\InputController.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\MoveEdgesCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\MoveFacesCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\MoveHandle.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\MoveObjectsCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\MoveObjectsTool.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\MoveTexturesCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\MoveVerticesCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\MoveVerticesTool.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\ObjectsCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\ObjectsHandle.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\RemoveObjectsCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\RotateObjects90Command.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\RotateObjectsCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\RotateObjectsTool.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\RotateTexturesCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\SelectionTool.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\SetFaceAttributesCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\SnapshotCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\SplitEdgesCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\SplitFacesCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\TextureCollectionCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Controller\Tool.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\IO\IOException.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\IO\IOUtils.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\IO\MapParser.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\IO\MapWriter.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\IO\mmapped_fstream.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\IO\mmapped_fstream_win32.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\IO\Pak.h">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\IO\ParserException.h">
@@ -428,7 +593,13 @@
     <ClInclude Include="..\..\Source\IO\StandardDefinitionParser.h">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\IO\substream.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\IO\Wad.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\IO\AbstractFileManager.h">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\IO\AbstractTokenizer.h">
@@ -437,22 +608,7 @@
     <ClInclude Include="..\..\Source\IO\FileManager.h">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\IO\MapParser.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Model\Brush.h">
-      <Filter>Header Files\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Model\BrushGeometry.h">
-      <Filter>Header Files\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Model\BrushGeometryTypes.h">
-      <Filter>Header Files\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Model\BrushTypes.h">
-      <Filter>Header Files\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Model\EditState.h">
+    <ClInclude Include="..\..\Source\Model\EditStateManager.h">
       <Filter>Header Files\Model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Model\Entity.h">
@@ -491,6 +647,15 @@
     <ClInclude Include="..\..\Source\Model\MapObject.h">
       <Filter>Header Files\Model</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Model\MapObjectTypes.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Model\Octree.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Model\Picker.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Model\PropertyDefinition.h">
       <Filter>Header Files\Model</Filter>
     </ClInclude>
@@ -503,10 +668,136 @@
     <ClInclude Include="..\..\Source\Model\TextureTypes.h">
       <Filter>Header Files\Model</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Model\Alias.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Model\AliasNormals.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Model\Brush.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Model\BrushGeometry.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Model\BrushGeometryTypes.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Model\BrushTypes.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Model\Bsp.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Model\EditState.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\SharedResources.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\SphereFigure.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\TexturedPolygonSorter.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\TextureRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\TextureRendererManager.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\TextureRendererTypes.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\TextureVertexArray.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Transformation.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Vbo.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\VertexArray.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\AliasModelRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\ApplyMatrix.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\AttributeArray.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\AxisFigure.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\BrushFigure.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\BspModelRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Renderer\Camera.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\CircleFigure.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\EdgeRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\EntityClassnameAnchor.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\EntityClassnameFilter.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\EntityFigure.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\EntityModelRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\EntityModelRendererManager.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\EntityRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\FaceRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\FaceVertex.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Figure.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\IndexedVertexArray.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\InstancedVertexArray.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\ManyCubesFigure.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\ManyCubesInstancedFigure.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Renderer\MapRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\OffscreenRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\Palette.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\PointHandleRenderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Renderer\RenderContext.h">
@@ -515,29 +806,8 @@
     <ClInclude Include="..\..\Source\Renderer\RenderUtils.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\Vbo.h">
+    <ClInclude Include="..\..\Source\Renderer\RingFigure.h">
       <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Utility\BBox.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Utility\Color.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Utility\Console.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Utility\CoordinatePlane.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Utility\Line.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Utility\Mat2f.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Utility\Mat3f.h">
-      <Filter>Header Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Utility\Mat4f.h">
       <Filter>Header Files\Utility</Filter>
@@ -578,169 +848,73 @@
     <ClInclude Include="..\..\Source\Utility\VecMath.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\View\EditorFrame.h">
-      <Filter>Header Files\View</Filter>
+    <ClInclude Include="..\..\Source\Utility\Allocator.h">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\View\EditorView.h">
-      <Filter>Header Files\View</Filter>
+    <ClInclude Include="..\..\Source\Utility\BBox.h">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\View\Inspector.h">
-      <Filter>Header Files\View</Filter>
+    <ClInclude Include="..\..\Source\Utility\CachedPtr.h">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\View\MapGLCanvas.h">
-      <Filter>Header Files\View</Filter>
+    <ClInclude Include="..\..\Source\Utility\Color.h">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\View\ProgressIndicatorDialog.h">
-      <Filter>Header Files\View</Filter>
+    <ClInclude Include="..\..\Source\Utility\CommandProcessor.h">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\View\AbstractApp.h">
-      <Filter>Header Files\View</Filter>
+    <ClInclude Include="..\..\Source\Utility\Console.h">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="TrenchBroomApp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\IO\mmapped_fstream_win32.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="WinFileManager.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\..\Source\Utility\CoordinatePlane.h">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Utility\DocManager.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\Text\PathBuilder.h">
-      <Filter>Header Files\Renderer\Text</Filter>
+    <ClInclude Include="..\..\Source\Utility\Grid.h">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\Text\PathMesh.h">
-      <Filter>Header Files\Renderer\Text</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\Text\PathRenderer.h">
-      <Filter>Header Files\Renderer\Text</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\Text\PathTesselator.h">
-      <Filter>Header Files\Renderer\Text</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\Text\StringManager.h">
-      <Filter>Header Files\Renderer\Text</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\Text\StringVectorizer.h">
-      <Filter>Header Files\Renderer\Text</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\Text\TextRenderer.h">
-      <Filter>Header Files\Renderer\Text</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\Text\FontDescriptor.h">
-      <Filter>Header Files\Renderer\Text</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\Text\Path.h">
-      <Filter>Header Files\Renderer\Text</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\IO\AbstractFileManager.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\ChangeEditStateCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\Command.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\SelectionTool.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\IO\Pak.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\IO\substream.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Model\MapObjectTypes.h">
-      <Filter>Header Files\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Model\Octree.h">
-      <Filter>Header Files\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Model\Picker.h">
-      <Filter>Header Files\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Model\Alias.h">
-      <Filter>Header Files\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Model\Bsp.h">
-      <Filter>Header Files\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Model\EditStateManager.h">
-      <Filter>Header Files\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\EntityClassnameAnchor.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\EntityClassnameFilter.h">
-      <Filter>Header Files\Renderer</Filter>
+    <ClInclude Include="..\..\Source\Utility\Line.h">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Utility\List.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\Shader\Shader.h">
-      <Filter>Header Files\Renderer\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\PushMatrix.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\TexturedPolygonSorter.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\TextureVertexArray.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\Transformation.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\VertexArray.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Utility\Grid.h">
+    <ClInclude Include="..\..\Source\Utility\Mat2f.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\View\ViewInspector.h">
-      <Filter>Header Files\View</Filter>
+    <ClInclude Include="..\..\Source\Utility\Mat3f.h">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\View\LayoutConstants.h">
-      <Filter>Header Files\View</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\View\ViewOptions.h">
-      <Filter>Header Files\View</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\View\PreferencesDialog.h">
-      <Filter>Header Files\View</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\View\CommandIds.h">
-      <Filter>Header Files\View</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\AbstractVertexArray.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\IndexedVertexArray.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\GL\Capabilities.h">
-      <Filter>Header Files\GL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\GL\wglew.h">
-      <Filter>Header Files\GL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\GL\glew.h">
-      <Filter>Header Files\GL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\SnapshotCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\View\CellLayoutGLCanvas.h">
+    <ClInclude Include="..\..\Source\View\EntityPropertyDataViewModel.h">
       <Filter>Header Files\View</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\View\FaceInspector.h">
       <Filter>Header Files\View</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\View\Inspector.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\LayoutConstants.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\MapGLCanvas.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\PreferencesDialog.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\ProgressIndicatorDialog.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\ScreenDC.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\View\SingleTextureViewer.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\SpinControl.h">
       <Filter>Header Files\View</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\View\TextureBrowser.h">
@@ -749,109 +923,34 @@
     <ClInclude Include="..\..\Source\View\TextureBrowserCanvas.h">
       <Filter>Header Files\View</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\AddObjectsCommand.h">
-      <Filter>Header Files\Controller</Filter>
+    <ClInclude Include="..\..\Source\View\ViewInspector.h">
+      <Filter>Header Files\View</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\EntityPropertyCommand.h">
-      <Filter>Header Files\Controller</Filter>
+    <ClInclude Include="..\..\Source\View\ViewOptions.h">
+      <Filter>Header Files\View</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\FlipObjectsCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\MoveObjectsCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\MoveObjectsTool.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\MoveTexturesCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\ObjectsHandle.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\RemoveObjectsCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\RotateObjects90Command.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\RotateObjectsTool.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\RotateTexturesCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\TextureCollectionCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\IO\MapWriter.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\IO\IOException.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\AliasModelRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\BspModelRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\CircleFigure.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\EntityFigure.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\EntityModelRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\EntityModelRendererManager.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\EntityRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\OffscreenRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\Palette.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\RingFigure.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\SharedResources.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\TextureRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\TextureRendererManager.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\Shader\ShaderManager.h">
-      <Filter>Header Files\Renderer\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\Shader\ShaderProgram.h">
-      <Filter>Header Files\Renderer\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Utility\Allocator.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Utility\CachedPtr.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Utility\CommandProcessor.h">
-      <Filter>Header Files\Utility</Filter>
+    <ClInclude Include="..\..\Source\View\AbstractApp.h">
+      <Filter>Header Files\View</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\View\CellLayout.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\CellLayoutGLCanvas.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\CommandIds.h">
       <Filter>Header Files\View</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\View\DocumentViewHolder.h">
       <Filter>Header Files\View</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\View\DragAndDrop.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\EditorFrame.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\EditorView.h">
       <Filter>Header Files\View</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\View\EntityBrowser.h">
@@ -863,89 +962,8 @@
     <ClInclude Include="..\..\Source\View\EntityInspector.h">
       <Filter>Header Files\View</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\View\EntityPropertyDataViewModel.h">
+    <ClInclude Include="..\..\Source\View\TextureSelectedCommand.h">
       <Filter>Header Files\View</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\View\SpinControl.h">
-      <Filter>Header Files\View</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\SetFaceAttributesCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\ClipTool.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\CreateBrushTool.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\CreateEntityTool.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\HandleManager.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\MoveEdgesCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\MoveFacesCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\MoveHandle.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\MoveVerticesCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\MoveVerticesTool.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\SplitEdgesCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\SplitFacesCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\ApplyMatrix.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\AttributeArray.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\AxisFigure.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\BrushFigure.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\EdgeRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\FaceRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\FaceVertex.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\InstancedVertexArray.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\ManyCubesFigure.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\ManyCubesInstancedFigure.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\PointHandleRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\SphereFigure.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="WinScreenDC.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\RotateObjectsCommand.h">
-      <Filter>Header Files\Controller</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

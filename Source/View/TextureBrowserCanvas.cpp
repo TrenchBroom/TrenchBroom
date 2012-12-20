@@ -37,12 +37,11 @@
 #include "Utility/VecMath.h"
 #include "View/DocumentViewHolder.h"
 #include "View/EditorView.h"
+#include "View/TextureSelectedCommand.h"
 
 #include <cassert>
 
 using namespace TrenchBroom::Math;
-
-DEFINE_EVENT_TYPE(EVT_TEXTURE_SELECTED_EVENT)
 
 namespace TrenchBroom {
     namespace View {
@@ -291,7 +290,8 @@ namespace TrenchBroom {
                     Refresh();
                     
                     if (m_documentViewHolder.valid()) {
-                        TextureSelectedCommand command(m_selectedTexture);
+                        TextureSelectedCommand command;
+                        command.setTexture(m_selectedTexture);
                         command.SetEventObject(this);
                         command.SetId(GetId());
                         ProcessEvent(command);

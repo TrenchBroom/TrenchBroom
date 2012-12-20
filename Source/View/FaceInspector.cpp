@@ -46,6 +46,7 @@
 #include "View/SingleTextureViewer.h"
 #include "View/TextureBrowser.h"
 #include "View/TextureBrowserCanvas.h"
+#include "View/TextureSelectedCommand.h"
 
 #include "View/SpinControl.h"
 

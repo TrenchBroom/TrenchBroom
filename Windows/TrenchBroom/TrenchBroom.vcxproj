@@ -81,8 +81,9 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>NOMINMAX;WIN32;WINVER=0x0400;WXUSINGDLL;wxMSVC_VERSION_AUTO;__WXMSW__;_WINDOWS;wxUSE_GUI=1;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_DEBUG;__WXDEBUG__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(WXWIN)\include\msvc;$(WXWIN)\include;..\..\Source;..\..\Include;.</AdditionalIncludeDirectories>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <DisableSpecificWarnings>4290</DisableSpecificWarnings>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -104,6 +105,8 @@ Copy "$(WXWIN)\lib\vc100_dll\wxbase294ud_vc100.dll" "$(TargetDir)"
 Copy "$(WXWIN)\lib\vc100_dll\wxbase294ud_vc100.pdb" "$(TargetDir)"
 Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_core_vc100.dll" "$(TargetDir)"
 Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_core_vc100.pdb" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_adv_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_adv_vc100.pdb" "$(TargetDir)"
 Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_gl_vc100.dll" "$(TargetDir)"
 Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_gl_vc100.pdb" "$(TargetDir)"
 </Command>
@@ -147,6 +150,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294ud_gl_vc100_x64.pdb" "$(TargetDir)"
       <AdditionalIncludeDirectories>$(WXWIN)\include\msvc;$(WXWIN)\include;..\..\Source;..\..\Include;.</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <DisableSpecificWarnings>4290</DisableSpecificWarnings>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -170,6 +174,8 @@ Copy "$(WXWIN)\lib\vc100_dll\wxbase294u_vc100.dll" "$(TargetDir)"
 Copy "$(WXWIN)\lib\vc100_dll\wxbase294u_vc100.pdb" "$(TargetDir)"
 Copy "$(WXWIN)\lib\vc100_dll\wxmsw294u_core_vc100.dll" "$(TargetDir)"
 Copy "$(WXWIN)\lib\vc100_dll\wxmsw294u_core_vc100.pdb" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw294u_adv_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw294u_adv_vc100.pdb" "$(TargetDir)"
 Copy "$(WXWIN)\lib\vc100_dll\wxmsw294u_gl_vc100.dll" "$(TargetDir)"
 Copy "$(WXWIN)\lib\vc100_dll\wxmsw294u_gl_vc100.pdb" "$(TargetDir)"
 </Command>
@@ -314,6 +320,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\View\SingleTextureViewer.cpp" />
     <ClCompile Include="..\..\Source\View\TextureBrowser.cpp" />
     <ClCompile Include="..\..\Source\View\TextureBrowserCanvas.cpp" />
+    <ClCompile Include="..\..\Source\View\TextureSelectedCommand.cpp" />
     <ClCompile Include="..\..\Source\View\ViewInspector.cpp" />
     <ClCompile Include="TrenchBroomApp.cpp" />
     <ClCompile Include="WinCapabilities.cpp" />
@@ -341,6 +348,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Controller\MoveTexturesCommand.h" />
     <ClInclude Include="..\..\Source\Controller\MoveVerticesCommand.h" />
     <ClInclude Include="..\..\Source\Controller\MoveVerticesTool.h" />
+    <ClInclude Include="..\..\Source\Controller\ObjectsCommand.h" />
     <ClInclude Include="..\..\Source\Controller\ObjectsHandle.h" />
     <ClInclude Include="..\..\Source\Controller\RemoveObjectsCommand.h" />
     <ClInclude Include="..\..\Source\Controller\RotateObjects90Command.h" />
@@ -361,6 +369,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\IO\AbstractTokenizer.h" />
     <ClInclude Include="..\..\Source\IO\FileManager.h" />
     <ClInclude Include="..\..\Source\IO\IOException.h" />
+    <ClInclude Include="..\..\Source\IO\IOUtils.h" />
     <ClInclude Include="..\..\Source\IO\MapParser.h" />
     <ClInclude Include="..\..\Source\IO\MapWriter.h" />
     <ClInclude Include="..\..\Source\IO\mmapped_fstream.h" />
@@ -371,6 +380,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\IO\substream.h" />
     <ClInclude Include="..\..\Source\IO\Wad.h" />
     <ClInclude Include="..\..\Source\Model\Alias.h" />
+    <ClInclude Include="..\..\Source\Model\AliasNormals.h" />
     <ClInclude Include="..\..\Source\Model\Brush.h" />
     <ClInclude Include="..\..\Source\Model\BrushGeometry.h" />
     <ClInclude Include="..\..\Source\Model\BrushGeometryTypes.h" />
@@ -397,7 +407,6 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Model\Texture.h" />
     <ClInclude Include="..\..\Source\Model\TextureManager.h" />
     <ClInclude Include="..\..\Source\Model\TextureTypes.h" />
-    <ClInclude Include="..\..\Source\Renderer\AbstractVertexArray.h" />
     <ClInclude Include="..\..\Source\Renderer\AliasModelRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\ApplyMatrix.h" />
     <ClInclude Include="..\..\Source\Renderer\AttributeArray.h" />
@@ -415,6 +424,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Renderer\EntityRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\FaceRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\FaceVertex.h" />
+    <ClInclude Include="..\..\Source\Renderer\Figure.h" />
     <ClInclude Include="..\..\Source\Renderer\IndexedVertexArray.h" />
     <ClInclude Include="..\..\Source\Renderer\InstancedVertexArray.h" />
     <ClInclude Include="..\..\Source\Renderer\ManyCubesFigure.h" />
@@ -423,7 +433,6 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Renderer\OffscreenRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\Palette.h" />
     <ClInclude Include="..\..\Source\Renderer\PointHandleRenderer.h" />
-    <ClInclude Include="..\..\Source\Renderer\PushMatrix.h" />
     <ClInclude Include="..\..\Source\Renderer\RenderContext.h" />
     <ClInclude Include="..\..\Source\Renderer\RenderUtils.h" />
     <ClInclude Include="..\..\Source\Renderer\RingFigure.h" />
@@ -435,6 +444,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Renderer\TexturedPolygonSorter.h" />
     <ClInclude Include="..\..\Source\Renderer\TextureRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\TextureRendererManager.h" />
+    <ClInclude Include="..\..\Source\Renderer\TextureRendererTypes.h" />
     <ClInclude Include="..\..\Source\Renderer\TextureVertexArray.h" />
     <ClInclude Include="..\..\Source\Renderer\Text\FontDescriptor.h" />
     <ClInclude Include="..\..\Source\Renderer\Text\Path.h" />
@@ -492,10 +502,12 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\View\MapGLCanvas.h" />
     <ClInclude Include="..\..\Source\View\PreferencesDialog.h" />
     <ClInclude Include="..\..\Source\View\ProgressIndicatorDialog.h" />
+    <ClInclude Include="..\..\Source\View\ScreenDC.h" />
     <ClInclude Include="..\..\Source\View\SingleTextureViewer.h" />
     <ClInclude Include="..\..\Source\View\SpinControl.h" />
     <ClInclude Include="..\..\Source\View\TextureBrowser.h" />
     <ClInclude Include="..\..\Source\View\TextureBrowserCanvas.h" />
+    <ClInclude Include="..\..\Source\View\TextureSelectedCommand.h" />
     <ClInclude Include="..\..\Source\View\ViewInspector.h" />
     <ClInclude Include="..\..\Source\View\ViewOptions.h" />
     <ClInclude Include="TrenchBroomApp.h" />
