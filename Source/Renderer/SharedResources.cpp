@@ -81,6 +81,11 @@ namespace TrenchBroom {
             if (glewState != GLEW_OK)
                 console.error("Unable to initialize glew: %s", glewGetErrorString(glewState));
             
+            if (GLEW_ARB_draw_instanced && GLEW_ARB_texture_float)
+                console.info("OpenGL instancing enabled");
+            else
+                console.info("OpenGL instancing disabled");
+
             m_modelRendererManager = new EntityModelRendererManager(console);
             m_shaderManager = new ShaderManager(console);
             m_textureRendererManager = new TextureRendererManager(textureManager);

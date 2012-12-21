@@ -277,8 +277,6 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Renderer\EntityModelRendererManager.cpp" />
     <ClCompile Include="..\..\Source\Renderer\EntityRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\FaceRenderer.cpp" />
-    <ClCompile Include="..\..\Source\Renderer\ManyCubesFigure.cpp" />
-    <ClCompile Include="..\..\Source\Renderer\ManyCubesInstancedFigure.cpp" />
     <ClCompile Include="..\..\Source\Renderer\MapRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\OffscreenRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\Palette.cpp" />
@@ -427,8 +425,6 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Renderer\Figure.h" />
     <ClInclude Include="..\..\Source\Renderer\IndexedVertexArray.h" />
     <ClInclude Include="..\..\Source\Renderer\InstancedVertexArray.h" />
-    <ClInclude Include="..\..\Source\Renderer\ManyCubesFigure.h" />
-    <ClInclude Include="..\..\Source\Renderer\ManyCubesInstancedFigure.h" />
     <ClInclude Include="..\..\Source\Renderer\MapRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\OffscreenRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\Palette.h" />

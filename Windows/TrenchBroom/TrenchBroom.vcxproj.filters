@@ -285,12 +285,6 @@
     <ClCompile Include="..\..\Source\Renderer\FaceRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\ManyCubesFigure.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Renderer\ManyCubesInstancedFigure.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Renderer\MapRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
@@ -780,12 +774,6 @@
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Renderer\InstancedVertexArray.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\ManyCubesFigure.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Renderer\ManyCubesInstancedFigure.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Renderer\MapRenderer.h">

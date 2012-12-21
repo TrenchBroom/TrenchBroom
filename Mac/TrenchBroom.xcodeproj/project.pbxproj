@@ -10,9 +10,7 @@
 		48009AF515F7FA8B001A9993 /* AbstractFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48009AF315F7FA8B001A9993 /* AbstractFileManager.cpp */; };
 		480ED72B16624C5100857A21 /* MoveVerticesTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480ED72916624C5100857A21 /* MoveVerticesTool.cpp */; };
 		480ED7311662506500857A21 /* MoveHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480ED72F1662506200857A21 /* MoveHandle.cpp */; };
-		480ED74C1662836C00857A21 /* ManyCubesFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480ED74A1662836C00857A21 /* ManyCubesFigure.cpp */; };
-		480ED7531663FCF300857A21 /* ManyCubesInstancedFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480ED7511663FCF100857A21 /* ManyCubesInstancedFigure.cpp */; };
-		480ED755166401B200857A21 /* InstancedHandle.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 480ED754166401B100857A21 /* InstancedHandle.vertsh */; };
+		480ED755166401B200857A21 /* InstancedPointHandle.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 480ED754166401B100857A21 /* InstancedPointHandle.vertsh */; };
 		4810276615E4FBF000250C9C /* MapGLCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810276415E4FBF000250C9C /* MapGLCanvas.cpp */; };
 		4810276C15E5313F00250C9C /* Inspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810276A15E5313F00250C9C /* Inspector.cpp */; };
 		4810276F15E53DD300250C9C /* EntityDefinition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810276D15E53DD300250C9C /* EntityDefinition.cpp */; };
@@ -73,6 +71,7 @@
 		4878F964165C16BE003857EA /* ClipTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F962165C16BE003857EA /* ClipTool.cpp */; };
 		487B6C79164E8A70000A77DA /* CameraTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B6C77164E8A70000A77DA /* CameraTool.cpp */; };
 		487EC0A2168359020094927A /* TextureSelectedCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487EC0A0168359010094927A /* TextureSelectedCommand.cpp */; };
+		487EC0A61684655E0094927A /* PointHandle.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 487EC0A51684655D0094927A /* PointHandle.vertsh */; };
 		48819C3815EBE97A00BEA604 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3615EBE92800BEA604 /* Camera.cpp */; };
 		48819C3F15EC0CE700BEA604 /* MacFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3D15EC0CE700BEA604 /* MacFileManager.cpp */; };
 		48819C4415EC107700BEA604 /* quake.def in Resources */ = {isa = PBXBuildFile; fileRef = 48819C4315EC107700BEA604 /* quake.def */; };
@@ -154,12 +153,8 @@
 		480ED72A16624C5100857A21 /* MoveVerticesTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveVerticesTool.h; sourceTree = "<group>"; };
 		480ED72F1662506200857A21 /* MoveHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveHandle.cpp; sourceTree = "<group>"; };
 		480ED7301662506300857A21 /* MoveHandle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveHandle.h; sourceTree = "<group>"; };
-		480ED74A1662836C00857A21 /* ManyCubesFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ManyCubesFigure.cpp; sourceTree = "<group>"; };
-		480ED74B1662836C00857A21 /* ManyCubesFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ManyCubesFigure.h; sourceTree = "<group>"; };
 		480ED74D1662C4A200857A21 /* InstancedVertexArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InstancedVertexArray.h; sourceTree = "<group>"; };
-		480ED7511663FCF100857A21 /* ManyCubesInstancedFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ManyCubesInstancedFigure.cpp; sourceTree = "<group>"; };
-		480ED7521663FCF200857A21 /* ManyCubesInstancedFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ManyCubesInstancedFigure.h; sourceTree = "<group>"; };
-		480ED754166401B100857A21 /* InstancedHandle.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = InstancedHandle.vertsh; sourceTree = "<group>"; };
+		480ED754166401B100857A21 /* InstancedPointHandle.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = InstancedPointHandle.vertsh; sourceTree = "<group>"; };
 		4810276415E4FBF000250C9C /* MapGLCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapGLCanvas.cpp; sourceTree = "<group>"; };
 		4810276515E4FBF000250C9C /* MapGLCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapGLCanvas.h; sourceTree = "<group>"; };
 		4810276A15E5313F00250C9C /* Inspector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Inspector.cpp; sourceTree = "<group>"; };
@@ -324,6 +319,7 @@
 		487B6C78164E8A70000A77DA /* CameraTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraTool.h; sourceTree = "<group>"; };
 		487EC0A0168359010094927A /* TextureSelectedCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureSelectedCommand.cpp; sourceTree = "<group>"; };
 		487EC0A1168359020094927A /* TextureSelectedCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureSelectedCommand.h; sourceTree = "<group>"; };
+		487EC0A51684655D0094927A /* PointHandle.vertsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PointHandle.vertsh; sourceTree = "<group>"; };
 		48819C3615EBE92800BEA604 /* Camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
 		48819C3715EBE92800BEA604 /* Camera.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
 		48819C3D15EC0CE700BEA604 /* MacFileManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MacFileManager.cpp; path = TrenchBroom/MacFileManager.cpp; sourceTree = SOURCE_ROOT; };
@@ -935,7 +931,8 @@
 				48E2ECC515FFC31600B8D476 /* Face.fragsh */,
 				48AD1B351646C08D009F839B /* Handle.fragsh */,
 				48AD1B331646C067009F839B /* Handle.vertsh */,
-				480ED754166401B100857A21 /* InstancedHandle.vertsh */,
+				487EC0A51684655D0094927A /* PointHandle.vertsh */,
+				480ED754166401B100857A21 /* InstancedPointHandle.vertsh */,
 				48E2ECD516008E3300B8D476 /* Text.vertsh */,
 				48E2ECD716008E5500B8D476 /* Text.fragsh */,
 				48E2ECD91600B50B00B8D476 /* TextBackground.vertsh */,
@@ -966,10 +963,6 @@
 				48FBD13F16259AD70059953D /* EntityFigure.cpp */,
 				48FBD14016259AD70059953D /* EntityFigure.h */,
 				48FBD13C16258DE70059953D /* Figure.h */,
-				480ED74A1662836C00857A21 /* ManyCubesFigure.cpp */,
-				480ED74B1662836C00857A21 /* ManyCubesFigure.h */,
-				480ED7511663FCF100857A21 /* ManyCubesInstancedFigure.cpp */,
-				480ED7521663FCF200857A21 /* ManyCubesInstancedFigure.h */,
 				482A0874164305450000799C /* RingFigure.cpp */,
 				482A0875164305450000799C /* RingFigure.h */,
 				4847AC8B16466BED00726872 /* SphereFigure.cpp */,
@@ -1051,7 +1044,8 @@
 				48AD1B341646C067009F839B /* Handle.vertsh in Resources */,
 				48AD1B361646C08D009F839B /* Handle.fragsh in Resources */,
 				48AD1B381646C10C009F839B /* ColoredHandle.vertsh in Resources */,
-				480ED755166401B200857A21 /* InstancedHandle.vertsh in Resources */,
+				480ED755166401B200857A21 /* InstancedPointHandle.vertsh in Resources */,
+				487EC0A61684655E0094927A /* PointHandle.vertsh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1165,8 +1159,6 @@
 				4878F964165C16BE003857EA /* ClipTool.cpp in Sources */,
 				480ED72B16624C5100857A21 /* MoveVerticesTool.cpp in Sources */,
 				480ED7311662506500857A21 /* MoveHandle.cpp in Sources */,
-				480ED74C1662836C00857A21 /* ManyCubesFigure.cpp in Sources */,
-				480ED7531663FCF300857A21 /* ManyCubesInstancedFigure.cpp in Sources */,
 				48932BF4166FAFDC009ED5DB /* MoveVerticesCommand.cpp in Sources */,
 				48C83711167513CD00B658A2 /* PointHandleRenderer.cpp in Sources */,
 				484EA61E1679226700EBFAC7 /* SplitEdgesCommand.cpp in Sources */,

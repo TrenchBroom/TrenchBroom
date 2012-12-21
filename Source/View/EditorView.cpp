@@ -661,7 +661,10 @@ namespace TrenchBroom {
         }
 
         void EditorView::OnEditDelete(wxCommandEvent& event) {
-            removeObjects(wxT("Delete"));
+            if (inputController().clipToolActive() && inputController().canDeleteClipPoint())
+                inputController().deleteClipPoint();
+            else
+                removeObjects(wxT("Delete"));
         }
         
         void EditorView::OnEditSelectAll(wxCommandEvent& event) {
@@ -949,11 +952,14 @@ namespace TrenchBroom {
                     break;
                 case wxID_CUT:
                 case wxID_DELETE:
-                    if (textCtrl != NULL)
+                    if (textCtrl != NULL) {
                         event.Enable(textCtrl->CanCut());
-                    else
+                    } else if (inputController().clipToolActive()) {
+                        event.Enable(inputController().canDeleteClipPoint());
+                    } else {
                         event.Enable(editStateManager.selectionMode() != Model::EditStateManager::SMNone &&
                                      editStateManager.selectionMode() != Model::EditStateManager::SMFaces);
+                    }
                     break;
                 case wxID_PASTE:
                     if (textCtrl != NULL)

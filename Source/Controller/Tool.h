@@ -221,7 +221,7 @@ namespace TrenchBroom {
             inline void activate(InputState& inputState) {
                 if (m_activatable) {
                     assert(!active());
-                    if (handleActivate(inputState))
+                    if (m_suppressed || handleActivate(inputState))
                         m_active = !m_active;
                 }
             }

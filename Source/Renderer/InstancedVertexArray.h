@@ -93,7 +93,7 @@ namespace TrenchBroom {
                 while (size * size < m_vertices.size())
                     size *= 2;
 
-                unsigned char* buffer = new unsigned char[m_vertices.size() * 4 * 4];
+                unsigned char* buffer = new unsigned char[size * size * 4 * sizeof(float)];
                 memcpy(buffer, reinterpret_cast<const unsigned char*>(&m_vertices.front()), m_vertices.size() * 4 * 4);
                 
                 // requires GL_ARB_texture_float, see http://www.opengl.org/wiki/Floating_point_and_mipmapping_and_filtering
@@ -115,6 +115,7 @@ namespace TrenchBroom {
             m_vertices(vertices) {}
         };
         
+        // requires ARB_draw_instanced and ARB_texture_float
         class InstancedVertexArray : public RenderArray {
         protected:
             typedef std::vector<InstanceAttributes*> InstanceAttributesList;

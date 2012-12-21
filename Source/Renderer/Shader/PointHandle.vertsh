@@ -1,0 +1,38 @@
+#version 120
+
+/*
+ Copyright (C) 2010-2012 Kristian Duske
+ 
+ This file is part of TrenchBroom.
+ 
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+uniform vec4 Color;
+uniform vec3 CameraPosition;
+uniform vec4 Position;
+uniform float ScalingFactor;
+uniform float MaximumDistance;
+
+varying vec4 vertexColor;
+
+void main(void) {
+    vertexColor = Color;
+    
+    float dist = distance(Position.xyz, CameraPosition);
+    if (dist <= MaximumDistance)
+        gl_Position = gl_ModelViewProjectionMatrix * vec4((ScalingFactor * dist * gl_Vertex.xyz + Position.xyz), 1.0);
+    else
+        gl_Position = vec4(99999.0, 99999.0, 99999.0, 1.0);
+}

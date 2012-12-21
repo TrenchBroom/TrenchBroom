@@ -19,10 +19,14 @@
 
 #include "PointHandleRenderer.h"
 
+#include <GL/glew.h>
+
 #include "Renderer/ApplyMatrix.h"
 #include "Renderer/AttributeArray.h"
 #include "Renderer/InstancedVertexArray.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/RenderUtils.h"
+#include "Renderer/VertexArray.h"
 #include "Renderer/Shader/ShaderManager.h"
 #include "Renderer/Shader/ShaderProgram.h"
 
@@ -30,40 +34,84 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        PointHandleRenderer::PointHandleRenderer(float radius, unsigned int iterations, float scalingFactor, float maximumDistance) :
-        SphereFigure(radius, iterations),
-        m_vertexArray(NULL),
-        m_scalingFactor(scalingFactor),
-        m_maximumDistance(maximumDistance),
-        m_valid(false) {}
+        Vec3f::List PointHandleRenderer::sphere() const {
+            return Renderer::sphere(m_radius, m_iterations);
+        }
         
-        PointHandleRenderer::~PointHandleRenderer() {
+        PointHandleRenderer* PointHandleRenderer::create(float radius, unsigned int iterations, float scalingFactor, float maximumDistance) {
+            if (GLEW_ARB_draw_instanced && GLEW_ARB_texture_float)
+               return new InstancedPointHandleRenderer(radius, iterations, scalingFactor, maximumDistance);
+            return new DefaultPointHandleRenderer(radius, iterations, scalingFactor, maximumDistance);
+        }
+
+        DefaultPointHandleRenderer::DefaultPointHandleRenderer(float radius, unsigned int iterations, float scalingFactor, float maximumDistance) :
+        PointHandleRenderer(radius, iterations, scalingFactor, maximumDistance),
+        m_vertexArray(NULL) {}
+        
+        DefaultPointHandleRenderer::~DefaultPointHandleRenderer() {
+            delete m_vertexArray;
+            m_vertexArray = NULL;
+        }
+        
+        void DefaultPointHandleRenderer::render(Vbo& vbo, RenderContext& context) {
+            const Vec4f::List& positionList = positions();
+            if (positionList.empty())
+                return;
+
+            SetVboState activateVbo(vbo, Vbo::VboActive);
+            
+            if (m_vertexArray == NULL) {
+                Vec3f::List vertices = sphere();
+                
+                unsigned int vertexCount = static_cast<unsigned int>(vertices.size());
+                m_vertexArray = new VertexArray(vbo, GL_TRIANGLES, vertexCount,
+                                                Attribute::position3f());
+                
+                SetVboState mapVbo(vbo, Vbo::VboMapped);
+                Vec3f::List::const_iterator vIt, vEnd;
+                for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
+                    const Vec3f& vertex = *vIt;
+                    m_vertexArray->addAttribute(vertex);
+                }
+            }
+            
+            Renderer::ActivateShader shader(context.shaderManager(), Renderer::Shaders::PointHandleShader);
+            shader.currentShader().setUniformVariable("Color", color());
+            shader.currentShader().setUniformVariable("CameraPosition", context.camera().position());
+            shader.currentShader().setUniformVariable("ScalingFactor", scalingFactor());
+            shader.currentShader().setUniformVariable("MaximumDistance", maximumDistance());
+            
+            Vec4f::List::const_iterator pIt, pEnd;
+            for (pIt = positionList.begin(), pEnd = positionList.end(); pIt != pEnd; ++pIt) {
+                const Vec4f& position = *pIt;
+                shader.currentShader().setUniformVariable("Position", position);
+                m_vertexArray->render();
+            }
+        }
+
+        InstancedPointHandleRenderer::InstancedPointHandleRenderer(float radius, unsigned int iterations, float scalingFactor, float maximumDistance) :
+        PointHandleRenderer(radius, iterations, scalingFactor, maximumDistance),
+        m_vertexArray(NULL) {}
+        
+        InstancedPointHandleRenderer::~InstancedPointHandleRenderer() {
             delete m_vertexArray;
             m_vertexArray = NULL;
         }
 
-        void PointHandleRenderer::add(const Vec3f& position) {
-            m_positions.push_back(Vec4f(position.x, position.y, position.z, 1.0f));
-            m_valid = false;
-        }
-        
-        void PointHandleRenderer::clear() {
-            m_valid &= m_positions.empty();
-            m_positions.clear();
-        }
-        
-        void PointHandleRenderer::render(Vbo& vbo, RenderContext& context) {
+        void InstancedPointHandleRenderer::render(Vbo& vbo, RenderContext& context) {
             SetVboState activateVbo(vbo, Vbo::VboActive);
             
-            if (!m_valid) {
+            if (!valid()) {
                 delete m_vertexArray;
                 m_vertexArray = NULL;
                 
-                if (!m_positions.empty()) {
-                    Vec3f::List vertices = makeVertices();
+                const Vec4f::List& positionList = positions();
+                
+                if (!positionList.empty()) {
+                    Vec3f::List vertices = sphere();
                     
                     unsigned int vertexCount = static_cast<unsigned int>(vertices.size());
-                    unsigned int instanceCount = static_cast<unsigned int>(m_positions.size());
+                    unsigned int instanceCount = static_cast<unsigned int>(positionList.size());
                     m_vertexArray = new InstancedVertexArray(vbo, GL_TRIANGLES, vertexCount, instanceCount,
                                                              Attribute::position3f());
                     
@@ -72,17 +120,17 @@ namespace TrenchBroom {
                     for (it = vertices.begin(), end = vertices.end(); it != end; ++it)
                         m_vertexArray->addAttribute(*it);
                     
-                    m_vertexArray->addAttributeArray("position", m_positions);
+                    m_vertexArray->addAttributeArray("position", positionList);
                 }
-                m_valid = true;
+                validate();
             }
             
             if (m_vertexArray != NULL) {
-                Renderer::ActivateShader shader(context.shaderManager(), Renderer::Shaders::InstancedHandleShader);
-                shader.currentShader().setUniformVariable("Color", m_color);
+                Renderer::ActivateShader shader(context.shaderManager(), Renderer::Shaders::InstancedPointHandleShader);
+                shader.currentShader().setUniformVariable("Color", color());
                 shader.currentShader().setUniformVariable("CameraPosition", context.camera().position());
-                shader.currentShader().setUniformVariable("ScalingFactor", m_scalingFactor);
-                shader.currentShader().setUniformVariable("MaximumDistance", m_maximumDistance);
+                shader.currentShader().setUniformVariable("ScalingFactor", scalingFactor());
+                shader.currentShader().setUniformVariable("MaximumDistance", maximumDistance());
                 m_vertexArray->render(shader.currentShader());
             }
         }

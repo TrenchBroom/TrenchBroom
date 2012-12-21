@@ -45,8 +45,8 @@ namespace TrenchBroom {
             float handleRadius = prefs.getFloat(Preferences::VertexHandleRadius);
             float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
             float maxDistance = prefs.getFloat(Preferences::MaximumHandleDistance);
-            m_selectedHandleRenderer = new Renderer::PointHandleRenderer(handleRadius, 2, scalingFactor, maxDistance);
-            m_unselectedHandleRenderer = new Renderer::PointHandleRenderer(handleRadius, 2, scalingFactor, maxDistance);
+            m_selectedHandleRenderer = Renderer::PointHandleRenderer::create(handleRadius, 2, scalingFactor, maxDistance);
+            m_unselectedHandleRenderer = Renderer::PointHandleRenderer::create(handleRadius, 2, scalingFactor, maxDistance);
         }
         
         HandleManager::~HandleManager() {
