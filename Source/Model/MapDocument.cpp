@@ -19,6 +19,7 @@
 
 #include "MapDocument.h"
 
+#include "Controller/Autosaver.h"
 #include "Controller/Command.h"
 #include "IO/FileManager.h"
 #include "IO/IOException.h"
@@ -50,7 +51,11 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Model {
-		IMPLEMENT_DYNAMIC_CLASS(MapDocument, wxDocument)
+        BEGIN_EVENT_TABLE(MapDocument, wxDocument)
+        EVT_TIMER(wxID_ANY, MapDocument::OnAutosaveTimer)
+        END_EVENT_TABLE()
+		
+        IMPLEMENT_DYNAMIC_CLASS(MapDocument, wxDocument)
         
         bool MapDocument::DoOpenDocument(const wxString& file) {
             console().info("Unloading existing map file and textures...");
@@ -137,6 +142,7 @@ namespace TrenchBroom {
         }
 
         MapDocument::MapDocument() :
+        m_autosaver(NULL),
         m_console(NULL),
         m_sharedResources(NULL),
         m_map(NULL),
@@ -151,50 +157,28 @@ namespace TrenchBroom {
         m_mruTextureName("") {}
         
         MapDocument::~MapDocument() {
-            if (m_picker != NULL) {
-                delete m_picker;
-                m_picker = NULL;
-            }
-            
-            if (m_octree != NULL) {
-                delete m_octree;
-                m_octree = NULL;
-            }
-            
-            if (m_editStateManager != NULL) {
-                delete m_editStateManager;
-                m_editStateManager = NULL;
-            }
-            
-            if (m_map != NULL) {
-                delete m_map;
-                m_map = NULL;
-            }
-            
-            if (m_definitionManager != NULL) {
-                delete m_definitionManager;
-                m_definitionManager = NULL;
-            }
-            
-            if (m_textureManager != NULL) {
-                delete m_textureManager;
-                m_textureManager = NULL;
-            }
-            
-            if (m_grid != NULL) {
-                delete m_grid;
-                m_grid = NULL;
-            }
-            
-            if (m_sharedResources != NULL) {
-                m_sharedResources->Destroy(); // makes sure that the resources are deleted after the last frame
-                m_sharedResources = NULL;
-            }
-            
-            if (m_console != NULL) {
-                delete m_console;
-                m_console = NULL;
-            }
+            delete m_autosaveTimer;
+            m_autosaveTimer = NULL;
+            delete m_autosaver;
+            m_autosaver = NULL;
+            delete m_picker;
+            m_picker = NULL;
+            delete m_octree;
+            m_octree = NULL;
+            delete m_editStateManager;
+            m_editStateManager = NULL;
+            delete m_map;
+            m_map = NULL;
+            delete m_definitionManager;
+            m_definitionManager = NULL;
+            delete m_textureManager;
+            m_textureManager = NULL;
+            delete m_grid;
+            m_grid = NULL;
+            m_sharedResources->Destroy(); // makes sure that the resources are deleted after the last frame
+            m_sharedResources = NULL;
+            delete m_console;
+            m_console = NULL;
         }
         
         
@@ -232,6 +216,11 @@ namespace TrenchBroom {
 
         void MapDocument::Modify(bool modify) {
             wxDocument::Modify(modify);
+            if (modify)
+                m_autosaver->updateLastModificationTime();
+            else
+                m_autosaver->clearDirtyFlag();
+            
 #if defined __APPLE__
             wxList& views = GetViews();
             wxList::iterator it, end;
@@ -475,7 +464,10 @@ namespace TrenchBroom {
             m_mods.push_back("id1");
             m_mods.push_back("ID1");
             m_modificationCount = 0;
-
+            m_autosaver = new Controller::Autosaver(*this);
+            m_autosaveTimer = new wxTimer(this);
+            m_autosaveTimer->Start(1000);
+            
             loadPalette();
             
             return wxDocument::OnCreate(path, flags);
@@ -489,6 +481,7 @@ namespace TrenchBroom {
                 Controller::Command loadCommand(Controller::Command::LoadMap);
                 UpdateAllViews(NULL, &loadCommand);
                 m_modificationCount = 0;
+                m_autosaver->clearDirtyFlag();
 				return true;
 			}
 
@@ -500,10 +493,15 @@ namespace TrenchBroom {
                 Controller::Command loadCommand(Controller::Command::LoadMap);
                 UpdateAllViews(NULL, &loadCommand);
                 m_modificationCount = 0;
+                m_autosaver->clearDirtyFlag();
 				return true;
             }
             
             return false;
+        }
+
+        void MapDocument::OnAutosaveTimer(wxTimerEvent& event) {
+            m_autosaver->triggerAutosave();
         }
 	}
 }

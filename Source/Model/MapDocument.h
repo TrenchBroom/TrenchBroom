@@ -27,6 +27,10 @@
 #include <wx/docview.h>
 
 namespace TrenchBroom {
+    namespace Controller {
+        class Autosaver;
+    }
+    
     namespace Renderer {
         class SharedResources;
     }
@@ -53,6 +57,8 @@ namespace TrenchBroom {
         class MapDocument : public wxDocument {
             DECLARE_DYNAMIC_CLASS(MapDocument)
         protected:
+            Controller::Autosaver* m_autosaver;
+            wxTimer* m_autosaveTimer;
             Utility::Console* m_console;
             Renderer::SharedResources* m_sharedResources;
             Map* m_map;
@@ -127,6 +133,9 @@ namespace TrenchBroom {
             bool OnCreate(const wxString& path, long flags);
 			bool OnNewDocument();
             bool OnOpenDocument(const wxString& path);
+            void OnAutosaveTimer(wxTimerEvent& event);
+
+            DECLARE_EVENT_TABLE();
         };
     }
 }

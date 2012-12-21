@@ -72,6 +72,7 @@
 		487B6C79164E8A70000A77DA /* CameraTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B6C77164E8A70000A77DA /* CameraTool.cpp */; };
 		487EC0A2168359020094927A /* TextureSelectedCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487EC0A0168359010094927A /* TextureSelectedCommand.cpp */; };
 		487EC0A61684655E0094927A /* PointHandle.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 487EC0A51684655D0094927A /* PointHandle.vertsh */; };
+		487EC0A9168467F20094927A /* Autosaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487EC0A7168467EF0094927A /* Autosaver.cpp */; };
 		48819C3815EBE97A00BEA604 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3615EBE92800BEA604 /* Camera.cpp */; };
 		48819C3F15EC0CE700BEA604 /* MacFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3D15EC0CE700BEA604 /* MacFileManager.cpp */; };
 		48819C4415EC107700BEA604 /* quake.def in Resources */ = {isa = PBXBuildFile; fileRef = 48819C4315EC107700BEA604 /* quake.def */; };
@@ -320,6 +321,8 @@
 		487EC0A0168359010094927A /* TextureSelectedCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureSelectedCommand.cpp; sourceTree = "<group>"; };
 		487EC0A1168359020094927A /* TextureSelectedCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureSelectedCommand.h; sourceTree = "<group>"; };
 		487EC0A51684655D0094927A /* PointHandle.vertsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PointHandle.vertsh; sourceTree = "<group>"; };
+		487EC0A7168467EF0094927A /* Autosaver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Autosaver.cpp; sourceTree = "<group>"; };
+		487EC0A8168467F00094927A /* Autosaver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Autosaver.h; sourceTree = "<group>"; };
 		48819C3615EBE92800BEA604 /* Camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
 		48819C3715EBE92800BEA604 /* Camera.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
 		48819C3D15EC0CE700BEA604 /* MacFileManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MacFileManager.cpp; path = TrenchBroom/MacFileManager.cpp; sourceTree = SOURCE_ROOT; };
@@ -822,6 +825,8 @@
 			children = (
 				48CB0DB61635AA9F001C8E87 /* Command */,
 				48CB0DB51635AA95001C8E87 /* Tool */,
+				487EC0A7168467EF0094927A /* Autosaver.cpp */,
+				487EC0A8168467F00094927A /* Autosaver.h */,
 				48819C4F15ED5C7700BEA604 /* CameraEvent.cpp */,
 				48819C4C15ED52B200BEA604 /* CameraEvent.h */,
 				48EE7A14164FF0A3003F5BBE /* Input.h */,
@@ -1167,6 +1172,7 @@
 				482976D71681E77A0057E4D4 /* MoveFacesCommand.cpp in Sources */,
 				482976DB1681EEEC0057E4D4 /* SplitFacesCommand.cpp in Sources */,
 				487EC0A2168359020094927A /* TextureSelectedCommand.cpp in Sources */,
+				487EC0A9168467F20094927A /* Autosaver.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
