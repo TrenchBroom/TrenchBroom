@@ -34,20 +34,20 @@ varying vec3 modelNormal;
 varying vec4 faceColor;
 
 void gridXY() {
-    if (floor(mod(modelCoordinates.x + 0.5, GridSize)) == 0.0 ||
-        floor(mod(modelCoordinates.y + 0.5, GridSize)) == 0.0)
+    if (abs(mod(modelCoordinates.x + 0.5, GridSize)) <= 0.6 ||
+        abs(mod(modelCoordinates.y + 0.5, GridSize)) <= 0.6)
         gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a), gl_FragColor.a);
 }
 
 void gridXZ() {
-    if (floor(mod(modelCoordinates.x + 0.5, GridSize)) == 0.0 ||
-        floor(mod(modelCoordinates.z + 0.5, GridSize)) == 0.0)
+    if (abs(mod(modelCoordinates.x + 0.5, GridSize)) <= 0.6 ||
+        abs(mod(modelCoordinates.z + 0.5, GridSize)) <= 0.6)
         gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a), gl_FragColor.a);
 }
 
 void gridYZ() {
-    if (floor(mod(modelCoordinates.y + 0.5, GridSize)) == 0.0 ||
-        floor(mod(modelCoordinates.z + 0.5, GridSize)) == 0.0)
+    if (abs(mod(modelCoordinates.y + 0.5, GridSize)) <= 0.6 ||
+        abs(mod(modelCoordinates.z + 0.5, GridSize)) <= 0.6)
         gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a), gl_FragColor.a);
 }
 
