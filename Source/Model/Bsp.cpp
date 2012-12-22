@@ -79,7 +79,7 @@ namespace TrenchBroom {
                 std::streamoff mip0Offset = IO::readUnsignedInt<uint32_t>(stream);
                 mip0Offset += textureOffset;
                 stream->seekg(mip0Offset, std::ios::beg);
-                stream->read(reinterpret_cast<char *>(mip0), width * height);
+                stream->read(reinterpret_cast<char *>(mip0), static_cast<std::streamsize>(width * height));
 
                 BspTexture* texture = new BspTexture(textureName, mip0, width, height);
                 m_textures[i] = texture;

@@ -66,10 +66,13 @@ namespace TrenchBroom {
             assert(block.free());
             unsigned int index = findFreeBlock(block.address(), block.capacity());
             assert(index >= 0 && index <= m_freeBlocks.size());
-            if (index < m_freeBlocks.size())
-                m_freeBlocks.insert(m_freeBlocks.begin() + index, &block);
-            else
+            if (index < m_freeBlocks.size()) {
+                std::vector<VboBlock*>::iterator it = m_freeBlocks.begin();
+                std::advance(it, index);
+                m_freeBlocks.insert(it, &block);
+            } else {
                 m_freeBlocks.push_back(&block);
+            }
 #ifdef _DEBUG_VBO
             checkFreeBlocks();
 #endif
@@ -80,7 +83,9 @@ namespace TrenchBroom {
             unsigned int index = findFreeBlock(block.address(), block.capacity());
             assert(index < m_freeBlocks.size());
             assert(m_freeBlocks[index] == &block);
-            m_freeBlocks.erase(m_freeBlocks.begin() + index);
+            std::vector<VboBlock*>::iterator it = m_freeBlocks.begin();
+            std::advance(it, index);
+            m_freeBlocks.erase(it);
 #ifdef _DEBUG_VBO
             checkFreeBlocks();
 #endif
@@ -265,7 +270,7 @@ namespace TrenchBroom {
             if (m_vboId == 0) {
                 glGenBuffers(1, &m_vboId);
                 glBindBuffer(m_type, m_vboId);
-                glBufferData(m_type, m_totalCapacity, NULL, GL_DYNAMIC_DRAW);
+                glBufferData(m_type, static_cast<GLsizeiptr>(m_totalCapacity), NULL, GL_DYNAMIC_DRAW);
             } else {
                 glBindBuffer(m_type, m_vboId);
             }
@@ -343,7 +348,9 @@ namespace TrenchBroom {
             }
             
             VboBlock* block = m_freeBlocks[index];
-            m_freeBlocks.erase(m_freeBlocks.begin() + index);
+            std::vector<VboBlock*>::iterator it = m_freeBlocks.begin();
+            std::advance(it, index);
+            m_freeBlocks.erase(it);
             
             // split block
             if (capacity < block->capacity()) {

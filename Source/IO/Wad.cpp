@@ -59,7 +59,7 @@ namespace TrenchBroom {
             if (mipCount > 0) {
                 mip0 = new unsigned char[mip0Size];
                 m_stream.seekg(entry.address() + mip0Offset, std::ios::beg);
-                m_stream.read(reinterpret_cast<char *>(mip0), mip0Size);
+                m_stream.read(reinterpret_cast<char *>(mip0), static_cast<std::streamsize>(mip0Size));
             }
             
             return new Mip(entry.name(), static_cast<unsigned int>(width), static_cast<unsigned int>(height), mip0);

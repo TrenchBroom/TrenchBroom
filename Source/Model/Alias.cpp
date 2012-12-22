@@ -164,7 +164,7 @@ namespace TrenchBroom {
                 unsigned int skinGroup = IO::readUnsignedInt<int32_t>(stream);
                 if (skinGroup == 0) {
                     unsigned char* skinPicture = new unsigned char[skinSize];
-                    stream->read(reinterpret_cast<char *>(skinPicture), skinSize);
+                    stream->read(reinterpret_cast<char *>(skinPicture), static_cast<std::streamsize>(skinSize));
 
                     AliasSkin* skin = new AliasSkin(skinPicture, skinWidth, skinHeight);
                     m_skins.push_back(skin);
@@ -184,7 +184,7 @@ namespace TrenchBroom {
                         std::streamoff picOffset = static_cast<std::streamoff>(numPics * 4 + j * skinSize);
                         picOffset += base;
                         stream->seekg(picOffset, std::ios::beg);
-                        stream->read(reinterpret_cast<char *>(&skinPicture), skinSize);
+                        stream->read(reinterpret_cast<char *>(&skinPicture), static_cast<std::streamsize>(skinSize));
 
                         skinPictures[i] = skinPicture;
                     }
