@@ -55,7 +55,7 @@ wxMenu* AbstractApp::CreateFileMenu(wxEvtHandler* eventHandler) {
 }
 
 wxMenu* AbstractApp::CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMenu) {
-    using namespace TrenchBroom::View;
+    using namespace TrenchBroom::View::CommandIds::Menu;
     
     wxMenu* editMenu = new wxMenu();
     editMenu->Append(wxID_UNDO, wxT("Undo\tCtrl-Z"));
@@ -66,27 +66,27 @@ wxMenu* AbstractApp::CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMe
     editMenu->Append(wxID_PASTE, wxT("Paste\tCtrl+V"));
     editMenu->Append(wxID_DELETE, wxT("Delete\tBack"));
     editMenu->AppendSeparator();
-    editMenu->Append(CommandIds::Menu::EditSelectAll, wxT("Select All\tCtrl+A"));
-    editMenu->Append(CommandIds::Menu::EditSelectSiblings, wxT("Select Siblings\tCtrl+Alt+A"));
-    editMenu->Append(CommandIds::Menu::EditSelectTouching, wxT("Select Touching\tCtrl+T"));
-    editMenu->Append(CommandIds::Menu::EditSelectNone, wxT("Select None\tCtrl+Shift+A"));
+    editMenu->Append(EditSelectAll, wxT("Select All\tCtrl+A"));
+    editMenu->Append(EditSelectSiblings, wxT("Select Siblings\tCtrl+Alt+A"));
+    editMenu->Append(EditSelectTouching, wxT("Select Touching\tCtrl+T"));
+    editMenu->Append(EditSelectNone, wxT("Select None\tCtrl+Shift+A"));
     editMenu->AppendSeparator();
-    editMenu->Append(CommandIds::Menu::EditHideSelected, wxT("Hide Selected\tCtrl+H"));
-    editMenu->Append(CommandIds::Menu::EditHideUnselected, wxT("Hide Unselected\tCtrl+Alt+H"));
-    editMenu->Append(CommandIds::Menu::EditUnhideAll, wxT("Unhide All\tCtrl+Shift+H"));
+    editMenu->Append(EditHideSelected, wxT("Hide Selected\tCtrl+H"));
+    editMenu->Append(EditHideUnselected, wxT("Hide Unselected\tCtrl+Alt+H"));
+    editMenu->Append(EditUnhideAll, wxT("Unhide All\tCtrl+Shift+H"));
     editMenu->AppendSeparator();
-    editMenu->Append(CommandIds::Menu::EditLockSelected, wxT("Lock Selected\tCtrl+L"));
-    editMenu->Append(CommandIds::Menu::EditLockUnselected, wxT("Lock Unselected\tCtrl+Alt+L"));
-    editMenu->Append(CommandIds::Menu::EditUnlockAll, wxT("Unlock All\tCtrl+Shift+L"));
+    editMenu->Append(EditLockSelected, wxT("Lock Selected\tCtrl+L"));
+    editMenu->Append(EditLockUnselected, wxT("Lock Unselected\tCtrl+Alt+L"));
+    editMenu->Append(EditUnlockAll, wxT("Unlock All\tCtrl+Shift+L"));
 
     wxMenu* toolsMenu = new wxMenu();
-    toolsMenu->AppendCheckItem(CommandIds::Menu::EditToggleClipTool, wxT("Clip Tool\tC"));
-    toolsMenu->Append(CommandIds::Menu::EditToggleClipSide, wxT("Toggle Clip Side\tTAB"));
-    toolsMenu->Append(CommandIds::Menu::EditPerformClip, wxT("Perform Clip\tENTER"));
+    toolsMenu->AppendCheckItem(EditToggleClipTool, wxT("Clip Tool\tC"));
+    toolsMenu->Append(EditToggleClipSide, wxT("Toggle Clip Side\tTAB"));
+    toolsMenu->Append(EditPerformClip, wxT("Perform Clip\tENTER"));
     toolsMenu->AppendSeparator();
-    toolsMenu->AppendCheckItem(CommandIds::Menu::EditToggleVertexTool, wxT("Vertex Tool\tV"));
-    toolsMenu->AppendCheckItem(CommandIds::Menu::EditToggleEdgeTool, wxT("Edge Tool\tE"));
-    toolsMenu->AppendCheckItem(CommandIds::Menu::EditToggleFaceTool, wxT("Face Tool\tF"));
+    toolsMenu->AppendCheckItem(EditToggleVertexTool, wxT("Vertex Tool\tV"));
+    toolsMenu->AppendCheckItem(EditToggleEdgeTool, wxT("Edge Tool\tE"));
+    toolsMenu->AppendCheckItem(EditToggleFaceTool, wxT("Face Tool\tF"));
     toolsMenu->SetEventHandler(eventHandler);
 
     editMenu->AppendSeparator();
@@ -95,20 +95,39 @@ wxMenu* AbstractApp::CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMe
         editMenu->AppendSubMenu(actionMenu, wxT("Actions"));
         actionMenu->SetEventHandler(eventHandler);
     } else {
-        editMenu->Append(CommandIds::Menu::EditActions, wxT("Actions"));
+        editMenu->Append(EditActions, wxT("Actions"));
     }
     editMenu->AppendSeparator();
-    editMenu->Append(CommandIds::Menu::EditCreatePointEntity, wxT("Create Point Entity"));
-    editMenu->Append(CommandIds::Menu::EditCreateBrushEntity, wxT("Create Brush Entity"));
+    editMenu->Append(EditCreatePointEntity, wxT("Create Point Entity"));
+    editMenu->Append(EditCreateBrushEntity, wxT("Create Brush Entity"));
     editMenu->AppendSeparator();
-    editMenu->AppendCheckItem(CommandIds::Menu::EditToggleTextureLock, wxT("Toggle Texture Lock"));
+    editMenu->AppendCheckItem(EditToggleTextureLock, wxT("Toggle Texture Lock"));
     editMenu->SetEventHandler(eventHandler);
     
     return editMenu;
 }
 
 wxMenu* AbstractApp::CreateViewMenu(wxEvtHandler* eventHandler) {
+    using namespace TrenchBroom::View::CommandIds::Menu;
+
     wxMenu* viewMenu = new wxMenu();
+    wxMenu* gridMenu = new wxMenu();
+    gridMenu->AppendCheckItem(ViewToggleShowGrid, wxT("Show Grid\tCtrl+G"));
+    gridMenu->AppendCheckItem(ViewToggleSnapToGrid, wxT("Snap to Grid Grid\tCtrl+Shift+G"));
+    gridMenu->AppendSeparator();
+    gridMenu->AppendCheckItem(ViewSetGridSize1, wxT("Set Grid Size 1\tCtrl+1"));
+    gridMenu->AppendCheckItem(ViewSetGridSize2, wxT("Set Grid Size 2\tCtrl+2"));
+    gridMenu->AppendCheckItem(ViewSetGridSize4, wxT("Set Grid Size 4\tCtrl+3"));
+    gridMenu->AppendCheckItem(ViewSetGridSize8, wxT("Set Grid Size 8\tCtrl+4"));
+    gridMenu->AppendCheckItem(ViewSetGridSize16, wxT("Set Grid Size 16\tCtrl+5"));
+    gridMenu->AppendCheckItem(ViewSetGridSize32, wxT("Set Grid Size 32\tCtrl+6"));
+    gridMenu->AppendCheckItem(ViewSetGridSize64, wxT("Set Grid Size 64\tCtrl+7"));
+    gridMenu->AppendCheckItem(ViewSetGridSize128, wxT("Set Grid Size 128\tCtrl+8"));
+    gridMenu->AppendCheckItem(ViewSetGridSize256, wxT("Set Grid Size 256\tCtrl+9"));
+    gridMenu->SetEventHandler(eventHandler);
+    
+    viewMenu->AppendSubMenu(gridMenu, wxT("Grid"));
+    
     viewMenu->SetEventHandler(eventHandler);
     return viewMenu;
 }
@@ -130,40 +149,40 @@ wxMenuBar* AbstractApp::CreateMenuBar(wxEvtHandler* eventHandler, wxMenu* action
 }
 
 wxMenu* AbstractApp::CreateTextureActionMenu() {
-    using namespace TrenchBroom::View;
+    using namespace TrenchBroom::View::CommandIds::Menu;
     
     wxMenu* textureActionMenu = new wxMenu();
-    textureActionMenu->Append(CommandIds::Menu::EditMoveTexturesUp, wxT("Move Up\tUP"));
-    textureActionMenu->Append(CommandIds::Menu::EditMoveTexturesRight, wxT("Move Right\tRIGHT"));
-    textureActionMenu->Append(CommandIds::Menu::EditMoveTexturesDown, wxT("Move Down\tDOWN"));
-    textureActionMenu->Append(CommandIds::Menu::EditMoveTexturesLeft, wxT("Move Left\tLEFT"));
-    textureActionMenu->Append(CommandIds::Menu::EditRotateTexturesCW, wxT("Rotate CW\tPGUP"));
-    textureActionMenu->Append(CommandIds::Menu::EditRotateTexturesCCW, wxT("Rotate CCW\tPGDN"));
+    textureActionMenu->Append(EditMoveTexturesUp, wxT("Move Up\tUP"));
+    textureActionMenu->Append(EditMoveTexturesRight, wxT("Move Right\tRIGHT"));
+    textureActionMenu->Append(EditMoveTexturesDown, wxT("Move Down\tDOWN"));
+    textureActionMenu->Append(EditMoveTexturesLeft, wxT("Move Left\tLEFT"));
+    textureActionMenu->Append(EditRotateTexturesCW, wxT("Rotate CW\tPGUP"));
+    textureActionMenu->Append(EditRotateTexturesCCW, wxT("Rotate CCW\tPGDN"));
     return textureActionMenu;
 }
 
 wxMenu* AbstractApp::CreateObjectActionMenu() {
-    using namespace TrenchBroom::View;
+    using namespace TrenchBroom::View::CommandIds::Menu;
     
     wxMenu* objectActionMenu = new wxMenu();
-    objectActionMenu->Append(CommandIds::Menu::EditMoveObjectsForward, wxT("Move Forward\tUP"));
-    objectActionMenu->Append(CommandIds::Menu::EditMoveObjectsRight, wxT("Move Right\tRIGHT"));
-    objectActionMenu->Append(CommandIds::Menu::EditMoveObjectsBackward, wxT("Move Backward\tDOWN"));
-    objectActionMenu->Append(CommandIds::Menu::EditMoveObjectsLeft, wxT("Move Left\tLEFT"));
-    objectActionMenu->Append(CommandIds::Menu::EditMoveObjectsUp, wxT("Move Up\tPGUP"));
-    objectActionMenu->Append(CommandIds::Menu::EditMoveObjectsDown, wxT("Move Down\tPGDN"));
+    objectActionMenu->Append(EditMoveObjectsForward, wxT("Move Forward\tUP"));
+    objectActionMenu->Append(EditMoveObjectsRight, wxT("Move Right\tRIGHT"));
+    objectActionMenu->Append(EditMoveObjectsBackward, wxT("Move Backward\tDOWN"));
+    objectActionMenu->Append(EditMoveObjectsLeft, wxT("Move Left\tLEFT"));
+    objectActionMenu->Append(EditMoveObjectsUp, wxT("Move Up\tPGUP"));
+    objectActionMenu->Append(EditMoveObjectsDown, wxT("Move Down\tPGDN"));
     objectActionMenu->AppendSeparator();
-    objectActionMenu->Append(CommandIds::Menu::EditRollObjectsCW, wxT("Rotate Clockwise CW\tCtrl+UP"));
-    objectActionMenu->Append(CommandIds::Menu::EditRollObjectsCCW, wxT("Rotate Counterclockwise CCW\tCtrl+DOWN"));
-    objectActionMenu->Append(CommandIds::Menu::EditYawObjectsCW, wxT("Rotate Left CW\tCtrl+LEFT"));
-    objectActionMenu->Append(CommandIds::Menu::EditYawObjectsCCW, wxT("Rotate Right CCW\tCtrl+RIGHT"));
-    objectActionMenu->Append(CommandIds::Menu::EditPitchObjectsCW, wxT("Rotate Up CW\tCtrl+PGUP"));
-    objectActionMenu->Append(CommandIds::Menu::EditPitchObjectsCCW, wxT("Rotate Down CCW\tCtrl+PGDN"));
+    objectActionMenu->Append(EditRollObjectsCW, wxT("Rotate Clockwise CW\tCtrl+UP"));
+    objectActionMenu->Append(EditRollObjectsCCW, wxT("Rotate Counterclockwise CCW\tCtrl+DOWN"));
+    objectActionMenu->Append(EditYawObjectsCW, wxT("Rotate Left CW\tCtrl+LEFT"));
+    objectActionMenu->Append(EditYawObjectsCCW, wxT("Rotate Right CCW\tCtrl+RIGHT"));
+    objectActionMenu->Append(EditPitchObjectsCW, wxT("Rotate Up CW\tCtrl+PGUP"));
+    objectActionMenu->Append(EditPitchObjectsCCW, wxT("Rotate Down CCW\tCtrl+PGDN"));
     objectActionMenu->AppendSeparator();
-    objectActionMenu->Append(CommandIds::Menu::EditFlipObjectsHorizontally, wxT("Flip Horizontally\tCtrl+F"));
-    objectActionMenu->Append(CommandIds::Menu::EditFlipObjectsVertically, wxT("Flip Vertically\tCtrl+Alt+F"));
+    objectActionMenu->Append(EditFlipObjectsHorizontally, wxT("Flip Horizontally\tCtrl+F"));
+    objectActionMenu->Append(EditFlipObjectsVertically, wxT("Flip Vertically\tCtrl+Alt+F"));
     objectActionMenu->AppendSeparator();
-    objectActionMenu->Append(CommandIds::Menu::EditDuplicateObjects, wxT("Duplicate\tCtrl+D"));
+    objectActionMenu->Append(EditDuplicateObjects, wxT("Duplicate\tCtrl+D"));
     return objectActionMenu;
 }
 

@@ -121,6 +121,10 @@ namespace TrenchBroom {
         
         EVT_MENU(CommandIds::Menu::EditToggleTextureLock, EditorView::OnEditToggleTextureLock)
         
+        EVT_MENU(CommandIds::Menu::ViewToggleShowGrid, EditorView::OnViewToggleShowGrid)
+        EVT_MENU(CommandIds::Menu::ViewToggleSnapToGrid, EditorView::OnViewToggleSnapToGrid)
+        EVT_MENU_RANGE(CommandIds::Menu::ViewSetGridSize1, CommandIds::Menu::ViewSetGridSize256, EditorView::OnViewSetGridSize)
+        
         EVT_UPDATE_UI(wxID_SAVE, EditorView::OnUpdateMenuItem)
         EVT_UPDATE_UI(wxID_UNDO, EditorView::OnUpdateMenuItem)
         EVT_UPDATE_UI(wxID_REDO, EditorView::OnUpdateMenuItem)
@@ -915,6 +919,48 @@ namespace TrenchBroom {
             mapDocument().setTextureLock(!mapDocument().textureLock());
         }
 
+        void EditorView::OnViewToggleShowGrid(wxCommandEvent& event) {
+            mapDocument().grid().toggleVisible();
+            mapDocument().UpdateAllViews();
+        }
+        
+        void EditorView::OnViewToggleSnapToGrid(wxCommandEvent& event) {
+            mapDocument().grid().toggleSnap();
+        }
+        
+        void EditorView::OnViewSetGridSize(wxCommandEvent& event) {
+            switch (event.GetId()) {
+                case CommandIds::Menu::ViewSetGridSize1:
+                    mapDocument().grid().setSize(0);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize2:
+                    mapDocument().grid().setSize(1);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize4:
+                    mapDocument().grid().setSize(2);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize8:
+                    mapDocument().grid().setSize(3);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize16:
+                    mapDocument().grid().setSize(4);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize32:
+                    mapDocument().grid().setSize(5);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize64:
+                    mapDocument().grid().setSize(6);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize128:
+                    mapDocument().grid().setSize(7);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize256:
+                    mapDocument().grid().setSize(8);
+                    break;
+            }
+            mapDocument().UpdateAllViews();
+        }
+
         void EditorView::OnUpdateMenuItem(wxUpdateUIEvent& event) {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             wxTextCtrl* textCtrl = wxDynamicCast(GetFrame()->FindFocus(), wxTextCtrl);
@@ -1038,6 +1084,50 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::EditCreateBrushEntity:
                     event.Enable(editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
+                    break;
+                case CommandIds::Menu::ViewToggleShowGrid:
+                    event.Enable(true);
+                    event.Check(mapDocument().grid().visible());
+                    break;
+                case CommandIds::Menu::ViewToggleSnapToGrid:
+                    event.Enable(true);
+                    event.Check(mapDocument().grid().snap());
+                    break;
+                case CommandIds::Menu::ViewSetGridSize1:
+                    event.Enable(true);
+                    event.Check(mapDocument().grid().actualSize() == 0);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize2:
+                    event.Enable(true);
+                    event.Check(mapDocument().grid().actualSize() == 1);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize4:
+                    event.Enable(true);
+                    event.Check(mapDocument().grid().actualSize() == 2);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize8:
+                    event.Enable(true);
+                    event.Check(mapDocument().grid().actualSize() == 3);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize16:
+                    event.Enable(true);
+                    event.Check(mapDocument().grid().actualSize() == 4);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize32:
+                    event.Enable(true);
+                    event.Check(mapDocument().grid().actualSize() == 5);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize64:
+                    event.Enable(true);
+                    event.Check(mapDocument().grid().actualSize() == 6);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize128:
+                    event.Enable(true);
+                    event.Check(mapDocument().grid().actualSize() == 7);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize256:
+                    event.Enable(true);
+                    event.Check(mapDocument().grid().actualSize() == 8);
                     break;
             }
         }

@@ -22,6 +22,7 @@
 
 #include "Utility/Math.h"
 #include "Utility/String.h"
+#include "Utility/Vec3f.h"
 
 #include <cassert>
 #include <cmath>
@@ -60,6 +61,8 @@ namespace TrenchBroom {
             
             Vec4f(float i_x, float i_y, float i_z, float i_w) : x(i_x), y(i_y), z(i_z), w(i_w) {}
 
+            Vec4f(Vec3f xyz, float i_w) : x(xyz.x), y(xyz.y), z(xyz.z), w(i_w) {}
+            
             Vec4f(float f) : x(f), y(f), z(f), w(f) {}
 
             inline bool operator== (const Vec4f& right) const {

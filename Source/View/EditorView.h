@@ -158,6 +158,10 @@ namespace TrenchBroom {
             
             void OnEditToggleTextureLock(wxCommandEvent& event);
             
+            void OnViewToggleShowGrid(wxCommandEvent& event);
+            void OnViewToggleSnapToGrid(wxCommandEvent& event);
+            void OnViewSetGridSize(wxCommandEvent& event);
+            
             void OnUpdateMenuItem(wxUpdateUIEvent& event);
             
             DECLARE_EVENT_TABLE();

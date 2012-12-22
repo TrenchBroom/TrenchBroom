@@ -110,19 +110,14 @@ namespace TrenchBroom {
             
             inline Model::VertexHandleHit* pickHandle(const Ray& ray, const Vec3f& position, Model::HitType::Type type) const {
                 Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-                float handleRadius = prefs.getFloat(Preferences::VertexHandleRadius);
+                float handleRadius = prefs.getFloat(Preferences::HandleRadius);
                 float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
                 float maxDistance = prefs.getFloat(Preferences::MaximumHandleDistance);
 
-                float distanceToHandle = (position - ray.origin).length();
-                if (distanceToHandle <= maxDistance) {
-                    float scaledRadius = handleRadius * scalingFactor * distanceToHandle;
-                    float distanceToHit = ray.intersectWithSphere(position, scaledRadius);
-                    
-                    if (!Math::isnan(distanceToHit)) {
-                        Vec3f hitPoint = ray.pointAtDistance(distanceToHit);
-                        return new Model::VertexHandleHit(type, hitPoint, distanceToHit, position);
-                    }
+                float distance = ray.intersectWithSphere(position, handleRadius, scalingFactor, maxDistance);
+                if (!Math::isnan(distance)) {
+                    Vec3f hitPoint = ray.pointAtDistance(distance);
+                    return new Model::VertexHandleHit(type, hitPoint, distance, position);
                 }
                 
                 return NULL;

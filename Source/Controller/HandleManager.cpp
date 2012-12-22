@@ -42,7 +42,7 @@ namespace TrenchBroom {
         m_selectedHandleRenderer(NULL),
         m_renderStateValid(false) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            float handleRadius = prefs.getFloat(Preferences::VertexHandleRadius);
+            float handleRadius = prefs.getFloat(Preferences::HandleRadius);
             float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
             float maxDistance = prefs.getFloat(Preferences::MaximumHandleDistance);
             m_selectedHandleRenderer = Renderer::PointHandleRenderer::create(handleRadius, 2, scalingFactor, maxDistance);

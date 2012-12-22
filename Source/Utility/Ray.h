@@ -82,6 +82,15 @@ namespace TrenchBroom {
                 return std::max(t0, t1);
             }
             
+            float intersectWithSphere(const Vec3f& position, float radius, float scalingFactor, float maxDistance) const {
+                float distanceToCenter = (position - origin).length();
+                if (distanceToCenter > maxDistance)
+                    return Math::nan();
+                    
+                float scaledRadius = radius * scalingFactor * distanceToCenter;
+                return intersectWithSphere(position, scaledRadius);
+            }
+            
             float intersectWithCube(const Vec3f& position, float size) const {
                 float halfSize = size / 2.0f;
                 

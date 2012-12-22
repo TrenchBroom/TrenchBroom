@@ -68,6 +68,17 @@ namespace TrenchBroom {
                 static const int EditCreatePointEntity              = Lowest + 40;
                 static const int EditCreateBrushEntity              = Lowest + 41;
                 static const int EditToggleTextureLock              = Lowest + 42;
+                static const int ViewToggleShowGrid                 = Lowest + 43;
+                static const int ViewToggleSnapToGrid               = Lowest + 44;
+                static const int ViewSetGridSize1                   = Lowest + 45;
+                static const int ViewSetGridSize2                   = Lowest + 46;
+                static const int ViewSetGridSize4                   = Lowest + 47;
+                static const int ViewSetGridSize8                   = Lowest + 48;
+                static const int ViewSetGridSize16                  = Lowest + 49;
+                static const int ViewSetGridSize32                  = Lowest + 50;
+                static const int ViewSetGridSize64                  = Lowest + 51;
+                static const int ViewSetGridSize128                 = Lowest + 52;
+                static const int ViewSetGridSize256                 = Lowest + 53;
                 static const int Highest                            = Lowest + 99;
             }
 

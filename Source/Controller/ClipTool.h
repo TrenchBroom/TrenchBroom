@@ -94,7 +94,6 @@ namespace TrenchBroom {
                 CMBoth
             } ClipSide;
         private:
-            float m_handleRadius;
             ClipFilter m_filter;
             Vec3f m_points[3];
             Vec3f m_normals[3];

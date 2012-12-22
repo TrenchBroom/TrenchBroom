@@ -217,8 +217,7 @@ namespace TrenchBroom {
         extern const Preference<bool>   CameraLookInvertY;
         extern const Preference<bool>   CameraPanInvertX;
         extern const Preference<bool>   CameraPanInvertY;
-        extern const Preference<float>  VertexHandleRadius;
-        extern const Preference<float>  ClipHandleRadius;
+        extern const Preference<float>  HandleRadius;
         extern const Preference<float>  MaximumHandleDistance;
         extern const Preference<float>  HandleScalingFactor;
         extern const Preference<float>  CameraFieldOfVision;

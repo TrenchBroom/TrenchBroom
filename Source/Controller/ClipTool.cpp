@@ -155,8 +155,13 @@ namespace TrenchBroom {
         }
         
         void ClipTool::handlePick(InputState& inputState) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            float handleRadius = prefs.getFloat(Preferences::HandleRadius);
+            float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
+            float maxDistance = prefs.getFloat(Preferences::MaximumHandleDistance);
+            
             for (unsigned int i = 0; i < m_numPoints; i++) {
-                float distance = inputState.pickRay().intersectWithSphere(m_points[i], m_handleRadius);
+                float distance = inputState.pickRay().intersectWithSphere(m_points[i], handleRadius, scalingFactor, maxDistance);
                 if (!Math::isnan(distance)) {
                     Vec3f hitPoint = inputState.pickRay().pointAtDistance(distance);
                     inputState.pickResult().add(new Model::ClipHandleHit(hitPoint, distance, i));
@@ -242,25 +247,37 @@ namespace TrenchBroom {
             if (m_numPoints > 0 || m_hitIndex > -1) {
                 Model::ClipHandleHit* handleHit = static_cast<Model::ClipHandleHit*>(inputState.pickResult().first(Model::HitType::ClipHandleHit, true, m_filter));
                 
-                Renderer::ActivateShader shader(renderContext.shaderManager(), Renderer::Shaders::HandleShader);
-                Renderer::SphereFigure sphereFigure(m_handleRadius, 3);
+                Renderer::ActivateShader pointHandleShader(renderContext.shaderManager(), Renderer::Shaders::PointHandleShader);
+                pointHandleShader.currentShader().setUniformVariable("CameraPosition", renderContext.camera().position());
+                pointHandleShader.currentShader().setUniformVariable("ScalingFactor", prefs.getFloat(Preferences::HandleScalingFactor));
+                pointHandleShader.currentShader().setUniformVariable("MaximumDistance", prefs.getFloat(Preferences::MaximumHandleDistance));
+
+                Renderer::SphereFigure sphereFigure(prefs.getFloat(Preferences::HandleRadius), 1);
                 for (unsigned int i = 0; i < m_numPoints; i++) {
-                    Renderer::ApplyMatrix translate(renderContext.transformation(), Mat4f().translate(m_points[i]));
                     if (handleHit != NULL && handleHit->index() == i) {
-                        shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::SelectedClipHandleColor));
+                        pointHandleShader.currentShader().setUniformVariable("Position", Vec4f(m_points[i], 1.0f));
+                        pointHandleShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::SelectedClipHandleColor));
                         sphereFigure.render(vbo, renderContext);
                     } else {
+                        pointHandleShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
                         glDisable(GL_DEPTH_TEST);
-                        shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
+                        pointHandleShader.currentShader().setUniformVariable("Position", Vec4f(m_points[i], 1.0f));
                         sphereFigure.render(vbo, renderContext);
                         glEnable(GL_DEPTH_TEST);
                         
-                        shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ClipHandleColor));
+                        pointHandleShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ClipHandleColor));
                         sphereFigure.render(vbo, renderContext);
                     }
                 }
                 
+                if (m_hitIndex > -1) {
+                    pointHandleShader.currentShader().setUniformVariable("Position", Vec4f(m_points[m_hitIndex], 1.0f));
+                    pointHandleShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::SelectedClipHandleColor));
+                    sphereFigure.render(vbo, renderContext);
+                }
+
                 if (m_numPoints > 1) {
+                    Renderer::ActivateShader planeShader(renderContext.shaderManager(), Renderer::Shaders::HandleShader);
                     Renderer::VertexArray* linesArray = NULL;
                     Renderer::VertexArray* triangleArray = NULL;
                     
@@ -280,16 +297,16 @@ namespace TrenchBroom {
                     
                     Renderer::SetVboState activateVbo(vbo, Renderer::Vbo::VboActive);
                     glDisable(GL_DEPTH_TEST);
-                    shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
+                    planeShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
                     linesArray->render();
                     glEnable(GL_DEPTH_TEST);
-                    shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ClipHandleColor));
+                    planeShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ClipHandleColor));
                     linesArray->render();
                     
                     if (m_numPoints == 3) {
                         glDisable(GL_DEPTH_TEST);
                         glDisable(GL_CULL_FACE);
-                        shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ClipPlaneColor));
+                        planeShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ClipPlaneColor));
                         triangleArray->render();
                         glEnable(GL_CULL_FACE);
                         glEnable(GL_DEPTH_TEST);
@@ -297,12 +314,6 @@ namespace TrenchBroom {
                     
                     delete linesArray;
                     delete triangleArray;
-                }
-                
-                if (m_hitIndex == static_cast<int>(m_numPoints) && m_numPoints < 3) {
-                    shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::SelectedClipHandleColor));
-                    Renderer::ApplyMatrix translate(renderContext.transformation(), Mat4f().translate(m_points[m_hitIndex]));
-                    sphereFigure.render(vbo, renderContext);
                 }
             }
         }
@@ -374,7 +385,6 @@ namespace TrenchBroom {
 
         ClipTool::ClipTool(View::DocumentViewHolder& documentViewHolder) :
         Tool(documentViewHolder, true),
-        m_handleRadius(2.5f),
         m_filter(view().filter()),
         m_numPoints(0),
         m_hitIndex(-1),
