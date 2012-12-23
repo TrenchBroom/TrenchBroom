@@ -246,6 +246,46 @@ namespace TrenchBroom {
                 m_entity->invalidateGeometry();
         }
 
+        bool Brush::canMoveBoundary(const Face& face, float dist) {
+            FaceList droppedFaces;
+            BrushGeometry testGeometry(m_worldBounds);
+
+            Face testFace(face);
+            testFace.move(dist, false);
+            
+            FaceList::const_iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                Face* otherFace = *it;
+                if (otherFace != &face)
+                    testGeometry.addFace(*otherFace, droppedFaces);
+            }
+            
+            BrushGeometry::CutResult result = testGeometry.addFace(testFace, droppedFaces);
+            m_geometry->restoreFaceSides();
+            
+            return result == BrushGeometry::Split;
+        }
+        
+        void Brush::moveBoundary(Face& face, float dist, bool lockTexture) {
+            assert(canMoveBoundary(face, dist));
+
+            face.move(dist, lockTexture);
+            delete m_geometry;
+            m_geometry = new BrushGeometry(m_worldBounds);
+
+            FaceList droppedFaces;
+            FaceList::const_iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                Model::Face& aFace = **it;
+                BrushGeometry::CutResult result = m_geometry->addFace(aFace, droppedFaces);
+                assert(result == BrushGeometry::Split);
+                aFace.invalidateVertexCache();
+            }
+            
+            assert(droppedFaces.empty());
+            m_entity->invalidateGeometry();
+        }
+
         bool Brush::canMoveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta) {
             return m_geometry->canMoveVertices(vertexPositions, delta);
         }

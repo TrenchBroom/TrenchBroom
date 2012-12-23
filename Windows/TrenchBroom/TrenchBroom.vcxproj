@@ -233,6 +233,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Controller\MoveVerticesCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\MoveVerticesTool.cpp" />
     <ClCompile Include="..\..\Source\Controller\RemoveObjectsCommand.cpp" />
+    <ClCompile Include="..\..\Source\Controller\ResizeBrushesTool.cpp" />
     <ClCompile Include="..\..\Source\Controller\RotateObjects90Command.cpp" />
     <ClCompile Include="..\..\Source\Controller\RotateObjectsCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\RotateObjectsTool.cpp" />
@@ -349,6 +350,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Controller\ObjectsCommand.h" />
     <ClInclude Include="..\..\Source\Controller\ObjectsHandle.h" />
     <ClInclude Include="..\..\Source\Controller\RemoveObjectsCommand.h" />
+    <ClInclude Include="..\..\Source\Controller\ResizeBrushesTool.h" />
     <ClInclude Include="..\..\Source\Controller\RotateObjects90Command.h" />
     <ClInclude Include="..\..\Source\Controller\RotateObjectsCommand.h" />
     <ClInclude Include="..\..\Source\Controller\RotateObjectsTool.h" />

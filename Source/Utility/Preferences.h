@@ -220,6 +220,7 @@ namespace TrenchBroom {
         extern const Preference<float>  HandleRadius;
         extern const Preference<float>  MaximumHandleDistance;
         extern const Preference<float>  HandleScalingFactor;
+        extern const Preference<float>  MaximumNearFaceDistance;
         extern const Preference<float>  CameraFieldOfVision;
         extern const Preference<float>  CameraNearPlane;
         extern const Preference<float>  CameraFarPlane;
@@ -288,6 +289,9 @@ namespace TrenchBroom {
         extern const Preference<Color>  OccludedClipHandleColor;
         extern const Preference<Color>  SelectedClipHandleColor;
         extern const Preference<Color>  ClipPlaneColor;
+        
+        extern const Preference<Color>  ResizeBrushFaceColor;
+        extern const Preference<Color>  OccludedResizeBrushFaceColor;
         
         extern const Preference<Color>  BrowserTextureColor;
         extern const Preference<Color>  SelectedTextureColor;

@@ -399,6 +399,9 @@
     <ClCompile Include="..\..\Source\View\TextureSelectedCommand.cpp">
       <Filter>Source Files\View</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\ResizeBrushesTool.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -952,6 +955,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\View\TextureSelectedCommand.h">
       <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\ResizeBrushesTool.h">
+      <Filter>Header Files\Controller</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -58,34 +58,6 @@ namespace TrenchBroom {
     }
     
     namespace Controller {
-        class ClipFilter : public Model::Filter {
-        protected:
-            Model::Filter& m_defaultFilter;
-        public:
-            ClipFilter(Model::Filter& defaultFilter) :
-            m_defaultFilter(defaultFilter) {}
-            
-            virtual inline bool entityVisible(const Model::Entity& entity) const {
-                return m_defaultFilter.entityVisible(entity);
-            }
-            
-            virtual inline bool entityPickable(const Model::Entity& entity) const {
-                return false;
-            }
-            
-            virtual inline bool brushVisible(const Model::Brush& brush) const {
-                return m_defaultFilter.brushVisible(brush);
-            }
-            
-            virtual inline bool brushPickable(const Model::Brush& brush) const {
-                return m_defaultFilter.brushPickable(brush);
-            }
-            
-            virtual inline bool brushVerticesPickable(const Model::Brush& brush) const {
-                return false;
-            }
-        };
-
         class ClipTool : public Tool {
         public:
             typedef enum {
@@ -94,6 +66,34 @@ namespace TrenchBroom {
                 CMBoth
             } ClipSide;
         private:
+            class ClipFilter : public Model::Filter {
+            protected:
+                Model::Filter& m_defaultFilter;
+            public:
+                ClipFilter(Model::Filter& defaultFilter) :
+                m_defaultFilter(defaultFilter) {}
+                
+                virtual inline bool entityVisible(const Model::Entity& entity) const {
+                    return m_defaultFilter.entityVisible(entity);
+                }
+                
+                virtual inline bool entityPickable(const Model::Entity& entity) const {
+                    return false;
+                }
+                
+                virtual inline bool brushVisible(const Model::Brush& brush) const {
+                    return m_defaultFilter.brushVisible(brush);
+                }
+                
+                virtual inline bool brushPickable(const Model::Brush& brush) const {
+                    return m_defaultFilter.brushPickable(brush);
+                }
+                
+                virtual inline bool brushVerticesPickable(const Model::Brush& brush) const {
+                    return false;
+                }
+            };
+
             ClipFilter m_filter;
             Vec3f m_points[3];
             Vec3f m_normals[3];

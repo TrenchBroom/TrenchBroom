@@ -58,7 +58,7 @@ namespace TrenchBroom {
     }
     
     namespace Controller {
-        class HandleManager {
+        class VertexHandleManager {
         private:
             Model::VertexToBrushesMap m_unselectedVertexHandles;
             Model::VertexToBrushesMap m_selectedVertexHandles;
@@ -123,8 +123,8 @@ namespace TrenchBroom {
                 return NULL;
             }
         public:
-            HandleManager();
-            ~HandleManager();
+            VertexHandleManager();
+            ~VertexHandleManager();
             
             inline const Model::VertexToBrushesMap& unselectedVertexHandles() const {
                 return m_unselectedVertexHandles;

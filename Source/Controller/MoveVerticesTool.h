@@ -21,7 +21,7 @@
 #define __TrenchBroom__MoveVerticesTool__
 
 #include "Controller/Tool.h"
-#include "Controller/HandleManager.h"
+#include "Controller/VertexHandleManager.h"
 #include "Controller/MoveHandle.h"
 #include "Utility/VecMath.h"
 
@@ -44,7 +44,7 @@ namespace TrenchBroom {
                 VMSplit
             } VertexToolMode;
             
-            HandleManager m_handleManager;
+            VertexHandleManager m_handleManager;
             MoveHandle m_moveHandle;
             MoveHandle::RestrictToAxis m_restrictToAxis;
             VertexToolMode m_mode;

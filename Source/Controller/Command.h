@@ -52,6 +52,7 @@ namespace TrenchBroom {
                 FlipObjects,
                 RemoveObjects,
                 MoveVertices,
+                ResizeBrushes,
                 UpdateFigures
             } Type;
             

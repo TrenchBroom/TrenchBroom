@@ -484,6 +484,10 @@ namespace TrenchBroom {
                         m_renderer->invalidateSelectedBrushes();
                         inputController().objectsChange();
                         break;
+                    case Controller::Command::ResizeBrushes:
+                        m_renderer->invalidateSelectedBrushes();
+                        inputController().objectsChange();
+                        break;
                     case Controller::Command::UpdateFigures:
                         break;
                     default:
