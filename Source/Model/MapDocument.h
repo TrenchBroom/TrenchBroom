@@ -25,6 +25,7 @@
 #include "Utility/String.h"
 
 #include <wx/docview.h>
+#include <wx/timer.h>
 
 namespace TrenchBroom {
     namespace Controller {

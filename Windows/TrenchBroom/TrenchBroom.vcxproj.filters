@@ -111,9 +111,6 @@
     <ClCompile Include="..\..\Source\Controller\FlipObjectsCommand.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\HandleManager.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Controller\InputController.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
@@ -402,6 +399,15 @@
     <ClCompile Include="..\..\Source\Controller\ResizeBrushesTool.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\ResizeBrushesCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\VertexHandleManager.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\Autosaver.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -486,9 +492,6 @@
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\FlipObjectsCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\HandleManager.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\Input.h">
@@ -957,6 +960,15 @@
       <Filter>Header Files\View</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\ResizeBrushesTool.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\ResizeBrushesCommand.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\VertexHandleManager.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\Autosaver.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
   </ItemGroup>
