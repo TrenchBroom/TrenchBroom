@@ -150,18 +150,18 @@ namespace TrenchBroom {
             assert(!m_faces.empty());
             
             Model::Face& referenceFace = *m_faces.front();
-            Vec3f planeDelta = curPoint - lastPoint;
+            Vec3f planeDelta = refPoint - lastPoint;
             Vec3f faceDelta = referenceFace.boundary().normal * planeDelta.dot(referenceFace.boundary().normal);
             
             Utility::Grid& grid = document().grid();
-            float distance = grid.snap(faceDelta.length());
+            float distance = grid.snapDown(faceDelta.length());
 
             if (Math::zero(distance))
                 return true;
             
             ResizeBrushesCommand* command = ResizeBrushesCommand::resizeBrushes(document(), m_faces, distance, document().textureLock());
             if (submitCommand(command))
-                refPoint += (distance * referenceFace.boundary().normal).dot(planeDelta.normalized());
+                refPoint = curPoint;
             return true;
         }
         
