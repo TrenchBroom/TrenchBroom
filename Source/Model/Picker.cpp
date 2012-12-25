@@ -41,17 +41,9 @@ namespace TrenchBroom {
             return filter.entityPickable(m_entity);
         }
 
-        FaceHit::FaceHit(HitType::Type type, Face& face, const Vec3f& hitPoint, float distance) :
-        Hit(type, hitPoint, distance),
+        FaceHit::FaceHit(Face& face, const Vec3f& hitPoint, float distance) :
+        Hit(HitType::FaceHit, hitPoint, distance),
         m_face(face) {}
-
-        FaceHit* FaceHit::faceHit(Face& face, const Vec3f& hitPoint, float distance) {
-            return new FaceHit(HitType::FaceHit, face, hitPoint, distance);
-        }
-        
-        FaceHit* FaceHit::nearFaceHit(Face& face, const Vec3f& hitPoint, float distance) {
-            return new FaceHit(HitType::NearFaceHit, face, hitPoint, distance);
-        }
 
         bool FaceHit::pickable(Filter& filter) const {
             return filter.brushPickable(*m_face.brush());

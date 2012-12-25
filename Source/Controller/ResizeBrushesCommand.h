@@ -23,6 +23,9 @@
 #include "Controller/SnapshotCommand.h"
 #include "Model/BrushTypes.h"
 #include "Model/FaceTypes.h"
+#include "Utility/VecMath.h"
+
+using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Controller {
@@ -30,15 +33,15 @@ namespace TrenchBroom {
         protected:
             const Model::FaceList m_faces;
             const Model::BrushList m_brushes;
-            const float m_distance;
+            const Vec3f m_delta;
             const bool m_lockTextures;
             
             bool performDo();
             bool performUndo();
 
-            ResizeBrushesCommand(Model::MapDocument& document, const wxString& name, const Model::FaceList& faces, const Model::BrushList& brushes, float distance, bool lockTextures);
+            ResizeBrushesCommand(Model::MapDocument& document, const wxString& name, const Model::FaceList& faces, const Model::BrushList& brushes, const Vec3f& delta, bool lockTextures);
         public:
-            static ResizeBrushesCommand* resizeBrushes(Model::MapDocument& document, const Model::FaceList& faces, float distance, bool lockTextures);
+            static ResizeBrushesCommand* resizeBrushes(Model::MapDocument& document, const Model::FaceList& faces, const Vec3f& delta, bool lockTextures);
         };
     }
 }

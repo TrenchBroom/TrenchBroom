@@ -37,7 +37,6 @@ namespace TrenchBroom {
             static const Type NoHit       = 0;
             static const Type EntityHit   = 1 << 0;
             static const Type FaceHit     = 1 << 1;
-            static const Type NearFaceHit = 1 << 2;
             static const Type ObjectHit   = EntityHit | FaceHit;
             static const Type Any         = 0xFFFFFFFF;
         }
@@ -87,12 +86,9 @@ namespace TrenchBroom {
         class FaceHit : public Hit {
         protected:
             Face& m_face;
-            
-            FaceHit(HitType::Type type, Face& face, const Vec3f& hitPoint, float distance);
         public:
-            static FaceHit* faceHit(Face& face, const Vec3f& hitPoint, float distance);
-            static FaceHit* nearFaceHit(Face& face, const Vec3f& hitPoint, float distance);
-            
+            FaceHit(Face& face, const Vec3f& hitPoint, float distance);
+
             inline Face& face() const {
                 return m_face;
             }

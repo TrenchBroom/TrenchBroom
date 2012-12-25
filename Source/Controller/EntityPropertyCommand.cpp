@@ -99,6 +99,7 @@ namespace TrenchBroom {
                         entity.setDefinition(NULL);
                 }
             }
+
             return true;
         }
 

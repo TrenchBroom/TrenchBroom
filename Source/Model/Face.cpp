@@ -451,11 +451,6 @@ namespace TrenchBroom {
             }
         }
 
-        void Face::move(float dist, bool lockTexture) {
-            Vec3f delta = dist * m_boundary.normal;
-            translate(delta, lockTexture);
-        }
-        
         void Face::translate(const Vec3f& delta, bool lockTexture) {
             if (lockTexture)
                 compensateTransformation(Mat4f::Identity.translated(delta));

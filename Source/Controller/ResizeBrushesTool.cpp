@@ -28,68 +28,170 @@
 #include "Renderer/Shader/ShaderManager.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexArray.h"
+#include "Utility/Console.h"
 #include "Utility/Grid.h"
 #include "Utility/Preferences.h"
 
 namespace TrenchBroom {
-    namespace Controller {
-        bool ResizeBrushesTool::handleIsModal(InputState& inputState) {
-            return inputState.modifierKeys() == ModifierKeys::MKCtrlCmd;
+    namespace Model {
+        NearEdgeHit::NearEdgeHit(const Vec3f& hitPoint, float distance, Face& dragFace, Face& referenceFace) :
+        Hit(HitType::NearEdgeHit, hitPoint, distance),
+        m_dragFace(dragFace),
+        m_referenceFace(referenceFace) {}
+        
+        bool NearEdgeHit::pickable(Filter& filter) const {
+            return true;
         }
-
-        void ResizeBrushesTool::handlePick(InputState& inputState) {
-            if (inputState.modifierKeys() != ModifierKeys::MKCtrlCmd)
-                return;
+    }
+    
+    namespace Controller {
+        Model::FaceList ResizeBrushesTool::dragFaces(Model::Face& dragFace) {
+            Model::FaceList result;
+            result.push_back(&dragFace);
             
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-
             Model::EditStateManager& editStateManager = document().editStateManager();
             const Model::BrushList& selectedBrushes = editStateManager.selectedBrushes();
-            
             Model::BrushList::const_iterator brushIt, brushEnd;
             for (brushIt = selectedBrushes.begin(), brushEnd = selectedBrushes.end(); brushIt != brushEnd; ++brushIt) {
                 Model::Brush& brush = **brushIt;
-                const Model::EdgeList& edges = brush.edges();
+                const Model::FaceList& faces = brush.faces();
+                Model::FaceList::const_iterator faceIt, faceEnd;
+                for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
+                    Model::Face& face = **faceIt;
+                    if (&face != &dragFace && face.boundary().equals(dragFace.boundary()))
+                        result.push_back(&face);
+                }
+            }
+            
+            return result;
+        }
+
+        bool ResizeBrushesTool::handleIsModal(InputState& inputState) {
+            return inputState.modifierKeys() == ModifierKeys::MKShift;
+        }
+
+        void ResizeBrushesTool::handlePick(InputState& inputState) {
+            if (inputState.modifierKeys() != ModifierKeys::MKShift)
+                return;
+            
+            float closestEdgeDist = std::numeric_limits<float>::max();
+            const Model::Edge* closestEdge = NULL;
+            Model::Face* dragFace = NULL;
+            Model::Face* otherFace = NULL;
+            Vec3f hitPoint;
+            float hitDistance = 0.0f;
+            
+            Model::EditStateManager& editStateManager = document().editStateManager();
+            const Model::BrushList& selectedBrushes = editStateManager.selectedBrushes();
+            
+            Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, m_filter));
+            if (faceHit != NULL) {
+                const Model::Face& face = faceHit->face();
+                const Model::EdgeList& edges = face.edges();
+
                 Model::EdgeList::const_iterator edgeIt, edgeEnd;
                 for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
-                    const Model::Edge& edge = **edgeIt;
-
-                    float leftDot = edge.left->face->boundary().normal.dot(inputState.pickRay().direction);
-                    float rightDot = edge.right->face->boundary().normal.dot(inputState.pickRay().direction);
-                    if (leftDot > 0.0f != rightDot > 0.0f) {
-                        float distanceToClosestPoint;
-                        float distanceToSegment = inputState.pickRay().distanceToSegment(edge.start->position, edge.end->position, distanceToClosestPoint);
-                        if (distanceToSegment <= prefs.getFloat(Preferences::MaximumNearFaceDistance)) {
-                            Vec3f hitPoint = inputState.pickRay().pointAtDistance(distanceToClosestPoint);
-                            Model::Face& face = leftDot > 0.0f ? *edge.left->face : *edge.right->face;
-                            inputState.pickResult().add(Model::FaceHit::nearFaceHit(face, hitPoint, distanceToClosestPoint));
+                    const Model::Edge* edge = *edgeIt;
+                    
+                    Vec3f pointOnSegment;
+                    float distanceToClosestPointOnRay;
+                    float distanceBetweenRayAndEdge = inputState.pickRay().distanceToSegment(edge->start->position,
+                                                                                             edge->end->position,
+                                                                                             pointOnSegment,
+                                                                                             distanceToClosestPointOnRay);
+                    if (!Math::isnan(distanceBetweenRayAndEdge) && distanceBetweenRayAndEdge < closestEdgeDist) {
+                        closestEdge = edge;
+                        closestEdgeDist = distanceBetweenRayAndEdge;
+                        hitDistance = distanceToClosestPointOnRay;
+                        hitPoint = inputState.pickRay().pointAtDistance(hitDistance);
+                        if (edge->left->face == &face) {
+                            dragFace = edge->left->face;
+                            otherFace = edge->right->face;
+                        } else {
+                            dragFace = edge->right->face;
+                            otherFace = edge->left->face;
+                        }
+                    }
+                }
+            } else {
+                Model::BrushList::const_iterator brushIt, brushEnd;
+                for (brushIt = selectedBrushes.begin(), brushEnd = selectedBrushes.end(); brushIt != brushEnd; ++brushIt) {
+                    Model::Brush& brush = **brushIt;
+                    const Model::EdgeList& edges = brush.edges();
+                    Model::EdgeList::const_iterator edgeIt, edgeEnd;
+                    for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
+                        const Model::Edge* edge = *edgeIt;
+                        
+                        float leftDot = edge->left->face->boundary().normal.dot(inputState.pickRay().direction);
+                        float rightDot = edge->right->face->boundary().normal.dot(inputState.pickRay().direction);
+                        if (leftDot > 0.0f != rightDot > 0.0f) {
+                            Vec3f pointOnSegment;
+                            float distanceToClosestPointOnRay;
+                            float distanceBetweenRayAndEdge = inputState.pickRay().distanceToSegment(edge->start->position,
+                                                                                                     edge->end->position,
+                                                                                                     pointOnSegment,
+                                                                                                     distanceToClosestPointOnRay);
+                            if (!Math::isnan(distanceBetweenRayAndEdge) && distanceBetweenRayAndEdge < closestEdgeDist) {
+                                closestEdge = edge;
+                                closestEdgeDist = distanceBetweenRayAndEdge;
+                                hitDistance = distanceToClosestPointOnRay;
+                                hitPoint = inputState.pickRay().pointAtDistance(hitDistance);
+                                if (leftDot > 0.0f) {
+                                    dragFace = edge->left->face;
+                                    otherFace = edge->right->face;
+                                } else {
+                                    dragFace = edge->right->face;
+                                    otherFace = edge->left->face;
+                                }
+                            }
                         }
                     }
                 }
             }
+            
+            if (closestEdge != NULL) {
+                assert(dragFace != NULL);
+                assert(otherFace != NULL);
+                inputState.pickResult().add(new Model::NearEdgeHit(hitPoint, hitDistance, *dragFace, *otherFace));
+            }
         }
         
         void ResizeBrushesTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
-            if (inputState.modifierKeys() != ModifierKeys::MKCtrlCmd)
-                return;
+            Model::FaceList faces;
+            if (dragType() != DTDrag) {
+                if (inputState.modifierKeys() != ModifierKeys::MKShift)
+                    return;
+                
+                Model::NearEdgeHit* hit = static_cast<Model::NearEdgeHit*>(inputState.pickResult().first(Model::HitType::NearEdgeHit, true, m_filter));
+                if (DTDrag && hit == NULL)
+                    return;
+
+                faces = dragFaces(hit->dragFace());
+            } else {
+                faces = m_faces;
+            }
             
-            Model::FaceHit* hit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit | Model::HitType::NearFaceHit, true, m_filter));
-            if (hit == NULL)
-                return;
+            Model::FaceList::const_iterator faceIt, faceEnd;
+
+            unsigned int vertexCount = 0;
+            for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
+                Model::Face& face = **faceIt;
+                vertexCount += static_cast<unsigned int>(2 * face.edges().size());
+            }
 
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            
+            Renderer::VertexArray edgeArray(vbo, GL_LINES, vertexCount, Renderer::Attribute::position3f());
             Renderer::SetVboState mapVbo(vbo, Renderer::Vbo::VboMapped);
-            
-            Model::Face& face = hit->face();
-            const Model::VertexList& vertices = face.vertices();
-            unsigned int vertexCount = static_cast<unsigned int>(vertices.size());
-            Renderer::VertexArray edgeArray(vbo, GL_LINE_LOOP, vertexCount, Renderer::Attribute::position3f());
-            
-            Model::VertexList::const_iterator vIt, vEnd;
-            for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
-                const Model::Vertex& vertex = **vIt;
-                edgeArray.addAttribute(vertex.position);
+
+            for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
+                Model::Face& face = **faceIt;
+                const Model::EdgeList& edges = face.edges();
+                Model::EdgeList::const_iterator eIt, eEnd;
+                for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd; ++eIt) {
+                    const Model::Edge& edge = **eIt;
+                    edgeArray.addAttribute(edge.start->position);
+                    edgeArray.addAttribute(edge.end->position);
+                }
             }
 
             Renderer::glSetEdgeOffset(0.3f);
@@ -109,67 +211,66 @@ namespace TrenchBroom {
         }
         
         bool ResizeBrushesTool::handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint) {
-            if (inputState.modifierKeys() != ModifierKeys::MKCtrlCmd)
+            if (inputState.modifierKeys() != ModifierKeys::MKShift)
                 return false;
             
-            Model::FaceHit* hit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit | Model::HitType::NearFaceHit, true, m_filter));
+            Model::NearEdgeHit* hit = static_cast<Model::NearEdgeHit*>(inputState.pickResult().first(Model::HitType::NearEdgeHit, true, m_filter));
             if (hit == NULL)
                 return false;
             
-            assert(m_faces.empty());
-            Model::Face& referenceFace = hit->face();
-            m_faces.push_back(&referenceFace);
-            
-            Model::EditStateManager& editStateManager = document().editStateManager();
-            const Model::BrushList& selectedBrushes = editStateManager.selectedBrushes();
-            Model::BrushList::const_iterator brushIt, brushEnd;
-            for (brushIt = selectedBrushes.begin(), brushEnd = selectedBrushes.end(); brushIt != brushEnd; ++brushIt) {
-                Model::Brush& brush = **brushIt;
-                const Model::FaceList& faces = brush.faces();
-                Model::FaceList::const_iterator faceIt, faceEnd;
-                for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
-                    Model::Face& face = **faceIt;
-                    if (&face != &referenceFace && face.boundary().equals(referenceFace.boundary()))
-                        m_faces.push_back(&face);
-                }
-            }
-            
-            Vec3f planeNormal = referenceFace.boundary().normal.crossed(inputState.pickRay().direction);
-            planeNormal = referenceFace.boundary().normal.crossed(planeNormal);
+            Model::Face& dragFace = hit->dragFace();
+
+            const Vec3f& dragNormal = dragFace.boundary().normal;
+            Vec3f planeNormal = dragNormal.crossed(inputState.pickRay().direction);
+            if (planeNormal.null())
+                return false;
+
+            planeNormal = dragNormal.crossed(planeNormal);
             planeNormal.normalize();
-            
             plane = Plane(planeNormal, hit->hitPoint());
+
+            m_faces = dragFaces(dragFace);
             initialPoint = hit->hitPoint();
+            m_totalDelta = Vec3f::Null;
             
             beginCommandGroup(wxT("Resize Brush"));
-            
             return true;
         }
         
         bool ResizeBrushesTool::handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) {
             assert(!m_faces.empty());
             
-            Model::Face& referenceFace = *m_faces.front();
-            Vec3f planeDelta = refPoint - lastPoint;
-            Vec3f faceDelta = referenceFace.boundary().normal * planeDelta.dot(referenceFace.boundary().normal);
-            
-            Utility::Grid& grid = document().grid();
-            float distance = grid.snapDown(faceDelta.length());
-
-            if (Math::zero(distance))
+            const Vec3f planeDelta = curPoint - refPoint;
+            if (planeDelta.null())
                 return true;
             
-            ResizeBrushesCommand* command = ResizeBrushesCommand::resizeBrushes(document(), m_faces, distance, document().textureLock());
-            if (submitCommand(command))
-                refPoint = curPoint;
+            Utility::Grid& grid = document().grid();
+            Model::Face& dragFace = *m_faces.front();
+            const Vec3f& faceAxis = dragFace.boundary().normal.firstAxis();
+            const float faceDist = planeDelta.dot(faceAxis);
+            const Vec3f faceDelta = grid.snap(faceDist * faceAxis);
+            
+            if (faceDelta.null())
+                return true;
+            
+            ResizeBrushesCommand* command = ResizeBrushesCommand::resizeBrushes(document(), m_faces, faceDelta, document().textureLock());
+            if (submitCommand(command)) {
+                const Vec3f planeDir = planeDelta.normalized();
+                const float planeDist = faceDelta.dot(planeDir);
+                refPoint += planeDist * planeDir;
+                m_totalDelta += faceDelta;
+            }
             return true;
         }
         
         void ResizeBrushesTool::handleEndPlaneDrag(InputState& inputState) {
-            endCommandGroup();
+            if (m_totalDelta.null())
+                rollbackCommandGroup();
+            else
+                endCommandGroup();
             m_faces.clear();
         }
-
+        
         ResizeBrushesTool::ResizeBrushesTool(View::DocumentViewHolder& documentViewHolder) :
         PlaneDragTool(documentViewHolder, false),
         m_filter(ResizeBrushesFilter(view().filter())) {}

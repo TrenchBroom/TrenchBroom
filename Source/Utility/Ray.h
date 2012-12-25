@@ -183,7 +183,7 @@ namespace TrenchBroom {
                 return std::sqrt(squaredDistance);
             }
             
-            float squaredDistanceToSegment(const Vec3f& start, const Vec3f& end, float& distanceToClosestPoint) const {
+            float squaredDistanceToSegment(const Vec3f& start, const Vec3f& end, Vec3f& pointOnSegment, float& distanceToClosestPoint) const {
                 Vec3f u, v, w;
                 u = end - start;
                 v = direction;
@@ -230,11 +230,43 @@ namespace TrenchBroom {
                 w = w + u;
                 Vec3f dP = w - v;
 
+                pointOnSegment = start + u;
                 return dP.lengthSquared();
             }
             
-            float distanceToSegment(const Vec3f& start, const Vec3f& end, float& distanceToClosestPoint) const {
-                float squaredDistance = squaredDistanceToSegment(start, end, distanceToClosestPoint);
+            float distanceToSegment(const Vec3f& start, const Vec3f& end, Vec3f& pointOnSegment, float& distanceToClosestPoint) const {
+                float squaredDistance = squaredDistanceToSegment(start, end, pointOnSegment, distanceToClosestPoint);
+                if (isnan(squaredDistance))
+                    return squaredDistance;
+                return std::sqrt(squaredDistance);
+            }
+            
+            float squaredDistanceToLine(const Vec3f& lineAnchor, const Vec3f& lineDir, Vec3f& pointOnLine, float& distanceToClosestPoint) const {
+                Vec3f w0 = origin - lineAnchor;
+                float a = direction.dot(direction);
+                float b = direction.dot(lineDir);
+                float c = lineDir.dot(lineDir);
+                float d = direction.dot(w0);
+                float e = lineDir.dot(w0);
+                
+                float f = a * c - b * b;
+                if (zero(f))
+                    return Math::nan();
+                
+                float sc = (b * e - c * d) / f;
+                float tc = (a * e - b * d) / f;
+                
+                if (sc < 0.0f)
+                    sc = 0.0f;
+                
+                Vec3f pointOnRay = origin + sc * direction;
+                pointOnLine = lineAnchor + tc * lineDir;
+                distanceToClosestPoint = sc;
+                return (pointOnLine - pointOnRay).lengthSquared();
+            }
+            
+            float distanceToLine(const Vec3f& lineAnchor, const Vec3f& lineDir, Vec3f& pointOnLine, float& distanceToClosestPoint) const {
+                float squaredDistance = squaredDistanceToLine(lineAnchor, lineDir, pointOnLine, distanceToClosestPoint);
                 if (isnan(squaredDistance))
                     return squaredDistance;
                 return std::sqrt(squaredDistance);

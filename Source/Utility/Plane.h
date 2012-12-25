@@ -189,6 +189,10 @@ namespace TrenchBroom {
             inline const Plane flipped(Axis::Type axis, const Vec3f& center) const {
                 return Plane(normal.flipped(axis), anchor().flipped(axis, center));
             }
+            
+            inline Vec3f project(const Vec3f& v) const {
+                return v - v.dot(normal) * v.normalized();
+            }
         };
     }
 }

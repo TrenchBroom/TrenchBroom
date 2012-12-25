@@ -44,7 +44,8 @@ namespace TrenchBroom {
     namespace Controller {
         Model::MoveHandleHit* MoveHandle::pickAxis(const Ray& ray, Vec3f& axis, Model::MoveHandleHit::HitArea hitArea) {
             float distance;
-            float missDistance = ray.squaredDistanceToSegment(position() - m_axisLength * axis, position() + m_axisLength * axis, distance);
+            Vec3f pointOnAxis;
+            float missDistance = ray.squaredDistanceToSegment(position() - m_axisLength * axis, position() + m_axisLength * axis, pointOnAxis, distance);
             if (isnan(missDistance) || missDistance > 5.0f)
                 return NULL;
             

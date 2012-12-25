@@ -34,6 +34,7 @@ wxDocument* DocManager::CreateDocument(const wxString& pathOrig, long flags) {
         newProcessor->SetUndoAccelerator(oldProcessor->GetUndoAccelerator());
         newProcessor->SetMenuStrings();
         document->SetCommandProcessor(newProcessor);
+        delete oldProcessor;
         
         if (m_useSDI)
             wxTheApp->SetTopWindow(document->GetDocumentWindow());

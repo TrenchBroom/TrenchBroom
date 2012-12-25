@@ -281,6 +281,7 @@ namespace TrenchBroom {
             return delta2;
         }
 
+        /*
         float Grid::moveDistance(const Model::Face& face, Vec3f& delta) {
             float dist = delta.dot(face.boundary().normal);
             if (Math::zero(dist))
@@ -365,6 +366,7 @@ namespace TrenchBroom {
             
             return actualDist;
         }
+         */
     }
 }
 

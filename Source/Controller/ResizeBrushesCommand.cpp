@@ -29,7 +29,7 @@ namespace TrenchBroom {
             for (faceIt = m_faces.begin(), faceEnd = m_faces.end(); faceIt != faceEnd; ++faceIt) {
                 Model::Face& face = **faceIt;
                 Model::Brush& brush = *face.brush();
-                if (!brush.canMoveBoundary(face, m_distance))
+                if (!brush.canMoveBoundary(face, m_delta))
                     return false;
             }
             
@@ -39,7 +39,7 @@ namespace TrenchBroom {
             for (faceIt = m_faces.begin(), faceEnd = m_faces.end(); faceIt != faceEnd; ++faceIt) {
                 Model::Face& face = **faceIt;
                 Model::Brush& brush = *face.brush();
-                brush.moveBoundary(face, m_distance, m_lockTextures);
+                brush.moveBoundary(face, m_delta, m_lockTextures);
             }
             
             document().brushesDidChange(m_brushes);
@@ -53,14 +53,14 @@ namespace TrenchBroom {
             return true;
         }
 
-        ResizeBrushesCommand::ResizeBrushesCommand(Model::MapDocument& document, const wxString& name, const Model::FaceList& faces, const Model::BrushList& brushes, float distance, bool lockTextures) :
+        ResizeBrushesCommand::ResizeBrushesCommand(Model::MapDocument& document, const wxString& name, const Model::FaceList& faces, const Model::BrushList& brushes, const Vec3f& delta, bool lockTextures) :
         SnapshotCommand(Command::ResizeBrushes, document, name),
         m_faces(faces),
         m_brushes(brushes),
-        m_distance(distance),
+        m_delta(delta),
         m_lockTextures(lockTextures) {}
 
-        ResizeBrushesCommand* ResizeBrushesCommand::resizeBrushes(Model::MapDocument& document, const Model::FaceList& faces, float distance, bool lockTextures) {
+        ResizeBrushesCommand* ResizeBrushesCommand::resizeBrushes(Model::MapDocument& document, const Model::FaceList& faces, const Vec3f& delta, bool lockTextures) {
             Model::BrushSet brushSet;
             Model::BrushList brushList;
             Model::FaceList::const_iterator faceIt, faceEnd;
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             assert(brushSet.size() == brushList.size());
             
             wxString name = brushList.size() == 1 ? wxT("Resize Brush") : wxT("Resize Brushes");
-            return new ResizeBrushesCommand(document, name, faces, brushList, distance, lockTextures);
+            return new ResizeBrushesCommand(document, name, faces, brushList, delta, lockTextures);
         }
     }
 }

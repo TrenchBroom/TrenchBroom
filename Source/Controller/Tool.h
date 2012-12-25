@@ -418,6 +418,11 @@ namespace TrenchBroom {
             Vec3f m_lastPoint;
             Vec3f m_refPoint;
         protected:
+            inline const Plane& dragPlane() const {
+                assert(dragType() == DTDrag);
+                return m_plane;
+            }
+            
             virtual bool handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint) = 0;
             virtual bool handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) = 0;
             virtual void handleEndPlaneDrag(InputState& inputState) = 0;

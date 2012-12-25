@@ -25,6 +25,32 @@
 #include "Model/Picker.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class Brush;
+        
+        namespace HitType {
+            static const Type NearEdgeHit      = 1 << 9;
+        }
+        
+        class NearEdgeHit : public Hit {
+        private:
+            Face& m_dragFace;
+            Face& m_referenceFace;
+        public:
+            NearEdgeHit(const Vec3f& hitPoint, float distance, Face& dragFace, Face& referenceFace);
+
+            bool pickable(Filter& filter) const;
+
+            inline Face& dragFace() const {
+                return m_dragFace;
+            }
+            
+            inline Face& referenceFace() const {
+                return m_referenceFace;
+            }
+        };
+    }
+
     namespace Controller {
         class ResizeBrushesFilter : public Model::Filter {
         protected:
@@ -58,6 +84,9 @@ namespace TrenchBroom {
         protected:
             ResizeBrushesFilter m_filter;
             Model::FaceList m_faces;
+            Vec3f m_totalDelta;
+            
+            Model::FaceList dragFaces(Model::Face& dragFace);
             
             bool handleIsModal(InputState& inputState);
 

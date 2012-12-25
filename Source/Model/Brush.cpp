@@ -246,12 +246,12 @@ namespace TrenchBroom {
                 m_entity->invalidateGeometry();
         }
 
-        bool Brush::canMoveBoundary(const Face& face, float dist) {
+        bool Brush::canMoveBoundary(const Face& face, const Vec3f& delta) {
             FaceList droppedFaces;
             BrushGeometry testGeometry(m_worldBounds);
 
             Face testFace(face);
-            testFace.move(dist, false);
+            testFace.translate(delta, false);
             
             FaceList::const_iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
@@ -266,10 +266,10 @@ namespace TrenchBroom {
             return result == BrushGeometry::Split;
         }
         
-        void Brush::moveBoundary(Face& face, float dist, bool lockTexture) {
-            assert(canMoveBoundary(face, dist));
+        void Brush::moveBoundary(Face& face, const Vec3f& delta, bool lockTexture) {
+            assert(canMoveBoundary(face, delta));
 
-            face.move(dist, lockTexture);
+            face.translate(delta, lockTexture);
             delete m_geometry;
             m_geometry = new BrushGeometry(m_worldBounds);
 
@@ -458,7 +458,7 @@ namespace TrenchBroom {
             
             if (!Math::isnan(dist)) {
                 Vec3f hitPoint = ray.pointAtDistance(dist);
-                FaceHit* hit = FaceHit::faceHit(*side->face, hitPoint, dist);
+                FaceHit* hit = new FaceHit(*side->face, hitPoint, dist);
                 pickResults.add(hit);
             }
         }

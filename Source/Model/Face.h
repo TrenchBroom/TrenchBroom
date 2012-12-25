@@ -377,14 +377,6 @@ namespace TrenchBroom {
             }
             
             /**
-             * Moves this face along its normal by the given distance.
-             *
-             * @param dist the distance by which to move the face
-             * @param lockTexture specifies whether texture lock is enabled
-             */
-            void move(float dist, bool lockTexture);
-            
-            /**
              * Translates this face by the given delta vector.
              */
             void translate(const Vec3f& delta, bool lockTexture);

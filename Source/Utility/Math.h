@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_Math_h
 #define TrenchBroom_Math_h
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <limits>
@@ -96,6 +97,14 @@ namespace TrenchBroom {
             if (lt(s, e))
                 return gt(f, s) && lt(f, e);
             return gt(f, e) && lt(f, s);
+        }
+        
+        inline float selectMin(float f1, float f2) {
+            if (isnan(f1))
+                return f2;
+            if (isnan(f2))
+                return f1;
+            return std::min(f1, f2);
         }
         
         inline size_t succ(size_t index, size_t count, size_t offset = 1) {

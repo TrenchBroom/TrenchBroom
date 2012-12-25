@@ -29,6 +29,8 @@ namespace TrenchBroom {
         }
         
         bool AbstractFileManager::exists(const String& path) {
+            if (isDirectory(path))
+                return true;
             return wxFileExists(path);
         }
         

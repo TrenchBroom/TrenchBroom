@@ -100,26 +100,19 @@ namespace TrenchBroom {
             if (m_sharedContext != NULL && m_glCanvas != NULL)
                 m_sharedContext->SetCurrent(*m_glCanvas);
             
-            if (m_stringManager != NULL) {
-                delete m_stringManager;
-                m_stringManager = NULL;
-            }
-            if (m_shaderManager != NULL) {
-                delete m_shaderManager;
-                m_shaderManager = NULL;
-            }
-            if (m_textureRendererManager != NULL) {
-                delete m_textureRendererManager;
-                m_textureRendererManager = NULL;
-            }
-            if (m_modelRendererManager != NULL) {
-                delete m_modelRendererManager;
-                m_modelRendererManager = NULL;
-            }
-            if (m_sharedContext != NULL) {
-                wxDELETE(m_sharedContext);
-                m_sharedContext = NULL;
-            }
+            delete m_attribs;
+            m_attribs = NULL;
+            delete m_stringManager;
+            m_stringManager = NULL;
+            delete m_shaderManager;
+            m_shaderManager = NULL;
+            delete m_textureRendererManager;
+            m_textureRendererManager = NULL;
+            delete m_modelRendererManager;
+            m_modelRendererManager = NULL;
+			delete m_palette;
+			m_palette = NULL;
+            wxDELETE(m_sharedContext);
         }
         
         void SharedResources::loadPalette(const String& palettePath) {
