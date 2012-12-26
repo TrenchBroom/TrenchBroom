@@ -28,7 +28,7 @@ public:
     wxSpinCtrlDouble(parent, id) {}
     
     void SetHint(const wxString& hint) {
-        m_textCtrl->SetHint(hint);
+        GetText()->SetHint(hint);
     }
 };
 
