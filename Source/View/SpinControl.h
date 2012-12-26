@@ -28,7 +28,9 @@ public:
     wxSpinCtrlDouble(parent, id) {}
     
     void SetHint(const wxString& hint) {
+#if not defined __linux__
         GetText()->SetHint(hint);
+#endif
     }
 };
 
