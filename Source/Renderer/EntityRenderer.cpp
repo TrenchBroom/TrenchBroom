@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -36,10 +36,10 @@ namespace TrenchBroom {
         void EntityRenderer::writeColoredBounds(RenderContext& context, const Model::EntityList& entities) {
             if (entities.empty())
                 return;
-            
+
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             Vec3f::List vertices(24);
-            
+
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
                 const BBox& bounds = entity->bounds();
@@ -51,7 +51,7 @@ namespace TrenchBroom {
                 } else {
                     entityColor = prefs.getColor(Preferences::EntityBoundsColor);
                 }
-                
+
                 bounds.vertices(vertices);
                 for (unsigned int j = 0; j < vertices.size(); j++) {
                     m_boundsVertexArray->addAttribute(vertices[j]);
@@ -59,17 +59,17 @@ namespace TrenchBroom {
                 }
             }
         }
-        
+
         void EntityRenderer::writeBounds(RenderContext& context, const Model::EntityList& entities) {
             if (entities.empty())
                 return;
-            
+
             Vec3f::List vertices(24);
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
                 const BBox& bounds = entity->bounds();
                 bounds.vertices(vertices);
-                
+
                 for (unsigned int j = 0; j < vertices.size(); j++)
                     m_boundsVertexArray->addAttribute(vertices[j]);
             }
@@ -78,7 +78,7 @@ namespace TrenchBroom {
         void EntityRenderer::validateBounds(RenderContext& context) {
             delete m_boundsVertexArray;
             m_boundsVertexArray = NULL;
-            
+
             Model::EntityList entities;
             Model::EntitySet::iterator entityIt, entityEnd;
             for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
@@ -86,12 +86,12 @@ namespace TrenchBroom {
                 if (context.filter().entityVisible(*entity))
                     entities.push_back(entity);
             }
-            
+
             if (entities.empty())
                 return;
-            
+
             SetVboState mapVbo(m_boundsVbo, Vbo::VboMapped);
-            
+
             if (m_overrideBoundsColor) {
                 unsigned int vertexCount = 2 * 4 * 6 * static_cast<unsigned int>(entities.size());
                 m_boundsVertexArray = new VertexArray(m_boundsVbo, GL_LINES, vertexCount,
@@ -104,13 +104,13 @@ namespace TrenchBroom {
                                                       Attribute::color4f());
                 writeColoredBounds(context, entities);
             }
-            
+
             m_boundsValid = true;
         }
-        
+
         void EntityRenderer::validateModels(RenderContext& context) {
             m_modelRenderers.clear();
-            
+
             EntityModelRendererManager& modelRendererManager = m_document.sharedResources().modelRendererManager();
             Model::EntitySet::iterator entityIt, entityEnd;
             for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
@@ -119,14 +119,14 @@ namespace TrenchBroom {
                 if (renderer != NULL)
                     m_modelRenderers[entity] = CachedEntityModelRenderer(renderer, *entity->classname());
             }
-            
+
             m_modelRendererCacheValid = true;
         }
 
         void EntityRenderer::renderBounds(RenderContext& context) {
             if (m_boundsVertexArray == NULL)
                 return;
-            
+
             ShaderManager& shaderManager = m_document.sharedResources().shaderManager();
 
             m_boundsVbo.activate();
@@ -152,15 +152,15 @@ namespace TrenchBroom {
             }
             m_boundsVbo.deactivate();
         }
-        
+
         void EntityRenderer::renderClassnames(RenderContext& context) {
             if (m_classnameRenderer->empty())
                 return;
-            
+
             ShaderManager& shaderManager = m_document.sharedResources().shaderManager();
             ShaderProgram& textProgram = shaderManager.shaderProgram(Shaders::TextShader);
             ShaderProgram& textBackgroundProgram = shaderManager.shaderProgram(Shaders::TextBackgroundShader);
-            
+
             EntityClassnameFilter classnameFilter;
             if (m_renderOccludedClassnames) {
                 glDisable(GL_DEPTH_TEST);
@@ -169,30 +169,30 @@ namespace TrenchBroom {
                                             m_occludedClassnameBackgroundColor);
                 glEnable(GL_DEPTH_TEST);
             }
-            
+
             m_classnameRenderer->render(context, classnameFilter, textProgram,
                                         m_classnameColor, textBackgroundProgram,
                                         m_classnameBackgroundColor);
-            
+
         }
 
         void EntityRenderer::renderModels(RenderContext& context) {
             if (m_modelRenderers.empty())
                 return;
-            
+
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             EntityModelRendererManager& modelRendererManager = m_document.sharedResources().modelRendererManager();
-            
+
             ShaderManager& shaderManager = m_document.sharedResources().shaderManager();
             ShaderProgram& entityModelProgram = shaderManager.shaderProgram(Shaders::EntityModelShader);
-            
+
             if (entityModelProgram.activate()) {
                 modelRendererManager.activate();
                 entityModelProgram.setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
                 entityModelProgram.setUniformVariable("ApplyTinting", m_applyTinting);
                 entityModelProgram.setUniformVariable("TintColor", m_tintColor);
                 entityModelProgram.setUniformVariable("GrayScale", m_grayscale);
-                
+
                 EntityModelRenderers::iterator it, end;
                 for (it = m_modelRenderers.begin(), end = m_modelRenderers.end(); it != end; ++it) {
                     Model::Entity* entity = it->first;
@@ -201,7 +201,7 @@ namespace TrenchBroom {
                         renderer->render(entityModelProgram, context.transformation(), *entity);
                     }
                 }
-                
+
                 modelRendererManager.deactivate();
                 entityModelProgram.deactivate();
             }
@@ -211,8 +211,9 @@ namespace TrenchBroom {
         m_boundsVbo(boundsVbo),
         m_document(document),
         m_boundsVertexArray(NULL),
-        m_modelRendererCacheValid(true),
         m_boundsValid(true),
+        m_modelRendererCacheValid(true),
+        m_classnameRenderer(NULL),
         m_classnameColor(1.0f, 1.0f, 1.0f, 1.0f),
         m_classnameBackgroundColor(0.0f, 0.0f, 0.0f, 0.6f),
         m_renderOccludedClassnames(false),
@@ -223,7 +224,7 @@ namespace TrenchBroom {
             Text::StringManager& stringManager = m_document.sharedResources().stringManager();
             m_classnameRenderer = new EntityClassnameRenderer(stringManager);
         }
-        
+
         EntityRenderer::~EntityRenderer() {
             delete m_boundsVertexArray;
             m_boundsVertexArray = NULL;
@@ -238,49 +239,49 @@ namespace TrenchBroom {
         void EntityRenderer::addEntity(Model::Entity& entity) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             EntityModelRendererManager& modelRendererManager = m_document.sharedResources().modelRendererManager();
-            
+
             const String& fontName = prefs.getString(Preferences::RendererFontName);
             int fontSize = prefs.getInt(Preferences::RendererFontSize);
-            
+
             assert(fontSize > 0);
             Text::FontDescriptor fontDescriptor(fontName, static_cast<unsigned int>(fontSize));
-            
+
             const Model::PropertyValue& classname = *entity.classname();
             EntityModelRenderer* renderer = modelRendererManager.modelRenderer(entity, m_document.mods());
             if (renderer != NULL)
                 m_modelRenderers[&entity] = CachedEntityModelRenderer(renderer, classname);
-            
+
             EntityClassnameAnchor* anchor = new EntityClassnameAnchor(entity);
             m_classnameRenderer->addString(&entity, fontDescriptor, classname, anchor);
-            
+
             m_entities.insert(&entity);
             m_boundsValid = false;
         }
-        
+
         void EntityRenderer::addEntities(const Model::EntityList& entities) {
             if (entities.empty())
                 return;
-            
+
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             EntityModelRendererManager& modelRendererManager = m_document.sharedResources().modelRendererManager();
-            
+
             const String& fontName = prefs.getString(Preferences::RendererFontName);
             int fontSize = prefs.getInt(Preferences::RendererFontSize);
-            
+
             assert(fontSize > 0);
             Text::FontDescriptor fontDescriptor(fontName, static_cast<unsigned int>(fontSize));
-            
+
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
                 const Model::PropertyValue& classname = *entity->classname();
                 EntityModelRenderer* renderer = modelRendererManager.modelRenderer(*entity, m_document.mods());
                 if (renderer != NULL)
                     m_modelRenderers[entity] = CachedEntityModelRenderer(renderer, classname);
-                
+
                 EntityClassnameAnchor* anchor = new EntityClassnameAnchor(*entity);
                 m_classnameRenderer->addString(entity, fontDescriptor, classname, anchor);
             }
-            
+
             m_entities.insert(entities.begin(), entities.end());
             m_boundsValid = false;
         }
@@ -288,7 +289,7 @@ namespace TrenchBroom {
         void EntityRenderer::invalidateBounds() {
             m_boundsValid = false;
         }
-        
+
         void EntityRenderer::invalidateModels() {
             m_modelRendererCacheValid = false;
         }
@@ -307,11 +308,11 @@ namespace TrenchBroom {
             m_entities.erase(&entity);
             m_boundsValid = false;
         }
-        
+
         void EntityRenderer::removeEntities(const Model::EntityList& entities) {
             if (entities.empty())
                 return;
-            
+
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
                 m_modelRenderers.erase(entity);
@@ -320,13 +321,13 @@ namespace TrenchBroom {
             }
             m_boundsValid = false;
         }
-        
+
         void EntityRenderer::render(RenderContext& context) {
             if (!m_boundsValid)
                 validateBounds(context);
             if (!m_modelRendererCacheValid)
                 validateModels(context);
-            
+
             if (context.viewOptions().showEntityModels())
                 renderModels(context);
             if (context.viewOptions().showEntityBounds())

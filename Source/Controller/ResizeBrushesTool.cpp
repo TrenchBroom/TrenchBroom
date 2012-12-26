@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -38,17 +38,17 @@ namespace TrenchBroom {
         Hit(HitType::NearEdgeHit, hitPoint, distance),
         m_dragFace(dragFace),
         m_referenceFace(referenceFace) {}
-        
+
         bool NearEdgeHit::pickable(Filter& filter) const {
             return true;
         }
     }
-    
+
     namespace Controller {
         Model::FaceList ResizeBrushesTool::dragFaces(Model::Face& dragFace) {
             Model::FaceList result;
             result.push_back(&dragFace);
-            
+
             Model::EditStateManager& editStateManager = document().editStateManager();
             const Model::BrushList& selectedBrushes = editStateManager.selectedBrushes();
             Model::BrushList::const_iterator brushIt, brushEnd;
@@ -62,7 +62,7 @@ namespace TrenchBroom {
                         result.push_back(&face);
                 }
             }
-            
+
             return result;
         }
 
@@ -73,17 +73,17 @@ namespace TrenchBroom {
         void ResizeBrushesTool::handlePick(InputState& inputState) {
             if (inputState.modifierKeys() != ModifierKeys::MKShift)
                 return;
-            
+
             float closestEdgeDist = std::numeric_limits<float>::max();
             const Model::Edge* closestEdge = NULL;
             Model::Face* dragFace = NULL;
             Model::Face* otherFace = NULL;
             Vec3f hitPoint;
             float hitDistance = 0.0f;
-            
+
             Model::EditStateManager& editStateManager = document().editStateManager();
             const Model::BrushList& selectedBrushes = editStateManager.selectedBrushes();
-            
+
             Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, m_filter));
             if (faceHit != NULL) {
                 const Model::Face& face = faceHit->face();
@@ -92,7 +92,7 @@ namespace TrenchBroom {
                 Model::EdgeList::const_iterator edgeIt, edgeEnd;
                 for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
                     const Model::Edge* edge = *edgeIt;
-                    
+
                     Vec3f pointOnSegment;
                     float distanceToClosestPointOnRay;
                     float distanceBetweenRayAndEdge = inputState.pickRay().distanceToSegment(edge->start->position,
@@ -121,10 +121,10 @@ namespace TrenchBroom {
                     Model::EdgeList::const_iterator edgeIt, edgeEnd;
                     for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
                         const Model::Edge* edge = *edgeIt;
-                        
+
                         float leftDot = edge->left->face->boundary().normal.dot(inputState.pickRay().direction);
                         float rightDot = edge->right->face->boundary().normal.dot(inputState.pickRay().direction);
-                        if (leftDot > 0.0f != rightDot > 0.0f) {
+                        if ((leftDot > 0.0f) != (rightDot > 0.0f)) {
                             Vec3f pointOnSegment;
                             float distanceToClosestPointOnRay;
                             float distanceBetweenRayAndEdge = inputState.pickRay().distanceToSegment(edge->start->position,
@@ -148,20 +148,20 @@ namespace TrenchBroom {
                     }
                 }
             }
-            
+
             if (closestEdge != NULL) {
                 assert(dragFace != NULL);
                 assert(otherFace != NULL);
                 inputState.pickResult().add(new Model::NearEdgeHit(hitPoint, hitDistance, *dragFace, *otherFace));
             }
         }
-        
+
         void ResizeBrushesTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
             Model::FaceList faces;
             if (dragType() != DTDrag) {
                 if (inputState.modifierKeys() != ModifierKeys::MKShift)
                     return;
-                
+
                 Model::NearEdgeHit* hit = static_cast<Model::NearEdgeHit*>(inputState.pickResult().first(Model::HitType::NearEdgeHit, true, m_filter));
                 if (DTDrag && hit == NULL)
                     return;
@@ -170,7 +170,7 @@ namespace TrenchBroom {
             } else {
                 faces = m_faces;
             }
-            
+
             Model::FaceList::const_iterator faceIt, faceEnd;
 
             unsigned int vertexCount = 0;
@@ -195,7 +195,7 @@ namespace TrenchBroom {
             }
 
             Renderer::glSetEdgeOffset(0.3f);
-            
+
             Renderer::SetVboState activateVbo(vbo, Renderer::Vbo::VboActive);
             Renderer::ActivateShader shader(renderContext.shaderManager(), Renderer::Shaders::EdgeShader);
 
@@ -203,21 +203,21 @@ namespace TrenchBroom {
             shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedResizeBrushFaceColor));
             edgeArray.render();
             glEnable(GL_DEPTH_TEST);
-            
+
             shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ResizeBrushFaceColor));
             edgeArray.render();
-            
+
             Renderer::glResetEdgeOffset();
         }
-        
+
         bool ResizeBrushesTool::handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint) {
             if (inputState.modifierKeys() != ModifierKeys::MKShift)
                 return false;
-            
+
             Model::NearEdgeHit* hit = static_cast<Model::NearEdgeHit*>(inputState.pickResult().first(Model::HitType::NearEdgeHit, true, m_filter));
             if (hit == NULL)
                 return false;
-            
+
             Model::Face& dragFace = hit->dragFace();
 
             const Vec3f& dragNormal = dragFace.boundary().normal;
@@ -232,27 +232,27 @@ namespace TrenchBroom {
             m_faces = dragFaces(dragFace);
             initialPoint = hit->hitPoint();
             m_totalDelta = Vec3f::Null;
-            
+
             beginCommandGroup(wxT("Resize Brush"));
             return true;
         }
-        
+
         bool ResizeBrushesTool::handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) {
             assert(!m_faces.empty());
-            
+
             const Vec3f planeDelta = curPoint - refPoint;
             if (planeDelta.null())
                 return true;
-            
+
             Utility::Grid& grid = document().grid();
             Model::Face& dragFace = *m_faces.front();
             const Vec3f& faceAxis = dragFace.boundary().normal.firstAxis();
             const float faceDist = planeDelta.dot(faceAxis);
             const Vec3f faceDelta = grid.snap(faceDist * faceAxis);
-            
+
             if (faceDelta.null())
                 return true;
-            
+
             ResizeBrushesCommand* command = ResizeBrushesCommand::resizeBrushes(document(), m_faces, faceDelta, document().textureLock());
             if (submitCommand(command)) {
                 const Vec3f planeDir = planeDelta.normalized();
@@ -262,7 +262,7 @@ namespace TrenchBroom {
             }
             return true;
         }
-        
+
         void ResizeBrushesTool::handleEndPlaneDrag(InputState& inputState) {
             if (m_totalDelta.null())
                 rollbackCommandGroup();
@@ -270,7 +270,7 @@ namespace TrenchBroom {
                 endCommandGroup();
             m_faces.clear();
         }
-        
+
         ResizeBrushesTool::ResizeBrushesTool(View::DocumentViewHolder& documentViewHolder) :
         PlaneDragTool(documentViewHolder, false),
         m_filter(ResizeBrushesFilter(view().filter())) {}

@@ -31,8 +31,8 @@ IMPLEMENT_APP(TrenchBroomApp)
 BEGIN_EVENT_TABLE(TrenchBroomApp, AbstractApp)
 END_EVENT_TABLE()
 
-wxMenu* TrenchBroomApp::CreateViewMenu() {
-	wxMenu* viewMenu = AbstractApp::CreateViewMenu();
+wxMenu* TrenchBroomApp::CreateViewMenu(wxEvtHandler* eventHandler) {
+	wxMenu* viewMenu = AbstractApp::CreateViewMenu(eventHandler);
 	viewMenu->AppendSeparator();
     viewMenu->Append(wxID_PREFERENCES, wxT("Preferences..."));
 	return viewMenu;

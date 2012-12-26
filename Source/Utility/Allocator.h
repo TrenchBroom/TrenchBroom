@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,6 +21,7 @@
 #define TrenchBroom_Allocator_h
 
 #include <cassert>
+#include <iostream>
 #include <limits>
 #include <stack>
 #include <vector>
@@ -42,7 +43,7 @@ namespace TrenchBroom {
                     for (unsigned int i = 0; i < 255; i++)
                         m_blocks[i * sizeof(T)] = static_cast<unsigned char>(i + 1);
                 }
-                
+
                 inline bool contains(const T* t) const {
                     const unsigned char* block = reinterpret_cast<const unsigned char*>(t);
                     if (block < m_blocks)
@@ -50,17 +51,17 @@ namespace TrenchBroom {
                     size_t offset = static_cast<size_t>(block - m_blocks);
                     return offset < 255 * sizeof(T);
                 }
-                
+
                 inline T* allocate() {
                     if (m_numFreeBlocks == 0)
                         return NULL;
-                    
+
                     unsigned char* block = m_blocks + m_firstFreeBlock * sizeof(T);
                     m_firstFreeBlock = *block;
                     m_numFreeBlocks--;
                     return reinterpret_cast<T*>(block);
                 };
-                
+
                 inline void deallocate(T* t) {
                     assert(m_numFreeBlocks < 255);
                     assert(contains(t));
@@ -77,34 +78,34 @@ namespace TrenchBroom {
                     m_firstFreeBlock = static_cast<unsigned char>(index);
                     m_numFreeBlocks++;
                 }
-                
+
                 inline bool empty() const {
                     return m_numFreeBlocks == 255;
                 }
-                
+
                 inline bool full() const {
                     return m_numFreeBlocks == 0;
                 }
             };
-            
+
             typedef std::vector<Chunk*> ChunkList;
             typedef std::stack<T*> Pool;
-            
+
             static inline Pool& pool() {
                 static Pool p;
                 return p;
             }
-            
+
             static inline ChunkList& fullChunks() {
                 static ChunkList chunks;
                 return chunks;
             }
-            
+
             static inline ChunkList& mixedChunks() {
                 static ChunkList chunks;
                 return chunks;
             }
-            
+
             static inline ChunkList emptyChunks() {
                 static ChunkList chunks;
                 return chunks;
@@ -112,13 +113,13 @@ namespace TrenchBroom {
         public:
             inline void* operator new(size_t size) {
                 assert(size == sizeof(T));
-                
+
                 if (!pool().empty()) {
                     T* t = pool().top();
                     pool().pop();
                     return t;
                 }
-                
+
                 Chunk* chunk = NULL;
                 if (mixedChunks().empty()) {
                     if (!emptyChunks().empty()) {
@@ -131,32 +132,32 @@ namespace TrenchBroom {
                     chunk = mixedChunks().back();
                     mixedChunks().pop_back();
                 }
-                
+
                 assert(!chunk->full());
                 T* block = chunk->allocate();
-                
+
                 if (chunk->full())
                     fullChunks().push_back(chunk);
                 else
                     mixedChunks().push_back(chunk);
                 return block;
             }
-            
+
             inline void operator delete(void* block) {
                 T* t = reinterpret_cast<T*>(block);
-                
+
                 unsigned int poolSize = PoolSize;
                 if (poolSize > 0 && pool().size() < poolSize) {
                     pool().push(t);
                     return;
                 }
-                
+
                 typename ChunkList::reverse_iterator fullIt, fullEnd, mixedIt, mixedEnd;
                 fullIt = fullChunks().rbegin();
                 fullEnd = fullChunks().rend();
                 mixedIt = mixedChunks().rbegin();
                 mixedEnd = mixedChunks().rend();
-                
+
                 Chunk* chunk = NULL;
                 while (fullIt < fullEnd || mixedIt < mixedEnd) {
                     if (fullIt < fullEnd) {
@@ -176,16 +177,16 @@ namespace TrenchBroom {
                         ++mixedIt;
                     }
                 }
-                
+
                 assert(chunk != NULL);
-                
+
                 if (chunk->full()) {
                     fullChunks().erase((fullIt + 1).base());
                     mixedChunks().push_back(chunk);
                 }
-                
+
                 chunk->deallocate(t);
-                
+
                 if (chunk->empty()) {
                     mixedChunks().erase((mixedIt + 1).base());
                     if (emptyChunks().size() < 2)
