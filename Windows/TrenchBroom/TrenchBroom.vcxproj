@@ -512,9 +512,9 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\View\TextureSelectedCommand.h" />
     <ClInclude Include="..\..\Source\View\ViewInspector.h" />
     <ClInclude Include="..\..\Source\View\ViewOptions.h" />
+    <ClInclude Include="..\..\Source\View\WxScreenDC.h" />
     <ClInclude Include="TrenchBroomApp.h" />
     <ClInclude Include="WinFileManager.h" />
-    <ClInclude Include="WinScreenDC.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

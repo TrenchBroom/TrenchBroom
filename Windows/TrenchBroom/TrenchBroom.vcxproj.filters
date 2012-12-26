@@ -461,9 +461,6 @@
     <ClInclude Include="..\..\Source\Renderer\Shader\ShaderProgram.h">
       <Filter>Header Files\Renderer\Shader</Filter>
     </ClInclude>
-    <ClInclude Include="WinScreenDC.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Controller\AddObjectsCommand.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
@@ -970,6 +967,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\Autosaver.h">
       <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\WxScreenDC.h">
+      <Filter>Header Files\View</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

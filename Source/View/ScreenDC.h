@@ -20,13 +20,12 @@
 #ifndef TrenchBroom_ScreenDC_h
 #define TrenchBroom_ScreenDC_h
 
-#if defined _WIN32
-#include <WinScreenDC.h>
-typedef WinScreenDC ScreenDC;
-#elif defined __APPLE__
+#if defined __APPLE__
 #include "MacScreenDC.h"
 typedef MacScreenDC ScreenDC;
 #else
+#include <View/WxScreenDC.h>
+typedef WxScreenDC ScreenDC;
 #endif
 
 
