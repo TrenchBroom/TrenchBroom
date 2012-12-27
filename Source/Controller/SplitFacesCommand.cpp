@@ -26,18 +26,14 @@
 namespace TrenchBroom {
     namespace Controller {
         bool SplitFacesCommand::performDo() {
-            m_vertices.clear();
-            Model::FaceList::const_iterator fIt, fEnd;
-            for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
-                Model::Face* face = *fIt;
-                Model::Brush* brush = face->brush();
-                if (!brush->canSplitFace(face, m_delta))
-                    return false;
-            }
+            if (!canDo())
+                return false;
             
+            m_vertices.clear();
             makeSnapshots(m_brushes);
             document().brushesWillChange(m_brushes);
 
+            Model::FaceList::const_iterator fIt, fEnd;
             for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
                 Model::Face* face = *fIt;
                 Model::Brush* brush = face->brush();
@@ -71,6 +67,17 @@ namespace TrenchBroom {
 
         SplitFacesCommand* SplitFacesCommand::splitFaces(Model::MapDocument& document, const Model::FaceList& faces, const Vec3f& delta) {
             return new SplitFacesCommand(document, faces.size() == 1 ? wxT("Split Face") : wxT("Split Faces"), faces, delta);
+        }
+
+        bool SplitFacesCommand::canDo() const {
+            Model::FaceList::const_iterator fIt, fEnd;
+            for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
+                Model::Face* face = *fIt;
+                Model::Brush* brush = face->brush();
+                if (!brush->canSplitFace(face, m_delta))
+                    return false;
+            }
+            return true;
         }
     }
 }

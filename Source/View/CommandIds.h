@@ -85,6 +85,12 @@ namespace TrenchBroom {
                 static const int ViewMoveCameraRight                = Lowest + 57;
                 static const int ViewMoveCameraUp                   = Lowest + 58;
                 static const int ViewMoveCameraDown                 = Lowest + 59;
+                static const int EditMoveVerticesForward            = Lowest + 60;
+                static const int EditMoveVerticesBackward           = Lowest + 61;
+                static const int EditMoveVerticesLeft               = Lowest + 62;
+                static const int EditMoveVerticesRight              = Lowest + 63;
+                static const int EditMoveVerticesUp                 = Lowest + 64;
+                static const int EditMoveVerticesDown               = Lowest + 65;
                 static const int Highest                            = Lowest + 99;
             }
 

@@ -25,17 +25,13 @@
 namespace TrenchBroom {
     namespace Controller {
         bool MoveFacesCommand::performDo() {
-            BrushFacesMap::const_iterator it, end;
-            for (it = m_brushFaces.begin(), end = m_brushFaces.end(); it != end; ++it) {
-                Model::Brush* brush = it->first;
-                const Model::FaceList& faces = it->second;
-                if (!brush->canMoveFaces(faces, m_delta))
-                    return false;
-            }
+            if (!canDo())
+                return false;
             
             makeSnapshots(m_brushes);
             document().brushesWillChange(m_brushes);
             
+            BrushFacesMap::const_iterator it, end;
             for (it = m_brushFaces.begin(), end = m_brushFaces.end(); it != end; ++it) {
                 Model::Brush* brush = it->first;
                 const Model::FaceList& faces = it->second;
@@ -80,6 +76,17 @@ namespace TrenchBroom {
 
         MoveFacesCommand* MoveFacesCommand::moveFaces(Model::MapDocument& document, const Model::VertexToFacesMap& brushFaces, const Vec3f& delta) {
             return new MoveFacesCommand(document, brushFaces.size() == 1 ? wxT("Move Face") : wxT("Move Faces"), brushFaces, delta);
+        }
+
+        bool MoveFacesCommand::canDo() const {
+            BrushFacesMap::const_iterator it, end;
+            for (it = m_brushFaces.begin(), end = m_brushFaces.end(); it != end; ++it) {
+                Model::Brush* brush = it->first;
+                const Model::FaceList& faces = it->second;
+                if (!brush->canMoveFaces(faces, m_delta))
+                    return false;
+            }
+            return true;
         }
     }
 }

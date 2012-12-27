@@ -45,6 +45,8 @@ namespace TrenchBroom {
         public:
             static SplitFacesCommand* splitFaces(Model::MapDocument& document, const Model::FaceList& faces, const Vec3f& delta);
             
+            bool canDo() const;
+            
             inline const Model::BrushList& brushes() const {
                 return m_brushes;
             }

@@ -49,6 +49,8 @@ namespace TrenchBroom {
         public:
             static MoveEdgesCommand* moveEdges(Model::MapDocument& document, const Model::VertexToEdgesMap& brushEdges, const Vec3f& delta);
             
+            bool canDo() const;
+            
             inline const Model::BrushList& brushes() const {
                 return m_brushes;
             }

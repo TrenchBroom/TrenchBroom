@@ -25,17 +25,13 @@
 namespace TrenchBroom {
     namespace Controller {
         bool MoveEdgesCommand::performDo() {
-            BrushEdgesMap::const_iterator it, end;
-            for (it = m_brushEdges.begin(), end = m_brushEdges.end(); it != end; ++it) {
-                Model::Brush* brush = it->first;
-                const Model::EdgeList& edges = it->second;
-                if (!brush->canMoveEdges(edges, m_delta))
-                    return false;
-            }
+            if (!canDo())
+                return false;
             
             makeSnapshots(m_brushes);
             document().brushesWillChange(m_brushes);
             
+            BrushEdgesMap::const_iterator it, end;
             for (it = m_brushEdges.begin(), end = m_brushEdges.end(); it != end; ++it) {
                 Model::Brush* brush = it->first;
                 const Model::EdgeList& edges = it->second;
@@ -78,6 +74,17 @@ namespace TrenchBroom {
 
         MoveEdgesCommand* MoveEdgesCommand::moveEdges(Model::MapDocument& document, const Model::VertexToEdgesMap& brushEdges, const Vec3f& delta) {
             return new MoveEdgesCommand(document, brushEdges.size() == 1 ? wxT("Move Edge") : wxT("Move Edges"), brushEdges, delta);
+        }
+
+        bool MoveEdgesCommand::canDo() const {
+            BrushEdgesMap::const_iterator it, end;
+            for (it = m_brushEdges.begin(), end = m_brushEdges.end(); it != end; ++it) {
+                Model::Brush* brush = it->first;
+                const Model::EdgeList& edges = it->second;
+                if (!brush->canMoveEdges(edges, m_delta))
+                    return false;
+            }
+            return true;
         }
     }
 }

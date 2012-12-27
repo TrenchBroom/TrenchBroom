@@ -27,18 +27,14 @@
 namespace TrenchBroom {
     namespace Controller {
         bool MoveVerticesCommand::performDo() {
-            BrushVerticesMap::const_iterator it, end;
-            for (it = m_brushVertices.begin(), end = m_brushVertices.end(); it != end; ++it) {
-                Model::Brush* brush = it->first;
-                const Vec3f::List& vertices = it->second;
-                if (!brush->canMoveVertices(vertices, m_delta))
-                    return false;
-            }
+            if (!canDo())
+                return false;
             
             m_vertices.clear();
             makeSnapshots(m_brushes);
             document().brushesWillChange(m_brushes);
 
+            BrushVerticesMap::const_iterator it, end;
             for (it = m_brushVertices.begin(), end = m_brushVertices.end(); it != end; ++it) {
                 Model::Brush* brush = it->first;
                 const Vec3f::List& oldVertexPositions = it->second;
@@ -88,6 +84,17 @@ namespace TrenchBroom {
 
         MoveVerticesCommand* MoveVerticesCommand::moveVertices(Model::MapDocument& document, const Model::VertexToBrushesMap& brushVertices, const Vec3f& delta) {
             return new MoveVerticesCommand(document, brushVertices.size() == 1 ? wxT("Move Vertex") : wxT("Move Vertices"), brushVertices, delta);
+        }
+
+        bool MoveVerticesCommand::canDo() const {
+            BrushVerticesMap::const_iterator it, end;
+            for (it = m_brushVertices.begin(), end = m_brushVertices.end(); it != end; ++it) {
+                Model::Brush* brush = it->first;
+                const Vec3f::List& vertices = it->second;
+                if (!brush->canMoveVertices(vertices, m_delta))
+                    return false;
+            }
+            return true;
         }
     }
 }

@@ -279,7 +279,58 @@ namespace TrenchBroom {
             delta = grid.snap(delta);
             if (delta.null())
                 return true;
+
+            if (!moveVertices(delta))
+                return false;
             
+            m_moveHandle.setPosition(m_moveHandle.position() + delta);
+            refPoint += delta;
+            return true;
+        }
+        
+        void MoveVerticesTool::handleEndPlaneDrag(InputState& inputState) {
+            endCommandGroup();
+            m_moveHandle.unlock();
+            updateMoveHandle(inputState);
+        }
+
+        void MoveVerticesTool::handleObjectsChange(InputState& inputState) {
+            if (active() && !m_ignoreObjectChanges) {
+                m_handleManager.clear();
+                m_handleManager.add(document().editStateManager().selectedBrushes());
+                updateMoveHandle(inputState);
+            }
+        }
+        
+        void MoveVerticesTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
+            if (active()) {
+                if (document().editStateManager().selectedBrushes().empty()) {
+                    m_handleManager.clear();
+                } else {
+                    m_handleManager.remove(changeSet.brushesFrom(Model::EditState::Selected));
+                    m_handleManager.add(changeSet.brushesTo(Model::EditState::Selected));
+                }
+            }
+        }
+
+        void MoveVerticesTool::handleCameraChange(InputState& inputState) {
+            if (active())
+                updateMoveHandle(inputState);
+        }
+
+        MoveVerticesTool::MoveVerticesTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float planeRadius, float vertexSize) :
+        PlaneDragTool(documentViewHolder, true),
+        m_moveHandle(axisLength, planeRadius),
+        m_mode(VMMove),
+        m_ignoreObjectChanges(false) {}
+
+        bool MoveVerticesTool::hasSelection() {
+            return !m_handleManager.selectedVertexHandles().empty() || !m_handleManager.selectedEdgeHandles().empty() || !m_handleManager.selectedFaceHandles().empty();
+            
+        }
+        
+        bool MoveVerticesTool::moveVertices(const Vec3f& delta) {
+            m_ignoreObjectChanges = true;
             if (m_mode == VMMove) {
                 assert((m_handleManager.selectedVertexHandles().empty() ? 0 : 1) +
                        (m_handleManager.selectedEdgeHandles().empty() ? 0 : 1) +
@@ -293,14 +344,16 @@ namespace TrenchBroom {
                     m_handleManager.add(command->brushes());
                     
                     const Vec3f::Set& vertices = command->vertices();
-                    if (vertices.empty())
+                    if (vertices.empty()) {
+                        m_ignoreObjectChanges = false;
                         return false;
+                    }
                     
                     m_handleManager.selectVertexHandles(command->vertices());
                 } else if (!m_handleManager.selectedEdgeHandles().empty()) {
                     MoveEdgesCommand* command = MoveEdgesCommand::moveEdges(document(), m_handleManager.selectedEdgeHandles(), delta);
                     m_handleManager.remove(command->brushes());
-
+                    
                     submitCommand(command);
                     m_handleManager.add(command->brushes());
                     m_handleManager.selectEdgeHandles(command->edges());
@@ -317,7 +370,7 @@ namespace TrenchBroom {
                        ((m_handleManager.selectedEdgeHandles().size() == 1) ^
                         (m_handleManager.selectedFaceHandles().size() == 1))
                        );
-
+                
                 if (!m_handleManager.selectedEdgeHandles().empty()) {
                     const Vec3f& position = m_handleManager.selectedEdgeHandles().begin()->first;
                     
@@ -352,45 +405,8 @@ namespace TrenchBroom {
                     }
                 }
             }
-            
-            m_moveHandle.setPosition(m_moveHandle.position() + delta);
-            refPoint += delta;
+            m_ignoreObjectChanges = false;
             return true;
         }
-        
-        void MoveVerticesTool::handleEndPlaneDrag(InputState& inputState) {
-            endCommandGroup();
-            m_moveHandle.unlock();
-            updateMoveHandle(inputState);
-        }
-
-        void MoveVerticesTool::handleObjectsChange(InputState& inputState) {
-            if (active() && dragType() == DTNone) {
-                m_handleManager.clear();
-                m_handleManager.add(document().editStateManager().selectedBrushes());
-                updateMoveHandle(inputState);
-            }
-        }
-        
-        void MoveVerticesTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
-            if (active()) {
-                if (document().editStateManager().selectedBrushes().empty()) {
-                    m_handleManager.clear();
-                } else {
-                    m_handleManager.remove(changeSet.brushesFrom(Model::EditState::Selected));
-                    m_handleManager.add(changeSet.brushesTo(Model::EditState::Selected));
-                }
-            }
-        }
-
-        void MoveVerticesTool::handleCameraChange(InputState& inputState) {
-            if (active())
-                updateMoveHandle(inputState);
-        }
-
-        MoveVerticesTool::MoveVerticesTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float planeRadius, float vertexSize) :
-        PlaneDragTool(documentViewHolder, true),
-        m_moveHandle(axisLength, planeRadius),
-        m_mode(VMMove) {}
     }
 }

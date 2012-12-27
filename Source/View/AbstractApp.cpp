@@ -195,6 +195,19 @@ wxMenu* AbstractApp::CreateObjectActionMenu() {
     return objectActionMenu;
 }
 
+wxMenu* AbstractApp::CreateVertexActionMenu() {
+    using namespace TrenchBroom::View::CommandIds::Menu;
+    
+    wxMenu* vertexActionMenu = new wxMenu();
+    vertexActionMenu->Append(EditMoveVerticesForward, wxT("Move Forward\tUP"));
+    vertexActionMenu->Append(EditMoveVerticesBackward, wxT("Move Backward\tDOWN"));
+    vertexActionMenu->Append(EditMoveVerticesLeft, wxT("Move Left\tLEFT"));
+    vertexActionMenu->Append(EditMoveVerticesRight, wxT("Move Right\tRIGHT"));
+    vertexActionMenu->Append(EditMoveVerticesUp, wxT("Move Up\tPGUP"));
+    vertexActionMenu->Append(EditMoveVerticesDown, wxT("Move Down\tPGDN"));
+    return vertexActionMenu;
+}
+
 void AbstractApp::UpdateAllViews(wxView* sender, wxObject* hint) {
     const wxList& documents = m_docManager->GetDocuments();
     

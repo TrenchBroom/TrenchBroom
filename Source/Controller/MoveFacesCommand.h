@@ -50,6 +50,8 @@ namespace TrenchBroom {
         public:
             static MoveFacesCommand* moveFaces(Model::MapDocument& document, const Model::VertexToFacesMap& brushFaces, const Vec3f& delta);
             
+            bool canDo() const;
+            
             inline const Model::BrushList& brushes() const {
                 return m_brushes;
             }

@@ -19,6 +19,7 @@
 
 #include "EditorFrame.h"
 
+#include "Controller/InputController.h"
 #include "Model/EditStateManager.h"
 #include "Model/MapDocument.h"
 #include "Utility/Console.h"
@@ -89,18 +90,23 @@ namespace TrenchBroom {
             TrenchBroomApp* app = static_cast<TrenchBroomApp*>(wxTheApp);
             wxMenu* actionMenu = NULL;
             if (wxDynamicCast(FindFocus(), wxTextCtrl) == NULL) {
-                Model::EditStateManager& editStateManager = m_documentViewHolder.document().editStateManager();
-                switch (editStateManager.selectionMode()) {
-                    case Model::EditStateManager::SMFaces:
-                        actionMenu = app->CreateTextureActionMenu();
-                        break;
-                    case Model::EditStateManager::SMEntities:
-                    case Model::EditStateManager::SMBrushes:
-                    case Model::EditStateManager::SMEntitiesAndBrushes:
-                        actionMenu = app->CreateObjectActionMenu();
-                        break;
-                    default:
-                        break;
+                if (m_mapCanvas->inputController().moveVerticesToolActive()) {
+                    actionMenu = app->CreateVertexActionMenu();
+                } else if (m_mapCanvas->inputController().clipToolActive()) {
+                } else {
+                    Model::EditStateManager& editStateManager = m_documentViewHolder.document().editStateManager();
+                    switch (editStateManager.selectionMode()) {
+                        case Model::EditStateManager::SMFaces:
+                            actionMenu = app->CreateTextureActionMenu();
+                            break;
+                        case Model::EditStateManager::SMEntities:
+                        case Model::EditStateManager::SMBrushes:
+                        case Model::EditStateManager::SMEntitiesAndBrushes:
+                            actionMenu = app->CreateObjectActionMenu();
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
             

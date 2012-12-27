@@ -26,18 +26,14 @@
 namespace TrenchBroom {
     namespace Controller {
         bool SplitEdgesCommand::performDo() {
-            m_vertices.clear();
-            Model::EdgeList::const_iterator eIt, eEnd;
-            for (eIt = m_edges.begin(), eEnd = m_edges.end(); eIt != eEnd; ++eIt) {
-                Model::Edge* edge = *eIt;
-                Model::Brush* brush = edge->left->face->brush();
-                if (!brush->canSplitEdge(edge, m_delta))
-                    return false;
-            }
+            if (!canDo())
+                return false;
             
+            m_vertices.clear();
             makeSnapshots(m_brushes);
             document().brushesWillChange(m_brushes);
 
+            Model::EdgeList::const_iterator eIt, eEnd;
             for (eIt = m_edges.begin(), eEnd = m_edges.end(); eIt != eEnd; ++eIt) {
                 Model::Edge* edge = *eIt;
                 Model::Brush* brush = edge->left->face->brush();
@@ -71,6 +67,17 @@ namespace TrenchBroom {
 
         SplitEdgesCommand* SplitEdgesCommand::splitEdges(Model::MapDocument& document, const Model::EdgeList& edges, const Vec3f& delta) {
             return new SplitEdgesCommand(document, edges.size() == 1 ? wxT("Split Edge") : wxT("Split Edges"), edges, delta);
+        }
+
+        bool SplitEdgesCommand::canDo() const {
+            Model::EdgeList::const_iterator eIt, eEnd;
+            for (eIt = m_edges.begin(), eEnd = m_edges.end(); eIt != eEnd; ++eIt) {
+                Model::Edge* edge = *eIt;
+                Model::Brush* brush = edge->left->face->brush();
+                if (!brush->canSplitEdge(edge, m_delta))
+                    return false;
+            }
+            return true;
         }
     }
 }

@@ -27,6 +27,7 @@
 #include "Controller/InputController.h"
 #include "Controller/MoveObjectsCommand.h"
 #include "Controller/MoveTexturesCommand.h"
+#include "Controller/MoveVerticesTool.h"
 #include "Controller/ObjectsCommand.h"
 #include "Controller/RemoveObjectsCommand.h"
 #include "Controller/RotateObjects90Command.h"
@@ -121,6 +122,13 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::EditFlipObjectsVertically, EditorView::OnEditFlipObjectsV)
         EVT_MENU(CommandIds::Menu::EditDuplicateObjects, EditorView::OnEditDuplicateObjects)
 
+        EVT_MENU(CommandIds::Menu::EditMoveVerticesForward, EditorView::OnEditMoveVerticesForward)
+        EVT_MENU(CommandIds::Menu::EditMoveVerticesBackward, EditorView::OnEditMoveVerticesBackward)
+        EVT_MENU(CommandIds::Menu::EditMoveVerticesLeft, EditorView::OnEditMoveVerticesLeft)
+        EVT_MENU(CommandIds::Menu::EditMoveVerticesRight, EditorView::OnEditMoveVerticesRight)
+        EVT_MENU(CommandIds::Menu::EditMoveVerticesUp, EditorView::OnEditMoveVerticesUp)
+        EVT_MENU(CommandIds::Menu::EditMoveVerticesDown, EditorView::OnEditMoveVerticesDown)
+        
         EVT_MENU(CommandIds::Menu::EditToggleTextureLock, EditorView::OnEditToggleTextureLock)
 
         EVT_MENU(CommandIds::Menu::ViewToggleShowGrid, EditorView::OnViewToggleShowGrid)
@@ -148,6 +156,37 @@ namespace TrenchBroom {
 
         void EditorView::submit(wxCommand* command) {
             mapDocument().GetCommandProcessor()->Submit(command);
+        }
+
+        Vec3f EditorView::moveDelta(Direction direction, bool snapToGrid) {
+            Vec3f moveDirection;
+            switch (direction) {
+                case DUp:
+                    moveDirection = Vec3f::PosZ;
+                    break;
+                case DRight:
+                    moveDirection = m_camera->right().firstAxis();
+                    break;
+                case DDown:
+                    moveDirection = Vec3f::NegZ;
+                    break;
+                case DLeft:
+                    moveDirection = (m_camera->right() * -1.0f).firstAxis();
+                    break;
+                case DForward:
+                    moveDirection = m_camera->direction().firstAxis();
+                    if (moveDirection.firstComponent() == Axis::AZ)
+                        moveDirection = m_camera->direction().secondAxis();
+                    break;
+                case DBackward:
+                    moveDirection = (m_camera->direction() * -1.0f).firstAxis();
+                    if (moveDirection.firstComponent() == Axis::AZ)
+                        moveDirection = (m_camera->direction() * -1.0f).secondAxis();
+                    break;
+            }
+
+            float dist = snapToGrid ? static_cast<float>(mapDocument().grid().actualSize()) : 1.0f;
+            return moveDirection * dist;
         }
 
         void EditorView::moveTextures(Direction direction, bool snapToGrid) {
@@ -194,34 +233,7 @@ namespace TrenchBroom {
         }
 
         void EditorView::moveObjects(Direction direction, bool snapToGrid) {
-            Vec3f moveDirection;
-            switch (direction) {
-                case DUp:
-                    moveDirection = Vec3f::PosZ;
-                    break;
-                case DRight:
-                    moveDirection = m_camera->right().firstAxis();
-                    break;
-                case DDown:
-                    moveDirection = Vec3f::NegZ;
-                    break;
-                case DLeft:
-                    moveDirection = (m_camera->right() * -1.0f).firstAxis();
-                    break;
-                case DForward:
-                    moveDirection = m_camera->direction().firstAxis();
-                    if (moveDirection.firstComponent() == Axis::AZ)
-                        moveDirection = m_camera->direction().secondAxis();
-                    break;
-                case DBackward:
-                    moveDirection = (m_camera->direction() * -1.0f).firstAxis();
-                    if (moveDirection.firstComponent() == Axis::AZ)
-                        moveDirection = (m_camera->direction() * -1.0f).secondAxis();
-                    break;
-            }
-
-            float dist = snapToGrid ? static_cast<float>(mapDocument().grid().actualSize()) : 1.0f;
-            Vec3f delta = moveDirection * dist;
+            Vec3f delta = moveDelta(direction, snapToGrid);
 
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
@@ -269,6 +281,15 @@ namespace TrenchBroom {
             Vec3f center = Model::MapObject::center(entities, brushes);
             Controller::FlipObjectsCommand* command = Controller::FlipObjectsCommand::flip(mapDocument(), entities, brushes, axis, center, mapDocument().textureLock());
             submit(command);
+        }
+
+        void EditorView::moveVertices(Direction direction, bool snapToGrid) {
+            assert(inputController().moveVerticesToolActive());
+
+            if (inputController().moveVerticesTool().hasSelection()) {
+                Vec3f delta = moveDelta(direction, snapToGrid);
+                inputController().moveVerticesTool().moveVertices(delta);
+            }
         }
 
         void EditorView::removeObjects(const wxString& actionName) {
@@ -800,6 +821,8 @@ namespace TrenchBroom {
 
         void EditorView::OnEditToggleClipTool(wxCommandEvent& event) {
             inputController().toggleClipTool();
+            EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+            frame->updateMenuBar();
         }
 
         void EditorView::OnEditToggleClipSide(wxCommandEvent& event) {
@@ -808,10 +831,14 @@ namespace TrenchBroom {
 
         void EditorView::OnEditPerformClip(wxCommandEvent& event) {
             inputController().performClip();
+            EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+            frame->updateMenuBar();
         }
 
         void EditorView::OnEditToggleVertexTool(wxCommandEvent& event) {
             inputController().toggleMoveVerticesTool();
+            EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+            frame->updateMenuBar();
         }
 
         void EditorView::OnEditMoveObjectsForward(wxCommandEvent& event) {
@@ -934,6 +961,30 @@ namespace TrenchBroom {
             submit(changeEditStateCommand);
             submit(moveObjectsCommand);
             CommandProcessor::EndGroup(commandProcessor);
+        }
+
+        void EditorView::OnEditMoveVerticesForward(wxCommandEvent& event) {
+            moveVertices(DForward, true);
+        }
+        
+        void EditorView::OnEditMoveVerticesBackward(wxCommandEvent& event) {
+            moveVertices(DBackward, true);
+        }
+        
+        void EditorView::OnEditMoveVerticesLeft(wxCommandEvent& event) {
+            moveVertices(DLeft, true);
+        }
+        
+        void EditorView::OnEditMoveVerticesRight(wxCommandEvent& event) {
+            moveVertices(DRight, true);
+        }
+        
+        void EditorView::OnEditMoveVerticesUp(wxCommandEvent& event) {
+            moveVertices(DUp, true);
+        }
+        
+        void EditorView::OnEditMoveVerticesDown(wxCommandEvent& event) {
+            moveVertices(DDown, true);
         }
 
         void EditorView::OnEditToggleTextureLock(wxCommandEvent& event) {
@@ -1161,6 +1212,14 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditFlipObjectsVertically:
                 case CommandIds::Menu::EditDuplicateObjects:
                     event.Enable(editStateManager.selectionMode() == Model::EditStateManager::SMEntities || editStateManager.selectionMode() == Model::EditStateManager::SMBrushes || editStateManager.selectionMode() == Model::EditStateManager::SMEntitiesAndBrushes);
+                    break;
+                case CommandIds::Menu::EditMoveVerticesForward:
+                case CommandIds::Menu::EditMoveVerticesBackward:
+                case CommandIds::Menu::EditMoveVerticesLeft:
+                case CommandIds::Menu::EditMoveVerticesRight:
+                case CommandIds::Menu::EditMoveVerticesUp:
+                case CommandIds::Menu::EditMoveVerticesDown:
+                    event.Enable(inputController().moveVerticesToolActive());
                     break;
                 case CommandIds::Menu::EditToggleTextureLock:
                     event.Check(mapDocument().textureLock());

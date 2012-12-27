@@ -42,6 +42,7 @@ public:
     virtual wxMenuBar* CreateMenuBar(wxEvtHandler* eventHandler, wxMenu* actionMenu);
     virtual wxMenu* CreateTextureActionMenu();
     virtual wxMenu* CreateObjectActionMenu();
+    virtual wxMenu* CreateVertexActionMenu();
 
     void UpdateAllViews(wxView* sender = NULL, wxObject* hint = NULL);
 

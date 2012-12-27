@@ -45,6 +45,8 @@ namespace TrenchBroom {
         public:
             static SplitEdgesCommand* splitEdges(Model::MapDocument& document, const Model::EdgeList& edges, const Vec3f& delta);
             
+            bool canDo() const;
+            
             inline const Model::BrushList& brushes() const {
                 return m_brushes;
             }

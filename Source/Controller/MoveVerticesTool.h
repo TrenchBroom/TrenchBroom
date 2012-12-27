@@ -48,6 +48,7 @@ namespace TrenchBroom {
             MoveHandle m_moveHandle;
             MoveHandle::RestrictToAxis m_restrictToAxis;
             VertexToolMode m_mode;
+            bool m_ignoreObjectChanges;
             
             void updateMoveHandle(InputState& inputState);
             
@@ -71,6 +72,9 @@ namespace TrenchBroom {
             void handleCameraChange(InputState& inputState);
         public:
             MoveVerticesTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float planeRadius, float vertexSize);
+        
+            bool hasSelection();
+            bool moveVertices(const Vec3f& delta);
         };
     }
 }

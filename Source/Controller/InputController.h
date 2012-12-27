@@ -101,6 +101,10 @@ namespace TrenchBroom {
 
             void render(Renderer::Vbo& vbo, Renderer::RenderContext& context);
             
+            inline ClipTool& clipTool() const {
+                return *m_clipTool;
+            }
+            
             void toggleClipTool();
             bool clipToolActive();
             void toggleClipSide();
@@ -108,6 +112,10 @@ namespace TrenchBroom {
             void deleteClipPoint();
             bool canPerformClip();
             void performClip();
+            
+            inline MoveVerticesTool& moveVerticesTool() const {
+                return *m_moveVerticesTool;
+            }
             
             void toggleMoveVerticesTool();
             bool moveVerticesToolActive();

@@ -21,9 +21,12 @@
 #define __TrenchBroom__EditorView__
 
 #include "Model/TextureTypes.h"
+#include "Utility/VecMath.h"
 
 #include <wx/cmdproc.h>
 #include <wx/docview.h>
+
+using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Controller {
@@ -75,12 +78,15 @@ namespace TrenchBroom {
             Model::Filter* m_filter;
             ViewOptions* m_viewOptions;
             
+            Vec3f moveDelta(Direction direction, bool snapToGrid);
+            
             void submit(wxCommand* command);
             void moveTextures(Direction direction, bool snapToGrid);
             void rotateTextures(bool clockwise, bool snapToGrid);
             void moveObjects(Direction direction, bool snapToGrid);
             void rotateObjects(RotationAxis rotationAxis, bool clockwise);
             void flipObjects(bool horizontally);
+            void moveVertices(Direction direction, bool snapToGrid);
             void removeObjects(const wxString& actionName);
             bool canPaste();
         public:
@@ -157,6 +163,13 @@ namespace TrenchBroom {
             void OnEditFlipObjectsH(wxCommandEvent& event);
             void OnEditFlipObjectsV(wxCommandEvent& event);
             void OnEditDuplicateObjects(wxCommandEvent& event);
+
+            void OnEditMoveVerticesForward(wxCommandEvent& event);
+            void OnEditMoveVerticesBackward(wxCommandEvent& event);
+            void OnEditMoveVerticesLeft(wxCommandEvent& event);
+            void OnEditMoveVerticesRight(wxCommandEvent& event);
+            void OnEditMoveVerticesUp(wxCommandEvent& event);
+            void OnEditMoveVerticesDown(wxCommandEvent& event);
             
             void OnEditToggleTextureLock(wxCommandEvent& event);
             
