@@ -31,6 +31,7 @@
 #include "Renderer/Vbo.h"
 #include "IO/FileManager.h"
 #include "Utility/Console.h"
+#include "Utility/Preferences.h"
 
 #include <cassert>
 
@@ -55,10 +56,12 @@ namespace TrenchBroom {
             }
             
             IO::FileManager fileManager;
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             
             StringList searchPaths;
+            String quakePath = prefs.getString(Preferences::QuakePath);
             for (unsigned int i = 0; i < mods.size(); i++)
-                searchPaths.push_back(fileManager.appendPath(m_quakePath, mods[i]));
+                searchPaths.push_back(fileManager.appendPath(quakePath, mods[i]));
 
             const String key = modelRendererKey(modelInfo, searchPaths);
 
@@ -131,13 +134,6 @@ namespace TrenchBroom {
                 delete it->second;
             m_modelRenderers.clear();
             m_mismatches.clear();
-        }
-
-        void EntityModelRendererManager::setQuakePath(const String& quakePath) {
-            if (quakePath == m_quakePath)
-                return;
-            m_quakePath = quakePath;
-            m_valid = false;
         }
         
         void EntityModelRendererManager::setPalette(const Palette& palette) {

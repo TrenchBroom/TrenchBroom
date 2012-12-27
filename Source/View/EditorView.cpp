@@ -69,6 +69,8 @@ namespace TrenchBroom {
         EVT_CAMERA_LOOK(EditorView::OnCameraLook)
         EVT_CAMERA_ORBIT(EditorView::OnCameraOrbit)
 
+        EVT_MENU(wxID_NEW, EditorView::OnFileNew)
+        EVT_MENU(wxID_OPEN, EditorView::OnFileOpen)
         EVT_MENU(wxID_SAVE, EditorView::OnFileSave)
         EVT_MENU(wxID_SAVEAS, EditorView::OnFileSaveAs)
 
@@ -551,6 +553,14 @@ namespace TrenchBroom {
             m_camera->orbit(event.center(), event.hAngle(), event.vAngle());
             inputController().cameraChange();
             OnUpdate(this);
+        }
+
+        void EditorView::OnFileNew(wxCommandEvent& event) {
+            GetDocumentManager()->OnFileNew(event);
+        }
+        
+        void EditorView::OnFileOpen(wxCommandEvent& event) {
+            GetDocumentManager()->OnFileOpen(event);
         }
 
         void EditorView::OnFileSave(wxCommandEvent& event) {

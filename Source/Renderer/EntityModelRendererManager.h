@@ -47,7 +47,6 @@ namespace TrenchBroom {
             typedef std::map<String, EntityModelRenderer*> EntityModelRendererCache;
             typedef std::set<String> MismatchCache;
             
-            String m_quakePath;
             const Palette* m_palette;
             Utility::Console& m_console;
             
@@ -66,7 +65,6 @@ namespace TrenchBroom {
             EntityModelRenderer* modelRenderer(const Model::Entity& entity, const StringList& mods);
             void clear();
             
-            void setQuakePath(const String& quakePath);
             void setPalette(const Palette& palette);
             
             void activate();

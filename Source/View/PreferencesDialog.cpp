@@ -191,7 +191,7 @@ namespace TrenchBroom {
 
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
 
-#if defined _WIN32
+#ifndef __APPLE__
             outerSizer->Add(innerSizer, 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::DialogOuterMargin);
             wxSizer* buttonSizer = CreateButtonSizer(wxOK | wxCANCEL);
             outerSizer->Add(buttonSizer, 0, wxEXPAND | wxALL, 7);
@@ -202,7 +202,7 @@ namespace TrenchBroom {
             outerSizer->SetItemMinSize(innerSizer, 600, innerSizer->GetSize().y);
             SetSizerAndFit(outerSizer);
             
-#if defined __APPLE__
+#ifdef __APPLE__
             // allow the dialog to be closed using CMD+W
             wxAcceleratorEntry acceleratorEntries[1];
             acceleratorEntries[0].Set(wxACCEL_CMD, static_cast<int>('W'), wxID_CLOSE);
@@ -222,8 +222,10 @@ namespace TrenchBroom {
 
                 updateControls();
                 
+#ifdef __APPLE__
                 Controller::Command command(Controller::Command::InvalidateEntityModelRendererCache);
                 static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &command);
+#endif
             }
         }
 
@@ -300,21 +302,21 @@ namespace TrenchBroom {
         void PreferencesDialog::OnOkClicked(wxCommandEvent& event) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 			prefs.save();
+
+			Controller::Command command(Controller::Command::InvalidateEntityModelRendererCache);
+            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &command);
+
 			EndModal(wxID_OK);
 		}
 
 		void PreferencesDialog::OnCancelClicked(wxCommandEvent& event) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 			prefs.discardChanges();
-
-			Controller::Command command(Controller::Command::InvalidateEntityModelRendererCache);
-            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &command);
-
 			EndModal(wxID_CANCEL);
 		}
 
 		void PreferencesDialog::OnCloseDialog(wxCloseEvent& event) {
-#if defined _WIN32
+#ifndef __APPLE__
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 			prefs.discardChanges();
 

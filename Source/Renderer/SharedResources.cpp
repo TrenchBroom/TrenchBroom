@@ -90,10 +90,6 @@ namespace TrenchBroom {
             m_shaderManager = new ShaderManager(console);
             m_textureRendererManager = new TextureRendererManager(textureManager);
             m_stringManager = new Text::StringManager(console);
-
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            const String& quakePath = prefs.getString(Preferences::QuakePath);
-            m_modelRendererManager->setQuakePath(quakePath);
         }
 
         SharedResources::~SharedResources() {
