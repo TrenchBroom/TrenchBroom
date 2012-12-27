@@ -24,6 +24,7 @@
 					<Add option="-L$(#WXWIN)/build-debug/lib" />
 					<Add option="-pthread" />
 					<Add option="$(#WXWIN)/build-debug/lib/libwx_gtk2u_gl-2.9.a" />
+					<Add option="$(#WXWIN)/build-debug/lib/libwx_gtk2u_adv-2.9.a" />
 					<Add option="$(#WXWIN)/build-debug/lib/libwx_gtk2u_core-2.9.a" />
 					<Add option="$(#WXWIN)/build-debug/lib/libwx_baseu-2.9.a" />
 					<Add option="-lGL" />
@@ -74,6 +75,7 @@
 					<Add option="-L$(#WXWIN)/build-release/lib" />
 					<Add option="-pthread" />
 					<Add option="$(#WXWIN)/build-release/lib/libwx_gtk2u_gl-2.9.a" />
+					<Add option="$(#WXWIN)/build-release/lib/libwx_gtk2u_adv-2.9.a" />
 					<Add option="$(#WXWIN)/build-release/lib/libwx_gtk2u_core-2.9.a" />
 					<Add option="$(#WXWIN)/build-release/lib/libwx_baseu-2.9.a" />
 					<Add option="-lGL" />
@@ -422,6 +424,7 @@
 		<Unit filename="../Source/View/ViewInspector.cpp" />
 		<Unit filename="../Source/View/ViewInspector.h" />
 		<Unit filename="../Source/View/ViewOptions.h" />
+		<Unit filename="../Source/View/WxScreenDC.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />
