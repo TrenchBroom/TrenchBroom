@@ -79,6 +79,12 @@ namespace TrenchBroom {
                 static const int ViewSetGridSize64                  = Lowest + 51;
                 static const int ViewSetGridSize128                 = Lowest + 52;
                 static const int ViewSetGridSize256                 = Lowest + 53;
+                static const int ViewMoveCameraForward              = Lowest + 54;
+                static const int ViewMoveCameraBackward             = Lowest + 55;
+                static const int ViewMoveCameraLeft                 = Lowest + 56;
+                static const int ViewMoveCameraRight                = Lowest + 57;
+                static const int ViewMoveCameraUp                   = Lowest + 58;
+                static const int ViewMoveCameraDown                 = Lowest + 59;
                 static const int Highest                            = Lowest + 99;
             }
 

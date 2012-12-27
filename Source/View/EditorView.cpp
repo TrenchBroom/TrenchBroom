@@ -127,6 +127,13 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::ViewToggleSnapToGrid, EditorView::OnViewToggleSnapToGrid)
         EVT_MENU_RANGE(CommandIds::Menu::ViewSetGridSize1, CommandIds::Menu::ViewSetGridSize256, EditorView::OnViewSetGridSize)
 
+        EVT_MENU(CommandIds::Menu::ViewMoveCameraForward, EditorView::OnViewMoveCameraForward)
+        EVT_MENU(CommandIds::Menu::ViewMoveCameraBackward, EditorView::OnViewMoveCameraBackward)
+        EVT_MENU(CommandIds::Menu::ViewMoveCameraLeft, EditorView::OnViewMoveCameraLeft)
+        EVT_MENU(CommandIds::Menu::ViewMoveCameraRight, EditorView::OnViewMoveCameraRight)
+        EVT_MENU(CommandIds::Menu::ViewMoveCameraUp, EditorView::OnViewMoveCameraUp)
+        EVT_MENU(CommandIds::Menu::ViewMoveCameraDown, EditorView::OnViewMoveCameraDown)
+        
         EVT_UPDATE_UI(wxID_SAVE, EditorView::OnUpdateMenuItem)
         EVT_UPDATE_UI(wxID_UNDO, EditorView::OnUpdateMenuItem)
         EVT_UPDATE_UI(wxID_REDO, EditorView::OnUpdateMenuItem)
@@ -975,6 +982,72 @@ namespace TrenchBroom {
             mapDocument().UpdateAllViews();
         }
 
+        void EditorView::OnViewMoveCameraForward(wxCommandEvent& event) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            float speed = prefs.getFloat(Preferences::CameraPanSpeed);
+
+            Controller::CameraMoveEvent cameraEvent;
+            cameraEvent.setForward(10.0f * speed);
+            
+            cameraEvent.SetEventObject(this);
+            ProcessEvent(cameraEvent);
+        }
+        
+        void EditorView::OnViewMoveCameraBackward(wxCommandEvent& event) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            float speed = prefs.getFloat(Preferences::CameraPanSpeed);
+            
+            Controller::CameraMoveEvent cameraEvent;
+            cameraEvent.setForward(10.0f * -speed);
+            
+            cameraEvent.SetEventObject(this);
+            ProcessEvent(cameraEvent);
+        }
+        
+        void EditorView::OnViewMoveCameraLeft(wxCommandEvent& event) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            float speed = prefs.getFloat(Preferences::CameraPanSpeed);
+            
+            Controller::CameraMoveEvent cameraEvent;
+            cameraEvent.setRight(10.0f * -speed);
+            
+            cameraEvent.SetEventObject(this);
+            ProcessEvent(cameraEvent);
+        }
+        
+        void EditorView::OnViewMoveCameraRight(wxCommandEvent& event) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            float speed = prefs.getFloat(Preferences::CameraPanSpeed);
+            
+            Controller::CameraMoveEvent cameraEvent;
+            cameraEvent.setRight(10.0f * speed);
+            
+            cameraEvent.SetEventObject(this);
+            ProcessEvent(cameraEvent);
+        }
+        
+        void EditorView::OnViewMoveCameraUp(wxCommandEvent& event) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            float speed = prefs.getFloat(Preferences::CameraPanSpeed);
+            
+            Controller::CameraMoveEvent cameraEvent;
+            cameraEvent.setUp(10.0f * speed);
+            
+            cameraEvent.SetEventObject(this);
+            ProcessEvent(cameraEvent);
+        }
+        
+        void EditorView::OnViewMoveCameraDown(wxCommandEvent& event) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            float speed = prefs.getFloat(Preferences::CameraPanSpeed);
+            
+            Controller::CameraMoveEvent cameraEvent;
+            cameraEvent.setUp(10.0f * -speed);
+            
+            cameraEvent.SetEventObject(this);
+            ProcessEvent(cameraEvent);
+        }
+
         void EditorView::OnUpdateMenuItem(wxUpdateUIEvent& event) {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             wxTextCtrl* textCtrl = wxDynamicCast(GetFrame()->FindFocus(), wxTextCtrl);
@@ -1142,6 +1215,14 @@ namespace TrenchBroom {
                 case CommandIds::Menu::ViewSetGridSize256:
                     event.Enable(true);
                     event.Check(mapDocument().grid().actualSize() == 8);
+                    break;
+                case CommandIds::Menu::ViewMoveCameraForward:
+                case CommandIds::Menu::ViewMoveCameraBackward:
+                case CommandIds::Menu::ViewMoveCameraLeft:
+                case CommandIds::Menu::ViewMoveCameraRight:
+                case CommandIds::Menu::ViewMoveCameraUp:
+                case CommandIds::Menu::ViewMoveCameraDown:
+                    event.Enable(textCtrl == NULL);
                     break;
             }
         }

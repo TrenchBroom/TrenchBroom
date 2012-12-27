@@ -125,8 +125,17 @@ wxMenu* AbstractApp::CreateViewMenu(wxEvtHandler* eventHandler) {
     gridMenu->AppendCheckItem(ViewSetGridSize128, wxT("Set Grid Size 128\tCtrl+8"));
     gridMenu->AppendCheckItem(ViewSetGridSize256, wxT("Set Grid Size 256\tCtrl+9"));
     gridMenu->SetEventHandler(eventHandler);
-    
     viewMenu->AppendSubMenu(gridMenu, wxT("Grid"));
+    
+    wxMenu* cameraMenu = new wxMenu();
+    cameraMenu->Append(ViewMoveCameraForward, wxT("Move Forward\tCtrl+UP"));
+    cameraMenu->Append(ViewMoveCameraBackward, wxT("Move Backward\tCtrl+DOWN"));
+    cameraMenu->Append(ViewMoveCameraLeft, wxT("Move Left\tCtrl+LEFT"));
+    cameraMenu->Append(ViewMoveCameraRight, wxT("Move Right\tCtrl+RIGHT"));
+    cameraMenu->Append(ViewMoveCameraUp, wxT("Move Up\tCtrl+PGUP"));
+    cameraMenu->Append(ViewMoveCameraDown, wxT("Move Down\tCtrl+PGDN"));
+    cameraMenu->SetEventHandler(eventHandler);
+    viewMenu->AppendSubMenu(cameraMenu, wxT("Camera"));
     
     viewMenu->SetEventHandler(eventHandler);
     return viewMenu;

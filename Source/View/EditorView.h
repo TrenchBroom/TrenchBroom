@@ -163,6 +163,13 @@ namespace TrenchBroom {
             void OnViewToggleShowGrid(wxCommandEvent& event);
             void OnViewToggleSnapToGrid(wxCommandEvent& event);
             void OnViewSetGridSize(wxCommandEvent& event);
+
+            void OnViewMoveCameraForward(wxCommandEvent& event);
+            void OnViewMoveCameraBackward(wxCommandEvent& event);
+            void OnViewMoveCameraLeft(wxCommandEvent& event);
+            void OnViewMoveCameraRight(wxCommandEvent& event);
+            void OnViewMoveCameraUp(wxCommandEvent& event);
+            void OnViewMoveCameraDown(wxCommandEvent& event);
             
             void OnUpdateMenuItem(wxUpdateUIEvent& event);
             
