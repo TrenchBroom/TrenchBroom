@@ -42,7 +42,7 @@ namespace TrenchBroom {
 
                 document().removeBrush(*brush);
                 
-                if (entity != NULL && entity->brushes().empty() && std::find(m_removedEntities.begin(), m_removedEntities.end(), entity) == m_removedEntities.end())
+                if (entity != NULL && !entity->worldspawn() && entity->brushes().empty() && std::find(m_removedEntities.begin(), m_removedEntities.end(), entity) == m_removedEntities.end())
                     m_removedEntities.push_back(entity);
                 m_removedBrushes.push_back(brush);
                 m_removedBrushParents.insert(Model::BrushParentMapEntry(brush, entity));

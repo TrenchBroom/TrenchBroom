@@ -130,9 +130,7 @@ namespace TrenchBroom {
             }
         }
 
-        void MapDocument::loadEntityDefinitions(Utility::ProgressIndicator& progressIndicator) {
-            progressIndicator.setText("Loading entity definitions...");
-
+        void MapDocument::loadEntityDefinitions() {
             IO::FileManager fileManager;
             String resourcePath = fileManager.resourceDirectory();
             String defPath = fileManager.appendPath(resourcePath, "Quake.def");
@@ -187,7 +185,6 @@ namespace TrenchBroom {
             View::ProgressIndicatorDialog progressIndicator;
             loadMap(stream, progressIndicator);
             loadTextures(progressIndicator);
-            loadEntityDefinitions(progressIndicator);
 
             updateAfterTextureManagerChanged();
             updateEntityDefinitions();
@@ -478,6 +475,7 @@ namespace TrenchBroom {
 			if (wxDocument::OnNewDocument()) {
 				// prompt for initial stuff like world bounds, mods, palette, def here
                 clear();
+                loadEntityDefinitions();
 
                 Controller::Command loadCommand(Controller::Command::LoadMap);
                 UpdateAllViews(NULL, &loadCommand);

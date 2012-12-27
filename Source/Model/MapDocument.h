@@ -84,7 +84,7 @@ namespace TrenchBroom {
             void loadPalette();
             void loadMap(std::istream& stream, Utility::ProgressIndicator& progressIndicator);
             void loadTextures(Utility::ProgressIndicator& progressIndicator);
-            void loadEntityDefinitions(Utility::ProgressIndicator& progressIndicator);
+            void loadEntityDefinitions();
         public:
             MapDocument();
             virtual ~MapDocument();
