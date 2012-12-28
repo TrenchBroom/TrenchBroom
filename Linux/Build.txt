@@ -1,10 +1,12 @@
 Build environment
 
-1. wxWidgets
-- Compiling wxWidgets 2.9 requires the following dependencies. You should install them using the packager of your Linux distribution.
-  - g++ GNU c++ compiler
-  - GTK2 and development modules
-  - OpenGL and GLU development headers (Mesa OpenGL development packages)
+1. Dependencies
+Compiling wxWidgets 2.9 requires the following dependencies. You should install them using the packager of your Linux distribution.
+- g++ GNU c++ compiler
+- GTK2 and development packages
+- OpenGL and GLU development headers (Mesa OpenGL development packages)
+
+2. wxWidgets
 - Get the latest sources of wxWidgets 2.9 from wxwidgets.org and unpack them.
 - Move the unpacked directory someplace where you want to keep it.
 - Open a terminal and change into the wxwidgets directory.
@@ -17,5 +19,9 @@ Build environment
 - Run 
   ../configure --enable-debug --disable-shared --with-opengl
 - Run make (don't run make install!)
+
+3. Code::Blocks
+- Get the latest version of the Code::Blocks IDE using the package manager.
 - Create a global variable named "WXWIN" in Code::Blocks (Menu > Settings > Global Variables...)
   and set its base field to point to your wxWidgets directory
+
