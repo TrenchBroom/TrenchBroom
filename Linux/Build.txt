@@ -1,6 +1,10 @@
 Build environment
 
 1. wxWidgets
+- Compiling wxWidgets 2.9 requires the following dependencies. You should install them using the packager of your Linux distribution.
+  - g++ GNU c++ compiler
+  - GTK2 and development modules
+  - OpenGL and GLU development headers (Mesa OpenGL development packages)
 - Get the latest sources of wxWidgets 2.9 from wxwidgets.org and unpack them.
 - Move the unpacked directory someplace where you want to keep it.
 - Open a terminal and change into the wxwidgets directory.
