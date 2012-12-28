@@ -5,6 +5,8 @@ Compiling wxWidgets 2.9 requires the following dependencies. You should install 
 - g++ GNU c++ compiler
 - GTK2 and development packages
 - OpenGL and GLU development headers (Mesa OpenGL development packages)
+Compiling and linking TrenchBroom requires a working OpenGL installation. This page may help you if you see linker errors about missing GL libraries:
+http://www.wikihow.com/Install-Mesa-%28OpenGL%29-on-Linux-Mint
 
 2. wxWidgets
 - Get the latest sources of wxWidgets 2.9 from wxwidgets.org and unpack them.
