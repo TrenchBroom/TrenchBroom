@@ -41,8 +41,6 @@ namespace TrenchBroom {
                 static const int EditToggleClipSide                 = Lowest + 13;
                 static const int EditPerformClip                    = Lowest + 14;
                 static const int EditToggleVertexTool               = Lowest + 15;
-                static const int EditToggleEdgeTool                 = Lowest + 16;
-                static const int EditToggleFaceTool                 = Lowest + 17;
                 static const int EditMoveTexturesUp                 = Lowest + 18;
                 static const int EditMoveTexturesRight              = Lowest + 19;
                 static const int EditMoveTexturesDown               = Lowest + 20;
@@ -92,6 +90,13 @@ namespace TrenchBroom {
                 static const int EditMoveVerticesUp                 = Lowest + 64;
                 static const int EditMoveVerticesDown               = Lowest + 65;
                 static const int Highest                            = Lowest + 99;
+            }
+            
+            namespace CreateEntityPopupMenu {
+                static const int LowestPointEntityItem              = wxID_HIGHEST + 2000;
+                static const int HighestPointEntityItem             = LowestPointEntityItem + 999;
+                static const int LowestBrushEntityItem              = HighestPointEntityItem + 1;
+                static const int HighestBrushEntityItem              = LowestBrushEntityItem + 999;
             }
 
             namespace ViewInspector {

@@ -24,6 +24,10 @@
 
 namespace TrenchBroom {
     namespace IO {
+        bool AbstractFileManager::isAbsolutePath(const String& path) {
+            return wxIsAbsolutePath(path);
+        }
+
         bool AbstractFileManager::isDirectory(const String& path) {
             return wxDirExists(path);
         }

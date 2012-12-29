@@ -50,6 +50,7 @@ namespace TrenchBroom {
             MoveObjectsCommand(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const wxString& name, const Vec3f& delta, bool lockTextures);
         public:
             static MoveObjectsCommand* moveObjects(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes, const Vec3f& delta, bool lockTextures);
+            static MoveObjectsCommand* moveEntity(Model::MapDocument& document, Model::Entity& entity, const Vec3f& delta, bool lockTextures);
             
             const Model::EntityList& entities() const {
                 return m_entities;

@@ -110,14 +110,30 @@ namespace TrenchBroom {
                 }
             }
             
-            SetMenuBar(NULL);
             wxMenuBar* menuBar = app->CreateMenuBar(&m_documentViewHolder.view(), actionMenu);
             int editMenuIndex = menuBar->FindMenu(wxT("Edit"));
             assert(editMenuIndex != wxNOT_FOUND);
             wxMenu* editMenu = menuBar->GetMenu(static_cast<size_t>(editMenuIndex));
             m_documentViewHolder.document().GetCommandProcessor()->SetEditMenu(editMenu);
             
+            // SetMenuBar(NULL);
+            
+            wxMenuBar* oldMenuBar = GetMenuBar();
+            if (oldMenuBar != NULL) {
+                int fileMenuIndex = oldMenuBar->FindMenu(wxT("File"));
+                assert(fileMenuIndex != wxNOT_FOUND);
+                wxMenu* fileMenu = oldMenuBar->GetMenu(static_cast<size_t>(fileMenuIndex));
+                int fileHistoryMenuIndex = fileMenu->FindItem(wxT("Open Recent"));
+                assert(fileHistoryMenuIndex != wxNOT_FOUND);
+                wxMenuItem* fileHistoryMenuItem = fileMenu->FindItem(fileHistoryMenuIndex);
+                assert(fileHistoryMenuItem != NULL);
+                wxMenu* fileHistoryMenu = fileHistoryMenuItem->GetSubMenu();
+                assert(fileHistoryMenu != NULL);
+                m_documentViewHolder.document().GetDocumentManager()->FileHistoryRemoveMenu(fileHistoryMenu);
+            }
+            
             SetMenuBar(menuBar);
+            delete oldMenuBar;
         }
 
         void EditorFrame::disableProcessing() {

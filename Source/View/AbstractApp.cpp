@@ -85,8 +85,6 @@ wxMenu* AbstractApp::CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMe
     toolsMenu->Append(EditPerformClip, wxT("Perform Clip\tENTER"));
     toolsMenu->AppendSeparator();
     toolsMenu->AppendCheckItem(EditToggleVertexTool, wxT("Vertex Tool\tV"));
-    toolsMenu->AppendCheckItem(EditToggleEdgeTool, wxT("Edge Tool\tE"));
-    toolsMenu->AppendCheckItem(EditToggleFaceTool, wxT("Face Tool\tF"));
     toolsMenu->SetEventHandler(eventHandler);
 
     editMenu->AppendSeparator();

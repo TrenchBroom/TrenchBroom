@@ -29,6 +29,7 @@ namespace TrenchBroom {
         public:
             virtual ~AbstractFileManager() {}
             
+            bool isAbsolutePath(const String& path);
             bool isDirectory(const String& path);
             bool exists(const String& path);
             bool makeDirectory(const String& path);

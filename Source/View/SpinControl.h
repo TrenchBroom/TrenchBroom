@@ -28,7 +28,7 @@ public:
     wxSpinCtrlDouble(parent, id) {}
     
     void SetHint(const wxString& hint) {
-#ifndef __linux__
+#ifdef __APPLE__
         GetText()->SetHint(hint);
 #endif
     }

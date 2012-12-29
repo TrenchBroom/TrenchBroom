@@ -72,6 +72,8 @@ namespace TrenchBroom {
             const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
             console.info("Renderer info: %s version %s from %s", renderer, version, vendor);
 
+            console.info("Depth buffer bits: %d", capabilities.depthBits);
+            
             if (capabilities.multisample)
                 console.info("Multisampling enabled");
             else

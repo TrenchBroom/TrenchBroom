@@ -24,6 +24,7 @@
 #include "Renderer/TextureRenderer.h"
 
 #include <cassert>
+#include <exception>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -32,6 +33,7 @@ namespace TrenchBroom {
 
             Color averageColor;
             Model::TextureCollection::LoaderPtr loader = textureCollection.loader();
+
             const Model::TextureList& textures = textureCollection.textures();
             for (unsigned int i = 0; i < textures.size(); i++) {
                 Model::Texture& texture = *textures[i];
@@ -104,6 +106,7 @@ namespace TrenchBroom {
             TextureRenderer* textureRenderer = rendererCollection->renderer(*texture);
             if (textureRenderer == NULL)
                 return *m_dummyTexture;
+
             return *textureRenderer;
         }
     }

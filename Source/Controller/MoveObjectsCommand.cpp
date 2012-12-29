@@ -69,5 +69,11 @@ namespace TrenchBroom {
             wxString name = Controller::Command::makeObjectActionName("Move", entities, brushes);
             return new MoveObjectsCommand(document, entities, brushes, name, delta, lockTextures);
         }
+
+        MoveObjectsCommand* MoveObjectsCommand::moveEntity(Model::MapDocument& document, Model::Entity& entity, const Vec3f& delta, bool lockTextures) {
+            Model::EntityList entities;
+            entities.push_back(&entity);
+            return moveObjects(document, entities, Model::EmptyBrushList, delta, lockTextures);
+        }
     }
 }

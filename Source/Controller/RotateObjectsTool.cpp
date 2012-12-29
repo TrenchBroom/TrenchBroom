@@ -71,13 +71,13 @@ namespace TrenchBroom {
             Renderer::ActivateShader shader(context.shaderManager(), Renderer::Shaders::ColoredHandleShader);
             Renderer::AxisFigure axisFigure(m_axisLength);
             if (hit->hitArea() == Model::RotateObjectsHandleHit::HAXAxis) {
-                axisFigure.setAxes(Axis::AX);
+                axisFigure.setAxes(true, false, false);
                 axisFigure.setXColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
             } else if (hit->hitArea() == Model::RotateObjectsHandleHit::HAYAxis) {
-                axisFigure.setAxes(Axis::AY);
+                axisFigure.setAxes(false, true, false);
                 axisFigure.setYColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
             } else {
-                axisFigure.setAxes(Axis::AZ);
+                axisFigure.setAxes(false, false, true);
                 axisFigure.setZColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
             }
             axisFigure.render(vbo, context);

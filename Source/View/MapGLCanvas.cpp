@@ -182,51 +182,62 @@ namespace TrenchBroom {
         }
 
         void MapGLCanvas::OnMouseLeftDown(wxMouseEvent& event) {
+            SetFocus();
 			CaptureMouse();
             m_inputController->mouseDown(Controller::MouseButtons::MBLeft);
         }
 
         void MapGLCanvas::OnMouseLeftUp(wxMouseEvent& event) {
+            SetFocus();
 			if (GetCapture() == this)
 				ReleaseMouse();
             m_inputController->mouseUp(Controller::MouseButtons::MBLeft);
         }
         
         void MapGLCanvas::OnMouseLeftDClick(wxMouseEvent& event) {
+            SetFocus();
             if (GetCapture() == this)
                 ReleaseMouse();
             m_inputController->mouseDClick(Controller::MouseButtons::MBLeft);
         }
 
         void MapGLCanvas::OnMouseRightDown(wxMouseEvent& event) {
+            SetFocus();
 			CaptureMouse();
             m_inputController->mouseDown(Controller::MouseButtons::MBRight);
         }
 
         void MapGLCanvas::OnMouseRightUp(wxMouseEvent& event) {
+            SetFocus();
 			if (GetCapture() == this)
 				ReleaseMouse();
-            m_inputController->mouseUp(Controller::MouseButtons::MBRight);
+            if (!m_inputController->mouseUp(Controller::MouseButtons::MBRight)) {
+                PopupMenu(m_documentViewHolder.view().createEntityPopupMenu());
+            }
         }
         
         void MapGLCanvas::OnMouseRightDClick(wxMouseEvent& event) {
+            SetFocus();
 			if (GetCapture() == this)
 				ReleaseMouse();
             m_inputController->mouseDClick(Controller::MouseButtons::MBRight);
         }
 
         void MapGLCanvas::OnMouseMiddleDown(wxMouseEvent& event) {
+            SetFocus();
 			CaptureMouse();
             m_inputController->mouseDown(Controller::MouseButtons::MBMiddle);
         }
 
         void MapGLCanvas::OnMouseMiddleUp(wxMouseEvent& event) {
+            SetFocus();
 			if (GetCapture() == this)
 				ReleaseMouse();
             m_inputController->mouseUp(Controller::MouseButtons::MBMiddle);
         }
         
         void MapGLCanvas::OnMouseMiddleDClick(wxMouseEvent& event) {
+            SetFocus();
 			if (GetCapture() == this)
 				ReleaseMouse();
             m_inputController->mouseDClick(Controller::MouseButtons::MBMiddle);
@@ -237,8 +248,7 @@ namespace TrenchBroom {
         }
 
         void MapGLCanvas::OnMouseWheel(wxMouseEvent& event) {
-            int lines = event.GetLinesPerAction();
-            float delta = static_cast<float>(event.GetWheelRotation()) / lines / event.GetWheelDelta();
+            float delta = static_cast<float>(event.GetWheelRotation()) / event.GetWheelDelta() * event.GetLinesPerAction();
             if (event.GetWheelAxis() == wxMOUSE_WHEEL_HORIZONTAL)
                 m_inputController->scroll(delta, 0.0f);
             else if (event.GetWheelAxis() == wxMOUSE_WHEEL_VERTICAL)

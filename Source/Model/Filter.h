@@ -73,11 +73,10 @@ namespace TrenchBroom {
             }
 
             virtual inline bool entityPickable(const Model::Entity& entity) const {
-                if (entity.worldspawn() || !entityVisible(entity) || entity.locked())
-                    return false;
-
-                EntityDefinition* definition = entity.definition();
-                if (definition != NULL && definition->type() == EntityDefinition::BrushEntity && !entity.brushes().empty())
+                if (entity.worldspawn() ||
+                    entity.locked() ||
+                    !entity.brushes().empty() ||
+                    !entityVisible(entity))
                     return false;
 
                 return true;

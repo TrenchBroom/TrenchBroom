@@ -49,6 +49,7 @@ namespace TrenchBroom {
             unsigned int mip0Size = width * height;
             unsigned int mip0Offset = IO::readUnsignedInt<int32_t>(m_stream);
             
+            
             if (width == 0 || height == 0 ||
                 width > WadLayout::MaxTextureSize || height > WadLayout::MaxTextureSize)
                 throw IOException("Invalid mip dimensions (%ix%i)", width, height);
@@ -73,18 +74,23 @@ namespace TrenchBroom {
             if (!m_stream.good())
                 throw IOException::badStream(m_stream);
             
+			m_stream.exceptions(std::ios::goodbit);
+
             m_stream.seekg(0, std::ios::end);
+            m_stream.clear();
             m_length = static_cast<size_t>(m_stream.tellg());
             m_stream.seekg(0, std::ios::beg);
-            
-			m_stream.exceptions(std::ios::failbit | std::ios::badbit);
+
+            if (WadLayout::NumEntriesAddress >= m_length ||
+                WadLayout::DirOffsetAddress >= m_length)
+                throw IOException("Invalid wad layout");
             
             m_stream.seekg(WadLayout::NumEntriesAddress, std::ios::beg);
             unsigned int entryCount = IO::readUnsignedInt<int32_t>(m_stream);
             m_stream.seekg(WadLayout::DirOffsetAddress, std::ios::beg);
             unsigned int directoryAddr = IO::readUnsignedInt<int32_t>(m_stream);
 
-            if (directoryAddr > m_length)
+            if (directoryAddr >= m_length)
                 throw IOException("Wad directory beyond end of file");
 
             char entryType;

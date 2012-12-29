@@ -28,6 +28,7 @@
 namespace TrenchBroom {
     namespace Model {
         class EditStateChangeSet;
+        class EntityDefinition;
     }
     
     namespace Renderer {
@@ -121,6 +122,8 @@ namespace TrenchBroom {
             bool moveVerticesToolActive();
             
             void deactivateAll();
+            
+            void createEntity(Model::EntityDefinition& definition);
         };
 
         class InputControllerFigure : public Renderer::Figure {

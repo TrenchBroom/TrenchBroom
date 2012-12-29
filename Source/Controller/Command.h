@@ -53,6 +53,7 @@ namespace TrenchBroom {
                 RemoveObjects,
                 MoveVertices,
                 ResizeBrushes,
+                ReparentBrushes,
                 UpdateFigures
             } Type;
             
@@ -104,8 +105,8 @@ namespace TrenchBroom {
                 m_state = Doing;
                 bool result = performDo();
                 if (result) {
-                    m_state = Done;
                     updateViews();
+                    m_state = Done;
                 } else {
                     m_state = previous;
                 }
@@ -117,8 +118,8 @@ namespace TrenchBroom {
                 m_state = Undoing;
                 bool result = performUndo();
                 if (result) {
-                    m_state = Undone;
                     updateViews();
+                    m_state = Undone;
                 } else {
                     m_state = previous;
                 }

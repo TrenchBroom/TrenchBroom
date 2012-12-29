@@ -117,9 +117,9 @@ namespace TrenchBroom {
 
 		namespace Axis {
 			typedef unsigned int Type;
-			static const Type AX = 1;
-			static const Type AY = 2;
-			static const Type AZ = 4;
+			static const Type AX = 0;
+			static const Type AY = 1;
+			static const Type AZ = 2;
 		}
 
 		namespace PointStatus {

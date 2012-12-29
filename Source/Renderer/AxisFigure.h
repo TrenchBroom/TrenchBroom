@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class AxisFigure : public Figure {
         protected:
             float m_axisLength;
-            Axis::Type m_axes;
+            bool m_axes[3];
             Color m_xColor;
             Color m_yColor;
             Color m_zColor;
@@ -43,8 +43,10 @@ namespace TrenchBroom {
             AxisFigure(float axisLength);
             ~AxisFigure();
             
-            inline void setAxes(Axis::Type axes) {
-                m_axes = axes;
+            inline void setAxes(bool xAxis, bool yAxis, bool zAxis) {
+                m_axes[0] = xAxis;
+                m_axes[1] = yAxis;
+                m_axes[2] = zAxis;
                 m_valid = false;
             }
             

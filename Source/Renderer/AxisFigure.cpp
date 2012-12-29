@@ -26,12 +26,14 @@ namespace TrenchBroom {
     namespace Renderer {
         AxisFigure::AxisFigure(float axisLength) :
         m_axisLength(axisLength),
-        m_axes(Axis::AX | Axis::AY | Axis::AZ),
         m_xColor(Color(1.0f, 0.0f, 0.0f, 1.0f)),
         m_yColor(Color(0.0f, 1.0f, 0.0f, 1.0f)),
         m_zColor(Color(0.0f, 0.0f, 1.0f, 1.0f)),
         m_valid(false),
-        m_vertexArray(NULL) {}
+        m_vertexArray(NULL) {
+            for (unsigned int i = 0; i < 3; i++)
+                m_axes[i] = true;
+        }
         
         AxisFigure::~AxisFigure() {
             delete m_vertexArray;
@@ -42,29 +44,29 @@ namespace TrenchBroom {
             SetVboState activateVbo(vbo, Vbo::VboActive);
             if (!m_valid) {
                 unsigned int vertexCount = 0;
-                if ((m_axes & Axis::AX) != 0)
+                if (m_axes[Axis::AX])
                     vertexCount += 2;
-                if ((m_axes & Axis::AY) != 0)
+                if (m_axes[Axis::AY])
                     vertexCount += 2;
-                if ((m_axes & Axis::AZ) != 0)
+                if (m_axes[Axis::AZ])
                     vertexCount += 2;
                 m_vertexArray = new VertexArray(vbo, GL_LINES, vertexCount,
                                                 Attribute::position3f(),
                                                 Attribute::color4f());
                 SetVboState mapVbo(vbo, Vbo::VboMapped);
-                if ((m_axes & Axis::AX) != 0) {
+                if (m_axes[Axis::AX]) {
                     m_vertexArray->addAttribute(Vec3f(-m_axisLength, 0.0f, 0.0f));
                     m_vertexArray->addAttribute(m_xColor);
                     m_vertexArray->addAttribute(Vec3f(+m_axisLength, 0.0f, 0.0f));
                     m_vertexArray->addAttribute(m_xColor);
                 }
-                if ((m_axes & Axis::AY) != 0) {
+                if (m_axes[Axis::AY]) {
                     m_vertexArray->addAttribute(Vec3f(0.0f, -m_axisLength, 0.0f));
                     m_vertexArray->addAttribute(m_yColor);
                     m_vertexArray->addAttribute(Vec3f(0.0f, +m_axisLength, 0.0f));
                     m_vertexArray->addAttribute(m_yColor);
                 }
-                if ((m_axes & Axis::AZ) != 0) {
+                if (m_axes[Axis::AZ]) {
                     m_vertexArray->addAttribute(Vec3f(0.0f, 0.0f, -m_axisLength));
                     m_vertexArray->addAttribute(m_zColor);
                     m_vertexArray->addAttribute(Vec3f(0.0f, 0.0f, +m_axisLength));

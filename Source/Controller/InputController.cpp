@@ -19,6 +19,10 @@
 
 #include "InputController.h"
 
+#include "Controller/AddObjectsCommand.h"
+#include "Controller/MoveObjectsCommand.h"
+#include "Controller/ChangeEditStateCommand.h"
+#include "Controller/ReparentBrushesCommand.h"
 #include "Controller/CameraTool.h"
 #include "Controller/ClipTool.h"
 #include "Controller/CreateBrushTool.h"
@@ -29,8 +33,13 @@
 #include "Controller/RotateObjectsTool.h"
 #include "Controller/SelectionTool.h"
 #include "Model/EditStateManager.h"
+#include "Model/Entity.h"
+#include "Model/EntityDefinition.h"
+#include "Model/Map.h"
 #include "Model/MapDocument.h"
+#include "Model/Picker.h"
 #include "Renderer/MapRenderer.h"
+#include "Utility/Grid.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -399,6 +408,74 @@ namespace TrenchBroom {
             updateHits();
             updateModalTool();
             updateViews();
+        }
+
+        void InputController::createEntity(Model::EntityDefinition& definition) {
+            updateHits();
+
+            if (definition.type() == Model::EntityDefinition::PointEntity) {
+                Model::MapDocument& document = m_documentViewHolder.document();
+                View::EditorView& view = m_documentViewHolder.view();
+                
+                const BBox& worldBounds = document.map().worldBounds();
+                Model::Entity* entity = new Model::Entity(worldBounds);
+                entity->setProperty(Model::Entity::ClassnameKey, definition.name());
+                entity->setDefinition(&definition);
+                
+                Vec3f delta;
+                Utility::Grid& grid = document.grid();
+                
+                Model::FaceHit* hit = static_cast<Model::FaceHit*>(m_inputState.pickResult().first(Model::HitType::FaceHit, true, view.filter()));
+                if (hit != NULL) {
+                    delta = grid.moveDeltaForEntity(hit->face(), entity->bounds(), worldBounds, m_inputState.pickRay(), hit->hitPoint());
+                } else {
+                    Vec3f newPosition = m_documentViewHolder.view().camera().defaultPoint(m_inputState.pickRay().direction);
+                    delta = grid.moveDeltaForEntity(entity->bounds().center(), worldBounds, newPosition - entity->bounds().center());
+                }
+                
+                delta = grid.snap(delta);
+                
+                StringStream commandName;
+                commandName << "Create ";
+                commandName << definition.name();
+                
+                ChangeEditStateCommand* deselectAll = ChangeEditStateCommand::deselectAll(document);
+                AddObjectsCommand* addEntity = AddObjectsCommand::addEntity(document, *entity);
+                ChangeEditStateCommand* selectEntity = ChangeEditStateCommand::select(document, *entity);
+                MoveObjectsCommand* moveEntity = MoveObjectsCommand::moveEntity(document, *entity, delta, document.textureLock());
+                
+                CommandProcessor::BeginGroup(document.GetCommandProcessor(), commandName.str());
+                document.GetCommandProcessor()->Submit(deselectAll);
+                document.GetCommandProcessor()->Submit(addEntity);
+                document.GetCommandProcessor()->Submit(selectEntity);
+                document.GetCommandProcessor()->Submit(moveEntity);
+                CommandProcessor::EndGroup(document.GetCommandProcessor());
+            } else {
+                Model::MapDocument& document = m_documentViewHolder.document();
+                Model::EditStateManager& editStateManager = document.editStateManager();
+                assert(editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
+                const Model::BrushList& brushes = editStateManager.selectedBrushes();
+                assert(!brushes.empty());
+                
+                const BBox& worldBounds = document.map().worldBounds();
+                Model::Entity* entity = new Model::Entity(worldBounds);
+                entity->setProperty(Model::Entity::ClassnameKey, definition.name());
+                entity->setDefinition(&definition);
+                
+                StringStream commandName;
+                commandName << "Create ";
+                commandName << definition.name();
+                
+                AddObjectsCommand* addEntity = AddObjectsCommand::addEntity(document, *entity);
+                ChangeEditStateCommand* selectEntity = ChangeEditStateCommand::select(document, *entity);
+                ReparentBrushesCommand* reparent = ReparentBrushesCommand::reparent(document, brushes, *entity);
+                
+                CommandProcessor::BeginGroup(document.GetCommandProcessor(), commandName.str());
+                document.GetCommandProcessor()->Submit(addEntity);
+                document.GetCommandProcessor()->Submit(selectEntity);
+                document.GetCommandProcessor()->Submit(reparent);
+                CommandProcessor::EndGroup(document.GetCommandProcessor());
+            }
         }
 
         InputControllerFigure::InputControllerFigure(InputController& inputController) :

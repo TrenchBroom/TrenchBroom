@@ -136,6 +136,7 @@ namespace TrenchBroom {
             String defPath = fileManager.appendPath(resourcePath, "Quake.def");
             console().info("Loading entity definition file %s", defPath.c_str());
 
+            m_definitionManager->clear();
             m_definitionManager->load(defPath);
         }
 
@@ -185,6 +186,7 @@ namespace TrenchBroom {
             View::ProgressIndicatorDialog progressIndicator;
             loadMap(stream, progressIndicator);
             loadTextures(progressIndicator);
+            loadEntityDefinitions();
 
             updateAfterTextureManagerChanged();
             updateEntityDefinitions();
@@ -282,8 +284,12 @@ namespace TrenchBroom {
         }
 
         void MapDocument::addBrush(Entity& entity, Brush& brush) {
+            if (!entity.worldspawn())
+                m_octree->removeObject(entity);
             entity.addBrush(brush);
             m_octree->addObject(brush);
+            if (!entity.worldspawn())
+                m_octree->addObject(entity);
 
             const FaceList& faces = brush.faces();
             FaceList::const_iterator faceIt, faceEnd;
@@ -294,30 +300,59 @@ namespace TrenchBroom {
         }
 
         void MapDocument::brushWillChange(Brush& brush) {
+            Entity* entity = brush.entity();
+            if (entity != NULL && !entity->worldspawn())
+                m_octree->removeObject(*entity);
             m_octree->removeObject(brush);
         }
 
         void MapDocument::brushDidChange(Brush& brush) {
+            Entity* entity = brush.entity();
             m_octree->addObject(brush);
+            if (entity != NULL && !entity->worldspawn())
+                m_octree->addObject(*entity);
         }
 
         void MapDocument::brushesWillChange(const BrushList& brushes) {
             MapObjectList objects;
             objects.insert(objects.begin(), brushes.begin(), brushes.end());
+            
+            BrushList::const_iterator it, end;
+            for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
+                Brush* brush = *it;
+                Entity* entity = brush->entity();
+                if (entity != NULL && !entity->worldspawn())
+                    objects.push_back(entity);
+            }
+            
             m_octree->removeObjects(objects);
         }
 
         void MapDocument::brushesDidChange(const BrushList& brushes) {
             MapObjectList objects;
             objects.insert(objects.begin(), brushes.begin(), brushes.end());
+
+            BrushList::const_iterator it, end;
+            for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
+                Brush* brush = *it;
+                Entity* entity = brush->entity();
+                if (entity != NULL && !entity->worldspawn())
+                    objects.push_back(entity);
+            }
+
             m_octree->addObjects(objects);
         }
 
         void MapDocument::removeBrush(Brush& brush) {
             m_octree->removeObject(brush);
             Entity* entity = brush.entity();
-            if (entity != NULL)
+            if (entity != NULL) {
+                if (!entity->worldspawn())
+                    m_octree->removeObject(*entity);
                 entity->removeBrush(brush);
+                if (!entity->worldspawn())
+                    m_octree->addObject(*entity);
+            }
         }
 
         Utility::Console& MapDocument::console() const {
@@ -415,8 +450,13 @@ namespace TrenchBroom {
 
             String collectionName = path;
             String wadPath = path;
-            String mapPath = GetFilename().ToStdString();
-            if (!fileManager.exists(wadPath) && !mapPath.empty()) {
+            if (!fileManager.isAbsolutePath(wadPath)) {
+                String mapPath = GetFilename().ToStdString();
+                if (mapPath.empty()) {
+                    console().error("Could not expand relative texture wad path %s because the map has not yet been saved", path.c_str());
+                    return;
+                }
+
                 String folderPath = fileManager.deleteLastPathComponent(mapPath);
                 wadPath = fileManager.appendPath(folderPath, wadPath);
             }
@@ -429,12 +469,12 @@ namespace TrenchBroom {
                     m_textureManager->addCollection(collection, index);
                     console().info("Loaded %s in %f seconds", wadPath.c_str(), watch.Time() / 1000.0f);
                 } catch (IO::IOException e) {
-                    if (collection != NULL)
-                        delete collection;
-                    console().error("Could not open texture wad %s: %s", path.c_str(), e.what());
+                    delete collection;
+                    collection = NULL;
+                    console().error("Could not open texture wad %s: %s", wadPath.c_str(), e.what());
                 }
             } else {
-                console().error("Could not open texture wad %s", path.c_str());
+                console().error("Could not open texture wad %s", wadPath.c_str());
             }
         }
 

@@ -150,6 +150,11 @@ namespace TrenchBroom {
         EVT_UPDATE_UI(wxID_PASTE, EditorView::OnUpdateMenuItem)
         EVT_UPDATE_UI(wxID_DELETE, EditorView::OnUpdateMenuItem)
         EVT_UPDATE_UI_RANGE(CommandIds::Menu::Lowest, CommandIds::Menu::Highest, EditorView::OnUpdateMenuItem)
+        
+        EVT_MENU_RANGE(CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem, EditorView::OnPopupCreatePointEntity)
+        EVT_UPDATE_UI_RANGE(CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem, EditorView::OnPopupUpdatePointMenuItem)
+        EVT_MENU_RANGE(CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem, CommandIds::CreateEntityPopupMenu::HighestBrushEntityItem, EditorView::OnPopupCreateBrushEntity)
+        EVT_UPDATE_UI_RANGE(CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem, CommandIds::CreateEntityPopupMenu::HighestBrushEntityItem, EditorView::OnPopupUpdateBrushMenuItem)
         END_EVENT_TABLE()
 
         IMPLEMENT_DYNAMIC_CLASS(EditorView, wxView);
@@ -339,7 +344,8 @@ namespace TrenchBroom {
         m_camera(NULL),
         m_renderer(NULL),
         m_filter(NULL),
-        m_viewOptions(NULL) {}
+        m_viewOptions(NULL),
+        m_createEntityPopupMenu(NULL) {}
 
         ViewOptions& EditorView::viewOptions() const {
             return *m_viewOptions;
@@ -373,6 +379,39 @@ namespace TrenchBroom {
         Controller::InputController& EditorView::inputController() const {
             EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
             return frame->mapCanvas().inputController();
+        }
+
+        wxMenu* EditorView::createEntityPopupMenu() {
+            if (m_createEntityPopupMenu == NULL) {
+                Model::EntityDefinitionManager& definitionManager = mapDocument().definitionManager();
+                Model::EntityDefinitionList::const_iterator it, end;
+                
+                int id = 0;
+                wxMenu* pointMenu = new wxMenu();
+                pointMenu->SetEventHandler(this);
+                const Model::EntityDefinitionList& pointDefinitions = definitionManager.definitions(Model::EntityDefinition::PointEntity);
+                for (it = pointDefinitions.begin(), end = pointDefinitions.end(); it != end; ++it) {
+                    Model::EntityDefinition& definition = **it;
+                    pointMenu->Append(CommandIds::CreateEntityPopupMenu::LowestPointEntityItem + id++, definition.name());
+                }
+                
+                id = 0;
+                wxMenu* brushMenu = new wxMenu();
+                brushMenu->SetEventHandler(this);
+                const Model::EntityDefinitionList& brushDefinitions = definitionManager.definitions(Model::EntityDefinition::BrushEntity);
+                for (it = brushDefinitions.begin(), end = brushDefinitions.end(); it != end; ++it) {
+                    Model::EntityDefinition& definition = **it;
+                    brushMenu->Append(CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem + id++, definition.name());
+                }
+                
+                m_createEntityPopupMenu = new wxMenu();
+                m_createEntityPopupMenu->SetEventHandler(this);
+                
+                m_createEntityPopupMenu->AppendSubMenu(pointMenu, wxT("Create Point Entity"));
+                m_createEntityPopupMenu->AppendSubMenu(brushMenu, wxT("Create Brush Entity"));
+            }
+            
+            return m_createEntityPopupMenu;
         }
 
         bool EditorView::OnCreate(wxDocument* doc, long flags) {
@@ -516,6 +555,12 @@ namespace TrenchBroom {
                         break;
                     case Controller::Command::ResizeBrushes:
                         m_renderer->invalidateSelectedBrushes();
+                        inputController().objectsChange();
+                        break;
+                    case Controller::Command::ReparentBrushes:
+                        m_renderer->invalidateSelectedBrushes();
+                        m_renderer->invalidateEntities();
+                        inspector().entityInspector().updateProperties();
                         inputController().objectsChange();
                         break;
                     case Controller::Command::UpdateFigures:
@@ -761,15 +806,14 @@ namespace TrenchBroom {
 
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity& entity = *entities[i];
-                if (!entity.selected() && entity.hideable()) {
+                if (!entity.selected() && !entity.partiallySelected() && entity.hideable())
                     hideEntities.push_back(&entity);
 
-                    const Model::BrushList& entityBrushes = entity.brushes();
-                    for (unsigned int j = 0; j < entityBrushes.size(); j++) {
-                        Model::Brush& brush = *entityBrushes[j];
-                        if (!brush.selected() && brush.hideable())
-                            hideBrushes.push_back(&brush);
-                    }
+                const Model::BrushList& entityBrushes = entity.brushes();
+                for (unsigned int j = 0; j < entityBrushes.size(); j++) {
+                    Model::Brush& brush = *entityBrushes[j];
+                    if (!brush.selected() && brush.hideable())
+                        hideBrushes.push_back(&brush);
                 }
             }
 
@@ -1181,10 +1225,6 @@ namespace TrenchBroom {
                     event.Enable(editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
                     event.Check(inputController().moveVerticesToolActive());
                     break;
-                case CommandIds::Menu::EditToggleEdgeTool:
-                case CommandIds::Menu::EditToggleFaceTool:
-                    event.Enable(false);
-                    break;
                 case CommandIds::Menu::EditActions:
                     event.Enable(true);
                     break;
@@ -1284,6 +1324,37 @@ namespace TrenchBroom {
                     event.Enable(textCtrl == NULL);
                     break;
             }
+        }
+
+        void EditorView::OnPopupCreatePointEntity(wxCommandEvent& event) {
+            Model::EntityDefinitionManager& definitionManager = mapDocument().definitionManager();
+            const Model::EntityDefinitionList& pointDefinitions = definitionManager.definitions(Model::EntityDefinition::PointEntity);
+            size_t index = static_cast<size_t>(event.GetId() - CommandIds::CreateEntityPopupMenu::LowestPointEntityItem);
+            assert(index < pointDefinitions.size());
+            
+            Model::PointEntityDefinition* pointDefinition = static_cast<Model::PointEntityDefinition*>(pointDefinitions[index]);
+            inputController().createEntity(*pointDefinition);
+        }
+        
+        void EditorView::OnPopupUpdatePointMenuItem(wxUpdateUIEvent& event) {
+            event.Enable(!inputController().clipToolActive() && !inputController().moveVerticesToolActive());
+        }
+        
+        void EditorView::OnPopupCreateBrushEntity(wxCommandEvent& event) {
+            Model::EntityDefinitionManager& definitionManager = mapDocument().definitionManager();
+            const Model::EntityDefinitionList& brushDefinitions = definitionManager.definitions(Model::EntityDefinition::BrushEntity);
+            size_t index = static_cast<size_t>(event.GetId() - CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem);
+            assert(index < brushDefinitions.size());
+            
+            Model::PointEntityDefinition* brushDefinition = static_cast<Model::PointEntityDefinition*>(brushDefinitions[index]);
+            inputController().createEntity(*brushDefinition);
+        }
+        
+        void EditorView::OnPopupUpdateBrushMenuItem(wxUpdateUIEvent& event) {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            event.Enable(!inputController().clipToolActive() &&
+                         !inputController().moveVerticesToolActive() &&
+                         editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
         }
     }
 }

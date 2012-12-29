@@ -28,36 +28,10 @@
 
 namespace TrenchBroom {
     namespace GL {
-        Capabilities doGlCapabilities() {
+		Capabilities doGlCapabilities() {
             Capabilities capabilities;
-            
-            HDC hdc = GetDC(NULL);
 
-			PIXELFORMATDESCRIPTOR descriptor;
-			descriptor.nSize = sizeof(PIXELFORMATDESCRIPTOR);
-			descriptor.nVersion = 1;
-			descriptor.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_GENERIC_ACCELERATED | PFD_DOUBLEBUFFER;
-			descriptor.iPixelType = PFD_TYPE_RGBA;
-			descriptor.cColorBits = 32;
-			descriptor.cRedBits = descriptor.cRedShift = 0;
-			descriptor.cGreenBits = descriptor.cGreenShift = 0;
-			descriptor.cBlueBits = descriptor.cBlueShift = 0;
-			descriptor.cAlphaBits = descriptor.cAlphaShift = 0;
-			descriptor.cAccumBits = descriptor.cAccumRedBits = descriptor.cAccumGreenBits = descriptor.cAccumBlueBits = descriptor.cAccumAlphaBits = 0;
-			descriptor.cStencilBits = 0;
-			descriptor.cAuxBuffers = 0;
-			descriptor.bReserved = 0;
-
-			int pixelFormatIndex = ChoosePixelFormat(hdc, &descriptor);
-			assert(pixelFormatIndex > 0);
-			
-			bool set = (SetPixelFormat(hdc, pixelFormatIndex, &descriptor) == TRUE);
-			assert(set);
-
-			int maxPixelFormatIndex = DescribePixelFormat(hdc, pixelFormatIndex, sizeof(PIXELFORMATDESCRIPTOR), &descriptor);
-			assert(maxPixelFormatIndex > 0);
-
-			capabilities.depthBits = descriptor.cDepthBits;
+			// capabilities.depthBits = 32;
 
 			// is this actually initialized already?
 			if (GLEW_ARB_multisample) {
