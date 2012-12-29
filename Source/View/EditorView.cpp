@@ -151,6 +151,8 @@ namespace TrenchBroom {
         EVT_UPDATE_UI(wxID_DELETE, EditorView::OnUpdateMenuItem)
         EVT_UPDATE_UI_RANGE(CommandIds::Menu::Lowest, CommandIds::Menu::Highest, EditorView::OnUpdateMenuItem)
         
+        EVT_MENU(CommandIds::CreateEntityPopupMenu::ReparentBrushes, EditorView::OnPopupReparentBrushes)
+        EVT_UPDATE_UI(CommandIds::CreateEntityPopupMenu::ReparentBrushes, EditorView::OnPopupUpdateReparentBrushesMenuItem)
         EVT_MENU_RANGE(CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem, EditorView::OnPopupCreatePointEntity)
         EVT_UPDATE_UI_RANGE(CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem, EditorView::OnPopupUpdatePointMenuItem)
         EVT_MENU_RANGE(CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem, CommandIds::CreateEntityPopupMenu::HighestBrushEntityItem, EditorView::OnPopupCreateBrushEntity)
@@ -407,6 +409,7 @@ namespace TrenchBroom {
                 m_createEntityPopupMenu = new wxMenu();
                 m_createEntityPopupMenu->SetEventHandler(this);
                 
+                m_createEntityPopupMenu->Append(CommandIds::CreateEntityPopupMenu::ReparentBrushes, wxT("Move Brushes to..."));
                 m_createEntityPopupMenu->AppendSubMenu(pointMenu, wxT("Create Point Entity"));
                 m_createEntityPopupMenu->AppendSubMenu(brushMenu, wxT("Create Brush Entity"));
             }
@@ -560,6 +563,7 @@ namespace TrenchBroom {
                     case Controller::Command::ReparentBrushes:
                         m_renderer->invalidateSelectedBrushes();
                         m_renderer->invalidateEntities();
+                        m_renderer->invalidateSelectedEntities();
                         inspector().entityInspector().updateProperties();
                         inputController().objectsChange();
                         break;
@@ -1323,6 +1327,31 @@ namespace TrenchBroom {
                 case CommandIds::Menu::ViewMoveCameraDown:
                     event.Enable(textCtrl == NULL);
                     break;
+            }
+        }
+
+        void EditorView::OnPopupReparentBrushes(wxCommandEvent& event) {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            inputController().reparentBrushes(editStateManager.selectedBrushes());
+        }
+        
+        void EditorView::OnPopupUpdateReparentBrushesMenuItem(wxUpdateUIEvent& event) {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            if (editStateManager.selectionMode() != Model::EditStateManager::SMBrushes) {
+                event.Enable(false);
+                event.SetText(wxT("Add Brushes to Entity"));
+            } else {
+                const Model::BrushList& brushes = editStateManager.selectedBrushes();
+                Model::Entity* newParent = inputController().canReparentBrushes(brushes);
+                if (newParent != NULL) {
+                    StringStream text;
+                    text << "Add Brushes to " << *newParent->classname();
+                    event.Enable(true);
+                    event.SetText(text.str());
+                } else {
+                    event.Enable(false);
+                    event.SetText(wxT("Add Brushes to Entity"));
+                }
             }
         }
 

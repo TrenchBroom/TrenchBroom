@@ -188,6 +188,8 @@ namespace TrenchBroom {
             
             void OnUpdateMenuItem(wxUpdateUIEvent& event);
             
+            void OnPopupReparentBrushes(wxCommandEvent& event);
+            void OnPopupUpdateReparentBrushesMenuItem(wxUpdateUIEvent& event);
             void OnPopupCreatePointEntity(wxCommandEvent& event);
             void OnPopupUpdatePointMenuItem(wxUpdateUIEvent& event);
             void OnPopupCreateBrushEntity(wxCommandEvent& event);

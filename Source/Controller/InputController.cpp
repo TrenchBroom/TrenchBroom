@@ -22,6 +22,7 @@
 #include "Controller/AddObjectsCommand.h"
 #include "Controller/MoveObjectsCommand.h"
 #include "Controller/ChangeEditStateCommand.h"
+#include "Controller/RemoveObjectsCommand.h"
 #include "Controller/ReparentBrushesCommand.h"
 #include "Controller/CameraTool.h"
 #include "Controller/ClipTool.h"
@@ -411,8 +412,6 @@ namespace TrenchBroom {
         }
 
         void InputController::createEntity(Model::EntityDefinition& definition) {
-            updateHits();
-
             if (definition.type() == Model::EntityDefinition::PointEntity) {
                 Model::MapDocument& document = m_documentViewHolder.document();
                 View::EditorView& view = m_documentViewHolder.view();
@@ -466,16 +465,106 @@ namespace TrenchBroom {
                 commandName << "Create ";
                 commandName << definition.name();
                 
+                ChangeEditStateCommand* deselectAll = ChangeEditStateCommand::deselectAll(document);
                 AddObjectsCommand* addEntity = AddObjectsCommand::addEntity(document, *entity);
-                ChangeEditStateCommand* selectEntity = ChangeEditStateCommand::select(document, *entity);
                 ReparentBrushesCommand* reparent = ReparentBrushesCommand::reparent(document, brushes, *entity);
+                ChangeEditStateCommand* select = ChangeEditStateCommand::select(document, brushes);
                 
                 CommandProcessor::BeginGroup(document.GetCommandProcessor(), commandName.str());
+                document.GetCommandProcessor()->Submit(deselectAll);
                 document.GetCommandProcessor()->Submit(addEntity);
-                document.GetCommandProcessor()->Submit(selectEntity);
                 document.GetCommandProcessor()->Submit(reparent);
+                document.GetCommandProcessor()->Submit(select);
                 CommandProcessor::EndGroup(document.GetCommandProcessor());
             }
+        }
+
+        Model::Entity* InputController::canReparentBrushes(const Model::BrushList& brushes) {
+            Model::MapDocument& document = m_documentViewHolder.document();
+            View::EditorView& view = m_documentViewHolder.view();
+
+            Model::Hit* hit = m_inputState.pickResult().first(Model::HitType::ObjectHit, false, view.filter());
+            Model::Entity* newParent = NULL;
+            if (hit == NULL) {
+                newParent = document.map().worldspawn();
+            } else if (hit->type() == Model::HitType::FaceHit) {
+                Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(hit);
+                newParent = faceHit->face().brush()->entity();
+            } else {
+                Model::EntityHit* entityHit = static_cast<Model::EntityHit*>(hit);
+                newParent = &entityHit->entity();
+            }
+            
+            assert(newParent != NULL);
+            
+            Model::BrushList::const_iterator it, end;
+            for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
+                const Model::Brush& brush = **it;
+                if (brush.entity() != newParent)
+                    return newParent;
+            }
+            
+            return NULL;
+        }
+
+        void InputController::reparentBrushes(const Model::BrushList& brushes) {
+            Model::MapDocument& document = m_documentViewHolder.document();
+            View::EditorView& view = m_documentViewHolder.view();
+            
+            Model::Hit* hit = m_inputState.pickResult().first(Model::HitType::ObjectHit, false, view.filter());
+            Model::Entity* newParent = NULL;
+            if (hit == NULL) {
+                newParent = document.map().worldspawn();
+            } else if (hit->type() == Model::HitType::FaceHit) {
+                Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(hit);
+                newParent = faceHit->face().brush()->entity();
+            } else {
+                Model::EntityHit* entityHit = static_cast<Model::EntityHit*>(hit);
+                newParent = &entityHit->entity();
+            }
+            
+            assert(newParent != NULL);
+            
+            Model::EntitySet affectedEntities;
+            Model::BrushList affectedBrushes;
+            
+            Model::BrushList::const_iterator brushIt, brushEnd;
+            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
+                Model::Brush* brush = *brushIt;
+                Model::Entity* oldParent = brush->entity();
+                if (newParent != oldParent) {
+                    affectedEntities.insert(oldParent);
+                    affectedBrushes.push_back(brush);
+                }
+            }
+            
+            StringStream commandName;
+            commandName << "Add Brushes to ";
+            commandName << *newParent->classname();
+            
+            ChangeEditStateCommand* deselectAll = ChangeEditStateCommand::deselectAll(document);
+            ReparentBrushesCommand* reparent = ReparentBrushesCommand::reparent(document, brushes, *newParent);
+            ChangeEditStateCommand* select = ChangeEditStateCommand::select(document, brushes);
+            
+            CommandProcessor::BeginGroup(document.GetCommandProcessor(), commandName.str());
+            document.GetCommandProcessor()->Submit(deselectAll);
+            document.GetCommandProcessor()->Submit(reparent);
+            
+            Model::EntityList removeEntities;
+            Model::EntitySet::const_iterator entityIt, entityEnd;
+            for (entityIt = affectedEntities.begin(), entityEnd = affectedEntities.end(); entityIt != entityEnd; ++entityIt) {
+                Model::Entity* entity = *entityIt;
+                if (entity->brushes().empty() && !entity->worldspawn())
+                    removeEntities.push_back(entity);
+            }
+            
+            if (!removeEntities.empty()) {
+                RemoveObjectsCommand* remove = RemoveObjectsCommand::removeObjects(document, removeEntities, Model::EmptyBrushList);
+                document.GetCommandProcessor()->Submit(remove);
+            }
+            
+            document.GetCommandProcessor()->Submit(select);
+            CommandProcessor::EndGroup(document.GetCommandProcessor());
         }
 
         InputControllerFigure::InputControllerFigure(InputController& inputController) :

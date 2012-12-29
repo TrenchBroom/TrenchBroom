@@ -124,6 +124,8 @@ namespace TrenchBroom {
             void deactivateAll();
             
             void createEntity(Model::EntityDefinition& definition);
+            Model::Entity* canReparentBrushes(const Model::BrushList& brushes);
+            void reparentBrushes(const Model::BrushList& brushes);
         };
 
         class InputControllerFigure : public Renderer::Figure {

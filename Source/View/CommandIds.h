@@ -96,7 +96,8 @@ namespace TrenchBroom {
                 static const int LowestPointEntityItem              = wxID_HIGHEST + 2000;
                 static const int HighestPointEntityItem             = LowestPointEntityItem + 999;
                 static const int LowestBrushEntityItem              = HighestPointEntityItem + 1;
-                static const int HighestBrushEntityItem              = LowestBrushEntityItem + 999;
+                static const int HighestBrushEntityItem             = LowestBrushEntityItem + 999;
+                static const int ReparentBrushes                    = HighestBrushEntityItem + 1;
             }
 
             namespace ViewInspector {
