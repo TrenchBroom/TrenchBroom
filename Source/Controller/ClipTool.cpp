@@ -329,6 +329,13 @@ namespace TrenchBroom {
             }
         }
         
+        void ClipTool::handleFreeRenderResources() {
+            delete m_frontBrushFigure;
+            m_frontBrushFigure = NULL;
+            delete m_backBrushFigure;
+            m_backBrushFigure = NULL;
+        }
+
         bool ClipTool::handleMouseUp(InputState& inputState) {
             if (inputState.mouseButtons() != MouseButtons::MBLeft ||
                 inputState.modifierKeys() != ModifierKeys::MKNone)
@@ -404,17 +411,6 @@ namespace TrenchBroom {
         m_frontBrushFigure(NULL),
         m_backBrushFigure(NULL) {}
         
-        ClipTool::~ClipTool() {
-            /*
-            if (m_frontBrushFigure != NULL)
-                deleteFigure(m_frontBrushFigure);
-            m_frontBrushFigure = NULL;
-            if (m_backBrushFigure != NULL)
-                deleteFigure(m_backBrushFigure);
-            m_backBrushFigure = NULL;
-             */
-        }
-
         void ClipTool::toggleClipSide() {
             assert(active());
             switch (m_clipSide) {

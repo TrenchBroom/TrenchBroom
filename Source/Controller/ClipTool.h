@@ -115,6 +115,7 @@ namespace TrenchBroom {
             
             void handlePick(InputState& inputState);
             void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
+            void handleFreeRenderResources();
 
             bool handleMouseUp(InputState& inputState);
 
@@ -127,7 +128,6 @@ namespace TrenchBroom {
             void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet);
         public:
             ClipTool(View::DocumentViewHolder& documentViewHolder);
-            ~ClipTool();
             
             inline unsigned int numPoints() const {
                 assert(active());
