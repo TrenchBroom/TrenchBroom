@@ -30,6 +30,7 @@
 #include "Model/Texture.h"
 #include "Renderer/ApplyMatrix.h"
 #include "Renderer/BrushFigure.h"
+#include "Renderer/PointHandleHighlightFigure.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/SharedResources.h"
 #include "Renderer/SphereFigure.h"
@@ -245,7 +246,6 @@ namespace TrenchBroom {
             m_backBrushFigure->renderEdges(vbo, renderContext);
             
             if (m_numPoints > 0 || m_hitIndex > -1) {
-                Model::ClipHandleHit* handleHit = static_cast<Model::ClipHandleHit*>(inputState.pickResult().first(Model::HitType::ClipHandleHit, true, m_filter));
                 
                 Renderer::ActivateShader pointHandleShader(renderContext.shaderManager(), Renderer::Shaders::PointHandleShader);
                 pointHandleShader.currentShader().setUniformVariable("CameraPosition", renderContext.camera().position());
@@ -254,26 +254,37 @@ namespace TrenchBroom {
 
                 Renderer::SphereFigure sphereFigure(prefs.getFloat(Preferences::HandleRadius), 1);
                 for (unsigned int i = 0; i < m_numPoints; i++) {
-                    if (handleHit != NULL && handleHit->index() == i) {
-                        pointHandleShader.currentShader().setUniformVariable("Position", Vec4f(m_points[i], 1.0f));
-                        pointHandleShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::SelectedClipHandleColor));
-                        sphereFigure.render(vbo, renderContext);
-                    } else {
-                        pointHandleShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
-                        glDisable(GL_DEPTH_TEST);
-                        pointHandleShader.currentShader().setUniformVariable("Position", Vec4f(m_points[i], 1.0f));
-                        sphereFigure.render(vbo, renderContext);
-                        glEnable(GL_DEPTH_TEST);
-                        
-                        pointHandleShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ClipHandleColor));
-                        sphereFigure.render(vbo, renderContext);
-                    }
+                    pointHandleShader.currentShader().setUniformVariable("Position", Vec4f(m_points[i], 1.0f));
+                    glDisable(GL_DEPTH_TEST);
+                    pointHandleShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
+                    sphereFigure.render(vbo, renderContext);
+                    glEnable(GL_DEPTH_TEST);
+                    pointHandleShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ClipHandleColor));
+                    sphereFigure.render(vbo, renderContext);
                 }
                 
                 if (m_hitIndex > -1) {
-                    pointHandleShader.currentShader().setUniformVariable("Position", Vec4f(m_points[m_hitIndex], 1.0f));
-                    pointHandleShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::SelectedClipHandleColor));
-                    sphereFigure.render(vbo, renderContext);
+                    if (static_cast<unsigned int>(m_hitIndex) < m_numPoints) {
+                        if (dragType() == DTDrag ||
+                            inputState.pickResult().first(Model::HitType::ClipHandleHit, true, m_filter) != NULL) {
+                            const Color& color = prefs.getColor(Preferences::VertexHandleColor);
+                            const float radius = prefs.getFloat(Preferences::HandleRadius);
+                            const float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
+                            
+                            glDisable(GL_DEPTH_TEST);
+                            Renderer::PointHandleHighlightFigure highlightFigure(m_points[m_hitIndex], color, radius, scalingFactor);
+                            highlightFigure.render(vbo, renderContext);
+                            glEnable(GL_DEPTH_TEST);
+                        }
+                    } else {
+                        pointHandleShader.currentShader().setUniformVariable("Position", Vec4f(m_points[m_hitIndex], 1.0f));
+                        glDisable(GL_DEPTH_TEST);
+                        pointHandleShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedClipHandleColor));
+                        sphereFigure.render(vbo, renderContext);
+                        glEnable(GL_DEPTH_TEST);
+                        pointHandleShader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ClipHandleColor));
+                        sphereFigure.render(vbo, renderContext);
+                    }
                 }
 
                 if (m_numPoints > 1) {

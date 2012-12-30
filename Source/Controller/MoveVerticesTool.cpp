@@ -26,6 +26,7 @@
 #include "Controller/SplitFacesCommand.h"
 #include "Model/EditStateManager.h"
 #include "Model/MapDocument.h"
+#include "Renderer/PointHandleHighlightFigure.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/SharedResources.h"
 #include "Renderer/Shader/ShaderManager.h"
@@ -111,6 +112,19 @@ namespace TrenchBroom {
             Model::MoveHandleHit* moveHandleHit = static_cast<Model::MoveHandleHit*>(inputState.pickResult().first(Model::HitType::MoveHandleHit, true, view().filter()));
             m_moveHandle.render(moveHandleHit, vbo, renderContext);
             m_handleManager.render(vbo, renderContext, m_mode == VMSplit);
+            
+            Model::VertexHandleHit* vertexHandleHit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit | Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));
+            if (vertexHandleHit != NULL) {
+                Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+                const Color& color = prefs.getColor(Preferences::VertexHandleColor);
+                const float radius = prefs.getFloat(Preferences::HandleRadius);
+                const float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
+                
+                glDisable(GL_DEPTH_TEST);
+                Renderer::PointHandleHighlightFigure highlightFigure(vertexHandleHit->vertex(), color, radius, scalingFactor);
+                highlightFigure.render(vbo, renderContext);
+                glEnable(GL_DEPTH_TEST);
+            }
         }
 
         bool MoveVerticesTool::handleMouseUp(InputState& inputState) {

@@ -35,9 +35,12 @@ namespace TrenchBroom {
     namespace Math {
         class Vec4f {
         public:
+            static const Vec4f Null;
+
             float x, y, z, w;
             
             typedef std::vector<Vec4f> List;
+            static const List EmptyList;
             
             Vec4f() : x(0), y(0), z(0), w(0) {}
             

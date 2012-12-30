@@ -33,6 +33,8 @@
 		482A0876164305450000799C /* RingFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482A0874164305450000799C /* RingFigure.cpp */; };
 		482A087D16446B470000799C /* RotateObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482A087B16446B470000799C /* RotateObjectsCommand.cpp */; };
 		482BB67E162931E800B9FAAE /* MoveObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482BB67C162931E800B9FAAE /* MoveObjectsCommand.cpp */; };
+		482F4BCB1690681A0012D821 /* Vec4f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482F4BCA1690681A0012D821 /* Vec4f.cpp */; };
+		482F4BCF16906ACB0012D821 /* PointHandleHighlightFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482F4BCD16906ACB0012D821 /* PointHandleHighlightFigure.cpp */; };
 		48312B2815EABBD600607868 /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 48312B2715EABBD600607868 /* Icon.icns */; };
 		48312B2C15EB706D00607868 /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B2A15EB706D00607868 /* Console.cpp */; };
 		48312B3215EB800600607868 /* Vbo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B3015EB800600607868 /* Vbo.cpp */; };
@@ -217,6 +219,9 @@
 		482A087C16446B470000799C /* RotateObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateObjectsCommand.h; sourceTree = "<group>"; };
 		482BB67C162931E800B9FAAE /* MoveObjectsCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveObjectsCommand.cpp; sourceTree = "<group>"; };
 		482BB67D162931E800B9FAAE /* MoveObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveObjectsCommand.h; sourceTree = "<group>"; };
+		482F4BCA1690681A0012D821 /* Vec4f.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Vec4f.cpp; sourceTree = "<group>"; };
+		482F4BCD16906ACB0012D821 /* PointHandleHighlightFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointHandleHighlightFigure.cpp; sourceTree = "<group>"; };
+		482F4BCE16906ACB0012D821 /* PointHandleHighlightFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointHandleHighlightFigure.h; sourceTree = "<group>"; };
 		48312B2715EABBD600607868 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
 		48312B2A15EB706D00607868 /* Console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Console.cpp; sourceTree = "<group>"; };
 		48312B2B15EB706D00607868 /* Console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Console.h; sourceTree = "<group>"; };
@@ -800,6 +805,7 @@
 				4847641415E2E0E800095BC0 /* Vec2f.h */,
 				48D1BE9C15E2E5550073C030 /* Vec3f.cpp */,
 				48D1BE9A15E2E35C0073C030 /* Vec3f.h */,
+				482F4BCA1690681A0012D821 /* Vec4f.cpp */,
 				48D1BE9E15E2EC5D0073C030 /* Vec4f.h */,
 				48D1BE9B15E2E3B50073C030 /* VecMath.h */,
 				481CDADA16034034003E2EE9 /* Preferences.cpp */,
@@ -983,6 +989,8 @@
 				48FBD13F16259AD70059953D /* EntityFigure.cpp */,
 				48FBD14016259AD70059953D /* EntityFigure.h */,
 				48FBD13C16258DE70059953D /* Figure.h */,
+				482F4BCD16906ACB0012D821 /* PointHandleHighlightFigure.cpp */,
+				482F4BCE16906ACB0012D821 /* PointHandleHighlightFigure.h */,
 				482A0874164305450000799C /* RingFigure.cpp */,
 				482A0875164305450000799C /* RingFigure.h */,
 				4847AC8B16466BED00726872 /* SphereFigure.cpp */,
@@ -1191,6 +1199,8 @@
 				48BB02BF16870CF300E6E948 /* ResizeBrushesTool.cpp in Sources */,
 				48BB02C31687AEE300E6E948 /* ResizeBrushesCommand.cpp in Sources */,
 				48533C8A168F96830055DBC7 /* ReparentBrushesCommand.cpp in Sources */,
+				482F4BCB1690681A0012D821 /* Vec4f.cpp in Sources */,
+				482F4BCF16906ACB0012D821 /* PointHandleHighlightFigure.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
