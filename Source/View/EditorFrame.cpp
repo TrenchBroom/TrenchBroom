@@ -87,9 +87,6 @@ namespace TrenchBroom {
             if (!m_documentViewHolder.valid())
                 return;
             
-            if (GetMenuBar() != NULL)
-                return;
-            
             TrenchBroomApp* app = static_cast<TrenchBroomApp*>(wxTheApp);
             wxMenu* actionMenu = NULL;
             if (wxDynamicCast(FindFocus(), wxTextCtrl) == NULL) {
