@@ -21,6 +21,7 @@
 
 #include "Model/Brush.h"
 #include "Model/BrushGeometry.h"
+#include "Utility/Console.h"
 
 #include <cassert>
 

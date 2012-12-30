@@ -21,6 +21,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Face.h"
+#include "Utility/Console.h"
 
 namespace TrenchBroom {
     namespace Controller {

@@ -101,6 +101,7 @@ namespace TrenchBroom {
             void cameraChange();
 
             void render(Renderer::Vbo& vbo, Renderer::RenderContext& context);
+            void freeRenderResources();
             
             inline ClipTool& clipTool() const {
                 return *m_clipTool;
@@ -126,6 +127,7 @@ namespace TrenchBroom {
             void createEntity(Model::EntityDefinition& definition);
             Model::Entity* canReparentBrushes(const Model::BrushList& brushes);
             void reparentBrushes(const Model::BrushList& brushes);
+            
         };
 
         class InputControllerFigure : public Renderer::Figure {
@@ -133,6 +135,8 @@ namespace TrenchBroom {
             InputController& m_inputController;
         public:
             InputControllerFigure(InputController& inputController);
+            ~InputControllerFigure();
+            
             void render(Renderer::Vbo& vbo, Renderer::RenderContext& context);
         };
         

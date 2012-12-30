@@ -58,6 +58,7 @@ namespace TrenchBroom {
 
             void handlePick(InputState& inputState);
             void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
+            void handleFreeRenderResources();
             
             bool handleMouseUp(InputState& inputState);
             bool handleMouseDClick(InputState& inputState);

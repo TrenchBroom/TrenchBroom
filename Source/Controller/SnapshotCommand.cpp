@@ -125,9 +125,6 @@ namespace TrenchBroom {
         void SnapshotCommand::restoreSnapshots(const Model::BrushList& brushes) {
             assert(m_brushes.size() == brushes.size());
             
-            if (brushes.empty())
-                return;
-            
             for (unsigned int i = 0; i < brushes.size(); i++) {
                 Model::Brush& brush = *brushes[i];
                 BrushSnapshot& snapshot = *m_brushes[brush.uniqueId()];

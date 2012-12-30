@@ -124,7 +124,6 @@ namespace TrenchBroom {
             }
         public:
             VertexHandleManager();
-            ~VertexHandleManager();
             
             inline const Model::VertexToBrushesMap& unselectedVertexHandles() const {
                 return m_unselectedVertexHandles;
@@ -190,6 +189,7 @@ namespace TrenchBroom {
             
             void pick(const Ray& ray, Model::PickResult& pickResult, bool splitMode) const;
             void render(Renderer::Vbo& vbo, Renderer::RenderContext& renderContext, bool splitMode);
+            void freeRenderResources();
             
             inline void invalidateRenderState() {
                 m_renderStateValid = false;

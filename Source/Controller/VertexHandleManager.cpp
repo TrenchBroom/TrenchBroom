@@ -49,15 +49,6 @@ namespace TrenchBroom {
             m_unselectedHandleRenderer = Renderer::PointHandleRenderer::create(handleRadius, 2, scalingFactor, maxDistance);
         }
 
-        VertexHandleManager::~VertexHandleManager() {
-            /* FIXME: deleting the renderers here leads to freeing a VBO block of a VBO that has already been deleted
-            delete m_unselectedHandleRenderer;
-            m_unselectedHandleRenderer = NULL;
-            delete m_selectedHandleRenderer;
-            m_selectedHandleRenderer = NULL;
-            */
-        }
-
         const Model::EdgeList& VertexHandleManager::edges(const Vec3f& handlePosition) const {
             Model::VertexToEdgesMap::const_iterator mapIt = m_selectedEdgeHandles.find(handlePosition);
             if (mapIt == m_selectedEdgeHandles.end())
@@ -384,6 +375,13 @@ namespace TrenchBroom {
             m_unselectedHandleRenderer->render(vbo, renderContext);
             m_selectedHandleRenderer->render(vbo, renderContext);
             glEnable(GL_DEPTH_TEST);
+        }
+
+        void VertexHandleManager::freeRenderResources() {
+            delete m_unselectedHandleRenderer;
+            m_unselectedHandleRenderer = NULL;
+            delete m_selectedHandleRenderer;
+            m_selectedHandleRenderer = NULL;
         }
     }
 }

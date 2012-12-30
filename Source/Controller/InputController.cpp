@@ -340,6 +340,10 @@ namespace TrenchBroom {
             m_toolChain->render(m_inputState, vbo, context);
         }
 
+        void InputController::freeRenderResources() {
+            m_toolChain->freeRenderResources();
+        }
+
         void InputController::toggleClipTool() {
             if (m_clipTool->active()) {
                 m_clipTool->deactivate(m_inputState);
@@ -570,6 +574,10 @@ namespace TrenchBroom {
         InputControllerFigure::InputControllerFigure(InputController& inputController) :
         m_inputController(inputController) {}
         
+        InputControllerFigure::~InputControllerFigure() {
+            m_inputController.freeRenderResources();
+        }
+
         void InputControllerFigure::render(Renderer::Vbo& vbo, Renderer::RenderContext& context) {
             m_inputController.render(vbo, context);
         }

@@ -127,6 +127,10 @@ namespace TrenchBroom {
             }
         }
 
+        void MoveVerticesTool::handleFreeRenderResources() {
+            m_handleManager.freeRenderResources();
+        }
+
         bool MoveVerticesTool::handleMouseUp(InputState& inputState) {
             if (inputState.mouseButtons() != MouseButtons::MBLeft ||
                 (inputState.modifierKeys() != ModifierKeys::MKNone && inputState.modifierKeys() != ModifierKeys::MKCtrlCmd))
@@ -400,6 +404,8 @@ namespace TrenchBroom {
                     } else {
                         m_handleManager.add(command->brushes());
                         m_handleManager.selectEdgeHandle(position);
+                        m_ignoreObjectChanges = false;
+                        return false;
                     }
                 } else if (!m_handleManager.selectedFaceHandles().empty()) {
                     const Vec3f& position = m_handleManager.selectedFaceHandles().begin()->first;
@@ -416,6 +422,8 @@ namespace TrenchBroom {
                     } else {
                         m_handleManager.add(command->brushes());
                         m_handleManager.selectFaceHandle(position);
+                        m_ignoreObjectChanges = false;
+                        return false;
                     }
                 }
             }

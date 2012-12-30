@@ -169,6 +169,7 @@ namespace TrenchBroom {
             /* Feedback Protocol */
             virtual void handlePick(InputState& inputState) {}
             virtual void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {}
+            virtual void handleFreeRenderResources() {}
             
             inline void deleteFigure(Renderer::Figure* figure) {
                 m_deleteFigures.push_back(figure);
@@ -267,6 +268,12 @@ namespace TrenchBroom {
                     handleRender(inputState, vbo, renderContext);
                 if (nextTool() != NULL)
                     nextTool()->render(inputState, vbo, renderContext);
+            }
+            
+            inline void freeRenderResources() {
+                handleFreeRenderResources();
+                if (nextTool() != NULL)
+                    nextTool()->freeRenderResources();
             }
             
             inline void updateHits(InputState& inputState) {

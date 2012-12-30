@@ -411,6 +411,9 @@
     <ClCompile Include="..\..\Source\Controller\ReparentBrushesCommand.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\PointHandleHighlightFigure.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -976,6 +979,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\ReparentBrushesCommand.h">
       <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\PointHandleHighlightFigure.h">
+      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
