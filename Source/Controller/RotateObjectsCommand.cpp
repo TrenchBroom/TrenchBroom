@@ -44,7 +44,7 @@ namespace TrenchBroom {
             makeSnapshots(m_brushes);
             
             if (angle < 0.0f)
-                angle = 2.0f * Math::Pi + angle;
+                angle += 2.0f * Math::Pi;
             
             document().console().debug("angle %f -> %f", m_angle, angle);
             
@@ -67,13 +67,13 @@ namespace TrenchBroom {
                         Model::EntityList::const_iterator entityIt, entityEnd;
                         for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                             Model::Entity& entity = **entityIt;
-                            entity.rotate90(component, m_center, angle > 0.0f, m_lockTextures);
+                            entity.rotate90(component, m_center, angle < 0.0f, m_lockTextures);
                         }
                         
                         Model::BrushList::const_iterator brushIt, brushEnd;
                         for (brushIt = m_brushes.begin(), brushEnd = m_brushes.end(); brushIt != brushEnd; ++brushIt) {
                             Model::Brush& brush = **brushIt;
-                            brush.rotate90(component, m_center, angle > 0.0f, m_lockTextures);
+                            brush.rotate90(component, m_center, angle < 0.0f, m_lockTextures);
                         }
                     }
                 }
