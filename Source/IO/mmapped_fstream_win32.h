@@ -71,9 +71,9 @@ private:
 			if (m_mappingHandle != NULL) {
 				m_address = MapViewOfFile(m_mappingHandle, mapAccess, 0, 0, 0);
 				if (m_address != NULL) {
-                char* begin = static_cast<char*>(m_address);
-                char* end = begin + m_length;
-                m_buf = new mmapped_streambuf(begin, end);
+					char* begin = static_cast<char*>(m_address);
+					char* end = begin + m_length;
+					m_buf = new mmapped_streambuf(begin, end);
 				} else {
 					CloseHandle(m_mappingHandle);
 					m_mappingHandle = NULL;

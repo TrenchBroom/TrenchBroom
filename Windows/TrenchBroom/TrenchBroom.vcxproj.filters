@@ -408,6 +408,9 @@
     <ClCompile Include="..\..\Source\Controller\Autosaver.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\ReparentBrushesCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -970,6 +973,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\View\WxScreenDC.h">
       <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\ReparentBrushesCommand.h">
+      <Filter>Header Files\Controller</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
