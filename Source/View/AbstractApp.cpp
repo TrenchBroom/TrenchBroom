@@ -126,12 +126,12 @@ wxMenu* AbstractApp::CreateViewMenu(wxEvtHandler* eventHandler) {
     viewMenu->AppendSubMenu(gridMenu, wxT("Grid"));
     
     wxMenu* cameraMenu = new wxMenu();
-    cameraMenu->Append(ViewMoveCameraForward, wxT("Move Forward\tCtrl+UP"));
-    cameraMenu->Append(ViewMoveCameraBackward, wxT("Move Backward\tCtrl+DOWN"));
-    cameraMenu->Append(ViewMoveCameraLeft, wxT("Move Left\tCtrl+LEFT"));
-    cameraMenu->Append(ViewMoveCameraRight, wxT("Move Right\tCtrl+RIGHT"));
-    cameraMenu->Append(ViewMoveCameraUp, wxT("Move Up\tCtrl+PGUP"));
-    cameraMenu->Append(ViewMoveCameraDown, wxT("Move Down\tCtrl+PGDN"));
+    cameraMenu->Append(ViewMoveCameraForward, wxT("Move Forward\tAlt+UP"));
+    cameraMenu->Append(ViewMoveCameraBackward, wxT("Move Backward\tAlt+DOWN"));
+    cameraMenu->Append(ViewMoveCameraLeft, wxT("Move Left\tAlt+LEFT"));
+    cameraMenu->Append(ViewMoveCameraRight, wxT("Move Right\tAlt+RIGHT"));
+    cameraMenu->Append(ViewMoveCameraUp, wxT("Move Up\tAlt+PGUP"));
+    cameraMenu->Append(ViewMoveCameraDown, wxT("Move Down\tAlt+PGDN"));
     cameraMenu->SetEventHandler(eventHandler);
     viewMenu->AppendSubMenu(cameraMenu, wxT("Camera"));
     
