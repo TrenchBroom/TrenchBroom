@@ -71,6 +71,7 @@ namespace TrenchBroom {
             void OnMapCanvasSetFocus(wxFocusEvent& event);
             void OnMapCanvasKillFocus(wxFocusEvent& event);
             void OnClose(wxCloseEvent& event);
+            void OnIdle(wxIdleEvent& event);
         
             DECLARE_EVENT_TABLE()
         };

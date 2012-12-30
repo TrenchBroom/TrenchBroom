@@ -42,6 +42,7 @@ namespace TrenchBroom {
     namespace View {
         BEGIN_EVENT_TABLE(EditorFrame, wxFrame)
 		EVT_CLOSE(EditorFrame::OnClose)
+        EVT_IDLE(EditorFrame::OnIdle)
 		END_EVENT_TABLE()
 
         void EditorFrame::CreateGui() {
@@ -153,6 +154,22 @@ namespace TrenchBroom {
             assert(m_documentViewHolder.valid());
             Model::MapDocument& document = m_documentViewHolder.document();
             document.GetDocumentManager()->CloseDocument(&document);
+        }
+
+        void EditorFrame::OnIdle(wxIdleEvent& event) {
+#ifdef _WIN32
+			if (m_documentViewHolder.valid()) {
+				wxMenuBar* menuBar = GetMenuBar();
+				if (menuBar != NULL) {
+					size_t menuCount = menuBar->GetMenuCount();
+					for (size_t i = 0; i < menuCount; i++) {
+						wxMenu* menu = menuBar->GetMenu(i);
+						menu->UpdateUI(&m_documentViewHolder.view());
+					}
+				}
+			}
+#endif
+			event.Skip();
         }
     }
 }
