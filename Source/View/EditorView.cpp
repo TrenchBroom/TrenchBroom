@@ -74,6 +74,7 @@ namespace TrenchBroom {
         EVT_MENU(wxID_OPEN, EditorView::OnFileOpen)
         EVT_MENU(wxID_SAVE, EditorView::OnFileSave)
         EVT_MENU(wxID_SAVEAS, EditorView::OnFileSaveAs)
+        EVT_MENU(wxID_CLOSE, EditorView::OnFileClose)
 
         EVT_MENU(wxID_UNDO, EditorView::OnUndo)
         EVT_MENU(wxID_REDO, EditorView::OnRedo)
@@ -646,6 +647,10 @@ namespace TrenchBroom {
 
         void EditorView::OnFileSaveAs(wxCommandEvent& event) {
             GetDocument()->SaveAs();
+        }
+
+        void EditorView::OnFileClose(wxCommandEvent& event) {
+            GetDocument()->GetDocumentManager()->CloseDocument(GetDocument());
         }
 
         void EditorView::OnUndo(wxCommandEvent& event) {

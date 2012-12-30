@@ -212,7 +212,9 @@ namespace TrenchBroom {
 			if (GetCapture() == this)
 				ReleaseMouse();
             if (!m_inputController->mouseUp(Controller::MouseButtons::MBRight)) {
-                PopupMenu(m_documentViewHolder.view().createEntityPopupMenu());
+                wxMenu* popupMenu = m_documentViewHolder.view().createEntityPopupMenu();
+                popupMenu->UpdateUI(&m_documentViewHolder.view());
+                PopupMenu(popupMenu);
             }
         }
         
