@@ -488,7 +488,7 @@ namespace TrenchBroom {
             if (lockTexture) {
                 Mat4f t = Mat4f::Identity.translated(center);
                 t.rotate(rotation);
-                t.translate(-1.0f * center);
+                t.translate(-center);
                 compensateTransformation(t);
             }
             

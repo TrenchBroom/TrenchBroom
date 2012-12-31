@@ -132,15 +132,6 @@ namespace TrenchBroom {
                 return Plane(normal, (anchor() + delta).dot(normal));
             }
             
-            inline Plane& rotate90(Axis::Type axis, bool clockwise) {
-                normal.rotate90(axis, clockwise);
-                return *this;
-            }
-            
-            inline const Plane rotated90(Axis::Type axis, bool clockwise) const {
-                return Plane(normal.rotated90(axis, clockwise), distance);
-            }
-            
             inline Plane& rotate90(Axis::Type axis, const Vec3f& center, bool clockwise) {
                 Vec3f oldAnchor = anchor();
                 normal.rotate90(axis, clockwise);
@@ -152,32 +143,16 @@ namespace TrenchBroom {
                 return Plane(normal.rotated90(axis, clockwise), anchor().rotated90(axis, center, clockwise));
             }
             
-            inline Plane& rotate(const Quat& rotation) {
-                normal = rotation * normal;
-                return *this;
-            }
-            
-            inline const Plane rotated(const Quat& rotation) const {
-                return Plane(rotation * normal, distance);
-            }
-            
             inline Plane& rotate(const Quat& rotation, const Vec3f& center) {
+                Vec3f oldAnchor = anchor();
                 normal = rotation * normal;
-                distance = (rotation * (anchor() - center) + center).dot(normal);
+                distance = (rotation * (oldAnchor - center) + center).dot(normal);
                 return *this;
             }
             
             inline const Plane rotated(const Quat& rotation, const Vec3f& center) const {
-                return Plane(rotation * normal, rotation * (anchor() - center) + center);
-            }
-            
-            inline Plane& flip(Axis::Type axis) {
-                normal.flip(axis);
-                return *this;
-            }
-            
-            inline const Plane flipped(Axis::Type axis) const {
-                return Plane(normal.flipped(axis), distance);
+                Vec3f oldAnchor = anchor();
+                return Plane(rotation * normal, rotation * (oldAnchor - center) + center);
             }
             
             inline Plane& flip(Axis::Type axis, const Vec3f& center) {

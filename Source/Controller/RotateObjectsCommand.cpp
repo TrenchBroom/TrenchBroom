@@ -40,13 +40,13 @@ namespace TrenchBroom {
             if (angle == 0.0f)
                 return false;
             
+            document().console().info("Rotation center: %f %f %f", m_center.x, m_center.y, m_center.z);
+            
             makeSnapshots(m_entities);
             makeSnapshots(m_brushes);
             
             if (angle < 0.0f)
                 angle += 2.0f * Math::Pi;
-            
-            document().console().debug("angle %f -> %f", m_angle, angle);
             
             assert(angle > 0.0f);
             
