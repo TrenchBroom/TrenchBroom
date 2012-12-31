@@ -106,11 +106,14 @@ public:
     }
     
     ~mmapped_fstream_win32() {
-		m_address = NULL;
-
 		if (m_buf != NULL) {
             delete m_buf;
             m_buf = NULL;
+        }
+
+        if (m_address != NULL) {
+        	UnmapViewOfFile(m_address);
+        	m_address = NULL;
         }
 
 		if (m_mappingHandle != NULL) {
