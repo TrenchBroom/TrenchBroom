@@ -99,6 +99,11 @@ namespace TrenchBroom {
                 return m_name;
             }
             
+            inline void update(const String& name, const String& path) {
+                m_name = name;
+                m_path = path;
+            }
+            
             LoaderPtr loader() const;
         };
 

@@ -46,6 +46,7 @@ namespace TrenchBroom {
             String resolvePath(const String& path);
             StringList resolvePath(const StringList& pathComponents);
             String makeRelative(const String& absolutePath, const String& referencePath);
+            String makeAbsolute(const String& relativePath, const String& referencePath);
             
             String pathExtension(const String& path);
             String appendExtension(const String& path, const String& ext);

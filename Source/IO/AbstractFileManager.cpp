@@ -179,6 +179,16 @@ namespace TrenchBroom {
             return joinComponents(relativePathComponents);
         }
 
+        String AbstractFileManager::makeAbsolute(const String& relativePath, const String& referencePath) {
+            if (::wxIsAbsolutePath(relativePath))
+                return relativePath;
+            if (!::wxIsAbsolutePath(referencePath))
+                return "";
+
+            String folderPath = deleteLastPathComponent(referencePath);
+            return appendPath(folderPath, relativePath);
+        }
+
         String AbstractFileManager::pathExtension(const String& path) {
             size_t pos = path.find_last_of('.');
             if (pos == String::npos) return "";

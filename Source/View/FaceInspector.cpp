@@ -376,20 +376,38 @@ namespace TrenchBroom {
 
                 Model::MapDocument& document = m_documentViewHolder.document();
                 String documentFilename = document.GetFilename().ToStdString();
-                if (!documentFilename.empty()) {
-                    IO::FileManager fileManager;
+
+                IO::FileManager fileManager;
+                if (fileManager.exists(documentFilename) &&
+                    fileManager.isAbsolutePath(documentFilename)) {
                     String relWadPath = fileManager.makeRelative(absWadPath, documentFilename);
-                    StringStream message;
-                    message << "Would you like to add this texture wad with a path relative to the path of the map file?\n\nAbsolute path: " << absWadPath << "\n\nRelative path: " << relWadPath;
-                    wxMessageDialog makeRelativeDialog(NULL, wxString(message.str()), wxT("Add texture wad"), wxYES_NO | wxCANCEL | wxCENTER);
-                    makeRelativeDialog.SetYesNoCancelLabels(wxT("Use absolute path"), wxT("Use relative path"), wxT("Cancel"));
                     
-                    int result = makeRelativeDialog.ShowModal();
+                    StringStream message;
+                    message << "Would you like to add this texture wad with a path relative to the path of the map file?\n\n";
+                    message << "Absolute path: " << absWadPath << "\n\n";
+                    message << "Relative path: " << relWadPath;
+                    
+                    wxMessageDialog wadPathDialog(NULL, wxString(message.str()), wxT("Add texture wad"), wxYES_NO | wxCANCEL | wxCENTER);
+                    wadPathDialog.SetYesNoCancelLabels(wxT("Use absolute path"), wxT("Use relative path"), wxT("Cancel"));
+                    
+                    int result = wadPathDialog.ShowModal();
                     if (result == wxID_YES) {
                         Controller::TextureCollectionCommand* command = Controller::TextureCollectionCommand::addTextureWad(document, absWadPath);
                         document.GetCommandProcessor()->Submit(command);
                     } else if (result == wxID_NO) {
                         Controller::TextureCollectionCommand* command = Controller::TextureCollectionCommand::addTextureWad(document, relWadPath);
+                        document.GetCommandProcessor()->Submit(command);
+                    }
+                } else {
+                    StringStream message;
+                    message << "To add this texture wad with a relative path, you must first save the map file\n\n";
+                    message << "Absolute path: " << absWadPath;
+                    wxMessageDialog wadPathDialog(NULL, wxString(message.str()), wxT("Add texture wad"), wxYES_NO | wxCENTER);
+                    wadPathDialog.SetYesNoLabels(wxT("Use absolute path"), wxT("Cancel"));
+                    
+                    int result = wadPathDialog.ShowModal();
+                    if (result == wxID_YES) {
+                        Controller::TextureCollectionCommand* command = Controller::TextureCollectionCommand::addTextureWad(document, absWadPath);
                         document.GetCommandProcessor()->Submit(command);
                     }
                 }
