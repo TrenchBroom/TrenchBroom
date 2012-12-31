@@ -1189,9 +1189,11 @@ namespace TrenchBroom {
                     break;
                 case wxID_CUT:
                 case wxID_DELETE:
-                    if (textCtrl != NULL) {
-                        event.Enable(textCtrl->CanCut());
-                    } else if (inputController().clipToolActive()) {
+                    if (textCtrl == NULL)
+                        event.SetText(wxT("Delete\tBack"));
+                    else
+                        event.SetText(wxT("Delete"));
+                    if (inputController().clipToolActive()) {
                         event.Enable(inputController().canDeleteClipPoint());
                     } else {
                         event.Enable(editStateManager.selectionMode() != Model::EditStateManager::SMNone &&
@@ -1221,16 +1223,32 @@ namespace TrenchBroom {
                     event.Enable(editStateManager.hasLockedObjects());
                     break;
                 case CommandIds::Menu::EditToggleClipTool:
+                    if (textCtrl == NULL)
+                        event.SetText(wxT("Clip Tool\tC"));
+                    else
+                        event.SetText(wxT("Clip Tool"));
                     event.Enable(inputController().clipToolActive() || editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
                     event.Check(inputController().clipToolActive());
                     break;
                 case CommandIds::Menu::EditToggleClipSide:
+                    if (textCtrl == NULL)
+                        event.SetText(wxT("Toggle Clip Side\tTAB"));
+                    else
+                        event.SetText(wxT("Toggle Clip Side"));
                     event.Enable(inputController().clipToolActive());
                     break;
                 case CommandIds::Menu::EditPerformClip:
+                    if (textCtrl == NULL)
+                        event.SetText(wxT("Perform Clip\tENTER"));
+                    else
+                        event.SetText(wxT("Perform Clip"));
                     event.Enable(inputController().canPerformClip());
                     break;
                 case CommandIds::Menu::EditToggleVertexTool:
+                    if (textCtrl == NULL)
+                        event.SetText(wxT("Vertex Tool\tV"));
+                    else
+                        event.SetText(wxT("Vertex Tool"));
                     event.Enable(editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
                     event.Check(inputController().moveVerticesToolActive());
                     break;
