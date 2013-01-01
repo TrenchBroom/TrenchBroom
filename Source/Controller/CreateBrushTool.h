@@ -44,7 +44,7 @@ namespace TrenchBroom {
             Vec3f m_initialPoint;
             BBox m_bounds;
             Vec3f m_normal;
-            unsigned int m_thickness;
+            int m_thickness;
             bool m_boundsChanged;
             Model::Brush* m_brush;
             Renderer::BrushFigure* m_brushFigure;

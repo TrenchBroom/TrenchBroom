@@ -48,34 +48,23 @@ namespace TrenchBroom {
 
         void CreateBrushTool::updateBoundsThickness() {
             Utility::Grid& grid = document().grid();
-            switch (m_normal.firstComponent()) {
-                case Axis::AX:
-                    if (m_normal.x > 0.0f) {
-                        m_bounds.min.x = m_initialPoint.x;
-                        m_bounds.max.x = m_bounds.min.x + m_thickness * grid.actualSize();
-                    } else {
-                        m_bounds.max.x = m_initialPoint.x;
-                        m_bounds.min.x = m_bounds.max.x - m_thickness * grid.actualSize();
-                    }
-                    break;
-                case Axis::AY:
-                    if (m_normal.y > 0.0f) {
-                        m_bounds.min.y = m_initialPoint.y;
-                        m_bounds.max.y = m_bounds.min.y + m_thickness * grid.actualSize();
-                    } else {
-                        m_bounds.max.y = m_initialPoint.y;
-                        m_bounds.min.y = m_bounds.max.y - m_thickness * grid.actualSize();
-                    }
-                    break;
-                default:
-                    if (m_normal.z > 0.0f) {
-                        m_bounds.min.z = m_initialPoint.z;
-                        m_bounds.max.z = m_bounds.min.z + m_thickness * grid.actualSize();
-                    } else {
-                        m_bounds.max.z = m_initialPoint.z;
-                        m_bounds.min.z = m_bounds.max.z - m_thickness * grid.actualSize();
-                    }
-                    break;
+            int gridSize = static_cast<int>(grid.actualSize());
+            
+            Axis::Type c = m_normal.firstComponent();
+            if (m_normal[c] > 0.0f) {
+                m_bounds.min[c] = m_bounds.max[c] = grid.snapDown(m_initialPoint[c]);
+                m_bounds.max[c] += gridSize;
+                if (m_thickness > 0)
+                    m_bounds.max[c] += (m_thickness - 1) * gridSize;
+                else
+                    m_bounds.min[c] += m_thickness * gridSize;
+            } else {
+                m_bounds.min[c] = m_bounds.max[c] = grid.snapUp(m_initialPoint[c]);
+                m_bounds.min[c] -= gridSize;
+                if (m_thickness > 0)
+                    m_bounds.min[c] -= (m_thickness - 1) * gridSize;
+                else
+                    m_bounds.max[c] -= m_thickness * gridSize;
             }
             m_boundsChanged = true;
         }
@@ -95,10 +84,15 @@ namespace TrenchBroom {
             if (dragType() != DTDrag)
                 return;
             
-            if (inputState.scroll() > 0.0f)
+            if (inputState.scroll() > 0.0f) {
                 m_thickness++;
-            else if (m_thickness > 1)
+                if (m_thickness == 0)
+                    m_thickness++;
+            } else {
                 m_thickness--;
+                if (m_thickness == 0)
+                    m_thickness--;
+            }
             updateBoundsThickness();
 
             delete m_brush;
