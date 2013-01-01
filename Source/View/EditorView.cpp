@@ -85,6 +85,8 @@ namespace TrenchBroom {
         EVT_MENU(wxID_DELETE, EditorView::OnEditDelete)
 
         EVT_MENU(CommandIds::Menu::EditSelectAll, EditorView::OnEditSelectAll)
+        EVT_MENU(CommandIds::Menu::EditSelectSiblings, EditorView::OnEditSelectSiblings)
+        EVT_MENU(CommandIds::Menu::EditSelectTouching, EditorView::OnEditSelectTouching)
         EVT_MENU(CommandIds::Menu::EditSelectNone, EditorView::OnEditSelectNone)
 
         EVT_MENU(CommandIds::Menu::EditHideSelected, EditorView::OnEditHideSelected)
@@ -794,6 +796,32 @@ namespace TrenchBroom {
             }
         }
 
+        void EditorView::OnEditSelectSiblings(wxCommandEvent& event) {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            assert(editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
+            
+            const Model::BrushList& selectedBrushes = editStateManager.selectedBrushes();
+            Model::BrushSet selectBrushesSet;
+            
+            Model::BrushList::const_iterator brushIt, brushEnd;
+            for (brushIt = selectedBrushes.begin(), brushEnd = selectedBrushes.end(); brushIt != brushEnd; ++brushIt) {
+                Model::Brush* brush = *brushIt;
+                Model::Entity* entity = brush->entity();
+                const Model::BrushList& entityBrushes = entity->brushes();
+                selectBrushesSet.insert(entityBrushes.begin(), entityBrushes.end());
+            }
+            
+            Model::BrushList selectBrushes;
+            selectBrushes.insert(selectBrushes.begin(), selectBrushesSet.begin(), selectBrushesSet.end());
+            
+            wxCommand* command = Controller::ChangeEditStateCommand::replace(mapDocument(), selectBrushes);
+            submit(command);
+        }
+
+        void EditorView::OnEditSelectTouching(wxCommandEvent& event) {
+            
+        }
+
         void EditorView::OnEditSelectNone(wxCommandEvent& event) {
             wxCommand* command = Controller::ChangeEditStateCommand::deselectAll(mapDocument());
             submit(command);
@@ -1173,7 +1201,7 @@ namespace TrenchBroom {
                     event.Enable(true);
                     break;
                 case CommandIds::Menu::EditSelectSiblings:
-                    event.Enable(false);
+                    event.Enable(editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
                     break;
                 case CommandIds::Menu::EditSelectTouching:
                     event.Enable(false);
@@ -1189,10 +1217,6 @@ namespace TrenchBroom {
                     break;
                 case wxID_CUT:
                 case wxID_DELETE:
-                    if (textCtrl == NULL)
-                        event.SetText(wxT("Delete\tBack"));
-                    else
-                        event.SetText(wxT("Delete"));
                     if (inputController().clipToolActive()) {
                         event.Enable(inputController().canDeleteClipPoint());
                     } else {
@@ -1223,32 +1247,16 @@ namespace TrenchBroom {
                     event.Enable(editStateManager.hasLockedObjects());
                     break;
                 case CommandIds::Menu::EditToggleClipTool:
-                    if (textCtrl == NULL)
-                        event.SetText(wxT("Clip Tool\tC"));
-                    else
-                        event.SetText(wxT("Clip Tool"));
                     event.Enable(inputController().clipToolActive() || editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
                     event.Check(inputController().clipToolActive());
                     break;
                 case CommandIds::Menu::EditToggleClipSide:
-                    if (textCtrl == NULL)
-                        event.SetText(wxT("Toggle Clip Side\tTAB"));
-                    else
-                        event.SetText(wxT("Toggle Clip Side"));
                     event.Enable(inputController().clipToolActive());
                     break;
                 case CommandIds::Menu::EditPerformClip:
-                    if (textCtrl == NULL)
-                        event.SetText(wxT("Perform Clip\tENTER"));
-                    else
-                        event.SetText(wxT("Perform Clip"));
                     event.Enable(inputController().canPerformClip());
                     break;
                 case CommandIds::Menu::EditToggleVertexTool:
-                    if (textCtrl == NULL)
-                        event.SetText(wxT("Vertex Tool\tV"));
-                    else
-                        event.SetText(wxT("Vertex Tool"));
                     event.Enable(editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
                     event.Check(inputController().moveVerticesToolActive());
                     break;

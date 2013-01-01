@@ -23,10 +23,12 @@
 #include "Controller/Input.h"
 #include "Controller/InputController.h"
 #include "Model/MapDocument.h"
+#include "Renderer/ApplyMatrix.h"
 #include "Renderer/Camera.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/SharedResources.h"
+#include "Renderer/VertexArray.h"
 #include "Model/Filter.h"
 #include "Utility/Console.h"
 #include "Utility/Preferences.h"
@@ -35,6 +37,7 @@
 #include "View/EditorView.h"
 #include "View/DragAndDrop.h"
 
+#include <wx/settings.h>
 #include <wx/wx.h>
 
 #include <cassert>
@@ -167,6 +170,64 @@ namespace TrenchBroom {
 				Renderer::RenderContext renderContext(view.camera(), view.filter(), shaderManager, grid, view.viewOptions(), view.console());
 				view.renderer().render(renderContext);
 
+                // draw focus rectangle
+                if (FindFocus() == this) {
+                    Mat4f ortho = Mat4f::Identity;
+                    ortho.setOrtho(-1.0f, 1.0f, 0.0f, 0.0f, GetSize().x, GetSize().y);
+
+                    renderContext.transformation().loadMatrix(ortho);
+
+                    wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
+                    float r = static_cast<float>(color.Red()) / 0xFF;
+                    float g = static_cast<float>(color.Green()) / 0xFF;
+                    float b = static_cast<float>(color.Blue()) / 0xFF;
+                    float a = 1.0f;
+                    
+                    float w = GetSize().x;
+                    float h = GetSize().y;
+                    
+                    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					glDisable(GL_CULL_FACE);
+					glDisable(GL_DEPTH_TEST);
+                    glBegin(GL_QUADS);
+                    
+                    // top
+                    glColor4f(r, g, b, a);
+                    glVertex2f(0.0f, 0.0f);
+                    glVertex2f(w, 0.0f);
+                    glColor4f(r, g, b, 0.5f * a);
+                    glVertex2f(w - 2.0f, 2.0f);
+                    glVertex2f(2.0f, 2.0f);
+
+                    // bottom
+                    glColor4f(r, g, b, a);
+                    glVertex2f(w, h);
+                    glVertex2f(0.0f, h);
+                    glColor4f(r, g, b, 0.5f * a);
+                    glVertex2f(2.0f, h - 2.0f);
+                    glVertex2f(w - 2.0f, h - 2.0f);
+                    
+                    // left
+                    glColor4f(r, g, b, a);
+                    glVertex2f(0.0f, h);
+                    glVertex2f(0.0f, 0.0f);
+                    glColor4f(r, g, b, 0.5f * a);
+                    glVertex2f(2.0f, 2.0f);
+                    glVertex2f(2.0f, h - 2.0f);
+                    
+                    // right
+                    glColor4f(r, g, b, a);
+                    glVertex2f(w, 0.0f);
+                    glVertex2f(w, h);
+                    glColor4f(r, g, b, 0.5f * a);
+                    glVertex2f(w - 2.0f, h - 2.0f);
+                    glVertex2f(w - 2.0f, 2.0f);
+                    glEnd();
+
+					glEnable(GL_CULL_FACE);
+					glEnable(GL_DEPTH_TEST);
+                }
+                
 				SwapBuffers();
 			} else {
 				view.console().error("Unable to set current OpenGL context");

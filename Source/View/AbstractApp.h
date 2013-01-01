@@ -34,15 +34,15 @@ class AbstractApp : public wxApp {
 protected:
 	DocManager* m_docManager;
 
-    virtual wxMenu* CreateFileMenu(wxEvtHandler* eventHandler);
-    virtual wxMenu* CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMenu);
-    virtual wxMenu* CreateViewMenu(wxEvtHandler* eventHandler);
-    virtual wxMenu* CreateHelpMenu(wxEvtHandler* eventHandler);
+    virtual wxMenu* CreateFileMenu(wxEvtHandler* eventHandler, bool mapViewFocused);
+    virtual wxMenu* CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMenu, bool mapViewFocused);
+    virtual wxMenu* CreateViewMenu(wxEvtHandler* eventHandler, bool mapViewFocused);
+    virtual wxMenu* CreateHelpMenu(wxEvtHandler* eventHandler, bool mapViewFocused);
 public:
-    virtual wxMenuBar* CreateMenuBar(wxEvtHandler* eventHandler, wxMenu* actionMenu);
-    virtual wxMenu* CreateTextureActionMenu();
-    virtual wxMenu* CreateObjectActionMenu();
-    virtual wxMenu* CreateVertexActionMenu();
+    virtual wxMenuBar* CreateMenuBar(wxEvtHandler* eventHandler, wxMenu* actionMenu, bool mapViewFocused);
+    virtual wxMenu* CreateTextureActionMenu(bool mapViewFocused);
+    virtual wxMenu* CreateObjectActionMenu(bool mapViewFocused);
+    virtual wxMenu* CreateVertexActionMenu(bool mapViewFocused);
 
     void UpdateAllViews(wxView* sender = NULL, wxObject* hint = NULL);
 

@@ -48,6 +48,7 @@ namespace TrenchBroom {
             Inspector* m_inspector;
             MapGLCanvas* m_mapCanvas;
             wxTextCtrl* m_logView;
+            bool m_mapCanvasHasFocus;
             
             void CreateGui();
         public:
@@ -70,6 +71,8 @@ namespace TrenchBroom {
 
             void OnMapCanvasSetFocus(wxFocusEvent& event);
             void OnMapCanvasKillFocus(wxFocusEvent& event);
+            void OnIdle(wxIdleEvent& event);
+
             void OnClose(wxCloseEvent& event);
             
             void OnMenuOpen(wxMenuEvent& event);

@@ -47,6 +47,7 @@
 
 #include <cassert>
 
+#include <wx/msgdlg.h>
 #include <wx/stopwatch.h>
 
 using namespace TrenchBroom::Math;
