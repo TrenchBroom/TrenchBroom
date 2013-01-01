@@ -185,6 +185,7 @@ namespace TrenchBroom {
                     
                     float w = GetSize().x;
                     float h = GetSize().y;
+                    float t = 3.0f;
                     
                     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					glDisable(GL_CULL_FACE);
@@ -196,32 +197,32 @@ namespace TrenchBroom {
                     glVertex2f(0.0f, 0.0f);
                     glVertex2f(w, 0.0f);
                     glColor4f(r, g, b, 0.5f * a);
-                    glVertex2f(w - 2.0f, 2.0f);
-                    glVertex2f(2.0f, 2.0f);
+                    glVertex2f(w - t, t);
+                    glVertex2f(t, t);
 
                     // bottom
                     glColor4f(r, g, b, a);
                     glVertex2f(w, h);
                     glVertex2f(0.0f, h);
                     glColor4f(r, g, b, 0.5f * a);
-                    glVertex2f(2.0f, h - 2.0f);
-                    glVertex2f(w - 2.0f, h - 2.0f);
+                    glVertex2f(t, h - t);
+                    glVertex2f(w - t, h - t);
                     
                     // left
                     glColor4f(r, g, b, a);
                     glVertex2f(0.0f, h);
                     glVertex2f(0.0f, 0.0f);
                     glColor4f(r, g, b, 0.5f * a);
-                    glVertex2f(2.0f, 2.0f);
-                    glVertex2f(2.0f, h - 2.0f);
+                    glVertex2f(t, t);
+                    glVertex2f(t, h - t);
                     
                     // right
                     glColor4f(r, g, b, a);
                     glVertex2f(w, 0.0f);
                     glVertex2f(w, h);
                     glColor4f(r, g, b, 0.5f * a);
-                    glVertex2f(w - 2.0f, h - 2.0f);
-                    glVertex2f(w - 2.0f, 2.0f);
+                    glVertex2f(w - t, h - t);
+                    glVertex2f(w - t, t);
                     glEnd();
 
 					glEnable(GL_CULL_FACE);
