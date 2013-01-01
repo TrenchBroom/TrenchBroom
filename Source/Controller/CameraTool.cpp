@@ -52,7 +52,24 @@ namespace TrenchBroom {
         }
         
         void CameraTool::handleScroll(InputState& inputState) {
-            if (inputState.modifierKeys() == ModifierKeys::MKNone) {
+            if (inputState.modifierKeys() != ModifierKeys::MKNone &&
+                inputState.modifierKeys() != ModifierKeys::MKAlt)
+                return;
+            if (m_orbit) {
+                const Renderer::Camera& camera = inputState.camera();
+                Plane orbitPlane(camera.direction(), m_orbitCenter);
+                float maxForward = orbitPlane.intersectWithRay(Ray(camera.position(), camera.direction())) - 32.0f;
+
+                float forward = inputState.scrollY() * moveSpeed();
+                if (maxForward < 0.0f)
+                    maxForward = 0.0f;
+                if (forward > maxForward)
+                    forward = maxForward;
+                
+                CameraMoveEvent cameraEvent;
+                cameraEvent.setForward(forward);
+                postEvent(cameraEvent);
+            } else {
                 CameraMoveEvent cameraEvent;
                 cameraEvent.setForward(inputState.scrollY() * moveSpeed());
                 cameraEvent.setRight(inputState.scrollX() * moveSpeed());

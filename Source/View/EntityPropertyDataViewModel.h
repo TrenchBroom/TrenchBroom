@@ -59,6 +59,7 @@ namespace TrenchBroom {
             EntityPropertyList m_properties;
             
             void clear();
+            Model::EntityList selectedEntities();
         public:
             EntityPropertyDataViewModel(Model::MapDocument& document);
             

@@ -36,6 +36,24 @@ namespace TrenchBroom {
             m_properties.clear();
         }
         
+        Model::EntityList EntityPropertyDataViewModel::selectedEntities() {
+            Model::EditStateManager& editStateManager = m_document.editStateManager();
+            Model::EntityList entities = editStateManager.selectedEntities();
+            const Model::BrushList& selectedBrushes = editStateManager.selectedBrushes();
+            if (!selectedBrushes.empty()) {
+                Model::EntitySet brushEntities;
+                Model::BrushList::const_iterator brushIt, brushEnd;
+                for (brushIt = selectedBrushes.begin(), brushEnd = selectedBrushes.end(); brushIt != brushEnd; ++brushIt) {
+                    Model::Brush* brush = *brushIt;
+                    Model::Entity* entity = brush->entity();
+                    brushEntities.insert(entity);
+                }
+                
+                entities.insert(entities.end(), brushEntities.begin(), brushEntities.end());
+            }
+            return entities;
+        }
+
         EntityPropertyDataViewModel::EntityPropertyDataViewModel(Model::MapDocument& document) :
         m_document(document) {}
 
@@ -64,8 +82,7 @@ namespace TrenchBroom {
             assert(row < m_properties.size());
             assert(col < 2);
 
-            Model::EditStateManager& editStateManager = m_document.editStateManager();
-            const Model::EntityList& entities = editStateManager.selectedEntities();
+            const Model::EntityList entities = selectedEntities();
 
             wxString wxValue;
             if (!variant.Convert(&wxValue))
@@ -126,8 +143,7 @@ namespace TrenchBroom {
             bool freeIndexFound = false;
             StringStream keyStream;
             
-            Model::EditStateManager& editStateManager = m_document.editStateManager();
-            const Model::EntityList& entities = editStateManager.selectedEntities();
+            const Model::EntityList entities = selectedEntities();
             while (!freeIndexFound) {
                 freeIndexFound = true;
                 keyStream.str("");
@@ -149,9 +165,7 @@ namespace TrenchBroom {
         }
 
         void EntityPropertyDataViewModel::removeRows(const wxDataViewItemArray& items) {
-            Model::EditStateManager& editStateManager = m_document.editStateManager();
-            const Model::EntityList& entities = editStateManager.selectedEntities();
-
+            const Model::EntityList entities = selectedEntities();
             Model::PropertyKeyList keys;
             for (unsigned int i = 0; i < items.size(); i++) {
                 unsigned int row = GetRow(items[i]);
@@ -163,9 +177,7 @@ namespace TrenchBroom {
         }
 
         void EntityPropertyDataViewModel::update() {
-            Model::EditStateManager& editStateManager = m_document.editStateManager();
-            const Model::EntityList& entities = editStateManager.selectedEntities();
-            
+            const Model::EntityList entities = selectedEntities();
             if (!entities.empty()) {
                 std::set<Model::PropertyKey> multiValueProperties;
                 Model::Properties commonProperties = entities[0]->properties();

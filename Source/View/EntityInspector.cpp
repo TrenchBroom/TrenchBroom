@@ -122,7 +122,7 @@ namespace TrenchBroom {
             }
             
             Model::EditStateManager& editStateManager = m_documentViewHolder.document().editStateManager();
-            event.Enable(!editStateManager.selectedEntities().empty());
+            event.Enable(!editStateManager.selectedEntities().empty() || !editStateManager.selectedBrushes().empty());
         }
 
         void EntityInspector::OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event) {
@@ -131,8 +131,7 @@ namespace TrenchBroom {
                 return;
             }
             
-            Model::EditStateManager& editStateManager = m_documentViewHolder.document().editStateManager();
-            event.Enable(!editStateManager.selectedEntities().empty() && m_propertyView->GetSelectedItemsCount() > 0);
+            event.Enable(m_propertyView->GetSelectedItemsCount() > 0);
         }
 
     }
