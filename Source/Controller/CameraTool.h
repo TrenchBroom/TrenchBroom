@@ -39,9 +39,7 @@ namespace TrenchBroom {
                 return m_defaultFilter.entityVisible(entity);
             }
             
-            virtual inline bool entityPickable(const Model::Entity& entity) const {
-                return entityVisible(entity);
-            }
+            virtual bool entityPickable(const Model::Entity& entity) const;
             
             virtual inline bool brushVisible(const Model::Brush& brush) const {
                 return m_defaultFilter.brushVisible(brush);
