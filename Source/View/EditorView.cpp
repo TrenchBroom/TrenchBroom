@@ -819,7 +819,38 @@ namespace TrenchBroom {
         }
 
         void EditorView::OnEditSelectTouching(wxCommandEvent& event) {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            assert(editStateManager.selectionMode() == Model::EditStateManager::SMBrushes &&
+                   editStateManager.selectedBrushes().size() == 1);
             
+            Model::Brush* selectionBrush = editStateManager.selectedBrushes().front();
+            Model::EntityList selectEntities;
+            Model::BrushList selectBrushes;
+            
+            const Model::EntityList& allEntities = mapDocument().map().entities();
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            for (entityIt = allEntities.begin(), entityEnd = allEntities.end(); entityIt != entityEnd; ++entityIt) {
+                Model::Entity& entity = **entityIt;
+                const Model::BrushList& entityBrushes = entity.brushes();
+                if (!entityBrushes.empty()) {
+                    Model::BrushList::const_iterator brushIt, brushEnd;
+                    for (brushIt = entityBrushes.begin(), brushEnd = entityBrushes.end(); brushIt != brushEnd; ++brushIt) {
+                        Model::Brush* brush = *brushIt;
+                        if (brush != selectionBrush && selectionBrush->intersectsBrush(*brush))
+                            selectBrushes.push_back(brush);
+                    }
+                } else if (selectionBrush->intersectsEntity(entity)) {
+                    selectEntities.push_back(&entity);
+                }
+            }
+            
+            Controller::ChangeEditStateCommand* select = Controller::ChangeEditStateCommand::replace(mapDocument(), selectEntities, selectBrushes);
+            Controller::RemoveObjectsCommand* remove = Controller::RemoveObjectsCommand::removeBrush(mapDocument(), *selectionBrush);
+
+            CommandProcessor::BeginGroup(mapDocument().GetCommandProcessor(), wxT("Select Touching"));
+            submit(select);
+            submit(remove);
+            CommandProcessor::EndGroup(mapDocument().GetCommandProcessor());
         }
 
         void EditorView::OnEditSelectNone(wxCommandEvent& event) {
@@ -1204,7 +1235,8 @@ namespace TrenchBroom {
                     event.Enable(editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
                     break;
                 case CommandIds::Menu::EditSelectTouching:
-                    event.Enable(false);
+                    event.Enable(editStateManager.selectionMode() == Model::EditStateManager::SMBrushes &&
+                                 editStateManager.selectedBrushes().size() == 1);
                     break;
                 case CommandIds::Menu::EditSelectNone:
                     event.Enable(editStateManager.selectionMode() != Model::EditStateManager::SMNone);

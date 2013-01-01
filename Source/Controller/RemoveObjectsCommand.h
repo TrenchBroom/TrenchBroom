@@ -44,6 +44,7 @@ namespace TrenchBroom {
             ~RemoveObjectsCommand();
             
             static RemoveObjectsCommand* removeObjects(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes);
+            static RemoveObjectsCommand* removeBrush(Model::MapDocument& document, Model::Brush& brush);
             
             inline const Model::EntityList& removedEntities() const {
                 return m_removedEntities;

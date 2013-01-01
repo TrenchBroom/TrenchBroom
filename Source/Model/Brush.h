@@ -127,21 +127,27 @@ namespace TrenchBroom {
             void rotate(const Quat& rotation, const Vec3f& center, bool lockTextures);
             void flip(Axis::Type axis, const Vec3f& center, bool lockTextures);
             
-            bool canMoveBoundary(const Face& face, const Vec3f& delta);
+            bool canMoveBoundary(const Face& face, const Vec3f& delta) const;
             void moveBoundary(Face& face, const Vec3f& delta, bool lockTexture);
             
-            bool canMoveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta);
+            bool canMoveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta) const;
             Vec3f::List moveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta);
-            bool canMoveEdges(const EdgeList& edges, const Vec3f& delta);
+            bool canMoveEdges(const EdgeList& edges, const Vec3f& delta) const;
             void moveEdges(const EdgeList& edges, const Vec3f& delta);
-            bool canMoveFaces(const FaceList& faces, const Vec3f& delta);
+            bool canMoveFaces(const FaceList& faces, const Vec3f& delta) const;
             void moveFaces(const FaceList& faces, const Vec3f& delta);
             
-            bool canSplitEdge(Edge* edge, const Vec3f& delta);
+            bool canSplitEdge(Edge* edge, const Vec3f& delta) const;
             Vec3f splitEdge(Edge* edge, const Vec3f& delta);
-            bool canSplitFace(Face* face, const Vec3f& delta);
+            bool canSplitFace(Face* face, const Vec3f& delta) const;
             Vec3f splitFace(Face* face, const Vec3f& delta);
+            
             void pick(const Ray& ray, PickResult& pickResults);
+            bool containsPoint(const Vec3f point) const;
+            bool intersectsBrush(const Brush& brush) const;
+            bool containsBrush(const Brush& brush) const;
+            bool intersectsEntity(const Entity& entity) const;
+            bool containsEntity(const Entity& entity) const;
         };
     }
 }

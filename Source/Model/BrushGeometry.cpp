@@ -1483,7 +1483,7 @@ namespace TrenchBroom {
         void BrushGeometry::snap() {
         }
 
-        bool BrushGeometry::canMoveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta) {
+        bool BrushGeometry::canMoveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta) const {
             FaceList newFaces;
             FaceList droppedFaces;
 
@@ -1537,7 +1537,7 @@ namespace TrenchBroom {
             return newVertexPositions;
         }
 
-        bool BrushGeometry::canMoveEdges(const EdgeList& i_edges, const Vec3f& delta) {
+        bool BrushGeometry::canMoveEdges(const EdgeList& i_edges, const Vec3f& delta) const {
             FaceList newFaces;
             FaceList droppedFaces;
             
@@ -1597,7 +1597,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool BrushGeometry::canMoveFaces(const FaceList& faces, const Vec3f& delta) {
+        bool BrushGeometry::canMoveFaces(const FaceList& faces, const Vec3f& delta) const {
             FaceList newFaces;
             FaceList droppedFaces;
             
@@ -1665,7 +1665,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool BrushGeometry::canSplitEdge(Edge* edge, const Vec3f& delta) {
+        bool BrushGeometry::canSplitEdge(Edge* edge, const Vec3f& delta) const {
             // detect whether the drag would make the incident faces invalid
             const Vec3f& leftNorm = edge->left->face->boundary().normal;
             const Vec3f& rightNorm = edge->right->face->boundary().normal;
@@ -1707,7 +1707,7 @@ namespace TrenchBroom {
             return result.vertex->position;
         }
 
-        bool BrushGeometry::canSplitFace(Face* face, const Vec3f& delta) {
+        bool BrushGeometry::canSplitFace(Face* face, const Vec3f& delta) const {
             // detect whether the drag would lead to an indented face
             const Vec3f& norm = face->boundary().normal;
             if (Math::zero(delta.dot(norm)))

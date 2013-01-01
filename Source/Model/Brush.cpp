@@ -246,7 +246,7 @@ namespace TrenchBroom {
                 m_entity->invalidateGeometry();
         }
 
-        bool Brush::canMoveBoundary(const Face& face, const Vec3f& delta) {
+        bool Brush::canMoveBoundary(const Face& face, const Vec3f& delta) const {
             FaceList droppedFaces;
             BrushGeometry testGeometry(m_worldBounds);
 
@@ -286,7 +286,7 @@ namespace TrenchBroom {
             m_entity->invalidateGeometry();
         }
 
-        bool Brush::canMoveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta) {
+        bool Brush::canMoveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta) const {
             return m_geometry->canMoveVertices(vertexPositions, delta);
         }
 
@@ -318,7 +318,7 @@ namespace TrenchBroom {
             return newVertexPositions;
         }
 
-        bool Brush::canMoveEdges(const EdgeList& edges, const Vec3f& delta) {
+        bool Brush::canMoveEdges(const EdgeList& edges, const Vec3f& delta) const {
             return m_geometry->canMoveEdges(edges, delta);
         }
         
@@ -349,7 +349,7 @@ namespace TrenchBroom {
             m_entity->invalidateGeometry();
         }
 
-        bool Brush::canMoveFaces(const FaceList& faces, const Vec3f& delta) {
+        bool Brush::canMoveFaces(const FaceList& faces, const Vec3f& delta) const {
             return m_geometry->canMoveFaces(faces, delta);
         }
         
@@ -380,7 +380,7 @@ namespace TrenchBroom {
             m_entity->invalidateGeometry();
         }
 
-        bool Brush::canSplitEdge(Edge* edge, const Vec3f& delta) {
+        bool Brush::canSplitEdge(Edge* edge, const Vec3f& delta) const {
             return m_geometry->canSplitEdge(edge, delta);
         }
         
@@ -412,7 +412,7 @@ namespace TrenchBroom {
             return newVertexPosition;
         }
         
-        bool Brush::canSplitFace(Face* face, const Vec3f& delta) {
+        bool Brush::canSplitFace(Face* face, const Vec3f& delta) const {
             return m_geometry->canSplitFace(face, delta);
         }
 
@@ -461,6 +461,153 @@ namespace TrenchBroom {
                 FaceHit* hit = new FaceHit(*side->face, hitPoint, dist);
                 pickResults.add(hit);
             }
+        }
+
+        bool Brush::containsPoint(const Vec3f point) const {
+            if (!bounds().contains(point))
+                return false;
+            
+            FaceList::const_iterator faceIt, faceEnd;
+            for (faceIt = m_faces.begin(), faceEnd = m_faces.end(); faceIt != faceEnd; ++faceIt) {
+                const Face& face = **faceIt;
+                if (face.boundary().pointStatus(point) == PointStatus::PSAbove)
+                    return false;
+            }
+            
+            return true;
+        }
+        
+        bool Brush::intersectsBrush(const Brush& brush) const {
+            if (!bounds().intersects(brush.bounds()))
+                return false;
+            
+            // separating axis theorem
+            // http://www.geometrictools.com/Documentation/MethodOfSeparatingAxes.pdf
+            
+            FaceList::const_iterator faceIt, faceEnd;
+
+            const VertexList& myVertices = vertices();
+            const FaceList& theirFaces = brush.faces();
+            for (faceIt = theirFaces.begin(), faceEnd = theirFaces.end(); faceIt != faceEnd; ++faceIt) {
+                const Face& theirFace = **faceIt;
+                const Vec3f& origin = theirFace.vertices().front()->position;
+                const Vec3f& direction = theirFace.boundary().normal;
+                if (vertexStatusFromRay(origin, direction, myVertices) == PointStatus::PSAbove)
+                    return false;
+            }
+
+            const VertexList& theirVertices = brush.vertices();
+            for (faceIt = m_faces.begin(), faceEnd = m_faces.end(); faceIt != faceEnd; ++faceIt) {
+                const Face& myFace = **faceIt;
+                const Vec3f& origin = myFace.vertices().front()->position;
+                const Vec3f& direction = myFace.boundary().normal;
+                if (vertexStatusFromRay(origin, direction, theirVertices) == PointStatus::PSAbove)
+                    return false;
+            }
+
+            const EdgeList& myEdges = edges();
+            const EdgeList& theirEdges = brush.edges();
+            EdgeList::const_iterator myEdgeIt, myEdgeEnd, theirEdgeIt, theirEdgeEnd;
+            for (myEdgeIt = myEdges.begin(), myEdgeEnd = myEdges.end(); myEdgeIt != myEdgeEnd; ++myEdgeIt) {
+                const Edge& myEdge = **myEdgeIt;
+                for (theirEdgeIt = theirEdges.begin(), theirEdgeEnd = theirEdges.end(); theirEdgeIt != theirEdgeEnd; ++theirEdgeIt) {
+                    const Edge& theirEdge = **theirEdgeIt;
+                    const Vec3f myEdgeVec = myEdge.vector();
+                    const Vec3f theirEdgeVec = theirEdge.vector();
+                    const Vec3f& origin = myEdge.start->position;
+                    const Vec3f direction = myEdgeVec.crossed(theirEdgeVec);
+                    
+                    PointStatus::Type myStatus = vertexStatusFromRay(origin, direction, myVertices);
+                    if (myStatus != PointStatus::PSInside) {
+                        PointStatus::Type theirStatus = vertexStatusFromRay(origin, direction, theirVertices);
+                        if (theirStatus != PointStatus::PSInside) {
+                            if (myStatus != theirStatus)
+                                return false;
+                        }
+                    }
+                }
+            }
+            
+            return true;
+        }
+        
+        bool Brush::containsBrush(const Brush& brush) const {
+            if (bounds().contains(brush.bounds()))
+                return false;
+            
+            const VertexList& theirVertices = brush.vertices();
+            VertexList::const_iterator vertexIt, vertexEnd;
+            for (vertexIt = theirVertices.begin(), vertexEnd = theirVertices.end(); vertexIt != vertexEnd; ++vertexIt) {
+                const Vertex& vertex = **vertexIt;
+                if (!containsPoint(vertex.position))
+                    return false;
+            }
+
+            return true;
+        }
+        
+        bool Brush::intersectsEntity(const Entity& entity) const {
+            BBox theirBounds = entity.bounds();
+            if (!bounds().intersects(theirBounds))
+                return false;
+            
+            Vec3f point = theirBounds.min;
+            if (containsPoint(point))
+                return true;
+            point.x = theirBounds.max.x;
+            if (containsPoint(point))
+                return true;
+            point.y = theirBounds.max.y;
+            if (containsPoint(point))
+                return true;
+            point.x = theirBounds.min.x;
+            if (containsPoint(point))
+                return true;
+            point = theirBounds.max;
+            if (containsPoint(point))
+                return true;
+            point.x = theirBounds.min.x;
+            if (containsPoint(point))
+                return true;
+            point.y = theirBounds.min.y;
+            if (containsPoint(point))
+                return true;
+            point.x = theirBounds.max.x;
+            if (containsPoint(point))
+                return true;
+            return false;
+        }
+        
+        bool Brush::containsEntity(const Entity& entity) const {
+            BBox theirBounds = entity.bounds();
+            if (!bounds().contains(theirBounds))
+                return false;
+            
+            Vec3f point = theirBounds.min;
+            if (!containsPoint(point))
+                return false;
+            point.x = theirBounds.max.x;
+            if (!containsPoint(point))
+                return false;
+            point.y = theirBounds.max.y;
+            if (!containsPoint(point))
+                return false;
+            point.x = theirBounds.min.x;
+            if (!containsPoint(point))
+                return false;
+            point = theirBounds.max;
+            if (!containsPoint(point))
+                return false;
+            point.x = theirBounds.min.x;
+            if (!containsPoint(point))
+                return false;
+            point.y = theirBounds.min.y;
+            if (!containsPoint(point))
+                return false;
+            point.x = theirBounds.max.x;
+            if (!containsPoint(point))
+                return false;
+            return true;
         }
     }
 }

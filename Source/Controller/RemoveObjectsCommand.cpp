@@ -102,5 +102,12 @@ namespace TrenchBroom {
             assert(!entities.empty() || !brushes.empty());
             return new RemoveObjectsCommand(RemoveObjects, document, makeObjectActionName(wxT("Remove"), entities, brushes), entities, brushes);
         }
+
+        RemoveObjectsCommand* RemoveObjectsCommand::removeBrush(Model::MapDocument& document, Model::Brush& brush) {
+            Model::BrushList brushList;
+            brushList.push_back(&brush);
+            return removeObjects(document, Model::EmptyEntityList, brushList);
+        }
+        
     }
 }

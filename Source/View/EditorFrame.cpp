@@ -146,42 +146,8 @@ namespace TrenchBroom {
 
         void EditorFrame::OnMapCanvasSetFocus(wxFocusEvent& event) {
             m_mapCanvasHasFocus = true;
-
-            updateMenuBar();
             
-            wxMenuBar* menuBar = GetMenuBar();
-            size_t menuCount = menuBar->GetMenuCount();
-            for (size_t i = 0; i < menuCount; i++) {
-                wxMenu* menu = menuBar->GetMenu(i);
-                menu->UpdateUI(&m_documentViewHolder.view());
-            }
-            
-            m_mapCanvas->Refresh();
-        }
-        
-        void EditorFrame::OnMapCanvasKillFocus(wxFocusEvent& event) {
-            m_mapCanvasHasFocus = false;
-            
-            updateMenuBar();
-            
-            wxMenuBar* menuBar = GetMenuBar();
-            size_t menuCount = menuBar->GetMenuCount();
-            for (size_t i = 0; i < menuCount; i++) {
-                wxMenu* menu = menuBar->GetMenu(i);
-                menu->UpdateUI(&m_documentViewHolder.view());
-            }
-
-            m_mapCanvas->Refresh();
-        }
-
-        void EditorFrame::OnIdle(wxIdleEvent& event) {
-            // this is a fix for Mac OS X, where the kill focus event is not properly sent
-            // FIXME: remove this as soon as this bug is fixed in wxWidgets 2.9.5
-            
-#ifdef __APPLE__
-            if (m_mapCanvasHasFocus && FindFocus() != m_mapCanvas) {
-                m_mapCanvasHasFocus = false;
-                
+            if (m_documentViewHolder.valid()) {
                 updateMenuBar();
                 
                 wxMenuBar* menuBar = GetMenuBar();
@@ -190,9 +156,49 @@ namespace TrenchBroom {
                     wxMenu* menu = menuBar->GetMenu(i);
                     menu->UpdateUI(&m_documentViewHolder.view());
                 }
+                
+                m_mapCanvas->Refresh();
             }
+        }
+        
+        void EditorFrame::OnMapCanvasKillFocus(wxFocusEvent& event) {
+            m_mapCanvasHasFocus = false;
+            
+            if (m_documentViewHolder.valid()) {
+                updateMenuBar();
+                
+                wxMenuBar* menuBar = GetMenuBar();
+                size_t menuCount = menuBar->GetMenuCount();
+                for (size_t i = 0; i < menuCount; i++) {
+                    wxMenu* menu = menuBar->GetMenu(i);
+                    menu->UpdateUI(&m_documentViewHolder.view());
+                }
+                
+                m_mapCanvas->Refresh();
+            }
+        }
 
-            m_mapCanvas->Refresh();
+        void EditorFrame::OnIdle(wxIdleEvent& event) {
+            // this is a fix for Mac OS X, where the kill focus event is not properly sent
+            // FIXME: remove this as soon as this bug is fixed in wxWidgets 2.9.5
+            
+#ifdef __APPLE__
+            if (m_documentViewHolder.valid()) {
+                if (m_mapCanvasHasFocus && FindFocus() != m_mapCanvas) {
+                    m_mapCanvasHasFocus = false;
+                    
+                    updateMenuBar();
+                    
+                    wxMenuBar* menuBar = GetMenuBar();
+                    size_t menuCount = menuBar->GetMenuCount();
+                    for (size_t i = 0; i < menuCount; i++) {
+                        wxMenu* menu = menuBar->GetMenu(i);
+                        menu->UpdateUI(&m_documentViewHolder.view());
+                    }
+                }
+                
+                m_mapCanvas->Refresh();
+            }
 #endif
         }
 
