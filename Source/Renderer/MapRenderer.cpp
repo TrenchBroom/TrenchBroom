@@ -240,7 +240,7 @@ namespace TrenchBroom {
             }
             if (m_lockedEdgeRenderer != NULL) {
                 glSetEdgeOffset(0.02f);
-                m_edgeRenderer->render(context, prefs.getColor(Preferences::LockedEdgeColor));
+                m_lockedEdgeRenderer->render(context, prefs.getColor(Preferences::LockedEdgeColor));
             }
             if (context.viewOptions().renderSelection() && m_selectedEdgeRenderer != NULL) {
                 glDisable(GL_DEPTH_TEST);
