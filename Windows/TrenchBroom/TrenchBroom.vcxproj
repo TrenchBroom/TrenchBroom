@@ -150,7 +150,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294ud_gl_vc100_x64.pdb" "$(TargetDir)"
       <AdditionalIncludeDirectories>$(WXWIN)\include\msvc;$(WXWIN)\include;..\..\Source;..\..\Include;.</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <DisableSpecificWarnings>4290</DisableSpecificWarnings>
-      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

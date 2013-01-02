@@ -105,60 +105,66 @@ namespace TrenchBroom {
             if (hits.empty())
                 return;
             
-            Model::EntityList entities = editStateManager.selectedEntities();
-            Model::BrushList brushes = editStateManager.selectedBrushes();
-            
-            Command* command = NULL;
             bool appendSelection = inputState.modifierKeys() == (ModifierKeys::MKCtrlCmd | ModifierKeys::MKShift);
-            bool foundSelection = false;
+            size_t firstSelectionBlockStart = hits.size();
+            size_t firstSelectionBlockEnd = hits.size();
             
-            for (size_t i = 0; i < hits.size(); i++) {
+            // find the index of the first selected hit
+            for (size_t i = 0; i < hits.size() && firstSelectionBlockStart == hits.size(); i++) {
                 Model::Hit* hit = hits[i];
                 if (hit->type() == Model::HitType::EntityHit) {
                     Model::Entity& entity = static_cast<Model::EntityHit*>(hit)->entity();
-                    if (entity.selected()) {
-                        if (!appendSelection)
-                            Utility::erase(entities, &entity);
-                        foundSelection = true;
-                    }
+                    if (entity.selected())
+                        firstSelectionBlockStart = i;
                 } else {
                     Model::Face& face = static_cast<Model::FaceHit*>(hit)->face();
                     Model::Brush& brush = *face.brush();
-                    if (brush.selected()) {
-                        if (!appendSelection)
-                            Utility::erase(brushes, &brush);
-                        foundSelection = true;
-                    }
+                    if (brush.selected())
+                        firstSelectionBlockStart = i;
                 }
-                
-                if (foundSelection) {
-                   hit = NULL;
-                    if (inputState.scroll() > 0.0f && i < hits.size() - 1)
-                        hit = hits[i + 1];
-                    else if (inputState.scroll() < 0.0f && i > 0)
-                        hit = hits[i - 1];
-                    
-                    if (hit != NULL) {
-                        if (hit->type() == Model::HitType::EntityHit) {
-                            Model::Entity& entity = static_cast<Model::EntityHit*>(hit)->entity();
-                            if (!entity.selected()) {
-                                entities.push_back(&entity);
-                                command = ChangeEditStateCommand::replace(document(), entities, brushes);
-                            }
-                        } else {
-                            Model::Face& face = static_cast<Model::FaceHit*>(hit)->face();
-                            Model::Brush& brush = *face.brush();
-                            if (!brush.selected()) {
-                                brushes.push_back(&brush);
-                                command = ChangeEditStateCommand::replace(document(), entities, brushes);
-                            }
-                        }
+            }
+            
+            // if we found a selected hit, find the index of the last selected hit in a contiguous block of selected
+            // hits
+            if (firstSelectionBlockStart < hits.size()) {
+                for (size_t i = firstSelectionBlockStart; i < hits.size(); i++) {
+                    Model::Hit* hit = hits[i];
+                    if (hit->type() == Model::HitType::EntityHit) {
+                        Model::Entity& entity = static_cast<Model::EntityHit*>(hit)->entity();
+                        if (entity.selected())
+                            firstSelectionBlockEnd = i;
+                        else
+                            break;
+                    } else {
+                        Model::Face& face = static_cast<Model::FaceHit*>(hit)->face();
+                        Model::Brush& brush = *face.brush();
+                        if (brush.selected())
+                            firstSelectionBlockEnd = i;
+                        else
+                            break;
                     }
                 }
             }
             
-            if (!foundSelection) {
-                Model::Hit* hit = hits[0];
+            Model::EntityList entities = appendSelection ? editStateManager.selectedEntities() : Model::EmptyEntityList;
+            Model::BrushList brushes = appendSelection ? editStateManager.selectedBrushes() : Model::EmptyBrushList;
+            
+            // find the index of the object to select
+            size_t selectionIndex = hits.size();
+            if (inputState.scroll() > 0.0f) {
+                if (firstSelectionBlockEnd < hits.size() - 1)
+                    selectionIndex = firstSelectionBlockEnd + 1;
+                else if (!appendSelection || (entities.empty() && brushes.empty()))
+                    selectionIndex = 0;
+            } else {
+                if (firstSelectionBlockStart > 0)
+                    selectionIndex = firstSelectionBlockStart - 1;
+                else if (!appendSelection || (entities.empty() && brushes.empty()))
+                    selectionIndex = hits.size() - 1;
+            }
+            
+            if (selectionIndex < hits.size()) {
+                Model::Hit* hit = hits[selectionIndex];
                 if (hit->type() == Model::HitType::EntityHit) {
                     Model::Entity& entity = static_cast<Model::EntityHit*>(hit)->entity();
                     entities.push_back(&entity);
@@ -167,13 +173,14 @@ namespace TrenchBroom {
                     Model::Brush& brush = *face.brush();
                     brushes.push_back(&brush);
                 }
-                command = ChangeEditStateCommand::replace(document(), entities, brushes);
             }
-            
-            if (command != NULL)
-                submitCommand(command);
-        }
 
+            assert(!entities.empty() || !brushes.empty());
+            
+            ChangeEditStateCommand* command = ChangeEditStateCommand::replace(document(), entities, brushes);
+            submitCommand(command);
+        }
+        
         SelectionTool::SelectionTool(View::DocumentViewHolder& documentViewHolder) :
         Tool(documentViewHolder, false) {}
     }
