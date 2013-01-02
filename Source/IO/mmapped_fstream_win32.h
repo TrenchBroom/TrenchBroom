@@ -63,7 +63,7 @@ private:
 		MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, filename, numChars, uFilename, numChars + 1);
 		uFilename[numChars] = 0;
 
-		m_fileHandle = CreateFile(uFilename, accessMode, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		m_fileHandle = CreateFile(uFilename, accessMode, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         if (m_fileHandle != INVALID_HANDLE_VALUE) {
 			m_length = static_cast<size_t>(GetFileSize(m_fileHandle, NULL));
 
