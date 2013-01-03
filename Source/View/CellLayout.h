@@ -365,6 +365,34 @@ namespace TrenchBroom {
                 }
             }
 
+            bool rowAt(float y, const Row** result, int offset = 0) const {
+                size_t index = 0;
+                while (index < m_rows.size()) {
+                    const Row& row = m_rows[index];
+                    const LayoutBounds& rowBounds = row.bounds();
+                    if (y < rowBounds.bottom()) {
+                        *result = &row;
+                        break;
+                    }
+                    index++;
+                }
+                
+                if (result == NULL)
+                    return false;
+
+                if (offset != 0) {
+                    if (static_cast<int>(index) + offset < 0)
+                        index = 0;
+                    else if (static_cast<int>(index) + offset >= static_cast<int>(m_rows.size()))
+                        index = m_rows.size() - 1;
+                    else
+                        index = static_cast<size_t>(static_cast<int>(index) + offset);
+                    *result = &m_rows[index];
+                }
+                
+                return true;
+            }
+            
             bool cellAt(float x, float y, const typename Row::Cell** result) const {
                 for (unsigned int i = 0; i < m_rows.size(); i++) {
                     const Row& row = m_rows[i];
@@ -597,6 +625,29 @@ namespace TrenchBroom {
                 return group.titleBoundsForVisibleRect(y, height, m_groupMargin);
             }
 
+            float rowPosition(float y, int offset) {
+                if (!m_valid)
+                    validate();
+                
+                Group* group = NULL;
+                for (unsigned int i = 0; i < m_groups.size(); i++) {
+                    Group* candidate = &m_groups[i];
+                    const LayoutBounds groupBounds = candidate->bounds();
+                    if (y > groupBounds.bottom())
+                        continue;
+                    group = candidate;
+                    break;
+                }
+
+                if (group == NULL)
+                    return y;
+                
+                const typename Group::Row* row = NULL;
+                if (group->rowAt(y, &row, offset))
+                    return std::max(0.0f, row->bounds().top() - m_rowMargin);
+                return y;
+            }
+            
             inline size_t size() {
                 if (!m_valid)
                     validate();

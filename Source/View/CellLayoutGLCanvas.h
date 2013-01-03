@@ -96,12 +96,13 @@ namespace TrenchBroom {
                 Bind(wxEVT_MOTION, &CellLayoutGLCanvas::OnMouseMove, this);
                 
                 if (m_scrollBar != NULL) {
+                    m_scrollBar->Bind(wxEVT_SCROLL_LINEUP, &CellLayoutGLCanvas::OnScrollBarLineUp, this);
+                    m_scrollBar->Bind(wxEVT_SCROLL_LINEDOWN, &CellLayoutGLCanvas::OnScrollBarLineDown, this);
+                    m_scrollBar->Bind(wxEVT_SCROLL_PAGEUP, &CellLayoutGLCanvas::OnScrollBarPageUp, this);
+                    m_scrollBar->Bind(wxEVT_SCROLL_PAGEDOWN, &CellLayoutGLCanvas::OnScrollBarPageDown, this);
+                    
                     m_scrollBar->Bind(wxEVT_SCROLL_TOP, &CellLayoutGLCanvas::OnScrollBarChange, this);
                     m_scrollBar->Bind(wxEVT_SCROLL_BOTTOM, &CellLayoutGLCanvas::OnScrollBarChange, this);
-                    m_scrollBar->Bind(wxEVT_SCROLL_LINEUP, &CellLayoutGLCanvas::OnScrollBarChange, this);
-                    m_scrollBar->Bind(wxEVT_SCROLL_LINEDOWN, &CellLayoutGLCanvas::OnScrollBarChange, this);
-                    m_scrollBar->Bind(wxEVT_SCROLL_PAGEUP, &CellLayoutGLCanvas::OnScrollBarChange, this);
-                    m_scrollBar->Bind(wxEVT_SCROLL_PAGEDOWN, &CellLayoutGLCanvas::OnScrollBarChange, this);
                     m_scrollBar->Bind(wxEVT_SCROLL_THUMBTRACK, &CellLayoutGLCanvas::OnScrollBarChange, this);
                     
                     Bind(wxEVT_MOUSEWHEEL, &CellLayoutGLCanvas::OnMouseWheel, this);
@@ -172,6 +173,31 @@ namespace TrenchBroom {
                 Refresh();
             }
             
+            void OnScrollBarLineUp(wxScrollEvent& event) {
+                float top = static_cast<float>(m_scrollBar->GetThumbPosition());
+                m_scrollBar->SetThumbPosition(static_cast<int>(m_layout.rowPosition(top, -1)));
+                Refresh();
+            }
+            
+            void OnScrollBarLineDown(wxScrollEvent& event) {
+                float top = static_cast<float>(m_scrollBar->GetThumbPosition());
+                m_scrollBar->SetThumbPosition(static_cast<int>(m_layout.rowPosition(top, 1)));
+                Refresh();
+            }
+            
+            void OnScrollBarPageUp(wxScrollEvent& event) {
+                float top = static_cast<float>(m_scrollBar->GetThumbPosition());
+                float height = static_cast<float>(GetClientSize().y);
+                m_scrollBar->SetThumbPosition(static_cast<int>(m_layout.rowPosition(std::max(0.0f, top - height), 0)));
+                Refresh();
+            }
+            
+            void OnScrollBarPageDown(wxScrollEvent& event) {
+                float top = static_cast<float>(m_scrollBar->GetThumbPosition());
+                m_scrollBar->SetThumbPosition(static_cast<int>(m_layout.rowPosition(top, 0)));
+                Refresh();
+            }
+            
             void OnMouseMove(wxMouseEvent& event) {
                 if (event.LeftIsDown() && dndEnabled()) {
                     int top = m_scrollBar != NULL ? m_scrollBar->GetThumbPosition() : 0;
@@ -204,9 +230,11 @@ namespace TrenchBroom {
             
             void OnMouseWheel(wxMouseEvent& event) {
                 if (m_scrollBar != NULL) {
-                    int lines = event.GetLinesPerAction();
-                    float delta = static_cast<float>(event.GetWheelRotation()) / lines;
-                    m_scrollBar->SetThumbPosition(m_scrollBar->GetThumbPosition() - static_cast<int>(delta));
+                    float top = static_cast<float>(m_scrollBar->GetThumbPosition());
+                    if (event.GetWheelRotation() < 0)
+                        m_scrollBar->SetThumbPosition(static_cast<int>(m_layout.rowPosition(top, 1)));
+                    else
+                        m_scrollBar->SetThumbPosition(static_cast<int>(m_layout.rowPosition(top, -1)));
                     Refresh();
                 }
             }
