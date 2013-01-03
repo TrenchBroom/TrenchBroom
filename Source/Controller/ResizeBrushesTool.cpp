@@ -266,8 +266,7 @@ namespace TrenchBroom {
         void ResizeBrushesTool::handleEndPlaneDrag(InputState& inputState) {
             if (m_totalDelta.null())
                 rollbackCommandGroup();
-            else
-                endCommandGroup();
+            endCommandGroup();
             m_faces.clear();
         }
 

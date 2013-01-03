@@ -29,7 +29,7 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Controller {
-        class ResizeBrushesCommand : public SnapshotCommand {
+        class ResizeBrushesCommand : public DocumentCommand {
         protected:
             const Model::FaceList m_faces;
             const Model::BrushList m_brushes;

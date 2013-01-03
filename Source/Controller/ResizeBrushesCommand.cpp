@@ -33,7 +33,6 @@ namespace TrenchBroom {
                     return false;
             }
             
-            makeSnapshots(m_brushes);
             document().brushesWillChange(m_brushes);
             
             for (faceIt = m_faces.begin(), faceEnd = m_faces.end(); faceIt != faceEnd; ++faceIt) {
@@ -48,13 +47,22 @@ namespace TrenchBroom {
         
         bool ResizeBrushesCommand::performUndo() {
             document().brushesWillChange(m_brushes);
-            restoreSnapshots(m_brushes);
+            Model::FaceList::const_iterator faceIt, faceEnd;
+
+            for (faceIt = m_faces.begin(), faceEnd = m_faces.end(); faceIt != faceEnd; ++faceIt) {
+                Model::Face& face = **faceIt;
+                Model::Brush& brush = *face.brush();
+                
+                assert(brush.canMoveBoundary(face, -m_delta));
+                brush.moveBoundary(face, -m_delta, m_lockTextures);
+            }
+            
             document().brushesDidChange(m_brushes);
             return true;
         }
 
         ResizeBrushesCommand::ResizeBrushesCommand(Model::MapDocument& document, const wxString& name, const Model::FaceList& faces, const Model::BrushList& brushes, const Vec3f& delta, bool lockTextures) :
-        SnapshotCommand(Command::ResizeBrushes, document, name),
+        DocumentCommand(Command::ResizeBrushes, document, true, name, true),
         m_faces(faces),
         m_brushes(brushes),
         m_delta(delta),
