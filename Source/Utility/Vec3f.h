@@ -434,6 +434,17 @@ namespace TrenchBroom {
                              Math::eq(z, zr) ? zr : z);
             }
             
+            inline Vec3f& round() {
+                x = Math::round(x);
+                y = Math::round(y);
+                y = Math::round(z);
+                return *this;
+            }
+            
+            inline const Vec3f rounded() const {
+                return Vec3f(Math::round(x), Math::round(y), Math::round(z));
+            }
+            
             inline Vec3f& rotate90(Axis::Type axis, bool clockwise) {
                 switch (axis) {
                     case Axis::AX:

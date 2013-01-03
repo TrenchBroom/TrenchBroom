@@ -271,7 +271,7 @@ namespace TrenchBroom {
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
 
-            Vec3f center = Model::MapObject::center(entities, brushes);
+            Vec3f center = Model::MapObject::center(entities, brushes).rounded();
 
             Controller::RotateObjects90Command* command = NULL;
             if (clockwise)
@@ -288,7 +288,7 @@ namespace TrenchBroom {
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
 
-            Vec3f center = Model::MapObject::center(entities, brushes);
+            Vec3f center = Model::MapObject::center(entities, brushes).rounded();
             Controller::FlipObjectsCommand* command = Controller::FlipObjectsCommand::flip(mapDocument(), entities, brushes, axis, center, mapDocument().textureLock());
             submit(command);
         }

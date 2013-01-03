@@ -217,6 +217,7 @@ namespace TrenchBroom {
             }
 
             initialPoint = hit->hitPoint();
+            m_center = position().rounded();
             lock();
             beginCommandGroup(Controller::Command::makeObjectActionName(wxT("Rotate"), entities, brushes));
 
@@ -238,7 +239,7 @@ namespace TrenchBroom {
             Model::EditStateManager& editStateManager = document().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
-            RotateObjectsCommand* command = RotateObjectsCommand::rotate(document(), entities, brushes, m_axis, m_angle, false, position(), document().textureLock());
+            RotateObjectsCommand* command = RotateObjectsCommand::rotate(document(), entities, brushes, m_axis, m_angle, false, m_center, document().textureLock());
             submitCommand(command);
             return true;
         }

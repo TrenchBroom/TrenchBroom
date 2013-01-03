@@ -132,6 +132,7 @@ namespace TrenchBroom {
                 Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
                 const Color& backgroundColor = prefs.getColor(Preferences::BackgroundColor);
 
+                /* I don't know why this was here, but it results in flickering on Windows.
                 wxColour wxBackgroundColor(static_cast<unsigned char>(backgroundColor.x * 0xFF),
                                            static_cast<unsigned char>(backgroundColor.y * 0xFF),
                                            static_cast<unsigned char>(backgroundColor.z * 0xFF),
@@ -141,7 +142,8 @@ namespace TrenchBroom {
                 dc.SetPen(wxPen(wxBackgroundColor));
                 dc.SetBrush(wxBrush(wxBackgroundColor));
                 dc.DrawRectangle(GetRect());
-                
+                */
+                 
                 if (SetCurrent(*m_glContext)) {
                     glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, backgroundColor.w);
                     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

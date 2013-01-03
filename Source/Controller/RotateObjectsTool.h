@@ -62,6 +62,7 @@ namespace TrenchBroom {
             Model::RotateObjectsHandleHit* m_lastHit;
             Vec3f m_axis;
             float m_angle;
+            Vec3f m_center;
             
             Model::RotateObjectsHandleHit* pickRing(const Ray& ray, const Vec3f& normal, const Vec3f& axis1, const Vec3f& axis2, Model::RotateObjectsHandleHit::HitArea hitArea);
 
