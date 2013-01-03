@@ -105,6 +105,7 @@ namespace TrenchBroom {
             
             bool OnCreate(wxDocument* doc, long flags);
             void OnUpdate(wxView* sender, wxObject* hint = (wxObject*) NULL);
+            void OnChangeFilename();
             void OnDraw(wxDC* dc);
 
             bool OnClose(bool deleteWindow = true);

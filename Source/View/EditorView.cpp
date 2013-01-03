@@ -270,8 +270,26 @@ namespace TrenchBroom {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
-
-            Vec3f center = Model::MapObject::center(entities, brushes).rounded();
+            assert(entities.size() + brushes.size() > 0);
+            
+            Vec3f center = Vec3f::Null;
+            
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
+                const Model::Entity& entity = **entityIt;
+                if (entity.definition() != NULL && entity.definition()->type() == Model::EntityDefinition::PointEntity)
+                    center += entity.origin();
+                else
+                    center += entity.bounds().center();
+            }
+            
+            Model::BrushList::const_iterator brushIt, brushEnd;
+            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
+                const Model::Brush& brush = **brushIt;
+                center += brush.center();
+            }
+            
+            center /= static_cast<float>(entities.size() + brushes.size());
 
             Controller::RotateObjects90Command* command = NULL;
             if (clockwise)
@@ -580,6 +598,12 @@ namespace TrenchBroom {
             EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
             if (frame != NULL)
                 frame->mapCanvas().Refresh();
+        }
+
+        void EditorView::OnChangeFilename() {
+            EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+            if (frame != NULL)
+                frame->SetTitle(mapDocument().GetTitle());
         }
 
         void EditorView::OnDraw(wxDC* dc) {

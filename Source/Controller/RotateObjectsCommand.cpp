@@ -40,8 +40,6 @@ namespace TrenchBroom {
             if (angle == 0.0f)
                 return false;
             
-            document().console().info("Rotation center: %f %f %f", m_center.x, m_center.y, m_center.z);
-            
             makeSnapshots(m_entities);
             makeSnapshots(m_brushes);
             

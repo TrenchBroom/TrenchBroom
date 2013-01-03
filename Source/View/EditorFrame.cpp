@@ -79,7 +79,7 @@ namespace TrenchBroom {
         }
         
         EditorFrame::EditorFrame(Model::MapDocument& document, EditorView& view) :
-        wxFrame(NULL, wxID_ANY, wxT("TrenchBroom")),
+        wxFrame(NULL, wxID_ANY, wxT("")),
         m_documentViewHolder(DocumentViewHolder(&document, &view)) {
             CreateGui();
             updateMenuBar();

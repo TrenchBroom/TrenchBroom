@@ -168,7 +168,7 @@ namespace TrenchBroom {
             if (entities.empty() && brushes.empty())
                 return;
             
-            m_moveHandle.setPosition(Model::MapObject::center(entities, brushes));
+            m_moveHandle.setPosition(entities, brushes);
         }
         
         void MoveObjectsTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
@@ -178,7 +178,7 @@ namespace TrenchBroom {
             if (entities.empty() && brushes.empty())
                 return;
 
-           m_moveHandle.setPosition(Model::MapObject::center(entities, brushes));
+            m_moveHandle.setPosition(entities, brushes);
         }
 
         MoveObjectsTool::MoveObjectsTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float planeRadius) :

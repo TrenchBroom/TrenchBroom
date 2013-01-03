@@ -21,6 +21,7 @@
 
 #include "Model/Brush.h"
 #include "Model/Entity.h"
+#include "Model/EntityDefinitionManager.h"
 #include "Model/Face.h"
 
 #include <cassert>
@@ -115,10 +116,16 @@ namespace TrenchBroom {
             if (entities.empty())
                 return;
             
+            Model::EntityDefinitionManager& definitionManager = document().definitionManager();
+            
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity& entity = *entities[i];
                 EntitySnapshot& snapshot = *m_entities[entity.uniqueId()];
                 snapshot.restore(entity);
+                
+                const Model::PropertyValue* classname = entity.classname();
+                if (classname != NULL)
+                    entity.setDefinition(definitionManager.definition(*classname));
             }
         }
         

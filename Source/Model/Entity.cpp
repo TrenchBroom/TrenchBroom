@@ -46,8 +46,6 @@ namespace TrenchBroom {
             m_filePosition = 0;
             setEditState(EditState::Default);
             m_selectedBrushCount = 0;
-            m_origin = Vec3f::Null;
-            m_angle = 0.0f;
             invalidateGeometry();
         }
 
@@ -61,12 +59,12 @@ namespace TrenchBroom {
                         m_bounds.mergeWith(m_brushes[i]->bounds());
                 } else {
                     m_bounds = BBox(Vec3f(-8, -8, -8), Vec3f(8, 8, 8));
-                    m_bounds.translate(m_origin);
+                    m_bounds.translate(origin());
                 }
             } else {
                 PointEntityDefinition* pointDefinition = static_cast<PointEntityDefinition*>(m_definition);
                 m_bounds = pointDefinition->bounds();
-                m_bounds.translate(m_origin);
+                m_bounds.translate(origin());
             }
             
             m_center = m_bounds.center();
@@ -98,16 +96,6 @@ namespace TrenchBroom {
             if (key == ClassnameKey) {
                 if (value != classname())
                     setDefinition(NULL);
-            } else if (key == OriginKey) {
-                if (value == NULL)
-                    m_origin = Vec3f(0, 0, 0);
-                else
-                    m_origin = Vec3f(*value);
-            } else if (key == AngleKey) {
-                if (value != NULL)
-                    m_angle = static_cast<float>(atof(value->c_str()));
-                else
-                    m_angle = Math::nan();
             }
             
             const PropertyValue* oldValue = propertyForKey(key);
@@ -157,10 +145,6 @@ namespace TrenchBroom {
             
             if (key == ClassnameKey)
                 setDefinition(NULL);
-            else if (key == OriginKey)
-                m_origin = Vec3f();
-            else if (key == AngleKey)
-                m_angle = Math::nan();
             
             m_properties.erase(key);
             invalidateGeometry();
@@ -216,19 +200,20 @@ namespace TrenchBroom {
         }
 
         void Entity::rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTextures) {
-            if (m_definition != NULL && m_definition->type() == EntityDefinition::BrushEntity)
+            if (!m_brushes.empty())
                 return;
             
-            setProperty(OriginKey, m_origin.rotated90(axis, center, clockwise), true);
+            setProperty(OriginKey, origin().rotated90(axis, center, clockwise), true);
             
             Vec3f direction;
-            if (m_angle >= 0) {
-                direction.x = std::cos(Math::radians(m_angle));
-                direction.y = std::sin(Math::radians(m_angle));
+            float ang = angle();
+            if (ang >= 0.0f) {
+                direction.x = std::cos(Math::radians(ang));
+                direction.y = std::sin(Math::radians(ang));
                 direction.z = 0.0f;
-            } else if (m_angle == -1) {
+            } else if (ang == -1.0f) {
                 direction = Vec3f::PosZ;
-            } else if (m_angle == -2) {
+            } else if (ang == -2.0f) {
                 direction = Vec3f::NegZ;
             } else {
                 return;
@@ -245,30 +230,29 @@ namespace TrenchBroom {
                     direction.normalize();
                 }
                 
-                m_angle = Math::round(Math::degrees(std::acos(direction.x)));
+                ang = Math::round(Math::degrees(std::acos(direction.x)));
                 if (direction.y < 0.0f)
-                    m_angle = 360.0f - m_angle;
-                setProperty(AngleKey, m_angle, true);
+                    ang = 360.0f - ang;
+                setProperty(AngleKey, ang, true);
             }
             invalidateGeometry();
         }
 
         void Entity::rotate(const Quat& rotation, const Vec3f& rotationCenter, bool lockTextures) {
-            if (m_definition != NULL && m_definition->type() == EntityDefinition::BrushEntity)
+            if (!m_brushes.empty())
                 return;
-            
-            Vec3f offset = center() - origin();
-            Vec3f newCenter = rotation * (center() - rotationCenter) + rotationCenter;
-            setProperty(OriginKey, newCenter - offset, true);
+
+            setProperty(OriginKey, rotation * (origin() - rotationCenter) + rotationCenter, true);
             
             Vec3f direction;
-            if (m_angle >= 0.0f) {
-                direction.x = std::cos(Math::radians(m_angle));
-                direction.y = std::sin(Math::radians(m_angle));
+            float ang = angle();
+            if (ang >= 0.0f) {
+                direction.x = std::cos(Math::radians(ang));
+                direction.y = std::sin(Math::radians(ang));
                 direction.z = 0.0f;
-            } else if (m_angle == -1.0f) {
+            } else if (ang == -1.0f) {
                 direction = Vec3f::PosZ;
-            } else if (m_angle == -2.0f) {
+            } else if (ang == -2.0f) {
                 direction = Vec3f::NegZ;
             } else {
                 return;
@@ -285,16 +269,16 @@ namespace TrenchBroom {
                     direction.normalize();
                 }
                 
-                m_angle = Math::round(Math::degrees(std::acos(direction.x)));
+                ang = Math::round(Math::degrees(std::acos(direction.x)));
                 if (direction.y < 0.0f)
-                    m_angle = 360.0f - m_angle;
-                setProperty(AngleKey, m_angle, true);
+                    ang = 360.0f - ang;
+                setProperty(AngleKey, ang, true);
             }
             invalidateGeometry();
         }
 
         void Entity::flip(Axis::Type axis, const Vec3f& flipCenter, bool lockTextures) {
-            if (m_definition != NULL && m_definition->type() == EntityDefinition::BrushEntity)
+            if (!m_brushes.empty())
                 return;
             
             Vec3f offset = center() - origin();
@@ -302,13 +286,14 @@ namespace TrenchBroom {
             setProperty(OriginKey, newCenter + offset, true);
             setProperty(AngleKey, 0, true);
             
-            if (m_angle >= 0)
-                m_angle = (m_angle + 180.0f) - static_cast<int>(m_angle / 360.0f) * m_angle;
-            else if (m_angle == -1)
-                m_angle = -2;
-            else if (m_angle == -2)
-                m_angle = -1;
-            setProperty(AngleKey, m_angle, true);
+            float ang = angle();
+            if (ang >= 0.0f)
+                ang = (ang + 180.0f) - static_cast<int>(ang / 360.0f) * ang;
+            else if (ang == -1.0f)
+                ang = -2.0f;
+            else if (ang == -2.0f)
+                ang = -1.0f;
+            setProperty(AngleKey, ang, true);
             invalidateGeometry();
         }
 

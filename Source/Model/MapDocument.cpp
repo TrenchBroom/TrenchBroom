@@ -70,6 +70,10 @@ namespace TrenchBroom {
                 return false;
 
             LoadObject(stream);
+            
+            IO::FileManager fileManager;
+            String title = fileManager.pathComponents(file.ToStdString()).back();
+            SetTitle(title);
             return true;
         }
 

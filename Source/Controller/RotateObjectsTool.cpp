@@ -257,7 +257,7 @@ namespace TrenchBroom {
             if (entities.empty() && brushes.empty())
                 return;
 
-            setPosition(Model::MapObject::center(entities, brushes));
+            setPosition(entities, brushes);
         }
 
         void RotateObjectsTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
@@ -267,7 +267,7 @@ namespace TrenchBroom {
             if (entities.empty() && brushes.empty())
                 return;
 
-            setPosition(Model::MapObject::center(entities, brushes));
+            setPosition(entities, brushes);
         }
 
         RotateObjectsTool::RotateObjectsTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float ringRadius, float ringThickness) :

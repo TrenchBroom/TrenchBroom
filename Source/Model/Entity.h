@@ -27,6 +27,8 @@
 #include "Utility/Allocator.h"
 #include "Utility/VecMath.h"
 
+#include <cstdlib>
+
 using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
@@ -59,8 +61,6 @@ namespace TrenchBroom {
             
             const BBox& m_worldBounds;
             
-            Vec3f m_origin;
-            float m_angle;
             mutable BBox m_bounds;
             mutable Vec3f m_center;
             mutable bool m_geometryValid;
@@ -114,12 +114,21 @@ namespace TrenchBroom {
                 return classname != NULL && *classname == WorldspawnClassname;
             }
             
-            inline const Vec3f& origin() const {
-                return m_origin;
+            inline const Vec3f origin() const {
+                const PropertyValue* value = propertyForKey(OriginKey);
+                if (value == NULL)
+                    return Vec3f::Null;
+                return Vec3f(*value);
             }
             
             inline const int angle() const {
-                return static_cast<int>(m_angle);
+                const PropertyValue* value = propertyForKey(AngleKey);
+                if (value == NULL)
+                    return 0;
+                
+                double dblValue = std::atof(value->c_str());
+                float fltValue = static_cast<float>(dblValue);
+                return static_cast<int>(Math::round(fltValue));
             }
             
             inline const BrushList& brushes() const {
