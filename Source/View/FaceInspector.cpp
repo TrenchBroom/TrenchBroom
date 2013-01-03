@@ -311,7 +311,7 @@ namespace TrenchBroom {
             if (!m_documentViewHolder.valid())
                 return;
             Model::MapDocument& document = m_documentViewHolder.document();
-            const Model::FaceList& faces = document.editStateManager().selectedFaces();
+            const Model::FaceList& faces = document.editStateManager().allSelectedFaces();
             Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, faces, "Set X Offset");
             command->setXOffset(static_cast<float>(event.GetValue()));
             document.GetCommandProcessor()->Submit(command);
@@ -321,7 +321,7 @@ namespace TrenchBroom {
             if (!m_documentViewHolder.valid())
                 return;
             Model::MapDocument& document = m_documentViewHolder.document();
-            const Model::FaceList& faces = document.editStateManager().selectedFaces();
+            const Model::FaceList& faces = document.editStateManager().allSelectedFaces();
             Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, faces, "Set Y Offset");
             command->setYOffset(static_cast<float>(event.GetValue()));
             document.GetCommandProcessor()->Submit(command);
@@ -331,7 +331,7 @@ namespace TrenchBroom {
             if (!m_documentViewHolder.valid())
                 return;
             Model::MapDocument& document = m_documentViewHolder.document();
-            const Model::FaceList& faces = document.editStateManager().selectedFaces();
+            const Model::FaceList& faces = document.editStateManager().allSelectedFaces();
             Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, faces, "Set X Scale");
             command->setXScale(static_cast<float>(event.GetValue()));
             document.GetCommandProcessor()->Submit(command);
@@ -341,7 +341,7 @@ namespace TrenchBroom {
             if (!m_documentViewHolder.valid())
                 return;
             Model::MapDocument& document = m_documentViewHolder.document();
-            const Model::FaceList& faces = document.editStateManager().selectedFaces();
+            const Model::FaceList& faces = document.editStateManager().allSelectedFaces();
             Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, faces, "Set Y Scale");
             command->setYScale(static_cast<float>(event.GetValue()));
             document.GetCommandProcessor()->Submit(command);
@@ -351,7 +351,7 @@ namespace TrenchBroom {
             if (!m_documentViewHolder.valid())
                 return;
             Model::MapDocument& document = m_documentViewHolder.document();
-            const Model::FaceList& faces = document.editStateManager().selectedFaces();
+            const Model::FaceList& faces = document.editStateManager().allSelectedFaces();
             Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, faces, "Set Rotation");
             command->setRotation(static_cast<float>(event.GetValue()));
             document.GetCommandProcessor()->Submit(command);
@@ -361,7 +361,7 @@ namespace TrenchBroom {
             if (!m_documentViewHolder.valid())
                 return;
             Model::MapDocument& document = m_documentViewHolder.document();
-            const Model::FaceList& faces = document.editStateManager().selectedFaces();
+            const Model::FaceList& faces = document.editStateManager().allSelectedFaces();
             Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, faces, "Set Texture");
             command->setTexture(m_textureBrowser->selectedTexture());
             document.GetCommandProcessor()->Submit(command);
