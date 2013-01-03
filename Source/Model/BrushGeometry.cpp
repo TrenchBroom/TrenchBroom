@@ -301,10 +301,6 @@ namespace TrenchBroom {
             return newEdge;
         }
 
-        void Side::flip() {
-            // std::reverse(vertices.begin(), vertices.end());
-        }
-
         void Side::shift(size_t offset) {
             size_t count = edges.size();
             if (offset % count == 0)
@@ -1471,13 +1467,21 @@ namespace TrenchBroom {
         void BrushGeometry::flip(Axis::Type axis, const Vec3f& flipCenter) {
             for (unsigned int i = 0; i < vertices.size(); i++)
                 vertices[i]->position.flip(axis, flipCenter);
-            for (unsigned int i = 0; i < edges.size(); i++)
-                edges[i]->flip();
-            for (unsigned int i = 0; i < sides.size(); i++)
-                sides[i]->flip();
+            for (unsigned int i = 0; i < edges.size(); i++) {
+                // std::swap(edges[i]->left, edges[i]->right);
+                std::swap(edges[i]->start, edges[i]->end);
+            }
+            for (unsigned int i = 0; i < sides.size(); i++) {
+                VertexList::iterator first = sides[i]->vertices.begin();
+                std::advance(first, 1); // vertex 0 is invariant
+                std::reverse(first, sides[i]->vertices.end());
+                std::reverse(sides[i]->edges.begin(), sides[i]->edges.end());
+            }
             
             bounds.flip(axis, flipCenter);
             center.flip(axis, flipCenter);
+            
+            assert(sanityCheck());
         }
 
         void BrushGeometry::snap() {

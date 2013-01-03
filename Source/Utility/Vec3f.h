@@ -519,10 +519,13 @@ namespace TrenchBroom {
                 switch (axis) {
                     case Axis::AX:
                         x = -x;
+                        break;
                     case Axis::AY:
                         y = -y;
+                        break;
                     default:
                         z = -z;
+                        break;
                 }
                 return *this;
             }

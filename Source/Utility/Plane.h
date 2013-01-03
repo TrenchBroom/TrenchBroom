@@ -156,13 +156,15 @@ namespace TrenchBroom {
             }
             
             inline Plane& flip(Axis::Type axis, const Vec3f& center) {
+                Vec3f oldAnchor = anchor();
                 normal.flip(axis);
-                distance = anchor().flipped(axis, center).dot(normal);
+                distance = oldAnchor.flip(axis, center).dot(normal);
                 return *this;
             }
             
             inline const Plane flipped(Axis::Type axis, const Vec3f& center) const {
-                return Plane(normal.flipped(axis), anchor().flipped(axis, center));
+                Vec3f oldAnchor = anchor();
+                return Plane(normal.flipped(axis), oldAnchor.flip(axis, center));
             }
             
             inline Vec3f project(const Vec3f& v) const {

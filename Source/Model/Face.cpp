@@ -532,10 +532,9 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < 3; i++)
                 m_points[i].flip(axis, center);
             
-            Vec3f t = m_points[1];
-            m_points[1] = m_points[2];
-            m_points[2] = t;
+            std::swap(m_points[1], m_points[2]);
             m_texAxesValid = false;
-            m_vertexCacheValid = false;        }
+            m_vertexCacheValid = false;
+        }
     }
 }
