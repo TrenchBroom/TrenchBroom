@@ -206,7 +206,7 @@ namespace TrenchBroom {
             setProperty(OriginKey, origin().rotated90(axis, center, clockwise), true);
             
             Vec3f direction;
-            float ang = angle();
+            float ang = static_cast<float>(angle());
             if (ang >= 0.0f) {
                 direction.x = std::cos(Math::radians(ang));
                 direction.y = std::sin(Math::radians(ang));
@@ -245,7 +245,7 @@ namespace TrenchBroom {
             setProperty(OriginKey, rotation * (origin() - rotationCenter) + rotationCenter, true);
             
             Vec3f direction;
-            float ang = angle();
+            float ang = static_cast<float>(angle());
             if (ang >= 0.0f) {
                 direction.x = std::cos(Math::radians(ang));
                 direction.y = std::sin(Math::radians(ang));
@@ -286,7 +286,7 @@ namespace TrenchBroom {
             setProperty(OriginKey, newCenter + offset, true);
             setProperty(AngleKey, 0, true);
             
-            float ang = angle();
+            float ang = static_cast<float>(angle());
             if (ang >= 0.0f)
                 ang = (ang + 180.0f) - static_cast<int>(ang / 360.0f) * ang;
             else if (ang == -1.0f)

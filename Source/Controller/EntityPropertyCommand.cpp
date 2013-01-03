@@ -32,12 +32,18 @@ namespace TrenchBroom {
         m_definitionChanged(false) {}
 
         bool EntityPropertyCommand::performDo() {
+            Model::EntityList::const_iterator entityIt, entityEnd;
             Model::EntityDefinitionManager& definitionManager = document().definitionManager();
-            if (type() == SetEntityPropertyKey) {
+            if (type() == SetEntityPropertyKey && key() != m_newKey) {
+                for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
+                    Model::Entity& entity = **entityIt;
+                    if (entity.propertyForKey(m_newKey) != NULL)
+                        return false;
+                }
+                
                 makeSnapshots(m_entities);
                 m_definitionChanged = (key() == Model::Entity::ClassnameKey || m_newKey == Model::Entity::ClassnameKey);
                 
-                Model::EntityList::const_iterator entityIt, entityEnd;
                 for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                     Model::Entity& entity = **entityIt;
                     Model::PropertyValue value = *entity.propertyForKey(key());
@@ -54,7 +60,6 @@ namespace TrenchBroom {
                 makeSnapshots(m_entities);
                 m_definitionChanged = (key() == Model::Entity::ClassnameKey);
 
-                Model::EntityList::const_iterator entityIt, entityEnd;
                 for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                     Model::Entity& entity = **entityIt;
                     entity.setProperty(key(), m_newValue);
@@ -70,7 +75,6 @@ namespace TrenchBroom {
                     const Model::PropertyKey& key = m_keys[i];
                     m_definitionChanged |= (key == Model::Entity::ClassnameKey);
                     
-                    Model::EntityList::const_iterator entityIt, entityEnd;
                     for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                         Model::Entity& entity = **entityIt;
                         entity.deleteProperty(key);

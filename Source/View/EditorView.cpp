@@ -306,7 +306,9 @@ namespace TrenchBroom {
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
 
-            Vec3f center = Model::MapObject::center(entities, brushes).rounded();
+            Utility::Grid& grid = mapDocument().grid();
+            Vec3f center = grid.snap(Model::MapObject::center(entities, brushes));
+            
             Controller::FlipObjectsCommand* command = Controller::FlipObjectsCommand::flip(mapDocument(), entities, brushes, axis, center, mapDocument().textureLock());
             submit(command);
         }

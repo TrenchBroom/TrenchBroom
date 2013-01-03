@@ -24,10 +24,11 @@
 #include "View/CommandIds.h"
 #include "View/DocumentViewHolder.h"
 #include "View/EntityBrowser.h"
+#include "View/EntityPropertyGridTable.h"
 #include "View/LayoutConstants.h"
 
 #include <wx/button.h>
-#include <wx/dataview.h>
+#include <wx/grid.h>
 #include <wx/sizer.h>
 #include <wx/splitter.h>
 #include <wx/statline.h>
@@ -44,12 +45,27 @@ namespace TrenchBroom {
 
         wxWindow* EntityInspector::createPropertyEditor(wxWindow* parent) {
             wxPanel* propertyEditorPanel = new wxPanel(parent);
+            
+            m_propertyTable = new EntityPropertyGridTable(m_documentViewHolder.document());
+            
+            m_propertyGrid = new wxGrid(propertyEditorPanel, CommandIds::EntityInspector::EntityPropertyViewId);
+            m_propertyGrid->Bind(wxEVT_SIZE, &EntityInspector::OnPropertyGridSize, this);
+            m_propertyGrid->SetTable(m_propertyTable, true, wxGrid::wxGridSelectRows);
+            m_propertyGrid->SetUseNativeColLabels();
+            m_propertyGrid->UseNativeColHeader();
+            m_propertyGrid->SetDefaultCellBackgroundColour(*wxWHITE);
+            m_propertyGrid->HideRowLabels();
 
-            m_propertyViewModel = new EntityPropertyDataViewModel(m_documentViewHolder.document());
-            m_propertyView = new wxDataViewCtrl(propertyEditorPanel, CommandIds::EntityInspector::EntityPropertyViewId, wxDefaultPosition, wxDefaultSize/*, wxDV_HORIZ_RULES | wxDV_VERT_RULES*/);
-            m_propertyView->AssociateModel(m_propertyViewModel.get());
-            m_keyColumn = m_propertyView->AppendTextColumn("Key", 0, wxDATAVIEW_CELL_EDITABLE, 100, wxALIGN_LEFT, wxDATAVIEW_COL_RESIZABLE);
-            m_valueColumn = m_propertyView->AppendTextColumn("Value", 1, wxDATAVIEW_CELL_EDITABLE, 170, wxALIGN_LEFT, wxDATAVIEW_COL_RESIZABLE);
+            m_propertyGrid->DisableColResize(0);
+            m_propertyGrid->DisableColResize(1);
+            m_propertyGrid->DisableDragColMove();
+            m_propertyGrid->DisableDragCell();
+            m_propertyGrid->DisableDragColSize();
+            m_propertyGrid->DisableDragGridSize();
+            m_propertyGrid->DisableDragRowSize();
+
+            // TODO: implemented better TAB behavior once wxWidgets 2.9.5 is out
+            // see http://docs.wxwidgets.org/trunk/classwx_grid_event.html for wxEVT_GRID_TABBING
             
             m_addPropertyButton = new wxButton(propertyEditorPanel, CommandIds::EntityInspector::AddEntityPropertyButtonId, wxT("+"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
             m_removePropertiesButton = new wxButton(propertyEditorPanel, CommandIds::EntityInspector::RemoveEntityPropertiesButtonId, wxT("-"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
@@ -60,7 +76,7 @@ namespace TrenchBroom {
             propertyViewButtonsSizer->Add(m_removePropertiesButton, 0, wxEXPAND);
 
             wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
-            outerSizer->Add(m_propertyView, 1, wxEXPAND);
+            outerSizer->Add(m_propertyGrid, 1, wxEXPAND);
             outerSizer->AddSpacer(LayoutConstants::ControlMargin);
             outerSizer->Add(propertyViewButtonsSizer, 0, wxEXPAND);
             propertyEditorPanel->SetSizerAndFit(outerSizer);
@@ -90,29 +106,37 @@ namespace TrenchBroom {
         }
 
         void EntityInspector::updateProperties() {
-            m_propertyViewModel->update();
+            m_propertyTable->update();
         }
         
         void EntityInspector::updateEntityBrowser() {
             m_entityBrowser->reload();
         }
 
+        void EntityInspector::OnPropertyGridSize(wxSizeEvent& event) {
+            m_propertyGrid->SetColSize(0, 100);
+            m_propertyGrid->SetColSize(1, event.GetSize().x - m_propertyGrid->GetColSize(0));
+            event.Skip();
+        }
+
         void EntityInspector::OnAddPropertyPressed(wxCommandEvent& event) {
             if (!m_documentViewHolder.valid())
                 return;
-
-            unsigned int row = m_propertyViewModel->addNewRow();
-            wxDataViewItem item = m_propertyViewModel->GetItem(row);
-            m_propertyView->EditItem(item, m_keyColumn);
+            m_propertyGrid->AppendRows();
+         
+            int row = m_propertyGrid->GetNumberRows() - 1;
+            m_propertyGrid->SelectBlock(row, 0, row, 0);
+            m_propertyGrid->GoToCell(row, 0);
         }
         
         void EntityInspector::OnRemovePropertiesPressed(wxCommandEvent& event) {
             if (!m_documentViewHolder.valid())
                 return;
             
-            wxDataViewItemArray selection;
-            if (m_propertyView->GetSelections(selection) > 0)
-                m_propertyViewModel->removeRows(selection);
+            wxArrayInt selectedRows = m_propertyGrid->GetSelectedRows();
+            wxArrayInt::reverse_iterator it, end;
+            for (it = selectedRows.rbegin(), end = selectedRows.rend(); it != end; ++it)
+                m_propertyGrid->DeleteRows(*it, 1);
         }
         
         void EntityInspector::OnUpdatePropertyViewOrAddPropertiesButton(wxUpdateUIEvent& event) {
@@ -131,7 +155,8 @@ namespace TrenchBroom {
                 return;
             }
             
-            event.Enable(m_propertyView->GetSelectedItemsCount() > 0);
+            wxArrayInt selectedRows = m_propertyGrid->GetSelectedRows();
+            event.Enable(!selectedRows.empty());
         }
 
     }

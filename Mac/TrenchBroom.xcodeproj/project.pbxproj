@@ -116,6 +116,7 @@
 		48B75F79160CF79F009D4E99 /* TextureBrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B75F77160CF79E009D4E99 /* TextureBrowser.cpp */; };
 		48BB02BF16870CF300E6E948 /* ResizeBrushesTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48BB02BD16870CF300E6E948 /* ResizeBrushesTool.cpp */; };
 		48BB02C31687AEE300E6E948 /* ResizeBrushesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48BB02C11687AEE300E6E948 /* ResizeBrushesCommand.cpp */; };
+		48BDA1B31695E08500FF2CC5 /* EntityPropertyGridTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48BDA1B11695E08400FF2CC5 /* EntityPropertyGridTable.cpp */; };
 		48C0FA421608FFD00023F467 /* FaceInspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C0FA401608FFD00023F467 /* FaceInspector.cpp */; };
 		48C0FA46160901CB0023F467 /* SingleTextureViewer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C0FA44160901CB0023F467 /* SingleTextureViewer.cpp */; };
 		48C3CAF4162A8F2D006547EC /* AddObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C3CAF2162A8F2D006547EC /* AddObjectsCommand.cpp */; };
@@ -410,6 +411,8 @@
 		48BB02BE16870CF300E6E948 /* ResizeBrushesTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResizeBrushesTool.h; sourceTree = "<group>"; };
 		48BB02C11687AEE300E6E948 /* ResizeBrushesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ResizeBrushesCommand.cpp; sourceTree = "<group>"; };
 		48BB02C21687AEE300E6E948 /* ResizeBrushesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResizeBrushesCommand.h; sourceTree = "<group>"; };
+		48BDA1B11695E08400FF2CC5 /* EntityPropertyGridTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityPropertyGridTable.cpp; sourceTree = "<group>"; };
+		48BDA1B21695E08400FF2CC5 /* EntityPropertyGridTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityPropertyGridTable.h; sourceTree = "<group>"; };
 		48C0FA401608FFD00023F467 /* FaceInspector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FaceInspector.cpp; sourceTree = "<group>"; };
 		48C0FA411608FFD00023F467 /* FaceInspector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceInspector.h; sourceTree = "<group>"; };
 		48C0FA44160901CB0023F467 /* SingleTextureViewer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SingleTextureViewer.cpp; sourceTree = "<group>"; };
@@ -742,6 +745,8 @@
 				4817C7F316123E0500A01A99 /* EntityInspector.h */,
 				48B059A21615A07200E6B0AD /* EntityPropertyDataViewModel.cpp */,
 				48B059A31615A07200E6B0AD /* EntityPropertyDataViewModel.h */,
+				48BDA1B11695E08400FF2CC5 /* EntityPropertyGridTable.cpp */,
+				48BDA1B21695E08400FF2CC5 /* EntityPropertyGridTable.h */,
 				48C0FA401608FFD00023F467 /* FaceInspector.cpp */,
 				48C0FA411608FFD00023F467 /* FaceInspector.h */,
 				48E2ED181601184F00B8D476 /* LayoutConstants.h */,
@@ -1201,6 +1206,7 @@
 				48533C8A168F96830055DBC7 /* ReparentBrushesCommand.cpp in Sources */,
 				482F4BCB1690681A0012D821 /* Vec4f.cpp in Sources */,
 				482F4BCF16906ACB0012D821 /* PointHandleHighlightFigure.cpp in Sources */,
+				48BDA1B31695E08500FF2CC5 /* EntityPropertyGridTable.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
