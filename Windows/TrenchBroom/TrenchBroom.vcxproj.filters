@@ -360,9 +360,6 @@
     <ClCompile Include="..\..\Source\View\EntityInspector.cpp">
       <Filter>Source Files\View</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\View\EntityPropertyDataViewModel.cpp">
-      <Filter>Source Files\View</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\View\FaceInspector.cpp">
       <Filter>Source Files\View</Filter>
     </ClCompile>
@@ -413,6 +410,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Renderer\PointHandleHighlightFigure.cpp">
       <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\View\EntityPropertyGridTable.cpp">
+      <Filter>Source Files\View</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -884,9 +884,6 @@
     <ClInclude Include="..\..\Source\Utility\Mat3f.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\View\EntityPropertyDataViewModel.h">
-      <Filter>Header Files\View</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\View\FaceInspector.h">
       <Filter>Header Files\View</Filter>
     </ClInclude>
@@ -982,6 +979,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Renderer\PointHandleHighlightFigure.h">
       <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\EntityPropertyGridTable.h">
+      <Filter>Header Files\View</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -21,6 +21,7 @@
 #define __TrenchBroom__EntityPropertyGridTable__
 
 #include "Model/EntityTypes.h"
+#include "Utility/String.h"
 
 #include <wx/grid.h>
 
