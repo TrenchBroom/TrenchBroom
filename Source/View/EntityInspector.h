@@ -21,7 +21,6 @@
 #define __TrenchBroom__EntityInspector__
 
 #include "Model/EntityTypes.h"
-#include "View/EntityPropertyDataViewModel.h"
 
 #include <wx/object.h>
 #include <wx/panel.h>

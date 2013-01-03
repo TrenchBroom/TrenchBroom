@@ -102,7 +102,6 @@
 		48AF492815E8CC270083DE52 /* MapParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AF492615E8CC270083DE52 /* MapParser.cpp */; };
 		48AF61F415F8B7360027C465 /* libfreetype.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48AF61F315F8B7360027C465 /* libfreetype.a */; };
 		48AF61F615F8B7720027C465 /* libbz2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48AF61F515F8B7720027C465 /* libbz2.a */; };
-		48B059A41615A07200E6B0AD /* EntityPropertyDataViewModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B059A21615A07200E6B0AD /* EntityPropertyDataViewModel.cpp */; };
 		48B059A81615EF3800E6B0AD /* EntityPropertyCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B059A61615EF3800E6B0AD /* EntityPropertyCommand.cpp */; };
 		48B059C3161785D300E6B0AD /* TextureRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B059C1161785D300E6B0AD /* TextureRenderer.cpp */; };
 		48B059C71617866100E6B0AD /* Palette.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B059C51617866100E6B0AD /* Palette.cpp */; };
@@ -383,8 +382,6 @@
 		48AF61F315F8B7360027C465 /* libfreetype.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreetype.a; path = Lib/libfreetype.a; sourceTree = "<group>"; };
 		48AF61F515F8B7720027C465 /* libbz2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbz2.a; path = Lib/libbz2.a; sourceTree = "<group>"; };
 		48AF61F715F91B610027C465 /* CommandIds.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommandIds.h; sourceTree = "<group>"; };
-		48B059A21615A07200E6B0AD /* EntityPropertyDataViewModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityPropertyDataViewModel.cpp; sourceTree = "<group>"; };
-		48B059A31615A07200E6B0AD /* EntityPropertyDataViewModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityPropertyDataViewModel.h; sourceTree = "<group>"; };
 		48B059A61615EF3800E6B0AD /* EntityPropertyCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityPropertyCommand.cpp; sourceTree = "<group>"; };
 		48B059A71615EF3800E6B0AD /* EntityPropertyCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityPropertyCommand.h; sourceTree = "<group>"; };
 		48B059AF16162FF100E6B0AD /* SpinControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpinControl.h; sourceTree = "<group>"; };
@@ -743,8 +740,6 @@
 				48B059D316189A7600E6B0AD /* EntityBrowserCanvas.h */,
 				4817C7F216123E0500A01A99 /* EntityInspector.cpp */,
 				4817C7F316123E0500A01A99 /* EntityInspector.h */,
-				48B059A21615A07200E6B0AD /* EntityPropertyDataViewModel.cpp */,
-				48B059A31615A07200E6B0AD /* EntityPropertyDataViewModel.h */,
 				48BDA1B11695E08400FF2CC5 /* EntityPropertyGridTable.cpp */,
 				48BDA1B21695E08400FF2CC5 /* EntityPropertyGridTable.h */,
 				48C0FA401608FFD00023F467 /* FaceInspector.cpp */,
@@ -1149,7 +1144,6 @@
 				4817C7F11611DFA900A01A99 /* SnapshotCommand.cpp in Sources */,
 				4817C7F416123E0500A01A99 /* EntityInspector.cpp in Sources */,
 				48E1A518161390AD006BB6C4 /* TextureCollectionCommand.cpp in Sources */,
-				48B059A41615A07200E6B0AD /* EntityPropertyDataViewModel.cpp in Sources */,
 				48B059A81615EF3800E6B0AD /* EntityPropertyCommand.cpp in Sources */,
 				48B059C3161785D300E6B0AD /* TextureRenderer.cpp in Sources */,
 				48B059C71617866100E6B0AD /* Palette.cpp in Sources */,
