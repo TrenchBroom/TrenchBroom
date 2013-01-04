@@ -37,7 +37,8 @@ namespace TrenchBroom {
             if (type() == SetEntityPropertyKey && key() != m_newKey) {
                 for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                     Model::Entity& entity = **entityIt;
-                    if (entity.propertyForKey(m_newKey) != NULL)
+                    if (!entity.propertyKeyIsMutable(key()) ||
+                        entity.propertyForKey(m_newKey) != NULL)
                         return false;
                 }
                 
@@ -72,14 +73,16 @@ namespace TrenchBroom {
             if (type() == RemoveEntityProperty) {
                 makeSnapshots(m_entities);
                 for (unsigned int i = 0; i < m_keys.size(); i++) {
+                    for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
+                        Model::Entity& entity = **entityIt;
+                        if (!entity.propertyKeyIsMutable(key()))
+                            return false;
+                    }
+
                     const Model::PropertyKey& key = m_keys[i];
-                    m_definitionChanged |= (key == Model::Entity::ClassnameKey);
-                    
                     for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                         Model::Entity& entity = **entityIt;
                         entity.deleteProperty(key);
-                        if (key == Model::Entity::ClassnameKey)
-                            entity.setDefinition(NULL);
                     }
                 }
                 return true;

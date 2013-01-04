@@ -139,7 +139,16 @@ namespace TrenchBroom {
                 setProperty(it->first, it->second);
         }
         
+        bool Entity::propertyKeyIsMutable(const PropertyKey& key) {
+            if (key == ClassnameKey)
+                return false;
+            if (key == OriginKey)
+                return false;
+            return true;
+        }
+
         void Entity::deleteProperty(const PropertyKey& key) {
+            assert(propertyKeyIsMutable(key));
             if (m_properties.count(key) == 0)
                 return;
             

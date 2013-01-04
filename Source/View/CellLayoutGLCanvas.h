@@ -132,7 +132,8 @@ namespace TrenchBroom {
                 Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
                 const Color& backgroundColor = prefs.getColor(Preferences::BackgroundColor);
 
-                /* I don't know why this was here, but it results in flickering on Windows.
+                /* This prevents a minor flickering issue when resizing the canvas on OS X, but it introduces a worse
+                   issue on Windows.
                 wxColour wxBackgroundColor(static_cast<unsigned char>(backgroundColor.x * 0xFF),
                                            static_cast<unsigned char>(backgroundColor.y * 0xFF),
                                            static_cast<unsigned char>(backgroundColor.z * 0xFF),

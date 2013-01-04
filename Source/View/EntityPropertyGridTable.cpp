@@ -92,10 +92,6 @@ namespace TrenchBroom {
             return 2;
         }
         
-        bool EntityPropertyGridTable::CanHaveAttributes() {
-            return false;
-        }
-        
         wxString EntityPropertyGridTable::GetValue(int row, int col) {
             assert(row >= 0 && row < GetNumberRows());
             assert(col >= 0 && col < GetNumberCols());
@@ -193,14 +189,20 @@ namespace TrenchBroom {
 
             CommandProcessor::BeginGroup(m_document.GetCommandProcessor(), numRows == 1 ? wxT("Remove Property") : wxT("Remove Properties"));
 
-            for (size_t i = pos; i < pos + numRows; i++) {
+            bool success = true;
+            for (size_t i = pos; i < pos + numRows && success; i++) {
                 const EntityProperty& property = m_properties[i];
                 Controller::EntityPropertyCommand* removeProperty = Controller::EntityPropertyCommand::removeEntityProperty(m_document, entities, property.key);
-                m_document.GetCommandProcessor()->Submit(removeProperty);
+                success = m_document.GetCommandProcessor()->Submit(removeProperty);
             }
 
+            if (!success) {
+                CommandProcessor::RollbackGroup(m_document.GetCommandProcessor());
+                CommandProcessor::EndGroup(m_document.GetCommandProcessor());
+                return false;
+            }
             CommandProcessor::EndGroup(m_document.GetCommandProcessor());
-
+            
             EntityPropertyList::iterator first, last;
             std::advance(first = m_properties.begin(), pos);
             std::advance(last = m_properties.begin(), pos + numRows);
@@ -216,6 +218,24 @@ namespace TrenchBroom {
             return wxT("Value");
         }
         
+        wxGridCellAttr* EntityPropertyGridTable::GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind) {
+            wxGridCellAttr* attr = wxGridTableBase::GetAttr(row, col, kind);
+            if (col == 0) {
+                assert(row >= 0 && row < GetNumberRows());
+                const EntityProperty& property = m_properties[static_cast<size_t>(row)];
+                bool readonly = !Model::Entity::propertyKeyIsMutable(property.key);
+                if (attr == NULL) {
+                    if (readonly) {
+                        attr = new wxGridCellAttr();
+                        attr->SetReadOnly(true);
+                    }
+                } else {
+                    attr->SetReadOnly(readonly);
+                }
+            }
+            return attr;
+        }
+
         void EntityPropertyGridTable::update() {
             const Model::EntityList entities = selectedEntities();
             if (!entities.empty()) {
@@ -272,7 +292,7 @@ namespace TrenchBroom {
                         m_properties.push_back(EntityProperty(cProp->first, cProp->second));
                     notifyRowsAppended();
                 }
-                
+
                 notifyRowsUpdated();
             } else {
                 notifyRowsDeleted(0, m_properties.size());

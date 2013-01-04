@@ -69,7 +69,6 @@ namespace TrenchBroom {
             
             int GetNumberRows();
             int GetNumberCols();
-            bool CanHaveAttributes();
             
             wxString GetValue(int row, int col);
             void SetValue(int row, int col, const wxString& value);
@@ -80,7 +79,8 @@ namespace TrenchBroom {
             bool DeleteRows(size_t pos = 0, size_t numRows = 1);
             
             wxString GetColLabelValue(int col);
-
+            wxGridCellAttr* GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind);
+            
             void update();
         };
     }

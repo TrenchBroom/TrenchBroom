@@ -633,7 +633,7 @@ namespace TrenchBroom {
                 for (unsigned int i = 0; i < m_groups.size(); i++) {
                     Group* candidate = &m_groups[i];
                     const LayoutBounds groupBounds = candidate->bounds();
-                    if (y > groupBounds.bottom())
+                    if (y + m_rowMargin > groupBounds.bottom())
                         continue;
                     group = candidate;
                     break;
@@ -643,7 +643,7 @@ namespace TrenchBroom {
                     return y;
                 
                 const typename Group::Row* row = NULL;
-                if (group->rowAt(y, &row, offset))
+                if (group->rowAt(y + m_rowMargin, &row, offset))
                     return std::max(0.0f, row->bounds().top() - m_rowMargin);
                 return y;
             }

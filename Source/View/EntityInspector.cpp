@@ -157,6 +157,15 @@ namespace TrenchBroom {
             
             wxArrayInt selectedRows = m_propertyGrid->GetSelectedRows();
             event.Enable(!selectedRows.empty());
+            
+            wxArrayInt::const_iterator it, end;
+            for (it = selectedRows.begin(), end = selectedRows.end(); it != end; ++it) {
+                wxGridCellAttr* attr = m_propertyTable->GetAttr(*it, 0, wxGridCellAttr::Cell);
+                if (attr != NULL && attr->IsReadOnly()) {
+                    event.Enable(false);
+                    return;
+                }
+            }
         }
 
     }
