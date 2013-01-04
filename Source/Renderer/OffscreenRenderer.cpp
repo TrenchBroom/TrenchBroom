@@ -150,6 +150,7 @@ namespace TrenchBroom {
             glReadPixels(0, 0, static_cast<GLint>(m_width), static_cast<GLint>(m_height), GL_RGB, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid*>(imageData));
             glReadPixels(0, 0, static_cast<GLint>(m_width), static_cast<GLint>(m_height), GL_ALPHA, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid*>(alphaData));
             
+            /*
             unsigned char* imageLine = new unsigned char[m_width * 3];
             unsigned char* alphaLine = new unsigned char[m_width];
 
@@ -170,7 +171,8 @@ namespace TrenchBroom {
             imageLine = NULL;
             delete [] alphaLine;
             alphaLine = NULL;
-
+             */
+            
             return new wxImage(static_cast<int>(m_width), static_cast<int>(m_height), imageData, alphaData);
         }
     }

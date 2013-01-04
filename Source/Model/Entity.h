@@ -24,6 +24,7 @@
 #include "Model/EditState.h"
 #include "Model/EntityTypes.h"
 #include "Model/MapObject.h"
+#include "Model/EntityProperty.h"
 #include "Utility/Allocator.h"
 #include "Utility/VecMath.h"
 
@@ -52,7 +53,7 @@ namespace TrenchBroom {
             static String const WadKey;
         protected:
             Map* m_map;
-            Properties m_properties;
+            PropertyStore m_propertyStore;
             BrushList m_brushes;
             
             EntityDefinition* m_definition;
@@ -86,15 +87,12 @@ namespace TrenchBroom {
                 m_map = map;
             }
             
-            inline const Properties& properties() const {
-                return m_properties;
+            inline const PropertyList& properties() const {
+                return m_propertyStore.properties();
             }
             
             inline const PropertyValue* propertyForKey(const PropertyKey& key) const {
-                Properties::const_iterator it = m_properties.find(key);
-                if (it == m_properties.end())
-                    return NULL;
-                return &it->second;
+                return m_propertyStore.propertyValue(key);
             }
             
             void setProperty(const PropertyKey& key, const PropertyValue& value);
@@ -102,9 +100,10 @@ namespace TrenchBroom {
             void setProperty(const PropertyKey& key, const Vec3f& value, bool round);
             void setProperty(const PropertyKey& key, int value);
             void setProperty(const PropertyKey& key, float value, bool round);
-            void setProperties(const Properties& properties, bool replace);
+            void renameProperty(const PropertyKey& oldKey, const PropertyKey& newKey);
+            void setProperties(const PropertyList& properties, bool replace);
             static bool propertyKeyIsMutable(const PropertyKey& key);
-            void deleteProperty(const PropertyKey& key);
+            void removeProperty(const PropertyKey& key);
 
             inline const PropertyValue* classname() const {
                 return propertyForKey(ClassnameKey);

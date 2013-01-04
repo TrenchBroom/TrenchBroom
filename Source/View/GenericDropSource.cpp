@@ -17,59 +17,56 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DragAndDrop.h"
+#include "GenericDropSource.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace View {
-        DropSource::DropSource(wxWindow* window, const wxImage& image, const wxPoint& imageOffset) :
+        GenericDropSource::GenericDropSource(wxWindow* window, const wxImage& image, const wxPoint& imageOffset) :
         wxDropSource(window),
-        m_screenDC(NULL),
+        m_window(window),
+        m_dragImage(NULL),
         m_feedbackImage(image),
         m_imageOffset(imageOffset),
         m_showFeedback(true) {
             CurrentDropSource = this;
         }
         
-        DropSource::~DropSource() {
-            if (m_screenDC != NULL) {
-                wxDELETE(m_screenDC);
-                m_screenDC = NULL;
+        GenericDropSource::~GenericDropSource() {
+            if (m_dragImage != NULL) {
+                m_dragImage->EndDrag();
+                delete m_dragImage;
+                m_dragImage = NULL;
             }
             CurrentDropSource = NULL;
         }
         
-        bool DropSource::GiveFeedback(wxDragResult effect) {
-            if (m_screenDC != NULL)
-                m_screenDC->Clear();
-            
+        bool GenericDropSource::GiveFeedback(wxDragResult effect) {
             if (!m_showFeedback) {
-                m_screenDC->Flush();
+                if (m_dragImage != NULL)
+                    m_dragImage->Hide();
                 return false;
             }
             
-            if (m_screenDC == NULL) {
-                m_screenDC = new ScreenDC();
-                assert(m_screenDC->IsOk());
+            if (m_dragImage == NULL) {
+                m_dragImage = new wxDragImage(m_feedbackImage);
+                m_dragImage->BeginDrag(m_imageOffset, m_window, true, NULL);
             }
             
-            int height = m_screenDC->GetSize().y;
-            
+            m_dragImage->Show();
+
             wxMouseState mouseState = ::wxGetMouseState();
-            int x = mouseState.GetX() - m_imageOffset.x;
-            int y = height - mouseState.GetY() - (m_feedbackImage.GetHeight() - m_imageOffset.y);
-            
-            m_screenDC->DrawBitmap(m_feedbackImage, x, y);
-            m_screenDC->Flush();
+            wxPoint position = m_window->ScreenToClient(mouseState.GetPosition());
+            m_dragImage->Move(position);
             
             return true;
         }
         
-        void DropSource::setShowFeedback(bool showFeedback) {
+        void GenericDropSource::setShowFeedback(bool showFeedback) {
             m_showFeedback = showFeedback;
         }
 
-        DropSource* CurrentDropSource = NULL;
+        GenericDropSource* CurrentDropSource = NULL;
     }
 }

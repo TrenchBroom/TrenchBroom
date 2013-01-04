@@ -258,6 +258,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Model\Entity.cpp" />
     <ClCompile Include="..\..\Source\Model\EntityDefinition.cpp" />
     <ClCompile Include="..\..\Source\Model\EntityDefinitionManager.cpp" />
+    <ClCompile Include="..\..\Source\Model\EntityProperty.cpp" />
     <ClCompile Include="..\..\Source\Model\Face.cpp" />
     <ClCompile Include="..\..\Source\Model\Map.cpp" />
     <ClCompile Include="..\..\Source\Model\MapDocument.cpp" />
@@ -304,7 +305,6 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Utility\Preferences.cpp" />
     <ClCompile Include="..\..\Source\Utility\Vec3f.cpp" />
     <ClCompile Include="..\..\Source\View\AbstractApp.cpp" />
-    <ClCompile Include="..\..\Source\View\DragAndDrop.cpp" />
     <ClCompile Include="..\..\Source\View\EditorFrame.cpp" />
     <ClCompile Include="..\..\Source\View\EditorView.cpp" />
     <ClCompile Include="..\..\Source\View\EntityBrowser.cpp" />
@@ -312,6 +312,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\View\EntityInspector.cpp" />
     <ClCompile Include="..\..\Source\View\EntityPropertyGridTable.cpp" />
     <ClCompile Include="..\..\Source\View\FaceInspector.cpp" />
+    <ClCompile Include="..\..\Source\View\GenericDropSource.cpp" />
     <ClCompile Include="..\..\Source\View\Inspector.cpp" />
     <ClCompile Include="..\..\Source\View\MapGLCanvas.cpp" />
     <ClCompile Include="..\..\Source\View\PreferencesDialog.cpp" />
@@ -395,6 +396,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Model\EntityDefinition.h" />
     <ClInclude Include="..\..\Source\Model\EntityDefinitionManager.h" />
     <ClInclude Include="..\..\Source\Model\EntityDefinitionTypes.h" />
+    <ClInclude Include="..\..\Source\Model\EntityProperty.h" />
     <ClInclude Include="..\..\Source\Model\EntityTypes.h" />
     <ClInclude Include="..\..\Source\Model\Face.h" />
     <ClInclude Include="..\..\Source\Model\FaceTypes.h" />
@@ -492,6 +494,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\View\CommandIds.h" />
     <ClInclude Include="..\..\Source\View\DocumentViewHolder.h" />
     <ClInclude Include="..\..\Source\View\DragAndDrop.h" />
+    <ClInclude Include="..\..\Source\View\DragImage.h" />
     <ClInclude Include="..\..\Source\View\EditorFrame.h" />
     <ClInclude Include="..\..\Source\View\EditorView.h" />
     <ClInclude Include="..\..\Source\View\EntityBrowser.h" />
@@ -499,6 +502,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\View\EntityInspector.h" />
     <ClInclude Include="..\..\Source\View\EntityPropertyGridTable.h" />
     <ClInclude Include="..\..\Source\View\FaceInspector.h" />
+    <ClInclude Include="..\..\Source\View\GenericDropSource.h" />
     <ClInclude Include="..\..\Source\View\Inspector.h" />
     <ClInclude Include="..\..\Source\View\LayoutConstants.h" />
     <ClInclude Include="..\..\Source\View\MapGLCanvas.h" />

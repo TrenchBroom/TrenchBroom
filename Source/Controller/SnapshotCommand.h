@@ -23,6 +23,7 @@
 #include "Controller/Command.h"
 
 #include "Model/BrushTypes.h"
+#include "Model/EntityProperty.h"
 #include "Model/EntityTypes.h"
 #include "Model/FaceTypes.h"
 #include "Utility/String.h"
@@ -40,7 +41,7 @@ namespace TrenchBroom {
         class EntitySnapshot {
         private:
             unsigned int m_uniqueId;
-            Model::Properties m_properties;
+            Model::PropertyList m_properties;
         public:
             EntitySnapshot(const Model::Entity& entity);
             unsigned int uniqueId();

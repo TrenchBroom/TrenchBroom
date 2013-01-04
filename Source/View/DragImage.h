@@ -17,23 +17,16 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_DragAndDrop_h
-#define TrenchBroom_DragAndDrop_h
+#ifndef TrenchBroom_DragImage_h
+#define TrenchBroom_DragImage_h
 
 #if defined __APPLE__
-#include "MacDropSource.h"
-namespace TrenchBroom {
-    namespace View {
-        typedef MacDropSource DropSource;
-    }
-}
+#include "MacDragImage.h"
+typedef MacDragImage DragImage;
 #else
-#include "GenericDropSource.h"
-namespace TrenchBroom {
-    namespace View {
-        typedef GenericDropSource DropSource;
-    }
-}
+#include <wx/dragimag.h>
+typedef wxDragImage DragImage;
 #endif
+
 
 #endif

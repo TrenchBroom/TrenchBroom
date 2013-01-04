@@ -57,13 +57,12 @@ namespace TrenchBroom {
 
                 const String& pattern = m_viewOptions.filterPattern();
                 if (!pattern.empty()) {
-                    const Model::Properties& properties = entity.properties();
-                    Model::Properties::const_iterator it, end;
+                    const Model::PropertyList& properties = entity.properties();
+                    Model::PropertyList::const_iterator it, end;
                     for (it = properties.begin(), end = properties.end(); it != end; ++it) {
-                        const PropertyKey& key = it->first;
-                        const PropertyValue& value = it->second;
-                        if (Utility::containsString(key, pattern, false) ||
-                            Utility::containsString(value, pattern, false))
+                        const Model::Property property = *it;
+                        if (Utility::containsString(property.key(), pattern, false) ||
+                            Utility::containsString(property.value(), pattern, false))
                             return true;
                     }
                     return false;

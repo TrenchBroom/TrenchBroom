@@ -440,6 +440,15 @@ namespace TrenchBroom {
             return m_createEntityPopupMenu;
         }
 
+        void EditorView::setModified(bool modified) {
+            wxFrame* frame = wxDynamicCast(GetFrame(), wxFrame);
+#if defined __APPLE__
+            frame->OSXSetModified(modified);
+#else
+            frame->SetTitle(mapDocument().GetTitle() + (GetDocument()->IsModified() ? wxT(" *") : wxT("")));
+#endif
+        }
+
         bool EditorView::OnCreate(wxDocument* doc, long flags) {
             m_viewOptions = new ViewOptions();
             m_filter = new Model::DefaultFilter(*m_viewOptions);
@@ -603,9 +612,15 @@ namespace TrenchBroom {
         }
 
         void EditorView::OnChangeFilename() {
-            EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
-            if (frame != NULL)
+            EditorFrame* frame = wxDynamicCast(GetFrame(), EditorFrame);
+            if (frame != NULL) {
+#if defined __APPLE__
                 frame->SetTitle(mapDocument().GetTitle());
+#else
+                frame->SetTitle(mapDocument().GetTitle() + (GetDocument()->IsModified() ? wxT(" *") : wxT("")));
+#endif
+                frame->SetRepresentedFilename(mapDocument().GetFilename());
+            }
         }
 
         void EditorView::OnDraw(wxDC* dc) {

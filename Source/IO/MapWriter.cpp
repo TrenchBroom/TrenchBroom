@@ -69,11 +69,11 @@ namespace TrenchBroom {
         void MapWriter::writeEntityHeader(const Model::Entity& entity, std::ostream& stream) {
             stream << "{" << "\n";
             
-            const Model::Properties& properties = entity.properties();
-            for (Model::Properties::const_iterator it = properties.begin(); it != properties.end(); ++it) {
-                const Model::PropertyKey& key = it->first;
-                const Model::PropertyValue& value = it->second;
-                stream << "\"" << key << "\" \"" << value << "\"" << "\n";
+            const Model::PropertyList& properties = entity.properties();
+            Model::PropertyList::const_iterator it, end;
+            for (it = properties.begin(), end = properties.end(); it != end; ++it) {
+                const Model::Property& property = *it;
+                stream << "\"" << property.key() << "\" \"" << property.value() << "\"" << "\n";
             }
         }
         

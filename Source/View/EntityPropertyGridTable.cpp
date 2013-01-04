@@ -82,10 +82,11 @@ namespace TrenchBroom {
         }
         
         EntityPropertyGridTable::EntityPropertyGridTable(Model::MapDocument& document) :
-        m_document(document) {}
+        m_document(document),
+        m_ignoreUpdates(false) {}
 
         int EntityPropertyGridTable::GetNumberRows() {
-            return static_cast<int>(m_properties.size());
+            return static_cast<int>(m_entries.size());
         }
         
         int EntityPropertyGridTable::GetNumberCols() {
@@ -98,8 +99,8 @@ namespace TrenchBroom {
             
             size_t rowIndex = static_cast<size_t>(row);
             if (col == 0)
-                return m_properties[rowIndex].key;
-            return m_properties[rowIndex].value;
+                return m_entries[rowIndex].key;
+            return m_entries[rowIndex].value;
         }
         
         void EntityPropertyGridTable::SetValue(int row, int col, const wxString& value) {
@@ -110,21 +111,25 @@ namespace TrenchBroom {
             const Model::EntityList entities = selectedEntities();
             assert(!entities.empty());
 
+            m_ignoreUpdates = true;
             if (col == 0) {
-                const Model::PropertyKey oldKey = m_properties[rowIndex].key;
+                const Model::PropertyKey oldKey = m_entries[rowIndex].key;
                 const Model::PropertyKey newKey = value.ToStdString();
                 Controller::EntityPropertyCommand* rename = Controller::EntityPropertyCommand::setEntityPropertyKey(m_document, entities, oldKey, newKey);
-                m_document.GetCommandProcessor()->Submit(rename);
+                if (m_document.GetCommandProcessor()->Submit(rename))
+                    m_entries[rowIndex].key = newKey;
             } else {
-                const Model::PropertyKey key = m_properties[rowIndex].key;
+                const Model::PropertyKey key = m_entries[rowIndex].key;
                 const Model::PropertyValue newValue = value.ToStdString();
                 Controller::EntityPropertyCommand* setValue = Controller::EntityPropertyCommand::setEntityPropertyValue(m_document, entities, key, newValue);
-                m_document.GetCommandProcessor()->Submit(setValue);
+                if (m_document.GetCommandProcessor()->Submit(setValue))
+                    m_entries[rowIndex].value = newValue;
             }
+            m_ignoreUpdates = false;
         }
         
         void EntityPropertyGridTable::Clear() {
-            DeleteRows(0, m_properties.size());
+            DeleteRows(0, m_entries.size());
         }
         
         bool EntityPropertyGridTable::InsertRows(size_t pos, size_t numRows) {
@@ -159,26 +164,28 @@ namespace TrenchBroom {
             
             assert(keys.size() == numRows);
 
+            m_ignoreUpdates = true;
             CommandProcessor::BeginGroup(m_document.GetCommandProcessor(), numRows == 1 ? wxT("Add Property") : wxT("Add Properties"));
             
-            EntityPropertyList::iterator propertyIt = m_properties.begin();
-            std::advance(propertyIt, pos);
+            EntryList::iterator entryIt = m_entries.begin();
+            std::advance(entryIt, pos);
             for (size_t i = 0; i < numRows; i++) {
-                propertyIt = m_properties.insert(propertyIt, EntityProperty(keys[i], ""));
-                std::advance(propertyIt, 1);
+                entryIt = m_entries.insert(entryIt, Entry(keys[i], ""));
+                std::advance(entryIt, 1);
 
                 Controller::EntityPropertyCommand* addProperty = Controller::EntityPropertyCommand::setEntityPropertyValue(m_document, entities, keys[i], "");
                 m_document.GetCommandProcessor()->Submit(addProperty);
             }
 
             CommandProcessor::EndGroup(m_document.GetCommandProcessor());
+            m_ignoreUpdates = false;
             
             notifyRowsInserted(pos, numRows);
             return true;
         }
         
         bool EntityPropertyGridTable::AppendRows(size_t numRows) {
-            return InsertRows(m_properties.size(), numRows);
+            return InsertRows(m_entries.size(), numRows);
         }
         
         bool EntityPropertyGridTable::DeleteRows(size_t pos, size_t numRows) {
@@ -187,26 +194,29 @@ namespace TrenchBroom {
             const Model::EntityList entities = selectedEntities();
             assert(!entities.empty());
 
+            m_ignoreUpdates = true;
             CommandProcessor::BeginGroup(m_document.GetCommandProcessor(), numRows == 1 ? wxT("Remove Property") : wxT("Remove Properties"));
 
             bool success = true;
             for (size_t i = pos; i < pos + numRows && success; i++) {
-                const EntityProperty& property = m_properties[i];
-                Controller::EntityPropertyCommand* removeProperty = Controller::EntityPropertyCommand::removeEntityProperty(m_document, entities, property.key);
+                const Entry& entry = m_entries[i];
+                Controller::EntityPropertyCommand* removeProperty = Controller::EntityPropertyCommand::removeEntityProperty(m_document, entities, entry.key);
                 success = m_document.GetCommandProcessor()->Submit(removeProperty);
             }
 
             if (!success) {
                 CommandProcessor::RollbackGroup(m_document.GetCommandProcessor());
                 CommandProcessor::EndGroup(m_document.GetCommandProcessor());
+                m_ignoreUpdates = false;
                 return false;
             }
+            m_ignoreUpdates = false;
             CommandProcessor::EndGroup(m_document.GetCommandProcessor());
             
-            EntityPropertyList::iterator first, last;
-            std::advance(first = m_properties.begin(), pos);
-            std::advance(last = m_properties.begin(), pos + numRows);
-            m_properties.erase(first, last);
+            EntryList::iterator first, last;
+            std::advance(first = m_entries.begin(), pos);
+            std::advance(last = m_entries.begin(), pos + numRows);
+            m_entries.erase(first, last);
             notifyRowsDeleted(pos, numRows);
             return true;
         }
@@ -220,10 +230,9 @@ namespace TrenchBroom {
         
         wxGridCellAttr* EntityPropertyGridTable::GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind) {
             wxGridCellAttr* attr = wxGridTableBase::GetAttr(row, col, kind);
-            if (col == 0) {
-                assert(row >= 0 && row < GetNumberRows());
-                const EntityProperty& property = m_properties[static_cast<size_t>(row)];
-                bool readonly = !Model::Entity::propertyKeyIsMutable(property.key);
+            if (col == 0 && row >= 0 && row < GetNumberRows()) {
+                const Entry& entry = m_entries[static_cast<size_t>(row)];
+                bool readonly = !Model::Entity::propertyKeyIsMutable(entry.key);
                 if (attr == NULL) {
                     if (readonly) {
                         attr = new wxGridCellAttr();
@@ -237,66 +246,41 @@ namespace TrenchBroom {
         }
 
         void EntityPropertyGridTable::update() {
+            if (m_ignoreUpdates)
+                return;
+            
+            notifyRowsDeleted(0, m_entries.size());
+            m_entries.clear();
+
             const Model::EntityList entities = selectedEntities();
             if (!entities.empty()) {
-                std::set<Model::PropertyKey> multiValueProperties;
-                Model::Properties commonProperties = entities[0]->properties();
-                Model::Properties::iterator cProp;
+                const Model::PropertyList& firstProperties = entities[0]->properties();
+                Model::PropertyList::const_iterator ePropIt, ePropEnd;
+                for (ePropIt = firstProperties.begin(), ePropEnd = firstProperties.end(); ePropIt != ePropEnd; ++ePropIt) {
+                    const Model::Property& property = *ePropIt;
+                    m_entries.push_back(Entry(property.key(), property.value()));
+                }
+                
                 for (unsigned int i = 1; i < entities.size(); i++) {
-                    Model::Entity* entity = entities[i];
-                    const Model::Properties& entityProperties = entity->properties();
+                    const Model::Entity& entity = *entities[i];
                     
-                    Model::Properties::const_iterator eProp;
-                    cProp = commonProperties.begin();
-                    while (cProp != commonProperties.end()) {
-                        eProp = entityProperties.find(cProp->first);
-                        if (eProp == entityProperties.end()) {
-                            commonProperties.erase(cProp++);
+                    EntryList::iterator entryIt = m_entries.begin();
+                    while (entryIt < m_entries.end()) {
+                        Entry& entry = *entryIt;
+                        const Model::PropertyValue* entityValue = entity.propertyForKey(entry.key);
+                        if (entityValue == NULL) {
+                            m_entries.erase(entryIt);
                         } else {
-                            if (cProp->second != eProp->second) {
-                                multiValueProperties.insert(cProp->first);
-                                commonProperties[cProp->first] = "";
+                            if (entry.value != *entityValue) {
+                                entry.value = "";
+                                entry.multi = true;
+                                ++entryIt;
                             }
-                            ++cProp;
                         }
                     }
-                }
-                
-                EntityPropertyList::iterator eProp;
-                size_t index = 0;
-                for (eProp = m_properties.begin(); eProp != m_properties.end(); ++eProp) {
-                    EntityProperty& propertyRow = *eProp;
-                    
-                    cProp = commonProperties.find(propertyRow.key);
-                    if (cProp == commonProperties.end()) {
-                        eProp = m_properties.erase(eProp);
-                        --eProp;
-                        notifyRowsDeleted(index);
-                    } else {
-                        if (multiValueProperties.find(cProp->first) != multiValueProperties.end()) {
-                            propertyRow.multi = true;
-                            propertyRow.value = "";
-                        } else {
-                            propertyRow.multi = false;
-                            propertyRow.value = cProp->second;
-                        }
-                        commonProperties.erase(cProp);
-                        index++;
-                    }
-                }
-                
-                for (cProp = commonProperties.begin(); cProp != commonProperties.end(); ++cProp) {
-                    if (multiValueProperties.find(cProp->first) != multiValueProperties.end())
-                        m_properties.push_back(EntityProperty(cProp->first));
-                    else
-                        m_properties.push_back(EntityProperty(cProp->first, cProp->second));
-                    notifyRowsAppended();
                 }
 
-                notifyRowsUpdated();
-            } else {
-                notifyRowsDeleted(0, m_properties.size());
-                m_properties.clear();
+                notifyRowsAppended(m_entries.size());
             }
         }
     }

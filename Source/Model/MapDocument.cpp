@@ -316,15 +316,13 @@ namespace TrenchBroom {
             else
                 m_autosaver->clearDirtyFlag();
 
-#if defined __APPLE__
             wxList& views = GetViews();
             wxList::iterator it, end;
             for (it = views.begin(), end = views.end(); it != end; ++it) {
-                wxView* view = static_cast<wxView*>(*it);
-                wxFrame* frame = static_cast<wxFrame*>(view->GetFrame());
-                frame->OSXSetModified(IsModified());
+                View::EditorView* view = wxDynamicCast(*it, View::EditorView);
+                if (view != NULL)
+                    view->setModified(IsModified());
             }
-#endif
         }
 
         void MapDocument::addEntity(Entity& entity) {

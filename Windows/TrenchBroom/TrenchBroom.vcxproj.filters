@@ -342,9 +342,6 @@
     <ClCompile Include="..\..\Source\Utility\Console.cpp">
       <Filter>Source Files\Utility</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\View\DragAndDrop.cpp">
-      <Filter>Source Files\View</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\View\EditorFrame.cpp">
       <Filter>Source Files\View</Filter>
     </ClCompile>
@@ -412,6 +409,12 @@
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\View\EntityPropertyGridTable.cpp">
+      <Filter>Source Files\View</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Model\EntityProperty.cpp">
+      <Filter>Source Files\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\View\GenericDropSource.cpp">
       <Filter>Source Files\View</Filter>
     </ClCompile>
   </ItemGroup>
@@ -981,6 +984,15 @@
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\View\EntityPropertyGridTable.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Model\EntityProperty.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\DragImage.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\GenericDropSource.h">
       <Filter>Header Files\View</Filter>
     </ClInclude>
   </ItemGroup>

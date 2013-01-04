@@ -383,11 +383,6 @@ namespace TrenchBroom {
             glPixelStorei(GL_PACK_SKIP_ROWS, 0);
             glPixelStorei(GL_PACK_SKIP_PIXELS, 0);
             
-            unsigned char* imageData = new unsigned char[width * height * 3];
-            unsigned char* alphaData = new unsigned char[width * height];
-            glReadPixels(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height), GL_RGB, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid*>(imageData));
-            glReadPixels(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height), GL_ALPHA, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid*>(alphaData));
-            
             wxImage* image = m_offscreenRenderer.getImage();
             m_offscreenRenderer.postRender();
             

@@ -26,6 +26,8 @@ wxDocument* DocManager::CreateDocument(const wxString& pathOrig, long flags) {
     wxDocument* document = GetCurrentDocument();
     if (!m_useSDI || document == NULL) {
         document = wxDocManager::CreateDocument(pathOrig, flags);
+        if (document == NULL)
+            return NULL;
         
         wxCommandProcessor* oldProcessor = document->GetCommandProcessor();
         CommandProcessor* newProcessor = new CommandProcessor();

@@ -51,10 +51,10 @@ namespace TrenchBroom {
         wxPanel(parent),
         m_documentViewHolder(documentViewHolder) {
             m_notebook = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNB_TOP | wxCLIP_CHILDREN);
-            m_notebook->AddPage(CreateMapInspector(), wxT("Map"));
+//            m_notebook->AddPage(CreateMapInspector(), wxT("Map"));
             m_entityInspector= CreateEntityInspector();
             m_notebook->AddPage(m_entityInspector, wxT("Entity"));
-            m_notebook->AddPage(CreateBrushInspector(), wxT("Brush"));
+//            m_notebook->AddPage(CreateBrushInspector(), wxT("Brush"));
             m_faceInspector = CreateFaceInspector();
             m_notebook->AddPage(m_faceInspector, wxT("Face"));
             m_notebook->AddPage(CreateViewInspector(), wxT("View"));

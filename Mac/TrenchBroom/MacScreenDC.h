@@ -36,6 +36,7 @@ public:
     virtual wxBitmap DoGetAsBitmap(const wxRect *subrect) const;
 private:
     void* m_overlayWindow;
+    void* m_flippedContext;
     
 private:
     DECLARE_CLASS(MacScreenDCImpl)

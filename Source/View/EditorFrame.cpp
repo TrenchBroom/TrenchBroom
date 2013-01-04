@@ -47,11 +47,11 @@ namespace TrenchBroom {
 		END_EVENT_TABLE()
 
         void EditorFrame::CreateGui() {
-            wxSplitterWindow* logSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3DSASH | wxSP_LIVE_UPDATE);
+            wxSplitterWindow* logSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE);
             logSplitter->SetSashGravity(1.0f);
             logSplitter->SetMinimumPaneSize(0);
             
-            wxSplitterWindow* inspectorSplitter = new wxSplitterWindow(logSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3DSASH | wxSP_LIVE_UPDATE);
+            wxSplitterWindow* inspectorSplitter = new wxSplitterWindow(logSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE);
             inspectorSplitter->SetSashGravity(1.0f);
             inspectorSplitter->SetMinimumPaneSize(350);
             

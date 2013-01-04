@@ -82,6 +82,7 @@ namespace TrenchBroom {
             browserPanel->SetSizerAndFit(browserPanelSizer);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
             outerSizer->Add(controlSizer, 0, wxEXPAND);
             outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
             outerSizer->Add(browserPanel, 1, wxEXPAND);

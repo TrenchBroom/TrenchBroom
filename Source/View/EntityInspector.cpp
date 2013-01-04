@@ -93,7 +93,7 @@ namespace TrenchBroom {
         wxPanel(parent),
         m_documentViewHolder(documentViewHolder) {
             
-            wxSplitterWindow* inspectorSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3DSASH | wxSP_LIVE_UPDATE);
+            wxSplitterWindow* inspectorSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE);
             inspectorSplitter->SetSashGravity(0.0f);
             inspectorSplitter->SetMinimumPaneSize(50);
 
@@ -124,9 +124,11 @@ namespace TrenchBroom {
                 return;
             m_propertyGrid->AppendRows();
          
+            m_propertyGrid->SetFocus();
             int row = m_propertyGrid->GetNumberRows() - 1;
             m_propertyGrid->SelectBlock(row, 0, row, 0);
             m_propertyGrid->GoToCell(row, 0);
+            m_propertyGrid->ShowCellEditControl();
         }
         
         void EntityInspector::OnRemovePropertiesPressed(wxCommandEvent& event) {

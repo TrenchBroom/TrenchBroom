@@ -137,7 +137,7 @@ namespace TrenchBroom {
         }
         
         wxWindow* FaceInspector::createTextureBrowser() {
-            wxSplitterWindow* browserSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3DSASH | wxSP_LIVE_UPDATE);
+            wxSplitterWindow* browserSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE);
             browserSplitter->SetSashGravity(1.0f);
             browserSplitter->SetMinimumPaneSize(30);
 
@@ -157,8 +157,12 @@ namespace TrenchBroom {
             textureCollectionEditorSizer->Add(m_textureCollectionList, 1, wxEXPAND);
             textureCollectionEditorSizer->AddSpacer(LayoutConstants::ControlMargin);
             textureCollectionEditorSizer->Add(textureCollectionEditorButtonsSizer);
-            textureCollectionEditor->SetSizerAndFit(textureCollectionEditorSizer);
 
+            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            outerSizer->Add(textureCollectionEditorSizer, 1, wxEXPAND);
+            textureCollectionEditor->SetSizerAndFit(outerSizer);
+            
             browserSplitter->SplitHorizontally(m_textureBrowser, textureCollectionEditor);
             browserSplitter->SetSashPosition(5000); // will force the collection editor to its minimum size
             return browserSplitter;
@@ -173,7 +177,6 @@ namespace TrenchBroom {
             innerSizer->Add(createFaceEditor(), 0, wxEXPAND);
             innerSizer->AddSpacer(LayoutConstants::DefaultVerticalMargin);
             innerSizer->Add(new wxStaticLine(this), 0, wxEXPAND);
-            innerSizer->AddSpacer(LayoutConstants::DefaultVerticalMargin);
             innerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
             innerSizer->Add(createTextureBrowser(), 1, wxEXPAND | wxBOTTOM, LayoutConstants::NotebookPageExtraBottomMargin);
             

@@ -35,28 +35,29 @@ namespace TrenchBroom {
     namespace View {
         class EntityPropertyGridTable : public wxGridTableBase {
         protected:
-            class EntityProperty {
+            class Entry {
             public:
                 String key;
                 String value;
                 bool multi;
             public:
-                EntityProperty() {}
-                EntityProperty(const String& i_key, const String& i_value) :
+                Entry() {}
+                Entry(const String& i_key, const String& i_value) :
                 key(i_key),
                 value(i_value),
                 multi(false) {}
                 
-                EntityProperty(const String& i_key) :
+                Entry(const String& i_key) :
                 key(i_key),
                 value(""),
                 multi(true) {}
             };
             
-            typedef std::vector<EntityProperty> EntityPropertyList;
+            typedef std::vector<Entry> EntryList;
             
             Model::MapDocument& m_document;
-            EntityPropertyList m_properties;
+            EntryList m_entries;
+            bool m_ignoreUpdates;
             
             Model::EntityList selectedEntities();
 

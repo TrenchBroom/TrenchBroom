@@ -43,16 +43,10 @@ namespace TrenchBroom {
                 }
                 
                 makeSnapshots(m_entities);
-                m_definitionChanged = (key() == Model::Entity::ClassnameKey || m_newKey == Model::Entity::ClassnameKey);
                 
                 for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                     Model::Entity& entity = **entityIt;
-                    Model::PropertyValue value = *entity.propertyForKey(key());
-                    entity.deleteProperty(key());
-                    entity.setProperty(m_newKey, value);
-                    
-                    if (m_definitionChanged)
-                        entity.setDefinition(definitionManager.definition(value));
+                    entity.renameProperty(key(), m_newKey);
                 }
                 return true;
             }
@@ -82,7 +76,7 @@ namespace TrenchBroom {
                     const Model::PropertyKey& key = m_keys[i];
                     for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                         Model::Entity& entity = **entityIt;
-                        entity.deleteProperty(key);
+                        entity.removeProperty(key);
                     }
                 }
                 return true;

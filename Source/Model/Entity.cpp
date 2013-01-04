@@ -101,7 +101,10 @@ namespace TrenchBroom {
             const PropertyValue* oldValue = propertyForKey(key);
             if (oldValue != NULL && oldValue == value)
                 return;
-            m_properties[key] = *value;
+            if (value == NULL)
+                m_propertyStore.removeProperty(key);
+            else
+                m_propertyStore.setPropertyValue(key, *value);
             invalidateGeometry();
         }
         
@@ -131,12 +134,17 @@ namespace TrenchBroom {
             setProperty(key, valueStr.str());
         }
         
-        void Entity::setProperties(const Properties& properties, bool replace) {
+        void Entity::renameProperty(const PropertyKey& oldKey, const PropertyKey& newKey) {
+            bool success = m_propertyStore.setPropertyKey(oldKey, newKey);
+            assert(success);
+        }
+
+        void Entity::setProperties(const PropertyList& properties, bool replace) {
             if (replace)
-                m_properties.clear();
-            Properties::const_iterator it;
-            for (it = properties.begin(); it != properties.end(); ++it)
-                setProperty(it->first, it->second);
+                m_propertyStore.clear();
+            PropertyList::const_iterator it, end;
+            for (it = properties.begin(), end = properties.end(); it != end; ++it)
+                setProperty(it->key(), it->value());
         }
         
         bool Entity::propertyKeyIsMutable(const PropertyKey& key) {
@@ -147,15 +155,15 @@ namespace TrenchBroom {
             return true;
         }
 
-        void Entity::deleteProperty(const PropertyKey& key) {
+        void Entity::removeProperty(const PropertyKey& key) {
             assert(propertyKeyIsMutable(key));
-            if (m_properties.count(key) == 0)
+            if (!m_propertyStore.containsProperty(key))
                 return;
             
             if (key == ClassnameKey)
                 setDefinition(NULL);
-            
-            m_properties.erase(key);
+
+            m_propertyStore.removeProperty(key);
             invalidateGeometry();
         }
         

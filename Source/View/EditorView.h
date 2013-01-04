@@ -102,6 +102,8 @@ namespace TrenchBroom {
             Utility::Console& console() const;
             Controller::InputController& inputController() const;
             wxMenu* createEntityPopupMenu();
+
+            void setModified(bool modified);
             
             bool OnCreate(wxDocument* doc, long flags);
             void OnUpdate(wxView* sender, wxObject* hint = (wxObject*) NULL);
@@ -109,7 +111,7 @@ namespace TrenchBroom {
             void OnDraw(wxDC* dc);
 
             bool OnClose(bool deleteWindow = true);
-
+            
             void OnCameraMove(Controller::CameraMoveEvent& event);
             void OnCameraLook(Controller::CameraLookEvent& event);
             void OnCameraOrbit(Controller::CameraOrbitEvent& event);

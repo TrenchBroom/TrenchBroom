@@ -41,7 +41,7 @@
 		48312B3515EB805E00607868 /* MapRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B3315EB805E00607868 /* MapRenderer.cpp */; };
 		48312B3815EB80C000607868 /* TextureManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B3615EB80C000607868 /* TextureManager.cpp */; };
 		48312B3C15EB814700607868 /* Wad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B3A15EB814700607868 /* Wad.cpp */; };
-		4842AF67162176100042AD66 /* DragAndDrop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4842AF66162176100042AD66 /* DragAndDrop.cpp */; };
+		4842AF67162176100042AD66 /* GenericDropSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4842AF66162176100042AD66 /* GenericDropSource.cpp */; };
 		4842AF7416220D7A0042AD66 /* MacScreenDC.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4842AF7216220D7A0042AD66 /* MacScreenDC.mm */; };
 		4842C34B164BCB7800E41B95 /* InputController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4842C349164BCB7800E41B95 /* InputController.cpp */; };
 		484763E015E2BC5000095BC0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 484763DE15E2BC5000095BC0 /* InfoPlist.strings */; };
@@ -68,6 +68,7 @@
 		4850D2A915F742CB005B162D /* PathTesselator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2A715F742CA005B162D /* PathTesselator.cpp */; };
 		4850D2AF15F76245005B162D /* StringManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2AD15F76244005B162D /* StringManager.cpp */; };
 		48533C8A168F96830055DBC7 /* ReparentBrushesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48533C88168F96830055DBC7 /* ReparentBrushesCommand.cpp */; };
+		4875679D1697922D008F316F /* MacDropSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4875679B1697922D008F316F /* MacDropSource.cpp */; };
 		4878F9201651231D003857EA /* RotateObjectsTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F91E1651231D003857EA /* RotateObjectsTool.cpp */; };
 		4878F924165142B4003857EA /* CreateEntityTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F922165142B4003857EA /* CreateEntityTool.cpp */; };
 		4878F95516596915003857EA /* BrushFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F95316596915003857EA /* BrushFigure.cpp */; };
@@ -116,6 +117,7 @@
 		48BB02BF16870CF300E6E948 /* ResizeBrushesTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48BB02BD16870CF300E6E948 /* ResizeBrushesTool.cpp */; };
 		48BB02C31687AEE300E6E948 /* ResizeBrushesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48BB02C11687AEE300E6E948 /* ResizeBrushesCommand.cpp */; };
 		48BDA1B31695E08500FF2CC5 /* EntityPropertyGridTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48BDA1B11695E08400FF2CC5 /* EntityPropertyGridTable.cpp */; };
+		48BDA1B71696CA5E00FF2CC5 /* EntityProperty.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48BDA1B51696CA5E00FF2CC5 /* EntityProperty.cpp */; };
 		48C0FA421608FFD00023F467 /* FaceInspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C0FA401608FFD00023F467 /* FaceInspector.cpp */; };
 		48C0FA46160901CB0023F467 /* SingleTextureViewer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C0FA44160901CB0023F467 /* SingleTextureViewer.cpp */; };
 		48C3CAF4162A8F2D006547EC /* AddObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C3CAF2162A8F2D006547EC /* AddObjectsCommand.cpp */; };
@@ -241,7 +243,7 @@
 		48312B4A15EBC35800607868 /* RenderUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RenderUtils.h; sourceTree = "<group>"; };
 		4835D20516419FC400B01BD8 /* IOException.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IOException.h; sourceTree = "<group>"; };
 		4842AF64162175300042AD66 /* DragAndDrop.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragAndDrop.h; sourceTree = "<group>"; };
-		4842AF66162176100042AD66 /* DragAndDrop.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragAndDrop.cpp; sourceTree = "<group>"; };
+		4842AF66162176100042AD66 /* GenericDropSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GenericDropSource.cpp; sourceTree = "<group>"; };
 		4842AF7216220D7A0042AD66 /* MacScreenDC.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacScreenDC.mm; sourceTree = "<group>"; };
 		4842AF7316220D7A0042AD66 /* MacScreenDC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacScreenDC.h; sourceTree = "<group>"; };
 		4842AF75162211270042AD66 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = ../../../../../../../Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/AppKit.framework; sourceTree = "<group>"; };
@@ -317,6 +319,10 @@
 		48533C88168F96830055DBC7 /* ReparentBrushesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReparentBrushesCommand.cpp; sourceTree = "<group>"; };
 		48533C89168F96830055DBC7 /* ReparentBrushesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReparentBrushesCommand.h; sourceTree = "<group>"; };
 		486C61E615EF713C0091AA97 /* mmapped_fstream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mmapped_fstream.h; sourceTree = "<group>"; };
+		4875679A16978ED3008F316F /* DragImage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragImage.h; sourceTree = "<group>"; };
+		4875679B1697922D008F316F /* MacDropSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacDropSource.cpp; sourceTree = "<group>"; };
+		4875679C1697922D008F316F /* MacDropSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacDropSource.h; sourceTree = "<group>"; };
+		4875679E16979465008F316F /* GenericDropSource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GenericDropSource.h; sourceTree = "<group>"; };
 		4878F91E1651231D003857EA /* RotateObjectsTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RotateObjectsTool.cpp; sourceTree = "<group>"; };
 		4878F91F1651231D003857EA /* RotateObjectsTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateObjectsTool.h; sourceTree = "<group>"; };
 		4878F922165142B4003857EA /* CreateEntityTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CreateEntityTool.cpp; sourceTree = "<group>"; };
@@ -410,6 +416,8 @@
 		48BB02C21687AEE300E6E948 /* ResizeBrushesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResizeBrushesCommand.h; sourceTree = "<group>"; };
 		48BDA1B11695E08400FF2CC5 /* EntityPropertyGridTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityPropertyGridTable.cpp; sourceTree = "<group>"; };
 		48BDA1B21695E08400FF2CC5 /* EntityPropertyGridTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityPropertyGridTable.h; sourceTree = "<group>"; };
+		48BDA1B51696CA5E00FF2CC5 /* EntityProperty.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityProperty.cpp; sourceTree = "<group>"; };
+		48BDA1B61696CA5E00FF2CC5 /* EntityProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityProperty.h; sourceTree = "<group>"; };
 		48C0FA401608FFD00023F467 /* FaceInspector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FaceInspector.cpp; sourceTree = "<group>"; };
 		48C0FA411608FFD00023F467 /* FaceInspector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceInspector.h; sourceTree = "<group>"; };
 		48C0FA44160901CB0023F467 /* SingleTextureViewer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SingleTextureViewer.cpp; sourceTree = "<group>"; };
@@ -646,8 +654,10 @@
 			children = (
 				484763DC15E2BC5000095BC0 /* Supporting Files */,
 				48DFD4BA1606308E00E554E1 /* MacCapabilities.cpp */,
-				48819C3E15EC0CE700BEA604 /* MacFileManager.h */,
+				4875679B1697922D008F316F /* MacDropSource.cpp */,
+				4875679C1697922D008F316F /* MacDropSource.h */,
 				48819C3D15EC0CE700BEA604 /* MacFileManager.cpp */,
+				48819C3E15EC0CE700BEA604 /* MacFileManager.h */,
 				4842AF7216220D7A0042AD66 /* MacScreenDC.mm */,
 				4842AF7316220D7A0042AD66 /* MacScreenDC.h */,
 				48D1BEB515E423F60073C030 /* TrenchBroomApp.cpp */,
@@ -693,6 +703,8 @@
 				4810277115E54A3000250C9C /* EntityDefinitionManager.cpp */,
 				4810277215E54A3000250C9C /* EntityDefinitionManager.h */,
 				481028A515E75CD000250C9C /* EntityDefinitionTypes.h */,
+				48BDA1B51696CA5E00FF2CC5 /* EntityProperty.cpp */,
+				48BDA1B61696CA5E00FF2CC5 /* EntityProperty.h */,
 				481028A415E75C6000250C9C /* EntityTypes.h */,
 				4810289E15E68E5300250C9C /* Face.cpp */,
 				4810289F15E68E5300250C9C /* Face.h */,
@@ -728,8 +740,10 @@
 				48D417D2160B39A5003AECBB /* CellLayout.h */,
 				48D417D4160B39CD003AECBB /* CellLayoutGLCanvas.h */,
 				481CDADD1603BAF2003E2EE9 /* DocumentViewHolder.h */,
-				4842AF66162176100042AD66 /* DragAndDrop.cpp */,
+				4842AF66162176100042AD66 /* GenericDropSource.cpp */,
+				4875679E16979465008F316F /* GenericDropSource.h */,
 				4842AF64162175300042AD66 /* DragAndDrop.h */,
+				4875679A16978ED3008F316F /* DragImage.h */,
 				48D1BEAC15E3AC060073C030 /* EditorView.cpp */,
 				48D1BEAD15E3AC060073C030 /* EditorView.h */,
 				48D1BEB215E4237A0073C030 /* EditorFrame.cpp */,
@@ -1153,7 +1167,7 @@
 				48B059D416189A7600E6B0AD /* EntityBrowserCanvas.cpp in Sources */,
 				48B059D71618AB2500E6B0AD /* EntityBrowser.cpp in Sources */,
 				488457D0161C839A002ADDAE /* OffscreenRenderer.cpp in Sources */,
-				4842AF67162176100042AD66 /* DragAndDrop.cpp in Sources */,
+				4842AF67162176100042AD66 /* GenericDropSource.cpp in Sources */,
 				4842AF7416220D7A0042AD66 /* MacScreenDC.mm in Sources */,
 				481E566F1624451300B403F3 /* EntityRenderer.cpp in Sources */,
 				481E56721624482600B403F3 /* ShaderProgram.cpp in Sources */,
@@ -1201,6 +1215,8 @@
 				482F4BCB1690681A0012D821 /* Vec4f.cpp in Sources */,
 				482F4BCF16906ACB0012D821 /* PointHandleHighlightFigure.cpp in Sources */,
 				48BDA1B31695E08500FF2CC5 /* EntityPropertyGridTable.cpp in Sources */,
+				48BDA1B71696CA5E00FF2CC5 /* EntityProperty.cpp in Sources */,
+				4875679D1697922D008F316F /* MacDropSource.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
