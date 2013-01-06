@@ -26,6 +26,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <cstddef>
 #include <ostream>
 #include <set>
 #include <vector>
@@ -259,8 +260,9 @@ namespace TrenchBroom {
             }
             
             inline bool equals(const Vec3f& other, float delta) const {
-                Vec3f diff = other - *this;
-                return diff.lengthSquared() <= delta * delta;
+                return std::abs(x - other.x) < delta &&
+                       std::abs(y - other.y) < delta &&
+                       std::abs(z - other.z) < delta;
             }
             
             inline bool null() const {

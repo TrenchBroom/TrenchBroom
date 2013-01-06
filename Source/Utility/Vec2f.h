@@ -152,8 +152,8 @@ namespace TrenchBroom {
             }
             
             inline bool equals(const Vec2f& other, float delta) const {
-                Vec2f diff = other - *this;
-                return diff.lengthSquared() <= delta * delta;
+                return std::abs(x - other.x) < delta &&
+                       std::abs(y - other.y) < delta;     
             }
             
             void write(std::ostream& str) const {

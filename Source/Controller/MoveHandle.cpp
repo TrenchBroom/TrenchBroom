@@ -22,11 +22,13 @@
 #include "Model/EditStateManager.h"
 #include "Renderer/ApplyMatrix.h"
 #include "Renderer/AxisFigure.h"
+#include "Renderer/Camera.h"
 #include "Renderer/CircleFigure.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shader/ShaderManager.h"
 #include "Renderer/Shader/ShaderProgram.h"
 #include "Renderer/Vbo.h"
+#include "Utility/Preferences.h"
 
 #include <cassert>
 
@@ -43,23 +45,31 @@ namespace TrenchBroom {
 
     namespace Controller {
         Model::MoveHandleHit* MoveHandle::pickAxis(const Ray& ray, Vec3f& axis, Model::MoveHandleHit::HitArea hitArea) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
+            float factor = (position() - ray.origin).length() * scalingFactor;
+
             float distance;
             Vec3f pointOnAxis;
-            float missDistance = ray.squaredDistanceToSegment(position() - m_axisLength * axis, position() + m_axisLength * axis, pointOnAxis, distance);
-            if (isnan(missDistance) || missDistance > 5.0f)
+            float missDistance = ray.distanceToSegment(position() - m_axisLength * factor * axis, position() + m_axisLength * factor * axis, pointOnAxis, distance) / factor;
+            if (isnan(missDistance) || missDistance > 3.0f)
                 return NULL;
             
             return new Model::MoveHandleHit(ray.pointAtDistance(distance), distance, hitArea);
         }
         
         Model::MoveHandleHit* MoveHandle::pickPlane(const Ray& ray, const Vec3f& normal, const Vec3f& axis1, const Vec3f& axis2, Model::MoveHandleHit::HitArea hitArea) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
+            float factor = (position() - ray.origin).length() * scalingFactor;
+
             Plane plane(normal, position());
             float distance = plane.intersectWithRay(ray);
             if (!isnan(distance)) {
                 Vec3f hitPoint = ray.pointAtDistance(distance);
                 Vec3f hitVector = hitPoint - position();
-                float missDistance = hitVector.lengthSquared();
-                if (missDistance <= m_planeRadius * m_planeRadius &&
+                float missDistance = hitVector.length() / factor;
+                if (missDistance <= m_planeRadius &&
                     hitVector.dot(axis1) >= 0.0f && hitVector.dot(axis2) >= 0.0f)
                     return new Model::MoveHandleHit(hitPoint, distance, hitArea);
             }
@@ -138,10 +148,15 @@ namespace TrenchBroom {
             if (!enabled())
                 return;
             
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            float distance = renderContext.camera().distanceTo(position());
+            float factor = prefs.getFloat(Preferences::HandleScalingFactor) * distance;
+            
             Renderer::SetVboState mapVbo(vbo, Renderer::Vbo::VboMapped);
             
             Mat4f translation;
             translation.translate(position());
+            translation.scale(factor);
             Renderer::ApplyMatrix applyTranslation(renderContext.transformation(), translation);
             
             glDisable(GL_DEPTH_TEST);

@@ -323,6 +323,7 @@
 		4875679B1697922D008F316F /* MacDropSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacDropSource.cpp; sourceTree = "<group>"; };
 		4875679C1697922D008F316F /* MacDropSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacDropSource.h; sourceTree = "<group>"; };
 		4875679E16979465008F316F /* GenericDropSource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GenericDropSource.h; sourceTree = "<group>"; };
+		4875679F16982C43008F316F /* ModelUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModelUtils.h; sourceTree = "<group>"; };
 		4878F91E1651231D003857EA /* RotateObjectsTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RotateObjectsTool.cpp; sourceTree = "<group>"; };
 		4878F91F1651231D003857EA /* RotateObjectsTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateObjectsTool.h; sourceTree = "<group>"; };
 		4878F922165142B4003857EA /* CreateEntityTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CreateEntityTool.cpp; sourceTree = "<group>"; };
@@ -717,6 +718,7 @@
 				48AF492215E784590083DE52 /* MapExceptions.h */,
 				4847641015E2E06900095BC0 /* MapObject.h */,
 				4850D24915F36172005B162D /* MapObjectTypes.h */,
+				4875679F16982C43008F316F /* ModelUtils.h */,
 				4850D24715F360BF005B162D /* Octree.cpp */,
 				4850D24815F360BF005B162D /* Octree.h */,
 				4850D24B15F364A1005B162D /* Picker.cpp */,
@@ -811,6 +813,7 @@
 				48D1BE9815E2E2930073C030 /* Math.h */,
 				4810278115E594C400250C9C /* MessageException.h */,
 				48D1BEAA15E2FF860073C030 /* Plane.h */,
+				481CDADA16034034003E2EE9 /* Preferences.cpp */,
 				48312B4415EBA43700607868 /* Preferences.h */,
 				48AF492915E8F0B20083DE52 /* ProgressIndicator.h */,
 				48D1BEA415E2F4F80073C030 /* Quat.h */,
@@ -822,7 +825,6 @@
 				482F4BCA1690681A0012D821 /* Vec4f.cpp */,
 				48D1BE9E15E2EC5D0073C030 /* Vec4f.h */,
 				48D1BE9B15E2E3B50073C030 /* VecMath.h */,
-				481CDADA16034034003E2EE9 /* Preferences.cpp */,
 			);
 			name = Utility;
 			path = ../Source/Utility;

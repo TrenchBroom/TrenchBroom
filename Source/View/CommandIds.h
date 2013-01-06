@@ -144,6 +144,9 @@ namespace TrenchBroom {
                 static const int TextureCollectionListId            = Lowest + 11;
                 static const int AddTextureCollectionButtonId       = Lowest + 12;
                 static const int RemoveTextureCollectionsButtonId   = Lowest + 13;
+                static const int ResetFaceAttribsId                 = Lowest + 14;
+                static const int FitTextureId                       = Lowest + 15;
+                static const int AlignTextureId                     = Lowest + 16;
                 static const int Highest                            = Lowest + 99;
             }
             

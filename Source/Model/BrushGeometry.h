@@ -275,16 +275,16 @@ namespace TrenchBroom {
             void flip(Axis::Type axis, const Vec3f& flipCenter);
             void snap();
 
-            bool canMoveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta) const;
+            bool canMoveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta);
             Vec3f::List moveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
-            bool canMoveEdges(const EdgeList& edges, const Vec3f& delta) const;
+            bool canMoveEdges(const EdgeList& edges, const Vec3f& delta);
             void moveEdges(const EdgeList& edges, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
-            bool canMoveFaces(const FaceList& faces, const Vec3f& delta) const;
+            bool canMoveFaces(const FaceList& faces, const Vec3f& delta);
             void moveFaces(const FaceList& faces, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
             
-            bool canSplitEdge(Edge* edge, const Vec3f& delta) const;
+            bool canSplitEdge(Edge* edge, const Vec3f& delta);
             Vec3f splitEdge(Edge* edge, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
-            bool canSplitFace(Face* face, const Vec3f& delta) const;
+            bool canSplitFace(Face* face, const Vec3f& delta);
             Vec3f splitFace(Face* face, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
         };
 

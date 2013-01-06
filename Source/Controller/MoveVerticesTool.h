@@ -44,6 +44,12 @@ namespace TrenchBroom {
                 VMSplit
             } VertexToolMode;
             
+            typedef enum {
+                Conclude,
+                Deny,
+                Continue
+            } VertexToolResult;
+            
             VertexHandleManager m_handleManager;
             MoveHandle m_moveHandle;
             MoveHandle::RestrictToAxis m_restrictToAxis;
@@ -75,7 +81,7 @@ namespace TrenchBroom {
             MoveVerticesTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float planeRadius, float vertexSize);
         
             bool hasSelection();
-            bool moveVertices(const Vec3f& delta);
+            VertexToolResult moveVertices(const Vec3f& delta);
         };
     }
 }

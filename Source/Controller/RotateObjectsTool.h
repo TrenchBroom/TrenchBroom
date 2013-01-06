@@ -54,16 +54,23 @@ namespace TrenchBroom {
     }
 
     namespace Controller {
-        class RotateObjectsTool : public PlaneDragTool, ObjectsHandle<Model::RotateObjectsHandleHit> {
+        class RotateObjectsTool : public Tool, ObjectsHandle<Model::RotateObjectsHandleHit> {
         protected:
             float m_axisLength;
             float m_ringRadius;
             float m_ringThickness;
-            Model::RotateObjectsHandleHit* m_lastHit;
+            
             Vec3f m_axis;
+            int m_startX;
+            int m_startY;
+            bool m_invert;
             float m_angle;
             Vec3f m_center;
+            bool m_ignoreObjectsChange;
             
+            Model::RotateObjectsHandleHit* m_lastHit;
+
+            void updateHandlePosition(InputState& inputState);
             Model::RotateObjectsHandleHit* pickRing(const Ray& ray, const Vec3f& normal, const Vec3f& axis1, const Vec3f& axis2, Model::RotateObjectsHandleHit::HitArea hitArea);
 
             void renderAxis(Model::RotateObjectsHandleHit* hit, Renderer::Vbo& vbo, Renderer::RenderContext& context);
@@ -74,12 +81,13 @@ namespace TrenchBroom {
             void handlePick(InputState& inputState);
             void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
             
-            bool handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint);
-            bool handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint);
-            void handleEndPlaneDrag(InputState& inputState);
+            bool handleStartDrag(InputState& inputState);
+            bool handleDrag(InputState& inputState);
+            void handleEndDrag(InputState& inputState);
             
             void handleObjectsChange(InputState& inputState);
             void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet);
+            void handleGridChange(InputState& inputState);
         public:
             RotateObjectsTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float ringRadius, float ringThickness);
             ~RotateObjectsTool();

@@ -32,6 +32,7 @@ namespace TrenchBroom {
         typedef std::vector<Entity*> EntityList;
         static const EntityList EmptyEntityList;
         typedef std::set<Entity*> EntitySet;
+        typedef std::pair<EntitySet::iterator, bool> EntitySetInsertResult;
     }
 }
 

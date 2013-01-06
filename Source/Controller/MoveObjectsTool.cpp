@@ -24,6 +24,7 @@
 #include "Model/EditStateManager.h"
 #include "Model/MapDocument.h"
 #include "Model/MapObject.h"
+#include "Model/ModelUtils.h"
 #include "Renderer/ApplyMatrix.h"
 #include "Renderer/AxisFigure.h"
 #include "Renderer/Camera.h"
@@ -37,6 +38,17 @@
 
 namespace TrenchBroom {
     namespace Controller {
+        void MoveObjectsTool::updateHandlePosition(InputState& inputState) {
+            Model::EditStateManager& editStateManager = document().editStateManager();
+            const Model::EntityList& entities = editStateManager.selectedEntities();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            if (entities.empty() && brushes.empty())
+                return;
+            
+            Vec3f position = referencePoint(entities, brushes, document().grid());
+            m_moveHandle.setPosition(position);
+        }
+
         bool MoveObjectsTool::handleIsModal(InputState& inputState) {
             if (dragType() == DTDrag)
                 return true;
@@ -162,25 +174,17 @@ namespace TrenchBroom {
         }
         
         void MoveObjectsTool::handleObjectsChange(InputState& inputState) {
-            Model::EditStateManager& editStateManager = document().editStateManager();
-            const Model::EntityList& entities = editStateManager.selectedEntities();
-            const Model::BrushList& brushes = editStateManager.selectedBrushes();
-            if (entities.empty() && brushes.empty())
-                return;
-            
-            m_moveHandle.setPosition(entities, brushes);
+            updateHandlePosition(inputState);
         }
         
         void MoveObjectsTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
-            Model::EditStateManager& editStateManager = document().editStateManager();
-            const Model::EntityList& entities = editStateManager.selectedEntities();
-            const Model::BrushList& brushes = editStateManager.selectedBrushes();
-            if (entities.empty() && brushes.empty())
-                return;
-
-            m_moveHandle.setPosition(entities, brushes);
+            updateHandlePosition(inputState);
         }
 
+        void MoveObjectsTool::handleGridChange(InputState& inputState) {
+            updateHandlePosition(inputState);
+        }
+        
         MoveObjectsTool::MoveObjectsTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float planeRadius) :
         PlaneDragTool(documentViewHolder, true),
         m_moveHandle(MoveHandle(axisLength, planeRadius)) {}

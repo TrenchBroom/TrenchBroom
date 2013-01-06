@@ -29,6 +29,20 @@ namespace TrenchBroom {
         inline void erase(std::vector<T>& list, T element) {
             list.erase(std::remove(list.begin(), list.end(), element), list.end());
         }
+        
+        template <typename T>
+        inline std::vector<T> concatenate(const std::vector<T>& prefix, const std::vector<T>& suffix) {
+            if (prefix.empty())
+                return suffix;
+            if (suffix.empty())
+                return prefix;
+            
+            std::vector<T> result;
+            result.reserve(prefix.size() + suffix.size());
+            result.insert(result.end(), prefix.begin(), prefix.end());
+            result.insert(result.end(), suffix.begin(), suffix.end());
+            return result;
+        }
     }
 }
 

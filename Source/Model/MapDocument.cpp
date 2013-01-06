@@ -183,14 +183,14 @@ namespace TrenchBroom {
         }
 
         void MapDocument::clear() {
-            Controller::Command clearCommand(Controller::Command::ClearMap);
-            UpdateAllViews(NULL, &clearCommand);
-
             m_editStateManager->clear();
             m_map->clear();
             m_octree->clear();
             m_textureManager->clear();
             m_definitionManager->clear();
+
+            Controller::Command clearCommand(Controller::Command::ClearMap);
+            UpdateAllViews(NULL, &clearCommand);
         }
 
         void MapDocument::loadPalette() {
@@ -340,6 +340,13 @@ namespace TrenchBroom {
             for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
                 Model::Brush& brush = **brushIt;
                 m_octree->addObject(brush);
+
+                const FaceList& faces = brush.faces();
+                FaceList::const_iterator faceIt, faceEnd;
+                for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
+                    Face& face = **faceIt;
+                    face.setTexture(m_textureManager->texture(face.textureName()));
+                }
             }
         }
 

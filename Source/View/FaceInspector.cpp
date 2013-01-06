@@ -70,6 +70,12 @@ namespace TrenchBroom {
         EVT_SPINCTRLDOUBLE(CommandIds::FaceInspector::XScaleEditorId, FaceInspector::OnXScaleChanged)
         EVT_SPINCTRLDOUBLE(CommandIds::FaceInspector::YScaleEditorId, FaceInspector::OnYScaleChanged)
         EVT_SPINCTRLDOUBLE(CommandIds::FaceInspector::RotationEditorId, FaceInspector::OnRotationChanged)
+        EVT_BUTTON(CommandIds::FaceInspector::ResetFaceAttribsId, FaceInspector::OnResetFaceAttribsPressed)
+        EVT_BUTTON(CommandIds::FaceInspector::AlignTextureId, FaceInspector::OnAlignTexturePressed)
+        EVT_BUTTON(CommandIds::FaceInspector::FitTextureId, FaceInspector::OnFitTexturePressed)
+        EVT_UPDATE_UI(CommandIds::FaceInspector::ResetFaceAttribsId, FaceInspector::OnUpdateFaceButtons)
+        EVT_UPDATE_UI(CommandIds::FaceInspector::AlignTextureId, FaceInspector::OnUpdateFaceButtons)
+        EVT_UPDATE_UI(CommandIds::FaceInspector::FitTextureId, FaceInspector::OnUpdateFaceButtons)
         EVT_TEXTURE_SELECTED(CommandIds::FaceInspector::TextureBrowserId, FaceInspector::OnTextureSelected)
         EVT_BUTTON(CommandIds::FaceInspector::AddTextureCollectionButtonId, FaceInspector::OnAddTextureCollectionPressed)
         EVT_BUTTON(CommandIds::FaceInspector::RemoveTextureCollectionsButtonId, FaceInspector::OnRemoveTextureCollectionsPressed)
@@ -106,19 +112,37 @@ namespace TrenchBroom {
             m_rotationEditor = new SpinControl(faceEditorPanel, CommandIds::FaceInspector::RotationEditorId);
             m_rotationEditor->SetRange(min, max);
             m_rotationEditor->SetIncrement(1.0);
+
+            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            buttonSizer->Add(new wxButton(faceEditorPanel, CommandIds::FaceInspector::ResetFaceAttribsId, wxT("Reset"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT));
             
+            /*
+            buttonSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            buttonSizer->Add(new wxButton(faceEditorPanel, CommandIds::FaceInspector::AlignTextureId, wxT("A"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT));
+            buttonSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            buttonSizer->Add(new wxButton(faceEditorPanel, CommandIds::FaceInspector::FitTextureId, wxT("F"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT));
+             */
+
             wxGridBagSizer* textureAttribsSizer = new wxGridBagSizer(LayoutConstants::TextureAttribsControlMargin, LayoutConstants::TextureAttribsControlMargin);
             textureAttribsSizer->Add(new wxStaticText(faceEditorPanel, wxID_ANY, wxT("")), wxGBPosition(0, 0), wxDefaultSpan, wxALIGN_CENTER); // fake
             textureAttribsSizer->Add(new wxStaticText(faceEditorPanel, wxID_ANY, wxT("X"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER), wxGBPosition(0, 1), wxDefaultSpan, wxEXPAND | wxALIGN_CENTER);
             textureAttribsSizer->Add(new wxStaticText(faceEditorPanel, wxID_ANY, wxT("Y"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER), wxGBPosition(0, 2), wxDefaultSpan, wxEXPAND | wxALIGN_CENTER);
+
             textureAttribsSizer->Add(new wxStaticText(faceEditorPanel, wxID_ANY, wxT("Offset"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(1, 0), wxDefaultSpan, wxALIGN_RIGHT);
             textureAttribsSizer->Add(m_xOffsetEditor, wxGBPosition(1, 1), wxDefaultSpan, wxEXPAND);
             textureAttribsSizer->Add(m_yOffsetEditor, wxGBPosition(1, 2), wxDefaultSpan, wxEXPAND);
             textureAttribsSizer->Add(new wxStaticText(faceEditorPanel, wxID_ANY, wxT("Scale"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(2, 0), wxDefaultSpan, wxALIGN_RIGHT);
+            
             textureAttribsSizer->Add(m_xScaleEditor, wxGBPosition(2, 1), wxDefaultSpan, wxEXPAND);
             textureAttribsSizer->Add(m_yScaleEditor, wxGBPosition(2, 2), wxDefaultSpan, wxEXPAND);
+            
             textureAttribsSizer->Add(new wxStaticText(faceEditorPanel, wxID_ANY, wxT("Rotation"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(3, 0), wxGBSpan(1, 2), wxEXPAND |wxALIGN_RIGHT);
             textureAttribsSizer->Add(m_rotationEditor, wxGBPosition(3, 2), wxDefaultSpan, wxEXPAND);
+            
+            textureAttribsSizer->Add(new wxStaticText(faceEditorPanel, wxID_ANY, wxT(""), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(4, 0), wxDefaultSpan, wxALIGN_RIGHT);
+            textureAttribsSizer->Add(new wxStaticText(faceEditorPanel, wxID_ANY, wxT(""), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT), wxGBPosition(4, 1), wxDefaultSpan, wxALIGN_LEFT);
+            textureAttribsSizer->Add(buttonSizer, wxGBPosition(4, 2), wxDefaultSpan, wxALIGN_LEFT);
+            
             textureAttribsSizer->AddGrowableCol(1);
             textureAttribsSizer->AddGrowableCol(2);
             textureAttribsSizer->SetItemMinSize(m_xOffsetEditor, 50, m_xOffsetEditor->GetSize().y);
@@ -358,6 +382,32 @@ namespace TrenchBroom {
             Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, faces, "Set Rotation");
             command->setRotation(static_cast<float>(event.GetValue()));
             document.GetCommandProcessor()->Submit(command);
+        }
+
+        void FaceInspector::OnResetFaceAttribsPressed(wxCommandEvent& event) {
+            if (!m_documentViewHolder.valid())
+                return;
+            Model::MapDocument& document = m_documentViewHolder.document();
+            const Model::FaceList& faces = document.editStateManager().allSelectedFaces();
+            Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, faces, "Set X Scale");
+            command->setXOffset(0.0f);
+            command->setYOffset(0.0f);
+            command->setXScale(1.0f);
+            command->setYScale(1.0f);
+            command->setRotation(0.0f);
+            document.GetCommandProcessor()->Submit(command);
+        }
+        
+        void FaceInspector::OnAlignTexturePressed(wxCommandEvent& event) {
+        }
+        
+        void FaceInspector::OnFitTexturePressed(wxCommandEvent& event) {
+        }
+        
+        void FaceInspector::OnUpdateFaceButtons(wxUpdateUIEvent& event) {
+            Model::MapDocument& document = m_documentViewHolder.document();
+            const Model::FaceList& faces = document.editStateManager().allSelectedFaces();
+            event.Enable(!faces.empty());
         }
 
         void FaceInspector::OnTextureSelected(TextureSelectedCommand& event) {

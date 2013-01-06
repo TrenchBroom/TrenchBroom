@@ -298,18 +298,29 @@ namespace TrenchBroom {
             if (!m_brushes.empty())
                 return;
             
-            Vec3f offset = center() - origin();
-            Vec3f newCenter = center().flipped(axis, flipCenter);
-            setProperty(OriginKey, newCenter + offset, true);
-            setProperty(AngleKey, 0, true);
+            Vec3f newOrigin = origin().flipped(axis, flipCenter);
+            setProperty(OriginKey, newOrigin, true);
             
             float ang = static_cast<float>(angle());
+            switch (axis) {
+                case Axis::AX:
+                    if (ang >= 0.0f)
+                        ang = 180.0f - ang;
+                    break;
+                case Axis::AY:
+                    if (ang >= 0.0f)
+                        ang = 360.0f - ang;
+                    break;
+                default:
+                    if (ang == -1.0f)
+                        ang = -2.0f;
+                    else if (ang == -2.0f)
+                        ang = -1.0f;
+                    break;
+            }
+            
             if (ang >= 0.0f)
-                ang = (ang + 180.0f) - static_cast<int>(ang / 360.0f) * ang;
-            else if (ang == -1.0f)
-                ang = -2.0f;
-            else if (ang == -2.0f)
-                ang = -1.0f;
+                ang -= static_cast<int>(ang / 360.0f) * 360.0f;
             setProperty(AngleKey, ang, true);
             invalidateGeometry();
         }

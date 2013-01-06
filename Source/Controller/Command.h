@@ -33,6 +33,7 @@ namespace TrenchBroom {
             typedef enum {
                 LoadMap,
                 ClearMap,
+                ChangeGrid,
                 ChangeEditState,
                 InvalidateRendererEntityState,
                 InvalidateRendererBrushState,

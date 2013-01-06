@@ -101,30 +101,6 @@ namespace TrenchBroom {
                 m_position = position;
             }
 
-            inline void setPosition(const Model::EntityList& entities, const Model::BrushList& brushes) {
-                assert(entities.size() + brushes.size() > 0);
-                
-                Vec3f position = Vec3f::Null;
-                
-                Model::EntityList::const_iterator entityIt, entityEnd;
-                for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
-                    const Model::Entity& entity = **entityIt;
-                    if (entity.definition() != NULL && entity.definition()->type() == Model::EntityDefinition::PointEntity)
-                        position += entity.origin();
-                    else
-                        position += entity.bounds().center();
-                }
-                
-                Model::BrushList::const_iterator brushIt, brushEnd;
-                for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
-                    const Model::Brush& brush = **brushIt;
-                    position += brush.center();
-                }
-                
-                position /= static_cast<float>(entities.size() + brushes.size());
-                setPosition(position);
-            }
-            
             inline bool positionValid() {
                 bool valid = m_positionValid;
                 m_positionValid = true;

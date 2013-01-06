@@ -406,6 +406,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Model\MapExceptions.h" />
     <ClInclude Include="..\..\Source\Model\MapObject.h" />
     <ClInclude Include="..\..\Source\Model\MapObjectTypes.h" />
+    <ClInclude Include="..\..\Source\Model\ModelUtils.h" />
     <ClInclude Include="..\..\Source\Model\Octree.h" />
     <ClInclude Include="..\..\Source\Model\Picker.h" />
     <ClInclude Include="..\..\Source\Model\PropertyDefinition.h" />

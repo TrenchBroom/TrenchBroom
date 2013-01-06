@@ -40,6 +40,8 @@ namespace TrenchBroom {
             Vec3f m_totalDelta;
             MoveHandle::RestrictToAxis m_restrictToAxis;
             
+            void updateHandlePosition(InputState& inputState);
+            
             bool handleIsModal(InputState& inputState);
 
             void handlePick(InputState& inputState);
@@ -51,6 +53,7 @@ namespace TrenchBroom {
 
             void handleObjectsChange(InputState& inputState);
             void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet);
+            void handleGridChange(InputState& inputState);
         public:
             MoveObjectsTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float planeRadius);
         };

@@ -30,27 +30,27 @@ namespace TrenchBroom {
                                                  0.0f,  0.0f,  1.0f,  0.0f,
                                                  0.0f,  0.0f,  0.0f,  1.0f);
         const Mat4f Mat4f::Rot90XCW     = Mat4f( 1.0f,  0.0f,  0.0f,  0.0f,
-                                                 0.0f,  0.0f, -1.0f,  0.0f,
-                                                 0.0f,  1.0f,  0.0f,  0.0f,
-                                                 0.0f,  0.0f,  0.0f,  1.0f);
-        const Mat4f Mat4f::Rot90YCW     = Mat4f( 0.0f,  0.0f,  1.0f,  0.0f,
-                                                 0.0f,  1.0f,  0.0f,  0.0f,
-                                                -1.0f,  0.0f,  0.0f,  0.0f,
-                                                 0.0f,  0.0f,  0.0f,  1.0f);
-        const Mat4f Mat4f::Rot90ZCW     = Mat4f( 0.0f, -1.0f,  0.0f,  0.0f,
-                                                 1.0f,  0.0f,  0.0f,  0.0f,
-                                                 0.0f,  0.0f,  1.0f,  0.0f,
-                                                 0.0f,  0.0f,  0.0f,  1.0f);
-        const Mat4f Mat4f::Rot90XCCW    = Mat4f( 1.0f,  0.0f,  0.0f,  0.0f,
                                                  0.0f,  0.0f,  1.0f,  0.0f,
                                                  0.0f, -1.0f,  0.0f,  0.0f,
                                                  0.0f,  0.0f,  0.0f,  1.0f);
-        const Mat4f Mat4f::Rot90YCCW    = Mat4f( 0.0f,  0.0f, -1.0f,  0.0f,
+        const Mat4f Mat4f::Rot90YCW     = Mat4f( 0.0f,  0.0f, -1.0f,  0.0f,
                                                  0.0f,  1.0f,  0.0f,  0.0f,
                                                  1.0f,  0.0f,  0.0f,  0.0f,
                                                  0.0f,  0.0f,  0.0f,  1.0f);
-        const Mat4f Mat4f::Rot90ZCCW    = Mat4f( 0.0f,  1.0f,  0.0f,  0.0f,
+        const Mat4f Mat4f::Rot90ZCW     = Mat4f( 0.0f,  1.0f,  0.0f,  0.0f,
                                                 -1.0f,  0.0f,  0.0f,  0.0f,
+                                                 0.0f,  0.0f,  1.0f,  0.0f,
+                                                 0.0f,  0.0f,  0.0f,  1.0f);
+        const Mat4f Mat4f::Rot90XCCW    = Mat4f( 1.0f,  0.0f,  0.0f,  0.0f,
+                                                 0.0f,  0.0f, -1.0f,  0.0f,
+                                                 0.0f,  1.0f,  0.0f,  0.0f,
+                                                 0.0f,  0.0f,  0.0f,  1.0f);
+        const Mat4f Mat4f::Rot90YCCW    = Mat4f( 0.0f,  0.0f,  1.0f,  0.0f,
+                                                 0.0f,  1.0f,  0.0f,  0.0f,
+                                                -1.0f,  0.0f,  0.0f,  0.0f,
+                                                 0.0f,  0.0f,  0.0f,  1.0f);
+        const Mat4f Mat4f::Rot90ZCCW    = Mat4f( 0.0f, -1.0f,  0.0f,  0.0f,
+                                                 1.0f,  0.0f,  0.0f,  0.0f,
                                                  0.0f,  0.0f,  1.0f,  0.0f,
                                                  0.0f,  0.0f,  0.0f,  1.0f);
         const Mat4f Mat4f::MirX         = Mat4f(-1.0f,  0.0f,  0.0f,  0.0f,

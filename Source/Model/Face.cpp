@@ -52,10 +52,10 @@ namespace TrenchBroom {
         
         void Face::texAxesAndIndices(const Vec3f& faceNormal, Vec3f& xAxis, Vec3f& yAxis, unsigned int& planeNormIndex, unsigned int& faceNormIndex) const {
             unsigned int bestIndex = 0;
-            float bestDot = -1;
+            float bestDot = -1.0f;
             for (unsigned int i = 0; i < 6; i++) {
                 float dot = faceNormal.dot(*BaseAxes[i * 3]);
-                if (dot >= bestDot) {
+                if (dot > bestDot) { // no need to use -altaxis for qbsp
                     bestDot = dot;
                     bestIndex = i;
                 }

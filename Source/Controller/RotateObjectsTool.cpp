@@ -22,6 +22,7 @@
 #include "Controller/Command.h"
 #include "Controller/RotateObjectsCommand.h"
 #include "Model/EditStateManager.h"
+#include "Model/ModelUtils.h"
 #include "Renderer/ApplyMatrix.h"
 #include "Renderer/AxisFigure.h"
 #include "Renderer/Camera.h"
@@ -30,7 +31,9 @@
 #include "Renderer/RingFigure.h"
 #include "Renderer/Shader/ShaderManager.h"
 #include "Renderer/VertexArray.h"
+#include "Utility/Console.h"
 #include "Utility/Grid.h"
+#include "Utility/Preferences.h"
 #include "Utility/VecMath.h"
 
 #include <cassert>
@@ -49,15 +52,30 @@ namespace TrenchBroom {
     }
 
     namespace Controller {
+        void RotateObjectsTool::updateHandlePosition(InputState& inputState) {
+            Model::EditStateManager& editStateManager = document().editStateManager();
+            const Model::EntityList& entities = editStateManager.selectedEntities();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            if (entities.empty() && brushes.empty())
+                return;
+            
+            Vec3f position = referencePoint(entities, brushes, document().grid());
+            setPosition(position);
+        }
+
         Model::RotateObjectsHandleHit* RotateObjectsTool::pickRing(const Ray& ray, const Vec3f& normal, const Vec3f& axis1, const Vec3f& axis2, Model::RotateObjectsHandleHit::HitArea hitArea) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
+            float factor = (position() - ray.origin).length() * scalingFactor;
+
             Plane plane(normal, position());
             float distance = plane.intersectWithRay(ray);
             if (!isnan(distance)) {
                 Vec3f hitPoint = ray.pointAtDistance(distance);
                 Vec3f hitVector = hitPoint - position();
-                float missDistance = hitVector.lengthSquared();
-                if (missDistance >= m_ringRadius * m_ringRadius &&
-                    missDistance <= (m_ringRadius + m_ringThickness) * (m_ringRadius + m_ringThickness) &&
+                float missDistance = hitVector.length() / factor;
+                if (missDistance >= m_ringRadius &&
+                    missDistance <= (m_ringRadius + m_ringThickness) &&
                     hitVector.dot(axis1) >= 0.0f && hitVector.dot(axis2) >= 0.0f)
                     return new Model::RotateObjectsHandleHit(hitPoint, distance, hitArea);
             }
@@ -93,29 +111,29 @@ namespace TrenchBroom {
 
             Mat4f rotation;
             if (hit->hitArea() == Model::RotateObjectsHandleHit::HAXAxis) {
-                rotation.rotateCCW(angle, angle > 0.0f ? Vec3f::PosX : Vec3f::NegX);
+                rotation.rotateCCW(angle, Vec3f::PosX);
                 Renderer::ApplyMatrix applyRotation(context.transformation(), rotation);
 
                 shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.25f));
                 Renderer::RingFigure(Axis::AX, yAxis, zAxis, m_ringRadius, m_ringThickness, 8).render(vbo, context);
                 shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
-                Renderer::CircleFigure(Axis::AX, 0.0f, 2 * Math::Pi, m_ringRadius + m_ringThickness, 32, false).render(vbo, context);
+                Renderer::CircleFigure(Axis::AX, 0.0f, 2.0f * Math::Pi, m_ringRadius + m_ringThickness, 32, false).render(vbo, context);
             } else if (hit->hitArea() == Model::RotateObjectsHandleHit::HAYAxis) {
-                rotation.rotateCCW(angle, angle > 0.0f ? Vec3f::PosY : Vec3f::NegY);
+                rotation.rotateCCW(angle, Vec3f::PosY);
                 Renderer::ApplyMatrix applyRotation(context.transformation(), rotation);
 
                 shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.25f));
                 Renderer::RingFigure(Axis::AY, xAxis, zAxis, m_ringRadius, m_ringThickness, 8).render(vbo, context);
                 shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
-                Renderer::CircleFigure(Axis::AY, 0.0f, 2 * Math::Pi, m_ringRadius + m_ringThickness, 32, false).render(vbo, context);
+                Renderer::CircleFigure(Axis::AY, 0.0f, 2.0f * Math::Pi, m_ringRadius + m_ringThickness, 32, false).render(vbo, context);
             } else {
-                rotation.rotateCCW(angle, angle > 0.0f ? Vec3f::PosZ : Vec3f::NegZ);
+                rotation.rotateCCW(angle, Vec3f::PosZ);
                 Renderer::ApplyMatrix applyRotation(context.transformation(), rotation);
 
                 shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 0.25f));
                 Renderer::RingFigure(Axis::AZ, xAxis, yAxis, m_ringRadius, m_ringThickness, 8).render(vbo, context);
                 shader.currentShader().setUniformVariable("Color", Color(1.0f, 1.0f, 1.0f, 1.0f));
-                Renderer::CircleFigure(Axis::AZ, 0.0f, 2 * Math::Pi, m_ringRadius + m_ringThickness, 32, false).render(vbo, context);
+                Renderer::CircleFigure(Axis::AZ, 0.0f, 2.0f * Math::Pi, m_ringRadius + m_ringThickness, 32, false).render(vbo, context);
             }
         }
 
@@ -157,8 +175,13 @@ namespace TrenchBroom {
             else
                 hit = static_cast<Model::RotateObjectsHandleHit*>(inputState.pickResult().first(Model::HitType::RotateObjectsHandleHit, true, view().filter()));
 
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            float distance = renderContext.camera().distanceTo(position());
+            float factor = prefs.getFloat(Preferences::HandleScalingFactor) * distance;
+
             Mat4f translation;
             translation.translate(position());
+            translation.scale(factor);
             Renderer::ApplyMatrix applyTranslation(renderContext.transformation(), translation);
 
             glDisable(GL_DEPTH_TEST);
@@ -185,98 +208,104 @@ namespace TrenchBroom {
             glEnable(GL_DEPTH_TEST);
         }
 
-        bool RotateObjectsTool::handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint) {
+        void RotateObjectsTool::handleObjectsChange(InputState& inputState) {
+            if (!m_ignoreObjectsChange)
+                updateHandlePosition(inputState);
+        }
+
+        void RotateObjectsTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
+            updateHandlePosition(inputState);
+        }
+
+        void RotateObjectsTool::handleGridChange(InputState& inputState) {
+            updateHandlePosition(inputState);
+        }
+
+        bool RotateObjectsTool::handleStartDrag(InputState& inputState) {
             if (inputState.mouseButtons() != MouseButtons::MBLeft ||
                 inputState.modifierKeys() != ModifierKeys::MKNone)
                 return false;
-
+            
             Model::EditStateManager& editStateManager = document().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
             if (entities.empty() && brushes.empty())
                 return false;
-
+            
             Model::RotateObjectsHandleHit* hit = static_cast<Model::RotateObjectsHandleHit*>(inputState.pickResult().first(Model::HitType::RotateObjectsHandleHit, true, view().filter()));
-
+            
             if (hit == NULL)
                 return false;
-
+            
+            Vec3f test = hit->hitPoint() - position();
             switch (hit->hitArea()) {
                 case Model::RotateObjectsHandleHit::HAXAxis:
-                    plane = Plane::orthogonalDragPlane(hit->hitPoint(), Vec3f::PosX);
                     m_axis = Vec3f::PosX;
+                    m_invert = (test.dot(Vec3f::PosX) > 0.0f == test.dot(Vec3f::PosY) > 0.0f);
                     break;
                 case Model::RotateObjectsHandleHit::HAYAxis:
-                    plane = Plane::orthogonalDragPlane(hit->hitPoint(), Vec3f::PosY);
                     m_axis = Vec3f::PosY;
+                    m_invert = (test.dot(Vec3f::PosX) > 0.0f != test.dot(Vec3f::PosY) > 0.0f);
                     break;
                 case Model::RotateObjectsHandleHit::HAZAxis:
-                    plane = Plane::orthogonalDragPlane(hit->hitPoint(), Vec3f::PosZ);
                     m_axis = Vec3f::PosZ;
+                    m_invert = false;
                     break;
             }
 
-            initialPoint = hit->hitPoint();
+            m_startX = inputState.x();
+            m_startY = inputState.y();
+            m_angle = 0.0f;
             m_center = position().rounded();
             lock();
             beginCommandGroup(Controller::Command::makeObjectActionName(wxT("Rotate"), entities, brushes));
-
+            
             return true;
         }
-
-        bool RotateObjectsTool::handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) {
-            Vec3f startVector = refPoint - position();
-            startVector.normalize();
-            Vec3f currentVector = curPoint - position();
-            currentVector.normalize();
-
+        
+        bool RotateObjectsTool::handleDrag(InputState& inputState) {
+            int delta = 0;
+            if (m_axis == Vec3f::PosZ) {
+                delta = -(inputState.x() - m_startX);
+            } else {
+                delta = inputState.y() - m_startY;
+                if (m_invert)
+                    delta *= -1;
+            }
+            
+            m_angle = delta / 150.0f * Math::Pi;
+            
             Utility::Grid& grid = document().grid();
-            m_angle = grid.snapAngle(currentVector.angleFrom(startVector, m_axis));
-            if (m_angle == 0.0f)
-                return true;
-
+            m_angle = grid.snapAngle(m_angle);
+            
+            m_ignoreObjectsChange = true;
             rollbackCommandGroup();
-            Model::EditStateManager& editStateManager = document().editStateManager();
-            const Model::EntityList& entities = editStateManager.selectedEntities();
-            const Model::BrushList& brushes = editStateManager.selectedBrushes();
-            RotateObjectsCommand* command = RotateObjectsCommand::rotate(document(), entities, brushes, m_axis, m_angle, false, m_center, document().textureLock());
-            submitCommand(command);
+
+            if (m_angle != 0.0f) {
+                Model::EditStateManager& editStateManager = document().editStateManager();
+                const Model::EntityList& entities = editStateManager.selectedEntities();
+                const Model::BrushList& brushes = editStateManager.selectedBrushes();
+                RotateObjectsCommand* command = RotateObjectsCommand::rotate(document(), entities, brushes, m_axis, m_angle, false, m_center, document().textureLock());
+                submitCommand(command);
+            }
+            
+            m_ignoreObjectsChange = false;
             return true;
         }
-
-        void RotateObjectsTool::handleEndPlaneDrag(InputState& inputState) {
+        
+        void RotateObjectsTool::handleEndDrag(InputState& inputState) {
             endCommandGroup();
             unlock();
             m_angle = 0.0f;
         }
 
-        void RotateObjectsTool::handleObjectsChange(InputState& inputState) {
-            Model::EditStateManager& editStateManager = document().editStateManager();
-            const Model::EntityList& entities = editStateManager.selectedEntities();
-            const Model::BrushList& brushes = editStateManager.selectedBrushes();
-            if (entities.empty() && brushes.empty())
-                return;
-
-            setPosition(entities, brushes);
-        }
-
-        void RotateObjectsTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
-            Model::EditStateManager& editStateManager = document().editStateManager();
-            const Model::EntityList& entities = editStateManager.selectedEntities();
-            const Model::BrushList& brushes = editStateManager.selectedBrushes();
-            if (entities.empty() && brushes.empty())
-                return;
-
-            setPosition(entities, brushes);
-        }
-
         RotateObjectsTool::RotateObjectsTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float ringRadius, float ringThickness) :
-        PlaneDragTool(documentViewHolder, true),
+        Tool(documentViewHolder, true),
         m_axisLength(axisLength),
         m_ringRadius(ringRadius),
         m_ringThickness(ringThickness),
         m_lastHit(NULL),
-        m_angle(0.0f) {}
+        m_ignoreObjectsChange(false) {}
 
         RotateObjectsTool::~RotateObjectsTool() {
             if (m_lastHit != NULL) {

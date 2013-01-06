@@ -31,9 +31,10 @@ using namespace TrenchBroom::Math;
 namespace TrenchBroom {
     namespace Renderer {
         void EntityModelRenderer::render(ShaderProgram& shaderProgram, Transformation& transformation, const Model::Entity& entity) {
-            float degrees = static_cast<float>(entity.angle());
-            float radians = Math::radians(degrees);
-            render(shaderProgram, transformation, entity.origin(), radians);
+            float angle = static_cast<float>(entity.angle());
+            if (angle >= 0.0f)
+                angle = Math::radians(angle);
+            render(shaderProgram, transformation, entity.origin(), angle);
         }
 
         void EntityModelRenderer::render(ShaderProgram& shaderProgram, Transformation& transformation, const Vec3f& position, float angle) {

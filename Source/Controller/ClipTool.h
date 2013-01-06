@@ -122,7 +122,6 @@ namespace TrenchBroom {
             bool handleStartDrag(InputState& inputState);
             bool handleDrag(InputState& inputState);
             void handleEndDrag(InputState& inputState);
-            void handleCancelDrag(InputState& inputState);
 
             void handleObjectsChange(InputState& inputState);
             void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet);

@@ -259,6 +259,18 @@ namespace TrenchBroom {
             updateViews();
         }
         
+        void InputController::endDrag() {
+            if (m_dragTool != NULL) {
+                m_dragTool->endDrag(m_inputState);
+                m_dragTool = NULL;
+                m_inputState.mouseUp(m_inputState.mouseButtons());
+            }
+            
+            updateHits();
+            updateModalTool();
+            updateViews();
+        }
+        
         void InputController::dragEnter(const String& payload, int x, int y) {
             assert(m_dragTool == NULL);
             
@@ -332,6 +344,13 @@ namespace TrenchBroom {
         void InputController::cameraChange() {
             updateHits();
             m_toolChain->cameraChange(m_inputState);
+            updateModalTool();
+            updateViews();
+        }
+
+        void InputController::gridChange() {
+            updateHits();
+            m_toolChain->gridChange(m_inputState);
             updateModalTool();
             updateViews();
         }

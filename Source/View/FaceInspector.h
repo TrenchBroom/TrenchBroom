@@ -77,6 +77,10 @@ namespace TrenchBroom {
             void OnXScaleChanged(wxSpinDoubleEvent& event);
             void OnYScaleChanged(wxSpinDoubleEvent& event);
             void OnRotationChanged(wxSpinDoubleEvent& event);
+            void OnResetFaceAttribsPressed(wxCommandEvent& event);
+            void OnAlignTexturePressed(wxCommandEvent& event);
+            void OnFitTexturePressed(wxCommandEvent& event);
+            void OnUpdateFaceButtons(wxUpdateUIEvent& event);
             void OnTextureSelected(TextureSelectedCommand& event);
 
             void OnAddTextureCollectionPressed(wxCommandEvent& event);

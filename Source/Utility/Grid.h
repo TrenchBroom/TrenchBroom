@@ -54,26 +54,26 @@ namespace TrenchBroom {
             void toggleSnap();
             bool snap() const;
             
-            float snap(float f);
-            float snapAngle(float a);
-            float snapUp(float f, bool skip = false);
-            float snapDown(float f, bool skip = false);
-            float offset(float f);
-            Vec3f snap(const Vec3f& p);
-            Vec3f snapUp(const Vec3f& p, bool skip = false);
-            Vec3f snapDown(const Vec3f& p, bool skip = false);
-            Vec3f snapTowards(const Vec3f& p, const Vec3f& d, bool skip = false);
-            Vec3f offset(const Vec3f& p);
-            Vec3f snap(const Vec3f& p, const Plane& onPlane);
+            float snap(float f) const;
+            float snapAngle(float a) const;
+            float snapUp(float f, bool skip = false) const;
+            float snapDown(float f, bool skip = false) const;
+            float offset(float f) const;
+            Vec3f snap(const Vec3f& p) const;
+            Vec3f snapUp(const Vec3f& p, bool skip = false) const;
+            Vec3f snapDown(const Vec3f& p, bool skip = false) const;
+            Vec3f snapTowards(const Vec3f& p, const Vec3f& d, bool skip = false) const;
+            Vec3f offset(const Vec3f& p) const;
+            Vec3f snap(const Vec3f& p, const Plane& onPlane) const;
             
-            float intersectWithRay(const Ray& ray, unsigned int skip);
+            float intersectWithRay(const Ray& ray, unsigned int skip) const;
 
-            Vec3f moveDeltaForEntity(const Vec3f& origin, const BBox& worldBounds, const Vec3f& delta);
-            Vec3f moveDeltaForEntity(const Model::Face& face, const BBox& bounds, const BBox& worldBounds, const Ray& ray, const Vec3f& position);
-            Vec3f moveDelta(const BBox& bounds, const BBox& worldBounds, const Vec3f& delta);
-            Vec3f moveDelta(const Vec3f& point, const BBox& worldBounds, const Vec3f& delta);
-            Vec3f moveDelta(const Vec3f& delta);
-            Vec3f combineDeltas(const Vec3f& delta1, const Vec3f& delta2);
+            Vec3f moveDeltaForEntity(const Vec3f& origin, const BBox& worldBounds, const Vec3f& delta) const;
+            Vec3f moveDeltaForEntity(const Model::Face& face, const BBox& bounds, const BBox& worldBounds, const Ray& ray, const Vec3f& position) const;
+            Vec3f moveDelta(const BBox& bounds, const BBox& worldBounds, const Vec3f& delta) const;
+            Vec3f moveDelta(const Vec3f& point, const BBox& worldBounds, const Vec3f& delta) const;
+            Vec3f moveDelta(const Vec3f& delta) const;
+            Vec3f combineDeltas(const Vec3f& delta1, const Vec3f& delta2) const;
             // float moveDistance(const Model::Face& face, Vec3f& delta);
         };
     }

@@ -71,20 +71,20 @@ namespace TrenchBroom {
             return m_snap;
         }
 
-        float Grid::snap(float f) {
+        float Grid::snap(float f) const {
             if (!snap())
                 return f;
             unsigned int actSize = actualSize();
             return actSize * Math::round(f / actSize);
         }
 
-        float Grid::snapAngle(float a) {
+        float Grid::snapAngle(float a) const {
             if (!snap())
                 return a;
             return SnapAngle * Math::round(a / SnapAngle);
         }
 
-        float Grid::snapUp(float f, bool skip) {
+        float Grid::snapUp(float f, bool skip) const {
             if (!snap())
                 return f;
             unsigned int actSize = actualSize();
@@ -94,7 +94,7 @@ namespace TrenchBroom {
             return s;
         }
 
-        float Grid::snapDown(float f, bool skip) {
+        float Grid::snapDown(float f, bool skip) const {
             if (!snap())
                 return f;
             unsigned int actSize = actualSize();
@@ -104,31 +104,31 @@ namespace TrenchBroom {
             return s;
         }
         
-        float Grid::offset(float f) {
+        float Grid::offset(float f) const {
             if (!snap())
                 return 0.0f;
             return f - snap(f);
         }
 
-        Vec3f Grid::snap(const Vec3f& p) {
+        Vec3f Grid::snap(const Vec3f& p) const {
             if (!snap())
                 return p;
             return Vec3f(snap(p.x), snap(p.y), snap(p.z));
         }
         
-        Vec3f Grid::snapUp(const Vec3f& p, bool skip) {
+        Vec3f Grid::snapUp(const Vec3f& p, bool skip) const {
             if (!snap())
                 return p;
             return Vec3f(snapUp(p.x, skip), snapUp(p.y, skip), snapUp(p.z, skip));
         }
         
-        Vec3f Grid::snapDown(const Vec3f& p, bool skip) {
+        Vec3f Grid::snapDown(const Vec3f& p, bool skip) const {
             if (!snap())
                 return p;
             return Vec3f(snapDown(p.x, skip), snapDown(p.y, skip), snapDown(p.z, skip));
         }
         
-        Vec3f Grid::snapTowards(const Vec3f& p, const Vec3f& d, bool skip) {
+        Vec3f Grid::snapTowards(const Vec3f& p, const Vec3f& d, bool skip) const {
             if (!snap())
                 return p;
             Vec3f result;
@@ -144,13 +144,13 @@ namespace TrenchBroom {
             return result;
         }
 
-        Vec3f Grid::offset(const Vec3f& p) {
+        Vec3f Grid::offset(const Vec3f& p) const {
             if (!snap())
                 return Vec3f::Null;
             return p - snap(p);
         }
 
-        Vec3f Grid::snap(const Vec3f& p, const Plane& onPlane) {
+        Vec3f Grid::snap(const Vec3f& p, const Plane& onPlane) const {
             Vec3f result;
             switch(onPlane.normal.firstComponent()) {
                 case Axis::AX:
@@ -172,7 +172,7 @@ namespace TrenchBroom {
             return result;
         }
         
-        float Grid::intersectWithRay(const Ray& ray, unsigned int skip) {
+        float Grid::intersectWithRay(const Ray& ray, unsigned int skip) const {
             Vec3f planeAnchor;
             
             planeAnchor.x = ray.direction.x > 0 ? snapUp(ray.origin.x, true) + skip * actualSize() : snapDown(ray.origin.x, true) - skip * actualSize();
@@ -197,7 +197,7 @@ namespace TrenchBroom {
             return dist;
         }
 
-        Vec3f Grid::moveDeltaForEntity(const Vec3f& origin, const BBox& worldBounds, const Vec3f& delta) {
+        Vec3f Grid::moveDeltaForEntity(const Vec3f& origin, const BBox& worldBounds, const Vec3f& delta) const {
             Vec3f newOrigin = snap(origin + delta);
             Vec3f actualDelta = newOrigin - origin;
             
@@ -207,7 +207,7 @@ namespace TrenchBroom {
             return actualDelta;
         }
         
-        Vec3f Grid::moveDeltaForEntity(const Model::Face& face, const BBox& bounds, const BBox& worldBounds, const Ray& ray, const Vec3f& position) {
+        Vec3f Grid::moveDeltaForEntity(const Model::Face& face, const BBox& bounds, const BBox& worldBounds, const Ray& ray, const Vec3f& position) const {
             Plane dragPlane = Plane::alignedOrthogonalDragPlane(position, face.boundary().normal);
             
             Vec3f halfSize = bounds.size() * 0.5f;
@@ -227,7 +227,7 @@ namespace TrenchBroom {
             return delta;
         }
 
-        Vec3f Grid::moveDelta(const BBox& bounds, const BBox& worldBounds, const Vec3f& delta) {
+        Vec3f Grid::moveDelta(const BBox& bounds, const BBox& worldBounds, const Vec3f& delta) const {
             Vec3f actualDelta = Vec3f::Null;
             for (unsigned int i = 0; i < 3; i++) {
                 if (!Math::zero(delta[i])) {
@@ -251,7 +251,7 @@ namespace TrenchBroom {
             return actualDelta;
         }
         
-        Vec3f Grid::moveDelta(const Vec3f& point, const BBox& worldBounds, const Vec3f& delta) {
+        Vec3f Grid::moveDelta(const Vec3f& point, const BBox& worldBounds, const Vec3f& delta) const {
             Vec3f actualDelta = Vec3f::Null;
             for (unsigned int i = 0; i < 3; i++)
                 if (!Math::zero(delta[i]))
@@ -263,7 +263,7 @@ namespace TrenchBroom {
             return actualDelta;
         }
 
-        Vec3f Grid::moveDelta(const Vec3f& delta) {
+        Vec3f Grid::moveDelta(const Vec3f& delta) const {
             Vec3f actualDelta = Vec3f::Null;
             for (unsigned int i = 0; i < 3; i++)
                 if (!Math::zero(delta[i]))
@@ -275,7 +275,7 @@ namespace TrenchBroom {
             return actualDelta;
         }
 
-        Vec3f Grid::combineDeltas(const Vec3f& delta1, const Vec3f& delta2) {
+        Vec3f Grid::combineDeltas(const Vec3f& delta1, const Vec3f& delta2) const {
             if (delta1.lengthSquared() < delta2.lengthSquared())
                 return delta1;
             return delta2;

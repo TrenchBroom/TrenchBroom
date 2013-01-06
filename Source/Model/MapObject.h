@@ -110,35 +110,6 @@ namespace TrenchBroom {
             virtual void flip(Axis::Type axis, const Vec3f& center, bool lockTextures) = 0;
             
             virtual void pick(const Ray& ray, PickResult& pickResults) = 0;
-            
-            template <typename T>
-            static Vec3f center(const std::vector<T*>& objects) {
-                assert(!objects.empty());
-                
-                typename std::vector<T*>::const_iterator it, end;
-                it = objects.begin();
-                end = objects.end();
-                
-                Vec3f result = (**it).center();
-                while (++it != end) {
-                    T& object = **it;
-                    result += object.center();
-                }
-
-                result /= static_cast<float>(objects.size());
-                return result;
-            }
-
-            template <typename T1, typename T2>
-            static Vec3f center(const std::vector<T1*>& objects1, const std::vector<T2*>& objects2) {
-                assert(!objects1.empty() || !objects2.empty());
-                
-                if (objects1.empty())
-                    return center(objects2);
-                if (objects2.empty())
-                    return center(objects1);
-                return (center(objects1) + center(objects2)) / 2.0f;
-            }
         };
     }
 }

@@ -34,19 +34,28 @@ varying vec3 modelNormal;
 varying vec4 faceColor;
 
 void gridXY() {
-    if (abs(mod(modelCoordinates.x + 0.5, GridSize)) <= 0.6 ||
+    if (abs(mod(modelCoordinates.x + 0.5, 64)) <= 0.6 ||
+        abs(mod(modelCoordinates.y + 0.5, 64)) <= 0.6)
+        gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a * 1.5), gl_FragColor.a);
+    else if (abs(mod(modelCoordinates.x + 0.5, GridSize)) <= 0.6 ||
         abs(mod(modelCoordinates.y + 0.5, GridSize)) <= 0.6)
         gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a), gl_FragColor.a);
 }
 
 void gridXZ() {
-    if (abs(mod(modelCoordinates.x + 0.5, GridSize)) <= 0.6 ||
+    if (abs(mod(modelCoordinates.x + 0.5, 64)) <= 0.6 ||
+        abs(mod(modelCoordinates.z + 0.5, 64)) <= 0.6)
+        gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a * 1.5), gl_FragColor.a);
+    else if (abs(mod(modelCoordinates.x + 0.5, GridSize)) <= 0.6 ||
         abs(mod(modelCoordinates.z + 0.5, GridSize)) <= 0.6)
         gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a), gl_FragColor.a);
 }
 
 void gridYZ() {
-    if (abs(mod(modelCoordinates.y + 0.5, GridSize)) <= 0.6 ||
+    if (abs(mod(modelCoordinates.y + 0.5, 64)) <= 0.6 ||
+        abs(mod(modelCoordinates.z + 0.5, 64)) <= 0.6)
+        gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a * 1.5), gl_FragColor.a);
+    else if (abs(mod(modelCoordinates.y + 0.5, GridSize)) <= 0.6 ||
         abs(mod(modelCoordinates.z + 0.5, GridSize)) <= 0.6)
         gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a), gl_FragColor.a);
 }

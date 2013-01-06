@@ -388,9 +388,6 @@ namespace TrenchBroom {
         void ClipTool::handleEndDrag(InputState& inputState) {
         }
         
-        void ClipTool::handleCancelDrag(InputState& inputState) {
-        }
-        
         void ClipTool::handleObjectsChange(InputState& inputState) {
             if (active())
                 updateBrushes();

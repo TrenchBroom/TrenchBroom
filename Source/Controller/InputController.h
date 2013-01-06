@@ -90,6 +90,7 @@ namespace TrenchBroom {
             void mouseMove(int x, int y);
             void scroll(float x, float y);
             void cancelDrag();
+            void endDrag();
             
             void dragEnter(const String& payload, int x, int y);
             void dragMove(const String& payload, int x, int y);
@@ -99,6 +100,7 @@ namespace TrenchBroom {
             void objectsChange();
             void editStateChange(const Model::EditStateChangeSet& changeSet);
             void cameraChange();
+            void gridChange();
 
             void render(Renderer::Vbo& vbo, Renderer::RenderContext& context);
             void freeRenderResources();

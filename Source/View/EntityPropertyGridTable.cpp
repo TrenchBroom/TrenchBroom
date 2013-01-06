@@ -274,8 +274,8 @@ namespace TrenchBroom {
                             if (entry.value != *entityValue) {
                                 entry.value = "";
                                 entry.multi = true;
-                                ++entryIt;
                             }
+                            ++entryIt;
                         }
                     }
                 }

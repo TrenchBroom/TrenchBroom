@@ -202,6 +202,7 @@ namespace TrenchBroom {
             virtual void handleObjectsChange(InputState& inputState) {}
             virtual void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {}
             virtual void handleCameraChange(InputState& inputState) {}
+            virtual void handleGridChange(InputState& inputState) {}
         public:
             virtual ~Tool() {
                 deleteFigures();
@@ -416,6 +417,12 @@ namespace TrenchBroom {
                 handleCameraChange(inputState);
                 if (nextTool() != NULL)
                     nextTool()->cameraChange(inputState);
+            }
+            
+            void gridChange(InputState& inputState) {
+                handleGridChange(inputState);
+                if (nextTool() != NULL)
+                    nextTool()->gridChange(inputState);
             }
         };
         

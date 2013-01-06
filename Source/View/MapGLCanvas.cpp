@@ -320,7 +320,7 @@ namespace TrenchBroom {
         }
 
         void MapGLCanvas::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
-            m_inputController->cancelDrag();
+            m_inputController->endDrag();
         }
     }
 }

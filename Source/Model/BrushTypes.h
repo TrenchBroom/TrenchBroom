@@ -35,6 +35,10 @@ namespace TrenchBroom {
         static const BrushList EmptyBrushList;
         typedef std::map<Brush*, Entity*> BrushParentMap;
         typedef std::pair<Brush*, Entity*> BrushParentMapEntry;
+        typedef std::pair<BrushParentMap::iterator, bool> BrushParentMapInsertResult;
+        typedef std::map<Entity*, BrushList> EntityBrushesMap;
+        typedef std::pair<Entity*, BrushList> EntityBrushesMapEntry;
+        typedef std::pair<EntityBrushesMap::iterator, bool> EntityBrushesMapInsertResult;
     }
 }
 

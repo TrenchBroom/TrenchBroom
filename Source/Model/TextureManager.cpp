@@ -158,6 +158,9 @@ namespace TrenchBroom {
         void TextureManager::clear() {
             m_texturesCaseSensitive.clear();
             m_texturesCaseInsensitive.clear();
+            m_texturesByName.clear();
+            m_texturesByUsage.clear();
+            m_collectionMap.clear();
             while (!m_collections.empty()) delete m_collections.back(), m_collections.pop_back();
         }
     }

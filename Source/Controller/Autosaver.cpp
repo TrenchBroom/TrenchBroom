@@ -114,10 +114,9 @@ namespace TrenchBroom {
                 
                 if (highestBackupNo > backups.size()) {
                     // reorganize the backups and close gaps in the numbering
-                    StringList::reverse_iterator rvIt, rvEnd;
                     unsigned int backupNo = static_cast<unsigned int>(backups.size());
-                    for (rvIt = backups.rbegin(), rvEnd = backups.rend(); rvIt != rvEnd; ++rvIt) {
-                        String& filename = *rvIt;
+                    for (fwIt = backups.begin(), fwEnd = backups.end(); fwIt != fwEnd; ++fwIt) {
+                        String& filename = *fwIt;
                         const String backupFilename = backupName(mapBasename, backupNo);
                         if (filename != backupFilename) {
                             const String filePath = fileManager.appendPath(autosavePath, filename);
