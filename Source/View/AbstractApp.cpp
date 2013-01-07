@@ -178,19 +178,34 @@ wxMenu* AbstractApp::CreateTextureActionMenu(bool mapViewFocused) {
     
     wxMenu* textureActionMenu = new wxMenu();
     if (mapViewFocused) {
+        
         textureActionMenu->Append(EditMoveTexturesUp, wxT("Move Up\tUP"));
         textureActionMenu->Append(EditMoveTexturesRight, wxT("Move Right\tRIGHT"));
         textureActionMenu->Append(EditMoveTexturesDown, wxT("Move Down\tDOWN"));
         textureActionMenu->Append(EditMoveTexturesLeft, wxT("Move Left\tLEFT"));
-        textureActionMenu->Append(EditRotateTexturesCW, wxT("Rotate CW\tPGUP"));
-        textureActionMenu->Append(EditRotateTexturesCCW, wxT("Rotate CCW\tPGDN"));
+        textureActionMenu->Append(EditRotateTexturesCW, wxT("Rotate 15° CW\tPGUP"));
+        textureActionMenu->Append(EditRotateTexturesCCW, wxT("Rotate 15° CCW\tPGDN"));
+        textureActionMenu->AppendSeparator();
+        textureActionMenu->Append(EditMoveTexturesUpFine, wxT("Move Up by 1\tCtrl+UP"));
+        textureActionMenu->Append(EditMoveTexturesRightFine, wxT("Move Right by 1\tCtrl+RIGHT"));
+        textureActionMenu->Append(EditMoveTexturesDownFine, wxT("Move Down by 1\tCtrl+DOWN"));
+        textureActionMenu->Append(EditMoveTexturesLeftFine, wxT("Move Left by 1\tCtrl+LEFT"));
+        textureActionMenu->Append(EditRotateTexturesCWFine, wxT("Rotate 1° CW\tCtrl+PGUP"));
+        textureActionMenu->Append(EditRotateTexturesCCWFine, wxT("Rotate 1° CCW\tCtrl+PGDN"));
     } else {
         textureActionMenu->Append(EditMoveTexturesUp, wxT("Move Up"));
         textureActionMenu->Append(EditMoveTexturesRight, wxT("Move Right"));
         textureActionMenu->Append(EditMoveTexturesDown, wxT("Move Down"));
         textureActionMenu->Append(EditMoveTexturesLeft, wxT("Move Left"));
-        textureActionMenu->Append(EditRotateTexturesCW, wxT("Rotate CW"));
-        textureActionMenu->Append(EditRotateTexturesCCW, wxT("Rotate CCW"));
+        textureActionMenu->Append(EditRotateTexturesCW, wxT("Rotate 15° CW"));
+        textureActionMenu->Append(EditRotateTexturesCCW, wxT("Rotate 15° CCW"));
+        textureActionMenu->AppendSeparator();
+        textureActionMenu->Append(EditMoveTexturesUpFine, wxT("Move Up by 1"));
+        textureActionMenu->Append(EditMoveTexturesRightFine, wxT("Move Right by 1"));
+        textureActionMenu->Append(EditMoveTexturesDownFine, wxT("Move Down by 1"));
+        textureActionMenu->Append(EditMoveTexturesLeftFine, wxT("Move Left by 1"));
+        textureActionMenu->Append(EditRotateTexturesCWFine, wxT("Rotate 1° CW"));
+        textureActionMenu->Append(EditRotateTexturesCCWFine, wxT("Rotate 1° CCW"));
     }
     return textureActionMenu;
 }

@@ -69,6 +69,7 @@
 		4850D2AF15F76245005B162D /* StringManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2AD15F76244005B162D /* StringManager.cpp */; };
 		48533C8A168F96830055DBC7 /* ReparentBrushesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48533C88168F96830055DBC7 /* ReparentBrushesCommand.cpp */; };
 		4875679D1697922D008F316F /* MacDropSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4875679B1697922D008F316F /* MacDropSource.cpp */; };
+		487567A5169A26D5008F316F /* SpinControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487567A4169A26D4008F316F /* SpinControl.cpp */; };
 		4878F9201651231D003857EA /* RotateObjectsTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F91E1651231D003857EA /* RotateObjectsTool.cpp */; };
 		4878F924165142B4003857EA /* CreateEntityTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F922165142B4003857EA /* CreateEntityTool.cpp */; };
 		4878F95516596915003857EA /* BrushFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F95316596915003857EA /* BrushFigure.cpp */; };
@@ -324,6 +325,7 @@
 		4875679C1697922D008F316F /* MacDropSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacDropSource.h; sourceTree = "<group>"; };
 		4875679E16979465008F316F /* GenericDropSource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GenericDropSource.h; sourceTree = "<group>"; };
 		4875679F16982C43008F316F /* ModelUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModelUtils.h; sourceTree = "<group>"; };
+		487567A4169A26D4008F316F /* SpinControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpinControl.cpp; sourceTree = "<group>"; };
 		4878F91E1651231D003857EA /* RotateObjectsTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RotateObjectsTool.cpp; sourceTree = "<group>"; };
 		4878F91F1651231D003857EA /* RotateObjectsTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateObjectsTool.h; sourceTree = "<group>"; };
 		4878F922165142B4003857EA /* CreateEntityTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CreateEntityTool.cpp; sourceTree = "<group>"; };
@@ -773,6 +775,7 @@
 				48297ED11682220F00E6A288 /* ScreenDC.h */,
 				48C0FA44160901CB0023F467 /* SingleTextureViewer.cpp */,
 				48C0FA45160901CB0023F467 /* SingleTextureViewer.h */,
+				487567A4169A26D4008F316F /* SpinControl.cpp */,
 				48B059AF16162FF100E6B0AD /* SpinControl.h */,
 				48B75F77160CF79E009D4E99 /* TextureBrowser.cpp */,
 				48B75F78160CF79E009D4E99 /* TextureBrowser.h */,
@@ -1219,6 +1222,7 @@
 				48BDA1B31695E08500FF2CC5 /* EntityPropertyGridTable.cpp in Sources */,
 				48BDA1B71696CA5E00FF2CC5 /* EntityProperty.cpp in Sources */,
 				4875679D1697922D008F316F /* MacDropSource.cpp in Sources */,
+				487567A5169A26D5008F316F /* SpinControl.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -111,6 +111,13 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::EditRotateTexturesCW, EditorView::OnEditRotateTexturesCW)
         EVT_MENU(CommandIds::Menu::EditRotateTexturesCCW, EditorView::OnEditRotateTexturesCCW)
 
+        EVT_MENU(CommandIds::Menu::EditMoveTexturesUpFine, EditorView::OnEditMoveTexturesUpFine)
+        EVT_MENU(CommandIds::Menu::EditMoveTexturesRightFine, EditorView::OnEditMoveTexturesRightFine)
+        EVT_MENU(CommandIds::Menu::EditMoveTexturesDownFine, EditorView::OnEditMoveTexturesDownFine)
+        EVT_MENU(CommandIds::Menu::EditMoveTexturesLeftFine, EditorView::OnEditMoveTexturesLeftFine)
+        EVT_MENU(CommandIds::Menu::EditRotateTexturesCWFine, EditorView::OnEditRotateTexturesCWFine)
+        EVT_MENU(CommandIds::Menu::EditRotateTexturesCCWFine, EditorView::OnEditRotateTexturesCCWFine)
+
         EVT_MENU(CommandIds::Menu::EditMoveObjectsForward, EditorView::OnEditMoveObjectsForward)
         EVT_MENU(CommandIds::Menu::EditMoveObjectsRight, EditorView::OnEditMoveObjectsRight)
         EVT_MENU(CommandIds::Menu::EditMoveObjectsBackward, EditorView::OnEditMoveObjectsBackward)
@@ -1027,6 +1034,30 @@ namespace TrenchBroom {
             rotateTextures(false, true);
         }
 
+        void EditorView::OnEditMoveTexturesUpFine(wxCommandEvent& event) {
+            moveTextures(DUp, false);
+        }
+        
+        void EditorView::OnEditMoveTexturesRightFine(wxCommandEvent& event) {
+            moveTextures(DRight, false);
+        }
+        
+        void EditorView::OnEditMoveTexturesDownFine(wxCommandEvent& event) {
+            moveTextures(DDown, false);
+        }
+        
+        void EditorView::OnEditMoveTexturesLeftFine(wxCommandEvent& event) {
+            moveTextures(DLeft, false);
+        }
+        
+        void EditorView::OnEditRotateTexturesCWFine(wxCommandEvent& event) {
+            rotateTextures(true, false);
+        }
+        
+        void EditorView::OnEditRotateTexturesCCWFine(wxCommandEvent& event) {
+            rotateTextures(false, false);
+        }
+
         void EditorView::OnEditRollObjectsCW(wxCommandEvent& event) {
             rotateObjects(ARoll, true);
         }
@@ -1351,6 +1382,12 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditMoveTexturesLeft:
                 case CommandIds::Menu::EditRotateTexturesCW:
                 case CommandIds::Menu::EditRotateTexturesCCW:
+                case CommandIds::Menu::EditMoveTexturesUpFine:
+                case CommandIds::Menu::EditMoveTexturesRightFine:
+                case CommandIds::Menu::EditMoveTexturesDownFine:
+                case CommandIds::Menu::EditMoveTexturesLeftFine:
+                case CommandIds::Menu::EditRotateTexturesCWFine:
+                case CommandIds::Menu::EditRotateTexturesCCWFine:
                     event.Enable(editStateManager.selectionMode() == Model::EditStateManager::SMFaces);
                     break;
                 case CommandIds::Menu::EditMoveObjectsForward:

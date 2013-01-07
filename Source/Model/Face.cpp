@@ -79,6 +79,23 @@ namespace TrenchBroom {
             m_texAxesValid = true;
         }
         
+        void Face::projectOntoTexturePlane(Vec3f& xAxis, Vec3f& yAxis) {
+            if (!m_texAxesValid)
+                validateTexAxes(m_boundary.normal);
+
+            Plane plane(m_boundary.normal, 0.0f);
+            if (BaseAxes[m_texPlaneNormIndex]->x != 0.0f) {
+                xAxis.x = plane.x(xAxis.y, xAxis.z);
+                yAxis.x = plane.x(yAxis.y, yAxis.z);
+            } else if (BaseAxes[m_texPlaneNormIndex]->y != 0.0f) {
+                xAxis.y = plane.y(xAxis.x, xAxis.z);
+                yAxis.y = plane.y(yAxis.x, yAxis.z);
+            } else {
+                xAxis.z = plane.z(xAxis.x, xAxis.y);
+                yAxis.z = plane.z(yAxis.x, yAxis.y);
+            }
+        }
+
         void Face::validateVertexCache() const {
             assert(m_side != NULL);
             
@@ -90,7 +107,7 @@ namespace TrenchBroom {
             
             size_t vertexCount = m_side->vertices.size();
             m_vertexCache.resize(3 * (vertexCount - 2));
-
+            
             Vec2f texCoords;
             size_t j = 0;
             for (size_t i = 1; i < vertexCount - 1; i++) {
@@ -135,18 +152,7 @@ namespace TrenchBroom {
             newTexAxisY = m_texAxisY * m_yScale;
             
             // project the inversely scaled texture axes onto the boundary plane
-            plane.distance = 0.0f;
-            plane.normal = m_boundary.normal;
-            if (BaseAxes[m_texPlaneNormIndex]->x != 0.0f) {
-                newTexAxisX.x = plane.x(newTexAxisX.y, newTexAxisX.z);
-                newTexAxisY.x = plane.x(newTexAxisY.y, newTexAxisY.z);
-            } else if (BaseAxes[m_texPlaneNormIndex]->y != 0.0f) {
-                newTexAxisX.y = plane.y(newTexAxisX.x, newTexAxisX.z);
-                newTexAxisY.y = plane.y(newTexAxisY.x, newTexAxisY.z);
-            } else {
-                newTexAxisX.z = plane.z(newTexAxisX.x, newTexAxisX.y);
-                newTexAxisY.z = plane.z(newTexAxisY.x, newTexAxisY.y);
-            }
+            projectOntoTexturePlane(newTexAxisX, newTexAxisY);
             
             // apply the transformation
             newTexAxisX = transformation * newTexAxisX;
@@ -263,7 +269,7 @@ namespace TrenchBroom {
             m_xOffset = Math::correct(m_xOffset);
             m_yOffset = Math::correct(m_yOffset);
         }
-
+        
         Face::Face(const BBox& worldBounds, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const String& textureName) : m_worldBounds(worldBounds), m_textureName(textureName) {
             init();
             m_points[0] = point1;
@@ -339,7 +345,7 @@ namespace TrenchBroom {
             m_vertexCacheValid = false;
 			m_selected = faceTemplate.selected();
         }
-
+        
         void Face::setBrush(Brush* brush) {
             if (brush == m_brush)
                 return;
@@ -387,7 +393,7 @@ namespace TrenchBroom {
                 throw GeometryException(msg);
             }
         }
-
+        
         void Face::setTexture(Texture* texture) {
             if (texture == m_texture)
                 return;
@@ -403,24 +409,26 @@ namespace TrenchBroom {
                 m_texture->incUsageCount();
             m_vertexCacheValid = false;
         }
-
+        
         void Face::moveTexture(float distance, const Vec3f& direction) {
-            if (!m_texAxesValid)
-                validateTexAxes(m_boundary.normal);
+
+            Vec3f projX = m_scaledTexAxisX;
+            Vec3f projY = m_scaledTexAxisY;
+            projectOntoTexturePlane(projX, projY);
             
-            float dotX = direction.dot(m_scaledTexAxisX);
-            float dotY = direction.dot(m_scaledTexAxisY);
+            float dotX = direction.dot(projX);
+            float dotY = direction.dot(projY);
             
             if (std::abs(dotX) >= std::abs(dotY)) {
-                if (dotX >= 0.0f)
-                    m_xOffset -= distance;
-                else
+                if (dotX < 0.0f)
                     m_xOffset += distance;
-            } else {
-                if (dotY >= 0.0f)
-                    m_yOffset -= distance;
                 else
+                    m_xOffset -= distance;
+            } else {
+                if (dotY < 0.0f)
                     m_yOffset += distance;
+                else
+                    m_yOffset -= distance;
             }
             
             m_vertexCacheValid = false;
@@ -437,11 +445,11 @@ namespace TrenchBroom {
             m_texAxesValid = false;
             m_vertexCacheValid = false;
         }
-
+        
         void Face::setSelected(bool selected) {
             if (selected == m_selected)
                 return;
-
+            
             m_selected = selected;
             if (m_brush != NULL) {
                 if (m_selected)
@@ -450,7 +458,7 @@ namespace TrenchBroom {
                     m_brush->decSelectedFaceCount();
             }
         }
-
+        
         void Face::translate(const Vec3f& delta, bool lockTexture) {
             if (lockTexture)
                 compensateTransformation(Mat4f::Identity.translated(delta));
@@ -462,7 +470,7 @@ namespace TrenchBroom {
             m_texAxesValid = false;
             m_vertexCacheValid = false;
         }
-
+        
         void Face::rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTexture) {
             if (lockTexture) {
                 Mat4f t = Mat4f::Identity.translated(center);
@@ -483,7 +491,7 @@ namespace TrenchBroom {
             m_texAxesValid = false;
             m_vertexCacheValid = false;
         }
-
+        
         void Face::rotate(const Quat& rotation, const Vec3f& center, bool lockTexture) {
             if (lockTexture) {
                 Mat4f t = Mat4f::Identity.translated(center);
@@ -500,7 +508,7 @@ namespace TrenchBroom {
             m_texAxesValid = false;
             m_vertexCacheValid = false;
         }
-
+        
         void Face::flip(Axis::Type axis, const Vec3f& center, bool lockTexture) {
             if (lockTexture) {
                 Mat4f t;

@@ -156,6 +156,13 @@ namespace TrenchBroom {
             void OnEditRotateTexturesCW(wxCommandEvent& event);
             void OnEditRotateTexturesCCW(wxCommandEvent& event);
             
+            void OnEditMoveTexturesUpFine(wxCommandEvent& event);
+            void OnEditMoveTexturesRightFine(wxCommandEvent& event);
+            void OnEditMoveTexturesDownFine(wxCommandEvent& event);
+            void OnEditMoveTexturesLeftFine(wxCommandEvent& event);
+            void OnEditRotateTexturesCWFine(wxCommandEvent& event);
+            void OnEditRotateTexturesCCWFine(wxCommandEvent& event);
+            
             void OnEditMoveObjectsForward(wxCommandEvent& event);
             void OnEditMoveObjectsRight(wxCommandEvent& event);
             void OnEditMoveObjectsBackward(wxCommandEvent& event);

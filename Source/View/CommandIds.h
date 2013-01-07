@@ -89,6 +89,12 @@ namespace TrenchBroom {
                 static const int EditMoveVerticesRight              = Lowest + 63;
                 static const int EditMoveVerticesUp                 = Lowest + 64;
                 static const int EditMoveVerticesDown               = Lowest + 65;
+                static const int EditMoveTexturesUpFine             = Lowest + 66;
+                static const int EditMoveTexturesRightFine          = Lowest + 67;
+                static const int EditMoveTexturesDownFine           = Lowest + 68;
+                static const int EditMoveTexturesLeftFine           = Lowest + 69;
+                static const int EditRotateTexturesCWFine           = Lowest + 70;
+                static const int EditRotateTexturesCCWFine          = Lowest + 71;
                 static const int Highest                            = Lowest + 99;
             }
             

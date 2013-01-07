@@ -59,8 +59,8 @@ END_DECLARE_EVENT_TYPES()
 typedef void (wxEvtHandler::*textureSelectedEventFunction)(TrenchBroom::View::TextureSelectedCommand&);
 
 #define EVT_TEXTURE_SELECTED_HANDLER(func) \
-(wxObjectEventFunction) \
-(textureSelectedEventFunction) & func
+    (wxObjectEventFunction) \
+    (textureSelectedEventFunction) & func
 
 #define EVT_TEXTURE_SELECTED(id,func) \
     DECLARE_EVENT_TABLE_ENTRY(EVT_TEXTURE_SELECTED_EVENT, \

@@ -25,7 +25,6 @@
 #include <wx/gbsizer.h>
 #include <wx/listbox.h>
 #include <wx/sizer.h>
-#include <wx/spinctrl.h>
 #include <wx/splitter.h>
 #include <wx/statline.h>
 #include <wx/stattext.h>
@@ -39,6 +38,7 @@
 #include "Model/MapDocument.h"
 #include "Model/Texture.h"
 #include "Renderer/SharedResources.h"
+#include "Utility/Grid.h"
 #include "View/CommandIds.h"
 #include "View/DocumentViewHolder.h"
 #include "View/EditorView.h"
@@ -47,8 +47,6 @@
 #include "View/TextureBrowser.h"
 #include "View/TextureBrowserCanvas.h"
 #include "View/TextureSelectedCommand.h"
-
-#include "View/SpinControl.h"
 
 #include <limits>
 
@@ -65,11 +63,11 @@ namespace TrenchBroom {
         }
 
         BEGIN_EVENT_TABLE(FaceInspector, wxPanel)
-        EVT_SPINCTRLDOUBLE(CommandIds::FaceInspector::XOffsetEditorId, FaceInspector::OnXOffsetChanged)
-        EVT_SPINCTRLDOUBLE(CommandIds::FaceInspector::YOffsetEditorId, FaceInspector::OnYOffsetChanged)
-        EVT_SPINCTRLDOUBLE(CommandIds::FaceInspector::XScaleEditorId, FaceInspector::OnXScaleChanged)
-        EVT_SPINCTRLDOUBLE(CommandIds::FaceInspector::YScaleEditorId, FaceInspector::OnYScaleChanged)
-        EVT_SPINCTRLDOUBLE(CommandIds::FaceInspector::RotationEditorId, FaceInspector::OnRotationChanged)
+        EVT_SPINCONTROL(CommandIds::FaceInspector::XOffsetEditorId, FaceInspector::OnXOffsetChanged)
+        EVT_SPINCONTROL(CommandIds::FaceInspector::YOffsetEditorId, FaceInspector::OnYOffsetChanged)
+        EVT_SPINCONTROL(CommandIds::FaceInspector::XScaleEditorId, FaceInspector::OnXScaleChanged)
+        EVT_SPINCONTROL(CommandIds::FaceInspector::YScaleEditorId, FaceInspector::OnYScaleChanged)
+        EVT_SPINCONTROL(CommandIds::FaceInspector::RotationEditorId, FaceInspector::OnRotationChanged)
         EVT_BUTTON(CommandIds::FaceInspector::ResetFaceAttribsId, FaceInspector::OnResetFaceAttribsPressed)
         EVT_BUTTON(CommandIds::FaceInspector::AlignTextureId, FaceInspector::OnAlignTexturePressed)
         EVT_BUTTON(CommandIds::FaceInspector::FitTextureId, FaceInspector::OnFitTexturePressed)
@@ -80,6 +78,7 @@ namespace TrenchBroom {
         EVT_BUTTON(CommandIds::FaceInspector::AddTextureCollectionButtonId, FaceInspector::OnAddTextureCollectionPressed)
         EVT_BUTTON(CommandIds::FaceInspector::RemoveTextureCollectionsButtonId, FaceInspector::OnRemoveTextureCollectionsPressed)
         EVT_UPDATE_UI(CommandIds::FaceInspector::RemoveTextureCollectionsButtonId, FaceInspector::OnUpdateRemoveTextureCollectionsButton)
+        EVT_IDLE(FaceInspector::OnIdle)
         END_EVENT_TABLE()
 
         wxWindow* FaceInspector::createFaceEditor() {
@@ -99,19 +98,17 @@ namespace TrenchBroom {
             
             m_xOffsetEditor = new SpinControl(faceEditorPanel, CommandIds::FaceInspector::XOffsetEditorId);
             m_xOffsetEditor->SetRange(min, max);
-            m_xOffsetEditor->SetIncrement(1.0);
             m_yOffsetEditor = new SpinControl(faceEditorPanel, CommandIds::FaceInspector::YOffsetEditorId);
             m_yOffsetEditor->SetRange(min, max);
-            m_yOffsetEditor->SetIncrement(1.0);
             m_xScaleEditor = new SpinControl(faceEditorPanel, CommandIds::FaceInspector::XScaleEditorId);
             m_xScaleEditor->SetRange(min, max);
-            m_xScaleEditor->SetIncrement(0.1);
+            m_xScaleEditor->SetIncrements(0.1, 0.1, 0.1);
             m_yScaleEditor = new SpinControl(faceEditorPanel, CommandIds::FaceInspector::YScaleEditorId);
             m_yScaleEditor->SetRange(min, max);
-            m_yScaleEditor->SetIncrement(0.1);
+            m_yScaleEditor->SetIncrements(0.1, 0.1, 0.1);
             m_rotationEditor = new SpinControl(faceEditorPanel, CommandIds::FaceInspector::RotationEditorId);
             m_rotationEditor->SetRange(min, max);
-            m_rotationEditor->SetIncrement(1.0);
+            m_rotationEditor->SetIncrements(1.0, 1.0, 1.0);
 
             wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
             buttonSizer->Add(new wxButton(faceEditorPanel, CommandIds::FaceInspector::ResetFaceAttribsId, wxT("Reset"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT));
@@ -334,7 +331,7 @@ namespace TrenchBroom {
             }
         }
 
-        void FaceInspector::OnXOffsetChanged(wxSpinDoubleEvent& event) {
+        void FaceInspector::OnXOffsetChanged(SpinControlEvent& event) {
             if (!m_documentViewHolder.valid())
                 return;
             Model::MapDocument& document = m_documentViewHolder.document();
@@ -344,7 +341,7 @@ namespace TrenchBroom {
             document.GetCommandProcessor()->Submit(command);
         }
         
-        void FaceInspector::OnYOffsetChanged(wxSpinDoubleEvent& event) {
+        void FaceInspector::OnYOffsetChanged(SpinControlEvent& event) {
             if (!m_documentViewHolder.valid())
                 return;
             Model::MapDocument& document = m_documentViewHolder.document();
@@ -354,7 +351,7 @@ namespace TrenchBroom {
             document.GetCommandProcessor()->Submit(command);
         }
         
-        void FaceInspector::OnXScaleChanged(wxSpinDoubleEvent& event) {
+        void FaceInspector::OnXScaleChanged(SpinControlEvent& event) {
             if (!m_documentViewHolder.valid())
                 return;
             Model::MapDocument& document = m_documentViewHolder.document();
@@ -364,7 +361,7 @@ namespace TrenchBroom {
             document.GetCommandProcessor()->Submit(command);
         }
         
-        void FaceInspector::OnYScaleChanged(wxSpinDoubleEvent& event) {
+        void FaceInspector::OnYScaleChanged(SpinControlEvent& event) {
             if (!m_documentViewHolder.valid())
                 return;
             Model::MapDocument& document = m_documentViewHolder.document();
@@ -374,7 +371,7 @@ namespace TrenchBroom {
             document.GetCommandProcessor()->Submit(command);
         }
         
-        void FaceInspector::OnRotationChanged(wxSpinDoubleEvent& event) {
+        void FaceInspector::OnRotationChanged(SpinControlEvent& event) {
             if (!m_documentViewHolder.valid())
                 return;
             Model::MapDocument& document = m_documentViewHolder.document();
@@ -490,6 +487,16 @@ namespace TrenchBroom {
             wxArrayInt selections;
             int selectionCount = m_textureCollectionList->GetSelections(selections);
             event.Enable(selectionCount > 0);
+        }
+
+        void FaceInspector::OnIdle(wxIdleEvent& event) {
+            if (!m_documentViewHolder.valid())
+                return;
+            
+            Utility::Grid& grid = m_documentViewHolder.document().grid();
+            m_xOffsetEditor->SetIncrements(grid.actualSize(), 2 * grid.actualSize(), 1.0);
+            m_yOffsetEditor->SetIncrements(grid.actualSize(), 2 * grid.actualSize(), 1.0);
+            m_rotationEditor->SetIncrements(grid.angle(), 90.0, 1.0);
         }
     }
 }

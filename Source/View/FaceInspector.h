@@ -25,6 +25,7 @@
 
 #include "Model/BrushTypes.h"
 #include "Model/FaceTypes.h"
+#include "View/SpinControl.h"
 
 class SpinControl;
 class wxButton;
@@ -72,11 +73,12 @@ namespace TrenchBroom {
             void updateTextureBrowser();
             void updateTextureCollectionList();
             
-            void OnXOffsetChanged(wxSpinDoubleEvent& event);
-            void OnYOffsetChanged(wxSpinDoubleEvent& event);
-            void OnXScaleChanged(wxSpinDoubleEvent& event);
-            void OnYScaleChanged(wxSpinDoubleEvent& event);
-            void OnRotationChanged(wxSpinDoubleEvent& event);
+            void OnXOffsetChanged(SpinControlEvent& event);
+            void OnYOffsetChanged(SpinControlEvent& event);
+            void OnXScaleChanged(SpinControlEvent& event);
+            void OnYScaleChanged(SpinControlEvent& event);
+            void OnRotationChanged(SpinControlEvent& event);
+            
             void OnResetFaceAttribsPressed(wxCommandEvent& event);
             void OnAlignTexturePressed(wxCommandEvent& event);
             void OnFitTexturePressed(wxCommandEvent& event);
@@ -86,6 +88,8 @@ namespace TrenchBroom {
             void OnAddTextureCollectionPressed(wxCommandEvent& event);
             void OnRemoveTextureCollectionsPressed(wxCommandEvent& event);
             void OnUpdateRemoveTextureCollectionsButton(wxUpdateUIEvent& event);
+            
+            void OnIdle(wxIdleEvent& event);
             
             DECLARE_EVENT_TABLE()
         };

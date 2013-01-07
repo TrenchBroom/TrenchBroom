@@ -318,6 +318,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\View\PreferencesDialog.cpp" />
     <ClCompile Include="..\..\Source\View\ProgressIndicatorDialog.cpp" />
     <ClCompile Include="..\..\Source\View\SingleTextureViewer.cpp" />
+    <ClCompile Include="..\..\Source\View\SpinControl.cpp" />
     <ClCompile Include="..\..\Source\View\TextureBrowser.cpp" />
     <ClCompile Include="..\..\Source\View\TextureBrowserCanvas.cpp" />
     <ClCompile Include="..\..\Source\View\TextureSelectedCommand.cpp" />
