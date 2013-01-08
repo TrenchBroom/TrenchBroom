@@ -69,7 +69,7 @@ namespace TrenchBroom {
             m_quakePathValueLabel->SetLabel(prefs.getString(Preferences::QuakePath));
             
             m_brightnessSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::RendererBrightness) * 40.0f));
-            m_gridAlphaSlider->SetValue(static_cast<int>(prefs.getColor(Preferences::GridColor).w * m_gridAlphaSlider->GetMax()));
+            m_gridAlphaSlider->SetValue(static_cast<int>(prefs.getColor(Preferences::GridColor).w * m_gridAlphaSlider->GetMax() * 10.0f));
 
             m_lookSpeedSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::CameraLookSpeed) * m_lookSpeedSlider->GetMax()));
             m_invertLookXAxisCheckBox->SetValue(prefs.getBool(Preferences::CameraLookInvertX));
@@ -244,7 +244,7 @@ namespace TrenchBroom {
                     float floatValue = static_cast<float>(value) / static_cast<float>(max);
 
                     Color gridColor = prefs.getColor(Preferences::GridColor);
-                    gridColor.w = floatValue;
+                    gridColor.w = floatValue / 10.0f;
                     prefs.setColor(Preferences::GridColor, gridColor);
                     break;
                 }

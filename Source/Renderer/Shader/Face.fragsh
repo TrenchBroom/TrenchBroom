@@ -38,7 +38,9 @@ void gridXY() {
     bool evenY = mod(floor(modelCoordinates.y / GridSize), 2) == 0;
     
     if (evenX == evenY)
-        gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a * 1.5), gl_FragColor.a);
+        gl_FragColor = vec4(gl_FragColor.r + GridColor.a, gl_FragColor.g + GridColor.a, gl_FragColor.b + GridColor.a, gl_FragColor.a);
+    else
+        gl_FragColor = vec4(gl_FragColor.r - GridColor.a, gl_FragColor.g - GridColor.a, gl_FragColor.b - GridColor.a, gl_FragColor.a);
 }
 
 void gridXZ() {
@@ -46,7 +48,9 @@ void gridXZ() {
     bool evenZ = mod(floor(modelCoordinates.z / GridSize), 2) == 0;
     
     if (evenX == evenZ)
-        gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a * 1.5), gl_FragColor.a);
+        gl_FragColor = vec4(gl_FragColor.r + GridColor.a, gl_FragColor.g + GridColor.a, gl_FragColor.b + GridColor.a, gl_FragColor.a);
+    else
+        gl_FragColor = vec4(gl_FragColor.r - GridColor.a, gl_FragColor.g - GridColor.a, gl_FragColor.b - GridColor.a, gl_FragColor.a);
 }
 
 void gridYZ() {
@@ -54,7 +58,9 @@ void gridYZ() {
     bool evenZ = mod(floor(modelCoordinates.z / GridSize), 2) == 0;
     
     if (evenY == evenZ)
-        gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a * 1.5), gl_FragColor.a);
+        gl_FragColor = vec4(gl_FragColor.r + GridColor.a, gl_FragColor.g + GridColor.a, gl_FragColor.b + GridColor.a, gl_FragColor.a);
+    else
+        gl_FragColor = vec4(gl_FragColor.r - GridColor.a, gl_FragColor.g - GridColor.a, gl_FragColor.b - GridColor.a, gl_FragColor.a);
 }
 
 /*
