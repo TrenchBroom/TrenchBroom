@@ -104,7 +104,7 @@ namespace TrenchBroom {
             assert(m_brush == NULL);
             
             if (inputState.mouseButtons() != MouseButtons::MBLeft ||
-                inputState.modifierKeys() != ModifierKeys::MKAlt)
+                inputState.modifierKeys() != ModifierKeys::MKNone)
                 return false;
             
             Model::FaceHit* hit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, view().filter()));

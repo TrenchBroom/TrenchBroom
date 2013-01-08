@@ -79,7 +79,13 @@ namespace TrenchBroom {
 
         bool MapDocument::DoSaveDocument(const wxString& file) {
             wxString originalFile = GetFilename();
-            if (wxDocument::DoSaveDocument(file)) {
+            
+            wxStopWatch watch;
+            IO::MapWriter mapWriter;
+            mapWriter.writeToFileAtPath(*m_map, file.ToStdString(), true);
+            console().info("Saved map file in %f seconds", watch.Time() / 1000.0f);
+            
+            if (true) {
                 if (originalFile != file) {
                     const TextureCollectionList& collections = m_textureManager->collections();
                     if (!collections.empty()) {
@@ -290,9 +296,11 @@ namespace TrenchBroom {
         }
 
         std::ostream& MapDocument::SaveObject(std::ostream& stream) {
+            /* //we're doing this directly in OnSaveDocument so that we can avoid using stream io
             IO::MapWriter mapWriter;
             mapWriter.writeToStream(*m_map, stream);
             m_modificationCount = 0;
+             */
             return stream;
         }
 

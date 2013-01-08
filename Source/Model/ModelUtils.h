@@ -31,25 +31,27 @@ namespace TrenchBroom {
         inline Vec3f referencePoint(const Model::EntityList& entities, const Model::BrushList& brushes, const Utility::Grid& grid) {
             assert(!entities.empty() || !brushes.empty());
             
-            Vec3f point;
-            
-            Model::EntityList::const_iterator entityIt, entityEnd;
-            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
-                const Model::Entity& entity = **entityIt;
-                if (entity.definition() != NULL && entity.definition()->type() == Model::EntityDefinition::PointEntity)
-                    point += entity.origin();
-                else
-                    point += entity.bounds().center();
+            BBox bounds;
+            if (!entities.empty()) {
+                Model::EntityList::const_iterator entityIt = entities.begin();
+                Model::EntityList::const_iterator entityEnd = entities.end();
+                
+                bounds = (*entityIt++)->bounds();
+                while (entityIt != entityEnd)
+                    bounds.mergeWith((*entityIt++)->bounds());
             }
             
-            Model::BrushList::const_iterator brushIt, brushEnd;
-            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
-                const Model::Brush& brush = **brushIt;
-                point += brush.center();
+            if (!brushes.empty()) {
+                Model::BrushList::const_iterator brushIt = brushes.begin();
+                Model::BrushList::const_iterator brushEnd = brushes.end();
+                
+                if (entities.empty())
+                    bounds = (*brushIt++)->bounds();
+                while (brushIt != brushEnd)
+                    bounds.mergeWith((*brushIt++)->bounds());
             }
 
-            point /= static_cast<float>(entities.size() + brushes.size());
-            return grid.snap(point);
+            return grid.snap(bounds.center());
         }
     }
 }

@@ -216,41 +216,45 @@ namespace TrenchBroom {
             invalidateGeometry();
         }
 
-        void Entity::rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTextures) {
+        void Entity::rotate90(Axis::Type axis, const Vec3f& rotationCenter, bool clockwise, bool lockTextures) {
             if (!m_brushes.empty())
                 return;
             
-            setProperty(OriginKey, origin().rotated90(axis, center, clockwise), true);
+            const Vec3f offset = origin() - center();
+            const Vec3f newCenter = center().rotated90(axis, rotationCenter, clockwise);
+            setProperty(OriginKey, newCenter + offset, true);
             
-            Vec3f direction;
-            float ang = static_cast<float>(angle());
-            if (ang >= 0.0f) {
-                direction.x = std::cos(Math::radians(ang));
-                direction.y = std::sin(Math::radians(ang));
-                direction.z = 0.0f;
-            } else if (ang == -1.0f) {
-                direction = Vec3f::PosZ;
-            } else if (ang == -2.0f) {
-                direction = Vec3f::NegZ;
-            } else {
-                return;
-            }
-            
-            direction.rotate90(axis, clockwise);
-            if (direction.z > 0.9f) {
-                setProperty(AngleKey, -1, true);
-            } else if (direction.z < -0.9f) {
-                setProperty(AngleKey, -2, true);
-            } else {
-                if (direction.z != 0.0f) {
+            if (offset.x == 0.0f && offset.y == 0.0f) {
+                Vec3f direction;
+                float ang = static_cast<float>(angle());
+                if (ang >= 0.0f) {
+                    direction.x = std::cos(Math::radians(ang));
+                    direction.y = std::sin(Math::radians(ang));
                     direction.z = 0.0f;
-                    direction.normalize();
+                } else if (ang == -1.0f) {
+                    direction = Vec3f::PosZ;
+                } else if (ang == -2.0f) {
+                    direction = Vec3f::NegZ;
+                } else {
+                    return;
                 }
                 
-                ang = Math::round(Math::degrees(std::acos(direction.x)));
-                if (direction.y < 0.0f)
-                    ang = 360.0f - ang;
-                setProperty(AngleKey, ang, true);
+                direction.rotate90(axis, clockwise);
+                if (direction.z > 0.9f) {
+                    setProperty(AngleKey, -1, true);
+                } else if (direction.z < -0.9f) {
+                    setProperty(AngleKey, -2, true);
+                } else {
+                    if (direction.z != 0.0f) {
+                        direction.z = 0.0f;
+                        direction.normalize();
+                    }
+                    
+                    ang = Math::round(Math::degrees(std::acos(direction.x)));
+                    if (direction.y < 0.0f)
+                        ang = 360.0f - ang;
+                    setProperty(AngleKey, ang, true);
+                }
             }
             invalidateGeometry();
         }
@@ -259,38 +263,43 @@ namespace TrenchBroom {
             if (!m_brushes.empty())
                 return;
 
-            setProperty(OriginKey, rotation * (origin() - rotationCenter) + rotationCenter, true);
+            const Vec3f offset = origin() - center();
+            const Vec3f newCenter = rotation * (center() - rotationCenter) + rotationCenter;
+            setProperty(OriginKey, newCenter + offset, true);
             
-            Vec3f direction;
-            float ang = static_cast<float>(angle());
-            if (ang >= 0.0f) {
-                direction.x = std::cos(Math::radians(ang));
-                direction.y = std::sin(Math::radians(ang));
-                direction.z = 0.0f;
-            } else if (ang == -1.0f) {
-                direction = Vec3f::PosZ;
-            } else if (ang == -2.0f) {
-                direction = Vec3f::NegZ;
-            } else {
-                return;
-            }
-            
-            direction = rotation * direction;
-            if (direction.z > 0.9f) {
-                setProperty(AngleKey, -1, true);
-            } else if (direction.z < -0.9f) {
-                setProperty(AngleKey, -2, true);
-            } else {
-                if (direction.z != 0.0f) {
+            if (offset.x == 0.0f && offset.y == 0.0f) {
+                Vec3f direction;
+                float ang = static_cast<float>(angle());
+                if (ang >= 0.0f) {
+                    direction.x = std::cos(Math::radians(ang));
+                    direction.y = std::sin(Math::radians(ang));
                     direction.z = 0.0f;
-                    direction.normalize();
+                } else if (ang == -1.0f) {
+                    direction = Vec3f::PosZ;
+                } else if (ang == -2.0f) {
+                    direction = Vec3f::NegZ;
+                } else {
+                    return;
                 }
                 
-                ang = Math::round(Math::degrees(std::acos(direction.x)));
-                if (direction.y < 0.0f)
-                    ang = 360.0f - ang;
-                setProperty(AngleKey, ang, true);
+                direction = rotation * direction;
+                if (direction.z > 0.9f) {
+                    setProperty(AngleKey, -1, true);
+                } else if (direction.z < -0.9f) {
+                    setProperty(AngleKey, -2, true);
+                } else {
+                    if (direction.z != 0.0f) {
+                        direction.z = 0.0f;
+                        direction.normalize();
+                    }
+                    
+                    ang = Math::round(Math::degrees(std::acos(direction.x)));
+                    if (direction.y < 0.0f)
+                        ang = 360.0f - ang;
+                    setProperty(AngleKey, ang, true);
+                }
             }
+            
             invalidateGeometry();
         }
 
@@ -298,30 +307,33 @@ namespace TrenchBroom {
             if (!m_brushes.empty())
                 return;
             
-            Vec3f newOrigin = origin().flipped(axis, flipCenter);
-            setProperty(OriginKey, newOrigin, true);
+            const Vec3f offset = origin() - center();
+            const Vec3f newCenter = center().flipped(axis, flipCenter);
+            setProperty(OriginKey, newCenter + offset, true);
             
-            float ang = static_cast<float>(angle());
-            switch (axis) {
-                case Axis::AX:
-                    if (ang >= 0.0f)
-                        ang = 180.0f - ang;
-                    break;
-                case Axis::AY:
-                    if (ang >= 0.0f)
-                        ang = 360.0f - ang;
-                    break;
-                default:
-                    if (ang == -1.0f)
-                        ang = -2.0f;
-                    else if (ang == -2.0f)
-                        ang = -1.0f;
-                    break;
+            if (offset.x == 0.0f && offset.y == 0.0f) {
+                float ang = static_cast<float>(angle());
+                switch (axis) {
+                    case Axis::AX:
+                        if (ang >= 0.0f)
+                            ang = 180.0f - ang;
+                        break;
+                    case Axis::AY:
+                        if (ang >= 0.0f)
+                            ang = 360.0f - ang;
+                        break;
+                    default:
+                        if (ang == -1.0f)
+                            ang = -2.0f;
+                        else if (ang == -2.0f)
+                            ang = -1.0f;
+                        break;
+                }
+                
+                if (ang >= 0.0f)
+                    ang -= static_cast<int>(ang / 360.0f) * 360.0f;
+                setProperty(AngleKey, ang, true);
             }
-            
-            if (ang >= 0.0f)
-                ang -= static_cast<int>(ang / 360.0f) * 360.0f;
-            setProperty(AngleKey, ang, true);
             invalidateGeometry();
         }
 

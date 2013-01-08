@@ -238,6 +238,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Controller\RotateTexturesCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\SelectionTool.cpp" />
     <ClCompile Include="..\..\Source\Controller\SetFaceAttributesCommand.cpp" />
+    <ClCompile Include="..\..\Source\Controller\SetFaceAttributesTool.cpp" />
     <ClCompile Include="..\..\Source\Controller\SnapshotCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\SplitEdgesCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\SplitFacesCommand.cpp" />
@@ -361,6 +362,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Controller\RotateTexturesCommand.h" />
     <ClInclude Include="..\..\Source\Controller\SelectionTool.h" />
     <ClInclude Include="..\..\Source\Controller\SetFaceAttributesCommand.h" />
+    <ClInclude Include="..\..\Source\Controller\SetFaceAttributesTool.h" />
     <ClInclude Include="..\..\Source\Controller\SnapshotCommand.h" />
     <ClInclude Include="..\..\Source\Controller\SplitEdgesCommand.h" />
     <ClInclude Include="..\..\Source\Controller\SplitFacesCommand.h" />

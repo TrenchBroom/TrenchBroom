@@ -40,6 +40,7 @@ protected:
     virtual wxMenu* CreateHelpMenu(wxEvtHandler* eventHandler, bool mapViewFocused);
 public:
     virtual wxMenuBar* CreateMenuBar(wxEvtHandler* eventHandler, wxMenu* actionMenu, bool mapViewFocused);
+    void DetachFileHistoryMenu(wxMenuBar* menuBar);
     virtual wxMenu* CreateTextureActionMenu(bool mapViewFocused);
     virtual wxMenu* CreateObjectActionMenu(bool mapViewFocused);
     virtual wxMenu* CreateVertexActionMenu(bool mapViewFocused);

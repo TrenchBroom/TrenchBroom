@@ -173,6 +173,25 @@ wxMenuBar* AbstractApp::CreateMenuBar(wxEvtHandler* eventHandler, wxMenu* action
     return menuBar;
 }
 
+void AbstractApp::DetachFileHistoryMenu(wxMenuBar* menuBar) {
+    if (menuBar != NULL) {
+        int fileMenuIndex = menuBar->FindMenu(wxT("File"));
+        assert(fileMenuIndex != wxNOT_FOUND);
+        
+        wxMenu* fileMenu = menuBar->GetMenu(static_cast<size_t>(fileMenuIndex));
+        int fileHistoryMenuIndex = fileMenu->FindItem(wxT("Open Recent"));
+        assert(fileHistoryMenuIndex != wxNOT_FOUND);
+        
+        wxMenuItem* fileHistoryMenuItem = fileMenu->FindItem(fileHistoryMenuIndex);
+        assert(fileHistoryMenuItem != NULL);
+        
+        wxMenu* fileHistoryMenu = fileHistoryMenuItem->GetSubMenu();
+        assert(fileHistoryMenu != NULL);
+        
+        m_docManager->FileHistoryRemoveMenu(fileHistoryMenu);
+    }
+}
+
 wxMenu* AbstractApp::CreateTextureActionMenu(bool mapViewFocused) {
     using namespace TrenchBroom::View::CommandIds::Menu;
     

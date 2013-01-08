@@ -33,6 +33,7 @@
 #include "Controller/ResizeBrushesTool.h"
 #include "Controller/RotateObjectsTool.h"
 #include "Controller/SelectionTool.h"
+#include "Controller/SetFaceAttributesTool.h"
 #include "Model/EditStateManager.h"
 #include "Model/Entity.h"
 #include "Model/EntityDefinition.h"
@@ -88,6 +89,7 @@ namespace TrenchBroom {
         m_moveObjectsTool(NULL),
         m_rotateObjectsTool(NULL),
         m_resizeBrushesTool(NULL),
+        m_setFaceAttributesTool(NULL),
         m_selectionTool(NULL),
         m_toolChain(NULL),
         m_dragTool(NULL),
@@ -102,6 +104,7 @@ namespace TrenchBroom {
             m_moveObjectsTool = new MoveObjectsTool(m_documentViewHolder, 64.0f, 32.0f);
             m_rotateObjectsTool = new RotateObjectsTool(m_documentViewHolder, 64.0f, 32.0f, 5.0f);
             m_resizeBrushesTool = new ResizeBrushesTool(m_documentViewHolder);
+            m_setFaceAttributesTool = new SetFaceAttributesTool(m_documentViewHolder);
             m_selectionTool = new SelectionTool(m_documentViewHolder);
 
             m_cameraTool->setNextTool(m_clipTool);
@@ -111,7 +114,8 @@ namespace TrenchBroom {
             m_createBrushTool->setNextTool(m_moveObjectsTool);
             m_moveObjectsTool->setNextTool(m_rotateObjectsTool);
             m_rotateObjectsTool->setNextTool(m_resizeBrushesTool);
-            m_resizeBrushesTool->setNextTool(m_selectionTool);
+            m_resizeBrushesTool->setNextTool(m_setFaceAttributesTool);
+            m_setFaceAttributesTool->setNextTool(m_selectionTool);
             m_toolChain = m_cameraTool;
             
             m_createBrushTool->activate(m_inputState);
@@ -142,6 +146,8 @@ namespace TrenchBroom {
             m_rotateObjectsTool = NULL;
             delete m_resizeBrushesTool;
             m_resizeBrushesTool = NULL;
+            delete m_setFaceAttributesTool;
+            m_setFaceAttributesTool = NULL;
             delete m_selectionTool;
             m_selectionTool = NULL;
         }
@@ -164,6 +170,7 @@ namespace TrenchBroom {
             if (m_dragTool != NULL)
                 return false;
             
+            m_clickPos = wxPoint(m_inputState.x(), m_inputState.y());
             m_inputState.mouseDown(mouseButton);
             updateHits();
             bool handled = m_toolChain->mouseDown(m_inputState) != NULL;
@@ -213,7 +220,9 @@ namespace TrenchBroom {
             updateHits();
             
             if (m_inputState.mouseButtons() != MouseButtons::MBNone) {
-                if (m_dragTool == NULL && !m_cancelledDrag) {
+                if (m_dragTool == NULL && !m_cancelledDrag &&
+                    (std::abs(m_clickPos.x - x) > 1 ||
+                     std::abs(m_clickPos.y - y) > 1)) {
                     m_dragTool = m_toolChain->startDrag(m_inputState);
                 }
                 

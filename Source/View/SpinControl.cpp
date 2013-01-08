@@ -82,6 +82,7 @@ void SpinControl::OnTextEnter(wxCommandEvent& event) {
 void SpinControl::OnTextKillFocus(wxFocusEvent& event) {
     if (SyncFromText())
         DoSendEvent();
+    event.Skip();
 }
 
 void SpinControl::OnSpinButton(bool up) {
@@ -128,8 +129,13 @@ void SpinControl::OnSpinButtonDown(wxSpinEvent& event) {
     OnSpinButton(false);
 }
 
+void SpinControl::OnSetFocus(wxFocusEvent& event) {
+    // no idea why this is necessary, but it works
+    SetFocus();
+}
+
 SpinControl::SpinControl(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxValidator& validator, const wxString& name) :
-wxControl(parent, id, pos, size, (style & ~wxBORDER_MASK) | wxBORDER_NONE, validator, name),
+wxPanel(parent, id, pos, size, (style & ~wxBORDER_MASK) | wxBORDER_NONE, name),
 m_text(NULL),
 m_spin(NULL),
 m_minValue(std::numeric_limits<double>::min()),
@@ -140,15 +146,14 @@ m_ctrlIncrement(0.0),
 m_value(0.0),
 m_digits(0),
 m_format(wxT("%g")) {
-    m_spin = new wxSpinButton(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_VERTICAL);
     m_text = new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER | wxTE_RIGHT);
+    m_spin = new wxSpinButton(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_VERTICAL);
 
-    m_spin->SetSizeHints(wxDefaultCoord, wxDefaultCoord);
     m_text->SetSizeHints(wxDefaultCoord, wxDefaultCoord);
-
-    m_spin->SetToolTip(GetToolTipText());
     m_text->SetToolTip(GetToolTipText());
 
+    m_spin->SetToolTip(GetToolTipText());
+    m_spin->SetSizeHints(wxDefaultCoord, wxDefaultCoord);
     m_spin->SetRange(-32000, 32000);
     
     DoSetValue(m_value);
@@ -161,10 +166,12 @@ m_format(wxT("%g")) {
     SetInitialSize(size);
     Move(pos);
     
-    m_spin->Bind(wxEVT_SPIN_UP, &SpinControl::OnSpinButtonUp, this);
-    m_spin->Bind(wxEVT_SPIN_DOWN, &SpinControl::OnSpinButtonDown, this);
     m_text->Bind(wxEVT_COMMAND_TEXT_ENTER, &SpinControl::OnTextEnter, this);
     m_text->Bind(wxEVT_KILL_FOCUS, &SpinControl::OnTextKillFocus, this);
+    m_spin->Bind(wxEVT_SPIN_UP, &SpinControl::OnSpinButtonUp, this);
+    m_spin->Bind(wxEVT_SPIN_DOWN, &SpinControl::OnSpinButtonDown, this);
+    
+    Bind(wxEVT_SET_FOCUS, &SpinControl::OnSetFocus, this);
 }
 
 void SpinControl::SetValue(double doubleValue) {
@@ -213,21 +220,8 @@ wxSize SpinControl::DoGetBestSize() const {
     return wxSize(spinSize.x + textSize.x + 0, textSize.y);
 }
 
-/*
-void SpinControl::DoMoveWindow(int x, int y, int width, int height) {
-    wxControl::DoMoveWindow(x, y, width, height);
-    
-    // position the subcontrols inside the client area
-    wxSize spinSize = m_spin->GetSize();
-    
-    wxCoord wText = width - spinSize.x - 0;
-    m_text->SetSize(x, y, wText, height);
-    m_spin->SetSize(x + wText + 0, y, wxDefaultCoord, height);
-}
-*/
-
 bool SpinControl::Enable(bool enable) {
-    if (wxControl::Enable(enable)) {
+    if (wxPanel::Enable(enable)) {
         m_text->Enable(enable);
         m_spin->Enable(enable);
         return true;
@@ -235,3 +229,6 @@ bool SpinControl::Enable(bool enable) {
     return false;
 }
 
+void SpinControl::SetFocus() {
+    m_text->SetFocus();
+}

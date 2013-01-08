@@ -123,18 +123,7 @@ namespace TrenchBroom {
             // SetMenuBar(NULL);
             
             wxMenuBar* oldMenuBar = GetMenuBar();
-            if (oldMenuBar != NULL) {
-                int fileMenuIndex = oldMenuBar->FindMenu(wxT("File"));
-                assert(fileMenuIndex != wxNOT_FOUND);
-                wxMenu* fileMenu = oldMenuBar->GetMenu(static_cast<size_t>(fileMenuIndex));
-                int fileHistoryMenuIndex = fileMenu->FindItem(wxT("Open Recent"));
-                assert(fileHistoryMenuIndex != wxNOT_FOUND);
-                wxMenuItem* fileHistoryMenuItem = fileMenu->FindItem(fileHistoryMenuIndex);
-                assert(fileHistoryMenuItem != NULL);
-                wxMenu* fileHistoryMenu = fileHistoryMenuItem->GetSubMenu();
-                assert(fileHistoryMenu != NULL);
-                m_documentViewHolder.document().GetDocumentManager()->FileHistoryRemoveMenu(fileHistoryMenu);
-            }
+            app->DetachFileHistoryMenu(oldMenuBar);
             
             SetMenuBar(menuBar);
             delete oldMenuBar;
@@ -205,6 +194,11 @@ namespace TrenchBroom {
         void EditorFrame::OnClose(wxCloseEvent& event) {
             // if the user closes the editor frame, the document must also be closed:
             assert(m_documentViewHolder.valid());
+
+            wxMenuBar* oldMenuBar = GetMenuBar();
+            TrenchBroomApp* app = static_cast<TrenchBroomApp*>(wxTheApp);
+            app->DetachFileHistoryMenu(oldMenuBar);
+
             Model::MapDocument& document = m_documentViewHolder.document();
             document.GetDocumentManager()->CloseDocument(&document);
         }

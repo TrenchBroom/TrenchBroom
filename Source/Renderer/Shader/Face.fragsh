@@ -34,6 +34,31 @@ varying vec3 modelNormal;
 varying vec4 faceColor;
 
 void gridXY() {
+    bool evenX = mod(floor(modelCoordinates.x / GridSize), 2) == 0;
+    bool evenY = mod(floor(modelCoordinates.y / GridSize), 2) == 0;
+    
+    if (evenX == evenY)
+        gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a * 1.5), gl_FragColor.a);
+}
+
+void gridXZ() {
+    bool evenX = mod(floor(modelCoordinates.x / GridSize), 2) == 0;
+    bool evenZ = mod(floor(modelCoordinates.z / GridSize), 2) == 0;
+    
+    if (evenX == evenZ)
+        gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a * 1.5), gl_FragColor.a);
+}
+
+void gridYZ() {
+    bool evenY = mod(floor(modelCoordinates.y / GridSize), 2) == 0;
+    bool evenZ = mod(floor(modelCoordinates.z / GridSize), 2) == 0;
+    
+    if (evenY == evenZ)
+        gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a * 1.5), gl_FragColor.a);
+}
+
+/*
+void gridXY() {
     if (abs(mod(modelCoordinates.x + 0.5, 64)) <= 0.6 ||
         abs(mod(modelCoordinates.y + 0.5, 64)) <= 0.6)
         gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a * 1.5), gl_FragColor.a);
@@ -59,7 +84,8 @@ void gridYZ() {
         abs(mod(modelCoordinates.z + 0.5, GridSize)) <= 0.6)
         gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a), gl_FragColor.a);
 }
-
+*/
+ 
 void main() {
     if (ApplyTexture) {
         gl_FragColor = texture2D(FaceTexture, gl_TexCoord[0].st);

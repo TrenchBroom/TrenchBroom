@@ -50,6 +50,7 @@ namespace TrenchBroom {
         class ResizeBrushesTool;
         class RotateObjectsTool;
         class SelectionTool;
+        class SetFaceAttributesTool;
         class Tool;
     
         class InputController {
@@ -65,6 +66,7 @@ namespace TrenchBroom {
             MoveObjectsTool* m_moveObjectsTool;
             RotateObjectsTool* m_rotateObjectsTool;
             ResizeBrushesTool* m_resizeBrushesTool;
+            SetFaceAttributesTool* m_setFaceAttributesTool;
             SelectionTool* m_selectionTool;
             
             Tool* m_toolChain;
@@ -72,6 +74,7 @@ namespace TrenchBroom {
             Tool* m_modalTool;
             bool m_cancelledDrag;
             
+            wxPoint m_clickPos;
             bool m_discardNextMouseUp;
             
             void updateModalTool();

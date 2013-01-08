@@ -32,6 +32,59 @@
 
 namespace TrenchBroom {
     namespace IO {
+        void MapWriter::writeFace(const Model::Face& face, FILE* stream) {
+            String textureName = Utility::isBlank(face.textureName()) ? Model::Texture::Empty : face.textureName();
+
+            fprintf(stream, "( %g %g %g ) ( %g %g %g ) ( %g %g %g ) %s %g %g %g %g %g\n",
+                    face.point(0).x,
+                    face.point(0).y,
+                    face.point(0).z,
+                    face.point(1).x,
+                    face.point(1).y,
+                    face.point(1).z,
+                    face.point(2).x,
+                    face.point(2).y,
+                    face.point(2).z,
+                    textureName.c_str(),
+                    face.xOffset(),
+                    face.yOffset(),
+                    face.rotation(),
+                    face.xScale(),
+                    face.yScale());
+        }
+        
+        void MapWriter::writeBrush(const Model::Brush& brush, FILE* stream) {
+            fprintf(stream, "{\n");
+            const Model::FaceList& faces = brush.faces();
+            Model::FaceList::const_iterator faceIt, faceEnd;
+            for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt)
+                writeFace(**faceIt, stream);
+            fprintf(stream, "}\n");
+        }
+        
+        void MapWriter::writeEntityHeader(const Model::Entity& entity, FILE* stream) {
+            fprintf(stream, "{\n");
+            
+            const Model::PropertyList& properties = entity.properties();
+            Model::PropertyList::const_iterator it, end;
+            for (it = properties.begin(), end = properties.end(); it != end; ++it) {
+                const Model::Property& property = *it;
+                fprintf(stream, "\"%s\" \"%s\"\n", property.key().c_str(), property.value().c_str());
+            }
+        }
+        
+        void MapWriter::writeEntityFooter(FILE* stream) {
+            fprintf(stream, "}\n");
+        }
+        
+        void MapWriter::writeEntity(const Model::Entity& entity, FILE* stream) {
+            writeEntityHeader(entity, stream);
+            const Model::BrushList& brushes = entity.brushes();
+            for (unsigned int i = 0; i < brushes.size(); i++)
+                writeBrush(*brushes[i], stream);
+            writeEntityFooter(stream);
+        }
+
         void MapWriter::writeFace(const Model::Face& face, std::ostream& stream) {
             String textureName = Utility::isBlank(face.textureName()) ? Model::Texture::Empty : face.textureName();
             
@@ -162,8 +215,12 @@ namespace TrenchBroom {
             if (!fileManager.exists(directoryPath))
                 fileManager.makeDirectory(directoryPath);
             
-            std::fstream stream(path.c_str(), std::ios::out | std::ios::trunc);
-            writeToStream(map, stream);
+            FILE* stream = fopen(path.c_str(), "w");
+            // std::fstream stream(path.c_str(), std::ios::out | std::ios::trunc);
+
+            const Model::EntityList& entities = map.entities();
+            for (unsigned int i = 0; i < entities.size(); i++)
+                writeEntity(*entities[i], stream);
         }
     }
 }

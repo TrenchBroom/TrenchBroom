@@ -22,6 +22,7 @@
 
 #include <wx/control.h>
 #include <wx/event.h>
+#include <wx/panel.h>
 
 #include <cassert>
 
@@ -47,7 +48,7 @@ private:
     DECLARE_DYNAMIC_CLASS(SpinControlEvent)
 };
 
-class SpinControl : public wxControl {
+class SpinControl : public wxPanel {
 protected:
     wxTextCtrl* m_text;
     wxSpinButton* m_spin;
@@ -72,6 +73,8 @@ protected:
     void OnSpinButton(bool up);
     void OnSpinButtonUp(wxSpinEvent& event);
     void OnSpinButtonDown(wxSpinEvent& event);
+    
+    void OnSetFocus(wxFocusEvent& event);
 public:
     SpinControl(wxWindow *parent, wxWindowID id, const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize, long style=0, const wxValidator &validator=wxDefaultValidator, const wxString &name=wxControlNameStr);
     
@@ -94,12 +97,11 @@ public:
     
     void SetHint(const wxString& hint);
     
-    virtual bool Enable(bool enable = true);
+    bool Enable(bool enable = true);
 
+    void SetFocus();
 protected:
-    // override the base class virtuals involved into geometry calculations
     wxSize DoGetBestSize() const;
-    // void DoMoveWindow(int x, int y, int width, int height);
 };
 
 #define WXDLLIMPEXP_CUSTOM_EVENT
