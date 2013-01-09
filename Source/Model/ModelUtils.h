@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        inline Vec3f referencePoint(const Model::EntityList& entities, const Model::BrushList& brushes, const Utility::Grid& grid) {
+        inline BBox objectBounds(const Model::EntityList& entities, const Model::BrushList& brushes) {
             assert(!entities.empty() || !brushes.empty());
             
             BBox bounds;
@@ -50,8 +50,12 @@ namespace TrenchBroom {
                 while (brushIt != brushEnd)
                     bounds.mergeWith((*brushIt++)->bounds());
             }
-
-            return grid.snap(bounds.center());
+            
+            return bounds;
+        }
+        
+        inline Vec3f referencePoint(const Model::EntityList& entities, const Model::BrushList& brushes, const Utility::Grid& grid) {
+            return grid.snap(objectBounds(entities, brushes).center());
         }
     }
 }

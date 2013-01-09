@@ -269,6 +269,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Model\TextureManager.cpp" />
     <ClCompile Include="..\..\Source\Renderer\AliasModelRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\AxisFigure.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\BoxGuideRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\BrushFigure.cpp" />
     <ClCompile Include="..\..\Source\Renderer\BspModelRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\Camera.cpp" />
@@ -420,6 +421,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Renderer\ApplyMatrix.h" />
     <ClInclude Include="..\..\Source\Renderer\AttributeArray.h" />
     <ClInclude Include="..\..\Source\Renderer\AxisFigure.h" />
+    <ClInclude Include="..\..\Source\Renderer\BoxGuideRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\BrushFigure.h" />
     <ClInclude Include="..\..\Source\Renderer\BspModelRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\Camera.h" />

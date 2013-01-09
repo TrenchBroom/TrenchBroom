@@ -17,39 +17,40 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CameraTool__
-#define __TrenchBroom__CameraTool__
+#ifndef __TrenchBroom__BoxGuideRenderer__
+#define __TrenchBroom__BoxGuideRenderer__
 
-#include "Controller/Tool.h"
 #include "Model/Filter.h"
 #include "Utility/VecMath.h"
 
 using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
-    namespace Controller {
-        class CameraTool : public Tool {
-        private:
-            Vec3f m_orbitCenter;
-            bool m_orbit;
+    namespace Model {
+        class Picker;
+    }
+    
+    namespace Renderer {
+        class RenderContext;
+        class VertexArray;
+        class Vbo;
+        
+        class BoxGuideRenderer {
+            BBox m_bounds;
+            Model::Picker& m_picker;
             Model::VisibleFilter m_filter;
-
-            float lookSpeed(bool vertical);
-            float panSpeed(bool vertical);
-            float moveSpeed();
-        protected:
-            void handleScroll(InputState& inputState);
-
-            bool handleStartDrag(InputState& inputState);
-            bool handleDrag(InputState& inputState);
-            void handleEndDrag(InputState& inputState);
+            VertexArray* m_boxArray;
+            VertexArray* m_spikeArray;
+            VertexArray* m_pointArray;
+            
+            void addSpike(const Vec3f& startPoint, const Vec3f& direction, const Color& color, Vec3f::List& hitPoints);
         public:
-            CameraTool(View::DocumentViewHolder& documentViewHolder) :
-            Tool(documentViewHolder, false),
-            m_orbit(false),
-            m_filter(Model::VisibleFilter(documentViewHolder.view().filter())) {}
+            BoxGuideRenderer(const BBox& bounds, Model::Picker& picker, Model::Filter& defaultFilter);
+            ~BoxGuideRenderer();
+            
+            void render(Vbo& vbo, RenderContext& context);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__CameraTool__) */
+#endif /* defined(__TrenchBroom__BoxGuideRenderer__) */

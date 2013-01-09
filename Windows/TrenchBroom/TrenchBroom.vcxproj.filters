@@ -423,6 +423,9 @@
     <ClCompile Include="..\..\Source\Controller\SetFaceAttributesTool.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\BoxGuideRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -1006,6 +1009,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\SetFaceAttributesTool.h">
       <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\BoxGuideRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

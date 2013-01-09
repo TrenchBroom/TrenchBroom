@@ -71,6 +71,7 @@
 		4875679D1697922D008F316F /* MacDropSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4875679B1697922D008F316F /* MacDropSource.cpp */; };
 		487567A5169A26D5008F316F /* SpinControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487567A4169A26D4008F316F /* SpinControl.cpp */; };
 		487567AC169CB809008F316F /* SetFaceAttributesTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487567AA169CB807008F316F /* SetFaceAttributesTool.cpp */; };
+		487567AF169E1605008F316F /* BoxGuideRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487567AD169E1605008F316F /* BoxGuideRenderer.cpp */; };
 		4878F9201651231D003857EA /* RotateObjectsTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F91E1651231D003857EA /* RotateObjectsTool.cpp */; };
 		4878F924165142B4003857EA /* CreateEntityTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F922165142B4003857EA /* CreateEntityTool.cpp */; };
 		4878F95516596915003857EA /* BrushFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F95316596915003857EA /* BrushFigure.cpp */; };
@@ -329,6 +330,8 @@
 		487567A4169A26D4008F316F /* SpinControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpinControl.cpp; sourceTree = "<group>"; };
 		487567AA169CB807008F316F /* SetFaceAttributesTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SetFaceAttributesTool.cpp; sourceTree = "<group>"; };
 		487567AB169CB808008F316F /* SetFaceAttributesTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SetFaceAttributesTool.h; sourceTree = "<group>"; };
+		487567AD169E1605008F316F /* BoxGuideRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BoxGuideRenderer.cpp; sourceTree = "<group>"; };
+		487567AE169E1605008F316F /* BoxGuideRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoxGuideRenderer.h; sourceTree = "<group>"; };
 		4878F91E1651231D003857EA /* RotateObjectsTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RotateObjectsTool.cpp; sourceTree = "<group>"; };
 		4878F91F1651231D003857EA /* RotateObjectsTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateObjectsTool.h; sourceTree = "<group>"; };
 		4878F922165142B4003857EA /* CreateEntityTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CreateEntityTool.cpp; sourceTree = "<group>"; };
@@ -561,6 +564,8 @@
 				4850D27B15F4CA61005B162D /* AliasModelRenderer.cpp */,
 				4850D27C15F4CA61005B162D /* AliasModelRenderer.h */,
 				48EA119F15FA67F700391885 /* ApplyMatrix.h */,
+				487567AD169E1605008F316F /* BoxGuideRenderer.cpp */,
+				487567AE169E1605008F316F /* BoxGuideRenderer.h */,
 				4850D27D15F4CA62005B162D /* BspModelRenderer.cpp */,
 				4850D27E15F4CA62005B162D /* BspModelRenderer.h */,
 				48819C3615EBE92800BEA604 /* Camera.cpp */,
@@ -1229,6 +1234,7 @@
 				4875679D1697922D008F316F /* MacDropSource.cpp in Sources */,
 				487567A5169A26D5008F316F /* SpinControl.cpp in Sources */,
 				487567AC169CB809008F316F /* SetFaceAttributesTool.cpp in Sources */,
+				487567AF169E1605008F316F /* BoxGuideRenderer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

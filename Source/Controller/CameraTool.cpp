@@ -26,14 +26,6 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        bool CameraFilter::entityPickable(const Model::Entity& entity) const {
-            if (!entityVisible(entity))
-                return false;
-            
-            const Model::BrushList& brushes = entity.brushes();
-            return brushes.empty();
-        }
-
         float CameraTool::lookSpeed(bool vertical) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             float speed = prefs.getFloat(Preferences::CameraLookSpeed) / -50.0f;

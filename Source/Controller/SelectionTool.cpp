@@ -24,13 +24,35 @@
 #include "Model/EditStateManager.h"
 #include "Model/Entity.h"
 #include "Model/Face.h"
+#include "Model/ModelUtils.h"
 #include "Model/Picker.h"
+#include "Renderer/BoxGuideRenderer.h"
 #include "View/DocumentViewHolder.h"
 #include "View/EditorView.h"
 #include "Utility/List.h"
 
 namespace TrenchBroom {
     namespace Controller {
+        void SelectionTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
+            Model::EditStateManager& editStateManager = document().editStateManager();
+            const Model::EntityList& entities = editStateManager.selectedEntities();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            if (entities.empty() && brushes.empty())
+                return;
+            
+            if (m_guideRenderer == NULL) {
+                BBox bounds = Model::objectBounds(entities, brushes);
+                m_guideRenderer = new Renderer::BoxGuideRenderer(bounds, document().picker(), view().filter());
+            }
+            
+            m_guideRenderer->render(vbo, renderContext);
+        }
+        
+        void SelectionTool::handleFreeRenderResources() {
+            delete m_guideRenderer;
+            m_guideRenderer = NULL;
+        }
+
         bool SelectionTool::handleMouseUp(InputState& inputState) {
             if (inputState.mouseButtons() != MouseButtons::MBLeft)
                 return false;
@@ -181,7 +203,19 @@ namespace TrenchBroom {
             submitCommand(command);
         }
         
+        
+        void SelectionTool::handleObjectsChange(InputState& inputState) {
+            delete m_guideRenderer;
+            m_guideRenderer = NULL;
+        }
+        
+        void SelectionTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
+            delete m_guideRenderer;
+            m_guideRenderer = NULL;
+        }
+
         SelectionTool::SelectionTool(View::DocumentViewHolder& documentViewHolder) :
-        Tool(documentViewHolder, false) {}
+        Tool(documentViewHolder, false),
+        m_guideRenderer(NULL) {}
     }
 }
