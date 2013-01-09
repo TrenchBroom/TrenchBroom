@@ -227,16 +227,14 @@ namespace TrenchBroom {
             if (offset.x == 0.0f && offset.y == 0.0f) {
                 Vec3f direction;
                 float ang = static_cast<float>(angle());
-                if (ang >= 0.0f) {
-                    direction.x = std::cos(Math::radians(ang));
-                    direction.y = std::sin(Math::radians(ang));
-                    direction.z = 0.0f;
-                } else if (ang == -1.0f) {
+                if (ang == -1.0f) {
                     direction = Vec3f::PosZ;
                 } else if (ang == -2.0f) {
                     direction = Vec3f::NegZ;
                 } else {
-                    return;
+                    direction.x = std::cos(Math::radians(ang));
+                    direction.y = std::sin(Math::radians(ang));
+                    direction.z = 0.0f;
                 }
                 
                 direction.rotate90(axis, clockwise);
@@ -270,16 +268,14 @@ namespace TrenchBroom {
             if (offset.x == 0.0f && offset.y == 0.0f) {
                 Vec3f direction;
                 float ang = static_cast<float>(angle());
-                if (ang >= 0.0f) {
-                    direction.x = std::cos(Math::radians(ang));
-                    direction.y = std::sin(Math::radians(ang));
-                    direction.z = 0.0f;
-                } else if (ang == -1.0f) {
+                if (ang == -1.0f) {
                     direction = Vec3f::PosZ;
                 } else if (ang == -2.0f) {
                     direction = Vec3f::NegZ;
                 } else {
-                    return;
+                    direction.x = std::cos(Math::radians(ang));
+                    direction.y = std::sin(Math::radians(ang));
+                    direction.z = 0.0f;
                 }
                 
                 direction = rotation * direction;
@@ -315,11 +311,11 @@ namespace TrenchBroom {
                 float ang = static_cast<float>(angle());
                 switch (axis) {
                     case Axis::AX:
-                        if (ang >= 0.0f)
+                        if (ang != -1.0f && ang != -2.0f)
                             ang = 180.0f - ang;
                         break;
                     case Axis::AY:
-                        if (ang >= 0.0f)
+                        if (ang != -1.0f && ang != -2.0f)
                             ang = 360.0f - ang;
                         break;
                     default:
@@ -330,7 +326,7 @@ namespace TrenchBroom {
                         break;
                 }
                 
-                if (ang >= 0.0f)
+                if (ang != -1.0f && ang != -2.0f)
                     ang -= static_cast<int>(ang / 360.0f) * 360.0f;
                 setProperty(AngleKey, ang, true);
             }
