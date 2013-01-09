@@ -132,6 +132,7 @@ namespace TrenchBroom {
                 static const int InvertPanXAxisCheckBoxId           = Lowest +  8;
                 static const int InvertPanYAxisCheckBoxId           = Lowest +  9;
                 static const int MoveSpeedSliderId                  = Lowest + 10;
+                static const int GridModeChoiceId                   = Lowest + 11;
                 static const int Highest                            = Lowest + 99;
             }
             

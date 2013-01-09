@@ -78,7 +78,8 @@ namespace TrenchBroom {
                 faceProgram.setUniformVariable("Brightness", prefs.getFloat(Preferences::RendererBrightness));
                 faceProgram.setUniformVariable("RenderGrid", grid.visible());
                 faceProgram.setUniformVariable("GridSize", static_cast<float>(grid.actualSize()));
-                faceProgram.setUniformVariable("GridColor", prefs.getColor(Preferences::GridColor));
+                faceProgram.setUniformVariable("GridAlpha", prefs.getFloat(Preferences::GridAlpha));
+                faceProgram.setUniformVariable("GridCheckerboard", prefs.getBool(Preferences::GridCheckerboard));
                 faceProgram.setUniformVariable("ApplyTexture", applyTexture);
                 faceProgram.setUniformVariable("ApplyTinting", tintColor != NULL);
                 if (tintColor != NULL)

@@ -46,6 +46,7 @@ namespace TrenchBroom {
         
         EVT_COMMAND_SCROLL(CommandIds::PreferencesDialog::BrightnessSliderId, PreferencesDialog::OnViewSliderChanged)
         EVT_COMMAND_SCROLL(CommandIds::PreferencesDialog::GridAlphaSliderId, PreferencesDialog::OnViewSliderChanged)
+        EVT_CHOICE(CommandIds::PreferencesDialog::GridModeChoiceId, PreferencesDialog::OnGridModeChoice)
 
         EVT_COMMAND_SCROLL(CommandIds::PreferencesDialog::LookSpeedSliderId, PreferencesDialog::OnMouseSliderChanged)
         EVT_CHECKBOX(CommandIds::PreferencesDialog::InvertLookXAxisCheckBoxId, PreferencesDialog::OnInvertAxisChanged)
@@ -69,7 +70,8 @@ namespace TrenchBroom {
             m_quakePathValueLabel->SetLabel(prefs.getString(Preferences::QuakePath));
             
             m_brightnessSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::RendererBrightness) * 40.0f));
-            m_gridAlphaSlider->SetValue(static_cast<int>(prefs.getColor(Preferences::GridColor).w * m_gridAlphaSlider->GetMax() * 10.0f));
+            m_gridAlphaSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::GridAlpha) * m_gridAlphaSlider->GetMax()));
+            m_gridModeChoice->SetSelection(prefs.getBool(Preferences::GridCheckerboard) ? 1 : 0);
 
             m_lookSpeedSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::CameraLookSpeed) * m_lookSpeedSlider->GetMax()));
             m_invertLookXAxisCheckBox->SetValue(prefs.getBool(Preferences::CameraLookInvertX));
@@ -109,15 +111,28 @@ namespace TrenchBroom {
             wxStaticText* brightnessLabel = new wxStaticText(viewBox, wxID_ANY, wxT("Brightness"));
             m_brightnessSlider = new wxSlider(viewBox, CommandIds::PreferencesDialog::BrightnessSliderId, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
             
-            wxStaticText* gridAlphaLabel = new wxStaticText(viewBox, wxID_ANY, wxT("Grid Alpha"));
+            wxStaticText* gridLabel = new wxStaticText(viewBox, wxID_ANY, wxT("Grid"));
             m_gridAlphaSlider = new wxSlider(viewBox, CommandIds::PreferencesDialog::GridAlphaSliderId, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
+            
+            wxStaticText* gridModeFakeLabel = new wxStaticText(viewBox, wxID_ANY, wxT(""));
+            wxStaticText* gridModeLabel = new wxStaticText(viewBox, wxID_ANY, wxT("Render grid as"));
+            
+            wxString gridModes[2] = {"Lines", "Checkerboard"};
+            m_gridModeChoice = new wxChoice(viewBox, CommandIds::PreferencesDialog::GridModeChoiceId, wxDefaultPosition, wxDefaultSize, 2, gridModes);
+            
+            wxSizer* gridModeSizer = new wxBoxSizer(wxHORIZONTAL);
+            gridModeSizer->Add(gridModeLabel);
+            gridModeSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            gridModeSizer->Add(m_gridModeChoice);
             
             wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
             innerSizer->AddGrowableCol(1);
             innerSizer->Add(brightnessLabel);
             innerSizer->Add(m_brightnessSlider, 0, wxEXPAND);
-            innerSizer->Add(gridAlphaLabel);
+            innerSizer->Add(gridLabel);
             innerSizer->Add(m_gridAlphaSlider, 0, wxEXPAND);
+            innerSizer->Add(gridModeFakeLabel);
+            innerSizer->Add(gridModeSizer);
             innerSizer->SetItemMinSize(brightnessLabel, PreferencesDialogLayout::MinimumLabelWidth, brightnessLabel->GetSize().y);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
@@ -242,10 +257,7 @@ namespace TrenchBroom {
                 case CommandIds::PreferencesDialog::GridAlphaSliderId: {
                     int max = sender->GetMax();
                     float floatValue = static_cast<float>(value) / static_cast<float>(max);
-
-                    Color gridColor = prefs.getColor(Preferences::GridColor);
-                    gridColor.w = floatValue / 10.0f;
-                    prefs.setColor(Preferences::GridColor, gridColor);
+                    prefs.setFloat(Preferences::GridAlpha, floatValue);
                     break;
                 }
                 default:
@@ -255,6 +267,14 @@ namespace TrenchBroom {
             static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews();
         }
         
+        void PreferencesDialog::OnGridModeChoice(wxCommandEvent& event) {
+            bool checkerboard = m_gridModeChoice->GetSelection() == 1;
+            
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            prefs.setBool(Preferences::GridCheckerboard, checkerboard);
+            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews();
+        }
+
         void PreferencesDialog::OnMouseSliderChanged(wxScrollEvent& event) {
             wxSlider* sender = static_cast<wxSlider*>(event.GetEventObject());
             float value = sender->GetValue() / 100.0f;

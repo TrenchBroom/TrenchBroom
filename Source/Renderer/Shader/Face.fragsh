@@ -27,77 +27,75 @@ uniform vec4 TintColor;
 uniform bool GrayScale;
 uniform bool RenderGrid;
 uniform float GridSize;
-uniform vec4 GridColor;
+uniform float GridAlpha;
+uniform bool GridCheckerboard;
 
 varying vec4 modelCoordinates;
 varying vec3 modelNormal;
 varying vec4 faceColor;
 
-void gridXY() {
+void gridCheckerboardXY() {
     bool evenX = mod(floor(modelCoordinates.x / GridSize), 2) == 0;
     bool evenY = mod(floor(modelCoordinates.y / GridSize), 2) == 0;
     
     if (evenX == evenY)
-        gl_FragColor = vec4(gl_FragColor.r + GridColor.a, gl_FragColor.g + GridColor.a, gl_FragColor.b + GridColor.a, gl_FragColor.a);
+        gl_FragColor = vec4(gl_FragColor.r + (GridAlpha / 10.0), gl_FragColor.g + (GridAlpha / 10.0), gl_FragColor.b + (GridAlpha / 10.0), gl_FragColor.a);
     else
-        gl_FragColor = vec4(gl_FragColor.r - GridColor.a, gl_FragColor.g - GridColor.a, gl_FragColor.b - GridColor.a, gl_FragColor.a);
+        gl_FragColor = vec4(gl_FragColor.r - (GridAlpha / 10.0), gl_FragColor.g - (GridAlpha / 10.0), gl_FragColor.b - (GridAlpha / 10.0), gl_FragColor.a);
 }
 
-void gridXZ() {
+void gridCheckerboardXZ() {
     bool evenX = mod(floor(modelCoordinates.x / GridSize), 2) == 0;
     bool evenZ = mod(floor(modelCoordinates.z / GridSize), 2) == 0;
     
     if (evenX == evenZ)
-        gl_FragColor = vec4(gl_FragColor.r + GridColor.a, gl_FragColor.g + GridColor.a, gl_FragColor.b + GridColor.a, gl_FragColor.a);
+        gl_FragColor = vec4(gl_FragColor.r + (GridAlpha / 10.0), gl_FragColor.g + (GridAlpha / 10.0), gl_FragColor.b + (GridAlpha / 10.0), gl_FragColor.a);
     else
-        gl_FragColor = vec4(gl_FragColor.r - GridColor.a, gl_FragColor.g - GridColor.a, gl_FragColor.b - GridColor.a, gl_FragColor.a);
+        gl_FragColor = vec4(gl_FragColor.r - (GridAlpha / 10.0), gl_FragColor.g - (GridAlpha / 10.0), gl_FragColor.b - (GridAlpha / 10.0), gl_FragColor.a);
 }
 
-void gridYZ() {
+void gridCheckerboardYZ() {
     bool evenY = mod(floor(modelCoordinates.y / GridSize), 2) == 0;
     bool evenZ = mod(floor(modelCoordinates.z / GridSize), 2) == 0;
     
     if (evenY == evenZ)
-        gl_FragColor = vec4(gl_FragColor.r + GridColor.a, gl_FragColor.g + GridColor.a, gl_FragColor.b + GridColor.a, gl_FragColor.a);
+        gl_FragColor = vec4(gl_FragColor.r + (GridAlpha / 10.0), gl_FragColor.g + (GridAlpha / 10.0), gl_FragColor.b + (GridAlpha / 10.0), gl_FragColor.a);
     else
-        gl_FragColor = vec4(gl_FragColor.r - GridColor.a, gl_FragColor.g - GridColor.a, gl_FragColor.b - GridColor.a, gl_FragColor.a);
+        gl_FragColor = vec4(gl_FragColor.r - (GridAlpha / 10.0), gl_FragColor.g - (GridAlpha / 10.0), gl_FragColor.b - (GridAlpha / 10.0), gl_FragColor.a);
 }
 
-/*
-void gridXY() {
+void gridLinesXY() {
     if (abs(mod(modelCoordinates.x + 0.5, 64)) <= 0.6 ||
         abs(mod(modelCoordinates.y + 0.5, 64)) <= 0.6)
-        gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a * 1.5), gl_FragColor.a);
+        gl_FragColor = vec4(mix(gl_FragColor.rgb, vec3(1.0), (GridAlpha / 2.0) * 1.5), gl_FragColor.a);
     else if (abs(mod(modelCoordinates.x + 0.5, GridSize)) <= 0.6 ||
         abs(mod(modelCoordinates.y + 0.5, GridSize)) <= 0.6)
-        gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a), gl_FragColor.a);
+        gl_FragColor = vec4(mix(gl_FragColor.rgb, vec3(1.0), (GridAlpha / 2.0)), gl_FragColor.a);
 }
 
-void gridXZ() {
+void gridLinesXZ() {
     if (abs(mod(modelCoordinates.x + 0.5, 64)) <= 0.6 ||
         abs(mod(modelCoordinates.z + 0.5, 64)) <= 0.6)
-        gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a * 1.5), gl_FragColor.a);
+        gl_FragColor = vec4(mix(gl_FragColor.rgb, vec3(1.0), (GridAlpha / 2.0) * 1.5), gl_FragColor.a);
     else if (abs(mod(modelCoordinates.x + 0.5, GridSize)) <= 0.6 ||
         abs(mod(modelCoordinates.z + 0.5, GridSize)) <= 0.6)
-        gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a), gl_FragColor.a);
+        gl_FragColor = vec4(mix(gl_FragColor.rgb, vec3(1.0), (GridAlpha / 2.0)), gl_FragColor.a);
 }
 
-void gridYZ() {
+void gridLinesYZ() {
     if (abs(mod(modelCoordinates.y + 0.5, 64)) <= 0.6 ||
         abs(mod(modelCoordinates.z + 0.5, 64)) <= 0.6)
-        gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a * 1.5), gl_FragColor.a);
+        gl_FragColor = vec4(mix(gl_FragColor.rgb, vec3(1.0), (GridAlpha / 2.0) * 1.5), gl_FragColor.a);
     else if (abs(mod(modelCoordinates.y + 0.5, GridSize)) <= 0.6 ||
         abs(mod(modelCoordinates.z + 0.5, GridSize)) <= 0.6)
-        gl_FragColor = vec4(mix(gl_FragColor.rgb, GridColor.rgb, GridColor.a), gl_FragColor.a);
+        gl_FragColor = vec4(mix(gl_FragColor.rgb, vec3(1.0), (GridAlpha / 2.0)), gl_FragColor.a);
 }
-*/
  
 void main() {
-    if (ApplyTexture) {
+    if (ApplyTexture)
         gl_FragColor = texture2D(FaceTexture, gl_TexCoord[0].st);
-    } else {
+    else
         gl_FragColor = faceColor;
-    }
     
     gl_FragColor = vec4(vec3(Brightness / 2.0 * gl_FragColor), gl_FragColor.a);
     gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
@@ -112,19 +110,32 @@ void main() {
         gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
     }
     
-    if (RenderGrid) {
+    if (RenderGrid && GridAlpha > 0.0) {
         float normX = abs(modelNormal.x);
         float normY = abs(modelNormal.y);
         float normZ = abs(modelNormal.z);
         if (normX > normY) {
-            if (normX > normZ)
-                gridYZ();
-            else
-                gridXY();
+            if (normX > normZ) {
+                if (GridCheckerboard)
+                    gridCheckerboardYZ();
+                else
+                    gridLinesYZ();
+            } else {
+                if (GridCheckerboard)
+                    gridCheckerboardXY();
+                else
+                    gridLinesXY();
+            }
         } else if (normY > normZ) {
-            gridXZ();
+            if (GridCheckerboard)
+                gridCheckerboardXZ();
+            else
+                gridLinesXZ();
         } else {
-            gridXY();
+            if (GridCheckerboard)
+                gridCheckerboardXY();
+            else
+                gridLinesXY();
         }
     }
 }

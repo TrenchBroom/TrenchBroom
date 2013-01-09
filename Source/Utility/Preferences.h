@@ -229,9 +229,10 @@ namespace TrenchBroom {
         extern const Preference<float>  SelectedInfoOverlayFadeDistance;
         extern const Preference<int>    RendererFontSize;
         extern const Preference<float>  RendererBrightness;
+        extern const Preference<float>  GridAlpha;
+        extern const Preference<bool>   GridCheckerboard;
         
         extern const Preference<Color>  BackgroundColor;
-        extern const Preference<Color>  GridColor;
         
         extern const Preference<Color>  FaceColor;
         extern const Preference<Color>  SelectedFaceColor;

@@ -23,6 +23,7 @@
 #include <wx/dialog.h>
 
 class wxCheckBox;
+class wxChoice;
 class wxSlider;
 class wxStaticText;
 
@@ -33,6 +34,7 @@ namespace TrenchBroom {
             wxStaticText* m_quakePathValueLabel;
             wxSlider* m_brightnessSlider;
             wxSlider* m_gridAlphaSlider;
+            wxChoice* m_gridModeChoice;
             wxSlider* m_lookSpeedSlider;
             wxCheckBox* m_invertLookXAxisCheckBox;
             wxCheckBox* m_invertLookYAxisCheckBox;
@@ -51,6 +53,7 @@ namespace TrenchBroom {
 
             void OnChooseQuakePathClicked(wxCommandEvent& event);
             void OnViewSliderChanged(wxScrollEvent& event);
+            void OnGridModeChoice(wxCommandEvent& event);
             void OnMouseSliderChanged(wxScrollEvent& event);
             void OnInvertAxisChanged(wxCommandEvent& event);
             void OnOkClicked(wxCommandEvent& event);

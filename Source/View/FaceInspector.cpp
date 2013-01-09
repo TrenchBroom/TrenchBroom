@@ -102,13 +102,12 @@ namespace TrenchBroom {
             m_yOffsetEditor->SetRange(min, max);
             m_xScaleEditor = new SpinControl(faceEditorPanel, CommandIds::FaceInspector::XScaleEditorId);
             m_xScaleEditor->SetRange(min, max);
-            m_xScaleEditor->SetIncrements(0.1, 0.1, 0.1);
+            m_xScaleEditor->SetIncrements(0.1, 0.25, 0.01);
             m_yScaleEditor = new SpinControl(faceEditorPanel, CommandIds::FaceInspector::YScaleEditorId);
             m_yScaleEditor->SetRange(min, max);
-            m_yScaleEditor->SetIncrements(0.1, 0.1, 0.1);
+            m_yScaleEditor->SetIncrements(0.1, 0.25, 0.01);
             m_rotationEditor = new SpinControl(faceEditorPanel, CommandIds::FaceInspector::RotationEditorId);
             m_rotationEditor->SetRange(min, max);
-            m_rotationEditor->SetIncrements(1.0, 1.0, 1.0);
 
             wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
             buttonSizer->Add(new wxButton(faceEditorPanel, CommandIds::FaceInspector::ResetFaceAttribsId, wxT("Reset"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT));
@@ -494,8 +493,8 @@ namespace TrenchBroom {
                 return;
             
             Utility::Grid& grid = m_documentViewHolder.document().grid();
-            m_xOffsetEditor->SetIncrements(grid.actualSize(), 2 * grid.actualSize(), 1.0);
-            m_yOffsetEditor->SetIncrements(grid.actualSize(), 2 * grid.actualSize(), 1.0);
+            m_xOffsetEditor->SetIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
+            m_yOffsetEditor->SetIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
             m_rotationEditor->SetIncrements(grid.angle(), 90.0, 1.0);
         }
     }
