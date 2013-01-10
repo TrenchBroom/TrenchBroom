@@ -31,22 +31,13 @@ using namespace TrenchBroom::Math;
 namespace TrenchBroom {
     namespace Renderer {
         void EntityModelRenderer::render(ShaderProgram& shaderProgram, Transformation& transformation, const Model::Entity& entity) {
-            float angle = static_cast<float>(entity.angle());
-            render(shaderProgram, transformation, entity.origin(), angle);
+            render(shaderProgram, transformation, entity.origin(), entity.rotation());
         }
 
-        void EntityModelRenderer::render(ShaderProgram& shaderProgram, Transformation& transformation, const Vec3f& position, float angle) {
+        void EntityModelRenderer::render(ShaderProgram& shaderProgram, Transformation& transformation, const Vec3f& position, const Quat& rotation) {
             Mat4f matrix;
             matrix.translate(position);
-            
-            if (angle != 0.0f) {
-                if (angle == -1.0f)
-                    matrix.rotateCW(Math::Pi / 2.0f, Vec3f::PosX);
-                else if (angle == -2.0f)
-                    matrix.rotateCW(-Math::Pi / 2.0f, Vec3f::PosX);
-                else
-                    matrix.rotateCW(Math::radians(angle), Vec3f::PosZ);
-            }
+            matrix.rotate(rotation);
 
             ApplyMatrix applyMatrux(transformation, matrix);
             render(shaderProgram);

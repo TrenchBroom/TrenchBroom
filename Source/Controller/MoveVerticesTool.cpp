@@ -108,7 +108,7 @@ namespace TrenchBroom {
             m_handleManager.pick(inputState.pickRay(), inputState.pickResult(), m_mode == VMSplit);
         }
         
-        void MoveVerticesTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
+        void MoveVerticesTool::handleRenderFirst(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
             Model::MoveHandleHit* moveHandleHit = static_cast<Model::MoveHandleHit*>(inputState.pickResult().first(Model::HitType::MoveHandleHit, true, view().filter()));
             m_moveHandle.render(moveHandleHit, vbo, renderContext);
             m_handleManager.render(vbo, renderContext, m_mode == VMSplit);

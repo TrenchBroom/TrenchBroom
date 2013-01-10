@@ -156,7 +156,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ResizeBrushesTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
+        void ResizeBrushesTool::handleRenderLast(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
             Model::FaceList faces;
             if (dragType() != DTDrag) {
                 if (inputState.modifierKeys() != ModifierKeys::MKShift)
@@ -200,12 +200,9 @@ namespace TrenchBroom {
             Renderer::ActivateShader shader(renderContext.shaderManager(), Renderer::Shaders::EdgeShader);
 
             glDisable(GL_DEPTH_TEST);
-            shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::OccludedResizeBrushFaceColor));
-            edgeArray.render();
-            glEnable(GL_DEPTH_TEST);
-
             shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ResizeBrushFaceColor));
             edgeArray.render();
+            glEnable(GL_DEPTH_TEST);
 
             Renderer::glResetEdgeOffset();
         }

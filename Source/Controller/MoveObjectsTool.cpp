@@ -70,7 +70,7 @@ namespace TrenchBroom {
                 m_moveHandle.setLastHit(hit);
         }
 
-        void MoveObjectsTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
+        void MoveObjectsTool::handleRenderFirst(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
             Model::EditStateManager& editStateManager = document().editStateManager();
             if (editStateManager.selectedEntities().empty() && editStateManager.selectedBrushes().empty())
                 return;

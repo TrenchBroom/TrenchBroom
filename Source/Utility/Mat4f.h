@@ -479,24 +479,24 @@ namespace TrenchBroom {
                 
                 Mat4f temp;
                 temp[ 0] = a2 + b2 - c2 - d2;
-                temp[ 1] = 2 * b * c + 2 * a * d;
-                temp[ 2] = 2 * b * d - 2 * a * c;
-                temp[ 3] = 0;
+                temp[ 1] = 2.0f * b * c + 2.0f * a * d;
+                temp[ 2] = 2.0f * b * d - 2.0f * a * c;
+                temp[ 3] = 0.0f;
                 
-                temp[ 4] = 2 * b * c - 2 * a * d;
+                temp[ 4] = 2.0f * b * c - 2.0f * a * d;
                 temp[ 5] = a2 - b2 + c2 - d2;
-                temp[ 6] = 2 * c * d + 2 * a * b;
-                temp[ 7] = 0;
+                temp[ 6] = 2.0f * c * d + 2.0f * a * b;
+                temp[ 7] = 0.0f;
                 
-                temp[ 8] = 2 * b * d + 2 * a * c;
-                temp[ 9] = 2 * c * d - 2 * a * b;
+                temp[ 8] = 2.0f * b * d + 2.0f * a * c;
+                temp[ 9] = 2.0f * c * d - 2.0f * a * b;
                 temp[10] = a2 - b2 - c2 + d2;
-                temp[11] = 0;
+                temp[11] = 0.0f;
                 
-                temp[12] = 0;
-                temp[13] = 0;
-                temp[14] = 0;
-                temp[15] = 1;
+                temp[12] = 0.0f;
+                temp[13] = 0.0f;
+                temp[14] = 0.0f;
+                temp[15] = 1.0f;
                 
                 *this *= temp;
                 return *this;

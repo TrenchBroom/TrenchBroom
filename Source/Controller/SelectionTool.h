@@ -32,7 +32,7 @@ namespace TrenchBroom {
         protected:
             Renderer::BoxGuideRenderer* m_guideRenderer;
             
-            void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
+            void handleRenderFirst(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
             void handleFreeRenderResources();
 
             bool handleMouseUp(InputState& inputState);

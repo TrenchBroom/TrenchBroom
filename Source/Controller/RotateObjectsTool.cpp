@@ -164,7 +164,7 @@ namespace TrenchBroom {
             }
         }
 
-        void RotateObjectsTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
+        void RotateObjectsTool::handleRenderFirst(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
             Model::EditStateManager& editStateManager = document().editStateManager();
             if (editStateManager.selectedEntities().empty() && editStateManager.selectedBrushes().empty())
                 return;

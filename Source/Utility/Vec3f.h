@@ -96,20 +96,21 @@ namespace TrenchBroom {
             
             float x, y, z;
             
-            Vec3f() : x(0), y(0), z(0) {}
+            Vec3f() : x(0.0f), y(0.0f), z(0.0f) {}
             
-            Vec3f(const std::string& str) {
+            Vec3f(const std::string& str) : x(0.0f), y(0.0f), z(0.0f) {
                 const char* cstr = str.c_str();
                 size_t pos = 0;
                 std::string blank = " \t\n\r";
                 
-                pos = str.find_first_not_of(blank, pos);
+                if ((pos = str.find_first_not_of(blank, pos)) == std::string::npos) return;
                 x = static_cast<float>(atof(cstr + pos));
                 pos = str.find_first_of(blank, pos);
-                pos = str.find_first_not_of(blank, pos);
+                if ((pos = str.find_first_of(blank, pos)) == std::string::npos) return;
+                if ((pos = str.find_first_not_of(blank, pos)) == std::string::npos) return;
                 y = static_cast<float>(atof(cstr + pos));
-                pos = str.find_first_of(blank, pos);
-                pos = str.find_first_not_of(blank, pos);
+                if ((pos = str.find_first_of(blank, pos)) == std::string::npos) return;
+                if ((pos = str.find_first_not_of(blank, pos)) == std::string::npos) return;
                 z = static_cast<float>(atof(cstr + pos));
             }
             

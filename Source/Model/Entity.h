@@ -48,8 +48,11 @@ namespace TrenchBroom {
             static String const GroupVisibilityKey;
             static String const OriginKey;
             static String const AngleKey;
+            static String const AnglesKey;
+            static String const MangleKey;
             static String const MessageKey;
             static String const ModsKey;
+            static String const TargetKey;
             static String const WadKey;
         protected:
             Map* m_map;
@@ -70,6 +73,25 @@ namespace TrenchBroom {
             
             void init();
             void validateGeometry() const;
+
+            struct RotationInfo {
+                typedef enum {
+                    None,
+                    ZAngle,
+                    ZAngleWithUpDown,
+                    EulerAngles
+                } Type;
+                
+                const Type type;
+                const PropertyKey property;
+                
+                RotationInfo(Type i_type, const PropertyKey& i_property) :
+                type(i_type),
+                property(i_property) {}
+            };
+            
+            const RotationInfo rotationInfo() const;
+            void applyRotation(const Quat& rotation);
         public:
             Entity(const BBox& worldBounds);
             Entity(const BBox& worldBounds, const Entity& entityTemplate);
@@ -121,15 +143,7 @@ namespace TrenchBroom {
                 return Vec3f(*value);
             }
             
-            inline const int angle() const {
-                const PropertyValue* value = propertyForKey(AngleKey);
-                if (value == NULL)
-                    return 0;
-                
-                double dblValue = std::atof(value->c_str());
-                float fltValue = static_cast<float>(dblValue);
-                return static_cast<int>(Math::round(fltValue));
-            }
+            const Quat rotation() const;
             
             inline const BrushList& brushes() const {
                 return m_brushes;

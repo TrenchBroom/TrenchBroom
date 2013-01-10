@@ -49,16 +49,16 @@ namespace TrenchBroom {
                 size_t pos = 0;
                 String blank = " \t\n\r";
                 
-                pos = str.find_first_not_of(blank, pos);
+                if ((pos = str.find_first_not_of(blank, pos)) == std::string::npos) return;
                 x = static_cast<float>(atof(cstr + pos));
-                pos = str.find_first_of(blank, pos);
-                pos = str.find_first_not_of(blank, pos);
+                if ((pos = str.find_first_of(blank, pos)) == std::string::npos) return;
+                if ((pos = str.find_first_not_of(blank, pos)) == std::string::npos) return;
                 y = static_cast<float>(atof(cstr + pos));
-                pos = str.find_first_of(blank, pos);
-                pos = str.find_first_not_of(blank, pos);
+                if ((pos = str.find_first_of(blank, pos)) == std::string::npos) return;
+                if ((pos = str.find_first_not_of(blank, pos)) == std::string::npos) return;
                 z = static_cast<float>(atof(cstr + pos));
-                pos = str.find_first_of(blank, pos);
-                pos = str.find_first_not_of(blank, pos);
+                if ((pos = str.find_first_of(blank, pos)) == std::string::npos) return;
+                if ((pos = str.find_first_not_of(blank, pos)) == std::string::npos) return;
                 w = static_cast<float>(atof(cstr + pos));
             }
             

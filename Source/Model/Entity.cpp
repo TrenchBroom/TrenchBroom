@@ -36,8 +36,11 @@ namespace TrenchBroom {
         String const Entity::GroupVisibilityKey  = "__tb_group_visible";
         String const Entity::OriginKey           = "origin";
         String const Entity::AngleKey            = "angle";
+        String const Entity::AnglesKey           = "angles";
+        String const Entity::MangleKey           = "mangle";
         String const Entity::MessageKey          = "message";
         String const Entity::ModsKey             = "__tb_mods";
+        String const Entity::TargetKey           = "target";
         String const Entity::WadKey              = "wad";
 
         void Entity::init() {
@@ -69,6 +72,157 @@ namespace TrenchBroom {
             
             m_center = m_bounds.center();
             m_geometryValid = true;
+        }
+
+        const Entity::RotationInfo Entity::rotationInfo() const {
+            RotationInfo::Type type = RotationInfo::None;
+            PropertyKey property;
+            
+            // determine the type of rotation to apply to this entity
+            if (classname() != NULL) {
+                if (Utility::startsWith(*classname(), "light")) {
+                    if (propertyForKey(MangleKey) != NULL) {
+                        // spotlight without a target, update mangle
+                        type = RotationInfo::EulerAngles;
+                        property = MangleKey;
+                    } else if (propertyForKey(TargetKey) == NULL) {
+                        // not a spotlight, but might have a rotatable model, so change angle or angles
+                        if (propertyForKey(AnglesKey) != NULL) {
+                            type = RotationInfo::EulerAngles;
+                            property = AnglesKey;
+                        } else {
+                            type = RotationInfo::ZAngle;
+                            property = AngleKey;
+                        }
+                    } else {
+                        // spotlight with target, don't modify
+                    }
+                } else {
+                    bool brushEntity = !m_brushes.empty() || (m_definition != NULL && m_definition->type() == EntityDefinition::BrushEntity);
+                    if (brushEntity) {
+                        if (propertyForKey(AnglesKey) != NULL) {
+                            type = RotationInfo::EulerAngles;
+                            property = AnglesKey;
+                        } else if (propertyForKey(AngleKey) != NULL) {
+                            type = RotationInfo::ZAngleWithUpDown;
+                            property = AngleKey;
+                        }
+                    } else {
+                        // point entity
+                        
+                        // if the origin of the definition's bounding box is not in its center, don't apply the rotation
+                        const Vec3f offset = origin() - center();
+                        if (offset.x == 0.0f && offset.y == 0.0f) {
+                            if (propertyForKey(AnglesKey) != NULL) {
+                                type = RotationInfo::EulerAngles;
+                                property = AnglesKey;
+                            } else {
+                                type = RotationInfo::ZAngle;
+                                property = AngleKey;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return RotationInfo(type, property);
+        }
+
+        void Entity::applyRotation(const Quat& rotation) {
+            const RotationInfo info = rotationInfo();
+            
+            switch (info.type) {
+                case RotationInfo::ZAngle: {
+                    const PropertyValue* angleValue = propertyForKey(info.property);
+                    float angle = angleValue != NULL ? static_cast<float>(std::atof(angleValue->c_str())) : 0.0f;
+                    
+                    Vec3f direction;
+                    direction.x = std::cos(Math::radians(angle));
+                    direction.y = std::sin(Math::radians(angle));
+
+                    direction = rotation * direction;
+                    direction.z = 0.0f;
+                    direction.normalize();
+                    
+                    angle = Math::round(Math::degrees(std::acos(direction.x)));
+                    if (direction.y < 0.0f)
+                        angle = 360.0f - angle;
+                    setProperty(info.property, angle, true);
+                    break;
+                }
+                case RotationInfo::ZAngleWithUpDown: {
+                    const PropertyValue* angleValue = propertyForKey(info.property);
+                    float angle = angleValue != NULL ? static_cast<float>(std::atof(angleValue->c_str())) : 0.0f;
+
+                    Vec3f direction;
+                    if (angle == -1.0f) {
+                        direction = Vec3f::PosZ;
+                    } else if (angle == -2.0f) {
+                        direction = Vec3f::NegZ;
+                    } else {
+                        direction.x = std::cos(Math::radians(angle));
+                        direction.y = std::sin(Math::radians(angle));
+                    }
+
+                    if (direction.z > 0.9f) {
+                        setProperty(info.property, -1.0f, true);
+                    } else if (direction.z < -0.9f) {
+                        setProperty(info.property, -2.0f, true);
+                    } else {
+                        direction.z = 0.0f;
+                        direction.normalize();
+                        
+                        angle = Math::round(Math::degrees(std::acos(direction.x)));
+                        if (direction.y < 0.0f)
+                            angle = 360.0f - angle;
+                        setProperty(info.property, angle, true);
+                    }
+                    break;
+                }
+                case RotationInfo::EulerAngles: {
+                    const PropertyValue* angleValue = propertyForKey(info.property);
+                    Vec3f angles = angleValue != NULL ? Vec3f(*angleValue) : Vec3f::Null;
+                    
+                    Vec3f direction = Vec3f::PosX;
+                    Quat zRotation(Math::radians(angles.x), Vec3f::PosZ);
+                    Quat yRotation(Math::radians(-angles.y), Vec3f::PosY);
+                    
+                    direction = yRotation * direction;
+                    direction = zRotation * direction;
+                    direction = rotation * direction;
+                    
+                    float zAngle, xAngle;
+                    
+                    // FIXME: this is still buggy
+                    Vec3f xyDirection = direction;
+                    if (std::abs(xyDirection.z) == 1.0f) {
+                        zAngle = 0.0f;
+                    } else {
+                        xyDirection.z = 0.0f;
+                        xyDirection.normalize();
+                        zAngle = Math::round(Math::degrees(std::acos(xyDirection.x)));
+                        if (xyDirection.y < 0.0f)
+                            zAngle = 360.0f - zAngle;
+                    }
+                    
+                    Vec3f xzDirection = direction;
+                    if (std::abs(xzDirection.x) == 1.0f) {
+                        xAngle = 0.0f;
+                    } else {
+                        xzDirection.y = 0.0f;
+                        xzDirection.normalize();
+                        xAngle = Math::round(Math::degrees(std::acos(xzDirection.x)));
+                        if (xzDirection.z < 0.0f)
+                            xAngle = 360.0f - xAngle;
+                    }
+                    
+                    angles = Vec3f(zAngle, xAngle, 0.0f);
+                    setProperty(info.property, angles, true);
+                    break;
+                }
+                default:
+                    break;
+            }
         }
 
         Entity::Entity(const BBox& worldBounds) : MapObject(), m_worldBounds(worldBounds) {
@@ -167,6 +321,40 @@ namespace TrenchBroom {
             invalidateGeometry();
         }
         
+        const Quat Entity::rotation() const {
+            const RotationInfo info = rotationInfo();
+            switch (info.type) {
+                case RotationInfo::ZAngle: {
+                    const PropertyValue* angleValue = propertyForKey(info.property);
+                    if (angleValue == NULL)
+                        return Quat(0.0f, Vec3f::PosZ);
+                    float angle = static_cast<float>(std::atof(angleValue->c_str()));
+                    return Quat(Math::radians(angle), Vec3f::PosZ);
+                }
+                case RotationInfo::ZAngleWithUpDown: {
+                    const PropertyValue* angleValue = propertyForKey(info.property);
+                    if (angleValue == NULL)
+                        return Quat(0.0f, Vec3f::PosZ);
+                    float angle = static_cast<float>(std::atof(angleValue->c_str()));
+                    if (angle == -1.0f)
+                        return Quat(-Math::Pi / 2.0f, Vec3f::PosY);
+                    if (angle == -2.0f)
+                        return Quat(Math::Pi / 2.0f, Vec3f::PosY);
+                    return Quat(Math::radians(angle), Vec3f::PosZ);
+                }
+                case RotationInfo::EulerAngles: {
+                    const PropertyValue* angleValue = propertyForKey(info.property);
+                    Vec3f angles = angleValue != NULL ? Vec3f(*angleValue) : Vec3f::Null;
+                    
+                    Quat zRotation(Math::radians(angles.x), Vec3f::PosZ);
+                    Quat yRotation(Math::radians(-angles.y), Vec3f::PosY);
+                    return zRotation * yRotation;
+                }
+                default:
+                    return Quat(0.0f, Vec3f::PosZ);
+            }
+        }
+
         void Entity::addBrush(Brush& brush) {
             brush.setEntity(this);
             m_brushes.push_back(&brush);
@@ -217,118 +405,106 @@ namespace TrenchBroom {
         }
 
         void Entity::rotate90(Axis::Type axis, const Vec3f& rotationCenter, bool clockwise, bool lockTextures) {
-            if (!m_brushes.empty())
-                return;
-            
-            const Vec3f offset = origin() - center();
-            const Vec3f newCenter = center().rotated90(axis, rotationCenter, clockwise);
-            setProperty(OriginKey, newCenter + offset, true);
-            
-            if (offset.x == 0.0f && offset.y == 0.0f) {
-                Vec3f direction;
-                float ang = static_cast<float>(angle());
-                if (ang == -1.0f) {
-                    direction = Vec3f::PosZ;
-                } else if (ang == -2.0f) {
-                    direction = Vec3f::NegZ;
-                } else {
-                    direction.x = std::cos(Math::radians(ang));
-                    direction.y = std::sin(Math::radians(ang));
-                    direction.z = 0.0f;
-                }
-                
-                direction.rotate90(axis, clockwise);
-                if (direction.z > 0.9f) {
-                    setProperty(AngleKey, -1, true);
-                } else if (direction.z < -0.9f) {
-                    setProperty(AngleKey, -2, true);
-                } else {
-                    if (direction.z != 0.0f) {
-                        direction.z = 0.0f;
-                        direction.normalize();
-                    }
-                    
-                    ang = Math::round(Math::degrees(std::acos(direction.x)));
-                    if (direction.y < 0.0f)
-                        ang = 360.0f - ang;
-                    setProperty(AngleKey, ang, true);
-                }
+            if (m_brushes.empty()) {
+                const Vec3f offset = origin() - center();
+                const Vec3f newCenter = center().rotated90(axis, rotationCenter, clockwise);
+                setProperty(OriginKey, newCenter + offset, true);
             }
+
+            Quat rotation;
+            switch (axis) {
+                case Axis::AX:
+                    rotation = clockwise ? Quat(-Math::Pi / 2.0f, Vec3f::PosX) : Quat(Math::Pi / 2.0f, Vec3f::PosX);
+                    break;
+                case Axis::AY:
+                    rotation = clockwise ? Quat(-Math::Pi / 2.0f, Vec3f::PosY) : Quat(Math::Pi / 2.0f, Vec3f::PosY);
+                    break;
+                default:
+                    rotation = clockwise ? Quat(-Math::Pi / 2.0f, Vec3f::PosZ) : Quat(Math::Pi / 2.0f, Vec3f::PosZ);
+                    break;
+            }
+            
+            applyRotation(rotation);
             invalidateGeometry();
         }
 
         void Entity::rotate(const Quat& rotation, const Vec3f& rotationCenter, bool lockTextures) {
-            if (!m_brushes.empty())
-                return;
-
-            const Vec3f offset = origin() - center();
-            const Vec3f newCenter = rotation * (center() - rotationCenter) + rotationCenter;
-            setProperty(OriginKey, newCenter + offset, true);
-            
-            if (offset.x == 0.0f && offset.y == 0.0f) {
-                Vec3f direction;
-                float ang = static_cast<float>(angle());
-                if (ang == -1.0f) {
-                    direction = Vec3f::PosZ;
-                } else if (ang == -2.0f) {
-                    direction = Vec3f::NegZ;
-                } else {
-                    direction.x = std::cos(Math::radians(ang));
-                    direction.y = std::sin(Math::radians(ang));
-                    direction.z = 0.0f;
-                }
-                
-                direction = rotation * direction;
-                if (direction.z > 0.9f) {
-                    setProperty(AngleKey, -1, true);
-                } else if (direction.z < -0.9f) {
-                    setProperty(AngleKey, -2, true);
-                } else {
-                    if (direction.z != 0.0f) {
-                        direction.z = 0.0f;
-                        direction.normalize();
-                    }
-                    
-                    ang = Math::round(Math::degrees(std::acos(direction.x)));
-                    if (direction.y < 0.0f)
-                        ang = 360.0f - ang;
-                    setProperty(AngleKey, ang, true);
-                }
+            if (m_brushes.empty()) {
+                const Vec3f offset = origin() - center();
+                const Vec3f newCenter = rotation * (center() - rotationCenter) + rotationCenter;
+                setProperty(OriginKey, newCenter + offset, true);
             }
             
+            applyRotation(rotation);
             invalidateGeometry();
         }
 
         void Entity::flip(Axis::Type axis, const Vec3f& flipCenter, bool lockTextures) {
-            if (!m_brushes.empty())
-                return;
+            if (m_brushes.empty()) {
+                const Vec3f offset = origin() - center();
+                const Vec3f newCenter = center().flipped(axis, flipCenter);
+                setProperty(OriginKey, newCenter + offset, true);
+            }
             
-            const Vec3f offset = origin() - center();
-            const Vec3f newCenter = center().flipped(axis, flipCenter);
-            setProperty(OriginKey, newCenter + offset, true);
-            
-            if (offset.x == 0.0f && offset.y == 0.0f) {
-                float ang = static_cast<float>(angle());
-                switch (axis) {
-                    case Axis::AX:
-                        if (ang != -1.0f && ang != -2.0f)
-                            ang = 180.0f - ang;
-                        break;
-                    case Axis::AY:
-                        if (ang != -1.0f && ang != -2.0f)
-                            ang = 360.0f - ang;
-                        break;
-                    default:
-                        if (ang == -1.0f)
-                            ang = -2.0f;
-                        else if (ang == -2.0f)
-                            ang = -1.0f;
-                        break;
+            RotationInfo info = rotationInfo();
+            switch (info.type) {
+                case RotationInfo::ZAngle: {
+                    const PropertyValue* angleValue = propertyForKey(info.property);
+                    float angle = angleValue != NULL ? static_cast<float>(std::atof(angleValue->c_str())) : 0.0f;
+                    switch (axis) {
+                        case Axis::AX:
+                            angle = 180.0f - angle;
+                            break;
+                        case Axis::AY:
+                            angle = 360.0f - angle;
+                            break;
+                        default:
+                            break;
+                    }
+                    setProperty(info.property, angle, true);
+                    break;
                 }
-                
-                if (ang != -1.0f && ang != -2.0f)
-                    ang -= static_cast<int>(ang / 360.0f) * 360.0f;
-                setProperty(AngleKey, ang, true);
+                case RotationInfo::ZAngleWithUpDown: {
+                    const PropertyValue* angleValue = propertyForKey(info.property);
+                    float angle = angleValue != NULL ? static_cast<float>(std::atof(angleValue->c_str())) : 0.0f;
+                    switch (axis) {
+                        case Axis::AX:
+                            if (angle != -1.0f && angle != -2.0f)
+                                angle = 180.0f - angle;
+                            break;
+                        case Axis::AY:
+                            if (angle != -1.0f && angle != -2.0f)
+                                angle = 360.0f - angle;
+                            break;
+                        default:
+                            if (angle == -1.0f)
+                                angle = -2.0f;
+                            else if (angle == -2.0f)
+                                angle = -1.0f;
+                            break;
+                    }
+                    setProperty(info.property, angle, true);
+                    break;
+                }
+                case RotationInfo::EulerAngles: {
+                    const PropertyValue* angleValue = propertyForKey(info.property);
+                    Vec3f angles = angleValue != NULL ? Vec3f(*angleValue) : Vec3f::Null;
+                    switch (axis) {
+                        case Axis::AX:
+                            angles.x = 180.0f - angles.x;
+                            break;
+                        case Axis::AY:
+                            angles.x = 360.0f - angles.x;
+                            break;
+                        default:
+                            angles.z = -angles.z;
+                            break;
+                    }
+                    setProperty(info.property, angles, true);
+                    break;
+                }
+                default:
+                    break;
             }
             invalidateGeometry();
         }

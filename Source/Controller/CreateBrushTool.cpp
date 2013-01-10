@@ -38,7 +38,7 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        void CreateBrushTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
+        void CreateBrushTool::handleRenderFirst(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
             if (dragType() != DTDrag)
                 return;
             
