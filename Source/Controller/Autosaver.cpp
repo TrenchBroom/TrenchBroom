@@ -41,13 +41,13 @@ namespace TrenchBroom {
             backupNo = (std::max)(backupNo, 0);
             return static_cast<unsigned int>(backupNo);
         }
-
+        
         bool compareByBackupNo(const String& file1, const String& file2) {
             unsigned int backupNo1 = backupNoOfFile(file1);
             unsigned int backupNo2 = backupNoOfFile(file2);
-            return backupNo1 > backupNo2;
+            return backupNo1 < backupNo2;
         }
-
+        
         String Autosaver::backupName(const String& mapBasename, unsigned int backupNo) {
             std::stringstream sstream;
             sstream << mapBasename;
@@ -56,7 +56,20 @@ namespace TrenchBroom {
             sstream << ".map";
             return sstream.str();
         }
-
+        
+        bool Autosaver::isBackupName(const String& basename, const String& mapBasename, unsigned int& backupNo) {
+            if (basename.length() < mapBasename.length() + 2)
+                return false;
+            if (basename.substr(0, mapBasename.length()) != mapBasename)
+                return false;
+            
+            int no = std::atoi(basename.substr(mapBasename.length()).c_str());
+            if (no <= 0)
+                return false;
+            backupNo = static_cast<unsigned int>(no);
+            return true;
+        }
+        
         void Autosaver::autosave() {
             const String mapPath = m_document.GetFilename().ToStdString();
             if (mapPath.empty())
@@ -83,60 +96,58 @@ namespace TrenchBroom {
             // collect the actual backup files and determine the highest backup no
             StringList contents = fileManager.directoryContents(autosavePath, "map");
             StringList backups;
-            StringList::iterator fwIt, fwEnd;
             
             unsigned int highestBackupNo = 0;
-            for (fwIt = contents.begin(), fwEnd = contents.end(); fwIt != fwEnd; ++fwIt) {
-                const String& filename = *fwIt;
-                if (filename.substr(0, mapBasename.length()) == mapBasename) {
-                    unsigned int backupNo = backupNoOfFile(filename);
-                    if (backupNo > 0) {
-                        highestBackupNo = (std::max)(highestBackupNo, backupNo);
-                        backups.push_back(filename);
-                    }
+            for (size_t i = 0; i < contents.size(); i++) {
+                const String& filename = contents[i];
+                String basename = fileManager.deleteExtension(filename);
+                unsigned int backupNo;
+                if (isBackupName(basename, mapBasename, backupNo)) {
+                    highestBackupNo = (std::max)(highestBackupNo, backupNo);
+                    backups.push_back(filename);
                 }
             }
             
             if (!backups.empty()) {
-                // sort the backups by their backup nos in descending order
+                // sort the backups by their backup nos in ascending order
                 std::sort(backups.begin(), backups.end(), compareByBackupNo);
                 
                 // remove the oldest backups until backups.size() == m_maxBackups - 1
                 while (backups.size() > m_maxBackups - 1) {
-                    const String filePath = fileManager.appendPath(autosavePath, backups.back());
+                    const String filePath = fileManager.appendPath(autosavePath, backups.front());
                     if (!fileManager.deleteFile(filePath)) {
                         m_document.console().error("Cannot delete file %s", filePath.c_str());
                         return;
+                    } else {
+                        m_document.console().debug("Deleted file %s", filePath.c_str());
                     }
                     
-                    backups.pop_back();
+                    backups.erase(backups.begin());
                 }
                 
-                if (highestBackupNo > backups.size()) {
-                    // reorganize the backups and close gaps in the numbering
-                    unsigned int backupNo = static_cast<unsigned int>(backups.size());
-                    for (fwIt = backups.begin(), fwEnd = backups.end(); fwIt != fwEnd; ++fwIt) {
-                        String& filename = *fwIt;
-                        const String backupFilename = backupName(mapBasename, backupNo);
-                        if (filename != backupFilename) {
-                            const String filePath = fileManager.appendPath(autosavePath, filename);
-                            const String backupFilePath = fileManager.appendPath(autosavePath, backupFilename);
-                            if (fileManager.exists(backupFilePath)) {
-                                m_document.console().error("Cannot move file %s to %s because a file exists at that path", filePath.c_str(), backupFilePath.c_str());
-                                return;
-                            }
-                            
-                            if (!fileManager.moveFile(filePath, backupFilePath, false)) {
-                                m_document.console().error("Cannot move file %s to %s", filePath.c_str(), backupFilePath.c_str());
-                                return;
-                            }
-                            
-                            filename = backupFilename;
+                // reorganize the backups and close gaps in the numbering
+                for (unsigned int i = 0; i < backups.size(); i++) {
+                    const String& filename = backups[i];
+                    const String backupFilename = backupName(mapBasename, i + 1);
+                    
+                    if (filename != backupFilename) {
+                        const String filePath = fileManager.appendPath(autosavePath, filename);
+                        const String backupFilePath = fileManager.appendPath(autosavePath, backupFilename);
+                        if (fileManager.exists(backupFilePath)) {
+                            m_document.console().error("Cannot move file %s to %s because a file exists at that path", filePath.c_str(), backupFilePath.c_str());
+                            return;
+                        }
+                        
+                        if (!fileManager.moveFile(filePath, backupFilePath, false)) {
+                            m_document.console().error("Cannot move file %s to %s", filePath.c_str(), backupFilePath.c_str());
+                            return;
+                        } else {
+                            m_document.console().debug("Moved file %s to %s", filePath.c_str(), backupFilePath.c_str());
                         }
                     }
-                    
-                    highestBackupNo = static_cast<unsigned int>(backups.size());
                 }
+
+                highestBackupNo = static_cast<unsigned int>(backups.size());
             }
             
             assert(highestBackupNo == static_cast<unsigned int>(backups.size()));
@@ -146,8 +157,10 @@ namespace TrenchBroom {
             const String backupFilename = backupName(mapBasename, highestBackupNo + 1);
             const String backupFilePath = fileManager.appendPath(autosavePath, backupFilename);
             
+            wxStopWatch watch;
             IO::MapWriter mapWriter;
             mapWriter.writeToFileAtPath(m_document.map(), backupFilePath, true);
+            m_document.console().debug("Autosaved to %s in %f seconds", backupFilePath.c_str(), watch.Time() / 1000.0f);
         }
         
         void Autosaver::triggerAutosave() {
@@ -163,7 +176,7 @@ namespace TrenchBroom {
             m_lastModificationTime = time(NULL);
             m_dirty = true;
         }
-
+        
         void Autosaver::clearDirtyFlag() {
             m_dirty = false;
         }
