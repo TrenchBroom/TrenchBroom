@@ -31,6 +31,10 @@ namespace TrenchBroom {
 
             Quat() : s(0), v(Vec3f::Null) {}
             
+            /**
+             * Creates a new quaternion that represent a clounter-clockwise rotation by the given angle (in radians) about
+             * the given axis.
+             */
             Quat(float angle, const Vec3f& axis) {
                 setRotation(angle, axis);
             }

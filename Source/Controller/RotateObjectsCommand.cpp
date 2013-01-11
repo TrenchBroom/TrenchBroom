@@ -59,19 +59,21 @@ namespace TrenchBroom {
                 
                 if (quarters > 0) {
                     angle = angle - quarters * Math::Pi / 2.0f;
+                    assert(angle >= 0.0f);
+                    
                     Axis::Type component = m_axis.firstComponent();
                     
                     for (unsigned int i = 0; i < quarters; i++) {
                         Model::EntityList::const_iterator entityIt, entityEnd;
                         for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                             Model::Entity& entity = **entityIt;
-                            entity.rotate90(component, m_center, angle < 0.0f, m_lockTextures);
+                            entity.rotate90(component, m_center, false, m_lockTextures);
                         }
                         
                         Model::BrushList::const_iterator brushIt, brushEnd;
                         for (brushIt = m_brushes.begin(), brushEnd = m_brushes.end(); brushIt != brushEnd; ++brushIt) {
                             Model::Brush& brush = **brushIt;
-                            brush.rotate90(component, m_center, angle < 0.0f, m_lockTextures);
+                            brush.rotate90(component, m_center, false, m_lockTextures);
                         }
                     }
                 }

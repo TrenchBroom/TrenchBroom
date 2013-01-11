@@ -175,6 +175,8 @@ namespace TrenchBroom {
                         angle = Math::round(Math::degrees(std::acos(direction.x)));
                         if (direction.y < 0.0f)
                             angle = 360.0f - angle;
+                        while (angle < 0.0f)
+                            angle += 360.0f;
                         setProperty(info.property, angle, true);
                     }
                     break;
@@ -187,8 +189,7 @@ namespace TrenchBroom {
                     Quat zRotation(Math::radians(angles.x), Vec3f::PosZ);
                     Quat yRotation(Math::radians(-angles.y), Vec3f::PosY);
                     
-                    direction = yRotation * direction;
-                    direction = zRotation * direction;
+                    direction = zRotation * yRotation * direction;
                     direction = rotation * direction;
                     
                     float zAngle, xAngle;
@@ -206,7 +207,7 @@ namespace TrenchBroom {
                     }
                     
                     Vec3f xzDirection = direction;
-                    if (std::abs(xzDirection.x) == 1.0f) {
+                    if (std::abs(xzDirection.y) == 1.0f) {
                         xAngle = 0.0f;
                     } else {
                         xzDirection.y = 0.0f;
