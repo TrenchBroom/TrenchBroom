@@ -45,6 +45,7 @@ namespace TrenchBroom {
             bool m_dirty;
             
             String backupName(const String& mapBasename, unsigned int backupNo);
+            bool isBackupName(const String& basename, const String& mapBasename, unsigned int& backupNo);
             void autosave();
         public:
             Autosaver(Model::MapDocument& document, time_t saveInterval = 5 * 60, time_t idleInterval = 3, unsigned int maxBackups = 10) :
