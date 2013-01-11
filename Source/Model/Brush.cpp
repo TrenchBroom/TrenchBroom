@@ -263,7 +263,7 @@ namespace TrenchBroom {
             BrushGeometry::CutResult result = testGeometry.addFace(testFace, droppedFaces);
             m_geometry->restoreFaceSides();
             
-            return result == BrushGeometry::Split;
+            return result == BrushGeometry::Split && droppedFaces.empty();
         }
         
         void Brush::moveBoundary(Face& face, const Vec3f& delta, bool lockTexture) {
