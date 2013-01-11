@@ -25,6 +25,7 @@
 #include "Model/EntityTypes.h"
 #include "Model/Face.h"
 #include "Model/TextureTypes.h"
+#include "Renderer/EntityDecorator.h"
 #include "Renderer/Figure.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/TexturedPolygonSorter.h"
@@ -85,6 +86,9 @@ namespace TrenchBroom {
             Figure::List m_figures;
             Figure::List m_deletedFigures;
             
+            Vbo* m_decoratorVbo;
+            EntityDecorator::List m_entityDecorators;
+            
             /*
             // selection guides
             SizeGuideFigure* m_sizeGuideFigure;
@@ -108,6 +112,7 @@ namespace TrenchBroom {
             void renderFaces(RenderContext& context);
             void renderEdges(RenderContext& context);
             void renderFigures(RenderContext& context);
+            void renderDecorators(RenderContext& context);
         public:
             MapRenderer(Model::MapDocument& document);
             ~MapRenderer();

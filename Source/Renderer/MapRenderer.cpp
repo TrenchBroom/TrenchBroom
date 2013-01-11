@@ -30,6 +30,7 @@
 #include "Model/MapDocument.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/EntityRenderer.h"
+#include "Renderer/EntityRotationDecorator.h"
 #include "Renderer/FaceRenderer.h"
 #include "Renderer/PointHandleRenderer.h"
 #include "Renderer/RenderContext.h"
@@ -262,6 +263,14 @@ namespace TrenchBroom {
             }
         }
 
+        void MapRenderer::renderDecorators(RenderContext& context) {
+            EntityDecorator::List::const_iterator decoratorIt, decoratorEnd;
+            for (decoratorIt = m_entityDecorators.begin(), decoratorEnd = m_entityDecorators.end(); decoratorIt != decoratorEnd; ++decoratorIt) {
+                EntityDecorator& decorator = **decoratorIt;
+                decorator.render(*m_decoratorVbo, context);
+            }
+        }
+
         MapRenderer::MapRenderer(Model::MapDocument& document) :
         m_document(document),
         m_faceVbo(NULL),
@@ -276,7 +285,8 @@ namespace TrenchBroom {
         m_entityRenderer(NULL),
         m_selectedEntityRenderer(NULL),
         m_lockedEntityRenderer(NULL),
-        m_figureVbo(NULL) {
+        m_figureVbo(NULL),
+        m_decoratorVbo(NULL) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
             m_rendering = false;
@@ -285,6 +295,7 @@ namespace TrenchBroom {
             m_edgeVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
             m_entityVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
             m_figureVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
+            m_decoratorVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
             
             m_geometryDataValid = false;
             m_selectedGeometryDataValid = false;
@@ -308,13 +319,20 @@ namespace TrenchBroom {
             m_lockedEntityRenderer->setBoundsColor(prefs.getColor(Preferences::LockedEntityBoundsColor));
             m_lockedEntityRenderer->setTintColor(prefs.getColor(Preferences::LockedEntityColor));
             m_lockedEntityRenderer->setGrayscale(true);
+            
+            m_entityDecorators.push_back(new EntityRotationDecorator(document.map(), prefs.getColor(Preferences::EntityRotationDecoratorColor)));
         }
         
         MapRenderer::~MapRenderer() {
+            while (!m_entityDecorators.empty()) delete m_entityDecorators.back(), m_entityDecorators.pop_back();
+            delete m_decoratorVbo;
+            m_decoratorVbo = NULL;
+            
             deleteFigures(m_deletedFigures);
             deleteFigures(m_figures);
             delete m_figureVbo;
             m_figureVbo = NULL;
+            
             delete m_lockedEntityRenderer;
             m_lockedEntityRenderer = NULL;
             delete m_selectedEntityRenderer;
@@ -436,10 +454,22 @@ namespace TrenchBroom {
             m_entityRenderer->invalidateBounds();
             m_selectedEntityRenderer->invalidateBounds();
             m_lockedEntityRenderer->invalidateBounds();
+            
+            EntityDecorator::List::const_iterator decoratorIt, decoratorEnd;
+            for (decoratorIt = m_entityDecorators.begin(), decoratorEnd = m_entityDecorators.end(); decoratorIt != decoratorEnd; ++decoratorIt) {
+                EntityDecorator& decorator = **decoratorIt;
+                decorator.invalidate();
+            }
         }
         
         void MapRenderer::invalidateSelectedEntities() {
             m_selectedEntityRenderer->invalidateBounds();
+            
+            EntityDecorator::List::const_iterator decoratorIt, decoratorEnd;
+            for (decoratorIt = m_entityDecorators.begin(), decoratorEnd = m_entityDecorators.end(); decoratorIt != decoratorEnd; ++decoratorIt) {
+                EntityDecorator& decorator = **decoratorIt;
+                decorator.invalidate();
+            }
         }
 
         void MapRenderer::invalidateBrushes() {
@@ -506,6 +536,7 @@ namespace TrenchBroom {
                 if (context.viewOptions().renderSelection())
                     m_selectedEntityRenderer->render(context);
                 m_lockedEntityRenderer->render(context);
+                renderDecorators(context);
             }
             
             renderFigures(context);
