@@ -143,6 +143,21 @@ namespace TrenchBroom {
                 return Vec3f(*value);
             }
             
+            inline bool rotated() const {
+                if (classname() == NULL)
+                    return false;
+                if (Utility::startsWith(*classname(), "light")) {
+                    if (propertyForKey(MangleKey) != NULL)
+                        return true;
+                } else {
+                    if (propertyForKey(AngleKey) != NULL)
+                        return true;
+                    if (propertyForKey(AnglesKey) != NULL)
+                        return true;
+                }
+                return false;
+            }
+            
             const Quat rotation() const;
             
             inline const BrushList& brushes() const {

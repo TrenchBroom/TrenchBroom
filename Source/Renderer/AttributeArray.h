@@ -232,12 +232,17 @@ namespace TrenchBroom {
                 m_block = vbo.allocBlock(m_vertexCapacity * (m_vertexSize + m_padBy));
             }
 
-            inline void attributeAdded() {
-                m_specIndex = static_cast<unsigned int>(succ(m_specIndex, m_attributes.size()));
-                if (m_specIndex == 0) {
-                    if (m_padBy > 0)
-                        m_writeOffset += m_padBy;
-                    m_vertexCount++;
+            inline void attributesAdded(unsigned int count = 1) {
+                assert(count <= 1 || m_padBy == 0);
+                if (count > 1) {
+                    m_vertexCount += count;
+                } else {
+                    m_specIndex = static_cast<unsigned int>(succ(m_specIndex, m_attributes.size()));
+                    if (m_specIndex == 0) {
+                        if (m_padBy > 0)
+                            m_writeOffset += m_padBy;
+                        m_vertexCount++;
+                    }
                 }
             }
         public:
@@ -338,7 +343,7 @@ namespace TrenchBroom {
                 assert(m_attributes[m_specIndex].size() == 1);
 
                 m_writeOffset = m_block->writeFloat(value, m_writeOffset);
-                attributeAdded();
+                attributesAdded();
             }
 
             inline void addAttribute(const Vec2f& value) {
@@ -347,7 +352,7 @@ namespace TrenchBroom {
                 assert(m_attributes[m_specIndex].size() == 2);
 
                 m_writeOffset = m_block->writeVec(value, m_writeOffset);
-                attributeAdded();
+                attributesAdded();
             }
 
             inline void addAttribute(const Vec3f& value) {
@@ -356,7 +361,20 @@ namespace TrenchBroom {
                 assert(m_attributes[m_specIndex].size() == 3);
 
                 m_writeOffset = m_block->writeVec(value, m_writeOffset);
-                attributeAdded();
+                attributesAdded();
+            }
+            
+            inline void addAttributes(const Vec3f::List& values) {
+                assert(m_vertexCount + values.size() <= m_vertexCapacity);
+                assert(m_attributes.size() == 1);
+                assert(m_attributes.front().valueType() == GL_FLOAT);
+                assert(m_attributes.front().size() == 3);
+                assert(m_padBy == 0);
+                
+                const unsigned char* buffer = reinterpret_cast<const unsigned char*>(&values.front());
+                unsigned int length = static_cast<unsigned int>(values.size() * 3 * sizeof(float));
+                m_writeOffset = m_block->writeBuffer(buffer, m_writeOffset, length);
+                attributesAdded(static_cast<unsigned int>(values.size()));
             }
 
             inline void addAttribute(const Vec4f& value) {
@@ -365,7 +383,7 @@ namespace TrenchBroom {
                 assert(m_attributes[m_specIndex].size() == 4);
 
                 m_writeOffset = m_block->writeVec(value, m_writeOffset);
-                attributeAdded();
+                attributesAdded();
             }
 
             inline void addAttributes(const FaceVertex::List& cachedVertices) {
@@ -379,7 +397,7 @@ namespace TrenchBroom {
                 assert(m_vertexCount + cachedVertices.size() <= m_vertexCapacity);
                 
                 m_writeOffset = m_block->writeBuffer(reinterpret_cast<const unsigned char*>(&cachedVertices.front()), m_writeOffset, static_cast<unsigned int>(cachedVertices.size() * sizeof(FaceVertex)));
-                m_vertexCount += cachedVertices.size();
+                attributesAdded(static_cast<unsigned int>(cachedVertices.size()));
             }
             
             inline void bindAttributes(const ShaderProgram& program) {

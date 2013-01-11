@@ -212,7 +212,6 @@ namespace TrenchBroom {
             wxStopWatch watch;
             IO::MapParser parser(stream, console());
             parser.parseMap(*m_map, &progressIndicator);
-            m_octree->loadMap();
             stream.clear(); // everything went well, prevent wx from displaying an error dialog
 
             console().info("Loaded map file in %f seconds", watch.Time() / 1000.0f);
@@ -291,6 +290,7 @@ namespace TrenchBroom {
 
             updateAfterTextureManagerChanged();
             updateEntityDefinitions();
+            m_octree->loadMap();
 
             return stream;
         }

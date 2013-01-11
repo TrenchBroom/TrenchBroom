@@ -218,6 +218,14 @@ namespace TrenchBroom {
                 rebuildGeometryData(context);
         }
         
+        void MapRenderer::invalidateDecorators() {
+            EntityDecorator::List::const_iterator decoratorIt, decoratorEnd;
+            for (decoratorIt = m_entityDecorators.begin(), decoratorEnd = m_entityDecorators.end(); decoratorIt != decoratorEnd; ++decoratorIt) {
+                EntityDecorator& decorator = **decoratorIt;
+                decorator.invalidate();
+            }
+        }
+
         void MapRenderer::renderFaces(RenderContext& context) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             
@@ -387,6 +395,7 @@ namespace TrenchBroom {
                 changeSet.brushStateChangedTo(Model::EditState::Default) ||
                 changeSet.faceSelectionChanged()) {
                 m_geometryDataValid = false;
+                invalidateDecorators();
             }
 
             if (changeSet.brushStateChangedFrom(Model::EditState::Selected) ||
@@ -454,22 +463,12 @@ namespace TrenchBroom {
             m_entityRenderer->invalidateBounds();
             m_selectedEntityRenderer->invalidateBounds();
             m_lockedEntityRenderer->invalidateBounds();
-            
-            EntityDecorator::List::const_iterator decoratorIt, decoratorEnd;
-            for (decoratorIt = m_entityDecorators.begin(), decoratorEnd = m_entityDecorators.end(); decoratorIt != decoratorEnd; ++decoratorIt) {
-                EntityDecorator& decorator = **decoratorIt;
-                decorator.invalidate();
-            }
+            invalidateDecorators();
         }
         
         void MapRenderer::invalidateSelectedEntities() {
             m_selectedEntityRenderer->invalidateBounds();
-            
-            EntityDecorator::List::const_iterator decoratorIt, decoratorEnd;
-            for (decoratorIt = m_entityDecorators.begin(), decoratorEnd = m_entityDecorators.end(); decoratorIt != decoratorEnd; ++decoratorIt) {
-                EntityDecorator& decorator = **decoratorIt;
-                decorator.invalidate();
-            }
+            invalidateDecorators();
         }
 
         void MapRenderer::invalidateBrushes() {

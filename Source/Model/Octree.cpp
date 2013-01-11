@@ -39,54 +39,54 @@ namespace TrenchBroom {
                         childBounds.min.x = m_bounds.min.x;
                         childBounds.min.y = m_bounds.min.y;
                         childBounds.min.z = m_bounds.min.z;
-                        childBounds.max.x = (m_bounds.min.x + m_bounds.max.x) / 2;
-                        childBounds.max.y = (m_bounds.min.y + m_bounds.max.y) / 2;
-                        childBounds.max.z = (m_bounds.min.z + m_bounds.max.z) / 2;
+                        childBounds.max.x = (m_bounds.min.x + m_bounds.max.x) / 2.0f;
+                        childBounds.max.y = (m_bounds.min.y + m_bounds.max.y) / 2.0f;
+                        childBounds.max.z = (m_bounds.min.z + m_bounds.max.z) / 2.0f;
                         break;
                     case WST:
                         childBounds.min.x = m_bounds.min.x;
                         childBounds.min.y = m_bounds.min.y;
-                        childBounds.min.z = (m_bounds.min.z + m_bounds.max.z) / 2;
-                        childBounds.max.x = (m_bounds.min.x + m_bounds.max.x) / 2;
-                        childBounds.max.y = (m_bounds.min.y + m_bounds.max.y) / 2;
+                        childBounds.min.z = (m_bounds.min.z + m_bounds.max.z) / 2.0f;
+                        childBounds.max.x = (m_bounds.min.x + m_bounds.max.x) / 2.0f;
+                        childBounds.max.y = (m_bounds.min.y + m_bounds.max.y) / 2.0f;
                         childBounds.max.z = m_bounds.max.z;
                         break;
                     case WNB:
                         childBounds.min.x = m_bounds.min.x;
-                        childBounds.min.y = (m_bounds.min.y + m_bounds.max.y) / 2;
+                        childBounds.min.y = (m_bounds.min.y + m_bounds.max.y) / 2.0f;
                         childBounds.min.z = m_bounds.min.z;
-                        childBounds.max.x = (m_bounds.min.x + m_bounds.max.x) / 2;
+                        childBounds.max.x = (m_bounds.min.x + m_bounds.max.x) / 2.0f;
                         childBounds.max.y = m_bounds.max.y;
-                        childBounds.max.z = (m_bounds.min.z + m_bounds.max.z) / 2;
+                        childBounds.max.z = (m_bounds.min.z + m_bounds.max.z) / 2.0f;
                         break;
                     case ESB:
-                        childBounds.min.x = (m_bounds.min.x + m_bounds.max.x) / 2;
+                        childBounds.min.x = (m_bounds.min.x + m_bounds.max.x) / 2.0f;
                         childBounds.min.y = m_bounds.min.y;
                         childBounds.min.z = m_bounds.min.z;
                         childBounds.max.x = m_bounds.max.x;
-                        childBounds.max.y = (m_bounds.min.y + m_bounds.max.y) / 2;
-                        childBounds.max.z = (m_bounds.min.z + m_bounds.max.z) / 2;
+                        childBounds.max.y = (m_bounds.min.y + m_bounds.max.y) / 2.0f;
+                        childBounds.max.z = (m_bounds.min.z + m_bounds.max.z) / 2.0f;
                         break;
                     case EST:
-                        childBounds.min.x = (m_bounds.min.x + m_bounds.max.x) / 2;
+                        childBounds.min.x = (m_bounds.min.x + m_bounds.max.x) / 2.0f;
                         childBounds.min.y = m_bounds.min.y;
-                        childBounds.min.z = (m_bounds.min.z + m_bounds.max.z) / 2;
+                        childBounds.min.z = (m_bounds.min.z + m_bounds.max.z) / 2.0f;
                         childBounds.max.x = m_bounds.max.x;
-                        childBounds.max.y = (m_bounds.min.y + m_bounds.max.y) / 2;
+                        childBounds.max.y = (m_bounds.min.y + m_bounds.max.y) / 2.0f;
                         childBounds.max.z = m_bounds.max.z;
                         break;
                     case ENB:
-                        childBounds.min.x = (m_bounds.min.x + m_bounds.max.x) / 2;
-                        childBounds.min.y = (m_bounds.min.y + m_bounds.max.y) / 2;
+                        childBounds.min.x = (m_bounds.min.x + m_bounds.max.x) / 2.0f;
+                        childBounds.min.y = (m_bounds.min.y + m_bounds.max.y) / 2.0f;
                         childBounds.min.z = m_bounds.min.z;
                         childBounds.max.x = m_bounds.max.x;
                         childBounds.max.y = m_bounds.max.y;
-                        childBounds.max.z = (m_bounds.min.z + m_bounds.max.z) / 2;
+                        childBounds.max.z = (m_bounds.min.z + m_bounds.max.z) / 2.0f;
                         break;
                     case ENT:
-                        childBounds.min.x = (m_bounds.min.x + m_bounds.max.x) / 2;
-                        childBounds.min.y = (m_bounds.min.y + m_bounds.max.y) / 2;
-                        childBounds.min.z = (m_bounds.min.z + m_bounds.max.z) / 2;
+                        childBounds.min.x = (m_bounds.min.x + m_bounds.max.x) / 2.0f;
+                        childBounds.min.y = (m_bounds.min.y + m_bounds.max.y) / 2.0f;
+                        childBounds.min.z = (m_bounds.min.z + m_bounds.max.z) / 2.0f;
                         childBounds.max.x = m_bounds.max.x;
                         childBounds.max.y = m_bounds.max.y;
                         childBounds.max.z = m_bounds.max.z;

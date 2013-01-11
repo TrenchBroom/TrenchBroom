@@ -20,6 +20,7 @@
 #include "EntityRotationDecorator.h"
 
 #include "Model/Entity.h"
+#include "Model/Filter.h"
 #include "Model/Map.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shader/Shader.h"
@@ -46,20 +47,28 @@ namespace TrenchBroom {
             SetVboState activateVbo(vbo, Vbo::VboActive);
             if (!m_valid || m_vertexArray == NULL) {
                 delete m_vertexArray;
+                m_vertexArray = NULL;
                 
-                unsigned int vertexCount = static_cast<unsigned int>(entities.size() * 2);
-                m_vertexArray = new VertexArray(vbo, GL_LINES, vertexCount, Attribute::position3f());
-                
-                SetVboState mapVbo(vbo, Vbo::VboMapped);
-                
+                Vec3f::List vertices;
                 Model::EntityList::const_iterator it, end;
                 for (it = entities.begin(), end = entities.end(); it != end; ++it) {
                     const Model::Entity& entity = **it;
-                    const Vec3f direction = entity.rotation() * Vec3f::PosX;
-                    const Vec3f& center = entity.center();
-                    m_vertexArray->addAttribute(center);
-                    m_vertexArray->addAttribute(center + 32.0f * direction);
+                    if (context.filter().entityVisible(entity) && entity.rotated()) {
+                        const Vec3f direction = entity.rotation() * Vec3f::PosX;
+                        const Vec3f& center = entity.center();
+                        vertices.push_back(center);
+                        vertices.push_back(center + 32.0f * direction);
+                    }
                 }
+                
+                unsigned int vertexCount = static_cast<unsigned int>(vertices.size());
+                if (vertexCount == 0)
+                    return;
+                
+                m_vertexArray = new VertexArray(vbo, GL_LINES, vertexCount, Attribute::position3f(), 0);
+                
+                SetVboState mapVbo(vbo, Vbo::VboMapped);
+                m_vertexArray->addAttributes(vertices);
                 
                 m_valid = true;
             }
