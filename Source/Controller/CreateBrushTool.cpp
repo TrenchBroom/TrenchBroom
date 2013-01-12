@@ -27,6 +27,7 @@
 #include "Model/MapDocument.h"
 #include "Model/Picker.h"
 #include "Model/Texture.h"
+#include "Renderer/BoxInfoRenderer.h"
 #include "Renderer/BrushFigure.h"
 #include "Renderer/Camera.h"
 #include "Renderer/SharedResources.h"
@@ -44,6 +45,8 @@ namespace TrenchBroom {
             
             assert(m_brushFigure != NULL);
             m_brushFigure->render(vbo, renderContext);
+            
+            Renderer::BoxInfoRenderer(m_bounds, document().sharedResources().stringManager()).render(vbo, renderContext);
         }
 
         void CreateBrushTool::updateBoundsThickness() {

@@ -74,6 +74,24 @@ namespace TrenchBroom {
                 }
             };
             
+            class SimpleTextAnchor : TextAnchor {
+            private:
+                Vec3f m_position;
+                Alignment::Type m_alignment;
+            public:
+                SimpleTextAnchor(const Vec3f& position, Alignment::Type alignment) :
+                m_position(position),
+                m_alignment(alignment) {}
+                
+                const Vec3f position() {
+                    return m_position;
+                }
+                
+                Alignment::Type alignment() {
+                    return m_alignment;
+                }
+            };
+            
             template <typename Key>
             class TextRenderer {
             public:

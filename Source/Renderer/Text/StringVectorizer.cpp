@@ -86,6 +86,7 @@ namespace TrenchBroom {
                 
                 for (unsigned int i = 0; i < string.length(); i++) {
                     char c = string[i];
+                    
                     FT_UInt glyphIndex = FT_Get_Char_Index(face, static_cast<FT_ULong>(c));
                     FT_Error error = FT_Load_Glyph(face, glyphIndex, FT_LOAD_NO_HINTING | FT_LOAD_NO_AUTOHINT | FT_LOAD_NO_BITMAP);
                     if (error != 0) {

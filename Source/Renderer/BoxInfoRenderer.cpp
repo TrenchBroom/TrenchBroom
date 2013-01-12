@@ -32,12 +32,12 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        BoxInfoTextAnchor::BoxInfoTextAnchor(const BBox& bounds, const Axis::Type axis, const Renderer::Camera& camera) :
+        BoxInfoSizeTextAnchor::BoxInfoSizeTextAnchor(const BBox& bounds, const Axis::Type axis, const Renderer::Camera& camera) :
         m_bounds(bounds.expanded(2.0f)), // create a bit of a margin for the text label
         m_axis(axis),
         m_camera(camera) {}
         
-        const Vec3f BoxInfoTextAnchor::position() {
+        const Vec3f BoxInfoSizeTextAnchor::position() {
             BBox::PointPosition camPos = m_bounds.pointPosition(m_camera.position());
             Vec3f pos;
             const Vec3f half = m_bounds.size() / 2.0f;
@@ -112,7 +112,7 @@ namespace TrenchBroom {
             return pos;
         }
 
-        Text::Alignment::Type BoxInfoTextAnchor::alignment() {
+        Text::Alignment::Type BoxInfoSizeTextAnchor::alignment() {
             if (m_axis == Axis::AZ)
                 return Text::Alignment::Right;
 
@@ -151,7 +151,7 @@ namespace TrenchBroom {
                     StringStream buffer;
                     buffer << labels[i] << ": " << size[i];
                     
-                    BoxInfoTextAnchor* anchor = new BoxInfoTextAnchor(m_bounds, i, context.camera());
+                    Text::TextAnchor* anchor = new BoxInfoSizeTextAnchor(m_bounds, i, context.camera());
                     m_textRenderer->addString(i, font, buffer.str(), anchor);
                 }
                 m_initialized = true;

@@ -35,17 +35,17 @@ namespace TrenchBroom {
         class RenderContext;
         class Vbo;
         
-        class BoxInfoTextAnchor : public Text::TextAnchor {
+        class BoxInfoSizeTextAnchor : public Text::TextAnchor {
         private:
             const BBox m_bounds;
             const Axis::Type m_axis;
             const Renderer::Camera& m_camera;
         public:
-            BoxInfoTextAnchor(const BBox& bounds, const Axis::Type axis, const Renderer::Camera& camera);
+            BoxInfoSizeTextAnchor(const BBox& bounds, const Axis::Type axis, const Renderer::Camera& camera);
             const Vec3f position();
             Text::Alignment::Type alignment();
         };
-        
+
         class BoxInfoTextFilter : public Text::TextRenderer<Axis::Type>::TextRendererFilter {
         public:
             bool stringVisible(RenderContext& context, const Axis::Type& key) {
