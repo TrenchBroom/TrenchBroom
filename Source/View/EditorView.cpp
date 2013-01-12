@@ -45,7 +45,6 @@
 #include "Model/Map.h"
 #include "Model/MapDocument.h"
 #include "Model/MapObject.h"
-#include "Model/ModelUtils.h"
 #include "Model/TextureManager.h"
 #include "Renderer/Camera.h"
 #include "Renderer/MapRenderer.h"
@@ -281,7 +280,7 @@ namespace TrenchBroom {
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
             assert(entities.size() + brushes.size() > 0);
             
-            Vec3f center = referencePoint(entities, brushes, mapDocument().grid());
+            Vec3f center = mapDocument().grid().referencePoint(editStateManager.bounds());
             Controller::RotateObjects90Command* command = NULL;
             if (clockwise)
                 command = Controller::RotateObjects90Command::rotateClockwise(mapDocument(), entities, brushes, absoluteAxis, center, mapDocument().textureLock());
@@ -296,8 +295,9 @@ namespace TrenchBroom {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            assert(entities.size() + brushes.size() > 0);
 
-            Vec3f center = referencePoint(entities, brushes, mapDocument().grid());
+            Vec3f center = mapDocument().grid().referencePoint(editStateManager.bounds());
             Controller::FlipObjectsCommand* command = Controller::FlipObjectsCommand::flip(mapDocument(), entities, brushes, axis, center, mapDocument().textureLock());
             submit(command);
         }
@@ -775,7 +775,8 @@ namespace TrenchBroom {
                                     selectEntities.push_back(&entity);
                             }
 
-                            Vec3f delta = camera().defaultPoint() - referencePoint(entities, brushes, mapDocument().grid());
+                            BBox bounds = Model::MapObject::bounds(entities, brushes);
+                            Vec3f delta = camera().defaultPoint() - mapDocument().grid().snap(bounds.center());
                             delta = mapDocument().grid().snap(delta);
 
                             Controller::AddObjectsCommand* addObjectsCommand = Controller::AddObjectsCommand::addObjects(mapDocument(), entities, brushes);

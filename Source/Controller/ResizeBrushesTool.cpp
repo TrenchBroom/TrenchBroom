@@ -156,7 +156,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ResizeBrushesTool::handleRenderLast(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
+        void ResizeBrushesTool::handleRenderOverlay(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
             Model::FaceList faces;
             if (dragType() != DTDrag) {
                 if (inputState.modifierKeys() != ModifierKeys::MKShift)

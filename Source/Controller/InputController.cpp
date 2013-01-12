@@ -40,7 +40,9 @@
 #include "Model/Map.h"
 #include "Model/MapDocument.h"
 #include "Model/Picker.h"
+#include "Renderer/BoxGuideRenderer.h"
 #include "Renderer/MapRenderer.h"
+#include "Renderer/SharedResources.h"
 #include "Utility/Grid.h"
 
 namespace TrenchBroom {
@@ -67,13 +69,13 @@ namespace TrenchBroom {
                 }
             }
         }
-
+        
         void InputController::updateHits() {
             m_inputState.invalidate();
             if (m_dragTool == NULL)
                 m_toolChain->updateHits(m_inputState);
         }
-
+        
         void InputController::updateViews() {
             if (m_documentViewHolder.valid())
                 m_documentViewHolder.document().UpdateAllViews();
@@ -95,7 +97,8 @@ namespace TrenchBroom {
         m_dragTool(NULL),
         m_modalTool(NULL),
         m_cancelledDrag(false),
-        m_discardNextMouseUp(false) {
+        m_discardNextMouseUp(false),
+        m_selectionGuideRenderer(NULL) {
             m_cameraTool = new CameraTool(m_documentViewHolder, *this);
             m_clipTool = new ClipTool(m_documentViewHolder, *this);
             m_moveVerticesTool = new MoveVerticesTool(m_documentViewHolder, *this, 24.0f, 16.0f, 2.5f);
@@ -106,7 +109,7 @@ namespace TrenchBroom {
             m_resizeBrushesTool = new ResizeBrushesTool(m_documentViewHolder, *this);
             m_setFaceAttributesTool = new SetFaceAttributesTool(m_documentViewHolder, *this);
             m_selectionTool = new SelectionTool(m_documentViewHolder, *this);
-
+            
             m_cameraTool->setNextTool(m_clipTool);
             m_clipTool->setNextTool(m_moveVerticesTool);
             m_moveVerticesTool->setNextTool(m_createEntityTool);
@@ -151,7 +154,7 @@ namespace TrenchBroom {
             delete m_selectionTool;
             m_selectionTool = NULL;
         }
-
+        
         void InputController::modifierKeyDown(ModifierKeyState modifierKey) {
             updateHits();
             m_toolChain->modifierKeyChange(m_inputState);
@@ -194,10 +197,10 @@ namespace TrenchBroom {
             } else if (!m_cancelledDrag) {
                 handled = m_toolChain->mouseUp(m_inputState) != NULL;
             }
-
+            
             m_inputState.mouseUp(mouseButton);
             m_cancelledDrag = false;
-
+            
             updateHits();
             updateModalTool();
             updateViews();
@@ -214,7 +217,7 @@ namespace TrenchBroom {
             updateViews();
             return handled;
         }
-
+        
         void InputController::mouseMove(int x, int y) {
             m_inputState.mouseMove(x, y);
             updateHits();
@@ -223,8 +226,8 @@ namespace TrenchBroom {
                 if (m_dragTool == NULL && !m_cancelledDrag &&
                     (std::abs(m_clickPos.x - x) > 1 ||
                      std::abs(m_clickPos.y - y) > 1)) {
-                    m_dragTool = m_toolChain->startDrag(m_inputState);
-                }
+                        m_dragTool = m_toolChain->startDrag(m_inputState);
+                    }
                 
                 if (m_dragTool != NULL) {
                     if (!m_dragTool->drag(m_inputState)) {
@@ -242,7 +245,7 @@ namespace TrenchBroom {
             updateModalTool();
             updateViews();
         }
-
+        
         void InputController::scroll(float x, float y) {
             m_inputState.scroll(x, y);
             updateHits();
@@ -262,7 +265,7 @@ namespace TrenchBroom {
                 m_dragTool = NULL;
                 m_inputState.mouseUp(m_inputState.mouseButtons());
             }
-
+            
             updateHits();
             updateModalTool();
             updateViews();
@@ -285,7 +288,7 @@ namespace TrenchBroom {
             
             m_inputState.mouseMove(x, y);
             m_createEntityTool->activate(m_inputState);
-
+            
             updateHits();
             Tool* dragTool = m_toolChain->dragEnter(m_inputState, payload);
             updateModalTool();
@@ -296,7 +299,7 @@ namespace TrenchBroom {
         void InputController::dragMove(const String& payload, int x, int y) {
             if (m_dragTool == NULL)
                 return;
-
+            
             m_inputState.mouseMove(x, y);
             updateHits();
             m_dragTool->dragMove(m_inputState);
@@ -311,11 +314,11 @@ namespace TrenchBroom {
             bool success = m_dragTool->dragDrop(m_inputState);
             m_createEntityTool->deactivate(m_inputState);
             m_dragTool = NULL;
-
+            
             updateHits();
             updateModalTool();
             updateViews();
-
+            
             return success;
         }
         
@@ -327,20 +330,26 @@ namespace TrenchBroom {
             m_dragTool->dragLeave(m_inputState);
             m_createEntityTool->deactivate(m_inputState);
             m_dragTool = NULL;
-
+            
             updateHits();
             updateModalTool();
             updateViews();
         }
-
+        
         void InputController::objectsChange() {
+            delete m_selectionGuideRenderer;
+            m_selectionGuideRenderer = NULL;
+            
             updateHits();
             m_toolChain->objectsChange(m_inputState);
             updateModalTool();
             updateViews();
         }
-
+        
         void InputController::editStateChange(const Model::EditStateChangeSet& changeSet) {
+            delete m_selectionGuideRenderer;
+            m_selectionGuideRenderer = NULL;
+            
             if (m_documentViewHolder.document().editStateManager().selectedBrushes().empty())
                 deactivateAll();
             
@@ -356,22 +365,51 @@ namespace TrenchBroom {
             updateModalTool();
             updateViews();
         }
-
+        
         void InputController::gridChange() {
             updateHits();
             m_toolChain->gridChange(m_inputState);
             updateModalTool();
             updateViews();
         }
-
+        
         void InputController::render(Renderer::Vbo& vbo, Renderer::RenderContext& context) {
             m_toolChain->render(m_inputState, vbo, context);
-        }
+            
+            Model::EditStateManager& editStateManager = m_documentViewHolder.document().editStateManager();
+            if (!moveVerticesToolActive() && !clipToolActive() &&
+                editStateManager.hasSelectedObjects()) {
+                Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
+                if (m_selectionGuideRenderer == NULL)
+                    m_selectionGuideRenderer = new Renderer::BoxGuideRenderer(editStateManager.bounds(),
+                                                                              m_documentViewHolder.document().picker(),
+                                                                              m_documentViewHolder.view().filter(),
+                                                                              m_documentViewHolder.document().sharedResources().stringManager());
+                
+                if (m_moveObjectsTool->dragType() != Tool::DTNone || m_rotateObjectsTool->dragType() != Tool::DTNone ||
+                    !Math::isnan(m_selectionGuideRenderer->bounds().intersectWithRay(m_inputState.pickRay())) ||
+                    m_inputState.pickResult().first(Model::HitType::MoveHandleHit, true, m_documentViewHolder.view().filter()) != NULL ||
+                    m_inputState.pickResult().first(Model::HitType::RotateObjectsHandleHit, true, m_documentViewHolder.view().filter())) {
+                    m_selectionGuideRenderer->setColor(prefs.getColor(Preferences::HoveredGuideColor));
+                    m_selectionGuideRenderer->setShowSizes(true);
+                } else {
+                    m_selectionGuideRenderer->setColor(prefs.getColor(Preferences::GuideColor));
+                    m_selectionGuideRenderer->setShowSizes(false);
+                }
+
+                m_selectionGuideRenderer->render(vbo, context);
+            }
+            
+            m_toolChain->renderOverlay(m_inputState, vbo, context);
+        }
+        
         void InputController::freeRenderResources() {
             m_toolChain->freeRenderResources();
+            delete m_selectionGuideRenderer;
+            m_selectionGuideRenderer = NULL;
         }
-
+        
         void InputController::toggleClipTool() {
             if (m_clipTool->active()) {
                 m_clipTool->deactivate(m_inputState);
@@ -384,17 +422,17 @@ namespace TrenchBroom {
             updateModalTool();
             updateViews();
         }
-
+        
         bool InputController::clipToolActive() {
             return m_clipTool->active();
         }
-
+        
         void InputController::toggleClipSide() {
             assert(clipToolActive());
             m_clipTool->toggleClipSide();
             updateViews();
         }
-
+        
         bool InputController::canDeleteClipPoint() {
             return clipToolActive() && m_clipTool->numPoints() > 0;
         }
@@ -404,18 +442,18 @@ namespace TrenchBroom {
             m_clipTool->deleteLastPoint();
             updateViews();
         }
-
+        
         bool InputController::canPerformClip() {
             return clipToolActive() && m_clipTool->numPoints() > 0;
         }
-
+        
         void InputController::performClip() {
             assert(canPerformClip());
             m_clipTool->performClip();
             updateHits();
             updateViews();
         }
-
+        
         void InputController::toggleMoveVerticesTool() {
             if (m_moveVerticesTool->active()) {
                 m_moveVerticesTool->deactivate(m_inputState);
@@ -432,7 +470,7 @@ namespace TrenchBroom {
         bool InputController::moveVerticesToolActive() {
             return m_moveVerticesTool->active();
         }
-
+        
         void InputController::deactivateAll() {
             if (m_clipTool->active())
                 m_clipTool->deactivate(m_inputState);
@@ -442,7 +480,7 @@ namespace TrenchBroom {
             updateModalTool();
             updateViews();
         }
-
+        
         void InputController::createEntity(Model::EntityDefinition& definition) {
             if (definition.type() == Model::EntityDefinition::PointEntity) {
                 Model::MapDocument& document = m_documentViewHolder.document();
@@ -510,11 +548,11 @@ namespace TrenchBroom {
                 CommandProcessor::EndGroup(document.GetCommandProcessor());
             }
         }
-
+        
         Model::Entity* InputController::canReparentBrushes(const Model::BrushList& brushes) {
             Model::MapDocument& document = m_documentViewHolder.document();
             View::EditorView& view = m_documentViewHolder.view();
-
+            
             Model::Hit* hit = m_inputState.pickResult().first(Model::HitType::ObjectHit, false, view.filter());
             Model::Entity* newParent = NULL;
             if (hit == NULL) {
@@ -538,7 +576,7 @@ namespace TrenchBroom {
             
             return NULL;
         }
-
+        
         void InputController::reparentBrushes(const Model::BrushList& brushes) {
             Model::MapDocument& document = m_documentViewHolder.document();
             View::EditorView& view = m_documentViewHolder.view();
@@ -598,14 +636,14 @@ namespace TrenchBroom {
             document.GetCommandProcessor()->Submit(select);
             CommandProcessor::EndGroup(document.GetCommandProcessor());
         }
-
+        
         InputControllerFigure::InputControllerFigure(InputController& inputController) :
         m_inputController(inputController) {}
         
         InputControllerFigure::~InputControllerFigure() {
             m_inputController.freeRenderResources();
         }
-
+        
         void InputControllerFigure::render(Renderer::Vbo& vbo, Renderer::RenderContext& context) {
             m_inputController.render(vbo, context);
         }

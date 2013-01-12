@@ -23,23 +23,11 @@
 #include "Controller/Tool.h"
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class BoxGuideRenderer;
-    }
-    
     namespace Controller {
         class SelectionTool : public Tool {
         protected:
-            Renderer::BoxGuideRenderer* m_guideRenderer;
-            
-            void handleRenderFirst(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
-            void handleFreeRenderResources();
-
             bool handleMouseUp(InputState& inputState);
             void handleScroll(InputState& inputState);
-
-            void handleObjectsChange(InputState& inputState);
-            void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet);
         public:
             SelectionTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController);
         };

@@ -24,7 +24,6 @@
 #include "Model/EditStateManager.h"
 #include "Model/MapDocument.h"
 #include "Model/MapObject.h"
-#include "Model/ModelUtils.h"
 #include "Renderer/ApplyMatrix.h"
 #include "Renderer/AxisFigure.h"
 #include "Renderer/Camera.h"
@@ -40,12 +39,10 @@ namespace TrenchBroom {
     namespace Controller {
         void MoveObjectsTool::updateHandlePosition(InputState& inputState) {
             Model::EditStateManager& editStateManager = document().editStateManager();
-            const Model::EntityList& entities = editStateManager.selectedEntities();
-            const Model::BrushList& brushes = editStateManager.selectedBrushes();
-            if (entities.empty() && brushes.empty())
+            if (!editStateManager.hasSelectedObjects())
                 return;
             
-            Vec3f position = referencePoint(entities, brushes, document().grid());
+            Vec3f position = document().grid().referencePoint(editStateManager.bounds());
             m_moveHandle.setPosition(position);
         }
 
@@ -70,7 +67,7 @@ namespace TrenchBroom {
                 m_moveHandle.setLastHit(hit);
         }
 
-        void MoveObjectsTool::handleRenderFirst(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
+        void MoveObjectsTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
             Model::EditStateManager& editStateManager = document().editStateManager();
             if (editStateManager.selectedEntities().empty() && editStateManager.selectedBrushes().empty())
                 return;

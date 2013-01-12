@@ -280,6 +280,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Renderer\EntityModelRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\EntityModelRendererManager.cpp" />
     <ClCompile Include="..\..\Source\Renderer\EntityRenderer.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\EntityRotationDecorator.cpp" />
     <ClCompile Include="..\..\Source\Renderer\FaceRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\MapRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\OffscreenRenderer.cpp" />
@@ -435,6 +436,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Renderer\EntityModelRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\EntityModelRendererManager.h" />
     <ClInclude Include="..\..\Source\Renderer\EntityRenderer.h" />
+    <ClInclude Include="..\..\Source\Renderer\EntityRotationDecorator.h" />
     <ClInclude Include="..\..\Source\Renderer\FaceRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\FaceVertex.h" />
     <ClInclude Include="..\..\Source\Renderer\Figure.h" />

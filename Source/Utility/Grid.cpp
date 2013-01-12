@@ -281,6 +281,10 @@ namespace TrenchBroom {
             return delta2;
         }
 
+        Vec3f Grid::referencePoint(const BBox& bounds) {
+            return snap(bounds.center());
+        }
+
         /*
         float Grid::moveDistance(const Model::Face& face, Vec3f& delta) {
             float dist = delta.dot(face.boundary().normal);

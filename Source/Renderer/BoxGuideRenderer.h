@@ -22,6 +22,7 @@
 
 #include "Model/Filter.h"
 #include "Renderer/BoxInfoRenderer.h"
+#include "Utility/Color.h"
 #include "Utility/VecMath.h"
 
 using namespace TrenchBroom::Math;
@@ -42,17 +43,35 @@ namespace TrenchBroom {
         
         class BoxGuideRenderer {
             BoxInfoRenderer m_infoRenderer;
+            Color m_color;
             BBox m_bounds;
             Model::Picker& m_picker;
             Model::VisibleFilter m_filter;
             VertexArray* m_boxArray;
             VertexArray* m_spikeArray;
             VertexArray* m_pointArray;
+            bool m_showSizes;
+            bool m_valid;
             
-            void addSpike(const Vec3f& startPoint, const Vec3f& direction, const Color& color, Vec3f::List& hitPoints);
+            void addSpike(const Vec3f& startPoint, const Vec3f& direction, Vec3f::List& hitPoints);
         public:
             BoxGuideRenderer(const BBox& bounds, Model::Picker& picker, Model::Filter& defaultFilter, Text::StringManager& stringManager);
             ~BoxGuideRenderer();
+            
+            inline const BBox& bounds() const {
+                return m_bounds;
+            }
+            
+            inline void setColor(const Color& color) {
+                if (color == m_color)
+                    return;
+                m_color = color;
+                m_valid = false;
+            }
+            
+            inline void setShowSizes(bool showSizes) {
+                m_showSizes = showSizes;
+            }
             
             void render(Vbo& vbo, RenderContext& context);
         };

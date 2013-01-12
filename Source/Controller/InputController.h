@@ -32,6 +32,7 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
+        class BoxGuideRenderer;
         class RenderContext;
         class Vbo;
     }
@@ -80,6 +81,8 @@ namespace TrenchBroom {
             void updateModalTool();
             void updateHits();
             void updateViews();
+
+            Renderer::BoxGuideRenderer* m_selectionGuideRenderer;
         public:
             InputController(View::DocumentViewHolder& documentViewHolder);
             ~InputController();

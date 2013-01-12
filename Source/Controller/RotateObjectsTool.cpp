@@ -22,7 +22,6 @@
 #include "Controller/Command.h"
 #include "Controller/RotateObjectsCommand.h"
 #include "Model/EditStateManager.h"
-#include "Model/ModelUtils.h"
 #include "Renderer/ApplyMatrix.h"
 #include "Renderer/AxisFigure.h"
 #include "Renderer/Camera.h"
@@ -54,12 +53,10 @@ namespace TrenchBroom {
     namespace Controller {
         void RotateObjectsTool::updateHandlePosition(InputState& inputState) {
             Model::EditStateManager& editStateManager = document().editStateManager();
-            const Model::EntityList& entities = editStateManager.selectedEntities();
-            const Model::BrushList& brushes = editStateManager.selectedBrushes();
-            if (entities.empty() && brushes.empty())
+            if (!editStateManager.hasSelectedObjects())
                 return;
             
-            Vec3f position = referencePoint(entities, brushes, document().grid());
+            Vec3f position = document().grid().referencePoint(editStateManager.bounds());
             setPosition(position);
         }
 
@@ -164,7 +161,7 @@ namespace TrenchBroom {
             }
         }
 
-        void RotateObjectsTool::handleRenderFirst(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
+        void RotateObjectsTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
             Model::EditStateManager& editStateManager = document().editStateManager();
             if (editStateManager.selectedEntities().empty() && editStateManager.selectedBrushes().empty())
                 return;

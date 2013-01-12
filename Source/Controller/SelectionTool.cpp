@@ -20,55 +20,17 @@
 #include "SelectionTool.h"
 
 #include "Controller/ChangeEditStateCommand.h"
-#include "Controller/InputController.h"
-#include "Controller/MoveHandle.h"
-#include "Controller/RotateObjectsTool.h"
 #include "Model/Brush.h"
 #include "Model/EditStateManager.h"
 #include "Model/Entity.h"
 #include "Model/Face.h"
-#include "Model/ModelUtils.h"
 #include "Model/Picker.h"
-#include "Renderer/BoxGuideRenderer.h"
-#include "Renderer/SharedResources.h"
-#include "Renderer/Text/StringManager.h"
 #include "View/DocumentViewHolder.h"
 #include "View/EditorView.h"
 #include "Utility/List.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        void SelectionTool::handleRenderFirst(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
-            if (controller().moveVerticesToolActive() || controller().clipToolActive())
-                return;
-            
-            Model::EditStateManager& editStateManager = document().editStateManager();
-            const Model::EntityList& entities = editStateManager.selectedEntities();
-            const Model::BrushList& brushes = editStateManager.selectedBrushes();
-            if (entities.empty() && brushes.empty())
-                return;
-
-            /*
-            Model::Hit* moveHandleHit = inputState.pickResult().first(Model::HitType::MoveHandleHit, true, view().filter());
-            Model::Hit* rotateHandleHit = inputState.pickResult().first(Model::HitType::RotateObjectsHandleHit, true, view().filter());
-            Model::ObjectHit* objectHit = static_cast<Model::ObjectHit*>(inputState.pickResult().first(Model::HitType::ObjectHit, false, view().filter()));
-
-            
-            if (moveHandleHit != NULL || rotateHandleHit != NULL || (objectHit != NULL && objectHit->object().selected())) {
-             */
-                if (m_guideRenderer == NULL) {
-                    BBox bounds = Model::objectBounds(entities, brushes);
-                    m_guideRenderer = new Renderer::BoxGuideRenderer(bounds, document().picker(), view().filter(), document().sharedResources().stringManager());
-                }
-                m_guideRenderer->render(vbo, renderContext);
-            //}
-        }
-        
-        void SelectionTool::handleFreeRenderResources() {
-            delete m_guideRenderer;
-            m_guideRenderer = NULL;
-        }
-
         bool SelectionTool::handleMouseUp(InputState& inputState) {
             if (inputState.mouseButtons() != MouseButtons::MBLeft)
                 return false;
@@ -218,20 +180,8 @@ namespace TrenchBroom {
             ChangeEditStateCommand* command = ChangeEditStateCommand::replace(document(), entities, brushes);
             submitCommand(command);
         }
-        
-        
-        void SelectionTool::handleObjectsChange(InputState& inputState) {
-            delete m_guideRenderer;
-            m_guideRenderer = NULL;
-        }
-        
-        void SelectionTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
-            delete m_guideRenderer;
-            m_guideRenderer = NULL;
-        }
 
         SelectionTool::SelectionTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
-        Tool(documentViewHolder, inputController, false),
-        m_guideRenderer(NULL) {}
+        Tool(documentViewHolder, inputController, false) {}
     }
 }

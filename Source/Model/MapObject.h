@@ -56,6 +56,33 @@ namespace TrenchBroom {
                 m_editState = EditState::Default;
             }
             
+            template <typename T>
+            static BBox bounds(const std::vector<T*>& objects) {
+                assert(!objects.empty());
+                
+                typename std::vector<T*>::const_iterator it, end;
+                it = objects.begin();
+                end = objects.end();
+                
+                BBox result = (**it).bounds();
+                while (++it != end) {
+                    T& object = **it;
+                    result.mergeWith(object.bounds());
+                }
+                return result;
+            }
+            
+            template <typename T1, typename T2>
+            static BBox bounds(const std::vector<T1*>& objects1, const std::vector<T2*>& objects2) {
+                assert(!objects1.empty() || !objects2.empty());
+                
+                if (objects1.empty())
+                    return bounds(objects2);
+                if (objects2.empty())
+                    return bounds(objects1);
+                return bounds(objects1).mergeWith(bounds(objects2));
+            }
+            
             inline unsigned int uniqueId() const {
                 return m_uniqueId;
             }

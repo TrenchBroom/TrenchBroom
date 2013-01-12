@@ -45,7 +45,7 @@ namespace TrenchBroom {
             
             bool handleIsModal(InputState& inputState);
 
-            void handleRenderFirst(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
+            void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
 
             bool handleDragEnter(InputState& inputState, const String& payload);
             void handleDragMove(InputState& inputState, const String& payload);

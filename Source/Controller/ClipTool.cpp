@@ -207,7 +207,7 @@ namespace TrenchBroom {
             }
         }
         
-        void ClipTool::handleRenderFirst(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
+        void ClipTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             if (m_numPoints == 0 || m_clipSide == CMFront || m_clipSide == CMBoth) {
                 m_frontBrushFigure->setFaceColor(prefs.getColor(Preferences::FaceColor));

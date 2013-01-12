@@ -328,7 +328,6 @@
 		4875679B1697922D008F316F /* MacDropSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacDropSource.cpp; sourceTree = "<group>"; };
 		4875679C1697922D008F316F /* MacDropSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacDropSource.h; sourceTree = "<group>"; };
 		4875679E16979465008F316F /* GenericDropSource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GenericDropSource.h; sourceTree = "<group>"; };
-		4875679F16982C43008F316F /* ModelUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModelUtils.h; sourceTree = "<group>"; };
 		487567A4169A26D4008F316F /* SpinControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpinControl.cpp; sourceTree = "<group>"; };
 		487567AA169CB807008F316F /* SetFaceAttributesTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SetFaceAttributesTool.cpp; sourceTree = "<group>"; };
 		487567AB169CB808008F316F /* SetFaceAttributesTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SetFaceAttributesTool.h; sourceTree = "<group>"; };
@@ -740,7 +739,6 @@
 				48AF492215E784590083DE52 /* MapExceptions.h */,
 				4847641015E2E06900095BC0 /* MapObject.h */,
 				4850D24915F36172005B162D /* MapObjectTypes.h */,
-				4875679F16982C43008F316F /* ModelUtils.h */,
 				4850D24715F360BF005B162D /* Octree.cpp */,
 				4850D24815F360BF005B162D /* Octree.h */,
 				4850D24B15F364A1005B162D /* Picker.cpp */,

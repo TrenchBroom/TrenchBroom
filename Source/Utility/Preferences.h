@@ -237,6 +237,7 @@ namespace TrenchBroom {
         extern const Preference<Color>  BackgroundColor;
         
         extern const Preference<Color>  GuideColor;
+        extern const Preference<Color>  HoveredGuideColor;
         
         extern const Preference<Color>  FaceColor;
         extern const Preference<Color>  SelectedFaceColor;

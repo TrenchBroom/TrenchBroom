@@ -66,7 +66,7 @@ namespace TrenchBroom {
             return dragType() == DTDragTarget;
         }
 
-        void CreateEntityTool::handleRenderFirst(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
+        void CreateEntityTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
             if (m_entityFigure != NULL)
                 m_entityFigure->render(vbo, renderContext);
         }

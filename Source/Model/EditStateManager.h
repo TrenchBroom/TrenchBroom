@@ -24,6 +24,7 @@
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/FaceTypes.h"
+#include "Model/MapObject.h"
 #include "Model/TextureTypes.h"
 
 #include <cassert>
@@ -108,6 +109,10 @@ namespace TrenchBroom {
                 return current().selectionMode();
             }
             
+            inline bool hasSelectedObjects() const {
+                return !selectedEntities().empty() || !selectedBrushes().empty();
+            }
+            
             inline bool hasHiddenObjects() const {
                 return !hiddenEntities().empty() || !hiddenBrushes().empty();
             }
@@ -156,6 +161,10 @@ namespace TrenchBroom {
                     faces.insert(faces.end(), brushFaces.begin(), brushFaces.end());
                 }
                 return faces;
+            }
+            
+            inline BBox bounds() const {
+                return MapObject::bounds(selectedEntities(), selectedBrushes());
             }
             
             EditStateChangeSet setEditState(const EntityList& entities, EditState::Type newState, bool replace = false);

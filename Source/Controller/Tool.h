@@ -176,8 +176,8 @@ namespace TrenchBroom {
             
             /* Feedback Protocol */
             virtual void handlePick(InputState& inputState) {}
-            virtual void handleRenderFirst(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {}
-            virtual void handleRenderLast(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {}
+            virtual void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {}
+            virtual void handleRenderOverlay(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {}
             virtual void handleFreeRenderResources() {}
             
             inline void deleteFigure(Renderer::Figure* figure) {
@@ -271,13 +271,19 @@ namespace TrenchBroom {
             inline void render(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
                 deleteFigures();
                 if ((active() && !m_suppressed))
-                    handleRenderFirst(inputState, vbo, renderContext);
+                    handleRender(inputState, vbo, renderContext);
                 if (nextTool() != NULL)
                     nextTool()->render(inputState, vbo, renderContext);
-                if ((active() && !m_suppressed))
-                    handleRenderLast(inputState, vbo, renderContext);
             }
             
+            inline void renderOverlay(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
+                deleteFigures();
+                if ((active() && !m_suppressed))
+                    handleRenderOverlay(inputState, vbo, renderContext);
+                if (nextTool() != NULL)
+                    nextTool()->renderOverlay(inputState, vbo, renderContext);
+            }
+
             inline void freeRenderResources() {
                 handleFreeRenderResources();
                 if (nextTool() != NULL)
