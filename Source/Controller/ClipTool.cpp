@@ -398,8 +398,8 @@ namespace TrenchBroom {
                 updateBrushes();
         }
 
-        ClipTool::ClipTool(View::DocumentViewHolder& documentViewHolder) :
-        Tool(documentViewHolder, true),
+        ClipTool::ClipTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
+        Tool(documentViewHolder, inputController, true),
         m_filter(view().filter()),
         m_numPoints(0),
         m_hitIndex(-1),

@@ -21,6 +21,7 @@
 #define __TrenchBroom__BoxGuideRenderer__
 
 #include "Model/Filter.h"
+#include "Renderer/BoxInfoRenderer.h"
 #include "Utility/VecMath.h"
 
 using namespace TrenchBroom::Math;
@@ -31,11 +32,16 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
+        namespace Text {
+            class StringManager;
+        }
+        
         class RenderContext;
         class VertexArray;
         class Vbo;
         
         class BoxGuideRenderer {
+            BoxInfoRenderer m_infoRenderer;
             BBox m_bounds;
             Model::Picker& m_picker;
             Model::VisibleFilter m_filter;
@@ -45,7 +51,7 @@ namespace TrenchBroom {
             
             void addSpike(const Vec3f& startPoint, const Vec3f& direction, const Color& color, Vec3f::List& hitPoints);
         public:
-            BoxGuideRenderer(const BBox& bounds, Model::Picker& picker, Model::Filter& defaultFilter);
+            BoxGuideRenderer(const BBox& bounds, Model::Picker& picker, Model::Filter& defaultFilter, Text::StringManager& stringManager);
             ~BoxGuideRenderer();
             
             void render(Vbo& vbo, RenderContext& context);

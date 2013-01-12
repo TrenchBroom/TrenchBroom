@@ -44,8 +44,8 @@ namespace TrenchBroom {
             bool handleDrag(InputState& inputState);
             void handleEndDrag(InputState& inputState);
         public:
-            CameraTool(View::DocumentViewHolder& documentViewHolder) :
-            Tool(documentViewHolder, false),
+            CameraTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
+            Tool(documentViewHolder, inputController, false),
             m_orbit(false),
             m_filter(Model::VisibleFilter(documentViewHolder.view().filter())) {}
         };

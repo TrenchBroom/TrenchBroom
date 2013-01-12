@@ -70,7 +70,19 @@ namespace TrenchBroom {
             virtual bool pickable(Filter& filter) const = 0;
         };
         
-        class EntityHit : public Hit {
+        class ObjectHit : public Hit {
+        private:
+            MapObject& m_object;
+        public:
+            ObjectHit(HitType::Type type, MapObject& object, const Vec3f& hitPoint, float distance);
+            virtual ~ObjectHit();
+            
+            inline MapObject& object() const {
+                return m_object;
+            }
+        };
+        
+        class EntityHit : public ObjectHit {
         protected:
             Entity& m_entity;
         public:
@@ -83,7 +95,7 @@ namespace TrenchBroom {
             bool pickable(Filter& filter) const;
         };
         
-        class FaceHit : public Hit {
+        class FaceHit : public ObjectHit {
         protected:
             Face& m_face;
         public:

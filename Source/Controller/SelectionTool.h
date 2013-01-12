@@ -41,7 +41,7 @@ namespace TrenchBroom {
             void handleObjectsChange(InputState& inputState);
             void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet);
         public:
-            SelectionTool(View::DocumentViewHolder& documentViewHolder);
+            SelectionTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController);
         };
     }
 }

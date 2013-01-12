@@ -75,8 +75,8 @@ namespace TrenchBroom {
                     return PathPtr(NULL);
                 
                 float width = 0.0f;
-                float height = static_cast<float>(fontDescriptor.size());
-                unsigned int bezierSegments = fontDescriptor.size() / 10 + 1;
+                float height = 0.0f; //FT_MulFix(face->ascender, face->size->metrics.y_scale) / 64.0f;//static_cast<float>(fontDescriptor.size());
+                unsigned int bezierSegments = fontDescriptor.size() / 10 + 2;
                 
                 Path* path = new Path();
                 PathBuilder pathBuilder(path, bezierSegments);
@@ -105,6 +105,7 @@ namespace TrenchBroom {
                     FT_GlyphSlot glyph = face->glyph;
                     advance += glyph->advance.x / 64.0f;
                     width += advance;
+                    height = std::max(height, glyph->metrics.height / 64.0f);
                     
                     FT_Outline* outline = &glyph->outline;
                     assert(outline->n_contours >= 0);
@@ -189,7 +190,7 @@ namespace TrenchBroom {
                     return Vec2f();
                 
                 float width = 0.0f;
-                float height = static_cast<float>(fontDescriptor.size());
+                float height = 0.0f; //FT_MulFix(face->ascender, face->size->metrics.y_scale) / 64.0f;//static_cast<float>(fontDescriptor.size());
                 
                 FT_Bool useKerning = FT_HAS_KERNING(face);
                 FT_UInt previousIndex = 0;
@@ -214,6 +215,7 @@ namespace TrenchBroom {
                     FT_GlyphSlot glyph = face->glyph;
                     advance += glyph->advance.x / 64.0f;
                     width += advance;
+                    height = std::max(height, glyph->metrics.height / 64.0f);
                 }
                 
                 return Vec2f(width, height);

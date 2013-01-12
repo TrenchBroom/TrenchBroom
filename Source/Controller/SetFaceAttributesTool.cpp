@@ -91,7 +91,7 @@ namespace TrenchBroom {
         }
 
         
-        SetFaceAttributesTool::SetFaceAttributesTool(View::DocumentViewHolder& documentViewHolder) :
-        Tool(documentViewHolder, false) {}
+        SetFaceAttributesTool::SetFaceAttributesTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
+        Tool(documentViewHolder, inputController, false) {}
     }
 }

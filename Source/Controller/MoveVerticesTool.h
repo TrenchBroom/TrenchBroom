@@ -78,7 +78,7 @@ namespace TrenchBroom {
             void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet);
             void handleCameraChange(InputState& inputState);
         public:
-            MoveVerticesTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float planeRadius, float vertexSize);
+            MoveVerticesTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, float axisLength, float planeRadius, float vertexSize);
         
             bool hasSelection();
             VertexToolResult moveVertices(const Vec3f& delta);

@@ -49,7 +49,8 @@ namespace TrenchBroom {
             delete result;
         }
         
-        BoxGuideRenderer::BoxGuideRenderer(const BBox& bounds, Model::Picker& picker, Model::Filter& defaultFilter) :
+        BoxGuideRenderer::BoxGuideRenderer(const BBox& bounds, Model::Picker& picker, Model::Filter& defaultFilter, Text::StringManager& stringManager) :
+        m_infoRenderer(BoxInfoRenderer(bounds, stringManager)),
         m_bounds(bounds),
         m_picker(picker),
         m_filter(Model::VisibleFilter(defaultFilter)),
@@ -211,6 +212,8 @@ namespace TrenchBroom {
                 m_pointArray->render();
                 glPointSize(1.0f);
             }
+            
+            m_infoRenderer.render(vbo, context);
         }
     }
 }

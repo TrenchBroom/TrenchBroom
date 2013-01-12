@@ -168,8 +168,8 @@ namespace TrenchBroom {
             m_brushFigure = NULL;
         }
 
-        CreateBrushTool::CreateBrushTool(View::DocumentViewHolder& documentViewHolder) :
-        PlaneDragTool(documentViewHolder, true),
+        CreateBrushTool::CreateBrushTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
+        PlaneDragTool(documentViewHolder, inputController, true),
         m_boundsChanged(false),
         m_brush(NULL),
         m_brushFigure(NULL) {}

@@ -267,8 +267,8 @@ namespace TrenchBroom {
             m_faces.clear();
         }
 
-        ResizeBrushesTool::ResizeBrushesTool(View::DocumentViewHolder& documentViewHolder) :
-        PlaneDragTool(documentViewHolder, false),
+        ResizeBrushesTool::ResizeBrushesTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
+        PlaneDragTool(documentViewHolder, inputController, false),
         m_filter(ResizeBrushesFilter(view().filter())) {}
     }
 }

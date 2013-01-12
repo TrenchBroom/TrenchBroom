@@ -28,6 +28,7 @@ namespace TrenchBroom {
         Color() : Vec4f() {}
         Color(const std::string& str) : Vec4f(str) {}
         Color(float x, float y, float z, float w) : Vec4f(x, y, z, w) {}
+        Color(const Color& color, float w) : Vec4f(color, w) {}
     };
 }
 

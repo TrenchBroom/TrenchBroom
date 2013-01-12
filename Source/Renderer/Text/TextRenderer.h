@@ -42,10 +42,36 @@ namespace TrenchBroom {
         class RenderContext;
         namespace Text {
             
+            namespace Alignment {
+                typedef unsigned int Type;
+                static const Type Top       = 1 << 0;
+                static const Type Bottom    = 1 << 1;
+                static const Type Left      = 1 << 2;
+                static const Type Right     = 1 << 3;
+                static const Type Center    = 1 << 4;
+            }
+            
+
             class TextAnchor {
             public:
                 virtual ~TextAnchor() {}
-                virtual const Vec3f& position() = 0;
+                virtual const Vec3f position() = 0;
+                virtual Alignment::Type alignment() {
+                    return Alignment::Center;
+                }
+                
+                Vec3f alignmentFactors() {
+                    Vec3f factors;
+                    if ((alignment() & Alignment::Left) != 0)
+                        factors.x = 0.5f;
+                    else if ((alignment() & Alignment::Right) != 0)
+                        factors.x = -0.5f;
+                    if ((alignment() & Alignment::Top) != 0)
+                        factors.y = -0.5f;
+                    if ((alignment() & Alignment::Bottom) != 0)
+                        factors.y = 0.5f;
+                    return factors;
+                }
             };
             
             template <typename Key>
@@ -136,7 +162,7 @@ namespace TrenchBroom {
                         if (filter.stringVisible(context, key)) {
                             TextEntry& entry = it->second;
                             TextAnchor* anchor = entry.textAnchor();
-                            const Vec3f& position = anchor->position();
+                            const Vec3f position = anchor->position();
                             
                             float dist2 = context.camera().squaredDistanceTo(position);
                             if (dist2 <= cutoff)
@@ -168,20 +194,24 @@ namespace TrenchBroom {
                             
                             StringRendererPtr stringRenderer = entry.stringRenderer();
                             TextAnchor* anchor = entry.textAnchor();
-                            const Vec3f& position = anchor->position();
+                            const Vec3f position = anchor->position();
                             
                             Mat4f matrix;
                             matrix.translate(position);
                             matrix *= billboardMatrix;
                             matrix.scale(Vec3f(factor, factor, 0.0f));
-                            matrix.translate(Vec3f(0.0f, (stringRenderer->height() - m_vInset) / 2.0f, 0.0f));
-                             
+                            
+                            Vec3f alignment = anchor->alignmentFactors();
+                            alignment.x *= (stringRenderer->width() + 2.0f * m_hInset);
+                            alignment.y *= (stringRenderer->height() + 2.0f * m_vInset);
+                            matrix.translate(alignment);
+
                             float a = 1.0f - (std::max)(dist - m_fadeDistance, 0.0f) / 100.0f;
-                            roundedRect(stringRenderer->width() + m_hInset, stringRenderer->height() + m_vInset, 3.0f, 3, vertices);
+                            roundedRect(stringRenderer->width() + 2.0f * m_hInset, stringRenderer->height() + 2.0f * m_vInset, 3.0f, 3, vertices);
                             for (unsigned int j = 0; j < vertices.size(); j++) {
                                 Vec3f vertex = Vec3f(vertices[j].x, vertices[j].y, 0.0f);
                                 vertexArray->addAttribute(matrix * vertex);
-                                vertexArray->addAttribute(Color(color.x, color.y, color.z, color.w * a));
+                                vertexArray->addAttribute(Color(color, color.w * a));
                             }
                             vertices.clear();
                         }
@@ -208,17 +238,24 @@ namespace TrenchBroom {
                             
                             StringRendererPtr stringRenderer = entry.stringRenderer();
                             TextAnchor* anchor = entry.textAnchor();
-                            const Vec3f& position = anchor->position();
+                            const Vec3f position = anchor->position();
                             
                             Mat4f matrix = Mat4f::Identity;
                             matrix.translate(position);
                             matrix *= billboardMatrix;
                             matrix.scale(Vec3f(factor, factor, 0.0f));
-                            matrix.translate(Vec3f(-stringRenderer->width() / 2.0f, m_vInset / 2.0f, 0.0f));
+                            
+                            Vec3f alignment = anchor->alignmentFactors();
+                            alignment.x *= (stringRenderer->width() + 2.0f * m_hInset);
+                            alignment.y *= (stringRenderer->height() + 2.0f * m_vInset);
+                            matrix.translate(alignment);
+
+                            matrix.translate(Vec3f(-stringRenderer->width() / 2.0f, -stringRenderer->height() / 2.0f, 0.0f));
+
                             ApplyMatrix applyBillboard(context.transformation(), matrix);
 
                             float a = 1.0f - (std::max)(dist - m_fadeDistance, 0.0f) / 100.0f;
-                            shaderProgram.setUniformVariable("Color", Vec4f(color.x, color.y, color.z, color.w * a));
+                            shaderProgram.setUniformVariable("Color", Color(color, color.w * a));
                             stringRenderer->render();
                         }
                         glResetEdgeOffset();
@@ -230,8 +267,8 @@ namespace TrenchBroom {
                 TextRenderer(StringManager& stringManager) :
                 m_stringManager(stringManager),
                 m_fadeDistance(100.0f),
-                m_hInset(3.0f),
-                m_vInset(3.0f),
+                m_hInset(2.5f),
+                m_vInset(2.5f),
                 m_backgroundVbo(NULL) {}
                 
                 ~TextRenderer() {
@@ -256,7 +293,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                inline void updateString(Key key, const std::string& str) {
+                inline void updateString(Key key, const String& str) {
                     typename TextMap::iterator it = m_entries.find(key);
                     if (it != m_entries.end()) {
                         TextEntry& entry = it->second;

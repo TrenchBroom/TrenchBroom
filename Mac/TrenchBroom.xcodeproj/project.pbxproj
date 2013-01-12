@@ -73,6 +73,7 @@
 		487567AC169CB809008F316F /* SetFaceAttributesTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487567AA169CB807008F316F /* SetFaceAttributesTool.cpp */; };
 		487567AF169E1605008F316F /* BoxGuideRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487567AD169E1605008F316F /* BoxGuideRenderer.cpp */; };
 		487567B316A09D57008F316F /* EntityRotationDecorator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487567B116A09D55008F316F /* EntityRotationDecorator.cpp */; };
+		487567B616A180FF008F316F /* BoxInfoRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487567B416A180FD008F316F /* BoxInfoRenderer.cpp */; };
 		4878F9201651231D003857EA /* RotateObjectsTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F91E1651231D003857EA /* RotateObjectsTool.cpp */; };
 		4878F924165142B4003857EA /* CreateEntityTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F922165142B4003857EA /* CreateEntityTool.cpp */; };
 		4878F95516596915003857EA /* BrushFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F95316596915003857EA /* BrushFigure.cpp */; };
@@ -336,6 +337,8 @@
 		487567B016A09BF5008F316F /* EntityDecorator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityDecorator.h; sourceTree = "<group>"; };
 		487567B116A09D55008F316F /* EntityRotationDecorator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityRotationDecorator.cpp; sourceTree = "<group>"; };
 		487567B216A09D56008F316F /* EntityRotationDecorator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityRotationDecorator.h; sourceTree = "<group>"; };
+		487567B416A180FD008F316F /* BoxInfoRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BoxInfoRenderer.cpp; sourceTree = "<group>"; };
+		487567B516A180FE008F316F /* BoxInfoRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BoxInfoRenderer.h; sourceTree = "<group>"; };
 		4878F91E1651231D003857EA /* RotateObjectsTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RotateObjectsTool.cpp; sourceTree = "<group>"; };
 		4878F91F1651231D003857EA /* RotateObjectsTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateObjectsTool.h; sourceTree = "<group>"; };
 		4878F922165142B4003857EA /* CreateEntityTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CreateEntityTool.cpp; sourceTree = "<group>"; };
@@ -570,6 +573,8 @@
 				48EA119F15FA67F700391885 /* ApplyMatrix.h */,
 				487567AD169E1605008F316F /* BoxGuideRenderer.cpp */,
 				487567AE169E1605008F316F /* BoxGuideRenderer.h */,
+				487567B416A180FD008F316F /* BoxInfoRenderer.cpp */,
+				487567B516A180FE008F316F /* BoxInfoRenderer.h */,
 				4850D27D15F4CA62005B162D /* BspModelRenderer.cpp */,
 				4850D27E15F4CA62005B162D /* BspModelRenderer.h */,
 				48819C3615EBE92800BEA604 /* Camera.cpp */,
@@ -1243,6 +1248,7 @@
 				487567AC169CB809008F316F /* SetFaceAttributesTool.cpp in Sources */,
 				487567AF169E1605008F316F /* BoxGuideRenderer.cpp in Sources */,
 				487567B316A09D57008F316F /* EntityRotationDecorator.cpp in Sources */,
+				487567B616A180FF008F316F /* BoxInfoRenderer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

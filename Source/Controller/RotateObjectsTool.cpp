@@ -299,8 +299,8 @@ namespace TrenchBroom {
             m_angle = 0.0f;
         }
 
-        RotateObjectsTool::RotateObjectsTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float ringRadius, float ringThickness) :
-        Tool(documentViewHolder, true),
+        RotateObjectsTool::RotateObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, float axisLength, float ringRadius, float ringThickness) :
+        Tool(documentViewHolder, inputController, true),
         m_axisLength(axisLength),
         m_ringRadius(ringRadius),
         m_ringThickness(ringThickness),

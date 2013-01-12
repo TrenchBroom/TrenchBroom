@@ -89,7 +89,7 @@ namespace TrenchBroom {
             void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet);
             void handleGridChange(InputState& inputState);
         public:
-            RotateObjectsTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float ringRadius, float ringThickness);
+            RotateObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, float axisLength, float ringRadius, float ringThickness);
             ~RotateObjectsTool();
         };
     }

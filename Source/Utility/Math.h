@@ -56,7 +56,7 @@ namespace TrenchBroom {
         }
 
         inline float correct(float f) {
-            return round(1000.0f * f) / 1000.0f;
+            return round(100.0f * f) / 100.0f;
         }
 
         inline bool zero(float f) {

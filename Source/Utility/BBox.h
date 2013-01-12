@@ -30,6 +30,30 @@ namespace TrenchBroom {
     namespace Math {
         class BBox {
         public:
+            struct PointPosition {
+                typedef enum {
+                    Less,
+                    Within,
+                    Greater
+                } Position;
+                
+                const Position x;
+                const Position y;
+                const Position z;
+                
+                PointPosition(Position i_x, Position i_y, Position i_z):
+                x(i_x),
+                y(i_y),
+                z(i_z) {}
+
+                inline const Position& operator[] (const unsigned int index) const {
+                    assert(index >= 0 && index < 3);
+                    if (index == 0) return x;
+                    if (index == 1) return y;
+                    return z;
+                }
+            };
+            
             Vec3f min;
             Vec3f max;
 
@@ -383,13 +407,27 @@ namespace TrenchBroom {
                 return *this;
             }
             
-            inline const BBox expanded(float f) {
-                return BBox(min.x -= f,
-                            min.y -= f,
-                            min.z -= f,
-                            max.x += f,
-                            max.y += f,
-                            max.z += f);
+            inline const BBox expanded(float f) const {
+                return BBox(min.x - f,
+                            min.y - f,
+                            min.z - f,
+                            max.x + f,
+                            max.y + f,
+                            max.z + f);
+            }
+            
+            inline const PointPosition pointPosition(const Vec3f& point) const {
+                PointPosition::Position p[3];
+                for (unsigned int i = 0; i < 3; i++) {
+                    if (point[i] < min[i])
+                        p[i] = PointPosition::Less;
+                    else if (point[i] > max[i])
+                        p[i] = PointPosition::Greater;
+                    else
+                        p[i] = PointPosition::Within;
+                }
+
+                return PointPosition(p[0], p[1], p[2]);
             }
         };
     }

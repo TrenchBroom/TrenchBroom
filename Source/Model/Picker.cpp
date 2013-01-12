@@ -33,8 +33,14 @@ namespace TrenchBroom {
         
         Hit::~Hit() {}
         
+        ObjectHit::ObjectHit(HitType::Type type, MapObject& object, const Vec3f& hitPoint, float distance) :
+        Hit(type, hitPoint, distance),
+        m_object(object) {}
+
+        ObjectHit::~ObjectHit() {}
+        
         EntityHit::EntityHit(Entity& entity, const Vec3f& hitPoint, float distance) :
-        Hit(HitType::EntityHit, hitPoint, distance),
+        ObjectHit(HitType::EntityHit, entity, hitPoint, distance),
         m_entity(entity) {}
 
         bool EntityHit::pickable(Filter& filter) const {
@@ -42,7 +48,7 @@ namespace TrenchBroom {
         }
 
         FaceHit::FaceHit(Face& face, const Vec3f& hitPoint, float distance) :
-        Hit(HitType::FaceHit, hitPoint, distance),
+        ObjectHit(HitType::FaceHit, *face.brush(), hitPoint, distance),
         m_face(face) {}
 
         bool FaceHit::pickable(Filter& filter) const {

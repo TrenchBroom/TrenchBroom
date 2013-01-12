@@ -96,16 +96,16 @@ namespace TrenchBroom {
         m_modalTool(NULL),
         m_cancelledDrag(false),
         m_discardNextMouseUp(false) {
-            m_cameraTool = new CameraTool(m_documentViewHolder);
-            m_clipTool = new ClipTool(m_documentViewHolder);
-            m_moveVerticesTool = new MoveVerticesTool(m_documentViewHolder, 24.0f, 16.0f, 2.5f);
-            m_createBrushTool = new CreateBrushTool(m_documentViewHolder);
-            m_createEntityTool = new CreateEntityTool(m_documentViewHolder);
-            m_moveObjectsTool = new MoveObjectsTool(m_documentViewHolder, 64.0f, 32.0f);
-            m_rotateObjectsTool = new RotateObjectsTool(m_documentViewHolder, 64.0f, 32.0f, 5.0f);
-            m_resizeBrushesTool = new ResizeBrushesTool(m_documentViewHolder);
-            m_setFaceAttributesTool = new SetFaceAttributesTool(m_documentViewHolder);
-            m_selectionTool = new SelectionTool(m_documentViewHolder);
+            m_cameraTool = new CameraTool(m_documentViewHolder, *this);
+            m_clipTool = new ClipTool(m_documentViewHolder, *this);
+            m_moveVerticesTool = new MoveVerticesTool(m_documentViewHolder, *this, 24.0f, 16.0f, 2.5f);
+            m_createBrushTool = new CreateBrushTool(m_documentViewHolder, *this);
+            m_createEntityTool = new CreateEntityTool(m_documentViewHolder, *this);
+            m_moveObjectsTool = new MoveObjectsTool(m_documentViewHolder, *this, 64.0f, 32.0f);
+            m_rotateObjectsTool = new RotateObjectsTool(m_documentViewHolder, *this, 64.0f, 32.0f, 5.0f);
+            m_resizeBrushesTool = new ResizeBrushesTool(m_documentViewHolder, *this);
+            m_setFaceAttributesTool = new SetFaceAttributesTool(m_documentViewHolder, *this);
+            m_selectionTool = new SelectionTool(m_documentViewHolder, *this);
 
             m_cameraTool->setNextTool(m_clipTool);
             m_clipTool->setNextTool(m_moveVerticesTool);

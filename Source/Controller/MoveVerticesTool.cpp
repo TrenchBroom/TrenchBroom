@@ -342,8 +342,8 @@ namespace TrenchBroom {
                 updateMoveHandle(inputState);
         }
 
-        MoveVerticesTool::MoveVerticesTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float planeRadius, float vertexSize) :
-        PlaneDragTool(documentViewHolder, true),
+        MoveVerticesTool::MoveVerticesTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, float axisLength, float planeRadius, float vertexSize) :
+        PlaneDragTool(documentViewHolder, inputController, true),
         m_moveHandle(axisLength, planeRadius),
         m_mode(VMMove),
         m_ignoreObjectChanges(false) {}

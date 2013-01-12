@@ -55,8 +55,10 @@ namespace TrenchBroom {
     }
     
     namespace Controller {
+        class InputController;
+        
         class Tool {
-        protected:
+        public:
             typedef enum {
                 DTNone,
                 DTDrag,
@@ -64,6 +66,7 @@ namespace TrenchBroom {
             } DragType;
         private:
             View::DocumentViewHolder& m_documentViewHolder;
+            InputController& m_inputController;
             
             bool m_activatable;
             bool m_active;
@@ -78,8 +81,9 @@ namespace TrenchBroom {
                 while (!m_deleteFigures.empty()) delete m_deleteFigures.back(), m_deleteFigures.pop_back();
             }
         protected:
-            Tool(View::DocumentViewHolder& documentViewHolder, bool activatable) :
+            Tool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, bool activatable) :
             m_documentViewHolder(documentViewHolder),
+            m_inputController(inputController),
             m_activatable(activatable),
             m_active(!m_activatable),
             m_suppressed(false),
@@ -92,6 +96,10 @@ namespace TrenchBroom {
             
             inline View::EditorView& view() const {
                 return m_documentViewHolder.view();
+            }
+            
+            inline InputController& controller() const {
+                return m_inputController;
             }
             
             inline void postEvent(wxEvent& event) {
@@ -185,10 +193,6 @@ namespace TrenchBroom {
             virtual void handleScroll(InputState& inputState) {}
             
             /* Drag Protocol */
-            inline DragType dragType() const {
-                return m_dragType;
-            }
-            
             virtual bool handleStartDrag(InputState& inputState) { return false; }
             virtual bool handleDrag(InputState& inputState) { return true; }
             virtual void handleEndDrag(InputState& inputState) {}
@@ -336,6 +340,10 @@ namespace TrenchBroom {
             
             /* Drag Protocol */
             
+            inline DragType dragType() const {
+                return m_dragType;
+            }
+
             Tool* startDrag(InputState& inputState) {
                 assert(dragType() == DTNone);
                 if ((active() && !m_suppressed) && handleStartDrag(inputState)) {
@@ -470,8 +478,8 @@ namespace TrenchBroom {
                 handleEndPlaneDrag(inputState);
             }
         public:
-            PlaneDragTool(View::DocumentViewHolder& documentViewHolder, bool activatable) :
-            Tool(documentViewHolder, activatable) {}
+            PlaneDragTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, bool activatable) :
+            Tool(documentViewHolder, inputController, activatable) {}
             
             virtual ~PlaneDragTool() {}
         };

@@ -52,7 +52,7 @@ namespace TrenchBroom {
             void handleDragLeave(InputState& inputState, const String& payload);
             bool handleDragDrop(InputState& inputState, const String& payload);
         public:
-            CreateEntityTool(View::DocumentViewHolder& documentViewHolder);
+            CreateEntityTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController);
             ~CreateEntityTool();
         };
     }

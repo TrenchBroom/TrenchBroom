@@ -30,7 +30,7 @@ namespace TrenchBroom {
             bool handleMouseUp(InputState& inputState);
             bool handleMouseDClick(InputState& inputState);
         public:
-            SetFaceAttributesTool(View::DocumentViewHolder& documentViewHolder);
+            SetFaceAttributesTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController);
         };
     }
 }

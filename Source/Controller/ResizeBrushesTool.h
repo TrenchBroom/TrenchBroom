@@ -97,7 +97,7 @@ namespace TrenchBroom {
             bool handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint);
             void handleEndPlaneDrag(InputState& inputState);
         public:
-            ResizeBrushesTool(View::DocumentViewHolder& documentViewHolder);
+            ResizeBrushesTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController);
         };
     }
 }

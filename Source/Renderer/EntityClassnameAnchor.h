@@ -35,14 +35,17 @@ namespace TrenchBroom {
         class EntityClassnameAnchor : public Text::TextAnchor {
         private:
             Model::Entity& m_entity;
-            Vec3f m_position;
         public:
             EntityClassnameAnchor(Model::Entity& entity) : m_entity(entity) {}
 
-            inline const Vec3f& position() {
-                m_position = m_entity.center();
-                m_position.z += m_entity.bounds().size().z / 2.0f + 3.0f;
-                return m_position;
+            inline const Vec3f position() {
+                Vec3f position = m_entity.center();
+                position.z = m_entity.bounds().max.z + 1.0f;
+                return position;
+            }
+            
+            inline Text::Alignment::Type alignment() {
+                return Text::Alignment::Center | Text::Alignment::Bottom;
             }
         };
     }

@@ -185,8 +185,8 @@ namespace TrenchBroom {
             updateHandlePosition(inputState);
         }
         
-        MoveObjectsTool::MoveObjectsTool(View::DocumentViewHolder& documentViewHolder, float axisLength, float planeRadius) :
-        PlaneDragTool(documentViewHolder, true),
+        MoveObjectsTool::MoveObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, float axisLength, float planeRadius) :
+        PlaneDragTool(documentViewHolder, inputController, true),
         m_moveHandle(MoveHandle(axisLength, planeRadius)) {}
     }
 }

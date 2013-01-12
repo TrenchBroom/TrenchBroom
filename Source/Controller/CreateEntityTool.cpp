@@ -121,8 +121,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        CreateEntityTool::CreateEntityTool(View::DocumentViewHolder& documentViewHolder) :
-        Tool(documentViewHolder, true),
+        CreateEntityTool::CreateEntityTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
+        Tool(documentViewHolder, inputController, true),
         m_entity(NULL),
         m_entityFigure(NULL) {}
         
