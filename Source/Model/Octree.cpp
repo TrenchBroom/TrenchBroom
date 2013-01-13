@@ -176,7 +176,7 @@ namespace TrenchBroom {
             const EntityList& entities = m_map.entities();
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity* entity = entities[i];
-                m_root->addObject((MapObject&)*entity);
+                m_root->addObject(*entity);
                 const BrushList& brushes = entity->brushes();
                 for (unsigned int j = 0; j < brushes.size(); j++) {
                     Brush* brush = brushes[j];

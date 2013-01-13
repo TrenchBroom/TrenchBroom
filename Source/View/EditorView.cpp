@@ -814,6 +814,8 @@ namespace TrenchBroom {
                 for (unsigned int i = 0; i < entities.size(); i++) {
                     Model::Entity& entity = *entities[i];
                     if (entity.selectable() && m_filter->entityVisible(entity)) {
+                        assert(entity.definition() == NULL || entity.definition()->type() == Model::EntityDefinition::PointEntity);
+                        assert(entity.brushes().empty());
                         selectEntities.push_back(&entity);
                     } else {
                         const Model::BrushList& entityBrushes = entity.brushes();

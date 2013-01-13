@@ -286,9 +286,8 @@ namespace TrenchBroom {
             View::ProgressIndicatorDialog progressIndicator;
             loadMap(stream, progressIndicator);
             loadTextures(progressIndicator);
-            loadEntityDefinitions();
-
             updateAfterTextureManagerChanged();
+            loadEntityDefinitions();
             updateEntityDefinitions();
             m_octree->loadMap();
 
@@ -422,18 +421,18 @@ namespace TrenchBroom {
         }
 
         void MapDocument::brushesWillChange(const BrushList& brushes) {
-            MapObjectList objects;
-            objects.insert(objects.begin(), brushes.begin(), brushes.end());
+            MapObjectSet objects;
+            objects.insert(brushes.begin(), brushes.end());
             
             BrushList::const_iterator it, end;
             for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
                 Brush* brush = *it;
                 Entity* entity = brush->entity();
                 if (entity != NULL && !entity->worldspawn())
-                    objects.push_back(entity);
+                    objects.insert(entity);
             }
             
-            m_octree->removeObjects(objects);
+            m_octree->removeObjects(makeList(objects));
         }
 
         void MapDocument::brushesDidChange(const BrushList& brushes) {
