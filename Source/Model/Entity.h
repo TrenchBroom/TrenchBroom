@@ -58,6 +58,7 @@ namespace TrenchBroom {
             Map* m_map;
             PropertyStore m_propertyStore;
             BrushList m_brushes;
+            bool m_worldspawn;
             
             EntityDefinition* m_definition;
             
@@ -132,8 +133,7 @@ namespace TrenchBroom {
             }
             
             inline bool worldspawn() const {
-                const PropertyValue* classname = this->classname();
-                return classname != NULL && *classname == WorldspawnClassname;
+                return m_worldspawn;
             }
             
             inline const Vec3f origin() const {

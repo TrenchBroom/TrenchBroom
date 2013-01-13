@@ -70,7 +70,7 @@ namespace TrenchBroom {
         void Face::validateTexAxes(const Vec3f& faceNormal) const {
             texAxesAndIndices(faceNormal, m_texAxisX, m_texAxisY, m_texPlaneNormIndex, m_texFaceNormIndex);
             
-            Quat rot(Math::radians(m_rotation), *BaseAxes[m_texPlaneNormIndex]);
+            Quat rot(Math::radians(-m_rotation), *BaseAxes[m_texPlaneNormIndex]);
             m_texAxisX = rot * m_texAxisX;
             m_texAxisY = rot * m_texAxisY;
             m_scaledTexAxisX = m_texAxisX / m_xScale;
@@ -167,7 +167,7 @@ namespace TrenchBroom {
             newFaceNorm -= offset;
             
             // fix some rounding errors - if the old and new texture axes are almost the same, use the old axis
-            if (newFaceNorm.equals(m_boundary.normal, 0.001f))
+            if (newFaceNorm.equals(m_boundary.normal, 0.01f))
                 newFaceNorm = m_boundary.normal;
             
             // obtain the new texture plane norm and the new base texture axes
@@ -222,19 +222,19 @@ namespace TrenchBroom {
             // determine the rotation angle from the dot product of the new base axes and the transformed texture axes
             radX = acosf(newBaseAxisX.dot(newTexAxisX));
             cross = newBaseAxisX.crossed(newTexAxisX);
-            if ((cross.dot(*BaseAxes[newPlaneNormIndex])) < 0.0f)
+            if ((cross.dot(*BaseAxes[newPlaneNormIndex])) > 0.0f)
                 radX *= -1.0f;
             
             radY = acosf(newBaseAxisY.dot(newTexAxisY));
             cross = newBaseAxisY.crossed(newTexAxisY);
-            if ((cross.dot(*BaseAxes[newPlaneNormIndex])) < 0.0f)
+            if ((cross.dot(*BaseAxes[newPlaneNormIndex])) > 0.0f)
                 radY *= -1.0f;
             
             rad = radX;
             m_rotation = Math::degrees(rad);
             
             // apply the rotation to the new base axes
-            Quat rot(rad, *BaseAxes[newPlaneNormIndex]);
+            Quat rot(-rad, *BaseAxes[newPlaneNormIndex]);
             newBaseAxisX = rot * newBaseAxisX;
             newBaseAxisY = rot * newBaseAxisY;
             

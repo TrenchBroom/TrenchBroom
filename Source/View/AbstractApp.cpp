@@ -105,9 +105,6 @@ wxMenu* AbstractApp::CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMe
         editMenu->Append(EditActions, wxT("Actions"));
     }
     editMenu->AppendSeparator();
-    editMenu->Append(EditCreatePointEntity, wxT("Create Point Entity"));
-    editMenu->Append(EditCreateBrushEntity, wxT("Create Brush Entity"));
-    editMenu->AppendSeparator();
     editMenu->AppendCheckItem(EditToggleTextureLock, wxT("Toggle Texture Lock"));
     editMenu->SetEventHandler(eventHandler);
     
@@ -199,30 +196,30 @@ wxMenu* AbstractApp::CreateTextureActionMenu(bool mapViewFocused) {
     if (mapViewFocused) {
         
         textureActionMenu->Append(EditMoveTexturesUp, wxT("Move Up\tUP"));
-        textureActionMenu->Append(EditMoveTexturesRight, wxT("Move Right\tRIGHT"));
         textureActionMenu->Append(EditMoveTexturesDown, wxT("Move Down\tDOWN"));
         textureActionMenu->Append(EditMoveTexturesLeft, wxT("Move Left\tLEFT"));
+        textureActionMenu->Append(EditMoveTexturesRight, wxT("Move Right\tRIGHT"));
         textureActionMenu->Append(EditRotateTexturesCW, wxT("Rotate 15° CW\tPGUP"));
         textureActionMenu->Append(EditRotateTexturesCCW, wxT("Rotate 15° CCW\tPGDN"));
         textureActionMenu->AppendSeparator();
         textureActionMenu->Append(EditMoveTexturesUpFine, wxT("Move Up by 1\tCtrl+UP"));
-        textureActionMenu->Append(EditMoveTexturesRightFine, wxT("Move Right by 1\tCtrl+RIGHT"));
         textureActionMenu->Append(EditMoveTexturesDownFine, wxT("Move Down by 1\tCtrl+DOWN"));
         textureActionMenu->Append(EditMoveTexturesLeftFine, wxT("Move Left by 1\tCtrl+LEFT"));
+        textureActionMenu->Append(EditMoveTexturesRightFine, wxT("Move Right by 1\tCtrl+RIGHT"));
         textureActionMenu->Append(EditRotateTexturesCWFine, wxT("Rotate 1° CW\tCtrl+PGUP"));
         textureActionMenu->Append(EditRotateTexturesCCWFine, wxT("Rotate 1° CCW\tCtrl+PGDN"));
     } else {
         textureActionMenu->Append(EditMoveTexturesUp, wxT("Move Up"));
-        textureActionMenu->Append(EditMoveTexturesRight, wxT("Move Right"));
         textureActionMenu->Append(EditMoveTexturesDown, wxT("Move Down"));
         textureActionMenu->Append(EditMoveTexturesLeft, wxT("Move Left"));
+        textureActionMenu->Append(EditMoveTexturesRight, wxT("Move Right"));
         textureActionMenu->Append(EditRotateTexturesCW, wxT("Rotate 15° CW"));
         textureActionMenu->Append(EditRotateTexturesCCW, wxT("Rotate 15° CCW"));
         textureActionMenu->AppendSeparator();
         textureActionMenu->Append(EditMoveTexturesUpFine, wxT("Move Up by 1"));
-        textureActionMenu->Append(EditMoveTexturesRightFine, wxT("Move Right by 1"));
         textureActionMenu->Append(EditMoveTexturesDownFine, wxT("Move Down by 1"));
         textureActionMenu->Append(EditMoveTexturesLeftFine, wxT("Move Left by 1"));
+        textureActionMenu->Append(EditMoveTexturesRightFine, wxT("Move Right by 1"));
         textureActionMenu->Append(EditRotateTexturesCWFine, wxT("Rotate 1° CW"));
         textureActionMenu->Append(EditRotateTexturesCCWFine, wxT("Rotate 1° CCW"));
     }
@@ -235,32 +232,32 @@ wxMenu* AbstractApp::CreateObjectActionMenu(bool mapViewFocused) {
     wxMenu* objectActionMenu = new wxMenu();
     if (mapViewFocused) {
         objectActionMenu->Append(EditMoveObjectsForward, wxT("Move Forward\tUP"));
-        objectActionMenu->Append(EditMoveObjectsRight, wxT("Move Right\tRIGHT"));
         objectActionMenu->Append(EditMoveObjectsBackward, wxT("Move Backward\tDOWN"));
         objectActionMenu->Append(EditMoveObjectsLeft, wxT("Move Left\tLEFT"));
+        objectActionMenu->Append(EditMoveObjectsRight, wxT("Move Right\tRIGHT"));
         objectActionMenu->Append(EditMoveObjectsUp, wxT("Move Up\tPGUP"));
         objectActionMenu->Append(EditMoveObjectsDown, wxT("Move Down\tPGDN"));
         objectActionMenu->AppendSeparator();
-        objectActionMenu->Append(EditRollObjectsCW, wxT("Rotate Clockwise CW\tCtrl+UP"));
-        objectActionMenu->Append(EditRollObjectsCCW, wxT("Rotate Counterclockwise CCW\tCtrl+DOWN"));
-        objectActionMenu->Append(EditYawObjectsCW, wxT("Rotate Left CW\tCtrl+LEFT"));
-        objectActionMenu->Append(EditYawObjectsCCW, wxT("Rotate Right CCW\tCtrl+RIGHT"));
-        objectActionMenu->Append(EditPitchObjectsCW, wxT("Rotate Up CW\tCtrl+PGUP"));
-        objectActionMenu->Append(EditPitchObjectsCCW, wxT("Rotate Down CCW\tCtrl+PGDN"));
+        objectActionMenu->Append(EditRollObjectsCW, wxT("Rotate 90° Clockwise\tCtrl+UP"));
+        objectActionMenu->Append(EditRollObjectsCCW, wxT("Rotate 90° Counterclockwise\tCtrl+DOWN"));
+        objectActionMenu->Append(EditYawObjectsCW, wxT("Rotate 90° Left\tCtrl+LEFT"));
+        objectActionMenu->Append(EditYawObjectsCCW, wxT("Rotate 90° Right\tCtrl+RIGHT"));
+        objectActionMenu->Append(EditPitchObjectsCW, wxT("Rotate 90° Up\tCtrl+PGUP"));
+        objectActionMenu->Append(EditPitchObjectsCCW, wxT("Rotate 90° Down\tCtrl+PGDN"));
     } else {
         objectActionMenu->Append(EditMoveObjectsForward, wxT("Move Forward"));
-        objectActionMenu->Append(EditMoveObjectsRight, wxT("Move Right"));
         objectActionMenu->Append(EditMoveObjectsBackward, wxT("Move Backward"));
         objectActionMenu->Append(EditMoveObjectsLeft, wxT("Move Left"));
+        objectActionMenu->Append(EditMoveObjectsRight, wxT("Move Right"));
         objectActionMenu->Append(EditMoveObjectsUp, wxT("Move Up"));
         objectActionMenu->Append(EditMoveObjectsDown, wxT("Move Down"));
         objectActionMenu->AppendSeparator();
-        objectActionMenu->Append(EditRollObjectsCW, wxT("Rotate Clockwise CW"));
-        objectActionMenu->Append(EditRollObjectsCCW, wxT("Rotate Counterclockwise CCW"));
-        objectActionMenu->Append(EditYawObjectsCW, wxT("Rotate Left CW"));
-        objectActionMenu->Append(EditYawObjectsCCW, wxT("Rotate Right CCW"));
-        objectActionMenu->Append(EditPitchObjectsCW, wxT("Rotate Up CW"));
-        objectActionMenu->Append(EditPitchObjectsCCW, wxT("Rotate Down CCW"));
+        objectActionMenu->Append(EditRollObjectsCW, wxT("Rotate 90° Clockwise"));
+        objectActionMenu->Append(EditRollObjectsCCW, wxT("Rotate 90° Counterclockwise"));
+        objectActionMenu->Append(EditYawObjectsCW, wxT("Rotate 90° Left"));
+        objectActionMenu->Append(EditYawObjectsCCW, wxT("Rotate 90° Right"));
+        objectActionMenu->Append(EditPitchObjectsCW, wxT("Rotate 90° Up"));
+        objectActionMenu->Append(EditPitchObjectsCCW, wxT("Rotate 90° Down"));
     }
     objectActionMenu->AppendSeparator();
     objectActionMenu->Append(EditFlipObjectsHorizontally, wxT("Flip Horizontally\tCtrl+F"));

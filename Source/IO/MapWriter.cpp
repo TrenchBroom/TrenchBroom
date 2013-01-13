@@ -221,6 +221,7 @@ namespace TrenchBroom {
             const Model::EntityList& entities = map.entities();
             for (unsigned int i = 0; i < entities.size(); i++)
                 writeEntity(*entities[i], stream);
+            fclose(stream);
         }
     }
 }

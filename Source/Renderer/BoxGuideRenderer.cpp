@@ -80,6 +80,7 @@ namespace TrenchBroom {
                 m_spikeArray = NULL;
                 delete m_pointArray;
                 m_pointArray = NULL;
+                m_valid = true;
             }
             
             if (m_boxArray == NULL) {

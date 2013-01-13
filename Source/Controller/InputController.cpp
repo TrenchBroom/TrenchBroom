@@ -387,8 +387,9 @@ namespace TrenchBroom {
                                                                               m_documentViewHolder.view().filter(),
                                                                               m_documentViewHolder.document().sharedResources().stringManager());
                 
+                Model::ObjectHit* hit = static_cast<Model::ObjectHit*>(m_inputState.pickResult().first(Model::HitType::ObjectHit, true, m_documentViewHolder.view().filter()));
                 if (m_moveObjectsTool->dragType() != Tool::DTNone || m_rotateObjectsTool->dragType() != Tool::DTNone ||
-                    !Math::isnan(m_selectionGuideRenderer->bounds().intersectWithRay(m_inputState.pickRay())) ||
+                    (hit != NULL && hit->object().selected()) ||
                     m_inputState.pickResult().first(Model::HitType::MoveHandleHit, true, m_documentViewHolder.view().filter()) != NULL ||
                     m_inputState.pickResult().first(Model::HitType::RotateObjectsHandleHit, true, m_documentViewHolder.view().filter())) {
                     m_selectionGuideRenderer->setColor(prefs.getColor(Preferences::HoveredGuideColor));

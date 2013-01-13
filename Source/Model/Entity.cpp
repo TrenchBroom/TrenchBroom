@@ -45,6 +45,7 @@ namespace TrenchBroom {
 
         void Entity::init() {
             m_map = NULL;
+            m_worldspawn = false;
             m_definition = NULL;
             m_filePosition = 0;
             setEditState(EditState::Default);
@@ -249,8 +250,10 @@ namespace TrenchBroom {
         
         void Entity::setProperty(const PropertyKey& key, const PropertyValue* value) {
             if (key == ClassnameKey) {
-                if (value != classname())
+                if (value != classname()) {
+                    m_worldspawn = *value == WorldspawnClassname;
                     setDefinition(NULL);
+                }
             }
             
             const PropertyValue* oldValue = propertyForKey(key);
