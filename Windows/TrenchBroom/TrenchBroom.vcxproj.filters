@@ -1010,9 +1010,6 @@
     <ClInclude Include="..\..\Source\View\GenericDropSource.h">
       <Filter>Header Files\View</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Model\ModelUtils.h">
-      <Filter>Header Files\Model</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Controller\SetFaceAttributesTool.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>

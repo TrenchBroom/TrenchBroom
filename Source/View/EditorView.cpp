@@ -919,6 +919,10 @@ namespace TrenchBroom {
                 }
             }
 
+            // might happen of all visible brushes are selected (not checking for this when enabling the menu item for performance reasons)
+            if (hideEntities.empty() && hideBrushes.empty())
+                return;
+            
             wxCommand* command = Controller::ChangeEditStateCommand::hide(mapDocument(), hideEntities, hideBrushes);
             submit(command);
         }
@@ -956,6 +960,10 @@ namespace TrenchBroom {
                 }
             }
 
+            // might happen of all visible brushes are selected (not checking for this when enabling the menu item for performance reasons)
+            if (lockEntities.empty() && lockBrushes.empty())
+                return;
+            
             wxCommand* command = Controller::ChangeEditStateCommand::lock(mapDocument(), lockEntities, lockBrushes);
             submit(command);
         }
