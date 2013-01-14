@@ -24,61 +24,60 @@
 #include "Model/EditStateManager.h"
 #include "Model/MapDocument.h"
 #include "Model/MapObject.h"
-#include "Renderer/ApplyMatrix.h"
-#include "Renderer/AxisFigure.h"
 #include "Renderer/Camera.h"
-#include "Renderer/CircleFigure.h"
 #include "Renderer/RenderContext.h"
-#include "Renderer/Shader/ShaderManager.h"
-#include "Renderer/VertexArray.h"
+#include "Renderer/MovementIndicator.h"
 #include "Utility/Grid.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Controller {
-        void MoveObjectsTool::updateHandlePosition(InputState& inputState) {
-            Model::EditStateManager& editStateManager = document().editStateManager();
-            if (!editStateManager.hasSelectedObjects())
-                return;
-            
-            Vec3f position = document().grid().referencePoint(editStateManager.bounds());
-            m_moveHandle.setPosition(position);
-        }
-
-        bool MoveObjectsTool::handleIsModal(InputState& inputState) {
-            if (dragType() == DTDrag)
-                return true;
-            
-            Model::MoveHandleHit* hit = static_cast<Model::MoveHandleHit*>(inputState.pickResult().first(Model::HitType::MoveHandleHit, true, view().filter()));
-            return hit != NULL;
-        }
-
-        void MoveObjectsTool::handlePick(InputState& inputState) {
-            Model::EditStateManager& editStateManager = document().editStateManager();
-            if (editStateManager.selectedEntities().empty() && editStateManager.selectedBrushes().empty())
-                return;
-
-            Model::MoveHandleHit* hit = m_moveHandle.pick(inputState.pickRay());
-            if (hit != NULL)
-                inputState.pickResult().add(hit);
-
-            if (!m_moveHandle.locked())
-                m_moveHandle.setLastHit(hit);
-        }
-
         void MoveObjectsTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
-            Model::EditStateManager& editStateManager = document().editStateManager();
-            if (editStateManager.selectedEntities().empty() && editStateManager.selectedBrushes().empty())
+            if (inputState.mouseButtons() != MouseButtons::MBNone ||
+                (inputState.modifierKeys() != ModifierKeys::MKNone &&
+                 inputState.modifierKeys() != ModifierKeys::MKAlt))
                 return;
             
-            Model::MoveHandleHit* hit = static_cast<Model::MoveHandleHit*>(inputState.pickResult().first(Model::HitType::MoveHandleHit, true, view().filter()));
-            m_moveHandle.render(hit, vbo, renderContext);
+            if (dragType() != DTNone)
+                return;
+            
+            Model::EditStateManager& editStateManager = document().editStateManager();
+            const Model::EntityList& entities = editStateManager.selectedEntities();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            if (entities.empty() && brushes.empty())
+                return;
+            
+            Model::ObjectHit* hit = static_cast<Model::ObjectHit*>(inputState.pickResult().first(Model::HitType::ObjectHit, false, view().filter()));
+            if (hit == NULL || !hit->object().selected())
+                return;
+
+            if (m_indicator == NULL)
+                m_indicator = new Renderer::MovementIndicator();
+            
+            if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
+                m_indicator->setDirection(Renderer::MovementIndicator::Vertical);
+            } else {
+                if (std::abs(inputState.pickRay().direction.z) < 0.3f)
+                    m_indicator->setDirection(Renderer::MovementIndicator::LeftRight);
+                else
+                    m_indicator->setDirection(Renderer::MovementIndicator::Horizontal);
+            }
+
+            Vec3f position = renderContext.camera().defaultPoint(inputState.x() + 20.0f, inputState.y() + 20.0f);
+            m_indicator->setPosition(position);
+            m_indicator->render(vbo, renderContext);
         }
         
+        void MoveObjectsTool::handleFreeRenderResources() {
+            delete m_indicator;
+            m_indicator = NULL;
+        }
+
         bool MoveObjectsTool::handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint) {
             if (inputState.mouseButtons() != MouseButtons::MBLeft ||
-                inputState.modifierKeys() != ModifierKeys::MKNone)
+                (inputState.modifierKeys() != ModifierKeys::MKNone &&
+                 inputState.modifierKeys() != ModifierKeys::MKAlt))
                 return false;
             
             Model::EditStateManager& editStateManager = document().editStateManager();
@@ -87,41 +86,25 @@ namespace TrenchBroom {
             if (entities.empty() && brushes.empty())
                 return false;
             
-            Model::MoveHandleHit* hit = static_cast<Model::MoveHandleHit*>(inputState.pickResult().first(Model::HitType::MoveHandleHit, true, view().filter()));
-            
-            if (hit == NULL)
+            Model::ObjectHit* hit = static_cast<Model::ObjectHit*>(inputState.pickResult().first(Model::HitType::ObjectHit, false, view().filter()));
+            if (hit == NULL || !hit->object().selected())
                 return false;
-            
-            switch (hit->hitArea()) {
-                case Model::MoveHandleHit::HAXAxis:
-                    plane = Plane::planeContainingVector(hit->hitPoint(), Vec3f::PosX, inputState.pickRay().origin);
-                    m_restrictToAxis = MoveHandle::RXAxis;
-                    break;
-                case Model::MoveHandleHit::HAYAxis:
-                    plane = Plane::planeContainingVector(hit->hitPoint(), Vec3f::PosY, inputState.pickRay().origin);
-                    m_restrictToAxis = MoveHandle::RYAxis;
-                    break;
-                case Model::MoveHandleHit::HAZAxis:
-                    plane = Plane::planeContainingVector(hit->hitPoint(), Vec3f::PosZ, inputState.pickRay().origin);
-                    m_restrictToAxis = MoveHandle::RZAxis;
-                    break;
-                case Model::MoveHandleHit::HAXYPlane:
-                    plane = Plane::horizontalDragPlane(hit->hitPoint());
-                    m_restrictToAxis = MoveHandle::RNone;
-                    break;
-                case Model::MoveHandleHit::HAXZPlane:
-                    plane = Plane::verticalDragPlane(hit->hitPoint(), Vec3f::PosY);
-                    m_restrictToAxis = MoveHandle::RNone;
-                    break;
-                case Model::MoveHandleHit::HAYZPlane:
-                    plane = Plane::verticalDragPlane(hit->hitPoint(), Vec3f::PosX);
-                    m_restrictToAxis = MoveHandle::RNone;
-                    break;
-            }
             
             initialPoint = hit->hitPoint();
             m_totalDelta = Vec3f::Null;
-            m_moveHandle.lock();
+
+            if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
+                plane = Plane::verticalDragPlane(initialPoint, inputState.camera().direction());
+                m_direction = Vertical;
+            } else {
+                if (std::abs(inputState.pickRay().direction.z) < 0.3f) {
+                    plane = Plane::verticalDragPlane(initialPoint, inputState.camera().direction());
+                    m_direction = LeftRight;
+                } else {
+                    plane = Plane::horizontalDragPlane(initialPoint);
+                    m_direction = Horizontal;
+                }
+            }
             
             beginCommandGroup(Controller::Command::makeObjectActionName(wxT("Move"), entities, brushes));
             
@@ -130,26 +113,17 @@ namespace TrenchBroom {
         
         bool MoveObjectsTool::handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) {
             Vec3f delta = curPoint - refPoint;
-            switch (m_restrictToAxis) {
-                case MoveHandle::RXAxis:
-                    delta.y = delta.z = 0.0f;
-                    break;
-                case MoveHandle::RYAxis:
-                    delta.x = delta.z = 0.0f;
-                    break;
-                case MoveHandle::RZAxis:
-                    delta.x = delta.y = 0.0f;
-                    break;
-                default:
-                    break;
+            if (m_direction == Vertical) {
+                delta = Vec3f::PosZ * delta.dot(Vec3f::PosZ);
+            } else if (m_direction == LeftRight) {
+                Vec3f axis = Vec3f::PosZ.crossed(dragPlane().normal);
+                delta = axis * delta.dot(axis);
             }
             
             Utility::Grid& grid = document().grid();
             delta = grid.snap(delta);
             if (delta.null())
                 return true;
-            
-            m_moveHandle.setPosition(m_moveHandle.position() + delta);
             
             Model::EditStateManager& editStateManager = document().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
@@ -167,23 +141,19 @@ namespace TrenchBroom {
                 discardCommandGroup();
             else
                 endCommandGroup();
-            m_moveHandle.unlock();
         }
         
         void MoveObjectsTool::handleObjectsChange(InputState& inputState) {
-            updateHandlePosition(inputState);
         }
         
         void MoveObjectsTool::handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet) {
-            updateHandlePosition(inputState);
         }
 
         void MoveObjectsTool::handleGridChange(InputState& inputState) {
-            updateHandlePosition(inputState);
         }
         
         MoveObjectsTool::MoveObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, float axisLength, float planeRadius) :
         PlaneDragTool(documentViewHolder, inputController, true),
-        m_moveHandle(MoveHandle(axisLength, planeRadius)) {}
+        m_indicator(NULL) {}
     }
 }

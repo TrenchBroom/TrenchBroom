@@ -128,6 +128,7 @@
 		48C3CAF4162A8F2D006547EC /* AddObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C3CAF2162A8F2D006547EC /* AddObjectsCommand.cpp */; };
 		48C83711167513CD00B658A2 /* PointHandleRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C8370F167513CD00B658A2 /* PointHandleRenderer.cpp */; };
 		48CB0DCD163EEB26001C8E87 /* CircleFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48CB0DCB163EEB26001C8E87 /* CircleFigure.cpp */; };
+		48CDA82216A424E70050E152 /* MovementIndicator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48CDA82016A424E70050E152 /* MovementIndicator.cpp */; };
 		48D1BE9D15E2E5550073C030 /* Vec3f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BE9C15E2E5550073C030 /* Vec3f.cpp */; };
 		48D1BEA315E2F3BC0073C030 /* Mat4f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEA215E2F3BB0073C030 /* Mat4f.cpp */; };
 		48D1BEAE15E3AC060073C030 /* EditorView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEAC15E3AC060073C030 /* EditorView.cpp */; };
@@ -443,6 +444,8 @@
 		48C83710167513CD00B658A2 /* PointHandleRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointHandleRenderer.h; sourceTree = "<group>"; };
 		48CB0DCB163EEB26001C8E87 /* CircleFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CircleFigure.cpp; sourceTree = "<group>"; };
 		48CB0DCC163EEB26001C8E87 /* CircleFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CircleFigure.h; sourceTree = "<group>"; };
+		48CDA82016A424E70050E152 /* MovementIndicator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MovementIndicator.cpp; sourceTree = "<group>"; };
+		48CDA82116A424E70050E152 /* MovementIndicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MovementIndicator.h; sourceTree = "<group>"; };
 		48D1BE9815E2E2930073C030 /* Math.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Math.h; sourceTree = "<group>"; };
 		48D1BE9A15E2E35C0073C030 /* Vec3f.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Vec3f.h; sourceTree = "<group>"; };
 		48D1BE9B15E2E3B50073C030 /* VecMath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VecMath.h; sourceTree = "<group>"; };
@@ -600,6 +603,8 @@
 				48C83710167513CD00B658A2 /* PointHandleRenderer.h */,
 				48312B3315EB805E00607868 /* MapRenderer.cpp */,
 				48312B3415EB805E00607868 /* MapRenderer.h */,
+				48CDA82016A424E70050E152 /* MovementIndicator.cpp */,
+				48CDA82116A424E70050E152 /* MovementIndicator.h */,
 				488457CE161C839A002ADDAE /* OffscreenRenderer.cpp */,
 				488457CF161C839A002ADDAE /* OffscreenRenderer.h */,
 				48B059C51617866100E6B0AD /* Palette.cpp */,
@@ -1247,6 +1252,7 @@
 				487567AF169E1605008F316F /* BoxGuideRenderer.cpp in Sources */,
 				487567B316A09D57008F316F /* EntityRotationDecorator.cpp in Sources */,
 				487567B616A180FF008F316F /* BoxInfoRenderer.cpp in Sources */,
+				48CDA82216A424E70050E152 /* MovementIndicator.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

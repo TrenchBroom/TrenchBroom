@@ -128,7 +128,7 @@ namespace TrenchBroom {
             const Ray pickRay(float x, float y) const;
             
             const Mat4f& matrix() const;
-            const Mat4f billboardMatrix() const;
+            const Mat4f billboardMatrix(bool fixUp = false) const;
 
             float distanceTo(const Vec3f& point) const;
             float squaredDistanceTo(const Vec3f& point) const;

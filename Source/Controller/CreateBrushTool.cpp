@@ -106,8 +106,10 @@ namespace TrenchBroom {
         bool CreateBrushTool::handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint) {
             assert(m_brush == NULL);
             
+            Model::EditStateManager& editStateManager = document().editStateManager();
             if (inputState.mouseButtons() != MouseButtons::MBLeft ||
-                inputState.modifierKeys() != ModifierKeys::MKNone)
+                inputState.modifierKeys() != ModifierKeys::MKNone ||
+                editStateManager.hasSelectedObjects())
                 return false;
             
             Model::FaceHit* hit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, view().filter()));

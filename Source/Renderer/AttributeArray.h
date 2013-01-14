@@ -355,6 +355,19 @@ namespace TrenchBroom {
                 attributesAdded();
             }
 
+            inline void addAttributes(const Vec2f::List& values) {
+                assert(m_vertexCount + values.size() <= m_vertexCapacity);
+                assert(m_attributes.size() == 1);
+                assert(m_attributes.front().valueType() == GL_FLOAT);
+                assert(m_attributes.front().size() == 2);
+                assert(m_padBy == 0);
+                
+                const unsigned char* buffer = reinterpret_cast<const unsigned char*>(&values.front());
+                unsigned int length = static_cast<unsigned int>(values.size() * 2 * sizeof(float));
+                m_writeOffset = m_block->writeBuffer(buffer, m_writeOffset, length);
+                attributesAdded(static_cast<unsigned int>(values.size()));
+            }
+
             inline void addAttribute(const Vec3f& value) {
                 assert(m_vertexCount < m_vertexCapacity);
                 assert(m_attributes[m_specIndex].valueType() == GL_FLOAT);

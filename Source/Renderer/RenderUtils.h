@@ -58,6 +58,36 @@ namespace TrenchBroom {
             glDepthRange(EdgeOffset, 1.0f);
         }
         
+        inline void arrow(float shaftLength, float shaftWidth, float headLength, float headWidth, Vec2f::List& outline, Vec2f::List& triangles) {
+            assert(shaftLength > 0.0f);
+            assert(shaftWidth > 0.0f);
+            assert(headLength > 0.0f);
+            assert(headWidth > 0.0f);
+
+            outline.reserve(8);
+            triangles.reserve(3 * 3);
+
+            outline.push_back(Vec2f(0.0f, shaftWidth / 2.0f));
+            outline.push_back(Vec2f(shaftLength, shaftWidth / 2.0f));
+            outline.push_back(Vec2f(shaftLength, headWidth / 2.0f));
+            outline.push_back(Vec2f(shaftLength + headLength, 0.0f));
+            outline.push_back(Vec2f(shaftLength, -headWidth / 2.0f));
+            outline.push_back(Vec2f(shaftLength, -shaftWidth / 2.0f));
+            outline.push_back(Vec2f(0.0f, shaftWidth / 2.0f));
+            
+            triangles.push_back(Vec2f(0.0f, shaftWidth / 2.0f));
+            triangles.push_back(Vec2f(shaftLength, shaftWidth / 2.0f));
+            triangles.push_back(Vec2f(shaftLength, -shaftWidth / 2.0f));
+            
+            triangles.push_back(Vec2f(shaftLength, -shaftWidth / 2.0f));
+            triangles.push_back(Vec2f(0.0f, -shaftWidth / 2.0f));
+            triangles.push_back(Vec2f(0.0f, shaftWidth / 2.0f));
+            
+            triangles.push_back(Vec2f(shaftLength, headWidth / 2.0f));
+            triangles.push_back(Vec2f(shaftLength + headLength, 0.0f));
+            triangles.push_back(Vec2f(shaftLength, -headWidth / 2.0f));
+        }
+        
         inline void roundedRect(float width, float height, float cornerRadius, unsigned int cornerSegments, Vec2f::List& vertices) {
             assert(cornerSegments > 0);
             assert(cornerRadius <= width / 2.0f &&

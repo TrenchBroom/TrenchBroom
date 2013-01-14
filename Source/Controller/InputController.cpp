@@ -115,8 +115,8 @@ namespace TrenchBroom {
             m_moveVerticesTool->setNextTool(m_createEntityTool);
             m_createEntityTool->setNextTool(m_createBrushTool);
             m_createBrushTool->setNextTool(m_moveObjectsTool);
-            m_moveObjectsTool->setNextTool(m_rotateObjectsTool);
-            m_rotateObjectsTool->setNextTool(m_resizeBrushesTool);
+            m_moveObjectsTool->setNextTool(m_resizeBrushesTool);
+            // m_rotateObjectsTool->setNextTool(m_resizeBrushesTool);
             m_resizeBrushesTool->setNextTool(m_setFaceAttributesTool);
             m_setFaceAttributesTool->setNextTool(m_selectionTool);
             m_toolChain = m_cameraTool;

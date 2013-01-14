@@ -29,6 +29,7 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Renderer {
+        class MovementIndicator;
         class Vbo;
         class RenderContext;
     }
@@ -36,16 +37,18 @@ namespace TrenchBroom {
     namespace Controller {
         class MoveObjectsTool : public PlaneDragTool {
         protected:
-            MoveHandle m_moveHandle;
+            typedef enum {
+                LeftRight,
+                Horizontal,
+                Vertical
+            } Direction;
+            
             Vec3f m_totalDelta;
-            MoveHandle::RestrictToAxis m_restrictToAxis;
+            Direction m_direction;
+            Renderer::MovementIndicator* m_indicator;
             
-            void updateHandlePosition(InputState& inputState);
-            
-            bool handleIsModal(InputState& inputState);
-
-            void handlePick(InputState& inputState);
             void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
+            void handleFreeRenderResources();
 
             bool handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint);
             bool handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint);

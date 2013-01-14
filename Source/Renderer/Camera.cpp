@@ -113,10 +113,17 @@ namespace TrenchBroom {
             return m_matrix;
         }
 
-        const Mat4f Camera::billboardMatrix() const {
-            Vec3f bbLook = m_direction * -1.0f;
-            Vec3f bbUp = m_up;
-            Vec3f bbRight = bbUp.crossed(bbLook);
+        const Mat4f Camera::billboardMatrix(bool fixUp) const {
+            Vec3f bbLook, bbUp, bbRight;
+            bbLook = m_direction * -1.0f;
+            if (fixUp) {
+                bbLook.z = 0.0f;
+                bbLook.normalize();
+                bbUp = Vec3f::PosZ;
+            } else {
+                bbUp = m_up;
+            }
+            bbRight = bbUp.crossed(bbLook);
 
             return Mat4f(bbRight.x,  bbUp.x,     bbLook.x,   0.0f,
                          bbRight.y,  bbUp.y,     bbLook.y,   0.0f,
