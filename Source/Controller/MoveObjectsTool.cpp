@@ -34,12 +34,10 @@
 namespace TrenchBroom {
     namespace Controller {
         void MoveObjectsTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
-            if (inputState.mouseButtons() != MouseButtons::MBNone ||
+            if ((inputState.mouseButtons() != MouseButtons::MBNone &&
+                 inputState.mouseButtons() != MouseButtons::MBLeft) ||
                 (inputState.modifierKeys() != ModifierKeys::MKNone &&
                  inputState.modifierKeys() != ModifierKeys::MKAlt))
-                return;
-            
-            if (dragType() != DTNone)
                 return;
             
             Model::EditStateManager& editStateManager = document().editStateManager();
@@ -48,20 +46,31 @@ namespace TrenchBroom {
             if (entities.empty() && brushes.empty())
                 return;
             
-            Model::ObjectHit* hit = static_cast<Model::ObjectHit*>(inputState.pickResult().first(Model::HitType::ObjectHit, false, view().filter()));
-            if (hit == NULL || !hit->object().selected())
-                return;
+            if (dragType() == DTNone) {
+                Model::ObjectHit* hit = static_cast<Model::ObjectHit*>(inputState.pickResult().first(Model::HitType::ObjectHit, false, view().filter()));
+                if (hit == NULL || !hit->object().selected())
+                    return;
+            }
 
             if (m_indicator == NULL)
                 m_indicator = new Renderer::MovementIndicator();
             
-            if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
-                m_indicator->setDirection(Renderer::MovementIndicator::Vertical);
-            } else {
-                if (std::abs(inputState.pickRay().direction.z) < 0.3f)
+            if (dragType() == DTDrag) {
+                if (m_direction == LeftRight)
                     m_indicator->setDirection(Renderer::MovementIndicator::LeftRight);
-                else
+                else if (m_direction == Horizontal)
                     m_indicator->setDirection(Renderer::MovementIndicator::Horizontal);
+                else
+                    m_indicator->setDirection(Renderer::MovementIndicator::Vertical);
+            } else {
+                if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
+                    m_indicator->setDirection(Renderer::MovementIndicator::Vertical);
+                } else {
+                    if (std::abs(inputState.pickRay().direction.z) < 0.3f)
+                        m_indicator->setDirection(Renderer::MovementIndicator::LeftRight);
+                    else
+                        m_indicator->setDirection(Renderer::MovementIndicator::Horizontal);
+                }
             }
 
             Vec3f position = renderContext.camera().defaultPoint(inputState.x() + 20.0f, inputState.y() + 20.0f);
