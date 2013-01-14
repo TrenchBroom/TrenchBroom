@@ -1528,7 +1528,7 @@ namespace TrenchBroom {
         Vec3f::List BrushGeometry::moveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces) {
             assert(canMoveVertices(vertexPositions, delta));
             
-            Vec3f::List newVertexPositions;
+            VertexList movedVertices;
             Vec3f::List sortedVertexPositions = vertexPositions;
             std::sort(sortedVertexPositions.begin(), sortedVertexPositions.end(), Vec3f::InverseDotOrder(delta));
             
@@ -1540,14 +1540,19 @@ namespace TrenchBroom {
                 
                 MoveVertexResult result = moveVertex(vertex, true, delta, newFaces, droppedFaces);
                 if (result.type == MoveVertexResult::VertexMoved)
-                    newVertexPositions.push_back(result.vertex->position.snapped());
+                    movedVertices.push_back(result.vertex);
             }
             
             for (unsigned int i = 0; i < vertices.size(); i++)
                 vertices[i]->position.snap();
             for (unsigned int i = 0; i < sides.size(); i++)
                 sides[i]->face->updatePoints();
-
+            
+            Vec3f::List newVertexPositions;
+            newVertexPositions.reserve(movedVertices.size());
+            for (unsigned int i = 0; i < movedVertices.size(); i++)
+                newVertexPositions.push_back(movedVertices[i]->position);
+            
             return newVertexPositions;
         }
 
