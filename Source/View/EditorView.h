@@ -78,6 +78,7 @@ namespace TrenchBroom {
             Model::Filter* m_filter;
             ViewOptions* m_viewOptions;
             wxMenu* m_createEntityPopupMenu;
+            wxMenu* m_createPointEntityMenu;
             
             Vec3f moveDelta(Direction direction, bool snapToGrid);
             
@@ -208,6 +209,8 @@ namespace TrenchBroom {
             void OnPopupCreateBrushEntity(wxCommandEvent& event);
             void OnPopupUpdateBrushMenuItem(wxUpdateUIEvent& event);
             
+            void OnMenuHighlight(wxMenuEvent& event);
+
             DECLARE_EVENT_TABLE();
         };
     }

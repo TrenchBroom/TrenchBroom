@@ -277,6 +277,7 @@ namespace TrenchBroom {
                 wxMenu* popupMenu = m_documentViewHolder.view().createEntityPopupMenu();
                 popupMenu->UpdateUI(&m_documentViewHolder.view());
                 PopupMenu(popupMenu);
+                m_inputController->hidePointEntityPreview();
             }
         }
         

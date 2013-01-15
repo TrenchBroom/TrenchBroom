@@ -20,6 +20,7 @@
 #include "InputController.h"
 
 #include "Controller/AddObjectsCommand.h"
+#include "Controller/CreateEntityFromMenuHelper.h"
 #include "Controller/MoveObjectsCommand.h"
 #include "Controller/ChangeEditStateCommand.h"
 #include "Controller/RemoveObjectsCommand.h"
@@ -98,6 +99,7 @@ namespace TrenchBroom {
         m_modalTool(NULL),
         m_cancelledDrag(false),
         m_discardNextMouseUp(false),
+        m_createEntityHelper(NULL),
         m_selectionGuideRenderer(NULL) {
             m_cameraTool = new CameraTool(m_documentViewHolder, *this);
             m_clipTool = new ClipTool(m_documentViewHolder, *this);
@@ -403,12 +405,17 @@ namespace TrenchBroom {
             }
             
             m_toolChain->renderOverlay(m_inputState, vbo, context);
+            
+            if (m_createEntityHelper != NULL)
+                m_createEntityHelper->render(vbo, context);
         }
         
         void InputController::freeRenderResources() {
             m_toolChain->freeRenderResources();
             delete m_selectionGuideRenderer;
             m_selectionGuideRenderer = NULL;
+            delete m_createEntityHelper;
+            m_createEntityHelper = NULL;
         }
         
         void InputController::toggleClipTool() {
@@ -503,7 +510,7 @@ namespace TrenchBroom {
                     delta = grid.moveDeltaForEntity(entity->bounds().center(), worldBounds, newPosition - entity->bounds().center());
                 }
                 
-                delta = grid.snap(delta);
+                // delta = grid.snap(delta);
                 
                 StringStream commandName;
                 commandName << "Create ";
@@ -638,6 +645,36 @@ namespace TrenchBroom {
             CommandProcessor::EndGroup(document.GetCommandProcessor());
         }
         
+        void InputController::showPointEntityPreview(Model::PointEntityDefinition& definition) {
+            Model::MapDocument& document = m_documentViewHolder.document();
+            View::EditorView& view = m_documentViewHolder.view();
+
+            Vec3f origin;
+            Utility::Grid& grid = document.grid();
+            
+            Model::FaceHit* hit = static_cast<Model::FaceHit*>(m_inputState.pickResult().first(Model::HitType::FaceHit, true, view.filter()));
+            if (hit != NULL) {
+                origin = grid.moveDeltaForEntity(hit->face(), definition.bounds(), document.map().worldBounds(), m_inputState.pickRay(), hit->hitPoint());
+            } else {
+                Vec3f newPosition = m_documentViewHolder.view().camera().defaultPoint(m_inputState.pickRay().direction);
+                origin = grid.moveDeltaForEntity(Vec3f::Null, document.map().worldBounds(), newPosition);
+            }
+            
+            // origin = grid.snap(origin);
+
+            if (m_createEntityHelper == NULL)
+                m_createEntityHelper = new CreateEntityFromMenuHelper(document);
+            m_createEntityHelper->show(definition, origin);
+            updateViews();
+        }
+        
+        void InputController::hidePointEntityPreview() {
+            if (m_createEntityHelper != NULL) {
+                m_createEntityHelper->hide();
+                updateViews();
+            }
+        }
+
         InputControllerFigure::InputControllerFigure(InputController& inputController) :
         m_inputController(inputController) {}
         

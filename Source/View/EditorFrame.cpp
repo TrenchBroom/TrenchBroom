@@ -83,7 +83,7 @@ namespace TrenchBroom {
         m_documentViewHolder(DocumentViewHolder(&document, &view)) {
             CreateGui();
             updateMenuBar();
-            m_mapCanvasHasFocus = FindFocus() == m_mapCanvas;
+            m_mapCanvasHasFocus = false;
         }
 
         void EditorFrame::updateMenuBar() {
@@ -173,8 +173,9 @@ namespace TrenchBroom {
             
 #ifdef __APPLE__
             if (m_documentViewHolder.valid()) {
-                if (m_mapCanvasHasFocus && FindFocus() != m_mapCanvas) {
-                    m_mapCanvasHasFocus = false;
+                wxWindow* focus = FindFocus();
+                if (m_mapCanvasHasFocus != (focus == m_mapCanvas)) {
+                    m_mapCanvasHasFocus = (focus == m_mapCanvas);
                     
                     updateMenuBar();
                     
@@ -184,9 +185,8 @@ namespace TrenchBroom {
                         wxMenu* menu = menuBar->GetMenu(i);
                         menu->UpdateUI(&m_documentViewHolder.view());
                     }
+                    m_mapCanvas->Refresh();
                 }
-                
-                m_mapCanvas->Refresh();
             }
 #endif
         }
@@ -208,7 +208,7 @@ namespace TrenchBroom {
             wxMenu* menu = event.GetMenu();
 			menu->UpdateUI(&m_documentViewHolder.view());
 #endif
+            event.Skip();
         }
-        
     }
 }

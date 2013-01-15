@@ -45,12 +45,12 @@ namespace TrenchBroom {
                 Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
                 m_entityRenderer = new EntityRenderer(vbo, m_document);
-                m_entityRenderer->setClassnameFadeDistance(prefs.getFloat(Preferences::SelectedInfoOverlayFadeDistance));
-                m_entityRenderer->setClassnameColor(prefs.getColor(Preferences::SelectedInfoOverlayTextColor), prefs.getColor(Preferences::SelectedInfoOverlayBackgroundColor));
-                m_entityRenderer->setOccludedClassnameColor(prefs.getColor(Preferences::SelectedInfoOverlayTextColor), prefs.getColor(Preferences::SelectedInfoOverlayBackgroundColor));
-                m_entityRenderer->setBoundsColor(prefs.getColor(Preferences::SelectedEntityBoundsColor));
-                m_entityRenderer->setOccludedBoundsColor(prefs.getColor(Preferences::OccludedSelectedEntityBoundsColor));
-                m_entityRenderer->setTintColor(prefs.getColor(Preferences::SelectedEntityColor));
+                m_entityRenderer->setClassnameFadeDistance(99999.0f);
+                m_entityRenderer->setClassnameColor(prefs.getColor(Preferences::InfoOverlayTextColor), prefs.getColor(Preferences::InfoOverlayBackgroundColor));
+                m_entityRenderer->setOccludedClassnameColor(prefs.getColor(Preferences::InfoOverlayTextColor), prefs.getColor(Preferences::InfoOverlayBackgroundColor));
+//                m_entityRenderer->setBoundsColor(prefs.getColor(Preferences::EntityBoundsColor));
+//                m_entityRenderer->setOccludedBoundsColor(prefs.getColor(Preferences::OccludedSelectedEntityBoundsColor));
+//                m_entityRenderer->setTintColor(prefs.getColor(Preferences::SelectedEntityColor));
                 
                 m_entityRenderer->addEntity(m_entity);
             }
