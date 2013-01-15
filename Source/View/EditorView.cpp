@@ -166,8 +166,11 @@ namespace TrenchBroom {
         EVT_UPDATE_UI(CommandIds::CreateEntityPopupMenu::ReparentBrushes, EditorView::OnPopupUpdateReparentBrushesMenuItem)
         EVT_MENU_RANGE(CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem, EditorView::OnPopupCreatePointEntity)
         EVT_UPDATE_UI_RANGE(CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem, EditorView::OnPopupUpdatePointMenuItem)
+        
         EVT_MENU_RANGE(CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem, CommandIds::CreateEntityPopupMenu::HighestBrushEntityItem, EditorView::OnPopupCreateBrushEntity)
         EVT_UPDATE_UI_RANGE(CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem, CommandIds::CreateEntityPopupMenu::HighestBrushEntityItem, EditorView::OnPopupUpdateBrushMenuItem)
+
+        EVT_MENU_HIGHLIGHT_ALL(EditorView::OnMenuHighlight)
         END_EVENT_TABLE()
 
         IMPLEMENT_DYNAMIC_CLASS(EditorView, wxView);
@@ -359,7 +362,8 @@ namespace TrenchBroom {
         m_renderer(NULL),
         m_filter(NULL),
         m_viewOptions(NULL),
-        m_createEntityPopupMenu(NULL) {}
+        m_createEntityPopupMenu(NULL),
+        m_createPointEntityMenu(NULL) {}
 
         ViewOptions& EditorView::viewOptions() const {
             return *m_viewOptions;
@@ -403,11 +407,14 @@ namespace TrenchBroom {
                 int id = 0;
                 wxMenu* pointMenu = new wxMenu();
                 pointMenu->SetEventHandler(this);
+
                 const Model::EntityDefinitionList& pointDefinitions = definitionManager.definitions(Model::EntityDefinition::PointEntity);
                 for (it = pointDefinitions.begin(), end = pointDefinitions.end(); it != end; ++it) {
                     Model::EntityDefinition& definition = **it;
                     pointMenu->Append(CommandIds::CreateEntityPopupMenu::LowestPointEntityItem + id++, definition.name());
                 }
+                
+                m_createPointEntityMenu = pointMenu;
                 
                 id = 0;
                 wxMenu* brushMenu = new wxMenu();
@@ -1546,5 +1553,18 @@ namespace TrenchBroom {
                          !inputController().moveVerticesToolActive() &&
                          editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
         }
+        
+        void EditorView::OnMenuHighlight(wxMenuEvent& event) {
+            if (event.GetMenu() == m_createPointEntityMenu) {
+                Model::EntityDefinitionManager& definitionManager = mapDocument().definitionManager();
+                const Model::EntityDefinitionList& pointDefinitions = definitionManager.definitions(Model::EntityDefinition::PointEntity);
+                size_t index = static_cast<size_t>(event.GetId() - CommandIds::CreateEntityPopupMenu::LowestPointEntityItem);
+                assert(index < pointDefinitions.size());
+                
+                Model::PointEntityDefinition* pointDefinition = static_cast<Model::PointEntityDefinition*>(pointDefinitions[index]);
+                
+            }
+        }
+        
     }
 }
