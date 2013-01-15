@@ -216,6 +216,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Controller\ChangeEditStateCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\ClipTool.cpp" />
     <ClCompile Include="..\..\Source\Controller\CreateBrushTool.cpp" />
+    <ClCompile Include="..\..\Source\Controller\CreateEntityFromMenuHelper.cpp" />
     <ClCompile Include="..\..\Source\Controller\CreateEntityTool.cpp" />
     <ClCompile Include="..\..\Source\Controller\EntityPropertyCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\FlipObjectsCommand.cpp" />
@@ -341,6 +342,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Controller\ClipTool.h" />
     <ClInclude Include="..\..\Source\Controller\Command.h" />
     <ClInclude Include="..\..\Source\Controller\CreateBrushTool.h" />
+    <ClInclude Include="..\..\Source\Controller\CreateEntityFromMenuHelper.h" />
     <ClInclude Include="..\..\Source\Controller\CreateEntityTool.h" />
     <ClInclude Include="..\..\Source\Controller\EntityPropertyCommand.h" />
     <ClInclude Include="..\..\Source\Controller\FlipObjectsCommand.h" />

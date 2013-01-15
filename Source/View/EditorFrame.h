@@ -75,7 +75,7 @@ namespace TrenchBroom {
 
             void OnClose(wxCloseEvent& event);
             
-            void OnMenuOpen(wxMenuEvent& event);
+            void OnMenuOpen(wxMenuEvent& event);            
         
             DECLARE_EVENT_TABLE()
         };

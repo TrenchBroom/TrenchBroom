@@ -435,6 +435,9 @@
     <ClCompile Include="..\..\Source\Renderer\MovementIndicator.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\CreateEntityFromMenuHelper.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -1027,6 +1030,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Renderer\MovementIndicator.h">
       <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\CreateEntityFromMenuHelper.h">
+      <Filter>Header Files\Controller</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -431,7 +431,6 @@ namespace TrenchBroom {
                 m_createEntityPopupMenu->Append(CommandIds::CreateEntityPopupMenu::ReparentBrushes, wxT("Move Brushes to..."));
                 m_createEntityPopupMenu->AppendSubMenu(pointMenu, wxT("Create Point Entity"));
                 m_createEntityPopupMenu->AppendSubMenu(brushMenu, wxT("Create Brush Entity"));
-                m_createEntityPopupMenu->Bind(wxEVT_MENU_CLOSE, &EditorView::OnMenuClose, this);
             }
             
             return m_createEntityPopupMenu;
@@ -1565,11 +1564,6 @@ namespace TrenchBroom {
                 Model::PointEntityDefinition* pointDefinition = static_cast<Model::PointEntityDefinition*>(pointDefinitions[index]);
                 inputController().showPointEntityPreview(*pointDefinition);
             }
-        }
-        
-        void EditorView::OnMenuClose(wxMenuEvent& event) {
-            if (event.GetMenu() == m_createPointEntityMenu)
-                inputController().hidePointEntityPreview();
         }
     }
 }

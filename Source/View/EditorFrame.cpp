@@ -210,6 +210,5 @@ namespace TrenchBroom {
 #endif
             event.Skip();
         }
-        
     }
 }

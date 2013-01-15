@@ -510,7 +510,7 @@ namespace TrenchBroom {
                     delta = grid.moveDeltaForEntity(entity->bounds().center(), worldBounds, newPosition - entity->bounds().center());
                 }
                 
-                delta = grid.snap(delta);
+                // delta = grid.snap(delta);
                 
                 StringStream commandName;
                 commandName << "Create ";
@@ -660,7 +660,7 @@ namespace TrenchBroom {
                 origin = grid.moveDeltaForEntity(Vec3f::Null, document.map().worldBounds(), newPosition);
             }
             
-            origin = grid.snap(origin);
+            // origin = grid.snap(origin);
 
             if (m_createEntityHelper == NULL)
                 m_createEntityHelper = new CreateEntityFromMenuHelper(document);
