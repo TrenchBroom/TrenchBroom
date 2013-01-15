@@ -208,6 +208,7 @@ namespace TrenchBroom {
             wxMenu* menu = event.GetMenu();
 			menu->UpdateUI(&m_documentViewHolder.view());
 #endif
+            event.Skip();
         }
         
     }

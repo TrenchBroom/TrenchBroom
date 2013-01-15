@@ -45,6 +45,7 @@ namespace TrenchBroom {
         class CameraTool;
         class ClipTool;
         class CreateBrushTool;
+        class CreateEntityFromMenuHelper;
         class CreateEntityTool;
         class MoveObjectsTool;
         class MoveVerticesTool;
@@ -82,6 +83,7 @@ namespace TrenchBroom {
             void updateHits();
             void updateViews();
 
+            CreateEntityFromMenuHelper* m_createEntityHelper;
             Renderer::BoxGuideRenderer* m_selectionGuideRenderer;
         public:
             InputController(View::DocumentViewHolder& documentViewHolder);
@@ -136,6 +138,8 @@ namespace TrenchBroom {
             Model::Entity* canReparentBrushes(const Model::BrushList& brushes);
             void reparentBrushes(const Model::BrushList& brushes);
             
+            void showPointEntityPreview(Model::PointEntityDefinition& definition);
+            void hidePointEntityPreview();
         };
 
         class InputControllerFigure : public Renderer::Figure {
