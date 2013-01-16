@@ -100,7 +100,8 @@ namespace TrenchBroom {
         m_cancelledDrag(false),
         m_discardNextMouseUp(false),
         m_createEntityHelper(NULL),
-        m_selectionGuideRenderer(NULL) {
+        m_selectionGuideRenderer(NULL),
+        m_selectedFilter(Model::SelectedFilter(m_documentViewHolder.view().filter())) {
             m_cameraTool = new CameraTool(m_documentViewHolder, *this);
             m_clipTool = new ClipTool(m_documentViewHolder, *this);
             m_moveVerticesTool = new MoveVerticesTool(m_documentViewHolder, *this, 24.0f, 16.0f, 2.5f);
@@ -389,7 +390,7 @@ namespace TrenchBroom {
                                                                               m_documentViewHolder.view().filter(),
                                                                               m_documentViewHolder.document().sharedResources().stringManager());
                 
-                Model::ObjectHit* hit = static_cast<Model::ObjectHit*>(m_inputState.pickResult().first(Model::HitType::ObjectHit, true, m_documentViewHolder.view().filter()));
+                Model::ObjectHit* hit = static_cast<Model::ObjectHit*>(m_inputState.pickResult().first(Model::HitType::ObjectHit, true, m_selectedFilter));
                 if (m_moveObjectsTool->dragType() != Tool::DTNone || m_rotateObjectsTool->dragType() != Tool::DTNone ||
                     (hit != NULL && hit->object().selected()) ||
                     m_inputState.pickResult().first(Model::HitType::MoveHandleHit, true, m_documentViewHolder.view().filter()) != NULL ||

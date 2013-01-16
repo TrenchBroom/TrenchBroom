@@ -23,6 +23,7 @@
 #include "Controller/Input.h"
 #include "Model/BrushTypes.h"
 #include "Model/EntityTypes.h"
+#include "Model/Filter.h"
 #include "Renderer/Figure.h"
 
 namespace TrenchBroom {
@@ -85,6 +86,7 @@ namespace TrenchBroom {
 
             CreateEntityFromMenuHelper* m_createEntityHelper;
             Renderer::BoxGuideRenderer* m_selectionGuideRenderer;
+            Model::SelectedFilter m_selectedFilter;
         public:
             InputController(View::DocumentViewHolder& documentViewHolder);
             ~InputController();
