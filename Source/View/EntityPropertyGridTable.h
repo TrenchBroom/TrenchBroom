@@ -36,21 +36,40 @@ namespace TrenchBroom {
         class EntityPropertyGridTable : public wxGridTableBase {
         protected:
             class Entry {
+            private:
+                size_t m_maxCount;
+                size_t m_count;
+                bool m_multi;
             public:
                 String key;
                 String value;
-                bool multi;
-            public:
+
                 Entry() {}
-                Entry(const String& i_key, const String& i_value) :
+                Entry(const String& i_key, const String& i_value, size_t maxCount) :
                 key(i_key),
                 value(i_value),
-                multi(false) {}
+                m_maxCount(maxCount),
+                m_count(1),
+                m_multi(false) {}
                 
-                Entry(const String& i_key) :
-                key(i_key),
-                value(""),
-                multi(true) {}
+                inline void compareValue(const String& i_value) {
+                    if (!m_multi && value != i_value)
+                        m_multi = true;
+                    m_count++;
+                }
+                
+                inline bool multi() const {
+                    return m_multi;
+                }
+                
+                inline bool subset() const {
+                    return m_count < m_maxCount;
+                }
+                
+                inline void reset() {
+                    m_count = m_maxCount;
+                    m_multi = false;
+                }
             };
             
             typedef std::vector<Entry> EntryList;
@@ -58,6 +77,9 @@ namespace TrenchBroom {
             Model::MapDocument& m_document;
             EntryList m_entries;
             bool m_ignoreUpdates;
+            wxColor m_specialCellColor;
+            
+            EntryList::iterator findEntry(const String& key);
             
             Model::EntityList selectedEntities();
 

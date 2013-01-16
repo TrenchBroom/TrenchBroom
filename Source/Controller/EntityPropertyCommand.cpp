@@ -46,7 +46,8 @@ namespace TrenchBroom {
                 
                 for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                     Model::Entity& entity = **entityIt;
-                    entity.renameProperty(key(), m_newKey);
+                    if (entity.propertyForKey(key()) != NULL)
+                        entity.renameProperty(key(), m_newKey);
                 }
                 return true;
             }

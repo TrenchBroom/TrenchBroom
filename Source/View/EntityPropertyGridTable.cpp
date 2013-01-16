@@ -30,6 +30,16 @@
 
 namespace TrenchBroom {
     namespace View {
+        EntityPropertyGridTable::EntryList::iterator EntityPropertyGridTable::findEntry(const String& key) {
+            EntryList::iterator entryIt, entryEnd;
+            for (entryIt = m_entries.begin(), entryEnd = m_entries.end(); entryIt != entryEnd; ++entryIt) {
+                const Entry& entry = *entryIt;
+                if (entry.key == key)
+                    return entryIt;
+            }
+            return entryEnd;
+        }
+
         Model::EntityList EntityPropertyGridTable::selectedEntities() {
             Model::EditStateManager& editStateManager = m_document.editStateManager();
             Model::EntityList entities = editStateManager.selectedEntities();
@@ -83,7 +93,8 @@ namespace TrenchBroom {
         
         EntityPropertyGridTable::EntityPropertyGridTable(Model::MapDocument& document) :
         m_document(document),
-        m_ignoreUpdates(false) {}
+        m_ignoreUpdates(false),
+        m_specialCellColor(wxColor(128, 128, 128)) {}
 
         int EntityPropertyGridTable::GetNumberRows() {
             return static_cast<int>(m_entries.size());
@@ -100,7 +111,7 @@ namespace TrenchBroom {
             size_t rowIndex = static_cast<size_t>(row);
             if (col == 0)
                 return m_entries[rowIndex].key;
-            return m_entries[rowIndex].value;
+            return m_entries[rowIndex].multi() ? "" : m_entries[rowIndex].value;
         }
         
         void EntityPropertyGridTable::SetValue(int row, int col, const wxString& value) {
@@ -122,8 +133,10 @@ namespace TrenchBroom {
                 const Model::PropertyKey key = m_entries[rowIndex].key;
                 const Model::PropertyValue newValue = value.ToStdString();
                 Controller::EntityPropertyCommand* setValue = Controller::EntityPropertyCommand::setEntityPropertyValue(m_document, entities, key, newValue);
-                if (m_document.GetCommandProcessor()->Submit(setValue))
+                if (m_document.GetCommandProcessor()->Submit(setValue)) {
                     m_entries[rowIndex].value = newValue;
+                    m_entries[rowIndex].reset();
+                }
             }
             m_ignoreUpdates = false;
         }
@@ -170,7 +183,8 @@ namespace TrenchBroom {
             EntryList::iterator entryIt = m_entries.begin();
             std::advance(entryIt, pos);
             for (size_t i = 0; i < numRows; i++) {
-                entryIt = m_entries.insert(entryIt, Entry(keys[i], ""));
+                entryIt = m_entries.insert(entryIt, Entry(keys[i], "", entities.size()));
+                entryIt->reset();
                 std::advance(entryIt, 1);
 
                 Controller::EntityPropertyCommand* addProperty = Controller::EntityPropertyCommand::setEntityPropertyValue(m_document, entities, keys[i], "");
@@ -230,16 +244,25 @@ namespace TrenchBroom {
         
         wxGridCellAttr* EntityPropertyGridTable::GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind) {
             wxGridCellAttr* attr = wxGridTableBase::GetAttr(row, col, kind);
-            if (col == 0 && row >= 0 && row < GetNumberRows()) {
+            if (row >= 0 && row < GetNumberRows()) {
                 const Entry& entry = m_entries[static_cast<size_t>(row)];
-                bool readonly = !Model::Entity::propertyKeyIsMutable(entry.key);
-                if (attr == NULL) {
+                if (col == 0) {
+                    bool readonly = !Model::Entity::propertyKeyIsMutable(entry.key);
                     if (readonly) {
-                        attr = new wxGridCellAttr();
+                        if (attr == NULL)
+                            attr = new wxGridCellAttr();
                         attr->SetReadOnly(true);
+                    } else if (entry.subset()) {
+                        if (attr == NULL)
+                            attr = new wxGridCellAttr();
+                        attr->SetTextColour(m_specialCellColor);
                     }
-                } else {
-                    attr->SetReadOnly(readonly);
+                } else if (col == 1) {
+                    if (entry.multi()) {
+                        if (attr == NULL)
+                            attr = new wxGridCellAttr();
+                        attr->SetTextColour(m_specialCellColor);
+                    }
                 }
             }
             return attr;
@@ -254,29 +277,20 @@ namespace TrenchBroom {
 
             const Model::EntityList entities = selectedEntities();
             if (!entities.empty()) {
-                const Model::PropertyList& firstProperties = entities[0]->properties();
-                Model::PropertyList::const_iterator ePropIt, ePropEnd;
-                for (ePropIt = firstProperties.begin(), ePropEnd = firstProperties.end(); ePropIt != ePropEnd; ++ePropIt) {
-                    const Model::Property& property = *ePropIt;
-                    m_entries.push_back(Entry(property.key(), property.value()));
-                }
-                
-                for (unsigned int i = 1; i < entities.size(); i++) {
-                    const Model::Entity& entity = *entities[i];
+                Model::EntityList::const_iterator entityIt, entityEnd;
+                for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
+                    const Model::Entity& entity = **entityIt;
                     
-                    EntryList::iterator entryIt = m_entries.begin();
-                    while (entryIt < m_entries.end()) {
-                        Entry& entry = *entryIt;
-                        const Model::PropertyValue* entityValue = entity.propertyForKey(entry.key);
-                        if (entityValue == NULL) {
-                            m_entries.erase(entryIt);
-                        } else {
-                            if (entry.value != *entityValue) {
-                                entry.value = "";
-                                entry.multi = true;
-                            }
-                            ++entryIt;
-                        }
+                    const Model::PropertyList& properties = entity.properties();
+                    Model::PropertyList::const_iterator propertyIt, propertyEnd;
+                    for (propertyIt = properties.begin(), propertyEnd = properties.end(); propertyIt != propertyEnd; ++propertyIt) {
+                        const Model::Property& property = *propertyIt;
+                        
+                        EntryList::iterator entryIt = findEntry(property.key());
+                        if (entryIt != m_entries.end())
+                            entryIt->compareValue(property.value());
+                        else
+                            m_entries.push_back(Entry(property.key(), property.value(), entities.size()));
                     }
                 }
 
