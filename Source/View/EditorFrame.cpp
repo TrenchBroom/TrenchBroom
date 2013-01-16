@@ -47,27 +47,27 @@ namespace TrenchBroom {
 		END_EVENT_TABLE()
 
         void EditorFrame::CreateGui() {
-            wxSplitterWindow* logSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE);
-            logSplitter->SetSashGravity(1.0f);
-            logSplitter->SetMinimumPaneSize(0);
-            
-            wxSplitterWindow* inspectorSplitter = new wxSplitterWindow(logSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE);
+            wxSplitterWindow* inspectorSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE);
             inspectorSplitter->SetSashGravity(1.0f);
             inspectorSplitter->SetMinimumPaneSize(350);
+
+            wxSplitterWindow* logSplitter = new wxSplitterWindow(inspectorSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE);
+            logSplitter->SetSashGravity(1.0f);
+            logSplitter->SetMinimumPaneSize(0);
             
             m_logView = new wxTextCtrl(logSplitter, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2);
             m_logView->SetDefaultStyle(wxTextAttr(*wxLIGHT_GREY, *wxBLACK));
             m_logView->SetBackgroundColour(*wxBLACK);
             
-            m_mapCanvas = new MapGLCanvas(inspectorSplitter, m_documentViewHolder);
+            m_mapCanvas = new MapGLCanvas(logSplitter, m_documentViewHolder);
             m_inspector = new Inspector(inspectorSplitter, m_documentViewHolder);
             
-            inspectorSplitter->SplitVertically(m_mapCanvas, m_inspector, 0);
-            logSplitter->SplitHorizontally(inspectorSplitter, m_logView);
+            logSplitter->SplitHorizontally(m_mapCanvas, m_logView);
+            inspectorSplitter->SplitVertically(logSplitter, m_inspector, 0);
             
-            wxSizer* logSplitterSizer = new wxBoxSizer(wxVERTICAL);
-            logSplitterSizer->Add(logSplitter, 1, wxEXPAND);
-            SetSizer(logSplitterSizer);
+            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            outerSizer->Add(inspectorSplitter, 1, wxEXPAND);
+            SetSizerAndFit(outerSizer);
             
             SetSize(1024, 768);
             inspectorSplitter->SetSashPosition(GetSize().x - 350);

@@ -255,7 +255,6 @@
 		4842AF66162176100042AD66 /* GenericDropSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GenericDropSource.cpp; sourceTree = "<group>"; };
 		4842AF7216220D7A0042AD66 /* MacScreenDC.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MacScreenDC.mm; sourceTree = "<group>"; };
 		4842AF7316220D7A0042AD66 /* MacScreenDC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacScreenDC.h; sourceTree = "<group>"; };
-		4842AF75162211270042AD66 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = ../../../../../../../Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/AppKit.framework; sourceTree = "<group>"; };
 		4842C349164BCB7800E41B95 /* InputController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InputController.cpp; sourceTree = "<group>"; };
 		4842C34A164BCB7800E41B95 /* InputController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InputController.h; sourceTree = "<group>"; };
 		4842C34C164BD19300E41B95 /* Tool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Tool.h; sourceTree = "<group>"; };
@@ -635,7 +634,6 @@
 		484763C615E2BC5000095BC0 = {
 			isa = PBXGroup;
 			children = (
-				4842AF75162211270042AD66 /* AppKit.framework */,
 				48AF61F515F8B7720027C465 /* libbz2.a */,
 				48AF61F315F8B7360027C465 /* libfreetype.a */,
 				48312B2715EABBD600607868 /* Icon.icns */,
