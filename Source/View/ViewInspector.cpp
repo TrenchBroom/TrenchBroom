@@ -223,10 +223,12 @@ namespace TrenchBroom {
                     editorView.viewOptions().setShowEntityClassnames(event.GetInt() != 0);
                     editorView.OnUpdate(NULL); // will just trigger a refresh
                     break;
-                case CommandIds::ViewInspector::ShowBrushesCheckBoxId:
+                case CommandIds::ViewInspector::ShowBrushesCheckBoxId: {
                     editorView.viewOptions().setShowBrushes(event.GetInt() != 0);
-                    editorView.OnUpdate(NULL); // will just trigger a refresh
+                    Controller::Command command(Controller::Command::InvalidateRendererBrushState);
+                    editorView.OnUpdate(NULL, &command);
                     break;
+                }
                 case CommandIds::ViewInspector::ShowClipBrushesCheckBoxId: {
                     editorView.viewOptions().setShowClipBrushes(event.GetInt() != 0);
                     Controller::Command command(Controller::Command::InvalidateRendererBrushState);
