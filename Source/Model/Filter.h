@@ -127,6 +127,33 @@ namespace TrenchBroom {
             }
         };
         
+        class SelectedFilter : public Filter {
+            Model::Filter& m_defaultFilter;
+        public:
+            SelectedFilter(Model::Filter& defaultFilter) :
+            m_defaultFilter(defaultFilter) {}
+            
+            virtual inline bool entityVisible(const Model::Entity& entity) const {
+                return m_defaultFilter.entityVisible(entity);
+            }
+            
+            virtual bool entityPickable(const Model::Entity& entity) const {
+                return entity.selected() && m_defaultFilter.entityPickable(entity);
+            }
+            
+            virtual inline bool brushVisible(const Model::Brush& brush) const {
+                return m_defaultFilter.brushVisible(brush);
+            }
+            
+            virtual inline bool brushPickable(const Model::Brush& brush) const {
+                return brush.selected() && m_defaultFilter.brushPickable(brush);
+            }
+            
+            virtual inline bool brushVerticesPickable(const Model::Brush& brush) const {
+                return false;
+            }
+        };
+        
         class VisibleFilter : public Filter {
         protected:
             Model::Filter& m_defaultFilter;

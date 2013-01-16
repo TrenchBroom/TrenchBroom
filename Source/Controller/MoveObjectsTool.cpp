@@ -47,8 +47,8 @@ namespace TrenchBroom {
                 return;
             
             if (dragType() == DTNone) {
-                Model::ObjectHit* hit = static_cast<Model::ObjectHit*>(inputState.pickResult().first(Model::HitType::ObjectHit, false, view().filter()));
-                if (hit == NULL || !hit->object().selected())
+                Model::ObjectHit* hit = static_cast<Model::ObjectHit*>(inputState.pickResult().first(Model::HitType::ObjectHit, true, m_filter));
+                if (hit == NULL)
                     return;
             }
 
@@ -95,8 +95,8 @@ namespace TrenchBroom {
             if (entities.empty() && brushes.empty())
                 return false;
             
-            Model::ObjectHit* hit = static_cast<Model::ObjectHit*>(inputState.pickResult().first(Model::HitType::ObjectHit, false, view().filter()));
-            if (hit == NULL || !hit->object().selected())
+            Model::ObjectHit* hit = static_cast<Model::ObjectHit*>(inputState.pickResult().first(Model::HitType::ObjectHit, false, m_filter));
+            if (hit == NULL)
                 return false;
             
             initialPoint = hit->hitPoint();
@@ -163,6 +163,7 @@ namespace TrenchBroom {
         
         MoveObjectsTool::MoveObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, float axisLength, float planeRadius) :
         PlaneDragTool(documentViewHolder, inputController, true),
+        m_filter(Model::SelectedFilter(view().filter())),
         m_indicator(NULL) {}
     }
 }

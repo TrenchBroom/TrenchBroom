@@ -22,6 +22,7 @@
 
 #include "Controller/Tool.h"
 #include "Controller/MoveHandle.h"
+#include "Model/Filter.h"
 #include "Model/Picker.h"
 #include "Utility/VecMath.h"
 
@@ -42,6 +43,8 @@ namespace TrenchBroom {
                 Horizontal,
                 Vertical
             } Direction;
+            
+            Model::SelectedFilter m_filter;
             
             Vec3f m_totalDelta;
             Direction m_direction;
