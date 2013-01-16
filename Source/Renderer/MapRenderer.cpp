@@ -243,13 +243,15 @@ namespace TrenchBroom {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             
             m_edgeVbo->activate();
-            if (m_edgeRenderer != NULL) {
-                glSetEdgeOffset(0.02f);
-                m_edgeRenderer->render(context);
-            }
-            if (m_lockedEdgeRenderer != NULL) {
-                glSetEdgeOffset(0.02f);
-                m_lockedEdgeRenderer->render(context, prefs.getColor(Preferences::LockedEdgeColor));
+            if (context.viewOptions().renderEdges()) {
+                if (m_edgeRenderer != NULL) {
+                    glSetEdgeOffset(0.02f);
+                    m_edgeRenderer->render(context);
+                }
+                if (m_lockedEdgeRenderer != NULL) {
+                    glSetEdgeOffset(0.02f);
+                    m_lockedEdgeRenderer->render(context, prefs.getColor(Preferences::LockedEdgeColor));
+                }
             }
             if (context.viewOptions().renderSelection() && m_selectedEdgeRenderer != NULL) {
                 glDisable(GL_DEPTH_TEST);
@@ -527,7 +529,7 @@ namespace TrenchBroom {
             if (context.viewOptions().showBrushes() && context.viewOptions().faceRenderMode() != View::ViewOptions::Discard)
                 renderFaces(context);
             
-            if (context.viewOptions().showBrushes() && context.viewOptions().renderEdges())
+            if (context.viewOptions().showBrushes())
                 renderEdges(context);
             
             if (context.viewOptions().showEntities()) {
