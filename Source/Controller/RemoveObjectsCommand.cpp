@@ -109,5 +109,8 @@ namespace TrenchBroom {
             return removeObjects(document, Model::EmptyEntityList, brushList);
         }
         
+        RemoveObjectsCommand* RemoveObjectsCommand::removeEntities(Model::MapDocument& document, const Model::EntityList& entities) {
+            return removeObjects(document, entities, Model::EmptyBrushList);
+        }
     }
 }

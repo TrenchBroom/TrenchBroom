@@ -42,6 +42,8 @@ namespace TrenchBroom {
             ReparentBrushesCommand(Model::MapDocument& document, const wxString& name, const Model::BrushList& brushes, Model::Entity& newParent);
         public:
             static ReparentBrushesCommand* reparent(Model::MapDocument& document, const Model::BrushList& brushes, Model::Entity& newParent);
+            
+            const Model::EntityList emptyParents() const;
         };
     }
 }

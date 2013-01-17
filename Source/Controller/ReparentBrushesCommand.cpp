@@ -95,5 +95,17 @@ namespace TrenchBroom {
             name << newParent.classname();
             return new ReparentBrushesCommand(document, name.str(), brushes, newParent);
         }
+
+        const Model::EntityList ReparentBrushesCommand::emptyParents() const {
+            Model::EntitySet result;
+            Model::BrushParentMap::const_iterator it, end;
+            for (it = m_oldParents.begin(), end = m_oldParents.end(); it != end; ++it) {
+                Model::Entity& entity = *it->second;
+                if (!entity.worldspawn() && entity.brushes().empty())
+                    result.insert(&entity);
+            }
+            return Model::makeList(result);
+        }
+
     }
 }

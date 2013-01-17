@@ -532,7 +532,7 @@ namespace TrenchBroom {
                 Model::MapDocument& document = m_documentViewHolder.document();
                 Model::EditStateManager& editStateManager = document.editStateManager();
                 assert(editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
-                const Model::BrushList& brushes = editStateManager.selectedBrushes();
+                const Model::BrushList brushes = editStateManager.selectedBrushes(); // we need a copy here!
                 assert(!brushes.empty());
                 
                 const BBox& worldBounds = document.map().worldBounds();
@@ -544,16 +544,26 @@ namespace TrenchBroom {
                 commandName << "Create ";
                 commandName << definition.name();
                 
-                ChangeEditStateCommand* deselectAll = ChangeEditStateCommand::deselectAll(document);
-                AddObjectsCommand* addEntity = AddObjectsCommand::addEntity(document, *entity);
-                ReparentBrushesCommand* reparent = ReparentBrushesCommand::reparent(document, brushes, *entity);
-                ChangeEditStateCommand* select = ChangeEditStateCommand::select(document, brushes);
-                
                 CommandProcessor::BeginGroup(document.GetCommandProcessor(), commandName.str());
+                
+                ChangeEditStateCommand* deselectAll = ChangeEditStateCommand::deselectAll(document);
                 document.GetCommandProcessor()->Submit(deselectAll);
+
+                AddObjectsCommand* addEntity = AddObjectsCommand::addEntity(document, *entity);
                 document.GetCommandProcessor()->Submit(addEntity);
+
+                ReparentBrushesCommand* reparent = ReparentBrushesCommand::reparent(document, brushes, *entity);
                 document.GetCommandProcessor()->Submit(reparent);
+
+                const Model::EntityList emptyParents = reparent->emptyParents();
+                if (!emptyParents.empty()) {
+                    RemoveObjectsCommand* remove = RemoveObjectsCommand::removeEntities(document, emptyParents);
+                    document.GetCommandProcessor()->Submit(remove);
+                }
+                
+                ChangeEditStateCommand* select = ChangeEditStateCommand::select(document, brushes);
                 document.GetCommandProcessor()->Submit(select);
+                
                 CommandProcessor::EndGroup(document.GetCommandProcessor());
             }
         }
@@ -604,19 +614,6 @@ namespace TrenchBroom {
             
             assert(newParent != NULL);
             
-            Model::EntitySet affectedEntities;
-            Model::BrushList affectedBrushes;
-            
-            Model::BrushList::const_iterator brushIt, brushEnd;
-            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
-                Model::Brush* brush = *brushIt;
-                Model::Entity* oldParent = brush->entity();
-                if (newParent != oldParent) {
-                    affectedEntities.insert(oldParent);
-                    affectedBrushes.push_back(brush);
-                }
-            }
-            
             StringStream commandName;
             commandName << "Add Brushes to ";
             commandName << *newParent->classname();
@@ -629,16 +626,9 @@ namespace TrenchBroom {
             document.GetCommandProcessor()->Submit(deselectAll);
             document.GetCommandProcessor()->Submit(reparent);
             
-            Model::EntityList removeEntities;
-            Model::EntitySet::const_iterator entityIt, entityEnd;
-            for (entityIt = affectedEntities.begin(), entityEnd = affectedEntities.end(); entityIt != entityEnd; ++entityIt) {
-                Model::Entity* entity = *entityIt;
-                if (entity->brushes().empty() && !entity->worldspawn())
-                    removeEntities.push_back(entity);
-            }
-            
-            if (!removeEntities.empty()) {
-                RemoveObjectsCommand* remove = RemoveObjectsCommand::removeObjects(document, removeEntities, Model::EmptyBrushList);
+            const Model::EntityList emptyParents = reparent->emptyParents();
+            if (!emptyParents.empty()) {
+                RemoveObjectsCommand* remove = RemoveObjectsCommand::removeEntities(document, emptyParents);
                 document.GetCommandProcessor()->Submit(remove);
             }
             
