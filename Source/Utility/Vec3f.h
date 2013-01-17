@@ -116,6 +116,8 @@ namespace TrenchBroom {
             
             Vec3f(float i_x, float i_y, float i_z) : x(i_x), y(i_y), z(i_z) {}
             
+            Vec3f(const Vec3f v, float i_z) : x(v.x), y(v.y), z(i_z) {}
+            
             Vec3f(float f) : x(f), y(f), z(f) {}
             
             inline bool operator== (const Vec3f& right) const {

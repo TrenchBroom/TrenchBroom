@@ -174,6 +174,28 @@ namespace TrenchBroom {
                 return vertex;
             }
 
+            inline const Vec3f vertex(unsigned int i) const {
+                switch (i) {
+                    case 0:
+                        return vertex(false, false, false);
+                    case 1:
+                        return vertex(false, false, true);
+                    case 2:
+                        return vertex(false, true, false);
+                    case 3:
+                        return vertex(false, true, true);
+                    case 4:
+                        return vertex(true, false, false);
+                    case 5:
+                        return vertex(true, false, true);
+                    case 6:
+                        return vertex(true, true, false);
+                    case 7:
+                        return vertex(true, true, true);
+                }
+                return Vec3f::NaN;
+            }
+            
             inline void vertices(Vec3f::List& result) const {
                 result.resize(24);
                 result[ 0] = result[ 7] = result[16] = vertex(false, false, false);

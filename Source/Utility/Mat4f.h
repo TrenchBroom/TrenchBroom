@@ -195,7 +195,7 @@ namespace TrenchBroom {
             }
             
             inline Mat4f& setPerspective(float fov, float nearPlane, float farPlane, int width, int height) {
-                float vFrustum = static_cast<float>(tan(Math::radians(fov) / 2.0f)) * 0.75f * nearPlane;
+                float vFrustum = std::tan(Math::radians(fov) / 2.0f) * 0.75f * nearPlane;
                 float hFrustum = vFrustum * static_cast<float>(width) / static_cast<float>(height);
                 float depth = farPlane - nearPlane;
 

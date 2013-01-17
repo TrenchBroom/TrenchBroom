@@ -84,7 +84,7 @@ namespace TrenchBroom {
             }
             
             inline float nearPlane() const {
-                return m_fieldOfVision;
+                return m_nearPlane;
             }
             
             inline void setNearPlane(float nearPlane) {
@@ -129,6 +129,7 @@ namespace TrenchBroom {
             
             const Mat4f& matrix() const;
             const Mat4f billboardMatrix(bool fixUp = false) const;
+            void frustumPlanes(Plane& top, Plane& right, Plane& bottom, Plane& left) const;
 
             float distanceTo(const Vec3f& point) const;
             float squaredDistanceTo(const Vec3f& point) const;

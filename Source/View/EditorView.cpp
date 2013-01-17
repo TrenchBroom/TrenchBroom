@@ -152,6 +152,7 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::ViewMoveCameraRight, EditorView::OnViewMoveCameraRight)
         EVT_MENU(CommandIds::Menu::ViewMoveCameraUp, EditorView::OnViewMoveCameraUp)
         EVT_MENU(CommandIds::Menu::ViewMoveCameraDown, EditorView::OnViewMoveCameraDown)
+        EVT_MENU(CommandIds::Menu::ViewCenterCameraOnSelection, EditorView::OnViewCenterCameraOnSelection)
         
         EVT_UPDATE_UI(wxID_SAVE, EditorView::OnUpdateMenuItem)
         EVT_UPDATE_UI(wxID_UNDO, EditorView::OnUpdateMenuItem)
@@ -1310,6 +1311,103 @@ namespace TrenchBroom {
             ProcessEvent(cameraEvent);
         }
 
+        void EditorView::OnViewCenterCameraOnSelection(wxCommandEvent& event) {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            assert(editStateManager.hasSelectedObjects());
+            
+            const Model::EntityList& entities = editStateManager.selectedEntities();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            Model::BrushList::const_iterator brushIt, brushEnd;
+
+            float minDist = std::numeric_limits<float>::max();
+            
+            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
+                const Model::Entity& entity = **entityIt;
+                if (entity.brushes().empty()) {
+                    for (unsigned int i = 0; i < 8; i++) {
+                        const Vec3f vertex = entity.bounds().vertex(i);
+
+                        const Vec3f toPosition = vertex - m_camera->position();
+                        minDist = std::min(minDist, toPosition.dot(m_camera->direction()));
+                    }
+                }
+            }
+            
+            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
+                const Model::Brush& brush = **brushIt;
+                const Model::VertexList& vertices = brush.vertices();
+                Model::VertexList::const_iterator vertexIt, vertexEnd;
+                for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt) {
+                    const Model::Vertex& vertex = **vertexIt;
+
+                    const Vec3f toPosition = vertex.position - m_camera->position();
+                    minDist = std::min(minDist, toPosition.dot(m_camera->direction()));
+                }
+            }
+            
+            
+            
+            if (minDist < 0.0f) { // move camera so that all vertices are in front of it
+                Controller::CameraMoveEvent moveBack;
+                moveBack.setForward(minDist - 10.0f);
+                moveBack.SetEventObject(this);
+                ProcessEvent(moveBack);
+            }
+            
+            // now look at the center
+            const BBox bounds = Model::MapObject::bounds(entities, brushes);
+            const Vec3f center = bounds.center();
+            const Vec3f toCenter = center - m_camera->position();
+            
+            Controller::CameraMoveEvent lookAtCenter;
+            lookAtCenter.setRight(toCenter.dot(m_camera->right()));
+            lookAtCenter.setUp(toCenter.dot(m_camera->up()));
+            lookAtCenter.SetEventObject(this);
+            ProcessEvent(lookAtCenter);
+            
+            float offset = std::numeric_limits<float>::max();
+            
+            Plane frustumPlanes[4];
+            m_camera->frustumPlanes(frustumPlanes[0], frustumPlanes[1], frustumPlanes[2], frustumPlanes[3]);
+            
+            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
+                const Model::Entity& entity = **entityIt;
+                if (entity.brushes().empty()) {
+                    for (unsigned int i = 0; i < 8; i++) {
+                        const Vec3f vertex = entity.bounds().vertex(i);
+                        
+                        for (size_t j = 0; j < 4; j++) {
+                            const Plane& plane = frustumPlanes[j];
+                            float dist = (vertex - m_camera->position()).dot(plane.normal) + 8.0f; // adds a bit of a border
+                            offset = std::min(offset, dist / m_camera->direction().dot(plane.normal));
+                        }
+                    }
+                }
+            }
+
+            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
+                const Model::Brush& brush = **brushIt;
+                const Model::VertexList& vertices = brush.vertices();
+                Model::VertexList::const_iterator vertexIt, vertexEnd;
+                for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt) {
+                    const Model::Vertex& vertex = **vertexIt;
+                    
+                    for (size_t i = 0; i < 4; i++) {
+                        const Plane& plane = frustumPlanes[i];
+                        float dist = (vertex.position - m_camera->position()).dot(plane.normal) + 8.0f; // adds a bit of a border
+                        offset = std::min(offset, dist / m_camera->direction().dot(plane.normal));
+                    }
+                }
+            }
+            
+            Controller::CameraMoveEvent moveToFit;
+            moveToFit.setForward(offset);
+            moveToFit.SetEventObject(this);
+            ProcessEvent(moveToFit);
+        }
+
         void EditorView::OnUpdateMenuItem(wxUpdateUIEvent& event) {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             wxTextCtrl* textCtrl = wxDynamicCast(GetFrame()->FindFocus(), wxTextCtrl);
@@ -1493,7 +1591,8 @@ namespace TrenchBroom {
                 case CommandIds::Menu::ViewMoveCameraRight:
                 case CommandIds::Menu::ViewMoveCameraUp:
                 case CommandIds::Menu::ViewMoveCameraDown:
-                    event.Enable(textCtrl == NULL);
+                case CommandIds::Menu::ViewCenterCameraOnSelection:
+                    event.Enable(editStateManager.hasSelectedObjects());
                     break;
             }
         }
