@@ -109,7 +109,7 @@ namespace TrenchBroom {
             Model::EditStateManager& editStateManager = document().editStateManager();
             if (inputState.mouseButtons() != MouseButtons::MBLeft ||
                 inputState.modifierKeys() != ModifierKeys::MKNone ||
-                editStateManager.hasSelectedObjects())
+                editStateManager.selectionMode() != Model::EditStateManager::SMNone)
                 return false;
             
             Model::FaceHit* hit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, view().filter()));
