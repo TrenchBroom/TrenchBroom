@@ -103,7 +103,14 @@ namespace TrenchBroom {
             m_totalDelta = Vec3f::Null;
 
             if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
-                plane = Plane::verticalDragPlane(initialPoint, inputState.camera().direction());
+                Vec3f planeNorm = inputState.pickRay().direction;
+                planeNorm.z = 0.0f;
+                planeNorm.normalize();
+                
+                if (planeNorm.null())
+                    return false;
+                
+                plane = Plane(planeNorm, initialPoint);
                 m_direction = Vertical;
             } else {
                 if (std::abs(inputState.pickRay().direction.z) < 0.3f) {

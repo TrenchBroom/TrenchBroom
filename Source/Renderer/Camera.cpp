@@ -115,9 +115,13 @@ namespace TrenchBroom {
 
         const Mat4f Camera::billboardMatrix(bool fixUp) const {
             Vec3f bbLook, bbUp, bbRight;
-            bbLook = m_direction * -1.0f;
+            bbLook = -m_direction;
             if (fixUp) {
                 bbLook.z = 0.0f;
+                if (bbLook.null()) {
+                    bbLook = -m_up;
+                    bbLook.z = 0.0f;
+                }
                 bbLook.normalize();
                 bbUp = Vec3f::PosZ;
             } else {
