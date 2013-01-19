@@ -94,9 +94,9 @@ namespace TrenchBroom {
             void modifierKeyDown(ModifierKeyState modifierKey);
             void modifierKeyUp(ModifierKeyState modifierKey);
             
-            bool mouseDown(MouseButtonState mouseButton);
-            bool mouseUp(MouseButtonState mouseButton);
-            bool mouseDClick(MouseButtonState mouseButton);
+            bool mouseDown(int x, int y, MouseButtonState mouseButton);
+            bool mouseUp(int x, int y, MouseButtonState mouseButton);
+            bool mouseDClick(int x, int y, MouseButtonState mouseButton);
             void mouseMove(int x, int y);
             void scroll(float x, float y);
             void cancelDrag();

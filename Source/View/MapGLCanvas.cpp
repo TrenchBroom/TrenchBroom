@@ -246,34 +246,34 @@ namespace TrenchBroom {
         void MapGLCanvas::OnMouseLeftDown(wxMouseEvent& event) {
             SetFocus();
 			CaptureMouse();
-            m_inputController->mouseDown(Controller::MouseButtons::MBLeft);
+            m_inputController->mouseDown(event.GetX(), event.GetY(), Controller::MouseButtons::MBLeft);
         }
 
         void MapGLCanvas::OnMouseLeftUp(wxMouseEvent& event) {
             SetFocus();
 			if (GetCapture() == this)
 				ReleaseMouse();
-            m_inputController->mouseUp(Controller::MouseButtons::MBLeft);
+            m_inputController->mouseUp(event.GetX(), event.GetY(), Controller::MouseButtons::MBLeft);
         }
         
         void MapGLCanvas::OnMouseLeftDClick(wxMouseEvent& event) {
             SetFocus();
             if (GetCapture() == this)
                 ReleaseMouse();
-            m_inputController->mouseDClick(Controller::MouseButtons::MBLeft);
+            m_inputController->mouseDClick(event.GetX(), event.GetY(), Controller::MouseButtons::MBLeft);
         }
 
         void MapGLCanvas::OnMouseRightDown(wxMouseEvent& event) {
             SetFocus();
 			CaptureMouse();
-            m_inputController->mouseDown(Controller::MouseButtons::MBRight);
+            m_inputController->mouseDown(event.GetX(), event.GetY(), Controller::MouseButtons::MBRight);
         }
 
         void MapGLCanvas::OnMouseRightUp(wxMouseEvent& event) {
             SetFocus();
 			if (GetCapture() == this)
 				ReleaseMouse();
-            if (!m_inputController->mouseUp(Controller::MouseButtons::MBRight)) {
+            if (!m_inputController->mouseUp(event.GetX(), event.GetY(), Controller::MouseButtons::MBRight)) {
                 wxMenu* popupMenu = m_documentViewHolder.view().createEntityPopupMenu();
                 popupMenu->UpdateUI(&m_documentViewHolder.view());
                 PopupMenu(popupMenu);
@@ -285,27 +285,27 @@ namespace TrenchBroom {
             SetFocus();
 			if (GetCapture() == this)
 				ReleaseMouse();
-            m_inputController->mouseDClick(Controller::MouseButtons::MBRight);
+            m_inputController->mouseDClick(event.GetX(), event.GetY(), Controller::MouseButtons::MBRight);
         }
 
         void MapGLCanvas::OnMouseMiddleDown(wxMouseEvent& event) {
             SetFocus();
 			CaptureMouse();
-            m_inputController->mouseDown(Controller::MouseButtons::MBMiddle);
+            m_inputController->mouseDown(event.GetX(), event.GetY(), Controller::MouseButtons::MBMiddle);
         }
 
         void MapGLCanvas::OnMouseMiddleUp(wxMouseEvent& event) {
             SetFocus();
 			if (GetCapture() == this)
 				ReleaseMouse();
-            m_inputController->mouseUp(Controller::MouseButtons::MBMiddle);
+            m_inputController->mouseUp(event.GetX(), event.GetY(), Controller::MouseButtons::MBMiddle);
         }
         
         void MapGLCanvas::OnMouseMiddleDClick(wxMouseEvent& event) {
             SetFocus();
 			if (GetCapture() == this)
 				ReleaseMouse();
-            m_inputController->mouseDClick(Controller::MouseButtons::MBMiddle);
+            m_inputController->mouseDClick(event.GetX(), event.GetY(), Controller::MouseButtons::MBMiddle);
         }
 
         void MapGLCanvas::OnMouseMove(wxMouseEvent& event) {

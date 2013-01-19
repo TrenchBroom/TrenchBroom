@@ -44,7 +44,9 @@
 #include "Renderer/BoxGuideRenderer.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/SharedResources.h"
+#include "Utility/Console.h"
 #include "Utility/Grid.h"
+#include "View/DocumentViewHolder.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -172,10 +174,11 @@ namespace TrenchBroom {
             updateViews();
         }
         
-        bool InputController::mouseDown(MouseButtonState mouseButton) {
+        bool InputController::mouseDown(int x, int y, MouseButtonState mouseButton) {
             if (m_dragTool != NULL)
                 return false;
-            
+
+            m_inputState.mouseMove(x, y);
             m_clickPos = wxPoint(m_inputState.x(), m_inputState.y());
             m_inputState.mouseDown(mouseButton);
             updateHits();
@@ -185,7 +188,8 @@ namespace TrenchBroom {
             return handled;
         }
         
-        bool InputController::mouseUp(MouseButtonState mouseButton) {
+        bool InputController::mouseUp(int x, int y, MouseButtonState mouseButton) {
+            m_inputState.mouseMove(x, y);
             if (m_discardNextMouseUp) {
                 m_discardNextMouseUp = false;
                 m_inputState.mouseUp(mouseButton);
@@ -210,9 +214,10 @@ namespace TrenchBroom {
             return handled;
         }
         
-        bool InputController::mouseDClick(MouseButtonState mouseButton) {
+        bool InputController::mouseDClick(int x, int y, MouseButtonState mouseButton) {
             m_discardNextMouseUp = true;
             
+            m_inputState.mouseMove(x, y);
             m_inputState.mouseDown(mouseButton);
             updateHits();
             bool handled = m_toolChain->mouseDClick(m_inputState) != NULL;

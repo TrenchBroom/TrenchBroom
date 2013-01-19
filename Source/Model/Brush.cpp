@@ -283,7 +283,8 @@ namespace TrenchBroom {
             }
             
             assert(droppedFaces.empty());
-            m_entity->invalidateGeometry();
+            if (m_entity != NULL)
+                m_entity->invalidateGeometry();
         }
 
         bool Brush::canMoveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta) const {

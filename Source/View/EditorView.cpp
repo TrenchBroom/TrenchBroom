@@ -568,6 +568,8 @@ namespace TrenchBroom {
                     case Controller::Command::MoveObjects:
                     case Controller::Command::RotateObjects:
                     case Controller::Command::FlipObjects: {
+                    case Controller::Command::MoveVertices:
+                    case Controller::Command::ResizeBrushes:
                         m_renderer->invalidateSelectedBrushes();
                         m_renderer->invalidateSelectedEntities();
                         inspector().entityInspector().updateProperties();
@@ -584,14 +586,6 @@ namespace TrenchBroom {
                             m_renderer->invalidateBrushes();
                         break;
                     }
-                    case Controller::Command::MoveVertices:
-                        m_renderer->invalidateSelectedBrushes();
-                        inputController().objectsChange();
-                        break;
-                    case Controller::Command::ResizeBrushes:
-                        m_renderer->invalidateSelectedBrushes();
-                        inputController().objectsChange();
-                        break;
                     case Controller::Command::ReparentBrushes:
                         m_renderer->invalidateSelectedBrushes();
                         m_renderer->invalidateEntities();
