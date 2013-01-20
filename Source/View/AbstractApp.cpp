@@ -87,12 +87,14 @@ wxMenu* AbstractApp::CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMe
         toolsMenu->Append(EditPerformClip, wxT("Perform Clip\tENTER"));
         toolsMenu->AppendSeparator();
         toolsMenu->AppendCheckItem(EditToggleVertexTool, wxT("Vertex Tool\tV"));
+        toolsMenu->AppendCheckItem(EditToggleRotateObjectsTool, wxT("Rotate Objects Tool\tR"));
     } else {
         toolsMenu->AppendCheckItem(EditToggleClipTool, wxT("Clip Tool"));
         toolsMenu->Append(EditToggleClipSide, wxT("Toggle Clip Side"));
         toolsMenu->Append(EditPerformClip, wxT("Perform Clip"));
         toolsMenu->AppendSeparator();
         toolsMenu->AppendCheckItem(EditToggleVertexTool, wxT("Vertex Tool"));
+        toolsMenu->AppendCheckItem(EditToggleRotateObjectsTool, wxT("Rotate Objects Tool"));
     }
     toolsMenu->SetEventHandler(eventHandler);
 

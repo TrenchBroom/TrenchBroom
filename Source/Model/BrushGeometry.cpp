@@ -1464,15 +1464,15 @@ namespace TrenchBroom {
         void BrushGeometry::rotate90(Axis::Type axis, const Vec3f& rotationCenter, bool clockwise) {
             for (unsigned int i = 0; i < vertices.size(); i++)
                 vertices[i]->position.rotate90(axis, rotationCenter, clockwise);
-            bounds.rotate90(axis, rotationCenter, clockwise);
-            center.rotate90(axis, rotationCenter, clockwise);
+            bounds = boundsOfVertices(vertices);
+            center = centerOfVertices(vertices);
         }
 
         void BrushGeometry::rotate(const Quat& rotation, const Vec3f& rotationCenter) {
             for (unsigned int i = 0; i < vertices.size(); i++)
                 vertices[i]->position = rotation * (vertices[i]->position - rotationCenter) + rotationCenter;
-            bounds.rotate(rotation, rotationCenter);
-            center = rotation * (center - rotationCenter) + rotationCenter;
+            bounds = boundsOfVertices(vertices);
+            center = centerOfVertices(vertices);
         }
 
         void BrushGeometry::flip(Axis::Type axis, const Vec3f& flipCenter) {

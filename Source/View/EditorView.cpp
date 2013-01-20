@@ -102,6 +102,7 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::EditToggleClipSide, EditorView::OnEditToggleClipSide)
         EVT_MENU(CommandIds::Menu::EditPerformClip, EditorView::OnEditPerformClip)
         EVT_MENU(CommandIds::Menu::EditToggleVertexTool, EditorView::OnEditToggleVertexTool)
+        EVT_MENU(CommandIds::Menu::EditToggleRotateObjectsTool, EditorView::OnEditToggleRotateObjectsTool)
 
         EVT_MENU(CommandIds::Menu::EditMoveTexturesUp, EditorView::OnEditMoveTexturesUp)
         EVT_MENU(CommandIds::Menu::EditMoveTexturesRight, EditorView::OnEditMoveTexturesRight)
@@ -999,6 +1000,12 @@ namespace TrenchBroom {
             frame->updateMenuBar();
         }
 
+        void EditorView::OnEditToggleRotateObjectsTool(wxCommandEvent& event) {
+            inputController().toggleRotateObjectsTool();
+            EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+            frame->updateMenuBar();
+        }
+
         void EditorView::OnEditMoveObjectsForward(wxCommandEvent& event) {
             moveObjects(DForward, true);
         }
@@ -1483,6 +1490,10 @@ namespace TrenchBroom {
                     event.Enable(editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
                     event.Check(inputController().moveVerticesToolActive());
                     break;
+                case CommandIds::Menu::EditToggleRotateObjectsTool:
+                    event.Enable(editStateManager.hasSelectedObjects());
+                    event.Check(inputController().rotateObjectsToolActive());
+                    break;
                 case CommandIds::Menu::EditActions:
                     event.Enable(true);
                     break;
@@ -1586,7 +1597,7 @@ namespace TrenchBroom {
                 case CommandIds::Menu::ViewMoveCameraUp:
                 case CommandIds::Menu::ViewMoveCameraDown:
                 case CommandIds::Menu::ViewCenterCameraOnSelection:
-                    event.Enable(editStateManager.hasSelectedObjects());
+                    event.Enable(true);
                     break;
             }
         }

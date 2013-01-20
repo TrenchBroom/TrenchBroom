@@ -87,6 +87,8 @@ namespace TrenchBroom {
             CreateEntityFromMenuHelper* m_createEntityHelper;
             Renderer::BoxGuideRenderer* m_selectionGuideRenderer;
             Model::SelectedFilter m_selectedFilter;
+            
+            void toggleTool(Tool* tool);
         public:
             InputController(View::DocumentViewHolder& documentViewHolder);
             ~InputController();
@@ -133,6 +135,9 @@ namespace TrenchBroom {
             
             void toggleMoveVerticesTool();
             bool moveVerticesToolActive();
+            
+            void toggleRotateObjectsTool();
+            bool rotateObjectsToolActive();
             
             void deactivateAll();
             

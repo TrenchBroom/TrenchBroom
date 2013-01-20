@@ -84,6 +84,24 @@ namespace TrenchBroom {
                 m_documentViewHolder.document().UpdateAllViews();
         }
         
+        void InputController::toggleTool(Tool* tool) {
+            if (tool != NULL && tool->active()) {
+                tool->deactivate(m_inputState);
+            } else {
+                if (m_clipTool->active())
+                    m_clipTool->deactivate(m_inputState);
+                if (m_moveVerticesTool->active())
+                    m_moveVerticesTool->deactivate(m_inputState);
+                if (m_rotateObjectsTool->active())
+                    m_rotateObjectsTool->deactivate(m_inputState);
+                if (tool != NULL)
+                    tool->activate(m_inputState);
+            }
+            updateHits();
+            updateModalTool();
+            updateViews();
+        }
+
         InputController::InputController(View::DocumentViewHolder& documentViewHolder) :
         m_documentViewHolder(documentViewHolder),
         m_inputState(m_documentViewHolder.view().camera(), m_documentViewHolder.document().picker()),
@@ -110,25 +128,24 @@ namespace TrenchBroom {
             m_createBrushTool = new CreateBrushTool(m_documentViewHolder, *this);
             m_createEntityTool = new CreateEntityTool(m_documentViewHolder, *this);
             m_moveObjectsTool = new MoveObjectsTool(m_documentViewHolder, *this, 64.0f, 32.0f);
-            m_rotateObjectsTool = new RotateObjectsTool(m_documentViewHolder, *this, 64.0f, 32.0f, 5.0f);
+            m_rotateObjectsTool = new RotateObjectsTool(m_documentViewHolder, *this, 64.0f, 48.0f, 16.0f);
             m_resizeBrushesTool = new ResizeBrushesTool(m_documentViewHolder, *this);
             m_setFaceAttributesTool = new SetFaceAttributesTool(m_documentViewHolder, *this);
             m_selectionTool = new SelectionTool(m_documentViewHolder, *this);
             
             m_cameraTool->setNextTool(m_clipTool);
-            m_clipTool->setNextTool(m_moveVerticesTool);
+            m_clipTool->setNextTool(m_rotateObjectsTool);
+            m_rotateObjectsTool->setNextTool(m_moveVerticesTool);
             m_moveVerticesTool->setNextTool(m_createEntityTool);
             m_createEntityTool->setNextTool(m_createBrushTool);
             m_createBrushTool->setNextTool(m_moveObjectsTool);
             m_moveObjectsTool->setNextTool(m_resizeBrushesTool);
-            // m_rotateObjectsTool->setNextTool(m_resizeBrushesTool);
             m_resizeBrushesTool->setNextTool(m_setFaceAttributesTool);
             m_setFaceAttributesTool->setNextTool(m_selectionTool);
             m_toolChain = m_cameraTool;
             
             m_createBrushTool->activate(m_inputState);
             m_moveObjectsTool->activate(m_inputState);
-            m_rotateObjectsTool->activate(m_inputState);
             
             m_documentViewHolder.view().renderer().addFigure(new InputControllerFigure(*this));
         }
@@ -398,8 +415,7 @@ namespace TrenchBroom {
                 Model::ObjectHit* hit = static_cast<Model::ObjectHit*>(m_inputState.pickResult().first(Model::HitType::ObjectHit, true, m_selectedFilter));
                 if (m_moveObjectsTool->dragType() != Tool::DTNone || m_rotateObjectsTool->dragType() != Tool::DTNone ||
                     (hit != NULL && hit->object().selected()) ||
-                    m_inputState.pickResult().first(Model::HitType::MoveHandleHit, true, m_documentViewHolder.view().filter()) != NULL ||
-                    m_inputState.pickResult().first(Model::HitType::RotateObjectsHandleHit, true, m_documentViewHolder.view().filter())) {
+                    m_inputState.pickResult().first(Model::HitType::MoveHandleHit, true, m_documentViewHolder.view().filter()) != NULL) {
                     m_selectionGuideRenderer->setColor(prefs.getColor(Preferences::HoveredGuideColor));
                     m_selectionGuideRenderer->setShowSizes(true);
                 } else {
@@ -425,16 +441,7 @@ namespace TrenchBroom {
         }
         
         void InputController::toggleClipTool() {
-            if (m_clipTool->active()) {
-                m_clipTool->deactivate(m_inputState);
-            } else {
-                if (m_moveVerticesTool->active())
-                    m_moveVerticesTool->deactivate(m_inputState);
-                m_clipTool->activate(m_inputState);
-            }
-            updateHits();
-            updateModalTool();
-            updateViews();
+            toggleTool(m_clipTool);
         }
         
         bool InputController::clipToolActive() {
@@ -469,30 +476,23 @@ namespace TrenchBroom {
         }
         
         void InputController::toggleMoveVerticesTool() {
-            if (m_moveVerticesTool->active()) {
-                m_moveVerticesTool->deactivate(m_inputState);
-            } else {
-                if (m_clipTool->active())
-                    m_clipTool->deactivate(m_inputState);
-                m_moveVerticesTool->activate(m_inputState);
-            }
-            updateHits();
-            updateModalTool();
-            updateViews();
+            toggleTool(m_moveVerticesTool);
         }
         
         bool InputController::moveVerticesToolActive() {
             return m_moveVerticesTool->active();
         }
         
+        void InputController::toggleRotateObjectsTool() {
+            toggleTool(m_rotateObjectsTool);
+        }
+        
+        bool InputController::rotateObjectsToolActive() {
+            return m_rotateObjectsTool->active();
+        }
+        
         void InputController::deactivateAll() {
-            if (m_clipTool->active())
-                m_clipTool->deactivate(m_inputState);
-            if (m_moveVerticesTool->active())
-                m_moveVerticesTool->deactivate(m_inputState);
-            updateHits();
-            updateModalTool();
-            updateViews();
+            toggleTool(NULL);
         }
         
         void InputController::createEntity(Model::EntityDefinition& definition) {

@@ -96,6 +96,7 @@ namespace TrenchBroom {
                 static const int EditRotateTexturesCWFine           = Lowest + 70;
                 static const int EditRotateTexturesCCWFine          = Lowest + 71;
                 static const int ViewCenterCameraOnSelection        = Lowest + 72;
+                static const int EditToggleRotateObjectsTool        = Lowest + 73;
                 static const int Highest                            = Lowest + 99;
             }
             
