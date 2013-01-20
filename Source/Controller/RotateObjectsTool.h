@@ -21,45 +21,17 @@
 #define __TrenchBroom__RotateObjectsTool__
 
 #include "Controller/Tool.h"
-#include "Controller/ObjectsHandle.h"
+#include "Controller/RotateHandle.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        namespace HitType {
-            static const Type RotateObjectsHandleHit    = 1 << 4;
-        }
-        
-        class RotateObjectsHandleHit : public Hit {
-        public:
-            typedef enum {
-                HAXAxis,
-                HAYAxis,
-                HAZAxis
-            } HitArea;
-        private:
-            HitArea m_hitArea;
-        public:
-            RotateObjectsHandleHit(const Vec3f& hitPoint, float distance, HitArea hitArea);
-            bool pickable(Filter& filter) const;
-            
-            inline HitArea hitArea() const {
-                return m_hitArea;
-            }
-        };
-    }
-    
     namespace Renderer {
         class Vbo;
         class RenderContext;
     }
 
     namespace Controller {
-        class RotateObjectsTool : public Tool, ObjectsHandle<Model::RotateObjectsHandleHit> {
+        class RotateObjectsTool : public Tool {
         protected:
-            float m_axisLength;
-            float m_ringRadius;
-            float m_ringThickness;
-            
             Vec3f m_axis;
             int m_startX;
             int m_startY;
@@ -68,13 +40,9 @@ namespace TrenchBroom {
             Vec3f m_center;
             bool m_ignoreObjectsChange;
             
-            Model::RotateObjectsHandleHit* m_lastHit;
-
+            RotateHandle m_rotateHandle;
+            
             void updateHandlePosition(InputState& inputState);
-            Model::RotateObjectsHandleHit* pickRing(const Ray& ray, const Vec3f& normal, const Vec3f& axis1, const Vec3f& axis2, Model::RotateObjectsHandleHit::HitArea hitArea);
-
-            void renderAxis(Model::RotateObjectsHandleHit* hit, Renderer::Vbo& vbo, Renderer::RenderContext& context);
-            void renderRing(Model::RotateObjectsHandleHit* hit, Renderer::Vbo& vbo, Renderer::RenderContext& context, float angle);
 
             bool handleIsModal(InputState& inputState);
 
@@ -90,7 +58,6 @@ namespace TrenchBroom {
             void handleGridChange(InputState& inputState);
         public:
             RotateObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, float axisLength, float ringRadius, float ringThickness);
-            ~RotateObjectsTool();
         };
     }
 }

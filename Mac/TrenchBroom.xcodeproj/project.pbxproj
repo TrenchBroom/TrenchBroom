@@ -69,6 +69,7 @@
 		4850D2A915F742CB005B162D /* PathTesselator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2A715F742CA005B162D /* PathTesselator.cpp */; };
 		4850D2AF15F76245005B162D /* StringManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2AD15F76244005B162D /* StringManager.cpp */; };
 		48533C8A168F96830055DBC7 /* ReparentBrushesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48533C88168F96830055DBC7 /* ReparentBrushesCommand.cpp */; };
+		485B70D616AC3240002E95B6 /* RotateHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 485B70D416AC3240002E95B6 /* RotateHandle.cpp */; };
 		4875679D1697922D008F316F /* MacDropSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4875679B1697922D008F316F /* MacDropSource.cpp */; };
 		487567A5169A26D5008F316F /* SpinControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487567A4169A26D4008F316F /* SpinControl.cpp */; };
 		487567AC169CB809008F316F /* SetFaceAttributesTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487567AA169CB807008F316F /* SetFaceAttributesTool.cpp */; };
@@ -326,6 +327,8 @@
 		4850D2B315F776A8005B162D /* EntityClassnameFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityClassnameFilter.h; sourceTree = "<group>"; };
 		48533C88168F96830055DBC7 /* ReparentBrushesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReparentBrushesCommand.cpp; sourceTree = "<group>"; };
 		48533C89168F96830055DBC7 /* ReparentBrushesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReparentBrushesCommand.h; sourceTree = "<group>"; };
+		485B70D416AC3240002E95B6 /* RotateHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RotateHandle.cpp; sourceTree = "<group>"; };
+		485B70D516AC3240002E95B6 /* RotateHandle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateHandle.h; sourceTree = "<group>"; };
 		486C61E615EF713C0091AA97 /* mmapped_fstream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mmapped_fstream.h; sourceTree = "<group>"; };
 		4875679A16978ED3008F316F /* DragImage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragImage.h; sourceTree = "<group>"; };
 		4875679B1697922D008F316F /* MacDropSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacDropSource.cpp; sourceTree = "<group>"; };
@@ -916,6 +919,8 @@
 				480ED72A16624C5100857A21 /* MoveVerticesTool.h */,
 				48BB02BD16870CF300E6E948 /* ResizeBrushesTool.cpp */,
 				48BB02BE16870CF300E6E948 /* ResizeBrushesTool.h */,
+				485B70D416AC3240002E95B6 /* RotateHandle.cpp */,
+				485B70D516AC3240002E95B6 /* RotateHandle.h */,
 				4878F91E1651231D003857EA /* RotateObjectsTool.cpp */,
 				4878F91F1651231D003857EA /* RotateObjectsTool.h */,
 				48EE7A1C16503AE9003F5BBE /* ObjectsHandle.h */,
@@ -1257,6 +1262,7 @@
 				487567B616A180FF008F316F /* BoxInfoRenderer.cpp in Sources */,
 				48CDA82216A424E70050E152 /* MovementIndicator.cpp in Sources */,
 				483F970716A5AB4B009716B1 /* CreateEntityFromMenuHelper.cpp in Sources */,
+				485B70D616AC3240002E95B6 /* RotateHandle.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
