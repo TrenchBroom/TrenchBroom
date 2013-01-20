@@ -211,7 +211,7 @@ namespace TrenchBroom {
             
             m_buffer.str(String());
             char c = nextChar();
-            while (m_state != TokenizerState::Eof && c != '*' && peekChar() != '/') {
+            while (!(m_state == TokenizerState::Eof || (c == '*' && peekChar() == '/'))) {
                 m_buffer << c;
                 c = nextChar();
             }
