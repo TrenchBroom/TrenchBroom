@@ -301,9 +301,7 @@ namespace TrenchBroom {
                     case TokenType::OParenthesis: {
                         pushToken(token);
                         Model::Face* face = parseFace(worldBounds);
-                        if (face == NULL) {
-                            m_console.warn("Skipping malformed face at line %i", token->line());
-                        } else if (brush != NULL) {
+                        if (face != NULL && brush != NULL) {
                             if (!brush->addFace(face)) {
                                 m_console.warn("Skipping malformed brush at line %i", brush->filePosition());
                                 delete brush;
@@ -407,7 +405,7 @@ namespace TrenchBroom {
             yScale = token->toFloat();
             
             if (((p3 - p1).crossed(p2 - p1)).null()) {
-                m_console.warn("Skipping invalid face in line %i", token->line());
+                m_console.warn("Skipping face with colinear points in line %i", token->line());
                 return NULL;
             }
             
