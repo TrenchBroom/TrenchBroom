@@ -196,6 +196,9 @@ namespace TrenchBroom {
                 newUp.z = 0.0f;
                 newDirection.x = 0.0f;
                 newDirection.y = 0.0f;
+                
+                newUp.normalize();
+                newDirection.normalize();
             }
             
             setDirection(newDirection, newUp);
