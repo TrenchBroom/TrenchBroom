@@ -25,63 +25,144 @@
 #include "Model/Entity.h"
 #include "Model/Face.h"
 #include "Model/Picker.h"
+#include "Renderer/RenderContext.h"
+#include "Renderer/RenderUtils.h"
+#include "Renderer/Shader/ShaderManager.h"
+#include "Renderer/Shader/ShaderProgram.h"
+#include "Renderer/Vbo.h"
+#include "Renderer/VertexArray.h"
 #include "View/DocumentViewHolder.h"
 #include "View/EditorView.h"
 #include "Utility/List.h"
+#include "Utility/Preferences.h"
 
 namespace TrenchBroom {
     namespace Controller {
+        void SelectionTool::handleRenderOverlay(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
+            if ((inputState.modifierKeys() & ModifierKeys::MKShift) == 0)
+                return;
+            
+            Model::FaceHit* hit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, view().filter()));
+            if (hit == NULL)
+                return;
+            
+            Model::Face& face = hit->face();
+            
+            Model::FaceList::const_iterator faceIt, faceEnd;
+            
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            Renderer::VertexArray edgeArray(vbo, GL_LINES, static_cast<unsigned int>(2 * face.edges().size()), Renderer::Attribute::position3f());
+            Renderer::SetVboState mapVbo(vbo, Renderer::Vbo::VboMapped);
+            
+            const Model::EdgeList& edges = face.edges();
+            Model::EdgeList::const_iterator eIt, eEnd;
+            for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd; ++eIt) {
+                const Model::Edge& edge = **eIt;
+                edgeArray.addAttribute(edge.start->position);
+                edgeArray.addAttribute(edge.end->position);
+            }
+            
+            Renderer::glSetEdgeOffset(0.3f);
+            
+            Renderer::SetVboState activateVbo(vbo, Renderer::Vbo::VboActive);
+            Renderer::ActivateShader shader(renderContext.shaderManager(), Renderer::Shaders::EdgeShader);
+            
+            glDisable(GL_DEPTH_TEST);
+            shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ResizeBrushFaceColor));
+            edgeArray.render();
+            glEnable(GL_DEPTH_TEST);
+            
+            Renderer::glResetEdgeOffset();
+        }
+
+        bool SelectionTool::handleMouseDClick(InputState& inputState) {
+            if (inputState.mouseButtons() != MouseButtons::MBLeft)
+                return false;
+            
+            if ((inputState.modifierKeys() & ModifierKeys::MKShift) == 0)
+                return false;
+            
+            Model::FaceHit* hit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, view().filter()));
+            if (hit == NULL)
+                return false;
+            
+            Command* command = NULL;
+            bool multi = (inputState.modifierKeys() & ModifierKeys::MKCtrlCmd) != 0;
+
+            Model::Face& face = hit->face();
+            Model::Brush& brush = *face.brush();
+            Model::FaceList selectFaces;
+            
+            const Model::FaceList& brushFaces = brush.faces();
+            Model::FaceList::const_iterator faceIt, faceEnd;
+            for (faceIt = brushFaces.begin(), faceEnd = brushFaces.end(); faceIt != faceEnd; ++faceIt) {
+                Model::Face& brushFace = **faceIt;
+                if (!brushFace.selected())
+                    selectFaces.push_back(&brushFace);
+            }
+            
+            if (multi)
+                command = ChangeEditStateCommand::select(document(), brush.faces());
+            else
+                command = ChangeEditStateCommand::replace(document(), brush.faces());
+
+            submitCommand(command);
+            return true;
+        }
+
         bool SelectionTool::handleMouseUp(InputState& inputState) {
             if (inputState.mouseButtons() != MouseButtons::MBLeft)
                 return false;
             
-            Model::Hit* hit = inputState.pickResult().first(Model::HitType::ObjectHit, false, view().filter());
             Command* command = NULL;
-            Model::EditStateManager& editStateManager = document().editStateManager();
-            
-            if (hit != NULL) {
-                bool multi = inputState.modifierKeys() == ModifierKeys::MKCtrlCmd;
-                
-                if (hit->type() == Model::HitType::EntityHit) {
-                    Model::Entity& entity = static_cast<Model::EntityHit*>(hit)->entity();
+            bool multi = (inputState.modifierKeys() & ModifierKeys::MKCtrlCmd) != 0;
+            bool faceMode = (inputState.modifierKeys() & ModifierKeys::MKShift) != 0;
+
+            if (faceMode) {
+                Model::FaceHit* hit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, view().filter()));
+                if (hit != NULL) {
+                    Model::Face& face = hit->face();
                     if (multi) {
-                        if (entity.selected())
-                            command = ChangeEditStateCommand::deselect(document(), entity);
-                        else
-                            command = ChangeEditStateCommand::select(document(), entity);
+                        if (face.selected()) {
+                            command = ChangeEditStateCommand::deselect(document(), face);
+                        } else {
+                            command = ChangeEditStateCommand::select(document(), face);
+                        }
                     } else {
-                        command = ChangeEditStateCommand::replace(document(), entity);
+                        command = ChangeEditStateCommand::replace(document(), face);
                     }
                 } else {
-                    Model::Face& face = static_cast<Model::FaceHit*>(hit)->face();
-                    Model::Brush& brush = *face.brush();
-                    
-                    if (brush.selected()) {
-                        if (multi)
-                            command = ChangeEditStateCommand::deselect(document(), brush);
-                        else
-                            command = ChangeEditStateCommand::select(document(), face);
-                    } else if (face.selected()) {
-                        if (multi)
-                            command = ChangeEditStateCommand::deselect(document(), face);
-                        else
-                            command = ChangeEditStateCommand::select(document(), brush);
-                    } else {
+                    command = ChangeEditStateCommand::deselectAll(document());
+                }
+            } else {
+                Model::ObjectHit* hit = static_cast<Model::ObjectHit*>(inputState.pickResult().first(Model::HitType::ObjectHit, false, view().filter()));
+                if (hit != NULL) {
+                    if (hit->type() == Model::HitType::EntityHit) {
+                        Model::Entity& entity = static_cast<Model::EntityHit*>(hit)->entity();
                         if (multi) {
-                            if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces)
-                                command = ChangeEditStateCommand::select(document(), face);
+                            if (entity.selected())
+                                command = ChangeEditStateCommand::deselect(document(), entity);
+                            else
+                                command = ChangeEditStateCommand::select(document(), entity);
+                        } else {
+                            command = ChangeEditStateCommand::replace(document(), entity);
+                        }
+                    } else {
+                        Model::Face& face = static_cast<Model::FaceHit*>(hit)->face();
+                        Model::Brush& brush = *face.brush();
+                        
+                        if (multi) {
+                            if (brush.selected())
+                                command = ChangeEditStateCommand::deselect(document(), brush);
                             else
                                 command = ChangeEditStateCommand::select(document(), brush);
                         } else {
-                            if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces)
-                                command = ChangeEditStateCommand::replace(document(), face);
-                            else
-                                command = ChangeEditStateCommand::replace(document(), brush);
+                            command = ChangeEditStateCommand::replace(document(), brush);
                         }
                     }
+                } else {
+                    command = ChangeEditStateCommand::deselectAll(document());
                 }
-            } else {
-                command = ChangeEditStateCommand::deselectAll(document());
             }
             
             if (command != NULL) {
