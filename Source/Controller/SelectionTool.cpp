@@ -38,43 +38,6 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        void SelectionTool::handleRenderOverlay(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
-            if ((inputState.modifierKeys() & ModifierKeys::MKShift) == 0)
-                return;
-            
-            Model::FaceHit* hit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, view().filter()));
-            if (hit == NULL)
-                return;
-            
-            Model::Face& face = hit->face();
-            
-            Model::FaceList::const_iterator faceIt, faceEnd;
-            
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            Renderer::VertexArray edgeArray(vbo, GL_LINES, static_cast<unsigned int>(2 * face.edges().size()), Renderer::Attribute::position3f());
-            Renderer::SetVboState mapVbo(vbo, Renderer::Vbo::VboMapped);
-            
-            const Model::EdgeList& edges = face.edges();
-            Model::EdgeList::const_iterator eIt, eEnd;
-            for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd; ++eIt) {
-                const Model::Edge& edge = **eIt;
-                edgeArray.addAttribute(edge.start->position);
-                edgeArray.addAttribute(edge.end->position);
-            }
-            
-            Renderer::glSetEdgeOffset(0.3f);
-            
-            Renderer::SetVboState activateVbo(vbo, Renderer::Vbo::VboActive);
-            Renderer::ActivateShader shader(renderContext.shaderManager(), Renderer::Shaders::EdgeShader);
-            
-            glDisable(GL_DEPTH_TEST);
-            shader.currentShader().setUniformVariable("Color", prefs.getColor(Preferences::ResizeBrushFaceColor));
-            edgeArray.render();
-            glEnable(GL_DEPTH_TEST);
-            
-            Renderer::glResetEdgeOffset();
-        }
-
         bool SelectionTool::handleMouseDClick(InputState& inputState) {
             if (inputState.mouseButtons() != MouseButtons::MBLeft)
                 return false;

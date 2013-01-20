@@ -26,8 +26,6 @@ namespace TrenchBroom {
     namespace Controller {
         class SelectionTool : public Tool {
         protected:
-            void handleRenderOverlay(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
-
             bool handleMouseDClick(InputState& inputState);
             bool handleMouseUp(InputState& inputState);
             void handleScroll(InputState& inputState);
