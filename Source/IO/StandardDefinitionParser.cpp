@@ -90,6 +90,11 @@ namespace TrenchBroom {
                                 m_buffer.str(String());
                                 m_buffer << c;
                                 break;
+                            case '.':
+                                m_state = TokenizerState::Decimal;
+                                m_buffer.str(String());
+                                m_buffer << '0' << c;
+                                break;
                             case '"':
                                 m_state = TokenizerState::String;
                                 m_buffer.str(String());
@@ -270,11 +275,11 @@ namespace TrenchBroom {
             StandardDefinitionTokenizer::TokenPtr token(NULL);
             
             expect(TokenType::OParenthesis, (token = m_tokenizer.nextToken()).get());
-            expect(TokenType::Decimal, (token = m_tokenizer.nextToken()).get());
+            expect(TokenType::Decimal | TokenType::Integer, (token = m_tokenizer.nextToken()).get());
             color.x = token->toFloat();
-            expect(TokenType::Decimal, (token = m_tokenizer.nextToken()).get());
+            expect(TokenType::Decimal | TokenType::Integer, (token = m_tokenizer.nextToken()).get());
             color.y = token->toFloat();
-            expect(TokenType::Decimal, (token = m_tokenizer.nextToken()).get());
+            expect(TokenType::Decimal | TokenType::Integer, (token = m_tokenizer.nextToken()).get());
             color.z = token->toFloat();
             expect(TokenType::CParenthesis, (token = m_tokenizer.nextToken()).get());
             color.w = 1.0f;
