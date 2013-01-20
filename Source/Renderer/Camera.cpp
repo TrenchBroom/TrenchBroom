@@ -213,9 +213,11 @@ namespace TrenchBroom {
             Vec3f offset = m_position - center;
             
             if (newUp.z < 0.0f) {
-                newUp = m_up;
+                newUp.z = 0.0f;
                 newDirection.x = 0.0f;
                 newDirection.y = 0.0f;
+                
+                newUp.normalize();
                 newDirection.normalize();
                 
                 // correct rounding errors
