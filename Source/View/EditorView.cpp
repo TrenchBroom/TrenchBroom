@@ -543,6 +543,7 @@ namespace TrenchBroom {
                         inspector().faceInspector().updateTextureBrowser();
                         inspector().faceInspector().updateSelectedTexture();
                         inspector().faceInspector().updateTextureCollectionList();
+                        inspector().entityInspector().updateProperties();
                         break;
                     }
                     case Controller::Command::SetEntityPropertyKey:

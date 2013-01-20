@@ -146,6 +146,16 @@ namespace TrenchBroom {
                 }
                 return it->second;
             }
+            
+            inline String wadProperty() const {
+                StringStream str;
+                for (size_t i = 0; i < m_collections.size(); i++) {
+                    str << m_collections[i]->name();
+                    if (i < m_collections.size() - 1)
+                        str << ";";
+                }
+                return str.str();
+            }
         };
     }
 }

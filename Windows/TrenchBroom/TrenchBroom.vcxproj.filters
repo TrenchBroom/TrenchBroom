@@ -438,6 +438,9 @@
     <ClCompile Include="..\..\Source\Controller\CreateEntityFromMenuHelper.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\RotateHandle.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -1032,6 +1035,9 @@
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\CreateEntityFromMenuHelper.h">
+      <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\RotateHandle.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
   </ItemGroup>

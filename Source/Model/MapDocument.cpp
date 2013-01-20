@@ -39,6 +39,7 @@
 #include "Renderer/SharedResources.h"
 #include "Utility/Console.h"
 #include "Utility/Grid.h"
+#include "Utility/Preferences.h"
 #include "Utility/VecMath.h"
 #include "View/EditorView.h"
 #include "View/FaceInspector.h"
@@ -48,6 +49,7 @@
 #include <cassert>
 
 #include <wx/msgdlg.h>
+#include <wx/stdpaths.h>
 #include <wx/stopwatch.h>
 
 using namespace TrenchBroom::Math;
@@ -558,13 +560,24 @@ namespace TrenchBroom {
             String collectionName = path;
             String wadPath = path;
             if (!fileManager.isAbsolutePath(wadPath)) {
+                // try relative path to map file, executable, quake path
                 String mapPath = GetFilename().ToStdString();
-                if (mapPath.empty()) {
-                    console().error("Could not expand relative texture wad path %s because the map has not yet been saved", path.c_str());
-                    return;
+                wadPath = fileManager.makeAbsolute(path, mapPath);
+                if (!fileManager.exists(wadPath)) {
+                    String exePath = wxStandardPaths::Get().GetExecutablePath().ToStdString();
+                    wadPath = fileManager.makeAbsolute(path, mapPath);
+                }
+                
+                if (!fileManager.exists(wadPath)) {
+                    Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+                    const String& quakePath = prefs.getString(Preferences::QuakePath);
+                    wadPath = fileManager.makeAbsolute(path, quakePath);
                 }
 
-                wadPath = fileManager.makeAbsolute(wadPath, mapPath);
+                if (!fileManager.exists(wadPath)) {
+                    console().error("Could not open texture wad %s (tried relative to current map file, current executable, and Quake path)", wadPath.c_str());
+                    return;
+                }
             }
 
             if (fileManager.exists(wadPath)) {

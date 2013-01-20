@@ -42,6 +42,7 @@ namespace TrenchBroom {
             
             void addTextureCollectionsByPaths();
             void removeTextureCollectionsByPaths();
+            void updateWadKey();
             
             TextureCollectionCommand(Type type, Model::MapDocument& document, const String& name, const String& path);
             TextureCollectionCommand(Type type, Model::MapDocument& document, const String& name, const IndexList& indices);

@@ -185,7 +185,7 @@ namespace TrenchBroom {
             if (!::wxIsAbsolutePath(referencePath))
                 return "";
 
-            String folderPath = deleteLastPathComponent(referencePath);
+            String folderPath = isDirectory(referencePath) ? referencePath : deleteLastPathComponent(referencePath);
             return appendPath(folderPath, relativePath);
         }
 

@@ -20,6 +20,8 @@
 #include "TextureCollectionCommand.h"
 
 #include "IO/Wad.h"
+#include "Model/Entity.h"
+#include "Model/Map.h"
 #include "Model/MapDocument.h"
 #include "Model/TextureManager.h"
 
@@ -51,6 +53,12 @@ namespace TrenchBroom {
             document().updateAfterTextureManagerChanged();
             while (!collections.empty()) delete collections.back(), collections.pop_back();
         }
+        
+        void TextureCollectionCommand::updateWadKey() {
+            Model::TextureManager& textureManager = document().textureManager();
+            Model::Entity& worldspawn = *document().worldspawn(true);
+            worldspawn.setProperty(Model::Entity::WadKey, textureManager.wadProperty());
+        }
 
         TextureCollectionCommand::TextureCollectionCommand(Type type, Model::MapDocument& document, const String& name, const String& path) :
         DocumentCommand(type, document, true, name, true) {
@@ -66,6 +74,7 @@ namespace TrenchBroom {
             if (type() == AddTextureCollection) {
                 m_indices.clear();
                 addTextureCollectionsByPaths();
+                updateWadKey();
                 document().UpdateAllViews(NULL, this);
                 return true;
             } else if (type() == RemoveTextureCollection) {
@@ -79,6 +88,8 @@ namespace TrenchBroom {
                     m_paths.push_back(collection->name());
                 }
                 removeTextureCollectionsByPaths();
+                updateWadKey();
+                document().UpdateAllViews(NULL, this);
                 return true;
             }
             
@@ -88,6 +99,7 @@ namespace TrenchBroom {
         bool TextureCollectionCommand::performUndo() {
             if (type() == AddTextureCollection) {
                 removeTextureCollectionsByPaths();
+                updateWadKey();
                 document().UpdateAllViews(NULL, this);
                 return true;
             } else if (type() == RemoveTextureCollection) {
@@ -95,6 +107,8 @@ namespace TrenchBroom {
                 Model::TextureManager& textureManager = document().textureManager();
                 Model::Texture* mruTexture = textureManager.texture(m_mruTextureName);
                 document().setMruTexture(mruTexture);
+                updateWadKey();
+                document().UpdateAllViews(NULL, this);
                 return true;
             }
             
