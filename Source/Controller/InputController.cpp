@@ -128,7 +128,7 @@ namespace TrenchBroom {
             m_createBrushTool = new CreateBrushTool(m_documentViewHolder, *this);
             m_createEntityTool = new CreateEntityTool(m_documentViewHolder, *this);
             m_moveObjectsTool = new MoveObjectsTool(m_documentViewHolder, *this, 64.0f, 32.0f);
-            m_rotateObjectsTool = new RotateObjectsTool(m_documentViewHolder, *this, 64.0f, 48.0f, 16.0f);
+            m_rotateObjectsTool = new RotateObjectsTool(m_documentViewHolder, *this, 64.0f, 32.0f, 32.0f);
             m_resizeBrushesTool = new ResizeBrushesTool(m_documentViewHolder, *this);
             m_setFaceAttributesTool = new SetFaceAttributesTool(m_documentViewHolder, *this);
             m_selectionTool = new SelectionTool(m_documentViewHolder, *this);
@@ -415,7 +415,8 @@ namespace TrenchBroom {
                 Model::ObjectHit* hit = static_cast<Model::ObjectHit*>(m_inputState.pickResult().first(Model::HitType::ObjectHit, true, m_selectedFilter));
                 if (m_moveObjectsTool->dragType() != Tool::DTNone || m_rotateObjectsTool->dragType() != Tool::DTNone ||
                     (hit != NULL && hit->object().selected()) ||
-                    m_inputState.pickResult().first(Model::HitType::MoveHandleHit, true, m_documentViewHolder.view().filter()) != NULL) {
+                    m_inputState.pickResult().first(Model::HitType::MoveHandleHit, true, m_documentViewHolder.view().filter()) != NULL ||
+                    m_inputState.pickResult().first(Model::HitType::RotateHandleHit, true, m_documentViewHolder.view().filter()) != NULL ) {
                     m_selectionGuideRenderer->setColor(prefs.getColor(Preferences::HoveredGuideColor));
                     m_selectionGuideRenderer->setShowSizes(true);
                 } else {

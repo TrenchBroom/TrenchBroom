@@ -139,7 +139,7 @@ namespace TrenchBroom {
                     delta *= -1;
             }
             
-            m_angle = delta / 150.0f * Math::Pi;
+            m_angle = static_cast<float>(delta) / 200.0f * Math::Pi;
             
             Utility::Grid& grid = document().grid();
             m_angle = grid.snapAngle(m_angle);
@@ -167,6 +167,7 @@ namespace TrenchBroom {
 
         RotateObjectsTool::RotateObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, float axisLength, float ringRadius, float ringThickness) :
         Tool(documentViewHolder, inputController, true),
+        m_angle(0.0f),
         m_ignoreObjectsChange(false),
         m_rotateHandle(RotateHandle(axisLength, ringRadius, ringThickness)){}
     }
