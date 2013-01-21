@@ -37,6 +37,7 @@
 #include "Model/Picker.h"
 #include "Model/TextureManager.h"
 #include "Renderer/SharedResources.h"
+#include "Renderer/TextureRendererManager.h"
 #include "Utility/Console.h"
 #include "Utility/Grid.h"
 #include "Utility/Preferences.h"
@@ -191,6 +192,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::clear() {
+            m_sharedResources->textureRendererManager().clear();
             m_editStateManager->clear();
             m_map->clear();
             m_octree->clear();
