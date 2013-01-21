@@ -32,28 +32,69 @@ namespace TrenchBroom {
     
     namespace Utility {
         class Grid {
-        private:
+        public:
             static const unsigned int MaxSize = 9;
+        private:
             static const float SnapAngle;
             unsigned int m_size;
             bool m_snap;
             bool m_visible;
         public:
             Grid(unsigned int size) : m_size(size), m_snap(true), m_visible(true) {}
-            unsigned int size() const;
-            void setSize(unsigned int size);
-            unsigned int actualSize() const;
-            float angle() const {
+
+            
+            inline unsigned int size() const {
+                return m_size;
+            }
+            
+            inline void setSize(unsigned int size) {
+                if (m_size == size)
+                    return;
+                
+                if (size > MaxSize)
+                    m_size = MaxSize;
+                else
+                    m_size = size;
+            }
+            
+            inline void incSize() {
+                if (m_size < MaxSize)
+                    m_size++;
+            }
+            
+            inline void decSize() {
+                if (m_size > 0)
+                    m_size--;
+            }
+            
+            inline unsigned int actualSize() const {
+                if (m_snap)
+                    return 1 << m_size;
+                return 1;
+            }
+            
+            inline void toggleVisible() {
+                m_visible = !m_visible;
+            }
+            
+            inline bool visible() const {
+                return m_visible;
+            }
+            
+            inline void toggleSnap() {
+                m_snap = !m_snap;
+            }
+            
+            inline bool snap() const {
+                return m_snap;
+            }
+
+            inline float angle() const {
                 if (m_snap)
                     return 15.0f;
                 return 1.0f;
             }
 
-            void toggleVisible();
-            bool visible() const;
-            void toggleSnap();
-            bool snap() const;
-            
             float snap(float f) const;
             float snapAngle(float a) const;
             float snapUp(float f, bool skip = false) const;

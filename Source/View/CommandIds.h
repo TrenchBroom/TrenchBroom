@@ -97,6 +97,8 @@ namespace TrenchBroom {
                 static const int EditRotateTexturesCCWFine          = Lowest + 71;
                 static const int ViewCenterCameraOnSelection        = Lowest + 72;
                 static const int EditToggleRotateObjectsTool        = Lowest + 73;
+                static const int ViewIncGridSize                    = Lowest + 74;
+                static const int ViewDecGridSize                    = Lowest + 75;
                 static const int Highest                            = Lowest + 99;
             }
             

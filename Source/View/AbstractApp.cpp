@@ -121,6 +121,9 @@ wxMenu* AbstractApp::CreateViewMenu(wxEvtHandler* eventHandler, bool mapViewFocu
     gridMenu->AppendCheckItem(ViewToggleShowGrid, wxT("Show Grid\tCtrl+G"));
     gridMenu->AppendCheckItem(ViewToggleSnapToGrid, wxT("Snap to Grid Grid\tCtrl+Shift+G"));
     gridMenu->AppendSeparator();
+    gridMenu->Append(ViewIncGridSize, wxT("Increase Grid Size\tCtrl++"));
+    gridMenu->Append(ViewDecGridSize, wxT("Decrease Grid Size\tCtrl+-"));
+    gridMenu->AppendSeparator();
     gridMenu->AppendCheckItem(ViewSetGridSize1, wxT("Set Grid Size 1\tCtrl+1"));
     gridMenu->AppendCheckItem(ViewSetGridSize2, wxT("Set Grid Size 2\tCtrl+2"));
     gridMenu->AppendCheckItem(ViewSetGridSize4, wxT("Set Grid Size 4\tCtrl+3"));

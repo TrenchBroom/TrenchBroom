@@ -145,6 +145,8 @@ namespace TrenchBroom {
 
         EVT_MENU(CommandIds::Menu::ViewToggleShowGrid, EditorView::OnViewToggleShowGrid)
         EVT_MENU(CommandIds::Menu::ViewToggleSnapToGrid, EditorView::OnViewToggleSnapToGrid)
+        EVT_MENU(CommandIds::Menu::ViewIncGridSize, EditorView::OnViewIncGridSize)
+        EVT_MENU(CommandIds::Menu::ViewDecGridSize, EditorView::OnViewDecGridSize)
         EVT_MENU_RANGE(CommandIds::Menu::ViewSetGridSize1, CommandIds::Menu::ViewSetGridSize256, EditorView::OnViewSetGridSize)
 
         EVT_MENU(CommandIds::Menu::ViewMoveCameraForward, EditorView::OnViewMoveCameraForward)
@@ -1247,6 +1249,16 @@ namespace TrenchBroom {
             mapDocument().UpdateAllViews(NULL, new Controller::Command(Controller::Command::ChangeGrid));
         }
 
+        void EditorView::OnViewIncGridSize(wxCommandEvent& event) {
+            mapDocument().grid().incSize();
+            mapDocument().UpdateAllViews(NULL, new Controller::Command(Controller::Command::ChangeGrid));
+        }
+        
+        void EditorView::OnViewDecGridSize(wxCommandEvent& event) {
+            mapDocument().grid().decSize();
+            mapDocument().UpdateAllViews(NULL, new Controller::Command(Controller::Command::ChangeGrid));
+        }
+
         void EditorView::OnViewMoveCameraForward(wxCommandEvent& event) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             float speed = prefs.getFloat(Preferences::CameraPanSpeed);
@@ -1554,6 +1566,12 @@ namespace TrenchBroom {
                 case CommandIds::Menu::ViewToggleSnapToGrid:
                     event.Enable(true);
                     event.Check(mapDocument().grid().snap());
+                    break;
+                case CommandIds::Menu::ViewIncGridSize:
+                    event.Enable(mapDocument().grid().size() < Utility::Grid::MaxSize);
+                    break;
+                case CommandIds::Menu::ViewDecGridSize:
+                    event.Enable(mapDocument().grid().size() > 0);
                     break;
                 case CommandIds::Menu::ViewSetGridSize1:
                     event.Enable(true);

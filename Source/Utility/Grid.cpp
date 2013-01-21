@@ -34,42 +34,6 @@ using namespace TrenchBroom::Math;
 namespace TrenchBroom {
     namespace Utility {
         const float Grid::SnapAngle = Math::radians(15.0f);
-        
-        unsigned int Grid::size() const {
-            return m_size;
-        }
-        
-        void Grid::setSize(unsigned int size) {
-            if (m_size == size)
-                return;
-            
-            if (size > MaxSize)
-                m_size = MaxSize;
-            else
-                m_size = size;
-        }
-
-        unsigned int Grid::actualSize() const {
-            if (m_snap)
-                return 1 << m_size;
-            return 1;
-        }
-
-        void Grid::toggleVisible() {
-            m_visible = !m_visible;
-        }
-        
-        bool Grid::visible() const {
-            return m_visible;
-        }
-        
-        void Grid::toggleSnap() {
-            m_snap = !m_snap;
-        }
-        
-        bool Grid::snap() const {
-            return m_snap;
-        }
 
         float Grid::snap(float f) const {
             if (!snap())
