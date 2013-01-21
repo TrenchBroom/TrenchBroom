@@ -93,6 +93,7 @@ namespace TrenchBroom {
         }
 
         void TextureBrowser::reload() {
+            m_canvas->clear();
             m_canvas->reload();
         }
 

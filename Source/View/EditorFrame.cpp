@@ -62,16 +62,14 @@ namespace TrenchBroom {
             m_mapCanvas = new MapGLCanvas(logSplitter, m_documentViewHolder);
             m_inspector = new Inspector(inspectorSplitter, m_documentViewHolder);
             
-            logSplitter->SplitHorizontally(m_mapCanvas, m_logView);
-            inspectorSplitter->SplitVertically(logSplitter, m_inspector, 0);
+            logSplitter->SplitHorizontally(m_mapCanvas, m_logView, -150);
+            inspectorSplitter->SplitVertically(logSplitter, m_inspector, -350);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(inspectorSplitter, 1, wxEXPAND);
             SetSizerAndFit(outerSizer);
             
             SetSize(1024, 768);
-            inspectorSplitter->SetSashPosition(GetSize().x - 350);
-            logSplitter->SetSashPosition(GetSize().y - 150);
             Layout();
             
             m_mapCanvas->Bind(wxEVT_SET_FOCUS, &EditorFrame::OnMapCanvasSetFocus, this);

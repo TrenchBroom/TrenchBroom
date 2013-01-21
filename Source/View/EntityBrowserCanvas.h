@@ -92,6 +92,7 @@ namespace TrenchBroom {
 
             virtual void doInitLayout(Layout& layout);
             virtual void doReloadLayout(Layout& layout);
+            virtual void doClear();
             virtual void doRender(Layout& layout, float y, float height);
             virtual bool dndEnabled();
             virtual wxImage* dndImage(const Layout::Group::Row::Cell& cell);

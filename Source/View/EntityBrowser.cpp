@@ -91,6 +91,7 @@ namespace TrenchBroom {
         }
         
         void EntityBrowser::reload() {
+            m_canvas->clear();
             m_canvas->reload();
         }
         

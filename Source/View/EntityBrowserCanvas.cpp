@@ -180,6 +180,10 @@ namespace TrenchBroom {
             }
         }
 
+        void EntityBrowserCanvas::doClear() {
+            m_stringRendererCache.clear();
+        }
+
         void EntityBrowserCanvas::doRender(Layout& layout, float y, float height) {
             Renderer::ShaderManager& shaderManager = m_documentViewHolder.document().sharedResources().shaderManager();
             Renderer::ShaderProgram& boundsProgram = shaderManager.shaderProgram(Renderer::Shaders::EdgeShader);

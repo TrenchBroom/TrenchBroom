@@ -78,6 +78,7 @@ namespace TrenchBroom {
             
             virtual void doInitLayout(Layout& layout) = 0;
             virtual void doReloadLayout(Layout& layout) = 0;
+            virtual void doClear() {}
             virtual void doRender(Layout& layout, float y, float height) = 0;
             virtual void handleLeftClick(Layout& layout, float x, float y) {}
             virtual bool dndEnabled() { return false; }
@@ -123,6 +124,7 @@ namespace TrenchBroom {
             
             void clear() {
                 m_layout.clear();
+                doClear();
             }
             
             void OnPaint(wxPaintEvent& event) {

@@ -60,13 +60,6 @@ namespace TrenchBroom {
             m_textures.clear();
         }
 
-        void TextureRendererManager::clear() {
-            TextureRendererCollectionMap::iterator it, end;
-            for (it = m_textureCollections.begin(), end = m_textureCollections.end(); it != end; ++it)
-                delete it->second;
-            m_textureCollections.clear();
-        }
-
         TextureRendererManager::TextureRendererManager(Model::TextureManager& textureManager) :
         m_textureManager(textureManager),
         m_dummyTexture(new TextureRenderer()),
@@ -108,6 +101,13 @@ namespace TrenchBroom {
                 return *m_dummyTexture;
 
             return *textureRenderer;
+        }
+
+        void TextureRendererManager::clear() {
+            TextureRendererCollectionMap::iterator it, end;
+            for (it = m_textureCollections.begin(), end = m_textureCollections.end(); it != end; ++it)
+                delete it->second;
+            m_textureCollections.clear();
         }
     }
 }

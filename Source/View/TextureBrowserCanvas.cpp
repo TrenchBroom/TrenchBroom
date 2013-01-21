@@ -112,6 +112,10 @@ namespace TrenchBroom {
             }
         }
         
+        void TextureBrowserCanvas::doClear() {
+            m_stringRendererCache.clear();
+        }
+
         void TextureBrowserCanvas::doRender(Layout& layout, float y, float height) {
             Renderer::ShaderManager& shaderManager = m_documentViewHolder.document().sharedResources().shaderManager();
             Renderer::ShaderProgram& textureProgram = shaderManager.shaderProgram(Renderer::Shaders::TextureBrowserShader);

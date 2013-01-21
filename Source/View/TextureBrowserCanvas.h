@@ -92,6 +92,7 @@ namespace TrenchBroom {
             void addTextureToLayout(Layout& layout, Model::Texture* texture, const Renderer::Text::FontDescriptor& font);
             virtual void doInitLayout(Layout& layout);
             virtual void doReloadLayout(Layout& layout);
+            virtual void doClear();
             virtual void doRender(Layout& layout, float y, float height);
             virtual void handleLeftClick(Layout& layout, float x, float y);
         public:
