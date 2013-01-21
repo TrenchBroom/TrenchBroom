@@ -53,7 +53,10 @@ namespace TrenchBroom {
             void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
             void handleFreeRenderResources();
 
+            void handleModifierKeyChange(InputState& inputState);
+
             bool handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint);
+            void handleResetPlane(InputState& inputState, Plane& plane, Vec3f& initialPoint);
             bool handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint);
             void handleEndPlaneDrag(InputState& inputState);
 

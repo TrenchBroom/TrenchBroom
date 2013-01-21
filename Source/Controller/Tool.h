@@ -455,6 +455,7 @@ namespace TrenchBroom {
             }
             
             virtual bool handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint) = 0;
+            virtual void handleResetPlane(InputState& inputState, Plane& plane, Vec3f& initialPoint) {}
             virtual bool handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) = 0;
             virtual void handleEndPlaneDrag(InputState& inputState) = 0;
             
@@ -464,6 +465,11 @@ namespace TrenchBroom {
                     return true;
                 }
                 return false;
+            }
+            
+            void resetPlane(InputState& inputState) {
+                handleResetPlane(inputState, m_plane, m_lastPoint);
+                m_refPoint = m_lastPoint;
             }
             
             bool handleDrag(InputState& inputState) {

@@ -66,7 +66,7 @@ namespace TrenchBroom {
                 if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
                     m_indicator->setDirection(Renderer::MovementIndicator::Vertical);
                 } else {
-                    if (std::abs(inputState.pickRay().direction.z) < 0.3f)
+                    if (std::abs(inputState.pickRay().direction.z) < 0.2f)
                         m_indicator->setDirection(Renderer::MovementIndicator::LeftRight);
                     else
                         m_indicator->setDirection(Renderer::MovementIndicator::Horizontal);
@@ -81,6 +81,13 @@ namespace TrenchBroom {
         void MoveObjectsTool::handleFreeRenderResources() {
             delete m_indicator;
             m_indicator = NULL;
+        }
+
+        void MoveObjectsTool::handleModifierKeyChange(InputState& inputState) {
+            if (dragType() != DTDrag)
+                return;
+            
+            resetPlane(inputState);
         }
 
         bool MoveObjectsTool::handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint) {
@@ -113,7 +120,7 @@ namespace TrenchBroom {
                 plane = Plane(planeNorm, initialPoint);
                 m_direction = Vertical;
             } else {
-                if (std::abs(inputState.pickRay().direction.z) < 0.3f) {
+                if (std::abs(inputState.pickRay().direction.z) < 0.2f) {
                     plane = Plane::verticalDragPlane(initialPoint, inputState.camera().direction());
                     m_direction = LeftRight;
                 } else {
@@ -127,6 +134,30 @@ namespace TrenchBroom {
             return true;
         }
         
+        void MoveObjectsTool::handleResetPlane(InputState& inputState, Plane& plane, Vec3f& initialPoint) {
+            float distance = plane.intersectWithRay(inputState.pickRay());
+            if (Math::isnan(distance))
+                return;
+            initialPoint = inputState.pickRay().pointAtDistance(distance);
+
+            if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
+                Vec3f planeNorm = inputState.pickRay().direction;
+                planeNorm.z = 0.0f;
+                planeNorm.normalize();
+                
+                plane = Plane(planeNorm, initialPoint);
+                m_direction = Vertical;
+            } else {
+                if (std::abs(inputState.pickRay().direction.z) < 0.2f) {
+                    plane = Plane::verticalDragPlane(initialPoint, inputState.camera().direction());
+                    m_direction = LeftRight;
+                } else {
+                    plane = Plane::horizontalDragPlane(initialPoint);
+                    m_direction = Horizontal;
+                }
+            }
+        }
+
         bool MoveObjectsTool::handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) {
             Vec3f delta = curPoint - refPoint;
             if (m_direction == Vertical) {
