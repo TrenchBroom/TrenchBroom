@@ -26,6 +26,7 @@
 #include "View/EntityBrowser.h"
 #include "View/EntityPropertyGridTable.h"
 #include "View/LayoutConstants.h"
+#include "View/SmartPropertyEditor.h"
 
 #include <wx/button.h>
 #include <wx/grid.h>
@@ -66,6 +67,15 @@ namespace TrenchBroom {
 
             // TODO: implemented better TAB behavior once wxWidgets 2.9.5 is out
             // see http://docs.wxwidgets.org/trunk/classwx_grid_event.html for wxEVT_GRID_TABBING
+
+            wxPanel* smartPropertyEditorPanel = new wxPanel(propertyEditorPanel);
+            m_smartPropertyEditorManager = new SmartPropertyEditorManager(smartPropertyEditorPanel);
+            
+            wxSizer* propertyEditorSizer = new wxBoxSizer(wxVERTICAL);
+            propertyEditorSizer->Add(m_propertyGrid, 1, wxEXPAND);
+            propertyEditorSizer->AddSpacer(LayoutConstants::ControlMargin);
+            propertyEditorSizer->Add(smartPropertyEditorPanel, 0, wxEXPAND);
+            propertyEditorSizer->SetMinSize(wxDefaultSize.x, 250);
             
             m_addPropertyButton = new wxButton(propertyEditorPanel, CommandIds::EntityInspector::AddEntityPropertyButtonId, wxT("+"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
             m_removePropertiesButton = new wxButton(propertyEditorPanel, CommandIds::EntityInspector::RemoveEntityPropertiesButtonId, wxT("-"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
@@ -76,9 +86,10 @@ namespace TrenchBroom {
             propertyViewButtonsSizer->Add(m_removePropertiesButton, 0, wxEXPAND);
 
             wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
-            outerSizer->Add(m_propertyGrid, 1, wxEXPAND);
+            outerSizer->Add(propertyEditorSizer, 1, wxEXPAND);
             outerSizer->AddSpacer(LayoutConstants::ControlMargin);
             outerSizer->Add(propertyViewButtonsSizer, 0, wxEXPAND);
+            
             propertyEditorPanel->SetSizerAndFit(outerSizer);
             
             return propertyEditorPanel;
@@ -92,17 +103,20 @@ namespace TrenchBroom {
         EntityInspector::EntityInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder) :
         wxPanel(parent),
         m_documentViewHolder(documentViewHolder) {
-            
+
+            /*
             wxSplitterWindow* inspectorSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE);
             inspectorSplitter->SetSashGravity(0.0f);
             inspectorSplitter->SetMinimumPaneSize(50);
+             */
 
-            inspectorSplitter->SplitHorizontally(createPropertyEditor(inspectorSplitter), createEntityBrowser(inspectorSplitter));
-            
             // creates 5 pixel border inside the page
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(inspectorSplitter, 1, wxEXPAND | wxALL, LayoutConstants::NotebookPageInnerMargin);
+            outerSizer->Add(createPropertyEditor(this), 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
+            outerSizer->Add(createEntityBrowser(this), 1, wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
             SetSizerAndFit(outerSizer);
+
+            // inspectorSplitter->SplitHorizontally(createPropertyEditor(inspectorSplitter), createEntityBrowser(inspectorSplitter));
         }
 
         void EntityInspector::updateProperties() {

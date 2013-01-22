@@ -67,6 +67,12 @@
     <Filter Include="Source Files\GL">
       <UniqueIdentifier>{56bc9316-09da-4571-a21f-c60183e592c1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\View\PropertyEditor">
+      <UniqueIdentifier>{67b43e68-114f-4b98-abd3-6e8c1068214a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\View\PropertyEditor">
+      <UniqueIdentifier>{7095fced-f94f-4e69-8102-8af5e97a97b6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TrenchBroomApp.cpp">
@@ -440,6 +446,12 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Controller\RotateHandle.cpp">
       <Filter>Source Files\Controller</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\View\SmartPropertyEditor.cpp">
+      <Filter>Source Files\View\PropertyEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\View\SpawnFlagsEditor.cpp">
+      <Filter>Source Files\View\PropertyEditor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1039,6 +1051,12 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\RotateHandle.h">
       <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\SpawnFlagsEditor.h">
+      <Filter>Header Files\View\PropertyEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\SmartPropertyEditor.h">
+      <Filter>Header Files\View\PropertyEditor</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -35,6 +35,7 @@ namespace TrenchBroom {
         class DocumentViewHolder;
         class EntityBrowser;
         class EntityPropertyGridTable;
+        class SmartPropertyEditorManager;
         
         class EntityInspector : public wxPanel {
         protected:
@@ -42,6 +43,7 @@ namespace TrenchBroom {
 
             EntityPropertyGridTable* m_propertyTable;
             wxGrid* m_propertyGrid;
+            SmartPropertyEditorManager* m_smartPropertyEditorManager;
             wxButton* m_addPropertyButton;
             wxButton* m_removePropertiesButton;
             
