@@ -610,7 +610,7 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::OnCreate(const wxString& path, long flags) {
-            BBox worldBounds(Vec3f(-65536, -65536, -65536), Vec3f(65536, 65536, 65536));
+            BBox worldBounds(Vec3f(-16384, -16384, -16384), Vec3f(16384, 16384, 16384));
 
             m_console = new Utility::Console();
             m_textureManager = new TextureManager();

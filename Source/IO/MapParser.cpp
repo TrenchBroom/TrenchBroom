@@ -315,9 +315,9 @@ namespace TrenchBroom {
                     case TokenType::CBrace:
                         if (indicator != NULL) indicator->update(static_cast<int>(token->position()));
                         if (brush != NULL && !brush->closed()) {
-                            m_console.warn("Skipping non-closed brush at line %i", brush->filePosition());
-                            delete brush;
-                            brush = NULL;
+                            m_console.warn("Non-closed brush at line %i", brush->filePosition());
+                            // delete brush;
+                            // brush = NULL;
                         }
                         return brush;
                     default:
