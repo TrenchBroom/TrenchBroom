@@ -27,6 +27,7 @@
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/MovementIndicator.h"
+#include "Utility/Console.h"
 #include "Utility/Grid.h"
 
 #include <cassert>

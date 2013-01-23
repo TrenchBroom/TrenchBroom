@@ -79,6 +79,7 @@ namespace TrenchBroom {
             
             wxPoint m_clickPos;
             bool m_discardNextMouseUp;
+            ModifierKeyState m_modifierKeys;
             
             void updateModalTool();
             void updateHits();

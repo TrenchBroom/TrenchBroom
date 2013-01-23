@@ -119,6 +119,7 @@ namespace TrenchBroom {
         m_modalTool(NULL),
         m_cancelledDrag(false),
         m_discardNextMouseUp(false),
+        m_modifierKeys(ModifierKeys::MKNone),
         m_createEntityHelper(NULL),
         m_selectionGuideRenderer(NULL),
         m_selectedFilter(Model::SelectedFilter(m_documentViewHolder.view().filter())) {
@@ -178,17 +179,23 @@ namespace TrenchBroom {
         }
         
         void InputController::modifierKeyDown(ModifierKeyState modifierKey) {
-            updateHits();
-            m_toolChain->modifierKeyChange(m_inputState);
-            updateModalTool();
-            updateViews();
+            if ((m_modifierKeys & modifierKey) == 0) {
+                m_modifierKeys |= modifierKey;
+                updateHits();
+                m_toolChain->modifierKeyChange(m_inputState);
+                updateModalTool();
+                updateViews();
+            }
         }
         
         void InputController::modifierKeyUp(ModifierKeyState modifierKey) {
-            updateHits();
-            m_toolChain->modifierKeyChange(m_inputState);
-            updateModalTool();
-            updateViews();
+            if ((m_modifierKeys & modifierKey) != 0) {
+                m_modifierKeys &= ~modifierKey;
+                updateHits();
+                m_toolChain->modifierKeyChange(m_inputState);
+                updateModalTool();
+                updateViews();
+            }
         }
         
         bool InputController::mouseDown(int x, int y, MouseButtonState mouseButton) {
