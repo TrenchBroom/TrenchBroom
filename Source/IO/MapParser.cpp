@@ -374,12 +374,9 @@ namespace TrenchBroom {
             
             if (m_format == Standard) {
                 expect(TokenType::Integer | TokenType::Decimal, token.get());
-                bool dec = token->type() == TokenType::Decimal;
                 xOffset = token->toFloat();
                 expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
                 yOffset = token->toFloat();
-                if (dec || token->type() == TokenType::Decimal)
-                    m_console.warn("Rounding fractional texture offset in line %i", token->line());
             } else { // Valve 220 format
                 expect(TokenType::OBracket, token.get());
                 expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get()); // X texture axis x
