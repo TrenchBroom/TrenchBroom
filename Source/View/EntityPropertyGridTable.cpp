@@ -123,20 +123,27 @@ namespace TrenchBroom {
             assert(!entities.empty());
 
             m_ignoreUpdates = true;
+            Entry oldEntry = m_entries[rowIndex];
+            
             if (col == 0) {
                 const Model::PropertyKey oldKey = m_entries[rowIndex].key;
                 const Model::PropertyKey newKey = value.ToStdString();
+
+                m_entries[rowIndex].key = newKey;
+                
                 Controller::EntityPropertyCommand* rename = Controller::EntityPropertyCommand::setEntityPropertyKey(m_document, entities, oldKey, newKey);
-                if (m_document.GetCommandProcessor()->Submit(rename))
-                    m_entries[rowIndex].key = newKey;
+                if (!m_document.GetCommandProcessor()->Submit(rename))
+                    m_entries[rowIndex] = oldEntry;
             } else {
                 const Model::PropertyKey key = m_entries[rowIndex].key;
                 const Model::PropertyValue newValue = value.ToStdString();
+                
+                m_entries[rowIndex].value = newValue;
+                m_entries[rowIndex].reset();
+
                 Controller::EntityPropertyCommand* setValue = Controller::EntityPropertyCommand::setEntityPropertyValue(m_document, entities, key, newValue);
-                if (m_document.GetCommandProcessor()->Submit(setValue)) {
-                    m_entries[rowIndex].value = newValue;
-                    m_entries[rowIndex].reset();
-                }
+                if (!m_document.GetCommandProcessor()->Submit(setValue))
+                    m_entries[rowIndex] = oldEntry;
             }
             m_ignoreUpdates = false;
         }

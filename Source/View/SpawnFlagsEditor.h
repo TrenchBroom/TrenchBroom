@@ -22,13 +22,21 @@
 
 #include "View/SmartPropertyEditor.h"
 
+class wxPanel;
+class wxCheckBox;
+
 namespace TrenchBroom {
     namespace View {
         class SpawnFlagsEditor : public SmartPropertyEditor {
+        private:
+            wxPanel* m_panel;
+            wxCheckBox* m_flags[24];
         protected:
             virtual wxWindow* createVisual(wxWindow* parent);
             virtual void destroyVisual();
-            virtual void updateVisual(const Model::PropertyValueList& values);
+            virtual void updateVisual(const Model::EntityList& entities);
+        public:
+            SpawnFlagsEditor(SmartPropertyEditorManager& manager);
         };
     }
 }

@@ -51,6 +51,7 @@ namespace TrenchBroom {
             
             m_propertyGrid = new wxGrid(propertyEditorPanel, CommandIds::EntityInspector::EntityPropertyViewId);
             m_propertyGrid->Bind(wxEVT_SIZE, &EntityInspector::OnPropertyGridSize, this);
+            m_propertyGrid->Bind(wxEVT_GRID_SELECT_CELL, &EntityInspector::OnPropertyGridSelectCell, this);
             m_propertyGrid->SetTable(m_propertyTable, true, wxGrid::wxGridSelectRows);
             m_propertyGrid->SetUseNativeColLabels();
             m_propertyGrid->UseNativeColHeader();
@@ -75,7 +76,7 @@ namespace TrenchBroom {
             propertyEditorSizer->Add(m_propertyGrid, 1, wxEXPAND);
             propertyEditorSizer->AddSpacer(LayoutConstants::ControlMargin);
             propertyEditorSizer->Add(smartPropertyEditorPanel, 0, wxEXPAND);
-            propertyEditorSizer->SetMinSize(wxDefaultSize.x, 250);
+            propertyEditorSizer->SetMinSize(wxDefaultSize.x, 300);
             
             m_addPropertyButton = new wxButton(propertyEditorPanel, CommandIds::EntityInspector::AddEntityPropertyButtonId, wxT("+"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
             m_removePropertiesButton = new wxButton(propertyEditorPanel, CommandIds::EntityInspector::RemoveEntityPropertiesButtonId, wxT("-"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
@@ -100,6 +101,13 @@ namespace TrenchBroom {
             return m_entityBrowser;
         }
 
+        void EntityInspector::updateSmartEditor(int row) {
+            Model::PropertyKey key = row >= 0 ? m_propertyTable->GetValue(row, 0).ToStdString() : "";
+            
+            Model::EditStateManager& editStateManager = m_documentViewHolder.document().editStateManager();
+            m_smartPropertyEditorManager->selectEditor(key, editStateManager.selectedEntities());
+        }
+
         EntityInspector::EntityInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder) :
         wxPanel(parent),
         m_documentViewHolder(documentViewHolder) {
@@ -121,6 +129,8 @@ namespace TrenchBroom {
 
         void EntityInspector::updateProperties() {
             m_propertyTable->update();
+            int row = m_propertyGrid->GetGridCursorRow();
+            updateSmartEditor(row);
         }
         
         void EntityInspector::updateEntityBrowser() {
@@ -131,6 +141,10 @@ namespace TrenchBroom {
             m_propertyGrid->SetColSize(0, 100);
             m_propertyGrid->SetColSize(1, event.GetSize().x - m_propertyGrid->GetColSize(0));
             event.Skip();
+        }
+
+        void EntityInspector::OnPropertyGridSelectCell(wxGridEvent& event) {
+            updateSmartEditor(event.GetRow());
         }
 
         void EntityInspector::OnAddPropertyPressed(wxCommandEvent& event) {

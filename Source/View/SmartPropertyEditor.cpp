@@ -19,6 +19,8 @@
 
 #include "SmartPropertyEditor.h"
 
+#include "View/SpawnFlagsEditor.h"
+
 #include <wx/panel.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
@@ -36,11 +38,8 @@ namespace TrenchBroom {
         void SmartPropertyEditor::activate(wxWindow* parent) {
             assert(!m_active);
             
-            wxWindow* visual = createVisual(parent);
-            
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(visual, 1, wxEXPAND);
-            parent->SetSizer(outerSizer);
+            createVisual(parent);
+            parent->Layout();
             
             m_active = true;
         }
@@ -51,47 +50,46 @@ namespace TrenchBroom {
             m_active = false;
         }
 
-        void SmartPropertyEditor::setValues(const Model::PropertyValueList& values) {
+        void SmartPropertyEditor::setValues(const Model::EntityList& entities) {
             assert(m_active);
-            updateVisual(values);
+            updateVisual(entities);
         }
 
         wxWindow* DefaultPropertyEditor::createVisual(wxWindow* parent) {
-            assert(m_visual == NULL);
-            m_visual = new wxPanel(parent);
-            wxStaticText* text = new wxStaticText(m_visual, wxID_ANY, wxT("No Smart Editor Available"), wxDefaultPosition, wxDefaultSize);
+            assert(m_text == NULL);
+            m_text = new wxStaticText(parent, wxID_ANY, wxT("No Smart Editor Available"));
             
-            wxFont defaultFont = text->GetFont();
+            wxFont defaultFont = m_text->GetFont();
             wxFont boldFont(defaultFont.GetPointSize() + 2, defaultFont.GetFamily(), defaultFont.GetStyle(), wxFONTWEIGHT_BOLD);
-            text->SetFont(boldFont);
-            text->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
+            m_text->SetFont(boldFont);
+            m_text->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
             
             wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
             innerSizer->AddStretchSpacer();
-            innerSizer->Add(text);
+            innerSizer->Add(m_text);
             innerSizer->AddStretchSpacer();
-
+            
             wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
             outerSizer->AddStretchSpacer();
-            outerSizer->Add(innerSizer, 1, wxEXPAND);
+            outerSizer->Add(innerSizer, 0, wxEXPAND);
             outerSizer->AddStretchSpacer();
-            m_visual->SetSizerAndFit(outerSizer);
-            
-            return m_visual;
+            parent->SetSizer(outerSizer);
+
+            return m_text;
         }
         
         void DefaultPropertyEditor::destroyVisual() {
-            assert(m_visual != NULL);
-            m_visual->Destroy();
-            m_visual = NULL;
+            assert(m_text != NULL);
+            m_text->Destroy();
+            m_text = NULL;
         }
 
-        void DefaultPropertyEditor::updateVisual(const Model::PropertyValueList& values) {
+        void DefaultPropertyEditor::updateVisual(const Model::EntityList& entities) {
         }
 
         DefaultPropertyEditor::DefaultPropertyEditor(SmartPropertyEditorManager& manager) :
         SmartPropertyEditor(manager),
-        m_visual(NULL) {}
+        m_text(NULL) {}
 
         void SmartPropertyEditorManager::activateEditor(SmartPropertyEditor* editor) {
             if (m_activeEditor == editor)
@@ -112,7 +110,9 @@ namespace TrenchBroom {
         m_panel(new wxPanel(parent)),
         m_defaultEditor(new DefaultPropertyEditor(*this)),
         m_activeEditor(NULL) {
-            m_panel->SetMinSize(wxSize(wxDefaultSize.x, 120));
+            m_editors["spawnflags"] = new SpawnFlagsEditor(*this);
+            
+            m_panel->SetMinSize(wxSize(wxDefaultSize.x, 150));
             
             wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
             outerSizer->Add(m_panel, 1, wxEXPAND);
@@ -131,6 +131,13 @@ namespace TrenchBroom {
             
             delete m_defaultEditor;
             m_defaultEditor = NULL;
+        }
+
+        void SmartPropertyEditorManager::selectEditor(const Model::PropertyKey& key, const Model::EntityList& entities) {
+            EditorMap::const_iterator it = m_editors.find(key);
+            SmartPropertyEditor* editor = it == m_editors.end() ? m_defaultEditor : it->second;
+            activateEditor(editor);
+            editor->setValues(entities);
         }
 
         void SmartPropertyEditorManager::updateValue(const Model::PropertyKey& key, const Model::PropertyValue& value) {

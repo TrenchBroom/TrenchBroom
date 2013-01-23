@@ -41,7 +41,7 @@ namespace TrenchBroom {
         protected:
             virtual wxWindow* createVisual(wxWindow* parent) = 0;
             virtual void destroyVisual() = 0;
-            virtual void updateVisual(const Model::PropertyValueList& values) = 0;
+            virtual void updateVisual(const Model::EntityList& entities) = 0;
             void updateValue(const Model::PropertyValue& value);
         public:
             SmartPropertyEditor(SmartPropertyEditorManager& manager);
@@ -50,16 +50,16 @@ namespace TrenchBroom {
             void activate(wxWindow* parent);
             void deactivate();
 
-            void setValues(const Model::PropertyValueList& values);
+            void setValues(const Model::EntityList& entities);
         };
         
         class DefaultPropertyEditor : public SmartPropertyEditor {
         private:
-            wxWindow* m_visual;
+            wxStaticText* m_text;
         protected:
             virtual wxWindow* createVisual(wxWindow* parent);
             virtual void destroyVisual();
-            virtual void updateVisual(const Model::PropertyValueList& values);
+            virtual void updateVisual(const Model::EntityList& entities);
         public:
             DefaultPropertyEditor(SmartPropertyEditorManager& manager);
         };
@@ -79,6 +79,7 @@ namespace TrenchBroom {
             SmartPropertyEditorManager(wxWindow* parent);
             ~SmartPropertyEditorManager();
             
+            void selectEditor(const Model::PropertyKey& key, const Model::EntityList& entities);
             void updateValue(const Model::PropertyKey& key, const Model::PropertyValue& value);
         };
     }

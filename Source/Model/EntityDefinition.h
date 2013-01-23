@@ -97,6 +97,10 @@ namespace TrenchBroom {
                 return m_color;
             }
             
+            const SpawnflagList& spawnflags() const {
+                return m_spawnflags;
+            }
+            
             inline void incUsageCount() {
                 m_usageCount++;
             }
