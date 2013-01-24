@@ -247,12 +247,19 @@ namespace TrenchBroom {
         }
 
         bool Brush::canMoveBoundary(const Face& face, const Vec3f& delta) const {
-            FaceList droppedFaces;
-            BrushGeometry testGeometry(m_worldBounds);
+            
+            // using worldbounds here can lead to invalid brushes due to precision errors
+            // so we use a smaller bounding box that's still big enough to fit the brush
+            BBox maxBounds = m_geometry->bounds;
+            float max = std::max(std::max(std::abs(delta.x), std::abs(delta.y)), std::abs(delta.z));
+            maxBounds.expand(2.0f * max);
+
+            BrushGeometry testGeometry(maxBounds);
 
             Face testFace(face);
             testFace.translate(delta, false);
             
+            FaceList droppedFaces;
             FaceList::const_iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                 Face* otherFace = *it;
@@ -269,9 +276,15 @@ namespace TrenchBroom {
         void Brush::moveBoundary(Face& face, const Vec3f& delta, bool lockTexture) {
             assert(canMoveBoundary(face, delta));
 
+            // using worldbounds here can lead to invalid brushes due to precision errors
+            // so we use a smaller bounding box that's still big enough to fit the brush
+            BBox maxBounds = m_geometry->bounds;
+            float max = std::max(std::max(std::abs(delta.x), std::abs(delta.y)), std::abs(delta.z));
+            maxBounds.expand(2.0f * max);
+            
             face.translate(delta, lockTexture);
             delete m_geometry;
-            m_geometry = new BrushGeometry(m_worldBounds);
+            m_geometry = new BrushGeometry(maxBounds);
 
             FaceList droppedFaces;
             FaceList::const_iterator it, end;
