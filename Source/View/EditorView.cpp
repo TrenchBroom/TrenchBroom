@@ -1575,39 +1575,39 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::ViewSetGridSize1:
                     event.Enable(true);
-                    event.Check(mapDocument().grid().actualSize() == 0);
+                    event.Check(mapDocument().grid().size() == 0);
                     break;
                 case CommandIds::Menu::ViewSetGridSize2:
                     event.Enable(true);
-                    event.Check(mapDocument().grid().actualSize() == 1);
+                    event.Check(mapDocument().grid().size() == 1);
                     break;
                 case CommandIds::Menu::ViewSetGridSize4:
                     event.Enable(true);
-                    event.Check(mapDocument().grid().actualSize() == 2);
+                    event.Check(mapDocument().grid().size() == 2);
                     break;
                 case CommandIds::Menu::ViewSetGridSize8:
                     event.Enable(true);
-                    event.Check(mapDocument().grid().actualSize() == 3);
+                    event.Check(mapDocument().grid().size() == 3);
                     break;
                 case CommandIds::Menu::ViewSetGridSize16:
                     event.Enable(true);
-                    event.Check(mapDocument().grid().actualSize() == 4);
+                    event.Check(mapDocument().grid().size() == 4);
                     break;
                 case CommandIds::Menu::ViewSetGridSize32:
                     event.Enable(true);
-                    event.Check(mapDocument().grid().actualSize() == 5);
+                    event.Check(mapDocument().grid().size() == 5);
                     break;
                 case CommandIds::Menu::ViewSetGridSize64:
                     event.Enable(true);
-                    event.Check(mapDocument().grid().actualSize() == 6);
+                    event.Check(mapDocument().grid().size() == 6);
                     break;
                 case CommandIds::Menu::ViewSetGridSize128:
                     event.Enable(true);
-                    event.Check(mapDocument().grid().actualSize() == 7);
+                    event.Check(mapDocument().grid().size() == 7);
                     break;
                 case CommandIds::Menu::ViewSetGridSize256:
                     event.Enable(true);
-                    event.Check(mapDocument().grid().actualSize() == 8);
+                    event.Check(mapDocument().grid().size() == 8);
                     break;
                 case CommandIds::Menu::ViewMoveCameraForward:
                 case CommandIds::Menu::ViewMoveCameraBackward:
