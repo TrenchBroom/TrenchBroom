@@ -51,6 +51,7 @@ namespace TrenchBroom {
         class Map;
         class Octree;
         class Palette;
+        class PointFile;
         class Picker;
         class Texture;
         class TextureManager;
@@ -74,6 +75,8 @@ namespace TrenchBroom {
             String m_mruTextureName;
             bool m_textureLock;
             int m_modificationCount;
+            
+            PointFile* m_pointFile;
             
             virtual bool DoOpenDocument(const wxString& file);
             virtual bool DoSaveDocument(const wxString& file);
@@ -117,6 +120,12 @@ namespace TrenchBroom {
             Picker& picker() const;
             Utility::Grid& grid() const;
             const StringList& mods() const;
+            
+            bool pointFileExists();
+            void loadPointFile();
+            void unloadPointFile();
+            bool pointFileLoaded();
+            PointFile& pointFile();
             
             Model::Texture* mruTexture() const;
             void setMruTexture(Model::Texture* texture);

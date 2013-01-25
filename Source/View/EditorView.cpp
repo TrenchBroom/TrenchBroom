@@ -75,6 +75,8 @@ namespace TrenchBroom {
         EVT_MENU(wxID_OPEN, EditorView::OnFileOpen)
         EVT_MENU(wxID_SAVE, EditorView::OnFileSave)
         EVT_MENU(wxID_SAVEAS, EditorView::OnFileSaveAs)
+        EVT_MENU(CommandIds::Menu::FileLoadPointFile, EditorView::OnFileLoadPointFile)
+        EVT_MENU(CommandIds::Menu::FileUnloadPointFile, EditorView::OnFileUnloadPointFile)
         EVT_MENU(wxID_CLOSE, EditorView::OnFileClose)
 
         EVT_MENU(wxID_UNDO, EditorView::OnUndo)
@@ -688,6 +690,16 @@ namespace TrenchBroom {
 
         void EditorView::OnFileSaveAs(wxCommandEvent& event) {
             GetDocument()->SaveAs();
+        }
+
+        void EditorView::OnFileLoadPointFile(wxCommandEvent& event) {
+            mapDocument().loadPointFile();
+            OnUpdate(this);
+        }
+        
+        void EditorView::OnFileUnloadPointFile(wxCommandEvent& event) {
+            mapDocument().unloadPointFile();
+            OnUpdate(this);
         }
 
         void EditorView::OnFileClose(wxCommandEvent& event) {
@@ -1428,6 +1440,16 @@ namespace TrenchBroom {
             switch (event.GetId()) {
                 case wxID_SAVE:
                     event.Enable(mapDocument().IsModified());
+                    break;
+                case CommandIds::Menu::FileLoadPointFile:
+                    event.Enable(mapDocument().pointFileExists());
+                    if (mapDocument().pointFileLoaded())
+                        event.SetText(wxT("Reload Point File"));
+                    else
+                        event.SetText(wxT("Load Point File"));
+                    break;
+                case CommandIds::Menu::FileUnloadPointFile:
+                    event.Enable(mapDocument().pointFileLoaded());
                     break;
                 case wxID_UNDO:
                     GetDocumentManager()->OnUpdateUndo(event);

@@ -36,6 +36,8 @@ EVT_MENU(wxID_PREFERENCES, AbstractApp::OnOpenPreferences)
 END_EVENT_TABLE()
 
 wxMenu* AbstractApp::CreateFileMenu(wxEvtHandler* eventHandler, bool mapViewFocused) {
+    using namespace TrenchBroom::View::CommandIds::Menu;
+
     wxMenu* fileHistoryMenu = new wxMenu();
     fileHistoryMenu->SetEventHandler(m_docManager);
     m_docManager->FileHistoryUseMenu(fileHistoryMenu);
@@ -48,6 +50,9 @@ wxMenu* AbstractApp::CreateFileMenu(wxEvtHandler* eventHandler, bool mapViewFocu
     fileMenu->AppendSeparator();
     fileMenu->Append(wxID_SAVE, wxT("Save\tCtrl-S"));
     fileMenu->Append(wxID_SAVEAS, wxT("Save as...\tCtrl-Shift-S"));
+    fileMenu->AppendSeparator();
+    fileMenu->Append(FileLoadPointFile, wxT("Load Point File"));
+    fileMenu->Append(FileUnloadPointFile, wxT("Unload Point File"));
     fileMenu->AppendSeparator();
     fileMenu->Append(wxID_CLOSE, wxT("Close\tCtrl-W"));
     fileMenu->SetEventHandler(eventHandler);

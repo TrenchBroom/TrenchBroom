@@ -73,6 +73,7 @@
 		48533C8A168F96830055DBC7 /* ReparentBrushesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48533C88168F96830055DBC7 /* ReparentBrushesCommand.cpp */; };
 		485B70D616AC3240002E95B6 /* RotateHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 485B70D416AC3240002E95B6 /* RotateHandle.cpp */; };
 		486AFAC016B31B780097657D /* ColorEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFABE16B31B780097657D /* ColorEditor.cpp */; };
+		486AFAC416B33ABE0097657D /* PointFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFAC216B33ABE0097657D /* PointFile.cpp */; };
 		4875679D1697922D008F316F /* MacDropSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4875679B1697922D008F316F /* MacDropSource.cpp */; };
 		487567A5169A26D5008F316F /* SpinControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487567A4169A26D4008F316F /* SpinControl.cpp */; };
 		487567AC169CB809008F316F /* SetFaceAttributesTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487567AA169CB807008F316F /* SetFaceAttributesTool.cpp */; };
@@ -338,6 +339,8 @@
 		485B70D516AC3240002E95B6 /* RotateHandle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateHandle.h; sourceTree = "<group>"; };
 		486AFABE16B31B780097657D /* ColorEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ColorEditor.cpp; sourceTree = "<group>"; };
 		486AFABF16B31B780097657D /* ColorEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ColorEditor.h; sourceTree = "<group>"; };
+		486AFAC216B33ABE0097657D /* PointFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointFile.cpp; sourceTree = "<group>"; };
+		486AFAC316B33ABE0097657D /* PointFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointFile.h; sourceTree = "<group>"; };
 		486C61E615EF713C0091AA97 /* mmapped_fstream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mmapped_fstream.h; sourceTree = "<group>"; };
 		4875679A16978ED3008F316F /* DragImage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragImage.h; sourceTree = "<group>"; };
 		4875679B1697922D008F316F /* MacDropSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacDropSource.cpp; sourceTree = "<group>"; };
@@ -761,6 +764,8 @@
 				4850D24815F360BF005B162D /* Octree.h */,
 				4850D24B15F364A1005B162D /* Picker.cpp */,
 				4850D24C15F364A1005B162D /* Picker.h */,
+				486AFAC216B33ABE0097657D /* PointFile.cpp */,
+				486AFAC316B33ABE0097657D /* PointFile.h */,
 				4810278615E621FA00250C9C /* PropertyDefinition.h */,
 				48B059D01618859A00E6B0AD /* Texture.cpp */,
 				48AF492415E8265A0083DE52 /* Texture.h */,
@@ -1289,6 +1294,7 @@
 				483323ED16AF250700FC9721 /* SmartPropertyEditor.cpp in Sources */,
 				483323F116AF351900FC9721 /* SpawnFlagsEditor.cpp in Sources */,
 				486AFAC016B31B780097657D /* ColorEditor.cpp in Sources */,
+				486AFAC416B33ABE0097657D /* PointFile.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

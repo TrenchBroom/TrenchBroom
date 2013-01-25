@@ -99,6 +99,8 @@ namespace TrenchBroom {
                 static const int EditToggleRotateObjectsTool        = Lowest + 73;
                 static const int ViewIncGridSize                    = Lowest + 74;
                 static const int ViewDecGridSize                    = Lowest + 75;
+                static const int FileLoadPointFile                  = Lowest + 76;
+                static const int FileUnloadPointFile                = Lowest + 77;
                 static const int Highest                            = Lowest + 99;
             }
             

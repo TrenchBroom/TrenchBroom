@@ -35,6 +35,7 @@
 #include "Model/Map.h"
 #include "Model/Octree.h"
 #include "Model/Picker.h"
+#include "Model/PointFile.h"
 #include "Model/TextureManager.h"
 #include "Renderer/SharedResources.h"
 #include "Renderer/TextureRendererManager.h"
@@ -198,6 +199,7 @@ namespace TrenchBroom {
             m_octree->clear();
             m_textureManager->clear();
             m_definitionManager->clear();
+            unloadPointFile();
 
             Controller::Command clearCommand(Controller::Command::ClearMap);
             UpdateAllViews(NULL, &clearCommand);
@@ -258,7 +260,8 @@ namespace TrenchBroom {
         m_mruTexture(NULL),
         m_mruTextureName(""),
         m_textureLock(true),
-        m_modificationCount(0) {}
+        m_modificationCount(0),
+        m_pointFile(NULL) {}
 
         MapDocument::~MapDocument() {
             delete m_autosaveTimer;
@@ -500,6 +503,33 @@ namespace TrenchBroom {
 
         const StringList& MapDocument::mods() const {
             return m_mods;
+        }
+
+        bool MapDocument::pointFileExists() {
+            return PointFile::exists(GetFilename().ToStdString());
+        }
+        
+        void MapDocument::loadPointFile() {
+            assert(pointFileExists());
+
+            if (m_pointFile != NULL)
+                unloadPointFile();
+            m_pointFile = new PointFile(GetFilename().ToStdString());
+        }
+        
+        void MapDocument::unloadPointFile() {
+            assert(m_pointFile == NULL);
+            delete m_pointFile;
+            m_pointFile = NULL;
+        }
+        
+        bool MapDocument::pointFileLoaded() {
+            return m_pointFile != NULL;
+        }
+        
+        PointFile& MapDocument::pointFile() {
+            assert(pointFileLoaded());
+            return *m_pointFile;
         }
 
         Model::Texture* MapDocument::mruTexture() const {

@@ -453,6 +453,9 @@
     <ClCompile Include="..\..\Source\View\SpawnFlagsEditor.cpp">
       <Filter>Source Files\View\PropertyEditor</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\View\ColorEditor.cpp">
+      <Filter>Source Files\View\PropertyEditor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -1056,6 +1059,9 @@
       <Filter>Header Files\View\PropertyEditor</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\View\SmartPropertyEditor.h">
+      <Filter>Header Files\View\PropertyEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\ColorEditor.h">
       <Filter>Header Files\View\PropertyEditor</Filter>
     </ClInclude>
   </ItemGroup>

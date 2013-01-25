@@ -312,6 +312,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Utility\Preferences.cpp" />
     <ClCompile Include="..\..\Source\Utility\Vec3f.cpp" />
     <ClCompile Include="..\..\Source\View\AbstractApp.cpp" />
+    <ClCompile Include="..\..\Source\View\ColorEditor.cpp" />
     <ClCompile Include="..\..\Source\View\EditorFrame.cpp" />
     <ClCompile Include="..\..\Source\View\EditorView.cpp" />
     <ClCompile Include="..\..\Source\View\EntityBrowser.cpp" />
@@ -508,6 +509,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\View\AbstractApp.h" />
     <ClInclude Include="..\..\Source\View\CellLayout.h" />
     <ClInclude Include="..\..\Source\View\CellLayoutGLCanvas.h" />
+    <ClInclude Include="..\..\Source\View\ColorEditor.h" />
     <ClInclude Include="..\..\Source\View\CommandIds.h" />
     <ClInclude Include="..\..\Source\View\DocumentViewHolder.h" />
     <ClInclude Include="..\..\Source\View\DragAndDrop.h" />

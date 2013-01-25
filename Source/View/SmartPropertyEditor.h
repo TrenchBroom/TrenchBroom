@@ -26,6 +26,8 @@
 
 #include <map>
 
+#include <wx/wx.h>
+
 class wxStaticText;
 class wxWindow;
 

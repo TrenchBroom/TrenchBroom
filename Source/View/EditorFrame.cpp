@@ -128,6 +128,10 @@ namespace TrenchBroom {
         }
 
         void EditorFrame::disableProcessing() {
+            wxMenuBar* oldMenuBar = GetMenuBar();
+            TrenchBroomApp* app = static_cast<TrenchBroomApp*>(wxTheApp);
+            app->DetachFileHistoryMenu(oldMenuBar);
+
             m_documentViewHolder.invalidate();
         }
 
@@ -192,10 +196,6 @@ namespace TrenchBroom {
         void EditorFrame::OnClose(wxCloseEvent& event) {
             // if the user closes the editor frame, the document must also be closed:
             assert(m_documentViewHolder.valid());
-
-            wxMenuBar* oldMenuBar = GetMenuBar();
-            TrenchBroomApp* app = static_cast<TrenchBroomApp*>(wxTheApp);
-            app->DetachFileHistoryMenu(oldMenuBar);
 
             Model::MapDocument& document = m_documentViewHolder.document();
             document.GetDocumentManager()->CloseDocument(&document);
