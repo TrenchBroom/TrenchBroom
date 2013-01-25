@@ -79,11 +79,11 @@ namespace TrenchBroom {
             bool m_ignoreUpdates;
             wxColor m_specialCellColor;
             
-            EntryList::iterator findEntry(const String& key);
+            EntryList::iterator findEntry(EntryList& entries, const String& key) const;
             
             Model::EntityList selectedEntities();
 
-            void notifyRowsUpdated();
+            void notifyRowsUpdated(size_t pos, size_t numRows = 1);
             void notifyRowsInserted(size_t pos = 0, size_t numRows = 1);
             void notifyRowsAppended(size_t numRows = 1);
             void notifyRowsDeleted(size_t pos = 0, size_t numRows = 1);
