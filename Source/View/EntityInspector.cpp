@@ -70,7 +70,7 @@ namespace TrenchBroom {
             // see http://docs.wxwidgets.org/trunk/classwx_grid_event.html for wxEVT_GRID_TABBING
 
             wxPanel* smartPropertyEditorPanel = new wxPanel(propertyEditorPanel);
-            m_smartPropertyEditorManager = new SmartPropertyEditorManager(smartPropertyEditorPanel);
+            m_smartPropertyEditorManager = new SmartPropertyEditorManager(smartPropertyEditorPanel, m_documentViewHolder.document());
             
             wxSizer* propertyEditorSizer = new wxBoxSizer(wxVERTICAL);
             propertyEditorSizer->Add(m_propertyGrid, 1, wxEXPAND);
@@ -103,9 +103,7 @@ namespace TrenchBroom {
 
         void EntityInspector::updateSmartEditor(int row) {
             Model::PropertyKey key = row >= 0 ? m_propertyTable->GetValue(row, 0).ToStdString() : "";
-            
-            Model::EditStateManager& editStateManager = m_documentViewHolder.document().editStateManager();
-            m_smartPropertyEditorManager->selectEditor(key, editStateManager.selectedEntities());
+            m_smartPropertyEditorManager->selectEditor(key);
         }
 
         EntityInspector::EntityInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder) :

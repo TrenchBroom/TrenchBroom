@@ -101,6 +101,16 @@ namespace TrenchBroom {
                 return m_spawnflags;
             }
             
+            const Spawnflag* spawnflag(int value) const {
+                SpawnflagList::const_iterator it, end;
+                for (it = m_spawnflags.begin(), end = m_spawnflags.end(); it != end; ++it) {
+                    const Spawnflag& spawnflag = *it;
+                    if (spawnflag.value() == value)
+                        return &spawnflag;
+                }
+                return NULL;
+            }
+            
             inline void incUsageCount() {
                 m_usageCount++;
             }

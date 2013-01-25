@@ -30,6 +30,10 @@ class wxStaticText;
 class wxWindow;
 
 namespace TrenchBroom {
+    namespace Model {
+        class MapDocument;
+    }
+    
     namespace View {
         class SmartPropertyEditorManager;
         
@@ -41,16 +45,17 @@ namespace TrenchBroom {
         protected:
             virtual wxWindow* createVisual(wxWindow* parent) = 0;
             virtual void destroyVisual() = 0;
-            virtual void updateVisual(const Model::EntityList& entities) = 0;
-            void updateValue(const Model::PropertyValue& value);
+            virtual void updateVisual() = 0;
+            
+            Model::MapDocument& document() const;
+            const Model::EntityList& selectedEntities() const;
         public:
             SmartPropertyEditor(SmartPropertyEditorManager& manager);
             virtual ~SmartPropertyEditor() {}
             
             void activate(wxWindow* parent);
             void deactivate();
-
-            void setValues(const Model::EntityList& entities);
+            void update();
         };
         
         class DefaultPropertyEditor : public SmartPropertyEditor {
@@ -59,7 +64,7 @@ namespace TrenchBroom {
         protected:
             virtual wxWindow* createVisual(wxWindow* parent);
             virtual void destroyVisual();
-            virtual void updateVisual(const Model::EntityList& entities);
+            virtual void updateVisual();
         public:
             DefaultPropertyEditor(SmartPropertyEditorManager& manager);
         };
@@ -68,7 +73,9 @@ namespace TrenchBroom {
         private:
             typedef std::map<Model::PropertyKey, SmartPropertyEditor*> EditorMap;
             
+            Model::MapDocument& m_document;
             wxWindow* m_panel;
+
             EditorMap m_editors;
             SmartPropertyEditor* m_defaultEditor;
             SmartPropertyEditor* m_activeEditor;
@@ -76,11 +83,15 @@ namespace TrenchBroom {
             void activateEditor(SmartPropertyEditor* editor);
             void deactivateEditor();
         public:
-            SmartPropertyEditorManager(wxWindow* parent);
+            SmartPropertyEditorManager(wxWindow* parent, Model::MapDocument& document);
             ~SmartPropertyEditorManager();
             
-            void selectEditor(const Model::PropertyKey& key, const Model::EntityList& entities);
-            void updateValue(const Model::PropertyKey& key, const Model::PropertyValue& value);
+            void selectEditor(const Model::PropertyKey& key);
+            void update();
+        
+            inline Model::MapDocument& document() const {
+                return m_document;
+            }
         };
     }
 }

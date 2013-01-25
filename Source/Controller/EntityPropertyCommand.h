@@ -83,6 +83,7 @@ namespace TrenchBroom {
         public:
             static EntityPropertyCommand* setEntityPropertyKey(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey);
             static EntityPropertyCommand* setEntityPropertyValue(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyValue& newValue);
+            static EntityPropertyCommand* setEntityPropertyValue(Model::MapDocument& document, Model::Entity& entity, const Model::PropertyKey& key, const Model::PropertyValue& newValue);
             static EntityPropertyCommand* removeEntityProperty(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key);
             static EntityPropertyCommand* removeEntityProperties(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKeyList& keys);
             

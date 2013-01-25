@@ -279,6 +279,8 @@ namespace TrenchBroom {
             if (m_ignoreUpdates)
                 return;
             
+            // keep rows intact if possible to avoid problems when a smart property editor updates some entities!
+            
             notifyRowsDeleted(0, m_entries.size());
             m_entries.clear();
 
