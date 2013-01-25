@@ -36,7 +36,7 @@ namespace TrenchBroom {
             assert(m_scrolledWindow == NULL);
             
             m_scrolledWindow = new wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxVSCROLL | wxBORDER_SUNKEN);
-            m_scrolledWindow->SetBackgroundColour(*wxWHITE);
+            m_scrolledWindow->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
 
             wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             for (unsigned int i = 0; i < 24; i++) {
@@ -102,6 +102,8 @@ namespace TrenchBroom {
             }
             
             for (unsigned int i = 0; i < 24; i++) {
+
+                wxColour colour = wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT);
                 wxString label;
                 if (i == 8) {
                     label << "!Easy";
@@ -113,14 +115,20 @@ namespace TrenchBroom {
                     label << "!DM";
                 } else if (definition != NULL) {
                     const Model::Spawnflag* spawnflag = definition->spawnflag(static_cast<int>(1 << i));
-                    if (spawnflag != NULL)
+                    if (spawnflag != NULL) {
                         label << spawnflag->name();
-                    else
+                    } else {
                         label << (1 << i);
+                        colour = wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT);
+                    }
                 } else {
                     label << (1 << i);
+                    colour = wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT);
                 }
+                
                 m_flags[i]->SetLabel(label);
+                m_flags[i]->SetForegroundColour(colour);
+                
                 switch (values[i]) {
                     case On:
                         m_flags[i]->Set3StateValue(wxCHK_CHECKED);
@@ -133,8 +141,6 @@ namespace TrenchBroom {
                         break;
                 }
             }
-
-            m_scrolledWindow->Scroll(0, 0);
         }
 
         SpawnFlagsEditor::SpawnFlagsEditor(SmartPropertyEditorManager& manager) :

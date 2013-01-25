@@ -22,6 +22,8 @@
 
 #include "View/SmartPropertyEditor.h"
 
+#include <wx/event.h>
+
 class wxScrolledWindow;
 class wxCheckBox;
 
