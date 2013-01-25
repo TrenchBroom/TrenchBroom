@@ -310,6 +310,8 @@ namespace TrenchBroom {
                 return false;
             if (key == OriginKey)
                 return false;
+            if (key == SpawnFlagsKey)
+                return false;
             return true;
         }
 

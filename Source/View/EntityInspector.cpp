@@ -102,7 +102,7 @@ namespace TrenchBroom {
         }
 
         void EntityInspector::updateSmartEditor(int row) {
-            Model::PropertyKey key = row >= 0 ? m_propertyTable->GetValue(row, 0).ToStdString() : "";
+            Model::PropertyKey key = row >= 0 && row < m_propertyTable->GetNumberRows() ? m_propertyTable->GetValue(row, 0).ToStdString() : "";
             m_smartPropertyEditorManager->selectEditor(key);
         }
 
