@@ -124,6 +124,10 @@ namespace TrenchBroom {
                 return x == right.x && y == right.y && z == right.z;
             }
             
+            inline bool operator!= (const Vec3f& right) const {
+                return !(*this == right);
+            }
+            
             inline Vec3f& operator= (const Vec3f& right) {
                 if (this != &right) {
                     x = right.x;
@@ -270,6 +274,10 @@ namespace TrenchBroom {
             
             inline bool null() const {
                 return equals(Null, Math::AlmostZero);
+            }
+            
+            inline bool nan() const {
+                return Math::isnan(x) || Math::isnan(y) || Math::isnan(z);
             }
             
             inline bool parallelTo(const Vec3f& other, float delta = Math::AlmostZero) const {

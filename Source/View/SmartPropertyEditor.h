@@ -40,7 +40,7 @@ namespace TrenchBroom {
         class SmartPropertyEditor {
         private:
             bool m_active;
-            const Model::PropertyKey m_property;
+            Model::PropertyKey m_property;
             SmartPropertyEditorManager& m_manager;
         protected:
             virtual wxWindow* createVisual(wxWindow* parent) = 0;
@@ -49,13 +49,18 @@ namespace TrenchBroom {
             
             Model::MapDocument& document() const;
             const Model::EntityList selectedEntities() const;
+            void setPropertyValue(const Model::PropertyValue& value, const wxString& commandName);
+            
+            inline const Model::PropertyKey& property() const {
+                return m_property;
+            }
         public:
             SmartPropertyEditor(SmartPropertyEditorManager& manager);
             virtual ~SmartPropertyEditor() {}
             
             void activate(wxWindow* parent);
             void deactivate();
-            void update();
+            void update(const Model::PropertyKey& property);
         };
         
         class DefaultPropertyEditor : public SmartPropertyEditor {
@@ -80,14 +85,13 @@ namespace TrenchBroom {
             SmartPropertyEditor* m_defaultEditor;
             SmartPropertyEditor* m_activeEditor;
             
-            void activateEditor(SmartPropertyEditor* editor);
+            void activateEditor(SmartPropertyEditor* editor, const Model::PropertyKey& property);
             void deactivateEditor();
         public:
             SmartPropertyEditorManager(wxWindow* parent, Model::MapDocument& document);
             ~SmartPropertyEditorManager();
             
             void selectEditor(const Model::PropertyKey& key);
-            void update();
         
             inline Model::MapDocument& document() const {
                 return m_document;

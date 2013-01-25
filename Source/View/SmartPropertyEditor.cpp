@@ -19,8 +19,11 @@
 
 #include "SmartPropertyEditor.h"
 
+#include "Controller/EntityPropertyCommand.h"
 #include "Model/EditStateManager.h"
 #include "Model/MapDocument.h"
+#include "Utility/CommandProcessor.h"
+#include "View/ColorEditor.h"
 #include "View/SpawnFlagsEditor.h"
 
 #include <wx/panel.h>
@@ -35,6 +38,13 @@ namespace TrenchBroom {
 
         const Model::EntityList SmartPropertyEditor::selectedEntities() const {
             return document().editStateManager().allSelectedEntities();
+        }
+
+        void SmartPropertyEditor::setPropertyValue(const Model::PropertyValue& value, const wxString& commandName) {
+            CommandProcessor::BeginGroup(document().GetCommandProcessor(), commandName);
+            Controller::EntityPropertyCommand* command = Controller::EntityPropertyCommand::setEntityPropertyValue(document(), selectedEntities(), property(), value);
+            document().GetCommandProcessor()->Submit(command);
+            CommandProcessor::EndGroup(document().GetCommandProcessor());
         }
 
         SmartPropertyEditor::SmartPropertyEditor(SmartPropertyEditorManager& manager) :
@@ -56,8 +66,9 @@ namespace TrenchBroom {
             m_active = false;
         }
 
-        void SmartPropertyEditor::update() {
+        void SmartPropertyEditor::update(const Model::PropertyKey& property) {
             assert(m_active);
+            m_property = property;
             updateVisual();
         }
         
@@ -91,13 +102,13 @@ namespace TrenchBroom {
         SmartPropertyEditor(manager),
         m_text(NULL) {}
 
-        void SmartPropertyEditorManager::activateEditor(SmartPropertyEditor* editor) {
+        void SmartPropertyEditorManager::activateEditor(SmartPropertyEditor* editor, const Model::PropertyKey& property) {
             if (m_activeEditor != editor) {
                 deactivateEditor();
                 m_activeEditor = editor;
                 m_activeEditor->activate(m_panel);
             }
-            m_activeEditor->update();
+            m_activeEditor->update(property);
         }
         
         void SmartPropertyEditorManager::deactivateEditor() {
@@ -113,6 +124,9 @@ namespace TrenchBroom {
         m_defaultEditor(new DefaultPropertyEditor(*this)),
         m_activeEditor(NULL) {
             m_editors["spawnflags"] = new SpawnFlagsEditor(*this);
+            m_editors["_color"] = new ColorEditor(*this);
+            m_editors["_sunlight_color"] = m_editors["_color"];
+            m_editors["_sunlight_color2"] = m_editors["_color"];
             
             m_panel->SetMinSize(wxSize(wxDefaultSize.x, 150));
             
@@ -120,7 +134,7 @@ namespace TrenchBroom {
             outerSizer->Add(m_panel, 1, wxEXPAND);
             parent->SetSizer(outerSizer);
             
-            activateEditor(m_defaultEditor);
+            activateEditor(m_defaultEditor, "");
         }
 
         SmartPropertyEditorManager::~SmartPropertyEditorManager() {
@@ -138,11 +152,7 @@ namespace TrenchBroom {
         void SmartPropertyEditorManager::selectEditor(const Model::PropertyKey& key) {
             EditorMap::const_iterator it = m_editors.find(key);
             SmartPropertyEditor* editor = it == m_editors.end() ? m_defaultEditor : it->second;
-            activateEditor(editor);
-        }
-
-        void SmartPropertyEditorManager::update() {
-            m_activeEditor->update();
+            activateEditor(editor, key);
         }
     }
 }

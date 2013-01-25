@@ -72,6 +72,7 @@
 		4850D2AF15F76245005B162D /* StringManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2AD15F76244005B162D /* StringManager.cpp */; };
 		48533C8A168F96830055DBC7 /* ReparentBrushesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48533C88168F96830055DBC7 /* ReparentBrushesCommand.cpp */; };
 		485B70D616AC3240002E95B6 /* RotateHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 485B70D416AC3240002E95B6 /* RotateHandle.cpp */; };
+		486AFAC016B31B780097657D /* ColorEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFABE16B31B780097657D /* ColorEditor.cpp */; };
 		4875679D1697922D008F316F /* MacDropSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4875679B1697922D008F316F /* MacDropSource.cpp */; };
 		487567A5169A26D5008F316F /* SpinControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487567A4169A26D4008F316F /* SpinControl.cpp */; };
 		487567AC169CB809008F316F /* SetFaceAttributesTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487567AA169CB807008F316F /* SetFaceAttributesTool.cpp */; };
@@ -335,6 +336,8 @@
 		48533C89168F96830055DBC7 /* ReparentBrushesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReparentBrushesCommand.h; sourceTree = "<group>"; };
 		485B70D416AC3240002E95B6 /* RotateHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RotateHandle.cpp; sourceTree = "<group>"; };
 		485B70D516AC3240002E95B6 /* RotateHandle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateHandle.h; sourceTree = "<group>"; };
+		486AFABE16B31B780097657D /* ColorEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ColorEditor.cpp; sourceTree = "<group>"; };
+		486AFABF16B31B780097657D /* ColorEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ColorEditor.h; sourceTree = "<group>"; };
 		486C61E615EF713C0091AA97 /* mmapped_fstream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mmapped_fstream.h; sourceTree = "<group>"; };
 		4875679A16978ED3008F316F /* DragImage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragImage.h; sourceTree = "<group>"; };
 		4875679B1697922D008F316F /* MacDropSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacDropSource.cpp; sourceTree = "<group>"; };
@@ -891,6 +894,8 @@
 		485B70E416AF23EA002E95B6 /* PropertyEditor */ = {
 			isa = PBXGroup;
 			children = (
+				486AFABE16B31B780097657D /* ColorEditor.cpp */,
+				486AFABF16B31B780097657D /* ColorEditor.h */,
 				483323EB16AF250700FC9721 /* SmartPropertyEditor.cpp */,
 				483323EC16AF250700FC9721 /* SmartPropertyEditor.h */,
 				483323EF16AF351900FC9721 /* SpawnFlagsEditor.cpp */,
@@ -1283,6 +1288,7 @@
 				48CBFA2516AF24F300E81617 /* ViewInspector.cpp in Sources */,
 				483323ED16AF250700FC9721 /* SmartPropertyEditor.cpp in Sources */,
 				483323F116AF351900FC9721 /* SpawnFlagsEditor.cpp in Sources */,
+				486AFAC016B31B780097657D /* ColorEditor.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

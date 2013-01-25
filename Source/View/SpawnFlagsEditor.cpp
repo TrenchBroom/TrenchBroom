@@ -78,7 +78,7 @@ namespace TrenchBroom {
                 
                 for (size_t i = 0; i < entities.size(); i++) {
                     const Model::Entity& entity = *entities[i];
-                    const Model::PropertyValue* value = entity.propertyForKey(Model::Entity::SpawnFlagsKey);
+                    const Model::PropertyValue* value = entity.propertyForKey(property());
                     if (value != NULL) {
                         int intValue = std::atoi(value->c_str());
                         for (size_t j = 0; j < 24; j++) {
@@ -167,7 +167,7 @@ namespace TrenchBroom {
                 Model::EntityList::const_iterator it, end;
                 for (it = entities.begin(), end = entities.end(); it != end; ++it) {
                     Model::Entity& entity = **it;
-                    const Model::PropertyValue* value = entity.propertyForKey(Model::Entity::SpawnFlagsKey);
+                    const Model::PropertyValue* value = entity.propertyForKey(property());
                     int intValue = value == NULL ? 0 : std::atoi(value->c_str());
                     
                     if (event.IsChecked())
@@ -178,7 +178,7 @@ namespace TrenchBroom {
                     StringStream newValue;
                     newValue << intValue;
                     
-                    Controller::EntityPropertyCommand* command = Controller::EntityPropertyCommand::setEntityPropertyValue(document(), entity, Model::Entity::SpawnFlagsKey, newValue.str());
+                    Controller::EntityPropertyCommand* command = Controller::EntityPropertyCommand::setEntityPropertyValue(document(), entity, property(), newValue.str());
                     document().GetCommandProcessor()->Submit(command);
                 }
 
