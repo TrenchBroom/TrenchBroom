@@ -48,7 +48,7 @@ namespace TrenchBroom {
             virtual void updateVisual() = 0;
             
             Model::MapDocument& document() const;
-            const Model::EntityList& selectedEntities() const;
+            const Model::EntityList selectedEntities() const;
         public:
             SmartPropertyEditor(SmartPropertyEditorManager& manager);
             virtual ~SmartPropertyEditor() {}

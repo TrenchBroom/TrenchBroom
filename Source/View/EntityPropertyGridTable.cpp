@@ -40,24 +40,6 @@ namespace TrenchBroom {
             return entryEnd;
         }
 
-        Model::EntityList EntityPropertyGridTable::selectedEntities() {
-            Model::EditStateManager& editStateManager = m_document.editStateManager();
-            Model::EntityList entities = editStateManager.selectedEntities();
-            const Model::BrushList& selectedBrushes = editStateManager.selectedBrushes();
-            if (!selectedBrushes.empty()) {
-                Model::EntitySet brushEntities;
-                Model::BrushList::const_iterator brushIt, brushEnd;
-                for (brushIt = selectedBrushes.begin(), brushEnd = selectedBrushes.end(); brushIt != brushEnd; ++brushIt) {
-                    Model::Brush* brush = *brushIt;
-                    Model::Entity* entity = brush->entity();
-                    brushEntities.insert(entity);
-                }
-                
-                entities.insert(entities.end(), brushEntities.begin(), brushEntities.end());
-            }
-            return entities;
-        }
-        
         void EntityPropertyGridTable::notifyRowsUpdated(size_t pos, size_t numRows) {
             if (GetView() != NULL) {
                 wxGridTableMessage message(this, wxGRIDTABLE_REQUEST_VIEW_GET_VALUES,
@@ -121,7 +103,7 @@ namespace TrenchBroom {
             assert(col >= 0 && col < GetNumberCols());
             
             size_t rowIndex = static_cast<size_t>(row);
-            const Model::EntityList entities = selectedEntities();
+            const Model::EntityList entities = m_document.editStateManager().allSelectedEntities();
             assert(!entities.empty());
 
             m_ignoreUpdates = true;
@@ -157,7 +139,7 @@ namespace TrenchBroom {
         bool EntityPropertyGridTable::InsertRows(size_t pos, size_t numRows) {
             assert(pos >= 0 && static_cast<int>(pos) <= GetNumberRows());
             
-            const Model::EntityList entities = selectedEntities();
+            const Model::EntityList entities = m_document.editStateManager().allSelectedEntities();
             assert(!entities.empty());
 
             typedef std::vector<Model::PropertyKey> PropertyKeys;
@@ -214,7 +196,7 @@ namespace TrenchBroom {
         bool EntityPropertyGridTable::DeleteRows(size_t pos, size_t numRows) {
             assert(pos >= 0 && static_cast<int>(pos + numRows) <= GetNumberRows());
             
-            const Model::EntityList entities = selectedEntities();
+            const Model::EntityList entities = m_document.editStateManager().allSelectedEntities();
             assert(!entities.empty());
 
             m_ignoreUpdates = true;
@@ -282,7 +264,7 @@ namespace TrenchBroom {
                 return;
             
             EntryList newEntries;
-            const Model::EntityList entities = selectedEntities();
+            const Model::EntityList entities = m_document.editStateManager().allSelectedEntities();
             if (!entities.empty()) {
                 Model::EntityList::const_iterator entityIt, entityEnd;
                 for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {

@@ -61,7 +61,7 @@ namespace TrenchBroom {
         }
         
         void SpawnFlagsEditor::updateVisual() {
-            const Model::EntityList& entities = selectedEntities();
+            const Model::EntityList entities = selectedEntities();
             FlagValue values[24];
             for (size_t i = 0; i < 24; i++)
                 values[i] = Unset;
@@ -148,7 +148,7 @@ namespace TrenchBroom {
         m_scrolledWindow(NULL) {}
 
         void SpawnFlagsEditor::OnCheckBoxClicked(wxCommandEvent& event) {
-            const Model::EntityList& entities = selectedEntities();
+            const Model::EntityList entities = selectedEntities();
             if (entities.empty())
                 return;
             

@@ -127,8 +127,7 @@ namespace TrenchBroom {
 
         void EntityInspector::updateProperties() {
             m_propertyTable->update();
-            int row = m_propertyGrid->GetGridCursorRow();
-            updateSmartEditor(row);
+            updateSmartEditor(m_propertyGrid->GetGridCursorRow());
         }
         
         void EntityInspector::updateEntityBrowser() {
@@ -155,6 +154,8 @@ namespace TrenchBroom {
             m_propertyGrid->SelectBlock(row, 0, row, 0);
             m_propertyGrid->GoToCell(row, 0);
             m_propertyGrid->ShowCellEditControl();
+
+            updateSmartEditor(m_propertyGrid->GetGridCursorRow());
         }
         
         void EntityInspector::OnRemovePropertiesPressed(wxCommandEvent& event) {
@@ -165,6 +166,7 @@ namespace TrenchBroom {
             wxArrayInt::reverse_iterator it, end;
             for (it = selectedRows.rbegin(), end = selectedRows.rend(); it != end; ++it)
                 m_propertyGrid->DeleteRows(*it, 1);
+            updateSmartEditor(m_propertyGrid->GetGridCursorRow());
         }
         
         void EntityInspector::OnUpdatePropertyViewOrAddPropertiesButton(wxUpdateUIEvent& event) {

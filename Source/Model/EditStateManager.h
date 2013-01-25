@@ -149,6 +149,23 @@ namespace TrenchBroom {
                 return current().selectedFaces;
             }
             
+            inline EntityList allSelectedEntities() const {
+                Model::EntityList entities = selectedEntities();
+                const Model::BrushList& brushes = selectedBrushes();
+                if (!brushes.empty()) {
+                    Model::EntitySet brushEntities;
+                    Model::BrushList::const_iterator brushIt, brushEnd;
+                    for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
+                        Model::Brush* brush = *brushIt;
+                        Model::Entity* entity = brush->entity();
+                        brushEntities.insert(entity);
+                    }
+                    
+                    entities.insert(entities.end(), brushEntities.begin(), brushEntities.end());
+                }
+                return entities;
+            }
+            
             inline FaceList allSelectedFaces() const {
                 if (selectionMode() == SMFaces)
                     return current().selectedFaces;

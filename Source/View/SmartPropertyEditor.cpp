@@ -33,8 +33,8 @@ namespace TrenchBroom {
             return m_manager.document();
         }
 
-        const Model::EntityList& SmartPropertyEditor::selectedEntities() const {
-            return document().editStateManager().selectedEntities();
+        const Model::EntityList SmartPropertyEditor::selectedEntities() const {
+            return document().editStateManager().allSelectedEntities();
         }
 
         SmartPropertyEditor::SmartPropertyEditor(SmartPropertyEditorManager& manager) :
