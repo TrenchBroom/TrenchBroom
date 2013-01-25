@@ -22,7 +22,7 @@
 
 #include "View/SmartPropertyEditor.h"
 
-#include <wx/event.h>
+#include <wx/wx.h>
 
 class wxScrolledWindow;
 class wxCheckBox;
@@ -40,6 +40,7 @@ namespace TrenchBroom {
             
             wxScrolledWindow* m_scrolledWindow;
             wxCheckBox* m_flags[24];
+            wxPoint m_lastScrollPos;
         protected:
             virtual wxWindow* createVisual(wxWindow* parent);
             virtual void destroyVisual();

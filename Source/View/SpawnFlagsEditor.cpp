@@ -50,12 +50,14 @@ namespace TrenchBroom {
             parent->SetSizer(outerSizer);
             m_scrolledWindow->SetSizerAndFit(sizer);
             m_scrolledWindow->SetScrollRate(0, m_flags[0]->GetSize().y);
+            m_scrolledWindow->Scroll(m_lastScrollPos);
 
             return m_scrolledWindow;
         }
         
         void SpawnFlagsEditor::destroyVisual() {
             assert(m_scrolledWindow != NULL);
+            m_lastScrollPos = m_scrolledWindow->GetViewStart();
             m_scrolledWindow->Destroy();
             m_scrolledWindow = NULL;
         }
@@ -145,7 +147,8 @@ namespace TrenchBroom {
 
         SpawnFlagsEditor::SpawnFlagsEditor(SmartPropertyEditorManager& manager) :
         SmartPropertyEditor(manager),
-        m_scrolledWindow(NULL) {}
+        m_scrolledWindow(NULL),
+        m_lastScrollPos(wxPoint(0,0)) {}
 
         void SpawnFlagsEditor::OnCheckBoxClicked(wxCommandEvent& event) {
             const Model::EntityList entities = selectedEntities();
