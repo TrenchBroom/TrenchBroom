@@ -30,9 +30,9 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityPropertyGridTable::EntryList::iterator EntityPropertyGridTable::findEntry(const String& key) {
+        EntityPropertyGridTable::EntryList::iterator EntityPropertyGridTable::findEntry(EntryList& entries, const String& key) const {
             EntryList::iterator entryIt, entryEnd;
-            for (entryIt = m_entries.begin(), entryEnd = m_entries.end(); entryIt != entryEnd; ++entryIt) {
+            for (entryIt = entries.begin(), entryEnd = entries.end(); entryIt != entryEnd; ++entryIt) {
                 const Entry& entry = *entryIt;
                 if (entry.key == key)
                     return entryIt;
@@ -58,9 +58,11 @@ namespace TrenchBroom {
             return entities;
         }
         
-        void EntityPropertyGridTable::notifyRowsUpdated() {
+        void EntityPropertyGridTable::notifyRowsUpdated(size_t pos, size_t numRows) {
             if (GetView() != NULL) {
-                wxGridTableMessage message(this, wxGRIDTABLE_REQUEST_VIEW_GET_VALUES);
+                wxGridTableMessage message(this, wxGRIDTABLE_REQUEST_VIEW_GET_VALUES,
+                                           static_cast<int>(pos),
+                                           static_cast<int>(numRows));
                 GetView()->ProcessTableMessage(message);
             }
         }
@@ -123,20 +125,27 @@ namespace TrenchBroom {
             assert(!entities.empty());
 
             m_ignoreUpdates = true;
+            Entry oldEntry = m_entries[rowIndex];
+            
             if (col == 0) {
                 const Model::PropertyKey oldKey = m_entries[rowIndex].key;
                 const Model::PropertyKey newKey = value.ToStdString();
+
+                m_entries[rowIndex].key = newKey;
+                
                 Controller::EntityPropertyCommand* rename = Controller::EntityPropertyCommand::setEntityPropertyKey(m_document, entities, oldKey, newKey);
-                if (m_document.GetCommandProcessor()->Submit(rename))
-                    m_entries[rowIndex].key = newKey;
+                if (!m_document.GetCommandProcessor()->Submit(rename))
+                    m_entries[rowIndex] = oldEntry;
             } else {
                 const Model::PropertyKey key = m_entries[rowIndex].key;
                 const Model::PropertyValue newValue = value.ToStdString();
+                
+                m_entries[rowIndex].value = newValue;
+                m_entries[rowIndex].reset();
+
                 Controller::EntityPropertyCommand* setValue = Controller::EntityPropertyCommand::setEntityPropertyValue(m_document, entities, key, newValue);
-                if (m_document.GetCommandProcessor()->Submit(setValue)) {
-                    m_entries[rowIndex].value = newValue;
-                    m_entries[rowIndex].reset();
-                }
+                if (!m_document.GetCommandProcessor()->Submit(setValue))
+                    m_entries[rowIndex] = oldEntry;
             }
             m_ignoreUpdates = false;
         }
@@ -272,9 +281,7 @@ namespace TrenchBroom {
             if (m_ignoreUpdates)
                 return;
             
-            notifyRowsDeleted(0, m_entries.size());
-            m_entries.clear();
-
+            EntryList newEntries;
             const Model::EntityList entities = selectedEntities();
             if (!entities.empty()) {
                 Model::EntityList::const_iterator entityIt, entityEnd;
@@ -286,16 +293,25 @@ namespace TrenchBroom {
                     for (propertyIt = properties.begin(), propertyEnd = properties.end(); propertyIt != propertyEnd; ++propertyIt) {
                         const Model::Property& property = *propertyIt;
                         
-                        EntryList::iterator entryIt = findEntry(property.key());
-                        if (entryIt != m_entries.end())
+                        EntryList::iterator entryIt = findEntry(newEntries, property.key());
+                        if (entryIt != newEntries.end())
                             entryIt->compareValue(property.value());
                         else
-                            m_entries.push_back(Entry(property.key(), property.value(), entities.size()));
+                            newEntries.push_back(Entry(property.key(), property.value(), entities.size()));
                     }
                 }
-
-                notifyRowsAppended(m_entries.size());
             }
+            
+            size_t oldEntryCount = m_entries.size();
+            size_t newEntryCount = newEntries.size();
+            m_entries = newEntries;
+            
+            if (oldEntryCount < newEntryCount) {
+                notifyRowsAppended(newEntryCount - oldEntryCount);
+            } else if (oldEntryCount > newEntryCount) {
+                notifyRowsDeleted(oldEntryCount - 1, oldEntryCount - newEntryCount);
+            }
+            notifyRowsUpdated(0, m_entries.size());
         }
     }
 }

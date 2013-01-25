@@ -119,6 +119,15 @@ namespace TrenchBroom {
             return command;
         }
         
+        EntityPropertyCommand* EntityPropertyCommand::setEntityPropertyValue(Model::MapDocument& document, Model::Entity& entity, const Model::PropertyKey& key, const Model::PropertyValue& newValue) {
+            Model::EntityList entities;
+            entities.push_back(&entity);
+            EntityPropertyCommand* command = new EntityPropertyCommand(SetEntityPropertyValue, document, entities, wxT("Set Property Value"));
+            command->setKey(key);
+            command->setNewValue(newValue);
+            return command;
+        }
+
         EntityPropertyCommand* EntityPropertyCommand::removeEntityProperty(Model::MapDocument& document, const Model::EntityList& entities, const Model::PropertyKey& key) {
             EntityPropertyCommand* command = new EntityPropertyCommand(RemoveEntityProperty, document, entities, wxT("Delete Property"));
             command->setKey(key);

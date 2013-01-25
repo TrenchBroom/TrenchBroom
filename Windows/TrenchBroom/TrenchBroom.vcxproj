@@ -325,6 +325,8 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\View\PreferencesDialog.cpp" />
     <ClCompile Include="..\..\Source\View\ProgressIndicatorDialog.cpp" />
     <ClCompile Include="..\..\Source\View\SingleTextureViewer.cpp" />
+    <ClCompile Include="..\..\Source\View\SmartPropertyEditor.cpp" />
+    <ClCompile Include="..\..\Source\View\SpawnFlagsEditor.cpp" />
     <ClCompile Include="..\..\Source\View\SpinControl.cpp" />
     <ClCompile Include="..\..\Source\View\TextureBrowser.cpp" />
     <ClCompile Include="..\..\Source\View\TextureBrowserCanvas.cpp" />
@@ -525,6 +527,8 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\View\ProgressIndicatorDialog.h" />
     <ClInclude Include="..\..\Source\View\ScreenDC.h" />
     <ClInclude Include="..\..\Source\View\SingleTextureViewer.h" />
+    <ClInclude Include="..\..\Source\View\SmartPropertyEditor.h" />
+    <ClInclude Include="..\..\Source\View\SpawnFlagsEditor.h" />
     <ClInclude Include="..\..\Source\View\SpinControl.h" />
     <ClInclude Include="..\..\Source\View\TextureBrowser.h" />
     <ClInclude Include="..\..\Source\View\TextureBrowserCanvas.h" />

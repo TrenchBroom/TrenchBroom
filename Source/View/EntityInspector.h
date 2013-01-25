@@ -27,6 +27,7 @@
 
 class wxButton;
 class wxGrid;
+class wxGridEvent;
 class wxGLContext;
 class wxWindow;
 
@@ -35,6 +36,7 @@ namespace TrenchBroom {
         class DocumentViewHolder;
         class EntityBrowser;
         class EntityPropertyGridTable;
+        class SmartPropertyEditorManager;
         
         class EntityInspector : public wxPanel {
         protected:
@@ -42,6 +44,7 @@ namespace TrenchBroom {
 
             EntityPropertyGridTable* m_propertyTable;
             wxGrid* m_propertyGrid;
+            SmartPropertyEditorManager* m_smartPropertyEditorManager;
             wxButton* m_addPropertyButton;
             wxButton* m_removePropertiesButton;
             
@@ -49,6 +52,8 @@ namespace TrenchBroom {
             
             wxWindow* createPropertyEditor(wxWindow* parent);
             wxWindow* createEntityBrowser(wxWindow* parent);
+            
+            void updateSmartEditor(int row);
         public:
             EntityInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder);
             
@@ -56,6 +61,7 @@ namespace TrenchBroom {
             void updateEntityBrowser();
 
             void OnPropertyGridSize(wxSizeEvent& event);
+            void OnPropertyGridSelectCell(wxGridEvent& event);
             
             void OnAddPropertyPressed(wxCommandEvent& event);
             void OnRemovePropertiesPressed(wxCommandEvent& event);

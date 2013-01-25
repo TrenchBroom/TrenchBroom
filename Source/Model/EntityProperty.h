@@ -33,6 +33,7 @@ namespace TrenchBroom {
         typedef std::vector<PropertyKey> PropertyKeyList;
         typedef std::set<PropertyKey> PropertyKeySet;
         typedef std::pair<PropertyKeySet::iterator, bool> PropertyKeySetInsertResult;
+        typedef std::vector<PropertyValue> PropertyValueList;
 
         class Property {
         private:
