@@ -165,7 +165,13 @@ namespace TrenchBroom {
         
         void Autosaver::triggerAutosave() {
             time_t currentTime = time(NULL);
-            if (m_dirty && m_lastModificationTime > 0 && currentTime - m_lastModificationTime >= m_idleInterval && currentTime - m_lastSaveTime >= m_saveInterval) {
+            IO::FileManager fileManager;
+            if (fileManager.exists(m_document.GetFilename().ToStdString()) &&
+                m_dirty &&
+                m_lastModificationTime > 0 &&
+                currentTime - m_lastModificationTime >= m_idleInterval &&
+                currentTime - m_lastSaveTime >= m_saveInterval) {
+                
                 autosave();
                 m_lastSaveTime = currentTime;
                 m_dirty = false;
