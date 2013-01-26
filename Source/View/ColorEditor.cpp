@@ -76,9 +76,9 @@ namespace TrenchBroom {
             Vec3f::List::const_iterator colorIt = m_colors.begin();
             
             for (int row = 0; row < m_rows; row++) {
-                const int height = cellHeight + (restHeight-- > 0 ? 1 : 0);
+                const int height = cellHeight + ((restHeight - row) > 0 ? 1 : 0);
                 for (int col = 0; col < m_cols; col++) {
-                    const int width = cellWidth + (restWidth-- > 0 ? 1 : 0);
+                    const int width = cellWidth + ((restWidth - col) > 0 ? 1 : 0);
                     
                     if (colorIt != m_colors.end()) {
                         wxColour wxCol = convertColor(*colorIt);
