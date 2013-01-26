@@ -50,6 +50,7 @@ namespace TrenchBroom {
             m_filePosition = 0;
             setEditState(EditState::Default);
             m_selectedBrushCount = 0;
+            setProperty(SpawnFlagsKey, "0");
             invalidateGeometry();
         }
 
@@ -298,8 +299,10 @@ namespace TrenchBroom {
         }
 
         void Entity::setProperties(const PropertyList& properties, bool replace) {
-            if (replace)
+            if (replace) {
                 m_propertyStore.clear();
+                setProperty(SpawnFlagsKey, "0");
+            }
             PropertyList::const_iterator it, end;
             for (it = properties.begin(), end = properties.end(); it != end; ++it)
                 setProperty(it->key(), it->value());

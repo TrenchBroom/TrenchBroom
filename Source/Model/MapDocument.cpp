@@ -41,6 +41,7 @@
 #include "Renderer/TextureRendererManager.h"
 #include "Utility/Console.h"
 #include "Utility/Grid.h"
+#include "Utility/List.h"
 #include "Utility/Preferences.h"
 #include "Utility/VecMath.h"
 #include "View/EditorView.h"

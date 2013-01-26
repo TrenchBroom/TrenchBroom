@@ -267,6 +267,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Model\MapDocument.cpp" />
     <ClCompile Include="..\..\Source\Model\Octree.cpp" />
     <ClCompile Include="..\..\Source\Model\Picker.cpp" />
+    <ClCompile Include="..\..\Source\Model\PointFile.cpp" />
     <ClCompile Include="..\..\Source\Model\Texture.cpp" />
     <ClCompile Include="..\..\Source\Model\TextureManager.cpp" />
     <ClCompile Include="..\..\Source\Renderer\AliasModelRenderer.cpp" />
@@ -290,6 +291,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Renderer\Palette.cpp" />
     <ClCompile Include="..\..\Source\Renderer\PointHandleHighlightFigure.cpp" />
     <ClCompile Include="..\..\Source\Renderer\PointHandleRenderer.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\PointTraceFigure.cpp" />
     <ClCompile Include="..\..\Source\Renderer\RingFigure.cpp" />
     <ClCompile Include="..\..\Source\Renderer\Shader\Shader.cpp" />
     <ClCompile Include="..\..\Source\Renderer\Shader\ShaderManager.cpp" />
@@ -312,6 +314,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Utility\Preferences.cpp" />
     <ClCompile Include="..\..\Source\Utility\Vec3f.cpp" />
     <ClCompile Include="..\..\Source\View\AbstractApp.cpp" />
+    <ClCompile Include="..\..\Source\View\AngleEditor.cpp" />
     <ClCompile Include="..\..\Source\View\ColorEditor.cpp" />
     <ClCompile Include="..\..\Source\View\EditorFrame.cpp" />
     <ClCompile Include="..\..\Source\View\EditorView.cpp" />
@@ -422,6 +425,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Model\MapObjectTypes.h" />
     <ClInclude Include="..\..\Source\Model\Octree.h" />
     <ClInclude Include="..\..\Source\Model\Picker.h" />
+    <ClInclude Include="..\..\Source\Model\PointFile.h" />
     <ClInclude Include="..\..\Source\Model\PropertyDefinition.h" />
     <ClInclude Include="..\..\Source\Model\Texture.h" />
     <ClInclude Include="..\..\Source\Model\TextureManager.h" />
@@ -455,6 +459,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Renderer\Palette.h" />
     <ClInclude Include="..\..\Source\Renderer\PointHandleHighlightFigure.h" />
     <ClInclude Include="..\..\Source\Renderer\PointHandleRenderer.h" />
+    <ClInclude Include="..\..\Source\Renderer\PointTraceFigure.h" />
     <ClInclude Include="..\..\Source\Renderer\RenderContext.h" />
     <ClInclude Include="..\..\Source\Renderer\RenderUtils.h" />
     <ClInclude Include="..\..\Source\Renderer\RingFigure.h" />
@@ -507,6 +512,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Utility\Vec4f.h" />
     <ClInclude Include="..\..\Source\Utility\VecMath.h" />
     <ClInclude Include="..\..\Source\View\AbstractApp.h" />
+    <ClInclude Include="..\..\Source\View\AngleEditor.h" />
     <ClInclude Include="..\..\Source\View\CellLayout.h" />
     <ClInclude Include="..\..\Source\View\CellLayoutGLCanvas.h" />
     <ClInclude Include="..\..\Source\View\ColorEditor.h" />

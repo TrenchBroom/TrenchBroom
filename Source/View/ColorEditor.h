@@ -22,16 +22,94 @@
 
 #include "View/SmartPropertyEditor.h"
 
+#include "Utility/VecMath.h"
+
 #include <wx/wx.h>
+
+#include <functional>
+#include <vector>
 
 class wxColourPickerCtrl;
 class wxColourPickerEvent;
+class wxPanel;
+class wxSlider;
+class wxStaticText;
+
+using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace View {
+        inline wxColour convertColor(Vec3f color) {
+            if (color.x <= 1.0f && color.y <= 1.0f && color.z <= 1.0f)
+                color *= 255.0f;
+            return wxColour(static_cast<unsigned char>(color.x),
+                            static_cast<unsigned char>(color.y),
+                            static_cast<unsigned char>(color.z));
+        }
+        
+        class ColorHistory : public wxPanel {
+        public:
+            typedef std::vector<wxColour> ColorList;
+        private:
+            class CallbackPtrBase {
+            public:
+                virtual ~CallbackPtrBase() {}
+                virtual void call(const Vec3f& colour) = 0;
+            };
+            
+            template <typename T>
+            class CallbackPtr : public CallbackPtrBase {
+            private:
+                T* m_target;
+                void (T::*m_callback)(const Vec3f&);
+            public:
+                CallbackPtr(T* target, void(T::*callback)(const Vec3f&)) :
+                m_target(target),
+                m_callback(callback) {}
+                
+                void call(const Vec3f& colour) {
+                    (m_target->*m_callback)(colour);
+                }
+            };
+            
+            const int m_rows;
+            const int m_cols;
+            const int m_margin;
+            
+            Vec3f::List m_colors;
+            CallbackPtrBase* m_callback;
+        public:
+            ColorHistory(wxWindow* parent, wxWindowID winId, int rows, int cols, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxTAB_TRAVERSAL | wxBORDER_SUNKEN);
+            ~ColorHistory();
+            
+            inline void setColors(const Vec3f::List& colors) {
+                m_colors = colors;
+            }
+            
+            template <typename T>
+            inline void setCallback(T* target, void(T::*callback)(const Vec3f&)) {
+                delete m_callback;
+                m_callback = new CallbackPtr<T>(target, callback);
+            }
+            
+            void OnPaint(wxPaintEvent& event);
+            void OnMouseUp(wxMouseEvent& event);
+
+            DECLARE_EVENT_TABLE()
+        };
+        
         class ColorEditor : public SmartPropertyEditor {
         private:
+            static const unsigned int ColorHistorySize = 8;
+
+            wxPanel* m_panel;
+            wxSlider* m_redSlider;
+            wxSlider* m_greenSlider;
+            wxSlider* m_blueSlider;
             wxColourPickerCtrl* m_colorPicker;
+            ColorHistory* m_colorHistory;
+            
+            void updateColorHistory();
         protected:
             virtual wxWindow* createVisual(wxWindow* parent);
             virtual void destroyVisual();
@@ -40,6 +118,8 @@ namespace TrenchBroom {
             ColorEditor(SmartPropertyEditorManager& manager);
             
             void OnColorPickerChanged(wxColourPickerEvent& event);
+            void OnColorSliderChanged(wxScrollEvent& event);
+            void OnColorHistorySelected(const Vec3f& color);
         };
     }
 }

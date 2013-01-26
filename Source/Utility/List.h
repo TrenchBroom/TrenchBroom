@@ -21,6 +21,7 @@
 #define TrenchBroom_List_h
 
 #include <algorithm>
+#include <set>
 #include <vector>
 
 namespace TrenchBroom {
@@ -43,6 +44,35 @@ namespace TrenchBroom {
             result.insert(result.end(), suffix.begin(), suffix.end());
             return result;
         }
+    }
+
+    
+    template <typename T>
+    inline std::set<T> makeSet(const std::vector<T>& list) {
+        std::set<T> set;
+        set.reserve(list.size());
+        set.insert(list.begin(), list.end());
+        return set;
+    }
+    
+    template <typename T>
+    inline std::vector<T> makeList(const std::set<T>& set) {
+        std::vector<T> list;
+        list.reserve(set.size());
+        typename std::set<T>::const_iterator it, end;
+        for (it = set.begin(), end = set.end(); it != end; ++it)
+            list.push_back(*it);
+        return list;
+    }
+
+    template <typename T, typename O>
+    inline std::vector<T> makeList(const std::set<T, O>& set) {
+        std::vector<T> list;
+        list.reserve(set.size());
+        typename std::set<T, O>::const_iterator it, end;
+        for (it = set.begin(), end = set.end(); it != end; ++it)
+            list.push_back(*it);
+        return list;
     }
 }
 

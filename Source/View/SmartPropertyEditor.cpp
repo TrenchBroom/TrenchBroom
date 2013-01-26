@@ -128,7 +128,7 @@ namespace TrenchBroom {
             m_editors["_sunlight_color"] = m_editors["_color"];
             m_editors["_sunlight_color2"] = m_editors["_color"];
             
-            m_panel->SetMinSize(wxSize(wxDefaultSize.x, 150));
+            m_panel->SetMinSize(wxSize(wxDefaultSize.x, 130));
             
             wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
             outerSizer->Add(m_panel, 1, wxEXPAND);

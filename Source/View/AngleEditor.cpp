@@ -29,6 +29,7 @@ namespace TrenchBroom {
         }
 
         wxWindow* AngleEditor::createVisual(wxWindow* parent) {
+            return NULL;
         }
         
         void AngleEditor::destroyVisual() {

@@ -34,20 +34,6 @@ namespace TrenchBroom {
         
         typedef std::set<Entity*> EntitySet;
         typedef std::pair<EntitySet::iterator, bool> EntitySetInsertResult;
-        
-        inline EntitySet makeSet(const EntityList& list) {
-            EntitySet set;
-            set.insert(list.begin(), list.end());
-            return set;
-        }
-        
-        inline EntityList makeList(const EntitySet& set) {
-            EntityList list;
-            EntitySet::const_iterator it, end;
-            for (it = set.begin(), end = set.end(); it != end; ++it)
-                list.push_back(*it);
-            return list;
-        }
     }
 }
 

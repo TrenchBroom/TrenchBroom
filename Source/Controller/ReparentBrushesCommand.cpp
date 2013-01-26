@@ -21,6 +21,7 @@
 
 #include "Model/Brush.h"
 #include "Model/Entity.h"
+#include "Utility/List.h"
 #include "Utility/String.h"
 
 namespace TrenchBroom {
@@ -104,7 +105,7 @@ namespace TrenchBroom {
                 if (!entity.worldspawn() && entity.brushes().empty())
                     result.insert(&entity);
             }
-            return Model::makeList(result);
+            return makeList(result);
         }
 
     }

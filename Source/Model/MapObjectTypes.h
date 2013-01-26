@@ -32,20 +32,6 @@ namespace TrenchBroom {
         
         typedef std::set<MapObject*> MapObjectSet;
         static const MapObjectSet EmptyMapObjectSet;
-        
-        inline MapObjectSet makeSet(const MapObjectList& list) {
-            MapObjectSet set;
-            set.insert(list.begin(), list.end());
-            return set;
-        }
-        
-        inline MapObjectList makeList(const MapObjectSet& set) {
-            MapObjectList list;
-            MapObjectSet::const_iterator it, end;
-            for (it = set.begin(), end = set.end(); it != end; ++it)
-                list.push_back(*it);
-            return list;
-        }
     }
 }
 

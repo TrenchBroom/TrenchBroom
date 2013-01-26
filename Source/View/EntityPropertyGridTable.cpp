@@ -266,8 +266,6 @@ namespace TrenchBroom {
             EntryList newEntries;
             const Model::EntityList entities = m_document.editStateManager().allSelectedEntities();
             if (!entities.empty()) {
-                bool hasSpawnflags = false;
-
                 Model::EntityList::const_iterator entityIt, entityEnd;
                 for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
                     const Model::Entity& entity = **entityIt;
@@ -282,12 +280,8 @@ namespace TrenchBroom {
                             entryIt->compareValue(property.value());
                         else
                             newEntries.push_back(Entry(property.key(), property.value(), entities.size()));
-                        hasSpawnflags |= property.key() == Model::Entity::SpawnFlagsKey;
                     }
                 }
-
-                if (!hasSpawnflags)
-                    newEntries.push_back(Entry(Model::Entity::SpawnFlagsKey, "0", entities.size()));
             }
             
             size_t oldEntryCount = m_entries.size();
