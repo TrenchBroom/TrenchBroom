@@ -33,6 +33,7 @@
 #include "Renderer/EntityRotationDecorator.h"
 #include "Renderer/FaceRenderer.h"
 #include "Renderer/PointHandleRenderer.h"
+#include "Renderer/PointTraceFigure.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/SharedResources.h"
 #include "Renderer/TextureRenderer.h"
@@ -296,7 +297,8 @@ namespace TrenchBroom {
         m_selectedEntityRenderer(NULL),
         m_lockedEntityRenderer(NULL),
         m_figureVbo(NULL),
-        m_decoratorVbo(NULL) {
+        m_decoratorVbo(NULL),
+        m_pointTraceFigure(NULL) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
             m_rendering = false;
@@ -337,7 +339,8 @@ namespace TrenchBroom {
             while (!m_entityDecorators.empty()) delete m_entityDecorators.back(), m_entityDecorators.pop_back();
             delete m_decoratorVbo;
             m_decoratorVbo = NULL;
-            
+
+            removePointTrace();
             deleteFigures(m_deletedFigures);
             deleteFigures(m_figures);
             delete m_figureVbo;
@@ -505,6 +508,20 @@ namespace TrenchBroom {
         void MapRenderer::deleteFigure(Figure* figure) {
             removeFigure(figure);
             m_deletedFigures.push_back(figure);
+        }
+
+        void MapRenderer::setPointTrace(const Vec3f::List& points) {
+            removePointTrace();
+            m_pointTraceFigure = new PointTraceFigure(points);
+            m_pointTraceFigure->setColor(Color(1.0f, 1.0f, 0.0f, 1.0f));
+            addFigure(m_pointTraceFigure);
+        }
+        
+        void MapRenderer::removePointTrace() {
+            if (m_pointTraceFigure != NULL) {
+                deleteFigure(m_pointTraceFigure);
+                m_pointTraceFigure = NULL;
+            }
         }
 
         void MapRenderer::render(RenderContext& context) {

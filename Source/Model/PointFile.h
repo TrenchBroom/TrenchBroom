@@ -52,6 +52,10 @@ namespace TrenchBroom {
                 return m_points;
             }
            
+            inline const Vec3f& currentPoint() const {
+                return m_points[m_current];
+            }
+            
             inline const Vec3f& nextPoint() {
                 assert(hasNextPoint());
                 return m_points[++m_current];
@@ -60,6 +64,14 @@ namespace TrenchBroom {
             inline const Vec3f& previousPoint() {
                 assert(hasPreviousPoint());
                 return m_points[--m_current];
+            }
+            
+            inline const Vec3f direction() const {
+                if (m_points.size() <= 1)
+                    return Vec3f::PosX;
+                if (m_current >= m_points.size() - 1)
+                    return (m_points[m_points.size() - 1] - m_points[m_points.size() - 2]).normalized();
+                return (m_points[m_current + 1] - m_points[m_current]).normalized();
             }
         };
     }

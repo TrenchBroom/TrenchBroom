@@ -74,6 +74,8 @@
 		485B70D616AC3240002E95B6 /* RotateHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 485B70D416AC3240002E95B6 /* RotateHandle.cpp */; };
 		486AFAC016B31B780097657D /* ColorEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFABE16B31B780097657D /* ColorEditor.cpp */; };
 		486AFAC416B33ABE0097657D /* PointFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFAC216B33ABE0097657D /* PointFile.cpp */; };
+		486AFAC716B3D9540097657D /* AngleEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFAC516B3D9540097657D /* AngleEditor.cpp */; };
+		486AFACA16B3DE570097657D /* PointTraceFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFAC816B3DE570097657D /* PointTraceFigure.cpp */; };
 		4875679D1697922D008F316F /* MacDropSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4875679B1697922D008F316F /* MacDropSource.cpp */; };
 		487567A5169A26D5008F316F /* SpinControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487567A4169A26D4008F316F /* SpinControl.cpp */; };
 		487567AC169CB809008F316F /* SetFaceAttributesTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487567AA169CB807008F316F /* SetFaceAttributesTool.cpp */; };
@@ -341,6 +343,10 @@
 		486AFABF16B31B780097657D /* ColorEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ColorEditor.h; sourceTree = "<group>"; };
 		486AFAC216B33ABE0097657D /* PointFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointFile.cpp; sourceTree = "<group>"; };
 		486AFAC316B33ABE0097657D /* PointFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointFile.h; sourceTree = "<group>"; };
+		486AFAC516B3D9540097657D /* AngleEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AngleEditor.cpp; sourceTree = "<group>"; };
+		486AFAC616B3D9540097657D /* AngleEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AngleEditor.h; sourceTree = "<group>"; };
+		486AFAC816B3DE570097657D /* PointTraceFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointTraceFigure.cpp; sourceTree = "<group>"; };
+		486AFAC916B3DE570097657D /* PointTraceFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointTraceFigure.h; sourceTree = "<group>"; };
 		486C61E615EF713C0091AA97 /* mmapped_fstream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mmapped_fstream.h; sourceTree = "<group>"; };
 		4875679A16978ED3008F316F /* DragImage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragImage.h; sourceTree = "<group>"; };
 		4875679B1697922D008F316F /* MacDropSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacDropSource.cpp; sourceTree = "<group>"; };
@@ -899,6 +905,8 @@
 		485B70E416AF23EA002E95B6 /* PropertyEditor */ = {
 			isa = PBXGroup;
 			children = (
+				486AFAC516B3D9540097657D /* AngleEditor.cpp */,
+				486AFAC616B3D9540097657D /* AngleEditor.h */,
 				486AFABE16B31B780097657D /* ColorEditor.cpp */,
 				486AFABF16B31B780097657D /* ColorEditor.h */,
 				483323EB16AF250700FC9721 /* SmartPropertyEditor.cpp */,
@@ -1071,6 +1079,8 @@
 				48FBD13C16258DE70059953D /* Figure.h */,
 				482F4BCD16906ACB0012D821 /* PointHandleHighlightFigure.cpp */,
 				482F4BCE16906ACB0012D821 /* PointHandleHighlightFigure.h */,
+				486AFAC816B3DE570097657D /* PointTraceFigure.cpp */,
+				486AFAC916B3DE570097657D /* PointTraceFigure.h */,
 				482A0874164305450000799C /* RingFigure.cpp */,
 				482A0875164305450000799C /* RingFigure.h */,
 				4847AC8B16466BED00726872 /* SphereFigure.cpp */,
@@ -1295,6 +1305,8 @@
 				483323F116AF351900FC9721 /* SpawnFlagsEditor.cpp in Sources */,
 				486AFAC016B31B780097657D /* ColorEditor.cpp in Sources */,
 				486AFAC416B33ABE0097657D /* PointFile.cpp in Sources */,
+				486AFAC716B3D9540097657D /* AngleEditor.cpp in Sources */,
+				486AFACA16B3DE570097657D /* PointTraceFigure.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

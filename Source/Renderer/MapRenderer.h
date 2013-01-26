@@ -48,6 +48,7 @@ namespace TrenchBroom {
         class EntityRenderer;
         class FaceRenderer;
         class Figure;
+        class PointTraceFigure;
         class RenderContext;
         class Shader;
         class ShaderProgram;
@@ -88,6 +89,8 @@ namespace TrenchBroom {
             
             Vbo* m_decoratorVbo;
             EntityDecorator::List m_entityDecorators;
+            
+            PointTraceFigure* m_pointTraceFigure;
             
             /*
             // selection guides
@@ -135,6 +138,9 @@ namespace TrenchBroom {
             void addFigure(Figure* figure);
             void removeFigure(Figure* figure);
             void deleteFigure(Figure* figure);
+            
+            void setPointTrace(const Vec3f::List& points);
+            void removePointTrace();
             
             void render(RenderContext& context);
         };

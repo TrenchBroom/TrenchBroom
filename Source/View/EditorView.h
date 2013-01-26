@@ -33,6 +33,7 @@ namespace TrenchBroom {
         class CameraMoveEvent;
         class CameraLookEvent;
         class CameraOrbitEvent;
+        class CameraSetEvent;
         class InputController;
     }
     
@@ -116,6 +117,7 @@ namespace TrenchBroom {
             void OnCameraMove(Controller::CameraMoveEvent& event);
             void OnCameraLook(Controller::CameraLookEvent& event);
             void OnCameraOrbit(Controller::CameraOrbitEvent& event);
+            void OnCameraSet(Controller::CameraSetEvent& event);
 
             void OnFileNew(wxCommandEvent& event);
             void OnFileOpen(wxCommandEvent& event);
@@ -205,6 +207,8 @@ namespace TrenchBroom {
             void OnViewMoveCameraUp(wxCommandEvent& event);
             void OnViewMoveCameraDown(wxCommandEvent& event);
             void OnViewCenterCameraOnSelection(wxCommandEvent& event);
+            void OnViewMoveCameraToNextPoint(wxCommandEvent& event);
+            void OnViewMoveCameraToPreviousPoint(wxCommandEvent& event);
             
             void OnUpdateMenuItem(wxUpdateUIEvent& event);
             

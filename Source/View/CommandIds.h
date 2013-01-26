@@ -101,6 +101,8 @@ namespace TrenchBroom {
                 static const int ViewDecGridSize                    = Lowest + 75;
                 static const int FileLoadPointFile                  = Lowest + 76;
                 static const int FileUnloadPointFile                = Lowest + 77;
+                static const int ViewMoveCameraToNextPoint          = Lowest + 78;
+                static const int ViewMoveCameraToPreviousPoint      = Lowest + 79;
                 static const int Highest                            = Lowest + 99;
             }
             

@@ -23,30 +23,50 @@
 DEFINE_EVENT_TYPE(EVT_CAMERA_MOVE_EVENT)
 DEFINE_EVENT_TYPE(EVT_CAMERA_LOOK_EVENT)
 DEFINE_EVENT_TYPE(EVT_CAMERA_ORBIT_EVENT)
+DEFINE_EVENT_TYPE(EVT_CAMERA_SET_EVENT)
 
 namespace TrenchBroom {
     namespace Controller {
         IMPLEMENT_DYNAMIC_CLASS(CameraMoveEvent, wxEvent)
-        CameraMoveEvent::CameraMoveEvent() : wxEvent(wxID_ANY, EVT_CAMERA_MOVE_EVENT), m_forward(0.0f), m_right(0.0f), m_up(0.0f) {}
+        CameraMoveEvent::CameraMoveEvent() :
+        wxEvent(wxID_ANY, EVT_CAMERA_MOVE_EVENT),
+        m_forward(0.0f),
+        m_right(0.0f),
+        m_up(0.0f) {}
         
         wxEvent* CameraMoveEvent::Clone() const {
             return new CameraMoveEvent(*this);
         }
         
         IMPLEMENT_DYNAMIC_CLASS(CameraLookEvent, wxEvent)
-        CameraLookEvent::CameraLookEvent() : wxEvent(wxID_ANY, EVT_CAMERA_LOOK_EVENT), m_hAngle(0.0f), m_vAngle(0.0f) {}
+        CameraLookEvent::CameraLookEvent() :
+        wxEvent(wxID_ANY, EVT_CAMERA_LOOK_EVENT),
+        m_hAngle(0.0f),
+        m_vAngle(0.0f) {}
 
         wxEvent* CameraLookEvent::Clone() const {
             return new CameraLookEvent(*this);
         }
 
         IMPLEMENT_DYNAMIC_CLASS(CameraOrbitEvent, CameraLookEvent)
-        CameraOrbitEvent::CameraOrbitEvent() : CameraLookEvent(), m_center(Vec3f::Null) {
+        CameraOrbitEvent::CameraOrbitEvent() :
+        CameraLookEvent(),
+        m_center(Vec3f::Null) {
             SetEventType(EVT_CAMERA_ORBIT_EVENT);
         }
 
         wxEvent* CameraOrbitEvent::Clone() const {
             return new CameraOrbitEvent(*this);
+        }
+
+        IMPLEMENT_DYNAMIC_CLASS(CameraSetEvent, wxEvent)
+        CameraSetEvent::CameraSetEvent() :
+        wxEvent(wxID_ANY, EVT_CAMERA_SET_EVENT) {
+            SetEventType(EVT_CAMERA_SET_EVENT);
+        }
+        
+        wxEvent* CameraSetEvent::Clone() const {
+            return new CameraSetEvent(*this);
         }
     }
 }

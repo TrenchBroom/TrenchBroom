@@ -111,6 +111,37 @@ namespace TrenchBroom {
             
             DECLARE_DYNAMIC_CLASS(CameraOrbitEvent)
         };
+        
+        class CameraSetEvent : public wxEvent {
+        protected:
+            Vec3f m_position;
+            Vec3f m_direction;
+            Vec3f m_up;
+        public:
+            CameraSetEvent();
+            
+            inline const Vec3f& position() const {
+                return m_position;
+            }
+            
+            inline const Vec3f& direction() const {
+                return m_direction;
+            }
+            
+            inline const Vec3f& up() const {
+                return m_up;
+            }
+
+            inline void set(const Vec3f& position, const Vec3f& direction, const Vec3f& up) {
+                m_position = position;
+                m_direction = direction;
+                m_up = up;
+            }
+            
+            virtual wxEvent* Clone() const;
+            
+            DECLARE_DYNAMIC_CLASS(CameraSetEvent)
+        };
     }
 }
 
@@ -120,6 +151,7 @@ BEGIN_DECLARE_EVENT_TYPES()
 DECLARE_EXPORTED_EVENT_TYPE(WXDLLIMPEXP_CUSTOM_EVENT, EVT_CAMERA_MOVE_EVENT, 1)
 DECLARE_EXPORTED_EVENT_TYPE(WXDLLIMPEXP_CUSTOM_EVENT, EVT_CAMERA_LOOK_EVENT, 1)
 DECLARE_EXPORTED_EVENT_TYPE(WXDLLIMPEXP_CUSTOM_EVENT, EVT_CAMERA_ORBIT_EVENT, 1)
+DECLARE_EXPORTED_EVENT_TYPE(WXDLLIMPEXP_CUSTOM_EVENT, EVT_CAMERA_SET_EVENT, 1)
 //DECLARE_EVENT_TYPE(EVT_CAMERA_MOVE_EVENT,     1)
 //DECLARE_EVENT_TYPE(EVT_CAMERA_LOOK_EVENT,     1)
 //DECLARE_EVENT_TYPE(EVT_CAMERA_ORBIT_EVENT,    1)
@@ -129,6 +161,7 @@ END_DECLARE_EVENT_TYPES()
 typedef void (wxEvtHandler::*cameraMoveEventFunction)(TrenchBroom::Controller::CameraMoveEvent&);
 typedef void (wxEvtHandler::*cameraLookEventFunction)(TrenchBroom::Controller::CameraLookEvent&);
 typedef void (wxEvtHandler::*cameraOrbitEventFunction)(TrenchBroom::Controller::CameraOrbitEvent&);
+typedef void (wxEvtHandler::*cameraSetEventFunction)(TrenchBroom::Controller::CameraSetEvent&);
 
 #define EVT_CAMERA_MOVE(func) \
     DECLARE_EVENT_TABLE_ENTRY( EVT_CAMERA_MOVE_EVENT, \
@@ -152,6 +185,15 @@ typedef void (wxEvtHandler::*cameraOrbitEventFunction)(TrenchBroom::Controller::
         wxID_ANY, \
         (wxObjectEventFunction) \
         (cameraOrbitEventFunction) & func, \
+        (wxObject *) NULL ),
+
+
+#define EVT_CAMERA_SET(func) \
+    DECLARE_EVENT_TABLE_ENTRY( EVT_CAMERA_SET_EVENT, \
+        wxID_ANY, \
+        wxID_ANY, \
+        (wxObjectEventFunction) \
+        (cameraSetEventFunction) & func, \
         (wxObject *) NULL ),
 
 #endif /* defined(__TrenchBroom__CameraEvent__) */

@@ -149,6 +149,9 @@ wxMenu* AbstractApp::CreateViewMenu(wxEvtHandler* eventHandler, bool mapViewFocu
         cameraMenu->Append(ViewMoveCameraRight, wxT("Move Right\tAlt+RIGHT"));
         cameraMenu->Append(ViewMoveCameraUp, wxT("Move Up\tAlt+PGUP"));
         cameraMenu->Append(ViewMoveCameraDown, wxT("Move Down\tAlt+PGDN"));
+        cameraMenu->AppendSeparator();
+        cameraMenu->Append(ViewMoveCameraToNextPoint, wxT("Move Camera to Next Point\tAlt++"));
+        cameraMenu->Append(ViewMoveCameraToPreviousPoint, wxT("Move Camera to Previous Point\tAlt+-"));
     } else {
         cameraMenu->Append(ViewMoveCameraForward, wxT("Move Forward"));
         cameraMenu->Append(ViewMoveCameraBackward, wxT("Move Backward"));
@@ -156,6 +159,9 @@ wxMenu* AbstractApp::CreateViewMenu(wxEvtHandler* eventHandler, bool mapViewFocu
         cameraMenu->Append(ViewMoveCameraRight, wxT("Move Right"));
         cameraMenu->Append(ViewMoveCameraUp, wxT("Move Up"));
         cameraMenu->Append(ViewMoveCameraDown, wxT("Move Down"));
+        cameraMenu->AppendSeparator();
+        cameraMenu->Append(ViewMoveCameraToNextPoint, wxT("Move Camera to Next Point"));
+        cameraMenu->Append(ViewMoveCameraToPreviousPoint, wxT("Move Camera to Previous Point"));
     }
     cameraMenu->Append(ViewCenterCameraOnSelection, wxT("Center On Selection\tALT+C"));
     cameraMenu->SetEventHandler(eventHandler);

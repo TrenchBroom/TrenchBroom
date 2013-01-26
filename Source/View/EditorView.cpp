@@ -45,6 +45,7 @@
 #include "Model/Map.h"
 #include "Model/MapDocument.h"
 #include "Model/MapObject.h"
+#include "Model/PointFile.h"
 #include "Model/TextureManager.h"
 #include "Renderer/Camera.h"
 #include "Renderer/MapRenderer.h"
@@ -70,6 +71,7 @@ namespace TrenchBroom {
         EVT_CAMERA_MOVE(EditorView::OnCameraMove)
         EVT_CAMERA_LOOK(EditorView::OnCameraLook)
         EVT_CAMERA_ORBIT(EditorView::OnCameraOrbit)
+        EVT_CAMERA_SET(EditorView::OnCameraSet)
 
         EVT_MENU(wxID_NEW, EditorView::OnFileNew)
         EVT_MENU(wxID_OPEN, EditorView::OnFileOpen)
@@ -158,6 +160,8 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::ViewMoveCameraUp, EditorView::OnViewMoveCameraUp)
         EVT_MENU(CommandIds::Menu::ViewMoveCameraDown, EditorView::OnViewMoveCameraDown)
         EVT_MENU(CommandIds::Menu::ViewCenterCameraOnSelection, EditorView::OnViewCenterCameraOnSelection)
+        EVT_MENU(CommandIds::Menu::ViewMoveCameraToNextPoint, EditorView::OnViewMoveCameraToNextPoint)
+        EVT_MENU(CommandIds::Menu::ViewMoveCameraToPreviousPoint, EditorView::OnViewMoveCameraToPreviousPoint)
         
         EVT_UPDATE_UI(wxID_SAVE, EditorView::OnUpdateMenuItem)
         EVT_UPDATE_UI(wxID_UNDO, EditorView::OnUpdateMenuItem)
@@ -676,6 +680,13 @@ namespace TrenchBroom {
             OnUpdate(this);
         }
 
+        void EditorView::OnCameraSet(Controller::CameraSetEvent& event) {
+            m_camera->moveTo(event.position());
+            m_camera->setDirection(event.direction(), event.up());
+            inputController().cameraChange();
+            OnUpdate(this);
+        }
+
         void EditorView::OnFileNew(wxCommandEvent& event) {
             GetDocumentManager()->OnFileNew(event);
         }
@@ -694,11 +705,25 @@ namespace TrenchBroom {
 
         void EditorView::OnFileLoadPointFile(wxCommandEvent& event) {
             mapDocument().loadPointFile();
+            renderer().removePointTrace();
+            if (mapDocument().pointFileLoaded()) {
+                Model::PointFile& pointFile = mapDocument().pointFile();
+                renderer().setPointTrace(pointFile.points());
+
+                const Vec3f position = pointFile.currentPoint() + Vec3f(0.0f, 0.0f, 16.0f);
+                const Vec3f& direction = pointFile.direction();
+                
+                Controller::CameraSetEvent cameraEvent;
+                cameraEvent.set(position, direction, Vec3f::PosZ);
+                cameraEvent.SetEventObject(this);
+                ProcessEvent(cameraEvent);
+            }
             OnUpdate(this);
         }
         
         void EditorView::OnFileUnloadPointFile(wxCommandEvent& event) {
             mapDocument().unloadPointFile();
+            renderer().removePointTrace();
             OnUpdate(this);
         }
 
@@ -1337,6 +1362,36 @@ namespace TrenchBroom {
             ProcessEvent(cameraEvent);
         }
 
+        void EditorView::OnViewMoveCameraToNextPoint(wxCommandEvent& event) {
+            assert(mapDocument().pointFileLoaded());
+            
+            Model::PointFile& pointFile = mapDocument().pointFile();
+            assert(pointFile.hasNextPoint());
+            
+            const Vec3f position = pointFile.nextPoint() + Vec3f(0.0f, 0.0f, 16.0f);
+            const Vec3f& direction = pointFile.direction();
+            
+            Controller::CameraSetEvent cameraEvent;
+            cameraEvent.set(position, direction, Vec3f::PosZ);
+            cameraEvent.SetEventObject(this);
+            ProcessEvent(cameraEvent);
+        }
+        
+        void EditorView::OnViewMoveCameraToPreviousPoint(wxCommandEvent& event) {
+            assert(mapDocument().pointFileLoaded());
+            
+            Model::PointFile& pointFile = mapDocument().pointFile();
+            assert(pointFile.hasPreviousPoint());
+            
+            const Vec3f position = pointFile.previousPoint() + Vec3f(0.0f, 0.0f, 16.0f);
+            const Vec3f& direction = pointFile.direction();
+            
+            Controller::CameraSetEvent cameraEvent;
+            cameraEvent.set(position, direction, Vec3f::PosZ);
+            cameraEvent.SetEventObject(this);
+            ProcessEvent(cameraEvent);
+        }
+
         void EditorView::OnViewCenterCameraOnSelection(wxCommandEvent& event) {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             assert(editStateManager.hasSelectedObjects());
@@ -1639,6 +1694,12 @@ namespace TrenchBroom {
                 case CommandIds::Menu::ViewMoveCameraDown:
                 case CommandIds::Menu::ViewCenterCameraOnSelection:
                     event.Enable(true);
+                    break;
+                case CommandIds::Menu::ViewMoveCameraToNextPoint:
+                    event.Enable(mapDocument().pointFileLoaded() && mapDocument().pointFile().hasNextPoint());
+                    break;
+                case CommandIds::Menu::ViewMoveCameraToPreviousPoint:
+                    event.Enable(mapDocument().pointFileLoaded() && mapDocument().pointFile().hasPreviousPoint());
                     break;
             }
         }
