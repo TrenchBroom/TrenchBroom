@@ -110,9 +110,9 @@ namespace TrenchBroom {
             int y = m_margin;
             
             for (int row = 0; row < m_rows; row++) {
-                const int height = cellHeight + (restHeight-- > 0 ? 1 : 0);
+                const int height = cellHeight + ((restHeight - row) > 0 ? 1 : 0);
                 for (int col = 0; col < m_cols; col++) {
-                    const int width = cellWidth + (restWidth-- > 0 ? 1 : 0);
+                    const int width = cellWidth + ((restWidth - col) > 0 ? 1 : 0);
 
                     size_t index = static_cast<size_t>(row * m_rows + col);
                     if (event.GetX() >= x && event.GetX() <= x + width &&
@@ -145,6 +145,7 @@ namespace TrenchBroom {
             }
 
             m_colorHistory->setColors(makeList(colorSet));
+            m_colorHistory->Refresh();
         }
 
         wxWindow* ColorEditor::createVisual(wxWindow* parent) {
@@ -159,15 +160,35 @@ namespace TrenchBroom {
             m_redSlider = new wxSlider(m_panel, wxID_ANY, 0, 0, 255);
             m_redSlider->SetMinSize(wxSize(50, wxDefaultSize.y));
             m_redSlider->Bind(wxEVT_SCROLL_THUMBTRACK, &ColorEditor::OnColorSliderChanged, this);
+            m_redSlider->Bind(wxEVT_SCROLL_TOP, &ColorEditor::OnColorSliderChanged, this);
+            m_redSlider->Bind(wxEVT_SCROLL_BOTTOM, &ColorEditor::OnColorSliderChanged, this);
+            m_redSlider->Bind(wxEVT_SCROLL_LINEUP, &ColorEditor::OnColorSliderChanged, this);
+            m_redSlider->Bind(wxEVT_SCROLL_LINEDOWN, &ColorEditor::OnColorSliderChanged, this);
+            m_redSlider->Bind(wxEVT_SCROLL_PAGEUP, &ColorEditor::OnColorSliderChanged, this);
+            m_redSlider->Bind(wxEVT_SCROLL_PAGEDOWN, &ColorEditor::OnColorSliderChanged, this);
+
             m_greenSlider = new wxSlider(m_panel, wxID_ANY, 0, 0, 255);
             m_greenSlider->SetMinSize(wxSize(50, wxDefaultSize.y));
             m_greenSlider->Bind(wxEVT_SCROLL_THUMBTRACK, &ColorEditor::OnColorSliderChanged, this);
+            m_greenSlider->Bind(wxEVT_SCROLL_TOP, &ColorEditor::OnColorSliderChanged, this);
+            m_greenSlider->Bind(wxEVT_SCROLL_BOTTOM, &ColorEditor::OnColorSliderChanged, this);
+            m_greenSlider->Bind(wxEVT_SCROLL_LINEUP, &ColorEditor::OnColorSliderChanged, this);
+            m_greenSlider->Bind(wxEVT_SCROLL_LINEDOWN, &ColorEditor::OnColorSliderChanged, this);
+            m_greenSlider->Bind(wxEVT_SCROLL_PAGEUP, &ColorEditor::OnColorSliderChanged, this);
+            m_greenSlider->Bind(wxEVT_SCROLL_PAGEDOWN, &ColorEditor::OnColorSliderChanged, this);
+
             m_blueSlider = new wxSlider(m_panel, wxID_ANY, 0, 0, 255);
             m_blueSlider->SetMinSize(wxSize(50, wxDefaultSize.y));
             m_blueSlider->Bind(wxEVT_SCROLL_THUMBTRACK, &ColorEditor::OnColorSliderChanged, this);
+            m_blueSlider->Bind(wxEVT_SCROLL_TOP, &ColorEditor::OnColorSliderChanged, this);
+            m_blueSlider->Bind(wxEVT_SCROLL_BOTTOM, &ColorEditor::OnColorSliderChanged, this);
+            m_blueSlider->Bind(wxEVT_SCROLL_LINEUP, &ColorEditor::OnColorSliderChanged, this);
+            m_blueSlider->Bind(wxEVT_SCROLL_LINEDOWN, &ColorEditor::OnColorSliderChanged, this);
+            m_blueSlider->Bind(wxEVT_SCROLL_PAGEUP, &ColorEditor::OnColorSliderChanged, this);
+            m_blueSlider->Bind(wxEVT_SCROLL_PAGEDOWN, &ColorEditor::OnColorSliderChanged, this);
 
             m_colorPicker = new wxColourPickerCtrl(m_panel, wxID_ANY);
-            m_colorHistory = new ColorHistory(m_panel, wxID_ANY, 8, 8, wxDefaultPosition, wxSize(parent->GetClientSize().y, parent->GetClientSize().y));
+            m_colorHistory = new ColorHistory(m_panel, wxID_ANY, 10, 10, wxDefaultPosition, wxSize(parent->GetClientSize().y, parent->GetClientSize().y));
             m_colorHistory->setCallback(this, &ColorEditor::OnColorHistorySelected);
 
             wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
