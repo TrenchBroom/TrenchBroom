@@ -39,33 +39,48 @@ namespace TrenchBroom {
             std::fstream stream(pointFilePath.c_str(), std::ios_base::in);
             assert(stream.is_open());
 
+            Vec3f::List points;
+            
             String line;
             if (!stream.eof()) {
                 std::getline(stream, line);
-                m_points.push_back(Vec3f(line));
-                Vec3f lastPoint = m_points.back();
+                points.push_back(Vec3f(line));
+                Vec3f lastPoint = points.back();
                 
                 if (!stream.eof()) {
                     std::getline(stream, line);
                     Vec3f curPoint(line);
-                    Vec3f refDir = curPoint - lastPoint;
-                    refDir.normalize();
+                    Vec3f refDir = (curPoint - lastPoint).normalized();
                     
                     while (!stream.eof()) {
                         lastPoint = curPoint;
                         std::getline(stream, line);
                         curPoint = Vec3f(line);
                         
-                        Vec3f dir = curPoint - lastPoint;
-                        dir.normalize();
+                        Vec3f dir = (curPoint - lastPoint).normalized();
                         if (std::acos(dir.dot(refDir)) > threshold) {
-                            m_points.push_back(lastPoint);
+                            points.push_back(lastPoint);
                             refDir = dir;
                         }
                     }
                     
-                    m_points.push_back(curPoint);
+                    points.push_back(curPoint);
                 }
+            }
+            
+            if (points.size() > 1) {
+                for (size_t i = 0; i < points.size() - 1; i++) {
+                    const Vec3f& curPoint = points[i];
+                    const Vec3f& nextPoint = points[i + 1];
+                    const Vec3f dir = (nextPoint - curPoint).normalized();
+                    
+                    m_points.push_back(curPoint);
+                    float dist = (nextPoint - curPoint).length();
+                    unsigned int segments = static_cast<unsigned int>(dist / 64.0f);
+                    for (unsigned int j = 1; j < segments; j++)
+                        m_points.push_back(curPoint + dir * static_cast<float>(j) * 64.0f);
+                }
+                m_points.push_back(points.back());
             }
         }
         

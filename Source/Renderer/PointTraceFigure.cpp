@@ -48,7 +48,7 @@ namespace TrenchBroom {
             ActivateShader shader(context.shaderManager(), Shaders::HandleShader);
             
             glDisable(GL_DEPTH_TEST);
-            shader.currentShader().setUniformVariable("Color", Color(m_color, 0.5f));
+            shader.currentShader().setUniformVariable("Color", Color(m_color, 0.3f));
             m_vertexArray->render();
             glEnable(GL_DEPTH_TEST);
             shader.currentShader().setUniformVariable("Color", m_color);
