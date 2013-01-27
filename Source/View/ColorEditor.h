@@ -101,7 +101,7 @@ namespace TrenchBroom {
         
         class ColorEditor : public SmartPropertyEditor {
         private:
-            static const unsigned int ColorHistorySize = 8;
+            static const unsigned int ColorHistorySize = 10;
 
             class YIQOrder {
             public:
@@ -117,12 +117,17 @@ namespace TrenchBroom {
                         return true;
                     if (lyiq.x > ryiq.x)
                         return false;
+                    
                     if (lyiq.y < ryiq.y)
                         return true;
                     if (lyiq.y > ryiq.y)
                         return false;
+                    
                     if (lyiq.z < ryiq.z)
                         return true;
+                    if (lyiq.z > ryiq.z)
+                        return false;
+                    
                     return false;
                 }
             };

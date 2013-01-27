@@ -310,6 +310,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Utility\Console.cpp" />
     <ClCompile Include="..\..\Source\Utility\DocManager.cpp" />
     <ClCompile Include="..\..\Source\Utility\Grid.cpp" />
+    <ClCompile Include="..\..\Source\Utility\Mat3f.cpp" />
     <ClCompile Include="..\..\Source\Utility\Mat4f.cpp" />
     <ClCompile Include="..\..\Source\Utility\Preferences.cpp" />
     <ClCompile Include="..\..\Source\Utility\Vec3f.cpp" />

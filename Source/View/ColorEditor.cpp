@@ -190,7 +190,7 @@ namespace TrenchBroom {
             m_blueSlider->Bind(wxEVT_SCROLL_PAGEDOWN, &ColorEditor::OnColorSliderChanged, this);
 
             m_colorPicker = new wxColourPickerCtrl(m_panel, wxID_ANY);
-            m_colorHistory = new ColorHistory(m_panel, wxID_ANY, 10, 10, wxDefaultPosition, wxSize(parent->GetClientSize().y, parent->GetClientSize().y));
+            m_colorHistory = new ColorHistory(m_panel, wxID_ANY, ColorHistorySize, ColorHistorySize, wxDefaultPosition, wxSize(parent->GetClientSize().y, parent->GetClientSize().y));
             m_colorHistory->setCallback(this, &ColorEditor::OnColorHistorySelected);
 
             wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);

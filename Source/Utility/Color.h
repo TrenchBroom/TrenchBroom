@@ -61,11 +61,70 @@ namespace TrenchBroom {
                 s = dist / max;
             
             v = max;
-            
-            assert(h >= 0.0f && h <= 360.0f);
-            assert(s >= 0.0f && s <= 1.0f);
-            assert(v >= 0.0f && v <= 1.0f);
         }
+        
+        inline static void rgbToHSB(float r, float g, float b, float& h, float& s, float& br) {
+            assert(r >= 0.0f && r <= 1.0f);
+            assert(g >= 0.0f && g <= 1.0f);
+            assert(b >= 0.0f && b <= 1.0f);
+            
+            float max = std::max(std::max(r, g), b);
+            float min = std::min(std::min(r, g), b);
+            float dist = max - min;
+            
+            br = max * 20.0f / 51.0f;
+            
+            if (max == min)
+                h = 0.0f;
+            else if (max == r)
+                h = 6.0f + (g - b) / dist;
+            else if (max == g)
+                h = 2.0f + (b - r) / dist;
+            else
+                h = 4.0f * (r - g) / dist;
+            
+            h *= 60.0f;
+            while (h > 360.0f)
+                h -= 360.f;
+            while (h < 0.0f)
+                h += 360.0f;
+            
+            if (max == min)
+                s = 0.0f;
+            else
+                s = dist / max;
+        }
+        
+        inline static void rgbToHSL(float r, float g, float b, float& h, float& s, float& l) {
+            assert(r >= 0.0f && r <= 1.0f);
+            assert(g >= 0.0f && g <= 1.0f);
+            assert(b >= 0.0f && b <= 1.0f);
+            
+            float max = std::max(std::max(r, g), b);
+            float min = std::min(std::min(r, g), b);
+            float dist = max - min;
+            
+            if (max == min)
+                h = 0.0f;
+            else if (max == r)
+                h = (g - b) / dist;
+            else if (max == g)
+                h = 2.0f + (b - r) / dist;
+            else
+                h = 4.0f * (r - g) / dist;
+            
+            h *= 60.0f;
+            if (h < 0.0f)
+                h += 360.0f;
+            
+            if (max == min)
+                s = 0.0f;
+            else
+                s = dist / (1.0f - std::abs(max + min - 1.0f));
+            
+            l = (max + min) / 2.0f;
+        }
+
         
         inline static void rgbToYIQ(float r, float g, float b, float& y, float& i, float& q) {
             assert(r >= 0.0f && r <= 1.0f);
