@@ -88,6 +88,24 @@ namespace TrenchBroom {
             triangles.push_back(Vec2f(shaftLength, -headWidth / 2.0f));
         }
         
+        inline void circle(float radius, unsigned int segments, Vec2f::List& vertices) {
+            assert(radius > 0.0f);
+            assert(segments > 2);
+            
+            vertices.clear();
+            vertices.reserve(segments);
+            
+            float a = 0.0f;
+            float d = 2.0f * Math::Pi / static_cast<float>(segments);
+            for (unsigned int i = 0; i < segments; i++) {
+                float s = std::sin(a);
+                float c = std::cos(a);
+                
+                vertices.push_back(Vec2f(radius * s, radius * c));
+                a += d;
+            }
+        }
+        
         inline void roundedRect(float width, float height, float cornerRadius, unsigned int cornerSegments, Vec2f::List& vertices) {
             assert(cornerSegments > 0);
             assert(cornerRadius <= width / 2.0f &&

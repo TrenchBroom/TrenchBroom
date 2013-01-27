@@ -665,18 +665,21 @@ namespace TrenchBroom {
         void EditorView::OnCameraMove(Controller::CameraMoveEvent& event) {
             m_camera->moveBy(event.forward(), event.right(), event.up());
             inputController().cameraChange();
+            inspector().entityInspector().updateSmartEditor();
             OnUpdate(this);
         }
 
         void EditorView::OnCameraLook(Controller::CameraLookEvent& event) {
             m_camera->rotate(event.hAngle(), event.vAngle());
             inputController().cameraChange();
+            inspector().entityInspector().updateSmartEditor();
             OnUpdate(this);
         }
 
         void EditorView::OnCameraOrbit(Controller::CameraOrbitEvent& event) {
             m_camera->orbit(event.center(), event.hAngle(), event.vAngle());
             inputController().cameraChange();
+            inspector().entityInspector().updateSmartEditor();
             OnUpdate(this);
         }
 
@@ -684,6 +687,7 @@ namespace TrenchBroom {
             m_camera->moveTo(event.position());
             m_camera->setDirection(event.direction(), event.up());
             inputController().cameraChange();
+            inspector().entityInspector().updateSmartEditor();
             OnUpdate(this);
         }
 

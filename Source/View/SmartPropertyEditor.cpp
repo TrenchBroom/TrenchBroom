@@ -37,6 +37,10 @@ namespace TrenchBroom {
             return m_manager.document();
         }
 
+        EditorView& SmartPropertyEditor::view() const {
+            return m_manager.view();
+        }
+
         const Model::EntityList SmartPropertyEditor::selectedEntities() const {
             return document().editStateManager().allSelectedEntities();
         }
@@ -67,7 +71,12 @@ namespace TrenchBroom {
             m_active = false;
         }
 
-        void SmartPropertyEditor::update(const Model::PropertyKey& property) {
+        void SmartPropertyEditor::update() {
+            assert(m_active);
+            updateVisual();
+        }
+        
+        void SmartPropertyEditor::setProperty(const Model::PropertyKey& property) {
             assert(m_active);
             m_property = property;
             updateVisual();
@@ -109,7 +118,7 @@ namespace TrenchBroom {
                 m_activeEditor = editor;
                 m_activeEditor->activate(m_panel);
             }
-            m_activeEditor->update(property);
+            m_activeEditor->setProperty(property);
         }
         
         void SmartPropertyEditorManager::deactivateEditor() {
@@ -119,8 +128,8 @@ namespace TrenchBroom {
             }
         }
 
-        SmartPropertyEditorManager::SmartPropertyEditorManager(wxWindow* parent, Model::MapDocument& document) :
-        m_document(document),
+        SmartPropertyEditorManager::SmartPropertyEditorManager(wxWindow* parent, DocumentViewHolder& documentViewHolder) :
+        m_documentViewHolder(documentViewHolder),
         m_panel(new wxPanel(parent)),
         m_defaultEditor(new DefaultPropertyEditor(*this)),
         m_activeEditor(NULL) {
@@ -155,6 +164,10 @@ namespace TrenchBroom {
             EditorMap::const_iterator it = m_editors.find(key);
             SmartPropertyEditor* editor = it == m_editors.end() ? m_defaultEditor : it->second;
             activateEditor(editor, key);
+        }
+        
+        void SmartPropertyEditorManager::updateEditor() {
+            m_activeEditor->update();
         }
     }
 }

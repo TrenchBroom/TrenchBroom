@@ -58,6 +58,7 @@ namespace TrenchBroom {
             EntityInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder);
             
             void updateProperties();
+            void updateSmartEditor();
             void updateEntityBrowser();
 
             void OnPropertyGridSize(wxSizeEvent& event);

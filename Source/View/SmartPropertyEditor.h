@@ -23,6 +23,7 @@
 #include "Model/EntityProperty.h"
 #include "Model/EntityTypes.h"
 #include "Utility/String.h"
+#include "View/DocumentViewHolder.h"
 
 #include <map>
 
@@ -37,6 +38,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class EditorView;
         class SmartPropertyEditorManager;
         
         class SmartPropertyEditor {
@@ -48,8 +50,10 @@ namespace TrenchBroom {
             virtual wxWindow* createVisual(wxWindow* parent) = 0;
             virtual void destroyVisual() = 0;
             virtual void updateVisual() = 0;
-            
+
             Model::MapDocument& document() const;
+            EditorView& view() const;
+            
             const Model::EntityList selectedEntities() const;
             void setPropertyValue(const Model::PropertyValue& value, const wxString& commandName);
             
@@ -62,7 +66,8 @@ namespace TrenchBroom {
             
             void activate(wxWindow* parent);
             void deactivate();
-            void update(const Model::PropertyKey& property);
+            void update();
+            void setProperty(const Model::PropertyKey& property);
         };
         
         class DefaultPropertyEditor : public SmartPropertyEditor {
@@ -80,7 +85,7 @@ namespace TrenchBroom {
         private:
             typedef std::map<Model::PropertyKey, SmartPropertyEditor*> EditorMap;
             
-            Model::MapDocument& m_document;
+            DocumentViewHolder& m_documentViewHolder;
             wxWindow* m_panel;
 
             EditorMap m_editors;
@@ -90,13 +95,18 @@ namespace TrenchBroom {
             void activateEditor(SmartPropertyEditor* editor, const Model::PropertyKey& property);
             void deactivateEditor();
         public:
-            SmartPropertyEditorManager(wxWindow* parent, Model::MapDocument& document);
+            SmartPropertyEditorManager(wxWindow* parent, DocumentViewHolder& documentViewHolder);
             ~SmartPropertyEditorManager();
             
             void selectEditor(const Model::PropertyKey& key);
+            void updateEditor();
         
             inline Model::MapDocument& document() const {
-                return m_document;
+                return m_documentViewHolder.document();
+            }
+            
+            inline EditorView& view() const {
+                return m_documentViewHolder.view();
             }
         };
     }

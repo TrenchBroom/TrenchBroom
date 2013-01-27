@@ -27,14 +27,33 @@
 #include <wx/wx.h>
 #include <wx/glcanvas.h>
 
+#include <vector>
+
 namespace TrenchBroom {
+    namespace Renderer {
+        class Camera;
+        class SharedResources;
+    }
+    
     namespace View {
         class AngleEditorCanvas : public wxGLCanvas {
-        private:
-            wxGLContext* m_glContext;
         public:
-            AngleEditorCanvas(wxWindow* parent, const int* attribs);
+            typedef std::vector<float> AngleList;
+        private:
+            static const unsigned int CircleSegments = 32;
 
+            Renderer::SharedResources& m_sharedResources;
+            Renderer::Camera& m_mapCamera;
+            wxGLContext* m_glContext;
+            
+            AngleList m_angles;
+        public:
+            AngleEditorCanvas(wxWindow* parent, Renderer::SharedResources& sharedResources, Renderer::Camera& mapCamera);
+
+            inline void setAngles(const AngleList& angles) {
+                m_angles = angles;
+            }
+            
             void OnPaint(wxPaintEvent& event);
             
             DECLARE_EVENT_TABLE()
