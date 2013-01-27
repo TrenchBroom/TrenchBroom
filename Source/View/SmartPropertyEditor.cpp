@@ -23,6 +23,7 @@
 #include "Model/EditStateManager.h"
 #include "Model/MapDocument.h"
 #include "Utility/CommandProcessor.h"
+#include "View/AngleEditor.h"
 #include "View/ColorEditor.h"
 #include "View/SpawnFlagsEditor.h"
 
@@ -127,6 +128,7 @@ namespace TrenchBroom {
             m_editors["_color"] = new ColorEditor(*this);
             m_editors["_sunlight_color"] = m_editors["_color"];
             m_editors["_sunlight_color2"] = m_editors["_color"];
+            m_editors["angle"] = new AngleEditor(*this);
             
             m_panel->SetMinSize(wxSize(wxDefaultSize.x, 130));
             

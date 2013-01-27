@@ -112,7 +112,7 @@ namespace TrenchBroom {
                 editStateManager.selectionMode() != Model::EditStateManager::SMNone)
                 return false;
             
-            Model::FaceHit* hit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, view().filter()));
+            Model::FaceHit* hit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, m_filter));
             if (hit != NULL) {
                 m_normal = hit->face().boundary().normal.firstAxis();
                 initialPoint = hit->hitPoint();
@@ -175,6 +175,7 @@ namespace TrenchBroom {
 
         CreateBrushTool::CreateBrushTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
         PlaneDragTool(documentViewHolder, inputController, true),
+        m_filter(Model::VisibleFilter(documentViewHolder.view().filter())),
         m_boundsChanged(false),
         m_brush(NULL),
         m_brushFigure(NULL) {}

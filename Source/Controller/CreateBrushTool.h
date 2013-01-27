@@ -21,6 +21,7 @@
 #define __TrenchBroom__CreateBrushTool__
 
 #include "Controller/Tool.h"
+#include "Model/Filter.h"
 #include "Utility/VecMath.h"
 
 using namespace TrenchBroom::Math;
@@ -41,6 +42,7 @@ namespace TrenchBroom {
     namespace Controller {
         class CreateBrushTool : public PlaneDragTool {
         protected:
+            Model::VisibleFilter m_filter;
             Vec3f m_initialPoint;
             BBox m_bounds;
             Vec3f m_normal;

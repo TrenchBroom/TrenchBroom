@@ -22,19 +22,28 @@
 
 #include "View/SmartPropertyEditor.h"
 
+#include "GL/glew.h"
+
 #include <wx/wx.h>
 #include <wx/glcanvas.h>
 
 namespace TrenchBroom {
     namespace View {
         class AngleEditorCanvas : public wxGLCanvas {
+        private:
+            wxGLContext* m_glContext;
         public:
             AngleEditorCanvas(wxWindow* parent, const int* attribs);
 
             void OnPaint(wxPaintEvent& event);
+            
+            DECLARE_EVENT_TABLE()
         };
         
         class AngleEditor : public SmartPropertyEditor {
+        private:
+            wxPanel* m_panel;
+            AngleEditorCanvas* m_canvas;
         protected:
             virtual wxWindow* createVisual(wxWindow* parent);
             virtual void destroyVisual();

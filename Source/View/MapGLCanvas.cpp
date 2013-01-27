@@ -163,7 +163,7 @@ namespace TrenchBroom {
 				glBindTexture(GL_TEXTURE_2D, 0);
 				glDisable(GL_TEXTURE_2D);
 
-				view.camera().update(0.0f, 0.0f, GetSize().x, GetSize().y);
+				view.camera().update(0.0f, 0.0f, GetClientSize().x, GetClientSize().y);
 
                 Renderer::ShaderManager& shaderManager = m_documentViewHolder.document().sharedResources().shaderManager();
                 Utility::Grid& grid = m_documentViewHolder.document().grid();
@@ -173,7 +173,7 @@ namespace TrenchBroom {
                 // draw focus rectangle
                 if (FindFocus() == this) {
                     Mat4f ortho = Mat4f::Identity;
-                    ortho.setOrtho(-1.0f, 1.0f, 0.0f, 0.0f, GetSize().x, GetSize().y);
+                    ortho.setOrtho(-1.0f, 1.0f, 0.0f, 0.0f, GetClientSize().x, GetClientSize().y);
 
                     renderContext.transformation().loadMatrix(ortho);
 

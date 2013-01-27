@@ -856,7 +856,7 @@ namespace TrenchBroom {
 
                 for (unsigned int i = 0; i < entities.size(); i++) {
                     Model::Entity& entity = *entities[i];
-                    if (entity.selectable() && m_filter->entityVisible(entity)) {
+                    if (m_filter->entitySelectable(entity)) {
                         assert(entity.definition() == NULL || entity.definition()->type() == Model::EntityDefinition::PointEntity);
                         assert(entity.brushes().empty());
                         selectEntities.push_back(&entity);
@@ -864,14 +864,16 @@ namespace TrenchBroom {
                         const Model::BrushList& entityBrushes = entity.brushes();
                         for (unsigned int j = 0; j < entityBrushes.size(); j++) {
                             Model::Brush& brush = *entityBrushes[j];
-                            if (m_filter->brushVisible(brush))
+                            if (m_filter->brushSelectable(brush))
                                 selectBrushes.push_back(&brush);
                         }
                     }
                 }
 
-                wxCommand* command = Controller::ChangeEditStateCommand::replace(mapDocument(), selectEntities, selectBrushes);
-                submit(command);
+                if (!selectEntities.empty() || !selectBrushes.empty()) {
+                    wxCommand* command = Controller::ChangeEditStateCommand::replace(mapDocument(), selectEntities, selectBrushes);
+                    submit(command);
+                }
             }
         }
 
@@ -886,15 +888,17 @@ namespace TrenchBroom {
             for (brushIt = selectedBrushes.begin(), brushEnd = selectedBrushes.end(); brushIt != brushEnd; ++brushIt) {
                 Model::Brush* brush = *brushIt;
                 Model::Entity* entity = brush->entity();
-                const Model::BrushList& entityBrushes = entity->brushes();
+                Model::BrushList entityBrushes = m_filter->selectableBrushes(entity->brushes());
                 selectBrushesSet.insert(entityBrushes.begin(), entityBrushes.end());
             }
             
             Model::BrushList selectBrushes;
             selectBrushes.insert(selectBrushes.begin(), selectBrushesSet.begin(), selectBrushesSet.end());
             
-            wxCommand* command = Controller::ChangeEditStateCommand::replace(mapDocument(), selectBrushes);
-            submit(command);
+            if (!selectBrushes.empty()) {
+                wxCommand* command = Controller::ChangeEditStateCommand::replace(mapDocument(), selectBrushes);
+                submit(command);
+            }
         }
 
         void EditorView::OnEditSelectTouching(wxCommandEvent& event) {
@@ -915,15 +919,21 @@ namespace TrenchBroom {
                     Model::BrushList::const_iterator brushIt, brushEnd;
                     for (brushIt = entityBrushes.begin(), brushEnd = entityBrushes.end(); brushIt != brushEnd; ++brushIt) {
                         Model::Brush* brush = *brushIt;
-                        if (brush != selectionBrush && selectionBrush->intersectsBrush(*brush))
+                        if (brush != selectionBrush && selectionBrush->intersectsBrush(*brush) && m_filter->brushSelectable(*brush))
                             selectBrushes.push_back(brush);
                     }
-                } else if (selectionBrush->intersectsEntity(entity)) {
+                } else if (selectionBrush->intersectsEntity(entity) && m_filter->entitySelectable(entity)) {
                     selectEntities.push_back(&entity);
                 }
             }
             
-            Controller::ChangeEditStateCommand* select = Controller::ChangeEditStateCommand::replace(mapDocument(), selectEntities, selectBrushes);
+            Controller::ChangeEditStateCommand* select;
+            if (!selectEntities.empty() || !selectBrushes.empty()) {
+                select = Controller::ChangeEditStateCommand::replace(mapDocument(), selectEntities, selectBrushes);
+            } else {
+                select = Controller::ChangeEditStateCommand::deselectAll(mapDocument());
+            }
+
             Controller::RemoveObjectsCommand* remove = Controller::RemoveObjectsCommand::removeBrush(mapDocument(), *selectionBrush);
 
             CommandProcessor::BeginGroup(mapDocument().GetCommandProcessor(), wxT("Select Touching"));

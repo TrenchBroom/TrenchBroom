@@ -34,9 +34,47 @@ namespace TrenchBroom {
             virtual ~Filter() {}
 
             virtual bool entityVisible(const Model::Entity& entity) const = 0;
+
+            virtual inline bool entitySelectable(const Model::Entity& entity) const {
+                if (!entity.selectable() || entity.locked())
+                    return false;
+                return entityVisible(entity);
+            }
+            
+            inline Model::EntityList selectableEntities(const Model::EntityList& entities) const {
+                Model::EntityList result;
+                Model::EntityList::const_iterator it, end;
+                for (it = entities.begin(), end = entities.end(); it != end; ++it) {
+                    Model::Entity& entity = **it;
+                    if (entitySelectable(entity))
+                        result.push_back(&entity);
+                }
+                return result;
+            }
+            
             virtual bool entityPickable(const Model::Entity& entity) const = 0;
+
             virtual bool brushVisible(const Model::Brush& brush) const = 0;
+
+            virtual inline bool brushSelectable(const Model::Brush& brush) const {
+                if (brush.locked())
+                    return false;
+                return brushVisible(brush);
+            }
+
+            inline Model::BrushList selectableBrushes(const Model::BrushList& brushes) const {
+                Model::BrushList result;
+                Model::BrushList::const_iterator it, end;
+                for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
+                    Model::Brush& brush = **it;
+                    if (brushSelectable(brush))
+                        result.push_back(&brush);
+                }
+                return result;
+            }
+            
             virtual bool brushPickable(const Model::Brush& brush) const = 0;
+            
             virtual bool brushVerticesPickable(const Model::Brush& brush) const = 0;
         };
 
