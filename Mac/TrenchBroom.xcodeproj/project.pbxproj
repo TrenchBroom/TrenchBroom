@@ -76,6 +76,7 @@
 		486AFAC416B33ABE0097657D /* PointFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFAC216B33ABE0097657D /* PointFile.cpp */; };
 		486AFAC716B3D9540097657D /* AngleEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFAC516B3D9540097657D /* AngleEditor.cpp */; };
 		486AFACA16B3DE570097657D /* PointTraceFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFAC816B3DE570097657D /* PointTraceFigure.cpp */; };
+		486AFACC16B555940097657D /* Mat3f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFACB16B555940097657D /* Mat3f.cpp */; };
 		4875679D1697922D008F316F /* MacDropSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4875679B1697922D008F316F /* MacDropSource.cpp */; };
 		487567A5169A26D5008F316F /* SpinControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487567A4169A26D4008F316F /* SpinControl.cpp */; };
 		487567AC169CB809008F316F /* SetFaceAttributesTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487567AA169CB807008F316F /* SetFaceAttributesTool.cpp */; };
@@ -347,6 +348,7 @@
 		486AFAC616B3D9540097657D /* AngleEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AngleEditor.h; sourceTree = "<group>"; };
 		486AFAC816B3DE570097657D /* PointTraceFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointTraceFigure.cpp; sourceTree = "<group>"; };
 		486AFAC916B3DE570097657D /* PointTraceFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointTraceFigure.h; sourceTree = "<group>"; };
+		486AFACB16B555940097657D /* Mat3f.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Mat3f.cpp; sourceTree = "<group>"; };
 		486C61E615EF713C0091AA97 /* mmapped_fstream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mmapped_fstream.h; sourceTree = "<group>"; };
 		4875679A16978ED3008F316F /* DragImage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragImage.h; sourceTree = "<group>"; };
 		4875679B1697922D008F316F /* MacDropSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacDropSource.cpp; sourceTree = "<group>"; };
@@ -858,6 +860,7 @@
 				48D1BEA815E2FBAC0073C030 /* Line.h */,
 				4850D25115F39974005B162D /* List.h */,
 				48D1BE9F15E2EDAE0073C030 /* Mat2f.h */,
+				486AFACB16B555940097657D /* Mat3f.cpp */,
 				48D1BEA015E2EE920073C030 /* Mat3f.h */,
 				48D1BEA215E2F3BB0073C030 /* Mat4f.cpp */,
 				48D1BEA115E2F3200073C030 /* Mat4f.h */,
@@ -1307,6 +1310,7 @@
 				486AFAC416B33ABE0097657D /* PointFile.cpp in Sources */,
 				486AFAC716B3D9540097657D /* AngleEditor.cpp in Sources */,
 				486AFACA16B3DE570097657D /* PointTraceFigure.cpp in Sources */,
+				486AFACC16B555940097657D /* Mat3f.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

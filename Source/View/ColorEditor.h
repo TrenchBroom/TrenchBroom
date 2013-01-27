@@ -22,6 +22,7 @@
 
 #include "View/SmartPropertyEditor.h"
 
+#include "Utility/Color.h"
 #include "Utility/VecMath.h"
 
 #include <wx/wx.h>
@@ -101,6 +102,30 @@ namespace TrenchBroom {
         class ColorEditor : public SmartPropertyEditor {
         private:
             static const unsigned int ColorHistorySize = 8;
+
+            class YIQOrder {
+            public:
+                inline bool operator()(const Vec3f& lhs, const Vec3f& rhs) const {
+                    if (lhs == rhs)
+                        return false;
+                    
+                    Vec3f lyiq, ryiq;
+                    Color::rgbToYIQ(lhs.x, lhs.y, lhs.z, lyiq.x, lyiq.y, lyiq.z);
+                    Color::rgbToYIQ(rhs.x, rhs.y, rhs.z, ryiq.x, ryiq.y, ryiq.z);
+                    
+                    if (lyiq.x < ryiq.x)
+                        return true;
+                    if (lyiq.x > ryiq.x)
+                        return false;
+                    if (lyiq.y < ryiq.y)
+                        return true;
+                    if (lyiq.y > ryiq.y)
+                        return false;
+                    if (lyiq.z < ryiq.z)
+                        return true;
+                    return false;
+                }
+            };
 
             wxPanel* m_panel;
             wxSlider* m_redSlider;

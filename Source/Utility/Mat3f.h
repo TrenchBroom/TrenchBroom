@@ -20,12 +20,18 @@
 #ifndef TrenchBroom_Mat3f_h
 #define TrenchBroom_Mat3f_h
 
+#include "Utility/Mat2f.h"
 #include "Utility/Vec3f.h"
 
 namespace TrenchBroom {
     namespace Math {
         class Mat3f {
         public:
+            static const Mat3f Null;
+            static const Mat3f Identity;
+            static const Mat3f YIQToRGB;
+            static const Mat3f RGBToYIQ;
+
             float v[9];
 
             Mat3f() {

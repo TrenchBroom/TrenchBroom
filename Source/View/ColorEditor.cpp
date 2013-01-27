@@ -133,7 +133,9 @@ namespace TrenchBroom {
         }
 
         void ColorEditor::updateColorHistory() {
-            Vec3f::Set colorSet;
+            typedef std::set<Vec3f, YIQOrder> YIQSet;
+            
+            YIQSet colorSet;
             
             const Model::EntityList& entities = document().map().entities();
             Model::EntityList::const_iterator entityIt, entityEnd;

@@ -20,7 +20,10 @@
 #ifndef TrenchBroom_Color_h
 #define TrenchBroom_Color_h
 
-#include "Utility/Vec4f.h"
+#include "Utility/VecMath.h"
+
+#include <cassert>
+#include <cmath>
 
 namespace TrenchBroom {
     class Color : public Math::Vec4f {
@@ -29,6 +32,53 @@ namespace TrenchBroom {
         Color(const std::string& str) : Vec4f(str) {}
         Color(float x, float y, float z, float w) : Vec4f(x, y, z, w) {}
         Color(const Color& color, float w) : Vec4f(color, w) {}
+        
+        inline static void rgbToHSV(float r, float g, float b, float& h, float& s, float& v) {
+            assert(r >= 0.0f && r <= 1.0f);
+            assert(g >= 0.0f && g <= 1.0f);
+            assert(b >= 0.0f && b <= 1.0f);
+            
+            float max = std::max(std::max(r, g), b);
+            float min = std::min(std::min(r, g), b);
+            float dist = max - min;
+            
+            if (max == min)
+                h = 0.0f;
+            else if (max == r)
+                h = (g - b) / dist;
+            else if (max == g)
+                h = 2.0f + (b - r) / dist;
+            else
+                h = 4.0f * (r - g) / dist;
+            
+            h *= 60.0f;
+            if (h < 0.0f)
+                h += 360.0f;
+            
+            if (max == min)
+                s = 0.0f;
+            else
+                s = dist / max;
+            
+            v = max;
+            
+            assert(h >= 0.0f && h <= 360.0f);
+            assert(s >= 0.0f && s <= 1.0f);
+            assert(v >= 0.0f && v <= 1.0f);
+        }
+        
+        inline static void rgbToYIQ(float r, float g, float b, float& y, float& i, float& q) {
+            assert(r >= 0.0f && r <= 1.0f);
+            assert(g >= 0.0f && g <= 1.0f);
+            assert(b >= 0.0f && b <= 1.0f);
+            
+            Math::Vec3f rgb(r, g, b);
+            Math::Vec3f yiq = Math::Mat3f::RGBToYIQ * rgb;
+            
+            y = yiq.x;
+            i = yiq.y;
+            q = yiq.z;
+        }
     };
 }
 
