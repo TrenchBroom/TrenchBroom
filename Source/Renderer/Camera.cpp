@@ -24,7 +24,14 @@
 namespace TrenchBroom {
     namespace Renderer {
         void Camera::validate() const {
-            m_matrix.setPerspective(m_fieldOfVision, m_nearPlane, m_farPlane, m_viewport.width, m_viewport.height);
+            if (m_ortho)
+                m_matrix.setOrtho(m_nearPlane, m_farPlane,
+                                  m_viewport.x - m_viewport.width / 2,
+                                  m_viewport.y + m_viewport.height / 2,
+                                  m_viewport.x + m_viewport.width / 2,
+                                  m_viewport.y - m_viewport.height / 2);
+            else
+                m_matrix.setPerspective(m_fieldOfVision, m_nearPlane, m_farPlane, m_viewport.width, m_viewport.height);
             
             Mat4f view;
             view.setView(m_direction, m_up);
@@ -37,6 +44,7 @@ namespace TrenchBroom {
         }
         
         Camera::Camera(float fieldOfVision, float nearPlane, float farPlane, const Vec3f& position, const Vec3f& direction) :
+        m_ortho(false),
         m_fieldOfVision(fieldOfVision),
         m_nearPlane(nearPlane),
         m_farPlane(farPlane),
@@ -51,7 +59,9 @@ namespace TrenchBroom {
                 m_up = Vec3f::PosX;
             } else {
                 m_right = m_direction.crossed(Vec3f::PosZ);
+                m_right.normalize();
                 m_up = m_right.crossed(m_direction);
+                m_up.normalize();
             }
         }
         

@@ -37,6 +37,7 @@ namespace TrenchBroom {
                 Viewport(int i_x, int i_y, int i_width, int i_height) : x(i_x), y(i_y), width(i_width), height(i_height) {}
             };
         protected:
+            bool m_ortho;
             float m_fieldOfVision;
             float m_nearPlane;
             float m_farPlane;
@@ -55,6 +56,17 @@ namespace TrenchBroom {
             void validate() const;
         public:
             Camera(float fieldOfVision, float nearPlane, float farPlane, const Vec3f& position, const Vec3f& direction);
+            
+            inline bool ortho() const {
+                return m_ortho;
+            }
+            
+            inline void setOrtho(bool ortho) {
+                if (m_ortho == ortho)
+                    return;
+                m_ortho = ortho;
+                m_valid = false;
+            }
             
             inline const Vec3f& position() const {
                 return m_position;
