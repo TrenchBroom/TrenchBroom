@@ -26,10 +26,10 @@ namespace TrenchBroom {
         void Camera::validate() const {
             if (m_ortho)
                 m_matrix.setOrtho(m_nearPlane, m_farPlane,
-                                  m_viewport.x - m_viewport.width / 2,
-                                  m_viewport.y + m_viewport.height / 2,
-                                  m_viewport.x + m_viewport.width / 2,
-                                  m_viewport.y - m_viewport.height / 2);
+                                  static_cast<float>(m_viewport.x - m_viewport.width / 2),
+                                  static_cast<float>(m_viewport.y + m_viewport.height / 2),
+                                  static_cast<float>(m_viewport.x + m_viewport.width / 2),
+                                  static_cast<float>(m_viewport.y - m_viewport.height / 2));
             else
                 m_matrix.setPerspective(m_fieldOfVision, m_nearPlane, m_farPlane, m_viewport.width, m_viewport.height);
             

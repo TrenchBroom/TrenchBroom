@@ -20,6 +20,8 @@
 #ifndef __TrenchBroom__DocumentViewHolder__
 #define __TrenchBroom__DocumentViewHolder__
 
+#include <cassert>
+
 namespace TrenchBroom {
     namespace Model {
         class MapDocument;
