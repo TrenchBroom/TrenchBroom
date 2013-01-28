@@ -67,7 +67,7 @@ namespace TrenchBroom {
             static const unsigned int QString   = 4; // current token is a quoted string
             static const unsigned int Comment   = 5; // currently parsing a comment
             static const unsigned int Eof       = 6; // reached end of file / parsing complete
-        };
+        }
 
         class MapTokenizer : public AbstractTokenizer {
         public:

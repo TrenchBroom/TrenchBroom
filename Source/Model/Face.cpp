@@ -229,8 +229,11 @@ namespace TrenchBroom {
                 radY *= -1.0f;
             
             rad = radX;
+
+            // for some reason, when the texture plane normal is the Y axis, we must rotation clockwise
             if (newPlaneNormIndex == 12)
                 rad *= -1.0f;
+
             m_rotation = Math::degrees(rad);
             
             // apply the rotation to the new base axes

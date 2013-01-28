@@ -183,7 +183,7 @@ namespace TrenchBroom {
         EVT_MENU_HIGHLIGHT_ALL(EditorView::OnMenuHighlight)
         END_EVENT_TABLE()
 
-        IMPLEMENT_DYNAMIC_CLASS(EditorView, wxView);
+        IMPLEMENT_DYNAMIC_CLASS(EditorView, wxView)
 
         void EditorView::submit(wxCommand* command) {
             mapDocument().GetCommandProcessor()->Submit(command);

@@ -39,7 +39,7 @@ namespace TrenchBroom {
             typedef enum {
                 EMDefault,
                 EMOverride,
-                EMRenderOccluded,
+                EMRenderOccluded
             } EdgeMode;
         private:
             TextureRendererManager& m_textureRendererManager;

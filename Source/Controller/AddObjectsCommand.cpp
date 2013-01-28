@@ -79,7 +79,7 @@ namespace TrenchBroom {
         AddObjectsCommand* AddObjectsCommand::addObjects(Model::MapDocument& document, const Model::EntityList& entities, const Model::BrushList& brushes){
             assert(!entities.empty() || !brushes.empty());
             return new AddObjectsCommand(document, makeObjectActionName(wxT("Add"), entities, brushes), entities, brushes);
-        };
+        }
 
         AddObjectsCommand* AddObjectsCommand::addEntities(Model::MapDocument& document, const Model::EntityList& entities) {
             return new AddObjectsCommand(document, makeObjectActionName(wxT("Add"), entities, Model::EmptyBrushList), entities, Model::EmptyBrushList);

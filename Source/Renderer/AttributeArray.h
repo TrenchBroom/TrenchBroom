@@ -41,7 +41,7 @@ namespace TrenchBroom {
                 TexCoord0,
                 TexCoord1,
                 TexCoord2,
-                TexCoord3,
+                TexCoord3
             } AttributeType;
 
             typedef std::vector<Attribute> List;

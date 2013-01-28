@@ -1118,7 +1118,7 @@
 		484763C815E2BC5000095BC0 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0450;
+				LastUpgradeCheck = 0460;
 				ORGANIZATIONNAME = "Kristian Duske";
 			};
 			buildConfigurationList = 484763CB15E2BC5000095BC0 /* Build configuration list for PBXProject "TrenchBroom" */;

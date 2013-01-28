@@ -189,7 +189,7 @@ namespace TrenchBroom {
                     dir.normalize();
                     
                     Ray testRay(inputState.pickRay().origin, dir);
-                    if (face.side()->intersectWithRay(testRay)) {
+                    if (!Math::isnan(face.side()->intersectWithRay(testRay))) {
                         for (unsigned int i = 0; i < m_numPoints && m_hitIndex == -1; i++) {
                             if (point.equals(m_points[i])) {
                                 m_hitIndex = static_cast<int>(i);
@@ -377,7 +377,7 @@ namespace TrenchBroom {
             dir.normalize();
             
             Ray testRay(inputState.pickRay().origin, dir);
-            if (!face.side()->intersectWithRay(testRay))
+            if (!Math::isnan(face.side()->intersectWithRay(testRay)))
                 return true;
             
             m_points[m_hitIndex] = point;

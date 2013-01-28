@@ -74,9 +74,9 @@ namespace TrenchBroom {
         bool CreateEntityTool::handleDragEnter(InputState& inputState, const String& payload) {
             StringList parts = Utility::split(payload, ':');
             if (parts.size() != 2)
-                return NULL;
+                return false;
             if (parts[0] != "entity")
-                return NULL;
+                return false;
             
             Model::EntityDefinitionManager& definitionManager = document().definitionManager();
             Model::EntityDefinition* definition = definitionManager.definition(parts[1]);

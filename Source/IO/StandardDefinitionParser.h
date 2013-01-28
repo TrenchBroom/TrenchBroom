@@ -67,7 +67,7 @@ namespace TrenchBroom {
             static const unsigned int Word       = 5; // currently reading a single word
             static const unsigned int String     = 6; // currently reading a quoted string
             static const unsigned int Eof        = 7; // reached end of file
-        };
+        }
         
         class StandardDefinitionTokenizer : public AbstractTokenizer {
         public:
