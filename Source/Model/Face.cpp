@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        static const Vec3f* BaseAxes[18] = {
+        const Vec3f* Face::BaseAxes[18] = {
             &Vec3f::PosZ, &Vec3f::PosX, &Vec3f::NegY,
             &Vec3f::NegZ, &Vec3f::PosX, &Vec3f::NegY,
             &Vec3f::PosX, &Vec3f::PosY, &Vec3f::NegZ,
@@ -52,7 +52,7 @@ namespace TrenchBroom {
         
         void Face::texAxesAndIndices(const Vec3f& faceNormal, Vec3f& xAxis, Vec3f& yAxis, unsigned int& planeNormIndex, unsigned int& faceNormIndex) const {
             unsigned int bestIndex = 0;
-            float bestDot = -1.0f;
+            float bestDot = 0.0f;
             for (unsigned int i = 0; i < 6; i++) {
                 float dot = faceNormal.dot(*BaseAxes[i * 3]);
                 if (dot > bestDot) { // no need to use -altaxis for qbsp
@@ -63,18 +63,16 @@ namespace TrenchBroom {
             
             xAxis = *BaseAxes[bestIndex * 3 + 1];
             yAxis = *BaseAxes[bestIndex * 3 + 2];
-            faceNormIndex = bestIndex * 3;
             planeNormIndex = (bestIndex / 2) * 6;
+            faceNormIndex = bestIndex * 3;
+            planeNormIndex = planeNormIndex;
         }
         
         void Face::validateTexAxes(const Vec3f& faceNormal) const {
             texAxesAndIndices(faceNormal, m_texAxisX, m_texAxisY, m_texPlaneNormIndex, m_texFaceNormIndex);
-            
-            Quat rot(Math::radians(-m_rotation), *BaseAxes[m_texPlaneNormIndex]);
-            m_texAxisX = rot * m_texAxisX;
-            m_texAxisY = rot * m_texAxisY;
-            m_scaledTexAxisX = m_texAxisX / m_xScale;
-            m_scaledTexAxisY = m_texAxisY / m_yScale;
+            rotateTexAxes(m_texAxisX, m_texAxisY, Math::radians(m_rotation), m_texPlaneNormIndex);
+            m_scaledTexAxisX = m_texAxisX / (m_xScale == 0.0f ? 1.0f : m_xScale);
+            m_scaledTexAxisY = m_texAxisY / (m_yScale == 0.0f ? 1.0f : m_yScale);
             
             m_texAxesValid = true;
         }
@@ -222,21 +220,21 @@ namespace TrenchBroom {
             // determine the rotation angle from the dot product of the new base axes and the transformed texture axes
             radX = acosf(newBaseAxisX.dot(newTexAxisX));
             cross = newBaseAxisX.crossed(newTexAxisX);
-            if ((cross.dot(*BaseAxes[newPlaneNormIndex])) > 0.0f)
+            if ((cross.dot(*BaseAxes[newPlaneNormIndex])) < 0.0f)
                 radX *= -1.0f;
             
             radY = acosf(newBaseAxisY.dot(newTexAxisY));
             cross = newBaseAxisY.crossed(newTexAxisY);
-            if ((cross.dot(*BaseAxes[newPlaneNormIndex])) > 0.0f)
+            if ((cross.dot(*BaseAxes[newPlaneNormIndex])) < 0.0f)
                 radY *= -1.0f;
             
             rad = radX;
+            if (newPlaneNormIndex == 12)
+                rad *= -1.0f;
             m_rotation = Math::degrees(rad);
             
             // apply the rotation to the new base axes
-            Quat rot(-rad, *BaseAxes[newPlaneNormIndex]);
-            newBaseAxisX = rot * newBaseAxisX;
-            newBaseAxisY = rot * newBaseAxisY;
+            rotateTexAxes(newBaseAxisX, newBaseAxisY, rad, newPlaneNormIndex);
             
             // the sign of the scaling factors depends on the angle between the new base axis and the new texture axis
             if (newBaseAxisX.dot(newTexAxisX) < 0.0f)

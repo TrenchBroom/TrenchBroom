@@ -46,6 +46,8 @@ namespace TrenchBroom {
          */
         class Face : public Utility::Allocator<Face> {
         protected:
+            static const Vec3f* BaseAxes[18];
+            
             Brush* m_brush;
             Side* m_side;
             
@@ -89,6 +91,12 @@ namespace TrenchBroom {
             
             size_t m_filePosition;
             bool m_selected;
+
+            inline void rotateTexAxes(Vec3f& xAxis, Vec3f& yAxis, const float angle, const unsigned int planeNormIndex) const {
+                Quat rot(planeNormIndex == 12 ? -angle : angle, *BaseAxes[planeNormIndex]);
+                xAxis = rot * xAxis;
+                yAxis = rot * yAxis;
+            }
             
             void init();
             void texAxesAndIndices(const Vec3f& faceNormal, Vec3f& xAxis, Vec3f& yAxis, unsigned int& planeNormIndex, unsigned int& faceNormIndex) const;
