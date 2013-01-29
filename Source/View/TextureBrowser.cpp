@@ -57,8 +57,8 @@ namespace TrenchBroom {
             wxString sortOrders[2] = {wxT("Name"), wxT("Usage")};
             m_sortOrderChoice = new wxChoice(this, CommandIds::FaceInspector::TextureBrowserSortOrderChoiceId, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
             
-            m_groupButton = new wxToggleButton(this, CommandIds::FaceInspector::TextureBrowserGroupButtonId, wxT("Group"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
-            m_usedButton = new wxToggleButton(this, CommandIds::FaceInspector::TextureBrowserUsedButtonId, wxT("Used"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
+            m_groupButton = new wxToggleButton(this, CommandIds::FaceInspector::TextureBrowserGroupButtonId, wxT("Group"), wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT | wxBU_EXACTFIT);
+            m_usedButton = new wxToggleButton(this, CommandIds::FaceInspector::TextureBrowserUsedButtonId, wxT("Used"), wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT | wxBU_EXACTFIT);
             
             m_filterBox = new wxSearchCtrl(this, CommandIds::FaceInspector::TextureBrowserFilterBoxId);
             m_filterBox->ShowCancelButton(true);

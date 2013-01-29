@@ -49,7 +49,7 @@ namespace TrenchBroom {
             
             m_propertyTable = new EntityPropertyGridTable(m_documentViewHolder.document());
             
-            m_propertyGrid = new wxGrid(propertyEditorPanel, CommandIds::EntityInspector::EntityPropertyViewId);
+            m_propertyGrid = new wxGrid(propertyEditorPanel, CommandIds::EntityInspector::EntityPropertyViewId, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
             m_propertyGrid->Bind(wxEVT_SIZE, &EntityInspector::OnPropertyGridSize, this);
             m_propertyGrid->Bind(wxEVT_GRID_SELECT_CELL, &EntityInspector::OnPropertyGridSelectCell, this);
             m_propertyGrid->SetTable(m_propertyTable, true, wxGrid::wxGridSelectRows);
@@ -140,7 +140,7 @@ namespace TrenchBroom {
 
         void EntityInspector::OnPropertyGridSize(wxSizeEvent& event) {
             m_propertyGrid->SetColSize(0, 100);
-            m_propertyGrid->SetColSize(1, event.GetSize().x - m_propertyGrid->GetColSize(0));
+            m_propertyGrid->SetColSize(1, m_propertyGrid->GetClientSize().x - m_propertyGrid->GetColSize(0));
             event.Skip();
         }
 

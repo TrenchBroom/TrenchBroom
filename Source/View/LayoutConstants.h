@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_LayoutConstants_h
 #define TrenchBroom_LayoutConstants_h
 
+#include <wx/wx.h>
+
 namespace TrenchBroom {
     namespace View {
         namespace LayoutConstants {
@@ -35,6 +37,7 @@ namespace TrenchBroom {
             static const int CheckBoxVerticalMargin         = 5;
             static const int DefaultVerticalMargin          = 10;
             static const int DialogOuterMargin              = 10;
+            static const int ToggleButtonStyle              = 0;
 #elif defined __APPLE__
             static const int NotebookPageInnerMargin        = 5;
             static const int NotebookPageExtraBottomMargin  = 2;
@@ -47,6 +50,7 @@ namespace TrenchBroom {
             static const int CheckBoxVerticalMargin         = 0;
             static const int DefaultVerticalMargin          = 5;
             static const int DialogOuterMargin              = 10;
+            static const int ToggleButtonStyle              = wxBORDER_SUNKEN;
 #elif defined __linux__
             static const int NotebookPageInnerMargin        = 5;
             static const int NotebookPageExtraBottomMargin  = 2;
@@ -59,6 +63,7 @@ namespace TrenchBroom {
             static const int CheckBoxVerticalMargin         = 5;
             static const int DefaultVerticalMargin          = 10;
             static const int DialogOuterMargin              = 10;
+            static const int ToggleButtonStyle              = 0;
 #endif
         }
     }

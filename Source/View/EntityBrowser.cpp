@@ -56,8 +56,8 @@ namespace TrenchBroom {
             wxString sortOrders[2] = {wxT("Name"), wxT("Usage")};
             m_sortOrderChoice = new wxChoice(this, CommandIds::EntityInspector::EntityBrowserSortOrderChoiceId, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
             
-            m_groupButton = new wxToggleButton(this, CommandIds::EntityInspector::EntityBrowserGroupButtonId, wxT("Group"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
-            m_usedButton = new wxToggleButton(this, CommandIds::EntityInspector::EntityBrowserUsedButtonId, wxT("Used"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
+            m_groupButton = new wxToggleButton(this, CommandIds::EntityInspector::EntityBrowserGroupButtonId, wxT("Group"), wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
+            m_usedButton = new wxToggleButton(this, CommandIds::EntityInspector::EntityBrowserUsedButtonId, wxT("Used"), wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
             
             m_filterBox = new wxSearchCtrl(this, CommandIds::EntityInspector::EntityBrowserFilterBoxId);
             m_filterBox->ShowCancelButton(true);
