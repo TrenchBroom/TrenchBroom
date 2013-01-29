@@ -23,6 +23,7 @@
 #include <cassert>
 #include <iostream>
 #include <functional>
+#include <string>
 
 #include <Windows.h>
 
@@ -63,35 +64,62 @@ private:
 		MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, filename, numChars, uFilename, numChars + 1);
 		uFilename[numChars] = 0;
 
-		m_fileHandle = CreateFile(uFilename, accessMode, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-        if (m_fileHandle != INVALID_HANDLE_VALUE) {
-			m_length = static_cast<size_t>(GetFileSize(m_fileHandle, NULL));
+		char* mappingName = new char[numChars + 1];
+		for (size_t i = 0; i < numChars; i++) {
+			if (filename[i] == '\\')
+				mappingName[i] = '_';
+			else
+				mappingName[i] = filename[i];
+		}
+		mappingName[numChars] = 0;
 
-			m_mappingHandle = CreateFileMapping(m_fileHandle, NULL, protect, 0, 0, NULL);
-			if (m_mappingHandle != NULL) {
-				m_address = MapViewOfFile(m_mappingHandle, mapAccess, 0, 0, 0);
-				if (m_address != NULL) {
-					char* begin = static_cast<char*>(m_address);
-					char* end = begin + m_length;
-					m_buf = new mmapped_streambuf(begin, end);
-				} else {
-					CloseHandle(m_mappingHandle);
-					m_mappingHandle = NULL;
-					CloseHandle(m_fileHandle);
-					m_fileHandle = INVALID_HANDLE_VALUE;
-					clear(std::ios::failbit);
-				}
+		LPWSTR uMappingName = new TCHAR[numChars + 1];
+		MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, mappingName, numChars, uMappingName, numChars + 1);
+		uMappingName[numChars] = 0;
+		delete [] mappingName;
+
+		m_mappingHandle = OpenFileMapping(mapAccess, true, uMappingName);
+		if (m_mappingHandle == NULL) {
+			m_fileHandle = CreateFile(uFilename, accessMode, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+			if (m_fileHandle != INVALID_HANDLE_VALUE) {
+				m_length = static_cast<size_t>(GetFileSize(m_fileHandle, NULL));
+				m_mappingHandle = CreateFileMapping(m_fileHandle, NULL, protect, 0, 0, uMappingName);
+			}
+		} else {
+			m_fileHandle = CreateFile(uFilename, 0, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+			if (m_fileHandle == INVALID_HANDLE_VALUE) {
+				CloseHandle(m_mappingHandle);
+				m_mappingHandle = NULL;
 			} else {
-				DWORD errorCode = GetLastError();
+				m_length = static_cast<size_t>(GetFileSize(m_fileHandle, NULL));
+				CloseHandle(m_fileHandle);
+				m_fileHandle = INVALID_HANDLE_VALUE;
+			}
+		}
+
+		if (m_mappingHandle != NULL) {
+			m_address = MapViewOfFile(m_mappingHandle, mapAccess, 0, 0, 0);
+			if (m_address != NULL) {
+				char* begin = static_cast<char*>(m_address);
+				char* end = begin + m_length;
+				m_buf = new mmapped_streambuf(begin, end);
+			} else {
+				CloseHandle(m_mappingHandle);
+				m_mappingHandle = NULL;
 				CloseHandle(m_fileHandle);
 				m_fileHandle = INVALID_HANDLE_VALUE;
 				clear(std::ios::failbit);
 			}
-        } else {
+		} else {
+			if (m_fileHandle != INVALID_HANDLE_VALUE) {
+				CloseHandle(m_fileHandle);
+				m_fileHandle = INVALID_HANDLE_VALUE;
+			}
 			clear(std::ios::failbit);
 		}
         
 		delete [] uFilename;
+		delete [] uMappingName;
         return m_buf;
     }
 
