@@ -335,6 +335,13 @@ namespace TrenchBroom {
             }
             
             /**
+             * Invalidates the cached texture axes.
+             */
+            inline void invalidateTexAxes() {
+                m_texAxesValid = false;
+            }
+            
+            /**
              * Modifies the offsets such that the texture is moved in the given direction by the given distance.
              */
             void moveTexture(float distance, const Vec3f& direction);

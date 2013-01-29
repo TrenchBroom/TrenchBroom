@@ -62,6 +62,8 @@ namespace TrenchBroom {
         EVT_MOTION(MapGLCanvas::OnMouseMove)
         EVT_MOUSEWHEEL(MapGLCanvas::OnMouseWheel)
         EVT_MOUSE_CAPTURE_LOST(MapGLCanvas::OnMouseCaptureLost)
+        EVT_KILL_FOCUS(MapGLCanvas::OnKillFocus)
+        EVT_IDLE(MapGLCanvas::OnIdle)
         END_EVENT_TABLE()
 
         wxDragResult MapGLCanvasDropTarget::OnEnter(wxCoord x, wxCoord y, wxDragResult def) {
@@ -129,7 +131,9 @@ namespace TrenchBroom {
         wxGLCanvas(parent, wxID_ANY, documentViewHolder.document().sharedResources().attribs()),
         m_documentViewHolder(documentViewHolder),
         m_glContext(new wxGLContext(this, documentViewHolder.document().sharedResources().sharedContext())),
-        m_inputController(new Controller::InputController(documentViewHolder)) {
+        m_inputController(new Controller::InputController(documentViewHolder)),
+        m_ignoreNextClick(true),
+        m_hasFocus(false) {
             SetDropTarget(new MapGLCanvasDropTarget(*m_inputController));
         }
 
@@ -236,20 +240,30 @@ namespace TrenchBroom {
         }
 
         void MapGLCanvas::OnKeyDown(wxKeyEvent& event) {
+            m_ignoreNextClick = false;
             HandleModifierKey(event.GetKeyCode(), true);
         }
 
         void MapGLCanvas::OnKeyUp(wxKeyEvent& event) {
+            m_ignoreNextClick = false;
             HandleModifierKey(event.GetKeyCode(), false);
         }
 
         void MapGLCanvas::OnMouseLeftDown(wxMouseEvent& event) {
+            if (m_ignoreNextClick)
+                return;
+            
             SetFocus();
 			CaptureMouse();
             m_inputController->mouseDown(event.GetX(), event.GetY(), Controller::MouseButtons::MBLeft);
         }
 
         void MapGLCanvas::OnMouseLeftUp(wxMouseEvent& event) {
+            if (m_ignoreNextClick) {
+                m_ignoreNextClick = false;
+                return;
+            }
+            
             SetFocus();
 			if (GetCapture() == this)
 				ReleaseMouse();
@@ -257,6 +271,11 @@ namespace TrenchBroom {
         }
         
         void MapGLCanvas::OnMouseLeftDClick(wxMouseEvent& event) {
+            if (m_ignoreNextClick) {
+                m_ignoreNextClick = false;
+                return;
+            }
+            
             SetFocus();
             if (GetCapture() == this)
                 ReleaseMouse();
@@ -264,12 +283,20 @@ namespace TrenchBroom {
         }
 
         void MapGLCanvas::OnMouseRightDown(wxMouseEvent& event) {
+            if (m_ignoreNextClick)
+                return;
+            
             SetFocus();
 			CaptureMouse();
             m_inputController->mouseDown(event.GetX(), event.GetY(), Controller::MouseButtons::MBRight);
         }
 
         void MapGLCanvas::OnMouseRightUp(wxMouseEvent& event) {
+            if (m_ignoreNextClick) {
+                m_ignoreNextClick = false;
+                return;
+            }
+            
             SetFocus();
 			if (GetCapture() == this)
 				ReleaseMouse();
@@ -282,6 +309,11 @@ namespace TrenchBroom {
         }
         
         void MapGLCanvas::OnMouseRightDClick(wxMouseEvent& event) {
+            if (m_ignoreNextClick) {
+                m_ignoreNextClick = false;
+                return;
+            }
+            
             SetFocus();
 			if (GetCapture() == this)
 				ReleaseMouse();
@@ -289,12 +321,20 @@ namespace TrenchBroom {
         }
 
         void MapGLCanvas::OnMouseMiddleDown(wxMouseEvent& event) {
+            if (m_ignoreNextClick)
+                m_ignoreNextClick = false;
+            
             SetFocus();
 			CaptureMouse();
             m_inputController->mouseDown(event.GetX(), event.GetY(), Controller::MouseButtons::MBMiddle);
         }
 
         void MapGLCanvas::OnMouseMiddleUp(wxMouseEvent& event) {
+            if (m_ignoreNextClick) {
+                m_ignoreNextClick = false;
+                return;
+            }
+            
             SetFocus();
 			if (GetCapture() == this)
 				ReleaseMouse();
@@ -302,6 +342,11 @@ namespace TrenchBroom {
         }
         
         void MapGLCanvas::OnMouseMiddleDClick(wxMouseEvent& event) {
+            if (m_ignoreNextClick) {
+                m_ignoreNextClick = false;
+                return;
+            }
+            
             SetFocus();
 			if (GetCapture() == this)
 				ReleaseMouse();
@@ -313,6 +358,7 @@ namespace TrenchBroom {
         }
 
         void MapGLCanvas::OnMouseWheel(wxMouseEvent& event) {
+            m_ignoreNextClick = false;
             float delta = static_cast<float>(event.GetWheelRotation()) / event.GetWheelDelta() * event.GetLinesPerAction();
             if (event.GetWheelAxis() == wxMOUSE_WHEEL_HORIZONTAL)
                 m_inputController->scroll(delta, 0.0f);
@@ -323,5 +369,25 @@ namespace TrenchBroom {
         void MapGLCanvas::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
             m_inputController->endDrag();
         }
+
+        void MapGLCanvas::OnKillFocus(wxFocusEvent& event) {
+            m_ignoreNextClick = true;
+            event.Skip();
+        }
+
+        void MapGLCanvas::OnIdle(wxIdleEvent& event) {
+            // this is a fix for Mac OS X, where the kill focus event is not properly sent
+            // FIXME: remove this as soon as this bug is fixed in wxWidgets 2.9.5
+            
+#ifdef __APPLE__
+            wxWindow* focus = FindFocus();
+            if (m_hasFocus != (focus == this)) {
+                m_hasFocus = (focus == this);
+                if (!m_hasFocus)
+                    m_ignoreNextClick = true;
+            }
+#endif
+        }
+        
     }
 }

@@ -319,6 +319,7 @@ namespace TrenchBroom {
             
             for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
                 Face* face = *it;
+                face->invalidateTexAxes();
                 face->invalidateVertexCache();
             }
             
@@ -351,6 +352,7 @@ namespace TrenchBroom {
             
             for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
                 Face* face = *it;
+                face->invalidateTexAxes();
                 face->invalidateVertexCache();
             }
             
@@ -382,6 +384,7 @@ namespace TrenchBroom {
             
             for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
                 Face* face = *it;
+                face->invalidateTexAxes();
                 face->invalidateVertexCache();
             }
             
@@ -413,6 +416,7 @@ namespace TrenchBroom {
             
             for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
                 Face* face = *it;
+                face->invalidateTexAxes();
                 face->invalidateVertexCache();
             }
             
@@ -445,6 +449,7 @@ namespace TrenchBroom {
             
             for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
                 Face* keepFace = *it;
+                face->invalidateTexAxes();
                 keepFace->invalidateVertexCache();
             }
             

@@ -67,6 +67,8 @@ namespace TrenchBroom {
             
             wxGLContext* m_glContext;
             Controller::InputController* m_inputController;
+            bool m_hasFocus;
+            bool m_ignoreNextClick;
 
             bool HandleModifierKey(int keyCode, bool down);
         public:
@@ -93,6 +95,8 @@ namespace TrenchBroom {
             void OnMouseMove(wxMouseEvent& event);
             void OnMouseWheel(wxMouseEvent& event);
             void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
+            void OnKillFocus(wxFocusEvent& event);
+            void OnIdle(wxIdleEvent& event);
 
             DECLARE_EVENT_TABLE()
         };

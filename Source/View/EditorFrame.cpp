@@ -150,6 +150,8 @@ namespace TrenchBroom {
                 
                 m_mapCanvas->Refresh();
             }
+            
+            event.Skip();
         }
         
         void EditorFrame::OnMapCanvasKillFocus(wxFocusEvent& event) {
@@ -167,6 +169,8 @@ namespace TrenchBroom {
                 
                 m_mapCanvas->Refresh();
             }
+            
+            event.Skip();
         }
 
         void EditorFrame::OnIdle(wxIdleEvent& event) {
