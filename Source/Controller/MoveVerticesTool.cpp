@@ -414,7 +414,7 @@ namespace TrenchBroom {
                        );
                 
                 if (!m_handleManager.selectedEdgeHandles().empty()) {
-                    const Vec3f& position = m_handleManager.selectedEdgeHandles().begin()->first;
+                    const Vec3f position = m_handleManager.selectedEdgeHandles().begin()->first;
                     
                     SplitEdgesCommand* command = SplitEdgesCommand::splitEdges(document(), m_handleManager.edges(position), delta);
                     m_handleManager.remove(command->brushes());
@@ -434,7 +434,7 @@ namespace TrenchBroom {
                         return Deny;
                     }
                 } else if (!m_handleManager.selectedFaceHandles().empty()) {
-                    const Vec3f& position = m_handleManager.selectedFaceHandles().begin()->first;
+                    const Vec3f position = m_handleManager.selectedFaceHandles().begin()->first;
                     
                     SplitFacesCommand* command = SplitFacesCommand::splitFaces(document(), m_handleManager.faces(position), delta);
                     m_handleManager.remove(command->brushes());

@@ -1702,8 +1702,8 @@ namespace TrenchBroom {
             assert(testEdge != NULL);
             
             Vertex* newVertex = testGeometry.splitEdge(testEdge, newFaces, droppedFaces);
-            MoveVertexResult result = testGeometry.moveVertex(newVertex, true, delta, newFaces, droppedFaces);
-            bool canSplit = result.type != MoveVertexResult::VertexUnchanged;
+            MoveVertexResult result = testGeometry.moveVertex(newVertex, false, delta, newFaces, droppedFaces);
+            bool canSplit = result.type == MoveVertexResult::VertexMoved;
 
             while (!newFaces.empty()) delete newFaces.back(), newFaces.pop_back();
 
@@ -1739,8 +1739,8 @@ namespace TrenchBroom {
             testGeometry.restoreFaceSides();
 
             Vertex* newVertex = testGeometry.splitFace(face, newFaces, droppedFaces);
-            MoveVertexResult result = testGeometry.moveVertex(newVertex, true, delta, newFaces, droppedFaces);
-            bool canSplit = result.type != MoveVertexResult::VertexUnchanged;
+            MoveVertexResult result = testGeometry.moveVertex(newVertex, false, delta, newFaces, droppedFaces);
+            bool canSplit = result.type == MoveVertexResult::VertexMoved;
             
             while (!newFaces.empty()) delete newFaces.back(), newFaces.pop_back();
 
