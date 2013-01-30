@@ -939,6 +939,8 @@ namespace TrenchBroom {
             const Model::EntityList& hideEntities = editStateManager.selectedEntities();
             const Model::BrushList& hideBrushes = editStateManager.selectedBrushes();
 
+            assert(!hideEntities.empty() || !hideBrushes.empty());
+            
             wxCommand* command = Controller::ChangeEditStateCommand::hide(mapDocument(), hideEntities, hideBrushes);
             submit(command);
         }

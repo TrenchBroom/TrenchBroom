@@ -46,6 +46,7 @@
 #include "Renderer/Text/StringManager.h"
 #include "Utility/Console.h"
 #include "Utility/Grid.h"
+#include "Utility/List.h"
 #include "Utility/Preferences.h"
 
 namespace TrenchBroom {
@@ -429,9 +430,35 @@ namespace TrenchBroom {
                 }
             }
             
+            if (changeSet.entityStateChangedFrom(Model::EditState::Hidden) ||
+                changeSet.entityStateChangedTo(Model::EditState::Hidden)) {
+                invalidateDecorators();
+            }
+            
+            if (changeSet.brushStateChangedFrom(Model::EditState::Hidden) ||
+                changeSet.brushStateChangedTo(Model::EditState::Hidden)) {
+                
+                const Model::BrushList& hiddenBrushes = changeSet.brushesTo(Model::EditState::Hidden);
+                for (unsigned int i = 0; i < hiddenBrushes.size(); i++) {
+                    Model::Brush* brush = hiddenBrushes[i];
+                    Model::Entity* entity = brush->entity();
+                    if (!entity->worldspawn() && entity->fullyHidden())
+                        m_entityRenderer->removeEntity(*entity);
+                }
+                
+                const Model::BrushList& unhiddenBrushes = changeSet.brushesFrom(Model::EditState::Hidden);
+                for (unsigned int i = 0; i < unhiddenBrushes.size(); i++) {
+                    Model::Brush* brush = unhiddenBrushes[i];
+                    Model::Entity* entity = brush->entity();
+                    if (!entity->worldspawn())
+                        m_entityRenderer->addEntity(*entity);
+                }
+                
+                invalidateDecorators();
+            }
+
             if (changeSet.brushStateChangedFrom(Model::EditState::Locked) ||
-                changeSet.brushStateChangedTo(Model::EditState::Locked) ||
-                changeSet.faceSelectionChanged()) {
+                changeSet.brushStateChangedTo(Model::EditState::Locked)) {
                 m_lockedGeometryDataValid = false;
             }
         }

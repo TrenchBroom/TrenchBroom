@@ -63,6 +63,7 @@ namespace TrenchBroom {
             EntityDefinition* m_definition;
             
             unsigned int m_selectedBrushCount;
+            unsigned int m_hiddenBrushCount;
             
             const BBox& m_worldBounds;
             
@@ -186,6 +187,18 @@ namespace TrenchBroom {
             
             inline void decSelectedBrushCount() {
                 m_selectedBrushCount--;
+            }
+            
+            inline bool fullyHidden() const {
+                return !m_brushes.empty() && m_hiddenBrushCount == m_brushes.size();
+            }
+            
+            inline void incHiddenBrushCount() {
+                m_hiddenBrushCount++;
+            }
+            
+            inline void decHiddenBrushCount() {
+                m_hiddenBrushCount--;
             }
             
             virtual EditState::Type setEditState(EditState::Type editState);

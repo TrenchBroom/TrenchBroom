@@ -132,12 +132,21 @@ namespace TrenchBroom {
             if (entity == m_entity)
                 return;
             
-            if (m_entity != NULL && selected())
-                m_entity->decSelectedBrushCount();
+            if (m_entity != NULL) {
+                if (selected())
+                    m_entity->decSelectedBrushCount();
+                else if (hidden())
+                    m_entity->decHiddenBrushCount();
+            }
             
             m_entity = entity;
-            if (m_entity != NULL && selected())
-                m_entity->incSelectedBrushCount();
+            
+            if (m_entity != NULL) {
+                if (selected())
+                    m_entity->incSelectedBrushCount();
+                else if (hidden())
+                    m_entity->incHiddenBrushCount();
+            }
         }
 
         bool Brush::addFace(Face* face) {
@@ -191,6 +200,10 @@ namespace TrenchBroom {
                     m_entity->incSelectedBrushCount();
                 else if (previous == EditState::Selected && editState != EditState::Selected)
                     m_entity->decSelectedBrushCount();
+                if (previous != EditState::Hidden && editState == EditState::Hidden)
+                    m_entity->incHiddenBrushCount();
+                else if (previous == EditState::Hidden && editState!= EditState::Hidden)
+                    m_entity->decHiddenBrushCount();
             }
             return previous;
         }

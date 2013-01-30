@@ -85,11 +85,6 @@ namespace TrenchBroom {
         bool MapDocument::DoSaveDocument(const wxString& file) {
             wxString originalFile = GetFilename();
             
-            wxStopWatch watch;
-            IO::MapWriter mapWriter;
-            mapWriter.writeToFileAtPath(*m_map, file.ToStdString(), true);
-            console().info("Saved map file in %f seconds", watch.Time() / 1000.0f);
-            
             if (true) {
                 if (originalFile != file) {
                     const TextureCollectionList& collections = m_textureManager->collections();
@@ -167,6 +162,8 @@ namespace TrenchBroom {
                             Modify(true);
                         }
 
+                        worldspawn(true)->setProperty(Model::Entity::WadKey, m_textureManager->wadProperty());
+
                         wxList views = GetViews();
                         for (size_t i = 0; i < views.size(); i++) {
                             View::EditorView* view = wxDynamicCast(views[i], View::EditorView);
@@ -175,6 +172,12 @@ namespace TrenchBroom {
                         }
                     }
                 }
+
+                wxStopWatch watch;
+                IO::MapWriter mapWriter;
+                mapWriter.writeToFileAtPath(*m_map, file.ToStdString(), true);
+                console().info("Saved map file to %s in %f seconds", file.ToStdString().c_str(), watch.Time() / 1000.0f);
+
                 return true;
             }
             return false;
@@ -590,7 +593,6 @@ namespace TrenchBroom {
         void MapDocument::loadTextureWad(const String& path, size_t index) {
             IO::FileManager fileManager;
 
-            String collectionName = path;
             String wadPath = path;
             if (!fileManager.isAbsolutePath(wadPath)) {
                 // try relative path to map file, executable, quake path
@@ -617,7 +619,7 @@ namespace TrenchBroom {
                 Model::TextureCollection* collection = NULL;
                 wxStopWatch watch;
                 try {
-                    collection = new Model::TextureCollection(collectionName, wadPath);
+                    collection = new Model::TextureCollection(path, wadPath);
                     m_textureManager->addCollection(collection, index);
                     console().info("Loaded %s in %f seconds", wadPath.c_str(), watch.Time() / 1000.0f);
                 } catch (IO::IOException e) {

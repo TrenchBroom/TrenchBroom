@@ -87,10 +87,10 @@ namespace TrenchBroom {
 
             virtual inline bool entityVisible(const Model::Entity& entity) const {
                 EntityDefinition* definition = entity.definition();
-                if (definition != NULL && definition->type() == EntityDefinition::PointEntity && m_viewOptions.showEntities() == false)
+                if (definition != NULL && definition->type() == EntityDefinition::PointEntity && !m_viewOptions.showEntities())
                     return false;
 
-                if (entity.hidden() || entity.worldspawn())
+                if (entity.hidden() || entity.fullyHidden() || entity.worldspawn())
                     return false;
 
                 const String& pattern = m_viewOptions.filterPattern();

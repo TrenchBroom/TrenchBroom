@@ -50,6 +50,7 @@ namespace TrenchBroom {
             m_filePosition = 0;
             setEditState(EditState::Default);
             m_selectedBrushCount = 0;
+            m_hiddenBrushCount = 0;
             setProperty(SpawnFlagsKey, "0");
             invalidateGeometry();
         }

@@ -237,6 +237,9 @@ namespace TrenchBroom {
         }
 
         void EntityRenderer::addEntity(Model::Entity& entity) {
+            if (!m_entities.insert(&entity).second)
+                return;
+
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             EntityModelRendererManager& modelRendererManager = m_document.sharedResources().modelRendererManager();
 
