@@ -30,15 +30,17 @@ namespace TrenchBroom {
     namespace Controller {
         class MoveTexturesCommand : public DocumentCommand {
         protected:
-            float m_distance;
-            Vec3f m_direction;
+            const Vec3f m_up;
+            const Vec3f m_right;
+            const float m_distance;
+            const Direction m_direction;
             
             bool performDo();
             bool performUndo();
             
-            MoveTexturesCommand(Model::MapDocument& document, const wxString& name, float distance, const Vec3f& direction);
+            MoveTexturesCommand(Model::MapDocument& document, const wxString& name, const Vec3f& up, const Vec3f& right, Direction direction, float distance);
         public:
-            static MoveTexturesCommand* moveTextures(Model::MapDocument& document, const wxString& name, float distance, const Vec3f& direction);
+            static MoveTexturesCommand* moveTextures(Model::MapDocument& document, const wxString& name, const Vec3f& up, const Vec3f& right, Direction direction, float distance);
         };
     }
 }

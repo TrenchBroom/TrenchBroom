@@ -122,6 +122,15 @@ namespace TrenchBroom {
 			static const Type AZ = 2;
 		}
 
+        typedef enum {
+            DUp,
+            DRight,
+            DDown,
+            DLeft,
+            DForward,
+            DBackward
+        } Direction;
+
 		namespace PointStatus {
 			typedef unsigned int Type;
 			static const Type PSAbove = 0;

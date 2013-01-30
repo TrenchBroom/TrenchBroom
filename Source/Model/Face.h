@@ -342,9 +342,10 @@ namespace TrenchBroom {
             }
             
             /**
-             * Modifies the offsets such that the texture is moved in the given direction by the given distance.
+             * Modifies the offsets such that the texture is moved in the given direction by the given distance, relative
+             * to the given view coordinate system.
              */
-            void moveTexture(float distance, const Vec3f& direction);
+            void moveTexture(const Vec3f& up, const Vec3f& right, Direction direction, float distance);
             
             /**
              * Modifies the rotation such that the texture is rotated by the given angle (in degrees) in clockwise

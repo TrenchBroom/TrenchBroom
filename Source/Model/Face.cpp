@@ -411,25 +411,102 @@ namespace TrenchBroom {
             m_vertexCacheValid = false;
         }
         
-        void Face::moveTexture(float distance, const Vec3f& direction) {
+        void Face::moveTexture(const Vec3f& up, const Vec3f& right, Direction direction, float distance) {
+            assert(direction != Math::DForward && direction != Math::DBackward);
+            
+            if (!m_texAxesValid)
+                validateTexAxes(m_boundary.normal);
 
-            Vec3f projX = m_scaledTexAxisX;
-            Vec3f projY = m_scaledTexAxisY;
-            projectOntoTexturePlane(projX, projY);
+            Vec3f texX = m_texAxisX;
+            Vec3f texY = m_texAxisY;
+            projectOntoTexturePlane(texX, texY);
+            texX.normalize();
+            texY.normalize();
+
+            Vec3f vAxis, hAxis;
+            float* xOffset = NULL;
+            float* yOffset = NULL;
             
-            float dotX = direction.dot(projX);
-            float dotY = direction.dot(projY);
-            
-            if (std::abs(dotX) >= std::abs(dotY)) {
-                if (dotX < 0.0f)
-                    m_xOffset += distance;
-                else
-                    m_xOffset -= distance;
+            // we prefer to use the texture axis which is closer to the XY plane for horizontal movement
+            if (Math::lt(std::abs(texX.z), std::abs(texY.z))) {
+                hAxis = texX;
+                vAxis = texY;
+                xOffset = &m_xOffset;
+                yOffset = &m_yOffset;
+            } else if (Math::lt(std::abs(texY.z), std::abs(texX.z))) {
+                hAxis = texY;
+                vAxis = texX;
+                xOffset = &m_yOffset;
+                yOffset = &m_xOffset;
             } else {
-                if (dotY < 0.0f)
-                    m_yOffset += distance;
-                else
-                    m_yOffset -= distance;
+                // both texture axes have the same absolute angle towards the XY plane, prefer the one that is closer
+                // to the right view axis for horizontal movement
+
+                if (Math::gt(std::abs(right.dot(texX)), std::abs(right.dot(texY)))) {
+                    // the right view axis is closer to the X texture axis
+                    hAxis = texX;
+                    vAxis = texY;
+                    xOffset = &m_xOffset;
+                    yOffset = &m_yOffset;
+                } else if (Math::gt(std::abs(right.dot(texY)), std::abs(right.dot(texX)))) {
+                    // the right view axis is closer to the Y texture axis
+                    hAxis = texY;
+                    vAxis = texX;
+                    xOffset = &m_yOffset;
+                    yOffset = &m_xOffset;
+                } else {
+                    // the right axis is as close to the X texture axis as to the Y texture axis
+                    // test the up axis
+                    if (Math::gt(std::abs(up.dot(texY)), std::abs(up.dot(texX)))) {
+                        // the up view axis is closer to the Y texture axis
+                        hAxis = texX;
+                        vAxis = texY;
+                        xOffset = &m_xOffset;
+                        yOffset = &m_yOffset;
+                    } else if (Math::gt(std::abs(up.dot(texX)), std::abs(up.dot(texY)))) {
+                        // the up view axis is closer to the X texture axis
+                        hAxis = texY;
+                        vAxis = texX;
+                        xOffset = &m_yOffset;
+                        yOffset = &m_xOffset;
+                    } else {
+                        // this is just bad, better to do nothing
+                        return;
+                    }
+                }
+            }
+
+            assert(xOffset != NULL && yOffset != NULL &&
+                   !hAxis.null() && !vAxis.null());
+            
+            switch (direction) {
+                case DUp:
+                    if (up.dot(vAxis) >= 0.0f)
+                        *yOffset -= distance;
+                    else
+                        *yOffset += distance;
+                    break;
+                case DRight:
+                    if (right.dot(hAxis) >= 0.0f)
+                        *xOffset -= distance;
+                    else
+                        *xOffset += distance;
+                    break;
+                case DDown:
+                    if (up.dot(vAxis) >= 0.0f)
+                        *yOffset += distance;
+                    else
+                        *yOffset -= distance;
+                    break;
+                case DLeft:
+                    if (right.dot(hAxis) >= 0.0f)
+                        *xOffset += distance;
+                    else
+                        *xOffset -= distance;
+                    break;
+                    
+                default:
+                    return;
             }
             
             m_vertexCacheValid = false;

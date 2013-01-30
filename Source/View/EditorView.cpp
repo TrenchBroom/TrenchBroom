@@ -221,31 +221,13 @@ namespace TrenchBroom {
         }
 
         void EditorView::moveTextures(Direction direction, bool snapToGrid) {
-            Vec3f moveDirection;
-            switch (direction) {
-                case DUp:
-                    moveDirection = m_camera->up();
-                    break;
-                case DRight:
-                    moveDirection = m_camera->right();
-                    break;
-                case DDown:
-                    moveDirection = m_camera->up() * -1.0f;
-                    break;
-                case DLeft:
-                    moveDirection = m_camera->right() * -1.0f;
-                    break;
-                default:
-                    assert(false);
-            }
-
             float distance = snapToGrid ? static_cast<float>(mapDocument().grid().actualSize()) : 1.0f;
 
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             const Model::FaceList& faces = editStateManager.selectedFaces();
             wxString actionName = faces.size() == 1 ? wxT("Move Texture") : wxT("Move Textures");
 
-            Controller::MoveTexturesCommand* command = Controller::MoveTexturesCommand::moveTextures(mapDocument(), actionName, distance, moveDirection);
+            Controller::MoveTexturesCommand* command = Controller::MoveTexturesCommand::moveTextures(mapDocument(), actionName, camera().up(), camera().right(), direction, distance);
             submit(command);
         }
 
@@ -810,7 +792,7 @@ namespace TrenchBroom {
                             assert(entities.empty() != brushes.empty());
 
                             Model::EntityList selectEntities;
-                            Model::BrushList selectBrushes;
+                            Model::BrushList selectBrushes = brushes;
 
                             Model::EntityList::iterator entityIt, entityEnd;
                             for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
@@ -821,6 +803,7 @@ namespace TrenchBroom {
                                 else
                                     selectEntities.push_back(&entity);
                             }
+                            
 
                             BBox bounds = Model::MapObject::bounds(entities, brushes);
                             Vec3f delta = camera().defaultPoint() - mapDocument().grid().snap(bounds.center());

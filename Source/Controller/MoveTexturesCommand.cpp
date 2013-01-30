@@ -34,7 +34,7 @@ namespace TrenchBroom {
             Model::FaceList::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                 Model::Face& face = **it;
-                face.moveTexture(m_distance, m_direction);
+                face.moveTexture(m_up, m_right, m_direction, m_distance);
             }
             
             return true;
@@ -48,19 +48,21 @@ namespace TrenchBroom {
             Model::FaceList::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                 Model::Face& face = **it;
-                face.moveTexture(-m_distance, m_direction);
+                face.moveTexture(m_up, m_right, m_direction, -m_distance);
             }
             
             return true;
         }
         
-        MoveTexturesCommand::MoveTexturesCommand(Model::MapDocument& document, const wxString& name, float distance, const Vec3f& direction) :
+        MoveTexturesCommand::MoveTexturesCommand(Model::MapDocument& document, const wxString& name, const Vec3f& up, const Vec3f& right, Direction direction, float distance) :
         DocumentCommand(MoveTextures, document, true, name, true),
-        m_distance(distance),
-        m_direction(direction) {}
+        m_up(up),
+        m_right(right),
+        m_direction(direction),
+        m_distance(distance) {}
 
-        MoveTexturesCommand* MoveTexturesCommand::moveTextures(Model::MapDocument& document, const wxString& name, float distance, const Vec3f& direction) {
-            return new MoveTexturesCommand(document, name, distance, direction);
+        MoveTexturesCommand* MoveTexturesCommand::moveTextures(Model::MapDocument& document, const wxString& name, const Vec3f& up, const Vec3f& right, Direction direction, float distance) {
+            return new MoveTexturesCommand(document, name, up, right, direction, distance);
         }
     }
 }

@@ -60,15 +60,6 @@ namespace TrenchBroom {
             DECLARE_DYNAMIC_CLASS(EditorView)
         protected:
             typedef enum {
-                DUp,
-                DRight,
-                DDown,
-                DLeft,
-                DForward,
-                DBackward
-            } Direction;
-            
-            typedef enum {
                 ARoll,
                 APitch,
                 AYaw
