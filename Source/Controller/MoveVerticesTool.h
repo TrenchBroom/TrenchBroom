@@ -20,9 +20,8 @@
 #ifndef __TrenchBroom__MoveVerticesTool__
 #define __TrenchBroom__MoveVerticesTool__
 
-#include "Controller/Tool.h"
+#include "Controller/MoveTool.h"
 #include "Controller/VertexHandleManager.h"
-#include "Controller/MoveHandle.h"
 #include "Utility/VecMath.h"
 
 #include <algorithm>
@@ -37,27 +36,21 @@ namespace TrenchBroom {
     }
     
     namespace Controller {
-        class MoveVerticesTool : public PlaneDragTool {
+        class MoveVerticesTool : public MoveTool {
         protected:
             typedef enum {
                 VMMove,
                 VMSplit
             } VertexToolMode;
             
-            typedef enum {
-                Conclude,
-                Deny,
-                Continue
-            } VertexToolResult;
-            
             VertexHandleManager m_handleManager;
-            MoveHandle m_moveHandle;
-            MoveHandle::RestrictToAxis m_restrictToAxis;
             VertexToolMode m_mode;
             bool m_ignoreObjectChanges;
             
-            void updateMoveHandle(InputState& inputState);
-            
+            bool isApplicable(InputState& inputState, Vec3f& hitPoint);
+            wxString actionName();
+            MoveResult performMove(const Vec3f& delta);
+
             bool handleActivate(InputState& inputState);
             bool handleDeactivate(InputState& inputState);
             bool handleIsModal(InputState& inputState);
@@ -66,22 +59,18 @@ namespace TrenchBroom {
             void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
             void handleFreeRenderResources();
             
+            bool handleMouseDown(InputState& inputState);
             bool handleMouseUp(InputState& inputState);
             bool handleMouseDClick(InputState& inputState);
             void handleMouseMove(InputState& inputState);
 
-            bool handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint);
-            bool handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) ;
-            void handleEndPlaneDrag(InputState& inputState);
-
             void handleObjectsChange(InputState& inputState);
             void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet);
-            void handleCameraChange(InputState& inputState);
         public:
             MoveVerticesTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, float axisLength, float planeRadius, float vertexSize);
         
             bool hasSelection();
-            VertexToolResult moveVertices(const Vec3f& delta);
+            MoveResult moveVertices(const Vec3f& delta);
         };
     }
 }

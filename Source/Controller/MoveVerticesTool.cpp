@@ -36,55 +36,45 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        void MoveVerticesTool::updateMoveHandle(InputState& inputState) {
-            Vec3f closestVertex;
-            float closestSquaredDistance = std::numeric_limits<float>::max();
-            
-            Model::VertexToBrushesMap::const_iterator vIt, vEnd;
-            const Model::VertexToBrushesMap& selectedVertexHandles = m_handleManager.selectedVertexHandles();
-            for (vIt = selectedVertexHandles.begin(), vEnd = selectedVertexHandles.end(); vIt != vEnd; ++vIt) {
-                const Vec3f& position = vIt->first;
-                float distanceToClosestPoint;
-                float squaredDistance = inputState.pickRay().squaredDistanceToPoint(position, distanceToClosestPoint);
-                if (squaredDistance < closestSquaredDistance) {
-                    closestSquaredDistance = squaredDistance;
-                    closestVertex = position;
-                }
-            }
-            
-            Model::VertexToEdgesMap::const_iterator eIt, eEnd;
-            const Model::VertexToEdgesMap& selectedEdgeHandles = m_handleManager.selectedEdgeHandles();
-            for (eIt = selectedEdgeHandles.begin(), eEnd = selectedEdgeHandles.end(); eIt != eEnd; ++eIt) {
-                const Vec3f& position = eIt->first;
-                float distanceToClosestPoint;
-                float squaredDistance = inputState.pickRay().squaredDistanceToPoint(position, distanceToClosestPoint);
-                if (squaredDistance < closestSquaredDistance) {
-                    closestSquaredDistance = squaredDistance;
-                    closestVertex = position;
-                }
-            }
-            
-            Model::VertexToFacesMap::const_iterator fIt, fEnd;
-            const Model::VertexToFacesMap& selectedFaceHandles = m_handleManager.selectedFaceHandles();
-            for (fIt = selectedFaceHandles.begin(), fEnd = selectedFaceHandles.end(); fIt != fEnd; ++fIt) {
-                const Vec3f& position = fIt->first;
-                float distanceToClosestPoint;
-                float squaredDistance = inputState.pickRay().squaredDistanceToPoint(position, distanceToClosestPoint);
-                if (squaredDistance < closestSquaredDistance) {
-                    closestSquaredDistance = squaredDistance;
-                    closestVertex = position;
-                }
-            }
-            
-            m_moveHandle.setEnabled(closestSquaredDistance <= m_moveHandle.axisLength() * m_moveHandle.axisLength());
-            m_moveHandle.setPosition(closestVertex);
+        bool MoveVerticesTool::isApplicable(InputState& inputState, Vec3f& hitPoint) {
+            Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit | Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));
+            if (hit == NULL)
+                return false;
+            hitPoint = hit->hitPoint();
+            return true;
         }
-
+        
+        wxString MoveVerticesTool::actionName() {
+            if (m_mode == VMMove) {
+                assert((m_handleManager.selectedVertexHandles().empty() ? 0 : 1) +
+                       (m_handleManager.selectedEdgeHandles().empty() ? 0 : 1) +
+                       (m_handleManager.selectedFaceHandles().empty() ? 0 : 1) == 1);
+                
+                if (!m_handleManager.selectedVertexHandles().empty())
+                    return m_handleManager.selectedVertexHandles().size() == 1 ? wxT("Move Vertex") : wxT("Move Vertices");
+                if (!m_handleManager.selectedEdgeHandles().empty())
+                    return m_handleManager.selectedEdgeHandles().size() == 1 ? wxT("Move Edge") : wxT("Move Edges");
+                return m_handleManager.selectedFaceHandles().size() == 1 ? wxT("Move Face") : wxT("Move Faces");
+            }
+            
+            assert(m_handleManager.selectedVertexHandles().size() == 0 &&
+                   ((m_handleManager.selectedEdgeHandles().size() == 1) ^
+                    (m_handleManager.selectedFaceHandles().size() == 1))
+                   );
+            
+            if (!m_handleManager.selectedEdgeHandles().empty())
+                return wxT("Split Edge");
+            return wxT("Split Face");
+        }
+        
+        MoveTool::MoveResult MoveVerticesTool::performMove(const Vec3f& delta) {
+            return moveVertices(delta);
+        }
+        
         bool MoveVerticesTool::handleActivate(InputState& inputState) {
             m_mode = VMMove;
             m_handleManager.clear();
             m_handleManager.add(document().editStateManager().selectedBrushes());
-            updateMoveHandle(inputState);
             
             return true;
         }
@@ -99,18 +89,12 @@ namespace TrenchBroom {
         }
 
         void MoveVerticesTool::handlePick(InputState& inputState) {
-            Model::MoveHandleHit* moveHandleHit = m_moveHandle.pick(inputState.pickRay());
-            if (moveHandleHit != NULL)
-                inputState.pickResult().add(moveHandleHit);
-            if (!m_moveHandle.locked())
-                m_moveHandle.setLastHit(moveHandleHit);
-
             m_handleManager.pick(inputState.pickRay(), inputState.pickResult(), m_mode == VMSplit);
         }
         
         void MoveVerticesTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
-            Model::MoveHandleHit* moveHandleHit = static_cast<Model::MoveHandleHit*>(inputState.pickResult().first(Model::HitType::MoveHandleHit, true, view().filter()));
-            m_moveHandle.render(moveHandleHit, vbo, renderContext);
+            MoveTool::handleRender(inputState, vbo, renderContext);
+            
             m_handleManager.render(vbo, renderContext, m_mode == VMSplit);
             
             Model::VertexHandleHit* vertexHandleHit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit | Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));
@@ -128,10 +112,11 @@ namespace TrenchBroom {
         }
 
         void MoveVerticesTool::handleFreeRenderResources() {
+            MoveTool::handleFreeRenderResources();
             m_handleManager.freeRenderResources();
         }
 
-        bool MoveVerticesTool::handleMouseUp(InputState& inputState) {
+        bool MoveVerticesTool::handleMouseDown(InputState& inputState) {
             if (inputState.mouseButtons() != MouseButtons::MBLeft ||
                 (inputState.modifierKeys() != ModifierKeys::MKNone && inputState.modifierKeys() != ModifierKeys::MKCtrlCmd))
                 return false;
@@ -149,7 +134,7 @@ namespace TrenchBroom {
                         m_handleManager.deselectVertexHandle(hit->vertex());
                     else
                         m_handleManager.selectVertexHandle(hit->vertex());
-                } else {
+                } else if (!selected) {
                     m_handleManager.deselectAll();
                     m_handleManager.selectVertexHandle(hit->vertex());
                 }
@@ -162,7 +147,7 @@ namespace TrenchBroom {
                         m_handleManager.deselectEdgeHandle(hit->vertex());
                     else
                         m_handleManager.selectEdgeHandle(hit->vertex());
-                } else {
+                } else if (!selected) {
                     m_handleManager.deselectAll();
                     m_handleManager.selectEdgeHandle(hit->vertex());
                 }
@@ -175,15 +160,22 @@ namespace TrenchBroom {
                         m_handleManager.deselectFaceHandle(hit->vertex());
                     else
                         m_handleManager.selectFaceHandle(hit->vertex());
-                } else {
+                } else if (!selected) {
                     m_handleManager.deselectAll();
                     m_handleManager.selectFaceHandle(hit->vertex());
                 }
             }
             m_mode = VMMove;
-            
-            updateMoveHandle(inputState);
             return true;
+        }
+
+        bool MoveVerticesTool::handleMouseUp(InputState& inputState) {
+            if (inputState.mouseButtons() != MouseButtons::MBLeft ||
+                (inputState.modifierKeys() != ModifierKeys::MKNone && inputState.modifierKeys() != ModifierKeys::MKCtrlCmd))
+                return false;
+            
+            Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit | Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));
+            return hit != NULL;
         }
 
         bool MoveVerticesTool::handleMouseDClick(InputState& inputState) {
@@ -201,128 +193,16 @@ namespace TrenchBroom {
             else
                 m_handleManager.selectFaceHandle(hit->vertex());
             m_mode = VMSplit;
-            
-            updateMoveHandle(inputState);
             return true;
         }
 
         void MoveVerticesTool::handleMouseMove(InputState& inputState) {
-            updateMoveHandle(inputState);
-        }
-
-        bool MoveVerticesTool::handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint) {
-            if (inputState.mouseButtons() != MouseButtons::MBLeft ||
-                (inputState.modifierKeys() != ModifierKeys::MKNone && inputState.modifierKeys() != ModifierKeys::MKAlt))
-                return false;
-            
-            Model::MoveHandleHit* hit = static_cast<Model::MoveHandleHit*>(inputState.pickResult().first(Model::HitType::MoveHandleHit, true, view().filter()));
-            if (hit == NULL)
-                return false;
-            
-            switch (hit->hitArea()) {
-                case Model::MoveHandleHit::HAXAxis:
-                    plane = Plane::planeContainingVector(hit->hitPoint(), Vec3f::PosX, inputState.pickRay().origin);
-                    m_restrictToAxis = MoveHandle::RXAxis;
-                    break;
-                case Model::MoveHandleHit::HAYAxis:
-                    plane = Plane::planeContainingVector(hit->hitPoint(), Vec3f::PosY, inputState.pickRay().origin);
-                    m_restrictToAxis = MoveHandle::RYAxis;
-                    break;
-                case Model::MoveHandleHit::HAZAxis:
-                    plane = Plane::planeContainingVector(hit->hitPoint(), Vec3f::PosZ, inputState.pickRay().origin);
-                    m_restrictToAxis = MoveHandle::RZAxis;
-                    break;
-                case Model::MoveHandleHit::HAXYPlane:
-                    plane = Plane::horizontalDragPlane(hit->hitPoint());
-                    m_restrictToAxis = MoveHandle::RNone;
-                    break;
-                case Model::MoveHandleHit::HAXZPlane:
-                    plane = Plane::verticalDragPlane(hit->hitPoint(), Vec3f::PosY);
-                    m_restrictToAxis = MoveHandle::RNone;
-                    break;
-                case Model::MoveHandleHit::HAYZPlane:
-                    plane = Plane::verticalDragPlane(hit->hitPoint(), Vec3f::PosX);
-                    m_restrictToAxis = MoveHandle::RNone;
-                    break;
-            }
-            
-            wxString name;
-            if (m_mode == VMMove) {
-                assert((m_handleManager.selectedVertexHandles().empty() ? 0 : 1) +
-                       (m_handleManager.selectedEdgeHandles().empty() ? 0 : 1) +
-                       (m_handleManager.selectedFaceHandles().empty() ? 0 : 1) == 1);
-                
-                if (!m_handleManager.selectedVertexHandles().empty())
-                    name = m_handleManager.selectedVertexHandles().size() == 1 ? wxT("Move Vertex") : wxT("Move Vertices");
-                else if (!m_handleManager.selectedEdgeHandles().empty())
-                    name = m_handleManager.selectedEdgeHandles().size() == 1 ? wxT("Move Edge") : wxT("Move Edges");
-                else if (!m_handleManager.selectedFaceHandles().empty())
-                    name = m_handleManager.selectedFaceHandles().size() == 1 ? wxT("Move Face") : wxT("Move Faces");
-            } else {
-                assert(m_handleManager.selectedVertexHandles().size() == 0 &&
-                       ((m_handleManager.selectedEdgeHandles().size() == 1) ^
-                        (m_handleManager.selectedFaceHandles().size() == 1))
-                       );
-                
-                if (!m_handleManager.selectedEdgeHandles().empty())
-                    name = wxT("Split Edge");
-                else
-                    name = wxT("Split Face");
-            }
-            
-            initialPoint = hit->hitPoint();
-            m_moveHandle.lock();
-            beginCommandGroup(name);
-
-            return true;
-        }
-        
-        bool MoveVerticesTool::handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) {
-            Vec3f delta = curPoint - refPoint;
-            switch (m_restrictToAxis) {
-                case MoveHandle::RXAxis:
-                    delta.y = delta.z = 0.0f;
-                    break;
-                case MoveHandle::RYAxis:
-                    delta.x = delta.z = 0.0f;
-                    break;
-                case MoveHandle::RZAxis:
-                    delta.x = delta.y = 0.0f;
-                    break;
-                default:
-                    break;
-            }
-            
-            Utility::Grid& grid = document().grid();
-            delta = grid.snap(delta);
-            
-            if (delta.null())
-                return true;
-
-            VertexToolResult result = moveVertices(delta);
-            if (result == Conclude) {
-                return false;
-            }
-            
-            if (result == Continue) {
-                m_moveHandle.setPosition(m_moveHandle.position() + delta);
-                refPoint += delta;
-            }
-
-            return true;
-        }
-        
-        void MoveVerticesTool::handleEndPlaneDrag(InputState& inputState) {
-            endCommandGroup();
-            m_moveHandle.unlock();
-            updateMoveHandle(inputState);
         }
 
         void MoveVerticesTool::handleObjectsChange(InputState& inputState) {
             if (active() && !m_ignoreObjectChanges) {
                 m_handleManager.clear();
                 m_handleManager.add(document().editStateManager().selectedBrushes());
-                updateMoveHandle(inputState);
             }
         }
         
@@ -337,14 +217,8 @@ namespace TrenchBroom {
             }
         }
 
-        void MoveVerticesTool::handleCameraChange(InputState& inputState) {
-            if (active())
-                updateMoveHandle(inputState);
-        }
-
         MoveVerticesTool::MoveVerticesTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, float axisLength, float planeRadius, float vertexSize) :
-        PlaneDragTool(documentViewHolder, inputController, true),
-        m_moveHandle(axisLength, planeRadius),
+        MoveTool(documentViewHolder, inputController, true),
         m_mode(VMMove),
         m_ignoreObjectChanges(false) {}
 
@@ -353,7 +227,7 @@ namespace TrenchBroom {
             
         }
         
-        MoveVerticesTool::VertexToolResult MoveVerticesTool::moveVertices(const Vec3f& delta) {
+        MoveVerticesTool::MoveResult MoveVerticesTool::moveVertices(const Vec3f& delta) {
             m_ignoreObjectChanges = true;
             if (m_mode == VMMove) {
                 assert((m_handleManager.selectedVertexHandles().empty() ? 0 : 1) +

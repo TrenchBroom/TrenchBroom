@@ -20,13 +20,7 @@
 #ifndef __TrenchBroom__MoveObjectsTool__
 #define __TrenchBroom__MoveObjectsTool__
 
-#include "Controller/Tool.h"
-#include "Controller/MoveHandle.h"
-#include "Model/Filter.h"
-#include "Model/Picker.h"
-#include "Utility/VecMath.h"
-
-using namespace TrenchBroom::Math;
+#include "Controller/MoveTool.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -36,35 +30,15 @@ namespace TrenchBroom {
     }
     
     namespace Controller {
-        class MoveObjectsTool : public PlaneDragTool {
+        class MoveObjectsTool : public MoveTool {
         protected:
-            typedef enum {
-                LeftRight,
-                Horizontal,
-                Vertical
-            } Direction;
-            
             Model::SelectedFilter m_filter;
-            
-            Vec3f m_totalDelta;
-            Direction m_direction;
-            Renderer::MovementIndicator* m_indicator;
-            
-            void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
-            void handleFreeRenderResources();
 
-            void handleModifierKeyChange(InputState& inputState);
-
-            bool handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint);
-            void handleResetPlane(InputState& inputState, Plane& plane, Vec3f& initialPoint);
-            bool handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint);
-            void handleEndPlaneDrag(InputState& inputState);
-
-            void handleObjectsChange(InputState& inputState);
-            void handleEditStateChange(InputState& inputState, const Model::EditStateChangeSet& changeSet);
-            void handleGridChange(InputState& inputState);
+            bool isApplicable(InputState& inputState, Vec3f& hitPoint);
+            wxString actionName();
+            MoveResult performMove(const Vec3f& delta);
         public:
-            MoveObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, float axisLength, float planeRadius);
+            MoveObjectsTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController);
         };
     }
 }
