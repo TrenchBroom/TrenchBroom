@@ -19,6 +19,7 @@
 
 #include "VertexHandleManager.h"
 
+#include "Renderer/LinesRenderer.h"
 #include "Renderer/PointHandleRenderer.h"
 
 namespace TrenchBroom {
@@ -42,6 +43,7 @@ namespace TrenchBroom {
         m_unselectedVertexHandleRenderer(NULL),
         m_unselectedEdgeHandleRenderer(NULL),
         m_unselectedFaceHandleRenderer(NULL),
+        m_selectedEdgeRenderer(NULL),
         m_renderStateValid(false) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             float handleRadius = prefs.getFloat(Preferences::HandleRadius);
@@ -51,8 +53,9 @@ namespace TrenchBroom {
             m_unselectedVertexHandleRenderer = Renderer::PointHandleRenderer::create(handleRadius, 2, scalingFactor, maxDistance);
             m_unselectedEdgeHandleRenderer = Renderer::PointHandleRenderer::create(handleRadius, 2, scalingFactor, maxDistance);
             m_unselectedFaceHandleRenderer = Renderer::PointHandleRenderer::create(handleRadius, 2, scalingFactor, maxDistance);
+            m_selectedEdgeRenderer = new Renderer::LinesRenderer();
         }
-
+        
         const Model::EdgeList& VertexHandleManager::edges(const Vec3f& handlePosition) const {
             Model::VertexToEdgesMap::const_iterator mapIt = m_selectedEdgeHandles.find(handlePosition);
             if (mapIt == m_selectedEdgeHandles.end())
@@ -312,15 +315,31 @@ namespace TrenchBroom {
 
         void VertexHandleManager::render(Renderer::Vbo& vbo, Renderer::RenderContext& renderContext, bool splitMode) {
             if (!m_renderStateValid) {
-                m_unselectedVertexHandleRenderer->clear();
-                m_unselectedEdgeHandleRenderer->clear();
-                m_unselectedFaceHandleRenderer->clear();
-                m_selectedHandleRenderer->clear();
-
                 Model::VertexToBrushesMap::const_iterator vIt, vEnd;
                 Model::VertexToEdgesMap::const_iterator eIt, eEnd;
                 Model::VertexToFacesMap::const_iterator fIt, fEnd;
 
+                m_unselectedVertexHandleRenderer->clear();
+                m_unselectedEdgeHandleRenderer->clear();
+                m_unselectedFaceHandleRenderer->clear();
+                m_selectedHandleRenderer->clear();
+                m_selectedEdgeRenderer->clear();
+
+                unsigned int vertexCount = 0;
+                for (eIt = m_selectedEdgeHandles.begin(), eEnd = m_selectedEdgeHandles.end(); eIt != eEnd; ++eIt) {
+                    const Model::EdgeList& edges = eIt->second;
+                    vertexCount += static_cast<unsigned int>(2 * edges.size());
+                }
+                
+                for (fIt = m_selectedFaceHandles.begin(), fEnd = m_selectedFaceHandles.end(); fIt != fEnd; ++fIt) {
+                    const Model::FaceList& faces = fIt->second;
+                    Model::FaceList::const_iterator faceIt, faceEnd;
+                    for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
+                        const Model::Face& face = **faceIt;
+                        vertexCount += static_cast<unsigned int>(2 * face.edges().size());
+                    }
+                }
+                
                 if ((m_selectedEdgeHandles.empty() && m_selectedFaceHandles.empty()) || splitMode) {
                     for (vIt = m_unselectedVertexHandles.begin(), vEnd = m_unselectedVertexHandles.end(); vIt != vEnd; ++vIt) {
                         const Vec3f& position = vIt->first;
@@ -343,6 +362,13 @@ namespace TrenchBroom {
                 for (eIt = m_selectedEdgeHandles.begin(), eEnd = m_selectedEdgeHandles.end(); eIt != eEnd; ++eIt) {
                     const Vec3f& position = eIt->first;
                     m_selectedHandleRenderer->add(position);
+                    
+                    const Model::EdgeList& edges = eIt->second;
+                    Model::EdgeList::const_iterator edgeIt, edgeEnd;
+                    for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
+                        const Model::Edge& edge = **edgeIt;
+                        m_selectedEdgeRenderer->add(edge.start->position, edge.end->position);
+                    }
                 }
 
                 if (m_selectedVertexHandles.empty() && m_selectedEdgeHandles.empty() && !splitMode) {
@@ -355,13 +381,27 @@ namespace TrenchBroom {
                 for (fIt = m_selectedFaceHandles.begin(), fEnd = m_selectedFaceHandles.end(); fIt != fEnd; ++fIt) {
                     const Vec3f& position = fIt->first;
                     m_selectedHandleRenderer->add(position);
+                    
+                    const Model::FaceList& faces = fIt->second;
+                    Model::FaceList::const_iterator faceIt, faceEnd;
+                    for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
+                        const Model::Face& face = **faceIt;
+                        const Model::EdgeList& edges = face.edges();
+                        Model::EdgeList::const_iterator edgeIt, edgeEnd;
+                        for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
+                            const Model::Edge& edge = **edgeIt;
+                            m_selectedEdgeRenderer->add(edge.start->position, edge.end->position);
+                        }
+                    }
                 }
 
                 m_renderStateValid = true;
             }
 
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-
+            m_selectedEdgeRenderer->setColor(Color(1.0f, 1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 1.0f, 0.5f));
+            m_selectedEdgeRenderer->render(vbo, renderContext);
+            
             m_unselectedVertexHandleRenderer->setColor(prefs.getColor(Preferences::VertexHandleColor));
             m_unselectedEdgeHandleRenderer->setColor(prefs.getColor(Preferences::EdgeHandleColor));
             m_unselectedFaceHandleRenderer->setColor(prefs.getColor(Preferences::FaceHandleColor));
@@ -400,6 +440,8 @@ namespace TrenchBroom {
             m_unselectedFaceHandleRenderer = NULL;
             delete m_selectedHandleRenderer;
             m_selectedHandleRenderer = NULL;
+            delete m_selectedEdgeRenderer;
+            m_selectedEdgeRenderer = NULL;
         }
     }
 }

@@ -26,6 +26,7 @@
 #include "Controller/SplitFacesCommand.h"
 #include "Model/EditStateManager.h"
 #include "Model/MapDocument.h"
+#include "Renderer/LinesRenderer.h"
 #include "Renderer/PointHandleHighlightFigure.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/SharedResources.h"
@@ -97,17 +98,48 @@ namespace TrenchBroom {
             
             m_handleManager.render(vbo, renderContext, m_mode == VMSplit);
             
-            Model::VertexHandleHit* vertexHandleHit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit | Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));
-            if (vertexHandleHit != NULL) {
+            Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit | Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));
+            if (hit != NULL) {
                 Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
                 const Color& color = prefs.getColor(Preferences::VertexHandleColor);
                 const float radius = prefs.getFloat(Preferences::HandleRadius);
                 const float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
                 
                 glDisable(GL_DEPTH_TEST);
-                Renderer::PointHandleHighlightFigure highlightFigure(vertexHandleHit->vertex(), color, radius, scalingFactor);
+                Renderer::PointHandleHighlightFigure highlightFigure(hit->vertex(), color, radius, scalingFactor);
                 highlightFigure.render(vbo, renderContext);
                 glEnable(GL_DEPTH_TEST);
+                
+                if (hit->type() == Model::HitType::EdgeHandleHit) {
+                    Renderer::LinesRenderer linesRenderer;
+                    linesRenderer.setColor(Color(1.0f, 1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 1.0f, 0.5f));
+                    
+                    const Model::EdgeList& edges = m_handleManager.edges(hit->vertex());
+                    Model::EdgeList::const_iterator edgeIt, edgeEnd;
+                    for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
+                        const Model::Edge& edge = **edgeIt;
+                        linesRenderer.add(edge.start->position, edge.end->position);
+                    }
+                    
+                    linesRenderer.render(vbo, renderContext);
+                } else if (hit->type() == Model::HitType::FaceHandleHit) {
+                    Renderer::LinesRenderer linesRenderer;
+                    linesRenderer.setColor(Color(1.0f, 1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 1.0f, 0.5f));
+
+                    const Model::FaceList& faces = m_handleManager.faces(hit->vertex());
+                    Model::FaceList::const_iterator faceIt, faceEnd;
+                    for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
+                        const Model::Face& face = **faceIt;
+                        const Model::EdgeList& edges = face.edges();
+                        Model::EdgeList::const_iterator edgeIt, edgeEnd;
+                        for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
+                            const Model::Edge& edge = **edgeIt;
+                            linesRenderer.add(edge.start->position, edge.end->position);
+                        }
+                    }
+
+                    linesRenderer.render(vbo, renderContext);
+                }
             }
         }
 

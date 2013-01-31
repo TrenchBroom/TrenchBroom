@@ -52,6 +52,7 @@ namespace TrenchBroom {
     }
 
     namespace Renderer {
+        class LinesRenderer;
         class PointHandleRenderer;
         class RenderContext;
         class Vbo;
@@ -71,6 +72,7 @@ namespace TrenchBroom {
             Renderer::PointHandleRenderer* m_unselectedVertexHandleRenderer;
             Renderer::PointHandleRenderer* m_unselectedEdgeHandleRenderer;
             Renderer::PointHandleRenderer* m_unselectedFaceHandleRenderer;
+            Renderer::LinesRenderer* m_selectedEdgeRenderer;
             bool m_renderStateValid;
             
             template <typename Element>

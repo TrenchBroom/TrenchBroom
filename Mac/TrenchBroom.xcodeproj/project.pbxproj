@@ -32,6 +32,7 @@
 		482A0876164305450000799C /* RingFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482A0874164305450000799C /* RingFigure.cpp */; };
 		482A087D16446B470000799C /* RotateObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482A087B16446B470000799C /* RotateObjectsCommand.cpp */; };
 		482BB67E162931E800B9FAAE /* MoveObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482BB67C162931E800B9FAAE /* MoveObjectsCommand.cpp */; };
+		482C644C16BAFFD9009C75CB /* LinesRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482C644A16BAFFD8009C75CB /* LinesRenderer.cpp */; };
 		482F4BCB1690681A0012D821 /* Vec4f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482F4BCA1690681A0012D821 /* Vec4f.cpp */; };
 		482F4BCF16906ACB0012D821 /* PointHandleHighlightFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482F4BCD16906ACB0012D821 /* PointHandleHighlightFigure.cpp */; };
 		48312B2815EABBD600607868 /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 48312B2715EABBD600607868 /* Icon.icns */; };
@@ -234,6 +235,8 @@
 		482A087C16446B470000799C /* RotateObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateObjectsCommand.h; sourceTree = "<group>"; };
 		482BB67C162931E800B9FAAE /* MoveObjectsCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveObjectsCommand.cpp; sourceTree = "<group>"; };
 		482BB67D162931E800B9FAAE /* MoveObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveObjectsCommand.h; sourceTree = "<group>"; };
+		482C644A16BAFFD8009C75CB /* LinesRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LinesRenderer.cpp; sourceTree = "<group>"; };
+		482C644B16BAFFD9009C75CB /* LinesRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LinesRenderer.h; sourceTree = "<group>"; };
 		482F4BCA1690681A0012D821 /* Vec4f.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Vec4f.cpp; sourceTree = "<group>"; };
 		482F4BCD16906ACB0012D821 /* PointHandleHighlightFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointHandleHighlightFigure.cpp; sourceTree = "<group>"; };
 		482F4BCE16906ACB0012D821 /* PointHandleHighlightFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointHandleHighlightFigure.h; sourceTree = "<group>"; };
@@ -624,6 +627,8 @@
 				48820108167F244300C2C799 /* FaceVertex.h */,
 				481CDAE11603CF4B003E2EE9 /* IndexedVertexArray.h */,
 				480ED74D1662C4A200857A21 /* InstancedVertexArray.h */,
+				482C644A16BAFFD8009C75CB /* LinesRenderer.cpp */,
+				482C644B16BAFFD9009C75CB /* LinesRenderer.h */,
 				48C8370F167513CD00B658A2 /* PointHandleRenderer.cpp */,
 				48C83710167513CD00B658A2 /* PointHandleRenderer.h */,
 				48312B3315EB805E00607868 /* MapRenderer.cpp */,
@@ -1311,6 +1316,7 @@
 				486AFACA16B3DE570097657D /* PointTraceFigure.cpp in Sources */,
 				486AFACC16B555940097657D /* Mat3f.cpp in Sources */,
 				48C4637616B97A76008159DC /* MoveTool.cpp in Sources */,
+				482C644C16BAFFD9009C75CB /* LinesRenderer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
