@@ -118,7 +118,9 @@ namespace TrenchBroom {
 
         bool MoveVerticesTool::handleMouseDown(InputState& inputState) {
             if (inputState.mouseButtons() != MouseButtons::MBLeft ||
-                (inputState.modifierKeys() != ModifierKeys::MKNone && inputState.modifierKeys() != ModifierKeys::MKCtrlCmd))
+                (inputState.modifierKeys() != ModifierKeys::MKNone &&
+                 inputState.modifierKeys() != ModifierKeys::MKCtrlCmd &&
+                 inputState.modifierKeys() != ModifierKeys::MKAlt))
                 return false;
             
             Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit | Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));
