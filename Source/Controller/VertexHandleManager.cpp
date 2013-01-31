@@ -58,20 +58,22 @@ namespace TrenchBroom {
         
         const Model::EdgeList& VertexHandleManager::edges(const Vec3f& handlePosition) const {
             Model::VertexToEdgesMap::const_iterator mapIt = m_selectedEdgeHandles.find(handlePosition);
-            if (mapIt == m_selectedEdgeHandles.end())
-                mapIt = m_unselectedEdgeHandles.find(handlePosition);
-            if (mapIt == m_unselectedEdgeHandles.end())
-                return Model::EmptyEdgeList;
-            return mapIt->second;
+            if (mapIt != m_selectedEdgeHandles.end())
+                return mapIt->second;
+            mapIt = m_unselectedEdgeHandles.find(handlePosition);
+            if (mapIt != m_unselectedEdgeHandles.end())
+                return mapIt->second;
+            return Model::EmptyEdgeList;
         }
 
         const Model::FaceList& VertexHandleManager::faces(const Vec3f& handlePosition) const {
             Model::VertexToFacesMap::const_iterator mapIt = m_selectedFaceHandles.find(handlePosition);
-            if (mapIt == m_selectedFaceHandles.end())
-                mapIt = m_unselectedFaceHandles.find(handlePosition);
-            if (mapIt == m_unselectedFaceHandles.end())
-                return Model::EmptyFaceList;
-            return mapIt->second;
+            if (mapIt != m_selectedFaceHandles.end())
+                return mapIt->second;
+            mapIt = m_unselectedFaceHandles.find(handlePosition);
+            if (mapIt != m_unselectedFaceHandles.end())
+                return mapIt->second;
+            return Model::EmptyFaceList;
         }
 
         void VertexHandleManager::add(Model::Brush& brush) {
@@ -397,10 +399,16 @@ namespace TrenchBroom {
 
                 m_renderStateValid = true;
             }
-
+            
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            m_selectedEdgeRenderer->setColor(Color(1.0f, 1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 1.0f, 0.5f));
-            m_selectedEdgeRenderer->render(vbo, renderContext);
+            if (!m_selectedEdgeHandles.empty() || !m_selectedFaceHandles.empty()) {
+                if (!m_selectedEdgeHandles.empty())
+                    m_selectedEdgeRenderer->setColor(prefs.getColor(Preferences::EdgeHandleColor), prefs.getColor(Preferences::OccludedEdgeHandleColor));
+                else
+                    m_selectedEdgeRenderer->setColor(prefs.getColor(Preferences::FaceHandleColor), prefs.getColor(Preferences::OccludedFaceHandleColor));
+
+                m_selectedEdgeRenderer->render(vbo, renderContext);
+            }
             
             m_unselectedVertexHandleRenderer->setColor(prefs.getColor(Preferences::VertexHandleColor));
             m_unselectedEdgeHandleRenderer->setColor(prefs.getColor(Preferences::EdgeHandleColor));
