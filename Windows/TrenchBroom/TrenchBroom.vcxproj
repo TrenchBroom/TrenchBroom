@@ -223,10 +223,10 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Controller\InputController.cpp" />
     <ClCompile Include="..\..\Source\Controller\MoveEdgesCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\MoveFacesCommand.cpp" />
-    <ClCompile Include="..\..\Source\Controller\MoveHandle.cpp" />
     <ClCompile Include="..\..\Source\Controller\MoveObjectsCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\MoveObjectsTool.cpp" />
     <ClCompile Include="..\..\Source\Controller\MoveTexturesCommand.cpp" />
+    <ClCompile Include="..\..\Source\Controller\MoveTool.cpp" />
     <ClCompile Include="..\..\Source\Controller\MoveVerticesCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\MoveVerticesTool.cpp" />
     <ClCompile Include="..\..\Source\Controller\RemoveObjectsCommand.cpp" />
@@ -358,10 +358,10 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Controller\InputController.h" />
     <ClInclude Include="..\..\Source\Controller\MoveEdgesCommand.h" />
     <ClInclude Include="..\..\Source\Controller\MoveFacesCommand.h" />
-    <ClInclude Include="..\..\Source\Controller\MoveHandle.h" />
     <ClInclude Include="..\..\Source\Controller\MoveObjectsCommand.h" />
     <ClInclude Include="..\..\Source\Controller\MoveObjectsTool.h" />
     <ClInclude Include="..\..\Source\Controller\MoveTexturesCommand.h" />
+    <ClInclude Include="..\..\Source\Controller\MoveTool.h" />
     <ClInclude Include="..\..\Source\Controller\MoveVerticesCommand.h" />
     <ClInclude Include="..\..\Source\Controller\MoveVerticesTool.h" />
     <ClInclude Include="..\..\Source\Controller\ObjectsCommand.h" />

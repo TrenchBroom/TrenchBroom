@@ -39,14 +39,18 @@ namespace TrenchBroom {
     namespace Controller {
         VertexHandleManager::VertexHandleManager() :
         m_selectedHandleRenderer(NULL),
-        m_unselectedHandleRenderer(NULL),
+        m_unselectedVertexHandleRenderer(NULL),
+        m_unselectedEdgeHandleRenderer(NULL),
+        m_unselectedFaceHandleRenderer(NULL),
         m_renderStateValid(false) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             float handleRadius = prefs.getFloat(Preferences::HandleRadius);
             float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
             float maxDistance = prefs.getFloat(Preferences::MaximumHandleDistance);
             m_selectedHandleRenderer = Renderer::PointHandleRenderer::create(handleRadius, 2, scalingFactor, maxDistance);
-            m_unselectedHandleRenderer = Renderer::PointHandleRenderer::create(handleRadius, 2, scalingFactor, maxDistance);
+            m_unselectedVertexHandleRenderer = Renderer::PointHandleRenderer::create(handleRadius, 2, scalingFactor, maxDistance);
+            m_unselectedEdgeHandleRenderer = Renderer::PointHandleRenderer::create(handleRadius, 2, scalingFactor, maxDistance);
+            m_unselectedFaceHandleRenderer = Renderer::PointHandleRenderer::create(handleRadius, 2, scalingFactor, maxDistance);
         }
 
         const Model::EdgeList& VertexHandleManager::edges(const Vec3f& handlePosition) const {
@@ -308,7 +312,9 @@ namespace TrenchBroom {
 
         void VertexHandleManager::render(Renderer::Vbo& vbo, Renderer::RenderContext& renderContext, bool splitMode) {
             if (!m_renderStateValid) {
-                m_unselectedHandleRenderer->clear();
+                m_unselectedVertexHandleRenderer->clear();
+                m_unselectedEdgeHandleRenderer->clear();
+                m_unselectedFaceHandleRenderer->clear();
                 m_selectedHandleRenderer->clear();
 
                 Model::VertexToBrushesMap::const_iterator vIt, vEnd;
@@ -318,7 +324,7 @@ namespace TrenchBroom {
                 if ((m_selectedEdgeHandles.empty() && m_selectedFaceHandles.empty()) || splitMode) {
                     for (vIt = m_unselectedVertexHandles.begin(), vEnd = m_unselectedVertexHandles.end(); vIt != vEnd; ++vIt) {
                         const Vec3f& position = vIt->first;
-                        m_unselectedHandleRenderer->add(position);
+                        m_unselectedVertexHandleRenderer->add(position);
                     }
                 }
 
@@ -330,7 +336,7 @@ namespace TrenchBroom {
                 if (m_selectedVertexHandles.empty() && m_selectedFaceHandles.empty() && !splitMode) {
                     for (eIt = m_unselectedEdgeHandles.begin(), eEnd = m_unselectedEdgeHandles.end(); eIt != eEnd; ++eIt) {
                         const Vec3f& position = eIt->first;
-                        m_unselectedHandleRenderer->add(position);
+                        m_unselectedEdgeHandleRenderer->add(position);
                     }
                 }
 
@@ -342,7 +348,7 @@ namespace TrenchBroom {
                 if (m_selectedVertexHandles.empty() && m_selectedEdgeHandles.empty() && !splitMode) {
                     for (fIt = m_unselectedFaceHandles.begin(), fEnd = m_unselectedFaceHandles.end(); fIt != fEnd; ++fIt) {
                         const Vec3f& position = fIt->first;
-                        m_unselectedHandleRenderer->add(position);
+                        m_unselectedFaceHandleRenderer->add(position);
                     }
                 }
 
@@ -356,30 +362,42 @@ namespace TrenchBroom {
 
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
-            m_unselectedHandleRenderer->setColor(prefs.getColor(Preferences::VertexHandleColor));
+            m_unselectedVertexHandleRenderer->setColor(prefs.getColor(Preferences::VertexHandleColor));
+            m_unselectedEdgeHandleRenderer->setColor(prefs.getColor(Preferences::EdgeHandleColor));
+            m_unselectedFaceHandleRenderer->setColor(prefs.getColor(Preferences::FaceHandleColor));
             if (splitMode)
                 m_selectedHandleRenderer->setColor(prefs.getColor(Preferences::SelectedSplitHandleColor));
             else
                 m_selectedHandleRenderer->setColor(prefs.getColor(Preferences::SelectedVertexHandleColor));
 
-            m_unselectedHandleRenderer->render(vbo, renderContext);
+            m_unselectedVertexHandleRenderer->render(vbo, renderContext);
+            m_unselectedEdgeHandleRenderer->render(vbo, renderContext);
+            m_unselectedFaceHandleRenderer->render(vbo, renderContext);
             m_selectedHandleRenderer->render(vbo, renderContext);
 
-            m_unselectedHandleRenderer->setColor(prefs.getColor(Preferences::OccludedVertexHandleColor));
+            m_unselectedVertexHandleRenderer->setColor(prefs.getColor(Preferences::OccludedVertexHandleColor));
+            m_unselectedEdgeHandleRenderer->setColor(prefs.getColor(Preferences::OccludedEdgeHandleColor));
+            m_unselectedFaceHandleRenderer->setColor(prefs.getColor(Preferences::OccludedFaceHandleColor));
             if (splitMode)
                 m_selectedHandleRenderer->setColor(prefs.getColor(Preferences::OccludedSelectedSplitHandleColor));
             else
                 m_selectedHandleRenderer->setColor(prefs.getColor(Preferences::OccludedSelectedVertexHandleColor));
 
             glDisable(GL_DEPTH_TEST);
-            m_unselectedHandleRenderer->render(vbo, renderContext);
+            m_unselectedVertexHandleRenderer->render(vbo, renderContext);
+            m_unselectedEdgeHandleRenderer->render(vbo, renderContext);
+            m_unselectedFaceHandleRenderer->render(vbo, renderContext);
             m_selectedHandleRenderer->render(vbo, renderContext);
             glEnable(GL_DEPTH_TEST);
         }
 
         void VertexHandleManager::freeRenderResources() {
-            delete m_unselectedHandleRenderer;
-            m_unselectedHandleRenderer = NULL;
+            delete m_unselectedVertexHandleRenderer;
+            m_unselectedVertexHandleRenderer = NULL;
+            delete m_unselectedEdgeHandleRenderer;
+            m_unselectedEdgeHandleRenderer = NULL;
+            delete m_unselectedFaceHandleRenderer;
+            m_unselectedFaceHandleRenderer = NULL;
             delete m_selectedHandleRenderer;
             m_selectedHandleRenderer = NULL;
         }

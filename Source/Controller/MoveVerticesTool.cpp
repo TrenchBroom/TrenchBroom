@@ -120,7 +120,7 @@ namespace TrenchBroom {
             if (inputState.mouseButtons() != MouseButtons::MBLeft ||
                 (inputState.modifierKeys() != ModifierKeys::MKNone && inputState.modifierKeys() != ModifierKeys::MKCtrlCmd))
                 return false;
-            
+
             Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit | Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));
             if (hit == NULL)
                 return false;
@@ -165,7 +165,6 @@ namespace TrenchBroom {
                     m_handleManager.selectFaceHandle(hit->vertex());
                 }
             }
-            m_mode = VMMove;
             return true;
         }
 
@@ -175,7 +174,17 @@ namespace TrenchBroom {
                 return false;
             
             Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit | Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));
-            return hit != NULL;
+            if (hit != NULL)
+                return true;
+            
+            if (m_handleManager.selectedVertexHandles().empty() &&
+                m_handleManager.selectedEdgeHandles().empty() &&
+                m_handleManager.selectedFaceHandles().empty())
+                return false;
+            
+            m_handleManager.deselectAll();
+            m_mode = VMMove;
+            return true;
         }
 
         bool MoveVerticesTool::handleMouseDClick(InputState& inputState) {

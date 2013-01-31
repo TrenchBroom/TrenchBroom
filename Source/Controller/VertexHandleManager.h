@@ -68,7 +68,9 @@ namespace TrenchBroom {
             Model::VertexToFacesMap m_selectedFaceHandles;
             
             Renderer::PointHandleRenderer* m_selectedHandleRenderer;
-            Renderer::PointHandleRenderer* m_unselectedHandleRenderer;
+            Renderer::PointHandleRenderer* m_unselectedVertexHandleRenderer;
+            Renderer::PointHandleRenderer* m_unselectedEdgeHandleRenderer;
+            Renderer::PointHandleRenderer* m_unselectedFaceHandleRenderer;
             bool m_renderStateValid;
             
             template <typename Element>
@@ -114,7 +116,7 @@ namespace TrenchBroom {
                 float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
                 float maxDistance = prefs.getFloat(Preferences::MaximumHandleDistance);
 
-                float distance = ray.intersectWithSphere(position, handleRadius, scalingFactor, maxDistance);
+                float distance = ray.intersectWithSphere(position, 2.0f * handleRadius, scalingFactor, maxDistance);
                 if (!Math::isnan(distance)) {
                     Vec3f hitPoint = ray.pointAtDistance(distance);
                     return new Model::VertexHandleHit(type, hitPoint, distance, position);

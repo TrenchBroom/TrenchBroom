@@ -126,9 +126,6 @@
     <ClCompile Include="..\..\Source\Controller\MoveFacesCommand.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Controller\MoveHandle.cpp">
-      <Filter>Source Files\Controller</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Controller\MoveObjectsCommand.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
@@ -468,6 +465,9 @@
     <ClCompile Include="..\..\Source\Utility\Mat3f.cpp">
       <Filter>Source Files\Utility</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\MoveTool.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -561,9 +561,6 @@
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\MoveFacesCommand.h">
-      <Filter>Header Files\Controller</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Controller\MoveHandle.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\MoveObjectsCommand.h">
@@ -1084,6 +1081,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Model\PointFile.h">
       <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\MoveTool.h">
+      <Filter>Header Files\Controller</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
