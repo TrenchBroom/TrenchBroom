@@ -285,6 +285,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Renderer\EntityRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\EntityRotationDecorator.cpp" />
     <ClCompile Include="..\..\Source\Renderer\FaceRenderer.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\LinesRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\MapRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\MovementIndicator.cpp" />
     <ClCompile Include="..\..\Source\Renderer\OffscreenRenderer.cpp" />
@@ -454,6 +455,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Renderer\Figure.h" />
     <ClInclude Include="..\..\Source\Renderer\IndexedVertexArray.h" />
     <ClInclude Include="..\..\Source\Renderer\InstancedVertexArray.h" />
+    <ClInclude Include="..\..\Source\Renderer\LinesRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\MapRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\MovementIndicator.h" />
     <ClInclude Include="..\..\Source\Renderer\OffscreenRenderer.h" />
@@ -545,8 +547,16 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\View\ViewInspector.h" />
     <ClInclude Include="..\..\Source\View\ViewOptions.h" />
     <ClInclude Include="..\..\Source\View\WxScreenDC.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="TrenchBroomApp.h" />
     <ClInclude Include="WinFileManager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="TrenchBroom.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TrenchBroom.ico" />
+    <None Include="TrenchBroomDoc.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

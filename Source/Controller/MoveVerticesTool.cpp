@@ -101,7 +101,7 @@ namespace TrenchBroom {
             Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit | Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));
             if (hit != NULL) {
                 Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-                const Color& color = prefs.getColor(Preferences::VertexHandleColor);
+                const Color& color = hit->type() == Model::HitType::VertexHandleHit ? prefs.getColor(Preferences::VertexHandleColor) : (hit->type() == Model::HitType::EdgeHandleHit ? prefs.getColor(Preferences::EdgeHandleColor) : prefs.getColor(Preferences::FaceHandleColor));
                 const float radius = prefs.getFloat(Preferences::HandleRadius);
                 const float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
                 
@@ -112,7 +112,7 @@ namespace TrenchBroom {
                 
                 if (hit->type() == Model::HitType::EdgeHandleHit) {
                     Renderer::LinesRenderer linesRenderer;
-                    linesRenderer.setColor(Color(1.0f, 1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 1.0f, 0.5f));
+                    linesRenderer.setColor(prefs.getColor(Preferences::EdgeHandleColor), prefs.getColor(Preferences::OccludedEdgeHandleColor));
                     
                     const Model::EdgeList& edges = m_handleManager.edges(hit->vertex());
                     Model::EdgeList::const_iterator edgeIt, edgeEnd;
@@ -124,7 +124,7 @@ namespace TrenchBroom {
                     linesRenderer.render(vbo, renderContext);
                 } else if (hit->type() == Model::HitType::FaceHandleHit) {
                     Renderer::LinesRenderer linesRenderer;
-                    linesRenderer.setColor(Color(1.0f, 1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 1.0f, 0.5f));
+                    linesRenderer.setColor(prefs.getColor(Preferences::FaceHandleColor), prefs.getColor(Preferences::OccludedFaceHandleColor));
 
                     const Model::FaceList& faces = m_handleManager.faces(hit->vertex());
                     Model::FaceList::const_iterator faceIt, faceEnd;

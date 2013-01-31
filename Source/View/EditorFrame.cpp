@@ -79,6 +79,9 @@ namespace TrenchBroom {
         EditorFrame::EditorFrame(Model::MapDocument& document, EditorView& view) :
         wxFrame(NULL, wxID_ANY, wxT("")),
         m_documentViewHolder(DocumentViewHolder(&document, &view)) {
+#if defined _WIN32
+            SetIcon(wxICON(APPICON));
+#endif
             CreateGui();
             updateMenuBar();
             m_mapCanvasHasFocus = false;

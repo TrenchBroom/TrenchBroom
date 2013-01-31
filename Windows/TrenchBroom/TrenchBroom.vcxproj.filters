@@ -468,6 +468,9 @@
     <ClCompile Include="..\..\Source\Controller\MoveTool.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\LinesRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -1085,5 +1088,24 @@
     <ClInclude Include="..\..\Source\Controller\MoveTool.h">
       <Filter>Header Files\Controller</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\LinesRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="TrenchBroom.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TrenchBroom.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="TrenchBroomDoc.ico">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
