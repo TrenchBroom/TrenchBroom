@@ -828,10 +828,7 @@ namespace TrenchBroom {
         }
 
         float BrushGeometry::minVertexMoveDist(const SideList& incSides, const Vertex* vertex, const Ray& ray, float maxDist) {
-            float minDist;
-            Plane plane;
-
-            minDist = maxDist;
+            float minDist = maxDist;
             for (unsigned int i = 0; i < incSides.size(); i++) {
                 Side* side = incSides[i];
                 Side* next = incSides[succ(i, incSides.size())];
@@ -842,21 +839,20 @@ namespace TrenchBroom {
                 side->shift(findElement(side->vertices, vertex));
                 next->shift(findElement(next->vertices, vertex));
 
+                Plane plane;
                 plane.setPoints(side->vertices[1]->position,
                                 side->vertices[2]->position,
                                 next->vertices[2]->position);
 
-                float sideDist = plane.intersectWithRay(ray);
+                const float sideDist = plane.intersectWithRay(ray);
 
                 Edge* neighbourEdge = side->edges[1];
                 Side* neighbourSide = neighbourEdge->left != side ? neighbourEdge->left : neighbourEdge->right;
 
-                plane = neighbourSide->face->boundary();
-                float neighbourDist = plane.intersectWithRay(ray);
-
-                if (!Math::isnan(sideDist) && Math::pos(sideDist) && Math::lt(sideDist, minDist))
+                const float neighbourDist = neighbourSide->face->boundary().intersectWithRay(ray);
+                if (!Math::isnan(sideDist) && sideDist > 0.0f && sideDist < minDist)
                     minDist = sideDist;
-                if (!Math::isnan(neighbourDist) && Math::pos(neighbourDist) && Math::lt(neighbourDist, minDist))
+                if (!Math::isnan(neighbourDist) && neighbourDist > 0.0f && neighbourDist < minDist)
                     minDist = neighbourDist;
             }
 
