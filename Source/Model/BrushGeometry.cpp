@@ -1570,16 +1570,22 @@ namespace TrenchBroom {
 
             bool canMove = true;
             Vec3f::Set::const_iterator vertexIt, vertexEnd;
-            for (vertexIt = sortedVertexPositions.begin(), vertexEnd = sortedVertexPositions.end(); vertexIt != vertexEnd && canMove; ++vertexIt) {
+            for (vertexIt = sortedVertexPositions.begin(), vertexEnd = sortedVertexPositions.end(); vertexIt != vertexEnd; ++vertexIt) {
                 const Vec3f& vertexPosition = *vertexIt;
                 Vertex* vertex = findVertex(testGeometry.vertices, vertexPosition);
-                assert(vertex != NULL);
+                if (vertex == NULL) {
+                    canMove = false;
+                    break;
+                }
                 
                 const Vec3f start = vertex->position;
                 const Vec3f end = start + delta;
                 
                 MoveVertexResult result = testGeometry.moveVertex(vertex, false, start, end, newFaces, droppedFaces);
-                canMove = result.type == MoveVertexResult::VertexMoved;
+                if (result.type != MoveVertexResult::VertexMoved) {
+                    canMove = false;
+                    break;
+                }
             }
 
             for (edgeIt = i_edges.begin(), edgeEnd = i_edges.end(); edgeIt != edgeEnd && canMove; ++edgeIt) {
@@ -1643,16 +1649,22 @@ namespace TrenchBroom {
             
             bool canMove = true;
             Vec3f::Set::const_iterator vertexIt, vertexEnd;
-            for (vertexIt = sortedVertexPositions.begin(), vertexEnd = sortedVertexPositions.end(); vertexIt != vertexEnd && canMove; ++vertexIt) {
+            for (vertexIt = sortedVertexPositions.begin(), vertexEnd = sortedVertexPositions.end(); vertexIt != vertexEnd; ++vertexIt) {
                 const Vec3f& vertexPosition = *vertexIt;
                 Vertex* vertex = findVertex(testGeometry.vertices, vertexPosition);
-                assert(vertex != NULL);
+                if (vertex == NULL) {
+                    canMove = false;
+                    break;
+                }
                 
                 const Vec3f start = vertex->position;
                 const Vec3f end = start + delta;
                 
                 MoveVertexResult result = testGeometry.moveVertex(vertex, false, start, end, newFaces, droppedFaces);
-                canMove = result.type == MoveVertexResult::VertexMoved;
+                if (result.type != MoveVertexResult::VertexMoved) {
+                    canMove = false;
+                    break;
+                }
             }
 
             FaceSet::const_iterator newFaceIt, newFaceEnd;
