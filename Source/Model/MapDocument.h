@@ -81,7 +81,6 @@ namespace TrenchBroom {
             virtual bool DoOpenDocument(const wxString& file);
             virtual bool DoSaveDocument(const wxString& file);
             
-            void updateEntityDefinitions();
             void clear();
 
             void loadPalette();
@@ -137,6 +136,9 @@ namespace TrenchBroom {
             void loadTextureWad(const String& path);
             void loadTextureWad(const String& path, size_t index);
 
+            void updateEntityDefinitions();
+            void loadEntityDefinitionFile(const String& path);
+            
             void incModificationCount();
             void decModificationCount();
             

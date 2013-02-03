@@ -74,6 +74,18 @@ namespace TrenchBroom {
             return result;
         }
         
+        bool AbstractFileManager::resolveRelativePath(const String& relativePath, const StringList& rootPaths, String& absolutePath) {
+            StringList::const_iterator rootIt, rootEnd;
+            for (rootIt = rootPaths.begin(), rootEnd = rootPaths.end(); rootIt != rootEnd; ++rootIt) {
+                const String& rootPath = *rootIt;
+                absolutePath = makeAbsolute(relativePath, rootPath);
+                if (exists(absolutePath))
+                    return true;
+            }
+            
+            return false;
+        }
+
         StringList AbstractFileManager::pathComponents(const String& path) {
             StringList components;
             if (path.empty()) return components;
@@ -186,7 +198,7 @@ namespace TrenchBroom {
                 return "";
 
             String folderPath = isDirectory(referencePath) ? referencePath : deleteLastPathComponent(referencePath);
-            return appendPath(folderPath, relativePath);
+            return resolvePath(appendPath(folderPath, relativePath));
         }
 
         String AbstractFileManager::pathExtension(const String& path) {

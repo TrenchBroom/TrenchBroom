@@ -42,6 +42,7 @@ namespace TrenchBroom {
         String const Entity::ModsKey             = "__tb_mods";
         String const Entity::TargetKey           = "target";
         String const Entity::WadKey              = "wad";
+        String const Entity::DefKey              = "__tb_def";
 
         void Entity::init() {
             m_map = NULL;

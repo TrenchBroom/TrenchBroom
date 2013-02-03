@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_FaceTypes_h
 #define TrenchBroom_FaceTypes_h
 
+#include <set>
 #include <vector>
 
 namespace TrenchBroom {
@@ -28,6 +29,8 @@ namespace TrenchBroom {
         
         typedef std::vector<Face*> FaceList;
         static const FaceList EmptyFaceList;
+        typedef std::set<Face*> FaceSet;
+        static const FaceSet EmptyFaceSet;
     }
 }
 

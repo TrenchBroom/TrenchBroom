@@ -54,6 +54,7 @@ namespace TrenchBroom {
             static String const ModsKey;
             static String const TargetKey;
             static String const WadKey;
+            static String const DefKey;
         protected:
             Map* m_map;
             PropertyStore m_propertyStore;

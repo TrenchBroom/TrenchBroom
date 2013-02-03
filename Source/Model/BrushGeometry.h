@@ -78,8 +78,26 @@ namespace TrenchBroom {
             Side* right;
             Mark mark;
 
-            Edge(Vertex* i_start, Vertex* i_end) : start(i_start), end(i_end), left(NULL), right(NULL), mark(New) {}
-            Edge() : start(NULL), end(NULL), left(NULL), right(NULL), mark(New) {}
+            Edge(Vertex* i_start, Vertex* i_end, Side* i_left, Side* i_right) :
+            start(i_start),
+            end(i_end),
+            left(i_left),
+            right(i_right),
+            mark(New) {}
+            
+            Edge(Vertex* i_start, Vertex* i_end) :
+            start(i_start),
+            end(i_end),
+            left(NULL),
+            right(NULL),
+            mark(New) {}
+            
+            Edge() :
+            start(NULL),
+            end(NULL),
+            left(NULL),
+            right(NULL),
+            mark(New) {}
 
             ~Edge() {
                 start = NULL;
@@ -119,6 +137,10 @@ namespace TrenchBroom {
 
             inline bool incidentWith(const Edge* edge) const {
                 return start == edge->start || start == edge->end || end == edge->start || end == edge->end;
+            }
+            
+            inline bool connects(const Vertex* vertex1, const Vertex* vertex2) const {
+                return (start == vertex1 && end == vertex2) || (start == vertex2 && end == vertex1);
             }
 
             void updateMark();
@@ -201,14 +223,29 @@ namespace TrenchBroom {
 			~Side();
 
             float intersectWithRay(const Ray& ray);
-
             void replaceEdges(size_t index1, size_t index2, Edge* edge);
-
             Edge* split();
+            void chop(size_t index, Side*& newSide, Edge*& newEdge);
             void flip();
             void shift(size_t offset);
             bool isDegenerate();
             size_t isCollinearTriangle();
+            
+            inline bool hasVertices(const Vec3f::List& vecs) const {
+                if (vertices.size() != vecs.size())
+                    return false;
+                
+                size_t count = vecs.size();
+                for (size_t i = 0; i < count; i++) {
+                    bool equal = true;
+                    for (size_t j = 0; j < count && equal; j++) {
+                        equal = vertices[(i + j) % count]->position == vecs[j];
+                    }
+                    if (equal)
+                        return true;
+                }
+                return false;
+            }
         };
 
         struct MoveVertexResult {
@@ -235,20 +272,15 @@ namespace TrenchBroom {
             };
         private:
             SideList incidentSides(Vertex* vertex);
-            void deleteDegenerateTriangle(Side* side, Edge* edge, FaceList& newFaces, FaceList& droppedFaces);
-            void triangulateSide(Side* sideToTriangluate, Vertex* vertex, FaceList& newFaces);
-            void splitSide(Side* sideToSplit, Vertex* vertex, FaceList& newFaces);
-            void splitSides(SideList& sidesToSplit, const Ray& ray, Vertex* vertex, FaceList& newFaces, FaceList& droppedFaces);
-            void mergeVertices(Vertex* keepVertex, Vertex* dropVertex, FaceList& newFaces, FaceList& droppedFaces);
+            void deleteDegenerateTriangle(Side* side, Edge* edge, FaceSet& newFaces, FaceSet& droppedFaces);
             void mergeEdges();
-            Face* mergeNeighbours(Side* side, size_t edgeIndex, const FaceList& newFaces);
-            void mergeSides(FaceList& newFaces, FaceList&droppedFaces);
-            void deleteCollinearTriangles(SideList& incSides, FaceList& newFaces, FaceList& droppedFaces);
-            float minVertexMoveDist(const SideList& incSides, const Vertex* vertex, const Ray& ray, float maxDist);
+            Face* mergeNeighbours(Side* side, size_t edgeIndex, const FaceSet& newFaces);
+            void mergeSides(FaceSet& newFaces, FaceSet&droppedFaces);
+            void deleteCollinearTriangles(SideList& incSides, FaceSet& newFaces, FaceSet& droppedFaces);
             
-            MoveVertexResult moveVertex(Vertex* vertex, bool mergeWithAdjacentVertex, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
-            Vertex* splitEdge(Edge* edge, FaceList& newFaces, FaceList& droppedFaces);
-            Vertex* splitFace(Face* face, FaceList& newFaces, FaceList& droppedFaces);
+            MoveVertexResult moveVertex(Vertex* vertex, bool mergeWithAdjacentVertex, const Vec3f& start, const Vec3f& end, FaceSet& newFaces, FaceSet& droppedFaces);
+            Vertex* splitEdge(Edge* edge);
+            Vertex* splitFace(Face* face, FaceSet& newFaces, FaceSet& droppedFaces);
             
             void copy(const BrushGeometry& original);
             bool sanityCheck();
@@ -273,19 +305,19 @@ namespace TrenchBroom {
             void rotate90(Axis::Type axis, const Vec3f& rotationCenter, bool clockwise);
             void rotate(const Quat& rotation, const Vec3f& rotationCenter);
             void flip(Axis::Type axis, const Vec3f& flipCenter);
-            void snap();
+            void updateFacePoints();
 
             bool canMoveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta);
-            Vec3f::List moveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
+            Vec3f::List moveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
             bool canMoveEdges(const EdgeList& edges, const Vec3f& delta);
-            void moveEdges(const EdgeList& edges, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
+            void moveEdges(const EdgeList& edges, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
             bool canMoveFaces(const FaceList& faces, const Vec3f& delta);
-            void moveFaces(const FaceList& faces, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
+            void moveFaces(const FaceList& faces, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
             
             bool canSplitEdge(Edge* edge, const Vec3f& delta);
-            Vec3f splitEdge(Edge* edge, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
+            Vec3f splitEdge(Edge* edge, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
             bool canSplitFace(Face* face, const Vec3f& delta);
-            Vec3f splitFace(Face* face, const Vec3f& delta, FaceList& newFaces, FaceList& droppedFaces);
+            Vec3f splitFace(Face* face, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
         };
 
         template <class T>

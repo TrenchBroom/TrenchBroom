@@ -22,6 +22,7 @@
 
 #include "Controller/MoveTool.h"
 #include "Controller/VertexHandleManager.h"
+#include "Renderer/Text/TextRenderer.h"
 #include "Utility/VecMath.h"
 
 #include <algorithm>
@@ -46,6 +47,8 @@ namespace TrenchBroom {
             VertexHandleManager m_handleManager;
             VertexToolMode m_mode;
             bool m_ignoreObjectChanges;
+            Renderer::Text::TextRenderer<Vec3f, Vec3f::LexicographicOrder>* m_textRenderer;
+            Renderer::Text::TextRenderer<Vec3f, Vec3f::LexicographicOrder>::SimpleTextRendererFilter m_textFilter;
             
             bool isApplicable(InputState& inputState, Vec3f& hitPoint);
             wxString actionName();

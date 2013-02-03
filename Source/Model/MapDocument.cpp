@@ -183,19 +183,6 @@ namespace TrenchBroom {
             return false;
         }
 
-        void MapDocument::updateEntityDefinitions() {
-            const EntityList& entities = m_map->entities();
-            for (unsigned int i = 0; i < entities.size(); i++) {
-                Entity& entity = *entities[i];
-                const PropertyValue* classname = entity.classname();
-
-                if (classname != NULL) {
-                    EntityDefinition* definition = m_definitionManager->definition(*classname);
-                    entity.setDefinition(definition);
-                }
-            }
-        }
-
         void MapDocument::clear() {
             m_sharedResources->textureRendererManager().clear();
             m_editStateManager->clear();
@@ -244,10 +231,26 @@ namespace TrenchBroom {
             IO::FileManager fileManager;
             String resourcePath = fileManager.resourceDirectory();
             String defPath = fileManager.appendPath(resourcePath, "Quake.def");
-            console().info("Loading entity definition file %s", defPath.c_str());
 
-            m_definitionManager->clear();
-            m_definitionManager->load(defPath);
+            const Model::PropertyValue* defValue = worldspawn(true)->propertyForKey(Model::Entity::DefKey);
+            if (defValue != NULL) {
+                Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+                
+                const String defPathValue = *defValue;
+                if (!fileManager.isAbsolutePath(defPathValue)) {
+                    StringList rootPaths;
+                    rootPaths.push_back(GetFilename().ToStdString());
+                    rootPaths.push_back(wxStandardPaths::Get().GetExecutablePath().ToStdString());
+                    rootPaths.push_back(prefs.getString(Preferences::QuakePath));
+                    
+                    if (!fileManager.resolveRelativePath(defPathValue, rootPaths, defPath)) {
+                        console().error("Could not open entity definition file %s (tried relative to current map file, TrenchBroom executable, and Quake path)", defPathValue.c_str());
+                        return;
+                    }
+                }
+            }
+            
+            loadEntityDefinitionFile(defPath);
         }
 
         MapDocument::MapDocument() :
@@ -595,22 +598,15 @@ namespace TrenchBroom {
 
             String wadPath = path;
             if (!fileManager.isAbsolutePath(wadPath)) {
-                // try relative path to map file, executable, quake path
-                String mapPath = GetFilename().ToStdString();
-                wadPath = fileManager.makeAbsolute(path, mapPath);
-                if (!fileManager.exists(wadPath)) {
-                    String exePath = wxStandardPaths::Get().GetExecutablePath().ToStdString();
-                    wadPath = fileManager.makeAbsolute(path, mapPath);
-                }
-                
-                if (!fileManager.exists(wadPath)) {
-                    Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-                    const String& quakePath = prefs.getString(Preferences::QuakePath);
-                    wadPath = fileManager.makeAbsolute(path, quakePath);
-                }
+                Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
-                if (!fileManager.exists(wadPath)) {
-                    console().error("Could not open texture wad %s (tried relative to current map file, current executable, and Quake path)", wadPath.c_str());
+                StringList rootPaths;
+                rootPaths.push_back(GetFilename().ToStdString());
+                rootPaths.push_back(wxStandardPaths::Get().GetExecutablePath().ToStdString());
+                rootPaths.push_back(prefs.getString(Preferences::QuakePath));
+                
+                if (!fileManager.resolveRelativePath(path, rootPaths, wadPath)) {
+                    console().error("Could not open texture wad %s (tried relative to current map file, TrenchBroom executable, and Quake path)", path.c_str());
                     return;
                 }
             }
@@ -630,6 +626,25 @@ namespace TrenchBroom {
             } else {
                 console().error("Could not open texture wad %s", wadPath.c_str());
             }
+        }
+
+        void MapDocument::updateEntityDefinitions() {
+            const EntityList& entities = m_map->entities();
+            for (unsigned int i = 0; i < entities.size(); i++) {
+                Entity& entity = *entities[i];
+                const PropertyValue* classname = entity.classname();
+                
+                if (classname != NULL) {
+                    EntityDefinition* definition = m_definitionManager->definition(*classname);
+                    entity.setDefinition(definition);
+                }
+            }
+        }
+        
+        void MapDocument::loadEntityDefinitionFile(const String& path) {
+            console().info("Loading entity definition file %s", path.c_str());
+            m_definitionManager->clear();
+            m_definitionManager->load(path);
         }
 
         void MapDocument::incModificationCount() {

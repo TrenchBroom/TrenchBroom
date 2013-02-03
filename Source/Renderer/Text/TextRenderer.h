@@ -74,7 +74,7 @@ namespace TrenchBroom {
                 }
             };
             
-            class SimpleTextAnchor : TextAnchor {
+            class SimpleTextAnchor : public TextAnchor {
             private:
                 Vec3f m_position;
                 Alignment::Type m_alignment;
@@ -93,6 +93,14 @@ namespace TrenchBroom {
             };
             
             template <typename Key>
+            class DefaultKeyComparator {
+            public:
+                inline bool operator()(const Key& lhs, const Key& rhs) const {
+                    return lhs < rhs;
+                }
+            };
+            
+            template <typename Key, typename Comparator = DefaultKeyComparator<Key> >
             class TextRenderer {
             public:
                 class TextRendererFilter {
@@ -101,6 +109,14 @@ namespace TrenchBroom {
                     virtual ~TextRendererFilter() {}
                     virtual bool stringVisible(RenderContext& context, const Key& key) = 0;
                 };
+
+                class SimpleTextRendererFilter : public TextRendererFilter {
+                public:
+                    bool stringVisible(RenderContext& context, const Key& key) {
+                        return true;
+                    }
+                };
+                
             protected:
                 class TextEntry {
                 protected:
@@ -154,7 +170,7 @@ namespace TrenchBroom {
                     }
                 };
                 
-                typedef std::map<Key, TextEntry> TextMap;
+                typedef std::map<Key, TextEntry, Comparator> TextMap;
                 typedef std::vector<EntryWithDistance> EntryList;
                 
                 StringManager& m_stringManager;

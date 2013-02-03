@@ -98,6 +98,12 @@ namespace TrenchBroom {
             
             m_handleManager.render(vbo, renderContext, m_mode == VMSplit);
             
+            if (m_textRenderer == NULL) {
+                m_textRenderer = new Renderer::Text::TextRenderer<Vec3f, Vec3f::LexicographicOrder>(document().sharedResources().stringManager());
+                m_textRenderer->setFadeDistance(10000.0f);
+            }
+            m_textRenderer->clear();
+            
             Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit | Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));
             if (hit != NULL) {
                 Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
@@ -105,12 +111,20 @@ namespace TrenchBroom {
                 const float radius = prefs.getFloat(Preferences::HandleRadius);
                 const float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
                 
+                const String fontName = prefs.getString(Preferences::RendererFontName);
+                const int fontSize = prefs.getInt(Preferences::RendererFontSize);
+                assert(fontSize >= 0);
+                const Renderer::Text::FontDescriptor font(fontName, static_cast<unsigned int>(fontSize));
+
                 glDisable(GL_DEPTH_TEST);
                 Renderer::PointHandleHighlightFigure highlightFigure(hit->vertex(), color, radius, scalingFactor);
                 highlightFigure.render(vbo, renderContext);
                 glEnable(GL_DEPTH_TEST);
                 
-                if (hit->type() == Model::HitType::EdgeHandleHit) {
+                if (hit->type() == Model::HitType::VertexHandleHit) {
+                    Renderer::Text::TextAnchor* anchor = new Renderer::Text::SimpleTextAnchor(hit->vertex() + Vec3f(0.0f, 0.0f, radius + 2.0f), Renderer::Text::Alignment::Bottom);
+                    m_textRenderer->addString(hit->vertex(), font, hit->vertex().asString(), anchor);
+                } else if (hit->type() == Model::HitType::EdgeHandleHit) {
                     Renderer::LinesRenderer linesRenderer;
                     linesRenderer.setColor(prefs.getColor(Preferences::EdgeHandleColor), prefs.getColor(Preferences::OccludedEdgeHandleColor));
                     
@@ -140,12 +154,21 @@ namespace TrenchBroom {
 
                     linesRenderer.render(vbo, renderContext);
                 }
+                
+                const Color& textColor = prefs.getColor(Preferences::InfoOverlayTextColor);
+                const Color& backgroundColor = prefs.getColor(Preferences::InfoOverlayBackgroundColor);
+                Renderer::ShaderProgram& textShader = renderContext.shaderManager().shaderProgram(Renderer::Shaders::TextShader);
+                Renderer::ShaderProgram& backgroundShader = renderContext.shaderManager().shaderProgram(Renderer::Shaders::TextBackgroundShader);
+                
+                m_textRenderer->render(renderContext, m_textFilter, textShader, textColor, backgroundShader, backgroundColor);
             }
         }
 
         void MoveVerticesTool::handleFreeRenderResources() {
             MoveTool::handleFreeRenderResources();
             m_handleManager.freeRenderResources();
+            delete m_textRenderer;
+            m_textRenderer = NULL;
         }
 
         bool MoveVerticesTool::handleMouseDown(InputState& inputState) {
@@ -263,7 +286,8 @@ namespace TrenchBroom {
         MoveVerticesTool::MoveVerticesTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, float axisLength, float planeRadius, float vertexSize) :
         MoveTool(documentViewHolder, inputController, true),
         m_mode(VMMove),
-        m_ignoreObjectChanges(false) {}
+        m_ignoreObjectChanges(false),
+        m_textRenderer(NULL) {}
 
         bool MoveVerticesTool::hasSelection() {
             return !m_handleManager.selectedVertexHandles().empty() || !m_handleManager.selectedEdgeHandles().empty() || !m_handleManager.selectedFaceHandles().empty();

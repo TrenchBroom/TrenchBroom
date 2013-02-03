@@ -86,15 +86,14 @@ private:
 				m_mappingHandle = CreateFileMapping(m_fileHandle, NULL, protect, 0, 0, uMappingName);
 			}
 		} else {
-			m_fileHandle = CreateFile(uFilename, 0, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-			if (m_fileHandle == INVALID_HANDLE_VALUE) {
+            WIN32_FILE_ATTRIBUTE_DATA attrs;
+            if (GetFileAttributesEx(uFilename, GetFileExInfoStandard, &attrs) != 0) {
+                m_length = (attrs.nFileSizeHigh << 16) + attrs.nFileSizeLow;
+            } else {
+                DWORD error = GetLastError();
 				CloseHandle(m_mappingHandle);
 				m_mappingHandle = NULL;
-			} else {
-				m_length = static_cast<size_t>(GetFileSize(m_fileHandle, NULL));
-				CloseHandle(m_fileHandle);
-				m_fileHandle = INVALID_HANDLE_VALUE;
-			}
+            }
 		}
 
 		if (m_mappingHandle != NULL) {
