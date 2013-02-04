@@ -56,6 +56,7 @@ namespace TrenchBroom {
             void updateSmartEditor(int row);
         public:
             EntityInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder);
+            ~EntityInspector();
             
             void updateProperties();
             void updateSmartEditor();

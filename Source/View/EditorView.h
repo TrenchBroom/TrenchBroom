@@ -74,7 +74,7 @@ namespace TrenchBroom {
             
             Vec3f moveDelta(Direction direction, bool snapToGrid);
             
-            void submit(wxCommand* command);
+            void submit(wxCommand* command, bool store = true);
             void moveTextures(Direction direction, bool snapToGrid);
             void rotateTextures(bool clockwise, bool snapToGrid);
             void moveObjects(Direction direction, bool snapToGrid);

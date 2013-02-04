@@ -185,8 +185,8 @@ namespace TrenchBroom {
 
         IMPLEMENT_DYNAMIC_CLASS(EditorView, wxView)
 
-        void EditorView::submit(wxCommand* command) {
-            mapDocument().GetCommandProcessor()->Submit(command);
+        void EditorView::submit(wxCommand* command, bool store) {
+            mapDocument().GetCommandProcessor()->Submit(command, store);
         }
 
         Vec3f EditorView::moveDelta(Direction direction, bool snapToGrid) {

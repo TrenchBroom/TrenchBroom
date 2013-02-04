@@ -327,7 +327,7 @@ namespace TrenchBroom {
                 Face* face = *it;
                 face->setBrush(NULL);
                 m_faces.erase(std::remove(m_faces.begin(), m_faces.end(), face), m_faces.end());
-                delete face;
+                // delete face;
             }
             
             for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {

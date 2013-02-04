@@ -125,6 +125,11 @@ namespace TrenchBroom {
             // inspectorSplitter->SplitHorizontally(createPropertyEditor(inspectorSplitter), createEntityBrowser(inspectorSplitter));
         }
 
+        EntityInspector::~EntityInspector() {
+            delete m_smartPropertyEditorManager;
+            m_smartPropertyEditorManager = NULL;
+        }
+
         void EntityInspector::updateProperties() {
             m_propertyTable->update();
             updateSmartEditor(m_propertyGrid->GetGridCursorRow());

@@ -231,7 +231,7 @@ namespace TrenchBroom {
             bool isDegenerate();
             size_t isCollinearTriangle();
             
-            inline bool hasVertices(const Vec3f::List& vecs) const {
+            inline bool hasVertices(const Vec3f::List& vecs, float epsilon = Math::AlmostZero) const {
                 if (vertices.size() != vecs.size())
                     return false;
                 
@@ -239,7 +239,7 @@ namespace TrenchBroom {
                 for (size_t i = 0; i < count; i++) {
                     bool equal = true;
                     for (size_t j = 0; j < count && equal; j++) {
-                        equal = vertices[(i + j) % count]->position == vecs[j];
+                        equal = vertices[(i + j) % count]->position.equals(vecs[j], epsilon);
                     }
                     if (equal)
                         return true;
@@ -271,16 +271,28 @@ namespace TrenchBroom {
                 Split       // the given face has split the brush
             };
         private:
+            class FaceManager {
+            private:
+                typedef std::map<Face*, FaceSet> CopyMap;
+                CopyMap m_newFaces;
+                FaceSet m_droppedFaces;
+            public:
+                ~FaceManager();
+                
+                void addFace(Face* original, Face* copy);
+                void dropFace(Side* side);
+                void getFaces(FaceSet& newFaces, FaceSet& droppedFaces);
+            };
+
             SideList incidentSides(Vertex* vertex);
-            void deleteDegenerateTriangle(Side* side, Edge* edge, FaceSet& newFaces, FaceSet& droppedFaces);
+            void deleteDegenerateTriangle(Side* side, Edge* edge, FaceManager& faceManager);
             void mergeEdges();
-            Face* mergeNeighbours(Side* side, size_t edgeIndex, const FaceSet& newFaces);
-            void mergeSides(FaceSet& newFaces, FaceSet&droppedFaces);
-            void deleteCollinearTriangles(SideList& incSides, FaceSet& newFaces, FaceSet& droppedFaces);
+            void mergeNeighbours(Side* side, size_t edgeIndex, FaceManager& faceManager);
+            void mergeSides(FaceManager& faceManager);
             
-            MoveVertexResult moveVertex(Vertex* vertex, bool mergeWithAdjacentVertex, const Vec3f& start, const Vec3f& end, FaceSet& newFaces, FaceSet& droppedFaces);
+            MoveVertexResult moveVertex(Vertex* vertex, bool mergeWithAdjacentVertex, const Vec3f& start, const Vec3f& end, FaceManager& faceManager);
             Vertex* splitEdge(Edge* edge);
-            Vertex* splitFace(Face* face, FaceSet& newFaces, FaceSet& droppedFaces);
+            Vertex* splitFace(Face* face, FaceManager& faceManager);
             
             void copy(const BrushGeometry& original);
             bool sanityCheck();
@@ -346,9 +358,9 @@ namespace TrenchBroom {
             return true;
         }
 
-        Vertex* findVertex(const VertexList& vertices, const Vec3f& position);
-        Edge* findEdge(const EdgeList& edges, const Vec3f& vertexPosition1, const Vec3f& vertexPosition2);
-        Side* findSide(const SideList& sides, const Vec3f::List& vertexPositions);
+        Vertex* findVertex(const VertexList& vertices, const Vec3f& position, float epsilon = Math::AlmostZero);
+        Edge* findEdge(const EdgeList& edges, const Vec3f& vertexPosition1, const Vec3f& vertexPosition2, float epsilon = Math::AlmostZero);
+        Side* findSide(const SideList& sides, const Vec3f::List& vertexPositions, float epsilon = Math::AlmostZero);
 
         Vec3f centerOfVertices(const VertexList& vertices);
         BBox boundsOfVertices(const VertexList& vertices);

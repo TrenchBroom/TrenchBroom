@@ -51,8 +51,7 @@ namespace TrenchBroom {
         }
         
         char AbstractFileManager::pathSeparator() {
-            char c;
-			wxFileName::GetPathSeparator().GetAsChar(&c);
+            static const char c = wxFileName::GetPathSeparator();
             return c;
         }
         
@@ -90,20 +89,21 @@ namespace TrenchBroom {
             StringList components;
             if (path.empty()) return components;
             
-            size_t lastPos = 0;
-            size_t pos = 0;
-            while ((pos = path.find_first_of(pathSeparator(), pos)) != String::npos) {
-                if (pos > lastPos + 1)
-                    components.push_back(path.substr(lastPos + 1, pos - lastPos - 1));
-                lastPos = pos;
-                pos++;
-            }
-            
-            if (lastPos == 0)
+            size_t pos = path.find_first_of(pathSeparator(), 0);
+            if (pos != String::npos) {
+                size_t lastPos = 0;
+                do {
+                    if(pos > lastPos)
+                        components.push_back(path.substr(lastPos, pos - lastPos));
+                    pos++;
+                    lastPos = pos;
+                } while ((pos = path.find_first_of(pathSeparator(), pos)) != String::npos);
+                if (lastPos < path.length() - 1)
+                    components.push_back(path.substr(lastPos));
+            } else {
                 components.push_back(path);
-            else if (lastPos < path.length() - 1)
-                components.push_back(path.substr(lastPos + 1));
-            
+            }
+
             return components;
         }
         
