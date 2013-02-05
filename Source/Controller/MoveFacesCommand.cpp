@@ -38,8 +38,6 @@ namespace TrenchBroom {
                 brush->moveFaces(faces, m_delta);
             }
 
-            // now the faces are not identical to the originally moved faces anymore
-            
             document().brushesDidChange(m_brushes);
             return true;
         }

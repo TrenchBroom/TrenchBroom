@@ -29,6 +29,7 @@ namespace TrenchBroom {
     namespace Math {
         static const float AlmostZero = 0.001f;
         static const float PointStatusEpsilon = 0.01f;
+        static const float ColinearEpsilon = 0.01f;
         static const float Pi = 3.141592f;
 
         inline bool isnan(float f) {

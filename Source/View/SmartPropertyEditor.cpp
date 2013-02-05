@@ -133,8 +133,8 @@ namespace TrenchBroom {
         m_panel(new wxPanel(parent)),
         m_defaultEditor(new DefaultPropertyEditor(*this)),
         m_activeEditor(NULL) {
-            m_editors["spawnflags"] = new SpawnFlagsEditor(*this);
-            m_editors["_color"] = new ColorEditor(*this);
+            m_editors["spawnflags"] = EditorPtr(new SpawnFlagsEditor(*this));
+            m_editors["_color"] = EditorPtr(new ColorEditor(*this));
             m_editors["_sunlight_color"] = m_editors["_color"];
             m_editors["_sunlight_color2"] = m_editors["_color"];
             // m_editors["angle"] = new AngleEditor(*this);
@@ -151,18 +151,13 @@ namespace TrenchBroom {
         SmartPropertyEditorManager::~SmartPropertyEditorManager() {
             deactivateEditor();
             
-            EditorMap::const_iterator it, end;
-            for (it = m_editors.begin(), end = m_editors.end(); it != end; ++it)
-                delete it->second;
-            m_editors.clear();
-            
             delete m_defaultEditor;
             m_defaultEditor = NULL;
         }
 
         void SmartPropertyEditorManager::selectEditor(const Model::PropertyKey& key) {
             EditorMap::const_iterator it = m_editors.find(key);
-            SmartPropertyEditor* editor = it == m_editors.end() ? m_defaultEditor : it->second;
+            SmartPropertyEditor* editor = it == m_editors.end() ? m_defaultEditor : it->second.get();
             activateEditor(editor, key);
         }
         

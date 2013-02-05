@@ -46,18 +46,11 @@ namespace TrenchBroom {
             Text::Alignment::Type alignment();
         };
 
-        class BoxInfoTextFilter : public Text::TextRenderer<Axis::Type>::TextRendererFilter {
-        public:
-            bool stringVisible(RenderContext& context, const Axis::Type& key) {
-                return true;
-            }
-        };
-        
         class BoxInfoRenderer {
         private:
             BBox m_bounds;
             Text::TextRenderer<Axis::Type>* m_textRenderer;
-            BoxInfoTextFilter m_textFilter;
+            Text::TextRenderer<Axis::Type>::SimpleTextRendererFilter m_textFilter;
             bool m_initialized;
         public:
             BoxInfoRenderer(const BBox& bounds, Text::StringManager& stringManager);

@@ -87,7 +87,7 @@ namespace TrenchBroom {
             if (dragType() != DTDrag)
                 return;
             
-            if (inputState.scroll() > 0.0f) {
+            if (inputState.scroll() < 0.0f) {
                 m_thickness++;
                 if (m_thickness == 0)
                     m_thickness++;

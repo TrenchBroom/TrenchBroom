@@ -280,7 +280,7 @@ namespace TrenchBroom {
                 return Math::isnan(x) || Math::isnan(y) || Math::isnan(z);
             }
             
-            inline bool parallelTo(const Vec3f& other, float delta = Math::AlmostZero) const {
+            inline bool parallelTo(const Vec3f& other, float delta = Math::ColinearEpsilon) const {
                 Vec3f cross = this->crossed(other);
                 return cross.equals(Null, delta);
             }
@@ -409,11 +409,7 @@ namespace TrenchBroom {
             }
             
             void write(std::ostream& str) const {
-                str << x;
-                str << ' ';
-                str << y;
-                str << ' ';
-                str << z;
+                str << x << ' ' << y << ' ' << z;
             }
             
             std::string asString() const {
@@ -428,9 +424,12 @@ namespace TrenchBroom {
             }
             
             inline Vec3f& snap(float epsilon) {
-                x = Math::round(x);
-                y = Math::round(y);
-                z = Math::round(z);
+                float xr = Math::round(x);
+                float yr = Math::round(y);
+                float zr = Math::round(z);
+                x = Math::eq(x, xr) ? xr : x;
+                y = Math::eq(y, yr) ? yr : y;
+                z = Math::eq(z, zr) ? zr : z;
                 return *this;
             }
             

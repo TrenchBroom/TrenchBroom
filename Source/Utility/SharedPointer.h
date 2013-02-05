@@ -17,21 +17,13 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FaceTypes_h
-#define TrenchBroom_FaceTypes_h
+#ifndef TrenchBroom_SharedPointer_h
+#define TrenchBroom_SharedPointer_h
 
-#include <set>
-#include <vector>
-
-namespace TrenchBroom {
-    namespace Model {
-        class Face;
-        
-        typedef std::vector<Face*> FaceList;
-        static const FaceList EmptyFaceList;
-        typedef std::set<Face*> FaceSet;
-        static const FaceSet EmptyFaceSet;
-    }
-}
+#if defined _WIN32
+#include <memory>
+#elif defined __APPLE__
+#include <tr1/memory>
+#endif
 
 #endif

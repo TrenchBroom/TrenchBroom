@@ -262,6 +262,7 @@
 		483323EF16AF351900FC9721 /* SpawnFlagsEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpawnFlagsEditor.cpp; sourceTree = "<group>"; };
 		483323F016AF351900FC9721 /* SpawnFlagsEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpawnFlagsEditor.h; sourceTree = "<group>"; };
 		4835D20516419FC400B01BD8 /* IOException.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IOException.h; sourceTree = "<group>"; };
+		483D0C3716C050DE0050710B /* SharedPointer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SharedPointer.h; sourceTree = "<group>"; };
 		483F970516A5AB4B009716B1 /* CreateEntityFromMenuHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CreateEntityFromMenuHelper.cpp; sourceTree = "<group>"; };
 		483F970616A5AB4B009716B1 /* CreateEntityFromMenuHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateEntityFromMenuHelper.h; sourceTree = "<group>"; };
 		4842AF64162175300042AD66 /* DragAndDrop.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragAndDrop.h; sourceTree = "<group>"; };
@@ -877,6 +878,7 @@
 				48AF492915E8F0B20083DE52 /* ProgressIndicator.h */,
 				48D1BEA415E2F4F80073C030 /* Quat.h */,
 				48D1BEA515E2F8CC0073C030 /* Ray.h */,
+				483D0C3716C050DE0050710B /* SharedPointer.h */,
 				4810277015E541A200250C9C /* String.h */,
 				4847641415E2E0E800095BC0 /* Vec2f.h */,
 				48D1BE9C15E2E5550073C030 /* Vec3f.cpp */,

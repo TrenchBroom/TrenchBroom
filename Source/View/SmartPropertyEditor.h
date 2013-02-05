@@ -22,6 +22,7 @@
 
 #include "Model/EntityProperty.h"
 #include "Model/EntityTypes.h"
+#include "Utility/SharedPointer.h"
 #include "Utility/String.h"
 #include "View/DocumentViewHolder.h"
 
@@ -83,7 +84,8 @@ namespace TrenchBroom {
         
         class SmartPropertyEditorManager {
         private:
-            typedef std::map<Model::PropertyKey, SmartPropertyEditor*> EditorMap;
+            typedef std::tr1::shared_ptr<SmartPropertyEditor> EditorPtr;
+            typedef std::map<Model::PropertyKey, EditorPtr> EditorMap;
             
             DocumentViewHolder& m_documentViewHolder;
             wxWindow* m_panel;

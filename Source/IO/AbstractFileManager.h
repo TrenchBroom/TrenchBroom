@@ -37,6 +37,7 @@ namespace TrenchBroom {
             bool moveFile(const String& sourcePath, const String& destPath, bool overwrite);
             char pathSeparator();
             StringList directoryContents(const String& path, String extension = "");
+            bool resolveRelativePath(const String& relativePath, const StringList& rootPaths, String& absolutePath);
             
             StringList pathComponents(const String& path);
             String joinComponents(const StringList& pathComponents);
