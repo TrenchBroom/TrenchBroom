@@ -423,7 +423,9 @@ namespace TrenchBroom {
             if (copyIt != m_newFaces.end()) {
                 // the face is an original
                 FaceSet& copies = copyIt->second;
-                FaceSet::iterator faceIt = copies.begin();
+				assert(!copies.empty());
+
+				FaceSet::iterator faceIt = copies.begin();
                 Face* copy = *faceIt;
                 copies.erase(faceIt);
                 
@@ -438,9 +440,16 @@ namespace TrenchBroom {
             } else {
                 bool wasCopy = false;
                 CopyMap::iterator copyEnd;
-                for (copyIt = m_newFaces.begin(), copyEnd = m_newFaces.end(); copyIt != copyEnd && !wasCopy; ++copyIt) {
+                for (copyIt = m_newFaces.begin(), copyEnd = m_newFaces.end(); copyIt != copyEnd; ++copyIt) {
                     FaceSet& copies = copyIt->second;
-                    wasCopy = copies.erase(side->face) > 0;
+					assert(!copies.empty());
+
+					if (copies.erase(side->face) > 0) {
+						wasCopy = true;
+						if (copies.empty())
+							m_newFaces.erase(copyIt);
+						break;
+					}
                 }
                 if (!wasCopy)
                     m_droppedFaces.insert(side->face);
