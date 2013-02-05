@@ -254,8 +254,10 @@ namespace TrenchBroom {
             if (m_inputState.mouseButtons() != MouseButtons::MBNone) {
                 if (m_dragTool == NULL && !m_cancelledDrag &&
                     (std::abs(m_clickPos.x - x) > 1 ||
-                     std::abs(m_clickPos.y - y) > 1))
+                     std::abs(m_clickPos.y - y) > 1)) {
                         m_dragTool = m_toolChain->startDrag(m_inputState);
+                        m_discardNextMouseUp = false;
+                }
                 m_inputState.mouseMove(x, y);
                 updateHits();
                 if (m_dragTool != NULL) {
