@@ -39,6 +39,7 @@ namespace TrenchBroom {
             typedef std::pair<BrushFacesMap::iterator, bool> BrushFacesMapInsertResult;
             
             Model::BrushList m_brushes;
+            Model::FaceList m_originalFaces;
             Model::FaceList m_faces;
             BrushFacesMap m_brushFaces;
             Vec3f m_delta;

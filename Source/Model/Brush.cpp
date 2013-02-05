@@ -350,11 +350,11 @@ namespace TrenchBroom {
             return m_geometry->canMoveEdges(edges, delta);
         }
         
-        void Brush::moveEdges(const EdgeList& edges, const Vec3f& delta) {
+        EdgeList Brush::moveEdges(const EdgeList& edges, const Vec3f& delta) {
             FaceSet newFaces;
             FaceSet droppedFaces;
             
-            m_geometry->moveEdges(edges, delta, newFaces, droppedFaces);
+            const EdgeList result = m_geometry->moveEdges(edges, delta, newFaces, droppedFaces);
             
             for (FaceSet::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
                 Face* face = *it;
@@ -376,17 +376,18 @@ namespace TrenchBroom {
             }
             
             m_entity->invalidateGeometry();
+            return result;
         }
 
         bool Brush::canMoveFaces(const FaceList& faces, const Vec3f& delta) const {
             return m_geometry->canMoveFaces(faces, delta);
         }
         
-        void Brush::moveFaces(const FaceList& faces, const Vec3f& delta) {
+        FaceList Brush::moveFaces(const FaceList& faces, const Vec3f& delta) {
             FaceSet newFaces;
             FaceSet droppedFaces;
             
-            m_geometry->moveFaces(faces, delta, newFaces, droppedFaces);
+            const FaceList result = m_geometry->moveFaces(faces, delta, newFaces, droppedFaces);
             
             for (FaceSet::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
                 Face* face = *it;
@@ -408,6 +409,7 @@ namespace TrenchBroom {
             }
             
             m_entity->invalidateGeometry();
+            return result;
         }
 
         bool Brush::canSplitEdge(Edge* edge, const Vec3f& delta) const {

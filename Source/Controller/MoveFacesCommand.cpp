@@ -28,6 +28,7 @@ namespace TrenchBroom {
             if (!canDo())
                 return false;
             
+            m_faces.clear();
             makeSnapshots(m_brushes);
             document().brushesWillChange(m_brushes);
             
@@ -35,7 +36,8 @@ namespace TrenchBroom {
             for (it = m_brushFaces.begin(), end = m_brushFaces.end(); it != end; ++it) {
                 Model::Brush* brush = it->first;
                 const Model::FaceList& faces = it->second;
-                brush->moveFaces(faces, m_delta);
+                const Model::FaceList newFaces = brush->moveFaces(faces, m_delta);
+                m_faces.insert(m_faces.end(), newFaces.begin(), newFaces.end());
             }
 
             document().brushesDidChange(m_brushes);
@@ -46,6 +48,7 @@ namespace TrenchBroom {
             document().brushesWillChange(m_brushes);
             restoreSnapshots(m_brushes);
             document().brushesDidChange(m_brushes);
+            m_faces = m_originalFaces;
             return true;
         }
         
@@ -64,6 +67,7 @@ namespace TrenchBroom {
                     if (result.second)
                         m_brushes.push_back(brush);
                     result.first->second.push_back(face);
+                    m_originalFaces.push_back(face);
                     m_faces.push_back(face);
                 }
             }

@@ -29,6 +29,7 @@ namespace TrenchBroom {
             if (!canDo())
                 return false;
             
+            m_edges.clear();
             makeSnapshots(m_brushes);
             document().brushesWillChange(m_brushes);
             
@@ -36,7 +37,8 @@ namespace TrenchBroom {
             for (it = m_brushEdges.begin(), end = m_brushEdges.end(); it != end; ++it) {
                 Model::Brush* brush = it->first;
                 const Model::EdgeList& edges = it->second;
-                brush->moveEdges(edges, m_delta);
+                const Model::EdgeList newEdges = brush->moveEdges(edges, m_delta);
+                m_edges.insert(m_edges.end(), newEdges.begin(), newEdges.end());
             }
 
             document().brushesDidChange(m_brushes);
@@ -47,6 +49,7 @@ namespace TrenchBroom {
             document().brushesWillChange(m_brushes);
             restoreSnapshots(m_brushes);
             document().brushesDidChange(m_brushes);
+            m_edges = m_originalEdges;
             return true;
         }
         
@@ -65,6 +68,7 @@ namespace TrenchBroom {
                     if (result.second)
                         m_brushes.push_back(brush);
                     result.first->second.push_back(edge);
+                    m_originalEdges.push_back(edge);
                     m_edges.push_back(edge);
                 }
             }

@@ -133,9 +133,9 @@ namespace TrenchBroom {
             bool canMoveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta) const;
             Vec3f::List moveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta);
             bool canMoveEdges(const EdgeList& edges, const Vec3f& delta) const;
-            void moveEdges(const EdgeList& edges, const Vec3f& delta);
+            EdgeList moveEdges(const EdgeList& edges, const Vec3f& delta);
             bool canMoveFaces(const FaceList& faces, const Vec3f& delta) const;
-            void moveFaces(const FaceList& faces, const Vec3f& delta);
+            FaceList moveFaces(const FaceList& faces, const Vec3f& delta);
             
             bool canSplitEdge(Edge* edge, const Vec3f& delta) const;
             Vec3f splitEdge(Edge* edge, const Vec3f& delta);

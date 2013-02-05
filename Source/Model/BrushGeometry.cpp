@@ -1561,9 +1561,13 @@ namespace TrenchBroom {
             return canMove;
         }
     
-        void BrushGeometry::moveEdges(const EdgeList& i_edges, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces) {
+        EdgeList BrushGeometry::moveEdges(const EdgeList& i_edges, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces) {
             assert(canMoveEdges(i_edges, delta));
 
+            typedef std::pair<Vec3f, Vec3f> EdgeInfo;
+            typedef std::vector<EdgeInfo> EdgeInfoList;
+            EdgeInfoList edgeInfos;
+            
             FaceManager faceManager;
             Vec3f::Set sortedVertexPositions;
             EdgeList::const_iterator edgeIt, edgeEnd;
@@ -1571,6 +1575,7 @@ namespace TrenchBroom {
                 const Edge& edge = **edgeIt;
                 sortedVertexPositions.insert(edge.start->position);
                 sortedVertexPositions.insert(edge.end->position);
+                edgeInfos.push_back(EdgeInfo(edge.start->position + delta, edge.end->position + delta));
             }
 
             Vec3f::Set::const_iterator vertexIt, vertexEnd;
@@ -1588,13 +1593,26 @@ namespace TrenchBroom {
             
             updateFacePoints();
             faceManager.getFaces(newFaces, droppedFaces);
+            
+            EdgeList result;
+            EdgeInfoList::const_iterator infoIt, infoEnd;
+            for (infoIt = edgeInfos.begin(), infoEnd = edgeInfos.end(); infoIt != infoEnd; ++infoIt) {
+                const EdgeInfo& info = *infoIt;
+                Edge* edge = findEdge(edges, info.first, info.second);
+                assert(edge != NULL);
+                
+                result.push_back(edge);
+            }
+            
+            return result;
         }
 
         bool BrushGeometry::canMoveFaces(const FaceList& faces, const Vec3f& delta) {
             FaceManager faceManager;
 
-            typedef std::vector<size_t> VertexCounts;
-            VertexCounts vertexCounts;
+            typedef Vec3f::List FaceInfo;
+            typedef std::vector<FaceInfo> FaceInfoList;
+            FaceInfoList faceInfos;
             
             BrushGeometry testGeometry(*this);
             testGeometry.restoreFaceSides();
@@ -1604,12 +1622,14 @@ namespace TrenchBroom {
             for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
                 const Face& face = **faceIt;
                 const VertexList& faceVertices = face.vertices();
+                FaceInfo faceInfo;
                 VertexList::const_iterator vertexIt, vertexEnd;
                 for (vertexIt = faceVertices.begin(), vertexEnd = faceVertices.end(); vertexIt != vertexEnd; ++vertexIt) {
                     const Vertex& vertex = **vertexIt;
                     sortedVertexPositions.insert(vertex.position);
+                    faceInfo.push_back(vertex.position + delta);
                 }
-                vertexCounts.push_back(face.vertices().size());
+                faceInfos.push_back(faceInfo);
             }
             
             bool canMove = true;
@@ -1633,16 +1653,23 @@ namespace TrenchBroom {
             }
 
             canMove &= testGeometry.sides.size() >= 3;
-
-            for (size_t i = 0; i < faces.size() && canMove; i++)
-                canMove = faces[i]->vertices().size() == vertexCounts[i];
+            
+            FaceInfoList::const_iterator infoIt, infoEnd;
+            for (infoIt = faceInfos.begin(), infoEnd = faceInfos.end(); infoIt != infoEnd && canMove; ++infoIt) {
+                const FaceInfo& faceInfo = *infoIt;
+                canMove = findSide(testGeometry.sides, faceInfo) != NULL;
+            }
 
             restoreFaceSides();
             return canMove;
         }
         
-        void BrushGeometry::moveFaces(const FaceList& faces, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces) {
+        FaceList BrushGeometry::moveFaces(const FaceList& faces, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces) {
             assert(canMoveFaces(faces, delta));
+            
+            typedef Vec3f::List FaceInfo;
+            typedef std::vector<FaceInfo> FaceInfoList;
+            FaceInfoList faceInfos;
             
             FaceManager faceManager;
             Vec3f::Set sortedVertexPositions;
@@ -1650,12 +1677,14 @@ namespace TrenchBroom {
             for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
                 const Face& face = **faceIt;
                 const VertexList& faceVertices = face.vertices();
-
+                FaceInfo faceInfo;
                 VertexList::const_iterator vertexIt, vertexEnd;
                 for (vertexIt = faceVertices.begin(), vertexEnd = faceVertices.end(); vertexIt != vertexEnd; ++vertexIt) {
                     const Vertex& vertex = **vertexIt;
                     sortedVertexPositions.insert(vertex.position);
+                    faceInfo.push_back(vertex.position + delta);
                 }
+                faceInfos.push_back(faceInfo);
             }
 
             Vec3f::Set::const_iterator vertexIt, vertexEnd;
@@ -1673,6 +1702,17 @@ namespace TrenchBroom {
 
             updateFacePoints();
             faceManager.getFaces(newFaces, droppedFaces);
+            
+            FaceList result;
+            FaceInfoList::const_iterator infoIt, infoEnd;
+            for (infoIt = faceInfos.begin(), infoEnd = faceInfos.end(); infoIt != infoEnd; ++infoIt) {
+                const FaceInfo& faceInfo = *infoIt;
+                Side* side = findSide(sides, faceInfo);
+                assert(side != NULL);
+                assert(side->face != NULL);
+                result.push_back(side->face);
+            }
+            return result;
         }
 
         bool BrushGeometry::canSplitEdge(Edge* edge, const Vec3f& delta) {

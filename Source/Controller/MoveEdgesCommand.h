@@ -38,6 +38,7 @@ namespace TrenchBroom {
             typedef std::pair<BrushEdgesMap::iterator, bool> BrushEdgesMapInsertResult;
             
             Model::BrushList m_brushes;
+            Model::EdgeList m_originalEdges;
             Model::EdgeList m_edges;
             BrushEdgesMap m_brushEdges;
             Vec3f m_delta;
