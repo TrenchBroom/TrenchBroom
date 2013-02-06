@@ -55,18 +55,30 @@ namespace TrenchBroom {
             return c;
         }
         
-        StringList AbstractFileManager::directoryContents(const String& path, String extension) {
+        StringList AbstractFileManager::directoryContents(const String& path, String extension, bool directories, bool files) {
             StringList result;
             if (!isDirectory(path) || !wxSetWorkingDirectory(path))
                 return result;
+            if (!directories && !files)
+                return result;
+            
+            int flags;
+            if (directories && files)
+                flags = 0;
+            else if (directories)
+                flags = wxDIR;
+            else
+                flags = wxFILE;
             
             String lowerExtension = Utility::toLower(extension);
-            wxString filename = wxFindFirstFile("*.*");
+            wxString filename = wxFindFirstFile("*", flags);
             while (!filename.empty()) {
                 String stdFilename = filename.ToStdString();
-                String fileExtension = Utility::toLower(pathExtension(stdFilename));
-                if (fileExtension == lowerExtension)
+
+                bool matches = extension.empty() || Utility::toLower(pathExtension(stdFilename)) == lowerExtension;
+                if (matches)
                     result.push_back(pathComponents(stdFilename).back());
+                
                 filename = wxFindNextFile();
             }
             

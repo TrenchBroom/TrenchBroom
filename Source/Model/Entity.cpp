@@ -39,10 +39,10 @@ namespace TrenchBroom {
         String const Entity::AnglesKey           = "angles";
         String const Entity::MangleKey           = "mangle";
         String const Entity::MessageKey          = "message";
-        String const Entity::ModsKey             = "__tb_mods";
+        String const Entity::ModKey             = "mod";
         String const Entity::TargetKey           = "target";
         String const Entity::WadKey              = "wad";
-        String const Entity::DefKey              = "__tb_def";
+        String const Entity::DefKey              = "def";
 
         void Entity::init() {
             m_map = NULL;

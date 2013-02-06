@@ -27,9 +27,15 @@ class wxChoice;
 class wxListBox;
 
 namespace TrenchBroom {
+    namespace Model {
+        class MapDocument;
+    }
+    
     namespace View {
         class MapPropertiesDialog : public wxDialog {
         protected:
+            Model::MapDocument& m_document;
+            
             wxChoice* m_modChoice;
             wxChoice* m_defChoice;
             wxListBox* m_wadList;
@@ -38,8 +44,14 @@ namespace TrenchBroom {
             wxButton* m_changeWadPathsButton;
             wxButton* m_moveWadUpButton;
             wxButton* m_moveWadDownButton;
+            
+            void populateDefChoice(String def);
+            void populateModChoice(String mod);
+            void populateWadList();
+            
+            void init();
         public:
-            MapPropertiesDialog();
+            MapPropertiesDialog(Model::MapDocument& document);
             
             DECLARE_EVENT_TABLE();
         };

@@ -20,6 +20,12 @@
 #include "MapPropertiesDialog.h"
 
 #include "IO/FileManager.h"
+#include "Model/Entity.h"
+#include "Model/EntityDefinitionManager.h"
+#include "Model/MapDocument.h"
+#include "Model/TextureManager.h"
+#include "Utility/Preferences.h"
+#include "Utility/String.h"
 #include "View/CommandIds.h"
 #include "View/LayoutConstants.h"
 
@@ -39,20 +45,107 @@ namespace TrenchBroom {
         BEGIN_EVENT_TABLE(MapPropertiesDialog, wxDialog)
         END_EVENT_TABLE()
 
-        MapPropertiesDialog::MapPropertiesDialog() :
-        wxDialog(NULL, wxID_ANY, wxT("Map Properties")) {
+        void MapPropertiesDialog::populateDefChoice(String def) {
+            m_defChoice->Clear();
+
+            int quakeDefIndex = -1;
+            int selectionIndex = -1;
+            const StringList builtinDefs = Model::EntityDefinitionManager::builtinDefinitionFiles();
+            for (size_t i = 0; i < builtinDefs.size(); i++) {
+                const String& item = builtinDefs[i];
+                m_defChoice->Append(item);
+                if (Utility::equalsString(item, "quake.def", false))
+                    quakeDefIndex = static_cast<int>(i);
+                if (Utility::startsWith(def, "builtin:") &&
+                    Utility::equalsString(def.substr(8), item, false))
+                    selectionIndex = static_cast<int>(i);
+            }
+            
+            if (Utility::startsWith(def, "external:")) {
+                m_defChoice->Append(def.substr(9));
+                selectionIndex = static_cast<int>(m_defChoice->GetCount() - 1);
+            }
+            
+            if (selectionIndex == -1)
+                selectionIndex = quakeDefIndex;
+            
+            m_defChoice->Append("Choose...");
+            m_defChoice->SetSelection(selectionIndex);
+        }
+
+        void MapPropertiesDialog::populateModChoice(String mod) {
+            m_modChoice->Clear();
+
+            IO::FileManager fileManager;
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            const String& quakePath = prefs.getString(Preferences::QuakePath);
+            const StringList modDirs = fileManager.directoryContents(quakePath, "", true, false);
+            
+            int id1Index = -1;
+            int selectionIndex = -1;
+            for (size_t i = 0; i < modDirs.size(); i++) {
+                const String& item = modDirs[i];
+                m_modChoice->Append(item);
+                if (Utility::equalsString(item, "id1", false))
+                    id1Index = static_cast<int>(i);
+                if (Utility::equalsString(mod, item, false))
+                    selectionIndex = static_cast<int>(i);
+            }
+            
+            if (selectionIndex == -1)
+                selectionIndex = id1Index;
+            m_modChoice->SetSelection(selectionIndex);
+        }
+
+        void MapPropertiesDialog::populateWadList() {
+            m_wadList->Clear();
+            
+            Model::TextureManager& textureManager = m_document.textureManager();
+            const Model::TextureCollectionList& collections = textureManager.collections();
+            
+            Model::TextureCollectionList::const_iterator it, end;
+            for (it = collections.begin(), end = collections.end(); it != end; ++it) {
+                const Model::TextureCollection& collection = **it;
+                m_wadList->Append(collection.name());
+            }
+        }
+
+        void MapPropertiesDialog::init() {
+            String def = "";
+            String mod = "id1";
+            
+            Model::Entity* worldspawn = m_document.worldspawn(false);
+            if (worldspawn != NULL) {
+                const Model::PropertyValue* defValue = worldspawn->propertyForKey(Model::Entity::DefKey);
+                if (defValue != NULL)
+                    def = *defValue;
+                const Model::PropertyValue* modValue = worldspawn->propertyForKey(Model::Entity::ModKey);
+                if (modValue != NULL)
+                    mod = *modValue;
+            }
+            
+            populateDefChoice(def);
+            populateModChoice(mod);
+            populateWadList();
+        }
+
+        MapPropertiesDialog::MapPropertiesDialog(Model::MapDocument& document) :
+        wxDialog(NULL, wxID_ANY, wxT("Map Properties")),
+        m_document(document) {
             wxStaticBox* modBox = new wxStaticBox(this, wxID_ANY, wxT("Entity Definitions"));
             wxStaticText* defText = new wxStaticText(modBox, wxID_ANY, wxT("Select an entity definition file for this map."));
             defText->SetFont(*wxSMALL_FONT);
-            m_defChoice = new wxChoice(modBox, CommandIds::MapPropertiesDialog::DefChoiceId);
+            m_defChoice = new wxChoice(modBox, CommandIds::MapPropertiesDialog::DefChoiceId, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_SORT);
 
-            wxStaticText* modText = new wxStaticText(modBox, wxID_ANY, wxT("Select a subdirectory within your Quake directory to search for entity models. ID1 is always searched."));
+            wxStaticText* modText = new wxStaticText(modBox, wxID_ANY, wxT("Select a subdirectory within your Quake directory to search for entity models. ID1 is always searched in addition to the selected subdirectory."));
             modText->SetFont(*wxSMALL_FONT);
-            m_modChoice = new wxChoice(modBox, CommandIds::MapPropertiesDialog::ModListBoxId);
+            modText->SetMinSize(wxSize(wxDefaultSize.x, 45));
+            m_modChoice = new wxChoice(modBox, CommandIds::MapPropertiesDialog::ModListBoxId, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_SORT);
             
             wxSizer* modBoxSizer = new wxBoxSizer(wxVERTICAL);
             modBoxSizer->Add(defText, 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
             modBoxSizer->Add(m_defChoice, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
+            modBoxSizer->AddSpacer(LayoutConstants::ControlMargin);
             modBoxSizer->AddSpacer(LayoutConstants::ControlMargin);
             modBoxSizer->Add(modText, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
             modBoxSizer->Add(m_modChoice, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, LayoutConstants::StaticBoxInnerMargin);
@@ -104,10 +197,12 @@ namespace TrenchBroom {
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(modBox, 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::DialogOuterMargin);
             outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            outerSizer->Add(wadBox, 0, wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT, LayoutConstants::DialogOuterMargin);
+            outerSizer->Add(wadBox, 1, wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT, LayoutConstants::DialogOuterMargin);
             
-            SetSizeHints(350, wxDefaultCoord, 350, 1000);
             SetSizer(outerSizer);
+            SetSize(350, 450);
+            
+            init();
         }
     }
 }

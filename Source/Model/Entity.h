@@ -51,7 +51,7 @@ namespace TrenchBroom {
             static String const AnglesKey;
             static String const MangleKey;
             static String const MessageKey;
-            static String const ModsKey;
+            static String const ModKey;
             static String const TargetKey;
             static String const WadKey;
             static String const DefKey;

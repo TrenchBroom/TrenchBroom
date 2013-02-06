@@ -147,6 +147,12 @@ namespace TrenchBroom {
             return it != haystack.end();
         }
         
+        inline bool equalsString(const String& str1, const String& str2, bool caseSensitive = true) {
+            if (str1.length() != str2.length())
+                return false;
+            return containsString(str1, str2, caseSensitive);
+        }
+        
         inline bool startsWith(const String& haystack, const String& needle, bool caseSensitive = true) {
             if (needle.size() > haystack.size())
                 return false;

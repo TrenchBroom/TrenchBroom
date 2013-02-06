@@ -113,7 +113,7 @@ wxMenu* AbstractApp::CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMe
     }
     editMenu->AppendSeparator();
     editMenu->AppendCheckItem(EditToggleTextureLock, wxT("Toggle Texture Lock"));
-    editMenu->Append(EditShowMapProperties, wxT("Edit Map Properties"));
+    editMenu->Append(EditShowMapProperties, wxT("Edit Map Properties..."));
     editMenu->SetEventHandler(eventHandler);
     
     return editMenu;
@@ -367,6 +367,12 @@ void AbstractApp::OnUnhandledException() {
 
 void AbstractApp::OnOpenPreferences(wxCommandEvent& event) {
     TrenchBroom::View::PreferencesDialog dialog;
+    
+    int width = wxSystemSettings::GetMetric(wxSYS_SCREEN_X);
+    int height = wxSystemSettings::GetMetric(wxSYS_SCREEN_Y);
+    wxPoint pos((width - dialog.GetSize().x) / 2, (height - dialog.GetSize().y) / 2);
+    dialog.SetPosition(pos);
+    
     dialog.ShowModal();
 }
 
