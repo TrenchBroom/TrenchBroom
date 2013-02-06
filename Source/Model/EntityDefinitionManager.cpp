@@ -19,8 +19,10 @@
 
 #include "EntityDefinitionManager.h"
 
+#include "IO/FileManager.h"
 #include "IO/StandardDefinitionParser.h"
 #include "IO/mmapped_fstream.h"
+#include "Utility/Preferences.h"
 
 #include <algorithm>
 
@@ -32,6 +34,12 @@ namespace TrenchBroom {
             clear();
         }
         
+        StringList EntityDefinitionManager::builtinDefinitionFiles() {
+            IO::FileManager fileManager;
+            String resourcePath = fileManager.resourceDirectory();
+            return fileManager.directoryContents(resourcePath, "def");
+        }
+
         void EntityDefinitionManager::load(const String& path) {
             mmapped_fstream stream(path.c_str(), std::ios::in);
             IO::StandardDefinitionParser parser(stream);

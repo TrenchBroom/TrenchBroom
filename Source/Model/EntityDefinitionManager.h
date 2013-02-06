@@ -60,6 +60,8 @@ namespace TrenchBroom {
             EntityDefinitionManager();
             ~EntityDefinitionManager();
             
+            static StringList builtinDefinitionFiles();
+            
             void load(const String& path);
             void clear();
             

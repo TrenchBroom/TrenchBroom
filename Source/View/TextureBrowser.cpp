@@ -56,6 +56,7 @@ namespace TrenchBroom {
         wxPanel(parent, windowId) {
             wxString sortOrders[2] = {wxT("Name"), wxT("Usage")};
             m_sortOrderChoice = new wxChoice(this, CommandIds::FaceInspector::TextureBrowserSortOrderChoiceId, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
+            m_sortOrderChoice->SetSelection(0);
             
             m_groupButton = new wxToggleButton(this, CommandIds::FaceInspector::TextureBrowserGroupButtonId, wxT("Group"), wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT | wxBU_EXACTFIT);
             m_usedButton = new wxToggleButton(this, CommandIds::FaceInspector::TextureBrowserUsedButtonId, wxT("Used"), wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT | wxBU_EXACTFIT);

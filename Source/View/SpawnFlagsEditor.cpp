@@ -35,7 +35,7 @@ namespace TrenchBroom {
         wxWindow* SpawnFlagsEditor::createVisual(wxWindow* parent) {
             assert(m_scrolledWindow == NULL);
             
-            m_scrolledWindow = new wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxVSCROLL | wxBORDER_SUNKEN);
+            m_scrolledWindow = new wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, static_cast<long>(wxVSCROLL | wxBORDER_SUNKEN));
             m_scrolledWindow->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
 
             wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
