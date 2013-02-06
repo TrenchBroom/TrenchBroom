@@ -147,6 +147,12 @@
 		48D1BEB715E423F60073C030 /* TrenchBroomApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEB515E423F60073C030 /* TrenchBroomApp.cpp */; };
 		48D417D7160B3A3C003AECBB /* TextureBrowserCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D417D5160B3A3C003AECBB /* TextureBrowserCanvas.cpp */; };
 		48D590A416807D5E00860B86 /* VertexHandleManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D590A216807D5E00860B86 /* VertexHandleManager.cpp */; };
+		48D937EF16C27B0C005A4684 /* MapPropertiesDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D937ED16C27B0C005A4684 /* MapPropertiesDialog.cpp */; };
+		48D937F516C2ABFE005A4684 /* Add.png in Resources */ = {isa = PBXBuildFile; fileRef = 48D937F016C2ABFE005A4684 /* Add.png */; };
+		48D937F616C2ABFE005A4684 /* Down.png in Resources */ = {isa = PBXBuildFile; fileRef = 48D937F116C2ABFE005A4684 /* Down.png */; };
+		48D937F716C2ABFE005A4684 /* Path.png in Resources */ = {isa = PBXBuildFile; fileRef = 48D937F216C2ABFE005A4684 /* Path.png */; };
+		48D937F816C2ABFE005A4684 /* Remove.png in Resources */ = {isa = PBXBuildFile; fileRef = 48D937F316C2ABFE005A4684 /* Remove.png */; };
+		48D937F916C2ABFE005A4684 /* Up.png in Resources */ = {isa = PBXBuildFile; fileRef = 48D937F416C2ABFE005A4684 /* Up.png */; };
 		48DFD4B816061AAE00E554E1 /* glew.c in Sources */ = {isa = PBXBuildFile; fileRef = 48DFD4B416061AAE00E554E1 /* glew.c */; settings = {COMPILER_FLAGS = "-w"; }; };
 		48DFD4BC1606308E00E554E1 /* MacCapabilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48DFD4BA1606308E00E554E1 /* MacCapabilities.cpp */; };
 		48E1A518161390AD006BB6C4 /* TextureCollectionCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48E1A516161390AD006BB6C4 /* TextureCollectionCommand.cpp */; };
@@ -503,6 +509,13 @@
 		48D417D6160B3A3C003AECBB /* TextureBrowserCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureBrowserCanvas.h; sourceTree = "<group>"; };
 		48D590A216807D5E00860B86 /* VertexHandleManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VertexHandleManager.cpp; sourceTree = "<group>"; };
 		48D590A316807D5E00860B86 /* VertexHandleManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexHandleManager.h; sourceTree = "<group>"; };
+		48D937ED16C27B0C005A4684 /* MapPropertiesDialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapPropertiesDialog.cpp; sourceTree = "<group>"; };
+		48D937EE16C27B0C005A4684 /* MapPropertiesDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapPropertiesDialog.h; sourceTree = "<group>"; };
+		48D937F016C2ABFE005A4684 /* Add.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Add.png; path = ../Resources/Graphics/Add.png; sourceTree = "<group>"; };
+		48D937F116C2ABFE005A4684 /* Down.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Down.png; path = ../Resources/Graphics/Down.png; sourceTree = "<group>"; };
+		48D937F216C2ABFE005A4684 /* Path.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Path.png; path = ../Resources/Graphics/Path.png; sourceTree = "<group>"; };
+		48D937F316C2ABFE005A4684 /* Remove.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Remove.png; path = ../Resources/Graphics/Remove.png; sourceTree = "<group>"; };
+		48D937F416C2ABFE005A4684 /* Up.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Up.png; path = ../Resources/Graphics/Up.png; sourceTree = "<group>"; };
 		48DFD4B416061AAE00E554E1 /* glew.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glew.c; path = ../Source/GL/glew.c; sourceTree = "<group>"; };
 		48DFD4B516061AAE00E554E1 /* glew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glew.h; path = ../Source/GL/glew.h; sourceTree = "<group>"; };
 		48DFD4B616061AAE00E554E1 /* glxew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glxew.h; path = ../Source/GL/glxew.h; sourceTree = "<group>"; };
@@ -663,6 +676,11 @@
 		484763C615E2BC5000095BC0 = {
 			isa = PBXGroup;
 			children = (
+				48D937F016C2ABFE005A4684 /* Add.png */,
+				48D937F116C2ABFE005A4684 /* Down.png */,
+				48D937F216C2ABFE005A4684 /* Path.png */,
+				48D937F316C2ABFE005A4684 /* Remove.png */,
+				48D937F416C2ABFE005A4684 /* Up.png */,
 				48AF61F515F8B7720027C465 /* libbz2.a */,
 				48AF61F315F8B7360027C465 /* libfreetype.a */,
 				48312B2715EABBD600607868 /* Icon.icns */,
@@ -821,6 +839,8 @@
 				48E2ED181601184F00B8D476 /* LayoutConstants.h */,
 				4810276415E4FBF000250C9C /* MapGLCanvas.cpp */,
 				4810276515E4FBF000250C9C /* MapGLCanvas.h */,
+				48D937ED16C27B0C005A4684 /* MapPropertiesDialog.cpp */,
+				48D937EE16C27B0C005A4684 /* MapPropertiesDialog.h */,
 				4810276A15E5313F00250C9C /* Inspector.cpp */,
 				4810276B15E5313F00250C9C /* Inspector.h */,
 				48AF61F715F91B610027C465 /* CommandIds.h */,
@@ -1150,6 +1170,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				48D937F516C2ABFE005A4684 /* Add.png in Resources */,
+				48D937F616C2ABFE005A4684 /* Down.png in Resources */,
+				48D937F716C2ABFE005A4684 /* Path.png in Resources */,
+				48D937F816C2ABFE005A4684 /* Remove.png in Resources */,
+				48D937F916C2ABFE005A4684 /* Up.png in Resources */,
 				48E2ECCD15FFCA4C00B8D476 /* Face.vertsh in Resources */,
 				484763E015E2BC5000095BC0 /* InfoPlist.strings in Resources */,
 				48312B2815EABBD600607868 /* Icon.icns in Resources */,
@@ -1319,6 +1344,7 @@
 				486AFACC16B555940097657D /* Mat3f.cpp in Sources */,
 				48C4637616B97A76008159DC /* MoveTool.cpp in Sources */,
 				482C644C16BAFFD9009C75CB /* LinesRenderer.cpp in Sources */,
+				48D937EF16C27B0C005A4684 /* MapPropertiesDialog.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

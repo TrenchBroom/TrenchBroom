@@ -113,6 +113,7 @@ wxMenu* AbstractApp::CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMe
     }
     editMenu->AppendSeparator();
     editMenu->AppendCheckItem(EditToggleTextureLock, wxT("Toggle Texture Lock"));
+    editMenu->Append(EditShowMapProperties, wxT("Edit Map Properties"));
     editMenu->SetEventHandler(eventHandler);
     
     return editMenu;
@@ -335,6 +336,9 @@ bool AbstractApp::OnInit() {
                       CLASSINFO(TrenchBroom::Model::MapDocument),
                       CLASSINFO(TrenchBroom::View::EditorView)
                       );
+    
+    // load image handles
+    wxImage::AddHandler(new wxPNGHandler());
     
     return true;
 }

@@ -103,6 +103,7 @@ namespace TrenchBroom {
                 static const int FileUnloadPointFile                = Lowest + 77;
                 static const int ViewMoveCameraToNextPoint          = Lowest + 78;
                 static const int ViewMoveCameraToPreviousPoint      = Lowest + 79;
+                static const int EditShowMapProperties              = Lowest + 80;
                 static const int Highest                            = Lowest + 99;
             }
             
@@ -175,6 +176,19 @@ namespace TrenchBroom {
                 static const int EntityPropertyViewId               = Lowest +  6;
                 static const int AddEntityPropertyButtonId          = Lowest +  7;
                 static const int RemoveEntityPropertiesButtonId     = Lowest +  8;
+                static const int Highest                            = Lowest + 99;
+            }
+            
+            namespace MapPropertiesDialog {
+                static const int Lowest                             = EntityInspector::Highest + 1;
+                static const int ModListBoxId                       = Lowest + 1;
+                static const int DefChoiceId                        = Lowest + 2;
+                static const int WadListId                          = Lowest + 3;
+                static const int AddWadButtonId                     = Lowest + 4;
+                static const int RemoveWadsButtonId                 = Lowest + 5;
+                static const int ChangeWadPathsButtonId             = Lowest + 6;
+                static const int MoveWadUpButtonId                  = Lowest + 7;
+                static const int MoveWadDownButtonId                = Lowest + 8;
                 static const int Highest                            = Lowest + 99;
             }
         }

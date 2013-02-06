@@ -61,6 +61,7 @@
 #include "View/FaceInspector.h"
 #include "View/Inspector.h"
 #include "View/MapGLCanvas.h"
+#include "View/MapPropertiesDialog.h"
 #include "View/ViewOptions.h"
 
 #include <wx/clipbrd.h>
@@ -146,6 +147,7 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::EditMoveVerticesDown, EditorView::OnEditMoveVerticesDown)
         
         EVT_MENU(CommandIds::Menu::EditToggleTextureLock, EditorView::OnEditToggleTextureLock)
+        EVT_MENU(CommandIds::Menu::EditShowMapProperties, EditorView::OnEditShowMapProperties)
 
         EVT_MENU(CommandIds::Menu::ViewToggleShowGrid, EditorView::OnViewToggleShowGrid)
         EVT_MENU(CommandIds::Menu::ViewToggleSnapToGrid, EditorView::OnViewToggleSnapToGrid)
@@ -1242,6 +1244,11 @@ namespace TrenchBroom {
             mapDocument().setTextureLock(!mapDocument().textureLock());
         }
 
+        void EditorView::OnEditShowMapProperties(wxCommandEvent& event) {
+            MapPropertiesDialog dialog;
+            dialog.ShowModal();
+        }
+
         void EditorView::OnViewToggleShowGrid(wxCommandEvent& event) {
             mapDocument().grid().toggleVisible();
             mapDocument().UpdateAllViews(NULL, new Controller::Command(Controller::Command::ChangeGrid));
@@ -1627,6 +1634,9 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::EditToggleTextureLock:
                     event.Check(mapDocument().textureLock());
+                    event.Enable(true);
+                    break;
+                case CommandIds::Menu::EditShowMapProperties:
                     event.Enable(true);
                     break;
                 case CommandIds::Menu::EditCreatePointEntity:
