@@ -328,6 +328,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\View\GenericDropSource.cpp" />
     <ClCompile Include="..\..\Source\View\Inspector.cpp" />
     <ClCompile Include="..\..\Source\View\MapGLCanvas.cpp" />
+    <ClCompile Include="..\..\Source\View\MapPropertiesDialog.cpp" />
     <ClCompile Include="..\..\Source\View\PreferencesDialog.cpp" />
     <ClCompile Include="..\..\Source\View\ProgressIndicatorDialog.cpp" />
     <ClCompile Include="..\..\Source\View\SingleTextureViewer.cpp" />
@@ -534,6 +535,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\View\Inspector.h" />
     <ClInclude Include="..\..\Source\View\LayoutConstants.h" />
     <ClInclude Include="..\..\Source\View\MapGLCanvas.h" />
+    <ClInclude Include="..\..\Source\View\MapPropertiesDialog.h" />
     <ClInclude Include="..\..\Source\View\PreferencesDialog.h" />
     <ClInclude Include="..\..\Source\View\ProgressIndicatorDialog.h" />
     <ClInclude Include="..\..\Source\View\ScreenDC.h" />

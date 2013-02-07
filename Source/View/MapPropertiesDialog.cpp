@@ -25,7 +25,6 @@
 #include "Model/MapDocument.h"
 #include "Model/TextureManager.h"
 #include "Utility/Preferences.h"
-#include "Utility/String.h"
 #include "View/CommandIds.h"
 #include "View/LayoutConstants.h"
 

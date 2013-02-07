@@ -20,6 +20,8 @@
 #ifndef __TrenchBroom__MapPropertiesDialog__
 #define __TrenchBroom__MapPropertiesDialog__
 
+#include "Utility/String.h"
+
 #include <wx/dialog.h>
 
 class wxButton;
