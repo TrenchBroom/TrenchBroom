@@ -42,6 +42,14 @@
 namespace TrenchBroom {
     namespace View {
         BEGIN_EVENT_TABLE(MapPropertiesDialog, wxDialog)
+        EVT_CHOICE(CommandIds::MapPropertiesDialog::DefChoiceId, MapPropertiesDialog::OnDefChoiceSelected)
+        EVT_CHOICE(CommandIds::MapPropertiesDialog::ModChoiceId, MapPropertiesDialog::OnModChoiceSelected)
+        EVT_BUTTON(CommandIds::MapPropertiesDialog::AddWadButtonId, MapPropertiesDialog::OnAddWadClicked)
+        EVT_BUTTON(CommandIds::MapPropertiesDialog::RemoveWadsButtonId, MapPropertiesDialog::OnRemoveWadsClicked)
+        EVT_BUTTON(CommandIds::MapPropertiesDialog::ChangeWadPathsButtonId, MapPropertiesDialog::OnChangeWadPathsClicked)
+        EVT_BUTTON(CommandIds::MapPropertiesDialog::MoveWadUpButtonId, MapPropertiesDialog::OnMoveWadUpClicked)
+        EVT_BUTTON(CommandIds::MapPropertiesDialog::MoveWadDownButtonId, MapPropertiesDialog::OnMoveWadDownClicked)
+        EVT_UPDATE_UI_RANGE(CommandIds::MapPropertiesDialog::AddWadButtonId, CommandIds::MapPropertiesDialog::MoveWadDownButtonId, MapPropertiesDialog::OnUpdateWadButtons)
         END_EVENT_TABLE()
 
         void MapPropertiesDialog::populateDefChoice(String def) {
@@ -139,7 +147,7 @@ namespace TrenchBroom {
             wxStaticText* modText = new wxStaticText(modBox, wxID_ANY, wxT("Select a subdirectory within your Quake directory to search for entity models. ID1 is always searched in addition to the selected subdirectory."));
             modText->SetFont(*wxSMALL_FONT);
             modText->SetMinSize(wxSize(wxDefaultSize.x, 45));
-            m_modChoice = new wxChoice(modBox, CommandIds::MapPropertiesDialog::ModListBoxId, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_SORT);
+            m_modChoice = new wxChoice(modBox, CommandIds::MapPropertiesDialog::ModChoiceId, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_SORT);
             
             wxSizer* modBoxSizer = new wxBoxSizer(wxVERTICAL);
             modBoxSizer->Add(defText, 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
@@ -202,6 +210,55 @@ namespace TrenchBroom {
             SetSize(350, 450);
             
             init();
+        }
+
+        void MapPropertiesDialog::OnDefChoiceSelected(wxCommandEvent& event) {
+        }
+        
+        void MapPropertiesDialog::OnModChoiceSelected(wxCommandEvent& event) {
+        }
+        
+        void MapPropertiesDialog::OnAddWadClicked(wxCommandEvent& event) {
+        }
+        
+        void MapPropertiesDialog::OnRemoveWadsClicked(wxCommandEvent& event) {
+        }
+        
+        void MapPropertiesDialog::OnChangeWadPathsClicked(wxCommandEvent& event) {
+        }
+        
+        void MapPropertiesDialog::OnMoveWadUpClicked(wxCommandEvent& event) {
+        }
+        
+        void MapPropertiesDialog::OnMoveWadDownClicked(wxCommandEvent& event) {
+        }
+        
+        void MapPropertiesDialog::OnUpdateWadButtons(wxUpdateUIEvent& event) {
+            wxArrayInt selection;
+            m_wadList->GetSelections(selection);
+            
+            switch (event.GetId()) {
+                case CommandIds::MapPropertiesDialog::AddWadButtonId:
+                    event.Enable(true);
+                    break;
+                case CommandIds::MapPropertiesDialog::RemoveWadsButtonId:
+                    event.Enable(!selection.empty());
+                    break;
+                case CommandIds::MapPropertiesDialog::ChangeWadPathsButtonId:
+                    event.Enable(!selection.empty());
+                    break;
+                case CommandIds::MapPropertiesDialog::MoveWadUpButtonId:
+                    event.Enable(selection.size() == 1 &&
+                                 selection[0] > 0);
+                    break;
+                case CommandIds::MapPropertiesDialog::MoveWadDownButtonId:
+                    event.Enable(selection.size() == 1 &&
+                                 selection[0] < static_cast<int>(m_wadList->GetCount() - 1));
+                    break;
+                default:
+                    event.Enable(false);
+                    break;
+            }
         }
     }
 }

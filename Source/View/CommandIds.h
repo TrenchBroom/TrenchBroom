@@ -181,7 +181,7 @@ namespace TrenchBroom {
             
             namespace MapPropertiesDialog {
                 static const int Lowest                             = EntityInspector::Highest + 1;
-                static const int ModListBoxId                       = Lowest + 1;
+                static const int ModChoiceId                        = Lowest + 1;
                 static const int DefChoiceId                        = Lowest + 2;
                 static const int WadListId                          = Lowest + 3;
                 static const int AddWadButtonId                     = Lowest + 4;

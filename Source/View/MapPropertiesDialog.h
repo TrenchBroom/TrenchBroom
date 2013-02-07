@@ -55,6 +55,16 @@ namespace TrenchBroom {
         public:
             MapPropertiesDialog(Model::MapDocument& document);
             
+            void OnDefChoiceSelected(wxCommandEvent& event);
+            void OnModChoiceSelected(wxCommandEvent& event);
+            
+            void OnAddWadClicked(wxCommandEvent& event);
+            void OnRemoveWadsClicked(wxCommandEvent& event);
+            void OnChangeWadPathsClicked(wxCommandEvent& event);
+            void OnMoveWadUpClicked(wxCommandEvent& event);
+            void OnMoveWadDownClicked(wxCommandEvent& event);
+            void OnUpdateWadButtons(wxUpdateUIEvent& event);
+            
             DECLARE_EVENT_TABLE();
         };
     }
