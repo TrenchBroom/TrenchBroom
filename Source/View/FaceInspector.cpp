@@ -75,9 +75,6 @@ namespace TrenchBroom {
         EVT_UPDATE_UI(CommandIds::FaceInspector::AlignTextureId, FaceInspector::OnUpdateFaceButtons)
         EVT_UPDATE_UI(CommandIds::FaceInspector::FitTextureId, FaceInspector::OnUpdateFaceButtons)
         EVT_TEXTURE_SELECTED(CommandIds::FaceInspector::TextureBrowserId, FaceInspector::OnTextureSelected)
-        EVT_BUTTON(CommandIds::FaceInspector::AddTextureCollectionButtonId, FaceInspector::OnAddTextureCollectionPressed)
-        EVT_BUTTON(CommandIds::FaceInspector::RemoveTextureCollectionsButtonId, FaceInspector::OnRemoveTextureCollectionsPressed)
-        EVT_UPDATE_UI(CommandIds::FaceInspector::RemoveTextureCollectionsButtonId, FaceInspector::OnUpdateRemoveTextureCollectionsButton)
         EVT_IDLE(FaceInspector::OnIdle)
         END_EVENT_TABLE()
 
@@ -157,35 +154,8 @@ namespace TrenchBroom {
         }
         
         wxWindow* FaceInspector::createTextureBrowser() {
-            wxSplitterWindow* browserSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE);
-            browserSplitter->SetSashGravity(1.0f);
-            browserSplitter->SetMinimumPaneSize(30);
-
-            m_textureBrowser = new TextureBrowser(browserSplitter, CommandIds::FaceInspector::TextureBrowserId, m_documentViewHolder);
-            
-            wxPanel* textureCollectionEditor = new wxPanel(browserSplitter);
-            m_textureCollectionList = new wxListBox(textureCollectionEditor, CommandIds::FaceInspector::TextureCollectionListId, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE | wxLB_NEEDED_SB);
-            m_addTextureCollectionButton = new wxButton(textureCollectionEditor, CommandIds::FaceInspector::AddTextureCollectionButtonId, wxT("+"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
-            m_removeTextureCollectionsButton = new wxButton(textureCollectionEditor, CommandIds::FaceInspector::RemoveTextureCollectionsButtonId, wxT("-"), wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxBU_EXACTFIT);
-
-            wxSizer* textureCollectionEditorButtonsSizer = new wxBoxSizer(wxVERTICAL);
-            textureCollectionEditorButtonsSizer->Add(m_addTextureCollectionButton, 0, wxEXPAND);
-            textureCollectionEditorButtonsSizer->AddSpacer(LayoutConstants::ControlMargin);
-            textureCollectionEditorButtonsSizer->Add(m_removeTextureCollectionsButton, 0, wxEXPAND);
-            
-            wxSizer* textureCollectionEditorSizer = new wxBoxSizer(wxHORIZONTAL);
-            textureCollectionEditorSizer->Add(m_textureCollectionList, 1, wxEXPAND);
-            textureCollectionEditorSizer->AddSpacer(LayoutConstants::ControlMargin);
-            textureCollectionEditorSizer->Add(textureCollectionEditorButtonsSizer);
-
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            outerSizer->Add(textureCollectionEditorSizer, 1, wxEXPAND);
-            textureCollectionEditor->SetSizerAndFit(outerSizer);
-            
-            browserSplitter->SplitHorizontally(m_textureBrowser, textureCollectionEditor);
-            browserSplitter->SetSashPosition(5000); // will force the collection editor to its minimum size
-            return browserSplitter;
+            m_textureBrowser = new TextureBrowser(this, CommandIds::FaceInspector::TextureBrowserId, m_documentViewHolder);
+            return m_textureBrowser;
         }
         
         FaceInspector::FaceInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder) :
@@ -207,7 +177,6 @@ namespace TrenchBroom {
             
             updateFaceAttributes();
             updateSelectedTexture();
-            updateTextureCollectionList();
         }
 
         void FaceInspector::updateFaceAttributes() {
@@ -318,18 +287,6 @@ namespace TrenchBroom {
             m_textureBrowser->reload();
         }
 
-        void FaceInspector::updateTextureCollectionList() {
-            m_textureCollectionList->Clear();
-            
-            Model::TextureManager& textureManager = m_documentViewHolder.document().textureManager();
-            const Model::TextureCollectionList& collections = textureManager.collections();
-
-            for (unsigned int i = 0; i < collections.size(); i++) {
-                Model::TextureCollection* collection = collections[i];
-                m_textureCollectionList->Append(collection->name());
-            }
-        }
-
         void FaceInspector::OnXOffsetChanged(SpinControlEvent& event) {
             if (!m_documentViewHolder.valid())
                 return;
@@ -414,78 +371,6 @@ namespace TrenchBroom {
             Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(document, faces, "Set Texture");
             command->setTexture(m_textureBrowser->selectedTexture());
             document.GetCommandProcessor()->Submit(command);
-        }
-
-        void FaceInspector::OnAddTextureCollectionPressed(wxCommandEvent& event) {
-            if (!m_documentViewHolder.valid())
-                return;
-            wxFileDialog addTextureCollectionDialog(NULL, wxT("Choose texture wad"), wxT(""), wxT(""), wxT("*.wad"), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-            if (addTextureCollectionDialog.ShowModal() == wxID_OK) {
-                String absWadPath = addTextureCollectionDialog.GetPath().ToStdString();
-
-                Model::MapDocument& document = m_documentViewHolder.document();
-                String documentFilename = document.GetFilename().ToStdString();
-
-                IO::FileManager fileManager;
-                if (fileManager.exists(documentFilename) &&
-                    fileManager.isAbsolutePath(documentFilename)) {
-                    String relWadPath = fileManager.makeRelative(absWadPath, documentFilename);
-                    
-                    StringStream message;
-                    message << "Would you like to add this texture wad with a path relative to the path of the map file?\n\n";
-                    message << "Absolute path: " << absWadPath << "\n\n";
-                    message << "Relative path: " << relWadPath;
-                    
-                    wxMessageDialog wadPathDialog(NULL, wxString(message.str()), wxT("Add texture wad"), wxYES_NO | wxCANCEL | wxCENTER);
-                    wadPathDialog.SetYesNoCancelLabels(wxT("Use absolute path"), wxT("Use relative path"), wxT("Cancel"));
-                    
-                    int result = wadPathDialog.ShowModal();
-                    if (result == wxID_YES) {
-                        Controller::TextureCollectionCommand* command = Controller::TextureCollectionCommand::addTextureWad(document, absWadPath);
-                        document.GetCommandProcessor()->Submit(command);
-                    } else if (result == wxID_NO) {
-                        Controller::TextureCollectionCommand* command = Controller::TextureCollectionCommand::addTextureWad(document, relWadPath);
-                        document.GetCommandProcessor()->Submit(command);
-                    }
-                } else {
-                    StringStream message;
-                    message << "To add this texture wad with a relative path, you must first save the map file\n\n";
-                    message << "Absolute path: " << absWadPath;
-                    wxMessageDialog wadPathDialog(NULL, wxString(message.str()), wxT("Add texture wad"), wxYES_NO | wxCENTER);
-                    wadPathDialog.SetYesNoLabels(wxT("Use absolute path"), wxT("Cancel"));
-                    
-                    int result = wadPathDialog.ShowModal();
-                    if (result == wxID_YES) {
-                        Controller::TextureCollectionCommand* command = Controller::TextureCollectionCommand::addTextureWad(document, absWadPath);
-                        document.GetCommandProcessor()->Submit(command);
-                    }
-                }
-            }
-        }
-        
-        void FaceInspector::OnRemoveTextureCollectionsPressed(wxCommandEvent& event) {
-            if (!m_documentViewHolder.valid())
-                return;
-            wxArrayInt selections;
-            int selectionCount = m_textureCollectionList->GetSelections(selections);
-            if (selectionCount <= 0)
-                return;
-            
-            Controller::TextureCollectionCommand::IndexList indices;
-            for (unsigned int i = 0; i < static_cast<unsigned int>(selectionCount); i++)
-                indices.push_back(static_cast<size_t>(selections[i]));
-            
-            Model::MapDocument& document = m_documentViewHolder.document();
-            Controller::TextureCollectionCommand* command = Controller::TextureCollectionCommand::removeTextureWads(document, indices);
-            document.GetCommandProcessor()->Submit(command);
-        }
-
-        void FaceInspector::OnUpdateRemoveTextureCollectionsButton(wxUpdateUIEvent& event) {
-            if (!m_documentViewHolder.valid())
-                return;
-            wxArrayInt selections;
-            int selectionCount = m_textureCollectionList->GetSelections(selections);
-            event.Enable(selectionCount > 0);
         }
 
         void FaceInspector::OnIdle(wxIdleEvent& event) {

@@ -22,6 +22,8 @@
 #include <wx/wx.h>
 #include <wx/filename.h>
 
+#include <map> 
+
 namespace TrenchBroom {
     namespace IO {
         bool AbstractFileManager::isAbsolutePath(const String& path) {
@@ -95,6 +97,24 @@ namespace TrenchBroom {
             }
             
             return false;
+        }
+
+        StringList AbstractFileManager::resolveSearchpaths(const String& rootPath, const StringList& searchPaths) {
+            typedef std::map<String, String> NameMap;
+            NameMap nameMap;
+            
+            StringList contents = directoryContents(rootPath, "", true, false);
+            for (size_t i = 0; i < contents.size(); i++)
+                nameMap[Utility::toLower(contents[i])] = contents[i];
+
+            StringList result;
+            for (size_t i = 0; i < searchPaths.size(); i++) {
+                NameMap::iterator it = nameMap.find(Utility::toLower(searchPaths[i]));
+                if (it != nameMap.end())
+                    result.push_back(appendPath(rootPath, it->second));
+            }
+            
+            return result;
         }
 
         StringList AbstractFileManager::pathComponents(const String& path) {

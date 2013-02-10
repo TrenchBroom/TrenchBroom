@@ -54,6 +54,28 @@ namespace TrenchBroom {
             while (!collections.empty()) delete collections.back(), collections.pop_back();
         }
         
+        size_t TextureCollectionCommand::moveTextureCollection(bool up) {
+            assert(m_indices.size() == 1);
+            size_t index = m_indices.front();
+            assert(!up || index > 0);
+            
+            Model::TextureManager& textureManager = document().textureManager();
+            assert(index < textureManager.collections().size());
+            assert(up || index < textureManager.collections().size() - 1);
+            
+            Model::TextureCollection* collection = textureManager.removeCollection(index);
+            
+            size_t newIndex = index;
+            if (up)
+                newIndex -= 1;
+            else
+                newIndex += 1;
+            
+            textureManager.addCollection(collection, newIndex);
+            document().updateAfterTextureManagerChanged();
+            return newIndex;
+        }
+
         void TextureCollectionCommand::updateWadKey() {
             Model::TextureManager& textureManager = document().textureManager();
             Model::Entity& worldspawn = *document().worldspawn(true);
@@ -91,6 +113,22 @@ namespace TrenchBroom {
                 updateWadKey();
                 document().UpdateAllViews(NULL, this);
                 return true;
+            } else if (type() == MoveTextureCollectionUp) {
+                size_t newIndex = moveTextureCollection(true);
+                m_indices.clear();
+                m_indices.push_back(newIndex);
+                
+                updateWadKey();
+                document().UpdateAllViews(NULL, this);
+                return true;
+            } else if (type() == MoveTextureCollectionDown) {
+                size_t newIndex = moveTextureCollection(false);
+                m_indices.clear();
+                m_indices.push_back(newIndex);
+                
+                updateWadKey();
+                document().UpdateAllViews(NULL, this);
+                return true;
             }
             
             return false;
@@ -110,6 +148,22 @@ namespace TrenchBroom {
                 updateWadKey();
                 document().UpdateAllViews(NULL, this);
                 return true;
+            } else if (type() == MoveTextureCollectionUp) {
+                size_t newIndex = moveTextureCollection(false);
+                m_indices.clear();
+                m_indices.push_back(newIndex);
+                
+                updateWadKey();
+                document().UpdateAllViews(NULL, this);
+                return true;
+            } else if (type() == MoveTextureCollectionDown) {
+                size_t newIndex = moveTextureCollection(true);
+                m_indices.clear();
+                m_indices.push_back(newIndex);
+                
+                updateWadKey();
+                document().UpdateAllViews(NULL, this);
+                return true;
             }
             
             return false;
@@ -119,8 +173,20 @@ namespace TrenchBroom {
             return new TextureCollectionCommand(AddTextureCollection, document, "Add texture wad", path);
         }
         
-        TextureCollectionCommand* TextureCollectionCommand::removeTextureWads(Model::MapDocument& document, const IndexList& indices) {
+        TextureCollectionCommand* TextureCollectionCommand::removeTextureCollections(Model::MapDocument& document, const IndexList& indices) {
             return new TextureCollectionCommand(RemoveTextureCollection, document, indices.size() == 1 ? "Remove texture wad" : "Remove texture wads", indices);
+        }
+
+        TextureCollectionCommand* TextureCollectionCommand::moveTextureCollectionUp(Model::MapDocument& document, size_t index) {
+            IndexList indices;
+            indices.push_back(index);
+            return new TextureCollectionCommand(MoveTextureCollectionUp, document, "Move texture wad up", indices);
+        }
+        
+        TextureCollectionCommand* TextureCollectionCommand::moveTextureCollectionDown(Model::MapDocument& document, size_t index) {
+            IndexList indices;
+            indices.push_back(index);
+            return new TextureCollectionCommand(MoveTextureCollectionDown, document, "Move texture wad up", indices);
         }
     }
 }

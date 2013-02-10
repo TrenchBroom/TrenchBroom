@@ -76,6 +76,8 @@ namespace TrenchBroom {
 
         const Preference<Color> InfoOverlayTextColor = Preference<Color>(                       "Renderer/Colors/Info overlay text",                            Color(1.0f,  1.0f,  1.0f,  1.0f ));
         const Preference<Color> InfoOverlayBackgroundColor = Preference<Color>(                 "Renderer/Colors/Info overlay background",                      Color(0.0f,  0.0f,  0.0f,  0.6f ));
+        const Preference<Color> OccludedInfoOverlayTextColor = Preference<Color>(               "Renderer/Colors/Occluded info overlay text",                   Color(1.0f,  1.0f,  1.0f,  0.5f ));
+        const Preference<Color> OccludedInfoOverlayBackgroundColor = Preference<Color>(         "Renderer/Colors/Occluded info overlay background",             Color(0.0f,  0.0f,  0.0f,  0.3f ));
         const Preference<Color> SelectedInfoOverlayTextColor = Preference<Color>(               "Renderer/Colors/Selected info overlay text",                   Color(1.0f,  1.0f,  1.0f,  1.0f ));
         const Preference<Color> SelectedInfoOverlayBackgroundColor = Preference<Color>(         "Renderer/Colors/Selected info overlay backtround",             Color(1.0f,  0.0f,  0.0f,  0.6f ));
         const Preference<Color> OccludedSelectedInfoOverlayTextColor = Preference<Color>(       "Renderer/Colors/Occluded selected info overlay text",          Color(1.0f,  1.0f,  1.0f,  0.5f ));

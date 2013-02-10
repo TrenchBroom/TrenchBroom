@@ -70,11 +70,13 @@ namespace TrenchBroom {
             TextureManager* m_textureManager;
             EntityDefinitionManager* m_definitionManager;
             Utility::Grid* m_grid;
-            StringList m_mods;
             Model::Texture* m_mruTexture;
             String m_mruTextureName;
             bool m_textureLock;
             int m_modificationCount;
+            
+            mutable StringList m_searchPaths;
+            mutable bool m_searchPathsValid;
             
             PointFile* m_pointFile;
             
@@ -86,7 +88,6 @@ namespace TrenchBroom {
             void loadPalette();
             void loadMap(std::istream& stream, Utility::ProgressIndicator& progressIndicator);
             void loadTextures(Utility::ProgressIndicator& progressIndicator);
-            void loadEntityDefinitions();
         public:
             MapDocument();
             virtual ~MapDocument();
@@ -118,7 +119,9 @@ namespace TrenchBroom {
             TextureManager& textureManager() const;
             Picker& picker() const;
             Utility::Grid& grid() const;
-            const StringList& mods() const;
+            
+            const StringList& searchPaths() const;
+            void invalidateSearchPaths();
             
             bool pointFileExists();
             void loadPointFile();
@@ -136,8 +139,7 @@ namespace TrenchBroom {
             void loadTextureWad(const String& path);
             void loadTextureWad(const String& path, size_t index);
 
-            void updateEntityDefinitions();
-            void loadEntityDefinitionFile(const String& path);
+            void setEntityDefinitionFile(const String& definitionFile);
             
             void incModificationCount();
             void decModificationCount();

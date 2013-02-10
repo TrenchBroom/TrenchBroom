@@ -54,7 +54,7 @@ namespace TrenchBroom {
             
             typedef std::map<String, EntityDefinition*> EntityDefinitionMap;
 
-            String m_name;
+            String m_path;
             EntityDefinitionMap m_entityDefinitions;
         public:
             EntityDefinitionManager();

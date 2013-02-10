@@ -66,8 +66,8 @@ namespace TrenchBroom {
                 }
                 
                 Renderer::EntityModelRendererManager& modelRendererManager = m_documentViewHolder.document().sharedResources().modelRendererManager();
-                const StringList& mods = m_documentViewHolder.document().mods();
-                Renderer::EntityModelRenderer* modelRenderer = modelRendererManager.modelRenderer(*definition, mods);
+                const StringList& searchPaths = m_documentViewHolder.document().searchPaths();
+                Renderer::EntityModelRenderer* modelRenderer = modelRendererManager.modelRenderer(*definition, searchPaths);
 
                 BBox rotatedBounds;
                 if (modelRenderer != NULL) {

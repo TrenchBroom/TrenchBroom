@@ -19,11 +19,15 @@
 
 #include "MapPropertiesDialog.h"
 
+#include "Controller/EntityDefinitionCommand.h"
+#include "Controller/SetModCommand.h"
+#include "Controller/TextureCollectionCommand.h"
 #include "IO/FileManager.h"
 #include "Model/Entity.h"
 #include "Model/EntityDefinitionManager.h"
 #include "Model/MapDocument.h"
 #include "Model/TextureManager.h"
+#include "Utility/CommandProcessor.h"
 #include "Utility/Preferences.h"
 #include "View/CommandIds.h"
 #include "View/LayoutConstants.h"
@@ -33,35 +37,119 @@
 #include <wx/button.h>
 #include <wx/filedlg.h>
 #include <wx/image.h>
-#include <wx/listbox.h>
 #include <wx/sizer.h>
 #include <wx/statbox.h>
 #include <wx/stattext.h>
-
+#include <wx/stdpaths.h>
 
 namespace TrenchBroom {
     namespace View {
+        WadListBox::WadListBox(wxWindow* parent, wxWindowID windowId, Model::TextureManager& textureManager) :
+        wxVListBox(parent, windowId, wxDefaultPosition, wxDefaultSize, wxLB_MULTIPLE | wxBORDER_SUNKEN),
+        m_textureManager(textureManager) {
+            SetItemCount(m_textureManager.collections().size());
+        }
+        
+        
+        void WadListBox::OnDrawItem (wxDC &dc, const wxRect &rect, size_t n) const {
+            const Model::TextureCollectionList& collections = m_textureManager.collections();
+            assert(n < collections.size());
+            
+            int width = std::min(rect.width, GetClientSize().x);
+            
+            const String name = collections[n]->name();
+            const wxString shortString = wxControl::Ellipsize(name, dc, wxELLIPSIZE_MIDDLE, width);
+            
+            dc.DrawText(shortString, rect.x, rect.y);
+        }
+        
+        void WadListBox::OnDrawBackground (wxDC &dc, const wxRect &rect, size_t n) const {
+            if (IsSelected(n)) {
+                dc.SetPen(*wxTRANSPARENT_PEN);
+                dc.SetBrush(wxBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT)));
+                dc.DrawRectangle(rect);
+            }
+        }
+
+        wxCoord WadListBox::OnMeasureItem (size_t n) const {
+            const Model::TextureCollectionList& collections = m_textureManager.collections();
+            assert(n < collections.size());
+            return GetFont().GetPixelSize().y;
+        }
+
+        void WadListBox::GetSelections(wxArrayInt& selection) const {
+            selection.clear();
+            
+            unsigned long cookie;
+            int index = GetFirstSelected(cookie);
+            while (index != wxNOT_FOUND) {
+                selection.push_back(index);
+                index = GetNextSelected(cookie);
+            }
+        }
+
         BEGIN_EVENT_TABLE(MapPropertiesDialog, wxDialog)
         EVT_CHOICE(CommandIds::MapPropertiesDialog::DefChoiceId, MapPropertiesDialog::OnDefChoiceSelected)
         EVT_CHOICE(CommandIds::MapPropertiesDialog::ModChoiceId, MapPropertiesDialog::OnModChoiceSelected)
         EVT_BUTTON(CommandIds::MapPropertiesDialog::AddWadButtonId, MapPropertiesDialog::OnAddWadClicked)
         EVT_BUTTON(CommandIds::MapPropertiesDialog::RemoveWadsButtonId, MapPropertiesDialog::OnRemoveWadsClicked)
-        EVT_BUTTON(CommandIds::MapPropertiesDialog::ChangeWadPathsButtonId, MapPropertiesDialog::OnChangeWadPathsClicked)
         EVT_BUTTON(CommandIds::MapPropertiesDialog::MoveWadUpButtonId, MapPropertiesDialog::OnMoveWadUpClicked)
         EVT_BUTTON(CommandIds::MapPropertiesDialog::MoveWadDownButtonId, MapPropertiesDialog::OnMoveWadDownClicked)
         EVT_UPDATE_UI_RANGE(CommandIds::MapPropertiesDialog::AddWadButtonId, CommandIds::MapPropertiesDialog::MoveWadDownButtonId, MapPropertiesDialog::OnUpdateWadButtons)
+        EVT_BUTTON(wxID_CLOSE, MapPropertiesDialog::OnCloseClicked)
         END_EVENT_TABLE()
 
-        void MapPropertiesDialog::populateDefChoice(String def) {
+        MapPropertiesDialog::PathType MapPropertiesDialog::pathType(const String& path) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            IO::FileManager fileManager;
+            
+            const String mapPath = fileManager.deleteLastPathComponent(m_document.GetFilename().ToStdString());
+            const String exePath = fileManager.deleteLastPathComponent(wxStandardPaths::Get().GetExecutablePath().ToStdString());
+            const String quakePath = prefs.getString(Preferences::QuakePath);
+
+            if (fileManager.isAbsolutePath(path))
+                return Absolute;
+            if (fileManager.exists(fileManager.makeAbsolute(path, mapPath)))
+                return RelativeToMap;
+            if (fileManager.exists(fileManager.makeAbsolute(path, exePath)))
+                return RelativeToExe;
+            if (fileManager.exists(fileManager.makeAbsolute(path, quakePath)))
+                return RelativeToQuake;
+            return Ignore;
+        }
+
+        String MapPropertiesDialog::makePath(const String& absolutePath) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            IO::FileManager fileManager;
+            
+            const String mapPath = fileManager.deleteLastPathComponent(m_document.GetFilename().ToStdString());
+            const String exePath = fileManager.deleteLastPathComponent(wxStandardPaths::Get().GetExecutablePath().ToStdString());
+            const String quakePath = prefs.getString(Preferences::QuakePath);
+
+            switch (m_pathChoice->GetSelection()) {
+                case RelativeToMap:
+                    return fileManager.makeRelative(absolutePath, mapPath);
+                case RelativeToExe:
+                    return fileManager.makeRelative(absolutePath, exePath);
+                case RelativeToQuake:
+                    return fileManager.makeRelative(absolutePath, quakePath);
+                default:
+                    return absolutePath;
+            }
+        }
+
+        void MapPropertiesDialog::populateDefChoice(const String& def) {
             m_defChoice->Clear();
 
             int quakeDefIndex = -1;
             int selectionIndex = -1;
-            const StringList builtinDefs = Model::EntityDefinitionManager::builtinDefinitionFiles();
+            StringList builtinDefs = Model::EntityDefinitionManager::builtinDefinitionFiles();
+            Utility::sort(builtinDefs);
+            
             for (size_t i = 0; i < builtinDefs.size(); i++) {
                 const String& item = builtinDefs[i];
                 m_defChoice->Append(item);
-                if (Utility::equalsString(item, "quake.def", false))
+                if (Utility::equalsString(item, "Quake.def", false))
                     quakeDefIndex = static_cast<int>(i);
                 if (Utility::startsWith(def, "builtin:") &&
                     Utility::equalsString(def.substr(8), item, false))
@@ -80,7 +168,7 @@ namespace TrenchBroom {
             m_defChoice->SetSelection(selectionIndex);
         }
 
-        void MapPropertiesDialog::populateModChoice(String mod) {
+        void MapPropertiesDialog::populateModChoice(const String& mod) {
             m_modChoice->Clear();
 
             IO::FileManager fileManager;
@@ -104,17 +192,37 @@ namespace TrenchBroom {
             m_modChoice->SetSelection(selectionIndex);
         }
 
-        void MapPropertiesDialog::populateWadList() {
-            m_wadList->Clear();
+        void MapPropertiesDialog::setPathChoice(const String& def) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            IO::FileManager fileManager;
+
+            const String mapPath = fileManager.deleteLastPathComponent(m_document.GetFilename().ToStdString());
+            const String exePath = fileManager.deleteLastPathComponent(wxStandardPaths::Get().GetExecutablePath().ToStdString());
+            const String quakePath = prefs.getString(Preferences::QuakePath);
             
-            Model::TextureManager& textureManager = m_document.textureManager();
-            const Model::TextureCollectionList& collections = textureManager.collections();
-            
-            Model::TextureCollectionList::const_iterator it, end;
-            for (it = collections.begin(), end = collections.end(); it != end; ++it) {
-                const Model::TextureCollection& collection = **it;
-                m_wadList->Append(collection.name());
+            const Model::TextureCollectionList& collections = m_document.textureManager().collections();
+
+            PathType type;
+            if (!collections.empty()) {
+                type = pathType(collections[0]->name());
+                for (size_t i = 1; i < collections.size(); i++) {
+                    if (type != pathType(collections[i]->name()))
+                        type = Ignore;
+                }
+                
+                if (Utility::startsWith(def, "external:")) {
+                    const String defPath = def.substr(9);
+                    if (type != pathType(defPath))
+                        type = Ignore;
+                }
+            } else if (Utility::startsWith(def, "external:")) {
+                const String defPath = def.substr(9);
+                type = pathType(defPath);
+            } else {
+                type = Absolute;
             }
+            
+            m_pathChoice->SetSelection(type);
         }
 
         void MapPropertiesDialog::init() {
@@ -133,7 +241,9 @@ namespace TrenchBroom {
             
             populateDefChoice(def);
             populateModChoice(mod);
-            populateWadList();
+            m_wadList->SetItemCount(m_document.textureManager().collections().size());
+            m_wadList->Refresh();
+            setPathChoice(def);
         }
 
         MapPropertiesDialog::MapPropertiesDialog(Model::MapDocument& document) :
@@ -142,7 +252,7 @@ namespace TrenchBroom {
             wxStaticBox* modBox = new wxStaticBox(this, wxID_ANY, wxT("Entity Definitions"));
             wxStaticText* defText = new wxStaticText(modBox, wxID_ANY, wxT("Select an entity definition file for this map."));
             defText->SetFont(*wxSMALL_FONT);
-            m_defChoice = new wxChoice(modBox, CommandIds::MapPropertiesDialog::DefChoiceId, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_SORT);
+            m_defChoice = new wxChoice(modBox, CommandIds::MapPropertiesDialog::DefChoiceId);
 
             wxStaticText* modText = new wxStaticText(modBox, wxID_ANY, wxT("Select a subdirectory within your Quake directory to search for entity models. ID1 is always searched in addition to the selected subdirectory."));
             modText->SetFont(*wxSMALL_FONT);
@@ -163,7 +273,6 @@ namespace TrenchBroom {
             
             wxBitmap add(fileManager.appendPath(resourcePath, "Add.png"), wxBITMAP_TYPE_PNG);
             wxBitmap remove(fileManager.appendPath(resourcePath, "Remove.png"), wxBITMAP_TYPE_PNG);
-            wxBitmap changePath(fileManager.appendPath(resourcePath, "Path.png"), wxBITMAP_TYPE_PNG);
             wxBitmap up(fileManager.appendPath(resourcePath, "Up.png"), wxBITMAP_TYPE_PNG);
             wxBitmap down(fileManager.appendPath(resourcePath, "Down.png"), wxBITMAP_TYPE_PNG);
             
@@ -171,13 +280,12 @@ namespace TrenchBroom {
             wxStaticText* wadText = new wxStaticText(wadBox, wxID_ANY, wxT("Manage the wad files for this map. Wad files are searched from bottom to top, so textures in the lower entries override textures in the upper entries if the names of the textures are the same."));
             wadText->SetFont(*wxSMALL_FONT);
             wadText->SetMinSize(wxSize(wxDefaultSize.x, 60));
-            m_wadList = new wxListBox(wadBox, CommandIds::MapPropertiesDialog::WadListId, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE);
+            
+            m_wadList = new WadListBox(wadBox, CommandIds::MapPropertiesDialog::WadListId, m_document.textureManager());
             m_addWadButton = new wxBitmapButton(wadBox, CommandIds::MapPropertiesDialog::AddWadButtonId, add, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
             m_addWadButton->SetMinSize(wxSize(20, 20));
             m_removeWadsButton = new wxBitmapButton(wadBox, CommandIds::MapPropertiesDialog::RemoveWadsButtonId, remove, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
             m_removeWadsButton->SetMinSize(wxSize(20, 20));
-            m_changeWadPathsButton = new wxBitmapButton(wadBox, CommandIds::MapPropertiesDialog::ChangeWadPathsButtonId, changePath, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
-            m_changeWadPathsButton->SetMinSize(wxSize(20, 20));
             m_moveWadUpButton = new wxBitmapButton(wadBox, CommandIds::MapPropertiesDialog::MoveWadUpButtonId, up, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
             m_moveWadUpButton->SetMinSize(wxSize(20, 20));
             m_moveWadDownButton = new wxBitmapButton(wadBox, CommandIds::MapPropertiesDialog::MoveWadDownButtonId, down, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
@@ -187,8 +295,6 @@ namespace TrenchBroom {
             wadButtonsSizer->Add(m_addWadButton);
             wadButtonsSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
             wadButtonsSizer->Add(m_removeWadsButton);
-            wadButtonsSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
-            wadButtonsSizer->Add(m_changeWadPathsButton);
             wadButtonsSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
             wadButtonsSizer->Add(m_moveWadUpButton);
             wadButtonsSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
@@ -201,36 +307,136 @@ namespace TrenchBroom {
             wadBoxSizer->Add(wadButtonsSizer, 0, wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT | wxALIGN_LEFT, LayoutConstants::StaticBoxInnerMargin);
             wadBox->SetSizerAndFit(wadBoxSizer);
             
+            wxStaticBox* pathBox = new wxStaticBox(this, wxID_ANY, wxT("Paths"));
+            wxStaticText* pathText = new wxStaticText(pathBox, wxID_ANY, wxT("Select how the paths to the entity definition file and the texture wad should be stored in the map."));
+            pathText->SetFont(*wxSMALL_FONT);
+            pathText->SetMinSize(wxSize(wxDefaultSize.x, 30));
+
+            wxString pathChoices[] = { wxT("Absolute"), wxT("Relative to map file"), wxT("Relative to application"), wxT("Relative to Quake"), wxT("Don't change") };
+            m_pathChoice = new wxChoice(pathBox, wxID_ANY, wxDefaultPosition, wxDefaultSize, 5, pathChoices);
+            
+            wxSizer* pathSizer = new wxBoxSizer(wxVERTICAL);
+            pathSizer->Add(pathText, 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
+            pathSizer->Add(m_pathChoice, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
+            pathSizer->AddSpacer(LayoutConstants::StaticBoxInnerMargin);
+            pathBox->SetSizerAndFit(pathSizer);
+
+            wxSizer* buttonSizer = CreateStdDialogButtonSizer(wxCLOSE);
+            SetAffirmativeId(wxCLOSE);
+            SetEscapeId(wxCLOSE);
+            
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(modBox, 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::DialogOuterMargin);
             outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            outerSizer->Add(wadBox, 1, wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT, LayoutConstants::DialogOuterMargin);
+            outerSizer->Add(wadBox, 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::DialogOuterMargin);
+            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            outerSizer->Add(pathBox, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::DialogOuterMargin);
+            outerSizer->Add(buttonSizer, 0, wxEXPAND);
             
             SetSizer(outerSizer);
-            SetSize(350, 450);
+            SetSize(350, 550);
             
             init();
+
+            CommandProcessor::BeginGroup(m_document.GetCommandProcessor(), "Edit map properties");
+        }
+
+        void MapPropertiesDialog::EndModal(int retCode) {
+            CommandProcessor::EndGroup(m_document.GetCommandProcessor());
+            wxDialog::EndModal(retCode);
         }
 
         void MapPropertiesDialog::OnDefChoiceSelected(wxCommandEvent& event) {
+            int index = event.GetSelection();
+            if (index < 0 || index >= static_cast<int>(m_defChoice->GetCount()))
+                return;
+            
+            StringList builtinDefs = Model::EntityDefinitionManager::builtinDefinitionFiles();
+            Utility::sort(builtinDefs);
+
+            if (index < static_cast<int>(builtinDefs.size())) {
+                const String defPath = "builtin:" + builtinDefs[static_cast<size_t>(index)];
+
+                Controller::EntityDefinitionCommand* command = Controller::EntityDefinitionCommand::setEntityDefinitionFile(m_document, defPath);
+                m_document.GetCommandProcessor()->Submit(command);
+            } else if (index == static_cast<int>(builtinDefs.size())) {
+                wxFileDialog openDefinitionDialog(NULL, wxT("Choose entity definition file"), wxT(""), wxT(""), wxT("*.def"), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+                if (openDefinitionDialog.ShowModal() == wxID_OK) {
+                    const String absDefPath = openDefinitionDialog.GetPath().ToStdString();
+                    const String defPath = "external:" + makePath(absDefPath);
+                    
+                    Controller::EntityDefinitionCommand* command = Controller::EntityDefinitionCommand::setEntityDefinitionFile(m_document, defPath);
+                    m_document.GetCommandProcessor()->Submit(command);
+                    
+                }
+            }
+
+            init();
         }
         
         void MapPropertiesDialog::OnModChoiceSelected(wxCommandEvent& event) {
+            int index = event.GetSelection();
+            if (index < 0 || index >= static_cast<int>(m_modChoice->GetCount()))
+                return;
+            
+            const String mod = m_modChoice->GetString(static_cast<unsigned int>(index)).ToStdString();
+            
+            Controller::SetModCommand* command = Controller::SetModCommand::setMod(m_document, mod);
+            m_document.GetCommandProcessor()->Submit(command);
+            init();
         }
-        
+
         void MapPropertiesDialog::OnAddWadClicked(wxCommandEvent& event) {
+            wxFileDialog addTextureCollectionDialog(NULL, wxT("Choose texture wad"), wxT(""), wxT(""), wxT("*.wad"), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+            if (addTextureCollectionDialog.ShowModal() == wxID_OK) {
+                const String absWadPath = addTextureCollectionDialog.GetPath().ToStdString();
+                const String wadPath = makePath(absWadPath);
+                
+                Controller::TextureCollectionCommand* command = Controller::TextureCollectionCommand::addTextureWad(m_document, wadPath);
+                m_document.GetCommandProcessor()->Submit(command);
+                
+                init();
+            }
         }
         
         void MapPropertiesDialog::OnRemoveWadsClicked(wxCommandEvent& event) {
-        }
-        
-        void MapPropertiesDialog::OnChangeWadPathsClicked(wxCommandEvent& event) {
+            wxArrayInt selection;
+            m_wadList->GetSelections(selection);
+            
+            Controller::TextureCollectionCommand::IndexList indices;
+            for (size_t i = 0; i < selection.size(); i++)
+                indices.push_back(static_cast<size_t>(selection[i]));
+            
+            Controller::TextureCollectionCommand* command = Controller::TextureCollectionCommand::removeTextureCollections(m_document, indices);
+            m_document.GetCommandProcessor()->Submit(command);
+            
+            init();
         }
         
         void MapPropertiesDialog::OnMoveWadUpClicked(wxCommandEvent& event) {
+            wxArrayInt selection;
+            m_wadList->GetSelections(selection);
+            size_t index = static_cast<size_t>(selection.front());
+
+            Controller::TextureCollectionCommand* command = Controller::TextureCollectionCommand::moveTextureCollectionUp(m_document, index);
+            m_document.GetCommandProcessor()->Submit(command);
+            
+            init();
+            m_wadList->DeselectAll();
+            m_wadList->SetSelection(static_cast<int>(index - 1));
         }
         
         void MapPropertiesDialog::OnMoveWadDownClicked(wxCommandEvent& event) {
+            wxArrayInt selection;
+            m_wadList->GetSelections(selection);
+            size_t index = static_cast<size_t>(selection.front());
+
+            Controller::TextureCollectionCommand* command = Controller::TextureCollectionCommand::moveTextureCollectionDown(m_document, index);
+            m_document.GetCommandProcessor()->Submit(command);
+            
+            init();
+            m_wadList->DeselectAll();
+            m_wadList->SetSelection(static_cast<int>(index + 1));
         }
         
         void MapPropertiesDialog::OnUpdateWadButtons(wxUpdateUIEvent& event) {
@@ -253,12 +459,16 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::MapPropertiesDialog::MoveWadDownButtonId:
                     event.Enable(selection.size() == 1 &&
-                                 selection[0] < static_cast<int>(m_wadList->GetCount() - 1));
+                                 selection[0] < static_cast<int>(m_document.textureManager().collections().size() - 1));
                     break;
                 default:
                     event.Enable(false);
                     break;
             }
+        }
+
+        void MapPropertiesDialog::OnCloseClicked(wxCommandEvent& event) {
+            EndModal(wxID_CLOSE);
         }
     }
 }

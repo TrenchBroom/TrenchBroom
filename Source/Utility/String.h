@@ -97,6 +97,10 @@ namespace TrenchBroom {
             return result.str();
         }
         
+        inline void sort(StringList& strs) {
+            std::sort(strs.begin(), strs.end());
+        }
+        
         inline bool isBlank(const String& str) {
             if (str.empty())
                 return true;

@@ -59,10 +59,7 @@ namespace TrenchBroom {
             SpinControl* m_rotationEditor;
             
             TextureBrowser* m_textureBrowser;
-            wxListBox* m_textureCollectionList;
-            wxButton* m_addTextureCollectionButton;
-            wxButton* m_removeTextureCollectionsButton;
-            
+
             wxWindow* createFaceEditor();
             wxWindow* createTextureBrowser();
         public:
@@ -71,7 +68,6 @@ namespace TrenchBroom {
             void updateFaceAttributes();
             void updateSelectedTexture();
             void updateTextureBrowser();
-            void updateTextureCollectionList();
             
             void OnXOffsetChanged(SpinControlEvent& event);
             void OnYOffsetChanged(SpinControlEvent& event);
@@ -84,10 +80,6 @@ namespace TrenchBroom {
             void OnFitTexturePressed(wxCommandEvent& event);
             void OnUpdateFaceButtons(wxUpdateUIEvent& event);
             void OnTextureSelected(TextureSelectedCommand& event);
-
-            void OnAddTextureCollectionPressed(wxCommandEvent& event);
-            void OnRemoveTextureCollectionsPressed(wxCommandEvent& event);
-            void OnUpdateRemoveTextureCollectionsButton(wxUpdateUIEvent& event);
             
             void OnIdle(wxIdleEvent& event);
             

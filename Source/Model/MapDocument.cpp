@@ -43,6 +43,7 @@
 #include "Utility/Grid.h"
 #include "Utility/List.h"
 #include "Utility/Preferences.h"
+#include "Utility/String.h"
 #include "Utility/VecMath.h"
 #include "View/EditorView.h"
 #include "View/FaceInspector.h"
@@ -167,8 +168,8 @@ namespace TrenchBroom {
                         wxList views = GetViews();
                         for (size_t i = 0; i < views.size(); i++) {
                             View::EditorView* view = wxDynamicCast(views[i], View::EditorView);
-                            if (view != NULL)
-                                view->inspector().faceInspector().updateTextureCollectionList();
+                            //if (view != NULL)
+                                //view->inspector().faceInspector().updateTextureCollectionList();
                         }
                     }
                 }
@@ -191,6 +192,7 @@ namespace TrenchBroom {
             m_textureManager->clear();
             m_definitionManager->clear();
             unloadPointFile();
+            invalidateSearchPaths();
 
             Controller::Command clearCommand(Controller::Command::ClearMap);
             UpdateAllViews(NULL, &clearCommand);
@@ -226,33 +228,7 @@ namespace TrenchBroom {
                 }
             }
         }
-
-        void MapDocument::loadEntityDefinitions() {
-            IO::FileManager fileManager;
-            String resourcePath = fileManager.resourceDirectory();
-            String defPath = fileManager.appendPath(resourcePath, "Quake.def");
-
-            const Model::PropertyValue* defValue = worldspawn(true)->propertyForKey(Model::Entity::DefKey);
-            if (defValue != NULL) {
-                Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-                
-                const String defPathValue = *defValue;
-                if (!fileManager.isAbsolutePath(defPathValue)) {
-                    StringList rootPaths;
-                    rootPaths.push_back(GetFilename().ToStdString());
-                    rootPaths.push_back(wxStandardPaths::Get().GetExecutablePath().ToStdString());
-                    rootPaths.push_back(prefs.getString(Preferences::QuakePath));
-                    
-                    if (!fileManager.resolveRelativePath(defPathValue, rootPaths, defPath)) {
-                        console().error("Could not open entity definition file %s (tried relative to current map file, TrenchBroom executable, and Quake path)", defPathValue.c_str());
-                        return;
-                    }
-                }
-            }
-            
-            loadEntityDefinitionFile(defPath);
-        }
-
+        
         MapDocument::MapDocument() :
         m_autosaver(NULL),
         m_console(NULL),
@@ -268,6 +244,7 @@ namespace TrenchBroom {
         m_mruTextureName(""),
         m_textureLock(true),
         m_modificationCount(0),
+        m_searchPathsValid(false),
         m_pointFile(NULL) {}
 
         MapDocument::~MapDocument() {
@@ -301,9 +278,16 @@ namespace TrenchBroom {
             loadMap(stream, progressIndicator);
             loadTextures(progressIndicator);
             updateAfterTextureManagerChanged();
-            loadEntityDefinitions();
-            updateEntityDefinitions();
-            m_octree->loadMap();
+            
+            String definitionFile = "";
+            Entity* worldspawnEntity = worldspawn(false);
+            if (worldspawnEntity != NULL) {
+                const PropertyValue* defValue = worldspawnEntity->propertyForKey(Entity::DefKey);
+                if (defValue != NULL)
+                    definitionFile = *defValue;
+            }
+
+            setEntityDefinitionFile(definitionFile);
 
             return stream;
         }
@@ -508,8 +492,31 @@ namespace TrenchBroom {
             return *m_grid;
         }
 
-        const StringList& MapDocument::mods() const {
-            return m_mods;
+        const StringList& MapDocument::searchPaths() const {
+            if (!m_searchPathsValid) {
+                m_searchPaths.clear();
+                m_searchPaths.push_back("id1");
+                
+                Entity* worldspawnEntity = m_map->worldspawn();
+                if (worldspawnEntity != NULL) {
+                    const PropertyValue* modValue = worldspawnEntity->propertyForKey(Entity::ModKey);
+                    if (modValue != NULL)
+                        m_searchPaths.push_back(*modValue);
+                }
+                
+                Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+                const String& quakePath = prefs.getString(Preferences::QuakePath);
+
+                IO::FileManager fileManager;
+                m_searchPaths = fileManager.resolveSearchpaths(quakePath, m_searchPaths);
+                m_searchPathsValid = true;
+            }
+
+            return m_searchPaths;
+        }
+        
+        void MapDocument::invalidateSearchPaths() {
+            m_searchPathsValid = false;
         }
 
         bool MapDocument::pointFileExists() {
@@ -628,23 +635,47 @@ namespace TrenchBroom {
             }
         }
 
-        void MapDocument::updateEntityDefinitions() {
+        void MapDocument::setEntityDefinitionFile(const String& definitionFile) {
+            IO::FileManager fileManager;
+            const String resourcePath = fileManager.resourceDirectory();
+            String definitionPath;
+            
+            if (Utility::startsWith(definitionFile, "external:")) {
+                definitionPath = definitionFile.substr(9);
+            } else if (Utility::startsWith(definitionFile, "builtin:")) {
+                definitionPath = fileManager.appendPath(resourcePath, definitionFile.substr(8));
+            } else if (definitionFile == "") {
+                definitionPath = fileManager.appendPath(resourcePath, "Quake.def");
+            } else {
+                console().error("Unable to load entity definition file %s", definitionFile.c_str());
+                return;
+            }
+
             const EntityList& entities = m_map->entities();
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Entity& entity = *entities[i];
+                entity.setDefinition(NULL);
+            }
+
+            m_octree->clear();
+            
+            Entity* worldspawnEntity = worldspawn(true);
+            worldspawnEntity->setProperty(Entity::DefKey, definitionFile);
+
+            console().info("Loading entity definition file %s", definitionPath.c_str());
+            m_definitionManager->clear();
+            m_definitionManager->load(definitionPath);
+
+            for (unsigned int i = 0; i < entities.size(); i++) {
+                Entity& entity = *entities[i];
                 const PropertyValue* classname = entity.classname();
-                
                 if (classname != NULL) {
                     EntityDefinition* definition = m_definitionManager->definition(*classname);
                     entity.setDefinition(definition);
                 }
             }
-        }
-        
-        void MapDocument::loadEntityDefinitionFile(const String& path) {
-            console().info("Loading entity definition file %s", path.c_str());
-            m_definitionManager->clear();
-            m_definitionManager->load(path);
+            
+            m_octree->loadMap();
         }
 
         void MapDocument::incModificationCount() {
@@ -668,8 +699,6 @@ namespace TrenchBroom {
             m_octree = new Octree(*m_map);
             m_picker = new Model::Picker(*m_octree);
             m_definitionManager = new EntityDefinitionManager();
-            m_mods.push_back("id1");
-            m_mods.push_back("ID1");
             m_modificationCount = 0;
             m_autosaver = new Controller::Autosaver(*this);
             m_autosaveTimer = new wxTimer(this);
@@ -684,7 +713,7 @@ namespace TrenchBroom {
 			if (wxDocument::OnNewDocument()) {
 				// prompt for initial stuff like world bounds, mods, palette, def here
                 clear();
-                loadEntityDefinitions();
+                setEntityDefinitionFile("");
 
                 Controller::Command loadCommand(Controller::Command::LoadMap);
                 UpdateAllViews(NULL, &loadCommand);

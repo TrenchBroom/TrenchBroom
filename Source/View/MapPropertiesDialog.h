@@ -23,47 +23,75 @@
 #include "Utility/String.h"
 
 #include <wx/dialog.h>
+#include <wx/vlbox.h>
 
 class wxButton;
 class wxChoice;
-class wxListBox;
 
 namespace TrenchBroom {
     namespace Model {
         class MapDocument;
+        class TextureManager;
     }
     
     namespace View {
+        class WadListBox : public wxVListBox {
+        private:
+            Model::TextureManager& m_textureManager;
+        public:
+            WadListBox(wxWindow* parent, wxWindowID windowId, Model::TextureManager& textureManager);
+            
+            void OnDrawItem (wxDC &dc, const wxRect &rect, size_t n) const;
+            void OnDrawBackground (wxDC &dc, const wxRect &rect, size_t n) const;
+            wxCoord OnMeasureItem (size_t n) const;
+            
+            void GetSelections(wxArrayInt& selection) const;
+        };
+        
         class MapPropertiesDialog : public wxDialog {
         protected:
+            typedef enum {
+                Absolute            = 0,
+                RelativeToMap       = 1,
+                RelativeToExe       = 2,
+                RelativeToQuake     = 3,
+                Ignore              = 4
+            } PathType;
+            
             Model::MapDocument& m_document;
             
             wxChoice* m_modChoice;
             wxChoice* m_defChoice;
-            wxListBox* m_wadList;
+            WadListBox* m_wadList;
             wxButton* m_addWadButton;
             wxButton* m_removeWadsButton;
-            wxButton* m_changeWadPathsButton;
             wxButton* m_moveWadUpButton;
             wxButton* m_moveWadDownButton;
+            wxChoice* m_pathChoice;
             
-            void populateDefChoice(String def);
-            void populateModChoice(String mod);
+            PathType pathType(const String& path);
+            String makePath(const String& absolutePath);
+            
+            void populateDefChoice(const String& def);
+            void populateModChoice(const String& mod);
             void populateWadList();
+            void setPathChoice(const String& def);
             
             void init();
         public:
             MapPropertiesDialog(Model::MapDocument& document);
             
+            void EndModal(int retCode);
+            
             void OnDefChoiceSelected(wxCommandEvent& event);
             void OnModChoiceSelected(wxCommandEvent& event);
-            
+
             void OnAddWadClicked(wxCommandEvent& event);
             void OnRemoveWadsClicked(wxCommandEvent& event);
-            void OnChangeWadPathsClicked(wxCommandEvent& event);
             void OnMoveWadUpClicked(wxCommandEvent& event);
             void OnMoveWadDownClicked(wxCommandEvent& event);
             void OnUpdateWadButtons(wxUpdateUIEvent& event);
+            void OnCloseClicked(wxCommandEvent& event);
             
             DECLARE_EVENT_TABLE();
         };

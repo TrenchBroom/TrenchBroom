@@ -56,13 +56,13 @@ namespace TrenchBroom {
             bool m_valid;
 
             const String modelRendererKey(const Model::PointEntityModel& modelInfo, const StringList& searchPaths);
-            EntityModelRenderer* modelRenderer(const Model::PointEntityModel& modelInfo, const StringList& mods);
+            EntityModelRenderer* modelRenderer(const Model::PointEntityModel& modelInfo, const StringList& searchPaths);
         public:
             EntityModelRendererManager(Utility::Console& console);
             ~EntityModelRendererManager();
             
-            EntityModelRenderer* modelRenderer(const Model::PointEntityDefinition& entityDefinition, const StringList& mods);
-            EntityModelRenderer* modelRenderer(const Model::Entity& entity, const StringList& mods);
+            EntityModelRenderer* modelRenderer(const Model::PointEntityDefinition& entityDefinition, const StringList& searchPaths);
+            EntityModelRenderer* modelRenderer(const Model::Entity& entity, const StringList& searchPaths);
             void clear();
             
             void setPalette(const Palette& palette);

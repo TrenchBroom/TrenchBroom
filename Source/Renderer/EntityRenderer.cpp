@@ -115,7 +115,7 @@ namespace TrenchBroom {
             Model::EntitySet::iterator entityIt, entityEnd;
             for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                 Model::Entity* entity = *entityIt;
-                EntityModelRenderer* renderer = modelRendererManager.modelRenderer(*entity, m_document.mods());
+                EntityModelRenderer* renderer = modelRendererManager.modelRenderer(*entity, m_document.searchPaths());
                 if (renderer != NULL)
                     m_modelRenderers[entity] = CachedEntityModelRenderer(renderer, *entity->classname());
             }
@@ -250,7 +250,7 @@ namespace TrenchBroom {
             Text::FontDescriptor fontDescriptor(fontName, static_cast<unsigned int>(fontSize));
 
             const Model::PropertyValue& classname = *entity.classname();
-            EntityModelRenderer* renderer = modelRendererManager.modelRenderer(entity, m_document.mods());
+            EntityModelRenderer* renderer = modelRendererManager.modelRenderer(entity, m_document.searchPaths());
             if (renderer != NULL)
                 m_modelRenderers[&entity] = CachedEntityModelRenderer(renderer, classname);
 
@@ -277,7 +277,7 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
                 const Model::PropertyValue& classname = *entity->classname();
-                EntityModelRenderer* renderer = modelRendererManager.modelRenderer(*entity, m_document.mods());
+                EntityModelRenderer* renderer = modelRendererManager.modelRenderer(*entity, m_document.searchPaths());
                 if (renderer != NULL)
                     m_modelRenderers[entity] = CachedEntityModelRenderer(renderer, classname);
 

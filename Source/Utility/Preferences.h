@@ -264,6 +264,8 @@ namespace TrenchBroom {
         
         extern const Preference<Color>  InfoOverlayTextColor;
         extern const Preference<Color>  InfoOverlayBackgroundColor;
+        extern const Preference<Color>  OccludedInfoOverlayTextColor;
+        extern const Preference<Color>  OccludedInfoOverlayBackgroundColor;
         extern const Preference<Color>  SelectedInfoOverlayTextColor;
         extern const Preference<Color>  SelectedInfoOverlayBackgroundColor;
         extern const Preference<Color>  OccludedSelectedInfoOverlayTextColor;

@@ -49,7 +49,7 @@ namespace TrenchBroom {
                 m_entityDefinitions[definition->name()] = definition;
             }
             
-            m_name = path;
+            m_path = path;
         }
         
         void EntityDefinitionManager::clear() {

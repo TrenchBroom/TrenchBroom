@@ -160,7 +160,9 @@ namespace TrenchBroom {
                 Renderer::ShaderProgram& textShader = renderContext.shaderManager().shaderProgram(Renderer::Shaders::TextShader);
                 Renderer::ShaderProgram& backgroundShader = renderContext.shaderManager().shaderProgram(Renderer::Shaders::TextBackgroundShader);
                 
+                glDisable(GL_DEPTH_TEST);
                 m_textRenderer->render(renderContext, m_textFilter, textShader, textColor, backgroundShader, backgroundColor);
+                glEnable(GL_DEPTH_TEST);
             }
         }
 

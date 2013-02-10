@@ -42,6 +42,7 @@ namespace TrenchBroom {
             
             void addTextureCollectionsByPaths();
             void removeTextureCollectionsByPaths();
+            size_t moveTextureCollection(bool up);
             void updateWadKey();
             
             TextureCollectionCommand(Type type, Model::MapDocument& document, const String& name, const String& path);
@@ -51,7 +52,9 @@ namespace TrenchBroom {
             bool performUndo();
         public:
             static TextureCollectionCommand* addTextureWad(Model::MapDocument& document, const String& path);
-            static TextureCollectionCommand* removeTextureWads(Model::MapDocument& document, const IndexList& indices);
+            static TextureCollectionCommand* removeTextureCollections(Model::MapDocument& document, const IndexList& indices);
+            static TextureCollectionCommand* moveTextureCollectionUp(Model::MapDocument& document, size_t index);
+            static TextureCollectionCommand* moveTextureCollectionDown(Model::MapDocument& document, size_t index);
         };
     }
 }

@@ -93,9 +93,12 @@
 		487EC0A9168467F20094927A /* Autosaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487EC0A7168467EF0094927A /* Autosaver.cpp */; };
 		48819C3815EBE97A00BEA604 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3615EBE92800BEA604 /* Camera.cpp */; };
 		48819C3F15EC0CE700BEA604 /* MacFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C3D15EC0CE700BEA604 /* MacFileManager.cpp */; };
-		48819C4415EC107700BEA604 /* quake.def in Resources */ = {isa = PBXBuildFile; fileRef = 48819C4315EC107700BEA604 /* quake.def */; };
 		48819C4615EC108400BEA604 /* QuakePalette.lmp in Resources */ = {isa = PBXBuildFile; fileRef = 48819C4515EC108400BEA604 /* QuakePalette.lmp */; };
 		48819C5015ED5C7700BEA604 /* CameraEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C4F15ED5C7700BEA604 /* CameraEvent.cpp */; };
+		4883375D16C4340000493DA2 /* EntityDefinitionCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4883375B16C4340000493DA2 /* EntityDefinitionCommand.cpp */; };
+		4883376016C43ED200493DA2 /* SetModCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4883375E16C43ED200493DA2 /* SetModCommand.cpp */; };
+		4883376316C654A800493DA2 /* Quake.def in Resources */ = {isa = PBXBuildFile; fileRef = 4883376116C654A800493DA2 /* Quake.def */; };
+		4883376416C654A800493DA2 /* Rubicon2.def in Resources */ = {isa = PBXBuildFile; fileRef = 4883376216C654A800493DA2 /* Rubicon2.def */; };
 		488457D0161C839A002ADDAE /* OffscreenRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488457CE161C839A002ADDAE /* OffscreenRenderer.cpp */; };
 		4887937615EF56C10044D66A /* AbstractApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4887937415EF56C10044D66A /* AbstractApp.cpp */; };
 		4888654B1634211C0071F9C6 /* RotateObjects90Command.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488865491634211C0071F9C6 /* RotateObjects90Command.cpp */; };
@@ -398,6 +401,12 @@
 		48819C4C15ED52B200BEA604 /* CameraEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraEvent.h; sourceTree = "<group>"; };
 		48819C4F15ED5C7700BEA604 /* CameraEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraEvent.cpp; sourceTree = "<group>"; };
 		48820108167F244300C2C799 /* FaceVertex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FaceVertex.h; sourceTree = "<group>"; };
+		4883375B16C4340000493DA2 /* EntityDefinitionCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityDefinitionCommand.cpp; sourceTree = "<group>"; };
+		4883375C16C4340000493DA2 /* EntityDefinitionCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionCommand.h; sourceTree = "<group>"; };
+		4883375E16C43ED200493DA2 /* SetModCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SetModCommand.cpp; sourceTree = "<group>"; };
+		4883375F16C43ED200493DA2 /* SetModCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SetModCommand.h; sourceTree = "<group>"; };
+		4883376116C654A800493DA2 /* Quake.def */ = {isa = PBXFileReference; lastKnownFileType = text; path = Quake.def; sourceTree = "<group>"; };
+		4883376216C654A800493DA2 /* Rubicon2.def */ = {isa = PBXFileReference; lastKnownFileType = text; path = Rubicon2.def; sourceTree = "<group>"; };
 		488457CE161C839A002ADDAE /* OffscreenRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OffscreenRenderer.cpp; sourceTree = "<group>"; };
 		488457CF161C839A002ADDAE /* OffscreenRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OffscreenRenderer.h; sourceTree = "<group>"; };
 		4887937415EF56C10044D66A /* AbstractApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractApp.cpp; sourceTree = "<group>"; };
@@ -676,6 +685,8 @@
 		484763C615E2BC5000095BC0 = {
 			isa = PBXGroup;
 			children = (
+				4883376116C654A800493DA2 /* Quake.def */,
+				4883376216C654A800493DA2 /* Rubicon2.def */,
 				48D937F016C2ABFE005A4684 /* Add.png */,
 				48D937F116C2ABFE005A4684 /* Down.png */,
 				48D937F216C2ABFE005A4684 /* Path.png */,
@@ -1009,6 +1020,8 @@
 				4850D26115F3E202005B162D /* ChangeEditStateCommand.cpp */,
 				4850D26215F3E202005B162D /* ChangeEditStateCommand.h */,
 				4850D26515F3E757005B162D /* Command.h */,
+				4883375B16C4340000493DA2 /* EntityDefinitionCommand.cpp */,
+				4883375C16C4340000493DA2 /* EntityDefinitionCommand.h */,
 				48B059A61615EF3800E6B0AD /* EntityPropertyCommand.cpp */,
 				48B059A71615EF3800E6B0AD /* EntityPropertyCommand.h */,
 				48A8391316356CFC00175857 /* FlipObjectsCommand.cpp */,
@@ -1038,6 +1051,8 @@
 				4895CDED16334111006AA0A6 /* RotateTexturesCommand.h */,
 				4817C7EC1611DC8F00A01A99 /* SetFaceAttributesCommand.cpp */,
 				4817C7ED1611DC8F00A01A99 /* SetFaceAttributesCommand.h */,
+				4883375E16C43ED200493DA2 /* SetModCommand.cpp */,
+				4883375F16C43ED200493DA2 /* SetModCommand.h */,
 				4817C7EF1611DFA900A01A99 /* SnapshotCommand.cpp */,
 				4817C7F01611DFA900A01A99 /* SnapshotCommand.h */,
 				484EA61C1679226700EBFAC7 /* SplitEdgesCommand.cpp */,
@@ -1170,6 +1185,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4883376316C654A800493DA2 /* Quake.def in Resources */,
+				4883376416C654A800493DA2 /* Rubicon2.def in Resources */,
 				48D937F516C2ABFE005A4684 /* Add.png in Resources */,
 				48D937F616C2ABFE005A4684 /* Down.png in Resources */,
 				48D937F716C2ABFE005A4684 /* Path.png in Resources */,
@@ -1178,7 +1195,6 @@
 				48E2ECCD15FFCA4C00B8D476 /* Face.vertsh in Resources */,
 				484763E015E2BC5000095BC0 /* InfoPlist.strings in Resources */,
 				48312B2815EABBD600607868 /* Icon.icns in Resources */,
-				48819C4415EC107700BEA604 /* quake.def in Resources */,
 				48819C4615EC108400BEA604 /* QuakePalette.lmp in Resources */,
 				48E2ECC615FFC31600B8D476 /* Face.fragsh in Resources */,
 				48E2ECD216007A4400B8D476 /* EntityModel.vertsh in Resources */,
@@ -1345,6 +1361,8 @@
 				48C4637616B97A76008159DC /* MoveTool.cpp in Sources */,
 				482C644C16BAFFD9009C75CB /* LinesRenderer.cpp in Sources */,
 				48D937EF16C27B0C005A4684 /* MapPropertiesDialog.cpp in Sources */,
+				4883375D16C4340000493DA2 /* EntityDefinitionCommand.cpp in Sources */,
+				4883376016C43ED200493DA2 /* SetModCommand.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

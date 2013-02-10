@@ -475,7 +475,7 @@ namespace TrenchBroom {
                         inspector().faceInspector().updateFaceAttributes();
                         inspector().faceInspector().updateTextureBrowser();
                         inspector().faceInspector().updateSelectedTexture();
-                        inspector().faceInspector().updateTextureCollectionList();
+                        //inspector().faceInspector().updateTextureCollectionList();
                         inspector().entityInspector().updateProperties();
                         inspector().entityInspector().updateEntityBrowser();
                         inputController().objectsChange();
@@ -487,7 +487,7 @@ namespace TrenchBroom {
                         inspector().faceInspector().updateFaceAttributes();
                         inspector().faceInspector().updateTextureBrowser();
                         inspector().faceInspector().updateSelectedTexture();
-                        inspector().faceInspector().updateTextureCollectionList();
+                        //inspector().faceInspector().updateTextureCollectionList();
                         inspector().entityInspector().updateProperties();
                         inspector().entityInspector().updateEntityBrowser();
                         inputController().objectsChange();
@@ -519,7 +519,9 @@ namespace TrenchBroom {
                         m_renderer->invalidateAll();
                         break;
                     case Controller::Command::InvalidateEntityModelRendererCache:
+                        mapDocument().invalidateSearchPaths();
                         m_renderer->invalidateEntityModelRendererCache();
+                        inspector().entityInspector().updateEntityBrowser();
                         break;
                     case Controller::Command::SetFaceAttributes:
                     case Controller::Command::MoveTextures:
@@ -529,12 +531,14 @@ namespace TrenchBroom {
                         break;
                     }
                     case Controller::Command::RemoveTextureCollection:
-                    case Controller::Command::AddTextureCollection: {
+                    case Controller::Command::AddTextureCollection:
+                    case Controller::Command::MoveTextureCollectionUp:
+                    case Controller::Command::MoveTextureCollectionDown: {
                         m_renderer->invalidateAll();
                         inspector().faceInspector().updateFaceAttributes();
                         inspector().faceInspector().updateTextureBrowser();
                         inspector().faceInspector().updateSelectedTexture();
-                        inspector().faceInspector().updateTextureCollectionList();
+                        //inspector().faceInspector().updateTextureCollectionList();
                         inspector().entityInspector().updateProperties();
                         break;
                     }
@@ -588,6 +592,14 @@ namespace TrenchBroom {
                         inputController().objectsChange();
                         break;
                     case Controller::Command::UpdateFigures:
+                        break;
+                    case Controller::Command::SetMod:
+                    case Controller::Command::SetEntityDefinitionFile:
+                        m_renderer->invalidateEntityModelRendererCache();
+                        m_renderer->invalidateAll();
+                        inspector().entityInspector().updateProperties();
+                        inspector().entityInspector().updateEntityBrowser();
+                        inputController().objectsChange();
                         break;
                     default:
                         break;

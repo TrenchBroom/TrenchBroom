@@ -38,6 +38,7 @@ namespace TrenchBroom {
             char pathSeparator();
             StringList directoryContents(const String& path, String extension = "", bool directories = true, bool files = true);
             bool resolveRelativePath(const String& relativePath, const StringList& rootPaths, String& absolutePath);
+            StringList resolveSearchpaths(const String& rootPath, const StringList& searchPaths);
             
             StringList pathComponents(const String& path);
             String joinComponents(const StringList& pathComponents);

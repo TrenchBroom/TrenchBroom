@@ -47,24 +47,16 @@ namespace TrenchBroom {
             return Utility::toLower(key.str());
         }
 
-        EntityModelRenderer* EntityModelRendererManager::modelRenderer(const Model::PointEntityModel& modelInfo, const StringList& mods) {
+        EntityModelRenderer* EntityModelRendererManager::modelRenderer(const Model::PointEntityModel& modelInfo, const StringList& searchPaths) {
             assert(m_palette != NULL);
+            IO::FileManager fileManager;
             
             if (!m_valid) {
                 clear();
                 m_valid = true;
             }
             
-            IO::FileManager fileManager;
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            
-            StringList searchPaths;
-            String quakePath = prefs.getString(Preferences::QuakePath);
-            for (unsigned int i = 0; i < mods.size(); i++)
-                searchPaths.push_back(fileManager.appendPath(quakePath, mods[i]));
-
             const String key = modelRendererKey(modelInfo, searchPaths);
-
             MismatchCache::iterator mismatchIt = m_mismatches.find(key);
             if (mismatchIt != m_mismatches.end())
                 return NULL;
@@ -113,20 +105,18 @@ namespace TrenchBroom {
             m_vbo = NULL;
         }
 
-        EntityModelRenderer* EntityModelRendererManager::modelRenderer(const Model::PointEntityDefinition& entityDefinition, const StringList& mods) {
-            assert(!mods.empty());
-            
+        EntityModelRenderer* EntityModelRendererManager::modelRenderer(const Model::PointEntityDefinition& entityDefinition, const StringList& searchPaths) {
             const Model::PointEntityModel* modelInfo = entityDefinition.model();
             if (modelInfo == NULL)
                 return NULL;
-            return modelRenderer(*modelInfo, mods);
+            return modelRenderer(*modelInfo, searchPaths);
         }
 
-        EntityModelRenderer* EntityModelRendererManager::modelRenderer(const Model::Entity& entity, const StringList& mods) {
+        EntityModelRenderer* EntityModelRendererManager::modelRenderer(const Model::Entity& entity, const StringList& searchPaths) {
             const Model::EntityDefinition* definition = entity.definition();
             if (definition == NULL || definition->type() != Model::EntityDefinition::PointEntity)
                 return NULL;
-            return modelRenderer(*static_cast<const Model::PointEntityDefinition*>(definition), mods);
+            return modelRenderer(*static_cast<const Model::PointEntityDefinition*>(definition), searchPaths);
         }
 
         void EntityModelRendererManager::clear() {
