@@ -45,7 +45,7 @@ namespace TrenchBroom {
             Model::EditStateManager& editStateManager = document().editStateManager();
             if (!editStateManager.hasSelectedObjects())
                 return;
-            
+
             Vec3f position = document().grid().referencePoint(editStateManager.bounds());
             m_rotateHandle.setPosition(position);
         }
@@ -91,27 +91,27 @@ namespace TrenchBroom {
             if (inputState.mouseButtons() != MouseButtons::MBLeft ||
                 inputState.modifierKeys() != ModifierKeys::MKNone)
                 return false;
-            
+
             Model::EditStateManager& editStateManager = document().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
             if (entities.empty() && brushes.empty())
                 return false;
-            
+
             Model::RotateHandleHit* hit = static_cast<Model::RotateHandleHit*>(inputState.pickResult().first(Model::HitType::RotateHandleHit, true, view().filter()));
-            
+
             if (hit == NULL)
                 return false;
-            
+
             Vec3f test = hit->hitPoint() - m_rotateHandle.position();
             switch (hit->hitArea()) {
                 case Model::RotateHandleHit::HAXAxis:
                     m_axis = Vec3f::PosX;
-                    m_invert = (test.dot(Vec3f::PosX) > 0.0f == test.dot(Vec3f::PosY) > 0.0f);
+                    m_invert = ((test.dot(Vec3f::PosX) > 0.0f) == (test.dot(Vec3f::PosY) > 0.0f));
                     break;
                 case Model::RotateHandleHit::HAYAxis:
                     m_axis = Vec3f::PosY;
-                    m_invert = (test.dot(Vec3f::PosX) > 0.0f != test.dot(Vec3f::PosY) > 0.0f);
+                    m_invert = ((test.dot(Vec3f::PosX) > 0.0f) != (test.dot(Vec3f::PosY) > 0.0f));
                     break;
                 case Model::RotateHandleHit::HAZAxis:
                     m_axis = Vec3f::PosZ;
@@ -125,10 +125,10 @@ namespace TrenchBroom {
             m_center = m_rotateHandle.position();
             m_rotateHandle.lock();
             beginCommandGroup(Controller::Command::makeObjectActionName(wxT("Rotate"), entities, brushes));
-            
+
             return true;
         }
-        
+
         bool RotateObjectsTool::handleDrag(InputState& inputState) {
             int delta = 0;
             if (m_axis == Vec3f::PosZ) {
@@ -138,12 +138,12 @@ namespace TrenchBroom {
                 if (m_invert)
                     delta *= -1;
             }
-            
+
             m_angle = static_cast<float>(delta) / 200.0f * Math::Pi;
-            
+
             Utility::Grid& grid = document().grid();
             m_angle = grid.snapAngle(m_angle);
-            
+
             m_ignoreObjectsChange = true;
             rollbackCommandGroup();
 
@@ -154,11 +154,11 @@ namespace TrenchBroom {
                 RotateObjectsCommand* command = RotateObjectsCommand::rotate(document(), entities, brushes, m_axis, m_angle, false, m_center, document().textureLock());
                 submitCommand(command);
             }
-            
+
             m_ignoreObjectsChange = false;
             return true;
         }
-        
+
         void RotateObjectsTool::handleEndDrag(InputState& inputState) {
             endCommandGroup();
             m_rotateHandle.unlock();
