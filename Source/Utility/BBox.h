@@ -228,67 +228,69 @@ namespace TrenchBroom {
             }
             
             float intersectWithRay(const Ray& ray, Vec3f* sideNormal) const {
+                bool inside = contains(ray.origin);
+                
                 if (ray.direction.x < 0) {
-                    Plane plane(Vec3f::PosX, max);
+                    Plane plane(Vec3f::PosX, inside ? min : max);
                     float distance = plane.intersectWithRay(ray);
                     if (!Math::isnan(distance)) {
                         Vec3f point = ray.pointAtDistance(distance);
                         if (point.y >= min.y && point.y <= max.y && point.z >= min.z && point.z <= max.z) {
-                            if (sideNormal != NULL) *sideNormal = Vec3f::PosX;
+                            if (sideNormal != NULL) *sideNormal = inside ? Vec3f::NegX : Vec3f::PosX;
                             return distance;
                         }
                     }
                 } else if (ray.direction.x > 0) {
-                    Plane plane(Vec3f::NegX, min);
+                    Plane plane(Vec3f::NegX, inside ? max : min);
                     float distance = plane.intersectWithRay(ray);
                     if (!Math::isnan(distance)) {
                         Vec3f point = ray.pointAtDistance(distance);
                         if (point.y >= min.y && point.y <= max.y && point.z >= min.z && point.z <= max.z) {
-                            if (sideNormal != NULL) *sideNormal = Vec3f::NegX;
+                            if (sideNormal != NULL) *sideNormal = inside ? Vec3f::PosX : Vec3f::NegX;
                             return distance;
                         }
                     }
                 }
                 
                 if (ray.direction.y < 0) {
-                    Plane plane(Vec3f::PosY, max);
+                    Plane plane(Vec3f::PosY, inside ? min : max);
                     float distance = plane.intersectWithRay(ray);
                     if (!Math::isnan(distance)) {
                         Vec3f point = ray.pointAtDistance(distance);
                         if (point.x >= min.x && point.x <= max.x && point.z >= min.z && point.z <= max.z) {
-                            if (sideNormal != NULL) *sideNormal = Vec3f::PosY;
+                            if (sideNormal != NULL) *sideNormal = inside ? Vec3f::NegY : Vec3f::PosY;
                             return distance;
                         }
                     }
                 } else if (ray.direction.y > 0) {
-                    Plane plane(Vec3f::NegY, min);
+                    Plane plane(Vec3f::NegY, inside ? max : min);
                     float distance = plane.intersectWithRay(ray);
                     if (!Math::isnan(distance)) {
                         Vec3f point = ray.pointAtDistance(distance);
                         if (point.x >= min.x && point.x <= max.x && point.z >= min.z && point.z <= max.z) {
-                            if (sideNormal != NULL) *sideNormal = Vec3f::NegY;
+                            if (sideNormal != NULL) *sideNormal = inside ? Vec3f::PosY : Vec3f::NegY;
                             return distance;
                         }
                     }
                 }
                 
                 if (ray.direction.z < 0) {
-                    Plane plane(Vec3f::PosZ, max);
+                    Plane plane(Vec3f::PosZ, inside ? min : max);
                     float distance = plane.intersectWithRay(ray);
                     if (!Math::isnan(distance)) {
                         Vec3f point = ray.pointAtDistance(distance);
                         if (point.x >= min.x && point.x <= max.x && point.y >= min.y && point.y <= max.y) {
-                            if (sideNormal != NULL) *sideNormal = Vec3f::PosZ;
+                            if (sideNormal != NULL) *sideNormal = inside ? Vec3f::NegZ : Vec3f::PosZ;
                             return distance;
                         }
                     }
                 } else if (ray.direction.z > 0) {
-                    Plane plane(Vec3f::NegZ, min);
+                    Plane plane(Vec3f::NegZ, inside ? max : min);
                     float distance = plane.intersectWithRay(ray);
                     if (!Math::isnan(distance)) {
                         Vec3f point = ray.pointAtDistance(distance);
                         if (point.x >= min.x && point.x <= max.x && point.y >= min.y && point.y <= max.y) {
-                            if (sideNormal != NULL) *sideNormal = Vec3f::NegZ;
+                            if (sideNormal != NULL) *sideNormal = inside ? Vec3f::PosZ : Vec3f::NegZ;
                             return distance;
                         }
                     }

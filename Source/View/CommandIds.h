@@ -186,9 +186,9 @@ namespace TrenchBroom {
                 static const int WadListId                          = Lowest +  3;
                 static const int AddWadButtonId                     = Lowest +  4;
                 static const int RemoveWadsButtonId                 = Lowest +  5;
-                static const int ChangeWadPathsButtonId             = Lowest +  6;
-                static const int MoveWadUpButtonId                  = Lowest +  7;
-                static const int MoveWadDownButtonId                = Lowest +  8;
+                static const int MoveWadUpButtonId                  = Lowest +  6;
+                static const int MoveWadDownButtonId                = Lowest +  7;
+                static const int PathChoiceId                       = Lowest +  8;
                 static const int Highest                            = Lowest + 99;
             }
         }

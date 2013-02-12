@@ -36,6 +36,7 @@ public:
     
     void addCommand(wxCommand* command);
     void removeCommand(wxCommand* command);
+    bool empty() const;
     void clear();
     
     bool Do();

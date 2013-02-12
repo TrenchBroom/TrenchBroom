@@ -705,7 +705,7 @@ namespace TrenchBroom {
             assert(sanityCheck());
 
             float lastFrac = 0.0f;
-            while (!vertex->position.equals(end)) {
+            while (!vertex->position.equals(end, 0.0f)) {
                 const Vec3f lastPosition = vertex->position;
                 SideList affectedSides = incidentSides(vertex);
                 

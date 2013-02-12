@@ -128,6 +128,7 @@
 		48B059D11618859A00E6B0AD /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B059D01618859A00E6B0AD /* Texture.cpp */; };
 		48B059D416189A7600E6B0AD /* EntityBrowserCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B059D216189A7500E6B0AD /* EntityBrowserCanvas.cpp */; };
 		48B059D71618AB2500E6B0AD /* EntityBrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B059D51618AB2400E6B0AD /* EntityBrowser.cpp */; };
+		48B64C3C16CA403B00ECA6C5 /* PathDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B64C3A16CA403B00ECA6C5 /* PathDialog.cpp */; };
 		48B75F72160BA512009D4E99 /* TextureBrowser.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48B75F71160BA512009D4E99 /* TextureBrowser.vertsh */; };
 		48B75F75160BA531009D4E99 /* TextureBrowser.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48B75F74160BA531009D4E99 /* TextureBrowser.fragsh */; };
 		48B75F79160CF79F009D4E99 /* TextureBrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B75F77160CF79E009D4E99 /* TextureBrowser.cpp */; };
@@ -463,6 +464,8 @@
 		48B059D316189A7600E6B0AD /* EntityBrowserCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityBrowserCanvas.h; sourceTree = "<group>"; };
 		48B059D51618AB2400E6B0AD /* EntityBrowser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityBrowser.cpp; sourceTree = "<group>"; };
 		48B059D61618AB2400E6B0AD /* EntityBrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityBrowser.h; sourceTree = "<group>"; };
+		48B64C3A16CA403B00ECA6C5 /* PathDialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PathDialog.cpp; sourceTree = "<group>"; };
+		48B64C3B16CA403B00ECA6C5 /* PathDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathDialog.h; sourceTree = "<group>"; };
 		48B75F71160BA512009D4E99 /* TextureBrowser.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = TextureBrowser.vertsh; sourceTree = "<group>"; };
 		48B75F74160BA531009D4E99 /* TextureBrowser.fragsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = TextureBrowser.fragsh; sourceTree = "<group>"; };
 		48B75F77160CF79E009D4E99 /* TextureBrowser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureBrowser.cpp; sourceTree = "<group>"; };
@@ -855,6 +858,8 @@
 				4810276A15E5313F00250C9C /* Inspector.cpp */,
 				4810276B15E5313F00250C9C /* Inspector.h */,
 				48AF61F715F91B610027C465 /* CommandIds.h */,
+				48B64C3A16CA403B00ECA6C5 /* PathDialog.cpp */,
+				48B64C3B16CA403B00ECA6C5 /* PathDialog.h */,
 				481CDAD616026C48003E2EE9 /* PreferencesDialog.cpp */,
 				481CDAD716026C48003E2EE9 /* PreferencesDialog.h */,
 				48AB57EF15ECEEE500321C47 /* ProgressIndicatorDialog.cpp */,
@@ -1363,6 +1368,7 @@
 				48D937EF16C27B0C005A4684 /* MapPropertiesDialog.cpp in Sources */,
 				4883375D16C4340000493DA2 /* EntityDefinitionCommand.cpp in Sources */,
 				4883376016C43ED200493DA2 /* SetModCommand.cpp in Sources */,
+				48B64C3C16CA403B00ECA6C5 /* PathDialog.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

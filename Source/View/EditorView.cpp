@@ -1257,7 +1257,7 @@ namespace TrenchBroom {
         }
 
         void EditorView::OnEditShowMapProperties(wxCommandEvent& event) {
-            MapPropertiesDialog dialog(mapDocument());
+            MapPropertiesDialog dialog(GetFrame(), mapDocument());
             
             wxPoint pos = GetFrame()->GetPosition();
             pos.x += (GetFrame()->GetSize().x - dialog.GetSize().x) / 2;

@@ -209,7 +209,7 @@ namespace TrenchBroom {
 #ifndef __APPLE__
             outerSizer->Add(innerSizer, 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::DialogOuterMargin);
             wxSizer* buttonSizer = CreateButtonSizer(wxOK | wxCANCEL);
-            outerSizer->Add(buttonSizer, 0, wxEXPAND | wxALL, 7);
+            outerSizer->Add(buttonSizer, 0, wxEXPAND | wxALL, LayoutConstants::DialogButtonMargin);
 #else
             outerSizer->Add(innerSizer, 0, wxEXPAND | wxALL, LayoutConstants::DialogOuterMargin);
 #endif

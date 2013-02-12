@@ -37,6 +37,7 @@ namespace TrenchBroom {
             static const int CheckBoxVerticalMargin         = 5;
             static const int DefaultVerticalMargin          = 10;
             static const int DialogOuterMargin              = 10;
+            static const int DialogButtonMargin             = 7;
             static const int ToggleButtonStyle              = 0;
 #elif defined __APPLE__
             static const int NotebookPageInnerMargin        = 5;
@@ -50,6 +51,7 @@ namespace TrenchBroom {
             static const int CheckBoxVerticalMargin         = 0;
             static const int DefaultVerticalMargin          = 5;
             static const int DialogOuterMargin              = 10;
+            static const int DialogButtonMargin             = 0;
             static const int ToggleButtonStyle              = wxBORDER_SUNKEN;
 #elif defined __linux__
             static const int NotebookPageInnerMargin        = 5;
@@ -63,6 +65,7 @@ namespace TrenchBroom {
             static const int CheckBoxVerticalMargin         = 5;
             static const int DefaultVerticalMargin          = 10;
             static const int DialogOuterMargin              = 10;
+            static const int DialogButtonMargin             = 7;
             static const int ToggleButtonStyle              = 0;
 #endif
         }

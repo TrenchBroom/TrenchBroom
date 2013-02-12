@@ -267,9 +267,9 @@ namespace TrenchBroom {
             }
             
             inline bool equals(const Vec3f& other, float delta) const {
-                return std::abs(x - other.x) < delta &&
-                       std::abs(y - other.y) < delta &&
-                       std::abs(z - other.z) < delta;
+                return std::abs(x - other.x) <= delta &&
+                       std::abs(y - other.y) <= delta &&
+                       std::abs(z - other.z) <= delta;
             }
             
             inline bool null() const {

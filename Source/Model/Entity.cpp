@@ -317,6 +317,12 @@ namespace TrenchBroom {
                 return false;
             if (key == SpawnFlagsKey)
                 return false;
+            if (key == ModKey)
+                return false;
+            if (key == DefKey)
+                return false;
+            if (key == WadKey)
+                return false;
             return true;
         }
 

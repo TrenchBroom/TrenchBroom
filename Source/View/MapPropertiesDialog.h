@@ -50,14 +50,6 @@ namespace TrenchBroom {
         
         class MapPropertiesDialog : public wxDialog {
         protected:
-            typedef enum {
-                Absolute            = 0,
-                RelativeToMap       = 1,
-                RelativeToExe       = 2,
-                RelativeToQuake     = 3,
-                Ignore              = 4
-            } PathType;
-            
             Model::MapDocument& m_document;
             
             wxChoice* m_modChoice;
@@ -67,19 +59,14 @@ namespace TrenchBroom {
             wxButton* m_removeWadsButton;
             wxButton* m_moveWadUpButton;
             wxButton* m_moveWadDownButton;
-            wxChoice* m_pathChoice;
-            
-            PathType pathType(const String& path);
-            String makePath(const String& absolutePath);
             
             void populateDefChoice(const String& def);
             void populateModChoice(const String& mod);
             void populateWadList();
-            void setPathChoice(const String& def);
             
             void init();
         public:
-            MapPropertiesDialog(Model::MapDocument& document);
+            MapPropertiesDialog(wxWindow* parent, Model::MapDocument& document);
             
             void EndModal(int retCode);
             

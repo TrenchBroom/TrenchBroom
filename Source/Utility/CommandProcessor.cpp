@@ -37,6 +37,10 @@ void CompoundCommand::removeCommand(wxCommand* command) {
     m_commands.erase(std::remove(m_commands.begin(), m_commands.end(), command), m_commands.end());
 }
 
+bool CompoundCommand::empty() const {
+    return m_commands.empty();
+}
+
 void CompoundCommand::clear() {
     CommandList::iterator it, end;
     for (it = m_commands.begin(), end = m_commands.end(); it != end; ++it) {
@@ -115,11 +119,7 @@ bool CommandProcessor::CanUndo() const {
 }
 
 void CommandProcessor::BeginGroup(const wxString& name) {
-    CompoundCommand* parentGroup = m_groupStack.empty() ? NULL : m_groupStack.top();
-    CompoundCommand* newGroup = new CompoundCommand(name);
-    m_groupStack.push(newGroup);
-    if (parentGroup != NULL)
-        parentGroup->addCommand(newGroup);
+    m_groupStack.push(new CompoundCommand(name));
 }
 
 void CommandProcessor::EndGroup() {
@@ -127,8 +127,15 @@ void CommandProcessor::EndGroup() {
     
     CompoundCommand* group = m_groupStack.top();
     m_groupStack.pop();
-    if (m_groupStack.empty())
-        wxCommandProcessor::Store(group);
+
+    if (group->empty()) {
+        delete group;
+    } else {
+        if (m_groupStack.empty())
+            wxCommandProcessor::Store(group);
+        else
+            m_groupStack.top()->addCommand(group);
+    }
 }
 
 void CommandProcessor::RollbackGroup() {
@@ -144,9 +151,6 @@ void CommandProcessor::DiscardGroup() {
     
     CompoundCommand* group = m_groupStack.top();
     m_groupStack.pop();
-    if (!m_groupStack.empty())
-        m_groupStack.top()->removeCommand(group);
-    
     delete group;
 }
 

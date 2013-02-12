@@ -220,6 +220,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Controller\CreateBrushTool.cpp" />
     <ClCompile Include="..\..\Source\Controller\CreateEntityFromMenuHelper.cpp" />
     <ClCompile Include="..\..\Source\Controller\CreateEntityTool.cpp" />
+    <ClCompile Include="..\..\Source\Controller\EntityDefinitionCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\EntityPropertyCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\FlipObjectsCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\InputController.cpp" />
@@ -243,6 +244,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Controller\SelectionTool.cpp" />
     <ClCompile Include="..\..\Source\Controller\SetFaceAttributesCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\SetFaceAttributesTool.cpp" />
+    <ClCompile Include="..\..\Source\Controller\SetModCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\SnapshotCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\SplitEdgesCommand.cpp" />
     <ClCompile Include="..\..\Source\Controller\SplitFacesCommand.cpp" />
@@ -331,6 +333,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\View\Inspector.cpp" />
     <ClCompile Include="..\..\Source\View\MapGLCanvas.cpp" />
     <ClCompile Include="..\..\Source\View\MapPropertiesDialog.cpp" />
+    <ClCompile Include="..\..\Source\View\PathDialog.cpp" />
     <ClCompile Include="..\..\Source\View\PreferencesDialog.cpp" />
     <ClCompile Include="..\..\Source\View\ProgressIndicatorDialog.cpp" />
     <ClCompile Include="..\..\Source\View\SingleTextureViewer.cpp" />
@@ -356,6 +359,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Controller\CreateBrushTool.h" />
     <ClInclude Include="..\..\Source\Controller\CreateEntityFromMenuHelper.h" />
     <ClInclude Include="..\..\Source\Controller\CreateEntityTool.h" />
+    <ClInclude Include="..\..\Source\Controller\EntityDefinitionCommand.h" />
     <ClInclude Include="..\..\Source\Controller\EntityPropertyCommand.h" />
     <ClInclude Include="..\..\Source\Controller\FlipObjectsCommand.h" />
     <ClInclude Include="..\..\Source\Controller\Input.h" />
@@ -382,6 +386,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Controller\SelectionTool.h" />
     <ClInclude Include="..\..\Source\Controller\SetFaceAttributesCommand.h" />
     <ClInclude Include="..\..\Source\Controller\SetFaceAttributesTool.h" />
+    <ClInclude Include="..\..\Source\Controller\SetModCommand.h" />
     <ClInclude Include="..\..\Source\Controller\SnapshotCommand.h" />
     <ClInclude Include="..\..\Source\Controller\SplitEdgesCommand.h" />
     <ClInclude Include="..\..\Source\Controller\SplitFacesCommand.h" />
@@ -538,6 +543,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\View\LayoutConstants.h" />
     <ClInclude Include="..\..\Source\View\MapGLCanvas.h" />
     <ClInclude Include="..\..\Source\View\MapPropertiesDialog.h" />
+    <ClInclude Include="..\..\Source\View\PathDialog.h" />
     <ClInclude Include="..\..\Source\View\PreferencesDialog.h" />
     <ClInclude Include="..\..\Source\View\ProgressIndicatorDialog.h" />
     <ClInclude Include="..\..\Source\View\ScreenDC.h" />

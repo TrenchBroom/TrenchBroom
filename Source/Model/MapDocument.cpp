@@ -84,104 +84,12 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::DoSaveDocument(const wxString& file) {
-            wxString originalFile = GetFilename();
+            wxStopWatch watch;
+            IO::MapWriter mapWriter;
+            mapWriter.writeToFileAtPath(*m_map, file.ToStdString(), true);
+            console().info("Saved map file to %s in %f seconds", file.ToStdString().c_str(), watch.Time() / 1000.0f);
             
-            if (true) {
-                if (originalFile != file) {
-                    const TextureCollectionList& collections = m_textureManager->collections();
-                    if (!collections.empty()) {
-                        IO::FileManager fileManager;
-                        bool hasRelativePaths = false;
-                        bool hasAbsolutePaths = false;
-                        for (size_t i = 0; i < collections.size(); i++) {
-                            TextureCollection& collection = *collections[i];
-                            String wadPath = collection.name();
-                            if (fileManager.isAbsolutePath(wadPath))
-                                hasAbsolutePaths = true;
-                            else
-                                hasRelativePaths = true;
-                        }
-
-                        typedef enum {
-                            UTUpdateRelative,
-                            UTMakeAllRelative,
-                            UTDoNothing
-                        } UpdateType;
-                        
-                        UpdateType updateType = UTDoNothing;
-                        
-                        String message = "Would you like to update the texture wad paths ?\n\n";
-                        if (hasAbsolutePaths && hasRelativePaths) {
-                            wxMessageDialog wadPathDialog(NULL, message, wxT("Update texture wads"), wxYES_NO | wxCANCEL | wxCENTER);
-                            wadPathDialog.SetYesNoCancelLabels(wxT("Update relative paths"), wxT("Make all paths relative"), wxT("Don't change wad paths"));
-                            int result = wadPathDialog.ShowModal();
-                            if (result == wxID_YES)
-                                updateType = UTUpdateRelative;
-                            else if (result == wxID_NO)
-                                updateType = UTMakeAllRelative;
-                            else
-                                updateType = UTDoNothing;
-                        } else if (hasAbsolutePaths) {
-                            wxMessageDialog wadPathDialog(NULL, message, wxT("Update texture wads"), wxYES_NO | wxCENTER);
-                            wadPathDialog.SetYesNoLabels(wxT("Make all paths relative"), wxT("Don't change wad paths"));
-                            int result = wadPathDialog.ShowModal();
-                            if (result == wxID_YES)
-                                updateType = UTMakeAllRelative;
-                            else
-                                result = UTDoNothing;
-                        } else {
-                            wxMessageDialog wadPathDialog(NULL, message, wxT("Update texture wads"), wxYES_NO | wxCENTER);
-                            wadPathDialog.SetYesNoLabels(wxT("Update relative paths"), wxT("Don't change wad paths"));
-                            int result = wadPathDialog.ShowModal();
-                            if (result == wxID_YES)
-                                updateType = UTUpdateRelative;
-                            else
-                                updateType = UTDoNothing;
-                        }
-                        
-                        if (updateType == UTUpdateRelative) {
-                            // udpate only the relative paths
-                            for (size_t i = 0; i < collections.size(); i++) {
-                                TextureCollection& collection = *collections[i];
-                                String wadPath = collection.name();
-                                if (!fileManager.isAbsolutePath(wadPath)) {
-                                    String absolutePath = fileManager.makeAbsolute(wadPath, originalFile.ToStdString());
-                                    String relativePath = fileManager.makeRelative(wadPath, file.ToStdString());
-                                    collection.update(relativePath, absolutePath);
-                                }
-                            }
-                            Modify(true);
-                        } else if (updateType == UTMakeAllRelative) {
-                            // make all paths relative
-                            for (size_t i = 0; i < collections.size(); i++) {
-                                TextureCollection& collection = *collections[i];
-                                String wadPath = collection.name();
-                                String absolutePath = fileManager.makeAbsolute(wadPath, originalFile.ToStdString());
-                                String relativePath = fileManager.makeRelative(wadPath, file.ToStdString());
-                                collection.update(relativePath, absolutePath);
-                            }
-                            Modify(true);
-                        }
-
-                        worldspawn(true)->setProperty(Model::Entity::WadKey, m_textureManager->wadProperty());
-
-                        wxList views = GetViews();
-                        for (size_t i = 0; i < views.size(); i++) {
-                            View::EditorView* view = wxDynamicCast(views[i], View::EditorView);
-                            //if (view != NULL)
-                                //view->inspector().faceInspector().updateTextureCollectionList();
-                        }
-                    }
-                }
-
-                wxStopWatch watch;
-                IO::MapWriter mapWriter;
-                mapWriter.writeToFileAtPath(*m_map, file.ToStdString(), true);
-                console().info("Saved map file to %s in %f seconds", file.ToStdString().c_str(), watch.Time() / 1000.0f);
-
-                return true;
-            }
-            return false;
+            return true;
         }
 
         void MapDocument::clear() {
