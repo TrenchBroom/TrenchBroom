@@ -319,6 +319,7 @@ namespace TrenchBroom {
         void InputController::dragEnter(const String& payload, int x, int y) {
             assert(m_dragTool == NULL);
             
+            deactivateAll();
             m_inputState.mouseMove(x, y);
             m_createEntityTool->activate(m_inputState);
             

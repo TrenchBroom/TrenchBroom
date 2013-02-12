@@ -110,7 +110,7 @@ namespace TrenchBroom {
             beginCommandGroup(wxT("Create Entity"));
             Controller::AddObjectsCommand* addObjectsCommand = Controller::AddObjectsCommand::addEntity(document(), *m_entity);
             submitCommand(addObjectsCommand);
-            Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::select(document(), *m_entity);
+            Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::replace(document(), *m_entity);
             submitCommand(changeEditStateCommand);
             endCommandGroup();
             
