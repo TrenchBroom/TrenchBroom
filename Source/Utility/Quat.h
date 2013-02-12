@@ -29,7 +29,7 @@ namespace TrenchBroom {
             float s;
             Vec3f v;
 
-            Quat() : s(0), v(Vec3f::Null) {}
+            Quat() : s(0.0f), v(Vec3f::Null) {}
             
             /**
              * Creates a new quaternion that represent a clounter-clockwise rotation by the given angle (in radians) about
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             
             inline const Vec3f operator* (const Vec3f& right) const {
                 Quat p;
-                p.s = 0;
+                p.s = 0.0f;
                 p.v = right;
                 p = *this * p * conjugated();
                 return p.v;
@@ -81,9 +81,13 @@ namespace TrenchBroom {
             }
             
             inline Quat& setRotation(float angle, const Vec3f axis) {
-                s = cosf(angle / 2.0f);
-                v = axis * sinf(angle / 2.0f);
+                s = std::cos(angle / 2.0f);
+                v = axis * std::sin(angle / 2.0f);
                 return *this;
+            }
+
+            inline Vec3f axis() const {
+                return v.normalized();
             }
             
             inline Quat& conjugate() {

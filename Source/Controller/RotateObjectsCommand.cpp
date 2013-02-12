@@ -43,27 +43,24 @@ namespace TrenchBroom {
             makeSnapshots(m_entities);
             makeSnapshots(m_brushes);
             
-            if (angle < 0.0f)
-                angle += 2.0f * Math::Pi;
-            
-            assert(angle > 0.0f);
-            
             document().entitiesWillChange(m_entities);
             document().brushesWillChange(m_brushes);
             
             // if we are rotating about one of the coordinate system axes, we can get a more precise result by rotating
             // by 90 degrees as often as possible
             if (m_axis.equals(m_axis.firstAxis())) {
-                unsigned int quarters = static_cast<unsigned int>(2.0f * angle / Math::Pi);
+                unsigned int quarters = static_cast<unsigned int>(2.0f * std::abs(angle) / Math::Pi);
                 quarters %= 4;
                 
                 if (quarters > 0) {
-                    angle = angle - quarters * Math::Pi / 2.0f;
-                    assert(angle >= 0.0f);
-                    
                     Axis::Type component = m_axis.firstComponent();
-                    bool clockwise90 = m_axis[component] < 0.0f;
+                    bool clockwise90 = (m_axis[component] < 0.0f) != (angle < 0.0f);
                     
+                    if (angle > 0.0f)
+                        angle = angle - quarters * Math::Pi / 2.0f;
+                    else
+                        angle = angle + quarters * Math::Pi / 2.0f;
+
                     for (unsigned int i = 0; i < quarters; i++) {
                         Model::EntityList::const_iterator entityIt, entityEnd;
                         for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
@@ -80,7 +77,7 @@ namespace TrenchBroom {
                 }
             }
             
-            if (angle > 0.0f) {
+            if (angle != 0.0f) {
                 Quat rotation(angle, m_axis);
                 Model::EntityList::const_iterator entityIt, entityEnd;
                 for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {

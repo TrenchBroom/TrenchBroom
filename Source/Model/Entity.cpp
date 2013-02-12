@@ -137,6 +137,9 @@ namespace TrenchBroom {
             
             switch (info.type) {
                 case RotationInfo::ZAngle: {
+                    if (rotation.v.firstComponent() != Axis::AZ)
+                        return;
+                    
                     const PropertyValue* angleValue = propertyForKey(info.property);
                     float angle = angleValue != NULL ? static_cast<float>(std::atof(angleValue->c_str())) : 0.0f;
                     
@@ -155,6 +158,9 @@ namespace TrenchBroom {
                     break;
                 }
                 case RotationInfo::ZAngleWithUpDown: {
+                    if (rotation.v.firstComponent() != Axis::AZ)
+                        return;
+
                     const PropertyValue* angleValue = propertyForKey(info.property);
                     float angle = angleValue != NULL ? static_cast<float>(std::atof(angleValue->c_str())) : 0.0f;
 
