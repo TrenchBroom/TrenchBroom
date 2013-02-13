@@ -115,7 +115,7 @@
 		</Compiler>
 		<ExtraCommands>
 			<Add after="mkdir -p $(TARGET_OUTPUT_DIR)Resources" />
-			<Add after='cp &quot;$(PROJECT_DIR)../Resources/Defs/&quot;quake.def $(TARGET_OUTPUT_DIR)Resources/' />
+			<Add after='cp &quot;$(PROJECT_DIR)../Resources/Defs/&quot;*.def $(TARGET_OUTPUT_DIR)Resources/' />
 			<Add after='cp &quot;$(PROJECT_DIR)../Resources/Graphics/&quot;QuakePalette.lmp $(TARGET_OUTPUT_DIR)Resources/' />
 			<Add after='cp &quot;$(PROJECT_DIR)../Source/Renderer/Shader/&quot;*.vertsh $(TARGET_OUTPUT_DIR)Resources/' />
 			<Add after='cp &quot;$(PROJECT_DIR)../Source/Renderer/Shader/&quot;*.fragsh $(TARGET_OUTPUT_DIR)Resources/' />
@@ -145,6 +145,8 @@
 		<Unit filename="../Source/Controller/CreateEntityFromMenuHelper.h" />
 		<Unit filename="../Source/Controller/CreateEntityTool.cpp" />
 		<Unit filename="../Source/Controller/CreateEntityTool.h" />
+		<Unit filename="../Source/Controller/EntityDefinitionCommand.cpp" />
+		<Unit filename="../Source/Controller/EntityDefinitionCommand.h" />
 		<Unit filename="../Source/Controller/EntityPropertyCommand.cpp" />
 		<Unit filename="../Source/Controller/EntityPropertyCommand.h" />
 		<Unit filename="../Source/Controller/FlipObjectsCommand.cpp" />
@@ -194,6 +196,8 @@
 		<Unit filename="../Source/Controller/SetFaceAttributesCommand.h" />
 		<Unit filename="../Source/Controller/SetFaceAttributesTool.cpp" />
 		<Unit filename="../Source/Controller/SetFaceAttributesTool.h" />
+		<Unit filename="../Source/Controller/SetModCommand.cpp" />
+		<Unit filename="../Source/Controller/SetModCommand.h" />
 		<Unit filename="../Source/Controller/SnapshotCommand.cpp" />
 		<Unit filename="../Source/Controller/SnapshotCommand.h" />
 		<Unit filename="../Source/Controller/SplitEdgesCommand.cpp" />
@@ -445,6 +449,8 @@
 		<Unit filename="../Source/View/MapGLCanvas.h" />
 		<Unit filename="../Source/View/MapPropertiesDialog.cpp" />
 		<Unit filename="../Source/View/MapPropertiesDialog.h" />
+		<Unit filename="../Source/View/PathDialog.cpp" />
+		<Unit filename="../Source/View/PathDialog.h" />
 		<Unit filename="../Source/View/PreferencesDialog.cpp" />
 		<Unit filename="../Source/View/PreferencesDialog.h" />
 		<Unit filename="../Source/View/ProgressIndicatorDialog.cpp" />
