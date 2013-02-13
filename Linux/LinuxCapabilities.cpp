@@ -147,13 +147,15 @@ namespace TrenchBroom {
             }
 
             if (config != NULL) {
-                GLint value;
+                GLint value = 0;
                 glXGetFBConfigAttrib(dpy, *config, GLX_DEPTH_SIZE, &value);
                 capabilities.depthBits = value;
 
+                value = 0;
                 glXGetFBConfigAttrib(dpy, *config, GLX_SAMPLE_BUFFERS, &value);
                 capabilities.multisample = (value != 0);
                 if (capabilities.multisample) {
+                    value = 0;
                     glXGetFBConfigAttrib(dpy, *config, GLX_SAMPLES, &value);
                     capabilities.multisample = value;
                 }

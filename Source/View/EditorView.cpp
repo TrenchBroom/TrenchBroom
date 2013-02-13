@@ -416,7 +416,8 @@ namespace TrenchBroom {
                 const Model::EntityDefinitionList& brushDefinitions = definitionManager.definitions(Model::EntityDefinition::BrushEntity);
                 for (it = brushDefinitions.begin(), end = brushDefinitions.end(); it != end; ++it) {
                     Model::EntityDefinition& definition = **it;
-                    brushMenu->Append(CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem + id++, definition.name());
+                    if (definition.name() != Model::Entity::WorldspawnClassname)
+                        brushMenu->Append(CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem + id++, definition.name());
                 }
                 
                 m_createEntityPopupMenu = new wxMenu();

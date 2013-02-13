@@ -116,6 +116,7 @@
 		<ExtraCommands>
 			<Add after="mkdir -p $(TARGET_OUTPUT_DIR)Resources" />
 			<Add after='cp &quot;$(PROJECT_DIR)../Resources/Defs/&quot;*.def $(TARGET_OUTPUT_DIR)Resources/' />
+			<Add after='cp &quot;$(PROJECT_DIR)../Resources/Graphics/&quot;*.png $(TARGET_OUTPUT_DIR)Resources/' />
 			<Add after='cp &quot;$(PROJECT_DIR)../Resources/Graphics/&quot;QuakePalette.lmp $(TARGET_OUTPUT_DIR)Resources/' />
 			<Add after='cp &quot;$(PROJECT_DIR)../Source/Renderer/Shader/&quot;*.vertsh $(TARGET_OUTPUT_DIR)Resources/' />
 			<Add after='cp &quot;$(PROJECT_DIR)../Source/Renderer/Shader/&quot;*.fragsh $(TARGET_OUTPUT_DIR)Resources/' />

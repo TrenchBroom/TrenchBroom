@@ -66,6 +66,10 @@ namespace TrenchBroom {
             m_glCanvas = new wxGLCanvas(this, wxID_ANY, m_attribs);
             m_sharedContext = new wxGLContext(m_glCanvas);
 
+            SetSize(100, 100);
+            SetPosition(wxPoint(-110, -110));
+            Show();
+
             m_sharedContext->SetCurrent(*m_glCanvas);
             const char* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
             const char* renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
@@ -73,7 +77,7 @@ namespace TrenchBroom {
             console.info("Renderer info: %s version %s from %s", renderer, version, vendor);
 
             console.info("Depth buffer bits: %d", capabilities.depthBits);
-            
+
             if (capabilities.multisample)
                 console.info("Multisampling enabled");
             else
@@ -92,6 +96,8 @@ namespace TrenchBroom {
             m_shaderManager = new ShaderManager(console);
             m_textureRendererManager = new TextureRendererManager(textureManager);
             m_stringManager = new Text::StringManager(console);
+
+            Hide();
         }
 
         SharedResources::~SharedResources() {
