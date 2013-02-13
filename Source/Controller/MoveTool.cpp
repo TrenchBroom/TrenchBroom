@@ -42,21 +42,15 @@ namespace TrenchBroom {
                 m_indicator = new Renderer::MovementIndicator();
             
             if (dragType() == DTDrag) {
-                if (m_direction == LeftRight)
-                    m_indicator->setDirection(Renderer::MovementIndicator::LeftRight);
-                else if (m_direction == Horizontal)
+                if (m_direction == Horizontal)
                     m_indicator->setDirection(Renderer::MovementIndicator::Horizontal);
                 else
                     m_indicator->setDirection(Renderer::MovementIndicator::Vertical);
             } else {
-                if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
+                if (inputState.modifierKeys() == ModifierKeys::MKAlt)
                     m_indicator->setDirection(Renderer::MovementIndicator::Vertical);
-                } else {
-                    if (std::abs(inputState.pickRay().direction.z) < 0.2f)
-                        m_indicator->setDirection(Renderer::MovementIndicator::LeftRight);
-                    else
-                        m_indicator->setDirection(Renderer::MovementIndicator::Horizontal);
-                }
+                else
+                    m_indicator->setDirection(Renderer::MovementIndicator::Horizontal);
             }
             
             Vec3f position = renderContext.camera().defaultPoint(inputState.x() + 20.0f, inputState.y() + 20.0f);
@@ -98,13 +92,8 @@ namespace TrenchBroom {
                 plane = Plane(planeNorm, initialPoint);
                 m_direction = Vertical;
             } else {
-                if (std::abs(inputState.pickRay().direction.z) < 0.2f) {
-                    plane = Plane::verticalDragPlane(initialPoint, inputState.camera().direction());
-                    m_direction = LeftRight;
-                } else {
-                    plane = Plane::horizontalDragPlane(initialPoint);
-                    m_direction = Horizontal;
-                }
+                plane = Plane::horizontalDragPlane(initialPoint);
+                m_direction = Horizontal;
             }
             
             beginCommandGroup(actionName());
@@ -126,24 +115,15 @@ namespace TrenchBroom {
                 plane = Plane(planeNorm, initialPoint);
                 m_direction = Vertical;
             } else {
-                if (std::abs(inputState.pickRay().direction.z) < 0.2f) {
-                    plane = Plane::verticalDragPlane(initialPoint, inputState.camera().direction());
-                    m_direction = LeftRight;
-                } else {
-                    plane = Plane::horizontalDragPlane(initialPoint);
-                    m_direction = Horizontal;
-                }
+                plane = Plane::horizontalDragPlane(initialPoint);
+                m_direction = Horizontal;
             }
         }
         
         bool MoveTool::handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint) {
             Vec3f delta = curPoint - refPoint;
-            if (m_direction == Vertical) {
+            if (m_direction == Vertical)
                 delta = Vec3f::PosZ * delta.dot(Vec3f::PosZ);
-            } else if (m_direction == LeftRight) {
-                Vec3f axis = Vec3f::PosZ.crossed(dragPlane().normal);
-                delta = axis * delta.dot(axis);
-            }
             
             Utility::Grid& grid = document().grid();
             delta = grid.snap(delta);

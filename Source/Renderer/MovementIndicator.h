@@ -35,7 +35,6 @@ namespace TrenchBroom {
         class MovementIndicator {
         public:
             typedef enum {
-                LeftRight,
                 Horizontal,
                 Vertical
             } Direction;

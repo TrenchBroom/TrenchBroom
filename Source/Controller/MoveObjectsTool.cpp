@@ -22,6 +22,7 @@
 #include "Controller/Command.h"
 #include "Controller/MoveObjectsCommand.h"
 #include "Model/EditStateManager.h"
+#include "Model/Map.h"
 #include "Model/MapDocument.h"
 
 #include <cassert>
@@ -56,6 +57,11 @@ namespace TrenchBroom {
             Model::EditStateManager& editStateManager = document().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            
+            BBox bounds = editStateManager.bounds();
+            bounds.translate(delta);
+            if (!document().map().worldBounds().contains(bounds))
+                return Deny;
             
             MoveObjectsCommand* command = MoveObjectsCommand::moveObjects(document(), entities, brushes, delta, document().textureLock());
             submitCommand(command);

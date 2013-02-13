@@ -1454,7 +1454,7 @@ namespace TrenchBroom {
                 sides[i]->face->updatePoints();
         }
         
-        bool BrushGeometry::canMoveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta) {
+        bool BrushGeometry::canMoveVertices(const BBox& worldBounds, const Vec3f::List& vertexPositions, const Vec3f& delta) {
             FaceManager faceManager;
             
             BrushGeometry testGeometry(*this);
@@ -1478,13 +1478,14 @@ namespace TrenchBroom {
             }
             
             canMove &= testGeometry.sides.size() >= 3;
-
+            canMove &= worldBounds.contains(testGeometry.bounds);
+            
             restoreFaceSides();
             return canMove;
         }
 
-        Vec3f::List BrushGeometry::moveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces) {
-            assert(canMoveVertices(vertexPositions, delta));
+        Vec3f::List BrushGeometry::moveVertices(const BBox& worldBounds, const Vec3f::List& vertexPositions, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces) {
+            assert(canMoveVertices(worldBounds, vertexPositions, delta));
             
             FaceManager faceManager;
             VertexList movedVertices;
@@ -1516,7 +1517,7 @@ namespace TrenchBroom {
             return newVertexPositions;
         }
 
-        bool BrushGeometry::canMoveEdges(const EdgeList& i_edges, const Vec3f& delta) {
+        bool BrushGeometry::canMoveEdges(const BBox& worldBounds, const EdgeList& i_edges, const Vec3f& delta) {
             FaceManager faceManager;
             
             BrushGeometry testGeometry(*this);
@@ -1557,13 +1558,14 @@ namespace TrenchBroom {
             }
             
             canMove &= testGeometry.sides.size() >= 3;
+            canMove &= worldBounds.contains(testGeometry.bounds);
 
             restoreFaceSides();
             return canMove;
         }
     
-        EdgeList BrushGeometry::moveEdges(const EdgeList& i_edges, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces) {
-            assert(canMoveEdges(i_edges, delta));
+        EdgeList BrushGeometry::moveEdges(const BBox& worldBounds, const EdgeList& i_edges, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces) {
+            assert(canMoveEdges(worldBounds, i_edges, delta));
 
             typedef std::pair<Vec3f, Vec3f> EdgeInfo;
             typedef std::vector<EdgeInfo> EdgeInfoList;
@@ -1609,7 +1611,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        bool BrushGeometry::canMoveFaces(const FaceList& faces, const Vec3f& delta) {
+        bool BrushGeometry::canMoveFaces(const BBox& worldBounds, const FaceList& faces, const Vec3f& delta) {
             FaceManager faceManager;
 
             typedef Vec3f::List FaceInfo;
@@ -1656,6 +1658,7 @@ namespace TrenchBroom {
             }
 
             canMove &= testGeometry.sides.size() >= 3;
+            canMove &= worldBounds.contains(testGeometry.bounds);
             
             FaceInfoList::const_iterator infoIt, infoEnd;
             for (infoIt = faceInfos.begin(), infoEnd = faceInfos.end(); infoIt != infoEnd && canMove; ++infoIt) {
@@ -1667,8 +1670,8 @@ namespace TrenchBroom {
             return canMove;
         }
         
-        FaceList BrushGeometry::moveFaces(const FaceList& faces, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces) {
-            assert(canMoveFaces(faces, delta));
+        FaceList BrushGeometry::moveFaces(const BBox& worldBounds, const FaceList& faces, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces) {
+            assert(canMoveFaces(worldBounds, faces, delta));
             
             typedef Vec3f::List FaceInfo;
             typedef std::vector<FaceInfo> FaceInfoList;
@@ -1719,7 +1722,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        bool BrushGeometry::canSplitEdge(Edge* edge, const Vec3f& delta) {
+        bool BrushGeometry::canSplitEdge(const BBox& worldBounds, Edge* edge, const Vec3f& delta) {
             // detect whether the drag would make the incident faces invalid
             const Vec3f& leftNorm = edge->left->face->boundary().normal;
             const Vec3f& rightNorm = edge->right->face->boundary().normal;
@@ -1742,13 +1745,14 @@ namespace TrenchBroom {
             MoveVertexResult result = testGeometry.moveVertex(newVertex, false, start, end, faceManager);
             bool canSplit = result.type == MoveVertexResult::VertexMoved;
             canSplit &= testGeometry.sides.size() >= 3;
+            canSplit &= worldBounds.contains(testGeometry.bounds);
 
             restoreFaceSides();
             return canSplit;
         }
 
-        Vec3f BrushGeometry::splitEdge(Edge* edge, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces) {
-            assert(canSplitEdge(edge, delta));
+        Vec3f BrushGeometry::splitEdge(const BBox& worldBounds, Edge* edge, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces) {
+            assert(canSplitEdge(worldBounds, edge, delta));
             
             FaceManager faceManager;
             Vertex* newVertex = splitEdge(edge);
@@ -1762,7 +1766,7 @@ namespace TrenchBroom {
             return result.vertex->position;
         }
 
-        bool BrushGeometry::canSplitFace(Face* face, const Vec3f& delta) {
+        bool BrushGeometry::canSplitFace(const BBox& worldBounds, Face* face, const Vec3f& delta) {
             // detect whether the drag would lead to an indented face
             const Vec3f& norm = face->boundary().normal;
             if (Math::zero(delta.dot(norm)))
@@ -1779,13 +1783,14 @@ namespace TrenchBroom {
             MoveVertexResult result = testGeometry.moveVertex(newVertex, false, start, end, faceManager);
             bool canSplit = result.type == MoveVertexResult::VertexMoved;
             canSplit &= testGeometry.sides.size() >= 3;
+            canSplit &= worldBounds.contains(testGeometry.bounds);
             
             restoreFaceSides();
             return canSplit;
         }
 
-        Vec3f BrushGeometry::splitFace(Face* face, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces) {
-            assert(canSplitFace(face, delta));
+        Vec3f BrushGeometry::splitFace(const BBox& worldBounds, Face* face, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces) {
+            assert(canSplitFace(worldBounds, face, delta));
             
             FaceManager faceManager;
             Vertex* newVertex = splitFace(face, faceManager);
