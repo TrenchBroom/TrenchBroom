@@ -79,7 +79,7 @@ namespace TrenchBroom {
         }
 
         const Entity::RotationInfo Entity::rotationInfo() const {
-            RotationType type = None;
+            RotationType type = RTNone;
             PropertyKey property;
             
             // determine the type of rotation to apply to this entity
@@ -87,15 +87,15 @@ namespace TrenchBroom {
                 if (Utility::startsWith(*classname(), "light")) {
                     if (propertyForKey(MangleKey) != NULL) {
                         // spotlight without a target, update mangle
-                        type = EulerAngles;
+                        type = RTEulerAngles;
                         property = MangleKey;
                     } else if (propertyForKey(TargetKey) == NULL) {
                         // not a spotlight, but might have a rotatable model, so change angle or angles
                         if (propertyForKey(AnglesKey) != NULL) {
-                            type = EulerAngles;
+                            type = RTEulerAngles;
                             property = AnglesKey;
                         } else {
-                            type = ZAngle;
+                            type = RTZAngle;
                             property = AngleKey;
                         }
                     } else {
@@ -105,10 +105,10 @@ namespace TrenchBroom {
                     bool brushEntity = !m_brushes.empty() || (m_definition != NULL && m_definition->type() == EntityDefinition::BrushEntity);
                     if (brushEntity) {
                         if (propertyForKey(AnglesKey) != NULL) {
-                            type = EulerAngles;
+                            type = RTEulerAngles;
                             property = AnglesKey;
                         } else if (propertyForKey(AngleKey) != NULL) {
-                            type = ZAngleWithUpDown;
+                            type = RTZAngleWithUpDown;
                             property = AngleKey;
                         }
                     } else {
@@ -118,10 +118,10 @@ namespace TrenchBroom {
                         const Vec3f offset = origin() - center();
                         if (offset.x == 0.0f && offset.y == 0.0f) {
                             if (propertyForKey(AnglesKey) != NULL) {
-                                type = EulerAngles;
+                                type = RTEulerAngles;
                                 property = AnglesKey;
                             } else {
-                                type = ZAngle;
+                                type = RTZAngle;
                                 property = AngleKey;
                             }
                         }
@@ -136,7 +136,7 @@ namespace TrenchBroom {
             const RotationInfo info = rotationInfo();
             
             switch (info.type) {
-                case ZAngle: {
+                case RTZAngle: {
                     if (rotation.v.firstComponent() != Axis::AZ)
                         return;
                     
@@ -157,7 +157,7 @@ namespace TrenchBroom {
                     setProperty(info.property, angle, true);
                     break;
                 }
-                case ZAngleWithUpDown: {
+                case RTZAngleWithUpDown: {
                     if (rotation.v.firstComponent() != Axis::AZ)
                         return;
 
@@ -191,7 +191,7 @@ namespace TrenchBroom {
                     }
                     break;
                 }
-                case EulerAngles: {
+                case RTEulerAngles: {
                     const PropertyValue* angleValue = propertyForKey(info.property);
                     Vec3f angles = angleValue != NULL ? Vec3f(*angleValue) : Vec3f::Null;
                     
@@ -347,14 +347,14 @@ namespace TrenchBroom {
         const Quat Entity::rotation() const {
             const RotationInfo info = rotationInfo();
             switch (info.type) {
-                case ZAngle: {
+                case RTZAngle: {
                     const PropertyValue* angleValue = propertyForKey(info.property);
                     if (angleValue == NULL)
                         return Quat(0.0f, Vec3f::PosZ);
                     float angle = static_cast<float>(std::atof(angleValue->c_str()));
                     return Quat(Math::radians(angle), Vec3f::PosZ);
                 }
-                case ZAngleWithUpDown: {
+                case RTZAngleWithUpDown: {
                     const PropertyValue* angleValue = propertyForKey(info.property);
                     if (angleValue == NULL)
                         return Quat(0.0f, Vec3f::PosZ);
@@ -365,7 +365,7 @@ namespace TrenchBroom {
                         return Quat(Math::Pi / 2.0f, Vec3f::PosY);
                     return Quat(Math::radians(angle), Vec3f::PosZ);
                 }
-                case EulerAngles: {
+                case RTEulerAngles: {
                     const PropertyValue* angleValue = propertyForKey(info.property);
                     Vec3f angles = angleValue != NULL ? Vec3f(*angleValue) : Vec3f::Null;
                     
@@ -473,7 +473,7 @@ namespace TrenchBroom {
             
             RotationInfo info = rotationInfo();
             switch (info.type) {
-                case ZAngle: {
+                case RTZAngle: {
                     const PropertyValue* angleValue = propertyForKey(info.property);
                     float angle = angleValue != NULL ? static_cast<float>(std::atof(angleValue->c_str())) : 0.0f;
                     switch (axis) {
@@ -489,7 +489,7 @@ namespace TrenchBroom {
                     setProperty(info.property, angle, true);
                     break;
                 }
-                case ZAngleWithUpDown: {
+                case RTZAngleWithUpDown: {
                     const PropertyValue* angleValue = propertyForKey(info.property);
                     float angle = angleValue != NULL ? static_cast<float>(std::atof(angleValue->c_str())) : 0.0f;
                     switch (axis) {
@@ -511,7 +511,7 @@ namespace TrenchBroom {
                     setProperty(info.property, angle, true);
                     break;
                 }
-                case EulerAngles: {
+                case RTEulerAngles: {
                     const PropertyValue* angleValue = propertyForKey(info.property);
                     Vec3f angles = angleValue != NULL ? Vec3f(*angleValue) : Vec3f::Null;
                     switch (axis) {

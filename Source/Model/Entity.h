@@ -78,10 +78,10 @@ namespace TrenchBroom {
             void validateGeometry() const;
 
             typedef enum {
-                None,
-                ZAngle,
-                ZAngleWithUpDown,
-                EulerAngles
+                RTNone,
+                RTZAngle,
+                RTZAngleWithUpDown,
+                RTEulerAngles
             } RotationType;
             
             struct RotationInfo {
