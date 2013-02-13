@@ -44,6 +44,8 @@
 					<Add option="-lgthread-2.0" />
 					<Add option="-lrt" />
 					<Add option="-lglib-2.0" />
+					<Add option="-lXxf86vm" />
+					<Add option="-lXext" />
 					<Add option="-lX11" />
 					<Add option="-lSM" />
 					<Add option="-lpng" />
@@ -95,6 +97,8 @@
 					<Add option="-lgthread-2.0" />
 					<Add option="-lrt" />
 					<Add option="-lglib-2.0" />
+					<Add option="-lXxf86vm" />
+					<Add option="-lXext" />
 					<Add option="-lX11" />
 					<Add option="-lSM" />
 					<Add option="-lpng" />
