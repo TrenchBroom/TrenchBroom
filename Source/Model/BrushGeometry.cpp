@@ -1522,16 +1522,17 @@ namespace TrenchBroom {
             BrushGeometry testGeometry(*this);
             testGeometry.restoreFaceSides();
 
-            Vec3f::Set sortedVertexPositions;
+            Vec3f::List sortedVertexPositions;
             EdgeList::const_iterator edgeIt, edgeEnd;
             for (edgeIt = i_edges.begin(), edgeEnd = i_edges.end(); edgeIt != edgeEnd; ++edgeIt) {
                 const Edge& edge = **edgeIt;
-                sortedVertexPositions.insert(edge.start->position);
-                sortedVertexPositions.insert(edge.end->position);
+                sortedVertexPositions.push_back(edge.start->position);
+                sortedVertexPositions.push_back(edge.end->position);
             }
+            std::sort(sortedVertexPositions.begin(), sortedVertexPositions.end(), Vec3f::InverseDotOrder(delta));
 
             bool canMove = true;
-            Vec3f::Set::const_iterator vertexIt, vertexEnd;
+            Vec3f::List::const_iterator vertexIt, vertexEnd;
             for (vertexIt = sortedVertexPositions.begin(), vertexEnd = sortedVertexPositions.end(); vertexIt != vertexEnd; ++vertexIt) {
                 const Vec3f& vertexPosition = *vertexIt;
                 Vertex* vertex = findVertex(testGeometry.vertices, vertexPosition);
@@ -1569,16 +1570,17 @@ namespace TrenchBroom {
             EdgeInfoList edgeInfos;
             
             FaceManager faceManager;
-            Vec3f::Set sortedVertexPositions;
+            Vec3f::List sortedVertexPositions;
             EdgeList::const_iterator edgeIt, edgeEnd;
             for (edgeIt = i_edges.begin(), edgeEnd = i_edges.end(); edgeIt != edgeEnd; ++edgeIt) {
                 const Edge& edge = **edgeIt;
-                sortedVertexPositions.insert(edge.start->position);
-                sortedVertexPositions.insert(edge.end->position);
+                sortedVertexPositions.push_back(edge.start->position);
+                sortedVertexPositions.push_back(edge.end->position);
                 edgeInfos.push_back(EdgeInfo(edge.start->position + delta, edge.end->position + delta));
             }
+            std::sort(sortedVertexPositions.begin(), sortedVertexPositions.end(), Vec3f::InverseDotOrder(delta));
 
-            Vec3f::Set::const_iterator vertexIt, vertexEnd;
+            Vec3f::List::const_iterator vertexIt, vertexEnd;
             for (vertexIt = sortedVertexPositions.begin(), vertexEnd = sortedVertexPositions.end(); vertexIt != vertexEnd; ++vertexIt) {
                 const Vec3f& vertexPosition = *vertexIt;
                 Vertex* vertex = findVertex(vertices, vertexPosition);
@@ -1617,7 +1619,7 @@ namespace TrenchBroom {
             BrushGeometry testGeometry(*this);
             testGeometry.restoreFaceSides();
 
-            Vec3f::Set sortedVertexPositions;
+            Vec3f::List sortedVertexPositions;
             FaceList::const_iterator faceIt, faceEnd;
             for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
                 const Face& face = **faceIt;
@@ -1626,14 +1628,15 @@ namespace TrenchBroom {
                 VertexList::const_iterator vertexIt, vertexEnd;
                 for (vertexIt = faceVertices.begin(), vertexEnd = faceVertices.end(); vertexIt != vertexEnd; ++vertexIt) {
                     const Vertex& vertex = **vertexIt;
-                    sortedVertexPositions.insert(vertex.position);
+                    sortedVertexPositions.push_back(vertex.position);
                     faceInfo.push_back(vertex.position + delta);
                 }
                 faceInfos.push_back(faceInfo);
             }
+            std::sort(sortedVertexPositions.begin(), sortedVertexPositions.end(), Vec3f::InverseDotOrder(delta));
             
             bool canMove = true;
-            Vec3f::Set::const_iterator vertexIt, vertexEnd;
+            Vec3f::List::const_iterator vertexIt, vertexEnd;
             for (vertexIt = sortedVertexPositions.begin(), vertexEnd = sortedVertexPositions.end(); vertexIt != vertexEnd; ++vertexIt) {
                 const Vec3f& vertexPosition = *vertexIt;
                 Vertex* vertex = findVertex(testGeometry.vertices, vertexPosition);
@@ -1672,7 +1675,7 @@ namespace TrenchBroom {
             FaceInfoList faceInfos;
             
             FaceManager faceManager;
-            Vec3f::Set sortedVertexPositions;
+            Vec3f::List sortedVertexPositions;
             FaceList::const_iterator faceIt, faceEnd;
             for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
                 const Face& face = **faceIt;
@@ -1681,13 +1684,14 @@ namespace TrenchBroom {
                 VertexList::const_iterator vertexIt, vertexEnd;
                 for (vertexIt = faceVertices.begin(), vertexEnd = faceVertices.end(); vertexIt != vertexEnd; ++vertexIt) {
                     const Vertex& vertex = **vertexIt;
-                    sortedVertexPositions.insert(vertex.position);
+                    sortedVertexPositions.push_back(vertex.position);
                     faceInfo.push_back(vertex.position + delta);
                 }
                 faceInfos.push_back(faceInfo);
             }
+            std::sort(sortedVertexPositions.begin(), sortedVertexPositions.end(), Vec3f::InverseDotOrder(delta));
 
-            Vec3f::Set::const_iterator vertexIt, vertexEnd;
+            Vec3f::List::const_iterator vertexIt, vertexEnd;
             for (vertexIt = sortedVertexPositions.begin(), vertexEnd = sortedVertexPositions.end(); vertexIt != vertexEnd; ++vertexIt) {
                 const Vec3f& vertexPosition = *vertexIt;
                 Vertex* vertex = findVertex(vertices, vertexPosition);
