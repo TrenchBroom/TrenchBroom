@@ -68,29 +68,27 @@ namespace TrenchBroom {
                 Vec2f::List triangles;
                 Vec2f::List outline;
                 
-                if (m_direction != LeftRight) {
-                    triangles.push_back(Vec2f(-width2, offset));
-                    triangles.push_back(Vec2f(0.0f, offset + height));
-                    triangles.push_back(Vec2f(width2, offset));
-                    
-                    outline.push_back(Vec2f(-width2, offset));
-                    outline.push_back(Vec2f(0.0f, offset + height));
-                    outline.push_back(Vec2f(0.0f, offset + height));
-                    outline.push_back(Vec2f(width2, offset));
-                    outline.push_back(Vec2f(width2, offset));
-                    outline.push_back(Vec2f(-width2, offset));
-                    
-                    triangles.push_back(Vec2f(width2, -offset));
-                    triangles.push_back(Vec2f(0.0f, -offset - height));
-                    triangles.push_back(Vec2f(-width2, -offset));
-                    
-                    outline.push_back(Vec2f(width2, -offset));
-                    outline.push_back(Vec2f(0.0f, -offset - height));
-                    outline.push_back(Vec2f(0.0f, -offset - height));
-                    outline.push_back(Vec2f(-width2, -offset));
-                    outline.push_back(Vec2f(-width2, -offset));
-                    outline.push_back(Vec2f(width2, -offset));
-                }
+                triangles.push_back(Vec2f(-width2, offset));
+                triangles.push_back(Vec2f(0.0f, offset + height));
+                triangles.push_back(Vec2f(width2, offset));
+                
+                outline.push_back(Vec2f(-width2, offset));
+                outline.push_back(Vec2f(0.0f, offset + height));
+                outline.push_back(Vec2f(0.0f, offset + height));
+                outline.push_back(Vec2f(width2, offset));
+                outline.push_back(Vec2f(width2, offset));
+                outline.push_back(Vec2f(-width2, offset));
+                
+                triangles.push_back(Vec2f(width2, -offset));
+                triangles.push_back(Vec2f(0.0f, -offset - height));
+                triangles.push_back(Vec2f(-width2, -offset));
+                
+                outline.push_back(Vec2f(width2, -offset));
+                outline.push_back(Vec2f(0.0f, -offset - height));
+                outline.push_back(Vec2f(0.0f, -offset - height));
+                outline.push_back(Vec2f(-width2, -offset));
+                outline.push_back(Vec2f(-width2, -offset));
+                outline.push_back(Vec2f(width2, -offset));
 
                 if (m_direction != Vertical) {
                     triangles.push_back(Vec2f(offset, width2));

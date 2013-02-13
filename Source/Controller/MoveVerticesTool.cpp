@@ -310,18 +310,24 @@ namespace TrenchBroom {
                     MoveVerticesCommand* command = MoveVerticesCommand::moveVertices(document(), m_handleManager.selectedVertexHandles(), delta);
                     m_handleManager.remove(command->brushes());
                     
-                    submitCommand(command);
-                    m_handleManager.add(command->brushes());
-                    
-                    const Vec3f::Set& vertices = command->vertices();
-                    if (vertices.empty()) {
+                    if (submitCommand(command)) {
+                        m_handleManager.add(command->brushes());
+                        
+                        const Vec3f::Set& vertices = command->vertices();
+                        if (vertices.empty()) {
+                            m_ignoreObjectChanges = false;
+                            return Conclude;
+                        }
+                        
+                        m_handleManager.selectVertexHandles(command->vertices());
                         m_ignoreObjectChanges = false;
-                        return Conclude;
+                        return Continue;
+                    } else {
+                        m_handleManager.add(command->brushes());
+                        m_handleManager.selectVertexHandles(command->vertices());
+                        m_ignoreObjectChanges = false;
+                        return Deny;
                     }
-                    
-                    m_handleManager.selectVertexHandles(command->vertices());
-                    m_ignoreObjectChanges = false;
-                    return Continue;
                 } else if (!m_handleManager.selectedEdgeHandles().empty()) {
                     MoveEdgesCommand* command = MoveEdgesCommand::moveEdges(document(), m_handleManager.selectedEdgeHandles(), delta);
                     m_handleManager.remove(command->brushes());

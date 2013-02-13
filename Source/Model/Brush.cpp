@@ -281,9 +281,11 @@ namespace TrenchBroom {
             }
             
             BrushGeometry::CutResult result = testGeometry.addFace(testFace, droppedFaces);
+            bool inWorldBounds = m_worldBounds.contains(testGeometry.bounds);
+            
             m_geometry->restoreFaceSides();
             
-            return result == BrushGeometry::Split && droppedFaces.empty();
+            return inWorldBounds && result == BrushGeometry::Split && droppedFaces.empty();
         }
         
         void Brush::moveBoundary(Face& face, const Vec3f& delta, bool lockTexture) {
@@ -314,14 +316,14 @@ namespace TrenchBroom {
         }
 
         bool Brush::canMoveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta) const {
-            return m_geometry->canMoveVertices(vertexPositions, delta);
+            return m_geometry->canMoveVertices(m_worldBounds, vertexPositions, delta);
         }
 
         Vec3f::List Brush::moveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta) {
             FaceSet newFaces;
             FaceSet droppedFaces;
 
-            Vec3f::List newVertexPositions = m_geometry->moveVertices(vertexPositions, delta, newFaces, droppedFaces);
+            Vec3f::List newVertexPositions = m_geometry->moveVertices(m_worldBounds, vertexPositions, delta, newFaces, droppedFaces);
             
             for (FaceSet::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
                 Face* face = *it;
@@ -347,14 +349,14 @@ namespace TrenchBroom {
         }
 
         bool Brush::canMoveEdges(const EdgeList& edges, const Vec3f& delta) const {
-            return m_geometry->canMoveEdges(edges, delta);
+            return m_geometry->canMoveEdges(m_worldBounds, edges, delta);
         }
         
         EdgeList Brush::moveEdges(const EdgeList& edges, const Vec3f& delta) {
             FaceSet newFaces;
             FaceSet droppedFaces;
             
-            const EdgeList result = m_geometry->moveEdges(edges, delta, newFaces, droppedFaces);
+            const EdgeList result = m_geometry->moveEdges(m_worldBounds, edges, delta, newFaces, droppedFaces);
             
             for (FaceSet::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
                 Face* face = *it;
@@ -380,14 +382,14 @@ namespace TrenchBroom {
         }
 
         bool Brush::canMoveFaces(const FaceList& faces, const Vec3f& delta) const {
-            return m_geometry->canMoveFaces(faces, delta);
+            return m_geometry->canMoveFaces(m_worldBounds, faces, delta);
         }
         
         FaceList Brush::moveFaces(const FaceList& faces, const Vec3f& delta) {
             FaceSet newFaces;
             FaceSet droppedFaces;
             
-            const FaceList result = m_geometry->moveFaces(faces, delta, newFaces, droppedFaces);
+            const FaceList result = m_geometry->moveFaces(m_worldBounds, faces, delta, newFaces, droppedFaces);
             
             for (FaceSet::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
                 Face* face = *it;
@@ -413,14 +415,14 @@ namespace TrenchBroom {
         }
 
         bool Brush::canSplitEdge(Edge* edge, const Vec3f& delta) const {
-            return m_geometry->canSplitEdge(edge, delta);
+            return m_geometry->canSplitEdge(m_worldBounds, edge, delta);
         }
         
         Vec3f Brush::splitEdge(Edge* edge, const Vec3f& delta) {
             FaceSet newFaces;
             FaceSet droppedFaces;
             
-            Vec3f newVertexPosition = m_geometry->splitEdge(edge, delta, newFaces, droppedFaces);
+            Vec3f newVertexPosition = m_geometry->splitEdge(m_worldBounds, edge, delta, newFaces, droppedFaces);
             
             for (FaceSet::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
                 Face* face = *it;
@@ -446,14 +448,14 @@ namespace TrenchBroom {
         }
         
         bool Brush::canSplitFace(Face* face, const Vec3f& delta) const {
-            return m_geometry->canSplitFace(face, delta);
+            return m_geometry->canSplitFace(m_worldBounds, face, delta);
         }
 
         Vec3f Brush::splitFace(Face* face, const Vec3f& delta) {
             FaceSet newFaces;
             FaceSet droppedFaces;
             
-            Vec3f newVertexPosition = m_geometry->splitFace(face, delta, newFaces, droppedFaces);
+            Vec3f newVertexPosition = m_geometry->splitFace(m_worldBounds, face, delta, newFaces, droppedFaces);
             
             for (FaceSet::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
                 Face* dropFace = *it;

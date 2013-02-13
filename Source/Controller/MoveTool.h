@@ -41,7 +41,6 @@ namespace TrenchBroom {
             } MoveResult;
         protected:
             typedef enum {
-                LeftRight,
                 Horizontal,
                 Vertical
             } MoveDirection;
