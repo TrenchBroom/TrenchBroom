@@ -49,9 +49,6 @@
 					<Add option="-lX11" />
 					<Add option="-lSM" />
 					<Add option="-lpng" />
-					<Add option="-lwxregexu-2.9" />
-					<Add option="-lwxtiff-2.9" />
-					<Add option="-lwxjpeg-2.9" />
 					<Add option="-lz" />
 					<Add option="-ldl" />
 					<Add option="-lm" />
@@ -102,9 +99,6 @@
 					<Add option="-lX11" />
 					<Add option="-lSM" />
 					<Add option="-lpng" />
-					<Add option="-lwxregexu-2.9" />
-					<Add option="-lwxtiff-2.9" />
-					<Add option="-lwxjpeg-2.9" />
 					<Add option="-lz" />
 					<Add option="-ldl" />
 					<Add option="-lm" />
