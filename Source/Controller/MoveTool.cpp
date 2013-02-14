@@ -96,6 +96,7 @@ namespace TrenchBroom {
                 m_direction = Horizontal;
             }
             
+            startDrag(inputState);
             beginCommandGroup(actionName());
             
             return true;
@@ -147,6 +148,7 @@ namespace TrenchBroom {
                 discardCommandGroup();
             else
                 endCommandGroup();
+            endDrag(inputState);
         }
 
         MoveTool::MoveTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, bool activatable) :

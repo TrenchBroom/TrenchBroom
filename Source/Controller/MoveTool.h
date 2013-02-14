@@ -47,7 +47,9 @@ namespace TrenchBroom {
 
             virtual bool isApplicable(InputState& inputState, Vec3f& hitPoint) = 0;
             virtual wxString actionName() = 0;
+            virtual void startDrag(InputState& inputState) {}
             virtual MoveResult performMove(const Vec3f& delta) = 0;
+            virtual void endDrag(InputState& inputState) {}
             
             virtual void handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext);
             virtual void handleFreeRenderResources();

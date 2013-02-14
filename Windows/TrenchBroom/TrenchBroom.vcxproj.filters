@@ -483,6 +483,9 @@
     <ClCompile Include="..\..\Source\View\PathDialog.cpp">
       <Filter>Source Files\View</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\SnapVerticesCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -1117,6 +1120,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\View\PathDialog.h">
       <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\SnapVerticesCommand.h">
+      <Filter>Header Files\Controller</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

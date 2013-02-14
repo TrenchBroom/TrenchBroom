@@ -130,6 +130,7 @@
 		48B059D71618AB2500E6B0AD /* EntityBrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B059D51618AB2400E6B0AD /* EntityBrowser.cpp */; };
 		48B64C3C16CA403B00ECA6C5 /* PathDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B64C3A16CA403B00ECA6C5 /* PathDialog.cpp */; };
 		48B64C4016CD301200ECA6C5 /* SnapVerticesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B64C3E16CD301200ECA6C5 /* SnapVerticesCommand.cpp */; };
+		48B64C4316CD406700ECA6C5 /* PointGuideRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B64C4116CD406700ECA6C5 /* PointGuideRenderer.cpp */; };
 		48B75F72160BA512009D4E99 /* TextureBrowser.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48B75F71160BA512009D4E99 /* TextureBrowser.vertsh */; };
 		48B75F75160BA531009D4E99 /* TextureBrowser.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48B75F74160BA531009D4E99 /* TextureBrowser.fragsh */; };
 		48B75F79160CF79F009D4E99 /* TextureBrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B75F77160CF79E009D4E99 /* TextureBrowser.cpp */; };
@@ -469,6 +470,8 @@
 		48B64C3B16CA403B00ECA6C5 /* PathDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathDialog.h; sourceTree = "<group>"; };
 		48B64C3E16CD301200ECA6C5 /* SnapVerticesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SnapVerticesCommand.cpp; sourceTree = "<group>"; };
 		48B64C3F16CD301200ECA6C5 /* SnapVerticesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SnapVerticesCommand.h; sourceTree = "<group>"; };
+		48B64C4116CD406700ECA6C5 /* PointGuideRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointGuideRenderer.cpp; sourceTree = "<group>"; };
+		48B64C4216CD406700ECA6C5 /* PointGuideRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointGuideRenderer.h; sourceTree = "<group>"; };
 		48B75F71160BA512009D4E99 /* TextureBrowser.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = TextureBrowser.vertsh; sourceTree = "<group>"; };
 		48B75F74160BA531009D4E99 /* TextureBrowser.fragsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = TextureBrowser.fragsh; sourceTree = "<group>"; };
 		48B75F77160CF79E009D4E99 /* TextureBrowser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureBrowser.cpp; sourceTree = "<group>"; };
@@ -668,6 +671,8 @@
 				488457CF161C839A002ADDAE /* OffscreenRenderer.h */,
 				48B059C51617866100E6B0AD /* Palette.cpp */,
 				48B059C61617866100E6B0AD /* Palette.h */,
+				48B64C4116CD406700ECA6C5 /* PointGuideRenderer.cpp */,
+				48B64C4216CD406700ECA6C5 /* PointGuideRenderer.h */,
 				48312B4115EB9EA900607868 /* RenderContext.h */,
 				48312B4A15EBC35800607868 /* RenderUtils.h */,
 				48B059CC161799FC00E6B0AD /* SharedResources.cpp */,
@@ -1375,6 +1380,7 @@
 				4883376016C43ED200493DA2 /* SetModCommand.cpp in Sources */,
 				48B64C3C16CA403B00ECA6C5 /* PathDialog.cpp in Sources */,
 				48B64C4016CD301200ECA6C5 /* SnapVerticesCommand.cpp in Sources */,
+				48B64C4316CD406700ECA6C5 /* PointGuideRenderer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

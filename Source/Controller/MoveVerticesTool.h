@@ -49,9 +49,11 @@ namespace TrenchBroom {
             bool m_ignoreObjectChanges;
             Renderer::Text::TextRenderer<Vec3f, Vec3f::LexicographicOrder>* m_textRenderer;
             Renderer::Text::TextRenderer<Vec3f, Vec3f::LexicographicOrder>::SimpleTextRendererFilter m_textFilter;
+            Vec3f m_dragHandlePosition;
             
             bool isApplicable(InputState& inputState, Vec3f& hitPoint);
             wxString actionName();
+            void startDrag(InputState& inputState);
             MoveResult performMove(const Vec3f& delta);
 
             bool handleActivate(InputState& inputState);

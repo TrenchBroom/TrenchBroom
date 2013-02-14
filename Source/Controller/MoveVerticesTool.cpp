@@ -28,6 +28,7 @@
 #include "Model/MapDocument.h"
 #include "Renderer/LinesRenderer.h"
 #include "Renderer/PointHandleHighlightFigure.h"
+#include "Renderer/PointGuideRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/SharedResources.h"
 #include "Renderer/Shader/ShaderManager.h"
@@ -68,6 +69,12 @@ namespace TrenchBroom {
             return wxT("Split Face");
         }
         
+        void MoveVerticesTool::startDrag(InputState& inputState) {
+            Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit | Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));
+            assert(hit != NULL);
+            m_dragHandlePosition = hit->vertex();
+        }
+
         MoveTool::MoveResult MoveVerticesTool::performMove(const Vec3f& delta) {
             return moveVertices(delta);
         }
@@ -96,6 +103,13 @@ namespace TrenchBroom {
         void MoveVerticesTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
             MoveTool::handleRender(inputState, vbo, renderContext);
             
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            if (dragType() == DTDrag) {
+                Renderer::PointGuideRenderer guideRenderer(m_dragHandlePosition, document().picker(), view().filter());
+                guideRenderer.setColor(prefs.getColor(Preferences::GuideColor));
+                guideRenderer.render(vbo, renderContext);
+            }
+            
             m_handleManager.render(vbo, renderContext, m_mode == VMSplit);
             
             if (m_textRenderer == NULL) {
@@ -106,7 +120,6 @@ namespace TrenchBroom {
             
             Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit | Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));
             if (hit != NULL) {
-                Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
                 const Color& color = hit->type() == Model::HitType::VertexHandleHit ? prefs.getColor(Preferences::VertexHandleColor) : (hit->type() == Model::HitType::EdgeHandleHit ? prefs.getColor(Preferences::EdgeHandleColor) : prefs.getColor(Preferences::FaceHandleColor));
                 const float radius = prefs.getFloat(Preferences::HandleRadius);
                 const float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
@@ -321,6 +334,7 @@ namespace TrenchBroom {
                         
                         m_handleManager.selectVertexHandles(command->vertices());
                         m_ignoreObjectChanges = false;
+                        m_dragHandlePosition += delta;
                         return Continue;
                     } else {
                         m_handleManager.add(command->brushes());
@@ -336,6 +350,7 @@ namespace TrenchBroom {
                         m_handleManager.add(command->brushes());
                         m_handleManager.selectEdgeHandles(command->edges());
                         m_ignoreObjectChanges = false;
+                        m_dragHandlePosition += delta;
                         return Continue;
                     } else {
                         m_handleManager.add(command->brushes());
@@ -351,6 +366,7 @@ namespace TrenchBroom {
                         m_handleManager.add(command->brushes());
                         m_handleManager.selectFaceHandles(command->faces());
                         m_ignoreObjectChanges = false;
+                        m_dragHandlePosition += delta;
                         return Continue;
                     } else {
                         m_handleManager.add(command->brushes());
@@ -378,6 +394,7 @@ namespace TrenchBroom {
                         m_handleManager.selectVertexHandles(command->vertices());
                         m_mode = VMMove;
                         m_ignoreObjectChanges = false;
+                        m_dragHandlePosition += delta;
                         return Continue;
                     } else {
                         m_handleManager.add(command->brushes());
@@ -398,6 +415,7 @@ namespace TrenchBroom {
                         m_handleManager.selectVertexHandles(command->vertices());
                         m_mode = VMMove;
                         m_ignoreObjectChanges = false;
+                        m_dragHandlePosition += delta;
                         return Continue;
                     } else {
                         m_handleManager.add(command->brushes());
