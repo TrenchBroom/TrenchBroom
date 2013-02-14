@@ -295,6 +295,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Renderer\MovementIndicator.cpp" />
     <ClCompile Include="..\..\Source\Renderer\OffscreenRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\Palette.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\PointGuideRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\PointHandleHighlightFigure.cpp" />
     <ClCompile Include="..\..\Source\Renderer\PointHandleRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\PointTraceFigure.cpp" />
@@ -470,6 +471,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Renderer\MovementIndicator.h" />
     <ClInclude Include="..\..\Source\Renderer\OffscreenRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\Palette.h" />
+    <ClInclude Include="..\..\Source\Renderer\PointGuideRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\PointHandleHighlightFigure.h" />
     <ClInclude Include="..\..\Source\Renderer\PointHandleRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\PointTraceFigure.h" />

@@ -486,6 +486,9 @@
     <ClCompile Include="..\..\Source\Controller\SnapVerticesCommand.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\PointGuideRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -1123,6 +1126,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Controller\SnapVerticesCommand.h">
       <Filter>Header Files\Controller</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\PointGuideRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
