@@ -30,4 +30,4 @@ http://www.wikihow.com/Install-Mesa-%28OpenGL%29-on-Linux-Mint
   - Enter "WXWIN" (without quotes) as the name for the new variable.
   - In the "Builtin fields" column, click the ".." button next to the first text field (labeled "base").
   - In the Open file dialog, select the directory where you extracted the wxWidgets sources. 
-
+- Optional: Go to Settings -> Compiler and Debugger... search for the Other settings tab: Set the number of processes for parallel builds to the number you'd like to use.
