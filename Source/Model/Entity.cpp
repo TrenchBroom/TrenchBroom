@@ -32,17 +32,17 @@ namespace TrenchBroom {
         String const Entity::SpawnFlagsKey       = "spawnflags";
         String const Entity::WorldspawnClassname = "worldspawn";
         String const Entity::GroupClassname      = "func_group";
-        String const Entity::GroupNameKey        = "__tb_group_name";
-        String const Entity::GroupVisibilityKey  = "__tb_group_visible";
+        String const Entity::GroupNameKey        = "_group_name";
+        String const Entity::GroupVisibilityKey  = "_group_visible";
         String const Entity::OriginKey           = "origin";
         String const Entity::AngleKey            = "angle";
         String const Entity::AnglesKey           = "angles";
         String const Entity::MangleKey           = "mangle";
         String const Entity::MessageKey          = "message";
-        String const Entity::ModKey             = "mod";
+        String const Entity::ModKey             = "_mod";
         String const Entity::TargetKey           = "target";
         String const Entity::WadKey              = "wad";
-        String const Entity::DefKey              = "def";
+        String const Entity::DefKey              = "_def";
 
         void Entity::init() {
             m_map = NULL;
