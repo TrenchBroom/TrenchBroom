@@ -1454,6 +1454,43 @@ namespace TrenchBroom {
                 sides[i]->face->updatePoints();
         }
         
+        void BrushGeometry::snap(FaceSet& newFaces, FaceSet& droppedFaces, unsigned int snapTo) {
+            Vec3f::Map positions;
+            
+            VertexList::const_iterator vertexIt, vertexEnd;
+            for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt) {
+                const Vertex& vertex = **vertexIt;
+                Vec3f start = vertex.position;
+                Vec3f end;
+                if (snapTo == 0) {
+                    end = start.corrected();
+                } else {
+                    end = Vec3f(snapTo * Math::round(start.x / snapTo),
+                                snapTo * Math::round(start.y / snapTo),
+                                snapTo * Math::round(start.z / snapTo));
+                }
+                
+                if (!start.equals(end, 0.0f))
+                    positions[start] = end;
+            }
+            
+            if (positions.empty())
+                return;
+            
+            FaceManager faceManager;
+            Vec3f::Map::const_iterator posIt, posEnd;
+            for (posIt = positions.begin(), posEnd = positions.end(); posIt != posEnd; ++posIt) {
+                const Vec3f& start = posIt->first;
+                const Vec3f& end = posIt->second;
+                Vertex* vertex = findVertex(vertices, start);
+                if (vertex != NULL)
+                    moveVertex(vertex, true, start, end, faceManager);
+            }
+            
+            updateFacePoints();
+            faceManager.getFaces(newFaces, droppedFaces);
+        }
+
         bool BrushGeometry::canMoveVertices(const BBox& worldBounds, const Vec3f::List& vertexPositions, const Vec3f& delta) {
             FaceManager faceManager;
             

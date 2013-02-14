@@ -104,6 +104,8 @@ namespace TrenchBroom {
                 static const int ViewMoveCameraToNextPoint          = Lowest + 78;
                 static const int ViewMoveCameraToPreviousPoint      = Lowest + 79;
                 static const int EditShowMapProperties              = Lowest + 80;
+                static const int EditSnapVertices                   = Lowest + 81;
+                static const int EditCorrectVertices                = Lowest + 82;
                 static const int Highest                            = Lowest + 99;
             }
             

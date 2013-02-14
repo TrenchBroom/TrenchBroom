@@ -27,6 +27,7 @@
 #include <cassert>
 #include <cmath>
 #include <cstddef>
+#include <map>
 #include <ostream>
 #include <set>
 #include <vector>
@@ -93,6 +94,7 @@ namespace TrenchBroom {
             static const List EmptyList;
             typedef std::set<Vec3f, LexicographicOrder> Set;
             static const Set EmptySet;
+            typedef std::map<Vec3f, Vec3f, LexicographicOrder> Map;
             
             float x, y, z;
             

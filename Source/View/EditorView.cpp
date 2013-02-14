@@ -23,6 +23,7 @@
 #include "Controller/CameraEvent.h"
 #include "Controller/Command.h"
 #include "Controller/ChangeEditStateCommand.h"
+#include "Controller/EntityPropertyCommand.h"
 #include "Controller/FlipObjectsCommand.h"
 #include "Controller/InputController.h"
 #include "Controller/MoveObjectsCommand.h"
@@ -32,8 +33,8 @@
 #include "Controller/RemoveObjectsCommand.h"
 #include "Controller/RotateObjects90Command.h"
 #include "Controller/RotateTexturesCommand.h"
-#include "Controller/EntityPropertyCommand.h"
 #include "Controller/SetFaceAttributesCommand.h"
+#include "Controller/SnapVerticesCommand.h"
 #include "IO/MapParser.h"
 #include "IO/MapWriter.h"
 #include "Model/Brush.h"
@@ -138,6 +139,8 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::EditFlipObjectsHorizontally, EditorView::OnEditFlipObjectsH)
         EVT_MENU(CommandIds::Menu::EditFlipObjectsVertically, EditorView::OnEditFlipObjectsV)
         EVT_MENU(CommandIds::Menu::EditDuplicateObjects, EditorView::OnEditDuplicateObjects)
+        EVT_MENU(CommandIds::Menu::EditSnapVertices, EditorView::OnEditSnapVertices)
+        EVT_MENU(CommandIds::Menu::EditCorrectVertices, EditorView::OnEditCorrectVertices)
 
         EVT_MENU(CommandIds::Menu::EditMoveVerticesForward, EditorView::OnEditMoveVerticesForward)
         EVT_MENU(CommandIds::Menu::EditMoveVerticesBackward, EditorView::OnEditMoveVerticesBackward)
@@ -568,6 +571,7 @@ namespace TrenchBroom {
                     case Controller::Command::RotateObjects:
                     case Controller::Command::FlipObjects: {
                     case Controller::Command::MoveVertices:
+                    case Controller::Command::SnapVertices:
                     case Controller::Command::ResizeBrushes:
                         m_renderer->invalidateSelectedBrushes();
                         m_renderer->invalidateSelectedEntities();
@@ -1229,6 +1233,30 @@ namespace TrenchBroom {
             CommandProcessor::EndGroup(commandProcessor);
         }
 
+        void EditorView::OnEditCorrectVertices(wxCommandEvent& event) {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            const Model::EntityList& entities = editStateManager.selectedEntities();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            
+            assert(entities.empty());
+            assert(!brushes.empty());
+            
+            Controller::SnapVerticesCommand* command = Controller::SnapVerticesCommand::correct(mapDocument(), brushes);
+            submit(command);
+        }
+        
+        void EditorView::OnEditSnapVertices(wxCommandEvent& event) {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            const Model::EntityList& entities = editStateManager.selectedEntities();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            
+            assert(entities.empty());
+            assert(!brushes.empty());
+            
+            Controller::SnapVerticesCommand* command = Controller::SnapVerticesCommand::snapTo1(mapDocument(), brushes);
+            submit(command);
+        }
+
         void EditorView::OnEditMoveVerticesForward(wxCommandEvent& event) {
             moveVertices(DForward, true);
         }
@@ -1642,6 +1670,10 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditFlipObjectsVertically:
                 case CommandIds::Menu::EditDuplicateObjects:
                     event.Enable(editStateManager.selectionMode() == Model::EditStateManager::SMEntities || editStateManager.selectionMode() == Model::EditStateManager::SMBrushes || editStateManager.selectionMode() == Model::EditStateManager::SMEntitiesAndBrushes);
+                    break;
+                case CommandIds::Menu::EditSnapVertices:
+                case CommandIds::Menu::EditCorrectVertices:
+                    event.Enable(editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
                     break;
                 case CommandIds::Menu::EditMoveVerticesForward:
                 case CommandIds::Menu::EditMoveVerticesBackward:

@@ -282,6 +282,9 @@ wxMenu* AbstractApp::CreateObjectActionMenu(bool mapViewFocused) {
     objectActionMenu->Append(EditFlipObjectsVertically, wxT("Flip Vertically\tCtrl+Alt+F"));
     objectActionMenu->AppendSeparator();
     objectActionMenu->Append(EditDuplicateObjects, wxT("Duplicate\tCtrl+D"));
+    objectActionMenu->AppendSeparator();
+    objectActionMenu->Append(EditCorrectVertices, wxT("Correct Vertices"));
+    objectActionMenu->Append(EditSnapVertices, wxT("Snap Vertices"));
     return objectActionMenu;
 }
 

@@ -318,6 +318,8 @@ namespace TrenchBroom {
             void rotate(const Quat& rotation, const Vec3f& rotationCenter);
             void flip(Axis::Type axis, const Vec3f& flipCenter);
             void updateFacePoints();
+            
+            void snap(FaceSet& newFaces, FaceSet& droppedFaces, unsigned int snapTo);
 
             bool canMoveVertices(const BBox& worldBounds, const Vec3f::List& vertexPositions, const Vec3f& delta);
             Vec3f::List moveVertices(const BBox& worldBounds, const Vec3f::List& vertexPositions, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);

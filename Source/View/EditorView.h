@@ -175,6 +175,8 @@ namespace TrenchBroom {
             void OnEditFlipObjectsH(wxCommandEvent& event);
             void OnEditFlipObjectsV(wxCommandEvent& event);
             void OnEditDuplicateObjects(wxCommandEvent& event);
+            void OnEditCorrectVertices(wxCommandEvent& event);
+            void OnEditSnapVertices(wxCommandEvent& event);
 
             void OnEditMoveVerticesForward(wxCommandEvent& event);
             void OnEditMoveVerticesBackward(wxCommandEvent& event);

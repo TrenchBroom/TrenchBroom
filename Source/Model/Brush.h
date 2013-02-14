@@ -127,6 +127,8 @@ namespace TrenchBroom {
             void rotate(const Quat& rotation, const Vec3f& center, bool lockTextures);
             void flip(Axis::Type axis, const Vec3f& center, bool lockTextures);
             
+            void snap(unsigned int snapTo);
+            
             bool canMoveBoundary(const Face& face, const Vec3f& delta) const;
             void moveBoundary(Face& face, const Vec3f& delta, bool lockTexture);
             
