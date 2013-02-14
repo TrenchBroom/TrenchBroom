@@ -33,7 +33,7 @@ namespace TrenchBroom {
         }
 
         String LinuxFileManager::resolveFontPath(const String& fontName) {
-            String fontDirectoryPath = "/usr/share/fonts/truetype";
+            String fontDirectoryPath = "/usr/share/fonts/truetype/";
             String extensions[2] = {".ttf", ".ttc"};
 
             for (int j = 0; j < 2; j++) {
@@ -43,7 +43,7 @@ namespace TrenchBroom {
                     return fontPath;
             }
 
-            return appendPath(fontDirectoryPath, "freefont/FreeSans.ttf");
+            return appendPath(resourceDirectory(), "DejaVuSans.ttf");
         }
     }
 }
