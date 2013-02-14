@@ -203,6 +203,8 @@
 		<Unit filename="../Source/Controller/SetFaceAttributesTool.h" />
 		<Unit filename="../Source/Controller/SetModCommand.cpp" />
 		<Unit filename="../Source/Controller/SetModCommand.h" />
+		<Unit filename="../Source/Controller/SnapVerticesCommand.cpp" />
+		<Unit filename="../Source/Controller/SnapVerticesCommand.h" />
 		<Unit filename="../Source/Controller/SnapshotCommand.cpp" />
 		<Unit filename="../Source/Controller/SnapshotCommand.h" />
 		<Unit filename="../Source/Controller/SplitEdgesCommand.cpp" />
@@ -338,6 +340,8 @@
 		<Unit filename="../Source/Renderer/OffscreenRenderer.h" />
 		<Unit filename="../Source/Renderer/Palette.cpp" />
 		<Unit filename="../Source/Renderer/Palette.h" />
+		<Unit filename="../Source/Renderer/PointGuideRenderer.cpp" />
+		<Unit filename="../Source/Renderer/PointGuideRenderer.h" />
 		<Unit filename="../Source/Renderer/PointHandleHighlightFigure.cpp" />
 		<Unit filename="../Source/Renderer/PointHandleHighlightFigure.h" />
 		<Unit filename="../Source/Renderer/PointHandleRenderer.cpp" />

@@ -30,6 +30,7 @@
 
 #include <GL/glew.h>
 #include <wx/glcanvas.h>
+#include <wx/sizer.h>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -66,9 +67,14 @@ namespace TrenchBroom {
             m_glCanvas = new wxGLCanvas(this, wxID_ANY, m_attribs);
             m_sharedContext = new wxGLContext(m_glCanvas);
 
+            wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
+            sizer->Add(m_glCanvas, 1, wxEXPAND);
+            SetSizer(sizer);
+
             SetSize(100, 100);
             SetPosition(wxPoint(-110, -110));
             Show();
+            Raise();
 
             m_sharedContext->SetCurrent(*m_glCanvas);
             const char* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
