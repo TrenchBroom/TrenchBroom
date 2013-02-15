@@ -113,7 +113,7 @@ wxMenu* AbstractApp::CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMe
     }
     editMenu->AppendSeparator();
     editMenu->AppendCheckItem(EditToggleTextureLock, wxT("Toggle Texture Lock"));
-    editMenu->Append(EditShowMapProperties, wxT("Edit Map Properties..."));
+    editMenu->Append(EditShowMapProperties, wxT("Map Properties..."));
     editMenu->SetEventHandler(eventHandler);
     
     return editMenu;

@@ -102,6 +102,7 @@ namespace TrenchBroom {
         EVT_BUTTON(CommandIds::MapPropertiesDialog::MoveWadDownButtonId, MapPropertiesDialog::OnMoveWadDownClicked)
         EVT_UPDATE_UI_RANGE(CommandIds::MapPropertiesDialog::AddWadButtonId, CommandIds::MapPropertiesDialog::MoveWadDownButtonId, MapPropertiesDialog::OnUpdateWadButtons)
         EVT_BUTTON(wxID_CLOSE, MapPropertiesDialog::OnCloseClicked)
+        EVT_MENU(wxID_CLOSE, MapPropertiesDialog::OnFileExit)
         END_EVENT_TABLE()
 
         void MapPropertiesDialog::populateDefChoice(const String& def) {
@@ -265,6 +266,14 @@ namespace TrenchBroom {
             
             SetSizerAndFit(outerSizer);
 
+#ifdef __APPLE__
+            // allow the dialog to be closed using CMD+W
+            wxAcceleratorEntry acceleratorEntries[1];
+            acceleratorEntries[0].Set(wxACCEL_CMD, static_cast<int>('W'), wxID_CLOSE);
+            wxAcceleratorTable accceleratorTable(4, acceleratorEntries);
+            SetAcceleratorTable(accceleratorTable);
+#endif
+
             init();
 
             CommandProcessor::BeginGroup(m_document.GetCommandProcessor(), "Edit map properties");
@@ -393,6 +402,11 @@ namespace TrenchBroom {
         }
 
         void MapPropertiesDialog::OnCloseClicked(wxCommandEvent& event) {
+            EndModal(wxID_CLOSE);
+        }
+
+        
+        void MapPropertiesDialog::OnFileExit(wxCommandEvent& event) {
             EndModal(wxID_CLOSE);
         }
     }

@@ -79,6 +79,7 @@ namespace TrenchBroom {
             void OnMoveWadDownClicked(wxCommandEvent& event);
             void OnUpdateWadButtons(wxUpdateUIEvent& event);
             void OnCloseClicked(wxCommandEvent& event);
+            void OnFileExit(wxCommandEvent& event);
             
             DECLARE_EVENT_TABLE();
         };
