@@ -188,20 +188,17 @@ namespace TrenchBroom {
                     Vec3f dir = point - inputState.pickRay().origin;
                     dir.normalize();
                     
-                    Ray testRay(inputState.pickRay().origin, dir);
-                    if (!Math::isnan(face.side()->intersectWithRay(testRay))) {
-                        for (unsigned int i = 0; i < m_numPoints && m_hitIndex == -1; i++) {
-                            if (point.equals(m_points[i])) {
-                                m_hitIndex = static_cast<int>(i);
-                                return;
-                            }
+                    for (unsigned int i = 0; i < m_numPoints && m_hitIndex == -1; i++) {
+                        if (point.equals(m_points[i])) {
+                            m_hitIndex = static_cast<int>(i);
+                            return;
                         }
-                        
-                        if (m_hitIndex == -1 && m_numPoints < 3) {
-                            m_hitIndex = static_cast<int>(m_numPoints);
-                            m_points[m_numPoints] = point;
-                            m_normals[m_numPoints] = face.boundary().normal;
-                        }
+                    }
+                    
+                    if (m_hitIndex == -1 && m_numPoints < 3) {
+                        m_hitIndex = static_cast<int>(m_numPoints);
+                        m_points[m_numPoints] = point;
+                        m_normals[m_numPoints] = face.boundary().normal;
                     }
                 }
             }
@@ -367,20 +364,28 @@ namespace TrenchBroom {
             assert(m_hitIndex >= 0 && m_hitIndex < static_cast<int>(m_numPoints));
             
             Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(inputState.pickResult().first(Model::HitType::FaceHit, true, m_filter));
-            if (faceHit == NULL)
-                return true;
+            if  (faceHit == NULL) {
+                const Plane plane(m_normals[m_hitIndex], m_points[m_hitIndex]);
+                const float distance = plane.intersectWithRay(inputState.pickRay());
+                if (Math::isnan(distance))
+                    return true;
+                
+                const Vec3f hitPoint = inputState.pickRay().pointAtDistance(distance);
+                
+                Utility::Grid& grid = document().grid();
+                Vec3f point = grid.snap(hitPoint, plane);
+                m_points[m_hitIndex] = point;
+            } else {
+                const Plane& plane = faceHit->face().boundary();
+                const Vec3f& hitPoint = faceHit->hitPoint();
+                
+                Utility::Grid& grid = document().grid();
+                Vec3f point = grid.snap(hitPoint, plane);
+
+                m_points[m_hitIndex] = point;
+                m_normals[m_hitIndex] = plane.normal;
+            }
             
-            Utility::Grid& grid = document().grid();
-            const Model::Face& face = faceHit->face();
-            Vec3f point = grid.snap(faceHit->hitPoint(), face.boundary());
-            Vec3f dir = point - inputState.pickRay().origin;
-            dir.normalize();
-            
-            Ray testRay(inputState.pickRay().origin, dir);
-            if (!Math::isnan(face.side()->intersectWithRay(testRay)))
-                return true;
-            
-            m_points[m_hitIndex] = point;
             updateBrushes();
             return true;
         }
