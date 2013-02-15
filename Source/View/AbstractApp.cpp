@@ -307,6 +307,9 @@ wxMenu* AbstractApp::CreateVertexActionMenu(bool mapViewFocused) {
         vertexActionMenu->Append(EditMoveVerticesUp, wxT("Move Up"));
         vertexActionMenu->Append(EditMoveVerticesDown, wxT("Move Down"));
     }
+    vertexActionMenu->AppendSeparator();
+    vertexActionMenu->Append(EditCorrectVertices, wxT("Correct Vertices"));
+    vertexActionMenu->Append(EditSnapVertices, wxT("Snap Vertices"));
     return vertexActionMenu;
 }
 

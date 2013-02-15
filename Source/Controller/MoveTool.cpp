@@ -27,13 +27,12 @@
 
 namespace TrenchBroom {
     namespace Controller {
+        void MoveTool::snapDragDelta(InputState& inputState, Vec3f& delta) {
+            Utility::Grid& grid = document().grid();
+            delta = grid.snap(delta);
+        }
+
         void MoveTool::handleRender(InputState& inputState, Renderer::Vbo& vbo, Renderer::RenderContext& renderContext) {
-            if ((inputState.mouseButtons() != MouseButtons::MBNone &&
-                 inputState.mouseButtons() != MouseButtons::MBLeft) ||
-                (inputState.modifierKeys() != ModifierKeys::MKNone &&
-                 inputState.modifierKeys() != ModifierKeys::MKAlt))
-                return;
-            
             Vec3f hitPoint;
             if (!isApplicable(inputState, hitPoint))
                 return;
@@ -47,7 +46,7 @@ namespace TrenchBroom {
                 else
                     m_indicator->setDirection(Renderer::MovementIndicator::Vertical);
             } else {
-                if (inputState.modifierKeys() == ModifierKeys::MKAlt)
+                if ((inputState.modifierKeys() & ModifierKeys::MKAlt) != 0)
                     m_indicator->setDirection(Renderer::MovementIndicator::Vertical);
                 else
                     m_indicator->setDirection(Renderer::MovementIndicator::Horizontal);
@@ -71,9 +70,7 @@ namespace TrenchBroom {
         }
         
         bool MoveTool::handleStartPlaneDrag(InputState& inputState, Plane& plane, Vec3f& initialPoint) {
-            if (inputState.mouseButtons() != MouseButtons::MBLeft ||
-                (inputState.modifierKeys() != ModifierKeys::MKNone &&
-                 inputState.modifierKeys() != ModifierKeys::MKAlt))
+            if (inputState.mouseButtons() != MouseButtons::MBLeft)
                 return false;
 
             if (!isApplicable(inputState, initialPoint))
@@ -81,7 +78,7 @@ namespace TrenchBroom {
             
             m_totalDelta = Vec3f::Null;
             
-            if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
+            if ((inputState.modifierKeys() & ModifierKeys::MKAlt) != 0) {
                 Vec3f planeNorm = inputState.pickRay().direction;
                 planeNorm.z = 0.0f;
                 planeNorm.normalize();
@@ -125,9 +122,8 @@ namespace TrenchBroom {
             Vec3f delta = curPoint - refPoint;
             if (m_direction == Vertical)
                 delta = Vec3f::PosZ * delta.dot(Vec3f::PosZ);
-            
-            Utility::Grid& grid = document().grid();
-            delta = grid.snap(delta);
+
+            snapDragDelta(inputState, delta);
             if (delta.null())
                 return true;
             

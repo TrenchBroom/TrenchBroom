@@ -39,6 +39,14 @@
 namespace TrenchBroom {
     namespace Controller {
         bool MoveVerticesTool::isApplicable(InputState& inputState, Vec3f& hitPoint) {
+            if ((inputState.mouseButtons() != MouseButtons::MBNone &&
+                 inputState.mouseButtons() != MouseButtons::MBLeft) ||
+                (inputState.modifierKeys() != ModifierKeys::MKNone &&
+                 inputState.modifierKeys() != ModifierKeys::MKAlt &&
+                 inputState.modifierKeys() != ModifierKeys::MKShift &&
+                 inputState.modifierKeys() != (ModifierKeys::MKAlt | ModifierKeys::MKShift)))
+                return false;
+            
             Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit | Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));
             if (hit == NULL)
                 return false;
@@ -73,6 +81,15 @@ namespace TrenchBroom {
             Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit | Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));
             assert(hit != NULL);
             m_dragHandlePosition = hit->vertex();
+        }
+
+        void MoveVerticesTool::snapDragDelta(InputState& inputState, Vec3f& delta) {
+            if ((inputState.modifierKeys() & ModifierKeys::MKShift) == 0) {
+                MoveTool::snapDragDelta(inputState, delta);
+            } else {
+                const Vec3f targetPos = document().grid().snap(m_dragHandlePosition + delta);
+                delta = targetPos - m_dragHandlePosition;
+            }
         }
 
         MoveTool::MoveResult MoveVerticesTool::performMove(const Vec3f& delta) {
@@ -190,7 +207,9 @@ namespace TrenchBroom {
             if (inputState.mouseButtons() != MouseButtons::MBLeft ||
                 (inputState.modifierKeys() != ModifierKeys::MKNone &&
                  inputState.modifierKeys() != ModifierKeys::MKCtrlCmd &&
-                 inputState.modifierKeys() != ModifierKeys::MKAlt))
+                 inputState.modifierKeys() != ModifierKeys::MKAlt &&
+                 inputState.modifierKeys() != ModifierKeys::MKShift &&
+                 inputState.modifierKeys() != (ModifierKeys::MKAlt | ModifierKeys::MKShift)))
                 return false;
 
             Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit | Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));
@@ -244,7 +263,9 @@ namespace TrenchBroom {
             if (inputState.mouseButtons() != MouseButtons::MBLeft ||
                 (inputState.modifierKeys() != ModifierKeys::MKNone &&
                  inputState.modifierKeys() != ModifierKeys::MKCtrlCmd &&
-                 inputState.modifierKeys() != ModifierKeys::MKAlt))
+                 inputState.modifierKeys() != ModifierKeys::MKAlt &&
+                 inputState.modifierKeys() != ModifierKeys::MKShift &&
+                 inputState.modifierKeys() != (ModifierKeys::MKAlt | ModifierKeys::MKShift)))
                 return false;
             
             Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit | Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));
@@ -264,7 +285,9 @@ namespace TrenchBroom {
         bool MoveVerticesTool::handleMouseDClick(InputState& inputState) {
             if (inputState.mouseButtons() != MouseButtons::MBLeft ||
                 (inputState.modifierKeys() != ModifierKeys::MKNone &&
-                 inputState.modifierKeys() != ModifierKeys::MKAlt))
+                 inputState.modifierKeys() != ModifierKeys::MKAlt &&
+                 inputState.modifierKeys() != ModifierKeys::MKShift &&
+                 inputState.modifierKeys() != (ModifierKeys::MKAlt | ModifierKeys::MKShift)))
                 return false;
 
             Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));

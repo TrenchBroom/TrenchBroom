@@ -30,6 +30,12 @@
 namespace TrenchBroom {
     namespace Controller {
         bool MoveObjectsTool::isApplicable(InputState& inputState, Vec3f& hitPoint) {
+            if ((inputState.mouseButtons() != MouseButtons::MBNone &&
+                 inputState.mouseButtons() != MouseButtons::MBLeft) ||
+                (inputState.modifierKeys() != ModifierKeys::MKNone &&
+                 inputState.modifierKeys() != ModifierKeys::MKAlt))
+                return false;
+            
             Model::EditStateManager& editStateManager = document().editStateManager();
             const Model::EntityList& entities = editStateManager.selectedEntities();
             const Model::BrushList& brushes = editStateManager.selectedBrushes();

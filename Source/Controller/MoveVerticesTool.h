@@ -54,6 +54,7 @@ namespace TrenchBroom {
             bool isApplicable(InputState& inputState, Vec3f& hitPoint);
             wxString actionName();
             void startDrag(InputState& inputState);
+            void snapDragDelta(InputState& inputState, Vec3f& delta);
             MoveResult performMove(const Vec3f& delta);
 
             bool handleActivate(InputState& inputState);
