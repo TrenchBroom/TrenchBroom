@@ -24,6 +24,7 @@
 #include <wx/docview.h>
 #include <wx/generic/helpext.h>
 
+#include "IO/FileManager.h"
 #include "IO/Pak.h"
 #include "Model/Alias.h"
 #include "Model/Bsp.h"
@@ -37,6 +38,10 @@ BEGIN_EVENT_TABLE(AbstractApp, wxApp)
 EVT_MENU(wxID_PREFERENCES, AbstractApp::OnOpenPreferences)
 EVT_MENU(wxID_ABOUT, AbstractApp::OnOpenAbout)
 EVT_MENU(TrenchBroom::View::CommandIds::Menu::HelpShowHelp, AbstractApp::OnHelpShowHelp)
+
+EVT_UPDATE_UI(wxID_UNDO, AbstractApp::OnUpdateMenuItem)
+EVT_UPDATE_UI(wxID_REDO, AbstractApp::OnUpdateMenuItem)
+EVT_UPDATE_UI_RANGE(TrenchBroom::View::CommandIds::Menu::Lowest, TrenchBroom::View::CommandIds::Menu::Highest, AbstractApp::OnUpdateMenuItem)
 END_EVENT_TABLE()
 
 wxMenu* AbstractApp::CreateFileMenu(wxEvtHandler* eventHandler, bool mapViewFocused) {
@@ -353,12 +358,19 @@ bool AbstractApp::OnInit() {
     // load image handles
     wxImage::AddHandler(new wxPNGHandler());
     
+    TrenchBroom::IO::FileManager fileManager;
+    String helpPath = fileManager.appendPath(fileManager.resourceDirectory(), "Documentation");
+    
+    m_helpController = new wxExtHelpController();
+    m_helpController->Initialize(helpPath);
+    
     return true;
 }
 
 int AbstractApp::OnExit() {
     m_docManager->FileHistorySave(*wxConfig::Get());
     wxDELETE(m_docManager);
+    wxDELETE(m_helpController);
     
     delete TrenchBroom::IO::PakManager::sharedManager;
     TrenchBroom::IO::PakManager::sharedManager = NULL;
@@ -394,6 +406,17 @@ void AbstractApp::OnOpenPreferences(wxCommandEvent& event) {
 }
 
 void AbstractApp::OnHelpShowHelp(wxCommandEvent& event) {
-    
+    assert(m_helpController != NULL);
+    m_helpController->DisplaySection(01);
+}
+
+
+void AbstractApp::OnUpdateMenuItem(wxUpdateUIEvent& event) {
+    if (event.GetId() == wxID_ABOUT ||
+        event.GetId() == wxID_PREFERENCES ||
+        event.GetId() == TrenchBroom::View::CommandIds::Menu::HelpShowHelp)
+        event.Enable(true);
+    else
+        event.Enable(false);
 }
 

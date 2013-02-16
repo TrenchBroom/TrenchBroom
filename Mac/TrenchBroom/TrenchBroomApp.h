@@ -30,8 +30,6 @@ public:
     virtual bool OnInit();
     virtual void OnFileExit(wxCommandEvent& event);
     
-    void OnUpdateMenuItem(wxUpdateUIEvent& event);
-
     DECLARE_EVENT_TABLE()
 };
 

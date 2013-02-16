@@ -33,9 +33,6 @@ IMPLEMENT_APP(TrenchBroomApp)
 BEGIN_EVENT_TABLE(TrenchBroomApp, AbstractApp)
 EVT_MENU(wxID_EXIT, TrenchBroomApp::OnFileExit)
 
-EVT_UPDATE_UI(wxID_UNDO, TrenchBroomApp::OnUpdateMenuItem)
-EVT_UPDATE_UI(wxID_REDO, TrenchBroomApp::OnUpdateMenuItem)
-EVT_UPDATE_UI_RANGE(TrenchBroom::View::CommandIds::Menu::Lowest, TrenchBroom::View::CommandIds::Menu::Highest, TrenchBroomApp::OnUpdateMenuItem)
 END_EVENT_TABLE()
 
 wxMenu* TrenchBroomApp::CreateFileMenu(wxEvtHandler* eventHandler, bool mapViewFocused) {
@@ -69,8 +66,4 @@ bool TrenchBroomApp::OnInit() {
 
 void TrenchBroomApp::OnFileExit(wxCommandEvent& event) {
     Exit();
-}
-
-void TrenchBroomApp::OnUpdateMenuItem(wxUpdateUIEvent& event) {
-    event.Enable(false); // disable everything (except maybe help?)
 }

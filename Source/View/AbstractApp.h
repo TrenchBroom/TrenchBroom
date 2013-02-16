@@ -25,6 +25,7 @@
 class wxCommandEvent;
 class wxDocManager;
 class wxEvtHandler;
+class wxExtHelpController;
 class wxMenu;
 class wxMenuBar;
 class wxView;
@@ -33,6 +34,7 @@ class DocManager;
 class AbstractApp : public wxApp {
 protected:
 	DocManager* m_docManager;
+    wxExtHelpController* m_helpController;
 
     virtual wxMenu* CreateFileMenu(wxEvtHandler* eventHandler, bool mapViewFocused);
     virtual wxMenu* CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMenu, bool mapViewFocused);
@@ -55,6 +57,8 @@ public:
     virtual void OnOpenPreferences(wxCommandEvent& event);
     virtual void OnHelpShowHelp(wxCommandEvent& event);
 
+    void OnUpdateMenuItem(wxUpdateUIEvent& event);
+    
     DECLARE_EVENT_TABLE();
 };
 

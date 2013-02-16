@@ -5,44 +5,32 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<title>TrenchBroom Help - Camera Navigation</title>
-	<link rel="StyleSheet" href="../sty/style.css" type="text/css" media="screen" />
+	<link rel="StyleSheet" href="css/style.css" type="text/css" media="screen" />
 	<meta name="author" content="Kristian Duske">
 </head>
 <body>
+	<script src="scripts/commands.js"></script>
 	<div id="container">
 		<h2>Camera Navigation</h2>
-		<p>The camera navigation in TrenchBroom is quite simple and straightforward. However, there are subtle differences between using a trackpad and using a mouse. These differences will be explained below. Generally, you always have to press and hold the <b>shift key &#8679;</b> to navigate the camera in the 3D view. Just like in Quake, the camera cannot be rolled - in other words, up is always in the positive Z direction and down is always in the negative Z direction.</p>
-		<div class="images">
-			<img src="../../shrd/camera_navigation_quick_info.png" width="592" height="97" alt="Quick info">
-			<div class="imagecaption">The quick info bar helps you keep your orientation.</div>
-		</div>
-		<p>To help you keep your orientation, the quick info bar at the bottom of the 3D view (see screenshot) always displays information about the current camera location and direction. The compass on the left visualizes the camera direction by rendering the coordinate axes. The X axis has red color, the Y axis has green color and the Z axis has blue color.</p>
+		<p>Navigation in TrenchBroom is quite simple and straightforward. You will mostly use the mouse to move and pan the camera and to look around. There are also some keyboard shortcuts to help you position the camera with more precision. Just like in Quake, the camera cannot be rolled - in other words, up is always in the positive Z direction and down is always in the negative Z direction.</p>
 		<a name="controlling_the_camera"></a><h3>Controlling the Camera</h3>
 		<h4>Looking Around</h4>
-		<p>You can look around by holding the <b>shift key &#8679;</b> while clicking and dragging with the <b>left mouse button</b>.</p>
+		<p>You can look around by holding the <b>right mouse button</b> and dragging the mouse around.</p>
 		<h4>Moving Around</h4>
-		<p>To move the camera foward and backward, hold the <b>shift key &#8679;</b> and use the scroll wheel on your mouse. To move the camera sideways and up / down, hold the <b>shift key &#8679;</b> while clicking and dragging with the <b>right mouse button</b>. If you are using a trackpad, you can move the camera forward and backward by using the <b>two-finger zoom gesture</b> while holding the <b>shift key &#8679;</b> and you can move the camera sideways and up / down by using the <b>two-finger scrolling gesture</b> while holding the <b>shift key &#8679;</b>.</p>
-		<p>You can also move the camera using the <b>cursor keys</b> and the <b>page up</b> and <b>page down keys</b> while holding the <b>shift key (&#8679;)</b>. To move the camera forward and backward, press <b>&#8679;&#x2191;</b> and <b>&#8679;&#x2193;</b> and to move the camera left and right, press <b>&#8679;&#x2190;</b> and <b>&#8679;&#x2192;</b>. The camera an be moved up and down by pressing the page up and page down keys (<b>&#8679;&#x21DE;</b> and <b>&#8679;&#x21DF;</b>). If you hold the <b>option key (&#x2325;)</b> while pressing these keyboard shortcuts, the camera will move by one unit. This allows you to precisely position the camera.</p>
+		<p>To move the camera foward and backward, spin the <b>scroll wheel</b> on your mouse in the direction you want to head towards. To move the camera sideways and up / down, hold the <b>middle mouse button</b> and drag the mouse in the any direction.</p>
+		<p>You can also move the camera using the cursor keys and the page up and page down keys while holding the <script>print_key("Alt");</script> key. To move the camera forward and backward, press <script>print_key("Up", "Alt");</script> and <script>print_key("Down", "Alt");</script> and to move the camera left and right, press <script>print_key("Left", "Alt");</script> and <script>print_key("Right", "Alt");</script>. The camera an be moved up and down by pressing the page up and page down keys (<script>print_key("PgUp", "Alt");</script>, <script>print_key("PgDown", "Alt");</script>).</p>
 		
 		<a name="orbiting_the_camera"></a><h3>Orbiting the Camera</h3>
-		<p>The camera orbit mode allows you to rotate the camera about a selectable point. To get an idea as to what this means, imagine that you define a point in the map by clicking on a brush. The point where you clicked will be the center of your camera orbit. Now image a sphere whose center is the point where you just clicked and whose radius is the distance between the camera and the point. Orbiting will move the camera on the surface of that sphere while adjusting the camera's direction so that you keep looking at the same point. Visually, this is the same as rotating the entire map about the orbit center. Of course, you are not actually rotating anything - only the camera's position and direction are modified. However, since up and down are always fixed, you cannot cross the north and south poles of the orbit sphere.</p>
-		<p>Camera orbit mode is very useful if you are editing a brush because it allows you to view this brush from all sides quickly. Its best to try it and see for yourself how useful it is. To invoke the orbit mode, click and drag with the <b>left mouse button</b> while holding the <b>shift and command keys &#8679;&#8984;</b>. The orbit center is the point in the map which you initially clicked. Dragging sideways will orbit the camera horizontally and dragging up and down will orbit the camera vertically.</p>
+		<p>The camera orbit mode allows you to rotate the camera about a selectable point. To get an idea as to what this means, imagine that you define a point in the map by clicking on a brush. The point where you clicked will be the center of your camera orbit. Now image a sphere whose center is the point where you just clicked and whose radius is the distance between the camera and the point. Orbiting will move the camera on the surface of that sphere while adjusting the camera's direction so that you keep looking at the same point. Visually, this is the same as rotating the entire map about the orbit center. Of course, you are not actually rotating anything - only the camera's position and direction are modified. Note that, since up and down are always fixed, you cannot cross the north and south poles of the orbit sphere.</p>
+		<p>Camera orbit mode is very useful if you are editing a brush because it allows you to view this brush from all sides quickly. Its best to try it and see for yourself how useful it is. To invoke the orbit mode, click and drag with the <b>right mouse button</b> while holding the <script>print_key("Alt");</script> key. The orbit center is the point in the map which you initially clicked. Dragging sideways will orbit the camera horizontally and dragging up and down will orbit the camera vertically.</p>
 
-		<a name="predefined_camera_views"></a><h3>Predefined Camera Views</h3>
-		<p>If you looked closely at the screenshot of the quick info bar above, you saw three buttons below the camera location and direction info fields. These buttons are labeled <i>XY</i>, <i>XZ</i> and <i>YZ</i> and their function is to take the camera to one of three predefined views using smooth camera tracks:</p>
-		<ul>
-			<li><b>XY view</b> The camera will move so that it looks down onto the top of the current selection (keyboard shortcut: <b>&#8679;1</b>).</li>
-			<li><b>XZ view</b> The camera will move so that it looks at front of the current selection, in the direction of the positive Y axis (keyboard shortcut: <b>&#8679;2</b>).</li>
-			<li><b>YZ view</b> The camera will move so that it looks sideways at the the current selection, in the direction of the negative X axis (keyboard shortcut: <b>&#8679;3</b>).</li>
-		</ul>
-		<p>The camera will always be positioned so that it looks straight at the center of the current selection. If nothing is selected, it will look at a default point in front of the camera.</p>
-
-		<a name="navigating_to_arbitrary_objects"></a><h3>Navigating to Arbitrary Objects</h3>
+		<a name="center_camera_on_selection"></a><h3>Centering the Camera on the Selection</h3>
+		<p>To center the camera on the selection, choose <b><script>print_menu_command("view_center_on_selection");</script></b> from the menu. This will position the camera so that all selected objects become visible. The camera will not be rotated at all; only its position will be changed.</p>
 		<div class="images">
-			<img src="../../shrd/navigating_to_arbitrary_objects.png" width="393" height="319" alt"Map browser">
-			<div class="imagecaption">Jump to any object using the map browser.</div>
+			<img src="images/center_camera_on_selection_before.jpg" width="250" height="296" alt="Before">
+			<img src="images/center_camera_on_selection_after.jpg" width="250" height="296" alt="After">
+			<div class="imagecaption">Centering the camera on the selection</div>
 		</div>
-		<p>To navigate to any object in the map, simply select it in the Map browser, located in the Map tab of the inspector. The camera will quickly be moved to the selected object.</p>
 	</div>
 </body>
 </html>

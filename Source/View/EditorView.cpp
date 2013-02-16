@@ -1821,7 +1821,7 @@ namespace TrenchBroom {
         }
 
         void EditorView::OnMenuHighlight(wxMenuEvent& event) {
-            if (event.GetMenu() == m_createPointEntityMenu) {
+            if (event.GetMenu() != NULL && event.GetMenu() == m_createPointEntityMenu) {
                 Model::EntityDefinitionManager& definitionManager = mapDocument().definitionManager();
                 const Model::EntityDefinitionList& pointDefinitions = definitionManager.definitions(Model::EntityDefinition::PointEntity);
                 size_t index = static_cast<size_t>(event.GetId() - CommandIds::CreateEntityPopupMenu::LowestPointEntityItem);

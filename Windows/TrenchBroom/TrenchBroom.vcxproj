@@ -92,12 +92,15 @@
       <AdditionalDependencies>opengl32.lib;glu32.lib;..\Lib\freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>Mkdir "$(TargetDir)\Resources"
-Copy "$(ProjectDir)..\..\Resources\Defs\*.def" "$(TargetDir)\Resources"
-Copy "$(ProjectDir)..\..\Resources\Graphics\QuakePalette.lmp" "$(TargetDir)\Resources"
-Copy "$(ProjectDir)..\..\Source\Renderer\Shader\*.vertsh" "$(TargetDir)\Resources"
-Copy "$(ProjectDir)..\..\Source\Renderer\Shader\*.fragsh" "$(TargetDir)\Resources"
+      <Command>Mkdir "$(TargetDir)Resources"
+Copy "$(ProjectDir)..\..\Resources\Defs\*.def" "$(TargetDir)Resources"
+Copy "$(ProjectDir)..\..\Resources\Graphics\QuakePalette.lmp" "$(TargetDir)Resources"
+Copy "$(ProjectDir)..\..\Source\Renderer\Shader\*.vertsh" "$(TargetDir)Resources"
+Copy "$(ProjectDir)..\..\Source\Renderer\Shader\*.fragsh" "$(TargetDir)Resources"
 Copy "$(ProjectDir)..\..\Resources\Graphics\*.png" "$(TargetDir)Resources"
+
+Mkdir "$(TargetDir)Resources\Documentation"
+XCopy "$(ProjectDir)..\..\Resources\Help\Documentation\*" "$(TargetDir)Resources\Documentation\" /S /E /Y
 
 Copy "$(ProjectDir)..\Lib\freetype6.dll" "$(TargetDir)"
 Copy "$(ProjectDir)..\Lib\zlib1.dll" "$(TargetDir)"
@@ -162,12 +165,15 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294ud_gl_vc100_x64.pdb" "$(TargetDir)"
       <AdditionalDependencies>opengl32.lib;glu32.lib;..\Lib\freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>Mkdir "$(TargetDir)\Resources"
+      <Command>Mkdir "$(TargetDir)Resources"
 Copy "$(ProjectDir)..\..\Resources\Defs\*.def" "$(TargetDir)Resources"
 Copy "$(ProjectDir)..\..\Resources\Graphics\QuakePalette.lmp" "$(TargetDir)Resources"
 Copy "$(ProjectDir)..\..\Source\Renderer\Shader\*.vertsh" "$(TargetDir)Resources"
 Copy "$(ProjectDir)..\..\Source\Renderer\Shader\*.fragsh" "$(TargetDir)Resources"
 Copy "$(ProjectDir)..\..\Resources\Graphics\*.png" "$(TargetDir)Resources"
+
+Mkdir "$(TargetDir)Resources\Documentation"
+XCopy "$(ProjectDir)..\..\Resources\Help\Documentation\*" "$(TargetDir)Resources\Documentation\" /S /E /Y
 
 Copy "$(ProjectDir)..\Lib\freetype6.dll" "$(TargetDir)"
 Copy "$(ProjectDir)..\Lib\zlib1.dll" "$(TargetDir)"
