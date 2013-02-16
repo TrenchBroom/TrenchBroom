@@ -86,8 +86,7 @@ namespace TrenchBroom {
             m_viewOptions(viewOptions) {}
 
             virtual inline bool entityVisible(const Model::Entity& entity) const {
-                EntityDefinition* definition = entity.definition();
-                if (definition != NULL && definition->type() == EntityDefinition::PointEntity && !m_viewOptions.showEntities())
+                if (entity.brushes().empty() && !m_viewOptions.showEntities())
                     return false;
 
                 if (entity.hidden() || entity.fullyHidden() || entity.worldspawn())
@@ -112,11 +111,10 @@ namespace TrenchBroom {
             virtual inline bool entityPickable(const Model::Entity& entity) const {
                 if (entity.worldspawn() ||
                     entity.locked() ||
-                    !entity.brushes().empty() ||
-                    !entityVisible(entity))
+                    !entity.brushes().empty())
                     return false;
 
-                return true;
+                return entityVisible(entity);
             }
 
             virtual inline bool brushVisible(const Model::Brush& brush) const {
@@ -151,10 +149,10 @@ namespace TrenchBroom {
             }
 
             virtual inline bool brushPickable(const Model::Brush& brush) const {
-                if (!brushVisible(brush) || brush.locked() || brush.entity()->locked())
+                if (brush.locked() || brush.entity()->locked())
                     return false;
 
-                return true;
+                return brushVisible(brush);
             }
 
             virtual inline bool brushVerticesPickable(const Model::Brush& brush) const {
