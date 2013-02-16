@@ -132,6 +132,8 @@
 		48B64C4016CD301200ECA6C5 /* SnapVerticesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B64C3E16CD301200ECA6C5 /* SnapVerticesCommand.cpp */; };
 		48B64C4316CD406700ECA6C5 /* PointGuideRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B64C4116CD406700ECA6C5 /* PointGuideRenderer.cpp */; };
 		48B64C5916CEC35100ECA6C5 /* Documentation in CopyFiles */ = {isa = PBXBuildFile; fileRef = 48B64C5816CEC35000ECA6C5 /* Documentation */; };
+		48B64C5C16CFEA0E00ECA6C5 /* AboutDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B64C5A16CFEA0D00ECA6C5 /* AboutDialog.cpp */; };
+		48B64C6216CFEF4800ECA6C5 /* About in CopyFiles */ = {isa = PBXBuildFile; fileRef = 48B64C6116CFEF4700ECA6C5 /* About */; };
 		48B75F72160BA512009D4E99 /* TextureBrowser.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48B75F71160BA512009D4E99 /* TextureBrowser.vertsh */; };
 		48B75F75160BA531009D4E99 /* TextureBrowser.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48B75F74160BA531009D4E99 /* TextureBrowser.fragsh */; };
 		48B75F79160CF79F009D4E99 /* TextureBrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B75F77160CF79E009D4E99 /* TextureBrowser.cpp */; };
@@ -191,6 +193,16 @@
 			dstSubfolderSpec = 7;
 			files = (
 				48B64C5916CEC35100ECA6C5 /* Documentation in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		48B64C6016CFEF3600ECA6C5 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+				48B64C6216CFEF4800ECA6C5 /* About in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -487,6 +499,9 @@
 		48B64C4116CD406700ECA6C5 /* PointGuideRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointGuideRenderer.cpp; sourceTree = "<group>"; };
 		48B64C4216CD406700ECA6C5 /* PointGuideRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointGuideRenderer.h; sourceTree = "<group>"; };
 		48B64C5816CEC35000ECA6C5 /* Documentation */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Documentation; path = ../Resources/Help/Documentation; sourceTree = "<group>"; };
+		48B64C5A16CFEA0D00ECA6C5 /* AboutDialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AboutDialog.cpp; sourceTree = "<group>"; };
+		48B64C5B16CFEA0D00ECA6C5 /* AboutDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AboutDialog.h; sourceTree = "<group>"; };
+		48B64C6116CFEF4700ECA6C5 /* About */ = {isa = PBXFileReference; lastKnownFileType = folder; name = About; path = ../Resources/Help/About; sourceTree = "<group>"; };
 		48B75F71160BA512009D4E99 /* TextureBrowser.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = TextureBrowser.vertsh; sourceTree = "<group>"; };
 		48B75F74160BA531009D4E99 /* TextureBrowser.fragsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = TextureBrowser.fragsh; sourceTree = "<group>"; };
 		48B75F77160CF79E009D4E99 /* TextureBrowser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureBrowser.cpp; sourceTree = "<group>"; };
@@ -711,6 +726,7 @@
 		484763C615E2BC5000095BC0 = {
 			isa = PBXGroup;
 			children = (
+				48B64C6116CFEF4700ECA6C5 /* About */,
 				48B64C5816CEC35000ECA6C5 /* Documentation */,
 				4883376116C654A800493DA2 /* Quake.def */,
 				4883376216C654A800493DA2 /* Rubicon2.def */,
@@ -851,6 +867,8 @@
 			isa = PBXGroup;
 			children = (
 				485B70E416AF23EA002E95B6 /* PropertyEditor */,
+				48B64C5A16CFEA0D00ECA6C5 /* AboutDialog.cpp */,
+				48B64C5B16CFEA0D00ECA6C5 /* AboutDialog.h */,
 				4887937415EF56C10044D66A /* AbstractApp.cpp */,
 				4887937515EF56C10044D66A /* AbstractApp.h */,
 				48D417D2160B39A5003AECBB /* CellLayout.h */,
@@ -1176,6 +1194,7 @@
 				484763CE15E2BC5000095BC0 /* Frameworks */,
 				484763CF15E2BC5000095BC0 /* Resources */,
 				48B64C5716CEC30D00ECA6C5 /* CopyFiles */,
+				48B64C6016CFEF3600ECA6C5 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -1398,6 +1417,7 @@
 				48B64C3C16CA403B00ECA6C5 /* PathDialog.cpp in Sources */,
 				48B64C4016CD301200ECA6C5 /* SnapVerticesCommand.cpp in Sources */,
 				48B64C4316CD406700ECA6C5 /* PointGuideRenderer.cpp in Sources */,
+				48B64C5C16CFEA0E00ECA6C5 /* AboutDialog.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1558,6 +1578,7 @@
 					"-lwx_osx_cocoau_gl-2.9",
 					"-lwx_osx_cocoau_adv-2.9",
 					"-lwx_osx_cocoau_core-2.9",
+					"-lwx_osx_cocoau_html-2.9",
 					"-lwx_baseu-2.9",
 					"-lz",
 				);
@@ -1620,6 +1641,7 @@
 					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_adv-2.9.a\"",
 					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_core-2.9.a\"",
 					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_baseu-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_html-2.9.a\"",
 					"-lexpat",
 					"-lwxregexu-2.9",
 					"-lwxtiff-2.9",
@@ -1730,6 +1752,7 @@
 					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_adv-2.9.a\"",
 					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_core-2.9.a\"",
 					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_baseu-2.9.a\"",
+					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_html-2.9.a\"",
 					"-lexpat",
 					"-lwxregexu-2.9",
 					"-lwxtiff-2.9",

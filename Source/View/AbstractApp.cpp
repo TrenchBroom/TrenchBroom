@@ -30,6 +30,7 @@
 #include "Model/Bsp.h"
 #include "Model/MapDocument.h"
 #include "Utility/DocManager.h"
+#include "View/AboutDialog.h"
 #include "View/CommandIds.h"
 #include "View/EditorView.h"
 #include "View/PreferencesDialog.h"
@@ -391,7 +392,8 @@ void AbstractApp::OnUnhandledException() {
 }
 
 void AbstractApp::OnOpenAbout(wxCommandEvent& event) {
-     
+    TrenchBroom::View::AboutDialog aboutDialog(NULL);
+    aboutDialog.ShowModal();
 }
 
 void AbstractApp::OnOpenPreferences(wxCommandEvent& event) {
