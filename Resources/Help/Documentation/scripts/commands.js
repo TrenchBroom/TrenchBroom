@@ -16,20 +16,28 @@ menu_commands["Windows"] = new Object();
 menu_commands["Linux"] = new Object();
 
 menu_commands["Mac"]["preferences"] 					= "TrenchBroom &raquo; Preferences - &#8984;,";
-menu_commands["Mac"]["file_new"]						= "File &raquo; New - &#8984;N"
-menu_commands["Mac"]["file_open"]						= "File &raquo; Open... - &#8984;O"
-menu_commands["Mac"]["file_save"]						= "File &raquo; Save - &#8984;S"
-menu_commands["Mac"]["file_save_as"]					= "File &raquo; Save as... - &#8679;&#8984;S"
-menu_commands["Mac"]["edit_map_properties"]				= "Edit &raquo; Map Properties..."
-menu_commands["Mac"]["view_center_on_selection"]		= "View &raquo; Camera &raquo; Center on Selection - &#x2325;C"
+menu_commands["Mac"]["file_new"]						= "File &raquo; New - &#8984;N";
+menu_commands["Mac"]["file_open"]						= "File &raquo; Open... - &#8984;O";
+menu_commands["Mac"]["file_save"]						= "File &raquo; Save - &#8984;S";
+menu_commands["Mac"]["file_save_as"]					= "File &raquo; Save as... - &#8679;&#8984;S";
+menu_commands["Mac"]["edit_select_all"]					= "Edit &raquo; Select All - &#8984;A";
+menu_commands["Mac"]["edit_select_siblings"]			= "Edit &raquo; Select Siblings - &#x2325;&#8984;A";
+menu_commands["Mac"]["edit_select_touching"]			= "Edit &raquo; Select Touching - &#8984;T";
+menu_commands["Mac"]["edit_select_none"]				= "Edit &raquo; Select None - &#8679;&#8984;A";
+menu_commands["Mac"]["edit_map_properties"]				= "Edit &raquo; Map Properties...";
+menu_commands["Mac"]["view_center_on_selection"]		= "View &raquo; Camera &raquo; Center on Selection - &#x2325;C";
 
 menu_commands["Windows"]["preferences"] 				= "View &raquo; Preferences";
-menu_commands["Windows"]["file_new"]					= "File &raquo; New - Ctrl+N"
-menu_commands["Windows"]["file_open"]					= "File &raquo; Open... - Ctrl+O"
-menu_commands["Windows"]["file_save"]					= "File &raquo; Save - Ctrl+S"
-menu_commands["Windows"]["file_save_as"]				= "File &raquo; Save as... - Ctrl+Shift+S"
-menu_commands["Windows"]["edit_map_properties"]			= "Edit &raquo; Map Properties..."
-menu_commands["Windows"]["view_center_on_selection"]	= "View &raquo; Camera &raquo; Center on Selection - Alt+C"
+menu_commands["Windows"]["file_new"]					= "File &raquo; New - Ctrl+N";
+menu_commands["Windows"]["file_open"]					= "File &raquo; Open... - Ctrl+O";
+menu_commands["Windows"]["file_save"]					= "File &raquo; Save - Ctrl+S";
+menu_commands["Windows"]["file_save_as"]				= "File &raquo; Save as... - Ctrl+Shift+S";
+menu_commands["Windows"]["edit_select_all"]				= "Edit &raquo; Select All - Ctrl+A";
+menu_commands["Windows"]["edit_select_siblings"]		= "Edit &raquo; Select Siblings - Ctrl+Alt+A";
+menu_commands["Windows"]["edit_select_touching"]		= "Edit &raquo; Select Touching - Ctrl+T";
+menu_commands["Windows"]["edit_select_none"]			= "Edit &raquo; Select None - Ctrl+Shift+A";
+menu_commands["Windows"]["edit_map_properties"]			= "Edit &raquo; Map Properties...";
+menu_commands["Windows"]["view_center_on_selection"]	= "View &raquo; Camera &raquo; Center on Selection - Alt+C";
 
 var keys = new Object();
 
@@ -66,7 +74,7 @@ if (navigator.platform.indexOf("X11")!=-1) platform="Linux";
 if (navigator.platform.indexOf("Linux")!=-1) OSName="Linux";
 
 function print_menu_command(name) {
-	document.write(menu_commands[platform][name]);
+	document.write("<b>" + menu_commands[platform][name] + "</b>");
 }
 
 function resolve_key(name) {

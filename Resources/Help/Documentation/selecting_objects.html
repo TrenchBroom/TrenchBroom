@@ -14,31 +14,46 @@
 		<h2>Selecting Objects</h2>
 		<p>In TrenchBroom, there are three types of objects which can be selected: entities, brushes and faces. In the following sections, you will learn how you can select these objects to edit them. However, it is not possible to select any combination of objects. You can select multiple brushes and entities together because most editing operations can be applied to both these objects. Faces are a different matter though. You cannot combine faces and brushes or faces and entities in the same selection. Selecting a face will therefore deselect any selected brushes and entities and vice versa.</p>
 		<div class="images">
-			<img src="../../shrd/selection.png" width="600" height="540" alt="Selected Objects">
+			<img src="images/selected_objects.jpg" width="600" height="553" alt="Selected Objects" id="selected_objects" />
 			<div class="imagecaption">Selected objects in the 3D view.</div>
 		</div>
-		<p>Selected objects are rendered with red edges and slightly tinted faces to distinguish them visually. You will also notice size guides which display the size of the bounding box of all selected objects. See the screenshots below to get an idea how selection looks in the 3D view.</p>
+		<p>Selected objects are rendered with red edges and slightly tinted faces to distinguish them visually. The bounding box of the selected objects is rendered in red, with spikes extending from every corner. These spikes are useful to pecisely position objects in relation to other objects. If you hover the mouse cursor over a selected object, the bounds and spikes are rendered in white, and the size of the bounding box is displayed as well.</p>
 		<a name="selecting_objects_in_the_3d_view"></a><h3>Selecting Objects in the 3D View</h3>
-		<p>To select a single brush or entity, you simply need to <b>left click</b> on it in the 3D view. To select multiple objects, hold <b>&#x2318;</b> while <b>left clicking</b>. If you click on a selected object while holding <b>&#x2318;</b>, it will be deselected again. Please note that you cannot directly select brush entities by clicking on them. Read <a href="#other_selection_commands">below</a> to find out how to select such entities.</p>
-		<p>Faces can also be selected by clicking on them, but the first face you select must belong to an already selected brush. In other words, to select a single face, <b>left click</b> on the brush to which this face belongs to select that brush. Then <b>left click</b> again on the face you want to select. To add more faces to your selection, hold <b>&#x2318;</b> while <b>left clicking</b> on the faces you wish to select. Again, <b>left clicking</b> on a selected face while holding <b>&#x2318;</b> will deselect that face.</p>
+		<p>To select a single brush or entity, you simply <b>left click</b> on it in the 3D view. To select multiple objects, hold <script>print_key("CmdCtrl");</script> while <b>left clicking</b>. If you click on a selected object while holding <script>print_key("CmdCtrl");</script>, it will be deselected. Please note that you cannot directly select brush entities by clicking on them. Read <a href="#other_selection_commands">below</a> to find out how to select such entities.</p>
+		<p>Faces can be selected by <b>left clicking</b> while holding <script>print_key("Shift");</script>. To select multiple faces, again hold <script>print_key("CmdCtrl");</script>. To select all faces of a brush, <b>left double click</b> the brush while holding <script>print_key("Shift");</script>. To add all faces of a brush to the current selection, additionally hold <script>print_key("CmdCtrl");</script>.</p>
 		<div class="images">
-			<img src="../../shrd/selecting_faces_1.png" width="285" height="249" alt="Selecting Faces">
-			<img src="../../shrd/selecting_faces_2.png" width="285" height="249" alt="Selecting Faces">
-			<div class="imagecaption">Clicking on a face of a selected brush will select that face.</div>
+			<img src="images/selected_face.jpg" width="600" height="553" alt="Selected Face" />
+			<div class="imagecaption">One selected face.</div>
 		</div>
-		<p>You can also <b>left drag</b> with the mouse while holding the <b>&#x2318;</b> key to select multiple objects. This only works if you have already selected an object; depending on the current selection, you can add faces, brushes and entities to the current selection. Note that you can't deselect objects with this method.</p>
-		<p>To deselect everything, simply <b>left click</b> into the void, select <b>Edit &raquo; Select None</b> from the menu or hit <b>&#8679;&#x2318;A</b>.</p>
+		<p>To deselect everything, simply <b>left click</b> into the void, or choose <script>print_menu_command("edit_select_none");</script> from the menu.</p>
 		<a name="using_selection_brushes"></a><h3>Using Selection Brushes</h3>
-		<p>If you need to select many entities and brushes at once which are close to each other, you can use selection brushes. A selection brush is an ordinary brush which was usually <a href="creating_new_objects.html">created</a> just for the purpose of selecting other objects. To use a selection brush, create (and select) a new brush that intersects or contains all of the objects that you would like to select. Then select <b>Edit &raquo; Select Touching</b> or hit <b>&#x2318;B</b> and all objects which the selected brush touches are selected. Be aware that the previously selected brush is deleted by this operation.</p>
+		<p>If you need to select many entities and brushes which are close to each other, you can use selection brushes. A selection brush is an ordinary brush which was usually <a href="creating_new_objects.html">created</a> just for the purpose of selecting other objects. To use a selection brush, create (and select) a new brush that intersects or contains all of the objects that you would like to select. Then choose <script>print_menu_command("edit_select_touching");</script> and all objects which the selected brush touches are selected. Be aware that the previously selected brush is deleted by this operation.</p>
 		<div class="images">
-			<img src="../../shrd/selection_brushes_1.png" width="200" height="175" alt="Selection Brushes">
-			<img src="../../shrd/selection_brushes_2.png" width="200" height="175" alt="Selection Brushes">
-			<img src="../../shrd/selection_brushes_3.png" width="200" height="175" alt="Selection Brushes">
-			<div class="imagecaption">Use selection brushes to select multiple objects at once.</div>
+			<img src="images/selection_brush_1.jpg" width="600" height="553" alt="Selection Brush" id="selection_brush" />
+			<div class="imagecaption">Using selection brushes.</div>
 		</div>
-		<p>Look at the above images for an example. Say you wish to select the three columns. For the sake of the example, you want to use a selection brush. So you quickly <a href="creating_new_objects.html#drawing_new_brushes_using_the_mouse">draw</a> a brush that touches only the columns and hit <b>&#x2318;B</b>. Voil&agrave; - the columns are selected.</p>
+		<p>Look at the above images for an example. Say you wish to select the two columns and the info_player_coop entity. For the sake of the example, you want to use a selection brush. So you quickly <a href="creating_new_objects.html#drawing_new_brushes_using_the_mouse">draw</a> a brush that touches only the columns and hit <script>print_key("T", "CmdCtrl");</script>. Voil&agrave; - the objects are selected.</p>
 		<a name="other_selection_commands"></a><h3>Other Selection Commands</h3>
-		<p>In the <b>Edit</b> menu, there are several other commands that help you to select objects. Choose <b>Edit &raquo; Select All</b> or hit <b>&#x2318;A</b> to select every entity and every brush in the map. If you want to select a brush entity, you must first select a brush which belongs to that entity and choose <b>Edit &raquo; Select Entity</b> or hit <b>&#x2318;E</b>. This selects the entity along with all brushes which belong to it.</p>
+		<p>In the <b>Edit</b> menu, there are several other commands that help you to select objects. Choose <script>print_menu_command("edit_select_all");</script> to select every visible entity and brush in the map. If you want to select all brushes belonging to a particular brush entity, you must first select one brush which belongs to that entity and then choose <script>print_menu_command("edit_select_siblings");</script>. This selects all brushes of that brush entity.</p>
 	</div>
+	<script src="scripts/jquery.js"></script>
+	<script src="scripts/misc.js"></script>
+	<script>
+		var selection_images = new Array;
+		selection_images[0] = "images/selected_objects.jpg";
+		selection_images[1] = "images/selected_objects_bounds.jpg";
+
+		var selection_brush_images = new Array;
+		selection_brush_images[0] = "images/selection_brush_1.jpg";
+		selection_brush_images[1] = "images/selection_brush_2.jpg";
+		selection_brush_images[2] = "images/selection_brush_3.jpg";
+
+		$(document).ready(function() {
+			var timer = setInterval(function() {
+				cycle_image("#selected_objects", selection_images)
+				cycle_image("#selection_brush", selection_brush_images)
+			}, 2000);
+		});
+	</script>
 </body>
 </html>
