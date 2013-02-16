@@ -106,6 +106,7 @@ namespace TrenchBroom {
                 static const int EditShowMapProperties              = Lowest + 80;
                 static const int EditSnapVertices                   = Lowest + 81;
                 static const int EditCorrectVertices                = Lowest + 82;
+                static const int HelpShowHelp                       = Lowest + 83;
                 static const int Highest                            = Lowest + 99;
             }
             

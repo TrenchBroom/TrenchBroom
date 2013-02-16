@@ -51,7 +51,9 @@ public:
     virtual int OnExit();
     void OnUnhandledException();
 
+    virtual void OnOpenAbout(wxCommandEvent& event);
     virtual void OnOpenPreferences(wxCommandEvent& event);
+    virtual void OnHelpShowHelp(wxCommandEvent& event);
 
     DECLARE_EVENT_TABLE();
 };

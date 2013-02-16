@@ -19,8 +19,10 @@
 
 #include "AbstractApp.h"
 
+#include <wx/aboutdlg.h>
 #include <wx/config.h>
 #include <wx/docview.h>
+#include <wx/generic/helpext.h>
 
 #include "IO/Pak.h"
 #include "Model/Alias.h"
@@ -33,6 +35,8 @@
 
 BEGIN_EVENT_TABLE(AbstractApp, wxApp)
 EVT_MENU(wxID_PREFERENCES, AbstractApp::OnOpenPreferences)
+EVT_MENU(wxID_ABOUT, AbstractApp::OnOpenAbout)
+EVT_MENU(TrenchBroom::View::CommandIds::Menu::HelpShowHelp, AbstractApp::OnHelpShowHelp)
 END_EVENT_TABLE()
 
 wxMenu* AbstractApp::CreateFileMenu(wxEvtHandler* eventHandler, bool mapViewFocused) {
@@ -173,7 +177,10 @@ wxMenu* AbstractApp::CreateViewMenu(wxEvtHandler* eventHandler, bool mapViewFocu
 }
 
 wxMenu* AbstractApp::CreateHelpMenu(wxEvtHandler* eventHandler, bool mapViewFocused) {
+    using namespace TrenchBroom::View::CommandIds::Menu;
+    
     wxMenu* helpMenu = new wxMenu();
+    helpMenu->Append(HelpShowHelp, wxT("TrenchBroom Help"));
     helpMenu->SetEventHandler(eventHandler);
     return helpMenu;
 }
@@ -371,6 +378,10 @@ void AbstractApp::OnUnhandledException() {
     }
 }
 
+void AbstractApp::OnOpenAbout(wxCommandEvent& event) {
+     
+}
+
 void AbstractApp::OnOpenPreferences(wxCommandEvent& event) {
     TrenchBroom::View::PreferencesDialog dialog;
     
@@ -382,4 +393,7 @@ void AbstractApp::OnOpenPreferences(wxCommandEvent& event) {
     dialog.ShowModal();
 }
 
+void AbstractApp::OnHelpShowHelp(wxCommandEvent& event) {
+    
+}
 

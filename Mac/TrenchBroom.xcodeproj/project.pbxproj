@@ -131,6 +131,7 @@
 		48B64C3C16CA403B00ECA6C5 /* PathDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B64C3A16CA403B00ECA6C5 /* PathDialog.cpp */; };
 		48B64C4016CD301200ECA6C5 /* SnapVerticesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B64C3E16CD301200ECA6C5 /* SnapVerticesCommand.cpp */; };
 		48B64C4316CD406700ECA6C5 /* PointGuideRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B64C4116CD406700ECA6C5 /* PointGuideRenderer.cpp */; };
+		48B64C5916CEC35100ECA6C5 /* Documentation in CopyFiles */ = {isa = PBXBuildFile; fileRef = 48B64C5816CEC35000ECA6C5 /* Documentation */; };
 		48B75F72160BA512009D4E99 /* TextureBrowser.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48B75F71160BA512009D4E99 /* TextureBrowser.vertsh */; };
 		48B75F75160BA531009D4E99 /* TextureBrowser.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48B75F74160BA531009D4E99 /* TextureBrowser.fragsh */; };
 		48B75F79160CF79F009D4E99 /* TextureBrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B75F77160CF79E009D4E99 /* TextureBrowser.cpp */; };
@@ -181,6 +182,19 @@
 		48FBD14E1626AD5C0059953D /* RemoveObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD14C1626AD5B0059953D /* RemoveObjectsCommand.cpp */; };
 		48FBD15116287C5A0059953D /* MapWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48FBD14F16287C5A0059953D /* MapWriter.cpp */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		48B64C5716CEC30D00ECA6C5 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+				48B64C5916CEC35100ECA6C5 /* Documentation in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		48009AF315F7FA8B001A9993 /* AbstractFileManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractFileManager.cpp; sourceTree = "<group>"; };
@@ -472,6 +486,7 @@
 		48B64C3F16CD301200ECA6C5 /* SnapVerticesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SnapVerticesCommand.h; sourceTree = "<group>"; };
 		48B64C4116CD406700ECA6C5 /* PointGuideRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointGuideRenderer.cpp; sourceTree = "<group>"; };
 		48B64C4216CD406700ECA6C5 /* PointGuideRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointGuideRenderer.h; sourceTree = "<group>"; };
+		48B64C5816CEC35000ECA6C5 /* Documentation */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Documentation; path = ../Resources/Help/Documentation; sourceTree = "<group>"; };
 		48B75F71160BA512009D4E99 /* TextureBrowser.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = TextureBrowser.vertsh; sourceTree = "<group>"; };
 		48B75F74160BA531009D4E99 /* TextureBrowser.fragsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = TextureBrowser.fragsh; sourceTree = "<group>"; };
 		48B75F77160CF79E009D4E99 /* TextureBrowser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureBrowser.cpp; sourceTree = "<group>"; };
@@ -696,6 +711,7 @@
 		484763C615E2BC5000095BC0 = {
 			isa = PBXGroup;
 			children = (
+				48B64C5816CEC35000ECA6C5 /* Documentation */,
 				4883376116C654A800493DA2 /* Quake.def */,
 				4883376216C654A800493DA2 /* Rubicon2.def */,
 				48D937F016C2ABFE005A4684 /* Add.png */,
@@ -1159,6 +1175,7 @@
 				484763CD15E2BC5000095BC0 /* Sources */,
 				484763CE15E2BC5000095BC0 /* Frameworks */,
 				484763CF15E2BC5000095BC0 /* Resources */,
+				48B64C5716CEC30D00ECA6C5 /* CopyFiles */,
 			);
 			buildRules = (
 			);
