@@ -121,3 +121,10 @@ function print_macCtrlClick() {
 	if (platform == "Mac")
 		document.write(" (or <b>ctrl-click</b>)");
 }
+
+function open_cheat_sheet() {
+	if (platform == "Mac")
+		top.frames["content"].location.href = "images/cheat_sheet_mac.pdf";
+	else
+		top.frames["content"].location.href = "images/cheat_sheet_win.pdf";
+}
