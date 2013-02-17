@@ -22,6 +22,7 @@ menu_commands["Mac"]["file_save"]						= "File &raquo; Save - &#8984;S"
 menu_commands["Mac"]["file_save_as"]					= "File &raquo; Save as... - &#8679;&#8984;S"
 menu_commands["Mac"]["edit_map_properties"]				= "Edit &raquo; Map Properties..."
 menu_commands["Mac"]["view_center_on_selection"]		= "View &raquo; Camera &raquo; Center on Selection - &#x2325;C"
+menu_commands["Mac"]["duplicate_selection"]				= "Edit &raquo; Actions &raquo; Duplicate - &#8679;D"
 
 menu_commands["Windows"]["preferences"] 				= "View &raquo; Preferences";
 menu_commands["Windows"]["file_new"]					= "File &raquo; New - Ctrl+N"
@@ -30,6 +31,10 @@ menu_commands["Windows"]["file_save"]					= "File &raquo; Save - Ctrl+S"
 menu_commands["Windows"]["file_save_as"]				= "File &raquo; Save as... - Ctrl+Shift+S"
 menu_commands["Windows"]["edit_map_properties"]			= "Edit &raquo; Map Properties..."
 menu_commands["Windows"]["view_center_on_selection"]	= "View &raquo; Camera &raquo; Center on Selection - Alt+C"
+menu_commands["Windows"]["duplicate_selection"]			= "Edit &raquo; Actions &raquo; Duplicate - Ctrl+D"
+
+
+//option key (&#x2325;)
 
 var keys = new Object();
 
@@ -64,6 +69,7 @@ if (navigator.platform.indexOf("Win")!=-1) platform="Windows";
 if (navigator.platform.indexOf("Mac")!=-1) platform="Mac";
 if (navigator.platform.indexOf("X11")!=-1) platform="Linux";
 if (navigator.platform.indexOf("Linux")!=-1) OSName="Linux";
+//var platform = "Mac"; //debug
 
 function print_menu_command(name) {
 	document.write(menu_commands[platform][name]);
