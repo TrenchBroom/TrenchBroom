@@ -420,5 +420,5 @@ void AbstractApp::OnUpdateMenuItem(wxUpdateUIEvent& event) {
         event.Enable(true);
     else
         event.Enable(false);
+    event.Skip();
 }
-
