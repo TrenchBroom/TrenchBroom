@@ -22,7 +22,10 @@ menu_commands["Mac"]["file_save"]						= "File &raquo; Save - &#8984;S"
 menu_commands["Mac"]["file_save_as"]					= "File &raquo; Save as... - &#8679;&#8984;S"
 menu_commands["Mac"]["edit_map_properties"]				= "Edit &raquo; Map Properties..."
 menu_commands["Mac"]["view_center_on_selection"]		= "View &raquo; Camera &raquo; Center on Selection - &#x2325;C"
-menu_commands["Mac"]["duplicate_selection"]				= "Edit &raquo; Actions &raquo; Duplicate - &#8679;D"
+menu_commands["Mac"]["edit_duplicate_selection"]		= "<b>Edit &raquo; Actions &raquo; Duplicate - &#8679;D</b>"
+menu_commands["Mac"]["edit_copy"]						= "<b>Edit &raquo; Copy - &#8679;C</b>"
+menu_commands["Mac"]["edit_cut"]						= "<b>Edit &raquo; Cut - &#8679;X</b>"
+menu_commands["Mac"]["edit_paste"]						= "<b>Edit &raquo; Paste - &#8679;V</b>"
 
 menu_commands["Windows"]["preferences"] 				= "View &raquo; Preferences";
 menu_commands["Windows"]["file_new"]					= "File &raquo; New - Ctrl+N"
@@ -31,7 +34,10 @@ menu_commands["Windows"]["file_save"]					= "File &raquo; Save - Ctrl+S"
 menu_commands["Windows"]["file_save_as"]				= "File &raquo; Save as... - Ctrl+Shift+S"
 menu_commands["Windows"]["edit_map_properties"]			= "Edit &raquo; Map Properties..."
 menu_commands["Windows"]["view_center_on_selection"]	= "View &raquo; Camera &raquo; Center on Selection - Alt+C"
-menu_commands["Windows"]["duplicate_selection"]			= "Edit &raquo; Actions &raquo; Duplicate - Ctrl+D"
+menu_commands["Windows"]["edit_duplicate_selection"]	= "<b>Edit &raquo; Actions &raquo; Duplicate - Ctrl+D</b>"
+menu_commands["Windows"]["edit_copy"]					= "<b>Edit &raquo; Copy - Ctrl+C</b>"
+menu_commands["Windows"]["edit_cut"]					= "<b>Edit &raquo; Cut - Ctrl+X</b>"
+menu_commands["Windows"]["edit_paste"]					= "<b>Edit &raquo; Paste - Ctrl+V</b>"
 
 
 //option key (&#x2325;)
