@@ -5,26 +5,27 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<title>TrenchBroom Help - Creating New Objects</title>
-	<link rel="StyleSheet" href="../sty/style.css" type="text/css" media="screen" />
+	<link rel="StyleSheet" href="./css/style.css" type="text/css" media="screen" />
 	<meta name="author" content="Kristian Duske">
 </head>
 <body>
+	<script src="scripts/commands.js"></script>
 	<div id="container">
 		<h2>Creating New Objects</h2>
 		<p>There are several ways to create new brushes and entities. It is recommended that you try all of the methods explained below because it depends on the context which one is most useful. In other words, sometimes it is quicker to simply duplicate an existing brush and sometimes it is quicker to create a new brush from scratch. In the next section, you will learn how to draw new brushes with your mouse, which is the most convenient way to create new geometry.</p>
 		<h3>The Editing Plane</h3>
-        <p>It is very important that you understand how mouse input is mapped to 3D coordinates when editing objects in TrenchBroom. Since the mouse is a 2D input device, you cannot directly control all three dimensions when you edit objects with the mouse. For example, if you want to move a brush around, you can only move it in two directions by dragging it. Because of this, TrenchBroom maps all mouse input to the horizontal XY plane. This means that you can only move things around horizontally by default. To move an object vertically (and left or right), you need to hold the <b>option key (&#x2325;)</b> during editing.</p>
-		<br clear="all">
+        <p>It is very important that you understand how mouse input is mapped to 3D coordinates when editing objects in TrenchBroom. Since the mouse is a 2D input device, you cannot directly control all three dimensions when you edit objects with the mouse. For example, if you want to move a brush around, you can only move it in two directions by dragging it. Because of this, TrenchBroom maps all mouse input to the horizontal XY plane. This means that you can only move things around horizontally by default. To move an object vertically (and left or right), you need to hold the <script>print_key("Alt");</script> key during editing.</p>
+		<br style="clear:left;"/>
 		
 		<a name="drawing_new_brushes_using_the_mouse"></a><h3>Drawing New Brushes Using the Mouse</h3>
-		<p>Creating a new brush from scratch is easily done in TrenchBroom. Simply <b>left click</b> and <b>drag</b> your mouse while holding the <b>option key (&#x2325;)</b> on the 3D view to create a new cuboid. The cuboid will aligned to the current editing plane and its thickness will be set to the current grid size. You can use the mouse wheel to change the thickness of the brush while drawing it. Note that you can only draw a new brush if you deselect everything first.</p>
-		<p>The position of the new brush depends on where you started to draw it. If you started in the void, it is positioned at a default distance from the camera. If you started your drag on another brush, it is positioned on the point on that brushes surface where you clicked. This makes it easy to create brushes which are already correctly aligned to other brushes.</p>
+		<p>Creating a new brush from scratch is easily done in TrenchBroom. Simply <b>left click</b> and <b>drag</b> your mouse on the 3D view to create a new cuboid. While the mouse button is held down, you can move your mouse to resize the brush along two axes and your can spin the <b>mouse wheel</b> to resize along the third axis.</p>
+		<p>The position and orientation of the new brush depends on where you started to draw it. If you started in the void, it is positioned at a default distance from the camera. If you started your drag on another brush, it is positioned on that brush's surface at the point where you clicked. You can only draw a new brush if you deselect everything first.</p>
 		<img src="../../shrd/mru_texture.png" width="120" height="120" alt="Most Recently Used Texture" class="inline">
 		<p>Note that TrenchBroom automatically selects the most recently used texture when you draw a brush. The most recently used texture updated whenever you select a face or when you select a texture in the texture browser. A red border is drawn around that texture in the browser. <a href="misc_tasks.html#managing_textures">Click here</a> to find out more about texture management in TrenchBroom.</p>
-		<br clear="all">
-
-		<a name="inserting_prefabs"></a><h3>Inserting Prefabs</h3>
-		<p>TrenchBroom comes with a selection of predefined prefabs which you can insert into your maps. To insert a prefab, switch to the <b>Brush</b> tab of the inspector and double click on the prefab you wish to insert. The prefab will be inserted in front of the camera. Be aware that some of the textures which are used by the prefab may not be available in your map. If that is the case, you must load the appropriate texture wads in the texture manager.</p>
+		<br style="clear:left;"/>
+		
+		<!--<a name="inserting_prefabs"></a><h3>Inserting Prefabs</h3>
+		<p>TrenchBroom comes with a selection of predefined prefabs which you can insert into your maps. To insert a prefab, switch to the <b>Brush</b> tab of the inspector and double click on the prefab you wish to insert. The prefab will be inserted in front of the camera. Be aware that some of the textures which are used by the prefab may not be available in your map. If that is the case, you must load the appropriate texture wads in the texture manager.</p>-->
 
 		<a name="dragging_entities_from_the_entity_browser"></a><h3>Dragging Entities From The Entity Browser</h3>
 		<p>The easiest way to create a new point entity is to drag it from the entity browser. Switch to the <b>Entity</b> tab of the inspector to reveal the entity browser and find the entity you wish to insert. Now <b>click</b> this entity with the <b>left mouse button</b> and <b>drag</b> it into the 3D view. Once your mouse cursor enters the 3D view, the entity will be created and positioned on the surface of the brush under the mouse cursor. Keep dragging until it is correctly placed and release it. Note that if there is nothing under the mouse cursor, the entity will be positioned at a default distance to the camera.</p>
