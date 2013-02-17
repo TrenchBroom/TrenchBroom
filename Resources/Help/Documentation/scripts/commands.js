@@ -22,6 +22,9 @@ menu_commands["Mac"]["file_new"]						= "File &raquo; New - &#8984;N";
 menu_commands["Mac"]["file_open"]						= "File &raquo; Open... - &#8984;O";
 menu_commands["Mac"]["file_save"]						= "File &raquo; Save - &#8984;S";
 menu_commands["Mac"]["file_save_as"]					= "File &raquo; Save as... - &#8679;&#8984;S";
+menu_commands["Mac"]["edit_copy"]						= "Edit &raquo; Copy - &#8984;C";
+menu_commands["Mac"]["edit_cut"]						= "Edit &raquo; Cut - &#8984;X";
+menu_commands["Mac"]["edit_paste"]						= "Edit &raquo; Paste - &#8984;V";
 menu_commands["Mac"]["edit_select_all"]					= "Edit &raquo; Select All - &#8984;A";
 menu_commands["Mac"]["edit_select_siblings"]			= "Edit &raquo; Select Siblings - &#x2325;&#8984;A";
 menu_commands["Mac"]["edit_select_touching"]			= "Edit &raquo; Select Touching - &#8984;T";
@@ -29,6 +32,7 @@ menu_commands["Mac"]["edit_select_none"]				= "Edit &raquo; Select None - &#8679
 menu_commands["Mac"]["edit_rotate_tool"]				= "Edit &raquo; Tools &raquo; Rotate Objects Tool - R";
 menu_commands["Mac"]["edit_flip_horizontally"]			= "Edit &raquo; Actions &raquo; Flip Horizontally - &#8984;F";
 menu_commands["Mac"]["edit_flip_vertically"]			= "Edit &raquo; Actions &raquo; Flip Vertically - &#x2325;&#8984;F";
+menu_commands["Mac"]["edit_duplicate_selection"]		= "Edit &raquo; Actions &raquo; Duplicate - &#8984;D";
 menu_commands["Mac"]["edit_map_properties"]				= "Edit &raquo; Map Properties...";
 menu_commands["Mac"]["view_center_on_selection"]		= "View &raquo; Camera &raquo; Center on Selection - &#x2325;C";
 
@@ -37,6 +41,9 @@ menu_commands["Windows"]["file_new"]					= "File &raquo; New - Ctrl+N";
 menu_commands["Windows"]["file_open"]					= "File &raquo; Open... - Ctrl+O";
 menu_commands["Windows"]["file_save"]					= "File &raquo; Save - Ctrl+S";
 menu_commands["Windows"]["file_save_as"]				= "File &raquo; Save as... - Ctrl+Shift+S";
+menu_commands["Windows"]["edit_copy"]					= "Edit &raquo; Copy - Ctrl+C";
+menu_commands["Windows"]["edit_cut"]					= "Edit &raquo; Cut - Ctrl+X";
+menu_commands["Windows"]["edit_paste"]					= "Edit &raquo; Paste - Ctrl+V";
 menu_commands["Windows"]["edit_select_all"]				= "Edit &raquo; Select All - Ctrl+A";
 menu_commands["Windows"]["edit_select_siblings"]		= "Edit &raquo; Select Siblings - Ctrl+Alt+A";
 menu_commands["Windows"]["edit_select_touching"]		= "Edit &raquo; Select Touching - Ctrl+T";
@@ -44,6 +51,7 @@ menu_commands["Windows"]["edit_select_none"]			= "Edit &raquo; Select None - Ctr
 menu_commands["Windows"]["edit_rotate_tool"]			= "Edit &raquo; Tools &raquo; Rotate Objects Tool - R";
 menu_commands["Windows"]["edit_flip_horizontally"]		= "Edit &raquo; Actions &raquo; Flip Horizontally - Ctrl+F";
 menu_commands["Windows"]["edit_flip_vertically"]		= "Edit &raquo; Actions &raquo; Flip Vertically - Ctrl+Alt+F";
+menu_commands["Windows"]["edit_duplicate_selection"]	= "Edit &raquo; Actions &raquo; Duplicate - Ctrl+D";
 menu_commands["Windows"]["edit_map_properties"]			= "Edit &raquo; Map Properties...";
 menu_commands["Windows"]["view_center_on_selection"]	= "View &raquo; Camera &raquo; Center on Selection - Alt+C";
 
@@ -84,6 +92,7 @@ if (navigator.platform.indexOf("Win")!=-1) platform="Windows";
 if (navigator.platform.indexOf("Mac")!=-1) platform="Mac";
 if (navigator.platform.indexOf("X11")!=-1) platform="Linux";
 if (navigator.platform.indexOf("Linux")!=-1) OSName="Linux";
+//var platform = "Mac"; //debug
 
 function print_menu_command(name) {
 	document.write("<b>" + menu_commands[platform][name] + "</b>");
@@ -106,4 +115,9 @@ function print_key(name, mod1, mod2, mod3) {
 	keyStr += resolve_key(name);
 
 	document.write("<b>" + keyStr + "</b>");
+}
+
+function print_macCtrlClick() {
+	if (platform == "Mac")
+		document.write(" (or <b>ctrl-click</b>)");
 }
