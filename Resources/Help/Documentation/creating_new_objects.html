@@ -38,10 +38,11 @@
 		<p>If you wish to create a brush entity, select the brushes that should belong to that entity, <b>right click</b><script>print_macCtrlClick();</script> in the 3D view and select the brush entity from the <b>Create Brush Entity</b> submenu. Note that you can only create a brush entity if none of the currently selected brushes belongs to any other brush entity (other than worldspawn).</p>
 
 		<a id="duplicating_objects"></a><h3>Duplicating Objects</h3>
-		<p>It is often very useful to create new objects by duplicating existing objects. You can duplicate brushes and entities by selecting them and choosing <b>Edit &raquo; Duplicate</b> from the menu or hitting <script>print_key("D", "CmdCtrl");</script>. The duplicated objects are offset by the current grid size towards the camera. Since TrenchBroom automatically selects the duplicates, you can edit them right away.</p>
+		<p>It is often very useful to create new objects by duplicating existing objects. You can duplicate brushes and entities by selecting them and choosing <script>print_menu_command("edit_duplicate_selection");</script>. The duplicated objects are offset by the current grid size towards the camera. Since TrenchBroom automatically selects the duplicates, you can edit them right away.</p>
 
 		<a id="copy_and_paste"></a><h3>Copy and Paste</h3>
 		<p>Just like in any other application, you can copy, cut and paste entities and brushes in TrenchBroom. Pasted objects are inserted in front of the camera at a default distance. Note that the copied objects are placed on the clipboard as text snippets in the standard map format. This means that you can copy objects in TrenchBroom and paste them into a text editor and vice versa. <!--Note also that you can paste objects in the original position they were in when they were copied to the clipboard if you hold the <b>option key (&#x2325;)</b> while pasting.--></p>
+		<p>Standard commands apply: Cut (<script>print_menu_command("edit_cut");</script>), Copy (<script>print_menu_command("edit_copy");</script>) and Paste (<script>print_menu_command("edit_paste");</script>).</p>
 	</div>
 </body>
 </html>
