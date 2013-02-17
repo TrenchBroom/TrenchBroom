@@ -40,10 +40,13 @@
 			<img src="images/rotate_tool_1.jpg" width="600" height="553" alt="Rotating Objects" id="rotate_objects" />
 			<div class="imagecaption">Rotating objects with the mouse.</div>
 		</div>
-
 		<p>The rotate handle consists of three quarter rings, each of which lets you rotate the selected objects about either the X,Y or Z axis. To start the rotation, <b>click and drag the left mouse button</b> on of the rings. Note that the rotation angle is constrained to 15&deg; increments if grid snap is enabled. Disable grid snap to rotate the selected objects without any constraints.</p>
 
 		<a name="flipping_objects"></a><h3>Flipping Objects</h3>
+		<div class="images">
+			<img src="images/flip_horizontally_1.jpg" width="600" height="553" alt="Flipping Objects Horizontally" id="flip_objects_horizontally" />
+			<div class="imagecaption">Flipping objects horizontally.</div>
+		</div>
 		<p>The selected objects can be flipped (or mirrored) horizontally by choosing <script>print_menu_command("edit_flip_horizontally");</script> from the menu. To flip the selected objects vertically, choose <script>print_menu_command("edit_flip_vertically");</script> from the menu.</p>
 
 		<a name="deleting_objects"></a><h3>Deleting Objects</h3>
@@ -74,10 +77,15 @@
 		rotate_objects_images[0] = "images/rotate_tool_1.jpg";
 		rotate_objects_images[1] = "images/rotate_tool_2.jpg";
 
+		var flipping_objects_images = new Array;
+		flipping_objects_images[0] = "images/flip_horizontally_1.jpg";
+		flipping_objects_images[1] = "images/flip_horizontally_2.jpg";
+
 		$(document).ready(function() {
 			var timer = setInterval(function() {
 				cycle_image("#move_objects", move_objects_images)
 				cycle_image("#rotate_objects", rotate_objects_images)
+				cycle_image("#flip_objects_horizontally", flipping_objects_images)
 			}, 2000);
 		});
 	</script>
