@@ -87,3 +87,8 @@ function print_key(name, mod1, mod2, mod3) {
 
 	document.write("<b>" + keyStr + "</b>");
 }
+
+function print_macCtrlClick() {
+	if (platform == "Mac")
+		document.write(" (or <b>ctrl-click</b>)");
+}
