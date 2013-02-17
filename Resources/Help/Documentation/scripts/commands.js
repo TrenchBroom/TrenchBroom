@@ -9,6 +9,8 @@
 // Cursor Right: &#x2192;
 // Page Up:      &#x21DE;
 // Page Down:    &#x21DF;
+// Backspace:    &#x232B;
+// Return:       &#x21A9;
 
 var menu_commands = new Object();
 menu_commands["Mac"] = new Object();
@@ -24,6 +26,9 @@ menu_commands["Mac"]["edit_select_all"]					= "Edit &raquo; Select All - &#8984;
 menu_commands["Mac"]["edit_select_siblings"]			= "Edit &raquo; Select Siblings - &#x2325;&#8984;A";
 menu_commands["Mac"]["edit_select_touching"]			= "Edit &raquo; Select Touching - &#8984;T";
 menu_commands["Mac"]["edit_select_none"]				= "Edit &raquo; Select None - &#8679;&#8984;A";
+menu_commands["Mac"]["edit_rotate_tool"]				= "Edit &raquo; Tools &raquo; Rotate Objects Tool - R";
+menu_commands["Mac"]["edit_flip_horizontally"]			= "Edit &raquo; Actions &raquo; Flip Horizontally - &#8984;F";
+menu_commands["Mac"]["edit_flip_vertically"]			= "Edit &raquo; Actions &raquo; Flip Vertically - &#x2325;&#8984;F";
 menu_commands["Mac"]["edit_map_properties"]				= "Edit &raquo; Map Properties...";
 menu_commands["Mac"]["view_center_on_selection"]		= "View &raquo; Camera &raquo; Center on Selection - &#x2325;C";
 
@@ -36,6 +41,9 @@ menu_commands["Windows"]["edit_select_all"]				= "Edit &raquo; Select All - Ctrl
 menu_commands["Windows"]["edit_select_siblings"]		= "Edit &raquo; Select Siblings - Ctrl+Alt+A";
 menu_commands["Windows"]["edit_select_touching"]		= "Edit &raquo; Select Touching - Ctrl+T";
 menu_commands["Windows"]["edit_select_none"]			= "Edit &raquo; Select None - Ctrl+Shift+A";
+menu_commands["Windows"]["edit_rotate_tool"]			= "Edit &raquo; Tools &raquo; Rotate Objects Tool - R";
+menu_commands["Windows"]["edit_flip_horizontally"]		= "Edit &raquo; Actions &raquo; Flip Horizontally - Ctrl+F";
+menu_commands["Windows"]["edit_flip_vertically"]		= "Edit &raquo; Actions &raquo; Flip Vertically - Ctrl+Alt+F";
 menu_commands["Windows"]["edit_map_properties"]			= "Edit &raquo; Map Properties...";
 menu_commands["Windows"]["view_center_on_selection"]	= "View &raquo; Camera &raquo; Center on Selection - Alt+C";
 
@@ -51,6 +59,8 @@ keys["Mac"]["Left"]		= "&#x2190;";
 keys["Mac"]["Right"]	= "&#x2192;";
 keys["Mac"]["PgUp"]		= "&#x21DE;";
 keys["Mac"]["PgDown"]	= "&#x21DF;";
+keys["Mac"]["Delete"]	= "&#x232B;";
+keys["Mac"]["Return"]	= "&#x21A9;";
 keys["Mac"]["Combiner"] = "";
 
 keys["Windows"] = new Object();
@@ -63,6 +73,8 @@ keys["Windows"]["Left"]		= "&#x2190;";
 keys["Windows"]["Right"]	= "&#x2192;";
 keys["Windows"]["PgUp"]		= "PageUp";
 keys["Windows"]["PgDown"]	= "PageDown";
+keys["Windows"]["Delete"]	= "Del";
+keys["Windows"]["Return"]	= "Enter";
 keys["Windows"]["Combiner"] = "+";
 
 keys["Linux"] = new Object();
