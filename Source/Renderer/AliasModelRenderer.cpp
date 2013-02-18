@@ -87,7 +87,7 @@ namespace TrenchBroom {
         }
 
         BBox AliasModelRenderer::boundsAfterTransformation(const Mat4f& transformation) const {
-            const Model::AliasSingleFrame& frame = m_alias.firstFrame();
+            Model::AliasSingleFrame& frame = m_alias.frame(m_frameIndex);
             const Model::AliasFrameTriangleList& triangles = frame.triangles();
 
             BBox bounds;
