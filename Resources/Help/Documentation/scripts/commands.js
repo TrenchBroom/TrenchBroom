@@ -70,6 +70,7 @@ keys["Mac"]["PgDown"]	= "&#x21DF;";
 keys["Mac"]["Delete"]	= "&#x232B;";
 keys["Mac"]["Return"]	= "&#x21A9;";
 keys["Mac"]["Combiner"] = "";
+keys["Mac"]["ArrowKeys"]	= "(&#x2191;, &#x2193;, &#x2190;, &#x2192;)";
 
 keys["Windows"] = new Object();
 keys["Windows"]["CmdCtrl"] 	= "Ctrl";
@@ -84,6 +85,7 @@ keys["Windows"]["PgDown"]	= "PageDown";
 keys["Windows"]["Delete"]	= "Del";
 keys["Windows"]["Return"]	= "Enter";
 keys["Windows"]["Combiner"] = "+";
+keys["Windows"]["ArrowKeys"]	= "(&#x2191;, &#x2193;, &#x2190;, &#x2192;)";
 
 keys["Linux"] = new Object();
 
