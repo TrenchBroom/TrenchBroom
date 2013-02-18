@@ -422,10 +422,12 @@ namespace TrenchBroom {
                                                                               m_documentViewHolder.view().filter(),
                                                                               m_documentViewHolder.document().sharedResources().stringManager());
                 
-                Model::ObjectHit* hit = static_cast<Model::ObjectHit*>(m_inputState.pickResult().first(Model::HitType::ObjectHit, true, m_selectedFilter));
-                if (m_moveObjectsTool->dragType() != Tool::DTNone || m_rotateObjectsTool->dragType() != Tool::DTNone ||
-                    (hit != NULL && hit->object().selected()) ||
-                    m_inputState.pickResult().first(Model::HitType::RotateHandleHit, true, m_documentViewHolder.view().filter()) != NULL ) {
+                if (m_moveObjectsTool->dragType() != Tool::DTNone ||
+                    m_rotateObjectsTool->dragType() != Tool::DTNone ||
+                    m_resizeBrushesTool->dragType() != Tool::DTNone ||
+                    m_inputState.pickResult().first(Model::HitType::ObjectHit, true, m_selectedFilter) != NULL ||
+                    m_inputState.pickResult().first(Model::HitType::NearEdgeHit, true, m_selectedFilter) != NULL ||
+                    m_inputState.pickResult().first(Model::HitType::RotateHandleHit, true, m_documentViewHolder.view().filter()) != NULL) {
                     m_selectionGuideRenderer->setColor(prefs.getColor(Preferences::HoveredGuideColor));
                     m_selectionGuideRenderer->setShowSizes(true);
                 } else {

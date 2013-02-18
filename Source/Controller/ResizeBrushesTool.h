@@ -52,37 +52,9 @@ namespace TrenchBroom {
     }
 
     namespace Controller {
-        class ResizeBrushesFilter : public Model::Filter {
-        protected:
-            Model::Filter& m_defaultFilter;
-        public:
-            ResizeBrushesFilter(Model::Filter& defaultFilter) :
-            m_defaultFilter(defaultFilter) {}
-            
-            virtual inline bool entityVisible(const Model::Entity& entity) const {
-                return m_defaultFilter.entityVisible(entity);
-            }
-            
-            virtual inline bool entityPickable(const Model::Entity& entity) const {
-                return false;
-            }
-            
-            virtual inline bool brushVisible(const Model::Brush& brush) const {
-                return m_defaultFilter.brushVisible(brush);
-            }
-            
-            virtual inline bool brushPickable(const Model::Brush& brush) const {
-                return brush.selected() && m_defaultFilter.brushPickable(brush);
-            }
-            
-            virtual inline bool brushVerticesPickable(const Model::Brush& brush) const {
-                return false;
-            }
-        };
-        
         class ResizeBrushesTool : public PlaneDragTool {
         protected:
-            ResizeBrushesFilter m_filter;
+            Model::SelectedFilter m_filter;
             Model::FaceList m_faces;
             Vec3f m_totalDelta;
             

@@ -269,6 +269,6 @@ namespace TrenchBroom {
 
         ResizeBrushesTool::ResizeBrushesTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
         PlaneDragTool(documentViewHolder, inputController, true),
-        m_filter(ResizeBrushesFilter(view().filter())) {}
+        m_filter(Model::SelectedFilter(view().filter())) {}
     }
 }
