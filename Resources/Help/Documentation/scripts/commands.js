@@ -11,6 +11,7 @@
 // Page Down:    &#x21DF;
 // Backspace:    &#x232B;
 // Return:       &#x21A9;
+// Tab:          &#x21E5;
 
 var menu_commands = new Object();
 menu_commands["Mac"] = new Object();
@@ -30,6 +31,9 @@ menu_commands["Mac"]["edit_select_siblings"]			= "Edit &raquo; Select Siblings -
 menu_commands["Mac"]["edit_select_touching"]			= "Edit &raquo; Select Touching - &#8984;T";
 menu_commands["Mac"]["edit_select_none"]				= "Edit &raquo; Select None - &#8679;&#8984;A";
 menu_commands["Mac"]["edit_rotate_tool"]				= "Edit &raquo; Tools &raquo; Rotate Objects Tool - R";
+menu_commands["Mac"]["edit_clip_tool"]					= "Edit &raquo; Tools &raquo; Clip Tool - C";
+menu_commands["Mac"]["edit_clip_side"]					= "Edit &raquo; Tools &raquo; Toggle Clip Side - &#x21E5;";
+menu_commands["Mac"]["edit_perform_clip"]				= "Edit &raquo; Tools &raquo; Perform Clip - &#x21A9;";
 menu_commands["Mac"]["edit_flip_horizontally"]			= "Edit &raquo; Actions &raquo; Flip Horizontally - &#8984;F";
 menu_commands["Mac"]["edit_flip_vertically"]			= "Edit &raquo; Actions &raquo; Flip Vertically - &#x2325;&#8984;F";
 menu_commands["Mac"]["edit_duplicate_selection"]		= "Edit &raquo; Actions &raquo; Duplicate - &#8984;D";
@@ -49,6 +53,9 @@ menu_commands["Windows"]["edit_select_siblings"]		= "Edit &raquo; Select Sibling
 menu_commands["Windows"]["edit_select_touching"]		= "Edit &raquo; Select Touching - Ctrl+T";
 menu_commands["Windows"]["edit_select_none"]			= "Edit &raquo; Select None - Ctrl+Shift+A";
 menu_commands["Windows"]["edit_rotate_tool"]			= "Edit &raquo; Tools &raquo; Rotate Objects Tool - R";
+menu_commands["Windows"]["edit_clip_tool"]				= "Edit &raquo; Tools &raquo; Clip Tool - C";
+menu_commands["Windows"]["edit_clip_side"]				= "Edit &raquo; Tools &raquo; Toggle Clip Side - Tab";
+menu_commands["Windows"]["edit_perform_clip"]			= "Edit &raquo; Tools &raquo; Perform Clip - Enter";
 menu_commands["Windows"]["edit_flip_horizontally"]		= "Edit &raquo; Actions &raquo; Flip Horizontally - Ctrl+F";
 menu_commands["Windows"]["edit_flip_vertically"]		= "Edit &raquo; Actions &raquo; Flip Vertically - Ctrl+Alt+F";
 menu_commands["Windows"]["edit_duplicate_selection"]	= "Edit &raquo; Actions &raquo; Duplicate - Ctrl+D";
@@ -69,6 +76,7 @@ keys["Mac"]["PgUp"]		= "&#x21DE;";
 keys["Mac"]["PgDown"]	= "&#x21DF;";
 keys["Mac"]["Delete"]	= "&#x232B;";
 keys["Mac"]["Return"]	= "&#x21A9;";
+keys["Mac"]["Tab"]		= "&#x21E5;";
 keys["Mac"]["Combiner"] = "";
 keys["Mac"]["ArrowKeys"]	= "(&#x2191;, &#x2193;, &#x2190;, &#x2192;)";
 
@@ -84,6 +92,7 @@ keys["Windows"]["PgUp"]		= "PageUp";
 keys["Windows"]["PgDown"]	= "PageDown";
 keys["Windows"]["Delete"]	= "Del";
 keys["Windows"]["Return"]	= "Enter";
+keys["Windows"]["Tab"]		= "Tab";
 keys["Windows"]["Combiner"] = "+";
 keys["Windows"]["ArrowKeys"]	= "(&#x2191;, &#x2193;, &#x2190;, &#x2192;)";
 
