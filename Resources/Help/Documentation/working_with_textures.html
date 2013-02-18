@@ -13,10 +13,12 @@
 		<h2>The Face Tab</h2>
 		<p>This is where all texture information is displayed.  Here, you can select which texture to apply to the selection as well as the texture's offsets, rotation and scaling.</p>
 		<div style="clear:left;">
-			<img src="./images/faceTab_top.png" width="352" alt="Face Tab, Texture Alignment" class="inline">
 			<h3>Texture Alignment Section</h3>
 			<p>This part of the Face Tab is where texture alignment is handled. On the left is a large preview of the texture and on the right you can modify the offset, scale and rotation of the current selection (see <a href="WHAT_PAGE_WILL_THIS_BE.HTML">this section on face selection</a> for how to control this).  You can enter values directly, or you can use the spinner controls to increment/decrement the values.  The intervals of these spinners have default values but change based on conditions.</p>
-			<!-- clear left float for the unordered list so that it always appears below the image -->
+			<div class="images">
+				<img src="images/face_tab_top.jpg" width="352" alt="Face Tab, Texture Alignment"  />
+				<div class="imagecaption">Texture alignment controls in the face tab.</div>
+			</div>
 			<ul style="clear:left;">
 				<li>For texture <b>offsets</b>, clicking the spinner buttons will offset the texture by the current grid size.  Pressing <script>print_key("Shift");</script> while clicking the spinner will offset the texture by 2X the grid size.  Pressing <script>print_key("CmdCtrl");</script> while clicking the spinner will always offset the texture by 1 unit.</li>
 				<li>For texture <b>scaling</b>, pressing the spinner buttons will scale the texture in increments of 0.1.  <script>print_key("Shift");</script> increases this to 0.25 and <script>print_key("CmdCtrl");</script> reduces this to 0.01.</li>
@@ -26,9 +28,12 @@
 			<p>All of the previously documented controls work either in face selection mode, or brush selection mode.  When modifying textures in brush selection mode, this is the only way of doing so.</p>
 		</div>
 		<div style="clear:left;">
-			<img src="./images/faceTab_bot.png" width="352" alt="Face Tab, Texture Browser" class="inline">
 			<a id="textures_texture_browser"></a><h3>Texture Browser</h3>
 			<p>This is where textures from all the WAD files currently in use are displayed.</p>
+			<div class="images">
+				<img src="images/face_tab_bottom.jpg" width="352" alt="Face Tab, Texture Browser" />
+				<div class="imagecaption">Texture browser.</div>
+			</div>
 			<p>At the very top of this section are options that control how the textures are displayed in the browser.</p>
 			<p>The first control on the left is a drop down list that allows you to sort textures either by <b>Name</b> or by <b>Usage</b>. Sorting by Name is fairly simple, it sorts the textures alphabetically.  Sorting by <b>Usage</b> is a little more interesting and sorts textures based on how often they are used in the map.  A common wall texture therefore appears first in the list while the more rarely used textures appear near the bottom (and unused textures are last).  This is extremely useful at the beginning of a map where you will need the entire wad open, and are still in the process of assembling your 'palette' of textures.</p>
 			<p>The next control, <b>Group</b>, is a toggle button.  It changes the texture browser to display textures grouped together based on what WAD file they belong to (the wad files are sorted based on the order they are loaded).</p>
@@ -42,7 +47,10 @@
 			<h3>Texture Offset</h3>
 			<p>You can offset textures up, down, left and right with the arrow keys <script>print_key("ArrowKeys");</script>.</p>
 			<p>As with the spinner controls detailed previously, the offset is based on the current grid size and modifier keys can be used to increase or decrease the offset amount.  <script>print_key("ArrowKeys", "Shift");</script> offsets textures by twice the current grid size and <script>print_key("ArrowKeys", "CmdCtrl");</script> offsets textures by 1 unit.</p>
-			<img src="./images/textureAlignmentShortcuts.png" width="352" alt="Face Tab, Texture Alignment" class="inline">
+			<div class="images">
+				<img src="images/texture_alignment_shortcuts.jpg" width="352" alt="Face Tab, Texture Alignment" />
+				<div class="imagecaption">Texture alignment shortcuts.</div>
+			</div>
 			<h3>Relative Offsets</h3>
 			<p>Unlike other editors, when using keyboard shortcuts texture offsets are applied <b>relative</b> to the camera.  The example image to the left shows what this means: because of the placement and viewing angle of the camera, pressing the <script>print_key("Up", "CmdCtrl");</script> key would actually cause the X alignment offset to increase by 1 whereas in other editors, this would cause the Y alignment offset to decrease by 1.</p>
 			<p>What this means is that texture alignment in Trenchbroom is intuitive and reactive to what you are looking at.  You do not need to guess what texture axis is what, only to press the key that would move the texture in the direction that you would like it to move.</p>
