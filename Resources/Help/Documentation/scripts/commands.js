@@ -39,9 +39,6 @@ menu_commands["Windows"]["edit_copy"]					= "<b>Edit &raquo; Copy - Ctrl+C</b>"
 menu_commands["Windows"]["edit_cut"]					= "<b>Edit &raquo; Cut - Ctrl+X</b>"
 menu_commands["Windows"]["edit_paste"]					= "<b>Edit &raquo; Paste - Ctrl+V</b>"
 
-
-//option key (&#x2325;)
-
 var keys = new Object();
 
 keys["Mac"] = new Object();
@@ -55,6 +52,7 @@ keys["Mac"]["Right"]	= "&#x2192;";
 keys["Mac"]["PgUp"]		= "&#x21DE;";
 keys["Mac"]["PgDown"]	= "&#x21DF;";
 keys["Mac"]["Combiner"] = "";
+keys["Mac"]["ArrowKeys"]	= "(&#x2191;, &#x2193;, &#x2190;, &#x2192;)";
 
 keys["Windows"] = new Object();
 keys["Windows"]["CmdCtrl"] 	= "Ctrl";
@@ -67,6 +65,7 @@ keys["Windows"]["Right"]	= "&#x2192;";
 keys["Windows"]["PgUp"]		= "PageUp";
 keys["Windows"]["PgDown"]	= "PageDown";
 keys["Windows"]["Combiner"] = "+";
+keys["Windows"]["ArrowKeys"]	= "(&#x2191;, &#x2193;, &#x2190;, &#x2192;)";
 
 keys["Linux"] = new Object();
 
