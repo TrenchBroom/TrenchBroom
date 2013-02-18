@@ -31,8 +31,9 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        AliasModelRenderer::AliasModelRenderer(const Model::Alias& alias, unsigned int skinIndex, Vbo& vbo, const Palette& palette) :
+        AliasModelRenderer::AliasModelRenderer(const Model::Alias& alias, unsigned int frameIndex, unsigned int skinIndex, Vbo& vbo, const Palette& palette) :
         m_alias(alias),
+        m_frameIndex(frameIndex),
         m_skinIndex(skinIndex),
         m_palette(palette),
         m_texture(NULL),
@@ -49,7 +50,7 @@ namespace TrenchBroom {
                 Model::AliasSkin& skin = *m_alias.skins()[m_skinIndex];
                 m_texture = TextureRendererPtr(new TextureRenderer(skin, 0, m_palette));
 
-                Model::AliasSingleFrame& frame = m_alias.firstFrame();
+                Model::AliasSingleFrame& frame = m_alias.frame(m_frameIndex);
                 const Model::AliasFrameTriangleList& triangles = frame.triangles();
                 unsigned int vertexCount = static_cast<unsigned int>(3 * triangles.size());
                 

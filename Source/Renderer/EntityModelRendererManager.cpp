@@ -72,7 +72,8 @@ namespace TrenchBroom {
                 const Model::Alias* alias = aliasManager.alias(modelName, searchPaths, m_console);
                 if (alias != NULL) {
                     unsigned int skinIndex = modelInfo.skinIndex();
-                    Renderer::EntityModelRenderer* renderer = new AliasModelRenderer(*alias, skinIndex, *m_vbo, *m_palette);
+                    unsigned int frameIndex = modelInfo.frameIndex();
+                    Renderer::EntityModelRenderer* renderer = new AliasModelRenderer(*alias, frameIndex, skinIndex, *m_vbo, *m_palette);
                     m_modelRenderers[key] = renderer;
                     return renderer;
                 }
