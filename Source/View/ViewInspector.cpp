@@ -133,16 +133,13 @@ namespace TrenchBroom {
             }
             
             // layout of the contained controls
-            wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
-            innerSizer->Add(searchPanel, 0, wxEXPAND | wxTOP, LayoutConstants::StaticBoxTopMargin);
-            innerSizer->AddSpacer(LayoutConstants::DefaultVerticalMargin);
-            innerSizer->Add(new wxStaticLine(filterBox), 0, wxEXPAND);
-            innerSizer->AddSpacer(LayoutConstants::DefaultVerticalMargin);
-            innerSizer->Add(togglePanel, 1, wxEXPAND);
-            
-            // creates 5 pixel border inside the static box
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(innerSizer, 0, wxEXPAND | wxALL, LayoutConstants::StaticBoxInnerMargin);
+            outerSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
+            outerSizer->Add(searchPanel, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
+            outerSizer->AddSpacer(LayoutConstants::DefaultVerticalMargin);
+            outerSizer->Add(new wxStaticLine(filterBox), 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
+            outerSizer->AddSpacer(LayoutConstants::DefaultVerticalMargin);
+            outerSizer->Add(togglePanel, 1, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, LayoutConstants::StaticBoxInnerMargin);
             
             filterBox->SetSizerAndFit(outerSizer);
             return filterBox;
@@ -167,7 +164,8 @@ namespace TrenchBroom {
             
             // creates 5 pixel border inside the static box
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(innerSizer, 0, wxEXPAND | wxALL, LayoutConstants::StaticBoxInnerMargin);
+            outerSizer->Add(innerSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, LayoutConstants::StaticBoxInnerMargin);
+            outerSizer->AddSpacer(LayoutConstants::StaticBoxInnerMargin);
             
             renderModeBox->SetSizerAndFit(outerSizer);
             return renderModeBox;
