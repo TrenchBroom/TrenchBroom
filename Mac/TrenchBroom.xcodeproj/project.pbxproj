@@ -107,6 +107,7 @@
 		4895CDEC16334108006AA0A6 /* RotateTexturesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4895CDEB16334108006AA0A6 /* RotateTexturesCommand.cpp */; };
 		4896F38E160E06F50029B30C /* TextureBrowserBorder.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 4896F38D160E06F50029B30C /* TextureBrowserBorder.fragsh */; };
 		4896F390160E07010029B30C /* TextureBrowserBorder.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 4896F38F160E07010029B30C /* TextureBrowserBorder.vertsh */; };
+		48A6E45F16D3EB2000CC328C /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 48A6E45E16D3EB2000CC328C /* Icon.png */; };
 		48A8391516356CFC00175857 /* FlipObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48A8391316356CFC00175857 /* FlipObjectsCommand.cpp */; };
 		48AB57F115ECEEE500321C47 /* ProgressIndicatorDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48AB57EF15ECEEE500321C47 /* ProgressIndicatorDialog.cpp */; };
 		48AD1B2C1646BFAE009F839B /* ColoredEdge.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48AD1B2B1646BFAE009F839B /* ColoredEdge.vertsh */; };
@@ -133,7 +134,6 @@
 		48B64C4316CD406700ECA6C5 /* PointGuideRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B64C4116CD406700ECA6C5 /* PointGuideRenderer.cpp */; };
 		48B64C5916CEC35100ECA6C5 /* Documentation in CopyFiles */ = {isa = PBXBuildFile; fileRef = 48B64C5816CEC35000ECA6C5 /* Documentation */; };
 		48B64C5C16CFEA0E00ECA6C5 /* AboutDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B64C5A16CFEA0D00ECA6C5 /* AboutDialog.cpp */; };
-		48B64C6216CFEF4800ECA6C5 /* About in CopyFiles */ = {isa = PBXBuildFile; fileRef = 48B64C6116CFEF4700ECA6C5 /* About */; };
 		48B75F72160BA512009D4E99 /* TextureBrowser.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 48B75F71160BA512009D4E99 /* TextureBrowser.vertsh */; };
 		48B75F75160BA531009D4E99 /* TextureBrowser.fragsh in Resources */ = {isa = PBXBuildFile; fileRef = 48B75F74160BA531009D4E99 /* TextureBrowser.fragsh */; };
 		48B75F79160CF79F009D4E99 /* TextureBrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48B75F77160CF79E009D4E99 /* TextureBrowser.cpp */; };
@@ -193,16 +193,6 @@
 			dstSubfolderSpec = 7;
 			files = (
 				48B64C5916CEC35100ECA6C5 /* Documentation in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		48B64C6016CFEF3600ECA6C5 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 7;
-			files = (
-				48B64C6216CFEF4800ECA6C5 /* About in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -451,6 +441,7 @@
 		4896F38D160E06F50029B30C /* TextureBrowserBorder.fragsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TextureBrowserBorder.fragsh; sourceTree = "<group>"; };
 		4896F38F160E07010029B30C /* TextureBrowserBorder.vertsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TextureBrowserBorder.vertsh; sourceTree = "<group>"; };
 		48A0E91C163A80BD0034F190 /* Allocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Allocator.h; sourceTree = "<group>"; };
+		48A6E45E16D3EB2000CC328C /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon.png; path = ../Resources/Graphics/Icon.png; sourceTree = "<group>"; };
 		48A8391316356CFC00175857 /* FlipObjectsCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FlipObjectsCommand.cpp; sourceTree = "<group>"; };
 		48A8391416356CFC00175857 /* FlipObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlipObjectsCommand.h; sourceTree = "<group>"; };
 		48A922B01601D0D20037FEFE /* ViewOptions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewOptions.h; sourceTree = "<group>"; };
@@ -501,7 +492,6 @@
 		48B64C5816CEC35000ECA6C5 /* Documentation */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Documentation; path = ../Resources/Help/Documentation; sourceTree = "<group>"; };
 		48B64C5A16CFEA0D00ECA6C5 /* AboutDialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AboutDialog.cpp; sourceTree = "<group>"; };
 		48B64C5B16CFEA0D00ECA6C5 /* AboutDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AboutDialog.h; sourceTree = "<group>"; };
-		48B64C6116CFEF4700ECA6C5 /* About */ = {isa = PBXFileReference; lastKnownFileType = folder; name = About; path = ../Resources/Help/About; sourceTree = "<group>"; };
 		48B75F71160BA512009D4E99 /* TextureBrowser.vertsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = TextureBrowser.vertsh; sourceTree = "<group>"; };
 		48B75F74160BA531009D4E99 /* TextureBrowser.fragsh */ = {isa = PBXFileReference; explicitFileType = sourcecode.glsl; fileEncoding = 4; path = TextureBrowser.fragsh; sourceTree = "<group>"; };
 		48B75F77160CF79E009D4E99 /* TextureBrowser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureBrowser.cpp; sourceTree = "<group>"; };
@@ -726,7 +716,7 @@
 		484763C615E2BC5000095BC0 = {
 			isa = PBXGroup;
 			children = (
-				48B64C6116CFEF4700ECA6C5 /* About */,
+				48A6E45E16D3EB2000CC328C /* Icon.png */,
 				48B64C5816CEC35000ECA6C5 /* Documentation */,
 				4883376116C654A800493DA2 /* Quake.def */,
 				4883376216C654A800493DA2 /* Rubicon2.def */,
@@ -1194,7 +1184,6 @@
 				484763CE15E2BC5000095BC0 /* Frameworks */,
 				484763CF15E2BC5000095BC0 /* Resources */,
 				48B64C5716CEC30D00ECA6C5 /* CopyFiles */,
-				48B64C6016CFEF3600ECA6C5 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -1236,6 +1225,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				48A6E45F16D3EB2000CC328C /* Icon.png in Resources */,
 				4883376316C654A800493DA2 /* Quake.def in Resources */,
 				4883376416C654A800493DA2 /* Rubicon2.def in Resources */,
 				48D937F516C2ABFE005A4684 /* Add.png in Resources */,
@@ -1578,7 +1568,6 @@
 					"-lwx_osx_cocoau_gl-2.9",
 					"-lwx_osx_cocoau_adv-2.9",
 					"-lwx_osx_cocoau_core-2.9",
-					"-lwx_osx_cocoau_html-2.9",
 					"-lwx_baseu-2.9",
 					"-lz",
 				);
@@ -1641,7 +1630,6 @@
 					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_adv-2.9.a\"",
 					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_core-2.9.a\"",
 					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_baseu-2.9.a\"",
-					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_html-2.9.a\"",
 					"-lexpat",
 					"-lwxregexu-2.9",
 					"-lwxtiff-2.9",
@@ -1752,7 +1740,6 @@
 					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_adv-2.9.a\"",
 					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_core-2.9.a\"",
 					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_baseu-2.9.a\"",
-					"\"$(SRCROOT)/wxWidgets/build-release/lib/libwx_osx_cocoau_html-2.9.a\"",
 					"-lexpat",
 					"-lwxregexu-2.9",
 					"-lwxtiff-2.9",
