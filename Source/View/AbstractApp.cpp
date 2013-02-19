@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -23,6 +23,7 @@
 #include <wx/config.h>
 #include <wx/docview.h>
 #include <wx/generic/helpext.h>
+#include <wx/fs_mem.h>
 
 #include "IO/FileManager.h"
 #include "IO/Pak.h"
@@ -52,7 +53,7 @@ wxMenu* AbstractApp::CreateFileMenu(wxEvtHandler* eventHandler, bool mapViewFocu
     fileHistoryMenu->SetEventHandler(m_docManager);
     m_docManager->FileHistoryUseMenu(fileHistoryMenu);
     m_docManager->FileHistoryAddFilesToMenu(fileHistoryMenu);
-    
+
     wxMenu* fileMenu = new wxMenu();
     fileMenu->Append(wxID_NEW, wxT("New\tCtrl-N"));
     fileMenu->Append(wxID_OPEN, wxT("Open...\tCtrl-O"));
@@ -71,7 +72,7 @@ wxMenu* AbstractApp::CreateFileMenu(wxEvtHandler* eventHandler, bool mapViewFocu
 
 wxMenu* AbstractApp::CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMenu, bool mapViewFocused) {
     using namespace TrenchBroom::View::CommandIds::Menu;
-    
+
     wxMenu* editMenu = new wxMenu();
     editMenu->Append(wxID_UNDO, wxT("Undo\tCtrl-Z"));
     editMenu->Append(wxID_REDO, wxT("Redo\tCtrl-Shift-Z"));
@@ -125,7 +126,7 @@ wxMenu* AbstractApp::CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMe
     editMenu->AppendCheckItem(EditToggleTextureLock, wxT("Toggle Texture Lock"));
     editMenu->Append(EditShowMapProperties, wxT("Map Properties..."));
     editMenu->SetEventHandler(eventHandler);
-    
+
     return editMenu;
 }
 
@@ -151,7 +152,7 @@ wxMenu* AbstractApp::CreateViewMenu(wxEvtHandler* eventHandler, bool mapViewFocu
     gridMenu->AppendCheckItem(ViewSetGridSize256, wxT("Set Grid Size 256\tCtrl+9"));
     gridMenu->SetEventHandler(eventHandler);
     viewMenu->AppendSubMenu(gridMenu, wxT("Grid"));
-    
+
     wxMenu* cameraMenu = new wxMenu();
     if (mapViewFocused) {
         cameraMenu->Append(ViewMoveCameraForward, wxT("Move Forward\tAlt+UP"));
@@ -177,14 +178,14 @@ wxMenu* AbstractApp::CreateViewMenu(wxEvtHandler* eventHandler, bool mapViewFocu
     cameraMenu->Append(ViewCenterCameraOnSelection, wxT("Center On Selection\tALT+C"));
     cameraMenu->SetEventHandler(eventHandler);
     viewMenu->AppendSubMenu(cameraMenu, wxT("Camera"));
-    
+
     viewMenu->SetEventHandler(eventHandler);
     return viewMenu;
 }
 
 wxMenu* AbstractApp::CreateHelpMenu(wxEvtHandler* eventHandler, bool mapViewFocused) {
     using namespace TrenchBroom::View::CommandIds::Menu;
-    
+
     wxMenu* helpMenu = new wxMenu();
     helpMenu->Append(HelpShowHelp, wxT("TrenchBroom Help"));
     helpMenu->SetEventHandler(eventHandler);
@@ -197,7 +198,7 @@ wxMenuBar* AbstractApp::CreateMenuBar(wxEvtHandler* eventHandler, wxMenu* action
     menuBar->Append(CreateEditMenu(eventHandler, actionMenu, mapViewFocused), wxT("Edit"));
     menuBar->Append(CreateViewMenu(eventHandler, mapViewFocused), wxT("View"));
     menuBar->Append(CreateHelpMenu(eventHandler, mapViewFocused), wxT("Help"));
-    
+
     return menuBar;
 }
 
@@ -205,27 +206,27 @@ void AbstractApp::DetachFileHistoryMenu(wxMenuBar* menuBar) {
     if (menuBar != NULL) {
         int fileMenuIndex = menuBar->FindMenu(wxT("File"));
         assert(fileMenuIndex != wxNOT_FOUND);
-        
+
         wxMenu* fileMenu = menuBar->GetMenu(static_cast<size_t>(fileMenuIndex));
         int fileHistoryMenuIndex = fileMenu->FindItem(wxT("Open Recent"));
         assert(fileHistoryMenuIndex != wxNOT_FOUND);
-        
+
         wxMenuItem* fileHistoryMenuItem = fileMenu->FindItem(fileHistoryMenuIndex);
         assert(fileHistoryMenuItem != NULL);
-        
+
         wxMenu* fileHistoryMenu = fileHistoryMenuItem->GetSubMenu();
         assert(fileHistoryMenu != NULL);
-        
+
         m_docManager->FileHistoryRemoveMenu(fileHistoryMenu);
     }
 }
 
 wxMenu* AbstractApp::CreateTextureActionMenu(bool mapViewFocused) {
     using namespace TrenchBroom::View::CommandIds::Menu;
-    
+
     wxMenu* textureActionMenu = new wxMenu();
     if (mapViewFocused) {
-        
+
         textureActionMenu->Append(EditMoveTexturesUp, wxT("Move Up\tUP"));
         textureActionMenu->Append(EditMoveTexturesDown, wxT("Move Down\tDOWN"));
         textureActionMenu->Append(EditMoveTexturesLeft, wxT("Move Left\tLEFT"));
@@ -259,7 +260,7 @@ wxMenu* AbstractApp::CreateTextureActionMenu(bool mapViewFocused) {
 
 wxMenu* AbstractApp::CreateObjectActionMenu(bool mapViewFocused) {
     using namespace TrenchBroom::View::CommandIds::Menu;
-    
+
     wxMenu* objectActionMenu = new wxMenu();
     if (mapViewFocused) {
         objectActionMenu->Append(EditMoveObjectsForward, wxT("Move Forward\tUP"));
@@ -303,7 +304,7 @@ wxMenu* AbstractApp::CreateObjectActionMenu(bool mapViewFocused) {
 
 wxMenu* AbstractApp::CreateVertexActionMenu(bool mapViewFocused) {
     using namespace TrenchBroom::View::CommandIds::Menu;
-    
+
     wxMenu* vertexActionMenu = new wxMenu();
     if (mapViewFocused) {
         vertexActionMenu->Append(EditMoveVerticesForward, wxT("Move Forward\tUP"));
@@ -328,7 +329,7 @@ wxMenu* AbstractApp::CreateVertexActionMenu(bool mapViewFocused) {
 
 void AbstractApp::UpdateAllViews(wxView* sender, wxObject* hint) {
     const wxList& documents = m_docManager->GetDocuments();
-    
+
     wxList::const_iterator it, end;
     for (it = documents.begin(), end = documents.end(); it != end; ++it) {
         wxDocument* document = static_cast<wxDocument*>(*it);
@@ -341,7 +342,7 @@ bool AbstractApp::OnInit() {
     TrenchBroom::IO::PakManager::sharedManager = new TrenchBroom::IO::PakManager();
     TrenchBroom::Model::AliasManager::sharedManager = new TrenchBroom::Model::AliasManager();
     TrenchBroom::Model::BspManager::sharedManager = new TrenchBroom::Model::BspManager();
-    
+
 	m_docManager = new DocManager();
     m_docManager->FileHistoryLoad(*wxConfig::Get());
 
@@ -355,16 +356,20 @@ bool AbstractApp::OnInit() {
                       CLASSINFO(TrenchBroom::Model::MapDocument),
                       CLASSINFO(TrenchBroom::View::EditorView)
                       );
-    
+
+    // load file system handlers
+    wxFileSystem::AddHandler(new wxMemoryFSHandler());
+
     // load image handles
+    wxImage::AddHandler(new wxGIFHandler());
     wxImage::AddHandler(new wxPNGHandler());
-    
+
     TrenchBroom::IO::FileManager fileManager;
     String helpPath = fileManager.appendPath(fileManager.resourceDirectory(), "Documentation");
-    
+
     m_helpController = new wxExtHelpController();
     m_helpController->Initialize(helpPath);
-    
+
     return true;
 }
 
@@ -372,14 +377,14 @@ int AbstractApp::OnExit() {
     m_docManager->FileHistorySave(*wxConfig::Get());
     wxDELETE(m_docManager);
     wxDELETE(m_helpController);
-    
+
     delete TrenchBroom::IO::PakManager::sharedManager;
     TrenchBroom::IO::PakManager::sharedManager = NULL;
     delete TrenchBroom::Model::AliasManager::sharedManager;
     TrenchBroom::Model::AliasManager::sharedManager = NULL;
     delete TrenchBroom::Model::BspManager::sharedManager;
     TrenchBroom::Model::BspManager::sharedManager = NULL;
-    
+
     return wxApp::OnExit();
 }
 
@@ -398,12 +403,12 @@ void AbstractApp::OnOpenAbout(wxCommandEvent& event) {
 
 void AbstractApp::OnOpenPreferences(wxCommandEvent& event) {
     TrenchBroom::View::PreferencesDialog dialog;
-    
+
     int width = wxSystemSettings::GetMetric(wxSYS_SCREEN_X);
     int height = wxSystemSettings::GetMetric(wxSYS_SCREEN_Y);
     wxPoint pos((width - dialog.GetSize().x) / 2, (height - dialog.GetSize().y) / 2);
     dialog.SetPosition(pos);
-    
+
     dialog.ShowModal();
 }
 
