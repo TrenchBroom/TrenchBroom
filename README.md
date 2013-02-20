@@ -19,9 +19,9 @@ Features
 
 Compiling
 ---------
-- Windows: You need Visual Studio 2010, read Windows/Build.txt for instructions
-- Mac OS X: You need XCode 4, read Mac/Build.txt for instructions
-- Linux: You need Code::Blocks, read Linux/Build.txt for instructions
+- Windows: You need Visual Studio 2010, read [Windows/Build.txt](Windows/Build.txt) for instructions
+- Mac OS X: You need XCode 4, read [Mac/Build.txt](Mac/Build.txt) for instructions
+- Linux: You need Code::Blocks, read [Linux/Build.txt](Linux/Build.txt) for instructions
 
 Contributing
 ------------
