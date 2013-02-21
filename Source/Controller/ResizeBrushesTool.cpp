@@ -122,8 +122,8 @@ namespace TrenchBroom {
                     for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
                         const Model::Edge* edge = *edgeIt;
 
-                        float leftDot = edge->left->face->boundary().normal.dot(inputState.pickRay().direction);
-                        float rightDot = edge->right->face->boundary().normal.dot(inputState.pickRay().direction);
+                        float leftDot = edge->left->face->boundary().normal.dot(view().camera().direction());
+                        float rightDot = edge->right->face->boundary().normal.dot(view().camera().direction());
                         if ((leftDot > 0.0f) != (rightDot > 0.0f)) {
                             Vec3f pointOnSegment;
                             float distanceToClosestPointOnRay;
@@ -136,7 +136,7 @@ namespace TrenchBroom {
                                 closestEdgeDist = distanceBetweenRayAndEdge;
                                 hitDistance = distanceToClosestPointOnRay;
                                 hitPoint = inputState.pickRay().pointAtDistance(hitDistance);
-                                if (leftDot > 0.0f) {
+                                if (leftDot > rightDot) {
                                     dragFace = edge->left->face;
                                     otherFace = edge->right->face;
                                 } else {
@@ -269,6 +269,6 @@ namespace TrenchBroom {
 
         ResizeBrushesTool::ResizeBrushesTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController) :
         PlaneDragTool(documentViewHolder, inputController, true),
-        m_filter(ResizeBrushesFilter(view().filter())) {}
+        m_filter(Model::SelectedFilter(view().filter())) {}
     }
 }

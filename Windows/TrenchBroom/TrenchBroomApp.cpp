@@ -38,6 +38,13 @@ wxMenu* TrenchBroomApp::CreateViewMenu(wxEvtHandler* eventHandler, bool mapViewF
 	return viewMenu;
 }
 
+wxMenu* TrenchBroomApp::CreateHelpMenu(wxEvtHandler* eventHandler, bool mapViewFocused) {
+	wxMenu* helpMenu = AbstractApp::CreateHelpMenu(eventHandler, mapViewFocused);
+	helpMenu->AppendSeparator();
+    helpMenu->Append(wxID_ABOUT, wxT("About TrenchBroom..."));
+	return helpMenu;
+}
+
 bool TrenchBroomApp::OnInit() {
     // set the locale to US so that we can parse floats property
     std::setlocale(LC_ALL, "us");

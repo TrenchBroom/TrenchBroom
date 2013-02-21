@@ -360,10 +360,18 @@ namespace TrenchBroom {
                 expect(TokenType::String, (token = nextTokenIgnoringNewlines()).get());
                 String modelPath = token->data();
                 unsigned int skinIndex = 0;
+                unsigned int frameIndex = 0;
                 size_t lastColon = modelPath.find_last_of(':');
                 if (lastColon > 0 && lastColon != std::string::npos) {
-                    skinIndex = static_cast<unsigned int>(atoi(modelPath.c_str() + lastColon + 1));
-                    modelPath = modelPath.substr(0, lastColon);
+                    size_t lastButOneColon = modelPath.find_last_of(':', lastColon - 1);
+                    if (lastButOneColon > 0 && lastButOneColon != std::string::npos) {
+                        skinIndex = static_cast<unsigned int>(atoi(modelPath.c_str() + lastButOneColon + 1));
+                        frameIndex = static_cast<unsigned int>(atoi(modelPath.c_str() + lastColon + 1));
+                        modelPath = modelPath.substr(0, lastButOneColon);
+                    } else {
+                        skinIndex = static_cast<unsigned int>(atoi(modelPath.c_str() + lastColon + 1));
+                        modelPath = modelPath.substr(0, lastColon);
+                    }
                 }
 
                 String flagName = "";
@@ -374,7 +382,7 @@ namespace TrenchBroom {
                     expect(TokenType::CParenthesis, (token = nextTokenIgnoringNewlines()).get());
                 }
                 
-                properties.push_back(new StandardModelProperty(modelPath, flagName, skinIndex));
+                properties.push_back(new StandardModelProperty(modelPath, flagName, skinIndex, frameIndex));
             } else if (typeName == "default") {
                 expect(TokenType::OParenthesis, (token = nextTokenIgnoringNewlines()).get());
                 expect(TokenType::String, (token = nextTokenIgnoringNewlines()).get());
@@ -484,7 +492,7 @@ namespace TrenchBroom {
                         }
                     }
                     if (modelProperty != NULL) {
-                        Model::PointEntityModel model = Model::PointEntityModel(modelProperty->modelName(), modelProperty->flagName(), modelProperty->skinIndex());
+                        Model::PointEntityModel model = Model::PointEntityModel(modelProperty->modelName(), modelProperty->flagName(), modelProperty->skinIndex(), modelProperty->frameIndex());
                         definition =  new Model::PointEntityDefinition(name, color, spawnflags, bounds, description, Model::PropertyDefinition::List(), model);
                     } else {
                         definition = new Model::PointEntityDefinition(name, color, spawnflags, bounds, description, Model::PropertyDefinition::List());

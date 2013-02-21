@@ -327,6 +327,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Utility\Mat4f.cpp" />
     <ClCompile Include="..\..\Source\Utility\Preferences.cpp" />
     <ClCompile Include="..\..\Source\Utility\Vec3f.cpp" />
+    <ClCompile Include="..\..\Source\View\AboutDialog.cpp" />
     <ClCompile Include="..\..\Source\View\AbstractApp.cpp" />
     <ClCompile Include="..\..\Source\View\AngleEditor.cpp" />
     <ClCompile Include="..\..\Source\View\ColorEditor.cpp" />
@@ -532,6 +533,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Utility\Vec3f.h" />
     <ClInclude Include="..\..\Source\Utility\Vec4f.h" />
     <ClInclude Include="..\..\Source\Utility\VecMath.h" />
+    <ClInclude Include="..\..\Source\View\AboutDialog.h" />
     <ClInclude Include="..\..\Source\View\AbstractApp.h" />
     <ClInclude Include="..\..\Source\View\AngleEditor.h" />
     <ClInclude Include="..\..\Source\View\CellLayout.h" />

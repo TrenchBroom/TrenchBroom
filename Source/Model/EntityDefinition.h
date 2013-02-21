@@ -54,8 +54,13 @@ namespace TrenchBroom {
             String m_name;
             String m_flagName;
             unsigned int m_skinIndex;
+            unsigned int m_frameIndex;
         public:
-            PointEntityModel(const String& name, const String& flagName, unsigned int skinIndex) : m_name(name), m_flagName(flagName), m_skinIndex(skinIndex) {}
+            PointEntityModel(const String& name, const String& flagName, unsigned int skinIndex, unsigned int frameIndex) :
+            m_name(name),
+            m_flagName(flagName),
+            m_skinIndex(skinIndex),
+            m_frameIndex(frameIndex) {}
             
             inline const String& name() const {
                 return m_name;
@@ -67,6 +72,10 @@ namespace TrenchBroom {
             
             inline unsigned int skinIndex() const {
                 return m_skinIndex;
+            }
+            
+            inline unsigned int frameIndex() const {
+                return m_frameIndex;
             }
         };
         

@@ -25,20 +25,13 @@ a:hover {
 	text-decoration: underline;
 }
 
+span.tocLevel1 {
+	font-weight: bold;
+}
+
 div#container {
 	width:640px;
 	padding: 10px;
-}
-
-div#menu {
-	float: left;
-	width: 200px;
-}
-
-div#submenu {
-	float: left;
-	width: 420px;
-	padding-left: 20px;
 }
 
 div.images {
@@ -57,8 +50,10 @@ div.imagecaption {
 
 img.inline {
 	float: left;
-	margin: 0px 10px 10px 0px;
-	border: 10px solid white;
+	padding: 10px;
+	background-color: #999999;
+	border: 2px solid #333333;
+	border-radius: 5px;
 }
 
 ul.menu {

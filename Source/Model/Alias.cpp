@@ -211,8 +211,7 @@ namespace TrenchBroom {
             }
 
             // now stream is at the first frame
-            // because we only render the first frame, we will read only one
-            for (unsigned int i = 0; i < 1/*frameCount*/; i++) {
+            for (unsigned int i = 0; i < frameCount; i++) {
                 int type = IO::readInt<int32_t>(stream);
                 if (type == 0) { // single frame
                     m_frames.push_back(readFrame(stream, origin, scale, skinWidth, skinHeight, vertices, triangles));

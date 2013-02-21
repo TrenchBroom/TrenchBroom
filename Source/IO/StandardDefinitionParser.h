@@ -188,12 +188,14 @@ namespace TrenchBroom {
             String m_modelName;
             String m_flagName;
             unsigned int m_skinIndex;
+            unsigned int m_frameIndex;
         public:
-            StandardModelProperty(const String& modelName, const String& flagName, unsigned int skinIndex) :
+            StandardModelProperty(const String& modelName, const String& flagName, unsigned int skinIndex, unsigned int frameIndex) :
             StandardProperty(StandardProperty::Model),
             m_modelName(modelName),
             m_flagName(flagName),
-            m_skinIndex(skinIndex) {}
+            m_skinIndex(skinIndex),
+            m_frameIndex(frameIndex) {}
             virtual ~StandardModelProperty() {}
             
             inline const String& modelName() const {
@@ -206,6 +208,10 @@ namespace TrenchBroom {
             
             inline unsigned int skinIndex() const {
                 return m_skinIndex;
+            }
+            
+            inline unsigned int frameIndex() const {
+                return m_frameIndex;
             }
         };
         

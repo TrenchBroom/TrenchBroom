@@ -32,3 +32,5 @@ xcuserdata
 
 /Mac/build/
 /Mac/wxWidgets
+
+/Windows/enc_temp_folder/

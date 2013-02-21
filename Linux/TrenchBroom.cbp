@@ -418,6 +418,8 @@
 		<Unit filename="../Source/Utility/Vec4f.cpp" />
 		<Unit filename="../Source/Utility/Vec4f.h" />
 		<Unit filename="../Source/Utility/VecMath.h" />
+		<Unit filename="../Source/View/AboutDialog.cpp" />
+		<Unit filename="../Source/View/AboutDialog.h" />
 		<Unit filename="../Source/View/AbstractApp.cpp" />
 		<Unit filename="../Source/View/AbstractApp.h" />
 		<Unit filename="../Source/View/AngleEditor.cpp" />

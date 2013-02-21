@@ -170,7 +170,7 @@ Dreadnaught, 150 health points.
 AMBUSH: dreadnaught will only wake up on really seeing the player, not another monster getting angry.
 */
 /*QUAKED monster_floyd (1 0 0) (-32 -32 -24) (32 32 64) AMBUSH ROLLING ASLEEP x x x SPAWN_TRIGGERED SPAWN_SILENT
-{ model(":progs/floyd.mdl"); }
+{ model(":progs/floyd.mdl:0:1"); }
 Automaton, 200 health points.
 
 AMBUSH: floyd will only wake up on really seeing the player, not another monster getting angry.
