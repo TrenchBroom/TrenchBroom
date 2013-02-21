@@ -20,6 +20,7 @@
 #include "BrushGeometry.h"
 
 #include "Model/Face.h"
+#include "Utility/List.h"
 
 #include <map>
 #include <cstdio>
@@ -1025,9 +1026,9 @@ namespace TrenchBroom {
             std::map<Edge*, Edge*> edgeMap;
             std::map<Side*, Side*> sideMap;
 
-			while (!vertices.empty()) delete vertices.back(), vertices.pop_back();
-			while (!edges.empty()) delete edges.back(), edges.pop_back();
-			while (!sides.empty()) delete sides.back(), sides.pop_back();
+            Utility::deleteAll(vertices);
+            Utility::deleteAll(edges);
+            Utility::deleteAll(sides);
 
             vertices.reserve(original.vertices.size());
             edges.reserve(original.edges.size());
@@ -1248,9 +1249,9 @@ namespace TrenchBroom {
         }
 
         BrushGeometry::~BrushGeometry() {
-            while(!sides.empty()) delete sides.back(), sides.pop_back();
-            while(!edges.empty()) delete edges.back(), edges.pop_back();
-            while(!vertices.empty()) delete vertices.back(), vertices.pop_back();
+            Utility::deleteAll(sides);
+            Utility::deleteAll(edges);
+            Utility::deleteAll(vertices);
         }
 
         bool BrushGeometry::closed() const {

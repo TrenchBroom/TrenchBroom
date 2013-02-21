@@ -22,6 +22,7 @@
 #include "IO/FileManager.h"
 #include "IO/IOUtils.h"
 #include "IO/substream.h"
+#include "Utility/List.h"
 
 #include <algorithm>
 
@@ -104,7 +105,7 @@ namespace TrenchBroom {
             PakMap::iterator it, end;
             for (it = m_paks.begin(), end = m_paks.end(); it != end; ++it) {
                 PakList& paks = it->second;
-                while (!paks.empty()) delete paks.back(), paks.pop_back();
+                Utility::deleteAll(paks);
             }
             m_paks.clear();
         }

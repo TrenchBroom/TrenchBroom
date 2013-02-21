@@ -21,6 +21,7 @@
 #define TrenchBroom_InstancedVertexArray_h
 
 #include "Renderer/AttributeArray.h"
+#include "Utility/List.h"
 #include "Utility/String.h"
 
 #include <cassert>
@@ -147,7 +148,7 @@ namespace TrenchBroom {
             m_instanceCount(instanceCount) {}
             
             ~InstancedVertexArray() {
-                while (!m_instanceAttributes.empty()) delete m_instanceAttributes.back(), m_instanceAttributes.pop_back();
+                Utility::deleteAll(m_instanceAttributes);
             }
             
             inline void addAttributeArray(const String& name, const Vec4f::List& values) {

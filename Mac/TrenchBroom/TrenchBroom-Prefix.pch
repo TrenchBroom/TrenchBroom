@@ -8,8 +8,10 @@
 
 #ifdef __cplusplus
 
+#include "Utility/List.h"
 #include "Utility/Math.h"
 #include "Utility/String.h"
+#include "Utility/VecMath.h"
 
 #include <wx/wx.h>
 

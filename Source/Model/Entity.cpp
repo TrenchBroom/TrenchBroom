@@ -23,6 +23,7 @@
 #include "Model/EntityDefinition.h"
 #include "Model/Filter.h"
 #include "Model/Picker.h"
+#include "Utility/List.h"
 
 #include <algorithm>
 
@@ -247,8 +248,7 @@ namespace TrenchBroom {
 
         Entity::~Entity() {
             setMap(NULL);
-            while (!m_brushes.empty()) delete m_brushes.back(), m_brushes.pop_back();
-            m_brushes.clear();
+            Utility::deleteAll(m_brushes);
             setDefinition(NULL);
             m_geometryValid = false;
         }

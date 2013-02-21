@@ -20,6 +20,7 @@
 #include "Map.h"
 
 #include "Model/Entity.h"
+#include "Utility/List.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -41,7 +42,7 @@ namespace TrenchBroom {
         void Map::removeEntity(Entity& entity) {
             if (entity.worldspawn())
                 m_worldspawn = NULL;
-            m_entities.erase(std::remove(m_entities.begin(), m_entities.end(), &entity), m_entities.end());
+            Utility::erase(m_entities, &entity);
         }
 
         Entity* Map::worldspawn() {
@@ -55,7 +56,7 @@ namespace TrenchBroom {
         }
 
         void Map::clear() {
-            while (!m_entities.empty()) delete m_entities.back(), m_entities.pop_back();
+            Utility::deleteAll(m_entities);
             m_worldspawn = NULL;
         }
     }

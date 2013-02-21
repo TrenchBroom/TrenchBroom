@@ -25,6 +25,7 @@
 #include "Model/Map.h"
 #include "Model/Texture.h"
 #include "Utility/Console.h"
+#include "Utility/List.h"
 #include "Utility/ProgressIndicator.h"
 
 namespace TrenchBroom {
@@ -423,10 +424,11 @@ namespace TrenchBroom {
             size_t oldSize = entities.size();
             try {
                 Model::Entity* entity = NULL;
-                while ((entity = parseEntity(worldBounds, NULL)) != NULL) entities.push_back(entity);
+                while ((entity = parseEntity(worldBounds, NULL)) != NULL)
+                    entities.push_back(entity);
                 return !entities.empty();
             } catch (MapParserException e) {
-                while (entities.size() > oldSize) delete entities.back(), entities.pop_back();
+                Utility::deleteAll(entities, oldSize);
                 m_tokenizer.reset();
                 return false;
             }
@@ -436,10 +438,11 @@ namespace TrenchBroom {
             size_t oldSize = brushes.size();
             try {
                 Model::Brush* brush = NULL;
-                while ((brush = parseBrush(worldBounds, NULL)) != NULL) brushes.push_back(brush);
+                while ((brush = parseBrush(worldBounds, NULL)) != NULL)
+                    brushes.push_back(brush);
                 return !brushes.empty();
             } catch (MapParserException e) {
-                while (brushes.size() > oldSize) delete brushes.back(), brushes.pop_back();
+                Utility::deleteAll(brushes, oldSize);
                 m_tokenizer.reset();
                 return false;
             }
@@ -449,10 +452,11 @@ namespace TrenchBroom {
             size_t oldSize = faces.size();
             try {
                 Model::Face* face = NULL;
-                while ((face = parseFace(worldBounds)) != NULL) faces.push_back(face);
+                while ((face = parseFace(worldBounds)) != NULL)
+                    faces.push_back(face);
                 return !faces.empty();
             } catch (MapParserException e) {
-                while (faces.size() > oldSize) delete faces.back(), faces.pop_back();
+                Utility::deleteAll(faces, oldSize);
                 m_tokenizer.reset();
                 return false;
             }

@@ -21,11 +21,31 @@
 #define TrenchBroom_List_h
 
 #include <algorithm>
+#include <functional>
 #include <set>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Utility {
+        template <typename T>
+        struct DeleteObject {
+        public:
+            void operator()(const T* ptr) const {
+                delete ptr;
+            }
+        };
+        
+        template <typename T>
+        inline void deleteAll(std::vector<T*>& list, size_t toSize = 0) {
+            typename std::vector<T*>::iterator start(list.begin());
+            typename std::vector<T*>::iterator end(list.end());
+            if (toSize > 0)
+                std::advance(start, std::min(toSize, list.size()));
+            
+            std::for_each(start, end, DeleteObject<T>());
+            list.clear();
+        }
+        
         template <typename T>
         inline void erase(std::vector<T>& list, T element) {
             list.erase(std::remove(list.begin(), list.end(), element), list.end());
@@ -46,7 +66,6 @@ namespace TrenchBroom {
         }
     }
 
-    
     template <typename T>
     inline std::set<T> makeSet(const std::vector<T>& list) {
         std::set<T> set;

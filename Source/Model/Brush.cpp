@@ -24,6 +24,7 @@
 #include "Model/Filter.h"
 #include "Model/Picker.h"
 #include "Model/Texture.h"
+#include "Utility/List.h"
 
 #include <algorithm>
 
@@ -107,14 +108,14 @@ namespace TrenchBroom {
             setEntity(NULL);
             delete m_geometry;
             m_geometry = NULL;
-            while (!m_faces.empty()) delete m_faces.back(), m_faces.pop_back();
+            Utility::deleteAll(m_faces);
         }
 
         void Brush::restore(const Brush& brushTemplate, bool checkId) {
             if (checkId)
                 assert(uniqueId() == brushTemplate.uniqueId());
             
-            while(!m_faces.empty()) delete m_faces.back(), m_faces.pop_back();
+            Utility::deleteAll(m_faces);
             delete m_geometry;
             m_geometry = new BrushGeometry(m_worldBounds);
             
@@ -185,7 +186,7 @@ namespace TrenchBroom {
         }
         
         void Brush::replaceFaces(const FaceList& newFaces) {
-            while (!m_faces.empty()) delete m_faces.back(), m_faces.pop_back();
+            Utility::deleteAll(m_faces);
             delete m_geometry;
             
             m_geometry = new BrushGeometry(m_worldBounds);

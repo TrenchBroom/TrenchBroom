@@ -1714,6 +1714,7 @@
 				);
 				LLVM_LTO = NO;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-isystem\"$(SRCROOT)/wxWidgets/build-release/lib/wx/include/osx_cocoa-unicode-static-2.9\"",
 					"-isystem\"$(SRCROOT)/wxWidgets/include\"",
