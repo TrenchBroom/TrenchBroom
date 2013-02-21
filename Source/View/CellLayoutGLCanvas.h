@@ -235,11 +235,11 @@ namespace TrenchBroom {
             
             void OnMouseWheel(wxMouseEvent& event) {
                 if (m_scrollBar != NULL) {
-                    float top = static_cast<float>(m_scrollBar->GetThumbPosition());
-                    if (event.GetWheelRotation() < 0)
-                        m_scrollBar->SetThumbPosition(static_cast<int>(m_layout.rowPosition(top, 1)));
-                    else
-                        m_scrollBar->SetThumbPosition(static_cast<int>(m_layout.rowPosition(top, -1)));
+                    const float top = static_cast<float>(m_scrollBar->GetThumbPosition());
+                    float newTop = event.GetWheelRotation() < 0 ? m_layout.rowPosition(top, 1) : m_layout.rowPosition(top, -1);
+                    newTop = std::max(0.0f, newTop - m_layout.rowMargin());
+                    
+                    m_scrollBar->SetThumbPosition(static_cast<int>(newTop));
                     Refresh();
                 }
             }
