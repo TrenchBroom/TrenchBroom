@@ -76,8 +76,6 @@ namespace TrenchBroom {
             if (!isApplicable(inputState, initialPoint))
                 return false;
             
-            m_totalDelta = Vec3f::Null;
-            
             if ((inputState.modifierKeys() & ModifierKeys::MKAlt) != 0) {
                 Vec3f planeNorm = inputState.pickRay().direction;
                 planeNorm.z = 0.0f;
@@ -131,19 +129,14 @@ namespace TrenchBroom {
             if (result == Conclude)
                 return false;
             
-            if (result == Continue) {
+            if (result == Continue)
                 refPoint += delta;
-                m_totalDelta += delta;
-            }
             
             return true;
         }
         
         void MoveTool::handleEndPlaneDrag(InputState& inputState) {
-            if (m_totalDelta.null())
-                discardCommandGroup();
-            else
-                endCommandGroup();
+            endCommandGroup();
             endDrag(inputState);
         }
 

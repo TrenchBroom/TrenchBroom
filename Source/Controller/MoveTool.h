@@ -62,7 +62,6 @@ namespace TrenchBroom {
             virtual bool handlePlaneDrag(InputState& inputState, const Vec3f& lastPoint, const Vec3f& curPoint, Vec3f& refPoint);
             virtual void handleEndPlaneDrag(InputState& inputState);
         private:
-            Vec3f m_totalDelta;
             MoveDirection m_direction;
             Renderer::MovementIndicator* m_indicator;
         public:

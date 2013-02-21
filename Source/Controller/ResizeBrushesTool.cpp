@@ -122,8 +122,8 @@ namespace TrenchBroom {
                     for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
                         const Model::Edge* edge = *edgeIt;
 
-                        float leftDot = edge->left->face->boundary().normal.dot(view().camera().direction());
-                        float rightDot = edge->right->face->boundary().normal.dot(view().camera().direction());
+                        float leftDot = edge->left->face->boundary().normal.dot(inputState.pickRay().direction);
+                        float rightDot = edge->right->face->boundary().normal.dot(inputState.pickRay().direction);
                         if ((leftDot > 0.0f) != (rightDot > 0.0f)) {
                             Vec3f pointOnSegment;
                             float distanceToClosestPointOnRay;
