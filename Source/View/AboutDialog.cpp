@@ -22,6 +22,8 @@
 #include "IO/FileManager.h"
 #include "Utility/String.h"
 
+#include "Version.h"
+
 #include <wx/bitmap.h>
 #include <wx/gbsizer.h>
 #include <wx/statbmp.h>
@@ -43,13 +45,18 @@ namespace TrenchBroom {
             
             wxStaticText* appClaim = new wxStaticText(this, wxID_ANY, wxT("A Modern Level Editor for Quake"));
             
+            wxString versionStr(wxT("Version "));
+            versionStr << VERSIONSTR;
+            
+            wxStaticText* version = new wxStaticText(this, wxID_ANY, versionStr);
+            
             wxStaticText* devHeader = new wxStaticText(this, wxID_ANY, wxT("Development"));
             devHeader->SetFont(devHeader->GetFont().Bold());
             wxStaticText* devText = new wxStaticText(this, wxID_ANY, wxT("Kristian Duske"));
             
             wxStaticText* contrHeader = new wxStaticText(this, wxID_ANY, wxT("Contributions"));
             contrHeader->SetFont(contrHeader->GetFont().Bold());
-            wxSizer* contrText = CreateTextSizer(wxT("Corey Jones (feedback, testing, documentation)\nAndré König (feedback, testing)\nHannes Kröger (testing)\nMorgan Allen (testing)\nForest Hale (fov code)"));
+            wxSizer* contrText = CreateTextSizer(wxT("Corey Jones (feedback, testing, documentation)\nAndré König (feedback, testing)\nWouter van Oortmerssen (feedback)\nHannes Kröger (testing)\nMorgan Allen (testing)\nForest Hale (fov code)"));
             
             wxSizer* copyright = CreateTextSizer(wxT("Copyright 2010-2013 Kristian Duske\nQuake is a registered trademark of id Software"));
 
@@ -61,6 +68,8 @@ namespace TrenchBroom {
             sizer->Add(appName, wxGBPosition(row++, 1));
             sizer->Add(appLine, wxGBPosition(row++, 1), wxDefaultSpan, wxEXPAND);
             sizer->Add(appClaim, wxGBPosition(row++, 1));
+            sizer->Add(0, 20, wxGBPosition(row++, 1));
+            sizer->Add(version, wxGBPosition(row++, 1));
             sizer->Add(0, 20, wxGBPosition(row++, 1));
             sizer->Add(devHeader, wxGBPosition(row++, 1));
             sizer->Add(devText, wxGBPosition(row++, 1));
@@ -74,7 +83,7 @@ namespace TrenchBroom {
             sizer->Add(appIcon, wxGBPosition(0, 0), wxGBSpan(row, 1), wxALIGN_CENTER);
             
             SetSizer(sizer);
-            SetSize(650, 360);
+            SetSize(650, 400);
             CenterOnParent();
             
             SetBackgroundColour(*wxWHITE);

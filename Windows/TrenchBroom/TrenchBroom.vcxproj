@@ -115,6 +115,10 @@ Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_gl_vc100.dll" "$(TargetDir)"
 Copy "$(WXWIN)\lib\vc100_dll\wxmsw294ud_gl_vc100.pdb" "$(TargetDir)"
 </Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>call "$(ProjectDir)IncBuildNo.bat"
+</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -184,6 +188,10 @@ Copy "$(WXWIN)\lib\vc100_dll\wxmsw294u_adv_vc100.dll" "$(TargetDir)"
 Copy "$(WXWIN)\lib\vc100_dll\wxmsw294u_gl_vc100.dll" "$(TargetDir)"
 </Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>call "$(ProjectDir)IncBuildNo.bat"
+</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -571,6 +579,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\View\WxScreenDC.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="TrenchBroomApp.h" />
+    <ClInclude Include="Version.h" />
     <ClInclude Include="WinFileManager.h" />
   </ItemGroup>
   <ItemGroup>

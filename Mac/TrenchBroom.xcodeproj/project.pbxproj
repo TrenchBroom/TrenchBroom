@@ -405,6 +405,7 @@
 		4878F963165C16BE003857EA /* ClipTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipTool.h; sourceTree = "<group>"; };
 		487B6C77164E8A70000A77DA /* CameraTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraTool.cpp; sourceTree = "<group>"; };
 		487B6C78164E8A70000A77DA /* CameraTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraTool.h; sourceTree = "<group>"; };
+		487C5AEF16D808D0007B4945 /* Version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Version.h; sourceTree = "<group>"; };
 		487EC0A0168359010094927A /* TextureSelectedCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureSelectedCommand.cpp; sourceTree = "<group>"; };
 		487EC0A1168359020094927A /* TextureSelectedCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureSelectedCommand.h; sourceTree = "<group>"; };
 		487EC0A51684655D0094927A /* PointHandle.vertsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PointHandle.vertsh; sourceTree = "<group>"; };
@@ -781,6 +782,7 @@
 				4842AF7316220D7A0042AD66 /* MacScreenDC.h */,
 				48D1BEB515E423F60073C030 /* TrenchBroomApp.cpp */,
 				48D1BEB615E423F60073C030 /* TrenchBroomApp.h */,
+				487C5AEF16D808D0007B4945 /* Version.h */,
 			);
 			name = Mac;
 			path = TrenchBroom;
@@ -1180,11 +1182,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 484763EF15E2BC5000095BC0 /* Build configuration list for PBXNativeTarget "TrenchBroom" */;
 			buildPhases = (
+				4858930216D78EA30079E897 /* ShellScript */,
 				484763CD15E2BC5000095BC0 /* Sources */,
 				484763CE15E2BC5000095BC0 /* Frameworks */,
 				484763CF15E2BC5000095BC0 /* Resources */,
 				48B64C5716CEC30D00ECA6C5 /* CopyFiles */,
-				4858930216D78EA30079E897 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -1274,7 +1276,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = "#!/bin/bash";
-			shellScript = "buildPlist=${INFOPLIST_FILE}\nbuildNumber=$(/usr/libexec/PlistBuddy -c \"Print CFBundleVersion\" $buildPlist)\nbuildNumber=$(($buildNumber + 1))\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" $buildPlist";
+			shellScript = "buildPlist=${INFOPLIST_FILE}\nbuildNumber=$(/usr/libexec/PlistBuddy -c \"Print CFBundleVersion\" $buildPlist)\nbuildNumber=$(($buildNumber + 1))\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" $buildPlist\nversion=$(/usr/libexec/PlistBuddy -c \"Print CFBundleShortVersionString\" $buildPlist)\necho \"#define VERSIONSTR\" \"\\\"$version.$buildNumber\\0\\\"\" > ${PROJECT_DIR}/TrenchBroom/Version.h";
 		};
 /* End PBXShellScriptBuildPhase section */
 
