@@ -123,15 +123,15 @@ namespace TrenchBroom {
             
             size_t pos = path.find_first_of(pathSeparator(), 0);
             if (pos != String::npos) {
-                size_t lastPos = 0;
-                do {
-                    if(pos > lastPos)
-                        components.push_back(path.substr(lastPos, pos - lastPos));
-                    pos++;
+                if (pos > 0)
+                    components.push_back(path.substr(0, pos));
+                size_t lastPos = pos;
+                while ((pos = path.find_first_of(pathSeparator(), lastPos + 1)) != String::npos) {
+                    components.push_back(path.substr(lastPos + 1, pos - lastPos - 1));
                     lastPos = pos;
-                } while ((pos = path.find_first_of(pathSeparator(), pos)) != String::npos);
+                }
                 if (lastPos < path.length() - 1)
-                    components.push_back(path.substr(lastPos));
+                    components.push_back(path.substr(lastPos + 1));
             } else {
                 components.push_back(path);
             }
