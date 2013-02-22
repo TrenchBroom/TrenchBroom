@@ -22,6 +22,7 @@
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/MapDocument.h"
+#include "Utility/List.h"
 
 #include <cassert>
 
@@ -103,8 +104,8 @@ namespace TrenchBroom {
 
         AddObjectsCommand::~AddObjectsCommand() {
             if (state() == Undone) {
-                while (!m_brushes.empty()) delete m_brushes.back(), m_brushes.pop_back();
-                while (!m_entities.empty()) delete m_entities.back(), m_entities.pop_back();
+                Utility::deleteAll(m_brushes);
+                Utility::deleteAll(m_entities);
             } else {
                 m_entities.clear();
                 m_brushes.clear();

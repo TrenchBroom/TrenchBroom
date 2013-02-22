@@ -21,6 +21,7 @@
 
 #include "Model/AliasNormals.h"
 #include "IO/IOUtils.h"
+#include "Utility/List.h"
 
 #include <cassert>
 #include <cmath>
@@ -45,7 +46,7 @@ namespace TrenchBroom {
         }
 
         AliasSkin::~AliasSkin() {
-            while(!m_pictures.empty()) delete m_pictures.back(), m_pictures.pop_back();
+            Utility::deleteAll(m_pictures);
         }
 
         AliasSingleFrame::AliasSingleFrame(const String& name, const AliasFrameTriangleList& triangles, const Vec3f& center, const BBox& bounds) :
@@ -73,7 +74,7 @@ namespace TrenchBroom {
         }
 
         AliasFrameGroup::~AliasFrameGroup() {
-            while (!m_frames.empty()) delete m_frames.back(), m_frames.pop_back();
+            Utility::deleteAll(m_frames);
         }
 
         AliasSingleFrame* AliasFrameGroup::firstFrame() {
@@ -139,7 +140,7 @@ namespace TrenchBroom {
         }
 
         AliasSingleFrame::~AliasSingleFrame() {
-            while(!m_triangles.empty()) delete m_triangles.back(), m_triangles.pop_back();
+            Utility::deleteAll(m_triangles);
         }
 
         Alias::Alias(const String& name, IO::PakStream stream) :
@@ -241,8 +242,8 @@ namespace TrenchBroom {
         }
 
         Alias::~Alias() {
-            while(!m_frames.empty()) delete m_frames.back(), m_frames.pop_back();
-            while(!m_skins.empty()) delete m_skins.back(), m_skins.pop_back();
+            Utility::deleteAll(m_frames);
+            Utility::deleteAll(m_skins);
         }
 
         AliasManager* AliasManager::sharedManager = NULL;

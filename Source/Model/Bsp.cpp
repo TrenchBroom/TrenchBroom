@@ -20,6 +20,7 @@
 #include "Bsp.h"
 
 #include "IO/IOUtils.h"
+#include "Utility/List.h"
 
 #include <cmath>
 #include <cstring>
@@ -54,7 +55,7 @@ namespace TrenchBroom {
         m_bounds(bounds) {}
 
         BspModel::~BspModel() {
-            while(!m_faces.empty()) delete m_faces.back(), m_faces.pop_back();
+            Utility::deleteAll(m_faces);
         }
 
         void Bsp::readTextures(IO::PakStream& stream, unsigned int count) {
@@ -268,9 +269,9 @@ namespace TrenchBroom {
         }
 
         Bsp::~Bsp() {
-            while(!m_textureInfos.empty()) delete m_textureInfos.back(), m_textureInfos.pop_back();
-            while(!m_textures.empty()) delete m_textures.back(), m_textures.pop_back();
-            while(!m_models.empty()) delete m_models.back(), m_models.pop_back();
+            Utility::deleteAll(m_textureInfos);
+            Utility::deleteAll(m_textures);
+            Utility::deleteAll(m_models);
         }
 
         BspManager* BspManager::sharedManager = NULL;

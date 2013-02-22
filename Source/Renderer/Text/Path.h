@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__Path__
 #define __TrenchBroom__Path__
 
+#include "Utility/List.h"
 #include "Utility/VecMath.h"
 
 #include <cassert>
@@ -90,11 +91,9 @@ namespace TrenchBroom {
                 m_winding(winding),
                 m_current(NULL) {}
                 ~PathPolygon() {
-                    while (!m_contours.empty()) delete m_contours.back(), m_contours.pop_back();
-                    if (m_current != NULL) {
-                        delete m_current;
-                        m_current = NULL;
-                    }
+                    Utility::deleteAll(m_contours);
+                    delete m_current;
+                    m_current = NULL;
                 }
 
                 inline Winding winding() const {
@@ -193,11 +192,9 @@ namespace TrenchBroom {
                 m_current(NULL) {}
 
                 ~Path() {
-                    while (!m_polygons.empty()) delete m_polygons.back(), m_polygons.pop_back();
-                    if (m_current != NULL) {
-                        delete m_current;
-                        m_current = NULL;
-                    }
+                    Utility::deleteAll(m_polygons);
+                    delete m_current;
+                    m_current = NULL;
                 }
 
                 inline float width() const {

@@ -337,7 +337,7 @@ namespace TrenchBroom {
         }
         
         MapRenderer::~MapRenderer() {
-            while (!m_entityDecorators.empty()) delete m_entityDecorators.back(), m_entityDecorators.pop_back();
+            Utility::deleteAll(m_entityDecorators);
             delete m_decoratorVbo;
             m_decoratorVbo = NULL;
 

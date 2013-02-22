@@ -228,7 +228,7 @@ namespace TrenchBroom {
             m_fixedCellSize(fixedCellSize),
             m_bounds(x, y, 0.0f, 0.0f) {}
 
-            inline const Cell& operator[] (const unsigned int index) const {
+            inline const Cell& operator[] (const size_t index) const {
                 assert(index >= 0 && index < m_cells.size());
                 return m_cells[index];
             }
@@ -314,7 +314,7 @@ namespace TrenchBroom {
             RowList m_rows;
             float m_maxWidth;
         public:
-            inline const Row& operator[] (const unsigned int index) const {
+            inline const Row& operator[] (const size_t index) const {
                 assert(index >= 0 && index < m_rows.size());
                 return m_rows[index];
             }
@@ -365,31 +365,23 @@ namespace TrenchBroom {
                 }
             }
 
-            bool rowAt(float y, const Row** result, int offset = 0) const {
-                size_t index = 0;
-                while (index < m_rows.size()) {
-                    const Row& row = m_rows[index];
+            size_t indexOfRowAt(float y) const {
+                for (size_t i = 0; i < m_rows.size(); i++) {
+                    const Row& row = m_rows[i];
                     const LayoutBounds& rowBounds = row.bounds();
-                    if (y < rowBounds.bottom()) {
-                        *result = &row;
-                        break;
-                    }
-                    index++;
+                    if (y < rowBounds.bottom())
+                        return i;
                 }
                 
-                if (result == NULL)
+                return m_rows.size();
+            }
+            
+            bool rowAt(float y, const Row** result) const {
+                size_t index = indexOfRowAt(y);
+                if (index == m_rows.size())
                     return false;
-
-                if (offset != 0) {
-                    if (static_cast<int>(index) + offset < 0)
-                        index = 0;
-                    else if (static_cast<int>(index) + offset >= static_cast<int>(m_rows.size()))
-                        index = m_rows.size() - 1;
-                    else
-                        index = static_cast<size_t>(static_cast<int>(index) + offset);
-                    *result = &m_rows[index];
-                }
                 
+                *result = &m_rows[index];
                 return true;
             }
             
@@ -496,7 +488,7 @@ namespace TrenchBroom {
                 }
             }
         public:
-            const Group& operator[] (const unsigned int index) {
+            const Group& operator[] (const size_t index) {
                 assert(index >= 0 && index < m_groups.size());
                 if (!m_valid)
                     validate();
@@ -628,23 +620,46 @@ namespace TrenchBroom {
             float rowPosition(float y, int offset) {
                 if (!m_valid)
                     validate();
-                
-                Group* group = NULL;
-                for (unsigned int i = 0; i < m_groups.size(); i++) {
+
+                size_t groupIndex = m_groups.size();
+                for (size_t i = 0; i < m_groups.size(); i++) {
                     Group* candidate = &m_groups[i];
                     const LayoutBounds groupBounds = candidate->bounds();
                     if (y + m_rowMargin > groupBounds.bottom())
                         continue;
-                    group = candidate;
+                    groupIndex = i;
                     break;
                 }
 
-                if (group == NULL)
+                if (groupIndex == m_groups.size())
                     return y;
                 
-                const typename Group::Row* row = NULL;
-                if (group->rowAt(y + m_rowMargin, &row, offset))
-                    return std::max(0.0f, row->bounds().top() - m_rowMargin);
+                size_t rowIndex = m_groups[groupIndex].indexOfRowAt(y);
+                if (rowIndex == m_groups[groupIndex].size())
+                    return y;
+
+                if (offset == 0)
+                    return y;
+                
+                int newIndex = static_cast<int>(rowIndex) + offset;
+                if (newIndex < 0) {
+                    while (newIndex < 0 && groupIndex > 0)
+                        newIndex += m_groups[--groupIndex].size();
+                } else if (newIndex >= static_cast<int>(m_groups[groupIndex].size())) {
+                    while (newIndex >= static_cast<int>(m_groups[groupIndex].size()) && groupIndex < m_groups.size() - 1)
+                        newIndex -= m_groups[groupIndex++].size();
+                }
+                
+                if (groupIndex < m_groups.size()) {
+                    if (newIndex >= 0) {
+                        rowIndex = static_cast<size_t>(newIndex);
+                        if (rowIndex < m_groups[groupIndex].size()) {
+                            return m_groups[groupIndex][rowIndex].bounds().top();
+                        }
+                    }
+                }
+                
+                
                 return y;
             }
             
@@ -693,6 +708,22 @@ namespace TrenchBroom {
                 if (!m_valid)
                     validate();
                 return m_height;
+            }
+            
+            inline float outerMargin() const {
+                return m_outerMargin();
+            }
+            
+            inline float groupMargin() const {
+                return m_groupMargin;
+            }
+            
+            inline float rowMargin() const {
+                return m_rowMargin;
+            }
+            
+            inline float cellMargin() const {
+                return m_cellMargin();
             }
         };
     }
