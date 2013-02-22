@@ -102,6 +102,20 @@ namespace TrenchBroom {
                 return m_name;
             }
             
+            inline const String groupName() const {
+                size_t uscoreIndex = m_name.find_first_of('_');
+                if (uscoreIndex == String::npos)
+                    return "Misc";
+                return Utility::capitalize(m_name.substr(0, uscoreIndex));
+            }
+            
+            inline const String shortName() const {
+                size_t uscoreIndex = m_name.find_first_of('_');
+                if (uscoreIndex == String::npos)
+                    return m_name;
+                return m_name.substr(uscoreIndex + 1);
+            }
+            
             inline const Color& color() const {
                 return m_color;
             }

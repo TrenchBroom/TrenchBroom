@@ -185,7 +185,6 @@ namespace TrenchBroom {
         EVT_MENU_RANGE(CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem, CommandIds::CreateEntityPopupMenu::HighestBrushEntityItem, EditorView::OnPopupCreateBrushEntity)
         EVT_UPDATE_UI_RANGE(CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem, CommandIds::CreateEntityPopupMenu::HighestBrushEntityItem, EditorView::OnPopupUpdateBrushMenuItem)
 
-        EVT_MENU_HIGHLIGHT_ALL(EditorView::OnMenuHighlight)
         END_EVENT_TABLE()
 
         IMPLEMENT_DYNAMIC_CLASS(EditorView, wxView)
@@ -399,28 +398,49 @@ namespace TrenchBroom {
         wxMenu* EditorView::createEntityPopupMenu() {
             if (m_createEntityPopupMenu == NULL) {
                 Model::EntityDefinitionManager& definitionManager = mapDocument().definitionManager();
-                Model::EntityDefinitionList::const_iterator it, end;
+                Model::EntityDefinitionManager::EntityDefinitionGroups::const_iterator groupIt, groupEnd;
+                Model::EntityDefinitionList::const_iterator defIt, defEnd;
 
                 int id = 0;
                 wxMenu* pointMenu = new wxMenu();
                 pointMenu->SetEventHandler(this);
 
-                const Model::EntityDefinitionList& pointDefinitions = definitionManager.definitions(Model::EntityDefinition::PointEntity);
-                for (it = pointDefinitions.begin(), end = pointDefinitions.end(); it != end; ++it) {
-                    Model::EntityDefinition& definition = **it;
-                    pointMenu->Append(CommandIds::CreateEntityPopupMenu::LowestPointEntityItem + id++, definition.name());
+                Model::EntityDefinitionManager::EntityDefinitionGroups groups = definitionManager.groups(Model::EntityDefinition::PointEntity);
+                for (groupIt = groups.begin(), groupEnd = groups.end(); groupIt != groupEnd; ++groupIt) {
+                    const String& groupName = groupIt->first;
+                    wxMenu* groupMenu = new wxMenu();
+                    groupMenu->SetEventHandler(this);
+                    
+                    const Model::EntityDefinitionList& definitions = groupIt->second;
+                    for (defIt = definitions.begin(), defEnd = definitions.end(); defIt != defEnd; ++defIt) {
+                        Model::EntityDefinition& definition = **defIt;
+                        groupMenu->Append(CommandIds::CreateEntityPopupMenu::LowestPointEntityItem + id++, definition.shortName());
+                    }
+                    
+                    pointMenu->AppendSubMenu(groupMenu, groupName);
                 }
+                
 
                 m_createPointEntityMenu = pointMenu;
 
                 id = 0;
                 wxMenu* brushMenu = new wxMenu();
                 brushMenu->SetEventHandler(this);
-                const Model::EntityDefinitionList& brushDefinitions = definitionManager.definitions(Model::EntityDefinition::BrushEntity);
-                for (it = brushDefinitions.begin(), end = brushDefinitions.end(); it != end; ++it) {
-                    Model::EntityDefinition& definition = **it;
-                    if (definition.name() != Model::Entity::WorldspawnClassname)
-                        brushMenu->Append(CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem + id++, definition.name());
+                
+                groups = definitionManager.groups(Model::EntityDefinition::BrushEntity);
+                for (groupIt = groups.begin(), groupEnd = groups.end(); groupIt != groupEnd; ++groupIt) {
+                    const String& groupName = groupIt->first;
+                    wxMenu* groupMenu = new wxMenu();
+                    groupMenu->SetEventHandler(this);
+                    
+                    const Model::EntityDefinitionList& definitions = groupIt->second;
+                    for (defIt = definitions.begin(), defEnd = definitions.end(); defIt != defEnd; ++defIt) {
+                        Model::EntityDefinition& definition = **defIt;
+                        if (definition.name() != Model::Entity::WorldspawnClassname)
+                            groupMenu->Append(CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem + id++, definition.shortName());
+                    }
+                    
+                    brushMenu->AppendSubMenu(groupMenu, groupName);
                 }
 
                 m_createEntityPopupMenu = new wxMenu();
@@ -1818,18 +1838,6 @@ namespace TrenchBroom {
             event.Enable(!inputController().clipToolActive() &&
                          !inputController().moveVerticesToolActive() &&
                          editStateManager.selectionMode() == Model::EditStateManager::SMBrushes);
-        }
-
-        void EditorView::OnMenuHighlight(wxMenuEvent& event) {
-            if (event.GetMenu() != NULL && event.GetMenu() == m_createPointEntityMenu) {
-                Model::EntityDefinitionManager& definitionManager = mapDocument().definitionManager();
-                const Model::EntityDefinitionList& pointDefinitions = definitionManager.definitions(Model::EntityDefinition::PointEntity);
-                size_t index = static_cast<size_t>(event.GetId() - CommandIds::CreateEntityPopupMenu::LowestPointEntityItem);
-                assert(index < pointDefinitions.size());
-
-                Model::PointEntityDefinition* pointDefinition = static_cast<Model::PointEntityDefinition*>(pointDefinitions[index]);
-                inputController().showPointEntityPreview(*pointDefinition);
-            }
         }
     }
 }

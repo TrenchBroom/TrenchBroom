@@ -213,8 +213,6 @@ namespace TrenchBroom {
             void OnPopupCreateBrushEntity(wxCommandEvent& event);
             void OnPopupUpdateBrushMenuItem(wxUpdateUIEvent& event);
             
-            void OnMenuHighlight(wxMenuEvent& event);
-
             DECLARE_EVENT_TABLE();
         };
     }
