@@ -34,6 +34,66 @@ typedef std::vector<String> StringList;
 
 namespace TrenchBroom {
     namespace Utility {
+        struct CaseSensitiveCharCompare {
+        public:
+            int operator()(char lhs, char rhs) const {
+                return lhs - rhs;
+            }
+        };
+        
+        struct CaseInsensitiveCharCompare {
+        private:
+            const std::locale& m_locale;
+        public:
+            CaseInsensitiveCharCompare(const std::locale& loc = std::locale::classic()) :
+            m_locale(loc) {}
+            
+            int operator()(char lhs, char rhs) const {
+                return std::tolower(lhs, m_locale) - std::tolower(rhs, m_locale);
+            }
+        };
+        
+        template <typename Cmp>
+        struct CharEqual {
+        private:
+            Cmp m_compare;
+        public:
+            bool operator()(char lhs, char rhs) const {
+                return m_compare(lhs, rhs) == 0;
+            }
+        };
+        
+        template <typename Cmp>
+        struct CharLess {
+        private:
+            Cmp m_compare;
+        public:
+            bool operator()(char lhs, char rhs) const {
+                return m_compare(lhs, rhs) < 0;
+            }
+        };
+
+        template <typename Cmp>
+        struct StringEqual {
+        public:
+            bool operator()(const String& lhs, const String& rhs) const {
+                String::const_iterator lhsEnd, rhsEnd;
+                std::advance(lhsEnd = lhs.begin(), std::min(lhs.size(), rhs.size()));
+                std::advance(rhsEnd = rhs.begin(), std::min(lhs.size(), rhs.size()));
+                return std::lexicographical_compare(lhs.begin(), lhsEnd, rhs.begin(), rhsEnd, CharEqual<Cmp>());
+            }
+        };
+        
+        template <typename Cmp>
+        struct StringLess {
+            bool operator()(const String& lhs, const String& rhs) const {
+                String::const_iterator lhsEnd, rhsEnd;
+                std::advance(lhsEnd = lhs.begin(), std::min(lhs.size(), rhs.size()));
+                std::advance(rhsEnd = rhs.begin(), std::min(lhs.size(), rhs.size()));
+                return std::lexicographical_compare(lhs.begin(), lhsEnd, rhs.begin(), rhsEnd, CharLess<Cmp>());
+            }
+        };
+        
         inline void formatString(const char* format, va_list arguments, String& result) {
             static char buffer[4096];
             
@@ -71,8 +131,8 @@ namespace TrenchBroom {
         
         inline StringList split(const String& str, char d) {
             StringList result;
-            unsigned int lastIndex = 0;
-            for (unsigned int i = 0; i < str.length(); i++) {
+            size_t lastIndex = 0;
+            for (size_t i = 0; i < str.length(); i++) {
                 char c = str[i];
                 if (c == d && lastIndex < i) {
                     result.push_back(str.substr(lastIndex, i - lastIndex));
@@ -92,7 +152,7 @@ namespace TrenchBroom {
             
             StringStream result;
             result << strs[0];
-            for (unsigned int i = 1; i < strs.size(); i++)
+            for (size_t i = 1; i < strs.size(); i++)
                 result << d << strs[i];
             return result.str();
         }
@@ -108,7 +168,7 @@ namespace TrenchBroom {
             return str.find_first_not_of(" \n\t\r" + 0) == String::npos;
         }
         
-        inline String toLower(String str) {
+        inline String toLower(const String& str) {
             String result(str);
             std::transform(result.begin(), result.end(), result.begin(), tolower);
             return result;
@@ -133,21 +193,13 @@ namespace TrenchBroom {
             }
             return buffer.str();
         }
-        
-        inline bool caseInsensitiveCharEqual(char c1, char c2) {
-            return std::toupper(c1, std::locale::classic()) == std::toupper(c2, std::locale::classic());
-        }
-        
-        inline bool caseSensitiveCharEqual(char c1, char c2) {
-            return c1 == c2;
-        }
-        
+
         inline bool containsString(const String& haystack, const String& needle, bool caseSensitive = true) {
             String::const_iterator it;
             if (caseSensitive)
-                it = std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(), caseSensitiveCharEqual);
+                it = std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(), CharEqual<CaseSensitiveCharCompare>());
             else
-                it = std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(), caseInsensitiveCharEqual);
+                it = std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(),  CharEqual<CaseInsensitiveCharCompare>());
             return it != haystack.end();
         }
         
@@ -160,18 +212,13 @@ namespace TrenchBroom {
         inline bool startsWith(const String& haystack, const String& needle, bool caseSensitive = true) {
             if (needle.size() > haystack.size())
                 return false;
-            if (caseSensitive) {
-                for (size_t i = 0; i < needle.size(); i++) {
-                    if (haystack[i] != needle[i])
-                        return false;
-                }
-            } else {
-                for (size_t i = 0; i < needle.size(); i++) {
-                    if (!caseInsensitiveCharEqual(haystack[i], haystack[i]))
-                        return false;
-                }
-            }
-            return true;
+            
+            String::const_iterator hEnd = haystack.begin();
+            std::advance(hEnd, needle.size());
+            
+            if (caseSensitive)
+                return std::equal(haystack.begin(), hEnd, needle.begin(), CharEqual<CaseSensitiveCharCompare>());
+            return std::equal(haystack.begin(), hEnd, needle.begin(), CharEqual<CaseInsensitiveCharCompare>());
         }
     }
 }

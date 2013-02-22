@@ -48,13 +48,7 @@ namespace TrenchBroom {
                     stringRenderer = it->second;
                     actualSize = Vec2f(stringRenderer->width(), stringRenderer->height());
                 } else {
-                    String definitionName = definition->name();
-                    String shortName;
-                    size_t uscoreIndex = definitionName.find_first_of('_');
-                    if (uscoreIndex != String::npos)
-                        shortName = Utility::capitalize(definitionName.substr(uscoreIndex + 1));
-                    else
-                        shortName = definitionName;
+                    String shortName = definition->shortName();
                     
                     float cellSize = layout.fixedCellSize();
                     if  (cellSize > 0.0f)
@@ -148,33 +142,24 @@ namespace TrenchBroom {
             Renderer::Text::FontDescriptor font(fontName, static_cast<unsigned int>(fontSize));
             IO::FileManager fileManager;
             
-            const Model::EntityDefinitionList& definitions = definitionManager.definitions(Model::EntityDefinition::PointEntity, m_sortOrder);
             if (m_group) {
-                typedef std::map<String,  Model::EntityDefinitionList> GroupedDefinitions;
-                GroupedDefinitions groupedDefinitions;
+                Model::EntityDefinitionManager::EntityDefinitionGroups groups = definitionManager.groups(Model::EntityDefinition::PointEntity, m_sortOrder);
+                Model::EntityDefinitionManager::EntityDefinitionGroups::const_iterator groupIt, groupEnd;
                 
-                for (unsigned int i = 0; i < definitions.size(); i++) {
-                    Model::EntityDefinition& definition = *definitions[i];
-                    String definitionName = definition.name();
-                    String groupName;
-                    size_t uscoreIndex = definitionName.find_first_of('_');
-                    if (uscoreIndex != String::npos)
-                        groupName = Utility::capitalize(definitionName.substr(0, uscoreIndex));
-                    else
-                        groupName = "Misc";
-                    groupedDefinitions[groupName].push_back(&definition);
-                }
-
-                GroupedDefinitions::iterator it, end;
-                for (it = groupedDefinitions.begin(), end = groupedDefinitions.end(); it != end; ++it) {
-                    const String& groupName = it->first;
-                    const Model::EntityDefinitionList& groupDefinitions = it->second;
+                for (groupIt = groups.begin(), groupEnd = groups.end(); groupIt != groupEnd; ++groupIt) {
+                    const String& groupName = groupIt->first;
+                    const Model::EntityDefinitionList& definitions = groupIt->second;
                     
                     layout.addGroup(EntityGroupData(groupName, stringManager.stringRenderer(font, groupName)), fontSize + 2.0f);
-                    for (unsigned int i = 0; i < groupDefinitions.size(); i++)
-                        addEntityToLayout(layout, static_cast<Model::PointEntityDefinition*>(groupDefinitions[i]), font);
+                    
+                    Model::EntityDefinitionList::const_iterator defIt, defEnd;
+                    for (defIt = definitions.begin(), defEnd = definitions.end(); defIt != defEnd; ++defIt) {
+                        Model::PointEntityDefinition* definition = static_cast<Model::PointEntityDefinition*>(*defIt);
+                        addEntityToLayout(layout, definition, font);
+                    }
                 }
             } else {
+                const Model::EntityDefinitionList& definitions = definitionManager.definitions(Model::EntityDefinition::PointEntity, m_sortOrder);
                 for (unsigned int i = 0; i < definitions.size(); i++)
                     addEntityToLayout(layout, static_cast<Model::PointEntityDefinition*>(definitions[i]), font);
             }

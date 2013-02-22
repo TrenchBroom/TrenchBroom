@@ -35,6 +35,8 @@ namespace TrenchBroom {
                 Name,
                 Usage
             };
+            
+            typedef std::map<String, EntityDefinitionList> EntityDefinitionGroups;
         protected:
             class CompareEntityDefinitionsByName {
             public:
@@ -67,6 +69,7 @@ namespace TrenchBroom {
             
             EntityDefinition* definition(const String& name);
             EntityDefinitionList definitions(EntityDefinition::Type type, SortOrder order = Name);
+            EntityDefinitionGroups groups(EntityDefinition::Type type, SortOrder order = Name);
         };
     }
 }

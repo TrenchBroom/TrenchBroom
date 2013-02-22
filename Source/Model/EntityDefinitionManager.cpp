@@ -76,5 +76,19 @@ namespace TrenchBroom {
                 std::sort(result.begin(), result.end(), CompareEntityDefinitionsByName());
             return result;
         }
+
+        EntityDefinitionManager::EntityDefinitionGroups EntityDefinitionManager::groups(EntityDefinition::Type type, SortOrder order) {
+            EntityDefinitionGroups groups;
+            EntityDefinitionList list = definitions(type, order);
+            
+            EntityDefinitionList::const_iterator it, end;
+            for (it = list.begin(), end = list.end(); it != end; ++it) {
+                EntityDefinition* definition = *it;
+                const String groupName = definition->groupName();
+                groups[groupName].push_back(definition);
+            }
+            
+            return groups;
+        }
     }
 }
