@@ -119,6 +119,7 @@
 			<Add after='cp &quot;$(PROJECT_DIR)../Resources/Graphics/&quot;QuakePalette.lmp $(TARGET_OUTPUT_DIR)Resources/' />
 			<Add after='cp &quot;$(PROJECT_DIR)../Source/Renderer/Shader/&quot;*.vertsh $(TARGET_OUTPUT_DIR)Resources/' />
 			<Add after='cp &quot;$(PROJECT_DIR)../Source/Renderer/Shader/&quot;*.fragsh $(TARGET_OUTPUT_DIR)Resources/' />
+			<Add after='cp -R &quot;$(PROJECT_DIR)../Resources/Help/Documentation&quot; $(TARGET_OUTPUT_DIR)Resources/' />
 			<Mode after="always" />
 		</ExtraCommands>
 		<Unit filename="LinuxCapabilities.cpp" />
