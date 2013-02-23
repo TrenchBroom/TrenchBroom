@@ -127,6 +127,7 @@
 		<Unit filename="LinuxFileManager.h" />
 		<Unit filename="TrenchBroomApp.cpp" />
 		<Unit filename="TrenchBroomApp.h" />
+		<Unit filename="Version.h" />
 		<Unit filename="../Source/Controller/AddObjectsCommand.cpp" />
 		<Unit filename="../Source/Controller/AddObjectsCommand.h" />
 		<Unit filename="../Source/Controller/Autosaver.cpp" />
