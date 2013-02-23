@@ -17,10 +17,10 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__StandardDefinitionParser__
-#define __TrenchBroom__StandardDefinitionParser__
+#ifndef __TrenchBroom__DefParser__
+#define __TrenchBroom__DefParser__
 
-#include "IO/AbstractTokenizer.h"
+#include "IO/Tokenizer.h"
 #include "IO/ParserException.h"
 #include "Model/EntityDefinition.h"
 #include "Model/EntityDefinitionTypes.h"
@@ -56,6 +56,7 @@ namespace TrenchBroom {
             static const unsigned int Semicolon       = 1 << 11; // semicolon: ;
             static const unsigned int Newline         = 1 << 12; // new line
             static const unsigned int Comma           = 1 << 13;  // comma: ,
+            static const unsigned int Eof             = 1 << 14; // end of file
         }
         
         namespace TokenizerState {
@@ -69,27 +70,14 @@ namespace TrenchBroom {
             static const unsigned int Eof        = 7; // reached end of file
         }
         
-        class StandardDefinitionTokenizer : public AbstractTokenizer {
-        public:
-            class Token : public AbstractToken<unsigned int, Token> {
-            public:
-                Token(unsigned int type, const String& data, size_t position, size_t line, size_t column) : AbstractToken(type, data, position, line, column) {}
-            };
-            
-            typedef std::auto_ptr<Token> TokenPtr;
-        protected:
+        class DefTokenEmitter : public TokenEmitter<DefTokenEmitter> {
+        private:
             StringStream m_buffer;
             unsigned int m_state;
-            
-            inline TokenPtr token(unsigned int type, const String& data) {
-                return TokenPtr(new Token(type, data, m_position, m_line, m_column));
-            }
+        protected:
+            Token doEmit(Tokenizer& tokenizer);
         public:
-            StandardDefinitionTokenizer(std::istream& stream) : AbstractTokenizer(stream), m_state(TokenizerState::Outside) {}
-            
-            TokenPtr nextToken();
-            TokenPtr peekToken();
-            String remainder();
+            DefTokenEmitter();
         };
         
         class StandardProperty {
@@ -215,23 +203,21 @@ namespace TrenchBroom {
             }
         };
         
-        class StandardDefinitionParser {
+        class DefParser {
         protected:
             typedef std::map<String, StandardProperty::List> BasePropertiesMap;
             
-            StandardDefinitionTokenizer m_tokenizer;
+            StringTokenizer<DefTokenEmitter> m_tokenizer;
             BasePropertiesMap m_baseProperties;
             
             String typeNames(unsigned int types);
             
-            inline void expect(unsigned int types, StandardDefinitionTokenizer::Token* token) {
-                if (token == NULL)
-                    throw ParserException(m_tokenizer.line(), m_tokenizer.column(), "Expected token type " + typeNames(types) + " but got NULL");
-                else if ((token->type() & types) == 0)
-                    throw ParserException(m_tokenizer.line(), m_tokenizer.column(), "Expected token type " + typeNames(types) + " but got " + typeNames(token->type()));
+            inline void expect(unsigned int types, Token& token) {
+                if ((token.type() & types) == 0)
+                    throw ParserException(token.line(), token.column(), "Expected token type " + typeNames(types) + " but got " + typeNames(token.type()));
             }
             
-            StandardDefinitionTokenizer::TokenPtr nextTokenIgnoringNewlines();
+            Token nextTokenIgnoringNewlines();
             Color parseColor();
             BBox parseBounds();
             Model::SpawnflagList parseFlags();
@@ -239,12 +225,12 @@ namespace TrenchBroom {
             StandardProperty::List parseProperties();
             String parseDescription();
         public:
-            StandardDefinitionParser(std::istream& stream) : m_tokenizer(stream) {}
-            ~StandardDefinitionParser();
+            DefParser(std::istream& stream) : m_tokenizer(stream) {}
+            ~DefParser();
         
             Model::EntityDefinition* nextDefinition();
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__StandardDefinitionParser__) */
+#endif /* defined(__TrenchBroom__DefParser__) */

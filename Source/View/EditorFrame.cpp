@@ -197,6 +197,10 @@ namespace TrenchBroom {
                 }
             }
 #endif
+            
+            // finally set the top window
+            if (IsActive() && wxTheApp->GetTopWindow() != this)
+                wxTheApp->SetTopWindow(this);
         }
 
         void EditorFrame::OnClose(wxCloseEvent& event) {
