@@ -35,13 +35,13 @@ namespace TrenchBroom {
         class RenderContext;
         class ShaderProgram;
         class Vbo;
-        
+
 
         class AliasModelRenderer : public EntityModelRenderer {
         private:
             const Model::Alias& m_alias;
-            unsigned int m_skinIndex;
             unsigned int m_frameIndex;
+            unsigned int m_skinIndex;
 
             const Palette& m_palette;
             TextureRendererPtr m_texture;
@@ -51,9 +51,9 @@ namespace TrenchBroom {
         public:
             AliasModelRenderer(const Model::Alias& alias, unsigned int frameIndex, unsigned int skinIndex, Vbo& vbo, const Palette& palette);
             ~AliasModelRenderer();
-            
+
             void render(ShaderProgram& shaderProgram);
-            
+
             const Vec3f& center() const;
             const BBox& bounds() const;
             BBox boundsAfterTransformation(const Mat4f& transformation) const;
