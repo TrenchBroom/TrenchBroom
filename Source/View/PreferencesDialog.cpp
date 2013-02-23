@@ -88,13 +88,12 @@ namespace TrenchBroom {
             wxStaticBox* quakeBox = new wxStaticBox(this, wxID_ANY, wxT("Quake"));
 
             wxStaticText* quakePathLabel = new wxStaticText(quakeBox, wxID_ANY, wxT("Quake Path"));
-            m_quakePathValueLabel = new wxStaticText(quakeBox, wxID_ANY, wxT(""));
+            m_quakePathValueLabel = new wxStaticText(quakeBox, wxID_ANY, wxT("Not Set"));
             wxButton* chooseQuakePathButton = new wxButton(quakeBox, CommandIds::PreferencesDialog::ChooseQuakePathButtonId, wxT("Choose..."));
 
-            wxFlexGridSizer* innerSizer = new wxFlexGridSizer(3, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
-            innerSizer->AddGrowableCol(1);
-            innerSizer->Add(quakePathLabel, 0, wxALIGN_CENTER_VERTICAL);
-            innerSizer->Add(m_quakePathValueLabel, 0, wxEXPAND | wxALIGN_CENTER_VERTICAL);
+            wxBoxSizer* innerSizer = new wxBoxSizer(wxHORIZONTAL);
+            innerSizer->Add(quakePathLabel, 0, wxEXPAND);
+            innerSizer->Add(m_quakePathValueLabel, 1, wxEXPAND);
             innerSizer->Add(chooseQuakePathButton, 0, wxALIGN_CENTER_VERTICAL);
             innerSizer->SetItemMinSize(quakePathLabel, PreferencesDialogLayout::MinimumLabelWidth, wxDefaultSize.y);
 
