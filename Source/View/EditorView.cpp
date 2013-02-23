@@ -437,7 +437,8 @@ namespace TrenchBroom {
                     for (defIt = definitions.begin(), defEnd = definitions.end(); defIt != defEnd; ++defIt) {
                         Model::EntityDefinition& definition = **defIt;
                         if (definition.name() != Model::Entity::WorldspawnClassname)
-                            groupMenu->Append(CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem + id++, definition.shortName());
+                            groupMenu->Append(CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem + id, definition.shortName());
+                        ++id;
                     }
                     
                     brushMenu->AppendSubMenu(groupMenu, groupName);
@@ -1811,12 +1812,22 @@ namespace TrenchBroom {
 
         void EditorView::OnPopupCreatePointEntity(wxCommandEvent& event) {
             Model::EntityDefinitionManager& definitionManager = mapDocument().definitionManager();
-            const Model::EntityDefinitionList& pointDefinitions = definitionManager.definitions(Model::EntityDefinition::PointEntity);
-            size_t index = static_cast<size_t>(event.GetId() - CommandIds::CreateEntityPopupMenu::LowestPointEntityItem);
-            assert(index < pointDefinitions.size());
+            const Model::EntityDefinitionManager::EntityDefinitionGroups groups = definitionManager.groups(Model::EntityDefinition::PointEntity);
 
-            Model::PointEntityDefinition* pointDefinition = static_cast<Model::PointEntityDefinition*>(pointDefinitions[index]);
-            inputController().createEntity(*pointDefinition);
+            size_t index = static_cast<size_t>(event.GetId() - CommandIds::CreateEntityPopupMenu::LowestPointEntityItem);
+            Model::EntityDefinitionManager::EntityDefinitionGroups::const_iterator groupIt, groupEnd;
+            Model::EntityDefinitionList::const_iterator defIt, defEnd;
+
+            size_t count = 0;
+            for (groupIt = groups.begin(), groupEnd = groups.end(); groupIt != groupEnd; ++groupIt) {
+                const Model::EntityDefinitionList& definitions = groupIt->second;
+                if (index < count + definitions.size()) {
+                    inputController().createEntity(*definitions[index - count]);
+                    break;
+                }
+                
+                count += definitions.size();
+            }
         }
 
         void EditorView::OnPopupUpdatePointMenuItem(wxUpdateUIEvent& event) {
@@ -1825,12 +1836,22 @@ namespace TrenchBroom {
 
         void EditorView::OnPopupCreateBrushEntity(wxCommandEvent& event) {
             Model::EntityDefinitionManager& definitionManager = mapDocument().definitionManager();
-            const Model::EntityDefinitionList& brushDefinitions = definitionManager.definitions(Model::EntityDefinition::BrushEntity);
+            const Model::EntityDefinitionManager::EntityDefinitionGroups groups = definitionManager.groups(Model::EntityDefinition::BrushEntity);
+            
             size_t index = static_cast<size_t>(event.GetId() - CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem);
-            assert(index < brushDefinitions.size());
-
-            Model::PointEntityDefinition* brushDefinition = static_cast<Model::PointEntityDefinition*>(brushDefinitions[index]);
-            inputController().createEntity(*brushDefinition);
+            Model::EntityDefinitionManager::EntityDefinitionGroups::const_iterator groupIt, groupEnd;
+            Model::EntityDefinitionList::const_iterator defIt, defEnd;
+            
+            size_t count = 0;
+            for (groupIt = groups.begin(), groupEnd = groups.end(); groupIt != groupEnd; ++groupIt) {
+                const Model::EntityDefinitionList& definitions = groupIt->second;
+                if (index < count + definitions.size()) {
+                    inputController().createEntity(*definitions[index - count]);
+                    break;
+                }
+                
+                count += definitions.size();
+            }
         }
 
         void EditorView::OnPopupUpdateBrushMenuItem(wxUpdateUIEvent& event) {

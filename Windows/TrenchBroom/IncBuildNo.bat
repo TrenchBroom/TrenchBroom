@@ -7,4 +7,4 @@ set /A Build+=1
 
 echo %Major%.%Minor%.%Maintenance%.%Build% > Version.txt
 echo #define VERSION %Major%,%Minor%,%Maintenance%,%Build% > Version.h
-echo #define VERSIONSTR "%Major%.%Minor%.%Maintenance%.%Build%\0" >> Version.h
+echo #define VERSIONSTR "%Major%.%Minor%.%Maintenance% Build %Build%\0" >> Version.h

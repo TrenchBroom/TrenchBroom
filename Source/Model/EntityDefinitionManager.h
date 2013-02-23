@@ -39,8 +39,15 @@ namespace TrenchBroom {
             typedef std::map<String, EntityDefinitionList> EntityDefinitionGroups;
         protected:
             class CompareEntityDefinitionsByName {
+            private:
+                bool m_shortName;
             public:
+                CompareEntityDefinitionsByName(bool shortName) :
+                m_shortName(shortName) {}
+                
                 inline bool operator() (const EntityDefinition* left, const EntityDefinition* right) const {
+                    if (m_shortName)
+                        return left->shortName() < right->shortName();
                     return left->name() < right->name();
                 }
             };

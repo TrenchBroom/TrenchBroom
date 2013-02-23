@@ -105,7 +105,7 @@ namespace TrenchBroom {
             inline const String groupName() const {
                 size_t uscoreIndex = m_name.find_first_of('_');
                 if (uscoreIndex == String::npos)
-                    return "Misc";
+                    return "";
                 return Utility::capitalize(m_name.substr(0, uscoreIndex));
             }
             

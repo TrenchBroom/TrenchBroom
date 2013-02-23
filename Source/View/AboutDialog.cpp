@@ -83,7 +83,7 @@ namespace TrenchBroom {
             sizer->Add(appIcon, wxGBPosition(0, 0), wxGBSpan(row, 1), wxALIGN_CENTER);
             
             SetSizer(sizer);
-            SetSize(650, 400);
+            SetSize(650, 410);
             CenterOnParent();
             
             SetBackgroundColour(*wxWHITE);

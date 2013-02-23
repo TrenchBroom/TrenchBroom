@@ -23,6 +23,7 @@
 #include "IO/StandardDefinitionParser.h"
 #include "IO/mmapped_fstream.h"
 #include "Utility/Preferences.h"
+#include "Utility/String.h"
 
 #include <algorithm>
 
@@ -73,19 +74,42 @@ namespace TrenchBroom {
             if (order == Usage)
                 std::sort(result.begin(), result.end(), CompareEntityDefinitionsByUsage());
             else
-                std::sort(result.begin(), result.end(), CompareEntityDefinitionsByName());
+                std::sort(result.begin(), result.end(), CompareEntityDefinitionsByName(false));
             return result;
         }
 
         EntityDefinitionManager::EntityDefinitionGroups EntityDefinitionManager::groups(EntityDefinition::Type type, SortOrder order) {
             EntityDefinitionGroups groups;
             EntityDefinitionList list = definitions(type, order);
+            EntityDefinitionList ungrouped;
             
             EntityDefinitionList::const_iterator it, end;
             for (it = list.begin(), end = list.end(); it != end; ++it) {
                 EntityDefinition* definition = *it;
                 const String groupName = definition->groupName();
-                groups[groupName].push_back(definition);
+                if (groupName.empty())
+                    ungrouped.push_back(definition);
+                else
+                    groups[groupName].push_back(definition);
+            }
+            
+            for (it = ungrouped.begin(), end = ungrouped.end(); it != end; ++it) {
+                EntityDefinition* definition = *it;
+                const String shortName = Utility::capitalize(definition->shortName());
+                EntityDefinitionGroups::iterator groupIt = groups.find(shortName);
+                if (groupIt == groups.end())
+                    groups["Misc"].push_back(definition);
+                else
+                    groupIt->second.push_back(definition);
+            }
+            
+            EntityDefinitionGroups::iterator groupIt, groupEnd;
+            for (groupIt = groups.begin(), groupEnd = groups.end(); groupIt != groupEnd; ++groupIt) {
+                EntityDefinitionList& definitions = groupIt->second;
+                if (order == Usage)
+                    std::sort(definitions.begin(), definitions.end(), CompareEntityDefinitionsByUsage());
+                else
+                    std::sort(definitions.begin(), definitions.end(), CompareEntityDefinitionsByName(true));
             }
             
             return groups;
