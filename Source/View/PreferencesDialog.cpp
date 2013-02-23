@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -40,10 +40,10 @@ namespace TrenchBroom {
         namespace PreferencesDialogLayout {
             static const int MinimumLabelWidth = 100;
         }
-        
+
         BEGIN_EVENT_TABLE(PreferencesDialog, wxDialog)
         EVT_BUTTON(CommandIds::PreferencesDialog::ChooseQuakePathButtonId, PreferencesDialog::OnChooseQuakePathClicked)
-        
+
         EVT_COMMAND_SCROLL(CommandIds::PreferencesDialog::BrightnessSliderId, PreferencesDialog::OnViewSliderChanged)
         EVT_COMMAND_SCROLL(CommandIds::PreferencesDialog::GridAlphaSliderId, PreferencesDialog::OnViewSliderChanged)
         EVT_CHOICE(CommandIds::PreferencesDialog::GridModeChoiceId, PreferencesDialog::OnGridModeChoice)
@@ -51,7 +51,7 @@ namespace TrenchBroom {
         EVT_COMMAND_SCROLL(CommandIds::PreferencesDialog::LookSpeedSliderId, PreferencesDialog::OnMouseSliderChanged)
         EVT_CHECKBOX(CommandIds::PreferencesDialog::InvertLookXAxisCheckBoxId, PreferencesDialog::OnInvertAxisChanged)
         EVT_CHECKBOX(CommandIds::PreferencesDialog::InvertLookYAxisCheckBoxId, PreferencesDialog::OnInvertAxisChanged)
-        
+
         EVT_COMMAND_SCROLL(CommandIds::PreferencesDialog::PanSpeedSliderId, PreferencesDialog::OnMouseSliderChanged)
         EVT_CHECKBOX(CommandIds::PreferencesDialog::InvertPanXAxisCheckBoxId, PreferencesDialog::OnInvertAxisChanged)
         EVT_CHECKBOX(CommandIds::PreferencesDialog::InvertPanYAxisCheckBoxId, PreferencesDialog::OnInvertAxisChanged)
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
             m_quakePathValueLabel->SetLabel(prefs.getString(Preferences::QuakePath));
-            
+
             m_brightnessSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::RendererBrightness) * 40.0f));
             m_gridAlphaSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::GridAlpha) * m_gridAlphaSlider->GetMax()));
             m_gridModeChoice->SetSelection(prefs.getBool(Preferences::GridCheckerboard) ? 1 : 0);
@@ -76,7 +76,7 @@ namespace TrenchBroom {
             m_lookSpeedSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::CameraLookSpeed) * m_lookSpeedSlider->GetMax()));
             m_invertLookXAxisCheckBox->SetValue(prefs.getBool(Preferences::CameraLookInvertX));
             m_invertLookYAxisCheckBox->SetValue(prefs.getBool(Preferences::CameraLookInvertY));
-            
+
             m_panSpeedSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::CameraPanSpeed) * m_panSpeedSlider->GetMax()));
             m_invertPanXAxisCheckBox->SetValue(prefs.getBool(Preferences::CameraPanInvertX));
             m_invertPanYAxisCheckBox->SetValue(prefs.getBool(Preferences::CameraPanInvertY));
@@ -86,45 +86,46 @@ namespace TrenchBroom {
 
         wxWindow* PreferencesDialog::createQuakePreferences() {
             wxStaticBox* quakeBox = new wxStaticBox(this, wxID_ANY, wxT("Quake"));
-            
+
             wxStaticText* quakePathLabel = new wxStaticText(quakeBox, wxID_ANY, wxT("Quake Path"));
             m_quakePathValueLabel = new wxStaticText(quakeBox, wxID_ANY, wxT(""));
             wxButton* chooseQuakePathButton = new wxButton(quakeBox, CommandIds::PreferencesDialog::ChooseQuakePathButtonId, wxT("Choose..."));
-            
+
             wxFlexGridSizer* innerSizer = new wxFlexGridSizer(3, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
             innerSizer->AddGrowableCol(1);
-            innerSizer->Add(quakePathLabel);
-            innerSizer->Add(m_quakePathValueLabel, 0, wxEXPAND);
-            innerSizer->Add(chooseQuakePathButton);
-            innerSizer->SetItemMinSize(quakePathLabel, PreferencesDialogLayout::MinimumLabelWidth, quakePathLabel->GetSize().y);
-            
+            innerSizer->Add(quakePathLabel, 0, wxALIGN_CENTER_VERTICAL);
+            innerSizer->Add(m_quakePathValueLabel, 0, wxEXPAND | wxALIGN_CENTER_VERTICAL);
+            innerSizer->Add(chooseQuakePathButton, 0, wxALIGN_CENTER_VERTICAL);
+            innerSizer->SetItemMinSize(quakePathLabel, PreferencesDialogLayout::MinimumLabelWidth, wxDefaultSize.y);
+
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(innerSizer, 0, wxEXPAND | wxALL, LayoutConstants::StaticBoxInnerMargin);
-            
+            outerSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
+
             quakeBox->SetSizerAndFit(outerSizer);
             return quakeBox;
         }
 
         wxWindow* PreferencesDialog::createViewPreferences() {
             wxStaticBox* viewBox = new wxStaticBox(this, wxID_ANY, wxT("View"));
-            
+
             wxStaticText* brightnessLabel = new wxStaticText(viewBox, wxID_ANY, wxT("Brightness"));
             m_brightnessSlider = new wxSlider(viewBox, CommandIds::PreferencesDialog::BrightnessSliderId, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
-            
+
             wxStaticText* gridLabel = new wxStaticText(viewBox, wxID_ANY, wxT("Grid"));
             m_gridAlphaSlider = new wxSlider(viewBox, CommandIds::PreferencesDialog::GridAlphaSliderId, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
-            
+
             wxStaticText* gridModeFakeLabel = new wxStaticText(viewBox, wxID_ANY, wxT(""));
             wxStaticText* gridModeLabel = new wxStaticText(viewBox, wxID_ANY, wxT("Render grid as"));
-            
+
             wxString gridModes[2] = {"Lines", "Checkerboard"};
             m_gridModeChoice = new wxChoice(viewBox, CommandIds::PreferencesDialog::GridModeChoiceId, wxDefaultPosition, wxDefaultSize, 2, gridModes);
-            
+
             wxSizer* gridModeSizer = new wxBoxSizer(wxHORIZONTAL);
             gridModeSizer->Add(gridModeLabel);
             gridModeSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
             gridModeSizer->Add(m_gridModeChoice);
-            
+
             wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
             innerSizer->AddGrowableCol(1);
             innerSizer->Add(brightnessLabel);
@@ -134,14 +135,15 @@ namespace TrenchBroom {
             innerSizer->Add(gridModeFakeLabel);
             innerSizer->Add(gridModeSizer);
             innerSizer->SetItemMinSize(brightnessLabel, PreferencesDialogLayout::MinimumLabelWidth, brightnessLabel->GetSize().y);
-            
+
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(innerSizer, 0, wxEXPAND | wxALL, LayoutConstants::StaticBoxInnerMargin);
-            
+            outerSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
+
             viewBox->SetSizerAndFit(outerSizer);
             return viewBox;
         }
-        
+
         wxWindow* PreferencesDialog::createMousePreferences() {
             wxStaticBox* mouseBox = new wxStaticBox(this, wxID_ANY, wxT("Mouse"));
 
@@ -155,10 +157,10 @@ namespace TrenchBroom {
             invertLookSizer->Add(m_invertLookXAxisCheckBox);
             invertLookSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
             invertLookSizer->Add(m_invertLookYAxisCheckBox);
-            
+
             wxStaticText* panSpeedLabel = new wxStaticText(mouseBox, wxID_ANY, wxT("Mouse Pan"));
             m_panSpeedSlider = new wxSlider(mouseBox, CommandIds::PreferencesDialog::PanSpeedSliderId, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
-            
+
             wxStaticText* invertPanFakeLabel = new wxStaticText(mouseBox, wxID_ANY, "");
             m_invertPanXAxisCheckBox = new wxCheckBox(mouseBox, CommandIds::PreferencesDialog::InvertPanXAxisCheckBoxId, wxT("Invert X Axis"));
             m_invertPanYAxisCheckBox = new wxCheckBox(mouseBox, CommandIds::PreferencesDialog::InvertPanYAxisCheckBoxId, wxT("Invert Y Axis"));
@@ -166,10 +168,10 @@ namespace TrenchBroom {
             invertPanSizer->Add(m_invertPanXAxisCheckBox);
             invertPanSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
             invertPanSizer->Add(m_invertPanYAxisCheckBox);
-            
+
             wxStaticText* moveSpeedLabel = new wxStaticText(mouseBox, wxID_ANY, "Mouse Move");
             m_moveSpeedSlider = new wxSlider(mouseBox, CommandIds::PreferencesDialog::MoveSpeedSliderId, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
-            
+
             wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
             innerSizer->AddGrowableCol(1);
             innerSizer->Add(lookSpeedLabel);
@@ -186,6 +188,7 @@ namespace TrenchBroom {
 
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(innerSizer, 0, wxEXPAND | wxALL, LayoutConstants::StaticBoxInnerMargin);
+            outerSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
 
             mouseBox->SetSizerAndFit(outerSizer);
             return mouseBox;
@@ -196,7 +199,7 @@ namespace TrenchBroom {
             wxWindow* quakePreferences = createQuakePreferences();
             wxWindow* viewPreferences = createViewPreferences();
             wxWindow* mousePreferences = createMousePreferences();
-            
+
             wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
             innerSizer->Add(quakePreferences, 0, wxEXPAND);
             innerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
@@ -213,10 +216,10 @@ namespace TrenchBroom {
 #else
             outerSizer->Add(innerSizer, 0, wxEXPAND | wxALL, LayoutConstants::DialogOuterMargin);
 #endif
-            
+
             outerSizer->SetItemMinSize(innerSizer, 600, innerSizer->GetSize().y);
             SetSizerAndFit(outerSizer);
-            
+
 #ifdef __APPLE__
             // allow the dialog to be closed using CMD+W
             wxAcceleratorEntry acceleratorEntries[1];
@@ -224,7 +227,7 @@ namespace TrenchBroom {
             wxAcceleratorTable accceleratorTable(4, acceleratorEntries);
             SetAcceleratorTable(accceleratorTable);
 #endif
-            
+
             updateControls();
         }
 
@@ -236,7 +239,7 @@ namespace TrenchBroom {
                 prefs.setString(Preferences::QuakePath, quakePath);
 
                 updateControls();
-                
+
 #ifdef __APPLE__
                 Controller::Command command(Controller::Command::InvalidateEntityModelRendererCache);
                 static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &command);
@@ -247,7 +250,7 @@ namespace TrenchBroom {
         void PreferencesDialog::OnViewSliderChanged(wxScrollEvent& event) {
             wxSlider* sender = static_cast<wxSlider*>(event.GetEventObject());
             int value = sender->GetValue();
-            
+
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 
             switch (event.GetId()) {
@@ -263,13 +266,13 @@ namespace TrenchBroom {
                 default:
                     break;
             }
-            
+
             static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews();
         }
-        
+
         void PreferencesDialog::OnGridModeChoice(wxCommandEvent& event) {
             bool checkerboard = m_gridModeChoice->GetSelection() == 1;
-            
+
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             prefs.setBool(Preferences::GridCheckerboard, checkerboard);
             static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews();
@@ -295,12 +298,12 @@ namespace TrenchBroom {
                     break;
             }
         }
-        
+
         void PreferencesDialog::OnInvertAxisChanged(wxCommandEvent& event) {
             bool value = event.GetInt() != 0;
-            
+
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-            
+
             switch (event.GetId()) {
                 case CommandIds::PreferencesDialog::InvertLookXAxisCheckBoxId:
                     prefs.setBool(Preferences::CameraLookInvertX, value);
