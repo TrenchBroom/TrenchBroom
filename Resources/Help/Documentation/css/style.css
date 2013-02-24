@@ -1,5 +1,5 @@
 body {
-	font-family: Helvetica;
+	font-family: Helvetica, "Sans-serif";
 }
 
 p, li, div {
@@ -10,6 +10,11 @@ p {
 	margin-bottom: 20px;
 	text-align: justify;
 	text-indent: 30px;
+}
+
+p.no-justify
+{
+	text-align: left !important;
 }
 
 p.no-indent {
@@ -114,4 +119,18 @@ ul.submenu li {
 
 ul.submenu a {
 	color: #000000;
+}
+
+.monospace_text
+{
+	white-space: nowrap;
+	background-color:#EEEEEE;
+	border:1px solid #999999;
+	padding:0px 2px 0px 2px;
+	font-family:monaco, consolas, monospace;
+}
+
+.indentedDiv
+{
+	margin-left: 10px;
 }
