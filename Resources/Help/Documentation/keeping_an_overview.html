@@ -9,14 +9,61 @@
 </head>
 <body>
 	<script src="scripts/commands.js"></script>
+	<script>
+	
+		var render_modes = new Array;
+		render_modes[0] = "images/render_mode_textured.jpg";
+		render_modes[1] = "images/render_mode_flat.jpg";
+		render_modes[2] = "images/render_mode_wireframe.jpg";
 
+		var selection_isolation_modes = new Array;
+		selection_isolation_modes[0] = "images/selection_isolation_default.jpg";
+		selection_isolation_modes[1] = "images/selection_isolation_wireframe.jpg";
+		selection_isolation_modes[2] = "images/selection_isolation_discard.jpg";
+
+		
+		var render_modes = new Array();
+		render_modes[0] = "images/rendering_modes_textured.jpg";
+		render_modes[1] = "images/rendering_modes_flat.jpg";
+		render_modes[2] = "images/rendering_modes_wireframe.jpg";
+		
+		var viewMgmt_isolate = new Array();
+		viewMgmt_isolate[0] = "images/view_management_normal.jpg";
+		viewMgmt_isolate[1] = "images/view_management_hide_unselected.jpg";
+		
+		var viewMgmt_hide = new Array();
+		viewMgmt_hide[0] = "images/view_management_normal.jpg";
+		viewMgmt_hide[1] = "images/view_management_hide_selected.jpg";
+		
+		var viewMgmt_lock_selected = new Array();
+		viewMgmt_lock_selected[0] = "images/view_management_normal.jpg";
+		viewMgmt_lock_selected[1] = "images/view_management_lock_selected.jpg";
+		
+		var viewMgmt_lock_unselected = new Array();
+		viewMgmt_lock_unselected[0] = "images/view_management_normal.jpg";
+		viewMgmt_lock_unselected[1] = "images/view_management_lock_unselected.jpg";
+	
+		function cycle_image_by_id(img_id, image_array)
+		{
+			var current_src = document.getElementById(img_id).getAttribute("src");
+			for (i = 0; i < image_array.length; i++) 
+			{
+				if (current_src == image_array[i])
+				{
+					document.getElementById(img_id).setAttribute("src", image_array[(i + 1) % image_array.length]);
+					break;
+				}
+			}
+		}
+		
+	</script>
 	<div id="container">
 		<h2>Keeping an Overview</h2>
 		<p>Sometimes, the 3D view can get cluttered in maps with a lot of detail or many entities. That's why there are several options to reduce the amount of objects in the 3D view. You can select between textured, flat and wirefame rendering, you can filter the 3D view so that only certain objects are rendered and you can isolate, hide or freeze the current selection.</p>
 
 		<a name="render_modes"></a><h3>Render Modes</h3>
 		<div class="images">
-			<a href="javascript:void(0)" id="render_mode_link" onclick="cycle_image_by_id('render_mode_img', renderModesArray);"><img id="render_mode_img" src="images/rendering_modes_textured.jpg" width="600" height="397" alt="Render Modes"></a>
+			<a href="javascript:void(0)" id="render_mode_link" onclick="cycle_image_by_id('render_mode_img', render_modes);"><img id="render_mode_img" src="images/rendering_modes_textured.jpg" width="600" height="397" alt="Render Modes"></a>
 			<div class="imagecaption">Render modes (click to cycle through the modes)</div>
 		</div>
 		<p>You can choose from three render modes in TrenchBroom in the <b>View tab</b> of the inspector. The following modes are available:</p>
@@ -97,39 +144,7 @@
 		-->
 	</div>
 	<script src="../scrpt/jquery.js"></script>
-	<script>
-		var render_modes = new Array;
-		render_modes[0] = "images/render_mode_textured.jpg";
-		render_modes[1] = "images/render_mode_flat.jpg";
-		render_modes[2] = "images/render_mode_wireframe.jpg";
-
-		var selection_isolation_modes = new Array;
-		selection_isolation_modes[0] = "images/selection_isolation_default.jpg";
-		selection_isolation_modes[1] = "images/selection_isolation_wireframe.jpg";
-		selection_isolation_modes[2] = "images/selection_isolation_discard.jpg";
-
-		
-		var render_modes = new Array();
-		render_modes[0] = "images/rendering_modes_textured.jpg";
-		render_modes[1] = "images/rendering_modes_flat.jpg";
-		render_modes[2] = "images/rendering_modes_wireframe.jpg";
-		
-		var viewMgmt_isolate = new Array();
-		viewMgmt_isolate[0] = "images/view_management_normal.jpg";
-		viewMgmt_isolate[1] = "images/view_management_hide_unselected.jpg";
-		
-		var viewMgmt_hide = new Array();
-		viewMgmt_hide[0] = "images/view_management_normal.jpg";
-		viewMgmt_hide[1] = "images/view_management_hide_selected.jpg";
-		
-		var viewMgmt_lock_selected = new Array();
-		viewMgmt_lock_selected[0] = "images/view_management_normal.jpg";
-		viewMgmt_lock_selected[1] = "images/view_management_lock_selected.jpg";
-		
-		var viewMgmt_lock_unselected = new Array();
-		viewMgmt_lock_unselected[0] = "images/view_management_normal.jpg";
-		viewMgmt_lock_unselected[1] = "images/view_management_lock_unselected.jpg";
-		
+	<script>	
 		function cycle_image(event, img, image_array) {
 			var current_src = $(img).attr("src");
 			for (i = 0; i < image_array.length; i++) {
