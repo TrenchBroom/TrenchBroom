@@ -46,6 +46,9 @@ menu_commands["Mac"]["edit_lock_selected"]				= "Edit &raquo; Lock Selected; &#8
 menu_commands["Mac"]["edit_lock_unselected"]			= "Edit &raquo; Lock Unselected; &#8984;&#x2325;L";
 menu_commands["Mac"]["edit_unlock_all"]					= "Edit &raquo; Unlock All; &#8984;&#8679;L";
 
+menu_commands["Mac"]["edit_undo"]						= "Edit &raquo; Undo; &#8984;Z";
+menu_commands["Mac"]["edit_redo"]					= "Edit &raquo; Undo; &#8984;Y";
+
 menu_commands["Mac"]["view_center_on_selection"]		= "View &raquo; Camera &raquo; Center on Selection - &#x2325;C";
 
 menu_commands["Windows"]["preferences"] 				= "View &raquo; Preferences";
@@ -68,6 +71,9 @@ menu_commands["Windows"]["edit_flip_horizontally"]		= "Edit &raquo; Actions &raq
 menu_commands["Windows"]["edit_flip_vertically"]		= "Edit &raquo; Actions &raquo; Flip Vertically - Ctrl+Alt+F";
 menu_commands["Windows"]["edit_duplicate_selection"]	= "Edit &raquo; Actions &raquo; Duplicate - Ctrl+D";
 menu_commands["Windows"]["edit_map_properties"]			= "Edit &raquo; Map Properties...";
+
+menu_commands["Windows"]["edit_undo"]					= "Edit &raquo; Undo; Ctrl+Z";
+menu_commands["Windows"]["edit_redo"]					= "Edit &raquo; Undo; Ctrl+Y";
 
 menu_commands["Windows"]["edit_hide_selected"]			= "Edit &raquo; Hide Selected; Ctrl+H";
 menu_commands["Windows"]["edit_hide_unselected"]		= "Edit &raquo; Hide Unselected; Ctrl+Alt+H";
