@@ -1032,7 +1032,7 @@ namespace TrenchBroom {
 
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity& entity = *entities[i];
-                if (!entity.selected() && entity.lockable()) {
+                if (!entity.selected() && !entity.partiallySelected() && entity.lockable()) {
                     lockEntities.push_back(&entity);
 
                     const Model::BrushList& entityBrushes = entity.brushes();
