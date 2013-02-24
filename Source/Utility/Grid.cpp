@@ -39,7 +39,7 @@ namespace TrenchBroom {
             if (!snap())
                 return f;
             unsigned int actSize = actualSize();
-            return actSize * Math::round(f / actSize);
+            return Math::round(f / actSize);
         }
 
         float Grid::snapAngle(float a) const {

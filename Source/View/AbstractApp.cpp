@@ -175,7 +175,7 @@ wxMenu* AbstractApp::CreateViewMenu(wxEvtHandler* eventHandler, bool mapViewFocu
         cameraMenu->Append(ViewMoveCameraToNextPoint, wxT("Move Camera to Next Point"));
         cameraMenu->Append(ViewMoveCameraToPreviousPoint, wxT("Move Camera to Previous Point"));
     }
-    cameraMenu->Append(ViewCenterCameraOnSelection, wxT("Center On Selection\tALT+C"));
+    cameraMenu->Append(ViewCenterCameraOnSelection, wxT("Center On Selection\tAlt+C"));
     cameraMenu->SetEventHandler(eventHandler);
     viewMenu->AppendSubMenu(cameraMenu, wxT("Camera"));
 
