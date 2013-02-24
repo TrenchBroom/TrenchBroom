@@ -19,6 +19,9 @@
 
 #include "DefParser.h"
 
+#include "Model/Entity.h"
+#include "Utility/List.h"
+
 #include <sstream>
 
 namespace TrenchBroom {
@@ -65,6 +68,8 @@ namespace TrenchBroom {
                                 return Token(TokenType::OBrace, "", position, tokenizer.position() - position, line, column);
                             case '}':
                                 return Token(TokenType::CBrace, "", position, tokenizer.position() - position, line, column);
+                            case '=':
+                                return Token(TokenType::Equality, "", position, tokenizer.position() - position, line, column);
                             case ';':
                                 return Token(TokenType::Semicolon, "", position, tokenizer.position() - position, line, column);
                             case '?':
@@ -226,6 +231,8 @@ namespace TrenchBroom {
                 names.push_back("newline");
             if ((types & TokenType::Comma) != 0)
                 names.push_back("comma");
+            if ((types & TokenType::Equality) != 0)
+                names.push_back("equality sign");
             
             if (names.empty())
                 return "unknown token type";
@@ -286,25 +293,23 @@ namespace TrenchBroom {
             return bounds;
         }
 
-        Model::SpawnflagList DefParser::parseFlags() {
-            Model::SpawnflagList flags;
-            Token token = m_tokenizer.peekToken();
-            if (token.type() != TokenType::Word)
-                return flags;
+        Model::FlagsPropertyDefinition* DefParser::parseFlags() {
+            Model::FlagsPropertyDefinition* definition = new Model::FlagsPropertyDefinition(Model::Entity::SpawnFlagsKey, "");
+            size_t numOptions = 0;
             
+            Token token = m_tokenizer.peekToken();
             while (token.type() == TokenType::Word) {
                 token = m_tokenizer.nextToken();
                 String name = token.data();
-                int value = 1 << flags.size();
-                
-                flags.push_back(Model::Spawnflag(name, value));
+                int value = 1 << numOptions++;
+                definition->addOption(value, name, false);
                 token = m_tokenizer.peekToken();
             }
             
-            return flags;
+            return definition;
         }
         
-        bool DefParser::parseProperty(StandardProperty::List& properties) {
+        bool DefParser::parseProperty(Model::PropertyDefinition::List& properties, Model::ModelDefinition::List& modelDefinitions, StringList& baseClasses) {
             Token token;
             expect(TokenType::Word | TokenType::CBrace, token = nextTokenIgnoringNewlines());
             if (token.type() != TokenType::Word)
@@ -315,7 +320,7 @@ namespace TrenchBroom {
                 expect(TokenType::String, token = m_tokenizer.nextToken());
                 String propertyName = token.data();
 
-                StandardChoiceArgument::List arguments;
+                Model::ChoicePropertyOption::List options;
                 expect(TokenType::OParenthesis, token = nextTokenIgnoringNewlines());
                 token = nextTokenIgnoringNewlines();
                 while (token.type() == TokenType::OParenthesis) {
@@ -324,42 +329,58 @@ namespace TrenchBroom {
                     expect(TokenType::Comma, token = nextTokenIgnoringNewlines());
                     expect(TokenType::String, token = nextTokenIgnoringNewlines());
                     String value = token.data();
-                    arguments.push_back(StandardChoiceArgument(key, value));
+                    options.push_back(Model::ChoicePropertyOption(key, value));
 
                     expect(TokenType::CParenthesis, token = nextTokenIgnoringNewlines());
                     token = nextTokenIgnoringNewlines();
                 }
                 
                 expect(TokenType::CParenthesis, token);
-                properties.push_back(new StandardChoiceProperty(propertyName, arguments));
+                properties.push_back(new Model::ChoicePropertyDefinition(propertyName, "", 0));
             } else if (typeName == "model") {
+                Model::ModelDefinition* modelDefinition = NULL;
+                
                 expect(TokenType::OParenthesis, token = nextTokenIgnoringNewlines());
-                expect(TokenType::String, token = nextTokenIgnoringNewlines());
-                String modelPath = token.data();
-                unsigned int skinIndex = 0;
-                unsigned int frameIndex = 0;
-                size_t lastColon = modelPath.find_last_of(':');
-                if (lastColon > 0 && lastColon != std::string::npos) {
-                    size_t lastButOneColon = modelPath.find_last_of(':', lastColon - 1);
-                    if (lastButOneColon > 0 && lastButOneColon != std::string::npos) {
-                        skinIndex = static_cast<unsigned int>(atoi(modelPath.c_str() + lastButOneColon + 1));
-                        frameIndex = static_cast<unsigned int>(atoi(modelPath.c_str() + lastColon + 1));
-                        modelPath = modelPath.substr(0, lastButOneColon);
-                    } else {
-                        skinIndex = static_cast<unsigned int>(atoi(modelPath.c_str() + lastColon + 1));
-                        modelPath = modelPath.substr(0, lastColon);
-                    }
-                }
+                expect(TokenType::String , token = nextTokenIgnoringNewlines());
+                
+                const String modelPath = token.data();
 
-                String flagName = "";
-                expect(TokenType::Comma | TokenType::CParenthesis, token = nextTokenIgnoringNewlines());
-                if (token.type() == TokenType::Comma) {
-                    expect(TokenType::String, token = nextTokenIgnoringNewlines());
-                    flagName = token.data();
+                expect(TokenType::Integer, token = nextTokenIgnoringNewlines());
+                int skinIndex = token.toInteger();
+                assert(skinIndex >= 0);
+                
+                expect(TokenType::Integer, token = nextTokenIgnoringNewlines());
+                int frameIndex = token.toInteger();
+                assert(frameIndex >= 0);
+                
+                expect(TokenType::Word | TokenType::CParenthesis, token = nextTokenIgnoringNewlines());
+                if (token.type() == TokenType::Word) { // parse property or flag
+                    String propertyKey = token.data();
+                    
+                    expect(TokenType::Equality, token = nextTokenIgnoringNewlines());
+                    expect(TokenType::String | TokenType::Integer, token = nextTokenIgnoringNewlines());
+                    if (token.type() == TokenType::String) {
+                        String propertyValue = token.data();
+                        modelDefinition = new Model::ModelDefinition(modelPath,
+                                                                     static_cast<unsigned int>(skinIndex),
+                                                                     static_cast<unsigned int>(frameIndex),
+                                                                     propertyKey, propertyValue);
+                    } else {
+                        int flagValue = token.toInteger();
+                        modelDefinition = new Model::ModelDefinition(modelPath,
+                                                                     static_cast<unsigned int>(skinIndex),
+                                                                     static_cast<unsigned int>(frameIndex),
+                                                                     propertyKey, flagValue);
+                    }
+                    
                     expect(TokenType::CParenthesis, token = nextTokenIgnoringNewlines());
+                } else {
+                    modelDefinition = new Model::ModelDefinition(modelPath,
+                                                                 static_cast<unsigned int>(skinIndex),
+                                                                 static_cast<unsigned int>(frameIndex));
                 }
                 
-                properties.push_back(new StandardModelProperty(modelPath, flagName, skinIndex, frameIndex));
+                modelDefinitions.push_back(modelDefinition);
             } else if (typeName == "default") {
                 expect(TokenType::OParenthesis, token = nextTokenIgnoringNewlines());
                 expect(TokenType::String, token = nextTokenIgnoringNewlines());
@@ -368,29 +389,27 @@ namespace TrenchBroom {
                 expect(TokenType::String, token = nextTokenIgnoringNewlines());
                 String propertyValue = token.data();
                 expect(TokenType::CParenthesis, token = nextTokenIgnoringNewlines());
-                
-                properties.push_back(new StandardDefaultProperty(propertyName, propertyValue));
+
+                // ignore these propertiesu
             } else if (typeName == "base") {
                 expect(TokenType::OParenthesis, token = nextTokenIgnoringNewlines());
                 expect(TokenType::String, token = nextTokenIgnoringNewlines());
                 String basename = token.data();
                 expect(TokenType::CParenthesis, token = nextTokenIgnoringNewlines());
-                
-                properties.push_back(new StandardBaseProperty(StandardProperty::Base, basename));
+               
+                baseClasses.push_back(basename);
             }
 
             expect(TokenType::Semicolon, token = nextTokenIgnoringNewlines());
             return true;
         }
         
-        StandardProperty::List DefParser::parseProperties() {
-            StandardProperty::List properties;
+        void DefParser::parseProperties(Model::PropertyDefinition::List& properties, Model::ModelDefinition::List& modelDefinitions, StringList& baseClasses) {
             Token token = m_tokenizer.peekToken();
             if (token.type() == TokenType::OBrace) {
                 token = m_tokenizer.nextToken();
-                while (parseProperty(properties));
+                while (parseProperty(properties, modelDefinitions, baseClasses));
             }
-            return properties;
         }
         
         String DefParser::parseDescription() {
@@ -402,10 +421,8 @@ namespace TrenchBroom {
 
         DefParser::~DefParser() {
             BasePropertiesMap::iterator it, end;
-            for (it = m_baseProperties.begin(), end = m_baseProperties.end(); it != end; ++it) {
-                StandardProperty::List& properties = it->second;
-                while (!properties.empty()) delete properties.back(), properties.pop_back();
-            }
+            for (it = m_baseProperties.begin(), end = m_baseProperties.end(); it != end; ++it)
+                Utility::deleteAll(it->second);
             m_baseProperties.clear();
         }
 
@@ -420,10 +437,11 @@ namespace TrenchBroom {
             bool hasBounds = false;
             Color color;
             BBox bounds;
-            Model::SpawnflagList spawnflags;
-            StandardProperty::List standardProperties;
+            Model::FlagsPropertyDefinition* spawnflags = NULL;
             Model::PropertyDefinition::List propertyDefinitions;
-            std::string description;
+            Model::ModelDefinition::List modelDefinitions;
+            StringList baseClasses;
+            String description;
 
             token = m_tokenizer.nextToken();
             expect(TokenType::Word, token);
@@ -450,7 +468,7 @@ namespace TrenchBroom {
             }
 
             expect(TokenType::Newline, token = m_tokenizer.nextToken());
-            standardProperties = parseProperties();
+            parseProperties(propertyDefinitions, modelDefinitions, baseClasses);
             description = parseDescription();
             expect(TokenType::CDefinition, token = m_tokenizer.nextToken());
 
@@ -459,33 +477,14 @@ namespace TrenchBroom {
             if (hasColor) {
                 // TODO: if we handle properties, we must add the base properties here!
                 if (hasBounds) { // point definition
-                    // extract the model property
-                    StandardModelProperty* modelProperty = NULL;
-                    for (unsigned int i = 0; i < standardProperties.size(); i++) {
-                        StandardProperty* standardProperty = standardProperties[i];
-                        if (standardProperty->type() == StandardProperty::Model) {
-                            modelProperty = static_cast<StandardModelProperty*>(standardProperty);
-                            break;
-                        }
-                    }
-                    if (modelProperty != NULL) {
-                        Model::PointEntityModel model = Model::PointEntityModel(modelProperty->modelName(), modelProperty->flagName(), modelProperty->skinIndex(), modelProperty->frameIndex());
-                        definition =  new Model::PointEntityDefinition(name, color, spawnflags, bounds, description, Model::PropertyDefinition::List(), model);
-                    } else {
-                        definition = new Model::PointEntityDefinition(name, color, spawnflags, bounds, description, Model::PropertyDefinition::List());
-                    }
+                    definition = new Model::PointEntityDefinition(name, color, spawnflags, bounds, description, propertyDefinitions, modelDefinitions);
                 } else {
                     definition = new Model::BrushEntityDefinition(name, color, spawnflags, description, Model::PropertyDefinition::List());
                 }
             } else { // base definition
-                m_baseProperties[name] = standardProperties;
-                standardProperties.clear(); // to prevent them from being deleted
-                
+                m_baseProperties[name] = propertyDefinitions;
                 definition = nextDefinition();
             }
-            
-            // clean up
-            while (!standardProperties.empty()) delete standardProperties.back(), standardProperties.pop_back();
             
             return definition;
         }

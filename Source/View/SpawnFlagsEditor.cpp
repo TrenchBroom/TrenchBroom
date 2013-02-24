@@ -22,6 +22,7 @@
 #include "Controller/EntityPropertyCommand.h"
 #include "Model/Entity.h"
 #include "Model/EntityDefinition.h"
+#include "Model/PropertyDefinition.h"
 #include "Utility/CommandProcessor.h"
 
 #include <wx/checkbox.h>
@@ -116,9 +117,9 @@ namespace TrenchBroom {
                 } else if (i == 11) {
                     label << "!DM";
                 } else if (definition != NULL) {
-                    const Model::Spawnflag* spawnflag = definition->spawnflag(static_cast<int>(1 << i));
+                    const Model::FlagsPropertyOption* spawnflag = definition->spawnflags().option(static_cast<int>(1 << i));
                     if (spawnflag != NULL) {
-                        label << spawnflag->name();
+                        label << spawnflag->description();
                     } else {
                         label << (1 << i);
                         colour = wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT);

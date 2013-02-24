@@ -64,7 +64,10 @@ namespace TrenchBroom {
         };
         
         typedef std::vector<Property> PropertyList;
+        static const PropertyList EmptyPropertyList;
+
         typedef std::map<PropertyKey, Property> PropertyMap;
+        static const PropertyMap EmptyPropertyMap;
         
         class PropertyStore {
         private:

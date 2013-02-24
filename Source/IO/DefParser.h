@@ -55,8 +55,9 @@ namespace TrenchBroom {
             static const unsigned int CDefinition     = 1 << 10; // entity definition close
             static const unsigned int Semicolon       = 1 << 11; // semicolon: ;
             static const unsigned int Newline         = 1 << 12; // new line
-            static const unsigned int Comma           = 1 << 13;  // comma: ,
-            static const unsigned int Eof             = 1 << 14; // end of file
+            static const unsigned int Comma           = 1 << 13; // comma: ,
+            static const unsigned int Equality        = 1 << 14; // equality sign: =
+            static const unsigned int Eof             = 1 << 15; // end of file
         }
         
         namespace TokenizerState {
@@ -80,132 +81,9 @@ namespace TrenchBroom {
             DefTokenEmitter();
         };
         
-        class StandardProperty {
-        public:
-            enum PropertyType {
-                Base,
-                Choice,
-                Default,
-                Model
-            };
-        protected:
-            PropertyType m_type;
-        public:
-            typedef std::vector<StandardProperty*> List;
-            
-            StandardProperty(PropertyType type) : m_type(type) {}
-            virtual ~StandardProperty() {}
-            
-            inline PropertyType type() const {
-                return m_type;
-            }
-        };
-        
-        class StandardBaseProperty : public StandardProperty {
-        protected:
-            String m_basename;
-        public:
-            StandardBaseProperty(StandardProperty::PropertyType type, const String& basename) : StandardProperty(type), m_basename(basename) {}
-            virtual ~StandardBaseProperty() {}
-            
-            inline const String& basename() const {
-                return m_basename;
-            }
-        };
-        
-        class StandardChoiceArgument {
-        protected:
-            int m_key;
-            String m_value;
-        public:
-            typedef std::vector<StandardChoiceArgument> List;
-            
-            StandardChoiceArgument(int key, const String& value) : m_key(key), m_value(value) {}
-            
-            inline int key() const {
-                return m_key;
-            }
-            
-            inline const String& value() const {
-                return m_value;
-            }
-        };
-
-        class StandardChoiceProperty : public StandardProperty {
-        protected:
-            String m_propertyName;
-            StandardChoiceArgument::List m_arguments;
-        public:
-            StandardChoiceProperty(const String& propertyName, const StandardChoiceArgument::List& arguments) :
-            StandardProperty(StandardProperty::Choice),
-            m_propertyName(propertyName),
-            m_arguments(arguments) {}
-            virtual ~StandardChoiceProperty() {}
-            
-            inline const String& propertyName() const {
-                return m_propertyName;
-            }
-            
-            inline const StandardChoiceArgument::List& arguments() const {
-                return m_arguments;
-            }
-        };
-        
-        class StandardDefaultProperty : public StandardProperty {
-        protected:
-            String m_propertyName;
-            String m_propertyValue;
-        public:
-            StandardDefaultProperty(const String& propertyName, const String& propertyValue) :
-            StandardProperty(StandardProperty::Default),
-            m_propertyName(propertyName),
-            m_propertyValue(propertyValue) {}
-            virtual ~StandardDefaultProperty() {}
-            
-            inline const String& propertyName() const {
-                return m_propertyName;
-            }
-            
-            inline const String& propertyValue() const {
-                return m_propertyValue;
-            }
-        };
-        
-        class StandardModelProperty : public StandardProperty {
-        protected:
-            String m_modelName;
-            String m_flagName;
-            unsigned int m_skinIndex;
-            unsigned int m_frameIndex;
-        public:
-            StandardModelProperty(const String& modelName, const String& flagName, unsigned int skinIndex, unsigned int frameIndex) :
-            StandardProperty(StandardProperty::Model),
-            m_modelName(modelName),
-            m_flagName(flagName),
-            m_skinIndex(skinIndex),
-            m_frameIndex(frameIndex) {}
-            virtual ~StandardModelProperty() {}
-            
-            inline const String& modelName() const {
-                return m_modelName;
-            }
-            
-            inline const String& flagName() const {
-                return m_flagName;
-            }
-            
-            inline unsigned int skinIndex() const {
-                return m_skinIndex;
-            }
-            
-            inline unsigned int frameIndex() const {
-                return m_frameIndex;
-            }
-        };
-        
         class DefParser {
         protected:
-            typedef std::map<String, StandardProperty::List> BasePropertiesMap;
+            typedef std::map<String, Model::PropertyDefinition::List> BasePropertiesMap;
             
             StringTokenizer<DefTokenEmitter> m_tokenizer;
             BasePropertiesMap m_baseProperties;
@@ -220,9 +98,9 @@ namespace TrenchBroom {
             Token nextTokenIgnoringNewlines();
             Color parseColor();
             BBox parseBounds();
-            Model::SpawnflagList parseFlags();
-            bool parseProperty(StandardProperty::List& properties);
-            StandardProperty::List parseProperties();
+            Model::FlagsPropertyDefinition* parseFlags();
+            bool parseProperty(Model::PropertyDefinition::List& properties, Model::ModelDefinition::List& modelDefinitions, StringList& baseClasses);
+            void parseProperties(Model::PropertyDefinition::List& properties, Model::ModelDefinition::List& modelDefinitions, StringList& baseClasses);
             String parseDescription();
         public:
             DefParser(std::istream& stream) : m_tokenizer(stream) {}
