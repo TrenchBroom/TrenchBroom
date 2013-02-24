@@ -61,22 +61,40 @@
 			<img src="images/render_filters.jpg" width="339" height="189" alt="Render Filters">
 			<div class="imagecaption">Render Filters</div>
 		</div>
-		<p>You can select the types of objects which should be rendered in the 3D view by using the render filters in the <b>View tab</b> of the inspector. There are five checkboxes in the <b>Filter</b> section:</p>
+		<p>You can select the types of objects which should be rendered in the 3D view by using the render filters in the <b>View tab</b> of the inspector. There are two categories with different checkboxes for each in the <b>Filter</b> section:</p>
 		<ul>
 			<li><b>Entities</b> - Render entities in the 3D view.</li>
+			<ul>
+				<li>Models - Render entity models in the 3D view.</li>
+				<li>Bounds - Render entity bounding boxes in the 3D view.</li>
+				<li>Classnames - Render entity classname labels in the 3D view.</li>
+			</ul>
 			<li><b>Brushes</b> - Render brushes in the 3D view.</li>
-			<li><b>Classes</b> - Render entity classnames in the 3D view.</li>
-			<li><b>Origin</b> - Render origin of the coordinate system in the 3D view.</li>
-			<li><b>Guides</b> - Render the selection size guides in the 3D view.</li>
+			<ul>
+				<li>Clip brushes - Render brushes entirely textured with the 'clip' texture.</li>
+				<li>Skip brushes - Render brushes entirely textured with the 'skip' texture.</li>
+			</ul>
 		</ul>
 		<p>Unchecking a checkbox will remove the appropriate type of object from the 3D view.</p>
+		
+		<h3>Filtering by name</h3>
+		<p>Another way to filter what objects are rendered is by using the 'Show objects matching' text. Trenchbroom will display only those objects who's key names or key values match the entered text.</p>
+		<p>For example, say you had two monster_shambler entities.  One of them had a 'targetname' key with the value 'scary' and the other had 'target' set to 'scary'.</p>
+		<ul>
+			<li>If the filter was set to "shambler", both monsters would be visible</li>
+			<li>If the filter was set to "scary", both monsters would be visible</li>
+			<li>If the filter was set to "targetname", only the first monster would be visible</li>
+			<li>If the filter was set to "target", <b>both</b> monsters would be visible (because 'targetname' is a partial match)</li>
+		</ul>
 
+		<!--
 		<a name="groups"></a><h3>Groups</h3>
 		<p>Once your map reaches a certain size, it can be very useful to create brush groups. A brush group is a special brush entity that is ignored by the BSP compiler - its only use is to reduce clutter in the editor. In TrenchBroom, brush groups are listed in the <b>Map tab</b> of the inspector.</p>
 		<p><img src="images/group_editor.jpg" width="300" height="176" alt="Group List" class="inline">To create a new brush group from the current selection, click on the <b>plus button</b> below the group list. To delete a brush group, select the group you want to delete in the group list and click on the <b>minus button</b>.</p>
 		<p>To activate one or more brush groups, check them in the group list. If any brush group is active, only the brushes belonging to this group are rendered in the 3D view.</p>
 		<br clear="all">
 		<p>Newly created brushes are added to the selected brush group if any of them is activated. If no brush group is activated, newly created brushes are not added to any group. If no brush group is selected, but at least one is activated, the newly created brushes are added to the activated brush group which was created last. Note that entities cannot be added to groups, so they are always rendered regardless.</p>
+		-->
 	</div>
 	<script src="../scrpt/jquery.js"></script>
 	<script>
