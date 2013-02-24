@@ -23,6 +23,11 @@ menu_commands["Mac"]["file_new"]						= "File &raquo; New - &#8984;N";
 menu_commands["Mac"]["file_open"]						= "File &raquo; Open... - &#8984;O";
 menu_commands["Mac"]["file_save"]						= "File &raquo; Save - &#8984;S";
 menu_commands["Mac"]["file_save_as"]					= "File &raquo; Save as... - &#8679;&#8984;S";
+
+menu_commands["Mac"]["file_load_pointfile"]				= "File &raquo; Load Pointfile";
+menu_commands["Mac"]["file_reload_pointfile"]			= "File &raquo; Reload Pointfile";
+menu_commands["Mac"]["file_unload_pointfile"]			= "File &raquo; Unload Pointfile";
+
 menu_commands["Mac"]["edit_copy"]						= "Edit &raquo; Copy - &#8984;C";
 menu_commands["Mac"]["edit_cut"]						= "Edit &raquo; Cut - &#8984;X";
 menu_commands["Mac"]["edit_paste"]						= "Edit &raquo; Paste - &#8984;V";
@@ -39,23 +44,33 @@ menu_commands["Mac"]["edit_flip_vertically"]			= "Edit &raquo; Actions &raquo; F
 menu_commands["Mac"]["edit_duplicate_selection"]		= "Edit &raquo; Actions &raquo; Duplicate - &#8984;D";
 menu_commands["Mac"]["edit_map_properties"]				= "Edit &raquo; Map Properties...";
 
-menu_commands["Mac"]["edit_hide_selected"]				= "Edit &raquo; Hide Selected; &#8984;H";
-menu_commands["Mac"]["edit_hide_unselected"]			= "Edit &raquo; Hide Unselected; &#8984;&#x2325;H";
-menu_commands["Mac"]["edit_unhide_all"]					= "Edit &raquo; Unhide All; &#8984;&#8679;H";
-menu_commands["Mac"]["edit_lock_selected"]				= "Edit &raquo; Lock Selected; &#8984;L";
-menu_commands["Mac"]["edit_lock_unselected"]			= "Edit &raquo; Lock Unselected; &#8984;&#x2325;L";
-menu_commands["Mac"]["edit_unlock_all"]					= "Edit &raquo; Unlock All; &#8984;&#8679;L";
+menu_commands["Mac"]["edit_undo"]						= "Edit &raquo; Undo - &#8984;Z";
+menu_commands["Mac"]["edit_redo"]						= "Edit &raquo; Redo - &#8984;Y";
 
-menu_commands["Mac"]["edit_undo"]						= "Edit &raquo; Undo; &#8984;Z";
-menu_commands["Mac"]["edit_redo"]					= "Edit &raquo; Undo; &#8984;Y";
+menu_commands["Mac"]["edit_hide_selected"]				= "Edit &raquo; Hide Selected - &#8984;H";
+menu_commands["Mac"]["edit_hide_unselected"]			= "Edit &raquo; Hide Unselected - &#8984;&#x2325;H";
+menu_commands["Mac"]["edit_unhide_all"]					= "Edit &raquo; Unhide All - &#8984;&#8679;H";
+menu_commands["Mac"]["edit_lock_selected"]				= "Edit &raquo; Lock Selected - &#8984;L";
+menu_commands["Mac"]["edit_lock_unselected"]			= "Edit &raquo; Lock Unselected - &#8984;&#x2325;L";
+menu_commands["Mac"]["edit_unlock_all"]					= "Edit &raquo; Unlock All - &#8984;&#8679;L";
+
+menu_commands["Mac"]["edit_actions_correct_verts"]		= "Edit &raquo; Actions &raquo; Correct Vertices";
+menu_commands["Mac"]["edit_actions_snap_verts"]			= "Edit &raquo; Actions &raquo; Snap Vertices";
 
 menu_commands["Mac"]["view_center_on_selection"]		= "View &raquo; Camera &raquo; Center on Selection - &#x2325;C";
+
+
 
 menu_commands["Windows"]["preferences"] 				= "View &raquo; Preferences";
 menu_commands["Windows"]["file_new"]					= "File &raquo; New - Ctrl+N";
 menu_commands["Windows"]["file_open"]					= "File &raquo; Open... - Ctrl+O";
 menu_commands["Windows"]["file_save"]					= "File &raquo; Save - Ctrl+S";
 menu_commands["Windows"]["file_save_as"]				= "File &raquo; Save as... - Ctrl+Shift+S";
+
+menu_commands["Windows"]["file_load_pointfile"]			= "File &raquo; Load Pointfile";
+menu_commands["Windows"]["file_reload_pointfile"]		= "File &raquo; Reload Pointfile";
+menu_commands["Windows"]["file_unload_pointfile"]		= "File &raquo; Unload Pointfile";
+
 menu_commands["Windows"]["edit_copy"]					= "Edit &raquo; Copy - Ctrl+C";
 menu_commands["Windows"]["edit_cut"]					= "Edit &raquo; Cut - Ctrl+X";
 menu_commands["Windows"]["edit_paste"]					= "Edit &raquo; Paste - Ctrl+V";
@@ -72,15 +87,18 @@ menu_commands["Windows"]["edit_flip_vertically"]		= "Edit &raquo; Actions &raquo
 menu_commands["Windows"]["edit_duplicate_selection"]	= "Edit &raquo; Actions &raquo; Duplicate - Ctrl+D";
 menu_commands["Windows"]["edit_map_properties"]			= "Edit &raquo; Map Properties...";
 
-menu_commands["Windows"]["edit_undo"]					= "Edit &raquo; Undo; Ctrl+Z";
-menu_commands["Windows"]["edit_redo"]					= "Edit &raquo; Undo; Ctrl+Y";
+menu_commands["Windows"]["edit_undo"]					= "Edit &raquo; Undo - Ctrl+Z";
+menu_commands["Windows"]["edit_redo"]					= "Edit &raquo; Redo - Ctrl+Y";
 
-menu_commands["Windows"]["edit_hide_selected"]			= "Edit &raquo; Hide Selected; Ctrl+H";
-menu_commands["Windows"]["edit_hide_unselected"]		= "Edit &raquo; Hide Unselected; Ctrl+Alt+H";
-menu_commands["Windows"]["edit_unhide_all"]				= "Edit &raquo; Unhide All; Ctrl+Shift+H";
-menu_commands["Windows"]["edit_lock_selected"]			= "Edit &raquo; Lock Selected; Ctrl+L";
-menu_commands["Windows"]["edit_lock_unselected"]		= "Edit &raquo; Lock Unselected; Ctrl+Alt+L";
-menu_commands["Windows"]["edit_unlock_all"]				= "Edit &raquo; Unlock All; Ctrl+Shift+L";
+menu_commands["Windows"]["edit_hide_selected"]			= "Edit &raquo; Hide Selected - Ctrl+H";
+menu_commands["Windows"]["edit_hide_unselected"]		= "Edit &raquo; Hide Unselected - Ctrl+Alt+H";
+menu_commands["Windows"]["edit_unhide_all"]				= "Edit &raquo; Unhide All - Ctrl+Shift+H";
+menu_commands["Windows"]["edit_lock_selected"]			= "Edit &raquo; Lock Selected - Ctrl+L";
+menu_commands["Windows"]["edit_lock_unselected"]		= "Edit &raquo; Lock Unselected - Ctrl+Alt+L";
+menu_commands["Windows"]["edit_unlock_all"]				= "Edit &raquo; Unlock All - Ctrl+Shift+L";
+
+menu_commands["Windows"]["edit_actions_correct_verts"]	= "Edit &raquo; Actions &raquo; Correct Vertices";
+menu_commands["Windows"]["edit_actions_snap_verts"]		= "Edit &raquo; Actions &raquo; Snap Vertices";
 
 menu_commands["Windows"]["view_center_on_selection"]	= "View &raquo; Camera &raquo; Center on Selection - Alt+C";
 
