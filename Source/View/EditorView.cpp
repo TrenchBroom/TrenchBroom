@@ -571,7 +571,7 @@ namespace TrenchBroom {
                     case Controller::Command::SetEntityPropertyValue:
                     case Controller::Command::RemoveEntityProperty: {
                         m_renderer->invalidateEntities();
-                        m_renderer->invalidateEntityModelRendererCache();
+                        m_renderer->invalidateSelectedEntityModelRendererCache();
                         inspector().entityInspector().updateProperties();
                         inputController().objectsChange();
                         break;

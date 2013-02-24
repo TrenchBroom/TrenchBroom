@@ -86,7 +86,8 @@ namespace TrenchBroom {
         m_spawnflags(spawnflags),
         m_description(description),
         m_usageCount(0),
-        m_propertyDefinitions(propertyDefinitions) {}
+        m_propertyDefinitions(propertyDefinitions) {
+        }
         
         EntityDefinition::~EntityDefinition() {
             Utility::deleteAll(m_propertyDefinitions);

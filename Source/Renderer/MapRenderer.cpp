@@ -524,6 +524,10 @@ namespace TrenchBroom {
             m_lockedEntityRenderer->invalidateModels();
         }
 
+        void MapRenderer::invalidateSelectedEntityModelRendererCache() {
+            m_selectedEntityRenderer->invalidateModels();
+        }
+
         void MapRenderer::addFigure(Figure* figure) {
             m_figures.push_back(figure);
         }

@@ -117,7 +117,9 @@ namespace TrenchBroom {
                 } else if (i == 11) {
                     label << "!DM";
                 } else if (definition != NULL) {
-                    const Model::FlagsPropertyOption* spawnflag = definition->spawnflags().option(static_cast<int>(1 << i));
+                    const Model::FlagsPropertyDefinition* spawnflags = definition->spawnflags();
+                    
+                    const Model::FlagsPropertyOption* spawnflag = spawnflags != NULL ? spawnflags->option(static_cast<int>(1 << i)) : NULL;
                     if (spawnflag != NULL) {
                         label << spawnflag->description();
                     } else {

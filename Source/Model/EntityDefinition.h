@@ -137,8 +137,8 @@ namespace TrenchBroom {
                 return m_color;
             }
             
-            const FlagsPropertyDefinition& spawnflags() const {
-                return *m_spawnflags;
+            const FlagsPropertyDefinition* spawnflags() const {
+                return m_spawnflags;
             }
             
             inline void incUsageCount() {
