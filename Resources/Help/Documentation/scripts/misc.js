@@ -8,3 +8,15 @@ function cycle_image(img, image_array) {
 	}
 }
 
+	function cycle_image_by_id(img_id, image_array)
+	{
+		var current_src = document.getElementById(img_id).getAttribute("src");
+		for (i = 0; i < image_array.length; i++) 
+		{
+			if (current_src == image_array[i])
+			{
+				document.getElementById(img_id).setAttribute("src", image_array[(i + 1) % image_array.length]);
+				break;
+			}
+		}
+	}
