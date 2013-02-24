@@ -19,20 +19,21 @@
 
 #include "ViewInspector.h"
 
-#include <wx/checkbox.h>
-#include <wx/choice.h>
-#include <wx/srchctrl.h>
-#include <wx/sizer.h>
-#include <wx/statbox.h>
-#include <wx/statline.h>
-#include <wx/stattext.h>
-
 #include "Controller/Command.h"
 #include "View/CommandIds.h"
 #include "View/DocumentViewHolder.h"
 #include "View/EditorView.h"
 #include "View/LayoutConstants.h"
 #include "View/ViewOptions.h"
+
+#include <wx/checkbox.h>
+#include <wx/choice.h>
+#include <wx/gbsizer.h>
+#include <wx/srchctrl.h>
+#include <wx/sizer.h>
+#include <wx/statbox.h>
+#include <wx/statline.h>
+#include <wx/stattext.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -78,68 +79,42 @@ namespace TrenchBroom {
 
         wxWindow* ViewInspector::createFilterBox() {
             wxStaticBox* filterBox = new wxStaticBox(this, wxID_ANY, wxT("Filter"));
-            wxPanel* searchPanel = new wxPanel(filterBox);
-            {
-                wxStaticText* searchLabel = new wxStaticText(searchPanel, wxID_ANY, wxT("Show objects matching"));
-                m_searchBox = new wxSearchCtrl(searchPanel, wxID_ANY);
-                m_searchBox->ShowCancelButton(true);
+            m_searchBox = new wxSearchCtrl(filterBox, wxID_ANY);
+            m_searchBox->ShowCancelButton(true);
+            
+            wxFlexGridSizer* searchPanelSizer = new wxFlexGridSizer(2, 0, LayoutConstants::ControlHorizontalMargin);
+            searchPanelSizer->AddGrowableCol(1);
+            searchPanelSizer->Add(new wxStaticText(filterBox, wxID_ANY, wxT("Show objects matching")), 0, wxALIGN_CENTER_VERTICAL);
+            searchPanelSizer->Add(m_searchBox, 0, wxEXPAND | wxALIGN_CENTER_VERTICAL);
 
-                wxSizer* searchPanelSizer = new wxBoxSizer(wxHORIZONTAL);
-                searchPanelSizer->Add(searchLabel, 0, wxEXPAND | wxTOP, 2);
-                searchPanelSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
-                searchPanelSizer->Add(m_searchBox, 1, wxEXPAND);
-                searchPanel->SetSizerAndFit(searchPanelSizer);
-            }
-
-            wxPanel* togglePanel = new wxPanel(filterBox);
-            {
-                wxPanel* entityPanel = new wxPanel(togglePanel);
-                {
-                    m_toggleEntities = new wxCheckBox(entityPanel, CommandIds::ViewInspector::ShowEntitiesCheckBoxId, wxT("Entities"));
-                    m_toggleEntityModels = new wxCheckBox(entityPanel, CommandIds::ViewInspector::ShowEntityModelsCheckBoxId, wxT("Models"));
-                    m_toggleEntityBounds = new wxCheckBox(entityPanel, CommandIds::ViewInspector::ShowEntityBoundsCheckBoxId, wxT("Bounds"));
-                    m_toggleEntityClassnames = new wxCheckBox(entityPanel, CommandIds::ViewInspector::ShowEntityClassnamesCheckBoxId, wxT("Classnames"));
-
-                    wxSizer* entityPanelSizer = new wxBoxSizer(wxVERTICAL);
-                    entityPanelSizer->Add(m_toggleEntities, 0, wxEXPAND);
-                    entityPanelSizer->AddSpacer(LayoutConstants::CheckBoxVerticalMargin);
-                    entityPanelSizer->Add(m_toggleEntityModels, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
-                    entityPanelSizer->AddSpacer(LayoutConstants::CheckBoxVerticalMargin);
-                    entityPanelSizer->Add(m_toggleEntityBounds, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
-                    entityPanelSizer->AddSpacer(LayoutConstants::CheckBoxVerticalMargin);
-                    entityPanelSizer->Add(m_toggleEntityClassnames, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
-                    entityPanel->SetSizerAndFit(entityPanelSizer);
-                }
-                wxPanel* brushPanel = new wxPanel(togglePanel);
-                {
-                    m_toggleBrushes = new wxCheckBox(brushPanel, CommandIds::ViewInspector::ShowBrushesCheckBoxId, wxT("Brushes"));
-                    m_toggleClipBrushes = new wxCheckBox(brushPanel, CommandIds::ViewInspector::ShowClipBrushesCheckBoxId, wxT("Clip brushes"));
-                    m_toggleSkipBrushes = new wxCheckBox(brushPanel, CommandIds::ViewInspector::ShowSkipBrushesCheckBoxId, wxT("Skip brushes"));
-
-                    wxSizer* brushPanelSizer = new wxBoxSizer(wxVERTICAL);
-                    brushPanelSizer->Add(m_toggleBrushes, 0, wxEXPAND);
-                    brushPanelSizer->AddSpacer(LayoutConstants::CheckBoxVerticalMargin);
-                    brushPanelSizer->Add(m_toggleClipBrushes, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
-                    brushPanelSizer->AddSpacer(LayoutConstants::CheckBoxVerticalMargin);
-                    brushPanelSizer->Add(m_toggleSkipBrushes, 0, wxEXPAND | wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
-                    brushPanel->SetSizerAndFit(brushPanelSizer);
-                }
-
-                wxSizer* togglePanelSizer = new wxBoxSizer(wxHORIZONTAL);
-                togglePanelSizer->Add(entityPanel, 0, wxEXPAND);
-                togglePanelSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
-                togglePanelSizer->Add(brushPanel, 1, wxEXPAND);
-                togglePanel->SetSizerAndFit(togglePanelSizer);
-            }
-
+            m_toggleEntities = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowEntitiesCheckBoxId, wxT("Entities"));
+            m_toggleEntityModels = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowEntityModelsCheckBoxId, wxT("Models"));
+            m_toggleEntityBounds = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowEntityBoundsCheckBoxId, wxT("Bounds"));
+            m_toggleEntityClassnames = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowEntityClassnamesCheckBoxId, wxT("Classnames"));
+            
+            m_toggleBrushes = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowBrushesCheckBoxId, wxT("Brushes"));
+            m_toggleClipBrushes = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowClipBrushesCheckBoxId, wxT("Clip brushes"));
+            m_toggleSkipBrushes = new wxCheckBox(filterBox, CommandIds::ViewInspector::ShowSkipBrushesCheckBoxId, wxT("Skip brushes"));
+            
+            wxGridBagSizer* filterPanelSizer = new wxGridBagSizer(LayoutConstants::CheckBoxVerticalMargin, LayoutConstants::ControlHorizontalMargin);
+            filterPanelSizer->Add(m_toggleEntities, wxGBPosition(0, 0));
+            filterPanelSizer->Add(m_toggleEntityModels, wxGBPosition(1, 0), wxDefaultSpan, wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
+            filterPanelSizer->Add(m_toggleEntityBounds, wxGBPosition(2, 0), wxDefaultSpan, wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
+            filterPanelSizer->Add(m_toggleEntityClassnames, wxGBPosition(3, 0), wxDefaultSpan, wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
+            
+            filterPanelSizer->Add(m_toggleBrushes, wxGBPosition(0, 1));
+            filterPanelSizer->Add(m_toggleClipBrushes, wxGBPosition(1, 1), wxDefaultSpan, wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
+            filterPanelSizer->Add(m_toggleSkipBrushes, wxGBPosition(2, 1), wxDefaultSpan, wxLEFT, LayoutConstants::CheckBoxHierarchyLeftMargin);
+            filterPanelSizer->AddGrowableCol(1);
+            
             // layout of the contained controls
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
-            outerSizer->Add(searchPanel, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
+            outerSizer->Add(searchPanelSizer, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
             outerSizer->AddSpacer(LayoutConstants::DefaultVerticalMargin);
             outerSizer->Add(new wxStaticLine(filterBox), 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
             outerSizer->AddSpacer(LayoutConstants::DefaultVerticalMargin);
-            outerSizer->Add(togglePanel, 1, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, LayoutConstants::StaticBoxInnerMargin);
+            outerSizer->Add(filterPanelSizer, 1, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, LayoutConstants::StaticBoxInnerMargin);
             outerSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
 
             filterBox->SetSizerAndFit(outerSizer);

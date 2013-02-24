@@ -273,6 +273,7 @@ namespace TrenchBroom {
             wxAcceleratorTable accceleratorTable(4, acceleratorEntries);
             SetAcceleratorTable(accceleratorTable);
 #endif
+            SetEscapeId(wxID_CLOSE);
 
             init();
 
