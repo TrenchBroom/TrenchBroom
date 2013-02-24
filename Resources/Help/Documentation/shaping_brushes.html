@@ -81,7 +81,7 @@
 		</div>
 		<p>Once you are happy with the selection, you can move the handles just like you move other objects.  <script>print_key("Dragging", "Left Click");</script> the mouse moves the handle(s) along the horizontal plane, and <script>print_key("Dragging", "Alt", "Left Click");</script> moves the handle(s) vertically.</p>
 		<a name="vertex_editing"></a><h3>Editing Vertices</h3>
-		<p>The vertex editing mode allows you to move the vertices of a brush and to split edges and faces by adding new vertices to them. On selecting the first vertex, you will notice the handles for edges and faces disappear. This is to avoid cluttering up the view and also because you can only edit one type of handle at once. Also note that these handles will only be visible if you are within a certain distance to the brush.</p>
+		<p>The vertex editing mode allows you to move the vertices of a brush and to split edges and faces by adding new vertices to them. On selecting the first vertex, you will notice the handles for edges and faces disappear. This is to avoid cluttering up the view and also because you can only edit one type of handle at once. Also note that these handles will only be visible if you are within a certain distance to the brush. Like other objects, vertices can be moved horizontally by <script>print_key("left clicking and dragging");</script> them with the mouse and vertically by holding the <script>print_key("Alt");</script> while dragging</p>
 		<div class="images">
 			<img src="images/vertex_editing.jpg" width="300" height="261" alt="Vertex Editing Mode">
 			<img src="images/vertex_editing_vertex_moved.jpg" width="300" height="261" alt="One Vertex Moved">
@@ -125,18 +125,27 @@
 			<img src="images/face_editing_2.jpg" width="300" height="241" alt="Face Sheared">
 			<div class="imagecaption">Face Editing 2</div>
 		</div>
-		<p>As you can see in the screenshots above, moving a face is basically like shearing brush. Of couse, you can also change the size of the brush by dragging the face towards or away from the brush's center. Note that, depending on the shape of the brush, face editing can have a different effect than <a href="#face_dragging">face dragging</a>. Consider the following screenshots for an example.</p>
+		<p>As you can see in the screenshots above, moving a face is basically like shearing brush. Of couse, you can also change the size of the brush by dragging the face towards or away from the brush's center. Note that, depending on the shape of the brush, face editing can have a different effect than <a href="#resizing_brushes">brush resizing</a>. Consider the following screenshots for an example.</p>
 		<div class="images">
 			<img src="images/face_dragging_vs_editing_1.jpg" width="200" height="181" alt="Frustrum">
 			<img src="images/face_dragging_vs_editing_2.jpg" width="200" height="181" alt="Frustrum after Face Editing">
-			<img src="images/face_dragging_vs_editing_3.jpg" width="200" height="181" alt="Frustrum after Face Dragging">
-			<div class="imagecaption">Face editing vs. face dragging</div>
+			<img src="images/face_dragging_vs_editing_3.jpg" width="200" height="181" alt="Frustrum after Brush Resizing">
+			<div class="imagecaption">Face Dragging vs. Brush Resizing</div>
 		</div>
-		<p>In the first screenshot, you see a brush shaped like a frustrum (a frustrum is a pyramid with its tip cut off). The top face is a square with a side length of four grid units. The second screenshot shows the effect of moving the top face upward using face editing mode. As you can see, the side length of the square has not changed - this is because face moving is tantamount to moving the vertices of the face in parallel. In the third screenshot however, you see the effect of dragging the face upwards. In this case, the side length of the top square has changed. Both operations have their advantages and disadvantages and it depends on the context which one you should use.</p>
+		<p>In the first screenshot, you see a brush shaped like a frustrum (a frustrum is a pyramid with its tip cut off). The top face is a square with a side length of four grid units. The second screenshot shows the effect of moving the top face upward using face editing mode. As you can see, the side length of the square has not changed - this is because face moving is tantamount to moving the vertices of the face in parallel. In the third screenshot however, you see the effect of resizing the face upwards. In this case, the side length of the top square has changed. Both operations have their advantages and disadvantages and it depends on the context which one you should use.</p>
 		<p>This concludes the section about shaping brushes. You have learned how to drag faces, clip brushes, delete individual faces and how to use the vertex, edge and face editing modes. Together, these tools allow you to create complex brush shapes quickly and precisely.</p>
-		
+		<h3>Snapping to Grid</h3>
+		<p>Like other objects, performing translations on handles operates by offsetting the selection by the current grid size.  That is to say, if your current grid size is set to 64 and your handle is on '8 8 8', trying to move it in the X direction would result in the new position of '72 8 8'.  Normally this is fine but sometimes it might be desireable to bring the selection back onto the grid. This is done by pressing <script>print_key("Shift");</script> while dragging the selection and it will immediately snap to the nearest grid point.</p>
+		<p>In the case where you have multiple handles selected, it is the handle that was clicked on for the drag that will be used for snapping to grid.</p>
 		<h2>Working with multiple brushes</h2>
-		<p>Not done yet.  Will talk about vertex editing with multiple brushes (vertex 'clumping') and dragging multiple faces, limitations of editing multiple brush components at once vs 1 at a time...</p>
+		<p>Vertex editing mode is not limited to working with single brushes.  Selecting more than one brush and then pressing <script>print_key("V");</script> to enable vertex mode will cause vertex handles to appear for all brushes in the selection. This is more useful when working on organic brushwork such as terrain. You can build a large group of brushes and modify them all at once without having to change the selection</p>
+		<h3>Vertex Clumping</h3>
+		<p>Trenchbroom will recognize when vertices of multiple brushes share the same position. In this case, when trying to move a vertex, Trenchbroom will move all those vertices together making editing terrain much quicker and easier.</p>
+		<div class="images">
+			<img src="images/vertex_editing_multibrush.gif" width="446" height="296" alt="Vertex Editing with multiple brushes">
+			<div class="imagecaption">Vertex editing with multiple brushes</div>
+		</div>
+		<p>In the above screenshot, the vertices under the cursor were moved with a single drag operation because they share the same position. This behaviour also applies to edge and face editing if the handles of those components share the same position in space.</p>
 	</div>
 </body>
 </html>

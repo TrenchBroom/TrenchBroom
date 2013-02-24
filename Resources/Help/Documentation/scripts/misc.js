@@ -7,4 +7,3 @@ function cycle_image(img, image_array) {
 		}
 	}
 }
-

@@ -1,0 +1,22 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>TrenchBroom Help - Working With Textures</title>
+	<link rel="StyleSheet" href="css/style.css" type="text/css" media="screen" />
+	<meta name="author" content="Kristian Duske">
+</head>
+<body>
+	<script src="scripts/commands.js"></script>
+	<div id="container">
+		<h2>Undo System</h2>
+		<p>Trenchbroom has a fully integrated undo system and it does not differ greatly from how other editors implement the system. There are only two commands, <script>print_menu_command("edit_undo");</script> and <script>print_menu_command("edit_redo");</script>.</p>
+		<h3>Undo</h3>
+		<p>This command reverts commands in reverse order, starting with the last command, then the second last, and so on and so forth. Commands supported by this system are as you would expect, object translations, rotations, creation and deletion as well as things such as entity key value changes and key additions and removals.</p>
+		<p>Also supported are selection events such as entity, brush and face selection.</p>
+		<h3>Redo</h3>
+		<p>The redo command is fairly straightforward and redoes any commands that the undo command reverted.  Note that if you undo 3 commands, then redo 2 of them and then perform any operation covered by the undo system, the last command in the undo queue can no longer by redone and is lost forever.</p>
+	</div>
+</body>
+</html>
