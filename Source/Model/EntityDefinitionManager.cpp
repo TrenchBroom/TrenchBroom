@@ -20,7 +20,7 @@
 #include "EntityDefinitionManager.h"
 
 #include "IO/FileManager.h"
-#include "IO/StandardDefinitionParser.h"
+#include "IO/DefParser.h"
 #include "IO/mmapped_fstream.h"
 #include "Utility/Preferences.h"
 #include "Utility/String.h"
@@ -43,7 +43,7 @@ namespace TrenchBroom {
 
         void EntityDefinitionManager::load(const String& path) {
             mmapped_fstream stream(path.c_str(), std::ios::in);
-            IO::StandardDefinitionParser parser(stream);
+            IO::DefParser parser(stream);
             
             EntityDefinition* definition = NULL;
             while ((definition = parser.nextDefinition()) != NULL) {

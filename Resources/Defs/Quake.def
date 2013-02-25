@@ -174,22 +174,22 @@ Used as a positional target for spotlights, etc.
 */
 
 /*QUAKED info_player_coop (1.0 0.0 1.0) (-16 -16 -24) (16 16 24)
-{ model(":progs/player.mdl"); }
+{ model(":progs/player.mdl" 0 0); }
 potential spawning position for coop games
 */
 
 /*QUAKED info_player_deathmatch (1.0 0.0 1.0) (-16 -16 -24) (16 16 24)
-{ model(":progs/player.mdl"); }
+{ model(":progs/player.mdl" 0 0); }
 potential spawning position for deathmatch games
 */
 
 /*QUAKED info_player_start (1.0 0.0 0.0) (-16 -16 -24) (16 16 24)
-{ model(":progs/player.mdl"); }
+{ model(":progs/player.mdl" 0 0); }
 The normal starting point for a level.
 */
 
 /*QUAKED info_player_start2 (1.0 0.0 0.0) (-16 -16 -24) (16 16 24)
-{ model(":progs/player.mdl"); }
+{ model(":progs/player.mdl" 0 0); }
 Only used on start map for the return point from an episode.
 */
 
@@ -198,49 +198,49 @@ This is the destination marker for a teleporter.  It should have a "targetname" 
 */
 
 /*QUAKED item_armor1 (0.0 0.5 0.8) (-16 -16 0) (16 16 32)
-{ model(":progs/armor.mdl:0"); }
+{ model(":progs/armor.mdl" 0 0); }
 */
 
 /*QUAKED item_armor2 (0.0 0.5 0.8) (-16 -16 0) (16 16 32)
-{ model(":progs/armor.mdl:1"); }
+{ model(":progs/armor.mdl" 1 0); }
 */
 
 /*QUAKED item_armorInv (0.0 0.5 0.8) (-16 -16 0) (16 16 32)
-{ model(":progs/armor.mdl:2"); }
+{ model(":progs/armor.mdl" 2 0); }
 */
 
 /*QUAKED item_artifact_envirosuit (0.0 0.5 0.8) (-16 -16 -24) (16 16 32)
-{ model(":progs/suit.mdl"); }
+{ model(":progs/suit.mdl" 0 0); }
 Player takes no damage from water or slime for 30 seconds
 */
 
 /*QUAKED item_artifact_invisibility (0.0 0.5 0.8) (-16 -16 -24) (16 16 32)
-{ model(":progs/invisibl.mdl"); }
+{ model(":progs/invisibl.mdl" 0 0); }
 Player is invisible for 30 seconds
 */
 
 /*QUAKED item_artifact_invulnerability (0.0 0.5 0.8) (-16 -16 -24) (16 16 32)
-{ model(":progs/invulner.mdl"); }
+{ model(":progs/invulner.mdl" 0 0); }
 Player is invulnerable for 30 seconds
 */
 
 /*QUAKED item_artifact_super_damage (0.0 0.5 0.8) (-16 -16 -24) (16 16 32)
-{ model(":progs/quaddama.mdl"); }
+{ model(":progs/quaddama.mdl" 0 0); }
 The next attack from the player will do 4x damage
 */
 
 /*QUAKED item_cells (0.0 0.5 0.8) (0 0 0) (32 32 32) big
 {
-model(":maps/b_batt0.bsp");
-model(":maps/b_batt1.bsp","big");
+model(":maps/b_batt0.bsp" 0 0);
+model(":maps/b_batt1.bsp" 0 0 spawnflags = 1);
 }
 */
 
 /*QUAKED item_health (0.3 0.3 1.0) (0 0 0) (32 32 32) rotten megahealth
 {
-    model(":maps/b_bh25.bsp");
-    model(":maps/b_bh10.bsp","rotten");
-    model(":maps/b_bh100.bsp","megahealth");
+    model(":maps/b_bh25.bsp" 0 0);
+    model(":maps/b_bh10.bsp" 0 0 spawnflags = 1);
+    model(":maps/b_bh100.bsp" 0 0 spawnflags = 2);
 }
 Health box. Normally gives 25 points.
 Rotten box heals 5-10 points,
@@ -250,7 +250,7 @@ one point per second.
 */
 
 /*QUAKED item_key1 (0.0 0.5 0.8) (-16 -16 -24) (16 16 32)
-{ model(":progs/w_s_key.mdl"); }
+{ model(":progs/w_s_key.mdl" 0 0); }
 SILVER key
 In order for keys to work
 you MUST set your maps
@@ -262,7 +262,7 @@ following:
 */
 
 /*QUAKED item_key2 (0.0 0.5 0.8) (-16 -16 -24) (16 16 32)
-{ model(":progs/w_g_key.mdl"); }
+{ model(":progs/w_g_key.mdl" 0 0); }
 GOLD key
 In order for keys to work
 you MUST set your maps
@@ -275,21 +275,21 @@ following:
 
 /*QUAKED item_rockets (0.0 0.5 0.8) (0 0 0) (32 32 32) big
 {
-model(":maps/b_rock0.bsp");
-model(":maps/b_rock1.bsp","big");
+model(":maps/b_rock0.bsp" 0 0);
+model(":maps/b_rock1.bsp" 0 0 spawnflags = 1);
 }
 */
 
 /*QUAKED item_shells (0.0 0.5 0.8) (0 0 0) (32 32 32) big
 {
-model(":maps/b_shell0.bsp");
-model(":maps/b_shell1.bsp","big");
+model(":maps/b_shell0.bsp" 0 0);
+model(":maps/b_shell1.bsp" 0 0 spawnflags = 1);
 }
 */
 
 /*QUAKED item_sigil (0.0 0.5 0.8) (-16 -16 -24) (16 16 32) E1 E2 E3 E4
 { 
-   model(":progs/end1.mdl"); 
+   model(":progs/end1.mdl" 0 0); 
    default("spawnflags","1");
 }
 End of level sigil, pick up to end episode and return to jrstart. You MUST set one of the spawnflags.
@@ -297,8 +297,8 @@ End of level sigil, pick up to end episode and return to jrstart. You MUST set o
 
 /*QUAKED item_spikes (0.0 0.5 0.8) (0 0 0) (32 32 32) big
 {
-model(":maps/b_nail0.bsp");
-model(":maps/b_nail1.bsp","big");
+model(":maps/b_nail0.bsp" 0 0);
+model(":maps/b_nail1.bsp" 0 0 spawnflags = 1);
 }
 */
 
@@ -336,7 +336,7 @@ Default "style" is 0.
 /*QUAKED light_flame_large_yellow (0.0 1.0 0.0) (-10 -10 -12) (12 12 18)
 {
 base("_light_style");
-model(":progs/flame2.mdl");
+model(":progs/flame2.mdl" 0 0);
 }
 Large yellow flame ball
 Default "style" is 0.
@@ -345,7 +345,7 @@ Default "style" is 0.
 /*QUAKED light_flame_small_white (0.0 1.0 0.0) (-10 -10 -40) (10 10 40) START_OFF
 {
 base("_light_style");
-model(":progs/flame2.mdl");
+model(":progs/flame2.mdl" 0 0);
 }
 Small white flame ball
 Default "style" is 0.
@@ -354,7 +354,7 @@ Default "style" is 0.
 /*QUAKED light_flame_small_yellow (0.0 1.0 0.0) (-8 -8 -8) (8 8 8) START_OFF
 {
 base("_light_style");
-model(":progs/flame2.mdl");
+model(":progs/flame2.mdl" 0 0);
 }
 Small yellow flame ball
 Default "style" is 0.
@@ -393,7 +393,7 @@ Default style is 0
 /*QUAKED light_torch_small_walltorch (0.0 0.5 0.0) (-10 -10 -20) (10 10 20)
 {
 base("_light_style");
-model(":progs/flame.mdl");
+model(":progs/flame.mdl" 0 0);
 }
 Short wall torch
 Default light value is 200
@@ -402,14 +402,14 @@ Default style is 0
 
 /*QUAKED misc_explobox (0.0 0.5 0.8) (0 0 0) (32 32 64)
 {
-    model(":maps/b_explob.bsp");
+    model(":maps/b_explob.bsp" 0 0);
 }
 Exploding box.
 */
 
 /*QUAKED misc_explobox2 (0.0 0.5 0.8) (0 0 0) (32 32 64)
 {
-    model(":maps/b_exbox2.bsp");
+    model(":maps/b_exbox2.bsp" 0 0);
 }
 Smaller exploding box, REGISTERED ONLY
 */
@@ -423,68 +423,68 @@ For optimzation testing, starts a lot of sounds.
 */
 
 /*QUAKED misc_teleporttrain (0.0 0.5 0.8) (-8 -8 -8) (8 8 8)
-{ model(":progs/teleport.mdl"); }
+{ model(":progs/teleport.mdl" 0 0); }
 This is used for the final bos
 */
 
 /*QUAKED monster_army (1.0 0.0 0.0) (-16 -16 -24) (16 16 40) Ambush
-{ model(":progs/soldier.mdl"); }
+{ model(":progs/soldier.mdl" 0 0); }
 */
 
 /*QUAKED monster_boss (1.0 0.0 0.0) (-128 -128 -24) (128 128 256)
-{ model(":progs/boss.mdl"); }
+{ model(":progs/boss.mdl" 0 0); }
 */
 
 /*QUAKED monster_demon1 (1.0 0.0 0.0) (-32 -32 -24) (32 32 64) Ambush
-{ model(":progs/demon.mdl"); }
+{ model(":progs/demon.mdl" 0 0); }
 */
 
 /*QUAKED monster_dog (1.0 0.0 0.0) (-32 -32 -24) (32 32 40) Ambush
-{ model(":progs/dog.mdl"); }
+{ model(":progs/dog.mdl" 0 0); }
 */
 
 /*QUAKED monster_enforcer (1.0 0.0 0.0) (-16 -16 -24) (16 16 40) Ambush
-{ model(":progs/enforcer.mdl"); }
+{ model(":progs/enforcer.mdl" 0 0); }
 */
 
 /*QUAKED monster_fish (1.0 0.0 0.0) (-16 -16 -24) (16 16 24) Ambush
-{ model(":progs/fish.mdl"); }
+{ model(":progs/fish.mdl" 0 0); }
 */
 
 /*QUAKED monster_hell_knight (1.0 0.0 0.0) (-16 -16 -24) (16 16 40) Ambush
-{ model(":progs/hknight.mdl"); }
+{ model(":progs/hknight.mdl" 0 0); }
 */
 
 /*QUAKED monster_knight (1.0 0.0 0.0) (-16 -16 -24) (16 16 40) Ambush
-{ model(":progs/knight.mdl"); }
+{ model(":progs/knight.mdl" 0 0); }
 */
 
 /*QUAKED monster_ogre (1.0 0.0 0.0) (-32 -32 -24) (32 32 64) Ambush
-{ model(":progs/ogre.mdl"); }
+{ model(":progs/ogre.mdl" 0 0); }
 */
 
 /*QUAKED monster_oldone (1.0 0.0 0.0) (-16 -16 -24) (16 16 32)
-{ model(":progs/oldone.mdl"); }
+{ model(":progs/oldone.mdl" 0 0); }
 */
 
 /*QUAKED monster_shalrath (1.0 0.0 0.0) (-32 -32 -24) (32 32 48) Ambush
-{ model(":progs/shalrath.mdl"); }
+{ model(":progs/shalrath.mdl" 0 0); }
 */
 
 /*QUAKED monster_shambler (1.0 0.0 0.0) (-32 -32 -24) (32 32 64) Ambush
-{ model(":progs/shambler.mdl"); }
+{ model(":progs/shambler.mdl" 0 0); }
 */
 
 /*QUAKED monster_tarbaby (1.0 0.0 0.0) (-16 -16 -24) (16 16 24) Ambush
-{ model(":progs/tarbaby.mdl"); }
+{ model(":progs/tarbaby.mdl" 0 0); }
 */
 
 /*QUAKED monster_wizard (1.0 0.0 0.0) (-16 -16 -24) (16 16 40) Ambush
-{ model(":progs/wizard.mdl"); }
+{ model(":progs/wizard.mdl" 0 0); }
 */
 
 /*QUAKED monster_zombie (1.0 0.0 0.0) (-16 -16 -24) (16 16 32) Crucified ambush
-{ model(":progs/zombie.mdl"); }
+{ model(":progs/zombie.mdl" 0 0); }
 
 If crucified, stick the bounding box 12 pixels back into a wall to look right.
 */
@@ -618,33 +618,33 @@ If the trigger_teleport has a targetname, it will only teleport entities when it
 */
 
 /*QUAKED viewthing (0.0 0.5 0.8) (-8 -8 -8) (8 8 8)
-{ model(":progs/player.mdl"); }
+{ model(":progs/player.mdl" 0 0); }
 
 Just for the debugging level.  Don't use
 */
 
 /*QUAKED weapon_grenadelauncher (0.0 0.5 0.8) (-16 -16 0) (16 16 32)
-{ model(":progs/g_rock.mdl"); }
+{ model(":progs/g_rock.mdl" 0 0); }
 */
 
 /*QUAKED weapon_lightning (0.0 0.5 0.8) (-16 -16 0) (16 16 32)
-{ model(":progs/g_light.mdl"); }
+{ model(":progs/g_light.mdl" 0 0); }
 */
 
 /*QUAKED weapon_nailgun (0.0 0.5 0.8) (-16 -16 0) (16 16 32)
-{ model(":progs/g_nail.mdl"); }
+{ model(":progs/g_nail.mdl" 0 0); }
 */
 
 /*QUAKED weapon_rocketlauncher (0.0 0.5 0.8) (-16 -16 0) (16 16 32)
-{ model(":progs/g_rock2.mdl"); }
+{ model(":progs/g_rock2.mdl" 0 0); }
 */
 
 /*QUAKED weapon_supernailgun (0.0 0.5 0.8) (-16 -16 0) (16 16 32)
-{ model(":progs/g_nail2.mdl"); }
+{ model(":progs/g_nail2.mdl" 0 0); }
 */
 
 /*QUAKED weapon_supershotgun (0.0 0.5 0.8) (-16 -16 0) (16 16 32)
-{ model(":progs/g_shot.mdl"); }
+{ model(":progs/g_shot.mdl" 0 0); }
 */
 
 /*QUAKED worldspawn (0.0 0.0 0.0) ?

@@ -134,6 +134,7 @@ namespace TrenchBroom {
             void invalidateSelectedBrushes();
             void invalidateAll();
             void invalidateEntityModelRendererCache();
+            void invalidateSelectedEntityModelRendererCache();
             
             void addFigure(Figure* figure);
             void removeFigure(Figure* figure);

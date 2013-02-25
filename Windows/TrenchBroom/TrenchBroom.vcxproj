@@ -267,10 +267,11 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Controller\VertexHandleManager.cpp" />
     <ClCompile Include="..\..\Source\GL\glew.c" />
     <ClCompile Include="..\..\Source\IO\AbstractFileManager.cpp" />
+    <ClCompile Include="..\..\Source\IO\DefParser.cpp" />
+    <ClCompile Include="..\..\Source\IO\FGDParser.cpp" />
     <ClCompile Include="..\..\Source\IO\MapParser.cpp" />
     <ClCompile Include="..\..\Source\IO\MapWriter.cpp" />
     <ClCompile Include="..\..\Source\IO\Pak.cpp" />
-    <ClCompile Include="..\..\Source\IO\StandardDefinitionParser.cpp" />
     <ClCompile Include="..\..\Source\IO\Wad.cpp" />
     <ClCompile Include="..\..\Source\Model\Alias.cpp" />
     <ClCompile Include="..\..\Source\Model\Brush.cpp" />
@@ -415,7 +416,8 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\GL\glew.h" />
     <ClInclude Include="..\..\Source\GL\wglew.h" />
     <ClInclude Include="..\..\Source\IO\AbstractFileManager.h" />
-    <ClInclude Include="..\..\Source\IO\AbstractTokenizer.h" />
+    <ClInclude Include="..\..\Source\IO\DefParser.h" />
+    <ClInclude Include="..\..\Source\IO\FGDParser.h" />
     <ClInclude Include="..\..\Source\IO\FileManager.h" />
     <ClInclude Include="..\..\Source\IO\IOException.h" />
     <ClInclude Include="..\..\Source\IO\IOUtils.h" />
@@ -425,8 +427,8 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\IO\mmapped_fstream_win32.h" />
     <ClInclude Include="..\..\Source\IO\Pak.h" />
     <ClInclude Include="..\..\Source\IO\ParserException.h" />
-    <ClInclude Include="..\..\Source\IO\StandardDefinitionParser.h" />
     <ClInclude Include="..\..\Source\IO\substream.h" />
+    <ClInclude Include="..\..\Source\IO\Tokenizer.h" />
     <ClInclude Include="..\..\Source\IO\Wad.h" />
     <ClInclude Include="..\..\Source\Model\Alias.h" />
     <ClInclude Include="..\..\Source\Model\AliasNormals.h" />

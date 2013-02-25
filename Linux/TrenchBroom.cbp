@@ -222,7 +222,10 @@
 		<Unit filename="../Source/GL/wglew.h" />
 		<Unit filename="../Source/IO/AbstractFileManager.cpp" />
 		<Unit filename="../Source/IO/AbstractFileManager.h" />
-		<Unit filename="../Source/IO/AbstractTokenizer.h" />
+		<Unit filename="../Source/IO/DefParser.cpp" />
+		<Unit filename="../Source/IO/DefParser.h" />
+		<Unit filename="../Source/IO/FGDParser.cpp" />
+		<Unit filename="../Source/IO/FGDParser.h" />
 		<Unit filename="../Source/IO/FileManager.h" />
 		<Unit filename="../Source/IO/IOException.h" />
 		<Unit filename="../Source/IO/IOUtils.h" />
@@ -233,8 +236,7 @@
 		<Unit filename="../Source/IO/Pak.cpp" />
 		<Unit filename="../Source/IO/Pak.h" />
 		<Unit filename="../Source/IO/ParserException.h" />
-		<Unit filename="../Source/IO/StandardDefinitionParser.cpp" />
-		<Unit filename="../Source/IO/StandardDefinitionParser.h" />
+		<Unit filename="../Source/IO/Tokenizer.h" />
 		<Unit filename="../Source/IO/Wad.cpp" />
 		<Unit filename="../Source/IO/Wad.h" />
 		<Unit filename="../Source/IO/mmapped_fstream.h" />

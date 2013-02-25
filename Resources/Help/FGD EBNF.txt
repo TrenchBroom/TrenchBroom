@@ -23,6 +23,7 @@ TargetSourcePropertyDef	= Name, "(", "target_source", ")", [":", QuotedString]
 TargetDestPropertyDef	= Name, "(", "target_destination", ")", [":", QuotedString]
 StringPropertyDef 		= Name, "(", "string", ")", [":", QuotedString, [":", String]];
 IntegerPropertyDef		= Name, "(", "integer", ")", [":", QuotedString, [":", Integer]]
+
 ChoicePropertyDef 		= Name, "(", "choices", ")", [":", QuotedString, [":", Integer]], "=", "[", {ChoicePropertyOption}, "]";
 ChoicePropertyOption 	= Integer, ":", QuotedString;
 FlagsPropertyDef		= Name, "(", "flags", ")", [":", QuotedString], "=", "[", {FlagsPropertyOption}, "]";

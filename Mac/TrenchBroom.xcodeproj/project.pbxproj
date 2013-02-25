@@ -14,10 +14,12 @@
 		4810276C15E5313F00250C9C /* Inspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810276A15E5313F00250C9C /* Inspector.cpp */; };
 		4810276F15E53DD300250C9C /* EntityDefinition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810276D15E53DD300250C9C /* EntityDefinition.cpp */; };
 		4810277315E54A3000250C9C /* EntityDefinitionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810277115E54A3000250C9C /* EntityDefinitionManager.cpp */; };
-		4810277F15E56F9B00250C9C /* StandardDefinitionParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810277D15E56F9B00250C9C /* StandardDefinitionParser.cpp */; };
+		4810277F15E56F9B00250C9C /* DefParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810277D15E56F9B00250C9C /* DefParser.cpp */; };
 		4810278B15E67A7300250C9C /* Brush.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810278915E67A7300250C9C /* Brush.cpp */; };
 		481028A015E68E5300250C9C /* Face.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810289E15E68E5300250C9C /* Face.cpp */; };
 		481028A915E77A8D00250C9C /* Map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481028A715E77A8D00250C9C /* Map.cpp */; };
+		4814447416DB7CE90060150A /* Quake.def in Resources */ = {isa = PBXBuildFile; fileRef = 4814447216DB7CE90060150A /* Quake.def */; };
+		4814447516DB7CE90060150A /* Rubicon2.def in Resources */ = {isa = PBXBuildFile; fileRef = 4814447316DB7CE90060150A /* Rubicon2.def */; };
 		4817C7EE1611DC8F00A01A99 /* SetFaceAttributesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4817C7EC1611DC8F00A01A99 /* SetFaceAttributesCommand.cpp */; };
 		4817C7F11611DFA900A01A99 /* SnapshotCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4817C7EF1611DFA900A01A99 /* SnapshotCommand.cpp */; };
 		4817C7F416123E0500A01A99 /* EntityInspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4817C7F216123E0500A01A99 /* EntityInspector.cpp */; };
@@ -88,6 +90,8 @@
 		4878F95516596915003857EA /* BrushFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F95316596915003857EA /* BrushFigure.cpp */; };
 		4878F964165C16BE003857EA /* ClipTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4878F962165C16BE003857EA /* ClipTool.cpp */; };
 		487B6C79164E8A70000A77DA /* CameraTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487B6C77164E8A70000A77DA /* CameraTool.cpp */; };
+		487C5AF416D93345007B4945 /* Quoth2.def in Resources */ = {isa = PBXBuildFile; fileRef = 487C5AF316D93345007B4945 /* Quoth2.def */; };
+		487C5AF716D969C9007B4945 /* FGDParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487C5AF516D969C9007B4945 /* FGDParser.cpp */; };
 		487EC0A2168359020094927A /* TextureSelectedCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487EC0A0168359010094927A /* TextureSelectedCommand.cpp */; };
 		487EC0A61684655E0094927A /* PointHandle.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 487EC0A51684655D0094927A /* PointHandle.vertsh */; };
 		487EC0A9168467F20094927A /* Autosaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 487EC0A7168467EF0094927A /* Autosaver.cpp */; };
@@ -97,8 +101,6 @@
 		48819C5015ED5C7700BEA604 /* CameraEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48819C4F15ED5C7700BEA604 /* CameraEvent.cpp */; };
 		4883375D16C4340000493DA2 /* EntityDefinitionCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4883375B16C4340000493DA2 /* EntityDefinitionCommand.cpp */; };
 		4883376016C43ED200493DA2 /* SetModCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4883375E16C43ED200493DA2 /* SetModCommand.cpp */; };
-		4883376316C654A800493DA2 /* Quake.def in Resources */ = {isa = PBXBuildFile; fileRef = 4883376116C654A800493DA2 /* Quake.def */; };
-		4883376416C654A800493DA2 /* Rubicon2.def in Resources */ = {isa = PBXBuildFile; fileRef = 4883376216C654A800493DA2 /* Rubicon2.def */; };
 		488457D0161C839A002ADDAE /* OffscreenRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488457CE161C839A002ADDAE /* OffscreenRenderer.cpp */; };
 		4887937615EF56C10044D66A /* AbstractApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4887937415EF56C10044D66A /* AbstractApp.cpp */; };
 		4888654B1634211C0071F9C6 /* RotateObjects90Command.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488865491634211C0071F9C6 /* RotateObjects90Command.cpp */; };
@@ -214,9 +216,9 @@
 		4810277015E541A200250C9C /* String.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = String.h; sourceTree = "<group>"; };
 		4810277115E54A3000250C9C /* EntityDefinitionManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityDefinitionManager.cpp; sourceTree = "<group>"; };
 		4810277215E54A3000250C9C /* EntityDefinitionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionManager.h; sourceTree = "<group>"; };
-		4810277C15E56F9B00250C9C /* AbstractTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractTokenizer.h; sourceTree = "<group>"; };
-		4810277D15E56F9B00250C9C /* StandardDefinitionParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StandardDefinitionParser.cpp; sourceTree = "<group>"; };
-		4810277E15E56F9B00250C9C /* StandardDefinitionParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StandardDefinitionParser.h; sourceTree = "<group>"; };
+		4810277C15E56F9B00250C9C /* Tokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tokenizer.h; sourceTree = "<group>"; };
+		4810277D15E56F9B00250C9C /* DefParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DefParser.cpp; sourceTree = "<group>"; };
+		4810277E15E56F9B00250C9C /* DefParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DefParser.h; sourceTree = "<group>"; };
 		4810278115E594C400250C9C /* MessageException.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageException.h; sourceTree = "<group>"; };
 		4810278215E5954A00250C9C /* ParserException.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ParserException.h; sourceTree = "<group>"; };
 		4810278615E621FA00250C9C /* PropertyDefinition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PropertyDefinition.h; sourceTree = "<group>"; };
@@ -231,6 +233,8 @@
 		481028A615E7778200250C9C /* EditState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EditState.h; sourceTree = "<group>"; };
 		481028A715E77A8D00250C9C /* Map.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Map.cpp; sourceTree = "<group>"; };
 		481028A815E77A8D00250C9C /* Map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Map.h; sourceTree = "<group>"; };
+		4814447216DB7CE90060150A /* Quake.def */ = {isa = PBXFileReference; lastKnownFileType = text; name = Quake.def; path = ../Resources/Defs/Quake.def; sourceTree = "<group>"; };
+		4814447316DB7CE90060150A /* Rubicon2.def */ = {isa = PBXFileReference; lastKnownFileType = text; name = Rubicon2.def; path = ../Resources/Defs/Rubicon2.def; sourceTree = "<group>"; };
 		4817C7EC1611DC8F00A01A99 /* SetFaceAttributesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SetFaceAttributesCommand.cpp; sourceTree = "<group>"; };
 		4817C7ED1611DC8F00A01A99 /* SetFaceAttributesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SetFaceAttributesCommand.h; sourceTree = "<group>"; };
 		4817C7EF1611DFA900A01A99 /* SnapshotCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SnapshotCommand.cpp; sourceTree = "<group>"; };
@@ -406,6 +410,9 @@
 		487B6C77164E8A70000A77DA /* CameraTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraTool.cpp; sourceTree = "<group>"; };
 		487B6C78164E8A70000A77DA /* CameraTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraTool.h; sourceTree = "<group>"; };
 		487C5AEF16D808D0007B4945 /* Version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Version.h; sourceTree = "<group>"; };
+		487C5AF316D93345007B4945 /* Quoth2.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Quoth2.def; path = ../Resources/Defs/Quoth2.def; sourceTree = "<group>"; };
+		487C5AF516D969C9007B4945 /* FGDParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FGDParser.cpp; sourceTree = "<group>"; };
+		487C5AF616D969C9007B4945 /* FGDParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FGDParser.h; sourceTree = "<group>"; };
 		487EC0A0168359010094927A /* TextureSelectedCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureSelectedCommand.cpp; sourceTree = "<group>"; };
 		487EC0A1168359020094927A /* TextureSelectedCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureSelectedCommand.h; sourceTree = "<group>"; };
 		487EC0A51684655D0094927A /* PointHandle.vertsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PointHandle.vertsh; sourceTree = "<group>"; };
@@ -425,8 +432,6 @@
 		4883375C16C4340000493DA2 /* EntityDefinitionCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntityDefinitionCommand.h; sourceTree = "<group>"; };
 		4883375E16C43ED200493DA2 /* SetModCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SetModCommand.cpp; sourceTree = "<group>"; };
 		4883375F16C43ED200493DA2 /* SetModCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SetModCommand.h; sourceTree = "<group>"; };
-		4883376116C654A800493DA2 /* Quake.def */ = {isa = PBXFileReference; lastKnownFileType = text; path = Quake.def; sourceTree = "<group>"; };
-		4883376216C654A800493DA2 /* Rubicon2.def */ = {isa = PBXFileReference; lastKnownFileType = text; path = Rubicon2.def; sourceTree = "<group>"; };
 		488457CE161C839A002ADDAE /* OffscreenRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OffscreenRenderer.cpp; sourceTree = "<group>"; };
 		488457CF161C839A002ADDAE /* OffscreenRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OffscreenRenderer.h; sourceTree = "<group>"; };
 		4887937415EF56C10044D66A /* AbstractApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractApp.cpp; sourceTree = "<group>"; };
@@ -621,7 +626,10 @@
 			children = (
 				48009AF315F7FA8B001A9993 /* AbstractFileManager.cpp */,
 				48009AF415F7FA8B001A9993 /* AbstractFileManager.h */,
-				4810277C15E56F9B00250C9C /* AbstractTokenizer.h */,
+				4810277D15E56F9B00250C9C /* DefParser.cpp */,
+				4810277E15E56F9B00250C9C /* DefParser.h */,
+				487C5AF516D969C9007B4945 /* FGDParser.cpp */,
+				487C5AF616D969C9007B4945 /* FGDParser.h */,
 				48819C4015EC0D9300BEA604 /* FileManager.h */,
 				4835D20516419FC400B01BD8 /* IOException.h */,
 				48297ED71683091C00E6A288 /* IOUtils.h */,
@@ -632,8 +640,7 @@
 				4850D26715F4A01C005B162D /* Pak.cpp */,
 				4850D26815F4A01C005B162D /* Pak.h */,
 				4810278215E5954A00250C9C /* ParserException.h */,
-				4810277D15E56F9B00250C9C /* StandardDefinitionParser.cpp */,
-				4810277E15E56F9B00250C9C /* StandardDefinitionParser.h */,
+				4810277C15E56F9B00250C9C /* Tokenizer.h */,
 				48312B3A15EB814700607868 /* Wad.cpp */,
 				48312B3B15EB814700607868 /* Wad.h */,
 				486C61E615EF713C0091AA97 /* mmapped_fstream.h */,
@@ -717,10 +724,11 @@
 		484763C615E2BC5000095BC0 = {
 			isa = PBXGroup;
 			children = (
+				4814447216DB7CE90060150A /* Quake.def */,
+				4814447316DB7CE90060150A /* Rubicon2.def */,
 				48A6E45E16D3EB2000CC328C /* Icon.png */,
 				48B64C5816CEC35000ECA6C5 /* Documentation */,
-				4883376116C654A800493DA2 /* Quake.def */,
-				4883376216C654A800493DA2 /* Rubicon2.def */,
+				487C5AF316D93345007B4945 /* Quoth2.def */,
 				48D937F016C2ABFE005A4684 /* Add.png */,
 				48D937F116C2ABFE005A4684 /* Down.png */,
 				48D937F216C2ABFE005A4684 /* Path.png */,
@@ -1228,9 +1236,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4814447416DB7CE90060150A /* Quake.def in Resources */,
+				4814447516DB7CE90060150A /* Rubicon2.def in Resources */,
 				48A6E45F16D3EB2000CC328C /* Icon.png in Resources */,
-				4883376316C654A800493DA2 /* Quake.def in Resources */,
-				4883376416C654A800493DA2 /* Rubicon2.def in Resources */,
 				48D937F516C2ABFE005A4684 /* Add.png in Resources */,
 				48D937F616C2ABFE005A4684 /* Down.png in Resources */,
 				48D937F716C2ABFE005A4684 /* Path.png in Resources */,
@@ -1259,6 +1267,7 @@
 				48AD1B381646C10C009F839B /* ColoredHandle.vertsh in Resources */,
 				480ED755166401B200857A21 /* InstancedPointHandle.vertsh in Resources */,
 				487EC0A61684655E0094927A /* PointHandle.vertsh in Resources */,
+				487C5AF416D93345007B4945 /* Quoth2.def in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1305,7 +1314,7 @@
 				4810276C15E5313F00250C9C /* Inspector.cpp in Sources */,
 				4810276F15E53DD300250C9C /* EntityDefinition.cpp in Sources */,
 				4810277315E54A3000250C9C /* EntityDefinitionManager.cpp in Sources */,
-				4810277F15E56F9B00250C9C /* StandardDefinitionParser.cpp in Sources */,
+				4810277F15E56F9B00250C9C /* DefParser.cpp in Sources */,
 				4810278B15E67A7300250C9C /* Brush.cpp in Sources */,
 				481028A015E68E5300250C9C /* Face.cpp in Sources */,
 				481028A915E77A8D00250C9C /* Map.cpp in Sources */,
@@ -1427,6 +1436,7 @@
 				48B64C4016CD301200ECA6C5 /* SnapVerticesCommand.cpp in Sources */,
 				48B64C4316CD406700ECA6C5 /* PointGuideRenderer.cpp in Sources */,
 				48B64C5C16CFEA0E00ECA6C5 /* AboutDialog.cpp in Sources */,
+				487C5AF716D969C9007B4945 /* FGDParser.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

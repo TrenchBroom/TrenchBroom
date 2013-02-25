@@ -17,17 +17,9 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityDefinitionTypes_h
-#define TrenchBroom_EntityDefinitionTypes_h
-
-#include <vector>
+#include "FGDParser.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class EntityDefinition;
-        
-        typedef std::vector<EntityDefinition*> EntityDefinitionList;
+    namespace IO {
     }
 }
-
-#endif
