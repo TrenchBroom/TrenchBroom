@@ -20,7 +20,7 @@
 #ifndef __TrenchBroom__DefParser__
 #define __TrenchBroom__DefParser__
 
-#include "IO/Tokenizer.h"
+#include "IO/StreamTokenizer.h"
 #include "IO/ParserException.h"
 #include "Model/EntityDefinition.h"
 #include "Model/EntityDefinitionTypes.h"
@@ -41,10 +41,10 @@ namespace TrenchBroom {
     }
     
     namespace IO {
-        namespace TokenType {
+        namespace DefTokenType {
             static const unsigned int Integer         = 1 <<  0; // integer number
             static const unsigned int Decimal         = 1 <<  1; // decimal number
-            static const unsigned int String          = 1 <<  2; // string
+            static const unsigned int QuotedString    = 1 <<  2; // string
             static const unsigned int OParenthesis    = 1 <<  3; // opening parenthesis: (
             static const unsigned int CParenthesis    = 1 <<  4; // closing parenthesis: )
             static const unsigned int OBrace          = 1 <<  5; // opening brace: {
@@ -75,11 +75,11 @@ namespace TrenchBroom {
         protected:
             typedef std::map<String, Model::PropertyDefinition::List> BasePropertiesMap;
             
-            StringTokenizer<DefTokenEmitter> m_tokenizer;
+            Color m_defaultEntityColor;
+            StreamTokenizer<DefTokenEmitter> m_tokenizer;
             BasePropertiesMap m_baseProperties;
             
             String typeNames(unsigned int types);
-            
             inline void expect(unsigned int types, Token& token) {
                 if ((token.type() & types) == 0)
                     throw ParserException(token.line(), token.column(), "Expected token type " + typeNames(types) + " but got " + typeNames(token.type()));
@@ -93,7 +93,9 @@ namespace TrenchBroom {
             void parseProperties(Model::PropertyDefinition::List& properties, Model::ModelDefinition::List& modelDefinitions, StringList& baseClasses);
             String parseDescription();
         public:
-            DefParser(std::istream& stream) : m_tokenizer(stream) {}
+            DefParser(const Color& defaultEntityColor, std::istream& stream) :
+            m_defaultEntityColor(defaultEntityColor),
+            m_tokenizer(stream) {}
             ~DefParser();
         
             Model::EntityDefinition* nextDefinition();

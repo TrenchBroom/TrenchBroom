@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Tokenizer__
-#define __TrenchBroom__Tokenizer__
+#ifndef __TrenchBroom__StreamTokenizer__
+#define __TrenchBroom__StreamTokenizer__
 
 #include "IO/ParserException.h"
 #include "Utility/Allocator.h"
@@ -90,7 +90,7 @@ namespace TrenchBroom {
         };
         
         template <typename Emitter>
-        class StringTokenizer {
+        class StreamTokenizer {
         private:
             typedef std::stack<Token> TokenStack;
             
@@ -109,7 +109,7 @@ namespace TrenchBroom {
                 return token;
             }
         public:
-            StringTokenizer(std::istream& stream) :
+            StreamTokenizer(std::istream& stream) :
             m_stream(stream),
             m_line(1),
             m_column(1),
@@ -228,7 +228,7 @@ namespace TrenchBroom {
         template <typename Subclass>
         class TokenEmitter {
         protected:
-            typedef StringTokenizer<Subclass> Tokenizer;
+            typedef StreamTokenizer<Subclass> Tokenizer;
             virtual Token doEmit(Tokenizer& tokenizer, size_t line, size_t column) = 0;
             
             inline bool isDigit(char c) const {
@@ -255,4 +255,4 @@ namespace TrenchBroom {
 }
 
 
-#endif /* defined(__TrenchBroom__Tokenizer__) */
+#endif /* defined(__TrenchBroom__StreamTokenizer__) */

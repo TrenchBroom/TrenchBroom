@@ -21,7 +21,9 @@
 
 #include "IO/FileManager.h"
 #include "IO/DefParser.h"
+#include "IO/FgdParser.h"
 #include "IO/mmapped_fstream.h"
+#include "Utility/Color.h"
 #include "Utility/Preferences.h"
 #include "Utility/String.h"
 
@@ -42,12 +44,27 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionManager::load(const String& path) {
-            mmapped_fstream stream(path.c_str(), std::ios::in);
-            IO::DefParser parser(stream);
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            const Color& defaultColor = prefs.getColor(Preferences::EntityBoundsColor);
             
-            EntityDefinition* definition = NULL;
-            while ((definition = parser.nextDefinition()) != NULL) {
-                m_entityDefinitions[definition->name()] = definition;
+            IO::FileManager fileManager;
+            const String extension = fileManager.pathExtension(path);
+            if (Utility::equalsString(extension, "def", false)) {
+                mmapped_fstream stream(path.c_str(), std::ios::in);
+                IO::DefParser parser(defaultColor, stream);
+                
+                EntityDefinition* definition = NULL;
+                while ((definition = parser.nextDefinition()) != NULL) {
+                    m_entityDefinitions[definition->name()] = definition;
+                }
+            } else if (Utility::equalsString(extension, "fgd", false)) {
+                mmapped_fstream stream(path.c_str(), std::ios::in);
+                IO::FgdParser parser(defaultColor, stream);
+                
+                EntityDefinition* definition = NULL;
+                while ((definition = parser.nextDefinition()) != NULL) {
+                    m_entityDefinitions[definition->name()] = definition;
+                }
             }
             
             m_path = path;

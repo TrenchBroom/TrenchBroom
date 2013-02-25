@@ -80,10 +80,9 @@ namespace TrenchBroom {
             m_evaluator = NULL;
         }
         
-        EntityDefinition::EntityDefinition(const String& name, const Color& color, FlagsPropertyDefinition* spawnflags, const String& description, const PropertyDefinition::List& propertyDefinitions) :
+        EntityDefinition::EntityDefinition(const String& name, const Color& color, const String& description, const PropertyDefinition::List& propertyDefinitions) :
         m_name(name),
         m_color(color),
-        m_spawnflags(spawnflags),
         m_description(description),
         m_usageCount(0),
         m_propertyDefinitions(propertyDefinitions) {
@@ -93,8 +92,8 @@ namespace TrenchBroom {
             Utility::deleteAll(m_propertyDefinitions);
         }
 
-        PointEntityDefinition::PointEntityDefinition(const String& name, const Color& color, FlagsPropertyDefinition* spawnflags, const BBox& bounds, const String& description, const PropertyDefinition::List& propertyDefinitions, const ModelDefinition::List& modelDefinitions) :
-        EntityDefinition(name, color, spawnflags, description, propertyDefinitions),
+        PointEntityDefinition::PointEntityDefinition(const String& name, const Color& color, const BBox& bounds, const String& description, const PropertyDefinition::List& propertyDefinitions, const ModelDefinition::List& modelDefinitions) :
+        EntityDefinition(name, color, description, propertyDefinitions),
         m_bounds(bounds),
         m_modelDefinitions(modelDefinitions) {}
         
@@ -116,7 +115,7 @@ namespace TrenchBroom {
             return NULL;
         }
 
-        BrushEntityDefinition::BrushEntityDefinition(const String& name, const Color& color, FlagsPropertyDefinition* spawnflags, const String& description, const PropertyDefinition::List& propertyDefinitions) :
-        EntityDefinition(name, color, spawnflags, description, propertyDefinitions) {}
+        BrushEntityDefinition::BrushEntityDefinition(const String& name, const Color& color, const String& description, const PropertyDefinition::List& propertyDefinitions) :
+        EntityDefinition(name, color, description, propertyDefinitions) {}
     }
 }

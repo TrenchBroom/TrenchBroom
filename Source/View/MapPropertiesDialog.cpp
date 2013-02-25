@@ -299,11 +299,11 @@ namespace TrenchBroom {
                 Controller::EntityDefinitionCommand* command = Controller::EntityDefinitionCommand::setEntityDefinitionFile(m_document, defPath);
                 m_document.GetCommandProcessor()->Submit(command);
             } else if (index == static_cast<int>(builtinDefs.size())) {
-                wxFileDialog openDefinitionDialog(NULL, wxT("Choose entity definition file"), wxT(""), wxT(""), wxT("*.def"), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+                wxFileDialog openDefinitionDialog(NULL, wxT("Choose entity definition file"), wxT(""), wxT(""), wxT("DEF files (*.def)|*.def|FGD files (*.fgd)|*.fgd"), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
                 if (openDefinitionDialog.ShowModal() == wxID_OK) {
                     PathDialog pathDialog(this, openDefinitionDialog.GetPath().ToStdString());
                     if (pathDialog.ShowModal() == wxID_OK) {
-                        Controller::EntityDefinitionCommand* command = Controller::EntityDefinitionCommand::setEntityDefinitionFile(m_document, pathDialog.path());
+                        Controller::EntityDefinitionCommand* command = Controller::EntityDefinitionCommand::setEntityDefinitionFile(m_document, "external:" + pathDialog.path());
                         m_document.GetCommandProcessor()->Submit(command);
                         init();
                     }

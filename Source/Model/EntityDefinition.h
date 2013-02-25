@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__EntityDefinition__
 #define __TrenchBroom__EntityDefinition__
 
+#include "Model/Entity.h"
 #include "Model/EntityDefinitionTypes.h"
 #include "Model/EntityProperty.h"
 #include "Model/PropertyDefinition.h"
@@ -100,7 +101,6 @@ namespace TrenchBroom {
         protected:
             String m_name;
             Color m_color;
-            FlagsPropertyDefinition* m_spawnflags;
             String m_description;
             unsigned int m_usageCount;
             PropertyDefinition::List m_propertyDefinitions;
@@ -110,7 +110,7 @@ namespace TrenchBroom {
                 BrushEntity
             };
             
-            EntityDefinition(const String& name, const Color& color, FlagsPropertyDefinition* spawnflags, const String& description, const PropertyDefinition::List& propertyDefinitions);
+            EntityDefinition(const String& name, const Color& color, const String& description, const PropertyDefinition::List& propertyDefinitions);
             virtual ~EntityDefinition();
             
             virtual Type type() const = 0;
@@ -138,7 +138,14 @@ namespace TrenchBroom {
             }
             
             const FlagsPropertyDefinition* spawnflags() const {
-                return m_spawnflags;
+                PropertyDefinition::List::const_iterator it, end;
+                for (it = m_propertyDefinitions.begin(), end = m_propertyDefinitions.end(); it != end; ++it) {
+                    const PropertyDefinition* definition = *it;
+                    if (definition->type() == PropertyDefinition::FlagsProperty &&
+                        definition->name() == Model::Entity::SpawnFlagsKey)
+                        return static_cast<const FlagsPropertyDefinition*>(definition);
+                }
+                return NULL;
             }
             
             inline void incUsageCount() {
@@ -159,7 +166,7 @@ namespace TrenchBroom {
             BBox m_bounds;
             ModelDefinition::List m_modelDefinitions;
         public:
-            PointEntityDefinition(const String& name, const Color& color, FlagsPropertyDefinition* spawnflags, const BBox& bounds, const String& description, const PropertyDefinition::List& propertyDefinitions, const ModelDefinition::List& modelDefinitions = ModelDefinition::List());
+            PointEntityDefinition(const String& name, const Color& color, const BBox& bounds, const String& description, const PropertyDefinition::List& propertyDefinitions, const ModelDefinition::List& modelDefinitions = ModelDefinition::List());
             ~PointEntityDefinition();
             
             inline Type type() const {
@@ -175,7 +182,7 @@ namespace TrenchBroom {
         
         class BrushEntityDefinition : public EntityDefinition {
         public:
-            BrushEntityDefinition(const String& name, const Color& color, FlagsPropertyDefinition* spawnflags, const String& description, const PropertyDefinition::List& propertyDefinitions);
+            BrushEntityDefinition(const String& name, const Color& color, const String& description, const PropertyDefinition::List& propertyDefinitions);
             
             inline Type type() const {
                 return BrushEntity;

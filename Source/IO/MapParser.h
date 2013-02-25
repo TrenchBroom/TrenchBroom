@@ -20,7 +20,7 @@
 #ifndef __TrenchBroom__MapParser__
 #define __TrenchBroom__MapParser__
 
-#include "IO/Tokenizer.h"
+#include "IO/StreamTokenizer.h"
 #include "Model/BrushTypes.h"
 #include "Model/EntityTypes.h"
 #include "Model/FaceTypes.h"
@@ -128,7 +128,7 @@ namespace TrenchBroom {
             };
 
             Utility::Console& m_console;
-            StringTokenizer<MapTokenEmitter> m_tokenizer;
+            StreamTokenizer<MapTokenEmitter> m_tokenizer;
             MapFormat m_format;
             size_t m_size;
 

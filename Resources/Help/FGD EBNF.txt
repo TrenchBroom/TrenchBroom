@@ -1,17 +1,14 @@
-@Type [base(BaseClass)] [size(Vec, Vec)] [color(Vec)] = name : "String"
-
-
 Def 					= DefHeader, "=", Name, [":", QuotedString], "[", {PropertyDef} "]";
 DefHeader 				= BaseHeader | PointHeader | SolidHeader;
 BaseHeader 				= BaseHeaderIdentifier, <BaseHeaderProperty | SizeHeaderProperty | ColorHeaderProperty>
 BaseHeaderIdentifier	= "@baseclass";
 PointHeader 			= PointHeaderIdentifier, <BaseHeaderProperty | SizeHeaderProperty | ColorHeaderProperty | ModelHeaderProperty>
 PointHeaderIdentifier	= "@PointClass";
-SolidHeader 			= SolidHeaderIdentifier, [BaseHeaderProperty]
+SolidHeader 			= SolidHeaderIdentifier, <BaseHeaderProperty | ColorHeaderProperty>
 SolidHeaderIdentifier	= "@SolidClass";
 
 BaseHeaderProperty 		= "base", "(", BaseClassList, ")";
-BaseClassList 			= Name {",", Name};
+BaseClassList 			= Name, {",", Name};
 SizeHeaderProperty 		= "size", "(", Vec, ",", Vec, ")";
 ColorHeaderProperty		= "color", "(", Vec, ")";
 ModelHeaderProperty		= "model", "(", ModelDefinition, {ModelDefinition} ")";
@@ -21,7 +18,7 @@ PropertyDef 			= StringPropertyDef | ChoicePropertyDef | FlagsPropertyDef | Inte
 
 TargetSourcePropertyDef	= Name, "(", "target_source", ")", [":", QuotedString]
 TargetDestPropertyDef	= Name, "(", "target_destination", ")", [":", QuotedString]
-StringPropertyDef 		= Name, "(", "string", ")", [":", QuotedString, [":", String]];
+StringPropertyDef 		= Name, "(", "string", ")", [":", QuotedString];
 IntegerPropertyDef		= Name, "(", "integer", ")", [":", QuotedString, [":", Integer]]
 
 ChoicePropertyDef 		= Name, "(", "choices", ")", [":", QuotedString, [":", Integer]], "=", "[", {ChoicePropertyOption}, "]";

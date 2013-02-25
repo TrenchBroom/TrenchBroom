@@ -23,12 +23,14 @@
 #include "Model/EntityProperty.h"
 #include "Utility/String.h"
 
+#include <map>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class PropertyDefinition {
         public:
+            typedef std::map<String, PropertyDefinition*> Map;
             typedef std::vector<PropertyDefinition*> List;
             
             enum Type {
@@ -63,7 +65,9 @@ namespace TrenchBroom {
                 return m_description;
             }
             
-            virtual const Model::PropertyValue defaultPropertyValue() const = 0;
+            virtual const Model::PropertyValue defaultPropertyValue() const {
+                return "";
+            }
         };
 
         class StringPropertyDefinition : public PropertyDefinition {
@@ -73,10 +77,6 @@ namespace TrenchBroom {
             StringPropertyDefinition(const String& name, const String& description, const String& defaultValue) :
             PropertyDefinition(name, StringProperty, description),
             m_defaultValue(defaultValue) {}
-            
-            inline const String& defaultValue() const {
-                return m_defaultValue;
-            }
 
             const Model::PropertyValue defaultPropertyValue() const {
                 return m_defaultValue;
@@ -106,14 +106,14 @@ namespace TrenchBroom {
         public:
             typedef std::vector<ChoicePropertyOption> List;
         private:
-            int m_value;
+            String m_value;
             String m_description;
         public:
-            ChoicePropertyOption(int value, const String& description) :
+            ChoicePropertyOption(const String& value, const String& description) :
             m_value(value),
             m_description(description) {}
             
-            inline int value() const {
+            inline const String& value() const {
                 return m_value;
             }
             
@@ -135,7 +135,7 @@ namespace TrenchBroom {
                 return m_defaultValue;
             }
             
-            inline void addOption(int value, const String& description) {
+            inline void addOption(const String& value, const String& description) {
                 m_options.push_back(ChoicePropertyOption(value, description));
             }
             
