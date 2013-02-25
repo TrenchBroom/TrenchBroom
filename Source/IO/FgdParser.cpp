@@ -19,7 +19,6 @@
 
 #include "FgdParser.h"
 
-#include "Model/EntityDefinition.h"
 #include "Utility/List.h"
 
 using namespace TrenchBroom::IO::FgdTokenType;
@@ -412,6 +411,45 @@ namespace TrenchBroom {
             return baseClasses;
         }
 
+        Model::ModelDefinition::List FgdParser::parseModels() {
+            Model::ModelDefinition::List result;
+            Token token;
+            expect(OParenthesis, token = m_tokenizer.nextToken());
+            expect(QuotedString | CParenthesis, token = m_tokenizer.nextToken());
+            if (token.type() == QuotedString) {
+                m_tokenizer.pushToken(token);
+                do {
+                    expect(QuotedString, token = m_tokenizer.nextToken());
+                    const String path = token.data();
+                    
+                    expect(Integer, token = m_tokenizer.nextToken());
+                    unsigned int skinIndex = static_cast<unsigned int>(token.toInteger());
+                    
+                    expect(Integer, token = m_tokenizer.nextToken());
+                    unsigned int frameIndex = static_cast<unsigned int>(token.toInteger());
+                    
+                    expect(Word | Comma | CParenthesis, token = m_tokenizer.nextToken());
+                    if (token.type() == Word) {
+                        const String propertyKey = token.data();
+                        expect(Equality, token = m_tokenizer.nextToken());
+                        expect(QuotedString | Integer, token = m_tokenizer.nextToken());
+                        if (token.type() == QuotedString) {
+                            const String propertyValue = token.data();
+                            result.push_back(new Model::ModelDefinition(path, skinIndex, frameIndex, propertyKey, propertyValue));
+                        } else {
+                            const int flagValue = token.toInteger();
+                            result.push_back(new Model::ModelDefinition(path, skinIndex, frameIndex, propertyKey, flagValue));
+                        }
+                        expect(Comma | CParenthesis, token = m_tokenizer.nextToken());
+                    } else {
+                        result.push_back(new Model::ModelDefinition(path, skinIndex, frameIndex));
+                    }
+                    
+                } while (token.type() == Comma);
+            }
+            return result;
+        }
+
         void FgdParser::resolveBaseClasses(const StringList& classnames, ClassInfo& classInfo) {
             StringList::const_reverse_iterator classnameIt, classnameEnd;
             for (classnameIt = classnames.rbegin(), classnameEnd = classnames.rend(); classnameIt != classnameEnd; ++classnameIt) {
@@ -432,6 +470,12 @@ namespace TrenchBroom {
                         const bool hasProperty = classInfo.properties.find(property->name()) != classInfo.properties.end();
                         if (!hasProperty)
                             classInfo.properties[property->name()] = new Model::PropertyDefinition(*property);
+                    }
+                    
+                    Model::ModelDefinition::List::const_iterator modelIt, modelEnd;
+                    for (modelIt = baseClass.models.begin(), modelEnd = baseClass.models.end(); modelIt != modelEnd; ++modelIt) {
+                        const Model::ModelDefinition* model = *modelIt;
+                        classInfo.models.push_back(new Model::ModelDefinition(*model));
                     }
                 }
             }
@@ -458,6 +502,10 @@ namespace TrenchBroom {
                     if (classInfo.hasSize)
                         throw ParserException(token.line(), token.column(), "Found multiple size properties");
                     classInfo.setSize(parseSize());
+                } else if (Utility::equalsString(typeName, "model", false)) {
+                    if (!classInfo.models.empty())
+                        throw ParserException(token.line(), token.column(), "Found multiple model properties");
+                    classInfo.models = parseModels();
                 } else {
                     throw ParserException(token.line(), token.column(), "Unknown entity definition header property " + typeName);
                 }
@@ -484,18 +532,21 @@ namespace TrenchBroom {
             ClassInfo classInfo = parseClass();
             if (classInfo.hasSize)
                 throw ParserException(classInfo.line, classInfo.column, "Solid entity definition must not have a size");
+            if (!classInfo.models.empty())
+                throw ParserException(classInfo.line, classInfo.column, "Solid entity definition must not have model definitions");
             return new Model::BrushEntityDefinition(classInfo.name, classInfo.color, classInfo.description, classInfo.propertyList());
         }
         
         Model::EntityDefinition* FgdParser::parsePointClass() {
             ClassInfo classInfo = parseClass();
-            return new Model::PointEntityDefinition(classInfo.name, classInfo.color, classInfo.size, classInfo.description, classInfo.propertyList());
+            return new Model::PointEntityDefinition(classInfo.name, classInfo.color, classInfo.size, classInfo.description, classInfo.propertyList(), classInfo.models);
         }
         
         void FgdParser::parseBaseClass() {
             ClassInfo classInfo = parseClass();
             if (m_baseClasses.count(classInfo.name) > 0) {
                 classInfo.deleteProperties();
+                classInfo.deleteModels();
                 throw ParserException(classInfo.line, classInfo.column, "Redefinition of base class " + classInfo.name);
             }
             
@@ -507,6 +558,7 @@ namespace TrenchBroom {
             for (infoIt = m_baseClasses.begin(), infoEnd = m_baseClasses.end(); infoIt != infoEnd; ++infoIt) {
                 ClassInfo& classInfo = infoIt->second;
                 classInfo.deleteProperties();
+                classInfo.deleteModels();
             }
             
             m_baseClasses.clear();

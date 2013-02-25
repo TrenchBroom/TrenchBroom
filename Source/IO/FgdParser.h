@@ -21,6 +21,7 @@
 #define __TrenchBroom__FgdParser__
 
 #include "IO/StreamTokenizer.h"
+#include "Model/EntityDefinition.h"
 #include "Model/PropertyDefinition.h"
 #include "Utility/Color.h"
 #include "Utility/VecMath.h"
@@ -75,6 +76,7 @@ namespace TrenchBroom {
             BBox size;
             bool hasSize;
             Model::PropertyDefinition::Map properties;
+            Model::ModelDefinition::List models;
             
             ClassInfo();
             ClassInfo(size_t i_line, size_t i_column, const Color& defaultColor);
@@ -99,6 +101,10 @@ namespace TrenchBroom {
                 for (propertyIt = properties.begin(), propertyEnd = properties.end(); propertyIt != propertyEnd; ++propertyIt)
                     delete propertyIt->second;
                 properties.clear();
+            }
+            
+            inline void deleteModels() {
+                Utility::deleteAll(models);
             }
             
             inline Model::PropertyDefinition::List propertyList() const {
@@ -133,6 +139,7 @@ namespace TrenchBroom {
             BBox parseSize();
             Color parseColor();
             StringList parseBaseClasses();
+            Model::ModelDefinition::List parseModels();
             
             void resolveBaseClasses(const StringList& classnames, ClassInfo& classInfo);
             
