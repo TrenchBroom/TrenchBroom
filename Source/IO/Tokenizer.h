@@ -115,21 +115,13 @@ namespace TrenchBroom {
             m_column(1),
             m_position(0) {}
 
-            inline size_t line() const {
-                return m_line;
-            }
-            
-            inline size_t column() const {
-                return m_column;
-            }
-            
             inline size_t position() const {
                 return m_position;
             }
             
             inline char nextChar() {
                 if (eof())
-                    throw ParserException(m_line, m_column, "unexpected end of file");
+                    return 0;
                 
                 char c;
                 m_stream.get(c);
@@ -166,7 +158,7 @@ namespace TrenchBroom {
             
             inline int peekChar(unsigned int offset = 0) {
                 if (eof())
-                    throw ParserException(m_line, m_column, "unexpected end of file");
+                    return 0;
                 
                 int c;
                 if (offset == 0) {
@@ -184,7 +176,7 @@ namespace TrenchBroom {
             }
             
             inline Token nextToken() {
-                return !m_tokenStack.empty() ? popToken() : m_emitter.emit(*this);
+                return !m_tokenStack.empty() ? popToken() : m_emitter.emit(*this, m_line, m_column);
             }
             
             inline Token peekToken() {
@@ -224,18 +216,39 @@ namespace TrenchBroom {
                 
                 return result;
             }
+            
+            inline void reset() {
+                m_line = 1;
+                m_column = 1;
+                m_position = 0;
+                m_stream.seekg(0, std::ios::beg);
+            }
         };
 
         template <typename Subclass>
         class TokenEmitter {
         protected:
             typedef StringTokenizer<Subclass> Tokenizer;
-            virtual Token doEmit(Tokenizer& tokenizer) = 0;
+            virtual Token doEmit(Tokenizer& tokenizer, size_t line, size_t column) = 0;
+            
+            inline bool isDigit(char c) const {
+                return c >= '0' && c <= '9';
+            }
+            
+            inline bool isWhitespace(char c) const {
+                return c == ' ' || c == '\n' || c == '\r' || c == '\t' || c == 0;
+            }
+            
+            inline void error(size_t line, size_t column, char c) const {
+                StringStream msg;
+                msg << "Unexpected character '" << c << "'";
+                throw ParserException(line, column, msg.str());
+            }
         public:
             virtual ~TokenEmitter() {}
             
-            Token emit(Tokenizer& tokenizer) {
-                return doEmit(tokenizer);
+            Token emit(Tokenizer& tokenizer, size_t line, size_t column) {
+                return doEmit(tokenizer, line, column);
             }
         };
     }

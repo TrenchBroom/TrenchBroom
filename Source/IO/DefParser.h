@@ -60,25 +60,15 @@ namespace TrenchBroom {
             static const unsigned int Eof             = 1 << 15; // end of file
         }
         
-        namespace TokenizerState {
-            static const unsigned int Outside    = 0; // currently outside of a definition
-            static const unsigned int Inside     = 1; // currently parsing a definition
-            static const unsigned int Comment    = 2; // currently reading a comment
-            static const unsigned int Integer    = 3; // currently reading an integer number
-            static const unsigned int Decimal    = 4; // currently reading a decimal number
-            static const unsigned int Word       = 5; // currently reading a single word
-            static const unsigned int String     = 6; // currently reading a quoted string
-            static const unsigned int Eof        = 7; // reached end of file
-        }
-        
         class DefTokenEmitter : public TokenEmitter<DefTokenEmitter> {
         private:
             StringStream m_buffer;
-            unsigned int m_state;
         protected:
-            Token doEmit(Tokenizer& tokenizer);
-        public:
-            DefTokenEmitter();
+            bool isDelimiter(char c) {
+                return isWhitespace(c) || c == '(' || c == ')' || c == '{' || c == '}' || c == '?' || c == ';' || c == ',' || c == '=';
+            }
+
+            Token doEmit(Tokenizer& tokenizer, size_t line, size_t column);
         };
         
         class DefParser {

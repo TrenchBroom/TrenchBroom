@@ -20,7 +20,7 @@
 #ifndef __TrenchBroom__FGDParser__
 #define __TrenchBroom__FGDParser__
 
-#include "IO/AbstractTokenizer.h"
+#include "IO/Tokenizer.h"
 #include "Utility/VecMath.h"
 
 #include <iostream>
@@ -47,49 +47,14 @@ namespace TrenchBroom {
             static const unsigned int Colon             = 1 <<  9; // colon: :
         }
         
-        namespace TokenizerState {
-            static const unsigned int Outside    = 0; // currently outside of a definition
-            static const unsigned int Inside     = 1; // currently parsing a definition
-            static const unsigned int Comment    = 2; // currently reading a comment
-            static const unsigned int Integer    = 3; // currently reading an integer number
-            static const unsigned int Decimal    = 4; // currently reading a decimal number
-            static const unsigned int Word       = 5; // currently reading a single word
-            static const unsigned int String     = 6; // currently reading a quoted string
-            static const unsigned int Eof        = 7; // reached end of file
-        }
-        
-        class FGDTokenizer : public AbstractTokenizer {
-        public:
-            class Token : public AbstractToken<unsigned int, Token> {
-            public:
-                Token(unsigned int type, const String& data, size_t position, size_t line, size_t column) : AbstractToken(type, data, position, line, column) {}
-            };
-            
-            typedef std::auto_ptr<Token> TokenPtr;
-        protected:
-            StringStream m_buffer;
-            unsigned int m_state;
-            
-            inline TokenPtr token(unsigned int type, const String& data) {
-                return TokenPtr(new Token(type, data, m_position, m_line, m_column));
-            }
-        public:
-            FGDTokenizer(std::istream& stream) :
-            AbstractTokenizer(stream),
-            m_state(TokenizerState::Outside) {}
-            
-            TokenPtr nextToken();
-            TokenPtr peekToken();
-        };
-        
         class FGDParser {
         protected:
-            FGDTokenizer m_tokenizer;
+//            Tokenizer m_tokenizer;
             
             Vec3f parseVec();
             BBox parseBounds();
         public:
-            FGDParser(std::istream& stream) : m_tokenizer(stream) {}
+            FGDParser(std::istream& stream) {}
             ~FGDParser();
             
             Model::EntityDefinition* nextDefinition();

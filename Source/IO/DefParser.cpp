@@ -26,181 +26,101 @@
 
 namespace TrenchBroom {
     namespace IO {
-        Token DefTokenEmitter::doEmit(Tokenizer& tokenizer) {
+        Token DefTokenEmitter::doEmit(Tokenizer& tokenizer, size_t line, size_t column) {
             const size_t position = tokenizer.position();
-            const size_t line = tokenizer.line();
-            const size_t column = tokenizer.column();
             
-            m_buffer.str(String());
             while (!tokenizer.eof()) {
                 char c = tokenizer.nextChar();
-                switch (m_state) {
-                    case TokenizerState::Outside:
-                        switch (c) {
-                            case '/':
-                                if (tokenizer.peekChar() == '*') {
-                                    m_state = TokenizerState::Inside;
-                                    while (c != ' ')
-                                        c = tokenizer.nextChar();
-                                    return Token(TokenType::ODefinition, "", position, tokenizer.position() - position, line, column);
-                                } else if (tokenizer.peekChar() == '/') {
-                                    m_state = TokenizerState::Comment;
-                                }
-                                break;
-                            default:
-                                break;
+                switch (c) {
+                    case '/':
+                        if (tokenizer.peekChar() == '*') {
+                            // eat all chars immediately after the '*' because it's often followed by QUAKE
+                            while (!isWhitespace(tokenizer.nextChar()) && !tokenizer.eof());
+                            return Token(TokenType::ODefinition, "", position, tokenizer.position() - position, line, column);
+                        } else if (tokenizer.peekChar() == '/') {
+                            // eat everything up to and including the next newline
+                            while (tokenizer.nextChar() != '\n');
+                            break;
                         }
+                        error(line, column, c);
                         break;
-                    case TokenizerState::Inside:
-                        switch (c) {
-                            case '*':
-                                if (tokenizer.peekChar() == '/') {
-                                    tokenizer.nextChar();
-                                    m_state = TokenizerState::Outside;
-                                    return Token(TokenType::CDefinition, "", position, tokenizer.position() - position, line, column);
-                                }
-                                break;
-                            case '(':
-                                return Token(TokenType::OParenthesis, "", position, tokenizer.position() - position, line, column);
-                            case ')':
-                                return Token(TokenType::CParenthesis, "", position, tokenizer.position() - position, line, column);
-                            case '{':
-                                return Token(TokenType::OBrace, "", position, tokenizer.position() - position, line, column);
-                            case '}':
-                                return Token(TokenType::CBrace, "", position, tokenizer.position() - position, line, column);
-                            case '=':
-                                return Token(TokenType::Equality, "", position, tokenizer.position() - position, line, column);
-                            case ';':
-                                return Token(TokenType::Semicolon, "", position, tokenizer.position() - position, line, column);
-                            case '?':
-                                return Token(TokenType::Question, "", position, tokenizer.position() - position, line, column);
-							case '\r':
-								if (tokenizer.peekChar() == '\n')
-									tokenizer.nextChar();
-                            case '\n':
-                                return Token(TokenType::Newline, "", position, tokenizer.position() - position, line, column);
-                            case ',':
-                                return Token(TokenType::Comma, "", position, tokenizer.position() - position, line, column);
-                            case ' ':
-                            case '\t':
-                                break;
-                            case '-':
-                            case '0':
-                            case '1':
-                            case '2':
-                            case '3':
-                            case '4':
-                            case '5':
-                            case '6':
-                            case '7':
-                            case '8':
-                            case '9':
-                                m_state = TokenizerState::Integer;
-                                m_buffer.str(String());
-                                m_buffer << c;
-                                break;
-                            case '.':
-                                m_state = TokenizerState::Decimal;
-                                m_buffer.str(String());
-                                m_buffer << '0' << c;
-                                break;
-                            case '"':
-                                m_state = TokenizerState::String;
-                                m_buffer.str(String());
-                                break;
-                            default:
-                                m_state = TokenizerState::Word;
-                                m_buffer.str(String());
-                                m_buffer << c;
-                                break;
+                    case '*':
+                        if (tokenizer.peekChar() == '/') {
+                            tokenizer.nextChar();
+                            return Token(TokenType::CDefinition, "", position, tokenizer.position() - position, line, column);
                         }
+                        error(line, column, c);
                         break;
-                    case TokenizerState::Comment:
-                        if (c == '\n')
-                            m_state = TokenizerState::Outside;
+                    case '(':
+                        return Token(TokenType::OParenthesis, "", position, tokenizer.position() - position, line, column);
+                    case ')':
+                        return Token(TokenType::CParenthesis, "", position, tokenizer.position() - position, line, column);
+                    case '{':
+                        return Token(TokenType::OBrace, "", position, tokenizer.position() - position, line, column);
+                    case '}':
+                        return Token(TokenType::CBrace, "", position, tokenizer.position() - position, line, column);
+                    case '=':
+                        return Token(TokenType::Equality, "", position, tokenizer.position() - position, line, column);
+                    case ';':
+                        return Token(TokenType::Semicolon, "", position, tokenizer.position() - position, line, column);
+                    case '?':
+                        return Token(TokenType::Question, "", position, tokenizer.position() - position, line, column);
+                    case '\r':
+                        if (tokenizer.peekChar() == '\n')
+                            tokenizer.nextChar();
+                    case '\n':
+                        return Token(TokenType::Newline, "", position, tokenizer.position() - position, line, column);
+                    case ',':
+                        return Token(TokenType::Comma, "", position, tokenizer.position() - position, line, column);
+                    case ' ':
+                    case '\t':
                         break;
-                    case TokenizerState::Word:
-                        switch (c) {
-                            case '/':
-                                if (tokenizer.peekChar() == '*') {
-                                    tokenizer.pushChar();
-                                } else {
-                                    m_buffer << c;
-                                    break;
-                                }
-                            case '(':
-                            case ' ':
-							case '\r':
-								if (tokenizer.peekChar() == '\n')
-									tokenizer.nextChar();
-                            case '\n':
-                            case '\t':
-                                m_state = TokenizerState::Inside;
-                                tokenizer.pushChar();
-                                return Token(TokenType::Word, m_buffer.str(), position, tokenizer.position() - position, line, column);
-                            default:
-                                m_buffer << c;
-                                break;
-                        }
-                        break;
-                    case TokenizerState::String:
-                        if (c == '"') {
-                            m_state = TokenizerState::Inside;
-                            return Token(TokenType::String, m_buffer.str(), position, tokenizer.position() - position, line, column);
-                        } else {
+                    case '"': // quoted string
+                        m_buffer.str(String());
+                        while (!tokenizer.eof() && (c = tokenizer.nextChar()) != '"')
                             m_buffer << c;
-                        }
-                        break;
-                    case TokenizerState::Integer:
-                        if (c == '.')
-                            m_state = TokenizerState::Decimal;
-                    case TokenizerState::Decimal: {
-                        switch (c) {
-                            case '0':
-                            case '1':
-                            case '2':
-                            case '3':
-                            case '4':
-                            case '5':
-                            case '6':
-                            case '7':
-                            case '8':
-                            case '9':
-                            case '.':
+                        return Token(TokenType::String, m_buffer.str(), position, tokenizer.position() - position, line, column);
+                    default: // integer, decimal or word
+                        // clear the buffer
+                        m_buffer.str(String());
+                        
+                        // try to read a number
+                        if (c == '-' || isDigit(c)) {
+                            m_buffer << c;
+                            while (isDigit((c = tokenizer.nextChar())))
                                 m_buffer << c;
-                                break;
-                            case ')':
-                            case '\t':
-                            case ',':
-                            case ' ': {
-                                if (m_state == TokenizerState::Integer) {
+                            if (isDelimiter(c)) {
+                                if (!tokenizer.eof())
                                     tokenizer.pushChar();
-                                    m_state = TokenizerState::Inside;
-                                    return Token(TokenType::Integer, m_buffer.str(), position, tokenizer.position() - position, line, column);
-                                } else {
-                                    tokenizer.pushChar();
-                                    m_state = TokenizerState::Inside;
-                                    return Token(TokenType::Decimal, m_buffer.str(), position, tokenizer.position() - position, line, column);
-                                }
-                                break;
+                                return Token(TokenType::Integer, m_buffer.str(), position, tokenizer.position() - position, line, column);
                             }
-                            default:
-                                m_state = TokenizerState::Word;
-                                break;
                         }
-                        break;
-                    }
-                    default:
-                        break;
+                        
+                        // try to read a decimal (may start with '.')
+                        if (c == '.') {
+                            m_buffer << c;
+                            while (isDigit((c = tokenizer.nextChar())))
+                                m_buffer << c;
+                            if (isDelimiter(c)) {
+                                if (!tokenizer.eof())
+                                    tokenizer.pushChar();
+                                return Token(TokenType::Decimal, m_buffer.str(), position, tokenizer.position() - position, line, column);
+                            }
+                        }
+                        
+                        // read a word
+                        m_buffer << c;
+                        while (!tokenizer.eof() && !isDelimiter(c = tokenizer.nextChar()))
+                            m_buffer << c;
+                        if (!tokenizer.eof())
+                            tokenizer.pushChar();
+                        return Token(TokenType::Word, m_buffer.str(), position, tokenizer.position() - position, line, column);
                 }
             }
             
             return Token(TokenType::Eof, "", position, tokenizer.position() - position, line, column);
         }
 
-        DefTokenEmitter::DefTokenEmitter() :
-        m_state(TokenizerState::Outside) {}
-        
         String DefParser::typeNames(unsigned int types) {
             std::vector<std::string> names;
             if ((types & TokenType::Integer) != 0)
@@ -428,6 +348,8 @@ namespace TrenchBroom {
 
         Model::EntityDefinition* DefParser::nextDefinition() {
             Token token = m_tokenizer.nextToken();
+            while (token.type() != TokenType::Eof && token.type() != TokenType::ODefinition)
+                token = m_tokenizer.nextToken();
             if (token.type() == TokenType::Eof)
                 return NULL;
 
