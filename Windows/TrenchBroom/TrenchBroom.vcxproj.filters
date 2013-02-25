@@ -1139,10 +1139,10 @@
     <ClInclude Include="..\..\Source\IO\FGDParser.h">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\IO\Tokenizer.h">
+    <ClInclude Include="..\..\Source\IO\DefParser.h">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\IO\DefParser.h">
+    <ClInclude Include="..\..\Source\IO\StreamTokenizer.h">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
   </ItemGroup>

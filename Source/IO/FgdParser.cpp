@@ -19,8 +19,6 @@
 
 #include "FgdParser.h"
 
-#include "Utility/List.h"
-
 using namespace TrenchBroom::IO::FgdTokenType;
 
 namespace TrenchBroom {

@@ -24,6 +24,7 @@
 #include "Model/EntityDefinition.h"
 #include "Model/PropertyDefinition.h"
 #include "Utility/Color.h"
+#include "Utility/List.h"
 #include "Utility/VecMath.h"
 
 #include <iostream>
