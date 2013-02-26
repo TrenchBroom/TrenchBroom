@@ -93,7 +93,8 @@
     </Link>
     <PostBuildEvent>
       <Command>Mkdir "$(TargetDir)Resources"
-Copy "$(ProjectDir)..\..\Resources\Defs\*.def" "$(TargetDir)Resources"
+Copy "$(ProjectDir)..\..\Resources\Defs\*.def" "$(TargetDir)Resources\Defs"
+Copy "$(ProjectDir)..\..\Resources\Defs\*.fgd" "$(TargetDir)Resources\Defs"
 Copy "$(ProjectDir)..\..\Resources\Graphics\QuakePalette.lmp" "$(TargetDir)Resources"
 Copy "$(ProjectDir)..\..\Source\Renderer\Shader\*.vertsh" "$(TargetDir)Resources"
 Copy "$(ProjectDir)..\..\Source\Renderer\Shader\*.fragsh" "$(TargetDir)Resources"
@@ -170,7 +171,8 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294ud_gl_vc100_x64.pdb" "$(TargetDir)"
     </Link>
     <PostBuildEvent>
       <Command>Mkdir "$(TargetDir)Resources"
-Copy "$(ProjectDir)..\..\Resources\Defs\*.def" "$(TargetDir)Resources"
+Copy "$(ProjectDir)..\..\Resources\Defs\*.def" "$(TargetDir)Resources\Defs"
+Copy "$(ProjectDir)..\..\Resources\Defs\*.fgd" "$(TargetDir)Resources\Defs"
 Copy "$(ProjectDir)..\..\Resources\Graphics\QuakePalette.lmp" "$(TargetDir)Resources"
 Copy "$(ProjectDir)..\..\Source\Renderer\Shader\*.vertsh" "$(TargetDir)Resources"
 Copy "$(ProjectDir)..\..\Source\Renderer\Shader\*.fragsh" "$(TargetDir)Resources"

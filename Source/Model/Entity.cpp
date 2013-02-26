@@ -44,6 +44,7 @@ namespace TrenchBroom {
         String const Entity::TargetKey           = "target";
         String const Entity::WadKey              = "wad";
         String const Entity::DefKey              = "_def";
+        String const Entity::DefaultDefinition   = "Quake.fdg";
 
         void Entity::init() {
             m_map = NULL;

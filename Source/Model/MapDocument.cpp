@@ -546,14 +546,15 @@ namespace TrenchBroom {
         void MapDocument::setEntityDefinitionFile(const String& definitionFile) {
             IO::FileManager fileManager;
             const String resourcePath = fileManager.resourceDirectory();
+            const String defsPath = fileManager.appendPathComponent(resourcePath, "Defs");
             String definitionPath;
             
             if (Utility::startsWith(definitionFile, "external:")) {
                 definitionPath = definitionFile.substr(9);
             } else if (Utility::startsWith(definitionFile, "builtin:")) {
-                definitionPath = fileManager.appendPath(resourcePath, definitionFile.substr(8));
+                definitionPath = fileManager.appendPath(defsPath, definitionFile.substr(8));
             } else if (definitionFile == "") {
-                definitionPath = fileManager.appendPath(resourcePath, "Quake.def");
+                definitionPath = fileManager.appendPath(defsPath, Entity::DefaultDefinition);
             } else {
                 console().error("Unable to load entity definition file %s", definitionFile.c_str());
                 return;

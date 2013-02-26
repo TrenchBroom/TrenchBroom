@@ -38,9 +38,20 @@ namespace TrenchBroom {
         }
         
         StringList EntityDefinitionManager::builtinDefinitionFiles() {
+            StringList result;
+            
             IO::FileManager fileManager;
-            String resourcePath = fileManager.resourceDirectory();
-            return fileManager.directoryContents(resourcePath, "def");
+            const String resourcePath = fileManager.resourceDirectory();
+            const String defPath = fileManager.appendPathComponent(resourcePath, "Defs");
+            
+            const StringList defFiles = fileManager.directoryContents(defPath, "def");
+            const StringList fgdFiles = fileManager.directoryContents(defPath, "fgd");
+            
+            result.insert(result.end(), defFiles.begin(), defFiles.end());
+            result.insert(result.end(), fgdFiles.begin(), fgdFiles.end());
+            
+            std::sort(result.begin(), result.end());
+            return result;
         }
 
         void EntityDefinitionManager::load(const String& path) {

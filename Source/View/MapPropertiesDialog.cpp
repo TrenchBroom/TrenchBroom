@@ -110,13 +110,12 @@ namespace TrenchBroom {
 
             int quakeDefIndex = -1;
             int selectionIndex = -1;
-            StringList builtinDefs = Model::EntityDefinitionManager::builtinDefinitionFiles();
-            Utility::sort(builtinDefs);
+            const StringList builtinDefs = Model::EntityDefinitionManager::builtinDefinitionFiles();
             
             for (size_t i = 0; i < builtinDefs.size(); i++) {
                 const String& item = builtinDefs[i];
                 m_defChoice->Append(item);
-                if (Utility::equalsString(item, "Quake.def", false))
+                if (Utility::equalsString(item, Model::Entity::DefaultDefinition, false))
                     quakeDefIndex = static_cast<int>(i);
                 if (Utility::startsWith(def, "builtin:") &&
                     Utility::equalsString(def.substr(8), item, false))
