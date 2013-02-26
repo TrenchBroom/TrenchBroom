@@ -323,7 +323,7 @@ namespace TrenchBroom {
                 String propertyValue = token.data();
                 expect(CParenthesis, token = nextTokenIgnoringNewlines());
 
-                // ignore these propertiesu
+                // ignore these properties
             } else if (typeName == "base") {
                 expect(OParenthesis, token = nextTokenIgnoringNewlines());
                 expect(QuotedString, token = nextTokenIgnoringNewlines());
