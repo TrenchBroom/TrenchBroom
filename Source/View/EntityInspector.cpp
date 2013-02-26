@@ -29,7 +29,6 @@
 #include "View/SmartPropertyEditor.h"
 
 #include <wx/button.h>
-#include <wx/grid.h>
 #include <wx/sizer.h>
 #include <wx/splitter.h>
 #include <wx/statline.h>
@@ -65,6 +64,7 @@ namespace TrenchBroom {
             m_propertyGrid->DisableDragColSize();
             m_propertyGrid->DisableDragGridSize();
             m_propertyGrid->DisableDragRowSize();
+            m_propertyGrid->Bind(wxEVT_MOTION, &EntityInspector::OnPropertyGridMouseMove, this);
 
             // TODO: implemented better TAB behavior once wxWidgets 2.9.5 is out
             // see http://docs.wxwidgets.org/trunk/classwx_grid_event.html for wxEVT_GRID_TABBING
@@ -108,7 +108,8 @@ namespace TrenchBroom {
 
         EntityInspector::EntityInspector(wxWindow* parent, DocumentViewHolder& documentViewHolder) :
         wxPanel(parent),
-        m_documentViewHolder(documentViewHolder) {
+        m_documentViewHolder(documentViewHolder),
+        m_lastHoveredCell(wxGridCellCoords(-1, -1)){
 
             /*
             wxSplitterWindow* inspectorSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE);
@@ -151,6 +152,18 @@ namespace TrenchBroom {
 
         void EntityInspector::OnPropertyGridSelectCell(wxGridEvent& event) {
             updateSmartEditor(event.GetRow());
+        }
+
+        void EntityInspector::OnPropertyGridMouseMove(wxMouseEvent& event) {
+            int logicalX, logicalY;
+            m_propertyGrid->CalcUnscrolledPosition(event.GetX(), event.GetY(), &logicalX, &logicalY);
+            logicalY -= m_propertyGrid->GetRowHeight(0); // compensate for header row
+            wxGridCellCoords currentCell = m_propertyGrid->XYToCell(logicalX, logicalY);
+            if (m_lastHoveredCell != currentCell) {
+                String tooltip = m_propertyTable->tooltip(currentCell);
+                m_propertyGrid->SetToolTip(tooltip);
+                m_lastHoveredCell = currentCell;
+            }
         }
 
         void EntityInspector::OnAddPropertyPressed(wxCommandEvent& event) {

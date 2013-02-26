@@ -420,7 +420,6 @@
 		48819C3D15EC0CE700BEA604 /* MacFileManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MacFileManager.cpp; path = TrenchBroom/MacFileManager.cpp; sourceTree = SOURCE_ROOT; };
 		48819C3E15EC0CE700BEA604 /* MacFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MacFileManager.h; path = TrenchBroom/MacFileManager.h; sourceTree = SOURCE_ROOT; };
 		48819C4015EC0D9300BEA604 /* FileManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileManager.h; sourceTree = "<group>"; };
-		48819C4315EC107700BEA604 /* quake.def */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = quake.def; path = ../../Resources/Defs/quake.def; sourceTree = "<group>"; };
 		48819C4515EC108400BEA604 /* QuakePalette.lmp */ = {isa = PBXFileReference; lastKnownFileType = file; name = QuakePalette.lmp; path = ../../Resources/Graphics/QuakePalette.lmp; sourceTree = "<group>"; };
 		48819C4C15ED52B200BEA604 /* CameraEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraEvent.h; sourceTree = "<group>"; };
 		48819C4F15ED5C7700BEA604 /* CameraEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraEvent.cpp; sourceTree = "<group>"; };
@@ -794,7 +793,6 @@
 		484763DC15E2BC5000095BC0 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				48819C4315EC107700BEA604 /* quake.def */,
 				48819C4515EC108400BEA604 /* QuakePalette.lmp */,
 				484763DD15E2BC5000095BC0 /* TrenchBroom-Info.plist */,
 				484763DE15E2BC5000095BC0 /* InfoPlist.strings */,

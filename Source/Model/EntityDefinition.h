@@ -148,6 +148,16 @@ namespace TrenchBroom {
                 return NULL;
             }
             
+            const PropertyDefinition* propertyDefinition(const PropertyKey& propertyKey) const {
+                PropertyDefinition::List::const_iterator it, end;
+                for (it = m_propertyDefinitions.begin(), end = m_propertyDefinitions.end(); it != end; ++it) {
+                    const PropertyDefinition* definition = *it;
+                    if (definition->name() == propertyKey)
+                        return definition;
+                }
+                return NULL;
+            }
+            
             inline void incUsageCount() {
                 m_usageCount++;
             }

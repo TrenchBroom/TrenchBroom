@@ -22,12 +22,11 @@
 
 #include "Model/EntityTypes.h"
 
+#include <wx/grid.h>
 #include <wx/object.h>
 #include <wx/panel.h>
 
 class wxButton;
-class wxGrid;
-class wxGridEvent;
 class wxGLContext;
 class wxWindow;
 
@@ -44,6 +43,7 @@ namespace TrenchBroom {
 
             EntityPropertyGridTable* m_propertyTable;
             wxGrid* m_propertyGrid;
+            wxGridCellCoords m_lastHoveredCell;
             SmartPropertyEditorManager* m_smartPropertyEditorManager;
             wxButton* m_addPropertyButton;
             wxButton* m_removePropertiesButton;
@@ -64,6 +64,7 @@ namespace TrenchBroom {
 
             void OnPropertyGridSize(wxSizeEvent& event);
             void OnPropertyGridSelectCell(wxGridEvent& event);
+            void OnPropertyGridMouseMove(wxMouseEvent& event);
             
             void OnAddPropertyPressed(wxCommandEvent& event);
             void OnRemovePropertiesPressed(wxCommandEvent& event);
