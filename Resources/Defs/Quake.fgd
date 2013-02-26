@@ -297,9 +297,9 @@
 	[ speed(integer) : "Speed" : 40 ]
 @PointClass size(0 0 0, 32 32 64) model(":maps/b_explob.bsp" 0 0) = misc_explobox : "Large nuclear container" []
 @PointClass size(0 0 0, 32 32 32) model(":maps/b_exbox2.bsp" 0 0) = misc_explobox2 : "Small nuclear container" []
-@SolidClass = func_illusionary : "Static model"  
-[
-]
+@PointClass size(-8 -8 -8, 8 8 8) model(":progs/teleport.mdl" 0 0) = misc_teleporttrain : "Flying teleporter destination" []
+
+@SolidClass = func_illusionary : "Static model"  []
 @PointClass = func_illusionary2 : "Static model"  
 [
 	frame(integer)
@@ -458,6 +458,8 @@
 //
 // triggers
 //
+
+@SolidClass : "Group of brushes, ignored by engine" = func_group []
 
 @baseclass base(Target, Targetname) = Trigger
 [

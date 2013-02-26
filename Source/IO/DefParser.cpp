@@ -215,7 +215,7 @@ namespace TrenchBroom {
             return bounds;
         }
 
-        Model::FlagsPropertyDefinition* DefParser::parseFlags() {
+        Model::FlagsPropertyDefinition::Ptr DefParser::parseFlags() {
             Model::FlagsPropertyDefinition* definition = new Model::FlagsPropertyDefinition(Model::Entity::SpawnFlagsKey, "");
             size_t numOptions = 0;
             
@@ -228,7 +228,7 @@ namespace TrenchBroom {
                 token = m_tokenizer.peekToken();
             }
             
-            return definition;
+            return Model::PropertyDefinition::Ptr(definition);
         }
         
         bool DefParser::parseProperty(Model::PropertyDefinition::List& properties, Model::ModelDefinition::List& modelDefinitions, StringList& baseClasses) {
@@ -258,7 +258,7 @@ namespace TrenchBroom {
                 }
                 
                 expect(CParenthesis, token);
-                properties.push_back(new Model::ChoicePropertyDefinition(propertyName, "", 0));
+                properties.push_back(Model::PropertyDefinition::Ptr(new Model::ChoicePropertyDefinition(propertyName, "", 0)));
             } else if (typeName == "model") {
                 Model::ModelDefinition* modelDefinition = NULL;
                 
@@ -302,7 +302,7 @@ namespace TrenchBroom {
                                                                  static_cast<unsigned int>(frameIndex));
                 }
                 
-                modelDefinitions.push_back(modelDefinition);
+                modelDefinitions.push_back(Model::ModelDefinition::Ptr(modelDefinition));
             } else if (typeName == "default") {
                 expect(OParenthesis, token = nextTokenIgnoringNewlines());
                 expect(QuotedString, token = nextTokenIgnoringNewlines());
@@ -341,13 +341,6 @@ namespace TrenchBroom {
             return m_tokenizer.remainder(CDefinition);
         }
 
-        DefParser::~DefParser() {
-            BasePropertiesMap::iterator it, end;
-            for (it = m_baseProperties.begin(), end = m_baseProperties.end(); it != end; ++it)
-                Utility::deleteAll(it->second);
-            m_baseProperties.clear();
-        }
-
         Model::EntityDefinition* DefParser::nextDefinition() {
             Token token = m_tokenizer.nextToken();
             while (token.type() != Eof && token.type() != ODefinition)
@@ -361,7 +354,7 @@ namespace TrenchBroom {
             bool hasBounds = false;
             Color color;
             BBox bounds;
-            Model::FlagsPropertyDefinition* spawnflags = NULL;
+            Model::FlagsPropertyDefinition::Ptr spawnflags;
             Model::PropertyDefinition::List propertyDefinitions;
             Model::ModelDefinition::List modelDefinitions;
             StringList baseClasses;

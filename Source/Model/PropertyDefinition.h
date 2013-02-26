@@ -21,6 +21,7 @@
 #define __TrenchBroom__PropertyDefinition__
 
 #include "Model/EntityProperty.h"
+#include "Utility/SharedPointer.h"
 #include "Utility/String.h"
 
 #include <map>
@@ -30,8 +31,9 @@ namespace TrenchBroom {
     namespace Model {
         class PropertyDefinition {
         public:
-            typedef std::map<String, PropertyDefinition*> Map;
-            typedef std::vector<PropertyDefinition*> List;
+            typedef std::tr1::shared_ptr<PropertyDefinition> Ptr;
+            typedef std::map<String, Ptr> Map;
+            typedef std::vector<Ptr> List;
             
             enum Type {
                 TargetSourceProperty,

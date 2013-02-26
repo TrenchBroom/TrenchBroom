@@ -97,17 +97,6 @@ namespace TrenchBroom {
                 hasSize = true;
             }
             
-            inline void deleteProperties() {
-                Model::PropertyDefinition::Map::iterator propertyIt, propertyEnd;
-                for (propertyIt = properties.begin(), propertyEnd = properties.end(); propertyIt != propertyEnd; ++propertyIt)
-                    delete propertyIt->second;
-                properties.clear();
-            }
-            
-            inline void deleteModels() {
-                Utility::deleteAll(models);
-            }
-            
             inline Model::PropertyDefinition::List propertyList() const {
                 Model::PropertyDefinition::List list;
                 Model::PropertyDefinition::Map::const_iterator propertyIt, propertyEnd;
@@ -129,13 +118,13 @@ namespace TrenchBroom {
                     throw ParserException(token.line(), token.column(), "Expected token type " + typeNames(types) + " but got " + typeNames(token.type()));
             }
 
-            Model::PropertyDefinition* parseTargetSourceProperty(const String& propertyKey);
-            Model::PropertyDefinition* parseTargetDestinationProperty(const String& propertyKey);
-            Model::PropertyDefinition* parseStringProperty(const String& propertyKey);
-            Model::PropertyDefinition* parseIntegerProperty(const String& propertyKey);
-            Model::PropertyDefinition* parseFloatProperty(const String& propertyKey);
-            Model::PropertyDefinition* parseChoicesProperty(const String& propertyKey);
-            Model::PropertyDefinition* parseFlagsProperty(const String& propertyKey);
+            Model::PropertyDefinition::Ptr parseTargetSourceProperty(const String& propertyKey);
+            Model::PropertyDefinition::Ptr parseTargetDestinationProperty(const String& propertyKey);
+            Model::PropertyDefinition::Ptr parseStringProperty(const String& propertyKey);
+            Model::PropertyDefinition::Ptr parseIntegerProperty(const String& propertyKey);
+            Model::PropertyDefinition::Ptr parseFloatProperty(const String& propertyKey);
+            Model::PropertyDefinition::Ptr parseChoicesProperty(const String& propertyKey);
+            Model::PropertyDefinition::Ptr parseFlagsProperty(const String& propertyKey);
             Model::PropertyDefinition::Map parseProperties();
             
             BBox parseSize();
@@ -153,7 +142,6 @@ namespace TrenchBroom {
             FgdParser(const Color& defaultEntityColor, std::istream& stream) :
             m_defaultEntityColor(defaultEntityColor), 
             m_tokenizer(stream) {}
-            ~FgdParser();
             
             Model::EntityDefinition* nextDefinition();
         };

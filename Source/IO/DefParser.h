@@ -88,7 +88,7 @@ namespace TrenchBroom {
             Token nextTokenIgnoringNewlines();
             Color parseColor();
             BBox parseBounds();
-            Model::FlagsPropertyDefinition* parseFlags();
+            Model::FlagsPropertyDefinition::Ptr parseFlags();
             bool parseProperty(Model::PropertyDefinition::List& properties, Model::ModelDefinition::List& modelDefinitions, StringList& baseClasses);
             void parseProperties(Model::PropertyDefinition::List& properties, Model::ModelDefinition::List& modelDefinitions, StringList& baseClasses);
             String parseDescription();
@@ -96,7 +96,6 @@ namespace TrenchBroom {
             DefParser(const Color& defaultEntityColor, std::istream& stream) :
             m_defaultEntityColor(defaultEntityColor),
             m_tokenizer(stream) {}
-            ~DefParser();
         
             Model::EntityDefinition* nextDefinition();
         };

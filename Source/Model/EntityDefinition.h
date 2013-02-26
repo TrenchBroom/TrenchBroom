@@ -25,6 +25,7 @@
 #include "Model/EntityProperty.h"
 #include "Model/PropertyDefinition.h"
 #include "Utility/Color.h"
+#include "Utility/SharedPointer.h"
 #include "Utility/String.h"
 #include "Utility/VecMath.h"
 
@@ -38,6 +39,8 @@ namespace TrenchBroom {
     namespace Model {
         class ModelDefinitionEvaluator {
         public:
+            typedef std::tr1::shared_ptr<ModelDefinitionEvaluator> Ptr;
+            
             virtual ~ModelDefinitionEvaluator() {}
             
             virtual bool evaluate(const PropertyList& properties) const = 0;
@@ -65,18 +68,18 @@ namespace TrenchBroom {
         
         class ModelDefinition {
         public:
-            typedef std::vector<ModelDefinition*> List;
+            typedef std::tr1::shared_ptr<ModelDefinition> Ptr;
+            typedef std::vector<Ptr> List;
         private:
             String m_name;
             unsigned int m_skinIndex;
             unsigned int m_frameIndex;
         
-            ModelDefinitionEvaluator* m_evaluator;
+            ModelDefinitionEvaluator::Ptr m_evaluator;
         public:
             ModelDefinition(const String& name, unsigned int skinIndex, unsigned int frameIndex);
             ModelDefinition(const String& name, unsigned int skinIndex, unsigned int frameIndex, const PropertyKey& propertyKey, const PropertyValue& propertyValue);
             ModelDefinition(const String& name, unsigned int skinIndex, unsigned int frameIndex, const PropertyKey& propertyKey, int flagValue);
-            ~ModelDefinition();
             
             inline const String& name() const {
                 return m_name;
@@ -111,7 +114,7 @@ namespace TrenchBroom {
             };
             
             EntityDefinition(const String& name, const Color& color, const String& description, const PropertyDefinition::List& propertyDefinitions);
-            virtual ~EntityDefinition();
+            virtual ~EntityDefinition() {}
             
             virtual Type type() const = 0;
             
@@ -140,10 +143,10 @@ namespace TrenchBroom {
             const FlagsPropertyDefinition* spawnflags() const {
                 PropertyDefinition::List::const_iterator it, end;
                 for (it = m_propertyDefinitions.begin(), end = m_propertyDefinitions.end(); it != end; ++it) {
-                    const PropertyDefinition* definition = *it;
+                    const PropertyDefinition::Ptr definition = *it;
                     if (definition->type() == PropertyDefinition::FlagsProperty &&
                         definition->name() == Model::Entity::SpawnFlagsKey)
-                        return static_cast<const FlagsPropertyDefinition*>(definition);
+                        return static_cast<const FlagsPropertyDefinition*>(definition.get());
                 }
                 return NULL;
             }
@@ -151,9 +154,9 @@ namespace TrenchBroom {
             const PropertyDefinition* propertyDefinition(const PropertyKey& propertyKey) const {
                 PropertyDefinition::List::const_iterator it, end;
                 for (it = m_propertyDefinitions.begin(), end = m_propertyDefinitions.end(); it != end; ++it) {
-                    const PropertyDefinition* definition = *it;
+                    const PropertyDefinition::Ptr definition = *it;
                     if (definition->name() == propertyKey)
-                        return definition;
+                        return definition.get();
                 }
                 return NULL;
             }
@@ -177,7 +180,6 @@ namespace TrenchBroom {
             ModelDefinition::List m_modelDefinitions;
         public:
             PointEntityDefinition(const String& name, const Color& color, const BBox& bounds, const String& description, const PropertyDefinition::List& propertyDefinitions, const ModelDefinition::List& modelDefinitions = ModelDefinition::List());
-            ~PointEntityDefinition();
             
             inline Type type() const {
                 return PointEntity;

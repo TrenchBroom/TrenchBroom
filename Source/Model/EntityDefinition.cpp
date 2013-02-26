@@ -60,8 +60,7 @@ namespace TrenchBroom {
         ModelDefinition::ModelDefinition(const String& name, unsigned int skinIndex, unsigned int frameIndex) :
         m_name(name),
         m_skinIndex(skinIndex),
-        m_frameIndex(frameIndex),
-        m_evaluator(NULL) {}
+        m_frameIndex(frameIndex) {}
         
         ModelDefinition::ModelDefinition(const String& name, unsigned int skinIndex, unsigned int frameIndex, const PropertyKey& propertyKey, const PropertyValue& propertyValue) :
         m_name(name),
@@ -75,11 +74,6 @@ namespace TrenchBroom {
         m_frameIndex(frameIndex),
         m_evaluator(new ModelDefinitionFlagEvaluator(propertyKey, flagValue)) {}
         
-        ModelDefinition::~ModelDefinition() {
-            delete m_evaluator;
-            m_evaluator = NULL;
-        }
-        
         EntityDefinition::EntityDefinition(const String& name, const Color& color, const String& description, const PropertyDefinition::List& propertyDefinitions) :
         m_name(name),
         m_color(color),
@@ -88,28 +82,20 @@ namespace TrenchBroom {
         m_propertyDefinitions(propertyDefinitions) {
         }
         
-        EntityDefinition::~EntityDefinition() {
-            Utility::deleteAll(m_propertyDefinitions);
-        }
-
         PointEntityDefinition::PointEntityDefinition(const String& name, const Color& color, const BBox& bounds, const String& description, const PropertyDefinition::List& propertyDefinitions, const ModelDefinition::List& modelDefinitions) :
         EntityDefinition(name, color, description, propertyDefinitions),
         m_bounds(bounds),
         m_modelDefinitions(modelDefinitions) {}
         
-        PointEntityDefinition::~PointEntityDefinition() {
-            Utility::deleteAll(m_modelDefinitions);
-        }
-
         const ModelDefinition* PointEntityDefinition::model(const PropertyList& properties) const {
             if (m_modelDefinitions.empty())
                 return NULL;
             
             ModelDefinition::List::const_reverse_iterator it, end;
             for (it = m_modelDefinitions.rbegin(), end = m_modelDefinitions.rend(); it != end; ++it) {
-                const ModelDefinition* definition = *it;
+                const ModelDefinition::Ptr definition = *it;
                 if (definition->matches(properties))
-                    return definition;
+                    return definition.get();
             }
             
             return NULL;

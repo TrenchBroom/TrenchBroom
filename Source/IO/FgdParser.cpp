@@ -156,7 +156,7 @@ namespace TrenchBroom {
             return str.str();
         }
 
-        Model::PropertyDefinition* FgdParser::parseTargetSourceProperty(const String& propertyKey) {
+        Model::PropertyDefinition::Ptr FgdParser::parseTargetSourceProperty(const String& propertyKey) {
             String description;
             
             Token token = m_tokenizer.nextToken();
@@ -167,10 +167,10 @@ namespace TrenchBroom {
                 m_tokenizer.pushToken(token);
             }
             
-            return new Model::PropertyDefinition(propertyKey, Model::PropertyDefinition::TargetSourceProperty, description);
+            return Model::PropertyDefinition::Ptr(new Model::PropertyDefinition(propertyKey, Model::PropertyDefinition::TargetSourceProperty, description));
         }
         
-        Model::PropertyDefinition* FgdParser::parseTargetDestinationProperty(const String& propertyKey) {
+        Model::PropertyDefinition::Ptr FgdParser::parseTargetDestinationProperty(const String& propertyKey) {
             String description;
             
             Token token = m_tokenizer.nextToken();
@@ -181,10 +181,10 @@ namespace TrenchBroom {
                 m_tokenizer.pushToken(token);
             }
             
-            return new Model::PropertyDefinition(propertyKey, Model::PropertyDefinition::TargetDestinationProperty, description);
+            return Model::PropertyDefinition::Ptr(new Model::PropertyDefinition(propertyKey, Model::PropertyDefinition::TargetDestinationProperty, description));
         }
         
-        Model::PropertyDefinition* FgdParser::parseStringProperty(const String& propertyKey) {
+        Model::PropertyDefinition::Ptr FgdParser::parseStringProperty(const String& propertyKey) {
             String description;
             String defaultValue;
             
@@ -204,10 +204,10 @@ namespace TrenchBroom {
                 m_tokenizer.pushToken(token);
             }
             
-            return new Model::StringPropertyDefinition(propertyKey, description, defaultValue);
+            return Model::PropertyDefinition::Ptr(new Model::StringPropertyDefinition(propertyKey, description, defaultValue));
         }
         
-        Model::PropertyDefinition* FgdParser::parseIntegerProperty(const String& propertyKey) {
+        Model::PropertyDefinition::Ptr FgdParser::parseIntegerProperty(const String& propertyKey) {
             String description;
             int defaultValue = 0;
             
@@ -227,10 +227,10 @@ namespace TrenchBroom {
                 m_tokenizer.pushToken(token);
             }
             
-            return new Model::IntegerPropertyDefinition(propertyKey, description, defaultValue);
+            return Model::PropertyDefinition::Ptr(new Model::IntegerPropertyDefinition(propertyKey, description, defaultValue));
         }
         
-        Model::PropertyDefinition* FgdParser::parseFloatProperty(const String& propertyKey) {
+        Model::PropertyDefinition::Ptr FgdParser::parseFloatProperty(const String& propertyKey) {
             String description;
             float defaultValue = 0;
             
@@ -251,10 +251,10 @@ namespace TrenchBroom {
                 m_tokenizer.pushToken(token);
             }
             
-            return new Model::FloatPropertyDefinition(propertyKey, description, defaultValue);
+            return Model::PropertyDefinition::Ptr(new Model::FloatPropertyDefinition(propertyKey, description, defaultValue));
         }
 
-        Model::PropertyDefinition* FgdParser::parseChoicesProperty(const String& propertyKey) {
+        Model::PropertyDefinition::Ptr FgdParser::parseChoicesProperty(const String& propertyKey) {
             String description;
             int defaultValue;
             
@@ -287,10 +287,10 @@ namespace TrenchBroom {
                 expect(Integer | QuotedString | CBracket, token = m_tokenizer.nextToken());
             }
             
-            return definition;
+            return Model::PropertyDefinition::Ptr(definition);
         }
         
-        Model::PropertyDefinition* FgdParser::parseFlagsProperty(const String& propertyKey) {
+        Model::PropertyDefinition::Ptr FgdParser::parseFlagsProperty(const String& propertyKey) {
             String description;
             
             Token token;
@@ -325,7 +325,7 @@ namespace TrenchBroom {
                 expect(Integer | CBracket, token = m_tokenizer.nextToken());
             }
             
-            return definition;
+            return Model::PropertyDefinition::Ptr(definition);
         }
 
         Model::PropertyDefinition::Map FgdParser::parseProperties() {
@@ -457,14 +457,14 @@ namespace TrenchBroom {
                         expect(QuotedString | Integer, token = m_tokenizer.nextToken());
                         if (token.type() == QuotedString) {
                             const String propertyValue = token.data();
-                            result.push_back(new Model::ModelDefinition(path, skinIndex, frameIndex, propertyKey, propertyValue));
+                            result.push_back(Model::ModelDefinition::Ptr(new Model::ModelDefinition(path, skinIndex, frameIndex, propertyKey, propertyValue)));
                         } else {
                             const int flagValue = token.toInteger();
-                            result.push_back(new Model::ModelDefinition(path, skinIndex, frameIndex, propertyKey, flagValue));
+                            result.push_back(Model::ModelDefinition::Ptr(new Model::ModelDefinition(path, skinIndex, frameIndex, propertyKey, flagValue)));
                         }
                         expect(Comma | CParenthesis, token = m_tokenizer.nextToken());
                     } else {
-                        result.push_back(new Model::ModelDefinition(path, skinIndex, frameIndex));
+                        result.push_back(Model::ModelDefinition::Ptr(new Model::ModelDefinition(path, skinIndex, frameIndex)));
                     }
                     
                 } while (token.type() == Comma);
@@ -488,16 +488,16 @@ namespace TrenchBroom {
                     
                     Model::PropertyDefinition::Map::const_iterator propertyIt, propertyEnd;
                     for (propertyIt = baseClass.properties.begin(), propertyEnd = baseClass.properties.end(); propertyIt != propertyEnd; ++propertyIt) {
-                        const Model::PropertyDefinition* property = propertyIt->second;
+                        const Model::PropertyDefinition::Ptr property = propertyIt->second;
                         const bool hasProperty = classInfo.properties.find(property->name()) != classInfo.properties.end();
                         if (!hasProperty)
-                            classInfo.properties[property->name()] = new Model::PropertyDefinition(*property);
+                            classInfo.properties[property->name()] = property;
                     }
                     
                     Model::ModelDefinition::List::const_iterator modelIt, modelEnd;
                     for (modelIt = baseClass.models.begin(), modelEnd = baseClass.models.end(); modelIt != modelEnd; ++modelIt) {
-                        const Model::ModelDefinition* model = *modelIt;
-                        classInfo.models.push_back(new Model::ModelDefinition(*model));
+                        const Model::ModelDefinition::Ptr model = *modelIt;
+                        classInfo.models.push_back(model);
                     }
                 }
             }
@@ -566,24 +566,10 @@ namespace TrenchBroom {
         
         void FgdParser::parseBaseClass() {
             ClassInfo classInfo = parseClass();
-            if (m_baseClasses.count(classInfo.name) > 0) {
-                classInfo.deleteProperties();
-                classInfo.deleteModels();
+            if (m_baseClasses.count(classInfo.name) > 0)
                 throw ParserException(classInfo.line, classInfo.column, "Redefinition of base class " + classInfo.name);
-            }
             
             m_baseClasses[classInfo.name] = classInfo;
-        }
-
-        FgdParser::~FgdParser() {
-            ClassInfo::Map::iterator infoIt, infoEnd;
-            for (infoIt = m_baseClasses.begin(), infoEnd = m_baseClasses.end(); infoIt != infoEnd; ++infoIt) {
-                ClassInfo& classInfo = infoIt->second;
-                classInfo.deleteProperties();
-                classInfo.deleteModels();
-            }
-            
-            m_baseClasses.clear();
         }
 
         Model::EntityDefinition* FgdParser::nextDefinition() {
