@@ -113,7 +113,7 @@
 		</Compiler>
 		<ExtraCommands>
 			<Add after="mkdir -p $(TARGET_OUTPUT_DIR)Resources" />
-			<Add after='cp &quot;$(PROJECT_DIR)../Resources/Defs/&quot;*.def $(TARGET_OUTPUT_DIR)Resources/' />
+			<Add after='cp -R &quot;$(PROJECT_DIR)../Resources/Defs&quot; $(TARGET_OUTPUT_DIR)Resources/' />
 			<Add after='cp &quot;$(PROJECT_DIR)../Resources/Fonts/&quot;*.* $(TARGET_OUTPUT_DIR)Resources/' />
 			<Add after='cp &quot;$(PROJECT_DIR)../Resources/Graphics/&quot;*.png $(TARGET_OUTPUT_DIR)Resources/' />
 			<Add after='cp &quot;$(PROJECT_DIR)../Resources/Graphics/&quot;QuakePalette.lmp $(TARGET_OUTPUT_DIR)Resources/' />
@@ -222,6 +222,8 @@
 		<Unit filename="../Source/GL/wglew.h" />
 		<Unit filename="../Source/IO/AbstractFileManager.cpp" />
 		<Unit filename="../Source/IO/AbstractFileManager.h" />
+		<Unit filename="../Source/IO/ClassInfo.cpp" />
+		<Unit filename="../Source/IO/ClassInfo.h" />
 		<Unit filename="../Source/IO/DefParser.cpp" />
 		<Unit filename="../Source/IO/DefParser.h" />
 		<Unit filename="../Source/IO/FgdParser.cpp" />
