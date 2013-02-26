@@ -133,6 +133,7 @@ namespace TrenchBroom {
             Model::PropertyDefinition* parseTargetDestinationProperty(const String& propertyKey);
             Model::PropertyDefinition* parseStringProperty(const String& propertyKey);
             Model::PropertyDefinition* parseIntegerProperty(const String& propertyKey);
+            Model::PropertyDefinition* parseFloatProperty(const String& propertyKey);
             Model::PropertyDefinition* parseChoicesProperty(const String& propertyKey);
             Model::PropertyDefinition* parseFlagsProperty(const String& propertyKey);
             Model::PropertyDefinition::Map parseProperties();

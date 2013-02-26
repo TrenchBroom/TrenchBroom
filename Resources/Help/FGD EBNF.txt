@@ -14,12 +14,13 @@ ColorHeaderProperty		= "color", "(", Vec, ")";
 ModelHeaderProperty		= "model", "(", ModelDefinition, {ModelDefinition} ")";
 ModelDefinition			= QuotedString, Integer, Integer, [Name, "=", (QuotedString | Integer)];
 
-PropertyDef 			= StringPropertyDef | ChoicePropertyDef | FlagsPropertyDef | IntegerPropertyDef | TargetSourcePropertyDef | TargetDestPropertyDef;
+PropertyDef 			= StringPropertyDef | ChoicePropertyDef | FlagsPropertyDef | IntegerPropertyDef | FloatPropertyDef | TargetSourcePropertyDef | TargetDestPropertyDef;
 
 TargetSourcePropertyDef	= Name, "(", "target_source", ")", [":", QuotedString]
 TargetDestPropertyDef	= Name, "(", "target_destination", ")", [":", QuotedString]
 StringPropertyDef 		= Name, "(", "string", ")", [":", QuotedString];
 IntegerPropertyDef		= Name, "(", "integer", ")", [":", QuotedString, [":", Integer]]
+FloatPropertyDef		= Name, "(", "float", ")", [":", QuotedString, [":", Decimal]]
 
 ChoicePropertyDef 		= Name, "(", "choices", ")", [":", QuotedString, [":", Integer]], "=", "[", {ChoicePropertyOption}, "]";
 ChoicePropertyOption 	= Integer, ":", QuotedString;

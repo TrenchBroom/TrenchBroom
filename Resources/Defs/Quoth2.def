@@ -1810,7 +1810,7 @@ No description
 */
 
 /*QUAKED corpse_crucified1 (1 1 0) (-16.000 -16.000 -24.000) (16.000 16.000 40.000) FORCE_STATIC FORCE_DYNAMIC
-{ model(":progs/corpse_imp.mdl:7:9"); }
+{ model(":progs/corpse_imp.mdl" 7 9); }
 
 
 FORCE STATIC
@@ -1826,7 +1826,7 @@ No description
 */
 
 /*QUAKED corpse_crucified2 (1 1 0) (-16.000 -16.000 -24.000) (16.000 16.000 40.000) FORCE_STATIC FORCE_DYNAMIC
-{ model(":progs/corpse_imp.mdl:8:10"); }
+{ model(":progs/corpse_imp.mdl" 8 10); }
 
 
 FORCE STATIC
@@ -1842,7 +1842,7 @@ No description
 */
 
 /*QUAKED corpse_lynched1 (1 1 0) (-16.000 -16.000 -96.000) (16.000 16.000 0.000) FORCE_STATIC FORCE_DYNAMIC
-{ model(":progs/corpse_lynch.mdl:0:0"); }
+{ model(":progs/corpse_lynch.mdl" 0 0); }
 
 
 FORCE STATIC
@@ -1858,7 +1858,7 @@ No description
 */
 
 /*QUAKED corpse_lynched2 (1 1 0) (-16.000 -16.000 -96.000) (16.000 16.000 0.000) FORCE_STATIC FORCE_DYNAMIC
-{ model(":progs/corpse_lynch.mdl:1:0"); }
+{ model(":progs/corpse_lynch.mdl" 1 0); }
 
 
 FORCE STATIC
@@ -1874,7 +1874,7 @@ No description
 */
 
 /*QUAKED corpse_lynched3 (1 1 0) (-16.000 -16.000 -96.000) (16.000 16.000 0.000) FORCE_STATIC FORCE_DYNAMIC
-{ model(":progs/corpse_lynch.mdl:2:1"); }
+{ model(":progs/corpse_lynch.mdl" 2 1); }
 
 
 FORCE STATIC
@@ -1890,7 +1890,7 @@ No description
 */
 
 /*QUAKED corpse_flayed1 (1 1 0) (-16.000 -16.000 -96.000) (16.000 16.000 0.000) FORCE_STATIC FORCE_DYNAMIC
-{ model(":progs/corpse_flay.mdl:0:0"); }
+{ model(":progs/corpse_flay.mdl" 0 0); }
 
 
 FORCE STATIC
@@ -1906,7 +1906,7 @@ No description
 */
 
 /*QUAKED corpse_flayed2 (1 1 0) (-16.000 -16.000 -96.000) (16.000 16.000 0.000) FORCE_STATIC FORCE_DYNAMIC
-{ model(":progs/corpse_flay.mdl:1:0"); }
+{ model(":progs/corpse_flay.mdl" 1 0); }
 
 
 FORCE STATIC
@@ -1922,7 +1922,7 @@ No description
 */
 
 /*QUAKED corpse_flayed3 (1 1 0) (-16.000 -16.000 -96.000) (16.000 16.000 0.000) FORCE_STATIC FORCE_DYNAMIC
-{ model(":progs/corpse_flay.mdl:2:2"); }
+{ model(":progs/corpse_flay.mdl" 2 2); }
 
 
 FORCE STATIC
@@ -1938,7 +1938,7 @@ No description
 */
 
 /*QUAKED corpse_flayed4 (1 1 0) (-16.000 -16.000 -96.000) (16.000 16.000 0.000) FORCE_STATIC FORCE_DYNAMIC
-{ model(":progs/corpse_flay.mdl:1:1"); }
+{ model(":progs/corpse_flay.mdl" 1 1); }
 
 
 FORCE STATIC
@@ -1954,7 +1954,7 @@ No description
 */
 
 /*QUAKED corpse_impaled_back1 (1 1 0) (-32.000 -32.000 -40.000) (32.000 32.000 0.000) FORCE_STATIC FORCE_DYNAMIC
-{ model(":progs/corpse_imp.mdl:0:0"); }
+{ model(":progs/corpse_imp.mdl" 0 0); }
 
 
 FORCE STATIC
@@ -1970,7 +1970,7 @@ No description
 */
 
 /*QUAKED corpse_impaled_back2 (1 1 0) (-32.000 -32.000 -40.000) (32.000 32.000 0.000) FORCE_STATIC FORCE_DYNAMIC
-{ model(":progs/corpse_imp.mdl:1:0"); }
+{ model(":progs/corpse_imp.mdl" 1 0); }
 
 
 FORCE STATIC
@@ -1986,7 +1986,7 @@ No description
 */
 
 /*QUAKED corpse_impaled_back3 (1 1 0) (-32.000 -32.000 -40.000) (32.000 32.000 0.000) FORCE_STATIC FORCE_DYNAMIC
-{ model(":progs/corpse_imp.mdl:2:1"); }
+{ model(":progs/corpse_imp.mdl" 2 1); }
 
 
 FORCE STATIC
@@ -2002,7 +2002,7 @@ No description
 */
 
 /*QUAKED corpse_impaled_front1 (1 1 0) (-16.000 -16.000 -24.000) (16.000 16.000 16.000) FORCE_STATIC FORCE_DYNAMIC
-{ model(":progs/corpse_imp.mdl:0:2"); }
+{ model(":progs/corpse_imp.mdl" 0 2); }
 
 
 FORCE STATIC
@@ -2018,7 +2018,7 @@ No description
 */
 
 /*QUAKED corpse_impaled_front2 (1 1 0) (-16.000 -16.000 -24.000) (16.000 16.000 16.000) FORCE_STATIC FORCE_DYNAMIC
-{ model(":progs/corpse_imp.mdl:1:2"); }
+{ model(":progs/corpse_imp.mdl" 1 2); }
 
 
 FORCE STATIC
@@ -2034,7 +2034,7 @@ No description
 */
 
 /*QUAKED corpse_impaled_front3 (1 1 0) (-16.000 -16.000 -24.000) (16.000 16.000 16.000) FORCE_STATIC FORCE_DYNAMIC
-{ model(":progs/corpse_imp.mdl:3:3"); }
+{ model(":progs/corpse_imp.mdl" 3 3); }
 
 
 FORCE STATIC
@@ -2050,7 +2050,7 @@ No description
 */
 
 /*QUAKED corpse_impaled_horizontal1 (1 1 0) (-16.000 -16.000 -24.000) (16.000 16.000 16.000) FORCE_STATIC FORCE_DYNAMIC
-{ model(":progs/corpse_imp.mdl:0:4"); }
+{ model(":progs/corpse_imp.mdl" 0 4); }
 
 
 FORCE STATIC
@@ -2066,7 +2066,7 @@ No description
 */
 
 /*QUAKED corpse_impaled_horizontal2 (1 1 0) (-16.000 -16.000 -24.000) (16.000 16.000 16.000) FORCE_STATIC FORCE_DYNAMIC
-{ model(":progs/corpse_imp.mdl:1:4"); }
+{ model(":progs/corpse_imp.mdl" 1 4); }
 
 
 FORCE STATIC
@@ -2082,7 +2082,7 @@ No description
 */
 
 /*QUAKED corpse_impaled_horizontal3 (1 1 0) (-16.000 -16.000 -24.000) (16.000 16.000 16.000) FORCE_STATIC FORCE_DYNAMIC
-{ model(":progs/corpse_imp.mdl:4:5"); }
+{ model(":progs/corpse_imp.mdl" 4 5); }
 
 
 FORCE STATIC
@@ -2098,7 +2098,7 @@ No description
 */
 
 /*QUAKED corpse_impaled_horizontal4 (1 1 0) (-16.000 -16.000 -24.000) (16.000 16.000 16.000) FORCE_STATIC FORCE_DYNAMIC
-{ model(":progs/corpse_imp.mdl:5:6"); }
+{ model(":progs/corpse_imp.mdl" 5 6); }
 
 
 FORCE STATIC
@@ -2114,7 +2114,7 @@ No description
 */
 
 /*QUAKED corpse_impaled_vertical1 (1 1 0) (-16.000 -16.000 -24.000) (16.000 16.000 16.000) FORCE_STATIC FORCE_DYNAMIC
-{ model(":progs/corpse_imp.mdl:0:7"); }
+{ model(":progs/corpse_imp.mdl" 0 7); }
 
 
 FORCE STATIC
@@ -2130,7 +2130,7 @@ No description
 */
 
 /*QUAKED corpse_impaled_vertical2 (1 1 0) (-16.000 -16.000 -24.000) (16.000 16.000 16.000) FORCE_STATIC FORCE_DYNAMIC
-{ model(":progs/corpse_imp.mdl:1:7"); }
+{ model(":progs/corpse_imp.mdl" 1 7); }
 
 
 FORCE STATIC
@@ -2146,7 +2146,7 @@ No description
 */
 
 /*QUAKED corpse_impaled_vertical3 (1 1 0) (-16.000 -16.000 -24.000) (16.000 16.000 16.000) FORCE_STATIC FORCE_DYNAMIC
-{ model(":progs/corpse_imp.mdl:6:8"); }
+{ model(":progs/corpse_imp.mdl" 6 8); }
 
 
 FORCE STATIC

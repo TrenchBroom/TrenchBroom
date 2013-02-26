@@ -102,6 +102,25 @@ namespace TrenchBroom {
             }
         };
         
+        class FloatPropertyDefinition : public PropertyDefinition {
+        private:
+            float m_defaultValue;
+        public:
+            FloatPropertyDefinition(const String& name, const String& description, float defaultValue) :
+            PropertyDefinition(name, IntegerProperty, description),
+            m_defaultValue(defaultValue) {}
+            
+            inline float defaultValue() const {
+                return m_defaultValue;
+            }
+            
+            const Model::PropertyValue defaultPropertyValue() const {
+                StringStream buffer;
+                buffer << m_defaultValue;
+                return buffer.str();
+            }
+        };
+
         class ChoicePropertyOption {
         public:
             typedef std::vector<ChoicePropertyOption> List;

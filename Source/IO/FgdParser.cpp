@@ -230,6 +230,30 @@ namespace TrenchBroom {
             return new Model::IntegerPropertyDefinition(propertyKey, description, defaultValue);
         }
         
+        Model::PropertyDefinition* FgdParser::parseFloatProperty(const String& propertyKey) {
+            String description;
+            float defaultValue = 0;
+            
+            Token token = m_tokenizer.nextToken();
+            if (token.type() == Colon) {
+                expect(QuotedString, token = m_tokenizer.nextToken());
+                description = token.data();
+                
+                token = m_tokenizer.nextToken();
+                if (token.type() == Colon) {
+                    // the default value must have quotes around it
+                    expect(QuotedString, token = m_tokenizer.nextToken());
+                    defaultValue = token.toFloat();
+                } else {
+                    m_tokenizer.pushToken(token);
+                }
+            } else {
+                m_tokenizer.pushToken(token);
+            }
+            
+            return new Model::FloatPropertyDefinition(propertyKey, description, defaultValue);
+        }
+
         Model::PropertyDefinition* FgdParser::parseChoicesProperty(const String& propertyKey) {
             String description;
             int defaultValue;
