@@ -495,6 +495,9 @@
     <ClCompile Include="..\..\Source\IO\DefParser.cpp">
       <Filter>Source Files\IO</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\IO\ClassInfo.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -1143,6 +1146,9 @@
       <Filter>Header Files\IO</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\IO\StreamTokenizer.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\IO\ClassInfo.h">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
   </ItemGroup>

@@ -49,7 +49,9 @@
 #include "Model/PointFile.h"
 #include "Model/TextureManager.h"
 #include "Renderer/Camera.h"
+#include "Renderer/EntityModelRendererManager.h"
 #include "Renderer/MapRenderer.h"
+#include "Renderer/SharedResources.h"
 #include "Utility/CommandProcessor.h"
 #include "Utility/Console.h"
 #include "Utility/Grid.h"
@@ -619,11 +621,12 @@ namespace TrenchBroom {
                         break;
                     case Controller::Command::SetMod:
                     case Controller::Command::SetEntityDefinitionFile:
+                        mapDocument().sharedResources().modelRendererManager().clearMismatches();
                         m_renderer->invalidateEntityModelRendererCache();
-                        m_renderer->invalidateAll();
                         inspector().entityInspector().updateProperties();
                         inspector().entityInspector().updateEntityBrowser();
                         inputController().objectsChange();
+                        m_renderer->invalidateAll();
                         break;
                     default:
                         break;

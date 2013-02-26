@@ -98,6 +98,7 @@ namespace TrenchBroom {
             size_t m_line;
             size_t m_column;
             size_t m_position;
+            size_t m_length;
             
             Emitter m_emitter;
             TokenStack m_tokenStack;
@@ -113,7 +114,11 @@ namespace TrenchBroom {
             m_stream(stream),
             m_line(1),
             m_column(1),
-            m_position(0) {}
+            m_position(0) {
+                m_stream.seekg(0, std::ios::end);
+                m_length = static_cast<size_t>(m_stream.tellg());
+                m_stream.seekg(0, std::ios::beg);
+            }
 
             inline size_t position() const {
                 return m_position;
@@ -172,7 +177,7 @@ namespace TrenchBroom {
             }
             
             inline bool eof() const {
-                return m_stream.eof();
+                return m_stream.eof() || m_position >= m_length;
             }
             
             inline Token nextToken() {

@@ -64,6 +64,7 @@ namespace TrenchBroom {
             EntityModelRenderer* modelRenderer(const Model::PointEntityDefinition& entityDefinition, const StringList& searchPaths);
             EntityModelRenderer* modelRenderer(const Model::Entity& entity, const StringList& searchPaths);
             void clear();
+            void clearMismatches();
             
             void setPalette(const Palette& palette);
             

@@ -29,6 +29,8 @@
 #include "Renderer/Shader/Shader.h"
 #include "Renderer/Vbo.h"
 
+#include <cassert>
+
 namespace TrenchBroom {
     namespace Renderer {
         AliasModelRenderer::AliasModelRenderer(const Model::Alias& alias, unsigned int frameIndex, unsigned int skinIndex, Vbo& vbo, const Palette& palette) :
@@ -41,12 +43,17 @@ namespace TrenchBroom {
         m_vertexArray(NULL) {}
 
         AliasModelRenderer::~AliasModelRenderer() {
+            m_frameIndex = 0;
+            m_skinIndex = 0;
             delete m_vertexArray;
             m_vertexArray = NULL;
         }
 
         void AliasModelRenderer::render(ShaderProgram& shaderProgram) {
             if (m_vertexArray == NULL) {
+                assert(m_skinIndex < m_alias.skins().size());
+                assert(m_frameIndex < m_alias.frames().size());
+                
                 Model::AliasSkin& skin = *m_alias.skins()[m_skinIndex];
                 m_texture = TextureRendererPtr(new TextureRenderer(skin, 0, m_palette));
 

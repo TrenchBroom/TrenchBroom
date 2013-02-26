@@ -231,7 +231,7 @@ namespace TrenchBroom {
             return Model::PropertyDefinition::Ptr(definition);
         }
         
-        bool DefParser::parseProperty(Model::PropertyDefinition::List& properties, Model::ModelDefinition::List& modelDefinitions, StringList& baseClasses) {
+        bool DefParser::parseProperty(Model::PropertyDefinition::Map& properties, Model::ModelDefinition::List& modelDefinitions, StringList& baseClasses) {
             Token token;
             expect(Word | CBrace, token = nextTokenIgnoringNewlines());
             if (token.type() != Word)
@@ -258,7 +258,7 @@ namespace TrenchBroom {
                 }
                 
                 expect(CParenthesis, token);
-                properties.push_back(Model::PropertyDefinition::Ptr(new Model::ChoicePropertyDefinition(propertyName, "", 0)));
+                properties[propertyName] = Model::PropertyDefinition::Ptr(new Model::ChoicePropertyDefinition(propertyName, "", 0));
             } else if (typeName == "model") {
                 Model::ModelDefinition* modelDefinition = NULL;
                 
@@ -267,15 +267,26 @@ namespace TrenchBroom {
                 
                 const String modelPath = token.data();
 
-                expect(Integer, token = nextTokenIgnoringNewlines());
-                int skinIndex = token.toInteger();
-                assert(skinIndex >= 0);
+                std::vector<int> indices;
                 
-                expect(Integer, token = nextTokenIgnoringNewlines());
-                int frameIndex = token.toInteger();
-                assert(frameIndex >= 0);
+                expect(Integer | Word | Comma | CParenthesis, token = nextTokenIgnoringNewlines());
+                if (token.type() == Integer) {
+                    indices.push_back(token.toInteger());
+                    expect(Integer | Word | Comma | CParenthesis, token = nextTokenIgnoringNewlines());
+                    if (token.type() == Integer) {
+                        indices.push_back(token.toInteger());
+                        expect(Word | Comma | CParenthesis, token = nextTokenIgnoringNewlines());
+                    }
+                }
                 
-                expect(Word | CParenthesis, token = nextTokenIgnoringNewlines());
+                unsigned int skinIndex = 0;
+                unsigned int frameIndex = 0;
+                if (indices.size() > 0) {
+                    skinIndex = static_cast<unsigned int>(indices[0]);
+                    if (indices.size() > 1)
+                        frameIndex = static_cast<unsigned int>(indices[1]);
+                }
+
                 if (token.type() == Word) { // parse property or flag
                     String propertyKey = token.data();
                     
@@ -326,7 +337,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        void DefParser::parseProperties(Model::PropertyDefinition::List& properties, Model::ModelDefinition::List& modelDefinitions, StringList& baseClasses) {
+        void DefParser::parseProperties(Model::PropertyDefinition::Map& properties, Model::ModelDefinition::List& modelDefinitions, StringList& baseClasses) {
             Token token = m_tokenizer.peekToken();
             if (token.type() == OBrace) {
                 token = m_tokenizer.nextToken();
@@ -349,58 +360,51 @@ namespace TrenchBroom {
                 return NULL;
 
             expect(ODefinition, token);
-            String name;
-            bool hasColor = false;
-            bool hasBounds = false;
-            Color color;
-            BBox bounds;
-            Model::FlagsPropertyDefinition::Ptr spawnflags;
-            Model::PropertyDefinition::List propertyDefinitions;
-            Model::ModelDefinition::List modelDefinitions;
+            
             StringList baseClasses;
-            String description;
-
+            ClassInfo classInfo;
+            
             token = m_tokenizer.nextToken();
             expect(Word, token);
-            name = token.data();
+            classInfo.name = token.data();
 
             token = m_tokenizer.peekToken();
             expect(OParenthesis | Newline, token);
             if (token.type() == OParenthesis) {
-                hasColor = true;
-                color = parseColor();
+                classInfo.setColor(parseColor());
                 
                 token = m_tokenizer.peekToken();
                 expect(OParenthesis | Question, token);
                 if (token.type() == OParenthesis) {
-                    hasBounds = true;
-                    bounds = parseBounds();
+                    classInfo.setSize(parseBounds());
                 } else {
                     m_tokenizer.nextToken();
                 }
                 
                 token = m_tokenizer.peekToken();
-                if (token.type() == Word)
-                    spawnflags = parseFlags();
+                if (token.type() == Word) {
+                    Model::FlagsPropertyDefinition::Ptr spawnflags = parseFlags();
+                    classInfo.properties[spawnflags->name()] = spawnflags;
+                }
             }
 
             expect(Newline, token = m_tokenizer.nextToken());
-            parseProperties(propertyDefinitions, modelDefinitions, baseClasses);
-            propertyDefinitions.push_back(spawnflags);
-            description = parseDescription();
+            parseProperties(classInfo.properties, classInfo.models, baseClasses);
+            
+            classInfo.setDescription(parseDescription());
             expect(CDefinition, token = m_tokenizer.nextToken());
 
             Model::EntityDefinition* definition = NULL;
             
-            if (hasColor) {
-                // TODO: if we handle properties, we must add the base properties here!
-                if (hasBounds) { // point definition
-                    definition = new Model::PointEntityDefinition(name, color, bounds, description, propertyDefinitions, modelDefinitions);
+            if (classInfo.hasColor) {
+                ClassInfo::resolveBaseClasses(m_baseClasses, baseClasses, classInfo);
+                if (classInfo.hasSize) { // point definition
+                    definition = new Model::PointEntityDefinition(classInfo.name, classInfo.color, classInfo.size, classInfo.description, classInfo.propertyList(), classInfo.models);
                 } else {
-                    definition = new Model::BrushEntityDefinition(name, color, description, propertyDefinitions);
+                    definition = new Model::BrushEntityDefinition(classInfo.name, classInfo.color, classInfo.description, classInfo.propertyList());
                 }
             } else { // base definition
-                m_baseProperties[name] = propertyDefinitions;
+                m_baseClasses[classInfo.name] = classInfo;
                 definition = nextDefinition();
             }
             

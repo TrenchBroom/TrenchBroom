@@ -31,6 +31,7 @@
 #include "Renderer/Vbo.h"
 #include "IO/FileManager.h"
 #include "Utility/Console.h"
+#include "Utility/Map.h"
 #include "Utility/Preferences.h"
 
 #include <cassert>
@@ -66,11 +67,13 @@ namespace TrenchBroom {
             String modelName = Utility::toLower(modelDefinition.name().substr(1));
             String ext = Utility::toLower(fileManager.pathExtension(modelName));
             if (ext == "mdl") {
+                unsigned int skinIndex = modelDefinition.skinIndex();
+                unsigned int frameIndex = modelDefinition.frameIndex();
+
                 Model::AliasManager& aliasManager = *Model::AliasManager::sharedManager;
                 const Model::Alias* alias = aliasManager.alias(modelName, searchPaths, m_console);
-                if (alias != NULL) {
-                    unsigned int skinIndex = modelDefinition.skinIndex();
-                    unsigned int frameIndex = modelDefinition.frameIndex();
+
+                if (alias != NULL && skinIndex < alias->skins().size() && frameIndex < alias->frames().size()) {
                     Renderer::EntityModelRenderer* renderer = new AliasModelRenderer(*alias, frameIndex, skinIndex, *m_vbo, *m_palette);
                     m_modelRenderers[key] = renderer;
                     return renderer;
@@ -123,12 +126,14 @@ namespace TrenchBroom {
         }
 
         void EntityModelRendererManager::clear() {
-            for (EntityModelRendererCache::iterator it = m_modelRenderers.begin(); it != m_modelRenderers.end(); ++it)
-                delete it->second;
-            m_modelRenderers.clear();
-            m_mismatches.clear();
+            clearMismatches();
+            Utility::deleteAll(m_modelRenderers);
         }
         
+        void EntityModelRendererManager::clearMismatches() {
+            m_mismatches.clear();
+        }
+
         void EntityModelRendererManager::setPalette(const Palette& palette) {
             if (&palette == m_palette)
                 return;

@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__DefParser__
 #define __TrenchBroom__DefParser__
 
+#include "IO/ClassInfo.h"
 #include "IO/StreamTokenizer.h"
 #include "IO/ParserException.h"
 #include "Model/EntityDefinition.h"
@@ -73,11 +74,9 @@ namespace TrenchBroom {
         
         class DefParser {
         protected:
-            typedef std::map<String, Model::PropertyDefinition::List> BasePropertiesMap;
-            
             Color m_defaultEntityColor;
             StreamTokenizer<DefTokenEmitter> m_tokenizer;
-            BasePropertiesMap m_baseProperties;
+            ClassInfo::Map m_baseClasses;
             
             String typeNames(unsigned int types);
             inline void expect(unsigned int types, Token& token) {
@@ -89,8 +88,8 @@ namespace TrenchBroom {
             Color parseColor();
             BBox parseBounds();
             Model::FlagsPropertyDefinition::Ptr parseFlags();
-            bool parseProperty(Model::PropertyDefinition::List& properties, Model::ModelDefinition::List& modelDefinitions, StringList& baseClasses);
-            void parseProperties(Model::PropertyDefinition::List& properties, Model::ModelDefinition::List& modelDefinitions, StringList& baseClasses);
+            bool parseProperty(Model::PropertyDefinition::Map& properties, Model::ModelDefinition::List& modelDefinitions, StringList& baseClasses);
+            void parseProperties(Model::PropertyDefinition::Map& properties, Model::ModelDefinition::List& modelDefinitions, StringList& baseClasses);
             String parseDescription();
         public:
             DefParser(const Color& defaultEntityColor, std::istream& stream) :

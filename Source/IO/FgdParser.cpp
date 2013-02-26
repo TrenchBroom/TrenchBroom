@@ -256,7 +256,7 @@ namespace TrenchBroom {
 
         Model::PropertyDefinition::Ptr FgdParser::parseChoicesProperty(const String& propertyKey) {
             String description;
-            int defaultValue;
+            int defaultValue = 0;
             
             Token token;
             expect(Colon | Equality, token = m_tokenizer.nextToken());
@@ -444,13 +444,26 @@ namespace TrenchBroom {
                     expect(QuotedString, token = m_tokenizer.nextToken());
                     const String path = token.data();
                     
-                    expect(Integer, token = m_tokenizer.nextToken());
-                    unsigned int skinIndex = static_cast<unsigned int>(token.toInteger());
+                    std::vector<int> indices;
                     
-                    expect(Integer, token = m_tokenizer.nextToken());
-                    unsigned int frameIndex = static_cast<unsigned int>(token.toInteger());
+                    expect(Integer | Word | Comma | CParenthesis, token = m_tokenizer.nextToken());
+                    if (token.type() == Integer) {
+                        indices.push_back(token.toInteger());
+                        expect(Integer | Word | Comma | CParenthesis, token = m_tokenizer.nextToken());
+                        if (token.type() == Integer) {
+                            indices.push_back(token.toInteger());
+                            expect(Word | Comma | CParenthesis, token = m_tokenizer.nextToken());
+                        }
+                    }
                     
-                    expect(Word | Comma | CParenthesis, token = m_tokenizer.nextToken());
+                    unsigned int skinIndex = 0;
+                    unsigned int frameIndex = 0;
+                    if (indices.size() > 0) {
+                        skinIndex = static_cast<unsigned int>(indices[0]);
+                        if (indices.size() > 1)
+                            frameIndex = static_cast<unsigned int>(indices[1]);
+                    }
+                    
                     if (token.type() == Word) {
                         const String propertyKey = token.data();
                         expect(Equality, token = m_tokenizer.nextToken());
@@ -470,37 +483,6 @@ namespace TrenchBroom {
                 } while (token.type() == Comma);
             }
             return result;
-        }
-
-        void FgdParser::resolveBaseClasses(const StringList& classnames, ClassInfo& classInfo) {
-            StringList::const_reverse_iterator classnameIt, classnameEnd;
-            for (classnameIt = classnames.rbegin(), classnameEnd = classnames.rend(); classnameIt != classnameEnd; ++classnameIt) {
-                const String& classname = *classnameIt;
-                ClassInfo::Map::const_iterator baseClassIt = m_baseClasses.find(classname);
-                if (baseClassIt != m_baseClasses.end()) {
-                    const ClassInfo& baseClass = baseClassIt->second;
-                    if (!classInfo.hasDescription && baseClass.hasDescription)
-                        classInfo.setDescription(baseClass.description);
-                    if (!classInfo.hasColor && baseClass.hasColor)
-                        classInfo.setColor(baseClass.color);
-                    if (!classInfo.hasSize && baseClass.hasSize)
-                        classInfo.setSize(baseClass.size);
-                    
-                    Model::PropertyDefinition::Map::const_iterator propertyIt, propertyEnd;
-                    for (propertyIt = baseClass.properties.begin(), propertyEnd = baseClass.properties.end(); propertyIt != propertyEnd; ++propertyIt) {
-                        const Model::PropertyDefinition::Ptr property = propertyIt->second;
-                        const bool hasProperty = classInfo.properties.find(property->name()) != classInfo.properties.end();
-                        if (!hasProperty)
-                            classInfo.properties[property->name()] = property;
-                    }
-                    
-                    Model::ModelDefinition::List::const_iterator modelIt, modelEnd;
-                    for (modelIt = baseClass.models.begin(), modelEnd = baseClass.models.end(); modelIt != modelEnd; ++modelIt) {
-                        const Model::ModelDefinition::Ptr model = *modelIt;
-                        classInfo.models.push_back(model);
-                    }
-                }
-            }
         }
 
         ClassInfo FgdParser::parseClass() {
@@ -546,7 +528,7 @@ namespace TrenchBroom {
             }
             
             classInfo.properties = parseProperties();
-            resolveBaseClasses(baseClasses, classInfo);
+            ClassInfo::resolveBaseClasses(m_baseClasses, baseClasses, classInfo);
             return classInfo;
         }
 
@@ -577,7 +559,7 @@ namespace TrenchBroom {
             if (token.type() == Eof)
                 return NULL;
             
-            const String typeName = token.data();
+            String typeName = token.data();
             if (Utility::equalsString(typeName, "@SolidClass", false)) {
                 return parseSolidClass();
             } else if (Utility::equalsString(typeName, "@PointClass", false)) {

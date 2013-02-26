@@ -214,6 +214,10 @@ namespace TrenchBroom {
                 return m_name;
             }
             
+            inline const AliasFrameList& frames() const {
+                return m_frames;
+            }
+            
             inline AliasSingleFrame& frame(size_t index) const {
                 assert(index < m_frames.size());
                 return *m_frames[index]->firstFrame();

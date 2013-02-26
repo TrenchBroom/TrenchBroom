@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__FgdParser__
 #define __TrenchBroom__FgdParser__
 
+#include "IO/ClassInfo.h"
 #include "IO/StreamTokenizer.h"
 #include "Model/EntityDefinition.h"
 #include "Model/PropertyDefinition.h"
@@ -64,48 +65,6 @@ namespace TrenchBroom {
             Token doEmit(Tokenizer& tokenizer, size_t line, size_t column);
         };
 
-        struct ClassInfo {
-            typedef std::map<String, ClassInfo> Map;
-            
-            size_t line;
-            size_t column;
-            String name;
-            String description;
-            bool hasDescription;
-            Color color;
-            bool hasColor;
-            BBox size;
-            bool hasSize;
-            Model::PropertyDefinition::Map properties;
-            Model::ModelDefinition::List models;
-            
-            ClassInfo();
-            ClassInfo(size_t i_line, size_t i_column, const Color& defaultColor);
-            
-            inline void setDescription(const String& i_description) {
-                description = i_description;
-                hasDescription = true;
-            }
-            
-            inline void setColor(const Color& i_color) {
-                color = i_color;
-                hasColor = true;
-            }
-            
-            inline void setSize(const BBox& i_size) {
-                size = i_size;
-                hasSize = true;
-            }
-            
-            inline Model::PropertyDefinition::List propertyList() const {
-                Model::PropertyDefinition::List list;
-                Model::PropertyDefinition::Map::const_iterator propertyIt, propertyEnd;
-                for (propertyIt = properties.begin(), propertyEnd = properties.end(); propertyIt != propertyEnd; ++propertyIt)
-                    list.push_back(propertyIt->second);
-                return list;
-            }
-        };
-        
         class FgdParser {
         protected:
             Color m_defaultEntityColor;
@@ -131,8 +90,6 @@ namespace TrenchBroom {
             Color parseColor();
             StringList parseBaseClasses();
             Model::ModelDefinition::List parseModels();
-            
-            void resolveBaseClasses(const StringList& classnames, ClassInfo& classInfo);
             
             ClassInfo parseClass();
             Model::EntityDefinition* parseSolidClass();

@@ -607,7 +607,7 @@ namespace TrenchBroom {
             m_editStateManager = new Model::EditStateManager();
             m_octree = new Octree(*m_map);
             m_picker = new Model::Picker(*m_octree);
-            m_definitionManager = new EntityDefinitionManager();
+            m_definitionManager = new EntityDefinitionManager(*m_console);
             m_modificationCount = 0;
             m_autosaver = new Controller::Autosaver(*this);
             m_autosaveTimer = new wxTimer(this);
