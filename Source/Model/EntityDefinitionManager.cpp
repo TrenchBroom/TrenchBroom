@@ -62,31 +62,34 @@ namespace TrenchBroom {
             const Color& defaultColor = prefs.getColor(Preferences::EntityBoundsColor);
             EntityDefinitionMap newDefinitions;
             
-            try {
-                IO::FileManager fileManager;
-                const String extension = fileManager.pathExtension(path);
-                if (Utility::equalsString(extension, "def", false)) {
-                    mmapped_fstream stream(path.c_str(), std::ios::in);
-                    IO::DefParser parser(defaultColor, stream);
+            mmapped_fstream stream(path.c_str(), std::ios::in);
+            if (stream.is_open()) {
+                try {
+                    IO::FileManager fileManager;
+                    const String extension = fileManager.pathExtension(path);
+                    if (Utility::equalsString(extension, "def", false)) {
+                        IO::DefParser parser(defaultColor, stream);
+                        
+                        EntityDefinition* definition = NULL;
+                        while ((definition = parser.nextDefinition()) != NULL)
+                            Utility::insertOrReplace(newDefinitions, definition->name(), definition);
+                    } else if (Utility::equalsString(extension, "fgd", false)) {
+                        IO::FgdParser parser(defaultColor, stream);
+                        
+                        EntityDefinition* definition = NULL;
+                        while ((definition = parser.nextDefinition()) != NULL)
+                            Utility::insertOrReplace(newDefinitions, definition->name(), definition);
+                    }
                     
-                    EntityDefinition* definition = NULL;
-                    while ((definition = parser.nextDefinition()) != NULL)
-                        Utility::insertOrReplace(newDefinitions, definition->name(), definition);
-                } else if (Utility::equalsString(extension, "fgd", false)) {
-                    mmapped_fstream stream(path.c_str(), std::ios::in);
-                    IO::FgdParser parser(defaultColor, stream);
-                    
-                    EntityDefinition* definition = NULL;
-                    while ((definition = parser.nextDefinition()) != NULL)
-                        Utility::insertOrReplace(newDefinitions, definition->name(), definition);
+                    clear();
+                    m_entityDefinitions = newDefinitions;
+                    m_path = path;
+                } catch (IO::ParserException e) {
+                    Utility::deleteAll(newDefinitions);
+                    m_console.error(e.what());
                 }
-
-                clear();
-                m_entityDefinitions = newDefinitions;
-                m_path = path;
-            } catch (IO::ParserException e) {
-                Utility::deleteAll(newDefinitions);
-                m_console.error(e.what());
+            } else {
+                m_console.error("Unable to open entity definition file %s", path.c_str());
             }
         }
         

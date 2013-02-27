@@ -77,7 +77,7 @@
 //
 
 @baseclass base(Appearflags) size(-16 -16 -24, 16 16 32) 
-	color(0 255 0) model(":progs/player.mdl" 0 0) = PlayerClass []
+	color(0 255 0) model(":progs/player.mdl") = PlayerClass []
 
 @PointClass base(PlayerClass) = info_player_start : "Player 1 start" []
 @PointClass base(PlayerClass) = info_player_coop : "Player cooperative start" []
@@ -126,8 +126,8 @@
 @PointClass 
     base(Ammo) 
     model(
-        ":maps/b_batt0.bsp" 0 0, 
-        ":maps/b_batt1.bsp" 0 0 spawnflags = 1
+        ":maps/b_batt0.bsp", 
+        ":maps/b_batt1.bsp" spawnflags = 1
     ) = 
     item_cells : "Thunderbolt ammo" []
     
@@ -135,32 +135,32 @@
     size(0 0 0, 32 16 32) 
     base(Ammo) 
     model(
-        ":maps/b_rock0.bsp" 0 0,
-        ":maps/b_rock1.bsp" 0 0 spawnflags = 1
+        ":maps/b_rock0.bsp",
+        ":maps/b_rock1.bsp" spawnflags = 1
     ) =
     item_rockets : "Rockets" []
 
 @PointClass
     base(Ammo)
     model(
-        ":maps/b_shell0.bsp" 0 0,
-        ":maps/b_shell1.bsp" 0 0 spawnflags = 1
+        ":maps/b_shell0.bsp",
+        ":maps/b_shell1.bsp" spawnflags = 1
     ) = item_shells : "Shells" []
     
 @PointClass 
     base(Ammo) 
     model(
-        ":maps/b_nail0.bsp" 0 0,
-        ":maps/b_nail1.bsp" 0 0 spawnflags = 1
+        ":maps/b_nail0.bsp",
+        ":maps/b_nail1.bsp" spawnflags = 1
     ) = item_spikes : "Perforator/Nailgun ammo" []
 
 @PointClass 
     size(0 0 0, 32 32 16) 
     base(Appearflags) 
     model(
-        ":maps/b_bh25.bsp" 0 0,
-        ":maps/b_bh10.bsp" 0 0 spawnflags = 1,
-        ":maps/b_bh100.bsp" 0 0 spawnflags = 2
+        ":maps/b_bh25.bsp",
+        ":maps/b_bh10.bsp" spawnflags = 1,
+        ":maps/b_bh100.bsp" spawnflags = 2
     ) =
     item_health : "Health pak" 
 [
@@ -171,30 +171,30 @@
 	]
 ]
 
-@PointClass base(Item, Appearflags) model(":progs/suit.mdl" 0 0) = 
+@PointClass base(Item, Appearflags) model(":progs/suit.mdl") = 
 	item_artifact_envirosuit : "Environmental protection suit" []
-@PointClass base(Item, Appearflags) model(":progs/quaddama.mdl" 0 0) = 
+@PointClass base(Item, Appearflags) model(":progs/quaddama.mdl") = 
 	item_artifact_super_damage : "Quad damage" []
-@PointClass base(Item, Appearflags) model(":progs/invulner.mdl" 0 0) = 
+@PointClass base(Item, Appearflags) model(":progs/invulner.mdl") = 
 	item_artifact_invulnerability : "Pentagram of Protection" []
-@PointClass base(Item, Appearflags) model(":progs/invisibl.mdl" 0 0) = 
+@PointClass base(Item, Appearflags) model(":progs/invisibl.mdl") = 
 	item_artifact_invisibility : "Ring of Shadows" []
-@PointClass base(Item, Appearflags) model(":progs/cross.mdl" 0 0) = 
+@PointClass base(Item, Appearflags) model(":progs/cross.mdl") = 
 	item_artifact_cross : "Cross of Deflection" []
-@PointClass base(Item, Appearflags) model(":progs/trinity.mdl" 0 0) = 
+@PointClass base(Item, Appearflags) model(":progs/trinity.mdl") = 
 	item_artifact_trinity : "Trinity" []
 
-@PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model(":progs/armor.mdl" 2 0) = 
+@PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model(":progs/armor.mdl" 2) = 
 	item_armorInv : "200% armor (Red)" []
-@PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model(":progs/armor.mdl" 1 0) = 
+@PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model(":progs/armor.mdl" 1) = 
 	item_armor2 : "150% armor (Yellow)" []
-@PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model(":progs/armor.mdl" 0 0) =
+@PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model(":progs/armor.mdl") =
 	item_armor1 : "100% armor (Green)" []
-@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model(":progs/w_s_key.mdl" 0 0) = 
+@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model(":progs/w_s_key.mdl") = 
 	item_key1 : "Silver key" []
-@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model(":progs/w_g_key.mdl" 0 0) = 
+@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model(":progs/w_g_key.mdl") = 
 	item_key2 : "Gold key" []
-@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model(":progs/end1.mdl" 0 0) = 
+@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model(":progs/end1.mdl") = 
 	item_sigil : "Sigil" 
 [
 	spawnflags(Flags) =
@@ -206,7 +206,7 @@
 	]
 ]
 
-@PointClass base(Item, Appearflags) model(":progs/flashlight.mdl" 0 0) = 
+@PointClass base(Item, Appearflags) model(":progs/flashlight.mdl") = 
 	item_flashlight : "Flashlight" []
 
 //
@@ -215,15 +215,15 @@
 
 @baseclass size(-16 -16 0, 16 16 32) color(0 0 200) base(Item, Appearflags) = Weapon []
 
-@PointClass base(Weapon) model(":progs/g_shot.mdl" 0 0) = weapon_supershotgun : "Super shotgun" []
-@PointClass base(Weapon) model(":progs/g_nail.mdl" 0 0) = weapon_nailgun : "Nailgun" []
-@PointClass base(Weapon) model(":progs/g_nail2.mdl" 0 0) = weapon_supernailgun : "Perforator" []
-@PointClass base(Weapon) model(":progs/g_rock.mdl" 0 0) = weapon_grenadelauncher : "Grenade launcher" []
-@PointClass base(Weapon) model(":progs/g_rock2.mdl" 0 0) = weapon_rocketlauncher : "Rocket launcher" []
-@PointClass base(Weapon) model(":progs/g_light.mdl" 0 0) = weapon_lightning : "Thunderbolt" []
-@PointClass base(Weapon) model(":progs/v_ham.mdl" 0 0) = weapon_hammer : "Warhammer" []
-@PointClass base(Weapon) model(":progs/v_lance.mdl" 0 0) = weapon_plasmagun : "Plasma Gun" []
-@PointClass base(Weapon) model(":progs/v_bomb.mdl" 0 0) = weapon_bomb : "The Bomb" []
+@PointClass base(Weapon) model(":progs/g_shot.mdl") = weapon_supershotgun : "Super shotgun" []
+@PointClass base(Weapon) model(":progs/g_nail.mdl") = weapon_nailgun : "Nailgun" []
+@PointClass base(Weapon) model(":progs/g_nail2.mdl") = weapon_supernailgun : "Perforator" []
+@PointClass base(Weapon) model(":progs/g_rock.mdl") = weapon_grenadelauncher : "Grenade launcher" []
+@PointClass base(Weapon) model(":progs/g_rock2.mdl") = weapon_rocketlauncher : "Rocket launcher" []
+@PointClass base(Weapon) model(":progs/g_light.mdl") = weapon_lightning : "Thunderbolt" []
+@PointClass base(Weapon) model(":progs/v_ham.mdl") = weapon_hammer : "Warhammer" []
+@PointClass base(Weapon) model(":progs/v_lance.mdl") = weapon_plasmagun : "Plasma Gun" []
+@PointClass base(Weapon) model(":progs/v_bomb.mdl") = weapon_bomb : "The Bomb" []
 
 
 //
@@ -249,21 +249,21 @@
 	]
 ]
 
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/soldier.mdl" 0 0) = monster_army : "Grunt" []
-@PointClass base(Monster) size(-32 -32 -24, 32 32 40) model(":progs/dog.mdl" 0 0) = monster_dog : "Nasty Doggie" []
-@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/ogre.mdl" 0 0) = monster_ogre : "Ogre" []
-@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/ogre.mdl" 0 0) = monster_ogre_marksman : "Ogre marksman" []
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/knight.mdl" 0 0) = monster_knight : "Knight" []
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/wizard.mdl" 0 0) = monster_wizard : "Scrag" []
-@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/demon.mdl" 0 0) = monster_demon1 : "Fiend" []
-@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/shambler.mdl" 0 0) = monster_shambler : "Shambler" []
-@PointClass base(Monster) size(-128 -128 -24, 128 128 256) model(":progs/boss.mdl" 0 0) = monster_boss : "Chthon" []
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/enforcer.mdl" 0 0) = monster_enforcer : "Enforcer" []
-@PointClass base(Monster) size(-32 -32 -24, 32 32 48) model(":progs/shalrath.mdl" 0 0) = monster_shalrath : "Shalrath" []
-@PointClass base(Monster) size(32 32 48) model(":progs/tarbaby.mdl" 0 0) = monster_tarbaby : "Tarbaby" []
-@PointClass base(Monster) size(32 32 48) model(":progs/fish.mdl" 0 0) = monster_fish : "Rotfish" []
-@PointClass base(Monster) size(-16 -16 -24, 16 16 32) model(":progs/oldone.mdl" 0 0) = monster_oldone : "Shub-Niggurath" []
-@PointClass base(Monster) size(-16 -16 -24, 16 16 32) model(":progs/zombie.mdl" 0 0) = monster_zombie : "Zombie" 
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/soldier.mdl") = monster_army : "Grunt" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 40) model(":progs/dog.mdl") = monster_dog : "Nasty Doggie" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/ogre.mdl") = monster_ogre : "Ogre" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/ogre.mdl") = monster_ogre_marksman : "Ogre marksman" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/knight.mdl") = monster_knight : "Knight" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/wizard.mdl") = monster_wizard : "Scrag" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/demon.mdl") = monster_demon1 : "Fiend" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/shambler.mdl") = monster_shambler : "Shambler" []
+@PointClass base(Monster) size(-128 -128 -24, 128 128 256) model(":progs/boss.mdl") = monster_boss : "Chthon" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/enforcer.mdl") = monster_enforcer : "Enforcer" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 48) model(":progs/shalrath.mdl") = monster_shalrath : "Shalrath" []
+@PointClass base(Monster) size(32 32 48) model(":progs/tarbaby.mdl") = monster_tarbaby : "Tarbaby" []
+@PointClass base(Monster) size(32 32 48) model(":progs/fish.mdl") = monster_fish : "Rotfish" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 32) model(":progs/oldone.mdl") = monster_oldone : "Shub-Niggurath" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 32) model(":progs/zombie.mdl") = monster_zombie : "Zombie" 
 [
 	spawnflags(Flags) = 
 	[
@@ -274,22 +274,22 @@
 
 //quoth monsters
 
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/bob.mdl" 0 0) = monster_bob : "Bob" []
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/soldier.mdl" 1 0) = monster_army_rocket : "Rocketeer" []
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/enforcer.mdl" 1 0) = monster_defender: "Defender" []
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/enforcer.mdl" 2 0) = monster_pyro: "Pyro" []
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/enforcer.mdl" 3 0) = monster_eliminator: "Eliminator" []
-@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/scor.mdl" 0 0) = monster_scourge: "Centroid" []
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/sentinel.mdl" 0 0) = monster_sentinel: "Sentinel" 
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/bob.mdl") = monster_bob : "Bob" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/soldier.mdl" 1) = monster_army_rocket : "Rocketeer" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/enforcer.mdl" 1) = monster_defender: "Defender" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/enforcer.mdl" 2) = monster_pyro: "Pyro" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/enforcer.mdl" 3) = monster_eliminator: "Eliminator" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/scor.mdl") = monster_scourge: "Centroid" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/sentinel.mdl") = monster_sentinel: "Sentinel" 
 [
 	spawnflags(Flags) =
 	[
 		4 : "Nail sentinel" : 0
 	]
 ]
-@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/edie.mdl" 0 0) = monster_edie: "Edie" []
-@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/ogre.mdl" 1 0) = monster_ogre_flak: "Flak Ogre" []
-@PointClass base(Monster) size(-16 -16 -24, 16 16 32) model(":progs/voreling.mdl" 0 0, ":progs/voreling.mdl" 0 13 dangle = "1") = monster_voreling: "Voreling" 
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/edie.mdl") = monster_edie: "Edie" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/ogre.mdl" 1) = monster_ogre_flak: "Flak Ogre" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 32) model(":progs/voreling.mdl", ":progs/voreling.mdl" 0 13 dangle = "1") = monster_voreling: "Voreling" 
 [
 	dangle(choices) : "Dangling" : 0 =
 	[
@@ -297,7 +297,7 @@
 		1 : "On ceiling"
 	]
 ]
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/polyp.mdl" 0 153, ":progs/polyp.mdl" 0 0 startonground = "1") = monster_polyp: "Polyp" 
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/polyp.mdl" 0 153, ":progs/polyp.mdl" startonground = "1") = monster_polyp: "Polyp" 
 [
 	startonground(choices) : "Starting pose" : 0 =
 	[
@@ -306,12 +306,12 @@
 	]
 ]
 
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/hknight.mdl" 0 0) = monster_death_knight : "Death knight" []
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/dguard.mdl" 0 0) = monster_death_guard : "Death guard" []
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/hknight.mdl" 1 0) = monster_death_lord : "Death lord" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/hknight.mdl") = monster_death_knight : "Death knight" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/dguard.mdl") = monster_death_guard : "Death guard" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/hknight.mdl" 1) = monster_death_lord : "Death lord" []
 
 
-@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/gaunt.mdl" 0 24, ":progs/gaunt.mdl" 0 0 perch = "1") = monster_gaunt : "Gaunt" 
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/gaunt.mdl" 0 24, ":progs/gaunt.mdl" perch = "1") = monster_gaunt : "Gaunt" 
 [
 	perch(choices) : "Starting pose" : 0 =
 	[
@@ -320,8 +320,8 @@
 	]		
 ]
 
-@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/drole.mdl" 0 0) = monster_drole: "Drole" []
-@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/gug.mdl" 0 0) = monster_gug: "Gug" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/drole.mdl") = monster_drole: "Drole" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/gug.mdl") = monster_gug: "Gug" []
 @PointClass base(Monster) size(-64 -64 -448, 64 64 256) model(":progs/vermis.mdl" 0 52, ":progs/vermis.mdl" 0 2 coiled = "1") = monster_vermis: "Vermis" 
 [
 	coiled(choices) : "Starting pose" : 0 =
@@ -403,24 +403,24 @@
 		spawnflags(Flags) = [ 1 : "Initially dark" : 0 ]
 	]
 
-@PointClass size(-8 -8 -12, 8 8 20) base(Light, Target, Targetname) model(":progs/flame2.mdl" 0 0) = 
+@PointClass size(-8 -8 -12, 8 8 20) base(Light, Target, Targetname) model(":progs/flame2.mdl") = 
 	light_flame_large_yellow : "Large yellow flame" []
-@PointClass size(-4 -4 -12, 4 4 20) base(Light, Target, Targetname) model(":progs/flame2.mdl" 0 0) = 
+@PointClass size(-4 -4 -12, 4 4 20) base(Light, Target, Targetname) model(":progs/flame2.mdl") = 
 	light_flame_small_yellow : "Small yellow flame" 
 	[
 		spawnflags(Flags) = [ 1 : "Initially dark" : 0 ]
 	]
-@PointClass size(-4 -4 -12, 4 4 20) base(Light, Target, Targetname) model(":progs/flame2.mdl" 0 0) = 
+@PointClass size(-4 -4 -12, 4 4 20) base(Light, Target, Targetname) model(":progs/flame2.mdl") = 
 	light_flame_small_white : "Small white flame"
 	[
 		spawnflags(Flags) = [ 1 : "Initially dark" : 0 ]
 	]
-@PointClass size(-4 -4 -12, 4 4 20) base(Light, Target, Targetname) model(":progs/flame.mdl" 0 0) = 
+@PointClass size(-4 -4 -12, 4 4 20) base(Light, Target, Targetname) model(":progs/flame.mdl") = 
 	light_torch_small_walltorch : "Small walltorch" []
 
 	// quoth lights
 	
-@PointClass size(-8 -8 -8, 8 8 8) base(Light, Target, Targetname, Static) model(":progs/lightpost.mdl" 0 0) = 
+@PointClass size(-8 -8 -8, 8 8 8) base(Light, Target, Targetname, Static) model(":progs/lightpost.mdl") = 
 	light_postlight : "Post light"
 	[
 		spawnflags(Flags) = [ 1 : "Initially dark" : 0 ]
@@ -431,7 +431,7 @@
 			2 : "Red"
 		]
 	]
-@PointClass size(-8 -8 -8, 8 8 8) base(Light, Target, Targetname, Static) model(":progs/lighttube.mdl" 0 0) = 
+@PointClass size(-8 -8 -8, 8 8 8) base(Light, Target, Targetname, Static) model(":progs/lighttube.mdl") = 
 	light_tubelight : "Tube light"
 	[
 		spawnflags(Flags) = [ 1 : "Initially dark" : 0 ]
@@ -474,17 +474,17 @@
 	]
 
 
-@PointClass size(-8 -8 -48, 8 8 80) base(Light, Target, Targetname, Static) model(":progs/longtrch.mdl" 0 0) = 
+@PointClass size(-8 -8 -48, 8 8 80) base(Light, Target, Targetname, Static) model(":progs/longtrch.mdl") = 
 	light_torch_long_walltorch : "Long wall torch" []
 @PointClass size(-8 -8 -16, 8 8 8) 
 	base(Light, Target, Targetname, Static) 
 	model(
-		":progs/brazshrt.mdl" 0 0,
-		":progs/brazshrt.mdl" 1 0 skin = "1",
-		":progs/brazshrt.mdl" 2 0 skin = "2",
-		":progs/brazshrt.mdl" 3 0 skin = "3",
-		":progs/brazshrt.mdl" 4 0 skin = "4",
-		":progs/brazshrt.mdl" 5 0 skin = "5"
+		":progs/brazshrt.mdl",
+		":progs/brazshrt.mdl" 1 skin = "1",
+		":progs/brazshrt.mdl" 2 skin = "2",
+		":progs/brazshrt.mdl" 3 skin = "3",
+		":progs/brazshrt.mdl" 4 skin = "4",
+		":progs/brazshrt.mdl" 5 skin = "5"
 	) = 
 	light_flame_brazier_short : "Short brazier" 
 	[
@@ -501,12 +501,12 @@
 @PointClass size(-8 -8 -64, 8 8 8) 
 	base(Light, Target, Targetname, Static)
 	model(
-		":progs/braztall.mdl" 0 0,
-		":progs/braztall.mdl" 1 0 skin = "1",
-		":progs/braztall.mdl" 2 0 skin = "2",
-		":progs/braztall.mdl" 3 0 skin = "3",
-		":progs/braztall.mdl" 4 0 skin = "4",
-		":progs/braztall.mdl" 5 0 skin = "5"
+		":progs/braztall.mdl",
+		":progs/braztall.mdl" 1 skin = "1",
+		":progs/braztall.mdl" 2 skin = "2",
+		":progs/braztall.mdl" 3 skin = "3",
+		":progs/braztall.mdl" 4 skin = "4",
+		":progs/braztall.mdl" 5 skin = "5"
 	) = 
 	light_flame_brazier_tall : "Tall brazier" 
 	[
@@ -615,18 +615,18 @@
 @PointClass base(Static, Appearflags) size(-16 -16 -24, 16 16 40) model(":progs/corpse_imp.mdl" 7 9) = corpse_crucified1 : "Corpse(crucified)" []
 @PointClass base(Static, Appearflags) size(-16 -16 -24, 16 16 40) model(":progs/corpse_imp.mdl" 8 10) = corpse_crucified2 : "Corpse(crucified,headless)" []
 
-@PointClass base(Static, Appearflags) size(-16 -16 -96, 16 16 0) model(":progs/corpse_lynch.mdl" 0 0) = corpse_lynched1 : "Corpse(lynched,clothed)" []
-@PointClass base(Static, Appearflags) size(-16 -16 -96, 16 16 0) model(":progs/corpse_lynch.mdl" 1 0) = corpse_lynched2 : "Corpse(lynched)" []
+@PointClass base(Static, Appearflags) size(-16 -16 -96, 16 16 0) model(":progs/corpse_lynch.mdl") = corpse_lynched1 : "Corpse(lynched,clothed)" []
+@PointClass base(Static, Appearflags) size(-16 -16 -96, 16 16 0) model(":progs/corpse_lynch.mdl" 1) = corpse_lynched2 : "Corpse(lynched)" []
 @PointClass base(Static, Appearflags) size(-16 -16 -96, 16 16 0) model(":progs/corpse_lynch.mdl" 2 1) = corpse_lynched3 : "Corpse(lynched,eaten)" []
 
-@PointClass base(Static, Appearflags) size(-16 -16 -96, 16 16 0) model(":progs/corpse_flay.mdl" 0 0) = corpse_flayed1 : "Corpse(flayed,clothed)" []
-@PointClass base(Static, Appearflags) size(-16 -16 -96, 16 16 0) model(":progs/corpse_flay.mdl" 1 0) = corpse_flayed2 : "Corpse(flayed)" []
+@PointClass base(Static, Appearflags) size(-16 -16 -96, 16 16 0) model(":progs/corpse_flay.mdl") = corpse_flayed1 : "Corpse(flayed,clothed)" []
+@PointClass base(Static, Appearflags) size(-16 -16 -96, 16 16 0) model(":progs/corpse_flay.mdl" 1) = corpse_flayed2 : "Corpse(flayed)" []
 @PointClass base(Static, Appearflags) size(-16 -16 -96, 16 16 0) model(":progs/corpse_flay.mdl" 2 2) = corpse_flayed3 : "Corpse(flayed,eaten)" []
 @PointClass base(Static, Appearflags) size(-16 -16 -96, 16 16 0) model(":progs/corpse_flay.mdl" 1 1) = corpse_flayed4 : "Corpse(flayed,broken leg)" []
 
 
-@PointClass base(Static, Appearflags) size(-32 -32 -40, 32 32 0) model(":progs/corpse_imp.mdl" 0 0) = corpse_impaled_back1 : "Corpse(impaled in back,clothed)" []
-@PointClass base(Static, Appearflags) size(-32 -32 -40, 32 32 0) model(":progs/corpse_imp.mdl" 1 0) = corpse_impaled_back2 : "Corpse(impaled in back)" []
+@PointClass base(Static, Appearflags) size(-32 -32 -40, 32 32 0) model(":progs/corpse_imp.mdl") = corpse_impaled_back1 : "Corpse(impaled in back,clothed)" []
+@PointClass base(Static, Appearflags) size(-32 -32 -40, 32 32 0) model(":progs/corpse_imp.mdl" 1) = corpse_impaled_back2 : "Corpse(impaled in back)" []
 @PointClass base(Static, Appearflags) size(-32 -32 -40, 32 32 0) model(":progs/corpse_imp.mdl" 2 1) = corpse_impaled_back3 : "Corpse(impaled in back,eaten)" []
 
 
@@ -663,14 +663,14 @@
 	event_lightning : "Chthon's lightning" []
 @PointClass base(Appearflags) = misc_fireball : "Small fireball"
 	[ speed(integer) : "Speed" : 40 ]
-@PointClass size(0 0 0, 32 32 64) model(":maps/b_explob.bsp" 0 0) = misc_explobox : "Large nuclear container" []
-@PointClass size(0 0 0, 32 32 32) model(":maps/b_exbox2.bsp" 0 0) = misc_explobox2 : "Small nuclear container" []
-@PointClass size(-8 -8 -8, 8 8 8) model(":progs/teleport.mdl" 0 0) = misc_teleporttrain : "Flying teleporter destination" []
+@PointClass size(0 0 0, 32 32 64) model(":maps/b_explob.bsp") = misc_explobox : "Large nuclear container" []
+@PointClass size(0 0 0, 32 32 32) model(":maps/b_exbox2.bsp") = misc_explobox2 : "Small nuclear container" []
+@PointClass size(-8 -8 -8, 8 8 8) model(":progs/teleport.mdl") = misc_teleporttrain : "Flying teleporter destination" []
 
-@PointClass size(0 0 0, 32 32 64) model(":progs/b_bio_l.bsp" 0 0) = misc_biobox : "Large bio-waste container" []
-@PointClass size(0 0 0, 32 32 32) model(":progs/b_bio_s.bsp" 0 0) = misc_biobox2 : "Small bio-waste container" []
-@PointClass size(0 0 0, 32 32 64) model(":progs/b_plas_l.bsp" 0 0) = misc_plasmabox : "Large plasma container" []
-@PointClass size(0 0 0, 32 32 32) model(":progs/b_plas_s.bsp" 0 0) = misc_plasmabox2 : "Small plasma container" []
+@PointClass size(0 0 0, 32 32 64) model(":progs/b_bio_l.bsp") = misc_biobox : "Large bio-waste container" []
+@PointClass size(0 0 0, 32 32 32) model(":progs/b_bio_s.bsp") = misc_biobox2 : "Small bio-waste container" []
+@PointClass size(0 0 0, 32 32 64) model(":progs/b_plas_l.bsp") = misc_plasmabox : "Large plasma container" []
+@PointClass size(0 0 0, 32 32 32) model(":progs/b_plas_s.bsp") = misc_plasmabox2 : "Small plasma container" []
 
 
 @SolidClass = func_illusionary : "Static model"  
