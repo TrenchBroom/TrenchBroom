@@ -105,7 +105,6 @@ namespace TrenchBroom {
             }
             
             for (unsigned int i = 0; i < 24; i++) {
-
                 wxColour colour = wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT);
                 wxString label;
                 if (i == 8) {
