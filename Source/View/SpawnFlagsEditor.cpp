@@ -130,21 +130,28 @@ namespace TrenchBroom {
                     colour = wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT);
                 }
                 
-                m_flags[i]->SetLabel(label);
-                m_flags[i]->SetForegroundColour(colour);
+                if (m_flags[i]->GetLabel() != label)
+                    m_flags[i]->SetLabel(label);
+                if (m_flags[i]->GetForegroundColour() != colour)
+                    m_flags[i]->SetForegroundColour(colour);
                 
                 switch (values[i]) {
                     case On:
-                        m_flags[i]->Set3StateValue(wxCHK_CHECKED);
+                        if (m_flags[i]->Get3StateValue() != wxCHK_CHECKED)
+                            m_flags[i]->Set3StateValue(wxCHK_CHECKED);
                         break;
                     case Mixed:
-                        m_flags[i]->Set3StateValue(wxCHK_UNDETERMINED);
+                        if (m_flags[i]->Get3StateValue() != wxCHK_UNDETERMINED)
+                            m_flags[i]->Set3StateValue(wxCHK_UNDETERMINED);
                         break;
                     default:
-                        m_flags[i]->Set3StateValue(wxCHK_UNCHECKED);
+                        if (m_flags[i]->Get3StateValue() != wxCHK_UNCHECKED)
+                            m_flags[i]->Set3StateValue(wxCHK_UNCHECKED);
                         break;
                 }
             }
+
+            m_scrolledWindow->Refresh();
         }
 
         SpawnFlagsEditor::SpawnFlagsEditor(SmartPropertyEditorManager& manager) :

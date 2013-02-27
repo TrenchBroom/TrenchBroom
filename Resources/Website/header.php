@@ -10,5 +10,5 @@
 		<div id="container">
 			<img src="images/logo.png" width="256" height="256" alt="TrenchBroom Logo" />
 			<h1>TrenchBroom</h1>
-			<p class="subtitle">A modern Quake level editor for Mac OS X.</p>
+			<p class="subtitle">A Modern Level Editor for Quake.</p>
 			<hr />
