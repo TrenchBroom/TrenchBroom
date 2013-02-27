@@ -7,7 +7,8 @@ Features
 --------
 - True 3D editing, no 2D views required
 - High performance renderer with support for huge maps
-- Vertex editing with edge and face splitting
+- Vertex editing with edge and face splitting that will not create invalid brushes
+- Manipulation of multiple vertices at once (great for trisoup editing)
 - Smart clip tool
 - Move, rotate and flip brushes and entities
 - Precise texture lock for all operations
