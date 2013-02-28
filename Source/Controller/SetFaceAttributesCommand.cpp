@@ -45,12 +45,20 @@ namespace TrenchBroom {
                     face.setTexture(m_texture);
             }
             
+            if (m_setTexture) {
+                m_previousMruTexture = document().mruTexture();
+                document().setMruTexture(m_texture);
+            }
+            
             return true;
         }
         
         bool SetFaceAttributesCommand::performUndo() {
             restoreSnapshots(m_faces);
             clear();
+            
+            if (m_setTexture)
+                document().setMruTexture(m_previousMruTexture);
             
             return true;
         }
@@ -64,6 +72,7 @@ namespace TrenchBroom {
         m_yScale(0.0f),
         m_rotation(0.0f),
         m_texture(NULL),
+        m_previousMruTexture(NULL),
         m_setXOffset(false),
         m_setYOffset(false),
         m_setXScale(false),

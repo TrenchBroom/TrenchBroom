@@ -312,15 +312,14 @@ namespace TrenchBroom {
 			m_scaledTexAxisY = Vec3f::NaN;
             
 			m_faceId = 0;
-			m_brush = NULL;
+            setBrush(NULL);
 			
 			for (unsigned int i = 0; i < 3; i++)
 				m_points[i] = Vec3f::NaN;
 			m_boundary.normal = Vec3f::NaN;
 			m_boundary.distance = -1.0f;
-            
-			m_textureName = "___deleted";
-			m_texture = NULL;
+
+            setTexture(NULL);
 			m_xOffset = 0;
 			m_yOffset = 0;
 			m_rotation = 0.0f;

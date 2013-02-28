@@ -555,6 +555,7 @@ namespace TrenchBroom {
                     case Controller::Command::RotateTextures: {
                         m_renderer->invalidateSelectedBrushes();
                         inspector().faceInspector().updateFaceAttributes();
+                        inspector().faceInspector().updateSelectedTexture();
                         break;
                     }
                     case Controller::Command::RemoveTextureCollection:

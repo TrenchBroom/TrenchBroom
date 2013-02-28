@@ -41,6 +41,7 @@ namespace TrenchBroom {
             float m_yScale;
             float m_rotation;
             Model::Texture* m_texture;
+            Model::Texture* m_previousMruTexture;
             
             bool m_setXOffset;
             bool m_setYOffset;

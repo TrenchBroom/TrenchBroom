@@ -23,6 +23,7 @@
 #include "Model/Entity.h"
 #include "Model/EntityDefinitionManager.h"
 #include "Model/Face.h"
+#include "Utility/Map.h"
 
 #include <cassert>
 
@@ -153,24 +154,9 @@ namespace TrenchBroom {
         }
 
         void SnapshotCommand::clear() {
-            {
-                EntitySnapshotMap::iterator it, end;
-                for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it)
-                    delete it->second;
-                m_entities.clear();
-            }
-            {
-                BrushSnapshotMap::iterator it, end;
-                for (it = m_brushes.begin(), end = m_brushes.end(); it != end; ++it)
-                    delete it->second;
-                m_brushes.clear();
-            }
-            {
-                FaceSnapshotMap::iterator it, end;
-                for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it)
-                    delete it->second;
-                m_faces.clear();
-            }
+            Utility::deleteAll(m_entities);
+            Utility::deleteAll(m_brushes);
+            Utility::deleteAll(m_faces);
         }
         
         SnapshotCommand::SnapshotCommand(Command::Type type, Model::MapDocument& document, const wxString& name) :
