@@ -1301,6 +1301,7 @@ namespace TrenchBroom {
                 edge.updateMark();
                 if (edge.mark == Edge::Split) {
                     Vertex* vertex = edge.split(boundary);
+                    vertex->position.correct();
                     vertices.push_back(vertex);
                 }
             }
