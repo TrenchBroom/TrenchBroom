@@ -11,7 +11,7 @@
 	<div class="downloads">
 		<h2>Windows</h2>
 <?php
-$dir = "downloads/windows";
+$dir = "downloads/win32";
 if (is_dir($dir) && $dir_handle = opendir($dir)) {
 	$files = array();
 	while (($file = readdir($dir_handle)) !== false)
