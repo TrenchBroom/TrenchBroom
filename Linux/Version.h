@@ -1,0 +1,7 @@
+#ifndef VERSION_H_INCLUDED
+#define VERSION_H_INCLUDED
+
+#define VERSION 1.1.0
+#define VERSIONSTR "1.1.0\0"
+
+#endif // VERSION_H_INCLUDED
