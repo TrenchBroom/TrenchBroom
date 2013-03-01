@@ -3,7 +3,7 @@
 	<li><a href="index.php">About</a></li>
 	<li>Download</li>
 	<li><a href="http://github.com/kduske/TrenchBroom">Source</a></li>
-	<li><a href="http://celephais.net/board/view_thread.php?id=60674">Discuss</a></li>
+	<li><a href="http://celephais.net/board/view_thread.php?id=60908">Discuss</a></li>
 	<li><a href="http://github.com/kduske/TrenchBroom/issues">Contribute</a></li>
 	<li><a href="mailto:kristian.duske@gmail.com">Contact</a></li>
 </ul>
@@ -24,7 +24,7 @@ if (is_dir($dir) && $dir_handle = opendir($dir)) {
 ?>
 	<div class="latest">
 		<h3>Latest Release</h3>
-		<a href="<?php echo urlencode($dir . '/' . $latest) ?>"><?php echo $latest ?></a>
+		<a href="<?php echo $dir . '/' . urlencode($latest) ?>"><?php echo $latest ?></a>
 	</div>
 	<div class="requirements">
 		<h3>Requirements</h3>
@@ -37,7 +37,7 @@ if (is_dir($dir) && $dir_handle = opendir($dir)) {
 <?php
 			for ($i = 1; $i < count($files); $i++) {
 ?>
-		<a href="<?php echo urlencode($dir . '/' . $files[$i]) ?>"><?php echo $files[$i] ?></a><br />
+		<a href="<?php echo $dir . '/' . urlencode($files[$i]) ?>"><?php echo $files[$i] ?></a><br />
 <?php
 			}
 		}
@@ -61,7 +61,7 @@ if (is_dir($dir) && $dir_handle = opendir($dir)) {
 ?>
 	<div class="latest">
 		<h3>Latest Release</h3>
-		<a href="<?php echo urlencode($dir . '/' . $latest) ?>"><?php echo $latest ?></a>
+		<a href="<?php echo $dir . '/' . urlencode($latest) ?>"><?php echo $latest ?></a>
 	</div>
 <?php
 		if (count($files) > 1) {
@@ -70,7 +70,7 @@ if (is_dir($dir) && $dir_handle = opendir($dir)) {
 <?php
 			for ($i = 1; $i < count($files); $i++) {
 ?>
-		<a href="<?php echo urlencode($dir . '/' . $files[$i]) ?>"><?php echo $files[$i] ?></a><br />
+		<a href="<?php echo $dir . '/' . urlencode($files[$i]) ?>"><?php echo $files[$i] ?></a><br />
 <?php
 			}
 		}
