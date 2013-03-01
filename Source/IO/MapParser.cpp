@@ -36,7 +36,7 @@ namespace TrenchBroom {
                 char c = tokenizer.nextChar();
                 switch (c) {
                     case '/':
-                        if (tokenizer.peekChar() == 'd') {
+                        if (tokenizer.peekChar() == '/') {
                             // eat everything up to and including the next newline
                             while (tokenizer.nextChar() != '\n');
                         }

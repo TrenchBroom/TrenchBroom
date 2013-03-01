@@ -7,7 +7,9 @@
 
 2. Update the repository:
 	- If the build is a new release (major or minor version no increase), then create a new branch for it. The name of the branch should be Release_<major>.<minor>.0
+	  git checkout -b Release_1.0.0
 	- If the build is a maintenance release, then create a tag for it in the appropriate branch. The name of the tag should be Release_<major>.<minor>.<maintenance>
+	  git tag -a Release_1.0.1
 	- Switch back to the master branch and update the version numbers for all build configurations. Commit these changes.
 
 3. Publish the binaries
