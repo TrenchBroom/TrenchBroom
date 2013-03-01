@@ -285,6 +285,7 @@ namespace TrenchBroom {
                 return NULL;
             }
 
+            // FIXME: handle this more gracefully
             if (splitIndex1 < 0 || splitIndex2 < 0)
                 throw GeometryException("Invalid brush detected during side split");
 
