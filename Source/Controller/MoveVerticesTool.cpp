@@ -55,7 +55,7 @@ namespace TrenchBroom {
         }
         
         wxString MoveVerticesTool::actionName() {
-            if (m_mode == VMMove) {
+            if (m_mode == VMMove || m_mode == VMSnap) {
                 assert((m_handleManager.selectedVertexHandles().empty() ? 0 : 1) +
                        (m_handleManager.selectedEdgeHandles().empty() ? 0 : 1) +
                        (m_handleManager.selectedFaceHandles().empty() ? 0 : 1) == 1);
@@ -84,11 +84,19 @@ namespace TrenchBroom {
         }
 
         void MoveVerticesTool::snapDragDelta(InputState& inputState, Vec3f& delta) {
-            if ((inputState.modifierKeys() & ModifierKeys::MKShift) == 0) {
-                MoveTool::snapDragDelta(inputState, delta);
+            if (m_mode == VMSnap) {
+                Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit, true, view().filter()));
+                if (hit != NULL && !m_handleManager.vertexHandleSelected(hit->vertex()))
+                    delta = hit->vertex() - m_dragHandlePosition;
+                else
+                    delta = Vec3f::Null;
             } else {
-                const Vec3f targetPos = document().grid().snap(m_dragHandlePosition + delta);
-                delta = targetPos - m_dragHandlePosition;
+                if ((inputState.modifierKeys() & ModifierKeys::MKShift) == 0) {
+                    MoveTool::snapDragDelta(inputState, delta);
+                } else {
+                    const Vec3f targetPos = document().grid().snap(m_dragHandlePosition + delta);
+                    delta = targetPos - m_dragHandlePosition;
+                }
             }
         }
 
@@ -290,16 +298,23 @@ namespace TrenchBroom {
                  inputState.modifierKeys() != (ModifierKeys::MKAlt | ModifierKeys::MKShift)))
                 return false;
 
-            Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));
+            Model::VertexHandleHit* hit = static_cast<Model::VertexHandleHit*>(inputState.pickResult().first(Model::HitType::VertexHandleHit | Model::HitType::EdgeHandleHit | Model::HitType::FaceHandleHit, true, view().filter()));
             if (hit == NULL)
                 return false;
             
-            m_handleManager.deselectAll();
-            if (hit->type() == Model::HitType::EdgeHandleHit)
+            if (hit->type() == Model::HitType::VertexHandleHit) {
+                m_handleManager.deselectAll();
+                m_handleManager.selectVertexHandle(hit->vertex());
+                m_mode = VMSnap;
+            } else if (hit->type() == Model::HitType::EdgeHandleHit) {
+                m_handleManager.deselectAll();
                 m_handleManager.selectEdgeHandle(hit->vertex());
-            else
+                m_mode = VMSplit;
+            } else if (hit->type() == Model::HitType::FaceHandleHit) {
+                m_handleManager.deselectAll();
                 m_handleManager.selectFaceHandle(hit->vertex());
-            m_mode = VMSplit;
+                m_mode = VMSplit;
+            }
             return true;
         }
 
@@ -337,7 +352,7 @@ namespace TrenchBroom {
         
         MoveVerticesTool::MoveResult MoveVerticesTool::moveVertices(const Vec3f& delta) {
             m_ignoreObjectChanges = true;
-            if (m_mode == VMMove) {
+            if (m_mode == VMMove || m_mode == VMSnap) {
                 assert((m_handleManager.selectedVertexHandles().empty() ? 0 : 1) +
                        (m_handleManager.selectedEdgeHandles().empty() ? 0 : 1) +
                        (m_handleManager.selectedFaceHandles().empty() ? 0 : 1) == 1);

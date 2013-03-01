@@ -41,7 +41,8 @@ namespace TrenchBroom {
         protected:
             typedef enum {
                 VMMove,
-                VMSplit
+                VMSplit,
+                VMSnap
             } VertexToolMode;
             
             VertexHandleManager m_handleManager;
