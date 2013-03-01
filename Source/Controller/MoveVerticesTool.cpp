@@ -33,6 +33,7 @@
 #include "Renderer/SharedResources.h"
 #include "Renderer/Shader/ShaderManager.h"
 #include "Renderer/Shader/ShaderProgram.h"
+#include "Utility/Console.h"
 #include "Utility/Grid.h"
 #include "Utility/Preferences.h"
 
@@ -365,7 +366,7 @@ namespace TrenchBroom {
                         m_handleManager.add(command->brushes());
                         
                         const Vec3f::Set& vertices = command->vertices();
-                        if (vertices.empty()) {
+                        if (vertices.empty() || m_mode == VMSnap) {
                             m_ignoreObjectChanges = false;
                             return Conclude;
                         }

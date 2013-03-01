@@ -75,8 +75,7 @@ namespace TrenchBroom {
         
         void InputController::updateHits() {
             m_inputState.invalidate();
-            if (m_dragTool == NULL)
-                m_toolChain->updateHits(m_inputState);
+            m_toolChain->updateHits(m_inputState);
         }
         
         void InputController::updateViews() {
