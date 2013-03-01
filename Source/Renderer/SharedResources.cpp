@@ -22,6 +22,7 @@
 #include "GL/Capabilities.h"
 #include "Renderer/EntityModelRendererManager.h"
 #include "Renderer/Palette.h"
+#include "Renderer/PointHandleRenderer.h"
 #include "Renderer/TextureRendererManager.h"
 #include "Renderer/Shader/ShaderManager.h"
 #include "Renderer/Text/StringManager.h"
@@ -93,7 +94,7 @@ namespace TrenchBroom {
             if (glewState != GLEW_OK)
                 console.error("Unable to initialize glew: %s", glewGetErrorString(glewState));
 
-            if (GLEW_ARB_draw_instanced && GLEW_ARB_texture_float)
+            if (PointHandleRenderer::instancingSupported())
                 console.info("OpenGL instancing enabled");
             else
                 console.info("OpenGL instancing disabled");

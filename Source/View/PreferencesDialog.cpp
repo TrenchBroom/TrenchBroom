@@ -47,6 +47,7 @@ namespace TrenchBroom {
         EVT_COMMAND_SCROLL(CommandIds::PreferencesDialog::BrightnessSliderId, PreferencesDialog::OnViewSliderChanged)
         EVT_COMMAND_SCROLL(CommandIds::PreferencesDialog::GridAlphaSliderId, PreferencesDialog::OnViewSliderChanged)
         EVT_CHOICE(CommandIds::PreferencesDialog::GridModeChoiceId, PreferencesDialog::OnGridModeChoice)
+        EVT_CHOICE(CommandIds::PreferencesDialog::InstancingModeModeChoiceId, PreferencesDialog::OnInstancingModeChoice)
 
         EVT_COMMAND_SCROLL(CommandIds::PreferencesDialog::LookSpeedSliderId, PreferencesDialog::OnMouseSliderChanged)
         EVT_CHECKBOX(CommandIds::PreferencesDialog::InvertLookXAxisCheckBoxId, PreferencesDialog::OnInvertAxisChanged)
@@ -72,6 +73,14 @@ namespace TrenchBroom {
             m_brightnessSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::RendererBrightness) * 40.0f));
             m_gridAlphaSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::GridAlpha) * m_gridAlphaSlider->GetMax()));
             m_gridModeChoice->SetSelection(prefs.getBool(Preferences::GridCheckerboard) ? 1 : 0);
+            
+            int instancingMode = prefs.getInt(Preferences::RendererInstancingMode);
+            if (instancingMode == Preferences::RendererInstancingModeAutodetect)
+                m_instancingModeChoice->SetSelection(instancingMode);
+            else if (instancingMode == Preferences::RendererInstancingModeForceOn)
+                m_instancingModeChoice->SetSelection(instancingMode);
+            else
+                m_instancingModeChoice->SetSelection(Preferences::RendererInstancingModeForceOff);
 
             m_lookSpeedSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::CameraLookSpeed) * m_lookSpeedSlider->GetMax()));
             m_invertLookXAxisCheckBox->SetValue(prefs.getBool(Preferences::CameraLookInvertX));
@@ -117,15 +126,24 @@ namespace TrenchBroom {
 
             wxStaticText* gridModeFakeLabel = new wxStaticText(viewBox, wxID_ANY, wxT(""));
             wxStaticText* gridModeLabel = new wxStaticText(viewBox, wxID_ANY, wxT("Render grid as"));
-
             wxString gridModes[2] = {"Lines", "Checkerboard"};
             m_gridModeChoice = new wxChoice(viewBox, CommandIds::PreferencesDialog::GridModeChoiceId, wxDefaultPosition, wxDefaultSize, 2, gridModes);
 
+            wxStaticText* instancingModeFakeLabel = new wxStaticText(viewBox, wxID_ANY, wxT(""));
+            wxStaticText* instancingModeLabel = new wxStaticText(viewBox, wxID_ANY, wxT("Use OpenGL instancing"));
+            wxString instancingModes[3] = {"Autodetect", "Force on", "Force off"};
+            m_instancingModeChoice = new wxChoice(viewBox, CommandIds::PreferencesDialog::InstancingModeModeChoiceId, wxDefaultPosition, wxDefaultSize, 3, instancingModes);;
+            
             wxSizer* gridModeSizer = new wxBoxSizer(wxHORIZONTAL);
             gridModeSizer->Add(gridModeLabel);
             gridModeSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
             gridModeSizer->Add(m_gridModeChoice);
 
+            wxSizer* instancingModeSizer = new wxBoxSizer(wxHORIZONTAL);
+            instancingModeSizer->Add(instancingModeLabel);
+            instancingModeSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            instancingModeSizer->Add(m_instancingModeChoice);
+            
             wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
             innerSizer->AddGrowableCol(1);
             innerSizer->Add(brightnessLabel);
@@ -134,6 +152,8 @@ namespace TrenchBroom {
             innerSizer->Add(m_gridAlphaSlider, 0, wxEXPAND);
             innerSizer->Add(gridModeFakeLabel);
             innerSizer->Add(gridModeSizer);
+            innerSizer->Add(instancingModeFakeLabel);
+            innerSizer->Add(instancingModeSizer);
             innerSizer->SetItemMinSize(brightnessLabel, PreferencesDialogLayout::MinimumLabelWidth, brightnessLabel->GetSize().y);
 
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
@@ -278,6 +298,19 @@ namespace TrenchBroom {
             static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews();
         }
 
+        void PreferencesDialog::OnInstancingModeChoice(wxCommandEvent& event) {
+            int mode = m_instancingModeChoice->GetSelection();
+            assert(mode >= 0 && mode <= 2);
+            
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            prefs.setInt(Preferences::RendererInstancingMode, mode);
+
+#ifdef __APPLE__
+            Controller::Command command(Controller::Command::InvalidateInstancedRenderers);
+            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &command);
+#endif
+        }
+
         void PreferencesDialog::OnMouseSliderChanged(wxScrollEvent& event) {
             wxSlider* sender = static_cast<wxSlider*>(event.GetEventObject());
             float value = sender->GetValue() / 100.0f;
@@ -326,8 +359,11 @@ namespace TrenchBroom {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 			prefs.save();
 
-			Controller::Command command(Controller::Command::InvalidateEntityModelRendererCache);
-            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &command);
+			Controller::Command invalidateCacheCommand(Controller::Command::InvalidateEntityModelRendererCache);
+            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &invalidateCacheCommand);
+
+            Controller::Command invalidateInstancedRenderersCommand(Controller::Command::InvalidateInstancedRenderers);
+            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &invalidateInstancedRenderersCommand);
 
 			EndModal(wxID_OK);
 		}
@@ -342,9 +378,6 @@ namespace TrenchBroom {
 #ifndef __APPLE__
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 			prefs.discardChanges();
-
-			Controller::Command command(Controller::Command::InvalidateEntityModelRendererCache);
-            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &command);
 #endif
             event.Skip();
 		}

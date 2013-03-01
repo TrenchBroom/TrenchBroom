@@ -312,6 +312,10 @@ namespace TrenchBroom {
         
         extern const Preference<String> QuakePath;
         extern const Preference<String> RendererFontName;
+        extern const Preference<int>    RendererInstancingMode;
+        extern const int                RendererInstancingModeAutodetect;
+        extern const int                RendererInstancingModeForceOn;
+        extern const int                RendererInstancingModeForceOff;
 
         class PreferenceManager {
         private:

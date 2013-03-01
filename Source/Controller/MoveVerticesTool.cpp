@@ -468,5 +468,9 @@ namespace TrenchBroom {
             m_ignoreObjectChanges = false;
             return Continue;
         }
+
+        void MoveVerticesTool::resetInstancedRenderers() {
+            m_handleManager.recreateRenderers();
+        }
     }
 }

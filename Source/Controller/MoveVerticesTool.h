@@ -78,6 +78,8 @@ namespace TrenchBroom {
         
             bool hasSelection();
             MoveResult moveVertices(const Vec3f& delta);
+            
+            void resetInstancedRenderers();
         };
     }
 }

@@ -78,6 +78,7 @@ namespace TrenchBroom {
             
             virtual ~PointHandleRenderer() {}
             
+            static bool instancingSupported();
             static PointHandleRenderer* create(float radius, unsigned int iterations, float scalingFactor, float maximumDistance);
             
             inline void add(const Vec3f& position) {

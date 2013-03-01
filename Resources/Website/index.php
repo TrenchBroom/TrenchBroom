@@ -3,6 +3,7 @@
 	<li>About</li>
 	<li><a href="downloads.php">Download</a></li>
 	<li><a href="http://github.com/kduske/TrenchBroom">Source</a></li>
+	<li><a href="docs/">Documentation</a></li>
 	<li><a href="http://celephais.net/board/view_thread.php?id=60908">Discuss</a></li>
 	<li><a href="http://github.com/kduske/TrenchBroom/issues">Contribute</a></li>
 	<li><a href="mailto:kristian.duske@gmail.com">Contact</a></li>
