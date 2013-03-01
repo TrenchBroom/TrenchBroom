@@ -20,6 +20,7 @@ Features
 - Point file support
 - Automatic backup
 - Support for .def and .fdg files, mods and multiple wad files
+- Full documentation
 - Free (as in beer) and open source (GPLv3)
 - Cross platform (Windows, Mac OS X and Linux supported)
 

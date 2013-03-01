@@ -35,6 +35,7 @@ namespace TrenchBroom {
             wxSlider* m_brightnessSlider;
             wxSlider* m_gridAlphaSlider;
             wxChoice* m_gridModeChoice;
+            wxChoice* m_instancingModeChoice;
             wxSlider* m_lookSpeedSlider;
             wxCheckBox* m_invertLookXAxisCheckBox;
             wxCheckBox* m_invertLookYAxisCheckBox;
@@ -54,6 +55,7 @@ namespace TrenchBroom {
             void OnChooseQuakePathClicked(wxCommandEvent& event);
             void OnViewSliderChanged(wxScrollEvent& event);
             void OnGridModeChoice(wxCommandEvent& event);
+            void OnInstancingModeChoice(wxCommandEvent& event);
             void OnMouseSliderChanged(wxScrollEvent& event);
             void OnInvertAxisChanged(wxCommandEvent& event);
             void OnOkClicked(wxCommandEvent& event);

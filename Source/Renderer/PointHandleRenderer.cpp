@@ -29,6 +29,7 @@
 #include "Renderer/VertexArray.h"
 #include "Renderer/Shader/ShaderManager.h"
 #include "Renderer/Shader/ShaderProgram.h"
+#include "Utility/Preferences.h"
 
 #include <cassert>
 
@@ -38,8 +39,17 @@ namespace TrenchBroom {
             return Renderer::sphere(m_radius, m_iterations);
         }
         
+        bool PointHandleRenderer::instancingSupported() {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            int instancingMode = prefs.getInt(Preferences::RendererInstancingMode);
+            if ((instancingMode == Preferences::RendererInstancingModeForceOn) ||
+                (instancingMode == Preferences::RendererInstancingModeAutodetect && GLEW_ARB_draw_instanced && GLEW_ARB_texture_float && GL_EXT_gpu_shader4))
+                return true;
+            return false;
+        }
+
         PointHandleRenderer* PointHandleRenderer::create(float radius, unsigned int iterations, float scalingFactor, float maximumDistance) {
-            if (GLEW_ARB_draw_instanced && GLEW_ARB_texture_float)
+            if (instancingSupported())
                return new InstancedPointHandleRenderer(radius, iterations, scalingFactor, maximumDistance);
             return new DefaultPointHandleRenderer(radius, iterations, scalingFactor, maximumDistance);
         }

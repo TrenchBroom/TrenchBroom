@@ -74,6 +74,7 @@ namespace TrenchBroom {
             Renderer::PointHandleRenderer* m_unselectedFaceHandleRenderer;
             Renderer::LinesRenderer* m_selectedEdgeRenderer;
             bool m_renderStateValid;
+            bool m_recreateRenderers;
             
             template <typename Element>
             inline bool removeHandle(const Vec3f& position, Element& element, std::map<Vec3f, std::vector<Element*>, Vec3f::LexicographicOrder >& map) {
@@ -126,6 +127,9 @@ namespace TrenchBroom {
                 
                 return NULL;
             }
+            
+            void createRenderers();
+            void destroyRenderers();
         public:
             VertexHandleManager();
             
@@ -193,10 +197,17 @@ namespace TrenchBroom {
             
             void pick(const Ray& ray, Model::PickResult& pickResult, bool splitMode) const;
             void render(Renderer::Vbo& vbo, Renderer::RenderContext& renderContext, bool splitMode);
-            void freeRenderResources();
+            
+            inline void freeRenderResources() {
+                destroyRenderers();
+            }
             
             inline void invalidateRenderState() {
                 m_renderStateValid = false;
+            }
+            
+            inline void recreateRenderers() {
+                m_recreateRenderers = true;
             }
         };
     }

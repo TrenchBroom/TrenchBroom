@@ -38,13 +38,13 @@ namespace TrenchBroom {
     }
 
     namespace Controller {
-        VertexHandleManager::VertexHandleManager() :
-        m_selectedHandleRenderer(NULL),
-        m_unselectedVertexHandleRenderer(NULL),
-        m_unselectedEdgeHandleRenderer(NULL),
-        m_unselectedFaceHandleRenderer(NULL),
-        m_selectedEdgeRenderer(NULL),
-        m_renderStateValid(false) {
+        void VertexHandleManager::createRenderers() {
+            assert(m_selectedHandleRenderer == NULL);
+            assert(m_unselectedVertexHandleRenderer == NULL);
+            assert(m_unselectedEdgeHandleRenderer == NULL);
+            assert(m_unselectedFaceHandleRenderer == NULL);
+            assert(m_selectedEdgeRenderer == NULL);
+
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             float handleRadius = prefs.getFloat(Preferences::HandleRadius);
             float scalingFactor = prefs.getFloat(Preferences::HandleScalingFactor);
@@ -54,7 +54,32 @@ namespace TrenchBroom {
             m_unselectedEdgeHandleRenderer = Renderer::PointHandleRenderer::create(handleRadius, 2, scalingFactor, maxDistance);
             m_unselectedFaceHandleRenderer = Renderer::PointHandleRenderer::create(handleRadius, 2, scalingFactor, maxDistance);
             m_selectedEdgeRenderer = new Renderer::LinesRenderer();
+            
+            m_renderStateValid = false;
+            m_recreateRenderers = false;
         }
+        
+        void VertexHandleManager::destroyRenderers() {
+            delete m_unselectedVertexHandleRenderer;
+            m_unselectedVertexHandleRenderer = NULL;
+            delete m_unselectedEdgeHandleRenderer;
+            m_unselectedEdgeHandleRenderer = NULL;
+            delete m_unselectedFaceHandleRenderer;
+            m_unselectedFaceHandleRenderer = NULL;
+            delete m_selectedHandleRenderer;
+            m_selectedHandleRenderer = NULL;
+            delete m_selectedEdgeRenderer;
+            m_selectedEdgeRenderer = NULL;
+        }
+
+        VertexHandleManager::VertexHandleManager() :
+        m_selectedHandleRenderer(NULL),
+        m_unselectedVertexHandleRenderer(NULL),
+        m_unselectedEdgeHandleRenderer(NULL),
+        m_unselectedFaceHandleRenderer(NULL),
+        m_selectedEdgeRenderer(NULL),
+        m_renderStateValid(false),
+        m_recreateRenderers(true) {}
         
         const Model::EdgeList& VertexHandleManager::edges(const Vec3f& handlePosition) const {
             Model::VertexToEdgesMap::const_iterator mapIt = m_selectedEdgeHandles.find(handlePosition);
@@ -316,7 +341,12 @@ namespace TrenchBroom {
         }
 
         void VertexHandleManager::render(Renderer::Vbo& vbo, Renderer::RenderContext& renderContext, bool splitMode) {
-            if (!m_renderStateValid) {
+            if (!m_renderStateValid || m_recreateRenderers) {
+                if (m_recreateRenderers) {
+                    destroyRenderers();
+                    createRenderers();
+                }
+                
                 Model::VertexToBrushesMap::const_iterator vIt, vEnd;
                 Model::VertexToEdgesMap::const_iterator eIt, eEnd;
                 Model::VertexToFacesMap::const_iterator fIt, fEnd;
@@ -437,19 +467,6 @@ namespace TrenchBroom {
             m_unselectedFaceHandleRenderer->render(vbo, renderContext);
             m_selectedHandleRenderer->render(vbo, renderContext);
             glEnable(GL_DEPTH_TEST);
-        }
-
-        void VertexHandleManager::freeRenderResources() {
-            delete m_unselectedVertexHandleRenderer;
-            m_unselectedVertexHandleRenderer = NULL;
-            delete m_unselectedEdgeHandleRenderer;
-            m_unselectedEdgeHandleRenderer = NULL;
-            delete m_unselectedFaceHandleRenderer;
-            m_unselectedFaceHandleRenderer = NULL;
-            delete m_selectedHandleRenderer;
-            m_selectedHandleRenderer = NULL;
-            delete m_selectedEdgeRenderer;
-            m_selectedEdgeRenderer = NULL;
         }
     }
 }

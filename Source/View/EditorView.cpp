@@ -550,6 +550,9 @@ namespace TrenchBroom {
                         m_renderer->invalidateEntityModelRendererCache();
                         inspector().entityInspector().updateEntityBrowser();
                         break;
+                    case Controller::Command::InvalidateInstancedRenderers:
+                        inputController().moveVerticesTool().resetInstancedRenderers();
+                        break;
                     case Controller::Command::SetFaceAttributes:
                     case Controller::Command::MoveTextures:
                     case Controller::Command::RotateTextures: {
@@ -1775,8 +1778,10 @@ namespace TrenchBroom {
                 case CommandIds::Menu::ViewMoveCameraRight:
                 case CommandIds::Menu::ViewMoveCameraUp:
                 case CommandIds::Menu::ViewMoveCameraDown:
-                case CommandIds::Menu::ViewCenterCameraOnSelection:
                     event.Enable(true);
+                    break;
+                case CommandIds::Menu::ViewCenterCameraOnSelection:
+                    event.Enable(editStateManager.hasSelectedObjects());
                     break;
                 case CommandIds::Menu::ViewMoveCameraToNextPoint:
                     event.Enable(mapDocument().pointFileLoaded() && mapDocument().pointFile().hasNextPoint());

@@ -12,7 +12,9 @@
 	  git tag -a Release_1.0.1
 	- Switch back to the master branch and update the version numbers for all build configurations. Commit these changes.
 
-3. Publish the binaries
+3. Upload the documentation
+
+4. Publish the binaries
 	- Rename the zip files containing the binaries like so: TrenchBroom_<platform>_<major>.<minor>.<maintenance>.zip where <platform> is one of "Win32", "Mac" or "Linux".
 	- Upload the zip files to the appropriate sub directories on the website.
 	- Announce the release on func, inside3d, and quakeone.com.
