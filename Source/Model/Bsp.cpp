@@ -58,7 +58,7 @@ namespace TrenchBroom {
             Utility::deleteAll(m_faces);
         }
 
-        void Bsp::readTextures(IO::PakStream& stream, unsigned int count) {
+        void Bsp::readTextures(IO::IStream& stream, unsigned int count) {
             char textureName[BspLayout::TextureNameLength + 1];
             textureName[BspLayout::TextureNameLength] = 0;
             
@@ -87,7 +87,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Bsp::readTextureInfos(IO::PakStream& stream, unsigned int count, std::vector<BspTexture*>& textures) {
+        void Bsp::readTextureInfos(IO::IStream& stream, unsigned int count, std::vector<BspTexture*>& textures) {
 
             for (unsigned int i = 0; i < count; i++) {
                 BspTextureInfo* textureInfo = new BspTextureInfo();
@@ -104,7 +104,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Bsp::readVertices(IO::PakStream& stream, unsigned int count, Vec3f::List& vertices) {
+        void Bsp::readVertices(IO::IStream& stream, unsigned int count, Vec3f::List& vertices) {
             vertices.reserve(count);
             for (unsigned int i = 0; i < count; i++) {
                 Vec3f vertex = IO::readVec3f(stream);
@@ -112,7 +112,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Bsp::readEdges(IO::PakStream& stream, unsigned int count, BspEdgeInfoList& edges) {
+        void Bsp::readEdges(IO::IStream& stream, unsigned int count, BspEdgeInfoList& edges) {
             edges.reserve(count);
             BspEdgeInfo edgeInfo;
             for (unsigned int i = 0; i < count; i++) {
@@ -122,7 +122,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Bsp::readFaces(IO::PakStream& stream, unsigned int count, BspFaceInfoList& faces) {
+        void Bsp::readFaces(IO::IStream& stream, unsigned int count, BspFaceInfoList& faces) {
             faces.reserve(count);
             BspFaceInfo face;
             for (unsigned int i = 0; i < count; i++) {
@@ -137,7 +137,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Bsp::readFaceEdges(IO::PakStream& stream, unsigned int count, BspFaceEdgeIndexList& indices) {
+        void Bsp::readFaceEdges(IO::IStream& stream, unsigned int count, BspFaceEdgeIndexList& indices) {
             indices.reserve(count);
             for (unsigned int i = 0; i < count; i++) {
                 int index = IO::readInt<int32_t>(stream);
@@ -145,7 +145,7 @@ namespace TrenchBroom {
             }
         }
 
-        Bsp::Bsp(const String& name, IO::PakStream stream) :
+        Bsp::Bsp(const String& name, IO::IStream stream) :
         m_name(name) {
             int version = IO::readInt<int32_t>(stream); version = version; // prevent warning
             stream->seekg(BspLayout::DirTexturesAddress, std::ios::beg);
@@ -286,8 +286,7 @@ namespace TrenchBroom {
 
             console.info("Loading '%s' (searching %s)", name.c_str(), pathList.c_str());
 
-            IO::PakManager& pakManager = *IO::PakManager::sharedManager;
-            IO::PakStream stream = pakManager.entryStream(name, paths);
+            IO::IStream stream = IO::findGameFile(name, paths);
             if (stream.get() != NULL) {
                 Bsp* bsp = new Bsp(name, stream);
                 m_bsps[key] = bsp;

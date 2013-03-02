@@ -190,14 +190,14 @@ namespace TrenchBroom {
             BspTextureList m_textures;
             BspTextureInfoList m_textureInfos;
 
-            void readTextures(IO::PakStream& stream, unsigned int count);
-            void readTextureInfos(IO::PakStream& stream, unsigned int count, BspTextureList& textures);
-            void readVertices(IO::PakStream& stream, unsigned int count, Vec3f::List& vertices);
-            void readEdges(IO::PakStream& stream, unsigned int count, BspEdgeInfoList& edges);
-            void readFaces(IO::PakStream& stream, unsigned int count, BspFaceInfoList& faces);
-            void readFaceEdges(IO::PakStream& stream, unsigned int count, BspFaceEdgeIndexList& indices);
+            void readTextures(IO::IStream& stream, unsigned int count);
+            void readTextureInfos(IO::IStream& stream, unsigned int count, BspTextureList& textures);
+            void readVertices(IO::IStream& stream, unsigned int count, Vec3f::List& vertices);
+            void readEdges(IO::IStream& stream, unsigned int count, BspEdgeInfoList& edges);
+            void readFaces(IO::IStream& stream, unsigned int count, BspFaceInfoList& faces);
+            void readFaceEdges(IO::IStream& stream, unsigned int count, BspFaceEdgeIndexList& indices);
         public:
-            Bsp(const String& name, IO::PakStream stream);
+            Bsp(const String& name, IO::IStream stream);
             ~Bsp();
             
             inline const BspModelList& models() const {

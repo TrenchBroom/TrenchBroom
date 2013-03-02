@@ -89,7 +89,7 @@ namespace TrenchBroom {
             return vertex;
         }
 
-        AliasSingleFrame* Alias::readFrame(IO::PakStream& stream, const Vec3f& origin, const Vec3f& scale, unsigned int skinWidth, unsigned int skinHeight, const AliasSkinVertexList& vertices, const AliasSkinTriangleList& triangles) {
+        AliasSingleFrame* Alias::readFrame(IO::IStream& stream, const Vec3f& origin, const Vec3f& scale, unsigned int skinWidth, unsigned int skinHeight, const AliasSkinVertexList& vertices, const AliasSkinTriangleList& triangles) {
             char name[AliasLayout::SimpleFrameLength];
             stream->seekg(AliasLayout::SimpleFrameName, std::ios::cur);
             stream->read(name, AliasLayout::SimpleFrameLength);
@@ -143,7 +143,7 @@ namespace TrenchBroom {
             Utility::deleteAll(m_triangles);
         }
 
-        Alias::Alias(const String& name, IO::PakStream stream) :
+        Alias::Alias(const String& name, IO::IStream stream) :
         m_name(name) {
             stream->seekg(AliasLayout::HeaderScale, std::ios::beg);
             Vec3f scale = IO::readVec3f(stream);
@@ -258,8 +258,7 @@ namespace TrenchBroom {
 
             console.info("Loading '%s' (searching %s)", name.c_str(), pathList.c_str());
 
-            IO::PakManager& pakManager = *IO::PakManager::sharedManager;
-            IO::PakStream stream = pakManager.entryStream(name, paths);
+            IO::IStream stream = IO::findGameFile(name, paths);
             if (stream.get() != NULL) {
                 Alias* alias = new Alias(name, stream);
                 m_aliases[key] = alias;

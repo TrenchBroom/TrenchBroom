@@ -438,6 +438,7 @@
 		4887937515EF56C10044D66A /* AbstractApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractApp.h; sourceTree = "<group>"; };
 		488865491634211C0071F9C6 /* RotateObjects90Command.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RotateObjects90Command.cpp; sourceTree = "<group>"; };
 		4888654A1634211C0071F9C6 /* RotateObjects90Command.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateObjects90Command.h; sourceTree = "<group>"; };
+		488C7A9A16E2628900718B0E /* IOTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IOTypes.h; sourceTree = "<group>"; };
 		48932BF2166FAFDC009ED5DB /* MoveVerticesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveVerticesCommand.cpp; sourceTree = "<group>"; };
 		48932BF3166FAFDC009ED5DB /* MoveVerticesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveVerticesCommand.h; sourceTree = "<group>"; };
 		4895CDE816333D55006AA0A6 /* MoveTexturesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveTexturesCommand.cpp; sourceTree = "<group>"; };
@@ -634,6 +635,7 @@
 				4814447716DBA0DE0060150A /* FgdParser.h */,
 				48819C4015EC0D9300BEA604 /* FileManager.h */,
 				4835D20516419FC400B01BD8 /* IOException.h */,
+				488C7A9A16E2628900718B0E /* IOTypes.h */,
 				48297ED71683091C00E6A288 /* IOUtils.h */,
 				48AF492615E8CC270083DE52 /* MapParser.cpp */,
 				48AF492715E8CC270083DE52 /* MapParser.h */,
@@ -1281,8 +1283,8 @@
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = "#!/bin/bash";
-			shellScript = "buildPlist=${INFOPLIST_FILE}\nbuildNumber=$(/usr/libexec/PlistBuddy -c \"Print CFBundleVersion\" $buildPlist)\nbuildNumber=$(($buildNumber + 1))\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" $buildPlist\nversion=$(/usr/libexec/PlistBuddy -c \"Print CFBundleShortVersionString\" $buildPlist)\necho \"#define VERSIONSTR\" \"\\\"$version Build $buildNumber\\0\\\"\" > ${PROJECT_DIR}/TrenchBroom/Version.h";
+			shellPath = /bin/bash;
+			shellScript = "version=$(<\"${PROJECT_DIR}/../Source/Version\")\nbuildPlist=\"${INFOPLIST_FILE}\"\n/usr/libexec/PlistBuddy -c \"Set :CFBundleShortVersionString $version\" $buildPlist\nbuildNumber=$(/usr/libexec/PlistBuddy -c \"Print CFBundleVersion\" $buildPlist)\nbuildNumber=$(($buildNumber + 1))\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" $buildPlist\necho \"#define VERSIONSTR\" \"\\\"$version Build $buildNumber\\0\\\"\" > \"${PROJECT_DIR}/TrenchBroom/Version.h\"";
 		};
 /* End PBXShellScriptBuildPhase section */
 

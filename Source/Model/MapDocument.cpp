@@ -408,7 +408,7 @@ namespace TrenchBroom {
                 Entity* worldspawnEntity = m_map->worldspawn();
                 if (worldspawnEntity != NULL) {
                     const PropertyValue* modValue = worldspawnEntity->propertyForKey(Entity::ModKey);
-                    if (modValue != NULL)
+                    if (modValue != NULL && !Utility::equalsString(*modValue, "id1", false))
                         m_searchPaths.push_back(*modValue);
                 }
                 

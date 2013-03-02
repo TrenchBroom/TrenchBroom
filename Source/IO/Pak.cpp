@@ -52,12 +52,12 @@ namespace TrenchBroom {
             }
         }
         
-        PakStream Pak::entryStream(const String& name) {
+        IStream Pak::entryStream(const String& name) {
             assert(m_stream.is_open());
 
             PakDirectory::iterator it = m_directory.find(Utility::toLower(name));
             if (it == m_directory.end())
-                return PakStream(NULL);
+                return IStream(NULL);
             
             const PakEntry& entry = it->second;
             
@@ -66,7 +66,7 @@ namespace TrenchBroom {
                                                           static_cast<int>(entry.address()),
                                                           static_cast<int>(entry.length()));
             std::istream* subStream = new isubstream(subStreamBuf);
-            return PakStream(subStream);
+            return IStream(subStream);
         }
 
         PakManager* PakManager::sharedManager = NULL;
@@ -109,22 +109,19 @@ namespace TrenchBroom {
             }
             m_paks.clear();
         }
-
-        PakStream PakManager::entryStream(const String& name, const StringList& searchPaths) {
-            StringList::const_reverse_iterator path, endPath;
-            for (path = searchPaths.rbegin(), endPath = searchPaths.rend(); path != endPath; ++path) {
-                PakList paks;
-                if (findPaks(*path, paks)) {
-                    PakList::reverse_iterator pak, endPak;
-                    for (pak = paks.rbegin(), endPak = paks.rend(); pak != endPak; ++pak) {
-                        PakStream stream = (*pak)->entryStream(name);
-                        if (stream.get() != NULL)
-                            return stream;
-                    }
+        
+        IStream PakManager::entryStream(const String& name, const String& searchPath) {
+            PakList paks;
+            if (findPaks(searchPath, paks)) {
+                PakList::reverse_iterator pak, endPak;
+                for (pak = paks.rbegin(), endPak = paks.rend(); pak != endPak; ++pak) {
+                    IStream stream = (*pak)->entryStream(name);
+                    if (stream.get() != NULL)
+                        return stream;
                 }
             }
             
-            return PakStream(NULL);
+            return IStream(NULL);
         }
     }
 }
