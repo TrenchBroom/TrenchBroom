@@ -334,6 +334,16 @@ namespace TrenchBroom {
                 m_vertexCacheValid = false;
             }
             
+            inline void setAttributes(const Face& face) {
+                setXScale(face.xScale());
+                setYScale(face.yScale());
+                setXOffset(face.xOffset());
+                setYOffset(face.yOffset());
+                setRotation(face.rotation());
+                setTextureName(face.textureName());
+                setTexture(face.texture());
+            }
+            
             /**
              * Invalidates the cached texture axes.
              */

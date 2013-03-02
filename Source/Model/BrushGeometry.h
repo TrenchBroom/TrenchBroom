@@ -57,10 +57,12 @@ namespace TrenchBroom {
                 position = Vec3f::NaN;
                 mark = Drop;
             }
+            
+            SideList incidentSides(const EdgeList& edges) const;
         };
 
         class Side;
-
+        
         class Edge : public Utility::Allocator<Edge> {
         public:
             enum Mark {
@@ -137,6 +139,24 @@ namespace TrenchBroom {
 
             inline bool incidentWith(const Edge* edge) const {
                 return start == edge->start || start == edge->end || end == edge->start || end == edge->end;
+            }
+            
+            inline bool contains(const Vec3f& point, float maxDistance = Math::AlmostZero) const {
+                const Vec3f edgeVec = vector();
+                const Vec3f edgeDir = edgeVec.normalized();
+                const float dot = (point - start->position).dot(edgeDir);
+                
+                // determine the closest point on the edge
+                Vec3f closestPoint;
+                if (dot < 0.0f)
+                    closestPoint = start->position;
+                else if ((dot * dot) > edgeVec.lengthSquared())
+                    closestPoint = end->position;
+                else
+                    closestPoint = start->position + edgeDir * dot;
+                
+                const float distance2 = (point - closestPoint).lengthSquared();
+                return distance2 <= (maxDistance * maxDistance);
             }
             
             inline bool connects(const Vertex* vertex1, const Vertex* vertex2) const {
@@ -284,7 +304,6 @@ namespace TrenchBroom {
                 void getFaces(FaceSet& newFaces, FaceSet& droppedFaces);
             };
 
-            SideList incidentSides(Vertex* vertex);
             void deleteDegenerateTriangle(Side* side, Edge* edge, FaceManager& faceManager);
             void mergeEdges();
             void mergeNeighbours(Side* side, size_t edgeIndex, FaceManager& faceManager);
@@ -320,6 +339,8 @@ namespace TrenchBroom {
             void updateFacePoints();
             
             void snap(FaceSet& newFaces, FaceSet& droppedFaces, unsigned int snapTo);
+
+            SideList incidentSides(const Vertex* vertex);
 
             bool canMoveVertices(const BBox& worldBounds, const Vec3f::List& vertexPositions, const Vec3f& delta);
             Vec3f::List moveVertices(const BBox& worldBounds, const Vec3f::List& vertexPositions, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
