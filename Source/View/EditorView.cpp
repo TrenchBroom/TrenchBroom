@@ -851,20 +851,28 @@ namespace TrenchBroom {
                                     selectEntities.push_back(&entity);
                             }
 
-
-                            BBox bounds = Model::MapObject::bounds(entities, brushes);
-                            Vec3f delta = camera().defaultPoint() - mapDocument().grid().snap(bounds.center());
-                            delta = mapDocument().grid().snap(delta);
-
                             Controller::AddObjectsCommand* addObjectsCommand = Controller::AddObjectsCommand::addObjects(mapDocument(), entities, brushes);
                             Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::replace(mapDocument(), selectEntities, selectBrushes);
-                            Controller::MoveObjectsCommand* moveObjectsCommand = Controller::MoveObjectsCommand::moveObjects(mapDocument(), selectEntities, selectBrushes, delta, mapDocument().textureLock());
+                            Controller::MoveObjectsCommand* moveObjectsCommand = NULL;
 
+                            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+                            if (editStateManager.hasSelectedObjects()) {
+                                const BBox selectedBounds = editStateManager.bounds();
+                                const Vec3f selectedCenter = mapDocument().grid().referencePoint(selectedBounds);
+                                
+                                const BBox insertBounds = Model::MapObject::bounds(entities, brushes);
+                                const Vec3f insertCenter = mapDocument().grid().referencePoint(insertBounds);
+                                
+                                const Vec3f delta = selectedCenter - insertCenter;
+                                moveObjectsCommand = Controller::MoveObjectsCommand::moveObjects(mapDocument(), selectEntities, selectBrushes, delta, mapDocument().textureLock());
+                            }
+                            
                             wxCommandProcessor* commandProcessor = mapDocument().GetCommandProcessor();
                             CommandProcessor::BeginGroup(commandProcessor, Controller::Command::makeObjectActionName(wxT("Paste"), selectEntities, selectBrushes));
                             submit(addObjectsCommand);
                             submit(changeEditStateCommand);
-                            submit(moveObjectsCommand);
+                            if (moveObjectsCommand != NULL)
+                                submit(moveObjectsCommand);
                             CommandProcessor::EndGroup(commandProcessor);
                         }
                     }
@@ -1242,22 +1250,16 @@ namespace TrenchBroom {
                 }
             }
 
-            const Vec3f direction = (-1.0f * m_camera->direction() + m_camera->right()) / 2.0f;
-            Vec3f delta = mapDocument().grid().snapTowards(Vec3f::Null, direction, true);
-            delta.z = 0.0f;
-
             Model::EntityList allNewEntities = Utility::concatenate(newPointEntities, newBrushEntities);
             Model::BrushList allNewBrushes = Utility::concatenate(newWorldBrushes, newEntityBrushes);
 
             Controller::AddObjectsCommand* addObjectsCommand = Controller::AddObjectsCommand::addObjects(mapDocument(), allNewEntities, newWorldBrushes);
             Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::replace(mapDocument(), newPointEntities, allNewBrushes);
-            Controller::MoveObjectsCommand* moveObjectsCommand = Controller::MoveObjectsCommand::moveObjects(mapDocument(), newPointEntities, allNewBrushes, delta, mapDocument().textureLock());
 
             wxCommandProcessor* commandProcessor = mapDocument().GetCommandProcessor();
             CommandProcessor::BeginGroup(commandProcessor, Controller::Command::makeObjectActionName(wxT("Duplicate"), originalEntities, originalBrushes));
             submit(addObjectsCommand);
             submit(changeEditStateCommand);
-            submit(moveObjectsCommand);
             CommandProcessor::EndGroup(commandProcessor);
         }
 
