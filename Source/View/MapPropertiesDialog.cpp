@@ -146,14 +146,11 @@ namespace TrenchBroom {
             int selectionIndex = -1;
             for (size_t i = 0; i < modDirs.size(); i++) {
                 const String& item = modDirs[i];
-                int index = m_modChoice->Append(item);
-                if  (index >= 0) {
-                    const wxString actualItem = m_modChoice->GetString(static_cast<unsigned int>(index));
-                    if (Utility::equalsString(actualItem.ToStdString(), "id1", false))
-                        id1Index = static_cast<int>(i);
-                    if (Utility::equalsString(actualItem.ToStdString(), mod, false))
-                        selectionIndex = static_cast<int>(i);
-                }
+                m_modChoice->Append(item);
+                if (Utility::equalsString(item, "id1", false))
+                    id1Index = static_cast<int>(i);
+                if (Utility::equalsString(item, mod, false))
+                    selectionIndex = static_cast<int>(i);
             }
             
             if (selectionIndex == -1)
@@ -199,7 +196,7 @@ namespace TrenchBroom {
             modText->SetFont(*wxSMALL_FONT);
 #endif
             modText->Wrap(width);
-            m_modChoice = new wxChoice(modBox, CommandIds::MapPropertiesDialog::ModChoiceId, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_SORT);
+            m_modChoice = new wxChoice(modBox, CommandIds::MapPropertiesDialog::ModChoiceId);
             
             wxSizer* modBoxSizer = new wxBoxSizer(wxVERTICAL);
             modBoxSizer->AddSpacer(LayoutConstants::StaticBoxInnerMargin);
