@@ -96,7 +96,7 @@ namespace TrenchBroom {
 
             ClipFilter m_filter;
             Vec3f m_points[3];
-            Vec3f m_normals[3];
+            Vec3f::List m_normals[3];
             unsigned int m_numPoints;
             int m_hitIndex;
             bool m_directHit;
@@ -107,7 +107,9 @@ namespace TrenchBroom {
             Renderer::BrushFigure* m_frontBrushFigure;
             Renderer::BrushFigure* m_backBrushFigure;
             
+            Vec3f selectNormal(const Vec3f::List& normals1, const Vec3f::List& normals2) const;
             void updateBrushes();
+            Vec3f::List getNormals(const Vec3f& hitPoint, const Model::Face& hitFace) const;
         protected:
             bool handleActivate(InputState& inputState);
             bool handleDeactivate(InputState& inputState);

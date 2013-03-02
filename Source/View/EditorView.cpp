@@ -52,6 +52,7 @@
 #include "Renderer/EntityModelRendererManager.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/SharedResources.h"
+#include "Renderer/TextureRendererManager.h"
 #include "Utility/CommandProcessor.h"
 #include "Utility/Console.h"
 #include "Utility/Grid.h"
@@ -562,9 +563,10 @@ namespace TrenchBroom {
                         break;
                     }
                     case Controller::Command::RemoveTextureCollection:
-                    case Controller::Command::AddTextureCollection:
                     case Controller::Command::MoveTextureCollectionUp:
                     case Controller::Command::MoveTextureCollectionDown: {
+                        mapDocument().sharedResources().textureRendererManager().invalidate();
+                    case Controller::Command::AddTextureCollection:
                         m_renderer->invalidateAll();
                         inspector().faceInspector().updateFaceAttributes();
                         inspector().faceInspector().updateTextureBrowser();

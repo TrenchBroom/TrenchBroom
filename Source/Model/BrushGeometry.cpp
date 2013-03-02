@@ -27,6 +27,29 @@
 
 namespace TrenchBroom {
     namespace Model {
+        SideList Vertex::incidentSides(const EdgeList& edges) const {
+            SideList result;
+            
+            // find any edge that is incident to vertex
+            Edge* edge = NULL;
+            for (unsigned int i = 0; i < edges.size() && edge == NULL; i++) {
+                Edge* candidate = edges[i];
+                if (candidate->start == this || candidate->end == this)
+                    edge = candidate;
+            }
+            
+            // iterate over the incident sides in clockwise order
+            Side* side = edge->start == this ? edge->right : edge->left;
+            do {
+                result.push_back(side);
+                size_t i = findElement(side->edges, edge);
+                edge = side->edges[pred(i, side->edges.size())];
+                side = edge->start == this ? edge->right : edge->left;
+            } while (side != result.front());
+            
+            return result;
+        }
+
         void Edge::updateMark() {
             unsigned int keep = 0;
             unsigned int drop = 0;
@@ -469,29 +492,6 @@ namespace TrenchBroom {
 
             m_newFaces.clear();
             m_droppedFaces.clear();
-        }
-
-        SideList BrushGeometry::incidentSides(Vertex* vertex) {
-            SideList result;
-
-            // find any edge that is incident to vertex
-            Edge* edge = NULL;
-            for (unsigned int i = 0; i < edges.size() && edge == NULL; i++) {
-                Edge* candidate = edges[i];
-                if (candidate->start == vertex || candidate->end == vertex)
-                    edge = candidate;
-            }
-
-            // iterate over the incident sides in clockwise order
-            Side* side = edge->start == vertex ? edge->right : edge->left;
-            do {
-                result.push_back(side);
-                size_t i = findElement(side->edges, edge);
-                edge = side->edges[pred(i, side->edges.size())];
-                side = edge->start == vertex ? edge->right : edge->left;
-            } while (side != result.front());
-
-            return result;
         }
 
         void BrushGeometry::deleteDegenerateTriangle(Side* side, Edge* edge, FaceManager& faceManager) {
@@ -1492,6 +1492,10 @@ namespace TrenchBroom {
             
             updateFacePoints();
             faceManager.getFaces(newFaces, droppedFaces);
+        }
+
+        SideList BrushGeometry::incidentSides(const Vertex* vertex) {
+            return vertex->incidentSides(edges);
         }
 
         bool BrushGeometry::canMoveVertices(const BBox& worldBounds, const Vec3f::List& vertexPositions, const Vec3f& delta) {

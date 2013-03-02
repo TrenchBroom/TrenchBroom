@@ -22,6 +22,7 @@
 #include "Model/Texture.h"
 #include "Model/TextureManager.h"
 #include "Renderer/TextureRenderer.h"
+#include "Utility/Map.h"
 
 #include <cassert>
 #include <exception>
@@ -58,6 +59,10 @@ namespace TrenchBroom {
             for (it = m_textures.begin(), end = m_textures.end(); it != end; ++it)
                 delete it->second;
             m_textures.clear();
+        }
+
+        void TextureRendererManager::clear() {
+            Utility::deleteAll(m_textureCollections);
         }
 
         TextureRendererManager::TextureRendererManager(Model::TextureManager& textureManager) :
@@ -101,13 +106,6 @@ namespace TrenchBroom {
                 return *m_dummyTexture;
 
             return *textureRenderer;
-        }
-
-        void TextureRendererManager::clear() {
-            TextureRendererCollectionMap::iterator it, end;
-            for (it = m_textureCollections.begin(), end = m_textureCollections.end(); it != end; ++it)
-                delete it->second;
-            m_textureCollections.clear();
         }
     }
 }
