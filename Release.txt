@@ -1,21 +1,25 @@
 1. Perform the following steps in any order:
-	- Build Windows binary, then commit changes.
-	- Build Mac binary, then commit changes.
-	- Build Linux binary, then commit changes.
+	- Windows/Release-Package.bat
+	- Commit changes
+	- Mac/Release-Package.sh
+	- Commit changes
+	- Build Linux binary
+	- Commit changes
 
 	Do not forget to commit the changes, which are a result of the automatic increase of the build no.
+	The finished Windows and Mac binaries are in the Release folder now.
 
 2. Update the repository:
 	- If the build is a new release (major or minor version no increase), then create a new branch for it. The name of the branch should be Release_<major>.<minor>.0
 	  git checkout -b Release_1.0.0
-	  - Switch back to the master branch and update the version numbers for all build configurations. Commit these changes.
+	  - Switch back to the master branch and update the major and / or minor version number in Source/Version
 	- If the build is a maintenance release, then create a tag for it in the appropriate branch. The name of the tag should be Release_<major>.<minor>.<maintenance>
 	  git tag -a Release_1.0.1
+	  - Update the maintenance version number in Source/Version
 	  - Switch to the master branch and merge any bug fixes!
 
-3. Upload the documentation
+3. Upload the documentation if there were changes.
 
 4. Publish the binaries
-	- Rename the zip files containing the binaries like so: TrenchBroom_<platform>_<major>.<minor>.<maintenance>.zip where <platform> is one of "Win32", "Mac" or "Linux".
 	- Upload the zip files to the appropriate sub directories on the website.
-	- Announce the release on func, inside3d, and quakeone.com.
+	- Announce the release on func, inside3d quakeone.com, twitter.

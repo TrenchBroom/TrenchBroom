@@ -20,7 +20,11 @@
 #ifndef TrenchBroom_IOUtils_h
 #define TrenchBroom_IOUtils_h
 
+#include "IO/FileManager.h"
+#include "IO/IOTypes.h"
 #include "IO/Pak.h"
+#include "IO/mmapped_fstream.h"
+#include "Utility/String.h"
 #include "Utility/VecMath.h"
 
 #include <cassert>
@@ -35,6 +39,25 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace IO {
+        inline IStream findGameFile(const String& file, const StringList& searchPaths) {
+            FileManager fileManager;
+            
+            StringList::const_reverse_iterator pathIt, pathEnd;
+            for (pathIt = searchPaths.rbegin(), pathEnd = searchPaths.rend(); pathIt != pathEnd; ++pathIt) {
+                const String& searchPath = *pathIt;
+                const String path = fileManager.appendPath(searchPath, file);
+                IStream stream(NULL);
+                if (fileManager.exists(path) && !fileManager.isDirectory(path))
+                    stream = IStream(new mmapped_fstream(path.c_str(), std::ios::in | std::ios::binary));
+                else
+                    stream = PakManager::sharedManager->entryStream(file, searchPath);
+                if (stream.get() != NULL)
+                    return stream;
+            }
+            
+            return IStream(NULL);
+        }
+        
         template <typename T>
         inline int readInt(std::istream& stream) {
             T value;
@@ -48,7 +71,7 @@ namespace TrenchBroom {
         }
         
         template <typename T>
-        inline int readInt(IO::PakStream& stream) {
+        inline int readInt(IO::IStream& stream) {
             return readInt<T>(stream.get());
         }
         
@@ -66,7 +89,7 @@ namespace TrenchBroom {
         }
         
         template <typename T>
-        inline unsigned int readUnsignedInt(IO::PakStream& stream) {
+        inline unsigned int readUnsignedInt(IO::IStream& stream) {
             return readUnsignedInt<T>(stream.get());
         }
         
@@ -84,7 +107,7 @@ namespace TrenchBroom {
         }
         
         template <typename T>
-        inline size_t readSize(IO::PakStream& stream) {
+        inline size_t readSize(IO::IStream& stream) {
             return readSize<T>(stream.get());
         }
         
@@ -101,7 +124,7 @@ namespace TrenchBroom {
         }
         
         template <typename T>
-        inline bool readBool(IO::PakStream& stream) {
+        inline bool readBool(IO::IStream& stream) {
             return readBool<T>(stream.get());
         }
         
@@ -115,7 +138,7 @@ namespace TrenchBroom {
             return readFloat(*stream);
         }
         
-        inline float readFloat(IO::PakStream& stream) {
+        inline float readFloat(IO::IStream& stream) {
             return readFloat(stream.get());
         }
         
@@ -131,7 +154,7 @@ namespace TrenchBroom {
             return readVec3f(*stream);
         }
         
-        inline Vec3f readVec3f(IO::PakStream& stream) {
+        inline Vec3f readVec3f(IO::IStream& stream) {
             return readVec3f(stream.get());
         }
     }
