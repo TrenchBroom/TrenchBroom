@@ -58,6 +58,8 @@ namespace TrenchBroom {
             Palette* m_palette;
             TextureRendererCollectionMap m_textureCollections;
             bool m_valid;
+
+            void clear();
         public:
             TextureRendererManager(Model::TextureManager& textureManager);
             ~TextureRendererManager();
@@ -70,7 +72,10 @@ namespace TrenchBroom {
             }
             
             TextureRenderer& renderer(Model::Texture* texture);
-            void clear();
+            
+            inline void invalidate() {
+                m_valid = false;
+            }
         };
     }
 }

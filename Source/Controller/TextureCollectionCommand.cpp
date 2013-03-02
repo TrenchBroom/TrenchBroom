@@ -24,6 +24,7 @@
 #include "Model/Map.h"
 #include "Model/MapDocument.h"
 #include "Model/TextureManager.h"
+#include "Utility/List.h"
 
 namespace TrenchBroom {
     namespace Controller {
@@ -51,7 +52,7 @@ namespace TrenchBroom {
             }
             
             document().updateAfterTextureManagerChanged();
-            while (!collections.empty()) delete collections.back(), collections.pop_back();
+            Utility::deleteAll(collections);
         }
         
         size_t TextureCollectionCommand::moveTextureCollection(bool up) {

@@ -107,15 +107,8 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < 24; i++) {
                 wxColour colour = wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT);
                 wxString label;
-                if (i == 8) {
-                    label << "!Easy";
-                } else if (i == 9) {
-                    label << "!Normal";
-                } else if (i == 10) {
-                    label << "!Hard";
-                } else if (i == 11) {
-                    label << "!DM";
-                } else if (definition != NULL) {
+
+                if (definition != NULL) {
                     const Model::FlagsPropertyDefinition* spawnflags = definition->spawnflags();
                     
                     const Model::FlagsPropertyOption* spawnflag = spawnflags != NULL ? spawnflags->option(static_cast<int>(1 << i)) : NULL;
@@ -151,6 +144,7 @@ namespace TrenchBroom {
                 }
             }
 
+            m_scrolledWindow->FitInside();
             m_scrolledWindow->Refresh();
         }
 
