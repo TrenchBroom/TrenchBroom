@@ -6,7 +6,8 @@
 	<li><a href="docs/">Documentation</a></li>
 	<li><a href="http://celephais.net/board/view_thread.php?id=60908">Discuss</a></li>
 	<li><a href="http://github.com/kduske/TrenchBroom/issues">Contribute</a></li>
-	<li><a href="mailto:kristian.duske@gmail.com">Contact</a></li>
+	<li><a href="https://twitter.com/kristianduske" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false">Follow @kristianduske</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script></li>
 </ul>
 <div id="content">
 	<div class="downloads">

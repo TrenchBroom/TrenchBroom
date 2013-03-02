@@ -3,7 +3,7 @@ body {
 	text-align: center;
 }
 
-p, li, div {
+p, div {
 	font-size: 12pt;
 }
 
@@ -130,6 +130,7 @@ ul.menu {
 	display: inline;
 	margin: 0px;
 	padding: 0px;
+	font-size: 20px;
 }
 
 ul.menu li {
