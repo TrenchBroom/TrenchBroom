@@ -208,7 +208,8 @@ namespace TrenchBroom {
                             // delete brush;
                             // brush = NULL;
                         }
-                        brush->snap(0);
+                        if (brush != NULL)
+                            brush->snap(0);
                         return brush;
                     default:
                         delete brush;

@@ -328,33 +328,6 @@ namespace TrenchBroom {
             CommandProcessor::EndGroup(commandProcessor);
         }
 
-        bool EditorView::canPaste() {
-            bool result = false;
-            if (wxTheClipboard->Open()) {
-                if (wxTheClipboard->IsSupported(wxDF_TEXT)) {
-                    Model::EntityList entities;
-                    Model::BrushList brushes;
-                    Model::FaceList faces;
-
-                    wxTextDataObject clipboardData;
-                    wxTheClipboard->GetData(clipboardData);
-                    StringStream stream;
-                    stream.str(clipboardData.GetText().ToStdString());
-                    IO::MapParser mapParser(stream, console());
-
-                    if (mapParser.parseEntities(mapDocument().map().worldBounds(), entities))
-                        result = true;
-                    else if (mapParser.parseBrushes(mapDocument().map().worldBounds(), brushes))
-                        result = true;
-                    else if (mapParser.parseFaces(mapDocument().map().worldBounds(), faces))
-                        result = true;
-                }
-                wxTheClipboard->Close();
-            }
-            return result;
-        }
-
-
         EditorView::EditorView() :
         wxView(),
         m_camera(NULL),
@@ -833,12 +806,20 @@ namespace TrenchBroom {
                             face.setTexture(texture);
 
                             const Model::FaceList& selectedFaces = mapDocument().editStateManager().selectedFaces();
-                            Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(mapDocument(), selectedFaces, wxT("Paste Faces"));
-                            command->setTemplate(face);
-                            submit(command);
-                        } else {
-                            mapParser.parseEntities(mapDocument().map().worldBounds(), entities);
-                            mapParser.parseBrushes(mapDocument().map().worldBounds(), brushes);
+                            if (!selectedFaces.empty()) {
+                                Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(mapDocument(), selectedFaces, wxT("Paste Faces"));
+                                command->setTemplate(face);
+                                submit(command);
+
+                                if (faces.size() == 1)
+                                    mapDocument().console().info("Pasted 1 face from clipboard", faces.size());
+                                else
+                                    mapDocument().console().info("Pasted last of %d faces from clipboard", faces.size());
+                            } else {
+                                mapDocument().console().warn("Could not paste faces because no faces are selected");
+                            }
+                        } else if (mapParser.parseEntities(mapDocument().map().worldBounds(), entities) ||
+                                   mapParser.parseBrushes(mapDocument().map().worldBounds(), brushes)) {
                             assert(entities.empty() != brushes.empty());
 
                             Model::EntityList selectEntities;
@@ -869,6 +850,13 @@ namespace TrenchBroom {
                             submit(changeEditStateCommand);
                             submit(moveObjectsCommand);
                             CommandProcessor::EndGroup(commandProcessor);
+                            
+                            StringStream message;
+                            message << "Pasted "    << selectEntities.size()    << (selectEntities.size() == 1 ? " entity " : " entities");
+                            message << " and "      << selectBrushes.size()     << (selectBrushes.size() == 1 ? " brush " : " brushes");
+                            mapDocument().console().info(message.str());
+                        } else {
+                            mapDocument().console().warn("Unable to parse clipboard contents");
                         }
                     }
                     wxTheClipboard->Close();
@@ -1629,10 +1617,16 @@ namespace TrenchBroom {
                     }
                     break;
                 case wxID_PASTE:
-                    if (textCtrl != NULL)
+                    if (textCtrl != NULL) {
                         event.Enable(textCtrl->CanPaste());
-                    else
-                        event.Enable(canPaste());
+                    } else {
+                        bool canPaste = false;
+                        if (wxTheClipboard->Open()) {
+                            canPaste = wxTheClipboard->IsSupported(wxDF_TEXT);
+                            wxTheClipboard->Close();
+                        }
+                        event.Enable(canPaste);
+                    }
                     break;
                 case CommandIds::Menu::EditHideSelected:
                 case CommandIds::Menu::EditHideUnselected:

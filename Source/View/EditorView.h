@@ -82,7 +82,6 @@ namespace TrenchBroom {
             void flipObjects(bool horizontally);
             void moveVertices(Direction direction, bool snapToGrid);
             void removeObjects(const wxString& actionName);
-            bool canPaste();
         public:
             EditorView();
 
