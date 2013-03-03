@@ -124,6 +124,8 @@ namespace TrenchBroom {
                 Face* face = new Face(m_worldBounds, *templateFaces[i]);
                 addFace(face);
             }
+
+            snap(0);
             
             if (m_entity != NULL)
                 m_entity->invalidateGeometry();
@@ -285,7 +287,8 @@ namespace TrenchBroom {
                 m_faces.push_back(face);
             }
             
-            m_entity->invalidateGeometry();
+            if (m_entity != NULL)
+                m_entity->invalidateGeometry();
         }
         
         bool Brush::canMoveBoundary(const Face& face, const Vec3f& delta) const {
@@ -373,7 +376,8 @@ namespace TrenchBroom {
                 m_faces.push_back(face);
             }
             
-            m_entity->invalidateGeometry();
+            if (m_entity != NULL)
+                m_entity->invalidateGeometry();
             return newVertexPositions;
         }
 
@@ -406,7 +410,8 @@ namespace TrenchBroom {
                 m_faces.push_back(face);
             }
             
-            m_entity->invalidateGeometry();
+            if (m_entity != NULL)
+                m_entity->invalidateGeometry();
             return result;
         }
 
@@ -439,7 +444,8 @@ namespace TrenchBroom {
                 m_faces.push_back(face);
             }
             
-            m_entity->invalidateGeometry();
+            if (m_entity != NULL)
+                m_entity->invalidateGeometry();
             return result;
         }
 
@@ -472,7 +478,8 @@ namespace TrenchBroom {
                 m_faces.push_back(face);
             }
             
-            m_entity->invalidateGeometry();
+            if (m_entity != NULL)
+                m_entity->invalidateGeometry();
             return newVertexPosition;
         }
         
@@ -505,7 +512,8 @@ namespace TrenchBroom {
                 m_faces.push_back(newFace);
             }
             
-            m_entity->invalidateGeometry();
+            if (m_entity != NULL)
+                m_entity->invalidateGeometry();
             return newVertexPosition;
         }
 

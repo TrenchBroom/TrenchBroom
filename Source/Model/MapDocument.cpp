@@ -366,6 +366,13 @@ namespace TrenchBroom {
                 if (!entity->worldspawn())
                     m_octree->addObject(*entity);
             }
+            
+            const FaceList& faces = brush.faces();
+            FaceList::const_iterator faceIt, faceEnd;
+            for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
+                Face& face = **faceIt;
+                face.setTexture(NULL);
+            }
         }
 
         Utility::Console& MapDocument::console() const {
