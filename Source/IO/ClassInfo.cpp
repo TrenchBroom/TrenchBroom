@@ -72,12 +72,8 @@ namespace TrenchBroom {
                     const Model::FlagsPropertyOption* baseclassFlag = baseclassFlags->option(static_cast<int>(1 << i));
                     Model::FlagsPropertyOption* classFlag = classFlags->option(static_cast<int>(1 << i));
 
-                    if (baseclassFlag != NULL) {
-                        if (classFlag == NULL)
-                            classFlags->addOption(baseclassFlag->value(), baseclassFlag->description(), baseclassFlag->isDefault());
-                        else
-                            *classFlag = *baseclassFlag;
-                    }
+                    if (baseclassFlag != NULL && classFlag == NULL)
+                        classFlags->addOption(baseclassFlag->value(), baseclassFlag->description(), baseclassFlag->isDefault());
                 }
             }
         }
