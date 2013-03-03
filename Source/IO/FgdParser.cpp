@@ -344,27 +344,27 @@ namespace TrenchBroom {
                 
                 if (Utility::equalsString(typeName, "target_source", false)) {
                     if (properties.count(propertyKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitionsf or property " + propertyKey);
+                        throw ParserException(token.line(), token.column(), "Multiple definitions for property " + propertyKey);
                     properties[propertyKey] = parseTargetSourceProperty(propertyKey);
                 } else if (Utility::equalsString(typeName, "target_destination", false)) {
                     if (properties.count(propertyKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitionsf or property " + propertyKey);
+                        throw ParserException(token.line(), token.column(), "Multiple definitions for property " + propertyKey);
                     properties[propertyKey] = parseTargetDestinationProperty(propertyKey);
                 } else if (Utility::equalsString(typeName, "string", false)) {
                     if (properties.count(propertyKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitionsf or property " + propertyKey);
+                        throw ParserException(token.line(), token.column(), "Multiple definitions for property " + propertyKey);
                     properties[propertyKey] = parseStringProperty(propertyKey);
                 } else if (Utility::equalsString(typeName, "integer", false)) {
                     if (properties.count(propertyKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitionsf or property " + propertyKey);
+                        throw ParserException(token.line(), token.column(), "Multiple definitions for property " + propertyKey);
                     properties[propertyKey] = parseIntegerProperty(propertyKey);
                 } else if (Utility::equalsString(typeName, "choices", false)) {
                     if (properties.count(propertyKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitionsf or property " + propertyKey);
+                        throw ParserException(token.line(), token.column(), "Multiple definitions for property " + propertyKey);
                     properties[propertyKey] = parseChoicesProperty(propertyKey);
                 } else if (Utility::equalsString(typeName, "flags", false)) {
                     if (properties.count(propertyKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitionsf or property " + propertyKey);
+                        throw ParserException(token.line(), token.column(), "Multiple definitions for property " + propertyKey);
                     properties[propertyKey] = parseFlagsProperty(propertyKey);
                 } else {
                     throw ParserException(token.line(), token.column(), "Unknown entity definition property " + typeName);
