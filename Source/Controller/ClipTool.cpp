@@ -170,7 +170,8 @@ namespace TrenchBroom {
             }
 
             m_frontBrushFigure->setBrushes(m_frontBrushes);
-            m_backBrushFigure->setBrushes(m_backBrushes);        }
+            m_backBrushFigure->setBrushes(m_backBrushes);
+        }
         
         Vec3f::List ClipTool::getNormals(const Vec3f& hitPoint, const Model::Face& hitFace) const {
             bool found = false;
@@ -539,21 +540,34 @@ namespace TrenchBroom {
                 }
             }
             
-            AddObjectsCommand* addCommand = AddObjectsCommand::addBrushes(document(), addBrushes);
-            ChangeEditStateCommand* changeEditStateCommand = ChangeEditStateCommand::replace(document(), addBrushes);
-            
             const Model::BrushList& removeBrushes = document().editStateManager().selectedBrushes();
+
+            ChangeEditStateCommand* deselectCommand = ChangeEditStateCommand::deselectAll(document());
+            AddObjectsCommand* addCommand = NULL;
+            ChangeEditStateCommand* selectCommand = NULL;
             RemoveObjectsCommand* removeCommand = RemoveObjectsCommand::removeObjects(document(), Model::EmptyEntityList, removeBrushes);
+            
+            if (!addBrushes.empty()) {
+                selectCommand = ChangeEditStateCommand::select(document(), addBrushes);
+                addCommand = AddObjectsCommand::addBrushes(document(), addBrushes);
+            }
+            
 
             beginCommandGroup(wxT("Clip"));
-            submitCommand(addCommand);
-            submitCommand(changeEditStateCommand);
+            submitCommand(deselectCommand);
+            if (!addBrushes.empty()) {
+                submitCommand(addCommand);
+                submitCommand(selectCommand);
+            }
             submitCommand(removeCommand);
             endCommandGroup();
             
             m_numPoints = 0;
             m_hitIndex = -1;
-            updateBrushes();
+            
+            // only update if there are still brushes left because otherwise we have been deactivated
+            if (active())
+                updateBrushes();
        }
     }
 }
