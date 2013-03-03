@@ -25,7 +25,10 @@
 namespace TrenchBroom {
     namespace IO {
         class LinuxFileManager : public AbstractFileManager {
+        private:
+            String appDirectory();
         public:
+            String logDirectory();
             String resourceDirectory();
             String resolveFontPath(const String& fontName);
         };
