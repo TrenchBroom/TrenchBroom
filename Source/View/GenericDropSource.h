@@ -37,7 +37,7 @@ namespace TrenchBroom {
             bool m_showFeedback;
             bool m_dragStarted;
         public:
-            GenericDropSource(wxWindow* window, const wxImage& image, const wxPoint& imageOffset);
+            GenericDropSource(wxWindow* window, const wxImage* image, const wxPoint& imageOffset);
             virtual ~GenericDropSource();
             
             bool GiveFeedback(wxDragResult effect);

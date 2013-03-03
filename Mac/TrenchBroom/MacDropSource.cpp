@@ -25,12 +25,14 @@
 
 namespace TrenchBroom {
     namespace View {
-        MacDropSource::MacDropSource(wxWindow* window, const wxImage& image, const wxPoint& imageOffset) :
+        MacDropSource::MacDropSource(wxWindow* window, const wxImage* image, const wxPoint& imageOffset) :
         wxDropSource(window),
         m_screenDC(NULL),
-        m_feedbackImage(image),
+        m_feedbackImage(wxBitmap(64, 64)),
         m_imageOffset(imageOffset),
         m_showFeedback(true) {
+            if (image != NULL)
+                m_feedbackImage = wxBitmap(*image);
             CurrentDropSource = this;
         }
         

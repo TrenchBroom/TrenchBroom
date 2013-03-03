@@ -70,8 +70,9 @@ namespace TrenchBroom {
         void OffscreenRenderer::preRender() {
             assert(m_width > 0 && m_height > 0);
             
+            // scampie's Vista machine crashes between here...
             if (m_framebufferId == 0)
-                glGenFramebuffers(1, &m_framebufferId);
+                glGenFramebuffers(1, &m_framebufferId); // most likely here
             if (!m_valid) {
                 if (m_colorbufferId != 0) {
                     glDeleteRenderbuffers(1, &m_colorbufferId);
@@ -82,7 +83,8 @@ namespace TrenchBroom {
                     m_depthbufferId = 0;
                 }
             }
-            
+            // ...and here
+
             if (m_colorbufferId == 0)
                 glGenRenderbuffers(1, &m_colorbufferId);
             if (m_depthbufferId == 0)

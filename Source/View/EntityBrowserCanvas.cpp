@@ -331,8 +331,8 @@ namespace TrenchBroom {
             Renderer::ShaderProgram& entityModelProgram = shaderManager.shaderProgram(Renderer::Shaders::EntityModelShader);
 
             m_offscreenRenderer.setDimensions(width, height);
-            m_offscreenRenderer.preRender();
-            
+            m_offscreenRenderer.preRender(); // Scampie's Vista machine crashes here
+
             float viewLeft      = 0.0f;
             float viewTop       = 0.0f;
             float viewRight     = bounds.width();
@@ -345,7 +345,7 @@ namespace TrenchBroom {
             view.setView(Vec3f::NegX, Vec3f::PosZ);
             view.translate(Vec3f(256.0f, 0.0f, 0.0f));
             Renderer::Transformation transformation(projection * view, true);
-            
+
             glViewport(0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height));
             glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
