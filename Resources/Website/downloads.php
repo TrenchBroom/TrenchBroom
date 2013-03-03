@@ -30,7 +30,11 @@ if (is_dir($dir) && $dir_handle = opendir($dir)) {
 	</div>
 	<div class="requirements">
 		<h3>Requirements</h3>
-		<a href="http://www.microsoft.com/en-us/download/details.aspx?id=5555" target="_blank">Microsoft Visual C++ 2010 Redistributable Package</a>
+		<ul>
+			<li><a href="http://www.microsoft.com/en-us/download/details.aspx?id=5555" target="_blank">Microsoft Visual C++ 2010 Redistributable Package</a></li>
+			<li>Windows XP or newer</li>
+			<li>OpenGL 2.1 and GLSL 1.2 capable driver</li>
+		</ul>
 	</div>
 <?php
 		if (count($files) > 1) {
@@ -64,6 +68,12 @@ if (is_dir($dir) && $dir_handle = opendir($dir)) {
 	<div class="latest">
 		<h3>Latest Release</h3>
 		<a href="<?php echo $dir . '/' . urlencode($latest) ?>"><?php echo $latest ?></a>
+	</div>
+	<div class="requirements">
+		<h3>Requirements</h3>
+		<ul>
+			<li>Mac OS X 10.6 or newer</li>
+		</ul>
 	</div>
 <?php
 		if (count($files) > 1) {

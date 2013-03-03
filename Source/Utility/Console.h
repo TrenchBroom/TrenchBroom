@@ -80,6 +80,7 @@ namespace TrenchBroom {
             
             void logToDebug(const LogMessage& message);
             void logToConsole(const LogMessage& message);
+            void logToFile(const LogMessage& message);
         public:
             Console() : m_textCtrl(NULL) {}
             

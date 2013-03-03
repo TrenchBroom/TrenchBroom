@@ -25,16 +25,35 @@
 
 namespace TrenchBroom {
     namespace IO {
+        String MacFileManager::logDirectory() {
+            CFBundleRef mainBundle = CFBundleGetMainBundle ();
+            CFURLRef mainBundlePathUrl = CFBundleCopyBundleURL(mainBundle);
+
+            UInt8 buffer[512];
+            CFURLGetFileSystemRepresentation(mainBundlePathUrl, true, buffer, 512);
+            CFRelease(mainBundlePathUrl);
+
+            StringStream result;
+            for (unsigned int i = 0; i < 512; i++) {
+                UInt8 c = buffer[i];
+                if (c == 0)
+                    break;
+                result << c;
+            }
+            
+            return result.str();
+        }
+
         String MacFileManager::resourceDirectory() {
             CFBundleRef mainBundle = CFBundleGetMainBundle ();
             CFURLRef resourcePathUrl = CFBundleCopyResourcesDirectoryURL(mainBundle);
 
-            UInt8 buffer[256];
-            CFURLGetFileSystemRepresentation(resourcePathUrl, true, buffer, 256);
+            UInt8 buffer[512];
+            CFURLGetFileSystemRepresentation(resourcePathUrl, true, buffer, 512);
             CFRelease(resourcePathUrl);
             
             StringStream result;
-            for (unsigned int i = 0; i < 256; i++) {
+            for (unsigned int i = 0; i < 512; i++) {
                 UInt8 c = buffer[i];
                 if (c == 0)
                     break;

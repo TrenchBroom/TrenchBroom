@@ -87,7 +87,6 @@ div.requirements {
 	background-color: #FFA7A5;
 	border-radius: 5px;
 	padding: 10px;
-	text-align: center;
 	margin-top: 20px;
 }
 
@@ -100,6 +99,10 @@ div.requirements h3 {
 
 div.requirements a {
 	color: #74100D;
+}
+
+div.requirements ul {
+	margin: 0px;
 }
 
 div.latest {
