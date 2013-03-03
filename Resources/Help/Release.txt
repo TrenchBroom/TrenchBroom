@@ -18,8 +18,10 @@
 	  - Update the maintenance version number in Source/Version
 	  - Switch to the master branch and merge any bug fixes!
 
-3. Upload the documentation if there were changes.
+3. Add Changes-<major>.<minor>.<maintenance>.txt to Resources/Help
 
-4. Publish the binaries
+4. Upload the documentation if there were changes.
+
+5. Publish the binaries
 	- Upload the zip files to the appropriate sub directories on the website.
-	- Announce the release on func, inside3d quakeone.com, twitter.
+	- Announce the release on func, inside3d quakeone.com, twitter, facebook.
