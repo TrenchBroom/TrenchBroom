@@ -51,9 +51,9 @@
 @baseclass = Appearflags [
 	spawnflags(Flags) =
 	[
-		256 : "Not in Easy" : 0
-		512 : "Not in Normal" : 0
-		1024 : "Not in Hard" : 0
+		256 : "Not on Easy" : 0
+		512 : "Not on Normal" : 0
+		1024 : "Not on Hard" : 0
 		2048 : "Not in Deathmatch" : 0
 	]
 	quothflags(choices) : "Coopflags" : 0 =
