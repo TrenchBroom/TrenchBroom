@@ -29,6 +29,7 @@ namespace TrenchBroom {
     namespace Math {
         static const float AlmostZero = 0.001f;
         static const float PointStatusEpsilon = 0.01f;
+        static const float CorrectEpsilon = 0.2f;
         static const float ColinearEpsilon = 0.01f;
         static const float Pi = 3.141592f;
 
@@ -57,7 +58,10 @@ namespace TrenchBroom {
         }
 
         inline float correct(float f) {
-            return round(100.0f * f) / 100.0f;
+            const float r = round(f);
+            if (std::abs(f - r) <= CorrectEpsilon)
+                return r;
+            return f;
         }
 
         inline bool zero(float f) {

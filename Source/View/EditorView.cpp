@@ -560,6 +560,7 @@ namespace TrenchBroom {
                         m_renderer->invalidateSelectedBrushes();
                         inspector().faceInspector().updateFaceAttributes();
                         inspector().faceInspector().updateSelectedTexture();
+                        inspector().faceInspector().updateTextureBrowser();
                         break;
                     }
                     case Controller::Command::RemoveTextureCollection:
@@ -592,6 +593,7 @@ namespace TrenchBroom {
                             m_renderer->removeEntities(addObjectsCommand->addedEntities());
                         if (addObjectsCommand->hasAddedBrushes())
                             m_renderer->invalidateBrushes();
+                        inspector().faceInspector().updateTextureBrowser();
                         break;
                     }
                     case Controller::Command::MoveObjects:
@@ -615,6 +617,7 @@ namespace TrenchBroom {
                         if (!removeObjectsCommand->removedBrushes().empty())
                             m_renderer->invalidateBrushes();
                         break;
+                        inspector().faceInspector().updateTextureBrowser();
                     }
                     case Controller::Command::ReparentBrushes:
                         m_renderer->invalidateSelectedBrushes();
