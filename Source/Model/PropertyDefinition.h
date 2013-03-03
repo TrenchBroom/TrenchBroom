@@ -212,6 +212,16 @@ namespace TrenchBroom {
                 return m_options;
             }
             
+            inline FlagsPropertyOption* option(int value) {
+                FlagsPropertyOption::List::iterator it, end;
+                for (it = m_options.begin(), end = m_options.end(); it != end; ++it) {
+                    FlagsPropertyOption& option = *it;
+                    if (option.value() == value)
+                        return &option;
+                }
+                return NULL;
+            }
+
             inline const FlagsPropertyOption* option(int value) const {
                 FlagsPropertyOption::List::const_iterator it, end;
                 for (it = m_options.begin(), end = m_options.end(); it != end; ++it) {

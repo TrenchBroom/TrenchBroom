@@ -216,7 +216,7 @@ namespace TrenchBroom {
                         int xOffset = event.GetX() - static_cast<int>(cell->itemBounds().left());
                         int yOffset = event.GetY() - static_cast<int>(cell->itemBounds().top()) + top;
                         
-                        DropSource dropSource(this, *feedbackImage, wxPoint(xOffset, yOffset));
+                        DropSource dropSource(this, feedbackImage, wxPoint(xOffset, yOffset));
                         dropSource.SetData(*dropData);
                         dropSource.DoDragDrop();
                         

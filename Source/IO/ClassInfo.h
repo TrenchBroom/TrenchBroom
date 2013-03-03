@@ -69,6 +69,8 @@ namespace TrenchBroom {
             }
 
             static void resolveBaseClasses(const Map& baseClasses, const StringList& classnames, ClassInfo& classInfo);
+        private:
+            static void mergeProperties(const Model::PropertyDefinition* baseclassProperty, Model::PropertyDefinition* classProperty);
         };
     }
 }

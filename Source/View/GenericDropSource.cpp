@@ -23,13 +23,15 @@
 
 namespace TrenchBroom {
     namespace View {
-        GenericDropSource::GenericDropSource(wxWindow* window, const wxImage& image, const wxPoint& imageOffset) :
+        GenericDropSource::GenericDropSource(wxWindow* window, const wxImage* image, const wxPoint& imageOffset) :
         wxDropSource(window),
         m_window(window),
         m_dragImage(NULL),
-        m_feedbackImage(image),
+        m_feedbackImage(wxBitmap(64, 64)),
         m_imageOffset(imageOffset),
         m_showFeedback(true) {
+            if (image != NULL)
+                m_feedbackImage = wxBitmap(*image);
             CurrentDropSource = this;
         }
         

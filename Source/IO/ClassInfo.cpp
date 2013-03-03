@@ -37,16 +37,46 @@ namespace TrenchBroom {
                     
                     Model::PropertyDefinition::Map::const_iterator propertyIt, propertyEnd;
                     for (propertyIt = baseClass.properties.begin(), propertyEnd = baseClass.properties.end(); propertyIt != propertyEnd; ++propertyIt) {
-                        const Model::PropertyDefinition::Ptr property = propertyIt->second;
-                        const bool hasProperty = classInfo.properties.find(property->name()) != classInfo.properties.end();
-                        if (!hasProperty)
-                            classInfo.properties[property->name()] = property;
+                        const Model::PropertyDefinition::Ptr baseclassProperty = propertyIt->second;
+
+                        Model::PropertyDefinition::Map::iterator classPropertyIt = classInfo.properties.find(baseclassProperty->name());
+                        if (classPropertyIt != classInfo.properties.end()) {
+                            // the class already has a definition for this property, attempt merging them
+                            mergeProperties(baseclassProperty.get(), classPropertyIt->second.get());
+                        } else {
+                            // the class doesn't have a definition for this property, add the base class property
+                            classInfo.properties[baseclassProperty->name()] = baseclassProperty;
+                        }
                     }
                     
                     Model::ModelDefinition::List::const_iterator modelIt, modelEnd;
                     for (modelIt = baseClass.models.begin(), modelEnd = baseClass.models.end(); modelIt != modelEnd; ++modelIt) {
                         const Model::ModelDefinition::Ptr model = *modelIt;
                         classInfo.models.push_back(model);
+                    }
+                }
+            }
+        }
+
+        void ClassInfo::mergeProperties(const Model::PropertyDefinition* baseclassProperty, Model::PropertyDefinition* classProperty) {
+            // for now, only merge spawnflags
+            if (baseclassProperty->type() == Model::PropertyDefinition::FlagsProperty &&
+                classProperty->type() == Model::PropertyDefinition::FlagsProperty &&
+                baseclassProperty->name() == Model::Entity::SpawnFlagsKey &&
+                classProperty->name() == Model::Entity::SpawnFlagsKey) {
+                
+                const Model::FlagsPropertyDefinition* baseclassFlags = static_cast<const Model::FlagsPropertyDefinition*>(baseclassProperty);
+                Model::FlagsPropertyDefinition* classFlags = static_cast<Model::FlagsPropertyDefinition*>(classProperty);
+                
+                for (int i = 0; i < 24; i++) {
+                    const Model::FlagsPropertyOption* baseclassFlag = baseclassFlags->option(static_cast<int>(1 << i));
+                    Model::FlagsPropertyOption* classFlag = classFlags->option(static_cast<int>(1 << i));
+
+                    if (baseclassFlag != NULL) {
+                        if (classFlag == NULL)
+                            classFlags->addOption(baseclassFlag->value(), baseclassFlag->description(), baseclassFlag->isDefault());
+                        else
+                            *classFlag = *baseclassFlag;
                     }
                 }
             }

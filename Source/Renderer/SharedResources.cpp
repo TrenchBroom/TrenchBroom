@@ -90,6 +90,7 @@ namespace TrenchBroom {
             else
                 console.info("Multisampling disabled");
 
+            glewExperimental = GL_TRUE;
             GLenum glewState = glewInit();
             if (glewState != GLEW_OK)
                 console.error("Unable to initialize glew: %s", glewGetErrorString(glewState));
