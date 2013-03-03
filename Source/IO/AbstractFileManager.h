@@ -54,6 +54,7 @@ namespace TrenchBroom {
             String appendExtension(const String& path, const String& ext);
             String deleteExtension(const String& path);
             
+            virtual String logDirectory() = 0;
             virtual String resourceDirectory() = 0;
             virtual String resolveFontPath(const String& fontName) = 0;
         };

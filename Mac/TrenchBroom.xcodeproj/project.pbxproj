@@ -75,6 +75,8 @@
 		4850D2AF15F76245005B162D /* StringManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D2AD15F76244005B162D /* StringManager.cpp */; };
 		48533C8A168F96830055DBC7 /* ReparentBrushesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48533C88168F96830055DBC7 /* ReparentBrushesCommand.cpp */; };
 		485B70D616AC3240002E95B6 /* RotateHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 485B70D416AC3240002E95B6 /* RotateHandle.cpp */; };
+		48688C9516E354EC0080F70F /* NSLog.mm in Sources */ = {isa = PBXBuildFile; fileRef = 48688C9316E354EC0080F70F /* NSLog.mm */; };
+		48688C9616E355CE0080F70F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 484763DA15E2BC5000095BC0 /* Foundation.framework */; };
 		486AFAC016B31B780097657D /* ColorEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFABE16B31B780097657D /* ColorEditor.cpp */; };
 		486AFAC416B33ABE0097657D /* PointFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFAC216B33ABE0097657D /* PointFile.cpp */; };
 		486AFAC716B3D9540097657D /* AngleEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFAC516B3D9540097657D /* AngleEditor.cpp */; };
@@ -378,6 +380,8 @@
 		48533C89168F96830055DBC7 /* ReparentBrushesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReparentBrushesCommand.h; sourceTree = "<group>"; };
 		485B70D416AC3240002E95B6 /* RotateHandle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RotateHandle.cpp; sourceTree = "<group>"; };
 		485B70D516AC3240002E95B6 /* RotateHandle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateHandle.h; sourceTree = "<group>"; };
+		48688C9316E354EC0080F70F /* NSLog.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NSLog.mm; sourceTree = "<group>"; };
+		48688C9416E354EC0080F70F /* NSLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSLog.h; sourceTree = "<group>"; };
 		486AFABE16B31B780097657D /* ColorEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ColorEditor.cpp; sourceTree = "<group>"; };
 		486AFABF16B31B780097657D /* ColorEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ColorEditor.h; sourceTree = "<group>"; };
 		486AFAC216B33ABE0097657D /* PointFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointFile.cpp; sourceTree = "<group>"; };
@@ -614,6 +618,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				48688C9616E355CE0080F70F /* Foundation.framework in Frameworks */,
 				48AF61F615F8B7720027C465 /* libbz2.a in Frameworks */,
 				48AF61F415F8B7360027C465 /* libfreetype.a in Frameworks */,
 			);
@@ -790,6 +795,8 @@
 				48819C3E15EC0CE700BEA604 /* MacFileManager.h */,
 				4842AF7216220D7A0042AD66 /* MacScreenDC.mm */,
 				4842AF7316220D7A0042AD66 /* MacScreenDC.h */,
+				48688C9316E354EC0080F70F /* NSLog.mm */,
+				48688C9416E354EC0080F70F /* NSLog.h */,
 				48D1BEB515E423F60073C030 /* TrenchBroomApp.cpp */,
 				48D1BEB615E423F60073C030 /* TrenchBroomApp.h */,
 				487C5AEF16D808D0007B4945 /* Version.h */,
@@ -1437,6 +1444,7 @@
 				48B64C5C16CFEA0E00ECA6C5 /* AboutDialog.cpp in Sources */,
 				4814447816DBA0DE0060150A /* FgdParser.cpp in Sources */,
 				481CC98F16DD568F00537742 /* ClassInfo.cpp in Sources */,
+				48688C9516E354EC0080F70F /* NSLog.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

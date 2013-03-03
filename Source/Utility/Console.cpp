@@ -19,13 +19,21 @@
 
 #include "Console.h"
 
+#include "IO/FileManager.h"
+
+#if defined __APPLE__
+#include "NSLog.h"
+#endif
+
 #include <cstdarg>
+#include <fstream>
+#include <wx/datetime.h>
 #include <wx/wx.h>
 
 namespace TrenchBroom {
     namespace Utility {
         void Console::logToDebug(const LogMessage& message) {
-            wxLogDebug(message.string().c_str());
+            // wxLogDebug(message.string().c_str());
         }
         
         void Console::logToConsole(const LogMessage& message) {
@@ -49,6 +57,22 @@ namespace TrenchBroom {
             }
         }
 
+        void Console::logToFile(const LogMessage& message) {
+#if defined _WIN32
+            IO::FileManager fileManager;
+            const String logDirectory = fileManager.logDirectory();
+            const String logFilePath = fileManager.appendPath(logDirectory, "TrenchBroom.log");
+            std::fstream logStream(logFilePath, std::ios::out | std::ios::app);
+            if (logStream.is_open()) {
+                wxDateTime now = wxDateTime::Now();
+                logStream << wxGetProcessId() << " " << now.FormatISOCombined(' ') << ": " << message.string() << std::endl;
+            }
+#elif defined __APPLE__
+            NSLogWrapper(message.string());
+#elif defined __linux__
+#endif
+        }
+
         void Console::setTextCtrl(wxTextCtrl* textCtrl) {
             m_textCtrl = textCtrl;
             if (m_textCtrl != NULL) {
@@ -65,6 +89,7 @@ namespace TrenchBroom {
                 return;
 
             logToDebug(message);
+            logToFile(message);
             if (m_textCtrl != NULL)
                 logToConsole(message);
             else

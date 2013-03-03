@@ -397,7 +397,9 @@ namespace TrenchBroom {
                 size.max.z = token.toFloat();
                 expect(CParenthesis, token = m_tokenizer.nextToken());
             } else {
-                size.translate(size.size() / 2.0f);
+                const Vec3f halfSize = size.min / 2.0f;
+                size.min = -halfSize;
+                size.max =  halfSize;
             }
             
             return size;

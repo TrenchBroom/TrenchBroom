@@ -17,22 +17,14 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FileManager__
-#define __TrenchBroom__FileManager__
+#include "NSLog.h"
 
-#include "IO/AbstractFileManager.h"
+#include <Foundation/NSObjCRuntime.h>
 
 namespace TrenchBroom {
-    namespace IO {
-        class MacFileManager : public AbstractFileManager {
-        public:
-            ~MacFileManager() {}
-            
-            String logDirectory();
-            String resourceDirectory();
-            String resolveFontPath(const String& fontName);
-        };
+    namespace Utility {
+        void NSLogWrapper(const String& msg) {
+            NSLog(@"%s", msg.c_str());
+        }
     }
 }
-
-#endif /* defined(__TrenchBroom__FileManager__) */
