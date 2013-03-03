@@ -1,0 +1,6 @@
+- Objects are no longer displaced when duplicated.
+- Fix off-by-one bug of mod list in map properties dialog.
+- Snap vertex coordinates if close to integer coordinates.
+- Add logging on all platforms.
+- Properly merge spawnflags when loading fgd or def files.
+- Fix crash bug when clipping all selected brushes.
