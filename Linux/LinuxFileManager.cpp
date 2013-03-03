@@ -19,17 +19,28 @@
 
 #include "LinuxFileManager.h"
 
+#include <cstdlib>
 #include <fstream>
 #include <unistd.h>
 
 namespace TrenchBroom {
     namespace IO {
-        String LinuxFileManager::resourceDirectory() {
+        String LinuxFileManager::appDirectory() {
             char buf[1024];
             ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf));
             String appPath(buf, len);
-            String appDir = deleteLastPathComponent(appPath);
-            return appendPath(appDir, "Resources");
+            return deleteLastPathComponent(appPath);
+        }
+
+        String LinuxFileManager::logDirectory() {
+            char* homeDirectory = std::getenv("HOME");
+            if (homeDirectory == NULL)
+                return "";
+            return homeDirectory;
+        }
+
+        String LinuxFileManager::resourceDirectory() {
+            return appendPath(appDirectory(), "Resources");
         }
 
         String LinuxFileManager::resolveFontPath(const String& fontName) {

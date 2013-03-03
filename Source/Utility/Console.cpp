@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -35,7 +35,7 @@ namespace TrenchBroom {
         void Console::logToDebug(const LogMessage& message) {
             // wxLogDebug(message.string().c_str());
         }
-        
+
         void Console::logToConsole(const LogMessage& message) {
             long start = m_textCtrl->GetLastPosition();
             m_textCtrl->AppendText(message.string());
@@ -58,18 +58,21 @@ namespace TrenchBroom {
         }
 
         void Console::logToFile(const LogMessage& message) {
-#if defined _WIN32
+#if defined __APPLE__
+            NSLogWrapper(message.string());
+#else
             IO::FileManager fileManager;
             const String logDirectory = fileManager.logDirectory();
+            if (logDirectory.empty())
+                return;
+            if (!fileManager.exists(logDirectory))
+                fileManager.makeDirectory(logDirectory);
             const String logFilePath = fileManager.appendPath(logDirectory, "TrenchBroom.log");
-            std::fstream logStream(logFilePath, std::ios::out | std::ios::app);
+            std::fstream logStream(logFilePath.c_str(), std::ios::out | std::ios::app);
             if (logStream.is_open()) {
                 wxDateTime now = wxDateTime::Now();
                 logStream << wxGetProcessId() << " " << now.FormatISOCombined(' ') << ": " << message.string() << std::endl;
             }
-#elif defined __APPLE__
-            NSLogWrapper(message.string());
-#elif defined __linux__
 #endif
         }
 
@@ -83,7 +86,7 @@ namespace TrenchBroom {
                 m_buffer.clear();
             }
         }
-        
+
         void Console::log(const LogMessage& message) {
             if (message.string().empty())
                 return;
@@ -95,11 +98,11 @@ namespace TrenchBroom {
             else
                 m_buffer.push_back(message);
         }
-        
+
         void Console::debug(const String& message) {
             log(LogMessage(LLDebug, message));
         }
-        
+
         void Console::debug(const char* format, ...) {
             String message;
             va_list(arguments);
@@ -112,7 +115,7 @@ namespace TrenchBroom {
         void Console::info(const String& message) {
             log(LogMessage(LLInfo, message));
         }
-        
+
         void Console::info(const char* format, ...) {
             String message;
             va_list(arguments);
@@ -125,7 +128,7 @@ namespace TrenchBroom {
         void Console::warn(const String& message) {
             log(LogMessage(LLWarn, message));
         }
-        
+
         void Console::warn(const char* format, ...) {
             String message;
             va_list(arguments);
