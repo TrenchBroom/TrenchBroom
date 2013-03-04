@@ -116,6 +116,7 @@ namespace TrenchBroom {
                 static const int LowestBrushEntityItem              = HighestPointEntityItem + 1;
                 static const int HighestBrushEntityItem             = LowestBrushEntityItem + 999;
                 static const int ReparentBrushes                    = HighestBrushEntityItem + 1;
+                static const int MoveBrushesToWorld                 = HighestBrushEntityItem + 2;
             }
 
             namespace ViewInspector {

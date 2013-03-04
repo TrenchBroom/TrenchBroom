@@ -182,6 +182,8 @@ namespace TrenchBroom {
 
         EVT_MENU(CommandIds::CreateEntityPopupMenu::ReparentBrushes, EditorView::OnPopupReparentBrushes)
         EVT_UPDATE_UI(CommandIds::CreateEntityPopupMenu::ReparentBrushes, EditorView::OnPopupUpdateReparentBrushesMenuItem)
+        EVT_MENU(CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld, EditorView::OnPopupMoveBrushesToWorld)
+        EVT_UPDATE_UI(CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld, EditorView::OnPopupUpdateMoveBrushesToWorldMenuItem)
         EVT_MENU_RANGE(CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem, EditorView::OnPopupCreatePointEntity)
         EVT_UPDATE_UI_RANGE(CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem, EditorView::OnPopupUpdatePointMenuItem)
 
@@ -424,6 +426,8 @@ namespace TrenchBroom {
                 m_createEntityPopupMenu->SetEventHandler(this);
 
                 m_createEntityPopupMenu->Append(CommandIds::CreateEntityPopupMenu::ReparentBrushes, wxT("Move Brushes to..."));
+                m_createEntityPopupMenu->Append(CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld, wxT("Move Brushes to World"));
+                m_createEntityPopupMenu->AppendSeparator();
                 m_createEntityPopupMenu->AppendSubMenu(pointMenu, wxT("Create Point Entity"));
                 m_createEntityPopupMenu->AppendSubMenu(brushMenu, wxT("Create Brush Entity"));
             }
@@ -1795,27 +1799,45 @@ namespace TrenchBroom {
 
         void EditorView::OnPopupReparentBrushes(wxCommandEvent& event) {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
-            inputController().reparentBrushes(editStateManager.selectedBrushes());
+            inputController().reparentBrushes(editStateManager.selectedBrushes(), NULL);
         }
 
         void EditorView::OnPopupUpdateReparentBrushesMenuItem(wxUpdateUIEvent& event) {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+
+            StringStream commandName;
+            commandName << "Move " << (brushes.size() == 1 ? "Brush" : "Brushes") << " to ";
+
             if (editStateManager.selectionMode() != Model::EditStateManager::SMBrushes) {
+                commandName << "Entity";
                 event.Enable(false);
-                event.SetText(wxT("Add Brushes to Entity"));
             } else {
-                const Model::BrushList& brushes = editStateManager.selectedBrushes();
-                Model::Entity* newParent = inputController().canReparentBrushes(brushes);
+                const Model::Entity* newParent = inputController().canReparentBrushes(brushes, NULL);
                 if (newParent != NULL) {
-                    StringStream text;
-                    text << "Add Brushes to " << *newParent->classname();
+                    commandName << *newParent->classname();
                     event.Enable(true);
-                    event.SetText(text.str());
                 } else {
+                    commandName << "Entity";
                     event.Enable(false);
-                    event.SetText(wxT("Add Brushes to Entity"));
                 }
             }
+            event.SetText(commandName.str());
+        }
+        
+        void EditorView::OnPopupMoveBrushesToWorld(wxCommandEvent& event) {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            inputController().reparentBrushes(editStateManager.selectedBrushes(), mapDocument().worldspawn(true));
+        }
+
+        void EditorView::OnPopupUpdateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            
+            StringStream commandName;
+            commandName << "Move " << (brushes.size() == 1 ? "Brush" : "Brushes") << " to World";
+            event.SetText(commandName.str());
+            event.Enable(inputController().canReparentBrushes(brushes, mapDocument().worldspawn(true)) != NULL);
         }
 
         void EditorView::OnPopupCreatePointEntity(wxCommandEvent& event) {

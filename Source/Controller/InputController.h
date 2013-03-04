@@ -143,8 +143,8 @@ namespace TrenchBroom {
             void deactivateAll();
             
             void createEntity(Model::EntityDefinition& definition);
-            Model::Entity* canReparentBrushes(const Model::BrushList& brushes);
-            void reparentBrushes(const Model::BrushList& brushes);
+            const Model::Entity* canReparentBrushes(const Model::BrushList& brushes, const Model::Entity* newParent);
+            void reparentBrushes(const Model::BrushList& brushes, Model::Entity* newParent);
             
             void showPointEntityPreview(Model::PointEntityDefinition& definition);
             void hidePointEntityPreview();

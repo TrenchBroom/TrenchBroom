@@ -584,23 +584,23 @@ namespace TrenchBroom {
             }
         }
         
-        Model::Entity* InputController::canReparentBrushes(const Model::BrushList& brushes) {
-            Model::MapDocument& document = m_documentViewHolder.document();
-            View::EditorView& view = m_documentViewHolder.view();
-            
-            Model::Hit* hit = m_inputState.pickResult().first(Model::HitType::ObjectHit, false, view.filter());
-            Model::Entity* newParent = NULL;
-            if (hit == NULL) {
-                newParent = document.map().worldspawn();
-            } else if (hit->type() == Model::HitType::FaceHit) {
-                Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(hit);
-                newParent = faceHit->face().brush()->entity();
-            } else {
-                Model::EntityHit* entityHit = static_cast<Model::EntityHit*>(hit);
-                newParent = &entityHit->entity();
+        const Model::Entity* InputController::canReparentBrushes(const Model::BrushList& brushes, const Model::Entity* newParent) {
+            if (newParent == NULL) {
+                View::EditorView& view = m_documentViewHolder.view();
+                Model::Hit* hit = m_inputState.pickResult().first(Model::HitType::ObjectHit, false, view.filter());
+                if (hit != NULL) {
+                    if (hit->type() == Model::HitType::FaceHit) {
+                        Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(hit);
+                        newParent = faceHit->face().brush()->entity();
+                    } else {
+                        Model::EntityHit* entityHit = static_cast<Model::EntityHit*>(hit);
+                        newParent = &entityHit->entity();
+                    }
+                }
             }
             
-            assert(newParent != NULL);
+            if (newParent == NULL)
+                return NULL;
             
             Model::BrushList::const_iterator it, end;
             for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
@@ -612,26 +612,27 @@ namespace TrenchBroom {
             return NULL;
         }
         
-        void InputController::reparentBrushes(const Model::BrushList& brushes) {
-            Model::MapDocument& document = m_documentViewHolder.document();
-            View::EditorView& view = m_documentViewHolder.view();
-            
-            Model::Hit* hit = m_inputState.pickResult().first(Model::HitType::ObjectHit, false, view.filter());
-            Model::Entity* newParent = NULL;
-            if (hit == NULL) {
-                newParent = document.map().worldspawn();
-            } else if (hit->type() == Model::HitType::FaceHit) {
-                Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(hit);
-                newParent = faceHit->face().brush()->entity();
-            } else {
-                Model::EntityHit* entityHit = static_cast<Model::EntityHit*>(hit);
-                newParent = &entityHit->entity();
+        void InputController::reparentBrushes(const Model::BrushList& brushes, Model::Entity* newParent) {
+            if (newParent == NULL) {
+                View::EditorView& view = m_documentViewHolder.view();
+                Model::Hit* hit = m_inputState.pickResult().first(Model::HitType::ObjectHit, false, view.filter());
+                if (hit != NULL) {
+                    if (hit->type() == Model::HitType::FaceHit) {
+                        Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(hit);
+                        newParent = faceHit->face().brush()->entity();
+                    } else {
+                        Model::EntityHit* entityHit = static_cast<Model::EntityHit*>(hit);
+                        newParent = &entityHit->entity();
+                    }
+                }
             }
             
             assert(newParent != NULL);
             
+            Model::MapDocument& document = m_documentViewHolder.document();
+
             StringStream commandName;
-            commandName << "Add Brushes to ";
+            commandName << "Move " << (brushes.size() == 1 ? "Brush" : "Brushes") << " to ";
             commandName << *newParent->classname();
             
             ChangeEditStateCommand* deselectAll = ChangeEditStateCommand::deselectAll(document);
