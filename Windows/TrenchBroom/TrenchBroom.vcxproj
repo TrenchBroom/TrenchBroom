@@ -346,6 +346,8 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\View\AboutDialog.cpp" />
     <ClCompile Include="..\..\Source\View\AbstractApp.cpp" />
     <ClCompile Include="..\..\Source\View\AngleEditor.cpp" />
+    <ClCompile Include="..\..\Source\View\Animation.cpp" />
+    <ClCompile Include="..\..\Source\View\CameraAnimation.cpp" />
     <ClCompile Include="..\..\Source\View\ColorEditor.cpp" />
     <ClCompile Include="..\..\Source\View\EditorFrame.cpp" />
     <ClCompile Include="..\..\Source\View\EditorView.cpp" />
@@ -354,6 +356,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\View\EntityInspector.cpp" />
     <ClCompile Include="..\..\Source\View\EntityPropertyGridTable.cpp" />
     <ClCompile Include="..\..\Source\View\FaceInspector.cpp" />
+    <ClCompile Include="..\..\Source\View\FlashSelectionAnimation.cpp" />
     <ClCompile Include="..\..\Source\View\GenericDropSource.cpp" />
     <ClCompile Include="..\..\Source\View\Inspector.cpp" />
     <ClCompile Include="..\..\Source\View\MapGLCanvas.cpp" />
@@ -554,6 +557,8 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\View\AboutDialog.h" />
     <ClInclude Include="..\..\Source\View\AbstractApp.h" />
     <ClInclude Include="..\..\Source\View\AngleEditor.h" />
+    <ClInclude Include="..\..\Source\View\Animation.h" />
+    <ClInclude Include="..\..\Source\View\CameraAnimation.h" />
     <ClInclude Include="..\..\Source\View\CellLayout.h" />
     <ClInclude Include="..\..\Source\View\CellLayoutGLCanvas.h" />
     <ClInclude Include="..\..\Source\View\ColorEditor.h" />
@@ -568,6 +573,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\View\EntityInspector.h" />
     <ClInclude Include="..\..\Source\View\EntityPropertyGridTable.h" />
     <ClInclude Include="..\..\Source\View\FaceInspector.h" />
+    <ClInclude Include="..\..\Source\View\FlashSelectionAnimation.h" />
     <ClInclude Include="..\..\Source\View\GenericDropSource.h" />
     <ClInclude Include="..\..\Source\View\Inspector.h" />
     <ClInclude Include="..\..\Source\View\LayoutConstants.h" />

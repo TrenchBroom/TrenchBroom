@@ -208,8 +208,10 @@ namespace TrenchBroom {
                             // delete brush;
                             // brush = NULL;
                         }
+                        /* this leads to many problems when loading maps
                         if (brush != NULL)
                             brush->snap(0);
+                         */
                         return brush;
                     default:
                         delete brush;

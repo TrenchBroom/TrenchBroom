@@ -498,6 +498,15 @@
     <ClCompile Include="..\..\Source\IO\ClassInfo.cpp">
       <Filter>Source Files\IO</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\View\Animation.cpp">
+      <Filter>Source Files\View</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\View\CameraAnimation.cpp">
+      <Filter>Source Files\View</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\View\FlashSelectionAnimation.cpp">
+      <Filter>Source Files\View</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -1150,6 +1159,15 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\IO\ClassInfo.h">
       <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\Animation.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\CameraAnimation.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\FlashSelectionAnimation.h">
+      <Filter>Header Files\View</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
