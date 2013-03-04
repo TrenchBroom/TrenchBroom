@@ -1,0 +1,3 @@
+- Improved Quake.fgd and Quoth2.fgd.
+- Improvements to clipboard pasting.
+- Fixed a crash bug when loading maps with invalid brushes.
