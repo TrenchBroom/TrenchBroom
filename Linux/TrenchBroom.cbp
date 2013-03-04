@@ -112,6 +112,7 @@
 			<Add directory="../Linux" />
 		</Compiler>
 		<ExtraCommands>
+			<Add before="./IncBuildNo.sh" />
 			<Add after="mkdir -p $(TARGET_OUTPUT_DIR)Resources" />
 			<Add after='cp -R &quot;$(PROJECT_DIR)../Resources/Defs&quot; $(TARGET_OUTPUT_DIR)Resources/' />
 			<Add after='cp &quot;$(PROJECT_DIR)../Resources/Fonts/&quot;*.* $(TARGET_OUTPUT_DIR)Resources/' />
@@ -430,6 +431,10 @@
 		<Unit filename="../Source/View/AbstractApp.h" />
 		<Unit filename="../Source/View/AngleEditor.cpp" />
 		<Unit filename="../Source/View/AngleEditor.h" />
+		<Unit filename="../Source/View/Animation.cpp" />
+		<Unit filename="../Source/View/Animation.h" />
+		<Unit filename="../Source/View/CameraAnimation.cpp" />
+		<Unit filename="../Source/View/CameraAnimation.h" />
 		<Unit filename="../Source/View/CellLayout.h" />
 		<Unit filename="../Source/View/CellLayoutGLCanvas.h" />
 		<Unit filename="../Source/View/ColorEditor.cpp" />
@@ -452,6 +457,8 @@
 		<Unit filename="../Source/View/EntityPropertyGridTable.h" />
 		<Unit filename="../Source/View/FaceInspector.cpp" />
 		<Unit filename="../Source/View/FaceInspector.h" />
+		<Unit filename="../Source/View/FlashSelectionAnimation.cpp" />
+		<Unit filename="../Source/View/FlashSelectionAnimation.h" />
 		<Unit filename="../Source/View/GenericDropSource.cpp" />
 		<Unit filename="../Source/View/GenericDropSource.h" />
 		<Unit filename="../Source/View/Inspector.cpp" />
