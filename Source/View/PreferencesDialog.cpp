@@ -108,7 +108,8 @@ namespace TrenchBroom {
             innerSizer->SetItemMinSize(quakePathLabel, PreferencesDialogLayout::MinimumLabelWidth, wxDefaultSize.y);
 
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(innerSizer, 0, wxEXPAND | wxALL, LayoutConstants::StaticBoxInnerMargin);
+            outerSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
+            outerSizer->Add(innerSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             outerSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
 
             quakeBox->SetSizerAndFit(outerSizer);
@@ -157,7 +158,8 @@ namespace TrenchBroom {
             innerSizer->SetItemMinSize(brightnessLabel, PreferencesDialogLayout::MinimumLabelWidth, brightnessLabel->GetSize().y);
 
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(innerSizer, 0, wxEXPAND | wxALL, LayoutConstants::StaticBoxInnerMargin);
+            outerSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
+            outerSizer->Add(innerSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             outerSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
 
             viewBox->SetSizerAndFit(outerSizer);
@@ -207,7 +209,8 @@ namespace TrenchBroom {
             innerSizer->SetItemMinSize(lookSpeedLabel, PreferencesDialogLayout::MinimumLabelWidth, lookSpeedLabel->GetSize().y);
 
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(innerSizer, 0, wxEXPAND | wxALL, LayoutConstants::StaticBoxInnerMargin);
+            outerSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
+            outerSizer->Add(innerSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             outerSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
 
             mouseBox->SetSizerAndFit(outerSizer);

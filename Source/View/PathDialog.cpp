@@ -93,27 +93,29 @@ namespace TrenchBroom {
             
             wxGridBagSizer* innerSizer = new wxGridBagSizer();
             
-            innerSizer->Add(infoText, wxGBPosition(0, 0), wxGBSpan(1, 2), wxLEFT | wxTOP | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
-            innerSizer->Add(1, 2 * LayoutConstants::ControlVerticalMargin, wxGBPosition(1,0), wxGBSpan(1,2));
+            innerSizer->Add(0, LayoutConstants::StaticBoxTopMargin, wxGBPosition(0, 0), wxGBSpan(1, 2));
+            innerSizer->Add(infoText, wxGBPosition(1, 0), wxGBSpan(1, 2), wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
+            innerSizer->Add(1, 2 * LayoutConstants::ControlVerticalMargin, wxGBPosition(2,0), wxGBSpan(1,2));
             
-            innerSizer->Add(m_absolute, wxGBPosition(2, 0), wxGBSpan(1, 2), wxLEFT | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
-            innerSizer->Add(18, 1, wxGBPosition(3, 0), wxGBSpan(1, 1), wxLEFT, LayoutConstants::StaticBoxInnerMargin);
-            innerSizer->Add(absolutePathText, wxGBPosition(3, 1), wxGBSpan(1, 1), wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
-            innerSizer->Add(1, LayoutConstants::ControlVerticalMargin, wxGBPosition(4,0), wxGBSpan(1,2));
+            innerSizer->Add(m_absolute, wxGBPosition(3, 0), wxGBSpan(1, 2), wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
+            innerSizer->Add(18, 1, wxGBPosition(4, 0), wxGBSpan(1, 1), wxLEFT, LayoutConstants::StaticBoxSideMargin);
+            innerSizer->Add(absolutePathText, wxGBPosition(4, 1), wxGBSpan(1, 1), wxRIGHT, LayoutConstants::StaticBoxSideMargin);
+            innerSizer->Add(1, LayoutConstants::ControlVerticalMargin, wxGBPosition(5,0), wxGBSpan(1,2));
             
-            innerSizer->Add(m_relativeToMap, wxGBPosition(5, 0), wxGBSpan(1, 2), wxLEFT | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
-            innerSizer->Add(18, 1, wxGBPosition(6, 0), wxGBSpan(1, 1), wxLEFT, LayoutConstants::StaticBoxInnerMargin);
-            innerSizer->Add(mapRelativePathText, wxGBPosition(6, 1), wxGBSpan(1, 1), wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
-            innerSizer->Add(1, LayoutConstants::ControlVerticalMargin, wxGBPosition(7,0), wxGBSpan(1,2));
+            innerSizer->Add(m_relativeToMap, wxGBPosition(6, 0), wxGBSpan(1, 2), wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
+            innerSizer->Add(18, 1, wxGBPosition(7, 0), wxGBSpan(1, 1), wxLEFT, LayoutConstants::StaticBoxSideMargin);
+            innerSizer->Add(mapRelativePathText, wxGBPosition(7, 1), wxGBSpan(1, 1), wxRIGHT, LayoutConstants::StaticBoxSideMargin);
+            innerSizer->Add(1, LayoutConstants::ControlVerticalMargin, wxGBPosition(8,0), wxGBSpan(1,2));
             
-            innerSizer->Add(m_relativeToApp, wxGBPosition(8, 0), wxGBSpan(1, 2), wxLEFT | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
-            innerSizer->Add(18, 1, wxGBPosition(9, 0), wxGBSpan(1, 1), wxLEFT, LayoutConstants::StaticBoxInnerMargin);
-            innerSizer->Add(appRelativePathText, wxGBPosition(9, 1), wxGBSpan(1, 1), wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
-            innerSizer->Add(1, LayoutConstants::ControlVerticalMargin, wxGBPosition(10,0), wxGBSpan(1,2));
+            innerSizer->Add(m_relativeToApp, wxGBPosition(9, 0), wxGBSpan(1, 2), wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
+            innerSizer->Add(18, 1, wxGBPosition(10, 0), wxGBSpan(1, 1), wxLEFT, LayoutConstants::StaticBoxSideMargin);
+            innerSizer->Add(appRelativePathText, wxGBPosition(10, 1), wxGBSpan(1, 1), wxRIGHT, LayoutConstants::StaticBoxSideMargin);
+            innerSizer->Add(1, LayoutConstants::ControlVerticalMargin, wxGBPosition(11,0), wxGBSpan(1,2));
             
-            innerSizer->Add(m_relativeToQuake, wxGBPosition(11, 0), wxGBSpan(1, 2), wxLEFT | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
-            innerSizer->Add(18, 1, wxGBPosition(12, 0), wxGBSpan(1, 1), wxLEFT, LayoutConstants::StaticBoxInnerMargin);
-            innerSizer->Add(quakeRelativePathText, wxGBPosition(12, 1), wxGBSpan(1, 1), wxRIGHT | wxBOTTOM, LayoutConstants::StaticBoxInnerMargin);
+            innerSizer->Add(m_relativeToQuake, wxGBPosition(12, 0), wxGBSpan(1, 2), wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
+            innerSizer->Add(18, 1, wxGBPosition(13, 0), wxGBSpan(1, 1), wxLEFT, LayoutConstants::StaticBoxSideMargin);
+            innerSizer->Add(quakeRelativePathText, wxGBPosition(13, 1), wxGBSpan(1, 1), wxRIGHT, LayoutConstants::StaticBoxSideMargin);
+            innerSizer->Add(0, LayoutConstants::StaticBoxBottomMargin, wxGBPosition(14, 0), wxGBSpan(1, 2));
 
             int maxWidth = 350;
             maxWidth = std::max(maxWidth, absolutePathText->GetSize().x);

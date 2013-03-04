@@ -28,9 +28,9 @@ namespace TrenchBroom {
 #if defined _WIN32
             static const int NotebookPageInnerMargin        = 5;
             static const int NotebookPageExtraBottomMargin  = 2;
-            static const int StaticBoxInnerMargin           = 15;
-            static const int StaticBoxTopMargin             = 5;
-            static const int StaticBoxBottomMargin          = 0;
+            static const int StaticBoxSideMargin            = 15;
+            static const int StaticBoxTopMargin             = 20;
+            static const int StaticBoxBottomMargin          = 15;
             static const int ControlHorizontalMargin        = 10;
             static const int ControlVerticalMargin          = 10;
             static const int ControlMargin                  = 10;
@@ -43,9 +43,9 @@ namespace TrenchBroom {
 #elif defined __APPLE__
             static const int NotebookPageInnerMargin        = 5;
             static const int NotebookPageExtraBottomMargin  = 2;
-            static const int StaticBoxInnerMargin           = 10;
-            static const int StaticBoxTopMargin             = 0;
-            static const int StaticBoxBottomMargin          = 0;
+            static const int StaticBoxSideMargin            = 10;
+            static const int StaticBoxTopMargin             = 10;
+            static const int StaticBoxBottomMargin          = 10;
             static const int ControlHorizontalMargin        = 10;
             static const int ControlVerticalMargin          = 5;
             static const int ControlMargin                  = 5;
@@ -58,7 +58,7 @@ namespace TrenchBroom {
 #elif defined __linux__
             static const int NotebookPageInnerMargin        = 5;
             static const int NotebookPageExtraBottomMargin  = 2;
-            static const int StaticBoxInnerMargin           = 15;
+            static const int StaticBoxSideMargin            = 15;
             static const int StaticBoxTopMargin             = 0;
             static const int StaticBoxBottomMargin          = 15;
             static const int ControlHorizontalMargin        = 10;

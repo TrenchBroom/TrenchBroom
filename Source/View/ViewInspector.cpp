@@ -110,11 +110,11 @@ namespace TrenchBroom {
             // layout of the contained controls
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
-            outerSizer->Add(searchPanelSizer, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
+            outerSizer->Add(searchPanelSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             outerSizer->AddSpacer(LayoutConstants::DefaultVerticalMargin);
-            outerSizer->Add(new wxStaticLine(filterBox), 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
+            outerSizer->Add(new wxStaticLine(filterBox), 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             outerSizer->AddSpacer(LayoutConstants::DefaultVerticalMargin);
-            outerSizer->Add(filterPanelSizer, 1, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, LayoutConstants::StaticBoxInnerMargin);
+            outerSizer->Add(filterPanelSizer, 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             outerSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
 
             filterBox->SetSizerAndFit(outerSizer);
@@ -140,7 +140,8 @@ namespace TrenchBroom {
 
             // creates 5 pixel border inside the static box
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(innerSizer, 0, wxEXPAND | wxALL, LayoutConstants::StaticBoxInnerMargin);
+            outerSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
+            outerSizer->Add(innerSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             outerSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
 
             renderModeBox->SetSizerAndFit(outerSizer);

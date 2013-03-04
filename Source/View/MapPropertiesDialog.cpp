@@ -199,14 +199,15 @@ namespace TrenchBroom {
             m_modChoice = new wxChoice(modBox, CommandIds::MapPropertiesDialog::ModChoiceId);
             
             wxSizer* modBoxSizer = new wxBoxSizer(wxVERTICAL);
-            modBoxSizer->AddSpacer(LayoutConstants::StaticBoxInnerMargin);
-            modBoxSizer->Add(defText, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
+            modBoxSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
+            modBoxSizer->Add(defText, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             modBoxSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            modBoxSizer->Add(m_defChoice, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
+            modBoxSizer->Add(m_defChoice, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             modBoxSizer->AddSpacer(2 * LayoutConstants::ControlVerticalMargin);
-            modBoxSizer->Add(modText, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
+            modBoxSizer->Add(modText, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             modBoxSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            modBoxSizer->Add(m_modChoice, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, LayoutConstants::StaticBoxInnerMargin);
+            modBoxSizer->Add(m_modChoice, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
+            modBoxSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
             modBox->SetSizerAndFit(modBoxSizer);
 
             IO::FileManager fileManager;
@@ -245,12 +246,13 @@ namespace TrenchBroom {
             wadButtonsSizer->Add(m_moveWadDownButton);
             
             wxSizer* wadBoxSizer = new wxBoxSizer(wxVERTICAL);
-            wadBoxSizer->AddSpacer(LayoutConstants::StaticBoxInnerMargin);
-            wadBoxSizer->Add(wadText, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
+            wadBoxSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
+            wadBoxSizer->Add(wadText, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             wadBoxSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            wadBoxSizer->Add(m_wadList, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
+            wadBoxSizer->Add(m_wadList, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             wadBoxSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            wadBoxSizer->Add(wadButtonsSizer, 0, wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT | wxALIGN_LEFT, LayoutConstants::StaticBoxInnerMargin);
+            wadBoxSizer->Add(wadButtonsSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxALIGN_LEFT, LayoutConstants::StaticBoxSideMargin);
+            wadBoxSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
             wadBox->SetSizerAndFit(wadBoxSizer);
             
             wxSizer* buttonSizer = CreateButtonSizer(wxCLOSE);
