@@ -349,7 +349,11 @@ bool AbstractApp::OnInit() {
 
     new wxDocTemplate(m_docManager,
                       wxT("Quake map document"),
+#if defined __linux__ // appears to be a bug in wxWidgets' file dialog, on Linux it will only allow lowercase extensions
+                      wxEmptyString,
+#else
                       wxT("*.map"),
+#endif
                       wxEmptyString,
                       wxT("map"),
                       wxT("Quake map document"),
@@ -357,7 +361,7 @@ bool AbstractApp::OnInit() {
                       CLASSINFO(TrenchBroom::Model::MapDocument),
                       CLASSINFO(TrenchBroom::View::EditorView)
                       );
-
+    
     // load file system handlers
     wxFileSystem::AddHandler(new wxMemoryFSHandler());
 
