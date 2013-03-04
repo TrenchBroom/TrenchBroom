@@ -59,6 +59,8 @@ public:
 
     void OnUpdateMenuItem(wxUpdateUIEvent& event);
     
+    int FilterEvent(wxEvent& event);
+    
     DECLARE_EVENT_TABLE();
 };
 

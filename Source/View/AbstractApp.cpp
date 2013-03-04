@@ -33,6 +33,7 @@
 #include "Utility/DocManager.h"
 #include "View/AboutDialog.h"
 #include "View/CommandIds.h"
+#include "View/EditorFrame.h"
 #include "View/EditorView.h"
 #include "View/PreferencesDialog.h"
 
@@ -427,4 +428,40 @@ void AbstractApp::OnUpdateMenuItem(wxUpdateUIEvent& event) {
         event.Enable(false);
     if (GetTopWindow() != NULL)
         event.Skip();
+}
+
+int AbstractApp::FilterEvent(wxEvent& event) {
+    if (event.GetEventType() == wxEVT_SET_FOCUS) {
+        wxObject* object = event.GetEventObject();
+        wxWindow* window = wxDynamicCast(object, wxWindow);
+        if (window != NULL) {
+            wxFrame* frame = wxDynamicCast(window, wxFrame);
+            wxWindow* parent = window->GetParent();
+            while (frame == NULL && parent != NULL) {
+                frame = wxDynamicCast(parent, wxFrame);
+                parent = parent->GetParent();
+            }
+            
+            // If we found a frame, and window is not a menu, then send a command event to the frame
+            // that will cause it to rebuild its menu. The frame must keep track of whether the menu actually needs
+            // to be rebuilt (only if MapGLCanvas previously had focus and just lost it or vice versa).
+            // make sure the command is sent via QueueEvent to give wxWidgets a chance to update the focus states!
+            if (frame != NULL) {
+                //bool isMenu = wxDynamicCast(window, wxMenu) || wxDynamicCast(window, wxMenuItem);
+                //if (!isMenu) {
+                wxCommandEvent focusEvent(TrenchBroom::View::EditorFrame::EVT_SET_FOCUS);
+                focusEvent.SetClientData(event.GetEventObject());
+                focusEvent.SetEventObject(frame);
+                focusEvent.SetId(event.GetId());
+                AddPendingEvent(focusEvent);
+                //}
+            }
+        }
+    } else if (event.GetEventType() == TrenchBroom::View::EditorFrame::EVT_SET_FOCUS) {
+        wxFrame* frame = wxStaticCast(event.GetEventObject(), wxFrame);
+        frame->ProcessWindowEventLocally(event);
+        return 1;
+    }
+    
+    return wxApp::FilterEvent(event);
 }

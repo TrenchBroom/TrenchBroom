@@ -43,6 +43,8 @@ namespace TrenchBroom {
         class MapGLCanvas;
         
         class EditorFrame : public wxFrame {
+        public:
+            static const wxEventType EVT_SET_FOCUS;
         protected:
             DocumentViewHolder m_documentViewHolder;
             Inspector* m_inspector;
@@ -69,8 +71,11 @@ namespace TrenchBroom {
             void updateMenuBar();
             void disableProcessing();
 
+            /*
             void OnMapCanvasSetFocus(wxFocusEvent& event);
             void OnMapCanvasKillFocus(wxFocusEvent& event);
+             */
+            void OnSetFocus(wxCommandEvent& event);
             void OnIdle(wxIdleEvent& event);
 
             void OnClose(wxCloseEvent& event);

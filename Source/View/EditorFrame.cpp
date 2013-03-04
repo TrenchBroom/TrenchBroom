@@ -40,9 +40,12 @@
 
 namespace TrenchBroom {
     namespace View {
+        const wxEventType EditorFrame::EVT_SET_FOCUS = wxNewEventType();
+        
         BEGIN_EVENT_TABLE(EditorFrame, wxFrame)
 		EVT_CLOSE(EditorFrame::OnClose)
         EVT_MENU_OPEN(EditorFrame::OnMenuOpen)
+        EVT_COMMAND(wxID_ANY, EVT_SET_FOCUS, EditorFrame::OnSetFocus)
         EVT_IDLE(EditorFrame::OnIdle)
 		END_EVENT_TABLE()
 
@@ -71,8 +74,10 @@ namespace TrenchBroom {
 
             SetSize(1024, 768);
 
+            /*
             m_mapCanvas->Bind(wxEVT_SET_FOCUS, &EditorFrame::OnMapCanvasSetFocus, this);
             m_mapCanvas->Bind(wxEVT_KILL_FOCUS, &EditorFrame::OnMapCanvasKillFocus, this);
+             */
         }
 
         EditorFrame::EditorFrame(Model::MapDocument& document, EditorView& view) :
@@ -137,6 +142,7 @@ namespace TrenchBroom {
             m_documentViewHolder.invalidate();
         }
 
+        /*
         void EditorFrame::OnMapCanvasSetFocus(wxFocusEvent& event) {
             m_mapCanvasHasFocus = true;
 
@@ -174,8 +180,29 @@ namespace TrenchBroom {
 
             event.Skip();
         }
+         */
+
+        void EditorFrame::OnSetFocus(wxCommandEvent& event) {
+            if (m_documentViewHolder.valid()) {
+                wxWindow* focus = FindFocus();
+                if (m_mapCanvasHasFocus != (focus == m_mapCanvas)) {
+                    m_mapCanvasHasFocus = (focus == m_mapCanvas);
+                    
+                    updateMenuBar();
+                    
+                    wxMenuBar* menuBar = GetMenuBar();
+                    size_t menuCount = menuBar->GetMenuCount();
+                    for (size_t i = 0; i < menuCount; i++) {
+                        wxMenu* menu = menuBar->GetMenu(i);
+                        menu->UpdateUI(&m_documentViewHolder.view());
+                    }
+                    m_mapCanvas->Refresh();
+                }
+            }
+        }
 
         void EditorFrame::OnIdle(wxIdleEvent& event) {
+            /*
             // this is a fix for Mac OS X, where the kill focus event is not properly sent
             // FIXME: remove this as soon as this bug is fixed in wxWidgets 2.9.5
 
@@ -197,10 +224,12 @@ namespace TrenchBroom {
                 }
             }
 #endif
+            */
             
             // finally set the top window
             if (IsActive() && wxTheApp->GetTopWindow() != this)
                 wxTheApp->SetTopWindow(this);
+            event.Skip();
         }
 
         void EditorFrame::OnClose(wxCloseEvent& event) {
