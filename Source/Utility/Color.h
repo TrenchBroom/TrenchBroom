@@ -138,6 +138,22 @@ namespace TrenchBroom {
             i = yiq.y;
             q = yiq.z;
         }
+        
+        inline Color& mix(const Color& other, float f) {
+            const float c = std::max(0.0f, std::min(1.0f, f));
+            const float d = 1.0f - c;
+            x = d * x + c * other.x;
+            y = d * y + c * other.x;
+            z = d * z + c * other.x;
+            w = d * w + c * other.x;
+            return *this;
+        }
+    
+        inline const Color mixed(const Color& other, float f) const {
+            Color result = *this;
+            result.mix(other, f);
+            return result;
+        }
     };
 }
 

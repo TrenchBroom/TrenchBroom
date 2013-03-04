@@ -64,6 +64,7 @@
 #include "View/EditorFrame.h"
 #include "View/EntityInspector.h"
 #include "View/FaceInspector.h"
+#include "View/FlashSelectionAnimation.h"
 #include "View/Inspector.h"
 #include "View/MapGLCanvas.h"
 #include "View/MapPropertiesDialog.h"
@@ -1263,6 +1264,10 @@ namespace TrenchBroom {
             submit(addObjectsCommand);
             submit(changeEditStateCommand);
             CommandProcessor::EndGroup(commandProcessor);
+            
+            EditorFrame* editorFrame = static_cast<EditorFrame*>(GetFrame());
+            FlashSelectionAnimation* animation = new FlashSelectionAnimation(*m_renderer, editorFrame->mapCanvas(), 100);
+            m_animationManager->runAnimation(animation, true);
         }
 
         void EditorView::OnEditCorrectVertices(wxCommandEvent& event) {

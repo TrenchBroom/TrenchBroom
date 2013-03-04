@@ -56,6 +56,7 @@
 		4847AC8D16466BED00726872 /* SphereFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4847AC8B16466BED00726872 /* SphereFigure.cpp */; };
 		4848BBEB16E5084200866FE7 /* Animation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4848BBE916E5084100866FE7 /* Animation.cpp */; };
 		4848BBEE16E5166D00866FE7 /* CameraAnimation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4848BBEC16E5166D00866FE7 /* CameraAnimation.cpp */; };
+		4848BBF116E53D5900866FE7 /* FlashSelectionAnimation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4848BBEF16E53D5900866FE7 /* FlashSelectionAnimation.cpp */; };
 		484CEC49165396A9000913D0 /* EdgeRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 484CEC47165396A9000913D0 /* EdgeRenderer.cpp */; };
 		484EA61E1679226700EBFAC7 /* SplitEdgesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 484EA61C1679226700EBFAC7 /* SplitEdgesCommand.cpp */; };
 		4850D24615F2AC71005B162D /* DocManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4850D24415F2AAE8005B162D /* DocManager.cpp */; };
@@ -333,6 +334,8 @@
 		4848BBEA16E5084200866FE7 /* Animation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Animation.h; sourceTree = "<group>"; };
 		4848BBEC16E5166D00866FE7 /* CameraAnimation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraAnimation.cpp; sourceTree = "<group>"; };
 		4848BBED16E5166D00866FE7 /* CameraAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraAnimation.h; sourceTree = "<group>"; };
+		4848BBEF16E53D5900866FE7 /* FlashSelectionAnimation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FlashSelectionAnimation.cpp; sourceTree = "<group>"; };
+		4848BBF016E53D5900866FE7 /* FlashSelectionAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlashSelectionAnimation.h; sourceTree = "<group>"; };
 		484CEC47165396A9000913D0 /* EdgeRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EdgeRenderer.cpp; sourceTree = "<group>"; };
 		484CEC48165396A9000913D0 /* EdgeRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EdgeRenderer.h; sourceTree = "<group>"; };
 		484EA61C1679226700EBFAC7 /* SplitEdgesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SplitEdgesCommand.cpp; sourceTree = "<group>"; };
@@ -892,6 +895,8 @@
 				48D417D2160B39A5003AECBB /* CellLayout.h */,
 				48D417D4160B39CD003AECBB /* CellLayoutGLCanvas.h */,
 				481CDADD1603BAF2003E2EE9 /* DocumentViewHolder.h */,
+				4848BBEF16E53D5900866FE7 /* FlashSelectionAnimation.cpp */,
+				4848BBF016E53D5900866FE7 /* FlashSelectionAnimation.h */,
 				4842AF66162176100042AD66 /* GenericDropSource.cpp */,
 				4875679E16979465008F316F /* GenericDropSource.h */,
 				4842AF64162175300042AD66 /* DragAndDrop.h */,
@@ -1457,6 +1462,7 @@
 				48688C9516E354EC0080F70F /* NSLog.mm in Sources */,
 				4848BBEB16E5084200866FE7 /* Animation.cpp in Sources */,
 				4848BBEE16E5166D00866FE7 /* CameraAnimation.cpp in Sources */,
+				4848BBF116E53D5900866FE7 /* FlashSelectionAnimation.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -234,8 +234,10 @@ namespace TrenchBroom {
             m_faceVbo->activate();
             if (m_faceRenderer != NULL)
                 m_faceRenderer->render(context, false);
-            if (context.viewOptions().renderSelection() && m_selectedFaceRenderer != NULL)
-                m_selectedFaceRenderer->render(context, false, prefs.getColor(Preferences::SelectedFaceColor));
+            if (context.viewOptions().renderSelection() && m_selectedFaceRenderer != NULL) {
+                const Color& color = m_overrideSelectionColors ? m_selectedFaceColor : prefs.getColor(Preferences::SelectedFaceColor);
+                m_selectedFaceRenderer->render(context, false, color);
+            }
             if (m_lockedFaceRenderer != NULL)
                 m_lockedFaceRenderer->render(context, true, prefs.getColor(Preferences::LockedFaceColor));
             m_faceVbo->deactivate();
@@ -256,12 +258,16 @@ namespace TrenchBroom {
                 }
             }
             if (context.viewOptions().renderSelection() && m_selectedEdgeRenderer != NULL) {
+                const Color& edgeColor = m_overrideSelectionColors ? m_selectedEdgeColor : prefs.getColor(Preferences::SelectedEdgeColor);
+                const Color& occludedEdgeColor = m_overrideSelectionColors ? m_occludedSelectedEdgeColor : prefs.getColor(Preferences::OccludedSelectedEdgeColor);
+                
+                
                 glDisable(GL_DEPTH_TEST);
                 glSetEdgeOffset(0.02f);
-                m_selectedEdgeRenderer->render(context, prefs.getColor(Preferences::OccludedSelectedEdgeColor));
+                m_selectedEdgeRenderer->render(context, occludedEdgeColor);
                 glEnable(GL_DEPTH_TEST);
                 glSetEdgeOffset(0.025f);
-                m_selectedEdgeRenderer->render(context, prefs.getColor(Preferences::SelectedEdgeColor));
+                m_selectedEdgeRenderer->render(context, edgeColor);
             }
             m_edgeVbo->deactivate();
             glResetEdgeOffset();

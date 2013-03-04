@@ -45,5 +45,10 @@ namespace TrenchBroom {
         m_targetPosition(targetPosition),
         m_targetDirection(targetDirection),
         m_targetUp(targetUp) {}
+        
+        Animation::Type CameraAnimation::type() const {
+            static const Type type = Animation::uniqueType();
+            return type;
+        }
     }
 }

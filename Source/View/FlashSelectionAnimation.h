@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CameraAnimation__
-#define __TrenchBroom__CameraAnimation__
+#ifndef __TrenchBroom__FlashSelectionAnimation__
+#define __TrenchBroom__FlashSelectionAnimation__
 
 #include "View/Animation.h"
 #include "Utility/VecMath.h"
@@ -26,28 +26,27 @@
 using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
-    namespace View {
-        class EditorView;
+    namespace Renderer {
+        class MapRenderer;
     }
     
     namespace View {
-        class CameraAnimation : public Animation {
+        class MapGLCanvas;
+    }
+    
+    namespace View {
+        class FlashSelectionAnimation : public Animation {
         private:
-            View::EditorView& m_view;
-            const Vec3f m_startPosition;
-            const Vec3f m_startDirection;
-            const Vec3f m_startUp;
-            const Vec3f m_targetPosition;
-            const Vec3f m_targetDirection;
-            const Vec3f m_targetUp;
+            Renderer::MapRenderer& m_renderer;
+            View::MapGLCanvas& m_canvas;
         protected:
             void doUpdate(double progress);
         public:
-            CameraAnimation(View::EditorView& view, const Vec3f& targetPosition, const Vec3f& targetDirection, const Vec3f& targetUp, wxLongLong duration);
-
+            FlashSelectionAnimation(Renderer::MapRenderer& renderer, View::MapGLCanvas& canvas, wxLongLong duration);
+            
             Type type() const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__CameraAnimation__) */
+#endif /* defined(__TrenchBroom__FlashSelectionAnimation__) */

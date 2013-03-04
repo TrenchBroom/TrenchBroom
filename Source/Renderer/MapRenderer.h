@@ -92,14 +92,10 @@ namespace TrenchBroom {
             
             PointTraceFigure* m_pointTraceFigure;
             
-            /*
-            // selection guides
-            SizeGuideFigure* m_sizeGuideFigure;
-            
-            // figures
-            Vbo* m_figureVbo;
-            std::vector<Figure*> m_figures;
-            */
+            bool m_overrideSelectionColors;
+            Color m_selectedFaceColor;
+            Color m_selectedEdgeColor;
+            Color m_occludedSelectedEdgeColor;
             
             // state
             bool m_rendering;
@@ -120,6 +116,13 @@ namespace TrenchBroom {
         public:
             MapRenderer(Model::MapDocument& document);
             ~MapRenderer();
+            
+            inline void setOverrideSelectionColors(bool override, const Color& faceColor = Color(), const Color& edgeColor = Color(), const Color& occludedEdgeColor = Color()) {
+                m_overrideSelectionColors = override;
+                m_selectedFaceColor = faceColor;
+                m_selectedEdgeColor = edgeColor;
+                m_occludedSelectedEdgeColor = occludedEdgeColor;
+            }
             
             void addEntity(Model::Entity& entity);
             void addEntities(const Model::EntityList& entities);

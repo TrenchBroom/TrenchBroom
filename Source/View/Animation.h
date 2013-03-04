@@ -77,6 +77,11 @@ namespace TrenchBroom {
                 FlatCurve,
                 EaseInEaseOutCurve
             } Curve;
+            
+            static inline Type uniqueType() {
+                static Type type = 0;
+                return type++;
+            }
         private:
             const AnimationCurve* m_curve;
             const wxLongLong m_duration;
@@ -89,9 +94,7 @@ namespace TrenchBroom {
             Animation(Curve curve, wxLongLong duration);
             virtual ~Animation();
             
-            virtual Type type() const {
-                return NoType;
-            }
+            virtual Type type() const = 0;
             
             bool step(wxLongLong delta);
             void update();
