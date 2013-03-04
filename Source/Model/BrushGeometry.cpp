@@ -86,6 +86,8 @@ namespace TrenchBroom {
             Vertex* newVertex = new Vertex();
 
             float dist = plane.intersectWithLine(line);
+            assert(!Math::isnan(dist));
+            
             newVertex->position = line.pointAtDistance(dist).snapped();
             newVertex->mark = Vertex::New;
 
@@ -1302,7 +1304,6 @@ namespace TrenchBroom {
                 edge.updateMark();
                 if (edge.mark == Edge::Split) {
                     Vertex* vertex = edge.split(boundary);
-                    vertex->position.correct();
                     vertices.push_back(vertex);
                 }
             }
@@ -1770,8 +1771,10 @@ namespace TrenchBroom {
             // detect whether the drag would make the incident faces invalid
             const Vec3f& leftNorm = edge->left->face->boundary().normal;
             const Vec3f& rightNorm = edge->right->face->boundary().normal;
-            if (Math::neg(delta.dot(leftNorm)) ||
-                Math::neg(delta.dot(rightNorm)))
+            
+            // we allow a bit more leeway when testing here, as otherwise edges sometimes cannot be split
+            if (Math::neg(delta.dot(leftNorm), 0.01f) ||
+                Math::neg(delta.dot(rightNorm), 0.01f))
                 return false;
 
             FaceManager faceManager;
