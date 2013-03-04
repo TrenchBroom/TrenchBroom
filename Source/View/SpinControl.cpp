@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -48,7 +48,7 @@ bool SpinControl::DoSetValue(double value) {
     wxString str(wxString::Format(m_format.c_str(), value));
     if (value == m_value && str == m_text->GetValue())
         return false;
-    
+
     str.ToDouble(&m_value);
     m_text->SetValue(str);
     m_text->SetInsertionPointEnd();
@@ -65,7 +65,7 @@ void SpinControl::DoSendEvent() {
 bool SpinControl::SyncFromText() {
     if (!m_text->IsModified())
         return false;
-    
+
     double textValue;
     if (m_text->GetValue().ToDouble(&textValue))
         textValue = AdjustToRange(textValue);
@@ -90,12 +90,12 @@ void SpinControl::OnSpinButton(bool up) {
     static const unsigned int ALT = 2;
     static const unsigned int META = 4;
     static const unsigned int CTRLCMD = 8;
-    
+
     double increment = 0.0f;
-    
+
     wxMouseState mouseState = wxGetMouseState();
     unsigned int keys = 0;
-    
+
     if (mouseState.ShiftDown())
         keys |= SHIFT;
     if (mouseState.AltDown())
@@ -104,21 +104,21 @@ void SpinControl::OnSpinButton(bool up) {
         keys |= META;
     if (mouseState.ControlDown() || mouseState.CmdDown())
         keys |= CTRLCMD;
-    
+
     if (keys == 0)
         increment = m_regularIncrement;
     else if (keys == SHIFT)
         increment = m_shiftIncrement;
     else if (keys == CTRLCMD)
         increment = m_ctrlIncrement;
-    
+
     double newValue = up ? m_value + increment : m_value - increment;
     newValue = AdjustToRange(newValue);
 
     if (DoSetValue(newValue))
         DoSendEvent();
-    
-    m_spin->SetValue(0);
+
+    // m_spin->SetValue(0);
 }
 
 void SpinControl::OnSpinButtonUp(wxSpinEvent& event) {
@@ -155,22 +155,22 @@ m_format(wxT("%g")) {
     m_spin->SetToolTip(GetToolTipText());
     m_spin->SetSizeHints(wxDefaultCoord, wxDefaultCoord);
     m_spin->SetRange(-32000, 32000);
-    
+
     DoSetValue(m_value);
-    
+
     wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
     sizer->Add(m_text, 1, wxEXPAND);
     sizer->Add(m_spin);
     SetSizerAndFit(sizer);
-    
+
     SetInitialSize(size);
     Move(pos);
-    
+
     m_text->Bind(wxEVT_COMMAND_TEXT_ENTER, &SpinControl::OnTextEnter, this);
     m_text->Bind(wxEVT_KILL_FOCUS, &SpinControl::OnTextKillFocus, this);
     m_spin->Bind(wxEVT_SPIN_UP, &SpinControl::OnSpinButtonUp, this);
     m_spin->Bind(wxEVT_SPIN_DOWN, &SpinControl::OnSpinButtonDown, this);
-    
+
     Bind(wxEVT_SET_FOCUS, &SpinControl::OnSetFocus, this);
 }
 
@@ -192,7 +192,7 @@ void SpinControl::SetValue(const wxString& textValue) {
 
 void SpinControl::SetRange(double min, double max) {
     assert(min < max);
-    
+
     m_minValue = min;
     m_maxValue = max;
 
@@ -216,7 +216,7 @@ void SpinControl::SetHint(const wxString& hint) {
 wxSize SpinControl::DoGetBestSize() const {
     wxSize spinSize = m_spin->GetBestSize();
     wxSize textSize = m_text->GetBestSize();
-    
+
     return wxSize(spinSize.x + textSize.x + 0, textSize.y);
 }
 

@@ -350,7 +350,7 @@ bool AbstractApp::OnInit() {
     new wxDocTemplate(m_docManager,
                       wxT("Quake map document"),
 #if defined __linux__ // appears to be a bug in wxWidgets' file dialog, on Linux it will only allow lowercase extensions
-                      wxEmptyString,
+                      wxT("*.*"),
 #else
                       wxT("*.map"),
 #endif
@@ -361,7 +361,7 @@ bool AbstractApp::OnInit() {
                       CLASSINFO(TrenchBroom::Model::MapDocument),
                       CLASSINFO(TrenchBroom::View::EditorView)
                       );
-    
+
     // load file system handlers
     wxFileSystem::AddHandler(new wxMemoryFSHandler());
 
@@ -445,7 +445,7 @@ int AbstractApp::FilterEvent(wxEvent& event) {
                 frame = wxDynamicCast(parent, wxFrame);
                 parent = parent->GetParent();
             }
-            
+
             // If we found a frame, and window is not a menu, then send a command event to the frame
             // that will cause it to rebuild its menu. The frame must keep track of whether the menu actually needs
             // to be rebuilt (only if MapGLCanvas previously had focus and just lost it or vice versa).
@@ -466,6 +466,6 @@ int AbstractApp::FilterEvent(wxEvent& event) {
         frame->ProcessWindowEventLocally(event);
         return 1;
     }
-    
+
     return wxApp::FilterEvent(event);
 }
