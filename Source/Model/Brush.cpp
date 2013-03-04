@@ -125,7 +125,7 @@ namespace TrenchBroom {
                 addFace(face);
             }
 
-            snap(0);
+            // snap(0);
             
             if (m_entity != NULL)
                 m_entity->invalidateGeometry();
