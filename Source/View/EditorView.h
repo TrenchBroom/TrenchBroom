@@ -22,6 +22,7 @@
 
 #include "Model/TextureTypes.h"
 #include "Utility/VecMath.h"
+#include "View/Animation.h"
 
 #include <wx/cmdproc.h>
 #include <wx/docview.h>
@@ -65,6 +66,7 @@ namespace TrenchBroom {
                 AYaw
             } RotationAxis;
             
+            AnimationManager* m_animationManager;
             Renderer::Camera* m_camera;
             Renderer::MapRenderer* m_renderer;
             Model::Filter* m_filter;
@@ -84,6 +86,7 @@ namespace TrenchBroom {
             void removeObjects(const wxString& actionName);
         public:
             EditorView();
+            ~EditorView();
 
             ViewOptions& viewOptions() const;
             Model::Filter& filter() const;

@@ -59,6 +59,7 @@
 #include "Utility/List.h"
 #include "Utility/Preferences.h"
 #include "View/AbstractApp.h"
+#include "View/CameraAnimation.h"
 #include "View/CommandIds.h"
 #include "View/EditorFrame.h"
 #include "View/EntityInspector.h"
@@ -332,6 +333,7 @@ namespace TrenchBroom {
 
         EditorView::EditorView() :
         wxView(),
+        m_animationManager(new AnimationManager()),
         m_camera(NULL),
         m_renderer(NULL),
         m_filter(NULL),
@@ -339,6 +341,11 @@ namespace TrenchBroom {
         m_createEntityPopupMenu(NULL),
         m_createPointEntityMenu(NULL) {}
 
+        EditorView::~EditorView() {
+            m_animationManager->Delete();
+            m_animationManager = NULL;
+        }
+        
         ViewOptions& EditorView::viewOptions() const {
             return *m_viewOptions;
         }
@@ -1449,10 +1456,8 @@ namespace TrenchBroom {
             const Vec3f position = pointFile.nextPoint() + Vec3f(0.0f, 0.0f, 16.0f);
             const Vec3f& direction = pointFile.direction();
 
-            Controller::CameraSetEvent cameraEvent;
-            cameraEvent.set(position, direction, Vec3f::PosZ);
-            cameraEvent.SetEventObject(this);
-            ProcessEvent(cameraEvent);
+            CameraAnimation* animation = new CameraAnimation(*this, position, direction, Vec3f::PosZ, 100);
+            m_animationManager->runAnimation(animation, true);
         }
 
         void EditorView::OnViewMoveCameraToPreviousPoint(wxCommandEvent& event) {
@@ -1464,10 +1469,8 @@ namespace TrenchBroom {
             const Vec3f position = pointFile.previousPoint() + Vec3f(0.0f, 0.0f, 16.0f);
             const Vec3f& direction = pointFile.direction();
 
-            Controller::CameraSetEvent cameraEvent;
-            cameraEvent.set(position, direction, Vec3f::PosZ);
-            cameraEvent.SetEventObject(this);
-            ProcessEvent(cameraEvent);
+            CameraAnimation* animation = new CameraAnimation(*this, position, direction, Vec3f::PosZ, 100);
+            m_animationManager->runAnimation(animation, true);
         }
 
         void EditorView::OnViewCenterCameraOnSelection(wxCommandEvent& event) {

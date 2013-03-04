@@ -45,6 +45,8 @@ EVT_MENU(TrenchBroom::View::CommandIds::Menu::HelpShowHelp, AbstractApp::OnHelpS
 EVT_UPDATE_UI(wxID_UNDO, AbstractApp::OnUpdateMenuItem)
 EVT_UPDATE_UI(wxID_REDO, AbstractApp::OnUpdateMenuItem)
 EVT_UPDATE_UI_RANGE(TrenchBroom::View::CommandIds::Menu::Lowest, TrenchBroom::View::CommandIds::Menu::Highest, AbstractApp::OnUpdateMenuItem)
+
+EVT_ANIMATION(AbstractApp::OnAnimation)
 END_EVENT_TABLE()
 
 wxMenu* AbstractApp::CreateFileMenu(wxEvtHandler* eventHandler, bool mapViewFocused) {
@@ -432,6 +434,10 @@ void AbstractApp::OnUpdateMenuItem(wxUpdateUIEvent& event) {
         event.Enable(false);
     if (GetTopWindow() != NULL)
         event.Skip();
+}
+
+void AbstractApp::OnAnimation(TrenchBroom::View::AnimationEvent& event) {
+    event.execute();
 }
 
 int AbstractApp::FilterEvent(wxEvent& event) {
