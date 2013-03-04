@@ -6,7 +6,6 @@
 	- Mac/Release-Package.sh
 	- Commit changes
 	- Build Linux binary
-	- Commit changes
 
 	Do not forget to commit the changes, which are a result of the automatic increase of the build no.
 	The finished Windows and Mac binaries are in the Release folder now.
