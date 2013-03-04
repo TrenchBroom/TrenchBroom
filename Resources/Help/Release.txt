@@ -17,6 +17,7 @@
 	- If the build is a maintenance release, then create a tag for it in the appropriate branch. The name of the tag should be Release_<major>.<minor>.<maintenance>
 	  git tag -a Release_1.0.1
 	  - Update the maintenance version number in Source/Version
+	  - Commit all changes
 	  - Switch to the master branch and merge any bug fixes!
 
 
@@ -24,4 +25,5 @@
 
 5. Publish the binaries
 	- Upload the zip files to the appropriate sub directories on the website.
+	- Make sure the downloads page shows them properly.
 	- Announce the release on func, inside3d quakeone.com, twitter, facebook.
