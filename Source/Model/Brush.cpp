@@ -117,15 +117,25 @@ namespace TrenchBroom {
             
             Utility::deleteAll(m_faces);
             delete m_geometry;
-            m_geometry = new BrushGeometry(m_worldBounds);
+            m_geometry = new BrushGeometry(*brushTemplate.m_geometry);
             
             const FaceList templateFaces = brushTemplate.faces();
-            for (unsigned int i = 0; i < templateFaces.size(); i++) {
+            for (size_t i = 0; i < templateFaces.size(); i++) {
                 Face* face = new Face(m_worldBounds, *templateFaces[i]);
-                addFace(face);
+                face->setBrush(this);
+                m_faces.push_back(face);
+                
+                for (size_t j = 0; j < m_geometry->sides.size(); j++) {
+                    Side* side = m_geometry->sides[j];
+                    if (side->face == templateFaces[i]) {
+                        side->face = face;
+                        face->setSide(side);
+                        break;
+                    }
+                }
             }
 
-            snap(0);
+            // snap(0);
             
             if (m_entity != NULL)
                 m_entity->invalidateGeometry();

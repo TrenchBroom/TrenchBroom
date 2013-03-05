@@ -82,14 +82,22 @@ namespace TrenchBroom {
         }
 
         Vertex* Edge::split(const Plane& plane) {
-            Line line(start->position, (end->position - start->position).normalized());
-            Vertex* newVertex = new Vertex();
-
-            float dist = plane.intersectWithLine(line);
-            assert(!Math::isnan(dist));
+            // Do exactly what QBSP is doing:
+            const float startDist = plane.pointDistance(start->position);
+            const float endDist = plane.pointDistance(end->position);
             
-            newVertex->position = line.pointAtDistance(dist).snapped();
-            newVertex->mark = Vertex::New;
+            assert(startDist != endDist);
+            const float dot = startDist / (startDist - endDist);
+            
+            Vertex* newVertex = new Vertex();
+            for (unsigned int i = 0; i < 3; i++) {
+                if (plane.normal[i] == 1.0f)
+                    newVertex->position[i] = plane.distance;
+                else if (plane.normal[i] == -1.0f)
+                    newVertex->position[i] = -plane.distance;
+                else
+                    newVertex->position[i] = start->position[i] + dot * (end->position[i] - start->position[i]);
+            }
 
             if (start->mark == Vertex::Drop)
                 start = newVertex;

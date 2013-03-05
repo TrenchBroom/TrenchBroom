@@ -92,12 +92,16 @@ namespace TrenchBroom {
             }
             
             inline PointStatus::Type pointStatus(const Vec3f& point) const {
-                float dot = normal.dot(point - anchor());
-                if (dot >  Math::PointStatusEpsilon)
+                const float dist = pointDistance(point);
+                if (dist >  Math::PointStatusEpsilon)
                     return PointStatus::PSAbove;
-                if (dot < -Math::PointStatusEpsilon)
+                if (dist < -Math::PointStatusEpsilon)
                     return PointStatus::PSBelow;
                 return PointStatus::PSInside;
+            }
+            
+            inline float pointDistance(const Vec3f& point) const {
+                return point.dot(normal) - distance;
             }
             
             inline float x(float y, float z) const {
