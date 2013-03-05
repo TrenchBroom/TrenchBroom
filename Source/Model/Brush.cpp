@@ -272,6 +272,35 @@ namespace TrenchBroom {
                 m_entity->invalidateGeometry();
         }
 
+        void Brush::correct(float epsilon) {
+            FaceSet newFaces;
+            FaceSet droppedFaces;
+            
+            m_geometry->correct(newFaces, droppedFaces, epsilon);
+            
+            for (FaceSet::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
+                Face* face = *it;
+                face->setBrush(NULL);
+                m_faces.erase(std::remove(m_faces.begin(), m_faces.end(), face), m_faces.end());
+                delete face;
+            }
+            
+            for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
+                Face* face = *it;
+                face->invalidateTexAxes();
+                face->invalidateVertexCache();
+            }
+            
+            for (FaceSet::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
+                Face* face = *it;
+                face->setBrush(this);
+                m_faces.push_back(face);
+            }
+            
+            if (m_entity != NULL)
+                m_entity->invalidateGeometry();
+        }
+        
         void Brush::snap(unsigned int snapTo) {
             FaceSet newFaces;
             FaceSet droppedFaces;

@@ -839,7 +839,7 @@ namespace TrenchBroom {
                             Model::BrushList::iterator brushIt, brushEnd;
                             for (brushIt = selectBrushes.begin(), brushEnd = selectBrushes.end(); brushIt != brushEnd; ++brushIt) {
                                 Model::Brush& brush = **brushIt;
-                                brush.snap(0);
+                                brush.correct(0.01f);
                             }
 
                             BBox bounds = Model::MapObject::bounds(entities, brushes);
@@ -888,7 +888,6 @@ namespace TrenchBroom {
                 for (unsigned int i = 0; i < entities.size(); i++) {
                     Model::Entity& entity = *entities[i];
                     if (m_filter->entitySelectable(entity)) {
-                        assert(entity.definition() == NULL || entity.definition()->type() == Model::EntityDefinition::PointEntity);
                         assert(entity.brushes().empty());
                         selectEntities.push_back(&entity);
                     } else {
