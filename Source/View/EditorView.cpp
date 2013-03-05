@@ -94,6 +94,7 @@ namespace TrenchBroom {
         EVT_MENU(wxID_CUT, EditorView::OnEditCut)
         EVT_MENU(wxID_COPY, EditorView::OnEditCopy)
         EVT_MENU(wxID_PASTE, EditorView::OnEditPaste)
+        EVT_MENU(CommandIds::Menu::EditPasteAtOriginalPosition, EditorView::OnEditPasteAtOriginalPosition)
         EVT_MENU(wxID_DELETE, EditorView::OnEditDelete)
 
         EVT_MENU(CommandIds::Menu::EditSelectAll, EditorView::OnEditSelectAll)
@@ -200,6 +201,47 @@ namespace TrenchBroom {
             mapDocument().GetCommandProcessor()->Submit(command, store);
         }
 
+        void EditorView::pasteObjects(const Model::EntityList& entities, const Model::BrushList& brushes, const Vec3f& delta) {
+            assert(entities.empty() != brushes.empty());
+            
+            Model::EntityList selectEntities;
+            Model::BrushList selectBrushes = brushes;
+            
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
+                Model::Entity& entity = **entityIt;
+                const Model::BrushList& entityBrushes = entity.brushes();
+                if (!entityBrushes.empty())
+                    selectBrushes.insert(selectBrushes.begin(), entityBrushes.begin(), entityBrushes.end());
+                else
+                    selectEntities.push_back(&entity);
+            }
+            
+            // correct vertex rounding errors
+            Model::BrushList::iterator brushIt, brushEnd;
+            for (brushIt = selectBrushes.begin(), brushEnd = selectBrushes.end(); brushIt != brushEnd; ++brushIt) {
+                Model::Brush& brush = **brushIt;
+                brush.correct(0.01f);
+            }
+            
+            Controller::AddObjectsCommand* addObjectsCommand = Controller::AddObjectsCommand::addObjects(mapDocument(), entities, brushes);
+            Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::replace(mapDocument(), selectEntities, selectBrushes);
+            Controller::MoveObjectsCommand* moveObjectsCommand = delta.null() ? NULL : Controller::MoveObjectsCommand::moveObjects(mapDocument(), selectEntities, selectBrushes, delta, mapDocument().textureLock());
+            
+            wxCommandProcessor* commandProcessor = mapDocument().GetCommandProcessor();
+            CommandProcessor::BeginGroup(commandProcessor, Controller::Command::makeObjectActionName(wxT("Paste"), selectEntities, selectBrushes));
+            submit(addObjectsCommand);
+            submit(changeEditStateCommand);
+            if (moveObjectsCommand != NULL)
+                submit(moveObjectsCommand);
+            CommandProcessor::EndGroup(commandProcessor);
+            
+            StringStream message;
+            message << "Pasted "    << selectEntities.size()    << (selectEntities.size() == 1 ? " entity " : " entities");
+            message << " and "      << selectBrushes.size()     << (selectBrushes.size() == 1 ? " brush " : " brushes");
+            mapDocument().console().info(message.str());
+        }
+        
         Vec3f EditorView::moveDelta(Direction direction, bool snapToGrid) {
             Vec3f moveDirection;
             switch (direction) {
@@ -834,54 +876,59 @@ namespace TrenchBroom {
                                    mapParser.parseBrushes(mapDocument().map().worldBounds(), brushes)) {
                             assert(entities.empty() != brushes.empty());
 
-                            Model::EntityList selectEntities;
-                            Model::BrushList selectBrushes = brushes;
+                            const BBox objectsBounds = Model::MapObject::bounds(entities, brushes);
+                            const Vec3f objectsPosition = mapDocument().grid().referencePoint(objectsBounds);
 
-                            Model::EntityList::iterator entityIt, entityEnd;
-                            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
-                                Model::Entity& entity = **entityIt;
-                                const Model::BrushList& entityBrushes = entity.brushes();
-                                if (!entityBrushes.empty())
-                                    selectBrushes.insert(selectBrushes.begin(), entityBrushes.begin(), entityBrushes.end());
-                                else
-                                    selectEntities.push_back(&entity);
+                            Vec3f delta;
+
+                            wxMouseState mouseState = wxGetMouseState();
+                            EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+                            const wxPoint clientCoords = frame->mapCanvas().ScreenToClient(mouseState.GetPosition());
+                            if (frame->mapCanvas().HitTest(clientCoords) == wxHT_WINDOW_INSIDE) {
+                                Controller::InputState& inputState = inputController().inputState();
+                                Model::PickResult& pickResult = inputState.pickResult();
+                                Model::FaceHit* hit = static_cast<Model::FaceHit*>(pickResult.first(Model::HitType::FaceHit, true, filter()));
+                                if (hit != NULL) {
+                                    const Vec3f snappedHitPoint = mapDocument().grid().snap(hit->hitPoint());
+                                    delta = mapDocument().grid().moveDeltaForBounds(hit->face(), objectsBounds, mapDocument().map().worldBounds(), inputState.pickRay(), snappedHitPoint);
+                                } else {
+                                    const Vec3f targetPosition = mapDocument().grid().snap(camera().defaultPoint(inputState.pickRay().direction));
+                                    delta = targetPosition - objectsPosition;
+                                }
+                            } else {
+                                const Vec3f targetPosition = mapDocument().grid().snap(camera().defaultPoint());
+                                delta = targetPosition - objectsPosition;
                             }
 
-                            // correct vertex rounding errors
-                            Model::BrushList::iterator brushIt, brushEnd;
-                            for (brushIt = selectBrushes.begin(), brushEnd = selectBrushes.end(); brushIt != brushEnd; ++brushIt) {
-                                Model::Brush& brush = **brushIt;
-                                brush.correct(0.01f);
-                            }
+                            pasteObjects(entities, brushes, delta);
+                        } else {
+                            mapDocument().console().warn("Unable to parse clipboard contents");
+                        }
+                    }
+                    wxTheClipboard->Close();
+                }
+            }
+        }
 
-                            Controller::AddObjectsCommand* addObjectsCommand = Controller::AddObjectsCommand::addObjects(mapDocument(), entities, brushes);
-                            Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::replace(mapDocument(), selectEntities, selectBrushes);
-                            Controller::MoveObjectsCommand* moveObjectsCommand = NULL;
-
-                            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
-                            if (editStateManager.hasSelectedObjects()) {
-                                const BBox selectedBounds = editStateManager.bounds();
-                                const Vec3f selectedCenter = mapDocument().grid().referencePoint(selectedBounds);
-                                
-                                const BBox insertBounds = Model::MapObject::bounds(entities, brushes);
-                                const Vec3f insertCenter = mapDocument().grid().referencePoint(insertBounds);
-                                
-                                const Vec3f delta = selectedCenter - insertCenter;
-                                moveObjectsCommand = Controller::MoveObjectsCommand::moveObjects(mapDocument(), selectEntities, selectBrushes, delta, mapDocument().textureLock());
-                            }
-                            
-                            wxCommandProcessor* commandProcessor = mapDocument().GetCommandProcessor();
-                            CommandProcessor::BeginGroup(commandProcessor, Controller::Command::makeObjectActionName(wxT("Paste"), selectEntities, selectBrushes));
-                            submit(addObjectsCommand);
-                            submit(changeEditStateCommand);
-                            if (moveObjectsCommand != NULL)
-                                submit(moveObjectsCommand);
-                            CommandProcessor::EndGroup(commandProcessor);
-                            
-                            StringStream message;
-                            message << "Pasted "    << selectEntities.size()    << (selectEntities.size() == 1 ? " entity " : " entities");
-                            message << " and "      << selectBrushes.size()     << (selectBrushes.size() == 1 ? " brush " : " brushes");
-                            mapDocument().console().info(message.str());
+        void EditorView::OnEditPasteAtOriginalPosition(wxCommandEvent& event) {
+            if (wxTextCtrl* textCtrl = wxDynamicCast(GetFrame()->FindFocus(), wxTextCtrl)) {
+                textCtrl->Paste();
+            } else {
+                if (wxTheClipboard->Open()) {
+                    if (wxTheClipboard->IsSupported(wxDF_TEXT)) {
+                        Model::EntityList entities;
+                        Model::BrushList brushes;
+                        
+                        wxTextDataObject clipboardData;
+                        wxTheClipboard->GetData(clipboardData);
+                        StringStream stream;
+                        stream.str(clipboardData.GetText().ToStdString());
+                        IO::MapParser mapParser(stream, console());
+                        
+                        if (mapParser.parseEntities(mapDocument().map().worldBounds(), entities) ||
+                                   mapParser.parseBrushes(mapDocument().map().worldBounds(), brushes)) {
+                            assert(entities.empty() != brushes.empty());
+                            pasteObjects(entities, brushes, Vec3f::Null);
                         } else {
                             mapDocument().console().warn("Unable to parse clipboard contents");
                         }
@@ -1639,6 +1686,18 @@ namespace TrenchBroom {
                 case wxID_PASTE:
                     if (textCtrl != NULL) {
                         event.Enable(textCtrl->CanPaste());
+                    } else {
+                        bool canPaste = false;
+                        if (wxTheClipboard->Open()) {
+                            canPaste = wxTheClipboard->IsSupported(wxDF_TEXT);
+                            wxTheClipboard->Close();
+                        }
+                        event.Enable(canPaste);
+                    }
+                    break;
+                case CommandIds::Menu::EditPasteAtOriginalPosition:
+                    if (textCtrl != NULL) {
+                        event.Enable(false);
                     } else {
                         bool canPaste = false;
                         if (wxTheClipboard->Open()) {

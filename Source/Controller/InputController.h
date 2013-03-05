@@ -146,8 +146,9 @@ namespace TrenchBroom {
             const Model::Entity* canReparentBrushes(const Model::BrushList& brushes, const Model::Entity* newParent);
             void reparentBrushes(const Model::BrushList& brushes, Model::Entity* newParent);
             
-            void showPointEntityPreview(Model::PointEntityDefinition& definition);
-            void hidePointEntityPreview();
+            inline InputState& inputState() {
+                return m_inputState;
+            }
         };
 
         class InputControllerFigure : public Renderer::Figure {
