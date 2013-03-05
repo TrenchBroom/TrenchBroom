@@ -35,6 +35,14 @@
 namespace TrenchBroom {
     namespace Math {
         class Vec3f : public Utility::Allocator<Vec3f> {
+        private:
+            inline int weight(float f) const {
+                if (std::abs(f - 1.0f) < 0.9f)
+                    return 0;
+                if (std::abs(f + 1.0f) < 0.9f)
+                    return 1;
+                return 2;
+            }
         public:
             static const Vec3f PosX;
             static const Vec3f PosY;
@@ -298,6 +306,10 @@ namespace TrenchBroom {
                 if (cross.dot(up) >= 0.0f)
                     return std::acos(cos);
                 return 2.0f * Math::Pi - std::acos(cos);
+            }
+            
+            inline int weight() const {
+                return weight(x) * 100 + weight(y) * 10 + weight(z);
             }
             
             inline Axis::Type firstComponent() const {

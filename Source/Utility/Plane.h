@@ -29,6 +29,21 @@ namespace TrenchBroom {
     namespace Math {
         class Plane {
         public:
+            class WeightOrder {
+            private:
+                bool m_deterministic;
+            public:
+                WeightOrder(bool deterministic) :
+                m_deterministic(deterministic) {}
+                
+                inline bool operator()(const Plane& lhs, const Plane& rhs) const {
+                    int result = lhs.normal.weight() - rhs.normal.weight();
+                    if (m_deterministic)
+                        result += static_cast<int>(1000.0f * (lhs.distance - lhs.distance));
+                    return result < 0;
+                }
+            };
+
             Vec3f normal;
             float distance;
             
@@ -92,12 +107,16 @@ namespace TrenchBroom {
             }
             
             inline PointStatus::Type pointStatus(const Vec3f& point) const {
-                float dot = normal.dot(point - anchor());
-                if (dot >  Math::PointStatusEpsilon)
+                const float dist = pointDistance(point);
+                if (dist >  Math::PointStatusEpsilon)
                     return PointStatus::PSAbove;
-                if (dot < -Math::PointStatusEpsilon)
+                if (dist < -Math::PointStatusEpsilon)
                     return PointStatus::PSBelow;
                 return PointStatus::PSInside;
+            }
+            
+            inline float pointDistance(const Vec3f& point) const {
+                return point.dot(normal) - distance;
             }
             
             inline float x(float y, float z) const {

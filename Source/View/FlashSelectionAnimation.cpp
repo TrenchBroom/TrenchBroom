@@ -36,13 +36,11 @@ namespace TrenchBroom {
                 Color faceColor = prefs.getColor(Preferences::SelectedFaceColor);
                 const Color& regularEdgeColor = prefs.getColor(Preferences::EdgeColor);
                 const Color& selectedEdgeColor = prefs.getColor(Preferences::SelectedEdgeColor);
-                Color occludedEdgeColor = prefs.getColor(Preferences::SelectedEdgeColor);
                 
-                faceColor.mix(white, factor);
-                occludedEdgeColor.w *= factor;
-                Color edgeColor = regularEdgeColor.mixed(selectedEdgeColor, factor);
+                faceColor.mix(white, 1.0f - factor);
+                const Color edgeColor = regularEdgeColor.mixed(selectedEdgeColor, factor);
                 
-                m_renderer.setOverrideSelectionColors(true, faceColor, edgeColor, occludedEdgeColor);
+                m_renderer.setOverrideSelectionColors(true, faceColor, edgeColor, edgeColor);
             } else {
                 m_renderer.setOverrideSelectionColors(false);
             }

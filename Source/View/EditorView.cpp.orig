@@ -1273,7 +1273,7 @@ namespace TrenchBroom {
             CommandProcessor::EndGroup(commandProcessor);
             
             EditorFrame* editorFrame = static_cast<EditorFrame*>(GetFrame());
-            FlashSelectionAnimation* animation = new FlashSelectionAnimation(*m_renderer, editorFrame->mapCanvas(), 150);
+            FlashSelectionAnimation* animation = new FlashSelectionAnimation(*m_renderer, editorFrame->mapCanvas(), 100);
             m_animationManager->runAnimation(animation, true);
         }
 
