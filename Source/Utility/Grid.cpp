@@ -161,9 +161,9 @@ namespace TrenchBroom {
             return dist;
         }
 
-        Vec3f Grid::moveDeltaForEntity(const Vec3f& origin, const BBox& worldBounds, const Vec3f& delta) const {
-            Vec3f newOrigin = snap(origin + delta);
-            Vec3f actualDelta = newOrigin - origin;
+        Vec3f Grid::moveDeltaForPoint(const Vec3f& point, const BBox& worldBounds, const Vec3f& delta) const {
+            Vec3f newPoint = snap(point + delta);
+            Vec3f actualDelta = newPoint - point;
             
             for (unsigned int i = 0; i < 3; i++)
                 if ((actualDelta[i] > 0.0f) != (delta[i] > 0.0f))
@@ -171,18 +171,18 @@ namespace TrenchBroom {
             return actualDelta;
         }
         
-        Vec3f Grid::moveDeltaForEntity(const Model::Face& face, const BBox& bounds, const BBox& worldBounds, const Ray& ray, const Vec3f& position) const {
-            Plane dragPlane = Plane::alignedOrthogonalDragPlane(position, face.boundary().normal);
+        Vec3f Grid::moveDeltaForBounds(const Model::Face& face, const BBox& bounds, const BBox& worldBounds, const Ray& ray, const Vec3f& position) const {
+            const Plane dragPlane = Plane::alignedOrthogonalDragPlane(position, face.boundary().normal);
             
-            Vec3f halfSize = bounds.size() * 0.5f;
+            const Vec3f halfSize = bounds.size() * 0.5f;
             float offsetLength = halfSize.dot(dragPlane.normal);
             if (offsetLength < 0.0f)
                 offsetLength *= -1.0f;
-            Vec3f offset = dragPlane.normal * offsetLength;
+            const Vec3f offset = dragPlane.normal * offsetLength;
             
-            float dist = dragPlane.intersectWithRay(ray);
-            Vec3f newPos = ray.pointAtDistance(dist);
-            Vec3f delta = moveDeltaForEntity(bounds.center(), worldBounds, newPos - (bounds.center() - offset));
+            const float dist = dragPlane.intersectWithRay(ray);
+            const Vec3f newPos = ray.pointAtDistance(dist);
+            Vec3f delta = moveDeltaForPoint(bounds.center(), worldBounds, newPos - (bounds.center() - offset));
             
             Axis::Type a = dragPlane.normal.firstComponent();
             if (dragPlane.normal[a] > 0.0f) delta[a] = position[a] - bounds.min[a];

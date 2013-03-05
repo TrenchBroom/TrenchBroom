@@ -521,10 +521,10 @@ namespace TrenchBroom {
                 
                 Model::FaceHit* hit = static_cast<Model::FaceHit*>(m_inputState.pickResult().first(Model::HitType::FaceHit, true, view.filter()));
                 if (hit != NULL) {
-                    delta = grid.moveDeltaForEntity(hit->face(), entity->bounds(), worldBounds, m_inputState.pickRay(), hit->hitPoint());
+                    delta = grid.moveDeltaForBounds(hit->face(), entity->bounds(), worldBounds, m_inputState.pickRay(), hit->hitPoint());
                 } else {
                     Vec3f newPosition = m_documentViewHolder.view().camera().defaultPoint(m_inputState.pickRay().direction);
-                    delta = grid.moveDeltaForEntity(entity->bounds().center(), worldBounds, newPosition - entity->bounds().center());
+                    delta = grid.moveDeltaForPoint(entity->bounds().center(), worldBounds, newPosition - entity->bounds().center());
                 }
                 
                 // delta = grid.snap(delta);
@@ -650,36 +650,6 @@ namespace TrenchBroom {
             
             document.GetCommandProcessor()->Submit(select);
             CommandProcessor::EndGroup(document.GetCommandProcessor());
-        }
-        
-        void InputController::showPointEntityPreview(Model::PointEntityDefinition& definition) {
-            Model::MapDocument& document = m_documentViewHolder.document();
-            View::EditorView& view = m_documentViewHolder.view();
-
-            Vec3f origin;
-            Utility::Grid& grid = document.grid();
-            
-            Model::FaceHit* hit = static_cast<Model::FaceHit*>(m_inputState.pickResult().first(Model::HitType::FaceHit, true, view.filter()));
-            if (hit != NULL) {
-                origin = grid.moveDeltaForEntity(hit->face(), definition.bounds(), document.map().worldBounds(), m_inputState.pickRay(), hit->hitPoint());
-            } else {
-                Vec3f newPosition = m_documentViewHolder.view().camera().defaultPoint(m_inputState.pickRay().direction);
-                origin = grid.moveDeltaForEntity(Vec3f::Null, document.map().worldBounds(), newPosition);
-            }
-            
-            // origin = grid.snap(origin);
-
-            if (m_createEntityHelper == NULL)
-                m_createEntityHelper = new CreateEntityFromMenuHelper(document);
-            m_createEntityHelper->show(definition, origin);
-            updateViews();
-        }
-        
-        void InputController::hidePointEntityPreview() {
-            if (m_createEntityHelper != NULL) {
-                m_createEntityHelper->hide();
-                updateViews();
-            }
         }
 
         InputControllerFigure::InputControllerFigure(InputController& inputController) :

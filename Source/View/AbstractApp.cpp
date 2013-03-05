@@ -80,6 +80,7 @@ wxMenu* AbstractApp::CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMe
     editMenu->Append(wxID_CUT, wxT("Cut\tCtrl+X"));
     editMenu->Append(wxID_COPY, wxT("Copy\tCtrl+C"));
     editMenu->Append(wxID_PASTE, wxT("Paste\tCtrl+V"));
+    editMenu->Append(EditPasteAtOriginalPosition, wxT("Paste At Original Position\tCtrl+Shift+V"));
     if (mapViewFocused) editMenu->Append(wxID_DELETE, wxT("Delete\tBack"));
     else editMenu->Append(wxID_DELETE, wxT("Delete"));
     editMenu->AppendSeparator();

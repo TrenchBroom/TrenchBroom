@@ -49,10 +49,10 @@ namespace TrenchBroom {
             if (hit == NULL) {
                 Vec3f newPosition = inputState.camera().defaultPoint(inputState.pickRay().direction);
                 const Vec3f& center = m_entity->bounds().center();
-                delta = grid.moveDeltaForEntity(center, document().map().worldBounds(), newPosition - center);
+                delta = grid.moveDeltaForPoint(center, document().map().worldBounds(), newPosition - center);
             } else {
                 Model::Face& face = hit->face();
-                delta = grid.moveDeltaForEntity(face, m_entity->bounds(), document().map().worldBounds(), inputState.pickRay(), hit->hitPoint());
+                delta = grid.moveDeltaForBounds(face, m_entity->bounds(), document().map().worldBounds(), inputState.pickRay(), hit->hitPoint());
             }
             
             if (delta.null())
