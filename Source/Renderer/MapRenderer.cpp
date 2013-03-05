@@ -305,20 +305,19 @@ namespace TrenchBroom {
         m_lockedEntityRenderer(NULL),
         m_figureVbo(NULL),
         m_decoratorVbo(NULL),
-        m_pointTraceFigure(NULL) {
+        m_pointTraceFigure(NULL),
+        m_overrideSelectionColors(false),
+        m_rendering(false),
+        m_geometryDataValid(false),
+        m_selectedGeometryDataValid(false),
+        m_lockedGeometryDataValid(false) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-
-            m_rendering = false;
 
             m_faceVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
             m_edgeVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
             m_entityVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
             m_figureVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
             m_decoratorVbo = new Vbo(GL_ARRAY_BUFFER, 0xFFFF);
-            
-            m_geometryDataValid = false;
-            m_selectedGeometryDataValid = false;
-            m_lockedGeometryDataValid = false;
             
             m_entityRenderer = new EntityRenderer(*m_entityVbo, m_document);
             m_entityRenderer->setClassnameFadeDistance(prefs.getFloat(Preferences::InfoOverlayFadeDistance));
