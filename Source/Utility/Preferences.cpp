@@ -135,5 +135,10 @@ namespace TrenchBroom {
         const Preference<String> QuakePath = Preference<String>(                                "General/Quake path",                                           "/Quake");
         const Preference<String> RendererFontName = Preference<String>(                         "Renderer/Font name",                                           "Arial");
 #endif
+
+        const Preference<int>   RendererInstancingMode = Preference<int>(                       "Renderer/Instancing mode",                                     0);
+        const int               RendererInstancingModeAutodetect    = 0;
+        const int               RendererInstancingModeForceOn       = 1;
+        const int               RendererInstancingModeForceOff      = 2;
     }
 }

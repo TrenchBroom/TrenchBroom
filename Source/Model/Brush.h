@@ -27,6 +27,8 @@
 #include "Utility/Allocator.h"
 #include "Utility/VecMath.h"
 
+#include <algorithm>
+#include <iterator>
 #include <vector>
 
 using namespace TrenchBroom::Math;
@@ -106,6 +108,20 @@ namespace TrenchBroom {
                 return m_geometry->vertices;
             }
             
+            inline const FaceList incidentFaces(const Vertex& vertex) const {
+                const SideList sides = m_geometry->incidentSides(&vertex);
+                FaceList result;
+                result.reserve(sides.size());
+                
+                SideList::const_iterator it, end;
+                for (it = sides.begin(), end = sides.end(); it != end; ++it) {
+                    const Side& side = **it;
+                    result.push_back(side.face);
+                }
+                
+                return result;
+            }
+            
             inline const EdgeList& edges() const {
                 return m_geometry->edges;
             }
@@ -127,6 +143,7 @@ namespace TrenchBroom {
             void rotate(const Quat& rotation, const Vec3f& center, bool lockTextures);
             void flip(Axis::Type axis, const Vec3f& center, bool lockTextures);
             
+            void correct(float epsilon);
             void snap(unsigned int snapTo);
             
             bool canMoveBoundary(const Face& face, const Vec3f& delta) const;

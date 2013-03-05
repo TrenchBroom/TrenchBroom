@@ -112,8 +112,9 @@
 			<Add directory="../Linux" />
 		</Compiler>
 		<ExtraCommands>
+			<Add before="./IncBuildNo.sh" />
 			<Add after="mkdir -p $(TARGET_OUTPUT_DIR)Resources" />
-			<Add after='cp &quot;$(PROJECT_DIR)../Resources/Defs/&quot;*.def $(TARGET_OUTPUT_DIR)Resources/' />
+			<Add after='cp -R &quot;$(PROJECT_DIR)../Resources/Defs&quot; $(TARGET_OUTPUT_DIR)Resources/' />
 			<Add after='cp &quot;$(PROJECT_DIR)../Resources/Fonts/&quot;*.* $(TARGET_OUTPUT_DIR)Resources/' />
 			<Add after='cp &quot;$(PROJECT_DIR)../Resources/Graphics/&quot;*.png $(TARGET_OUTPUT_DIR)Resources/' />
 			<Add after='cp &quot;$(PROJECT_DIR)../Resources/Graphics/&quot;QuakePalette.lmp $(TARGET_OUTPUT_DIR)Resources/' />
@@ -222,7 +223,12 @@
 		<Unit filename="../Source/GL/wglew.h" />
 		<Unit filename="../Source/IO/AbstractFileManager.cpp" />
 		<Unit filename="../Source/IO/AbstractFileManager.h" />
-		<Unit filename="../Source/IO/AbstractTokenizer.h" />
+		<Unit filename="../Source/IO/ClassInfo.cpp" />
+		<Unit filename="../Source/IO/ClassInfo.h" />
+		<Unit filename="../Source/IO/DefParser.cpp" />
+		<Unit filename="../Source/IO/DefParser.h" />
+		<Unit filename="../Source/IO/FgdParser.cpp" />
+		<Unit filename="../Source/IO/FgdParser.h" />
 		<Unit filename="../Source/IO/FileManager.h" />
 		<Unit filename="../Source/IO/IOException.h" />
 		<Unit filename="../Source/IO/IOUtils.h" />
@@ -233,8 +239,7 @@
 		<Unit filename="../Source/IO/Pak.cpp" />
 		<Unit filename="../Source/IO/Pak.h" />
 		<Unit filename="../Source/IO/ParserException.h" />
-		<Unit filename="../Source/IO/StandardDefinitionParser.cpp" />
-		<Unit filename="../Source/IO/StandardDefinitionParser.h" />
+		<Unit filename="../Source/IO/StreamTokenizer.h" />
 		<Unit filename="../Source/IO/Wad.cpp" />
 		<Unit filename="../Source/IO/Wad.h" />
 		<Unit filename="../Source/IO/mmapped_fstream.h" />
@@ -426,6 +431,10 @@
 		<Unit filename="../Source/View/AbstractApp.h" />
 		<Unit filename="../Source/View/AngleEditor.cpp" />
 		<Unit filename="../Source/View/AngleEditor.h" />
+		<Unit filename="../Source/View/Animation.cpp" />
+		<Unit filename="../Source/View/Animation.h" />
+		<Unit filename="../Source/View/CameraAnimation.cpp" />
+		<Unit filename="../Source/View/CameraAnimation.h" />
 		<Unit filename="../Source/View/CellLayout.h" />
 		<Unit filename="../Source/View/CellLayoutGLCanvas.h" />
 		<Unit filename="../Source/View/ColorEditor.cpp" />
@@ -448,6 +457,8 @@
 		<Unit filename="../Source/View/EntityPropertyGridTable.h" />
 		<Unit filename="../Source/View/FaceInspector.cpp" />
 		<Unit filename="../Source/View/FaceInspector.h" />
+		<Unit filename="../Source/View/FlashSelectionAnimation.cpp" />
+		<Unit filename="../Source/View/FlashSelectionAnimation.h" />
 		<Unit filename="../Source/View/GenericDropSource.cpp" />
 		<Unit filename="../Source/View/GenericDropSource.h" />
 		<Unit filename="../Source/View/Inspector.cpp" />

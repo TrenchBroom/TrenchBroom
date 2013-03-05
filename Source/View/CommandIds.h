@@ -107,6 +107,7 @@ namespace TrenchBroom {
                 static const int EditSnapVertices                   = Lowest + 81;
                 static const int EditCorrectVertices                = Lowest + 82;
                 static const int HelpShowHelp                       = Lowest + 83;
+                static const int EditPasteAtOriginalPosition        = Lowest + 84;
                 static const int Highest                            = Lowest + 99;
             }
             
@@ -116,6 +117,7 @@ namespace TrenchBroom {
                 static const int LowestBrushEntityItem              = HighestPointEntityItem + 1;
                 static const int HighestBrushEntityItem             = LowestBrushEntityItem + 999;
                 static const int ReparentBrushes                    = HighestBrushEntityItem + 1;
+                static const int MoveBrushesToWorld                 = HighestBrushEntityItem + 2;
             }
 
             namespace ViewInspector {
@@ -145,6 +147,7 @@ namespace TrenchBroom {
                 static const int InvertPanYAxisCheckBoxId           = Lowest +  9;
                 static const int MoveSpeedSliderId                  = Lowest + 10;
                 static const int GridModeChoiceId                   = Lowest + 11;
+                static const int InstancingModeModeChoiceId         = Lowest + 12;
                 static const int Highest                            = Lowest + 99;
             }
             

@@ -35,7 +35,7 @@ namespace TrenchBroom {
             bool m_showFeedback;
             bool m_dragStarted;
         public:
-            MacDropSource(wxWindow* window, const wxImage& image, const wxPoint& imageOffset);
+            MacDropSource(wxWindow* window, const wxImage* image, const wxPoint& imageOffset);
             virtual ~MacDropSource();
             
             bool GiveFeedback(wxDragResult effect);

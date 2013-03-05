@@ -20,8 +20,12 @@
 #include "EntityDefinitionManager.h"
 
 #include "IO/FileManager.h"
-#include "IO/StandardDefinitionParser.h"
+#include "IO/DefParser.h"
+#include "IO/FgdParser.h"
 #include "IO/mmapped_fstream.h"
+#include "Utility/Color.h"
+#include "Utility/Console.h"
+#include "Utility/Map.h"
 #include "Utility/Preferences.h"
 #include "Utility/String.h"
 
@@ -29,35 +33,68 @@
 
 namespace TrenchBroom {
     namespace Model {
-        EntityDefinitionManager::EntityDefinitionManager() {}
+        EntityDefinitionManager::EntityDefinitionManager(Utility::Console& console) :
+        m_console(console) {}
         
         EntityDefinitionManager::~EntityDefinitionManager() {
             clear();
         }
         
         StringList EntityDefinitionManager::builtinDefinitionFiles() {
+            StringList result;
+            
             IO::FileManager fileManager;
-            String resourcePath = fileManager.resourceDirectory();
-            return fileManager.directoryContents(resourcePath, "def");
+            const String resourcePath = fileManager.resourceDirectory();
+            const String defPath = fileManager.appendPathComponent(resourcePath, "Defs");
+            
+            const StringList defFiles = fileManager.directoryContents(defPath, "def");
+            const StringList fgdFiles = fileManager.directoryContents(defPath, "fgd");
+            
+            result.insert(result.end(), defFiles.begin(), defFiles.end());
+            result.insert(result.end(), fgdFiles.begin(), fgdFiles.end());
+            
+            std::sort(result.begin(), result.end());
+            return result;
         }
 
         void EntityDefinitionManager::load(const String& path) {
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            const Color& defaultColor = prefs.getColor(Preferences::EntityBoundsColor);
+            EntityDefinitionMap newDefinitions;
+            
             mmapped_fstream stream(path.c_str(), std::ios::in);
-            IO::StandardDefinitionParser parser(stream);
-            
-            EntityDefinition* definition = NULL;
-            while ((definition = parser.nextDefinition()) != NULL) {
-                m_entityDefinitions[definition->name()] = definition;
+            if (stream.is_open()) {
+                try {
+                    IO::FileManager fileManager;
+                    const String extension = fileManager.pathExtension(path);
+                    if (Utility::equalsString(extension, "def", false)) {
+                        IO::DefParser parser(defaultColor, stream);
+                        
+                        EntityDefinition* definition = NULL;
+                        while ((definition = parser.nextDefinition()) != NULL)
+                            Utility::insertOrReplace(newDefinitions, definition->name(), definition);
+                    } else if (Utility::equalsString(extension, "fgd", false)) {
+                        IO::FgdParser parser(defaultColor, stream);
+                        
+                        EntityDefinition* definition = NULL;
+                        while ((definition = parser.nextDefinition()) != NULL)
+                            Utility::insertOrReplace(newDefinitions, definition->name(), definition);
+                    }
+                    
+                    clear();
+                    m_entityDefinitions = newDefinitions;
+                    m_path = path;
+                } catch (IO::ParserException e) {
+                    Utility::deleteAll(newDefinitions);
+                    m_console.error(e.what());
+                }
+            } else {
+                m_console.error("Unable to open entity definition file %s", path.c_str());
             }
-            
-            m_path = path;
         }
         
         void EntityDefinitionManager::clear() {
-            EntityDefinitionMap::iterator it, end;
-            for (it = m_entityDefinitions.begin(), end = m_entityDefinitions.end(); it != end; ++it)
-                delete it->second;
-            m_entityDefinitions.clear();
+            Utility::deleteAll(m_entityDefinitions);
         }
 
         EntityDefinition* EntityDefinitionManager::definition(const String& name) {

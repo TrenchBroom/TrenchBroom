@@ -26,6 +26,10 @@
 #include <map>
 
 namespace TrenchBroom {
+    namespace Utility {
+        class Console;
+    }
+    
     namespace Model {
         class EntityDefinition;
         
@@ -63,10 +67,11 @@ namespace TrenchBroom {
             
             typedef std::map<String, EntityDefinition*> EntityDefinitionMap;
 
+            Utility::Console& m_console;
             String m_path;
             EntityDefinitionMap m_entityDefinitions;
         public:
-            EntityDefinitionManager();
+            EntityDefinitionManager(Utility::Console& console);
             ~EntityDefinitionManager();
             
             static StringList builtinDefinitionFiles();

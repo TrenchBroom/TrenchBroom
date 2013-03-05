@@ -93,7 +93,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::clear() {
-            m_sharedResources->textureRendererManager().clear();
+            m_sharedResources->textureRendererManager().invalidate();
             m_editStateManager->clear();
             m_map->clear();
             m_octree->clear();
@@ -366,6 +366,13 @@ namespace TrenchBroom {
                 if (!entity->worldspawn())
                     m_octree->addObject(*entity);
             }
+            
+            const FaceList& faces = brush.faces();
+            FaceList::const_iterator faceIt, faceEnd;
+            for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
+                Face& face = **faceIt;
+                face.setTexture(NULL);
+            }
         }
 
         Utility::Console& MapDocument::console() const {
@@ -408,7 +415,7 @@ namespace TrenchBroom {
                 Entity* worldspawnEntity = m_map->worldspawn();
                 if (worldspawnEntity != NULL) {
                     const PropertyValue* modValue = worldspawnEntity->propertyForKey(Entity::ModKey);
-                    if (modValue != NULL)
+                    if (modValue != NULL && !Utility::equalsString(*modValue, "id1", false))
                         m_searchPaths.push_back(*modValue);
                 }
                 
@@ -546,14 +553,15 @@ namespace TrenchBroom {
         void MapDocument::setEntityDefinitionFile(const String& definitionFile) {
             IO::FileManager fileManager;
             const String resourcePath = fileManager.resourceDirectory();
+            const String defsPath = fileManager.appendPathComponent(resourcePath, "Defs");
             String definitionPath;
             
             if (Utility::startsWith(definitionFile, "external:")) {
                 definitionPath = definitionFile.substr(9);
             } else if (Utility::startsWith(definitionFile, "builtin:")) {
-                definitionPath = fileManager.appendPath(resourcePath, definitionFile.substr(8));
+                definitionPath = fileManager.appendPath(defsPath, definitionFile.substr(8));
             } else if (definitionFile == "") {
-                definitionPath = fileManager.appendPath(resourcePath, "Quake.def");
+                definitionPath = fileManager.appendPath(defsPath, Entity::DefaultDefinition);
             } else {
                 console().error("Unable to load entity definition file %s", definitionFile.c_str());
                 return;
@@ -606,7 +614,7 @@ namespace TrenchBroom {
             m_editStateManager = new Model::EditStateManager();
             m_octree = new Octree(*m_map);
             m_picker = new Model::Picker(*m_octree);
-            m_definitionManager = new EntityDefinitionManager();
+            m_definitionManager = new EntityDefinitionManager(*m_console);
             m_modificationCount = 0;
             m_autosaver = new Controller::Autosaver(*this);
             m_autosaveTimer = new wxTimer(this);

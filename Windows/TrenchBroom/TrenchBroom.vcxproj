@@ -93,11 +93,14 @@
     </Link>
     <PostBuildEvent>
       <Command>Mkdir "$(TargetDir)Resources"
-Copy "$(ProjectDir)..\..\Resources\Defs\*.def" "$(TargetDir)Resources"
 Copy "$(ProjectDir)..\..\Resources\Graphics\QuakePalette.lmp" "$(TargetDir)Resources"
 Copy "$(ProjectDir)..\..\Source\Renderer\Shader\*.vertsh" "$(TargetDir)Resources"
 Copy "$(ProjectDir)..\..\Source\Renderer\Shader\*.fragsh" "$(TargetDir)Resources"
 Copy "$(ProjectDir)..\..\Resources\Graphics\*.png" "$(TargetDir)Resources"
+
+Mkdir "$(TargetDir)Resources\Defs"
+Copy "$(ProjectDir)..\..\Resources\Defs\*.def" "$(TargetDir)Resources\Defs\"
+Copy "$(ProjectDir)..\..\Resources\Defs\*.fgd" "$(TargetDir)Resources\Defs\"
 
 Mkdir "$(TargetDir)Resources\Documentation"
 XCopy "$(ProjectDir)..\..\Resources\Help\Documentation\*" "$(TargetDir)Resources\Documentation\" /S /E /Y
@@ -170,11 +173,14 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294ud_gl_vc100_x64.pdb" "$(TargetDir)"
     </Link>
     <PostBuildEvent>
       <Command>Mkdir "$(TargetDir)Resources"
-Copy "$(ProjectDir)..\..\Resources\Defs\*.def" "$(TargetDir)Resources"
 Copy "$(ProjectDir)..\..\Resources\Graphics\QuakePalette.lmp" "$(TargetDir)Resources"
 Copy "$(ProjectDir)..\..\Source\Renderer\Shader\*.vertsh" "$(TargetDir)Resources"
 Copy "$(ProjectDir)..\..\Source\Renderer\Shader\*.fragsh" "$(TargetDir)Resources"
 Copy "$(ProjectDir)..\..\Resources\Graphics\*.png" "$(TargetDir)Resources"
+
+Mkdir "$(TargetDir)Resources\Defs"
+Copy "$(ProjectDir)..\..\Resources\Defs\*.def" "$(TargetDir)Resources\Defs\"
+Copy "$(ProjectDir)..\..\Resources\Defs\*.fgd" "$(TargetDir)Resources\Defs\"
 
 Mkdir "$(TargetDir)Resources\Documentation"
 XCopy "$(ProjectDir)..\..\Resources\Help\Documentation\*" "$(TargetDir)Resources\Documentation\" /S /E /Y
@@ -267,10 +273,12 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Controller\VertexHandleManager.cpp" />
     <ClCompile Include="..\..\Source\GL\glew.c" />
     <ClCompile Include="..\..\Source\IO\AbstractFileManager.cpp" />
+    <ClCompile Include="..\..\Source\IO\ClassInfo.cpp" />
+    <ClCompile Include="..\..\Source\IO\DefParser.cpp" />
+    <ClCompile Include="..\..\Source\IO\FGDParser.cpp" />
     <ClCompile Include="..\..\Source\IO\MapParser.cpp" />
     <ClCompile Include="..\..\Source\IO\MapWriter.cpp" />
     <ClCompile Include="..\..\Source\IO\Pak.cpp" />
-    <ClCompile Include="..\..\Source\IO\StandardDefinitionParser.cpp" />
     <ClCompile Include="..\..\Source\IO\Wad.cpp" />
     <ClCompile Include="..\..\Source\Model\Alias.cpp" />
     <ClCompile Include="..\..\Source\Model\Brush.cpp" />
@@ -338,6 +346,8 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\View\AboutDialog.cpp" />
     <ClCompile Include="..\..\Source\View\AbstractApp.cpp" />
     <ClCompile Include="..\..\Source\View\AngleEditor.cpp" />
+    <ClCompile Include="..\..\Source\View\Animation.cpp" />
+    <ClCompile Include="..\..\Source\View\CameraAnimation.cpp" />
     <ClCompile Include="..\..\Source\View\ColorEditor.cpp" />
     <ClCompile Include="..\..\Source\View\EditorFrame.cpp" />
     <ClCompile Include="..\..\Source\View\EditorView.cpp" />
@@ -346,6 +356,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\View\EntityInspector.cpp" />
     <ClCompile Include="..\..\Source\View\EntityPropertyGridTable.cpp" />
     <ClCompile Include="..\..\Source\View\FaceInspector.cpp" />
+    <ClCompile Include="..\..\Source\View\FlashSelectionAnimation.cpp" />
     <ClCompile Include="..\..\Source\View\GenericDropSource.cpp" />
     <ClCompile Include="..\..\Source\View\Inspector.cpp" />
     <ClCompile Include="..\..\Source\View\MapGLCanvas.cpp" />
@@ -415,7 +426,9 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\GL\glew.h" />
     <ClInclude Include="..\..\Source\GL\wglew.h" />
     <ClInclude Include="..\..\Source\IO\AbstractFileManager.h" />
-    <ClInclude Include="..\..\Source\IO\AbstractTokenizer.h" />
+    <ClInclude Include="..\..\Source\IO\ClassInfo.h" />
+    <ClInclude Include="..\..\Source\IO\DefParser.h" />
+    <ClInclude Include="..\..\Source\IO\FGDParser.h" />
     <ClInclude Include="..\..\Source\IO\FileManager.h" />
     <ClInclude Include="..\..\Source\IO\IOException.h" />
     <ClInclude Include="..\..\Source\IO\IOUtils.h" />
@@ -425,7 +438,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\IO\mmapped_fstream_win32.h" />
     <ClInclude Include="..\..\Source\IO\Pak.h" />
     <ClInclude Include="..\..\Source\IO\ParserException.h" />
-    <ClInclude Include="..\..\Source\IO\StandardDefinitionParser.h" />
+    <ClInclude Include="..\..\Source\IO\StreamTokenizer.h" />
     <ClInclude Include="..\..\Source\IO\substream.h" />
     <ClInclude Include="..\..\Source\IO\Wad.h" />
     <ClInclude Include="..\..\Source\Model\Alias.h" />
@@ -544,6 +557,8 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\View\AboutDialog.h" />
     <ClInclude Include="..\..\Source\View\AbstractApp.h" />
     <ClInclude Include="..\..\Source\View\AngleEditor.h" />
+    <ClInclude Include="..\..\Source\View\Animation.h" />
+    <ClInclude Include="..\..\Source\View\CameraAnimation.h" />
     <ClInclude Include="..\..\Source\View\CellLayout.h" />
     <ClInclude Include="..\..\Source\View\CellLayoutGLCanvas.h" />
     <ClInclude Include="..\..\Source\View\ColorEditor.h" />
@@ -558,6 +573,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\View\EntityInspector.h" />
     <ClInclude Include="..\..\Source\View\EntityPropertyGridTable.h" />
     <ClInclude Include="..\..\Source\View\FaceInspector.h" />
+    <ClInclude Include="..\..\Source\View\FlashSelectionAnimation.h" />
     <ClInclude Include="..\..\Source\View\GenericDropSource.h" />
     <ClInclude Include="..\..\Source\View\Inspector.h" />
     <ClInclude Include="..\..\Source\View\LayoutConstants.h" />

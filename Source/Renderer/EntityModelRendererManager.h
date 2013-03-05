@@ -30,7 +30,7 @@ namespace TrenchBroom {
     namespace Model {
         class Entity;
         class PointEntityDefinition;
-        class PointEntityModel;
+        class ModelDefinition;
     }
     
     namespace Utility {
@@ -55,8 +55,8 @@ namespace TrenchBroom {
             MismatchCache m_mismatches;
             bool m_valid;
 
-            const String modelRendererKey(const Model::PointEntityModel& modelInfo, const StringList& searchPaths);
-            EntityModelRenderer* modelRenderer(const Model::PointEntityModel& modelInfo, const StringList& searchPaths);
+            const String modelRendererKey(const Model::ModelDefinition& modelDefinition, const StringList& searchPaths);
+            EntityModelRenderer* modelRenderer(const Model::ModelDefinition& modelDefinition, const StringList& searchPaths);
         public:
             EntityModelRendererManager(Utility::Console& console);
             ~EntityModelRendererManager();
@@ -64,6 +64,7 @@ namespace TrenchBroom {
             EntityModelRenderer* modelRenderer(const Model::PointEntityDefinition& entityDefinition, const StringList& searchPaths);
             EntityModelRenderer* modelRenderer(const Model::Entity& entity, const StringList& searchPaths);
             void clear();
+            void clearMismatches();
             
             void setPalette(const Palette& palette);
             

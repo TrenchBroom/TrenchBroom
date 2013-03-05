@@ -25,10 +25,8 @@
 namespace TrenchBroom {
     namespace Model {
         class EntityDefinition;
-        class Spawnflag;
         
         typedef std::vector<EntityDefinition*> EntityDefinitionList;
-        typedef std::vector<Spawnflag> SpawnflagList;
     }
 }
 

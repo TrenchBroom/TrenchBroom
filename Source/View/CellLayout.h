@@ -542,14 +542,13 @@ namespace TrenchBroom {
                     validate();
 
                 float y = 0.0f;
-                if (!m_groups.empty())
+                if (!m_groups.empty()) {
                     y = m_groups.back().bounds().bottom() + m_groupMargin;
-
-                m_height += titleHeight;
-                if (!m_groups.empty())
                     m_height += m_groupMargin;
+                }
 
                 m_groups.push_back(Group(groupItem, m_outerMargin, y, m_cellMargin, m_rowMargin, titleHeight, m_width - 2.0f * m_outerMargin, m_maxCellsPerRow, m_cellRestriction, m_scaleCellsUp, m_maxUpScale, m_fixedCellSize));
+                m_height += m_groups.back().bounds().height();
             }
 
             void addItem(const CellType item, float itemWidth, float itemHeight, float titleWidth, float titleHeight) {

@@ -41,6 +41,7 @@ namespace TrenchBroom {
                 InvalidateRendererBrushState,
                 InvalidateRendererState,
                 InvalidateEntityModelRendererCache,
+                InvalidateInstancedRenderers,
                 SetFaceAttributes,
                 MoveTextures,
                 RotateTextures,

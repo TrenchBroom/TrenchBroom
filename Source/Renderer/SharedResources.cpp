@@ -22,6 +22,7 @@
 #include "GL/Capabilities.h"
 #include "Renderer/EntityModelRendererManager.h"
 #include "Renderer/Palette.h"
+#include "Renderer/PointHandleRenderer.h"
 #include "Renderer/TextureRendererManager.h"
 #include "Renderer/Shader/ShaderManager.h"
 #include "Renderer/Text/StringManager.h"
@@ -35,7 +36,7 @@
 namespace TrenchBroom {
     namespace Renderer {
         SharedResources::SharedResources(Model::TextureManager& textureManager, Utility::Console& console) :
-        wxFrame(NULL, wxID_ANY, wxT("TrenchBroom Render Resources")),
+        wxFrame(NULL, wxID_ANY, wxT("TrenchBroom Render Resources"), wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLIP_CHILDREN | wxFRAME_NO_TASKBAR),
         m_palette(NULL),
         m_modelRendererManager(NULL),
         m_textureRendererManager(NULL),
@@ -71,12 +72,13 @@ namespace TrenchBroom {
             sizer->Add(m_glCanvas, 1, wxEXPAND);
             SetSizer(sizer);
 
-            SetSize(100, 100);
-            SetPosition(wxPoint(-110, -110));
+            SetSize(0, 0);
+            SetPosition(wxPoint(9999, 9999));
             Show();
             Raise();
 
             m_sharedContext->SetCurrent(*m_glCanvas);
+
             const char* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
             const char* renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
             const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
@@ -89,11 +91,12 @@ namespace TrenchBroom {
             else
                 console.info("Multisampling disabled");
 
+            glewExperimental = GL_TRUE;
             GLenum glewState = glewInit();
             if (glewState != GLEW_OK)
                 console.error("Unable to initialize glew: %s", glewGetErrorString(glewState));
 
-            if (GLEW_ARB_draw_instanced && GLEW_ARB_texture_float)
+            if (PointHandleRenderer::instancingSupported())
                 console.info("OpenGL instancing enabled");
             else
                 console.info("OpenGL instancing disabled");

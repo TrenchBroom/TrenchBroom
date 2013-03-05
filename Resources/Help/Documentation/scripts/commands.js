@@ -58,9 +58,14 @@ menu_commands["Mac"]["edit_actions_correct_verts"]		= "Edit &raquo; Actions &raq
 menu_commands["Mac"]["edit_actions_snap_verts"]			= "Edit &raquo; Actions &raquo; Snap Vertices";
 
 menu_commands["Mac"]["view_center_on_selection"]		= "View &raquo; Camera &raquo; Center on Selection - &#x2325;C";
+<<<<<<< HEAD
 menu_commands["Mac"]["view_camera_move_to_next_pt"]	= "View &raquo; Camera &raquo; Move Camera to Next Point, &#x2325; +";
 menu_commands["Mac"]["view_camera_move_to_prev_pt"]	= "View &raquo; Camera &raquo; Move Camera to Previous Point, &#x2325; -";
 
+=======
+menu_commands["Mac"]["view_camera_move_to_next_pt"]		= "View &raquo; Camera &raquo; Move Camera to Next Point - &#x2325;+)";
+menu_commands["Mac"]["view_camera_move_to_prev_pt"]		= "View &raquo; Camera &raquo; Move Camera to Previous Point - &#x2325;-)";
+>>>>>>> upstream/master
 
 
 menu_commands["Windows"]["preferences"] 				= "View &raquo; Preferences";
@@ -105,6 +110,7 @@ menu_commands["Windows"]["edit_actions_snap_verts"]		= "Edit &raquo; Actions &ra
 menu_commands["Windows"]["view_center_on_selection"]	= "View &raquo; Camera &raquo; Center on Selection - Alt+C";
 menu_commands["Windows"]["view_camera_move_to_next_pt"]	= "View &raquo; Camera &raquo; Move Camera to Next Point - Alt+(Plus (+))";
 menu_commands["Windows"]["view_camera_move_to_prev_pt"]	= "View &raquo; Camera &raquo; Move Camera to Previous Point - Alt+(Minus (-))";
+
 var keys = new Object();
 
 keys["Mac"] = new Object();

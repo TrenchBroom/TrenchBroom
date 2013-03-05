@@ -45,6 +45,18 @@ namespace TrenchBroom {
          * Geometric data such as edges and vertices are stored in an instance of class Side.
          */
         class Face : public Utility::Allocator<Face> {
+        public:
+            class WeightOrder {
+            private:
+                const Plane::WeightOrder& m_planeOrder;
+            public:
+                WeightOrder(const Plane::WeightOrder& planeOrder) :
+                m_planeOrder(planeOrder) {}
+                
+                inline bool operator()(const Face* lhs, const Face* rhs) const {
+                    return m_planeOrder(lhs->boundary(), rhs->boundary());
+                }
+            };
         protected:
             static const Vec3f* BaseAxes[18];
             
@@ -332,6 +344,16 @@ namespace TrenchBroom {
                 m_yScale = yScale;
                 m_texAxesValid = false;
                 m_vertexCacheValid = false;
+            }
+            
+            inline void setAttributes(const Face& face) {
+                setXScale(face.xScale());
+                setYScale(face.yScale());
+                setXOffset(face.xOffset());
+                setYOffset(face.yOffset());
+                setRotation(face.rotation());
+                setTextureName(face.textureName());
+                setTexture(face.texture());
             }
             
             /**

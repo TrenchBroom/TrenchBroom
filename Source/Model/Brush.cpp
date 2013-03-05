@@ -117,13 +117,25 @@ namespace TrenchBroom {
             
             Utility::deleteAll(m_faces);
             delete m_geometry;
-            m_geometry = new BrushGeometry(m_worldBounds);
+            m_geometry = new BrushGeometry(*brushTemplate.m_geometry);
             
             const FaceList templateFaces = brushTemplate.faces();
-            for (unsigned int i = 0; i < templateFaces.size(); i++) {
+            for (size_t i = 0; i < templateFaces.size(); i++) {
                 Face* face = new Face(m_worldBounds, *templateFaces[i]);
-                addFace(face);
+                face->setBrush(this);
+                m_faces.push_back(face);
+                
+                for (size_t j = 0; j < m_geometry->sides.size(); j++) {
+                    Side* side = m_geometry->sides[j];
+                    if (side->face == templateFaces[i]) {
+                        side->face = face;
+                        face->setSide(side);
+                        break;
+                    }
+                }
             }
+
+            // snap(0);
             
             if (m_entity != NULL)
                 m_entity->invalidateGeometry();
@@ -260,6 +272,35 @@ namespace TrenchBroom {
                 m_entity->invalidateGeometry();
         }
 
+        void Brush::correct(float epsilon) {
+            FaceSet newFaces;
+            FaceSet droppedFaces;
+            
+            m_geometry->correct(newFaces, droppedFaces, epsilon);
+            
+            for (FaceSet::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
+                Face* face = *it;
+                face->setBrush(NULL);
+                m_faces.erase(std::remove(m_faces.begin(), m_faces.end(), face), m_faces.end());
+                delete face;
+            }
+            
+            for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
+                Face* face = *it;
+                face->invalidateTexAxes();
+                face->invalidateVertexCache();
+            }
+            
+            for (FaceSet::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
+                Face* face = *it;
+                face->setBrush(this);
+                m_faces.push_back(face);
+            }
+            
+            if (m_entity != NULL)
+                m_entity->invalidateGeometry();
+        }
+        
         void Brush::snap(unsigned int snapTo) {
             FaceSet newFaces;
             FaceSet droppedFaces;
@@ -285,7 +326,8 @@ namespace TrenchBroom {
                 m_faces.push_back(face);
             }
             
-            m_entity->invalidateGeometry();
+            if (m_entity != NULL)
+                m_entity->invalidateGeometry();
         }
         
         bool Brush::canMoveBoundary(const Face& face, const Vec3f& delta) const {
@@ -373,7 +415,8 @@ namespace TrenchBroom {
                 m_faces.push_back(face);
             }
             
-            m_entity->invalidateGeometry();
+            if (m_entity != NULL)
+                m_entity->invalidateGeometry();
             return newVertexPositions;
         }
 
@@ -406,7 +449,8 @@ namespace TrenchBroom {
                 m_faces.push_back(face);
             }
             
-            m_entity->invalidateGeometry();
+            if (m_entity != NULL)
+                m_entity->invalidateGeometry();
             return result;
         }
 
@@ -439,7 +483,8 @@ namespace TrenchBroom {
                 m_faces.push_back(face);
             }
             
-            m_entity->invalidateGeometry();
+            if (m_entity != NULL)
+                m_entity->invalidateGeometry();
             return result;
         }
 
@@ -472,7 +517,8 @@ namespace TrenchBroom {
                 m_faces.push_back(face);
             }
             
-            m_entity->invalidateGeometry();
+            if (m_entity != NULL)
+                m_entity->invalidateGeometry();
             return newVertexPosition;
         }
         
@@ -505,7 +551,8 @@ namespace TrenchBroom {
                 m_faces.push_back(newFace);
             }
             
-            m_entity->invalidateGeometry();
+            if (m_entity != NULL)
+                m_entity->invalidateGeometry();
             return newVertexPosition;
         }
 

@@ -44,6 +44,7 @@ namespace TrenchBroom {
         String const Entity::TargetKey           = "target";
         String const Entity::WadKey              = "wad";
         String const Entity::DefKey              = "_def";
+        String const Entity::DefaultDefinition   = "Quake.fgd";
 
         void Entity::init() {
             m_map = NULL;
@@ -409,9 +410,7 @@ namespace TrenchBroom {
         }
 
         bool Entity::selectable() const {
-            if (m_definition == NULL)
-                return m_brushes.empty();
-            return m_definition->type() == EntityDefinition::PointEntity;
+            return m_brushes.empty();
         }
 
         EditState::Type Entity::setEditState(EditState::Type editState) {

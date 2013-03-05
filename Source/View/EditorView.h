@@ -20,8 +20,11 @@
 #ifndef __TrenchBroom__EditorView__
 #define __TrenchBroom__EditorView__
 
+#include "Model/BrushTypes.h"
+#include "Model/EntityTypes.h"
 #include "Model/TextureTypes.h"
 #include "Utility/VecMath.h"
+#include "View/Animation.h"
 
 #include <wx/cmdproc.h>
 #include <wx/docview.h>
@@ -65,6 +68,7 @@ namespace TrenchBroom {
                 AYaw
             } RotationAxis;
             
+            AnimationManager* m_animationManager;
             Renderer::Camera* m_camera;
             Renderer::MapRenderer* m_renderer;
             Model::Filter* m_filter;
@@ -75,6 +79,7 @@ namespace TrenchBroom {
             Vec3f moveDelta(Direction direction, bool snapToGrid);
             
             void submit(wxCommand* command, bool store = true);
+            void pasteObjects(const Model::EntityList& entities, const Model::BrushList& brushes, const Vec3f& delta);
             void moveTextures(Direction direction, bool snapToGrid);
             void rotateTextures(bool clockwise, bool snapToGrid);
             void moveObjects(Direction direction, bool snapToGrid);
@@ -82,9 +87,9 @@ namespace TrenchBroom {
             void flipObjects(bool horizontally);
             void moveVertices(Direction direction, bool snapToGrid);
             void removeObjects(const wxString& actionName);
-            bool canPaste();
         public:
             EditorView();
+            ~EditorView();
 
             ViewOptions& viewOptions() const;
             Model::Filter& filter() const;
@@ -124,6 +129,7 @@ namespace TrenchBroom {
             void OnEditCut(wxCommandEvent& event);
             void OnEditCopy(wxCommandEvent& event);
             void OnEditPaste(wxCommandEvent& event);
+            void OnEditPasteAtOriginalPosition(wxCommandEvent& event);
             void OnEditDelete(wxCommandEvent& event);
             
             void OnEditSelectAll(wxCommandEvent& event);
@@ -208,8 +214,13 @@ namespace TrenchBroom {
             
             void OnPopupReparentBrushes(wxCommandEvent& event);
             void OnPopupUpdateReparentBrushesMenuItem(wxUpdateUIEvent& event);
+            
+            void OnPopupMoveBrushesToWorld(wxCommandEvent& event);
+            void OnPopupUpdateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event);
+
             void OnPopupCreatePointEntity(wxCommandEvent& event);
             void OnPopupUpdatePointMenuItem(wxUpdateUIEvent& event);
+            
             void OnPopupCreateBrushEntity(wxCommandEvent& event);
             void OnPopupUpdateBrushMenuItem(wxUpdateUIEvent& event);
             

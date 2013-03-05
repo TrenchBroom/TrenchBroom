@@ -250,8 +250,10 @@ namespace TrenchBroom {
         }
 
         void MapGLCanvas::OnMouseLeftDown(wxMouseEvent& event) {
-            if (m_ignoreNextClick)
+            if (m_ignoreNextClick) {
+                event.Skip();
                 return;
+            }
 
             SetFocus();
 			CaptureMouse();
@@ -261,6 +263,7 @@ namespace TrenchBroom {
         void MapGLCanvas::OnMouseLeftUp(wxMouseEvent& event) {
             if (m_ignoreNextClick) {
                 m_ignoreNextClick = false;
+                event.Skip();
                 return;
             }
 
@@ -273,6 +276,7 @@ namespace TrenchBroom {
         void MapGLCanvas::OnMouseLeftDClick(wxMouseEvent& event) {
             if (m_ignoreNextClick) {
                 m_ignoreNextClick = false;
+                event.Skip();
                 return;
             }
 
@@ -283,8 +287,10 @@ namespace TrenchBroom {
         }
 
         void MapGLCanvas::OnMouseRightDown(wxMouseEvent& event) {
-            if (m_ignoreNextClick)
+            if (m_ignoreNextClick) {
+                event.Skip();
                 return;
+            }
 
             SetFocus();
 			CaptureMouse();
@@ -294,6 +300,7 @@ namespace TrenchBroom {
         void MapGLCanvas::OnMouseRightUp(wxMouseEvent& event) {
             if (m_ignoreNextClick) {
                 m_ignoreNextClick = false;
+                event.Skip();
                 return;
             }
 
@@ -304,13 +311,13 @@ namespace TrenchBroom {
                 wxMenu* popupMenu = m_documentViewHolder.view().createEntityPopupMenu();
                 popupMenu->UpdateUI(&m_documentViewHolder.view());
                 PopupMenu(popupMenu);
-                m_inputController->hidePointEntityPreview();
             }
         }
 
         void MapGLCanvas::OnMouseRightDClick(wxMouseEvent& event) {
             if (m_ignoreNextClick) {
                 m_ignoreNextClick = false;
+                event.Skip();
                 return;
             }
 
@@ -321,8 +328,10 @@ namespace TrenchBroom {
         }
 
         void MapGLCanvas::OnMouseMiddleDown(wxMouseEvent& event) {
-            if (m_ignoreNextClick)
-                m_ignoreNextClick = false;
+            if (m_ignoreNextClick) {
+                event.Skip();
+                return;
+            }
 
             SetFocus();
 			CaptureMouse();
@@ -332,6 +341,7 @@ namespace TrenchBroom {
         void MapGLCanvas::OnMouseMiddleUp(wxMouseEvent& event) {
             if (m_ignoreNextClick) {
                 m_ignoreNextClick = false;
+                event.Skip();
                 return;
             }
 
@@ -344,6 +354,7 @@ namespace TrenchBroom {
         void MapGLCanvas::OnMouseMiddleDClick(wxMouseEvent& event) {
             if (m_ignoreNextClick) {
                 m_ignoreNextClick = false;
+                event.Skip();
                 return;
             }
 

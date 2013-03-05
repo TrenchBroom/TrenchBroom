@@ -205,13 +205,17 @@ namespace TrenchBroom {
             AliasSkinList m_skins;
             
             Vec3f unpackFrameVertex(const AliasPackedFrameVertex& packedVertex, const Vec3f& origin, const Vec3f& size);
-            AliasSingleFrame* readFrame(IO::PakStream& stream, const Vec3f& origin, const Vec3f& scale, unsigned int skinWidth, unsigned int skinHeight, const AliasSkinVertexList& vertices, const AliasSkinTriangleList& triangles);
+            AliasSingleFrame* readFrame(IO::IStream& stream, const Vec3f& origin, const Vec3f& scale, unsigned int skinWidth, unsigned int skinHeight, const AliasSkinVertexList& vertices, const AliasSkinTriangleList& triangles);
         public:
-            Alias(const String& name, IO::PakStream stream);
+            Alias(const String& name, IO::IStream stream);
             ~Alias();
             
             inline const String& name() const {
                 return m_name;
+            }
+            
+            inline const AliasFrameList& frames() const {
+                return m_frames;
             }
             
             inline AliasSingleFrame& frame(size_t index) const {

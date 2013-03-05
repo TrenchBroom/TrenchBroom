@@ -110,13 +110,12 @@ namespace TrenchBroom {
 
             int quakeDefIndex = -1;
             int selectionIndex = -1;
-            StringList builtinDefs = Model::EntityDefinitionManager::builtinDefinitionFiles();
-            Utility::sort(builtinDefs);
+            const StringList builtinDefs = Model::EntityDefinitionManager::builtinDefinitionFiles();
             
             for (size_t i = 0; i < builtinDefs.size(); i++) {
                 const String& item = builtinDefs[i];
                 m_defChoice->Append(item);
-                if (Utility::equalsString(item, "Quake.def", false))
+                if (Utility::equalsString(item, Model::Entity::DefaultDefinition, false))
                     quakeDefIndex = static_cast<int>(i);
                 if (Utility::startsWith(def, "builtin:") &&
                     Utility::equalsString(def.substr(8), item, false))
@@ -150,7 +149,7 @@ namespace TrenchBroom {
                 m_modChoice->Append(item);
                 if (Utility::equalsString(item, "id1", false))
                     id1Index = static_cast<int>(i);
-                if (Utility::equalsString(mod, item, false))
+                if (Utility::equalsString(item, mod, false))
                     selectionIndex = static_cast<int>(i);
             }
             
@@ -197,17 +196,18 @@ namespace TrenchBroom {
             modText->SetFont(*wxSMALL_FONT);
 #endif
             modText->Wrap(width);
-            m_modChoice = new wxChoice(modBox, CommandIds::MapPropertiesDialog::ModChoiceId, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_SORT);
+            m_modChoice = new wxChoice(modBox, CommandIds::MapPropertiesDialog::ModChoiceId);
             
             wxSizer* modBoxSizer = new wxBoxSizer(wxVERTICAL);
-            modBoxSizer->AddSpacer(LayoutConstants::StaticBoxInnerMargin);
-            modBoxSizer->Add(defText, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
+            modBoxSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
+            modBoxSizer->Add(defText, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             modBoxSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            modBoxSizer->Add(m_defChoice, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
+            modBoxSizer->Add(m_defChoice, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             modBoxSizer->AddSpacer(2 * LayoutConstants::ControlVerticalMargin);
-            modBoxSizer->Add(modText, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
+            modBoxSizer->Add(modText, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             modBoxSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            modBoxSizer->Add(m_modChoice, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, LayoutConstants::StaticBoxInnerMargin);
+            modBoxSizer->Add(m_modChoice, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
+            modBoxSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
             modBox->SetSizerAndFit(modBoxSizer);
 
             IO::FileManager fileManager;
@@ -246,12 +246,13 @@ namespace TrenchBroom {
             wadButtonsSizer->Add(m_moveWadDownButton);
             
             wxSizer* wadBoxSizer = new wxBoxSizer(wxVERTICAL);
-            wadBoxSizer->AddSpacer(LayoutConstants::StaticBoxInnerMargin);
-            wadBoxSizer->Add(wadText, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
+            wadBoxSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
+            wadBoxSizer->Add(wadText, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             wadBoxSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            wadBoxSizer->Add(m_wadList, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxInnerMargin);
+            wadBoxSizer->Add(m_wadList, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             wadBoxSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            wadBoxSizer->Add(wadButtonsSizer, 0, wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT | wxALIGN_LEFT, LayoutConstants::StaticBoxInnerMargin);
+            wadBoxSizer->Add(wadButtonsSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxALIGN_LEFT, LayoutConstants::StaticBoxSideMargin);
+            wadBoxSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
             wadBox->SetSizerAndFit(wadBoxSizer);
             
             wxSizer* buttonSizer = CreateButtonSizer(wxCLOSE);
@@ -299,11 +300,11 @@ namespace TrenchBroom {
                 Controller::EntityDefinitionCommand* command = Controller::EntityDefinitionCommand::setEntityDefinitionFile(m_document, defPath);
                 m_document.GetCommandProcessor()->Submit(command);
             } else if (index == static_cast<int>(builtinDefs.size())) {
-                wxFileDialog openDefinitionDialog(NULL, wxT("Choose entity definition file"), wxT(""), wxT(""), wxT("*.def"), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+                wxFileDialog openDefinitionDialog(NULL, wxT("Choose entity definition file"), wxT(""), wxT(""), wxT("DEF files (*.def)|*.def|FGD files (*.fgd)|*.fgd"), wxFD_OPEN | wxFD_FILE_MUST_EXIST);
                 if (openDefinitionDialog.ShowModal() == wxID_OK) {
                     PathDialog pathDialog(this, openDefinitionDialog.GetPath().ToStdString());
                     if (pathDialog.ShowModal() == wxID_OK) {
-                        Controller::EntityDefinitionCommand* command = Controller::EntityDefinitionCommand::setEntityDefinitionFile(m_document, pathDialog.path());
+                        Controller::EntityDefinitionCommand* command = Controller::EntityDefinitionCommand::setEntityDefinitionFile(m_document, "external:" + pathDialog.path());
                         m_document.GetCommandProcessor()->Submit(command);
                         init();
                     }

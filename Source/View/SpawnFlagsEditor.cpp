@@ -22,6 +22,7 @@
 #include "Controller/EntityPropertyCommand.h"
 #include "Model/Entity.h"
 #include "Model/EntityDefinition.h"
+#include "Model/PropertyDefinition.h"
 #include "Utility/CommandProcessor.h"
 
 #include <wx/checkbox.h>
@@ -104,21 +105,15 @@ namespace TrenchBroom {
             }
             
             for (unsigned int i = 0; i < 24; i++) {
-
                 wxColour colour = wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT);
                 wxString label;
-                if (i == 8) {
-                    label << "!Easy";
-                } else if (i == 9) {
-                    label << "!Normal";
-                } else if (i == 10) {
-                    label << "!Hard";
-                } else if (i == 11) {
-                    label << "!DM";
-                } else if (definition != NULL) {
-                    const Model::Spawnflag* spawnflag = definition->spawnflag(static_cast<int>(1 << i));
+
+                if (definition != NULL) {
+                    const Model::FlagsPropertyDefinition* spawnflags = definition->spawnflags();
+                    
+                    const Model::FlagsPropertyOption* spawnflag = spawnflags != NULL ? spawnflags->option(static_cast<int>(1 << i)) : NULL;
                     if (spawnflag != NULL) {
-                        label << spawnflag->name();
+                        label << spawnflag->description();
                     } else {
                         label << (1 << i);
                         colour = wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT);
@@ -128,21 +123,29 @@ namespace TrenchBroom {
                     colour = wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT);
                 }
                 
-                m_flags[i]->SetLabel(label);
-                m_flags[i]->SetForegroundColour(colour);
+                if (m_flags[i]->GetLabel() != label)
+                    m_flags[i]->SetLabel(label);
+                if (m_flags[i]->GetForegroundColour() != colour)
+                    m_flags[i]->SetForegroundColour(colour);
                 
                 switch (values[i]) {
                     case On:
-                        m_flags[i]->Set3StateValue(wxCHK_CHECKED);
+                        if (m_flags[i]->Get3StateValue() != wxCHK_CHECKED)
+                            m_flags[i]->Set3StateValue(wxCHK_CHECKED);
                         break;
                     case Mixed:
-                        m_flags[i]->Set3StateValue(wxCHK_UNDETERMINED);
+                        if (m_flags[i]->Get3StateValue() != wxCHK_UNDETERMINED)
+                            m_flags[i]->Set3StateValue(wxCHK_UNDETERMINED);
                         break;
                     default:
-                        m_flags[i]->Set3StateValue(wxCHK_UNCHECKED);
+                        if (m_flags[i]->Get3StateValue() != wxCHK_UNCHECKED)
+                            m_flags[i]->Set3StateValue(wxCHK_UNCHECKED);
                         break;
                 }
             }
+
+            m_scrolledWindow->FitInside();
+            m_scrolledWindow->Refresh();
         }
 
         SpawnFlagsEditor::SpawnFlagsEditor(SmartPropertyEditorManager& manager) :

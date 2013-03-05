@@ -3,7 +3,7 @@ body {
 	text-align: center;
 }
 
-p, li, div {
+p, div {
 	font-size: 12pt;
 }
 
@@ -38,10 +38,10 @@ h3 {
 
 div.image {
 	text-align: center;
+	margin-bottom: 50px;
 }
 
 a {
-	color: rgb(235,125,0);
 	text-decoration: none;
 }
 
@@ -58,9 +58,70 @@ div#content {
 	text-align: left;
 }
 
+div.downloads {
+	float: left;
+	width: 462px;
+	background-color: #dddddd;
+	border-radius: 10px;
+	padding: 20px;
+	margin-top: 20px;
+}
+
+div.downloads  h2 {
+	margin-top: 0px;
+	text-align: center;
+}
+
+div.downloads  h3 {
+	margin-top: 30px;
+	margin-bottom: 2px;
+	border-bottom: 2px solid gray;
+}
+
+div.downloads a {
+	color: #0B5F19;
+}
+
+div.requirements {
+	border: 2px solid #74100D;
+	background-color: #FFA7A5;
+	border-radius: 5px;
+	padding: 10px;
+	margin-top: 20px;
+}
+
+div.requirements h3 {
+	margin: 0px;
+	margin-bottom: 2px;
+	border-bottom: 0px;
+	text-align: center;
+}
+
+div.requirements a {
+	color: #74100D;
+}
+
+div.requirements ul {
+	margin: 0px;
+}
+
 div.latest {
-	border: 2px solid #AA0000;
-	background-color: #440000;
+	border: 2px solid #0B5F19;
+	background-color: #83DE93;
+	border-radius: 5px;
+	padding: 10px;
+	text-align: center;
+}
+
+div.latest h3 {
+	margin: 0px;
+	margin-bottom: 2px;
+	border-bottom: 0px;
+	text-align: center;
+}
+
+div.latest a {
+	color: #0B5F19;
 }
 
 hr {
@@ -72,10 +133,15 @@ ul.menu {
 	display: inline;
 	margin: 0px;
 	padding: 0px;
+	font-size: 20px;
 }
 
 ul.menu li {
 	display: inline;
 	margin: 0 10px 0 10px;
 	font-weight: bold;
+}
+
+ul.menu a {
+	color: rgb(235,125,0);
 }

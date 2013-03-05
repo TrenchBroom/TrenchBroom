@@ -75,8 +75,7 @@ namespace TrenchBroom {
         
         void InputController::updateHits() {
             m_inputState.invalidate();
-            if (m_dragTool == NULL)
-                m_toolChain->updateHits(m_inputState);
+            m_toolChain->updateHits(m_inputState);
         }
         
         void InputController::updateViews() {
@@ -522,10 +521,10 @@ namespace TrenchBroom {
                 
                 Model::FaceHit* hit = static_cast<Model::FaceHit*>(m_inputState.pickResult().first(Model::HitType::FaceHit, true, view.filter()));
                 if (hit != NULL) {
-                    delta = grid.moveDeltaForEntity(hit->face(), entity->bounds(), worldBounds, m_inputState.pickRay(), hit->hitPoint());
+                    delta = grid.moveDeltaForBounds(hit->face(), entity->bounds(), worldBounds, m_inputState.pickRay(), hit->hitPoint());
                 } else {
                     Vec3f newPosition = m_documentViewHolder.view().camera().defaultPoint(m_inputState.pickRay().direction);
-                    delta = grid.moveDeltaForEntity(entity->bounds().center(), worldBounds, newPosition - entity->bounds().center());
+                    delta = grid.moveDeltaForPoint(entity->bounds().center(), worldBounds, newPosition - entity->bounds().center());
                 }
                 
                 // delta = grid.snap(delta);
@@ -585,23 +584,23 @@ namespace TrenchBroom {
             }
         }
         
-        Model::Entity* InputController::canReparentBrushes(const Model::BrushList& brushes) {
-            Model::MapDocument& document = m_documentViewHolder.document();
-            View::EditorView& view = m_documentViewHolder.view();
-            
-            Model::Hit* hit = m_inputState.pickResult().first(Model::HitType::ObjectHit, false, view.filter());
-            Model::Entity* newParent = NULL;
-            if (hit == NULL) {
-                newParent = document.map().worldspawn();
-            } else if (hit->type() == Model::HitType::FaceHit) {
-                Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(hit);
-                newParent = faceHit->face().brush()->entity();
-            } else {
-                Model::EntityHit* entityHit = static_cast<Model::EntityHit*>(hit);
-                newParent = &entityHit->entity();
+        const Model::Entity* InputController::canReparentBrushes(const Model::BrushList& brushes, const Model::Entity* newParent) {
+            if (newParent == NULL) {
+                View::EditorView& view = m_documentViewHolder.view();
+                Model::Hit* hit = m_inputState.pickResult().first(Model::HitType::ObjectHit, false, view.filter());
+                if (hit != NULL) {
+                    if (hit->type() == Model::HitType::FaceHit) {
+                        Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(hit);
+                        newParent = faceHit->face().brush()->entity();
+                    } else {
+                        Model::EntityHit* entityHit = static_cast<Model::EntityHit*>(hit);
+                        newParent = &entityHit->entity();
+                    }
+                }
             }
             
-            assert(newParent != NULL);
+            if (newParent == NULL)
+                return NULL;
             
             Model::BrushList::const_iterator it, end;
             for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
@@ -613,26 +612,27 @@ namespace TrenchBroom {
             return NULL;
         }
         
-        void InputController::reparentBrushes(const Model::BrushList& brushes) {
-            Model::MapDocument& document = m_documentViewHolder.document();
-            View::EditorView& view = m_documentViewHolder.view();
-            
-            Model::Hit* hit = m_inputState.pickResult().first(Model::HitType::ObjectHit, false, view.filter());
-            Model::Entity* newParent = NULL;
-            if (hit == NULL) {
-                newParent = document.map().worldspawn();
-            } else if (hit->type() == Model::HitType::FaceHit) {
-                Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(hit);
-                newParent = faceHit->face().brush()->entity();
-            } else {
-                Model::EntityHit* entityHit = static_cast<Model::EntityHit*>(hit);
-                newParent = &entityHit->entity();
+        void InputController::reparentBrushes(const Model::BrushList& brushes, Model::Entity* newParent) {
+            if (newParent == NULL) {
+                View::EditorView& view = m_documentViewHolder.view();
+                Model::Hit* hit = m_inputState.pickResult().first(Model::HitType::ObjectHit, false, view.filter());
+                if (hit != NULL) {
+                    if (hit->type() == Model::HitType::FaceHit) {
+                        Model::FaceHit* faceHit = static_cast<Model::FaceHit*>(hit);
+                        newParent = faceHit->face().brush()->entity();
+                    } else {
+                        Model::EntityHit* entityHit = static_cast<Model::EntityHit*>(hit);
+                        newParent = &entityHit->entity();
+                    }
+                }
             }
             
             assert(newParent != NULL);
             
+            Model::MapDocument& document = m_documentViewHolder.document();
+
             StringStream commandName;
-            commandName << "Add Brushes to ";
+            commandName << "Move " << (brushes.size() == 1 ? "Brush" : "Brushes") << " to ";
             commandName << *newParent->classname();
             
             ChangeEditStateCommand* deselectAll = ChangeEditStateCommand::deselectAll(document);
@@ -651,36 +651,6 @@ namespace TrenchBroom {
             
             document.GetCommandProcessor()->Submit(select);
             CommandProcessor::EndGroup(document.GetCommandProcessor());
-        }
-        
-        void InputController::showPointEntityPreview(Model::PointEntityDefinition& definition) {
-            Model::MapDocument& document = m_documentViewHolder.document();
-            View::EditorView& view = m_documentViewHolder.view();
-
-            Vec3f origin;
-            Utility::Grid& grid = document.grid();
-            
-            Model::FaceHit* hit = static_cast<Model::FaceHit*>(m_inputState.pickResult().first(Model::HitType::FaceHit, true, view.filter()));
-            if (hit != NULL) {
-                origin = grid.moveDeltaForEntity(hit->face(), definition.bounds(), document.map().worldBounds(), m_inputState.pickRay(), hit->hitPoint());
-            } else {
-                Vec3f newPosition = m_documentViewHolder.view().camera().defaultPoint(m_inputState.pickRay().direction);
-                origin = grid.moveDeltaForEntity(Vec3f::Null, document.map().worldBounds(), newPosition);
-            }
-            
-            // origin = grid.snap(origin);
-
-            if (m_createEntityHelper == NULL)
-                m_createEntityHelper = new CreateEntityFromMenuHelper(document);
-            m_createEntityHelper->show(definition, origin);
-            updateViews();
-        }
-        
-        void InputController::hidePointEntityPreview() {
-            if (m_createEntityHelper != NULL) {
-                m_createEntityHelper->hide();
-                updateViews();
-            }
         }
 
         InputControllerFigure::InputControllerFigure(InputController& inputController) :

@@ -49,17 +49,22 @@
 #include "Model/PointFile.h"
 #include "Model/TextureManager.h"
 #include "Renderer/Camera.h"
+#include "Renderer/EntityModelRendererManager.h"
 #include "Renderer/MapRenderer.h"
+#include "Renderer/SharedResources.h"
+#include "Renderer/TextureRendererManager.h"
 #include "Utility/CommandProcessor.h"
 #include "Utility/Console.h"
 #include "Utility/Grid.h"
 #include "Utility/List.h"
 #include "Utility/Preferences.h"
 #include "View/AbstractApp.h"
+#include "View/CameraAnimation.h"
 #include "View/CommandIds.h"
 #include "View/EditorFrame.h"
 #include "View/EntityInspector.h"
 #include "View/FaceInspector.h"
+#include "View/FlashSelectionAnimation.h"
 #include "View/Inspector.h"
 #include "View/MapGLCanvas.h"
 #include "View/MapPropertiesDialog.h"
@@ -89,6 +94,7 @@ namespace TrenchBroom {
         EVT_MENU(wxID_CUT, EditorView::OnEditCut)
         EVT_MENU(wxID_COPY, EditorView::OnEditCopy)
         EVT_MENU(wxID_PASTE, EditorView::OnEditPaste)
+        EVT_MENU(CommandIds::Menu::EditPasteAtOriginalPosition, EditorView::OnEditPasteAtOriginalPosition)
         EVT_MENU(wxID_DELETE, EditorView::OnEditDelete)
 
         EVT_MENU(CommandIds::Menu::EditSelectAll, EditorView::OnEditSelectAll)
@@ -179,6 +185,8 @@ namespace TrenchBroom {
 
         EVT_MENU(CommandIds::CreateEntityPopupMenu::ReparentBrushes, EditorView::OnPopupReparentBrushes)
         EVT_UPDATE_UI(CommandIds::CreateEntityPopupMenu::ReparentBrushes, EditorView::OnPopupUpdateReparentBrushesMenuItem)
+        EVT_MENU(CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld, EditorView::OnPopupMoveBrushesToWorld)
+        EVT_UPDATE_UI(CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld, EditorView::OnPopupUpdateMoveBrushesToWorldMenuItem)
         EVT_MENU_RANGE(CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem, EditorView::OnPopupCreatePointEntity)
         EVT_UPDATE_UI_RANGE(CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem, EditorView::OnPopupUpdatePointMenuItem)
 
@@ -193,6 +201,47 @@ namespace TrenchBroom {
             mapDocument().GetCommandProcessor()->Submit(command, store);
         }
 
+        void EditorView::pasteObjects(const Model::EntityList& entities, const Model::BrushList& brushes, const Vec3f& delta) {
+            assert(entities.empty() != brushes.empty());
+            
+            Model::EntityList selectEntities;
+            Model::BrushList selectBrushes = brushes;
+            
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
+                Model::Entity& entity = **entityIt;
+                const Model::BrushList& entityBrushes = entity.brushes();
+                if (!entityBrushes.empty())
+                    selectBrushes.insert(selectBrushes.begin(), entityBrushes.begin(), entityBrushes.end());
+                else
+                    selectEntities.push_back(&entity);
+            }
+            
+            // correct vertex rounding errors
+            Model::BrushList::iterator brushIt, brushEnd;
+            for (brushIt = selectBrushes.begin(), brushEnd = selectBrushes.end(); brushIt != brushEnd; ++brushIt) {
+                Model::Brush& brush = **brushIt;
+                brush.correct(0.01f);
+            }
+            
+            Controller::AddObjectsCommand* addObjectsCommand = Controller::AddObjectsCommand::addObjects(mapDocument(), entities, brushes);
+            Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::replace(mapDocument(), selectEntities, selectBrushes);
+            Controller::MoveObjectsCommand* moveObjectsCommand = delta.null() ? NULL : Controller::MoveObjectsCommand::moveObjects(mapDocument(), selectEntities, selectBrushes, delta, mapDocument().textureLock());
+            
+            wxCommandProcessor* commandProcessor = mapDocument().GetCommandProcessor();
+            CommandProcessor::BeginGroup(commandProcessor, Controller::Command::makeObjectActionName(wxT("Paste"), selectEntities, selectBrushes));
+            submit(addObjectsCommand);
+            submit(changeEditStateCommand);
+            if (moveObjectsCommand != NULL)
+                submit(moveObjectsCommand);
+            CommandProcessor::EndGroup(commandProcessor);
+            
+            StringStream message;
+            message << "Pasted "    << selectEntities.size()    << (selectEntities.size() == 1 ? " entity " : " entities");
+            message << " and "      << selectBrushes.size()     << (selectBrushes.size() == 1 ? " brush " : " brushes");
+            mapDocument().console().info(message.str());
+        }
+        
         Vec3f EditorView::moveDelta(Direction direction, bool snapToGrid) {
             Vec3f moveDirection;
             switch (direction) {
@@ -325,35 +374,9 @@ namespace TrenchBroom {
             CommandProcessor::EndGroup(commandProcessor);
         }
 
-        bool EditorView::canPaste() {
-            bool result = false;
-            if (wxTheClipboard->Open()) {
-                if (wxTheClipboard->IsSupported(wxDF_TEXT)) {
-                    Model::EntityList entities;
-                    Model::BrushList brushes;
-                    Model::FaceList faces;
-
-                    wxTextDataObject clipboardData;
-                    wxTheClipboard->GetData(clipboardData);
-                    StringStream stream;
-                    stream.str(clipboardData.GetText().ToStdString());
-                    IO::MapParser mapParser(stream, console());
-
-                    if (mapParser.parseEntities(mapDocument().map().worldBounds(), entities))
-                        result = true;
-                    else if (mapParser.parseBrushes(mapDocument().map().worldBounds(), brushes))
-                        result = true;
-                    else if (mapParser.parseFaces(mapDocument().map().worldBounds(), faces))
-                        result = true;
-                }
-                wxTheClipboard->Close();
-            }
-            return result;
-        }
-
-
         EditorView::EditorView() :
         wxView(),
+        m_animationManager(new AnimationManager()),
         m_camera(NULL),
         m_renderer(NULL),
         m_filter(NULL),
@@ -361,6 +384,11 @@ namespace TrenchBroom {
         m_createEntityPopupMenu(NULL),
         m_createPointEntityMenu(NULL) {}
 
+        EditorView::~EditorView() {
+            m_animationManager->Delete();
+            m_animationManager = NULL;
+        }
+        
         ViewOptions& EditorView::viewOptions() const {
             return *m_viewOptions;
         }
@@ -448,6 +476,8 @@ namespace TrenchBroom {
                 m_createEntityPopupMenu->SetEventHandler(this);
 
                 m_createEntityPopupMenu->Append(CommandIds::CreateEntityPopupMenu::ReparentBrushes, wxT("Move Brushes to..."));
+                m_createEntityPopupMenu->Append(CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld, wxT("Move Brushes to World"));
+                m_createEntityPopupMenu->AppendSeparator();
                 m_createEntityPopupMenu->AppendSubMenu(pointMenu, wxT("Create Point Entity"));
                 m_createEntityPopupMenu->AppendSubMenu(brushMenu, wxT("Create Brush Entity"));
             }
@@ -548,17 +578,23 @@ namespace TrenchBroom {
                         m_renderer->invalidateEntityModelRendererCache();
                         inspector().entityInspector().updateEntityBrowser();
                         break;
+                    case Controller::Command::InvalidateInstancedRenderers:
+                        inputController().moveVerticesTool().resetInstancedRenderers();
+                        break;
                     case Controller::Command::SetFaceAttributes:
                     case Controller::Command::MoveTextures:
                     case Controller::Command::RotateTextures: {
                         m_renderer->invalidateSelectedBrushes();
                         inspector().faceInspector().updateFaceAttributes();
+                        inspector().faceInspector().updateSelectedTexture();
+                        inspector().faceInspector().updateTextureBrowser();
                         break;
                     }
                     case Controller::Command::RemoveTextureCollection:
-                    case Controller::Command::AddTextureCollection:
                     case Controller::Command::MoveTextureCollectionUp:
                     case Controller::Command::MoveTextureCollectionDown: {
+                        mapDocument().sharedResources().textureRendererManager().invalidate();
+                    case Controller::Command::AddTextureCollection:
                         m_renderer->invalidateAll();
                         inspector().faceInspector().updateFaceAttributes();
                         inspector().faceInspector().updateTextureBrowser();
@@ -570,10 +606,8 @@ namespace TrenchBroom {
                     case Controller::Command::SetEntityPropertyKey:
                     case Controller::Command::SetEntityPropertyValue:
                     case Controller::Command::RemoveEntityProperty: {
-                        Controller::EntityPropertyCommand* entityPropertyCommand = static_cast<Controller::EntityPropertyCommand*>(command);
                         m_renderer->invalidateEntities();
-                        if (entityPropertyCommand->definitionChanged())
-                            m_renderer->invalidateEntityModelRendererCache();
+                        m_renderer->invalidateSelectedEntityModelRendererCache();
                         inspector().entityInspector().updateProperties();
                         inputController().objectsChange();
                         break;
@@ -586,6 +620,7 @@ namespace TrenchBroom {
                             m_renderer->removeEntities(addObjectsCommand->addedEntities());
                         if (addObjectsCommand->hasAddedBrushes())
                             m_renderer->invalidateBrushes();
+                        inspector().faceInspector().updateTextureBrowser();
                         break;
                     }
                     case Controller::Command::MoveObjects:
@@ -609,6 +644,7 @@ namespace TrenchBroom {
                         if (!removeObjectsCommand->removedBrushes().empty())
                             m_renderer->invalidateBrushes();
                         break;
+                        inspector().faceInspector().updateTextureBrowser();
                     }
                     case Controller::Command::ReparentBrushes:
                         m_renderer->invalidateSelectedBrushes();
@@ -621,11 +657,12 @@ namespace TrenchBroom {
                         break;
                     case Controller::Command::SetMod:
                     case Controller::Command::SetEntityDefinitionFile:
+                        mapDocument().sharedResources().modelRendererManager().clearMismatches();
                         m_renderer->invalidateEntityModelRendererCache();
-                        m_renderer->invalidateAll();
                         inspector().entityInspector().updateProperties();
                         inspector().entityInspector().updateEntityBrowser();
                         inputController().objectsChange();
+                        m_renderer->invalidateAll();
                         break;
                     default:
                         break;
@@ -823,42 +860,77 @@ namespace TrenchBroom {
                             face.setTexture(texture);
 
                             const Model::FaceList& selectedFaces = mapDocument().editStateManager().selectedFaces();
-                            Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(mapDocument(), selectedFaces, wxT("Paste Faces"));
-                            command->setTemplate(face);
-                            submit(command);
-                        } else {
-                            mapParser.parseEntities(mapDocument().map().worldBounds(), entities);
-                            mapParser.parseBrushes(mapDocument().map().worldBounds(), brushes);
+                            if (!selectedFaces.empty()) {
+                                Controller::SetFaceAttributesCommand* command = new Controller::SetFaceAttributesCommand(mapDocument(), selectedFaces, wxT("Paste Faces"));
+                                command->setTemplate(face);
+                                submit(command);
+
+                                if (faces.size() == 1)
+                                    mapDocument().console().info("Pasted 1 face from clipboard", faces.size());
+                                else
+                                    mapDocument().console().info("Pasted last of %d faces from clipboard", faces.size());
+                            } else {
+                                mapDocument().console().warn("Could not paste faces because no faces are selected");
+                            }
+                        } else if (mapParser.parseEntities(mapDocument().map().worldBounds(), entities) ||
+                                   mapParser.parseBrushes(mapDocument().map().worldBounds(), brushes)) {
                             assert(entities.empty() != brushes.empty());
 
-                            Model::EntityList selectEntities;
-                            Model::BrushList selectBrushes = brushes;
+                            const BBox objectsBounds = Model::MapObject::bounds(entities, brushes);
+                            const Vec3f objectsPosition = mapDocument().grid().referencePoint(objectsBounds);
 
-                            Model::EntityList::iterator entityIt, entityEnd;
-                            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
-                                Model::Entity& entity = **entityIt;
-                                const Model::BrushList& entityBrushes = entity.brushes();
-                                if (!entityBrushes.empty())
-                                    selectBrushes.insert(selectBrushes.begin(), entityBrushes.begin(), entityBrushes.end());
-                                else
-                                    selectEntities.push_back(&entity);
+                            Vec3f delta;
+
+                            wxMouseState mouseState = wxGetMouseState();
+                            EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
+                            const wxPoint clientCoords = frame->mapCanvas().ScreenToClient(mouseState.GetPosition());
+                            if (frame->mapCanvas().HitTest(clientCoords) == wxHT_WINDOW_INSIDE) {
+                                Controller::InputState& inputState = inputController().inputState();
+                                Model::PickResult& pickResult = inputState.pickResult();
+                                Model::FaceHit* hit = static_cast<Model::FaceHit*>(pickResult.first(Model::HitType::FaceHit, true, filter()));
+                                if (hit != NULL) {
+                                    const Vec3f snappedHitPoint = mapDocument().grid().snap(hit->hitPoint());
+                                    delta = mapDocument().grid().moveDeltaForBounds(hit->face(), objectsBounds, mapDocument().map().worldBounds(), inputState.pickRay(), snappedHitPoint);
+                                } else {
+                                    const Vec3f targetPosition = mapDocument().grid().snap(camera().defaultPoint(inputState.pickRay().direction));
+                                    delta = targetPosition - objectsPosition;
+                                }
+                            } else {
+                                const Vec3f targetPosition = mapDocument().grid().snap(camera().defaultPoint());
+                                delta = targetPosition - objectsPosition;
                             }
 
+                            pasteObjects(entities, brushes, delta);
+                        } else {
+                            mapDocument().console().warn("Unable to parse clipboard contents");
+                        }
+                    }
+                    wxTheClipboard->Close();
+                }
+            }
+        }
 
-                            BBox bounds = Model::MapObject::bounds(entities, brushes);
-                            Vec3f delta = camera().defaultPoint() - mapDocument().grid().snap(bounds.center());
-                            delta = mapDocument().grid().snap(delta);
-
-                            Controller::AddObjectsCommand* addObjectsCommand = Controller::AddObjectsCommand::addObjects(mapDocument(), entities, brushes);
-                            Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::replace(mapDocument(), selectEntities, selectBrushes);
-                            Controller::MoveObjectsCommand* moveObjectsCommand = Controller::MoveObjectsCommand::moveObjects(mapDocument(), selectEntities, selectBrushes, delta, mapDocument().textureLock());
-
-                            wxCommandProcessor* commandProcessor = mapDocument().GetCommandProcessor();
-                            CommandProcessor::BeginGroup(commandProcessor, Controller::Command::makeObjectActionName(wxT("Paste"), selectEntities, selectBrushes));
-                            submit(addObjectsCommand);
-                            submit(changeEditStateCommand);
-                            submit(moveObjectsCommand);
-                            CommandProcessor::EndGroup(commandProcessor);
+        void EditorView::OnEditPasteAtOriginalPosition(wxCommandEvent& event) {
+            if (wxTextCtrl* textCtrl = wxDynamicCast(GetFrame()->FindFocus(), wxTextCtrl)) {
+                textCtrl->Paste();
+            } else {
+                if (wxTheClipboard->Open()) {
+                    if (wxTheClipboard->IsSupported(wxDF_TEXT)) {
+                        Model::EntityList entities;
+                        Model::BrushList brushes;
+                        
+                        wxTextDataObject clipboardData;
+                        wxTheClipboard->GetData(clipboardData);
+                        StringStream stream;
+                        stream.str(clipboardData.GetText().ToStdString());
+                        IO::MapParser mapParser(stream, console());
+                        
+                        if (mapParser.parseEntities(mapDocument().map().worldBounds(), entities) ||
+                                   mapParser.parseBrushes(mapDocument().map().worldBounds(), brushes)) {
+                            assert(entities.empty() != brushes.empty());
+                            pasteObjects(entities, brushes, Vec3f::Null);
+                        } else {
+                            mapDocument().console().warn("Unable to parse clipboard contents");
                         }
                     }
                     wxTheClipboard->Close();
@@ -884,7 +956,6 @@ namespace TrenchBroom {
                 for (unsigned int i = 0; i < entities.size(); i++) {
                     Model::Entity& entity = *entities[i];
                     if (m_filter->entitySelectable(entity)) {
-                        assert(entity.definition() == NULL || entity.definition()->type() == Model::EntityDefinition::PointEntity);
                         assert(entity.brushes().empty());
                         selectEntities.push_back(&entity);
                     } else {
@@ -1235,23 +1306,21 @@ namespace TrenchBroom {
                 }
             }
 
-            const Vec3f direction = (-1.0f * m_camera->direction() + m_camera->right()) / 2.0f;
-            Vec3f delta = mapDocument().grid().snapTowards(Vec3f::Null, direction, true);
-            delta.z = 0.0f;
-
             Model::EntityList allNewEntities = Utility::concatenate(newPointEntities, newBrushEntities);
             Model::BrushList allNewBrushes = Utility::concatenate(newWorldBrushes, newEntityBrushes);
 
             Controller::AddObjectsCommand* addObjectsCommand = Controller::AddObjectsCommand::addObjects(mapDocument(), allNewEntities, newWorldBrushes);
             Controller::ChangeEditStateCommand* changeEditStateCommand = Controller::ChangeEditStateCommand::replace(mapDocument(), newPointEntities, allNewBrushes);
-            Controller::MoveObjectsCommand* moveObjectsCommand = Controller::MoveObjectsCommand::moveObjects(mapDocument(), newPointEntities, allNewBrushes, delta, mapDocument().textureLock());
 
             wxCommandProcessor* commandProcessor = mapDocument().GetCommandProcessor();
             CommandProcessor::BeginGroup(commandProcessor, Controller::Command::makeObjectActionName(wxT("Duplicate"), originalEntities, originalBrushes));
             submit(addObjectsCommand);
             submit(changeEditStateCommand);
-            submit(moveObjectsCommand);
             CommandProcessor::EndGroup(commandProcessor);
+            
+            EditorFrame* editorFrame = static_cast<EditorFrame*>(GetFrame());
+            FlashSelectionAnimation* animation = new FlashSelectionAnimation(*m_renderer, editorFrame->mapCanvas(), 150);
+            m_animationManager->runAnimation(animation, true);
         }
 
         void EditorView::OnEditCorrectVertices(wxCommandEvent& event) {
@@ -1445,10 +1514,8 @@ namespace TrenchBroom {
             const Vec3f position = pointFile.nextPoint() + Vec3f(0.0f, 0.0f, 16.0f);
             const Vec3f& direction = pointFile.direction();
 
-            Controller::CameraSetEvent cameraEvent;
-            cameraEvent.set(position, direction, Vec3f::PosZ);
-            cameraEvent.SetEventObject(this);
-            ProcessEvent(cameraEvent);
+            CameraAnimation* animation = new CameraAnimation(*this, position, direction, Vec3f::PosZ, 100);
+            m_animationManager->runAnimation(animation, true);
         }
 
         void EditorView::OnViewMoveCameraToPreviousPoint(wxCommandEvent& event) {
@@ -1460,10 +1527,8 @@ namespace TrenchBroom {
             const Vec3f position = pointFile.previousPoint() + Vec3f(0.0f, 0.0f, 16.0f);
             const Vec3f& direction = pointFile.direction();
 
-            Controller::CameraSetEvent cameraEvent;
-            cameraEvent.set(position, direction, Vec3f::PosZ);
-            cameraEvent.SetEventObject(this);
-            ProcessEvent(cameraEvent);
+            CameraAnimation* animation = new CameraAnimation(*this, position, direction, Vec3f::PosZ, 100);
+            m_animationManager->runAnimation(animation, true);
         }
 
         void EditorView::OnViewCenterCameraOnSelection(wxCommandEvent& event) {
@@ -1619,10 +1684,28 @@ namespace TrenchBroom {
                     }
                     break;
                 case wxID_PASTE:
-                    if (textCtrl != NULL)
+                    if (textCtrl != NULL) {
                         event.Enable(textCtrl->CanPaste());
-                    else
-                        event.Enable(canPaste());
+                    } else {
+                        bool canPaste = false;
+                        if (wxTheClipboard->Open()) {
+                            canPaste = wxTheClipboard->IsSupported(wxDF_TEXT);
+                            wxTheClipboard->Close();
+                        }
+                        event.Enable(canPaste);
+                    }
+                    break;
+                case CommandIds::Menu::EditPasteAtOriginalPosition:
+                    if (textCtrl != NULL) {
+                        event.Enable(false);
+                    } else {
+                        bool canPaste = false;
+                        if (wxTheClipboard->Open()) {
+                            canPaste = wxTheClipboard->IsSupported(wxDF_TEXT);
+                            wxTheClipboard->Close();
+                        }
+                        event.Enable(canPaste);
+                    }
                     break;
                 case CommandIds::Menu::EditHideSelected:
                 case CommandIds::Menu::EditHideUnselected:
@@ -1773,8 +1856,10 @@ namespace TrenchBroom {
                 case CommandIds::Menu::ViewMoveCameraRight:
                 case CommandIds::Menu::ViewMoveCameraUp:
                 case CommandIds::Menu::ViewMoveCameraDown:
-                case CommandIds::Menu::ViewCenterCameraOnSelection:
                     event.Enable(true);
+                    break;
+                case CommandIds::Menu::ViewCenterCameraOnSelection:
+                    event.Enable(editStateManager.hasSelectedObjects());
                     break;
                 case CommandIds::Menu::ViewMoveCameraToNextPoint:
                     event.Enable(mapDocument().pointFileLoaded() && mapDocument().pointFile().hasNextPoint());
@@ -1787,27 +1872,45 @@ namespace TrenchBroom {
 
         void EditorView::OnPopupReparentBrushes(wxCommandEvent& event) {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
-            inputController().reparentBrushes(editStateManager.selectedBrushes());
+            inputController().reparentBrushes(editStateManager.selectedBrushes(), NULL);
         }
 
         void EditorView::OnPopupUpdateReparentBrushesMenuItem(wxUpdateUIEvent& event) {
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+
+            StringStream commandName;
+            commandName << "Move " << (brushes.size() == 1 ? "Brush" : "Brushes") << " to ";
+
             if (editStateManager.selectionMode() != Model::EditStateManager::SMBrushes) {
+                commandName << "Entity";
                 event.Enable(false);
-                event.SetText(wxT("Add Brushes to Entity"));
             } else {
-                const Model::BrushList& brushes = editStateManager.selectedBrushes();
-                Model::Entity* newParent = inputController().canReparentBrushes(brushes);
+                const Model::Entity* newParent = inputController().canReparentBrushes(brushes, NULL);
                 if (newParent != NULL) {
-                    StringStream text;
-                    text << "Add Brushes to " << *newParent->classname();
+                    commandName << *newParent->classname();
                     event.Enable(true);
-                    event.SetText(text.str());
                 } else {
+                    commandName << "Entity";
                     event.Enable(false);
-                    event.SetText(wxT("Add Brushes to Entity"));
                 }
             }
+            event.SetText(commandName.str());
+        }
+        
+        void EditorView::OnPopupMoveBrushesToWorld(wxCommandEvent& event) {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            inputController().reparentBrushes(editStateManager.selectedBrushes(), mapDocument().worldspawn(true));
+        }
+
+        void EditorView::OnPopupUpdateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) {
+            Model::EditStateManager& editStateManager = mapDocument().editStateManager();
+            const Model::BrushList& brushes = editStateManager.selectedBrushes();
+            
+            StringStream commandName;
+            commandName << "Move " << (brushes.size() == 1 ? "Brush" : "Brushes") << " to World";
+            event.SetText(commandName.str());
+            event.Enable(inputController().canReparentBrushes(brushes, mapDocument().worldspawn(true)) != NULL);
         }
 
         void EditorView::OnPopupCreatePointEntity(wxCommandEvent& event) {

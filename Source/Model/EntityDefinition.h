@@ -20,54 +20,69 @@
 #ifndef __TrenchBroom__EntityDefinition__
 #define __TrenchBroom__EntityDefinition__
 
+#include "Model/Entity.h"
 #include "Model/EntityDefinitionTypes.h"
+#include "Model/EntityProperty.h"
 #include "Model/PropertyDefinition.h"
 #include "Utility/Color.h"
+#include "Utility/SharedPointer.h"
 #include "Utility/String.h"
 #include "Utility/VecMath.h"
 
+#include <cassert>
+#include <cstdlib>
 #include <vector>
 
 using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace Model {
-        
-        class Spawnflag {
-        protected:
-            String m_name;
-            int m_value;
+        class ModelDefinitionEvaluator {
         public:
-            Spawnflag(const String& name, int value) : m_name(name), m_value(value) {}
+            typedef std::tr1::shared_ptr<ModelDefinitionEvaluator> Ptr;
             
-            inline const String& name() const {
-                return m_name;
-            }
+            virtual ~ModelDefinitionEvaluator() {}
             
-            inline int value() const {
-                return m_value;
-            }
+            virtual bool evaluate(const PropertyList& properties) const = 0;
         };
         
-        class PointEntityModel {
-        protected:
+        class ModelDefinitionPropertyEvaluator : public ModelDefinitionEvaluator {
+        private:
+            PropertyKey m_propertyKey;
+            PropertyValue m_propertyValue;
+        public:
+            ModelDefinitionPropertyEvaluator(const PropertyKey& propertyKey, const PropertyValue& propertyValue);
+            
+            bool evaluate(const PropertyList& properties) const;
+        };
+        
+        class ModelDefinitionFlagEvaluator : public ModelDefinitionEvaluator {
+        private:
+            PropertyKey m_propertyKey;
+            int m_flagValue;
+        public:
+            ModelDefinitionFlagEvaluator(const PropertyKey& propertyKey, int flagValue);
+            
+            bool evaluate(const PropertyList& properties) const;
+        };
+        
+        class ModelDefinition {
+        public:
+            typedef std::tr1::shared_ptr<ModelDefinition> Ptr;
+            typedef std::vector<Ptr> List;
+        private:
             String m_name;
-            String m_flagName;
             unsigned int m_skinIndex;
             unsigned int m_frameIndex;
+        
+            ModelDefinitionEvaluator::Ptr m_evaluator;
         public:
-            PointEntityModel(const String& name, const String& flagName, unsigned int skinIndex, unsigned int frameIndex) :
-            m_name(name),
-            m_flagName(flagName),
-            m_skinIndex(skinIndex),
-            m_frameIndex(frameIndex) {}
+            ModelDefinition(const String& name, unsigned int skinIndex, unsigned int frameIndex);
+            ModelDefinition(const String& name, unsigned int skinIndex, unsigned int frameIndex, const PropertyKey& propertyKey, const PropertyValue& propertyValue);
+            ModelDefinition(const String& name, unsigned int skinIndex, unsigned int frameIndex, const PropertyKey& propertyKey, int flagValue);
             
             inline const String& name() const {
                 return m_name;
-            }
-            
-            inline const String& flagName() const {
-                return m_flagName;
             }
             
             inline unsigned int skinIndex() const {
@@ -77,13 +92,18 @@ namespace TrenchBroom {
             inline unsigned int frameIndex() const {
                 return m_frameIndex;
             }
+            
+            inline bool matches(const PropertyList& properties) const {
+                if (m_evaluator == NULL)
+                    return true;
+                return m_evaluator->evaluate(properties);
+            }
         };
         
         class EntityDefinition {
         protected:
             String m_name;
             Color m_color;
-            SpawnflagList m_spawnflags;
             String m_description;
             unsigned int m_usageCount;
             PropertyDefinition::List m_propertyDefinitions;
@@ -93,8 +113,8 @@ namespace TrenchBroom {
                 BrushEntity
             };
             
-            EntityDefinition(const String& name, const Color& color, const SpawnflagList& spawnflags, const String& description, const PropertyDefinition::List& propertyDefinitions);
-            virtual ~EntityDefinition();
+            EntityDefinition(const String& name, const Color& color, const String& description, const PropertyDefinition::List& propertyDefinitions);
+            virtual ~EntityDefinition() {}
             
             virtual Type type() const = 0;
             
@@ -120,16 +140,23 @@ namespace TrenchBroom {
                 return m_color;
             }
             
-            const SpawnflagList& spawnflags() const {
-                return m_spawnflags;
+            const FlagsPropertyDefinition* spawnflags() const {
+                PropertyDefinition::List::const_iterator it, end;
+                for (it = m_propertyDefinitions.begin(), end = m_propertyDefinitions.end(); it != end; ++it) {
+                    const PropertyDefinition::Ptr definition = *it;
+                    if (definition->type() == PropertyDefinition::FlagsProperty &&
+                        definition->name() == Model::Entity::SpawnFlagsKey)
+                        return static_cast<const FlagsPropertyDefinition*>(definition.get());
+                }
+                return NULL;
             }
             
-            const Spawnflag* spawnflag(int value) const {
-                SpawnflagList::const_iterator it, end;
-                for (it = m_spawnflags.begin(), end = m_spawnflags.end(); it != end; ++it) {
-                    const Spawnflag& spawnflag = *it;
-                    if (spawnflag.value() == value)
-                        return &spawnflag;
+            const PropertyDefinition* propertyDefinition(const PropertyKey& propertyKey) const {
+                PropertyDefinition::List::const_iterator it, end;
+                for (it = m_propertyDefinitions.begin(), end = m_propertyDefinitions.end(); it != end; ++it) {
+                    const PropertyDefinition::Ptr definition = *it;
+                    if (definition->name() == propertyKey)
+                        return definition.get();
                 }
                 return NULL;
             }
@@ -150,11 +177,9 @@ namespace TrenchBroom {
         class PointEntityDefinition : public EntityDefinition {
         protected:
             BBox m_bounds;
-            PointEntityModel* m_model;
+            ModelDefinition::List m_modelDefinitions;
         public:
-            PointEntityDefinition(const String& name, const Color& color, const SpawnflagList& spawnflags, const BBox& bounds, const String& description, const PropertyDefinition::List& propertyDefinitions);
-            PointEntityDefinition(const String& name, const Color& color, const SpawnflagList& spawnflags, const BBox& bounds, const String& description, const PropertyDefinition::List& propertyDefinitions, const PointEntityModel& model);
-            ~PointEntityDefinition();
+            PointEntityDefinition(const String& name, const Color& color, const BBox& bounds, const String& description, const PropertyDefinition::List& propertyDefinitions, const ModelDefinition::List& modelDefinitions = ModelDefinition::List());
             
             inline Type type() const {
                 return PointEntity;
@@ -163,17 +188,13 @@ namespace TrenchBroom {
             inline const BBox& bounds() const {
                 return m_bounds;
             }
-            
-            inline const PointEntityModel* model() const {
-                return m_model;
-            }
-            
+
+            const ModelDefinition* model(const PropertyList& properties = EmptyPropertyList) const;
         };
         
         class BrushEntityDefinition : public EntityDefinition {
         public:
-            BrushEntityDefinition(const String& name, const Color& color, const SpawnflagList& spawnflags, const String& description, const PropertyDefinition::List& propertyDefinitions);
-            ~BrushEntityDefinition();
+            BrushEntityDefinition(const String& name, const Color& color, const String& description, const PropertyDefinition::List& propertyDefinitions);
             
             inline Type type() const {
                 return BrushEntity;

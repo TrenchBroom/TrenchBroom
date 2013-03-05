@@ -23,7 +23,10 @@
 namespace TrenchBroom {
     namespace IO {
         class WinFileManager : public AbstractFileManager {
+        protected:
+            String appDirectory();
         public:
+            String logDirectory();
             String resourceDirectory();
             String resolveFontPath(const String& fontName);
         };

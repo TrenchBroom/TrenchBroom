@@ -28,6 +28,7 @@ namespace TrenchBroom {
         public:
             ~MacFileManager() {}
             
+            String logDirectory();
             String resourceDirectory();
             String resolveFontPath(const String& fontName);
         };

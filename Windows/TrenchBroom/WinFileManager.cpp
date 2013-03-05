@@ -24,7 +24,7 @@
 
 namespace TrenchBroom {
 	namespace IO {
-        String WinFileManager::resourceDirectory() {
+        String WinFileManager::appDirectory() {
 			TCHAR uAppPathC[MAX_PATH] = L"";
 			DWORD numChars = GetModuleFileName(0, uAppPathC, MAX_PATH - 1);
 
@@ -33,8 +33,15 @@ namespace TrenchBroom {
 			appPathC[numChars] = 0;
 
 			String appPath(appPathC);
-			String appDirectory = deleteLastPathComponent(appPath);
-			return appendPath(appDirectory, "Resources");
+			return deleteLastPathComponent(appPath);
+        }
+
+        String WinFileManager::logDirectory() {
+            return appDirectory();
+        }
+
+        String WinFileManager::resourceDirectory() {
+			return appendPath(appDirectory(), "Resources");
 		}
 
 		String WinFileManager::resolveFontPath(const String& fontName) {

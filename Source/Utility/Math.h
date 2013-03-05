@@ -29,6 +29,7 @@ namespace TrenchBroom {
     namespace Math {
         static const float AlmostZero = 0.001f;
         static const float PointStatusEpsilon = 0.01f;
+        static const float CorrectEpsilon = 0.001f; // this is what QBSP uses
         static const float ColinearEpsilon = 0.01f;
         static const float Pi = 3.141592f;
 
@@ -56,48 +57,52 @@ namespace TrenchBroom {
             return f > 0.0f ? std::floor(f + 0.5f) : std::ceil(f - 0.5f);
         }
 
-        inline float correct(float f) {
-            return round(100.0f * f) / 100.0f;
+        inline float correct(float f, float epsilon = CorrectEpsilon) {
+            const float r = round(f);
+            if (std::abs(f - r) <= epsilon
+                )
+                return r;
+            return f;
         }
 
-        inline bool zero(float f) {
-            return std::abs(f) <= AlmostZero;
+        inline bool zero(float f, float epsilon = AlmostZero) {
+            return std::abs(f) <= epsilon;
         }
 
-        inline bool pos(float f) {
-            return f > AlmostZero;
+        inline bool pos(float f, float epsilon = AlmostZero) {
+            return f > epsilon;
         }
 
-        inline bool neg(float f) {
-            return f < -AlmostZero;
+        inline bool neg(float f, float epsilon = AlmostZero) {
+            return f < -epsilon;
         }
 
-        inline bool eq(float f1, float f2) {
-            return std::abs(f1 - f2) < AlmostZero;
+        inline bool eq(float f1, float f2, float epsilon = AlmostZero) {
+            return std::abs(f1 - f2) < epsilon;
         }
 
-        inline bool gt(float f1, float f2) {
-            return f1 > f2 + AlmostZero;
+        inline bool gt(float f1, float f2, float epsilon = AlmostZero) {
+            return f1 > f2 + epsilon;
         }
 
-        inline bool lt(float f1, float f2) {
-            return f1 < f2 - AlmostZero;
+        inline bool lt(float f1, float f2, float epsilon = AlmostZero) {
+            return f1 < f2 - epsilon;
         }
 
-        inline bool gte(float f1, float f2) {
-            return !lt(f1, f2);
+        inline bool gte(float f1, float f2, float epsilon = AlmostZero) {
+            return !lt(f1, f2, epsilon);
         }
 
-        inline bool lte(float f1, float f2) {
-            return !gt(f1, f2);
+        inline bool lte(float f1, float f2, float epsilon = AlmostZero) {
+            return !gt(f1, f2, epsilon);
         }
 
-        inline bool between(float f, float s, float e) {
-            if (eq(f, s) || eq(f, e))
+        inline bool between(float f, float s, float e, float epsilon = AlmostZero) {
+            if (eq(f, s, epsilon) || eq(f, e, epsilon))
                 return true;
-            if (lt(s, e))
-                return gt(f, s) && lt(f, e);
-            return gt(f, e) && lt(f, s);
+            if (lt(s, e, epsilon))
+                return gt(f, s, epsilon) && lt(f, e, epsilon);
+            return gt(f, e, epsilon) && lt(f, s, epsilon);
         }
         
         inline float selectMin(float f1, float f2) {

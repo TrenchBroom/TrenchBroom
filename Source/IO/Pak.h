@@ -20,11 +20,11 @@
 #ifndef __TrenchBroom__Pak__
 #define __TrenchBroom__Pak__
 
+#include "IO/IOTypes.h"
 #include "IO/mmapped_fstream.h"
 #include "Utility/String.h"
 
 #include <map>
-#include <memory>
 #include <vector>
 
 #ifdef _MSC_VER
@@ -42,8 +42,6 @@ namespace TrenchBroom {
             static const unsigned int EntryNameLength   = 0x38;
             static const String HeaderMagic             = "PACK";
         }
-
-        typedef std::auto_ptr<std::istream> PakStream;
 
         class PakEntry {
             String m_name;
@@ -84,7 +82,7 @@ namespace TrenchBroom {
                 return m_path;
             }
 
-            PakStream entryStream(const String& name);
+            IStream entryStream(const String& name);
         };
 
         class ComparePaksByPath {
@@ -104,7 +102,8 @@ namespace TrenchBroom {
         public:
             static PakManager* sharedManager;
             ~PakManager();
-            PakStream entryStream(const String& name, const StringList& searchPaths);
+            
+            IStream entryStream(const String& name, const String& searchPath);
         };
     }
 }

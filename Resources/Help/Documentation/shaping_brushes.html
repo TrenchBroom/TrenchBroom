@@ -11,7 +11,7 @@
 	<script src="scripts/commands.js"></script>
 	<div id="container">
 		<h2>Shaping Brushes</h2>
-		The shape of a brush can be changed using several different tools. With the <a href="#resizing_brushes">brush resizing</a> tool, you can quickly move faces, thereby changing the brushes size. The <a href="#using_the_clip_tool">clip tool</a> allows you to cut brushes into arbitrary shapes. TrenchBroom also comes with very powerful tools to edit the <a href="vertex_editing">vertices</a>, <a href="edge_editing">edges</a> and the <a href="face_editing">faces</a> of a brush.
+		The shape of a brush can be changed using several different tools. With the <a href="#resizing_brushes">brush resizing</a> tool, you can quickly move faces, thereby changing the brushes size. The <a href="#using_the_clip_tool">clip tool</a> allows you to cut brushes into arbitrary shapes. TrenchBroom also comes with very powerful tools to edit the <a href="#vertex_editing">vertices</a>, <a href="#edge_editing">edges</a> and the <a href="#face_editing">faces</a> of a brush.
 		
 		<a name="resizing_brushes"></a><h3>Resizing Brushes</h3>
 		<div class="images">
@@ -134,10 +134,15 @@
 		</div>
 		<p>In the first screenshot, you see a brush shaped like a frustrum (a frustrum is a pyramid with its tip cut off). The top face is a square with a side length of four grid units. The second screenshot shows the effect of moving the top face upward using face editing mode. As you can see, the side length of the square has not changed - this is because face moving is tantamount to moving the vertices of the face in parallel. In the third screenshot however, you see the effect of resizing the face upwards. In this case, the side length of the top square has changed. Both operations have their advantages and disadvantages and it depends on the context which one you should use.</p>
 		<p>This concludes the section about shaping brushes. You have learned how to drag faces, clip brushes, delete individual faces and how to use the vertex, edge and face editing modes. Together, these tools allow you to create complex brush shapes quickly and precisely.</p>
+
 		<h3>Snapping to Grid</h3>
 		<p>Like other objects, performing translations on handles operates by offsetting the selection by the current grid size.  That is to say, if your current grid size is set to 64 and your handle is on '8 8 8', trying to move it in the X direction would result in the new position of '72 8 8'.  Normally this is fine but sometimes it might be desireable to bring the selection back onto the grid. This is done by pressing <script>print_key("Shift");</script> while dragging the selection and it will immediately snap to the nearest grid point.</p>
 		<p>In the case where you have multiple handles selected, it is the handle that was clicked on for the drag that will be used for snapping to grid.</p>
-		<h2>Working with multiple brushes</h2>
+		
+		<h3>Snapping to Other Vertices</h3>
+		<p>Sometimes it is difficult to snap a vertex onto another vertex in the 3D view. For such cases, there is an easy shortcut: Double click on a vertex handle and drag it onto another vertex handle. The clicked handle will be snapped to the exact position of the target handle. Note that this can be done only once and only with a single vertex. If you inadvertedly snapped the vertex onto the wrong target handle, you must undo the operation and try again.</p>
+
+		<h2>Working With Multiple Brushes</h2>
 		<p>Vertex editing mode is not limited to working with single brushes.  Selecting more than one brush and then pressing <script>print_key("V");</script> to enable vertex mode will cause vertex handles to appear for all brushes in the selection. This is more useful when working on organic brushwork such as terrain. You can build a large group of brushes and modify them all at once without having to change the selection</p>
 		<h3>Vertex Clumping</h3>
 		<p>Trenchbroom will recognize when vertices of multiple brushes share the same position. In this case, when trying to move a vertex, Trenchbroom will move all those vertices together making editing terrain much quicker and easier.</p>

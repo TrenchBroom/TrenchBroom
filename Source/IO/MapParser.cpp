@@ -30,187 +30,77 @@
 
 namespace TrenchBroom {
     namespace IO {
-        MapTokenizer::TokenPtr MapTokenizer::nextToken() {
-            m_buffer.str(String());
-            while (!eof()) {
-                char c = nextChar();
-                switch (m_state) {
-                    case TokenizerState::Default:
-                        switch (c) {
-                            case '/': {
-                                int d = peekChar();
-                                if (d == '/') {
-                                    m_state = TokenizerState::Comment;
-                                    m_startLine = m_line;
-                                    m_startColumn = m_column;
-                                    nextChar();
-                                    break;
-                                }
-                            }
-							case '\r':
-								if (peekChar() == '\n')
-									nextChar();
-                            case '\n':
-                            case '\t':
-                            case ' ':
-                                break; // ignore whitespace in boundaries
-                            case '{':
-                                return token(TokenType::OBrace, "");
-                            case '}':
-                                return token(TokenType::CBrace, "");
-                            case '(':
-                                return token(TokenType::OParenthesis, "");
-                            case ')':
-                                return token(TokenType::CParenthesis, "");
-                            case '[':
-                                return token(TokenType::OBracket, "");
-                            case ']':
-                                return token(TokenType::CBracket, "");
-                            case '"':
-                                m_state = TokenizerState::QString;
-                                m_startLine = m_line;
-                                m_startColumn = m_column;
-                                break;
-                            case '-':
-                            case '0':
-                            case '1':
-                            case '2':
-                            case '3':
-                            case '4':
-                            case '5':
-                            case '6':
-                            case '7':
-                            case '8':
-                            case '9':
-                                m_state = TokenizerState::Integer;
-                                m_buffer << c;
-                                m_startLine = m_line;
-                                m_startColumn = m_column;
-                                break;
-                            default:
-                                m_state = TokenizerState::String;
-                                m_buffer << c;
-                                m_startLine = m_line;
-                                m_startColumn = m_column;
-                                break;
+        Token MapTokenEmitter::doEmit(Tokenizer& tokenizer, size_t line, size_t column) {
+            const size_t startPosition = tokenizer.position();
+            while (!tokenizer.eof()) {
+                char c = tokenizer.nextChar();
+                switch (c) {
+                    case '/':
+                        if (tokenizer.peekChar() == '/') {
+                            // eat everything up to and including the next newline
+                            while (tokenizer.nextChar() != '\n');
                         }
                         break;
-                    case TokenizerState::QString:
-                        switch (c) {
-                            case '"': {
-                                m_state = TokenizerState::Default;
-                                return token(TokenType::String, m_buffer.str(), m_startLine, m_startColumn);
-                            }
-                            default:
+                    case '{':
+                        return Token(TokenType::OBrace, "", startPosition, tokenizer.position() - startPosition, line, column);
+                    case '}':
+                        return Token(TokenType::CBrace, "", startPosition, tokenizer.position() - startPosition, line, column);
+                    case '(':
+                        return Token(TokenType::OParenthesis, "", startPosition, tokenizer.position() - startPosition, line, column);
+                    case ')':
+                        return Token(TokenType::CParenthesis, "", startPosition, tokenizer.position() - startPosition, line, column);
+                    case '[':
+                        return Token(TokenType::OBracket, "", startPosition, tokenizer.position() - startPosition, line, column);
+                    case ']':
+                        return Token(TokenType::CBracket, "", startPosition, tokenizer.position() - startPosition, line, column);
+                    case '"': // quoted string
+                        m_buffer.str(String());
+                        while (!tokenizer.eof() && (c = tokenizer.nextChar()) != '"')
+                            m_buffer << c;
+                        return Token(TokenType::String, m_buffer.str(), startPosition, tokenizer.position() - startPosition, line, column);
+                    default: // whitespace, integer, decimal or word
+                        if (isWhitespace(c))
+                            break;
+                        
+                        // clear the buffer
+                        m_buffer.str(String());
+                        
+                        // try to read a number
+                        if (c == '-' || isDigit(c)) {
+                            m_buffer << c;
+                            while (isDigit((c = tokenizer.nextChar())))
                                 m_buffer << c;
-                                break;
+                            if (isDelimiter(c)) {
+                                if (!tokenizer.eof())
+                                    tokenizer.pushChar();
+                                return Token(TokenType::Integer, m_buffer.str(), startPosition, tokenizer.position() - startPosition, line, column);
+                            }
                         }
-                        break;
-                    case TokenizerState::String: {
-                        bool comment = false;
-                        switch (c) {
-                            case '/': {
-                                if (peekChar() == '/') {
-                                    comment = true;
-                                    nextChar();
-                                }
-                            }
-							case '\r':
-								if (peekChar() == '\n')
-									nextChar();
-                            case '\n':
-                            case '\t':
-                            case ' ': {
-                                m_state = comment ? TokenizerState::Comment : TokenizerState::Default;
-                                return token(TokenType::String, m_buffer.str(), m_startLine, m_startColumn);
-                            }
-                            default:
+                        
+                        // try to read a decimal (may start with '.')
+                        if (c == '.') {
+                            m_buffer << c;
+                            while (isDigit((c = tokenizer.nextChar())))
                                 m_buffer << c;
-                                break;
-                        }
-                        break;
-                    }
-                    case TokenizerState::Integer:
-                        if (c == '.')
-                            m_state = TokenizerState::Decimal;
-                    case TokenizerState::Decimal: {
-                        bool comment = false;
-                        switch (c) {
-                            case '/':
-                                if (peekChar() == '/') {
-                                    comment = true;
-                                    nextChar();
-                                }
-							case '\r':
-								if (peekChar() == '\n')
-									nextChar();
-                            case '\n':
-                            case '\t':
-                            case ' ': {
-                                unsigned int previousState = m_state;
-                                m_state = comment ? TokenizerState::Comment : TokenizerState::Default;
-                                if (previousState == TokenizerState::Integer)
-                                    return token(TokenType::Integer, m_buffer.str(), m_startLine, m_startColumn);
-                                return token(TokenType::Decimal, m_buffer.str(), m_startLine, m_startColumn);
+                            if (isDelimiter(c)) {
+                                if (!tokenizer.eof())
+                                    tokenizer.pushChar();
+                                return Token(TokenType::Decimal, m_buffer.str(), startPosition, tokenizer.position() - startPosition, line, column);
                             }
-                            default:
-                                if ((c < '0' || c > '9') && (c != '.'))
-                                    m_state = TokenizerState::String;
-                                m_buffer << c;
-                                break;
                         }
-                        break;
-                    }
-                    case TokenizerState::Comment:
-                        switch (c) {
-							case '\r':
-								if (peekChar() == '\n')
-									nextChar();
-                            case '\n': {
-                                m_state = TokenizerState::Default;
-                                return token(TokenType::Comment, m_buffer.str(), m_startLine, m_startColumn);
-                            }
-                            default:
-                                m_buffer << c;
-                                break;
-                        }
-                        break;
-                    default:
-                        break;
+                        
+                        // read a word
+                        m_buffer << c;
+                        while (!tokenizer.eof() && !isDelimiter(c = tokenizer.nextChar()))
+                            m_buffer << c;
+                        if (!tokenizer.eof())
+                            tokenizer.pushChar();
+                        return Token(TokenType::String, m_buffer.str(), startPosition, tokenizer.position() - startPosition, line, column);
                 }
             }
-            
-            return MapTokenizer::TokenPtr(NULL);
+            return Token(TokenType::Eof, "", startPosition, tokenizer.position() - startPosition, line, column);
         }
         
-        MapTokenizer::TokenPtr MapTokenizer::peekToken() {
-            unsigned int oldState = m_state;
-            size_t oldLine = m_line;
-            size_t oldColumn = m_column;
-            size_t oldStartLine = m_startLine;
-            size_t oldStartColumn = m_startColumn;
-            std::ios::pos_type oldPosition = m_stream.tellg();
-            
-            MapTokenizer::TokenPtr token = nextToken();
-            m_state = oldState;
-            m_line = oldLine;
-            m_column = oldColumn;
-            m_startLine = oldStartLine;
-            m_startColumn = oldStartColumn;
-            m_stream.seekg(oldPosition, std::ios::beg);
-            
-            return token;
-        }
-        
-        void MapTokenizer::reset() {
-            m_state = TokenizerState::Default;
-            m_line = 1;
-            m_column = 1;
-            m_startLine = 1;
-            m_startColumn = 1;
-            m_stream.seekg(0, std::ios::beg);
-        }
-
         MapParser::MapParser(std::istream& stream, Utility::Console& console) :
         m_console(console),
         m_tokenizer(stream),
@@ -220,7 +110,7 @@ namespace TrenchBroom {
             m_size = static_cast<size_t>(stream.tellg() - cur);
             stream.seekg(cur, std::ios::beg);
         }
-
+        
         void MapParser::parseMap(Model::Map& map, Utility::ProgressIndicator* indicator) {
             Model::Entity* entity = NULL;
             
@@ -234,51 +124,49 @@ namespace TrenchBroom {
             if (indicator != NULL)
                 indicator->update(static_cast<int>(m_size));
         }
-
+        
         Model::Entity* MapParser::parseEntity(const BBox& worldBounds, Utility::ProgressIndicator* indicator) {
-            MapTokenizer::TokenPtr token = nextToken();
-            if (token.get() == NULL)
+            Token token = m_tokenizer.nextToken();
+            if (token.type() == TokenType::Eof)
                 return NULL;
             
-            expect(TokenType::OBrace | TokenType::CBrace, token.get());
-            if (token->type() == TokenType::CBrace)
+            expect(TokenType::OBrace | TokenType::CBrace, token);
+            if (token.type() == TokenType::CBrace)
                 return NULL;
             
             Model::Entity* entity = new Model::Entity(worldBounds);
-            entity->setFilePosition(token->line());
+            entity->setFilePosition(token.line());
             
-            while ((token = nextToken()).get() != NULL) {
-                switch (token->type()) {
+            while ((token = m_tokenizer.nextToken()).type() != TokenType::Eof) {
+                switch (token.type()) {
                     case TokenType::String: {
-                        String key = token->data();
-                        token = nextToken();
-                        expect(TokenType::String, token.get());
-                        String value = token->data();
+                        String key = token.data();
+                        expect(TokenType::String, token = m_tokenizer.nextToken());
+                        String value = token.data();
                         entity->setProperty(key, value);
                         break;
                     }
                     case TokenType::OBrace: {
-                        pushToken(token);
+                        m_tokenizer.pushToken(token);
                         bool moreBrushes = true;
                         while (moreBrushes) {
                             Model::Brush* brush = parseBrush(worldBounds, indicator);
                             if (brush != NULL)
                                 entity->addBrush(*brush);
-                            token = nextToken();
-                            expect(TokenType::OBrace | TokenType::CBrace, token.get());
-                            moreBrushes = (token->type() == TokenType::OBrace);
-                            pushToken(token);
+                            expect(TokenType::OBrace | TokenType::CBrace, token = m_tokenizer.nextToken());
+                            moreBrushes = (token.type() == TokenType::OBrace);
+                            m_tokenizer.pushToken(token);
                         }
                         break;
                     }
                     case TokenType::CBrace: {
                         if (indicator != NULL)
-                            indicator->update(static_cast<int>(token->position()));
+                            indicator->update(static_cast<int>(token.position()));
                         return entity;
                     }
                     default:
                         delete entity;
-                        throw MapParserException(token.get(), TokenType::String | TokenType::OBrace | TokenType::CBrace);
+                        throw MapParserException(token, TokenType::String | TokenType::OBrace | TokenType::CBrace);
                 }
             }
             
@@ -286,44 +174,69 @@ namespace TrenchBroom {
         }
         
         Model::Brush* MapParser::parseBrush(const BBox& worldBounds, Utility::ProgressIndicator* indicator) {
-            MapTokenizer::TokenPtr token = nextToken();
-            if (token.get() == NULL)
+            Token token = m_tokenizer.nextToken();
+            if (token.type() == TokenType::Eof)
                 return NULL;
             
-            expect(TokenType::OBrace | TokenType::CBrace, token.get());
-            if (token->type() == TokenType::CBrace)
+            expect(TokenType::OBrace | TokenType::CBrace, token);
+            if (token.type() == TokenType::CBrace)
                 return NULL;
             
             Model::Brush* brush = new Model::Brush(worldBounds);
-            brush->setFilePosition(token->line());
+            brush->setFilePosition(token.line());
             
-            while ((token = nextToken()).get() != NULL) {
-                switch (token->type()) {
+            Model::FaceList faces;
+            
+            while ((token = m_tokenizer.nextToken()).type() != TokenType::Eof) {
+                switch (token.type()) {
                     case TokenType::OParenthesis: {
-                        pushToken(token);
+                        m_tokenizer.pushToken(token);
                         Model::Face* face = parseFace(worldBounds);
-                        if (face != NULL && brush != NULL) {
-                            if (!brush->addFace(face)) {
-                                m_console.warn("Skipping malformed brush at line %i", brush->filePosition());
-                                delete brush;
-                                brush = NULL;
-                            }
-                        } else {
-                            delete face;
-                        }
+                        if (face != NULL)
+                            faces.push_back(face);
                         break;
                     }
-                    case TokenType::CBrace:
-                        if (indicator != NULL) indicator->update(static_cast<int>(token->position()));
+                    case TokenType::CBrace: {
+                        if (indicator != NULL) indicator->update(static_cast<int>(token.position()));
+                        
+                        // sort the faces by the weight of their plane normals like QBSP does
+                        std::sort(faces.begin(), faces.end(), Model::Face::WeightOrder(Plane::WeightOrder(true)));
+                        std::sort(faces.begin(), faces.end(), Model::Face::WeightOrder(Plane::WeightOrder(false)));
+                        
+                        Model::FaceList::iterator faceIt, faceEnd;
+                        for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
+                            Model::Face* face = *faceIt;
+                            if (!brush->addFace(face)) {
+                                m_console.warn("Skipping malformed brush at line %i", brush->filePosition());
+                                Utility::deleteAll(faces, faceIt);
+                                delete brush;
+                                brush = NULL;
+                                break;
+                            }
+                        }
+                        
                         if (brush != NULL && !brush->closed()) {
                             m_console.warn("Non-closed brush at line %i", brush->filePosition());
+                            // why are we not deleting this one?!
                             // delete brush;
                             // brush = NULL;
                         }
+                        // try to correct the vertices just like QBSP does
+                        if (brush != NULL) {
+                            const Model::VertexList& vertices = brush->vertices();
+                            Model::VertexList::const_iterator vertexIt, vertexEnd;
+                            for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt) {
+                                Model::Vertex& vertex = **vertexIt;
+                                vertex.position.correct();
+                            }
+                        }
                         return brush;
-                    default:
+                    }
+                    default: {
+                        Utility::deleteAll(faces);
                         delete brush;
-                        throw MapParserException(token.get(), TokenType::OParenthesis | TokenType::CParenthesis);
+                        throw MapParserException(token, TokenType::OParenthesis | TokenType::CParenthesis);
+                    }
                 }
             }
             
@@ -333,77 +246,77 @@ namespace TrenchBroom {
         Model::Face* MapParser::parseFace(const BBox& worldBounds) {
             Vec3f p1, p2, p3;
             float xOffset, yOffset, rotation, xScale, yScale;
-            MapTokenizer::TokenPtr token = nextToken();
-            if (token.get() == NULL)
+            Token token = m_tokenizer.nextToken();
+            if (token.type() == TokenType::Eof)
                 return NULL;
             
-            expect(TokenType::OParenthesis, token.get());
-            expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
-            p1.x = token->toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
-            p1.y = token->toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
-            p1.z = token->toFloat();
-            expect(TokenType::CParenthesis, (token = nextToken()).get());
-            expect(TokenType::OParenthesis, (token = nextToken()).get());
-            expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
-            p2.x = token->toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
-            p2.y = token->toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
-            p2.z = token->toFloat();
-            expect(TokenType::CParenthesis, (token = nextToken()).get());
-            expect(TokenType::OParenthesis, (token = nextToken()).get());
-            expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
-            p3.x = token->toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
-            p3.y = token->toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
-            p3.z = token->toFloat();
-            expect(TokenType::CParenthesis, (token = nextToken()).get());
+            expect(TokenType::OParenthesis, token);
+            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+            p1.x = token.toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+            p1.y = token.toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+            p1.z = token.toFloat();
+            expect(TokenType::CParenthesis, token = m_tokenizer.nextToken());
+            expect(TokenType::OParenthesis, token = m_tokenizer.nextToken());
+            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+            p2.x = token.toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+            p2.y = token.toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+            p2.z = token.toFloat();
+            expect(TokenType::CParenthesis, token = m_tokenizer.nextToken());
+            expect(TokenType::OParenthesis, token = m_tokenizer.nextToken());
+            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+            p3.x = token.toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+            p3.y = token.toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+            p3.z = token.toFloat();
+            expect(TokenType::CParenthesis, token = m_tokenizer.nextToken());
             
-            expect(TokenType::String, (token = nextToken()).get());
-            String textureName = token->data();
+            expect(TokenType::String, token = m_tokenizer.nextToken());
+            String textureName = token.data();
             
-            token = nextToken();
+            token = m_tokenizer.nextToken();
             if (m_format == Undefined) {
-                expect(TokenType::Integer | TokenType::Decimal | TokenType::OBracket, token.get());
-                m_format = token->type() == TokenType::OBracket ? Valve : Standard;
+                expect(TokenType::Integer | TokenType::Decimal | TokenType::OBracket, token);
+                m_format = token.type() == TokenType::OBracket ? Valve : Standard;
                 if (m_format == Valve)
                     m_console.warn("Loading unsupported map Valve 220 map format");
             }
             
             if (m_format == Standard) {
-                expect(TokenType::Integer | TokenType::Decimal, token.get());
-                xOffset = token->toFloat();
-                expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
-                yOffset = token->toFloat();
+                expect(TokenType::Integer | TokenType::Decimal, token);
+                xOffset = token.toFloat();
+                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+                yOffset = token.toFloat();
             } else { // Valve 220 format
-                expect(TokenType::OBracket, token.get());
-                expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get()); // X texture axis x
-                expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get()); // X texture axis y
-                expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get()); // X texture axis z
-                expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get()); // X texture axis offset
-                xOffset = token->toFloat();
-                expect(TokenType::CBracket, (token = nextToken()).get());
-                expect(TokenType::OBracket, (token = nextToken()).get());
-                expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get()); // Y texture axis x
-                expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get()); // Y texture axis y
-                expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get()); // Y texture axis z
-                expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get()); // Y texture axis offset
-                yOffset = token->toFloat();
-                expect(TokenType::CBracket, (token = nextToken()).get());
+                expect(TokenType::OBracket, token);
+                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken()); // X texture axis x
+                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken()); // X texture axis y
+                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken()); // X texture axis z
+                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken()); // X texture axis offset
+                xOffset = token.toFloat();
+                expect(TokenType::CBracket, token = m_tokenizer.nextToken());
+                expect(TokenType::OBracket, token = m_tokenizer.nextToken());
+                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken()); // Y texture axis x
+                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken()); // Y texture axis y
+                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken()); // Y texture axis z
+                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken()); // Y texture axis offset
+                yOffset = token.toFloat();
+                expect(TokenType::CBracket, token = m_tokenizer.nextToken());
             }
             
-            expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
-            rotation = token->toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
-            xScale = token->toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, (token = nextToken()).get());
-            yScale = token->toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+            rotation = token.toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+            xScale = token.toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+            yScale = token.toFloat();
             
             if (((p3 - p1).crossed(p2 - p1)).null()) {
-                m_console.warn("Skipping face with colinear points in line %i", token->line());
+                m_console.warn("Skipping face with colinear points in line %i", token.line());
                 return NULL;
             }
             
@@ -416,7 +329,7 @@ namespace TrenchBroom {
             face->setRotation(rotation);
             face->setXScale(xScale);
             face->setYScale(yScale);
-            face->setFilePosition(token->line());
+            face->setFilePosition(token.line());
             return face;
         }
         

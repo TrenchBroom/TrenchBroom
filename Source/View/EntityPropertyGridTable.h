@@ -43,14 +43,16 @@ namespace TrenchBroom {
             public:
                 String key;
                 String value;
+                String tooltip;
 
                 Entry() {}
-                Entry(const String& i_key, const String& i_value, size_t maxCount) :
+                Entry(const String& i_key, const String& i_value, const String& i_tooltip, size_t maxCount) :
                 m_maxCount(maxCount),
                 m_count(1),
                 m_multi(false),
                 key(i_key),
-                value(i_value) {}
+                value(i_value),
+                tooltip(i_tooltip) {}
 
                 inline void compareValue(const String& i_value) {
                     if (!m_multi && value != i_value)
@@ -105,6 +107,7 @@ namespace TrenchBroom {
             wxGridCellAttr* GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind);
 
             void update();
+            String tooltip(wxGridCellCoords cellCoords) const;
         };
     }
 }

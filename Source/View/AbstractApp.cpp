@@ -33,6 +33,7 @@
 #include "Utility/DocManager.h"
 #include "View/AboutDialog.h"
 #include "View/CommandIds.h"
+#include "View/EditorFrame.h"
 #include "View/EditorView.h"
 #include "View/PreferencesDialog.h"
 
@@ -44,6 +45,8 @@ EVT_MENU(TrenchBroom::View::CommandIds::Menu::HelpShowHelp, AbstractApp::OnHelpS
 EVT_UPDATE_UI(wxID_UNDO, AbstractApp::OnUpdateMenuItem)
 EVT_UPDATE_UI(wxID_REDO, AbstractApp::OnUpdateMenuItem)
 EVT_UPDATE_UI_RANGE(TrenchBroom::View::CommandIds::Menu::Lowest, TrenchBroom::View::CommandIds::Menu::Highest, AbstractApp::OnUpdateMenuItem)
+
+EVT_ANIMATION(AbstractApp::OnAnimation)
 END_EVENT_TABLE()
 
 wxMenu* AbstractApp::CreateFileMenu(wxEvtHandler* eventHandler, bool mapViewFocused) {
@@ -80,6 +83,7 @@ wxMenu* AbstractApp::CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMe
     editMenu->Append(wxID_CUT, wxT("Cut\tCtrl+X"));
     editMenu->Append(wxID_COPY, wxT("Copy\tCtrl+C"));
     editMenu->Append(wxID_PASTE, wxT("Paste\tCtrl+V"));
+    editMenu->Append(EditPasteAtOriginalPosition, wxT("Paste At Original Position\tCtrl+Shift+V"));
     if (mapViewFocused) editMenu->Append(wxID_DELETE, wxT("Delete\tBack"));
     else editMenu->Append(wxID_DELETE, wxT("Delete"));
     editMenu->AppendSeparator();
@@ -348,7 +352,11 @@ bool AbstractApp::OnInit() {
 
     new wxDocTemplate(m_docManager,
                       wxT("Quake map document"),
+#if defined __linux__ // appears to be a bug in wxWidgets' file dialog, on Linux it will only allow lowercase extensions
+                      wxT("*.*"),
+#else
                       wxT("*.map"),
+#endif
                       wxEmptyString,
                       wxT("map"),
                       wxT("Quake map document"),
@@ -425,5 +433,46 @@ void AbstractApp::OnUpdateMenuItem(wxUpdateUIEvent& event) {
         event.Enable(true);
     else
         event.Enable(false);
-    event.Skip();
+    if (GetTopWindow() != NULL)
+        event.Skip();
+}
+
+void AbstractApp::OnAnimation(TrenchBroom::View::AnimationEvent& event) {
+    event.execute();
+}
+
+int AbstractApp::FilterEvent(wxEvent& event) {
+    if (event.GetEventType() == wxEVT_SET_FOCUS) {
+        wxObject* object = event.GetEventObject();
+        wxWindow* window = wxDynamicCast(object, wxWindow);
+        if (window != NULL) {
+            wxFrame* frame = wxDynamicCast(window, wxFrame);
+            wxWindow* parent = window->GetParent();
+            while (frame == NULL && parent != NULL) {
+                frame = wxDynamicCast(parent, wxFrame);
+                parent = parent->GetParent();
+            }
+
+            // If we found a frame, and window is not a menu, then send a command event to the frame
+            // that will cause it to rebuild its menu. The frame must keep track of whether the menu actually needs
+            // to be rebuilt (only if MapGLCanvas previously had focus and just lost it or vice versa).
+            // make sure the command is sent via QueueEvent to give wxWidgets a chance to update the focus states!
+            if (frame != NULL) {
+                //bool isMenu = wxDynamicCast(window, wxMenu) || wxDynamicCast(window, wxMenuItem);
+                //if (!isMenu) {
+                wxCommandEvent focusEvent(TrenchBroom::View::EditorFrame::EVT_SET_FOCUS);
+                focusEvent.SetClientData(event.GetEventObject());
+                focusEvent.SetEventObject(frame);
+                focusEvent.SetId(event.GetId());
+                AddPendingEvent(focusEvent);
+                //}
+            }
+        }
+    } else if (event.GetEventType() == TrenchBroom::View::EditorFrame::EVT_SET_FOCUS) {
+        wxFrame* frame = wxStaticCast(event.GetEventObject(), wxFrame);
+        frame->ProcessWindowEventLocally(event);
+        return 1;
+    }
+
+    return wxApp::FilterEvent(event);
 }

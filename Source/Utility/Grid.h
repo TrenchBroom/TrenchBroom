@@ -109,8 +109,8 @@ namespace TrenchBroom {
             
             float intersectWithRay(const Ray& ray, unsigned int skip) const;
 
-            Vec3f moveDeltaForEntity(const Vec3f& origin, const BBox& worldBounds, const Vec3f& delta) const;
-            Vec3f moveDeltaForEntity(const Model::Face& face, const BBox& bounds, const BBox& worldBounds, const Ray& ray, const Vec3f& position) const;
+            Vec3f moveDeltaForPoint(const Vec3f& point, const BBox& worldBounds, const Vec3f& delta) const;
+            Vec3f moveDeltaForBounds(const Model::Face& face, const BBox& bounds, const BBox& worldBounds, const Ray& ray, const Vec3f& position) const;
             Vec3f moveDelta(const BBox& bounds, const BBox& worldBounds, const Vec3f& delta) const;
             Vec3f moveDelta(const Vec3f& point, const BBox& worldBounds, const Vec3f& delta) const;
             Vec3f moveDelta(const Vec3f& delta) const;

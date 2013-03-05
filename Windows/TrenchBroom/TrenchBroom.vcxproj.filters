@@ -204,9 +204,6 @@
     <ClCompile Include="..\..\Source\IO\Pak.cpp">
       <Filter>Source Files\IO</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\IO\StandardDefinitionParser.cpp">
-      <Filter>Source Files\IO</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\IO\Wad.cpp">
       <Filter>Source Files\IO</Filter>
     </ClCompile>
@@ -492,6 +489,24 @@
     <ClCompile Include="..\..\Source\View\AboutDialog.cpp">
       <Filter>Source Files\View</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\IO\FGDParser.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\IO\DefParser.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\IO\ClassInfo.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\View\Animation.cpp">
+      <Filter>Source Files\View</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\View\CameraAnimation.cpp">
+      <Filter>Source Files\View</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\View\FlashSelectionAnimation.cpp">
+      <Filter>Source Files\View</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -668,9 +683,6 @@
     <ClInclude Include="..\..\Source\IO\ParserException.h">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\IO\StandardDefinitionParser.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\IO\substream.h">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
@@ -678,9 +690,6 @@
       <Filter>Header Files\IO</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\IO\AbstractFileManager.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\IO\AbstractTokenizer.h">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\IO\FileManager.h">
@@ -1138,6 +1147,27 @@
     </ClInclude>
     <ClInclude Include="Version.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\IO\FGDParser.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\IO\DefParser.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\IO\StreamTokenizer.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\IO\ClassInfo.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\Animation.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\CameraAnimation.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\FlashSelectionAnimation.h">
+      <Filter>Header Files\View</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

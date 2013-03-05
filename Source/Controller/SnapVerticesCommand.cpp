@@ -32,7 +32,10 @@ namespace TrenchBroom {
             Model::BrushList::const_iterator it, end;
             for (it = m_brushes.begin(), end = m_brushes.end(); it != end; ++it) {
                 Model::Brush& brush = **it;
-                brush.snap(m_snapTo);
+                if (m_snapTo == 0)
+                    brush.correct(0.01f);
+                else
+                    brush.snap(m_snapTo);
             }
             
             document().brushesDidChange(m_brushes);

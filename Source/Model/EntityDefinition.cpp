@@ -19,44 +19,89 @@
 
 #include "EntityDefinition.h"
 
+#include "Utility/List.h"
+
 namespace TrenchBroom {
     namespace Model {
-        EntityDefinition::EntityDefinition(const String& name, const Color& color, const SpawnflagList& spawnflags, const String& description, const PropertyDefinition::List& propertyDefinitions) :
+        ModelDefinitionPropertyEvaluator::ModelDefinitionPropertyEvaluator(const PropertyKey& propertyKey, const PropertyValue& propertyValue) :
+        m_propertyKey(propertyKey),
+        m_propertyValue(propertyValue) {}
+        
+        bool ModelDefinitionPropertyEvaluator::evaluate(const PropertyList& properties) const {
+            PropertyList::const_iterator it, end;
+            for (it = properties.begin(), end = properties.end(); it != end; ++it) {
+                const Property& property = *it;
+                if (property.key() == m_propertyKey) {
+                    if (property.value() == m_propertyValue)
+                        return true;
+                    break;
+                }
+            }
+            return false;
+        }
+
+        ModelDefinitionFlagEvaluator::ModelDefinitionFlagEvaluator(const PropertyKey& propertyKey, int flagValue) :
+        m_propertyKey(propertyKey),
+        m_flagValue(flagValue) {}
+        
+        bool ModelDefinitionFlagEvaluator::evaluate(const PropertyList& properties) const {
+            PropertyList::const_iterator it, end;
+            for (it = properties.begin(), end = properties.end(); it != end; ++it) {
+                const Property& property = *it;
+                if (property.key() == m_propertyKey) {
+                    if ((std::atoi(property.value().c_str()) & m_flagValue) != 0)
+                        return true;
+                    break;
+                }
+            }
+            return false;
+        }
+
+        ModelDefinition::ModelDefinition(const String& name, unsigned int skinIndex, unsigned int frameIndex) :
+        m_name(name),
+        m_skinIndex(skinIndex),
+        m_frameIndex(frameIndex) {}
+        
+        ModelDefinition::ModelDefinition(const String& name, unsigned int skinIndex, unsigned int frameIndex, const PropertyKey& propertyKey, const PropertyValue& propertyValue) :
+        m_name(name),
+        m_skinIndex(skinIndex),
+        m_frameIndex(frameIndex),
+        m_evaluator(new ModelDefinitionPropertyEvaluator(propertyKey, propertyValue)) {}
+        
+        ModelDefinition::ModelDefinition(const String& name, unsigned int skinIndex, unsigned int frameIndex, const PropertyKey& propertyKey, int flagValue) :
+        m_name(name),
+        m_skinIndex(skinIndex),
+        m_frameIndex(frameIndex),
+        m_evaluator(new ModelDefinitionFlagEvaluator(propertyKey, flagValue)) {}
+        
+        EntityDefinition::EntityDefinition(const String& name, const Color& color, const String& description, const PropertyDefinition::List& propertyDefinitions) :
         m_name(name),
         m_color(color),
-        m_spawnflags(spawnflags),
         m_description(description),
         m_usageCount(0),
         m_propertyDefinitions(propertyDefinitions) {
         }
         
-        EntityDefinition::~EntityDefinition() {
-        }
-
-        PointEntityDefinition::PointEntityDefinition(const String& name, const Color& color, const SpawnflagList& spawnflags, const BBox& bounds, const String& description, const PropertyDefinition::List& propertyDefinitions) :
-        EntityDefinition(name, color, spawnflags, description, propertyDefinitions),
+        PointEntityDefinition::PointEntityDefinition(const String& name, const Color& color, const BBox& bounds, const String& description, const PropertyDefinition::List& propertyDefinitions, const ModelDefinition::List& modelDefinitions) :
+        EntityDefinition(name, color, description, propertyDefinitions),
         m_bounds(bounds),
-        m_model(NULL) {
-        }
+        m_modelDefinitions(modelDefinitions) {}
         
-        PointEntityDefinition::PointEntityDefinition(const String& name, const Color& color, const SpawnflagList& spawnflags, const BBox& bounds, const String& description, const PropertyDefinition::List& propertyDefinitions, const PointEntityModel& model) :
-        EntityDefinition(name, color, spawnflags, description, propertyDefinitions),
-        m_bounds(bounds),
-        m_model(new PointEntityModel(model)) {
-        }
-
-        PointEntityDefinition::~PointEntityDefinition() {
-            if (m_model != NULL) {
-                delete m_model;
-                m_model = NULL;
+        const ModelDefinition* PointEntityDefinition::model(const PropertyList& properties) const {
+            if (m_modelDefinitions.empty())
+                return NULL;
+            
+            ModelDefinition::List::const_reverse_iterator it, end;
+            for (it = m_modelDefinitions.rbegin(), end = m_modelDefinitions.rend(); it != end; ++it) {
+                const ModelDefinition::Ptr definition = *it;
+                if (definition->matches(properties))
+                    return definition.get();
             }
+            
+            return NULL;
         }
 
-        BrushEntityDefinition::BrushEntityDefinition(const String& name, const Color& color, const SpawnflagList& spawnflags, const String& description, const PropertyDefinition::List& propertyDefinitions) :
-        EntityDefinition(name, color, spawnflags, description, propertyDefinitions) {
-        }
-        
-        BrushEntityDefinition::~BrushEntityDefinition() {
-        }
+        BrushEntityDefinition::BrushEntityDefinition(const String& name, const Color& color, const String& description, const PropertyDefinition::List& propertyDefinitions) :
+        EntityDefinition(name, color, description, propertyDefinitions) {}
     }
 }

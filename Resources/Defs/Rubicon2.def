@@ -1,7 +1,9 @@
 /*QUAKED weapon_axe (0 .5 .8) (-16 -16 0) (16 16 32)
+{ model(":progs/g_axe.mdl"); }
 Axe.
 */
 /*QUAKED weapon_shotgun (0 .5 .8) (-16 -16 0) (16 16 32)
+{ model(":progs/g_shotgn.mdl"); }
 Shotgun.
 */
 /*QUAKED func_breakable (0 .5 .8) ? NO_MONSTERS
@@ -69,6 +71,9 @@ place in the level in the active/attacking position for proper lighting.
 collectible circuit board thing
 */
 /*QUAKED light_fixture1 (0 1 0) (-8 -8 -8) (8 8 24)
+{
+    model(":progs/fixture1.mdl");
+}
 wall-mounted light fixture.
 Default light value is 300
 Default style is 0
@@ -77,6 +82,9 @@ Keys:
 "angle2" is the angle the model should be facing; set it to face away from the wall
 */
 /*QUAKED light_beacon (0 1 0) (-8 -8 -36) (8 8 8) BLINKING
+{
+    model(":progs/beacon.mdl");
+}
 floor-mounted flashing red beacon
 Default light value is 300
 Default style is 0
@@ -88,6 +96,9 @@ Keys:
 "angle2" is the angle the model should be facing; set it to face away from the wall
 */
 /*QUAKED misc_flag (1 0 0) (-8 -8 -8) (8 8 8) NOT_ANIMATED BIG
+{
+    model(":progs/flag.mdl");
+}
 A hanging banner, gently waving in the wind. Normal dimensions: 64 wide by 144 long.
 
 NOT_ANIMATED: Banner is not animated.
@@ -147,16 +158,19 @@ Keys:
 "angle" the direction player must be facing to climb ladder
 */
 /*QUAKED monster_centurion (1 0 0) (-32 -32 -24) (32 32 64) AMBUSH x x x x x SPAWN_TRIGGERED SPAWN_SILENT
+{ model(":progs/cent.mdl"); }
 Centurion, 150 health points.
 
 AMBUSH: monster will only wake up on really seeing the player, not another monster getting angry.
 */
 /*QUAKED monster_dreadnaught (1 0 0) (-16 -16 -24) (16 16 40) AMBUSH x x x x x SPAWN_TRIGGERED SPAWN_SILENT
+{ model(":progs/dread.mdl"); }
 Dreadnaught, 150 health points.
 
 AMBUSH: dreadnaught will only wake up on really seeing the player, not another monster getting angry.
 */
 /*QUAKED monster_floyd (1 0 0) (-32 -32 -24) (32 32 64) AMBUSH ROLLING ASLEEP x x x SPAWN_TRIGGERED SPAWN_SILENT
+{ model(":progs/floyd.mdl" 0 1); }
 Automaton, 200 health points.
 
 AMBUSH: floyd will only wake up on really seeing the player, not another monster getting angry.
@@ -571,6 +585,7 @@ Keys:
  set 'pitch yaw roll'
 */
 /*QUAKED info_player_start (1 0 0) (-16 -16 -24) (16 16 24)
+{ model(":progs/player.mdl"); }
 The normal starting point for a level.
 Only one is allowed.
 
@@ -579,6 +594,7 @@ Keys:
  viewing angle when spawning
 */
 /*QUAKED info_player_deathmatch (1 0 1) (-16 -16 -24) (16 16 24)
+{ model(":progs/player.mdl"); }
 Potential spawning position(s) for
 deathmatch games.
 
@@ -587,6 +603,7 @@ Keys:
  viewing angle when spawning
 */
 /*QUAKED info_player_coop (1 0 1) (-16 -16 -24) (16 16 24)
+{ model(":progs/player.mdl"); }
 Potential spawning position(s) for
 coop games.
 
@@ -595,6 +612,7 @@ Keys:
  viewing angle when spawning
 */
 /*QUAKED info_player_start2 (1 0 0) (-16 -16 -24) (16 16 24)
+{ model(":progs/player.mdl"); }
 Only used on start map for the
 return point from an episode.
 
@@ -613,7 +631,11 @@ Keys:
  new view angle after teleporting
 */
 /*QUAKED item_cells (0 .5 .8) (0 0 0) (32 32 32) BIG
-6 ammo points (cells) for the 
+{
+model(":maps/b_batt0.bsp");
+model(":maps/b_batt1.bsp" 0 0 spawnflags = 1);
+}
+6 ammo points (cells) for the
 Thunderbolt (Lightning).
 
 Flags:
@@ -621,7 +643,11 @@ Flags:
  gives 12 instead of 6
 */
 /*QUAKED item_rockets (0 .5 .8) (0 0 0) (32 32 32) BIG
-5 ammo points (rockets) for the 
+{
+model(":maps/b_rock0.bsp");
+model(":maps/b_rock1.bsp" 0 0 spawnflags = 1);
+}
+5 ammo points (rockets) for the
 Rocket/Grenade Launcher.
 
 Flags:
@@ -629,6 +655,10 @@ Flags:
  gives 10 instead of 5
 */
 /*QUAKED item_shells (0 .5 .8) (0 0 0) (32 32 32) BIG
+{
+model(":maps/b_shell0.bsp");
+model(":maps/b_shell1.bsp" 0 0 spawnflags = 1);
+}
 20 shells for both Shotgun and
 SuperShotgun.
 
@@ -637,7 +667,11 @@ Flags:
  gives 40 instead of 20
 */
 /*QUAKED item_spikes (0 .5 .8) (0 0 0) (32 32 32) BIG
-25 ammo points (spikes) for 
+{
+model(":maps/b_nail0.bsp");
+model(":maps/b_nail1.bsp" 0 0 spawnflags = 1);
+}
+25 ammo points (spikes) for
 Perforator and Super Perforator.
 
 Flags:
@@ -645,6 +679,11 @@ Flags:
  gives 50 instead of 25
 */
 /*QUAKED item_health (.3 .3 1) (0 0 0) (32 32 32) ROTTEN MEGAHEALTH
+{
+    model(":maps/b_bh25.bsp");
+    model(":maps/b_bh10.bsp" 0 0 spawnflags = 1);
+    model(":maps/b_bh100.bsp" 0 0 spawnflags = 2);
+}
 Health box. Normally gives 25 points.
 
 Flags:
@@ -656,16 +695,20 @@ Flags:
  one point per second
 */
 /*QUAKED item_artifact_envirosuit (0 .5 .8) (-16 -16 -24) (16 16 32)
+{ model(":progs/suit.mdl"); }
 Player takes no damage from water
 or slime for 30 seconds.
 */
 /*QUAKED item_artifact_super_damage (0.5 0.0 0.0) (-8 -8 -8) (8 8 24)
+{ model(":progs/quaddama.mdl"); }
 Quad Damage. Lasts 30 seconds.
 */
 /*QUAKED item_artifact_invulnerability (0 .5 .8) (-16 -16 -24) (16 16 32)
+{ model(":progs/invulner.mdl"); }
 Player is invulnerable for 30 seconds.
 */
 /*QUAKED item_artifact_invisibility (0 .5 .8) (-16 -16 -24) (16 16 32)
+{ model(":progs/invisibl.mdl"); }
 Player is invisible for 30 seconds.
 */
 /*QUAKED item_artifact_super_damage (0 .5 .8) (-16 -16 -24) (16 16 32)
@@ -673,15 +716,19 @@ The next attack from the player will
 do 4x damage. Lasts 30 seconds.
 */
 /*QUAKED item_armorInv (0 .5 .8) (-16 -16 0) (16 16 32)
+{ model(":progs/armor.mdl" 2); }
 Red armor, gives 200 armor points.
 */
 /*QUAKED item_armor2 (0 .5 .8) (-16 -16 0) (16 16 32)
+{ model(":progs/armor.mdl" 1); }
 Yellow armor, gives 150 points.
 */
 /*QUAKED item_armor1 (0 .5 .8) (-16 -16 0) (16 16 32)
+{ model(":progs/armor.mdl"); }
 Green armor, gives 100 points.
 */
 /*QUAKED item_key1 (0 .5 .8) (-16 -16 -24) (16 16 32)
+{ model(":progs/w_s_key.mdl"); }
 SILVER key.
 
 In order for keys to work you
@@ -689,6 +736,7 @@ MUST set your maps worldtype
 (see worldspawn).
 */
 /*QUAKED item_key2 (0 .5 .8) (-16 -16 -24) (16 16 32)
+{ model(":progs/w_g_key.mdl"); }
 GOLD key.
 
 In order for keys to work you
@@ -696,6 +744,10 @@ MUST set your maps worldtype
 (see worldspawn).
 */
 /*QUAKED item_sigil (0 .5 .8) (-16 -16 -24) (16 16 32) E1 E2 E3 E4
+{ 
+   model(":progs/end1.mdl"); 
+   default("spawnflags","1");
+}
 End of episode sigil.
 
 Flags:
@@ -738,6 +790,9 @@ Keys:
  angle of the cone of the light from the spotlight
 */
 /*QUAKED light_torch_small_walltorch (0 .5 0) (-10 -10 -20) (10 10 20)
+{
+model(":progs/flame.mdl");
+}
 ~ 3
 Short wall torch.
 
@@ -763,6 +818,9 @@ Keys:
  0 is default
 */
 /*QUAKED light_flame_large_yellow (0 1 0) (-10 -10 -12) (12 12 18)
+{
+model(":progs/flame2.mdl");
+}
 ~ 3
 Large yellow flames.
 
@@ -771,6 +829,9 @@ Keys:
  sets brightness
 */
 /*QUAKED light_flame_small_yellow (0 1 0) (-8 -8 -8) (8 8 8) START_OFF
+{
+model(":progs/flame2.mdl");
+}
 ~ 3
 Small yellow flames.
 
@@ -783,6 +844,9 @@ Keys:
  sets brightness
 */
 /*QUAKED light_flame_small_white (0 1 0) (-10 -10 -40) (10 10 40) START_OFF
+{
+model(":progs/flame2.mdl");
+}
 ~ 3
 Small white flames.
 
@@ -881,6 +945,7 @@ For optimization testing, starts
 a lot of sounds. Not very useful.
 */
 /*QUAKED monster_enforcer (1 0 0) (-16 -16 -24) (16 16 40) AMBUSH x x x x x SPAWN_TRIGGERED SPAWN_SILENT
+{ model(":progs/enforcer.mdl"); }
 Enforcer, 80 health points.
 
 Flags:
@@ -890,6 +955,7 @@ Flags:
  monster getting angry
 */
 /*QUAKED monster_hell_knight (1 0 0) (-16 -16 -24) (16 16 40) AMBUSH x x x x x SPAWN_TRIGGERED SPAWN_SILENT
+{ model(":progs/hknight.mdl"); }
 Hell Knight, 250 health points.
 
 Flags:
@@ -899,6 +965,7 @@ Flags:
  monster getting angry
 */
 /*QUAKED monster_army (1 0 0) (-16 -16 -24) (16 16 40) AMBUSH x x x x x SPAWN_TRIGGERED SPAWN_SILENT
+{ model(":progs/soldier.mdl"); }
 Grunt, 30 health points.
 
 Flags:
@@ -908,6 +975,7 @@ Flags:
  monster getting angry
 */
 /*QUAKED monster_dog (1 0 0) (-32 -32 -24) (32 32 40) AMBUSH x x x x x SPAWN_TRIGGERED SPAWN_SILENT
+{ model(":progs/dog.mdl"); }
 Dog (Rottweiler), 25 health points.
 
 Flags:
@@ -917,6 +985,7 @@ Flags:
  monster getting angry
 */
 /*QUAKED monster_ogre (1 0 0) (-32 -32 -24) (32 32 64) AMBUSH x x x x x SPAWN_TRIGGERED SPAWN_SILENT
+{ model(":progs/ogre.mdl"); }
 Ogre, 200 health points.
 
 Flags:
@@ -926,6 +995,7 @@ Flags:
  monster getting angry
 */
 /*QUAKED monster_knight (1 0 0) (-16 -16 -24) (16 16 40) AMBUSH x x x x x SPAWN_TRIGGERED SPAWN_SILENT
+{ model(":progs/knight.mdl"); }
 Knight, 75 health points.
 
 Flags:
@@ -935,6 +1005,7 @@ Flags:
  monster getting angry
 */
 /*QUAKED monster_zombie (1 0 0) (-16 -16 -24) (16 16 32) CRUCIFIED AMBUSH x x x x SPAWN_TRIGGERED SPAWN_SILENT
+{ model(":progs/zombie.mdl"); }
 Zombie, 60 health points.
 If crucified, stick the bounding
 box 12 pixels back into a wall to
@@ -949,6 +1020,7 @@ Flags:
  monster getting angry
 */
 /*QUAKED monster_wizard (1 0 0) (-16 -16 -24) (16 16 40) AMBUSH x x x x x SPAWN_TRIGGERED SPAWN_SILENT
+{ model(":progs/wizard.mdl"); }
 Scrag (Wizard), 80 health points.
 
 Flags:
@@ -958,6 +1030,7 @@ Flags:
  monster getting angry
 */
 /*QUAKED monster_demon1 (1 0 0) (-32 -32 -24) (32 32 64) AMBUSH x x x x x SPAWN_TRIGGERED SPAWN_SILENT
+{ model(":progs/demon.mdl"); }
 Fiend (Demon), 300 health points.
 
 Flags:
@@ -967,10 +1040,12 @@ Flags:
  monster getting angry
 */
 /*QUAKED monster_oldone (1 0 0) (-16 -16 -24) (16 16 32)
+{ model(":progs/oldone.mdl"); }
 Shub-Niggurath, 40000 health points.
 Most likely killed by teleport frag.
 */
 /*QUAKED monster_shambler (1 0 0) (-32 -32 -24) (32 32 64) AMBUSH x x x x x SPAWN_TRIGGERED SPAWN_SILENT
+{ model(":progs/shambler.mdl"); }
 Shambler, 600 health points.
 Rockets only have half damage
 when hitting the Shambler.
@@ -982,6 +1057,7 @@ Flags:
  monster getting angry
 */
 /*QUAKED monster_shalrath (1 0 0) (-32 -32 -24) (32 32 48) AMBUSH x x x x x SPAWN_TRIGGERED SPAWN_SILENT
+{ model(":progs/shalrath.mdl"); }
 Vore (Shalrath), 400 health points.
 
 Flags:
@@ -991,10 +1067,12 @@ Flags:
  monster getting angry
 */
 /*QUAKED monster_boss (1 0 0) (-128 -128 -24) (128 128 256)
+{ model(":progs/boss.mdl"); }
 Cthon (Boss of Shareware Quake)
 Only event_lightning can kill him.
 */
 /*QUAKED monster_tarbaby (1 0 0) (-16 -16 -24) (16 16 24) AMBUSH x x x x x SPAWN_TRIGGERED SPAWN_SILENT
+{ model(":progs/tarbaby.mdl"); }
 Spawn (Tarbaby), 80 health points.
 
 Flags:
@@ -1004,6 +1082,7 @@ Flags:
  monster getting angry
 */
 /*QUAKED monster_fish (1 0 0) (-16 -16 -24) (16 16 24) AMBUSH x x x x x SPAWN_TRIGGERED SPAWN_SILENT
+{ model(":progs/fish.mdl"); }
 Rotfish, 25 health points.
 
 Flags:
@@ -1013,6 +1092,7 @@ Flags:
  monster getting angry
 */
 /*QUAKED misc_teleporttrain (0 .5 .8) (-8 -8 -8) (8 8 8)
+{ model(":progs/teleport.mdl"); }
 This is used for the final boss.
 Flying ball needed to teleport
 kill Shub-Niggurath.
@@ -1026,9 +1106,15 @@ Keys:
 		-- actually about 100
 */
 /*QUAKED misc_explobox (0 .5 .8) (0 0 0) (32 32 64)
+{
+    model(":maps/b_explob.bsp");
+}
 Exploding box. 
 */
 /*QUAKED misc_explobox2 (0 .5 .8) (0 0 0) (32 32 64)
+{
+    model(":maps/b_exbox2.bsp");
+}
 Smaller exploding box.
 */
 /*QUAKED noclass (0 0 0) (-8 -8 -8) (8 8 8)
@@ -1317,22 +1403,28 @@ Use the console commands
 view frames of model.
 */
 /*QUAKED weapon_supershotgun (0 .5 .8) (-16 -16 0) (16 16 32)
+{ model(":progs/g_shot.mdl"); }
 SuperShotgun.
 */
 /*QUAKED weapon_nailgun (0 .5 .8) (-16 -16 0) (16 16 32)
+{ model(":progs/g_nail.mdl"); }
 Perforator (Nailgun).
 */
 /*QUAKED weapon_supernailgun (0 .5 .8) (-16 -16 0) (16 16 32)
+{ model(":progs/g_nail2.mdl"); }
 Super Perforator (Super
 Nailgun).
 */
 /*QUAKED weapon_grenadelauncher (0 .5 .8) (-16 -16 0) (16 16 32)
+{ model(":progs/g_rock.mdl"); }
 Grenade Launcher.
 */
 /*QUAKED weapon_rocketlauncher (0 .5 .8) (-16 -16 0) (16 16 32)
+{ model(":progs/g_rock2.mdl"); }
 Rocket Launcher.
 */
 /*QUAKED weapon_lightning (0 .5 .8) (-16 -16 0) (16 16 32)
+{ model(":progs/g_light.mdl"); }
 Thunderbolt Cannon.
 */
 /*QUAKED worldspawn (0 0 0) ?

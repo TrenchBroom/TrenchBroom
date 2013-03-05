@@ -23,7 +23,9 @@
 #include "Model/BrushTypes.h"
 #include "Model/EditStateManager.h"
 #include "Model/Entity.h"
+#include "Model/EntityDefinition.h"
 #include "Model/MapDocument.h"
+#include "Model/PropertyDefinition.h"
 #include "Utility/CommandProcessor.h"
 
 #include <set>
@@ -116,8 +118,14 @@ namespace TrenchBroom {
                 m_entries[rowIndex].key = newKey;
                 
                 Controller::EntityPropertyCommand* rename = Controller::EntityPropertyCommand::setEntityPropertyKey(m_document, entities, oldKey, newKey);
-                if (!m_document.GetCommandProcessor()->Submit(rename))
+                if (!m_document.GetCommandProcessor()->Submit(rename)) {
                     m_entries[rowIndex] = oldEntry;
+                } else {
+                    const Model::Entity& entity = *entities.front();
+                    const Model::EntityDefinition* entityDefinition = entity.definition();
+                    const Model::PropertyDefinition* propertyDefinition = entityDefinition != NULL ? entityDefinition->propertyDefinition(newKey) : NULL;
+                    m_entries[rowIndex].tooltip = propertyDefinition != NULL ? propertyDefinition->description() : "";
+                }
             } else {
                 const Model::PropertyKey key = m_entries[rowIndex].key;
                 const Model::PropertyValue newValue = value.ToStdString();
@@ -174,7 +182,7 @@ namespace TrenchBroom {
             EntryList::iterator entryIt = m_entries.begin();
             std::advance(entryIt, pos);
             for (size_t i = 0; i < numRows; i++) {
-                entryIt = m_entries.insert(entryIt, Entry(keys[i], "", entities.size()));
+                entryIt = m_entries.insert(entryIt, Entry(keys[i], "", "", entities.size()));
                 entryIt->reset();
                 std::advance(entryIt, 1);
 
@@ -269,17 +277,21 @@ namespace TrenchBroom {
                 Model::EntityList::const_iterator entityIt, entityEnd;
                 for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
                     const Model::Entity& entity = **entityIt;
+                    const Model::EntityDefinition* entityDefinition = entity.definition();
                     
                     const Model::PropertyList& properties = entity.properties();
                     Model::PropertyList::const_iterator propertyIt, propertyEnd;
                     for (propertyIt = properties.begin(), propertyEnd = properties.end(); propertyIt != propertyEnd; ++propertyIt) {
                         const Model::Property& property = *propertyIt;
+                        const Model::PropertyDefinition* propertyDefinition = entityDefinition != NULL ? entityDefinition->propertyDefinition(property.key()) : NULL;
                         
                         EntryList::iterator entryIt = findEntry(newEntries, property.key());
-                        if (entryIt != newEntries.end())
+                        if (entryIt != newEntries.end()) {
                             entryIt->compareValue(property.value());
-                        else
-                            newEntries.push_back(Entry(property.key(), property.value(), entities.size()));
+                        } else {
+                            const String tooltip = propertyDefinition != NULL ? propertyDefinition->description() : "";
+                            newEntries.push_back(Entry(property.key(), property.value(), tooltip, entities.size()));
+                        }
                     }
                 }
             }
@@ -294,6 +306,17 @@ namespace TrenchBroom {
                 notifyRowsDeleted(oldEntryCount - 1, oldEntryCount - newEntryCount);
             }
             notifyRowsUpdated(0, m_entries.size());
+        }
+
+        String EntityPropertyGridTable::tooltip(wxGridCellCoords cellCoords) const {
+            if (cellCoords.GetRow() < 0 || cellCoords.GetRow() >= static_cast<int>(m_entries.size()))
+                return "";
+            
+            const Entry& entry = m_entries[static_cast<size_t>(cellCoords.GetRow())];
+            if (entry.multi())
+                return "";
+            
+            return entry.tooltip;
         }
     }
 }

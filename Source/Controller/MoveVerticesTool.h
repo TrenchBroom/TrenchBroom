@@ -41,7 +41,8 @@ namespace TrenchBroom {
         protected:
             typedef enum {
                 VMMove,
-                VMSplit
+                VMSplit,
+                VMSnap
             } VertexToolMode;
             
             VertexHandleManager m_handleManager;
@@ -77,6 +78,8 @@ namespace TrenchBroom {
         
             bool hasSelection();
             MoveResult moveVertices(const Vec3f& delta);
+            
+            void resetInstancedRenderers();
         };
     }
 }

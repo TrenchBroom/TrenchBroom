@@ -193,26 +193,22 @@ namespace TrenchBroom {
                              w / l);
             }
             
-            inline Vec4f& correct() {
-                x = Math::correct(x);
-                y = Math::correct(y);
-                z = Math::correct(z);
-                w = Math::correct(w);
+            inline Vec4f& correct(float epsilon = Math::CorrectEpsilon) {
+                x = Math::correct(x, epsilon);
+                y = Math::correct(y, epsilon);
+                z = Math::correct(z, epsilon);
+                w = Math::correct(w, epsilon);
                 return *this;
             }
             
-            inline const Vec4f corrected() const {
-                return Vec4f(Math::correct(x),
-                             Math::correct(y),
-                             Math::correct(z),
-                             Math::correct(w));
+            inline const Vec4f corrected(float epsilon = Math::CorrectEpsilon) const {
+                return Vec4f(Math::correct(x, epsilon),
+                             Math::correct(y, epsilon),
+                             Math::correct(z, epsilon),
+                             Math::correct(w, epsilon));
             }
             
-            inline bool equals(const Vec4f& other) const {
-                return equals(other, Math::AlmostZero);
-            }
-            
-            inline bool equals(const Vec4f& other, float delta) const {
+            inline bool equals(const Vec4f& other, float delta = Math::AlmostZero) const {
                 return std::abs(x - other.x) < delta &&
                        std::abs(y - other.y) < delta &&
                        std::abs(z - other.z) < delta &&

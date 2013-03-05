@@ -1,21 +1,28 @@
 TrenchBroom
 ===========
 
-TrenchBroom is a modern level editor for Quake.
+TrenchBroom is a modern cross-platform level editor for Quake.
 
 Features
 --------
-- Free (as in beer) and open source (GPLv3)
-- Cross platform (Windows, Linux and Mac OS X supported)
 - True 3D editing, no 2D views required
 - High performance renderer with support for huge maps
-- Vertex editing, edge and face splitting
+- Vertex editing with edge and face splitting that will not create invalid brushes
+- Manipulation of multiple vertices at once (great for trisoup editing)
 - Smart clip tool
-- Precise texture lock
-- Point file support
-- Autosave feature
 - Move, rotate and flip brushes and entities
-- Support for .def files, mods and multiple wad files
+- Precise texture lock for all operations
+- Smart entity property editors
+- Graphical entity browser with drag and drop support
+- Comprehensive texture application and manipulation tools
+- Search and filter functions
+- Unlimited undo and redo
+- Point file support
+- Automatic backup
+- Support for .def and .fdg files, mods and multiple wad files
+- Full documentation
+- Free (as in beer) and open source (GPLv3)
+- Cross platform (Windows, Mac OS X and Linux supported)
 
 Compiling
 ---------

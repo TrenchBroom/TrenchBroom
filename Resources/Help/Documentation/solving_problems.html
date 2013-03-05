@@ -20,7 +20,11 @@
 		<h3>Dropped Brushes</h3>
 		<p class="no-justify">When loading a map that was made in another editor, you may see this error: <span class="monospace_text">Skipping malformed brush at line #</span> where # is a line number in the map file. This means Trenchbroom was unable to parse a particular line in the map file and therefore skipped the brush entirely. Check the map file at the line in question to find out the brush number and then see if you can load the brush into another editor to be sure that it is correct.</p>
 		<h3>Fixing Vertex Misalignments</h3>
+<<<<<<< HEAD
 		<p>During the course of editing, you may end up with vertices which have fractional coordinates. Sometimes this will be intentional, where you disabled grid snap, and other times it could be a product of floating point imprecision on the part of the editor. Regardless, there will be times when you want to snap the vertices of a brush to integer coordinates or in other words, to round off the vertex coordinates of a brush or multiple brushes.  Trenchbroom provides this functionality in two ways: <b>Correct Vertices</b> and <b>Snap Vertices</b>.</p>
+=======
+		<p>During the course of editing, you may end up with vertices which have non-integer coordinates. Sometimes this will be intentional, where you disabled grid snap, and other times it could be a product of floating point imprecision on the part of the editor. Regardless, there will be times when you want to snap the vertices of a brush to integer coordinates or in other words, the round off the vertex coordinates of a brush or multiple brushes.  Trenchbroom provides this functionality in two ways: <b>Correct Vertices</b> and <b>Snap Vertices</b>.</p>
+>>>>>>> upstream/master
 		<ul>
 		<li><b>Correct Vertices</b>
 			<p>Accessible through the menu with: <script>print_menu_command("edit_actions_correct_verts");</script>, this command is aimed primarily at correcting floating point imprecisions. It will snap vertices to integer coordinates in the current selection if they are less than 0.002 units off.</p>
@@ -30,6 +34,8 @@
 		</li>
 		</ul>
 		<p>Note that both these functions work with multiple brushes in the selection, but they are unavailable if entities are selected.</p>
+		<h3>Automatic Backups</h3>
+		<p>TrenchBroom makes automatic backups of your map roughly every 5 minutes. This protects you from losing a lot of work if the editor crashes. You can find the backup map files in the sub folder <i>autosave</i> within the folder where your map file is stored. The backups are numbered in ascending order, i.e. the latest backup is the one with highest number.</p>
 	</div>
 </body>
 </html>

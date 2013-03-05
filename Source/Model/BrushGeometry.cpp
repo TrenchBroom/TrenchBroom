@@ -27,6 +27,29 @@
 
 namespace TrenchBroom {
     namespace Model {
+        SideList Vertex::incidentSides(const EdgeList& edges) const {
+            SideList result;
+            
+            // find any edge that is incident to vertex
+            Edge* edge = NULL;
+            for (unsigned int i = 0; i < edges.size() && edge == NULL; i++) {
+                Edge* candidate = edges[i];
+                if (candidate->start == this || candidate->end == this)
+                    edge = candidate;
+            }
+            
+            // iterate over the incident sides in clockwise order
+            Side* side = edge->start == this ? edge->right : edge->left;
+            do {
+                result.push_back(side);
+                size_t i = findElement(side->edges, edge);
+                edge = side->edges[pred(i, side->edges.size())];
+                side = edge->start == this ? edge->right : edge->left;
+            } while (side != result.front());
+            
+            return result;
+        }
+
         void Edge::updateMark() {
             unsigned int keep = 0;
             unsigned int drop = 0;
@@ -59,12 +82,22 @@ namespace TrenchBroom {
         }
 
         Vertex* Edge::split(const Plane& plane) {
-            Line line(start->position, (end->position - start->position).normalized());
+            // Do exactly what QBSP is doing:
+            const float startDist = plane.pointDistance(start->position);
+            const float endDist = plane.pointDistance(end->position);
+            
+            assert(startDist != endDist);
+            const float dot = startDist / (startDist - endDist);
+            
             Vertex* newVertex = new Vertex();
-
-            float dist = plane.intersectWithLine(line);
-            newVertex->position = line.pointAtDistance(dist).snapped();
-            newVertex->mark = Vertex::New;
+            for (unsigned int i = 0; i < 3; i++) {
+                if (plane.normal[i] == 1.0f)
+                    newVertex->position[i] = plane.distance;
+                else if (plane.normal[i] == -1.0f)
+                    newVertex->position[i] = -plane.distance;
+                else
+                    newVertex->position[i] = start->position[i] + dot * (end->position[i] - start->position[i]);
+            }
 
             if (start->mark == Vertex::Drop)
                 start = newVertex;
@@ -285,6 +318,7 @@ namespace TrenchBroom {
                 return NULL;
             }
 
+            // FIXME: handle this more gracefully
             if (splitIndex1 < 0 || splitIndex2 < 0)
                 throw GeometryException("Invalid brush detected during side split");
 
@@ -468,29 +502,6 @@ namespace TrenchBroom {
 
             m_newFaces.clear();
             m_droppedFaces.clear();
-        }
-
-        SideList BrushGeometry::incidentSides(Vertex* vertex) {
-            SideList result;
-
-            // find any edge that is incident to vertex
-            Edge* edge = NULL;
-            for (unsigned int i = 0; i < edges.size() && edge == NULL; i++) {
-                Edge* candidate = edges[i];
-                if (candidate->start == vertex || candidate->end == vertex)
-                    edge = candidate;
-            }
-
-            // iterate over the incident sides in clockwise order
-            Side* side = edge->start == vertex ? edge->right : edge->left;
-            do {
-                result.push_back(side);
-                size_t i = findElement(side->edges, edge);
-                edge = side->edges[pred(i, side->edges.size())];
-                side = edge->start == vertex ? edge->right : edge->left;
-            } while (side != result.front());
-
-            return result;
         }
 
         void BrushGeometry::deleteDegenerateTriangle(Side* side, Edge* edge, FaceManager& faceManager) {
@@ -1455,21 +1466,16 @@ namespace TrenchBroom {
                 sides[i]->face->updatePoints();
         }
         
-        void BrushGeometry::snap(FaceSet& newFaces, FaceSet& droppedFaces, unsigned int snapTo) {
+        void BrushGeometry::correct(FaceSet& newFaces, FaceSet& droppedFaces, float epsilon) {
+            assert(epsilon >= 0.0f);
+            
             Vec3f::Map positions;
             
             VertexList::const_iterator vertexIt, vertexEnd;
             for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt) {
                 const Vertex& vertex = **vertexIt;
                 Vec3f start = vertex.position;
-                Vec3f end;
-                if (snapTo == 0) {
-                    end = start.corrected();
-                } else {
-                    end = Vec3f(snapTo * Math::round(start.x / snapTo),
-                                snapTo * Math::round(start.y / snapTo),
-                                snapTo * Math::round(start.z / snapTo));
-                }
+                Vec3f end = start.corrected(epsilon);
                 
                 if (!start.equals(end, 0.0f))
                     positions[start] = end;
@@ -1490,6 +1496,44 @@ namespace TrenchBroom {
             
             updateFacePoints();
             faceManager.getFaces(newFaces, droppedFaces);
+        }
+
+        void BrushGeometry::snap(FaceSet& newFaces, FaceSet& droppedFaces, unsigned int snapTo) {
+            assert(snapTo > 0);
+            
+            Vec3f::Map positions;
+            
+            VertexList::const_iterator vertexIt, vertexEnd;
+            for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt) {
+                const Vertex& vertex = **vertexIt;
+                Vec3f start = vertex.position;
+                Vec3f end = Vec3f(snapTo * Math::round(start.x / snapTo),
+                                  snapTo * Math::round(start.y / snapTo),
+                                  snapTo * Math::round(start.z / snapTo));
+                
+                if (!start.equals(end, 0.0f))
+                    positions[start] = end;
+            }
+            
+            if (positions.empty())
+                return;
+            
+            FaceManager faceManager;
+            Vec3f::Map::const_iterator posIt, posEnd;
+            for (posIt = positions.begin(), posEnd = positions.end(); posIt != posEnd; ++posIt) {
+                const Vec3f& start = posIt->first;
+                const Vec3f& end = posIt->second;
+                Vertex* vertex = findVertex(vertices, start);
+                if (vertex != NULL)
+                    moveVertex(vertex, true, start, end, faceManager);
+            }
+            
+            updateFacePoints();
+            faceManager.getFaces(newFaces, droppedFaces);
+        }
+
+        SideList BrushGeometry::incidentSides(const Vertex* vertex) {
+            return vertex->incidentSides(edges);
         }
 
         bool BrushGeometry::canMoveVertices(const BBox& worldBounds, const Vec3f::List& vertexPositions, const Vec3f& delta) {
@@ -1764,8 +1808,10 @@ namespace TrenchBroom {
             // detect whether the drag would make the incident faces invalid
             const Vec3f& leftNorm = edge->left->face->boundary().normal;
             const Vec3f& rightNorm = edge->right->face->boundary().normal;
-            if (Math::neg(delta.dot(leftNorm)) ||
-                Math::neg(delta.dot(rightNorm)))
+            
+            // we allow a bit more leeway when testing here, as otherwise edges sometimes cannot be split
+            if (Math::neg(delta.dot(leftNorm), 0.01f) ||
+                Math::neg(delta.dot(rightNorm), 0.01f))
                 return false;
 
             FaceManager faceManager;

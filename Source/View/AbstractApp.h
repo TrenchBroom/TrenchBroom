@@ -20,6 +20,8 @@
 #ifndef __TrenchBroom__AbstractApp__
 #define __TrenchBroom__AbstractApp__
 
+#include "View/Animation.h"
+
 #include <wx/wx.h>
 
 class wxCommandEvent;
@@ -58,6 +60,10 @@ public:
     virtual void OnHelpShowHelp(wxCommandEvent& event);
 
     void OnUpdateMenuItem(wxUpdateUIEvent& event);
+    
+    void OnAnimation(TrenchBroom::View::AnimationEvent& event);
+    
+    int FilterEvent(wxEvent& event);
     
     DECLARE_EVENT_TABLE();
 };

@@ -31,23 +31,22 @@
 #include "Renderer/Vbo.h"
 #include "IO/FileManager.h"
 #include "Utility/Console.h"
+#include "Utility/Map.h"
 #include "Utility/Preferences.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Renderer {
-        const String EntityModelRendererManager::modelRendererKey(const Model::PointEntityModel& modelInfo, const StringList& searchPaths) {
+        const String EntityModelRendererManager::modelRendererKey(const Model::ModelDefinition& modelDefinition, const StringList& searchPaths) {
             StringStream key;
-            for (unsigned int i = 0; i < searchPaths.size(); i++)
+            for (size_t i = 0; i < searchPaths.size(); i++)
                 key << searchPaths[i] << " ";
-            key << modelInfo.name() << " ";
-            key << modelInfo.flagName() << " ";
-            key << modelInfo.skinIndex();
+            key << modelDefinition.name() << " " << modelDefinition.skinIndex() << " " << modelDefinition.frameIndex();
             return Utility::toLower(key.str());
         }
 
-        EntityModelRenderer* EntityModelRendererManager::modelRenderer(const Model::PointEntityModel& modelInfo, const StringList& searchPaths) {
+        EntityModelRenderer* EntityModelRendererManager::modelRenderer(const Model::ModelDefinition& modelDefinition, const StringList& searchPaths) {
             assert(m_palette != NULL);
             IO::FileManager fileManager;
             
@@ -56,7 +55,7 @@ namespace TrenchBroom {
                 m_valid = true;
             }
             
-            const String key = modelRendererKey(modelInfo, searchPaths);
+            const String key = modelRendererKey(modelDefinition, searchPaths);
             MismatchCache::iterator mismatchIt = m_mismatches.find(key);
             if (mismatchIt != m_mismatches.end())
                 return NULL;
@@ -65,14 +64,16 @@ namespace TrenchBroom {
             if (rendererIt != m_modelRenderers.end())
                 return rendererIt->second;
 
-            String modelName = Utility::toLower(modelInfo.name().substr(1));
+            String modelName = Utility::toLower(modelDefinition.name().substr(1));
             String ext = Utility::toLower(fileManager.pathExtension(modelName));
             if (ext == "mdl") {
+                unsigned int skinIndex = modelDefinition.skinIndex();
+                unsigned int frameIndex = modelDefinition.frameIndex();
+
                 Model::AliasManager& aliasManager = *Model::AliasManager::sharedManager;
                 const Model::Alias* alias = aliasManager.alias(modelName, searchPaths, m_console);
-                if (alias != NULL) {
-                    unsigned int skinIndex = modelInfo.skinIndex();
-                    unsigned int frameIndex = modelInfo.frameIndex();
+
+                if (alias != NULL && skinIndex < alias->skins().size() && frameIndex < alias->frames().size()) {
                     Renderer::EntityModelRenderer* renderer = new AliasModelRenderer(*alias, frameIndex, skinIndex, *m_vbo, *m_palette);
                     m_modelRenderers[key] = renderer;
                     return renderer;
@@ -107,26 +108,32 @@ namespace TrenchBroom {
         }
 
         EntityModelRenderer* EntityModelRendererManager::modelRenderer(const Model::PointEntityDefinition& entityDefinition, const StringList& searchPaths) {
-            const Model::PointEntityModel* modelInfo = entityDefinition.model();
-            if (modelInfo == NULL)
+            const Model::ModelDefinition* modelDefinition = entityDefinition.model();
+            if (modelDefinition == NULL)
                 return NULL;
-            return modelRenderer(*modelInfo, searchPaths);
+            return modelRenderer(*modelDefinition, searchPaths);
         }
 
         EntityModelRenderer* EntityModelRendererManager::modelRenderer(const Model::Entity& entity, const StringList& searchPaths) {
             const Model::EntityDefinition* definition = entity.definition();
             if (definition == NULL || definition->type() != Model::EntityDefinition::PointEntity)
                 return NULL;
-            return modelRenderer(*static_cast<const Model::PointEntityDefinition*>(definition), searchPaths);
+            const Model::PointEntityDefinition* pointDefinition = static_cast<const Model::PointEntityDefinition*>(definition);
+            const Model::ModelDefinition* modelDefinition = pointDefinition->model(entity.properties());
+            if (modelDefinition == NULL)
+                return NULL;
+            return modelRenderer(*modelDefinition, searchPaths);
         }
 
         void EntityModelRendererManager::clear() {
-            for (EntityModelRendererCache::iterator it = m_modelRenderers.begin(); it != m_modelRenderers.end(); ++it)
-                delete it->second;
-            m_modelRenderers.clear();
-            m_mismatches.clear();
+            clearMismatches();
+            Utility::deleteAll(m_modelRenderers);
         }
         
+        void EntityModelRendererManager::clearMismatches() {
+            m_mismatches.clear();
+        }
+
         void EntityModelRendererManager::setPalette(const Palette& palette) {
             if (&palette == m_palette)
                 return;

@@ -36,6 +36,17 @@ namespace TrenchBroom {
         };
         
         template <typename T>
+        inline void deleteAll(std::vector<T*>& list, typename std::vector<T*>::iterator start, typename std::vector<T*>::iterator end) {
+            std::for_each(start, end, DeleteObject<T>());
+            list.erase(start, end);
+        }
+        
+        template <typename T>
+        inline void deleteAll(std::vector<T*>& list, typename std::vector<T*>::iterator start) {
+            deleteAll(list, start, list.end());
+        }
+        
+        template <typename T>
         inline void deleteAll(std::vector<T*>& list, size_t toSize = 0) {
             typename std::vector<T*>::iterator start(list.begin());
             typename std::vector<T*>::iterator end(list.end());
