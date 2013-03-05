@@ -338,6 +338,7 @@ namespace TrenchBroom {
             void flip(Axis::Type axis, const Vec3f& flipCenter);
             void updateFacePoints();
             
+            void correct(FaceSet& newFaces, FaceSet& droppedFaces, float epsilon);
             void snap(FaceSet& newFaces, FaceSet& droppedFaces, unsigned int snapTo);
 
             SideList incidentSides(const Vertex* vertex);

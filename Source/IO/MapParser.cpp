@@ -100,7 +100,7 @@ namespace TrenchBroom {
             }
             return Token(TokenType::Eof, "", startPosition, tokenizer.position() - startPosition, line, column);
         }
-
+        
         MapParser::MapParser(std::istream& stream, Utility::Console& console) :
         m_console(console),
         m_tokenizer(stream),
@@ -110,7 +110,7 @@ namespace TrenchBroom {
             m_size = static_cast<size_t>(stream.tellg() - cur);
             stream.seekg(cur, std::ios::beg);
         }
-
+        
         void MapParser::parseMap(Model::Map& map, Utility::ProgressIndicator* indicator) {
             Model::Entity* entity = NULL;
             
@@ -124,7 +124,7 @@ namespace TrenchBroom {
             if (indicator != NULL)
                 indicator->update(static_cast<int>(m_size));
         }
-
+        
         Model::Entity* MapParser::parseEntity(const BBox& worldBounds, Utility::ProgressIndicator* indicator) {
             Token token = m_tokenizer.nextToken();
             if (token.type() == TokenType::Eof)
@@ -185,37 +185,58 @@ namespace TrenchBroom {
             Model::Brush* brush = new Model::Brush(worldBounds);
             brush->setFilePosition(token.line());
             
+            Model::FaceList faces;
+            
             while ((token = m_tokenizer.nextToken()).type() != TokenType::Eof) {
                 switch (token.type()) {
                     case TokenType::OParenthesis: {
                         m_tokenizer.pushToken(token);
                         Model::Face* face = parseFace(worldBounds);
-                        if (face != NULL && brush != NULL) {
-                            if (!brush->addFace(face)) {
-                                m_console.warn("Skipping malformed brush at line %i", brush->filePosition());
-                                delete brush;
-                                brush = NULL;
-                            }
-                        } else {
-                            delete face;
-                        }
+                        if (face != NULL)
+                            faces.push_back(face);
                         break;
                     }
-                    case TokenType::CBrace:
+                    case TokenType::CBrace: {
                         if (indicator != NULL) indicator->update(static_cast<int>(token.position()));
+                        
+                        // sort the faces by the weight of their plane normals like QBSP does
+                        std::sort(faces.begin(), faces.end(), Model::Face::WeightOrder(Plane::WeightOrder(true)));
+                        std::sort(faces.begin(), faces.end(), Model::Face::WeightOrder(Plane::WeightOrder(false)));
+                        
+                        Model::FaceList::iterator faceIt, faceEnd;
+                        for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
+                            Model::Face* face = *faceIt;
+                            if (!brush->addFace(face)) {
+                                m_console.warn("Skipping malformed brush at line %i", brush->filePosition());
+                                Utility::deleteAll(faces, faceIt);
+                                delete brush;
+                                brush = NULL;
+                                break;
+                            }
+                        }
+                        
                         if (brush != NULL && !brush->closed()) {
                             m_console.warn("Non-closed brush at line %i", brush->filePosition());
+                            // why are we not deleting this one?!
                             // delete brush;
                             // brush = NULL;
                         }
-                        /* this leads to many problems when loading maps
-                        if (brush != NULL)
-                            brush->snap(0);
-                         */
+                        // try to correct the vertices just like QBSP does
+                        if (brush != NULL) {
+                            const Model::VertexList& vertices = brush->vertices();
+                            Model::VertexList::const_iterator vertexIt, vertexEnd;
+                            for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt) {
+                                Model::Vertex& vertex = **vertexIt;
+                                vertex.position.correct();
+                            }
+                        }
                         return brush;
-                    default:
+                    }
+                    default: {
+                        Utility::deleteAll(faces);
                         delete brush;
                         throw MapParserException(token, TokenType::OParenthesis | TokenType::CParenthesis);
+                    }
                 }
             }
             

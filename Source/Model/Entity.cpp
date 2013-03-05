@@ -410,9 +410,7 @@ namespace TrenchBroom {
         }
 
         bool Entity::selectable() const {
-            if (m_definition == NULL)
-                return m_brushes.empty();
-            return m_definition->type() == EntityDefinition::PointEntity;
+            return m_brushes.empty();
         }
 
         EditState::Type Entity::setEditState(EditState::Type editState) {
