@@ -835,6 +835,12 @@ namespace TrenchBroom {
                                     selectEntities.push_back(&entity);
                             }
 
+                            // correct vertex rounding errors
+                            Model::BrushList::iterator brushIt, brushEnd;
+                            for (brushIt = selectBrushes.begin(), brushEnd = selectBrushes.end(); brushIt != brushEnd; ++brushIt) {
+                                Model::Brush& brush = **brushIt;
+                                brush.snap(0);
+                            }
 
                             BBox bounds = Model::MapObject::bounds(entities, brushes);
                             Vec3f delta = camera().defaultPoint() - mapDocument().grid().snap(bounds.center());

@@ -29,6 +29,21 @@ namespace TrenchBroom {
     namespace Math {
         class Plane {
         public:
+            class WeightOrder {
+            private:
+                bool m_deterministic;
+            public:
+                WeightOrder(bool deterministic) :
+                m_deterministic(deterministic) {}
+                
+                inline bool operator()(const Plane& lhs, const Plane& rhs) const {
+                    int result = lhs.normal.weight() - rhs.normal.weight();
+                    if (m_deterministic)
+                        result += static_cast<int>(1000.0f * (lhs.distance - lhs.distance));
+                    return result < 0;
+                }
+            };
+
             Vec3f normal;
             float distance;
             
