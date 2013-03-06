@@ -1460,3 +1460,5 @@
 @PointClass base(func_togglewall) = func_togglewall_point []
 @PointClass base(rotate_object) = rotate_object_point []
 @PointClass base(func_movewall) = func_movewall_point []
+@PointClass size(16 16 16) = misc_noisemaker : "Debug entity" []
+@PointClass size(16 16 16) = viewthing : "Fake player" []

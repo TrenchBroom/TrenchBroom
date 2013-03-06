@@ -1392,7 +1392,7 @@ namespace TrenchBroom {
             // restore edge sides now
             for (size_t i = 0; i < edges.size(); i++) {
                 edges[i]->left = sides[sideIndices[2 * i]];
-                edges[i]->right = sides[sideIndices[2 * i] + 1];
+                edges[i]->right = sides[sideIndices[2 * i + 1]];
             }
 
             bounds = boundsOfVertices(vertices);
