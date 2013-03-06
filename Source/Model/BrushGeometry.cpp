@@ -1265,6 +1265,139 @@ namespace TrenchBroom {
             Utility::deleteAll(vertices);
         }
 
+        void BrushGeometry::serialize(IO::ByteBuffer& buffer) {
+            typedef std::map<const Vertex*, size_t> VertexIndices;
+            typedef std::map<const Edge*, size_t> EdgeIndices;
+            typedef std::map<const Side*, size_t> SideIndices;
+            
+            VertexIndices vertexIndices;
+            EdgeIndices edgeIndices;
+            SideIndices sideIndices;
+            
+            for (size_t i = 0; i < sides.size(); i++)
+                sideIndices[sides[i]] = i;
+            
+            buffer << vertices.size();
+            for (size_t i = 0; i < vertices.size(); i++) {
+                const Vertex* vertex = vertices[i];
+                buffer << vertex->position.x;
+                buffer << vertex->position.y;
+                buffer << vertex->position.z;
+                vertexIndices[vertex] = i;
+            }
+            
+            buffer << edges.size();
+            for (size_t i = 0; i < edges.size(); i++) {
+                const Edge* edge = edges[i];
+                buffer << vertexIndices[edge->start];
+                buffer << vertexIndices[edge->end];
+                buffer << sideIndices[edge->left];
+                buffer << sideIndices[edge->right];
+                edgeIndices[edge] = i;
+            }
+            
+            buffer << sides.size();
+            for (size_t i = 0; i < sides.size(); i++) {
+                const Side* side = sides[i];
+                const Face* face = side->face;
+                assert(face != NULL);
+
+                for (unsigned int j = 0; j < 3; j++) {
+                    const Vec3f& point = face->point(j);
+                    buffer << point.x;
+                    buffer << point.y;
+                    buffer << point.z;
+                }
+                
+                buffer << side->edges.size();
+                for (size_t j = 0; j < side->edges.size(); j++) {
+                    const Vertex* vertex = side->vertices[j];
+                    const Edge* edge = side->edges[j];
+                    buffer << vertexIndices[vertex];
+                    buffer << edgeIndices[edge];
+                }
+            }
+        }
+
+        void BrushGeometry::deserialize(IO::ByteBuffer& buffer, const FaceList& faces) {
+            typedef std::vector<size_t> IndexList;
+            
+            Utility::deleteAll(sides);
+            Utility::deleteAll(edges);
+            Utility::deleteAll(vertices);
+
+            size_t vertexCount;
+            buffer >> vertexCount;
+            
+            for (size_t i = 0; i < vertexCount; i++) {
+                float x, y, z;
+                buffer >> x;
+                buffer >> y;
+                buffer >> z;
+                vertices.push_back(new Vertex(x, y, z));
+            }
+            
+            size_t edgeCount;
+            buffer >> edgeCount;
+            IndexList sideIndices;
+            sideIndices.reserve(2 * edgeCount);
+            
+            for (size_t i = 0; i < edgeCount; i++) {
+                size_t startIndex, endIndex, leftIndex, rightIndex;
+                buffer >> startIndex;
+                buffer >> endIndex;
+                buffer >> leftIndex;
+                buffer >> rightIndex;
+                
+                edges.push_back(new Edge(vertices[startIndex], vertices[endIndex]));
+                sideIndices.push_back(leftIndex);
+                sideIndices.push_back(rightIndex);
+            }
+            
+            size_t sideCount;
+            buffer >> sideCount;
+            
+            for (size_t i = 0; i < sideCount; i++) {
+                Side* side = new Side();
+                
+                Vec3f points[3];
+                for (size_t j = 0; j < 3; j++) {
+                    buffer >> points[j].x;
+                    buffer >> points[j].y;
+                    buffer >> points[j].z;
+                }
+                
+                size_t sideEdgeCount;
+                buffer >> sideEdgeCount;
+                for (size_t j = 0; j < sideEdgeCount; j++) {
+                    size_t vertexIndex, edgeIndex;
+                    buffer >> vertexIndex;
+                    buffer >> edgeIndex;
+                    
+                    side->vertices.push_back(vertices[vertexIndex]);
+                    side->edges.push_back(edges[edgeIndex]);
+                }
+                
+                for (size_t j = 0; j < faces.size(); j++) {
+                    Face* face = faces[j];
+                    if (face->point(0) == points[0] &&
+                        face->point(1) == points[1] &&
+                        face->point(2) == points[2]) {
+                        side->face = face;
+                        face->setSide(side);
+                    }
+                }
+                
+                sides.push_back(side);
+            }
+            
+            // restore edge sides now
+            for (size_t i = 0; i < edges.size(); i++) {
+                edges[i]->left = sides[sideIndices[2 * i]];
+                edges[i]->right = sides[sideIndices[2 * i] + 1];
+            }
+        }
+        
         bool BrushGeometry::closed() const {
             for (unsigned int i = 0; i < sides.size(); i++)
                 if (sides[i]->face == NULL)
