@@ -836,6 +836,7 @@ namespace TrenchBroom {
 
                             // workaround for OS X, where wxCustomDataObject does not properly handle unicode strings
                             // TODO see if this is fixed in 2.9.5
+                            // Apple Instruments reports memory leaks here, no idea why - maybe a bug in wx?
                             wxCustomDataObject* asciiData = new wxCustomDataObject(wxDataFormat("BrushText"));
                             asciiData->Alloc(text.size());
                             asciiData->SetData(text.size(), text.c_str());
