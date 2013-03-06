@@ -26,12 +26,15 @@
 namespace TrenchBroom {
     namespace IO {
         class ByteBuffer {
+        public:
+            static const ByteBuffer EmptyBuffer;
         private:
             typedef std::vector<char> Buffer;
             Buffer m_buffer;
             size_t m_index;
         public:
-            ByteBuffer() :
+            ByteBuffer(size_t size = 0) :
+            m_buffer(size),
             m_index(0) {}
             
             template <typename T>
@@ -66,6 +69,11 @@ namespace TrenchBroom {
             
             inline size_t size() const {
                 return m_buffer.size();
+            }
+            
+            inline char* get() {
+                assert(!empty());
+                return &m_buffer[0];
             }
             
             inline const char* get() const {

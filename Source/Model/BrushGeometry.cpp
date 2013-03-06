@@ -1274,10 +1274,13 @@ namespace TrenchBroom {
             EdgeIndices edgeIndices;
             SideIndices sideIndices;
             
+            buffer << vertices.size();
+            buffer << edges.size();
+            buffer << sides.size();
+            
             for (size_t i = 0; i < sides.size(); i++)
                 sideIndices[sides[i]] = i;
             
-            buffer << vertices.size();
             for (size_t i = 0; i < vertices.size(); i++) {
                 const Vertex* vertex = vertices[i];
                 buffer << vertex->position.x;
@@ -1286,7 +1289,6 @@ namespace TrenchBroom {
                 vertexIndices[vertex] = i;
             }
             
-            buffer << edges.size();
             for (size_t i = 0; i < edges.size(); i++) {
                 const Edge* edge = edges[i];
                 buffer << vertexIndices[edge->start];
@@ -1296,7 +1298,6 @@ namespace TrenchBroom {
                 edgeIndices[edge] = i;
             }
             
-            buffer << sides.size();
             for (size_t i = 0; i < sides.size(); i++) {
                 const Side* side = sides[i];
                 const Face* face = side->face;
@@ -1326,9 +1327,17 @@ namespace TrenchBroom {
             Utility::deleteAll(edges);
             Utility::deleteAll(vertices);
 
-            size_t vertexCount;
+            size_t vertexCount, edgeCount, sideCount;
+
             buffer >> vertexCount;
+            buffer >> edgeCount;
+            buffer >> sideCount;
             
+            assert(sideCount == faces.size());
+            
+            IndexList sideIndices;
+            sideIndices.reserve(2 * edgeCount);
+
             for (size_t i = 0; i < vertexCount; i++) {
                 float x, y, z;
                 buffer >> x;
@@ -1336,11 +1345,6 @@ namespace TrenchBroom {
                 buffer >> z;
                 vertices.push_back(new Vertex(x, y, z));
             }
-            
-            size_t edgeCount;
-            buffer >> edgeCount;
-            IndexList sideIndices;
-            sideIndices.reserve(2 * edgeCount);
             
             for (size_t i = 0; i < edgeCount; i++) {
                 size_t startIndex, endIndex, leftIndex, rightIndex;
@@ -1353,9 +1357,6 @@ namespace TrenchBroom {
                 sideIndices.push_back(leftIndex);
                 sideIndices.push_back(rightIndex);
             }
-            
-            size_t sideCount;
-            buffer >> sideCount;
             
             for (size_t i = 0; i < sideCount; i++) {
                 Side* side = new Side();
@@ -1378,15 +1379,12 @@ namespace TrenchBroom {
                     side->edges.push_back(edges[edgeIndex]);
                 }
                 
-                for (size_t j = 0; j < faces.size(); j++) {
-                    Face* face = faces[j];
-                    if (face->point(0) == points[0] &&
-                        face->point(1) == points[1] &&
-                        face->point(2) == points[2]) {
-                        side->face = face;
-                        face->setSide(side);
-                    }
-                }
+                Face* face = faces[i];
+                assert(face->point(0) == points[0] &&
+                       face->point(1) == points[1] &&
+                       face->point(2) == points[2]);
+                side->face = face;
+                face->setSide(side);
                 
                 sides.push_back(side);
             }
@@ -1396,6 +1394,9 @@ namespace TrenchBroom {
                 edges[i]->left = sides[sideIndices[2 * i]];
                 edges[i]->right = sides[sideIndices[2 * i] + 1];
             }
+
+            bounds = boundsOfVertices(vertices);
+            center = centerOfVertices(vertices);
         }
         
         bool BrushGeometry::closed() const {

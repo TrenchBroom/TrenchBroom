@@ -202,10 +202,21 @@ namespace TrenchBroom {
             delete m_geometry;
             
             m_geometry = new BrushGeometry(m_worldBounds);
-            for (unsigned int i = 0; i < newFaces.size(); i++)
+            for (size_t i = 0; i < newFaces.size(); i++)
                 addFace(newFaces[i]);
         }
         
+        void Brush::setFaces(const FaceList& newFaces) {
+            Utility::deleteAll(m_faces);
+            delete m_geometry;
+            
+            m_geometry = new BrushGeometry(m_worldBounds);
+            for (size_t i = 0; i < newFaces.size(); i++) {
+                m_faces.push_back(newFaces[i]);
+                newFaces[i]->setBrush(this);
+            }
+        }
+
         EditState::Type Brush::setEditState(EditState::Type editState) {
             EditState::Type previous = MapObject::setEditState(editState);
             if (m_entity != NULL) {
@@ -330,6 +341,14 @@ namespace TrenchBroom {
                 m_entity->invalidateGeometry();
         }
         
+        void Brush::serializeGeometry(IO::ByteBuffer& buffer) const {
+            m_geometry->serialize(buffer);
+        }
+        
+        void Brush::deserializeGeometry(IO::ByteBuffer& buffer) {
+            m_geometry->deserialize(buffer, m_faces);
+        }
+
         bool Brush::canMoveBoundary(const Face& face, const Vec3f& delta) const {
             
             // using worldbounds here can lead to invalid brushes due to precision errors

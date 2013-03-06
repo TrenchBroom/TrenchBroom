@@ -142,7 +142,7 @@ namespace TrenchBroom {
             writeEntityFooter(stream);
         }
 
-        void MapWriter::writeObjectsToStream(const Model::EntityList& pointEntities, const Model::BrushList& brushes, std::ostream& stream) {
+        void MapWriter::writeObjectsToStream(const Model::EntityList& pointEntities, const Model::BrushList& brushes, std::ostream& stream, Model::BrushFunctor& brushFunctor) {
             assert(stream.good());
 
             Model::Entity* worldspawn = NULL;
@@ -164,8 +164,10 @@ namespace TrenchBroom {
             if (worldspawn != NULL) {
                 Model::BrushList& brushList = entityToBrushes[worldspawn];
                 writeEntityHeader(*worldspawn, stream);
-                for (brushIt = brushList.begin(), brushEnd = brushList.end(); brushIt != brushEnd; ++brushIt)
+                for (brushIt = brushList.begin(), brushEnd = brushList.end(); brushIt != brushEnd; ++brushIt) {
                     writeBrush(**brushIt, stream);
+                    brushFunctor(**brushIt);
+                }
                 writeEntityFooter(stream);
             }
             
@@ -184,8 +186,10 @@ namespace TrenchBroom {
                 if (entity != worldspawn) {
                     Model::BrushList& brushList = it->second;
                     writeEntityHeader(*entity, stream);
-                    for (brushIt = brushList.begin(), brushEnd = brushList.end(); brushIt != brushEnd; ++brushIt)
+                    for (brushIt = brushList.begin(), brushEnd = brushList.end(); brushIt != brushEnd; ++brushIt) {
                         writeBrush(**brushIt, stream);
+                        brushFunctor(**brushIt);
+                    }
                     writeEntityFooter(stream);
                 }
             }

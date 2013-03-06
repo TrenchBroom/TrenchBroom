@@ -393,6 +393,7 @@
 		486AFAC916B3DE570097657D /* PointTraceFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointTraceFigure.h; sourceTree = "<group>"; };
 		486AFACB16B555940097657D /* Mat3f.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Mat3f.cpp; sourceTree = "<group>"; };
 		486C61E615EF713C0091AA97 /* mmapped_fstream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mmapped_fstream.h; sourceTree = "<group>"; };
+		48736D5C16E75B8700E4932C /* BrushGeometrySerializer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrushGeometrySerializer.h; sourceTree = "<group>"; };
 		4875679A16978ED3008F316F /* DragImage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragImage.h; sourceTree = "<group>"; };
 		4875679B1697922D008F316F /* MacDropSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacDropSource.cpp; sourceTree = "<group>"; };
 		4875679C1697922D008F316F /* MacDropSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacDropSource.h; sourceTree = "<group>"; };
@@ -831,6 +832,7 @@
 				48AF491D15E77BF90083DE52 /* BrushGeometry.cpp */,
 				48AF491E15E77BF90083DE52 /* BrushGeometry.h */,
 				48AF492115E782E90083DE52 /* BrushGeometryTypes.h */,
+				48736D5C16E75B8700E4932C /* BrushGeometrySerializer.h */,
 				481028A315E75C3400250C9C /* BrushTypes.h */,
 				481028A615E7778200250C9C /* EditState.h */,
 				4850D24E15F389B5005B162D /* EditStateManager.cpp */,

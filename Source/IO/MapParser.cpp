@@ -103,6 +103,7 @@ namespace TrenchBroom {
         
         MapParser::MapParser(std::istream& stream, Utility::Console& console) :
         m_console(console),
+        m_geometryDataBuffer(NULL),
         m_tokenizer(stream),
         m_format(Undefined) {
             std::streamoff cur = stream.tellg();
@@ -110,7 +111,7 @@ namespace TrenchBroom {
             m_size = static_cast<size_t>(stream.tellg() - cur);
             stream.seekg(cur, std::ios::beg);
         }
-        
+
         void MapParser::parseMap(Model::Map& map, Utility::ProgressIndicator* indicator) {
             Model::Entity* entity = NULL;
             
@@ -199,37 +200,44 @@ namespace TrenchBroom {
                     case TokenType::CBrace: {
                         if (indicator != NULL) indicator->update(static_cast<int>(token.position()));
                         
-                        // sort the faces by the weight of their plane normals like QBSP does
-                        std::sort(faces.begin(), faces.end(), Model::Face::WeightOrder(Plane::WeightOrder(true)));
-                        std::sort(faces.begin(), faces.end(), Model::Face::WeightOrder(Plane::WeightOrder(false)));
-                        
-                        Model::FaceList::iterator faceIt, faceEnd;
-                        for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
-                            Model::Face* face = *faceIt;
-                            if (!brush->addFace(face)) {
-                                m_console.warn("Skipping malformed brush at line %i", brush->filePosition());
-                                Utility::deleteAll(faces, faceIt);
-                                delete brush;
-                                brush = NULL;
-                                break;
+                        if (m_geometryDataBuffer != NULL) {
+                            brush->setFaces(faces);
+                            brush->deserializeGeometry(*m_geometryDataBuffer);
+                        } else {
+                            // sort the faces by the weight of their plane normals like QBSP does
+                            std::sort(faces.begin(), faces.end(), Model::Face::WeightOrder(Plane::WeightOrder(true)));
+                            std::sort(faces.begin(), faces.end(), Model::Face::WeightOrder(Plane::WeightOrder(false)));
+                            
+                            Model::FaceList::iterator faceIt, faceEnd;
+                            for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
+                                Model::Face* face = *faceIt;
+                                if (!brush->addFace(face)) {
+                                    m_console.warn("Skipping malformed brush at line %i", brush->filePosition());
+                                    Utility::deleteAll(faces, faceIt);
+                                    delete brush;
+                                    brush = NULL;
+                                    break;
+                                }
+                            }
+
+                            if (brush != NULL && !brush->closed()) {
+                                m_console.warn("Non-closed brush at line %i", brush->filePosition());
+                                // why are we not deleting this one?!
+                                // delete brush;
+                                // brush = NULL;
+                            }
+                            
+                            // try to correct the vertices just like QBSP does
+                            if (brush != NULL) {
+                                const Model::VertexList& vertices = brush->vertices();
+                                Model::VertexList::const_iterator vertexIt, vertexEnd;
+                                for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt) {
+                                    Model::Vertex& vertex = **vertexIt;
+                                    vertex.position.correct();
+                                }
                             }
                         }
-                        
-                        if (brush != NULL && !brush->closed()) {
-                            m_console.warn("Non-closed brush at line %i", brush->filePosition());
-                            // why are we not deleting this one?!
-                            // delete brush;
-                            // brush = NULL;
-                        }
-                        // try to correct the vertices just like QBSP does
-                        if (brush != NULL) {
-                            const Model::VertexList& vertices = brush->vertices();
-                            Model::VertexList::const_iterator vertexIt, vertexEnd;
-                            for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt) {
-                                Model::Vertex& vertex = **vertexIt;
-                                vertex.position.correct();
-                            }
-                        }
+                            
                         return brush;
                     }
                     default: {
