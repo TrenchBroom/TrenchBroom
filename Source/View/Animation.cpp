@@ -89,16 +89,17 @@ namespace TrenchBroom {
                 {
                     wxCriticalSectionLocker lockAnimations(m_animationsLock);
                     if (!m_animations.empty()) {
-                        Animation::List::iterator listIt, listEnd;
-
                         AnimationMap::iterator mapIt = m_animations.begin();
                         while (mapIt != m_animations.end()) {
                             Animation::List& list = mapIt->second;
-                            for (listIt = list.begin(), listEnd = list.end(); listIt != listEnd; ++listIt) {
+                            Animation::List::iterator listIt = list.begin();
+                            while (listIt != list.end()) {
                                 Animation::Ptr animation = *listIt;
                                 if (animation->step(elapsed))
                                     listIt = list.erase(listIt);
                                 updateAnimations.push_back(animation);
+                                if (listIt != list.end())
+                                    ++listIt;
                             }
 
                             if (list.empty())
