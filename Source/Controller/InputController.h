@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,17 +31,17 @@ namespace TrenchBroom {
         class EditStateChangeSet;
         class EntityDefinition;
     }
-    
+
     namespace Renderer {
         class BoxGuideRenderer;
         class RenderContext;
         class Vbo;
     }
-    
+
     namespace View {
         class DocumentViewHolder;
     }
-    
+
     namespace Controller {
         class CameraTool;
         class ClipTool;
@@ -55,12 +55,12 @@ namespace TrenchBroom {
         class SelectionTool;
         class SetFaceAttributesTool;
         class Tool;
-    
+
         class InputController {
         private:
             View::DocumentViewHolder& m_documentViewHolder;
             InputState m_inputState;
-            
+
             CameraTool* m_cameraTool;
             ClipTool* m_clipTool;
             MoveVerticesTool* m_moveVerticesTool;
@@ -71,16 +71,17 @@ namespace TrenchBroom {
             ResizeBrushesTool* m_resizeBrushesTool;
             SetFaceAttributesTool* m_setFaceAttributesTool;
             SelectionTool* m_selectionTool;
-            
+
             Tool* m_toolChain;
             Tool* m_dragTool;
+            Tool* m_nextDropReceiver; // workaround for a bug in wxWidgets 2.9.4 on GTK2
             Tool* m_modalTool;
             bool m_cancelledDrag;
-            
+
             wxPoint m_clickPos;
             bool m_discardNextMouseUp;
             ModifierKeyState m_modifierKeys;
-            
+
             void updateModalTool();
             void updateHits();
             void updateViews();
@@ -88,15 +89,15 @@ namespace TrenchBroom {
             CreateEntityFromMenuHelper* m_createEntityHelper;
             Renderer::BoxGuideRenderer* m_selectionGuideRenderer;
             Model::SelectedFilter m_selectedFilter;
-            
+
             void toggleTool(Tool* tool);
         public:
             InputController(View::DocumentViewHolder& documentViewHolder);
             ~InputController();
-            
+
             void modifierKeyDown(ModifierKeyState modifierKey);
             void modifierKeyUp(ModifierKeyState modifierKey);
-            
+
             bool mouseDown(int x, int y, MouseButtonState mouseButton);
             bool mouseUp(int x, int y, MouseButtonState mouseButton);
             bool mouseDClick(int x, int y, MouseButtonState mouseButton);
@@ -104,12 +105,12 @@ namespace TrenchBroom {
             void scroll(float x, float y);
             void cancelDrag();
             void endDrag();
-            
+
             void dragEnter(const String& payload, int x, int y);
             void dragMove(const String& payload, int x, int y);
             bool drop(const String& payload, int x, int y);
             void dragLeave();
-            
+
             void objectsChange();
             void editStateChange(const Model::EditStateChangeSet& changeSet);
             void cameraChange();
@@ -117,11 +118,11 @@ namespace TrenchBroom {
 
             void render(Renderer::Vbo& vbo, Renderer::RenderContext& context);
             void freeRenderResources();
-            
+
             inline ClipTool& clipTool() const {
                 return *m_clipTool;
             }
-            
+
             void toggleClipTool();
             bool clipToolActive();
             void toggleClipSide();
@@ -129,23 +130,23 @@ namespace TrenchBroom {
             void deleteClipPoint();
             bool canPerformClip();
             void performClip();
-            
+
             inline MoveVerticesTool& moveVerticesTool() const {
                 return *m_moveVerticesTool;
             }
-            
+
             void toggleMoveVerticesTool();
             bool moveVerticesToolActive();
-            
+
             void toggleRotateObjectsTool();
             bool rotateObjectsToolActive();
-            
+
             void deactivateAll();
-            
+
             void createEntity(Model::EntityDefinition& definition);
             const Model::Entity* canReparentBrushes(const Model::BrushList& brushes, const Model::Entity* newParent);
             void reparentBrushes(const Model::BrushList& brushes, Model::Entity* newParent);
-            
+
             inline InputState& inputState() {
                 return m_inputState;
             }
@@ -157,10 +158,10 @@ namespace TrenchBroom {
         public:
             InputControllerFigure(InputController& inputController);
             ~InputControllerFigure();
-            
+
             void render(Renderer::Vbo& vbo, Renderer::RenderContext& context);
         };
-        
+
     }
 }
 
