@@ -39,6 +39,8 @@
 #include "IO/MapParser.h"
 #include "IO/MapWriter.h"
 #include "Model/Brush.h"
+#include "Model/CreateBrushFromFacesFunctor.h"
+#include "Model/CreateBrushFromGeometryFunctor.h"
 #include "Model/Entity.h"
 #include "Model/EntityDefinition.h"
 #include "Model/EntityDefinitionManager.h"
@@ -888,20 +890,21 @@ namespace TrenchBroom {
                             text = textData.GetText();
                         }
                         
-                        bool hasGeometryData = wxTheClipboard->GetData(geometryData);
-                        IO::ByteBuffer geometryDataBuffer;
-                        
-                        if(hasGeometryData) {
-                            geometryDataBuffer = IO::ByteBuffer(geometryData.GetSize());
-                            hasGeometryData = geometryData.GetDataHere(geometryDataBuffer.get());
+                        Model::CreateBrushFunctor* brushCreator = NULL;
+                        if (wxTheClipboard->GetData(geometryData)) {
+                            IO::ByteBuffer geometryDataBuffer = IO::ByteBuffer(geometryData.GetSize());
+                            if (geometryData.GetDataHere(geometryDataBuffer.get()))
+                                brushCreator = new Model::CreateBrushFromGeometryFunctor(mapDocument().map().worldBounds(), geometryDataBuffer);
+                            else
+                                mapDocument().console().warn("Pasting objects from an external program may lead to loss of precision");
+                        } else {
+                            brushCreator = new Model::CreateBrushFromFacesFunctor(mapDocument().map().worldBounds());
+                            mapDocument().console().warn("Pasting objects from an external program may lead to loss of precision");
                         }
                         
                         StringStream stream;
                         stream.str(text);
-                        IO::MapParser mapParser(stream, console());
-                        
-                        if (hasGeometryData)
-                            mapParser.setGeometryDataBuffer(geometryDataBuffer);
+                        IO::MapParser mapParser(stream, console(), *brushCreator);
 
                         if (mapParser.parseFaces(mapDocument().map().worldBounds(), faces)) {
                             assert(!faces.empty());
@@ -953,12 +956,11 @@ namespace TrenchBroom {
                             }
 
                             pasteObjects(entities, brushes, delta);
-
-                            if (!hasGeometryData)
-                                mapDocument().console().warn("Pasting objects from an external program may lead to loss of precision");
                         } else {
                             mapDocument().console().warn("Unable to parse clipboard contents");
                         }
+                        
+                        delete brushCreator;
                     }
                     wxTheClipboard->Close();
                 }
@@ -994,30 +996,31 @@ namespace TrenchBroom {
                             text = textData.GetText();
                         }
                         
-                        bool hasGeometryData = wxTheClipboard->GetData(geometryData);
-                        IO::ByteBuffer geometryDataBuffer;
-                        
-                        if(hasGeometryData) {
-                            geometryDataBuffer = IO::ByteBuffer(geometryData.GetSize());
-                            hasGeometryData = geometryData.GetDataHere(geometryDataBuffer.get());
+                        Model::CreateBrushFunctor* brushCreator = NULL;
+                        if (wxTheClipboard->GetData(geometryData)) {
+                            IO::ByteBuffer geometryDataBuffer = IO::ByteBuffer(geometryData.GetSize());
+                            if (geometryData.GetDataHere(geometryDataBuffer.get()))
+                                brushCreator = new Model::CreateBrushFromGeometryFunctor(mapDocument().map().worldBounds(), geometryDataBuffer);
+                            else
+                                mapDocument().console().error("Pasting objects from an external program may lead to loss of precision");
+                        } else {
+                            brushCreator = new Model::CreateBrushFromFacesFunctor(mapDocument().map().worldBounds());
+                            mapDocument().console().warn("Pasting objects from an external program may lead to loss of precision");
                         }
                         
                         StringStream stream;
                         stream.str(text);
-                        IO::MapParser mapParser(stream, console());
-                        
-                        if (hasGeometryData)
-                            mapParser.setGeometryDataBuffer(geometryDataBuffer);
+                        IO::MapParser mapParser(stream, console(), *brushCreator);
                         
                         if (mapParser.parseEntities(mapDocument().map().worldBounds(), entities) ||
                                    mapParser.parseBrushes(mapDocument().map().worldBounds(), brushes)) {
                             assert(entities.empty() != brushes.empty());
                             pasteObjects(entities, brushes, Vec3f::Null);
-                            if (!hasGeometryData)
-                                mapDocument().console().warn("Pasting objects from an external program may lead to loss of precision");
                         } else {
                             mapDocument().console().warn("Unable to parse clipboard contents");
                         }
+                        
+                        delete brushCreator;
                     }
                     wxTheClipboard->Close();
                 }

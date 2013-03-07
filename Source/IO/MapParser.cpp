@@ -101,9 +101,9 @@ namespace TrenchBroom {
             return Token(TokenType::Eof, "", startPosition, tokenizer.position() - startPosition, line, column);
         }
         
-        MapParser::MapParser(std::istream& stream, Utility::Console& console) :
+        MapParser::MapParser(std::istream& stream, Utility::Console& console, Model::CreateBrushFunctor& createBrushFunctor) :
         m_console(console),
-        m_geometryDataBuffer(NULL),
+        m_createBrushFunctor(createBrushFunctor),
         m_tokenizer(stream),
         m_format(Undefined) {
             std::streamoff cur = stream.tellg();
@@ -183,11 +183,8 @@ namespace TrenchBroom {
             if (token.type() == TokenType::CBrace)
                 return NULL;
             
-            Model::Brush* brush = new Model::Brush(worldBounds);
-            brush->setFilePosition(token.line());
-            
+            const size_t filePosition = token.line();
             Model::FaceList faces;
-            
             while ((token = m_tokenizer.nextToken()).type() != TokenType::Eof) {
                 switch (token.type()) {
                     case TokenType::OParenthesis: {
@@ -200,49 +197,20 @@ namespace TrenchBroom {
                     case TokenType::CBrace: {
                         if (indicator != NULL) indicator->update(static_cast<int>(token.position()));
                         
-                        if (m_geometryDataBuffer != NULL) {
-                            brush->setFaces(faces);
-                            brush->deserializeGeometry(*m_geometryDataBuffer);
+                        Model::Brush* brush = m_createBrushFunctor(faces);
+                        if (brush != NULL) {
+                            brush->setFilePosition(filePosition);
+                            if (!brush->closed())
+                                m_console.warn("Non-closed brush at line %i", filePosition);
                         } else {
-                            // sort the faces by the weight of their plane normals like QBSP does
-                            std::sort(faces.begin(), faces.end(), Model::Face::WeightOrder(Plane::WeightOrder(true)));
-                            std::sort(faces.begin(), faces.end(), Model::Face::WeightOrder(Plane::WeightOrder(false)));
-                            
-                            Model::FaceList::iterator faceIt, faceEnd;
-                            for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
-                                Model::Face* face = *faceIt;
-                                if (!brush->addFace(face)) {
-                                    m_console.warn("Skipping malformed brush at line %i", brush->filePosition());
-                                    Utility::deleteAll(faces, faceIt);
-                                    delete brush;
-                                    brush = NULL;
-                                    break;
-                                }
-                            }
-
-                            if (brush != NULL && !brush->closed()) {
-                                m_console.warn("Non-closed brush at line %i", brush->filePosition());
-                                // why are we not deleting this one?!
-                                // delete brush;
-                                // brush = NULL;
-                            }
-                            
-                            // try to correct the vertices just like QBSP does
-                            if (brush != NULL) {
-                                const Model::VertexList& vertices = brush->vertices();
-                                Model::VertexList::const_iterator vertexIt, vertexEnd;
-                                for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt) {
-                                    Model::Vertex& vertex = **vertexIt;
-                                    vertex.position.correct();
-                                }
-                            }
+                            m_console.warn("Skipping malformed brush at line %i", filePosition);
+                            Utility::deleteAll(faces);
                         }
                             
                         return brush;
                     }
                     default: {
                         Utility::deleteAll(faces);
-                        delete brush;
                         throw MapParserException(token, TokenType::OParenthesis | TokenType::CParenthesis);
                     }
                 }
