@@ -129,7 +129,7 @@ namespace TrenchBroom {
             };
 
             Utility::Console& m_console;
-            IO::ByteBuffer* m_geometryDataBuffer;
+            Model::CreateBrushFunctor& m_createBrushFunctor;
             StreamTokenizer<MapTokenEmitter> m_tokenizer;
             MapFormat m_format;
             size_t m_size;
@@ -139,12 +139,7 @@ namespace TrenchBroom {
                     throw MapParserException(actualToken, expectedType);
             }
         public:
-            MapParser(std::istream& stream, Utility::Console& console);
-
-            inline void setGeometryDataBuffer(IO::ByteBuffer& geometryDataBuffer) {
-                assert(m_geometryDataBuffer == NULL);
-                m_geometryDataBuffer = &geometryDataBuffer;
-            }
+            MapParser(std::istream& stream, Utility::Console& console, Model::CreateBrushFunctor& createBrushFunctor);
             
             void parseMap(Model::Map& map, Utility::ProgressIndicator* indicator);
             Model::Entity* parseEntity(const BBox& worldBounds, Utility::ProgressIndicator* indicator);

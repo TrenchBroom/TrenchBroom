@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_BrushTypes_h
 #define TrenchBroom_BrushTypes_h
 
+#include "Model/FaceTypes.h"
+
 #include <map>
 #include <set>
 #include <vector>
@@ -44,6 +46,12 @@ namespace TrenchBroom {
         public:
             virtual ~BrushFunctor() {}
             virtual void operator()(const Model::Brush& brush) = 0;
+        };
+        
+        class CreateBrushFunctor {
+        public:
+            virtual ~CreateBrushFunctor() {}
+            virtual Brush* operator()(const Model::FaceList& faces) = 0;
         };
     }
 }
