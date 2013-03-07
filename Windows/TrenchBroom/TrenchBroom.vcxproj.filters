@@ -1151,6 +1151,12 @@
     <ClInclude Include="..\..\Source\IO\ClassInfo.h">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\IO\CreateBrushFromFacesStrategy.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\IO\CreateBrushFromGeometryStrategy.h">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="TrenchBroom.rc">

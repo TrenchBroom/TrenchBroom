@@ -278,6 +278,8 @@
 		482F4BCA1690681A0012D821 /* Vec4f.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Vec4f.cpp; sourceTree = "<group>"; };
 		482F4BCD16906ACB0012D821 /* PointHandleHighlightFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointHandleHighlightFigure.cpp; sourceTree = "<group>"; };
 		482F4BCE16906ACB0012D821 /* PointHandleHighlightFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointHandleHighlightFigure.h; sourceTree = "<group>"; };
+		4830050716E91B8300C05645 /* CreateBrushFromFacesStrategy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateBrushFromFacesStrategy.h; sourceTree = "<group>"; };
+		4830050816E91B8300C05645 /* CreateBrushFromGeometryStrategy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateBrushFromGeometryStrategy.h; sourceTree = "<group>"; };
 		48312B2715EABBD600607868 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
 		48312B2A15EB706D00607868 /* Console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Console.cpp; sourceTree = "<group>"; };
 		48312B2B15EB706D00607868 /* Console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Console.h; sourceTree = "<group>"; };
@@ -300,8 +302,6 @@
 		483323EF16AF351900FC9721 /* SpawnFlagsEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpawnFlagsEditor.cpp; sourceTree = "<group>"; };
 		483323F016AF351900FC9721 /* SpawnFlagsEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpawnFlagsEditor.h; sourceTree = "<group>"; };
 		4835D20516419FC400B01BD8 /* IOException.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IOException.h; sourceTree = "<group>"; };
-		4838386416E8B47E00FC5868 /* CreateBrushFromFacesFunctor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateBrushFromFacesFunctor.h; sourceTree = "<group>"; };
-		4838386516E8B81E00FC5868 /* CreateBrushFromGeometryFunctor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CreateBrushFromGeometryFunctor.h; sourceTree = "<group>"; };
 		483D0C3716C050DE0050710B /* SharedPointer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SharedPointer.h; sourceTree = "<group>"; };
 		483E203B16DCB33B00B087BB /* Defs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Defs; path = ../Resources/Defs; sourceTree = "<group>"; };
 		483F970516A5AB4B009716B1 /* CreateEntityFromMenuHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CreateEntityFromMenuHelper.cpp; sourceTree = "<group>"; };
@@ -639,6 +639,8 @@
 				4810526816E748AC00015AF5 /* ByteBuffer.h */,
 				481CC98D16DD562300537742 /* ClassInfo.h */,
 				481CC98E16DD568F00537742 /* ClassInfo.cpp */,
+				4830050716E91B8300C05645 /* CreateBrushFromFacesStrategy.h */,
+				4830050816E91B8300C05645 /* CreateBrushFromGeometryStrategy.h */,
 				4810277D15E56F9B00250C9C /* DefParser.cpp */,
 				4810277E15E56F9B00250C9C /* DefParser.h */,
 				4814447616DBA0DE0060150A /* FgdParser.cpp */,
@@ -836,8 +838,6 @@
 				48AF492115E782E90083DE52 /* BrushGeometryTypes.h */,
 				48736D5C16E75B8700E4932C /* BrushGeometrySerializer.h */,
 				481028A315E75C3400250C9C /* BrushTypes.h */,
-				4838386416E8B47E00FC5868 /* CreateBrushFromFacesFunctor.h */,
-				4838386516E8B81E00FC5868 /* CreateBrushFromGeometryFunctor.h */,
 				481028A615E7778200250C9C /* EditState.h */,
 				4850D24E15F389B5005B162D /* EditStateManager.cpp */,
 				4850D24F15F389B5005B162D /* EditStateManager.h */,

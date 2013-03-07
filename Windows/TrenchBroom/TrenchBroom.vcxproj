@@ -424,6 +424,8 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\GL\wglew.h" />
     <ClInclude Include="..\..\Source\IO\AbstractFileManager.h" />
     <ClInclude Include="..\..\Source\IO\ClassInfo.h" />
+    <ClInclude Include="..\..\Source\IO\CreateBrushFromFacesStrategy.h" />
+    <ClInclude Include="..\..\Source\IO\CreateBrushFromGeometryStrategy.h" />
     <ClInclude Include="..\..\Source\IO\DefParser.h" />
     <ClInclude Include="..\..\Source\IO\FGDParser.h" />
     <ClInclude Include="..\..\Source\IO\FileManager.h" />

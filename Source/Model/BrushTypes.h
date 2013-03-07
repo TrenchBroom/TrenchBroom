@@ -47,12 +47,6 @@ namespace TrenchBroom {
             virtual ~BrushFunctor() {}
             virtual void operator()(const Model::Brush& brush) = 0;
         };
-        
-        class CreateBrushFunctor {
-        public:
-            virtual ~CreateBrushFunctor() {}
-            virtual Brush* operator()(const Model::FaceList& faces) = 0;
-        };
     }
 }
 

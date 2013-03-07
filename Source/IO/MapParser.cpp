@@ -101,9 +101,9 @@ namespace TrenchBroom {
             return Token(TokenType::Eof, "", startPosition, tokenizer.position() - startPosition, line, column);
         }
         
-        MapParser::MapParser(std::istream& stream, Utility::Console& console, Model::CreateBrushFunctor& createBrushFunctor) :
+        MapParser::MapParser(std::istream& stream, Utility::Console& console, CreateBrushStrategy& createBrushStrategy) :
         m_console(console),
-        m_createBrushFunctor(createBrushFunctor),
+        m_createBrushStrategy(createBrushStrategy),
         m_tokenizer(stream),
         m_format(Undefined) {
             std::streamoff cur = stream.tellg();
@@ -197,7 +197,7 @@ namespace TrenchBroom {
                     case TokenType::CBrace: {
                         if (indicator != NULL) indicator->update(static_cast<int>(token.position()));
                         
-                        Model::Brush* brush = m_createBrushFunctor(faces);
+                        Model::Brush* brush = m_createBrushStrategy(worldBounds, faces);
                         if (brush != NULL) {
                             brush->setFilePosition(filePosition);
                             if (!brush->closed())
