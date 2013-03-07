@@ -633,8 +633,14 @@ namespace TrenchBroom {
                 clear();
                 setEntityDefinitionFile("");
 
+                // place 1 new brush at origin
+                BBox brushBounds(Vec3f(-32.0f, -32.0f, 0.0f), Vec3f(32.0f, 32.0f, 16.0f));
+                Model::Brush* brush = new Model::Brush(m_map->worldBounds(), brushBounds, NULL);
+                addBrush(*worldspawn(true), *brush);
+                
                 Controller::Command loadCommand(Controller::Command::LoadMap);
                 UpdateAllViews(NULL, &loadCommand);
+                
                 m_modificationCount = 0;
                 m_autosaver->clearDirtyFlag();
 				return true;

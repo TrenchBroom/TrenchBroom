@@ -512,6 +512,10 @@ namespace TrenchBroom {
                         inputController().gridChange();
                         break;
                     case Controller::Command::LoadMap:
+                        m_camera->moveTo(Vec3f(-64.0f, -64.0f, 64.0f));
+                        m_camera->setDirection(Vec3f(1.0f, 1.0f, -1.0f).normalized(), Vec3f::PosZ);
+                        inputController().cameraChange();
+
                         m_renderer->loadMap();
                         inspector().faceInspector().updateFaceAttributes();
                         inspector().faceInspector().updateTextureBrowser();
