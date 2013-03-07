@@ -36,11 +36,11 @@
 #include "Controller/SetFaceAttributesCommand.h"
 #include "Controller/SnapVerticesCommand.h"
 #include "IO/ByteBuffer.h"
+#include "IO/CreateBrushFromFacesStrategy.h"
+#include "IO/CreateBrushFromGeometryStrategy.h"
 #include "IO/MapParser.h"
 #include "IO/MapWriter.h"
 #include "Model/Brush.h"
-#include "Model/CreateBrushFromFacesFunctor.h"
-#include "Model/CreateBrushFromGeometryFunctor.h"
 #include "Model/Entity.h"
 #include "Model/EntityDefinition.h"
 #include "Model/EntityDefinitionManager.h"
@@ -524,6 +524,10 @@ namespace TrenchBroom {
                         inputController().gridChange();
                         break;
                     case Controller::Command::LoadMap:
+                        m_camera->moveTo(Vec3f(-96.0f, -96.0f, 48.0f));
+                        m_camera->setDirection(Vec3f(1.0f, 1.0f, 0.0f).normalized(), Vec3f::PosZ);
+                        inputController().cameraChange();
+
                         m_renderer->loadMap();
                         inspector().faceInspector().updateFaceAttributes();
                         inspector().faceInspector().updateTextureBrowser();
@@ -878,7 +882,7 @@ namespace TrenchBroom {
                         wxCustomDataObject asciiData(asciiFormat);
                         wxCustomDataObject geometryData(geometryFormat);
                         
-                        // prefer ascii data over text data
+                        // prefer ascii data over unicode data
                         if (wxTheClipboard->GetData(asciiData)) {
                             size_t size = asciiData.GetSize();
                             char* rawText = new char[size];
@@ -890,15 +894,15 @@ namespace TrenchBroom {
                             text = textData.GetText();
                         }
                         
-                        Model::CreateBrushFunctor* brushCreator = NULL;
+                        IO::MapParser::CreateBrushStrategy* brushCreator = NULL;
                         if (wxTheClipboard->GetData(geometryData)) {
                             IO::ByteBuffer geometryDataBuffer = IO::ByteBuffer(geometryData.GetSize());
-                            if (geometryData.GetDataHere(geometryDataBuffer.get()))
-                                brushCreator = new Model::CreateBrushFromGeometryFunctor(mapDocument().map().worldBounds(), geometryDataBuffer);
+                            if (!geometryDataBuffer.empty() && geometryData.GetDataHere(geometryDataBuffer.get()))
+                                brushCreator = new IO::CreateBrushFromGeometryStrategy(geometryDataBuffer);
                             else
                                 mapDocument().console().warn("Pasting objects from an external program may lead to loss of precision");
                         } else {
-                            brushCreator = new Model::CreateBrushFromFacesFunctor(mapDocument().map().worldBounds());
+                            brushCreator = new IO::CreateBrushFromFacesStrategy();
                             mapDocument().console().warn("Pasting objects from an external program may lead to loss of precision");
                         }
                         
@@ -996,15 +1000,15 @@ namespace TrenchBroom {
                             text = textData.GetText();
                         }
                         
-                        Model::CreateBrushFunctor* brushCreator = NULL;
+                        IO::MapParser::CreateBrushStrategy* brushCreator = NULL;
                         if (wxTheClipboard->GetData(geometryData)) {
                             IO::ByteBuffer geometryDataBuffer = IO::ByteBuffer(geometryData.GetSize());
-                            if (geometryData.GetDataHere(geometryDataBuffer.get()))
-                                brushCreator = new Model::CreateBrushFromGeometryFunctor(mapDocument().map().worldBounds(), geometryDataBuffer);
+                            if (!geometryDataBuffer.empty() && geometryData.GetDataHere(geometryDataBuffer.get()))
+                                brushCreator = new IO::CreateBrushFromGeometryStrategy(geometryDataBuffer);
                             else
-                                mapDocument().console().error("Pasting objects from an external program may lead to loss of precision");
+                                mapDocument().console().warn("Pasting objects from an external program may lead to loss of precision");
                         } else {
-                            brushCreator = new Model::CreateBrushFromFacesFunctor(mapDocument().map().worldBounds());
+                            brushCreator = new IO::CreateBrushFromFacesStrategy();
                             mapDocument().console().warn("Pasting objects from an external program may lead to loss of precision");
                         }
                         

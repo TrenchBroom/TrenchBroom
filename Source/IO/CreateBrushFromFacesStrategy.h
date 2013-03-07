@@ -17,9 +17,10 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CreateBrushFromFacesFunctor_h
-#define TrenchBroom_CreateBrushFromFacesFunctor_h
+#ifndef TrenchBroom_CreateBrushFromFacesStrategy_h
+#define TrenchBroom_CreateBrushFromFacesStrategy_h
 
+#include "IO/MapParser.h"
 #include "Model/Brush.h"
 #include "Model/Face.h"
 #include "Utility/VecMath.h"
@@ -29,16 +30,11 @@
 using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
-    namespace Model {
-        class CreateBrushFromFacesFunctor : public CreateBrushFunctor {
-        private:
-            const BBox m_worldBounds;
+    namespace IO {
+        class CreateBrushFromFacesStrategy : public MapParser::CreateBrushStrategy {
         public:
-            CreateBrushFromFacesFunctor(const BBox& worldBounds) :
-            m_worldBounds(worldBounds) {}
-                          
-            Brush* operator()(const Model::FaceList& faces) {
-                Brush* brush = new Brush(m_worldBounds);
+            Model::Brush* operator()(const BBox& worldBounds, const Model::FaceList& faces) {
+                Model::Brush* brush = new Model::Brush(worldBounds);
                 
                 // sort the faces by the weight of their plane normals like QBSP does
                 Model::FaceList sortedFaces = faces;

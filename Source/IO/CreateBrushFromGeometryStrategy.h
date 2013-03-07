@@ -17,10 +17,11 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CreateBrushFromGeometryFunctor_h
-#define TrenchBroom_CreateBrushFromGeometryFunctor_h
+#ifndef TrenchBroom_CreateBrushFromGeometryStrategy_h
+#define TrenchBroom_CreateBrushFromGeometryStrategy_h
 
 #include "IO/ByteBuffer.h"
+#include "IO/MapParser.h"
 #include "Model/Brush.h"
 #include "Model/Face.h"
 #include "Utility/VecMath.h"
@@ -30,18 +31,16 @@
 using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
-    namespace Model {
-        class CreateBrushFromGeometryFunctor : public CreateBrushFunctor {
+    namespace IO {
+        class CreateBrushFromGeometryStrategy : public MapParser::CreateBrushStrategy {
         private:
-            const BBox m_worldBounds;
-            IO::ByteBuffer& m_buffer;
+            IO::ByteBuffer m_buffer; // we explicity wish to copy the buffer
         public:
-            CreateBrushFromGeometryFunctor(const BBox& worldBounds, IO::ByteBuffer& buffer) :
-            m_worldBounds(worldBounds),
+            CreateBrushFromGeometryStrategy(IO::ByteBuffer& buffer) :
             m_buffer(buffer) {}
             
-            Brush* operator()(const Model::FaceList& faces) {
-                Brush* brush = new Brush(m_worldBounds);
+            Model::Brush* operator()(const BBox& worldBounds, const Model::FaceList& faces) {
+                Model::Brush* brush = new Model::Brush(worldBounds);
 
                 brush->setFaces(faces);
                 brush->deserializeGeometry(m_buffer);
