@@ -1,9 +1,8 @@
-TrenchBroom
-===========
+# TrenchBroom
 
 TrenchBroom is a modern cross-platform level editor for Quake.
 
-# Features
+## Features
 - True 3D editing, no 2D views required
 - High performance renderer with support for huge maps
 - Vertex editing with edge and face splitting that will not create invalid brushes
@@ -23,7 +22,7 @@ TrenchBroom is a modern cross-platform level editor for Quake.
 - Free (as in beer) and open source (GPLv3)
 - Cross platform (Windows, Mac OS X and Linux supported)
 
-# Compiling
+## Compiling
 - Windows: You need Visual Studio 2010, read [Windows/Build.txt](Windows/Build.txt) for instructions
 - Mac OS X: You need XCode 4, read [Mac/Build.txt](Mac/Build.txt) for instructions
 - Linux: You need Code::Blocks, read [Linux/Build.txt](Linux/Build.txt) for instructions
@@ -33,13 +32,13 @@ TrenchBroom is a modern cross-platform level editor for Quake.
 - If you wish to contribute code or improve the documentation, please get in touch with me at kristian.duske@gmail.com.
 - All help is appreciated!
 
-# Changes
-## TrenchBroom 1.0.4
+## Changes
+### TrenchBroom 1.0.4
 - Improved Quake.fgd and Quoth2.fgd.
 - Improvements to clipboard pasting.
 - Fixed a crash bug when loading maps with invalid brushes.
 
-## TrenchBroom 1.0.3
+### TrenchBroom 1.0.3
 - Fix off-by-one bug of mod list in map properties dialog.
 - Snap vertex coordinates if close to integer coordinates.
 - Add logging on all platforms.
