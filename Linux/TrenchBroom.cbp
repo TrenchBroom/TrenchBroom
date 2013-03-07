@@ -225,6 +225,8 @@
 		<Unit filename="../Source/IO/ByteBuffer.h" />
 		<Unit filename="../Source/IO/ClassInfo.cpp" />
 		<Unit filename="../Source/IO/ClassInfo.h" />
+		<Unit filename="../Source/IO/CreateBrushFromFacesStrategy.h" />
+		<Unit filename="../Source/IO/CreateBrushFromGeometryStrategy.h" />
 		<Unit filename="../Source/IO/DefParser.cpp" />
 		<Unit filename="../Source/IO/DefParser.h" />
 		<Unit filename="../Source/IO/FgdParser.cpp" />
