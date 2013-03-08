@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__AbstractApp__
 #define __TrenchBroom__AbstractApp__
 
+#include "Utility/Preferences.h"
 #include "View/Animation.h"
 
 #include <wx/wx.h>
@@ -33,11 +34,20 @@ class wxMenuBar;
 class wxView;
 class DocManager;
 
+namespace TrenchBroom {
+    namespace View {
+        class KeyboardShortcut;
+    }
+}
+
 class AbstractApp : public wxApp {
 protected:
 	DocManager* m_docManager;
     wxExtHelpController* m_helpController;
 
+    void appendItem(wxMenu* menu, const TrenchBroom::Preferences::Preference<TrenchBroom::View::KeyboardShortcut>& pref, bool withAccelerator = true);
+    void appendCheckItem(wxMenu* menu, const TrenchBroom::Preferences::Preference<TrenchBroom::View::KeyboardShortcut>& pref, bool withAccelerator = true);
+    
     virtual wxMenu* CreateFileMenu(wxEvtHandler* eventHandler, bool mapViewFocused);
     virtual wxMenu* CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMenu, bool mapViewFocused);
     virtual wxMenu* CreateViewMenu(wxEvtHandler* eventHandler, bool mapViewFocused);

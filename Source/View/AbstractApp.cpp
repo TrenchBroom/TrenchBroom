@@ -35,6 +35,7 @@
 #include "View/CommandIds.h"
 #include "View/EditorFrame.h"
 #include "View/EditorView.h"
+#include "View/KeyboardShortcut.h"
 #include "View/PreferencesDialog.h"
 
 BEGIN_EVENT_TABLE(AbstractApp, wxApp)
@@ -49,8 +50,32 @@ EVT_UPDATE_UI_RANGE(TrenchBroom::View::CommandIds::Menu::Lowest, TrenchBroom::Vi
 EVT_ANIMATION(AbstractApp::OnAnimation)
 END_EVENT_TABLE()
 
+void AbstractApp::appendItem(wxMenu* menu, const TrenchBroom::Preferences::Preference<TrenchBroom::View::KeyboardShortcut>& pref, bool withAccelerator) {
+    using TrenchBroom::View::KeyboardShortcut;
+    using namespace TrenchBroom::Preferences;
+    
+    PreferenceManager& prefs = PreferenceManager::preferences();
+    const KeyboardShortcut& shortcut = prefs.getKeyboardShortcut(pref);
+    if (withAccelerator)
+        menu->Append(shortcut.commandId(), shortcut.menuText());
+    else
+        menu->Append(shortcut.commandId(), shortcut.text());
+}
+
+void AbstractApp::appendCheckItem(wxMenu* menu, const TrenchBroom::Preferences::Preference<TrenchBroom::View::KeyboardShortcut>& pref, bool withAccelerator) {
+    using TrenchBroom::View::KeyboardShortcut;
+    using namespace TrenchBroom::Preferences;
+    
+    PreferenceManager& prefs = PreferenceManager::preferences();
+    const KeyboardShortcut& shortcut = prefs.getKeyboardShortcut(pref);
+    if (withAccelerator)
+        menu->AppendCheckItem(shortcut.commandId(), shortcut.menuText());
+    else
+        menu->AppendCheckItem(shortcut.commandId(), shortcut.text());
+}
+
 wxMenu* AbstractApp::CreateFileMenu(wxEvtHandler* eventHandler, bool mapViewFocused) {
-    using namespace TrenchBroom::View::CommandIds::Menu;
+    using namespace TrenchBroom::Preferences;
 
     wxMenu* fileHistoryMenu = new wxMenu();
     fileHistoryMenu->SetEventHandler(m_docManager);
@@ -58,128 +83,112 @@ wxMenu* AbstractApp::CreateFileMenu(wxEvtHandler* eventHandler, bool mapViewFocu
     m_docManager->FileHistoryAddFilesToMenu(fileHistoryMenu);
 
     wxMenu* fileMenu = new wxMenu();
-    fileMenu->Append(wxID_NEW, wxT("New\tCtrl-N"));
-    fileMenu->Append(wxID_OPEN, wxT("Open...\tCtrl-O"));
+    appendItem(fileMenu, FileNew);
+    appendItem(fileMenu, FileOpen);
     fileMenu->AppendSubMenu(fileHistoryMenu, "Open Recent");
     fileMenu->AppendSeparator();
-    fileMenu->Append(wxID_SAVE, wxT("Save\tCtrl-S"));
-    fileMenu->Append(wxID_SAVEAS, wxT("Save as...\tCtrl-Shift-S"));
+    appendItem(fileMenu, FileSave);
+    appendItem(fileMenu, FileSaveAs);
     fileMenu->AppendSeparator();
-    fileMenu->Append(FileLoadPointFile, wxT("Load Point File"));
-    fileMenu->Append(FileUnloadPointFile, wxT("Unload Point File"));
+    appendItem(fileMenu, FileLoadPointFile);
+    appendItem(fileMenu, FileUnloadPointFile);
     fileMenu->AppendSeparator();
-    fileMenu->Append(wxID_CLOSE, wxT("Close\tCtrl-W"));
+    appendItem(fileMenu, FileClose);
     fileMenu->SetEventHandler(eventHandler);
     return fileMenu;
 }
 
 wxMenu* AbstractApp::CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMenu, bool mapViewFocused) {
-    using namespace TrenchBroom::View::CommandIds::Menu;
-
+    using namespace TrenchBroom::Preferences;
+    
     wxMenu* editMenu = new wxMenu();
-    editMenu->Append(wxID_UNDO, wxT("Undo\tCtrl-Z"));
-    editMenu->Append(wxID_REDO, wxT("Redo\tCtrl-Shift-Z"));
-    editMenu->AppendSeparator();
-    editMenu->Append(wxID_CUT, wxT("Cut\tCtrl+X"));
-    editMenu->Append(wxID_COPY, wxT("Copy\tCtrl+C"));
-    editMenu->Append(wxID_PASTE, wxT("Paste\tCtrl+V"));
-    editMenu->Append(EditPasteAtOriginalPosition, wxT("Paste At Original Position\tCtrl+Shift+V"));
-    if (mapViewFocused) editMenu->Append(wxID_DELETE, wxT("Delete\tBack"));
-    else editMenu->Append(wxID_DELETE, wxT("Delete"));
-    editMenu->AppendSeparator();
-    editMenu->Append(EditSelectAll, wxT("Select All\tCtrl+A"));
-    editMenu->Append(EditSelectSiblings, wxT("Select Siblings\tCtrl+Alt+A"));
-    editMenu->Append(EditSelectTouching, wxT("Select Touching\tCtrl+T"));
-    editMenu->Append(EditSelectNone, wxT("Select None\tCtrl+Shift+A"));
-    editMenu->AppendSeparator();
-    editMenu->Append(EditHideSelected, wxT("Hide Selected\tCtrl+H"));
-    editMenu->Append(EditHideUnselected, wxT("Hide Unselected\tCtrl+Alt+H"));
-    editMenu->Append(EditUnhideAll, wxT("Unhide All\tCtrl+Shift+H"));
-    editMenu->AppendSeparator();
-    editMenu->Append(EditLockSelected, wxT("Lock Selected\tCtrl+L"));
-    editMenu->Append(EditLockUnselected, wxT("Lock Unselected\tCtrl+Alt+L"));
-    editMenu->Append(EditUnlockAll, wxT("Unlock All\tCtrl+Shift+L"));
-
     wxMenu* toolsMenu = new wxMenu();
-    if (mapViewFocused) {
-        toolsMenu->AppendCheckItem(EditToggleClipTool, wxT("Clip Tool\tC"));
-        toolsMenu->Append(EditToggleClipSide, wxT("Toggle Clip Side\tTAB"));
-        toolsMenu->Append(EditPerformClip, wxT("Perform Clip\tENTER"));
-        toolsMenu->AppendSeparator();
-        toolsMenu->AppendCheckItem(EditToggleVertexTool, wxT("Vertex Tool\tV"));
-        toolsMenu->AppendCheckItem(EditToggleRotateObjectsTool, wxT("Rotate Objects Tool\tR"));
-    } else {
-        toolsMenu->AppendCheckItem(EditToggleClipTool, wxT("Clip Tool"));
-        toolsMenu->Append(EditToggleClipSide, wxT("Toggle Clip Side"));
-        toolsMenu->Append(EditPerformClip, wxT("Perform Clip"));
-        toolsMenu->AppendSeparator();
-        toolsMenu->AppendCheckItem(EditToggleVertexTool, wxT("Vertex Tool"));
-        toolsMenu->AppendCheckItem(EditToggleRotateObjectsTool, wxT("Rotate Objects Tool"));
-    }
-    toolsMenu->SetEventHandler(eventHandler);
 
+    appendItem(editMenu, EditUndo);
+    appendItem(editMenu, EditRedo);
+    editMenu->AppendSeparator();
+    appendItem(editMenu, EditCut);
+    appendItem(editMenu, EditCopy);
+    appendItem(editMenu, EditPaste);
+    appendItem(editMenu, EditPasteAtOriginalPosition);
+    appendItem(editMenu, EditDelete, mapViewFocused);
+    editMenu->AppendSeparator();
+    appendItem(editMenu, EditSelectAll);
+    appendItem(editMenu, EditSelectTouching);
+    appendItem(editMenu, EditSelectNone);
+    editMenu->AppendSeparator();
+    appendItem(editMenu, EditHideSelected);
+    appendItem(editMenu, EditHideUnselected);
+    appendItem(editMenu, EditUnhideAll);
+    editMenu->AppendSeparator();
+    appendItem(editMenu, EditLockSelected);
+    appendItem(editMenu, EditLockUnselected);
+    appendItem(editMenu, EditUnlockAll);
+    
+    appendCheckItem(toolsMenu, EditToolsToggleClipTool, mapViewFocused);
+    appendItem(toolsMenu, EditToolsToggleClipSide, mapViewFocused);
+    appendItem(toolsMenu, EditToolsPerformClip, mapViewFocused);
+    toolsMenu->AppendSeparator();
+    appendCheckItem(toolsMenu, EditToolsToggleVertexTool, mapViewFocused);
+    appendCheckItem(toolsMenu, EditToolsToggleRotateTool, mapViewFocused);
+    
     editMenu->AppendSeparator();
     editMenu->AppendSubMenu(toolsMenu, wxT("Tools"));
+    
     if (actionMenu != NULL) {
         editMenu->AppendSubMenu(actionMenu, wxT("Actions"));
         actionMenu->SetEventHandler(eventHandler);
     } else {
-        editMenu->Append(EditActions, wxT("Actions"));
+        editMenu->Append(wxID_ANY, wxT("Actions"));
     }
+
     editMenu->AppendSeparator();
-    editMenu->AppendCheckItem(EditToggleTextureLock, wxT("Toggle Texture Lock"));
-    editMenu->Append(EditShowMapProperties, wxT("Map Properties..."));
+    appendCheckItem(editMenu, EditToggleTextureLock);
+    appendItem(editMenu, EditShowMapProperties);
+
+    toolsMenu->SetEventHandler(eventHandler);
     editMenu->SetEventHandler(eventHandler);
 
     return editMenu;
 }
 
 wxMenu* AbstractApp::CreateViewMenu(wxEvtHandler* eventHandler, bool mapViewFocused) {
-    using namespace TrenchBroom::View::CommandIds::Menu;
+    using namespace TrenchBroom::Preferences;
 
     wxMenu* viewMenu = new wxMenu();
     wxMenu* gridMenu = new wxMenu();
-    gridMenu->AppendCheckItem(ViewToggleShowGrid, wxT("Show Grid\tCtrl+G"));
-    gridMenu->AppendCheckItem(ViewToggleSnapToGrid, wxT("Snap to Grid Grid\tCtrl+Shift+G"));
+    wxMenu* cameraMenu = new wxMenu();
+    
+    appendCheckItem(gridMenu, ViewGridToggleShowGrid);
+    appendCheckItem(gridMenu, ViewGridToggleSnapToGrid);
     gridMenu->AppendSeparator();
-    gridMenu->Append(ViewIncGridSize, wxT("Increase Grid Size\tCtrl++"));
-    gridMenu->Append(ViewDecGridSize, wxT("Decrease Grid Size\tCtrl+-"));
+    appendItem(gridMenu, ViewGridIncGridSize);
+    appendItem(gridMenu, ViewGridDecGridSize);
     gridMenu->AppendSeparator();
-    gridMenu->AppendCheckItem(ViewSetGridSize1, wxT("Set Grid Size 1\tCtrl+1"));
-    gridMenu->AppendCheckItem(ViewSetGridSize2, wxT("Set Grid Size 2\tCtrl+2"));
-    gridMenu->AppendCheckItem(ViewSetGridSize4, wxT("Set Grid Size 4\tCtrl+3"));
-    gridMenu->AppendCheckItem(ViewSetGridSize8, wxT("Set Grid Size 8\tCtrl+4"));
-    gridMenu->AppendCheckItem(ViewSetGridSize16, wxT("Set Grid Size 16\tCtrl+5"));
-    gridMenu->AppendCheckItem(ViewSetGridSize32, wxT("Set Grid Size 32\tCtrl+6"));
-    gridMenu->AppendCheckItem(ViewSetGridSize64, wxT("Set Grid Size 64\tCtrl+7"));
-    gridMenu->AppendCheckItem(ViewSetGridSize128, wxT("Set Grid Size 128\tCtrl+8"));
-    gridMenu->AppendCheckItem(ViewSetGridSize256, wxT("Set Grid Size 256\tCtrl+9"));
+    appendCheckItem(gridMenu, ViewGridSetSize1);
+    appendCheckItem(gridMenu, ViewGridSetSize2);
+    appendCheckItem(gridMenu, ViewGridSetSize4);
+    appendCheckItem(gridMenu, ViewGridSetSize8);
+    appendCheckItem(gridMenu, ViewGridSetSize16);
+    appendCheckItem(gridMenu, ViewGridSetSize32);
+    appendCheckItem(gridMenu, ViewGridSetSize64);
+    appendCheckItem(gridMenu, ViewGridSetSize128);
+    appendCheckItem(gridMenu, ViewGridSetSize256);
+
     gridMenu->SetEventHandler(eventHandler);
     viewMenu->AppendSubMenu(gridMenu, wxT("Grid"));
 
-    wxMenu* cameraMenu = new wxMenu();
-    if (mapViewFocused) {
-        cameraMenu->Append(ViewMoveCameraForward, wxT("Move Forward\tAlt+UP"));
-        cameraMenu->Append(ViewMoveCameraBackward, wxT("Move Backward\tAlt+DOWN"));
-        cameraMenu->Append(ViewMoveCameraLeft, wxT("Move Left\tAlt+LEFT"));
-        cameraMenu->Append(ViewMoveCameraRight, wxT("Move Right\tAlt+RIGHT"));
-        cameraMenu->Append(ViewMoveCameraUp, wxT("Move Up\tAlt+PGUP"));
-        cameraMenu->Append(ViewMoveCameraDown, wxT("Move Down\tAlt+PGDN"));
-        cameraMenu->AppendSeparator();
-        cameraMenu->Append(ViewMoveCameraToNextPoint, wxT("Move Camera to Next Point\tAlt++"));
-        cameraMenu->Append(ViewMoveCameraToPreviousPoint, wxT("Move Camera to Previous Point\tAlt+-"));
-    } else {
-        cameraMenu->Append(ViewMoveCameraForward, wxT("Move Forward"));
-        cameraMenu->Append(ViewMoveCameraBackward, wxT("Move Backward"));
-        cameraMenu->Append(ViewMoveCameraLeft, wxT("Move Left"));
-        cameraMenu->Append(ViewMoveCameraRight, wxT("Move Right"));
-        cameraMenu->Append(ViewMoveCameraUp, wxT("Move Up"));
-        cameraMenu->Append(ViewMoveCameraDown, wxT("Move Down"));
-        cameraMenu->AppendSeparator();
-        cameraMenu->Append(ViewMoveCameraToNextPoint, wxT("Move Camera to Next Point"));
-        cameraMenu->Append(ViewMoveCameraToPreviousPoint, wxT("Move Camera to Previous Point"));
-    }
-    cameraMenu->Append(ViewCenterCameraOnSelection, wxT("Center On Selection\tAlt+C"));
+    appendItem(cameraMenu, ViewCameraMoveForward, mapViewFocused);
+    appendItem(cameraMenu, ViewCameraMoveBackward, mapViewFocused);
+    appendItem(cameraMenu, ViewCameraMoveLeft, mapViewFocused);
+    appendItem(cameraMenu, ViewCameraMoveRight, mapViewFocused);
+    appendItem(cameraMenu, ViewCameraMoveUp, mapViewFocused);
+    appendItem(cameraMenu, ViewCameraMoveDown, mapViewFocused);
+    cameraMenu->AppendSeparator();
+    appendItem(cameraMenu, ViewCameraMoveToNextPoint, mapViewFocused);
+    appendItem(cameraMenu, ViewCameraMoveToPreviousPoint, mapViewFocused);
+    appendItem(cameraMenu, ViewCameraCenterCameraOnSelection);
+
     cameraMenu->SetEventHandler(eventHandler);
     viewMenu->AppendSubMenu(cameraMenu, wxT("Camera"));
 
@@ -226,108 +235,72 @@ void AbstractApp::DetachFileHistoryMenu(wxMenuBar* menuBar) {
 }
 
 wxMenu* AbstractApp::CreateTextureActionMenu(bool mapViewFocused) {
-    using namespace TrenchBroom::View::CommandIds::Menu;
+    using namespace TrenchBroom::Preferences;
 
     wxMenu* textureActionMenu = new wxMenu();
-    if (mapViewFocused) {
+    
+    appendItem(textureActionMenu, EditActionsMoveTexturesUp, mapViewFocused);
+    appendItem(textureActionMenu, EditActionsMoveTexturesDown, mapViewFocused);
+    appendItem(textureActionMenu, EditActionsMoveTexturesLeft, mapViewFocused);
+    appendItem(textureActionMenu, EditActionsMoveTexturesRight, mapViewFocused);
+    appendItem(textureActionMenu, EditActionsRotateTexturesCW, mapViewFocused);
+    appendItem(textureActionMenu, EditActionsRotateTexturesCCW, mapViewFocused);
+    textureActionMenu->AppendSeparator();
+    appendItem(textureActionMenu, EditActionsMoveTexturesUpFine, mapViewFocused);
+    appendItem(textureActionMenu, EditActionsMoveTexturesDownFine, mapViewFocused);
+    appendItem(textureActionMenu, EditActionsMoveTexturesLeftFine, mapViewFocused);
+    appendItem(textureActionMenu, EditActionsMoveTexturesRightFine, mapViewFocused);
+    appendItem(textureActionMenu, EditActionsRotateTexturesCWFine, mapViewFocused);
+    appendItem(textureActionMenu, EditActionsRotateTexturesCCWFine, mapViewFocused);
 
-        textureActionMenu->Append(EditMoveTexturesUp, wxT("Move Up\tUP"));
-        textureActionMenu->Append(EditMoveTexturesDown, wxT("Move Down\tDOWN"));
-        textureActionMenu->Append(EditMoveTexturesLeft, wxT("Move Left\tLEFT"));
-        textureActionMenu->Append(EditMoveTexturesRight, wxT("Move Right\tRIGHT"));
-        textureActionMenu->Append(EditRotateTexturesCW, wxT("Rotate 15 CW\tPGUP"));
-        textureActionMenu->Append(EditRotateTexturesCCW, wxT("Rotate 15 CCW\tPGDN"));
-        textureActionMenu->AppendSeparator();
-        textureActionMenu->Append(EditMoveTexturesUpFine, wxT("Move Up by 1\tCtrl+UP"));
-        textureActionMenu->Append(EditMoveTexturesDownFine, wxT("Move Down by 1\tCtrl+DOWN"));
-        textureActionMenu->Append(EditMoveTexturesLeftFine, wxT("Move Left by 1\tCtrl+LEFT"));
-        textureActionMenu->Append(EditMoveTexturesRightFine, wxT("Move Right by 1\tCtrl+RIGHT"));
-        textureActionMenu->Append(EditRotateTexturesCWFine, wxT("Rotate 1 CW\tCtrl+PGUP"));
-        textureActionMenu->Append(EditRotateTexturesCCWFine, wxT("Rotate 1 CCW\tCtrl+PGDN"));
-    } else {
-        textureActionMenu->Append(EditMoveTexturesUp, wxT("Move Up"));
-        textureActionMenu->Append(EditMoveTexturesDown, wxT("Move Down"));
-        textureActionMenu->Append(EditMoveTexturesLeft, wxT("Move Left"));
-        textureActionMenu->Append(EditMoveTexturesRight, wxT("Move Right"));
-        textureActionMenu->Append(EditRotateTexturesCW, wxT("Rotate 15 CW"));
-        textureActionMenu->Append(EditRotateTexturesCCW, wxT("Rotate 15 CCW"));
-        textureActionMenu->AppendSeparator();
-        textureActionMenu->Append(EditMoveTexturesUpFine, wxT("Move Up by 1"));
-        textureActionMenu->Append(EditMoveTexturesDownFine, wxT("Move Down by 1"));
-        textureActionMenu->Append(EditMoveTexturesLeftFine, wxT("Move Left by 1"));
-        textureActionMenu->Append(EditMoveTexturesRightFine, wxT("Move Right by 1"));
-        textureActionMenu->Append(EditRotateTexturesCWFine, wxT("Rotate 1 CW"));
-        textureActionMenu->Append(EditRotateTexturesCCWFine, wxT("Rotate 1 CCW"));
-    }
     return textureActionMenu;
 }
 
 wxMenu* AbstractApp::CreateObjectActionMenu(bool mapViewFocused) {
-    using namespace TrenchBroom::View::CommandIds::Menu;
+    using namespace TrenchBroom::Preferences;
 
     wxMenu* objectActionMenu = new wxMenu();
-    if (mapViewFocused) {
-        objectActionMenu->Append(EditMoveObjectsForward, wxT("Move Forward\tUP"));
-        objectActionMenu->Append(EditMoveObjectsBackward, wxT("Move Backward\tDOWN"));
-        objectActionMenu->Append(EditMoveObjectsLeft, wxT("Move Left\tLEFT"));
-        objectActionMenu->Append(EditMoveObjectsRight, wxT("Move Right\tRIGHT"));
-        objectActionMenu->Append(EditMoveObjectsUp, wxT("Move Up\tPGUP"));
-        objectActionMenu->Append(EditMoveObjectsDown, wxT("Move Down\tPGDN"));
-        objectActionMenu->AppendSeparator();
-        objectActionMenu->Append(EditRollObjectsCW, wxT("Rotate 90 Clockwise\tCtrl+UP"));
-        objectActionMenu->Append(EditRollObjectsCCW, wxT("Rotate 90 Counterclockwise\tCtrl+DOWN"));
-        objectActionMenu->Append(EditYawObjectsCW, wxT("Rotate 90 Left\tCtrl+LEFT"));
-        objectActionMenu->Append(EditYawObjectsCCW, wxT("Rotate 90 Right\tCtrl+RIGHT"));
-        objectActionMenu->Append(EditPitchObjectsCW, wxT("Rotate 90 Up\tCtrl+PGUP"));
-        objectActionMenu->Append(EditPitchObjectsCCW, wxT("Rotate 90 Down\tCtrl+PGDN"));
-    } else {
-        objectActionMenu->Append(EditMoveObjectsForward, wxT("Move Forward"));
-        objectActionMenu->Append(EditMoveObjectsBackward, wxT("Move Backward"));
-        objectActionMenu->Append(EditMoveObjectsLeft, wxT("Move Left"));
-        objectActionMenu->Append(EditMoveObjectsRight, wxT("Move Right"));
-        objectActionMenu->Append(EditMoveObjectsUp, wxT("Move Up"));
-        objectActionMenu->Append(EditMoveObjectsDown, wxT("Move Down"));
-        objectActionMenu->AppendSeparator();
-        objectActionMenu->Append(EditRollObjectsCW, wxT("Rotate 90 Clockwise"));
-        objectActionMenu->Append(EditRollObjectsCCW, wxT("Rotate 90 Counterclockwise"));
-        objectActionMenu->Append(EditYawObjectsCW, wxT("Rotate 90 Left"));
-        objectActionMenu->Append(EditYawObjectsCCW, wxT("Rotate 90 Right"));
-        objectActionMenu->Append(EditPitchObjectsCW, wxT("Rotate 90 Up"));
-        objectActionMenu->Append(EditPitchObjectsCCW, wxT("Rotate 90 Down"));
-    }
+    
+    appendItem(objectActionMenu, EditActionsMoveObjectsForward, mapViewFocused);
+    appendItem(objectActionMenu, EditActionsMoveObjectsBackward, mapViewFocused);
+    appendItem(objectActionMenu, EditActionsMoveObjectsLeft, mapViewFocused);
+    appendItem(objectActionMenu, EditActionsMoveObjectsRight, mapViewFocused);
+    appendItem(objectActionMenu, EditActionsMoveObjectsUp, mapViewFocused);
+    appendItem(objectActionMenu, EditActionsMoveObjectsDown, mapViewFocused);
     objectActionMenu->AppendSeparator();
-    objectActionMenu->Append(EditFlipObjectsHorizontally, wxT("Flip Horizontally\tCtrl+F"));
-    objectActionMenu->Append(EditFlipObjectsVertically, wxT("Flip Vertically\tCtrl+Alt+F"));
+    appendItem(objectActionMenu, EditActionsRollObjectsCW, mapViewFocused);
+    appendItem(objectActionMenu, EditActionsRollObjectsCCW, mapViewFocused);
+    appendItem(objectActionMenu, EditActionsYawObjectsCW, mapViewFocused);
+    appendItem(objectActionMenu, EditActionsYawObjectsCCW, mapViewFocused);
+    appendItem(objectActionMenu, EditActionsPitchObjectsCW, mapViewFocused);
+    appendItem(objectActionMenu, EditActionsPitchObjectsCCW, mapViewFocused);
     objectActionMenu->AppendSeparator();
-    objectActionMenu->Append(EditDuplicateObjects, wxT("Duplicate\tCtrl+D"));
+    appendItem(objectActionMenu, EditActionsFlipObjectsHorizontally);
+    appendItem(objectActionMenu, EditActionsFlipObjectsVertically);
     objectActionMenu->AppendSeparator();
-    objectActionMenu->Append(EditCorrectVertices, wxT("Correct Vertices"));
-    objectActionMenu->Append(EditSnapVertices, wxT("Snap Vertices"));
+    appendItem(objectActionMenu, EditActionsDuplicateObjects);
+    objectActionMenu->AppendSeparator();
+    appendItem(objectActionMenu, EditActionsCorrectVertices);
+    appendItem(objectActionMenu, EditActionsSnapVertices);
+
     return objectActionMenu;
 }
 
 wxMenu* AbstractApp::CreateVertexActionMenu(bool mapViewFocused) {
-    using namespace TrenchBroom::View::CommandIds::Menu;
+    using namespace TrenchBroom::Preferences;
 
     wxMenu* vertexActionMenu = new wxMenu();
-    if (mapViewFocused) {
-        vertexActionMenu->Append(EditMoveVerticesForward, wxT("Move Forward\tUP"));
-        vertexActionMenu->Append(EditMoveVerticesBackward, wxT("Move Backward\tDOWN"));
-        vertexActionMenu->Append(EditMoveVerticesLeft, wxT("Move Left\tLEFT"));
-        vertexActionMenu->Append(EditMoveVerticesRight, wxT("Move Right\tRIGHT"));
-        vertexActionMenu->Append(EditMoveVerticesUp, wxT("Move Up\tPGUP"));
-        vertexActionMenu->Append(EditMoveVerticesDown, wxT("Move Down\tPGDN"));
-    } else {
-        vertexActionMenu->Append(EditMoveVerticesForward, wxT("Move Forward"));
-        vertexActionMenu->Append(EditMoveVerticesBackward, wxT("Move Backward"));
-        vertexActionMenu->Append(EditMoveVerticesLeft, wxT("Move Left"));
-        vertexActionMenu->Append(EditMoveVerticesRight, wxT("Move Right"));
-        vertexActionMenu->Append(EditMoveVerticesUp, wxT("Move Up"));
-        vertexActionMenu->Append(EditMoveVerticesDown, wxT("Move Down"));
-    }
+    
+    appendItem(vertexActionMenu, EditActionsMoveVerticesForward, mapViewFocused);
+    appendItem(vertexActionMenu, EditActionsMoveVerticesBackward, mapViewFocused);
+    appendItem(vertexActionMenu, EditActionsMoveVerticesLeft, mapViewFocused);
+    appendItem(vertexActionMenu, EditActionsMoveVerticesRight, mapViewFocused);
+    appendItem(vertexActionMenu, EditActionsMoveVerticesUp, mapViewFocused);
+    appendItem(vertexActionMenu, EditActionsMoveVerticesDown, mapViewFocused);
     vertexActionMenu->AppendSeparator();
-    vertexActionMenu->Append(EditCorrectVertices, wxT("Correct Vertices"));
-    vertexActionMenu->Append(EditSnapVertices, wxT("Snap Vertices"));
+    appendItem(vertexActionMenu, EditActionsCorrectVertices);
+    appendItem(vertexActionMenu, EditActionsSnapVertices);
+
     return vertexActionMenu;
 }
 

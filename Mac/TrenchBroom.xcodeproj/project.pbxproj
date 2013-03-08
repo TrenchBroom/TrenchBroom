@@ -283,6 +283,7 @@
 		482F4BCE16906ACB0012D821 /* PointHandleHighlightFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointHandleHighlightFigure.h; sourceTree = "<group>"; };
 		4830050716E91B8300C05645 /* CreateBrushFromFacesStrategy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateBrushFromFacesStrategy.h; sourceTree = "<group>"; };
 		4830050816E91B8300C05645 /* CreateBrushFromGeometryStrategy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateBrushFromGeometryStrategy.h; sourceTree = "<group>"; };
+		4830050A16E93C2200C05645 /* KeyboardShortcut.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyboardShortcut.h; sourceTree = "<group>"; };
 		48312B2715EABBD600607868 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
 		48312B2A15EB706D00607868 /* Console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Console.cpp; sourceTree = "<group>"; };
 		48312B2B15EB706D00607868 /* Console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Console.h; sourceTree = "<group>"; };
@@ -923,6 +924,7 @@
 				48BDA1B21695E08400FF2CC5 /* EntityPropertyGridTable.h */,
 				48C0FA401608FFD00023F467 /* FaceInspector.cpp */,
 				48C0FA411608FFD00023F467 /* FaceInspector.h */,
+				4830050A16E93C2200C05645 /* KeyboardShortcut.h */,
 				48E2ED181601184F00B8D476 /* LayoutConstants.h */,
 				4810276415E4FBF000250C9C /* MapGLCanvas.cpp */,
 				4810276515E4FBF000250C9C /* MapGLCanvas.h */,
