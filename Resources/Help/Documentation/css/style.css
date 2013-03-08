@@ -123,12 +123,15 @@ ul.submenu a {
 
 .monospace_text
 {
+	display:inline-block;
 	white-space: nowrap;
 	background-color:#EEEEEE;
 	border:1px solid #999999;
 	padding:0px 2px 0px 2px;
+	margin:auto;
 	font-family:monaco, consolas, monospace;
 }
+
 
 .indentedDiv
 {

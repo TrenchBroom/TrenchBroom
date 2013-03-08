@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>TrenchBroom Help - Working With Textures</title>
+	<link rel="StyleSheet" href="css/style.css" type="text/css" media="screen" />
+	<meta name="author" content="Kristian Duske">
+</head>
+<body>
+	<script src="scripts/commands.js"></script>
+	<div id="container">
+		<h2>Creating Entity Definitions</h2>
+		<p></p>
+		<h3>"DEF" Format</h3>
+		<p>This format is the simplest way of creating entity definitions for the editor to use.  Here is an example of a DEF entity:
+		<div class="monospace_text">/*QUAKED func_illusionary (0 .5 .8) ?<br/>
+		A simple entity that looks solid but lets you walk through it.<br/>
+		Does not block light.<br/>
+		*/</div>
+		</p>
+		<p class="no-indent">Here are the components:</p>
+		<p class="no-indent"><span class="monospace_text">/*QUAKED</span><br/>
+		This tells the editor that this is the beginning of an entity definition.  It must always be present at the start of the first line.</p>
+		<p class="no-indent"><span class="monospace_text">func_illusionary</span><br/>
+		This is the name of the entity; in more technical terms, it's <i>classname</i>.  The classname must be one word and can contain only letters, numbers and _.  It cannot begin with a number.  It must have a matching entry in the progs.dat of the mod you are creating this definition for or it will do nothing in the game.<br/>Another point of note is how Trenchbroom organizes entities in the context menu.  Entities who's classnames have prefixes before the first underscore(_) will be grouped together in a submenu.</p>
+		<p class="no-indent"><span class="monospace_text">(0 .5 .8)</span><br/>
+		This tells the editor what colour the entity's bounding box should be in the viewport.  It is helpful to colour entities that share similar traits the same colour.</p>
+		<p class="no-indent"><span class="monospace_text">?</span><br/>
+		This tells the editor that this entity is a <b>brush entity</b>.  In other words, it contains brushes, for example doors, lifts and triggers.</p>
+		
+		
+		<div class="monospace_text">/*QUAKED item_shells (0 .5 .5) (0 0 0) (32 32 32) BIG<br/>
+		20 shells for both Shotgun and SuperShotgun.<br/>
+		<br/>
+		Flags:<br/>
+		"BIG"<br/>
+			&emsp;&emsp;&emsp;&emsp;gives 40 instead of 20<br/>
+		<br/>
+		Keys:<br/>
+		"target"<br/>
+			&emsp;&emsp;&emsp;&emsp;entity to trigger when picked up<br/>
+		"targetname"<br/>
+			&emsp;&emsp;&emsp;&emsp;entity name<br/>
+		*/</div>
+	</div>
+</body>
+</html>
