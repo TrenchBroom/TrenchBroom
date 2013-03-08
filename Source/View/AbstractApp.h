@@ -45,8 +45,8 @@ protected:
 	DocManager* m_docManager;
     wxExtHelpController* m_helpController;
 
-    void appendItem(wxMenu* menu, const TrenchBroom::Preferences::Preference<TrenchBroom::View::KeyboardShortcut>& pref, bool withAccelerator = true);
-    void appendCheckItem(wxMenu* menu, const TrenchBroom::Preferences::Preference<TrenchBroom::View::KeyboardShortcut>& pref, bool withAccelerator = true);
+    void appendItem(wxMenu* menu, const TrenchBroom::Preferences::Preference<TrenchBroom::View::KeyboardShortcut>& pref, bool mapViewFocused);
+    void appendCheckItem(wxMenu* menu, const TrenchBroom::Preferences::Preference<TrenchBroom::View::KeyboardShortcut>& pref, bool mapViewFocused);
     
     virtual wxMenu* CreateFileMenu(wxEvtHandler* eventHandler, bool mapViewFocused);
     virtual wxMenu* CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMenu, bool mapViewFocused);

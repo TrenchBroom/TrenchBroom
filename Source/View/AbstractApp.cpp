@@ -50,25 +50,25 @@ EVT_UPDATE_UI_RANGE(TrenchBroom::View::CommandIds::Menu::Lowest, TrenchBroom::Vi
 EVT_ANIMATION(AbstractApp::OnAnimation)
 END_EVENT_TABLE()
 
-void AbstractApp::appendItem(wxMenu* menu, const TrenchBroom::Preferences::Preference<TrenchBroom::View::KeyboardShortcut>& pref, bool withAccelerator) {
+void AbstractApp::appendItem(wxMenu* menu, const TrenchBroom::Preferences::Preference<TrenchBroom::View::KeyboardShortcut>& pref, bool mapViewFocused) {
     using TrenchBroom::View::KeyboardShortcut;
     using namespace TrenchBroom::Preferences;
     
     PreferenceManager& prefs = PreferenceManager::preferences();
     const KeyboardShortcut& shortcut = prefs.getKeyboardShortcut(pref);
-    if (withAccelerator)
+    if (mapViewFocused || shortcut.alwaysShowModifier())
         menu->Append(shortcut.commandId(), shortcut.menuText());
     else
         menu->Append(shortcut.commandId(), shortcut.text());
 }
 
-void AbstractApp::appendCheckItem(wxMenu* menu, const TrenchBroom::Preferences::Preference<TrenchBroom::View::KeyboardShortcut>& pref, bool withAccelerator) {
+void AbstractApp::appendCheckItem(wxMenu* menu, const TrenchBroom::Preferences::Preference<TrenchBroom::View::KeyboardShortcut>& pref, bool mapViewFocused) {
     using TrenchBroom::View::KeyboardShortcut;
     using namespace TrenchBroom::Preferences;
     
     PreferenceManager& prefs = PreferenceManager::preferences();
     const KeyboardShortcut& shortcut = prefs.getKeyboardShortcut(pref);
-    if (withAccelerator)
+    if (mapViewFocused || shortcut.alwaysShowModifier())
         menu->AppendCheckItem(shortcut.commandId(), shortcut.menuText());
     else
         menu->AppendCheckItem(shortcut.commandId(), shortcut.text());
@@ -83,17 +83,17 @@ wxMenu* AbstractApp::CreateFileMenu(wxEvtHandler* eventHandler, bool mapViewFocu
     m_docManager->FileHistoryAddFilesToMenu(fileHistoryMenu);
 
     wxMenu* fileMenu = new wxMenu();
-    appendItem(fileMenu, FileNew);
-    appendItem(fileMenu, FileOpen);
+    appendItem(fileMenu, FileNew, mapViewFocused);
+    appendItem(fileMenu, FileOpen, mapViewFocused);
     fileMenu->AppendSubMenu(fileHistoryMenu, "Open Recent");
     fileMenu->AppendSeparator();
-    appendItem(fileMenu, FileSave);
-    appendItem(fileMenu, FileSaveAs);
+    appendItem(fileMenu, FileSave, mapViewFocused);
+    appendItem(fileMenu, FileSaveAs, mapViewFocused);
     fileMenu->AppendSeparator();
-    appendItem(fileMenu, FileLoadPointFile);
-    appendItem(fileMenu, FileUnloadPointFile);
+    appendItem(fileMenu, FileLoadPointFile, mapViewFocused);
+    appendItem(fileMenu, FileUnloadPointFile, mapViewFocused);
     fileMenu->AppendSeparator();
-    appendItem(fileMenu, FileClose);
+    appendItem(fileMenu, FileClose, mapViewFocused);
     fileMenu->SetEventHandler(eventHandler);
     return fileMenu;
 }
@@ -104,26 +104,26 @@ wxMenu* AbstractApp::CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMe
     wxMenu* editMenu = new wxMenu();
     wxMenu* toolsMenu = new wxMenu();
 
-    appendItem(editMenu, EditUndo);
-    appendItem(editMenu, EditRedo);
+    appendItem(editMenu, EditUndo, mapViewFocused);
+    appendItem(editMenu, EditRedo, mapViewFocused);
     editMenu->AppendSeparator();
-    appendItem(editMenu, EditCut);
-    appendItem(editMenu, EditCopy);
-    appendItem(editMenu, EditPaste);
-    appendItem(editMenu, EditPasteAtOriginalPosition);
+    appendItem(editMenu, EditCut, mapViewFocused);
+    appendItem(editMenu, EditCopy, mapViewFocused);
+    appendItem(editMenu, EditPaste, mapViewFocused);
+    appendItem(editMenu, EditPasteAtOriginalPosition, mapViewFocused);
     appendItem(editMenu, EditDelete, mapViewFocused);
     editMenu->AppendSeparator();
-    appendItem(editMenu, EditSelectAll);
-    appendItem(editMenu, EditSelectTouching);
-    appendItem(editMenu, EditSelectNone);
+    appendItem(editMenu, EditSelectAll, mapViewFocused);
+    appendItem(editMenu, EditSelectTouching, mapViewFocused);
+    appendItem(editMenu, EditSelectNone, mapViewFocused);
     editMenu->AppendSeparator();
-    appendItem(editMenu, EditHideSelected);
-    appendItem(editMenu, EditHideUnselected);
-    appendItem(editMenu, EditUnhideAll);
+    appendItem(editMenu, EditHideSelected, mapViewFocused);
+    appendItem(editMenu, EditHideUnselected, mapViewFocused);
+    appendItem(editMenu, EditUnhideAll, mapViewFocused);
     editMenu->AppendSeparator();
-    appendItem(editMenu, EditLockSelected);
-    appendItem(editMenu, EditLockUnselected);
-    appendItem(editMenu, EditUnlockAll);
+    appendItem(editMenu, EditLockSelected, mapViewFocused);
+    appendItem(editMenu, EditLockUnselected, mapViewFocused);
+    appendItem(editMenu, EditUnlockAll, mapViewFocused);
     
     appendCheckItem(toolsMenu, EditToolsToggleClipTool, mapViewFocused);
     appendItem(toolsMenu, EditToolsToggleClipSide, mapViewFocused);
@@ -143,8 +143,8 @@ wxMenu* AbstractApp::CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMe
     }
 
     editMenu->AppendSeparator();
-    appendCheckItem(editMenu, EditToggleTextureLock);
-    appendItem(editMenu, EditShowMapProperties);
+    appendCheckItem(editMenu, EditToggleTextureLock, mapViewFocused);
+    appendItem(editMenu, EditShowMapProperties, mapViewFocused);
 
     toolsMenu->SetEventHandler(eventHandler);
     editMenu->SetEventHandler(eventHandler);
@@ -159,21 +159,21 @@ wxMenu* AbstractApp::CreateViewMenu(wxEvtHandler* eventHandler, bool mapViewFocu
     wxMenu* gridMenu = new wxMenu();
     wxMenu* cameraMenu = new wxMenu();
     
-    appendCheckItem(gridMenu, ViewGridToggleShowGrid);
-    appendCheckItem(gridMenu, ViewGridToggleSnapToGrid);
+    appendCheckItem(gridMenu, ViewGridToggleShowGrid, mapViewFocused);
+    appendCheckItem(gridMenu, ViewGridToggleSnapToGrid, mapViewFocused);
     gridMenu->AppendSeparator();
-    appendItem(gridMenu, ViewGridIncGridSize);
-    appendItem(gridMenu, ViewGridDecGridSize);
+    appendItem(gridMenu, ViewGridIncGridSize, mapViewFocused);
+    appendItem(gridMenu, ViewGridDecGridSize, mapViewFocused);
     gridMenu->AppendSeparator();
-    appendCheckItem(gridMenu, ViewGridSetSize1);
-    appendCheckItem(gridMenu, ViewGridSetSize2);
-    appendCheckItem(gridMenu, ViewGridSetSize4);
-    appendCheckItem(gridMenu, ViewGridSetSize8);
-    appendCheckItem(gridMenu, ViewGridSetSize16);
-    appendCheckItem(gridMenu, ViewGridSetSize32);
-    appendCheckItem(gridMenu, ViewGridSetSize64);
-    appendCheckItem(gridMenu, ViewGridSetSize128);
-    appendCheckItem(gridMenu, ViewGridSetSize256);
+    appendCheckItem(gridMenu, ViewGridSetSize1, mapViewFocused);
+    appendCheckItem(gridMenu, ViewGridSetSize2, mapViewFocused);
+    appendCheckItem(gridMenu, ViewGridSetSize4, mapViewFocused);
+    appendCheckItem(gridMenu, ViewGridSetSize8, mapViewFocused);
+    appendCheckItem(gridMenu, ViewGridSetSize16, mapViewFocused);
+    appendCheckItem(gridMenu, ViewGridSetSize32, mapViewFocused);
+    appendCheckItem(gridMenu, ViewGridSetSize64, mapViewFocused);
+    appendCheckItem(gridMenu, ViewGridSetSize128, mapViewFocused);
+    appendCheckItem(gridMenu, ViewGridSetSize256, mapViewFocused);
 
     gridMenu->SetEventHandler(eventHandler);
     viewMenu->AppendSubMenu(gridMenu, wxT("Grid"));
@@ -187,7 +187,7 @@ wxMenu* AbstractApp::CreateViewMenu(wxEvtHandler* eventHandler, bool mapViewFocu
     cameraMenu->AppendSeparator();
     appendItem(cameraMenu, ViewCameraMoveToNextPoint, mapViewFocused);
     appendItem(cameraMenu, ViewCameraMoveToPreviousPoint, mapViewFocused);
-    appendItem(cameraMenu, ViewCameraCenterCameraOnSelection);
+    appendItem(cameraMenu, ViewCameraCenterCameraOnSelection, mapViewFocused);
 
     cameraMenu->SetEventHandler(eventHandler);
     viewMenu->AppendSubMenu(cameraMenu, wxT("Camera"));
@@ -275,13 +275,13 @@ wxMenu* AbstractApp::CreateObjectActionMenu(bool mapViewFocused) {
     appendItem(objectActionMenu, EditActionsPitchObjectsCW, mapViewFocused);
     appendItem(objectActionMenu, EditActionsPitchObjectsCCW, mapViewFocused);
     objectActionMenu->AppendSeparator();
-    appendItem(objectActionMenu, EditActionsFlipObjectsHorizontally);
-    appendItem(objectActionMenu, EditActionsFlipObjectsVertically);
+    appendItem(objectActionMenu, EditActionsFlipObjectsHorizontally, mapViewFocused);
+    appendItem(objectActionMenu, EditActionsFlipObjectsVertically, mapViewFocused);
     objectActionMenu->AppendSeparator();
-    appendItem(objectActionMenu, EditActionsDuplicateObjects);
+    appendItem(objectActionMenu, EditActionsDuplicateObjects, mapViewFocused);
     objectActionMenu->AppendSeparator();
-    appendItem(objectActionMenu, EditActionsCorrectVertices);
-    appendItem(objectActionMenu, EditActionsSnapVertices);
+    appendItem(objectActionMenu, EditActionsCorrectVertices, mapViewFocused);
+    appendItem(objectActionMenu, EditActionsSnapVertices, mapViewFocused);
 
     return objectActionMenu;
 }
@@ -298,8 +298,8 @@ wxMenu* AbstractApp::CreateVertexActionMenu(bool mapViewFocused) {
     appendItem(vertexActionMenu, EditActionsMoveVerticesUp, mapViewFocused);
     appendItem(vertexActionMenu, EditActionsMoveVerticesDown, mapViewFocused);
     vertexActionMenu->AppendSeparator();
-    appendItem(vertexActionMenu, EditActionsCorrectVertices);
-    appendItem(vertexActionMenu, EditActionsSnapVertices);
+    appendItem(vertexActionMenu, EditActionsCorrectVertices, mapViewFocused);
+    appendItem(vertexActionMenu, EditActionsSnapVertices, mapViewFocused);
 
     return vertexActionMenu;
 }

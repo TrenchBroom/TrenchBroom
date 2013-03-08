@@ -113,6 +113,58 @@ namespace TrenchBroom {
                 return m_text;
             }
             
+            inline bool alwaysShowModifier() const {
+                switch (m_key) {
+                    case WXK_BACK:
+                    case WXK_TAB:
+                    case WXK_RETURN:
+                    case WXK_ESCAPE:
+                    case WXK_SPACE:
+                    case WXK_DELETE:
+                    case WXK_END:
+                    case WXK_HOME:
+                    case WXK_LEFT:
+                    case WXK_UP:
+                    case WXK_RIGHT:
+                    case WXK_DOWN:
+                    case WXK_INSERT:
+                    case WXK_PAGEUP:
+                    case WXK_PAGEDOWN:
+                        return false;
+                    case WXK_F1:
+                    case WXK_F2:
+                    case WXK_F3:
+                    case WXK_F4:
+                    case WXK_F5:
+                    case WXK_F6:
+                    case WXK_F7:
+                    case WXK_F8:
+                    case WXK_F9:
+                    case WXK_F10:
+                    case WXK_F11:
+                    case WXK_F12:
+                    case WXK_F13:
+                    case WXK_F14:
+                    case WXK_F15:
+                    case WXK_F16:
+                    case WXK_F17:
+                    case WXK_F18:
+                    case WXK_F19:
+                    case WXK_F20:
+                    case WXK_F21:
+                    case WXK_F22:
+                    case WXK_F23:
+                    case WXK_F24:
+                        return true;
+                    default:
+                        return hasModifier();
+                }
+            }
+            
+            inline bool hasModifier() const {
+                return m_modifierKey1 != WXK_NONE || m_modifierKey2 != WXK_NONE || m_modifierKey3 != WXK_NONE;
+            }
+            
             inline String modifierKeyMenuText() const {
                 StringStream stream;
                 switch (m_modifierKey1) {
@@ -269,7 +321,7 @@ namespace TrenchBroom {
                 
                 StringStream text;
                 text << m_text << "\t";
-                if (m_modifierKey1 != WXK_NONE || m_modifierKey2 != WXK_NONE || m_modifierKey3 != WXK_NONE)
+                if (hasModifier())
                     text << modifierKeyMenuText() << "+";
                 text << keyMenuText();
                 return text.str();
