@@ -23,7 +23,7 @@
 		4817C7F11611DFA900A01A99 /* SnapshotCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4817C7EF1611DFA900A01A99 /* SnapshotCommand.cpp */; };
 		4817C7F416123E0500A01A99 /* EntityInspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4817C7F216123E0500A01A99 /* EntityInspector.cpp */; };
 		481CC98F16DD568F00537742 /* ClassInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481CC98E16DD568F00537742 /* ClassInfo.cpp */; };
-		481CDAD816026C48003E2EE9 /* PreferencesDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481CDAD616026C48003E2EE9 /* PreferencesDialog.cpp */; };
+		481CDAD816026C48003E2EE9 /* PreferencesFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481CDAD616026C48003E2EE9 /* PreferencesFrame.cpp */; };
 		481CDADB16034034003E2EE9 /* Preferences.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481CDADA16034034003E2EE9 /* Preferences.cpp */; };
 		481E566F1624451300B403F3 /* EntityRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481E566D1624451300B403F3 /* EntityRenderer.cpp */; };
 		481E56721624482600B403F3 /* ShaderProgram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481E56701624482600B403F3 /* ShaderProgram.cpp */; };
@@ -37,6 +37,9 @@
 		482C644C16BAFFD9009C75CB /* LinesRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482C644A16BAFFD8009C75CB /* LinesRenderer.cpp */; };
 		482F4BCB1690681A0012D821 /* Vec4f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482F4BCA1690681A0012D821 /* Vec4f.cpp */; };
 		482F4BCF16906ACB0012D821 /* PointHandleHighlightFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482F4BCD16906ACB0012D821 /* PointHandleHighlightFigure.cpp */; };
+		4830050E16EA745900C05645 /* GeneralPreferencePane.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4830050C16EA745900C05645 /* GeneralPreferencePane.cpp */; };
+		4830051116EA7E8100C05645 /* GeneralPreferences.png in Resources */ = {isa = PBXBuildFile; fileRef = 4830050F16EA7E8100C05645 /* GeneralPreferences.png */; };
+		4830051216EA7E8100C05645 /* KeyboardPreferences.png in Resources */ = {isa = PBXBuildFile; fileRef = 4830051016EA7E8100C05645 /* KeyboardPreferences.png */; };
 		48312B2815EABBD600607868 /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 48312B2715EABBD600607868 /* Icon.icns */; };
 		48312B2C15EB706D00607868 /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B2A15EB706D00607868 /* Console.cpp */; };
 		48312B3215EB800600607868 /* Vbo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B3015EB800600607868 /* Vbo.cpp */; };
@@ -250,8 +253,8 @@
 		481CC98C16DD407A00537742 /* Map.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Map.h; sourceTree = "<group>"; };
 		481CC98D16DD562300537742 /* ClassInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ClassInfo.h; sourceTree = "<group>"; };
 		481CC98E16DD568F00537742 /* ClassInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClassInfo.cpp; sourceTree = "<group>"; };
-		481CDAD616026C48003E2EE9 /* PreferencesDialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PreferencesDialog.cpp; sourceTree = "<group>"; };
-		481CDAD716026C48003E2EE9 /* PreferencesDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesDialog.h; sourceTree = "<group>"; };
+		481CDAD616026C48003E2EE9 /* PreferencesFrame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PreferencesFrame.cpp; sourceTree = "<group>"; };
+		481CDAD716026C48003E2EE9 /* PreferencesFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesFrame.h; sourceTree = "<group>"; };
 		481CDADA16034034003E2EE9 /* Preferences.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Preferences.cpp; sourceTree = "<group>"; };
 		481CDADD1603BAF2003E2EE9 /* DocumentViewHolder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DocumentViewHolder.h; sourceTree = "<group>"; };
 		481CDAE01603CC8C003E2EE9 /* AttributeArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AttributeArray.h; sourceTree = "<group>"; };
@@ -284,6 +287,10 @@
 		4830050716E91B8300C05645 /* CreateBrushFromFacesStrategy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateBrushFromFacesStrategy.h; sourceTree = "<group>"; };
 		4830050816E91B8300C05645 /* CreateBrushFromGeometryStrategy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateBrushFromGeometryStrategy.h; sourceTree = "<group>"; };
 		4830050A16E93C2200C05645 /* KeyboardShortcut.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyboardShortcut.h; sourceTree = "<group>"; };
+		4830050C16EA745900C05645 /* GeneralPreferencePane.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GeneralPreferencePane.cpp; sourceTree = "<group>"; };
+		4830050D16EA745900C05645 /* GeneralPreferencePane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeneralPreferencePane.h; sourceTree = "<group>"; };
+		4830050F16EA7E8100C05645 /* GeneralPreferences.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = GeneralPreferences.png; path = ../Resources/Graphics/GeneralPreferences.png; sourceTree = "<group>"; };
+		4830051016EA7E8100C05645 /* KeyboardPreferences.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = KeyboardPreferences.png; path = ../Resources/Graphics/KeyboardPreferences.png; sourceTree = "<group>"; };
 		48312B2715EABBD600607868 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
 		48312B2A15EB706D00607868 /* Console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Console.cpp; sourceTree = "<group>"; };
 		48312B2B15EB706D00607868 /* Console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Console.h; sourceTree = "<group>"; };
@@ -750,6 +757,8 @@
 		484763C615E2BC5000095BC0 = {
 			isa = PBXGroup;
 			children = (
+				4830050F16EA7E8100C05645 /* GeneralPreferences.png */,
+				4830051016EA7E8100C05645 /* KeyboardPreferences.png */,
 				483E203B16DCB33B00B087BB /* Defs */,
 				48B64C5816CEC35000ECA6C5 /* Documentation */,
 				48A6E45E16D3EB2000CC328C /* Icon.png */,
@@ -924,6 +933,8 @@
 				48BDA1B21695E08400FF2CC5 /* EntityPropertyGridTable.h */,
 				48C0FA401608FFD00023F467 /* FaceInspector.cpp */,
 				48C0FA411608FFD00023F467 /* FaceInspector.h */,
+				4830050C16EA745900C05645 /* GeneralPreferencePane.cpp */,
+				4830050D16EA745900C05645 /* GeneralPreferencePane.h */,
 				4830050A16E93C2200C05645 /* KeyboardShortcut.h */,
 				48E2ED181601184F00B8D476 /* LayoutConstants.h */,
 				4810276415E4FBF000250C9C /* MapGLCanvas.cpp */,
@@ -935,8 +946,8 @@
 				48AF61F715F91B610027C465 /* CommandIds.h */,
 				48B64C3A16CA403B00ECA6C5 /* PathDialog.cpp */,
 				48B64C3B16CA403B00ECA6C5 /* PathDialog.h */,
-				481CDAD616026C48003E2EE9 /* PreferencesDialog.cpp */,
-				481CDAD716026C48003E2EE9 /* PreferencesDialog.h */,
+				481CDAD616026C48003E2EE9 /* PreferencesFrame.cpp */,
+				481CDAD716026C48003E2EE9 /* PreferencesFrame.h */,
 				48AB57EF15ECEEE500321C47 /* ProgressIndicatorDialog.cpp */,
 				48AB57F015ECEEE500321C47 /* ProgressIndicatorDialog.h */,
 				48297ED11682220F00E6A288 /* ScreenDC.h */,
@@ -1270,6 +1281,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4830051116EA7E8100C05645 /* GeneralPreferences.png in Resources */,
+				4830051216EA7E8100C05645 /* KeyboardPreferences.png in Resources */,
 				48A6E45F16D3EB2000CC328C /* Icon.png in Resources */,
 				48D937F516C2ABFE005A4684 /* Add.png in Resources */,
 				48D937F616C2ABFE005A4684 /* Down.png in Resources */,
@@ -1372,7 +1385,7 @@
 				48009AF515F7FA8B001A9993 /* AbstractFileManager.cpp in Sources */,
 				48F0B7C315FCB4CF0089B0B5 /* Shader.cpp in Sources */,
 				48E2ECBD15FF8FDF00B8D476 /* Grid.cpp in Sources */,
-				481CDAD816026C48003E2EE9 /* PreferencesDialog.cpp in Sources */,
+				481CDAD816026C48003E2EE9 /* PreferencesFrame.cpp in Sources */,
 				481CDADB16034034003E2EE9 /* Preferences.cpp in Sources */,
 				48DFD4B816061AAE00E554E1 /* glew.c in Sources */,
 				48DFD4BC1606308E00E554E1 /* MacCapabilities.cpp in Sources */,
@@ -1473,6 +1486,7 @@
 				4848BBEB16E5084200866FE7 /* Animation.cpp in Sources */,
 				4848BBEE16E5166D00866FE7 /* CameraAnimation.cpp in Sources */,
 				4848BBF116E53D5900866FE7 /* FlashSelectionAnimation.cpp in Sources */,
+				4830050E16EA745900C05645 /* GeneralPreferencePane.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

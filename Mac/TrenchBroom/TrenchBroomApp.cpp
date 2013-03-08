@@ -24,7 +24,7 @@
 
 #include "Utility/DocManager.h"
 #include "View/CommandIds.h"
-#include "View/PreferencesDialog.h"
+#include "View/PreferencesFrame.h"
 
 #include <clocale>
 

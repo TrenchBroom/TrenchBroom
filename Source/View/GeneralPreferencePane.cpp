@@ -1,23 +1,23 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
-
+ 
  This file is part of TrenchBroom.
-
+ 
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
-
+ 
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
-
+ 
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PreferencesDialog.h"
+#include "GeneralPreferencePane.h"
 
 #include <wx/button.h>
 #include <wx/checkbox.h>
@@ -37,39 +37,34 @@
 
 namespace TrenchBroom {
     namespace View {
-        namespace PreferencesDialogLayout {
+        namespace GeneralPreferencePaneLayout {
             static const int MinimumLabelWidth = 100;
         }
-
-        BEGIN_EVENT_TABLE(PreferencesDialog, wxDialog)
-        EVT_BUTTON(CommandIds::PreferencesDialog::ChooseQuakePathButtonId, PreferencesDialog::OnChooseQuakePathClicked)
-
-        EVT_COMMAND_SCROLL(CommandIds::PreferencesDialog::BrightnessSliderId, PreferencesDialog::OnViewSliderChanged)
-        EVT_COMMAND_SCROLL(CommandIds::PreferencesDialog::GridAlphaSliderId, PreferencesDialog::OnViewSliderChanged)
-        EVT_CHOICE(CommandIds::PreferencesDialog::GridModeChoiceId, PreferencesDialog::OnGridModeChoice)
-        EVT_CHOICE(CommandIds::PreferencesDialog::InstancingModeModeChoiceId, PreferencesDialog::OnInstancingModeChoice)
-
-        EVT_COMMAND_SCROLL(CommandIds::PreferencesDialog::LookSpeedSliderId, PreferencesDialog::OnMouseSliderChanged)
-        EVT_CHECKBOX(CommandIds::PreferencesDialog::InvertLookXAxisCheckBoxId, PreferencesDialog::OnInvertAxisChanged)
-        EVT_CHECKBOX(CommandIds::PreferencesDialog::InvertLookYAxisCheckBoxId, PreferencesDialog::OnInvertAxisChanged)
-
-        EVT_COMMAND_SCROLL(CommandIds::PreferencesDialog::PanSpeedSliderId, PreferencesDialog::OnMouseSliderChanged)
-        EVT_CHECKBOX(CommandIds::PreferencesDialog::InvertPanXAxisCheckBoxId, PreferencesDialog::OnInvertAxisChanged)
-        EVT_CHECKBOX(CommandIds::PreferencesDialog::InvertPanYAxisCheckBoxId, PreferencesDialog::OnInvertAxisChanged)
-
-        EVT_COMMAND_SCROLL(CommandIds::PreferencesDialog::MoveSpeedSliderId, PreferencesDialog::OnMouseSliderChanged)
-
-        EVT_BUTTON(wxID_OK, PreferencesDialog::OnOkClicked)
-        EVT_BUTTON(wxID_CANCEL, PreferencesDialog::OnCancelClicked)
-		EVT_CLOSE(PreferencesDialog::OnCloseDialog)
-        EVT_MENU(wxID_CLOSE, PreferencesDialog::OnFileExit)
+        
+        BEGIN_EVENT_TABLE(GeneralPreferencePane, wxPanel)
+        EVT_BUTTON(CommandIds::GeneralPreferencePane::ChooseQuakePathButtonId, GeneralPreferencePane::OnChooseQuakePathClicked)
+        
+        EVT_COMMAND_SCROLL(CommandIds::GeneralPreferencePane::BrightnessSliderId, GeneralPreferencePane::OnViewSliderChanged)
+        EVT_COMMAND_SCROLL(CommandIds::GeneralPreferencePane::GridAlphaSliderId, GeneralPreferencePane::OnViewSliderChanged)
+        EVT_CHOICE(CommandIds::GeneralPreferencePane::GridModeChoiceId, GeneralPreferencePane::OnGridModeChoice)
+        EVT_CHOICE(CommandIds::GeneralPreferencePane::InstancingModeModeChoiceId, GeneralPreferencePane::OnInstancingModeChoice)
+        
+        EVT_COMMAND_SCROLL(CommandIds::GeneralPreferencePane::LookSpeedSliderId, GeneralPreferencePane::OnMouseSliderChanged)
+        EVT_CHECKBOX(CommandIds::GeneralPreferencePane::InvertLookXAxisCheckBoxId, GeneralPreferencePane::OnInvertAxisChanged)
+        EVT_CHECKBOX(CommandIds::GeneralPreferencePane::InvertLookYAxisCheckBoxId, GeneralPreferencePane::OnInvertAxisChanged)
+        
+        EVT_COMMAND_SCROLL(CommandIds::GeneralPreferencePane::PanSpeedSliderId, GeneralPreferencePane::OnMouseSliderChanged)
+        EVT_CHECKBOX(CommandIds::GeneralPreferencePane::InvertPanXAxisCheckBoxId, GeneralPreferencePane::OnInvertAxisChanged)
+        EVT_CHECKBOX(CommandIds::GeneralPreferencePane::InvertPanYAxisCheckBoxId, GeneralPreferencePane::OnInvertAxisChanged)
+        
+        EVT_COMMAND_SCROLL(CommandIds::GeneralPreferencePane::MoveSpeedSliderId, GeneralPreferencePane::OnMouseSliderChanged)
 		END_EVENT_TABLE()
-
-        void PreferencesDialog::updateControls() {
+        
+        void GeneralPreferencePane::updateControls() {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-
+            
             m_quakePathValueLabel->SetLabel(prefs.getString(Preferences::QuakePath));
-
+            
             m_brightnessSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::RendererBrightness) * 40.0f));
             m_gridAlphaSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::GridAlpha) * m_gridAlphaSlider->GetMax()));
             m_gridModeChoice->SetSelection(prefs.getBool(Preferences::GridCheckerboard) ? 1 : 0);
@@ -81,65 +76,65 @@ namespace TrenchBroom {
                 m_instancingModeChoice->SetSelection(instancingMode);
             else
                 m_instancingModeChoice->SetSelection(Preferences::RendererInstancingModeForceOff);
-
+            
             m_lookSpeedSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::CameraLookSpeed) * m_lookSpeedSlider->GetMax()));
             m_invertLookXAxisCheckBox->SetValue(prefs.getBool(Preferences::CameraLookInvertX));
             m_invertLookYAxisCheckBox->SetValue(prefs.getBool(Preferences::CameraLookInvertY));
-
+            
             m_panSpeedSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::CameraPanSpeed) * m_panSpeedSlider->GetMax()));
             m_invertPanXAxisCheckBox->SetValue(prefs.getBool(Preferences::CameraPanInvertX));
             m_invertPanYAxisCheckBox->SetValue(prefs.getBool(Preferences::CameraPanInvertY));
-
+            
             m_moveSpeedSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::CameraMoveSpeed) * m_moveSpeedSlider->GetMax()));
         }
-
-        wxWindow* PreferencesDialog::createQuakePreferences() {
+        
+        wxWindow* GeneralPreferencePane::createQuakePreferences() {
             wxStaticBox* quakeBox = new wxStaticBox(this, wxID_ANY, wxT("Quake"));
-
+            
             wxStaticText* quakePathLabel = new wxStaticText(quakeBox, wxID_ANY, wxT("Quake Path"));
             m_quakePathValueLabel = new wxStaticText(quakeBox, wxID_ANY, wxT("Not Set"));
-            wxButton* chooseQuakePathButton = new wxButton(quakeBox, CommandIds::PreferencesDialog::ChooseQuakePathButtonId, wxT("Choose..."));
-
+            wxButton* chooseQuakePathButton = new wxButton(quakeBox, CommandIds::GeneralPreferencePane::ChooseQuakePathButtonId, wxT("Choose..."));
+            
             wxFlexGridSizer* innerSizer = new wxFlexGridSizer(3, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
             innerSizer->AddGrowableCol(1);
             innerSizer->Add(quakePathLabel, 0, wxALIGN_CENTER_VERTICAL);
             innerSizer->Add(m_quakePathValueLabel, 0, wxALIGN_CENTER_VERTICAL);
             innerSizer->Add(chooseQuakePathButton, 0, wxALIGN_CENTER_VERTICAL);
-            innerSizer->SetItemMinSize(quakePathLabel, PreferencesDialogLayout::MinimumLabelWidth, wxDefaultSize.y);
-
+            innerSizer->SetItemMinSize(quakePathLabel, GeneralPreferencePaneLayout::MinimumLabelWidth, wxDefaultSize.y);
+            
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
             outerSizer->Add(innerSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             outerSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
-
+            
             quakeBox->SetSizerAndFit(outerSizer);
             return quakeBox;
         }
-
-        wxWindow* PreferencesDialog::createViewPreferences() {
+        
+        wxWindow* GeneralPreferencePane::createViewPreferences() {
             wxStaticBox* viewBox = new wxStaticBox(this, wxID_ANY, wxT("View"));
-
+            
             wxStaticText* brightnessLabel = new wxStaticText(viewBox, wxID_ANY, wxT("Brightness"));
-            m_brightnessSlider = new wxSlider(viewBox, CommandIds::PreferencesDialog::BrightnessSliderId, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
-
+            m_brightnessSlider = new wxSlider(viewBox, CommandIds::GeneralPreferencePane::BrightnessSliderId, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
+            
             wxStaticText* gridLabel = new wxStaticText(viewBox, wxID_ANY, wxT("Grid"));
-            m_gridAlphaSlider = new wxSlider(viewBox, CommandIds::PreferencesDialog::GridAlphaSliderId, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
-
+            m_gridAlphaSlider = new wxSlider(viewBox, CommandIds::GeneralPreferencePane::GridAlphaSliderId, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
+            
             wxStaticText* gridModeFakeLabel = new wxStaticText(viewBox, wxID_ANY, wxT(""));
             wxStaticText* gridModeLabel = new wxStaticText(viewBox, wxID_ANY, wxT("Render grid as"));
             wxString gridModes[2] = {"Lines", "Checkerboard"};
-            m_gridModeChoice = new wxChoice(viewBox, CommandIds::PreferencesDialog::GridModeChoiceId, wxDefaultPosition, wxDefaultSize, 2, gridModes);
-
+            m_gridModeChoice = new wxChoice(viewBox, CommandIds::GeneralPreferencePane::GridModeChoiceId, wxDefaultPosition, wxDefaultSize, 2, gridModes);
+            
             wxStaticText* instancingModeFakeLabel = new wxStaticText(viewBox, wxID_ANY, wxT(""));
             wxStaticText* instancingModeLabel = new wxStaticText(viewBox, wxID_ANY, wxT("Use OpenGL instancing"));
             wxString instancingModes[3] = {"Autodetect", "Force on", "Force off"};
-            m_instancingModeChoice = new wxChoice(viewBox, CommandIds::PreferencesDialog::InstancingModeModeChoiceId, wxDefaultPosition, wxDefaultSize, 3, instancingModes);;
+            m_instancingModeChoice = new wxChoice(viewBox, CommandIds::GeneralPreferencePane::InstancingModeModeChoiceId, wxDefaultPosition, wxDefaultSize, 3, instancingModes);;
             
             wxSizer* gridModeSizer = new wxBoxSizer(wxHORIZONTAL);
             gridModeSizer->Add(gridModeLabel);
             gridModeSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
             gridModeSizer->Add(m_gridModeChoice);
-
+            
             wxSizer* instancingModeSizer = new wxBoxSizer(wxHORIZONTAL);
             instancingModeSizer->Add(instancingModeLabel);
             instancingModeSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
@@ -155,45 +150,45 @@ namespace TrenchBroom {
             innerSizer->Add(gridModeSizer);
             innerSizer->Add(instancingModeFakeLabel);
             innerSizer->Add(instancingModeSizer);
-            innerSizer->SetItemMinSize(brightnessLabel, PreferencesDialogLayout::MinimumLabelWidth, brightnessLabel->GetSize().y);
-
+            innerSizer->SetItemMinSize(brightnessLabel, GeneralPreferencePaneLayout::MinimumLabelWidth, brightnessLabel->GetSize().y);
+            
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
             outerSizer->Add(innerSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             outerSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
-
+            
             viewBox->SetSizerAndFit(outerSizer);
             return viewBox;
         }
-
-        wxWindow* PreferencesDialog::createMousePreferences() {
+        
+        wxWindow* GeneralPreferencePane::createMousePreferences() {
             wxStaticBox* mouseBox = new wxStaticBox(this, wxID_ANY, wxT("Mouse"));
-
+            
             wxStaticText* lookSpeedLabel = new wxStaticText(mouseBox, wxID_ANY, wxT("Mouse Look"));
-            m_lookSpeedSlider = new wxSlider(mouseBox, CommandIds::PreferencesDialog::LookSpeedSliderId, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
-
+            m_lookSpeedSlider = new wxSlider(mouseBox, CommandIds::GeneralPreferencePane::LookSpeedSliderId, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
+            
             wxStaticText* invertLookFakeLabel = new wxStaticText(mouseBox, wxID_ANY, wxT(""));
-            m_invertLookXAxisCheckBox = new wxCheckBox(mouseBox, CommandIds::PreferencesDialog::InvertLookXAxisCheckBoxId, wxT("Invert X Axis"));
-            m_invertLookYAxisCheckBox = new wxCheckBox(mouseBox, CommandIds::PreferencesDialog::InvertLookYAxisCheckBoxId, wxT("Invert Y Axis"));
+            m_invertLookXAxisCheckBox = new wxCheckBox(mouseBox, CommandIds::GeneralPreferencePane::InvertLookXAxisCheckBoxId, wxT("Invert X Axis"));
+            m_invertLookYAxisCheckBox = new wxCheckBox(mouseBox, CommandIds::GeneralPreferencePane::InvertLookYAxisCheckBoxId, wxT("Invert Y Axis"));
             wxSizer* invertLookSizer = new wxBoxSizer(wxHORIZONTAL);
             invertLookSizer->Add(m_invertLookXAxisCheckBox);
             invertLookSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
             invertLookSizer->Add(m_invertLookYAxisCheckBox);
-
+            
             wxStaticText* panSpeedLabel = new wxStaticText(mouseBox, wxID_ANY, wxT("Mouse Pan"));
-            m_panSpeedSlider = new wxSlider(mouseBox, CommandIds::PreferencesDialog::PanSpeedSliderId, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
-
+            m_panSpeedSlider = new wxSlider(mouseBox, CommandIds::GeneralPreferencePane::PanSpeedSliderId, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
+            
             wxStaticText* invertPanFakeLabel = new wxStaticText(mouseBox, wxID_ANY, "");
-            m_invertPanXAxisCheckBox = new wxCheckBox(mouseBox, CommandIds::PreferencesDialog::InvertPanXAxisCheckBoxId, wxT("Invert X Axis"));
-            m_invertPanYAxisCheckBox = new wxCheckBox(mouseBox, CommandIds::PreferencesDialog::InvertPanYAxisCheckBoxId, wxT("Invert Y Axis"));
+            m_invertPanXAxisCheckBox = new wxCheckBox(mouseBox, CommandIds::GeneralPreferencePane::InvertPanXAxisCheckBoxId, wxT("Invert X Axis"));
+            m_invertPanYAxisCheckBox = new wxCheckBox(mouseBox, CommandIds::GeneralPreferencePane::InvertPanYAxisCheckBoxId, wxT("Invert Y Axis"));
             wxSizer* invertPanSizer = new wxBoxSizer(wxHORIZONTAL);
             invertPanSizer->Add(m_invertPanXAxisCheckBox);
             invertPanSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
             invertPanSizer->Add(m_invertPanYAxisCheckBox);
-
+            
             wxStaticText* moveSpeedLabel = new wxStaticText(mouseBox, wxID_ANY, "Mouse Move");
-            m_moveSpeedSlider = new wxSlider(mouseBox, CommandIds::PreferencesDialog::MoveSpeedSliderId, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
-
+            m_moveSpeedSlider = new wxSlider(mouseBox, CommandIds::GeneralPreferencePane::MoveSpeedSliderId, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
+            
             wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
             innerSizer->AddGrowableCol(1);
             innerSizer->Add(lookSpeedLabel);
@@ -206,81 +201,62 @@ namespace TrenchBroom {
             innerSizer->Add(invertPanSizer);
             innerSizer->Add(moveSpeedLabel);
             innerSizer->Add(m_moveSpeedSlider, 0, wxEXPAND);
-            innerSizer->SetItemMinSize(lookSpeedLabel, PreferencesDialogLayout::MinimumLabelWidth, lookSpeedLabel->GetSize().y);
-
+            innerSizer->SetItemMinSize(lookSpeedLabel, GeneralPreferencePaneLayout::MinimumLabelWidth, lookSpeedLabel->GetSize().y);
+            
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
             outerSizer->Add(innerSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             outerSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
-
+            
             mouseBox->SetSizerAndFit(outerSizer);
             return mouseBox;
         }
-
-        PreferencesDialog::PreferencesDialog() :
-        wxDialog(NULL, wxID_ANY, wxT("Preferences")) {
+        
+        GeneralPreferencePane::GeneralPreferencePane(wxWindow* parent) :
+        wxPanel(parent) {
             wxWindow* quakePreferences = createQuakePreferences();
             wxWindow* viewPreferences = createViewPreferences();
             wxWindow* mousePreferences = createMousePreferences();
-
+            
             wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
             innerSizer->Add(quakePreferences, 0, wxEXPAND);
             innerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
             innerSizer->Add(viewPreferences, 0, wxEXPAND);
             innerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
             innerSizer->Add(mousePreferences, 0, wxEXPAND);
-
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-
-#ifndef __APPLE__
-            outerSizer->Add(innerSizer, 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::DialogOuterMargin);
-            wxSizer* buttonSizer = CreateButtonSizer(wxOK | wxCANCEL);
-            outerSizer->Add(buttonSizer, 0, wxEXPAND | wxALL, LayoutConstants::DialogButtonMargin);
-#else
-            outerSizer->Add(innerSizer, 0, wxEXPAND | wxALL, LayoutConstants::DialogOuterMargin);
-#endif
-
-            outerSizer->SetItemMinSize(innerSizer, 600, innerSizer->GetSize().y);
-            SetSizerAndFit(outerSizer);
-
-#ifdef __APPLE__
-            // allow the dialog to be closed using CMD+W
-            wxAcceleratorEntry acceleratorEntries[1];
-            acceleratorEntries[0].Set(wxACCEL_CMD, static_cast<int>('W'), wxID_CLOSE);
-            wxAcceleratorTable accceleratorTable(4, acceleratorEntries);
-            SetAcceleratorTable(accceleratorTable);
-#endif
-
+            
+            SetSizerAndFit(innerSizer);
+            
             updateControls();
         }
-
-        void PreferencesDialog::OnChooseQuakePathClicked(wxCommandEvent& event) {
+        
+        void GeneralPreferencePane::OnChooseQuakePathClicked(wxCommandEvent& event) {
             wxDirDialog chooseQuakePathDialog(NULL, wxT("Choose quake directory"), wxT(""), wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
             if (chooseQuakePathDialog.ShowModal() == wxID_OK) {
                 String quakePath = chooseQuakePathDialog.GetPath().ToStdString();
                 Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
                 prefs.setString(Preferences::QuakePath, quakePath);
-
+                
                 updateControls();
-
+                
 #ifdef __APPLE__
                 Controller::Command command(Controller::Command::InvalidateEntityModelRendererCache);
                 static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &command);
 #endif
             }
         }
-
-        void PreferencesDialog::OnViewSliderChanged(wxScrollEvent& event) {
+        
+        void GeneralPreferencePane::OnViewSliderChanged(wxScrollEvent& event) {
             wxSlider* sender = static_cast<wxSlider*>(event.GetEventObject());
             int value = sender->GetValue();
-
+            
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-
+            
             switch (event.GetId()) {
-                case CommandIds::PreferencesDialog::BrightnessSliderId:
+                case CommandIds::GeneralPreferencePane::BrightnessSliderId:
                     prefs.setFloat(Preferences::RendererBrightness, value / 40.0f);
                     break;
-                case CommandIds::PreferencesDialog::GridAlphaSliderId: {
+                case CommandIds::GeneralPreferencePane::GridAlphaSliderId: {
                     int max = sender->GetMax();
                     float floatValue = static_cast<float>(value) / static_cast<float>(max);
                     prefs.setFloat(Preferences::GridAlpha, floatValue);
@@ -289,104 +265,73 @@ namespace TrenchBroom {
                 default:
                     break;
             }
-
+            
             static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews();
         }
-
-        void PreferencesDialog::OnGridModeChoice(wxCommandEvent& event) {
+        
+        void GeneralPreferencePane::OnGridModeChoice(wxCommandEvent& event) {
             bool checkerboard = m_gridModeChoice->GetSelection() == 1;
-
+            
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             prefs.setBool(Preferences::GridCheckerboard, checkerboard);
             static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews();
         }
-
-        void PreferencesDialog::OnInstancingModeChoice(wxCommandEvent& event) {
+        
+        void GeneralPreferencePane::OnInstancingModeChoice(wxCommandEvent& event) {
             int mode = m_instancingModeChoice->GetSelection();
             assert(mode >= 0 && mode <= 2);
             
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
             prefs.setInt(Preferences::RendererInstancingMode, mode);
-
+            
 #ifdef __APPLE__
             Controller::Command command(Controller::Command::InvalidateInstancedRenderers);
             static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &command);
 #endif
         }
-
-        void PreferencesDialog::OnMouseSliderChanged(wxScrollEvent& event) {
+        
+        void GeneralPreferencePane::OnMouseSliderChanged(wxScrollEvent& event) {
             wxSlider* sender = static_cast<wxSlider*>(event.GetEventObject());
             float value = sender->GetValue() / 100.0f;
-
+            
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-
+            
             switch (event.GetId()) {
-                case CommandIds::PreferencesDialog::LookSpeedSliderId:
+                case CommandIds::GeneralPreferencePane::LookSpeedSliderId:
                     prefs.setFloat(Preferences::CameraLookSpeed, value);
                     break;
-                case CommandIds::PreferencesDialog::PanSpeedSliderId:
+                case CommandIds::GeneralPreferencePane::PanSpeedSliderId:
                     prefs.setFloat(Preferences::CameraPanSpeed, value);
                     break;
-                case CommandIds::PreferencesDialog::MoveSpeedSliderId:
+                case CommandIds::GeneralPreferencePane::MoveSpeedSliderId:
                     prefs.setFloat(Preferences::CameraMoveSpeed, value);
                     break;
                 default:
                     break;
             }
         }
-
-        void PreferencesDialog::OnInvertAxisChanged(wxCommandEvent& event) {
+        
+        void GeneralPreferencePane::OnInvertAxisChanged(wxCommandEvent& event) {
             bool value = event.GetInt() != 0;
-
+            
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-
+            
             switch (event.GetId()) {
-                case CommandIds::PreferencesDialog::InvertLookXAxisCheckBoxId:
+                case CommandIds::GeneralPreferencePane::InvertLookXAxisCheckBoxId:
                     prefs.setBool(Preferences::CameraLookInvertX, value);
                     break;
-                case CommandIds::PreferencesDialog::InvertLookYAxisCheckBoxId:
+                case CommandIds::GeneralPreferencePane::InvertLookYAxisCheckBoxId:
                     prefs.setBool(Preferences::CameraLookInvertY, value);
                     break;
-                case CommandIds::PreferencesDialog::InvertPanXAxisCheckBoxId:
+                case CommandIds::GeneralPreferencePane::InvertPanXAxisCheckBoxId:
                     prefs.setBool(Preferences::CameraPanInvertX, value);
                     break;
-                case CommandIds::PreferencesDialog::InvertPanYAxisCheckBoxId:
+                case CommandIds::GeneralPreferencePane::InvertPanYAxisCheckBoxId:
                     prefs.setBool(Preferences::CameraPanInvertY, value);
                     break;
                 default:
                     break;
             }
-        }
-
-        void PreferencesDialog::OnOkClicked(wxCommandEvent& event) {
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-			prefs.save();
-
-			Controller::Command invalidateCacheCommand(Controller::Command::InvalidateEntityModelRendererCache);
-            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &invalidateCacheCommand);
-
-            Controller::Command invalidateInstancedRenderersCommand(Controller::Command::InvalidateInstancedRenderers);
-            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &invalidateInstancedRenderersCommand);
-
-			EndModal(wxID_OK);
-		}
-
-		void PreferencesDialog::OnCancelClicked(wxCommandEvent& event) {
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-			prefs.discardChanges();
-			EndModal(wxID_CANCEL);
-		}
-
-		void PreferencesDialog::OnCloseDialog(wxCloseEvent& event) {
-#ifndef __APPLE__
-            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
-			prefs.discardChanges();
-#endif
-            event.Skip();
-		}
-
-        void PreferencesDialog::OnFileExit(wxCommandEvent& event) {
-            Close();
         }
 	}
 }

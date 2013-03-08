@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
-
+ 
  This file is part of TrenchBroom.
-
+ 
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
-
+ 
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
-
+ 
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -36,7 +36,7 @@
 #include "View/EditorFrame.h"
 #include "View/EditorView.h"
 #include "View/KeyboardShortcut.h"
-#include "View/PreferencesDialog.h"
+#include "View/PreferencesFrame.h"
 
 BEGIN_EVENT_TABLE(AbstractApp, wxApp)
 EVT_MENU(wxID_PREFERENCES, AbstractApp::OnOpenPreferences)
@@ -76,12 +76,12 @@ void AbstractApp::appendCheckItem(wxMenu* menu, const TrenchBroom::Preferences::
 
 wxMenu* AbstractApp::CreateFileMenu(wxEvtHandler* eventHandler, bool mapViewFocused) {
     using namespace TrenchBroom::Preferences;
-
+    
     wxMenu* fileHistoryMenu = new wxMenu();
     fileHistoryMenu->SetEventHandler(m_docManager);
     m_docManager->FileHistoryUseMenu(fileHistoryMenu);
     m_docManager->FileHistoryAddFilesToMenu(fileHistoryMenu);
-
+    
     wxMenu* fileMenu = new wxMenu();
     appendItem(fileMenu, FileNew, mapViewFocused);
     appendItem(fileMenu, FileOpen, mapViewFocused);
@@ -103,7 +103,7 @@ wxMenu* AbstractApp::CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMe
     
     wxMenu* editMenu = new wxMenu();
     wxMenu* toolsMenu = new wxMenu();
-
+    
     appendItem(editMenu, EditUndo, mapViewFocused);
     appendItem(editMenu, EditRedo, mapViewFocused);
     editMenu->AppendSeparator();
@@ -141,20 +141,20 @@ wxMenu* AbstractApp::CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMe
     } else {
         editMenu->Append(wxID_ANY, wxT("Actions"));
     }
-
+    
     editMenu->AppendSeparator();
     appendCheckItem(editMenu, EditToggleTextureLock, mapViewFocused);
     appendItem(editMenu, EditShowMapProperties, mapViewFocused);
-
+    
     toolsMenu->SetEventHandler(eventHandler);
     editMenu->SetEventHandler(eventHandler);
-
+    
     return editMenu;
 }
 
 wxMenu* AbstractApp::CreateViewMenu(wxEvtHandler* eventHandler, bool mapViewFocused) {
     using namespace TrenchBroom::Preferences;
-
+    
     wxMenu* viewMenu = new wxMenu();
     wxMenu* gridMenu = new wxMenu();
     wxMenu* cameraMenu = new wxMenu();
@@ -174,10 +174,10 @@ wxMenu* AbstractApp::CreateViewMenu(wxEvtHandler* eventHandler, bool mapViewFocu
     appendCheckItem(gridMenu, ViewGridSetSize64, mapViewFocused);
     appendCheckItem(gridMenu, ViewGridSetSize128, mapViewFocused);
     appendCheckItem(gridMenu, ViewGridSetSize256, mapViewFocused);
-
+    
     gridMenu->SetEventHandler(eventHandler);
     viewMenu->AppendSubMenu(gridMenu, wxT("Grid"));
-
+    
     appendItem(cameraMenu, ViewCameraMoveForward, mapViewFocused);
     appendItem(cameraMenu, ViewCameraMoveBackward, mapViewFocused);
     appendItem(cameraMenu, ViewCameraMoveLeft, mapViewFocused);
@@ -188,17 +188,17 @@ wxMenu* AbstractApp::CreateViewMenu(wxEvtHandler* eventHandler, bool mapViewFocu
     appendItem(cameraMenu, ViewCameraMoveToNextPoint, mapViewFocused);
     appendItem(cameraMenu, ViewCameraMoveToPreviousPoint, mapViewFocused);
     appendItem(cameraMenu, ViewCameraCenterCameraOnSelection, mapViewFocused);
-
+    
     cameraMenu->SetEventHandler(eventHandler);
     viewMenu->AppendSubMenu(cameraMenu, wxT("Camera"));
-
+    
     viewMenu->SetEventHandler(eventHandler);
     return viewMenu;
 }
 
 wxMenu* AbstractApp::CreateHelpMenu(wxEvtHandler* eventHandler, bool mapViewFocused) {
     using namespace TrenchBroom::View::CommandIds::Menu;
-
+    
     wxMenu* helpMenu = new wxMenu();
     helpMenu->Append(HelpShowHelp, wxT("TrenchBroom Help"));
     helpMenu->SetEventHandler(eventHandler);
@@ -211,7 +211,7 @@ wxMenuBar* AbstractApp::CreateMenuBar(wxEvtHandler* eventHandler, wxMenu* action
     menuBar->Append(CreateEditMenu(eventHandler, actionMenu, mapViewFocused), wxT("Edit"));
     menuBar->Append(CreateViewMenu(eventHandler, mapViewFocused), wxT("View"));
     menuBar->Append(CreateHelpMenu(eventHandler, mapViewFocused), wxT("Help"));
-
+    
     return menuBar;
 }
 
@@ -219,24 +219,24 @@ void AbstractApp::DetachFileHistoryMenu(wxMenuBar* menuBar) {
     if (menuBar != NULL) {
         int fileMenuIndex = menuBar->FindMenu(wxT("File"));
         assert(fileMenuIndex != wxNOT_FOUND);
-
+        
         wxMenu* fileMenu = menuBar->GetMenu(static_cast<size_t>(fileMenuIndex));
         int fileHistoryMenuIndex = fileMenu->FindItem(wxT("Open Recent"));
         assert(fileHistoryMenuIndex != wxNOT_FOUND);
-
+        
         wxMenuItem* fileHistoryMenuItem = fileMenu->FindItem(fileHistoryMenuIndex);
         assert(fileHistoryMenuItem != NULL);
-
+        
         wxMenu* fileHistoryMenu = fileHistoryMenuItem->GetSubMenu();
         assert(fileHistoryMenu != NULL);
-
+        
         m_docManager->FileHistoryRemoveMenu(fileHistoryMenu);
     }
 }
 
 wxMenu* AbstractApp::CreateTextureActionMenu(bool mapViewFocused) {
     using namespace TrenchBroom::Preferences;
-
+    
     wxMenu* textureActionMenu = new wxMenu();
     
     appendItem(textureActionMenu, EditActionsMoveTexturesUp, mapViewFocused);
@@ -252,13 +252,13 @@ wxMenu* AbstractApp::CreateTextureActionMenu(bool mapViewFocused) {
     appendItem(textureActionMenu, EditActionsMoveTexturesRightFine, mapViewFocused);
     appendItem(textureActionMenu, EditActionsRotateTexturesCWFine, mapViewFocused);
     appendItem(textureActionMenu, EditActionsRotateTexturesCCWFine, mapViewFocused);
-
+    
     return textureActionMenu;
 }
 
 wxMenu* AbstractApp::CreateObjectActionMenu(bool mapViewFocused) {
     using namespace TrenchBroom::Preferences;
-
+    
     wxMenu* objectActionMenu = new wxMenu();
     
     appendItem(objectActionMenu, EditActionsMoveObjectsForward, mapViewFocused);
@@ -282,13 +282,13 @@ wxMenu* AbstractApp::CreateObjectActionMenu(bool mapViewFocused) {
     objectActionMenu->AppendSeparator();
     appendItem(objectActionMenu, EditActionsCorrectVertices, mapViewFocused);
     appendItem(objectActionMenu, EditActionsSnapVertices, mapViewFocused);
-
+    
     return objectActionMenu;
 }
 
 wxMenu* AbstractApp::CreateVertexActionMenu(bool mapViewFocused) {
     using namespace TrenchBroom::Preferences;
-
+    
     wxMenu* vertexActionMenu = new wxMenu();
     
     appendItem(vertexActionMenu, EditActionsMoveVerticesForward, mapViewFocused);
@@ -300,13 +300,13 @@ wxMenu* AbstractApp::CreateVertexActionMenu(bool mapViewFocused) {
     vertexActionMenu->AppendSeparator();
     appendItem(vertexActionMenu, EditActionsCorrectVertices, mapViewFocused);
     appendItem(vertexActionMenu, EditActionsSnapVertices, mapViewFocused);
-
+    
     return vertexActionMenu;
 }
 
 void AbstractApp::UpdateAllViews(wxView* sender, wxObject* hint) {
     const wxList& documents = m_docManager->GetDocuments();
-
+    
     wxList::const_iterator it, end;
     for (it = documents.begin(), end = documents.end(); it != end; ++it) {
         wxDocument* document = static_cast<wxDocument*>(*it);
@@ -319,10 +319,10 @@ bool AbstractApp::OnInit() {
     TrenchBroom::IO::PakManager::sharedManager = new TrenchBroom::IO::PakManager();
     TrenchBroom::Model::AliasManager::sharedManager = new TrenchBroom::Model::AliasManager();
     TrenchBroom::Model::BspManager::sharedManager = new TrenchBroom::Model::BspManager();
-
+    
 	m_docManager = new DocManager();
     m_docManager->FileHistoryLoad(*wxConfig::Get());
-
+    
     new wxDocTemplate(m_docManager,
                       wxT("Quake map document"),
 #if defined __linux__ // appears to be a bug in wxWidgets' file dialog, on Linux it will only allow lowercase extensions
@@ -337,20 +337,20 @@ bool AbstractApp::OnInit() {
                       CLASSINFO(TrenchBroom::Model::MapDocument),
                       CLASSINFO(TrenchBroom::View::EditorView)
                       );
-
+    
     // load file system handlers
     wxFileSystem::AddHandler(new wxMemoryFSHandler());
-
+    
     // load image handles
     wxImage::AddHandler(new wxGIFHandler());
     wxImage::AddHandler(new wxPNGHandler());
-
+    
     TrenchBroom::IO::FileManager fileManager;
     String helpPath = fileManager.appendPath(fileManager.resourceDirectory(), "Documentation");
-
+    
     m_helpController = new wxExtHelpController();
     m_helpController->Initialize(helpPath);
-
+    
     return true;
 }
 
@@ -358,14 +358,14 @@ int AbstractApp::OnExit() {
     m_docManager->FileHistorySave(*wxConfig::Get());
     wxDELETE(m_docManager);
     wxDELETE(m_helpController);
-
+    
     delete TrenchBroom::IO::PakManager::sharedManager;
     TrenchBroom::IO::PakManager::sharedManager = NULL;
     delete TrenchBroom::Model::AliasManager::sharedManager;
     TrenchBroom::Model::AliasManager::sharedManager = NULL;
     delete TrenchBroom::Model::BspManager::sharedManager;
     TrenchBroom::Model::BspManager::sharedManager = NULL;
-
+    
     return wxApp::OnExit();
 }
 
@@ -383,14 +383,9 @@ void AbstractApp::OnOpenAbout(wxCommandEvent& event) {
 }
 
 void AbstractApp::OnOpenPreferences(wxCommandEvent& event) {
-    TrenchBroom::View::PreferencesDialog dialog;
-
-    int width = wxSystemSettings::GetMetric(wxSYS_SCREEN_X);
-    int height = wxSystemSettings::GetMetric(wxSYS_SCREEN_Y);
-    wxPoint pos((width - dialog.GetSize().x) / 2, (height - dialog.GetSize().y) / 2);
-    dialog.SetPosition(pos);
-
-    dialog.ShowModal();
+    TrenchBroom::View::PreferencesFrame* frame = new TrenchBroom::View::PreferencesFrame();
+    frame->CenterOnScreen();
+    frame->Show();
 }
 
 void AbstractApp::OnHelpShowHelp(wxCommandEvent& event) {
@@ -415,37 +410,39 @@ void AbstractApp::OnAnimation(TrenchBroom::View::AnimationEvent& event) {
 }
 
 int AbstractApp::FilterEvent(wxEvent& event) {
-    if (event.GetEventType() == wxEVT_SET_FOCUS) {
-        wxObject* object = event.GetEventObject();
-        wxWindow* window = wxDynamicCast(object, wxWindow);
-        if (window != NULL) {
-            wxFrame* frame = wxDynamicCast(window, wxFrame);
-            wxWindow* parent = window->GetParent();
-            while (frame == NULL && parent != NULL) {
-                frame = wxDynamicCast(parent, wxFrame);
-                parent = parent->GetParent();
+    if (event.GetEventObject() != NULL) {
+        if (event.GetEventType() == wxEVT_SET_FOCUS) {
+            wxObject* object = event.GetEventObject();
+            wxWindow* window = wxDynamicCast(object, wxWindow);
+            if (window != NULL) {
+                wxFrame* frame = wxDynamicCast(window, wxFrame);
+                wxWindow* parent = window->GetParent();
+                while (frame == NULL && parent != NULL) {
+                    frame = wxDynamicCast(parent, wxFrame);
+                    parent = parent->GetParent();
+                }
+                
+                // If we found a frame, and window is not a menu, then send a command event to the frame
+                // that will cause it to rebuild its menu. The frame must keep track of whether the menu actually needs
+                // to be rebuilt (only if MapGLCanvas previously had focus and just lost it or vice versa).
+                // make sure the command is sent via QueueEvent to give wxWidgets a chance to update the focus states!
+                if (frame != NULL) {
+                    //bool isMenu = wxDynamicCast(window, wxMenu) || wxDynamicCast(window, wxMenuItem);
+                    //if (!isMenu) {
+                    wxCommandEvent focusEvent(TrenchBroom::View::EditorFrame::EVT_SET_FOCUS);
+                    focusEvent.SetClientData(event.GetEventObject());
+                    focusEvent.SetEventObject(frame);
+                    focusEvent.SetId(event.GetId());
+                    AddPendingEvent(focusEvent);
+                    //}
+                }
             }
-
-            // If we found a frame, and window is not a menu, then send a command event to the frame
-            // that will cause it to rebuild its menu. The frame must keep track of whether the menu actually needs
-            // to be rebuilt (only if MapGLCanvas previously had focus and just lost it or vice versa).
-            // make sure the command is sent via QueueEvent to give wxWidgets a chance to update the focus states!
-            if (frame != NULL) {
-                //bool isMenu = wxDynamicCast(window, wxMenu) || wxDynamicCast(window, wxMenuItem);
-                //if (!isMenu) {
-                wxCommandEvent focusEvent(TrenchBroom::View::EditorFrame::EVT_SET_FOCUS);
-                focusEvent.SetClientData(event.GetEventObject());
-                focusEvent.SetEventObject(frame);
-                focusEvent.SetId(event.GetId());
-                AddPendingEvent(focusEvent);
-                //}
-            }
+        } else if (event.GetEventType() == TrenchBroom::View::EditorFrame::EVT_SET_FOCUS) {
+            wxFrame* frame = wxStaticCast(event.GetEventObject(), wxFrame);
+            frame->ProcessWindowEventLocally(event);
+            return 1;
         }
-    } else if (event.GetEventType() == TrenchBroom::View::EditorFrame::EVT_SET_FOCUS) {
-        wxFrame* frame = wxStaticCast(event.GetEventObject(), wxFrame);
-        frame->ProcessWindowEventLocally(event);
-        return 1;
     }
-
+    
     return wxApp::FilterEvent(event);
 }
