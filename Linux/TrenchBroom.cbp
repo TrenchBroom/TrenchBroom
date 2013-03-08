@@ -223,8 +223,11 @@
 		<Unit filename="../Source/GL/wglew.h" />
 		<Unit filename="../Source/IO/AbstractFileManager.cpp" />
 		<Unit filename="../Source/IO/AbstractFileManager.h" />
+		<Unit filename="../Source/IO/ByteBuffer.h" />
 		<Unit filename="../Source/IO/ClassInfo.cpp" />
 		<Unit filename="../Source/IO/ClassInfo.h" />
+		<Unit filename="../Source/IO/CreateBrushFromFacesStrategy.h" />
+		<Unit filename="../Source/IO/CreateBrushFromGeometryStrategy.h" />
 		<Unit filename="../Source/IO/DefParser.cpp" />
 		<Unit filename="../Source/IO/DefParser.h" />
 		<Unit filename="../Source/IO/FgdParser.cpp" />
@@ -253,6 +256,7 @@
 		<Unit filename="../Source/Model/Brush.h" />
 		<Unit filename="../Source/Model/BrushGeometry.cpp" />
 		<Unit filename="../Source/Model/BrushGeometry.h" />
+		<Unit filename="../Source/Model/BrushGeometrySerializer.h" />
 		<Unit filename="../Source/Model/BrushGeometryTypes.h" />
 		<Unit filename="../Source/Model/BrushTypes.h" />
 		<Unit filename="../Source/Model/Bsp.cpp" />

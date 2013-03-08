@@ -35,6 +35,9 @@
 #include "Controller/RotateTexturesCommand.h"
 #include "Controller/SetFaceAttributesCommand.h"
 #include "Controller/SnapVerticesCommand.h"
+#include "IO/ByteBuffer.h"
+#include "IO/CreateBrushFromFacesStrategy.h"
+#include "IO/CreateBrushFromGeometryStrategy.h"
 #include "IO/MapParser.h"
 #include "IO/MapWriter.h"
 #include "Model/Brush.h"
@@ -43,6 +46,7 @@
 #include "Model/EntityDefinitionManager.h"
 #include "Model/Face.h"
 #include "Model/Filter.h"
+#include "Model/BrushGeometrySerializer.h"
 #include "Model/Map.h"
 #include "Model/MapDocument.h"
 #include "Model/MapObject.h"
@@ -71,6 +75,7 @@
 #include "View/ViewOptions.h"
 
 #include <wx/clipbrd.h>
+#include <wx/dataobj.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -215,13 +220,6 @@ namespace TrenchBroom {
                     selectBrushes.insert(selectBrushes.begin(), entityBrushes.begin(), entityBrushes.end());
                 else
                     selectEntities.push_back(&entity);
-            }
-            
-            // correct vertex rounding errors
-            Model::BrushList::iterator brushIt, brushEnd;
-            for (brushIt = selectBrushes.begin(), brushEnd = selectBrushes.end(); brushIt != brushEnd; ++brushIt) {
-                Model::Brush& brush = **brushIt;
-                brush.correct(0.01f);
             }
             
             Controller::AddObjectsCommand* addObjectsCommand = Controller::AddObjectsCommand::addObjects(mapDocument(), entities, brushes);
@@ -526,6 +524,10 @@ namespace TrenchBroom {
                         inputController().gridChange();
                         break;
                     case Controller::Command::LoadMap:
+                        m_camera->moveTo(Vec3f(-96.0f, -96.0f, 48.0f));
+                        m_camera->setDirection(Vec3f(1.0f, 1.0f, 0.0f).normalized(), Vec3f::PosZ);
+                        inputController().cameraChange();
+
                         m_renderer->loadMap();
                         inspector().faceInspector().updateFaceAttributes();
                         inspector().faceInspector().updateTextureBrowser();
@@ -824,12 +826,39 @@ namespace TrenchBroom {
                 if (wxTheClipboard->Open()) {
                     StringStream clipboardData;
                     IO::MapWriter mapWriter;
-                    if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces)
+                    if (editStateManager.selectionMode() == Model::EditStateManager::SMFaces) {
                         mapWriter.writeFacesToStream(editStateManager.selectedFaces(), clipboardData);
-                    else
-                        mapWriter.writeObjectsToStream(editStateManager.selectedEntities(), editStateManager.selectedBrushes(), clipboardData);
+                        wxTheClipboard->SetData(new wxTextDataObject(clipboardData.str()));
+                    } else {
+                        IO::ByteBuffer buffer;
+                        Model::BrushGeometrySerializer serializer(buffer);
+                        mapWriter.writeObjectsToStream(editStateManager.selectedEntities(), editStateManager.selectedBrushes(), clipboardData, serializer);
+                        
+                        if (!buffer.empty()) {
+                            String text = clipboardData.str();
+                            
+                            wxDataObjectComposite* composite = new wxDataObjectComposite();
+                            composite->Add(new wxTextDataObject(clipboardData.str()));
 
-                    wxTheClipboard->SetData(new wxTextDataObject(clipboardData.str()));
+                            // workaround for OS X, where wxCustomDataObject does not properly handle unicode strings
+                            // TODO see if this is fixed in 2.9.5
+                            // Apple Instruments reports memory leaks here, no idea why - maybe a bug in wx?
+                            wxCustomDataObject* asciiData = new wxCustomDataObject(wxDataFormat("BrushText"));
+                            asciiData->Alloc(text.size());
+                            asciiData->SetData(text.size(), text.c_str());
+                            composite->Add(asciiData);
+                            
+                            wxCustomDataObject* geometryData = new wxCustomDataObject(wxDataFormat("BrushGeometry"));
+                            geometryData->Alloc(buffer.size());
+                            geometryData->SetData(buffer.size(), buffer.get());
+                            composite->Add(geometryData);
+                            
+                            wxTheClipboard->SetData(composite);
+                        } else {
+                            wxTheClipboard->SetData(new wxTextDataObject(clipboardData.str()));
+                        }
+                    }
+
                     wxTheClipboard->Close();
                 }
             }
@@ -845,11 +874,41 @@ namespace TrenchBroom {
                         Model::BrushList brushes;
                         Model::FaceList faces;
 
-                        wxTextDataObject clipboardData;
-                        wxTheClipboard->GetData(clipboardData);
+                        String text;
+
+                        wxDataFormat asciiFormat("BrushText");
+                        wxDataFormat geometryFormat("BrushGeometry");
+                        wxTextDataObject textData;
+                        wxCustomDataObject asciiData(asciiFormat);
+                        wxCustomDataObject geometryData(geometryFormat);
+                        
+                        // prefer ascii data over unicode data
+                        if (wxTheClipboard->GetData(asciiData)) {
+                            size_t size = asciiData.GetSize();
+                            char* rawText = new char[size];
+                            asciiData.GetDataHere(rawText);
+                            text = String(rawText, size);
+                            delete [] rawText;
+                        } else {
+                            wxTheClipboard->GetData(textData);
+                            text = textData.GetText();
+                        }
+                        
+                        IO::MapParser::CreateBrushStrategy* brushCreator = NULL;
+                        if (wxTheClipboard->GetData(geometryData)) {
+                            IO::ByteBuffer geometryDataBuffer = IO::ByteBuffer(geometryData.GetSize());
+                            if (!geometryDataBuffer.empty() && geometryData.GetDataHere(geometryDataBuffer.get()))
+                                brushCreator = new IO::CreateBrushFromGeometryStrategy(geometryDataBuffer);
+                            else
+                                mapDocument().console().warn("Pasting objects from an external program may lead to loss of precision");
+                        } else {
+                            brushCreator = new IO::CreateBrushFromFacesStrategy();
+                            mapDocument().console().warn("Pasting objects from an external program may lead to loss of precision");
+                        }
+                        
                         StringStream stream;
-                        stream.str(clipboardData.GetText().ToStdString());
-                        IO::MapParser mapParser(stream, console());
+                        stream.str(text);
+                        IO::MapParser mapParser(stream, console(), *brushCreator);
 
                         if (mapParser.parseFaces(mapDocument().map().worldBounds(), faces)) {
                             assert(!faces.empty());
@@ -904,6 +963,8 @@ namespace TrenchBroom {
                         } else {
                             mapDocument().console().warn("Unable to parse clipboard contents");
                         }
+                        
+                        delete brushCreator;
                     }
                     wxTheClipboard->Close();
                 }
@@ -919,11 +980,41 @@ namespace TrenchBroom {
                         Model::EntityList entities;
                         Model::BrushList brushes;
                         
-                        wxTextDataObject clipboardData;
-                        wxTheClipboard->GetData(clipboardData);
+                        String text;
+                        
+                        wxDataFormat asciiFormat("BrushText");
+                        wxDataFormat geometryFormat("BrushGeometry");
+                        wxTextDataObject textData;
+                        wxCustomDataObject asciiData(asciiFormat);
+                        wxCustomDataObject geometryData(geometryFormat);
+                        
+                        // prefer ascii data over text data
+                        if (wxTheClipboard->GetData(asciiData)) {
+                            size_t size = asciiData.GetSize();
+                            char* rawText = new char[size];
+                            asciiData.GetDataHere(rawText);
+                            text = String(rawText, size);
+                            delete [] rawText;
+                        } else {
+                            wxTheClipboard->GetData(textData);
+                            text = textData.GetText();
+                        }
+                        
+                        IO::MapParser::CreateBrushStrategy* brushCreator = NULL;
+                        if (wxTheClipboard->GetData(geometryData)) {
+                            IO::ByteBuffer geometryDataBuffer = IO::ByteBuffer(geometryData.GetSize());
+                            if (!geometryDataBuffer.empty() && geometryData.GetDataHere(geometryDataBuffer.get()))
+                                brushCreator = new IO::CreateBrushFromGeometryStrategy(geometryDataBuffer);
+                            else
+                                mapDocument().console().warn("Pasting objects from an external program may lead to loss of precision");
+                        } else {
+                            brushCreator = new IO::CreateBrushFromFacesStrategy();
+                            mapDocument().console().warn("Pasting objects from an external program may lead to loss of precision");
+                        }
+                        
                         StringStream stream;
-                        stream.str(clipboardData.GetText().ToStdString());
-                        IO::MapParser mapParser(stream, console());
+                        stream.str(text);
+                        IO::MapParser mapParser(stream, console(), *brushCreator);
                         
                         if (mapParser.parseEntities(mapDocument().map().worldBounds(), entities) ||
                                    mapParser.parseBrushes(mapDocument().map().worldBounds(), brushes)) {
@@ -932,6 +1023,8 @@ namespace TrenchBroom {
                         } else {
                             mapDocument().console().warn("Unable to parse clipboard contents");
                         }
+                        
+                        delete brushCreator;
                     }
                     wxTheClipboard->Close();
                 }

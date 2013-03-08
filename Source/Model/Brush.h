@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__Brush__
 #define __TrenchBroom__Brush__
 
+#include "IO/ByteBuffer.h"
 #include "Model/BrushGeometry.h"
 #include "Model/EditState.h"
 #include "Model/FaceTypes.h"
@@ -77,6 +78,8 @@ namespace TrenchBroom {
             bool addFace(Face* face);
             
             void replaceFaces(const FaceList& newFaces);
+            
+            void setFaces(const FaceList& newFaces);
             
             inline bool partiallySelected() const {
                 return m_selectedFaceCount > 0;
@@ -145,6 +148,9 @@ namespace TrenchBroom {
             
             void correct(float epsilon);
             void snap(unsigned int snapTo);
+            
+            void serializeGeometry(IO::ByteBuffer& buffer) const;
+            void deserializeGeometry(IO::ByteBuffer& buffer);
             
             bool canMoveBoundary(const Face& face, const Vec3f& delta) const;
             void moveBoundary(Face& face, const Vec3f& delta, bool lockTexture);

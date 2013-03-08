@@ -569,3 +569,5 @@
 [
 	dmg(integer) : "Damage per second" : 5
 ]
+@PointClass size(16 16 16) = misc_noisemaker : "Debug entity" []
+@PointClass size(16 16 16) = viewthing : "Fake player" []

@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_BrushTypes_h
 #define TrenchBroom_BrushTypes_h
 
+#include "Model/FaceTypes.h"
+
 #include <map>
 #include <set>
 #include <vector>
@@ -39,6 +41,12 @@ namespace TrenchBroom {
         typedef std::map<Entity*, BrushList> EntityBrushesMap;
         typedef std::pair<Entity*, BrushList> EntityBrushesMapEntry;
         typedef std::pair<EntityBrushesMap::iterator, bool> EntityBrushesMapInsertResult;
+
+        class BrushFunctor {
+        public:
+            virtual ~BrushFunctor() {}
+            virtual void operator()(const Model::Brush& brush) = 0;
+        };
     }
 }
 

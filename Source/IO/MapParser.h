@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__MapParser__
 #define __TrenchBroom__MapParser__
 
+#include "IO/ByteBuffer.h"
 #include "IO/StreamTokenizer.h"
 #include "Model/BrushTypes.h"
 #include "Model/EntityTypes.h"
@@ -120,6 +121,12 @@ namespace TrenchBroom {
         };
 
         class MapParser {
+        public:
+            class CreateBrushStrategy {
+            public:
+                virtual ~CreateBrushStrategy() {}
+                virtual Model::Brush* operator()(const BBox& worldBounds, const Model::FaceList& faces) = 0;
+            };
         private:
             enum MapFormat {
                 Undefined,
@@ -128,6 +135,7 @@ namespace TrenchBroom {
             };
 
             Utility::Console& m_console;
+            CreateBrushStrategy& m_createBrushStrategy;
             StreamTokenizer<MapTokenEmitter> m_tokenizer;
             MapFormat m_format;
             size_t m_size;
@@ -137,8 +145,8 @@ namespace TrenchBroom {
                     throw MapParserException(actualToken, expectedType);
             }
         public:
-            MapParser(std::istream& stream, Utility::Console& console);
-
+            MapParser(std::istream& stream, Utility::Console& console, CreateBrushStrategy& createBrushStrategy);
+            
             void parseMap(Model::Map& map, Utility::ProgressIndicator* indicator);
             Model::Entity* parseEntity(const BBox& worldBounds, Utility::ProgressIndicator* indicator);
             Model::Brush* parseBrush(const BBox& worldBounds, Utility::ProgressIndicator* indicator);

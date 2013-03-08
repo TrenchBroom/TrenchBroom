@@ -21,6 +21,7 @@
 
 #include "Controller/Autosaver.h"
 #include "Controller/Command.h"
+#include "IO/CreateBrushFromFacesStrategy.h"
 #include "IO/FileManager.h"
 #include "IO/IOException.h"
 #include "IO/MapParser.h"
@@ -117,7 +118,8 @@ namespace TrenchBroom {
 			progressIndicator.setText("Loading map file...");
 
             wxStopWatch watch;
-            IO::MapParser parser(stream, console());
+            IO::CreateBrushFromFacesStrategy brushCreator;
+            IO::MapParser parser(stream, console(), brushCreator);
             parser.parseMap(*m_map, &progressIndicator);
             stream.clear(); // everything went well, prevent wx from displaying an error dialog
 
@@ -631,8 +633,14 @@ namespace TrenchBroom {
                 clear();
                 setEntityDefinitionFile("");
 
+                // place 1 new brush at origin
+                BBox brushBounds(Vec3f(-32.0f, -32.0f, 0.0f), Vec3f(32.0f, 32.0f, 16.0f));
+                Model::Brush* brush = new Model::Brush(m_map->worldBounds(), brushBounds, NULL);
+                addBrush(*worldspawn(true), *brush);
+                
                 Controller::Command loadCommand(Controller::Command::LoadMap);
                 UpdateAllViews(NULL, &loadCommand);
+                
                 m_modificationCount = 0;
                 m_autosaver->clearDirtyFlag();
 				return true;

@@ -20,6 +20,7 @@
 #ifndef __TrenchBroo_BrushGeometry__
 #define __TrenchBroo_BrushGeometry__
 
+#include "IO/ByteBuffer.h"
 #include "Model/BrushGeometryTypes.h"
 #include "Model/FaceTypes.h"
 #include "Model/MapExceptions.h"
@@ -326,6 +327,9 @@ namespace TrenchBroom {
             BrushGeometry(const BrushGeometry& original);
             ~BrushGeometry();
 
+            void serialize(IO::ByteBuffer& buffer);
+            void deserialize(IO::ByteBuffer& buffer, const FaceList& faces);
+            
             bool closed() const;
             void restoreFaceSides();
 
