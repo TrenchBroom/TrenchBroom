@@ -11,14 +11,30 @@
 	<script src="scripts/commands.js"></script>
 	<div id="container">
 		<h2>Adding models to entity definitions</h2>
-		<p></p>
-		<h3>"DEF" Format</h3>
-
+		<p>A strongly visual editor like Trenchbroom means that </p>
+		<h3>DEF Format Syntax</h3>
+		<h4>Attaching a model to an entity</h4>
 		<p>This format is the simplest way of creating entity definitions for the editor to use.  Here is an example of a DEF for a <b>Point Entity</b>.  Only point entities will be covered because you cannot add models to brush entities because the brushes themselves comprise the 'model'.</p>
 		
 		<p class="no-indent">The syntax for attaching a model to an entity definition for DEF files is: <span class="monospace_text">model(":MODELPATH");</span></p>
 		<p class="no-indent">As an example, if your model resided in the <b>progs/model.mdl</b> file, then the resulting declaration would look like this: <span class="monospace_text">model(":progs/model.mdl");</p>
+		<p class="no-indent">Note the colon ( <span class="monospace_text">:</span> ) in front of the pathname, this is required.</p>
 		
+		<h4>Specifying Skin and Frame numbers</h4>
+		<p>The previous section shows how to attach a model to an entity and by default, Trenchbroom will use the first skin (skin 0) and first frame (frame 0) in the model file to display in the viewport.  Usually this is sufficient, but not all monsters have a good frame for display in the editor on frame 0. There might also be times when a monster has a different skin.  For these times, you will need to specify which skin and frame you want to see.  This is done with the following syntax: <span class="monospace_text">model(":MODELPATH" #SKIN #FRAME);</span>.</p>
+		<p class="no-indent"><span class="monospace_text">#SKIN</span> is a number which specifies which skin you want to be displayed.  Note that this is zero-based, in other words the first frame is 0, the second 1, etc...</p>
+		<p class="no-indent"><span class="monospace_text">#FRAME</span> is a number which specifies which frame you want to be displayed.  Like the skin number, the frame number is also zero-based.</p>
+		<p class="no-indent">The skin and frame numbers are optional and if they are omitted, Trenchbroom defaults to skin 0, frame 0 and if you only want to specify a skin number, then you do not need to put a 0 afterwards for the frame number but if you want to specify only a frame number, you MUST put a 0 before the frame number otherwise Trenchbroom has no way to know if you are talking about skins or frames!</p>
+		
+		<h4>Conditional Models</h4>
+		<p>Up to this point, we have been able to attach a model to an entity so that it is displayed in Trenchbroom.  This is nice, but what if the entity uses different models depending on settings?  Things like ammo boxes appear larger if the "BIG" spawnflag is checked and Gaunts in Quoth appear on the group if the 'perched' key is set to '1'.</p>
+		<p class="no-indent no-justify">There are a few options available which allow you to specify which model an entity should show depending on what keys are set on it in the editor.  This can be done the following way: <span class="monospace_text">model(":MODELPATH" CONDITIONS...);</span></p>
+		<p class="no-indent no-justify">Conditions are defined a couple of ways: </p>
+		
+		
+		
+		
+		<h3>Example</h3>
 		<p class="no-indent">Here is another example of a full point entity definition with model declarations:</p>
 		<div class="monospace_text">/*QUAKED item_shells (0 .5 .5) (0 0 0) (32 32 32) BIG<br/>
 		model(":maps/b_shell0.bsp");<br/>
@@ -36,7 +52,7 @@
 			&emsp;&emsp;&emsp;&emsp;entity name<br/>
 		*/</div>
 		
-		<p>This is an example of the typical usage of the new model syntax for DEF files.  As you can see, there are actually two models attached to the Shells ammo box, <span class="monospace_text">maps/b_shell0.bsp</span> and <span class="monospace_text">maps/b_shell1.bsp</span>.  This is because the Shells ammo box uses two different models depending on the 'BIG' spawnflag being checked or not.  If it is not checked, it uses <span class="monospace_text">maps/b_shell0.bsp</span> which is the small ammo box and if it is checked, then it uses <span class="monospace_text">maps/b_shell1.bsp</span> which is the large ammo box.</p>
+		<p>This is an example of the typical usage of the new model syntax for DEF files.  As you can see, there are two models attached to the Shells ammo box, <span class="monospace_text">maps/b_shell0.bsp</span> and <span class="monospace_text">maps/b_shell1.bsp</span>.  This is because the Shells ammo box uses two different models depending on the 'BIG' spawnflag being checked or not.  If it is not checked, it uses <span class="monospace_text">maps/b_shell0.bsp</span> which is the small ammo box and if it is checked, then it uses <span class="monospace_text">maps/b_shell1.bsp</span> which is the large ammo box.</p>
 		<p>This is done by adding <span class="monospace_text">spawnflags = 1</span> to the second model declaration.</p>
 	</div>
 </body>

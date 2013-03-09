@@ -129,7 +129,7 @@ span.monospace_text
 	border:1px solid #999999;
 	padding:0px 2px 0px 2px;
 	margin:auto;
-	font-family:monaco, consolas, monospace;
+	font-family:monaco, consolas, "source code pro", monospace;
 }
 
 div.monospace_text
@@ -140,7 +140,7 @@ div.monospace_text
 	border:1px solid #999999;
 	padding:0px 2px 0px 2px;
 	margin:auto;
-	font-family:monaco, consolas, monospace;
+	font-family:monaco, consolas, "source code pro", monospace;
 }
 
 .indentedDiv
