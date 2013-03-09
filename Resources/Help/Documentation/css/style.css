@@ -121,7 +121,18 @@ ul.submenu a {
 	color: #000000;
 }
 
-.monospace_text
+span.monospace_text
+{
+	display:inline;
+	white-space: nowrap;
+	background-color:#EEEEEE;
+	border:1px solid #999999;
+	padding:0px 2px 0px 2px;
+	margin:auto;
+	font-family:monaco, consolas, monospace;
+}
+
+div.monospace_text
 {
 	display:inline-block;
 	white-space: nowrap;
@@ -131,7 +142,6 @@ ul.submenu a {
 	margin:auto;
 	font-family:monaco, consolas, monospace;
 }
-
 
 .indentedDiv
 {

@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>TrenchBroom Help - Working With Textures</title>
+	<link rel="StyleSheet" href="css/style.css" type="text/css" media="screen" />
+	<meta name="author" content="Kristian Duske">
+</head>
+<body>
+	<script src="scripts/commands.js"></script>
+	<div id="container">
+		<h2>Adding models to entity definitions</h2>
+		<p></p>
+		<h3>"DEF" Format</h3>
+
+		<p>This format is the simplest way of creating entity definitions for the editor to use.  Here is an example of a DEF for a <b>Point Entity</b>.  Only point entities will be covered because you cannot add models to brush entities because the brushes themselves comprise the 'model'.</p>
+		
+		<p class="no-indent">The syntax for attaching a model to an entity definition for DEF files is: <span class="monospace_text">model(":MODELPATH");</span></p>
+		<p class="no-indent">As an example, if your model resided in the <b>progs/model.mdl</b> file, then the resulting declaration would look like this: <span class="monospace_text">model(":progs/model.mdl");</p>
+		
+		<p class="no-indent">Here is another example of a full point entity definition with model declarations:</p>
+		<div class="monospace_text">/*QUAKED item_shells (0 .5 .5) (0 0 0) (32 32 32) BIG<br/>
+		model(":maps/b_shell0.bsp");<br/>
+		model(":maps/b_shell1.bsp" spawnflags = 1);<br/>
+		20 shells for both Shotgun and SuperShotgun.<br/>
+		<br/>
+		Flags:<br/>
+		"BIG"<br/>
+			&emsp;&emsp;&emsp;&emsp;gives 40 instead of 20<br/>
+		<br/>
+		Keys:<br/>
+		"target"<br/>
+			&emsp;&emsp;&emsp;&emsp;entity to trigger when picked up<br/>
+		"targetname"<br/>
+			&emsp;&emsp;&emsp;&emsp;entity name<br/>
+		*/</div>
+		
+		<p>This is an example of the typical usage of the new model syntax for DEF files.  As you can see, there are actually two models attached to the Shells ammo box, <span class="monospace_text">maps/b_shell0.bsp</span> and <span class="monospace_text">maps/b_shell1.bsp</span>.  This is because the Shells ammo box uses two different models depending on the 'BIG' spawnflag being checked or not.  If it is not checked, it uses <span class="monospace_text">maps/b_shell0.bsp</span> which is the small ammo box and if it is checked, then it uses <span class="monospace_text">maps/b_shell1.bsp</span> which is the large ammo box.</p>
+		<p>This is done by adding <span class="monospace_text">spawnflags = 1</span> to the second model declaration.</p>
+	</div>
+</body>
+</html>
