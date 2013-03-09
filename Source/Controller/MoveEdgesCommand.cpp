@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -28,23 +28,23 @@ namespace TrenchBroom {
         bool MoveEdgesCommand::performDo() {
             if (!canDo())
                 return false;
-            
+
             m_edges.clear();
             makeSnapshots(m_brushes);
             document().brushesWillChange(m_brushes);
-            
+
             BrushEdgesMap::const_iterator it, end;
             for (it = m_brushEdges.begin(), end = m_brushEdges.end(); it != end; ++it) {
                 Model::Brush* brush = it->first;
-                const Model::EdgeList& edges = it->second;
-                const Model::EdgeList newEdges = brush->moveEdges(edges, m_delta);
+                const Model::EdgeInfoList& edges = it->second;
+                const Model::EdgeInfoList newEdges = brush->moveEdges(edges, m_delta);
                 m_edges.insert(m_edges.end(), newEdges.begin(), newEdges.end());
             }
 
             document().brushesDidChange(m_brushes);
             return true;
         }
-        
+
         bool MoveEdgesCommand::performUndo() {
             document().brushesWillChange(m_brushes);
             restoreSnapshots(m_brushes);
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             m_edges = m_originalEdges;
             return true;
         }
-        
+
         MoveEdgesCommand::MoveEdgesCommand(Model::MapDocument& document, const wxString& name, const Model::VertexToEdgesMap& brushEdges, const Vec3f& delta) :
         SnapshotCommand(Command::MoveVertices, document, name),
         m_delta(delta) {
@@ -63,16 +63,17 @@ namespace TrenchBroom {
                 for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
                     Model::Edge* edge = *edgeIt;
                     Model::Brush* brush = edge->left->face->brush();
-                    
-                    BrushEdgesMapInsertResult result = m_brushEdges.insert(BrushEdgesMapEntry(brush, Model::EdgeList()));
+                    const Model::EdgeInfo edgeInfo = edge->info();
+
+                    BrushEdgesMapInsertResult result = m_brushEdges.insert(BrushEdgesMapEntry(brush, Model::EdgeInfoList()));
                     if (result.second)
                         m_brushes.push_back(brush);
-                    result.first->second.push_back(edge);
-                    m_originalEdges.push_back(edge);
-                    m_edges.push_back(edge);
+                    result.first->second.push_back(edgeInfo);
+                    m_originalEdges.push_back(edgeInfo);
+                    m_edges.push_back(edgeInfo);
                 }
             }
-            
+
             assert(!m_brushes.empty());
             assert(m_brushes.size() == m_brushEdges.size());
         }
@@ -85,7 +86,7 @@ namespace TrenchBroom {
             BrushEdgesMap::const_iterator it, end;
             for (it = m_brushEdges.begin(), end = m_brushEdges.end(); it != end; ++it) {
                 Model::Brush* brush = it->first;
-                const Model::EdgeList& edges = it->second;
+                const Model::EdgeInfoList& edges = it->second;
                 if (!brush->canMoveEdges(edges, m_delta))
                     return false;
             }

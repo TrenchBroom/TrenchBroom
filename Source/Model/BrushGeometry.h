@@ -58,12 +58,12 @@ namespace TrenchBroom {
                 position = Vec3f::NaN;
                 mark = Drop;
             }
-            
+
             SideList incidentSides(const EdgeList& edges) const;
         };
 
         class Side;
-        
+
         class Edge : public Utility::Allocator<Edge> {
         public:
             enum Mark {
@@ -87,14 +87,14 @@ namespace TrenchBroom {
             left(i_left),
             right(i_right),
             mark(New) {}
-            
+
             Edge(Vertex* i_start, Vertex* i_end) :
             start(i_start),
             end(i_end),
             left(NULL),
             right(NULL),
             mark(New) {}
-            
+
             Edge() :
             start(NULL),
             end(NULL),
@@ -141,12 +141,12 @@ namespace TrenchBroom {
             inline bool incidentWith(const Edge* edge) const {
                 return start == edge->start || start == edge->end || end == edge->start || end == edge->end;
             }
-            
+
             inline bool contains(const Vec3f& point, float maxDistance = Math::AlmostZero) const {
                 const Vec3f edgeVec = vector();
                 const Vec3f edgeDir = edgeVec.normalized();
                 const float dot = (point - start->position).dot(edgeDir);
-                
+
                 // determine the closest point on the edge
                 Vec3f closestPoint;
                 if (dot < 0.0f)
@@ -155,11 +155,11 @@ namespace TrenchBroom {
                     closestPoint = end->position;
                 else
                     closestPoint = start->position + edgeDir * dot;
-                
+
                 const float distance2 = (point - closestPoint).lengthSquared();
                 return distance2 <= (maxDistance * maxDistance);
             }
-            
+
             inline bool connects(const Vertex* vertex1, const Vertex* vertex2) const {
                 return (start == vertex1 && end == vertex2) || (start == vertex2 && end == vertex1);
             }
@@ -217,6 +217,10 @@ namespace TrenchBroom {
 
                 return true;
             }
+
+            inline EdgeInfo info() const {
+                return EdgeInfo(start->position, end->position);
+            }
         };
 
         class Face;
@@ -251,11 +255,11 @@ namespace TrenchBroom {
             void shift(size_t offset);
             bool isDegenerate();
             size_t isCollinearTriangle();
-            
+
             inline bool hasVertices(const Vec3f::List& vecs, float epsilon = Math::AlmostZero) const {
                 if (vertices.size() != vecs.size())
                     return false;
-                
+
                 size_t count = vecs.size();
                 for (size_t i = 0; i < count; i++) {
                     bool equal = true;
@@ -267,6 +271,13 @@ namespace TrenchBroom {
                 }
                 return false;
             }
+
+            inline FaceInfo info() const {
+                FaceInfo result;
+                for (size_t i = 0; i < vertices.size(); i++)
+                    result.vertices.push_back(vertices[i]->position);
+                return result;
+            }
         };
 
         struct MoveVertexResult {
@@ -275,15 +286,15 @@ namespace TrenchBroom {
                 VertexDeleted,
                 VertexUnchanged
             } Type;
-            
+
             const Type type;
             Vertex* vertex;
-            
+
             MoveVertexResult(Type i_type, Vertex* i_vertex = NULL) :
             type(i_type),
             vertex(i_vertex) {}
         };
-        
+
         class BrushGeometry {
         public:
             enum CutResult {
@@ -299,7 +310,7 @@ namespace TrenchBroom {
                 FaceSet m_droppedFaces;
             public:
                 ~FaceManager();
-                
+
                 void addFace(Face* original, Face* copy);
                 void dropFace(Side* side);
                 void getFaces(FaceSet& newFaces, FaceSet& droppedFaces);
@@ -309,11 +320,11 @@ namespace TrenchBroom {
             void mergeEdges();
             void mergeNeighbours(Side* side, size_t edgeIndex, FaceManager& faceManager);
             void mergeSides(FaceManager& faceManager);
-            
+
             MoveVertexResult moveVertex(Vertex* vertex, bool mergeWithAdjacentVertex, const Vec3f& start, const Vec3f& end, FaceManager& faceManager);
             Vertex* splitEdge(Edge* edge);
             Vertex* splitFace(Face* face, FaceManager& faceManager);
-            
+
             void copy(const BrushGeometry& original);
             bool sanityCheck();
         public:
@@ -329,7 +340,7 @@ namespace TrenchBroom {
 
             void serialize(IO::ByteBuffer& buffer);
             void deserialize(IO::ByteBuffer& buffer, const FaceList& faces);
-            
+
             bool closed() const;
             void restoreFaceSides();
 
@@ -341,7 +352,7 @@ namespace TrenchBroom {
             void rotate(const Quat& rotation, const Vec3f& rotationCenter);
             void flip(Axis::Type axis, const Vec3f& flipCenter);
             void updateFacePoints();
-            
+
             void correct(FaceSet& newFaces, FaceSet& droppedFaces, float epsilon);
             void snap(FaceSet& newFaces, FaceSet& droppedFaces, unsigned int snapTo);
 
@@ -353,7 +364,7 @@ namespace TrenchBroom {
             EdgeInfoList moveEdges(const BBox& worldBounds, const EdgeInfoList& edges, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
             bool canMoveFaces(const BBox& worldBounds, const FaceInfoList& faces, const Vec3f& delta);
             FaceInfoList moveFaces(const BBox& worldBounds, const FaceInfoList& faces, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
-            
+
             bool canSplitEdge(const BBox& worldBounds, const EdgeInfo& edgeInfo, const Vec3f& delta);
             Vec3f splitEdge(const BBox& worldBounds, const EdgeInfo& edgeInfo, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
             bool canSplitFace(const BBox& worldBounds, const FaceInfo& faceInfo, const Vec3f& delta);

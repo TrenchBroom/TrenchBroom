@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -33,30 +33,30 @@ namespace TrenchBroom {
     namespace Controller {
         class MoveEdgesCommand : public SnapshotCommand {
         protected:
-            typedef std::map<Model::Brush*, Model::EdgeList> BrushEdgesMap;
-            typedef std::pair<Model::Brush*, Model::EdgeList> BrushEdgesMapEntry;
+            typedef std::map<Model::Brush*, Model::EdgeInfoList> BrushEdgesMap;
+            typedef std::pair<Model::Brush*, Model::EdgeInfoList> BrushEdgesMapEntry;
             typedef std::pair<BrushEdgesMap::iterator, bool> BrushEdgesMapInsertResult;
-            
+
             Model::BrushList m_brushes;
-            Model::EdgeList m_originalEdges;
-            Model::EdgeList m_edges;
+            Model::EdgeInfoList m_originalEdges;
+            Model::EdgeInfoList m_edges;
             BrushEdgesMap m_brushEdges;
             Vec3f m_delta;
-            
+
             bool performDo();
             bool performUndo();
-            
+
             MoveEdgesCommand(Model::MapDocument& document, const wxString& name, const Model::VertexToEdgesMap& brushEdges, const Vec3f& delta);
         public:
             static MoveEdgesCommand* moveEdges(Model::MapDocument& document, const Model::VertexToEdgesMap& brushEdges, const Vec3f& delta);
-            
+
             bool canDo() const;
-            
+
             inline const Model::BrushList& brushes() const {
                 return m_brushes;
             }
-            
-            inline const Model::EdgeList& edges() const {
+
+            inline const Model::EdgeInfoList& edges() const {
                 return m_edges;
             }
         };

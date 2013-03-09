@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -34,7 +34,7 @@ namespace TrenchBroom {
         class Vertex;
         class Edge;
         class Side;
-        
+
         typedef std::vector<Vertex*> VertexList;
         typedef std::vector<Edge*> EdgeList;
         typedef std::vector<Side*> SideList;
@@ -42,31 +42,27 @@ namespace TrenchBroom {
         static const VertexList EmptyVertexList;
         static const EdgeList EmptyEdgeList;
         static const SideList EmptySideList;
-        
-        typedef std::map<Vec3f, Model::BrushList, Vec3f::LexicographicOrder> VertexToBrushesMap;
-        typedef std::map<Vec3f, Model::EdgeList, Vec3f::LexicographicOrder> VertexToEdgesMap;
-        typedef std::map<Vec3f, Model::FaceList, Vec3f::LexicographicOrder> VertexToFacesMap;
-        
+
         struct EdgeInfo {
             Vec3f start;
             Vec3f end;
-            
+
             EdgeInfo(const Vec3f& i_start, const Vec3f& i_end) :
             start(i_start),
             end(i_end) {}
-            
+
             inline bool operator==(const EdgeInfo& rhs) const {
                 return (start == rhs.start && end == rhs.end) || (start == rhs.end && end == rhs.start);
             }
         };
-            
+
         struct FaceInfo {
             Vec3f::List vertices;
-            
+
             inline bool operator==(const FaceInfo& rhs) const {
                 if (vertices.size() != rhs.vertices.size())
                     return false;
-                
+
                 size_t count = vertices.size();
                 for (size_t i = 0; i < count; i++) {
                     bool equal = true;
@@ -78,22 +74,27 @@ namespace TrenchBroom {
                 }
                 return false;
             }
-            
+
             inline FaceInfo& translate(const Vec3f& delta) {
                 for (size_t i = 0; i < vertices.size(); i++)
                     vertices[i] += delta;
                 return *this;
             }
-            
-            inline FaceInfo translated() const {
+
+            inline FaceInfo translated(const Vec3f& delta) const {
                 FaceInfo result = *this;
-                result.translate();
+                result.translate(delta);
                 return result;
             }
         };
-            
+
         typedef std::vector<EdgeInfo> EdgeInfoList;
         typedef std::vector<FaceInfo> FaceInfoList;
+
+        typedef std::map<Vec3f, Model::BrushList, Vec3f::LexicographicOrder> VertexToBrushesMap;
+        typedef std::map<Vec3f, Model::EdgeList, Vec3f::LexicographicOrder> VertexToEdgesMap;
+        typedef std::map<Vec3f, Model::FaceList, Vec3f::LexicographicOrder> VertexToFacesMap;
+
     }
 }
 
