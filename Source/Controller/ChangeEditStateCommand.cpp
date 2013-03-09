@@ -77,7 +77,7 @@ namespace TrenchBroom {
                 }
             }
             
-            return true;
+            return !m_changeSet.empty();
         }
         
         bool ChangeEditStateCommand::performUndo() {

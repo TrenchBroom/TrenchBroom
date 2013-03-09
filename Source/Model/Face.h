@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -33,12 +33,12 @@ namespace TrenchBroom {
     namespace Model {
         class Brush;
         class Texture;
-        
+
         /**
          * \brief This class represents a brush face.
          *
          * Each face is described by a boundary plane which is given by three points. Additionally, faces are associated
-         * with a texture name, the texture offset, rotation and scale. The offset, rotation and scale parameters 
+         * with a texture name, the texture offset, rotation and scale. The offset, rotation and scale parameters
          * control the generation of texture coordinates.
          *
          * Texture coordinates and texture axes are transient (computed on demand) and are therefore marked as mutable.
@@ -52,19 +52,19 @@ namespace TrenchBroom {
             public:
                 WeightOrder(const Plane::WeightOrder& planeOrder) :
                 m_planeOrder(planeOrder) {}
-                
+
                 inline bool operator()(const Face* lhs, const Face* rhs) const {
                     return m_planeOrder(lhs->boundary(), rhs->boundary());
                 }
             };
         protected:
             static const Vec3f* BaseAxes[18];
-            
+
             Brush* m_brush;
             Side* m_side;
-            
+
             unsigned int m_faceId;
-            
+
             /*
              * The order of points, when looking from outside the face:
              *
@@ -75,13 +75,13 @@ namespace TrenchBroom {
              * |
              * 2
              *
-             * It must hold that 
+             * It must hold that
              * (m_points[2] - m_points[0]).cross(m_points[1] - m_points[0]).equals(boundary().normal)
              */
             Vec3f m_points[3];
             Plane m_boundary;
             BBox m_worldBounds;
-            
+
             String m_textureName;
             Texture* m_texture;
             float m_xOffset;
@@ -100,7 +100,7 @@ namespace TrenchBroom {
 
             mutable bool m_vertexCacheValid;
             mutable Renderer::FaceVertex::List m_vertexCache;
-            
+
             size_t m_filePosition;
             bool m_selected;
 
@@ -110,49 +110,49 @@ namespace TrenchBroom {
                 xAxis = rot * xAxis;
                 yAxis = rot * yAxis;
             }
-            
+
             void init();
             void texAxesAndIndices(const Vec3f& faceNormal, Vec3f& xAxis, Vec3f& yAxis, unsigned int& planeNormIndex, unsigned int& faceNormIndex) const;
             void validateTexAxes(const Vec3f& faceNormal) const;
             void validateVertexCache() const;
-            
+
             void projectOntoTexturePlane(Vec3f& xAxis, Vec3f& yAxis);
-            
+
             void compensateTransformation(const Mat4f& transformation);
         public:
             Face(const BBox& worldBounds, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const String& textureName);
             Face(const BBox& worldBounds, const Face& faceTemplate);
             Face(const Face& face);
 			~Face();
-            
+
             /**
              * Restores the boundary, texture name, offset, rotation and scale parameters as well as the selection state
              * from the given face. Invalidates transient state of this face.
              */
             void restore(const Face& faceTemplate);
-            
+
             /**
              * Returns the brush which owns this face.
              */
             inline Brush* brush() const {
                 return m_brush;
             }
-            
+
             /**
-             * Sets the brush that owns this face. Also increments and decrements the number of selected faces of the 
+             * Sets the brush that owns this face. Also increments and decrements the number of selected faces of the
              * current owner and the given brush if they are not null.
              *
              * @param brush the new owner of this face. May be null.
              */
             void setBrush(Brush* brush);
-            
+
             /**
              * Returns the Side instance that stores the geometric data of this face.
              */
             inline Side* side() const {
                 return m_side;
             }
-            
+
             /**
              * Sets the Side instance that stores the geometric data of this face.
              *
@@ -161,20 +161,28 @@ namespace TrenchBroom {
             inline void setSide(Side* side) {
                 m_side = side;
             }
-            
+
+            /**
+             * Returns a FaceInfo instance containing the positions of this face's vertices.
+             */
+            inline FaceInfo faceInfo() const {
+                assert(m_side != NULL);
+                return m_side->info();
+            }
+
             /**
              * Returns a unique id for this face. This id is not persistent.
              */
             inline unsigned int faceId() const {
                 return m_faceId;
             }
-            
+
             /**
              * Updates the boundary points from the vertices of this face. Afterwards, all vertices of this face lie
              * on the boundary plane. Be aware that the Side that belongs to this face must not be null.
              */
             void updatePoints();
-            
+
             /**
              * Sets the given points to the points of the boundary plane.
              */
@@ -183,7 +191,7 @@ namespace TrenchBroom {
                 point2 = m_points[1];
                 point3 = m_points[2];
             }
-            
+
             /**
              * Returns the boundary point with the given index (zero based).
              */
@@ -191,14 +199,14 @@ namespace TrenchBroom {
                 assert(index < 3);
                 return m_points[index];
             }
-            
+
             /**
              * Returns the boundary plane.
              */
             inline const Plane& boundary() const {
                 return m_boundary;
             }
-            
+
             /**
              * Returns the maximum bounds of the world.
              */
@@ -212,22 +220,22 @@ namespace TrenchBroom {
             inline const VertexList& vertices() const {
                 return m_side->vertices;
             }
-            
+
             /**
-             * Returns the edges of this face in clockwise order. The start vertex of the first edge is the first 
+             * Returns the edges of this face in clockwise order. The start vertex of the first edge is the first
              * vertex in the list returned by vertices().
              */
             inline const EdgeList& edges() const {
                 return m_side->edges;
             }
-            
+
             /**
              * Returns the center of this face.
              */
             inline Vec3f center() const {
                 return centerOfVertices(m_side->vertices);
             }
-            
+
             /**
              * Returns the name of the texture for this face.
              */
@@ -241,7 +249,7 @@ namespace TrenchBroom {
             inline void setTextureName(const String& textureName) {
                 m_textureName = textureName;
             }
-            
+
             /**
              * Returns the texture for this face. May return null if the texture was not set, due to e.g. no texture
              * being found in the texture manager during map load.
@@ -249,7 +257,7 @@ namespace TrenchBroom {
             inline Texture* texture() const {
                 return m_texture;
             }
-            
+
             /**
              * Sets the texture for this face. Increments and decrements the usage count for the current texture and the
              * given texture. Also sets the texture name for this face accordingly.
@@ -257,14 +265,14 @@ namespace TrenchBroom {
              * The new texture for this face. May be null.
              */
             void setTexture(Texture* texture);
-            
+
             /**
              * Returns the texture X offset of this face.
              */
             inline float xOffset() const {
                 return m_xOffset;
             }
-            
+
             /**
              * Sets the texture X offset of this face and invalidates the transient texture data.
              */
@@ -274,14 +282,14 @@ namespace TrenchBroom {
                 m_xOffset = xOffset;
                 m_vertexCacheValid = false;
             }
-            
+
             /**
              * Returns the texture Y offset of this face.
              */
             inline float yOffset() const {
                 return m_yOffset;
             }
-            
+
             /**
              * Sets the texture Y offset of this face and invalidates the transient texture data.
              */
@@ -291,14 +299,14 @@ namespace TrenchBroom {
                 m_yOffset = yOffset;
                 m_vertexCacheValid = false;
             }
-            
+
             /**
              * Returns the texture rotation of this face.
              */
             inline float rotation() const {
                 return m_rotation;
             }
-            
+
             /**
              * Sets the texture rotation of this face and invalidates the transient texture data.
              */
@@ -309,14 +317,14 @@ namespace TrenchBroom {
                 m_texAxesValid = false;
                 m_vertexCacheValid = false;
             }
-            
+
             /**
              * Returns the texture X scale of this face.
              */
             inline float xScale() const {
                 return m_xScale;
             }
-            
+
             /**
              * Sets the texture X scale of this face and invalidates the transient texture data.
              */
@@ -327,14 +335,14 @@ namespace TrenchBroom {
                 m_texAxesValid = false;
                 m_vertexCacheValid = false;
             }
-            
+
             /**
              * Returns the texture Y scale of this face.
              */
             inline float yScale() const {
                 return m_yScale;
             }
-            
+
             /**
              * Sets the texture Y scale of this face and invalidates the transient texture data.
              */
@@ -345,7 +353,7 @@ namespace TrenchBroom {
                 m_texAxesValid = false;
                 m_vertexCacheValid = false;
             }
-            
+
             inline void setAttributes(const Face& face) {
                 setXScale(face.xScale());
                 setYScale(face.yScale());
@@ -355,52 +363,52 @@ namespace TrenchBroom {
                 setTextureName(face.textureName());
                 setTexture(face.texture());
             }
-            
+
             /**
              * Invalidates the cached texture axes.
              */
             inline void invalidateTexAxes() {
                 m_texAxesValid = false;
             }
-            
+
             /**
              * Modifies the offsets such that the texture is moved in the given direction by the given distance, relative
              * to the given view coordinate system.
              */
             void moveTexture(const Vec3f& up, const Vec3f& right, Direction direction, float distance);
-            
+
             /**
              * Modifies the rotation such that the texture is rotated by the given angle (in degrees) in clockwise
              * direction.
              */
             void rotateTexture(float angle);
-            
+
             /**
              * Invalidates the vertex cache.
              */
             inline void invalidateVertexCache() {
                 m_vertexCacheValid = false;
             }
-            
+
             inline const Renderer::FaceVertex::List& cachedVertices() const {
                 if (!m_vertexCacheValid)
                     validateVertexCache();
                 return m_vertexCache;
             }
-            
+
             /**
              * Indicates whether this face is currently selected.
              */
             inline bool selected() const {
                 return m_selected;
             }
-            
+
             /**
              * Specifies whether this face is currently selected. This method should usually only be called by the
              * EditStateManager.
              */
             void setSelected(bool selected);
-            
+
             /**
              * Returns the line of the map file from which this texture was read, if applicable. Returns -1 if this face
              * was not read from a map file.
@@ -408,7 +416,7 @@ namespace TrenchBroom {
             inline size_t filePosition() const {
                 return m_filePosition;
             }
-            
+
             /**
              * Specifies the line of the map file from which this texture was read. This method should usually only be
              * called by the map parser.
@@ -416,7 +424,7 @@ namespace TrenchBroom {
             inline void setFilePosition(size_t filePosition) {
                 m_filePosition = filePosition;
             }
-            
+
             /**
              * Translates this face by the given delta vector.
              */
@@ -426,7 +434,7 @@ namespace TrenchBroom {
              * Rotates this face about the given axis and center.
              */
             void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTexture);
-            
+
             /**
              * Rotates this face by the given rotation and center.
              */
