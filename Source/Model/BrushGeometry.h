@@ -349,15 +349,15 @@ namespace TrenchBroom {
 
             bool canMoveVertices(const BBox& worldBounds, const Vec3f::List& vertexPositions, const Vec3f& delta);
             Vec3f::List moveVertices(const BBox& worldBounds, const Vec3f::List& vertexPositions, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
-            bool canMoveEdges(const BBox& worldBounds, const EdgeList& edges, const Vec3f& delta);
-            EdgeList moveEdges(const BBox& worldBounds, const EdgeList& edges, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
-            bool canMoveFaces(const BBox& worldBounds, const FaceList& faces, const Vec3f& delta);
-            FaceList moveFaces(const BBox& worldBounds, const FaceList& faces, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
+            bool canMoveEdges(const BBox& worldBounds, const EdgeInfoList& edges, const Vec3f& delta);
+            EdgeInfoList moveEdges(const BBox& worldBounds, const EdgeInfoList& edges, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
+            bool canMoveFaces(const BBox& worldBounds, const FaceInfoList& faces, const Vec3f& delta);
+            FaceInfoList moveFaces(const BBox& worldBounds, const FaceInfoList& faces, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
             
-            bool canSplitEdge(const BBox& worldBounds, Edge* edge, const Vec3f& delta);
-            Vec3f splitEdge(const BBox& worldBounds, Edge* edge, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
-            bool canSplitFace(const BBox& worldBounds, Face* face, const Vec3f& delta);
-            Vec3f splitFace(const BBox& worldBounds, Face* face, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
+            bool canSplitEdge(const BBox& worldBounds, const EdgeInfo& edgeInfo, const Vec3f& delta);
+            Vec3f splitEdge(const BBox& worldBounds, const EdgeInfo& edgeInfo, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
+            bool canSplitFace(const BBox& worldBounds, const FaceInfo& faceInfo, const Vec3f& delta);
+            Vec3f splitFace(const BBox& worldBounds, const FaceInfo& faceInfo, const Vec3f& delta, FaceSet& newFaces, FaceSet& droppedFaces);
         };
 
         template <class T>

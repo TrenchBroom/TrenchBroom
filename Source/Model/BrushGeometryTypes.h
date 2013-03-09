@@ -46,6 +46,54 @@ namespace TrenchBroom {
         typedef std::map<Vec3f, Model::BrushList, Vec3f::LexicographicOrder> VertexToBrushesMap;
         typedef std::map<Vec3f, Model::EdgeList, Vec3f::LexicographicOrder> VertexToEdgesMap;
         typedef std::map<Vec3f, Model::FaceList, Vec3f::LexicographicOrder> VertexToFacesMap;
+        
+        struct EdgeInfo {
+            Vec3f start;
+            Vec3f end;
+            
+            EdgeInfo(const Vec3f& i_start, const Vec3f& i_end) :
+            start(i_start),
+            end(i_end) {}
+            
+            inline bool operator==(const EdgeInfo& rhs) const {
+                return (start == rhs.start && end == rhs.end) || (start == rhs.end && end == rhs.start);
+            }
+        };
+            
+        struct FaceInfo {
+            Vec3f::List vertices;
+            
+            inline bool operator==(const FaceInfo& rhs) const {
+                if (vertices.size() != rhs.vertices.size())
+                    return false;
+                
+                size_t count = vertices.size();
+                for (size_t i = 0; i < count; i++) {
+                    bool equal = true;
+                    for (size_t j = 0; j < count && equal; j++) {
+                        equal = vertices[(i + j) % count] == rhs.vertices[j];
+                    }
+                    if (equal)
+                        return true;
+                }
+                return false;
+            }
+            
+            inline FaceInfo& translate(const Vec3f& delta) {
+                for (size_t i = 0; i < vertices.size(); i++)
+                    vertices[i] += delta;
+                return *this;
+            }
+            
+            inline FaceInfo translated() const {
+                FaceInfo result = *this;
+                result.translate();
+                return result;
+            }
+        };
+            
+        typedef std::vector<EdgeInfo> EdgeInfoList;
+        typedef std::vector<FaceInfo> FaceInfoList;
     }
 }
 
