@@ -33,6 +33,7 @@ uniform bool GridCheckerboard;
 varying vec4 modelCoordinates;
 varying vec3 modelNormal;
 varying vec4 faceColor;
+varying vec3 viewVector;
 
 void gridCheckerboardXY() {
     bool evenX = mod(floor(modelCoordinates.x / GridSize), 2) == 0;
@@ -92,10 +93,11 @@ void gridLinesYZ() {
 }
  
 void main() {
-    if (ApplyTexture)
-        gl_FragColor = texture2D(FaceTexture, gl_TexCoord[0].st);
-    else
-        gl_FragColor = faceColor;
+	if (ApplyTexture)
+		gl_FragColor = texture2D(FaceTexture, gl_TexCoord[0].st);
+	else {
+		gl_FragColor = faceColor;
+	}
     
     gl_FragColor = vec4(vec3(Brightness / 2.0 * gl_FragColor), gl_FragColor.a);
     gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
@@ -138,4 +140,23 @@ void main() {
                 gridLinesXY();
         }
     }
+   
+   // angular dimming ( can be controlled with dimStrength )
+   float
+   	dimStrength = 0.25;
+	float
+		angleDim = dot( normalize( -viewVector ), normalize( modelNormal )) * dimStrength + ( 1.0 - dimStrength );
+
+	gl_FragColor.rgb *= angleDim;
+
+	// fog
+	vec3
+		fogColor = vec3( 0.5, 0.5, 0.5 );
+	float
+		maxFogAmount = 0.2,
+		fogBias = 0.0,
+		fogScale = 0.000075;
+
+	//gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, clamp(( gl_FragCoord.z / gl_FragCoord.w ) * fogScale + fogBias, 0.0, maxFogAmount ));
+	gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, clamp( length( viewVector ) * fogScale + fogBias, 0.0, maxFogAmount ));
 }
