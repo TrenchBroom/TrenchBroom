@@ -31,6 +31,7 @@ namespace TrenchBroom {
         protected:
             wxToolBar* m_toolBar;
             wxPanel* m_generalPreferencePane;
+            wxPanel* m_keyboardPreferencePane;
         public:
             PreferencesFrame();
 

@@ -151,8 +151,14 @@ namespace TrenchBroom {
                 static const int Highest                            = Lowest + 99;
             }
 
-            namespace FaceInspector {
+            namespace KeyboardPreferencePane {
                 static const int Lowest                             = GeneralPreferencePane::Highest + 1;
+                static const int ShortcutEditorId                   = Lowest +  1;
+                static const int Highest                            = Lowest + 99;
+            }
+            
+            namespace FaceInspector {
+                static const int Lowest                             = KeyboardPreferencePane::Highest + 1;
                 static const int TextureBrowserSortOrderChoiceId    = Lowest +  1;
                 static const int TextureBrowserGroupButtonId        = Lowest +  2;
                 static const int TextureBrowserUsedButtonId         = Lowest +  3;

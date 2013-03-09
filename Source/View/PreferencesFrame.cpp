@@ -30,6 +30,7 @@
 #include "Utility/String.h"
 #include "View/CommandIds.h"
 #include "View/GeneralPreferencePane.h"
+#include "View/KeyboardPreferencePane.h"
 #include "View/LayoutConstants.h"
 
 namespace TrenchBroom {
@@ -42,7 +43,7 @@ namespace TrenchBroom {
 		END_EVENT_TABLE()
 
         PreferencesFrame::PreferencesFrame() :
-        wxFrame(NULL, wxID_ANY, wxT("Preferences")) {
+        wxFrame(NULL, wxID_ANY, wxT("Preferences"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE & ~wxRESIZE_BORDER) {
             IO::FileManager fileManager;
             String resourcePath = fileManager.resourceDirectory();
             wxBitmap general(fileManager.appendPath(resourcePath, "GeneralPreferences.png"), wxBITMAP_TYPE_PNG);
@@ -55,11 +56,12 @@ namespace TrenchBroom {
             SetToolBar(m_toolBar);
             
             wxPanel* panel = new wxPanel(this);
-            m_generalPreferencePane = new GeneralPreferencePane(panel);
+            // m_generalPreferencePane = new GeneralPreferencePane(panel);
+            m_keyboardPreferencePane = new KeyboardPreferencePane(panel);
 
             wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
 #ifndef __APPLE__
-            innerSizer->Add(m_generalPreferencePane, 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::DialogOuterMargin);
+            innerSizer->Add(m_keyboardPreferencePane, 1, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::DialogOuterMargin);
 
             wxButton* okButton = new wxButton(panel, wxID_OK, wxT("OK"));
             wxButton* cancelButton = new wxButton(panel, wxID_CANCEL, wxT("Cancel"));
@@ -71,9 +73,9 @@ namespace TrenchBroom {
 
             innerSizer->Add(buttonSizer, 0, wxEXPAND | wxALL, LayoutConstants::DialogButtonMargin);
 #else
-            innerSizer->Add(m_generalPreferencePane, 0, wxEXPAND | wxALL, LayoutConstants::DialogOuterMargin);
+            innerSizer->Add(m_keyboardPreferencePane, 1, wxEXPAND | wxALL, LayoutConstants::DialogOuterMargin);
 #endif
-            innerSizer->SetItemMinSize(m_generalPreferencePane, 600, m_generalPreferencePane->GetSize().y);
+            innerSizer->SetItemMinSize(m_keyboardPreferencePane, 600, m_keyboardPreferencePane->GetSize().y);
             panel->SetSizerAndFit(innerSizer);
 
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);

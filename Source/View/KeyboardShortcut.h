@@ -27,53 +27,85 @@
 namespace TrenchBroom {
     namespace View {
         class KeyboardShortcut {
+        public:
+            typedef enum {
+                SCVertexTool    = 1 << 1,
+                SCClipTool      = 1 << 2,
+                SCRotateTool    = 1 << 3,
+                SCObjects       = 1 << 4,
+                SCTextures      = 1 << 5,
+                SCAny           = SCVertexTool | SCClipTool | SCRotateTool | SCObjects | SCTextures
+            } ShortcutContext;
+        
+            inline static String contextName(int context) {
+                if (context == SCAny)
+                    return "Any";
+
+                StringList contexts;
+                if (context & SCVertexTool)
+                    contexts.push_back("Vertex Tool");
+                if (context & SCClipTool)
+                    contexts.push_back("Clip Tool");
+                if (context & SCRotateTool)
+                    contexts.push_back("Rotate Tool");
+                if (context & SCObjects)
+                    contexts.push_back("Objects");
+                if (context & SCTextures)
+                    contexts.push_back("Textures");
+                return Utility::join(contexts, ", ");
+            }
         private:
             int m_commandId;
             int m_modifierKey1;
             int m_modifierKey2;
             int m_modifierKey3;
             int m_key;
+            int m_context;
             String m_text;
         public:
-            KeyboardShortcut(int commandId, const String& text) :
+            KeyboardShortcut(int commandId, int context, const String& text) :
             m_commandId(commandId),
             m_modifierKey1(WXK_NONE),
             m_modifierKey2(WXK_NONE),
             m_modifierKey3(WXK_NONE),
             m_key(WXK_NONE),
+            m_context(context),
             m_text(text) {}
 
-            KeyboardShortcut(int commandId, int key, const String& text) :
+            KeyboardShortcut(int commandId, int key, int context, const String& text) :
             m_commandId(commandId),
             m_modifierKey1(WXK_NONE),
             m_modifierKey2(WXK_NONE),
             m_modifierKey3(WXK_NONE),
             m_key(key),
+            m_context(context),
             m_text(text) {}
 
-            KeyboardShortcut(int commandId, int modifierKey1, int key, const String& text) :
+            KeyboardShortcut(int commandId, int modifierKey1, int key, int context, const String& text) :
             m_commandId(commandId),
             m_modifierKey1(modifierKey1),
             m_modifierKey2(WXK_NONE),
             m_modifierKey3(WXK_NONE),
             m_key(key),
+            m_context(context),
             m_text(text) {}
             
-            KeyboardShortcut(int commandId, int modifierKey1, int modifierKey2, int key, const String& text) :
+            KeyboardShortcut(int commandId, int modifierKey1, int modifierKey2, int key, int context, const String& text) :
             m_commandId(commandId),
             m_modifierKey1(modifierKey1),
             m_modifierKey2(modifierKey2),
             m_modifierKey3(WXK_NONE),
             m_key(key),
+            m_context(context),
             m_text(text) {}
             
-            
-            KeyboardShortcut(int commandId, int modifierKey1, int modifierKey2, int modifierKey3, int key, const String& text) :
+            KeyboardShortcut(int commandId, int modifierKey1, int modifierKey2, int modifierKey3, int key, int context, const String& text) :
             m_commandId(commandId),
             m_modifierKey1(modifierKey1),
             m_modifierKey2(modifierKey2),
             m_modifierKey3(modifierKey3),
             m_key(key),
+            m_context(context),
             m_text(text) {}
             KeyboardShortcut(const String& string) {
                 StringStream stream(string);
@@ -94,6 +126,9 @@ namespace TrenchBroom {
                 stream >> m_key;
                 stream >> colon;
                 assert(colon == ':');
+                stream >> m_context;
+                stream >> colon;
+                assert(colon == ':');
                 m_text = stream.str().substr(static_cast<size_t>(stream.tellg()));
             }
             
@@ -105,8 +140,20 @@ namespace TrenchBroom {
                 return m_modifierKey1;
             }
             
+            inline int modifierKey2() const {
+                return m_modifierKey2;
+            }
+            
+            inline int modifierKey3() const {
+                return m_modifierKey3;
+            }
+            
             inline int key() const {
                 return m_key;
+            }
+            
+            inline int context() const {
+                return m_context;
             }
             
             inline const String& text() const {
@@ -310,8 +357,12 @@ namespace TrenchBroom {
             }
             
             inline String shortcutMenuText() const {
+                const String modifierKeyText = modifierKeyMenuText();
+                if (modifierKeyText.empty())
+                    return keyMenuText();
+                
                 StringStream text;
-                text << modifierKeyMenuText() << "+" << keyMenuText();
+                text << modifierKeyText << "+" << keyMenuText();
                 return text.str();
             }
             
@@ -329,7 +380,7 @@ namespace TrenchBroom {
             
             inline String asString() const {
                 StringStream str;
-                str << m_commandId << ":" << m_modifierKey1 << ":" << m_modifierKey2 << ":" << m_modifierKey3 << ":" << m_key << ":" << m_text;
+                str << m_commandId << ":" << m_modifierKey1 << ":" << m_modifierKey2 << ":" << m_modifierKey3 << ":" << m_key << ":" << m_context << ":" << m_text;
                 return str.str();
             }
         };
