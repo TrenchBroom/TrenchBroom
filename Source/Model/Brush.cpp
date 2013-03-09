@@ -439,15 +439,15 @@ namespace TrenchBroom {
             return newVertexPositions;
         }
 
-        bool Brush::canMoveEdges(const EdgeInfoList& edges, const Vec3f& delta) const {
-            return m_geometry->canMoveEdges(m_worldBounds, edges, delta);
+        bool Brush::canMoveEdges(const EdgeInfoList& edgeInfos, const Vec3f& delta) const {
+            return m_geometry->canMoveEdges(m_worldBounds, edgeInfos, delta);
         }
 
-        EdgeInfoList Brush::moveEdges(const EdgeInfoList& edges, const Vec3f& delta) {
+        EdgeInfoList Brush::moveEdges(const EdgeInfoList& edgeInfos, const Vec3f& delta) {
             FaceSet newFaces;
             FaceSet droppedFaces;
 
-            const EdgeInfoList result = m_geometry->moveEdges(m_worldBounds, edges, delta, newFaces, droppedFaces);
+            const EdgeInfoList result = m_geometry->moveEdges(m_worldBounds, edgeInfos, delta, newFaces, droppedFaces);
 
             for (FaceSet::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
                 Face* face = *it;
@@ -473,15 +473,15 @@ namespace TrenchBroom {
             return result;
         }
 
-        bool Brush::canMoveFaces(const FaceInfoList& faces, const Vec3f& delta) const {
-            return m_geometry->canMoveFaces(m_worldBounds, faces, delta);
+        bool Brush::canMoveFaces(const FaceInfoList& faceInfos, const Vec3f& delta) const {
+            return m_geometry->canMoveFaces(m_worldBounds, faceInfos, delta);
         }
 
-        FaceInfoList Brush::moveFaces(const FaceInfoList& faces, const Vec3f& delta) {
+        FaceInfoList Brush::moveFaces(const FaceInfoList& faceInfos, const Vec3f& delta) {
             FaceSet newFaces;
             FaceSet droppedFaces;
 
-            const FaceInfoList result = m_geometry->moveFaces(m_worldBounds, faces, delta, newFaces, droppedFaces);
+            const FaceInfoList result = m_geometry->moveFaces(m_worldBounds, faceInfos, delta, newFaces, droppedFaces);
 
             for (FaceSet::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
                 Face* face = *it;
@@ -560,7 +560,7 @@ namespace TrenchBroom {
 
             for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
                 Face* keepFace = *it;
-                face->invalidateTexAxes();
+                keepFace->invalidateTexAxes();
                 keepFace->invalidateVertexCache();
             }
 

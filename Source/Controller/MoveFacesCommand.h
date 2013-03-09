@@ -34,14 +34,10 @@ namespace TrenchBroom {
     namespace Controller {
         class MoveFacesCommand : public SnapshotCommand {
         protected:
-            typedef std::map<Model::Brush*, Model::FaceInfoList> BrushFacesMap;
-            typedef std::pair<Model::Brush*, Model::FaceInfoList> BrushFacesMapEntry;
-            typedef std::pair<BrushFacesMap::iterator, bool> BrushFacesMapInsertResult;
-
             Model::BrushList m_brushes;
             Model::FaceInfoList m_originalFaces;
             Model::FaceInfoList m_faces;
-            BrushFacesMap m_brushFaces;
+            Model::BrushFacesMap m_brushFaces;
             Vec3f m_delta;
 
             bool performDo();

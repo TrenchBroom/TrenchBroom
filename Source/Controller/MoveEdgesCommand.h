@@ -33,14 +33,10 @@ namespace TrenchBroom {
     namespace Controller {
         class MoveEdgesCommand : public SnapshotCommand {
         protected:
-            typedef std::map<Model::Brush*, Model::EdgeInfoList> BrushEdgesMap;
-            typedef std::pair<Model::Brush*, Model::EdgeInfoList> BrushEdgesMapEntry;
-            typedef std::pair<BrushEdgesMap::iterator, bool> BrushEdgesMapInsertResult;
-
             Model::BrushList m_brushes;
             Model::EdgeInfoList m_originalEdges;
             Model::EdgeInfoList m_edges;
-            BrushEdgesMap m_brushEdges;
+            Model::BrushEdgesMap m_brushEdges;
             Vec3f m_delta;
 
             bool performDo();

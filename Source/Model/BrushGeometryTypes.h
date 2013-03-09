@@ -54,6 +54,10 @@ namespace TrenchBroom {
             inline bool operator==(const EdgeInfo& rhs) const {
                 return (start == rhs.start && end == rhs.end) || (start == rhs.end && end == rhs.start);
             }
+            
+            inline Vec3f center() const {
+                return (start + end) / 2.0f;
+            }
         };
 
         struct FaceInfo {
@@ -75,6 +79,14 @@ namespace TrenchBroom {
                 return false;
             }
 
+            inline Vec3f center() const {
+                Vec3f center = vertices[0];
+                for (size_t i = 1; i < vertices.size(); i++)
+                    center += vertices[i];
+                center /= static_cast<float>(vertices.size());
+                return center;
+            }
+            
             inline FaceInfo& translate(const Vec3f& delta) {
                 for (size_t i = 0; i < vertices.size(); i++)
                     vertices[i] += delta;
@@ -95,6 +107,13 @@ namespace TrenchBroom {
         typedef std::map<Vec3f, Model::EdgeList, Vec3f::LexicographicOrder> VertexToEdgesMap;
         typedef std::map<Vec3f, Model::FaceList, Vec3f::LexicographicOrder> VertexToFacesMap;
 
+        typedef std::map<Model::Brush*, Model::EdgeInfoList> BrushEdgesMap;
+        typedef std::pair<Model::Brush*, Model::EdgeInfoList> BrushEdgesMapEntry;
+        typedef std::pair<BrushEdgesMap::iterator, bool> BrushEdgesMapInsertResult;
+
+        typedef std::map<Model::Brush*, Model::FaceInfoList> BrushFacesMap;
+        typedef std::pair<Model::Brush*, Model::FaceInfoList> BrushFacesMapEntry;
+        typedef std::pair<BrushFacesMap::iterator, bool> BrushFacesMapInsertResult;
     }
 }
 

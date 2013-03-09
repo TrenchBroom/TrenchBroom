@@ -33,12 +33,12 @@ namespace TrenchBroom {
             makeSnapshots(m_brushes);
             document().brushesWillChange(m_brushes);
 
-            BrushEdgesMap::const_iterator it, end;
+            Model::BrushEdgesMap::const_iterator it, end;
             for (it = m_brushEdges.begin(), end = m_brushEdges.end(); it != end; ++it) {
                 Model::Brush* brush = it->first;
-                const Model::EdgeInfoList& edges = it->second;
-                const Model::EdgeInfoList newEdges = brush->moveEdges(edges, m_delta);
-                m_edges.insert(m_edges.end(), newEdges.begin(), newEdges.end());
+                const Model::EdgeInfoList& edgeInfos = it->second;
+                const Model::EdgeInfoList newEdgeInfos = brush->moveEdges(edgeInfos, m_delta);
+                m_edges.insert(m_edges.end(), newEdgeInfos.begin(), newEdgeInfos.end());
             }
 
             document().brushesDidChange(m_brushes);
@@ -65,7 +65,7 @@ namespace TrenchBroom {
                     Model::Brush* brush = edge->left->face->brush();
                     const Model::EdgeInfo edgeInfo = edge->info();
 
-                    BrushEdgesMapInsertResult result = m_brushEdges.insert(BrushEdgesMapEntry(brush, Model::EdgeInfoList()));
+                    Model::BrushEdgesMapInsertResult result = m_brushEdges.insert(Model::BrushEdgesMapEntry(brush, Model::EdgeInfoList()));
                     if (result.second)
                         m_brushes.push_back(brush);
                     result.first->second.push_back(edgeInfo);
@@ -83,7 +83,7 @@ namespace TrenchBroom {
         }
 
         bool MoveEdgesCommand::canDo() const {
-            BrushEdgesMap::const_iterator it, end;
+            Model::BrushEdgesMap::const_iterator it, end;
             for (it = m_brushEdges.begin(), end = m_brushEdges.end(); it != end; ++it) {
                 Model::Brush* brush = it->first;
                 const Model::EdgeInfoList& edges = it->second;

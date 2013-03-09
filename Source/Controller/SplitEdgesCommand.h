@@ -33,8 +33,12 @@ namespace TrenchBroom {
     namespace Controller {
         class SplitEdgesCommand : public SnapshotCommand {
         protected:
-            Model::EdgeList m_edges;
+            typedef std::map<Model::Brush*, Model::EdgeInfo> BrushEdgeMap;
+            typedef std::pair<Model::Brush*, Model::EdgeInfo> BrushEdgeMapEntry;
+            typedef std::pair<BrushEdgeMap::iterator, bool> BrushEdgeMapInsertResult;
+            
             Model::BrushList m_brushes;
+            BrushEdgeMap m_brushEdges;
             Vec3f::Set m_vertices;
             Vec3f m_delta;
             

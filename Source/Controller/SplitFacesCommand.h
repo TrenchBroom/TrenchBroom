@@ -33,8 +33,12 @@ namespace TrenchBroom {
     namespace Controller {
         class SplitFacesCommand : public SnapshotCommand {
         protected:
-            Model::FaceList m_faces;
+            typedef std::map<Model::Brush*, Model::FaceInfo> BrushFaceMap;
+            typedef std::pair<Model::Brush*, Model::FaceInfo> BrushFaceMapEntry;
+            typedef std::pair<BrushFaceMap::iterator, bool> BrushFaceMapInsertResult;
+            
             Model::BrushList m_brushes;
+            BrushFaceMap m_brushFaces;
             Vec3f::Set m_vertices;
             Vec3f m_delta;
             

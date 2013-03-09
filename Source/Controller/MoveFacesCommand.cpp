@@ -32,11 +32,11 @@ namespace TrenchBroom {
             makeSnapshots(m_brushes);
             document().brushesWillChange(m_brushes);
 
-            BrushFacesMap::const_iterator it, end;
+            Model::BrushFacesMap::const_iterator it, end;
             for (it = m_brushFaces.begin(), end = m_brushFaces.end(); it != end; ++it) {
                 Model::Brush* brush = it->first;
-                const Model::FaceInfoList& faces = it->second;
-                const Model::FaceInfoList newFaces = brush->moveFaces(faces, m_delta);
+                const Model::FaceInfoList& faceInfos = it->second;
+                const Model::FaceInfoList newFaces = brush->moveFaces(faceInfos, m_delta);
                 m_faces.insert(m_faces.end(), newFaces.begin(), newFaces.end());
             }
 
@@ -64,7 +64,7 @@ namespace TrenchBroom {
                     Model::Brush* brush = face->brush();
                     const Model::FaceInfo faceInfo = face->faceInfo();
 
-                    BrushFacesMapInsertResult result = m_brushFaces.insert(BrushFacesMapEntry(brush, Model::FaceInfoList()));
+                    Model::BrushFacesMapInsertResult result = m_brushFaces.insert(Model::BrushFacesMapEntry(brush, Model::FaceInfoList()));
                     if (result.second)
                         m_brushes.push_back(brush);
                     result.first->second.push_back(faceInfo);
@@ -82,7 +82,7 @@ namespace TrenchBroom {
         }
 
         bool MoveFacesCommand::canDo() const {
-            BrushFacesMap::const_iterator it, end;
+            Model::BrushFacesMap::const_iterator it, end;
             for (it = m_brushFaces.begin(), end = m_brushFaces.end(); it != end; ++it) {
                 Model::Brush* brush = it->first;
                 const Model::FaceInfoList& faces = it->second;

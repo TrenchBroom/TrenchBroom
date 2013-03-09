@@ -157,15 +157,15 @@ namespace TrenchBroom {
 
             bool canMoveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta) const;
             Vec3f::List moveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta);
-            bool canMoveEdges(const EdgeInfoList& edges, const Vec3f& delta) const;
-            EdgeInfoList moveEdges(const EdgeInfoList& edges, const Vec3f& delta);
-            bool canMoveFaces(const FaceInfoList& faces, const Vec3f& delta) const;
-            FaceInfoList moveFaces(const FaceInfoList& faces, const Vec3f& delta);
+            bool canMoveEdges(const EdgeInfoList& edgeInfos, const Vec3f& delta) const;
+            EdgeInfoList moveEdges(const EdgeInfoList& edgeInfos, const Vec3f& delta);
+            bool canMoveFaces(const FaceInfoList& faceInfos, const Vec3f& delta) const;
+            FaceInfoList moveFaces(const FaceInfoList& faceInfos, const Vec3f& delta);
 
-            bool canSplitEdge(const EdgeInfo& edge, const Vec3f& delta) const;
-            Vec3f splitEdge(const EdgeInfo& edge, const Vec3f& delta);
-            bool canSplitFace(const FaceInfo& face, const Vec3f& delta) const;
-            Vec3f splitFace(const FaceInfo& face, const Vec3f& delta);
+            bool canSplitEdge(const EdgeInfo& edgeInfo, const Vec3f& delta) const;
+            Vec3f splitEdge(const EdgeInfo& edgeInfo, const Vec3f& delta);
+            bool canSplitFace(const FaceInfo& faceInfo, const Vec3f& delta) const;
+            Vec3f splitFace(const FaceInfo& faceInfo, const Vec3f& delta);
 
             void pick(const Ray& ray, PickResult& pickResults);
             bool containsPoint(const Vec3f point) const;
