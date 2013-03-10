@@ -463,10 +463,14 @@
 		<Unit filename="../Source/View/FaceInspector.h" />
 		<Unit filename="../Source/View/FlashSelectionAnimation.cpp" />
 		<Unit filename="../Source/View/FlashSelectionAnimation.h" />
+		<Unit filename="../Source/View/GeneralPreferencePane.cpp" />
+		<Unit filename="../Source/View/GeneralPreferencePane.h" />
 		<Unit filename="../Source/View/GenericDropSource.cpp" />
 		<Unit filename="../Source/View/GenericDropSource.h" />
 		<Unit filename="../Source/View/Inspector.cpp" />
 		<Unit filename="../Source/View/Inspector.h" />
+		<Unit filename="../Source/View/KeyboardPreferencePane.cpp" />
+		<Unit filename="../Source/View/KeyboardPreferencePane.h" />
 		<Unit filename="../Source/View/LayoutConstants.h" />
 		<Unit filename="../Source/View/MapGLCanvas.cpp" />
 		<Unit filename="../Source/View/MapGLCanvas.h" />
@@ -474,8 +478,8 @@
 		<Unit filename="../Source/View/MapPropertiesDialog.h" />
 		<Unit filename="../Source/View/PathDialog.cpp" />
 		<Unit filename="../Source/View/PathDialog.h" />
-		<Unit filename="../Source/View/PreferencesDialog.cpp" />
-		<Unit filename="../Source/View/PreferencesDialog.h" />
+		<Unit filename="../Source/View/PreferencesFrame.cpp" />
+		<Unit filename="../Source/View/PreferencesFrame.h" />
 		<Unit filename="../Source/View/ProgressIndicatorDialog.cpp" />
 		<Unit filename="../Source/View/ProgressIndicatorDialog.h" />
 		<Unit filename="../Source/View/ScreenDC.h" />

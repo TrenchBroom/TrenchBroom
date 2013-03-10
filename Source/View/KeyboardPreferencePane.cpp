@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -36,7 +36,7 @@ namespace TrenchBroom {
                 GetView()->ProcessTableMessage(message);
             }
         }
-        
+
         void KeyboardGridTable::notifyRowsInserted(size_t pos, size_t numRows) {
             if (GetView() != NULL) {
                 wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_INSERTED,
@@ -45,7 +45,7 @@ namespace TrenchBroom {
                 GetView()->ProcessTableMessage(message);
             }
         }
-        
+
         void KeyboardGridTable::notifyRowsAppended(size_t numRows) {
             if (GetView() != NULL) {
                 wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_APPENDED,
@@ -53,7 +53,7 @@ namespace TrenchBroom {
                 GetView()->ProcessTableMessage(message);
             }
         }
-        
+
         void KeyboardGridTable::notifyRowsDeleted(size_t pos, size_t numRows) {
             if (GetView() != NULL) {
                 wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_DELETED,
@@ -62,21 +62,21 @@ namespace TrenchBroom {
                 GetView()->ProcessTableMessage(message);
             }
         }
-        
+
         int KeyboardGridTable::GetNumberRows() {
             return static_cast<int>(m_entries.size());
         }
-        
+
         int KeyboardGridTable::GetNumberCols() {
             return 3;
         }
-        
+
         wxString KeyboardGridTable::GetValue(int row, int col) {
             assert(row >= 0 && row < GetNumberRows());
             assert(col >= 0 && col < GetNumberCols());
-            
+
             size_t rowIndex = static_cast<size_t>(row);
-            
+
             switch (col) {
                 case 0:
                     return m_entries[rowIndex].shortcut().text();
@@ -89,30 +89,30 @@ namespace TrenchBroom {
                     break;
             }
         }
-        
+
         void KeyboardGridTable::SetValue(int row, int col, const wxString& value) {
             assert(row >= 0 && row < GetNumberRows());
             assert(col == 2);
-            
+
             // TODO: implement
         }
-        
+
         void KeyboardGridTable::Clear() {
             assert(false);
         }
-        
+
         bool KeyboardGridTable::InsertRows(size_t pos, size_t numRows) {
             assert(false);
         }
-        
+
         bool KeyboardGridTable::AppendRows(size_t numRows) {
             assert(false);
         }
-        
+
         bool KeyboardGridTable::DeleteRows(size_t pos, size_t numRows) {
             assert(false);
         }
-        
+
         wxString KeyboardGridTable::GetColLabelValue(int col) {
             assert(col >= 0 && col < GetNumberCols());
             switch (col) {
@@ -127,7 +127,7 @@ namespace TrenchBroom {
                     break;
             }
         }
-        
+
         wxGridCellAttr* KeyboardGridTable::GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind) {
             wxGridCellAttr* attr = wxGridTableBase::GetAttr(row, col, kind);
             if (row >= 0 && row < GetNumberRows()) {
@@ -244,7 +244,7 @@ namespace TrenchBroom {
             newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewCameraMoveToNextPoint)));
             newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewCameraMoveToPreviousPoint)));
             newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewCameraCenterCameraOnSelection)));
-            
+
             size_t oldSize = m_entries.size();
             m_entries = newEntries;
 
@@ -267,7 +267,7 @@ namespace TrenchBroom {
             m_grid->UseNativeColHeader();
             m_grid->SetDefaultCellBackgroundColour(*wxWHITE);
             m_grid->HideRowLabels();
-            
+
             m_grid->DisableColResize(0);
             m_grid->DisableColResize(1);
             m_grid->DisableDragColMove();
@@ -275,12 +275,14 @@ namespace TrenchBroom {
             m_grid->DisableDragColSize();
             m_grid->DisableDragGridSize();
             m_grid->DisableDragRowSize();
-            
+
             m_table->update();
+            m_grid->AutoSize();
 
             wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
             innerSizer->Add(m_grid, 1, wxEXPAND);
-            SetSizer(innerSizer);
+            innerSizer->SetItemMinSize(m_grid, wxDefaultSize.x, 500);
+            SetSizerAndFit(innerSizer);
         }
     }
 }
