@@ -1334,6 +1334,7 @@ namespace TrenchBroom {
             Utility::deleteAll(vertices);
 
             size_t vertexCount, edgeCount, sideCount;
+            vertexCount = edgeCount = sideCount = 0;
 
             buffer >> vertexCount;
             buffer >> edgeCount;
@@ -1346,6 +1347,8 @@ namespace TrenchBroom {
 
             for (size_t i = 0; i < vertexCount; i++) {
                 float x, y, z;
+                x = y = z = 0.0f;
+
                 buffer >> x;
                 buffer >> y;
                 buffer >> z;
@@ -1354,6 +1357,8 @@ namespace TrenchBroom {
 
             for (size_t i = 0; i < edgeCount; i++) {
                 size_t startIndex, endIndex, leftIndex, rightIndex;
+                startIndex = endIndex = leftIndex = rightIndex = 0;
+
                 buffer >> startIndex;
                 buffer >> endIndex;
                 buffer >> leftIndex;
@@ -1374,10 +1379,12 @@ namespace TrenchBroom {
                     buffer >> points[j].z;
                 }
 
-                size_t sideEdgeCount;
+                size_t sideEdgeCount = 0;
                 buffer >> sideEdgeCount;
                 for (size_t j = 0; j < sideEdgeCount; j++) {
                     size_t vertexIndex, edgeIndex;
+                    vertexIndex = edgeIndex = 0;
+
                     buffer >> vertexIndex;
                     buffer >> edgeIndex;
 
