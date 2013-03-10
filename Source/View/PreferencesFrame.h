@@ -24,17 +24,26 @@
 
 class wxPanel;
 class wxToolBar;
+class wxToolBarToolBase;
 
 namespace TrenchBroom {
     namespace View {
         class PreferencesFrame : public wxFrame {
         protected:
+            typedef enum {
+                PPGeneral,
+                PPKeyboard
+                // Update the tool event macro when adding new tools!
+            } PrefPane;
+            
             wxToolBar* m_toolBar;
-            wxPanel* m_generalPreferencePane;
-            wxPanel* m_keyboardPreferencePane;
+            wxPanel* m_panel;
+            
+            void switchToPane(PrefPane pane);
         public:
             PreferencesFrame();
 
+            void OnToolClicked(wxCommandEvent& event);
             void OnOkClicked(wxCommandEvent& event);
 			void OnCancelClicked(wxCommandEvent& event);
 			void OnClose(wxCloseEvent& event);

@@ -25,6 +25,8 @@
 
 #include <wx/wx.h>
 
+#include <cassert>
+
 class wxCommandEvent;
 class wxDocManager;
 class wxEvtHandler;
@@ -37,12 +39,14 @@ class DocManager;
 namespace TrenchBroom {
     namespace View {
         class KeyboardShortcut;
+        class PreferencesFrame;
     }
 }
 
 class AbstractApp : public wxApp {
 protected:
 	DocManager* m_docManager;
+    TrenchBroom::View::PreferencesFrame* m_preferencesFrame;
     wxExtHelpController* m_helpController;
 
     void appendItem(wxMenu* menu, const TrenchBroom::Preferences::Preference<TrenchBroom::View::KeyboardShortcut>& pref, bool mapViewFocused);
@@ -53,6 +57,11 @@ protected:
     virtual wxMenu* CreateViewMenu(wxEvtHandler* eventHandler, bool mapViewFocused);
     virtual wxMenu* CreateHelpMenu(wxEvtHandler* eventHandler, bool mapViewFocused);
 public:
+    inline void setPreferencesFrame(TrenchBroom::View::PreferencesFrame* preferencesFrame) {
+        assert(m_preferencesFrame == NULL || preferencesFrame == NULL);
+        m_preferencesFrame = preferencesFrame;
+    }
+    
     virtual wxMenuBar* CreateMenuBar(wxEvtHandler* eventHandler, wxMenu* actionMenu, bool mapViewFocused);
     void DetachFileHistoryMenu(wxMenuBar* menuBar);
     virtual wxMenu* CreateTextureActionMenu(bool mapViewFocused);

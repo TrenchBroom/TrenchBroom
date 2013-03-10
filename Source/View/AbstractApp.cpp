@@ -315,6 +315,8 @@ void AbstractApp::UpdateAllViews(wxView* sender, wxObject* hint) {
 }
 
 bool AbstractApp::OnInit() {
+    m_preferencesFrame = NULL;
+    
     // initialize globals
     TrenchBroom::IO::PakManager::sharedManager = new TrenchBroom::IO::PakManager();
     TrenchBroom::Model::AliasManager::sharedManager = new TrenchBroom::Model::AliasManager();
@@ -383,6 +385,8 @@ void AbstractApp::OnOpenAbout(wxCommandEvent& event) {
 }
 
 void AbstractApp::OnOpenPreferences(wxCommandEvent& event) {
+    if (m_preferencesFrame != NULL)
+        return;
     TrenchBroom::View::PreferencesFrame* frame = new TrenchBroom::View::PreferencesFrame();
     frame->CenterOnScreen();
     frame->Show();
@@ -396,10 +400,10 @@ void AbstractApp::OnHelpShowHelp(wxCommandEvent& event) {
 
 void AbstractApp::OnUpdateMenuItem(wxUpdateUIEvent& event) {
     if (event.GetId() == wxID_ABOUT ||
-        event.GetId() == wxID_PREFERENCES ||
         event.GetId() == TrenchBroom::View::CommandIds::Menu::HelpShowHelp)
         event.Enable(true);
-    else
+    else if (event.GetId() == wxID_PREFERENCES)
+        event.Enable(m_preferencesFrame == NULL);
         event.Enable(false);
     if (GetTopWindow() != NULL)
         event.Skip();

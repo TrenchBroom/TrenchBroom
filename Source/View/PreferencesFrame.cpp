@@ -36,51 +36,74 @@
 namespace TrenchBroom {
     namespace View {
         BEGIN_EVENT_TABLE(PreferencesFrame, wxFrame)
+        EVT_TOOL_RANGE(PPGeneral, PPKeyboard, PreferencesFrame::OnToolClicked)
         EVT_BUTTON(wxID_OK, PreferencesFrame::OnOkClicked)
         EVT_BUTTON(wxID_CANCEL, PreferencesFrame::OnCancelClicked)
 		EVT_CLOSE(PreferencesFrame::OnClose)
         EVT_MENU(wxID_CLOSE, PreferencesFrame::OnFileExit)
 		END_EVENT_TABLE()
 
+        void PreferencesFrame::switchToPane(PrefPane pane) {
+            if (m_panel != NULL) {
+                m_panel->Destroy();
+                m_panel = NULL;
+            }
+
+            m_panel = new wxPanel(this);
+
+            m_toolBar->ToggleTool(PPGeneral, pane == PPGeneral);
+            m_toolBar->ToggleTool(PPKeyboard, pane == PPKeyboard);
+            
+            wxPanel* currentPane = NULL;
+            switch (pane) {
+                case PPKeyboard:
+                    currentPane = new KeyboardPreferencePane(m_panel);
+                    break;
+                default:
+                    currentPane = new GeneralPreferencePane(m_panel);
+                    break;
+            }
+            
+            wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
+#ifndef __APPLE__
+            innerSizer->Add(currentPane, 1, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::DialogOuterMargin);
+            
+            wxButton* okButton = new wxButton(m_panel, wxID_OK, wxT("OK"));
+            wxButton* cancelButton = new wxButton(m_panel, wxID_CANCEL, wxT("Cancel"));
+            
+            wxStdDialogButtonSizer* buttonSizer = new wxStdDialogButtonSizer();
+            buttonSizer->SetAffirmativeButton(okButton);
+            buttonSizer->SetCancelButton(cancelButton);
+            buttonSizer->Realize();
+            
+            innerSizer->Add(buttonSizer, 0, wxEXPAND | wxALL, LayoutConstants::DialogButtonMargin);
+#else
+            innerSizer->Add(currentPane, 1, wxEXPAND | wxALL, LayoutConstants::DialogOuterMargin);
+#endif
+            innerSizer->SetItemMinSize(currentPane, 600, currentPane->GetSize().y);
+            m_panel->SetSizerAndFit(innerSizer);
+            
+            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            outerSizer->Add(m_panel, 1, wxEXPAND);
+            SetSizerAndFit(outerSizer);
+        }
+        
         PreferencesFrame::PreferencesFrame() :
-        wxFrame(NULL, wxID_ANY, wxT("Preferences"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE & ~wxRESIZE_BORDER) {
+        wxFrame(NULL, wxID_ANY, wxT("Preferences"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE & ~wxRESIZE_BORDER),
+        m_toolBar(NULL),
+        m_panel(NULL) {
             IO::FileManager fileManager;
             String resourcePath = fileManager.resourceDirectory();
             wxBitmap general(fileManager.appendPath(resourcePath, "GeneralPreferences.png"), wxBITMAP_TYPE_PNG);
             wxBitmap keyboard(fileManager.appendPath(resourcePath, "KeyboardPreferences.png"), wxBITMAP_TYPE_PNG);
 
             m_toolBar = CreateToolBar(wxTB_TEXT);
-            m_toolBar->AddCheckTool(1, wxT("General"), general, wxNullBitmap);
-            m_toolBar->AddCheckTool(2, wxT("Keyboard"), keyboard, wxNullBitmap);
+            m_toolBar->AddCheckTool(PPGeneral, wxT("General"), general, wxNullBitmap);
+            m_toolBar->AddCheckTool(PPKeyboard, wxT("Keyboard"), keyboard, wxNullBitmap);
             m_toolBar->Realize();
             SetToolBar(m_toolBar);
             
-            wxPanel* panel = new wxPanel(this);
-            // m_generalPreferencePane = new GeneralPreferencePane(panel);
-            m_keyboardPreferencePane = new KeyboardPreferencePane(panel);
-
-            wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
-#ifndef __APPLE__
-            innerSizer->Add(m_keyboardPreferencePane, 1, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::DialogOuterMargin);
-
-            wxButton* okButton = new wxButton(panel, wxID_OK, wxT("OK"));
-            wxButton* cancelButton = new wxButton(panel, wxID_CANCEL, wxT("Cancel"));
-
-            wxStdDialogButtonSizer* buttonSizer = new wxStdDialogButtonSizer();
-            buttonSizer->SetAffirmativeButton(okButton);
-            buttonSizer->SetCancelButton(cancelButton);
-            buttonSizer->Realize();
-
-            innerSizer->Add(buttonSizer, 0, wxEXPAND | wxALL, LayoutConstants::DialogButtonMargin);
-#else
-            innerSizer->Add(m_keyboardPreferencePane, 1, wxEXPAND | wxALL, LayoutConstants::DialogOuterMargin);
-#endif
-            innerSizer->SetItemMinSize(m_keyboardPreferencePane, 600, m_keyboardPreferencePane->GetSize().y);
-            panel->SetSizerAndFit(innerSizer);
-
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(panel, 1, wxEXPAND);
-            SetSizerAndFit(outerSizer);
+            switchToPane(PPGeneral);
 
 #ifdef __APPLE__
             // allow the dialog to be closed using CMD+W
@@ -89,6 +112,12 @@ namespace TrenchBroom {
             wxAcceleratorTable accceleratorTable(4, acceleratorEntries);
             SetAcceleratorTable(accceleratorTable);
 #endif
+            
+            static_cast<AbstractApp*>(wxTheApp)->setPreferencesFrame(this);
+        }
+
+        void PreferencesFrame::OnToolClicked(wxCommandEvent& event) {
+            switchToPane(static_cast<PrefPane>(event.GetId()));
         }
 
         void PreferencesFrame::OnOkClicked(wxCommandEvent& event) {
@@ -114,6 +143,7 @@ namespace TrenchBroom {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 			prefs.discardChanges();
 #endif
+            static_cast<AbstractApp*>(wxTheApp)->setPreferencesFrame(NULL);
             event.Skip();
 		}
 

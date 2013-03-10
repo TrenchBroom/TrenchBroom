@@ -21,8 +21,11 @@
 
 #include "Utility/Preferences.h"
 #include "View/CommandIds.h"
+#include "View/LayoutConstants.h"
 
 #include <wx/sizer.h>
+#include <wx/statbox.h>
+#include <wx/stattext.h>
 
 #include <cassert>
 
@@ -88,6 +91,8 @@ namespace TrenchBroom {
                     assert(false);
                     break;
             }
+
+            return wxT("");
         }
 
         void KeyboardGridTable::SetValue(int row, int col, const wxString& value) {
@@ -103,14 +108,17 @@ namespace TrenchBroom {
 
         bool KeyboardGridTable::InsertRows(size_t pos, size_t numRows) {
             assert(false);
+            return false;
         }
 
         bool KeyboardGridTable::AppendRows(size_t numRows) {
             assert(false);
+            return false;
         }
 
         bool KeyboardGridTable::DeleteRows(size_t pos, size_t numRows) {
             assert(false);
+            return false;
         }
 
         wxString KeyboardGridTable::GetColLabelValue(int col) {
@@ -126,6 +134,8 @@ namespace TrenchBroom {
                     assert(false);
                     break;
             }
+
+            return wxT("");
         }
 
         wxGridCellAttr* KeyboardGridTable::GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind) {
@@ -137,11 +147,16 @@ namespace TrenchBroom {
                         attr = new wxGridCellAttr();
                     attr->SetTextColour(*wxRED);
                 }
+                if (col < 2) {
+                    if (attr == NULL)
+                        attr = new wxGridCellAttr();
+                    attr->SetReadOnly(true);
+                }
             }
             return attr;
         }
 
-        void KeyboardGridTable::update() {
+        bool KeyboardGridTable::update() {
             using namespace TrenchBroom::Preferences;
             PreferenceManager& prefs = PreferenceManager::preferences();
 
@@ -245,6 +260,22 @@ namespace TrenchBroom {
             newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewCameraMoveToPreviousPoint)));
             newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewCameraCenterCameraOnSelection)));
 
+            // mark duplicates
+            bool hasDuplicates = false;
+            for (size_t i = 0; i < newEntries.size(); i++) {
+                Entry& first = newEntries[i];
+                if (first.shortcut().key() != WXK_NONE) {
+                    for (size_t j = i + 1; j < newEntries.size(); j++) {
+                        Entry& second = newEntries[j];
+                        if (first.isDuplicateOf(second)) {
+                            first.setDuplicate(true);
+                            second.setDuplicate(true);
+                            hasDuplicates = true;
+                        }
+                    }
+                }
+            }
+            
             size_t oldSize = m_entries.size();
             m_entries = newEntries;
 
@@ -253,21 +284,33 @@ namespace TrenchBroom {
                 notifyRowsAppended(m_entries.size() - oldSize);
             else if (oldSize > m_entries.size())
                 notifyRowsDeleted(oldSize, oldSize - m_entries.size());
+            
+            return hasDuplicates;
         }
 
         KeyboardPreferencePane::KeyboardPreferencePane(wxWindow* parent) :
         wxPanel(parent),
         m_grid(NULL),
         m_table(NULL) {
+            wxStaticBox* box = new wxStaticBox(this, wxID_ANY, wxT("Keyboard Shortcuts"));
+            wxStaticText* infoText = new wxStaticText(box, wxID_ANY, wxT("Click twice on a key combination to edit the shortcut."));
+#if defined __APPLE__
+            infoText->SetFont(*wxSMALL_FONT);
+#endif
+            
             m_table = new KeyboardGridTable();
-            m_grid = new wxGrid(this, CommandIds::KeyboardPreferencePane::ShortcutEditorId, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
+            m_grid = new wxGrid(box, CommandIds::KeyboardPreferencePane::ShortcutEditorId, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
+            m_grid->Bind(wxEVT_SIZE, &KeyboardPreferencePane::OnGridSize, this);
 
             m_grid->SetTable(m_table, true, wxGrid::wxGridSelectRows);
             m_grid->SetUseNativeColLabels();
             m_grid->UseNativeColHeader();
             m_grid->SetDefaultCellBackgroundColour(*wxWHITE);
             m_grid->HideRowLabels();
-
+            m_grid->SetCellHighlightPenWidth(0);
+            m_grid->SetCellHighlightROPenWidth(0);
+//            m_grid->EnableEditing(false);
+            
             m_grid->DisableColResize(0);
             m_grid->DisableColResize(1);
             m_grid->DisableDragColMove();
@@ -280,9 +323,25 @@ namespace TrenchBroom {
             m_grid->AutoSize();
 
             wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
-            innerSizer->Add(m_grid, 1, wxEXPAND);
-            innerSizer->SetItemMinSize(m_grid, wxDefaultSize.x, 500);
-            SetSizerAndFit(innerSizer);
+            innerSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
+            innerSizer->Add(infoText, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
+            innerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            innerSizer->Add(m_grid, 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
+            innerSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
+            box->SetSizer(innerSizer);
+            
+            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            outerSizer->Add(box, 1, wxEXPAND);
+            outerSizer->SetItemMinSize(box, wxDefaultSize.x, 500);
+            SetSizerAndFit(outerSizer);
+        }
+
+        void KeyboardPreferencePane::OnGridSize(wxSizeEvent& event) {
+            int width = m_grid->GetClientSize().x;
+            m_grid->SetColSize(0, width / 3);
+            m_grid->SetColSize(1, width / 3);
+            m_grid->SetColSize(2, width - m_grid->GetColSize(0) - m_grid->GetColSize(1));
+            event.Skip();
         }
     }
 }
