@@ -53,14 +53,8 @@ namespace TrenchBroom {
                 }
                 
                 // try to correct the vertices just like QBSP does
-                if (brush != NULL) {
-                    const Model::VertexList& vertices = brush->vertices();
-                    Model::VertexList::const_iterator vertexIt, vertexEnd;
-                    for (vertexIt = vertices.begin(), vertexEnd = vertices.end(); vertexIt != vertexEnd; ++vertexIt) {
-                        Model::Vertex& vertex = **vertexIt;
-                        vertex.position.correct();
-                    }
-                }
+                // if (brush != NULL)
+                  // brush->correct(0.025f);
                 
                 return brush;
             }

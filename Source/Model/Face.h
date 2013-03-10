@@ -195,7 +195,7 @@ namespace TrenchBroom {
             /**
              * Returns the boundary point with the given index (zero based).
              */
-            inline const Vec3f& point(unsigned int index) const {
+            inline const Vec3f& point(size_t index) const {
                 assert(index < 3);
                 return m_points[index];
             }

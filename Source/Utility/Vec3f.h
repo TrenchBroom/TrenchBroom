@@ -132,6 +132,7 @@ namespace TrenchBroom {
             
             inline bool operator== (const Vec3f& right) const {
                 return x == right.x && y == right.y && z == right.z;
+                // return Math::relEq(x, right.x, 0.0001f) && Math::relEq(y, right.y, 0.0001f) && Math::relEq(z, right.z, 0.0001f);
             }
             
             inline bool operator!= (const Vec3f& right) const {
