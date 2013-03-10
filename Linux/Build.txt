@@ -3,7 +3,7 @@ Build environment
 1. Dependencies
 Compiling wxWidgets 2.9 requires the following dependencies. You should install them using the packager of your Linux distribution.
 - g++ GNU c++ compiler
-- GTK2 and development packages: libgtk2.0-dev
+- GTK2 and development packages: libgtk2.0-dev (GTK3 will NOT work)
 - OpenGL and GLU development headers (Mesa OpenGL development packages)
   freeglut3, freeglut3-dev, mesa-common-dev
 - X11 video mode extension library: libxxf86vm-dev
@@ -17,11 +17,11 @@ http://www.wikihow.com/Install-Mesa-%28OpenGL%29-on-Linux-Mint
 - Create two directories: build-release and build-debug (don't rename those!)
 - Change into wxwidgets/build-release
 - Run 
-  ../configure --disable-shared --with-opengl
+  ../configure --disable-shared --with-opengl --with-gtk=2
 - Run make (don't run make install!)
 - Change into wxwidgets/build-debug
 - Run 
-  ../configure --enable-debug --disable-shared --with-opengl
+  ../configure --enable-debug --disable-shared --with-opengl --with-gtk=2
 - Run make (don't run make install!)
 
 3. Code::Blocks
