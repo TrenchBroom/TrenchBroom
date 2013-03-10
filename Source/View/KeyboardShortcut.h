@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -23,6 +23,8 @@
 #include "Utility/String.h"
 
 #include <cassert>
+
+#include <wx/defs.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -36,7 +38,7 @@ namespace TrenchBroom {
                 SCTextures      = 1 << 5,
                 SCAny           = SCVertexTool | SCClipTool | SCRotateTool | SCObjects | SCTextures
             } ShortcutContext;
-        
+
             inline static String contextName(int context) {
                 if (context == SCAny)
                     return "Any";
@@ -89,7 +91,7 @@ namespace TrenchBroom {
             m_key(key),
             m_context(context),
             m_text(text) {}
-            
+
             KeyboardShortcut(int commandId, int modifierKey1, int modifierKey2, int key, int context, const String& text) :
             m_commandId(commandId),
             m_modifierKey1(modifierKey1),
@@ -98,7 +100,7 @@ namespace TrenchBroom {
             m_key(key),
             m_context(context),
             m_text(text) {}
-            
+
             KeyboardShortcut(int commandId, int modifierKey1, int modifierKey2, int modifierKey3, int key, int context, const String& text) :
             m_commandId(commandId),
             m_modifierKey1(modifierKey1),
@@ -109,7 +111,7 @@ namespace TrenchBroom {
             m_text(text) {}
             KeyboardShortcut(const String& string) {
                 StringStream stream(string);
-                
+
                 char colon;
                 stream >> m_commandId;
                 stream >> colon;
@@ -131,35 +133,35 @@ namespace TrenchBroom {
                 assert(colon == ':');
                 m_text = stream.str().substr(static_cast<size_t>(stream.tellg()));
             }
-            
+
             inline int commandId() const {
                 return m_commandId;
             }
-            
+
             inline int modifierKey1() const {
                 return m_modifierKey1;
             }
-            
+
             inline int modifierKey2() const {
                 return m_modifierKey2;
             }
-            
+
             inline int modifierKey3() const {
                 return m_modifierKey3;
             }
-            
+
             inline int key() const {
                 return m_key;
             }
-            
+
             inline int context() const {
                 return m_context;
             }
-            
+
             inline const String& text() const {
                 return m_text;
             }
-            
+
             inline bool alwaysShowModifier() const {
                 switch (m_key) {
                     case WXK_BACK:
@@ -207,11 +209,11 @@ namespace TrenchBroom {
                         return hasModifier();
                 }
             }
-            
+
             inline bool hasModifier() const {
                 return m_modifierKey1 != WXK_NONE || m_modifierKey2 != WXK_NONE || m_modifierKey3 != WXK_NONE;
             }
-            
+
             inline String modifierKeyMenuText() const {
                 StringStream stream;
                 switch (m_modifierKey1) {
@@ -227,10 +229,10 @@ namespace TrenchBroom {
                     default:
                         break;
                 }
-                
+
                 if (m_modifierKey1 != WXK_NONE && m_modifierKey2 != WXK_NONE)
                     stream << "+";
-                
+
                 switch (m_modifierKey2) {
                     case WXK_SHIFT:
                         stream << "Shift";
@@ -244,10 +246,10 @@ namespace TrenchBroom {
                     default:
                         break;
                 }
-                
+
                 if ((m_modifierKey1 != WXK_NONE || m_modifierKey2 != WXK_NONE) && m_modifierKey3 != WXK_NONE)
                     stream << "+";
-                
+
                 switch (m_modifierKey3) {
                     case WXK_SHIFT:
                         stream << "Shift";
@@ -261,10 +263,10 @@ namespace TrenchBroom {
                     default:
                         break;
                 }
-                
+
                 return stream.str();
             }
-            
+
             inline String keyMenuText() const {
                 switch (m_key) {
                     case WXK_BACK:
@@ -355,21 +357,21 @@ namespace TrenchBroom {
                         break;
                 }
             }
-            
+
             inline String shortcutMenuText() const {
                 const String modifierKeyText = modifierKeyMenuText();
                 if (modifierKeyText.empty())
                     return keyMenuText();
-                
+
                 StringStream text;
                 text << modifierKeyText << "+" << keyMenuText();
                 return text.str();
             }
-            
+
             inline String menuText() const {
                 if (m_key == WXK_NONE)
                     return m_text;
-                
+
                 StringStream text;
                 text << m_text << "\t";
                 if (hasModifier())
@@ -377,7 +379,7 @@ namespace TrenchBroom {
                 text << keyMenuText();
                 return text.str();
             }
-            
+
             inline String asString() const {
                 StringStream str;
                 str << m_commandId << ":" << m_modifierKey1 << ":" << m_modifierKey2 << ":" << m_modifierKey3 << ":" << m_key << ":" << m_context << ":" << m_text;
