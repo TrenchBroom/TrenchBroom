@@ -54,29 +54,22 @@ namespace TrenchBroom {
                     m_duplicate = duplicate;
                 }
                 
-                inline bool operator<(const Entry& rhs) const {
-                    if (m_shortcut->modifierKey1() < rhs.m_shortcut->modifierKey1())
-                        return true;
-                    if (m_shortcut->modifierKey1() > rhs.m_shortcut->modifierKey1())
+                inline bool isDuplicateOf(const Entry& entry) const {
+                    if (m_shortcut->modifierKey1() != entry.m_shortcut->modifierKey1())
                         return false;
-
-                    if (m_shortcut->modifierKey2() < rhs.m_shortcut->modifierKey2())
-                        return true;
-                    if (m_shortcut->modifierKey2() > rhs.m_shortcut->modifierKey2())
+                    if (m_shortcut->modifierKey2() != entry.m_shortcut->modifierKey2())
                         return false;
-
-                    if (m_shortcut->modifierKey3() < rhs.m_shortcut->modifierKey3())
-                        return true;
-                    if (m_shortcut->modifierKey1() > rhs.m_shortcut->modifierKey3())
+                    if (m_shortcut->modifierKey3() != entry.m_shortcut->modifierKey3())
+                        return false;
+                    if (m_shortcut->key() != entry.m_shortcut->key())
                         return false;
                     
-                    if (m_shortcut->key() < rhs.m_shortcut->key())
-                        return true;
-                    return false;
+                    if ((m_shortcut->context() & entry.m_shortcut->context()) == 0)
+                        return false;
+                    return true;
                 }
             };
         
-            typedef std::set<Entry> EntrySet;
             typedef std::vector<Entry> EntryList;
         
             EntryList m_entries;
@@ -100,7 +93,7 @@ namespace TrenchBroom {
             wxString GetColLabelValue(int col);
             wxGridCellAttr* GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind);
         
-            void update();
+            bool update();
         };
 
         class KeyboardPreferencePane : public wxPanel {
@@ -109,6 +102,8 @@ namespace TrenchBroom {
             KeyboardGridTable* m_table;
         public:
             KeyboardPreferencePane(wxWindow* parent);
+
+            void OnGridSize(wxSizeEvent& event);
         };
     }
 }

@@ -510,6 +510,9 @@
     <ClCompile Include="..\..\Source\View\PreferencesFrame.cpp">
       <Filter>Source Files\View</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\View\KeyboardPreferencePane.cpp">
+      <Filter>Source Files\View</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -1179,6 +1182,9 @@
       <Filter>Header Files\View</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\View\PreferencesFrame.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\KeyboardPreferencePane.h">
       <Filter>Header Files\View</Filter>
     </ClInclude>
   </ItemGroup>
