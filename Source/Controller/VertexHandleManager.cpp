@@ -230,11 +230,11 @@ namespace TrenchBroom {
                 m_renderStateValid = false;
         }
 
-        void VertexHandleManager::selectEdgeHandles(const Model::EdgeList& edges) {
-            Model::EdgeList::const_iterator it, end;
+        void VertexHandleManager::selectEdgeHandles(const Model::EdgeInfoList& edges) {
+            Model::EdgeInfoList::const_iterator it, end;
             for (it = edges.begin(), end = edges.end(); it != end; ++it) {
-                const Model::Edge& edge = **it;
-                selectEdgeHandle(edge.center());
+                const Model::EdgeInfo& edgeInfo = *it;
+                selectEdgeHandle(edgeInfo.center());
             }
         }
 
@@ -260,11 +260,11 @@ namespace TrenchBroom {
                 m_renderStateValid = false;
         }
 
-        void VertexHandleManager::selectFaceHandles(const Model::FaceList& faces) {
-            Model::FaceList::const_iterator it, end;
+        void VertexHandleManager::selectFaceHandles(const Model::FaceInfoList& faces) {
+            Model::FaceInfoList::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                const Model::Face& face = **it;
-                selectFaceHandle(face.center());
+                const Model::FaceInfo& faceInfo = *it;
+                selectFaceHandle(faceInfo.center());
             }
         }
 

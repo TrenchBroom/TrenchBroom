@@ -33,11 +33,11 @@ namespace TrenchBroom {
             makeSnapshots(m_brushes);
             document().brushesWillChange(m_brushes);
 
-            Model::FaceList::const_iterator fIt, fEnd;
-            for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
-                Model::Face* face = *fIt;
-                Model::Brush* brush = face->brush();
-                Vec3f newVertexPosition = brush->splitFace(face, m_delta);
+            BrushFaceMap::const_iterator it, end;
+            for (it = m_brushFaces.begin(), end = m_brushFaces.end(); it != end; ++it) {
+                Model::Brush* brush = it->first;
+                const Model::FaceInfo& faceInfo = it->second;
+                Vec3f newVertexPosition = brush->splitFace(faceInfo, m_delta);
                 m_vertices.insert(newVertexPosition);
             }
 
@@ -56,12 +56,16 @@ namespace TrenchBroom {
 
         SplitFacesCommand::SplitFacesCommand(Model::MapDocument& document, const wxString& name, const Model::FaceList& faces, const Vec3f& delta) :
         SnapshotCommand(Command::MoveVertices, document, name),
-        m_faces(faces),
         m_delta(delta) {
-            Model::FaceList::const_iterator fIt, fEnd;
-            for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
-                Model::Face* face = *fIt;
-                m_brushes.push_back(face->brush());
+            Model::FaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                const Model::Face& face = **it;
+                Model::FaceInfo faceInfo = face.faceInfo();
+                Model::Brush* brush = face.brush();
+                
+                BrushFaceMapInsertResult result = m_brushFaces.insert(BrushFaceMapEntry(brush, faceInfo));
+                assert(result.second);
+                m_brushes.push_back(brush);
             }
         }
 
@@ -70,11 +74,11 @@ namespace TrenchBroom {
         }
 
         bool SplitFacesCommand::canDo() const {
-            Model::FaceList::const_iterator fIt, fEnd;
-            for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
-                Model::Face* face = *fIt;
-                Model::Brush* brush = face->brush();
-                if (!brush->canSplitFace(face, m_delta))
+            BrushFaceMap::const_iterator it, end;
+            for (it = m_brushFaces.begin(), end = m_brushFaces.end(); it != end; ++it) {
+                const Model::Brush* brush = it->first;
+                const Model::FaceInfo& faceInfo = it->second;
+                if (!brush->canSplitFace(faceInfo, m_delta))
                     return false;
             }
             return true;
