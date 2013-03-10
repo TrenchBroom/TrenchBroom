@@ -29,6 +29,8 @@ uniform bool RenderGrid;
 uniform float GridSize;
 uniform float GridAlpha;
 uniform bool GridCheckerboard;
+uniform bool shadeFaces;
+uniform bool useFog;
 
 varying vec4 modelCoordinates;
 varying vec3 modelNormal;
@@ -141,22 +143,26 @@ void main() {
         }
     }
    
-   // angular dimming ( can be controlled with dimStrength )
-   float
-   	dimStrength = 0.25;
-	float
-		angleDim = dot( normalize( -viewVector ), normalize( modelNormal )) * dimStrength + ( 1.0 - dimStrength );
+   if( shadeFaces ) {
+	   // angular dimming ( can be controlled with dimStrength )
+	   float
+	   	dimStrength = 0.25;
+		float
+			angleDim = dot( normalize( -viewVector ), normalize( modelNormal )) * dimStrength + ( 1.0 - dimStrength );
 
-	gl_FragColor.rgb *= angleDim;
+		gl_FragColor.rgb *= angleDim;
+	}
 
-	// fog
-	vec3
-		fogColor = vec3( 0.5, 0.5, 0.5 );
-	float
-		maxFogAmount = 0.2,
-		fogBias = 0.0,
-		fogScale = 0.000075;
-
-	//gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, clamp(( gl_FragCoord.z / gl_FragCoord.w ) * fogScale + fogBias, 0.0, maxFogAmount ));
-	gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, clamp( length( viewVector ) * fogScale + fogBias, 0.0, maxFogAmount ));
+	if( useFog ) {
+		// fog
+		vec3
+			fogColor = vec3( 0.5, 0.5, 0.5 );
+		float
+			maxFogAmount = 0.15,
+			fogBias = 0.0,
+			fogScale = 0.000075;
+	
+		//gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, clamp(( gl_FragCoord.z / gl_FragCoord.w ) * fogScale + fogBias, 0.0, maxFogAmount ));
+		gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, clamp( length( viewVector ) * fogScale + fogBias, 0.0, maxFogAmount ));
+	}
 }
