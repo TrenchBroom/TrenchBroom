@@ -529,10 +529,10 @@ namespace TrenchBroom {
         }
 
         void BrushGeometry::mergeEdges() {
-            for (unsigned int i = 0; i < edges.size(); i++) {
+            for (size_t i = 0; i < edges.size(); i++) {
                 Edge* edge = edges[i];
                 Vec3f edgeVector = edge->vector();
-                for (unsigned int j = i + 1; j < edges.size(); j++) {
+                for (size_t j = i + 1; j < edges.size(); j++) {
                     Edge* candidate = edges[j];
                     if (edge->incidentWith(candidate)) {
                         Vec3f candidateVector = candidate->vector();
@@ -540,11 +540,11 @@ namespace TrenchBroom {
                             if (edge->end == candidate->end)
                                 candidate->flip();
                             if (edge->end == candidate->start &&
-                                edge->start != candidate->end) {
-                                // we sometimes crash here because we meet two identical edges with opposite directions
+                                edge->start != candidate->end &&
+                                edge->left == candidate->left &&
+                                edge->right == candidate->right) {
+
                                 assert(edge->start != candidate->end);
-                                assert(edge->left == candidate->left);
-                                assert(edge->right == candidate->right);
                                 assert(edge->left->vertices.size() > 3);
                                 assert(edge->right->vertices.size() > 3);
 
@@ -576,10 +576,11 @@ namespace TrenchBroom {
                             if (edge->start == candidate->start)
                                 candidate->flip();
                             if (edge->start == candidate->end &&
-                                edge->end != candidate->start) {
+                                edge->end != candidate->start &&
+                                edge->left == candidate->left &&
+                                edge->right == candidate->right) {
+
                                 assert(edge->end != candidate->start);
-                                assert(edge->left == candidate->left);
-                                assert(edge->right == candidate->right);
                                 assert(edge->left->vertices.size() > 3);
                                 assert(edge->right->vertices.size() > 3);
 
@@ -905,7 +906,7 @@ namespace TrenchBroom {
                     }
                 }
 
-                // If any off the incident sides has become colinear, we abort the operation.
+                // If any of the incident sides has become colinear, we abort the operation.
                 affectedSides = incidentSides(vertex);
                 for (sideIt = affectedSides.begin(), sideEnd = affectedSides.end(); sideIt != sideEnd; ++sideIt) {
                     Side* side = *sideIt;
@@ -1155,8 +1156,13 @@ namespace TrenchBroom {
                     return false;
                 }
 
+                if (edges[i]->start->position.equals(edges[i]->end->position)) {
+                    fprintf(stdout, "edge with index %i has almost identical vertices", i);
+                    return false;
+                }
+                
                 if (edges[i]->left == edges[i]->right) {
-                    fprintf(stdout, "edge with index %i has equal sides", i);
+                    fprintf(stdout, "edge with index %i has identical sides", i);
                     return false;
                 }
 
@@ -1412,6 +1418,22 @@ namespace TrenchBroom {
         }
 
         BrushGeometry::CutResult BrushGeometry::addFace(Face& face, FaceList& droppedFaces) {
+            // if all of the face's points are on a previous face, it's a duplicate
+            for (size_t i = 0; i < sides.size(); i++) {
+                const Side& side = *sides[i];
+                if (side.face != NULL) {
+                    const Face& previousFace = *side.face;
+                    unsigned int onPrevious = 0;
+                    for (size_t j = 0; j < 3; j++) {
+                        const Vec3f& point = face.point(j);
+                        if (previousFace.boundary().pointStatus(point) == PointStatus::PSInside)
+                            onPrevious++;
+                    }
+                    if (onPrevious == 3)
+                        return Redundant;
+                }
+            }
+            
             Plane boundary = face.boundary();
 
             unsigned int keep = 0;
@@ -1612,6 +1634,7 @@ namespace TrenchBroom {
                 Vec3f end = start.corrected(epsilon);
 
                 if (!start.equals(end, 0.0f))
+                if (start != end)
                     positions[start] = end;
             }
 

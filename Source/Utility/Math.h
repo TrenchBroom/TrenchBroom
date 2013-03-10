@@ -77,6 +77,22 @@ namespace TrenchBroom {
             return f < -epsilon;
         }
 
+        inline bool relEq(float f1, float f2, float epsilon = AlmostZero) {
+            const float absA = std::abs(f1);
+            const float absB = std::abs(f2);
+            const float diff = std::abs(f1 - f2);
+            
+            if (f1 == f2) { // shortcut, handles infinities
+                return true;
+            } else if (f1 == 0.0f || f2 == 0.0f || diff < std::numeric_limits<float>::min()) {
+                // a or b is zero or both are extremely close to it
+                // relative error is less meaningful here
+                return diff < (epsilon * std::numeric_limits<float>::min());
+            } else { // use relative error
+                return diff / (absA + absB) < epsilon;
+            }
+        }
+
         inline bool eq(float f1, float f2, float epsilon = AlmostZero) {
             return std::abs(f1 - f2) < epsilon;
         }

@@ -360,7 +360,7 @@ namespace TrenchBroom {
         void Face::updatePoints() {
             Vec3f v1, v2;
             
-            float bestDot = 1;
+            float bestDot = 1.0f;
             size_t vertexCount = m_side->vertices.size();
             size_t best = vertexCount;
             for (unsigned int i = 0; i < vertexCount && bestDot > 0; i++) {
@@ -370,7 +370,7 @@ namespace TrenchBroom {
                 
                 v1 = (m_points[2] - m_points[0]).normalized();
                 v2 = (m_points[1] - m_points[0]).normalized();
-                float dot = v1.dot(v2);
+                const float dot = std::abs(v1.dot(v2));
                 if (dot < bestDot) {
                     bestDot = dot;
                     best = i;
