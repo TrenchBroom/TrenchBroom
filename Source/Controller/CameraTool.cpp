@@ -115,8 +115,11 @@ namespace TrenchBroom {
                     postEvent(cameraEvent);
                 }
             } else if (inputState.mouseButtons() == MouseButtons::MBMiddle) {
+                Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+                bool enableAltMove = prefs.getBool(Preferences::CameraEnableAltMove);
+
                 CameraMoveEvent cameraEvent;
-                if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
+                if (enableAltMove && inputState.modifierKeys() == ModifierKeys::MKAlt) {
                     cameraEvent.setRight(inputState.deltaX() * panSpeed(false));
                     cameraEvent.setForward(inputState.deltaY() * -moveSpeed());
                 } else {

@@ -206,7 +206,7 @@ namespace TrenchBroom {
             mapDocument().GetCommandProcessor()->Submit(command, store);
         }
 
-        void EditorView::pasteObjects(const Model::EntityList& entities, const Model::BrushList& brushes, const Vec3f& delta) {
+        void EditorView::pasteObjects(const Model::EntityList& entities, const Model::BrushList& brushes, const Vec3f& delta, bool hasBrushGeometry) {
             assert(entities.empty() != brushes.empty());
             
             Model::EntityList selectEntities;
@@ -238,6 +238,9 @@ namespace TrenchBroom {
             message << "Pasted "    << selectEntities.size()    << (selectEntities.size() == 1 ? " entity " : " entities");
             message << " and "      << selectBrushes.size()     << (selectBrushes.size() == 1 ? " brush " : " brushes");
             mapDocument().console().info(message.str());
+            
+            if (!selectBrushes.empty() && !hasBrushGeometry)
+                mapDocument().console().warn("Pasting objects from an external program may lead to loss of precision");
         }
         
         Vec3f EditorView::moveDelta(Direction direction, bool snapToGrid) {
@@ -894,17 +897,18 @@ namespace TrenchBroom {
                             text = textData.GetText();
                         }
                         
+                        bool hasBrushGeometry = false;
                         IO::MapParser::CreateBrushStrategy* brushCreator = NULL;
                         if (wxTheClipboard->GetData(geometryData)) {
                             IO::ByteBuffer geometryDataBuffer = IO::ByteBuffer(geometryData.GetSize());
-                            if (!geometryDataBuffer.empty() && geometryData.GetDataHere(geometryDataBuffer.get()))
+                            if (!geometryDataBuffer.empty() && geometryData.GetDataHere(geometryDataBuffer.get())) {
                                 brushCreator = new IO::CreateBrushFromGeometryStrategy(geometryDataBuffer);
-                            else
-                                mapDocument().console().warn("Pasting objects from an external program may lead to loss of precision");
-                        } else {
-                            brushCreator = new IO::CreateBrushFromFacesStrategy();
-                            mapDocument().console().warn("Pasting objects from an external program may lead to loss of precision");
+                                hasBrushGeometry = true;
+                            }
                         }
+                        
+                        if (brushCreator == NULL)
+                            brushCreator = new IO::CreateBrushFromFacesStrategy();
                         
                         StringStream stream;
                         stream.str(text);
@@ -959,7 +963,7 @@ namespace TrenchBroom {
                                 delta = targetPosition - objectsPosition;
                             }
 
-                            pasteObjects(entities, brushes, delta);
+                            pasteObjects(entities, brushes, delta, hasBrushGeometry);
                         } else {
                             mapDocument().console().warn("Unable to parse clipboard contents");
                         }
@@ -1000,17 +1004,18 @@ namespace TrenchBroom {
                             text = textData.GetText();
                         }
                         
+                        bool hasBrushGeometry = false;
                         IO::MapParser::CreateBrushStrategy* brushCreator = NULL;
                         if (wxTheClipboard->GetData(geometryData)) {
                             IO::ByteBuffer geometryDataBuffer = IO::ByteBuffer(geometryData.GetSize());
-                            if (!geometryDataBuffer.empty() && geometryData.GetDataHere(geometryDataBuffer.get()))
+                            if (!geometryDataBuffer.empty() && geometryData.GetDataHere(geometryDataBuffer.get())) {
                                 brushCreator = new IO::CreateBrushFromGeometryStrategy(geometryDataBuffer);
-                            else
-                                mapDocument().console().warn("Pasting objects from an external program may lead to loss of precision");
-                        } else {
-                            brushCreator = new IO::CreateBrushFromFacesStrategy();
-                            mapDocument().console().warn("Pasting objects from an external program may lead to loss of precision");
+                                hasBrushGeometry = true;
+                            }
                         }
+                        
+                        if (brushCreator == NULL)
+                            brushCreator = new IO::CreateBrushFromFacesStrategy();
                         
                         StringStream stream;
                         stream.str(text);
@@ -1019,7 +1024,8 @@ namespace TrenchBroom {
                         if (mapParser.parseEntities(mapDocument().map().worldBounds(), entities) ||
                                    mapParser.parseBrushes(mapDocument().map().worldBounds(), brushes)) {
                             assert(entities.empty() != brushes.empty());
-                            pasteObjects(entities, brushes, Vec3f::Null);
+                            
+                            pasteObjects(entities, brushes, Vec3f::Null, hasBrushGeometry);
                         } else {
                             mapDocument().console().warn("Unable to parse clipboard contents");
                         }
