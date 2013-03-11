@@ -513,6 +513,9 @@
     <ClCompile Include="..\..\Source\View\KeyboardPreferencePane.cpp">
       <Filter>Source Files\View</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\View\KeyboardShortcut.cpp">
+      <Filter>Source Files\View</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">

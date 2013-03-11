@@ -96,6 +96,8 @@ namespace TrenchBroom {
             bool update();
         };
 
+        class KeyboardShortcutEvent;
+        
         class KeyboardPreferencePane : public wxPanel {
         private:
             wxGrid* m_grid;
@@ -103,6 +105,7 @@ namespace TrenchBroom {
         public:
             KeyboardPreferencePane(wxWindow* parent);
 
+            void OnKeyboardShortcut(KeyboardShortcutEvent& event);
             void OnGridSize(wxSizeEvent& event);
         };
     }

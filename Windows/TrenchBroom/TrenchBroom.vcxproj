@@ -361,6 +361,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\View\GenericDropSource.cpp" />
     <ClCompile Include="..\..\Source\View\Inspector.cpp" />
     <ClCompile Include="..\..\Source\View\KeyboardPreferencePane.cpp" />
+    <ClCompile Include="..\..\Source\View\KeyboardShortcut.cpp" />
     <ClCompile Include="..\..\Source\View\MapGLCanvas.cpp" />
     <ClCompile Include="..\..\Source\View\MapPropertiesDialog.cpp" />
     <ClCompile Include="..\..\Source\View\PathDialog.cpp" />

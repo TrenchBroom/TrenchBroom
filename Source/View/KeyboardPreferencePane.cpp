@@ -21,6 +21,7 @@
 
 #include "Utility/Preferences.h"
 #include "View/CommandIds.h"
+#include "View/KeyboardShortcutEditor.h"
 #include "View/LayoutConstants.h"
 
 #include <wx/sizer.h>
@@ -86,7 +87,7 @@ namespace TrenchBroom {
                 case 1:
                     return KeyboardShortcut::contextName(m_entries[rowIndex].shortcut().context());
                 case 2:
-                    return m_entries[rowIndex].shortcut().shortcutMenuText();
+                    return m_entries[rowIndex].shortcut().shortcutDisplayText();
                 default:
                     assert(false);
                     break;
@@ -322,11 +323,17 @@ namespace TrenchBroom {
             m_table->update();
             m_grid->AutoSize();
 
+            // test
+            KeyboardShortcutEditor* editor = new KeyboardShortcutEditor(box, 9998);
+            editor->Bind(EVT_KEYBOARD_SHORTCUT_EVENT, EVT_KEYBOARD_SHORTCUT_HANDLER(KeyboardPreferencePane::OnKeyboardShortcut), this);
+            
             wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
             innerSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
             innerSizer->Add(infoText, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             innerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
             innerSizer->Add(m_grid, 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
+            innerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            innerSizer->Add(editor, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             innerSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
             box->SetSizer(innerSizer);
             
@@ -334,6 +341,12 @@ namespace TrenchBroom {
             outerSizer->Add(box, 1, wxEXPAND);
             outerSizer->SetItemMinSize(box, wxDefaultSize.x, 500);
             SetSizerAndFit(outerSizer);
+            
+            editor->SetFocusIgnoringChildren();
+        }
+
+        void KeyboardPreferencePane::OnKeyboardShortcut(KeyboardShortcutEvent& event) {
+            bool t = true;
         }
 
         void KeyboardPreferencePane::OnGridSize(wxSizeEvent& event) {
