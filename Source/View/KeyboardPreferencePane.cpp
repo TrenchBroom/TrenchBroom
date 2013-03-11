@@ -22,6 +22,7 @@
 #include "Utility/Preferences.h"
 #include "View/CommandIds.h"
 #include "View/KeyboardShortcutEditor.h"
+#include "View/KeyboardShortcutEvent.h"
 #include "View/LayoutConstants.h"
 
 #include <wx/sizer.h>
@@ -323,8 +324,8 @@ namespace TrenchBroom {
             m_table->update();
             m_grid->AutoSize();
 
-            // test
-            KeyboardShortcutEditor* editor = new KeyboardShortcutEditor(box, 9998);
+            // stest
+            KeyboardShortcutEditor* editor = new KeyboardShortcutEditor(box);
             editor->Bind(EVT_KEYBOARD_SHORTCUT_EVENT, EVT_KEYBOARD_SHORTCUT_HANDLER(KeyboardPreferencePane::OnKeyboardShortcut), this);
             
             wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);

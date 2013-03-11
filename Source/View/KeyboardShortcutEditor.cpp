@@ -20,32 +20,14 @@
 #include "KeyboardShortcutEditor.h"
 
 #include "View/KeyboardShortcut.h"
+#include "View/KeyboardShortcutEvent.h"
 
 #include <wx/defs.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 
-DEFINE_EVENT_TYPE(EVT_KEYBOARD_SHORTCUT_EVENT)
-
 namespace TrenchBroom {
     namespace View {
-        IMPLEMENT_DYNAMIC_CLASS(KeyboardShortcutEvent, wxEvent)
-        KeyboardShortcutEvent::KeyboardShortcutEvent() :
-        m_modifierKey1(WXK_NONE),
-        m_modifierKey2(WXK_NONE),
-        m_modifierKey3(WXK_NONE),
-        m_key(WXK_NONE) {}
-        
-        KeyboardShortcutEvent::KeyboardShortcutEvent(int modifierKey1, int modifierKey2, int modifierKey3, int key) :
-        m_modifierKey1(modifierKey1),
-        m_modifierKey2(modifierKey2),
-        m_modifierKey3(modifierKey3),
-        m_key(key) {}
-
-        wxEvent* KeyboardShortcutEvent::Clone() const {
-            return new KeyboardShortcutEvent(*this);
-        }
-
         BEGIN_EVENT_TABLE(KeyboardShortcutEditor, wxPanel)
         EVT_SET_FOCUS(KeyboardShortcutEditor::OnSetFocus)
         EVT_KILL_FOCUS(KeyboardShortcutEditor::OnKillFocus)
@@ -84,7 +66,6 @@ namespace TrenchBroom {
 
         void KeyboardShortcutEditor::OnKeyDown(wxKeyEvent& event) {
             const int key = event.GetKeyCode();
-            wxLogDebug("down %d", key);
             switch (key) {
                 case WXK_SHIFT:
                 case WXK_ALT:
@@ -96,9 +77,11 @@ namespace TrenchBroom {
                     else if (m_modifierKey3 == WXK_NONE)
                         m_modifierKey3 = key;
                     break;
+#if defined __APPLE__
                 case WXK_RAW_CONTROL:
                     // not supported
                     break;
+#endif
                 default:
                     if (m_key == WXK_NONE)
                         m_key = key;
@@ -121,9 +104,11 @@ namespace TrenchBroom {
                         else if (m_modifierKey3 == key)
                             m_modifierKey3 = WXK_NONE;
                         break;
+#if defined __APPLE__
                     case WXK_RAW_CONTROL:
                         // not supported
                         break;
+#endif
                     default:
                         break;
                 }

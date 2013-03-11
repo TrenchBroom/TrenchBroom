@@ -157,6 +157,7 @@
 		48C4637616B97A76008159DC /* MoveTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C4637416B97A76008159DC /* MoveTool.cpp */; };
 		48C48EB616EE6B38000F6038 /* KeyboardShortcut.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C48EB516EE6B38000F6038 /* KeyboardShortcut.cpp */; };
 		48C48EB916EE6EB8000F6038 /* KeyboardShortcutEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C48EB716EE6EB8000F6038 /* KeyboardShortcutEditor.cpp */; };
+		48C48EBC16EE9967000F6038 /* KeyboardShortcutEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C48EBA16EE9967000F6038 /* KeyboardShortcutEvent.cpp */; };
 		48C83711167513CD00B658A2 /* PointHandleRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C8370F167513CD00B658A2 /* PointHandleRenderer.cpp */; };
 		48CB0DCD163EEB26001C8E87 /* CircleFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48CB0DCB163EEB26001C8E87 /* CircleFigure.cpp */; };
 		48CBFA2516AF24F300E81617 /* ViewInspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48CBFA2416AF24F300E81617 /* ViewInspector.cpp */; };
@@ -553,6 +554,8 @@
 		48C48EB516EE6B38000F6038 /* KeyboardShortcut.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KeyboardShortcut.cpp; sourceTree = "<group>"; };
 		48C48EB716EE6EB8000F6038 /* KeyboardShortcutEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KeyboardShortcutEditor.cpp; sourceTree = "<group>"; };
 		48C48EB816EE6EB8000F6038 /* KeyboardShortcutEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyboardShortcutEditor.h; sourceTree = "<group>"; };
+		48C48EBA16EE9967000F6038 /* KeyboardShortcutEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KeyboardShortcutEvent.cpp; sourceTree = "<group>"; };
+		48C48EBB16EE9967000F6038 /* KeyboardShortcutEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyboardShortcutEvent.h; sourceTree = "<group>"; };
 		48C8370F167513CD00B658A2 /* PointHandleRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointHandleRenderer.cpp; sourceTree = "<group>"; };
 		48C83710167513CD00B658A2 /* PointHandleRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointHandleRenderer.h; sourceTree = "<group>"; };
 		48CB0DCB163EEB26001C8E87 /* CircleFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CircleFigure.cpp; sourceTree = "<group>"; };
@@ -952,6 +955,8 @@
 				48C48EB516EE6B38000F6038 /* KeyboardShortcut.cpp */,
 				48C48EB716EE6EB8000F6038 /* KeyboardShortcutEditor.cpp */,
 				48C48EB816EE6EB8000F6038 /* KeyboardShortcutEditor.h */,
+				48C48EBA16EE9967000F6038 /* KeyboardShortcutEvent.cpp */,
+				48C48EBB16EE9967000F6038 /* KeyboardShortcutEvent.h */,
 				48E2ED181601184F00B8D476 /* LayoutConstants.h */,
 				4810276415E4FBF000250C9C /* MapGLCanvas.cpp */,
 				4810276515E4FBF000250C9C /* MapGLCanvas.h */,
@@ -1503,6 +1508,7 @@
 				4830051516EBE3A600C05645 /* KeyboardPreferencePane.cpp in Sources */,
 				48C48EB616EE6B38000F6038 /* KeyboardShortcut.cpp in Sources */,
 				48C48EB916EE6EB8000F6038 /* KeyboardShortcutEditor.cpp in Sources */,
+				48C48EBC16EE9967000F6038 /* KeyboardShortcutEvent.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

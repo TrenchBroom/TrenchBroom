@@ -26,37 +26,6 @@ class wxStaticText;
 
 namespace TrenchBroom {
     namespace View {
-        class KeyboardShortcutEvent : public wxEvent {
-        protected:
-            int m_modifierKey1;
-            int m_modifierKey2;
-            int m_modifierKey3;
-            int m_key;
-        public:
-            KeyboardShortcutEvent();
-            KeyboardShortcutEvent(int modifierKey1, int modifierKey2, int modifierKey3, int key);
-
-            inline int modifierKey1() const {
-                return m_modifierKey1;
-            }
-            
-            inline int modifierKey2() const {
-                return m_modifierKey2;
-            }
-
-            inline int modifierKey3() const {
-                return m_modifierKey3;
-            }
-
-            inline int key() const {
-                return m_key;
-            }
-            
-            virtual wxEvent* Clone() const;
-            
-            DECLARE_DYNAMIC_CLASS(KeyboardShortcutEvent)
-        };
-
         class KeyboardShortcutEditor : public wxPanel {
         private:
             wxStaticText* m_label;
@@ -78,25 +47,5 @@ namespace TrenchBroom {
         };
     }
 }
-
-#define WXDLLIMPEXP_CUSTOM_EVENT
-
-BEGIN_DECLARE_EVENT_TYPES()
-DECLARE_EXPORTED_EVENT_TYPE(WXDLLIMPEXP_CUSTOM_EVENT, EVT_KEYBOARD_SHORTCUT_EVENT, 1)
-END_DECLARE_EVENT_TYPES()
-
-typedef void (wxEvtHandler::*keyboardShortcutEventFunction)(TrenchBroom::View::KeyboardShortcutEvent&);
-
-#define EVT_KEYBOARD_SHORTCUT_HANDLER(func) \
-    (wxObjectEventFunction) \
-    (keyboardShortcutEventFunction) & func
-
-#define EVT_KEYBOARD_SHORTCUT(id,func) \
-    DECLARE_EVENT_TABLE_ENTRY( EVT_KEYBOARD_SHORTCUT_EVENT, \
-        id, \
-        wxID_ANY, \
-        (wxObjectEventFunction) \
-        (keyboardShortcutEventFunction) & func, \
-        (wxObject *) NULL),
 
 #endif /* defined(__TrenchBroom__KeyboardShortcutEditor__) */
