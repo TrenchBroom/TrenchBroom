@@ -54,7 +54,7 @@ bool TrenchBroomApp::OnInit() {
         SetExitOnFrameDelete(false);
         m_docManager->SetUseSDI(false);
         
-        wxMenuBar* menuBar = CreateMenuBar(m_docManager, NULL, false);
+        wxMenuBar* menuBar = CreateMenuBar(this, NULL, false);
         wxMenuBar::MacSetCommonMenuBar(menuBar);
         
         return true;

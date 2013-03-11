@@ -39,12 +39,26 @@
 #include "View/PreferencesFrame.h"
 
 BEGIN_EVENT_TABLE(AbstractApp, wxApp)
+EVT_MENU(wxID_NEW, AbstractApp::OnFileNew)
+EVT_MENU(wxID_OPEN, AbstractApp::OnFileOpen)
+EVT_MENU(wxID_SAVE, AbstractApp::OnFileSave)
+EVT_MENU(wxID_SAVEAS, AbstractApp::OnFileSaveAs)
+EVT_MENU(wxID_CLOSE, AbstractApp::OnFileClose)
 EVT_MENU(wxID_PREFERENCES, AbstractApp::OnOpenPreferences)
 EVT_MENU(wxID_ABOUT, AbstractApp::OnOpenAbout)
 EVT_MENU(TrenchBroom::View::CommandIds::Menu::HelpShowHelp, AbstractApp::OnHelpShowHelp)
 
+EVT_UPDATE_UI(wxID_NEW, AbstractApp::OnUpdateMenuItem)
+EVT_UPDATE_UI(wxID_OPEN, AbstractApp::OnUpdateMenuItem)
+EVT_UPDATE_UI(wxID_SAVE, AbstractApp::OnUpdateMenuItem)
+EVT_UPDATE_UI(wxID_SAVEAS, AbstractApp::OnUpdateMenuItem)
+EVT_UPDATE_UI(wxID_CLOSE, AbstractApp::OnUpdateMenuItem)
 EVT_UPDATE_UI(wxID_UNDO, AbstractApp::OnUpdateMenuItem)
 EVT_UPDATE_UI(wxID_REDO, AbstractApp::OnUpdateMenuItem)
+EVT_UPDATE_UI(wxID_CUT, AbstractApp::OnUpdateMenuItem)
+EVT_UPDATE_UI(wxID_COPY, AbstractApp::OnUpdateMenuItem)
+EVT_UPDATE_UI(wxID_PASTE, AbstractApp::OnUpdateMenuItem)
+EVT_UPDATE_UI(wxID_DELETE, AbstractApp::OnUpdateMenuItem)
 EVT_UPDATE_UI_RANGE(TrenchBroom::View::CommandIds::Menu::Lowest, TrenchBroom::View::CommandIds::Menu::Highest, AbstractApp::OnUpdateMenuItem)
 
 EVT_ANIMATION(AbstractApp::OnAnimation)
@@ -392,20 +406,48 @@ void AbstractApp::OnOpenPreferences(wxCommandEvent& event) {
     frame->Show();
 }
 
+void AbstractApp::OnFileNew(wxCommandEvent& event) {
+    if (m_docManager != NULL)
+        m_docManager->OnFileNew(event);
+}
+
+void AbstractApp::OnFileOpen(wxCommandEvent& event) {
+    if (m_docManager != NULL)
+        m_docManager->OnFileOpen(event);
+}
+
+void AbstractApp::OnFileSave(wxCommandEvent& event) {
+    if (m_docManager != NULL)
+        m_docManager->OnFileSave(event);
+}
+
+void AbstractApp::OnFileSaveAs(wxCommandEvent& event) {
+    if (m_docManager != NULL)
+        m_docManager->OnFileSaveAs(event);
+}
+
+void AbstractApp::OnFileClose(wxCommandEvent& event) {
+    if (m_docManager != NULL)
+        m_docManager->OnFileClose(event);
+}
+
 void AbstractApp::OnHelpShowHelp(wxCommandEvent& event) {
     assert(m_helpController != NULL);
     m_helpController->DisplaySection(01);
 }
 
-
 void AbstractApp::OnUpdateMenuItem(wxUpdateUIEvent& event) {
     if (event.GetId() == wxID_ABOUT ||
         event.GetId() == TrenchBroom::View::CommandIds::Menu::HelpShowHelp)
         event.Enable(true);
-    else if (event.GetId() == wxID_PREFERENCES)
+    else if (event.GetId() == wxID_PREFERENCES ||
+             event.GetId() == wxID_NEW ||
+             event.GetId() == wxID_OPEN)
         event.Enable(m_preferencesFrame == NULL);
+    else
         event.Enable(false);
-    if (GetTopWindow() != NULL)
+    
+    if (GetTopWindow() != NULL && m_preferencesFrame == NULL)
         event.Skip();
 }
 

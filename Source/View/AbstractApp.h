@@ -62,6 +62,10 @@ public:
         m_preferencesFrame = preferencesFrame;
     }
     
+    inline TrenchBroom::View::PreferencesFrame* preferencesFrame() const {
+        return m_preferencesFrame;
+    }
+    
     virtual wxMenuBar* CreateMenuBar(wxEvtHandler* eventHandler, wxMenu* actionMenu, bool mapViewFocused);
     void DetachFileHistoryMenu(wxMenuBar* menuBar);
     virtual wxMenu* CreateTextureActionMenu(bool mapViewFocused);
@@ -76,6 +80,11 @@ public:
 
     virtual void OnOpenAbout(wxCommandEvent& event);
     virtual void OnOpenPreferences(wxCommandEvent& event);
+    virtual void OnFileNew(wxCommandEvent& event);
+    virtual void OnFileOpen(wxCommandEvent& event);
+    virtual void OnFileSave(wxCommandEvent& event);
+    virtual void OnFileSaveAs(wxCommandEvent& event);
+    virtual void OnFileClose(wxCommandEvent& event);
     virtual void OnHelpShowHelp(wxCommandEvent& event);
 
     void OnUpdateMenuItem(wxUpdateUIEvent& event);
