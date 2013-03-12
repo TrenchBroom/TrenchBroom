@@ -115,6 +115,9 @@ void gridLinesSoft( vec2 inCoords, float gridSize, float stripeSize, float gridS
    gl_FragColor.rgb = mix( gl_FragColor.rgb, vec3(1.0), theGrid * GridAlpha );
 }
 
+// uncomment this to enable variable grid-thickness
+//#define USE_Grid_VariableThickness
+
 void main() {
 	if (ApplyTexture)
 		gl_FragColor = texture2D(FaceTexture, gl_TexCoord[0].st);
@@ -170,29 +173,39 @@ void main() {
 			fragDepth = length( viewVector ), //gl_FragCoord.z / gl_FragCoord.w,
 			gridBlend = 0,
 			baseGridSize = GridSize,
-			nextGridSize = GridSize,
+			nextGridSize = GridSize;
+
+#ifdef USE_Grid_VariableThickness
+		float
 			baseStripeSize = GridThickness,
 			nextStripeSize = GridThickness;
+#endif
 
 		if( fragDepth > 1024.0 ) {
 			baseGridSize 	= GridSize * 4;
 			nextGridSize 	= GridSize * 8;
+#ifdef USE_Grid_VariableThickness
 			baseStripeSize	= GridThickness * 8;
 			nextStripeSize	= GridThickness * 16;
+#endif
 			gridBlend = ( fragDepth - 1024.0 ) / 1024.0;
 		} else
 		if( fragDepth > 512.0 ) {
 			baseGridSize 	= GridSize * 2;
 			nextGridSize 	= GridSize * 4;
+#ifdef USE_Grid_VariableThickness
 			baseStripeSize	= GridThickness * 4;
 			nextStripeSize	= GridThickness * 8;
+#endif
 			gridBlend = ( fragDepth - 512.0 ) / 512.0;
 		} else
 		if( fragDepth > 256.0 ) {
 			baseGridSize 	= GridSize;
 			nextGridSize 	= GridSize * 2;
+#ifdef USE_Grid_VariableThickness
 			baseStripeSize	= GridThickness;
 			nextStripeSize	= GridThickness * 4;
+#endif
 			gridBlend = ( fragDepth - 256.0 ) / 256.0;
 		}
 
@@ -203,11 +216,17 @@ void main() {
 
 		float
 			gS = 1.0 / baseGridSize,
-			//gT = 1.0 - GridThickness * gS,
+			gS2 = 1.0 / nextGridSize;
+
+		#ifdef USE_Grid_VariableThickness
+		float
 			gT = 1.0 - baseStripeSize * gS,
-			gS2 = 1.0 / nextGridSize,
-			//gT2 = 1.0 - GridThickness * gS2;
 			gT2 = 1.0 - nextStripeSize * gS2;
+		#else
+		float
+			gT = 1.0 - GridThickness * gS,
+			gT2 = 1.0 - GridThickness * gS2;
+		#endif
 
 		float
 			theGrid, nextGrid;
