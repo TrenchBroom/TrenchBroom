@@ -85,6 +85,7 @@ namespace TrenchBroom {
                 if (tintColor != NULL)
                     faceProgram.setUniformVariable("TintColor", *tintColor);
                 faceProgram.setUniformVariable("GrayScale", grayScale);
+					 faceProgram.setUniformVariable("CameraPosition", context.camera().position());
 					 faceProgram.setUniformVariable("shadeFaces", context.viewOptions().shadeFaces() );
 					 faceProgram.setUniformVariable("useFog", context.viewOptions().useFog() );
                 

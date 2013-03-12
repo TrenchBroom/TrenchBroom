@@ -93,76 +93,156 @@ void gridLinesYZ() {
         abs(mod(modelCoordinates.z + 0.3, GridSize)) <= 0.6)
         gl_FragColor = vec4(mix(gl_FragColor.rgb, vec3(1.0), (GridAlpha / 2.0)), gl_FragColor.a);
 }
- 
+
+float GetSoftStripes( float value, float gridSize, float stripeSize ) {
+	float sawtooth = fract( value * gridSize );
+	float triangle = abs( 2.0 * sawtooth - 1.0 );
+	float dp = length( vec2( dFdx( value ), dFdy( value )));
+	float edge = dp * gridSize * 2.0;
+	return smoothstep( stripeSize - edge, stripeSize + edge, triangle );
+}
+
+void gridLinesSoft( vec2 inCoords, float gridSize, float stripeSize, float gridSize2, float stripeSize2, float gridBlend ) {
+	float
+		theGrid, nextGrid;
+
+	theGrid = GetSoftStripes( inCoords.x, gridSize, stripeSize );
+   theGrid = max( theGrid, GetSoftStripes( inCoords.y, gridSize, stripeSize ));
+	nextGrid = GetSoftStripes( inCoords.x, gridSize2, stripeSize2 );
+   nextGrid = max( nextGrid, GetSoftStripes( inCoords.y, gridSize2, stripeSize2 ));
+   theGrid = mix( theGrid, nextGrid, gridBlend );
+
+   gl_FragColor.rgb = mix( gl_FragColor.rgb, vec3(1.0), theGrid * GridAlpha );
+}
+
 void main() {
 	if (ApplyTexture)
 		gl_FragColor = texture2D(FaceTexture, gl_TexCoord[0].st);
 	else {
 		gl_FragColor = faceColor;
 	}
-    
+
     gl_FragColor = vec4(vec3(Brightness / 2.0 * gl_FragColor), gl_FragColor.a);
     gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
 
-    if (GrayScale) {
+    if( GrayScale ) {
         float gray = dot(gl_FragColor.rgb, vec3(0.299, 0.587, 0.114));
         gl_FragColor = vec4(gray, gray, gray, gl_FragColor.a);
     }
-    
-    if (ApplyTinting) {
+
+    if( ApplyTinting ) {
         gl_FragColor = vec4(gl_FragColor.rgb * TintColor.rgb * TintColor.a, gl_FragColor.a);
         gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
     }
-    
-    if (RenderGrid && GridAlpha > 0.0) {
-        float normX = abs(modelNormal.x);
-        float normY = abs(modelNormal.y);
-        float normZ = abs(modelNormal.z);
-        if (normX > normY) {
-            if (normX > normZ) {
-                if (GridCheckerboard)
-                    gridCheckerboardYZ();
-                else
-                    gridLinesYZ();
-            } else {
-                if (GridCheckerboard)
-                    gridCheckerboardXY();
-                else
-                    gridLinesXY();
-            }
-        } else if (normY > normZ) {
-            if (GridCheckerboard)
-                gridCheckerboardXZ();
-            else
-                gridLinesXZ();
-        } else {
-            if (GridCheckerboard)
-                gridCheckerboardXY();
-            else
-                gridLinesXY();
-        }
-    }
-   
+
    if( shadeFaces ) {
 	   // angular dimming ( can be controlled with dimStrength )
+	   // TODO: make view option
 	   float
 	   	dimStrength = 0.25;
 		float
-			angleDim = dot( normalize( -viewVector ), normalize( modelNormal )) * dimStrength + ( 1.0 - dimStrength );
+			angleDim = dot( normalize( viewVector ), normalize( modelNormal )) * dimStrength + ( 1.0 - dimStrength );
 
 		gl_FragColor.rgb *= angleDim;
 	}
 
 	if( useFog ) {
-		// fog
+		// TODO: make view options
 		vec3
 			fogColor = vec3( 0.5, 0.5, 0.5 );
 		float
 			maxFogAmount = 0.15,
 			fogBias = 0.0,
 			fogScale = 0.000075;
-	
+
 		//gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, clamp(( gl_FragCoord.z / gl_FragCoord.w ) * fogScale + fogBias, 0.0, maxFogAmount ));
 		gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, clamp( length( viewVector ) * fogScale + fogBias, 0.0, maxFogAmount ));
+	}
+
+	if( RenderGrid && GridAlpha > 0.0 ) {
+		float normX = abs( modelNormal.x );
+		float normY = abs( modelNormal.y );
+		float normZ = abs( modelNormal.z );
+
+		float
+			GridThickness = 0.5;
+		float
+			fragDepth = length( viewVector ), //gl_FragCoord.z / gl_FragCoord.w,
+			gridBlend = 0,
+			baseGridSize = GridSize,
+			nextGridSize = GridSize,
+			baseStripeSize = GridThickness,
+			nextStripeSize = GridThickness;
+
+		if( fragDepth > 1024.0 ) {
+			baseGridSize 	= GridSize * 4;
+			nextGridSize 	= GridSize * 8;
+			baseStripeSize	= GridThickness * 8;
+			nextStripeSize	= GridThickness * 16;
+			gridBlend = ( fragDepth - 1024.0 ) / 1024.0;
+		} else
+		if( fragDepth > 512.0 ) {
+			baseGridSize 	= GridSize * 2;
+			nextGridSize 	= GridSize * 4;
+			baseStripeSize	= GridThickness * 4;
+			nextStripeSize	= GridThickness * 8;
+			gridBlend = ( fragDepth - 512.0 ) / 512.0;
+		} else
+		if( fragDepth > 256.0 ) {
+			baseGridSize 	= GridSize;
+			nextGridSize 	= GridSize * 2;
+			baseStripeSize	= GridThickness;
+			nextStripeSize	= GridThickness * 4;
+			gridBlend = ( fragDepth - 256.0 ) / 256.0;
+		}
+
+		float
+			blendScale = 2.0; // sharpness of the grid falloff
+
+		gridBlend = clamp( gridBlend * blendScale - ( blendScale - 1.0 ), 0.0, 1.0 );
+
+		float
+			gS = 1.0 / baseGridSize,
+			//gT = 1.0 - GridThickness * gS,
+			gT = 1.0 - baseStripeSize * gS,
+			gS2 = 1.0 / nextGridSize,
+			//gT2 = 1.0 - GridThickness * gS2;
+			gT2 = 1.0 - nextStripeSize * gS2;
+
+		float
+			theGrid, nextGrid;
+
+		if( normX > normY ) {
+			if( normX > normZ ) {
+				if( GridCheckerboard )
+					gridCheckerboardYZ();
+				else {
+					//gridLinesYZ();
+					gridLinesSoft( modelCoordinates.yz, gS, gT, gS2, gT2, gridBlend );
+            }
+			} else {
+				if( GridCheckerboard )
+					gridCheckerboardXY();
+				else {
+					//gridLinesXY();
+					gridLinesSoft( modelCoordinates.xy, gS, gT, gS2, gT2, gridBlend );
+				}
+			}
+		} else
+		if( normY > normZ ) {
+			if( GridCheckerboard )
+				gridCheckerboardXZ();
+			else {
+				//gridLinesXZ();
+				gridLinesSoft( modelCoordinates.xz, gS, gT, gS2, gT2, gridBlend );
+			}
+		} else {
+			if( GridCheckerboard )
+				gridCheckerboardXY();
+			else {
+				//gridLinesXY();
+				gridLinesSoft( modelCoordinates.xy, gS, gT, gS2, gT2, gridBlend );
+			}
+		}
 	}
 }
