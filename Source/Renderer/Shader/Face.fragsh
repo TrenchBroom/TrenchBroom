@@ -37,61 +37,26 @@ varying vec3 modelNormal;
 varying vec4 faceColor;
 varying vec3 viewVector;
 
-void gridCheckerboardXY() {
-    bool evenX = mod(floor(modelCoordinates.x / GridSize), 2) == 0;
-    bool evenY = mod(floor(modelCoordinates.y / GridSize), 2) == 0;
+void gridCheckerboard( vec2 inCoords ) {
+    bool evenA = mod( floor( inCoords.x / GridSize ), 2 ) == 0;
+    bool evenB = mod( floor( inCoords.y / GridSize ), 2 ) == 0;
     
-    if (evenX == evenY)
-        gl_FragColor = vec4(gl_FragColor.r + (GridAlpha / 10.0), gl_FragColor.g + (GridAlpha / 10.0), gl_FragColor.b + (GridAlpha / 10.0), gl_FragColor.a);
+    if( evenA == evenB )
+        gl_FragColor.rgb += vec3( GridAlpha * 0.1 );
     else
-        gl_FragColor = vec4(gl_FragColor.r - (GridAlpha / 10.0), gl_FragColor.g - (GridAlpha / 10.0), gl_FragColor.b - (GridAlpha / 10.0), gl_FragColor.a);
+        gl_FragColor.rgb -= vec3( GridAlpha * 0.1 );
 }
 
-void gridCheckerboardXZ() {
-    bool evenX = mod(floor(modelCoordinates.x / GridSize), 2) == 0;
-    bool evenZ = mod(floor(modelCoordinates.z / GridSize), 2) == 0;
-    
-    if (evenX == evenZ)
-        gl_FragColor = vec4(gl_FragColor.r + (GridAlpha / 10.0), gl_FragColor.g + (GridAlpha / 10.0), gl_FragColor.b + (GridAlpha / 10.0), gl_FragColor.a);
-    else
-        gl_FragColor = vec4(gl_FragColor.r - (GridAlpha / 10.0), gl_FragColor.g - (GridAlpha / 10.0), gl_FragColor.b - (GridAlpha / 10.0), gl_FragColor.a);
-}
+void gridLines( vec2 inCoords ) {
+	vec2
+		prepCoords = inCoords + vec2( 0.3 );
 
-void gridCheckerboardYZ() {
-    bool evenY = mod(floor(modelCoordinates.y / GridSize), 2) == 0;
-    bool evenZ = mod(floor(modelCoordinates.z / GridSize), 2) == 0;
-    
-    if (evenY == evenZ)
-        gl_FragColor = vec4(gl_FragColor.r + (GridAlpha / 10.0), gl_FragColor.g + (GridAlpha / 10.0), gl_FragColor.b + (GridAlpha / 10.0), gl_FragColor.a);
-    else
-        gl_FragColor = vec4(gl_FragColor.r - (GridAlpha / 10.0), gl_FragColor.g - (GridAlpha / 10.0), gl_FragColor.b - (GridAlpha / 10.0), gl_FragColor.a);
-}
-
-void gridLinesXY() {
-    if (abs(mod(modelCoordinates.x + 0.3, 64)) <= 0.6 ||
-        abs(mod(modelCoordinates.y + 0.3, 64)) <= 0.6)
-        gl_FragColor = vec4(mix(gl_FragColor.rgb, vec3(1.0), (GridAlpha / 2.0) * 1.5), gl_FragColor.a);
-    else if (abs(mod(modelCoordinates.x + 0.3, GridSize)) <= 0.6 ||
-        abs(mod(modelCoordinates.y + 0.3, GridSize)) <= 0.6)
-        gl_FragColor = vec4(mix(gl_FragColor.rgb, vec3(1.0), (GridAlpha / 2.0)), gl_FragColor.a);
-}
-
-void gridLinesXZ() {
-    if (abs(mod(modelCoordinates.x + 0.3, 64)) <= 0.6 ||
-        abs(mod(modelCoordinates.z + 0.3, 64)) <= 0.6)
-        gl_FragColor = vec4(mix(gl_FragColor.rgb, vec3(1.0), (GridAlpha / 2.0) * 1.5), gl_FragColor.a);
-    else if (abs(mod(modelCoordinates.x + 0.3, GridSize)) <= 0.6 ||
-        abs(mod(modelCoordinates.z + 0.3, GridSize)) <= 0.6)
-        gl_FragColor = vec4(mix(gl_FragColor.rgb, vec3(1.0), (GridAlpha / 2.0)), gl_FragColor.a);
-}
-
-void gridLinesYZ() {
-    if (abs(mod(modelCoordinates.y + 0.3, 64)) <= 0.6 ||
-        abs(mod(modelCoordinates.z + 0.3, 64)) <= 0.6)
-        gl_FragColor = vec4(mix(gl_FragColor.rgb, vec3(1.0), (GridAlpha / 2.0) * 1.5), gl_FragColor.a);
-    else if (abs(mod(modelCoordinates.y + 0.3, GridSize)) <= 0.6 ||
-        abs(mod(modelCoordinates.z + 0.3, GridSize)) <= 0.6)
-        gl_FragColor = vec4(mix(gl_FragColor.rgb, vec3(1.0), (GridAlpha / 2.0)), gl_FragColor.a);
+	if( abs( mod( prepCoords.x, 64 )) <= 0.6 || abs( mod( prepCoords.y, 64 )) <= 0.6 ) {
+		gl_FragColor.rgb = mix( gl_FragColor.rgb, vec3(1.0), GridAlpha * 0.75 );
+	} else
+	if( abs( mod( prepCoords.x, GridSize )) <= 0.6 || abs( mod( prepCoords.y, GridSize )) <= 0.6 ) {
+		gl_FragColor.rgb = mix( gl_FragColor.rgb, vec3(1.0), GridAlpha * 0.5 );
+	}
 }
 
 float GetSoftStripes( float value, float gridSize, float stripeSize ) {
@@ -107,12 +72,12 @@ void gridLinesSoft( vec2 inCoords, float gridSize, float stripeSize, float gridS
 		theGrid, nextGrid;
 
 	theGrid = GetSoftStripes( inCoords.x, gridSize, stripeSize );
-   theGrid = max( theGrid, GetSoftStripes( inCoords.y, gridSize, stripeSize ));
+	theGrid = max( theGrid, GetSoftStripes( inCoords.y, gridSize, stripeSize ));
 	nextGrid = GetSoftStripes( inCoords.x, gridSize2, stripeSize2 );
-   nextGrid = max( nextGrid, GetSoftStripes( inCoords.y, gridSize2, stripeSize2 ));
-   theGrid = mix( theGrid, nextGrid, gridBlend );
+	nextGrid = max( nextGrid, GetSoftStripes( inCoords.y, gridSize2, stripeSize2 ));
+	theGrid = mix( theGrid, nextGrid, gridBlend );
 
-   gl_FragColor.rgb = mix( gl_FragColor.rgb, vec3(1.0), theGrid * GridAlpha );
+	gl_FragColor.rgb = mix( gl_FragColor.rgb, vec3(1.0), theGrid * GridAlpha * 0.5 );
 }
 
 // uncomment this to enable variable grid-thickness
@@ -138,11 +103,11 @@ void main() {
         gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
     }
 
-   if( shadeFaces ) {
-	   // angular dimming ( can be controlled with dimStrength )
-	   // TODO: make view option
-	   float
-	   	dimStrength = 0.25;
+	if( shadeFaces ) {
+		// angular dimming ( can be controlled with dimStrength )
+		// TODO: make view option
+		float
+			dimStrength = 0.25;
 		float
 			angleDim = dot( normalize( viewVector ), normalize( modelNormal )) * dimStrength + ( 1.0 - dimStrength );
 
@@ -228,40 +193,27 @@ void main() {
 			gT2 = 1.0 - GridThickness * gS2;
 		#endif
 
-		float
-			theGrid, nextGrid;
+		vec2
+			baseCoords; // coordinates used for overlay creation
 
 		if( normX > normY ) {
 			if( normX > normZ ) {
-				if( GridCheckerboard )
-					gridCheckerboardYZ();
-				else {
-					//gridLinesYZ();
-					gridLinesSoft( modelCoordinates.yz, gS, gT, gS2, gT2, gridBlend );
-            }
+				baseCoords = modelCoordinates.yz;
 			} else {
-				if( GridCheckerboard )
-					gridCheckerboardXY();
-				else {
-					//gridLinesXY();
-					gridLinesSoft( modelCoordinates.xy, gS, gT, gS2, gT2, gridBlend );
-				}
+				baseCoords = modelCoordinates.xy;
 			}
 		} else
 		if( normY > normZ ) {
-			if( GridCheckerboard )
-				gridCheckerboardXZ();
-			else {
-				//gridLinesXZ();
-				gridLinesSoft( modelCoordinates.xz, gS, gT, gS2, gT2, gridBlend );
-			}
+			baseCoords = modelCoordinates.xz;
 		} else {
-			if( GridCheckerboard )
-				gridCheckerboardXY();
-			else {
-				//gridLinesXY();
-				gridLinesSoft( modelCoordinates.xy, gS, gT, gS2, gT2, gridBlend );
-			}
+			baseCoords = modelCoordinates.xy;
+		}
+
+		if( GridCheckerboard ) {
+			gridCheckerboard( baseCoords );
+		} else {
+			//gridLines( baseCoords );
+			gridLinesSoft( baseCoords, gS, gT, gS2, gT2, gridBlend );
 		}
 	}
 }
