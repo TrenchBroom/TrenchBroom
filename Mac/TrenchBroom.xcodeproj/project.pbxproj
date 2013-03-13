@@ -556,6 +556,7 @@
 		48C48EB816EE6EB8000F6038 /* KeyboardShortcutEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyboardShortcutEditor.h; sourceTree = "<group>"; };
 		48C48EBA16EE9967000F6038 /* KeyboardShortcutEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KeyboardShortcutEvent.cpp; sourceTree = "<group>"; };
 		48C48EBB16EE9967000F6038 /* KeyboardShortcutEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyboardShortcutEvent.h; sourceTree = "<group>"; };
+		48C48EBD16F13CBB000F6038 /* PreferencePane.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PreferencePane.h; sourceTree = "<group>"; };
 		48C8370F167513CD00B658A2 /* PointHandleRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointHandleRenderer.cpp; sourceTree = "<group>"; };
 		48C83710167513CD00B658A2 /* PointHandleRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointHandleRenderer.h; sourceTree = "<group>"; };
 		48CB0DCB163EEB26001C8E87 /* CircleFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CircleFigure.cpp; sourceTree = "<group>"; };
@@ -964,6 +965,7 @@
 				48D937EE16C27B0C005A4684 /* MapPropertiesDialog.h */,
 				48B64C3A16CA403B00ECA6C5 /* PathDialog.cpp */,
 				48B64C3B16CA403B00ECA6C5 /* PathDialog.h */,
+				48C48EBD16F13CBB000F6038 /* PreferencePane.h */,
 				481CDAD616026C48003E2EE9 /* PreferencesFrame.cpp */,
 				481CDAD716026C48003E2EE9 /* PreferencesFrame.h */,
 				48AB57EF15ECEEE500321C47 /* ProgressIndicatorDialog.cpp */,

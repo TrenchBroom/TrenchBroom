@@ -283,6 +283,13 @@ namespace TrenchBroom {
             return attr;
         }
 
+        bool KeyboardGridTable::hasDuplicates() const {
+            for (size_t i = 0; i < m_entries.size(); i++)
+                if (m_entries[i].duplicate())
+                    return true;
+            return false;
+        }
+
         bool KeyboardGridTable::update() {
             using namespace TrenchBroom::Preferences;
 
@@ -401,7 +408,7 @@ namespace TrenchBroom {
         }
 
         KeyboardPreferencePane::KeyboardPreferencePane(wxWindow* parent) :
-        wxPanel(parent),
+        PreferencePane(parent),
         m_grid(NULL),
         m_table(NULL) {
             wxStaticBox* box = new wxStaticBox(this, wxID_ANY, wxT("Keyboard Shortcuts"));
@@ -446,6 +453,10 @@ namespace TrenchBroom {
             outerSizer->Add(box, 1, wxEXPAND);
             outerSizer->SetItemMinSize(box, wxDefaultSize.x, 500);
             SetSizerAndFit(outerSizer);
+        }
+
+        bool KeyboardPreferencePane::canClose() const {
+            return !m_table->hasDuplicates();
         }
 
         void KeyboardPreferencePane::OnGridSize(wxSizeEvent& event) {

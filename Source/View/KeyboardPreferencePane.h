@@ -22,6 +22,7 @@
 
 #include "Utility/Preferences.h"
 #include "View/KeyboardShortcut.h"
+#include "View/PreferencePane.h"
 
 #include <wx/grid.h>
 #include <wx/panel.h>
@@ -128,18 +129,21 @@ namespace TrenchBroom {
             wxString GetColLabelValue(int col);
             wxGridCellAttr* GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind);
         
+            bool hasDuplicates() const;
             bool update();
         };
 
         class KeyboardShortcutEvent;
         
-        class KeyboardPreferencePane : public wxPanel {
+        class KeyboardPreferencePane : public PreferencePane {
         private:
             wxGrid* m_grid;
             KeyboardGridTable* m_table;
         public:
             KeyboardPreferencePane(wxWindow* parent);
 
+            bool canClose() const;
+            
             void OnGridSize(wxSizeEvent& event);
         };
     }

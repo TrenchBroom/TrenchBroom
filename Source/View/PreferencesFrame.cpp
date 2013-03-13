@@ -44,23 +44,30 @@ namespace TrenchBroom {
 		END_EVENT_TABLE()
 
         void PreferencesFrame::switchToPane(PrefPane pane) {
+            if (m_pane != NULL && !m_pane->canClose()) {
+                m_toolBar->ToggleTool(PPGeneral, m_currentPane == PPGeneral);
+                m_toolBar->ToggleTool(PPKeyboard, m_currentPane == PPKeyboard);
+                return;
+            }
+            
             if (m_panel != NULL) {
                 m_panel->Destroy();
                 m_panel = NULL;
             }
 
+            m_pane = NULL;
+            m_currentPane = pane;
             m_panel = new wxPanel(this);
 
             m_toolBar->ToggleTool(PPGeneral, pane == PPGeneral);
             m_toolBar->ToggleTool(PPKeyboard, pane == PPKeyboard);
             
-            wxPanel* currentPane = NULL;
             switch (pane) {
                 case PPKeyboard:
-                    currentPane = new KeyboardPreferencePane(m_panel);
+                    m_pane = new KeyboardPreferencePane(m_panel);
                     break;
                 default:
-                    currentPane = new GeneralPreferencePane(m_panel);
+                    m_pane = new GeneralPreferencePane(m_panel);
                     break;
             }
             
@@ -78,9 +85,9 @@ namespace TrenchBroom {
             
             innerSizer->Add(buttonSizer, 0, wxEXPAND | wxALL, LayoutConstants::DialogButtonMargin);
 #else
-            innerSizer->Add(currentPane, 1, wxEXPAND | wxALL, LayoutConstants::DialogOuterMargin);
+            innerSizer->Add(m_pane, 1, wxEXPAND | wxALL, LayoutConstants::DialogOuterMargin);
 #endif
-            innerSizer->SetItemMinSize(currentPane, 600, currentPane->GetSize().y);
+            innerSizer->SetItemMinSize(m_pane, 600, m_pane->GetSize().y);
             m_panel->SetSizerAndFit(innerSizer);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
@@ -91,7 +98,8 @@ namespace TrenchBroom {
         PreferencesFrame::PreferencesFrame() :
         wxFrame(NULL, wxID_ANY, wxT("Preferences"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE & ~wxRESIZE_BORDER),
         m_toolBar(NULL),
-        m_panel(NULL) {
+        m_panel(NULL),
+        m_pane(NULL) {
             IO::FileManager fileManager;
             String resourcePath = fileManager.resourceDirectory();
             wxBitmap general(fileManager.appendPath(resourcePath, "GeneralPreferences.png"), wxBITMAP_TYPE_PNG);

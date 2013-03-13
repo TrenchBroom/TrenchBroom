@@ -28,6 +28,8 @@ class wxToolBarToolBase;
 
 namespace TrenchBroom {
     namespace View {
+        class PreferencePane;
+        
         class PreferencesFrame : public wxFrame {
         protected:
             typedef enum {
@@ -38,6 +40,8 @@ namespace TrenchBroom {
             
             wxToolBar* m_toolBar;
             wxPanel* m_panel;
+            PrefPane m_currentPane;
+            PreferencePane* m_pane;
             
             void switchToPane(PrefPane pane);
         public:
