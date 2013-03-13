@@ -33,11 +33,11 @@ namespace TrenchBroom {
             makeSnapshots(m_brushes);
             document().brushesWillChange(m_brushes);
 
-            Model::EdgeList::const_iterator eIt, eEnd;
-            for (eIt = m_edges.begin(), eEnd = m_edges.end(); eIt != eEnd; ++eIt) {
-                Model::Edge* edge = *eIt;
-                Model::Brush* brush = edge->left->face->brush();
-                Vec3f newVertexPosition = brush->splitEdge(edge, m_delta);
+            BrushEdgeMap::const_iterator it, end;
+            for (it = m_brushEdges.begin(), end = m_brushEdges.end(); it != end; ++it) {
+                Model::Brush* brush = it->first;
+                const Model::EdgeInfo& edgeInfo = it->second;
+                Vec3f newVertexPosition = brush->splitEdge(edgeInfo, m_delta);
                 m_vertices.insert(newVertexPosition);
             }
 
@@ -56,12 +56,16 @@ namespace TrenchBroom {
 
         SplitEdgesCommand::SplitEdgesCommand(Model::MapDocument& document, const wxString& name, const Model::EdgeList& edges, const Vec3f& delta) :
         SnapshotCommand(Command::MoveVertices, document, name),
-        m_edges(edges),
         m_delta(delta) {
             Model::EdgeList::const_iterator it, end;
-            for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
+            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                 const Model::Edge& edge = **it;
-                m_brushes.push_back(edge.left->face->brush());
+                Model::EdgeInfo edgeInfo = edge.info();
+                Model::Brush* brush = edge.left->face->brush();
+                
+                BrushEdgeMapInsertResult result = m_brushEdges.insert(BrushEdgeMapEntry(brush, edgeInfo));
+                assert(result.second);
+                m_brushes.push_back(brush);
             }
         }
 
@@ -70,11 +74,11 @@ namespace TrenchBroom {
         }
 
         bool SplitEdgesCommand::canDo() const {
-            Model::EdgeList::const_iterator eIt, eEnd;
-            for (eIt = m_edges.begin(), eEnd = m_edges.end(); eIt != eEnd; ++eIt) {
-                Model::Edge* edge = *eIt;
-                Model::Brush* brush = edge->left->face->brush();
-                if (!brush->canSplitEdge(edge, m_delta))
+            BrushEdgeMap::const_iterator it, end;
+            for (it = m_brushEdges.begin(), end = m_brushEdges.end(); it != end; ++it) {
+                const Model::Brush* brush = it->first;
+                const Model::EdgeInfo& edgeInfo = it->second;
+                if (!brush->canSplitEdge(edgeInfo, m_delta))
                     return false;
             }
             return true;

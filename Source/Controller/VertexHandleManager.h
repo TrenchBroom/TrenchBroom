@@ -185,12 +185,12 @@ namespace TrenchBroom {
 
             void selectEdgeHandle(const Vec3f& position);
             void deselectEdgeHandle(const Vec3f& position);
-            void selectEdgeHandles(const Model::EdgeList& edges);
+            void selectEdgeHandles(const Model::EdgeInfoList& edges);
             void deselectEdgeHandles();
             
             void selectFaceHandle(const Vec3f& position);
             void deselectFaceHandle(const Vec3f& position);
-            void selectFaceHandles(const Model::FaceList& faces);
+            void selectFaceHandles(const Model::FaceInfoList& faces);
             void deselectFaceHandles();
             
             void deselectAll();

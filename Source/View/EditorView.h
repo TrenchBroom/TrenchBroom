@@ -79,7 +79,7 @@ namespace TrenchBroom {
             Vec3f moveDelta(Direction direction, bool snapToGrid);
             
             void submit(wxCommand* command, bool store = true);
-            void pasteObjects(const Model::EntityList& entities, const Model::BrushList& brushes, const Vec3f& delta);
+            void pasteObjects(const Model::EntityList& entities, const Model::BrushList& brushes, const Vec3f& delta, bool hasBrushGeometry);
             void moveTextures(Direction direction, bool snapToGrid);
             void rotateTextures(bool clockwise, bool snapToGrid);
             void moveObjects(Direction direction, bool snapToGrid);

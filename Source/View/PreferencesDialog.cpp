@@ -58,6 +58,7 @@ namespace TrenchBroom {
         EVT_CHECKBOX(CommandIds::PreferencesDialog::InvertPanYAxisCheckBoxId, PreferencesDialog::OnInvertAxisChanged)
 
         EVT_COMMAND_SCROLL(CommandIds::PreferencesDialog::MoveSpeedSliderId, PreferencesDialog::OnMouseSliderChanged)
+        EVT_CHECKBOX(CommandIds::PreferencesDialog::EnableAltMoveCheckBoxId, PreferencesDialog::OnEnableAltMoveChanged)
 
         EVT_BUTTON(wxID_OK, PreferencesDialog::OnOkClicked)
         EVT_BUTTON(wxID_CANCEL, PreferencesDialog::OnCancelClicked)
@@ -91,6 +92,7 @@ namespace TrenchBroom {
             m_invertPanYAxisCheckBox->SetValue(prefs.getBool(Preferences::CameraPanInvertY));
 
             m_moveSpeedSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::CameraMoveSpeed) * m_moveSpeedSlider->GetMax()));
+            m_enableAltMoveCheckBox->SetValue(prefs.getBool(Preferences::CameraEnableAltMove));
         }
 
         wxWindow* PreferencesDialog::createQuakePreferences() {
@@ -193,6 +195,8 @@ namespace TrenchBroom {
 
             wxStaticText* moveSpeedLabel = new wxStaticText(mouseBox, wxID_ANY, "Mouse Move");
             m_moveSpeedSlider = new wxSlider(mouseBox, CommandIds::PreferencesDialog::MoveSpeedSliderId, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
+            wxStaticText* enableAltMoveFakeLabel = new wxStaticText(mouseBox, wxID_ANY, "");
+            m_enableAltMoveCheckBox = new wxCheckBox(mouseBox, CommandIds::PreferencesDialog::EnableAltMoveCheckBoxId, wxT("Enable Alt+MMB drag to move camera"));
 
             wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
             innerSizer->AddGrowableCol(1);
@@ -206,6 +210,8 @@ namespace TrenchBroom {
             innerSizer->Add(invertPanSizer);
             innerSizer->Add(moveSpeedLabel);
             innerSizer->Add(m_moveSpeedSlider, 0, wxEXPAND);
+            innerSizer->Add(enableAltMoveFakeLabel);
+            innerSizer->Add(m_enableAltMoveCheckBox);
             innerSizer->SetItemMinSize(lookSpeedLabel, PreferencesDialogLayout::MinimumLabelWidth, lookSpeedLabel->GetSize().y);
 
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
@@ -356,6 +362,13 @@ namespace TrenchBroom {
                 default:
                     break;
             }
+        }
+
+        void PreferencesDialog::OnEnableAltMoveChanged(wxCommandEvent& event) {
+            bool value = event.GetInt() != 0;
+            
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            prefs.setBool(Preferences::CameraEnableAltMove, value);
         }
 
         void PreferencesDialog::OnOkClicked(wxCommandEvent& event) {
