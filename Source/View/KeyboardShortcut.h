@@ -70,6 +70,7 @@ namespace TrenchBroom {
             typedef std::set<int, WinModifierOrder> ModifierSet;
 #endif
         public:
+            static const KeyboardShortcut Empty;
             typedef enum {
                 SCVertexTool    = 1 << 1,
                 SCClipTool      = 1 << 2,
@@ -85,7 +86,9 @@ namespace TrenchBroom {
             static wxString modifierKeyDisplayText(int key);
             static wxString keyMenuText(int key);
             static wxString keyDisplayText(int key);
+            static int parseKeyDisplayText(const wxString string);
             static wxString shortcutDisplayText(int modifierKey1, int modifierKey2, int modifierKey3, int key);
+            static bool parseShortcut(const wxString& string, int& modifierKey1, int& modifierKey2, int& modifierKey3, int& key);
         private:
             int m_commandId;
             int m_modifierKey1;

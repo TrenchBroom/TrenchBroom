@@ -148,6 +148,7 @@ namespace TrenchBroom {
 		}
 
         void PreferencesFrame::OnFileExit(wxCommandEvent& event) {
+            static_cast<AbstractApp*>(wxTheApp)->setPreferencesFrame(NULL);
             Destroy();
         }
 	}

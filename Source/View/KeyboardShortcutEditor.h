@@ -20,24 +20,48 @@
 #ifndef __TrenchBroom__KeyboardShortcutEditor__
 #define __TrenchBroom__KeyboardShortcutEditor__
 
-#include <wx/panel.h>
+#include <wx/defs.h>
+#include <wx/control.h>
 
 class wxStaticText;
 
 namespace TrenchBroom {
     namespace View {
-        class KeyboardShortcutEditor : public wxPanel {
+        class KeyboardShortcut;
+        
+        class KeyboardShortcutEditor : public wxControl {
         private:
             wxStaticText* m_label;
             int m_modifierKey1;
             int m_modifierKey2;
             int m_modifierKey3;
             int m_key;
+            bool m_resetOnNextKey;
             
             void update();
         public:
-            KeyboardShortcutEditor(wxWindow* parent, wxWindowID windowId = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0, const wxString& name = wxPanelNameStr);
+            KeyboardShortcutEditor(wxWindow* parent, wxWindowID windowId = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0, const wxValidator& validator = wxDefaultValidator, const wxString& name = wxPanelNameStr);
+
+            inline int modifierKey1() const {
+                return m_modifierKey1;
+            }
+
+            inline int modifierKey2() const {
+                return m_modifierKey2;
+            }
             
+            inline int modifierKey3() const {
+                return m_modifierKey3;
+            }
+            
+            inline int key() const {
+                return m_key;
+            }
+            
+            void SetShortcut(const KeyboardShortcut& shortcut);
+            void SetShortcut(int key = WXK_NONE, int modifierKey1 = WXK_NONE, int modifierKey2 = WXK_NONE, int modifierKey3 = WXK_NONE);
+            
+            void OnPaint(wxPaintEvent& event);
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);
             void OnKeyDown(wxKeyEvent& event);

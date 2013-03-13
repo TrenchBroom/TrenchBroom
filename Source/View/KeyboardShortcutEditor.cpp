@@ -22,13 +22,16 @@
 #include "View/KeyboardShortcut.h"
 #include "View/KeyboardShortcutEvent.h"
 
-#include <wx/defs.h>
+#include <wx/dcclient.h>
+#include <wx/renderer.h>
+#include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 
 namespace TrenchBroom {
     namespace View {
-        BEGIN_EVENT_TABLE(KeyboardShortcutEditor, wxPanel)
+        BEGIN_EVENT_TABLE(KeyboardShortcutEditor, wxControl)
+        EVT_PAINT(KeyboardShortcutEditor::OnPaint)
         EVT_SET_FOCUS(KeyboardShortcutEditor::OnSetFocus)
         EVT_KILL_FOCUS(KeyboardShortcutEditor::OnKillFocus)
         EVT_KEY_DOWN(KeyboardShortcutEditor::OnKeyDown)
@@ -42,18 +45,40 @@ namespace TrenchBroom {
             Refresh();
         }
         
-        KeyboardShortcutEditor::KeyboardShortcutEditor(wxWindow* parent, wxWindowID windowId, const wxPoint& pos, const wxSize& size, long style, const wxString& name) :
-        wxPanel(parent, windowId, pos, size, style | wxTAB_TRAVERSAL | wxWANTS_CHARS, name),
+        KeyboardShortcutEditor::KeyboardShortcutEditor(wxWindow* parent, wxWindowID windowId, const wxPoint& pos, const wxSize& size, long style, const wxValidator& validator, const wxString& name) :
+        wxControl(parent, windowId, pos, size, style | wxTAB_TRAVERSAL | wxWANTS_CHARS, validator, name),
         m_label(NULL),
         m_modifierKey1(WXK_NONE),
         m_modifierKey2(WXK_NONE),
         m_modifierKey3(WXK_NONE),
-        m_key(WXK_NONE) {
-            SetBackgroundColour(*wxWHITE);
+        m_key(WXK_NONE),
+        m_resetOnNextKey(false) {
+            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
             m_label = new wxStaticText(this, wxID_ANY, wxT(""));
+            m_label->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT));
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->Add(m_label, 1, wxEXPAND);
             SetSizer(sizer);
+        }
+
+        void KeyboardShortcutEditor::SetShortcut(const KeyboardShortcut& shortcut) {
+            SetShortcut(shortcut.key(), shortcut.modifierKey1(), shortcut.modifierKey2(), shortcut.modifierKey3());
+        }
+
+        void KeyboardShortcutEditor::SetShortcut(int key, int modifierKey1, int modifierKey2, int modifierKey3) {
+            m_modifierKey1 = modifierKey1;
+            m_modifierKey2 = modifierKey2;
+            m_modifierKey3 = modifierKey3;
+            m_key = key;
+            m_resetOnNextKey = true;
+            update();
+        }
+
+        void KeyboardShortcutEditor::OnPaint(wxPaintEvent& event) {
+            wxDelegateRendererNative renderer;
+            
+            wxPaintDC dc(this);
+            renderer.DrawFocusRect(this, dc, GetClientRect());
         }
 
         void KeyboardShortcutEditor::OnSetFocus(wxFocusEvent& event) {
@@ -65,6 +90,13 @@ namespace TrenchBroom {
         }
 
         void KeyboardShortcutEditor::OnKeyDown(wxKeyEvent& event) {
+            bool wasReset = false;
+            if (m_resetOnNextKey) {
+                SetShortcut();
+                wasReset = true;
+                m_resetOnNextKey = false;
+            }
+            
             const int key = event.GetKeyCode();
             switch (key) {
                 case WXK_SHIFT:
@@ -83,8 +115,12 @@ namespace TrenchBroom {
                     break;
 #endif
                 default:
-                    if (m_key == WXK_NONE)
+                    if (m_key == WXK_NONE && !wasReset) {
                         m_key = key;
+                    } else if (key == WXK_BACK || key == WXK_DELETE) {
+                        SetShortcut();
+                        m_resetOnNextKey = false;
+                    }
                     break;
             }
             update();

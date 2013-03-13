@@ -19,8 +19,12 @@
 
 #include "KeyboardShortcut.h"
 
+#include <wx/tokenzr.h>
+
 namespace TrenchBroom {
     namespace View {
+        const KeyboardShortcut KeyboardShortcut::Empty(wxID_ANY, SCAny, "");
+        
         wxString KeyboardShortcut::contextName(int context) {
             if (context == SCAny)
                 return "Any";
@@ -114,6 +118,10 @@ namespace TrenchBroom {
                     return "Right";
                 case WXK_DOWN:
                     return "Down";
+                case WXK_PAGEUP:
+                    return "PgUp";
+                case WXK_PAGEDOWN:
+                    return "PgDn";
                 case WXK_INSERT:
                     return "Ins";
                 case WXK_F1:
@@ -164,10 +172,6 @@ namespace TrenchBroom {
                     return "F23";
                 case WXK_F24:
                     return "F24";
-                case WXK_PAGEUP:
-                    return "PgUp";
-                case WXK_PAGEDOWN:
-                    return "PgDn";
                 default:
                     if (key >= 33 && key <= 126) {
                         wxString str;
@@ -206,72 +210,189 @@ namespace TrenchBroom {
                     return L"\u2192";
                 case WXK_DOWN:
                     return L"\u2193";
-                case WXK_INSERT:
-                    return "Ins";
-                case WXK_F1:
-                    return "F1";
-                case WXK_F2:
-                    return "F2";
-                case WXK_F3:
-                    return "F3";
-                case WXK_F4:
-                    return "F4";
-                case WXK_F5:
-                    return "F5";
-                case WXK_F6:
-                    return "F6";
-                case WXK_F7:
-                    return "F7";
-                case WXK_F8:
-                    return "F8";
-                case WXK_F9:
-                    return "F9";
-                case WXK_F10:
-                    return "F01";
-                case WXK_F11:
-                    return "F11";
-                case WXK_F12:
-                    return "F12";
-                case WXK_F13:
-                    return "F13";
-                case WXK_F14:
-                    return "F14";
-                case WXK_F15:
-                    return "F15";
-                case WXK_F16:
-                    return "F16";
-                case WXK_F17:
-                    return "F17";
-                case WXK_F18:
-                    return "F18";
-                case WXK_F19:
-                    return "F19";
-                case WXK_F20:
-                    return "F20";
-                case WXK_F21:
-                    return "F21";
-                case WXK_F22:
-                    return "F22";
-                case WXK_F23:
-                    return "F23";
-                case WXK_F24:
-                    return "F24";
                 case WXK_PAGEUP:
                     return L"\u21DE";
                 case WXK_PAGEDOWN:
                     return L"\u21DF";
+                case WXK_INSERT:
+                    return L"Ins";
+                case WXK_F1:
+                    return L"F1";
+                case WXK_F2:
+                    return L"F2";
+                case WXK_F3:
+                    return L"F3";
+                case WXK_F4:
+                    return L"F4";
+                case WXK_F5:
+                    return L"F5";
+                case WXK_F6:
+                    return L"F6";
+                case WXK_F7:
+                    return L"F7";
+                case WXK_F8:
+                    return L"F8";
+                case WXK_F9:
+                    return L"F9";
+                case WXK_F10:
+                    return L"F01";
+                case WXK_F11:
+                    return L"F11";
+                case WXK_F12:
+                    return L"F12";
+                case WXK_F13:
+                    return L"F13";
+                case WXK_F14:
+                    return L"F14";
+                case WXK_F15:
+                    return L"F15";
+                case WXK_F16:
+                    return L"F16";
+                case WXK_F17:
+                    return L"F17";
+                case WXK_F18:
+                    return L"F18";
+                case WXK_F19:
+                    return L"F19";
+                case WXK_F20:
+                    return L"F20";
+                case WXK_F21:
+                    return L"F21";
+                case WXK_F22:
+                    return L"F22";
+                case WXK_F23:
+                    return L"F23";
+                case WXK_F24:
+                    return L"F24";
                 default:
                     if (key >= 33 && key <= 126) {
-                        wxString str;
-                        str << static_cast<char>(key);
-                        return str;
+                        wxUniChar c(key);
+                        wxString result;
+                        result << c;
+                        return result;
                     }
-                    return "";
+                    return L"";
                     break;
             }
 #else
             return keyMenuText(key);
 #endif
+        }
+        
+        int KeyboardShortcut::parseKeyDisplayText(const wxString string) {
+#if defined __APPLE__
+            if (string == L"\u232B")
+                return WXK_BACK;
+            if (string == L"\u21E5")
+                return WXK_TAB;
+            if (string == L"\u21A9")
+                return WXK_RETURN;
+            if (string == L"\u238B")
+                return WXK_ESCAPE;
+            if (string == L"\u2423")
+                return WXK_SPACE;
+            if (string == L"\u2326")
+                return WXK_DELETE;
+            if (string == L"\u21F2")
+                return WXK_END;
+            if (string == L"\u21F1")
+                return WXK_HOME;
+            if (string == L"\u2190")
+                return WXK_LEFT;
+            if (string == L"\u2191")
+                return WXK_UP;
+            if (string == L"\u2192")
+                return WXK_RIGHT;
+            if (string == L"\u2193")
+                return WXK_DOWN;
+            if (string == L"\u21DE")
+                return WXK_PAGEUP;
+            if (string == L"\u21DF")
+                return WXK_PAGEDOWN;
+#else
+            if (string == L"Back")
+                return WXK_BACK;
+            if (string == L"Tab")
+                return WXK_TAB;
+            if (string == L"Enter")
+                return WXK_RETURN;
+            if (string == L"Esc")
+                return WXK_ESCAPE;
+            if (string == L"Space")
+                return WXK_SPACE;
+            if (string == L"Del")
+                return WXK_DELETE;
+            if (string == L"End")
+                return WXK_END;
+            if (string == L"Home")
+                return WXK_HOME;
+            if (string == L"Left")
+                return WXK_LEFT;
+            if (string == L"Up")
+                return WXK_UP;
+            if (string == L"Right")
+                return WXK_RIGHT;
+            if (string == L"Down")
+                return WXK_DOWN;
+#endif
+
+            if (string == L"Ins")
+                return WXK_INSERT;
+            if (string == L"F1")
+                return WXK_F1;
+            if (string == L"F2")
+                return WXK_F2;
+            if (string == L"F3")
+                return WXK_F3;
+            if (string == L"F4")
+                return WXK_F4;
+            if (string == L"F5")
+                return WXK_F5;
+            if (string == L"F6")
+                return WXK_F6;
+            if (string == L"F7")
+                return WXK_F7;
+            if (string == L"F8")
+                return WXK_F8;
+            if (string == L"F9")
+                return WXK_F9;
+            if (string == L"F10")
+                return WXK_F10;
+            if (string == L"F11")
+                return WXK_F11;
+            if (string == L"F12")
+                return WXK_F12;
+            if (string == L"F13")
+                return WXK_F13;
+            if (string == L"F14")
+                return WXK_F14;
+            if (string == L"F15")
+                return WXK_F15;
+            if (string == L"F16")
+                return WXK_F16;
+            if (string == L"F17")
+                return WXK_F17;
+            if (string == L"F18")
+                return WXK_F18;
+            if (string == L"F19")
+                return WXK_F19;
+            if (string == L"F20")
+                return WXK_F20;
+            if (string == L"F21")
+                return WXK_F21;
+            if (string == L"F22")
+                return WXK_F22;
+            if (string == L"F23")
+                return WXK_F23;
+            if (string == L"F24")
+                return WXK_F24;
+            
+            if (string.Length() == 1) {
+                wxUniChar c = string[0];
+                return static_cast<int>(c);
+            }
+            
+            return WXK_NONE;
         }
 
         wxString KeyboardShortcut::shortcutDisplayText(int modifierKey1, int modifierKey2, int modifierKey3, int key) {
@@ -291,6 +412,69 @@ namespace TrenchBroom {
             text << keyMenuText(key);
 #endif
             return text;
+        }
+        
+        bool KeyboardShortcut::parseShortcut(const wxString& string, int& modifierKey1, int& modifierKey2, int& modifierKey3, int& key) {
+            modifierKey1 = modifierKey2 = modifierKey3 = key = WXK_NONE;
+            
+            int keys[4];
+            for (size_t i = 0; i < 4; i++)
+                keys[i] = WXK_NONE;
+            
+            size_t keyIndex = string.Length();
+#if defined __APPLE__
+            for (size_t i = 0; i < string.Length(); i++) {
+                if (i > 3)
+                    return false;
+                
+                wxUniChar c = string[i];
+                if (c == L'\u21E7') {
+                    keys[i] = WXK_SHIFT;
+                } else if (c == L'\u2325') {
+                    keys[i] = WXK_ALT;
+                } else if (c == L'\u2318') {
+                    keys[i] = WXK_CONTROL;
+                } else {
+                    keyIndex = i;
+                    break;
+                }
+            }
+            
+            if (keyIndex < string.Length()) {
+                wxString keyString = string.SubString(keyIndex, string.size() - 1);
+                keys[3] = parseKeyDisplayText(keyString);
+                if (keys[3] == WXK_NONE)
+                    return false;
+            }
+#else
+            size_t index = 0;
+            wxStringTokenizer tokenizer(string, L"+");
+            while (tokenizer.HasMoreTokens()) {
+                if (index > 3)
+                    return false;
+                
+                wxString token = tokenizer.GetNextToken();
+                if (token == L"Ctrl") {
+                    keys[index] = WXK_CONTROL;
+                } else if (token == L"Alt") {
+                    keys[index] = WXK_ALT;
+                } else if (token == L"Shift") {
+                    keys[index] = WXK_SHIFT;
+                } else {
+                    keys[3] = parseKeyDisplayText(token);
+                    if (keys[3] == WXK_NONE)
+                        return false;
+                }
+                
+                index++;
+            }
+#endif
+            
+            modifierKey1 = keys[0];
+            modifierKey2 = keys[1];
+            modifierKey3 = keys[2];
+            key = keys[3];
+            return true;
         }
 
         KeyboardShortcut::KeyboardShortcut(int commandId, int context, const String& text) :

@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__KeyboardPreferencePane__
 #define __TrenchBroom__KeyboardPreferencePane__
 
+#include "Utility/Preferences.h"
 #include "View/KeyboardShortcut.h"
 
 #include <wx/grid.h>
@@ -30,20 +31,48 @@
 
 namespace TrenchBroom {
     namespace View {
+        class KeyboardShortcutEditor;
+        
+        class KeyboardGridCellEditor : public wxGridCellEditor {
+        private:
+            KeyboardShortcutEditor* m_editor;
+            wxEvtHandler* m_evtHandler;
+        public:
+            KeyboardGridCellEditor();
+            KeyboardGridCellEditor(wxWindow* parent, wxWindowID windowId, wxEvtHandler* evtHandler, int modifierKey1, int modifierKey2, int modifierKey3, int key);
+            
+            void Create(wxWindow* parent, wxWindowID windowId, wxEvtHandler* evtHandler);
+            wxGridCellEditor* Clone() const;
+            
+            void BeginEdit(int row, int col, wxGrid* grid);
+            bool EndEdit(int row, int col, const wxGrid* grid, const wxString& oldValue, wxString* newValue);
+            void ApplyEdit(int row, int col, wxGrid* grid);
+            void HandleReturn(wxKeyEvent& event);
+            
+            void Reset();
+            void Show(bool show, wxGridCellAttr* attr = NULL);
+            
+            wxString GetValue() const;
+        };
+        
         class KeyboardGridTable : public wxGridTableBase {
         private:
             class Entry {
             private:
-                const KeyboardShortcut* m_shortcut;
+                const Preferences::Preference<KeyboardShortcut>* m_pref;
                 bool m_duplicate;
                 
             public:
-                Entry(const KeyboardShortcut& shortcut) :
-                m_shortcut(&shortcut),
+                Entry(const Preferences::Preference<KeyboardShortcut>& pref) :
+                m_pref(&pref),
                 m_duplicate(false) {}
                 
+                inline const Preferences::Preference<KeyboardShortcut>& pref() const {
+                    return *m_pref;
+                }
+                
                 inline const KeyboardShortcut& shortcut() const {
-                    return *m_shortcut;
+                    return m_pref->value();
                 }
                 
                 inline bool duplicate() const {
@@ -55,16 +84,16 @@ namespace TrenchBroom {
                 }
                 
                 inline bool isDuplicateOf(const Entry& entry) const {
-                    if (m_shortcut->modifierKey1() != entry.m_shortcut->modifierKey1())
+                    if (shortcut().modifierKey1() != entry.shortcut().modifierKey1())
                         return false;
-                    if (m_shortcut->modifierKey2() != entry.m_shortcut->modifierKey2())
+                    if (shortcut().modifierKey2() != entry.shortcut().modifierKey2())
                         return false;
-                    if (m_shortcut->modifierKey3() != entry.m_shortcut->modifierKey3())
+                    if (shortcut().modifierKey3() != entry.shortcut().modifierKey3())
                         return false;
-                    if (m_shortcut->key() != entry.m_shortcut->key())
+                    if (shortcut().key() != entry.shortcut().key())
                         return false;
                     
-                    if ((m_shortcut->context() & entry.m_shortcut->context()) == 0)
+                    if ((shortcut().context() & entry.shortcut().context()) == 0)
                         return false;
                     return true;
                 }
@@ -73,12 +102,18 @@ namespace TrenchBroom {
             typedef std::vector<Entry> EntryList;
         
             EntryList m_entries;
+            KeyboardGridCellEditor* m_cellEditor;
 
             void notifyRowsUpdated(size_t pos, size_t numRows = 1);
             void notifyRowsInserted(size_t pos = 0, size_t numRows = 1);
             void notifyRowsAppended(size_t numRows = 1);
             void notifyRowsDeleted(size_t pos = 0, size_t numRows = 1);
+            
+            bool markDuplicates(EntryList& entries);
         public:
+            KeyboardGridTable();
+            ~KeyboardGridTable();
+            
             int GetNumberRows();
             int GetNumberCols();
             
@@ -105,7 +140,6 @@ namespace TrenchBroom {
         public:
             KeyboardPreferencePane(wxWindow* parent);
 
-            void OnKeyboardShortcut(KeyboardShortcutEvent& event);
             void OnGridSize(wxSizeEvent& event);
         };
     }
