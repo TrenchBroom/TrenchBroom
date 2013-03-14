@@ -471,6 +471,12 @@
 		<Unit filename="../Source/View/Inspector.h" />
 		<Unit filename="../Source/View/KeyboardPreferencePane.cpp" />
 		<Unit filename="../Source/View/KeyboardPreferencePane.h" />
+		<Unit filename="../Source/View/KeyboardShortcut.cpp" />
+		<Unit filename="../Source/View/KeyboardShortcut.h" />
+		<Unit filename="../Source/View/KeyboardShortcutEditor.cpp" />
+		<Unit filename="../Source/View/KeyboardShortcutEditor.h" />
+		<Unit filename="../Source/View/KeyboardShortcutEvent.cpp" />
+		<Unit filename="../Source/View/KeyboardShortcutEvent.h" />
 		<Unit filename="../Source/View/LayoutConstants.h" />
 		<Unit filename="../Source/View/MapGLCanvas.cpp" />
 		<Unit filename="../Source/View/MapGLCanvas.h" />
@@ -478,6 +484,7 @@
 		<Unit filename="../Source/View/MapPropertiesDialog.h" />
 		<Unit filename="../Source/View/PathDialog.cpp" />
 		<Unit filename="../Source/View/PathDialog.h" />
+		<Unit filename="../Source/View/PreferencePane.h" />
 		<Unit filename="../Source/View/PreferencesFrame.cpp" />
 		<Unit filename="../Source/View/PreferencesFrame.h" />
 		<Unit filename="../Source/View/ProgressIndicatorDialog.cpp" />
