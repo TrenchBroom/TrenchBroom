@@ -230,7 +230,7 @@ namespace TrenchBroom {
             updateControls();
         }
         
-        bool GeneralPreferencePane::canClose() const {
+        bool GeneralPreferencePane::validate() {
             return true;
         }
 

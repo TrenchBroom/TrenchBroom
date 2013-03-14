@@ -44,7 +44,7 @@ namespace TrenchBroom {
 		END_EVENT_TABLE()
 
         void PreferencesFrame::switchToPane(PrefPane pane) {
-            if (m_pane != NULL && !m_pane->canClose()) {
+            if (m_pane != NULL && !m_pane->validate()) {
                 m_toolBar->ToggleTool(PPGeneral, m_currentPane == PPGeneral);
                 m_toolBar->ToggleTool(PPKeyboard, m_currentPane == PPKeyboard);
                 return;
@@ -56,7 +56,6 @@ namespace TrenchBroom {
             }
 
             m_pane = NULL;
-            m_currentPane = pane;
             m_panel = new wxPanel(this);
 
             m_toolBar->ToggleTool(PPGeneral, pane == PPGeneral);
@@ -73,7 +72,7 @@ namespace TrenchBroom {
             
             wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
 #ifndef __APPLE__
-            innerSizer->Add(currentPane, 1, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::DialogOuterMargin);
+            innerSizer->Add(m_pane, 1, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::DialogOuterMargin);
             
             wxButton* okButton = new wxButton(m_panel, wxID_OK, wxT("OK"));
             wxButton* cancelButton = new wxButton(m_panel, wxID_CANCEL, wxT("Cancel"));
@@ -93,6 +92,22 @@ namespace TrenchBroom {
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(m_panel, 1, wxEXPAND);
             SetSizerAndFit(outerSizer);
+            
+#ifdef __APPLE__
+            // allow the dialog to be closed using CMD+W
+            // but only if the keyboard preference pane is not active
+            if (m_currentPane == PPKeyboard && pane != PPKeyboard) {
+                wxAcceleratorEntry acceleratorEntries[1];
+                acceleratorEntries[0].Set(wxACCEL_CMD, static_cast<int>('W'), wxID_CLOSE);
+                wxAcceleratorTable accceleratorTable(1, acceleratorEntries);
+                SetAcceleratorTable(accceleratorTable);
+            } else if (m_currentPane != PPKeyboard && pane == PPKeyboard) {
+                wxAcceleratorTable accceleratorTable(0, NULL);
+                SetAcceleratorTable(accceleratorTable);
+            }
+#endif
+
+            m_currentPane = pane;
         }
         
         PreferencesFrame::PreferencesFrame() :
@@ -113,14 +128,6 @@ namespace TrenchBroom {
             
             switchToPane(PPGeneral);
 
-#ifdef __APPLE__
-            // allow the dialog to be closed using CMD+W
-            wxAcceleratorEntry acceleratorEntries[1];
-            acceleratorEntries[0].Set(wxACCEL_CMD, static_cast<int>('W'), wxID_CLOSE);
-            wxAcceleratorTable accceleratorTable(4, acceleratorEntries);
-            SetAcceleratorTable(accceleratorTable);
-#endif
-            
             static_cast<AbstractApp*>(wxTheApp)->setPreferencesFrame(this);
         }
 
@@ -129,6 +136,11 @@ namespace TrenchBroom {
         }
 
         void PreferencesFrame::OnOkClicked(wxCommandEvent& event) {
+            if (!m_pane->validate()) {
+                event.Skip();
+                return;
+            }
+
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 			prefs.save();
 
@@ -137,16 +149,25 @@ namespace TrenchBroom {
 
             Controller::Command invalidateInstancedRenderersCommand(Controller::Command::InvalidateInstancedRenderers);
             static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &invalidateInstancedRenderersCommand);
+
+            static_cast<AbstractApp*>(wxTheApp)->setPreferencesFrame(NULL);
             Destroy();
 		}
 
 		void PreferencesFrame::OnCancelClicked(wxCommandEvent& event) {
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 			prefs.discardChanges();
+
+            static_cast<AbstractApp*>(wxTheApp)->setPreferencesFrame(NULL);
             Destroy();
 		}
 
 		void PreferencesFrame::OnClose(wxCloseEvent& event) {
+            if (!m_pane->validate()) {
+                event.Veto();
+                return;
+            }
+
 #ifndef __APPLE__
             Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
 			prefs.discardChanges();
@@ -156,6 +177,11 @@ namespace TrenchBroom {
 		}
 
         void PreferencesFrame::OnFileExit(wxCommandEvent& event) {
+            if (!m_pane->validate()) {
+                event.Skip();
+                return;
+            }
+
             static_cast<AbstractApp*>(wxTheApp)->setPreferencesFrame(NULL);
             Destroy();
         }

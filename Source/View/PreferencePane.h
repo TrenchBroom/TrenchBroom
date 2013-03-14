@@ -31,7 +31,7 @@ namespace TrenchBroom {
             
             virtual ~PreferencePane() {}
             
-            virtual bool canClose() const = 0;
+            virtual bool validate() = 0;
         };
     }
 }

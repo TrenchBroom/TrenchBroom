@@ -142,7 +142,7 @@ namespace TrenchBroom {
         public:
             KeyboardPreferencePane(wxWindow* parent);
 
-            bool canClose() const;
+            bool validate();
             
             void OnGridSize(wxSizeEvent& event);
         };

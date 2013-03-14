@@ -92,8 +92,8 @@ namespace TrenchBroom {
         void KeyboardShortcutEditor::OnKeyDown(wxKeyEvent& event) {
             bool wasReset = false;
             if (m_resetOnNextKey) {
+                wasReset = m_modifierKey1 != WXK_NONE || m_modifierKey2 != WXK_NONE || m_modifierKey3 != WXK_NONE || m_key != WXK_NONE;
                 SetShortcut();
-                wasReset = true;
                 m_resetOnNextKey = false;
             }
             

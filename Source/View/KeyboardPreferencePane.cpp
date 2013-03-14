@@ -455,8 +455,12 @@ namespace TrenchBroom {
             SetSizerAndFit(outerSizer);
         }
 
-        bool KeyboardPreferencePane::canClose() const {
-            return !m_table->hasDuplicates();
+        bool KeyboardPreferencePane::validate() {
+            if (m_table->hasDuplicates()) {
+                wxMessageBox(wxT("Please fix all conflicting shortcuts (highlighted in red)."), wxT("Error"), wxOK, this);
+                return false;
+            }
+            return true;
         }
 
         void KeyboardPreferencePane::OnGridSize(wxSizeEvent& event) {

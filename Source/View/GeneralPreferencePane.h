@@ -56,7 +56,7 @@ namespace TrenchBroom {
         public:
             GeneralPreferencePane(wxWindow* parent);
 
-            bool canClose() const;
+            bool validate();
 
             void OnChooseQuakePathClicked(wxCommandEvent& event);
             void OnViewSliderChanged(wxScrollEvent& event);
