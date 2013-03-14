@@ -29,12 +29,35 @@
 		<h4>Conditional Models</h4>
 		<p>Up to this point, we have been able to attach a model to an entity so that it is displayed in Trenchbroom.  This is nice, but what if the entity uses different models depending on settings?  Things like ammo boxes appear larger if the "BIG" spawnflag is checked and Gaunts in Quoth appear on the group if the 'perched' key is set to '1'.</p>
 		<p class="no-indent no-justify">There are a few options available which allow you to specify which model an entity should show depending on what keys are set on it in the editor.  This can be done the following way: <span class="monospace_text">model(":MODELPATH" CONDITIONS...);</span></p>
-		<p class="no-indent no-justify">Conditions are defined a couple of ways: </p>
+		<p class="no-indent no-justify">Conditions are defined a couple of ways:</p>
+		<h4>As a literal</h4>
+		<p class="no-justify">When you need to define a model for a specific value on an entity, you can do so like this: <span class="monospace_text">KEYNAME = "KEYVALUE"</span>.  This will make Trenchbroom use the specified model if the KEYNAME is exactly the KEYVALUE.</p>
+		<p class="no-indent">As an example, <span class="monospace_text">model(":progs/model2.mdl" state = "1");</span> would use <span class="monospace_text">progs/model2.mdl</span> only when the <span class="monospace_text">state</span> key on the entity is set to 1.</p>
+
+		<h4>As a flag value</h4>
+
+		<h4>Combining skins, frames and conditionals</h4>
+		<p>Let's look at an example, the Voreling from Quoth.</p>
+		<div class="monospace_text">/*QUAKED monster_voreling (1 0 0) (-16 -16 -24) (16 16 32) AMBUSH<br/>
+		model(":progs/voreling.mdl");<br/>
+		model(":progs/voreling.mdl" 0 13 dangle = "1");<br/>
+		<br/>
+		Voreling, 65 health points<br/>
+		<br/>
+		Flags:<br/>
+		"AMBUSH"<br/>
+		 the monster will only wake up on<br/>
+		 really seeing the player, not another<br/>
+		 monster getting angry<br/>
+		"dangle"<br/>
+		 hang from cieling<br/>
+		<br/>
+		*/</div>
+		<p>The voreling has two states, either as a normal monster, standing on the ground, or hanging from the ceiling.  There are two model declarations, the first has no skin or frame setting, so Trenchbroom will use skin 0 and frame 0, and it has no conditionals, so that means this is going to be the default visual model used to display this monster in the editor.</p>
+		<p class="no-indent">The second model declaration has a skin setting of 0 and a frame setting of 13.  If you look in the model file, you will see this is the frame where the Voreling is hanging upside down.  Finally, we can see that the conditional <span class="monospace_text">dangle = "1"</span> tells Trenchbroom to only use this declaration if the <span class="monospace_text">dangle</span> key is set to 1.</p>
 		
-		
-		
-		
-		<h3>Example</h3>
+		<p>In the case where multiple conditionals evaluate to true, Trenchbroom will use the last one as the model to display.</p>
+		<h3>Examples</h3>
 		<p class="no-indent">Here is another example of a full point entity definition with model declarations:</p>
 		<div class="monospace_text">/*QUAKED item_shells (0 .5 .5) (0 0 0) (32 32 32) BIG<br/>
 		model(":maps/b_shell0.bsp");<br/>
