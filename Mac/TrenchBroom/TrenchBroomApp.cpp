@@ -24,7 +24,7 @@
 
 #include "Utility/DocManager.h"
 #include "View/CommandIds.h"
-#include "View/PreferencesDialog.h"
+#include "View/PreferencesFrame.h"
 
 #include <clocale>
 
@@ -54,7 +54,7 @@ bool TrenchBroomApp::OnInit() {
         SetExitOnFrameDelete(false);
         m_docManager->SetUseSDI(false);
         
-        wxMenuBar* menuBar = CreateMenuBar(m_docManager, NULL, false);
+        wxMenuBar* menuBar = CreateMenuBar(this, NULL, false);
         wxMenuBar::MacSetCommonMenuBar(menuBar);
         
         return true;

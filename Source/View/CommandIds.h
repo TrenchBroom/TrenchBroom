@@ -134,7 +134,7 @@ namespace TrenchBroom {
                 static const int Highest                            = Lowest + 99;
             }
             
-            namespace PreferencesDialog {
+            namespace GeneralPreferencePane {
                 static const int Lowest                             = ViewInspector::Highest +  1;
                 static const int ChooseQuakePathButtonId            = Lowest +  1;
                 static const int BrightnessSliderId                 = Lowest +  2;
@@ -151,9 +151,15 @@ namespace TrenchBroom {
                 static const int EnableAltMoveCheckBoxId            = Lowest + 13;
                 static const int Highest                            = Lowest + 99;
             }
+
+            namespace KeyboardPreferencePane {
+                static const int Lowest                             = GeneralPreferencePane::Highest + 1;
+                static const int ShortcutEditorId                   = Lowest +  1;
+                static const int Highest                            = Lowest + 99;
+            }
             
             namespace FaceInspector {
-                static const int Lowest                             = PreferencesDialog::Highest + 1;
+                static const int Lowest                             = KeyboardPreferencePane::Highest + 1;
                 static const int TextureBrowserSortOrderChoiceId    = Lowest +  1;
                 static const int TextureBrowserGroupButtonId        = Lowest +  2;
                 static const int TextureBrowserUsedButtonId         = Lowest +  3;
