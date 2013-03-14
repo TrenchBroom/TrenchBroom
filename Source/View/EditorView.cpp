@@ -1722,6 +1722,12 @@ namespace TrenchBroom {
         }
 
         void EditorView::OnUpdateMenuItem(wxUpdateUIEvent& event) {
+            AbstractApp* app = static_cast<AbstractApp*>(wxTheApp);
+            if (app->preferencesFrame() != NULL) {
+                event.Enable(false);
+                return;
+            }
+            
             Model::EditStateManager& editStateManager = mapDocument().editStateManager();
             wxTextCtrl* textCtrl = wxDynamicCast(GetFrame()->FindFocus(), wxTextCtrl);
             switch (event.GetId()) {

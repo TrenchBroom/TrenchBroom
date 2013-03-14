@@ -574,6 +574,15 @@ namespace TrenchBroom {
                 
                 return preference.value();
             }
+            
+            inline void setKeyboardShortcut(const Preference<KeyboardShortcut>& preference, const KeyboardShortcut& value) {
+                KeyboardShortcut previousValue = preference.value();
+                preference.setValue(value);
+                if (m_saveInstantly)
+                    preference.save(wxConfig::Get());
+                else
+                    markAsUnsaved(&preference, new ValueHolder<KeyboardShortcut>(previousValue));
+            }
         };
     }
 }

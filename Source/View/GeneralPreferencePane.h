@@ -20,7 +20,7 @@
 #ifndef __TrenchBroom__GeneralPreferencePane__
 #define __TrenchBroom__GeneralPreferencePane__
 
-#include <wx/panel.h>
+#include "View/PreferencePane.h"
 
 class wxCheckBox;
 class wxChoice;
@@ -33,7 +33,7 @@ namespace TrenchBroom {
             static const int MinimumLabelWidth = 100;
         }
 
-        class GeneralPreferencePane : public wxPanel {
+        class GeneralPreferencePane : public PreferencePane {
         private:
             wxStaticText* m_quakePathValueLabel;
             wxSlider* m_brightnessSlider;
@@ -55,6 +55,8 @@ namespace TrenchBroom {
             wxWindow* createMousePreferences();
         public:
             GeneralPreferencePane(wxWindow* parent);
+
+            bool validate();
 
             void OnChooseQuakePathClicked(wxCommandEvent& event);
             void OnViewSliderChanged(wxScrollEvent& event);

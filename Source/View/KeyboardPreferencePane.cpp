@@ -19,8 +19,9 @@
 
 #include "KeyboardPreferencePane.h"
 
-#include "Utility/Preferences.h"
 #include "View/CommandIds.h"
+#include "View/KeyboardShortcutEditor.h"
+#include "View/KeyboardShortcutEvent.h"
 #include "View/LayoutConstants.h"
 
 #include <wx/sizer.h>
@@ -31,6 +32,77 @@
 
 namespace TrenchBroom {
     namespace View {
+        KeyboardGridCellEditor::KeyboardGridCellEditor() :
+        wxGridCellEditor() {}
+
+        KeyboardGridCellEditor::KeyboardGridCellEditor(wxWindow* parent, wxWindowID windowId, wxEvtHandler* evtHandler, int modifierKey1, int modifierKey2, int modifierKey3, int key) :
+        wxGridCellEditor() {
+            Create(parent, windowId, evtHandler);
+            m_editor->SetShortcut(key, modifierKey1, modifierKey2, modifierKey3);
+        }
+
+        void KeyboardGridCellEditor::Create(wxWindow* parent, wxWindowID windowId, wxEvtHandler* evtHandler) {
+            m_evtHandler = evtHandler;
+            m_editor = new KeyboardShortcutEditor(parent, wxID_ANY);
+            SetControl(m_editor);
+            // wxGridCellEditor::Create(parent, windowId, evtHandler);
+        }
+        
+        wxGridCellEditor* KeyboardGridCellEditor::Clone() const {
+            return new KeyboardGridCellEditor(m_editor->GetParent(), wxID_ANY, m_evtHandler,
+                                              m_editor->modifierKey1(),
+                                              m_editor->modifierKey2(),
+                                              m_editor->modifierKey3(),
+                                              m_editor->key());
+        }
+        
+        void KeyboardGridCellEditor::BeginEdit(int row, int col, wxGrid* grid) {
+            int modifierKey1, modifierKey2, modifierKey3, key;
+            KeyboardShortcut::parseShortcut(grid->GetCellValue(row, col),
+                                            modifierKey1,
+                                            modifierKey2,
+                                            modifierKey3,
+                                            key);
+            m_editor->SetShortcut(key, modifierKey1, modifierKey2, modifierKey3);
+            m_editor->SetFocus();
+        }
+        
+        bool KeyboardGridCellEditor::EndEdit(int row, int col, const wxGrid* grid, const wxString& oldValue, wxString* newValue) {
+            *newValue = KeyboardShortcut::shortcutDisplayText(m_editor->modifierKey1(),
+                                                              m_editor->modifierKey2(),
+                                                              m_editor->modifierKey3(),
+                                                              m_editor->key());
+            if (*newValue == oldValue)
+                return false;
+            return true;
+        }
+        
+        void KeyboardGridCellEditor::ApplyEdit(int row, int col, wxGrid* grid) {
+            wxString newValue = KeyboardShortcut::shortcutDisplayText(m_editor->modifierKey1(),
+                                                                      m_editor->modifierKey2(),
+                                                                      m_editor->modifierKey3(),
+                                                                      m_editor->key());
+            grid->SetCellValue(row, col, newValue);
+        }
+        
+        void KeyboardGridCellEditor::HandleReturn(wxKeyEvent& event) {
+        }
+        
+        void KeyboardGridCellEditor::Reset() {
+            m_editor->SetShortcut();
+        }
+        
+        void KeyboardGridCellEditor::Show(bool show, wxGridCellAttr* attr) {
+            m_editor->Show(show);
+        }
+        
+        wxString KeyboardGridCellEditor::GetValue() const {
+            return KeyboardShortcut::shortcutDisplayText(m_editor->modifierKey1(),
+                                                         m_editor->modifierKey2(),
+                                                         m_editor->modifierKey3(),
+                                                         m_editor->key());
+        }
+
         void KeyboardGridTable::notifyRowsUpdated(size_t pos, size_t numRows) {
             if (GetView() != NULL) {
                 wxGridTableMessage message(this, wxGRIDTABLE_REQUEST_VIEW_GET_VALUES,
@@ -65,6 +137,36 @@ namespace TrenchBroom {
                 GetView()->ProcessTableMessage(message);
             }
         }
+        
+        bool KeyboardGridTable::markDuplicates(EntryList& entries) {
+            for (size_t i = 0; i < entries.size(); i++)
+                entries[i].setDuplicate(false);
+
+            bool hasDuplicates = false;
+            for (size_t i = 0; i < entries.size(); i++) {
+                Entry& first = entries[i];
+                if (first.shortcut().key() != WXK_NONE) {
+                    for (size_t j = i + 1; j < entries.size(); j++) {
+                        Entry& second = entries[j];
+                        if (first.isDuplicateOf(second)) {
+                            first.setDuplicate(true);
+                            second.setDuplicate(true);
+                            hasDuplicates = true;
+                        }
+                    }
+                }
+            }
+            return hasDuplicates;
+        }
+
+        KeyboardGridTable::KeyboardGridTable() :
+        m_cellEditor(new KeyboardGridCellEditor()) {
+            m_cellEditor->IncRef();
+        }
+        
+        KeyboardGridTable::~KeyboardGridTable() {
+            m_cellEditor->DecRef();
+        }
 
         int KeyboardGridTable::GetNumberRows() {
             return static_cast<int>(m_entries.size());
@@ -86,7 +188,7 @@ namespace TrenchBroom {
                 case 1:
                     return KeyboardShortcut::contextName(m_entries[rowIndex].shortcut().context());
                 case 2:
-                    return m_entries[rowIndex].shortcut().shortcutMenuText();
+                    return m_entries[rowIndex].shortcut().shortcutDisplayText();
                 default:
                     assert(false);
                     break;
@@ -99,7 +201,27 @@ namespace TrenchBroom {
             assert(row >= 0 && row < GetNumberRows());
             assert(col == 2);
 
-            // TODO: implement
+            int modifierKey1, modifierKey2, modifierKey3, key;
+            bool success = KeyboardShortcut::parseShortcut(value, modifierKey1, modifierKey2, modifierKey3, key);
+            assert(success);
+            
+            size_t rowIndex = static_cast<size_t>(row);
+            const KeyboardShortcut& oldShortcut = m_entries[rowIndex].shortcut();
+            KeyboardShortcut newShortcut = KeyboardShortcut(oldShortcut.commandId(),
+                                                            modifierKey1, modifierKey2, modifierKey3, key,
+                                                            oldShortcut.context(),
+                                                            oldShortcut.text());
+
+            using namespace TrenchBroom::Preferences;
+            PreferenceManager& prefs = PreferenceManager::preferences();
+            
+            const Preference<KeyboardShortcut>& pref = m_entries[rowIndex].pref();
+            prefs.setKeyboardShortcut(pref, newShortcut);
+            
+            if (markDuplicates(m_entries))
+                notifyRowsUpdated(m_entries.size());
+            else
+                notifyRowsUpdated(rowIndex, 1);
         }
 
         void KeyboardGridTable::Clear() {
@@ -151,130 +273,127 @@ namespace TrenchBroom {
                     if (attr == NULL)
                         attr = new wxGridCellAttr();
                     attr->SetReadOnly(true);
+                } else if (col == 2) {
+                    if (attr == NULL)
+                        attr = new wxGridCellAttr();
+                    attr->SetEditor(m_cellEditor);
+                    m_cellEditor->IncRef();
                 }
             }
             return attr;
         }
 
+        bool KeyboardGridTable::hasDuplicates() const {
+            for (size_t i = 0; i < m_entries.size(); i++)
+                if (m_entries[i].duplicate())
+                    return true;
+            return false;
+        }
+
         bool KeyboardGridTable::update() {
             using namespace TrenchBroom::Preferences;
-            PreferenceManager& prefs = PreferenceManager::preferences();
 
             EntryList newEntries;
 
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(FileNew)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(FileOpen)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(FileSave)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(FileSaveAs)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(FileLoadPointFile)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(FileUnloadPointFile)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(FileClose)));
+            newEntries.push_back(Entry(FileNew));
+            newEntries.push_back(Entry(FileOpen));
+            newEntries.push_back(Entry(FileSave));
+            newEntries.push_back(Entry(FileSaveAs));
+            newEntries.push_back(Entry(FileLoadPointFile));
+            newEntries.push_back(Entry(FileUnloadPointFile));
+            newEntries.push_back(Entry(FileClose));
+            
+            newEntries.push_back(Entry(EditUndo));
+            newEntries.push_back(Entry(EditRedo));
+            newEntries.push_back(Entry(EditCut));
+            newEntries.push_back(Entry(EditCopy));
+            newEntries.push_back(Entry(EditPaste));
+            newEntries.push_back(Entry(EditPasteAtOriginalPosition));
+            newEntries.push_back(Entry(EditDelete));
+            
+            newEntries.push_back(Entry(EditSelectAll));
+            newEntries.push_back(Entry(EditSelectSiblings));
+            newEntries.push_back(Entry(EditSelectTouching));
+            newEntries.push_back(Entry(EditSelectNone));
+            newEntries.push_back(Entry(EditHideSelected));
+            newEntries.push_back(Entry(EditHideUnselected));
+            newEntries.push_back(Entry(EditUnhideAll));
+            newEntries.push_back(Entry(EditLockSelected));
+            newEntries.push_back(Entry(EditLockUnselected));
+            newEntries.push_back(Entry(EditUnlockAll));
+            newEntries.push_back(Entry(EditToggleTextureLock));
+            newEntries.push_back(Entry(EditShowMapProperties));
+            
+            newEntries.push_back(Entry(EditToolsToggleClipTool));
+            newEntries.push_back(Entry(EditToolsToggleClipSide));
+            newEntries.push_back(Entry(EditToolsPerformClip));
+            newEntries.push_back(Entry(EditToolsToggleVertexTool));
+            newEntries.push_back(Entry(EditToolsToggleRotateTool));
+            
+            newEntries.push_back(Entry(EditActionsMoveTexturesUp));
+            newEntries.push_back(Entry(EditActionsMoveTexturesDown));
+            newEntries.push_back(Entry(EditActionsMoveTexturesLeft));
+            newEntries.push_back(Entry(EditActionsMoveTexturesRight));
+            newEntries.push_back(Entry(EditActionsRotateTexturesCW));
+            newEntries.push_back(Entry(EditActionsRotateTexturesCCW));
+            newEntries.push_back(Entry(EditActionsMoveTexturesUpFine));
+            newEntries.push_back(Entry(EditActionsMoveTexturesDownFine));
+            newEntries.push_back(Entry(EditActionsMoveTexturesLeftFine));
+            newEntries.push_back(Entry(EditActionsMoveTexturesRightFine));
+            newEntries.push_back(Entry(EditActionsRotateTexturesCWFine));
+            newEntries.push_back(Entry(EditActionsRotateTexturesCCWFine));
+            
+            newEntries.push_back(Entry(EditActionsMoveObjectsForward));
+            newEntries.push_back(Entry(EditActionsMoveObjectsBackward));
+            newEntries.push_back(Entry(EditActionsMoveObjectsLeft));
+            newEntries.push_back(Entry(EditActionsMoveObjectsRight));
+            newEntries.push_back(Entry(EditActionsMoveObjectsUp));
+            newEntries.push_back(Entry(EditActionsMoveObjectsDown));
+            newEntries.push_back(Entry(EditActionsRollObjectsCW));
+            newEntries.push_back(Entry(EditActionsRollObjectsCCW));
+            newEntries.push_back(Entry(EditActionsYawObjectsCW));
+            newEntries.push_back(Entry(EditActionsYawObjectsCCW));
+            newEntries.push_back(Entry(EditActionsPitchObjectsCW));
+            newEntries.push_back(Entry(EditActionsPitchObjectsCCW));
+            newEntries.push_back(Entry(EditActionsFlipObjectsHorizontally));
+            newEntries.push_back(Entry(EditActionsFlipObjectsVertically));
+            newEntries.push_back(Entry(EditActionsDuplicateObjects));
+            
+            newEntries.push_back(Entry(EditActionsMoveVerticesForward));
+            newEntries.push_back(Entry(EditActionsMoveVerticesBackward));
+            newEntries.push_back(Entry(EditActionsMoveVerticesLeft));
+            newEntries.push_back(Entry(EditActionsMoveVerticesRight));
+            newEntries.push_back(Entry(EditActionsMoveVerticesUp));
+            newEntries.push_back(Entry(EditActionsMoveVerticesDown));
+            
+            newEntries.push_back(Entry(EditActionsCorrectVertices));
+            newEntries.push_back(Entry(EditActionsSnapVertices));
+            
+            newEntries.push_back(Entry(ViewGridToggleShowGrid));
+            newEntries.push_back(Entry(ViewGridToggleSnapToGrid));
+            newEntries.push_back(Entry(ViewGridIncGridSize));
+            newEntries.push_back(Entry(ViewGridDecGridSize));
+            newEntries.push_back(Entry(ViewGridSetSize1));
+            newEntries.push_back(Entry(ViewGridSetSize2));
+            newEntries.push_back(Entry(ViewGridSetSize4));
+            newEntries.push_back(Entry(ViewGridSetSize8));
+            newEntries.push_back(Entry(ViewGridSetSize16));
+            newEntries.push_back(Entry(ViewGridSetSize32));
+            newEntries.push_back(Entry(ViewGridSetSize64));
+            newEntries.push_back(Entry(ViewGridSetSize128));
+            newEntries.push_back(Entry(ViewGridSetSize256));
+            
+            newEntries.push_back(Entry(ViewCameraMoveForward));
+            newEntries.push_back(Entry(ViewCameraMoveBackward));
+            newEntries.push_back(Entry(ViewCameraMoveLeft));
+            newEntries.push_back(Entry(ViewCameraMoveRight));
+            newEntries.push_back(Entry(ViewCameraMoveUp));
+            newEntries.push_back(Entry(ViewCameraMoveDown));
+            newEntries.push_back(Entry(ViewCameraMoveToNextPoint));
+            newEntries.push_back(Entry(ViewCameraMoveToPreviousPoint));
+            newEntries.push_back(Entry(ViewCameraCenterCameraOnSelection));
 
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditUndo)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditRedo)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditCut)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditCopy)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditPaste)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditPasteAtOriginalPosition)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditDelete)));
-
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditSelectAll)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditSelectSiblings)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditSelectTouching)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditSelectNone)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditHideSelected)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditHideUnselected)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditUnhideAll)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditLockSelected)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditLockUnselected)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditUnlockAll)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditToggleTextureLock)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditShowMapProperties)));
-
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditToolsToggleClipTool)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditToolsToggleClipSide)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditToolsPerformClip)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditToolsToggleVertexTool)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditToolsToggleRotateTool)));
-
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsMoveTexturesUp)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsMoveTexturesDown)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsMoveTexturesLeft)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsMoveTexturesRight)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsRotateTexturesCW)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsRotateTexturesCCW)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsMoveTexturesUpFine)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsMoveTexturesDownFine)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsMoveTexturesLeftFine)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsMoveTexturesRightFine)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsRotateTexturesCWFine)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsRotateTexturesCCWFine)));
-
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsMoveObjectsForward)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsMoveObjectsBackward)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsMoveObjectsLeft)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsMoveObjectsRight)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsMoveObjectsUp)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsMoveObjectsDown)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsRollObjectsCW)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsRollObjectsCCW)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsYawObjectsCW)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsYawObjectsCCW)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsPitchObjectsCW)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsPitchObjectsCCW)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsFlipObjectsHorizontally)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsFlipObjectsVertically)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsDuplicateObjects)));
-
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsMoveVerticesForward)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsMoveVerticesBackward)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsMoveVerticesLeft)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsMoveVerticesRight)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsMoveVerticesUp)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsMoveVerticesDown)));
-
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsCorrectVertices)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(EditActionsSnapVertices)));
-
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewGridToggleShowGrid)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewGridToggleSnapToGrid)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewGridIncGridSize)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewGridDecGridSize)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewGridSetSize1)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewGridSetSize2)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewGridSetSize4)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewGridSetSize8)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewGridSetSize16)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewGridSetSize32)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewGridSetSize64)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewGridSetSize128)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewGridSetSize256)));
-
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewCameraMoveForward)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewCameraMoveBackward)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewCameraMoveLeft)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewCameraMoveRight)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewCameraMoveUp)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewCameraMoveDown)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewCameraMoveToNextPoint)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewCameraMoveToPreviousPoint)));
-            newEntries.push_back(Entry(prefs.getKeyboardShortcut(ViewCameraCenterCameraOnSelection)));
-
-            // mark duplicates
-            bool hasDuplicates = false;
-            for (size_t i = 0; i < newEntries.size(); i++) {
-                Entry& first = newEntries[i];
-                if (first.shortcut().key() != WXK_NONE) {
-                    for (size_t j = i + 1; j < newEntries.size(); j++) {
-                        Entry& second = newEntries[j];
-                        if (first.isDuplicateOf(second)) {
-                            first.setDuplicate(true);
-                            second.setDuplicate(true);
-                            hasDuplicates = true;
-                        }
-                    }
-                }
-            }
+            bool hasDuplicates = markDuplicates(newEntries);
             
             size_t oldSize = m_entries.size();
             m_entries = newEntries;
@@ -289,11 +408,11 @@ namespace TrenchBroom {
         }
 
         KeyboardPreferencePane::KeyboardPreferencePane(wxWindow* parent) :
-        wxPanel(parent),
+        PreferencePane(parent),
         m_grid(NULL),
         m_table(NULL) {
             wxStaticBox* box = new wxStaticBox(this, wxID_ANY, wxT("Keyboard Shortcuts"));
-            wxStaticText* infoText = new wxStaticText(box, wxID_ANY, wxT("Click twice on a key combination to edit the shortcut."));
+            wxStaticText* infoText = new wxStaticText(box, wxID_ANY, wxT("Click twice on a key combination to edit the shortcut. Press delete or backspace to delete a shortcut."));
 #if defined __APPLE__
             infoText->SetFont(*wxSMALL_FONT);
 #endif
@@ -334,6 +453,14 @@ namespace TrenchBroom {
             outerSizer->Add(box, 1, wxEXPAND);
             outerSizer->SetItemMinSize(box, wxDefaultSize.x, 500);
             SetSizerAndFit(outerSizer);
+        }
+
+        bool KeyboardPreferencePane::validate() {
+            if (m_table->hasDuplicates()) {
+                wxMessageBox(wxT("Please fix all conflicting shortcuts (highlighted in red)."), wxT("Error"), wxOK, this);
+                return false;
+            }
+            return true;
         }
 
         void KeyboardPreferencePane::OnGridSize(wxSizeEvent& event) {

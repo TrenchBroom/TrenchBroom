@@ -213,7 +213,7 @@ namespace TrenchBroom {
         }
         
         GeneralPreferencePane::GeneralPreferencePane(wxWindow* parent) :
-        wxPanel(parent) {
+        PreferencePane(parent) {
             wxWindow* quakePreferences = createQuakePreferences();
             wxWindow* viewPreferences = createViewPreferences();
             wxWindow* mousePreferences = createMousePreferences();
@@ -230,6 +230,10 @@ namespace TrenchBroom {
             updateControls();
         }
         
+        bool GeneralPreferencePane::validate() {
+            return true;
+        }
+
         void GeneralPreferencePane::OnChooseQuakePathClicked(wxCommandEvent& event) {
             wxDirDialog chooseQuakePathDialog(NULL, wxT("Choose quake directory"), wxT(""), wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
             if (chooseQuakePathDialog.ShowModal() == wxID_OK) {

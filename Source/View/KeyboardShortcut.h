@@ -23,13 +23,54 @@
 #include "Utility/String.h"
 
 #include <cassert>
+#include <set>
 
 #include <wx/defs.h>
+#include <wx/string.h>
 
 namespace TrenchBroom {
     namespace View {
         class KeyboardShortcut {
+        private:
+            class MacModifierOrder {
+            public:
+                inline bool operator()(int lhs, int rhs) const {
+                    if (lhs == WXK_NONE)
+                        return lhs != WXK_NONE;
+                    if (lhs == WXK_ALT)
+                        return rhs != WXK_ALT;
+                    if (lhs == WXK_SHIFT)
+                        return rhs != WXK_ALT && rhs != WXK_SHIFT;
+                    if (lhs == WXK_CONTROL)
+                        return rhs == WXK_NONE;
+                    assert(false);
+                    return false;
+                }
+            };
+
+            class WinModifierOrder {
+            public:
+                inline bool operator()(int lhs, int rhs) const {
+                    if (lhs == WXK_NONE)
+                        return lhs != WXK_NONE;
+                    if (lhs == WXK_CONTROL)
+                        return rhs != WXK_CONTROL;
+                    if (lhs == WXK_ALT)
+                        return rhs != WXK_CONTROL && rhs != WXK_ALT;
+                    if (lhs == WXK_SHIFT)
+                        return rhs == WXK_NONE;
+                    assert(false);
+                    return false;
+                }
+            };
+            
+#if defined __APPLE__
+            typedef std::set<int, MacModifierOrder> ModifierSet;
+#else
+            typedef std::set<int, WinModifierOrder> ModifierSet;
+#endif
         public:
+            static const KeyboardShortcut Empty;
             typedef enum {
                 SCVertexTool    = 1 << 1,
                 SCClipTool      = 1 << 2,
@@ -39,23 +80,15 @@ namespace TrenchBroom {
                 SCAny           = SCVertexTool | SCClipTool | SCRotateTool | SCObjects | SCTextures
             } ShortcutContext;
 
-            inline static String contextName(int context) {
-                if (context == SCAny)
-                    return "Any";
-
-                StringList contexts;
-                if (context & SCVertexTool)
-                    contexts.push_back("Vertex Tool");
-                if (context & SCClipTool)
-                    contexts.push_back("Clip Tool");
-                if (context & SCRotateTool)
-                    contexts.push_back("Rotate Tool");
-                if (context & SCObjects)
-                    contexts.push_back("Objects");
-                if (context & SCTextures)
-                    contexts.push_back("Textures");
-                return Utility::join(contexts, ", ");
-            }
+            static wxString contextName(int context);
+            static void sortModifierKeys(int& key1, int& key2, int& key3);
+            static wxString modifierKeyMenuText(int key);
+            static wxString modifierKeyDisplayText(int key);
+            static wxString keyMenuText(int key);
+            static wxString keyDisplayText(int key);
+            static int parseKeyDisplayText(const wxString string);
+            static wxString shortcutDisplayText(int modifierKey1, int modifierKey2, int modifierKey3, int key);
+            static bool parseShortcut(const wxString& string, int& modifierKey1, int& modifierKey2, int& modifierKey3, int& key);
         private:
             int m_commandId;
             int m_modifierKey1;
@@ -65,74 +98,12 @@ namespace TrenchBroom {
             int m_context;
             String m_text;
         public:
-            KeyboardShortcut(int commandId, int context, const String& text) :
-            m_commandId(commandId),
-            m_modifierKey1(WXK_NONE),
-            m_modifierKey2(WXK_NONE),
-            m_modifierKey3(WXK_NONE),
-            m_key(WXK_NONE),
-            m_context(context),
-            m_text(text) {}
-
-            KeyboardShortcut(int commandId, int key, int context, const String& text) :
-            m_commandId(commandId),
-            m_modifierKey1(WXK_NONE),
-            m_modifierKey2(WXK_NONE),
-            m_modifierKey3(WXK_NONE),
-            m_key(key),
-            m_context(context),
-            m_text(text) {}
-
-            KeyboardShortcut(int commandId, int modifierKey1, int key, int context, const String& text) :
-            m_commandId(commandId),
-            m_modifierKey1(modifierKey1),
-            m_modifierKey2(WXK_NONE),
-            m_modifierKey3(WXK_NONE),
-            m_key(key),
-            m_context(context),
-            m_text(text) {}
-
-            KeyboardShortcut(int commandId, int modifierKey1, int modifierKey2, int key, int context, const String& text) :
-            m_commandId(commandId),
-            m_modifierKey1(modifierKey1),
-            m_modifierKey2(modifierKey2),
-            m_modifierKey3(WXK_NONE),
-            m_key(key),
-            m_context(context),
-            m_text(text) {}
-
-            KeyboardShortcut(int commandId, int modifierKey1, int modifierKey2, int modifierKey3, int key, int context, const String& text) :
-            m_commandId(commandId),
-            m_modifierKey1(modifierKey1),
-            m_modifierKey2(modifierKey2),
-            m_modifierKey3(modifierKey3),
-            m_key(key),
-            m_context(context),
-            m_text(text) {}
-            KeyboardShortcut(const String& string) {
-                StringStream stream(string);
-
-                char colon;
-                stream >> m_commandId;
-                stream >> colon;
-                assert(colon == ':');
-                stream >> m_modifierKey1;
-                stream >> colon;
-                assert(colon == ':');
-                stream >> m_modifierKey2;
-                stream >> colon;
-                assert(colon == ':');
-                stream >> m_modifierKey3;
-                stream >> colon;
-                assert(colon == ':');
-                stream >> m_key;
-                stream >> colon;
-                assert(colon == ':');
-                stream >> m_context;
-                stream >> colon;
-                assert(colon == ':');
-                m_text = stream.str().substr(static_cast<size_t>(stream.tellg()));
-            }
+            KeyboardShortcut(int commandId, int context, const String& text);
+            KeyboardShortcut(int commandId, int key, int context, const String& text);
+            KeyboardShortcut(int commandId, int modifierKey1, int key, int context, const String& text);
+            KeyboardShortcut(int commandId, int modifierKey1, int modifierKey2, int key, int context, const String& text);
+            KeyboardShortcut(int commandId, int modifierKey1, int modifierKey2, int modifierKey3, int key, int context, const String& text);
+            KeyboardShortcut(const String& string);
 
             inline int commandId() const {
                 return m_commandId;
@@ -162,229 +133,18 @@ namespace TrenchBroom {
                 return m_text;
             }
 
-            inline bool alwaysShowModifier() const {
-                switch (m_key) {
-                    case WXK_BACK:
-                    case WXK_TAB:
-                    case WXK_RETURN:
-                    case WXK_ESCAPE:
-                    case WXK_SPACE:
-                    case WXK_DELETE:
-                    case WXK_END:
-                    case WXK_HOME:
-                    case WXK_LEFT:
-                    case WXK_UP:
-                    case WXK_RIGHT:
-                    case WXK_DOWN:
-                    case WXK_INSERT:
-                    case WXK_PAGEUP:
-                    case WXK_PAGEDOWN:
-                        return false;
-                    case WXK_F1:
-                    case WXK_F2:
-                    case WXK_F3:
-                    case WXK_F4:
-                    case WXK_F5:
-                    case WXK_F6:
-                    case WXK_F7:
-                    case WXK_F8:
-                    case WXK_F9:
-                    case WXK_F10:
-                    case WXK_F11:
-                    case WXK_F12:
-                    case WXK_F13:
-                    case WXK_F14:
-                    case WXK_F15:
-                    case WXK_F16:
-                    case WXK_F17:
-                    case WXK_F18:
-                    case WXK_F19:
-                    case WXK_F20:
-                    case WXK_F21:
-                    case WXK_F22:
-                    case WXK_F23:
-                    case WXK_F24:
-                        return true;
-                    default:
-                        return hasModifier();
-                }
-            }
-
             inline bool hasModifier() const {
                 return m_modifierKey1 != WXK_NONE || m_modifierKey2 != WXK_NONE || m_modifierKey3 != WXK_NONE;
             }
-
-            inline String modifierKeyMenuText() const {
-                StringStream stream;
-                switch (m_modifierKey1) {
-                    case WXK_SHIFT:
-                        stream << "Shift";
-                        break;
-                    case WXK_ALT:
-                        stream << "Alt";
-                        break;
-                    case WXK_CONTROL:
-                        stream << "Ctrl";
-                        break;
-                    default:
-                        break;
-                }
-
-                if (m_modifierKey1 != WXK_NONE && m_modifierKey2 != WXK_NONE)
-                    stream << "+";
-
-                switch (m_modifierKey2) {
-                    case WXK_SHIFT:
-                        stream << "Shift";
-                        break;
-                    case WXK_ALT:
-                        stream << "Alt";
-                        break;
-                    case WXK_CONTROL:
-                        stream << "Ctrl";
-                        break;
-                    default:
-                        break;
-                }
-
-                if ((m_modifierKey1 != WXK_NONE || m_modifierKey2 != WXK_NONE) && m_modifierKey3 != WXK_NONE)
-                    stream << "+";
-
-                switch (m_modifierKey3) {
-                    case WXK_SHIFT:
-                        stream << "Shift";
-                        break;
-                    case WXK_ALT:
-                        stream << "Alt";
-                        break;
-                    case WXK_CONTROL:
-                        stream << "Ctrl";
-                        break;
-                    default:
-                        break;
-                }
-
-                return stream.str();
-            }
-
-            inline String keyMenuText() const {
-                switch (m_key) {
-                    case WXK_BACK:
-                        return "Back";
-                    case WXK_TAB:
-                        return "Tab";
-                    case WXK_RETURN:
-                        return "Enter";
-                    case WXK_ESCAPE:
-                        return "Esc";
-                    case WXK_SPACE:
-                        return "Space";
-                    case WXK_DELETE:
-                        return "Del";
-                    case WXK_END:
-                        return "End";
-                    case WXK_HOME:
-                        return "Home";
-                    case WXK_LEFT:
-                        return "Left";
-                    case WXK_UP:
-                        return "Up";
-                    case WXK_RIGHT:
-                        return "Right";
-                    case WXK_DOWN:
-                        return "Down";
-                    case WXK_INSERT:
-                        return "Ins";
-                    case WXK_F1:
-                        return "F1";
-                    case WXK_F2:
-                        return "F2";
-                    case WXK_F3:
-                        return "F3";
-                    case WXK_F4:
-                        return "F4";
-                    case WXK_F5:
-                        return "F5";
-                    case WXK_F6:
-                        return "F6";
-                    case WXK_F7:
-                        return "F7";
-                    case WXK_F8:
-                        return "F8";
-                    case WXK_F9:
-                        return "F9";
-                    case WXK_F10:
-                        return "F01";
-                    case WXK_F11:
-                        return "F11";
-                    case WXK_F12:
-                        return "F12";
-                    case WXK_F13:
-                        return "F13";
-                    case WXK_F14:
-                        return "F14";
-                    case WXK_F15:
-                        return "F15";
-                    case WXK_F16:
-                        return "F16";
-                    case WXK_F17:
-                        return "F17";
-                    case WXK_F18:
-                        return "F18";
-                    case WXK_F19:
-                        return "F19";
-                    case WXK_F20:
-                        return "F20";
-                    case WXK_F21:
-                        return "F21";
-                    case WXK_F22:
-                        return "F22";
-                    case WXK_F23:
-                        return "F23";
-                    case WXK_F24:
-                        return "F24";
-                    case WXK_PAGEUP:
-                        return "PgUp";
-                    case WXK_PAGEDOWN:
-                        return "PgDn";
-                    default:
-                        if (m_key >= 33 && m_key <= 126) {
-                            StringStream str;
-                            str << static_cast<char>(m_key);
-                            return str.str();
-                        }
-                        return "";
-                        break;
-                }
-            }
-
-            inline String shortcutMenuText() const {
-                const String modifierKeyText = modifierKeyMenuText();
-                if (modifierKeyText.empty())
-                    return keyMenuText();
-
-                StringStream text;
-                text << modifierKeyText << "+" << keyMenuText();
-                return text.str();
-            }
-
-            inline String menuText() const {
-                if (m_key == WXK_NONE)
-                    return m_text;
-
-                StringStream text;
-                text << m_text << "\t";
-                if (hasModifier())
-                    text << modifierKeyMenuText() << "+";
-                text << keyMenuText();
-                return text.str();
-            }
-
-            inline String asString() const {
-                StringStream str;
-                str << m_commandId << ":" << m_modifierKey1 << ":" << m_modifierKey2 << ":" << m_modifierKey3 << ":" << m_key << ":" << m_context << ":" << m_text;
-                return str.str();
-            }
+            
+            bool alwaysShowModifier() const;
+            wxString modifierKeyMenuText() const;
+            wxString keyMenuText() const;
+            wxString shortcutMenuText() const;
+            wxString menuText() const;
+            wxString keyDisplayText() const;
+            wxString shortcutDisplayText() const;
+            String asString() const;
         };
     }
 }

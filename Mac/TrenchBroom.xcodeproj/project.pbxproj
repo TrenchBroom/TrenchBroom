@@ -155,6 +155,9 @@
 		48C0FA46160901CB0023F467 /* SingleTextureViewer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C0FA44160901CB0023F467 /* SingleTextureViewer.cpp */; };
 		48C3CAF4162A8F2D006547EC /* AddObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C3CAF2162A8F2D006547EC /* AddObjectsCommand.cpp */; };
 		48C4637616B97A76008159DC /* MoveTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C4637416B97A76008159DC /* MoveTool.cpp */; };
+		48C48EB616EE6B38000F6038 /* KeyboardShortcut.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C48EB516EE6B38000F6038 /* KeyboardShortcut.cpp */; };
+		48C48EB916EE6EB8000F6038 /* KeyboardShortcutEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C48EB716EE6EB8000F6038 /* KeyboardShortcutEditor.cpp */; };
+		48C48EBC16EE9967000F6038 /* KeyboardShortcutEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C48EBA16EE9967000F6038 /* KeyboardShortcutEvent.cpp */; };
 		48C83711167513CD00B658A2 /* PointHandleRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C8370F167513CD00B658A2 /* PointHandleRenderer.cpp */; };
 		48CB0DCD163EEB26001C8E87 /* CircleFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48CB0DCB163EEB26001C8E87 /* CircleFigure.cpp */; };
 		48CBFA2516AF24F300E81617 /* ViewInspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48CBFA2416AF24F300E81617 /* ViewInspector.cpp */; };
@@ -548,6 +551,12 @@
 		48C3CAF3162A8F2D006547EC /* AddObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddObjectsCommand.h; sourceTree = "<group>"; };
 		48C4637416B97A76008159DC /* MoveTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveTool.cpp; sourceTree = "<group>"; };
 		48C4637516B97A76008159DC /* MoveTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveTool.h; sourceTree = "<group>"; };
+		48C48EB516EE6B38000F6038 /* KeyboardShortcut.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KeyboardShortcut.cpp; sourceTree = "<group>"; };
+		48C48EB716EE6EB8000F6038 /* KeyboardShortcutEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KeyboardShortcutEditor.cpp; sourceTree = "<group>"; };
+		48C48EB816EE6EB8000F6038 /* KeyboardShortcutEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyboardShortcutEditor.h; sourceTree = "<group>"; };
+		48C48EBA16EE9967000F6038 /* KeyboardShortcutEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KeyboardShortcutEvent.cpp; sourceTree = "<group>"; };
+		48C48EBB16EE9967000F6038 /* KeyboardShortcutEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyboardShortcutEvent.h; sourceTree = "<group>"; };
+		48C48EBD16F13CBB000F6038 /* PreferencePane.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PreferencePane.h; sourceTree = "<group>"; };
 		48C8370F167513CD00B658A2 /* PointHandleRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointHandleRenderer.cpp; sourceTree = "<group>"; };
 		48C83710167513CD00B658A2 /* PointHandleRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointHandleRenderer.h; sourceTree = "<group>"; };
 		48CB0DCB163EEB26001C8E87 /* CircleFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CircleFigure.cpp; sourceTree = "<group>"; };
@@ -944,6 +953,11 @@
 				4830051316EBE3A600C05645 /* KeyboardPreferencePane.cpp */,
 				4830051416EBE3A600C05645 /* KeyboardPreferencePane.h */,
 				4830050A16E93C2200C05645 /* KeyboardShortcut.h */,
+				48C48EB516EE6B38000F6038 /* KeyboardShortcut.cpp */,
+				48C48EB716EE6EB8000F6038 /* KeyboardShortcutEditor.cpp */,
+				48C48EB816EE6EB8000F6038 /* KeyboardShortcutEditor.h */,
+				48C48EBA16EE9967000F6038 /* KeyboardShortcutEvent.cpp */,
+				48C48EBB16EE9967000F6038 /* KeyboardShortcutEvent.h */,
 				48E2ED181601184F00B8D476 /* LayoutConstants.h */,
 				4810276415E4FBF000250C9C /* MapGLCanvas.cpp */,
 				4810276515E4FBF000250C9C /* MapGLCanvas.h */,
@@ -951,6 +965,7 @@
 				48D937EE16C27B0C005A4684 /* MapPropertiesDialog.h */,
 				48B64C3A16CA403B00ECA6C5 /* PathDialog.cpp */,
 				48B64C3B16CA403B00ECA6C5 /* PathDialog.h */,
+				48C48EBD16F13CBB000F6038 /* PreferencePane.h */,
 				481CDAD616026C48003E2EE9 /* PreferencesFrame.cpp */,
 				481CDAD716026C48003E2EE9 /* PreferencesFrame.h */,
 				48AB57EF15ECEEE500321C47 /* ProgressIndicatorDialog.cpp */,
@@ -1493,6 +1508,9 @@
 				4848BBF116E53D5900866FE7 /* FlashSelectionAnimation.cpp in Sources */,
 				4830050E16EA745900C05645 /* GeneralPreferencePane.cpp in Sources */,
 				4830051516EBE3A600C05645 /* KeyboardPreferencePane.cpp in Sources */,
+				48C48EB616EE6B38000F6038 /* KeyboardShortcut.cpp in Sources */,
+				48C48EB916EE6EB8000F6038 /* KeyboardShortcutEditor.cpp in Sources */,
+				48C48EBC16EE9967000F6038 /* KeyboardShortcutEvent.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

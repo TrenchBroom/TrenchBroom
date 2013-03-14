@@ -513,6 +513,15 @@
     <ClCompile Include="..\..\Source\View\KeyboardPreferencePane.cpp">
       <Filter>Source Files\View</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\View\KeyboardShortcut.cpp">
+      <Filter>Source Files\View</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\View\KeyboardShortcutEvent.cpp">
+      <Filter>Source Files\View</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\View\KeyboardShortcutEditor.cpp">
+      <Filter>Source Files\View</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -1185,6 +1194,12 @@
       <Filter>Header Files\View</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\View\KeyboardPreferencePane.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\KeyboardShortcutEvent.h">
+      <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\View\KeyboardShortcutEditor.h">
       <Filter>Header Files\View</Filter>
     </ClInclude>
   </ItemGroup>

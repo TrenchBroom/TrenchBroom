@@ -361,6 +361,9 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\View\GenericDropSource.cpp" />
     <ClCompile Include="..\..\Source\View\Inspector.cpp" />
     <ClCompile Include="..\..\Source\View\KeyboardPreferencePane.cpp" />
+    <ClCompile Include="..\..\Source\View\KeyboardShortcut.cpp" />
+    <ClCompile Include="..\..\Source\View\KeyboardShortcutEditor.cpp" />
+    <ClCompile Include="..\..\Source\View\KeyboardShortcutEvent.cpp" />
     <ClCompile Include="..\..\Source\View\MapGLCanvas.cpp" />
     <ClCompile Include="..\..\Source\View\MapPropertiesDialog.cpp" />
     <ClCompile Include="..\..\Source\View\PathDialog.cpp" />
@@ -582,6 +585,8 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\View\GenericDropSource.h" />
     <ClInclude Include="..\..\Source\View\Inspector.h" />
     <ClInclude Include="..\..\Source\View\KeyboardPreferencePane.h" />
+    <ClInclude Include="..\..\Source\View\KeyboardShortcutEditor.h" />
+    <ClInclude Include="..\..\Source\View\KeyboardShortcutEvent.h" />
     <ClInclude Include="..\..\Source\View\LayoutConstants.h" />
     <ClInclude Include="..\..\Source\View\MapGLCanvas.h" />
     <ClInclude Include="..\..\Source\View\MapPropertiesDialog.h" />
