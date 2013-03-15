@@ -40,6 +40,12 @@ namespace TrenchBroom {
             return ~old;
         }
         
+        inline uint32_t updateCRC32(const char* buf, size_t len, uint32_t crc) {
+            for (; len; --len, ++buf)
+                crc = updC32(static_cast<uint32_t>(*buf), crc);
+            return crc;
+        }
+        
         template <typename T>
         inline uint32_t updateCRC32(T s, uint32_t crc) {
             const char* buf = reinterpret_cast<const char*>(&s);

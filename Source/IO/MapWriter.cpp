@@ -31,6 +31,7 @@
 
 #include <cassert>
 #include <fstream>
+#include <limits>
 
 #if defined _MSC_VER
 #include <cstdint>
@@ -40,7 +41,32 @@
 
 namespace TrenchBroom {
     namespace IO {
-        void MapWriter::writeBrushGeometry(const Model::Brush& brush, FILE* stream) {
+        String MapWriter::format(float f) {
+            m_floatBuffer.str("");
+            m_floatBuffer.width(std::numeric_limits<float>::digits10 + 2);
+            m_floatBuffer << std::fixed << f;
+            
+            String str = m_floatBuffer.str();
+            size_t lastZero = str.size();
+            for (size_t i = str.size() - 1; i != 0; --i) {
+                if (str[i] == '0')
+                    lastZero = i;
+                else
+                    break;
+            }
+            if (str[--lastZero] == '.')
+                --lastZero;
+            
+            return str.substr(0, lastZero + 1);
+        }
+
+        String MapWriter::format(float f, uint32_t& crc) {
+            String str = format(f);
+            crc = Utility::updateCRC32(str.c_str(), str.length(), crc);
+            return str;
+        }
+
+        void MapWriter::writeBrushGeometry(const Model::Brush& brush, FILE* stream, uint32_t& crc) {
             typedef std::map<const Model::Vertex*, size_t> VertexIndices;
             typedef std::map<const Model::Edge*, size_t> EdgeIndices;
             typedef std::map<const Model::Face*, size_t> FaceIndices;
@@ -53,28 +79,20 @@ namespace TrenchBroom {
             EdgeIndices edgeIndices;
             FaceIndices faceIndices;
             
-            uint32_t crc = 0xFFFFFFFF;
             for (size_t i = 0; i < faces.size(); i++) {
                 const Model::Face* face = faces[i];
                 faceIndices[face] = i;
-
-                for (size_t j = 0; j < 3; j++)
-                    for (size_t k = 0; k < 3; k++)
-                        crc = Utility::updateCRC32(face->point(j)[k], crc);
             }
-            const uint32_t faceCrc = ~crc;
 
-            crc = 0xFFFFFFFF;
-            
             fprintf(stream, "/// VertexData\n");
             fprintf(stream, "/// {");
             for (size_t i = 0; i < vertices.size(); i++) {
                 const Model::Vertex* vertex = vertices[i];
-                fprintf(stream, " ( %g %g %g )", vertex->position.x, vertex->position.y, vertex->position.z);
+                const String x = format(vertex->position.x, crc);
+                const String y = format(vertex->position.y, crc);
+                const String z = format(vertex->position.z, crc);
+                fprintf(stream, " ( %s %s %s )", x.c_str(), y.c_str(), z.c_str());
                 vertexIndices[vertex] = i;
-                
-                for (size_t j = 0; j < 3; j++)
-                    crc = Utility::updateCRC32(vertex->position[j], crc);
             }
             fprintf(stream, " }\n");
             
@@ -113,39 +131,53 @@ namespace TrenchBroom {
                 
             }
             fprintf(stream, " }\n");
-            const uint32_t geometryCrc = ~crc;
-            
-            fprintf(stream, "/// CRC %u %u\n", geometryCrc, faceCrc);
+            fprintf(stream, "/// CRC %u\n", ~crc);
         }
 
-        void MapWriter::writeFace(const Model::Face& face, FILE* stream) {
-            String textureName = Utility::isBlank(face.textureName()) ? Model::Texture::Empty : face.textureName();
+        void MapWriter::writeFace(const Model::Face& face, FILE* stream, uint32_t& crc) {
+            const String textureName = Utility::isBlank(face.textureName()) ? Model::Texture::Empty : face.textureName();
 
-            fprintf(stream, "( %g %g %g ) ( %g %g %g ) ( %g %g %g ) %s %g %g %g %g %g\n",
-                    face.point(0).x,
-                    face.point(0).y,
-                    face.point(0).z,
-                    face.point(1).x,
-                    face.point(1).y,
-                    face.point(1).z,
-                    face.point(2).x,
-                    face.point(2).y,
-                    face.point(2).z,
+            const String p0x = format(face.point(0).x, crc);
+            const String p0y = format(face.point(0).y, crc);
+            const String p0z = format(face.point(0).z, crc);
+            const String p1x = format(face.point(1).x, crc);
+            const String p1y = format(face.point(1).y, crc);
+            const String p1z = format(face.point(1).z, crc);
+            const String p2x = format(face.point(2).x, crc);
+            const String p2y = format(face.point(2).y, crc);
+            const String p2z = format(face.point(2).z, crc);
+            const String xOffset = format(face.xOffset());
+            const String yOffset = format(face.yOffset());
+            const String rotation = format(face.rotation());
+            const String xScale = format(face.xScale());
+            const String yScale = format(face.yScale());
+            
+            fprintf(stream, "( %s %s %s ) ( %s %s %s ) ( %s %s %s ) %s %s %s %s %s %s\n",
+                    p0x.c_str(),
+                    p0y.c_str(),
+                    p0z.c_str(),
+                    p1x.c_str(),
+                    p1y.c_str(),
+                    p1z.c_str(),
+                    p2x.c_str(),
+                    p2y.c_str(),
+                    p2z.c_str(),
                     textureName.c_str(),
-                    face.xOffset(),
-                    face.yOffset(),
-                    face.rotation(),
-                    face.xScale(),
-                    face.yScale());
+                    xOffset.c_str(),
+                    yOffset.c_str(),
+                    rotation.c_str(),
+                    xScale.c_str(),
+                    yScale.c_str());
         }
         
         void MapWriter::writeBrush(const Model::Brush& brush, FILE* stream) {
+            uint32_t crc = 0xFFFFFFFF;
             fprintf(stream, "{\n");
             const Model::FaceList& faces = brush.faces();
             Model::FaceList::const_iterator faceIt, faceEnd;
             for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt)
-                writeFace(**faceIt, stream);
-            writeBrushGeometry(brush, stream);
+                writeFace(**faceIt, stream, crc);
+            writeBrushGeometry(brush, stream, crc);
             fprintf(stream, "}\n");
         }
         
@@ -172,7 +204,7 @@ namespace TrenchBroom {
             writeEntityFooter(stream);
         }
 
-        void MapWriter::writeBrushGeometry(const Model::Brush& brush, std::ostream& stream) {
+        void MapWriter::writeBrushGeometry(const Model::Brush& brush, std::ostream& stream, uint32_t& crc) {
             typedef std::map<const Model::Vertex*, size_t> VertexIndices;
             typedef std::map<const Model::Edge*, size_t> EdgeIndices;
             typedef std::map<const Model::Face*, size_t> FaceIndices;
@@ -185,28 +217,20 @@ namespace TrenchBroom {
             EdgeIndices edgeIndices;
             FaceIndices faceIndices;
             
-            uint32_t crc = 0xFFFFFFFF;
             for (size_t i = 0; i < faces.size(); i++) {
                 const Model::Face* face = faces[i];
                 faceIndices[face] = i;
-                
-                for (size_t j = 0; j < 3; j++)
-                    for (size_t k = 0; k < 3; k++)
-                        crc = Utility::updateCRC32(face->point(j)[k], crc);
             }
-            const uint32_t faceCrc = ~crc;
-            
-            crc = 0xFFFFFFFF;
-            
+
             stream << "/// VertexData\n";
             stream << "/// {";
             for (size_t i = 0; i < vertices.size(); i++) {
                 const Model::Vertex* vertex = vertices[i];
-                stream << " ( " << vertex->position.x << " " << vertex->position.y << " " << vertex->position.z << " )";
+                const String x = format(vertex->position.x, crc);
+                const String y = format(vertex->position.y, crc);
+                const String z = format(vertex->position.z, crc);
+                stream << " ( " << x << " " << y << " " << z << " )";
                 vertexIndices[vertex] = i;
-                
-                for (size_t j = 0; j < 3; j++)
-                    crc = Utility::updateCRC32(vertex->position[j], crc);
             }
             stream << " }\n";
             
@@ -248,43 +272,57 @@ namespace TrenchBroom {
                 
             }
             stream << " }\n";
-            const uint32_t geometryCrc = ~crc;
-
-            stream << "/// CRC " << geometryCrc << " " << faceCrc << "\n";
+            stream << "/// CRC " << ~crc << "\n";
         }
         
-        void MapWriter::writeFace(const Model::Face& face, std::ostream& stream) {
+        void MapWriter::writeFace(const Model::Face& face, std::ostream& stream, uint32_t& crc) {
             String textureName = Utility::isBlank(face.textureName()) ? Model::Texture::Empty : face.textureName();
             
+            const String p0x = format(face.point(0).x, crc);
+            const String p0y = format(face.point(0).y, crc);
+            const String p0z = format(face.point(0).z, crc);
+            const String p1x = format(face.point(1).x, crc);
+            const String p1y = format(face.point(1).y, crc);
+            const String p1z = format(face.point(1).z, crc);
+            const String p2x = format(face.point(2).x, crc);
+            const String p2y = format(face.point(2).y, crc);
+            const String p2z = format(face.point(2).z, crc);
+            const String xOffset = format(face.xOffset());
+            const String yOffset = format(face.yOffset());
+            const String rotation = format(face.rotation());
+            const String xScale = format(face.xScale());
+            const String yScale = format(face.yScale());
+
             stream <<
             "( " <<
-            face.point(0).x     << " " <<
-            face.point(0).y     << " " <<
-            face.point(0).z     <<
-            " ) ( " <<
-            face.point(1).x     << " " <<
-            face.point(1).y     << " " <<
-            face.point(1).z     <<
-            " ) ( " <<
-            face.point(2).x     << " " <<
-            face.point(2).y     << " " <<
-            face.point(2).z     <<
-            " ) " <<
-            textureName         << " " <<
-            face.xOffset()      << " " <<
-            face.yOffset()      << " " <<
-            face.rotation()     << " " <<
-            face.xScale()       << " " <<
-            face.yScale()       << "\n";
+            p0x         << " " <<
+            p0y         << " " <<
+            p0z         <<
+            " ) ( "     <<
+            p1x         << " " <<
+            p1y         << " " <<
+            p1z         <<
+            " ) ( "     <<
+            p2x         << " " <<
+            p2y         << " " <<
+            p2z         <<
+            " ) "       <<
+            textureName << " " <<
+            xOffset     << " " <<
+            yOffset     << " " <<
+            rotation    << " " <<
+            xScale      << " " <<
+            yScale      << "\n";
         }
 
         void MapWriter::writeBrush(const Model::Brush& brush, std::ostream& stream) {
+            uint32_t crc = 0xFFFFFFFF;
             stream << "{" << "\n";
             const Model::FaceList& faces = brush.faces();
             Model::FaceList::const_iterator faceIt, faceEnd;
             for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt)
-                writeFace(**faceIt, stream);
-            writeBrushGeometry(brush, stream);
+                writeFace(**faceIt, stream, crc);
+            writeBrushGeometry(brush, stream, crc);
             stream << "}" << "\n";
         }
 
@@ -365,8 +403,9 @@ namespace TrenchBroom {
         void MapWriter::writeFacesToStream(const Model::FaceList& faces, std::ostream& stream) {
             assert(stream.good());
             
+            uint32_t crc = 0xFFFFFFFF;
             for (unsigned int i = 0; i < faces.size(); i++)
-                writeFace(*faces[i], stream);
+                writeFace(*faces[i], stream, crc);
         }
 
         void MapWriter::writeToStream(const Model::Map& map, std::ostream& stream) {

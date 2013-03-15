@@ -26,8 +26,13 @@
 #include "Utility/String.h"
 
 #include <cstdio>
-#include <string>
 #include <ostream>
+
+#if defined _MSC_VER
+#include <cstdint>
+#elif defined __GNUC__
+#include <stdint.h>
+#endif
 
 namespace TrenchBroom {
     namespace Model {
@@ -40,15 +45,20 @@ namespace TrenchBroom {
     namespace IO {
         class MapWriter {
         protected:
-            void writeBrushGeometry(const Model::Brush& brush, FILE* stream);
-            void writeFace(const Model::Face& face, FILE* stream);
+            StringStream m_floatBuffer;
+
+            String format(float f);
+            String format(float f, uint32_t& crc);
+            
+            void writeBrushGeometry(const Model::Brush& brush, FILE* stream, uint32_t& crc);
+            void writeFace(const Model::Face& face, FILE* stream, uint32_t& crc);
             void writeBrush(const Model::Brush& brush, FILE* stream);
             void writeEntityHeader(const Model::Entity& entity, FILE* stream);
             void writeEntityFooter(FILE* stream);
             void writeEntity(const Model::Entity& entity, FILE* stream);
             
-            void writeBrushGeometry(const Model::Brush& brush, std::ostream& stream);
-            void writeFace(const Model::Face& face, std::ostream& stream);
+            void writeBrushGeometry(const Model::Brush& brush, std::ostream& stream, uint32_t& crc);
+            void writeFace(const Model::Face& face, std::ostream& stream, uint32_t& crc);
             void writeBrush(const Model::Brush& brush, std::ostream& stream);
             void writeEntityHeader(const Model::Entity& entity, std::ostream& stream);
             void writeEntityFooter(std::ostream& stream);

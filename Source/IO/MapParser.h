@@ -31,6 +31,12 @@
 #include <memory>
 #include <vector>
 
+#if defined _MSC_VER
+#include <cstdint>
+#elif defined __GNUC__
+#include <stdint.h>
+#endif
+
 using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
@@ -147,7 +153,8 @@ namespace TrenchBroom {
                     throw MapParserException(actualToken, expectedType);
             }
             
-            Model::BrushGeometry* parseGeometry(const BBox& worldBounds, const Model::FaceList& faces);
+            Model::Face* parseFace(const BBox& worldBounds, uint32_t& crc);
+            Model::BrushGeometry* parseGeometry(const BBox& worldBounds, const Model::FaceList& faces, uint32_t& crc);
         public:
             MapParser(std::istream& stream, Utility::Console& console);
             

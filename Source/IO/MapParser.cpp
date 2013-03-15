@@ -29,12 +29,6 @@
 #include "Utility/List.h"
 #include "Utility/ProgressIndicator.h"
 
-#if defined _MSC_VER
-#include <cstdint>
-#elif defined __GNUC__
-#include <stdint.h>
-#endif
-
 namespace TrenchBroom {
     namespace IO {
         Token MapTokenEmitter::doEmit(Tokenizer& tokenizer, size_t line, size_t column) {
@@ -129,7 +123,106 @@ namespace TrenchBroom {
             return Token(TokenType::Eof, "", startPosition, tokenizer.position() - startPosition, line, column);
         }
         
-        Model::BrushGeometry* MapParser::parseGeometry(const BBox& worldBounds, const Model::FaceList& faces) {
+        Model::Face* MapParser::parseFace(const BBox& worldBounds, uint32_t& crc) {
+            Vec3f p1, p2, p3;
+            float xOffset, yOffset, rotation, xScale, yScale;
+            Token token = m_tokenizer.nextToken();
+            if (token.type() == TokenType::Eof)
+                return NULL;
+            
+            expect(TokenType::OParenthesis, token);
+            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+            crc = Utility::updateCRC32(token.data().c_str(), token.data().size(), crc);
+            p1.x = token.toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+            crc = Utility::updateCRC32(token.data().c_str(), token.data().size(), crc);
+            p1.y = token.toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+            crc = Utility::updateCRC32(token.data().c_str(), token.data().size(), crc);
+            p1.z = token.toFloat();
+            expect(TokenType::CParenthesis, token = m_tokenizer.nextToken());
+            expect(TokenType::OParenthesis, token = m_tokenizer.nextToken());
+            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+            crc = Utility::updateCRC32(token.data().c_str(), token.data().size(), crc);
+            p2.x = token.toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+            crc = Utility::updateCRC32(token.data().c_str(), token.data().size(), crc);
+            p2.y = token.toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+            crc = Utility::updateCRC32(token.data().c_str(), token.data().size(), crc);
+            p2.z = token.toFloat();
+            expect(TokenType::CParenthesis, token = m_tokenizer.nextToken());
+            expect(TokenType::OParenthesis, token = m_tokenizer.nextToken());
+            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+            crc = Utility::updateCRC32(token.data().c_str(), token.data().size(), crc);
+            p3.x = token.toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+            crc = Utility::updateCRC32(token.data().c_str(), token.data().size(), crc);
+            p3.y = token.toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+            crc = Utility::updateCRC32(token.data().c_str(), token.data().size(), crc);
+            p3.z = token.toFloat();
+            expect(TokenType::CParenthesis, token = m_tokenizer.nextToken());
+            
+            expect(TokenType::String, token = m_tokenizer.nextToken());
+            String textureName = token.data();
+            
+            token = m_tokenizer.nextToken();
+            if (m_format == Undefined) {
+                expect(TokenType::Integer | TokenType::Decimal | TokenType::OBracket, token);
+                m_format = token.type() == TokenType::OBracket ? Valve : Standard;
+                if (m_format == Valve)
+                    m_console.warn("Loading unsupported map Valve 220 map format");
+            }
+            
+            if (m_format == Standard) {
+                expect(TokenType::Integer | TokenType::Decimal, token);
+                xOffset = token.toFloat();
+                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+                yOffset = token.toFloat();
+            } else { // Valve 220 format
+                expect(TokenType::OBracket, token);
+                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken()); // X texture axis x
+                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken()); // X texture axis y
+                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken()); // X texture axis z
+                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken()); // X texture axis offset
+                xOffset = token.toFloat();
+                expect(TokenType::CBracket, token = m_tokenizer.nextToken());
+                expect(TokenType::OBracket, token = m_tokenizer.nextToken());
+                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken()); // Y texture axis x
+                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken()); // Y texture axis y
+                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken()); // Y texture axis z
+                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken()); // Y texture axis offset
+                yOffset = token.toFloat();
+                expect(TokenType::CBracket, token = m_tokenizer.nextToken());
+            }
+            
+            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+            rotation = token.toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+            xScale = token.toFloat();
+            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
+            yScale = token.toFloat();
+            
+            if (((p3 - p1).crossed(p2 - p1)).null()) {
+                m_console.warn("Skipping face with colinear points in line %i", token.line());
+                return NULL;
+            }
+            
+            if (textureName == Model::Texture::Empty)
+                textureName = "";
+            
+            Model::Face* face = new Model::Face(worldBounds, p1, p2, p3, textureName);
+            face->setXOffset(xOffset);
+            face->setYOffset(yOffset);
+            face->setRotation(rotation);
+            face->setXScale(xScale);
+            face->setYScale(yScale);
+            face->setFilePosition(token.line());
+            return face;
+        }
+        
+        Model::BrushGeometry* MapParser::parseGeometry(const BBox& worldBounds, const Model::FaceList& faces, uint32_t& crc) {
             Token token = m_tokenizer.nextToken();
             if (token.type() == TokenType::Eof)
                 return NULL;
@@ -142,38 +235,29 @@ namespace TrenchBroom {
             Model::EdgeList edges;
             Model::SideList sides;
             
-            uint32_t crc = 0xFFFFFFFF;
             for (size_t i = 0; i < faces.size(); i++) {
                 Model::Side* side = new Model::Side();
                 side->face = faces[i];
                 sides.push_back(side);
-                
-                for (size_t j = 0; j < 3; j++)
-                    for (size_t k = 0; k < 3; k++)
-                        crc = Utility::updateCRC32(side->face->point(j)[k], crc);
             }
-            const uint32_t faceCrc = ~crc;
-            
-            crc = 0xFFFFFFFF;
             
             try {
                 expect(TokenType::OBrace, token = m_tokenizer.nextToken());
                 expect(TokenType::CBrace | TokenType::OParenthesis, token = m_tokenizer.nextToken());
                 while (token.type() != TokenType::CBrace) {
                     expect(TokenType::Decimal | TokenType::Integer, token = m_tokenizer.nextToken());
+                    crc = Utility::updateCRC32(token.data().c_str(), token.data().size(), crc);
                     const float x = token.toFloat();
                     expect(TokenType::Decimal | TokenType::Integer, token = m_tokenizer.nextToken());
+                    crc = Utility::updateCRC32(token.data().c_str(), token.data().size(), crc);
                     const float y = token.toFloat();
                     expect(TokenType::Decimal | TokenType::Integer, token = m_tokenizer.nextToken());
+                    crc = Utility::updateCRC32(token.data().c_str(), token.data().size(), crc);
                     const float z = token.toFloat();
                     expect(TokenType::CParenthesis, token = m_tokenizer.nextToken());
                     expect(TokenType::CBrace | TokenType::OParenthesis, token = m_tokenizer.nextToken());
                     
                     vertices.push_back(new Model::Vertex(x, y, z));
-                    
-                    crc = Utility::updateCRC32(x, crc);
-                    crc = Utility::updateCRC32(y, crc);
-                    crc = Utility::updateCRC32(z, crc);
                 }
                 
                 expect(TokenType::OBrace, token = m_tokenizer.nextToken());
@@ -231,7 +315,7 @@ namespace TrenchBroom {
                         
                         side->vertices.push_back(vertices[vertexIndex]);
                         side->edges.push_back(edges[edgeIndex]);
-                        
+
                         crc = Utility::updateCRC32(vertexIndex, crc);
                         crc = Utility::updateCRC32(edgeIndex, crc);
                     }
@@ -239,18 +323,14 @@ namespace TrenchBroom {
                     expect(TokenType::CBrace | TokenType::OParenthesis, token = m_tokenizer.nextToken());
                 }
                 
-                const uint32_t geometryCrc = ~crc;
-                
                 expect(TokenType::String, token = m_tokenizer.nextToken());
                 if (token.data() != "CRC")
                     throw MapParserException(token, "expected CRC");
                 
                 expect(TokenType::Integer, token = m_tokenizer.nextToken());
-                const uint32_t originalGeometryCrc = static_cast<uint32_t>(token.toInteger());
-                expect(TokenType::Integer, token = m_tokenizer.nextToken());
-                const uint32_t originalFaceCrc = static_cast<uint32_t>(token.toInteger());
+                const uint32_t originalCrc = static_cast<uint32_t>(token.toInteger());
                 
-                if (geometryCrc != originalGeometryCrc || faceCrc != originalFaceCrc) {
+                if (~crc != originalCrc) {
                     deleteAll(vertices);
                     deleteAll(edges);
                     deleteAll(sides);
@@ -363,19 +443,20 @@ namespace TrenchBroom {
             const size_t filePosition = token.line();
             Model::FaceList faces;
             Model::BrushGeometry* geometry = NULL;
+            uint32_t crc = 0xFFFFFFFF;
             
             while ((token = m_tokenizer.nextToken()).type() != TokenType::Eof) {
                 switch (token.type()) {
                     case TokenType::OParenthesis: {
                         m_tokenizer.pushToken(token);
-                        Model::Face* face = parseFace(worldBounds);
+                        Model::Face* face = parseFace(worldBounds, crc);
                         if (face != NULL)
                             faces.push_back(face);
                         break;
                     }
                     case TokenType::String: {
                         m_tokenizer.pushToken(token);
-                        geometry = parseGeometry(worldBounds, faces);
+                        geometry = parseGeometry(worldBounds, faces, crc);
                         break;
                     }
                     case TokenType::CBrace: {
@@ -429,93 +510,8 @@ namespace TrenchBroom {
         }
         
         Model::Face* MapParser::parseFace(const BBox& worldBounds) {
-            Vec3f p1, p2, p3;
-            float xOffset, yOffset, rotation, xScale, yScale;
-            Token token = m_tokenizer.nextToken();
-            if (token.type() == TokenType::Eof)
-                return NULL;
-            
-            expect(TokenType::OParenthesis, token);
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p1.x = token.toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p1.y = token.toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p1.z = token.toFloat();
-            expect(TokenType::CParenthesis, token = m_tokenizer.nextToken());
-            expect(TokenType::OParenthesis, token = m_tokenizer.nextToken());
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p2.x = token.toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p2.y = token.toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p2.z = token.toFloat();
-            expect(TokenType::CParenthesis, token = m_tokenizer.nextToken());
-            expect(TokenType::OParenthesis, token = m_tokenizer.nextToken());
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p3.x = token.toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p3.y = token.toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            p3.z = token.toFloat();
-            expect(TokenType::CParenthesis, token = m_tokenizer.nextToken());
-            
-            expect(TokenType::String, token = m_tokenizer.nextToken());
-            String textureName = token.data();
-            
-            token = m_tokenizer.nextToken();
-            if (m_format == Undefined) {
-                expect(TokenType::Integer | TokenType::Decimal | TokenType::OBracket, token);
-                m_format = token.type() == TokenType::OBracket ? Valve : Standard;
-                if (m_format == Valve)
-                    m_console.warn("Loading unsupported map Valve 220 map format");
-            }
-            
-            if (m_format == Standard) {
-                expect(TokenType::Integer | TokenType::Decimal, token);
-                xOffset = token.toFloat();
-                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-                yOffset = token.toFloat();
-            } else { // Valve 220 format
-                expect(TokenType::OBracket, token);
-                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken()); // X texture axis x
-                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken()); // X texture axis y
-                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken()); // X texture axis z
-                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken()); // X texture axis offset
-                xOffset = token.toFloat();
-                expect(TokenType::CBracket, token = m_tokenizer.nextToken());
-                expect(TokenType::OBracket, token = m_tokenizer.nextToken());
-                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken()); // Y texture axis x
-                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken()); // Y texture axis y
-                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken()); // Y texture axis z
-                expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken()); // Y texture axis offset
-                yOffset = token.toFloat();
-                expect(TokenType::CBracket, token = m_tokenizer.nextToken());
-            }
-            
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            rotation = token.toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            xScale = token.toFloat();
-            expect(TokenType::Integer | TokenType::Decimal, token = m_tokenizer.nextToken());
-            yScale = token.toFloat();
-            
-            if (((p3 - p1).crossed(p2 - p1)).null()) {
-                m_console.warn("Skipping face with colinear points in line %i", token.line());
-                return NULL;
-            }
-            
-            if (textureName == Model::Texture::Empty)
-                textureName = "";
-            
-            Model::Face* face = new Model::Face(worldBounds, p1, p2, p3, textureName);
-            face->setXOffset(xOffset);
-            face->setYOffset(yOffset);
-            face->setRotation(rotation);
-            face->setXScale(xScale);
-            face->setYScale(yScale);
-            face->setFilePosition(token.line());
-            return face;
+            uint32_t crc = 0xFFFFFFFF;
+            return parseFace(worldBounds, crc);
         }
         
         bool MapParser::parseEntities(const BBox& worldBounds, Model::EntityList& entities) {
