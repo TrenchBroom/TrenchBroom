@@ -336,10 +336,8 @@ namespace TrenchBroom {
 
             BrushGeometry(const BBox& bounds);
             BrushGeometry(const BrushGeometry& original);
+            BrushGeometry(const Model::VertexList& i_vertices, const Model::EdgeList& i_edges, const Model::SideList& i_sides);
             ~BrushGeometry();
-
-            void serialize(IO::ByteBuffer& buffer);
-            void deserialize(IO::ByteBuffer& buffer, const FaceList& faces);
 
             bool closed() const;
             void restoreFaceSides();

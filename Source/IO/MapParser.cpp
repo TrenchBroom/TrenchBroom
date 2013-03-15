@@ -25,8 +25,15 @@
 #include "Model/Map.h"
 #include "Model/Texture.h"
 #include "Utility/Console.h"
+#include "Utility/CRC32.h"
 #include "Utility/List.h"
 #include "Utility/ProgressIndicator.h"
+
+#if defined _MSC_VER
+#include <cstdint>
+#elif defined __GNUC__
+#include <stdint.h>
+#endif
 
 namespace TrenchBroom {
     namespace IO {
@@ -37,8 +44,13 @@ namespace TrenchBroom {
                 switch (c) {
                     case '/':
                         if (tokenizer.peekChar() == '/') {
-                            // eat everything up to and including the next newline
-                            while (tokenizer.nextChar() != '\n');
+                            tokenizer.nextChar();
+                            if (tokenizer.peekChar() == '/') {
+                                tokenizer.nextChar(); // it's a TB comment
+                            } else {
+                                // eat everything up to and including the next newline
+                                while (tokenizer.nextChar() != '\n');
+                            }
                         }
                         break;
                     case '{':
@@ -89,6 +101,22 @@ namespace TrenchBroom {
                             }
                         }
                         
+                        // try to read decimal in scientific notation
+                        if (c == 'e') {
+                            m_buffer << c;
+                            c = tokenizer.nextChar();
+                            if (isDigit(c) || c == '+' || c == '-') {
+                                m_buffer << c;
+                                while (isDigit((c = tokenizer.nextChar())))
+                                    m_buffer << c;
+                                if (isDelimiter(c)) {
+                                    if (!tokenizer.eof())
+                                        tokenizer.pushChar();
+                                    return Token(TokenType::Decimal, m_buffer.str(), startPosition, tokenizer.position() - startPosition, line, column);
+                                }
+                            }
+                        }
+                        
                         // read a word
                         m_buffer << c;
                         while (!tokenizer.eof() && !isDelimiter(c = tokenizer.nextChar()))
@@ -101,9 +129,145 @@ namespace TrenchBroom {
             return Token(TokenType::Eof, "", startPosition, tokenizer.position() - startPosition, line, column);
         }
         
-        MapParser::MapParser(std::istream& stream, Utility::Console& console, CreateBrushStrategy& createBrushStrategy) :
+        Model::BrushGeometry* MapParser::parseGeometry(const BBox& worldBounds, const Model::FaceList& faces) {
+            Token token = m_tokenizer.nextToken();
+            if (token.type() == TokenType::Eof)
+                return NULL;
+            
+            expect(TokenType::String, token);
+            if (token.data() != "VertexData")
+                throw MapParserException(token, "expected VertexData");
+
+            Model::VertexList vertices;
+            Model::EdgeList edges;
+            Model::SideList sides;
+            
+            uint32_t crc = 0xFFFFFFFF;
+            for (size_t i = 0; i < faces.size(); i++) {
+                Model::Side* side = new Model::Side();
+                side->face = faces[i];
+                sides.push_back(side);
+                
+                for (size_t j = 0; j < 3; j++)
+                    for (size_t k = 0; k < 3; k++)
+                        crc = Utility::updateCRC32(side->face->point(j)[k], crc);
+            }
+            const uint32_t faceCrc = ~crc;
+            
+            crc = 0xFFFFFFFF;
+            
+            try {
+                expect(TokenType::OBrace, token = m_tokenizer.nextToken());
+                expect(TokenType::CBrace | TokenType::OParenthesis, token = m_tokenizer.nextToken());
+                while (token.type() != TokenType::CBrace) {
+                    expect(TokenType::Decimal | TokenType::Integer, token = m_tokenizer.nextToken());
+                    const float x = token.toFloat();
+                    expect(TokenType::Decimal | TokenType::Integer, token = m_tokenizer.nextToken());
+                    const float y = token.toFloat();
+                    expect(TokenType::Decimal | TokenType::Integer, token = m_tokenizer.nextToken());
+                    const float z = token.toFloat();
+                    expect(TokenType::CParenthesis, token = m_tokenizer.nextToken());
+                    expect(TokenType::CBrace | TokenType::OParenthesis, token = m_tokenizer.nextToken());
+                    
+                    vertices.push_back(new Model::Vertex(x, y, z));
+                    
+                    crc = Utility::updateCRC32(x, crc);
+                    crc = Utility::updateCRC32(y, crc);
+                    crc = Utility::updateCRC32(z, crc);
+                }
+                
+                expect(TokenType::OBrace, token = m_tokenizer.nextToken());
+                expect(TokenType::CBrace | TokenType::OParenthesis, token = m_tokenizer.nextToken());
+                while (token.type() != TokenType::CBrace) {
+                    expect(TokenType::Integer, token = m_tokenizer.nextToken());
+                    size_t startIndex = static_cast<size_t>(token.toInteger());
+                    expect(TokenType::Integer, token = m_tokenizer.nextToken());
+                    size_t endIndex = static_cast<size_t>(token.toInteger());
+                    expect(TokenType::Integer, token = m_tokenizer.nextToken());
+                    size_t leftIndex = static_cast<size_t>(token.toInteger());
+                    expect(TokenType::Integer, token = m_tokenizer.nextToken());
+                    size_t rightIndex = static_cast<size_t>(token.toInteger());
+                    expect(TokenType::CParenthesis, token = m_tokenizer.nextToken());
+                    expect(TokenType::CBrace | TokenType::OParenthesis, token = m_tokenizer.nextToken());
+                    
+                    assert(startIndex < vertices.size());
+                    assert(endIndex < vertices.size());
+                    assert(leftIndex < sides.size());
+                    assert(rightIndex < sides.size());
+                    
+                    Model::Vertex* start = vertices[startIndex];
+                    Model::Vertex* end = vertices[endIndex];
+                    Model::Side* left = sides[leftIndex];
+                    Model::Side* right = sides[rightIndex];
+                    
+                    edges.push_back(new Model::Edge(start, end, left, right));
+                    
+                    crc = Utility::updateCRC32(startIndex, crc);
+                    crc = Utility::updateCRC32(endIndex, crc);
+                    crc = Utility::updateCRC32(leftIndex, crc);
+                    crc = Utility::updateCRC32(rightIndex, crc);
+                }
+                
+                expect(TokenType::OBrace, token = m_tokenizer.nextToken());
+                expect(TokenType::CBrace | TokenType::OParenthesis, token = m_tokenizer.nextToken());
+                
+                size_t sideIndex = 0;
+                while (token.type() != TokenType::CBrace) {
+                    assert(sideIndex < sides.size());
+                    
+                    Model::Side* side = sides[sideIndex];
+                    while (token.type() != TokenType::CParenthesis) {
+                        expect(TokenType::Integer, token = m_tokenizer.nextToken());
+                        size_t vertexIndex = static_cast<size_t>(token.toInteger());
+                        expect(TokenType::Integer, token = m_tokenizer.nextToken());
+                        size_t edgeIndex = static_cast<size_t>(token.toInteger());
+                        
+                        expect(TokenType::Integer | TokenType::CParenthesis, token = m_tokenizer.nextToken());
+                        if (token.type() == TokenType::Integer)
+                            m_tokenizer.pushToken(token);
+                        
+                        assert(vertexIndex < vertices.size());
+                        assert(edgeIndex < edges.size());
+                        
+                        side->vertices.push_back(vertices[vertexIndex]);
+                        side->edges.push_back(edges[edgeIndex]);
+                        
+                        crc = Utility::updateCRC32(vertexIndex, crc);
+                        crc = Utility::updateCRC32(edgeIndex, crc);
+                    }
+                    sideIndex++;
+                    expect(TokenType::CBrace | TokenType::OParenthesis, token = m_tokenizer.nextToken());
+                }
+                
+                const uint32_t geometryCrc = ~crc;
+                
+                expect(TokenType::String, token = m_tokenizer.nextToken());
+                if (token.data() != "CRC")
+                    throw MapParserException(token, "expected CRC");
+                
+                expect(TokenType::Integer, token = m_tokenizer.nextToken());
+                const uint32_t originalGeometryCrc = static_cast<uint32_t>(token.toInteger());
+                expect(TokenType::Integer, token = m_tokenizer.nextToken());
+                const uint32_t originalFaceCrc = static_cast<uint32_t>(token.toInteger());
+                
+                if (geometryCrc != originalGeometryCrc || faceCrc != originalFaceCrc) {
+                    deleteAll(vertices);
+                    deleteAll(edges);
+                    deleteAll(sides);
+                    return NULL;
+                }
+            } catch (MapParserException e) {
+                deleteAll(vertices);
+                deleteAll(edges);
+                deleteAll(sides);
+                throw e;
+            }
+            
+            return new Model::BrushGeometry(vertices, edges, sides);
+        }
+
+        MapParser::MapParser(std::istream& stream, Utility::Console& console) :
         m_console(console),
-        m_createBrushStrategy(createBrushStrategy),
         m_tokenizer(stream),
         m_format(Undefined) {
             std::streamoff cur = stream.tellg();
@@ -122,8 +286,21 @@ namespace TrenchBroom {
             } catch (MapParserException e) {
                 m_console.error(e.what());
             }
+            
             if (indicator != NULL)
                 indicator->update(static_cast<int>(m_size));
+            
+            if (!m_staleBrushes.empty()) {
+                StringStream stream;
+                stream << "Found brushes with invalid or missing geometry at lines ";
+                for (size_t i = 0; i < m_staleBrushes.size(); i++) {
+                    const Model::Brush* brush = m_staleBrushes[i];
+                    stream << brush->filePosition();
+                    if (i < m_staleBrushes.size() - 1)
+                        stream << ", ";
+                }
+                m_console.warn(stream.str());
+            }
         }
         
         Model::Entity* MapParser::parseEntity(const BBox& worldBounds, Utility::ProgressIndicator* indicator) {
@@ -185,6 +362,8 @@ namespace TrenchBroom {
             
             const size_t filePosition = token.line();
             Model::FaceList faces;
+            Model::BrushGeometry* geometry = NULL;
+            
             while ((token = m_tokenizer.nextToken()).type() != TokenType::Eof) {
                 switch (token.type()) {
                     case TokenType::OParenthesis: {
@@ -194,19 +373,49 @@ namespace TrenchBroom {
                             faces.push_back(face);
                         break;
                     }
+                    case TokenType::String: {
+                        m_tokenizer.pushToken(token);
+                        geometry = parseGeometry(worldBounds, faces);
+                        break;
+                    }
                     case TokenType::CBrace: {
                         if (indicator != NULL) indicator->update(static_cast<int>(token.position()));
                         
-                        Model::Brush* brush = m_createBrushStrategy(worldBounds, faces);
-                        if (brush != NULL) {
+                        Model::Brush* brush = NULL;
+                        if (geometry == NULL) {
+                            brush = new Model::Brush(worldBounds);
                             brush->setFilePosition(filePosition);
-                            if (!brush->closed())
-                                m_console.warn("Non-closed brush at line %i", filePosition);
-                        } else {
-                            m_console.warn("Skipping malformed brush at line %i", filePosition);
-                            Utility::deleteAll(faces);
-                        }
                             
+                            // sort the faces by the weight of their plane normals like QBSP does
+                            Model::FaceList sortedFaces = faces;
+                            std::sort(sortedFaces.begin(), sortedFaces.end(), Model::Face::WeightOrder(Plane::WeightOrder(true)));
+                            std::sort(sortedFaces.begin(), sortedFaces.end(), Model::Face::WeightOrder(Plane::WeightOrder(false)));
+                            
+                            Model::FaceList::iterator faceIt, faceEnd;
+                            for (faceIt = sortedFaces.begin(), faceEnd = sortedFaces.end(); faceIt != faceEnd; ++faceIt) {
+                                Model::Face* face = *faceIt;
+                                if (!brush->addFace(face)) {
+                                    delete brush;
+                                    brush = NULL;
+                                    break;
+                                }
+                            }
+
+                            if (brush != NULL) {
+                                if (!brush->closed())
+                                    m_console.warn("Non-closed brush at line %i", filePosition);
+                                // try to correct the vertices just like QBSP does
+                                // brush->correct(0.025f);
+                                m_staleBrushes.push_back(brush);
+                            } else {
+                                m_console.warn("Skipping malformed brush at line %i", filePosition);
+                                Utility::deleteAll(faces);
+                            }
+                        } else {
+                            brush = new Model::Brush(worldBounds, faces, geometry);
+                            brush->setFilePosition(filePosition);
+                        }
+                        
                         return brush;
                     }
                     default: {

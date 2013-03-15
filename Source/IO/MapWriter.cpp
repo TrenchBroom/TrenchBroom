@@ -21,17 +21,103 @@
 
 #include "Model/Texture.h"
 #include "Model/Brush.h"
+#include "Model/BrushGeometry.h"
 #include "Model/Entity.h"
 #include "Model/EntityDefinition.h"
 #include "Model/Face.h"
 #include "Model/Map.h"
 #include "IO/FileManager.h"
+#include "Utility/CRC32.h"
 
-#include <fstream>
 #include <cassert>
+#include <fstream>
+
+#if defined _MSC_VER
+#include <cstdint>
+#elif defined __GNUC__
+#include <stdint.h>
+#endif
 
 namespace TrenchBroom {
     namespace IO {
+        void MapWriter::writeBrushGeometry(const Model::Brush& brush, FILE* stream) {
+            typedef std::map<const Model::Vertex*, size_t> VertexIndices;
+            typedef std::map<const Model::Edge*, size_t> EdgeIndices;
+            typedef std::map<const Model::Face*, size_t> FaceIndices;
+            
+            const Model::VertexList& vertices = brush.vertices();
+            const Model::EdgeList& edges = brush.edges();
+            const Model::FaceList& faces = brush.faces();
+
+            VertexIndices vertexIndices;
+            EdgeIndices edgeIndices;
+            FaceIndices faceIndices;
+            
+            uint32_t crc = 0xFFFFFFFF;
+            for (size_t i = 0; i < faces.size(); i++) {
+                const Model::Face* face = faces[i];
+                faceIndices[face] = i;
+
+                for (size_t j = 0; j < 3; j++)
+                    for (size_t k = 0; k < 3; k++)
+                        crc = Utility::updateCRC32(face->point(j)[k], crc);
+            }
+            const uint32_t faceCrc = ~crc;
+
+            crc = 0xFFFFFFFF;
+            
+            fprintf(stream, "/// VertexData\n");
+            fprintf(stream, "/// {");
+            for (size_t i = 0; i < vertices.size(); i++) {
+                const Model::Vertex* vertex = vertices[i];
+                fprintf(stream, " ( %g %g %g )", vertex->position.x, vertex->position.y, vertex->position.z);
+                vertexIndices[vertex] = i;
+                
+                for (size_t j = 0; j < 3; j++)
+                    crc = Utility::updateCRC32(vertex->position[j], crc);
+            }
+            fprintf(stream, " }\n");
+            
+            fprintf(stream, "/// {");
+            for (size_t i = 0; i < edges.size(); i++) {
+                const Model::Edge* edge = edges[i];
+                fprintf(stream, " ( %lu %lu %lu %lu )",
+                        vertexIndices[edge->start],
+                        vertexIndices[edge->end],
+                        faceIndices[edge->left->face],
+                        faceIndices[edge->right->face]);
+                edgeIndices[edge] = i;
+                
+                crc = Utility::updateCRC32(vertexIndices[edge->start], crc);
+                crc = Utility::updateCRC32(vertexIndices[edge->end], crc);
+                crc = Utility::updateCRC32(faceIndices[edge->left->face], crc);
+                crc = Utility::updateCRC32(faceIndices[edge->right->face], crc);
+            }
+            fprintf(stream, " }\n");
+            
+            fprintf(stream, "/// {");
+            for (size_t i = 0; i < faces.size(); i++) {
+                const Model::Face* face = faces[i];
+                const Model::EdgeList& faceEdges = face->edges();
+
+                fprintf(stream, " (");
+                for (size_t j = 0; j < faceEdges.size(); j++) {
+                    const Model::Vertex* vertex = face->vertices()[j];
+                    const Model::Edge* edge = face->edges()[j];
+                    fprintf(stream, " %lu %lu", vertexIndices[vertex], edgeIndices[edge]);
+                    
+                    crc = Utility::updateCRC32(vertexIndices[vertex], crc);
+                    crc = Utility::updateCRC32(edgeIndices[edge], crc);
+                }
+                fprintf(stream, " )");
+                
+            }
+            fprintf(stream, " }\n");
+            const uint32_t geometryCrc = ~crc;
+            
+            fprintf(stream, "/// CRC %u %u\n", geometryCrc, faceCrc);
+        }
+
         void MapWriter::writeFace(const Model::Face& face, FILE* stream) {
             String textureName = Utility::isBlank(face.textureName()) ? Model::Texture::Empty : face.textureName();
 
@@ -59,6 +145,7 @@ namespace TrenchBroom {
             Model::FaceList::const_iterator faceIt, faceEnd;
             for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt)
                 writeFace(**faceIt, stream);
+            writeBrushGeometry(brush, stream);
             fprintf(stream, "}\n");
         }
         
@@ -85,6 +172,87 @@ namespace TrenchBroom {
             writeEntityFooter(stream);
         }
 
+        void MapWriter::writeBrushGeometry(const Model::Brush& brush, std::ostream& stream) {
+            typedef std::map<const Model::Vertex*, size_t> VertexIndices;
+            typedef std::map<const Model::Edge*, size_t> EdgeIndices;
+            typedef std::map<const Model::Face*, size_t> FaceIndices;
+            
+            const Model::VertexList& vertices = brush.vertices();
+            const Model::EdgeList& edges = brush.edges();
+            const Model::FaceList& faces = brush.faces();
+            
+            VertexIndices vertexIndices;
+            EdgeIndices edgeIndices;
+            FaceIndices faceIndices;
+            
+            uint32_t crc = 0xFFFFFFFF;
+            for (size_t i = 0; i < faces.size(); i++) {
+                const Model::Face* face = faces[i];
+                faceIndices[face] = i;
+                
+                for (size_t j = 0; j < 3; j++)
+                    for (size_t k = 0; k < 3; k++)
+                        crc = Utility::updateCRC32(face->point(j)[k], crc);
+            }
+            const uint32_t faceCrc = ~crc;
+            
+            crc = 0xFFFFFFFF;
+            
+            stream << "/// VertexData\n";
+            stream << "/// {";
+            for (size_t i = 0; i < vertices.size(); i++) {
+                const Model::Vertex* vertex = vertices[i];
+                stream << " ( " << vertex->position.x << " " << vertex->position.y << " " << vertex->position.z << " )";
+                vertexIndices[vertex] = i;
+                
+                for (size_t j = 0; j < 3; j++)
+                    crc = Utility::updateCRC32(vertex->position[j], crc);
+            }
+            stream << " }\n";
+            
+            stream << "/// {";
+            for (size_t i = 0; i < edges.size(); i++) {
+                const Model::Edge* edge = edges[i];
+                
+                stream <<
+                " ( " <<
+                vertexIndices[edge->start] << " " <<
+                vertexIndices[edge->end] << " " <<
+                faceIndices[edge->left->face] << " " <<
+                faceIndices[edge->right->face] << " )";
+
+                edgeIndices[edge] = i;
+                
+                crc = Utility::updateCRC32(vertexIndices[edge->start], crc);
+                crc = Utility::updateCRC32(vertexIndices[edge->end], crc);
+                crc = Utility::updateCRC32(faceIndices[edge->left->face], crc);
+                crc = Utility::updateCRC32(faceIndices[edge->right->face], crc);
+            }
+            stream << " }\n";
+            
+            stream << "/// {";
+            for (size_t i = 0; i < faces.size(); i++) {
+                const Model::Face* face = faces[i];
+                const Model::EdgeList& faceEdges = face->edges();
+                
+                stream << " (";
+                for (size_t j = 0; j < faceEdges.size(); j++) {
+                    const Model::Vertex* vertex = face->vertices()[j];
+                    const Model::Edge* edge = face->edges()[j];
+                    stream << " " << vertexIndices[vertex] << " " << edgeIndices[edge];
+
+                    crc = Utility::updateCRC32(vertexIndices[vertex], crc);
+                    crc = Utility::updateCRC32(edgeIndices[edge], crc);
+                }
+                stream << " )";
+                
+            }
+            stream << " }\n";
+            const uint32_t geometryCrc = ~crc;
+
+            stream << "/// CRC " << geometryCrc << " " << faceCrc << "\n";
+        }
+        
         void MapWriter::writeFace(const Model::Face& face, std::ostream& stream) {
             String textureName = Utility::isBlank(face.textureName()) ? Model::Texture::Empty : face.textureName();
             
@@ -116,6 +284,7 @@ namespace TrenchBroom {
             Model::FaceList::const_iterator faceIt, faceEnd;
             for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt)
                 writeFace(**faceIt, stream);
+            writeBrushGeometry(brush, stream);
             stream << "}" << "\n";
         }
 
@@ -142,7 +311,7 @@ namespace TrenchBroom {
             writeEntityFooter(stream);
         }
 
-        void MapWriter::writeObjectsToStream(const Model::EntityList& pointEntities, const Model::BrushList& brushes, std::ostream& stream, Model::BrushFunctor& brushFunctor) {
+        void MapWriter::writeObjectsToStream(const Model::EntityList& pointEntities, const Model::BrushList& brushes, std::ostream& stream) {
             assert(stream.good());
 
             Model::Entity* worldspawn = NULL;
@@ -166,7 +335,6 @@ namespace TrenchBroom {
                 writeEntityHeader(*worldspawn, stream);
                 for (brushIt = brushList.begin(), brushEnd = brushList.end(); brushIt != brushEnd; ++brushIt) {
                     writeBrush(**brushIt, stream);
-                    brushFunctor(**brushIt);
                 }
                 writeEntityFooter(stream);
             }
@@ -188,7 +356,6 @@ namespace TrenchBroom {
                     writeEntityHeader(*entity, stream);
                     for (brushIt = brushList.begin(), brushEnd = brushList.end(); brushIt != brushEnd; ++brushIt) {
                         writeBrush(**brushIt, stream);
-                        brushFunctor(**brushIt);
                     }
                     writeEntityFooter(stream);
                 }

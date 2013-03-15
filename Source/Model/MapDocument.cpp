@@ -21,7 +21,6 @@
 
 #include "Controller/Autosaver.h"
 #include "Controller/Command.h"
-#include "IO/CreateBrushFromFacesStrategy.h"
 #include "IO/FileManager.h"
 #include "IO/IOException.h"
 #include "IO/MapParser.h"
@@ -118,8 +117,7 @@ namespace TrenchBroom {
 			progressIndicator.setText("Loading map file...");
 
             wxStopWatch watch;
-            IO::CreateBrushFromFacesStrategy brushCreator;
-            IO::MapParser parser(stream, console(), brushCreator);
+            IO::MapParser parser(stream, console());
             parser.parseMap(*m_map, &progressIndicator);
             stream.clear(); // everything went well, prevent wx from displaying an error dialog
 

@@ -40,19 +40,21 @@ namespace TrenchBroom {
     namespace IO {
         class MapWriter {
         protected:
+            void writeBrushGeometry(const Model::Brush& brush, FILE* stream);
             void writeFace(const Model::Face& face, FILE* stream);
             void writeBrush(const Model::Brush& brush, FILE* stream);
             void writeEntityHeader(const Model::Entity& entity, FILE* stream);
             void writeEntityFooter(FILE* stream);
             void writeEntity(const Model::Entity& entity, FILE* stream);
             
+            void writeBrushGeometry(const Model::Brush& brush, std::ostream& stream);
             void writeFace(const Model::Face& face, std::ostream& stream);
             void writeBrush(const Model::Brush& brush, std::ostream& stream);
             void writeEntityHeader(const Model::Entity& entity, std::ostream& stream);
             void writeEntityFooter(std::ostream& stream);
             void writeEntity(const Model::Entity& entity, std::ostream& stream);
         public:
-            void writeObjectsToStream(const Model::EntityList& pointEntities, const Model::BrushList& brushes, std::ostream& stream, Model::BrushFunctor& brushFunctor);
+            void writeObjectsToStream(const Model::EntityList& pointEntities, const Model::BrushList& brushes, std::ostream& stream);
             void writeFacesToStream(const Model::FaceList& faces, std::ostream& stream);
             void writeToStream(const Model::Map& map, std::ostream& stream);
             void writeToFileAtPath(const Model::Map& map, const String& path, bool overwrite);

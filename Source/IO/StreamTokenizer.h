@@ -161,7 +161,7 @@ namespace TrenchBroom {
                 }
             }
             
-            inline int peekChar(unsigned int offset = 0) {
+            inline char peekChar(unsigned int offset = 0) {
                 if (eof())
                     return 0;
                 
@@ -173,7 +173,7 @@ namespace TrenchBroom {
                     c = m_stream.peek();
                     m_stream.seekg(-static_cast<long>(offset), std::ios::cur);
                 }
-                return c;
+                return static_cast<char>(c);
             }
             
             inline bool eof() const {

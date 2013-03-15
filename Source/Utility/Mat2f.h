@@ -110,12 +110,12 @@ namespace TrenchBroom {
                 return *this;
             }
             
-            inline float& operator[] (const unsigned int index) {
+            inline float& operator[] (const size_t index) {
                 assert(index >= 0 && index < 4);
                 return v[index];
             }
             
-            inline const float& operator[] (const unsigned int index) const {
+            inline const float& operator[] (const size_t index) const {
                 assert(index >= 0 && index < 4);
                 return v[index];
             }

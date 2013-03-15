@@ -55,6 +55,7 @@ namespace TrenchBroom {
             void init();
         public:
             Brush(const BBox& worldBounds);
+            Brush(const BBox& worldBounds, const Model::FaceList& faces, Model::BrushGeometry* geometry);
             Brush(const BBox& worldBounds, const Brush& brushTemplate);
             Brush(const BBox& worldBounds, const BBox& brushBounds, Texture* texture);
             ~Brush();
@@ -148,9 +149,6 @@ namespace TrenchBroom {
 
             void correct(float epsilon);
             void snap(unsigned int snapTo);
-
-            void serializeGeometry(IO::ByteBuffer& buffer) const;
-            void deserializeGeometry(IO::ByteBuffer& buffer);
 
             bool canMoveBoundary(const Face& face, const Vec3f& delta) const;
             void moveBoundary(Face& face, const Vec3f& delta, bool lockTexture);

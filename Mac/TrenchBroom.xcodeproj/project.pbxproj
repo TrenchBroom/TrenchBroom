@@ -148,6 +148,7 @@
 		48C0FA46160901CB0023F467 /* SingleTextureViewer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C0FA44160901CB0023F467 /* SingleTextureViewer.cpp */; };
 		48C3CAF4162A8F2D006547EC /* AddObjectsCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C3CAF2162A8F2D006547EC /* AddObjectsCommand.cpp */; };
 		48C4637616B97A76008159DC /* MoveTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C4637416B97A76008159DC /* MoveTool.cpp */; };
+		48C48EC016F272D9000F6038 /* CRC32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C48EBE16F272D9000F6038 /* CRC32.cpp */; };
 		48C83711167513CD00B658A2 /* PointHandleRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48C8370F167513CD00B658A2 /* PointHandleRenderer.cpp */; };
 		48CB0DCD163EEB26001C8E87 /* CircleFigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48CB0DCB163EEB26001C8E87 /* CircleFigure.cpp */; };
 		48CBFA2516AF24F300E81617 /* ViewInspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48CBFA2416AF24F300E81617 /* ViewInspector.cpp */; };
@@ -278,8 +279,6 @@
 		482F4BCA1690681A0012D821 /* Vec4f.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Vec4f.cpp; sourceTree = "<group>"; };
 		482F4BCD16906ACB0012D821 /* PointHandleHighlightFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointHandleHighlightFigure.cpp; sourceTree = "<group>"; };
 		482F4BCE16906ACB0012D821 /* PointHandleHighlightFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointHandleHighlightFigure.h; sourceTree = "<group>"; };
-		4830050716E91B8300C05645 /* CreateBrushFromFacesStrategy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateBrushFromFacesStrategy.h; sourceTree = "<group>"; };
-		4830050816E91B8300C05645 /* CreateBrushFromGeometryStrategy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateBrushFromGeometryStrategy.h; sourceTree = "<group>"; };
 		48312B2715EABBD600607868 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
 		48312B2A15EB706D00607868 /* Console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Console.cpp; sourceTree = "<group>"; };
 		48312B2B15EB706D00607868 /* Console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Console.h; sourceTree = "<group>"; };
@@ -395,7 +394,6 @@
 		486AFAC916B3DE570097657D /* PointTraceFigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointTraceFigure.h; sourceTree = "<group>"; };
 		486AFACB16B555940097657D /* Mat3f.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Mat3f.cpp; sourceTree = "<group>"; };
 		486C61E615EF713C0091AA97 /* mmapped_fstream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mmapped_fstream.h; sourceTree = "<group>"; };
-		48736D5C16E75B8700E4932C /* BrushGeometrySerializer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrushGeometrySerializer.h; sourceTree = "<group>"; };
 		4875679A16978ED3008F316F /* DragImage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DragImage.h; sourceTree = "<group>"; };
 		4875679B1697922D008F316F /* MacDropSource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacDropSource.cpp; sourceTree = "<group>"; };
 		4875679C1697922D008F316F /* MacDropSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacDropSource.h; sourceTree = "<group>"; };
@@ -528,6 +526,8 @@
 		48C3CAF3162A8F2D006547EC /* AddObjectsCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddObjectsCommand.h; sourceTree = "<group>"; };
 		48C4637416B97A76008159DC /* MoveTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveTool.cpp; sourceTree = "<group>"; };
 		48C4637516B97A76008159DC /* MoveTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveTool.h; sourceTree = "<group>"; };
+		48C48EBE16F272D9000F6038 /* CRC32.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CRC32.cpp; sourceTree = "<group>"; };
+		48C48EBF16F272D9000F6038 /* CRC32.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CRC32.h; sourceTree = "<group>"; };
 		48C8370F167513CD00B658A2 /* PointHandleRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PointHandleRenderer.cpp; sourceTree = "<group>"; };
 		48C83710167513CD00B658A2 /* PointHandleRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointHandleRenderer.h; sourceTree = "<group>"; };
 		48CB0DCB163EEB26001C8E87 /* CircleFigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CircleFigure.cpp; sourceTree = "<group>"; };
@@ -639,8 +639,6 @@
 				4810526816E748AC00015AF5 /* ByteBuffer.h */,
 				481CC98D16DD562300537742 /* ClassInfo.h */,
 				481CC98E16DD568F00537742 /* ClassInfo.cpp */,
-				4830050716E91B8300C05645 /* CreateBrushFromFacesStrategy.h */,
-				4830050816E91B8300C05645 /* CreateBrushFromGeometryStrategy.h */,
 				4810277D15E56F9B00250C9C /* DefParser.cpp */,
 				4810277E15E56F9B00250C9C /* DefParser.h */,
 				4814447616DBA0DE0060150A /* FgdParser.cpp */,
@@ -836,7 +834,6 @@
 				48AF491D15E77BF90083DE52 /* BrushGeometry.cpp */,
 				48AF491E15E77BF90083DE52 /* BrushGeometry.h */,
 				48AF492115E782E90083DE52 /* BrushGeometryTypes.h */,
-				48736D5C16E75B8700E4932C /* BrushGeometrySerializer.h */,
 				481028A315E75C3400250C9C /* BrushTypes.h */,
 				481028A615E7778200250C9C /* EditState.h */,
 				4850D24E15F389B5005B162D /* EditStateManager.cpp */,
@@ -953,6 +950,8 @@
 				48312B2A15EB706D00607868 /* Console.cpp */,
 				48312B2B15EB706D00607868 /* Console.h */,
 				48D1BEAB15E305FA0073C030 /* CoordinatePlane.h */,
+				48C48EBE16F272D9000F6038 /* CRC32.cpp */,
+				48C48EBF16F272D9000F6038 /* CRC32.h */,
 				4850D24415F2AAE8005B162D /* DocManager.cpp */,
 				4850D24515F2AAE8005B162D /* DocManager.h */,
 				48E2ECBB15FF8FDF00B8D476 /* Grid.cpp */,
@@ -1453,6 +1452,7 @@
 				4814447816DBA0DE0060150A /* FgdParser.cpp in Sources */,
 				481CC98F16DD568F00537742 /* ClassInfo.cpp in Sources */,
 				48688C9516E354EC0080F70F /* NSLog.mm in Sources */,
+				48C48EC016F272D9000F6038 /* CRC32.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
