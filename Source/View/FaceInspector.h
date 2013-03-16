@@ -67,7 +67,7 @@ namespace TrenchBroom {
             
             void updateFaceAttributes();
             void updateSelectedTexture();
-            void updateTextureBrowser();
+            void updateTextureBrowser(bool reloadTextures);
             
             void OnXOffsetChanged(SpinControlEvent& event);
             void OnYOffsetChanged(SpinControlEvent& event);
