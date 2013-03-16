@@ -24,8 +24,33 @@
 
 #include <map> 
 
+#ifndef _WIN32
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#endif
+
 namespace TrenchBroom {
     namespace IO {
+#ifndef _WIN32
+        PosixMappedFile::PosixMappedFile(int filedesc, char* address, size_t size) :
+        MappedFile(address, address + size),
+        m_filedesc(filedesc) {}
+        
+        PosixMappedFile::~PosixMappedFile() {
+            if (m_begin != NULL) {
+                munmap(m_begin, m_size);
+                m_begin = NULL;
+                m_end = NULL;
+            }
+            
+            if (m_filedesc >= 0) {
+                close(m_filedesc);
+                m_filedesc = -1;
+            }
+        }
+#endif
+        
         bool AbstractFileManager::isAbsolutePath(const String& path) {
             return wxIsAbsolutePath(path);
         }
@@ -254,5 +279,42 @@ namespace TrenchBroom {
             if (pos == String::npos) return path;
             return path.substr(0, pos);
         }
+
+#ifndef _WIN32
+        MappedFile::Ptr AbstractFileManager::mapFile(const String& path, std::ios_base::openmode mode) {
+            int filedesc = -1;
+            char* address = NULL;
+            size_t size = 0;
+            
+            int flags = 0;
+            int prot = 0;
+            if ((mode & std::ios_base::in)) {
+                if ((mode & std::ios_base::out))
+                    flags = O_RDWR;
+                else
+                    flags = O_RDONLY;
+                prot |= PROT_READ;
+            }
+            if ((mode & std::ios_base::out)) {
+                flags = O_WRONLY;
+                prot |= PROT_WRITE;
+            }
+            
+            filedesc = open(path.c_str(), flags);
+            if (filedesc >= 0) {
+                size = static_cast<size_t>(lseek(filedesc, 0, SEEK_END));
+                lseek(filedesc, 0, SEEK_SET);
+                address = static_cast<char*>(mmap(NULL, size, prot, MAP_FILE | MAP_PRIVATE, filedesc, 0));
+                if (address == NULL) {
+                    close(filedesc);
+                    filedesc = -1;
+                } else {
+                    return MappedFile::Ptr(new PosixMappedFile(filedesc, address, size));
+                }
+            }
+            
+            return MappedFile::Ptr();
+        }
+#endif
     }
 }

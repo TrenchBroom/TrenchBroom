@@ -57,6 +57,16 @@ namespace TrenchBroom {
             }
         };
         
+#ifndef _WIN32
+        class PosixMappedFile : public MappedFile {
+        private:
+            int m_filedesc;
+        public:
+            PosixMappedFile(int filedesc, char* address, size_t size);
+            ~PosixMappedFile();
+        };
+#endif
+
         class AbstractFileManager {
         public:
             virtual ~AbstractFileManager() {}
@@ -90,7 +100,11 @@ namespace TrenchBroom {
             virtual String resourceDirectory() = 0;
             virtual String resolveFontPath(const String& fontName) = 0;
             
+#if defined _WIN32
             virtual MappedFile::Ptr mapFile(const String& path, std::ios_base::openmode mode = std::ios_base::in) = 0;
+#else
+            MappedFile::Ptr mapFile(const String& path, std::ios_base::openmode mode = std::ios_base::in);
+#endif
         };
         
         class FileManagerException : public Utility::MessageException {
