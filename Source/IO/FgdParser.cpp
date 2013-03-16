@@ -410,11 +410,11 @@ namespace TrenchBroom {
             Token token;
             expect(OParenthesis, token = m_tokenizer.nextToken());
             expect(Integer | Decimal, token = m_tokenizer.nextToken());
-            r = token.toFloat();
+            r = token.toFloat() / 255.0f;
             expect(Integer | Decimal, token = m_tokenizer.nextToken());
-            g = token.toFloat();
+            g = token.toFloat() / 255.0f;
             expect(Integer | Decimal, token = m_tokenizer.nextToken());
-            b = token.toFloat();
+            b = token.toFloat() / 255.0f;
             expect(CParenthesis, token = m_tokenizer.nextToken());
             return Color(r, g, b, 1.0f);
         }
