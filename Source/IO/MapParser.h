@@ -23,7 +23,6 @@
 #include "IO/ByteBuffer.h"
 #include "IO/StreamTokenizer.h"
 #include "Model/BrushTypes.h"
-#include "Model/BrushGeometry.h"
 #include "Model/EntityTypes.h"
 #include "Model/FaceTypes.h"
 #include "Utility/MessageException.h"
@@ -64,9 +63,6 @@ namespace TrenchBroom {
         }
 
         class MapTokenEmitter : public TokenEmitter<MapTokenEmitter> {
-        private:
-            char m_buffer[1024];
-            size_t m_bufferLen;
         protected:
             bool isDelimiter(char c) {
                 return isWhitespace(c) || c == '(' || c == ')' || c == '{' || c == '}' || c == '?' || c == ';' || c == ',' || c == '=';
@@ -137,29 +133,6 @@ namespace TrenchBroom {
                 Standard,
                 Valve
             };
-
-            class VertexCompare {
-                const float m_epsilon;
-            public:
-                VertexCompare(float epsilon) :
-                m_epsilon(epsilon) {}
-                
-                inline bool operator()(const Model::Vertex* lhs, const Model::Vertex* rhs) const {
-                    const Vec3f& l = lhs->position;
-                    const Vec3f& r = rhs->position;
-                    if (Math::lt(l.x, r.x, m_epsilon))
-                        return true;
-                    if (Math::gt(l.x, r.x, m_epsilon))
-                        return false;
-                    if (Math::lt(l.y, r.y, m_epsilon))
-                        return true;
-                    if (Math::gt(l.y, r.y, m_epsilon))
-                        return false;
-                    if (Math::lt(l.z, r.z, m_epsilon))
-                        return true;
-                    return false;
-                }
-            };
             
             Utility::Console& m_console;
             StreamTokenizer<MapTokenEmitter> m_tokenizer;
@@ -171,11 +144,9 @@ namespace TrenchBroom {
                 if ((actualToken.type() & expectedType) == 0)
                     throw MapParserException(actualToken, expectedType);
             }
-            
-            Model::BrushGeometry* buildGeometry(const BBox& worldBounds, const Model::FaceList& faces);
-            bool parseGeometry(const BBox& worldBounds, const Model::FaceList& faces, Model::BrushGeometry*& geometry);
         public:
-            MapParser(std::istream& stream, Utility::Console& console);
+            MapParser(const char* begin, const char* end, Utility::Console& console);
+            MapParser(const String& str, Utility::Console& console);
             
             void parseMap(Model::Map& map, Utility::ProgressIndicator* indicator);
             Model::Entity* parseEntity(const BBox& worldBounds, Utility::ProgressIndicator* indicator);

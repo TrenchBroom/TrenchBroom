@@ -42,22 +42,6 @@ namespace TrenchBroom {
             m_geometry = new BrushGeometry(m_worldBounds);
         }
 
-        Brush::Brush(const BBox& worldBounds, const Model::FaceList& faces, Model::BrushGeometry* geometry) :
-        MapObject(),
-        m_worldBounds(worldBounds) {
-            init();
-            m_faces = faces;
-            
-            FaceList::const_iterator it, end;
-            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
-                Face& face = **it;
-                face.setBrush(this);
-            }
-            
-            m_geometry = geometry;
-            m_geometry->restoreFaceSides();
-        }
-
         Brush::Brush(const BBox& worldBounds, const Brush& brushTemplate) :
         MapObject(),
         m_worldBounds(worldBounds) {

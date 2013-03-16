@@ -21,10 +21,42 @@
 #define __TrenchBroom__AbstractFileManager__
 
 #include "Utility/MessageException.h"
+#include "Utility/SharedPointer.h"
 #include "Utility/String.h"
+
+#include <cassert>
 
 namespace TrenchBroom {
     namespace IO {
+        class MappedFile {
+        public:
+            typedef std::tr1::shared_ptr<MappedFile> Ptr;
+        protected:
+            char* m_begin;
+            char* m_end;
+            size_t m_size;
+        public:
+            MappedFile(char* begin, char* end) :
+            m_begin(begin),
+            m_end(end) {
+                assert(m_end >= m_begin);
+                m_size = static_cast<size_t>(m_end - m_begin);
+            }
+            virtual ~MappedFile() {};
+            
+            inline size_t size() const {
+                return m_size;
+            }
+            
+            inline char* begin() const {
+                return m_begin;
+            }
+            
+            inline char* end() const {
+                return m_end;
+            }
+        };
+        
         class AbstractFileManager {
         public:
             virtual ~AbstractFileManager() {}
@@ -57,6 +89,8 @@ namespace TrenchBroom {
             virtual String logDirectory() = 0;
             virtual String resourceDirectory() = 0;
             virtual String resolveFontPath(const String& fontName) = 0;
+            
+            virtual MappedFile::Ptr mapFile(const String& path, std::ios_base::openmode mode = std::ios_base::in) = 0;
         };
         
         class FileManagerException : public Utility::MessageException {

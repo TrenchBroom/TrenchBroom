@@ -55,8 +55,6 @@ namespace TrenchBroom {
         }
         
         class FgdTokenEmitter : public TokenEmitter<FgdTokenEmitter> {
-        private:
-            StringStream m_buffer;
         protected:
             bool isDelimiter(char c) {
                 return isWhitespace(c) || c == '(' || c == ')' || c == '{' || c == '}' || c == '?' || c == ';' || c == ':' || c == ',' || c == '=';
@@ -96,9 +94,9 @@ namespace TrenchBroom {
             Model::EntityDefinition* parsePointClass();
             void parseBaseClass();
         public:
-            FgdParser(const Color& defaultEntityColor, std::istream& stream) :
+            FgdParser(char* begin, char* end, const Color& defaultEntityColor) :
             m_defaultEntityColor(defaultEntityColor), 
-            m_tokenizer(stream) {}
+            m_tokenizer(begin, end) {}
             
             Model::EntityDefinition* nextDefinition();
         };

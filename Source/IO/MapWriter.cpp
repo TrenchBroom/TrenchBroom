@@ -34,66 +34,10 @@
 
 namespace TrenchBroom {
     namespace IO {
-        void MapWriter::writeBrushGeometry(const Model::Brush& brush, FILE* stream) {
-            typedef std::map<const Model::Vertex*, size_t> VertexIndices;
-            typedef std::map<const Model::Edge*, size_t> EdgeIndices;
-            typedef std::map<const Model::Face*, size_t> FaceIndices;
-            
-            const Model::VertexList& vertices = brush.vertices();
-            const Model::EdgeList& edges = brush.edges();
-            const Model::FaceList& faces = brush.faces();
-
-            VertexIndices vertexIndices;
-            EdgeIndices edgeIndices;
-            FaceIndices faceIndices;
-            
-            for (size_t i = 0; i < faces.size(); i++) {
-                const Model::Face* face = faces[i];
-                faceIndices[face] = i;
-            }
-
-            fprintf(stream, "/// VertexData\n");
-            fprintf(stream, "/// {");
-            for (size_t i = 0; i < vertices.size(); i++) {
-                const Model::Vertex* vertex = vertices[i];
-                fprintf(stream, " ( %g %g %g )", vertex->position.x, vertex->position.y, vertex->position.z);
-                vertexIndices[vertex] = i;
-            }
-            fprintf(stream, " }\n");
-            
-            fprintf(stream, "/// {");
-            for (size_t i = 0; i < edges.size(); i++) {
-                const Model::Edge* edge = edges[i];
-                fprintf(stream, " ( %lu %lu %lu %lu )",
-                        vertexIndices[edge->start],
-                        vertexIndices[edge->end],
-                        faceIndices[edge->left->face],
-                        faceIndices[edge->right->face]);
-                edgeIndices[edge] = i;
-            }
-            fprintf(stream, " }\n");
-            
-            fprintf(stream, "/// {");
-            for (size_t i = 0; i < faces.size(); i++) {
-                const Model::Face* face = faces[i];
-                const Model::EdgeList& faceEdges = face->edges();
-
-                fprintf(stream, " (");
-                for (size_t j = 0; j < faceEdges.size(); j++) {
-                    const Model::Vertex* vertex = face->vertices()[j];
-                    const Model::Edge* edge = face->edges()[j];
-                    fprintf(stream, " %lu %lu", vertexIndices[vertex], edgeIndices[edge]);
-                }
-                fprintf(stream, " )");
-                
-            }
-            fprintf(stream, " }\n");
-        }
-
         void MapWriter::writeFace(const Model::Face& face, FILE* stream) {
             const String textureName = Utility::isBlank(face.textureName()) ? Model::Texture::Empty : face.textureName();
 
-            fprintf(stream, "( %g %g %g ) ( %g %g %g ) ( %g %g %g ) %s %g %g %g %g %g\n",
+            std::fprintf(stream, "( %.9g %.9g %.9g ) ( %.9g %.9g %.9g ) ( %.9g %.9g %.9g ) %s %.9g %.9g %.9g %.9g %.9g\n",
                     face.point(0).x,
                     face.point(0).y,
                     face.point(0).z,
@@ -112,28 +56,27 @@ namespace TrenchBroom {
         }
         
         void MapWriter::writeBrush(const Model::Brush& brush, FILE* stream) {
-            fprintf(stream, "{\n");
+            std::fprintf(stream, "{\n");
             const Model::FaceList& faces = brush.faces();
             Model::FaceList::const_iterator faceIt, faceEnd;
             for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt)
                 writeFace(**faceIt, stream);
-            writeBrushGeometry(brush, stream);
-            fprintf(stream, "}\n");
+            std::fprintf(stream, "}\n");
         }
         
         void MapWriter::writeEntityHeader(const Model::Entity& entity, FILE* stream) {
-            fprintf(stream, "{\n");
+            std::fprintf(stream, "{\n");
             
             const Model::PropertyList& properties = entity.properties();
             Model::PropertyList::const_iterator it, end;
             for (it = properties.begin(), end = properties.end(); it != end; ++it) {
                 const Model::Property& property = *it;
-                fprintf(stream, "\"%s\" \"%s\"\n", property.key().c_str(), property.value().c_str());
+                std::fprintf(stream, "\"%s\" \"%s\"\n", property.key().c_str(), property.value().c_str());
             }
         }
         
         void MapWriter::writeEntityFooter(FILE* stream) {
-            fprintf(stream, "}\n");
+            std::fprintf(stream, "}\n");
         }
         
         void MapWriter::writeEntity(const Model::Entity& entity, FILE* stream) {
@@ -144,65 +87,6 @@ namespace TrenchBroom {
             writeEntityFooter(stream);
         }
 
-        void MapWriter::writeBrushGeometry(const Model::Brush& brush, std::ostream& stream) {
-            typedef std::map<const Model::Vertex*, size_t> VertexIndices;
-            typedef std::map<const Model::Edge*, size_t> EdgeIndices;
-            typedef std::map<const Model::Face*, size_t> FaceIndices;
-            
-            const Model::VertexList& vertices = brush.vertices();
-            const Model::EdgeList& edges = brush.edges();
-            const Model::FaceList& faces = brush.faces();
-            
-            VertexIndices vertexIndices;
-            EdgeIndices edgeIndices;
-            FaceIndices faceIndices;
-            
-            for (size_t i = 0; i < faces.size(); i++) {
-                const Model::Face* face = faces[i];
-                faceIndices[face] = i;
-            }
-
-            stream << "/// VertexData\n";
-            stream << "/// {";
-            for (size_t i = 0; i < vertices.size(); i++) {
-                const Model::Vertex* vertex = vertices[i];
-                stream << " ( " << vertex->position.x << " " << vertex->position.y << " " << vertex->position.z << " )";
-                vertexIndices[vertex] = i;
-            }
-            stream << " }\n";
-            
-            stream << "/// {";
-            for (size_t i = 0; i < edges.size(); i++) {
-                const Model::Edge* edge = edges[i];
-                
-                stream <<
-                " ( " <<
-                vertexIndices[edge->start] << " " <<
-                vertexIndices[edge->end] << " " <<
-                faceIndices[edge->left->face] << " " <<
-                faceIndices[edge->right->face] << " )";
-
-                edgeIndices[edge] = i;
-            }
-            stream << " }\n";
-            
-            stream << "/// {";
-            for (size_t i = 0; i < faces.size(); i++) {
-                const Model::Face* face = faces[i];
-                const Model::EdgeList& faceEdges = face->edges();
-                
-                stream << " (";
-                for (size_t j = 0; j < faceEdges.size(); j++) {
-                    const Model::Vertex* vertex = face->vertices()[j];
-                    const Model::Edge* edge = face->edges()[j];
-                    stream << " " << vertexIndices[vertex] << " " << edgeIndices[edge];
-                }
-                stream << " )";
-                
-            }
-            stream << " }\n";
-        }
-        
         void MapWriter::writeFace(const Model::Face& face, std::ostream& stream) {
             const String textureName = Utility::isBlank(face.textureName()) ? Model::Texture::Empty : face.textureName();
 
@@ -234,7 +118,6 @@ namespace TrenchBroom {
             Model::FaceList::const_iterator faceIt, faceEnd;
             for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt)
                 writeFace(**faceIt, stream);
-            writeBrushGeometry(brush, stream);
             stream << "}" << "\n";
         }
 
@@ -263,6 +146,8 @@ namespace TrenchBroom {
 
         void MapWriter::writeObjectsToStream(const Model::EntityList& pointEntities, const Model::BrushList& brushes, std::ostream& stream) {
             assert(stream.good());
+            stream.setf(std::ios_base::floatfield);
+            stream.precision(9);
 
             Model::Entity* worldspawn = NULL;
             
@@ -293,7 +178,6 @@ namespace TrenchBroom {
             Model::EntityList::const_iterator entityIt, entityEnd;
             for (entityIt = pointEntities.begin(), entityEnd = pointEntities.end(); entityIt != entityEnd; ++entityIt) {
                 Model::Entity& entity = **entityIt;
-                assert(entity.definition()->type() == Model::EntityDefinition::PointEntity);
                 writeEntity(entity, stream);
             }
 
@@ -314,6 +198,8 @@ namespace TrenchBroom {
         
         void MapWriter::writeFacesToStream(const Model::FaceList& faces, std::ostream& stream) {
             assert(stream.good());
+            stream.setf(std::ios_base::floatfield);
+            stream.precision(9);
             
             for (unsigned int i = 0; i < faces.size(); i++)
                 writeFace(*faces[i], stream);
@@ -321,6 +207,8 @@ namespace TrenchBroom {
 
         void MapWriter::writeToStream(const Model::Map& map, std::ostream& stream) {
             assert(stream.good());
+            stream.setf(std::ios_base::floatfield);
+            stream.precision(9);
             
             const Model::EntityList& entities = map.entities();
             for (unsigned int i = 0; i < entities.size(); i++)

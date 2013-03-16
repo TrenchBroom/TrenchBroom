@@ -55,7 +55,6 @@ namespace TrenchBroom {
             void init();
         public:
             Brush(const BBox& worldBounds);
-            Brush(const BBox& worldBounds, const Model::FaceList& faces, Model::BrushGeometry* geometry);
             Brush(const BBox& worldBounds, const Brush& brushTemplate);
             Brush(const BBox& worldBounds, const BBox& brushBounds, Texture* texture);
             ~Brush();

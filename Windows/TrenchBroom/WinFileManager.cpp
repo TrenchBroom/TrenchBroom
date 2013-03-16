@@ -24,6 +24,29 @@
 
 namespace TrenchBroom {
 	namespace IO {
+        WinMappedFile::WinMappedFile(HANDLE fileHandle, HANDLE mappingHandle, char* address, size_t size) :
+        MappedFile(address, address + size),
+        m_fileHandle(fileHandle),
+        m_mappingHandle(mappingHandle) {}
+
+        WinMappedFile::~WinMappedFile() {
+            if (m_begin != NULL) {
+        	    UnmapViewOfFile(m_begin);
+        	    m_begin = NULL;
+                m_end = NULL;
+            }
+
+		    if (m_mappingHandle != NULL) {
+			    CloseHandle(m_mappingHandle);
+			    m_mappingHandle = NULL;
+		    }
+
+		    if (m_fileHandle != INVALID_HANDLE_VALUE) {
+			    CloseHandle(m_fileHandle);
+			    m_fileHandle = INVALID_HANDLE_VALUE;
+		    }
+        }
+
         String WinFileManager::appDirectory() {
 			TCHAR uAppPathC[MAX_PATH] = L"";
 			DWORD numChars = GetModuleFileName(0, uAppPathC, MAX_PATH - 1);
@@ -69,5 +92,88 @@ namespace TrenchBroom {
 
 			return fontDirectoryPath + "Arial.ttf";            
 		}
-	}
+
+        MappedFile::Ptr WinFileManager::mapFile(const String& path, std::ios_base::openmode mode) {
+            HANDLE fileHandle = INVALID_HANDLE_VALUE;
+		    HANDLE mappingHandle = NULL;
+            char* address = NULL;
+            size_t size = 0;
+        
+            DWORD accessMode = 0;
+		    DWORD protect = 0;
+		    DWORD mapAccess = 0;
+		    if (mode & (std::ios_base::in | std::ios_base::out)) {
+			    accessMode = GENERIC_READ | GENERIC_WRITE;
+			    protect = PAGE_READWRITE;
+			    mapAccess = FILE_MAP_ALL_ACCESS;
+		    } else if (mode & (std::ios_base::out)) {
+			    accessMode = GENERIC_WRITE;
+			    protect = PAGE_READWRITE;
+			    mapAccess = FILE_MAP_WRITE;
+		    } else {
+			    accessMode = GENERIC_READ;
+			    protect = PAGE_READONLY;
+			    mapAccess = FILE_MAP_READ;
+		    }
+        
+		    const size_t numChars = path.size();
+		    LPWSTR uFilename = new TCHAR[numChars + 1];
+		    MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, path.c_str(), numChars, uFilename, numChars + 1);
+		    uFilename[numChars] = 0;
+
+		    char* mappingName = new char[numChars + 1];
+		    for (size_t i = 0; i < numChars; i++) {
+			    if (path[i] == '\\')
+				    mappingName[i] = '_';
+			    else
+				    mappingName[i] = path[i];
+		    }
+		    mappingName[numChars] = 0;
+
+		    LPWSTR uMappingName = new TCHAR[numChars + 1];
+		    MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, mappingName, numChars, uMappingName, numChars + 1);
+		    uMappingName[numChars] = 0;
+		    delete [] mappingName;
+
+		    mappingHandle = OpenFileMapping(mapAccess, true, uMappingName);
+		    if (mappingHandle == NULL) {
+			    fileHandle = CreateFile(uFilename, accessMode, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+			    if (fileHandle != INVALID_HANDLE_VALUE) {
+				    size = static_cast<size_t>(GetFileSize(fileHandle, NULL));
+				    mappingHandle = CreateFileMapping(fileHandle, NULL, protect, 0, 0, uMappingName);
+			    }
+		    } else {
+                WIN32_FILE_ATTRIBUTE_DATA attrs;
+                if (GetFileAttributesEx(uFilename, GetFileExInfoStandard, &attrs) != 0) {
+                    size = (attrs.nFileSizeHigh << 16) + attrs.nFileSizeLow;
+                } else {
+                    DWORD error = GetLastError();
+				    CloseHandle(mappingHandle);
+				    mappingHandle = NULL;
+                }
+		    }
+
+            MappedFile::Ptr mappedFile;
+		    if (mappingHandle != NULL) {
+			    address = static_cast<char*>(MapViewOfFile(mappingHandle, mapAccess, 0, 0, 0));
+			    if (address != NULL) {
+                    mappedFile = MappedFile::Ptr(new WinMappedFile(fileHandle, mappingHandle, address, size));
+			    } else {
+				    CloseHandle(mappingHandle);
+				    mappingHandle = NULL;
+				    CloseHandle(fileHandle);
+				    fileHandle = INVALID_HANDLE_VALUE;
+			    }
+		    } else {
+			    if (fileHandle != INVALID_HANDLE_VALUE) {
+				    CloseHandle(fileHandle);
+				    fileHandle = INVALID_HANDLE_VALUE;
+			    }
+		    }
+        
+		    delete [] uFilename;
+		    delete [] uMappingName;
+            return mappedFile;
+        }
+    }
 }

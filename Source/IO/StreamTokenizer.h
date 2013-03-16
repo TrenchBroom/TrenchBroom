@@ -34,34 +34,36 @@ namespace TrenchBroom {
         class Token : public Utility::Allocator<Token> {
         protected:
             unsigned int m_type;
-            String m_data;
+            const char* m_begin;
+            const char* m_end;
             size_t m_position;
-            size_t m_length;
             size_t m_line;
             size_t m_column;
         public:
             Token() :
             m_type(0),
-            m_data(""),
+            m_begin(NULL),
+            m_end(NULL),
             m_position(0),
-            m_length(0),
             m_line(0),
             m_column(0) {}
 
-            Token(unsigned int type, const String& data, size_t position, size_t length, size_t line, size_t column) :
+            Token(unsigned int type, const char* begin, const char* end, size_t position, size_t line, size_t column) :
             m_type(type),
-            m_data(data),
+            m_begin(begin),
+            m_end(end),
             m_position(position),
-            m_length(length),
             m_line(line),
-            m_column(column) {}
+            m_column(column) {
+                assert(end >= begin);
+            }
             
             inline unsigned int type() const {
                 return m_type;
             }
             
-            inline const String& data() const {
-                return m_data;
+            inline const String data() const {
+                return String(m_begin, length());
             }
             
             inline size_t position() const {
@@ -69,7 +71,7 @@ namespace TrenchBroom {
             }
             
             inline size_t length() const {
-                return m_length;
+                return static_cast<size_t>(m_end - m_begin);
             }
             
             inline size_t line() const {
@@ -81,11 +83,19 @@ namespace TrenchBroom {
             }
             
             inline float toFloat() const {
-                return static_cast<float>(atof(m_data.c_str()));
+                static char buffer[64];
+                memcpy(buffer, m_begin, length());
+                buffer[length()] = 0;
+                float f = static_cast<float>(std::atof(buffer));
+                return f;
             }
             
             inline int toInteger() const {
-                return static_cast<int>(atoi(m_data.c_str()));
+                static char buffer[64];
+                memcpy(buffer, m_begin, length());
+                buffer[length()] = 0;
+                int i = static_cast<int>(std::atoi(buffer));
+                return i;
             }
         };
         
@@ -94,12 +104,12 @@ namespace TrenchBroom {
         private:
             typedef std::stack<Token> TokenStack;
             
-            std::istream& m_stream;
+            const char* m_begin;
+            const char* m_end;
+            const char* m_cur;
             size_t m_line;
             size_t m_column;
             size_t m_lastColumn;
-            size_t m_position;
-            size_t m_length;
             
             Emitter m_emitter;
             TokenStack m_tokenStack;
@@ -111,16 +121,13 @@ namespace TrenchBroom {
                 return token;
             }
         public:
-            StreamTokenizer(std::istream& stream) :
-            m_stream(stream),
+            StreamTokenizer(const char* begin, const char* end) :
+            m_begin(begin),
+            m_end(end),
+            m_cur(begin),
             m_line(1),
-            m_column(0),
-            m_lastColumn(0),
-            m_position(0) {
-                m_stream.seekg(0, std::ios::end);
-                m_length = static_cast<size_t>(m_stream.tellg());
-                m_stream.seekg(0, std::ios::beg);
-            }
+            m_column(1),
+            m_lastColumn(0) {}
 
             inline size_t line() const {
                 return m_line;
@@ -130,19 +137,16 @@ namespace TrenchBroom {
                 return m_column;
             }
             
-            inline size_t position() const {
-                return m_position;
+            inline size_t offset(const char* ptr) const {
+                assert(ptr >= m_begin);
+                return static_cast<size_t>(ptr - m_begin);
             }
             
-            inline char nextChar() {
+            inline const char* nextChar() {
                 if (eof())
                     return 0;
                 
-                char c;
-                m_stream.get(c);
-                m_position++;
-                
-                if (c == '\n') {
+                if (*m_cur == '\n') {
                     m_line++;
                     m_lastColumn = m_column;
                     m_column = 1;
@@ -150,14 +154,12 @@ namespace TrenchBroom {
                     m_column++;
                 }
                 
-                return c;
+                return m_cur++;
             }
             
             inline void pushChar() {
-                m_stream.seekg(-1, std::ios::cur);
-                int c = m_stream.peek();
-                m_position--;
-                if (c == '\n') {
+                assert(m_cur > m_begin);
+                if (*--m_cur == '\n') {
                     m_line--;
                     m_column = m_lastColumn;
                 } else {
@@ -165,23 +167,16 @@ namespace TrenchBroom {
                 }
             }
             
-            inline char peekChar(unsigned int offset = 0) {
+            inline char peekChar(size_t offset = 0) {
                 if (eof())
                     return 0;
                 
-                int c;
-                if (offset == 0) {
-                    c = m_stream.peek();
-                } else {
-                    m_stream.seekg(offset, std::ios::cur);
-                    c = m_stream.peek();
-                    m_stream.seekg(-static_cast<long>(offset), std::ios::cur);
-                }
-                return static_cast<char>(c);
+                assert(m_cur + offset < m_end);
+                return *(m_cur + offset);
             }
             
             inline bool eof() const {
-                return m_stream.eof() || m_position >= m_length;
+                return m_cur >= m_end;
             }
             
             inline Token nextToken() {
@@ -202,35 +197,30 @@ namespace TrenchBroom {
                 if (eof())
                     return "";
                 
+                const char* startPos = m_cur;
+                const char* endPos = m_cur;
                 Token token = nextToken();
-                const size_t oldPosition = token.position();
                 while (token.type() != delimiterType && !eof()) {
+                    endPos = m_cur;
                     token = nextToken();
                 }
                 
-                const std::streampos newPosition = m_stream.tellg();
-                const size_t numChars = token.position() - oldPosition;
-                const std::streamoff offset = static_cast<std::streamoff>(oldPosition - token.position() - token.length());
-                m_stream.seekg(offset, std::ios::cur);
-                
-                char* buffer = new char[numChars];
-                m_stream.readsome(buffer, static_cast<std::streamsize>(numChars));
-                
-                String result(buffer, numChars);
-                delete [] buffer;
-                buffer = NULL;
-                
-                m_stream.seekg(static_cast<std::streamoff>(newPosition), std::ios::beg);
                 pushToken(token);
-                
-                return result;
+                return String(startPos, static_cast<size_t>(endPos - startPos));
+            }
+            
+            inline void quotedString(const char*& begin, const char*& end) {
+                assert(*begin == '"');
+                begin = nextChar();
+                end = begin;
+                while (!eof() && *end != '"')
+                    end = nextChar();
             }
             
             inline void reset() {
                 m_line = 1;
                 m_column = 1;
-                m_position = 0;
-                m_stream.seekg(0, std::ios::beg);
+                m_cur = m_begin;
             }
         };
 

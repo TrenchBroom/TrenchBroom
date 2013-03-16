@@ -62,8 +62,6 @@ namespace TrenchBroom {
         }
         
         class DefTokenEmitter : public TokenEmitter<DefTokenEmitter> {
-        private:
-            StringStream m_buffer;
         protected:
             bool isDelimiter(char c) {
                 return isWhitespace(c) || c == '(' || c == ')' || c == '{' || c == '}' || c == '?' || c == ';' || c == ',' || c == '=';
@@ -74,8 +72,8 @@ namespace TrenchBroom {
         
         class DefParser {
         protected:
-            Color m_defaultEntityColor;
             StreamTokenizer<DefTokenEmitter> m_tokenizer;
+            Color m_defaultEntityColor;
             ClassInfo::Map m_baseClasses;
             
             String typeNames(unsigned int types);
@@ -92,9 +90,9 @@ namespace TrenchBroom {
             void parseProperties(Model::PropertyDefinition::Map& properties, Model::ModelDefinition::List& modelDefinitions, StringList& baseClasses);
             String parseDescription();
         public:
-            DefParser(const Color& defaultEntityColor, std::istream& stream) :
-            m_defaultEntityColor(defaultEntityColor),
-            m_tokenizer(stream) {}
+            DefParser(char* begin, char* end, const Color& defaultEntityColor) :
+            m_tokenizer(begin, end),
+            m_defaultEntityColor(defaultEntityColor) {}
         
             Model::EntityDefinition* nextDefinition();
         };

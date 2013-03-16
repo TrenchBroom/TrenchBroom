@@ -24,6 +24,14 @@
 
 namespace TrenchBroom {
     namespace IO {
+        class MacMappedFile : public MappedFile {
+        private:
+            int m_filedesc;
+        public:
+            MacMappedFile(int filedesc, char* address, size_t size);
+            ~MacMappedFile();
+        };
+        
         class MacFileManager : public AbstractFileManager {
         public:
             ~MacFileManager() {}
@@ -31,6 +39,8 @@ namespace TrenchBroom {
             String logDirectory();
             String resourceDirectory();
             String resolveFontPath(const String& fontName);
+
+            MappedFile::Ptr mapFile(const String& path, std::ios_base::openmode mode = std::ios_base::in);
         };
     }
 }

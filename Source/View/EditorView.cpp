@@ -840,10 +840,7 @@ namespace TrenchBroom {
                         if (wxTheClipboard->GetData(textData))
                             text = textData.GetText();
                         
-                        StringStream stream;
-                        stream.str(text);
-                        IO::MapParser mapParser(stream, console());
-
+                        IO::MapParser mapParser(text, console());
                         if (mapParser.parseFaces(mapDocument().map().worldBounds(), faces)) {
                             assert(!faces.empty());
 
@@ -918,10 +915,7 @@ namespace TrenchBroom {
                         if (wxTheClipboard->GetData(textData))
                             text = textData.GetText();
                         
-                        StringStream stream;
-                        stream.str(text);
-                        IO::MapParser mapParser(stream, console());
-                        
+                        IO::MapParser mapParser(text, console());
                         if (mapParser.parseEntities(mapDocument().map().worldBounds(), entities) ||
                                    mapParser.parseBrushes(mapDocument().map().worldBounds(), brushes)) {
                             assert(entities.empty() != brushes.empty());
