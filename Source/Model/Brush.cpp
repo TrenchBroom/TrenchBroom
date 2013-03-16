@@ -47,6 +47,13 @@ namespace TrenchBroom {
         m_worldBounds(worldBounds) {
             init();
             m_faces = faces;
+            
+            FaceList::const_iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                Face& face = **it;
+                face.setBrush(this);
+            }
+            
             m_geometry = geometry;
             m_geometry->restoreFaceSides();
         }

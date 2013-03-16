@@ -56,15 +56,15 @@ namespace TrenchBroom {
             class LexicographicOrder {
             public:
                 inline bool operator()(const Vec3f& lhs, const Vec3f& rhs) const {
-                    if (lhs.x < rhs.x)
+                    if (Math::lt(lhs.x, rhs.x))
                         return true;
-                    if (lhs.x > rhs.x)
+                    if (Math::gt(lhs.x, rhs.x))
                         return false;
-                    if (lhs.y < rhs.y)
+                    if (Math::lt(lhs.y, rhs.y))
                         return true;
-                    if (lhs.y > rhs.y)
+                    if (Math::gt(lhs.y, rhs.y))
                         return false;
-                    if (lhs.z < rhs.z)
+                    if (Math::lt(lhs.z, rhs.z))
                         return true;
                     return false;
                 }
@@ -274,9 +274,12 @@ namespace TrenchBroom {
             }
             
             inline bool equals(const Vec3f& other, float delta = Math::AlmostZero) const {
-                return std::abs(x - other.x) <= delta &&
-                       std::abs(y - other.y) <= delta &&
-                       std::abs(z - other.z) <= delta;
+                const float xd = std::abs(x - other.x);
+                const float yd = std::abs(y - other.y);
+                const float zd = std::abs(z - other.z);
+                return xd <= delta &&
+                       yd <= delta &&
+                       zd <= delta;
             }
             
             inline bool null() const {

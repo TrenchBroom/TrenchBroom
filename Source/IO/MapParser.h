@@ -23,6 +23,7 @@
 #include "IO/ByteBuffer.h"
 #include "IO/StreamTokenizer.h"
 #include "Model/BrushTypes.h"
+#include "Model/BrushGeometry.h"
 #include "Model/EntityTypes.h"
 #include "Model/FaceTypes.h"
 #include "Utility/MessageException.h"
@@ -30,12 +31,6 @@
 
 #include <memory>
 #include <vector>
-
-#if defined _MSC_VER
-#include <cstdint>
-#elif defined __GNUC__
-#include <stdint.h>
-#endif
 
 using namespace TrenchBroom::Math;
 
@@ -70,7 +65,8 @@ namespace TrenchBroom {
 
         class MapTokenEmitter : public TokenEmitter<MapTokenEmitter> {
         private:
-            StringStream m_buffer;
+            char m_buffer[1024];
+            size_t m_bufferLen;
         protected:
             bool isDelimiter(char c) {
                 return isWhitespace(c) || c == '(' || c == ')' || c == '{' || c == '}' || c == '?' || c == ';' || c == ',' || c == '=';
@@ -142,6 +138,29 @@ namespace TrenchBroom {
                 Valve
             };
 
+            class VertexCompare {
+                const float m_epsilon;
+            public:
+                VertexCompare(float epsilon) :
+                m_epsilon(epsilon) {}
+                
+                inline bool operator()(const Model::Vertex* lhs, const Model::Vertex* rhs) const {
+                    const Vec3f& l = lhs->position;
+                    const Vec3f& r = rhs->position;
+                    if (Math::lt(l.x, r.x, m_epsilon))
+                        return true;
+                    if (Math::gt(l.x, r.x, m_epsilon))
+                        return false;
+                    if (Math::lt(l.y, r.y, m_epsilon))
+                        return true;
+                    if (Math::gt(l.y, r.y, m_epsilon))
+                        return false;
+                    if (Math::lt(l.z, r.z, m_epsilon))
+                        return true;
+                    return false;
+                }
+            };
+            
             Utility::Console& m_console;
             StreamTokenizer<MapTokenEmitter> m_tokenizer;
             MapFormat m_format;
@@ -153,8 +172,8 @@ namespace TrenchBroom {
                     throw MapParserException(actualToken, expectedType);
             }
             
-            Model::Face* parseFace(const BBox& worldBounds, uint32_t& crc);
-            Model::BrushGeometry* parseGeometry(const BBox& worldBounds, const Model::FaceList& faces, uint32_t& crc);
+            Model::BrushGeometry* buildGeometry(const BBox& worldBounds, const Model::FaceList& faces);
+            bool parseGeometry(const BBox& worldBounds, const Model::FaceList& faces, Model::BrushGeometry*& geometry);
         public:
             MapParser(std::istream& stream, Utility::Console& console);
             

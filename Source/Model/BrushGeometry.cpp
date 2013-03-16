@@ -1443,7 +1443,7 @@ namespace TrenchBroom {
             return Split;
         }
 
-        bool BrushGeometry::addFaces(FaceList& faces, FaceList& droppedFaces) {
+        bool BrushGeometry::addFaces(const FaceList& faces, FaceList& droppedFaces) {
             for (unsigned int i = 0; i < faces.size(); i++)
                 if (addFace(*faces[i], droppedFaces) == Null)
                     return false;

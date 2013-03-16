@@ -97,6 +97,7 @@ namespace TrenchBroom {
             std::istream& m_stream;
             size_t m_line;
             size_t m_column;
+            size_t m_lastColumn;
             size_t m_position;
             size_t m_length;
             
@@ -114,6 +115,7 @@ namespace TrenchBroom {
             m_stream(stream),
             m_line(1),
             m_column(1),
+            m_lastColumn(1),
             m_position(0) {
                 m_stream.seekg(0, std::ios::end);
                 m_length = static_cast<size_t>(m_stream.tellg());
@@ -134,6 +136,7 @@ namespace TrenchBroom {
                 
                 if (c == '\n') {
                     m_line++;
+                    m_lastColumn = m_column;
                     m_column = 1;
                 } else {
                     m_column++;
@@ -148,14 +151,7 @@ namespace TrenchBroom {
                 m_position--;
                 if (c == '\n') {
                     m_line--;
-                    m_column = 0;
-                    int d;
-                    do {
-                        m_stream.seekg(-1, std::ios::cur);
-                        d = m_stream.peek();
-                        m_column++;
-                    } while (d != '\n' && m_stream.tellg() > 0);
-                    m_stream.seekg(static_cast<std::streamoff>(m_column), std::ios::cur);
+                    m_column = m_lastColumn;
                 } else {
                     m_column--;
                 }
