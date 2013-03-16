@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2012 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -25,6 +25,7 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <cstring>
 #include <istream>
 #include <memory>
 #include <stack>
@@ -57,31 +58,31 @@ namespace TrenchBroom {
             m_column(column) {
                 assert(end >= begin);
             }
-            
+
             inline unsigned int type() const {
                 return m_type;
             }
-            
+
             inline const String data() const {
                 return String(m_begin, length());
             }
-            
+
             inline size_t position() const {
                 return m_position;
             }
-            
+
             inline size_t length() const {
                 return static_cast<size_t>(m_end - m_begin);
             }
-            
+
             inline size_t line() const {
                 return m_line;
             }
-            
+
             inline size_t column() const {
                 return m_column;
             }
-            
+
             inline float toFloat() const {
                 static char buffer[64];
                 memcpy(buffer, m_begin, length());
@@ -89,7 +90,7 @@ namespace TrenchBroom {
                 float f = static_cast<float>(std::atof(buffer));
                 return f;
             }
-            
+
             inline int toInteger() const {
                 static char buffer[64];
                 memcpy(buffer, m_begin, length());
@@ -98,19 +99,19 @@ namespace TrenchBroom {
                 return i;
             }
         };
-        
+
         template <typename Emitter>
         class StreamTokenizer {
         private:
             typedef std::stack<Token> TokenStack;
-            
+
             const char* m_begin;
             const char* m_end;
             const char* m_cur;
             size_t m_line;
             size_t m_column;
             size_t m_lastColumn;
-            
+
             Emitter m_emitter;
             TokenStack m_tokenStack;
         protected:
@@ -132,20 +133,20 @@ namespace TrenchBroom {
             inline size_t line() const {
                 return m_line;
             }
-            
+
             inline size_t column() const {
                 return m_column;
             }
-            
+
             inline size_t offset(const char* ptr) const {
                 assert(ptr >= m_begin);
                 return static_cast<size_t>(ptr - m_begin);
             }
-            
+
             inline const char* nextChar() {
                 if (eof())
                     return 0;
-                
+
                 if (*m_cur == '\n') {
                     m_line++;
                     m_lastColumn = m_column;
@@ -153,10 +154,10 @@ namespace TrenchBroom {
                 } else {
                     m_column++;
                 }
-                
+
                 return m_cur++;
             }
-            
+
             inline void pushChar() {
                 assert(m_cur > m_begin);
                 if (*--m_cur == '\n') {
@@ -166,37 +167,37 @@ namespace TrenchBroom {
                     m_column--;
                 }
             }
-            
+
             inline char peekChar(size_t offset = 0) {
                 if (eof())
                     return 0;
-                
+
                 assert(m_cur + offset < m_end);
                 return *(m_cur + offset);
             }
-            
+
             inline bool eof() const {
                 return m_cur >= m_end;
             }
-            
+
             inline Token nextToken() {
                 return !m_tokenStack.empty() ? popToken() : m_emitter.emit(*this);
             }
-            
+
             inline Token peekToken() {
                 Token token = nextToken();
                 pushToken(token);
                 return token;
             }
-            
+
             inline void pushToken(Token& token) {
                 m_tokenStack.push(token);
             }
-            
+
             inline String remainder(unsigned int delimiterType) {
                 if (eof())
                     return "";
-                
+
                 const char* startPos = m_cur;
                 const char* endPos = m_cur;
                 Token token = nextToken();
@@ -204,11 +205,11 @@ namespace TrenchBroom {
                     endPos = m_cur;
                     token = nextToken();
                 }
-                
+
                 pushToken(token);
                 return String(startPos, static_cast<size_t>(endPos - startPos));
             }
-            
+
             inline void quotedString(const char*& begin, const char*& end) {
                 assert(*begin == '"');
                 begin = nextChar();
@@ -216,7 +217,7 @@ namespace TrenchBroom {
                 while (!eof() && *end != '"')
                     end = nextChar();
             }
-            
+
             inline void reset() {
                 m_line = 1;
                 m_column = 1;
@@ -229,15 +230,15 @@ namespace TrenchBroom {
         protected:
             typedef StreamTokenizer<Subclass> Tokenizer;
             virtual Token doEmit(Tokenizer& tokenizer) = 0;
-            
+
             inline bool isDigit(char c) const {
                 return c >= '0' && c <= '9';
             }
-            
+
             inline bool isWhitespace(char c) const {
                 return c == ' ' || c == '\n' || c == '\r' || c == '\t' || c == 0;
             }
-            
+
             inline void error(size_t line, size_t column, char c) const {
                 StringStream msg;
                 msg << "Unexpected character '" << c << "'";
@@ -245,7 +246,7 @@ namespace TrenchBroom {
             }
         public:
             virtual ~TokenEmitter() {}
-            
+
             Token emit(Tokenizer& tokenizer) {
                 return doEmit(tokenizer);
             }
