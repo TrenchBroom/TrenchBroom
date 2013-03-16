@@ -30,7 +30,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        Token MapTokenEmitter::doEmit(Tokenizer& tokenizer, size_t line, size_t column) {
+        Token MapTokenEmitter::doEmit(Tokenizer& tokenizer) {
             const size_t startPosition = tokenizer.position();
             while (!tokenizer.eof()) {
                 char c = tokenizer.nextChar();
@@ -47,26 +47,32 @@ namespace TrenchBroom {
                         }
                         break;
                     case '{':
-                        return Token(TokenType::OBrace, "", startPosition, tokenizer.position() - startPosition, line, column);
+                        return Token(TokenType::OBrace, "", startPosition, tokenizer.position() - startPosition, tokenizer.line(), tokenizer.column());
                     case '}':
-                        return Token(TokenType::CBrace, "", startPosition, tokenizer.position() - startPosition, line, column);
+                        return Token(TokenType::CBrace, "", startPosition, tokenizer.position() - startPosition, tokenizer.line(), tokenizer.column());
                     case '(':
-                        return Token(TokenType::OParenthesis, "", startPosition, tokenizer.position() - startPosition, line, column);
+                        return Token(TokenType::OParenthesis, "", startPosition, tokenizer.position() - startPosition, tokenizer.line(), tokenizer.column());
                     case ')':
-                        return Token(TokenType::CParenthesis, "", startPosition, tokenizer.position() - startPosition, line, column);
+                        return Token(TokenType::CParenthesis, "", startPosition, tokenizer.position() - startPosition, tokenizer.line(), tokenizer.column());
                     case '[':
-                        return Token(TokenType::OBracket, "", startPosition, tokenizer.position() - startPosition, line, column);
+                        return Token(TokenType::OBracket, "", startPosition, tokenizer.position() - startPosition, tokenizer.line(), tokenizer.column());
                     case ']':
-                        return Token(TokenType::CBracket, "", startPosition, tokenizer.position() - startPosition, line, column);
-                    case '"': // quoted string
+                        return Token(TokenType::CBracket, "", startPosition, tokenizer.position() - startPosition, tokenizer.line(), tokenizer.column());
+                    case '"': { // quoted string
                         m_bufferLen = 0;
+                        size_t line = tokenizer.line();
+                        size_t column = tokenizer.column();
                         while (!tokenizer.eof() && (c = tokenizer.nextChar()) != '"')
                             m_buffer[m_bufferLen++] = c;
                         return Token(TokenType::String, String(m_buffer, m_bufferLen), startPosition, tokenizer.position() - startPosition, line, column);
-                    default: // whitespace, integer, decimal or word
+                    }
+                    default: { // whitespace, integer, decimal or word
                         if (isWhitespace(c))
                             break;
                         
+                        size_t line = tokenizer.line();
+                        size_t column = tokenizer.column();
+
                         // clear the buffer
                         m_bufferLen = 0;
                         
@@ -117,9 +123,10 @@ namespace TrenchBroom {
                         if (!tokenizer.eof())
                             tokenizer.pushChar();
                         return Token(TokenType::String, String(m_buffer, m_bufferLen), startPosition, tokenizer.position() - startPosition, line, column);
+                    }
                 }
             }
-            return Token(TokenType::Eof, "", startPosition, tokenizer.position() - startPosition, line, column);
+            return Token(TokenType::Eof, "", startPosition, tokenizer.position() - startPosition, tokenizer.line(), tokenizer.column());
         }
         
         Model::BrushGeometry* MapParser::buildGeometry(const BBox& worldBounds, const Model::FaceList& faces) {

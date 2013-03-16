@@ -28,13 +28,15 @@ using namespace TrenchBroom::IO::DefTokenType;
 
 namespace TrenchBroom {
     namespace IO {
-        Token DefTokenEmitter::doEmit(Tokenizer& tokenizer, size_t line, size_t column) {
+        Token DefTokenEmitter::doEmit(Tokenizer& tokenizer) {
             const size_t position = tokenizer.position();
             
             while (!tokenizer.eof()) {
                 char c = tokenizer.nextChar();
                 switch (c) {
-                    case '/':
+                    case '/': {
+                        size_t line = tokenizer.line();
+                        size_t column = tokenizer.column();
                         if (tokenizer.peekChar() == '*') {
                             // eat all chars immediately after the '*' because it's often followed by QUAKE
                             while (!isWhitespace(tokenizer.nextChar()) && !tokenizer.eof());
@@ -46,43 +48,53 @@ namespace TrenchBroom {
                         }
                         error(line, column, c);
                         break;
-                    case '*':
+                    }
+                    case '*': {
+                        size_t line = tokenizer.line();
+                        size_t column = tokenizer.column();
                         if (tokenizer.peekChar() == '/') {
                             tokenizer.nextChar();
                             return Token(CDefinition, "", position, tokenizer.position() - position, line, column);
                         }
                         error(line, column, c);
                         break;
+                    }
                     case '(':
-                        return Token(OParenthesis, "", position, tokenizer.position() - position, line, column);
+                        return Token(OParenthesis, "", position, tokenizer.position() - position, tokenizer.line(), tokenizer.column());
                     case ')':
-                        return Token(CParenthesis, "", position, tokenizer.position() - position, line, column);
+                        return Token(CParenthesis, "", position, tokenizer.position() - position, tokenizer.line(), tokenizer.column());
                     case '{':
-                        return Token(OBrace, "", position, tokenizer.position() - position, line, column);
+                        return Token(OBrace, "", position, tokenizer.position() - position, tokenizer.line(), tokenizer.column());
                     case '}':
-                        return Token(CBrace, "", position, tokenizer.position() - position, line, column);
+                        return Token(CBrace, "", position, tokenizer.position() - position, tokenizer.line(), tokenizer.column());
                     case '=':
-                        return Token(Equality, "", position, tokenizer.position() - position, line, column);
+                        return Token(Equality, "", position, tokenizer.position() - position, tokenizer.line(), tokenizer.column());
                     case ';':
-                        return Token(Semicolon, "", position, tokenizer.position() - position, line, column);
+                        return Token(Semicolon, "", position, tokenizer.position() - position, tokenizer.line(), tokenizer.column());
                     case '?':
-                        return Token(Question, "", position, tokenizer.position() - position, line, column);
+                        return Token(Question, "", position, tokenizer.position() - position, tokenizer.line(), tokenizer.column());
                     case '\r':
                         if (tokenizer.peekChar() == '\n')
                             tokenizer.nextChar();
                     case '\n':
-                        return Token(Newline, "", position, tokenizer.position() - position, line, column);
+                        return Token(Newline, "", position, tokenizer.position() - position, tokenizer.line(), tokenizer.column());
                     case ',':
-                        return Token(Comma, "", position, tokenizer.position() - position, line, column);
+                        return Token(Comma, "", position, tokenizer.position() - position, tokenizer.line(), tokenizer.column());
                     case ' ':
                     case '\t':
                         break;
-                    case '"': // quoted string
+                    case '"': { // quoted string
+                        size_t line = tokenizer.line();
+                        size_t column = tokenizer.column();
                         m_buffer.str(String());
                         while (!tokenizer.eof() && (c = tokenizer.nextChar()) != '"')
                             m_buffer << c;
                         return Token(QuotedString, m_buffer.str(), position, tokenizer.position() - position, line, column);
-                    default: // integer, decimal or word
+                    }
+                    default: { // integer, decimal or word
+                        size_t line = tokenizer.line();
+                        size_t column = tokenizer.column();
+
                         // clear the buffer
                         m_buffer.str(String());
                         
@@ -117,10 +129,11 @@ namespace TrenchBroom {
                         if (!tokenizer.eof())
                             tokenizer.pushChar();
                         return Token(Word, m_buffer.str(), position, tokenizer.position() - position, line, column);
+                    }
                 }
             }
             
-            return Token(Eof, "", position, tokenizer.position() - position, line, column);
+            return Token(Eof, "", position, tokenizer.position() - position, tokenizer.line(), tokenizer.column());
         }
 
         String DefParser::typeNames(unsigned int types) {

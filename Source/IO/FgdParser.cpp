@@ -23,13 +23,15 @@ using namespace TrenchBroom::IO::FgdTokenType;
 
 namespace TrenchBroom {
     namespace IO {
-        Token FgdTokenEmitter::doEmit(Tokenizer& tokenizer, size_t line, size_t column) {
+        Token FgdTokenEmitter::doEmit(Tokenizer& tokenizer) {
             const size_t position = tokenizer.position();
             
             while (!tokenizer.eof()) {
                 char c = tokenizer.nextChar();
                 switch (c) {
-                    case '/':
+                    case '/': {
+                        size_t line = tokenizer.line();
+                        size_t column = tokenizer.column();
                         if (tokenizer.peekChar() == '/') {
                             // eat everything up to and including the next newline
                             while (tokenizer.nextChar() != '\n');
@@ -37,29 +39,36 @@ namespace TrenchBroom {
                         }
                         error(line, column, c);
                         break;
+                    }
                     case '(':
-                        return Token(OParenthesis, "", position, tokenizer.position() - position, line, column);
+                        return Token(OParenthesis, "", position, tokenizer.position() - position, tokenizer.line(), tokenizer.column());
                     case ')':
-                        return Token(CParenthesis, "", position, tokenizer.position() - position, line, column);
+                        return Token(CParenthesis, "", position, tokenizer.position() - position, tokenizer.line(), tokenizer.column());
                     case '[':
-                        return Token(OBracket, "", position, tokenizer.position() - position, line, column);
+                        return Token(OBracket, "", position, tokenizer.position() - position, tokenizer.line(), tokenizer.column());
                     case ']':
-                        return Token(CBracket, "", position, tokenizer.position() - position, line, column);
+                        return Token(CBracket, "", position, tokenizer.position() - position, tokenizer.line(), tokenizer.column());
                     case '=':
-                        return Token(Equality, "", position, tokenizer.position() - position, line, column);
+                        return Token(Equality, "", position, tokenizer.position() - position, tokenizer.line(), tokenizer.column());
                     case ',':
-                        return Token(Comma, "", position, tokenizer.position() - position, line, column);
+                        return Token(Comma, "", position, tokenizer.position() - position, tokenizer.line(), tokenizer.column());
                     case ':':
-                        return Token(Colon, "", position, tokenizer.position() - position, line, column);
-                    case '"': // quoted string
+                        return Token(Colon, "", position, tokenizer.position() - position, tokenizer.line(), tokenizer.column());
+                    case '"': { // quoted string
+                        size_t line = tokenizer.line();
+                        size_t column = tokenizer.column();
                         m_buffer.str(String());
                         while (!tokenizer.eof() && (c = tokenizer.nextChar()) != '"')
                             m_buffer << c;
                         return Token(QuotedString, m_buffer.str(), position, tokenizer.position() - position, line, column);
+                    }
                     default: // integer, decimal or word
                         if (isWhitespace(c))
                             break;
                         
+                        size_t line = tokenizer.line();
+                        size_t column = tokenizer.column();
+
                         // clear the buffer
                         m_buffer.str(String());
                         
@@ -97,7 +106,7 @@ namespace TrenchBroom {
                 }
             }
             
-            return Token(Eof, "", position, tokenizer.position() - position, line, column);
+            return Token(Eof, "", position, tokenizer.position() - position, tokenizer.line(), tokenizer.column());
         }
 
         ClassInfo::ClassInfo() :

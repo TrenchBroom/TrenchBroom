@@ -114,14 +114,22 @@ namespace TrenchBroom {
             StreamTokenizer(std::istream& stream) :
             m_stream(stream),
             m_line(1),
-            m_column(1),
-            m_lastColumn(1),
+            m_column(0),
+            m_lastColumn(0),
             m_position(0) {
                 m_stream.seekg(0, std::ios::end);
                 m_length = static_cast<size_t>(m_stream.tellg());
                 m_stream.seekg(0, std::ios::beg);
             }
 
+            inline size_t line() const {
+                return m_line;
+            }
+            
+            inline size_t column() const {
+                return m_column;
+            }
+            
             inline size_t position() const {
                 return m_position;
             }
@@ -177,7 +185,7 @@ namespace TrenchBroom {
             }
             
             inline Token nextToken() {
-                return !m_tokenStack.empty() ? popToken() : m_emitter.emit(*this, m_line, m_column);
+                return !m_tokenStack.empty() ? popToken() : m_emitter.emit(*this);
             }
             
             inline Token peekToken() {
@@ -230,7 +238,7 @@ namespace TrenchBroom {
         class TokenEmitter {
         protected:
             typedef StreamTokenizer<Subclass> Tokenizer;
-            virtual Token doEmit(Tokenizer& tokenizer, size_t line, size_t column) = 0;
+            virtual Token doEmit(Tokenizer& tokenizer) = 0;
             
             inline bool isDigit(char c) const {
                 return c >= '0' && c <= '9';
@@ -248,8 +256,8 @@ namespace TrenchBroom {
         public:
             virtual ~TokenEmitter() {}
             
-            Token emit(Tokenizer& tokenizer, size_t line, size_t column) {
-                return doEmit(tokenizer, line, column);
+            Token emit(Tokenizer& tokenizer) {
+                return doEmit(tokenizer);
             }
         };
     }

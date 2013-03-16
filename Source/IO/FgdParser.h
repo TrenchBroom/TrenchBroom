@@ -62,7 +62,7 @@ namespace TrenchBroom {
                 return isWhitespace(c) || c == '(' || c == ')' || c == '{' || c == '}' || c == '?' || c == ';' || c == ':' || c == ',' || c == '=';
             }
             
-            Token doEmit(Tokenizer& tokenizer, size_t line, size_t column);
+            Token doEmit(Tokenizer& tokenizer);
         };
 
         class FgdParser {
