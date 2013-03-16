@@ -336,16 +336,14 @@ namespace TrenchBroom {
 
             BrushGeometry(const BBox& bounds);
             BrushGeometry(const BrushGeometry& original);
+            BrushGeometry(const Model::VertexList& i_vertices, const Model::EdgeList& i_edges, const Model::SideList& i_sides);
             ~BrushGeometry();
-
-            void serialize(IO::ByteBuffer& buffer);
-            void deserialize(IO::ByteBuffer& buffer, const FaceList& faces);
 
             bool closed() const;
             void restoreFaceSides();
 
             CutResult addFace(Face& face, FaceList& droppedFaces);
-            bool addFaces(FaceList& faces, FaceList& droppedFaces);
+            bool addFaces(const FaceList& faces, FaceList& droppedFaces);
 
             void translate(const Vec3f& delta);
             void rotate90(Axis::Type axis, const Vec3f& rotationCenter, bool clockwise);

@@ -36,8 +36,6 @@
 #include "Controller/SetFaceAttributesCommand.h"
 #include "Controller/SnapVerticesCommand.h"
 #include "IO/ByteBuffer.h"
-#include "IO/CreateBrushFromFacesStrategy.h"
-#include "IO/CreateBrushFromGeometryStrategy.h"
 #include "IO/MapParser.h"
 #include "IO/MapWriter.h"
 #include "Model/Brush.h"
@@ -46,7 +44,6 @@
 #include "Model/EntityDefinitionManager.h"
 #include "Model/Face.h"
 #include "Model/Filter.h"
-#include "Model/BrushGeometrySerializer.h"
 #include "Model/Map.h"
 #include "Model/MapDocument.h"
 #include "Model/MapObject.h"
@@ -76,6 +73,7 @@
 
 #include <wx/clipbrd.h>
 #include <wx/dataobj.h>
+#include <wx/tokenzr.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -105,6 +103,7 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::EditSelectAll, EditorView::OnEditSelectAll)
         EVT_MENU(CommandIds::Menu::EditSelectSiblings, EditorView::OnEditSelectSiblings)
         EVT_MENU(CommandIds::Menu::EditSelectTouching, EditorView::OnEditSelectTouching)
+        EVT_MENU(CommandIds::Menu::EditSelectByFilePosition, EditorView::OnEditSelectByFilePosition)
         EVT_MENU(CommandIds::Menu::EditSelectNone, EditorView::OnEditSelectNone)
 
         EVT_MENU(CommandIds::Menu::EditHideSelected, EditorView::OnEditHideSelected)
@@ -206,7 +205,7 @@ namespace TrenchBroom {
             mapDocument().GetCommandProcessor()->Submit(command, store);
         }
 
-        void EditorView::pasteObjects(const Model::EntityList& entities, const Model::BrushList& brushes, const Vec3f& delta, bool hasBrushGeometry) {
+        void EditorView::pasteObjects(const Model::EntityList& entities, const Model::BrushList& brushes, const Vec3f& delta) {
             assert(entities.empty() != brushes.empty());
             
             Model::EntityList selectEntities;
@@ -238,9 +237,6 @@ namespace TrenchBroom {
             message << "Pasted "    << selectEntities.size()    << (selectEntities.size() == 1 ? " entity " : " entities");
             message << " and "      << selectBrushes.size()     << (selectBrushes.size() == 1 ? " brush " : " brushes");
             mapDocument().console().info(message.str());
-            
-            if (!selectBrushes.empty() && !hasBrushGeometry)
-                mapDocument().console().warn("Pasting objects from an external program may lead to loss of precision");
         }
         
         Vec3f EditorView::moveDelta(Direction direction, bool snapToGrid) {
@@ -533,7 +529,7 @@ namespace TrenchBroom {
 
                         m_renderer->loadMap();
                         inspector().faceInspector().updateFaceAttributes();
-                        inspector().faceInspector().updateTextureBrowser();
+                        inspector().faceInspector().updateTextureBrowser(true);
                         inspector().faceInspector().updateSelectedTexture();
                         //inspector().faceInspector().updateTextureCollectionList();
                         inspector().entityInspector().updateProperties();
@@ -545,7 +541,7 @@ namespace TrenchBroom {
                     case Controller::Command::ClearMap:
                         m_renderer->clearMap();
                         inspector().faceInspector().updateFaceAttributes();
-                        inspector().faceInspector().updateTextureBrowser();
+                        inspector().faceInspector().updateTextureBrowser(true);
                         inspector().faceInspector().updateSelectedTexture();
                         //inspector().faceInspector().updateTextureCollectionList();
                         inspector().entityInspector().updateProperties();
@@ -592,7 +588,7 @@ namespace TrenchBroom {
                         m_renderer->invalidateSelectedBrushes();
                         inspector().faceInspector().updateFaceAttributes();
                         inspector().faceInspector().updateSelectedTexture();
-                        inspector().faceInspector().updateTextureBrowser();
+                        inspector().faceInspector().updateTextureBrowser(false);
                         break;
                     }
                     case Controller::Command::RemoveTextureCollection:
@@ -602,7 +598,7 @@ namespace TrenchBroom {
                     case Controller::Command::AddTextureCollection:
                         m_renderer->invalidateAll();
                         inspector().faceInspector().updateFaceAttributes();
-                        inspector().faceInspector().updateTextureBrowser();
+                        inspector().faceInspector().updateTextureBrowser(true);
                         inspector().faceInspector().updateSelectedTexture();
                         //inspector().faceInspector().updateTextureCollectionList();
                         inspector().entityInspector().updateProperties();
@@ -625,7 +621,7 @@ namespace TrenchBroom {
                             m_renderer->removeEntities(addObjectsCommand->addedEntities());
                         if (addObjectsCommand->hasAddedBrushes())
                             m_renderer->invalidateBrushes();
-                        inspector().faceInspector().updateTextureBrowser();
+                        inspector().faceInspector().updateTextureBrowser(false);
                         break;
                     }
                     case Controller::Command::MoveObjects:
@@ -648,8 +644,8 @@ namespace TrenchBroom {
                             m_renderer->addEntities(removeObjectsCommand->removedEntities());
                         if (!removeObjectsCommand->removedBrushes().empty())
                             m_renderer->invalidateBrushes();
+                        inspector().faceInspector().updateTextureBrowser(false);
                         break;
-                        inspector().faceInspector().updateTextureBrowser();
                     }
                     case Controller::Command::ReparentBrushes:
                         m_renderer->invalidateSelectedBrushes();
@@ -833,33 +829,8 @@ namespace TrenchBroom {
                         mapWriter.writeFacesToStream(editStateManager.selectedFaces(), clipboardData);
                         wxTheClipboard->SetData(new wxTextDataObject(clipboardData.str()));
                     } else {
-                        IO::ByteBuffer buffer;
-                        Model::BrushGeometrySerializer serializer(buffer);
-                        mapWriter.writeObjectsToStream(editStateManager.selectedEntities(), editStateManager.selectedBrushes(), clipboardData, serializer);
-                        
-                        if (!buffer.empty()) {
-                            String text = clipboardData.str();
-                            
-                            wxDataObjectComposite* composite = new wxDataObjectComposite();
-                            composite->Add(new wxTextDataObject(clipboardData.str()));
-
-                            // workaround for OS X, where wxCustomDataObject does not properly handle unicode strings
-                            // TODO see if this is fixed in 2.9.5
-                            // Apple Instruments reports memory leaks here, no idea why - maybe a bug in wx?
-                            wxCustomDataObject* asciiData = new wxCustomDataObject(wxDataFormat("BrushText"));
-                            asciiData->Alloc(text.size());
-                            asciiData->SetData(text.size(), text.c_str());
-                            composite->Add(asciiData);
-                            
-                            wxCustomDataObject* geometryData = new wxCustomDataObject(wxDataFormat("BrushGeometry"));
-                            geometryData->Alloc(buffer.size());
-                            geometryData->SetData(buffer.size(), buffer.get());
-                            composite->Add(geometryData);
-                            
-                            wxTheClipboard->SetData(composite);
-                        } else {
-                            wxTheClipboard->SetData(new wxTextDataObject(clipboardData.str()));
-                        }
+                        mapWriter.writeObjectsToStream(editStateManager.selectedEntities(), editStateManager.selectedBrushes(), clipboardData);
+                        wxTheClipboard->SetData(new wxTextDataObject(clipboardData.str()));
                     }
 
                     wxTheClipboard->Close();
@@ -877,43 +848,13 @@ namespace TrenchBroom {
                         Model::BrushList brushes;
                         Model::FaceList faces;
 
-                        String text;
-
-                        wxDataFormat asciiFormat("BrushText");
-                        wxDataFormat geometryFormat("BrushGeometry");
                         wxTextDataObject textData;
-                        wxCustomDataObject asciiData(asciiFormat);
-                        wxCustomDataObject geometryData(geometryFormat);
+                        String text;
                         
-                        // prefer ascii data over unicode data
-                        if (wxTheClipboard->GetData(asciiData)) {
-                            size_t size = asciiData.GetSize();
-                            char* rawText = new char[size];
-                            asciiData.GetDataHere(rawText);
-                            text = String(rawText, size);
-                            delete [] rawText;
-                        } else {
-                            wxTheClipboard->GetData(textData);
+                        if (wxTheClipboard->GetData(textData))
                             text = textData.GetText();
-                        }
                         
-                        bool hasBrushGeometry = false;
-                        IO::MapParser::CreateBrushStrategy* brushCreator = NULL;
-                        if (wxTheClipboard->GetData(geometryData)) {
-                            IO::ByteBuffer geometryDataBuffer = IO::ByteBuffer(geometryData.GetSize());
-                            if (!geometryDataBuffer.empty() && geometryData.GetDataHere(geometryDataBuffer.get())) {
-                                brushCreator = new IO::CreateBrushFromGeometryStrategy(geometryDataBuffer);
-                                hasBrushGeometry = true;
-                            }
-                        }
-                        
-                        if (brushCreator == NULL)
-                            brushCreator = new IO::CreateBrushFromFacesStrategy();
-                        
-                        StringStream stream;
-                        stream.str(text);
-                        IO::MapParser mapParser(stream, console(), *brushCreator);
-
+                        IO::MapParser mapParser(text, console());
                         if (mapParser.parseFaces(mapDocument().map().worldBounds(), faces)) {
                             assert(!faces.empty());
 
@@ -963,12 +904,10 @@ namespace TrenchBroom {
                                 delta = targetPosition - objectsPosition;
                             }
 
-                            pasteObjects(entities, brushes, delta, hasBrushGeometry);
+                            pasteObjects(entities, brushes, delta);
                         } else {
                             mapDocument().console().warn("Unable to parse clipboard contents");
                         }
-                        
-                        delete brushCreator;
                     }
                     wxTheClipboard->Close();
                 }
@@ -984,53 +923,21 @@ namespace TrenchBroom {
                         Model::EntityList entities;
                         Model::BrushList brushes;
                         
+                        wxTextDataObject textData;
                         String text;
                         
-                        wxDataFormat asciiFormat("BrushText");
-                        wxDataFormat geometryFormat("BrushGeometry");
-                        wxTextDataObject textData;
-                        wxCustomDataObject asciiData(asciiFormat);
-                        wxCustomDataObject geometryData(geometryFormat);
-                        
-                        // prefer ascii data over text data
-                        if (wxTheClipboard->GetData(asciiData)) {
-                            size_t size = asciiData.GetSize();
-                            char* rawText = new char[size];
-                            asciiData.GetDataHere(rawText);
-                            text = String(rawText, size);
-                            delete [] rawText;
-                        } else {
-                            wxTheClipboard->GetData(textData);
+                        if (wxTheClipboard->GetData(textData))
                             text = textData.GetText();
-                        }
                         
-                        bool hasBrushGeometry = false;
-                        IO::MapParser::CreateBrushStrategy* brushCreator = NULL;
-                        if (wxTheClipboard->GetData(geometryData)) {
-                            IO::ByteBuffer geometryDataBuffer = IO::ByteBuffer(geometryData.GetSize());
-                            if (!geometryDataBuffer.empty() && geometryData.GetDataHere(geometryDataBuffer.get())) {
-                                brushCreator = new IO::CreateBrushFromGeometryStrategy(geometryDataBuffer);
-                                hasBrushGeometry = true;
-                            }
-                        }
-                        
-                        if (brushCreator == NULL)
-                            brushCreator = new IO::CreateBrushFromFacesStrategy();
-                        
-                        StringStream stream;
-                        stream.str(text);
-                        IO::MapParser mapParser(stream, console(), *brushCreator);
-                        
+                        IO::MapParser mapParser(text, console());
                         if (mapParser.parseEntities(mapDocument().map().worldBounds(), entities) ||
                                    mapParser.parseBrushes(mapDocument().map().worldBounds(), brushes)) {
                             assert(entities.empty() != brushes.empty());
                             
-                            pasteObjects(entities, brushes, Vec3f::Null, hasBrushGeometry);
+                            pasteObjects(entities, brushes, Vec3f::Null);
                         } else {
                             mapDocument().console().warn("Unable to parse clipboard contents");
                         }
-                        
-                        delete brushCreator;
                     }
                     wxTheClipboard->Close();
                 }
@@ -1137,6 +1044,58 @@ namespace TrenchBroom {
             submit(select);
             submit(remove);
             CommandProcessor::EndGroup(mapDocument().GetCommandProcessor());
+        }
+
+        void EditorView::OnEditSelectByFilePosition(wxCommandEvent& event) {
+            wxString string = wxGetTextFromUser(wxT("Enter a comma- or space separated list of line numbers."), wxT("Select by Line Numbers"), wxT(""), GetFrame());
+            if (string.empty())
+                return;
+
+            const Model::EntityList& entities = mapDocument().map().entities();
+            Model::EntitySet selectEntities;
+            Model::BrushSet selectBrushes;
+            
+            wxStringTokenizer tokenizer(string, ", ");
+            while (tokenizer.HasMoreTokens()) {
+                wxString token = tokenizer.NextToken();
+                unsigned long position;
+                if (token.ToULong(&position)) {
+                    Model::Entity* selectEntity = NULL;
+                    Model::Brush* selectBrush = NULL;
+                    
+                    Model::EntityList::const_iterator entityIt, entityEnd;
+                    for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd && selectEntity == NULL; ++entityIt) {
+                        Model::Entity& entity = **entityIt;
+                        if (entity.occupiesFileLine(position)) {
+                            if (entity.brushes().empty())
+                                selectEntity = &entity;
+                            
+                            const Model::BrushList& brushes = entity.brushes();
+                            Model::BrushList::const_iterator brushIt, brushEnd;
+                            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd && selectBrush == NULL; ++brushIt) {
+                                Model::Brush& brush = **brushIt;
+                                if (brush.occupiesFileLine(position))
+                                    selectBrush = &brush;
+                            }
+                        }
+                    }
+                    
+                    if (selectBrush != NULL)
+                        selectBrushes.insert(selectBrush);
+                    else if (selectEntity != NULL)
+                        selectEntities.insert(selectEntity);
+                }
+            }
+            
+            if (!selectEntities.empty() || !selectBrushes.empty()) {
+                wxCommand* command = Controller::ChangeEditStateCommand::replace(mapDocument(), Utility::makeList(selectEntities), Utility::makeList(selectBrushes));
+                submit(command);
+                StringStream message;
+                message << "Selected " << selectEntities.size() << " " << (selectEntities.size() == 1 ? "entity" : "entities") << " and " << selectBrushes.size() << " " << (selectBrushes.size() == 1 ? "brush" : "brushes");
+                console().info(message.str());
+            } else {
+                console().info("No objects with the given line numbers found");
+            }
         }
 
         void EditorView::OnEditSelectNone(wxCommandEvent& event) {
@@ -1847,7 +1806,7 @@ namespace TrenchBroom {
                     event.Check(inputController().rotateObjectsToolActive());
                     break;
                 case CommandIds::Menu::EditActions:
-                    event.Enable(true);
+                    event.Enable(false);
                     break;
                 case CommandIds::Menu::EditMoveTexturesUp:
                 case CommandIds::Menu::EditMoveTexturesRight:
@@ -1973,6 +1932,8 @@ namespace TrenchBroom {
                     event.Enable(mapDocument().pointFileLoaded() && mapDocument().pointFile().hasPreviousPoint());
                     break;
             }
+            
+            
         }
 
         void EditorView::OnPopupReparentBrushes(wxCommandEvent& event) {

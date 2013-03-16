@@ -93,9 +93,12 @@ namespace TrenchBroom {
             SetSizerAndFit(outerSizer);
         }
 
-        void TextureBrowser::reload() {
-            m_canvas->clear();
-            m_canvas->reload();
+        void TextureBrowser::reload(bool reloadTextures) {
+            if (reloadTextures) {
+                m_canvas->clear();
+                m_canvas->reload();
+            }
+            m_canvas->Refresh();
         }
 
         Model::Texture* TextureBrowser::selectedTexture() const {

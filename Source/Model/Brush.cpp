@@ -32,23 +32,28 @@ namespace TrenchBroom {
     namespace Model {
         void Brush::init() {
             m_entity = NULL;
-            m_filePosition = 0;
             setEditState(EditState::Default);
             m_selectedFaceCount = 0;
-            m_geometry = new BrushGeometry(m_worldBounds);
         }
 
         Brush::Brush(const BBox& worldBounds) : MapObject(), m_worldBounds(worldBounds) {
             init();
+            m_geometry = new BrushGeometry(m_worldBounds);
         }
 
-        Brush::Brush(const BBox& worldBounds, const Brush& brushTemplate) : MapObject(), m_worldBounds(worldBounds) {
+        Brush::Brush(const BBox& worldBounds, const Brush& brushTemplate) :
+        MapObject(),
+        m_worldBounds(worldBounds) {
             init();
+            m_geometry = new BrushGeometry(m_worldBounds);
             restore(brushTemplate, false);
         }
 
-        Brush::Brush(const BBox& worldBounds, const BBox& brushBounds, Texture* texture) : MapObject(), m_worldBounds(worldBounds) {
+        Brush::Brush(const BBox& worldBounds, const BBox& brushBounds, Texture* texture) :
+        MapObject(),
+        m_worldBounds(worldBounds) {
             init();
+            m_geometry = new BrushGeometry(m_worldBounds);
 
             Vec3f p1, p2, p3;
             String textureName = texture != NULL ? texture->name() : "";
@@ -339,14 +344,6 @@ namespace TrenchBroom {
 
             if (m_entity != NULL)
                 m_entity->invalidateGeometry();
-        }
-
-        void Brush::serializeGeometry(IO::ByteBuffer& buffer) const {
-            m_geometry->serialize(buffer);
-        }
-
-        void Brush::deserializeGeometry(IO::ByteBuffer& buffer) {
-            m_geometry->deserialize(buffer, m_faces);
         }
 
         bool Brush::canMoveBoundary(const Face& face, const Vec3f& delta) const {

@@ -73,8 +73,6 @@ namespace TrenchBroom {
             mutable Vec3f m_center;
             mutable bool m_geometryValid;
 
-            size_t m_filePosition;
-
             void init();
             void validateGeometry() const;
 
@@ -223,14 +221,6 @@ namespace TrenchBroom {
 
             inline void invalidateGeometry() {
                 m_geometryValid = false;
-            }
-
-            inline size_t filePosition() const {
-                return m_filePosition;
-            }
-
-            inline void setFilePosition(size_t filePosition) {
-                m_filePosition = filePosition;
             }
 
             void translate(const Vec3f& delta, bool lockTextures);

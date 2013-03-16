@@ -62,19 +62,19 @@ namespace TrenchBroom {
             const Color& defaultColor = prefs.getColor(Preferences::EntityBoundsColor);
             EntityDefinitionMap newDefinitions;
             
-            mmapped_fstream stream(path.c_str(), std::ios::in);
-            if (stream.is_open()) {
+            IO::FileManager fileManager;
+            IO::MappedFile::Ptr file = fileManager.mapFile(path);
+            if (file.get() != NULL) {
                 try {
-                    IO::FileManager fileManager;
                     const String extension = fileManager.pathExtension(path);
                     if (Utility::equalsString(extension, "def", false)) {
-                        IO::DefParser parser(defaultColor, stream);
+                        IO::DefParser parser(file->begin(), file->end(), defaultColor);
                         
                         EntityDefinition* definition = NULL;
                         while ((definition = parser.nextDefinition()) != NULL)
                             Utility::insertOrReplace(newDefinitions, definition->name(), definition);
                     } else if (Utility::equalsString(extension, "fgd", false)) {
-                        IO::FgdParser parser(defaultColor, stream);
+                        IO::FgdParser parser(file->begin(), file->end(), defaultColor);
                         
                         EntityDefinition* definition = NULL;
                         while ((definition = parser.nextDefinition()) != NULL)

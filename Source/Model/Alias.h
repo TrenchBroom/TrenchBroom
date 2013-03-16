@@ -105,12 +105,12 @@ namespace TrenchBroom {
         private:
             AliasFrameVertex m_vertices[3];
         public:
-            inline AliasFrameVertex& operator[] (const unsigned int index) {
+            inline AliasFrameVertex& operator[] (const size_t index) {
                 assert(index >= 0 && index < 3);
                 return m_vertices[index];
             }
             
-            inline const AliasFrameVertex& operator[] (const unsigned int index) const {
+            inline const AliasFrameVertex& operator[] (const size_t index) const {
                 assert(index >= 0 && index < 3);
                 return m_vertices[index];
             }
