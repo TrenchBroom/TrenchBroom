@@ -354,6 +354,7 @@ namespace TrenchBroom {
         extern const Preference<KeyboardShortcut>   EditSelectAll;
         extern const Preference<KeyboardShortcut>   EditSelectSiblings;
         extern const Preference<KeyboardShortcut>   EditSelectTouching;
+        extern const Preference<KeyboardShortcut>   EditSelectByFilePosition;
         extern const Preference<KeyboardShortcut>   EditSelectNone;
         extern const Preference<KeyboardShortcut>   EditHideSelected;
         extern const Preference<KeyboardShortcut>   EditHideUnselected;

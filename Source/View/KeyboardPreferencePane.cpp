@@ -314,6 +314,7 @@ namespace TrenchBroom {
             newEntries.push_back(Entry(EditSelectAll));
             newEntries.push_back(Entry(EditSelectSiblings));
             newEntries.push_back(Entry(EditSelectTouching));
+            newEntries.push_back(Entry(EditSelectByFilePosition));
             newEntries.push_back(Entry(EditSelectNone));
             newEntries.push_back(Entry(EditHideSelected));
             newEntries.push_back(Entry(EditHideUnselected));

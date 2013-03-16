@@ -128,7 +128,9 @@ wxMenu* AbstractApp::CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMe
     appendItem(editMenu, EditDelete, mapViewFocused);
     editMenu->AppendSeparator();
     appendItem(editMenu, EditSelectAll, mapViewFocused);
+    appendItem(editMenu, EditSelectSiblings, mapViewFocused);
     appendItem(editMenu, EditSelectTouching, mapViewFocused);
+    appendItem(editMenu, EditSelectByFilePosition, mapViewFocused);
     appendItem(editMenu, EditSelectNone, mapViewFocused);
     editMenu->AppendSeparator();
     appendItem(editMenu, EditHideSelected, mapViewFocused);
