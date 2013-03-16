@@ -38,6 +38,9 @@ namespace TrenchBroom {
             unsigned int m_uniqueId;
             EditState::Type m_editState;
             bool m_previouslyLocked;
+            
+            size_t m_fileFirstLine;
+            size_t m_fileLineCount;
         public:
             enum Type {
                 EntityObject,
@@ -46,7 +49,9 @@ namespace TrenchBroom {
 
             MapObject() :
             m_editState(EditState::Default),
-            m_previouslyLocked(false) {
+            m_previouslyLocked(false),
+            m_fileFirstLine(0),
+            m_fileLineCount(0) {
                 static unsigned int currentId = 1;
                 m_uniqueId = currentId++;
             }
@@ -137,6 +142,19 @@ namespace TrenchBroom {
             virtual void flip(Axis::Type axis, const Vec3f& center, bool lockTextures) = 0;
             
             virtual void pick(const Ray& ray, PickResult& pickResults) = 0;
+
+            inline size_t fileLine() const {
+                return m_fileFirstLine;
+            }
+            
+            inline bool occupiesFileLine(size_t line) const {
+                return line >= m_fileFirstLine && line < m_fileFirstLine + m_fileLineCount;
+            }
+            
+            inline void setFilePosition(size_t firstLine, size_t lineCount) {
+                m_fileFirstLine = firstLine;
+                m_fileLineCount = lineCount;
+            }
         };
     }
 }

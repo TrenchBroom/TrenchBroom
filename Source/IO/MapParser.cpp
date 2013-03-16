@@ -148,7 +148,7 @@ namespace TrenchBroom {
                 stream << "Found brushes with invalid or missing geometry at lines ";
                 for (size_t i = 0; i < m_staleBrushes.size(); i++) {
                     const Model::Brush* brush = m_staleBrushes[i];
-                    stream << brush->filePosition();
+                    stream << brush->fileLine();
                     if (i < m_staleBrushes.size() - 1)
                         stream << ", ";
                 }
@@ -166,7 +166,7 @@ namespace TrenchBroom {
                 return NULL;
             
             Model::Entity* entity = new Model::Entity(worldBounds);
-            entity->setFilePosition(token.line());
+            size_t firstLine = token.line();
             
             while ((token = m_tokenizer.nextToken()).type() != TokenType::Eof) {
                 switch (token.type()) {
@@ -193,6 +193,7 @@ namespace TrenchBroom {
                     case TokenType::CBrace: {
                         if (indicator != NULL)
                             indicator->update(static_cast<int>(token.position()));
+                        entity->setFilePosition(firstLine, token.line() - firstLine);
                         return entity;
                     }
                     default:
@@ -213,7 +214,7 @@ namespace TrenchBroom {
             if (token.type() == TokenType::CBrace)
                 return NULL;
             
-            const size_t filePosition = token.line();
+            const size_t firstLine = token.line();
             Model::FaceList faces;
             
             while ((token = m_tokenizer.nextToken()).type() != TokenType::Eof) {
@@ -240,7 +241,7 @@ namespace TrenchBroom {
                         while (faceIt != faceEnd) {
                             Model::Face* face = *faceIt++;
                             if (!brush->addFace(face)) {
-                                m_console.warn("Skipping malformed brush at line %i", filePosition);
+                                m_console.warn("Skipping malformed brush at line %i", firstLine);
                                 delete brush;
                                 brush = NULL;
                                 break;
@@ -252,9 +253,9 @@ namespace TrenchBroom {
                             Utility::deleteAll(sortedFaces, faceIt);
                         
                         if (brush != NULL) {
-                            brush->setFilePosition(filePosition);
+                            brush->setFilePosition(firstLine, token.line() - firstLine);
                             if (!brush->closed())
-                                m_console.warn("Non-closed brush at line %i", filePosition);
+                                m_console.warn("Non-closed brush at line %i", firstLine);
                         }
                         return brush;
                     }

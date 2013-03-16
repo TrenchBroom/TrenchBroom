@@ -108,6 +108,7 @@ namespace TrenchBroom {
                 static const int EditCorrectVertices                = Lowest + 82;
                 static const int HelpShowHelp                       = Lowest + 83;
                 static const int EditPasteAtOriginalPosition        = Lowest + 84;
+                static const int EditSelectByFilePosition           = Lowest + 85;
                 static const int Highest                            = Lowest + 99;
             }
             

@@ -71,6 +71,7 @@
 
 #include <wx/clipbrd.h>
 #include <wx/dataobj.h>
+#include <wx/tokenzr.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -100,6 +101,7 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::EditSelectAll, EditorView::OnEditSelectAll)
         EVT_MENU(CommandIds::Menu::EditSelectSiblings, EditorView::OnEditSelectSiblings)
         EVT_MENU(CommandIds::Menu::EditSelectTouching, EditorView::OnEditSelectTouching)
+        EVT_MENU(CommandIds::Menu::EditSelectByFilePosition, EditorView::OnEditSelectByFilePosition)
         EVT_MENU(CommandIds::Menu::EditSelectNone, EditorView::OnEditSelectNone)
 
         EVT_MENU(CommandIds::Menu::EditHideSelected, EditorView::OnEditHideSelected)
@@ -1032,6 +1034,58 @@ namespace TrenchBroom {
             CommandProcessor::EndGroup(mapDocument().GetCommandProcessor());
         }
 
+        void EditorView::OnEditSelectByFilePosition(wxCommandEvent& event) {
+            wxString string = wxGetTextFromUser(wxT("Enter a comma- or space separated list of line numbers."), wxT("Select by Line Numbers"), wxT(""), GetFrame());
+            if (string.empty())
+                return;
+
+            const Model::EntityList& entities = mapDocument().map().entities();
+            Model::EntitySet selectEntities;
+            Model::BrushSet selectBrushes;
+            
+            wxStringTokenizer tokenizer(string, ", ");
+            while (tokenizer.HasMoreTokens()) {
+                wxString token = tokenizer.NextToken();
+                unsigned long position;
+                if (token.ToULong(&position)) {
+                    Model::Entity* selectEntity = NULL;
+                    Model::Brush* selectBrush = NULL;
+                    
+                    Model::EntityList::const_iterator entityIt, entityEnd;
+                    for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd && selectEntity == NULL; ++entityIt) {
+                        Model::Entity& entity = **entityIt;
+                        if (entity.occupiesFileLine(position)) {
+                            if (entity.brushes().empty())
+                                selectEntity = &entity;
+                            
+                            const Model::BrushList& brushes = entity.brushes();
+                            Model::BrushList::const_iterator brushIt, brushEnd;
+                            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd && selectBrush == NULL; ++brushIt) {
+                                Model::Brush& brush = **brushIt;
+                                if (brush.occupiesFileLine(position))
+                                    selectBrush = &brush;
+                            }
+                        }
+                    }
+                    
+                    if (selectBrush != NULL)
+                        selectBrushes.insert(selectBrush);
+                    else if (selectEntity != NULL)
+                        selectEntities.insert(selectEntity);
+                }
+            }
+            
+            if (!selectEntities.empty() || !selectBrushes.empty()) {
+                wxCommand* command = Controller::ChangeEditStateCommand::replace(mapDocument(), Utility::makeList(selectEntities), Utility::makeList(selectBrushes));
+                submit(command);
+                StringStream message;
+                message << "Selected " << selectEntities.size() << " " << (selectEntities.size() == 1 ? "entity" : "entities") << " and " << selectBrushes.size() << " " << (selectBrushes.size() == 1 ? "brush" : "brushes");
+                console().info(message.str());
+            } else {
+                console().info("No objects with the given line numbers found");
+            }
+        }
+
         void EditorView::OnEditSelectNone(wxCommandEvent& event) {
             wxCommand* command = Controller::ChangeEditStateCommand::deselectAll(mapDocument());
             submit(command);
@@ -1740,7 +1794,7 @@ namespace TrenchBroom {
                     event.Check(inputController().rotateObjectsToolActive());
                     break;
                 case CommandIds::Menu::EditActions:
-                    event.Enable(true);
+                    event.Enable(false);
                     break;
                 case CommandIds::Menu::EditMoveTexturesUp:
                 case CommandIds::Menu::EditMoveTexturesRight:
@@ -1866,6 +1920,8 @@ namespace TrenchBroom {
                     event.Enable(mapDocument().pointFileLoaded() && mapDocument().pointFile().hasPreviousPoint());
                     break;
             }
+            
+            
         }
 
         void EditorView::OnPopupReparentBrushes(wxCommandEvent& event) {

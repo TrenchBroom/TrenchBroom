@@ -32,7 +32,6 @@ namespace TrenchBroom {
     namespace Model {
         void Brush::init() {
             m_entity = NULL;
-            m_filePosition = 0;
             setEditState(EditState::Default);
             m_selectedFaceCount = 0;
         }

@@ -105,7 +105,7 @@ namespace TrenchBroom {
                 if (!entity.worldspawn() && entity.brushes().empty())
                     result.insert(&entity);
             }
-            return makeList(result);
+            return Utility::makeList(result);
         }
 
     }

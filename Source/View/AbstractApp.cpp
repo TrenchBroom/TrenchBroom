@@ -87,6 +87,7 @@ wxMenu* AbstractApp::CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMe
     editMenu->Append(EditSelectAll, wxT("Select All\tCtrl+A"));
     editMenu->Append(EditSelectSiblings, wxT("Select Siblings\tCtrl+Alt+A"));
     editMenu->Append(EditSelectTouching, wxT("Select Touching\tCtrl+T"));
+    editMenu->Append(EditSelectByFilePosition, wxT("Select by Line Numbers..."));
     editMenu->Append(EditSelectNone, wxT("Select None\tCtrl+Shift+A"));
     editMenu->AppendSeparator();
     editMenu->Append(EditHideSelected, wxT("Hide Selected\tCtrl+H"));

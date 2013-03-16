@@ -50,8 +50,6 @@ namespace TrenchBroom {
 
             const BBox& m_worldBounds;
 
-            size_t m_filePosition;
-
             void init();
         public:
             Brush(const BBox& worldBounds);
@@ -131,14 +129,6 @@ namespace TrenchBroom {
 
             inline bool closed() const {
                 return m_geometry->closed();
-            }
-
-            inline size_t filePosition() const {
-                return m_filePosition;
-            }
-
-            inline void setFilePosition(size_t filePosition) {
-                m_filePosition = filePosition;
             }
 
             void translate(const Vec3f& delta, bool lockTextures);

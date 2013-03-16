@@ -340,7 +340,7 @@ namespace TrenchBroom {
                     objects.insert(entity);
             }
             
-            m_octree->removeObjects(makeList(objects));
+            m_octree->removeObjects(Utility::makeList(objects));
         }
 
         void MapDocument::brushesDidChange(const BrushList& brushes) {
