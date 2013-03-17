@@ -2,8 +2,8 @@
 
 TrenchBroom is a modern cross-platform level editor for Quake.
 
-Website:   http://kristianduske.com/trenchbroom
-Downloads: http://kristianduske.com/trenchbroom/download.php
+- Website:   http://kristianduske.com/trenchbroom
+- Downloads: http://kristianduske.com/trenchbroom/download.php
 
 ## Features
 - True 3D editing, no 2D views required
@@ -51,6 +51,7 @@ Downloads: http://kristianduske.com/trenchbroom/download.php
 - Fixed parsing of color values in FGD files.
 - Improved Quake.fgd and Quoth2.fgd.
 - Updated and fixed some errors in the documentation.
+
 ### TrenchBroom 1.0.4
 - Improved Quake.fgd and Quoth2.fgd.
 - Improvements to clipboard pasting.
