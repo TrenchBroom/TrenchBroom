@@ -56,7 +56,7 @@ namespace TrenchBroom {
             inline const String& name() const {
                 return m_name;
             }
-                   
+
             inline MappedFile::Ptr data() const {
                 return m_view;
             }
@@ -66,8 +66,8 @@ namespace TrenchBroom {
         private:
             typedef std::map<String, PakEntry> PakDirectory;
 
-            MappedFile::Ptr m_file;
             String m_path;
+            MappedFile::Ptr m_file;
             PakDirectory m_directory;
         public:
             Pak(const String& path, MappedFile::Ptr file);
@@ -95,7 +95,7 @@ namespace TrenchBroom {
             bool findPaks(const String& path, PakList& result);
         public:
             static PakManager* sharedManager;
-            
+
             MappedFile::Ptr entry(const String& name, const String& searchPath);
         };
     }
