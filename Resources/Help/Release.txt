@@ -1,16 +1,19 @@
-1. Add Changes-<major>.<minor>.<maintenance>.txt to Resources/Help
+1. Describe the changes in Readme.md
 
-2. Perform the following steps in any order:
+2. PULL EVERYTHING FROM REMOTE BEFORE BUILDING!
+
+3. Perform the following steps in any order:
 	- Windows/Release-Package.bat
 	- Commit changes
 	- Mac/Release-Package.sh
 	- Commit changes
 	- Build Linux binary
+	- Commit changes
 
 	Do not forget to commit the changes, which are a result of the automatic increase of the build no.
 	The finished Windows and Mac binaries are in the Release folder now.
 
-3. Update the repository:
+4. Update the repository:
 	- If the build is a new release (major or minor version no increase), then create a new branch for it. The name of the branch should be Release_<major>.<minor>.0
 	  git checkout -b Release_1.0.0
 	  - Switch back to the master branch and update the major and / or minor version number in Source/Version
@@ -21,9 +24,9 @@
 	  - Switch to the master branch and merge any bug fixes!
 
 
-4. Upload the documentation if there were changes.
+5. Upload the documentation if there were changes.
 
-5. Publish the binaries
+6. Publish the binaries
 	- Upload the zip files to the appropriate sub directories on the website.
 	- Make sure the downloads page shows them properly.
 	- Announce the release on func, inside3d quakeone.com, twitter, facebook.
