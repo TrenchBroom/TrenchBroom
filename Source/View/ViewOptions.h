@@ -43,6 +43,8 @@ namespace TrenchBroom {
             FaceRenderMode m_faceRenderMode;
             bool m_renderEdges;
             bool m_renderSelection;
+            bool m_shadeFaces;
+            bool m_useFog;
         public:
             ViewOptions() :
             m_filterPattern(""),
@@ -55,6 +57,8 @@ namespace TrenchBroom {
             m_showSkipBrushes(true),
             m_faceRenderMode(Textured),
             m_renderEdges(true),
+            m_shadeFaces(true),
+            m_useFog(false),
             m_renderSelection(true) {}
             
             inline const String& filterPattern() const {
@@ -143,6 +147,22 @@ namespace TrenchBroom {
             
             inline void setRenderSelection(bool renderSelection) {
                 m_renderSelection = renderSelection;
+            }
+
+            inline bool shadeFaces() const {
+                return m_shadeFaces;
+            }
+            
+            inline void setShadeFaces(bool shadeFaces) {
+                m_shadeFaces = shadeFaces;
+            }
+
+            inline bool useFog() const {
+                return m_useFog;
+            }
+            
+            inline void setUseFog(bool useFog) {
+                m_useFog = useFog;
             }
         };
     }
