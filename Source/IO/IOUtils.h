@@ -23,7 +23,6 @@
 #include "IO/FileManager.h"
 #include "IO/IOTypes.h"
 #include "IO/Pak.h"
-#include "IO/mmapped_fstream.h"
 #include "Utility/String.h"
 #include "Utility/VecMath.h"
 
@@ -39,123 +38,75 @@ using namespace TrenchBroom::Math;
 
 namespace TrenchBroom {
     namespace IO {
-        inline IStream findGameFile(const String& file, const StringList& searchPaths) {
+        inline MappedFile::Ptr findGameFile(const String& filePath, const StringList& searchPaths) {
+            MappedFile::Ptr mappedFile;
             FileManager fileManager;
-            
+
             StringList::const_reverse_iterator pathIt, pathEnd;
             for (pathIt = searchPaths.rbegin(), pathEnd = searchPaths.rend(); pathIt != pathEnd; ++pathIt) {
                 const String& searchPath = *pathIt;
-                const String path = fileManager.appendPath(searchPath, file);
-                IStream stream(NULL);
+                const String path = fileManager.appendPath(searchPath, filePath);
+                MappedFile::Ptr file;
                 if (fileManager.exists(path) && !fileManager.isDirectory(path))
-                    stream = IStream(new mmapped_fstream(path.c_str(), std::ios::in | std::ios::binary));
+                    file = fileManager.mapFile(path);
                 else
-                    stream = PakManager::sharedManager->entryStream(file, searchPath);
-                if (stream.get() != NULL)
-                    return stream;
+                    file = PakManager::sharedManager->entry(filePath, searchPath);
+                if (file.get() != NULL)
+                    return file;
             }
             
-            return IStream(NULL);
+            return mappedFile;
         }
         
         template <typename T>
-        inline int readInt(std::istream& stream) {
+        inline T read(char*& cursor) {
             T value;
-            stream.read(reinterpret_cast<char *>(&value), sizeof(T));
-            return static_cast<int>(value);
-        }
-        
-        template <typename T>
-        inline int readInt(std::istream* stream) {
-            return readInt<T>(*stream);
-        }
-        
-        template <typename T>
-        inline int readInt(IO::IStream& stream) {
-            return readInt<T>(stream.get());
-        }
-        
-        template <typename T>
-        inline unsigned int readUnsignedInt(std::istream& stream) {
-            T value;
-            stream.read(reinterpret_cast<char *>(&value), sizeof(T));
-            assert(value >= 0);
-            return static_cast<unsigned int>(value);
-        }
-        
-        template <typename T>
-        inline unsigned int readUnsignedInt(std::istream* stream) {
-            return readUnsignedInt<T>(*stream);
-        }
-        
-        template <typename T>
-        inline unsigned int readUnsignedInt(IO::IStream& stream) {
-            return readUnsignedInt<T>(stream.get());
-        }
-        
-        template <typename T>
-        inline size_t readSize(std::istream& stream) {
-            T value;
-            stream.read(reinterpret_cast<char *>(&value), sizeof(T));
-            assert(value >= 0);
-            return static_cast<size_t>(value);
-        }
-        
-        template <typename T>
-        inline size_t readSize(std::istream* stream) {
-            return readSize<T>(*stream);
-        }
-        
-        template <typename T>
-        inline size_t readSize(IO::IStream& stream) {
-            return readSize<T>(stream.get());
-        }
-        
-        template <typename T>
-        inline bool readBool(std::istream& stream) {
-            T value;
-            stream.read(reinterpret_cast<char *>(&value), sizeof(T));
-            return value != 0;
-        }
-        
-        template <typename T>
-        inline bool readBool(std::istream* stream) {
-            return readBool<T>(*stream);
-        }
-        
-        template <typename T>
-        inline bool readBool(IO::IStream& stream) {
-            return readBool<T>(stream.get());
-        }
-        
-        inline float readFloat(std::istream& stream) {
-            float value;
-            stream.read(reinterpret_cast<char *>(&value), sizeof(float));
+            memcpy(&value, cursor, sizeof(T));
+            cursor += sizeof(T);
             return value;
         }
+        
+        template <typename T>
+        inline int readInt(char*& cursor) {
+            return static_cast<int>(read<T>(cursor));
+        }
+        
+        template <typename T>
+        inline unsigned int readUnsignedInt(char*& cursor) {
+            return static_cast<unsigned int>(read<T>(cursor));
+        }
+        
+        template <typename T>
+        inline size_t readSize(char*& cursor) {
+            return static_cast<size_t>(read<T>(cursor));
+        }
 
-        inline float readFloat(std::istream* stream) {
-            return readFloat(*stream);
+        template <typename T>
+        inline bool readBool(char*& cursor) {
+            return read<T>(cursor) != 0;
         }
         
-        inline float readFloat(IO::IStream& stream) {
-            return readFloat(stream.get());
+        template <typename T>
+        inline float readFloat(char*& cursor) {
+            return static_cast<float>(read<T>(cursor));
         }
         
-        inline Vec3f readVec3f(std::istream& stream) {
+        inline Vec3f readVec3f(char*& cursor) {
             Vec3f value;
-            stream.read(reinterpret_cast<char *>(&value.x), sizeof(float));
-            stream.read(reinterpret_cast<char *>(&value.y), sizeof(float));
-            stream.read(reinterpret_cast<char *>(&value.z), sizeof(float));
+            value.x = readFloat<float>(cursor);
+            value.y = readFloat<float>(cursor);
+            value.z = readFloat<float>(cursor);
             return value;
         }
-
-        inline Vec3f readVec3f(std::istream* stream) {
-            return readVec3f(*stream);
-        }
         
-        inline Vec3f readVec3f(IO::IStream& stream) {
-            return readVec3f(stream.get());
+        inline void readBytes(char*& cursor, char* buffer, size_t n) {
+            memcpy(buffer, cursor, n);
+            cursor += n;
+        }
+
+        inline void readBytes(char*& cursor, unsigned char* buffer, size_t n) {
+            memcpy(buffer, cursor, n);
+            cursor += n;
         }
     }
 }

@@ -441,12 +441,9 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\IO\IOUtils.h" />
     <ClInclude Include="..\..\Source\IO\MapParser.h" />
     <ClInclude Include="..\..\Source\IO\MapWriter.h" />
-    <ClInclude Include="..\..\Source\IO\mmapped_fstream.h" />
-    <ClInclude Include="..\..\Source\IO\mmapped_fstream_win32.h" />
     <ClInclude Include="..\..\Source\IO\Pak.h" />
     <ClInclude Include="..\..\Source\IO\ParserException.h" />
     <ClInclude Include="..\..\Source\IO\StreamTokenizer.h" />
-    <ClInclude Include="..\..\Source\IO\substream.h" />
     <ClInclude Include="..\..\Source\IO\Wad.h" />
     <ClInclude Include="..\..\Source\Model\Alias.h" />
     <ClInclude Include="..\..\Source\Model\AliasNormals.h" />

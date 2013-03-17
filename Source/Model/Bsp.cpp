@@ -58,148 +58,157 @@ namespace TrenchBroom {
             Utility::deleteAll(m_faces);
         }
 
-        void Bsp::readTextures(IO::IStream& stream, unsigned int count) {
+        void Bsp::readTextures(char*& cursor, unsigned int count) {
+            using namespace IO;
+            
             char textureName[BspLayout::TextureNameLength + 1];
             textureName[BspLayout::TextureNameLength] = 0;
             
-            const std::streampos base = stream->tellg();
+            char* base = cursor;
             for (unsigned int i = 0; i < count; i++) {
-                std::streamoff streamOffset = (i + 1) * sizeof(int32_t);
-                streamOffset += base;
-                stream->seekg(streamOffset, std::ios::beg);
-
-                std::streamoff textureOffset = IO::readInt<int32_t>(stream);
-                textureOffset += base;
-                stream->seekg(textureOffset, std::ios::beg);
+                cursor = base + (i + 1) * sizeof(int32_t);
+                int textureOffset = readInt<int32_t>(cursor);
                 
-                stream->read(textureName, BspLayout::TextureNameLength);
-                unsigned int width = IO::readUnsignedInt<uint32_t>(stream);
-                unsigned int height = IO::readUnsignedInt<uint32_t>(stream);
-                unsigned char* mip0 = new unsigned char[width * height];
+                cursor = base + textureOffset;
+                readBytes(cursor, textureName, BspLayout::TextureNameLength);
+                unsigned int width = readUnsignedInt<uint32_t>(cursor);
+                unsigned int height = readUnsignedInt<uint32_t>(cursor);
+                unsigned int mip0Offset = readUnsignedInt<uint32_t>(cursor);
 
-                std::streamoff mip0Offset = IO::readUnsignedInt<uint32_t>(stream);
-                mip0Offset += textureOffset;
-                stream->seekg(mip0Offset, std::ios::beg);
-                stream->read(reinterpret_cast<char *>(mip0), static_cast<std::streamsize>(width * height));
+                unsigned char* mip0 = new unsigned char[width * height];
+                cursor = base + textureOffset + mip0Offset;
+                readBytes(cursor, mip0, width * height);
 
                 BspTexture* texture = new BspTexture(textureName, mip0, width, height);
                 m_textures[i] = texture;
             }
         }
 
-        void Bsp::readTextureInfos(IO::IStream& stream, unsigned int count, std::vector<BspTexture*>& textures) {
-
+        void Bsp::readTextureInfos(char*& cursor, unsigned int count, std::vector<BspTexture*>& textures) {
+            using namespace IO;
+            
             for (unsigned int i = 0; i < count; i++) {
                 BspTextureInfo* textureInfo = new BspTextureInfo();
-                textureInfo->sAxis = IO::readVec3f(stream);
-                textureInfo->sOffset = IO::readFloat(stream);
-                textureInfo->tAxis = IO::readVec3f(stream);
-                textureInfo->tOffset = IO::readFloat(stream);
+                textureInfo->sAxis = readVec3f(cursor);
+                textureInfo->sOffset = readFloat<float>(cursor);
+                textureInfo->tAxis = readVec3f(cursor);
+                textureInfo->tOffset = readFloat<float>(cursor);
 
-                unsigned int textureIndex = IO::readUnsignedInt<uint32_t>(stream);
+                unsigned int textureIndex = readUnsignedInt<uint32_t>(cursor);
                 textureInfo->texture = textures[textureIndex];
-                stream->seekg(BspLayout::TexInfoRest, std::ios::cur);
 
                 m_textureInfos[i] = textureInfo;
+                cursor += BspLayout::TexInfoRest;
             }
         }
 
-        void Bsp::readVertices(IO::IStream& stream, unsigned int count, Vec3f::List& vertices) {
+        void Bsp::readVertices(char*& cursor, unsigned int count, Vec3f::List& vertices) {
+            using namespace IO;
+            
             vertices.reserve(count);
             for (unsigned int i = 0; i < count; i++) {
-                Vec3f vertex = IO::readVec3f(stream);
+                Vec3f vertex = readVec3f(cursor);
                 vertices.push_back(vertex);
             }
         }
 
-        void Bsp::readEdges(IO::IStream& stream, unsigned int count, BspEdgeInfoList& edges) {
+        void Bsp::readEdges(char*& cursor, unsigned int count, BspEdgeInfoList& edges) {
+            using namespace IO;
+            
             edges.reserve(count);
             BspEdgeInfo edgeInfo;
             for (unsigned int i = 0; i < count; i++) {
-                edgeInfo.vertex0 = IO::readUnsignedInt<uint16_t>(stream);
-                edgeInfo.vertex1 = IO::readUnsignedInt<uint16_t>(stream);
+                edgeInfo.vertex0 = readUnsignedInt<uint16_t>(cursor);
+                edgeInfo.vertex1 = readUnsignedInt<uint16_t>(cursor);
                 edges.push_back(edgeInfo);
             }
         }
 
-        void Bsp::readFaces(IO::IStream& stream, unsigned int count, BspFaceInfoList& faces) {
+        void Bsp::readFaces(char*& cursor, unsigned int count, BspFaceInfoList& faces) {
+            using namespace IO;
+            
             faces.reserve(count);
             BspFaceInfo face;
             for (unsigned int i = 0; i < count; i++) {
-                stream->seekg(BspLayout::FaceEdgeIndex, std::ios::cur);
+                cursor += BspLayout::FaceEdgeIndex;
 
-                face.edgeIndex = IO::readUnsignedInt<int32_t>(stream);
-                face.edgeCount = IO::readUnsignedInt<uint16_t>(stream);
-                face.textureInfoIndex = IO::readUnsignedInt<uint16_t>(stream);
+                face.edgeIndex = readUnsignedInt<int32_t>(cursor);
+                face.edgeCount = readUnsignedInt<uint16_t>(cursor);
+                face.textureInfoIndex = readUnsignedInt<uint16_t>(cursor);
                 faces.push_back(face);
 
-                stream->seekg(BspLayout::FaceRest, std::ios::cur);
+                cursor += BspLayout::FaceRest;
             }
         }
 
-        void Bsp::readFaceEdges(IO::IStream& stream, unsigned int count, BspFaceEdgeIndexList& indices) {
+        void Bsp::readFaceEdges(char*& cursor, unsigned int count, BspFaceEdgeIndexList& indices) {
+            using namespace IO;
+            
             indices.reserve(count);
             for (unsigned int i = 0; i < count; i++) {
-                int index = IO::readInt<int32_t>(stream);
+                int index = readInt<int32_t>(cursor);
                 indices.push_back(index);
             }
         }
 
-        Bsp::Bsp(const String& name, IO::IStream stream) :
+        Bsp::Bsp(const String& name, char* begin, char* end) :
         m_name(name) {
-            int version = IO::readInt<int32_t>(stream); version = version; // prevent warning
-            stream->seekg(BspLayout::DirTexturesAddress, std::ios::beg);
-            int textureAddr = IO::readInt<int32_t>(stream);
-            stream->seekg(textureAddr, std::ios::beg);
-            unsigned int textureCount = IO::readUnsignedInt<int32_t>(stream);
+            using namespace IO;
             
-            stream->seekg(-static_cast<std::streamoff>(sizeof(int32_t)), std::ios::cur);
+            char* cursor = begin;
+            int version = readInt<int32_t>(cursor); version = version; // prevent warning
+            cursor = begin + BspLayout::DirTexturesAddress;
+            int textureAddr = readInt<int32_t>(cursor);
+            cursor = begin + textureAddr;
+            unsigned int textureCount = readUnsignedInt<int32_t>(cursor);
+            
+            cursor -= sizeof(int32_t);
             m_textures.resize(size_t(textureCount));
-            readTextures(stream, textureCount);
+            readTextures(cursor, textureCount);
 
-            stream->seekg(BspLayout::DirTexInfosAddress, std::ios::beg);
-            int texInfosAddr = IO::readInt<int32_t>(stream);
-            unsigned int texInfosLength = IO::readUnsignedInt<int32_t>(stream);
+            cursor = begin + BspLayout::DirTexInfosAddress;
+            int texInfosAddr = readInt<int32_t>(cursor);
+            unsigned int texInfosLength = readUnsignedInt<int32_t>(cursor);
             unsigned int texInfoCount = texInfosLength / BspLayout::TexInfoSize;
             m_textureInfos.resize(texInfoCount);
-            stream->seekg(texInfosAddr, std::ios::beg);
-            readTextureInfos(stream, texInfoCount, m_textures);
+            cursor = begin + texInfosAddr;
+            readTextureInfos(cursor, texInfoCount, m_textures);
 
-            stream->seekg(BspLayout::DirVerticesAddress, std::ios::beg);
-            int verticesAddr = IO::readInt<int32_t>(stream);
-            unsigned int verticesLength = IO::readUnsignedInt<int32_t>(stream);
+            cursor = begin + BspLayout::DirVerticesAddress;
+            int verticesAddr = readInt<int32_t>(cursor);
+            unsigned int verticesLength = readUnsignedInt<int32_t>(cursor);
             unsigned int vertexCount = verticesLength / sizeof(Vec3f);
             Vec3f::List vertices;
-            stream->seekg(verticesAddr, std::ios::beg);
-            readVertices(stream, vertexCount, vertices);
+            cursor = begin + verticesAddr;
+            readVertices(cursor, vertexCount, vertices);
 
-            stream->seekg(BspLayout::DirEdgesAddress, std::ios::beg);
-            int edgesAddr = IO::readInt<int32_t>(stream);
-            unsigned int edgesLength = IO::readUnsignedInt<int32_t>(stream);
+            cursor = begin + BspLayout::DirEdgesAddress;
+            int edgesAddr = readInt<int32_t>(cursor);
+            unsigned int edgesLength = readUnsignedInt<int32_t>(cursor);
             unsigned int edgeCount = edgesLength / (2 * sizeof(uint16_t));
             BspEdgeInfoList edges;
-            stream->seekg(edgesAddr, std::ios::beg);
-            readEdges(stream, edgeCount, edges);
+            cursor = begin + edgesAddr;
+            readEdges(cursor, edgeCount, edges);
 
-            stream->seekg(BspLayout::DirFacesAddress, std::ios::beg);
-            int facesAddr = IO::readInt<int32_t>(stream);
-            unsigned int facesLength = IO::readUnsignedInt<int32_t>(stream);
+            cursor = begin + BspLayout::DirFacesAddress;
+            int facesAddr = readInt<int32_t>(cursor);
+            unsigned int facesLength = readUnsignedInt<int32_t>(cursor);
             unsigned int faceCount = facesLength / BspLayout::FaceSize;
             BspFaceInfoList faces;
-            stream->seekg(facesAddr, std::ios::beg);
-            readFaces(stream, faceCount, faces);
+            cursor = begin + facesAddr;
+            readFaces(cursor, faceCount, faces);
 
-            stream->seekg(BspLayout::DirFaceEdgesAddress, std::ios::beg);
-            int faceEdgesAddr = IO::readInt<int32_t>(stream);
-            unsigned int faceEdgesLength = IO::readUnsignedInt<int32_t>(stream);
+            cursor = begin + BspLayout::DirFaceEdgesAddress;
+            int faceEdgesAddr = readInt<int32_t>(cursor);
+            unsigned int faceEdgesLength = readUnsignedInt<int32_t>(cursor);
             unsigned int faceEdgesCount = faceEdgesLength / BspLayout::FaceEdgeSize;
             BspFaceEdgeIndexList faceEdges;
-            stream->seekg(faceEdgesAddr, std::ios::beg);
-            readFaceEdges(stream, faceEdgesCount, faceEdges);
+            cursor = begin + faceEdgesAddr;
+            readFaceEdges(cursor, faceEdgesCount, faceEdges);
 
-            stream->seekg(BspLayout::DirModelAddress, std::ios::beg);
-            int modelsAddr = IO::readInt<int32_t>(stream);
-            unsigned int modelsLength = IO::readUnsignedInt<int32_t>(stream);
+            cursor = begin + BspLayout::DirModelAddress;
+            int modelsAddr = readInt<int32_t>(cursor);
+            unsigned int modelsLength = readUnsignedInt<int32_t>(cursor);
             unsigned int modelCount = modelsLength / BspLayout::ModelSize;
 
             typedef std::vector<bool> MarkList;
@@ -211,11 +220,11 @@ namespace TrenchBroom {
             ModelVertexIndexList modelVertices;
             modelVertices.resize(vertexCount);
 
-            stream->seekg(modelsAddr, std::ios::beg);
+            cursor = begin + modelsAddr;
             for (unsigned int i = 0; i < modelCount; i++) {
-                stream->seekg(BspLayout::ModelFaceIndex, std::ios::cur);
-                unsigned int modelFaceIndex = IO::readUnsignedInt<int32_t>(stream);
-                unsigned int modelFaceCount = IO::readUnsignedInt<int32_t>(stream);
+                cursor += BspLayout::ModelFaceIndex;
+                unsigned int modelFaceIndex = readUnsignedInt<int32_t>(cursor);
+                unsigned int modelFaceCount = readUnsignedInt<int32_t>(cursor);
                 
                 unsigned int totalVertexCount = 0;
                 unsigned int modelVertexCount = 0;
@@ -286,9 +295,9 @@ namespace TrenchBroom {
 
             console.info("Loading '%s' (searching %s)", name.c_str(), pathList.c_str());
 
-            IO::IStream stream = IO::findGameFile(name, paths);
-            if (stream.get() != NULL) {
-                Bsp* bsp = new Bsp(name, stream);
+            IO::MappedFile::Ptr file = IO::findGameFile(name, paths);
+            if (file.get() != NULL) {
+                Bsp* bsp = new Bsp(name, file->begin(), file->end());
                 m_bsps[key] = bsp;
                 return bsp;
             }

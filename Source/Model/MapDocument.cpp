@@ -26,7 +26,6 @@
 #include "IO/MapParser.h"
 #include "IO/MapWriter.h"
 #include "IO/Wad.h"
-#include "IO/mmapped_fstream.h"
 #include "Model/Brush.h"
 #include "Model/EditStateManager.h"
 #include "Model/Entity.h"

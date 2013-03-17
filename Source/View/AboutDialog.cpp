@@ -56,7 +56,7 @@ namespace TrenchBroom {
             
             wxStaticText* contrHeader = new wxStaticText(this, wxID_ANY, wxT("Contributions"));
             contrHeader->SetFont(contrHeader->GetFont().Bold());
-            wxSizer* contrText = CreateTextSizer(wxT("Corey Jones (feedback, testing, documentation)\nAndré König (feedback, testing)\nWouter van Oortmerssen (feedback)\nHannes Kröger (testing)\nMorgan Allen (testing)\nForest Hale (fov code)\nChristian Grawert (Quake.fdg)"));
+            wxSizer* contrText = CreateTextSizer(wxT("Corey Jones (feedback, testing, documentation)\nAndré König (shader code, feedback, testing)\nWouter van Oortmerssen (feedback)\nHannes Kröger (testing)\nMorgan Allen (testing)\nForest Hale (fov code)\nChristian Grawert (Quake.fdg)"));
             
             wxSizer* copyright = CreateTextSizer(wxT("Copyright 2010-2013 Kristian Duske\nQuake is a registered trademark of id Software"));
 

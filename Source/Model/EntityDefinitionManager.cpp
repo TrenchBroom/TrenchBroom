@@ -22,7 +22,6 @@
 #include "IO/FileManager.h"
 #include "IO/DefParser.h"
 #include "IO/FgdParser.h"
-#include "IO/mmapped_fstream.h"
 #include "Utility/Color.h"
 #include "Utility/Console.h"
 #include "Utility/Map.h"
