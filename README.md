@@ -51,6 +51,7 @@ Downloads: http://kristianduske.com/trenchbroom/download.php
 - Fixed parsing of color values in FGD files.
 - Improved Quake.fgd and Quoth2.fgd.
 - Updated and fixed some errors in the documentation.
+
 ### TrenchBroom 1.0.4
 - Improved Quake.fgd and Quoth2.fgd.
 - Improvements to clipboard pasting.
