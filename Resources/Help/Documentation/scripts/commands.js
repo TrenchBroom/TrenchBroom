@@ -31,6 +31,7 @@ menu_commands["Mac"]["file_unload_pointfile"]			= "File &raquo; Unload Pointfile
 menu_commands["Mac"]["edit_copy"]						= "Edit &raquo; Copy - &#8984;C";
 menu_commands["Mac"]["edit_cut"]						= "Edit &raquo; Cut - &#8984;X";
 menu_commands["Mac"]["edit_paste"]						= "Edit &raquo; Paste - &#8984;V";
+menu_commands["Mac"]["edit_paste_at_original_pos"]		= "Edit &raquo; Paste At Original Position - &#8984;&#8679;V";
 menu_commands["Mac"]["edit_select_all"]					= "Edit &raquo; Select All - &#8984;A";
 menu_commands["Mac"]["edit_select_siblings"]			= "Edit &raquo; Select Siblings - &#x2325;&#8984;A";
 menu_commands["Mac"]["edit_select_touching"]			= "Edit &raquo; Select Touching - &#8984;T";
@@ -59,8 +60,9 @@ menu_commands["Mac"]["edit_actions_correct_verts"]		= "Edit &raquo; Actions &raq
 menu_commands["Mac"]["edit_actions_snap_verts"]			= "Edit &raquo; Actions &raquo; Snap Vertices";
 
 menu_commands["Mac"]["view_center_on_selection"]		= "View &raquo; Camera &raquo; Center on Selection - &#x2325;C";
-menu_commands["Mac"]["view_camera_move_to_next_pt"]		= "View &raquo; Camera &raquo; Move Camera to Next Point - &#x2325;+)";
-menu_commands["Mac"]["view_camera_move_to_prev_pt"]		= "View &raquo; Camera &raquo; Move Camera to Previous Point - &#x2325;-)";
+
+menu_commands["Mac"]["view_camera_move_to_next_pt"]	= "View &raquo; Camera &raquo; Move Camera to Next Point, &#x2325; +";
+menu_commands["Mac"]["view_camera_move_to_prev_pt"]	= "View &raquo; Camera &raquo; Move Camera to Previous Point, &#x2325; -";
 
 
 menu_commands["Windows"]["preferences"] 				= "View &raquo; Preferences";
@@ -76,6 +78,7 @@ menu_commands["Windows"]["file_unload_pointfile"]		= "File &raquo; Unload Pointf
 menu_commands["Windows"]["edit_copy"]					= "Edit &raquo; Copy - Ctrl+C";
 menu_commands["Windows"]["edit_cut"]					= "Edit &raquo; Cut - Ctrl+X";
 menu_commands["Windows"]["edit_paste"]					= "Edit &raquo; Paste - Ctrl+V";
+menu_commands["Windows"]["edit_paste_at_original_pos"]	= "Edit &raquo; Paste At Original Position - Ctrl+Shift+V";
 menu_commands["Windows"]["edit_select_all"]				= "Edit &raquo; Select All - Ctrl+A";
 menu_commands["Windows"]["edit_select_siblings"]		= "Edit &raquo; Select Siblings - Ctrl+Alt+A";
 menu_commands["Windows"]["edit_select_touching"]		= "Edit &raquo; Select Touching - Ctrl+T";
@@ -148,7 +151,7 @@ if (navigator.platform.indexOf("Win")!=-1) platform="Windows";
 if (navigator.platform.indexOf("Mac")!=-1) platform="Mac";
 if (navigator.platform.indexOf("X11")!=-1) platform="Linux";
 if (navigator.platform.indexOf("Linux")!=-1) OSName="Linux";
-//var platform = "Mac"; //debug
+//platform = "Mac"; //debug
 
 function print_menu_command(name) {
 	document.write("<b>" + menu_commands[platform][name] + "</b>");

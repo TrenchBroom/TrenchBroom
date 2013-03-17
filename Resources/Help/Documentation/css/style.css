@@ -121,13 +121,26 @@ ul.submenu a {
 	color: #000000;
 }
 
-.monospace_text
+span.monospace_text
 {
+	display:inline;
 	white-space: nowrap;
 	background-color:#EEEEEE;
 	border:1px solid #999999;
 	padding:0px 2px 0px 2px;
-	font-family:monaco, consolas, monospace;
+	margin:auto;
+	font-family:monaco, consolas, "source code pro", monospace;
+}
+
+div.monospace_text
+{
+	display:inline-block;
+	white-space: nowrap;
+	background-color:#EEEEEE;
+	border:1px solid #999999;
+	padding:0px 2px 0px 2px;
+	margin:auto;
+	font-family:monaco, consolas, "source code pro", monospace;
 }
 
 .indentedDiv
