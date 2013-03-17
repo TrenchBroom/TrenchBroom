@@ -21,6 +21,7 @@
 #define __TrenchBroom__Preferences__
 
 #include "Controller/Input.h"
+#include "View/KeyboardShortcut.h"
 #include "Utility/Color.h"
 #include "Utility/MessageException.h"
 #include "Utility/String.h"
@@ -38,6 +39,8 @@ using namespace TrenchBroom::Controller::MouseButtons;
 
 namespace TrenchBroom {
     namespace Preferences {
+        using View::KeyboardShortcut;
+        
         class PreferenceManager;
 
         template <typename T>
@@ -124,6 +127,18 @@ namespace TrenchBroom {
             
             Color fromWxString(const wxString& string) const {
                 return Color(string.ToStdString());
+            }
+        };
+        
+        template<>
+        class Converter<KeyboardShortcut> {
+        public:
+            wxString toWxString(const KeyboardShortcut& value) const {
+                return wxString(value.asString());
+            }
+            
+            KeyboardShortcut fromWxString(const wxString& string) const {
+                return KeyboardShortcut(string.ToStdString());
             }
         };
 
@@ -317,7 +332,115 @@ namespace TrenchBroom {
         extern const int                RendererInstancingModeAutodetect;
         extern const int                RendererInstancingModeForceOn;
         extern const int                RendererInstancingModeForceOff;
+        
+        // File menu
+        extern const Preference<KeyboardShortcut>   FileNew;
+        extern const Preference<KeyboardShortcut>   FileOpen;
+        extern const Preference<KeyboardShortcut>   FileSave;
+        extern const Preference<KeyboardShortcut>   FileSaveAs;
+        extern const Preference<KeyboardShortcut>   FileLoadPointFile;
+        extern const Preference<KeyboardShortcut>   FileUnloadPointFile;
+        extern const Preference<KeyboardShortcut>   FileClose;
+ 
+        // Edit menu
+        extern const Preference<KeyboardShortcut>   EditUndo;
+        extern const Preference<KeyboardShortcut>   EditRedo;
+        extern const Preference<KeyboardShortcut>   EditCut;
+        extern const Preference<KeyboardShortcut>   EditCopy;
+        extern const Preference<KeyboardShortcut>   EditPaste;
+        extern const Preference<KeyboardShortcut>   EditPasteAtOriginalPosition;
+        extern const Preference<KeyboardShortcut>   EditDelete;
 
+        extern const Preference<KeyboardShortcut>   EditSelectAll;
+        extern const Preference<KeyboardShortcut>   EditSelectSiblings;
+        extern const Preference<KeyboardShortcut>   EditSelectTouching;
+        extern const Preference<KeyboardShortcut>   EditSelectByFilePosition;
+        extern const Preference<KeyboardShortcut>   EditSelectNone;
+        extern const Preference<KeyboardShortcut>   EditHideSelected;
+        extern const Preference<KeyboardShortcut>   EditHideUnselected;
+        extern const Preference<KeyboardShortcut>   EditUnhideAll;
+        extern const Preference<KeyboardShortcut>   EditLockSelected;
+        extern const Preference<KeyboardShortcut>   EditLockUnselected;
+        extern const Preference<KeyboardShortcut>   EditUnlockAll;
+        extern const Preference<KeyboardShortcut>   EditToggleTextureLock;
+        extern const Preference<KeyboardShortcut>   EditShowMapProperties;
+        
+        // Edit > Tools menu
+        extern const Preference<KeyboardShortcut>   EditToolsToggleClipTool;
+        extern const Preference<KeyboardShortcut>   EditToolsToggleClipSide;
+        extern const Preference<KeyboardShortcut>   EditToolsPerformClip;
+        extern const Preference<KeyboardShortcut>   EditToolsToggleVertexTool;
+        extern const Preference<KeyboardShortcut>   EditToolsToggleRotateTool;
+
+        // Edit > Actions menu in face mode
+        extern const Preference<KeyboardShortcut>   EditActionsMoveTexturesUp;
+        extern const Preference<KeyboardShortcut>   EditActionsMoveTexturesDown;
+        extern const Preference<KeyboardShortcut>   EditActionsMoveTexturesLeft;
+        extern const Preference<KeyboardShortcut>   EditActionsMoveTexturesRight;
+        extern const Preference<KeyboardShortcut>   EditActionsRotateTexturesCW;
+        extern const Preference<KeyboardShortcut>   EditActionsRotateTexturesCCW;
+        extern const Preference<KeyboardShortcut>   EditActionsMoveTexturesUpFine;
+        extern const Preference<KeyboardShortcut>   EditActionsMoveTexturesDownFine;
+        extern const Preference<KeyboardShortcut>   EditActionsMoveTexturesLeftFine;
+        extern const Preference<KeyboardShortcut>   EditActionsMoveTexturesRightFine;
+        extern const Preference<KeyboardShortcut>   EditActionsRotateTexturesCWFine;
+        extern const Preference<KeyboardShortcut>   EditActionsRotateTexturesCCWFine;
+        
+        // Edit > Actions menu in objects mode
+        extern const Preference<KeyboardShortcut>   EditActionsMoveObjectsForward;
+        extern const Preference<KeyboardShortcut>   EditActionsMoveObjectsBackward;
+        extern const Preference<KeyboardShortcut>   EditActionsMoveObjectsLeft;
+        extern const Preference<KeyboardShortcut>   EditActionsMoveObjectsRight;
+        extern const Preference<KeyboardShortcut>   EditActionsMoveObjectsUp;
+        extern const Preference<KeyboardShortcut>   EditActionsMoveObjectsDown;
+        extern const Preference<KeyboardShortcut>   EditActionsRollObjectsCW;
+        extern const Preference<KeyboardShortcut>   EditActionsRollObjectsCCW;
+        extern const Preference<KeyboardShortcut>   EditActionsYawObjectsCW;
+        extern const Preference<KeyboardShortcut>   EditActionsYawObjectsCCW;
+        extern const Preference<KeyboardShortcut>   EditActionsPitchObjectsCW;
+        extern const Preference<KeyboardShortcut>   EditActionsPitchObjectsCCW;
+        extern const Preference<KeyboardShortcut>   EditActionsFlipObjectsHorizontally;
+        extern const Preference<KeyboardShortcut>   EditActionsFlipObjectsVertically;
+        extern const Preference<KeyboardShortcut>   EditActionsDuplicateObjects;
+        
+        // Edit > Actions menu in vertex mode
+        extern const Preference<KeyboardShortcut>   EditActionsMoveVerticesForward;
+        extern const Preference<KeyboardShortcut>   EditActionsMoveVerticesBackward;
+        extern const Preference<KeyboardShortcut>   EditActionsMoveVerticesLeft;
+        extern const Preference<KeyboardShortcut>   EditActionsMoveVerticesRight;
+        extern const Preference<KeyboardShortcut>   EditActionsMoveVerticesUp;
+        extern const Preference<KeyboardShortcut>   EditActionsMoveVerticesDown;
+        
+        // Edit > Actions menu items in both objects and vertex mode
+        extern const Preference<KeyboardShortcut>   EditActionsCorrectVertices;
+        extern const Preference<KeyboardShortcut>   EditActionsSnapVertices;
+
+        // View > Grid menu
+        extern const Preference<KeyboardShortcut>   ViewGridToggleShowGrid;
+        extern const Preference<KeyboardShortcut>   ViewGridToggleSnapToGrid;
+        extern const Preference<KeyboardShortcut>   ViewGridIncGridSize;
+        extern const Preference<KeyboardShortcut>   ViewGridDecGridSize;
+        extern const Preference<KeyboardShortcut>   ViewGridSetSize1;
+        extern const Preference<KeyboardShortcut>   ViewGridSetSize2;
+        extern const Preference<KeyboardShortcut>   ViewGridSetSize4;
+        extern const Preference<KeyboardShortcut>   ViewGridSetSize8;
+        extern const Preference<KeyboardShortcut>   ViewGridSetSize16;
+        extern const Preference<KeyboardShortcut>   ViewGridSetSize32;
+        extern const Preference<KeyboardShortcut>   ViewGridSetSize64;
+        extern const Preference<KeyboardShortcut>   ViewGridSetSize128;
+        extern const Preference<KeyboardShortcut>   ViewGridSetSize256;
+        
+        // View > Camera menu
+        extern const Preference<KeyboardShortcut>   ViewCameraMoveForward;
+        extern const Preference<KeyboardShortcut>   ViewCameraMoveBackward;
+        extern const Preference<KeyboardShortcut>   ViewCameraMoveLeft;
+        extern const Preference<KeyboardShortcut>   ViewCameraMoveRight;
+        extern const Preference<KeyboardShortcut>   ViewCameraMoveUp;
+        extern const Preference<KeyboardShortcut>   ViewCameraMoveDown;
+        extern const Preference<KeyboardShortcut>   ViewCameraMoveToNextPoint;
+        extern const Preference<KeyboardShortcut>   ViewCameraMoveToPreviousPoint;
+        extern const Preference<KeyboardShortcut>   ViewCameraCenterCameraOnSelection;
+        
         class PreferenceManager {
         private:
             typedef std::map<const PreferenceBase*, ValueHolderBase*> UnsavedPreferences;
@@ -445,6 +568,22 @@ namespace TrenchBroom {
                     preference.save(wxConfig::Get());
                 else
                     markAsUnsaved(&preference, new ValueHolder<Color>(previousValue));
+            }
+            
+            inline const KeyboardShortcut& getKeyboardShortcut(const Preference<KeyboardShortcut>& preference) const {
+                if (!preference.initialized())
+                    preference.load(wxConfig::Get());
+                
+                return preference.value();
+            }
+            
+            inline void setKeyboardShortcut(const Preference<KeyboardShortcut>& preference, const KeyboardShortcut& value) {
+                KeyboardShortcut previousValue = preference.value();
+                preference.setValue(value);
+                if (m_saveInstantly)
+                    preference.save(wxConfig::Get());
+                else
+                    markAsUnsaved(&preference, new ValueHolder<KeyboardShortcut>(previousValue));
             }
         };
     }

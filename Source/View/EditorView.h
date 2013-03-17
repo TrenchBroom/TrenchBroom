@@ -79,7 +79,7 @@ namespace TrenchBroom {
             Vec3f moveDelta(Direction direction, bool snapToGrid);
             
             void submit(wxCommand* command, bool store = true);
-            void pasteObjects(const Model::EntityList& entities, const Model::BrushList& brushes, const Vec3f& delta, bool hasBrushGeometry);
+            void pasteObjects(const Model::EntityList& entities, const Model::BrushList& brushes, const Vec3f& delta);
             void moveTextures(Direction direction, bool snapToGrid);
             void rotateTextures(bool clockwise, bool snapToGrid);
             void moveObjects(Direction direction, bool snapToGrid);
@@ -135,6 +135,7 @@ namespace TrenchBroom {
             void OnEditSelectAll(wxCommandEvent& event);
             void OnEditSelectSiblings(wxCommandEvent& event);
             void OnEditSelectTouching(wxCommandEvent& event);
+            void OnEditSelectByFilePosition(wxCommandEvent& event);
             void OnEditSelectNone(wxCommandEvent& event);
             
             void OnEditHideSelected(wxCommandEvent& event);

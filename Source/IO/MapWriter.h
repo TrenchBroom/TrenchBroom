@@ -26,8 +26,13 @@
 #include "Utility/String.h"
 
 #include <cstdio>
-#include <string>
 #include <ostream>
+
+#if defined _MSC_VER
+#include <cstdint>
+#elif defined __GNUC__
+#include <stdint.h>
+#endif
 
 namespace TrenchBroom {
     namespace Model {
@@ -52,7 +57,7 @@ namespace TrenchBroom {
             void writeEntityFooter(std::ostream& stream);
             void writeEntity(const Model::Entity& entity, std::ostream& stream);
         public:
-            void writeObjectsToStream(const Model::EntityList& pointEntities, const Model::BrushList& brushes, std::ostream& stream, Model::BrushFunctor& brushFunctor);
+            void writeObjectsToStream(const Model::EntityList& pointEntities, const Model::BrushList& brushes, std::ostream& stream);
             void writeFacesToStream(const Model::FaceList& faces, std::ostream& stream);
             void writeToStream(const Model::Map& map, std::ostream& stream);
             void writeToFileAtPath(const Model::Map& map, const String& path, bool overwrite);

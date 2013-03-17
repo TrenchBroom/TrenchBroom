@@ -108,6 +108,7 @@ namespace TrenchBroom {
                 static const int EditCorrectVertices                = Lowest + 82;
                 static const int HelpShowHelp                       = Lowest + 83;
                 static const int EditPasteAtOriginalPosition        = Lowest + 84;
+                static const int EditSelectByFilePosition           = Lowest + 85;
                 static const int Highest                            = Lowest + 99;
             }
             
@@ -134,7 +135,7 @@ namespace TrenchBroom {
                 static const int Highest                            = Lowest + 99;
             }
             
-            namespace PreferencesDialog {
+            namespace GeneralPreferencePane {
                 static const int Lowest                             = ViewInspector::Highest +  1;
                 static const int ChooseQuakePathButtonId            = Lowest +  1;
                 static const int BrightnessSliderId                 = Lowest +  2;
@@ -151,9 +152,15 @@ namespace TrenchBroom {
                 static const int EnableAltMoveCheckBoxId            = Lowest + 13;
                 static const int Highest                            = Lowest + 99;
             }
+
+            namespace KeyboardPreferencePane {
+                static const int Lowest                             = GeneralPreferencePane::Highest + 1;
+                static const int ShortcutEditorId                   = Lowest +  1;
+                static const int Highest                            = Lowest + 99;
+            }
             
             namespace FaceInspector {
-                static const int Lowest                             = PreferencesDialog::Highest + 1;
+                static const int Lowest                             = KeyboardPreferencePane::Highest + 1;
                 static const int TextureBrowserSortOrderChoiceId    = Lowest +  1;
                 static const int TextureBrowserGroupButtonId        = Lowest +  2;
                 static const int TextureBrowserUsedButtonId         = Lowest +  3;

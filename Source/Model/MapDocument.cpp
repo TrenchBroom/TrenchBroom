@@ -21,7 +21,6 @@
 
 #include "Controller/Autosaver.h"
 #include "Controller/Command.h"
-#include "IO/CreateBrushFromFacesStrategy.h"
 #include "IO/FileManager.h"
 #include "IO/IOException.h"
 #include "IO/MapParser.h"
@@ -68,19 +67,37 @@ namespace TrenchBroom {
         IMPLEMENT_DYNAMIC_CLASS(MapDocument, wxDocument)
 
         bool MapDocument::DoOpenDocument(const wxString& file) {
-            console().info("Unloading existing map file and textures...");
-            clear();
-
-            console().info("Loading file %s", file.mbc_str().data());
-            mmapped_fstream stream(file.mbc_str().data(), std::ios::in);
-            if (!stream.is_open() || !stream.good())
-                return false;
-
-            LoadObject(stream);
-            
+            const String path = file.ToStdString();
             IO::FileManager fileManager;
-            String title = fileManager.pathComponents(file.ToStdString()).back();
-            SetTitle(title);
+            IO::MappedFile::Ptr mappedFile = fileManager.mapFile(path);
+            if (mappedFile.get() != NULL) {
+                console().info("Unloading existing map file and textures...");
+                clear();
+                
+                console().info("Loading file %s", file.mbc_str().data());
+                
+                View::ProgressIndicatorDialog progressIndicator;
+                loadMap(mappedFile->begin(), mappedFile->end(), progressIndicator);
+                loadTextures(progressIndicator);
+                updateAfterTextureManagerChanged();
+                
+                String definitionFile = "";
+                Entity* worldspawnEntity = worldspawn(false);
+                if (worldspawnEntity != NULL) {
+                    const PropertyValue* defValue = worldspawnEntity->propertyForKey(Entity::DefKey);
+                    if (defValue != NULL)
+                        definitionFile = *defValue;
+                }
+                
+                setEntityDefinitionFile(definitionFile);
+
+                String title = fileManager.pathComponents(path).back();
+                SetTitle(title);
+                return true;
+            }
+
+            console().info("Could not open file %s", path.c_str());
+
             return true;
         }
 
@@ -114,15 +131,13 @@ namespace TrenchBroom {
             m_sharedResources->loadPalette(palettePath);
         }
 
-        void MapDocument::loadMap(std::istream& stream, Utility::ProgressIndicator& progressIndicator) {
-			progressIndicator.setText("Loading map file...");
-
+        void MapDocument::loadMap(char* begin, char* end, Utility::ProgressIndicator& progressIndicator) {
+            progressIndicator.setText("Loading map file...");
+            
             wxStopWatch watch;
-            IO::CreateBrushFromFacesStrategy brushCreator;
-            IO::MapParser parser(stream, console(), brushCreator);
+            IO::MapParser parser(begin, end, console());
             parser.parseMap(*m_map, &progressIndicator);
-            stream.clear(); // everything went well, prevent wx from displaying an error dialog
-
+            
             console().info("Loaded map file in %f seconds", watch.Time() / 1000.0f);
         }
 
@@ -184,21 +199,6 @@ namespace TrenchBroom {
 
 
         std::istream& MapDocument::LoadObject(std::istream& stream) {
-            View::ProgressIndicatorDialog progressIndicator;
-            loadMap(stream, progressIndicator);
-            loadTextures(progressIndicator);
-            updateAfterTextureManagerChanged();
-            
-            String definitionFile = "";
-            Entity* worldspawnEntity = worldspawn(false);
-            if (worldspawnEntity != NULL) {
-                const PropertyValue* defValue = worldspawnEntity->propertyForKey(Entity::DefKey);
-                if (defValue != NULL)
-                    definitionFile = *defValue;
-            }
-
-            setEntityDefinitionFile(definitionFile);
-
             return stream;
         }
 
@@ -340,7 +340,7 @@ namespace TrenchBroom {
                     objects.insert(entity);
             }
             
-            m_octree->removeObjects(makeList(objects));
+            m_octree->removeObjects(Utility::makeList(objects));
         }
 
         void MapDocument::brushesDidChange(const BrushList& brushes) {

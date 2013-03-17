@@ -17,10 +17,10 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__PreferencesDialog__
-#define __TrenchBroom__PreferencesDialog__
+#ifndef __TrenchBroom__GeneralPreferencePane__
+#define __TrenchBroom__GeneralPreferencePane__
 
-#include <wx/dialog.h>
+#include "View/PreferencePane.h"
 
 class wxCheckBox;
 class wxChoice;
@@ -29,8 +29,12 @@ class wxStaticText;
 
 namespace TrenchBroom {
     namespace View {
-        class PreferencesDialog : public wxDialog {
-        protected:
+        namespace PreferencesFrameLayout {
+            static const int MinimumLabelWidth = 100;
+        }
+
+        class GeneralPreferencePane : public PreferencePane {
+        private:
             wxStaticText* m_quakePathValueLabel;
             wxSlider* m_brightnessSlider;
             wxSlider* m_gridAlphaSlider;
@@ -43,15 +47,16 @@ namespace TrenchBroom {
             wxCheckBox* m_invertPanXAxisCheckBox;
             wxCheckBox* m_invertPanYAxisCheckBox;
             wxSlider* m_moveSpeedSlider;
-            wxCheckBox* m_enableAltMoveCheckBox;
             
             void updateControls();
-
+            
             wxWindow* createQuakePreferences();
             wxWindow* createViewPreferences();
             wxWindow* createMousePreferences();
         public:
-            PreferencesDialog();
+            GeneralPreferencePane(wxWindow* parent);
+
+            bool validate();
 
             void OnChooseQuakePathClicked(wxCommandEvent& event);
             void OnViewSliderChanged(wxScrollEvent& event);
@@ -59,16 +64,10 @@ namespace TrenchBroom {
             void OnInstancingModeChoice(wxCommandEvent& event);
             void OnMouseSliderChanged(wxScrollEvent& event);
             void OnInvertAxisChanged(wxCommandEvent& event);
-            void OnEnableAltMoveChanged(wxCommandEvent& event);
             
-            void OnOkClicked(wxCommandEvent& event);
-			void OnCancelClicked(wxCommandEvent& event);
-			void OnCloseDialog(wxCloseEvent& event);
-            void OnFileExit(wxCommandEvent& event);
-
             DECLARE_EVENT_TABLE();
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__PreferencesDialog__) */
+#endif /* defined(__TrenchBroom__GeneralPreferencePane__) */

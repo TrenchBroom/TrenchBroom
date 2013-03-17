@@ -50,7 +50,6 @@ namespace TrenchBroom {
             m_map = NULL;
             m_worldspawn = false;
             m_definition = NULL;
-            m_filePosition = 0;
             setEditState(EditState::Default);
             m_selectedBrushCount = 0;
             m_hiddenBrushCount = 0;

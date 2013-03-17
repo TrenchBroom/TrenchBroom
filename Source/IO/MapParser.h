@@ -36,6 +36,7 @@ using namespace TrenchBroom::Math;
 namespace TrenchBroom {
     namespace Model {
         class Brush;
+        class BrushGeometry;
         class Entity;
         class Face;
         class Map;
@@ -62,14 +63,12 @@ namespace TrenchBroom {
         }
 
         class MapTokenEmitter : public TokenEmitter<MapTokenEmitter> {
-        private:
-            StringStream m_buffer;
         protected:
             bool isDelimiter(char c) {
                 return isWhitespace(c) || c == '(' || c == ')' || c == '{' || c == '}' || c == '?' || c == ';' || c == ',' || c == '=';
             }
 
-            Token doEmit(Tokenizer& tokenizer, size_t line, size_t column);
+            Token doEmit(Tokenizer& tokenizer);
         };
         
         class MapParserException : public TrenchBroom::Utility::MessageException {
@@ -110,6 +109,12 @@ namespace TrenchBroom {
                 return str.str();
             }
 
+            std::string buildMessage(const Token& token, const String& message) {
+                std::stringstream msgStream;
+                msgStream << "Malformed map file: " << message << " at line " << token.line() << ", column " << token.column();
+                return msgStream.str();
+            }
+
             std::string buildMessage(const Token& token, unsigned int expectedType) {
                 std::stringstream msgStream;
                 msgStream << "Malformed map file: expected token of type " << type(expectedType) << ", but found " << type(token.type()) << " at line " << token.line() << ", column " << token.column();
@@ -117,35 +122,31 @@ namespace TrenchBroom {
             }
         public:
             MapParserException() : MessageException("Reached unexpected end of file") {}
+            MapParserException(const Token& token, const String& message) : MessageException(buildMessage(token, message)) {}
             MapParserException(const Token& token, unsigned int expectedType) : MessageException(buildMessage(token, expectedType)) {}
         };
 
         class MapParser {
-        public:
-            class CreateBrushStrategy {
-            public:
-                virtual ~CreateBrushStrategy() {}
-                virtual Model::Brush* operator()(const BBox& worldBounds, const Model::FaceList& faces) = 0;
-            };
         private:
             enum MapFormat {
                 Undefined,
                 Standard,
                 Valve
             };
-
+            
             Utility::Console& m_console;
-            CreateBrushStrategy& m_createBrushStrategy;
             StreamTokenizer<MapTokenEmitter> m_tokenizer;
             MapFormat m_format;
             size_t m_size;
+            Model::BrushList m_staleBrushes;
 
             inline void expect(unsigned int expectedType, const Token& actualToken) const {
                 if ((actualToken.type() & expectedType) == 0)
                     throw MapParserException(actualToken, expectedType);
             }
         public:
-            MapParser(std::istream& stream, Utility::Console& console, CreateBrushStrategy& createBrushStrategy);
+            MapParser(const char* begin, const char* end, Utility::Console& console);
+            MapParser(const String& str, Utility::Console& console);
             
             void parseMap(Model::Map& map, Utility::ProgressIndicator* indicator);
             Model::Entity* parseEntity(const BBox& worldBounds, Utility::ProgressIndicator* indicator);

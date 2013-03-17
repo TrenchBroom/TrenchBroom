@@ -20,9 +20,12 @@
 #ifndef __TrenchBroom__AbstractApp__
 #define __TrenchBroom__AbstractApp__
 
+#include "Utility/Preferences.h"
 #include "View/Animation.h"
 
 #include <wx/wx.h>
+
+#include <cassert>
 
 class wxCommandEvent;
 class wxDocManager;
@@ -33,16 +36,36 @@ class wxMenuBar;
 class wxView;
 class DocManager;
 
+namespace TrenchBroom {
+    namespace View {
+        class KeyboardShortcut;
+        class PreferencesFrame;
+    }
+}
+
 class AbstractApp : public wxApp {
 protected:
 	DocManager* m_docManager;
+    TrenchBroom::View::PreferencesFrame* m_preferencesFrame;
     wxExtHelpController* m_helpController;
 
+    void appendItem(wxMenu* menu, const TrenchBroom::Preferences::Preference<TrenchBroom::View::KeyboardShortcut>& pref, bool mapViewFocused);
+    void appendCheckItem(wxMenu* menu, const TrenchBroom::Preferences::Preference<TrenchBroom::View::KeyboardShortcut>& pref, bool mapViewFocused);
+    
     virtual wxMenu* CreateFileMenu(wxEvtHandler* eventHandler, bool mapViewFocused);
     virtual wxMenu* CreateEditMenu(wxEvtHandler* eventHandler, wxMenu* actionMenu, bool mapViewFocused);
     virtual wxMenu* CreateViewMenu(wxEvtHandler* eventHandler, bool mapViewFocused);
     virtual wxMenu* CreateHelpMenu(wxEvtHandler* eventHandler, bool mapViewFocused);
 public:
+    inline void setPreferencesFrame(TrenchBroom::View::PreferencesFrame* preferencesFrame) {
+        assert(m_preferencesFrame == NULL || preferencesFrame == NULL);
+        m_preferencesFrame = preferencesFrame;
+    }
+    
+    inline TrenchBroom::View::PreferencesFrame* preferencesFrame() const {
+        return m_preferencesFrame;
+    }
+    
     virtual wxMenuBar* CreateMenuBar(wxEvtHandler* eventHandler, wxMenu* actionMenu, bool mapViewFocused);
     void DetachFileHistoryMenu(wxMenuBar* menuBar);
     virtual wxMenu* CreateTextureActionMenu(bool mapViewFocused);
@@ -57,6 +80,11 @@ public:
 
     virtual void OnOpenAbout(wxCommandEvent& event);
     virtual void OnOpenPreferences(wxCommandEvent& event);
+    virtual void OnFileNew(wxCommandEvent& event);
+    virtual void OnFileOpen(wxCommandEvent& event);
+    virtual void OnFileSave(wxCommandEvent& event);
+    virtual void OnFileSaveAs(wxCommandEvent& event);
+    virtual void OnFileClose(wxCommandEvent& event);
     virtual void OnHelpShowHelp(wxCommandEvent& event);
 
     void OnUpdateMenuItem(wxUpdateUIEvent& event);

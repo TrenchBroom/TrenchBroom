@@ -28,99 +28,99 @@ using namespace TrenchBroom::IO::DefTokenType;
 
 namespace TrenchBroom {
     namespace IO {
-        Token DefTokenEmitter::doEmit(Tokenizer& tokenizer, size_t line, size_t column) {
-            const size_t position = tokenizer.position();
-            
+        Token DefTokenEmitter::doEmit(Tokenizer& tokenizer) {
             while (!tokenizer.eof()) {
-                char c = tokenizer.nextChar();
-                switch (c) {
-                    case '/':
+                size_t line = tokenizer.line();
+                size_t column = tokenizer.column();
+                const char* c = tokenizer.nextChar();
+                switch (*c) {
+                    case '/': {
+                        const char* begin = c;
                         if (tokenizer.peekChar() == '*') {
                             // eat all chars immediately after the '*' because it's often followed by QUAKE
-                            while (!isWhitespace(tokenizer.nextChar()) && !tokenizer.eof());
-                            return Token(ODefinition, "", position, tokenizer.position() - position, line, column);
+                            while (!isWhitespace(*tokenizer.nextChar()) && !tokenizer.eof());
+                            return Token(ODefinition, begin, c, tokenizer.offset(begin), line, column);
                         } else if (tokenizer.peekChar() == '/') {
                             // eat everything up to and including the next newline
-                            while (tokenizer.nextChar() != '\n');
+                            while (*tokenizer.nextChar() != '\n');
                             break;
                         }
-                        error(line, column, c);
+                        error(line, column, *c);
                         break;
-                    case '*':
+                    }
+                    case '*': {
+                        const char* begin = c;
                         if (tokenizer.peekChar() == '/') {
                             tokenizer.nextChar();
-                            return Token(CDefinition, "", position, tokenizer.position() - position, line, column);
+                            return Token(ODefinition, begin, c, tokenizer.offset(begin), line, column);
                         }
-                        error(line, column, c);
+                        error(line, column, *c);
                         break;
+                    }
                     case '(':
-                        return Token(OParenthesis, "", position, tokenizer.position() - position, line, column);
+                        return Token(OParenthesis, c, c + 1, tokenizer.offset(c), line, column);
                     case ')':
-                        return Token(CParenthesis, "", position, tokenizer.position() - position, line, column);
+                        return Token(CParenthesis, c, c + 1, tokenizer.offset(c), line, column);
                     case '{':
-                        return Token(OBrace, "", position, tokenizer.position() - position, line, column);
+                        return Token(OBrace, c, c + 1, tokenizer.offset(c), line, column);
                     case '}':
-                        return Token(CBrace, "", position, tokenizer.position() - position, line, column);
+                        return Token(CBrace, c, c + 1, tokenizer.offset(c), line, column);
                     case '=':
-                        return Token(Equality, "", position, tokenizer.position() - position, line, column);
+                        return Token(Equality, c, c + 1, tokenizer.offset(c), line, column);
                     case ';':
-                        return Token(Semicolon, "", position, tokenizer.position() - position, line, column);
+                        return Token(Semicolon, c, c + 1, tokenizer.offset(c), line, column);
                     case '?':
-                        return Token(Question, "", position, tokenizer.position() - position, line, column);
+                        return Token(Question, c, c + 1, tokenizer.offset(c), line, column);
                     case '\r':
-                        if (tokenizer.peekChar() == '\n')
+                        if (tokenizer.peekChar() == '\n') {
                             tokenizer.nextChar();
+                        }
                     case '\n':
-                        return Token(Newline, "", position, tokenizer.position() - position, line, column);
+                        return Token(Newline, c, c + 1, tokenizer.offset(c), line, column);
                     case ',':
-                        return Token(Comma, "", position, tokenizer.position() - position, line, column);
+                        return Token(Comma, c, c + 1, tokenizer.offset(c), line, column);
                     case ' ':
                     case '\t':
                         break;
-                    case '"': // quoted string
-                        m_buffer.str(String());
-                        while (!tokenizer.eof() && (c = tokenizer.nextChar()) != '"')
-                            m_buffer << c;
-                        return Token(QuotedString, m_buffer.str(), position, tokenizer.position() - position, line, column);
-                    default: // integer, decimal or word
-                        // clear the buffer
-                        m_buffer.str(String());
-                        
+                    case '"': { // quoted string
+                        const char* begin = c;
+                        const char* end;
+                        tokenizer.quotedString(begin, end);
+                        return Token(QuotedString, begin, end, tokenizer.offset(begin), line, column);
+                    }
+                    default: { // integer, decimal or word
+                        const char* begin = c;
+
                         // try to read a number
-                        if (c == '-' || isDigit(c)) {
-                            m_buffer << c;
-                            while (isDigit((c = tokenizer.nextChar())))
-                                m_buffer << c;
-                            if (isDelimiter(c)) {
+                        if (*c == '-' || isDigit(*c)) {
+                            while (isDigit(*(c = tokenizer.nextChar())));
+                            if (isDelimiter(*c)) {
                                 if (!tokenizer.eof())
                                     tokenizer.pushChar();
-                                return Token(Integer, m_buffer.str(), position, tokenizer.position() - position, line, column);
+                                return Token(Integer, begin, c, tokenizer.offset(begin), line, column);
                             }
                         }
                         
                         // try to read a decimal (may start with '.')
-                        if (c == '.') {
-                            m_buffer << c;
-                            while (isDigit((c = tokenizer.nextChar())))
-                                m_buffer << c;
-                            if (isDelimiter(c)) {
+                        if (*c == '.') {
+                            while (isDigit(*(c = tokenizer.nextChar())));
+                            if (isDelimiter(*c)) {
                                 if (!tokenizer.eof())
                                     tokenizer.pushChar();
-                                return Token(Decimal, m_buffer.str(), position, tokenizer.position() - position, line, column);
+                                return Token(Decimal, begin, c, tokenizer.offset(begin), line, column);
                             }
                         }
                         
                         // read a word
-                        m_buffer << c;
-                        while (!tokenizer.eof() && !isDelimiter(c = tokenizer.nextChar()))
-                            m_buffer << c;
+                        while (!tokenizer.eof() && !isDelimiter(*(c = tokenizer.nextChar())));
                         if (!tokenizer.eof())
                             tokenizer.pushChar();
-                        return Token(Word, m_buffer.str(), position, tokenizer.position() - position, line, column);
+                        return Token(Word, begin, c, tokenizer.offset(begin), line, column);
+                    }
                 }
             }
             
-            return Token(Eof, "", position, tokenizer.position() - position, line, column);
+            return Token(Eof, NULL, NULL, 0, tokenizer.line(), tokenizer.column());
         }
 
         String DefParser::typeNames(unsigned int types) {

@@ -30,87 +30,104 @@
 
 namespace TrenchBroom {
     namespace IO {
-        Token MapTokenEmitter::doEmit(Tokenizer& tokenizer, size_t line, size_t column) {
-            const size_t startPosition = tokenizer.position();
+        Token MapTokenEmitter::doEmit(Tokenizer& tokenizer) {
             while (!tokenizer.eof()) {
-                char c = tokenizer.nextChar();
-                switch (c) {
+                size_t line = tokenizer.line();
+                size_t column = tokenizer.column();
+                const char* c = tokenizer.nextChar();
+                switch (*c) {
                     case '/':
                         if (tokenizer.peekChar() == '/') {
-                            // eat everything up to and including the next newline
-                            while (tokenizer.nextChar() != '\n');
+                            tokenizer.nextChar();
+                            if (tokenizer.peekChar() == '/') {
+                                tokenizer.nextChar(); // it's a TB comment
+                            } else {
+                                // eat everything up to and including the next newline
+                                while (*tokenizer.nextChar() != '\n');
+                            }
                         }
                         break;
                     case '{':
-                        return Token(TokenType::OBrace, "", startPosition, tokenizer.position() - startPosition, line, column);
+                        return Token(TokenType::OBrace, c, c + 1, tokenizer.offset(c), line, column);
                     case '}':
-                        return Token(TokenType::CBrace, "", startPosition, tokenizer.position() - startPosition, line, column);
+                        return Token(TokenType::CBrace, c, c + 1, tokenizer.offset(c), line, column);
                     case '(':
-                        return Token(TokenType::OParenthesis, "", startPosition, tokenizer.position() - startPosition, line, column);
+                        return Token(TokenType::OParenthesis, c, c + 1, tokenizer.offset(c), line, column);
                     case ')':
-                        return Token(TokenType::CParenthesis, "", startPosition, tokenizer.position() - startPosition, line, column);
+                        return Token(TokenType::CParenthesis, c, c + 1, tokenizer.offset(c), line, column);
                     case '[':
-                        return Token(TokenType::OBracket, "", startPosition, tokenizer.position() - startPosition, line, column);
+                        return Token(TokenType::OBracket, c, c + 1, tokenizer.offset(c), line, column);
                     case ']':
-                        return Token(TokenType::CBracket, "", startPosition, tokenizer.position() - startPosition, line, column);
-                    case '"': // quoted string
-                        m_buffer.str(String());
-                        while (!tokenizer.eof() && (c = tokenizer.nextChar()) != '"')
-                            m_buffer << c;
-                        return Token(TokenType::String, m_buffer.str(), startPosition, tokenizer.position() - startPosition, line, column);
-                    default: // whitespace, integer, decimal or word
-                        if (isWhitespace(c))
+                        return Token(TokenType::CBracket, c, c + 1, tokenizer.offset(c), line, column);
+                    case '"': { // quoted string
+                        const char* begin = c;
+                        const char* end;
+                        tokenizer.quotedString(begin, end);
+                        return Token(TokenType::String, begin, end, tokenizer.offset(begin), line, column);
+                    }
+                    default: { // whitespace, integer, decimal or word
+                        if (isWhitespace(*c))
                             break;
                         
-                        // clear the buffer
-                        m_buffer.str(String());
-                        
+                        const char* begin = c;
+
                         // try to read a number
-                        if (c == '-' || isDigit(c)) {
-                            m_buffer << c;
-                            while (isDigit((c = tokenizer.nextChar())))
-                                m_buffer << c;
-                            if (isDelimiter(c)) {
+                        if (*c == '-' || isDigit(*c)) {
+                            while (isDigit(*(c = tokenizer.nextChar())));
+                            if (isDelimiter(*c)) {
                                 if (!tokenizer.eof())
                                     tokenizer.pushChar();
-                                return Token(TokenType::Integer, m_buffer.str(), startPosition, tokenizer.position() - startPosition, line, column);
+                                return Token(TokenType::Integer, begin, c, tokenizer.offset(begin), line, column);
                             }
                         }
                         
                         // try to read a decimal (may start with '.')
-                        if (c == '.') {
-                            m_buffer << c;
-                            while (isDigit((c = tokenizer.nextChar())))
-                                m_buffer << c;
-                            if (isDelimiter(c)) {
+                        if (*c == '.') {
+                            while (isDigit(*(c = tokenizer.nextChar())));
+                            if (isDelimiter(*c)) {
                                 if (!tokenizer.eof())
                                     tokenizer.pushChar();
-                                return Token(TokenType::Decimal, m_buffer.str(), startPosition, tokenizer.position() - startPosition, line, column);
+                                return Token(TokenType::Decimal, begin, c, tokenizer.offset(begin), line, column);
+                            }
+                        }
+                        
+                        // try to read decimal in scientific notation
+                        if (*c == 'e') {
+                            c = tokenizer.nextChar();
+                            if (isDigit(*c) || *c == '+' || *c == '-') {
+                                while (isDigit(*(c = tokenizer.nextChar())));
+                                if (isDelimiter(*c)) {
+                                    if (!tokenizer.eof())
+                                        tokenizer.pushChar();
+                                    return Token(TokenType::Decimal, begin, c, tokenizer.offset(begin), line, column);
+                                }
                             }
                         }
                         
                         // read a word
-                        m_buffer << c;
-                        while (!tokenizer.eof() && !isDelimiter(c = tokenizer.nextChar()))
-                            m_buffer << c;
+                        while (!tokenizer.eof() && !isDelimiter(*(c = tokenizer.nextChar())));
                         if (!tokenizer.eof())
                             tokenizer.pushChar();
-                        return Token(TokenType::String, m_buffer.str(), startPosition, tokenizer.position() - startPosition, line, column);
+                        return Token(TokenType::String, begin, c, tokenizer.offset(begin), line, column);
+                    }
                 }
             }
-            return Token(TokenType::Eof, "", startPosition, tokenizer.position() - startPosition, line, column);
+            return Token(TokenType::Eof, NULL, NULL, 0, tokenizer.line(), tokenizer.column());
         }
         
-        MapParser::MapParser(std::istream& stream, Utility::Console& console, CreateBrushStrategy& createBrushStrategy) :
+        MapParser::MapParser(const char* begin, const char* end, Utility::Console& console) :
         m_console(console),
-        m_createBrushStrategy(createBrushStrategy),
-        m_tokenizer(stream),
-        m_format(Undefined) {
-            std::streamoff cur = stream.tellg();
-            stream.seekg(0, std::ios::end);
-            m_size = static_cast<size_t>(stream.tellg() - cur);
-            stream.seekg(cur, std::ios::beg);
+        m_tokenizer(begin, end),
+        m_format(Undefined),
+        m_size(static_cast<size_t>(end - begin)) {
+            assert(end >= begin);
         }
+
+        MapParser::MapParser(const String& str, Utility::Console& console) :
+        m_console(console),
+        m_tokenizer(str.c_str(), str.c_str() + str.size()),
+        m_format(Undefined),
+        m_size(str.size()) {}
 
         void MapParser::parseMap(Model::Map& map, Utility::ProgressIndicator* indicator) {
             Model::Entity* entity = NULL;
@@ -122,8 +139,21 @@ namespace TrenchBroom {
             } catch (MapParserException e) {
                 m_console.error(e.what());
             }
+            
             if (indicator != NULL)
                 indicator->update(static_cast<int>(m_size));
+            
+            if (!m_staleBrushes.empty()) {
+                StringStream stream;
+                stream << "Found brushes with invalid or missing geometry at lines ";
+                for (size_t i = 0; i < m_staleBrushes.size(); i++) {
+                    const Model::Brush* brush = m_staleBrushes[i];
+                    stream << brush->fileLine();
+                    if (i < m_staleBrushes.size() - 1)
+                        stream << ", ";
+                }
+                m_console.warn(stream.str());
+            }
         }
         
         Model::Entity* MapParser::parseEntity(const BBox& worldBounds, Utility::ProgressIndicator* indicator) {
@@ -136,7 +166,7 @@ namespace TrenchBroom {
                 return NULL;
             
             Model::Entity* entity = new Model::Entity(worldBounds);
-            entity->setFilePosition(token.line());
+            size_t firstLine = token.line();
             
             while ((token = m_tokenizer.nextToken()).type() != TokenType::Eof) {
                 switch (token.type()) {
@@ -163,6 +193,7 @@ namespace TrenchBroom {
                     case TokenType::CBrace: {
                         if (indicator != NULL)
                             indicator->update(static_cast<int>(token.position()));
+                        entity->setFilePosition(firstLine, token.line() - firstLine);
                         return entity;
                     }
                     default:
@@ -183,8 +214,9 @@ namespace TrenchBroom {
             if (token.type() == TokenType::CBrace)
                 return NULL;
             
-            const size_t filePosition = token.line();
+            const size_t firstLine = token.line();
             Model::FaceList faces;
+            
             while ((token = m_tokenizer.nextToken()).type() != TokenType::Eof) {
                 switch (token.type()) {
                     case TokenType::OParenthesis: {
@@ -197,16 +229,34 @@ namespace TrenchBroom {
                     case TokenType::CBrace: {
                         if (indicator != NULL) indicator->update(static_cast<int>(token.position()));
                         
-                        Model::Brush* brush = m_createBrushStrategy(worldBounds, faces);
-                        if (brush != NULL) {
-                            brush->setFilePosition(filePosition);
-                            if (!brush->closed())
-                                m_console.warn("Non-closed brush at line %i", filePosition);
-                        } else {
-                            m_console.warn("Skipping malformed brush at line %i", filePosition);
-                            Utility::deleteAll(faces);
+                        Model::Brush* brush = new Model::Brush(worldBounds);
+
+                        // sort the faces by the weight of their plane normals like QBSP does
+                        Model::FaceList sortedFaces = faces;
+                        std::sort(sortedFaces.begin(), sortedFaces.end(), Model::Face::WeightOrder(Plane::WeightOrder(true)));
+                        std::sort(sortedFaces.begin(), sortedFaces.end(), Model::Face::WeightOrder(Plane::WeightOrder(false)));
+                        
+                        Model::FaceList::iterator faceIt = sortedFaces.begin();
+                        Model::FaceList::iterator faceEnd = sortedFaces.end();
+                        while (faceIt != faceEnd) {
+                            Model::Face* face = *faceIt++;
+                            if (!brush->addFace(face)) {
+                                m_console.warn("Skipping malformed brush at line %i", firstLine);
+                                delete brush;
+                                brush = NULL;
+                                break;
+                            }
                         }
-                            
+                        
+                        // if something went wrong, we must delete all faces that have not been added to the brush yet
+                        if (faceIt != faceEnd)
+                            Utility::deleteAll(sortedFaces, faceIt);
+                        
+                        if (brush != NULL) {
+                            brush->setFilePosition(firstLine, token.line() - firstLine);
+                            if (!brush->closed())
+                                m_console.warn("Non-closed brush at line %i", firstLine);
+                        }
                         return brush;
                     }
                     default: {

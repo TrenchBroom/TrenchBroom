@@ -271,7 +271,7 @@ namespace TrenchBroom {
             // allow the dialog to be closed using CMD+W
             wxAcceleratorEntry acceleratorEntries[1];
             acceleratorEntries[0].Set(wxACCEL_CMD, static_cast<int>('W'), wxID_CLOSE);
-            wxAcceleratorTable accceleratorTable(4, acceleratorEntries);
+            wxAcceleratorTable accceleratorTable(1, acceleratorEntries);
             SetAcceleratorTable(accceleratorTable);
 #endif
             SetEscapeId(wxID_CLOSE);

@@ -283,8 +283,8 @@ namespace TrenchBroom {
                 m_textureBrowser->setSelectedTexture(NULL);
         }
 
-        void FaceInspector::updateTextureBrowser() {
-            m_textureBrowser->reload();
+        void FaceInspector::updateTextureBrowser(bool reloadTextures) {
+            m_textureBrowser->reload(reloadTextures);
         }
 
         void FaceInspector::OnXOffsetChanged(SpinControlEvent& event) {

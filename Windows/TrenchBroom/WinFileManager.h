@@ -20,8 +20,20 @@
 #pragma once
 #include "IO/AbstractFileManager.h"
 
+// can't include Windows.h here
+typedef void *HANDLE;
+
 namespace TrenchBroom {
     namespace IO {
+        class WinMappedFile : public MappedFile {
+        private:
+            HANDLE m_fileHandle;
+	        HANDLE m_mappingHandle;
+        public:
+            WinMappedFile(HANDLE fileHandle, HANDLE mappingHandle, char* address, size_t size);
+            ~WinMappedFile();
+        };
+
         class WinFileManager : public AbstractFileManager {
         protected:
             String appDirectory();
@@ -29,6 +41,9 @@ namespace TrenchBroom {
             String logDirectory();
             String resourceDirectory();
             String resolveFontPath(const String& fontName);
+
+            
+            MappedFile::Ptr mapFile(const String& path, std::ios_base::openmode mode = std::ios_base::in);
         };
     }
 }

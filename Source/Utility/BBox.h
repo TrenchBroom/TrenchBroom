@@ -46,7 +46,7 @@ namespace TrenchBroom {
                 y(i_y),
                 z(i_z) {}
 
-                inline const Position& operator[] (const unsigned int index) const {
+                inline const Position& operator[] (const size_t index) const {
                     assert(index >= 0 && index < 3);
                     if (index == 0) return x;
                     if (index == 1) return y;

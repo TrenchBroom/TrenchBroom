@@ -50,8 +50,6 @@ namespace TrenchBroom {
 
             const BBox& m_worldBounds;
 
-            size_t m_filePosition;
-
             void init();
         public:
             Brush(const BBox& worldBounds);
@@ -133,14 +131,6 @@ namespace TrenchBroom {
                 return m_geometry->closed();
             }
 
-            inline size_t filePosition() const {
-                return m_filePosition;
-            }
-
-            inline void setFilePosition(size_t filePosition) {
-                m_filePosition = filePosition;
-            }
-
             void translate(const Vec3f& delta, bool lockTextures);
             void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTextures);
             void rotate(const Quat& rotation, const Vec3f& center, bool lockTextures);
@@ -148,9 +138,6 @@ namespace TrenchBroom {
 
             void correct(float epsilon);
             void snap(unsigned int snapTo);
-
-            void serializeGeometry(IO::ByteBuffer& buffer) const;
-            void deserializeGeometry(IO::ByteBuffer& buffer);
 
             bool canMoveBoundary(const Face& face, const Vec3f& delta) const;
             void moveBoundary(Face& face, const Vec3f& delta, bool lockTexture);

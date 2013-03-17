@@ -49,7 +49,7 @@ namespace TrenchBroom {
         public:
             TextureBrowser(wxWindow* parent, wxWindowID windowId, DocumentViewHolder& documentViewHolder);
             
-            void reload();
+            void reload(bool reloadTextures);
 
             Model::Texture* selectedTexture() const;
             void setSelectedTexture(Model::Texture* texture);

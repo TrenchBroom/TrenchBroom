@@ -37,6 +37,7 @@
 #include <wx/sizer.h>
 #include <wx/splitter.h>
 #include <wx/textctrl.h>
+#include <wx/toolbar.h>
 
 namespace TrenchBroom {
     namespace View {

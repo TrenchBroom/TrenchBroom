@@ -17,25 +17,21 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_BrushGeometrySerializer_h
-#define TrenchBroom_BrushGeometrySerializer_h
+#ifndef TrenchBroom_PreferencePane_h
+#define TrenchBroom_PreferencePane_h
 
-#include "IO/ByteBuffer.h"
-#include "IO/MapWriter.h"
-#include "Model/Brush.h"
+#include <wx/panel.h>
 
 namespace TrenchBroom {
-    namespace Model {
-        class BrushGeometrySerializer : public Model::BrushFunctor {
-        private:
-            IO::ByteBuffer& m_buffer;
+    namespace View {
+        class PreferencePane : public wxPanel {
         public:
-            BrushGeometrySerializer(IO::ByteBuffer& buffer) :
-            m_buffer(buffer) {}
+            PreferencePane(wxWindow* parent) :
+            wxPanel(parent, wxID_ANY) {}
             
-            void operator()(const Brush& brush) {
-                brush.serializeGeometry(m_buffer);
-            }
+            virtual ~PreferencePane() {}
+            
+            virtual bool validate() = 0;
         };
     }
 }

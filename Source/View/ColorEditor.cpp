@@ -146,7 +146,7 @@ namespace TrenchBroom {
                     colorSet.insert(Vec3f(*value));
             }
 
-            m_colorHistory->setColors(makeList(colorSet));
+            m_colorHistory->setColors(Utility::makeList(colorSet));
             m_colorHistory->Refresh();
         }
 
