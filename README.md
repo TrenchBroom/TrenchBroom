@@ -2,6 +2,9 @@
 
 TrenchBroom is a modern cross-platform level editor for Quake.
 
+Website:   http://kristianduske.com/trenchbroom
+Downloads: http://kristianduske.com/trenchbroom/download.php
+
 ## Features
 - True 3D editing, no 2D views required
 - High performance renderer with support for huge maps
@@ -33,6 +36,21 @@ TrenchBroom is a modern cross-platform level editor for Quake.
 - All help is appreciated!
 
 ## Changes
+### TrenchBroom 1.0.5
+- Fixed a crash when undoing edge and face move operations.
+- Improved map loading speed.
+- Improved accuracy of vertex computation.
+- Added antialiasing for grid lines (rebb).
+- Thin out grid lines after a certain distance (rebb).
+- Draw thinner grid lines for small grid sizes.
+- Added face shading depending on view direction (rebb).
+- Fixed a performance problem when editing face attributes.
+- Place initial brush in new maps and make the camera look at it.
+- Position pasted objects so that they line up with objects under the mouse cursor.
+- Added option to use Alt+MMB to move the camera forward and backward.
+- Fixed parsing of color values in FGD files.
+- Improved Quake.fgd and Quoth2.fgd.
+- Updated and fixed some errors in the documentation.
 ### TrenchBroom 1.0.4
 - Improved Quake.fgd and Quoth2.fgd.
 - Improvements to clipboard pasting.

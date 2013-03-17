@@ -34,6 +34,7 @@
 		<p>Look at the above images for an example. Say you wish to select the two columns and the info_player_coop entity. For the sake of the example, you want to use a selection brush. So you quickly <a href="creating_new_objects.html#drawing_new_brushes_using_the_mouse">draw</a> a brush that touches only the columns and hit <script>print_key("T", "CmdCtrl");</script>. Voil&agrave; - the objects are selected.</p>
 		<a name="other_selection_commands"></a><h3>Other Selection Commands</h3>
 		<p>In the <b>Edit</b> menu, there are several other commands that help you to select objects. Choose <script>print_menu_command("edit_select_all");</script> to select every visible entity and brush in the map. If you want to select all brushes belonging to a particular brush entity, you must first select one brush which belongs to that entity and then choose <script>print_menu_command("edit_select_siblings");</script>. This selects all brushes of that brush entity.</p>
+		<p>Finally, you can select objects by their line numbers in the map file they were loaded from. Choose <script>print_menu_command("edit_select_by_file_position");</script> and enter a comma- or space-separated list of line numbers into the dialog that pops up. Click <b>Ok</b> to select the objects.</p>
 	</div>
 	<script src="scripts/jquery.js"></script>
 	<script src="scripts/misc.js"></script>

@@ -22,7 +22,7 @@
 
 #include "Utility/String.h"
 
-#include "IO/mmapped_fstream.h"
+#include "IO/FileManager.h"
 #include "IO/IOException.h"
 
 #include <map>
@@ -118,9 +118,8 @@ namespace TrenchBroom {
         class Wad {
         private:
             typedef std::map<String, WadEntry> EntryMap;
-            
-            size_t m_length;
-            mutable mmapped_fstream m_stream;
+
+            MappedFile::Ptr m_file;
             EntryMap m_entries;
 
             Mip* loadMip(const WadEntry& entry, unsigned int mipCount) const throw (IOException);

@@ -49,6 +49,8 @@ namespace TrenchBroom {
         EVT_CHECKBOX(CommandIds::ViewInspector::ShowSkipBrushesCheckBoxId, ViewInspector::OnFilterOptionChanged)
         EVT_CHOICE(CommandIds::ViewInspector::FaceRenderModeChoiceId, ViewInspector::OnRenderFaceModeSelected)
         EVT_CHECKBOX(CommandIds::ViewInspector::RenderEdgesCheckBoxId, ViewInspector::OnRenderEdgesChanged)
+        EVT_CHECKBOX(CommandIds::ViewInspector::FaceShadingCheckBoxId, ViewInspector::OnFaceShadingChanged)
+        // EVT_CHECKBOX(CommandIds::ViewInspector::FogCheckBoxId, ViewInspector::OnFogChanged)
         END_EVENT_TABLE()
 
         void ViewInspector::updateControls() {
@@ -75,6 +77,8 @@ namespace TrenchBroom {
 
             m_faceRenderModeChoice->SetSelection(viewOptions.faceRenderMode());
             m_toggleRenderEdges->SetValue(viewOptions.renderEdges());
+            m_toggleFaceShading->SetValue(viewOptions.shadeFaces());
+//            m_toggleFog->SetValue(viewOptions.useFog());
         }
 
         wxWindow* ViewInspector::createFilterBox() {
@@ -130,13 +134,28 @@ namespace TrenchBroom {
 
             wxStaticText* toggleRenderEdgesLabel = new wxStaticText(renderModeBox, wxID_ANY, wxT(""));
             m_toggleRenderEdges = new wxCheckBox(renderModeBox, CommandIds::ViewInspector::RenderEdgesCheckBoxId, wxT("Render edges"));
-
+            
+            wxStaticText* toggleFaceShadingLabel = new wxStaticText( renderModeBox, wxID_ANY, wxT(""));
+            m_toggleFaceShading = new wxCheckBox( renderModeBox, CommandIds::ViewInspector::FaceShadingCheckBoxId, wxT("Shade faces"));
+            
+            /*
+            wxStaticText* toggleFogLabel = new wxStaticText( renderModeBox, wxID_ANY, wxT(""));
+            m_toggleFog = new wxCheckBox( renderModeBox, CommandIds::ViewInspector::FogCheckBoxId, wxT("Apply fog"));
+             */
+            
             // layout of the contained controls
             wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
             innerSizer->Add(faceRenderModeLabel);
             innerSizer->Add(m_faceRenderModeChoice);
             innerSizer->Add(toggleRenderEdgesLabel);
             innerSizer->Add(m_toggleRenderEdges);
+            innerSizer->Add(toggleFaceShadingLabel);
+            innerSizer->Add(m_toggleFaceShading);
+            
+            /*
+            innerSizer->Add(toggleFogLabel);
+            innerSizer->Add(m_toggleFog);
+             */
 
             // creates 5 pixel border inside the static box
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
@@ -245,5 +264,25 @@ namespace TrenchBroom {
             editorView.viewOptions().setRenderEdges(event.GetInt() != 0);
             editorView.OnUpdate(NULL); // will just trigger a refresh
         }
+
+		  void ViewInspector::OnFaceShadingChanged( wxCommandEvent& event ) {
+			  if( !m_documentViewHolder.valid() ) 
+				  return;
+
+            EditorView& editorView = m_documentViewHolder.view();
+            editorView.viewOptions().setShadeFaces(event.GetInt() != 0);
+            editorView.OnUpdate(NULL); // will just trigger a refresh
+		  }
+
+        /*
+		  void ViewInspector::OnFogChanged( wxCommandEvent& event ) {
+			  if( !m_documentViewHolder.valid() ) 
+				  return;
+
+            EditorView& editorView = m_documentViewHolder.view();
+            editorView.viewOptions().setUseFog(event.GetInt() != 0);
+            editorView.OnUpdate(NULL); // will just trigger a refresh
+		  }
+         */
     }
 }

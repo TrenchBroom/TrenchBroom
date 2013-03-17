@@ -89,13 +89,15 @@ namespace TrenchBroom {
             return vertex;
         }
 
-        AliasSingleFrame* Alias::readFrame(IO::IStream& stream, const Vec3f& origin, const Vec3f& scale, unsigned int skinWidth, unsigned int skinHeight, const AliasSkinVertexList& vertices, const AliasSkinTriangleList& triangles) {
+        AliasSingleFrame* Alias::readFrame(char*& cursor, const Vec3f& origin, const Vec3f& scale, unsigned int skinWidth, unsigned int skinHeight, const AliasSkinVertexList& vertices, const AliasSkinTriangleList& triangles) {
+            using namespace IO;
+            
             char name[AliasLayout::SimpleFrameLength];
-            stream->seekg(AliasLayout::SimpleFrameName, std::ios::cur);
-            stream->read(name, AliasLayout::SimpleFrameLength);
+            cursor += AliasLayout::SimpleFrameName;
+            readBytes(cursor, name, AliasLayout::SimpleFrameLength);
 
             std::vector<AliasPackedFrameVertex> packedFrameVertices(vertices.size());
-            stream->read(reinterpret_cast<char *>(&packedFrameVertices[0]), static_cast<std::streamsize>(vertices.size() * 4 * sizeof(unsigned char)));
+            readBytes(cursor, reinterpret_cast<char*>(&packedFrameVertices[0]), vertices.size() * 4);
 
             Vec3f::List frameVertices(vertices.size());
             Vec3f center;
@@ -143,49 +145,47 @@ namespace TrenchBroom {
             Utility::deleteAll(m_triangles);
         }
 
-        Alias::Alias(const String& name, IO::IStream stream) :
+        Alias::Alias(const String& name, char* begin, char* end) :
         m_name(name) {
-            stream->seekg(AliasLayout::HeaderScale, std::ios::beg);
-            Vec3f scale = IO::readVec3f(stream);
-            Vec3f origin = IO::readVec3f(stream);
+            using namespace IO;
             
-            stream->seekg(AliasLayout::HeaderNumSkins, std::ios::beg);
-            unsigned int skinCount = IO::readUnsignedInt<int32_t>(stream);
-            unsigned int skinWidth = IO::readUnsignedInt<int32_t>(stream);
-            unsigned int skinHeight = IO::readUnsignedInt<int32_t>(stream);
+            char* cursor = begin + AliasLayout::HeaderScale;
+            Vec3f scale = readVec3f(cursor);
+            Vec3f origin = readVec3f(cursor);
+
+            cursor = begin + AliasLayout::HeaderNumSkins;
+            unsigned int skinCount = readUnsignedInt<int32_t>(cursor);
+            unsigned int skinWidth = readUnsignedInt<int32_t>(cursor);
+            unsigned int skinHeight = readUnsignedInt<int32_t>(cursor);
             unsigned int skinSize = skinWidth * skinHeight;
 
-            unsigned int vertexCount = IO::readUnsignedInt<int32_t>(stream);
-            unsigned int triangleCount = IO::readUnsignedInt<int32_t>(stream);
-            unsigned int frameCount = IO::readUnsignedInt<int32_t>(stream);
+            unsigned int vertexCount = readUnsignedInt<int32_t>(cursor);
+            unsigned int triangleCount = readUnsignedInt<int32_t>(cursor);
+            unsigned int frameCount = readUnsignedInt<int32_t>(cursor);
             frameCount = frameCount; // dummy to suppress "unused" warning
             
-            stream->seekg(AliasLayout::Skins, std::ios::beg);
+            cursor = begin + AliasLayout::Skins;
             for (unsigned int i = 0; i < skinCount; i++) {
-                unsigned int skinGroup = IO::readUnsignedInt<int32_t>(stream);
+                unsigned int skinGroup = readUnsignedInt<int32_t>(cursor);
                 if (skinGroup == 0) {
                     unsigned char* skinPicture = new unsigned char[skinSize];
-                    stream->read(reinterpret_cast<char *>(skinPicture), static_cast<std::streamsize>(skinSize));
+                    readBytes(cursor, skinPicture, skinSize);
 
                     AliasSkin* skin = new AliasSkin(skinPicture, skinWidth, skinHeight);
                     m_skins.push_back(skin);
                 } else {
-                    unsigned int numPics = IO::readUnsignedInt<int32_t>(stream);
+                    unsigned int numPics = readUnsignedInt<int32_t>(cursor);
                     AliasTimeList times(numPics);
                     AliasPictureList skinPictures(numPics);
 
-                    std::streampos base = stream->tellg();
+                    char* base = cursor;
                     for (size_t j = 0; j < static_cast<size_t>(numPics); j++) {
-                        std::streamoff timeOffset = static_cast<std::streamoff>(j * 4);
-                        timeOffset += base;
-                        stream->seekg(timeOffset, std::ios::beg);
-                        times[i] = IO::readFloat(stream);
+                        cursor = base + j * sizeof(float);
+                        times[i] = readFloat<float>(cursor);
 
                         unsigned char* skinPicture = new unsigned char[skinSize];
-                        std::streamoff picOffset = static_cast<std::streamoff>(numPics * 4 + j * skinSize);
-                        picOffset += base;
-                        stream->seekg(picOffset, std::ios::beg);
-                        stream->read(reinterpret_cast<char *>(skinPicture), static_cast<std::streamsize>(skinSize));
+                        cursor = base + numPics * 4 + j * skinSize;
+                        readBytes(cursor, skinPicture, skinSize);
 
                         skinPictures[i] = skinPicture;
                     }
@@ -195,48 +195,43 @@ namespace TrenchBroom {
                 }
             }
 
-            // now stream is at the first skin vertex
+            // now cursor is at the first skin vertex
             std::vector<AliasSkinVertex> vertices(vertexCount);
             for (unsigned int i = 0; i < vertexCount; i++) {
-                vertices[i].onseam = IO::readBool<int32_t>(stream);
-                vertices[i].s = IO::readInt<int32_t>(stream);
-                vertices[i].t = IO::readInt<int32_t>(stream);
+                vertices[i].onseam = readBool<int32_t>(cursor);
+                vertices[i].s = readInt<int32_t>(cursor);
+                vertices[i].t = readInt<int32_t>(cursor);
             }
 
-            // now stream is at the first skin triangle
+            // now cursor is at the first skin triangle
             std::vector<AliasSkinTriangle> triangles(triangleCount);
             for (unsigned int i = 0; i < triangleCount; i++) {
-                triangles[i].front = IO::readBool<int32_t>(stream);
+                triangles[i].front = readBool<int32_t>(cursor);
                 for (unsigned int j = 0; j < 3; j++)
-                    triangles[i].vertices[j] = IO::readUnsignedInt<int32_t>(stream);
+                    triangles[i].vertices[j] = readUnsignedInt<int32_t>(cursor);
             }
 
-            // now stream is at the first frame
+            // now cursor is at the first frame
             for (unsigned int i = 0; i < frameCount; i++) {
-                int type = IO::readInt<int32_t>(stream);
+                int type = readInt<int32_t>(cursor);
                 if (type == 0) { // single frame
-                    m_frames.push_back(readFrame(stream, origin, scale, skinWidth, skinHeight, vertices, triangles));
+                    m_frames.push_back(readFrame(cursor, origin, scale, skinWidth, skinHeight, vertices, triangles));
                 } else { // frame group
-                    std::streampos base = stream->tellg();
-                    unsigned int groupFrameCount = IO::readUnsignedInt<int32_t>(stream);
+                    char* base = cursor;
+                    unsigned int groupFrameCount = readUnsignedInt<int32_t>(cursor);
 
-                    std::streampos timePos = AliasLayout::MultiFrameTimes + base;
-                    std::streampos framePos = AliasLayout::MultiFrameTimes + groupFrameCount * sizeof(float);
-                    framePos += base;
+                    char* timeCursor = base + AliasLayout::MultiFrameTimes;
+                    char* frameCursor = base + AliasLayout::MultiFrameTimes + groupFrameCount * sizeof(float);
 
                     AliasTimeList groupFrameTimes(groupFrameCount);
                     AliasSingleFrameList groupFrames(groupFrameCount);
                     for (unsigned int j = 0; j < groupFrameCount; j++) {
-                        stream->seekg(timePos, std::ios::beg);
-                        groupFrameTimes[i] = IO::readFloat(stream);
-                        timePos += j * sizeof(float);
-
-                        stream->seekg(framePos, std::ios::beg);
-                        groupFrames[j] = readFrame(stream, origin, scale, skinWidth, skinHeight, vertices, triangles);
-                        framePos += AliasLayout::SimpleFrameLength + (vertexCount + 2) * AliasLayout::FrameVertexSize;
+                        groupFrameTimes[i] = readFloat<float>(timeCursor);
+                        groupFrames[j] = readFrame(frameCursor, origin, scale, skinWidth, skinHeight, vertices, triangles);
                     }
 
                     m_frames.push_back(new AliasFrameGroup(groupFrameTimes, groupFrames));
+                    cursor = frameCursor;
                 }
             }
         }
@@ -258,9 +253,9 @@ namespace TrenchBroom {
 
             console.info("Loading '%s' (searching %s)", name.c_str(), pathList.c_str());
 
-            IO::IStream stream = IO::findGameFile(name, paths);
-            if (stream.get() != NULL) {
-                Alias* alias = new Alias(name, stream);
+            IO::MappedFile::Ptr file = IO::findGameFile(name, paths);
+            if (file.get() != NULL) {
+                Alias* alias = new Alias(name, file->begin(), file->end());
                 m_aliases[key] = alias;
                 return alias;
             }

@@ -9,6 +9,7 @@ Compiling wxWidgets 2.9 requires the following dependencies. You should install 
 - X11 video mode extension library: libxxf86vm-dev
 Compiling and linking TrenchBroom requires a working OpenGL installation. This page may help you if you see linker errors about missing GL libraries:
 http://www.wikihow.com/Install-Mesa-%28OpenGL%29-on-Linux-Mint
+- Some more detailed (possibly outdated) information about building TrenchBroom on Linux: http://andyp123.blogspot.de/2013/03/running-trenchbroom-quake-editor-on.html
 
 2. wxWidgets
 - Get the latest sources of wxWidgets 2.9 from wxwidgets.org and unpack them.

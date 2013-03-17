@@ -20,15 +20,18 @@
  */
 
 uniform vec4 Color;
+uniform vec3 CameraPosition;
 
 varying vec4 modelCoordinates;
 varying vec3 modelNormal;
 varying vec4 faceColor;
+varying vec3 viewVector;
 
 void main(void) {
-    gl_Position = ftransform();
-    gl_TexCoord[0] = gl_MultiTexCoord0;
-    modelCoordinates = gl_Vertex;
-    modelNormal = gl_Normal;
-    faceColor = Color;
+	gl_Position = ftransform();
+	gl_TexCoord[0] = gl_MultiTexCoord0;
+	modelCoordinates = gl_Vertex;
+	modelNormal = gl_Normal;
+	faceColor = Color;
+	viewVector = CameraPosition - gl_Vertex.xyz;
 }
