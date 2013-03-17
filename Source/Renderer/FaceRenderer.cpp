@@ -85,6 +85,9 @@ namespace TrenchBroom {
                 if (tintColor != NULL)
                     faceProgram.setUniformVariable("TintColor", *tintColor);
                 faceProgram.setUniformVariable("GrayScale", grayScale);
+					 faceProgram.setUniformVariable("CameraPosition", context.camera().position());
+					 faceProgram.setUniformVariable("shadeFaces", context.viewOptions().shadeFaces() );
+					 faceProgram.setUniformVariable("useFog", context.viewOptions().useFog() );
                 
                 for (unsigned int i = 0; i < m_vertexArrays.size(); i++) {
                     TextureVertexArray& textureVertexArray = m_vertexArrays[i];
