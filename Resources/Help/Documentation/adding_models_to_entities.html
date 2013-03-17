@@ -11,12 +11,9 @@
 	<script src="scripts/commands.js"></script>
 	<div id="container">
 		<h2>Adding models to entity definitions</h2>
-		<p>A strongly visual editor like Trenchbroom means that </p>
-		<h3>DEF Format Syntax</h3>
-		<h4>Attaching a model to an entity</h4>
-		<p>This format is the simplest way of creating entity definitions for the editor to use.  Here is an example of a DEF for a <b>Point Entity</b>.  Only point entities will be covered because you cannot add models to brush entities because the brushes themselves comprise the 'model'.</p>
-		
-		<p class="no-indent">The syntax for attaching a model to an entity definition for DEF files is: <span class="monospace_text">model(":MODELPATH");</span></p>
+		<p>A strongly visual editor like Trenchbroom means that it is important to be able to see the models of your entities.  Only point entities will be covered because you cannot add models to brush entities because the brushes themselves comprise the 'model'.  Note that the definition formats themselves will not be covered here, only the method of attaching models to the definitions.</p>
+		<h3>DEF Format Syntax</h3>	
+		<p class="no-indent">The syntax for attaching a model to an entity definition for DEF files is: <span class="monospace_text">model(":MODELPATH");</span> and it is placed under the first line of the definition.</p>
 		<p class="no-indent">As an example, if your model resided in the <b>progs/model.mdl</b> file, then the resulting declaration would look like this: <span class="monospace_text">model(":progs/model.mdl");</p>
 		<p class="no-indent">Note the colon ( <span class="monospace_text">:</span> ) in front of the pathname, this is required.</p>
 		
@@ -28,14 +25,16 @@
 		
 		<h4>Conditional Models</h4>
 		<p>Up to this point, we have been able to attach a model to an entity so that it is displayed in Trenchbroom.  This is nice, but what if the entity uses different models depending on settings?  Things like ammo boxes appear larger if the "BIG" spawnflag is checked and Gaunts in Quoth appear on the group if the 'perched' key is set to '1'.</p>
-		<p class="no-indent no-justify">There are a few options available which allow you to specify which model an entity should show depending on what keys are set on it in the editor.  This can be done the following way: <span class="monospace_text">model(":MODELPATH" CONDITIONS...);</span></p>
+		<p class="no-indent no-justify">There are a few options available which allow you to specify which model an entity should show depending on what keys are set on it in the editor.  This can be done the following way: <span class="monospace_text">model(":MODELPATH" CONDITION);</span></p>
 		<p class="no-indent no-justify">Conditions are defined a couple of ways:</p>
+		
 		<h4>As a literal</h4>
 		<p class="no-justify">When you need to define a model for a specific value on an entity, you can do so like this: <span class="monospace_text">KEYNAME = "KEYVALUE"</span>.  This will make Trenchbroom use the specified model if the KEYNAME is exactly the KEYVALUE.</p>
 		<p class="no-indent">As an example, <span class="monospace_text">model(":progs/model2.mdl" state = "1");</span> would use <span class="monospace_text">progs/model2.mdl</span> only when the <span class="monospace_text">state</span> key on the entity is set to 1.</p>
 
 		<h4>As a flag value</h4>
-
+		<p class="no-justify">When you are using spawnflags or other flag-like keys, a litteral value will not work so you must use a flag condition.  This is done by omitting the quotes (<span class="monospace_text">"</span>) around the condition's value: <span class="monospace_text">model(":progs/model2.mdl" spawnflags = 1);</span>.  This would use progs/model2.mdl whenever the first <span class="monospace_text">spawnflag</span> is set instead of <i>only</i> when the first spawnflag is set.</p>
+		
 		<h4>Combining skins, frames and conditionals</h4>
 		<p>Let's look at an example, the Voreling from Quoth.</p>
 		<div class="monospace_text">/*QUAKED monster_voreling (1 0 0) (-16 -16 -24) (16 16 32) AMBUSH<br/>
@@ -56,9 +55,7 @@
 		<p>The voreling has two states, either as a normal monster, standing on the ground, or hanging from the ceiling.  There are two model declarations, the first has no skin or frame setting, so Trenchbroom will use skin 0 and frame 0, and it has no conditionals, so that means this is going to be the default visual model used to display this monster in the editor.</p>
 		<p class="no-indent">The second model declaration has a skin setting of 0 and a frame setting of 13.  If you look in the model file, you will see this is the frame where the Voreling is hanging upside down.  Finally, we can see that the conditional <span class="monospace_text">dangle = "1"</span> tells Trenchbroom to only use this declaration if the <span class="monospace_text">dangle</span> key is set to 1.</p>
 		
-		<p>In the case where multiple conditionals evaluate to true, Trenchbroom will use the last one as the model to display.</p>
-		<h3>Examples</h3>
-		<p class="no-indent">Here is another example of a full point entity definition with model declarations:</p>
+		<h4>Another example</h4>
 		<div class="monospace_text">/*QUAKED item_shells (0 .5 .5) (0 0 0) (32 32 32) BIG<br/>
 		model(":maps/b_shell0.bsp");<br/>
 		model(":maps/b_shell1.bsp" spawnflags = 1);<br/>
@@ -76,7 +73,11 @@
 		*/</div>
 		
 		<p>This is an example of the typical usage of the new model syntax for DEF files.  As you can see, there are two models attached to the Shells ammo box, <span class="monospace_text">maps/b_shell0.bsp</span> and <span class="monospace_text">maps/b_shell1.bsp</span>.  This is because the Shells ammo box uses two different models depending on the 'BIG' spawnflag being checked or not.  If it is not checked, it uses <span class="monospace_text">maps/b_shell0.bsp</span> which is the small ammo box and if it is checked, then it uses <span class="monospace_text">maps/b_shell1.bsp</span> which is the large ammo box.</p>
-		<p>This is done by adding <span class="monospace_text">spawnflags = 1</span> to the second model declaration.</p>
+		<p class="no-indent">This is done by adding <span class="monospace_text">spawnflags = 1</span> to the second model declaration.  Remember that because this is a flag condition, any combination of flags that includes the first spawnflag will set the model to the large ammo box.</p>
+		
+		
+		<h4>Multiple conditions</h4>
+		<p>You can put more than 2 model declarations.  In the case where multiple conditionals evaluate to true, Trenchbroom will use the last one that evaluates to true as the model to display.  For this reason, do not put a model declaration with no condition as the last one in the definition because that will override everything else!</p>
 	</div>
 </body>
 </html>
