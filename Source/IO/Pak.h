@@ -20,8 +20,8 @@
 #ifndef __TrenchBroom__Pak__
 #define __TrenchBroom__Pak__
 
+#include "IO/FileManager.h"
 #include "IO/IOTypes.h"
-#include "IO/mmapped_fstream.h"
 #include "Utility/String.h"
 
 #include <map>
@@ -45,26 +45,20 @@ namespace TrenchBroom {
 
         class PakEntry {
             String m_name;
-            unsigned int m_address;
-            unsigned int m_length;
+            MappedFile::Ptr m_view;
         public:
             PakEntry() {}
 
-            PakEntry(const String& name, unsigned int address, unsigned int length) :
+            PakEntry(const String& name, char* begin, char* end) :
             m_name(name),
-            m_address(address),
-            m_length(length) {}
+            m_view(MappedFile::Ptr(new MappedFile(begin, end))) {}
 
             inline const String& name() const {
                 return m_name;
             }
-
-            inline unsigned int address() const {
-                return m_address;
-            }
-
-            inline unsigned int length() const {
-                return m_length;
+                   
+            inline MappedFile::Ptr data() const {
+                return m_view;
             }
         };
 
@@ -72,38 +66,37 @@ namespace TrenchBroom {
         private:
             typedef std::map<String, PakEntry> PakDirectory;
 
-            mmapped_fstream m_stream;
+            MappedFile::Ptr m_file;
             String m_path;
             PakDirectory m_directory;
         public:
-            Pak(const String& path);
+            Pak(const String& path, MappedFile::Ptr file);
 
             inline const String& path() const {
                 return m_path;
             }
 
-            IStream entryStream(const String& name);
+            MappedFile::Ptr entry(const String& name);
         };
 
         class ComparePaksByPath {
         public:
-            inline bool operator() (const Pak* left, const Pak* right) const {
-                return left->path() < right->path();
+            inline bool operator() (const Pak& left, const Pak& right) const {
+                return left.path() < right.path();
             }
         };
 
         class PakManager {
         private:
-            typedef std::vector<Pak*> PakList;
+            typedef std::vector<Pak> PakList;
             typedef std::map<String, PakList> PakMap;
 
             PakMap m_paks;
             bool findPaks(const String& path, PakList& result);
         public:
             static PakManager* sharedManager;
-            ~PakManager();
             
-            IStream entryStream(const String& name, const String& searchPath);
+            MappedFile::Ptr entry(const String& name, const String& searchPath);
         };
     }
 }

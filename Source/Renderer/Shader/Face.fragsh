@@ -128,40 +128,23 @@ void main() {
 		float normY = abs(modelNormal.y);
 		float normZ = abs(modelNormal.z);
 
-		float gridThickness = 0.5;
+		float gridThickness = GridSize < 4 ? 0.25 : 0.5;
 		float fragDepth = length(viewVector); //gl_FragCoord.z / gl_FragCoord.w,
         float gridBlend = 0;
         float baseGridSize = GridSize;
         float nextGridSize = GridSize;
 
-#ifdef USE_Grid_VariableThickness
-        float baseStripeSize = gridThickness,
-        float nextStripeSize = gridThickness;
-#endif
-
 		if (fragDepth > 1024.0) {
 			baseGridSize 	= GridSize * 4.0;
 			nextGridSize 	= GridSize * 8.0;
-#ifdef USE_Grid_VariableThickness
-			baseStripeSize	= gridThickness * 8.0;
-			nextStripeSize	= gridThickness * 16.0;
-#endif
 			gridBlend = (fragDepth - 1024.0) / 1024.0;
 		} else if(fragDepth > 512.0) {
 			baseGridSize 	= GridSize * 2.0;
 			nextGridSize 	= GridSize * 4.0;
-#ifdef USE_Grid_VariableThickness
-			baseStripeSize	= gridThickness * 4.0;
-			nextStripeSize	= gridThickness * 8.0;
-#endif
 			gridBlend = (fragDepth - 512.0) / 512.0;
 		} else if (fragDepth > 256.0) {
 			baseGridSize 	= GridSize;
 			nextGridSize 	= GridSize * 2.0;
-#ifdef USE_Grid_VariableThickness
-			baseStripeSize	= gridThickness;
-			nextStripeSize	= gridThickness * 4.0;
-#endif
 			gridBlend = (fragDepth - 256.0) / 256.0;
 		}
 
@@ -172,13 +155,8 @@ void main() {
 		float gS = 1.0 / baseGridSize;
 		float gS2 = 1.0 / nextGridSize;
 
-#ifdef USE_Grid_VariableThickness
-		float gT = 1.0 - baseStripeSize * gS;
-        float gT2 = 1.0 - nextStripeSize * gS2;
-#else
 		float gT = 1.0 - gridThickness * gS;
         float gT2 = 1.0 - gridThickness * gS2;
-#endif
 
 		vec2 baseCoords; // coordinates used for overlay creation
 

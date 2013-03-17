@@ -37,17 +37,14 @@ namespace TrenchBroom {
         }
 
         Mip* Wad::loadMip(const WadEntry& entry, unsigned int mipCount) const throw (IOException) {
-            if (m_stream.eof())
-                throw IOException::unexpectedEof();
             if (entry.type() != WadEntryType::WEMip)
                 throw IOException("Entry %s is not a mip", entry.name().c_str());
             
-            m_stream.seekg(entry.address(), std::ios::beg);
-            m_stream.seekg(WadLayout::TexWidthOffset, std::ios::cur);
-            unsigned int width = IO::readUnsignedInt<int32_t>(m_stream);
-            unsigned int height = IO::readUnsignedInt<int32_t>(m_stream);
+            char* cursor = m_file->begin() + entry.address() + WadLayout::TexWidthOffset;
+            unsigned int width = readUnsignedInt<int32_t>(cursor);
+            unsigned int height = readUnsignedInt<int32_t>(cursor);
             unsigned int mip0Size = width * height;
-            unsigned int mip0Offset = IO::readUnsignedInt<int32_t>(m_stream);
+            unsigned int mip0Offset = readUnsignedInt<int32_t>(cursor);
             
             
             if (width == 0 || height == 0 ||
@@ -59,64 +56,52 @@ namespace TrenchBroom {
             unsigned char* mip0 = NULL;
             if (mipCount > 0) {
                 mip0 = new unsigned char[mip0Size];
-                m_stream.seekg(entry.address() + mip0Offset, std::ios::beg);
-                m_stream.read(reinterpret_cast<char *>(mip0), static_cast<std::streamsize>(mip0Size));
+                cursor = m_file->begin() + entry.address() + mip0Offset;
+                readBytes(cursor, mip0, mip0Size);
             }
             
             return new Mip(entry.name(), static_cast<unsigned int>(width), static_cast<unsigned int>(height), mip0);
         }
 
-        Wad::Wad(const String& path) throw (IOException) :
-        m_stream(path.c_str(), std::ios::binary | std::ios::in) {
-            if (!m_stream.is_open())
+        Wad::Wad(const String& path) throw (IOException) {
+            FileManager fileManager;
+            m_file = fileManager.mapFile(path);
+            
+            if (m_file.get() == NULL)
                 throw IOException::openError();
             
-            if (!m_stream.good())
-                throw IOException::badStream(m_stream);
-            
-			m_stream.exceptions(std::ios::goodbit);
-
-            m_stream.seekg(0, std::ios::end);
-            m_stream.clear();
-            m_length = static_cast<size_t>(m_stream.tellg());
-            m_stream.seekg(0, std::ios::beg);
-
-            if (WadLayout::NumEntriesAddress >= m_length ||
-                WadLayout::DirOffsetAddress >= m_length)
+            if (WadLayout::NumEntriesAddress + sizeof(int32_t) >= m_file->size() ||
+                WadLayout::DirOffsetAddress + sizeof(int32_t) >= m_file->size())
                 throw IOException("Invalid wad layout");
             
-            m_stream.seekg(WadLayout::NumEntriesAddress, std::ios::beg);
-            unsigned int entryCount = IO::readUnsignedInt<int32_t>(m_stream);
-            m_stream.seekg(WadLayout::DirOffsetAddress, std::ios::beg);
-            unsigned int directoryAddr = IO::readUnsignedInt<int32_t>(m_stream);
+            char* cursor = m_file->begin() + WadLayout::NumEntriesAddress;
+            unsigned int entryCount = readUnsignedInt<int32_t>(cursor);
+            cursor = m_file->begin() + WadLayout::DirOffsetAddress;
+            unsigned int directoryAddr = readUnsignedInt<int32_t>(cursor);
 
-            if (directoryAddr >= m_length)
+            if (directoryAddr  >= m_file->size())
                 throw IOException("Wad directory beyond end of file");
 
             char entryType;
             char entryName[WadLayout::DirEntryNameLength];
-            m_stream.seekg(directoryAddr, std::ios::beg);
+            
+            cursor = m_file->begin() + directoryAddr;
             
             for (unsigned int i = 0; i < entryCount; i++) {
-                if (m_stream.eof())
-                    throw IOException::unexpectedEof();
+                unsigned int entryAddress = readUnsignedInt<int32_t>(cursor);
+                unsigned int entryLength = readUnsignedInt<int32_t>(cursor);
                 
-                unsigned int entryAddress = IO::readUnsignedInt<int32_t>(m_stream);
-                unsigned int entryLength = IO::readUnsignedInt<int32_t>(m_stream);
-                
-                if (entryAddress + entryLength > m_length)
+                if (entryAddress + entryLength >= m_file->size())
                     throw IOException("Wad entry beyond end of file");
                 
-                m_stream.seekg(WadLayout::DirEntryTypeOffset, std::ios::cur);
-                m_stream.read(&entryType, 1);
-                m_stream.seekg(WadLayout::DirEntryNameOffset, std::ios::cur);
-                m_stream.read(reinterpret_cast<char *>(entryName), WadLayout::DirEntryNameLength);
+                cursor += WadLayout::DirEntryTypeOffset;
+                readBytes(cursor, &entryType, 1);
+                cursor += WadLayout::DirEntryNameOffset;
+                readBytes(cursor, entryName, WadLayout::DirEntryNameLength);
                 
                 // might leak if there are duplicate entries
                 m_entries[entryName] = WadEntry(entryAddress, entryLength, entryType, entryName);
             }
-            
-			m_stream.clear();
         }
         
         Mip* Wad::loadMip(const String& name, unsigned int mipCount) const throw (IOException) {

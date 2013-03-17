@@ -662,19 +662,10 @@
     <ClInclude Include="..\..\Source\IO\MapWriter.h">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\IO\mmapped_fstream.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\IO\mmapped_fstream_win32.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\IO\Pak.h">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\IO\ParserException.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\IO\substream.h">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\IO\Wad.h">

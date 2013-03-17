@@ -21,52 +21,47 @@
 
 #include "IO/FileManager.h"
 #include "IO/IOUtils.h"
-#include "IO/substream.h"
 #include "Utility/List.h"
 
 #include <algorithm>
 
 namespace TrenchBroom {
     namespace IO {
-        Pak::Pak(const String& path) :
-        m_stream(path.c_str(), std::ios::in | std::ios::binary),
-        m_path(path) {
-            assert(m_stream.is_open());
-
+        Pak::Pak(const String& path, MappedFile::Ptr file) :
+        m_path(path),
+        m_file(file) {
             char magic[PakLayout::HeaderMagicLength];
             char entryName[PakLayout::EntryNameLength];
+
+            char* cursor = m_file->begin() + PakLayout::HeaderAddress;
+            readBytes(cursor, magic, PakLayout::HeaderMagicLength);
             
-            m_stream.seekg(PakLayout::HeaderAddress, std::ios::beg);
-            m_stream.read(magic, PakLayout::HeaderMagicLength);
-            unsigned int directoryAddress = IO::readUnsignedInt<int32_t>(m_stream);
-            unsigned int directorySize = IO::readUnsignedInt<int32_t>(m_stream);
+            unsigned int directoryAddress = readUnsignedInt<int32_t>(cursor);
+            unsigned int directorySize = readUnsignedInt<int32_t>(cursor);
             unsigned int entryCount = directorySize / PakLayout::EntryLength;
+
+            assert(m_file->begin() + directoryAddress + directorySize <= m_file->end());
+            cursor = m_file->begin() + directoryAddress;
             
-            m_stream.seekg(directoryAddress, std::ios::beg);
             for (unsigned int i = 0; i < entryCount; i++) {
-                m_stream.read(entryName, PakLayout::EntryNameLength);
-                unsigned int entryAddress = IO::readUnsignedInt<int32_t>(m_stream);
-                unsigned int entryLength = IO::readUnsignedInt<int32_t>(m_stream);
-                
-                m_directory[Utility::toLower(entryName)] = PakEntry(entryName, entryAddress, entryLength);
+                readBytes(cursor, entryName, PakLayout::EntryNameLength);
+                int entryAddress = readInt<int32_t>(cursor);
+                int entryLength = readInt<int32_t>(cursor);
+                assert(m_file->begin() + entryAddress + entryLength <= m_file->end());
+
+                char* entryBegin = m_file->begin() + entryAddress;
+                char* entryEnd = entryBegin + entryLength;
+                m_directory[Utility::toLower(entryName)] = PakEntry(entryName, entryBegin, entryEnd);
             }
         }
         
-        IStream Pak::entryStream(const String& name) {
-            assert(m_stream.is_open());
-
+        MappedFile::Ptr Pak::entry(const String& name) {
             PakDirectory::iterator it = m_directory.find(Utility::toLower(name));
             if (it == m_directory.end())
-                return IStream(NULL);
+                return MappedFile::Ptr();
             
             const PakEntry& entry = it->second;
-            
-            m_stream.clear();
-            substreambuf* subStreamBuf = new substreambuf(m_stream.rdbuf(),
-                                                          static_cast<int>(entry.address()),
-                                                          static_cast<int>(entry.length()));
-            std::istream* subStream = new isubstream(subStreamBuf);
-            return IStream(subStream);
+            return entry.data();
         }
 
         PakManager* PakManager::sharedManager = NULL;
@@ -87,8 +82,9 @@ namespace TrenchBroom {
                 for (unsigned int i = 0; i < pakNames.size(); i++) {
                     String pakPath = fileManager.appendPath(path, pakNames[i]);
                     if (!fileManager.isDirectory(pakPath)) {
-                        Pak* pak = new Pak(pakPath);
-                        newPaks.push_back(pak);
+                        MappedFile::Ptr file = fileManager.mapFile(pakPath);
+                        assert(file.get() != NULL);
+                        newPaks.push_back(Pak(pakPath, file));
                     }
                 }
 
@@ -101,27 +97,18 @@ namespace TrenchBroom {
             return false;
         }
 
-        PakManager::~PakManager() {
-            PakMap::iterator it, end;
-            for (it = m_paks.begin(), end = m_paks.end(); it != end; ++it) {
-                PakList& paks = it->second;
-                Utility::deleteAll(paks);
-            }
-            m_paks.clear();
-        }
-        
-        IStream PakManager::entryStream(const String& name, const String& searchPath) {
+        MappedFile::Ptr PakManager::entry(const String& name, const String& searchPath) {
             PakList paks;
             if (findPaks(searchPath, paks)) {
                 PakList::reverse_iterator pak, endPak;
                 for (pak = paks.rbegin(), endPak = paks.rend(); pak != endPak; ++pak) {
-                    IStream stream = (*pak)->entryStream(name);
-                    if (stream.get() != NULL)
-                        return stream;
+                    MappedFile::Ptr data = pak->entry(name);
+                    if (data.get() != NULL)
+                        return data;
                 }
             }
             
-            return IStream(NULL);
+            return MappedFile::Ptr();
         }
     }
 }
