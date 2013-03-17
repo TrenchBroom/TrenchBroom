@@ -46,8 +46,8 @@ namespace TrenchBroom {
             wxCheckBox* m_toggleSkipBrushes;
             wxChoice* m_faceRenderModeChoice;
             wxCheckBox* m_toggleRenderEdges;
-				wxCheckBox* m_toggleFaceShading;
-				wxCheckBox* m_toggleFog;
+            wxCheckBox* m_toggleFaceShading;
+            // wxCheckBox* m_toggleFog;
             
             void updateControls();
             
@@ -61,7 +61,7 @@ namespace TrenchBroom {
             void OnRenderFaceModeSelected(wxCommandEvent& event);
             void OnRenderEdgesChanged(wxCommandEvent& event);
             void OnFaceShadingChanged(wxCommandEvent& event);
-            void OnFogChanged(wxCommandEvent& event);
+            // void OnFogChanged(wxCommandEvent& event);
             
             DECLARE_EVENT_TABLE();
         };

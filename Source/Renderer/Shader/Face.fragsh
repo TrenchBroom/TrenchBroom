@@ -29,55 +29,51 @@ uniform bool RenderGrid;
 uniform float GridSize;
 uniform float GridAlpha;
 uniform bool GridCheckerboard;
-uniform bool shadeFaces;
-uniform bool useFog;
+uniform bool ShadeFaces;
+uniform bool UseFog;
 
 varying vec4 modelCoordinates;
 varying vec3 modelNormal;
 varying vec4 faceColor;
 varying vec3 viewVector;
 
-void gridCheckerboard( vec2 inCoords ) {
-    bool evenA = mod( floor( inCoords.x / GridSize ), 2 ) == 0;
-    bool evenB = mod( floor( inCoords.y / GridSize ), 2 ) == 0;
+void gridCheckerboard(vec2 inCoords) {
+    bool evenA = mod(floor(inCoords.x / GridSize), 2) == 0;
+    bool evenB = mod(floor(inCoords.y / GridSize), 2) == 0;
     
-    if( evenA == evenB )
-        gl_FragColor.rgb += vec3( GridAlpha * 0.1 );
+    if (evenA == evenB)
+        gl_FragColor.rgb += vec3(GridAlpha * 0.1);
     else
-        gl_FragColor.rgb -= vec3( GridAlpha * 0.1 );
+        gl_FragColor.rgb -= vec3(GridAlpha * 0.1);
 }
 
-void gridLines( vec2 inCoords ) {
-	vec2
-		prepCoords = inCoords + vec2( 0.3 );
+void gridLines(vec2 inCoords) {
+	vec2 prepCoords = inCoords + vec2(0.3);
 
-	if( abs( mod( prepCoords.x, 64 )) <= 0.6 || abs( mod( prepCoords.y, 64 )) <= 0.6 ) {
-		gl_FragColor.rgb = mix( gl_FragColor.rgb, vec3(1.0), GridAlpha * 0.75 );
-	} else
-	if( abs( mod( prepCoords.x, GridSize )) <= 0.6 || abs( mod( prepCoords.y, GridSize )) <= 0.6 ) {
-		gl_FragColor.rgb = mix( gl_FragColor.rgb, vec3(1.0), GridAlpha * 0.5 );
-	}
+	if (abs(mod(prepCoords.x, 64)) <= 0.6 || abs(mod(prepCoords.y, 64)) <= 0.6)
+		gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0), GridAlpha * 0.75);
+	else if (abs(mod(prepCoords.x, GridSize)) <= 0.6 || abs(mod(prepCoords.y, GridSize)) <= 0.6)
+		gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0), GridAlpha * 0.5);
 }
 
-float GetSoftStripes( float value, float gridSize, float stripeSize ) {
-	float sawtooth = fract( value * gridSize );
-	float triangle = abs( 2.0 * sawtooth - 1.0 );
-	float dp = length( vec2( dFdx( value ), dFdy( value )));
+float getSoftStripes(float value, float gridSize, float stripeSize) {
+	float sawtooth = fract(value * gridSize);
+	float triangle = abs(2.0 * sawtooth - 1.0);
+	float dp = length(vec2(dFdx(value), dFdy(value)));
 	float edge = dp * gridSize * 2.0;
-	return smoothstep( stripeSize - edge, stripeSize + edge, triangle );
+	return smoothstep(stripeSize - edge, stripeSize + edge, triangle);
 }
 
-void gridLinesSoft( vec2 inCoords, float gridSize, float stripeSize, float gridSize2, float stripeSize2, float gridBlend ) {
-	float
-		theGrid, nextGrid;
+void gridLinesSoft(vec2 inCoords, float gridSize, float stripeSize, float gridSize2, float stripeSize2, float gridBlend) {
+	float theGrid, nextGrid;
 
-	theGrid = GetSoftStripes( inCoords.x, gridSize, stripeSize );
-	theGrid = max( theGrid, GetSoftStripes( inCoords.y, gridSize, stripeSize ));
-	nextGrid = GetSoftStripes( inCoords.x, gridSize2, stripeSize2 );
-	nextGrid = max( nextGrid, GetSoftStripes( inCoords.y, gridSize2, stripeSize2 ));
-	theGrid = mix( theGrid, nextGrid, gridBlend );
+	theGrid = getSoftStripes(inCoords.x, gridSize, stripeSize);
+	theGrid = max(theGrid, getSoftStripes(inCoords.y, gridSize, stripeSize));
+	nextGrid = getSoftStripes(inCoords.x, gridSize2, stripeSize2);
+	nextGrid = max(nextGrid, getSoftStripes(inCoords.y, gridSize2, stripeSize2));
+	theGrid = mix(theGrid, nextGrid, gridBlend);
 
-	gl_FragColor.rgb = mix( gl_FragColor.rgb, vec3(1.0), theGrid * GridAlpha * 0.5 );
+	gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0), theGrid * GridAlpha * 0.5);
 }
 
 // uncomment this to enable variable grid-thickness
@@ -86,134 +82,122 @@ void gridLinesSoft( vec2 inCoords, float gridSize, float stripeSize, float gridS
 void main() {
 	if (ApplyTexture)
 		gl_FragColor = texture2D(FaceTexture, gl_TexCoord[0].st);
-	else {
+	else
 		gl_FragColor = faceColor;
-	}
 
     gl_FragColor = vec4(vec3(Brightness / 2.0 * gl_FragColor), gl_FragColor.a);
     gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
 
-    if( GrayScale ) {
+    if (GrayScale) {
         float gray = dot(gl_FragColor.rgb, vec3(0.299, 0.587, 0.114));
         gl_FragColor = vec4(gray, gray, gray, gl_FragColor.a);
     }
 
-    if( ApplyTinting ) {
+    if (ApplyTinting) {
         gl_FragColor = vec4(gl_FragColor.rgb * TintColor.rgb * TintColor.a, gl_FragColor.a);
         gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
     }
 
-	if( shadeFaces ) {
+	if (ShadeFaces) {
 		// angular dimming ( can be controlled with dimStrength )
 		// TODO: make view option
-		float
-			dimStrength = 0.25;
-		float
-			angleDim = dot( normalize( viewVector ), normalize( modelNormal )) * dimStrength + ( 1.0 - dimStrength );
+		float dimStrength = 0.25;
+		float angleDim = dot(normalize(viewVector), normalize(modelNormal)) * dimStrength + (1.0 - dimStrength);
 
 		gl_FragColor.rgb *= angleDim;
 	}
 
-	if( useFog ) {
+	if (UseFog) {
+        float distance = length(viewVector);
+
 		// TODO: make view options
-		vec3
-			fogColor = vec3( 0.5, 0.5, 0.5 );
-		float
-			maxFogAmount = 0.15,
-			fogBias = 0.0,
-			fogScale = 0.000075;
+		vec3 fogColor = vec3(0.5, 0.5, 0.5);
+		float maxFogAmount = 0.15;
+		float fogBias = 0.0;
+        float fogScale = 0.00075;
+        float fogMinDistance = 512.0;
+        
+        float fogFactor = max(distance - fogMinDistance, 0.0) * fogScale;
 
 		//gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, clamp(( gl_FragCoord.z / gl_FragCoord.w ) * fogScale + fogBias, 0.0, maxFogAmount ));
-		gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, clamp( length( viewVector ) * fogScale + fogBias, 0.0, maxFogAmount ));
+		gl_FragColor.rgb = mix(gl_FragColor.rgb, fogColor, clamp(fogFactor + fogBias, 0.0, maxFogAmount));
 	}
 
-	if( RenderGrid && GridAlpha > 0.0 ) {
-		float normX = abs( modelNormal.x );
-		float normY = abs( modelNormal.y );
-		float normZ = abs( modelNormal.z );
+	if (RenderGrid && GridAlpha > 0.0) {
+		float normX = abs(modelNormal.x);
+		float normY = abs(modelNormal.y);
+		float normZ = abs(modelNormal.z);
 
-		float
-			GridThickness = 0.5;
-		float
-			fragDepth = length( viewVector ), //gl_FragCoord.z / gl_FragCoord.w,
-			gridBlend = 0,
-			baseGridSize = GridSize,
-			nextGridSize = GridSize;
+		float gridThickness = 0.5;
+		float fragDepth = length(viewVector); //gl_FragCoord.z / gl_FragCoord.w,
+        float gridBlend = 0;
+        float baseGridSize = GridSize;
+        float nextGridSize = GridSize;
 
 #ifdef USE_Grid_VariableThickness
-		float
-			baseStripeSize = GridThickness,
-			nextStripeSize = GridThickness;
+        float baseStripeSize = gridThickness,
+        float nextStripeSize = gridThickness;
 #endif
 
-		if( fragDepth > 1024.0 ) {
-			baseGridSize 	= GridSize * 4;
-			nextGridSize 	= GridSize * 8;
+		if (fragDepth > 1024.0) {
+			baseGridSize 	= GridSize * 4.0;
+			nextGridSize 	= GridSize * 8.0;
 #ifdef USE_Grid_VariableThickness
-			baseStripeSize	= GridThickness * 8;
-			nextStripeSize	= GridThickness * 16;
+			baseStripeSize	= gridThickness * 8.0;
+			nextStripeSize	= gridThickness * 16.0;
 #endif
-			gridBlend = ( fragDepth - 1024.0 ) / 1024.0;
-		} else
-		if( fragDepth > 512.0 ) {
-			baseGridSize 	= GridSize * 2;
-			nextGridSize 	= GridSize * 4;
+			gridBlend = (fragDepth - 1024.0) / 1024.0;
+		} else if(fragDepth > 512.0) {
+			baseGridSize 	= GridSize * 2.0;
+			nextGridSize 	= GridSize * 4.0;
 #ifdef USE_Grid_VariableThickness
-			baseStripeSize	= GridThickness * 4;
-			nextStripeSize	= GridThickness * 8;
+			baseStripeSize	= gridThickness * 4.0;
+			nextStripeSize	= gridThickness * 8.0;
 #endif
-			gridBlend = ( fragDepth - 512.0 ) / 512.0;
-		} else
-		if( fragDepth > 256.0 ) {
+			gridBlend = (fragDepth - 512.0) / 512.0;
+		} else if (fragDepth > 256.0) {
 			baseGridSize 	= GridSize;
-			nextGridSize 	= GridSize * 2;
+			nextGridSize 	= GridSize * 2.0;
 #ifdef USE_Grid_VariableThickness
-			baseStripeSize	= GridThickness;
-			nextStripeSize	= GridThickness * 4;
+			baseStripeSize	= gridThickness;
+			nextStripeSize	= gridThickness * 4.0;
 #endif
-			gridBlend = ( fragDepth - 256.0 ) / 256.0;
+			gridBlend = (fragDepth - 256.0) / 256.0;
 		}
 
-		float
-			blendScale = 2.0; // sharpness of the grid falloff
+		float blendScale = 2.0; // sharpness of the grid falloff
 
-		gridBlend = clamp( gridBlend * blendScale - ( blendScale - 1.0 ), 0.0, 1.0 );
+		gridBlend = clamp(gridBlend * blendScale - (blendScale - 1.0), 0.0, 1.0);
 
-		float
-			gS = 1.0 / baseGridSize,
-			gS2 = 1.0 / nextGridSize;
+		float gS = 1.0 / baseGridSize;
+		float gS2 = 1.0 / nextGridSize;
 
-		#ifdef USE_Grid_VariableThickness
-		float
-			gT = 1.0 - baseStripeSize * gS,
-			gT2 = 1.0 - nextStripeSize * gS2;
-		#else
-		float
-			gT = 1.0 - GridThickness * gS,
-			gT2 = 1.0 - GridThickness * gS2;
-		#endif
+#ifdef USE_Grid_VariableThickness
+		float gT = 1.0 - baseStripeSize * gS;
+        float gT2 = 1.0 - nextStripeSize * gS2;
+#else
+		float gT = 1.0 - gridThickness * gS;
+        float gT2 = 1.0 - gridThickness * gS2;
+#endif
 
-		vec2
-			baseCoords; // coordinates used for overlay creation
+		vec2 baseCoords; // coordinates used for overlay creation
 
-		if( normX > normY ) {
-			if( normX > normZ ) {
+		if (normX > normY) {
+			if (normX > normZ)
 				baseCoords = modelCoordinates.yz;
-			} else {
+			else
 				baseCoords = modelCoordinates.xy;
-			}
-		} else
-		if( normY > normZ ) {
+		} else if (normY > normZ) {
 			baseCoords = modelCoordinates.xz;
 		} else {
 			baseCoords = modelCoordinates.xy;
 		}
 
-		if( GridCheckerboard ) {
-			gridCheckerboard( baseCoords );
+		if (GridCheckerboard) {
+			gridCheckerboard(baseCoords);
 		} else {
 			//gridLines( baseCoords );
-			gridLinesSoft( baseCoords, gS, gT, gS2, gT2, gridBlend );
+			gridLinesSoft(baseCoords, gS, gT, gS2, gT2, gridBlend);
 		}
 	}
 }
