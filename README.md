@@ -2,6 +2,9 @@
 
 TrenchBroom is a modern cross-platform level editor for Quake.
 
+Website:   http://kristianduske.com/trenchbroom
+Downloads: http://kristianduske.com/trenchbroom/download.php
+
 ## Features
 - True 3D editing, no 2D views required
 - High performance renderer with support for huge maps
