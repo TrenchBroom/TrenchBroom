@@ -35,12 +35,13 @@ namespace TrenchBroom {
         
         class PointHandleHighlightFigure : public Figure {
         protected:
-            Vec3f m_position;
+            Vec3f::List m_positions;
             Color m_color;
             float m_radius;
             float m_scalingFactor;
         public:
             PointHandleHighlightFigure(const Vec3f& position, const Color& color, float radius, float scalingFactor);
+            PointHandleHighlightFigure(const Vec3f::List& positions, const Color& color, float radius, float scalingFactor);
             
             void render(Vbo& vbo, RenderContext& context);
         };
