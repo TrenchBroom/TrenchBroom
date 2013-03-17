@@ -146,7 +146,7 @@ namespace TrenchBroom {
 
         void MapWriter::writeObjectsToStream(const Model::EntityList& pointEntities, const Model::BrushList& brushes, std::ostream& stream) {
             assert(stream.good());
-            stream.setf(std::ios_base::floatfield);
+            stream.unsetf(std::ios::floatfield);
             stream.precision(9);
 
             Model::Entity* worldspawn = NULL;
@@ -198,7 +198,7 @@ namespace TrenchBroom {
         
         void MapWriter::writeFacesToStream(const Model::FaceList& faces, std::ostream& stream) {
             assert(stream.good());
-            stream.setf(std::ios_base::floatfield);
+            stream.unsetf(std::ios::floatfield);
             stream.precision(9);
             
             for (unsigned int i = 0; i < faces.size(); i++)
@@ -207,7 +207,7 @@ namespace TrenchBroom {
 
         void MapWriter::writeToStream(const Model::Map& map, std::ostream& stream) {
             assert(stream.good());
-            stream.setf(std::ios_base::floatfield);
+            stream.unsetf(std::ios::floatfield);
             stream.precision(9);
             
             const Model::EntityList& entities = map.entities();

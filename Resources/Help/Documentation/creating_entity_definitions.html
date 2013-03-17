@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>TrenchBroom Help - Working With Textures</title>
+	<link rel="StyleSheet" href="css/style.css" type="text/css" media="screen" />
+	<meta name="author" content="Kristian Duske">
+</head>
+<body>
+	<script src="scripts/commands.js"></script>
+	<div id="container">
+		<h1>Creating Entity Definitions</h1>
+		<p></p>
+		<h2>"DEF" Format</h2>
+		
+		<h3>Point Entities</h3>
+		<p class="no-indent">This format is the simplest way of creating entity definitions for the editor to use.  Here is an example of a DEF for a <b>Point Entity</b></p>
+		
+		<div class="monospace_text">/*QUAKED item_shells (0 .5 .5) (0 0 0) (32 32 32) BIG<br/>
+		model(":maps/b_shell0.bsp");<br/>
+		model(":maps/b_shell1.bsp" 0 0 spawnflags = 1);<br/>
+		20 shells for both Shotgun and SuperShotgun.<br/>
+		<br/>
+		Flags:<br/>
+		"BIG"<br/>
+			&emsp;&emsp;&emsp;&emsp;gives 40 instead of 20<br/>
+		<br/>
+		Keys:<br/>
+		"target"<br/>
+			&emsp;&emsp;&emsp;&emsp;entity to trigger when picked up<br/>
+		"targetname"<br/>
+			&emsp;&emsp;&emsp;&emsp;entity name<br/>
+		*/</div>
+		
+		
+		<p class="no-indent">Here are the components:</p>
+		
+		<p class="no-indent"><span class="monospace_text">/*QUAKED</span><br/>
+		This tells the editor that this is the beginning of an entity definition.  It must always be present at the start of the first line.</p>
+		
+		<p class="no-indent"><span class="monospace_text">item_shells</span><br/>
+		This is the name of the entity; in more technical terms, it's <i>classname</i>.  The classname must be one word and can contain only letters, numbers and _.  It cannot begin with a number.  It must have a matching entry in the progs.dat of the mod you are creating this definition for or it will do nothing in the game.<br/>Another point of note is how Trenchbroom organizes entities in the context menu.  Entities who's classnames have prefixes before the first underscore(_) will be grouped together in a submenu.</p>
+		
+		<p class="no-indent"><span class="monospace_text">(0 .5 .5)</span><br/>
+		This tells the editor what colour the entity's bounding box should be in the viewport.  It is helpful to colour entities that share similar traits the same colour.  The proper syntax for this section are three decimal numbers between 0 and 1 bounded by opening and closing () braces.  The numbers follow the standard <b>RGB</b> method of defining a colour: the first number is how much red to mix in, the second is how much green, and the third is how much blue.</p>
+		
+		<p class="no-indent"><span class="monospace_text">(0 0 0) (32 32 32)</span><br/>
+		The next two sets of numbers are vectors representing the mins and maxs of this point entity.  In the case of this entity, the entity's bounding box starts at <span class="monospace_text">(0 0 0)</span> and goes to <span class="monospace_text">(32 32 32)</span>.  Note that these do not have to be positive.  The ammo box is not centered on the origin of the entity in this case.  A setting of <span class="monospace_text">(-16 -16 0)</span> and <span class="monospace_text">(16 16 32)</span> would center the bounding box of the origin horizontally.</p>
+		
+		<p class="no-indent"><span class="monospace_text">BIG</span><br/>
+		This is a spawnflag and will appear in the smart editor in Trenchbroom.  More than one spawnflag can be defined by placing them one after another on the same line with a space separating them.  Note that if you need to skip a spawnflag (eg: bit values 1, 2 and 8 but not 4), you would need to put a dummy flag (usually an X) in the unwanted value's place.</p>
+		
+		<p class="no-indent"><div class="monospace_text">20 shells for both Shotgun and SuperShotgun.<br/>
+		<br/>
+		Flags:<br/>
+		"BIG"<br/>
+			&emsp;&emsp;&emsp;&emsp;gives 40 instead of 20<br/>
+		<br/>
+		Keys:<br/>
+		"target"<br/>
+			&emsp;&emsp;&emsp;&emsp;entity to trigger when picked up<br/>
+		"targetname"<br/>
+			&emsp;&emsp;&emsp;&emsp;entity name<br/></div><br/>
+		This is simply a description of the entity.  It is only for users to read so that they can understand how the entity works and does nothing in the editor.</p>
+		<p class="no-indent"><span class="monospace_text">*/</span><br/>
+		This tells the editor that this is the end of the entity definition.  It is required at the end of all entity definitions.</p>
+		
+		<!-- Simplify this section since most of this is already said in the previous section!!! -->
+		<h3>Brush Entities</h3>		
+		<p class="no-indent">Here is an example of a DEF for a <b>Brush Entity</b>:
+		<div class="monospace_text">/*QUAKED func_illusionary (0 .5 .8) ?<br/>
+		A simple entity that looks solid but lets you walk through it.<br/>
+		Does not block light.<br/>
+		*/</div>
+		</p>
+		<p class="no-indent">Here are the components:</p>
+		<p class="no-indent"><span class="monospace_text">/*QUAKED</span><br/>
+		Unchanged from point entities, this tells Trenchbroom that it is the start of a new definition.</p>
+		<p class="no-indent"><span class="monospace_text">func_illusionary</span><br/>
+		Same as with point entities, this is the classname.</p>
+		<p class="no-indent"><span class="monospace_text">(0 .5 .8)</span><br/>
+		This tells the editor what colour the entity's bounding box should be in the viewport.  It is helpful to colour entities that share similar traits the same colour.  The proper syntax for this section are three decimal numbers between 0 and 1 bounded by opening and closing () braces.  The numbers follow the standard <b>RGB</b> method of defining a colour: the first number is how much red to mix in, the second is how much green, and the third is how much blue.</p>
+		<p class="no-indent"><span class="monospace_text">?</span><br/>
+		This tells the editor that this entity is a <b>brush entity</b>.  In other words, it contains brushes, for example doors, lifts and triggers.  Note that unlike the point entity definition, the brush entity definition is missing the two sets of vectors.  This is because brush entities can be any size and that size is determined by the brushes it contains.</p>
+		<p class="no-indent"><div class="monospace_text">A simple entity that looks solid but lets you walk through it.<br/>
+		Does not block light.<br/></div><br/>
+		Again, this is simply a description of the entity.</p>
+		<p class="no-indent"><span class="monospace_text">*/</span><br/>
+		Unchanged from point entities, this tells the editor that this is the end of the entity definition and is required at the end of all entity definitions.</p>
+		
+		<h2>"FGD" Format</h2>
+		<p>The FGD format is a more complicated definition format and so will take more time to describe.</p>
+		<h3>Inheritance</h3>
+		<p>The FGD format implements inheritance.  What this means is that you can create templates which you can then use to quickly add parts of a definition to other definitions.</p>
+	</div>
+</body>
+</html>

@@ -245,10 +245,6 @@
 		<Unit filename="../Source/IO/StreamTokenizer.h" />
 		<Unit filename="../Source/IO/Wad.cpp" />
 		<Unit filename="../Source/IO/Wad.h" />
-		<Unit filename="../Source/IO/mmapped_fstream.h" />
-		<Unit filename="../Source/IO/mmapped_fstream_posix.h" />
-		<Unit filename="../Source/IO/mmapped_fstream_win32.h" />
-		<Unit filename="../Source/IO/substream.h" />
 		<Unit filename="../Source/Model/Alias.cpp" />
 		<Unit filename="../Source/Model/Alias.h" />
 		<Unit filename="../Source/Model/AliasNormals.h" />

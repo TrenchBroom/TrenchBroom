@@ -12,15 +12,25 @@
 	<div id="container">
 		<h2>Solving Problems</h2>
 		<p></p>
-		<h3>Leaks and Pointfiles</h3>
+		<a name="solving_problems_leaks"></a><h3>Leaks and Pointfiles</h3>
 		<p>During mapping, you may inadvertently leave holes that lead outside of the map into the void. These are known as leaks.  You will not be able to properly compile and vis your map until it is fully sealed from the void.</p>
 		<p>Your QBSP tool already has some functionality built in that facilitates in finding leaks, but there is an editor side as well. When QBSP detects a leak, it generates a 'pointfile'.  This is a file with the .pts extension and provides a way for a map editor to communicate the QBSP tool's findings. In order to make use of this file, you must place it alongside the map file as it is loaded in Trenchbroom, so if you have a separate folder where you compile your maps, you will need to copy the .pts file back into the map folder. Once this is done, use the <b>Load Pointfile</b> command (<script>print_menu_command("file_load_pointfile");</script>) and Trenchbroom will draw a line which will help you find where the leak in your map is. You can use the <script>print_menu_command("view_camera_move_to_next_pt");</script> and <script>print_menu_command("view_camera_move_to_prev_pt");</script> commands to navigate the camera along the line.</p>
 		<p>If you open the file menu again, you will notice that the <script>print_menu_command("file_load_pointfile");</script> command has been replaced with the <script>print_menu_command("file_reload_pointfile");</script> command. You can use this command to reload the pointfile after making changes to your map and recompiling.</p>
 		<p>Once all leaks have been closed and you are done with the pointfile line, you can use the <b>Unload Pointfile</b> command (<script>print_menu_command("file_unload_pointfile");</script>) to stop displaying the line in the editor.</p>
-		<h3>Dropped Brushes</h3>
+		
+		<a name="solving_problems_textures_not_matching"></a><h3>Texture alignment not matching in-game</h3>
+		<p>If your texture alignment looks different in Quake then it does in Trenchbroom, you may be using a QBSP compiler that has the wrong texture projection.  Usually QBSP compilers have a switch that lets you toggle between the compiler's native projection axes and the standard one used by Quake and Radiant editors.</p>
+		<ul>
+			<li>If you are using txQBSP, or a compiler based on txQBSP (ie: Aguirre's QBSP) you must <b>NOT</b> supply the -altAxis argument for TrenchBroom.</li>
+			<li>In Tyrann's tools, you must supply the -oldAxis argument for TrenchBroom.</li>
+		</ul>
+		<p class="no-indent">Check your compiler's documentation if it is not listed here!</p>
+		
+		<a name="solving_problems_dropped_brushes"></a><h3>Dropped Brushes</h3>
 		<p class="no-justify">When loading a map that was made in another editor, you may see this error: <span class="monospace_text">Skipping malformed brush at line #</span> where # is a line number in the map file. This means Trenchbroom was unable to parse a particular line in the map file and therefore skipped the brush entirely. Check the map file at the line in question to find out the brush number and then see if you can load the brush into another editor to be sure that it is correct.</p>
-		<h3>Fixing Vertex Misalignments</h3>
-		<p>During the course of editing, you may end up with vertices which have non-integer coordinates. Sometimes this will be intentional, where you disabled grid snap, and other times it could be a product of floating point imprecision on the part of the editor. Regardless, there will be times when you want to snap the vertices of a brush to integer coordinates or in other words, the round off the vertex coordinates of a brush or multiple brushes.  Trenchbroom provides this functionality in two ways: <b>Correct Vertices</b> and <b>Snap Vertices</b>.</p>
+		
+		<a name="solving_problems_vertex_misalignments"></a><h3>Fixing Vertex Misalignments</h3>
+		<p>During the course of editing, you may end up with vertices which have fractional coordinates. Sometimes this will be intentional, where you disabled grid snap, and other times it could be a product of floating point imprecision on the part of the editor. Regardless, there will be times when you want to snap the vertices of a brush to integer coordinates or in other words, to round off the vertex coordinates of a brush or multiple brushes.  Trenchbroom provides this functionality in two ways: <b>Correct Vertices</b> and <b>Snap Vertices</b>.</p>
 		<ul>
 		<li><b>Correct Vertices</b>
 			<p>Accessible through the menu with: <script>print_menu_command("edit_actions_correct_verts");</script>, this command is aimed primarily at correcting floating point imprecisions. It will snap vertices to integer coordinates in the current selection if they are less than 0.002 units off.</p>
@@ -30,7 +40,8 @@
 		</li>
 		</ul>
 		<p>Note that both these functions work with multiple brushes in the selection, but they are unavailable if entities are selected.</p>
-		<h3>Automatic Backups</h3>
+		
+		<a name="solving_problems_backups"></a><h3>Automatic Backups</h3>
 		<p>TrenchBroom makes automatic backups of your map roughly every 5 minutes. This protects you from losing a lot of work if the editor crashes. You can find the backup map files in the sub folder <i>autosave</i> within the folder where your map file is stored. The backups are numbered in ascending order, i.e. the latest backup is the one with highest number.</p>
 	</div>
 </body>

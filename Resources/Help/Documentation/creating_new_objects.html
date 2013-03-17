@@ -38,8 +38,20 @@
 		<p>It is often very useful to create new objects by duplicating existing objects. You can duplicate brushes and entities by selecting them and choosing <script>print_menu_command("edit_duplicate_selection");</script>. The duplicated objects are offset by the current grid size towards the camera. Since TrenchBroom automatically selects the duplicates, you can edit them right away.</p>
 
 		<a id="copy_and_paste"></a><h3>Copy and Paste</h3>
-		<p>Just like in any other application, you can copy, cut and paste entities and brushes in TrenchBroom. Pasted objects are inserted in front of the camera at a default distance. Note that the copied objects are placed on the clipboard as text snippets in the standard map format. This means that you can copy objects in TrenchBroom and paste them into a text editor and vice versa.</p>
 		<p>Standard commands apply: Cut (<script>print_menu_command("edit_cut");</script>), Copy (<script>print_menu_command("edit_copy");</script>) and Paste (<script>print_menu_command("edit_paste");</script>).</p>
+		<p>Just like in any other application, you can cut, copy and paste entities and brushes in TrenchBroom.  Copied objects are placed on the clipboard as text snippets in the standard map format.  This means that you can copy objects in TrenchBroom and paste them into a text editor and vice versa, however it is important to note that doing so may introduce floating point errors because Trenchbroom uses 'hidden' information during Copying and Pasting which helps preserve the complete structure of a brush but that information is lost when copying and pasting from text snippets.</p>
+		<p>Pasting behaviour is context sensitive, so depending on circumstances, the pasted object(s) will appear in different places.
+		<h4>If the cursor is within the 3D view</h4>
+		<ul>
+			<li>If there is no brush under the mouse, the pasted objects will be placed at a default distance under the cursor.</li>
+			<li>If there is a brush under the mouse, the pasted objects will be placed in such a way that its bounding box touches the point on the face. In other words, the bounding box is moved outwards of the face along its normal until it does not touch the face anymore at the point where the mouse is.</li>
+		</ul>
+		<h4>If the cursor is not within the 3D view</h4>
+		<ul>
+			<li>The pasted objects will be placed at some default distance in at the center of the screen.</li>
+		</ul>
+		Finally, there is one last method of creating a copy of the selection, the Paste at Original Position command: <script>print_menu_command("edit_paste_at_original_pos");</script>.  As you might have guess from the wording, this command will paste the copied object at the position where it was originally copied from.  This command is useful if you need to have 1 or more of the brush's vertices retain their original positions.
+		</p>
 	</div>
 </body>
 </html>
