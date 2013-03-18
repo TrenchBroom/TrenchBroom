@@ -57,11 +57,19 @@ void gridLines(vec2 inCoords) {
 }
 
 float getSoftStripes(float value, float gridSize, float stripeSize) {
-	float sawtooth = fract(value * gridSize);
-	float triangle = abs(2.0 * sawtooth - 1.0);
-	float dp = length(vec2(dFdx(value), dFdy(value)));
-	float edge = dp * gridSize * 2.0;
-	return smoothstep(stripeSize - edge, stripeSize + edge, triangle);
+	float mainVal = value * gridSize;
+	float triangle = abs(2.0 * fract(mainVal) - 1.0);
+	float filterWidth = fwidth(value);
+	float edge = filterWidth * gridSize * 2.0;
+
+	// major line shading, currently set to place a major line every 64 units ( candidate for view preferences ?)
+	float mValue = 1.0 / (64.0 * gridSize);
+	float triMajor = abs(2.0 * fract(mainVal * mValue) - 1.0);
+	float isMajor = step(1.0 - mValue, triMajor);
+	float outIntensity = isMajor * 0.3 + 0.85;
+	float sSize = mix(stripeSize, 1.0 - stripeSize * gridSize * 1.1, isMajor);
+
+	return smoothstep(sSize - edge, sSize + edge, triangle) * outIntensity;
 }
 
 void gridLinesSoft(vec2 inCoords, float gridSize, float stripeSize, float gridSize2, float stripeSize2, float gridBlend) {
@@ -75,9 +83,6 @@ void gridLinesSoft(vec2 inCoords, float gridSize, float stripeSize, float gridSi
 
 	gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0), theGrid * GridAlpha * 0.5);
 }
-
-// uncomment this to enable variable grid-thickness
-//#define USE_Grid_VariableThickness
 
 void main() {
 	if (ApplyTexture)
