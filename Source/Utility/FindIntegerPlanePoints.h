@@ -25,11 +25,14 @@
 namespace TrenchBroom {
     namespace Math {
         namespace FindIntegerPlanePoints {
-            inline float planeFrequency(const Plane& plane) {
+            inline float planeWaveLength(const Plane& plane) {
+                const float c = 1.0f - std::sin(Math::Pi / 4.0f);
+                
                 const Vec3f& axis = plane.normal.firstAxis();
-                const float dot = plane.normal.dot(axis);
-                assert(dot != 0.0f);
-                return 1.0f / dot;
+                const float d = plane.normal.dot(axis);
+                assert(d != 0.0f);
+                
+                return (1.0f - d) / c;
             }
             
             inline void setDefaultPlanePoints(const Plane& plane, Vec3f points[3]) {
@@ -67,8 +70,8 @@ namespace TrenchBroom {
             }
             
             inline void findPoints(const Plane& plane, Vec3f points[3]) {
-                const float frequency = planeFrequency(plane);
-                if (Math::eq(frequency, 1.0f)) {
+                const float waveLength = planeWaveLength(plane);
+                if (Math::zero(waveLength)) {
                     setDefaultPlanePoints(plane, points);
                 } else {
                     

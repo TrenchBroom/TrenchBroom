@@ -49,6 +49,12 @@ namespace TrenchBroom {
                 test.setPoints(points[0], points[1], points[2]);
                 assert(test.normal.equals(xz.normal));
                 assert(test.distance == Math::round(xz.distance));
+
+                Plane yz(Vec3f::PosY, 1223.127372f);
+                FindIntegerPlanePoints::findPoints(yz, points);
+                test.setPoints(points[0], points[1], points[2]);
+                assert(test.normal.equals(yz.normal));
+                assert(test.distance == Math::round(yz.distance));
             }
         };
     }
