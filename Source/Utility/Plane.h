@@ -120,18 +120,15 @@ namespace TrenchBroom {
             }
             
             inline float x(float y, float z) const {
-                float l = normal.dot(anchor());
-                return (l - normal.y * y - normal.z * z) / normal.x;
+                return (distance - normal.y * y - normal.z * z) / normal.x;
             }
             
             inline float y(float x, float z) const {
-                float l = normal.dot(anchor());
-                return (l - normal.x * x - normal.z * z) / normal.y;
+                return (distance - normal.x * x - normal.z * z) / normal.y;
             }
             
             inline float z(float x, float y) const {
-                float l = normal.dot(anchor());
-                return (l - normal.x * x - normal.y * y) / normal.z;
+                return (distance - normal.x * x - normal.y * y) / normal.z;
             }
             
             inline bool equals(const Plane& other) const {

@@ -339,7 +339,7 @@ namespace TrenchBroom {
                 return Axis::AZ;
             }
             
-            inline const Vec3f& firstAxis(bool pos = true) const {
+            inline const Vec3f& firstAxis(bool abs = false) const {
                 if (equals(Null)) {
                     return Null;
                 } else {
@@ -348,17 +348,17 @@ namespace TrenchBroom {
                     float za = std::abs(z);
                     
                     if (xa >= ya && xa >= za) {
-                        if (x > 0.0f && pos)
+                        if (x > 0.0f || abs)
                             return PosX;
                         else
                             return NegX;
                     } else if (ya >= xa && ya >= za) {
-                        if (y > 0.0f && pos)
+                        if (y > 0.0f || abs)
                             return PosY;
                         else
                             return NegY;
                     } else {
-                        if (z > 0.0f && pos)
+                        if (z > 0.0f || abs)
                             return PosZ;
                         else
                             return NegZ;
@@ -366,7 +366,7 @@ namespace TrenchBroom {
                 }
             }
             
-            inline const Vec3f& secondAxis(bool pos = true) const {
+            inline const Vec3f& secondAxis(bool abs = false) const {
                 if (equals(Null)) {
                     return Null;
                 } else {
@@ -376,18 +376,18 @@ namespace TrenchBroom {
                     
                     if ((xa <= ya && xa >= za) ||
                         (xa >= ya && xa <= za)) {
-                        if (x > 0.0f && pos)
+                        if (x > 0.0f || abs)
                             return PosX;
                         else
                             return NegX;
                     } else if ((ya <= xa && ya >= za) || 
                                (ya >= xa && ya <= za)) {
-                        if (y > 0.0f && pos)
+                        if (y > 0.0f || abs)
                             return PosY;
                         else
                             return NegY;
                     } else {
-                        if (z > 0.0f && pos)
+                        if (z > 0.0f || abs)
                             return PosZ;
                         else
                             return NegZ;
@@ -395,7 +395,7 @@ namespace TrenchBroom {
                 }
             }
             
-            inline const Vec3f& thirdAxis(bool pos = true) const {
+            inline const Vec3f& thirdAxis(bool abs = false) const {
                 if (equals(Null)) {
                     return Null;
                 } else {
@@ -404,17 +404,17 @@ namespace TrenchBroom {
                     float za = std::abs(z);
                     
                     if (xa <= ya && xa <= za) {
-                        if (x > 0.0f && pos)
+                        if (x > 0.0f || abs)
                             return PosX;
                         else
                             return NegX;
                     } else if (ya <= xa && ya <= za) {
-                        if (y > 0.0f && pos)
+                        if (y > 0.0f || abs)
                             return PosY;
                         else
                             return NegY;
                     } else {
-                        if (z > 0.0f && pos)
+                        if (z > 0.0f || abs)
                             return PosZ;
                         else
                             return NegZ;
