@@ -204,6 +204,11 @@ namespace TrenchBroom {
                     Renderer::PointHandleHighlightFigure highlightFigure(firstHit->vertex(), color, radius, scalingFactor);
                     highlightFigure.render(vbo, renderContext);
                     glEnable(GL_DEPTH_TEST);
+                    
+                    if (!m_handleManager.vertexHandleSelected(firstHit->vertex())) {
+                        Renderer::Text::TextAnchor* anchor = new Renderer::Text::SimpleTextAnchor(firstHit->vertex() + Vec3f(0.0f, 0.0f, radius + 2.0f), Renderer::Text::Alignment::Bottom);
+                        m_textRenderer->addString(firstHit->vertex(), font, firstHit->vertex().asString(), anchor);
+                    }
                 } else {
                     Renderer::LinesRenderer linesRenderer;
                     linesRenderer.setColor(prefs.getColor(Preferences::EdgeHandleColor), prefs.getColor(Preferences::OccludedEdgeHandleColor));
