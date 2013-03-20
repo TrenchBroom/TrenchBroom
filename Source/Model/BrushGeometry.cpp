@@ -158,21 +158,18 @@ namespace TrenchBroom {
             if (Math::isnan(dist))
                 return Math::nan();
 
-            Vec3f hit, projectedHit, v0, v1;
             CoordinatePlane cPlane = CoordinatePlane::plane(boundary.normal);
 
-            hit = ray.pointAtDistance(dist);
-            cPlane.project(hit, projectedHit);
+            const Vec3f hit = ray.pointAtDistance(dist);
+            const Vec3f projectedHit = cPlane.swizzleTo(hit);
 
             const Vertex* vertex = vertices.back();
-            cPlane.project(vertex->position, v0);
-            v0 -= projectedHit;
+            Vec3f v0 = cPlane.swizzleTo(vertex->position) - projectedHit;
 
             int c = 0;
             for (unsigned int i = 0; i < vertices.size(); i++) {
                 vertex = vertices[i];
-                cPlane.project(vertex->position, v1);
-                v1 -= projectedHit;
+                Vec3f v1 = cPlane.swizzleTo(vertex->position) - projectedHit;
 
                 if ((Math::zero(v0.x) && Math::zero(v0.y)) || (Math::zero(v1.x) && Math::zero(v1.y))) {
                     // the point is identical to a polygon vertex, cancel search

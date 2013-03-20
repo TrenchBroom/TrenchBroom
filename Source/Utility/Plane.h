@@ -130,6 +130,10 @@ namespace TrenchBroom {
             inline float z(float x, float y) const {
                 return (distance - normal.x * x - normal.y * y) / normal.z;
             }
+                    
+            inline float z(const Vec2f& coords) const {
+                return z(coords.x, coords.y);
+            }
             
             inline bool equals(const Plane& other) const {
                 return equals(other, Math::AlmostZero);

@@ -50,8 +50,8 @@ namespace TrenchBroom {
             }
 
         public:
-            static const CoordinatePlane& plane(const Vec3f& normal) {
-                switch (normal.firstComponent()) {
+            static const CoordinatePlane& plane(Axis::Type axis) {
+                switch (axis) {
                     case Axis::AX:
                         return plane(YZ);
                     case Axis::AY:
@@ -60,24 +60,42 @@ namespace TrenchBroom {
                         return plane(XY);
                 }
             }
+
+            static const CoordinatePlane& plane(const Vec3f& normal) {
+                return plane(normal.firstComponent());
+            }
             
-            inline void project(const Vec3f& point, Vec3f& result) const {
+            inline Vec3f project(const Vec3f& point) const {
                 switch (m_plane) {
                     case XY:
-                        result.x = point.x;
-                        result.y = point.y;
-                        result.z = point.z;
-                        break;
+                        return Vec3f(point.x, point.y, 0.0f);
                     case YZ:
-                        result.x = point.y;
-                        result.y = point.z;
-                        result.z = point.x;
-                        break;
+                        return Vec3f(0.0f, point.y, point.z);
                     default:
-                        result.x = point.x;
-                        result.y = point.z;
-                        result.z = point.y;
-                        break;
+                        return Vec3f(point.x, 0.0f, point.z);
+                }
+            }
+            
+            inline Vec3f swizzleTo(const Vec3f& point) const {
+                switch (m_plane) {
+                    case XY:
+                        return point;
+                    case YZ:
+                        return Vec3f(point.y, point.z, point.x);
+                    default:
+                        return Vec3f(point.x, point.z, point.y);
+                }
+            }
+
+            
+            inline Vec3f swizzleFrom(const Vec3f& point) const {
+                switch (m_plane) {
+                    case XY:
+                        return point;
+                    case YZ:
+                        return Vec3f(point.z, point.x, point.y);
+                    default:
+                        return Vec3f(point.x, point.y, point.z);
                 }
             }
         };

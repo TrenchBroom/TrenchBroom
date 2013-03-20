@@ -1,3 +1,4 @@
+
 /*
  Copyright (C) 2010-2012 Kristian Duske
  
@@ -25,7 +26,9 @@
 #include "Utility/VecMath.h"
 
 #include <cassert>
+#include <cstdlib>
 #include <functional>
+#include <ctime>
 
 namespace TrenchBroom {
     namespace Math {
@@ -33,6 +36,8 @@ namespace TrenchBroom {
         protected:
             void registerTestCases() {
                 registerTestCase(&FindIntegerPlanePointsTest::testParallelPlane);
+                registerTestCase(&FindIntegerPlanePointsTest::testNonParallelPlane);
+                registerTestCase(&FindIntegerPlanePointsTest::testRandomPlanes);
             }
         public:
             void testParallelPlane() {
@@ -55,6 +60,48 @@ namespace TrenchBroom {
                 test.setPoints(points[0], points[1], points[2]);
                 assert(test.normal.equals(yz.normal));
                 assert(test.distance == Math::round(yz.distance));
+            }
+            
+            void testNonParallelPlane() {
+                Vec3f points[3];
+                Plane plane, test;
+                
+                plane = Plane(Vec3f(0.8f, 0.0f, 1.0f).normalized(), 0.0f);
+                FindIntegerPlanePoints::findPoints(plane, points);
+                test.setPoints(points[0], points[1], points[2]);
+                assert(test.normal.equals(plane.normal));
+                assert(test.distance == Math::round(plane.distance));
+
+                plane = Plane(Vec3f(0.8f, 0.0f, 1.0f).normalized(), 0.7f);
+                FindIntegerPlanePoints::findPoints(plane, points);
+                test.setPoints(points[0], points[1], points[2]);
+                assert(test.normal.equals(plane.normal));
+                assert(std::abs(plane.distance - test.distance) <= 1.0f);
+                
+                plane = Plane(Vec3f(0.8f, 0.4f, 1.0f).normalized(), 189.23222f);
+                FindIntegerPlanePoints::findPoints(plane, points);
+                test.setPoints(points[0], points[1], points[2]);
+                assert(test.normal.equals(plane.normal));
+                assert(std::abs(plane.distance - test.distance) <= 1.0f);
+            }
+            
+            void testRandomPlanes() {
+                Vec3f points[3];
+                Plane plane, test;
+
+                std::srand(static_cast<unsigned int>(std::time(NULL)));
+                for (size_t i = 0; i < 100; i++) {
+                    float x = std::rand() % 4096;
+                    float y = std::rand() % 4096;
+                    float z = std::rand() % 4096;
+                    float d = std::rand() % 2096;
+                    
+                    plane = Plane(Vec3f(x, y, z).normalized(), d);
+                    FindIntegerPlanePoints::findPoints(plane, points);
+                    test.setPoints(points[0], points[1], points[2]);
+                    assert(test.normal.equals(plane.normal, 0.01f));
+                    assert(std::abs(plane.distance - test.distance) <= 1.0f);
+                }
             }
         };
     }
