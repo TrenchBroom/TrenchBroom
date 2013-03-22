@@ -260,6 +260,12 @@ namespace TrenchBroom {
                              z / l);
             }
             
+            inline bool isInteger(float epsilon = Math::AlmostZero) {
+                return (std::abs(x - Math::round(x)) < epsilon &&
+                        std::abs(y - Math::round(y)) < epsilon &&
+                        std::abs(z - Math::round(z)) < epsilon);
+            }
+            
             inline Vec3f& correct(float epsilon = Math::CorrectEpsilon) {
                 x = Math::correct(x, epsilon);
                 y = Math::correct(y, epsilon);

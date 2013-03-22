@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		48009AF515F7FA8B001A9993 /* AbstractFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48009AF315F7FA8B001A9993 /* AbstractFileManager.cpp */; };
+		480111B016FCEFC8009B1BFB /* FindPlanePoints.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480111AF16FCEFC8009B1BFB /* FindPlanePoints.cpp */; };
+		480111B116FCF32D009B1BFB /* FindPlanePoints.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480111AF16FCEFC8009B1BFB /* FindPlanePoints.cpp */; };
 		480ED72B16624C5100857A21 /* MoveVerticesTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480ED72916624C5100857A21 /* MoveVerticesTool.cpp */; };
 		480ED755166401B200857A21 /* InstancedPointHandle.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 480ED754166401B100857A21 /* InstancedPointHandle.vertsh */; };
 		4810276615E4FBF000250C9C /* MapGLCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810276415E4FBF000250C9C /* MapGLCanvas.cpp */; };
@@ -219,6 +221,7 @@
 /* Begin PBXFileReference section */
 		48009AF315F7FA8B001A9993 /* AbstractFileManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractFileManager.cpp; sourceTree = "<group>"; };
 		48009AF415F7FA8B001A9993 /* AbstractFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractFileManager.h; sourceTree = "<group>"; };
+		480111AF16FCEFC8009B1BFB /* FindPlanePoints.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FindPlanePoints.cpp; sourceTree = "<group>"; };
 		480ED72916624C5100857A21 /* MoveVerticesTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveVerticesTool.cpp; sourceTree = "<group>"; };
 		480ED72A16624C5100857A21 /* MoveVerticesTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveVerticesTool.h; sourceTree = "<group>"; };
 		480ED74D1662C4A200857A21 /* InstancedVertexArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InstancedVertexArray.h; sourceTree = "<group>"; };
@@ -319,7 +322,7 @@
 		483AE27716F8FE890073686A /* Vec3fTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Vec3fTest.h; sourceTree = "<group>"; };
 		483AE27816F8FEB90073686A /* TestSuite.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestSuite.h; sourceTree = "<group>"; };
 		483AE27916F915D40073686A /* PlaneTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlaneTest.h; sourceTree = "<group>"; };
-		483AE27E16F918600073686A /* FindIntegerPlanePoints.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FindIntegerPlanePoints.h; sourceTree = "<group>"; };
+		483AE27E16F918600073686A /* FindPlanePoints.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FindPlanePoints.h; sourceTree = "<group>"; };
 		483AE27F16F9190B0073686A /* FindIntegerPlanePointsTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FindIntegerPlanePointsTest.h; sourceTree = "<group>"; };
 		483D0C3716C050DE0050710B /* SharedPointer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SharedPointer.h; sourceTree = "<group>"; };
 		483E203B16DCB33B00B087BB /* Defs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Defs; path = ../Resources/Defs; sourceTree = "<group>"; };
@@ -1002,7 +1005,8 @@
 				48D1BEAB15E305FA0073C030 /* CoordinatePlane.h */,
 				4850D24415F2AAE8005B162D /* DocManager.cpp */,
 				4850D24515F2AAE8005B162D /* DocManager.h */,
-				483AE27E16F918600073686A /* FindIntegerPlanePoints.h */,
+				480111AF16FCEFC8009B1BFB /* FindPlanePoints.cpp */,
+				483AE27E16F918600073686A /* FindPlanePoints.h */,
 				48E2ECBB15FF8FDF00B8D476 /* Grid.cpp */,
 				48E2ECBC15FF8FDF00B8D476 /* Grid.h */,
 				48D1BEA815E2FBAC0073C030 /* Line.h */,
@@ -1374,6 +1378,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				480111B116FCF32D009B1BFB /* FindPlanePoints.cpp in Sources */,
 				483AE27A16F9179D0073686A /* Mat3f.cpp in Sources */,
 				483AE27B16F9179D0073686A /* Mat4f.cpp in Sources */,
 				483AE27C16F9179D0073686A /* Vec3f.cpp in Sources */,
@@ -1531,6 +1536,7 @@
 				4814447816DBA0DE0060150A /* FgdParser.cpp in Sources */,
 				481CC98F16DD568F00537742 /* ClassInfo.cpp in Sources */,
 				48688C9516E354EC0080F70F /* NSLog.mm in Sources */,
+				480111B016FCEFC8009B1BFB /* FindPlanePoints.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1950,6 +1956,7 @@
 				483AE27016F8FDF00073686A /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		484763CB15E2BC5000095BC0 /* Build configuration list for PBXProject "TrenchBroom" */ = {
 			isa = XCConfigurationList;
