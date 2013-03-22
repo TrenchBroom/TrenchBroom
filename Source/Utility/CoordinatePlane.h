@@ -23,6 +23,8 @@
 #include "Utility/Math.h"
 #include "Utility/Vec3f.h"
 
+#include <algorithm>
+
 namespace TrenchBroom {
     namespace Math {
         class CoordinatePlane {
@@ -76,27 +78,43 @@ namespace TrenchBroom {
                 }
             }
             
-            inline Vec3f swizzleTo(const Vec3f& point) const {
+            inline Vec3f swizzle(const Vec3f& point) const {
                 switch (m_plane) {
                     case XY:
                         return point;
                     case YZ:
                         return Vec3f(point.y, point.z, point.x);
                     default:
-                        return Vec3f(point.x, point.z, point.y);
+                        return Vec3f(point.z, point.x, point.y);
                 }
             }
 
             
-            inline Vec3f swizzleFrom(const Vec3f& point) const {
+            inline Vec3f unswizzle(const Vec3f& point) const {
                 switch (m_plane) {
                     case XY:
                         return point;
                     case YZ:
                         return Vec3f(point.z, point.x, point.y);
                     default:
-                        return Vec3f(point.x, point.y, point.z);
+                        return Vec3f(point.y, point.z, point.x);
                 }
+            }
+            
+            template <typename Iterator>
+            inline void swizzle(Iterator first, Iterator last) const {
+                switch (m_plane) {
+                    case YZ:
+                        std::reverse(first, last);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            
+            template <typename Iterator>
+            inline void unswizzle(Iterator first, Iterator last) const {
+                swizzle(first, last);
             }
         };
     }
