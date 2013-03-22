@@ -119,8 +119,8 @@ namespace TrenchBroom {
                         // more quadrants should be searched.
                         unsigned int numQuadrants = static_cast<unsigned int>(std::ceil(m_frequency * m_frequency * 10.0f));
                         bool b = false;
-                        for (unsigned int i = 1; i < numQuadrants; i++) {
-                            for (CursorPoint::Type q = 1; q < 9; q++) {
+                        for (unsigned int i = 1; i < numQuadrants && globalMinimumError > 0.0f; i++) {
+                            for (CursorPoint::Type q = 1; q < 9 && globalMinimumError > 0.0f; q++) {
                                 m_position = localMinimumPosition + i * 3.0f * CursorPoint::MoveOffsets[q];
                                 findLocalMinimum();
                                 const float newError = m_errors[CursorPoint::Center];
@@ -201,17 +201,19 @@ namespace TrenchBroom {
                     float multiplier = 2.0f;
                     Cursor cursor(swizzledPlane, frequency);
                     points[0] = cursor.findMinimum(swizzledPlane.anchor());
-                    points[1] = cursor.findMinimum(points[0] + pointDistance * waveDirection);
                     
                     Vec3f v1, v2;
+                    float cos;
                     do {
-                        points[2] = cursor.findMinimum(points[0] + pointDistance * right - multiplier * pointDistance * waveDirection);
+                        points[1] = cursor.findMinimum(points[0] + 0.33f * multiplier * pointDistance * Vec3f::PosX);
+                        points[2] = cursor.findMinimum(points[0] + multiplier * (pointDistance * Vec3f::PosY - 0.5f * pointDistance * Vec3f::PosX));
                         v1 = points[2] - points[0];
                         v2 = points[1] - points[0];
-                        v1.cross(v2);
+                        cos = v1.normalized().dot(v2.normalized());
                         multiplier *= 1.5f;
-                    } while (v1.null());
+                    } while (Math::isnan(cos) || std::abs(cos) > 0.9f);
 
+                    v1.cross(v2);
                     if (v1.z > 0.0f != swizzledPlane.normal.z > 0.0f)
                         std::swap(points[0], points[2]);
                     

@@ -162,6 +162,12 @@ namespace TrenchBroom {
                 assert(test.setPoints(points[0], points[1], points[2]));
                 assert(test.normal.dot(plane.normal) > 0.99f);
                 assert(Math::lte(std::abs(plane.distance - test.distance), 1.0f));
+
+                plane = Plane(Vec3f(2522.0f, 1.0f, 1600.0f).normalized(), 1906.0f);
+                FindIntegerPlanePoints::findPoints(plane, points);
+                assert(test.setPoints(points[0], points[1], points[2]));
+                assert(test.normal.dot(plane.normal) > 0.99f);
+                assert(Math::lte(std::abs(plane.distance - test.distance), 1.0f));
             }
             
             void testRandomPlanes() {
@@ -170,7 +176,7 @@ namespace TrenchBroom {
 
                 std::srand(static_cast<unsigned int>(std::time(NULL)));
                 for (size_t i = 0; i < 100000; i++) {
-                    if (i % 100 == 0)
+                    if (i % 10000 == 0)
                         std::cout << "asfd\n";
                     float x = std::rand() % 4096;
                     float y = std::rand() % 4096;
@@ -181,7 +187,7 @@ namespace TrenchBroom {
                     FindIntegerPlanePoints::findPoints(plane, points);
                     assert(test.setPoints(points[0], points[1], points[2]));
                     assert(test.normal.dot(plane.normal) > 0.99f);
-                    assert(Math::lte(std::abs(plane.distance - test.distance), 2.0f));
+                    assert(Math::lte(std::abs(plane.distance - test.distance), 1.0f));
                 }
             }
         };
