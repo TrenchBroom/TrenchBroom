@@ -347,13 +347,10 @@ namespace TrenchBroom {
                 } else {
                     const CoordinatePlane& coordPlane = CoordinatePlane::plane(plane.normal);
                     const Plane swizzledPlane(coordPlane.swizzle(plane.normal), plane.distance);
-                    const Vec3f waveDirection = coordPlane.swizzle(coordPlane.project(plane.normal).normalized());
-                    const Vec3f right = waveDirection.crossed(swizzledPlane.normal.firstAxis());
                     const float waveLength = 1.0f / frequency;
-                    // const unsigned int stepSize = static_cast<unsigned int>(std::max(1.0f, std::floor(waveLength / 2.0f)));
-                    const float pointDistance = std::max(256.0f, waveLength);
+                    const float pointDistance = std::max(64.0f, waveLength);
                     
-                    float multiplier = 3.0f;
+                    float multiplier = 10.0f;
                     Cursor cursor(swizzledPlane, frequency);
                     points[0] = cursor.findMinimum(swizzledPlane.anchor());
                     
@@ -366,13 +363,10 @@ namespace TrenchBroom {
                         v1 = points[2] - points[0];
                         v2 = points[1] - points[0];
                         cos = v1.normalized().dot(v2.normalized());
-                        multiplier *= 2.0f;
+                        multiplier *= 1.5f;
                         count++;
-                    } while (Math::isnan(cos) || std::abs(cos) > 0.95f);
+                    } while (Math::isnan(cos) || std::abs(cos) > 0.9f);
 
-                    if (count > 1)
-                        std::cout << count << " iterations to find noncolinear points" << std::endl;
-                    
                     v1.cross(v2);
                     if (v1.z > 0.0f != swizzledPlane.normal.z > 0.0f)
                         std::swap(points[0], points[2]);

@@ -27,8 +27,9 @@
 
 #include <cassert>
 #include <cstdlib>
-#include <functional>
 #include <ctime>
+#include <functional>
+#include <limits>
 
 namespace TrenchBroom {
     namespace Math {
@@ -171,11 +172,21 @@ namespace TrenchBroom {
             }
             
             void testRandomPlanes() {
+                static const size_t NumPlanes = 100000;
+                
                 std::array<Vec3f, 3> points;
                 Plane plane, test;
 
+                float minNormalError = std::numeric_limits<float>::max();
+                float maxNormalError = std::numeric_limits<float>::min();
+                float avgNormalError = 0.0f;
+                
+                float minDistanceError = std::numeric_limits<float>::max();
+                float maxDistanceError = std::numeric_limits<float>::min();
+                float avgDistanceError = 0.0f;
+                
                 std::srand(static_cast<unsigned int>(std::time(NULL)));
-                for (size_t i = 0; i < 100000; i++) {
+                for (size_t i = 0; i < NumPlanes; i++) {
                     float x = std::rand() % 4096;
                     float y = std::rand() % 4096;
                     float z = std::rand() % 4096;
@@ -184,9 +195,29 @@ namespace TrenchBroom {
                     plane = Plane(Vec3f(x, y, z).normalized(), d);
                     FindIntegerPlanePoints::findPoints(plane, points);
                     assert(test.setPoints(points[0], points[1], points[2]));
-                    assert(test.normal.dot(plane.normal) > 0.99f);
-                    assert(Math::lte(std::abs(plane.distance - test.distance), 2.0f));
+                    
+                    const float dot = test.normal.dot(plane.normal);
+                    const float normalError = std::acos(dot > 1.0f ? 2.0f - dot : dot);
+                    const float distanceError = std::abs(plane.distance - test.distance);
+                    
+                    minNormalError = std::min(minNormalError, normalError);
+                    maxNormalError = std::max(maxNormalError, normalError);
+                    avgNormalError += normalError;
+                    
+                    minDistanceError = std::min(minDistanceError, distanceError);
+                    maxDistanceError = std::max(maxDistanceError, distanceError);
+                    avgDistanceError += distanceError;
+                    
+                    assert(normalError < Math::radians(1.0f));
+                    assert(Math::lte(distanceError, 2.0f));
                 }
+                
+                avgNormalError /= static_cast<float>(NumPlanes);
+                avgDistanceError /= static_cast<float>(NumPlanes);
+                
+                std::cout.setf( std::ios::fixed, std:: ios::floatfield );
+                std::cout << "Normal error min: " << Math::degrees(minNormalError) << " max: " << Math::degrees(maxNormalError) << " avg: " << Math::degrees(avgNormalError) << std::endl;
+                std::cout << "Distance error min: " << minDistanceError << " max: " << maxDistanceError << " avg: " << avgDistanceError << std::endl;
             }
         };
     }
