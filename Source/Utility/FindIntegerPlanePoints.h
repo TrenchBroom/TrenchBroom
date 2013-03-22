@@ -69,22 +69,175 @@ namespace TrenchBroom {
                 }
                 
                 inline CursorPoint::Type move(const CursorPoint::Type direction) {
-                    m_errors[CursorPoint::Center] = m_errors[direction];
                     m_position += CursorPoint::MoveOffsets[direction];
-                    
-                    // TODO optimize here by remembering the previous values? Probably not worth the trouble.
                     CursorPoint::Type bestPoint = CursorPoint::Center;
+                    switch (direction) {
+                        case CursorPoint::Top:
+                            m_errors[CursorPoint::BottomLeft] = m_errors[CursorPoint::Left];
+                            m_errors[CursorPoint::Bottom] = m_errors[CursorPoint::Center];
+                            m_errors[CursorPoint::BottomRight] = m_errors[CursorPoint::Right];
+                            m_errors[CursorPoint::Left] = m_errors[CursorPoint::TopLeft];
+                            m_errors[CursorPoint::Center] = m_errors[CursorPoint::Top];
+                            m_errors[CursorPoint::Right] = m_errors[CursorPoint::TopRight];
+                            updateError(CursorPoint::TopLeft);
+                            updateError(CursorPoint::Top);
+                            updateError(CursorPoint::TopRight);
 
-                    for (CursorPoint::Type i = 1; i < 9; i++) {
-                        updateError(i);
-                        if (m_errors[i] < m_errors[bestPoint])
-                            bestPoint = i;
+                            if (m_errors[CursorPoint::TopLeft] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::TopLeft;
+                            if (m_errors[CursorPoint::Top] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::Top;
+                            if (m_errors[CursorPoint::TopRight] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::TopRight;
+                            break;
+                        case CursorPoint::Right:
+                            m_errors[CursorPoint::TopLeft] = m_errors[CursorPoint::Top];
+                            m_errors[CursorPoint::Left] = m_errors[CursorPoint::Center];
+                            m_errors[CursorPoint::BottomLeft] = m_errors[CursorPoint::Bottom];
+                            m_errors[CursorPoint::Top] = m_errors[CursorPoint::TopRight];
+                            m_errors[CursorPoint::Center] = m_errors[CursorPoint::Right];
+                            m_errors[CursorPoint::Bottom] = m_errors[CursorPoint::BottomRight];
+                            updateError(CursorPoint::TopRight);
+                            updateError(CursorPoint::Right);
+                            updateError(CursorPoint::BottomRight);
+                            
+                            if (m_errors[CursorPoint::TopRight] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::TopRight;
+                            if (m_errors[CursorPoint::Right] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::Right;
+                            if (m_errors[CursorPoint::BottomRight] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::BottomRight;
+                            break;
+                        case CursorPoint::Bottom:
+                            m_errors[CursorPoint::TopLeft] = m_errors[CursorPoint::Left];
+                            m_errors[CursorPoint::Top] = m_errors[CursorPoint::Center];
+                            m_errors[CursorPoint::TopRight] = m_errors[CursorPoint::Right];
+                            m_errors[CursorPoint::Left] = m_errors[CursorPoint::BottomLeft];
+                            m_errors[CursorPoint::Center] = m_errors[CursorPoint::Bottom];
+                            m_errors[CursorPoint::Right] = m_errors[CursorPoint::BottomRight];
+                            updateError(CursorPoint::BottomLeft);
+                            updateError(CursorPoint::Bottom);
+                            updateError(CursorPoint::BottomRight);
+                            
+                            if (m_errors[CursorPoint::BottomLeft] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::BottomLeft;
+                            if (m_errors[CursorPoint::Bottom] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::Bottom;
+                            if (m_errors[CursorPoint::BottomRight] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::BottomRight;
+                            break;
+                        case CursorPoint::Left:
+                            m_errors[CursorPoint::TopRight] = m_errors[CursorPoint::Top];
+                            m_errors[CursorPoint::Right] = m_errors[CursorPoint::Center];
+                            m_errors[CursorPoint::BottomRight] = m_errors[CursorPoint::Bottom];
+                            m_errors[CursorPoint::Top] = m_errors[CursorPoint::TopLeft];
+                            m_errors[CursorPoint::Center] = m_errors[CursorPoint::Left];
+                            m_errors[CursorPoint::Bottom] = m_errors[CursorPoint::BottomLeft];
+                            updateError(CursorPoint::TopLeft);
+                            updateError(CursorPoint::Left);
+                            updateError(CursorPoint::BottomLeft);
+                            
+                            if (m_errors[CursorPoint::TopLeft] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::TopLeft;
+                            if (m_errors[CursorPoint::Left] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::Left;
+                            if (m_errors[CursorPoint::BottomLeft] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::BottomLeft;
+                            break;
+                        case CursorPoint::TopLeft:
+                            m_errors[CursorPoint::BottomRight] = m_errors[CursorPoint::Center];
+                            m_errors[CursorPoint::Bottom] = m_errors[CursorPoint::Left];
+                            m_errors[CursorPoint::Right] = m_errors[CursorPoint::Top];
+                            m_errors[CursorPoint::Center] = m_errors[CursorPoint::TopLeft];
+                            updateError(CursorPoint::BottomLeft);
+                            updateError(CursorPoint::Left);
+                            updateError(CursorPoint::TopLeft);
+                            updateError(CursorPoint::Top);
+                            updateError(CursorPoint::TopRight);
+                            
+                            if (m_errors[CursorPoint::BottomLeft] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::BottomLeft;
+                            if (m_errors[CursorPoint::Left] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::Left;
+                            if (m_errors[CursorPoint::TopLeft] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::TopLeft;
+                            if (m_errors[CursorPoint::Top] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::Top;
+                            if (m_errors[CursorPoint::TopRight] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::TopRight;
+                            break;
+                        case CursorPoint::TopRight:
+                            m_errors[CursorPoint::BottomLeft] = m_errors[CursorPoint::Center];
+                            m_errors[CursorPoint::Left] = m_errors[CursorPoint::Top];
+                            m_errors[CursorPoint::Bottom] = m_errors[CursorPoint::Right];
+                            m_errors[CursorPoint::Center] = m_errors[CursorPoint::TopRight];
+                            updateError(CursorPoint::TopLeft);
+                            updateError(CursorPoint::Top);
+                            updateError(CursorPoint::TopRight);
+                            updateError(CursorPoint::Right);
+                            updateError(CursorPoint::BottomRight);
+                            
+                            if (m_errors[CursorPoint::TopLeft] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::TopLeft;
+                            if (m_errors[CursorPoint::Top] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::Top;
+                            if (m_errors[CursorPoint::TopRight] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::TopRight;
+                            if (m_errors[CursorPoint::Right] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::Right;
+                            if (m_errors[CursorPoint::BottomRight] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::BottomRight;
+                            break;
+                        case CursorPoint::BottomRight:
+                            m_errors[CursorPoint::TopLeft] = m_errors[CursorPoint::Center];
+                            m_errors[CursorPoint::Left] = m_errors[CursorPoint::Bottom];
+                            m_errors[CursorPoint::Top] = m_errors[CursorPoint::Right];
+                            m_errors[CursorPoint::Center] = m_errors[CursorPoint::BottomRight];
+                            updateError(CursorPoint::TopRight);
+                            updateError(CursorPoint::Right);
+                            updateError(CursorPoint::BottomRight);
+                            updateError(CursorPoint::Bottom);
+                            updateError(CursorPoint::BottomLeft);
+                            
+                            if (m_errors[CursorPoint::TopRight] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::TopRight;
+                            if (m_errors[CursorPoint::Right] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::Right;
+                            if (m_errors[CursorPoint::BottomRight] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::BottomRight;
+                            if (m_errors[CursorPoint::Bottom] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::Bottom;
+                            if (m_errors[CursorPoint::BottomLeft] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::BottomLeft;
+                            break;
+                        case CursorPoint::BottomLeft:
+                            m_errors[CursorPoint::TopRight] = m_errors[CursorPoint::Center];
+                            m_errors[CursorPoint::Top] = m_errors[CursorPoint::Left];
+                            m_errors[CursorPoint::Right] = m_errors[CursorPoint::Bottom];
+                            m_errors[CursorPoint::Center] = m_errors[CursorPoint::BottomLeft];
+                            updateError(CursorPoint::BottomRight);
+                            updateError(CursorPoint::Bottom);
+                            updateError(CursorPoint::BottomLeft);
+                            updateError(CursorPoint::Left);
+                            updateError(CursorPoint::TopLeft);
+                            
+                            if (m_errors[CursorPoint::BottomRight] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::BottomRight;
+                            if (m_errors[CursorPoint::Bottom] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::Bottom;
+                            if (m_errors[CursorPoint::BottomLeft] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::BottomLeft;
+                            if (m_errors[CursorPoint::Left] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::Left;
+                            if (m_errors[CursorPoint::TopLeft] < m_errors[bestPoint])
+                                bestPoint = CursorPoint::TopLeft;
+                            break;
                     }
-                    
+
                     return bestPoint;
                 }
 
-                const void findLocalMinimum() {
+                inline const void findLocalMinimum() {
                     for (CursorPoint::Type i = 0; i < 9; i++)
                         updateError(i);
                     
@@ -97,15 +250,8 @@ namespace TrenchBroom {
                     while (bestPoint != CursorPoint::Center)
                         bestPoint = move(bestPoint);
                 }
-            public:
-                Cursor(const Plane& plane, const float frequency) :
-                m_plane(plane),
-                m_frequency(frequency) {}
                 
-                const Vec3f findMinimum(const Vec3f& initialPosition) {
-                    m_position.x = Math::round(initialPosition.x);
-                    m_position.y = Math::round(initialPosition.y);
-                    
+                inline const Vec3f doFindMinimum() {
                     findLocalMinimum();
                     const Vec2f localMinimumPosition = m_position;
                     const float localMinimumError = m_errors[CursorPoint::Center];
@@ -117,8 +263,7 @@ namespace TrenchBroom {
                         // To escape local minima, let's search some adjacent quadrants
                         // The number of extra quadrants should depend on the frequency: The higher the frequency, the
                         // more quadrants should be searched.
-                        unsigned int numQuadrants = static_cast<unsigned int>(std::ceil(m_frequency * m_frequency * 10.0f));
-                        bool b = false;
+                        unsigned int numQuadrants = static_cast<unsigned int>(std::ceil(m_frequency * m_frequency * 3.0f));
                         for (unsigned int i = 1; i < numQuadrants && globalMinimumError > 0.0f; i++) {
                             for (CursorPoint::Type q = 1; q < 9 && globalMinimumError > 0.0f; q++) {
                                 m_position = localMinimumPosition + i * 3.0f * CursorPoint::MoveOffsets[q];
@@ -131,11 +276,21 @@ namespace TrenchBroom {
                             }
                         }
                     }
-                
+                    
                     return Vec3f(globalMinimumPosition.x,
                                  globalMinimumPosition.y,
                                  Math::round(m_plane.z(globalMinimumPosition.x,
                                                        globalMinimumPosition.y)));
+                }
+            public:
+                Cursor(const Plane& plane, const float frequency) :
+                m_plane(plane),
+                m_frequency(frequency) {}
+                
+                inline const Vec3f findMinimum(const Vec3f& initialPosition) {
+                    m_position.x = initialPosition.x;
+                    m_position.y = initialPosition.y;
+                    return doFindMinimum();
                 }
             };
         
@@ -198,21 +353,26 @@ namespace TrenchBroom {
                     // const unsigned int stepSize = static_cast<unsigned int>(std::max(1.0f, std::floor(waveLength / 2.0f)));
                     const float pointDistance = std::max(256.0f, waveLength);
                     
-                    float multiplier = 2.0f;
+                    float multiplier = 3.0f;
                     Cursor cursor(swizzledPlane, frequency);
                     points[0] = cursor.findMinimum(swizzledPlane.anchor());
                     
                     Vec3f v1, v2;
                     float cos;
+                    size_t count = 0;
                     do {
                         points[1] = cursor.findMinimum(points[0] + 0.33f * multiplier * pointDistance * Vec3f::PosX);
                         points[2] = cursor.findMinimum(points[0] + multiplier * (pointDistance * Vec3f::PosY - 0.5f * pointDistance * Vec3f::PosX));
                         v1 = points[2] - points[0];
                         v2 = points[1] - points[0];
                         cos = v1.normalized().dot(v2.normalized());
-                        multiplier *= 1.5f;
-                    } while (Math::isnan(cos) || std::abs(cos) > 0.9f);
+                        multiplier *= 2.0f;
+                        count++;
+                    } while (Math::isnan(cos) || std::abs(cos) > 0.95f);
 
+                    if (count > 1)
+                        std::cout << count << " iterations to find noncolinear points" << std::endl;
+                    
                     v1.cross(v2);
                     if (v1.z > 0.0f != swizzledPlane.normal.z > 0.0f)
                         std::swap(points[0], points[2]);

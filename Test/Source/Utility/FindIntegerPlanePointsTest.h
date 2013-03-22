@@ -176,8 +176,6 @@ namespace TrenchBroom {
 
                 std::srand(static_cast<unsigned int>(std::time(NULL)));
                 for (size_t i = 0; i < 100000; i++) {
-                    if (i % 10000 == 0)
-                        std::cout << "asfd\n";
                     float x = std::rand() % 4096;
                     float y = std::rand() % 4096;
                     float z = std::rand() % 4096;
@@ -187,7 +185,7 @@ namespace TrenchBroom {
                     FindIntegerPlanePoints::findPoints(plane, points);
                     assert(test.setPoints(points[0], points[1], points[2]));
                     assert(test.normal.dot(plane.normal) > 0.99f);
-                    assert(Math::lte(std::abs(plane.distance - test.distance), 1.0f));
+                    assert(Math::lte(std::abs(plane.distance - test.distance), 2.0f));
                 }
             }
         };
