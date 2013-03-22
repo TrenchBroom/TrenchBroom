@@ -70,7 +70,7 @@ namespace TrenchBroom {
                 FindIntegerPlanePoints::findPoints(plane, points);
                 assert(test.setPoints(points[0], points[1], points[2]));
                 assert(test.normal.dot(plane.normal) > 0.99f);
-                assert(test.distance == Math::round(plane.distance));
+                assert(std::abs(plane.distance - test.distance) <= 1.0f);
 
                 plane = Plane(Vec3f(0.8f, 0.0f, 1.0f).normalized(), 0.7f);
                 FindIntegerPlanePoints::findPoints(plane, points);
@@ -151,6 +151,13 @@ namespace TrenchBroom {
                 assert(Math::lte(std::abs(plane.distance - test.distance), 1.0f));
                 
                 plane = Plane(Vec3f(1424.0f, 2160.0f, 2160.0f).normalized(), 442.0f);
+                FindIntegerPlanePoints::findPoints(plane, points);
+                assert(test.setPoints(points[0], points[1], points[2]));
+                assert(test.normal.dot(plane.normal) > 0.99f);
+                assert(Math::lte(std::abs(plane.distance - test.distance), 1.0f));
+                
+                // planes with a "diagonal" XY normal are the worst!
+                plane = Plane(Vec3f(3998.0f, 3998.0f, 1948.0f).normalized(), 839.0f);
                 FindIntegerPlanePoints::findPoints(plane, points);
                 assert(test.setPoints(points[0], points[1], points[2]));
                 assert(test.normal.dot(plane.normal) > 0.99f);

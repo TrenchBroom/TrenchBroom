@@ -32,33 +32,117 @@ namespace TrenchBroom {
         namespace FindIntegerPlanePoints {
             namespace CursorPoint {
                 typedef unsigned int Type;
-                static const Type TopLeft       = 0;
-                static const Type Top           = 1;
-                static const Type TopRight      = 2;
-                static const Type Left          = 3;
-                static const Type Center        = 4;
+                static const Type Center        = 0;
+                static const Type TopLeft       = 1;
+                static const Type Top           = 2;
+                static const Type TopRight      = 3;
+                static const Type Left          = 4;
                 static const Type Right         = 5;
                 static const Type BottomLeft    = 6;
                 static const Type Bottom        = 7;
                 static const Type BottomRight   = 8;
-
+                
                 static const Type ExtraPoints[] = { TopLeft, TopRight, BottomLeft, BottomRight };
+
+                static const Vec2f MoveOffsets[] = {
+                    Vec2f(-1.0f,  1.0f), Vec2f( 0.0f,  1.0f), Vec2f( 1.0f,  1.0f),
+                    Vec2f(-1.0f,  0.0f), Vec2f( 0.0f,  0.0f), Vec2f( 1.0f,  0.0f),
+                    Vec2f(-1.0f, -1.0f), Vec2f( 0.0f, -1.0f), Vec2f( 1.0f, -1.0f)
+                };
             };
-            
-            static const Vec3f offsets[] = {
-                Vec3f(-1.0f,  1.0f,  0.0f), Vec3f( 0.0f,  1.0f,  0.0f), Vec3f( 1.0f,  1.0f,  0.0f),
-                Vec3f(-1.0f,  0.0f,  0.0f), Vec3f( 0.0f,  0.0f,  0.0f), Vec3f( 1.0f,  0.0f,  0.0f),
-                Vec3f(-1.0f, -1.0f,  0.0f), Vec3f( 0.0f, -1.0f,  0.0f), Vec3f( 1.0f, -1.0f,  0.0f)
+
+            class Cursor {
+            private:
+                const Plane& m_plane;
+                const float m_frequency;
+                
+                Vec2f m_position;
+                float m_errors[9];
+                
+                inline float error(const Vec2f& point) {
+                    const float z = m_plane.z(point.x, point.y);
+                    return std::abs(z - Math::round(z));
+                }
+                
+                inline void updateError(const CursorPoint::Type point) {
+                    m_errors[point] = error(m_position + CursorPoint::MoveOffsets[point]);
+                }
+                
+                inline CursorPoint::Type move(const CursorPoint::Type direction) {
+                    m_errors[CursorPoint::Center] = m_errors[direction];
+                    m_position += CursorPoint::MoveOffsets[direction];
+                    
+                    // TODO optimize here by remembering the previous values? Probably not worth the trouble.
+                    CursorPoint::Type bestPoint = CursorPoint::Center;
+
+                    for (CursorPoint::Type i = 1; i < 9; i++) {
+                        updateError(i);
+                        if (m_errors[i] < m_errors[bestPoint])
+                            bestPoint = i;
+                    }
+                    
+                    return bestPoint;
+                }
+
+                const void findLocalMinimum() {
+                    for (CursorPoint::Type i = 0; i < 9; i++)
+                        updateError(i);
+                    
+                    // find the initial best point
+                    CursorPoint::Type bestPoint = CursorPoint::Center;
+                    for (CursorPoint::Type i = 0; i < 9; i++)
+                        if (m_errors[i] < m_errors[bestPoint])
+                            bestPoint = i;
+                    
+                    while (bestPoint != CursorPoint::Center)
+                        bestPoint = move(bestPoint);
+                }
+            public:
+                Cursor(const Plane& plane, const float frequency) :
+                m_plane(plane),
+                m_frequency(frequency) {}
+                
+                const Vec3f findMinimum(const Vec3f& initialPosition) {
+                    m_position.x = Math::round(initialPosition.x);
+                    m_position.y = Math::round(initialPosition.y);
+                    
+                    findLocalMinimum();
+                    const Vec2f localMinimumPosition = m_position;
+                    const float localMinimumError = m_errors[CursorPoint::Center];
+                    
+                    Vec2f globalMinimumPosition = localMinimumPosition;
+                    float globalMinimumError = localMinimumError;
+                    
+                    if (globalMinimumError > 0.0f) {
+                        // To escape local minima, let's search some adjacent quadrants
+                        // The number of extra quadrants should depend on the frequency: The higher the frequency, the
+                        // more quadrants should be searched.
+                        unsigned int numQuadrants = static_cast<unsigned int>(std::ceil(m_frequency * m_frequency * 10.0f));
+                        bool b = false;
+                        for (unsigned int i = 1; i < numQuadrants; i++) {
+                            for (CursorPoint::Type q = 1; q < 9; q++) {
+                                m_position = localMinimumPosition + i * 3.0f * CursorPoint::MoveOffsets[q];
+                                findLocalMinimum();
+                                const float newError = m_errors[CursorPoint::Center];
+                                if (newError < globalMinimumError) {
+                                    globalMinimumPosition = m_position;
+                                    globalMinimumError = newError;
+                                }
+                            }
+                        }
+                    }
+                
+                    return Vec3f(globalMinimumPosition.x,
+                                 globalMinimumPosition.y,
+                                 Math::round(m_plane.z(globalMinimumPosition.x,
+                                                       globalMinimumPosition.y)));
+                }
             };
-            
-            static const float distances[] = {
-                0.7f, 1.0f, 0.7f,
-                1.0f, 0.0f, 1.0f,
-                0.7f, 1.0f, 0.7f
-            };
-            
+        
+        
+        
             inline float planeFrequency(const Plane& plane) {
-                const float c = 1.0f - std::sin(Math::Pi / 4.0f);
+                static const float c = 1.0f - std::sin(Math::Pi / 4.0f);
                 
                 const Vec3f& axis = plane.normal.firstAxis();
                 const float d = plane.normal.dot(axis);
@@ -101,62 +185,6 @@ namespace TrenchBroom {
                 }
             }
             
-            inline float error(const Plane& plane, const Vec3f& point) {
-                const float z = plane.z(point.x, point.y);
-                return std::abs(z - Math::round(z));
-            }
-            
-            inline void findMinimalErrorPoint(const Plane& plane, const Vec3f& point, CursorPoint::Type& bestPoint, float& smallestError) {
-                bestPoint = CursorPoint::TopLeft;
-                smallestError = error(plane, point + offsets[0]);
-                for (CursorPoint::Type i = 1; i < 9; i++) {
-                    const float currentError = error(plane, point + offsets[i]);
-                    if (currentError < smallestError) {
-                        bestPoint = i;
-                        smallestError = currentError;
-                    }
-                }
-            }
-            
-            inline Vec3f findMinimalErrorPoint(const Plane& plane, const Vec3f& point, const unsigned int stepSize) {
-                Vec3f newPoint = point;
-                CursorPoint::Type bestPoint;
-                float smallestError = std::numeric_limits<float>::max();
-                unsigned int currentStepSize = 1;
-                
-                while (true) {
-                    float currentError;
-                    findMinimalErrorPoint(plane, newPoint, bestPoint, currentError);
-                    if (currentStepSize == 1 && (bestPoint == CursorPoint::Center || currentError >= smallestError || currentError == 0.0f)) {
-                        smallestError = std::min(smallestError, currentError);
-                        break;
-                    }
-                    
-                    if (currentError < smallestError) {
-                        newPoint += offsets[bestPoint];// * std::ceil(currentStepSize * distances[bestPoint]);
-                        smallestError = currentError;
-                    } else if (currentStepSize > 1) {
-                        currentStepSize /= 2;
-                    }
-
-                }
-                
-                // we might be stuck in a local minimum, sample some more indirect neighbours
-                // TODO: don't use the immediate neighbours, but use the neighbour quadrants
-                for (unsigned int i = 0; i < 4; i++) {
-                    for (unsigned int j = 0; j < 4; j++) {
-                        float currentError;
-                        const Vec3f offset = offsets[CursorPoint::ExtraPoints[i]] + offsets[CursorPoint::ExtraPoints[j]];
-                        findMinimalErrorPoint(plane, newPoint + offset, bestPoint, currentError);
-                        if  (currentError < smallestError)
-                            return findMinimalErrorPoint(plane, newPoint + offset + offsets[bestPoint], 1);
-                    }
-                }
-
-                newPoint.z = Math::round(plane.z(newPoint.x, newPoint.y));
-                return newPoint;
-            }
-            
             inline void findPoints(const Plane& plane, std::array<Vec3f, 3>& points) {
                 const float frequency = planeFrequency(plane);
                 if (Math::zero(frequency, 1.0f / 7084.0f)) {
@@ -167,25 +195,23 @@ namespace TrenchBroom {
                     const Vec3f waveDirection = coordPlane.swizzle(coordPlane.project(plane.normal).normalized());
                     const Vec3f right = waveDirection.crossed(swizzledPlane.normal.firstAxis());
                     const float waveLength = 1.0f / frequency;
-                    const unsigned int stepSize = static_cast<unsigned int>(std::max(1.0f, std::floor(waveLength / 2.0f)));
-                    const float pointDistance = std::max(128.0f, waveLength);
+                    // const unsigned int stepSize = static_cast<unsigned int>(std::max(1.0f, std::floor(waveLength / 2.0f)));
+                    const float pointDistance = std::max(256.0f, waveLength);
                     
-                    float multiplier = 1.0f;
-                    points[0] = findMinimalErrorPoint(swizzledPlane, swizzledPlane.anchor().rounded(), stepSize);
-                    points[1] = findMinimalErrorPoint(swizzledPlane, (points[0] + pointDistance * waveDirection).rounded(), 1);
-                    points[2] = findMinimalErrorPoint(swizzledPlane, (points[0] + pointDistance * right - multiplier * pointDistance * waveDirection).rounded(), 1);
+                    float multiplier = 2.0f;
+                    Cursor cursor(swizzledPlane, frequency);
+                    points[0] = cursor.findMinimum(swizzledPlane.anchor());
+                    points[1] = cursor.findMinimum(points[0] + pointDistance * waveDirection);
                     
-                    Vec3f v1 = points[2] - points[0];
-                    Vec3f v2 = points[1] - points[0];
-                    v1.cross(v2);
-                    while (v1.null()) {
-                        multiplier += 1.0f;
-                        assert(multiplier < 10000.0f);
-                        points[2] = findMinimalErrorPoint(swizzledPlane, (points[0] + pointDistance * right - multiplier * pointDistance * waveDirection).rounded(), 1);
+                    Vec3f v1, v2;
+                    do {
+                        points[2] = cursor.findMinimum(points[0] + pointDistance * right - multiplier * pointDistance * waveDirection);
                         v1 = points[2] - points[0];
+                        v2 = points[1] - points[0];
                         v1.cross(v2);
-                    }
-                    
+                        multiplier *= 1.5f;
+                    } while (v1.null());
+
                     if (v1.z > 0.0f != swizzledPlane.normal.z > 0.0f)
                         std::swap(points[0], points[2]);
                     
