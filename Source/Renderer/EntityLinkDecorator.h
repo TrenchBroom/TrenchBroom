@@ -38,19 +38,19 @@ namespace TrenchBroom {
             Color m_color;
             VertexArray* m_vertexArray;
             bool m_valid;
-				bool m_doRebuild;
+            bool m_doRebuild;
         public:
             EntityLinkDecorator(const Model::Map& map, const Color& color);
             
             inline void invalidate() {
                 m_valid = false;
-				    m_doRebuild = true;
+                m_doRebuild = true;
             }
             
-				void addArrowVerts(Vec4f::List& vList, const Vec3f& pointA, const Vec3f& pointB);
-				void gatherLinks(Vec4f::List& vListLocal, Vec4f::List& vListContext, RenderContext& context, const int entIndex, std::vector<char>& entVisited);
-				void gatherLinksLocal(Vec4f::List& vList, RenderContext& context, const Model::Entity& curEnt);
-				void gatherLinksUnrelated(Vec4f::List& vList, RenderContext& context, const Model::Entity& curEnt, const int entIndex);
+            void addArrowVerts(Vec4f::List& vList, const Vec3f& pointA, const Vec3f& pointB);
+            void gatherLinks(Vec4f::List& vListLocal, Vec4f::List& vListContext, RenderContext& context, const int entIndex, std::vector<char>& entVisited);
+            void gatherLinksLocal(Vec4f::List& vList, RenderContext& context, const Model::Entity& curEnt);
+            void gatherLinksUnrelated(Vec4f::List& vList, RenderContext& context, const Model::Entity& curEnt, const int entIndex);
             void render(Vbo& vbo, RenderContext& context);
         };
     }

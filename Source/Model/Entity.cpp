@@ -42,8 +42,8 @@ namespace TrenchBroom {
         String const Entity::MessageKey          = "message";
         String const Entity::ModKey             = "_mod";
         String const Entity::TargetKey           = "target";
-		  String const Entity::KillTargetKey       = "killtarget";
-		  String const Entity::TargetNameKey       = "targetname";
+        String const Entity::KillTargetKey       = "killtarget";
+        String const Entity::TargetNameKey       = "targetname";
         String const Entity::WadKey              = "wad";
         String const Entity::DefKey              = "_def";
         String const Entity::DefaultDefinition   = "Quake.fgd";

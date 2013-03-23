@@ -51,7 +51,7 @@ namespace TrenchBroom {
         EVT_CHECKBOX(CommandIds::ViewInspector::RenderEdgesCheckBoxId, ViewInspector::OnRenderEdgesChanged)
         EVT_CHECKBOX(CommandIds::ViewInspector::FaceShadingCheckBoxId, ViewInspector::OnFaceShadingChanged)
         // EVT_CHECKBOX(CommandIds::ViewInspector::FogCheckBoxId, ViewInspector::OnFogChanged)
-		  EVT_CHOICE(CommandIds::ViewInspector::LinkDisplayModeChoiceId, ViewInspector::OnLinkDisplayModeSelected)
+        EVT_CHOICE(CommandIds::ViewInspector::LinkDisplayModeChoiceId, ViewInspector::OnLinkDisplayModeSelected)
         END_EVENT_TABLE()
 
         void ViewInspector::updateControls() {
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             m_toggleRenderEdges->SetValue(viewOptions.renderEdges());
             m_toggleFaceShading->SetValue(viewOptions.shadeFaces());
 //            m_toggleFog->SetValue(viewOptions.useFog());
-				m_linkDisplayModeChoice->SetSelection(viewOptions.linkDisplayMode());
+            m_linkDisplayModeChoice->SetSelection(viewOptions.linkDisplayMode());
         }
 
         wxWindow* ViewInspector::createFilterBox() {
@@ -272,24 +272,24 @@ namespace TrenchBroom {
             editorView.OnUpdate(NULL); // will just trigger a refresh
         }
 
-		  void ViewInspector::OnFaceShadingChanged( wxCommandEvent& event ) {
-			  if( !m_documentViewHolder.valid() ) 
-				  return;
+        void ViewInspector::OnFaceShadingChanged( wxCommandEvent& event ) {
+            if( !m_documentViewHolder.valid() ) 
+                return;
 
             EditorView& editorView = m_documentViewHolder.view();
             editorView.viewOptions().setShadeFaces(event.GetInt() != 0);
             editorView.OnUpdate(NULL); // will just trigger a refresh
-		  }
+        }
 
         /*
-		  void ViewInspector::OnFogChanged( wxCommandEvent& event ) {
-			  if( !m_documentViewHolder.valid() ) 
-				  return;
+        void ViewInspector::OnFogChanged( wxCommandEvent& event ) {
+            if( !m_documentViewHolder.valid() ) 
+                return;
 
             EditorView& editorView = m_documentViewHolder.view();
             editorView.viewOptions().setUseFog(event.GetInt() != 0);
             editorView.OnUpdate(NULL); // will just trigger a refresh
-		  }
+        }
          */
 
         void ViewInspector::OnLinkDisplayModeSelected(wxCommandEvent& event) {
@@ -299,22 +299,22 @@ namespace TrenchBroom {
             EditorView& editorView = m_documentViewHolder.view();
             ViewOptions::LinkDisplayMode mode;
 
-				switch (m_linkDisplayModeChoice->GetSelection()) {
-				case 1:
-					mode = ViewOptions::LinkDisplayLocal;
-					break;
-				case 2:
-					mode = ViewOptions::LinkDisplayAll;
-					break;
-				case 3:
-					mode = ViewOptions::LinkDisplayNone;
-					break;
-				default:
-					mode = ViewOptions::LinkDisplayContext;
-				}
+            switch (m_linkDisplayModeChoice->GetSelection()) {
+            case 1:
+                mode = ViewOptions::LinkDisplayLocal;
+                break;
+            case 2:
+                mode = ViewOptions::LinkDisplayAll;
+                break;
+            case 3:
+                mode = ViewOptions::LinkDisplayNone;
+                break;
+            default:
+                mode = ViewOptions::LinkDisplayContext;
+            }
 
-				editorView.viewOptions().setLinkDisplayMode(mode);
-				Controller::Command command(Controller::Command::InvalidateRendererEntityState);
+            editorView.viewOptions().setLinkDisplayMode(mode);
+            Controller::Command command(Controller::Command::InvalidateRendererEntityState);
             editorView.OnUpdate(NULL, &command); // invalidate entities to invalidate decorators
             updateControls(); // if something went wrong, set the choice selection to the default value ("Textured")
         }
