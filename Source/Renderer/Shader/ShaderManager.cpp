@@ -39,6 +39,7 @@ namespace TrenchBroom {
             const ShaderConfig PointHandleShader = ShaderConfig("Point Handle Shader Program", "PointHandle.vertsh", "Handle.fragsh");
             const ShaderConfig InstancedPointHandleShader = ShaderConfig("Instanced Point Handle Shader Program", "InstancedPointHandle.vertsh", "Handle.fragsh");
             const ShaderConfig ColoredHandleShader = ShaderConfig("Colored Handle Shader Program", "ColoredHandle.vertsh", "Handle.fragsh");
+            const ShaderConfig EntityLinkShader = ShaderConfig("Entity Link Shader Program", "EntityLink.vertsh", "EntityLink.fragsh");
         }
 
         Shader& ShaderManager::loadShader(const String& path, GLenum type) {

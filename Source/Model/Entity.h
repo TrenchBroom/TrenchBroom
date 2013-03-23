@@ -53,6 +53,8 @@ namespace TrenchBroom {
             static String const MessageKey;
             static String const ModKey;
             static String const TargetKey;
+				static String const KillTargetKey;
+				static String const TargetNameKey;
             static String const WadKey;
             static String const DefKey;
             static String const DefaultDefinition;

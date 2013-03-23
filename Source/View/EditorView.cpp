@@ -563,6 +563,8 @@ namespace TrenchBroom {
                         inspector().faceInspector().updateFaceAttributes();
                         inspector().faceInspector().updateSelectedTexture();
                         inspector().entityInspector().updateProperties();
+
+								m_renderer->invalidateDecorators();
                         break;
                     }
                     case Controller::Command::InvalidateRendererEntityState:
