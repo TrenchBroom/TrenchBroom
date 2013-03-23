@@ -304,6 +304,9 @@ namespace TrenchBroom {
             }
         };
         
+        /**
+         * \brief This algorithm will find three integer points that describe a given plane as closely as possible.
+         */
         class FindIntegerPlanePoints : public FindPlanePoints {
         private:
             inline float planeFrequency(const Plane& plane) const {
