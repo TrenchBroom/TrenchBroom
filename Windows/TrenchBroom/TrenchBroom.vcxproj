@@ -338,6 +338,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Utility\CommandProcessor.cpp" />
     <ClCompile Include="..\..\Source\Utility\Console.cpp" />
     <ClCompile Include="..\..\Source\Utility\DocManager.cpp" />
+    <ClCompile Include="..\..\Source\Utility\FindPlanePoints.cpp" />
     <ClCompile Include="..\..\Source\Utility\Grid.cpp" />
     <ClCompile Include="..\..\Source\Utility\Mat3f.cpp" />
     <ClCompile Include="..\..\Source\Utility\Mat4f.cpp" />
@@ -532,6 +533,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Utility\Console.h" />
     <ClInclude Include="..\..\Source\Utility\CoordinatePlane.h" />
     <ClInclude Include="..\..\Source\Utility\DocManager.h" />
+    <ClInclude Include="..\..\Source\Utility\FindPlanePoints.h" />
     <ClInclude Include="..\..\Source\Utility\Grid.h" />
     <ClInclude Include="..\..\Source\Utility\Line.h" />
     <ClInclude Include="..\..\Source\Utility\List.h" />

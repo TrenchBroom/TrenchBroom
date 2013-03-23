@@ -229,34 +229,16 @@ namespace TrenchBroom {
                     case TokenType::CBrace: {
                         if (indicator != NULL) indicator->update(static_cast<int>(token.position()));
                         
-                        Model::Brush* brush = new Model::Brush(worldBounds);
-
                         // sort the faces by the weight of their plane normals like QBSP does
                         Model::FaceList sortedFaces = faces;
                         std::sort(sortedFaces.begin(), sortedFaces.end(), Model::Face::WeightOrder(Plane::WeightOrder(true)));
                         std::sort(sortedFaces.begin(), sortedFaces.end(), Model::Face::WeightOrder(Plane::WeightOrder(false)));
                         
-                        Model::FaceList::iterator faceIt = sortedFaces.begin();
-                        Model::FaceList::iterator faceEnd = sortedFaces.end();
-                        while (faceIt != faceEnd) {
-                            Model::Face* face = *faceIt++;
-                            if (!brush->addFace(face)) {
-                                m_console.warn("Skipping malformed brush at line %i", firstLine);
-                                delete brush;
-                                brush = NULL;
-                                break;
-                            }
-                        }
+                        Model::Brush* brush = new Model::Brush(worldBounds, faces);
+                        brush->setFilePosition(firstLine, token.line() - firstLine);
+                        if (!brush->closed())
+                            m_console.warn("Non-closed brush at line %i", firstLine);
                         
-                        // if something went wrong, we must delete all faces that have not been added to the brush yet
-                        if (faceIt != faceEnd)
-                            Utility::deleteAll(sortedFaces, faceIt);
-                        
-                        if (brush != NULL) {
-                            brush->setFilePosition(firstLine, token.line() - firstLine);
-                            if (!brush->closed())
-                                m_console.warn("Non-closed brush at line %i", firstLine);
-                        }
                         return brush;
                     }
                     default: {
@@ -356,6 +338,7 @@ namespace TrenchBroom {
             face->setXScale(xScale);
             face->setYScale(yScale);
             face->setFilePosition(token.line());
+            
             return face;
         }
         

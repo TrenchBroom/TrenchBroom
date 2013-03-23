@@ -53,12 +53,13 @@ namespace TrenchBroom {
             void init();
             void rebuildGeometry();
         public:
-            Brush(const BBox& worldBounds);
+            Brush(const BBox& worldBounds, const FaceList& faces);
             Brush(const BBox& worldBounds, const Brush& brushTemplate);
             Brush(const BBox& worldBounds, const BBox& brushBounds, Texture* texture);
             ~Brush();
 
             void restore(const Brush& brushTemplate, bool checkId = false);
+            void restore(const FaceList& faces);
 
             inline MapObject::Type objectType() const {
                 return MapObject::BrushObject;
@@ -73,12 +74,6 @@ namespace TrenchBroom {
             inline const FaceList& faces() const {
                 return m_faces;
             }
-
-            bool addFace(Face* face);
-
-            void replaceFaces(const FaceList& newFaces);
-
-            void setFaces(const FaceList& newFaces);
 
             inline bool partiallySelected() const {
                 return m_selectedFaceCount > 0;
@@ -140,6 +135,8 @@ namespace TrenchBroom {
             void correct(float epsilon);
             void snap(unsigned int snapTo);
 
+            bool clip(Face& face);
+            
             bool canMoveBoundary(const Face& face, const Vec3f& delta) const;
             void moveBoundary(Face& face, const Vec3f& delta, bool lockTexture);
 

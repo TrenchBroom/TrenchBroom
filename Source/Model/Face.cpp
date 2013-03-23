@@ -32,13 +32,30 @@ namespace TrenchBroom {
 
         inline size_t FindIntegerFacePoints::selectInitialPoints(const Face& face, FacePoints& points) const {
             size_t numPoints = 0;
-            for (size_t i = 0; i < 3; i++)
-                if (points[i].isInteger())
+            bool integer[3];
+            for (size_t i = 0; i < 3; i++) {
+                integer[i] = points[i].isInteger();
+                if  (integer[i])
                     numPoints++;
+            }
             
             if (numPoints == 0)
-                numPoints = 1;
-            return numPoints;
+                return 1;
+            if (numPoints == 1) {
+                if (integer[1])
+                    std::swap(points[0], points[1]);
+                else if (integer[2])
+                    std::swap(points[0], points[2]);
+                return 1;
+            }
+            if (numPoints == 2) {
+                if (!integer[0])
+                    std::swap(points[0], points[2]);
+                else if (!integer[1])
+                    std::swap(points[1], points[2]);
+                return 2;
+            }
+            return 3;
         }
         
         inline void FindIntegerFacePoints::findPoints(const Plane& plane, FacePoints& points, size_t numPoints) const {
@@ -298,6 +315,7 @@ namespace TrenchBroom {
             m_points[1] = point2;
             m_points[2] = point3;
             m_boundary.setPoints(m_points[0], m_points[1], m_points[2]);
+            updatePointsFromBoundary();
         }
         
         Face::Face(const BBox& worldBounds, const Face& faceTemplate) : m_worldBounds(worldBounds) {
@@ -322,6 +340,7 @@ namespace TrenchBroom {
         m_filePosition(face.filePosition()),
         m_selected(false) {
             face.getPoints(m_points[0], m_points[1], m_points[2]);
+            updatePointsFromBoundary();
         }
         
 		Face::~Face() {
@@ -378,7 +397,7 @@ namespace TrenchBroom {
                 m_brush->incSelectedFaceCount();
         }
         
-        void Face::updatePoints() {
+        void Face::updatePointsFromVertices() {
             Vec3f v1, v2;
             
             float bestDot = 1.0f;
@@ -415,6 +434,15 @@ namespace TrenchBroom {
             }
         }
         
+        void Face::updatePointsFromBoundary() {
+            FindIntegerFacePoints findPoints;
+            findPoints(*this, m_points);
+            
+            assert(m_points[0].isInteger());
+            assert(m_points[1].isInteger());
+            assert(m_points[2].isInteger());
+        }
+
         void Face::setTexture(Texture* texture) {
             if (texture == m_texture)
                 return;
@@ -564,10 +592,8 @@ namespace TrenchBroom {
             m_boundary.translate(delta);
             for (unsigned int i = 0; i < 3; i++)
                 m_points[i] += delta;
-            if (!delta.isInteger()) {
-                FindIntegerFacePoints findPoints;
-                findPoints(*this, m_points);
-            }
+            if (!delta.isInteger())
+                updatePointsFromBoundary();
             
             m_texAxesValid = false;
             m_vertexCacheValid = false;
@@ -589,8 +615,8 @@ namespace TrenchBroom {
             m_boundary.rotate90(axis, center, clockwise);
             for (unsigned int i = 0; i < 3; i++)
                 m_points[i].rotate90(axis, center, clockwise);
-            FindIntegerFacePoints findPoints;
-            findPoints(*this, m_points);
+            if (!center.isInteger())
+                updatePointsFromBoundary();
             
             m_texAxesValid = false;
             m_vertexCacheValid = false;
@@ -607,8 +633,7 @@ namespace TrenchBroom {
             m_boundary = m_boundary.rotate(rotation, center);
             for (unsigned int i = 0; i < 3; i++)
                 m_points[i] = rotation * (m_points[i] - center) + center;
-            FindIntegerFacePoints findPoints;
-            findPoints(*this, m_points);
+            updatePointsFromBoundary();
             
             m_texAxesValid = false;
             m_vertexCacheValid = false;
@@ -645,8 +670,8 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < 3; i++)
                 m_points[i].flip(axis, center);
             std::swap(m_points[1], m_points[2]);
-            FindIntegerFacePoints findPoints;
-            findPoints(*this, m_points);
+            if (!center.isInteger())
+                updatePointsFromBoundary();
 
             m_texAxesValid = false;
             m_vertexCacheValid = false;

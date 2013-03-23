@@ -280,8 +280,8 @@ namespace TrenchBroom {
             m_frequency(frequency) {}
             
             inline const Vec3f findMinimum(const Vec3f& initialPosition) {
-                m_position.x = initialPosition.x;
-                m_position.y = initialPosition.y;
+                m_position.x = Math::round(initialPosition.x);
+                m_position.y = Math::round(initialPosition.y);
                 return doFindMinimum();
             }
         };

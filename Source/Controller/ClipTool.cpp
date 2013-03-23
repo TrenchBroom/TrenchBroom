@@ -152,13 +152,13 @@ namespace TrenchBroom {
                     backFace->setAttributes(*bestBackFace);
                     
                     Model::Brush* frontBrush = new Model::Brush(worldBounds, brush);
-                    if (frontBrush->addFace(frontFace))
+                    if (frontBrush->clip(*frontFace))
                         m_frontBrushes.push_back(frontBrush);
                     else
                         delete frontBrush;
                     
                     Model::Brush* backBrush = new Model::Brush(worldBounds, brush);
-                    if (backBrush->addFace(backFace))
+                    if (backBrush->clip(*backFace))
                         m_backBrushes.push_back(backBrush);
                     else
                         delete backBrush;

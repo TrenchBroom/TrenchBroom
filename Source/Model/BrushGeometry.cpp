@@ -1441,15 +1441,17 @@ namespace TrenchBroom {
         }
 
         bool BrushGeometry::addFaces(const FaceList& faces, FaceSet& droppedFaces) {
-            for (unsigned int i = 0; i < faces.size(); i++)
+            for (size_t i = 0; i < faces.size(); i++)
                 if (addFace(*faces[i], droppedFaces) == Null)
                     return false;
+            for (size_t i = 0; i < vertices.size(); i++)
+                vertices[i]->position.correct();
             return true;
         }
 
         void BrushGeometry::updateFacePoints() {
             for (unsigned int i = 0; i < sides.size(); i++)
-                sides[i]->face->updatePoints();
+                sides[i]->face->updatePointsFromVertices();
         }
 
         void BrushGeometry::correct(FaceSet& newFaces, FaceSet& droppedFaces, float epsilon) {

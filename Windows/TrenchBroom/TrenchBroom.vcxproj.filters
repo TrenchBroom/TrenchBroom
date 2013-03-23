@@ -498,6 +498,9 @@
     <ClCompile Include="..\..\Source\IO\ClassInfo.cpp">
       <Filter>Source Files\IO</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Utility\FindPlanePoints.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -1147,6 +1150,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\IO\CreateBrushFromGeometryStrategy.h">
       <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utility\FindPlanePoints.h">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -201,7 +201,12 @@ namespace TrenchBroom {
              * Updates the boundary points from the vertices of this face. Afterwards, all vertices of this face lie
              * on the boundary plane. Be aware that the Side that belongs to this face must not be null.
              */
-            void updatePoints();
+            void updatePointsFromVertices();
+            
+            /**
+             * Updates the boundary points from the plane of this face.
+             */
+            void updatePointsFromBoundary();
 
             /**
              * Sets the given points to the points of the boundary plane.

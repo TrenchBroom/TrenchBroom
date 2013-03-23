@@ -80,7 +80,13 @@ namespace TrenchBroom {
         template <typename T>
         inline std::set<T> makeSet(const std::vector<T>& list) {
             std::set<T> set;
-            set.reserve(list.size());
+            set.insert(list.begin(), list.end());
+            return set;
+        }
+        
+        template <typename T, typename O>
+        inline std::set<T, O> makeSet(const std::vector<T>& list) {
+            std::set<T, O> set;
             set.insert(list.begin(), list.end());
             return set;
         }

@@ -70,6 +70,15 @@ namespace TrenchBroom {
                 }
             };
 
+            class ErrorOrder {
+            public:
+                inline bool operator()(const Vec3f& lhs, const Vec3f& rhs) const {
+                    const float lErr = (lhs - lhs.rounded()).lengthSquared();
+                    const float rErr = (rhs - rhs.rounded()).lengthSquared();
+                    return lErr < rErr;
+                }
+            };
+            
             class DotOrder {
             private:
                 const Vec3f& m_dir;
