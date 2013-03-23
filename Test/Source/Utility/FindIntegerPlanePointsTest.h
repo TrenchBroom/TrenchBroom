@@ -42,7 +42,7 @@ namespace TrenchBroom {
             }
         public:
             void testParallelPlane() {
-                std::array<Vec3f, 3> points;
+                PlanePoints points;
                 Plane test;
                 FindIntegerPlanePoints findPoints;
                 
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             }
             
             void testNonParallelPlane() {
-                std::array<Vec3f, 3> points;
+                PlanePoints points;
                 Plane plane, test;
                 FindIntegerPlanePoints findPoints;
 
@@ -176,7 +176,7 @@ namespace TrenchBroom {
             void testRandomPlanes() {
                 static const size_t NumPlanes = 100000;
                 
-                std::array<Vec3f, 3> points;
+                PlanePoints points;
                 Plane plane, test;
                 FindIntegerPlanePoints findPoints;
 

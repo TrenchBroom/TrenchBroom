@@ -24,11 +24,12 @@
 #include "Utility/VecMath.h"
 
 #include <algorithm>
-#include <array>
 #include <limits>
 
 namespace TrenchBroom {
     namespace Math {
+        typedef Vec3f PlanePoints[3];
+        
         class Cursor {
         private:
             typedef unsigned int Type;
@@ -287,9 +288,9 @@ namespace TrenchBroom {
         
         class FindPlanePoints {
         protected:
-            virtual inline void doFindPlanePoints(const Plane& plane, std::array<Vec3f, 3>& points, size_t numPoints) const = 0;
+            virtual inline void doFindPlanePoints(const Plane& plane, PlanePoints& points, size_t numPoints) const = 0;
         public:
-            inline void operator()(const Plane& plane, std::array<Vec3f, 3>& points, size_t numPoints = 0) const {
+            inline void operator()(const Plane& plane, PlanePoints& points, size_t numPoints = 0) const {
                 assert(numPoints <= 3);
                 doFindPlanePoints(plane, points, numPoints);
             }
@@ -299,7 +300,7 @@ namespace TrenchBroom {
         
         class FindFloatPlanePoints : public FindPlanePoints {
         protected:
-            inline void doFindPlanePoints(const Plane& plane, std::array<Vec3f, 3>& points, size_t numPoints) const {
+            inline void doFindPlanePoints(const Plane& plane, PlanePoints& points, size_t numPoints) const {
             }
         };
         
@@ -315,7 +316,7 @@ namespace TrenchBroom {
                 return (1.0f - d) / c;
             }
             
-            inline void setDefaultPlanePoints(const Plane& plane, std::array<Vec3f, 3>& points) const {
+            inline void setDefaultPlanePoints(const Plane& plane, PlanePoints& points) const {
                 points[0] = plane.anchor().rounded();
                 const Axis::Type axis = plane.normal.firstComponent();
                 switch (axis) {
@@ -349,7 +350,7 @@ namespace TrenchBroom {
                 }
             }
         protected:
-            inline void doFindPlanePoints(const Plane& plane, std::array<Vec3f, 3>& points, size_t numPoints) const {
+            inline void doFindPlanePoints(const Plane& plane, PlanePoints& points, size_t numPoints) const {
                 if (numPoints == 3 && points[0].isInteger() && points[1].isInteger() && points[2].isInteger())
                     return;
                 

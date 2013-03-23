@@ -260,7 +260,7 @@ namespace TrenchBroom {
                              z / l);
             }
             
-            inline bool isInteger(float epsilon = Math::AlmostZero) {
+            inline bool isInteger(float epsilon = Math::AlmostZero) const {
                 return (std::abs(x - Math::round(x)) < epsilon &&
                         std::abs(y - Math::round(y)) < epsilon &&
                         std::abs(z - Math::round(z)) < epsilon);

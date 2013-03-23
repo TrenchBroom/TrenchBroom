@@ -25,6 +25,32 @@
 
 namespace TrenchBroom {
     namespace Model {
+        inline void FindFacePoints::operator()(const Face& face, FacePoints& points) const {
+            size_t numPoints = selectInitialPoints(face, points);
+            findPoints(face.boundary(), points, numPoints);
+        }
+
+        inline size_t FindIntegerFacePoints::selectInitialPoints(const Face& face, FacePoints& points) const {
+            size_t numPoints = 0;
+
+            const Model::VertexList& vertices = face.vertices();
+            Model::VertexList::const_iterator it, end;
+            for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
+                const Vec3f& vertex = (*it)->position;
+                if (vertex.isInteger())
+                    points[numPoints++] = vertex;
+            }
+            
+            if (numPoints == 0)
+                points[numPoints++] = vertices.front()->position;
+            return numPoints;
+        }
+        
+        inline void FindIntegerFacePoints::findPoints(const Plane& plane, FacePoints& points, size_t numPoints) const {
+            m_findPoints(plane, points, numPoints);
+        }
+
+        
         const Vec3f* Face::BaseAxes[18] = {
             &Vec3f::PosZ, &Vec3f::PosX, &Vec3f::NegY,
             &Vec3f::NegZ, &Vec3f::PosX, &Vec3f::NegY,

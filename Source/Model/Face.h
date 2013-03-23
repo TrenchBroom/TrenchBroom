@@ -24,6 +24,7 @@
 #include "Model/FaceTypes.h"
 #include "Renderer/FaceVertex.h"
 #include "Utility/Allocator.h"
+#include "Utility/FindPlanePoints.h"
 #include "Utility/String.h"
 #include "Utility/VecMath.h"
 
@@ -34,6 +35,25 @@ namespace TrenchBroom {
         class Brush;
         class Texture;
 
+        class Face;
+        class FindFacePoints {
+        protected:
+            virtual inline size_t selectInitialPoints(const Face& face, FacePoints& points) const = 0;
+            virtual inline void findPoints(const Plane& plane, FacePoints& points, size_t numPoints) const = 0;
+        public:
+            virtual ~FindFacePoints() {}
+            
+            inline void operator()(const Face& face, FacePoints& points) const;
+        };
+        
+        class FindIntegerFacePoints {
+        private:
+            FindIntegerPlanePoints m_findPoints;
+        protected:
+            inline size_t selectInitialPoints(const Face& face, FacePoints& points) const;
+            inline void findPoints(const Plane& plane, FacePoints& points, size_t numPoints) const;
+        };
+        
         /**
          * \brief This class represents a brush face.
          *

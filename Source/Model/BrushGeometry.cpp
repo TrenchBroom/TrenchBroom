@@ -161,15 +161,15 @@ namespace TrenchBroom {
             CoordinatePlane cPlane = CoordinatePlane::plane(boundary.normal);
 
             const Vec3f hit = ray.pointAtDistance(dist);
-            const Vec3f projectedHit = cPlane.swizzleTo(hit);
+            const Vec3f projectedHit = cPlane.swizzle(hit);
 
             const Vertex* vertex = vertices.back();
-            Vec3f v0 = cPlane.swizzleTo(vertex->position) - projectedHit;
+            Vec3f v0 = cPlane.swizzle(vertex->position) - projectedHit;
 
             int c = 0;
             for (unsigned int i = 0; i < vertices.size(); i++) {
                 vertex = vertices[i];
-                Vec3f v1 = cPlane.swizzleTo(vertex->position) - projectedHit;
+                Vec3f v1 = cPlane.swizzle(vertex->position) - projectedHit;
 
                 if ((Math::zero(v0.x) && Math::zero(v0.y)) || (Math::zero(v1.x) && Math::zero(v1.y))) {
                     // the point is identical to a polygon vertex, cancel search
