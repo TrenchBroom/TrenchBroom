@@ -63,9 +63,16 @@ namespace TrenchBroom {
         Brush::Brush(const BBox& worldBounds, const FaceList& faces) :
         MapObject(),
         m_worldBounds(worldBounds),
-        m_faces(faces),
         m_geometry(NULL) {
             init();
+            
+            FaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                Face* face = *it;
+                face->setBrush(this);
+                m_faces.push_back(face);
+            }
+            
             rebuildGeometry();
         }
 
@@ -396,8 +403,10 @@ namespace TrenchBroom {
                 for (vIt = m_geometry->vertices.begin(), vEnd = m_geometry->vertices.end(); vIt != vEnd; ++vIt) {
                     const Vec3f& after = (*vIt)->position;
                     
-                    if (before.equals(after, 0.01f))
+                    if (before.equals(after, 0.01f)) {
                         vertexPositionsAfter.push_back(after);
+                        break;
+                    }
                 }
             }
             
@@ -413,7 +422,7 @@ namespace TrenchBroom {
             FaceSet newFaces;
             FaceSet droppedFaces;
 
-            const EdgeInfoList result = m_geometry->moveEdges(m_worldBounds, edgeInfos, delta, newFaces, droppedFaces);
+            const EdgeInfoList newEdgeInfos = m_geometry->moveEdges(m_worldBounds, edgeInfos, delta, newFaces, droppedFaces);
 
             for (FaceSet::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
                 Face* face = *it;
@@ -434,9 +443,25 @@ namespace TrenchBroom {
                 m_faces.push_back(face);
             }
 
-            if (m_entity != NULL)
-                m_entity->invalidateGeometry();
-            return result;
+            rebuildGeometry();
+            
+            EdgeInfoList edgeInfosAfter;
+            EdgeInfoList::const_iterator iIt, iEnd;
+            for (iIt = newEdgeInfos.begin(), iEnd = newEdgeInfos.end(); iIt != iEnd; ++iIt) {
+                const EdgeInfo& before = *iIt;
+                
+                EdgeList::const_iterator eIt, eEnd;
+                for (eIt = m_geometry->edges.begin(), eEnd = m_geometry->edges.end(); eIt != eEnd; ++eIt) {
+                    const Edge& after = **eIt;
+
+                    if (after.connects(before.start, before.end, 0.01f)) {
+                        edgeInfosAfter.push_back(after.info());
+                        break;
+                    }
+                }
+            }
+            
+            return edgeInfosAfter;
         }
 
         bool Brush::canMoveFaces(const FaceInfoList& faceInfos, const Vec3f& delta) const {
@@ -447,7 +472,7 @@ namespace TrenchBroom {
             FaceSet newFaces;
             FaceSet droppedFaces;
 
-            const FaceInfoList result = m_geometry->moveFaces(m_worldBounds, faceInfos, delta, newFaces, droppedFaces);
+            const FaceInfoList faceInfosBefore = m_geometry->moveFaces(m_worldBounds, faceInfos, delta, newFaces, droppedFaces);
 
             for (FaceSet::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
                 Face* face = *it;
@@ -468,9 +493,25 @@ namespace TrenchBroom {
                 m_faces.push_back(face);
             }
 
-            if (m_entity != NULL)
-                m_entity->invalidateGeometry();
-            return result;
+            rebuildGeometry();
+            
+            FaceInfoList faceInfosAfter;
+            FaceInfoList::const_iterator iIt, iEnd;
+            for (iIt = faceInfosBefore.begin(), iEnd = faceInfosBefore.end(); iIt != iEnd; ++iIt) {
+                const FaceInfo& before = *iIt;
+                
+                SideList::const_iterator sIt, sEnd;
+                for (sIt = m_geometry->sides.begin(), sEnd = m_geometry->sides.end(); sIt != sEnd; ++sIt) {
+                    const Side& after = **sIt;
+                    
+                    if (after.hasVertices(before.vertices, 0.01f)) {
+                        faceInfosAfter.push_back(after.info());
+                        break;
+                    }
+                }
+            }
+
+            return faceInfosAfter;
         }
 
         bool Brush::canSplitEdge(const EdgeInfo& edge, const Vec3f& delta) const {
@@ -502,9 +543,17 @@ namespace TrenchBroom {
                 m_faces.push_back(face);
             }
 
-            if (m_entity != NULL)
-                m_entity->invalidateGeometry();
-            return newVertexPosition;
+            rebuildGeometry();
+            
+            VertexList::const_iterator vIt, vEnd;
+            for (vIt = m_geometry->vertices.begin(), vEnd = m_geometry->vertices.end(); vIt != vEnd; ++vIt) {
+                const Vertex& vertex = **vIt;
+                if (vertex.position.equals(newVertexPosition, 0.01f))
+                    return vertex.position;
+            }
+            
+            assert(false);
+            return Vec3f::NaN;
         }
 
         bool Brush::canSplitFace(const FaceInfo& face, const Vec3f& delta) const {
@@ -535,10 +584,18 @@ namespace TrenchBroom {
                 newFace->setBrush(this);
                 m_faces.push_back(newFace);
             }
-
-            if (m_entity != NULL)
-                m_entity->invalidateGeometry();
-            return newVertexPosition;
+            
+            rebuildGeometry();
+            
+            VertexList::const_iterator vIt, vEnd;
+            for (vIt = m_geometry->vertices.begin(), vEnd = m_geometry->vertices.end(); vIt != vEnd; ++vIt) {
+                const Vertex& vertex = **vIt;
+                if (vertex.position.equals(newVertexPosition, 0.01f))
+                    return vertex.position;
+            }
+            
+            assert(false);
+            return Vec3f::NaN;
         }
 
         void Brush::pick(const Ray& ray, PickResult& pickResults) {

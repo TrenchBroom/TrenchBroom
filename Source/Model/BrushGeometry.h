@@ -163,6 +163,11 @@ namespace TrenchBroom {
             inline bool connects(const Vertex* vertex1, const Vertex* vertex2) const {
                 return (start == vertex1 && end == vertex2) || (start == vertex2 && end == vertex1);
             }
+            
+            inline bool connects(const Vec3f& vertex1, const Vec3f& vertex2, const float epsilon = Math::AlmostZero) const {
+                return ((start->position.equals(vertex1, epsilon) && end->position.equals(vertex2, epsilon)) ||
+                        (start->position.equals(vertex2, epsilon) && end->position.equals(vertex1, epsilon)));
+            }
 
             void updateMark();
 

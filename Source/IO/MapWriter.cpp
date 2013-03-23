@@ -27,6 +27,7 @@
 #include "Model/Face.h"
 #include "Model/Map.h"
 #include "IO/FileManager.h"
+#include "IO/IOException.h"
 
 #include <cassert>
 #include <fstream>
@@ -225,6 +226,8 @@ namespace TrenchBroom {
                 fileManager.makeDirectory(directoryPath);
             
             FILE* stream = fopen(path.c_str(), "w");
+            if (stream == NULL)
+                throw IOException::openError(path);
             // std::fstream stream(path.c_str(), std::ios::out | std::ios::trunc);
 
             const Model::EntityList& entities = map.entities();

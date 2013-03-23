@@ -101,12 +101,16 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::DoSaveDocument(const wxString& file) {
-            wxStopWatch watch;
-            IO::MapWriter mapWriter;
-            mapWriter.writeToFileAtPath(*m_map, file.ToStdString(), true);
-            console().info("Saved map file to %s in %f seconds", file.ToStdString().c_str(), watch.Time() / 1000.0f);
-            
-            return true;
+            try {
+                wxStopWatch watch;
+                IO::MapWriter mapWriter;
+                mapWriter.writeToFileAtPath(*m_map, file.ToStdString(), true);
+                console().info("Saved map file to %s in %f seconds", file.ToStdString().c_str(), watch.Time() / 1000.0f);
+                return true;
+            } catch (IO::IOException e) {
+                console().error(e.what());
+                return false;
+            }
         }
 
         void MapDocument::clear() {
