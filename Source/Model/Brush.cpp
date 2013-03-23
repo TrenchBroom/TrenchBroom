@@ -36,6 +36,30 @@ namespace TrenchBroom {
             m_selectedFaceCount = 0;
         }
 
+        void Brush::rebuildGeometry() {
+            delete m_geometry;
+            m_geometry = new BrushGeometry(m_worldBounds);
+            
+            FaceSet droppedFaces;
+            m_geometry->addFaces(m_faces, droppedFaces);
+            
+            for (FaceSet::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
+                Face* face = *it;
+                face->setBrush(NULL);
+                m_faces.erase(std::remove(m_faces.begin(), m_faces.end(), face), m_faces.end());
+                delete face;
+            }
+            
+            for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
+                Face* face = *it;
+                face->invalidateTexAxes();
+                face->invalidateVertexCache();
+            }
+            
+            if (m_entity != NULL)
+                m_entity->invalidateGeometry();
+        }
+
         Brush::Brush(const BBox& worldBounds) : MapObject(), m_worldBounds(worldBounds) {
             init();
             m_geometry = new BrushGeometry(m_worldBounds);
@@ -169,7 +193,7 @@ namespace TrenchBroom {
 
         bool Brush::addFace(Face* face) {
             try {
-                FaceList droppedFaces;
+                FaceSet droppedFaces;
                 BrushGeometry::CutResult result = m_geometry->addFace(*face, droppedFaces);
 
                 if (result == BrushGeometry::Redundant) {
@@ -182,11 +206,12 @@ namespace TrenchBroom {
                     return false;
                 }
 
-                for (unsigned int i = 0; i < droppedFaces.size(); i++) {
-                    Face* droppedFace = droppedFaces[i];
-                    FaceList::iterator it = find(m_faces.begin(), m_faces.end(), droppedFace);
+                FaceSet::iterator it, end;
+                for (it = droppedFaces.begin(), end = droppedFaces.end(); it != end; ++it) {
+                    Face* droppedFace = *it;
+                    droppedFace->setBrush(NULL);
+                    m_faces.erase(std::remove(m_faces.begin(), m_faces.end(), droppedFace), m_faces.end());
                     delete *it;
-                    m_faces.erase(it);
                 }
 
                 face->setBrush(this);
@@ -246,10 +271,7 @@ namespace TrenchBroom {
                 Face& face = **faceIt;
                 face.translate(delta, lockTextures);
             }
-
-            m_geometry->translate(delta);
-            if (m_entity != NULL)
-                m_entity->invalidateGeometry();
+            rebuildGeometry();
         }
 
         void Brush::rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTextures) {
@@ -258,10 +280,7 @@ namespace TrenchBroom {
                 Face& face = **faceIt;
                 face.rotate90(axis, center, clockwise, lockTextures);
             }
-
-            m_geometry->rotate90(axis, center, clockwise);
-            if (m_entity != NULL)
-                m_entity->invalidateGeometry();
+            rebuildGeometry();
         }
 
         void Brush::rotate(const Quat& rotation, const Vec3f& center, bool lockTextures) {
@@ -270,10 +289,7 @@ namespace TrenchBroom {
                 Face& face = **faceIt;
                 face.rotate(rotation, center, lockTextures);
             }
-
-            m_geometry->rotate(rotation, center);
-            if (m_entity != NULL)
-                m_entity->invalidateGeometry();
+            rebuildGeometry();
         }
 
         void Brush::flip(Axis::Type axis, const Vec3f& center, bool lockTextures) {
@@ -282,10 +298,7 @@ namespace TrenchBroom {
                 Face& face = **faceIt;
                 face.flip(axis, center, lockTextures);
             }
-
-            m_geometry->flip(axis, center);
-            if (m_entity != NULL)
-                m_entity->invalidateGeometry();
+            rebuildGeometry();
         }
 
         void Brush::correct(float epsilon) {
@@ -350,16 +363,12 @@ namespace TrenchBroom {
 
             // using worldbounds here can lead to invalid brushes due to precision errors
             // so we use a smaller bounding box that's still big enough to fit the brush
-            BBox maxBounds = m_geometry->bounds;
-            float max = std::max(std::max(std::abs(delta.x), std::abs(delta.y)), std::abs(delta.z));
-            maxBounds.expand(2.0f * max);
-
-            BrushGeometry testGeometry(maxBounds);
+            BrushGeometry testGeometry(m_worldBounds);
 
             Face testFace(face);
             testFace.translate(delta, false);
 
-            FaceList droppedFaces;
+            FaceSet droppedFaces;
             FaceList::const_iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                 Face* otherFace = *it;
@@ -380,26 +389,15 @@ namespace TrenchBroom {
 
             // using worldbounds here can lead to invalid brushes due to precision errors
             // so we use a smaller bounding box that's still big enough to fit the brush
+            // OTOH it's just fake, so let's not do it
+            /*
             BBox maxBounds = m_geometry->bounds;
             float max = std::max(std::max(std::abs(delta.x), std::abs(delta.y)), std::abs(delta.z));
             maxBounds.expand(2.0f * max);
+            */
 
             face.translate(delta, lockTexture);
-            delete m_geometry;
-            m_geometry = new BrushGeometry(maxBounds);
-
-            FaceList droppedFaces;
-            FaceList::const_iterator it, end;
-            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
-                Model::Face& aFace = **it;
-                BrushGeometry::CutResult result = m_geometry->addFace(aFace, droppedFaces);
-                assert(result == BrushGeometry::Split);
-                aFace.invalidateVertexCache();
-            }
-
-            assert(droppedFaces.empty());
-            if (m_entity != NULL)
-                m_entity->invalidateGeometry();
+            rebuildGeometry();
         }
 
         bool Brush::canMoveVertices(const Vec3f::List& vertexPositions, const Vec3f& delta) const {

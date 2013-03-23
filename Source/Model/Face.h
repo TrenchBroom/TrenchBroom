@@ -46,7 +46,7 @@ namespace TrenchBroom {
             inline void operator()(const Face& face, FacePoints& points) const;
         };
         
-        class FindIntegerFacePoints {
+        class FindIntegerFacePoints : public FindFacePoints {
         private:
             FindIntegerPlanePoints m_findPoints;
         protected:
@@ -98,7 +98,7 @@ namespace TrenchBroom {
              * It must hold that
              * (m_points[2] - m_points[0]).cross(m_points[1] - m_points[0]).equals(boundary().normal)
              */
-            Vec3f m_points[3];
+            FacePoints m_points;
             Plane m_boundary;
             BBox m_worldBounds;
 

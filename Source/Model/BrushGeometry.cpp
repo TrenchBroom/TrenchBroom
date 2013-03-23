@@ -1288,7 +1288,7 @@ namespace TrenchBroom {
                 sides[i]->face->setSide(sides[i]);
         }
 
-        BrushGeometry::CutResult BrushGeometry::addFace(Face& face, FaceList& droppedFaces) {
+        BrushGeometry::CutResult BrushGeometry::addFace(Face& face, FaceSet& droppedFaces) {
             // if all of the face's points are on a previous face, it's a duplicate
             for (size_t i = 0; i < sides.size(); i++) {
                 const Side& side = *sides[i];
@@ -1354,7 +1354,7 @@ namespace TrenchBroom {
                 if (side->mark == Side::Drop) {
                     Face* dropFace = side->face;
                     if (dropFace != NULL) {
-                        droppedFaces.push_back(dropFace);
+                        droppedFaces.insert(dropFace);
                         dropFace->setSide(NULL);
                     }
                     delete side;
@@ -1440,52 +1440,11 @@ namespace TrenchBroom {
             return Split;
         }
 
-        bool BrushGeometry::addFaces(const FaceList& faces, FaceList& droppedFaces) {
+        bool BrushGeometry::addFaces(const FaceList& faces, FaceSet& droppedFaces) {
             for (unsigned int i = 0; i < faces.size(); i++)
                 if (addFace(*faces[i], droppedFaces) == Null)
                     return false;
             return true;
-        }
-
-        void BrushGeometry::translate(const Vec3f& delta) {
-            for (unsigned int i = 0; i < vertices.size(); i++)
-                vertices[i]->position += delta;
-            bounds.translate(delta);
-            center += delta;
-        }
-
-        void BrushGeometry::rotate90(Axis::Type axis, const Vec3f& rotationCenter, bool clockwise) {
-            for (unsigned int i = 0; i < vertices.size(); i++)
-                vertices[i]->position.rotate90(axis, rotationCenter, clockwise);
-            bounds = boundsOfVertices(vertices);
-            center = centerOfVertices(vertices);
-        }
-
-        void BrushGeometry::rotate(const Quat& rotation, const Vec3f& rotationCenter) {
-            for (unsigned int i = 0; i < vertices.size(); i++)
-                vertices[i]->position = rotation * (vertices[i]->position - rotationCenter) + rotationCenter;
-            bounds = boundsOfVertices(vertices);
-            center = centerOfVertices(vertices);
-        }
-
-        void BrushGeometry::flip(Axis::Type axis, const Vec3f& flipCenter) {
-            for (unsigned int i = 0; i < vertices.size(); i++)
-                vertices[i]->position.flip(axis, flipCenter);
-            for (unsigned int i = 0; i < edges.size(); i++) {
-                // std::swap(edges[i]->left, edges[i]->right);
-                std::swap(edges[i]->start, edges[i]->end);
-            }
-            for (unsigned int i = 0; i < sides.size(); i++) {
-                VertexList::iterator first = sides[i]->vertices.begin();
-                std::advance(first, 1); // vertex 0 is invariant
-                std::reverse(first, sides[i]->vertices.end());
-                std::reverse(sides[i]->edges.begin(), sides[i]->edges.end());
-            }
-
-            bounds.flip(axis, flipCenter);
-            center.flip(axis, flipCenter);
-
-            assert(sanityCheck());
         }
 
         void BrushGeometry::updateFacePoints() {

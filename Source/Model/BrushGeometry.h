@@ -342,13 +342,9 @@ namespace TrenchBroom {
             bool closed() const;
             void restoreFaceSides();
 
-            CutResult addFace(Face& face, FaceList& droppedFaces);
-            bool addFaces(const FaceList& faces, FaceList& droppedFaces);
+            CutResult addFace(Face& face, FaceSet& droppedFaces);
+            bool addFaces(const FaceList& faces, FaceSet& droppedFaces);
 
-            void translate(const Vec3f& delta);
-            void rotate90(Axis::Type axis, const Vec3f& rotationCenter, bool clockwise);
-            void rotate(const Quat& rotation, const Vec3f& rotationCenter);
-            void flip(Axis::Type axis, const Vec3f& flipCenter);
             void updateFacePoints();
 
             void correct(FaceSet& newFaces, FaceSet& droppedFaces, float epsilon);
