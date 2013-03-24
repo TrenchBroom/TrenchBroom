@@ -229,11 +229,6 @@ namespace TrenchBroom {
                     case TokenType::CBrace: {
                         if (indicator != NULL) indicator->update(static_cast<int>(token.position()));
                         
-                        // sort the faces by the weight of their plane normals like QBSP does
-                        Model::FaceList sortedFaces = faces;
-                        std::sort(sortedFaces.begin(), sortedFaces.end(), Model::Face::WeightOrder(Plane::WeightOrder(true)));
-                        std::sort(sortedFaces.begin(), sortedFaces.end(), Model::Face::WeightOrder(Plane::WeightOrder(false)));
-                        
                         Model::Brush* brush = new Model::Brush(worldBounds, faces);
                         brush->setFilePosition(firstLine, token.line() - firstLine);
                         if (!brush->closed())

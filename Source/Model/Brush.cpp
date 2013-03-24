@@ -40,8 +40,13 @@ namespace TrenchBroom {
             delete m_geometry;
             m_geometry = new BrushGeometry(m_worldBounds);
             
+            // sort the faces by the weight of their plane normals like QBSP does
+            Model::FaceList sortedFaces = m_faces;
+            std::sort(sortedFaces.begin(), sortedFaces.end(), Model::Face::WeightOrder(Plane::WeightOrder(true)));
+            std::sort(sortedFaces.begin(), sortedFaces.end(), Model::Face::WeightOrder(Plane::WeightOrder(false)));
+            
             FaceSet droppedFaces;
-            bool success = m_geometry->addFaces(m_faces, droppedFaces);
+            bool success = m_geometry->addFaces(sortedFaces, droppedFaces);
             assert(success);
             
             for (FaceSet::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {

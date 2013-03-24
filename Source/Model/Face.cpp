@@ -400,8 +400,10 @@ namespace TrenchBroom {
         void Face::updatePointsFromVertices() {
             Vec3f v1, v2;
             
+            const size_t vertexCount = m_side->vertices.size();
+            assert(vertexCount >= 3);
+
             float bestDot = 1.0f;
-            size_t vertexCount = m_side->vertices.size();
             size_t best = vertexCount;
             for (unsigned int i = 0; i < vertexCount && bestDot > 0; i++) {
                 m_points[2] = m_side->vertices[pred(i, vertexCount)]->position;

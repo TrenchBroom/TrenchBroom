@@ -1454,8 +1454,10 @@ namespace TrenchBroom {
         }
 
         void BrushGeometry::updateFacePoints() {
-            for (unsigned int i = 0; i < sides.size(); i++)
+            for (unsigned int i = 0; i < sides.size(); i++) {
                 sides[i]->face->updatePointsFromVertices();
+                sides[i]->face->updatePointsFromBoundary();
+            }
         }
 
         void BrushGeometry::correct(FaceSet& newFaces, FaceSet& droppedFaces, float epsilon) {
@@ -1485,9 +1487,9 @@ namespace TrenchBroom {
                 Vertex* vertex = findVertex(vertices, start);
                 if (vertex != NULL)
                     moveVertex(vertex, true, start, end, faceManager);
+                updateFacePoints();
             }
 
-            updateFacePoints();
             faceManager.getFaces(newFaces, droppedFaces);
         }
 
@@ -1519,9 +1521,9 @@ namespace TrenchBroom {
                 Vertex* vertex = findVertex(vertices, start);
                 if (vertex != NULL)
                     moveVertex(vertex, true, start, end, faceManager);
+                updateFacePoints();
             }
 
-            updateFacePoints();
             faceManager.getFaces(newFaces, droppedFaces);
         }
 
@@ -1579,9 +1581,8 @@ namespace TrenchBroom {
                 MoveVertexResult result = moveVertex(vertex, true, start, end, faceManager);
                 if (result.type == MoveVertexResult::VertexMoved)
                     movedVertices.push_back(result.vertex);
+                updateFacePoints();
             }
-
-            updateFacePoints();
 
             Vec3f::List newVertexPositions;
             newVertexPositions.reserve(movedVertices.size());
