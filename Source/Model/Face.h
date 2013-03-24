@@ -416,7 +416,7 @@ namespace TrenchBroom {
             }
 
             inline const Renderer::FaceVertex::List& cachedVertices() const {
-                if (!m_vertexCacheValid)
+                // if (!m_vertexCacheValid)
                     validateVertexCache();
                 return m_vertexCache;
             }

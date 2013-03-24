@@ -41,7 +41,8 @@ namespace TrenchBroom {
             m_geometry = new BrushGeometry(m_worldBounds);
             
             FaceSet droppedFaces;
-            m_geometry->addFaces(m_faces, droppedFaces);
+            bool success = m_geometry->addFaces(m_faces, droppedFaces);
+            assert(success);
             
             for (FaceSet::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
                 Face* face = *it;
@@ -276,20 +277,13 @@ namespace TrenchBroom {
                 delete face;
             }
 
-            for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
-                Face* face = *it;
-                face->invalidateTexAxes();
-                face->invalidateVertexCache();
-            }
-
             for (FaceSet::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
                 Face* face = *it;
                 face->setBrush(this);
                 m_faces.push_back(face);
             }
 
-            if (m_entity != NULL)
-                m_entity->invalidateGeometry();
+            rebuildGeometry();
         }
 
         void Brush::snap(unsigned int snapTo) {
@@ -305,20 +299,13 @@ namespace TrenchBroom {
                 delete face;
             }
 
-            for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
-                Face* face = *it;
-                face->invalidateTexAxes();
-                face->invalidateVertexCache();
-            }
-
             for (FaceSet::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
                 Face* face = *it;
                 face->setBrush(this);
                 m_faces.push_back(face);
             }
 
-            if (m_entity != NULL)
-                m_entity->invalidateGeometry();
+            rebuildGeometry();
         }
 
         bool Brush::clip(Face& face) {
@@ -403,7 +390,7 @@ namespace TrenchBroom {
                 for (vIt = m_geometry->vertices.begin(), vEnd = m_geometry->vertices.end(); vIt != vEnd; ++vIt) {
                     const Vec3f& after = (*vIt)->position;
                     
-                    if (before.equals(after, 0.01f)) {
+                    if (before.equals(after, 0.05f)) {
                         vertexPositionsAfter.push_back(after);
                         break;
                     }
@@ -431,12 +418,6 @@ namespace TrenchBroom {
                 delete face;
             }
 
-            for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
-                Face* face = *it;
-                face->invalidateTexAxes();
-                face->invalidateVertexCache();
-            }
-
             for (FaceSet::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
                 Face* face = *it;
                 face->setBrush(this);
@@ -454,7 +435,7 @@ namespace TrenchBroom {
                 for (eIt = m_geometry->edges.begin(), eEnd = m_geometry->edges.end(); eIt != eEnd; ++eIt) {
                     const Edge& after = **eIt;
 
-                    if (after.connects(before.start, before.end, 0.01f)) {
+                    if (after.connects(before.start, before.end, 0.05f)) {
                         edgeInfosAfter.push_back(after.info());
                         break;
                     }
@@ -481,12 +462,6 @@ namespace TrenchBroom {
                 delete face;
             }
 
-            for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
-                Face* face = *it;
-                face->invalidateTexAxes();
-                face->invalidateVertexCache();
-            }
-
             for (FaceSet::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
                 Face* face = *it;
                 face->setBrush(this);
@@ -504,7 +479,7 @@ namespace TrenchBroom {
                 for (sIt = m_geometry->sides.begin(), sEnd = m_geometry->sides.end(); sIt != sEnd; ++sIt) {
                     const Side& after = **sIt;
                     
-                    if (after.hasVertices(before.vertices, 0.01f)) {
+                    if (after.hasVertices(before.vertices, 0.05f)) {
                         faceInfosAfter.push_back(after.info());
                         break;
                     }
@@ -531,12 +506,6 @@ namespace TrenchBroom {
                 delete face;
             }
 
-            for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
-                Face* face = *it;
-                face->invalidateTexAxes();
-                face->invalidateVertexCache();
-            }
-
             for (FaceSet::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
                 Face* face = *it;
                 face->setBrush(this);
@@ -548,7 +517,7 @@ namespace TrenchBroom {
             VertexList::const_iterator vIt, vEnd;
             for (vIt = m_geometry->vertices.begin(), vEnd = m_geometry->vertices.end(); vIt != vEnd; ++vIt) {
                 const Vertex& vertex = **vIt;
-                if (vertex.position.equals(newVertexPosition, 0.01f))
+                if (vertex.position.equals(newVertexPosition, 0.05f))
                     return vertex.position;
             }
             
@@ -573,12 +542,6 @@ namespace TrenchBroom {
                 delete dropFace;
             }
 
-            for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
-                Face* keepFace = *it;
-                keepFace->invalidateTexAxes();
-                keepFace->invalidateVertexCache();
-            }
-
             for (FaceSet::iterator it = newFaces.begin(); it != newFaces.end(); ++it) {
                 Face* newFace = *it;
                 newFace->setBrush(this);
@@ -590,7 +553,7 @@ namespace TrenchBroom {
             VertexList::const_iterator vIt, vEnd;
             for (vIt = m_geometry->vertices.begin(), vEnd = m_geometry->vertices.end(); vIt != vEnd; ++vIt) {
                 const Vertex& vertex = **vIt;
-                if (vertex.position.equals(newVertexPosition, 0.01f))
+                if (vertex.position.equals(newVertexPosition, 0.05f))
                     return vertex.position;
             }
             

@@ -1441,9 +1441,13 @@ namespace TrenchBroom {
         }
 
         bool BrushGeometry::addFaces(const FaceList& faces, FaceSet& droppedFaces) {
-            for (size_t i = 0; i < faces.size(); i++)
-                if (addFace(*faces[i], droppedFaces) == Null)
+            for (size_t i = 0; i < faces.size(); i++) {
+                CutResult result = addFace(*faces[i], droppedFaces);
+                if (result == Redundant)
+                    droppedFaces.insert(faces[i]);
+                else if (result == Null)
                     return false;
+            }
             for (size_t i = 0; i < vertices.size(); i++)
                 vertices[i]->position.correct();
             return true;
@@ -1659,9 +1663,9 @@ namespace TrenchBroom {
 
                 MoveVertexResult result = moveVertex(vertex, false, start, end, faceManager);
                 assert(result.type == MoveVertexResult::VertexMoved);
+                updateFacePoints();
             }
 
-            updateFacePoints();
             faceManager.getFaces(newFaces, droppedFaces);
 
             EdgeInfoList result;
