@@ -131,6 +131,9 @@ namespace TrenchBroom {
             static bool propertyKeyIsMutable(const PropertyKey& key);
             void removeProperty(const PropertyKey& key);
 
+            EntityList linkTargets() const;
+            EntityList linkSources() const;
+
             inline const PropertyValue* classname() const {
                 return propertyForKey(ClassnameKey);
             }

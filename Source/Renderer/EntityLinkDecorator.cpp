@@ -98,139 +98,92 @@ namespace TrenchBroom {
             vList.push_back( Vec4f( arrowCorner1, arrowCornerDist ));
 #endif
         }
-        // mark all selected entities first ?
-        // then go into the gatherLinks function, put links connected to the selected once into the directList, others into contextList
-        // after this was done for selected ents, go over remaining ents and mark their links as unrelated
 
-        // only find and display local links
+        // only find local links
         void EntityLinkDecorator::gatherLinksLocal(Vec4f::List& vList, RenderContext& context, const Model::Entity& curEnt) {
             if (!context.filter().entityVisible(curEnt))
                 return;
 
-            const Model::EntityList& entities = map().entities();
-
+            const Model::EntityList targetList = curEnt.linkTargets();
             Model::EntityList::const_iterator it, end;
-            const String* thisTarget = curEnt.propertyForKey(Model::Entity::TargetKey);
-            const String* thisKillTarget = curEnt.propertyForKey(Model::Entity::KillTargetKey);
 
-            if (thisTarget || thisKillTarget) {
-                for (it = entities.begin(), end = entities.end(); it != end; ++it) {
-                    const Model::Entity& otherEnt = **it;
+            for (it = targetList.begin(), end = targetList.end(); it != end; ++it) {
+                const Model::Entity& targetEnt = **it;
 
-                    if (!context.filter().entityVisible(otherEnt))
-                        continue;
+                if (!context.filter().entityVisible(targetEnt))
+                    continue;
 
-                    const String* otherTargetName = otherEnt.propertyForKey(Model::Entity::TargetNameKey);
-
-                    if (otherTargetName && ((thisTarget && *thisTarget == *otherTargetName ) || (thisKillTarget && *thisKillTarget == *otherTargetName))) {
-                        addArrowVerts(vList, curEnt.center(), otherEnt.center());
-                    }
-                }
+                addArrowVerts(vList, curEnt.center(), targetEnt.center());
             }
 
-            const String* thisTargetName = curEnt.propertyForKey(Model::Entity::TargetNameKey);
+            const Model::EntityList sourceList = curEnt.linkSources();
 
-            if (thisTargetName) {
-                for (it = entities.begin(), end = entities.end(); it != end; ++it) {
-                    const Model::Entity& otherEnt = **it;
+            for (it = sourceList.begin(), end = sourceList.end(); it != end; ++it) {
+                const Model::Entity& sourceEnt = **it;
 
-                    if (!context.filter().entityVisible(otherEnt))
-                        continue;
+                if (!context.filter().entityVisible(sourceEnt))
+                    continue;
 
-                    const String* otherTarget = otherEnt.propertyForKey(Model::Entity::TargetKey);
-                    const String* otherKillTarget = otherEnt.propertyForKey(Model::Entity::KillTargetKey);
-
-                    if ((otherTarget && *thisTargetName == *otherTarget ) || (otherKillTarget && *thisTargetName == *otherKillTarget)) {
-                        addArrowVerts(vList, otherEnt.center(), curEnt.center());
-                    }
-                }
+                addArrowVerts(vList, sourceEnt.center(), curEnt.center());
             }
         }
 
-        // find and display links in a "context"
-        void EntityLinkDecorator::gatherLinks(Vec4f::List& vListLocal, Vec4f::List& vListContext, RenderContext& context, const int entIndex, std::vector<char>& entVisited) {
-            // mark current entity as "visited" - maybe just add a new variable to entities to keep track of this ?
-            if (entVisited[entIndex] != 0)
+        // find links in a "context"
+        void EntityLinkDecorator::gatherLinks(Vec4f::List& vListLocal, Vec4f::List& vListContext, RenderContext& context, Model::Entity& curEnt, Model::EntitySet& visitedEntities) {
+            Model::EntitySet::iterator vIt = visitedEntities.lower_bound(&curEnt);
+
+            if (*vIt == &curEnt)
                 return;
 
-            entVisited[entIndex] = 1;
-
-            const Model::EntityList& entities = map().entities();
-            const Model::Entity& curEnt = *entities[entIndex];
+            visitedEntities.insert(vIt, &curEnt);
 
             if (!context.filter().entityVisible(curEnt))
                 return;
 
-            // add target arrow for target, then run this function for it IF said target was not visited yet
             Model::EntityList::const_iterator it, end;
-            int otherEntIndex;
-            const String* thisTarget = curEnt.propertyForKey(Model::Entity::TargetKey);
-            const String* thisKillTarget = curEnt.propertyForKey(Model::Entity::KillTargetKey);
+            const Model::EntityList targetList = curEnt.linkTargets();
 
-            if (thisTarget || thisKillTarget) {
-                otherEntIndex = 0;
-                for (it = entities.begin(), end = entities.end(); it != end; ++it, ++otherEntIndex) {
-                    const Model::Entity& otherEnt = **it;
+            for (it = targetList.begin(), end = targetList.end(); it != end; ++it) {
+                Model::Entity& targetEnt = **it;
 
-                    if (!context.filter().entityVisible(otherEnt))
-                        continue;
+                if (!context.filter().entityVisible(targetEnt))
+                    continue;
 
-                    const String* otherTargetName = otherEnt.propertyForKey(Model::Entity::TargetNameKey);
+                if (curEnt.selected() || targetEnt.selected())
+                    addArrowVerts(vListLocal, curEnt.center(), targetEnt.center());
+                else
+                    addArrowVerts(vListContext, curEnt.center(), targetEnt.center());
 
-                    if (otherTargetName && ((thisTarget && *thisTarget == *otherTargetName) || (thisKillTarget && *thisKillTarget == *otherTargetName))) {
-                        if (curEnt.selected() || otherEnt.selected())
-                            addArrowVerts(vListLocal, curEnt.center(), otherEnt.center());
-                        else
-                            addArrowVerts(vListContext, curEnt.center(), otherEnt.center());
-
-                        gatherLinks(vListLocal, vListContext, context, otherEntIndex, entVisited);
-                    }
-                }
+                gatherLinks(vListLocal, vListContext, context, targetEnt, visitedEntities);
             }
 
-            const String* thisTargetName = curEnt.propertyForKey(Model::Entity::TargetNameKey);
+            const Model::EntityList sourceList = curEnt.linkSources();
 
-            if (thisTargetName) {
-                otherEntIndex = 0;
-                for (it = entities.begin(), end = entities.end(); it != end; ++it, ++otherEntIndex) {
-                    const Model::Entity& otherEnt = **it;
+            for (it = sourceList.begin(), end = sourceList.end(); it != end; ++it) {
+                Model::Entity& sourceEnt = **it;
 
-                    if (!context.filter().entityVisible(otherEnt))
-                        continue;
+                if (!context.filter().entityVisible(sourceEnt))
+                    continue;
 
-                    const String* otherTarget = otherEnt.propertyForKey(Model::Entity::TargetKey);
-                    const String* otherKillTarget = otherEnt.propertyForKey(Model::Entity::KillTargetKey);
-
-                    if ((otherTarget && *thisTargetName == *otherTarget) || (otherKillTarget && *thisTargetName == *otherKillTarget)) {
-                        gatherLinks(vListLocal, vListContext, context, otherEntIndex, entVisited);
-                    }
-                }
+                gatherLinks(vListLocal, vListContext, context, sourceEnt, visitedEntities);
             }
         }
 
-        void EntityLinkDecorator::gatherLinksUnrelated(Vec4f::List& vList, RenderContext& context, const Model::Entity& curEnt, const int entIndex) {
+        void EntityLinkDecorator::gatherLinksUnrelated(Vec4f::List& vList, RenderContext& context, const Model::Entity& curEnt) {
             if (!context.filter().entityVisible(curEnt))
                 return;
 
+            const Model::EntityList targetList = curEnt.linkTargets();
             const Model::EntityList& entities = map().entities();
-
             Model::EntityList::const_iterator it, end;
-            const String* thisTarget = curEnt.propertyForKey(Model::Entity::TargetKey);
-            const String* thisKillTarget = curEnt.propertyForKey(Model::Entity::KillTargetKey);
 
-            if (thisTarget || thisKillTarget) {
-                for (it = entities.begin(), end = entities.end(); it != end; ++it) {
-                    const Model::Entity& otherEnt = **it;
+            for (it = targetList.begin(), end = targetList.end(); it != end; ++it) {
+                const Model::Entity& targetEnt = **it;
 
-                    if (!context.filter().entityVisible(otherEnt))
-                        continue;
+                if (!context.filter().entityVisible(targetEnt))
+                    continue;
 
-                    const String* otherTargetName = otherEnt.propertyForKey(Model::Entity::TargetNameKey);
-
-                    if (otherTargetName && ((thisTarget && *thisTarget == *otherTargetName) || (thisKillTarget && *thisKillTarget == *otherTargetName))) {
-                        addArrowVerts(vList, curEnt.center(), otherEnt.center());
-                    }
-                }
+                addArrowVerts(vList, curEnt.center(), targetEnt.center());
             }
         }
 
@@ -250,36 +203,36 @@ namespace TrenchBroom {
                 m_doRebuild = false;
 
                 // for keeping track which entities have already been visited by the link-gathering algorithm - should this be part of each entity instead ?
-                std::vector<char> entVisited(entities.size());
-
-                std::fill(entVisited.begin(), entVisited.end(), 0);
+                Model::EntitySet visitedEntities;
 
                 Vec4f::List vertsLocal; // links directly connected to a selected entity
                 Vec4f::List vertsContext; // links not directly connected, but in the same context
                 Vec4f::List vertsUnrelated; // links not related to the current selection
+
                 Model::EntityList::const_iterator it, end;
-                int entIndex = 0;
 
                 // first pass, outputs local or local+context links
-                for (it = entities.begin(), end = entities.end(); it != end; ++it, ++entIndex) {
-                    const Model::Entity& entity = **it;
+                for (it = entities.begin(), end = entities.end(); it != end; ++it) {
+                    Model::Entity& entity = **it;
 
                     if (entity.selected()) {
                         if (context.viewOptions().linkDisplayMode() == View::ViewOptions::LinkDisplayLocal) {
                             gatherLinksLocal(vertsLocal, context, entity);
                         } else {
-                            gatherLinks(vertsLocal, vertsContext, context, entIndex, entVisited);
+                            gatherLinks(vertsLocal, vertsContext, context, entity, visitedEntities);
                         }
                     }
                 }
 
                 // second pass, only used in "display all" mode, outputs target links of entities the first pass didn't visit
                 if (context.viewOptions().linkDisplayMode() == View::ViewOptions::LinkDisplayAll) {
-                    entIndex = 0;
-                    for (it = entities.begin(), end = entities.end(); it != end; ++it, ++entIndex) {
-                        const Model::Entity& entity = **it;
-                        if (entVisited[ entIndex ] == 0)
-                            gatherLinksUnrelated(vertsUnrelated, context, entity, entIndex);
+                    Model::EntitySet::const_iterator vIt;
+                    for (it = entities.begin(), end = entities.end(); it != end; ++it) {
+                        Model::Entity& entity = **it;
+                        vIt = visitedEntities.lower_bound( &entity );
+
+                        if( *vIt != &entity )
+                            gatherLinksUnrelated(vertsUnrelated, context, entity);
                     }
                 }
 

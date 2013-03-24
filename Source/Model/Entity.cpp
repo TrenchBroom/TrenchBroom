@@ -23,6 +23,7 @@
 #include "Model/EntityDefinition.h"
 #include "Model/Filter.h"
 #include "Model/Picker.h"
+#include "Model/Map.h"
 #include "Utility/List.h"
 
 #include <algorithm>
@@ -344,6 +345,104 @@ namespace TrenchBroom {
 
             m_propertyStore.removeProperty(key);
             invalidateGeometry();
+        }
+
+        EntityList Entity::linkTargets() const {
+            const EntityList& entities = map()->entities();
+
+            Model::EntityList::const_iterator it, end;
+            EntitySet skipEntities;
+            EntityList targetList;
+
+            for (int i = 0; i != properties().size(); ++i) {
+                const Model::PropertyKey& curKey = properties()[i].key();
+
+                if ((Utility::startsWith( curKey, "target") && (curKey.length() == 6 || Utility::isDigit(curKey[6]))) ||
+                    (Utility::startsWith( curKey, "killtarget") && (curKey.length() == 10 || Utility::isDigit(curKey[10])))
+                ) {
+                    const Model::PropertyValue& curValue = properties()[i].value();
+
+                    for (it = entities.begin(), end = entities.end(); it != end; ++it ) {
+                        Model::Entity& otherEnt = **it;
+                        // skip entities which are already confirmed targets or have no targetname
+                        EntitySet::iterator vIt = skipEntities.lower_bound(&otherEnt);
+                        if (*vIt == &otherEnt)
+                            continue;
+
+                        bool hasTargetName = false;
+                        
+                        for (int j = 0; j != otherEnt.properties().size(); ++j) {
+                            const Model::PropertyKey& otherKey = otherEnt.properties()[j].key();
+
+                            if ((Utility::startsWith( otherKey, "targetname") && (otherKey.length() == 10 || Utility::isDigit(otherKey[10])))) {
+                                if (otherEnt.properties()[j].value() == curValue) {
+                                    targetList.push_back(&otherEnt);
+                                    // don't save multiple links to the same entity for now
+                                    skipEntities.insert(vIt, &otherEnt);
+                                    break;
+                                }
+
+                                hasTargetName = true;
+                            }
+                        }
+
+                        if (!hasTargetName) {
+                            skipEntities.insert(vIt, &otherEnt);
+                        }
+                    }
+                }
+            }
+
+            return targetList;
+        }
+
+        EntityList Entity::linkSources() const {
+            const EntityList& entities = map()->entities();
+
+            Model::EntityList::const_iterator it, end;
+            EntitySet skipEntities;
+            EntityList sourceList;
+
+            for (int i = 0; i != properties().size(); ++i) {
+                const Model::PropertyKey& curKey = properties()[i].key();
+
+                if ((Utility::startsWith( curKey, "targetname") && (curKey.length() == 10 || Utility::isDigit(curKey[10])))) {
+                    const Model::PropertyValue& curValue = properties()[i].value();
+
+                    for (it = entities.begin(), end = entities.end(); it != end; ++it) {
+                        Model::Entity& otherEnt = **it;
+                        // skip entities which are already confirmed sources or have no target keys
+                        EntitySet::iterator vIt = skipEntities.lower_bound(&otherEnt);
+                        if (*vIt == &otherEnt)
+                            continue;
+
+                        bool hasTargetKeys = false;
+                        
+                        for (int j = 0; j != otherEnt.properties().size(); ++j) {
+                            const Model::PropertyKey& otherKey = otherEnt.properties()[j].key();
+
+                            if ((Utility::startsWith( otherKey, "target") && (otherKey.length() == 6 || Utility::isDigit(otherKey[6]))) ||
+                                (Utility::startsWith( otherKey, "killtarget") && (otherKey.length() == 10 || Utility::isDigit(otherKey[10])))
+                            ) {
+                                if (otherEnt.properties()[j].value() == curValue) {
+                                    sourceList.push_back(&otherEnt);
+                                    // don't save multiple links to the same entity for now
+                                    skipEntities.insert(vIt, &otherEnt);
+                                    break;
+                                }
+
+                                hasTargetKeys = true;
+                            }
+                        }
+
+                        if (!hasTargetKeys) {
+                            skipEntities.insert(vIt, &otherEnt);
+                        }
+                    }
+                }
+            }
+
+            return sourceList;
         }
         
         const Quat Entity::rotation() const {
