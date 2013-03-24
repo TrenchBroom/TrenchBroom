@@ -276,13 +276,15 @@ namespace TrenchBroom {
 
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
-                const Model::PropertyValue& classname = *entity->classname();
-                EntityModelRenderer* renderer = modelRendererManager.modelRenderer(*entity, m_document.searchPaths());
-                if (renderer != NULL)
-                    m_modelRenderers[entity] = CachedEntityModelRenderer(renderer, classname);
-
-                EntityClassnameAnchor* anchor = new EntityClassnameAnchor(*entity);
-                m_classnameRenderer->addString(entity, fontDescriptor, classname, anchor);
+                const Model::PropertyValue* classname = entity->classname();
+                if (classname != NULL) {
+                    EntityModelRenderer* renderer = modelRendererManager.modelRenderer(*entity, m_document.searchPaths());
+                    if (renderer != NULL)
+                        m_modelRenderers[entity] = CachedEntityModelRenderer(renderer, *classname);
+                    
+                    EntityClassnameAnchor* anchor = new EntityClassnameAnchor(*entity);
+                    m_classnameRenderer->addString(entity, fontDescriptor, *classname, anchor);
+                }
             }
 
             m_entities.insert(entities.begin(), entities.end());
