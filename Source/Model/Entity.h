@@ -75,8 +75,14 @@ namespace TrenchBroom {
             mutable Vec3f m_center;
             mutable bool m_geometryValid;
 
+            mutable EntityList m_linkTargets;
+            mutable EntityList m_linkSources;
+            mutable bool m_linksValid;
+
             void init();
             void validateGeometry() const;
+            void validateLinks();
+            void invalidateNeighbourLinks();
 
             typedef enum {
                 RTNone,
@@ -111,6 +117,9 @@ namespace TrenchBroom {
 
             inline void setMap(Map* map) {
                 m_map = map;
+
+                invalidateNeighbourLinks();
+                invalidateLinks();
             }
 
             inline const PropertyList& properties() const {
@@ -131,8 +140,22 @@ namespace TrenchBroom {
             static bool propertyKeyIsMutable(const PropertyKey& key);
             void removeProperty(const PropertyKey& key);
 
-            EntityList linkTargets() const;
-            EntityList linkSources() const;
+            void updateLinkTargets();
+            void updateLinkSources();
+
+            inline EntityList& linkTargets() {
+                if (!m_linksValid)
+                    validateLinks();
+
+                return m_linkTargets;
+            }
+
+            inline EntityList& linkSources() {
+                if (!m_linksValid)
+                    validateLinks();
+
+                return m_linkSources;
+            }
 
             inline const PropertyValue* classname() const {
                 return propertyForKey(ClassnameKey);
@@ -226,6 +249,10 @@ namespace TrenchBroom {
 
             inline void invalidateGeometry() {
                 m_geometryValid = false;
+            }
+
+            inline void invalidateLinks() {
+                m_linksValid = false;
             }
 
             void translate(const Vec3f& delta, bool lockTextures);

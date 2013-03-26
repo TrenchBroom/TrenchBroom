@@ -42,6 +42,7 @@ namespace TrenchBroom {
         void Map::removeEntity(Entity& entity) {
             if (entity.worldspawn())
                 m_worldspawn = NULL;
+            entity.setMap(NULL);
             Utility::erase(m_entities, &entity);
         }
 

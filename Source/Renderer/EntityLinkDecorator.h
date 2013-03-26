@@ -49,8 +49,8 @@ namespace TrenchBroom {
 
             void addArrowVerts(Vec4f::List& vList, const Vec3f& pointA, const Vec3f& pointB);
             void gatherLinks(Vec4f::List& vListLocal, Vec4f::List& vListContext, RenderContext& context, Model::Entity& curEnt, Model::EntitySet &visitedEntities);
-            void gatherLinksLocal(Vec4f::List& vList, RenderContext& context, const Model::Entity& curEnt);
-            void gatherLinksUnrelated(Vec4f::List& vList, RenderContext& context, const Model::Entity& curEnt);
+            void gatherLinksLocal(Vec4f::List& vList, RenderContext& context, Model::Entity& curEnt);
+            void gatherLinksUnrelated(Vec4f::List& vList, RenderContext& context, Model::Entity& curEnt);
             void render(Vbo& vbo, RenderContext& context);
         };
     }

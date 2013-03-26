@@ -58,6 +58,7 @@ namespace TrenchBroom {
             m_hiddenBrushCount = 0;
             setProperty(SpawnFlagsKey, "0");
             invalidateGeometry();
+            invalidateLinks();
         }
 
         void Entity::validateGeometry() const {
@@ -276,6 +277,16 @@ namespace TrenchBroom {
             else
                 m_propertyStore.setPropertyValue(key, *value);
             invalidateGeometry();
+
+            if (Utility::startsWith(key, "target") || Utility::startsWith(key, "killtarget")) {
+                if (m_map != NULL) {
+                    for (int i = 0; i != m_map->entities().size(); ++i) {
+                        m_map->entities()[i]->invalidateLinks();
+                    }
+                }
+
+                invalidateLinks();
+            }
         }
         
         void Entity::setProperty(const PropertyKey& key, const Vec3f& value, bool round) {
@@ -307,6 +318,16 @@ namespace TrenchBroom {
         void Entity::renameProperty(const PropertyKey& oldKey, const PropertyKey& newKey) {
             bool success = m_propertyStore.setPropertyKey(oldKey, newKey);
             assert(success);
+
+            if (Utility::startsWith(newKey, "target") || Utility::startsWith(newKey, "killtarget")) {
+                if (m_map != NULL) {
+                    for (int i = 0; i != m_map->entities().size(); ++i) {
+                        m_map->entities()[i]->invalidateLinks();
+                    }
+                }
+
+                invalidateLinks();
+            }
         }
 
         void Entity::setProperties(const PropertyList& properties, bool replace) {
@@ -345,14 +366,39 @@ namespace TrenchBroom {
 
             m_propertyStore.removeProperty(key);
             invalidateGeometry();
+
+            if (Utility::startsWith(key, "target") || Utility::startsWith(key, "killtarget")) {
+                if (m_map != NULL) {
+                    for (int i = 0; i != m_map->entities().size(); ++i) {
+                        m_map->entities()[i]->invalidateLinks();
+                    }
+                }
+
+                invalidateLinks();
+            }
         }
 
-        EntityList Entity::linkTargets() const {
+        void Entity::validateLinks() {
+            updateLinkTargets();
+            updateLinkSources();
+            m_linksValid = true;
+        }
+
+        void Entity::invalidateNeighbourLinks() {
+            for (int i = 0; i != m_linkTargets.size(); ++i) {
+                m_linkTargets[i]->invalidateLinks();
+            }
+            for (int i = 0; i != m_linkSources.size(); ++i) {
+                m_linkSources[i]->invalidateLinks();
+            }
+        }
+
+        void Entity::updateLinkTargets() {
             const EntityList& entities = map()->entities();
 
             Model::EntityList::const_iterator it, end;
             EntitySet skipEntities;
-            EntityList targetList;
+            m_linkTargets.clear();
 
             for (int i = 0; i != properties().size(); ++i) {
                 const Model::PropertyKey& curKey = properties()[i].key();
@@ -376,7 +422,7 @@ namespace TrenchBroom {
 
                             if ((Utility::startsWith( otherKey, "targetname") && (otherKey.length() == 10 || Utility::isDigit(otherKey[10])))) {
                                 if (otherEnt.properties()[j].value() == curValue) {
-                                    targetList.push_back(&otherEnt);
+                                    m_linkTargets.push_back(&otherEnt);
                                     // don't save multiple links to the same entity for now
                                     skipEntities.insert(vIt, &otherEnt);
                                     break;
@@ -392,16 +438,14 @@ namespace TrenchBroom {
                     }
                 }
             }
-
-            return targetList;
         }
 
-        EntityList Entity::linkSources() const {
+        void Entity::updateLinkSources() {
             const EntityList& entities = map()->entities();
 
             Model::EntityList::const_iterator it, end;
             EntitySet skipEntities;
-            EntityList sourceList;
+            m_linkSources.clear();
 
             for (int i = 0; i != properties().size(); ++i) {
                 const Model::PropertyKey& curKey = properties()[i].key();
@@ -425,7 +469,7 @@ namespace TrenchBroom {
                                 (Utility::startsWith( otherKey, "killtarget") && (otherKey.length() == 10 || Utility::isDigit(otherKey[10])))
                             ) {
                                 if (otherEnt.properties()[j].value() == curValue) {
-                                    sourceList.push_back(&otherEnt);
+                                    m_linkSources.push_back(&otherEnt);
                                     // don't save multiple links to the same entity for now
                                     skipEntities.insert(vIt, &otherEnt);
                                     break;
@@ -441,8 +485,6 @@ namespace TrenchBroom {
                     }
                 }
             }
-
-            return sourceList;
         }
         
         const Quat Entity::rotation() const {

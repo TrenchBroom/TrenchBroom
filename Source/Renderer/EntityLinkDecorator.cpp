@@ -100,12 +100,12 @@ namespace TrenchBroom {
         }
 
         // only find local links
-        void EntityLinkDecorator::gatherLinksLocal(Vec4f::List& vList, RenderContext& context, const Model::Entity& curEnt) {
+        void EntityLinkDecorator::gatherLinksLocal(Vec4f::List& vList, RenderContext& context, Model::Entity& curEnt) {
             if (!context.filter().entityVisible(curEnt))
                 return;
 
-            const Model::EntityList targetList = curEnt.linkTargets();
             Model::EntityList::const_iterator it, end;
+            const Model::EntityList& targetList = curEnt.linkTargets();
 
             for (it = targetList.begin(), end = targetList.end(); it != end; ++it) {
                 const Model::Entity& targetEnt = **it;
@@ -116,7 +116,7 @@ namespace TrenchBroom {
                 addArrowVerts(vList, curEnt.center(), targetEnt.center());
             }
 
-            const Model::EntityList sourceList = curEnt.linkSources();
+            const Model::EntityList& sourceList = curEnt.linkSources();
 
             for (it = sourceList.begin(), end = sourceList.end(); it != end; ++it) {
                 const Model::Entity& sourceEnt = **it;
@@ -141,7 +141,7 @@ namespace TrenchBroom {
                 return;
 
             Model::EntityList::const_iterator it, end;
-            const Model::EntityList targetList = curEnt.linkTargets();
+            const Model::EntityList& targetList = curEnt.linkTargets();
 
             for (it = targetList.begin(), end = targetList.end(); it != end; ++it) {
                 Model::Entity& targetEnt = **it;
@@ -157,7 +157,7 @@ namespace TrenchBroom {
                 gatherLinks(vListLocal, vListContext, context, targetEnt, visitedEntities);
             }
 
-            const Model::EntityList sourceList = curEnt.linkSources();
+            const Model::EntityList& sourceList = curEnt.linkSources();
 
             for (it = sourceList.begin(), end = sourceList.end(); it != end; ++it) {
                 Model::Entity& sourceEnt = **it;
@@ -169,11 +169,11 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityLinkDecorator::gatherLinksUnrelated(Vec4f::List& vList, RenderContext& context, const Model::Entity& curEnt) {
+        void EntityLinkDecorator::gatherLinksUnrelated(Vec4f::List& vList, RenderContext& context, Model::Entity& curEnt) {
             if (!context.filter().entityVisible(curEnt))
                 return;
 
-            const Model::EntityList targetList = curEnt.linkTargets();
+            const Model::EntityList& targetList = curEnt.linkTargets();
             const Model::EntityList& entities = map().entities();
             Model::EntityList::const_iterator it, end;
 
@@ -202,7 +202,7 @@ namespace TrenchBroom {
                 m_vertexArray = NULL;
                 m_doRebuild = false;
 
-                // for keeping track which entities have already been visited by the link-gathering algorithm - should this be part of each entity instead ?
+                // for keeping track of which entities have already been visited by the link-gathering algorithm - should this be part of each entity instead ?
                 Model::EntitySet visitedEntities;
 
                 Vec4f::List vertsLocal; // links directly connected to a selected entity
