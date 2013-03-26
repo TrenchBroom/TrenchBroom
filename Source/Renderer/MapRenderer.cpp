@@ -31,6 +31,7 @@
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/EntityRotationDecorator.h"
+#include "Renderer/EntityLinkDecorator.h"
 #include "Renderer/FaceRenderer.h"
 #include "Renderer/PointHandleRenderer.h"
 #include "Renderer/PointTraceFigure.h"
@@ -339,6 +340,8 @@ namespace TrenchBroom {
             m_lockedEntityRenderer->setGrayscale(true);
             
             m_entityDecorators.push_back(new EntityRotationDecorator(document.map(), prefs.getColor(Preferences::EntityRotationDecoratorColor)));
+				// TODO : give own color preferences
+            m_entityDecorators.push_back(new EntityLinkDecorator(document.map(), prefs.getColor(Preferences::EntityRotationDecoratorColor)));
         }
         
         MapRenderer::~MapRenderer() {

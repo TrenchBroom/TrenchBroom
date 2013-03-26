@@ -522,6 +522,9 @@
     <ClCompile Include="..\..\Source\View\KeyboardShortcutEditor.cpp">
       <Filter>Source Files\View</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Renderer\EntityLinkDecorator.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -1192,6 +1195,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\View\KeyboardShortcutEditor.h">
       <Filter>Header Files\View</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Renderer\EntityLinkDecorator.h">
+      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

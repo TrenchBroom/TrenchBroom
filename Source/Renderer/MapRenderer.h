@@ -107,7 +107,6 @@ namespace TrenchBroom {
             void deleteFigures(Figure::List& figures);
             
             void validate(RenderContext& context);
-            void invalidateDecorators();
             
             void renderFaces(RenderContext& context);
             void renderEdges(RenderContext& context);
@@ -138,6 +137,7 @@ namespace TrenchBroom {
             void invalidateAll();
             void invalidateEntityModelRendererCache();
             void invalidateSelectedEntityModelRendererCache();
+            void invalidateDecorators();
             
             void addFigure(Figure* figure);
             void removeFigure(Figure* figure);

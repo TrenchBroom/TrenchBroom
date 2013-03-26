@@ -1,0 +1,50 @@
+#version 120
+
+/*
+ Copyright (C) 2010-2012 Kristian Duske
+ 
+ This file is part of TrenchBroom.
+ 
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+uniform vec3 CameraPosition;
+uniform vec4 Color;
+uniform float Occluded;
+
+varying vec4 vertexColor;
+varying vec3 viewVector;
+varying float lineGradient; // goes from 0( at source ) to 1( at target ) along the link
+
+void main(void) {
+    gl_Position = ftransform();
+
+    vec4 vertColor;
+
+    // these should probably be view-preferences
+    if( gl_Color.g < 0.4 ) {
+    	vertColor = vec4( 0.5, 0.5, 0.5, 0.35 ); // unrelated color
+    } else
+    if( gl_Color.g < 0.9 ) {
+    	vertColor = vec4( 0.2, 0.431, 0.8, 0.75 ); // context color
+    } else {
+    	vertColor = vec4( 1.0, 0.35, 0.0, 1.0 ); // local color
+    }
+
+    vertexColor.rgb = vertColor.rgb;
+    vertexColor.a = vertColor.a * ( 0.9 - Occluded * 0.4 );
+    lineGradient = gl_Color.r;
+
+    viewVector = CameraPosition - gl_Vertex.xyz;
+}

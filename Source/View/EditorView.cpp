@@ -563,6 +563,8 @@ namespace TrenchBroom {
                         inspector().faceInspector().updateFaceAttributes();
                         inspector().faceInspector().updateSelectedTexture();
                         inspector().entityInspector().updateProperties();
+
+                        m_renderer->invalidateDecorators();
                         break;
                     }
                     case Controller::Command::InvalidateRendererEntityState:
@@ -697,10 +699,10 @@ namespace TrenchBroom {
             if (deleteWindow) {
                 EditorFrame* frame = static_cast<EditorFrame*>(GetFrame());
                 if (frame != NULL) {
-					frame->Disable();
+                    frame->Disable();
                     frame->disableProcessing();
                     frame->Destroy(); // don't call close because that method will try to destroy the document again
-				}
+                }
             }
 
             if (m_filter != NULL) {

@@ -307,6 +307,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClCompile Include="..\..\Source\Renderer\CircleFigure.cpp" />
     <ClCompile Include="..\..\Source\Renderer\EdgeRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\EntityFigure.cpp" />
+    <ClCompile Include="..\..\Source\Renderer\EntityLinkDecorator.cpp" />
     <ClCompile Include="..\..\Source\Renderer\EntityModelRenderer.cpp" />
     <ClCompile Include="..\..\Source\Renderer\EntityModelRendererManager.cpp" />
     <ClCompile Include="..\..\Source\Renderer\EntityRenderer.cpp" />
@@ -489,6 +490,7 @@ Copy "$(WXWIN)\lib\vc100_x64_dll\wxmsw294u_gl_vc100_x64.pdb" "$(TargetDir)"
     <ClInclude Include="..\..\Source\Renderer\EntityClassnameAnchor.h" />
     <ClInclude Include="..\..\Source\Renderer\EntityClassnameFilter.h" />
     <ClInclude Include="..\..\Source\Renderer\EntityFigure.h" />
+    <ClInclude Include="..\..\Source\Renderer\EntityLinkDecorator.h" />
     <ClInclude Include="..\..\Source\Renderer\EntityModelRenderer.h" />
     <ClInclude Include="..\..\Source\Renderer\EntityModelRendererManager.h" />
     <ClInclude Include="..\..\Source\Renderer\EntityRenderer.h" />
