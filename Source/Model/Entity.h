@@ -41,6 +41,7 @@ namespace TrenchBroom {
         class Entity : public MapObject, public Utility::Allocator<Entity> {
         public:
             static String const ClassnameKey;
+            static String const NoClassnameValue;
             static String const SpawnFlagsKey;
             static String const WorldspawnClassname;
             static String const GroupClassname;

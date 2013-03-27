@@ -1937,9 +1937,10 @@ namespace TrenchBroom {
             } else {
                 const Model::BrushList& brushes = editStateManager.selectedBrushes();
                 Model::Entity* newParent = inputController().canReparentBrushes(brushes);
+                const String* classname = newParent->classname();
                 if (newParent != NULL) {
                     StringStream text;
-                    text << "Add Brushes to " << *newParent->classname();
+                    text << "Add Brushes to " << (classname != NULL ? *classname : Model::Entity::NoClassnameValue);
                     event.Enable(true);
                     event.SetText(text.str());
                 } else {

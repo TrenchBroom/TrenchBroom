@@ -1312,9 +1312,9 @@ namespace TrenchBroom {
             unsigned int undecided = 0;
 
             // mark vertices
-            for (unsigned int i = 0; i < vertices.size(); i++) {
+            for (size_t i = 0; i < vertices.size(); i++) {
                 Vertex& vertex = *vertices[i];
-                PointStatus::Type vs = boundary.pointStatus(vertex.position);
+                PointStatus::Type vs = boundary.pointStatus(vertex.position, 0.1f);
                 if (vs == PointStatus::PSAbove) {
                     vertex.mark = Vertex::Drop;
                     drop++;
@@ -1334,7 +1334,7 @@ namespace TrenchBroom {
                 return Null;
 
             // mark and split edges
-            for (unsigned int i = 0; i < edges.size(); i++) {
+            for (size_t i = 0; i < edges.size(); i++) {
                 Edge& edge = *edges[i];
                 edge.updateMark();
                 if (edge.mark == Edge::Split) {
@@ -1379,9 +1379,9 @@ namespace TrenchBroom {
 
             // create new side from newly created edges
             // first, sort the new edges to form a polygon in clockwise order
-            for (unsigned int i = 0; i < newEdges.size() - 1; i++) {
+            for (size_t i = 0; i < newEdges.size() - 1; i++) {
                 Edge* edge = newEdges[i];
-                for (unsigned int j = i + 2; j < newEdges.size(); j++) {
+                for (size_t j = i + 2; j < newEdges.size(); j++) {
                     Edge* candidate = newEdges[j];
                     if (edge->start == candidate->end) {
                         newEdges[j] = newEdges[i + 1];
@@ -1396,12 +1396,12 @@ namespace TrenchBroom {
             sides.push_back(newSide);
 
             // sanity checks
-            for (unsigned int i = 0; i < sides.size(); i++) {
+            for (size_t i = 0; i < sides.size(); i++) {
                 Side* side = sides[i];
                 VertexList& sideVertices = side->vertices;
                 EdgeList& sideEdges = side->edges;
                 assert(sideVertices.size() == sideEdges.size());
-                for (unsigned int j = 0; j < sideVertices.size(); j++) {
+                for (size_t j = 0; j < sideVertices.size(); j++) {
                     assert(sideVertices[j]->mark != Vertex::Drop);
                     assert(sideEdges[j]->mark != Edge::Drop);
                     assert(sideEdges[j]->startVertex(side) == sideVertices[j]);

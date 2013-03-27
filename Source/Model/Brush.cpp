@@ -402,7 +402,7 @@ namespace TrenchBroom {
                 }
             }
             
-            assert(vertexPositionsAfter.size() == newVertexPositions.size());
+            // assert(vertexPositionsAfter.size() == newVertexPositions.size());
             return vertexPositionsAfter;
         }
 
