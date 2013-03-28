@@ -318,6 +318,18 @@ namespace TrenchBroom {
                 setProperty(it->key(), it->value());
         }
         
+        bool Entity::propertyIsMutable(const PropertyKey& key) {
+            if (key == ModKey)
+                return false;
+            if (key == DefKey)
+                return false;
+            if (key == WadKey)
+                return false;
+            if (key == FacePointFormatKey)
+                return false;
+            return true;
+        }
+
         bool Entity::propertyKeyIsMutable(const PropertyKey& key) {
             if (key == ClassnameKey)
                 return false;

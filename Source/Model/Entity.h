@@ -128,6 +128,7 @@ namespace TrenchBroom {
             void setProperty(const PropertyKey& key, float value, bool round);
             void renameProperty(const PropertyKey& oldKey, const PropertyKey& newKey);
             void setProperties(const PropertyList& properties, bool replace);
+            static bool propertyIsMutable(const PropertyKey& key);
             static bool propertyKeyIsMutable(const PropertyKey& key);
             void removeProperty(const PropertyKey& key);
 
