@@ -133,7 +133,7 @@ namespace TrenchBroom {
         m_glContext(new wxGLContext(this, documentViewHolder.document().sharedResources().sharedContext())),
         m_inputController(new Controller::InputController(documentViewHolder)),
         m_hasFocus(false),
-        m_ignoreNextClick(true) {
+        m_ignoreNextClick(false) {
             SetDropTarget(new MapGLCanvasDropTarget(*m_inputController));
         }
 

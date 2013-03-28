@@ -512,8 +512,8 @@ namespace TrenchBroom {
                         inputController().gridChange();
                         break;
                     case Controller::Command::LoadMap:
-                        m_camera->moveTo(Vec3f(-96.0f, -96.0f, 48.0f));
-                        m_camera->setDirection(Vec3f(1.0f, 1.0f, 0.0f).normalized(), Vec3f::PosZ);
+                        m_camera->moveTo(Vec3f(160.0f, 160.0f, 48.0f));
+                        m_camera->setDirection(Vec3f(-1.0f, -1.0f, 0.0f).normalized(), Vec3f::PosZ);
                         inputController().cameraChange();
 
                         m_renderer->loadMap();

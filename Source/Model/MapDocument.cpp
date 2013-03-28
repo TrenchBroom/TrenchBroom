@@ -652,7 +652,7 @@ namespace TrenchBroom {
                 setEntityDefinitionFile("");
 
                 // place 1 new brush at origin
-                BBox brushBounds(Vec3f(0.0f, 0.0f, 0.0f), Vec3f(64.0f, 64.0f, 16.0f));
+                BBox brushBounds(Vec3f(0.0f, 0.0f, -16.0f), Vec3f(64.0f, 64.0f, 0.0f));
                 Model::Brush* brush = new Model::Brush(m_map->worldBounds(), m_map->forceIntegerFacePoints(), brushBounds, NULL);
                 addBrush(*worldspawn(true), *brush);
                 

@@ -49,6 +49,7 @@ namespace TrenchBroom {
             MapGLCanvas* m_mapCanvas;
             wxTextCtrl* m_logView;
             bool m_mapCanvasHasFocus;
+            bool m_focusMapCanvasOnIdle;
             
             void CreateGui();
         public:
