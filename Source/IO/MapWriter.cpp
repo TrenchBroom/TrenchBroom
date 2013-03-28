@@ -119,16 +119,16 @@ namespace TrenchBroom {
         }
 
         void MapWriter::writeBrush(const Model::Brush& brush, std::ostream& stream) {
-            stream << "{" << "\n";
+            stream << "{\n";
             const Model::FaceList& faces = brush.faces();
             Model::FaceList::const_iterator faceIt, faceEnd;
             for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt)
                 writeFace(**faceIt, stream);
-            stream << "}" << "\n";
+            stream << "}\n";
         }
 
         void MapWriter::writeEntityHeader(const Model::Entity& entity, std::ostream& stream) {
-            stream << "{" << "\n";
+            stream << "{\n";
             
             const Model::PropertyList& properties = entity.properties();
             Model::PropertyList::const_iterator it, end;
@@ -139,7 +139,7 @@ namespace TrenchBroom {
         }
         
         void MapWriter::writeEntityFooter(std::ostream& stream) {
-            stream << "}" << "\n";
+            stream << "}\n";
         }
 
         void MapWriter::writeEntity(const Model::Entity& entity, std::ostream& stream) {

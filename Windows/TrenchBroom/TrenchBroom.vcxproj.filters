@@ -501,6 +501,9 @@
     <ClCompile Include="..\..\Source\Utility\FindPlanePoints.cpp">
       <Filter>Source Files\Utility</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Controller\RebuildBrushGeometryCommand.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TrenchBroomApp.h">
@@ -1153,6 +1156,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Utility\FindPlanePoints.h">
       <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Controller\RebuildBrushGeometryCommand.h">
+      <Filter>Header Files\Controller</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
