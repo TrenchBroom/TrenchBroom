@@ -1969,7 +1969,8 @@ namespace TrenchBroom {
             } else {
                 const Model::Entity* newParent = inputController().canReparentBrushes(brushes, NULL);
                 if (newParent != NULL) {
-                    commandName << *newParent->classname();
+                    const Model::PropertyValue* classname = newParent->classname();
+                    commandName << (classname == NULL ? "<missing classname>" : *classname);
                     event.Enable(true);
                 } else {
                     commandName << "Entity";

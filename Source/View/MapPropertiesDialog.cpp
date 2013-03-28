@@ -230,9 +230,11 @@ namespace TrenchBroom {
             m_intFacePointsCheckBox = new wxCheckBox(coordBox, CommandIds::MapPropertiesDialog::ForceIntCoordsId, wxT("Force integer plane points"));
             
             wxSizer* coordBoxSizer = new wxBoxSizer(wxVERTICAL);
-            coordBoxSizer->Add(coordText, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, LayoutConstants::StaticBoxInnerMargin);
+            modBoxSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
+            coordBoxSizer->Add(coordText, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             coordBoxSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            coordBoxSizer->Add(m_intFacePointsCheckBox, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, LayoutConstants::StaticBoxInnerMargin);
+            coordBoxSizer->Add(m_intFacePointsCheckBox, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
+            modBoxSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
             coordBox->SetSizerAndFit(coordBoxSizer);
             
             IO::FileManager fileManager;
