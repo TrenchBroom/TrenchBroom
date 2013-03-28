@@ -35,10 +35,6 @@ namespace TrenchBroom {
             return new EntityInspector(m_notebook, m_documentViewHolder);
         }
         
-        wxNotebookPage* Inspector::CreateBrushInspector() {
-            return new wxPanel(m_notebook);
-        }
-        
         FaceInspector* Inspector::CreateFaceInspector() {
             return new FaceInspector(m_notebook, m_documentViewHolder);
         }
@@ -51,17 +47,24 @@ namespace TrenchBroom {
         wxPanel(parent),
         m_documentViewHolder(documentViewHolder) {
             m_notebook = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNB_TOP | wxCLIP_CHILDREN);
-//            m_notebook->AddPage(CreateMapInspector(), wxT("Map"));
+            
             m_entityInspector= CreateEntityInspector();
             m_notebook->AddPage(m_entityInspector, wxT("Entity"));
-//            m_notebook->AddPage(CreateBrushInspector(), wxT("Brush"));
+            
             m_faceInspector = CreateFaceInspector();
             m_notebook->AddPage(m_faceInspector, wxT("Face"));
-            m_notebook->AddPage(CreateViewInspector(), wxT("View"));
+            
+            ViewInspector* viewInspector = CreateViewInspector();
+            m_notebook->AddPage(viewInspector, wxT("View"));
             
             wxSizer* notebookSizer = new wxBoxSizer(wxVERTICAL);
             notebookSizer->Add(m_notebook, 1, wxEXPAND);
             SetSizer(notebookSizer);
+        }
+
+        void Inspector::switchToInspector(size_t index) {
+            assert(index < m_notebook->GetPageCount());
+            m_notebook->SetSelection(index);
         }
     }
 }

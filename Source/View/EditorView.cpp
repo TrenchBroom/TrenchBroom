@@ -179,6 +179,10 @@ namespace TrenchBroom {
         EVT_MENU(CommandIds::Menu::ViewMoveCameraToNextPoint, EditorView::OnViewMoveCameraToNextPoint)
         EVT_MENU(CommandIds::Menu::ViewMoveCameraToPreviousPoint, EditorView::OnViewMoveCameraToPreviousPoint)
 
+        EVT_MENU(CommandIds::Menu::ViewSwitchToEntityTab, EditorView::OnViewSwitchToEntityInspector)
+        EVT_MENU(CommandIds::Menu::ViewSwitchToFaceTab, EditorView::OnViewSwitchToFaceInspector)
+        EVT_MENU(CommandIds::Menu::ViewSwitchToViewTab, EditorView::OnViewSwitchToViewInspector)
+
         EVT_UPDATE_UI(wxID_SAVE, EditorView::OnUpdateMenuItem)
         EVT_UPDATE_UI(wxID_UNDO, EditorView::OnUpdateMenuItem)
         EVT_UPDATE_UI(wxID_REDO, EditorView::OnUpdateMenuItem)
@@ -1698,6 +1702,18 @@ namespace TrenchBroom {
             m_animationManager->runAnimation(animation, true);
         }
 
+        void EditorView::OnViewSwitchToEntityInspector(wxCommandEvent& event) {
+            inspector().switchToInspector(0);
+        }
+        
+        void EditorView::OnViewSwitchToFaceInspector(wxCommandEvent& event) {
+            inspector().switchToInspector(1);
+        }
+        
+        void EditorView::OnViewSwitchToViewInspector(wxCommandEvent& event) {
+            inspector().switchToInspector(2);
+        }
+
         void EditorView::OnUpdateMenuItem(wxUpdateUIEvent& event) {
             AbstractApp* app = static_cast<AbstractApp*>(wxTheApp);
             if (app->preferencesFrame() != NULL) {
@@ -1942,6 +1958,11 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::ViewMoveCameraToPreviousPoint:
                     event.Enable(mapDocument().pointFileLoaded() && mapDocument().pointFile().hasPreviousPoint());
+                    break;
+                case CommandIds::Menu::ViewSwitchToEntityTab:
+                case CommandIds::Menu::ViewSwitchToFaceTab:
+                case CommandIds::Menu::ViewSwitchToViewTab:
+                    event.Enable(true);
                     break;
             }
         }

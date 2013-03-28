@@ -442,6 +442,11 @@ namespace TrenchBroom {
         extern const Preference<KeyboardShortcut>   ViewCameraMoveToPreviousPoint;
         extern const Preference<KeyboardShortcut>   ViewCameraCenterCameraOnSelection;
         
+        // View menu
+        extern const Preference<KeyboardShortcut>   ViewSwitchToEntityTab;
+        extern const Preference<KeyboardShortcut>   ViewSwitchToFaceTab;
+        extern const Preference<KeyboardShortcut>   ViewSwitchToViewTab;
+        
         class PreferenceManager {
         private:
             typedef std::map<const PreferenceBase*, ValueHolderBase*> UnsavedPreferences;

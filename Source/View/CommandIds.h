@@ -109,6 +109,9 @@ namespace TrenchBroom {
                 static const int HelpShowHelp                       = Lowest + 83;
                 static const int EditPasteAtOriginalPosition        = Lowest + 84;
                 static const int EditSelectByFilePosition           = Lowest + 85;
+                static const int ViewSwitchToEntityTab              = Lowest + 86;
+                static const int ViewSwitchToFaceTab                = Lowest + 87;
+                static const int ViewSwitchToViewTab                = Lowest + 88;
                 static const int Highest                            = Lowest + 99;
             }
             

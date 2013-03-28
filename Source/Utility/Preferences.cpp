@@ -244,5 +244,9 @@ namespace TrenchBroom {
         const Preference<KeyboardShortcut>  ViewCameraMoveToNextPoint = Preference<KeyboardShortcut>(           "Menu/View/Camera/Move to Next Point",                  KeyboardShortcut(Menu::ViewMoveCameraToNextPoint, WXK_ALT, '+', KeyboardShortcut::SCAny, "Move to Next Point"));
         const Preference<KeyboardShortcut>  ViewCameraMoveToPreviousPoint = Preference<KeyboardShortcut>(       "Menu/View/Camera/Move to Previous Point",              KeyboardShortcut(Menu::ViewMoveCameraToPreviousPoint, WXK_ALT, '-', KeyboardShortcut::SCAny, "Move to Previous Point"));
         const Preference<KeyboardShortcut>  ViewCameraCenterCameraOnSelection = Preference<KeyboardShortcut>(   "Menu/View/Camera/Center on Selection",                 KeyboardShortcut(Menu::ViewCenterCameraOnSelection, WXK_ALT, 'C', KeyboardShortcut::SCAny, "Center on Selection"));
+
+        const Preference<KeyboardShortcut>  ViewSwitchToEntityTab = Preference<KeyboardShortcut>(               "Menu/View/Switch to Entity tab",                       KeyboardShortcut(Menu::ViewSwitchToEntityTab, '1', KeyboardShortcut::SCAny, "Switch to Entity Inspector"));
+        const Preference<KeyboardShortcut>  ViewSwitchToFaceTab = Preference<KeyboardShortcut>(                 "Menu/View/Switch to Face tab",                         KeyboardShortcut(Menu::ViewSwitchToFaceTab, '2', KeyboardShortcut::SCAny, "Switch to Face Inspector"));
+        const Preference<KeyboardShortcut>  ViewSwitchToViewTab = Preference<KeyboardShortcut>(                 "Menu/View/Switch to View tab",                         KeyboardShortcut(Menu::ViewSwitchToViewTab, '3', KeyboardShortcut::SCAny, "Switch to View Inspector"));
     }
 }

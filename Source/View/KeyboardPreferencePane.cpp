@@ -394,6 +394,10 @@ namespace TrenchBroom {
             newEntries.push_back(Entry(ViewCameraMoveToPreviousPoint));
             newEntries.push_back(Entry(ViewCameraCenterCameraOnSelection));
 
+            newEntries.push_back(Entry(ViewSwitchToEntityTab));
+            newEntries.push_back(Entry(ViewSwitchToFaceTab));
+            newEntries.push_back(Entry(ViewSwitchToViewTab));
+
             bool hasDuplicates = markDuplicates(newEntries);
             
             size_t oldSize = m_entries.size();

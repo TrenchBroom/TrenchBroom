@@ -208,6 +208,11 @@ wxMenu* AbstractApp::CreateViewMenu(wxEvtHandler* eventHandler, bool mapViewFocu
     cameraMenu->SetEventHandler(eventHandler);
     viewMenu->AppendSubMenu(cameraMenu, wxT("Camera"));
     
+    viewMenu->AppendSeparator();
+    appendItem(viewMenu, ViewSwitchToEntityTab, mapViewFocused);
+    appendItem(viewMenu, ViewSwitchToFaceTab, mapViewFocused);
+    appendItem(viewMenu, ViewSwitchToViewTab, mapViewFocused);
+    
     viewMenu->SetEventHandler(eventHandler);
     return viewMenu;
 }
