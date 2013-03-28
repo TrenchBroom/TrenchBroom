@@ -66,9 +66,14 @@ namespace TrenchBroom {
                     m_stringRendererCache.insert(StringRendererCacheEntry(texture, stringRenderer));
                 }
                 
+                Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+                const float scaleFactor = prefs.getFloat(Preferences::TextureBrowserIconSize);
+                const unsigned int scaledTextureWidth = static_cast<unsigned int>(Math::round(scaleFactor * static_cast<float>(texture->width())));
+                const unsigned int scaledTextureHeight = static_cast<unsigned int>(Math::round(scaleFactor * static_cast<float>(texture->height())));
+
                 Renderer::TextureRendererManager& textureRendererManager = m_documentViewHolder.document().sharedResources().textureRendererManager();
                 Renderer::TextureRenderer& textureRenderer = textureRendererManager.renderer(texture);
-                layout.addItem(TextureCellData(texture, &textureRenderer, stringRenderer), texture->width(), texture->height(), actualSize.x, font.size() + 2.0f);
+                layout.addItem(TextureCellData(texture, &textureRenderer, stringRenderer), scaledTextureWidth, scaledTextureHeight, actualSize.x, font.size() + 2.0f);
             }
         }
         
@@ -77,7 +82,10 @@ namespace TrenchBroom {
             layout.setGroupMargin(5.0f);
             layout.setRowMargin(5.0f);
             layout.setCellMargin(5.0f);
-            layout.setFixedCellSize(CRBoth, 64.0f);
+
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            const float scaleFactor = prefs.getFloat(Preferences::TextureBrowserIconSize);
+            layout.setFixedCellSize(CRBoth, scaleFactor * 64.0f);
         }
         
         void TextureBrowserCanvas::doReloadLayout(Layout& layout) {

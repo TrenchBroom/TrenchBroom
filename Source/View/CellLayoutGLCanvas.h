@@ -64,8 +64,7 @@ namespace TrenchBroom {
             }
             
             void reloadLayout() {
-                if (!m_layoutInitialized)
-                    initLayout();
+                initLayout(); // always initialize the layout when reloading
 
                 m_layout.clear();
                 doReloadLayout(m_layout);

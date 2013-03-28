@@ -326,6 +326,7 @@ namespace TrenchBroom {
         extern const Preference<Color>  BrowserGroupTextColor;
         extern const Preference<int>    TextureBrowserFontSize;
         extern const Preference<int>    EntityBrowserFontSize;
+        extern const Preference<float>  TextureBrowserIconSize;
         
         extern const Preference<String> QuakePath;
         extern const Preference<String> RendererFontName;

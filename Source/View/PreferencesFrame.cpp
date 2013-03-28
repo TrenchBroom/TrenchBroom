@@ -150,6 +150,9 @@ namespace TrenchBroom {
             Controller::Command invalidateInstancedRenderersCommand(Controller::Command::InvalidateInstancedRenderers);
             static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &invalidateInstancedRenderersCommand);
 
+            Controller::Command command(Controller::Command::RefreshTextureBrowser);
+            static_cast<TrenchBroomApp*>(wxTheApp)->UpdateAllViews(NULL, &command);
+
             static_cast<AbstractApp*>(wxTheApp)->setPreferencesFrame(NULL);
             Destroy();
 		}

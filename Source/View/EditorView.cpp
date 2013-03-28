@@ -598,17 +598,17 @@ namespace TrenchBroom {
                     }
                     case Controller::Command::RemoveTextureCollection:
                     case Controller::Command::MoveTextureCollectionUp:
-                    case Controller::Command::MoveTextureCollectionDown: {
+                    case Controller::Command::MoveTextureCollectionDown:
                         mapDocument().sharedResources().textureRendererManager().invalidate();
                     case Controller::Command::AddTextureCollection:
                         m_renderer->invalidateAll();
                         inspector().faceInspector().updateFaceAttributes();
-                        inspector().faceInspector().updateTextureBrowser(true);
                         inspector().faceInspector().updateSelectedTexture();
                         //inspector().faceInspector().updateTextureCollectionList();
                         inspector().entityInspector().updateProperties();
+                    case Controller::Command::RefreshTextureBrowser:
+                        inspector().faceInspector().updateTextureBrowser(true);
                         break;
-                    }
                     case Controller::Command::SetEntityPropertyKey:
                     case Controller::Command::SetEntityPropertyValue:
                     case Controller::Command::RemoveEntityProperty: {

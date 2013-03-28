@@ -39,6 +39,7 @@ namespace TrenchBroom {
             wxSlider* m_brightnessSlider;
             wxSlider* m_gridAlphaSlider;
             wxChoice* m_gridModeChoice;
+            wxChoice* m_textureBrowserIconSizeChoice;
             wxChoice* m_instancingModeChoice;
             wxSlider* m_lookSpeedSlider;
             wxCheckBox* m_invertLookXAxisCheckBox;
@@ -64,6 +65,7 @@ namespace TrenchBroom {
             void OnViewSliderChanged(wxScrollEvent& event);
             void OnGridModeChoice(wxCommandEvent& event);
             void OnInstancingModeChoice(wxCommandEvent& event);
+            void OnTextureBrowserIconSizeChoice(wxCommandEvent& event);
             void OnMouseSliderChanged(wxScrollEvent& event);
             void OnInvertAxisChanged(wxCommandEvent& event);
             void OnEnableAltMoveChanged(wxCommandEvent& event);
