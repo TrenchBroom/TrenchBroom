@@ -38,37 +38,37 @@ namespace TrenchBroom {
 
         Brush::Brush(const BBox& worldBounds, bool forceIntegerFacePoints, const FaceList& faces) :
         MapObject(),
+        m_geometry(NULL),
         m_worldBounds(worldBounds),
-        m_forceIntegerFacePoints(forceIntegerFacePoints),
-        m_geometry(NULL) {
+        m_forceIntegerFacePoints(forceIntegerFacePoints) {
             init();
-            
+
             FaceList::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                 Face* face = *it;
                 face->setBrush(this);
                 m_faces.push_back(face);
             }
-            
+
             rebuildGeometry();
         }
 
         Brush::Brush(const BBox& worldBounds, bool forceIntegerFacePoints, const Brush& brushTemplate) :
         MapObject(),
+        m_geometry(NULL),
         m_worldBounds(worldBounds),
-        m_forceIntegerFacePoints(forceIntegerFacePoints),
-        m_geometry(NULL) {
+        m_forceIntegerFacePoints(forceIntegerFacePoints) {
             init();
             restore(brushTemplate, false);
         }
 
         Brush::Brush(const BBox& worldBounds, bool forceIntegerFacePoints, const BBox& brushBounds, Texture* texture) :
         MapObject(),
+        m_geometry(NULL),
         m_worldBounds(worldBounds),
-        m_forceIntegerFacePoints(forceIntegerFacePoints),
-        m_geometry(NULL) {
+        m_forceIntegerFacePoints(forceIntegerFacePoints) {
             init();
-            
+
             Vec3f p1, p2, p3;
             String textureName = texture != NULL ? texture->name() : "";
 
@@ -127,7 +127,7 @@ namespace TrenchBroom {
             top->setTexture(texture);
             top->setBrush(this);
             m_faces.push_back(top);
-            
+
             rebuildGeometry();
         }
 
@@ -156,14 +156,14 @@ namespace TrenchBroom {
 
         void Brush::restore(const FaceList& faces) {
             Utility::deleteAll(m_faces);
-            
+
             FaceList::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                 Face* face = *it;
                 face->setBrush(this);
                 m_faces.push_back(face);
             }
-            
+
             rebuildGeometry();
         }
 
@@ -209,7 +209,7 @@ namespace TrenchBroom {
                 Face& face = **faceIt;
                 face.setForceIntegerFacePoints(forceIntegerFacePoints);
             }
-            
+
             m_forceIntegerFacePoints = forceIntegerFacePoints;
             rebuildGeometry();
         }
@@ -217,29 +217,29 @@ namespace TrenchBroom {
         void Brush::rebuildGeometry() {
             delete m_geometry;
             m_geometry = new BrushGeometry(m_worldBounds);
-            
+
             // sort the faces by the weight of their plane normals like QBSP does
             Model::FaceList sortedFaces = m_faces;
             std::sort(sortedFaces.begin(), sortedFaces.end(), Model::Face::WeightOrder(Plane::WeightOrder(true)));
             std::sort(sortedFaces.begin(), sortedFaces.end(), Model::Face::WeightOrder(Plane::WeightOrder(false)));
-            
+
             FaceSet droppedFaces;
             bool success = m_geometry->addFaces(sortedFaces, droppedFaces);
             assert(success);
-            
+
             for (FaceSet::iterator it = droppedFaces.begin(); it != droppedFaces.end(); ++it) {
                 Face* face = *it;
                 face->setBrush(NULL);
                 m_faces.erase(std::remove(m_faces.begin(), m_faces.end(), face), m_faces.end());
                 delete face;
             }
-            
+
             for (FaceList::iterator it = m_faces.begin(); it != m_faces.end(); ++it) {
                 Face* face = *it;
                 face->invalidateTexAxes();
                 face->invalidateVertexCache();
             }
-            
+
             if (m_entity != NULL)
                 m_entity->invalidateGeometry();
         }
@@ -475,7 +475,7 @@ namespace TrenchBroom {
                 face->setBrush(this);
                 m_faces.push_back(face);
             }
-            
+
             return newVertexPosition;
         }
 

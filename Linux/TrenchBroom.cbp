@@ -175,6 +175,8 @@
 		<Unit filename="../Source/Controller/MoveVerticesTool.h" />
 		<Unit filename="../Source/Controller/ObjectsCommand.h" />
 		<Unit filename="../Source/Controller/ObjectsHandle.h" />
+		<Unit filename="../Source/Controller/RebuildBrushGeometryCommand.cpp" />
+		<Unit filename="../Source/Controller/RebuildBrushGeometryCommand.h" />
 		<Unit filename="../Source/Controller/RemoveObjectsCommand.cpp" />
 		<Unit filename="../Source/Controller/RemoveObjectsCommand.h" />
 		<Unit filename="../Source/Controller/ReparentBrushesCommand.cpp" />
@@ -400,6 +402,8 @@
 		<Unit filename="../Source/Utility/CoordinatePlane.h" />
 		<Unit filename="../Source/Utility/DocManager.cpp" />
 		<Unit filename="../Source/Utility/DocManager.h" />
+		<Unit filename="../Source/Utility/FindPlanePoints.cpp" />
+		<Unit filename="../Source/Utility/FindPlanePoints.h" />
 		<Unit filename="../Source/Utility/Grid.cpp" />
 		<Unit filename="../Source/Utility/Grid.h" />
 		<Unit filename="../Source/Utility/Line.h" />

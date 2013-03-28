@@ -38,15 +38,15 @@ namespace TrenchBroom {
         class Face;
         class FindFacePoints {
         protected:
-            virtual inline size_t selectInitialPoints(const Face& face, FacePoints& points) const = 0;
-            virtual inline void findPoints(const Plane& plane, FacePoints& points, size_t numPoints) const = 0;
+            virtual size_t selectInitialPoints(const Face& face, FacePoints& points) const = 0;
+            virtual void findPoints(const Plane& plane, FacePoints& points, size_t numPoints) const = 0;
         public:
             virtual ~FindFacePoints() {}
-            
+
             static const FindFacePoints& instance(bool forceIntegerCoordinates);
             inline void operator()(const Face& face, FacePoints& points) const;
         };
-        
+
         class FindIntegerFacePoints : public FindFacePoints {
         private:
             FindIntegerPlanePoints m_findPoints;
@@ -56,7 +56,7 @@ namespace TrenchBroom {
         public:
             static const FindIntegerFacePoints Instance;
         };
-        
+
         class FindFloatFacePoints : public FindFacePoints {
         private:
             FindFloatPlanePoints m_findPoints;
@@ -66,7 +66,7 @@ namespace TrenchBroom {
         public:
             static const FindFloatFacePoints Instance;
         };
-        
+
         /**
          * \brief This class represents a brush face.
          *
@@ -216,7 +216,7 @@ namespace TrenchBroom {
              * on the boundary plane. Be aware that the Side that belongs to this face must not be null.
              */
             void updatePointsFromVertices();
-            
+
             /**
              * Updates the boundary points from the plane of this face.
              */
@@ -256,9 +256,9 @@ namespace TrenchBroom {
             inline bool forceIntegerFacePoints() const {
                 return m_forceIntegerFacePoints;
             }
-            
+
             void setForceIntegerFacePoints(bool forceIntegerFacePoints);
-            
+
             /**
              * Returns the vertices of this face in clockwise order.
              */
