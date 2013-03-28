@@ -58,6 +58,10 @@ namespace TrenchBroom {
         EVT_CHECKBOX(CommandIds::GeneralPreferencePane::InvertPanYAxisCheckBoxId, GeneralPreferencePane::OnInvertAxisChanged)
         
         EVT_COMMAND_SCROLL(CommandIds::GeneralPreferencePane::MoveSpeedSliderId, GeneralPreferencePane::OnMouseSliderChanged)
+        EVT_CHECKBOX(CommandIds::GeneralPreferencePane::EnableAltMoveCheckBoxId, GeneralPreferencePane::OnEnableAltMoveChanged)
+        EVT_CHECKBOX(CommandIds::GeneralPreferencePane::MoveCameraInCursorDirCheckBoxId, GeneralPreferencePane::OnMoveCameraInCursorDirChanged)
+        
+        
 		END_EVENT_TABLE()
         
         void GeneralPreferencePane::updateControls() {
@@ -86,6 +90,8 @@ namespace TrenchBroom {
             m_invertPanYAxisCheckBox->SetValue(prefs.getBool(Preferences::CameraPanInvertY));
             
             m_moveSpeedSlider->SetValue(static_cast<int>(prefs.getFloat(Preferences::CameraMoveSpeed) * m_moveSpeedSlider->GetMax()));
+            m_enableAltMoveCheckBox->SetValue(prefs.getBool(Preferences::CameraEnableAltMove));
+            m_moveInCursorDirCheckBox->SetValue(prefs.getBool(Preferences::CameraMoveInCursorDir));
         }
         
         wxWindow* GeneralPreferencePane::createQuakePreferences() {
@@ -188,6 +194,13 @@ namespace TrenchBroom {
             
             wxStaticText* moveSpeedLabel = new wxStaticText(mouseBox, wxID_ANY, "Mouse Move");
             m_moveSpeedSlider = new wxSlider(mouseBox, CommandIds::GeneralPreferencePane::MoveSpeedSliderId, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
+            wxStaticText* enableAltMoveFakeLabel = new wxStaticText(mouseBox, wxID_ANY, "");
+            m_enableAltMoveCheckBox = new wxCheckBox(mouseBox, CommandIds::GeneralPreferencePane::EnableAltMoveCheckBoxId, wxT("Alt+MMB drag to move camera"));
+            m_moveInCursorDirCheckBox = new wxCheckBox(mouseBox, CommandIds::GeneralPreferencePane::MoveCameraInCursorDirCheckBoxId, wxT("Move camera towards cursor"));
+            wxSizer* moveOptionsSizer = new wxBoxSizer(wxHORIZONTAL);
+            moveOptionsSizer->Add(m_enableAltMoveCheckBox);
+            moveOptionsSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            moveOptionsSizer->Add(m_moveInCursorDirCheckBox);
             
             wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
             innerSizer->AddGrowableCol(1);
@@ -201,6 +214,8 @@ namespace TrenchBroom {
             innerSizer->Add(invertPanSizer);
             innerSizer->Add(moveSpeedLabel);
             innerSizer->Add(m_moveSpeedSlider, 0, wxEXPAND);
+            innerSizer->Add(enableAltMoveFakeLabel);
+            innerSizer->Add(moveOptionsSizer);
             innerSizer->SetItemMinSize(lookSpeedLabel, GeneralPreferencePaneLayout::MinimumLabelWidth, lookSpeedLabel->GetSize().y);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
@@ -336,6 +351,20 @@ namespace TrenchBroom {
                 default:
                     break;
             }
+        }
+
+        void GeneralPreferencePane::OnEnableAltMoveChanged(wxCommandEvent& event) {
+            bool value = event.GetInt() != 0;
+            
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            prefs.setBool(Preferences::CameraEnableAltMove, value);
+        }
+        
+        void GeneralPreferencePane::OnMoveCameraInCursorDirChanged(wxCommandEvent& event) {
+            bool value = event.GetInt() != 0;
+            
+            Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+            prefs.setBool(Preferences::CameraMoveInCursorDir, value);
         }
 	}
 }

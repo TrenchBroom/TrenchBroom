@@ -233,6 +233,7 @@ namespace TrenchBroom {
         extern const Preference<bool>   CameraPanInvertX;
         extern const Preference<bool>   CameraPanInvertY;
         extern const Preference<bool>   CameraEnableAltMove;
+        extern const Preference<bool>   CameraMoveInCursorDir;
         extern const Preference<float>  HandleRadius;
         extern const Preference<float>  MaximumHandleDistance;
         extern const Preference<float>  HandleScalingFactor;

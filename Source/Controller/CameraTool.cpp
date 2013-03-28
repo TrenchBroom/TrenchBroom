@@ -72,9 +72,17 @@ namespace TrenchBroom {
                 cameraEvent.setForward(forward);
                 postEvent(cameraEvent);
             } else {
+                Preferences::PreferenceManager& prefs = Preferences::PreferenceManager::preferences();
+                const Renderer::Camera& camera = inputState.camera();
+                const Vec3f moveDirection = prefs.getBool(Preferences::CameraMoveInCursorDir) ? inputState.pickRay().direction : camera.direction();
+                
+                const float distance = inputState.scrollY() * moveSpeed();
+                const Vec3f moveVector = distance * moveDirection;
+                
                 CameraMoveEvent cameraEvent;
-                cameraEvent.setForward(inputState.scrollY() * moveSpeed());
-                cameraEvent.setRight(inputState.scrollX() * moveSpeed());
+                cameraEvent.setForward(moveVector.dot(camera.direction()));
+                cameraEvent.setRight(moveVector.dot(camera.right()));
+                cameraEvent.setUp(moveVector.dot(camera.up()));
                 postEvent(cameraEvent);
             }
         }
