@@ -22,6 +22,7 @@
 #include "Controller/MoveEdgesCommand.h"
 #include "Controller/MoveFacesCommand.h"
 #include "Controller/MoveVerticesCommand.h"
+#include "Controller/RebuildBrushGeometryCommand.h"
 #include "Controller/SplitEdgesCommand.h"
 #include "Controller/SplitFacesCommand.h"
 #include "Model/EditStateManager.h"
@@ -109,12 +110,18 @@ namespace TrenchBroom {
             m_mode = VMMove;
             m_handleManager.clear();
             m_handleManager.add(document().editStateManager().selectedBrushes());
-            
+            m_changeCount = 0;
             return true;
         }
         
         bool MoveVerticesTool::handleDeactivate(InputState& inputState) {
             m_handleManager.clear();
+            
+            if (m_changeCount > 0) {
+                RebuildBrushGeometryCommand* command = RebuildBrushGeometryCommand::rebuildGeometry(document(), document().editStateManager().selectedBrushes(), m_changeCount);
+                submitCommand(command);
+        }
+        
             return true;
         }
         

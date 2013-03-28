@@ -361,6 +361,21 @@ namespace TrenchBroom {
             m_octree->addObjects(objects);
         }
 
+        void MapDocument::setForceIntegerCoordinates(bool forceIntegerCoordinates) {
+            if (forceIntegerCoordinates)
+                console().info("Converting face plane points to integer coordinates...");
+            else
+                console().info("Converting face plane points to floating point coordinates...");
+            
+            GetCommandProcessor()->ClearCommands();
+            
+            m_map->setForceIntegerFacePoints(forceIntegerCoordinates);
+            worldspawn(true)->setProperty(Entity::FacePointFormatKey, forceIntegerCoordinates);
+
+            Controller::Command loadCommand(Controller::Command::LoadMap);
+            UpdateAllViews(NULL, &loadCommand);
+        }
+
         void MapDocument::removeBrush(Brush& brush) {
             m_octree->removeObject(brush);
             Entity* entity = brush.entity();
@@ -615,7 +630,7 @@ namespace TrenchBroom {
             m_console = new Utility::Console();
             m_textureManager = new TextureManager();
             m_sharedResources = new Renderer::SharedResources(*m_textureManager, *m_console);
-            m_map = new Model::Map(worldBounds);
+            m_map = new Model::Map(worldBounds, false);
             m_editStateManager = new Model::EditStateManager();
             m_octree = new Octree(*m_map);
             m_picker = new Model::Picker(*m_octree);
@@ -638,7 +653,7 @@ namespace TrenchBroom {
 
                 // place 1 new brush at origin
                 BBox brushBounds(Vec3f(0.0f, 0.0f, 0.0f), Vec3f(64.0f, 64.0f, 16.0f));
-                Model::Brush* brush = new Model::Brush(m_map->worldBounds(), brushBounds, NULL);
+                Model::Brush* brush = new Model::Brush(m_map->worldBounds(), m_map->forceIntegerFacePoints(), brushBounds, NULL);
                 addBrush(*worldspawn(true), *brush);
                 
                 Controller::Command loadCommand(Controller::Command::LoadMap);

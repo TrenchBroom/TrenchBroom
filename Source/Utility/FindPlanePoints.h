@@ -301,6 +301,19 @@ namespace TrenchBroom {
         class FindFloatPlanePoints : public FindPlanePoints {
         protected:
             inline void doFindPlanePoints(const Plane& plane, PlanePoints& points, size_t numPoints) const {
+                if (numPoints == 0) {
+                    points[0] = plane.anchor();
+                    numPoints++;
+                }
+                if (numPoints == 1) {
+                    const Vec3f dir = plane.normal.thirdAxis();
+                    points[1] = plane.project(dir * 128.0f);
+                    numPoints++;
+                }
+                if (numPoints == 2) {
+                    const Vec3f dir = (points[1] - points[0]).crossed(plane.normal);
+                    points[3] = dir * 128.0f * 128.0f / dir.lengthSquared();
+                }
             }
         };
         

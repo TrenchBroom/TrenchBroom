@@ -30,6 +30,12 @@ namespace TrenchBroom {
             findPoints(face.boundary(), points, numPoints);
         }
 
+        const FindFacePoints& FindFacePoints::instance(bool forceIntegerCoordinates) {
+            if (forceIntegerCoordinates)
+                return FindIntegerFacePoints::Instance;
+            return FindFloatFacePoints::Instance;
+        }
+
         inline size_t FindIntegerFacePoints::selectInitialPoints(const Face& face, FacePoints& points) const {
             size_t numPoints = 0;
             bool integer[3];
@@ -38,6 +44,12 @@ namespace TrenchBroom {
                 if  (integer[i])
                     numPoints++;
             }
+
+            if (numPoints < 3)
+                return 0;
+            return 3;
+            
+            /*
             
             if (numPoints == 0)
                 return 1;
@@ -56,13 +68,26 @@ namespace TrenchBroom {
                 return 2;
             }
             return 3;
+             */
         }
         
         inline void FindIntegerFacePoints::findPoints(const Plane& plane, FacePoints& points, size_t numPoints) const {
             m_findPoints(plane, points, numPoints);
         }
 
+        const FindIntegerFacePoints FindIntegerFacePoints::Instance = FindIntegerFacePoints();
+
+        inline size_t FindFloatFacePoints::selectInitialPoints(const Face& face, FacePoints& points) const {
+            face.getPoints(points[0], points[1], points[2]);
+            return 3;
+        }
         
+        inline void FindFloatFacePoints::findPoints(const Plane& plane, FacePoints& points, size_t numPoints) const {
+            m_findPoints(plane, points, numPoints);
+        }
+        
+        const FindFloatFacePoints FindFloatFacePoints::Instance = FindFloatFacePoints();
+
         const Vec3f* Face::BaseAxes[18] = {
             &Vec3f::PosZ, &Vec3f::PosX, &Vec3f::NegY,
             &Vec3f::NegZ, &Vec3f::PosX, &Vec3f::NegY,
@@ -309,17 +334,21 @@ namespace TrenchBroom {
             m_yOffset = Math::correct(m_yOffset);
         }
         
-        Face::Face(const BBox& worldBounds, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const String& textureName) : m_worldBounds(worldBounds), m_textureName(textureName) {
+        Face::Face(const BBox& worldBounds, bool forceIntegerFacePoints, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const String& textureName) : m_worldBounds(worldBounds), m_textureName(textureName) {
             init();
+            m_worldBounds = worldBounds;
             m_points[0] = point1;
             m_points[1] = point2;
             m_points[2] = point3;
             m_boundary.setPoints(m_points[0], m_points[1], m_points[2]);
             updatePointsFromBoundary();
+            setTextureName(textureName);
         }
         
-        Face::Face(const BBox& worldBounds, const Face& faceTemplate) : m_worldBounds(worldBounds) {
+        Face::Face(const BBox& worldBounds, bool forceIntegerFacePoints, const Face& faceTemplate) : m_worldBounds(worldBounds) {
             init();
+            m_worldBounds = worldBounds;
+            m_forceIntegerFacePoints = forceIntegerFacePoints;
             restore(faceTemplate);
         }
         
@@ -328,6 +357,7 @@ namespace TrenchBroom {
         m_faceId(face.faceId()),
         m_boundary(face.boundary()),
         m_worldBounds(face.worldBounds()),
+        m_forceIntegerFacePoints(face.forceIntegerFacePoints()),
         m_textureName(face.textureName()),
         m_texture(face.texture()),
         m_xOffset(face.xOffset()),
@@ -437,12 +467,23 @@ namespace TrenchBroom {
         }
         
         void Face::updatePointsFromBoundary() {
-            FindIntegerFacePoints findPoints;
+            const FindFacePoints& findPoints = FindFacePoints::instance(m_forceIntegerFacePoints);
             findPoints(*this, m_points);
             
-            assert(m_points[0].isInteger());
-            assert(m_points[1].isInteger());
-            assert(m_points[2].isInteger());
+            if (!m_boundary.setPoints(m_points[0], m_points[1], m_points[2])) {
+                std::stringstream msg;
+                msg << "Invalid face m_points "
+                << m_points[0].x << " " << m_points[0].y << " " << m_points[0].z << "; "
+                << m_points[1].x << " " << m_points[1].y << " " << m_points[1].z << "; "
+                << m_points[2].x << " " << m_points[2].y << " " << m_points[2].z
+                << " for face with ID " << m_faceId;
+                throw GeometryException(msg);
+            }
+        }
+
+        void Face::setForceIntegerFacePoints(bool forceIntegerFacePoints) {
+            m_forceIntegerFacePoints = forceIntegerFacePoints;
+            updatePointsFromBoundary();
         }
 
         void Face::setTexture(Texture* texture) {
@@ -594,7 +635,7 @@ namespace TrenchBroom {
             m_boundary.translate(delta);
             for (unsigned int i = 0; i < 3; i++)
                 m_points[i] += delta;
-            if (!delta.isInteger())
+            if (m_forceIntegerFacePoints && !delta.isInteger())
                 updatePointsFromBoundary();
             
             m_texAxesValid = false;
@@ -617,7 +658,7 @@ namespace TrenchBroom {
             m_boundary.rotate90(axis, center, clockwise);
             for (unsigned int i = 0; i < 3; i++)
                 m_points[i].rotate90(axis, center, clockwise);
-            if (!center.isInteger())
+            if (m_forceIntegerFacePoints && !center.isInteger())
                 updatePointsFromBoundary();
             
             m_texAxesValid = false;
@@ -672,7 +713,7 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < 3; i++)
                 m_points[i].flip(axis, center);
             std::swap(m_points[1], m_points[2]);
-            if (!center.isInteger())
+            if (m_forceIntegerFacePoints && !center.isInteger())
                 updatePointsFromBoundary();
 
             m_texAxesValid = false;

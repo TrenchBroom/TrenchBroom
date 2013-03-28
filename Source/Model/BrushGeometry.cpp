@@ -349,7 +349,7 @@ namespace TrenchBroom {
             bool flipped[] = {prevEdge->left == this, edge->left == this, true};
 
             newSide = new Side(sideEdges, flipped, 3);
-            newSide->face = new Face(face->worldBounds(), *face);
+            newSide->face = new Face(face->worldBounds(), face->forceIntegerFacePoints(), *face);
             newSide->face->setSide(newSide);
 
             replaceEdges(pred(index, edges.size(), 2),
@@ -1014,7 +1014,7 @@ namespace TrenchBroom {
                 newSide->edges.push_back(newEdge);
                 newEdge->left = newSide;
 
-                newSide->face = new Face(side->face->worldBounds(), *side->face);
+                newSide->face = new Face(side->face->worldBounds(), side->face->forceIntegerFacePoints(), *side->face);
                 newSide->face->setSide(newSide);
                 sides.push_back(newSide);
                 faceManager.addFace(side->face, newSide->face);

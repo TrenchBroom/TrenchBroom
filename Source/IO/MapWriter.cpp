@@ -35,10 +35,11 @@
 
 namespace TrenchBroom {
     namespace IO {
+        
         void MapWriter::writeFace(const Model::Face& face, FILE* stream) {
             const String textureName = Utility::isBlank(face.textureName()) ? Model::Texture::Empty : face.textureName();
 
-            std::fprintf(stream, "( %.9g %.9g %.9g ) ( %.9g %.9g %.9g ) ( %.9g %.9g %.9g ) %s %.9g %.9g %.9g %.9g %.9g\n",
+            std::fprintf(stream, FaceFormat.c_str(),
                     face.point(0).x,
                     face.point(0).y,
                     face.point(0).z,
@@ -91,6 +92,7 @@ namespace TrenchBroom {
         void MapWriter::writeFace(const Model::Face& face, std::ostream& stream) {
             const String textureName = Utility::isBlank(face.textureName()) ? Model::Texture::Empty : face.textureName();
 
+            stream.precision(FloatPrecision);
             stream <<
             "( " <<
             face.point(0).x << " " <<
@@ -104,7 +106,10 @@ namespace TrenchBroom {
             face.point(2).x << " " <<
             face.point(2).y << " " <<
             face.point(2).z <<
-            " ) "           <<
+            " ) ";
+
+            stream.precision(6);
+            stream <<
             textureName     << " " <<
             face.xOffset()  << " " <<
             face.yOffset()  << " " <<
@@ -145,10 +150,26 @@ namespace TrenchBroom {
             writeEntityFooter(stream);
         }
 
+        MapWriter::MapWriter() {
+            StringStream str;
+            str <<
+            "( %." << FloatPrecision << "g " <<
+              "%." << FloatPrecision << "g " <<
+              "%." << FloatPrecision << "g ) ( " <<
+            "( %." << FloatPrecision << "g " <<
+              "%." << FloatPrecision << "g " <<
+              "%." << FloatPrecision << "g ) ( " <<
+            "( %." << FloatPrecision << "g " <<
+              "%." << FloatPrecision << "g " <<
+              "%." << FloatPrecision << "g ) ( " <<
+            "%s %.6g %.6g %.6g %.6g %.6g\n";
+            
+            FaceFormat = str.str();
+        }
+        
         void MapWriter::writeObjectsToStream(const Model::EntityList& pointEntities, const Model::BrushList& brushes, std::ostream& stream) {
             assert(stream.good());
             stream.unsetf(std::ios::floatfield);
-            stream.precision(9);
 
             Model::Entity* worldspawn = NULL;
             
@@ -200,7 +221,6 @@ namespace TrenchBroom {
         void MapWriter::writeFacesToStream(const Model::FaceList& faces, std::ostream& stream) {
             assert(stream.good());
             stream.unsetf(std::ios::floatfield);
-            stream.precision(9);
             
             for (unsigned int i = 0; i < faces.size(); i++)
                 writeFace(*faces[i], stream);
@@ -209,7 +229,6 @@ namespace TrenchBroom {
         void MapWriter::writeToStream(const Model::Map& map, std::ostream& stream) {
             assert(stream.good());
             stream.unsetf(std::ios::floatfield);
-            stream.precision(9);
             
             const Model::EntityList& entities = map.entities();
             for (unsigned int i = 0; i < entities.size(); i++)

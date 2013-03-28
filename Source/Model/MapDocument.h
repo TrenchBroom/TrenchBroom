@@ -110,6 +110,7 @@ namespace TrenchBroom {
             void brushDidChange(Brush& brush);
             void brushesWillChange(const BrushList& brushes);
             void brushesDidChange(const BrushList& brushes);
+            void setForceIntegerCoordinates(bool forceIntegerCoordinates);
             
             Utility::Console& console() const;
             Renderer::SharedResources& sharedResources() const;

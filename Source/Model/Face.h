@@ -43,6 +43,7 @@ namespace TrenchBroom {
         public:
             virtual ~FindFacePoints() {}
             
+            static const FindFacePoints& instance(bool forceIntegerCoordinates);
             inline void operator()(const Face& face, FacePoints& points) const;
         };
         
@@ -52,6 +53,18 @@ namespace TrenchBroom {
         protected:
             inline size_t selectInitialPoints(const Face& face, FacePoints& points) const;
             inline void findPoints(const Plane& plane, FacePoints& points, size_t numPoints) const;
+        public:
+            static const FindIntegerFacePoints Instance;
+        };
+        
+        class FindFloatFacePoints : public FindFacePoints {
+        private:
+            FindFloatPlanePoints m_findPoints;
+        protected:
+            inline size_t selectInitialPoints(const Face& face, FacePoints& points) const;
+            inline void findPoints(const Plane& plane, FacePoints& points, size_t numPoints) const;
+        public:
+            static const FindFloatFacePoints Instance;
         };
         
         /**
@@ -101,6 +114,7 @@ namespace TrenchBroom {
             FacePoints m_points;
             Plane m_boundary;
             BBox m_worldBounds;
+            bool m_forceIntegerFacePoints;
 
             String m_textureName;
             Texture* m_texture;
@@ -140,8 +154,8 @@ namespace TrenchBroom {
 
             void compensateTransformation(const Mat4f& transformation);
         public:
-            Face(const BBox& worldBounds, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const String& textureName);
-            Face(const BBox& worldBounds, const Face& faceTemplate);
+            Face(const BBox& worldBounds, bool forceIntegerFacePoints, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const String& textureName);
+            Face(const BBox& worldBounds, bool forceIntegerFacePoints, const Face& faceTemplate);
             Face(const Face& face);
 			~Face();
 
@@ -239,6 +253,12 @@ namespace TrenchBroom {
                 return m_worldBounds;
             }
 
+            inline bool forceIntegerFacePoints() const {
+                return m_forceIntegerFacePoints;
+            }
+            
+            void setForceIntegerFacePoints(bool forceIntegerFacePoints);
+            
             /**
              * Returns the vertices of this face in clockwise order.
              */

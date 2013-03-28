@@ -49,13 +49,13 @@ namespace TrenchBroom {
             unsigned int m_selectedFaceCount;
 
             const BBox& m_worldBounds;
+            bool m_forceIntegerFacePoints;
 
             void init();
-            void rebuildGeometry();
         public:
-            Brush(const BBox& worldBounds, const FaceList& faces);
-            Brush(const BBox& worldBounds, const Brush& brushTemplate);
-            Brush(const BBox& worldBounds, const BBox& brushBounds, Texture* texture);
+            Brush(const BBox& worldBounds, bool forceIntegerFacePoints, const FaceList& faces);
+            Brush(const BBox& worldBounds, bool forceIntegerFacePoints, const Brush& brushTemplate);
+            Brush(const BBox& worldBounds, bool forceIntegerFacePoints, const BBox& brushBounds, Texture* texture);
             ~Brush();
 
             void restore(const Brush& brushTemplate, bool checkId = false);
@@ -93,6 +93,12 @@ namespace TrenchBroom {
                 return m_worldBounds;
             }
 
+            inline bool forceIntegerFacePoints() const {
+                return m_forceIntegerFacePoints;
+            }
+            
+            void setForceIntegerFacePoints(bool forceIntegerFacePoints);
+            
             inline const Vec3f& center() const {
                 return m_geometry->center;
             }
@@ -126,6 +132,8 @@ namespace TrenchBroom {
             inline bool closed() const {
                 return m_geometry->closed();
             }
+
+            void rebuildGeometry();
 
             void translate(const Vec3f& delta, bool lockTextures);
             void rotate90(Axis::Type axis, const Vec3f& center, bool clockwise, bool lockTextures);

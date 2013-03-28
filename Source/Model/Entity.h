@@ -57,6 +57,7 @@ namespace TrenchBroom {
             static String const WadKey;
             static String const DefKey;
             static String const DefaultDefinition;
+            static String const FacePointFormatKey;
         protected:
             Map* m_map;
             PropertyStore m_propertyStore;

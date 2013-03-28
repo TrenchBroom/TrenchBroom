@@ -46,6 +46,7 @@ namespace TrenchBroom {
         String const Entity::WadKey              = "wad";
         String const Entity::DefKey              = "_def";
         String const Entity::DefaultDefinition   = "Quake.fgd";
+        String const Entity::FacePointFormatKey  = "_point_format";
 
         void Entity::init() {
             m_map = NULL;
@@ -329,6 +330,8 @@ namespace TrenchBroom {
             if (key == DefKey)
                 return false;
             if (key == WadKey)
+                return false;
+            if (key == FacePointFormatKey)
                 return false;
             return true;
         }

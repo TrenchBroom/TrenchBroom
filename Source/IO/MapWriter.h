@@ -44,6 +44,9 @@ namespace TrenchBroom {
     
     namespace IO {
         class MapWriter {
+        private:
+            static const int FloatPrecision = 100;
+            String FaceFormat;
         protected:
             void writeFace(const Model::Face& face, FILE* stream);
             void writeBrush(const Model::Brush& brush, FILE* stream);
@@ -57,6 +60,7 @@ namespace TrenchBroom {
             void writeEntityFooter(std::ostream& stream);
             void writeEntity(const Model::Entity& entity, std::ostream& stream);
         public:
+            MapWriter();
             void writeObjectsToStream(const Model::EntityList& pointEntities, const Model::BrushList& brushes, std::ostream& stream);
             void writeFacesToStream(const Model::FaceList& faces, std::ostream& stream);
             void writeToStream(const Model::Map& map, std::ostream& stream);
