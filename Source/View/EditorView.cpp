@@ -1640,8 +1640,6 @@ namespace TrenchBroom {
                 }
             }
 
-
-
             if (minDist < 0.0f) { // move camera so that all vertices are in front of it
                 Controller::CameraMoveEvent moveBack;
                 moveBack.setForward(minDist - 10.0f);
@@ -1652,14 +1650,11 @@ namespace TrenchBroom {
             // now look at the center
             const BBox bounds = Model::MapObject::bounds(entities, brushes);
             const Vec3f center = bounds.center();
-            const Vec3f toCenter = center - m_camera->position();
 
-            Controller::CameraMoveEvent lookAtCenter;
-            lookAtCenter.setRight(toCenter.dot(m_camera->right()));
-            lookAtCenter.setUp(toCenter.dot(m_camera->up()));
-            lookAtCenter.SetEventObject(this);
-            ProcessEvent(lookAtCenter);
-
+            // act as if the camera were there already:
+            const Vec3f oldPosition = camera().position();
+            camera().moveTo(center);
+            
             float offset = std::numeric_limits<float>::max();
 
             Plane frustumPlanes[4];
@@ -1695,10 +1690,12 @@ namespace TrenchBroom {
                 }
             }
 
-            Controller::CameraMoveEvent moveToFit;
-            moveToFit.setForward(offset);
-            moveToFit.SetEventObject(this);
-            ProcessEvent(moveToFit);
+            // jump back
+            camera().moveTo(oldPosition);
+            
+            const Vec3f newPosition = center + camera().direction() * offset;
+            CameraAnimation* animation = new CameraAnimation(*this, newPosition, camera().direction(), camera().up(), 150);
+            m_animationManager->runAnimation(animation, true);
         }
 
         void EditorView::OnUpdateMenuItem(wxUpdateUIEvent& event) {
@@ -1947,8 +1944,6 @@ namespace TrenchBroom {
                     event.Enable(mapDocument().pointFileLoaded() && mapDocument().pointFile().hasPreviousPoint());
                     break;
             }
-            
-            
         }
 
         void EditorView::OnPopupReparentBrushes(wxCommandEvent& event) {
