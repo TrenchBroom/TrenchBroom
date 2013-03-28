@@ -41,6 +41,7 @@ namespace TrenchBroom {
         class Entity : public MapObject, public Utility::Allocator<Entity> {
         public:
             static String const ClassnameKey;
+            static String const NoClassnameValue;
             static String const SpawnFlagsKey;
             static String const WorldspawnClassname;
             static String const GroupClassname;
@@ -56,6 +57,7 @@ namespace TrenchBroom {
             static String const WadKey;
             static String const DefKey;
             static String const DefaultDefinition;
+            static String const FacePointFormatKey;
         protected:
             Map* m_map;
             PropertyStore m_propertyStore;

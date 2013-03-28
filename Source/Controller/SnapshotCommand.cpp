@@ -61,7 +61,7 @@ namespace TrenchBroom {
         }
         
         void BrushSnapshot::restore(Model::Brush& brush) {
-            brush.replaceFaces(m_faces);
+            brush.restore(m_faces);
         }
         
         FaceSnapshot::FaceSnapshot(const Model::Face& face) {

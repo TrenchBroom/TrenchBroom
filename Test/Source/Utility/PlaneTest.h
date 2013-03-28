@@ -17,26 +17,30 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FaceTypes_h
-#define TrenchBroom_FaceTypes_h
+#ifndef TrenchBroom_PlaneTest_h
+#define TrenchBroom_PlaneTest_h
 
-#include <set>
-#include <vector>
+#include "TestSuite.h"
+#include "Utility/VecMath.h"
 
 namespace TrenchBroom {
     namespace Math {
-        class Vec3f;
-    }
-    
-    namespace Model {
-        class Face;
-        
-        typedef std::vector<Face*> FaceList;
-        static const FaceList EmptyFaceList;
-        typedef std::set<Face*> FaceSet;
-        static const FaceSet EmptyFaceSet;
-        
-        typedef Math::Vec3f FacePoints[3];
+        class PlaneTest : public TestSuite<PlaneTest> {
+        protected:
+            void registerTestCases() {
+                registerTestCase(&PlaneTest::testZ);
+            }
+        public:
+            void testZ() {
+                Plane plane;
+                
+                plane = Plane(Vec3f(1.0, 0.0f, 1.0f).normalized(), 0.0f);
+                assert(Math::eq(plane.z(1.0f, 0.0f), -1.0f));
+
+                plane = Plane(Vec3f(0.0, 0.0f, 1.0f).normalized(), 1.0f);
+                assert(Math::eq(plane.z(0.0f, 0.0f), 1.0f));
+            }
+        };
     }
 }
 

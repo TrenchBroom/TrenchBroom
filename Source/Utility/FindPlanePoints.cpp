@@ -17,27 +17,14 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FaceTypes_h
-#define TrenchBroom_FaceTypes_h
-
-#include <set>
-#include <vector>
+#include "FindPlanePoints.h"
 
 namespace TrenchBroom {
     namespace Math {
-        class Vec3f;
-    }
-    
-    namespace Model {
-        class Face;
-        
-        typedef std::vector<Face*> FaceList;
-        static const FaceList EmptyFaceList;
-        typedef std::set<Face*> FaceSet;
-        static const FaceSet EmptyFaceSet;
-        
-        typedef Math::Vec3f FacePoints[3];
+        const Vec2f Cursor::MoveOffsets[9] = {
+            Vec2f(-1.0f,  1.0f), Vec2f( 0.0f,  1.0f), Vec2f( 1.0f,  1.0f),
+            Vec2f(-1.0f,  0.0f), Vec2f( 0.0f,  0.0f), Vec2f( 1.0f,  0.0f),
+            Vec2f(-1.0f, -1.0f), Vec2f( 0.0f, -1.0f), Vec2f( 1.0f, -1.0f)
+        };
     }
 }
-
-#endif

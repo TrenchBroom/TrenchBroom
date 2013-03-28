@@ -59,6 +59,7 @@ namespace TrenchBroom {
                 RemoveObjects,
                 MoveVertices,
                 SnapVertices,
+                RebuildBrushGeometry,
                 ResizeBrushes,
                 ReparentBrushes,
                 UpdateFigures

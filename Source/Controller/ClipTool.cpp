@@ -118,13 +118,14 @@ namespace TrenchBroom {
             const Model::BrushList& brushes = document().editStateManager().selectedBrushes();
             if (validPlane) {
                 const BBox& worldBounds = document().map().worldBounds();
+                const bool forceIntegerFacePoints = document().map().forceIntegerFacePoints();
                 String textureName = document().mruTexture() != NULL ? document().mruTexture()->name() : Model::Texture::Empty;
                 
                 Model::BrushList::const_iterator brushIt, brushEnd;
                 for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
                     Model::Brush& brush = **brushIt;
-                    Model::Face* frontFace = new Model::Face(worldBounds, planePoints[0], planePoints[1], planePoints[2], textureName);
-                    Model::Face* backFace = new Model::Face(worldBounds, planePoints[0], planePoints[2], planePoints[1], textureName);
+                    Model::Face* frontFace = new Model::Face(worldBounds, forceIntegerFacePoints, planePoints[0], planePoints[1], planePoints[2], textureName);
+                    Model::Face* backFace = new Model::Face(worldBounds, forceIntegerFacePoints, planePoints[0], planePoints[2], planePoints[1], textureName);
                     
                     // determine the texture for the new faces
                     // we will use the texture of the face whose normal is closest to the newly inserted face
@@ -151,14 +152,14 @@ namespace TrenchBroom {
                     frontFace->setAttributes(*bestFrontFace);
                     backFace->setAttributes(*bestBackFace);
                     
-                    Model::Brush* frontBrush = new Model::Brush(worldBounds, brush);
-                    if (frontBrush->addFace(frontFace))
+                    Model::Brush* frontBrush = new Model::Brush(worldBounds, forceIntegerFacePoints, brush);
+                    if (frontBrush->clip(*frontFace))
                         m_frontBrushes.push_back(frontBrush);
                     else
                         delete frontBrush;
                     
-                    Model::Brush* backBrush = new Model::Brush(worldBounds, brush);
-                    if (backBrush->addFace(backFace))
+                    Model::Brush* backBrush = new Model::Brush(worldBounds, forceIntegerFacePoints, brush);
+                    if (backBrush->clip(*backFace))
                         m_backBrushes.push_back(backBrush);
                     else
                         delete backBrush;

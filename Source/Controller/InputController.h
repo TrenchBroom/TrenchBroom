@@ -134,7 +134,7 @@ namespace TrenchBroom {
                 return *m_moveVerticesTool;
             }
             
-            void toggleMoveVerticesTool();
+            void toggleMoveVerticesTool(size_t changeCount = 0);
             bool moveVerticesToolActive();
             
             void toggleRotateObjectsTool();

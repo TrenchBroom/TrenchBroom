@@ -102,7 +102,7 @@ namespace TrenchBroom {
             DWORD accessMode = 0;
 		    DWORD protect = 0;
 		    DWORD mapAccess = 0;
-		    if (mode & (std::ios_base::in | std::ios_base::out)) {
+		    if ((mode & (std::ios_base::in | std::ios_base::out)) == (std::ios_base::in | std::ios_base::out)) {
 			    accessMode = GENERIC_READ | GENERIC_WRITE;
 			    protect = PAGE_READWRITE;
 			    mapAccess = FILE_MAP_ALL_ACCESS;

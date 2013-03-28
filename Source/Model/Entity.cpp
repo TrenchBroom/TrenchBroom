@@ -30,6 +30,7 @@
 namespace TrenchBroom {
     namespace Model {
         String const Entity::ClassnameKey        = "classname";
+        String const Entity::NoClassnameValue    = "missing classname";
         String const Entity::SpawnFlagsKey       = "spawnflags";
         String const Entity::WorldspawnClassname = "worldspawn";
         String const Entity::GroupClassname      = "func_group";
@@ -40,11 +41,12 @@ namespace TrenchBroom {
         String const Entity::AnglesKey           = "angles";
         String const Entity::MangleKey           = "mangle";
         String const Entity::MessageKey          = "message";
-        String const Entity::ModKey             = "_mod";
+        String const Entity::ModKey              = "_mod";
         String const Entity::TargetKey           = "target";
         String const Entity::WadKey              = "wad";
         String const Entity::DefKey              = "_def";
         String const Entity::DefaultDefinition   = "Quake.fgd";
+        String const Entity::FacePointFormatKey  = "_point_format";
 
         void Entity::init() {
             m_map = NULL;
@@ -328,6 +330,8 @@ namespace TrenchBroom {
             if (key == DefKey)
                 return false;
             if (key == WadKey)
+                return false;
+            if (key == FacePointFormatKey)
                 return false;
             return true;
         }

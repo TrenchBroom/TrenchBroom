@@ -24,6 +24,7 @@
 #include "Model/FaceTypes.h"
 #include "Renderer/FaceVertex.h"
 #include "Utility/Allocator.h"
+#include "Utility/FindPlanePoints.h"
 #include "Utility/String.h"
 #include "Utility/VecMath.h"
 
@@ -34,6 +35,38 @@ namespace TrenchBroom {
         class Brush;
         class Texture;
 
+        class Face;
+        class FindFacePoints {
+        protected:
+            virtual inline size_t selectInitialPoints(const Face& face, FacePoints& points) const = 0;
+            virtual inline void findPoints(const Plane& plane, FacePoints& points, size_t numPoints) const = 0;
+        public:
+            virtual ~FindFacePoints() {}
+            
+            static const FindFacePoints& instance(bool forceIntegerCoordinates);
+            inline void operator()(const Face& face, FacePoints& points) const;
+        };
+        
+        class FindIntegerFacePoints : public FindFacePoints {
+        private:
+            FindIntegerPlanePoints m_findPoints;
+        protected:
+            inline size_t selectInitialPoints(const Face& face, FacePoints& points) const;
+            inline void findPoints(const Plane& plane, FacePoints& points, size_t numPoints) const;
+        public:
+            static const FindIntegerFacePoints Instance;
+        };
+        
+        class FindFloatFacePoints : public FindFacePoints {
+        private:
+            FindFloatPlanePoints m_findPoints;
+        protected:
+            inline size_t selectInitialPoints(const Face& face, FacePoints& points) const;
+            inline void findPoints(const Plane& plane, FacePoints& points, size_t numPoints) const;
+        public:
+            static const FindFloatFacePoints Instance;
+        };
+        
         /**
          * \brief This class represents a brush face.
          *
@@ -78,9 +111,10 @@ namespace TrenchBroom {
              * It must hold that
              * (m_points[2] - m_points[0]).cross(m_points[1] - m_points[0]).equals(boundary().normal)
              */
-            Vec3f m_points[3];
+            FacePoints m_points;
             Plane m_boundary;
             BBox m_worldBounds;
+            bool m_forceIntegerFacePoints;
 
             String m_textureName;
             Texture* m_texture;
@@ -120,8 +154,8 @@ namespace TrenchBroom {
 
             void compensateTransformation(const Mat4f& transformation);
         public:
-            Face(const BBox& worldBounds, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const String& textureName);
-            Face(const BBox& worldBounds, const Face& faceTemplate);
+            Face(const BBox& worldBounds, bool forceIntegerFacePoints, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const String& textureName);
+            Face(const BBox& worldBounds, bool forceIntegerFacePoints, const Face& faceTemplate);
             Face(const Face& face);
 			~Face();
 
@@ -181,7 +215,12 @@ namespace TrenchBroom {
              * Updates the boundary points from the vertices of this face. Afterwards, all vertices of this face lie
              * on the boundary plane. Be aware that the Side that belongs to this face must not be null.
              */
-            void updatePoints();
+            void updatePointsFromVertices();
+            
+            /**
+             * Updates the boundary points from the plane of this face.
+             */
+            void updatePointsFromBoundary();
 
             /**
              * Sets the given points to the points of the boundary plane.
@@ -214,6 +253,12 @@ namespace TrenchBroom {
                 return m_worldBounds;
             }
 
+            inline bool forceIntegerFacePoints() const {
+                return m_forceIntegerFacePoints;
+            }
+            
+            void setForceIntegerFacePoints(bool forceIntegerFacePoints);
+            
             /**
              * Returns the vertices of this face in clockwise order.
              */
@@ -391,7 +436,7 @@ namespace TrenchBroom {
             }
 
             inline const Renderer::FaceVertex::List& cachedVertices() const {
-                if (!m_vertexCacheValid)
+                // if (!m_vertexCacheValid)
                     validateVertexCache();
                 return m_vertexCache;
             }

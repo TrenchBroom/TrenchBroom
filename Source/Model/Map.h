@@ -32,11 +32,22 @@ namespace TrenchBroom {
         class Map {
         protected:
             BBox m_worldBounds;
+            bool m_forceIntegerFacePoints;
             EntityList m_entities;
             Entity* m_worldspawn;
         public:
-            Map(const BBox& worldBounds);
+            Map(const BBox& worldBounds, bool forceIntegerFacePoints);
             ~Map();
+            
+            inline const BBox& worldBounds() const {
+                return m_worldBounds;
+            }
+            
+            inline bool forceIntegerFacePoints() const {
+                return m_forceIntegerFacePoints;
+            }
+            
+            void setForceIntegerFacePoints(bool forceIntegerFacePoints);
             
             void addEntity(Entity& entity);
             void removeEntity(Entity& entity);
@@ -48,10 +59,6 @@ namespace TrenchBroom {
             Entity* worldspawn();
             
             void clear();
-            
-            inline const BBox& worldBounds() const {
-                return m_worldBounds;
-            }
         };
     }
 }

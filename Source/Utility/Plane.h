@@ -106,11 +106,11 @@ namespace TrenchBroom {
                 return ((anchor() - line.point).dot(normal)) / d;
             }
             
-            inline PointStatus::Type pointStatus(const Vec3f& point) const {
+                    inline PointStatus::Type pointStatus(const Vec3f& point, const float epsilon = Math::PointStatusEpsilon) const {
                 const float dist = pointDistance(point);
-                if (dist >  Math::PointStatusEpsilon)
+                if (dist >  epsilon)
                     return PointStatus::PSAbove;
-                if (dist < -Math::PointStatusEpsilon)
+                if (dist < -epsilon)
                     return PointStatus::PSBelow;
                 return PointStatus::PSInside;
             }
@@ -120,18 +120,19 @@ namespace TrenchBroom {
             }
             
             inline float x(float y, float z) const {
-                float l = normal.dot(anchor());
-                return (l - normal.y * y - normal.z * z) / normal.x;
+                return (distance - normal.y * y - normal.z * z) / normal.x;
             }
             
             inline float y(float x, float z) const {
-                float l = normal.dot(anchor());
-                return (l - normal.x * x - normal.z * z) / normal.y;
+                return (distance - normal.x * x - normal.z * z) / normal.y;
             }
             
             inline float z(float x, float y) const {
-                float l = normal.dot(anchor());
-                return (l - normal.x * x - normal.y * y) / normal.z;
+                return (distance - normal.x * x - normal.y * y) / normal.z;
+            }
+                    
+            inline float z(const Vec2f& coords) const {
+                return z(coords.x, coords.y);
             }
             
             inline bool equals(const Plane& other) const {

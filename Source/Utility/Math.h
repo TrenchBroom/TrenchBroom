@@ -31,7 +31,8 @@ namespace TrenchBroom {
         static const float PointStatusEpsilon = 0.01f;
         static const float CorrectEpsilon = 0.001f; // this is what QBSP uses
         static const float ColinearEpsilon = 0.01f;
-        static const float Pi = 3.141592f;
+        static const float Pi = 3.141592653589793f;
+        static const float E = 2.718281828459045f;
 
         inline bool isnan(float f) {
 #ifdef _MSC_VER

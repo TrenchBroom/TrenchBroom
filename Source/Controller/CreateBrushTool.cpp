@@ -99,7 +99,7 @@ namespace TrenchBroom {
             updateBoundsThickness();
 
             delete m_brush;
-            m_brush = new Model::Brush(document().map().worldBounds(), m_bounds, document().mruTexture());
+            m_brush = new Model::Brush(document().map().worldBounds(), document().map().forceIntegerFacePoints(), m_bounds, document().mruTexture());
             m_brushFigure->setBrush(*m_brush);
         }
 
@@ -137,7 +137,7 @@ namespace TrenchBroom {
             m_brushFigure->setOccludedEdgeColor(prefs.getColor(Preferences::OccludedSelectedEdgeColor));
             m_brushFigure->setEdgeMode(Renderer::BrushFigure::EMRenderOccluded);
 
-            m_brush = new Model::Brush(document().map().worldBounds(), m_bounds, document().mruTexture());
+            m_brush = new Model::Brush(document().map().worldBounds(), document().map().forceIntegerFacePoints(), m_bounds, document().mruTexture());
             m_brushFigure->setBrush(*m_brush);
             
             return true;
@@ -150,7 +150,7 @@ namespace TrenchBroom {
             updateBounds(curPoint);
             
             delete m_brush;
-            m_brush = new Model::Brush(document().map().worldBounds(), m_bounds, document().mruTexture());
+            m_brush = new Model::Brush(document().map().worldBounds(), document().map().forceIntegerFacePoints(), m_bounds, document().mruTexture());
             m_brushFigure->setBrush(*m_brush);
             return true;
         }

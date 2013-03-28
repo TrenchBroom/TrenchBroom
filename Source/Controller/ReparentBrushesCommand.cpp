@@ -93,7 +93,7 @@ namespace TrenchBroom {
         ReparentBrushesCommand* ReparentBrushesCommand::reparent(Model::MapDocument& document, const Model::BrushList& brushes, Model::Entity& newParent) {
             StringStream name;
             name << (brushes.size() == 1 ? "Move Brush to " : "Move Brushes to ");
-            name << newParent.classname();
+            name << (newParent.classname() != NULL ? *newParent.classname() : Model::Entity::NoClassnameValue);
             return new ReparentBrushesCommand(document, name.str(), brushes, newParent);
         }
 

@@ -115,6 +115,70 @@ namespace TrenchBroom {
             return Token(TokenType::Eof, NULL, NULL, 0, tokenizer.line(), tokenizer.column());
         }
         
+        Model::Entity* MapParser::parseEntity(const BBox& worldBounds, FacePointFormat& facePointFormat, Utility::ProgressIndicator* indicator) {
+            Token token = m_tokenizer.nextToken();
+            if (token.type() == TokenType::Eof)
+                return NULL;
+            
+            expect(TokenType::OBrace | TokenType::CBrace, token);
+            if (token.type() == TokenType::CBrace)
+                return NULL;
+            
+            Model::Entity* entity = new Model::Entity(worldBounds);
+            size_t firstLine = token.line();
+            
+            while ((token = m_tokenizer.nextToken()).type() != TokenType::Eof) {
+                switch (token.type()) {
+                    case TokenType::String: {
+                        String key = token.data();
+                        expect(TokenType::String, token = m_tokenizer.nextToken());
+                        String value = token.data();
+                        entity->setProperty(key, value);
+                        if (facePointFormat == Unknown && key == Model::Entity::FacePointFormatKey) {
+                            if (value == "1") {
+                                facePointFormat = Integer;
+                            } else {
+                                facePointFormat = Float;
+                            }
+                        }
+                        break;
+                    }
+                    case TokenType::OBrace: {
+                        if (facePointFormat == Unknown) {
+                            m_console.info("Assuming floating point plane coordinates");
+                            facePointFormat = Float;
+                        }
+                        m_tokenizer.pushToken(token);
+                        bool moreBrushes = true;
+                        while (moreBrushes) {
+                            Model::Brush* brush = parseBrush(worldBounds, facePointFormat == Integer, indicator);
+                            if (brush != NULL)
+                                entity->addBrush(*brush);
+                            expect(TokenType::OBrace | TokenType::CBrace, token = m_tokenizer.nextToken());
+                            moreBrushes = (token.type() == TokenType::OBrace);
+                            m_tokenizer.pushToken(token);
+                        }
+                        break;
+                    }
+                    case TokenType::CBrace: {
+                        if (facePointFormat == Unknown) {
+                            m_console.info("Assuming floating point plane coordinates");
+                            facePointFormat = Float;
+                        }
+                        if (indicator != NULL)
+                            indicator->update(static_cast<int>(token.position()));
+                        entity->setFilePosition(firstLine, token.line() - firstLine);
+                        return entity;
+                    }
+                    default:
+                        delete entity;
+                        throw MapParserException(token, TokenType::String | TokenType::OBrace | TokenType::CBrace);
+                }
+            }
+            
+            return entity;
+        }
+
         MapParser::MapParser(const char* begin, const char* end, Utility::Console& console) :
         m_console(console),
         m_tokenizer(begin, end),
@@ -134,7 +198,8 @@ namespace TrenchBroom {
             
             if (indicator != NULL) indicator->reset(static_cast<int>(m_size));
             try {
-                while ((entity = parseEntity(map.worldBounds(), indicator)) != NULL)
+                FacePointFormat facePointFormat = Unknown;
+                while ((entity = parseEntity(map.worldBounds(), facePointFormat, indicator)) != NULL)
                     map.addEntity(*entity);
             } catch (MapParserException e) {
                 m_console.error(e.what());
@@ -142,70 +207,14 @@ namespace TrenchBroom {
             
             if (indicator != NULL)
                 indicator->update(static_cast<int>(m_size));
-            
-            if (!m_staleBrushes.empty()) {
-                StringStream stream;
-                stream << "Found brushes with invalid or missing geometry at lines ";
-                for (size_t i = 0; i < m_staleBrushes.size(); i++) {
-                    const Model::Brush* brush = m_staleBrushes[i];
-                    stream << brush->fileLine();
-                    if (i < m_staleBrushes.size() - 1)
-                        stream << ", ";
-                }
-                m_console.warn(stream.str());
-            }
         }
         
-        Model::Entity* MapParser::parseEntity(const BBox& worldBounds, Utility::ProgressIndicator* indicator) {
-            Token token = m_tokenizer.nextToken();
-            if (token.type() == TokenType::Eof)
-                return NULL;
-            
-            expect(TokenType::OBrace | TokenType::CBrace, token);
-            if (token.type() == TokenType::CBrace)
-                return NULL;
-            
-            Model::Entity* entity = new Model::Entity(worldBounds);
-            size_t firstLine = token.line();
-            
-            while ((token = m_tokenizer.nextToken()).type() != TokenType::Eof) {
-                switch (token.type()) {
-                    case TokenType::String: {
-                        String key = token.data();
-                        expect(TokenType::String, token = m_tokenizer.nextToken());
-                        String value = token.data();
-                        entity->setProperty(key, value);
-                        break;
-                    }
-                    case TokenType::OBrace: {
-                        m_tokenizer.pushToken(token);
-                        bool moreBrushes = true;
-                        while (moreBrushes) {
-                            Model::Brush* brush = parseBrush(worldBounds, indicator);
-                            if (brush != NULL)
-                                entity->addBrush(*brush);
-                            expect(TokenType::OBrace | TokenType::CBrace, token = m_tokenizer.nextToken());
-                            moreBrushes = (token.type() == TokenType::OBrace);
-                            m_tokenizer.pushToken(token);
-                        }
-                        break;
-                    }
-                    case TokenType::CBrace: {
-                        if (indicator != NULL)
-                            indicator->update(static_cast<int>(token.position()));
-                        entity->setFilePosition(firstLine, token.line() - firstLine);
-                        return entity;
-                    }
-                    default:
-                        delete entity;
-                        throw MapParserException(token, TokenType::String | TokenType::OBrace | TokenType::CBrace);
-                }
-            }
-            
-            return entity;
+        Model::Entity* MapParser::parseEntity(const BBox& worldBounds, bool forceIntegerFacePoints, Utility::ProgressIndicator* indicator) {
+            FacePointFormat format = forceIntegerFacePoints ? Integer : Float;
+            return parseEntity(worldBounds, format, indicator);
         }
         
-        Model::Brush* MapParser::parseBrush(const BBox& worldBounds, Utility::ProgressIndicator* indicator) {
+        Model::Brush* MapParser::parseBrush(const BBox& worldBounds, bool forceIntegerFacePoints, Utility::ProgressIndicator* indicator) {
             Token token = m_tokenizer.nextToken();
             if (token.type() == TokenType::Eof)
                 return NULL;
@@ -221,7 +230,7 @@ namespace TrenchBroom {
                 switch (token.type()) {
                     case TokenType::OParenthesis: {
                         m_tokenizer.pushToken(token);
-                        Model::Face* face = parseFace(worldBounds);
+                        Model::Face* face = parseFace(worldBounds, forceIntegerFacePoints);
                         if (face != NULL)
                             faces.push_back(face);
                         break;
@@ -229,34 +238,11 @@ namespace TrenchBroom {
                     case TokenType::CBrace: {
                         if (indicator != NULL) indicator->update(static_cast<int>(token.position()));
                         
-                        Model::Brush* brush = new Model::Brush(worldBounds);
-
-                        // sort the faces by the weight of their plane normals like QBSP does
-                        Model::FaceList sortedFaces = faces;
-                        std::sort(sortedFaces.begin(), sortedFaces.end(), Model::Face::WeightOrder(Plane::WeightOrder(true)));
-                        std::sort(sortedFaces.begin(), sortedFaces.end(), Model::Face::WeightOrder(Plane::WeightOrder(false)));
+                        Model::Brush* brush = new Model::Brush(worldBounds, forceIntegerFacePoints, faces);
+                        brush->setFilePosition(firstLine, token.line() - firstLine);
+                        if (!brush->closed())
+                            m_console.warn("Non-closed brush at line %i", firstLine);
                         
-                        Model::FaceList::iterator faceIt = sortedFaces.begin();
-                        Model::FaceList::iterator faceEnd = sortedFaces.end();
-                        while (faceIt != faceEnd) {
-                            Model::Face* face = *faceIt++;
-                            if (!brush->addFace(face)) {
-                                m_console.warn("Skipping malformed brush at line %i", firstLine);
-                                delete brush;
-                                brush = NULL;
-                                break;
-                            }
-                        }
-                        
-                        // if something went wrong, we must delete all faces that have not been added to the brush yet
-                        if (faceIt != faceEnd)
-                            Utility::deleteAll(sortedFaces, faceIt);
-                        
-                        if (brush != NULL) {
-                            brush->setFilePosition(firstLine, token.line() - firstLine);
-                            if (!brush->closed())
-                                m_console.warn("Non-closed brush at line %i", firstLine);
-                        }
                         return brush;
                     }
                     default: {
@@ -269,7 +255,7 @@ namespace TrenchBroom {
             return NULL;
         }
         
-        Model::Face* MapParser::parseFace(const BBox& worldBounds) {
+        Model::Face* MapParser::parseFace(const BBox& worldBounds, bool forceIntegerFacePoints) {
             Vec3f p1, p2, p3;
             float xOffset, yOffset, rotation, xScale, yScale;
             Token token = m_tokenizer.nextToken();
@@ -349,21 +335,22 @@ namespace TrenchBroom {
             if (textureName == Model::Texture::Empty)
                 textureName = "";
             
-            Model::Face* face = new Model::Face(worldBounds, p1, p2, p3, textureName);
+            Model::Face* face = new Model::Face(worldBounds, forceIntegerFacePoints, p1, p2, p3, textureName);
             face->setXOffset(xOffset);
             face->setYOffset(yOffset);
             face->setRotation(rotation);
             face->setXScale(xScale);
             face->setYScale(yScale);
             face->setFilePosition(token.line());
+            
             return face;
         }
         
-        bool MapParser::parseEntities(const BBox& worldBounds, Model::EntityList& entities) {
+        bool MapParser::parseEntities(const BBox& worldBounds, bool forceIntegerFacePoints, Model::EntityList& entities) {
             size_t oldSize = entities.size();
             try {
                 Model::Entity* entity = NULL;
-                while ((entity = parseEntity(worldBounds, NULL)) != NULL)
+                while ((entity = parseEntity(worldBounds, forceIntegerFacePoints ? Integer : Float, NULL)) != NULL)
                     entities.push_back(entity);
                 return !entities.empty();
             } catch (MapParserException e) {
@@ -373,11 +360,11 @@ namespace TrenchBroom {
             }
         }
         
-        bool MapParser::parseBrushes(const BBox& worldBounds, Model::BrushList& brushes) {
+        bool MapParser::parseBrushes(const BBox& worldBounds, bool forceIntegerFacePoints, Model::BrushList& brushes) {
             size_t oldSize = brushes.size();
             try {
                 Model::Brush* brush = NULL;
-                while ((brush = parseBrush(worldBounds, NULL)) != NULL)
+                while ((brush = parseBrush(worldBounds, forceIntegerFacePoints, NULL)) != NULL)
                     brushes.push_back(brush);
                 return !brushes.empty();
             } catch (MapParserException e) {
@@ -387,11 +374,11 @@ namespace TrenchBroom {
             }
         }
         
-        bool MapParser::parseFaces(const BBox& worldBounds, Model::FaceList& faces) {
+        bool MapParser::parseFaces(const BBox& worldBounds, bool forceIntegerFacePoints, Model::FaceList& faces) {
             size_t oldSize = faces.size();
             try {
                 Model::Face* face = NULL;
-                while ((face = parseFace(worldBounds)) != NULL)
+                while ((face = parseFace(worldBounds, forceIntegerFacePoints)) != NULL)
                     faces.push_back(face);
                 return !faces.empty();
             } catch (MapParserException e) {

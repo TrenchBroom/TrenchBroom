@@ -48,6 +48,7 @@ namespace TrenchBroom {
             VertexHandleManager m_handleManager;
             VertexToolMode m_mode;
             bool m_ignoreObjectChanges;
+            size_t m_changeCount;
             Renderer::Text::TextRenderer<Vec3f, Vec3f::LexicographicOrder>* m_textRenderer;
             Renderer::Text::TextRenderer<Vec3f, Vec3f::LexicographicOrder>::SimpleTextRendererFilter m_textFilter;
             Vec3f m_dragHandlePosition;
@@ -76,6 +77,22 @@ namespace TrenchBroom {
         public:
             MoveVerticesTool(View::DocumentViewHolder& documentViewHolder, InputController& inputController, float axisLength, float planeRadius, float vertexSize);
         
+            inline void setChangeCount(size_t changeCount) {
+                assert(active());
+                m_changeCount = changeCount;
+            }
+            
+            inline void incChangeCount() {
+                assert(active());
+                m_changeCount++;
+            }
+            
+            inline void decChangeCount() {
+                assert(active());
+                assert(m_changeCount > 0);
+                m_changeCount--;
+            }
+            
             bool hasSelection();
             MoveResult moveVertices(const Vec3f& delta);
             
