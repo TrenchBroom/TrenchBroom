@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		48009AF515F7FA8B001A9993 /* AbstractFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48009AF315F7FA8B001A9993 /* AbstractFileManager.cpp */; };
+		480111B016FCEFC8009B1BFB /* FindPlanePoints.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480111AF16FCEFC8009B1BFB /* FindPlanePoints.cpp */; };
+		480111B116FCF32D009B1BFB /* FindPlanePoints.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480111AF16FCEFC8009B1BFB /* FindPlanePoints.cpp */; };
 		480ED72B16624C5100857A21 /* MoveVerticesTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 480ED72916624C5100857A21 /* MoveVerticesTool.cpp */; };
 		480ED755166401B200857A21 /* InstancedPointHandle.vertsh in Resources */ = {isa = PBXBuildFile; fileRef = 480ED754166401B100857A21 /* InstancedPointHandle.vertsh */; };
 		4810276615E4FBF000250C9C /* MapGLCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4810276415E4FBF000250C9C /* MapGLCanvas.cpp */; };
@@ -23,7 +25,7 @@
 		4817C7F11611DFA900A01A99 /* SnapshotCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4817C7EF1611DFA900A01A99 /* SnapshotCommand.cpp */; };
 		4817C7F416123E0500A01A99 /* EntityInspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4817C7F216123E0500A01A99 /* EntityInspector.cpp */; };
 		481CC98F16DD568F00537742 /* ClassInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481CC98E16DD568F00537742 /* ClassInfo.cpp */; };
-		481CDAD816026C48003E2EE9 /* PreferencesFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481CDAD616026C48003E2EE9 /* PreferencesFrame.cpp */; };
+		481CDAD816026C48003E2EE9 /* PreferencesDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481CDAD616026C48003E2EE9 /* PreferencesDialog.cpp */; };
 		481CDADB16034034003E2EE9 /* Preferences.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481CDADA16034034003E2EE9 /* Preferences.cpp */; };
 		481E566F1624451300B403F3 /* EntityRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481E566D1624451300B403F3 /* EntityRenderer.cpp */; };
 		481E56721624482600B403F3 /* ShaderProgram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 481E56701624482600B403F3 /* ShaderProgram.cpp */; };
@@ -49,6 +51,11 @@
 		48312B3C15EB814700607868 /* Wad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48312B3A15EB814700607868 /* Wad.cpp */; };
 		483323ED16AF250700FC9721 /* SmartPropertyEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483323EB16AF250700FC9721 /* SmartPropertyEditor.cpp */; };
 		483323F116AF351900FC9721 /* SpawnFlagsEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483323EF16AF351900FC9721 /* SpawnFlagsEditor.cpp */; };
+		483AE27616F8FE450073686A /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483AE27416F8FE450073686A /* main.cpp */; };
+		483AE27A16F9179D0073686A /* Mat3f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 486AFACB16B555940097657D /* Mat3f.cpp */; };
+		483AE27B16F9179D0073686A /* Mat4f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BEA215E2F3BB0073C030 /* Mat4f.cpp */; };
+		483AE27C16F9179D0073686A /* Vec3f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48D1BE9C15E2E5550073C030 /* Vec3f.cpp */; };
+		483AE27D16F9179D0073686A /* Vec4f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 482F4BCA1690681A0012D821 /* Vec4f.cpp */; };
 		483E203C16DCB33B00B087BB /* Defs in CopyFiles */ = {isa = PBXBuildFile; fileRef = 483E203B16DCB33B00B087BB /* Defs */; };
 		483F970716A5AB4B009716B1 /* CreateEntityFromMenuHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 483F970516A5AB4B009716B1 /* CreateEntityFromMenuHelper.cpp */; };
 		4842AF67162176100042AD66 /* GenericDropSource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4842AF66162176100042AD66 /* GenericDropSource.cpp */; };
@@ -112,6 +119,7 @@
 		488457D0161C839A002ADDAE /* OffscreenRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488457CE161C839A002ADDAE /* OffscreenRenderer.cpp */; };
 		4887937615EF56C10044D66A /* AbstractApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4887937415EF56C10044D66A /* AbstractApp.cpp */; };
 		4888654B1634211C0071F9C6 /* RotateObjects90Command.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 488865491634211C0071F9C6 /* RotateObjects90Command.cpp */; };
+		4889B3151703A5FC004B1BC0 /* RebuildBrushGeometryCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4889B3131703A5FC004B1BC0 /* RebuildBrushGeometryCommand.cpp */; };
 		48932BF4166FAFDC009ED5DB /* MoveVerticesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 48932BF2166FAFDC009ED5DB /* MoveVerticesCommand.cpp */; };
 		4895CDEA16333D55006AA0A6 /* MoveTexturesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4895CDE816333D55006AA0A6 /* MoveTexturesCommand.cpp */; };
 		4895CDEC16334108006AA0A6 /* RotateTexturesCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4895CDEB16334108006AA0A6 /* RotateTexturesCommand.cpp */; };
@@ -199,6 +207,15 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		483AE26616F8FDF00073686A /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		48B64C5716CEC30D00ECA6C5 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -215,6 +232,7 @@
 /* Begin PBXFileReference section */
 		48009AF315F7FA8B001A9993 /* AbstractFileManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractFileManager.cpp; sourceTree = "<group>"; };
 		48009AF415F7FA8B001A9993 /* AbstractFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractFileManager.h; sourceTree = "<group>"; };
+		480111AF16FCEFC8009B1BFB /* FindPlanePoints.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FindPlanePoints.cpp; sourceTree = "<group>"; };
 		480ED72916624C5100857A21 /* MoveVerticesTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveVerticesTool.cpp; sourceTree = "<group>"; };
 		480ED72A16624C5100857A21 /* MoveVerticesTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveVerticesTool.h; sourceTree = "<group>"; };
 		480ED74D1662C4A200857A21 /* InstancedVertexArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InstancedVertexArray.h; sourceTree = "<group>"; };
@@ -317,6 +335,13 @@
 		483323EF16AF351900FC9721 /* SpawnFlagsEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpawnFlagsEditor.cpp; sourceTree = "<group>"; };
 		483323F016AF351900FC9721 /* SpawnFlagsEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpawnFlagsEditor.h; sourceTree = "<group>"; };
 		4835D20516419FC400B01BD8 /* IOException.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IOException.h; sourceTree = "<group>"; };
+		483AE26816F8FDF00073686A /* TrenchBroom-Test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "TrenchBroom-Test"; sourceTree = BUILT_PRODUCTS_DIR; };
+		483AE27416F8FE450073686A /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		483AE27716F8FE890073686A /* Vec3fTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Vec3fTest.h; sourceTree = "<group>"; };
+		483AE27816F8FEB90073686A /* TestSuite.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestSuite.h; sourceTree = "<group>"; };
+		483AE27916F915D40073686A /* PlaneTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlaneTest.h; sourceTree = "<group>"; };
+		483AE27E16F918600073686A /* FindPlanePoints.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FindPlanePoints.h; sourceTree = "<group>"; };
+		483AE27F16F9190B0073686A /* FindIntegerPlanePointsTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FindIntegerPlanePointsTest.h; sourceTree = "<group>"; };
 		483D0C3716C050DE0050710B /* SharedPointer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SharedPointer.h; sourceTree = "<group>"; };
 		483E203B16DCB33B00B087BB /* Defs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Defs; path = ../Resources/Defs; sourceTree = "<group>"; };
 		483F970516A5AB4B009716B1 /* CreateEntityFromMenuHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CreateEntityFromMenuHelper.cpp; sourceTree = "<group>"; };
@@ -463,6 +488,8 @@
 		4887937515EF56C10044D66A /* AbstractApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractApp.h; sourceTree = "<group>"; };
 		488865491634211C0071F9C6 /* RotateObjects90Command.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RotateObjects90Command.cpp; sourceTree = "<group>"; };
 		4888654A1634211C0071F9C6 /* RotateObjects90Command.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateObjects90Command.h; sourceTree = "<group>"; };
+		4889B3131703A5FC004B1BC0 /* RebuildBrushGeometryCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RebuildBrushGeometryCommand.cpp; sourceTree = "<group>"; };
+		4889B3141703A5FC004B1BC0 /* RebuildBrushGeometryCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RebuildBrushGeometryCommand.h; sourceTree = "<group>"; };
 		488C7A9A16E2628900718B0E /* IOTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IOTypes.h; sourceTree = "<group>"; };
 		48932BF2166FAFDC009ED5DB /* MoveVerticesCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MoveVerticesCommand.cpp; sourceTree = "<group>"; };
 		48932BF3166FAFDC009ED5DB /* MoveVerticesCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveVerticesCommand.h; sourceTree = "<group>"; };
@@ -641,6 +668,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		483AE26516F8FDF00073686A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		484763CE15E2BC5000095BC0 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -755,6 +789,35 @@
 			path = ../Source/Renderer;
 			sourceTree = "<group>";
 		};
+		483AE27216F8FE450073686A /* Test */ = {
+			isa = PBXGroup;
+			children = (
+				483AE27316F8FE450073686A /* Source */,
+			);
+			name = Test;
+			path = ../Test;
+			sourceTree = "<group>";
+		};
+		483AE27316F8FE450073686A /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				483AE27516F8FE450073686A /* Utility */,
+				483AE27416F8FE450073686A /* main.cpp */,
+				483AE27816F8FEB90073686A /* TestSuite.h */,
+			);
+			path = Source;
+			sourceTree = "<group>";
+		};
+		483AE27516F8FE450073686A /* Utility */ = {
+			isa = PBXGroup;
+			children = (
+				483AE27F16F9190B0073686A /* FindIntegerPlanePointsTest.h */,
+				483AE27916F915D40073686A /* PlaneTest.h */,
+				483AE27716F8FE890073686A /* Vec3fTest.h */,
+			);
+			path = Utility;
+			sourceTree = "<group>";
+		};
 		484763C615E2BC5000095BC0 = {
 			isa = PBXGroup;
 			children = (
@@ -771,6 +834,7 @@
 				48AF61F515F8B7720027C465 /* libbz2.a */,
 				48AF61F315F8B7360027C465 /* libfreetype.a */,
 				48312B2715EABBD600607868 /* Icon.icns */,
+				483AE27216F8FE450073686A /* Test */,
 				48AB57F615ECFB8600321C47 /* Controller */,
 				48DFD4B316061A9C00E554E1 /* GL */,
 				4810277B15E56F9B00250C9C /* IO */,
@@ -788,6 +852,7 @@
 			isa = PBXGroup;
 			children = (
 				484763D115E2BC5000095BC0 /* TrenchBroom.app */,
+				483AE26816F8FDF00073686A /* TrenchBroom-Test */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -991,6 +1056,8 @@
 				48D1BEAB15E305FA0073C030 /* CoordinatePlane.h */,
 				4850D24415F2AAE8005B162D /* DocManager.cpp */,
 				4850D24515F2AAE8005B162D /* DocManager.h */,
+				480111AF16FCEFC8009B1BFB /* FindPlanePoints.cpp */,
+				483AE27E16F918600073686A /* FindPlanePoints.h */,
 				48E2ECBB15FF8FDF00B8D476 /* Grid.cpp */,
 				48E2ECBC15FF8FDF00B8D476 /* Grid.h */,
 				48D1BEA815E2FBAC0073C030 /* Line.h */,
@@ -1137,6 +1204,8 @@
 				4895CDE816333D55006AA0A6 /* MoveTexturesCommand.cpp */,
 				4895CDE916333D55006AA0A6 /* MoveTexturesCommand.h */,
 				4878F92516516652003857EA /* ObjectsCommand.h */,
+				4889B3131703A5FC004B1BC0 /* RebuildBrushGeometryCommand.cpp */,
+				4889B3141703A5FC004B1BC0 /* RebuildBrushGeometryCommand.h */,
 				48FBD14C1626AD5B0059953D /* RemoveObjectsCommand.cpp */,
 				48FBD14D1626AD5B0059953D /* RemoveObjectsCommand.h */,
 				48533C88168F96830055DBC7 /* ReparentBrushesCommand.cpp */,
@@ -1239,6 +1308,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		483AE26716F8FDF00073686A /* TrenchBroom-Test */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 483AE27116F8FDF00073686A /* Build configuration list for PBXNativeTarget "TrenchBroom-Test" */;
+			buildPhases = (
+				483AE26416F8FDF00073686A /* Sources */,
+				483AE26516F8FDF00073686A /* Frameworks */,
+				483AE26616F8FDF00073686A /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "TrenchBroom-Test";
+			productName = "TrenchBroom-Test";
+			productReference = 483AE26816F8FDF00073686A /* TrenchBroom-Test */;
+			productType = "com.apple.product-type.tool";
+		};
 		484763D015E2BC5000095BC0 /* TrenchBroom */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 484763EF15E2BC5000095BC0 /* Build configuration list for PBXNativeTarget "TrenchBroom" */;
@@ -1280,6 +1366,7 @@
 			projectRoot = "";
 			targets = (
 				484763D015E2BC5000095BC0 /* TrenchBroom */,
+				483AE26716F8FDF00073686A /* TrenchBroom-Test */,
 			);
 		};
 /* End PBXProject section */
@@ -1342,6 +1429,19 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		483AE26416F8FDF00073686A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				480111B116FCF32D009B1BFB /* FindPlanePoints.cpp in Sources */,
+				483AE27A16F9179D0073686A /* Mat3f.cpp in Sources */,
+				483AE27B16F9179D0073686A /* Mat4f.cpp in Sources */,
+				483AE27C16F9179D0073686A /* Vec3f.cpp in Sources */,
+				483AE27D16F9179D0073686A /* Vec4f.cpp in Sources */,
+				483AE27616F8FE450073686A /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		484763CD15E2BC5000095BC0 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1499,6 +1599,8 @@
 				48C48EB616EE6B38000F6038 /* KeyboardShortcut.cpp in Sources */,
 				48C48EB916EE6EB8000F6038 /* KeyboardShortcutEditor.cpp in Sources */,
 				48C48EBC16EE9967000F6038 /* KeyboardShortcutEvent.cpp in Sources */,
+				480111B016FCEFC8009B1BFB /* FindPlanePoints.cpp in Sources */,
+				4889B3151703A5FC004B1BC0 /* RebuildBrushGeometryCommand.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1516,6 +1618,66 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		483AE26E16F8FDF00073686A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				HEADER_SEARCH_PATHS = (
+					../Source,
+					../Include,
+					../../Source,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		483AE26F16F8FDF00073686A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				HEADER_SEARCH_PATHS = (
+					../Source,
+					../Include,
+					../../Source,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		483AE27016F8FDF00073686A /* Profile */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				HEADER_SEARCH_PATHS = (
+					../Source,
+					../Include,
+					../../Source,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Profile;
+		};
 		484763ED15E2BC5000095BC0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1850,6 +2012,16 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		483AE27116F8FDF00073686A /* Build configuration list for PBXNativeTarget "TrenchBroom-Test" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				483AE26E16F8FDF00073686A /* Debug */,
+				483AE26F16F8FDF00073686A /* Release */,
+				483AE27016F8FDF00073686A /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		484763CB15E2BC5000095BC0 /* Build configuration list for PBXProject "TrenchBroom" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

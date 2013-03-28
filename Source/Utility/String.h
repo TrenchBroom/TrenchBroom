@@ -29,6 +29,7 @@
 #include <vector>
 
 typedef std::string String;
+typedef String::iterator::difference_type StringDiff;
 typedef std::stringstream StringStream;
 typedef std::vector<String> StringList;
 
@@ -78,8 +79,11 @@ namespace TrenchBroom {
         public:
             bool operator()(const String& lhs, const String& rhs) const {
                 String::const_iterator lhsEnd, rhsEnd;
-                std::advance(lhsEnd = lhs.begin(), std::min(lhs.size(), rhs.size()));
-                std::advance(rhsEnd = rhs.begin(), std::min(lhs.size(), rhs.size()));
+                const size_t minSize = std::min(lhs.size(), rhs.size());
+                StringDiff difference = static_cast<StringDiff>(minSize);
+                
+                std::advance(lhsEnd = lhs.begin(), difference);
+                std::advance(rhsEnd = rhs.begin(), difference);
                 return std::lexicographical_compare(lhs.begin(), lhsEnd, rhs.begin(), rhsEnd, CharEqual<Cmp>());
             }
         };
@@ -88,8 +92,11 @@ namespace TrenchBroom {
         struct StringLess {
             bool operator()(const String& lhs, const String& rhs) const {
                 String::const_iterator lhsEnd, rhsEnd;
-                std::advance(lhsEnd = lhs.begin(), std::min(lhs.size(), rhs.size()));
-                std::advance(rhsEnd = rhs.begin(), std::min(lhs.size(), rhs.size()));
+                const size_t minSize = std::min(lhs.size(), rhs.size());
+                StringDiff difference = static_cast<StringDiff>(minSize);
+                
+                std::advance(lhsEnd = lhs.begin(), difference);
+                std::advance(rhsEnd = rhs.begin(), difference);
                 return std::lexicographical_compare(lhs.begin(), lhsEnd, rhs.begin(), rhsEnd, CharLess<Cmp>());
             }
         };
@@ -214,7 +221,7 @@ namespace TrenchBroom {
                 return false;
             
             String::const_iterator hEnd = haystack.begin();
-            std::advance(hEnd, needle.size());
+            std::advance(hEnd, static_cast<StringDiff>(needle.size()));
             
             if (caseSensitive)
                 return std::equal(haystack.begin(), hEnd, needle.begin(), CharEqual<CaseSensitiveCharCompare>());

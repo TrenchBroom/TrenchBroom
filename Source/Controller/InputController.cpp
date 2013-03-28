@@ -503,9 +503,11 @@ namespace TrenchBroom {
             updateHits();
             updateViews();
         }
-
-        void InputController::toggleMoveVerticesTool() {
+        
+        void InputController::toggleMoveVerticesTool(size_t changeCount) {
             toggleTool(m_moveVerticesTool);
+            if (m_moveVerticesTool->active())
+                m_moveVerticesTool->setChangeCount(changeCount);
         }
 
         bool InputController::moveVerticesToolActive() {

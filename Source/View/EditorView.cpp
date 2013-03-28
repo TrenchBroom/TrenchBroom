@@ -30,6 +30,7 @@
 #include "Controller/MoveTexturesCommand.h"
 #include "Controller/MoveVerticesTool.h"
 #include "Controller/ObjectsCommand.h"
+#include "Controller/RebuildBrushGeometryCommand.h"
 #include "Controller/RemoveObjectsCommand.h"
 #include "Controller/RotateObjects90Command.h"
 #include "Controller/RotateTexturesCommand.h"
@@ -523,8 +524,8 @@ namespace TrenchBroom {
                         inputController().gridChange();
                         break;
                     case Controller::Command::LoadMap:
-                        m_camera->moveTo(Vec3f(-96.0f, -96.0f, 48.0f));
-                        m_camera->setDirection(Vec3f(1.0f, 1.0f, 0.0f).normalized(), Vec3f::PosZ);
+                        m_camera->moveTo(Vec3f(160.0f, 160.0f, 48.0f));
+                        m_camera->setDirection(Vec3f(-1.0f, -1.0f, 0.0f).normalized(), Vec3f::PosZ);
                         inputController().cameraChange();
 
                         m_renderer->loadMap();
@@ -624,12 +625,26 @@ namespace TrenchBroom {
                         inspector().faceInspector().updateTextureBrowser(false);
                         break;
                     }
+                    case Controller::Command::RebuildBrushGeometry:
+                    case Controller::Command::MoveVertices:
+                        if (command->type() == Controller::Command::RebuildBrushGeometry) {
+                            Controller::RebuildBrushGeometryCommand* rebuildCommand = static_cast<Controller::RebuildBrushGeometryCommand*>(command);
+                            if (rebuildCommand->state() == Controller::Command::Undoing && rebuildCommand->activateMoveVerticesTool()) {
+                                assert(!inputController().moveVerticesToolActive());
+                                inputController().toggleMoveVerticesTool(rebuildCommand->precedingChangeCount());
+                            }
+                        } else {
+                            assert(inputController().moveVerticesToolActive());
+                            if (command->state() == Controller::Command::Doing)
+                                inputController().moveVerticesTool().incChangeCount();
+                            else
+                                inputController().moveVerticesTool().decChangeCount();
+                        }
+                    case Controller::Command::SnapVertices:
                     case Controller::Command::MoveObjects:
                     case Controller::Command::RotateObjects:
-                    case Controller::Command::FlipObjects: {
-                    case Controller::Command::MoveVertices:
-                    case Controller::Command::SnapVertices:
-                    case Controller::Command::ResizeBrushes:
+                    case Controller::Command::FlipObjects:
+                    case Controller::Command::ResizeBrushes: {
                         m_renderer->invalidateSelectedBrushes();
                         m_renderer->invalidateSelectedEntities();
                         inspector().entityInspector().updateProperties();
@@ -855,7 +870,7 @@ namespace TrenchBroom {
                             text = textData.GetText();
                         
                         IO::MapParser mapParser(text, console());
-                        if (mapParser.parseFaces(mapDocument().map().worldBounds(), faces)) {
+                        if (mapParser.parseFaces(mapDocument().map().worldBounds(), mapDocument().map().forceIntegerFacePoints(), faces)) {
                             assert(!faces.empty());
 
                             Model::Face& face = *faces.back();
@@ -876,8 +891,8 @@ namespace TrenchBroom {
                             } else {
                                 mapDocument().console().warn("Could not paste faces because no faces are selected");
                             }
-                        } else if (mapParser.parseEntities(mapDocument().map().worldBounds(), entities) ||
-                                   mapParser.parseBrushes(mapDocument().map().worldBounds(), brushes)) {
+                        } else if (mapParser.parseEntities(mapDocument().map().worldBounds(), mapDocument().map().forceIntegerFacePoints(), entities) ||
+                                   mapParser.parseBrushes(mapDocument().map().worldBounds(), mapDocument().map().forceIntegerFacePoints(), brushes)) {
                             assert(entities.empty() != brushes.empty());
 
                             const BBox objectsBounds = Model::MapObject::bounds(entities, brushes);
@@ -930,8 +945,8 @@ namespace TrenchBroom {
                             text = textData.GetText();
                         
                         IO::MapParser mapParser(text, console());
-                        if (mapParser.parseEntities(mapDocument().map().worldBounds(), entities) ||
-                                   mapParser.parseBrushes(mapDocument().map().worldBounds(), brushes)) {
+                        if (mapParser.parseEntities(mapDocument().map().worldBounds(), mapDocument().map().forceIntegerFacePoints(), entities) ||
+                            mapParser.parseBrushes(mapDocument().map().worldBounds(), mapDocument().map().forceIntegerFacePoints(), brushes)) {
                             assert(entities.empty() != brushes.empty());
                             
                             pasteObjects(entities, brushes, Vec3f::Null);
@@ -1346,7 +1361,7 @@ namespace TrenchBroom {
                 Model::Brush& brush = **brushIt;
                 Model::Entity& entity = *brush.entity();
 
-                Model::Brush* newBrush = new Model::Brush(mapDocument().map().worldBounds(), brush);
+                Model::Brush* newBrush = new Model::Brush(mapDocument().map().worldBounds(), mapDocument().map().forceIntegerFacePoints(), brush);
                 if (entity.worldspawn()) {
                     newWorldBrushes.push_back(newBrush);
                 } else {

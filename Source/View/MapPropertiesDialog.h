@@ -26,6 +26,7 @@
 #include <wx/vlbox.h>
 
 class wxButton;
+class wxCheckBox;
 class wxChoice;
 
 namespace TrenchBroom {
@@ -54,6 +55,7 @@ namespace TrenchBroom {
             
             wxChoice* m_modChoice;
             wxChoice* m_defChoice;
+            wxCheckBox* m_intFacePointsCheckBox;
             WadListBox* m_wadList;
             wxButton* m_addWadButton;
             wxButton* m_removeWadsButton;
@@ -72,6 +74,7 @@ namespace TrenchBroom {
             
             void OnDefChoiceSelected(wxCommandEvent& event);
             void OnModChoiceSelected(wxCommandEvent& event);
+            void OnIntFacePointsCheckBoxClicked(wxCommandEvent& event);
 
             void OnAddWadClicked(wxCommandEvent& event);
             void OnRemoveWadsClicked(wxCommandEvent& event);

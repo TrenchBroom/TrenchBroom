@@ -23,6 +23,8 @@
 #include "Utility/Math.h"
 #include "Utility/Vec3f.h"
 
+#include <algorithm>
+
 namespace TrenchBroom {
     namespace Math {
         class CoordinatePlane {
@@ -50,8 +52,8 @@ namespace TrenchBroom {
             }
 
         public:
-            static const CoordinatePlane& plane(const Vec3f& normal) {
-                switch (normal.firstComponent()) {
+            static const CoordinatePlane& plane(Axis::Type axis) {
+                switch (axis) {
                     case Axis::AX:
                         return plane(YZ);
                     case Axis::AY:
@@ -60,25 +62,59 @@ namespace TrenchBroom {
                         return plane(XY);
                 }
             }
+
+            static const CoordinatePlane& plane(const Vec3f& normal) {
+                return plane(normal.firstComponent());
+            }
             
-            inline void project(const Vec3f& point, Vec3f& result) const {
+            inline Vec3f project(const Vec3f& point) const {
                 switch (m_plane) {
                     case XY:
-                        result.x = point.x;
-                        result.y = point.y;
-                        result.z = point.z;
-                        break;
+                        return Vec3f(point.x, point.y, 0.0f);
                     case YZ:
-                        result.x = point.y;
-                        result.y = point.z;
-                        result.z = point.x;
+                        return Vec3f(0.0f, point.y, point.z);
+                    default:
+                        return Vec3f(point.x, 0.0f, point.z);
+                }
+            }
+            
+            inline Vec3f swizzle(const Vec3f& point) const {
+                switch (m_plane) {
+                    case XY:
+                        return point;
+                    case YZ:
+                        return Vec3f(point.y, point.z, point.x);
+                    default:
+                        return Vec3f(point.z, point.x, point.y);
+                }
+            }
+
+            
+            inline Vec3f unswizzle(const Vec3f& point) const {
+                switch (m_plane) {
+                    case XY:
+                        return point;
+                    case YZ:
+                        return Vec3f(point.z, point.x, point.y);
+                    default:
+                        return Vec3f(point.y, point.z, point.x);
+                }
+            }
+            
+            template <typename Iterator>
+            inline void swizzle(Iterator first, Iterator last) const {
+                switch (m_plane) {
+                    case YZ:
+                        std::reverse(first, last);
                         break;
                     default:
-                        result.x = point.x;
-                        result.y = point.z;
-                        result.z = point.y;
                         break;
                 }
+            }
+            
+            template <typename Iterator>
+            inline void unswizzle(Iterator first, Iterator last) const {
+                swizzle(first, last);
             }
         };
     }

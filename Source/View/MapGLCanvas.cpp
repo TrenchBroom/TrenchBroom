@@ -133,7 +133,7 @@ namespace TrenchBroom {
         m_glContext(new wxGLContext(this, documentViewHolder.document().sharedResources().sharedContext())),
         m_inputController(new Controller::InputController(documentViewHolder)),
         m_hasFocus(false),
-        m_ignoreNextClick(true) {
+        m_ignoreNextClick(false) {
             SetDropTarget(new MapGLCanvasDropTarget(*m_inputController));
         }
 
@@ -261,26 +261,26 @@ namespace TrenchBroom {
         }
 
         void MapGLCanvas::OnMouseLeftUp(wxMouseEvent& event) {
+            SetFocus();
             if (m_ignoreNextClick) {
                 m_ignoreNextClick = false;
                 event.Skip();
                 return;
             }
 
-            SetFocus();
 			if (GetCapture() == this)
 				ReleaseMouse();
             m_inputController->mouseUp(event.GetX(), event.GetY(), Controller::MouseButtons::MBLeft);
         }
 
         void MapGLCanvas::OnMouseLeftDClick(wxMouseEvent& event) {
+            SetFocus();
             if (m_ignoreNextClick) {
                 m_ignoreNextClick = false;
                 event.Skip();
                 return;
             }
 
-            SetFocus();
             if (GetCapture() == this)
                 ReleaseMouse();
             m_inputController->mouseDClick(event.GetX(), event.GetY(), Controller::MouseButtons::MBLeft);
@@ -298,13 +298,13 @@ namespace TrenchBroom {
         }
 
         void MapGLCanvas::OnMouseRightUp(wxMouseEvent& event) {
+            SetFocus();
             if (m_ignoreNextClick) {
                 m_ignoreNextClick = false;
                 event.Skip();
                 return;
             }
 
-            SetFocus();
 			if (GetCapture() == this)
 				ReleaseMouse();
             if (!m_inputController->mouseUp(event.GetX(), event.GetY(), Controller::MouseButtons::MBRight)) {
@@ -315,13 +315,13 @@ namespace TrenchBroom {
         }
 
         void MapGLCanvas::OnMouseRightDClick(wxMouseEvent& event) {
+            SetFocus();
             if (m_ignoreNextClick) {
                 m_ignoreNextClick = false;
                 event.Skip();
                 return;
             }
 
-            SetFocus();
 			if (GetCapture() == this)
 				ReleaseMouse();
             m_inputController->mouseDClick(event.GetX(), event.GetY(), Controller::MouseButtons::MBRight);
@@ -339,26 +339,26 @@ namespace TrenchBroom {
         }
 
         void MapGLCanvas::OnMouseMiddleUp(wxMouseEvent& event) {
+            SetFocus();
             if (m_ignoreNextClick) {
                 m_ignoreNextClick = false;
                 event.Skip();
                 return;
             }
 
-            SetFocus();
 			if (GetCapture() == this)
 				ReleaseMouse();
             m_inputController->mouseUp(event.GetX(), event.GetY(), Controller::MouseButtons::MBMiddle);
         }
 
         void MapGLCanvas::OnMouseMiddleDClick(wxMouseEvent& event) {
+            SetFocus();
             if (m_ignoreNextClick) {
                 m_ignoreNextClick = false;
                 event.Skip();
                 return;
             }
 
-            SetFocus();
 			if (GetCapture() == this)
 				ReleaseMouse();
             m_inputController->mouseDClick(event.GetX(), event.GetY(), Controller::MouseButtons::MBMiddle);
@@ -383,6 +383,7 @@ namespace TrenchBroom {
 
         void MapGLCanvas::OnKillFocus(wxFocusEvent& event) {
             m_ignoreNextClick = true;
+            m_hasFocus = false;
             event.Skip();
         }
 

@@ -70,6 +70,15 @@ namespace TrenchBroom {
                 }
             };
 
+            class ErrorOrder {
+            public:
+                inline bool operator()(const Vec3f& lhs, const Vec3f& rhs) const {
+                    const float lErr = (lhs - lhs.rounded()).lengthSquared();
+                    const float rErr = (rhs - rhs.rounded()).lengthSquared();
+                    return lErr < rErr;
+                }
+            };
+            
             class DotOrder {
             private:
                 const Vec3f& m_dir;
@@ -260,6 +269,12 @@ namespace TrenchBroom {
                              z / l);
             }
             
+            inline bool isInteger(float epsilon = Math::AlmostZero) const {
+                return (std::abs(x - Math::round(x)) < epsilon &&
+                        std::abs(y - Math::round(y)) < epsilon &&
+                        std::abs(z - Math::round(z)) < epsilon);
+            }
+            
             inline Vec3f& correct(float epsilon = Math::CorrectEpsilon) {
                 x = Math::correct(x, epsilon);
                 y = Math::correct(y, epsilon);
@@ -339,7 +354,7 @@ namespace TrenchBroom {
                 return Axis::AZ;
             }
             
-            inline const Vec3f& firstAxis(bool pos = true) const {
+            inline const Vec3f& firstAxis(bool abs = false) const {
                 if (equals(Null)) {
                     return Null;
                 } else {
@@ -348,17 +363,17 @@ namespace TrenchBroom {
                     float za = std::abs(z);
                     
                     if (xa >= ya && xa >= za) {
-                        if (x > 0.0f && pos)
+                        if (x > 0.0f || abs)
                             return PosX;
                         else
                             return NegX;
                     } else if (ya >= xa && ya >= za) {
-                        if (y > 0.0f && pos)
+                        if (y > 0.0f || abs)
                             return PosY;
                         else
                             return NegY;
                     } else {
-                        if (z > 0.0f && pos)
+                        if (z > 0.0f || abs)
                             return PosZ;
                         else
                             return NegZ;
@@ -366,7 +381,7 @@ namespace TrenchBroom {
                 }
             }
             
-            inline const Vec3f& secondAxis(bool pos = true) const {
+            inline const Vec3f& secondAxis(bool abs = false) const {
                 if (equals(Null)) {
                     return Null;
                 } else {
@@ -376,18 +391,18 @@ namespace TrenchBroom {
                     
                     if ((xa <= ya && xa >= za) ||
                         (xa >= ya && xa <= za)) {
-                        if (x > 0.0f && pos)
+                        if (x > 0.0f || abs)
                             return PosX;
                         else
                             return NegX;
                     } else if ((ya <= xa && ya >= za) || 
                                (ya >= xa && ya <= za)) {
-                        if (y > 0.0f && pos)
+                        if (y > 0.0f || abs)
                             return PosY;
                         else
                             return NegY;
                     } else {
-                        if (z > 0.0f && pos)
+                        if (z > 0.0f || abs)
                             return PosZ;
                         else
                             return NegZ;
@@ -395,7 +410,7 @@ namespace TrenchBroom {
                 }
             }
             
-            inline const Vec3f& thirdAxis(bool pos = true) const {
+            inline const Vec3f& thirdAxis(bool abs = false) const {
                 if (equals(Null)) {
                     return Null;
                 } else {
@@ -404,17 +419,17 @@ namespace TrenchBroom {
                     float za = std::abs(z);
                     
                     if (xa <= ya && xa <= za) {
-                        if (x > 0.0f && pos)
+                        if (x > 0.0f || abs)
                             return PosX;
                         else
                             return NegX;
                     } else if (ya <= xa && ya <= za) {
-                        if (y > 0.0f && pos)
+                        if (y > 0.0f || abs)
                             return PosY;
                         else
                             return NegY;
                     } else {
-                        if (z > 0.0f && pos)
+                        if (z > 0.0f || abs)
                             return PosZ;
                         else
                             return NegZ;

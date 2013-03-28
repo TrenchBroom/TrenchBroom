@@ -205,6 +205,7 @@ namespace TrenchBroom {
                 static const int MoveWadUpButtonId                  = Lowest +  6;
                 static const int MoveWadDownButtonId                = Lowest +  7;
                 static const int PathChoiceId                       = Lowest +  8;
+                static const int ForceIntCoordsId                   = Lowest +  9;
                 static const int Highest                            = Lowest + 99;
             }
         }

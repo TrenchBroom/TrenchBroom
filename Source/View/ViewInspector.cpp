@@ -142,15 +142,14 @@ namespace TrenchBroom {
             wxStaticText* toggleFogLabel = new wxStaticText( renderModeBox, wxID_ANY, wxT(""));
             m_toggleFog = new wxCheckBox( renderModeBox, CommandIds::ViewInspector::FogCheckBoxId, wxT("Apply fog"));
              */
-            
-            // layout of the contained controls
-            wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
+
+            wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, 0, LayoutConstants::ControlHorizontalMargin);
             innerSizer->Add(faceRenderModeLabel);
             innerSizer->Add(m_faceRenderModeChoice);
-            innerSizer->Add(toggleRenderEdgesLabel);
-            innerSizer->Add(m_toggleRenderEdges);
-            innerSizer->Add(toggleFaceShadingLabel);
-            innerSizer->Add(m_toggleFaceShading);
+            innerSizer->Add(toggleRenderEdgesLabel, 0, wxTOP, LayoutConstants::ControlVerticalMargin);
+            innerSizer->Add(m_toggleRenderEdges, 0, wxTOP, LayoutConstants::ControlVerticalMargin);
+            innerSizer->Add(toggleFaceShadingLabel, 0, wxTOP, LayoutConstants::CheckBoxVerticalMargin);
+            innerSizer->Add(m_toggleFaceShading, 0, wxTOP, LayoutConstants::CheckBoxVerticalMargin);
             
             /*
             innerSizer->Add(toggleFogLabel);

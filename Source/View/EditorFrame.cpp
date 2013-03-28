@@ -83,12 +83,14 @@ namespace TrenchBroom {
 
         EditorFrame::EditorFrame(Model::MapDocument& document, EditorView& view) :
         wxFrame(NULL, wxID_ANY, wxT("")),
-        m_documentViewHolder(DocumentViewHolder(&document, &view)) {
+        m_documentViewHolder(DocumentViewHolder(&document, &view)),
+        m_focusMapCanvasOnIdle(true) {
 #if defined _WIN32
             SetIcon(wxICON(APPICON));
 #endif
             CreateGui();
             updateMenuBar();
+
             m_mapCanvasHasFocus = false;
         }
 
@@ -203,6 +205,11 @@ namespace TrenchBroom {
         }
 
         void EditorFrame::OnIdle(wxIdleEvent& event) {
+            if (m_focusMapCanvasOnIdle) {
+                m_mapCanvas->SetFocus();
+                m_focusMapCanvasOnIdle = false;
+            }
+
             /*
             // this is a fix for Mac OS X, where the kill focus event is not properly sent
             // FIXME: remove this as soon as this bug is fixed in wxWidgets 2.9.5

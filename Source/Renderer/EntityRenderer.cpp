@@ -115,9 +115,12 @@ namespace TrenchBroom {
             Model::EntitySet::iterator entityIt, entityEnd;
             for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                 Model::Entity* entity = *entityIt;
-                EntityModelRenderer* renderer = modelRendererManager.modelRenderer(*entity, m_document.searchPaths());
-                if (renderer != NULL)
-                    m_modelRenderers[entity] = CachedEntityModelRenderer(renderer, *entity->classname());
+                const String* classname = entity->classname();
+                if (classname != NULL) {
+                    EntityModelRenderer* renderer = modelRendererManager.modelRenderer(*entity, m_document.searchPaths());
+                    if (renderer != NULL)
+                        m_modelRenderers[entity] = CachedEntityModelRenderer(renderer, *classname);
+                }
             }
 
             m_modelRendererCacheValid = true;
@@ -248,14 +251,18 @@ namespace TrenchBroom {
 
             assert(fontSize > 0);
             Text::FontDescriptor fontDescriptor(fontName, static_cast<unsigned int>(fontSize));
-
-            const Model::PropertyValue& classname = *entity.classname();
-            EntityModelRenderer* renderer = modelRendererManager.modelRenderer(entity, m_document.searchPaths());
-            if (renderer != NULL)
-                m_modelRenderers[&entity] = CachedEntityModelRenderer(renderer, classname);
-
             EntityClassnameAnchor* anchor = new EntityClassnameAnchor(entity);
-            m_classnameRenderer->addString(&entity, fontDescriptor, classname, anchor);
+
+            const String* classname = entity.classname();
+            if (classname != NULL) {
+                EntityModelRenderer* renderer = modelRendererManager.modelRenderer(entity, m_document.searchPaths());
+                if (renderer != NULL)
+                    m_modelRenderers[&entity] = CachedEntityModelRenderer(renderer, *classname);
+                m_classnameRenderer->addString(&entity, fontDescriptor, *classname, anchor);
+            } else {
+                m_classnameRenderer->addString(&entity, fontDescriptor, Model::Entity::NoClassnameValue, anchor);
+            }
+
 
             m_entities.insert(&entity);
             m_boundsValid = false;
@@ -276,13 +283,16 @@ namespace TrenchBroom {
 
             for (unsigned int i = 0; i < entities.size(); i++) {
                 Model::Entity* entity = entities[i];
-                const Model::PropertyValue& classname = *entity->classname();
-                EntityModelRenderer* renderer = modelRendererManager.modelRenderer(*entity, m_document.searchPaths());
-                if (renderer != NULL)
-                    m_modelRenderers[entity] = CachedEntityModelRenderer(renderer, classname);
-
                 EntityClassnameAnchor* anchor = new EntityClassnameAnchor(*entity);
-                m_classnameRenderer->addString(entity, fontDescriptor, classname, anchor);
+                const String* classname = entity->classname();
+                if (classname != NULL) {
+                    EntityModelRenderer* renderer = modelRendererManager.modelRenderer(*entity, m_document.searchPaths());
+                    if (renderer != NULL)
+                        m_modelRenderers[entity] = CachedEntityModelRenderer(renderer, *classname);
+                    m_classnameRenderer->addString(entity, fontDescriptor, *classname, anchor);
+                } else {
+                    m_classnameRenderer->addString(entity, fontDescriptor, Model::Entity::NoClassnameValue, anchor);
+                }
             }
 
             m_entities.insert(entities.begin(), entities.end());

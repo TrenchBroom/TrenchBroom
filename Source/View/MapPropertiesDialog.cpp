@@ -36,6 +36,7 @@
 #include <wx/bitmap.h>
 #include <wx/bmpbuttn.h>
 #include <wx/button.h>
+#include <wx/checkbox.h>
 #include <wx/filedlg.h>
 #include <wx/image.h>
 #include <wx/sizer.h>
@@ -96,6 +97,7 @@ namespace TrenchBroom {
         BEGIN_EVENT_TABLE(MapPropertiesDialog, wxDialog)
         EVT_CHOICE(CommandIds::MapPropertiesDialog::DefChoiceId, MapPropertiesDialog::OnDefChoiceSelected)
         EVT_CHOICE(CommandIds::MapPropertiesDialog::ModChoiceId, MapPropertiesDialog::OnModChoiceSelected)
+        EVT_CHECKBOX(CommandIds::MapPropertiesDialog::ForceIntCoordsId, MapPropertiesDialog::OnIntFacePointsCheckBoxClicked)
         EVT_BUTTON(CommandIds::MapPropertiesDialog::AddWadButtonId, MapPropertiesDialog::OnAddWadClicked)
         EVT_BUTTON(CommandIds::MapPropertiesDialog::RemoveWadsButtonId, MapPropertiesDialog::OnRemoveWadsClicked)
         EVT_BUTTON(CommandIds::MapPropertiesDialog::MoveWadUpButtonId, MapPropertiesDialog::OnMoveWadUpClicked)
@@ -174,6 +176,15 @@ namespace TrenchBroom {
             
             populateDefChoice(def);
             populateModChoice(mod);
+            
+            bool forceIntegerCoordinates = false;
+            if (worldspawn != NULL) {
+                const Model::PropertyValue* value = worldspawn->propertyForKey(Model::Entity::FacePointFormatKey);
+                if (value != NULL && *value == "1")
+                    forceIntegerCoordinates = true;
+            }
+            m_intFacePointsCheckBox->SetValue(forceIntegerCoordinates);
+            
             m_wadList->SetItemCount(m_document.textureManager().collections().size());
             m_wadList->Refresh();
         }
@@ -210,6 +221,20 @@ namespace TrenchBroom {
             modBoxSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
             modBox->SetSizerAndFit(modBoxSizer);
 
+            wxStaticBox* coordBox = new wxStaticBox(this, wxID_ANY, wxT("Plane Point Coordinates"));
+            wxStaticText* coordText = new wxStaticText(coordBox, wxID_ANY, wxT("By default, TrenchBroom stores plane point coordinates as floating point values internally and in the map file. Checking this option will force it to use integer coordinates. This improves compatibility with older compilers, but it will lead to less precision when editing vertices."));
+#if defined __APPLE__
+            coordText->SetFont(*wxSMALL_FONT);
+#endif
+            coordText->Wrap(width);
+            m_intFacePointsCheckBox = new wxCheckBox(coordBox, CommandIds::MapPropertiesDialog::ForceIntCoordsId, wxT("Force integer plane points"));
+            
+            wxSizer* coordBoxSizer = new wxBoxSizer(wxVERTICAL);
+            coordBoxSizer->Add(coordText, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, LayoutConstants::StaticBoxInnerMargin);
+            coordBoxSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            coordBoxSizer->Add(m_intFacePointsCheckBox, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, LayoutConstants::StaticBoxInnerMargin);
+            coordBox->SetSizerAndFit(coordBoxSizer);
+            
             IO::FileManager fileManager;
             String resourcePath = fileManager.resourceDirectory();
             
@@ -261,6 +286,8 @@ namespace TrenchBroom {
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(modBox, 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::DialogOuterMargin);
+            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            outerSizer->Add(coordBox, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::DialogOuterMargin);
             outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
             outerSizer->Add(wadBox, 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::DialogOuterMargin);
             outerSizer->Add(buttonSizer, 0, wxEXPAND | wxALL, LayoutConstants::DialogButtonMargin);
@@ -324,6 +351,14 @@ namespace TrenchBroom {
             Controller::SetModCommand* command = Controller::SetModCommand::setMod(m_document, mod);
             m_document.GetCommandProcessor()->Submit(command);
             init();
+        }
+
+        void MapPropertiesDialog::OnIntFacePointsCheckBoxClicked(wxCommandEvent& event) {
+            if (wxMessageBox(wxT("Changing this setting may change all brushes in your map and lead to leaks and other problems. You should only change this if your compiler cannot handle floating point coordinates.\n\n Are you sure you want to change this setting? This cannot be undone."), wxT("Force integer plane point coordinates"), wxYES_NO | wxICON_EXCLAMATION, this) == wxYES) {
+                m_document.setForceIntegerCoordinates(event.IsChecked());
+            } else {
+                m_intFacePointsCheckBox->SetValue(!event.IsChecked());
+            }
         }
 
         void MapPropertiesDialog::OnAddWadClicked(wxCommandEvent& event) {
