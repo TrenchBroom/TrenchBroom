@@ -22,11 +22,11 @@
 
 #include "Controller/MoveTool.h"
 #include "Controller/VertexHandleManager.h"
+#include "Model/Picker.h"
 #include "Renderer/Text/TextRenderer.h"
 #include "Utility/VecMath.h"
 
-#include <algorithm>
-#include <cassert>
+#include <vector>
 
 using namespace TrenchBroom::Math;
 
@@ -39,11 +39,15 @@ namespace TrenchBroom {
     namespace Controller {
         class MoveVerticesTool : public MoveTool {
         protected:
+            static const float MaxVertexDistance;
+            
             typedef enum {
                 VMMove,
                 VMSplit,
                 VMSnap
             } VertexToolMode;
+            
+            typedef std::vector<Model::VertexHandleHit*> HandleHitList;
             
             VertexHandleManager m_handleManager;
             VertexToolMode m_mode;
@@ -52,6 +56,8 @@ namespace TrenchBroom {
             Renderer::Text::TextRenderer<Vec3f, Vec3f::LexicographicOrder>* m_textRenderer;
             Renderer::Text::TextRenderer<Vec3f, Vec3f::LexicographicOrder>::SimpleTextRendererFilter m_textFilter;
             Vec3f m_dragHandlePosition;
+            
+            HandleHitList firstHits(Model::PickResult& pickResult) const;
             
             bool isApplicable(InputState& inputState, Vec3f& hitPoint);
             wxString actionName();

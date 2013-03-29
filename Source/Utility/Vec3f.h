@@ -254,6 +254,14 @@ namespace TrenchBroom {
                 return this->dot(*this);
             }
             
+            inline float distanceTo(const Vec3f& other) const {
+                return (*this - other).length();
+            }
+            
+            inline float squaredDistanceTo(const Vec3f& other) const {
+                return (*this - other).lengthSquared();
+            }
+            
             inline Vec3f& normalize() {
                 float l = length();
                 x /= l;
