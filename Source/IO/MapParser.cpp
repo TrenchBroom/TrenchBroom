@@ -238,12 +238,17 @@ namespace TrenchBroom {
                     case TokenType::CBrace: {
                         if (indicator != NULL) indicator->update(static_cast<int>(token.position()));
                         
-                        Model::Brush* brush = new Model::Brush(worldBounds, forceIntegerFacePoints, faces);
-                        brush->setFilePosition(firstLine, token.line() - firstLine);
-                        if (!brush->closed())
-                            m_console.warn("Non-closed brush at line %i", firstLine);
-                        
-                        return brush;
+                        try {
+                            Model::Brush* brush = new Model::Brush(worldBounds, forceIntegerFacePoints, faces);
+                            brush->setFilePosition(firstLine, token.line() - firstLine);
+                            if (!brush->closed())
+                                m_console.warn("Non-closed brush at line %i", firstLine);
+                            return brush;
+                        } catch (Model::GeometryException e) {
+                            m_console.warn("Invalid brush at line %i", firstLine);
+                            Utility::deleteAll(faces);
+                            return NULL;
+                        }
                     }
                     default: {
                         Utility::deleteAll(faces);

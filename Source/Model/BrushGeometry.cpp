@@ -1449,7 +1449,7 @@ namespace TrenchBroom {
                 if (result == Redundant)
                     droppedFaces.insert(faces[i]);
                 else if (result == Null)
-                    return false;
+                    throw GeometryException("Empty brush");
             }
             for (size_t i = 0; i < vertices.size(); i++)
                 vertices[i]->position.correct();
