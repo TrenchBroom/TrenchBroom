@@ -99,8 +99,8 @@ namespace TrenchBroom {
                     newVertex->position[i] = start->position[i] + dot * (end->position[i] - start->position[i]);
             }
 
-            // cheat a little bit
-            newVertex->position.correct(0.01f);
+            // cheat a little bit?, just like QBSP
+            newVertex->position.correct();
             
             if (start->mark == Vertex::Drop)
                 start = newVertex;
