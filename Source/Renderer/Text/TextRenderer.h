@@ -231,15 +231,17 @@ namespace TrenchBroom {
                             const Anchor& anchor = entry.textAnchor();
                             const Vec3f position = anchor.position();
                             const Vec3f cameraLocal = context.camera().toCameraCoordinateSystem(position);
-                            const Vec2f offset(Vec2f(cameraLocal.x, cameraLocal.y).rounded());
-                            
-                            const Vec2f::List& vertices = entry.vertices();
-                            for (size_t j = 0; j < vertices.size() / 2; j++) {
-                                const Vec2f& vertex = vertices[2 * j];
-                                const Vec2f& texCoords = vertices[2 * j + 1];
+                            if (cameraLocal.z >= context.camera().nearPlane()) {
+                                const Vec2f offset(Vec2f(cameraLocal.x, cameraLocal.y).rounded());
                                 
-                                vertexArray.addAttribute(vertex + offset);
-                                vertexArray.addAttribute(texCoords);
+                                const Vec2f::List& vertices = entry.vertices();
+                                for (size_t j = 0; j < vertices.size() / 2; j++) {
+                                    const Vec2f& vertex = vertices[2 * j];
+                                    const Vec2f& texCoords = vertices[2 * j + 1];
+                                    
+                                    vertexArray.addAttribute(vertex + offset);
+                                    vertexArray.addAttribute(texCoords);
+                                }
                             }
                         }
                         
